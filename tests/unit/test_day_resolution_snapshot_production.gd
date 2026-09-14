@@ -177,18 +177,29 @@ const SAVE_MANAGER := preload("res://autoload/SaveManager.gd")
 
 
 func _real_checkpoint_port() -> Object:
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("dwm7e6").path_join(str(randi()))
-	DirAccess.make_dir_recursive_absolute(root)
+	var created: Dictionary = TemporaryStorage.create("day-resolution-snapshot-production")
+	assert_true(created.get("ok", false), created.get("message", "temporary storage unavailable"))
+	if not created.get("ok", false):
+		return null
+	var root: String = str(created.get("value", ""))
 	var manager: Node = SAVE_MANAGER.new()
 	add_child_autofree(manager)
-	manager.initialize(STORAGE.new(root))
+	var initialized: Dictionary = manager.initialize(STORAGE.new(root))
+	assert_true(initialized.get("ok", false), str(initialized))
+	if not initialized.get("ok", false):
+		return null
 	var schedule_restore: Dictionary = _schedule_restore_fixture()
+	if schedule_restore.is_empty():
+		return null
 	manager._restore_participants = {
 		"schedule_view": schedule_restore["value"]["participant"],
 	}
 	var port: Object = REAL_CHECKPOINT_PORT.new(manager)
 	var gate: Object = GATE.new()
-	port.configure_fatal_latch(gate)
+	var configured: Dictionary = port.configure_fatal_latch(gate)
+	assert_true(configured.get("ok", false), str(configured))
+	if not configured.get("ok", false):
+		return null
 	# The journal must know the live run before it will issue a sequence for it.
 	manager._journal.reset(str(GameState._run_lifecycle.to_dict()["run_id"]))
 	return port
@@ -196,7 +207,11 @@ func _real_checkpoint_port() -> Object:
 
 func test_real_checkpoint_port_accepts_the_produced_bundle() -> void:
 	var bundle := _bundle(_port())
-	var prepared: Dictionary = _real_checkpoint_port().prepare(bundle, &"day_start", {"kind": &"none", "reason": &"stage"})
+	var checkpoint_port: Object = _real_checkpoint_port()
+	if checkpoint_port == null:
+		return
+	var prepared: Dictionary = checkpoint_port.prepare(
+		bundle, &"day_start", {"kind": &"none", "reason": &"stage"})
 	assert_false(str(prepared.get("code", "")) == "invalid_checkpoint_inputs",
 		"the real port must no longer reject the produced bundle: " + str(prepared))
 	assert_true(prepared.get("ok", false), str(prepared))

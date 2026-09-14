@@ -1,4 +1,7 @@
 extends "res://addons/gut/test.gd"
+
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
+
 # Plan 01 Task 8 Step 8.2: RESUME across every presentation crash cut (dwm-p2r.18).
 #
 # WHAT THIS FILE OWNS. Step 8.2 asks for a crash at each boundary of a presentation -- before intent
@@ -72,11 +75,13 @@ var _commands: Dictionary = {}
 
 func before_each() -> void:
 	_commands = {}
+	_root = ""
 	_root_counter += 1
-	var wrapper: String = OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
-	_root = wrapper.path_join("presentation-resume-%d" % _root_counter)
-	assert_eq(DirAccess.make_dir_recursive_absolute(_root), OK)
+	var result: Dictionary = TEMPORARY_STORAGE.create("presentation-resume-%d" % _root_counter)
+	assert_true(result.get("ok", false), result.get("message", ""))
+	if not result.get("ok", false):
+		return
+	_root = str(result["value"])
 
 	var loaded: Dictionary = REGISTRY.load_current()
 	assert_true(loaded.get("ok", false), str(loaded))
@@ -155,6 +160,8 @@ func _crash(lifecycle_bytes: Dictionary, contacts: Dictionary) -> void:
 ## from the plan's point of view precisely BECAUSE derivation is a pure function of persisted bytes --
 ## which is what makes an un-persisted root a corruption rather than an inconvenience.
 func test_a_crash_before_or_after_intent_derivation_rebuilds_the_same_children() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	var first := _await_date_presentation()
 	if first.is_empty():
@@ -179,6 +186,8 @@ func test_a_crash_before_or_after_intent_derivation_rebuilds_the_same_children()
 ## dates keep ordinals 0 and 1 across a crash at the FIRST of them -- a renumbering here would
 ## silently re-point the second date's identity at the first date's row.
 func test_a_crash_never_renumbers_a_surviving_presentation() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(6, [
 		_date("d-lav", 0, "lavinia", 6),
 		_date("d-pri", 1, "priscilla", 6),
@@ -218,6 +227,8 @@ func test_a_crash_never_renumbers_a_surviving_presentation() -> void:
 ## because the token is a function of the completion id and the command hash rather than of any
 ## live handle. An unfinished presentation is therefore replayable rather than stranded.
 func test_a_crash_after_the_route_command_replays_the_identical_command_and_token() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	var request := _await_date_presentation()
 	if request.is_empty():
@@ -249,6 +260,8 @@ func test_a_crash_after_the_route_command_replays_the_identical_command_and_toke
 ## A duplicate runtime end is a no-op, not a second completion: the owner clears its retained
 ## timeline BEFORE it emits, so only the first end can produce a receipt.
 func test_a_duplicate_physical_completion_publishes_exactly_one_receipt() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	var request := _await_date_presentation()
 	if request.is_empty():
@@ -272,6 +285,8 @@ func test_a_duplicate_physical_completion_publishes_exactly_one_receipt() -> voi
 ## envelope built from it is identical too -- so a crash between "the port validated it" and "the
 ## coordinator checkpointed it" resumes onto exactly the same durable bytes.
 func test_a_settled_completion_replays_the_identical_receipt_and_envelope() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	var request := _await_date_presentation()
 	if request.is_empty():
@@ -308,6 +323,8 @@ func test_a_settled_completion_replays_the_identical_receipt_and_envelope() -> v
 ## missing physical receipt" is the same law seen from the other side: the stage cannot complete
 ## from anything except the owner's own evidence.
 func test_a_receipt_that_does_not_bind_the_command_never_reaches_a_stage() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	var request := _await_date_presentation()
 	if request.is_empty():
@@ -341,6 +358,8 @@ func test_a_receipt_that_does_not_bind_the_command_never_reaches_a_stage() -> vo
 ## Once the stage is durable the presentation is OVER. A crash after the checkpoint must resume
 ## past it and must never present the same date a second time.
 func test_a_crash_after_the_stage_checkpoint_never_presents_again() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	var request := _await_date_presentation()
 	if request.is_empty():
@@ -371,6 +390,8 @@ func test_a_crash_after_the_stage_checkpoint_never_presents_again() -> void:
 ## of "never replay a committed recovery/date effect": a superseded date completes as a recorded
 ## miss and starts no board at all.
 func test_a_superseded_date_never_presents_across_a_crash() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	_game_state.pending_hospital = true
 	var walked := _walk_until_date_substage()
@@ -393,6 +414,8 @@ func test_a_superseded_date_never_presents_across_a_crash() -> void:
 ## the caller's completion folded in: presentation evidence for a presentation that provably
 ## never happened, persisted by RunLifecycle without owner validation. The door refuses instead.
 func test_the_presentation_seam_refuses_a_superseded_date_transaction() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	_game_state.pending_hospital = true
 	var walked := _walk_until_date_substage()
@@ -431,6 +454,8 @@ func test_the_presentation_seam_refuses_a_superseded_date_transaction() -> void:
 ## the FROZEN committed entry's participants, the route transaction from the substage record --
 ## and the impostor identifiers riding the untrusted request must contribute nothing.
 func test_a_dating_round_begins_from_the_active_date_substage_evidence() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	var walked := _walk_until_date_substage()
 	assert_false(walked.is_empty(), "the walk reached the date substage pause")
@@ -470,6 +495,8 @@ func test_a_dating_round_begins_from_the_active_date_substage_evidence() -> void
 ## durable supersession set from the completed hospital stage's receipt -- the same plan-read
 ## the settle seam uses -- and refuses.
 func test_a_superseded_date_substage_yields_no_dating_evidence() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	_game_state.pending_hospital = true
 	var walked := _walk_until_date_substage()
@@ -494,6 +521,8 @@ func test_a_superseded_date_substage_yields_no_dating_evidence() -> void:
 ## check would hit the COMPLETED slot-0 substage first (substages ascend by slot) and stamp
 ## the wrong date's identity into the round.
 func test_dating_evidence_names_the_active_date_not_a_settled_one() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(6, [_date("d-lav", 0, "lavinia", 6), _date("d-pri", 1, "priscilla", 6)])
 	var first := _await_date_presentation()
 	assert_false(first.is_empty(), "the first date paused")
@@ -559,6 +588,8 @@ func test_dating_evidence_names_the_active_date_not_a_settled_one() -> void:
 ## would move the intent for reasons unrelated to `pending_hospital`), and `_registry` /
 ## `_fingerprint` are loaded once in `before_each` rather than rebuilt per boot.
 func test_a_crash_across_the_hospital_presentation_restores_the_flag_with_the_plan() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	_game_state.pending_hospital = true
 

@@ -1,4 +1,7 @@
 extends "res://addons/gut/test.gd"
+
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
+
 # Crash-cut recovery for the shared logical-day identity (Plan 01 Task 7 Step 7.3a, dwm-p2r.14).
 #
 # WHAT THIS FILE OWNS, as distinct from tests/unit/test_causal_day_advance_identity_port.gd. The
@@ -23,11 +26,13 @@ var _root_counter := 0
 
 
 func before_each() -> void:
-	var wrapper: String = OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
+	_root = ""
 	_root_counter += 1
-	_root = wrapper.path_join("causal-day-recovery-%d" % _root_counter)
-	assert_eq(DirAccess.make_dir_recursive_absolute(_root), OK)
+	var result: Dictionary = TEMPORARY_STORAGE.create("causal-day-recovery-%d" % _root_counter)
+	assert_true(result.get("ok", false), result.get("message", ""))
+	if not result.get("ok", false):
+		return
+	_root = str(result["value"])
 
 
 ## One complete set of process owners over the SHARED on-disk root. Calling this again after
@@ -47,6 +52,8 @@ func _owners() -> Dictionary:
 # ---- the crash cuts ----
 
 func test_a_crash_before_the_root_commit_leaves_no_allocation() -> void:
+	if _root.is_empty():
+		return
 	var owners := _owners()
 	var request := _advance_request(owners, 3)
 	var prepared: Dictionary = owners["port"].prepare_advance(request)
@@ -65,6 +72,8 @@ func test_a_crash_before_the_root_commit_leaves_no_allocation() -> void:
 
 
 func test_a_crash_after_the_root_commit_replays_the_same_bytes() -> void:
+	if _root.is_empty():
+		return
 	var owners := _owners()
 	var request := _advance_request(owners, 3)
 	var prepared: Dictionary = owners["port"].prepare_advance(request)
@@ -98,6 +107,8 @@ func test_a_crash_after_the_root_commit_replays_the_same_bytes() -> void:
 
 
 func test_recovery_is_idempotent_across_repeated_restarts() -> void:
+	if _root.is_empty():
+		return
 	var owners := _owners()
 	var request := _advance_request(owners, 2)
 	var first: Dictionary = owners["port"].prepare_advance(request)
@@ -121,6 +132,8 @@ func test_recovery_is_idempotent_across_repeated_restarts() -> void:
 
 
 func test_a_changed_request_under_a_committed_key_fails_closed() -> void:
+	if _root.is_empty():
+		return
 	var owners := _owners()
 	var request := _advance_request(owners, 3)
 	var prepared: Dictionary = owners["port"].prepare_advance(request)
@@ -143,6 +156,8 @@ func test_a_changed_request_under_a_committed_key_fails_closed() -> void:
 
 
 func test_six_successive_advances_yield_days_two_through_seven_and_no_day_eight() -> void:
+	if _root.is_empty():
+		return
 	var owners := _owners()
 	var targets: Array[int] = []
 	for source_day: int in range(1, 7):
@@ -166,6 +181,8 @@ func test_six_successive_advances_yield_days_two_through_seven_and_no_day_eight(
 
 
 func test_each_source_day_allocates_a_distinct_target_identity() -> void:
+	if _root.is_empty():
+		return
 	var owners := _owners()
 	var tokens: Dictionary = {}
 	for source_day: int in range(1, 7):

@@ -1,4 +1,7 @@
 extends "res://addons/gut/test.gd"
+
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
+
 # The NEGATIVE half of dwm-p2r.14's acceptance criteria, in one place (Plan 01 Task 8).
 #
 # WHY THIS FILE EXISTS. The bead's acceptance criteria end with a sentence no suite asserted:
@@ -125,11 +128,13 @@ var _commands: Dictionary = {}
 
 func before_each() -> void:
 	_commands = {}
+	_root = ""
 	_root_counter += 1
-	var wrapper: String = OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
-	_root = wrapper.path_join("adapter-negative-%d" % _root_counter)
-	assert_eq(DirAccess.make_dir_recursive_absolute(_root), OK)
+	var result: Dictionary = TEMPORARY_STORAGE.create("adapter-negative-%d" % _root_counter)
+	assert_true(result.get("ok", false), result.get("message", ""))
+	if not result.get("ok", false):
+		return
+	_root = str(result["value"])
 
 	var loaded: Dictionary = REGISTRY.load_current()
 	assert_true(loaded.get("ok", false), str(loaded))
@@ -166,6 +171,8 @@ func before_each() -> void:
 ## set, the three that survive are named rather than assumed, and the set is EXACT -- so this fails
 ## if a tenth caller fact is ever added, not only if one of the six returns.
 func test_the_committed_entry_contract_retired_the_old_nine_key_shape() -> void:
+	if _root.is_empty():
+		return
 	var entry_keys: Array = STATE_SCHEMA.ENTRY_KEYS
 	assert_eq(OLD_NINE_KEY_SHAPE.size(), 9, "the retired shape is the nine-key one")
 	for retired: String in RETIRED_ENTRY_FIELDS:
@@ -182,6 +189,8 @@ func test_the_committed_entry_contract_retired_the_old_nine_key_shape() -> void:
 ## real committed aggregate through the production commit port and requires the exact-key validator
 ## to reject each retired field, one at a time, on a committed entry.
 func test_every_retired_entry_field_is_refused_by_the_committed_validator() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	var aggregate: Dictionary = _committed_aggregate()
 	assert_true(STATE_SCHEMA.validate_aggregate(aggregate).get("ok", false),
@@ -200,6 +209,8 @@ func test_every_retired_entry_field_is_refused_by_the_committed_validator() -> v
 ## resolution froze, nor into the frozen context the adapter is handed. route_id is checked
 ## separately below, because the presentation REQUEST legitimately carries one.
 func test_no_retired_field_reaches_the_adapter_over_a_real_committed_schedule() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	var request := _await_presentation()
 	if request.is_empty():
@@ -218,6 +229,8 @@ func test_no_retired_field_reaches_the_adapter_over_a_real_committed_schedule() 
 ## producer emitted must equal the REGISTRY's route for that entry's action -- so the route is a
 ## registry fact, not a caller fact that merely moved.
 func test_the_presentation_route_is_a_registry_fact_and_never_an_entry_field() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	var request := _await_presentation()
 	if request.is_empty():
@@ -241,6 +254,8 @@ func test_the_presentation_route_is_a_registry_fact_and_never_an_entry_field() -
 ## its stage and its presentation kind -- which is the distinction that makes the claim meaningful
 ## rather than a blanket ban on the substring.
 func test_twofriends_survives_only_as_a_stage_and_never_as_a_route() -> void:
+	if _root.is_empty():
+		return
 	assert_false((STATE_SCHEMA.ACTION_KINDS as Array).has(PSEUDO_ROUTE),
 		"twofriends is not a committable action kind")
 	var routes: Dictionary = {}
@@ -259,6 +274,8 @@ func test_twofriends_survives_only_as_a_stage_and_never_as_a_route() -> void:
 ## The router half, stated for the retired name specifically: neither the pseudo-route nor the
 ## stage name is routable, because the only two semantic routes are Hospital and Dating.
 func test_the_router_refuses_the_pseudo_route_and_the_stage_name_alike() -> void:
+	if _root.is_empty():
+		return
 	var router: Node = load(ROUTER_PATH).new()
 	add_child_autofree(router)
 	assert_true(router.configure_schedule_presentation_ports(
@@ -280,6 +297,8 @@ func test_the_router_refuses_the_pseudo_route_and_the_stage_name_alike() -> void
 ## It goes red if anyone deletes the wire, and it goes red if the caller migrates into a Control
 ## node -- which is the failure mode Task 8 spent its whole budget removing.
 func test_the_walk_is_the_production_caller_of_route_presentation() -> void:
+	if _root.is_empty():
+		return
 	var callers: Array[String] = []
 	for path: String in _production_scripts("res://scripts") + _production_scripts("res://autoload"):
 		if path == ROUTER_PATH:
@@ -306,6 +325,8 @@ func test_the_walk_is_the_production_caller_of_route_presentation() -> void:
 ## assumed: a router method renamed on one side alone fails closed at composition, not at the first
 ## faint a player ever sees.
 func test_the_real_router_satisfies_the_capability_the_coordinator_requires() -> void:
+	if _root.is_empty():
+		return
 	var router: Node = load(ROUTER_PATH).new()
 	add_child_autofree(router)
 	var required: Array = load(COORDINATOR_PATH).PRESENTATION_ROUTER_METHODS
@@ -325,6 +346,8 @@ func test_the_real_router_satisfies_the_capability_the_coordinator_requires() ->
 ## makes "uncalled" a fact instead of a claim: it goes red the moment anyone wires the pseudo-route
 ## back into production.
 func test_the_legacy_pseudo_route_producer_has_no_caller_in_production() -> void:
+	if _root.is_empty():
+		return
 	var callers: Array[String] = []
 	for path: String in _production_scripts("res://scripts") + _production_scripts("res://autoload"):
 		if path == GAME_STATE_PATH:
@@ -344,6 +367,8 @@ func test_the_legacy_pseudo_route_producer_has_no_caller_in_production() -> void
 ## Exactly one object on the presentation path may start a timeline. Ports validate, scenes render,
 ## the router injects, the coordinator advances -- none of them touch the runtime.
 func test_only_the_narrative_owner_may_start_a_dialogic_timeline() -> void:
+	if _root.is_empty():
+		return
 	for path: String in NON_OWNER_PATHS:
 		var code := _code_lines(path)
 		for token: String in DIALOGIC_START_TOKENS:
@@ -359,6 +384,8 @@ func test_only_the_narrative_owner_may_start_a_dialogic_timeline() -> void:
 ## The ports carry the presentation forward, so a start method ON one of them would be a direct
 ## start with extra steps. Neither exposes one.
 func test_neither_presentation_port_exposes_a_timeline_start() -> void:
+	if _root.is_empty():
+		return
 	for port: RefCounted in [HOSPITAL_PORT.new(), DATING_PORT.new()]:
 		for forbidden: String in ["start_timeline", "start_timeline_id", "begin_physical"]:
 			assert_false(port.has_method(forbidden),
@@ -373,6 +400,8 @@ func test_neither_presentation_port_exposes_a_timeline_start() -> void:
 ## adapter set -- both ports and the narrative owner included -- cannot, because none of them names
 ## a gameplay owner or a mutation seam in executable code at all.
 func test_no_presentation_adapter_names_a_gameplay_mutation_seam() -> void:
+	if _root.is_empty():
+		return
 	for path: String in ADAPTER_PATHS:
 		var code := _code_lines(path)
 		for token: String in MUTATION_TOKENS:
@@ -384,6 +413,8 @@ func test_no_presentation_adapter_names_a_gameplay_mutation_seam() -> void:
 ## and would still pass. This requires the tokens to be present in the RAW file and absent from the
 ## code, so the sweep above cannot go vacuous unnoticed.
 func test_the_comment_stripper_is_doing_real_work() -> void:
+	if _root.is_empty():
+		return
 	var raw := FileAccess.get_file_as_string(HOSPITAL_SCENE_PATH)
 	var code := _code_lines(HOSPITAL_SCENE_PATH)
 	assert_true(raw.length() > 0, "the scene source is readable")

@@ -28,15 +28,21 @@ var _root_counter := 0
 
 
 func _isolated_root() -> String:
-	var wrapper: String = OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
 	_root_counter += 1
-	return wrapper.path_join("desktop-accessibility-%d" % _root_counter)
+	var created: Dictionary = TemporaryStorage.create(
+		"desktop-accessibility-%d" % _root_counter)
+	assert_true(created.get("ok", false), created.get("message", "temporary storage unavailable"))
+	if not created.get("ok", false):
+		return ""
+	return str(created.get("value", ""))
 
 
 func _fresh_issuer() -> RefCounted:
 	var file_ops: RefCounted = load(FILE_OPS_PATH).new()
-	var storage: Object = load(STORAGE_PATH).new(_isolated_root(), file_ops)
+	var root: String = _isolated_root()
+	if root.is_empty():
+		return null
+	var storage: Object = load(STORAGE_PATH).new(root, file_ops)
 	var namespace_source: RefCounted = load(NAMESPACE_SOURCE_PATH).new("3".repeat(64))
 	var store: RefCounted = load(ROOT_STORE_PATH).new()
 	assert_true(store.configure(storage, namespace_source).get("ok", false))
@@ -59,6 +65,8 @@ func _mint(issuer: Object, purpose: StringName) -> Dictionary:
 
 func test_debug_exposes_exactly_one_forced_cell_and_rejects_every_other_cell() -> void:
 	var issuer := _fresh_issuer()
+	if issuer == null:
+		return
 	var state_port: Object = load(FAKE_STATE_PORT_PATH).new()
 	state_port.identity_issuer = issuer
 	var coordinator: Object = load(ROUND_COORDINATOR_PATH).new()
@@ -102,6 +110,8 @@ func test_debug_exposes_exactly_one_forced_cell_and_rejects_every_other_cell() -
 
 func test_debug_rejects_every_other_cell_before_any_live_mutation() -> void:
 	var issuer := _fresh_issuer()
+	if issuer == null:
+		return
 	var state_port: Object = load(FAKE_STATE_PORT_PATH).new()
 	state_port.identity_issuer = issuer
 	var coordinator: Object = load(ROUND_COORDINATOR_PATH).new()

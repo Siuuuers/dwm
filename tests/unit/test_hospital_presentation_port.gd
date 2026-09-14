@@ -54,19 +54,42 @@ var _port: RefCounted
 var _root_receipt: Dictionary = {}
 var _ready_results: Array = []
 var _failures: Array = []
+var _fixture_ready := false
 
 
 func before_each() -> void:
 	# Let any preceding shared-runtime cleanup settle before detaching its autoload.
 	await get_tree().process_frame
 	await get_tree().process_frame
-	_owner_receipts.clear()
+	_fixture_ready = false
+	_saved_global_contacts = {}
+	_owner_receipts = []
+	_runtime = null
+	_runtime_adapter = null
+	_original_runtime = null
+	_original_runtime_index = 0
+	_original_layout = null
+	_original_layout_parent = null
+	_original_layout_index = 0
+	_settings = {}
+	_persistent = null
+	_had_persistent = false
+	_style_directory = {}
+	_native_starts = 0
+	_native_ends = 0
+	_issuer = null
+	_bridge = null
+	_owner = null
+	_port = null
+	_root_receipt = {}
 	_ready_results = []
 	_failures = []
 	_root_counter += 1
-	var root: String = OS.get_environment("DWM_TEST_ROOT").path_join(
-		"hospital-port-%d" % _root_counter)
-	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
+	var created: Dictionary = TemporaryStorage.create("hospital-port-%d" % _root_counter)
+	assert_true(created.get("ok", false), created.get("message", "temporary storage unavailable"))
+	if not created.get("ok", false):
+		return
+	var root: String = str(created.get("value", ""))
 	var store: RefCounted = ROOT_STORE.new()
 	assert_true(store.configure(JsonFileStorage.new(root), NAMESPACE_SOURCE.new()).get("ok", false))
 	assert_true(store.load_or_create().get("ok", false))
@@ -128,9 +151,12 @@ func before_each() -> void:
 		_ready_results.append(result.duplicate(true)))
 	_port.completion_failed.connect(func(failure: Dictionary) -> void:
 		_failures.append(failure.duplicate(true)))
+	_fixture_ready = true
 
 
 func after_each() -> void:
+	if not _fixture_ready:
+		return
 	GameState.contacts = _saved_global_contacts.duplicate(true)
 	# Every admitted return-only presentation drains through its real native end
 	# before its bridge, owner, layout, or runtime can be destroyed.
@@ -167,6 +193,14 @@ func after_each() -> void:
 		Engine.remove_meta("dialogic_persistent_style_info")
 	DialogicStylesUtil.style_directory = _style_directory
 	_original_layout_parent = null
+	_fixture_ready = false
+
+
+func _require_fixture() -> bool:
+	if _fixture_ready:
+		return true
+	assert_true(false, "the Hospital presentation fixture is unavailable")
+	return false
 
 
 # -------------------------------------------------------------------------------------------------
@@ -174,6 +208,8 @@ func after_each() -> void:
 # -------------------------------------------------------------------------------------------------
 
 func test_configure_is_idempotent_and_refuses_a_replacement_dependency() -> void:
+	if not _require_fixture():
+		return
 	var replayed: Dictionary = _port.configure(_issuer, _owner)
 	assert_true(replayed.get("ok", false))
 	assert_true(bool(replayed["value"]["already_configured"]))
@@ -187,6 +223,8 @@ func test_configure_is_idempotent_and_refuses_a_replacement_dependency() -> void
 
 
 func test_an_unconfigured_port_routes_nothing_and_starts_no_physical_presentation() -> void:
+	if not _require_fixture():
+		return
 	var fresh: RefCounted = PORT.new()
 	var begun: Dictionary = fresh.begin(_request())
 	assert_false(begun.get("ok", true))
@@ -196,6 +234,8 @@ func test_an_unconfigured_port_routes_nothing_and_starts_no_physical_presentatio
 
 
 func test_the_hospital_port_refuses_a_dating_challenge_owner() -> void:
+	if not _require_fixture():
+		return
 	# A faint presented by the relationship board would be a category error, so the owner check is
 	# on the exact adapter script and its declared kind, not on duck-typing.
 	var fresh: RefCounted = PORT.new()
@@ -206,6 +246,8 @@ func test_the_hospital_port_refuses_a_dating_challenge_owner() -> void:
 
 
 func test_an_incomplete_issuer_or_owner_is_refused() -> void:
+	if not _require_fixture():
+		return
 	var fresh: RefCounted = PORT.new()
 	assert_eq(fresh.configure(null, _owner).get("code"), &"invalid_identity_issuer")
 	assert_eq(fresh.configure(RefCounted.new(), _owner).get("code"), &"invalid_identity_issuer")
@@ -217,6 +259,8 @@ func test_an_incomplete_issuer_or_owner_is_refused() -> void:
 # -------------------------------------------------------------------------------------------------
 
 func test_a_valid_intent_returns_the_canonical_command_and_nothing_else() -> void:
+	if not _require_fixture():
+		return
 	var request := _request()
 	var begun: Dictionary = _port.begin(request)
 	assert_true(begun.get("ok", false), str(begun))
@@ -241,6 +285,8 @@ func test_a_valid_intent_returns_the_canonical_command_and_nothing_else() -> voi
 
 
 func test_the_request_member_set_is_exact() -> void:
+	if not _require_fixture():
+		return
 	var extra := _request()
 	extra["ending_id"] = "ending.alone"
 	assert_eq(_port.begin(extra).get("code"), &"invalid_presentation_intent",
@@ -251,6 +297,8 @@ func test_the_request_member_set_is_exact() -> void:
 
 
 func test_a_dating_route_is_refused_by_the_hospital_port() -> void:
+	if not _require_fixture():
+		return
 	var request := _request()
 	request["route_id"] = "dating"
 	var begun: Dictionary = _port.begin(request)
@@ -259,6 +307,8 @@ func test_a_dating_route_is_refused_by_the_hospital_port() -> void:
 
 
 func test_an_unregistered_locator_is_refused() -> void:
+	if not _require_fixture():
+		return
 	var request := _request({"timeline_id": "not.a.registered.timeline"})
 	var begun: Dictionary = _port.begin(request)
 	assert_false(begun.get("ok", true))
@@ -266,6 +316,8 @@ func test_an_unregistered_locator_is_refused() -> void:
 
 
 func test_the_hospital_context_member_set_and_kind_are_exact() -> void:
+	if not _require_fixture():
+		return
 	for mutation: Dictionary in [
 		{"kind": "solo"},
 		{"kind": "hospital", "day": 0},
@@ -284,6 +336,8 @@ func test_the_hospital_context_member_set_and_kind_are_exact() -> void:
 
 
 func test_hospital_context_arrays_must_be_sorted_and_unique() -> void:
+	if not _require_fixture():
+		return
 	# Hospital owns no semantic order for either array, so an unsorted or repeated member is a
 	# different preimage wearing the same meaning -- and H(context) would silently differ.
 	for bad: Array in [["b", "a"], ["a", "a"], ["a", ""], [1]]:
@@ -299,6 +353,8 @@ func test_hospital_context_arrays_must_be_sorted_and_unique() -> void:
 # -------------------------------------------------------------------------------------------------
 
 func test_an_unverified_resolution_root_is_refused_before_any_physical_start() -> void:
+	if not _require_fixture():
+		return
 	var request := _request()
 	var forged: Dictionary = (request["resolution_issuer_receipt"] as Dictionary).duplicate(true)
 	forged["receipt_id"] = "root.forged"
@@ -310,6 +366,8 @@ func test_an_unverified_resolution_root_is_refused_before_any_physical_start() -
 
 
 func test_a_locally_derived_completion_id_is_refused() -> void:
+	if not _require_fixture():
+		return
 	var request := _request()
 	request["completion_transaction_id"] = "completion.i.made.this.up"
 	var begun: Dictionary = _port.begin(request)
@@ -318,6 +376,8 @@ func test_a_locally_derived_completion_id_is_refused() -> void:
 
 
 func test_a_completion_child_of_the_wrong_kind_or_parent_is_refused() -> void:
+	if not _require_fixture():
+		return
 	var wrong_kind := _completion_child(_context(), &"hospital_miss")
 	var by_kind: Dictionary = _port.begin(_request({
 		"completion_transaction_id": str(wrong_kind["child_id"]),
@@ -338,6 +398,8 @@ func test_a_completion_child_of_the_wrong_kind_or_parent_is_refused() -> void:
 
 
 func test_every_projected_field_binds_the_completion_child() -> void:
+	if not _require_fixture():
+		return
 	# The completion child is anchored to the EXACT bytes it was derived for. Change any projected
 	# member and the honest child must stop matching.
 	for mutation: Dictionary in [
@@ -352,6 +414,8 @@ func test_every_projected_field_binds_the_completion_child() -> void:
 
 
 func test_a_changed_context_preimage_breaks_the_completion_binding() -> void:
+	if not _require_fixture():
+		return
 	# H(context) is a projected member, so a context that presents different bytes cannot reuse a
 	# completion child derived for the original ones.
 	var drifted := _context()
@@ -366,6 +430,8 @@ func test_a_changed_context_preimage_breaks_the_completion_binding() -> void:
 # -------------------------------------------------------------------------------------------------
 
 func test_a_byte_identical_replay_returns_the_identical_command_and_token() -> void:
+	if not _require_fixture():
+		return
 	var request := _request()
 	var first: Dictionary = _port.begin(request)
 	assert_true(first.get("ok", false), str(first))
@@ -378,6 +444,8 @@ func test_a_byte_identical_replay_returns_the_identical_command_and_token() -> v
 
 
 func test_a_drifted_replay_cannot_overwrite_the_stored_command() -> void:
+	if not _require_fixture():
+		return
 	# Every request member is either projected into the completion child or is ancestry, so drifted
 	# bytes are refused by the BINDING before the command-identity guard is even reached. What
 	# matters for a restore is what survives the refusal: the honest command, unchanged.
@@ -402,6 +470,8 @@ func test_a_drifted_replay_cannot_overwrite_the_stored_command() -> void:
 
 
 func test_a_bypassed_binding_still_conflicts_on_command_identity() -> void:
+	if not _require_fixture():
+		return
 	# Defence in depth for the same law: complete() compares the supplied command against the one
 	# this port actually issued, so a command mutated AFTER begin() is a conflict, not a completion.
 	var request := _request()
@@ -425,6 +495,8 @@ func test_a_bypassed_binding_still_conflicts_on_command_identity() -> void:
 # -------------------------------------------------------------------------------------------------
 
 func test_a_trusted_owner_completion_produces_the_exact_frozen_receipt_once() -> void:
+	if not _require_fixture():
+		return
 	var request := _request()
 	var begun: Dictionary = _port.begin(request)
 	assert_true(begun.get("ok", false), str(begun))
@@ -453,6 +525,8 @@ func test_a_trusted_owner_completion_produces_the_exact_frozen_receipt_once() ->
 
 
 func test_a_duplicate_owner_emission_returns_the_same_receipt_without_a_second_publication() -> void:
+	if not _require_fixture():
+		return
 	var request := _request()
 	assert_true(_port.begin(request).get("ok", false))
 	await _end_runtime_timeline()
@@ -475,6 +549,8 @@ func test_a_duplicate_owner_emission_returns_the_same_receipt_without_a_second_p
 
 
 func test_a_scene_authored_receipt_never_reaches_a_stage() -> void:
+	if not _require_fixture():
+		return
 	var request := _request()
 	var begun: Dictionary = _port.begin(request)
 	assert_true(begun.get("ok", false), str(begun))
@@ -498,6 +574,8 @@ func test_a_scene_authored_receipt_never_reaches_a_stage() -> void:
 
 
 func test_owner_receipt_drift_is_refused_before_any_stage_mutation() -> void:
+	if not _require_fixture():
+		return
 	var request := _request()
 	var begun: Dictionary = _port.begin(request)
 	assert_true(begun.get("ok", false), str(begun))
@@ -519,6 +597,8 @@ func test_owner_receipt_drift_is_refused_before_any_stage_mutation() -> void:
 
 
 func test_a_command_this_port_never_issued_is_refused() -> void:
+	if not _require_fixture():
+		return
 	var request := _request()
 	var command := request.duplicate(true)
 	command["command_sha256"] = "a".repeat(64)
@@ -532,6 +612,8 @@ func test_a_command_this_port_never_issued_is_refused() -> void:
 
 
 func test_a_tampered_command_is_a_conflict_not_a_completion() -> void:
+	if not _require_fixture():
+		return
 	var request := _request()
 	var begun: Dictionary = _port.begin(request)
 	assert_true(begun.get("ok", false), str(begun))
@@ -549,6 +631,8 @@ func test_a_tampered_command_is_a_conflict_not_a_completion() -> void:
 
 
 func test_the_complete_request_member_set_is_exact() -> void:
+	if not _require_fixture():
+		return
 	assert_eq(_port.complete({"presentation_command": {}}).get("code"),
 		&"invalid_presentation_completion")
 	assert_eq(_port.complete({
@@ -557,6 +641,8 @@ func test_the_complete_request_member_set_is_exact() -> void:
 
 
 func test_an_owner_failure_publishes_exactly_one_failure_and_no_completion() -> void:
+	if not _require_fixture():
+		return
 	assert_true(_port.begin(_request()).get("ok", false))
 	_owner.physical_completion_failed.emit({"ok": false, "code": &"narrative_runtime_halted"})
 	assert_eq(_failures.size(), 1)
@@ -564,6 +650,8 @@ func test_an_owner_failure_publishes_exactly_one_failure_and_no_completion() -> 
 
 
 func test_an_emission_for_an_unknown_command_fails_rather_than_completing() -> void:
+	if not _require_fixture():
+		return
 	assert_true(_port.begin(_request()).get("ok", false))
 	_owner.physical_completion_ready.emit({
 		"owner_kind": "narrative", "physical_token": "t", "command_sha256": "s",

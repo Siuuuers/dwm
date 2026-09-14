@@ -1,4 +1,6 @@
 extends "res://addons/gut/test.gd"
+
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 # Bootstrap ownership of the Schedule-Done presentation layer (Plan 01 Task 8 Step 8.6, dwm-p2r.14).
 #
 # WHAT THIS FILE OWNS. That the composition root builds EXACTLY ONE narrative presentation owner,
@@ -53,8 +55,12 @@ class HarnessBootstrap extends "res://autoload/ApplicationBootstrap.gd":
 
 
 func before_each() -> void:
+	_bootstrap = null
 	var root_store: RefCounted = ROOT_STORE.new()
-	assert_true(root_store.configure(JsonFileStorage.new(_isolated_root()),
+	var root := _isolated_root()
+	if root.is_empty():
+		return
+	assert_true(root_store.configure(JsonFileStorage.new(root),
 		NAMESPACE_SOURCE.new()).get("ok", false))
 	assert_true(root_store.load_or_create().get("ok", false))
 	_issuer = ISSUER.new()
@@ -73,10 +79,10 @@ func before_each() -> void:
 
 
 func _isolated_root() -> String:
-	var wrapper: String = OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
 	_root_counter += 1
-	return wrapper.path_join("presentation-wiring-%d" % _root_counter)
+	var created: Dictionary = TEMPORARY_STORAGE.create("presentation-wiring-%d" % _root_counter)
+	assert_true(created.get("ok", false), created.get("message", ""))
+	return str(created.get("value", "")) if created.get("ok", false) else ""
 
 
 func _compose() -> Dictionary:
@@ -92,6 +98,8 @@ func _retained(field: String) -> Object:
 # -------------------------------------------------------------------------------------------------
 
 func test_composition_retains_exactly_one_of_each_presentation_object() -> void:
+	if _bootstrap == null:
+		return
 	var composed: Dictionary = _compose()
 	assert_true(composed.get("ok", false), str(composed))
 	for field: String in RETAINED_FIELDS:
@@ -102,6 +110,8 @@ func test_composition_retains_exactly_one_of_each_presentation_object() -> void:
 
 
 func test_identical_startup_replay_reuses_every_instance() -> void:
+	if _bootstrap == null:
+		return
 	assert_true(_compose().get("ok", false))
 	var first: Dictionary = {}
 	for field: String in RETAINED_FIELDS:
@@ -115,6 +125,8 @@ func test_identical_startup_replay_reuses_every_instance() -> void:
 
 
 func test_the_hospital_port_retains_the_exact_bootstrap_owned_adapter() -> void:
+	if _bootstrap == null:
+		return
 	# A second owner observing the same bridge would turn one timeline ending into two "trusted"
 	# completions, so the port's retained owner identity is checked, not merely its type.
 	assert_true(_compose().get("ok", false))
@@ -133,6 +145,8 @@ func test_the_hospital_port_retains_the_exact_bootstrap_owned_adapter() -> void:
 ## ports this coordinator never adopted, so its completion would arrive from an object the
 ## coordinator refuses -- a presentation that plays and can never be checkpointed.
 func test_the_coordinator_dispatches_through_the_exact_router_the_ports_were_injected_into() -> void:
+	if _bootstrap == null:
+		return
 	assert_true(_compose().get("ok", false))
 	assert_true(_router.is_schedule_presentation_ports_configured(),
 		"the router really did receive the ports")
@@ -150,6 +164,8 @@ func test_the_coordinator_dispatches_through_the_exact_router_the_ports_were_inj
 
 
 func test_the_adapter_retains_the_existing_bridge_rather_than_a_new_one() -> void:
+	if _bootstrap == null:
+		return
 	assert_true(_compose().get("ok", false))
 	var replayed: Dictionary = _retained("_retained_presentation_owner_adapter").configure(_bridge)
 	assert_true(replayed.get("ok", false), "the adapter already holds the existing bridge")
@@ -157,6 +173,8 @@ func test_the_adapter_retains_the_existing_bridge_rather_than_a_new_one() -> voi
 
 
 func test_composition_without_an_issuer_or_bridge_fails_closed() -> void:
+	if _bootstrap == null:
+		return
 	var without_issuer: Node = HarnessBootstrap.new()
 	autofree(without_issuer)
 	without_issuer.set("targets", {"DialogicBridge": _bridge})
@@ -176,6 +194,8 @@ func test_composition_without_an_issuer_or_bridge_fails_closed() -> void:
 # -------------------------------------------------------------------------------------------------
 
 func test_the_coordinator_receives_the_exact_retained_port_identities() -> void:
+	if _bootstrap == null:
+		return
 	assert_true(_compose().get("ok", false))
 	var replayed: Dictionary = _coordinator.configure_presentation_ports(
 		_retained("_retained_hospital_presentation_port"),
@@ -189,6 +209,8 @@ func test_the_coordinator_receives_the_exact_retained_port_identities() -> void:
 
 
 func test_the_coordinator_refuses_a_replacement_port() -> void:
+	if _bootstrap == null:
+		return
 	assert_true(_compose().get("ok", false))
 	var replaced: Dictionary = _coordinator.configure_presentation_ports(
 		HOSPITAL_PORT.new(), DATING_PORT.new())
@@ -197,6 +219,8 @@ func test_the_coordinator_refuses_a_replacement_port() -> void:
 
 
 func test_the_coordinator_refuses_an_incomplete_presentation_capability() -> void:
+	if _bootstrap == null:
+		return
 	var fresh: RefCounted = COORDINATOR.new()
 	assert_eq(fresh.configure_presentation_ports(RefCounted.new(), DATING_PORT.new()).get("code"),
 		&"presentation_ports_conflict")
@@ -205,6 +229,8 @@ func test_the_coordinator_refuses_an_incomplete_presentation_capability() -> voi
 
 
 func test_the_router_receives_the_exact_retained_port_identities() -> void:
+	if _bootstrap == null:
+		return
 	assert_true(_compose().get("ok", false))
 	assert_true(_router.is_schedule_presentation_ports_configured())
 	var replayed: Dictionary = _router.configure_schedule_presentation_ports(
@@ -217,6 +243,8 @@ func test_the_router_receives_the_exact_retained_port_identities() -> void:
 
 
 func test_the_router_refuses_a_replacement_port() -> void:
+	if _bootstrap == null:
+		return
 	assert_true(_compose().get("ok", false))
 	var replaced: Dictionary = _router.configure_schedule_presentation_ports(
 		HOSPITAL_PORT.new(), DATING_PORT.new())
@@ -229,6 +257,8 @@ func test_the_router_refuses_a_replacement_port() -> void:
 # -------------------------------------------------------------------------------------------------
 
 func test_hospital_is_ready_and_dating_is_deliberately_not() -> void:
+	if _bootstrap == null:
+		return
 	var composed: Dictionary = _compose()
 	assert_true(composed.get("ok", false))
 	assert_true(bool(composed["value"]["hospital_ready"]))
@@ -239,6 +269,8 @@ func test_hospital_is_ready_and_dating_is_deliberately_not() -> void:
 
 
 func test_bootstrap_configures_no_dating_owner_at_all() -> void:
+	if _bootstrap == null:
+		return
 	# The handoff is a MISSING OWNER, and it must be missing because nobody configured one -- not
 	# because a configured one happens to answer false.
 	assert_true(_compose().get("ok", false))
@@ -249,6 +281,8 @@ func test_bootstrap_configures_no_dating_owner_at_all() -> void:
 
 
 func test_the_router_refuses_to_route_an_unready_dating_presentation() -> void:
+	if _bootstrap == null:
+		return
 	assert_true(_compose().get("ok", false))
 	var routed: Dictionary = _router.route_presentation("dating", {
 		"route_id": "dating", "timeline_id": "dating.solo.sylvia.day3.pre_challenge",
@@ -259,6 +293,8 @@ func test_the_router_refuses_to_route_an_unready_dating_presentation() -> void:
 
 
 func test_the_router_refuses_an_unknown_route_or_a_mismatched_command() -> void:
+	if _bootstrap == null:
+		return
 	assert_true(_compose().get("ok", false))
 	assert_eq(_router.route_presentation("main", {"route_id": "main"}).get("code"),
 		&"invalid_presentation_route")
@@ -269,6 +305,8 @@ func test_the_router_refuses_an_unknown_route_or_a_mismatched_command() -> void:
 
 
 func test_an_unconfigured_router_routes_nothing() -> void:
+	if _bootstrap == null:
+		return
 	var fresh: Node = load("res://autoload/SceneRouter.gd").new()
 	add_child_autofree(fresh)
 	assert_false(fresh.is_schedule_presentation_ports_configured())

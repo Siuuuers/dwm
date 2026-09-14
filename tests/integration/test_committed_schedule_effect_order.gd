@@ -1,4 +1,7 @@
 extends "res://addons/gut/test.gd"
+
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
+
 # Committed ordinary effects, applied EXACTLY ONCE in causal order
 # (Plan 01 Task 7 Step 7.2, dwm-p2r.14).
 #
@@ -51,7 +54,10 @@ var _presentation_receipts: Array[Dictionary] = []
 
 func before_each() -> void:
 	_commands = {}
+	_root = ""
 	_root = _isolated_root()
+	if _root.is_empty():
+		return
 	_storage = JsonFileStorage.new(_root)
 	_root_store = ROOT_STORE.new()
 	assert_true(_root_store.configure(_storage, NAMESPACE_SOURCE.new()).get("ok", false))
@@ -100,17 +106,17 @@ func before_each() -> void:
 
 
 func _isolated_root() -> String:
-	var wrapper: String = OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
 	_root_counter += 1
-	var root: String = wrapper.path_join("committed-effect-order-%d" % _root_counter)
-	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
-	return root
+	var result: Dictionary = TEMPORARY_STORAGE.create("committed-effect-order-%d" % _root_counter)
+	assert_true(result.get("ok", false), result.get("message", ""))
+	return str(result.get("value", "")) if result.get("ok", false) else ""
 
 
 # ---- Step 7.2: registered effects, exactly once, per committed ordinary entry ----
 
 func test_each_committed_ordinary_entry_applies_its_registered_effects_exactly_once() -> void:
+	if _root.is_empty():
+		return
 	# `working` is pressure:+2, health:-2, money:+30 in the v1 registry. Committing one of them
 	# must move the owner by exactly that much -- no more, and never twice.
 	var before_money: int = _game_state.money
@@ -126,6 +132,8 @@ func test_each_committed_ordinary_entry_applies_its_registered_effects_exactly_o
 
 
 func test_repeated_ordinary_entries_apply_once_each_through_distinct_substage_ids() -> void:
+	if _root.is_empty():
+		return
 	# `rest` is repeatable (pressure:-2, health:+1). Two committed rests are TWO applications
 	# through two distinct schedule_entry ids and two distinct zero-based substage ordinals --
 	# they must not collapse into a single effect transaction.
@@ -148,6 +156,8 @@ func test_repeated_ordinary_entries_apply_once_each_through_distinct_substage_id
 
 
 func test_ordinary_effects_commit_before_the_hospital_and_date_stages() -> void:
+	if _root.is_empty():
+		return
 	# req.flow.hospital_order at the level that matters for effects: by the time the walk reaches
 	# hospital_if_triggered, every committed ordinary effect is already durable.
 	var before_money: int = _game_state.money
@@ -177,6 +187,8 @@ func test_ordinary_effects_commit_before_the_hospital_and_date_stages() -> void:
 
 
 func test_a_faint_supersedes_every_committed_date_before_any_board_runs() -> void:
+	if _root.is_empty():
+		return
 	# req.flow.hospital_order END TO END, over the real committed aggregate: ordinary effects, then
 	# condition truth, then Hospital, then the dates Hospital did not supersede.
 	_commit_and_begin(3, [
@@ -208,6 +220,8 @@ func test_a_faint_supersedes_every_committed_date_before_any_board_runs() -> voi
 ## The flag is cleared HERE, between the two reads, because that window is the whole defect. The
 ## file elsewhere enforces exactly this rule ("never from live state" on `_committed_entry`).
 func test_a_hospital_that_presented_records_the_faint_it_presented_on() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 2, "lavinia", 3)])
 	_game_state.pending_hospital = true
 
@@ -235,6 +249,8 @@ func test_a_hospital_that_presented_records_the_faint_it_presented_on() -> void:
 
 
 func test_without_a_faint_the_committed_dates_survive() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 2, "lavinia", 3)])
 	assert_false(_game_state.pending_hospital, "no faint was resolved")
 
@@ -250,6 +266,8 @@ func test_without_a_faint_the_committed_dates_survive() -> void:
 
 
 func test_a_superseded_sylvia_date_commits_its_witness_into_the_contacts_index() -> void:
+	if _root.is_empty():
+		return
 	# The Hospital transaction commits the byte-identical witness into the append-only Contacts
 	# handoff index. The index outlives the resolution plan so dwm-oyo.4 can consume it.
 	_commit_and_begin(3, [_date("d-syl", 0, "sylvia", 3)])
@@ -282,6 +300,8 @@ func test_a_superseded_sylvia_date_commits_its_witness_into_the_contacts_index()
 
 
 func test_a_faint_without_a_sylvia_date_writes_no_witness() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	_game_state.pending_hospital = true
 	var hospital: Dictionary = _receipt_for_stage("hospital_if_triggered")
@@ -294,6 +314,8 @@ func test_a_faint_without_a_sylvia_date_writes_no_witness() -> void:
 
 
 func test_rolling_back_the_hospital_stage_restores_the_contacts_index() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-syl", 0, "sylvia", 3)])
 	_game_state.pending_hospital = true
 	var hospital: Dictionary = _receipt_for_stage("hospital_if_triggered")

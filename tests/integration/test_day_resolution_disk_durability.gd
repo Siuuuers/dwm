@@ -1,4 +1,7 @@
 extends "res://addons/gut/test.gd"
+
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
+
 # dwm-7e6 acceptance: the REAL coordinator + REAL SaveManagerCheckpointPort + REAL SaveManager
 # write a genuine disk autosave whose snapshot round-trips. Before real snapshot production this
 # path was impossible: the port emitted a {run_id, day} stub and the real checkpoint port rejected
@@ -28,8 +31,12 @@ var _manager: Node
 
 func before_each() -> void:
 	GameState.reset_game()
-	_root = OS.get_environment("DWM_TEST_ROOT").path_join("dwm7e6_disk").path_join(str(randi()))
-	DirAccess.make_dir_recursive_absolute(_root)
+	_root = ""
+	var result: Dictionary = TEMPORARY_STORAGE.create("dwm7e6-disk")
+	assert_true(result.get("ok", false), result.get("message", ""))
+	if not result.get("ok", false):
+		return
+	_root = str(result["value"])
 	_manager = SAVE_MANAGER.new()
 	add_child_autofree(_manager)
 	_manager.initialize(STORAGE.new(_root))
@@ -228,6 +235,8 @@ func _autosave_text() -> String:
 
 
 func test_real_ports_resolve_a_day_without_rejecting_the_snapshot() -> void:
+	if _root.is_empty():
+		return
 	var wired := _wired()
 	var run_id: String = wired["run_id"]
 	var result: Dictionary = wired["coordinator"].request_schedule_done("done:%s:day-1" % run_id)
@@ -237,6 +246,8 @@ func test_real_ports_resolve_a_day_without_rejecting_the_snapshot() -> void:
 
 
 func test_real_day_resolution_writes_a_parsable_disk_autosave() -> void:
+	if _root.is_empty():
+		return
 	var wired := _wired()
 	var run_id: String = wired["run_id"]
 	assert_true(wired["coordinator"].request_schedule_done("done:%s:day-1" % run_id).get("ok", false), "day resolved")
@@ -249,6 +260,8 @@ func test_real_day_resolution_writes_a_parsable_disk_autosave() -> void:
 
 
 func test_disk_autosave_validates_as_a_save_document() -> void:
+	if _root.is_empty():
+		return
 	var wired := _wired()
 	var run_id: String = wired["run_id"]
 	wired["coordinator"].request_schedule_done("done:%s:day-1" % run_id)
@@ -262,6 +275,8 @@ func test_disk_autosave_validates_as_a_save_document() -> void:
 
 
 func test_persisted_snapshot_carries_the_live_lifecycle_and_ledger() -> void:
+	if _root.is_empty():
+		return
 	var wired := _wired()
 	var run_id: String = wired["run_id"]
 	wired["coordinator"].request_schedule_done("done:%s:day-1" % run_id)
@@ -278,6 +293,8 @@ func test_persisted_snapshot_carries_the_live_lifecycle_and_ledger() -> void:
 
 
 func test_persisted_snapshot_is_restorable_by_the_save_manager() -> void:
+	if _root.is_empty():
+		return
 	var wired := _wired()
 	var run_id: String = wired["run_id"]
 	wired["coordinator"].request_schedule_done("done:%s:day-1" % run_id)
@@ -325,6 +342,8 @@ func _drive_days(coordinator: Object, run_id: String, through_day: int) -> Dicti
 
 
 func test_real_coordinator_resolves_every_day_one_through_seven() -> void:
+	if _root.is_empty():
+		return
 	var wired := _wired()
 	var walk := _drive_days(wired["coordinator"], str(wired["run_id"]), 7)
 	for entry in walk["results"]:
@@ -337,6 +356,8 @@ func test_real_coordinator_resolves_every_day_one_through_seven() -> void:
 ## writes an ending autosave. It stops at the checkpointed provenance handoff that dwm-oyo.6
 ## consumes, leaving the run PLAYING on Day 7 with no Day 8.
 func test_day_seven_walk_stops_at_the_provenance_handoff_without_entering_ending() -> void:
+	if _root.is_empty():
+		return
 	var wired := _wired()
 	var walk := _drive_days(wired["coordinator"], str(wired["run_id"]), 7)
 	assert_eq(str(walk["state"]), "PLAYING",
@@ -351,6 +372,8 @@ func test_day_seven_walk_stops_at_the_provenance_handoff_without_entering_ending
 ## Schedule-Done branch writes, so a Day-7 crash must come back as the SAME run on Day 7 -- still
 ## PLAYING, still without an ending plan, and never stranded on Day 8.
 func test_a_day_seven_crash_restores_the_same_run_on_day_seven() -> void:
+	if _root.is_empty():
+		return
 	var wired := _wired()
 	var run_id: String = str(wired["run_id"])
 	_drive_days(wired["coordinator"], run_id, 7)

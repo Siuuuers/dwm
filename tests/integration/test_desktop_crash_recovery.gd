@@ -1,4 +1,7 @@
 extends "res://addons/gut/test.gd"
+
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
+
 # Restart coverage through real Profile, localization, save, identity and Bootstrap owners.
 # New Acc preflights view plans before its durable decision. A registered view can
 # then refuse live application, leaving the exact durable pair under recovery custody.
@@ -50,16 +53,20 @@ var _root_counter := 0
 
 
 func _isolated_root() -> String:
-	var wrapper: String = OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
 	_root_counter += 1
-	return wrapper.path_join("desktop-crash-recovery-%d" % _root_counter)
+	var result: Dictionary = TEMPORARY_STORAGE.create("desktop-crash-recovery-%d" % _root_counter)
+	assert_true(result.get("ok", false), result.get("message", ""))
+	return str(result.get("value", "")) if result.get("ok", false) else ""
 
 
 func before_each() -> void:
+	_shared_root = ""
 	assert_true(SHOP_REGISTRY.initialize().get("ok", false))
-	_shared_root = OS.get_environment("DWM_TEST_ROOT").path_join(
-		"desktop-crash-recovery-shared-%d" % Time.get_ticks_usec())
+	var result: Dictionary = TEMPORARY_STORAGE.create("desktop-crash-recovery-shared")
+	assert_true(result.get("ok", false), result.get("message", ""))
+	if not result.get("ok", false):
+		return
+	_shared_root = str(result["value"])
 
 
 ## Builds one full "process" (Bootstrap + GameState + SaveManager) over `storage_root`, exactly the
@@ -165,6 +172,8 @@ func _fail_future_localization_applies(localization: Node) -> void:
 # -------------------------------------------------------------------------------------------------
 
 func test_start_new_run_completes_against_the_real_profile_and_localization_pair() -> void:
+	if _shared_root.is_empty():
+		return
 	var process := _boot_process(_shared_root)
 	var save_manager: Node = process["save_manager"]
 	var started: Dictionary = save_manager.call(&"start_new_run", _initial_context())
@@ -182,6 +191,8 @@ func test_start_new_run_completes_against_the_real_profile_and_localization_pair
 
 
 func test_a_new_run_preserves_the_committed_global_profile_and_chains_its_locale() -> void:
+	if _shared_root.is_empty():
+		return
 	var process_a := _boot_process(_shared_root)
 	var profile_a: Node = process_a["profile"]
 	var prepared: Dictionary = profile_a.call(&"prepare_locale_preference", "zh_CN")
@@ -203,6 +214,8 @@ func test_a_new_run_preserves_the_committed_global_profile_and_chains_its_locale
 ## must tolerate the still-failing root and retain its diagnostic; a fresh process without that
 ## transient view failure must complete the same interrupted operation (the next test).
 func test_a_failed_new_run_leaves_a_genuinely_incomplete_continuation_that_reconciles_without_crashing() -> void:
+	if _shared_root.is_empty():
+		return
 	var process := _boot_process(_shared_root)
 	var save_manager: Node = process["save_manager"]
 	assert_true(save_manager.call(&"start_new_run", _initial_context()).get("ok", false),
@@ -230,6 +243,8 @@ func test_a_failed_new_run_leaves_a_genuinely_incomplete_continuation_that_recon
 ## root fails. Process B is a fresh real graph over the same disk, without the transient failed
 ## view. Its boot-time reconciliation must complete the interrupted run through real participants.
 func test_a_fresh_process_over_the_same_storage_boots_cleanly_after_a_failed_new_run() -> void:
+	if _shared_root.is_empty():
+		return
 	var process_a := _boot_process(_shared_root)
 	var save_manager_a: Node = process_a["save_manager"]
 	assert_true(save_manager_a.call(&"start_new_run", _initial_context()).get("ok", false))
@@ -251,6 +266,8 @@ func test_a_fresh_process_over_the_same_storage_boots_cleanly_after_a_failed_new
 
 
 func test_boot_itself_reconciles_before_returning_ok_not_only_when_called_a_second_time() -> void:
+	if _shared_root.is_empty():
+		return
 	# _configure_desktop_production_graph() calls SaveManager.reconcile_incomplete_continuations()
 	# itself (Phase 1), so a caller never has to remember to call it separately. Proven by armed
 	# absence: configuring the graph with NO prior incomplete operation must still succeed (a
@@ -267,6 +284,8 @@ func test_boot_itself_reconciles_before_returning_ok_not_only_when_called_a_seco
 # -------------------------------------------------------------------------------------------------
 
 func test_the_bootstrap_retained_publication_ledger_survives_a_fresh_reload() -> void:
+	if _shared_root.is_empty():
+		return
 	var process := _boot_process(_shared_root)
 	var ledger: Object = (process["bootstrap"] as Node).get("_retained_desktop_publication_ledger")
 	assert_true(ledger is DESKTOP_PUBLICATION_LEDGER)

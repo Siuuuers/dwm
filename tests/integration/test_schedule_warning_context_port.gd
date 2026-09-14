@@ -1,4 +1,6 @@
 extends "res://addons/gut/test.gd"
+
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 # Read-only Schedule-warning context port over the REAL retained owners (Amendment Plan 03
 # Task 3 Steps 1+4, dwm-oyo.3, plan line 364).
 #
@@ -65,6 +67,7 @@ class StubWarningGameState:
 
 
 func before_each() -> void:
+	_issuer = null
 	var loaded: Dictionary = REGISTRY.load_current()
 	assert_true(loaded.get("ok", false), str(loaded))
 	_registry = (loaded.get("value", {}) as Dictionary).get("registry")
@@ -72,11 +75,12 @@ func before_each() -> void:
 
 
 func _sandbox_issuer() -> RefCounted:
-	var wrapper := OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
 	_root_counter += 1
-	var root := wrapper.path_join("warning-context-%d-%d" % [_root_counter, randi()])
-	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
+	var created: Dictionary = TEMPORARY_STORAGE.create("warning-context-%d" % _root_counter)
+	assert_true(created.get("ok", false), created.get("message", ""))
+	if not created.get("ok", false):
+		return null
+	var root := str(created["value"])
 	var store: RefCounted = ROOT_STORE.new()
 	assert_true(store.configure(JsonFileStorage.new(root), NAMESPACE_SOURCE.new())
 		.get("ok", false), "root store configured")
@@ -165,12 +169,16 @@ func _accept(game_state: Node, friend_id: String, day: int) -> String:
 # ---- configure seam ----
 
 func test_snapshot_for_before_configure_is_typed() -> void:
+	if _issuer == null:
+		return
 	var port: Object = PORT.new()
 	_refused(port.snapshot_for(_view_for({"day": 1, "causal_day_instance": "x"})),
 		"schedule_warning_context_unconfigured", "a read before configure")
 
 
 func test_configure_refuses_invalid_owners_typed() -> void:
+	if _issuer == null:
+		return
 	var game_state := _fresh_game_state()
 	var board: Object = BOARD_STATE.new()
 	_refused((PORT.new() as Object).configure(null, board),
@@ -184,6 +192,8 @@ func test_configure_refuses_invalid_owners_typed() -> void:
 
 
 func test_configure_is_idempotent_and_rejects_replacement_before_any_read() -> void:
+	if _issuer == null:
+		return
 	var game_state := _fresh_game_state()
 	var board: Object = BOARD_STATE.new()
 	var port: Object = PORT.new()
@@ -208,6 +218,8 @@ func test_configure_is_idempotent_and_rejects_replacement_before_any_read() -> v
 # ---- the context read ----
 
 func test_snapshot_for_returns_the_exact_context_from_the_real_owners() -> void:
+	if _issuer == null:
+		return
 	var game_state := _fresh_game_state()
 	var board: Object = BOARD_STATE.new()
 	var port := _configured(game_state, board)
@@ -245,6 +257,8 @@ func test_snapshot_for_returns_the_exact_context_from_the_real_owners() -> void:
 
 
 func test_real_contacts_drive_unread_accepted_and_the_subtraction_law() -> void:
+	if _issuer == null:
+		return
 	var game_state := _fresh_game_state()
 	var port := _configured(game_state, BOARD_STATE.new())
 	_offer(game_state, "sylvia", 1, "msg:s1")
@@ -283,6 +297,8 @@ func test_real_contacts_drive_unread_accepted_and_the_subtraction_law() -> void:
 
 
 func test_snapshot_for_requires_the_matching_day_and_causal_identity() -> void:
+	if _issuer == null:
+		return
 	var game_state := _fresh_game_state()
 	var port := _configured(game_state, BOARD_STATE.new())
 	var state := _warning_state(game_state)
@@ -297,6 +313,8 @@ func test_snapshot_for_requires_the_matching_day_and_causal_identity() -> void:
 
 
 func test_snapshot_for_refuses_a_malformed_view() -> void:
+	if _issuer == null:
+		return
 	var game_state := _fresh_game_state()
 	var port := _configured(game_state, BOARD_STATE.new())
 	var state := _warning_state(game_state)
@@ -309,6 +327,8 @@ func test_snapshot_for_refuses_a_malformed_view() -> void:
 # ---- static purity (plan Step 4: reject globals, scene lookup, fallback construction) ----
 
 func test_the_port_never_locates_owners_or_scenes_statically() -> void:
+	if _issuer == null:
+		return
 	var raw := FileAccess.get_file_as_string(PORT_PATH)
 	assert_false(raw.is_empty(), "the port source exists")
 	# The doc header legitimately NAMES the forbidden constructs while forbidding them, so
@@ -352,6 +372,8 @@ func _identity_for(state: Dictionary, ordinal: int) -> Dictionary:
 
 
 func test_a_foreign_board_identity_is_refused() -> void:
+	if _issuer == null:
+		return
 	var game_state := _fresh_game_state()
 	var state := _warning_state(game_state)
 	var foreign := _identity_for(state, 1)
@@ -370,6 +392,8 @@ func test_a_foreign_board_identity_is_refused() -> void:
 
 
 func test_a_none_phase_asymmetry_is_refused() -> void:
+	if _issuer == null:
+		return
 	var game_state := _fresh_game_state()
 	var state := _warning_state(game_state)
 	var headless_port := _configured(game_state,
@@ -383,6 +407,8 @@ func test_a_none_phase_asymmetry_is_refused() -> void:
 
 
 func test_a_live_board_projects_its_identity_ordinal_and_unfinished_state() -> void:
+	if _issuer == null:
+		return
 	var game_state := _fresh_game_state()
 	var state := _warning_state(game_state)
 	var identity := _identity_for(state, 2)
@@ -408,6 +434,8 @@ func test_a_live_board_projects_its_identity_ordinal_and_unfinished_state() -> v
 
 
 func test_an_invalid_replacement_is_refused_as_invalid_first() -> void:
+	if _issuer == null:
+		return
 	var game_state := _fresh_game_state()
 	var port := _configured(game_state, BOARD_STATE.new())
 	_refused(port.configure(null, BOARD_STATE.new()),
@@ -419,6 +447,8 @@ func test_an_invalid_replacement_is_refused_as_invalid_first() -> void:
 
 
 func test_a_null_next_ordinal_projects_a_null_base_round_ordinal() -> void:
+	if _issuer == null:
+		return
 	var state := {
 		"run_id": "run-stub", "branch_id": "branch-stub",
 		"desktop_timeline_generation": 0, "causal_day_instance": "causal-day-stub",

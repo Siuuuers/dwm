@@ -1,4 +1,7 @@
 extends "res://addons/gut/test.gd"
+
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
+
 ## Selected-Load desktop board/consequence persistence over the REAL SaveManager restore stack
 ## (Plan 02 Task 6, dwm-p2r.32, brief Step 6.6/6.9). Proves what the brief's own exhaustive
 ## enumeration targets at the representative, mutation-tested level this task's established
@@ -97,8 +100,12 @@ func _fresh_issuer(root: String) -> RefCounted:
 ## consequence/board participants (over live DesktopConsequenceState/DesktopBoardState instances
 ## the test can inspect afterward), and a real GameState for the "run" participant.
 func _wired() -> Dictionary:
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("desktop_board_persistence").path_join(str(randi()))
-	DirAccess.make_dir_recursive_absolute(root.path_join("saves"))
+	var result: Dictionary = TEMPORARY_STORAGE.create("desktop-board-persistence")
+	assert_true(result.get("ok", false), result.get("message", ""))
+	if not result.get("ok", false):
+		return {}
+	var root: String = str(result["value"])
+	assert_eq(DirAccess.make_dir_recursive_absolute(root.path_join("saves")), OK)
 	var manager: Node = load(SAVE_MANAGER_PATH).new()
 	autofree(manager)
 	manager.initialize(load(STORAGE_PATH).new(root.path_join("saves")))
@@ -150,6 +157,8 @@ func _seed_and_save(manager: Node, run_id: String, slot_id: int) -> void:
 
 func test_restore_remaps_board_identity_and_command_receipt_keys() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var manager: Node = wired["manager"]
 	_seed_and_save(manager, "run-remap-a", 1)
 
@@ -183,6 +192,8 @@ func test_restore_remaps_board_identity_and_command_receipt_keys() -> void:
 
 func test_restore_remaps_consequence_causal_day_pair() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var manager: Node = wired["manager"]
 	_seed_and_save(manager, "run-remap-b", 2)
 
@@ -206,6 +217,8 @@ func test_restore_remaps_consequence_causal_day_pair() -> void:
 
 func test_restore_rejects_a_corrupted_board_before_touching_live_state() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var manager: Node = wired["manager"]
 	manager._journal.reset("run-corrupt-board")
 	var snapshot := _snapshot("run-corrupt-board", 1)
@@ -219,6 +232,8 @@ func test_restore_rejects_a_corrupted_board_before_touching_live_state() -> void
 
 func test_restore_rejects_a_corrupted_consequence_receipt_before_live_mutation() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var manager: Node = wired["manager"]
 	_seed_and_save(manager, "run-corrupt-consequence", 3)
 
@@ -250,6 +265,8 @@ func test_restore_rejects_a_corrupted_consequence_receipt_before_live_mutation()
 
 func test_a_completed_restore_leaves_no_incomplete_continuation() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var manager: Node = wired["manager"]
 	_seed_and_save(manager, "run-reconcile", 4)
 	var prepared: Dictionary = manager.prepare_restore_slot(4)

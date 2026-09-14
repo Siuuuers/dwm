@@ -18,10 +18,11 @@ const _CONTACT_INVITATION_STATE := preload("res://scripts/domain/contact/Contact
 ## One real issuer over this suite's sandbox root, built the way ApplicationBootstrap builds the
 ## production one. DWM_TEST_ROOT is supplied by tools/testing/Invoke-IsolatedGodot.ps1.
 func _sandbox_identity_issuer() -> Dictionary:
-	var wrapper: String = OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
-	var root: String = wrapper.path_join("facade-contract-identity")
-	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
+	var created: Dictionary = TemporaryStorage.create("game-state-facade-contract")
+	assert_true(created.get("ok", false), created.get("message", "temporary storage unavailable"))
+	if not created.get("ok", false):
+		return {}
+	var root: String = str(created.get("value", ""))
 	var root_store: RefCounted = ISSUER_ROOT_STORE.new()
 	assert_true(root_store.configure(STORAGE.new(root), CRYPTO_NAMESPACE_SOURCE.new()).get("ok", false),
 		"root store configured")
@@ -142,6 +143,8 @@ func test_request_schedule_done_delegates_through_production_port() -> void:
 	var gate: RefCounted = load(GATE_PATH).new()
 	assert_true(game_state.configure_mutation_gate(gate)["ok"])
 	var identity: Dictionary = _sandbox_identity_issuer()
+	if identity.is_empty():
+		return
 	var issuer: RefCounted = identity["issuer"]
 	var root_store: RefCounted = identity["root_store"]
 	var issued_source: Dictionary = root_store.issue(&"causal_day_instance")

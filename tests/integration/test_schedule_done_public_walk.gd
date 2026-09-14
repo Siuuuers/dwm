@@ -1,4 +1,6 @@
 extends "res://addons/gut/test.gd"
+
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 # dwm-p2r.21 ACCEPTANCE (dwm-oyo.3 slice, 2026-08-24): a committed-Schedule walk reaches a
 # presentation, settles it, and advances -- through public seams only.
 #
@@ -79,10 +81,14 @@ var _commands: Dictionary = {}
 
 func before_each() -> void:
 	_commands = {}
+	_root = ""
 	GameState.reset_game()
 	GameState._lifecycle_set_playing_day(DAY)
-	_root = OS.get_environment("DWM_TEST_ROOT").path_join("p2r21_public_walk").path_join(str(randi()))
-	DirAccess.make_dir_recursive_absolute(_root)
+	var created: Dictionary = TEMPORARY_STORAGE.create("p2r21-public-walk")
+	assert_true(created.get("ok", false), created.get("message", ""))
+	if not created.get("ok", false):
+		return
+	_root = str(created["value"])
 	_manager = SAVE_MANAGER.new()
 	add_child_autofree(_manager)
 	_manager.initialize(STORAGE.new(_root))
@@ -236,6 +242,8 @@ func _commit_date_schedule() -> void:
 
 
 func test_a_committed_schedule_walk_presents_settles_and_advances_through_public_doors() -> void:
+	if _root.is_empty():
+		return
 	_commit_date_schedule()
 	assert_eq(int(GameState.day), DAY, "the walk starts on the committed day")
 
@@ -265,6 +273,8 @@ func test_a_committed_schedule_walk_presents_settles_and_advances_through_public
 
 
 func test_the_walk_is_replay_safe_at_the_public_doors() -> void:
+	if _root.is_empty():
+		return
 	_commit_date_schedule()
 	var done_id := str(_command("commit.day%d" % DAY)["id"]) + ":resolution"
 	assert_true(_dispatcher.dispatch_done(done_id).get("ok", false))
@@ -285,6 +295,8 @@ func test_the_walk_is_replay_safe_at_the_public_doors() -> void:
 
 
 func test_the_disk_autosave_of_the_advanced_day_is_written() -> void:
+	if _root.is_empty():
+		return
 	_commit_date_schedule()
 	assert_true(_dispatcher.dispatch_done(str(_command("commit.day%d" % DAY)["id"]) + ":resolution").get("ok", false))
 	var completion_id := str(((_router.get_routes()[0] as Dictionary)["command"] as Dictionary)["completion_transaction_id"])

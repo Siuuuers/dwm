@@ -37,18 +37,26 @@ var _root_ordinal := 0
 
 func _unique_root() -> String:
 	_root_ordinal += 1
-	return OS.get_environment("DWM_TEST_ROOT").path_join("minesweeper-bootstrap-%d" % _root_ordinal)
+	var created: Dictionary = TemporaryStorage.create(
+		"minesweeper-bootstrap-%d" % _root_ordinal)
+	assert_true(created.get("ok", false), created.get("message", "temporary storage unavailable"))
+	if not created.get("ok", false):
+		return ""
+	return str(created.get("value", ""))
 
 
 ## Builds a bootstrap whose Minesweeper stage has every dependency satisfied. Individual tests
 ## then knock exactly one dependency out and assert nothing was retained.
 func _make_ready_bootstrap() -> Dictionary:
+	var root: String = _unique_root()
+	if root.is_empty():
+		return {}
 	var gate: RefCounted = FAKE_GATE.new()
 	var game_state: Node = autofree(GAME_STATE.new())
 	game_state.call(&"reset_game")
 	assert_true(game_state.call(&"configure_mutation_gate", gate).get("ok", false))
 	var save_manager: Node = autofree(SAVE_MANAGER.new())
-	assert_true(save_manager.call(&"initialize", JSON_STORAGE.new(_unique_root())).get("ok", false))
+	assert_true(save_manager.call(&"initialize", JSON_STORAGE.new(root)).get("ok", false))
 	var bootstrap: Node = autofree(InjectableBootstrap.new())
 	bootstrap.injected_targets = {
 		&"GameState": game_state,
@@ -96,6 +104,8 @@ func test_stage_order_runs_minesweeper_after_day_resolution_and_before_readiness
 
 func test_minesweeper_stage_rejects_a_missing_gate_without_partial_configuration() -> void:
 	var made := _make_ready_bootstrap()
+	if made.is_empty():
+		return
 	var bootstrap: Node = made["bootstrap"]
 	bootstrap.set("_application_gate", null)
 	var result: Dictionary = bootstrap.call(&"_configure_minesweeper_rounds",
@@ -109,6 +119,8 @@ func test_minesweeper_stage_rejects_a_missing_gate_without_partial_configuration
 func test_minesweeper_stage_rejects_missing_targets_without_partial_configuration() -> void:
 	for missing: String in ["game_state", "save_manager"]:
 		var made := _make_ready_bootstrap()
+		if made.is_empty():
+			return
 		var bootstrap: Node = made["bootstrap"]
 		var result: Dictionary = bootstrap.call(&"_configure_minesweeper_rounds",
 			null if missing == "game_state" else made["game_state"],
@@ -120,6 +132,8 @@ func test_minesweeper_stage_rejects_missing_targets_without_partial_configuratio
 
 func test_minesweeper_stage_rejects_an_unretained_checkpoint_port_without_partial_configuration() -> void:
 	var made := _make_ready_bootstrap()
+	if made.is_empty():
+		return
 	var bootstrap: Node = made["bootstrap"]
 	bootstrap.set("_retained_checkpoint_port", null)
 	var result: Dictionary = bootstrap.call(&"_configure_minesweeper_rounds",
@@ -132,6 +146,8 @@ func test_minesweeper_stage_rejects_an_unretained_checkpoint_port_without_partia
 func test_minesweeper_stage_rejects_unconfigured_checkpoint_providers() -> void:
 	# Out of order: the Minesweeper stage cannot run before day resolution built the bundle.
 	var made := _make_ready_bootstrap()
+	if made.is_empty():
+		return
 	var bootstrap: Node = made["bootstrap"]
 	bootstrap.set("_checkpoint_provider_bundle", {})
 	var result: Dictionary = bootstrap.call(&"_configure_minesweeper_rounds",
@@ -143,6 +159,8 @@ func test_minesweeper_stage_rejects_unconfigured_checkpoint_providers() -> void:
 
 func test_minesweeper_stage_rejects_a_gate_game_state_did_not_retain() -> void:
 	var made := _make_ready_bootstrap()
+	if made.is_empty():
+		return
 	var bootstrap: Node = made["bootstrap"]
 	# GameState retained the gate from _make_ready_bootstrap; hand the stage a different one.
 	bootstrap.set("_application_gate", FAKE_GATE.new())
@@ -156,6 +174,8 @@ func test_minesweeper_stage_rejects_a_gate_game_state_did_not_retain() -> void:
 
 func test_minesweeper_stage_constructs_exactly_one_coordinator_over_production_adapters() -> void:
 	var made := _make_ready_bootstrap()
+	if made.is_empty():
+		return
 	var bootstrap: Node = made["bootstrap"]
 	var game_state: Node = made["game_state"]
 	var result: Dictionary = bootstrap.call(&"_configure_minesweeper_rounds",
@@ -194,6 +214,8 @@ func test_minesweeper_stage_constructs_exactly_one_coordinator_over_production_a
 
 func test_identical_startup_replay_reuses_the_exact_same_round_graph() -> void:
 	var made := _make_ready_bootstrap()
+	if made.is_empty():
+		return
 	var bootstrap: Node = made["bootstrap"]
 	var game_state: Node = made["game_state"]
 	var first: Dictionary = bootstrap.call(&"_configure_minesweeper_rounds",

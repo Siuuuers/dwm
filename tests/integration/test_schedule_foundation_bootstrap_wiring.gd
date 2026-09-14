@@ -1,4 +1,6 @@
 extends "res://addons/gut/test.gd"
+
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 # Bootstrap ownership of the Schedule foundation (Plan 01 Task 6, dwm-p2r.13, Step 6.5).
 #
 # WHY THIS FILE EXISTS. Step 6.5 requires Bootstrap to construct and retain EXACTLY ONE of each
@@ -51,7 +53,11 @@ var _root_counter := 0
 
 
 func before_each() -> void:
-	_storage = JsonFileStorage.new(_isolated_root())
+	_storage = null
+	var root := _isolated_root()
+	if root.is_empty():
+		return
+	_storage = JsonFileStorage.new(root)
 	var root_store: RefCounted = ROOT_STORE.new()
 	assert_true(root_store.configure(_storage, NAMESPACE_SOURCE.new()).get("ok", false))
 	assert_true(root_store.load_or_create().get("ok", false))
@@ -71,15 +77,10 @@ func before_each() -> void:
 
 
 func _isolated_root() -> String:
-	var wrapper: String = OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
 	_root_counter += 1
-	var root: String = wrapper.path_join("foundation-wiring-%d" % _root_counter)
-	var production: String = ProjectSettings.globalize_path("user://").simplify_path().trim_suffix("/")
-	assert_ne(root.simplify_path().trim_suffix("/").nocasecmp_to(production), 0,
-		"an isolated root is never the production user directory")
-	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
-	return root
+	var created: Dictionary = TEMPORARY_STORAGE.create("foundation-wiring-%d" % _root_counter)
+	assert_true(created.get("ok", false), created.get("message", ""))
+	return str(created.get("value", "")) if created.get("ok", false) else ""
 
 
 func _construct() -> Dictionary:
@@ -87,6 +88,8 @@ func _construct() -> Dictionary:
 
 
 func test_the_foundation_constructs_exactly_one_of_each_object() -> void:
+	if _storage == null:
+		return
 	var constructed: Dictionary = _construct()
 	assert_true(constructed.get("ok", false),
 		"the foundation must construct: %s" % str(constructed.get("code", &"")))
@@ -97,6 +100,8 @@ func test_the_foundation_constructs_exactly_one_of_each_object() -> void:
 
 
 func test_identical_startup_replay_reuses_every_retained_instance() -> void:
+	if _storage == null:
+		return
 	if not _construct().get("ok", false):
 		assert_true(false, "the first construction must succeed")
 		return
@@ -114,6 +119,8 @@ func test_identical_startup_replay_reuses_every_retained_instance() -> void:
 # so this asserts the observable consequence instead: exactly one ledger object is retained, and it
 # is the one both ports were handed at construction time in _construct_schedule_foundation.
 func test_one_ledger_is_retained_and_is_the_only_one_constructed() -> void:
+	if _storage == null:
+		return
 	if not _construct().get("ok", false):
 		assert_true(false, "the first construction must succeed")
 		return
@@ -130,6 +137,8 @@ func test_one_ledger_is_retained_and_is_the_only_one_constructed() -> void:
 # service refuses a DIFFERENT one. If Bootstrap had failed to inject, this second call would
 # succeed instead, which is exactly the silent failure worth catching.
 func test_the_configured_provenance_service_is_injected_into_the_retained_state_port() -> void:
+	if _storage == null:
+		return
 	if not _construct().get("ok", false):
 		assert_true(false, "the first construction must succeed")
 		return
@@ -147,6 +156,8 @@ func test_the_configured_provenance_service_is_injected_into_the_retained_state_
 
 
 func test_the_foundation_refuses_to_build_without_the_retained_issuer_or_storage() -> void:
+	if _storage == null:
+		return
 	_bootstrap.set("_desktop_identity_nonce_issuer", null)
 	assert_false(_construct().get("ok", true),
 		"the foundation never mints a second issuer to proceed without the retained one")

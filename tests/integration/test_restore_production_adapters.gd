@@ -1,4 +1,6 @@
 extends "res://addons/gut/test.gd"
+
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 # The six real restore adapters over failure-injectable manager ports, exercising
 # prepare_restore -> commit end to end
 # (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 7).
@@ -112,9 +114,12 @@ func _fresh_issuer(root: String) -> RefCounted:
 	return issuer
 
 func _manager(owner: Owner) -> Node:
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("prod_adapters").path_join(str(randi()))
+	var created: Dictionary = TEMPORARY_STORAGE.create("restore-production-adapters")
+	assert_true(created.get("ok", false), created.get("message", ""))
+	if not created.get("ok", false):
+		return null
+	var root := str(created["value"])
 	var saves_root := root.path_join("saves")
-	DirAccess.make_dir_recursive_absolute(saves_root)
 	var m: Node = load(SAVE_MANAGER_PATH).new()
 	autofree(m)
 	m.initialize(load(STORAGE_PATH).new(saves_root))
@@ -143,6 +148,8 @@ func _manager(owner: Owner) -> Node:
 func test_prepare_builds_nine_plans_and_commits() -> void:
 	var owner := Owner.new()
 	var m := _manager(owner)
+	if m == null:
+		return
 	m._journal.reset("run-a")
 	m._journal.commit_prepared(m._journal.prepare_record(_snapshot("run-a", 1), &"day_start")["value"]["candidate"])
 	assert_true(m.save_latest_to_slot(1)["ok"])
@@ -186,6 +193,8 @@ func _prepared_restore_with_stray_key(m: Node, slot_id: int, key: String, value:
 
 func test_commit_prepared_restore_rejects_stray_identity_allocation_bundle_key() -> void:
 	var m := _manager(Owner.new())
+	if m == null:
+		return
 	var stray := _prepared_restore_with_stray_key(m, 4, "identity_allocation_bundle", {"forged": true})
 	var rejected: Dictionary = m.commit_prepared_restore(stray)
 	assert_false(rejected.get("ok", true), "a stray identity_allocation_bundle key must reject before durable allocation")
@@ -198,6 +207,8 @@ func test_commit_prepared_restore_rejects_stray_identity_allocation_bundle_key()
 
 func test_commit_prepared_restore_rejects_stray_transaction_issuer_receipt_key() -> void:
 	var m := _manager(Owner.new())
+	if m == null:
+		return
 	var stray := _prepared_restore_with_stray_key(m, 5, "transaction_issuer_receipt", {"forged": true})
 	var rejected: Dictionary = m.commit_prepared_restore(stray)
 	assert_false(rejected.get("ok", true), "a stray transaction_issuer_receipt key must reject before durable allocation")
@@ -210,6 +221,8 @@ func test_commit_prepared_restore_rejects_stray_transaction_issuer_receipt_key()
 
 func test_commit_prepared_restore_rejects_stray_transaction_remap_key() -> void:
 	var m := _manager(Owner.new())
+	if m == null:
+		return
 	var stray := _prepared_restore_with_stray_key(m, 6, "transaction_remap", {"forged": true})
 	var rejected: Dictionary = m.commit_prepared_restore(stray)
 	assert_false(rejected.get("ok", true), "a stray transaction_remap key must reject before durable allocation")
@@ -222,6 +235,8 @@ func test_commit_prepared_restore_rejects_stray_transaction_remap_key() -> void:
 
 func test_late_narrative_incompatibility_selects_earlier_bundle() -> void:
 	var m := _manager(Owner.new())
+	if m == null:
+		return
 	m._journal.reset("run-b")
 	m._journal.commit_prepared(m._journal.prepare_record(_snapshot("run-b", 1), &"day_start")["value"]["candidate"])
 	m._journal.commit_prepared(m._journal.prepare_record(_snapshot("run-b", 2, {"timeline_id": "x"}), &"line")["value"]["candidate"])
@@ -235,6 +250,8 @@ func test_profile_prepare_failure_is_structural_not_content() -> void:
 	var owner := Owner.new()
 	owner.fail = &"prepare_profile_document"
 	var m := _manager(owner)
+	if m == null:
+		return
 	m._journal.reset("run-c")
 	m._journal.commit_prepared(m._journal.prepare_record(_snapshot("run-c", 1), &"day_start")["value"]["candidate"])
 	assert_true(m.save_latest_to_slot(3)["ok"])

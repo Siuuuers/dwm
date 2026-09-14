@@ -1,5 +1,7 @@
 extends "res://addons/gut/test.gd"
 
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
+
 ## Production Shop condition-driven contract departure (Plan 02 Task 8, dwm-p2r.32,
 ## req.shop.capabilities, req.minesweeper.causal_departure, req.desktop.cross_app_actions).
 ## Configures the same real domain/application ports as test_desktop_completion_transaction.gd (see
@@ -57,8 +59,11 @@ func _fresh_issuer(root: String) -> RefCounted:
 
 
 func _wired() -> Dictionary:
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("shop_departure").path_join(str(randi()))
-	DirAccess.make_dir_recursive_absolute(root)
+	var created: Dictionary = TEMPORARY_STORAGE.create("shop-condition-departure")
+	assert_true(created.get("ok", false), created.get("message", ""))
+	if not created.get("ok", false):
+		return {}
+	var root := str(created["value"])
 
 	var checkpoint_port: Object = load(CHECKPOINT_PORT_PATH).new()
 	var gs: Node = load(GS_PATH).new()
@@ -169,6 +174,8 @@ func _shop_prepared(wired: Dictionary, item_id: String) -> Dictionary:
 ## candidate -- both through the same admitted causal transaction.
 func test_shop_purchase_departure_discards_an_unstarted_candidate() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var round_coordinator: Object = wired["round_coordinator"]
 	var issuer: Object = wired["issuer"]
 	var identity: Dictionary = round_coordinator.get_entry_context("beginner")["value"]["identity"]
@@ -235,6 +242,8 @@ func test_shop_purchase_departure_discards_an_unstarted_candidate() -> void:
 ## A no-departure Shop purchase leaves an in-flight PREPARING candidate completely untouched.
 func test_shop_purchase_without_a_departure_leaves_the_board_untouched() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var round_coordinator: Object = wired["round_coordinator"]
 	var issuer: Object = wired["issuer"]
 	var identity: Dictionary = round_coordinator.get_entry_context("beginner")["value"]["identity"]

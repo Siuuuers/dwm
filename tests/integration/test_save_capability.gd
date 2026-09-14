@@ -5,6 +5,7 @@ extends "res://addons/gut/test.gd"
 const SAVE_MANAGER_PATH := "res://autoload/SaveManager.gd"
 const STORAGE_PATH := "res://scripts/infrastructure/storage/JsonFileStorage.gd"
 const TEMP_PATH := "res://tests/support/TemporaryStorage.gd"
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 const VALID_FIXTURE := "res://tests/fixtures/snapshots/valid_day3.json"
 
 var _suite_counter := 0
@@ -17,9 +18,12 @@ func _artifacts_exist() -> bool:
 
 func _isolated_manager(suite_id: String) -> Node:
 	_suite_counter += 1
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("save_manager_capability") \
-		.path_join("%s_%d" % [suite_id, _suite_counter]).path_join("saves")
-	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
+	var created: Dictionary = TEMPORARY_STORAGE.create(
+		"save-manager-capability-%s-%d" % [suite_id, _suite_counter])
+	assert_true(created.get("ok", false), created.get("message", ""))
+	if not created.get("ok", false):
+		return null
+	var root := str(created["value"]).path_join("saves")
 	var storage: RefCounted = load(STORAGE_PATH).new(root)
 	var manager: Node = load(SAVE_MANAGER_PATH).new()
 	autofree(manager)
@@ -77,6 +81,8 @@ func test_capability_values_per_owner() -> void:
 	if not _artifacts_exist():
 		return
 	var manager := _isolated_manager("capability_values")
+	if manager == null:
+		return
 	assert_eq(manager.get_save_capability(), {"enabled": true, "silent": false, "deferred": false})
 	assert_true(manager.acquire_save_lock(&"minesweeper_board")["ok"])
 	assert_eq(manager.get_save_capability(), {"enabled": false, "silent": true, "deferred": false})
@@ -92,6 +98,8 @@ func test_lock_idempotence_and_cross_owner_release() -> void:
 	if not _artifacts_exist():
 		return
 	var manager := _isolated_manager("lock_rules")
+	if manager == null:
+		return
 	assert_eq(manager.acquire_save_lock(&"bogus").get("code"), &"invalid_lock_owner")
 	assert_true(manager.acquire_save_lock(&"restore")["ok"])
 	var repeat: Dictionary = manager.acquire_save_lock(&"restore")
@@ -107,6 +115,8 @@ func test_board_lock_is_silent_and_transition_defers() -> void:
 	if not _artifacts_exist():
 		return
 	var manager := _isolated_manager("lock_behavior")
+	if manager == null:
+		return
 	_seed(manager, "run-lock")
 	var emissions: Array[Dictionary] = []
 	manager.save_capability_changed.connect(func(c: Dictionary) -> void: emissions.append(c))
@@ -134,6 +144,8 @@ func test_deferred_save_fulfilled_at_next_checkpoint() -> void:
 	if not _artifacts_exist():
 		return
 	var manager := _isolated_manager("deferred_checkpoint")
+	if manager == null:
+		return
 	assert_true(manager._journal.reset("run-defer")["ok"])
 	assert_true(manager.acquire_save_lock(&"scene_transition")["ok"])
 	assert_false(manager.autosave_latest()["ok"], "no checkpoint yet, deferred")

@@ -1,4 +1,6 @@
 extends "res://addons/gut/test.gd"
+
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 # Plan 01's Schedule participant and Plan 02's desktop participants, proven consumable TOGETHER by
 # a later owner without composing the Plan-03/dwm-oyo.3 player-facing departure
 # (dwm-p2r.10 Plan 04 Task 2).
@@ -148,9 +150,11 @@ var _advance_replay_ok: bool = false
 var _advance_id_stable: bool = false
 var _graph_nodes: Array[Node] = []
 var _root_counter: int = 0
+var _fixture_ready: bool = false
 
 
 func before_all() -> void:
+	_fixture_ready = false
 	_gate = _read_seal(GATE_PATH)
 	_desktop = _read_seal(DESKTOP_PATH)
 	_minesweeper = _read_seal(MINESWEEPER_PATH)
@@ -178,15 +182,10 @@ func _read_seal(path: String) -> Dictionary:
 
 
 func _isolated_root() -> String:
-	var wrapper: String = OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
 	_root_counter += 1
-	var root: String = wrapper.path_join("p2r10-handoff-%d" % _root_counter)
-	var production: String = ProjectSettings.globalize_path("user://").simplify_path().trim_suffix("/")
-	assert_ne(root.simplify_path().trim_suffix("/").nocasecmp_to(production), 0,
-		"an isolated root is never the production user directory")
-	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
-	return root
+	var created: Dictionary = TEMPORARY_STORAGE.create("p2r10-handoff-%d" % _root_counter)
+	assert_true(created.get("ok", false), created.get("message", ""))
+	return str(created.get("value", "")) if created.get("ok", false) else ""
 
 
 func _adopt(node: Node) -> Node:
@@ -198,7 +197,10 @@ func _adopt(node: Node) -> Node:
 ## Drives the real production stages in the exact production order, then reads the two live inputs
 ## from their real public seams only.
 func _compose_production_graph() -> void:
-	var storage: RefCounted = JSON_STORAGE.new(_isolated_root())
+	var storage_root := _isolated_root()
+	if storage_root.is_empty():
+		return
+	var storage: RefCounted = JSON_STORAGE.new(storage_root)
 	var root_store: RefCounted = ROOT_STORE.new()
 	assert_true(root_store.configure(storage, NAMESPACE_SOURCE.new()).get("ok", false))
 	assert_true(root_store.load_or_create().get("ok", false))
@@ -220,7 +222,10 @@ func _compose_production_graph() -> void:
 	bootstrap.set("_contact_command_port", CONTACT_COMMAND_PORT.new())
 
 	var save_manager: Node = _adopt(load(SAVE_MANAGER_PATH).new())
-	assert_true(save_manager.call(&"initialize", JSON_STORAGE.new(_isolated_root())).get("ok", false))
+	var save_root := _isolated_root()
+	if save_root.is_empty():
+		return
+	assert_true(save_manager.call(&"initialize", JSON_STORAGE.new(save_root)).get("ok", false))
 	assert_true(save_manager.call(&"configure_identity_issuer", issuer).get("ok", false))
 	var allocation_participant: RefCounted = load(
 		RESTORE_PARTICIPANT_PATHS["identity_allocation"]).new(issuer, save_manager)
@@ -277,6 +282,7 @@ func _compose_production_graph() -> void:
 		.get("ok", false))
 	_advance_id_stable = int((bootstrap.call(&"get_desktop_contract_state") as Dictionary)
 		["causal_day_advance_identity_port_instance_id"]) == first_advance_id
+	_fixture_ready = true
 
 
 # -------------------------------------------------------------------------------------------------
@@ -284,6 +290,8 @@ func _compose_production_graph() -> void:
 # -------------------------------------------------------------------------------------------------
 
 func test_the_probe_is_read_from_the_real_public_seam_and_carries_only_primitives() -> void:
+	if not _fixture_ready:
+		return
 	assert_false(_state.is_empty(), "the real probe returned a state")
 	for key: Variant in _state.keys():
 		var value: Variant = _state[key]
@@ -294,12 +302,16 @@ func test_the_probe_is_read_from_the_real_public_seam_and_carries_only_primitive
 
 
 func test_the_snapshot_provider_role_is_the_live_game_state_in_this_same_boot() -> void:
+	if not _fixture_ready:
+		return
 	assert_ne(_live_game_state_id, 0, "the harness holds a real GameState")
 	assert_eq(int(_state["snapshot_provider_instance_id"]), _live_game_state_id,
 		"snapshot_provider_instance_id is GameState's own id, compared inside one process")
 
 
 func test_the_coordinator_holds_exactly_the_advance_port_the_probe_reports() -> void:
+	if not _fixture_ready:
+		return
 	assert_true(_advance_replay_ok,
 		"a lawful second composition pass is accepted, so no rival advance port is configured")
 	assert_true(_advance_id_stable,
@@ -307,6 +319,8 @@ func test_the_coordinator_holds_exactly_the_advance_port_the_probe_reports() -> 
 
 
 func test_every_declared_predecessor_role_is_a_nonzero_same_boot_integer() -> void:
+	if not _fixture_ready:
+		return
 	# RefCounted ids are NEGATIVE in Godot, so the law is nonzero, never positive. A `> 0` check
 	# here would be red against every real port in this graph.
 	for field: String in PREDECESSOR_INTEGER_FIELDS:
@@ -315,6 +329,8 @@ func test_every_declared_predecessor_role_is_a_nonzero_same_boot_integer() -> vo
 
 
 func test_the_nine_restore_roles_are_nine_distinct_retained_participants() -> void:
+	if not _fixture_ready:
+		return
 	var roles: Dictionary = _state["restore_participant_instance_ids"]
 	var seen: Dictionary = {}
 	for role: String in RESTORE_ROLES:
@@ -327,12 +343,16 @@ func test_the_nine_restore_roles_are_nine_distinct_retained_participants() -> vo
 
 
 func test_the_round_and_shop_action_sources_are_two_different_owners() -> void:
+	if not _fixture_ready:
+		return
 	assert_ne(int(_state["minesweeper_round_source_port_instance_id"]),
 		int(_state["shop_purchase_source_port_instance_id"]),
 		"a single object serving both action sources would collapse the recipes")
 
 
 func test_the_two_publication_ledgers_are_two_different_live_owners() -> void:
+	if not _fixture_ready:
+		return
 	assert_ne(int(_state["publication_ledger_instance_id"]),
 		int(_state["desktop_publication_ledger_instance_id"]),
 		"Plan 01's Schedule ledger and Plan 02's desktop ledger are distinct objects")
@@ -343,6 +363,8 @@ func test_the_two_publication_ledgers_are_two_different_live_owners() -> void:
 # -------------------------------------------------------------------------------------------------
 
 func test_the_guard_accepts_the_real_sealed_evidence_and_the_real_live_probe() -> void:
+	if not _fixture_ready:
+		return
 	var result: Dictionary = _validate()
 	assert_true(result.get("ok", false), "the real handoff validates: " + str(result))
 	if not result.get("ok", false):
@@ -358,6 +380,8 @@ func test_the_guard_accepts_the_real_sealed_evidence_and_the_real_live_probe() -
 
 
 func test_the_success_envelope_serializes_no_numeric_instance_id() -> void:
+	if not _fixture_ready:
+		return
 	var result: Dictionary = _validate()
 	if not result.get("ok", false):
 		assert_true(false, "precondition: the real handoff validates")
@@ -377,6 +401,8 @@ func test_the_success_envelope_serializes_no_numeric_instance_id() -> void:
 
 
 func test_the_guard_mutates_neither_seal_nor_probe() -> void:
+	if not _fixture_ready:
+		return
 	var gate_before: String = JSON.stringify(_gate)
 	var state_before: String = JSON.stringify(_state)
 	var snapshot_before: String = JSON.stringify(_snapshot)
@@ -391,6 +417,8 @@ func test_the_guard_mutates_neither_seal_nor_probe() -> void:
 ## NOT detect a working-tree edit to that file -- the digest comes from the seal's own subject
 ## tree, and the desktop amendment gate owns working-tree drift.
 func test_the_verdict_pins_the_sealed_bytes_of_the_suite_this_task_may_only_run() -> void:
+	if not _fixture_ready:
+		return
 	var result: Dictionary = _validate()
 	if not result.get("ok", false):
 		assert_true(false, "precondition: the real handoff validates")
@@ -402,6 +430,8 @@ func test_the_verdict_pins_the_sealed_bytes_of_the_suite_this_task_may_only_run(
 
 
 func test_the_verdict_reports_the_two_requirements_no_seal_attests() -> void:
+	if not _fixture_ready:
+		return
 	var result: Dictionary = _validate()
 	if not result.get("ok", false):
 		assert_true(false, "precondition: the real handoff validates")
@@ -415,6 +445,8 @@ func test_the_verdict_reports_the_two_requirements_no_seal_attests() -> void:
 
 
 func test_the_verdict_keeps_the_later_composition_with_its_later_owner() -> void:
+	if not _fixture_ready:
+		return
 	var result: Dictionary = _validate()
 	if not result.get("ok", false):
 		assert_true(false, "precondition: the real handoff validates")
@@ -428,6 +460,8 @@ func test_the_verdict_keeps_the_later_composition_with_its_later_owner() -> void
 
 
 func test_the_verdict_records_the_one_lawful_forward_readiness_divergence() -> void:
+	if not _fixture_ready:
+		return
 	var result: Dictionary = _validate()
 	if not result.get("ok", false):
 		assert_true(false, "precondition: the real handoff validates")
@@ -444,6 +478,8 @@ func test_the_verdict_records_the_one_lawful_forward_readiness_divergence() -> v
 # -------------------------------------------------------------------------------------------------
 
 func test_a_non_dictionary_input_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	_expect(&"invalid_handoff_input", GUARD.validate("not-a-dictionary", _desktop, _minesweeper,
 		_state, _snapshot), "a String seal")
 	_expect(&"invalid_handoff_input", GUARD.validate(_gate, _desktop, _minesweeper, _state, []),
@@ -451,6 +487,8 @@ func test_a_non_dictionary_input_is_refused() -> void:
 
 
 func test_a_relabelled_seal_subject_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	gate["subject_commit_subject"] = "test(schedule): something else entirely"
 	_reject(&"seal_subject_mismatch", gate, _desktop, _minesweeper, _state, _snapshot,
@@ -458,6 +496,8 @@ func test_a_relabelled_seal_subject_is_refused() -> void:
 
 
 func test_a_seal_pointing_at_another_commit_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var desktop: Dictionary = _desktop_copy()
 	desktop["subject_commit"] = "0000000000000000000000000000000000000000"
 	_reject(&"seal_commit_unreachable", _gate, desktop, _minesweeper, _state, _snapshot,
@@ -468,6 +508,8 @@ func test_a_seal_pointing_at_another_commit_is_refused() -> void:
 ## object database and really is off HEAD's history, which is exactly the case a bare "can git read
 ## it" check would wave through.
 func test_a_seal_pointing_at_an_off_history_commit_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var quarantined: String = str((_gate["strict_branch"] as Dictionary)["tip"])
 	assert_eq(quarantined.length(), 40, "the gate records a full quarantined tip")
 	var desktop: Dictionary = _desktop_copy()
@@ -479,6 +521,8 @@ func test_a_seal_pointing_at_an_off_history_commit_is_refused() -> void:
 ## The nine laws below had NO test until a fresh reviewer disabled each one and watched the suite
 ## stay green. A guard nothing can reach is not a law, it is dead code wearing one.
 func test_a_reachable_ancestor_carrying_the_wrong_subject_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	# A REAL ancestor -- the gate's own subject commit -- but not the desktop seal's. Reachability
 	# passes and the subject comparison is what has to catch it.
 	var desktop: Dictionary = _desktop_copy()
@@ -488,6 +532,8 @@ func test_a_reachable_ancestor_carrying_the_wrong_subject_is_refused() -> void:
 
 
 func test_a_malformed_declared_surface_digest_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	for entry: Variant in gate["source_bindings"] as Array:
 		if str((entry as Dictionary).get("path", "")) \
@@ -498,6 +544,8 @@ func test_a_malformed_declared_surface_digest_is_refused() -> void:
 
 
 func test_a_role_relation_set_that_is_not_the_frozen_six_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var desktop: Dictionary = _desktop_copy()
 	var relations: Array = (desktop["bootstrap_probe"] as Dictionary)["role_relations"]
 	relations.remove_at(relations.size() - 1)
@@ -506,6 +554,8 @@ func test_a_role_relation_set_that_is_not_the_frozen_six_is_refused() -> void:
 
 
 func test_two_ledgers_claiming_one_fixed_path_are_refused() -> void:
+	if not _fixture_ready:
+		return
 	var desktop: Dictionary = _desktop_copy()
 	((desktop["external_stores"] as Dictionary)["desktop_publication_ledger"] as Dictionary) \
 		["fixed_path"] = str((_gate["publication_ledger"] as Dictionary)["fixed_path"])
@@ -514,6 +564,8 @@ func test_two_ledgers_claiming_one_fixed_path_are_refused() -> void:
 
 
 func test_a_drifted_allocation_key_format_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	(gate["day_advance_identity"] as Dictionary)["allocation_key_format"] = "source_day:target_day"
 	_reject(&"allocator_receipt_shape_drift", gate, _desktop, _minesweeper, _state, _snapshot,
@@ -521,6 +573,8 @@ func test_a_drifted_allocation_key_format_is_refused() -> void:
 
 
 func test_an_allocator_receipt_missing_its_disposition_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	var allocator: Dictionary = gate["day_advance_identity"]
 	var keys: Array = []
@@ -533,6 +587,8 @@ func test_an_allocator_receipt_missing_its_disposition_is_refused() -> void:
 
 
 func test_a_dropped_recipe_exclusion_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var minesweeper: Dictionary = _minesweeper_copy()
 	var recipes: Dictionary = minesweeper["publication_recipes"]
 	var kept: Array = []
@@ -545,6 +601,8 @@ func test_a_dropped_recipe_exclusion_is_refused() -> void:
 
 
 func test_a_gate_that_stops_attesting_preserved_schedule_keys_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	(gate["current_versions"] as Dictionary)["committed_schedule_keys_preserved"] = false
 	_reject(&"snapshot_schema_version_drift", gate, _desktop, _minesweeper, _state, _snapshot,
@@ -554,6 +612,8 @@ func test_a_gate_that_stops_attesting_preserved_schedule_keys_is_refused() -> vo
 ## The sharpest of the nine: this is the only thing standing between a REGENERATED gate.json and a
 ## green suite, and gate.json is a historical seal that must never be regenerated.
 func test_a_gate_whose_frozen_readiness_was_regenerated_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	((gate["bootstrap_probe"] as Dictionary)["readiness"] as Dictionary)\
 		["presentation_producer_ready"] = true
@@ -562,6 +622,8 @@ func test_a_gate_whose_frozen_readiness_was_regenerated_is_refused() -> void:
 
 
 func test_a_seal_that_drops_a_consumed_binding_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var desktop: Dictionary = _desktop_copy()
 	var kept: Array = []
 	for entry: Variant in desktop["source_bindings"] as Array:
@@ -573,6 +635,8 @@ func test_a_seal_that_drops_a_consumed_binding_is_refused() -> void:
 
 
 func test_a_repointed_binding_digest_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	for entry: Variant in gate["source_bindings"] as Array:
 		if str((entry as Dictionary).get("path", "")) == "autoload/GameState.gd":
@@ -583,6 +647,8 @@ func test_a_repointed_binding_digest_is_refused() -> void:
 
 
 func test_a_fourth_allocator_seam_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	for entry: Variant in gate["source_bindings"] as Array:
 		if str((entry as Dictionary).get("path", "")) \
@@ -595,6 +661,8 @@ func test_a_fourth_allocator_seam_is_refused() -> void:
 
 
 func test_a_seal_without_command_records_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var minesweeper: Dictionary = _minesweeper_copy()
 	minesweeper["red_green_command_records"] = []
 	_reject(&"seal_test_log_missing", _gate, _desktop, minesweeper, _state, _snapshot,
@@ -602,6 +670,8 @@ func test_a_seal_without_command_records_is_refused() -> void:
 
 
 func test_a_repointed_test_log_digest_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	((gate["commands"] as Array)[0] as Dictionary)["log_sha256"] = \
 		"1111111111111111111111111111111111111111111111111111111111111111"
@@ -610,6 +680,8 @@ func test_a_repointed_test_log_digest_is_refused() -> void:
 
 
 func test_a_probe_missing_a_predecessor_member_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var state: Dictionary = _state_copy()
 	state.erase("board_fate_port_instance_id")
 	_reject(&"predecessor_field_missing", _gate, _desktop, _minesweeper, state, _snapshot,
@@ -617,6 +689,8 @@ func test_a_probe_missing_a_predecessor_member_is_refused() -> void:
 
 
 func test_an_unnamed_probe_key_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var state: Dictionary = _state_copy()
 	state["some_future_port_instance_id"] = 4242
 	_reject(&"predecessor_field_unadmitted", _gate, _desktop, _minesweeper, state, _snapshot,
@@ -624,6 +698,8 @@ func test_an_unnamed_probe_key_is_refused() -> void:
 
 
 func test_a_non_integer_predecessor_role_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var state: Dictionary = _state_copy()
 	state["causal_sequence_port_instance_id"] = "not-an-id"
 	_reject(&"predecessor_field_type", _gate, _desktop, _minesweeper, state, _snapshot,
@@ -631,6 +707,8 @@ func test_a_non_integer_predecessor_role_is_refused() -> void:
 
 
 func test_an_unretained_predecessor_role_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var state: Dictionary = _state_copy()
 	state["consequence_coordinator_instance_id"] = 0
 	_reject(&"predecessor_instance_id_zero", _gate, _desktop, _minesweeper, state, _snapshot,
@@ -638,6 +716,8 @@ func test_an_unretained_predecessor_role_is_refused() -> void:
 
 
 func test_a_reordered_restore_order_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var state: Dictionary = _state_copy()
 	state["restore_order"] = ["run", "identity_allocation", "desktop_consequence", "desktop_board",
 		"profile", "localization", "audio", "route", "narrative"]
@@ -646,6 +726,8 @@ func test_a_reordered_restore_order_is_refused() -> void:
 
 
 func test_a_missing_restore_role_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var state: Dictionary = _state_copy()
 	(state["restore_participant_instance_ids"] as Dictionary).erase("narrative")
 	_reject(&"restore_role_set_drift", _gate, _desktop, _minesweeper, state, _snapshot,
@@ -653,6 +735,8 @@ func test_a_missing_restore_role_is_refused() -> void:
 
 
 func test_an_unretained_restore_role_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var state: Dictionary = _state_copy()
 	(state["restore_participant_instance_ids"] as Dictionary)["audio"] = 0
 	_reject(&"restore_role_instance_id_zero", _gate, _desktop, _minesweeper, state, _snapshot,
@@ -660,6 +744,8 @@ func test_an_unretained_restore_role_is_refused() -> void:
 
 
 func test_one_object_serving_two_restore_roles_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var state: Dictionary = _state_copy()
 	var roles: Dictionary = state["restore_participant_instance_ids"]
 	roles["route"] = roles["profile"]
@@ -668,6 +754,8 @@ func test_one_object_serving_two_restore_roles_is_refused() -> void:
 
 
 func test_one_object_serving_both_action_sources_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var state: Dictionary = _state_copy()
 	state["shop_purchase_source_port_instance_id"] = \
 		state["minesweeper_round_source_port_instance_id"]
@@ -676,6 +764,8 @@ func test_one_object_serving_both_action_sources_is_refused() -> void:
 
 
 func test_a_flipped_sealed_role_verdict_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var desktop: Dictionary = _desktop_copy()
 	var relations: Array = (desktop["bootstrap_probe"] as Dictionary)["role_relations"]
 	((relations[2]) as Dictionary)["verdict"] = "equal"
@@ -684,6 +774,8 @@ func test_a_flipped_sealed_role_verdict_is_refused() -> void:
 
 
 func test_a_ledger_attestation_that_contradicts_the_probe_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var desktop: Dictionary = _desktop_copy()
 	((desktop["external_stores"] as Dictionary)["desktop_publication_ledger"] as Dictionary) \
 		["distinct_from"] = "DesktopPublicationLedger"
@@ -692,6 +784,8 @@ func test_a_ledger_attestation_that_contradicts_the_probe_is_refused() -> void:
 
 
 func test_one_live_object_serving_both_ledger_roles_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var state: Dictionary = _state_copy()
 	state["publication_ledger_instance_id"] = state["desktop_publication_ledger_instance_id"]
 	_reject(&"publication_ledger_relation_violated", _gate, _desktop, _minesweeper, state,
@@ -699,6 +793,8 @@ func test_one_live_object_serving_both_ledger_roles_is_refused() -> void:
 
 
 func test_an_allocator_that_is_not_the_dot16_owner_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	(gate["day_advance_identity"] as Dictionary)["path"] = \
 		"scripts/application/run/SomeOtherAllocator.gd"
@@ -707,6 +803,8 @@ func test_an_allocator_that_is_not_the_dot16_owner_is_refused() -> void:
 
 
 func test_a_raw_causal_day_issue_path_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	(gate["day_advance_identity"] as Dictionary)["raw_causal_day_issue_in_plan01"] = true
 	_reject(&"allocator_raw_causal_day_issue", gate, _desktop, _minesweeper, _state, _snapshot,
@@ -714,6 +812,8 @@ func test_a_raw_causal_day_issue_path_is_refused() -> void:
 
 
 func test_a_third_resolution_kind_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	(gate["day_advance_identity"] as Dictionary)["resolution_kinds"] = \
 		["schedule_done", "condition_hospital", "schedule_view_done"]
@@ -722,6 +822,8 @@ func test_a_third_resolution_kind_is_refused() -> void:
 
 
 func test_a_caller_supplied_target_day_identity_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	var allocator: Dictionary = gate["day_advance_identity"]
 	var keys: Array = (allocator["request_keys"] as Array).duplicate()
@@ -733,6 +835,8 @@ func test_a_caller_supplied_target_day_identity_is_refused() -> void:
 
 
 func test_a_publication_delivered_twice_across_a_restart_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	((gate["observed_publications"] as Array)[0] as Dictionary)["first_delivery_sequence"] = \
 		[true, true]
@@ -741,6 +845,8 @@ func test_a_publication_delivered_twice_across_a_restart_is_refused() -> void:
 
 
 func test_an_undeclared_conflict_code_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	((gate["observed_publications"] as Array)[0] as Dictionary)["conflict_code"] = \
 		"some_other_conflict"
@@ -749,6 +855,8 @@ func test_an_undeclared_conflict_code_is_refused() -> void:
 
 
 func test_a_schedule_done_recipe_carrying_a_checkpoint_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var minesweeper: Dictionary = _minesweeper_copy()
 	(minesweeper["publication_recipes"] as Dictionary)["schedule_done"] = \
 		["causal_sequence", "schedule_commit", "board_fate", "day_resolution_start",
@@ -758,6 +866,8 @@ func test_a_schedule_done_recipe_carrying_a_checkpoint_is_refused() -> void:
 
 
 func test_a_changed_snapshot_input_shape_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var snapshot: Dictionary = _snapshot_copy()
 	snapshot["schedule_view"] = {}
 	_reject(&"snapshot_input_key_set_drift", _gate, _desktop, _minesweeper, _state, snapshot,
@@ -765,6 +875,8 @@ func test_a_changed_snapshot_input_shape_is_refused() -> void:
 
 
 func test_an_undeclared_desktop_snapshot_member_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var snapshot: Dictionary = _snapshot_copy()
 	(snapshot["desktop"] as Dictionary)["outbox"] = {}
 	_reject(&"snapshot_desktop_member_drift", _gate, _desktop, _minesweeper, _state, snapshot,
@@ -772,6 +884,8 @@ func test_an_undeclared_desktop_snapshot_member_is_refused() -> void:
 
 
 func test_a_regressed_schema_version_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var state: Dictionary = _state_copy()
 	state["save_document_schema_version"] = 2
 	_reject(&"snapshot_schema_version_drift", _gate, _desktop, _minesweeper, state, _snapshot,
@@ -779,6 +893,8 @@ func test_a_regressed_schema_version_is_refused() -> void:
 
 
 func test_a_live_snapshot_version_that_disagrees_with_its_owner_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var state: Dictionary = _state_copy()
 	state["run_snapshot_schema_version"] = 6
 	_reject(&"snapshot_schema_version_drift", _gate, _desktop, _minesweeper, state, _snapshot,
@@ -786,6 +902,8 @@ func test_a_live_snapshot_version_that_disagrees_with_its_owner_is_refused() -> 
 
 
 func test_a_readiness_fact_that_stopped_matching_its_seal_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var state: Dictionary = _state_copy()
 	state["hospital_presentation_ready"] = false
 	_reject(&"sealed_readiness_drift", _gate, _desktop, _minesweeper, state, _snapshot,
@@ -793,6 +911,8 @@ func test_a_readiness_fact_that_stopped_matching_its_seal_is_refused() -> void:
 
 
 func test_a_producer_regression_below_finished_deviation_5_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var state: Dictionary = _state_copy()
 	state["presentation_producer_ready"] = false
 	_reject(&"sealed_readiness_drift", _gate, _desktop, _minesweeper, state, _snapshot,
@@ -800,6 +920,8 @@ func test_a_producer_regression_below_finished_deviation_5_is_refused() -> void:
 
 
 func test_a_requirement_split_that_overstates_its_evidence_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	var ids: Array = (gate["requirement_ids"] as Array).duplicate()
 	ids.append("req.runtime.schedule_ownership")
@@ -809,6 +931,8 @@ func test_a_requirement_split_that_overstates_its_evidence_is_refused() -> void:
 
 
 func test_a_later_owner_that_has_already_taken_the_composition_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var desktop: Dictionary = _desktop_copy()
 	desktop["schedule_view_owner"] = "dwm-p2r.10"
 	_reject(&"oyo_composition_claimed", _gate, desktop, _minesweeper, _state, _snapshot,
@@ -816,6 +940,8 @@ func test_a_later_owner_that_has_already_taken_the_composition_is_refused() -> v
 
 
 func test_a_destination_composition_declared_ready_inside_phase_2r_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var state: Dictionary = _state_copy()
 	state["destination_composition_ready"] = true
 	_reject(&"oyo_composition_claimed", _gate, _desktop, _minesweeper, state, _snapshot,
@@ -823,6 +949,8 @@ func test_a_destination_composition_declared_ready_inside_phase_2r_is_refused() 
 
 
 func test_a_seal_that_stops_recording_dating_as_deferred_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	((gate["bootstrap_probe"] as Dictionary)["readiness"] as Dictionary)\
 		["dating_presentation_ready"] = true
@@ -831,6 +959,8 @@ func test_a_seal_that_stops_recording_dating_as_deferred_is_refused() -> void:
 
 
 func test_a_dating_presentation_declared_ready_inside_phase_2r_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var state: Dictionary = _state_copy()
 	state["dating_presentation_ready"] = true
 	_reject(&"oyo_composition_claimed", _gate, _desktop, _minesweeper, state, _snapshot,
@@ -859,6 +989,8 @@ func test_a_dating_presentation_declared_ready_inside_phase_2r_is_refused() -> v
 # -------------------------------------------------------------------------------------------------
 
 func test_a_seal_without_an_array_of_source_bindings_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	gate["source_bindings"] = "not-an-array"
 	_reject(&"seal_source_binding_missing", gate, _desktop, _minesweeper, _state, _snapshot,
@@ -866,6 +998,8 @@ func test_a_seal_without_an_array_of_source_bindings_is_refused() -> void:
 
 
 func test_an_allocator_binding_without_a_declared_surface_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	for entry: Variant in gate["source_bindings"] as Array:
 		if str((entry as Dictionary).get("path", "")) \
@@ -876,6 +1010,8 @@ func test_an_allocator_binding_without_a_declared_surface_is_refused() -> void:
 
 
 func test_a_command_record_that_is_not_an_object_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	(gate["commands"] as Array)[0] = "not-an-object"
 	_reject(&"seal_test_log_missing", gate, _desktop, _minesweeper, _state, _snapshot,
@@ -883,6 +1019,8 @@ func test_a_command_record_that_is_not_an_object_is_refused() -> void:
 
 
 func test_a_command_record_naming_no_log_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	((gate["commands"] as Array)[0] as Dictionary)["log_path"] = ""
 	_reject(&"seal_test_log_missing", gate, _desktop, _minesweeper, _state, _snapshot,
@@ -890,6 +1028,8 @@ func test_a_command_record_naming_no_log_is_refused() -> void:
 
 
 func test_a_recorded_log_absent_at_head_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	((gate["commands"] as Array)[0] as Dictionary)["log_path"] = \
 		"evidence/phase_2r/logs/no-such-log.log"
@@ -898,6 +1038,8 @@ func test_a_recorded_log_absent_at_head_is_refused() -> void:
 
 
 func test_a_restore_order_that_is_not_an_array_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var state: Dictionary = _state_copy()
 	state["restore_order"] = "identity_allocation,run"
 	_reject(&"predecessor_field_type", _gate, _desktop, _minesweeper, state, _snapshot,
@@ -905,6 +1047,8 @@ func test_a_restore_order_that_is_not_an_array_is_refused() -> void:
 
 
 func test_restore_roles_that_are_not_a_dictionary_are_refused() -> void:
+	if not _fixture_ready:
+		return
 	var state: Dictionary = _state_copy()
 	state["restore_participant_instance_ids"] = []
 	_reject(&"predecessor_field_type", _gate, _desktop, _minesweeper, state, _snapshot,
@@ -912,6 +1056,8 @@ func test_restore_roles_that_are_not_a_dictionary_are_refused() -> void:
 
 
 func test_a_desktop_seal_without_a_bootstrap_probe_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var desktop: Dictionary = _desktop_copy()
 	desktop.erase("bootstrap_probe")
 	_reject(&"role_relation_verdict_drift", _gate, desktop, _minesweeper, _state, _snapshot,
@@ -919,6 +1065,8 @@ func test_a_desktop_seal_without_a_bootstrap_probe_is_refused() -> void:
 
 
 func test_a_desktop_seal_without_external_stores_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var desktop: Dictionary = _desktop_copy()
 	desktop.erase("external_stores")
 	_reject(&"publication_ledger_relation_violated", _gate, desktop, _minesweeper, _state,
@@ -926,6 +1074,8 @@ func test_a_desktop_seal_without_external_stores_is_refused() -> void:
 
 
 func test_an_unrecorded_desktop_ledger_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var desktop: Dictionary = _desktop_copy()
 	(desktop["external_stores"] as Dictionary)["desktop_publication_ledger"] = "unrecorded"
 	_reject(&"publication_ledger_relation_violated", _gate, desktop, _minesweeper, _state,
@@ -933,6 +1083,8 @@ func test_an_unrecorded_desktop_ledger_is_refused() -> void:
 
 
 func test_a_gate_without_a_day_advance_identity_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	gate.erase("day_advance_identity")
 	_reject(&"allocator_binding_drift", gate, _desktop, _minesweeper, _state, _snapshot,
@@ -940,6 +1092,8 @@ func test_a_gate_without_a_day_advance_identity_is_refused() -> void:
 
 
 func test_a_gate_recording_no_observed_publications_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	gate["observed_publications"] = []
 	_reject(&"publication_first_delivery_drift", gate, _desktop, _minesweeper, _state, _snapshot,
@@ -947,6 +1101,8 @@ func test_a_gate_recording_no_observed_publications_is_refused() -> void:
 
 
 func test_a_gate_recording_no_conflict_codes_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	(gate["publication_ledger"] as Dictionary)["conflict_codes"] = "none"
 	_reject(&"publication_conflict_code_drift", gate, _desktop, _minesweeper, _state, _snapshot,
@@ -954,6 +1110,8 @@ func test_a_gate_recording_no_conflict_codes_is_refused() -> void:
 
 
 func test_an_observed_publication_that_is_not_an_object_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	(gate["observed_publications"] as Array)[0] = "not-an-object"
 	_reject(&"publication_first_delivery_drift", gate, _desktop, _minesweeper, _state, _snapshot,
@@ -961,6 +1119,8 @@ func test_an_observed_publication_that_is_not_an_object_is_refused() -> void:
 
 
 func test_a_minesweeper_seal_without_recipes_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var minesweeper: Dictionary = _minesweeper_copy()
 	minesweeper.erase("publication_recipes")
 	_reject(&"publication_recipe_drift", _gate, _desktop, minesweeper, _state, _snapshot,
@@ -968,6 +1128,8 @@ func test_a_minesweeper_seal_without_recipes_is_refused() -> void:
 
 
 func test_a_snapshot_desktop_member_that_is_not_an_object_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var snapshot: Dictionary = _snapshot_copy()
 	snapshot["desktop"] = "not-an-object"
 	_reject(&"snapshot_input_key_set_drift", _gate, _desktop, _minesweeper, _state, snapshot,
@@ -975,6 +1137,8 @@ func test_a_snapshot_desktop_member_that_is_not_an_object_is_refused() -> void:
 
 
 func test_a_desktop_seal_without_v4_facts_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var desktop: Dictionary = _desktop_copy()
 	desktop.erase("run_snapshot_v4")
 	_reject(&"snapshot_schema_version_drift", _gate, desktop, _minesweeper, _state, _snapshot,
@@ -982,6 +1146,8 @@ func test_a_desktop_seal_without_v4_facts_is_refused() -> void:
 
 
 func test_a_gate_without_current_versions_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	gate.erase("current_versions")
 	_reject(&"snapshot_schema_version_drift", gate, _desktop, _minesweeper, _state, _snapshot,
@@ -989,6 +1155,8 @@ func test_a_gate_without_current_versions_is_refused() -> void:
 
 
 func test_a_gate_without_a_bootstrap_probe_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	gate.erase("bootstrap_probe")
 	_reject(&"sealed_readiness_drift", gate, _desktop, _minesweeper, _state, _snapshot,
@@ -996,6 +1164,8 @@ func test_a_gate_without_a_bootstrap_probe_is_refused() -> void:
 
 
 func test_a_gate_probe_without_readiness_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	(gate["bootstrap_probe"] as Dictionary)["readiness"] = "ready"
 	_reject(&"sealed_readiness_drift", gate, _desktop, _minesweeper, _state, _snapshot,
@@ -1003,6 +1173,8 @@ func test_a_gate_probe_without_readiness_is_refused() -> void:
 
 
 func test_a_seal_recording_no_requirement_ids_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var minesweeper: Dictionary = _minesweeper_copy()
 	minesweeper.erase("requirement_ids")
 	_reject(&"requirement_attestation_drift", _gate, _desktop, minesweeper, _state, _snapshot,
@@ -1018,6 +1190,8 @@ func test_a_seal_recording_no_requirement_ids_is_refused() -> void:
 ## otherwise sail through. This seam is separate precisely because validate()'s rejection tests
 ## deliberately pass mutated copies.
 func test_the_three_seal_documents_match_their_committed_bytes() -> void:
+	if not _fixture_ready:
+		return
 	var result: Dictionary = GUARD.validate_sealed_documents(_gate, _desktop, _minesweeper)
 	assert_true(result.get("ok", false), "the working-tree seals equal their HEAD blobs: "
 		+ str(result))
@@ -1028,6 +1202,8 @@ func test_the_three_seal_documents_match_their_committed_bytes() -> void:
 
 
 func test_a_hand_edited_seal_that_stays_internally_consistent_is_refused() -> void:
+	if not _fixture_ready:
+		return
 	var gate: Dictionary = _gate_copy()
 	var observed: Array = gate["observed_publications"]
 	observed.remove_at(observed.size() - 1)
@@ -1036,6 +1212,8 @@ func test_a_hand_edited_seal_that_stays_internally_consistent_is_refused() -> vo
 
 
 func test_the_document_seam_refuses_a_non_dictionary_seal() -> void:
+	if not _fixture_ready:
+		return
 	_expect(&"invalid_handoff_input",
 		GUARD.validate_sealed_documents(_gate, "not-a-dictionary", _minesweeper),
 		"a String contract")
@@ -1061,7 +1239,10 @@ class Substrate extends RefCounted:
 
 func _substrate() -> Substrate:
 	var substrate: Substrate = Substrate.new()
-	substrate.storage = JSON_STORAGE.new(_isolated_root())
+	var root := _isolated_root()
+	if root.is_empty():
+		return null
+	substrate.storage = JSON_STORAGE.new(root)
 	substrate.root_store = ROOT_STORE.new()
 	assert_true(substrate.root_store.configure(substrate.storage, NAMESPACE_SOURCE.new())
 		.get("ok", false))
@@ -1122,7 +1303,11 @@ func _real_commit(substrate: Substrate, label: String, day: int, drafts: Array) 
 
 
 func test_the_real_schedule_commit_port_prepares_a_detached_aggregate_without_mutating() -> void:
+	if not _fixture_ready:
+		return
 	var substrate: Substrate = _substrate()
+	if substrate == null:
+		return
 	var before: String = JSON.stringify((substrate.game_state.call(
 		&"capture_run_snapshot_input") as Dictionary)["committed_schedule"])
 	var prepared: Dictionary = _real_commit(substrate, "handoff-day1", 1, [
@@ -1157,7 +1342,11 @@ func test_the_real_schedule_commit_port_prepares_a_detached_aggregate_without_mu
 
 
 func test_the_real_day_start_port_prepares_from_a_real_commit_without_starting_anything() -> void:
+	if not _fixture_ready:
+		return
 	var substrate: Substrate = _substrate()
+	if substrate == null:
+		return
 	var prepared: Dictionary = _real_commit(substrate, "handoff-start", 1, [
 		_draft("draft-a", 0, "training", 1),
 	])
@@ -1191,7 +1380,11 @@ func test_the_real_day_start_port_prepares_from_a_real_commit_without_starting_a
 
 
 func test_the_real_shared_allocator_prepares_both_variants_without_committing_the_root() -> void:
+	if not _fixture_ready:
+		return
 	var substrate: Substrate = _substrate()
+	if substrate == null:
+		return
 	var port: Object = ADVANCE_PORT.new()
 	assert_true(port.call(&"configure", substrate.issuer).get("ok", false))
 	var sealed_receipt_keys: Array = (_gate["day_advance_identity"] as Dictionary)["receipt_keys"]
@@ -1254,7 +1447,11 @@ func _advance_request(substrate: Substrate, resolution_kind: String) -> Dictiona
 
 
 func test_the_real_allocator_refuses_an_id_only_source_causal_day_receipt() -> void:
+	if not _fixture_ready:
+		return
 	var substrate: Substrate = _substrate()
+	if substrate == null:
+		return
 	var port: Object = ADVANCE_PORT.new()
 	assert_true(port.call(&"configure", substrate.issuer).get("ok", false))
 	var request: Dictionary = _advance_request(substrate, "schedule_done")
@@ -1270,7 +1467,11 @@ func test_the_real_allocator_refuses_an_id_only_source_causal_day_receipt() -> v
 
 
 func test_the_real_provenance_owner_refuses_a_malformed_handoff() -> void:
+	if not _fixture_ready:
+		return
 	var substrate: Substrate = _substrate()
+	if substrate == null:
+		return
 	var provenance: Object = PROVENANCE.new()
 	assert_true(provenance.call(&"configure", substrate.registry, substrate.issuer)
 		.get("ok", false), "the REAL provenance owner configures against real dependencies")
@@ -1281,6 +1482,8 @@ func test_the_real_provenance_owner_refuses_a_malformed_handoff() -> void:
 
 
 func test_the_real_causal_sequence_port_stays_mutation_free_before_configuration() -> void:
+	if not _fixture_ready:
+		return
 	var port: Object = CAUSAL_SEQUENCE_PORT.new()
 	var reserved: Dictionary = port.call(&"prepare_reservation", {})
 	assert_eq(str(reserved.get("code", "")), "port_not_configured",
@@ -1295,10 +1498,17 @@ func test_the_real_causal_sequence_port_stays_mutation_free_before_configuration
 ## invalid_state -- so the port stayed unconfigured and the "malformed request" assertion was
 ## really just re-testing port_not_configured. It passed, for the wrong reason.
 func test_the_real_causal_sequence_port_refuses_a_malformed_reservation() -> void:
+	if not _fixture_ready:
+		return
 	var substrate: Substrate = _substrate()
+	if substrate == null:
+		return
 	var save_manager: Node = load(SAVE_MANAGER_PATH).new()
 	add_child_autofree(save_manager)
-	assert_true(save_manager.call(&"initialize", JSON_STORAGE.new(_isolated_root()))
+	var save_root := _isolated_root()
+	if save_root.is_empty():
+		return
+	assert_true(save_manager.call(&"initialize", JSON_STORAGE.new(save_root))
 		.get("ok", false))
 	var gate: RefCounted = APPLICATION_MUTATION_GATE.new()
 	var checkpoint_port: RefCounted = SAVE_CHECKPOINT_PORT.new(save_manager)
@@ -1326,6 +1536,8 @@ func test_the_real_causal_sequence_port_refuses_a_malformed_reservation() -> voi
 
 
 func test_the_real_board_fate_port_refuses_a_projected_departure_before_configuration() -> void:
+	if not _fixture_ready:
+		return
 	var port: Object = BOARD_FATE_PORT.new()
 	var projected: Dictionary = port.call(&"prepare_projected_causal_departure", {})
 	assert_false(projected.get("ok", true), "an unconfigured board-fate port projects nothing")
@@ -1334,6 +1546,8 @@ func test_the_real_board_fate_port_refuses_a_projected_departure_before_configur
 
 
 func test_the_real_minesweeper_save_port_refuses_an_incapable_checkpoint_owner() -> void:
+	if not _fixture_ready:
+		return
 	var port: Object = MINESWEEPER_SAVE_PORT.new()
 	var configured: Dictionary = port.call(&"configure", RefCounted.new(), RefCounted.new())
 	assert_false(configured.get("ok", true), "an incapable owner is refused")
@@ -1342,9 +1556,14 @@ func test_the_real_minesweeper_save_port_refuses_an_incapable_checkpoint_owner()
 
 
 func test_the_real_minesweeper_save_port_binds_the_real_checkpoint_owner() -> void:
+	if not _fixture_ready:
+		return
 	var save_manager: Node = load(SAVE_MANAGER_PATH).new()
 	add_child_autofree(save_manager)
-	assert_true(save_manager.call(&"initialize", JSON_STORAGE.new(_isolated_root()))
+	var save_root := _isolated_root()
+	if save_root.is_empty():
+		return
+	assert_true(save_manager.call(&"initialize", JSON_STORAGE.new(save_root))
 		.get("ok", false))
 	var gate: RefCounted = APPLICATION_MUTATION_GATE.new()
 	var checkpoint_port: RefCounted = SAVE_CHECKPOINT_PORT.new(save_manager)
@@ -1361,6 +1580,8 @@ func test_the_real_minesweeper_save_port_binds_the_real_checkpoint_owner() -> vo
 
 
 func test_the_nine_real_restore_participant_classes_share_one_interface() -> void:
+	if not _fixture_ready:
+		return
 	for role: String in RESTORE_ROLES:
 		var script: Script = load(str(RESTORE_PARTICIPANT_PATHS[role]))
 		assert_not_null(script, "the real participant class for " + role + " exists")
@@ -1377,6 +1598,8 @@ func test_the_nine_real_restore_participant_classes_share_one_interface() -> voi
 ## -- build() consumes the input and stamps the snapshot, then validate() re-accepts what build
 ## produced.
 func test_the_captured_snapshot_input_round_trips_through_the_real_v5_schema() -> void:
+	if not _fixture_ready:
+		return
 	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(_snapshot.duplicate(true), {}, "main", null,
 		{}, 1, 1)
 	assert_true(built.get("ok", false),
@@ -1394,6 +1617,8 @@ func test_the_captured_snapshot_input_round_trips_through_the_real_v5_schema() -
 
 
 func test_the_real_v5_builder_refuses_a_snapshot_input_missing_a_declared_member() -> void:
+	if not _fixture_ready:
+		return
 	var incomplete: Dictionary = _snapshot_copy()
 	incomplete.erase("desktop")
 	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(incomplete, {}, "main", null, {}, 1, 1)
@@ -1402,6 +1627,8 @@ func test_the_real_v5_builder_refuses_a_snapshot_input_missing_a_declared_member
 
 
 func test_the_real_schedule_state_schema_rejects_the_aggregate_the_seal_forbids() -> void:
+	if not _fixture_ready:
+		return
 	var rejected: Dictionary = SCHEDULE_STATE_SCHEMA.validate_aggregate({"schema_version": 1})
 	assert_eq(str(rejected.get("code", "")), "invalid_committed_schedule",
 		"the real schema refuses an aggregate missing its sealed members")
@@ -1449,6 +1676,8 @@ func _expect(code: StringName, result: Dictionary, note: String) -> void:
 		+ String(result.get("code", &"")) + " " + str(result.get("message", "")))
 
 func test_pre_cutover_or_future_live_schema_claims_are_refused() -> void:
+	if not _fixture_ready:
+		return
 	for key: String in ["run_snapshot_schema_version", "save_document_schema_version"]:
 		for version: int in [4, 6]:
 			var state := _state_copy()

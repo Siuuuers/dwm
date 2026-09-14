@@ -1,4 +1,7 @@
 extends "res://addons/gut/test.gd"
+
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
+
 ## Production durable first-Reveal transaction (Plan 02 Task 6, dwm-p2r.32, Phase D, brief Steps
 ## 6.10-6.12). Configures the REAL SaveManagerDesktopBoardPort over an isolated store and v4
 ## providers, and the real Task-5 MinesweeperRoundCoordinator/GameStateDesktopBoardPort through the
@@ -61,8 +64,12 @@ func _fresh_issuer(root: String) -> RefCounted:
 
 
 func _wired() -> Dictionary:
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("first_reveal_durable").path_join(str(randi()))
-	DirAccess.make_dir_recursive_absolute(root.path_join("saves"))
+	var result: Dictionary = TEMPORARY_STORAGE.create("first-reveal-durable")
+	assert_true(result.get("ok", false), result.get("message", ""))
+	if not result.get("ok", false):
+		return {}
+	var root: String = str(result["value"])
+	assert_eq(DirAccess.make_dir_recursive_absolute(root.path_join("saves")), OK)
 
 	var save_manager: Node = load(SAVE_MANAGER_PATH).new()
 	autofree(save_manager)
@@ -212,8 +219,12 @@ class _RestoreOwner extends RefCounted:
 ## SaveManager so a genuine prepare_restore_autosave()/commit_prepared_restore() cycle can run
 ## against the SAME live gs/consequence_state/board_state a crashed reveal() never touched.
 func _wired_for_recovery() -> Dictionary:
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("first_reveal_recovery").path_join(str(randi()))
-	DirAccess.make_dir_recursive_absolute(root.path_join("saves"))
+	var result: Dictionary = TEMPORARY_STORAGE.create("first-reveal-recovery")
+	assert_true(result.get("ok", false), result.get("message", ""))
+	if not result.get("ok", false):
+		return {}
+	var root: String = str(result["value"])
+	assert_eq(DirAccess.make_dir_recursive_absolute(root.path_join("saves")), OK)
 
 	var save_manager: Node = load(SAVE_MANAGER_PATH).new()
 	autofree(save_manager)
@@ -328,6 +339,8 @@ func _autosave_document(save_manager: Node) -> Dictionary:
 
 func test_first_reveal_writes_a_durable_pre_board_autosave_with_the_charged_and_revealed_state() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var coordinator: RefCounted = wired["coordinator"]
 	var request := _reveal_request(coordinator, wired["issuer"])
 	var result: Dictionary = coordinator.reveal(request)
@@ -350,6 +363,8 @@ func test_first_reveal_writes_a_durable_pre_board_autosave_with_the_charged_and_
 
 func test_first_reveal_charges_exactly_once_across_a_retried_request() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var coordinator: RefCounted = wired["coordinator"]
 	var request := _reveal_request(coordinator, wired["issuer"])
 	var first: Dictionary = coordinator.reveal(request)
@@ -364,6 +379,8 @@ func test_first_reveal_charges_exactly_once_across_a_retried_request() -> void:
 
 func test_adapter_rejects_a_desktop_less_post_commit_snapshot_input() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var durable_port: Object = wired["durable_port"]
 	var preview: Dictionary = durable_port.preview_checkpoint_id(RUN_ID)
 	assert_true(preview.get("ok", false), JSON.stringify(preview))
@@ -380,6 +397,8 @@ func test_adapter_rejects_a_desktop_less_post_commit_snapshot_input() -> void:
 
 func test_adapter_rejects_a_board_only_desktop_value() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var durable_port: Object = wired["durable_port"]
 	var prepared: Dictionary = durable_port.prepare_checkpoint(
 		{"lifecycle": {"run_id": RUN_ID}, "desktop": {"board": {}}}, &"pre_board",
@@ -390,6 +409,8 @@ func test_adapter_rejects_a_board_only_desktop_value() -> void:
 
 func test_adapter_rejects_an_extra_desktop_key() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var durable_port: Object = wired["durable_port"]
 	var prepared: Dictionary = durable_port.prepare_checkpoint(
 		{"lifecycle": {"run_id": RUN_ID}, "desktop": {"board": {}, "consequence": {}, "surprise": {}}},
@@ -405,6 +426,8 @@ func test_adapter_rejects_an_extra_desktop_key() -> void:
 ## board, matching consequence revision, and no second charge on a retried request after restore.
 func test_restore_after_a_crash_between_checkpoint_commit_and_live_adoption_recovers_the_paid_first_reveal() -> void:
 	var wired := _wired_for_recovery()
+	if wired.is_empty():
+		return
 	var coordinator: RefCounted = wired["coordinator"]
 	var save_manager: Node = wired["save_manager"]
 	var gs: Node = wired["gs"]
@@ -471,8 +494,11 @@ func test_first_reveal_falls_back_to_the_fake_checkpoint_when_durable_is_not_con
 	# Task-5 parity: a coordinator that never calls configure_durable_checkpoint() behaves exactly
 	# as it always did (brief line 295: "cannot install a second coordinator or silently adapt a
 	# fake candidate" -- the untouched fake path proves the durable addition changed nothing there).
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("first_reveal_fake_only").path_join(str(randi()))
-	var issuer := _fresh_issuer(root)
+	var created: Dictionary = TEMPORARY_STORAGE.create("first-reveal-fake-only")
+	assert_true(created.get("ok", false), created.get("message", ""))
+	if not created.get("ok", false):
+		return
+	var issuer := _fresh_issuer(str(created["value"]))
 	var fake_checkpoint: RefCounted = load(FAKE_CHECKPOINT_PATH).new()
 	var generation_port: RefCounted = load(FAKE_GENERATION_PATH).new()
 	generation_port.arm_materialize({"schema_version": 1, "width": 8, "height": 8, "mine_indices": [53,54,55,56,57,58,59,60,61,62,63], "mine_count": 11})

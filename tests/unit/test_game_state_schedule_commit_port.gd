@@ -48,17 +48,32 @@ var _port: Object = null
 var _commands: Dictionary = {}
 var _signals: Array[String] = []
 var _root_counter := 0
+var _fixture_ready := false
 
 
 func before_each() -> void:
+	_fixture_ready = false
 	_commands = {}
 	_signals = []
+	_port_script = null
+	_ledger_script = null
+	_root = ""
+	_storage = null
+	_root_store = null
+	_issuer = null
+	_registry = null
+	_fingerprint = ""
+	_game_state = null
+	_ledger = null
+	_port = null
 	var port_loaded: Dictionary = PROBE.load_script(PORT_PATH)
 	_port_script = port_loaded["value"] if port_loaded.get("ok", false) else null
 	var ledger_loaded: Dictionary = PROBE.load_script(LEDGER_PATH)
 	_ledger_script = ledger_loaded["value"] if ledger_loaded.get("ok", false) else null
 
 	_root = _isolated_root()
+	if _root.is_empty():
+		return
 	_storage = JsonFileStorage.new(_root)
 
 	_root_store = ROOT_STORE.new()
@@ -83,23 +98,25 @@ func before_each() -> void:
 	if _port_script != null and _ledger != null:
 		_port = _port_script.new(_game_state, _registry, _issuer, _ledger)
 	_watch_signals(_game_state)
+	_fixture_ready = true
 
 
 ## The wrapper's GUID-isolated `DWM_TEST_ROOT` is the only storage root this suite may use. The one
 ## adapter built on it owns the issuer root AND the publication ledger, exactly as bootstrap does.
 func _isolated_root() -> String:
-	var wrapper := OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
 	_root_counter += 1
-	var root: String = wrapper.path_join("schedule-commit-port-%d" % _root_counter)
-	var production := ProjectSettings.globalize_path("user://").simplify_path().trim_suffix("/")
-	assert_ne(root.simplify_path().trim_suffix("/").nocasecmp_to(production), 0,
-		"an isolated root is never the production user directory")
-	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
-	return root
+	var created: Dictionary = TemporaryStorage.create(
+		"schedule-commit-port-%d" % _root_counter)
+	assert_true(created.get("ok", false), created.get("message", "temporary storage unavailable"))
+	if not created.get("ok", false):
+		return ""
+	return str(created.get("value", ""))
 
 
 func _require_port() -> bool:
+	if not _fixture_ready:
+		assert_true(false, "the committed-Schedule fixture is unavailable")
+		return false
 	var absent: Array[String] = []
 	if _ledger_script == null:
 		absent.append(LEDGER_PATH)

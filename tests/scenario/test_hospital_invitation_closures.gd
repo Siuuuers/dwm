@@ -28,30 +28,59 @@ var _root_counter := 0
 var _issuer: RefCounted
 var _registry: RefCounted
 var _commands: Dictionary = {}
+var _fixture_ready := false
 
 
 func before_each() -> void:
+	_fixture_ready = false
+	_root = ""
+	_issuer = null
+	_registry = null
 	_commands = {}
-	var wrapper: String = OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
 	_root_counter += 1
-	_root = wrapper.path_join("hospital-closures-%d" % _root_counter)
-	assert_eq(DirAccess.make_dir_recursive_absolute(_root), OK)
+	var created: Dictionary = TemporaryStorage.create(
+		"hospital-closures-%d" % _root_counter)
+	assert_true(created.get("ok", false), created.get("message", "temporary storage unavailable"))
+	if not created.get("ok", false):
+		return
+	_root = str(created.get("value", ""))
 
 	var root_store: RefCounted = ROOT_STORE.new()
-	assert_true(root_store.configure(JsonFileStorage.new(_root), NAMESPACE_SOURCE.new()).get("ok", false))
-	assert_true(root_store.load_or_create().get("ok", false))
+	var configured: Dictionary = root_store.configure(
+		JsonFileStorage.new(_root), NAMESPACE_SOURCE.new())
+	assert_true(configured.get("ok", false), str(configured))
+	if not configured.get("ok", false):
+		return
+	var initialized: Dictionary = root_store.load_or_create()
+	assert_true(initialized.get("ok", false), str(initialized))
+	if not initialized.get("ok", false):
+		return
 	_issuer = ISSUER.new()
-	assert_true(_issuer.configure(root_store).get("ok", false))
+	var issuer_configured: Dictionary = _issuer.configure(root_store)
+	assert_true(issuer_configured.get("ok", false), str(issuer_configured))
+	if not issuer_configured.get("ok", false):
+		return
 
 	var loaded: Dictionary = REGISTRY.load_current()
 	assert_true(loaded.get("ok", false), str(loaded))
+	if not loaded.get("ok", false):
+		return
 	_registry = (loaded.get("value", {}) as Dictionary).get("registry")
+	_fixture_ready = true
+
+
+func _require_fixture() -> bool:
+	if _fixture_ready:
+		return true
+	assert_true(false, "the Hospital invitation fixture is unavailable")
+	return false
 
 
 # ---- closure after a faint ----
 
 func test_a_witnessing_sylvia_asks_no_missed_question() -> void:
+	if not _require_fixture():
+		return
 	var state := _accepted_solo(CONTACT_STATE.make_defaults(), "sylvia", FAINT_DAY)
 	state = _with_witness(state, "solo:sylvia:day%d" % FAINT_DAY)
 
@@ -69,6 +98,8 @@ func test_a_witnessing_sylvia_asks_no_missed_question() -> void:
 
 
 func test_without_a_witness_sylvia_asks_normally() -> void:
+	if not _require_fixture():
+		return
 	# The control. Same faint, same missed date, no witness record: the ordinary closure applies.
 	var state := _accepted_solo(CONTACT_STATE.make_defaults(), "sylvia", FAINT_DAY)
 
@@ -82,6 +113,8 @@ func test_without_a_witness_sylvia_asks_normally() -> void:
 
 
 func test_a_sylvia_witness_never_suppresses_another_friend() -> void:
+	if not _require_fixture():
+		return
 	# Lavinia's date was prevented by the same faint, but she did not witness it, so she still asks.
 	var state := _accepted_solo(CONTACT_STATE.make_defaults(), "sylvia", FAINT_DAY)
 	state = _accepted_solo(state, "lavinia", FAINT_DAY)
@@ -98,6 +131,8 @@ func test_a_sylvia_witness_never_suppresses_another_friend() -> void:
 
 
 func test_the_witness_index_survives_the_rollover_it_informed() -> void:
+	if not _require_fixture():
+		return
 	# APPEND-ONLY HANDOFF. Rollover reads the index; it never consumes, clears, or rewrites it,
 	# because dwm-oyo.4 consumes it after this plan has retired.
 	var state := _accepted_solo(CONTACT_STATE.make_defaults(), "sylvia", FAINT_DAY)
@@ -213,6 +248,8 @@ func _condition_plan(state: Dictionary, source_day: int = FAINT_DAY) -> Dictiona
 			"receipt_provenance": derived.value.provenance}}
 
 func test_condition_hospital_closes_exact_sources_and_retains_distinct_sylvia_witness() -> void:
+	if not _require_fixture():
+		return
 	var state := _accepted_solo(CONTACT_STATE.make_defaults(), "sylvia", FAINT_DAY)
 	state = _accepted_solo(state, "lavinia", FAINT_DAY)
 	var before := state.duplicate(true)
@@ -243,6 +280,8 @@ func test_condition_hospital_closes_exact_sources_and_retains_distinct_sylvia_wi
 		preload("res://scripts/validation/CanonicalJsonWriter.gd").stringify(result.value).value)
 
 func test_condition_hospital_refuses_changed_source_before_closure() -> void:
+	if not _require_fixture():
+		return
 	var state := _accepted_solo(CONTACT_STATE.make_defaults(), "sylvia", FAINT_DAY)
 	var before := state.duplicate(true)
 	var plan := _condition_plan(state)
@@ -253,6 +292,8 @@ func test_condition_hospital_refuses_changed_source_before_closure() -> void:
 	assert_eq(state, before)
 
 func test_condition_hospital_preserves_offscreen_pair_window_without_a_fake_date() -> void:
+	if not _require_fixture():
+		return
 	var state := CONTACT_STATE.make_defaults()
 	var result: Dictionary = preload("res://scripts/application/run/ConditionHospitalContactsAdapter.gd").prepare(
 		state, _condition_plan(state, 2), _issuer)
@@ -263,6 +304,8 @@ func test_condition_hospital_preserves_offscreen_pair_window_without_a_fake_date
 	assert_eq(result.value.output.closure_receipt.counter_deltas, {"pl_window_counts.priscilla_lavinia": 1})
 
 func test_condition_witness_cannot_be_retagged_as_schedule_done() -> void:
+	if not _require_fixture():
+		return
 	var state := _accepted_solo(CONTACT_STATE.make_defaults(), "sylvia", FAINT_DAY)
 	var result: Dictionary = preload("res://scripts/application/run/ConditionHospitalContactsAdapter.gd").prepare(
 		state, _condition_plan(state), _issuer)
@@ -273,6 +316,8 @@ func test_condition_witness_cannot_be_retagged_as_schedule_done() -> void:
 	assert_false(CONTACT_STATE._validate_sylvia_witness_shape(witness).get("ok", true))
 
 func test_condition_hospital_stage_presentation_and_retirement_use_real_root_ancestry() -> void:
+	if not _require_fixture():
+		return
 	var lifecycle := preload("res://scripts/domain/run/RunLifecycle.gd").new()
 	var causal := {"receipt_id": "issuer.causal.source", "purpose": "causal_day_instance",
 		"namespace": "fixture", "counter": 1, "numeric_value": null, "token": "causal.source"}

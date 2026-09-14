@@ -1,5 +1,6 @@
 extends "res://addons/gut/test.gd"
 
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 const MANAGER := preload("res://autoload/SaveManager.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
@@ -9,9 +10,12 @@ const OWNERS := ["run", "desktop_consequence", "desktop_board", "schedule_view",
 	"profile", "localization", "audio", "route", "narrative"]
 
 func _fixture() -> Dictionary:
+	var created: Dictionary = TEMPORARY_STORAGE.create("unified-restore")
+	assert_true(created.get("ok", false), created.get("message", ""))
+	if not created.get("ok", false):
+		return {}
 	var manager: Node = autofree(MANAGER.new())
-	var path := OS.get_environment("DWM_TEST_ROOT").path_join("unified_restore").path_join(str(randi()))
-	DirAccess.make_dir_recursive_absolute(path)
+	var path := str(created["value"])
 	assert_true(manager.initialize(STORAGE.new(path)).get("ok", false))
 	var gate: RefCounted = GATE.new()
 	assert_true(manager.configure_mutation_gate(gate).get("ok", false))
@@ -29,6 +33,7 @@ func _fixture() -> Dictionary:
 
 func test_schedule_restores_with_the_other_owners_before_route_dispatch() -> void:
 	var fixture := _fixture()
+	if fixture.is_empty(): return
 	if not fixture.configured: return
 	var result: Dictionary = fixture.manager.commit_prepared_restore(fixture.prepared)
 	assert_true(result.get("ok", false), JSON.stringify(result))
@@ -42,6 +47,7 @@ func test_schedule_restores_with_the_other_owners_before_route_dispatch() -> voi
 
 func test_late_failure_rolls_back_schedule_without_dispatching_the_route() -> void:
 	var fixture := _fixture()
+	if fixture.is_empty(): return
 	if not fixture.configured: return
 	fixture.participants.narrative.set_failure(&"finalize")
 	var result: Dictionary = fixture.manager.commit_prepared_restore(fixture.prepared)
@@ -52,6 +58,7 @@ func test_late_failure_rolls_back_schedule_without_dispatching_the_route() -> vo
 
 func test_failed_first_restore_returns_schedule_to_its_unopened_state() -> void:
 	var fixture := _fixture()
+	if fixture.is_empty(): return
 	if not fixture.configured: return
 	var registry: RefCounted = preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd").load_current().value.registry
 	var view: RefCounted = preload("res://scripts/application/schedule/ScheduleViewController.gd").new()

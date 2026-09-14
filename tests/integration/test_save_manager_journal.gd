@@ -5,6 +5,7 @@ extends "res://addons/gut/test.gd"
 const SAVE_MANAGER_PATH := "res://autoload/SaveManager.gd"
 const STORAGE_PATH := "res://scripts/infrastructure/storage/JsonFileStorage.gd"
 const TEMP_PATH := "res://tests/support/TemporaryStorage.gd"
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 const GATE_PATH := "res://scripts/application/transaction/ApplicationMutationGate.gd"
 const CHECKPOINT_PORT_PATH := "res://scripts/application/run/SaveManagerCheckpointPort.gd"
 const VALID_FIXTURE := "res://tests/fixtures/snapshots/valid_day3.json"
@@ -19,9 +20,12 @@ func _artifacts_exist() -> bool:
 
 func _isolated_manager(suite_id: String) -> Node:
 	_suite_counter += 1
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("save_manager_journal") \
-		.path_join("%s_%d" % [suite_id, _suite_counter]).path_join("saves")
-	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
+	var created: Dictionary = TEMPORARY_STORAGE.create(
+		"save-manager-journal-%s-%d" % [suite_id, _suite_counter])
+	assert_true(created.get("ok", false), created.get("message", ""))
+	if not created.get("ok", false):
+		return null
+	var root := str(created["value"]).path_join("saves")
 	var storage: RefCounted = load(STORAGE_PATH).new(root)
 	var manager: Node = load(SAVE_MANAGER_PATH).new()
 	autofree(manager)
@@ -83,6 +87,8 @@ func test_record_checkpoint_advances_journal_and_persists_disk() -> void:
 	if not _artifacts_exist():
 		return
 	var manager := _isolated_manager("journal_record")
+	if manager == null:
+		return
 	assert_true(manager._journal.reset("run-j")["ok"])
 	var first: Dictionary = manager.record_stable_checkpoint(_checkpoint_inputs("run-j"), &"day_start")
 	assert_true(first.get("ok", false), JSON.stringify(first))
@@ -102,6 +108,8 @@ func test_real_port_preview_is_pure_and_matches_prepare() -> void:
 	if not _artifacts_exist():
 		return
 	var manager := _isolated_manager("port_preview")
+	if manager == null:
+		return
 	assert_true(manager._journal.reset("run-1")["ok"])
 	assert_true(manager.record_stable_checkpoint(_checkpoint_inputs("run-1"), &"day_start")["ok"])
 	var gate: RefCounted = load(GATE_PATH).new()
@@ -126,6 +134,8 @@ func test_real_port_commit_and_autosave_round_trip() -> void:
 	if not _artifacts_exist():
 		return
 	var manager := _isolated_manager("port_commit")
+	if manager == null:
+		return
 	assert_true(manager._journal.reset("run-1")["ok"])
 	var gate: RefCounted = load(GATE_PATH).new()
 	var port: RefCounted = load(CHECKPOINT_PORT_PATH).new(manager)
@@ -145,6 +155,8 @@ func test_real_port_rollback_failure_latches_shared_gate() -> void:
 	if not _artifacts_exist():
 		return
 	var manager := _isolated_manager("port_rollback")
+	if manager == null:
+		return
 	assert_true(manager._journal.reset("run-1")["ok"])
 	var gate: RefCounted = load(GATE_PATH).new()
 	var port: RefCounted = load(CHECKPOINT_PORT_PATH).new(manager)
@@ -168,6 +180,8 @@ func test_configure_fatal_latch_matrix() -> void:
 	if not _artifacts_exist():
 		return
 	var manager := _isolated_manager("port_latch_matrix")
+	if manager == null:
+		return
 	var port: RefCounted = load(CHECKPOINT_PORT_PATH).new(manager)
 	assert_eq(port.preview_checkpoint_id("run-1").get("code"), &"fatal_latch_not_configured",
 		"operations fail until the fatal latch is configured")

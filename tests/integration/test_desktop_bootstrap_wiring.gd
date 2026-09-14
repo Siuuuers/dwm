@@ -1,4 +1,7 @@
 extends "res://addons/gut/test.gd"
+
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
+
 # Same-boot desktop/Schedule foundation identity (Plan 01 Task 8 Step 8.1, dwm-p2r.14).
 #
 # WHY THIS FILE EXISTS NOW. Plan 01 Task 8 names `tests/integration/test_desktop_bootstrap_wiring.gd`
@@ -75,6 +78,7 @@ var _coordinator: RefCounted = null
 var _issuer: RefCounted = null
 var _storage: RefCounted = null
 var _root_counter := 0
+var _root := ""
 
 
 ## A bootstrap that resolves its tree targets from an injected map instead of `/root`, so the suite
@@ -117,6 +121,12 @@ class UnavailableWindowOutput extends RefCounted:
 
 
 func before_each() -> void:
+	_root = ""
+	var result: Dictionary = TEMPORARY_STORAGE.create("desktop-bootstrap-wiring")
+	assert_true(result.get("ok", false), result.get("message", ""))
+	if not result.get("ok", false):
+		return
+	_root = str(result["value"])
 	_storage = JsonFileStorage.new(_isolated_root())
 	var root_store: RefCounted = ROOT_STORE.new()
 	assert_true(root_store.configure(_storage, NAMESPACE_SOURCE.new()).get("ok", false))
@@ -217,10 +227,10 @@ func _router() -> Node:
 
 
 func _isolated_root() -> String:
-	var wrapper: String = OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
+	if _root.is_empty():
+		return ""
 	_root_counter += 1
-	return wrapper.path_join("desktop-wiring-%d" % _root_counter)
+	return _root.path_join("desktop-wiring-%d" % _root_counter)
 
 
 ## Composes the retained foundation in the same order `configure_day_resolution()` does: the shared
@@ -254,6 +264,8 @@ func _foundation_identities(state: Dictionary) -> Dictionary:
 # -------------------------------------------------------------------------------------------------
 
 func test_the_probe_exists_and_returns_only_integers_and_booleans() -> void:
+	if _root.is_empty():
+		return
 	assert_true(_bootstrap.has_method("get_desktop_contract_state"),
 		"Step 8.1 requires this read-only probe")
 	_build_foundation()
@@ -282,6 +294,8 @@ func _assert_detached_primitive(value: Variant, path: String) -> void:
 
 
 func test_the_probe_names_every_foundation_identity_step_8_1_requires() -> void:
+	if _root.is_empty():
+		return
 	_build_foundation()
 	var state: Dictionary = _bootstrap.get_desktop_contract_state()
 	for key: String in FOUNDATION_IDENTITY_KEYS:
@@ -290,6 +304,8 @@ func test_the_probe_names_every_foundation_identity_step_8_1_requires() -> void:
 
 
 func test_reading_the_probe_twice_is_stable_and_mutates_nothing() -> void:
+	if _root.is_empty():
+		return
 	_build_foundation()
 	var first: Dictionary = _bootstrap.get_desktop_contract_state()
 	var second: Dictionary = _bootstrap.get_desktop_contract_state()
@@ -301,6 +317,8 @@ func test_reading_the_probe_twice_is_stable_and_mutates_nothing() -> void:
 # -------------------------------------------------------------------------------------------------
 
 func test_presentation_configuration_reconstructs_no_foundation_instance() -> void:
+	if _root.is_empty():
+		return
 	_build_foundation()
 	var before: Dictionary = _foundation_identities(_bootstrap.get_desktop_contract_state())
 	assert_true(_build_presentation().get("ok", false))
@@ -310,6 +328,8 @@ func test_presentation_configuration_reconstructs_no_foundation_instance() -> vo
 
 
 func test_identical_startup_replay_reuses_every_instance() -> void:
+	if _root.is_empty():
+		return
 	_build_foundation()
 	assert_true(_build_presentation().get("ok", false))
 	var first: Dictionary = _bootstrap.get_desktop_contract_state()
@@ -322,6 +342,8 @@ func test_identical_startup_replay_reuses_every_instance() -> void:
 
 
 func test_a_swapped_issuer_is_visible_in_the_probe() -> void:
+	if _root.is_empty():
+		return
 	# The probe's whole purpose: if a later edit ever re-pointed a retained dependency, the same-boot
 	# reading changes. This test proves the probe would actually notice.
 	_build_foundation()
@@ -340,6 +362,8 @@ func test_a_swapped_issuer_is_visible_in_the_probe() -> void:
 
 
 func test_the_probe_reports_hospital_ready_and_dating_deliberately_not_ready() -> void:
+	if _root.is_empty():
+		return
 	_build_foundation()
 	assert_true(_build_presentation().get("ok", false))
 	var state: Dictionary = _bootstrap.get_desktop_contract_state()
@@ -356,6 +380,8 @@ func test_the_probe_reports_hospital_ready_and_dating_deliberately_not_ready() -
 ## foundation and presentation stages the producer honestly reports not-ready -- the identity half
 ## exists, the Plan-02 record source does not yet. The graph-stage test below proves the flip.
 func test_the_producer_is_not_ready_before_the_desktop_graph_stage() -> void:
+	if _root.is_empty():
+		return
 	_build_foundation()
 	assert_true(_build_presentation().get("ok", false))
 	var state: Dictionary = _bootstrap.get_desktop_contract_state()
@@ -377,6 +403,8 @@ func test_the_producer_is_not_ready_before_the_desktop_graph_stage() -> void:
 
 
 func test_an_unbuilt_foundation_reports_zero_rather_than_guessing() -> void:
+	if _root.is_empty():
+		return
 	var state: Dictionary = _bootstrap.get_desktop_contract_state()
 	assert_eq(int(state["provenance_owner_instance_id"]), 0)
 	assert_eq(int(state["schedule_port_instance_id"]), 0)
@@ -392,6 +420,8 @@ func test_an_unbuilt_foundation_reports_zero_rather_than_guessing() -> void:
 # -------------------------------------------------------------------------------------------------
 
 func test_the_production_graph_wires_every_object_identity_and_readiness() -> void:
+	if _root.is_empty():
+		return
 	_build_desktop_graph()
 	var state: Dictionary = _bootstrap.get_desktop_contract_state()
 	for key: String in ["desktop_publication_ledger_instance_id", "causal_sequence_port_instance_id",
@@ -407,6 +437,8 @@ func test_the_production_graph_wires_every_object_identity_and_readiness() -> vo
 
 
 func test_the_desktop_publication_ledger_is_shared_by_causal_round_shop_and_board_fate() -> void:
+	if _root.is_empty():
+		return
 	_build_desktop_graph()
 	var causal_port: Object = _bootstrap.get("_retained_desktop_causal_sequence_port")
 	var round_coordinator: Object = _bootstrap.get("_retained_minesweeper_round_coordinator_app")
@@ -421,6 +453,8 @@ func test_the_desktop_publication_ledger_is_shared_by_causal_round_shop_and_boar
 
 
 func test_the_round_coordinator_and_board_fate_port_drive_the_exact_same_shared_board_state() -> void:
+	if _root.is_empty():
+		return
 	_build_desktop_graph()
 	var round_coordinator: Object = _bootstrap.get("_retained_minesweeper_round_coordinator_app")
 	var board_fate_port: Object = _bootstrap.get("_retained_desktop_board_fate_port")
@@ -431,6 +465,8 @@ func test_the_round_coordinator_and_board_fate_port_drive_the_exact_same_shared_
 
 
 func test_the_consequence_coordinator_retains_the_exact_round_and_shop_source_objects() -> void:
+	if _root.is_empty():
+		return
 	_build_desktop_graph()
 	var coordinator: Object = _bootstrap.get("_retained_desktop_consequence_coordinator")
 	var round_coordinator: Object = _bootstrap.get("_retained_minesweeper_round_coordinator_app")
@@ -449,6 +485,8 @@ func test_the_consequence_coordinator_retains_the_exact_round_and_shop_source_ob
 ## the surviving law is the second half -- the configured objects are the retained production
 ## classes, never a fake, and no other object ever occupies either slot.
 func test_the_consequence_coordinator_holds_the_real_condition_departure_pair() -> void:
+	if _root.is_empty():
+		return
 	_build_desktop_graph()
 	var coordinator: Object = _bootstrap.get("_retained_desktop_consequence_coordinator")
 	var policy_port: Object = coordinator.get("_condition_policy_port")
@@ -464,6 +502,8 @@ func test_the_consequence_coordinator_holds_the_real_condition_departure_pair() 
 
 
 func test_snapshot_provider_instance_id_equals_game_state() -> void:
+	if _root.is_empty():
+		return
 	_build_desktop_graph()
 	var state: Dictionary = _bootstrap.get_desktop_contract_state()
 	assert_eq(int(state["snapshot_provider_instance_id"]), _game_state.get_instance_id())
@@ -471,6 +511,8 @@ func test_snapshot_provider_instance_id_equals_game_state() -> void:
 
 
 func test_the_probe_names_identity_allocation_plus_the_nine_participant_keys() -> void:
+	if _root.is_empty():
+		return
 	_build_desktop_graph()
 	var state: Dictionary = _bootstrap.get_desktop_contract_state()
 	assert_eq(state["restore_order"], EXPECTED_RESTORE_ORDER)
@@ -485,6 +527,8 @@ func test_the_probe_names_identity_allocation_plus_the_nine_participant_keys() -
 
 
 func test_identical_replay_of_the_production_graph_reuses_every_instance() -> void:
+	if _root.is_empty():
+		return
 	_build_desktop_graph()
 	var first: Dictionary = _bootstrap.get_desktop_contract_state()
 	var replayed: Dictionary = _bootstrap.call(&"_configure_desktop_production_graph")
@@ -501,6 +545,8 @@ func test_identical_replay_of_the_production_graph_reuses_every_instance() -> vo
 ## install seam) stays untouched by `_configure_desktop_production_graph()`; only the retained
 ## .9-era `_configure_minesweeper_rounds()` stage -- a SEPARATE, untouched stage -- may ever fill it.
 func test_the_production_graph_never_touches_the_retained_simulator_install_seam() -> void:
+	if _root.is_empty():
+		return
 	_build_desktop_graph()
 	assert_null(_game_state.get("_minesweeper_round_coordinator"),
 		"the Plan-02 graph must never install into the .9-era GameState seam")
@@ -512,6 +558,8 @@ func test_the_production_graph_never_touches_the_retained_simulator_install_seam
 # -------------------------------------------------------------------------------------------------
 
 func test_the_desktop_graph_composes_the_condition_pair_and_flips_the_producer_ready() -> void:
+	if _root.is_empty():
+		return
 	_build_desktop_graph()
 	var state: Dictionary = _bootstrap.get_desktop_contract_state()
 	assert_true(bool(state["presentation_producer_ready"]),
@@ -539,6 +587,8 @@ func test_the_desktop_graph_composes_the_condition_pair_and_flips_the_producer_r
 
 
 func test_replaying_the_desktop_graph_reuses_the_condition_pair_and_dispatcher() -> void:
+	if _root.is_empty():
+		return
 	_build_desktop_graph()
 	var first: Dictionary = _bootstrap.get_desktop_contract_state()
 	var replayed: Dictionary = _bootstrap.call(&"_configure_desktop_production_graph")
@@ -575,6 +625,8 @@ class GameplayDesktop extends Node:
 
 
 func test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge() -> void:
+	if _root.is_empty():
+		return
 	var graph := _build_desktop_graph()
 	var mounted := _activate_gameplay_fixture(graph)
 	if mounted.is_empty(): return
@@ -735,10 +787,14 @@ func _activate_gameplay_fixture(graph: Dictionary, day: int = 1) -> Dictionary:
 
 
 func test_fresh_graph_keeps_prior_day_two_autosave_after_failed_completion() -> void:
+	if _root.is_empty():
+		return
 	_assert_fresh_graph_preserves_last_saved_action(false)
 
 
 func test_fresh_graph_keeps_prior_autosave_after_failed_condition_departure() -> void:
+	if _root.is_empty():
+		return
 	_assert_fresh_graph_preserves_last_saved_action(true)
 
 
@@ -832,6 +888,8 @@ func _assert_fresh_graph_preserves_last_saved_action(departure: bool, shop_item:
 
 
 func test_shop_purchase_saves_authored_effects_and_retries_without_a_second_charge() -> void:
+	if _root.is_empty():
+		return
 	var graph := _build_desktop_graph()
 	var mounted := _activate_gameplay_fixture(graph, 2)
 	if mounted.is_empty(): return
@@ -861,14 +919,20 @@ func test_shop_purchase_saves_authored_effects_and_retries_without_a_second_char
 
 
 func test_fresh_graph_keeps_prior_autosave_after_failed_ordinary_purchase() -> void:
+	if _root.is_empty():
+		return
 	_assert_fresh_graph_preserves_last_saved_action(true, "wine")
 
 
 func test_fresh_graph_keeps_prior_autosave_after_failed_special_purchase() -> void:
+	if _root.is_empty():
+		return
 	_assert_fresh_graph_preserves_last_saved_action(false, "lucky_charm")
 
 
 func test_shop_batch_and_public_gift_alias_commit_authored_values_and_inventory() -> void:
+	if _root.is_empty():
+		return
 	var graph := _build_desktop_graph()
 	var mounted := _activate_gameplay_fixture(graph, 2)
 	if mounted.is_empty(): return

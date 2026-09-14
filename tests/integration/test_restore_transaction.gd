@@ -1,4 +1,6 @@
 extends "res://addons/gut/test.gd"
+
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 # Restore transaction orchestration over fake participants
 # (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 7).
 
@@ -19,8 +21,11 @@ const CALL_LOG := "res://tests/support/RestoreCallLog.gd"
 const KEYS := ["run", "desktop_consequence", "desktop_board", "schedule_view", "profile", "localization", "audio", "route", "narrative"]
 
 func _manager(log: RefCounted) -> Dictionary:
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("restore_txn").path_join(str(randi())).path_join("saves")
-	DirAccess.make_dir_recursive_absolute(root)
+	var created: Dictionary = TEMPORARY_STORAGE.create("restore-transaction")
+	assert_true(created.get("ok", false), created.get("message", ""))
+	if not created.get("ok", false):
+		return {}
+	var root := str(created["value"]).path_join("saves")
 	var manager: Node = load(SAVE_MANAGER_PATH).new()
 	autofree(manager)
 	manager.initialize(load(STORAGE_PATH).new(root))
@@ -40,7 +45,10 @@ func _prepared() -> Dictionary:
 
 func test_configure_restore_participants_validates_nine_keys() -> void:
 	var log: RefCounted = load(CALL_LOG).new()
-	var manager: Node = _manager(log)["manager"]
+	var wired := _manager(log)
+	if wired.is_empty():
+		return
+	var manager: Node = wired["manager"]
 	assert_eq(manager.configure_restore_participants({"run": load(FAKE_PARTICIPANT).new("run", log)}).get("code"),
 		&"invalid_restore_participants", "fewer than nine rejects")
 	assert_eq(manager.commit_prepared_restore({}).get("code"), &"invalid_prepared_restore",
@@ -49,6 +57,8 @@ func test_configure_restore_participants_validates_nine_keys() -> void:
 func test_restore_success_applies_and_finalizes_in_order() -> void:
 	var log: RefCounted = load(CALL_LOG).new()
 	var wired := _manager(log)
+	if wired.is_empty():
+		return
 	var manager: Node = wired["manager"]
 	var emissions: Array = []
 	manager.run_restored.connect(func(cp: String, route: String) -> void: emissions.append([cp, route]))
@@ -70,6 +80,8 @@ func test_restore_success_applies_and_finalizes_in_order() -> void:
 func test_apply_failure_rolls_back_in_reverse_and_emits_nothing() -> void:
 	var log: RefCounted = load(CALL_LOG).new()
 	var wired := _manager(log)
+	if wired.is_empty():
+		return
 	var manager: Node = wired["manager"]
 	wired["participants"]["audio"].set_failure(&"apply_silent")  # 6th in order
 	var emissions: Array = []
@@ -89,6 +101,8 @@ func test_apply_failure_rolls_back_in_reverse_and_emits_nothing() -> void:
 func test_rollback_failure_latches_shared_gate() -> void:
 	var log: RefCounted = load(CALL_LOG).new()
 	var wired := _manager(log)
+	if wired.is_empty():
+		return
 	var manager: Node = wired["manager"]
 	wired["participants"]["audio"].set_failure(&"apply_silent")
 	wired["participants"]["profile"].set_failure(&"rollback_silent")
@@ -142,6 +156,8 @@ func test_malformed_narrative_input_is_fail_closed_not_incompatible() -> void:
 func test_failed_restore_finalization_restores_prior_journal_and_releases_save_lock() -> void:
 	var log: RefCounted = load(CALL_LOG).new()
 	var wired := _manager(log)
+	if wired.is_empty():
+		return
 	var manager: Node = wired.manager
 	var fixtures: Node = load("res://tests/unit/test_checkpoint_journal.gd").new()
 	var old_first: Dictionary = fixtures._snapshot("old-run",1)

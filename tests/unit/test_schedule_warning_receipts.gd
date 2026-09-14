@@ -44,29 +44,56 @@ var _registry: Object = null
 var _fingerprint := ""
 var _issuer: RefCounted = null
 var _root_counter := 0
+var _fixture_ready := false
 
 
 func before_each() -> void:
+	_fixture_ready = false
+	_registry = null
+	_fingerprint = ""
+	_issuer = null
 	var loaded: Dictionary = REGISTRY.load_current()
 	assert_true(loaded.get("ok", false), str(loaded))
+	if not loaded.get("ok", false):
+		return
 	_registry = (loaded.get("value", {}) as Dictionary).get("registry")
 	_fingerprint = str((loaded.get("value", {}) as Dictionary).get("registry_fingerprint", ""))
 	_issuer = _sandbox_issuer()
+	if _issuer == null:
+		return
+	_fixture_ready = true
 
 
 func _sandbox_issuer() -> RefCounted:
-	var wrapper := OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
 	_root_counter += 1
-	var root := wrapper.path_join("warning-receipts-%d-%d" % [_root_counter, randi()])
-	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
+	var created: Dictionary = TemporaryStorage.create(
+		"warning-receipts-%d" % _root_counter)
+	assert_true(created.get("ok", false), created.get("message", "temporary storage unavailable"))
+	if not created.get("ok", false):
+		return null
+	var root: String = str(created.get("value", ""))
 	var store: RefCounted = ROOT_STORE.new()
-	assert_true(store.configure(JsonFileStorage.new(root), NAMESPACE_SOURCE.new())
-		.get("ok", false), "root store configured")
-	assert_true(store.load_or_create().get("ok", false), "root store initialized")
+	var configured: Dictionary = store.configure(JsonFileStorage.new(root), NAMESPACE_SOURCE.new())
+	assert_true(configured.get("ok", false), "root store configured")
+	if not configured.get("ok", false):
+		return null
+	var loaded: Dictionary = store.load_or_create()
+	assert_true(loaded.get("ok", false), "root store initialized")
+	if not loaded.get("ok", false):
+		return null
 	var issuer: RefCounted = ISSUER.new()
-	assert_true(issuer.configure(store).get("ok", false), "issuer configured")
+	var issuer_configured: Dictionary = issuer.configure(store)
+	assert_true(issuer_configured.get("ok", false), "issuer configured")
+	if not issuer_configured.get("ok", false):
+		return null
 	return issuer
+
+
+func _require_fixture() -> bool:
+	if _fixture_ready:
+		return true
+	assert_true(false, "the Schedule warning fixture is unavailable")
+	return false
 
 
 # ---- helpers ----
@@ -156,6 +183,8 @@ func _warning_controller() -> Object:
 
 
 func test_docket_commands_cannot_change_an_active_warning_or_its_view() -> void:
+	if not _require_fixture():
+		return
 	var controller := _warning_controller()
 	var activation := _activate(controller, _context())
 	assert_false((activation["pending"] as Dictionary).is_empty())
@@ -209,6 +238,8 @@ func _expected_preimage(controller: Object, context: Dictionary) -> Dictionary:
 # ---- configure_warning_identity ----
 
 func test_configure_warning_identity_is_one_time_and_typed() -> void:
+	if not _require_fixture():
+		return
 	var controller: Object = CONTROLLER.new()
 	assert_true(controller.configure(_registry, RULES, _fingerprint).get("ok", false))
 	_refused(controller.configure_warning_identity(null),
@@ -228,6 +259,8 @@ func test_configure_warning_identity_is_one_time_and_typed() -> void:
 
 
 func test_activation_fails_closed_without_the_warning_identity() -> void:
+	if not _require_fixture():
+		return
 	var controller: Object = CONTROLLER.new()
 	assert_true(controller.configure(_registry, RULES, _fingerprint).get("ok", false))
 	assert_true(controller.open_day(3, CAUSAL_DAY).get("ok", false))
@@ -239,6 +272,8 @@ func test_activation_fails_closed_without_the_warning_identity() -> void:
 # ---- activation ----
 
 func test_activation_creates_the_exact_pending_record() -> void:
+	if not _require_fixture():
+		return
 	var controller := _warning_controller()
 	var context := _context()
 	var activated := _activate(controller, context)
@@ -288,6 +323,8 @@ func test_activation_creates_the_exact_pending_record() -> void:
 
 
 func test_activation_with_no_eligible_warning_proceeds() -> void:
+	if not _require_fixture():
+		return
 	var controller := _warning_controller()
 	var context := _context({"eligible_unread_date_message_ids": []})
 	var txn := _txn()
@@ -300,6 +337,8 @@ func test_activation_with_no_eligible_warning_proceeds() -> void:
 
 
 func test_repeating_the_same_done_command_returns_the_same_activation() -> void:
+	if not _require_fixture():
+		return
 	var controller := _warning_controller()
 	var context := _context()
 	var activated := _activate(controller, context)
@@ -313,6 +352,8 @@ func test_repeating_the_same_done_command_returns_the_same_activation() -> void:
 
 
 func test_a_different_done_command_while_open_rejects() -> void:
+	if not _require_fixture():
+		return
 	var controller := _warning_controller()
 	var context := _context()
 	var activated := _activate(controller, context)
@@ -324,6 +365,8 @@ func test_a_different_done_command_while_open_rejects() -> void:
 
 
 func test_a_forged_transaction_root_is_refused() -> void:
+	if not _require_fixture():
+		return
 	var controller := _warning_controller()
 	var txn := _txn()
 	var forged: Dictionary = (txn["receipt"] as Dictionary).duplicate(true)
@@ -334,6 +377,8 @@ func test_a_forged_transaction_root_is_refused() -> void:
 
 
 func test_activation_validates_the_context() -> void:
+	if not _require_fixture():
+		return
 	var controller := _warning_controller()
 	var context := _context()
 	context.erase("motivation")
@@ -345,6 +390,8 @@ func test_activation_validates_the_context() -> void:
 # ---- terminals ----
 
 func test_dismissal_consumes_with_an_exact_terminal_receipt() -> void:
+	if not _require_fixture():
+		return
 	var controller := _warning_controller()
 	var context := _context()
 	var activated := _activate(controller, context)
@@ -394,6 +441,8 @@ func test_dismissal_consumes_with_an_exact_terminal_receipt() -> void:
 
 
 func test_navigation_success_stores_the_navigation_child() -> void:
+	if not _require_fixture():
+		return
 	var controller := _warning_controller()
 	var activated := _activate(controller, _context())
 	var pending: Dictionary = activated["pending"]
@@ -421,6 +470,8 @@ func test_navigation_success_stores_the_navigation_child() -> void:
 
 
 func test_failed_navigation_appends_an_attempt_and_keeps_the_activation() -> void:
+	if not _require_fixture():
+		return
 	var controller := _warning_controller()
 	var activated := _activate(controller, _context())
 	var pending: Dictionary = activated["pending"]
@@ -451,6 +502,8 @@ func test_failed_navigation_appends_an_attempt_and_keeps_the_activation() -> voi
 
 
 func test_an_identical_failed_navigation_retry_returns_the_original() -> void:
+	if not _require_fixture():
+		return
 	var controller := _warning_controller()
 	var _activated := _activate(controller, _context())
 	var term := _txn()
@@ -473,6 +526,8 @@ func test_an_identical_failed_navigation_retry_returns_the_original() -> void:
 
 
 func test_duplicate_successful_terminal_input_returns_the_original() -> void:
+	if not _require_fixture():
+		return
 	var controller := _warning_controller()
 	var _activated := _activate(controller, _context())
 	var term := _txn()
@@ -491,6 +546,8 @@ func test_duplicate_successful_terminal_input_returns_the_original() -> void:
 
 
 func test_conflicting_transaction_reuse_fails_without_mutation() -> void:
+	if not _require_fixture():
+		return
 	var controller := _warning_controller()
 	var _activated := _activate(controller, _context())
 	var term := _txn()
@@ -514,6 +571,8 @@ func test_conflicting_transaction_reuse_fails_without_mutation() -> void:
 
 
 func test_resolution_shape_and_missing_pending_are_typed() -> void:
+	if not _require_fixture():
+		return
 	var controller := _warning_controller()
 	var term := _txn()
 	_refused(controller.resolve_warning(term["id"], term["receipt"],
@@ -534,6 +593,8 @@ func test_resolution_shape_and_missing_pending_are_typed() -> void:
 
 
 func test_the_preimage_is_detached_from_live_owners() -> void:
+	if not _require_fixture():
+		return
 	var controller := _warning_controller()
 	var context := _context()
 	var activated := _activate(controller, context)
@@ -556,6 +617,8 @@ func test_the_preimage_is_detached_from_live_owners() -> void:
 # ---- review fixes: transaction crossover, retry projection, configure order ----
 
 func test_a_terminal_reusing_the_activation_transaction_is_refused() -> void:
+	if not _require_fixture():
+		return
 	var controller := _warning_controller()
 	var activated := _activate(controller, _context())
 	var txn: Dictionary = activated["txn"]
@@ -567,6 +630,8 @@ func test_a_terminal_reusing_the_activation_transaction_is_refused() -> void:
 
 
 func test_an_activation_reusing_a_terminal_transaction_is_refused() -> void:
+	if not _require_fixture():
+		return
 	var controller := _warning_controller()
 	var context := _context()
 	var _activated := _activate(controller, context)
@@ -588,6 +653,8 @@ func test_an_activation_reusing_a_terminal_transaction_is_refused() -> void:
 
 
 func test_a_different_intent_failed_navigation_retry_conflicts() -> void:
+	if not _require_fixture():
+		return
 	var controller := _warning_controller()
 	var _activated := _activate(controller, _context())
 	var term := _txn()
@@ -604,6 +671,8 @@ func test_a_different_intent_failed_navigation_retry_conflicts() -> void:
 
 
 func test_an_invalid_replacement_issuer_is_refused_as_invalid() -> void:
+	if not _require_fixture():
+		return
 	var controller := _warning_controller()
 	_refused(controller.configure_warning_identity(null),
 		"invalid_warning_identity_issuer",

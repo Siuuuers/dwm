@@ -1,5 +1,7 @@
 extends "res://addons/gut/test.gd"
 
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
+
 # Amendment Plan 03 Task 1 Steps 1-2 (dwm-oyo.3, RED): the executable downstream-contract net over
 # the `.7` Schedule and `.9` desktop transaction ports, asserted through the compiling
 # ScheduleDownstreamContractGuard skeleton. The consumed-interface-lock section of
@@ -168,9 +170,11 @@ func _fresh_issuer(root: String) -> RefCounted:
 
 
 func _wired(day: int = DAY) -> Dictionary:
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("p2r13_downstream_contracts") \
-		.path_join(str(randi()))
-	DirAccess.make_dir_recursive_absolute(root)
+	var created: Dictionary = TEMPORARY_STORAGE.create("p2r13-downstream-contracts")
+	assert_true(created.get("ok", false), created.get("message", ""))
+	if not created.get("ok", false):
+		return {}
+	var root := str(created["value"])
 
 	var gs: Node = GS.new()
 	add_child_autofree(gs)
@@ -509,6 +513,8 @@ func _graph_snapshot(wired: Dictionary) -> Dictionary:
 
 func test_a01_validate_ports_covers_every_frozen_downstream_method() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var verdict: Dictionary = GUARD.validate_ports(wired["schedule_port"],
 		wired["day7_provenance"], wired["causal_sequence_port"], wired["board_fate_port"],
 		wired["coordinator"], wired["day_start_port"])
@@ -537,6 +543,8 @@ func test_a01_validate_ports_covers_every_frozen_downstream_method() -> void:
 
 func test_a02_schedule_prepare_commit_matches_the_frozen_contract() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var driven := _prepare_day3_schedule(wired)
 	var prepared: Dictionary = driven["prepared"]
 	_assert_guard_accepts(GUARD.validate_schedule_result(prepared),
@@ -577,6 +585,8 @@ func test_a02_schedule_prepare_commit_matches_the_frozen_contract() -> void:
 
 func test_a03_day7_empty_done_provenance_matches_the_frozen_contract() -> void:
 	var wired := _wired(7)
+	if wired.is_empty():
+		return
 	var txn := _mint_transaction(wired["issuer"])
 	var request := _schedule_request(wired, txn, [], 7)
 	var prepared: Dictionary = (wired["schedule_port"] as Object).prepare_commit(request)
@@ -616,6 +626,8 @@ func test_a03_day7_empty_done_provenance_matches_the_frozen_contract() -> void:
 
 func test_a04_schedule_done_causal_reservation_matches_the_frozen_contract() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var driven := _prepare_day3_schedule(wired)
 	var prepared: Dictionary = driven["prepared"]
 	if not _require_ok(prepared, "the Schedule prepare whose receipt seeds the reservation"):
@@ -652,6 +664,8 @@ func test_a04_schedule_done_causal_reservation_matches_the_frozen_contract() -> 
 
 func test_a05_causal_admission_binds_reservation_checkpoint_and_payload_hash() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var admission := _shop_admission(wired)
 	var admitted: Dictionary = admission["admitted"]
 	_assert_guard_accepts(GUARD.validate_causal_admission_result(admitted),
@@ -670,6 +684,8 @@ func test_a05_causal_admission_binds_reservation_checkpoint_and_payload_hash() -
 
 func test_a06_causal_commit_returns_the_combined_admission_receipt() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var admission := _shop_admission(wired)
 	var admitted: Dictionary = admission["admitted"]
 	if not _require_ok(admitted, "prepare_admission before the admission commit"):
@@ -700,6 +716,8 @@ func test_a06_causal_commit_returns_the_combined_admission_receipt() -> void:
 
 func test_a07_board_fate_schedule_done_uses_the_live_board_with_null_source_action_members() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var command := _mint_transaction(wired["issuer"])
 	var result: Dictionary = (wired["board_fate_port"] as Object).prepare_causal_departure(
 		_schedule_fate_request(wired, command))
@@ -726,6 +744,8 @@ func test_a07_board_fate_schedule_done_uses_the_live_board_with_null_source_acti
 
 func test_a08_board_fate_condition_departure_binds_the_exact_source_action() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var prepared := _shop_prepared(wired, "lucky_charm")
 	var action_receipt: Dictionary = prepared["action_receipt"]
 	var result: Dictionary = (wired["board_fate_port"] as Object).prepare_projected_causal_departure(
@@ -746,6 +766,8 @@ func test_a08_board_fate_condition_departure_binds_the_exact_source_action() -> 
 
 func test_a09_consequence_accept_returns_the_frozen_value_and_receipt() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var prepared := _shop_prepared(wired, "lucky_charm")
 	var action_receipt: Dictionary = prepared["action_receipt"]
 	var action_txn := str(action_receipt["transaction_id"])
@@ -793,6 +815,8 @@ func test_a09_consequence_accept_returns_the_frozen_value_and_receipt() -> void:
 
 func test_a10_day_resolution_start_matches_the_frozen_contract() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var driven := _prepare_day3_schedule(wired)
 	var prepared: Dictionary = driven["prepared"]
 	if not _require_ok(prepared, "the Schedule prepare feeding the day-resolution start"):
@@ -835,6 +859,8 @@ func test_a10_day_resolution_start_matches_the_frozen_contract() -> void:
 ## returns the live nonnull identity and nonnegative revision through the guard.
 func test_a11_board_fate_forfeits_a_started_board_with_nonnull_identity() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var round_coordinator: Object = wired["round_coordinator"]
 	var mine_indices: Array[int] = [1, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
 	(round_coordinator._generation_port as Object).arm_materialize({"schema_version": 1,
@@ -875,6 +901,8 @@ func test_a11_board_fate_forfeits_a_started_board_with_nonnull_identity() -> voi
 ## through the REAL contacts schedule_source_receipts index. No fake manufactures anything here.
 func test_a12_day7_scheduled_solo_provenance_binds_the_nonnull_trio() -> void:
 	var wired := _wired(7)
+	if wired.is_empty():
+		return
 	var action_id := "solo:lavinia:day7"
 	var source_receipt_id := _seed_solo_source(wired, "lavinia", action_id, 7)
 	var txn := _mint_transaction(wired["issuer"])
@@ -918,6 +946,8 @@ func test_a12_day7_scheduled_solo_provenance_binds_the_nonnull_trio() -> void:
 
 func test_b01_schedule_prepare_commit_refuses_a_missing_member_without_mutation() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var built := _valid_day3_request(wired)
 	var request: Dictionary = (built["request"] as Dictionary).duplicate(true)
 	request.erase("registry_fingerprint")
@@ -930,6 +960,8 @@ func test_b01_schedule_prepare_commit_refuses_a_missing_member_without_mutation(
 
 func test_b02_schedule_prepare_commit_refuses_an_extra_member_without_mutation() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var built := _valid_day3_request(wired)
 	var request: Dictionary = (built["request"] as Dictionary).duplicate(true)
 	request["route_plan"] = []
@@ -942,6 +974,8 @@ func test_b02_schedule_prepare_commit_refuses_an_extra_member_without_mutation()
 
 func test_b03_schedule_prepare_commit_refuses_a_stale_registry_fingerprint_without_mutation() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var built := _valid_day3_request(wired)
 	var request: Dictionary = (built["request"] as Dictionary).duplicate(true)
 	request["registry_fingerprint"] = "0".repeat(64)
@@ -954,6 +988,8 @@ func test_b03_schedule_prepare_commit_refuses_a_stale_registry_fingerprint_witho
 
 func test_b04_schedule_prepare_commit_refuses_caller_supplied_route_effect_and_cost() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var built := _valid_day3_request(wired)
 	var before := _graph_snapshot(wired)
 	# Route, effects, and cost come only from the immutable versioned registry (global constraint):
@@ -970,6 +1006,8 @@ func test_b04_schedule_prepare_commit_refuses_caller_supplied_route_effect_and_c
 
 func test_b05_board_fate_accepts_only_its_own_request_shape_and_reason() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var prepared := _shop_prepared(wired, "lucky_charm")
 	var action_receipt: Dictionary = prepared["action_receipt"]
 	var port: Object = wired["board_fate_port"]
@@ -1002,6 +1040,8 @@ func test_b05_board_fate_accepts_only_its_own_request_shape_and_reason() -> void
 
 func test_b06_board_fate_refuses_a_stale_board_revision_without_mutation() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var request := _schedule_fate_request(wired, _mint_transaction(wired["issuer"]))
 	request["expected_board_revision"] = int(request["expected_board_revision"]) + 7
 	var before := _graph_snapshot(wired)
@@ -1013,6 +1053,8 @@ func test_b06_board_fate_refuses_a_stale_board_revision_without_mutation() -> vo
 
 func test_b07_board_fate_refuses_a_wrong_causal_day_without_mutation() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var prepared := _shop_prepared(wired, "lucky_charm")
 	var request := _projected_fate_request(wired, prepared["action_receipt"])
 	request["causal_day_instance"] = "causal-day-OTHER"
@@ -1025,6 +1067,8 @@ func test_b07_board_fate_refuses_a_wrong_causal_day_without_mutation() -> void:
 
 func test_b08_board_fate_refuses_a_bad_projection_hash_and_a_foreign_action_identity() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var prepared := _shop_prepared(wired, "lucky_charm")
 	var action_receipt: Dictionary = prepared["action_receipt"]
 	var port: Object = wired["board_fate_port"]
@@ -1048,6 +1092,8 @@ func test_b08_board_fate_refuses_a_bad_projection_hash_and_a_foreign_action_iden
 
 func test_b09_causal_reservation_refuses_shape_and_stale_expectation_mutations() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var driven := _prepare_day3_schedule(wired)
 	var prepared: Dictionary = driven["prepared"]
 	if not _require_ok(prepared, "the Schedule prepare whose receipt seeds the reservation"):
@@ -1085,6 +1131,8 @@ func test_b09_causal_reservation_refuses_shape_and_stale_expectation_mutations()
 
 func test_b10_day7_provenance_refuses_shape_mutations_and_a_non_day7_commit() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var driven := _prepare_day3_schedule(wired)
 	var prepared: Dictionary = driven["prepared"]
 	if not _require_ok(prepared, "the Day-3 Schedule prepare feeding the Day-7 refusals"):
@@ -1121,6 +1169,8 @@ func test_b10_day7_provenance_refuses_shape_mutations_and_a_non_day7_commit() ->
 
 func test_b11_day_resolution_start_refuses_shape_mutations_and_a_wrong_causal_day() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var driven := _prepare_day3_schedule(wired)
 	var prepared: Dictionary = driven["prepared"]
 	if not _require_ok(prepared, "the Schedule prepare feeding the start refusals"):

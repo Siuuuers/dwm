@@ -154,11 +154,13 @@ func _condition_candidate(before_view: Dictionary, after_view: Dictionary,
 ## commit port, issuer, and publication ledger (the exact substrate of
 ## test_game_state_schedule_commit_port.gd). Returns {} when any production step fails.
 func _committed_game_state() -> Dictionary:
-	var wrapper := OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
 	_root_counter += 1
-	var root := wrapper.path_join("schedule-view-controller-%d" % _root_counter)
-	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
+	var created: Dictionary = TemporaryStorage.create(
+		"schedule-view-controller-%d" % _root_counter)
+	assert_true(created.get("ok", false), created.get("message", "temporary storage unavailable"))
+	if not created.get("ok", false):
+		return {}
+	var root: String = str(created.get("value", ""))
 	var storage: RefCounted = JsonFileStorage.new(root)
 	var root_store: RefCounted = ROOT_STORE.new()
 	assert_true(root_store.configure(storage, NAMESPACE_SOURCE.new()).get("ok", false))

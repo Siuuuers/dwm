@@ -1,5 +1,8 @@
 extends "res://addons/gut/test.gd"
 
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
+
+
 ## Production desktop round-completion transaction (Plan 02 Task 8, dwm-p2r.32,
 ## req.minesweeper.causal_departure, req.desktop.cross_app_actions). Configures every REAL
 ## production port this task and its predecessors build for the DOMAIN/application layer --
@@ -63,8 +66,11 @@ func _fresh_issuer(root: String) -> RefCounted:
 
 
 func _wired() -> Dictionary:
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("completion_transaction").path_join(str(randi()))
-	DirAccess.make_dir_recursive_absolute(root)
+	var result: Dictionary = TEMPORARY_STORAGE.create("completion-transaction")
+	assert_true(result.get("ok", false), result.get("message", ""))
+	if not result.get("ok", false):
+		return {}
+	var root: String = str(result["value"])
 
 	var checkpoint_port: Object = load(CHECKPOINT_PORT_PATH).new()
 
@@ -190,6 +196,8 @@ func _reveal_and_explode(wired: Dictionary) -> void:
 ## disk durability throughout.
 func test_complete_round_transacts_exactly_once_against_real_ports() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var round_coordinator: Object = wired["round_coordinator"]
 	var issuer: Object = wired["issuer"]
 	_reveal_and_explode(wired)
@@ -249,6 +257,8 @@ func test_complete_round_transacts_exactly_once_against_real_ports() -> void:
 ## resulting fate=none no-op board-fate commit untouched.
 func test_complete_round_departure_commits_board_fate_against_real_ports() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var round_coordinator: Object = wired["round_coordinator"]
 	var issuer: Object = wired["issuer"]
 	var condition_policy_port: Object = wired["condition_policy_port"]
@@ -324,6 +334,8 @@ func test_complete_round_departure_commits_board_fate_against_real_ports() -> vo
 ## only one pending transaction at a time -- so this is the real, testable ordering law.
 func test_a_source_already_holding_the_gate_blocks_the_other_source_until_it_releases() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var shop_participant: Object = wired["shop_participant"]
 	var round_coordinator: Object = wired["round_coordinator"]
 	var issuer: Object = wired["issuer"]

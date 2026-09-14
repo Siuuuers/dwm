@@ -1,4 +1,6 @@
 extends "res://addons/gut/test.gd"
+
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 # start_new_run transaction over the real run participant + fake owners
 # (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 7).
 # Plan 02 Task 6 (dwm-p2r.32): New Run now allocates a REAL desktop identity through the real
@@ -78,8 +80,12 @@ func _initial_context() -> Dictionary:
 		"audio_context": {}, "content_version": 1}
 
 func _wired() -> Dictionary:
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("new_run").path_join(str(randi())).path_join("saves")
-	DirAccess.make_dir_recursive_absolute(root)
+	var created: Dictionary = TEMPORARY_STORAGE.create("new-run")
+	assert_true(created.get("ok", false), created.get("message", ""))
+	if not created.get("ok", false):
+		return {}
+	var base_root := str(created["value"])
+	var root := base_root.path_join("saves")
 	var manager: Node = load(SAVE_MANAGER_PATH).new()
 	autofree(manager)
 	manager.initialize(load(STORAGE_PATH).new(root))
@@ -87,8 +93,7 @@ func _wired() -> Dictionary:
 	manager.configure_mutation_gate(gate)
 	assert_true(manager._journal.reset("run-a")["ok"])
 
-	var issuer_root := OS.get_environment("DWM_TEST_ROOT").path_join("new_run_issuer").path_join(str(randi()))
-	DirAccess.make_dir_recursive_absolute(issuer_root)
+	var issuer_root := base_root.path_join("issuer")
 	var root_store: RefCounted = load(ROOT_STORE_PATH).new()
 	var namespace_source: RefCounted = load(FAKE_NAMESPACE_SOURCE).new("3".repeat(64))
 	assert_true(root_store.configure(load(STORAGE_PATH).new(issuer_root), namespace_source)["ok"])
@@ -126,6 +131,8 @@ func _wired() -> Dictionary:
 
 func test_start_new_run_rejects_bad_context() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var manager: Node = wired["manager"]
 	assert_eq(manager.start_new_run({"route_id": "main"}).get("code"), &"invalid_initial_context")
 	var extra := _initial_context()
@@ -134,6 +141,8 @@ func test_start_new_run_rejects_bad_context() -> void:
 
 func test_start_new_run_builds_day1_run_b() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var manager: Node = wired["manager"]
 	# Plan 02 Task 6 (dwm-p2r.32): start_new_run() no longer accepts a caller-supplied run_id at all
 	# -- the real identity comes entirely from the desktop issuer's own durable allocation.
@@ -153,8 +162,11 @@ func test_start_new_run_builds_day1_run_b() -> void:
 		"the live lifecycle's run_id matches the allocated identity")
 
 func test_start_new_run_requires_identity_issuer() -> void:
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("new_run_no_issuer").path_join(str(randi())).path_join("saves")
-	DirAccess.make_dir_recursive_absolute(root)
+	var created: Dictionary = TEMPORARY_STORAGE.create("new-run-no-issuer")
+	assert_true(created.get("ok", false), created.get("message", ""))
+	if not created.get("ok", false):
+		return
+	var root := str(created["value"]).path_join("saves")
 	var manager: Node = load(SAVE_MANAGER_PATH).new()
 	autofree(manager)
 	manager.initialize(load(STORAGE_PATH).new(root))
@@ -180,6 +192,8 @@ func test_start_new_run_requires_identity_issuer() -> void:
 
 func test_start_new_run_allocates_a_fresh_identity_per_call() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var manager: Node = wired["manager"]
 	var first: Dictionary = manager.start_new_run(_initial_context())
 	assert_true(first.get("ok", false), JSON.stringify(first))
@@ -191,8 +205,11 @@ func test_start_new_run_allocates_a_fresh_identity_per_call() -> void:
 	assert_eq(int(context["desktop_timeline_generation"]), 0, "New Run always opens generation zero")
 
 func test_start_new_run_requires_participants() -> void:
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("new_run_np").path_join(str(randi())).path_join("saves")
-	DirAccess.make_dir_recursive_absolute(root)
+	var created: Dictionary = TEMPORARY_STORAGE.create("new-run-no-participants")
+	assert_true(created.get("ok", false), created.get("message", ""))
+	if not created.get("ok", false):
+		return
+	var root := str(created["value"]).path_join("saves")
 	var manager: Node = load(SAVE_MANAGER_PATH).new()
 	autofree(manager)
 	manager.initialize(load(STORAGE_PATH).new(root))
@@ -231,6 +248,8 @@ func _seed_populated_journal(wired: Dictionary) -> Dictionary:
 
 func test_finalize_failure_retains_new_run_and_retries_the_same_durable_identity() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var before := _seed_populated_journal(wired)
 	if before.is_empty(): return
 	var manager: Node = wired.manager
@@ -257,6 +276,8 @@ func test_finalize_failure_retains_new_run_and_retries_the_same_durable_identity
 
 func test_successful_finalization_keeps_new_checkpoint_instead_of_restoring_backup() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var before := _seed_populated_journal(wired)
 	if before.is_empty(): return
 	var result: Dictionary = wired.manager.start_new_run(_initial_context())
@@ -273,6 +294,8 @@ func test_successful_finalization_keeps_new_checkpoint_instead_of_restoring_back
 func test_predecision_failure_preserves_old_run_and_postdecision_failures_retain_recovery() -> void:
 	for phase: String in ["invalid_context","apply","journal_commit"]:
 		var wired := _wired()
+		if wired.is_empty():
+			return
 		var before := _seed_populated_journal(wired)
 		if before.is_empty(): continue
 		var manager: Node = wired.manager
@@ -304,6 +327,8 @@ func test_predecision_failure_preserves_old_run_and_postdecision_failures_retain
 
 func test_durable_new_run_does_not_invoke_legacy_checkpoint_compensation() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var before := _seed_populated_journal(wired)
 	if before.is_empty(): return
 	var manager: Node = wired.manager
@@ -329,6 +354,8 @@ func test_durable_new_run_does_not_invoke_legacy_checkpoint_compensation() -> vo
 
 func test_new_run_captures_pending_dark_once_and_consumes_it_before_live_publication() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var manager: Node = wired.manager
 	var profile: Node = wired.profile
 	var candidate: Dictionary = profile.get_profile_snapshot()
@@ -352,6 +379,8 @@ func test_new_run_captures_pending_dark_once_and_consumes_it_before_live_publica
 func test_invalid_prepared_dark_facts_fail_before_durable_intent_and_release_gate() -> void:
 	for dark: Variant in [null, {}, {"available":true,"next_run_enabled":1}, {"available":false,"next_run_enabled":true}]:
 		var wired := _wired()
+		if wired.is_empty():
+			return
 		var manager: Node = wired.manager
 		var corrupted: Dictionary = wired.profile.get_profile_snapshot()
 		corrupted.preferences.dark_mode = dark
@@ -366,6 +395,8 @@ func test_invalid_prepared_dark_facts_fail_before_durable_intent_and_release_gat
 
 func test_caller_cannot_override_captured_dark_intent() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var context := _initial_context()
 	context.dark_mode = true
 	assert_eq(wired.manager.start_new_run(context).get("code"), &"invalid_initial_context")

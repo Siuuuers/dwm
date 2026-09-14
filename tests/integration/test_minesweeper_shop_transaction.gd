@@ -1,5 +1,7 @@
 extends "res://addons/gut/test.gd"
 
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
+
 ## Production Shop purchase transaction (Plan 02 Task 7, dwm-p2r.32.7, req.shop.capabilities).
 ## Configures the REAL GameStateMinesweeperShopPort over the real GameState autoload, the real
 ## DesktopConsequenceState, the real ApplicationMutationGate, a real DesktopIdentityNonceIssuer over
@@ -42,8 +44,11 @@ func _fresh_issuer(root: String) -> RefCounted:
 
 
 func _wired() -> Dictionary:
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("shop_transaction").path_join(str(randi()))
-	DirAccess.make_dir_recursive_absolute(root.path_join("saves"))
+	var created: Dictionary = TEMPORARY_STORAGE.create("shop-transaction")
+	assert_true(created.get("ok", false), created.get("message", ""))
+	if not created.get("ok", false):
+		return {}
+	var root := str(created["value"])
 
 	var save_manager: Node = load(SAVE_MANAGER_PATH).new()
 	autofree(save_manager)
@@ -117,6 +122,8 @@ func before_each() -> void:
 ## commit (real currency spend via GameState.try_spend_coins, real inventory grant), and publish.
 func test_lucky_charm_purchase_transacts_exactly_once_against_real_ports() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var participant: Object = wired["participant"]
 	var gs: Node = wired["gs"]
 	var issuer: Object = wired["issuer"]
@@ -162,6 +169,8 @@ func test_lucky_charm_purchase_transacts_exactly_once_against_real_ports() -> vo
 
 func test_a_second_purchase_within_the_same_prepared_purchase_conflicts() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var participant: Object = wired["participant"]
 	var issuer: Object = wired["issuer"]
 
@@ -191,6 +200,8 @@ func test_a_second_purchase_within_the_same_prepared_purchase_conflicts() -> voi
 
 func test_commit_rejects_before_causal_admission_leaving_currency_and_inventory_untouched() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var participant: Object = wired["participant"]
 	var gs: Node = wired["gs"]
 	var issuer: Object = wired["issuer"]
@@ -217,6 +228,8 @@ func test_commit_rejects_before_causal_admission_leaving_currency_and_inventory_
 
 func test_supportz_purchase_decrements_the_real_round_floor_and_spends_real_money() -> void:
 	var wired := _wired()
+	if wired.is_empty():
+		return
 	var participant: Object = wired["participant"]
 	var gs: Node = wired["gs"]
 	var issuer: Object = wired["issuer"]

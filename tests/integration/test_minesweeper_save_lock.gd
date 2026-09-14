@@ -1,4 +1,6 @@
 extends "res://addons/gut/test.gd"
+
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 # Step 2.5 (dwm-p2r.9 Plan 06 Task 2): the board lock is SILENT.
 #
 # These tests drive the real SaveManager, real CheckpointJournal, real SaveManagerCheckpointPort
@@ -44,9 +46,12 @@ class RealBundleStatePort:
 
 func _isolated_manager(suite_id: String) -> Node:
 	_suite_counter += 1
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("minesweeper_save_lock") \
-		.path_join("%s_%d" % [suite_id, _suite_counter]).path_join("saves")
-	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
+	var created: Dictionary = TEMPORARY_STORAGE.create(
+		"minesweeper-save-lock-%s-%d" % [suite_id, _suite_counter])
+	assert_true(created.get("ok", false), created.get("message", ""))
+	if not created.get("ok", false):
+		return null
+	var root := str(created["value"]).path_join("saves")
 	var manager: Node = autofree(load(SAVE_MANAGER_PATH).new())
 	assert_true(manager.call(&"initialize", STORAGE.new(root)).get("ok", false))
 	return manager
@@ -109,6 +114,8 @@ func _bundle(run_id: String) -> Dictionary:
 ## holds one stable checkpoint (a manual save has nothing to write without one).
 func _make_round(suite_id: String) -> Dictionary:
 	var manager := _isolated_manager(suite_id)
+	if manager == null:
+		return {}
 	assert_true(manager.get("_journal").reset(RUN_ID).get("ok", false))
 	assert_true(manager.call(&"record_stable_checkpoint", _bundle(RUN_ID), &"day_start").get("ok", false))
 	var gate: RefCounted = FAKE_GATE.new()
@@ -128,6 +135,8 @@ func _make_round(suite_id: String) -> Dictionary:
 
 func test_production_save_port_delegates_only_the_board_lock_owner() -> void:
 	var manager := _isolated_manager("owner_only")
+	if manager == null:
+		return
 	var gate: RefCounted = FAKE_GATE.new()
 	var checkpoint_port: RefCounted = CHECKPOINT_PORT.new(manager)
 	assert_true(checkpoint_port.configure_fatal_latch(gate).get("ok", false))
@@ -153,6 +162,8 @@ func test_production_save_port_delegates_only_the_board_lock_owner() -> void:
 
 func test_active_round_disables_save_silently_and_never_defers() -> void:
 	var made := _make_round("active_round")
+	if made.is_empty():
+		return
 	var manager: Node = made["manager"]
 	var emissions: Array[Dictionary] = []
 	manager.save_capability_changed.connect(func(c: Dictionary) -> void: emissions.append(c))
@@ -189,6 +200,8 @@ func test_active_round_disables_save_silently_and_never_defers() -> void:
 
 func test_completion_releases_the_lock_and_restores_capability() -> void:
 	var made := _make_round("completion")
+	if made.is_empty():
+		return
 	var manager: Node = made["manager"]
 	assert_true(made["coordinator"].begin_round({"context": &"app", "difficulty": &"beginner"}).get("ok", false))
 	assert_true(manager.call(&"is_save_locked"))
@@ -205,6 +218,8 @@ func test_completion_releases_the_lock_and_restores_capability() -> void:
 
 func test_abort_releases_the_lock_without_publishing_a_result() -> void:
 	var made := _make_round("abort")
+	if made.is_empty():
+		return
 	var manager: Node = made["manager"]
 	assert_true(made["coordinator"].begin_round({"context": &"app", "difficulty": &"beginner"}).get("ok", false))
 	made["state_port"].reset_call_counts()
@@ -219,6 +234,8 @@ func test_abort_releases_the_lock_without_publishing_a_result() -> void:
 
 func test_a_failed_lock_acquisition_consumes_no_round_and_leaves_no_lock() -> void:
 	var made := _make_round("lock_failure")
+	if made.is_empty():
+		return
 	var manager: Node = made["manager"]
 	# Another owner already holds the lock, so the board can never take it.
 	assert_true(manager.call(&"acquire_save_lock", &"restore").get("ok", false))

@@ -1,4 +1,7 @@
 extends "res://addons/gut/test.gd"
+
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
+
 # Committed Schedule -> day resolution, END TO END (Plan 01 Task 6, dwm-p2r.13, Steps 6.1/6.2/6.3/6.6).
 #
 # SUBSTRATE. The same real-object substrate as tests/unit/test_day_resolution_start_port.gd and
@@ -80,8 +83,10 @@ var _signals: Array[String] = []
 func before_each() -> void:
 	_commands = {}
 	_signals = []
-
+	_root = ""
 	_root = _isolated_root()
+	if _root.is_empty():
+		return
 	_storage = JsonFileStorage.new(_root)
 
 	_root_store = ROOT_STORE.new()
@@ -120,20 +125,18 @@ func before_each() -> void:
 
 
 func _isolated_root() -> String:
-	var wrapper: String = OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
 	_root_counter += 1
-	var root: String = wrapper.path_join("committed-schedule-resolution-%d" % _root_counter)
-	var production: String = ProjectSettings.globalize_path("user://").simplify_path().trim_suffix("/")
-	assert_ne(root.simplify_path().trim_suffix("/").nocasecmp_to(production), 0,
-		"an isolated root is never the production user directory")
-	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
-	return root
+	var result: Dictionary = TEMPORARY_STORAGE.create(
+		"committed-schedule-resolution-%d" % _root_counter)
+	assert_true(result.get("ok", false), result.get("message", ""))
+	return str(result.get("value", "")) if result.get("ok", false) else ""
 
 
 # ---- the accepted start ----
 
 func test_a_real_nonempty_commit_starts_a_resolution_that_freezes_the_committed_order() -> void:
+	if _root.is_empty():
+		return
 	# Drafts arrive out of slot order; the commit port emits `entries` already slot-sorted, so what
 	# this test pins is the plan's correspondence to the AGGREGATE -- one substage per committed
 	# entry, in the aggregate's own order, under the exact substage id format. (That the commit port
@@ -191,6 +194,8 @@ func test_a_real_nonempty_commit_starts_a_resolution_that_freezes_the_committed_
 # start port's own _revalidate_entries; a descending slot order is caught EARLIER, by the schema's
 # own ascent rule, so the port's matching order check is defence in depth rather than the first line.
 func test_a_nonempty_aggregate_is_revalidated_entry_by_entry_before_any_start() -> void:
+	if _root.is_empty():
+		return
 	var committed: Dictionary = _commit("day1-reject", 1, [
 		_ordinary("draft-a", 0, "training", 1),
 		_ordinary("draft-b", 1, "working", 1),
@@ -219,6 +224,8 @@ func test_a_nonempty_aggregate_is_revalidated_entry_by_entry_before_any_start() 
 
 
 func test_a_receipt_backed_empty_commit_starts_a_day_seven_resolution_with_no_substages() -> void:
+	if _root.is_empty():
+		return
 	# Empty Done is admitted only through its REAL receipt (Step 6.5), so this begins from a genuine
 	# empty commit rather than from an aggregate with the receipt left off.
 	var committed: Dictionary = _commit("day7-empty", 7, [])
@@ -248,6 +255,8 @@ func test_a_receipt_backed_empty_commit_starts_a_day_seven_resolution_with_no_su
 
 
 func test_the_exact_real_schedule_survives_serialize_and_restore() -> void:
+	if _root.is_empty():
+		return
 	var committed: Dictionary = _commit("day1-roundtrip", 1, [
 		_ordinary("draft-a", 0, "training", 1),
 		_ordinary("draft-b", 2, "working", 1),
@@ -289,6 +298,8 @@ func test_the_exact_real_schedule_survives_serialize_and_restore() -> void:
 # ---- the reversible surface (Step 6.2) ----
 
 func test_publication_is_the_only_start_signal_and_replays_without_a_second_one() -> void:
+	if _root.is_empty():
+		return
 	var committed: Dictionary = _commit("day1-publish", 1, [_ordinary("draft-a", 0, "training", 1)])
 	if committed.is_empty():
 		return
@@ -322,6 +333,8 @@ func test_publication_is_the_only_start_signal_and_replays_without_a_second_one(
 # wiring: one storage, one file, both frozen kinds. If the two ports ever held separate ledgers, a
 # cold restart could replay one kind while never seeing the other.
 func test_both_publication_kinds_land_in_the_one_shared_ledger_document() -> void:
+	if _root.is_empty():
+		return
 	var committed: Dictionary = _commit("day1-ledger", 1, [_ordinary("draft-a", 0, "training", 1)])
 	if committed.is_empty():
 		return
@@ -351,6 +364,8 @@ func test_both_publication_kinds_land_in_the_one_shared_ledger_document() -> voi
 # for exactly that and are proven in tests/unit/test_run_lifecycle_plan_seams.gd; wiring a port
 # through them is Task 7 work, not something this test may assert today.
 func test_rollback_leaves_no_active_plan_and_no_executed_stage() -> void:
+	if _root.is_empty():
+		return
 	var committed: Dictionary = _commit("day1-rollback", 1, [_ordinary("draft-a", 0, "training", 1)])
 	if committed.is_empty():
 		return
@@ -382,6 +397,8 @@ func test_rollback_leaves_no_active_plan_and_no_executed_stage() -> void:
 # the ports rather than repeating tests/unit/test_run_lifecycle_plan_seams.gd, which already owns the
 # same two laws at the bare RunLifecycle level.
 func test_a_same_resolution_replay_returns_the_existing_plan_and_a_rival_conflicts() -> void:
+	if _root.is_empty():
+		return
 	var committed: Dictionary = _commit("day1-succession", 1, [_ordinary("draft-a", 0, "training", 1)])
 	if committed.is_empty():
 		return
@@ -411,6 +428,8 @@ func test_a_same_resolution_replay_returns_the_existing_plan_and_a_rival_conflic
 # ---- the Step 6.6 removals, through the real production port ----
 
 func test_the_production_state_port_begins_from_the_owners_real_committed_schedule() -> void:
+	if _root.is_empty():
+		return
 	var committed: Dictionary = _commit("day1-production", 1, [
 		_ordinary("draft-a", 0, "training", 1),
 		_ordinary("draft-b", 1, "working", 1),
@@ -462,6 +481,8 @@ func test_the_production_state_port_begins_from_the_owners_real_committed_schedu
 
 
 func test_the_execute_stage_receipt_reads_entry_ids_from_the_committed_substages() -> void:
+	if _root.is_empty():
+		return
 	var committed: Dictionary = _commit("day1-entryids", 1, [
 		_ordinary("draft-a", 0, "training", 1),
 		_ordinary("draft-b", 1, "working", 1),
@@ -514,6 +535,8 @@ func test_the_execute_stage_receipt_reads_entry_ids_from_the_committed_substages
 ## second checkpoint and emits a second publication -- the at-most-once law every stage already
 ## keeps.
 func test_a_replayed_substage_completion_is_reported_as_a_duplicate_with_its_stored_receipt() -> void:
+	if _root.is_empty():
+		return
 	var committed: Dictionary = _commit("day1-substage-replay", 1, [
 		_ordinary("draft-a", 0, "training", 1),
 	])
@@ -555,6 +578,8 @@ func test_a_replayed_substage_completion_is_reported_as_a_duplicate_with_its_sto
 ## is a conflict, not a duplicate. Pinned here so the fix above cannot be mistaken for permission to
 ## overwrite a settled substage.
 func test_a_replayed_substage_completion_with_different_bytes_is_a_conflict() -> void:
+	if _root.is_empty():
+		return
 	var committed: Dictionary = _commit("day1-substage-conflict", 1, [
 		_ordinary("draft-a", 0, "training", 1),
 	])
@@ -594,6 +619,8 @@ func test_a_replayed_substage_completion_with_different_bytes_is_a_conflict() ->
 ## unreachable for stages through this port. Since dwm-p2r.22 gated the SUBSTAGE branch on bytes,
 ## substages have been stricter than their own parents. Same law, same door, top level this time.
 func test_a_replayed_stage_completion_with_different_bytes_is_a_conflict() -> void:
+	if _root.is_empty():
+		return
 	var committed: Dictionary = _commit("day1-stage-conflict", 1, [
 		_ordinary("draft-a", 0, "training", 1),
 	])
@@ -630,6 +657,8 @@ func test_a_replayed_stage_completion_with_different_bytes_is_a_conflict() -> vo
 ## reports duplicate=false -- misrepresenting a replay as fresh work, which is dwm-p2r.22's bug
 ## reborn one level up. Identical bytes stay a duplicate carrying the persisted receipt.
 func test_a_replayed_identical_stage_completion_is_a_duplicate_with_its_stored_receipt() -> void:
+	if _root.is_empty():
+		return
 	var committed: Dictionary = _commit("day1-stage-replay", 1, [
 		_ordinary("draft-a", 0, "training", 1),
 	])
@@ -672,6 +701,8 @@ func test_a_replayed_identical_stage_completion_is_a_duplicate_with_its_stored_r
 ## door. The superseded-date half of the same door is dwm-p2r.27: a right-kind, wrong-state
 ## transaction still gets the fail-open answer, deliberately left unpinned here.
 func test_the_presentation_seam_refuses_an_ordinary_substage_transaction() -> void:
+	if _root.is_empty():
+		return
 	var committed: Dictionary = _commit("day1-ordinary-presentation", 1, [
 		_ordinary("draft-a", 0, "training", 1),
 	])
@@ -711,6 +742,8 @@ func test_the_presentation_seam_refuses_an_ordinary_substage_transaction() -> vo
 ## presentation evidence onto a stage that never presents. The door refuses BY STAGE now,
 ## completing the seam whose substage half dwm-p2r.26/.27 sealed.
 func test_the_presentation_seam_refuses_a_never_presenting_stage_transaction() -> void:
+	if _root.is_empty():
+		return
 	var committed: Dictionary = _commit("day1-stage-presentation", 1, [
 		_ordinary("draft-a", 0, "training", 1),
 	])
@@ -769,6 +802,8 @@ func test_the_presentation_seam_refuses_a_never_presenting_stage_transaction() -
 ## `_commit_completion` fails. No production code path ever SETTLES that window wrongly on
 ## its own; it is the recorded, deliberate limit of this seam.
 func test_a_minted_hospital_envelope_cannot_settle_a_stage_that_never_began() -> void:
+	if _root.is_empty():
+		return
 	var committed: Dictionary = _commit("day1-pending-hospital", 1, [
 		_ordinary("draft-a", 0, "training", 1),
 	])

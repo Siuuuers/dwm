@@ -1,4 +1,7 @@
 extends "res://addons/gut/test.gd"
+
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
+
 # dwm-p2r.35.4 remediation: crash-boundary resume tests for New Run / restore continuation
 # (findings B-C1 "gate lease acquired too late", B-C2 "nothing resumes a continuation forward",
 # B-C3 "the cross-task advance() comment describes a pass that never existed", B-C4 "the abort/
@@ -190,10 +193,22 @@ func _wired(save_root: String, issuer_root: String, fail_profile_once: bool,
 	return {"manager": manager, "gate": gate, "gs": gs, "log": log, "issuer": issuer,
 		"profile": profile_owner, "profile_participant": profile_participant, "storage": storage,
 		"storage_recovery": storage_recovery}
+
+
+func _temporary_roots(label: String) -> Dictionary:
+	var result: Dictionary = TEMPORARY_STORAGE.create(label)
+	assert_true(result.get("ok", false), result.get("message", ""))
+	if not result.get("ok", false):
+		return {}
+	var root: String = str(result["value"])
+	return {"saves": root.path_join("saves"), "issuer": root.path_join("issuer")}
+
+
 func _wired_single() -> Dictionary:
-	var save_root := OS.get_environment("DWM_TEST_ROOT").path_join("continuation_resume").path_join(str(randi())).path_join("saves")
-	var issuer_root := OS.get_environment("DWM_TEST_ROOT").path_join("continuation_resume_issuer").path_join(str(randi()))
-	return _wired(save_root, issuer_root, false)
+	var roots := _temporary_roots("continuation-resume")
+	if roots.is_empty():
+		return {}
+	return _wired(str(roots["saves"]), str(roots["issuer"]), false)
 
 static func _canonical_sha256(value: Variant) -> String:
 	var emitted: Dictionary = CANONICAL_JSON.stringify(value)
@@ -345,6 +360,8 @@ func _assert_resumed_to_completion(manager: Node, gs: Node, gate: RefCounted, tr
 
 func test_a_busy_gate_rejects_new_run_before_any_identity_is_minted_or_intent_is_written() -> void:
 	var wired := _wired_single()
+	if wired.is_empty():
+		return
 	var manager: Node = wired["manager"]
 	var gate: RefCounted = wired["gate"]
 
@@ -363,6 +380,8 @@ func test_a_busy_gate_rejects_new_run_before_any_identity_is_minted_or_intent_is
 
 func test_a_busy_gate_rejects_restore_before_any_identity_is_minted_or_intent_is_written() -> void:
 	var wired := _wired_single()
+	if wired.is_empty():
+		return
 	var manager: Node = wired["manager"]
 	var gate: RefCounted = wired["gate"]
 
@@ -397,6 +416,8 @@ func test_a_busy_gate_rejects_restore_before_any_identity_is_minted_or_intent_is
 
 func test_crash_after_intent_committed_resumes_forward_to_completion() -> void:
 	var wired := _wired_single()
+	if wired.is_empty():
+		return
 	var manager: Node = wired["manager"]
 	var issuer: RefCounted = wired["issuer"]
 	var initial_context := _initial_context()
@@ -411,6 +432,8 @@ func test_crash_after_intent_committed_resumes_forward_to_completion() -> void:
 
 func test_crash_after_allocation_resumes_forward_to_completion() -> void:
 	var wired := _wired_single()
+	if wired.is_empty():
+		return
 	var manager: Node = wired["manager"]
 	var issuer: RefCounted = wired["issuer"]
 	var initial_context := _initial_context()
@@ -424,8 +447,11 @@ func test_crash_after_allocation_resumes_forward_to_completion() -> void:
 	_assert_resumed_to_completion(manager, wired["gs"], wired["gate"], intent["transaction_id"])
 
 func test_crash_mid_participants_resumes_to_completion_on_a_fresh_boot() -> void:
-	var save_root := OS.get_environment("DWM_TEST_ROOT").path_join("continuation_resume_mid").path_join(str(randi())).path_join("saves")
-	var issuer_root := OS.get_environment("DWM_TEST_ROOT").path_join("continuation_resume_mid_issuer").path_join(str(randi()))
+	var roots := _temporary_roots("continuation-resume-mid")
+	if roots.is_empty():
+		return
+	var save_root: String = str(roots["saves"])
+	var issuer_root: String = str(roots["issuer"])
 
 	var process_a := _wired(save_root, issuer_root, true)
 	var manager_a: Node = process_a["manager"]
@@ -461,8 +487,11 @@ func test_crash_mid_participants_resumes_to_completion_on_a_fresh_boot() -> void
 ## GameState already carries" guard fire spuriously (GameState.gd:1671-1672), which a genuine crash
 ## (a fresh process, fresh GameState) never would.
 func test_crash_after_participants_applied_resumes_to_completion() -> void:
-	var save_root := OS.get_environment("DWM_TEST_ROOT").path_join("continuation_resume_applied").path_join(str(randi())).path_join("saves")
-	var issuer_root := OS.get_environment("DWM_TEST_ROOT").path_join("continuation_resume_applied_issuer").path_join(str(randi()))
+	var roots := _temporary_roots("continuation-resume-applied")
+	if roots.is_empty():
+		return
+	var save_root: String = str(roots["saves"])
+	var issuer_root: String = str(roots["issuer"])
 
 	var process_a := _wired(save_root, issuer_root, false)
 	var manager_a: Node = process_a["manager"]
@@ -486,6 +515,8 @@ func test_crash_after_participants_applied_resumes_to_completion() -> void:
 
 func test_a_pre_allocation_restore_source_that_vanishes_aborts_with_a_typed_failure() -> void:
 	var wired := _wired_single()
+	if wired.is_empty():
+		return
 	var manager: Node = wired["manager"]
 	var issuer: RefCounted = wired["issuer"]
 	var gate: RefCounted = wired["gate"]
@@ -559,9 +590,11 @@ func test_a_pre_allocation_restore_source_that_vanishes_aborts_with_a_typed_fail
 
 func test_restart_uses_frozen_dark_material_without_resampling_profile() -> void:
 	for captured_dark: bool in [false, true]:
-		var suffix := str(randi())
-		var save_root := OS.get_environment("DWM_TEST_ROOT").path_join("frozen_dark_" + suffix).path_join("saves")
-		var issuer_root := OS.get_environment("DWM_TEST_ROOT").path_join("frozen_dark_issuer_" + suffix)
+		var roots := _temporary_roots("continuation-resume-frozen-dark")
+		if roots.is_empty():
+			return
+		var save_root: String = str(roots["saves"])
+		var issuer_root: String = str(roots["issuer"])
 		var process_a: Dictionary = _wired(save_root, issuer_root, false)
 		var profile_candidate: Dictionary = process_a["profile"].get_profile_snapshot()
 		profile_candidate["preferences"]["dark_mode"] = {
@@ -590,9 +623,11 @@ func test_restart_uses_frozen_dark_material_without_resampling_profile() -> void
 
 
 func test_restart_refuses_foreign_profile_bytes_without_overwriting_them() -> void:
-	var suffix := str(randi())
-	var save_root := OS.get_environment("DWM_TEST_ROOT").path_join("foreign_profile_" + suffix).path_join("saves")
-	var issuer_root := OS.get_environment("DWM_TEST_ROOT").path_join("foreign_profile_issuer_" + suffix)
+	var roots := _temporary_roots("continuation-resume-foreign-profile")
+	if roots.is_empty():
+		return
+	var save_root: String = str(roots["saves"])
+	var issuer_root: String = str(roots["issuer"])
 	var process_a: Dictionary = _wired(save_root, issuer_root, false)
 	var profile_candidate: Dictionary = process_a["profile"].get_profile_snapshot()
 	profile_candidate["preferences"]["dark_mode"] = {"available": true, "next_run_enabled": true}

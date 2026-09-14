@@ -1,4 +1,7 @@
 extends "res://addons/gut/test.gd"
+
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
+
 # dwm-p2r.32 Plan 02 Task 9. The Lucky/Debug/Supportz/round-completion action matrix, driven
 # through the REAL ApplicationBootstrap._configure_desktop_production_graph() wiring (Phase 1)
 # rather than a separately hand-wired stack -- this is what makes it "the production graph" proof
@@ -48,18 +51,22 @@ class HarnessBootstrap extends "res://autoload/ApplicationBootstrap.gd":
 var _bootstrap: Node = null
 var _game_state: Node = null
 var _root_counter := 0
+var _root := ""
 
 
 func _isolated_root() -> String:
-	var wrapper: String = OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
 	_root_counter += 1
-	return wrapper.path_join("desktop-action-matrix-%d" % _root_counter)
+	var result: Dictionary = TEMPORARY_STORAGE.create("desktop-action-matrix-%d" % _root_counter)
+	assert_true(result.get("ok", false), result.get("message", ""))
+	return str(result.get("value", "")) if result.get("ok", false) else ""
 
 
 func before_each() -> void:
+	_root = _isolated_root()
+	if _root.is_empty():
+		return
 	assert_true(SHOP_REGISTRY.initialize().get("ok", false), "shop registry must load")
-	var storage: RefCounted = JSON_STORAGE.new(_isolated_root())
+	var storage: RefCounted = JSON_STORAGE.new(_root.path_join("profile"))
 	var root_store: RefCounted = ROOT_STORE.new()
 	assert_true(root_store.configure(storage, NAMESPACE_SOURCE.new()).get("ok", false))
 	assert_true(root_store.load_or_create().get("ok", false))
@@ -94,7 +101,7 @@ func before_each() -> void:
 	add_child_autofree(router)
 	var save_manager: Node = load(SAVE_MANAGER_PATH).new()
 	add_child_autofree(save_manager)
-	assert_true(save_manager.call(&"initialize", JSON_STORAGE.new(_isolated_root())).get("ok", false))
+	assert_true(save_manager.call(&"initialize", JSON_STORAGE.new(_root.path_join("saves"))).get("ok", false))
 	assert_true(save_manager.call(&"configure_identity_issuer", issuer).get("ok", false))
 	var allocation_participant: RefCounted = DESKTOP_IDENTITY_ALLOCATION_RESTORE_PARTICIPANT.new(issuer, save_manager)
 	assert_true(save_manager.call(&"configure_identity_allocation_participant", allocation_participant).get("ok", false))
@@ -175,6 +182,8 @@ func _quote(item_id: String) -> Dictionary:
 # -------------------------------------------------------------------------------------------------
 
 func test_row_shop_lucky_charm_quote_matches_the_registry_record() -> void:
+	if _root.is_empty():
+		return
 	var record: Dictionary = (SHOP_REGISTRY.get_record(&"lucky_charm")["value"] as Dictionary)["record"]
 	var quoted: Dictionary = _quote("lucky_charm")
 	assert_true(quoted.get("ok", false), JSON.stringify(quoted))
@@ -185,6 +194,8 @@ func test_row_shop_lucky_charm_quote_matches_the_registry_record() -> void:
 
 
 func test_row_shop_debug_key_quote_matches_the_registry_record() -> void:
+	if _root.is_empty():
+		return
 	var record: Dictionary = (SHOP_REGISTRY.get_record(&"debug_key")["value"] as Dictionary)["record"]
 	var quoted: Dictionary = _quote("debug_key")
 	assert_true(quoted.get("ok", false), JSON.stringify(quoted))
@@ -195,6 +206,8 @@ func test_row_shop_debug_key_quote_matches_the_registry_record() -> void:
 
 
 func test_row_shop_supportz_quote_matches_the_registry_record_and_structured_cap() -> void:
+	if _root.is_empty():
+		return
 	var record: Dictionary = (SHOP_REGISTRY.get_record(&"supportz")["value"] as Dictionary)["record"]
 	var quoted: Dictionary = _quote("supportz")
 	assert_true(quoted.get("ok", false), JSON.stringify(quoted))
@@ -213,10 +226,14 @@ func test_row_shop_supportz_quote_matches_the_registry_record_and_structured_cap
 # -------------------------------------------------------------------------------------------------
 
 func test_row_shop_lucky_charm_prepare_purchase_is_fail_closed() -> void:
+	if _root.is_empty():
+		return
 	_assert_prepare_purchase_fails_closed_on_the_placeholder_identity("lucky_charm")
 
 
 func test_row_shop_debug_key_prepare_purchase_is_fail_closed() -> void:
+	if _root.is_empty():
+		return
 	_assert_prepare_purchase_fails_closed_on_the_placeholder_identity("debug_key")
 
 
@@ -226,6 +243,8 @@ func test_row_shop_debug_key_prepare_purchase_is_fail_closed() -> void:
 ## (supportz_not_eligible) for the identical underlying gap, so this row is asserted separately
 ## rather than forced through the shared helper's action_receipt_field_invalid expectation.
 func test_row_shop_supportz_prepare_purchase_is_fail_closed() -> void:
+	if _root.is_empty():
+		return
 	var issuer := _issuer()
 	var shop := _shop_participant()
 	var money_before: int = _game_state.money
@@ -277,6 +296,8 @@ func _assert_prepare_purchase_fails_closed_on_the_placeholder_identity(item_id: 
 # -------------------------------------------------------------------------------------------------
 
 func test_row_minesweeper_round_complete_round_is_fail_closed() -> void:
+	if _root.is_empty():
+		return
 	var round_coordinator: Object = _bootstrap.get("_retained_minesweeper_round_coordinator_app")
 	assert_null(round_coordinator.get("_state_port"),
 		"the production graph never calls the round coordinator's own base configure() " \
@@ -295,6 +316,8 @@ func test_row_minesweeper_round_complete_round_is_fail_closed() -> void:
 # -------------------------------------------------------------------------------------------------
 
 func test_row_minesweeper_round_reveal_is_fail_closed() -> void:
+	if _root.is_empty():
+		return
 	var round_coordinator: Object = _bootstrap.get("_retained_minesweeper_round_coordinator_app")
 	assert_null(round_coordinator.get("_generation_port"))
 	assert_null(round_coordinator.get("_checkpoint_port"))

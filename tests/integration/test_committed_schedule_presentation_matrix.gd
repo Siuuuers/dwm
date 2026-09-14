@@ -1,4 +1,7 @@
 extends "res://addons/gut/test.gd"
+
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
+
 # Plan 01 matrix conformance for the presentation producer (dwm-p2r.18, Step 8.1's negative half).
 #
 # WHAT THIS FILE OWNS, and why it is not a duplicate of the port suites. The port suites prove the
@@ -89,11 +92,13 @@ var _commands: Dictionary = {}
 
 func before_each() -> void:
 	_commands = {}
+	_root = ""
 	_root_counter += 1
-	var wrapper: String = OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
-	_root = wrapper.path_join("presentation-matrix-%d" % _root_counter)
-	assert_eq(DirAccess.make_dir_recursive_absolute(_root), OK)
+	var result: Dictionary = TEMPORARY_STORAGE.create("presentation-matrix-%d" % _root_counter)
+	assert_true(result.get("ok", false), result.get("message", ""))
+	if not result.get("ok", false):
+		return
+	_root = str(result["value"])
 
 	var loaded: Dictionary = REGISTRY.load_current()
 	assert_true(loaded.get("ok", false), str(loaded))
@@ -130,6 +135,8 @@ func before_each() -> void:
 ## input_receipt_ids)` per variant. A producer that got any one of these wrong would derive a
 ## well-formed child under the wrong row, which is exactly the failure a shape-only check misses.
 func test_the_surviving_date_variant_carries_its_exact_discriminator_tuple() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	var request := _await_presentation()
 	if request.is_empty():
@@ -145,6 +152,8 @@ func test_the_surviving_date_variant_carries_its_exact_discriminator_tuple() -> 
 
 
 func test_the_hospital_variant_carries_its_exact_discriminator_tuple() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	_game_state.pending_hospital = true
 	var request := _await_presentation()
@@ -163,6 +172,8 @@ func test_the_hospital_variant_carries_its_exact_discriminator_tuple() -> void:
 ## Line 100: `L([condition_receipt_id] + hospital_miss_receipt_ids)` -- so the Hospital source set
 ## contains the condition id EVEN WHEN there are no misses, and is flattened, unique and sorted.
 func test_the_hospital_source_set_contains_the_condition_id_with_and_without_misses() -> void:
+	if _root.is_empty():
+		return
 	# WITH a miss: one committed date that Hospital supersedes.
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	_game_state.pending_hospital = true
@@ -179,6 +190,8 @@ func test_the_hospital_source_set_contains_the_condition_id_with_and_without_mis
 
 
 func test_a_hospital_with_no_committed_date_still_names_its_condition_id() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_ordinary("w1", 0, "working", 3)])
 	_game_state.pending_hospital = true
 	var request := _await_presentation()
@@ -202,6 +215,8 @@ func test_a_hospital_with_no_committed_date_still_names_its_condition_id() -> vo
 ## `hospital_resolution_id`, an aggregate that disagreed with line 94 could not produce miss ids
 ## that match. So this single equality is conformance for BOTH rows at once.
 func test_the_hospital_ancestry_children_are_exactly_the_matrix_rows() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	_game_state.pending_hospital = true
 	var request := _await_presentation()
@@ -218,6 +233,8 @@ func test_the_hospital_ancestry_children_are_exactly_the_matrix_rows() -> void:
 ## committed `slot_index` order. Two dates make that visible: swapping the two derived ids must not
 ## still match, or an implementation that ordered misses by anything else would pass unnoticed.
 func test_the_hospital_miss_ordinal_follows_committed_slot_order() -> void:
+	if _root.is_empty():
+		return
 	# Day 6, because that is the day the registry carries a solo action for BOTH friends; day 3 has
 	# only lavinia, so it cannot produce the two misses this ordinal check needs.
 	_commit_and_begin(6, [
@@ -242,6 +259,8 @@ func test_the_hospital_miss_ordinal_follows_committed_slot_order() -> void:
 ## must move -- they bind the aggregate through `hospital_resolution_id`, so this is the only
 ## externally visible consequence of an aggregate that projected different bytes.
 func test_every_projected_hospital_resolution_member_is_load_bearing() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	_game_state.pending_hospital = true
 	var request := _await_presentation()
@@ -269,6 +288,8 @@ func test_every_projected_hospital_resolution_member_is_load_bearing() -> void:
 ## The sweep for line 95, plus the parent and ordinal the derivation request owns rather than the
 ## source set.
 func test_every_projected_hospital_miss_member_is_load_bearing() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	_game_state.pending_hospital = true
 	var request := _await_presentation()
@@ -303,6 +324,8 @@ func test_every_projected_hospital_miss_member_is_load_bearing() -> void:
 ## THE CENTRAL TEST. The 13 members of line 97 are rebuilt here from the plan text and derived
 ## through the same issuer; the resulting child id must equal the one the producer emitted.
 func test_the_intent_child_is_exactly_the_matrix_row_p01_presentation_intent() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	var request := _await_presentation()
 	if request.is_empty():
@@ -315,6 +338,8 @@ func test_the_intent_child_is_exactly_the_matrix_row_p01_presentation_intent() -
 
 ## The sweep. Each of the 13 members is perturbed alone; every one must move the child id.
 func test_every_projected_intent_member_is_load_bearing() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	var request := _await_presentation()
 	if request.is_empty():
@@ -332,6 +357,8 @@ func test_every_projected_intent_member_is_load_bearing() -> void:
 ## Parent and ordinal are part of the derivation request rather than the source set, so they need
 ## their own check: a child derived under another root, or at another ordinal, must differ.
 func test_the_intent_parent_and_ordinal_are_load_bearing() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	var request := _await_presentation()
 	if request.is_empty():
@@ -353,6 +380,8 @@ func test_the_intent_parent_and_ordinal_are_load_bearing() -> void:
 ## different order must reach the same child -- otherwise two honest producers of the same row
 ## would disagree purely on iteration order.
 func test_the_source_set_is_order_independent_but_membership_is_not() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	var request := _await_presentation()
 	if request.is_empty():
@@ -377,6 +406,8 @@ func test_the_source_set_is_order_independent_but_membership_is_not() -> void:
 ## Line 98's 7 members, rebuilt from the plan text. The provenance travels in the request, so this
 ## one compares the stored `source_ids` directly rather than by re-derivation.
 func test_the_completion_child_is_exactly_the_matrix_row_p01_presentation_completion() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	var request := _await_presentation()
 	if request.is_empty():
@@ -397,6 +428,8 @@ func test_the_completion_child_is_exactly_the_matrix_row_p01_presentation_comple
 ## Line 100: "the completion projection binds its prerequisite without including itself." So
 ## `substage_id` is the INTENT child id, and the completion id itself never appears.
 func test_the_completion_binds_its_intent_and_never_includes_itself() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	var request := _await_presentation()
 	if request.is_empty():
@@ -419,6 +452,8 @@ func test_the_completion_binds_its_intent_and_never_includes_itself() -> void:
 ## substage id until this was caught. Hospital and the deferred pair are top-level stages, so they
 ## are correct by shape rather than by rule.
 func test_the_completion_names_the_top_level_stage_and_not_the_entry_substage() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	var request := _await_presentation()
 	if request.is_empty():
@@ -434,6 +469,8 @@ func test_the_completion_names_the_top_level_stage_and_not_the_entry_substage() 
 
 
 func test_every_projected_completion_member_is_load_bearing() -> void:
+	if _root.is_empty():
+		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
 	var request := _await_presentation()
 	if request.is_empty():
@@ -458,6 +495,8 @@ func test_every_projected_completion_member_is_load_bearing() -> void:
 ## source there is no lawful root, so the producer must refuse with the stage still PENDING -- not
 ## begin it, not present anything, and not complete it with an empty envelope.
 func test_an_underivable_presentation_refuses_with_the_stage_still_pending() -> void:
+	if _root.is_empty():
+		return
 	var bare_port: RefCounted = STATE_PORT.new(_game_state)
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)], bare_port)
 	# Walk the UNCONFIGURED port to the date substage; every earlier stage resolves normally.
@@ -974,6 +1013,8 @@ func _command(label: String) -> Dictionary:
 ## permits deferred pair presentation", so the pair is owed exactly when Hospital took its committed
 ## group entry away earlier in this same walk.
 func test_hospital_supersession_is_what_owes_the_pair_a_presentation() -> void:
+	if _root.is_empty():
+		return
 	var source_receipt_id := _seed_group_source(2)
 	if source_receipt_id.is_empty():
 		return
@@ -994,6 +1035,8 @@ func test_hospital_supersession_is_what_owes_the_pair_a_presentation() -> void:
 ## The matrix row itself: ordinal 0, the Dating context shape, and
 ## `L(schedule_entry_id,source_receipt_id)`.
 func test_the_deferred_pair_variant_carries_its_exact_matrix_row() -> void:
+	if _root.is_empty():
+		return
 	var source_receipt_id := _seed_group_source(2)
 	if source_receipt_id.is_empty():
 		return
@@ -1039,6 +1082,8 @@ func test_the_deferred_pair_variant_carries_its_exact_matrix_row() -> void:
 ## the pair's own stage transaction through the seam and holds its answer: the pair PRESENTS, so
 ## it is allowlisted, and the published completion is folded onto its envelope verbatim.
 func test_the_deferred_pair_settles_through_the_presentation_seam() -> void:
+	if _root.is_empty():
+		return
 	var source_receipt_id := _seed_group_source(2)
 	if source_receipt_id.is_empty():
 		return
@@ -1074,6 +1119,8 @@ func test_the_deferred_pair_settles_through_the_presentation_seam() -> void:
 ## to the substage branch by design: the pair is the PRESENTATION OF a superseded entry --
 ## refusing superseded entries here would refuse the pair's whole reason to exist.)
 func test_a_dating_round_begins_during_the_deferred_pair_presentation() -> void:
+	if _root.is_empty():
+		return
 	var source_receipt_id := _seed_group_source(2)
 	if source_receipt_id.is_empty():
 		return
@@ -1113,6 +1160,8 @@ func test_a_dating_round_begins_during_the_deferred_pair_presentation() -> void:
 ## durably in the plan. (The owner-receipt gate has no twofriends case, so the settle receipt
 ## completes the stage exactly as the suite's own walker does.)
 func test_no_dating_round_begins_after_the_pair_presentation_completes() -> void:
+	if _root.is_empty():
+		return
 	var source_receipt_id := _seed_group_source(2)
 	if source_receipt_id.is_empty():
 		return
@@ -1147,6 +1196,8 @@ func test_no_dating_round_begins_after_the_pair_presentation_completes() -> void
 ## only a scrambled roster can tell the two sources apart. With live contacts claiming an
 ## impostor, the evidence still names the frozen pair.
 func test_the_pair_evidence_ignores_scrambled_live_contacts() -> void:
+	if _root.is_empty():
+		return
 	var source_receipt_id := _seed_group_source(2)
 	if source_receipt_id.is_empty():
 		return

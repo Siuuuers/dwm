@@ -369,17 +369,18 @@ func test_colour_change_keeps_a_real_pending_caption_click_until_one_release() -
 	assert_eq(_ended, 0)
 
 func test_art_hold_recolours_only_material_with_same_art_and_continue_custody() -> void:
-	var test_root: String = OS.get_environment("DWM_TEST_ROOT")
-	assert_false(test_root.is_empty(), "the art fixture requires an isolated DWM_TEST_ROOT")
-	if test_root.is_empty(): return
-	var file := FileAccess.open("user://witnessed-run-presentation-art.json", FileAccess.WRITE)
+	var created: Dictionary = TemporaryStorage.create("witnessed-run-presentation-art")
+	assert_true(created.get("ok", false), "the art fixture requires isolated storage: " + str(created))
+	if not created.get("ok", false): return
+	var fixture_path: String = str(created["value"]).path_join("art.json")
+	var file := FileAccess.open(fixture_path, FileAccess.WRITE)
 	assert_not_null(file)
 	if file == null: return
 	file.store_string(JSON.stringify({"schema_version": 1,
 		"assets": {"fixture.portrait": {"path": "res://icon.svg", "size": [128, 128]}},
 		"scenes": {"opening.day1": {"background": "", "portraits": ["fixture.portrait"], "cg": ""}}}))
 	file.close()
-	assert_true(ART.reload_placements("user://witnessed-run-presentation-art.json"))
+	assert_true(ART.reload_placements(fixture_path))
 	_run_owner.dark_mode = true
 	_run_owner.day = 6
 	var hold: Control = HOLD.new()

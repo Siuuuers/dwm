@@ -1,4 +1,7 @@
 extends "res://addons/gut/test.gd"
+
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
+
 # Task 2 (dwm-p2r.9 Plan 06) freezes the FINAL production bootstrap graph.
 #
 # WHY THIS FILE EXISTS. Task 3 hashes these exact Bootstrap/project bytes into both Phase-3
@@ -93,14 +96,10 @@ class UnavailableWindowOutput:
 
 
 func _isolated_root(label: String) -> String:
-	var wrapper: String = OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
 	_root_counter += 1
-	var root: String = wrapper.path_join("%s-%d" % [label, _root_counter])
-	var production: String = ProjectSettings.globalize_path("user://").simplify_path().trim_suffix("/")
-	assert_ne(root.simplify_path().trim_suffix("/").nocasecmp_to(production), 0,
-		"an isolated root is never the production user directory")
-	return root
+	var result: Dictionary = TEMPORARY_STORAGE.create("%s-%d" % [label, _root_counter])
+	assert_true(result.get("ok", false), result.get("message", ""))
+	return str(result.get("value", "")) if result.get("ok", false) else ""
 
 
 ## Builds the nine gate targets plus the bootstrap, with the gate and retained identity issuer
@@ -108,6 +107,8 @@ func _isolated_root(label: String) -> String:
 ## production order so WindowMode retains Audio's exact shared Settings transaction owner.
 func _make_graph(label: String) -> Dictionary:
 	var root: String = _isolated_root(label)
+	if root.is_empty():
+		return {}
 	var targets := {
 		&"ProfileManager": autofree(PROFILE_MANAGER.new()),
 		&"GameState": autofree(GAME_STATE.new()),
@@ -168,6 +169,8 @@ func test_master_stage_order_is_frozen() -> void:
 
 func test_exactly_nine_targets_retain_one_shared_gate_identity() -> void:
 	var made := _make_graph("gate-identity")
+	if made.is_empty():
+		return
 	var bootstrap: Node = made["bootstrap"]
 	var gate: Object = bootstrap.get("_application_gate")
 	assert_not_null(gate)
@@ -187,6 +190,8 @@ func test_exactly_nine_targets_retain_one_shared_gate_identity() -> void:
 
 func test_one_desktop_host_is_shared_by_route_restore_and_the_direct_checkpoint_provider() -> void:
 	var made := _make_graph("desktop-host")
+	if made.is_empty():
+		return
 	var bootstrap: Node = made["bootstrap"]
 	var participants: Dictionary = bootstrap.call(&"_configure_restore_participants")
 	assert_true(participants.get("ok", false), str(participants))
@@ -202,6 +207,8 @@ func test_one_desktop_host_is_shared_by_route_restore_and_the_direct_checkpoint_
 
 func test_the_stable_active_app_callable_keeps_its_identity_and_returns_raw_json_values() -> void:
 	var made := _make_graph("active-app-callable")
+	if made.is_empty():
+		return
 	var bootstrap: Node = made["bootstrap"]
 	# BEFORE host injection the stable Callable returns raw JSON null -- never a wrapper.
 	var before: Variant = bootstrap.call(&"_active_app_id_context")
@@ -225,6 +232,8 @@ func test_the_stable_active_app_callable_keeps_its_identity_and_returns_raw_json
 
 func test_the_retained_checkpoint_port_and_gate_are_shared_by_both_coordinators() -> void:
 	var made := _make_graph("shared-coordinators")
+	if made.is_empty():
+		return
 	var bootstrap: Node = made["bootstrap"]
 	var game_state: Node = made["targets"][&"GameState"]
 	# The Schedule foundation inside day resolution reuses the retained issuer, so that stage
@@ -255,6 +264,8 @@ func test_the_retained_checkpoint_port_and_gate_are_shared_by_both_coordinators(
 
 func test_exactly_one_day_changed_connection_dispatches_one_eviction_command() -> void:
 	var made := _make_graph("day-change")
+	if made.is_empty():
+		return
 	var bootstrap: Node = made["bootstrap"]
 	var game_state: Node = made["targets"][&"GameState"]
 	assert_true(bootstrap.call(&"_configure_restore_participants").get("ok", false))
@@ -289,6 +300,8 @@ func test_exactly_one_day_changed_connection_dispatches_one_eviction_command() -
 
 func test_a_missing_eviction_port_latches_one_primitive_validated_fatal() -> void:
 	var made := _make_graph("eviction-missing")
+	if made.is_empty():
+		return
 	var bootstrap: Node = made["bootstrap"]
 	var game_state: Node = made["targets"][&"GameState"]
 	assert_true(bootstrap.call(&"_configure_restore_participants").get("ok", false))
@@ -319,6 +332,8 @@ func test_each_stage_failure_returns_one_fatal_result_and_never_reaches_readines
 	}
 	for stage_id: StringName in failures:
 		var made := _make_graph("stage-fail-%s" % stage_id)
+		if made.is_empty():
+			return
 		var bootstrap: Node = made["bootstrap"]
 		var targets: Dictionary = bootstrap.injected_targets.duplicate()
 		targets.erase(failures[stage_id])
@@ -389,6 +404,8 @@ func test_new_acc_storage_settles_before_profile_and_failure_stops_all_consumers
 		bootstrap.trace = trace
 		bootstrap.injected_targets = {&"ProfileManager": profile, &"SaveManager": saves}
 		var root: String = _isolated_root("new-acc-storage-order")
+		if root.is_empty():
+			return
 		var storage: RefCounted = JSON_STORAGE.new(root)
 		bootstrap.set("_selected_root", root)
 		bootstrap.set("_profile_storage", storage)

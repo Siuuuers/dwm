@@ -1,0 +1,1154 @@
+{
+  "remaining-root-baseline": {
+    "counts": {
+      "Scripts": 42,
+      "Tests": 559,
+      "Passing Tests": 444,
+      "Failing Tests": 115,
+      "Orphans": 816
+    },
+    "markers": [],
+    "script_error_count": 41
+  },
+  "remaining-root-red": {
+    "counts": {
+      "Scripts": 1,
+      "Tests": 12,
+      "Passing Tests": 12,
+      "Orphans": 24
+    },
+    "markers": [
+      {
+        "mode": "empty",
+        "phase": "run",
+        "root": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_tests\\remaining-root-disposable-20260914\\.godot\\phase2r_tests\\e4cc9c4c-308d-48b5-abe2-a4f9abd5cee9\\dwm_test_root",
+        "snapshot_sha256": "8acf15c6c01652acdb184308740ad3e4e465d20f1c16c91c9f52513ee26ac356",
+        "snapshot_file_count": 0,
+        "snapshot_directory_count": 1,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "empty",
+        "ok": true,
+        "phase": "end_run",
+        "before_sha256": "8acf15c6c01652acdb184308740ad3e4e465d20f1c16c91c9f52513ee26ac356",
+        "before_file_count": 0,
+        "before_directory_count": 1,
+        "before_errors": [],
+        "after_sha256": "8acf15c6c01652acdb184308740ad3e4e465d20f1c16c91c9f52513ee26ac356",
+        "after_file_count": 0,
+        "after_directory_count": 1,
+        "after_errors": []
+      },
+      {
+        "mode": "empty",
+        "ok": true,
+        "phase": "restored"
+      }
+    ],
+    "script_error_count": 0
+  },
+  "remaining-root-write-control": {
+    "counts": {
+      "Scripts": 1,
+      "Tests": 8,
+      "Passing Tests": 7,
+      "Failing Tests": 1,
+      "Orphans": 24
+    },
+    "markers": [
+      {
+        "mode": "empty",
+        "phase": "run",
+        "root": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_tests\\remaining-root-disposable-20260914\\.godot\\phase2r_tests\\01e7ec58-426d-4d3c-a712-9f8fbc716acf\\dwm_test_root",
+        "snapshot_sha256": "8acf15c6c01652acdb184308740ad3e4e465d20f1c16c91c9f52513ee26ac356",
+        "snapshot_file_count": 0,
+        "snapshot_directory_count": 1,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "empty",
+        "ok": true,
+        "phase": "end_run",
+        "before_sha256": "8acf15c6c01652acdb184308740ad3e4e465d20f1c16c91c9f52513ee26ac356",
+        "before_file_count": 0,
+        "before_directory_count": 1,
+        "before_errors": [],
+        "after_sha256": "8acf15c6c01652acdb184308740ad3e4e465d20f1c16c91c9f52513ee26ac356",
+        "after_file_count": 0,
+        "after_directory_count": 1,
+        "after_errors": []
+      },
+      {
+        "mode": "empty",
+        "ok": true,
+        "phase": "restored"
+      }
+    ],
+    "script_error_count": 0
+  },
+  "remaining-root-unit-guards": {
+    "counts": {
+      "Scripts": 10,
+      "Tests": 161,
+      "Passing Tests": 159,
+      "Failing Tests": 2,
+      "Orphans": 672
+    },
+    "markers": [],
+    "script_error_count": 2
+  },
+  "remaining-root-unit-empty": {
+    "counts": {
+      "Scripts": 9,
+      "Tests": 157,
+      "Passing Tests": 71,
+      "Failing Tests": 86,
+      "Orphans": 24
+    },
+    "markers": [
+      {
+        "mode": "empty",
+        "phase": "run",
+        "root": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_tests\\remaining-root-disposable-20260914\\.godot\\phase2r_tests\\462f2b41-5127-435c-9fe4-15322d2ce75b\\dwm_test_root",
+        "snapshot_sha256": "8acf15c6c01652acdb184308740ad3e4e465d20f1c16c91c9f52513ee26ac356",
+        "snapshot_file_count": 0,
+        "snapshot_directory_count": 1,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "empty",
+        "ok": true,
+        "phase": "user_storage",
+        "before_sha256": "75f40d4b29f6be062636f3335e566512b8066cb7d282aeefbb7e9ff539d57045",
+        "before_file_count": 1,
+        "before_directory_count": 3,
+        "before_errors": [],
+        "after_sha256": "75f40d4b29f6be062636f3335e566512b8066cb7d282aeefbb7e9ff539d57045",
+        "after_file_count": 1,
+        "after_directory_count": 3,
+        "after_errors": []
+      },
+      {
+        "mode": "empty",
+        "ok": true,
+        "phase": "end_run",
+        "before_sha256": "8acf15c6c01652acdb184308740ad3e4e465d20f1c16c91c9f52513ee26ac356",
+        "before_file_count": 0,
+        "before_directory_count": 1,
+        "before_errors": [],
+        "after_sha256": "8acf15c6c01652acdb184308740ad3e4e465d20f1c16c91c9f52513ee26ac356",
+        "after_file_count": 0,
+        "after_directory_count": 1,
+        "after_errors": []
+      },
+      {
+        "mode": "empty",
+        "ok": true,
+        "phase": "restored"
+      }
+    ],
+    "script_error_count": 0
+  },
+  "remaining-root-normal": {
+    "counts": {
+      "Scripts": 41,
+      "Tests": 552,
+      "Passing Tests": 437,
+      "Failing Tests": 115,
+      "Orphans": 816
+    },
+    "markers": [],
+    "script_error_count": 42
+  },
+  "remaining-root-normal-final": {
+    "counts": {
+      "Scripts": 42,
+      "Tests": 559,
+      "Passing Tests": 444,
+      "Failing Tests": 115,
+      "Orphans": 816
+    },
+    "markers": [],
+    "script_error_count": 41
+  },
+  "remaining-root-boot-order": {
+    "counts": {
+      "Scripts": 1,
+      "Tests": 8,
+      "Passing Tests": 2,
+      "Failing Tests": 6,
+      "Orphans": 24
+    },
+    "markers": [],
+    "script_error_count": 4
+  },
+  "remaining-root-full-empty": {
+    "counts": {
+      "Scripts": 42,
+      "Tests": 559,
+      "Passing Tests": 91,
+      "Failing Tests": 367,
+      "Risky/Pending": 101,
+      "Orphans": 168
+    },
+    "markers": [
+      {
+        "mode": "empty",
+        "phase": "run",
+        "root": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_tests\\remaining-root-disposable-20260914\\.godot\\phase2r_tests\\5ca017a1-4eaa-4715-9ec6-f66c0efcd9aa\\dwm_test_root",
+        "snapshot_sha256": "8acf15c6c01652acdb184308740ad3e4e465d20f1c16c91c9f52513ee26ac356",
+        "snapshot_file_count": 0,
+        "snapshot_directory_count": 1,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "empty",
+        "ok": true,
+        "phase": "user_storage",
+        "before_sha256": "75f40d4b29f6be062636f3335e566512b8066cb7d282aeefbb7e9ff539d57045",
+        "before_file_count": 1,
+        "before_directory_count": 3,
+        "before_errors": [],
+        "after_sha256": "75f40d4b29f6be062636f3335e566512b8066cb7d282aeefbb7e9ff539d57045",
+        "after_file_count": 1,
+        "after_directory_count": 3,
+        "after_errors": []
+      },
+      {
+        "mode": "empty",
+        "ok": true,
+        "phase": "end_run",
+        "before_sha256": "8acf15c6c01652acdb184308740ad3e4e465d20f1c16c91c9f52513ee26ac356",
+        "before_file_count": 0,
+        "before_directory_count": 1,
+        "before_errors": [],
+        "after_sha256": "8acf15c6c01652acdb184308740ad3e4e465d20f1c16c91c9f52513ee26ac356",
+        "after_file_count": 0,
+        "after_directory_count": 1,
+        "after_errors": []
+      },
+      {
+        "mode": "empty",
+        "ok": true,
+        "phase": "restored"
+      }
+    ],
+    "script_error_count": 0
+  },
+  "remaining-root-full-whitespace": {
+    "counts": {
+      "Scripts": 42,
+      "Tests": 559,
+      "Passing Tests": 91,
+      "Failing Tests": 367,
+      "Risky/Pending": 101,
+      "Orphans": 168
+    },
+    "markers": [
+      {
+        "mode": "whitespace",
+        "phase": "run",
+        "root": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_tests\\remaining-root-disposable-20260914\\.godot\\phase2r_tests\\d1b40b1f-4046-45a9-a6d5-44d8a9e8bdec\\dwm_test_root",
+        "snapshot_sha256": "8acf15c6c01652acdb184308740ad3e4e465d20f1c16c91c9f52513ee26ac356",
+        "snapshot_file_count": 0,
+        "snapshot_directory_count": 1,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "whitespace",
+        "ok": true,
+        "phase": "user_storage",
+        "before_sha256": "75f40d4b29f6be062636f3335e566512b8066cb7d282aeefbb7e9ff539d57045",
+        "before_file_count": 1,
+        "before_directory_count": 3,
+        "before_errors": [],
+        "after_sha256": "75f40d4b29f6be062636f3335e566512b8066cb7d282aeefbb7e9ff539d57045",
+        "after_file_count": 1,
+        "after_directory_count": 3,
+        "after_errors": []
+      },
+      {
+        "mode": "whitespace",
+        "ok": true,
+        "phase": "end_run",
+        "before_sha256": "8acf15c6c01652acdb184308740ad3e4e465d20f1c16c91c9f52513ee26ac356",
+        "before_file_count": 0,
+        "before_directory_count": 1,
+        "before_errors": [],
+        "after_sha256": "8acf15c6c01652acdb184308740ad3e4e465d20f1c16c91c9f52513ee26ac356",
+        "after_file_count": 0,
+        "after_directory_count": 1,
+        "after_errors": []
+      },
+      {
+        "mode": "whitespace",
+        "ok": true,
+        "phase": "restored"
+      }
+    ],
+    "script_error_count": 0
+  },
+  "remaining-root-stale": {
+    "counts": {
+      "Scripts": 26,
+      "Tests": 342,
+      "Passing Tests": 77,
+      "Failing Tests": 265,
+      "Orphans": 192
+    },
+    "markers": [
+      {
+        "mode": "stale",
+        "phase": "run",
+        "root": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_tests\\remaining-root-disposable-20260914\\.godot\\phase2r_tests\\54cd5bc9-f01d-48e9-8f2a-b09f3bb27e48\\dwm_test_root"
+      },
+      {
+        "mode": "stale",
+        "phase": "start_script",
+        "root_restored": true,
+        "script": 1
+      },
+      {
+        "mode": "stale",
+        "phase": "first_end_test",
+        "root_cleared": true,
+        "script": 1,
+        "snapshot_sha256": "8acf15c6c01652acdb184308740ad3e4e465d20f1c16c91c9f52513ee26ac356",
+        "snapshot_file_count": 0,
+        "snapshot_directory_count": 1,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "end_script",
+        "script": 1,
+        "before_sha256": "8acf15c6c01652acdb184308740ad3e4e465d20f1c16c91c9f52513ee26ac356",
+        "before_file_count": 0,
+        "before_directory_count": 1,
+        "before_errors": [],
+        "after_sha256": "8acf15c6c01652acdb184308740ad3e4e465d20f1c16c91c9f52513ee26ac356",
+        "after_file_count": 0,
+        "after_directory_count": 1,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "phase": "start_script",
+        "root_restored": true,
+        "script": 2
+      },
+      {
+        "mode": "stale",
+        "phase": "first_end_test",
+        "root_cleared": true,
+        "script": 2,
+        "snapshot_sha256": "e5d0f5847a4bbb7f357ec4f2e3f20607dee671199eb9fc3cbd2e7b90c5ee8940",
+        "snapshot_file_count": 3,
+        "snapshot_directory_count": 4,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "end_script",
+        "script": 2,
+        "before_sha256": "e5d0f5847a4bbb7f357ec4f2e3f20607dee671199eb9fc3cbd2e7b90c5ee8940",
+        "before_file_count": 3,
+        "before_directory_count": 4,
+        "before_errors": [],
+        "after_sha256": "e5d0f5847a4bbb7f357ec4f2e3f20607dee671199eb9fc3cbd2e7b90c5ee8940",
+        "after_file_count": 3,
+        "after_directory_count": 4,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "phase": "start_script",
+        "root_restored": true,
+        "script": 3
+      },
+      {
+        "mode": "stale",
+        "phase": "first_end_test",
+        "root_cleared": true,
+        "script": 3,
+        "snapshot_sha256": "76f15ab9500d7711f7d989bcb016f0fc7585f3035817b8faad11580ab8b01015",
+        "snapshot_file_count": 5,
+        "snapshot_directory_count": 6,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "end_script",
+        "script": 3,
+        "before_sha256": "76f15ab9500d7711f7d989bcb016f0fc7585f3035817b8faad11580ab8b01015",
+        "before_file_count": 5,
+        "before_directory_count": 6,
+        "before_errors": [],
+        "after_sha256": "76f15ab9500d7711f7d989bcb016f0fc7585f3035817b8faad11580ab8b01015",
+        "after_file_count": 5,
+        "after_directory_count": 6,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "phase": "start_script",
+        "root_restored": true,
+        "script": 4
+      },
+      {
+        "mode": "stale",
+        "phase": "first_end_test",
+        "root_cleared": true,
+        "script": 4,
+        "snapshot_sha256": "76f15ab9500d7711f7d989bcb016f0fc7585f3035817b8faad11580ab8b01015",
+        "snapshot_file_count": 5,
+        "snapshot_directory_count": 6,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "end_script",
+        "script": 4,
+        "before_sha256": "76f15ab9500d7711f7d989bcb016f0fc7585f3035817b8faad11580ab8b01015",
+        "before_file_count": 5,
+        "before_directory_count": 6,
+        "before_errors": [],
+        "after_sha256": "76f15ab9500d7711f7d989bcb016f0fc7585f3035817b8faad11580ab8b01015",
+        "after_file_count": 5,
+        "after_directory_count": 6,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "phase": "start_script",
+        "root_restored": true,
+        "script": 5
+      },
+      {
+        "mode": "stale",
+        "phase": "first_end_test",
+        "root_cleared": true,
+        "script": 5,
+        "snapshot_sha256": "3e423670bc72f89de211adc312a980552c1e0d114050a727f879fa7c3012a3ee",
+        "snapshot_file_count": 7,
+        "snapshot_directory_count": 8,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "end_script",
+        "script": 5,
+        "before_sha256": "3e423670bc72f89de211adc312a980552c1e0d114050a727f879fa7c3012a3ee",
+        "before_file_count": 7,
+        "before_directory_count": 8,
+        "before_errors": [],
+        "after_sha256": "3e423670bc72f89de211adc312a980552c1e0d114050a727f879fa7c3012a3ee",
+        "after_file_count": 7,
+        "after_directory_count": 8,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "phase": "start_script",
+        "root_restored": true,
+        "script": 6
+      },
+      {
+        "mode": "stale",
+        "phase": "first_end_test",
+        "root_cleared": true,
+        "script": 6,
+        "snapshot_sha256": "22cac9618802bee98e77d2b3b017969e6ae371ca971ee9b3f3c605c89bdea1c0",
+        "snapshot_file_count": 9,
+        "snapshot_directory_count": 10,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "end_script",
+        "script": 6,
+        "before_sha256": "22cac9618802bee98e77d2b3b017969e6ae371ca971ee9b3f3c605c89bdea1c0",
+        "before_file_count": 9,
+        "before_directory_count": 10,
+        "before_errors": [],
+        "after_sha256": "22cac9618802bee98e77d2b3b017969e6ae371ca971ee9b3f3c605c89bdea1c0",
+        "after_file_count": 9,
+        "after_directory_count": 10,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "phase": "start_script",
+        "root_restored": true,
+        "script": 7
+      },
+      {
+        "mode": "stale",
+        "phase": "first_end_test",
+        "root_cleared": true,
+        "script": 7,
+        "snapshot_sha256": "261139d893244cac32970cc3540402ee3018a276a31ad1c3fcdfd77d02b07ea3",
+        "snapshot_file_count": 12,
+        "snapshot_directory_count": 12,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "end_script",
+        "script": 7,
+        "before_sha256": "261139d893244cac32970cc3540402ee3018a276a31ad1c3fcdfd77d02b07ea3",
+        "before_file_count": 12,
+        "before_directory_count": 12,
+        "before_errors": [],
+        "after_sha256": "261139d893244cac32970cc3540402ee3018a276a31ad1c3fcdfd77d02b07ea3",
+        "after_file_count": 12,
+        "after_directory_count": 12,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "phase": "start_script",
+        "root_restored": true,
+        "script": 8
+      },
+      {
+        "mode": "stale",
+        "phase": "first_end_test",
+        "root_cleared": true,
+        "script": 8,
+        "snapshot_sha256": "f49b239a9b56b6a80623bba71e886c54347b48e0d4220f1f24d1724606f1c0db",
+        "snapshot_file_count": 15,
+        "snapshot_directory_count": 14,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "end_script",
+        "script": 8,
+        "before_sha256": "f49b239a9b56b6a80623bba71e886c54347b48e0d4220f1f24d1724606f1c0db",
+        "before_file_count": 15,
+        "before_directory_count": 14,
+        "before_errors": [],
+        "after_sha256": "f49b239a9b56b6a80623bba71e886c54347b48e0d4220f1f24d1724606f1c0db",
+        "after_file_count": 15,
+        "after_directory_count": 14,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "phase": "start_script",
+        "root_restored": true,
+        "script": 9
+      },
+      {
+        "mode": "stale",
+        "phase": "first_end_test",
+        "root_cleared": true,
+        "script": 9,
+        "snapshot_sha256": "bee5a40c6a944ff25bfcba197670d932c94ec3603dcbd20ef5f7632da907edad",
+        "snapshot_file_count": 18,
+        "snapshot_directory_count": 16,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "end_script",
+        "script": 9,
+        "before_sha256": "bee5a40c6a944ff25bfcba197670d932c94ec3603dcbd20ef5f7632da907edad",
+        "before_file_count": 18,
+        "before_directory_count": 16,
+        "before_errors": [],
+        "after_sha256": "bee5a40c6a944ff25bfcba197670d932c94ec3603dcbd20ef5f7632da907edad",
+        "after_file_count": 18,
+        "after_directory_count": 16,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "phase": "start_script",
+        "root_restored": true,
+        "script": 10
+      },
+      {
+        "mode": "stale",
+        "phase": "first_end_test",
+        "root_cleared": true,
+        "script": 10,
+        "snapshot_sha256": "2b435aeaf947b7677ccfa806943c01b52cd411c2b6edf57d2901fb13f69fba68",
+        "snapshot_file_count": 21,
+        "snapshot_directory_count": 18,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "end_script",
+        "script": 10,
+        "before_sha256": "2b435aeaf947b7677ccfa806943c01b52cd411c2b6edf57d2901fb13f69fba68",
+        "before_file_count": 21,
+        "before_directory_count": 18,
+        "before_errors": [],
+        "after_sha256": "2b435aeaf947b7677ccfa806943c01b52cd411c2b6edf57d2901fb13f69fba68",
+        "after_file_count": 21,
+        "after_directory_count": 18,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "phase": "start_script",
+        "root_restored": true,
+        "script": 11
+      },
+      {
+        "mode": "stale",
+        "phase": "first_end_test",
+        "root_cleared": true,
+        "script": 11,
+        "snapshot_sha256": "5a935387f0aec1f48d1adf185efc4327b9feb1adcd8f589c2c5c91effc4b8289",
+        "snapshot_file_count": 24,
+        "snapshot_directory_count": 22,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "end_script",
+        "script": 11,
+        "before_sha256": "5a935387f0aec1f48d1adf185efc4327b9feb1adcd8f589c2c5c91effc4b8289",
+        "before_file_count": 24,
+        "before_directory_count": 22,
+        "before_errors": [],
+        "after_sha256": "5a935387f0aec1f48d1adf185efc4327b9feb1adcd8f589c2c5c91effc4b8289",
+        "after_file_count": 24,
+        "after_directory_count": 22,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "phase": "start_script",
+        "root_restored": true,
+        "script": 12
+      },
+      {
+        "mode": "stale",
+        "phase": "first_end_test",
+        "root_cleared": true,
+        "script": 12,
+        "snapshot_sha256": "e89c2edbd8d675e96f65c62a5dc564884bc4e374e46a3d1b09e355b89aa88930",
+        "snapshot_file_count": 27,
+        "snapshot_directory_count": 25,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "end_script",
+        "script": 12,
+        "before_sha256": "e89c2edbd8d675e96f65c62a5dc564884bc4e374e46a3d1b09e355b89aa88930",
+        "before_file_count": 27,
+        "before_directory_count": 25,
+        "before_errors": [],
+        "after_sha256": "e89c2edbd8d675e96f65c62a5dc564884bc4e374e46a3d1b09e355b89aa88930",
+        "after_file_count": 27,
+        "after_directory_count": 25,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "phase": "start_script",
+        "root_restored": true,
+        "script": 13
+      },
+      {
+        "mode": "stale",
+        "phase": "first_end_test",
+        "root_cleared": true,
+        "script": 13,
+        "snapshot_sha256": "6ac4a85440f6e8ccb3533c86316fb80de2fc69365a91c15d0a99023bdfb8c499",
+        "snapshot_file_count": 29,
+        "snapshot_directory_count": 28,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "end_script",
+        "script": 13,
+        "before_sha256": "6ac4a85440f6e8ccb3533c86316fb80de2fc69365a91c15d0a99023bdfb8c499",
+        "before_file_count": 29,
+        "before_directory_count": 28,
+        "before_errors": [],
+        "after_sha256": "6ac4a85440f6e8ccb3533c86316fb80de2fc69365a91c15d0a99023bdfb8c499",
+        "after_file_count": 29,
+        "after_directory_count": 28,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "phase": "start_script",
+        "root_restored": true,
+        "script": 14
+      },
+      {
+        "mode": "stale",
+        "phase": "first_end_test",
+        "root_cleared": true,
+        "script": 14,
+        "snapshot_sha256": "ef40980b672e41d2c58818234af5a9ce94a73520b276c99509054438a36a9ae3",
+        "snapshot_file_count": 30,
+        "snapshot_directory_count": 31,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "end_script",
+        "script": 14,
+        "before_sha256": "ef40980b672e41d2c58818234af5a9ce94a73520b276c99509054438a36a9ae3",
+        "before_file_count": 30,
+        "before_directory_count": 31,
+        "before_errors": [],
+        "after_sha256": "ef40980b672e41d2c58818234af5a9ce94a73520b276c99509054438a36a9ae3",
+        "after_file_count": 30,
+        "after_directory_count": 31,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "phase": "start_script",
+        "root_restored": true,
+        "script": 15
+      },
+      {
+        "mode": "stale",
+        "phase": "first_end_test",
+        "root_cleared": true,
+        "script": 15,
+        "snapshot_sha256": "9c6d2f4b96c58eae26fc61d9c4c9d21466be1f7cb895592323499e7cd66178b1",
+        "snapshot_file_count": 38,
+        "snapshot_directory_count": 34,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "end_script",
+        "script": 15,
+        "before_sha256": "9c6d2f4b96c58eae26fc61d9c4c9d21466be1f7cb895592323499e7cd66178b1",
+        "before_file_count": 38,
+        "before_directory_count": 34,
+        "before_errors": [],
+        "after_sha256": "9c6d2f4b96c58eae26fc61d9c4c9d21466be1f7cb895592323499e7cd66178b1",
+        "after_file_count": 38,
+        "after_directory_count": 34,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "phase": "start_script",
+        "root_restored": true,
+        "script": 16
+      },
+      {
+        "mode": "stale",
+        "phase": "first_end_test",
+        "root_cleared": true,
+        "script": 16,
+        "snapshot_sha256": "ac029145cc16fade53aa8dff7508f59e2bb780a9c118e1d361199332e47b3b0f",
+        "snapshot_file_count": 40,
+        "snapshot_directory_count": 36,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "end_script",
+        "script": 16,
+        "before_sha256": "ac029145cc16fade53aa8dff7508f59e2bb780a9c118e1d361199332e47b3b0f",
+        "before_file_count": 40,
+        "before_directory_count": 36,
+        "before_errors": [],
+        "after_sha256": "ac029145cc16fade53aa8dff7508f59e2bb780a9c118e1d361199332e47b3b0f",
+        "after_file_count": 40,
+        "after_directory_count": 36,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "phase": "start_script",
+        "root_restored": true,
+        "script": 17
+      },
+      {
+        "mode": "stale",
+        "phase": "first_end_test",
+        "root_cleared": true,
+        "script": 17,
+        "snapshot_sha256": "48322009bd6ec6ce7df5ed9266e8a8c86ff211bde8f8c94e7108b30c9e028543",
+        "snapshot_file_count": 42,
+        "snapshot_directory_count": 39,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "end_script",
+        "script": 17,
+        "before_sha256": "48322009bd6ec6ce7df5ed9266e8a8c86ff211bde8f8c94e7108b30c9e028543",
+        "before_file_count": 42,
+        "before_directory_count": 39,
+        "before_errors": [],
+        "after_sha256": "48322009bd6ec6ce7df5ed9266e8a8c86ff211bde8f8c94e7108b30c9e028543",
+        "after_file_count": 42,
+        "after_directory_count": 39,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "phase": "start_script",
+        "root_restored": true,
+        "script": 18
+      },
+      {
+        "mode": "stale",
+        "phase": "first_end_test",
+        "root_cleared": true,
+        "script": 18,
+        "snapshot_sha256": "15a446493a38f74a3dc690ad040b3cb7219b790c2dc6f25dea2d12f985947ca8",
+        "snapshot_file_count": 47,
+        "snapshot_directory_count": 44,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "end_script",
+        "script": 18,
+        "before_sha256": "15a446493a38f74a3dc690ad040b3cb7219b790c2dc6f25dea2d12f985947ca8",
+        "before_file_count": 47,
+        "before_directory_count": 44,
+        "before_errors": [],
+        "after_sha256": "15a446493a38f74a3dc690ad040b3cb7219b790c2dc6f25dea2d12f985947ca8",
+        "after_file_count": 47,
+        "after_directory_count": 44,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "phase": "start_script",
+        "root_restored": true,
+        "script": 19
+      },
+      {
+        "mode": "stale",
+        "phase": "first_end_test",
+        "root_cleared": true,
+        "script": 19,
+        "snapshot_sha256": "612bce21338ad33af7266810e77a4cd57792616b442ee5222c3b58d88d503144",
+        "snapshot_file_count": 49,
+        "snapshot_directory_count": 48,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "end_script",
+        "script": 19,
+        "before_sha256": "612bce21338ad33af7266810e77a4cd57792616b442ee5222c3b58d88d503144",
+        "before_file_count": 49,
+        "before_directory_count": 48,
+        "before_errors": [],
+        "after_sha256": "612bce21338ad33af7266810e77a4cd57792616b442ee5222c3b58d88d503144",
+        "after_file_count": 49,
+        "after_directory_count": 48,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "phase": "start_script",
+        "root_restored": true,
+        "script": 20
+      },
+      {
+        "mode": "stale",
+        "phase": "first_end_test",
+        "root_cleared": true,
+        "script": 20,
+        "snapshot_sha256": "4e19aacf57dffbc16ded7af6c63a2d90b680712760a362b2e20bafd7c5f467af",
+        "snapshot_file_count": 51,
+        "snapshot_directory_count": 50,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "end_script",
+        "script": 20,
+        "before_sha256": "4e19aacf57dffbc16ded7af6c63a2d90b680712760a362b2e20bafd7c5f467af",
+        "before_file_count": 51,
+        "before_directory_count": 50,
+        "before_errors": [],
+        "after_sha256": "4e19aacf57dffbc16ded7af6c63a2d90b680712760a362b2e20bafd7c5f467af",
+        "after_file_count": 51,
+        "after_directory_count": 50,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "phase": "start_script",
+        "root_restored": true,
+        "script": 21
+      },
+      {
+        "mode": "stale",
+        "phase": "first_end_test",
+        "root_cleared": true,
+        "script": 21,
+        "snapshot_sha256": "4fc97779e406de734e023a39fc93e33ea1c1b19776dd36d820d04c09c1b245ed",
+        "snapshot_file_count": 52,
+        "snapshot_directory_count": 52,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "end_script",
+        "script": 21,
+        "before_sha256": "4fc97779e406de734e023a39fc93e33ea1c1b19776dd36d820d04c09c1b245ed",
+        "before_file_count": 52,
+        "before_directory_count": 52,
+        "before_errors": [],
+        "after_sha256": "4fc97779e406de734e023a39fc93e33ea1c1b19776dd36d820d04c09c1b245ed",
+        "after_file_count": 52,
+        "after_directory_count": 52,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "phase": "start_script",
+        "root_restored": true,
+        "script": 22
+      },
+      {
+        "mode": "stale",
+        "phase": "first_end_test",
+        "root_cleared": true,
+        "script": 22,
+        "snapshot_sha256": "2dfd04d5ac3f8e9d84c7d94e9ba81214ae9b6bca6a1502d28b276316dc3407ae",
+        "snapshot_file_count": 55,
+        "snapshot_directory_count": 54,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "end_script",
+        "script": 22,
+        "before_sha256": "2dfd04d5ac3f8e9d84c7d94e9ba81214ae9b6bca6a1502d28b276316dc3407ae",
+        "before_file_count": 55,
+        "before_directory_count": 54,
+        "before_errors": [],
+        "after_sha256": "2dfd04d5ac3f8e9d84c7d94e9ba81214ae9b6bca6a1502d28b276316dc3407ae",
+        "after_file_count": 55,
+        "after_directory_count": 54,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "phase": "start_script",
+        "root_restored": true,
+        "script": 23
+      },
+      {
+        "mode": "stale",
+        "phase": "first_end_test",
+        "root_cleared": true,
+        "script": 23,
+        "snapshot_sha256": "01603ac1a288176e060c954032c0849e0af1c1a8e4f6d4cc0e3084e9f08360ed",
+        "snapshot_file_count": 56,
+        "snapshot_directory_count": 56,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "end_script",
+        "script": 23,
+        "before_sha256": "01603ac1a288176e060c954032c0849e0af1c1a8e4f6d4cc0e3084e9f08360ed",
+        "before_file_count": 56,
+        "before_directory_count": 56,
+        "before_errors": [],
+        "after_sha256": "01603ac1a288176e060c954032c0849e0af1c1a8e4f6d4cc0e3084e9f08360ed",
+        "after_file_count": 56,
+        "after_directory_count": 56,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "phase": "start_script",
+        "root_restored": true,
+        "script": 24
+      },
+      {
+        "mode": "stale",
+        "phase": "first_end_test",
+        "root_cleared": true,
+        "script": 24,
+        "snapshot_sha256": "29f37338248e389b7bbc2340a5aeaf566cf6dd6643f32a079d7b772ab5d2b678",
+        "snapshot_file_count": 58,
+        "snapshot_directory_count": 59,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "end_script",
+        "script": 24,
+        "before_sha256": "29f37338248e389b7bbc2340a5aeaf566cf6dd6643f32a079d7b772ab5d2b678",
+        "before_file_count": 58,
+        "before_directory_count": 59,
+        "before_errors": [],
+        "after_sha256": "29f37338248e389b7bbc2340a5aeaf566cf6dd6643f32a079d7b772ab5d2b678",
+        "after_file_count": 58,
+        "after_directory_count": 59,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "phase": "start_script",
+        "root_restored": true,
+        "script": 25
+      },
+      {
+        "mode": "stale",
+        "phase": "first_end_test",
+        "root_cleared": true,
+        "script": 25,
+        "snapshot_sha256": "29f37338248e389b7bbc2340a5aeaf566cf6dd6643f32a079d7b772ab5d2b678",
+        "snapshot_file_count": 58,
+        "snapshot_directory_count": 59,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "end_script",
+        "script": 25,
+        "before_sha256": "29f37338248e389b7bbc2340a5aeaf566cf6dd6643f32a079d7b772ab5d2b678",
+        "before_file_count": 58,
+        "before_directory_count": 59,
+        "before_errors": [],
+        "after_sha256": "29f37338248e389b7bbc2340a5aeaf566cf6dd6643f32a079d7b772ab5d2b678",
+        "after_file_count": 58,
+        "after_directory_count": 59,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "phase": "start_script",
+        "root_restored": true,
+        "script": 26
+      },
+      {
+        "mode": "stale",
+        "phase": "first_end_test",
+        "root_cleared": true,
+        "script": 26,
+        "snapshot_sha256": "987c11f13fe199650a14c60a12ed9c44f3fd83b88e812654a753cb7d292bf721",
+        "snapshot_file_count": 60,
+        "snapshot_directory_count": 61,
+        "snapshot_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "end_script",
+        "script": 26,
+        "before_sha256": "987c11f13fe199650a14c60a12ed9c44f3fd83b88e812654a753cb7d292bf721",
+        "before_file_count": 60,
+        "before_directory_count": 61,
+        "before_errors": [],
+        "after_sha256": "987c11f13fe199650a14c60a12ed9c44f3fd83b88e812654a753cb7d292bf721",
+        "after_file_count": 60,
+        "after_directory_count": 61,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "user_storage",
+        "before_sha256": "75f40d4b29f6be062636f3335e566512b8066cb7d282aeefbb7e9ff539d57045",
+        "before_file_count": 1,
+        "before_directory_count": 3,
+        "before_errors": [],
+        "after_sha256": "75f40d4b29f6be062636f3335e566512b8066cb7d282aeefbb7e9ff539d57045",
+        "after_file_count": 1,
+        "after_directory_count": 3,
+        "after_errors": []
+      },
+      {
+        "mode": "stale",
+        "phase": "end_run",
+        "scripts": 26
+      },
+      {
+        "mode": "stale",
+        "ok": true,
+        "phase": "restored"
+      }
+    ],
+    "script_error_count": 7
+  },
+  "remaining-root-game-state-inventory": {
+    "counts": {},
+    "markers": [],
+    "script_error_count": 0
+  },
+  "remaining-root-save-manager-inventory": {
+    "counts": {},
+    "markers": [],
+    "script_error_count": 0
+  },
+  "remaining-root-tooling": {
+    "counts": {
+      "Scripts": 2,
+      "Tests": 14,
+      "Passing Tests": 14,
+      "Orphans": 24
+    },
+    "markers": [],
+    "script_error_count": 0
+  },
+  "remaining-root-contract-baseline": {
+    "counts": {
+      "Scripts": 2,
+      "Tests": 22,
+      "Passing Tests": 19,
+      "Failing Tests": 3,
+      "Orphans": 24
+    },
+    "markers": [],
+    "script_error_count": 0
+  },
+  "remaining-root-contract-current": {
+    "counts": {
+      "Scripts": 2,
+      "Tests": 22,
+      "Passing Tests": 19,
+      "Failing Tests": 3,
+      "Orphans": 24
+    },
+    "markers": [],
+    "script_error_count": 0
+  }
+}

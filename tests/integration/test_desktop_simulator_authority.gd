@@ -1,4 +1,7 @@
 extends "res://addons/gut/test.gd"
+
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
+
 # dwm-p2r.32 Plan 02 Task 9. Proves, against the REAL production graph, that all three of Task 9's
 # own disclosed gaps are exactly what the evidence documents claim -- concretely, not just in a doc
 # comment -- and that the retained .9-era simulator stack is never installed as authority. Each of
@@ -33,10 +36,11 @@ var _root_counter := 0
 
 
 func _isolated_root() -> String:
-	var wrapper: String = OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
 	_root_counter += 1
-	return wrapper.path_join("desktop-simulator-authority-%d" % _root_counter)
+	var result: Dictionary = TEMPORARY_STORAGE.create(
+		"desktop-simulator-authority-%d" % _root_counter)
+	assert_true(result.get("ok", false), result.get("message", ""))
+	return str(result.get("value", "")) if result.get("ok", false) else ""
 
 
 ## Builds one full production graph over a fresh, isolated storage root. Mirrors
@@ -44,7 +48,10 @@ func _isolated_root() -> String:
 ## (same construction order, same targets), kept as its own copy here since each Task 9 suite is
 ## self-contained rather than reaching into another test file's internals.
 func _boot() -> Dictionary:
-	var storage: RefCounted = JSON_STORAGE.new(_isolated_root())
+	var root := _isolated_root()
+	if root.is_empty():
+		return {}
+	var storage: RefCounted = JSON_STORAGE.new(root.path_join("profile"))
 	var root_store: RefCounted = ROOT_STORE.new()
 	assert_true(root_store.configure(storage, NAMESPACE_SOURCE.new()).get("ok", false))
 	assert_true(root_store.load_or_create().get("ok", false))
@@ -83,7 +90,7 @@ func _boot() -> Dictionary:
 	add_child_autofree(router)
 	var save_manager: Node = load(SAVE_MANAGER_PATH).new()
 	add_child_autofree(save_manager)
-	assert_true(save_manager.call(&"initialize", JSON_STORAGE.new(_isolated_root())).get("ok", false))
+	assert_true(save_manager.call(&"initialize", JSON_STORAGE.new(root.path_join("saves"))).get("ok", false))
 	assert_true(save_manager.call(&"configure_identity_issuer", issuer).get("ok", false))
 	var allocation_participant: RefCounted = DESKTOP_IDENTITY_ALLOCATION_RESTORE_PARTICIPANT.new(issuer, save_manager)
 	assert_true(save_manager.call(&"configure_identity_allocation_participant", allocation_participant).get("ok", false))
@@ -115,6 +122,8 @@ func _boot() -> Dictionary:
 
 func test_the_round_coordinator_never_receives_its_base_configure_in_production() -> void:
 	var process := _boot()
+	if process.is_empty():
+		return
 	var round_coordinator: Object = (process["bootstrap"] as Node).get("_retained_minesweeper_round_coordinator_app")
 	assert_not_null(round_coordinator)
 	# _board_state IS adopted directly (Task 8's documented shared-object wiring, not base configure);
@@ -146,6 +155,8 @@ func test_no_production_class_defines_the_task5_shaped_checkpoint_or_generation_
 
 func test_the_shared_desktop_identity_context_is_a_real_but_blank_placeholder() -> void:
 	var process := _boot()
+	if process.is_empty():
+		return
 	var context: Dictionary = (process["bootstrap"] as Node).get("_desktop_board_identity_context")
 	assert_eq(context.keys().size(), 4)
 	assert_false(str(context.get("run_id", "")).is_empty(), "run_id is really issuer-minted, not blank")
@@ -159,14 +170,22 @@ func test_the_shared_desktop_identity_context_is_a_real_but_blank_placeholder() 
 func test_two_independent_boots_mint_distinct_placeholder_run_and_branch_ids() -> void:
 	# If this ever failed, the "context" would be a hardcoded literal rather than a genuinely
 	# issuer-minted one -- a very different (and worse) kind of placeholder than gap 2 documents.
-	var first: Dictionary = (_boot()["bootstrap"] as Node).get("_desktop_board_identity_context")
-	var second: Dictionary = (_boot()["bootstrap"] as Node).get("_desktop_board_identity_context")
+	var first_process := _boot()
+	if first_process.is_empty():
+		return
+	var first: Dictionary = (first_process["bootstrap"] as Node).get("_desktop_board_identity_context")
+	var second_process := _boot()
+	if second_process.is_empty():
+		return
+	var second: Dictionary = (second_process["bootstrap"] as Node).get("_desktop_board_identity_context")
 	assert_ne(str(first.get("run_id", "")), str(second.get("run_id", "")))
 	assert_ne(str(first.get("branch_id", "")), str(second.get("branch_id", "")))
 
 
 func test_the_shop_and_board_ports_share_the_exact_same_placeholder_context_object() -> void:
 	var process := _boot()
+	if process.is_empty():
+		return
 	var bootstrap: Node = process["bootstrap"]
 	var board_port: Object = bootstrap.get("_retained_game_state_desktop_board_port")
 	var shop_port: Object = bootstrap.get("_retained_game_state_minesweeper_shop_port")
@@ -189,6 +208,8 @@ func test_the_shop_and_board_ports_share_the_exact_same_placeholder_context_obje
 
 func test_logout_coordinator_is_never_constructed_by_the_production_graph() -> void:
 	var process := _boot()
+	if process.is_empty():
+		return
 	var bootstrap: Node = process["bootstrap"]
 	for property: Dictionary in bootstrap.get_property_list():
 		var property_name: String = str(property.get("name", ""))
@@ -216,6 +237,8 @@ func test_no_production_class_defines_the_stable_board_port_contract() -> void:
 
 func test_the_production_graph_never_installs_into_the_retained_simulator_seam_either() -> void:
 	var process := _boot()
+	if process.is_empty():
+		return
 	assert_null((process["game_state"] as Node).get("_minesweeper_round_coordinator"),
 		"the Plan-02 graph must never install into the .9-era GameState seam, confirmed again from " \
 		+ "this file's own independent boot harness")

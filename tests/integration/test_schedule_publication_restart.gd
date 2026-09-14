@@ -1,4 +1,6 @@
 extends "res://addons/gut/test.gd"
+
+const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 # Committed-Schedule persistence across restart (Plan 01 Task 5, dwm-p2r.13, Steps 5.1/5.6).
 #
 # SUBSTRATE. Every dependency is the production object: the real ScheduleActionRegistry from the
@@ -48,12 +50,16 @@ var _root_counter := 0
 
 func before_each() -> void:
 	_commands = {}
+	_root = ""
+	_storage = null
 	var port_loaded: Dictionary = PROBE.load_script(PORT_PATH)
 	_port_script = port_loaded["value"] if port_loaded.get("ok", false) else null
 	var ledger_loaded: Dictionary = PROBE.load_script(LEDGER_PATH)
 	_ledger_script = ledger_loaded["value"] if ledger_loaded.get("ok", false) else null
 
 	_root = _isolated_root()
+	if _root.is_empty():
+		return
 	_storage = JsonFileStorage.new(_root)
 
 	_root_store = ROOT_STORE.new()
@@ -80,18 +86,16 @@ func before_each() -> void:
 
 
 func _isolated_root() -> String:
-	var wrapper := OS.get_environment("DWM_TEST_ROOT")
-	assert_false(wrapper.strip_edges().is_empty(), "DWM_TEST_ROOT is required")
 	_root_counter += 1
-	var root: String = wrapper.path_join("schedule-publication-restart-%d" % _root_counter)
-	var production := ProjectSettings.globalize_path("user://").simplify_path().trim_suffix("/")
-	assert_ne(root.simplify_path().trim_suffix("/").nocasecmp_to(production), 0,
-		"an isolated root is never the production user directory")
-	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
-	return root
+	var created: Dictionary = TEMPORARY_STORAGE.create(
+		"schedule-publication-restart-%d" % _root_counter)
+	assert_true(created.get("ok", false), created.get("message", ""))
+	return str(created.get("value", "")) if created.get("ok", false) else ""
 
 
 func _require_substrate() -> bool:
+	if _root.is_empty():
+		return false
 	var absent: Array[String] = []
 	if _ledger_script == null:
 		absent.append(LEDGER_PATH)

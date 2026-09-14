@@ -1,0 +1,199 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/9288c508-8a9a-443e-8b2b-034de300350b/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/integration/test_desktop_simulator_authority.gd
+* test_the_round_coordinator_never_receives_its_base_configure_in_production
+    [Failed]:  restore participants: { "ok": false, "code": &"missing_stage_adapter", "message": "Window output must share the initialized Settings transaction owner", "details": {  }, "receipt": {  } }
+      at line 124
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+      at line 124
+    [Failed]:  Expected [<null>] to be anything but NULL:
+      at line 128
+SCRIPT ERROR: Cannot call method 'get' on a null value.
+   at: test_the_round_coordinator_never_receives_its_base_configure_in_production (res://tests/integration/test_desktop_simulator_authority.gd:131)
+   GDScript backtrace (most recent call first):
+       [0] test_the_round_coordinator_never_receives_its_base_configure_in_production (res://tests/integration/test_desktop_simulator_authority.gd:131)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Cannot call method 'get' on a null value.
+      at line -1
+* test_no_production_class_defines_the_task5_shaped_checkpoint_or_generation_contract
+* test_the_shared_desktop_identity_context_is_a_real_but_blank_placeholder
+    [Failed]:  restore participants: { "ok": false, "code": &"missing_stage_adapter", "message": "Window output must share the initialized Settings transaction owner", "details": {  }, "receipt": {  } }
+      at line 157
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+      at line 157
+SCRIPT ERROR: Trying to assign value of type 'Nil' to a variable of type 'Dictionary'.
+   at: test_the_shared_desktop_identity_context_is_a_real_but_blank_placeholder (res://tests/integration/test_desktop_simulator_authority.gd:160)
+   GDScript backtrace (most recent call first):
+       [0] test_the_shared_desktop_identity_context_is_a_real_but_blank_placeholder (res://tests/integration/test_desktop_simulator_authority.gd:160)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Trying to assign value of type 'Nil' to a variable of type 'Dictionary'.
+      at line -1
+* test_two_independent_boots_mint_distinct_placeholder_run_and_branch_ids
+    [Failed]:  restore participants: { "ok": false, "code": &"missing_stage_adapter", "message": "Window output must share the initialized Settings transaction owner", "details": {  }, "receipt": {  } }
+      at line 173
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+      at line 173
+SCRIPT ERROR: Trying to assign value of type 'Nil' to a variable of type 'Dictionary'.
+   at: test_two_independent_boots_mint_distinct_placeholder_run_and_branch_ids (res://tests/integration/test_desktop_simulator_authority.gd:176)
+   GDScript backtrace (most recent call first):
+       [0] test_two_independent_boots_mint_distinct_placeholder_run_and_branch_ids (res://tests/integration/test_desktop_simulator_authority.gd:176)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Trying to assign value of type 'Nil' to a variable of type 'Dictionary'.
+      at line -1
+* test_the_shop_and_board_ports_share_the_exact_same_placeholder_context_object
+    [Failed]:  restore participants: { "ok": false, "code": &"missing_stage_adapter", "message": "Window output must share the initialized Settings transaction owner", "details": {  }, "receipt": {  } }
+      at line 186
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+      at line 186
+    [Failed]:  Expected [<null>] to be anything but NULL:
+      at line 192
+    [Failed]:  Expected [<null>] to be anything but NULL:
+      at line 193
+SCRIPT ERROR: Cannot call method 'call' on a null value.
+   at: test_the_shop_and_board_ports_share_the_exact_same_placeholder_context_object (res://tests/integration/test_desktop_simulator_authority.gd:194)
+   GDScript backtrace (most recent call first):
+       [0] test_the_shop_and_board_ports_share_the_exact_same_placeholder_context_object (res://tests/integration/test_desktop_simulator_authority.gd:194)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Cannot call method 'call' on a null value.
+      at line -1
+* test_logout_coordinator_is_never_constructed_by_the_production_graph
+    [Failed]:  restore participants: { "ok": false, "code": &"missing_stage_adapter", "message": "Window output must share the initialized Settings transaction owner", "details": {  }, "receipt": {  } }
+      at line 210
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+      at line 210
+* test_no_production_class_defines_the_stable_board_port_contract
+* test_the_production_graph_never_installs_into_the_retained_simulator_seam_either
+    [Failed]:  restore participants: { "ok": false, "code": &"missing_stage_adapter", "message": "Window output must share the initialized Settings transaction owner", "details": {  }, "receipt": {  } }
+      at line 239
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+      at line 239
+2/8 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/integration/test_desktop_simulator_authority.gd
+    - Outside Tests
+        * [<Node#131264939798>(subsystem_animation.gd)]
+        * [<Node#131281717026>(subsystem_audio.gd)]
+        * [<Node#131298494258>]
+        * [<Node#131315271483>]
+        * [<Node#131332048705>(subsystem_backgrounds.gd)]
+        * [<Node#131868919618>(subsystem_choices.gd)]
+        * [<Timer#131885696835>]
+        * [<Node#131902474052>(subsystem_expression.gd)]
+        * [<Node#131936028489>(subsystem_glossary.gd)]
+        * [<Node#131952805706>(subsystem_history.gd)]
+        * [<Node#131969582923>(subsystem_input.gd)]
+        * [<Timer#131986360140>]
+        * [<Node#132003137357>(subsystem_jump.gd)]
+        * [<Node#132019914574>(subsystem_containers.gd)]
+        * [<Node#132036691791>(subsystem_portraits.gd)]
+        * [<Node#132573562704>(subsystem_save.gd)]
+        * [<Timer#132590339921>]
+        * [<Node#132607117138>(subsystem_settings.gd)]
+        * [<Node#132623894358>(subsystem_styles.gd)]
+        * [<Node#132640671575>(subsystem_text.gd)]
+        * [<Node#132724557660>(subsystem_text_input.gd)]
+        * [<Node#132741334877>(subsystem_variables.gd)]
+        * [<Node#132758112094>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132774889311>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/integration/test_desktop_simulator_authority.gd
+- test_the_round_coordinator_never_receives_its_base_configure_in_production
+    [Failed]:  restore participants: { "ok": false, "code": &"missing_stage_adapter", "message": "Window output must share the initialized Settings transaction owner", "details": {  }, "receipt": {  } }
+          at line 124
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+          at line 124
+    [Failed]:  Expected [<null>] to be anything but NULL:
+          at line 128
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Cannot call method 'get' on a null value.
+          at line -1
+- test_the_shared_desktop_identity_context_is_a_real_but_blank_placeholder
+    [Failed]:  restore participants: { "ok": false, "code": &"missing_stage_adapter", "message": "Window output must share the initialized Settings transaction owner", "details": {  }, "receipt": {  } }
+          at line 157
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+          at line 157
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Trying to assign value of type 'Nil' to a variable of type 'Dictionary'.
+          at line -1
+- test_two_independent_boots_mint_distinct_placeholder_run_and_branch_ids
+    [Failed]:  restore participants: { "ok": false, "code": &"missing_stage_adapter", "message": "Window output must share the initialized Settings transaction owner", "details": {  }, "receipt": {  } }
+          at line 173
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+          at line 173
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Trying to assign value of type 'Nil' to a variable of type 'Dictionary'.
+          at line -1
+- test_the_shop_and_board_ports_share_the_exact_same_placeholder_context_object
+    [Failed]:  restore participants: { "ok": false, "code": &"missing_stage_adapter", "message": "Window output must share the initialized Settings transaction owner", "details": {  }, "receipt": {  } }
+          at line 186
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+          at line 186
+    [Failed]:  Expected [<null>] to be anything but NULL:
+          at line 192
+    [Failed]:  Expected [<null>] to be anything but NULL:
+          at line 193
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Cannot call method 'call' on a null value.
+          at line -1
+- test_logout_coordinator_is_never_constructed_by_the_production_graph
+    [Failed]:  restore participants: { "ok": false, "code": &"missing_stage_adapter", "message": "Window output must share the initialized Settings transaction owner", "details": {  }, "receipt": {  } }
+          at line 210
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+          at line 210
+- test_the_production_graph_never_installs_into_the_retained_simulator_seam_either
+    [Failed]:  restore participants: { "ok": false, "code": &"missing_stage_adapter", "message": "Window output must share the initialized Settings transaction owner", "details": {  }, "receipt": {  } }
+          at line 239
+    [Failed]:  desktop production graph: { "ok": false, "code": &"missing_stage_adapter", "message": "the desktop production graph requires the retained host/board/consequence state", "details": {  }, "receipt": {  } }
+          at line 239
+
+Totals
+------
+Scripts               1
+Tests                 8
+Passing Tests         2
+Failing Tests         6
+Asserts           64/83
+Orphans              24
+Time              0.65s
+
+
+---- 6 failing tests ----
