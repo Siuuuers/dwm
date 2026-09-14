@@ -12,12 +12,17 @@ extends "res://tests/integration/verify_playable_startup.gd"
 ## terminal choice; `--dating-ending=loss` reveals a mine after the routine sample (dwm-634.2).
 ## `--reply-locale=en|zh-CN|zh-HK` first persists the registered Day-1 Lavinia A reply through the
 ## production command port, so App terminal/save measurements include that real localized receipt.
+## `--user-data=<absolute directory>` seeds the isolated `user://` root from that directory before
+## the bootstrap runs, enters through the title's real Log In and loads the existing autosave, then
+## runs the same App benchmark on that long history; the dating benchmark is skipped and an
+## unplayable loaded run prints `CLICK_LATENCY_UNPLAYABLE:` and exits 0 (dwm-634.3).
 
 const ROUTINE_LOG_LIMIT := 12
 const ORDINARY_REPLY := preload("res://scripts/domain/contact/OrdinaryReplyEchoState.gd")
 const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const REPLY_LOCALES: Array[String] = ["en", "zh-CN", "zh-HK"]
 const INITIAL_REPLY_ID := "reply.ordinary.lavinia.day1.a"
+const USER_DATA_INVALID := "<invalid>"
 var _samples: Dictionary = {}
 
 
@@ -39,17 +44,92 @@ func _reply_locale_option() -> Dictionary:
 	return {"ok": not present or selected in REPLY_LOCALES, "value": selected}
 
 
+## The single `--user-data=` value; empty when absent, USER_DATA_INVALID when repeated or empty.
+func _user_data_option() -> String:
+	var selected := ""
+	var count := 0
+	for argument: String in OS.get_cmdline_user_args():
+		if not argument.begins_with("--user-data="): continue
+		selected = argument.trim_prefix("--user-data=")
+		count += 1
+	if count == 0: return ""
+	if count > 1 or selected.is_empty(): return USER_DATA_INVALID
+	return selected
+
+
+## Seeds `user://` synchronously before the parent defers `_run`; ApplicationBootstrap only
+## `call_deferred`s its start from `_ready`, so the copy lands before any bootstrap stage reads.
+func _initialize() -> void:
+	var source := _user_data_option()
+	if not source.is_empty() and source != USER_DATA_INVALID and not _seed_user_data(source):
+		quit(1)
+		return
+	super()
+
+
+func _seed_user_data(source: String) -> bool:
+	var origin := source.simplify_path()
+	var target := ProjectSettings.globalize_path("user://").simplify_path()
+	if not DirAccess.dir_exists_absolute(origin): return _seed_fail("source directory missing: " + origin)
+	if origin == target: return _seed_fail("source equals the isolated user directory: " + target)
+	if DirAccess.dir_exists_absolute(target.path_join("saves")): return _seed_fail("isolated user directory already holds saves: " + target)
+	if DirAccess.make_dir_recursive_absolute(target) != OK: return _seed_fail("cannot create target: " + target)
+	var counts := {"files": 0, "bytes": 0}
+	var detail := _copy_tree(origin, target, counts)
+	if not detail.is_empty(): return _seed_fail(detail)
+	print("CLICK_LATENCY_SEED: " + JSON.stringify({"source": origin, "target": target, "files": counts.files, "bytes": counts.bytes}))
+	return true
+
+
+func _seed_fail(detail: String) -> bool:
+	printerr("CLICK_LATENCY_SEED_FAIL: " + detail)
+	return false
+
+
+## Copies every file and subdirectory of `from` into `to`; returns an empty String or the first error.
+func _copy_tree(from: String, to: String, counts: Dictionary) -> String:
+	var dir := DirAccess.open(from)
+	if dir == null: return "cannot open %s: %s" % [from, error_string(DirAccess.get_open_error())]
+	dir.include_hidden = true
+	if dir.list_dir_begin() != OK: return "cannot list " + from
+	var name := dir.get_next()
+	while not name.is_empty():
+		var source_path := from.path_join(name)
+		var target_path := to.path_join(name)
+		if dir.current_is_dir():
+			if DirAccess.make_dir_recursive_absolute(target_path) != OK: return "cannot create " + target_path
+			var nested := _copy_tree(source_path, target_path, counts)
+			if not nested.is_empty(): return nested
+		else:
+			var copied := DirAccess.copy_absolute(source_path, target_path)
+			if copied != OK: return "copy %s failed: %s" % [source_path, error_string(copied)]
+			var file := FileAccess.open(target_path, FileAccess.READ)
+			if file == null: return "cannot read back " + target_path
+			counts.files += 1
+			counts.bytes += file.get_length()
+		name = dir.get_next()
+	dir.list_dir_end()
+	return ""
+
+
 func _run() -> void:
 	await _frames()
 	var bootstrap: Node = root.get_node("ApplicationBootstrap")
 	if not _check(bootstrap.get_startup_state().get("ready", false), "benchmark startup " + JSON.stringify(bootstrap.get_startup_state())): return
+	var user_data := _user_data_option()
+	if not _check(user_data != USER_DATA_INVALID, "--user-data must occur exactly once with a non-empty directory"): return
+	var seeded := not user_data.is_empty()
 	root.get_node("SceneRouter").goto_menu()
 	await _frames()
 	var menu: Node = current_scene
-	menu.get_node("%NewAccButton").pressed.emit()
 	var deadline := Time.get_ticks_msec() + 30000
-	while is_instance_valid(menu) and menu._title_transition and Time.get_ticks_msec() < deadline: await process_frame
-	if is_instance_valid(menu) and is_instance_valid(menu._confirmation): menu._confirmation.confirm_button.pressed.emit()
+	var login_started := Time.get_ticks_usec()
+	if seeded:
+		if not await _title_login(menu): return
+	else:
+		menu.get_node("%NewAccButton").pressed.emit()
+		while is_instance_valid(menu) and menu._title_transition and Time.get_ticks_msec() < deadline: await process_frame
+		if is_instance_valid(menu) and is_instance_valid(menu._confirmation): menu._confirmation.confirm_button.pressed.emit()
 	var game: Node = root.get_node("GameState")
 	var manager: Node = root.get_node("SaveManager")
 	var desktop: Node
@@ -57,16 +137,86 @@ func _run() -> void:
 		desktop = current_scene.find_child("ComputerDesktop", true, false) if current_scene != null else null
 		if desktop != null and not manager._new_run_busy and game.capture_live_session().value.active: break
 		await process_frame
+	if seeded:
+		print("CLICK_LATENCY_LOGIN: " + JSON.stringify({"elapsed_us": Time.get_ticks_usec() - login_started}))
+		if desktop == null:
+			_unplayable("desktop_not_mounted_after_load", {"session_active": game.capture_live_session().value.active,
+				"day": game.day, "scene": current_scene.name if current_scene != null else ""})
+			return
 	if not _check(desktop != null, "benchmark desktop ready"): return
 	var reply_option := _reply_locale_option()
 	if not _check(reply_option.ok, "--reply-locale must occur at most once and be en, zh-CN or zh-HK"): return
 	if not str(reply_option.value).is_empty() \
 			and not _persist_initial_ordinary_reply(bootstrap, game, manager, str(reply_option.value)):
 		return
+	if seeded and not await _seeded_board_playable(game, desktop): return
 	if not await _minesweeper_app_benchmark(bootstrap, desktop): return
-	if not await _dating_benchmark(game, desktop): return
+	if seeded: print("CLICK_LATENCY_NOTE: dating benchmark skipped in --user-data mode")
+	elif not await _dating_benchmark(game, desktop): return
 	_print_summary()
 	print("CLICK_LATENCY_PASS: issuer_root_bytes=%d" % _issuer_root_bytes())
+	print("CLICK_LATENCY_MODE: " + JSON.stringify({"mode": "user-data" if seeded else "fresh-account", "user_data": user_data}))
+	quit(0)
+
+
+## Loads the seeded autosave through the title's real Log In and Backup picker; the button sequence
+## and waits mirror the parent's `_completed_load_journey`. `last_result` read right after the
+## confirmation is the prepare result (the commit lands after an await), so commit success is judged
+## by the desktop wait in `_run`.
+func _title_login(menu: Node) -> bool:
+	var login: Button = menu.get_node("%LogInButton")
+	if not _check(not login.disabled, "seeded Log In is enabled"): return false
+	login.pressed.emit()
+	await _frames()
+	var picker: Node = menu.get("_backup_app_instance")
+	if not _check(picker != null and picker.is_visible_in_tree(), "seeded Log In opens the real Backup picker"): return false
+	picker.drawer_buttons["autosave"].pressed.emit()
+	if not _check(not picker.action_buttons["load"].disabled, "seeded autosave Load enabled: " + JSON.stringify(picker.last_result)): return false
+	picker.action_buttons["load"].pressed.emit()
+	if is_instance_valid(picker.confirmation): picker.confirmation.confirm_button.pressed.emit()
+	var loaded: Dictionary = picker.last_result.duplicate(true)
+	await _frames()
+	return _check(loaded.get("ok", false), "seeded autosave Load prepared: " + JSON.stringify(loaded))
+
+
+## Honest playability probe for a loaded run: the App must open and show a valid, unsettled board
+## with the two rounds the win-then-loss benchmark spends. Leaves the App open for the benchmark.
+func _seeded_board_playable(game: Node, desktop: Node) -> bool:
+	var opened: Dictionary = desktop.open_app(&"minesweeper")
+	var state := {"open": opened, "day": game.day, "rounds_left": game.minesweeper_rounds_left,
+		"rounds_finished_today": game.minesweeper_app_rounds_finished_today}
+	if not opened.get("ok", false):
+		_unplayable("minesweeper_app_does_not_open", state)
+		return false
+	await _frames()
+	var panel: Control = desktop._cached_app_windows[&"minesweeper"].panel
+	state["presentation_valid"] = panel.has_valid_presentation()
+	if not panel.has_valid_presentation():
+		_unplayable("minesweeper_presentation_invalid", state)
+		return false
+	state["settled"] = panel.public_view.settled
+	state["actions"] = panel.public_view.actions
+	state["difficulty_enabled"] = panel.public_view.register.difficulty_enabled
+	state["board_terminal"] = panel.public_view.board.get("terminal", false)
+	state["board_custody"] = panel.public_view.board.get("custody", false)
+	if bool(panel.public_view.settled):
+		_unplayable("board_already_settled", state)
+		return false
+	if (panel.public_view.register.difficulty_enabled as Array).is_empty():
+		_unplayable("no_difficulty_enabled", state)
+		return false
+	if int(game.minesweeper_rounds_left) < 2:
+		_unplayable("fewer_than_two_rounds_left", state)
+		return false
+	return true
+
+
+## Prints the unplayable verdict and whatever was measured, then exits 0: a loaded run that cannot
+## play is an observation, never a check failure.
+func _unplayable(reason: String, state: Dictionary) -> void:
+	print("CLICK_LATENCY_UNPLAYABLE: " + JSON.stringify({"reason": reason, "state": state}))
+	_print_summary()
+	print("CLICK_LATENCY_MODE: " + JSON.stringify({"mode": "user-data", "user_data": _user_data_option(), "playable": false}))
 	quit(0)
 
 

@@ -1,0 +1,8 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+CLICK_LATENCY_SEED: {"bytes":14563753,"files":22,"source":"C:/Users/glori/Documents/dwm-stress-20260914/data","target":"C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/click-latency-3/.godot/phase2r_tests/26d39bb9-b3f0-4d7d-85e3-9e5113af4ad5/appdata/Godot/app_userdata/DWM"}
+STARTUP_FAILED stage=initialize_saves code=journal_schema_invalid
+PLAYABLE_STARTUP_FAIL: benchmark startup {"completed_stages":["select_and_prove_roots","construct_and_inject_mutation_gate","construct_identity_issuer_and_contact_commands"],"failed_stage":"initialize_saves","fatal_result":{"code":"journal_schema_invalid","message":"DesktopContinuationOperationJournal: profile material is not normalized","ok":false},"gate_injection":{"factory_invocation_count":1,"gate_instance_id":-9223371853060372507,"target_instance_ids":[-9223371853060372507,-9223371853060372507,-9223371853060372507,-9223371853060372507,-9223371853060372507,-9223371853060372507,-9223371853060372507,-9223371853060372507,-9223371853060372507],"targets":["SaveManager","GameState","ProfileManager","LocalizationManager","AudioManager","WindowModeManager","SceneRouter","DialogicBridge","InputManager"]},"mode":"final","planned_blockers":[],"ready":false,"started":true}

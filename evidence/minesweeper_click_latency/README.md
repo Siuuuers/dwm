@@ -223,3 +223,39 @@ this commit (the minesweeper contract came back byte-identical).
   validated; that is the next measured candidate, not this step. The duplicate removal is not
   separable from run noise. App win settled 678-691 ms, loss 693-808 ms, dating 424-446 ms;
   board_fate ledger write 56-70 ms (write_atomic 35-42 of it).
+
+### Step 3: --user-data stress option on the click benchmark (commit after 2e9530128)
+
+tests/manual/benchmark_minesweeper_click_latency.gd gains `--user-data=<absolute directory>`:
+in the SceneTree script's _initialize (which runs before ApplicationBootstrap's deferred start) it
+copies that directory into the isolated user:// root (refusing a missing source, source equal to
+target, or a target that already holds saves; prints CLICK_LATENCY_SEED), then enters through the
+title's real Log In and the Backup picker's autosave Load exactly as verify_playable_startup's
+completed-load journey does (CLICK_LATENCY_LOGIN), probes playability honestly (the App opens, the
+presentation is valid, the board is unsettled, a difficulty is enabled, two rounds are left) and
+plays the same App first-reveal, routine, win and loss sequence as the fresh-account path. The
+dating half is skipped in seeded mode (CLICK_LATENCY_NOTE). An unplayable loaded run prints
+CLICK_LATENCY_UNPLAYABLE with the observed state and exits 0; the fresh-account path only gains a
+trailing CLICK_LATENCY_MODE line. The runner is untouched.
+
+- settlement4-harness-live-refused-22b6a4fb2.log and settlement4-harness-live-refused-step1-tree.log:
+  a hash-verified read-only copy of the live AppData DWM saves (written 2026-09-12 22:29: Day-1
+  run, 108 publication records in a 785 KB ledger, 2.3 MB consequence checkpoint, 3 MB
+  continuation journal with 35 completed operations; kept outside the repo at
+  C:/Users/glori/Documents/dwm-stress-20260914 with source-before, source-after and copy sha256
+  manifests). The seed lands (22 files, 14.5 MB) and the final-mode bootstrap then fails
+  initialize_saves: journal_schema_invalid, DesktopContinuationOperationJournal: profile material
+  is not normalized. NewRunMaterials compares each stored new-run profile material against
+  ProfileSchema.validate's value, and since 2026-09-13 (3a1712f39 Minesweeper view defaults,
+  7b911b5ca Steady Interface default) validate admits new default leaves into that value, so no
+  journal written before those commits round-trips. That is a boot-blocking regression for
+  existing players, filed as bug dwm-6fl; the long-history stress measurement waits on it.
+- settlement4-harness-seed-source-2e9530128.log: a fresh-account run kept with -KeepRoot; its user
+  directory (13 files, 1.15 MB, today's schema) is the seed for the two runs below.
+- settlement4-harness-seeded-run1-2e9530128.log and -run2-: the seeding, Log In, picker Load and
+  probe all run; the loaded autosave's route is dating with minesweeper_rounds_left 0 (the source
+  run had finished both rounds and the dating challenge), so the desktop never mounts and the run
+  reports desktop_not_mounted_after_load with session_active true and exits 0. The seeded play
+  path beyond the probe is the same _minesweeper_app_benchmark every fresh run exercises; a
+  positive seeded play measurement needs either the dwm-6fl fix (live data) or a seed captured
+  while the desktop is mounted with rounds left.
