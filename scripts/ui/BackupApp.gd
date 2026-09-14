@@ -6,6 +6,10 @@ const DRAWER := preload("res://scripts/ui/backup/BackupDrawer.gd")
 const KEY := preload("res://scripts/ui/backup/BackupKey.gd")
 const BACKUP_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
 const LOCATORS := ["autosave", "quick", "slot:1", "slot:2", "slot:3", "slot:4", "slot:5", "slot:6", "slot:7"]
+const RIGHT_X := 480.0
+const RIGHT_MARGIN := 16.0
+const RIGHT_MIN_WIDTH := 304.0
+const ACTION_GAP := 16.0
 const COPY := {
 	"en": {"save":"Save","load":"Load","delete":"Delete","cancel":"Cancel","retry":"Retry","overwrite":"Overwrite","autosave":"Autosave","quick":"Quick","slot":"Slot {n}","empty":"Empty","unavailable":"Unavailable","day":"Day {day} · {time}","automatic":"Autosave is created automatically.","fallback":"Only an earlier compatible checkpoint can be loaded.","newer":"Newer game version required.","unreadable":"Can't read this save.","older":"Older save","older_details":"This save is from an older build and cannot be loaded.","replaceable":"Choose Save to replace it with your current game.","save_unavailable":"Saving is currently unavailable.","saved":"Saved","failed":"Operation failed.","stale":"Save changed.","failure_details":"The operation did not complete. Cancel or try again using current record details.","overwrite_title":"Overwrite {record}?","delete_title":"Delete {record}?","load_title":"Load {record}?","fallback_title":"Load earlier checkpoint?","replace_progress":"Unsaved progress in the current game will be replaced.","delete_body":"This save will be deleted."},
 	"zh-CN": {"save":"保存","load":"载入","delete":"删除","cancel":"取消","retry":"重试","overwrite":"覆盖","autosave":"自动存档","quick":"快速存档","slot":"存档 {n}","empty":"空","unavailable":"不可用","day":"第 {day} 天 · {time}","automatic":"自动存档由系统自动创建。","fallback":"只能载入较早的兼容检查点。","newer":"需要更新的游戏版本。","unreadable":"无法读取此存档。","save_unavailable":"当前无法保存。","saved":"已保存","failed":"操作失败。","stale":"存档已变更。","failure_details":"操作未完成。请取消，或根据当前存档信息重试。","overwrite_title":"覆盖{record}？","delete_title":"删除{record}？","load_title":"载入{record}？","fallback_title":"载入较早的检查点？","replace_progress":"当前游戏中未保存的进度将被替换。","delete_body":"此存档将被删除。","older":"旧版存档","older_details":"此存档来自较旧版本，无法载入。","replaceable":"选择保存，即可用当前游戏覆盖此存档。"},
@@ -64,6 +68,8 @@ func _exit_tree() -> void:
 func _ready() -> void:
 	super._ready()
 	custom_minimum_size = Vector2(800, 656)
+	if not _title_login:
+		set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	$VBoxContainer/TopBar.hide()
 	$VBoxContainer.add_theme_constant_override("separation", 0)
@@ -74,6 +80,7 @@ func _ready() -> void:
 	_body.name = "BackupBody"
 	_body.size = Vector2(800, 656)
 	_content_host.add_child(_body)
+	_body.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_body.draw.connect(_draw_body)
 	for index in (0 if _title_login else 2):
 		var mode: String = ["save", "load"][index]
@@ -138,6 +145,8 @@ func _ready() -> void:
 	action_dock.position = Vector2(480, 528)
 	action_dock.size = Vector2(304, 112)
 	_body.add_child(action_dock)
+	_body.resized.connect(_layout_presentation_geometry)
+	_layout_presentation_geometry()
 	get_viewport().gui_focus_changed.connect(_remember_focus)
 	if _title_login:
 		for control in drawer_buttons.values() + [info_scroll, _info_overlay, status_region, action_dock]:
@@ -338,8 +347,8 @@ func _build_actions() -> void:
 		var action: String = actions[index]
 		var key := KEY.new()
 		key.name = action.to_pascal_case() + "Action"
-		key.position = Vector2(index * 160, 24)
-		key.size = Vector2(304 if actions.size() == 1 else 144, 64)
+		key.position = Vector2.ZERO
+		key.size = Vector2(304, 64)
 		key.set_caption(_t(action if action != "retry" or _source_action == "save" and _confirmation_kind == "none" else (_source_action if _source_action != "save" else "overwrite")))
 		key.add_theme_font_size_override("font_size", int(20 * _percent / 100.0))
 		key.disabled = not _projection_valid or (not record.actions.get(action, false) if not _recovering else false)
@@ -351,6 +360,7 @@ func _build_actions() -> void:
 		action_dock.add_child(key)
 		key.caption.add_theme_font_size_override("font_size", int(20 * _percent / 100.0))
 		action_buttons[action] = key
+	_layout_action_buttons()
 	if action_buttons.has(prior_focus) and not action_buttons[prior_focus].disabled:
 		action_buttons[prior_focus].grab_focus()
 	_update_navigation()
@@ -673,22 +683,54 @@ func _reason_text(reason: String) -> String:
 	return _t("unreadable")
 
 func _draw_body() -> void:
-	_body.draw_rect(Rect2(0, 0, 800, 656), theme.get_color("habitat", "Backup"))
-	_body.draw_rect(Rect2(480, info_scroll.position.y, 304, 544), theme.get_color("paper", "Backup"))
+	var right_width := _right_width()
+	_body.draw_rect(Rect2(Vector2.ZERO, _body.size), theme.get_color("habitat", "Backup"))
+	_body.draw_rect(Rect2(RIGHT_X, info_scroll.position.y, right_width, 544), theme.get_color("paper", "Backup"))
 	if _recovering:
-		_body.draw_rect(Rect2(480, status_region.position.y, 304, 96), theme.get_color("face", "Backup"))
-		_body.draw_rect(Rect2(480, status_region.position.y, 2, 96), theme.get_color("destructive", "Backup"))
+		_body.draw_rect(Rect2(RIGHT_X, status_region.position.y, right_width, 96), theme.get_color("face", "Backup"))
+		_body.draw_rect(Rect2(RIGHT_X, status_region.position.y, 2, 96), theme.get_color("destructive", "Backup"))
 	elif _status_key == "saved":
-		_body.draw_rect(Rect2(480, status_region.position.y, 2, 96), theme.get_color("paper_ink", "Backup"))
+		_body.draw_rect(Rect2(RIGHT_X, status_region.position.y, 2, 96), theme.get_color("paper_ink", "Backup"))
 
 func _draw_information() -> void:
+	var width := _info_overlay.size.x
 	var height := int(ceil(_info_margin.size.y / 2.0))
 	if height > 168:
 		var thumb := maxi(8, int(floor(168.0 * 168 / height)))
 		var offset := int(floor(info_scroll.scroll_vertical / 2.0))
 		var at := int(floor(float((168 - thumb) * offset) / (height - 168)))
-		_info_overlay.draw_rect(Rect2(302, 0, 2, 336), theme.get_color("structure", "Backup"))
-		_info_overlay.draw_rect(Rect2(302, at * 2, 2, thumb * 2), theme.get_color("paper_ink", "Backup"))
+		_info_overlay.draw_rect(Rect2(width - 2, 0, 2, 336), theme.get_color("structure", "Backup"))
+		_info_overlay.draw_rect(Rect2(width - 2, at * 2, 2, thumb * 2), theme.get_color("paper_ink", "Backup"))
 	if info_scroll.has_focus():
-		_info_overlay.draw_rect(Rect2(3, 3, 298, 330), theme.get_color("paper_ink", "Backup"), false, 2)
-		_info_overlay.draw_rect(Rect2(7, 7, 290, 322), theme.get_color("paper_focus", "Backup"), false, 2)
+		_info_overlay.draw_rect(Rect2(3, 3, width - 6, 330), theme.get_color("paper_ink", "Backup"), false, 2)
+		_info_overlay.draw_rect(Rect2(7, 7, width - 14, 322), theme.get_color("paper_focus", "Backup"), false, 2)
+
+
+func _right_width() -> float:
+	return maxf(RIGHT_MIN_WIDTH, _body.size.x - RIGHT_X - RIGHT_MARGIN)
+
+
+func _layout_presentation_geometry() -> void:
+	if not is_instance_valid(info_scroll):
+		return
+	var right_width := _right_width()
+	info_scroll.size.x = right_width
+	_info_overlay.size.x = right_width
+	status_region.size.x = right_width
+	status_label.size.x = right_width - 24
+	action_dock.size.x = right_width
+	_layout_action_buttons()
+	_body.queue_redraw()
+	_info_overlay.queue_redraw()
+
+
+func _layout_action_buttons() -> void:
+	var count := action_buttons.size()
+	if count == 0 or not is_instance_valid(action_dock):
+		return
+	var key_width := action_dock.size.x if count == 1 else (action_dock.size.x - ACTION_GAP) / 2.0
+	var index := 0
+	for key: Button in action_buttons.values():
+		key.position = Vector2(index * (key_width + ACTION_GAP), 24)
+		key.size = Vector2(key_width, 64)
+		index += 1

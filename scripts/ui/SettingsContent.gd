@@ -170,11 +170,12 @@ func _build_content() -> void:
 	PRESENTATION.apply_scroll(sheet_scroll, true)
 	_selected_extension = Control.new()
 	_selected_extension.name = "SelectedExtension"
-	_selected_extension.size = Vector2(800, 656)
 	_selected_extension.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_selected_extension.focus_mode = Control.FOCUS_NONE
 	_selected_extension.draw.connect(_draw_selected_extension)
 	add_child(_selected_extension)
+	_selected_extension.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	resized.connect(_on_presentation_resized)
 	rail_scroll.get_v_scroll_bar().value_changed.connect(func(_value: float) -> void: _selected_extension.queue_redraw())
 	for state: String in ["Selected", "Focus", "Warning", "Unavailable"]:
 		var specimen := PRESENTATION.StateSpecimen.new(state)
@@ -652,15 +653,20 @@ func _draw_selected_extension() -> void:
 	_selected_extension.draw_line(Vector2(extension.position.x, bottom), Vector2(240, bottom), roles.paper_ink, 2)
 
 
+func _on_presentation_resized() -> void:
+	queue_redraw()
+	_selected_extension.queue_redraw()
+
+
 func _draw() -> void:
 	var roles := PRESENTATION.roles_for(self)
-	draw_rect(Rect2(0, 0, 800, 656), roles.habitat)
+	draw_rect(Rect2(Vector2.ZERO, size), roles.habitat)
 	draw_rect(Rect2(16, 16, 208, 624), roles.face)
-	draw_rect(Rect2(240, 16, 544, 624), roles.paper)
+	draw_rect(Rect2(240, 16, size.x - 256, 624), roles.paper)
 	draw_line(Vector2(232, 24), Vector2(232, 632), roles.structure, 2)
-	draw_line(Vector2(256, 95), Vector2(768, 95), roles.paper_ink, 2)
+	draw_line(Vector2(256, 95), Vector2(size.x - 32, 95), roles.paper_ink, 2)
 	if _selected == "accessibility":
-		draw_line(Vector2(256, 495), Vector2(768, 495), roles.paper_ink, 2)
+		draw_line(Vector2(256, 495), Vector2(size.x - 32, 495), roles.paper_ink, 2)
 
 
 func focus_rail() -> void:

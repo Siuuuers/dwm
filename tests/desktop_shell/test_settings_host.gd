@@ -38,8 +38,14 @@ func _run() -> void:
 	home.text = "Home test"
 	root.add_child(home)
 	var app: Control = SETTINGS.instantiate()
-	app.size = Vector2(800, 656)
-	root.add_child(app)
+	app.get_node("SettingsContent").configure_services({"profile": profile,
+		"localization": localization, "audio": null, "tts": null, "volume": null,
+		"input": null, "window": null})
+	app.get_node("LocalePresentationRoot").set("_localization", localization)
+	var app_host := Control.new()
+	app_host.size = Vector2(800, 656)
+	root.add_child(app_host)
+	app_host.add_child(app)
 	app.configure_desktop_home(home)
 	_check(app.get_desktop_ready_result()["ok"], "real controller bind readiness")
 	_check(app.get_node_or_null("VBoxContainer/TopBar") == null, "one shell strip only")
@@ -113,6 +119,7 @@ func _run() -> void:
 		_check(last_control.get_global_rect().end.y <= content.sheet_scroll.get_global_rect().end.y+1.0,
 			"last accessibility control remains reachable %d" % percent)
 	app.free()
+	app_host.free()
 	home.free()
 	localization.free()
 	profile.free()

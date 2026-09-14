@@ -31,28 +31,34 @@ theme_override_constants/separation = 16
 
 [node name="Heading" type="Control" parent="."]
 layout_mode = 0
+anchor_right = 1.0
 offset_left = 240.0
 offset_top = 16.0
-offset_right = 784.0
+offset_right = -16.0
 offset_bottom = 96.0
+grow_horizontal = 0
 mouse_filter = 2
 
 [node name="CategoryHeading" type="Label" parent="Heading"]
 layout_mode = 0
+anchor_right = 1.0
 offset_left = 16.0
 offset_top = 8.0
-offset_right = 528.0
+offset_right = -16.0
 offset_bottom = 72.0
+grow_horizontal = 0
 mouse_filter = 2
 vertical_alignment = 1
 autowrap_mode = 3
 
 [node name="SheetScroll" type="ScrollContainer" parent="."]
 layout_mode = 0
+anchor_right = 1.0
 offset_left = 240.0
 offset_top = 96.0
-offset_right = 784.0
+offset_right = -16.0
 offset_bottom = 496.0
+grow_horizontal = 0
 horizontal_scroll_mode = 0
 follow_focus = true
 
@@ -63,18 +69,22 @@ theme_override_constants/separation = 16
 
 [node name="Footer" type="Control" parent="."]
 layout_mode = 0
+anchor_right = 1.0
 offset_left = 240.0
 offset_top = 496.0
-offset_right = 784.0
+offset_right = -16.0
 offset_bottom = 640.0
+grow_horizontal = 0
 mouse_filter = 2
 
 [node name="ControlSample" type="GridContainer" parent="Footer"]
 layout_mode = 0
+anchor_right = 1.0
 offset_left = 16.0
 offset_top = 8.0
-offset_right = 528.0
+offset_right = -16.0
 offset_bottom = 136.0
+grow_horizontal = 0
 mouse_filter = 2
 theme_override_constants/h_separation = 16
 theme_override_constants/v_separation = 16

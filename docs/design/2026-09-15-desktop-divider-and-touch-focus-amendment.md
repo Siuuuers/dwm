@@ -49,9 +49,16 @@ and dispatch; canceled, moved, stale, or interrupted contacts do not activate.
 Confirmation uses paired Enter input through the ordinary viewport pipeline,
 including real modal custody and the existing board's keyboard handler.
 
-**Implementation boundary:** the outer desktop resizes, but existing app
-bodies retain their authored 800-pixel canvas. Responsive app-body reflow,
-especially the concurrently owned Minesweeper layout, remains unfinished.
+Contacts, Settings, and Backup now use the full 800–960-pixel app width.
+Their left contact/category/save-slot areas keep their existing dimensions;
+the extra width expands the reading or information pane. Text sizes, app
+height, active controls, and pending actions stay unchanged. Resizing does
+not remount apps, refresh gameplay projections, or save preferences. Backup's
+title-login layout retains its fixed 800-pixel canvas and existing inset.
+
+**Implementation boundary:** Shop and Schedule still need app-body reflow,
+with concurrent edits recorded in Beads. The Minesweeper layout remains
+separately owned and is outside this goal's required completion.
 This amendment does not authorize changes to `dwm-634*` or `dwm-6fl` owned
 source, tests, gameplay, schemas, persistence, branches, or worktrees.
 

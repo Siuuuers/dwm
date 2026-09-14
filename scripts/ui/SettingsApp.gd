@@ -31,6 +31,7 @@ func handle_back() -> bool:
 
 
 func _ready() -> void:
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	settings_content.close_requested.connect(hide_window)
 	visibility_changed.connect(_on_visibility_changed)
 	if not is_visible_in_tree():

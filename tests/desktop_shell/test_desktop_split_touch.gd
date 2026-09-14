@@ -108,6 +108,44 @@ func test_three_button_footer_leaves_full_app_height_and_navigation_never_launch
 			assert_eq(button.focus_mode, Control.FOCUS_NONE, "touch controls do not steal app focus")
 
 
+func test_contacts_expands_the_same_thread_and_retains_its_reading_position() -> void:
+	var opened: Dictionary = desktop.open_contacts()
+	assert_true(opened.get("ok", false))
+	if not opened.get("ok", false): return
+	var app: Control = opened.value.app
+	app.contacts_panel.open_requested.emit("lavinia")
+	await settle()
+	var panel: Control = app.contacts_panel
+	var transcript: ScrollContainer = panel.transcript
+	var messages: VBoxContainer = panel.messages
+	var reply: Button = app._reply_button
+	assert_not_null(reply)
+	var block: Control = messages.get_child(4)
+	transcript.scroll_vertical = int(block.position.y)
+	transcript.grab_focus()
+	await settle()
+	var anchor: Dictionary = panel._scroll_anchor()
+	var port: RefCounted = app._presentation_port
+	var reads: int = port.reads
+	app._status_label.text = "Temporary status"
+	app._status_label.show()
+	for width: int in [960, 880, 800]:
+		main.get_node("RootHBox").set_angela_width(1280 - width)
+		await settle()
+		assert_eq(app.size, Vector2(width, 656), "app uses the expanded desktop")
+		assert_eq(panel.size, app.size)
+		assert_eq(transcript.size, Vector2(width - 248, 560), "extra width goes to reading")
+		assert_same(panel.messages, messages, "resize retains message nodes")
+		assert_same(panel.transcript, transcript)
+		assert_same(app._reply_button, reply, "pending action is not recreated")
+		assert_same(viewport.gui_get_focus_owner(), transcript)
+		assert_eq(panel._scroll_anchor().get("id"), anchor.get("id"), "same message remains at the top")
+		assert_eq(port.reads, reads, "resize does not query or commit gameplay")
+		assert_eq(app._status_label.get_rect().end.x, float(width - 16))
+		assert_eq(app._status_label.get_rect(), Rect2(264, 608, width - 280, 48), "visible notice stays in its bottom strip")
+		assert_true(panel.get_global_rect().encloses(transcript.get_global_rect()))
+
+
 func tap_navigation(button: Button) -> void:
 	for pressed: bool in [true, false]:
 		var event := InputEventScreenTouch.new()

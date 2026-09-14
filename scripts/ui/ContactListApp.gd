@@ -56,13 +56,15 @@ func _ready() -> void:
 	_status_label.visible = false
 	# Technical feedback is a transient notice in the pane, not correspondence
 	# or a second title bar. It leaves the reading geometry unchanged.
-	_status_label.position = Vector2(264, 608)
-	_status_label.size = Vector2(520, 48)
 	_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	var notice_style := StyleBoxFlat.new()
 	notice_style.bg_color = Color("151b25")
 	_status_label.add_theme_stylebox_override("normal", notice_style)
-	add_child(_status_label)
+	_content_host.add_child(_status_label)
+	_status_label.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+	_status_label.offset_left = 264
+	_status_label.offset_right = -16
+	_status_label.offset_top = -48
 	contacts_panel.open_requested.connect(_on_open_requested)
 	contacts_panel.pending_reply_drawn.connect(_on_pending_ordinary_drawn)
 	contacts_panel.back_requested.connect(hide_window)

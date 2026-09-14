@@ -1,6 +1,6 @@
 extends Control
 ## Presentation only. The caller owns read/open transactions and supplies committed text.
-## Logical dimensions are 2x the 400x328 native plate. Host scaling is external.
+## Baseline is the 800x656 plate; extra host width expands the reading pane.
 
 signal open_requested(friend_id: String)
 signal back_requested
@@ -51,6 +51,14 @@ func _ready() -> void:
 		rows[i].focus_neighbor_top = rows[i].get_path_to(rows[maxi(0, i - 1)])
 		rows[i].focus_neighbor_bottom = rows[i].get_path_to(rows[mini(2, i + 1)])
 	rows[0].grab_focus()
+	resized.connect(_on_resized)
+
+func _on_resized() -> void:
+	# Anchors widen the same transcript; retain the current reading position.
+	var anchor := _scroll_anchor()
+	_revision += 1
+	_restore_scroll.call_deferred(anchor, _revision)
+	queue_redraw()
 
 func configure(english: Font, simplified: Font, traditional: Font, text_percent: int = 100,
 		midnight: bool = false, day: int = 1, high_contrast: bool = false, colour_preset: String = "standard") -> bool:
@@ -182,16 +190,20 @@ func _clear_thread() -> void:
 func _build_thread() -> void:
 	_header = Label.new()
 	_header.text = NAMES[FRIENDS.find(selected_friend)]
-	_header.position = Vector2(304, 16)
-	_header.size = Vector2(480, 64)
+	_header.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	_header.offset_left = 304
+	_header.offset_right = -16
+	_header.offset_top = 16
+	_header.offset_bottom = 80
 	_header.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_header.set_meta("contacts_color_role", "bone")
 	_header.add_theme_color_override("font_color", theme.get_color("bone", "Contacts"))
 	_header.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_header)
 	transcript = ScrollContainer.new()
-	transcript.position = Vector2(248, 96)
-	transcript.size = Vector2(552, 560)
+	transcript.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	transcript.offset_left = 248
+	transcript.offset_top = 96
 	transcript.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	transcript.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
 	transcript.focus_mode = Control.FOCUS_ALL
@@ -208,8 +220,9 @@ func _build_thread() -> void:
 	for entry in _entries:
 		_append_entry(entry, [_primary, _secondary])
 	_continuation = Control.new()
-	_continuation.position = Vector2(248, 96)
-	_continuation.size = Vector2(552, 560)
+	_continuation.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_continuation.offset_left = 248
+	_continuation.offset_top = 96
 	_continuation.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_continuation.z_index = 1
 	_continuation.draw.connect(_draw_continuation)
@@ -333,10 +346,11 @@ func _queue_continuation() -> void:
 func _draw_continuation() -> void:
 	var ink := theme.get_color("ink", "Contacts")
 	var bounds := get_scroll_state()
+	var center_x := (_continuation.size.x - 12) / 2
 	if not bounds.top:
-		_continuation.draw_rect(Rect2(270, 0, 12, 4), ink)
+		_continuation.draw_rect(Rect2(center_x, 0, 12, 4), ink)
 	if not bounds.bottom:
-		_continuation.draw_rect(Rect2(270, 556, 12, 4), ink)
+		_continuation.draw_rect(Rect2(center_x, _continuation.size.y - 4, 12, 4), ink)
 
 func get_scroll_state() -> Dictionary:
 	if transcript == null:
@@ -382,11 +396,11 @@ func _input(event: InputEvent) -> void:
 func _draw() -> void:
 	if theme == null:
 		return
-	draw_rect(Rect2(0, 0, 248, 656), theme.get_color("instrument", "Contacts"))
-	draw_rect(Rect2(248, 0, 552, 656), theme.get_color("paper", "Contacts"))
+	draw_rect(Rect2(0, 0, 248, size.y), theme.get_color("instrument", "Contacts"))
+	draw_rect(Rect2(248, 0, size.x - 248, size.y), theme.get_color("paper", "Contacts"))
 	if selected_friend == "":
 		return
-	draw_rect(Rect2(248, 0, 552, 96), theme.get_color("instrument", "Contacts"))
+	draw_rect(Rect2(248, 0, size.x - 248, 96), theme.get_color("instrument", "Contacts"))
 	draw_rect(Rect2(256, 16, 32, 64), theme.get_color("void", "Contacts"))
 	var header_art := ART_MANIFEST.get_texture("contact.%s.header" % selected_friend, Vector2i(32, 64))
 	var identity := theme.get_color("identity_%d" % FRIENDS.find(selected_friend), "Contacts")

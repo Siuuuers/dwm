@@ -531,7 +531,7 @@ func _run() -> void:
 			app = desktop.app_window_host.find_child("BackupApp", false, false)
 			check(app != null, "Actual Backup scene is mounted")
 			if app != null:
-				check((app.global_position - desktop.global_position).is_equal_approx(Vector2(0, 64)), "Backup sits beneath the one shared64px strip")
+				check((app.global_position - desktop.global_position).is_equal_approx(Vector2.ZERO), "Backup fills the workfield above the shared footer")
 				await verify_ui(desktop, app, port, locale, profile)
 				var old_id := app.get_instance_id()
 				var cancellations_before: int = port.cancelled.size()
