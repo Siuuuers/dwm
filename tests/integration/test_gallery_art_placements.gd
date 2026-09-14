@@ -60,13 +60,13 @@ func _mount(localization: Node = null) -> Dictionary:
 	return {"gallery": gallery, "bridge": bridge}
 
 func _record_title(gallery: Control) -> Label:
-	return gallery.get_node("%GalleryHost/RecordTitle")
+	return gallery._record_title_label
 
 func _assert_written_archive(gallery: Control, title: Label) -> void:
 	assert_null(gallery.get_node_or_null("%GalleryHost/GalleryArtworkPreview"))
 	var media := gallery.get_node("%GalleryHost").get_children().filter(func(node: Node) -> bool: return node is TextureRect)
 	assert_true(media.is_empty(), "Unexpected Gallery media: %s" % str(media))
-	assert_eq(title.position, Vector2(392, 32))
+	assert_eq(title.global_position - gallery.get_node("%GalleryHost").global_position, Vector2(392, 32))
 	assert_eq(title.size.x, 504.0)
 	assert_ne(title.autowrap_mode, TextServer.AUTOWRAP_OFF)
 	assert_false(title.clip_text)

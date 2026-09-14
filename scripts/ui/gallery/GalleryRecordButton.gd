@@ -71,8 +71,14 @@ func _pointer_input(event: InputEvent) -> void:
 			var activate := _pointer_down and Rect2(Vector2.ZERO, size).has_point(event.position)
 			_pointer_down = false
 			if activate:
-				grab_focus()
+				grab_focus(true)
 				pressed.emit()
+		queue_redraw()
+
+func _gui_input(event: InputEvent) -> void:
+	if has_focus() and ((event is InputEventKey and event.pressed) or
+			(event is InputEventJoypadButton and event.pressed)):
+		grab_focus()
 		queue_redraw()
 
 func refresh_caption() -> void:
@@ -99,6 +105,6 @@ func _draw() -> void:
 	if selected: draw_rect(Rect2(292, 0, 4, size.y), ink)
 	if is_pressed() or (_pointer_down and _pointer_hover): draw_rect(Rect2(0, 0, size.x, 2), ink)
 	elif _pointer_hover: draw_rect(Rect2(0, 0, 2, size.y), ink)
-	if has_focus():
+	if has_focus(true):
 		draw_rect(Rect2(-7, -7, size.x + 14, size.y + 14), get_theme_color("ink", "Gallery"), false, 2)
 		draw_rect(Rect2(-3, -3, size.x + 6, size.y + 6), get_theme_color("focus", "Gallery"), false, 2)

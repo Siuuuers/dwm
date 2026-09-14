@@ -3,6 +3,7 @@ extends RefCounted
 ## Read-only title-host playback. Endings require discovery; other reached scenes require the ending milestone.
 signal playback_finished(result: Dictionary)
 const SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
+var _entry_catalog: Script = preload("res://scripts/data/DialogicTimelineCatalog.gd")
 var _profile: Object
 var _bridge: Object
 var _active_signature := ""
@@ -36,10 +37,13 @@ func get_variants(ending_id: String) -> Dictionary:
 	if not reached.get("ok", false): return reached
 	var variants: Array[Dictionary] = []
 	for record: Dictionary in reached.value.records:
+		var entry_id := str(record.signature.get("entry_id", ""))
+		var located := SIGNATURE.entry_record(entry_id)
+		if not located.ok or located.value.ending_id != canonical_id or entry_id.ends_with(".residue"): continue
 		var checked := SIGNATURE.validate(record.signature)
-		if not checked.ok or checked.value.signature_id != record.signature_id: continue
-		var entry: Dictionary = SIGNATURE.entry_record(record.signature.entry_id).value
-		if entry.ending_id != canonical_id or str(record.signature.entry_id).ends_with(".residue"): continue
+		if not checked.ok or checked.value.signature_id != record.signature_id:
+			return _fail(&"gallery_record_unavailable")
+		if not _entry_available(located.value): return _fail(&"gallery_record_unavailable")
 		variants.append(record.duplicate(true))
 	return {"ok":true, "value":{"records":variants}}
 
@@ -47,21 +51,42 @@ func get_variants(ending_id: String) -> Dictionary:
 func get_reached_entry_variants(entry_id: String = "") -> Dictionary:
 	if _profile == null: return _fail(&"gallery_replay_unavailable")
 	if not _profile.has_method("has_completed_ending") or not _profile.has_completed_ending():
-		return {"ok": true, "value": {"records": []}}
+		return {"ok": true, "value": {"records": [], "entry_ids": []}}
 	var reached: Dictionary = _profile.get_reached_presentations()
 	if not reached.get("ok", false): return reached
 	var variants: Array[Dictionary] = []
+	var entry_ids: Array[String] = []
 	for record: Dictionary in reached.value.records:
+		var candidate_id := str(record.signature.get("entry_id", ""))
+		if not entry_id.is_empty() and candidate_id != entry_id: continue
+		var located := SIGNATURE.entry_record(candidate_id)
+		if not located.ok or not _is_date_record(located.value): continue
+		if candidate_id not in entry_ids: entry_ids.append(candidate_id)
 		var checked := SIGNATURE.validate(record.signature)
-		if not checked.ok or checked.value.signature_id != record.signature_id: continue
-		var entry: Dictionary = SIGNATURE.entry_record(record.signature.entry_id).value
-		if entry.ending_id != null or (not entry_id.is_empty() and record.signature.entry_id != entry_id): continue
+		if not checked.ok or checked.value.signature_id != record.signature_id:
+			# Enumeration retains the known record; its exact query owns failure.
+			if not entry_id.is_empty(): return _fail(&"gallery_record_unavailable")
+			continue
 		variants.append(record.duplicate(true))
 	variants.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		var left: String = str(a.signature.entry_id) + ":" + str(a.signature_id)
 		var right: String = str(b.signature.entry_id) + ":" + str(b.signature_id)
 		return left < right)
-	return {"ok": true, "value": {"records": variants}}
+	entry_ids.sort()
+	return {"ok": true, "value": {"records": variants, "entry_ids": entry_ids}}
+
+func _is_date_record(entry: Dictionary) -> bool:
+	var parts := str(entry.entry_id).split(".")
+	return parts.size() == 5 and parts[0] == "dating" and entry.ending_id == null \
+		and entry.role in ["solo_pre_challenge", "solo_post_challenge", "pair_pre_challenge_scene", "pair_post_challenge_scene"]
+
+func _entry_available(entry: Dictionary) -> bool:
+	# Reached dates use native cards; only DTL playback requires a physical master.
+	if _is_date_record(entry): return true
+	var resolved: Dictionary = _entry_catalog.get_entry(str(entry.entry_id), "en")
+	if not resolved.get("ok", false): return false
+	var path := str(resolved.value.path)
+	return ResourceLoader.exists(path) or FileAccess.file_exists(path)
 
 func begin(signature_id: String) -> Dictionary:
 	if _bridge == null or not _active_signature.is_empty(): return _fail(&"gallery_replay_busy")

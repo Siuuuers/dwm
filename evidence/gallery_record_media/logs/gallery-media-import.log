@@ -1,0 +1,453 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+[   0% ] first_scan_filesystem | Started 项目初始化 (5 steps)
+[   0% ] first_scan_filesystem | 正在扫描文件结构……
+[  16% ] first_scan_filesystem | 正在加载全局类名……
+[  33% ] first_scan_filesystem | 正在校验 GDExtension……
+[  50% ] first_scan_filesystem | 正在创建自动加载脚本……
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+[  66% ] first_scan_filesystem | 正在初始化插件……
+[  83% ] first_scan_filesystem | 正在启动文件扫描……
+[ DONE ] first_scan_filesystem
+
+WARNING: Missing .uid file for path "res://autoload/SystemTtsCoordinator.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://evidence/found_paintings/verify_found_paintings.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://evidence/receipt_metadata_compaction/benchmark_fixed_board_receipts.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://scripts/accessibility/SystemTtsPort.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://scripts/audio/SystemTtsDuckPort.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://scripts/ui/witnessed/WitnessedAutoController.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://scripts/ui/witnessed/WitnessedSkipController.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://scripts/ui/witnessed/WitnessedSourceCanvas.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://scripts/ui/witnessed/WitnessedSpeechStatus.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://scripts/ui/witnessed/WitnessedTransportButton.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://scripts/ui/witnessed/WitnessedTransportRecovery.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/integration/ProjectVisitedLineRegistryHarness.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/integration/test_witnessed_speech_projection.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/integration/verify_day7_accessibility.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/manual/benchmark_checkpoint_json.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/manual/verify_system_tts_native.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/manual/verify_witnessed_recovery_custody.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/manual/witnessed_reading_recovery_capture.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/manual/witnessed_speech_status_capture.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/manual/witnessed_transport_capture.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/scene/test_ending_recovery_localization.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/scene/test_minesweeper_new_board_bindings.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/scene/test_minesweeper_view_gestures.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/scene/test_witnessed_transport_recovery.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/ui/render_minesweeper_view_controls.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/unit/tooling/test_dialogic_contract_cli.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/unit/tooling/test_ui_literal_audit.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/unit/test_backup_presentation.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/unit/test_day7_accessibility_action.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/unit/test_day7_auto_reading.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/unit/test_gallery_start_failure_phase.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/unit/test_game_state_calendar_queries.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/unit/test_game_state_public_queries.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/unit/test_minesweeper_view_controls.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/unit/test_minesweeper_view_preferences.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/unit/test_minesweeper_worksheet_view_layout.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/unit/test_minesweeper_zoom_input.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/unit/test_system_tts_coordinator.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/unit/test_system_tts_duck_port.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/unit/test_system_tts_port.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/unit/test_temporary_storage.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/unit/test_witnessed_auto_controller.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/unit/test_witnessed_skip_controller.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/unit/test_witnessed_speech_status.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/unit/test_witnessed_transport_button.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tests/unit/test_witnessed_transport_rail.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+WARNING: Missing .uid file for path "res://tools/ending_recovery/verify_ending_recovery.gd". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1374)
+[   0% ] update_scripts_classes | Started 正在注册全局类…… (36 steps)
+[   0% ] update_scripts_classes | GameStateDesktopBoardPort
+[   2% ] update_scripts_classes | MinesweeperPresentationPort
+[   5% ] update_scripts_classes |
+[   8% ] update_scripts_classes | SaveManagerCheckpointPort
+[  10% ] update_scripts_classes | CheckpointJournal
+[  13% ] update_scripts_classes | DesktopPublicationLedger
+[  16% ] update_scripts_classes | SaveDocumentSchema
+[  18% ] update_scripts_classes |
+[  21% ] update_scripts_classes |
+[  24% ] update_scripts_classes |
+[  27% ] update_scripts_classes |
+[  29% ] update_scripts_classes | GalleryRecordPaper
+[  32% ] update_scripts_classes |
+[  35% ] update_scripts_classes |
+[  37% ] update_scripts_classes | GalleryScene
+[  40% ] update_scripts_classes |
+[  43% ] update_scripts_classes |
+[  45% ] update_scripts_classes |
+[  48% ] update_scripts_classes |
+[  51% ] update_scripts_classes |
+[  54% ] update_scripts_classes |
+[  56% ] update_scripts_classes |
+[  59% ] update_scripts_classes |
+[  62% ] update_scripts_classes |
+[  64% ] update_scripts_classes |
+[  67% ] update_scripts_classes |
+[  70% ] update_scripts_classes |
+[  72% ] update_scripts_classes |
+[  75% ] update_scripts_classes |
+[  78% ] update_scripts_classes |
+[  81% ] update_scripts_classes |
+[  83% ] update_scripts_classes |
+[  86% ] update_scripts_classes |
+[  89% ] update_scripts_classes |
+[  91% ] update_scripts_classes |
+[  94% ] update_scripts_classes |
+[ DONE ] update_scripts_classes
+
+[   0% ] _update_scan_actions | Started 正在扫描动作…… (95 steps)
+[   0% ] _update_scan_actions | asset-paths.csv
+[   1% ] _update_scan_actions | scene-map.csv
+[   2% ] _update_scan_actions | contacts-touch-inspection.png
+[   3% ] _update_scan_actions | after-hours-day1-standard.png
+[   4% ] _update_scan_actions | after-hours-day7-deutan.png
+[   5% ] _update_scan_actions | after-hours-day7-high-contrast.png
+[   6% ] _update_scan_actions | after-hours-day7-standard.png
+[   7% ] _update_scan_actions | midnight-day7-pending-high-contrast.png
+[   8% ] _update_scan_actions | midnight-day7-standard.png
+[   9% ] _update_scan_actions | 13-day7-restored-echo.png
+[  10% ] _update_scan_actions | 13-day7-restored-auto.png
+[  11% ] _update_scan_actions | initial-footer-layout-failure.png
+[  12% ] _update_scan_actions | 13-day7-restored-echo.png
+[  13% ] _update_scan_actions | 14-day7-paused-followup.png
+[  14% ] _update_scan_actions | 15-day7-pause-autosave-confirmation.png
+[  15% ] _update_scan_actions | 12-day7-followup.png
+[  16% ] _update_scan_actions | 13-day7-restored-echo.png
+[  17% ] _update_scan_actions | 2026-09-13-angela-shell-background.png
+[  18% ] _update_scan_actions | 2026-09-13-contacts-row-and-header.png
+[  19% ] _update_scan_actions | 2026-09-13-witnessed-tableau.png
+[  20% ] _update_scan_actions | en-100-AfterHours-error.png
+[  21% ] _update_scan_actions | en-100-AfterHours-error.png
+[  22% ] _update_scan_actions | en-100-AfterHours-retry-success.png
+[  23% ] _update_scan_actions | en-100-Midnight-error.png
+[  25% ] _update_scan_actions | en-125-AfterHours-error.png
+[  26% ] _update_scan_actions | en-125-Midnight-error.png
+[  27% ] _update_scan_actions | en-150-AfterHours-error.png
+[  28% ] _update_scan_actions | en-150-Midnight-error.png
+[  29% ] _update_scan_actions | zh-CN-100-AfterHours-error.png
+[  30% ] _update_scan_actions | zh-CN-100-Midnight-error.png
+[  31% ] _update_scan_actions | zh-CN-125-AfterHours-error.png
+[  32% ] _update_scan_actions | zh-CN-125-Midnight-error.png
+[  33% ] _update_scan_actions | zh-CN-150-AfterHours-error.png
+[  34% ] _update_scan_actions | zh-CN-150-Midnight-error.png
+[  35% ] _update_scan_actions | zh-HK-100-AfterHours-error.png
+[  36% ] _update_scan_actions | zh-HK-100-Midnight-error.png
+[  37% ] _update_scan_actions | zh-HK-125-AfterHours-error.png
+[  38% ] _update_scan_actions | zh-HK-125-Midnight-error.png
+[  39% ] _update_scan_actions | zh-HK-150-AfterHours-error.png
+[  40% ] _update_scan_actions | zh-HK-150-Midnight-error.png
+[  41% ] _update_scan_actions | ordinary-expiry-day1-unanswered.png
+[  42% ] _update_scan_actions | ordinary-expiry-day2-restored.png
+[  43% ] _update_scan_actions | ordinary-expiry-earlier-slot-restored.png
+[  44% ] _update_scan_actions | ordinary-expiry-day1-unanswered.png
+[  45% ] _update_scan_actions | ordinary-expiry-day2-restored.png
+[  46% ] _update_scan_actions | reply-01-lavinia-before-click.png
+[  47% ] _update_scan_actions | reply-03-save-failure-retained.png
+[  48% ] _update_scan_actions | reply-04-retry-saved.png
+[  50% ] _update_scan_actions | reply-05-cold-restored.png
+[  51% ] _update_scan_actions | day1-standard.png
+[  52% ] _update_scan_actions | day3-high-deutan-warning.png
+[  53% ] _update_scan_actions | day7-standard.png
+[  54% ] _update_scan_actions | pause-backup-after-cancel-day7-high.png
+[  55% ] _update_scan_actions | pause-backup-confirmation-queued.png
+[  56% ] _update_scan_actions | pause-backup-day1.png
+[  57% ] _update_scan_actions | pause-settings-day7.png
+[  58% ] _update_scan_actions | settings-day1.png
+[  59% ] _update_scan_actions | settings-day7.png
+[  60% ] _update_scan_actions | after-hours-day1-standard.png
+[  61% ] _update_scan_actions | after-hours-day7-deutan.png
+[  62% ] _update_scan_actions | after-hours-day7-high-contrast.png
+[  63% ] _update_scan_actions | after-hours-day7-standard.png
+[  64% ] _update_scan_actions | midnight-day7-standard.png
+[  65% ] _update_scan_actions | midnight-day7-supportz-confirmation.png
+[  66% ] _update_scan_actions | en-100.png
+[  67% ] _update_scan_actions | zh_CN-150.png
+[  68% ] _update_scan_actions | zh_HK-150.png
+[  69% ] _update_scan_actions | en-normal-150.png
+[  70% ] _update_scan_actions | en-recovery-150.png
+[  71% ] _update_scan_actions | zh-CN-normal-150.png
+[  72% ] _update_scan_actions | zh-CN-recovery-150.png
+[  73% ] _update_scan_actions | zh-HK-normal-150.png
+[  75% ] _update_scan_actions | zh-HK-recovery-150.png
+[  76% ] _update_scan_actions | en-150.png
+[  77% ] _update_scan_actions | zh-CN-150.png
+[  78% ] _update_scan_actions | zh-HK-150.png
+[  79% ] _update_scan_actions | en-150-speech-failure.png
+[  80% ] _update_scan_actions | zh-CN-150-speech-failure.png
+[  81% ] _update_scan_actions | zh-HK-150-speech-failure.png
+[  82% ] _update_scan_actions | en-150-retry-cancel.png
+[  83% ] _update_scan_actions | zh-CN-150-retry-cancel.png
+[  84% ] _update_scan_actions | zh-HK-150-retry-cancel.png
+[  85% ] _update_scan_actions | en-150.png
+[  86% ] _update_scan_actions | zh-CN-150.png
+[  87% ] _update_scan_actions | zh-HK-150.png
+[  88% ] _update_scan_actions | en-150.png
+[  89% ] _update_scan_actions | zh-CN-150.png
+[  90% ] _update_scan_actions | zh-HK-150.png
+[  91% ] _update_scan_actions | after-hours-day1.png
+[  92% ] _update_scan_actions | after-hours-day7.png
+[  93% ] _update_scan_actions | art-only-midnight-day7.png
+[  94% ] _update_scan_actions | high-contrast-day7.png
+[  95% ] _update_scan_actions | midnight-day7.png
+[  96% ] _update_scan_actions | protan-day7-scrolled.png
+[  97% ] _update_scan_actions | gallery-258x78.svg
+[ DONE ] _update_scan_actions
+
+[   0% ] reimport | Started 正在导入或重新导入资产 (93 steps)
+[   0% ] reimport | 正在准备重新导入文件……
+[   1% ] reimport | 正在准备重新导入文件……
+[   2% ] reimport | 正在准备重新导入文件……
+[   3% ] reimport | 正在准备重新导入文件……
+[   4% ] reimport | 正在准备重新导入文件……
+[   5% ] reimport | 正在准备重新导入文件……
+[   6% ] reimport | 正在准备重新导入文件……
+[   7% ] reimport | 正在准备重新导入文件……
+[   8% ] reimport | 正在准备重新导入文件……
+[   9% ] reimport | 正在准备重新导入文件……
+[  10% ] reimport | 正在准备重新导入文件……
+[  11% ] reimport | 正在准备重新导入文件……
+[  12% ] reimport | 正在准备重新导入文件……
+[  13% ] reimport | 正在准备重新导入文件……
+[  14% ] reimport | 正在准备重新导入文件……
+[  15% ] reimport | 正在准备重新导入文件……
+[  17% ] reimport | 正在准备重新导入文件……
+[  18% ] reimport | 正在准备重新导入文件……
+[  19% ] reimport | 正在准备重新导入文件……
+[  20% ] reimport | 正在准备重新导入文件……
+[  21% ] reimport | 正在准备重新导入文件……
+[  22% ] reimport | 正在准备重新导入文件……
+[  23% ] reimport | 正在准备重新导入文件……
+[  24% ] reimport | 正在准备重新导入文件……
+[  25% ] reimport | 正在准备重新导入文件……
+[  26% ] reimport | 正在准备重新导入文件……
+[  27% ] reimport | 正在准备重新导入文件……
+[  28% ] reimport | 正在准备重新导入文件……
+[  29% ] reimport | 正在准备重新导入文件……
+[  30% ] reimport | 正在准备重新导入文件……
+[  31% ] reimport | 正在准备重新导入文件……
+[  32% ] reimport | 正在准备重新导入文件……
+[  34% ] reimport | 正在准备重新导入文件……
+[  35% ] reimport | 正在准备重新导入文件……
+[  36% ] reimport | 正在准备重新导入文件……
+[  37% ] reimport | 正在准备重新导入文件……
+[  38% ] reimport | 正在准备重新导入文件……
+[  39% ] reimport | 正在准备重新导入文件……
+[  40% ] reimport | 正在准备重新导入文件……
+[  41% ] reimport | 正在准备重新导入文件……
+[  42% ] reimport | 正在准备重新导入文件……
+[  43% ] reimport | 正在准备重新导入文件……
+[  44% ] reimport | 正在准备重新导入文件……
+[  45% ] reimport | 正在准备重新导入文件……
+[  46% ] reimport | 正在准备重新导入文件……
+[  47% ] reimport | 正在准备重新导入文件……
+[  48% ] reimport | 正在准备重新导入文件……
+[  50% ] reimport | 正在准备重新导入文件……
+[  51% ] reimport | 正在准备重新导入文件……
+[  52% ] reimport | 正在准备重新导入文件……
+[  53% ] reimport | 正在准备重新导入文件……
+[  54% ] reimport | 正在准备重新导入文件……
+[  55% ] reimport | 正在准备重新导入文件……
+[  56% ] reimport | 正在准备重新导入文件……
+[  57% ] reimport | 正在准备重新导入文件……
+[  58% ] reimport | 正在准备重新导入文件……
+[  59% ] reimport | 正在准备重新导入文件……
+[  60% ] reimport | 正在准备重新导入文件……
+[  61% ] reimport | 正在准备重新导入文件……
+[  62% ] reimport | 正在准备重新导入文件……
+[  63% ] reimport | 正在准备重新导入文件……
+[  64% ] reimport | 正在准备重新导入文件……
+[  65% ] reimport | 正在准备重新导入文件……
+[  67% ] reimport | 正在准备重新导入文件……
+[  68% ] reimport | 正在准备重新导入文件……
+[  69% ] reimport | 正在准备重新导入文件……
+[  70% ] reimport | 正在准备重新导入文件……
+[  71% ] reimport | 正在准备重新导入文件……
+[  72% ] reimport | 正在准备重新导入文件……
+[  73% ] reimport | 正在准备重新导入文件……
+[  74% ] reimport | 正在准备重新导入文件……
+[  75% ] reimport | 正在准备重新导入文件……
+[  76% ] reimport | 正在准备重新导入文件……
+[  77% ] reimport | 正在准备重新导入文件……
+[  78% ] reimport | 正在准备重新导入文件……
+[  79% ] reimport | 正在准备重新导入文件……
+[  80% ] reimport | 正在准备重新导入文件……
+[  81% ] reimport | 正在准备重新导入文件……
+[  82% ] reimport | 正在准备重新导入文件……
+[  84% ] reimport | 正在准备重新导入文件……
+[  85% ] reimport | 正在准备重新导入文件……
+[  86% ] reimport | 正在准备重新导入文件……
+[  87% ] reimport | 正在准备重新导入文件……
+[  88% ] reimport | 正在准备重新导入文件……
+[  89% ] reimport | 正在准备重新导入文件……
+[  90% ] reimport | 正在准备重新导入文件……
+[  91% ] reimport | 正在准备重新导入文件……
+[  92% ] reimport | 正在准备重新导入文件……
+[  93% ] reimport | 正在准备重新导入文件……
+[  94% ] reimport | 正在准备重新导入文件……
+[  95% ] reimport | 正在准备重新导入文件……
+[  96% ] reimport | 正在准备重新导入文件……
+[  97% ] reimport | 正在准备重新导入文件……
+[   0% ] reimport | 正在执行重新导入的前置操作……
+[   0% ] reimport | zh-HK-normal-150.png
+[   1% ] reimport | zh-CN-recovery-150.png
+[   2% ] reimport | zh-CN-normal-150.png
+[   3% ] reimport | en-recovery-150.png
+[   4% ] reimport | en-normal-150.png
+[   5% ] reimport | zh_HK-150.png
+[   6% ] reimport | zh_CN-150.png
+[   7% ] reimport | en-100.png
+[   8% ] reimport | midnight-day7-supportz-confirmation.png
+[   9% ] reimport | midnight-day7-standard.png
+[  10% ] reimport | after-hours-day7-standard.png
+[  11% ] reimport | after-hours-day7-high-contrast.png
+[  12% ] reimport | after-hours-day7-deutan.png
+[  13% ] reimport | after-hours-day1-standard.png
+[  14% ] reimport | settings-day7.png
+[  15% ] reimport | settings-day1.png
+[  17% ] reimport | pause-settings-day7.png
+[  18% ] reimport | pause-backup-day1.png
+[  19% ] reimport | pause-backup-confirmation-queued.png
+[  20% ] reimport | pause-backup-after-cancel-day7-high.png
+[  21% ] reimport | day7-standard.png
+[  22% ] reimport | day3-high-deutan-warning.png
+[  23% ] reimport | day1-standard.png
+[  24% ] reimport | gallery-258x78.svg
+[  25% ] reimport | protan-day7-scrolled.png
+[  26% ] reimport | midnight-day7.png
+[  27% ] reimport | high-contrast-day7.png
+[  28% ] reimport | art-only-midnight-day7.png
+[  29% ] reimport | after-hours-day7.png
+[  30% ] reimport | after-hours-day1.png
+[  31% ] reimport | zh-HK-150.png
+[  32% ] reimport | zh-CN-150.png
+[  34% ] reimport | en-150.png
+[  35% ] reimport | zh-HK-150.png
+[  36% ] reimport | zh-CN-150.png
+[  37% ] reimport | en-150.png
+[  38% ] reimport | zh-HK-150-retry-cancel.png
+[  39% ] reimport | zh-CN-150-retry-cancel.png
+[  40% ] reimport | en-150-retry-cancel.png
+[  41% ] reimport | zh-HK-150-speech-failure.png
+[  42% ] reimport | zh-CN-150-speech-failure.png
+[  43% ] reimport | en-150-speech-failure.png
+[  44% ] reimport | zh-HK-150.png
+[  45% ] reimport | zh-CN-150.png
+[  46% ] reimport | en-150.png
+[  47% ] reimport | zh-HK-recovery-150.png
+[  48% ] reimport | en-125-AfterHours-error.png
+[  50% ] reimport | en-100-Midnight-error.png
+[  51% ] reimport | en-100-AfterHours-retry-success.png
+[  52% ] reimport | en-100-AfterHours-error.png
+[  53% ] reimport | en-100-AfterHours-error.png
+[  54% ] reimport | 2026-09-13-witnessed-tableau.png
+[  55% ] reimport | 2026-09-13-contacts-row-and-header.png
+[  56% ] reimport | 2026-09-13-angela-shell-background.png
+[  57% ] reimport | 13-day7-restored-echo.png
+[  58% ] reimport | 12-day7-followup.png
+[  59% ] reimport | 15-day7-pause-autosave-confirmation.png
+[  60% ] reimport | 14-day7-paused-followup.png
+[  61% ] reimport | 13-day7-restored-echo.png
+[  62% ] reimport | initial-footer-layout-failure.png
+[  63% ] reimport | 13-day7-restored-auto.png
+[  64% ] reimport | 13-day7-restored-echo.png
+[  65% ] reimport | midnight-day7-standard.png
+[  67% ] reimport | midnight-day7-pending-high-contrast.png
+[  68% ] reimport | after-hours-day7-standard.png
+[  69% ] reimport | after-hours-day7-high-contrast.png
+[  70% ] reimport | after-hours-day7-deutan.png
+[  71% ] reimport | after-hours-day1-standard.png
+[  72% ] reimport | contacts-touch-inspection.png
+[  73% ] reimport | reply-05-cold-restored.png
+[  74% ] reimport | reply-04-retry-saved.png
+[  75% ] reimport | reply-03-save-failure-retained.png
+[  76% ] reimport | reply-01-lavinia-before-click.png
+[  77% ] reimport | ordinary-expiry-day2-restored.png
+[  78% ] reimport | ordinary-expiry-day1-unanswered.png
+[  79% ] reimport | ordinary-expiry-earlier-slot-restored.png
+[  80% ] reimport | ordinary-expiry-day2-restored.png
+[  81% ] reimport | ordinary-expiry-day1-unanswered.png
+[  82% ] reimport | zh-HK-150-Midnight-error.png
+[  84% ] reimport | zh-HK-150-AfterHours-error.png
+[  85% ] reimport | zh-HK-125-Midnight-error.png
+[  86% ] reimport | zh-HK-125-AfterHours-error.png
+[  87% ] reimport | zh-HK-100-Midnight-error.png
+[  88% ] reimport | zh-HK-100-AfterHours-error.png
+[  89% ] reimport | zh-CN-150-Midnight-error.png
+[  90% ] reimport | zh-CN-150-AfterHours-error.png
+[  91% ] reimport | zh-CN-125-Midnight-error.png
+[  92% ] reimport | zh-CN-125-AfterHours-error.png
+[  93% ] reimport | zh-CN-100-Midnight-error.png
+[  94% ] reimport | zh-CN-100-AfterHours-error.png
+[  95% ] reimport | en-150-Midnight-error.png
+[  96% ] reimport | en-150-AfterHours-error.png
+[  97% ] reimport | en-125-Midnight-error.png
+[  98% ] reimport | 正在结束资产导入……
+[ DONE ] reimport
+
+[   0% ] reimport | Started 正在导入或重新导入资产 (93 steps)
+[   0% ] reimport | 正在执行重新导入的后置操作……
+[ DONE ] reimport
+
+[   0% ] loading_editor_layout | Started 正在加载编辑器 (5 steps)
+[   0% ] loading_editor_layout | 正在加载编辑器布局……
+[  16% ] loading_editor_layout | 正在加载停靠面板……
+[ DONE ] loading_editor_layout
+
+SCRIPT ERROR: Parse Error: Invalid argument for "draw_texture_rect()" function: argument 1 should be "Texture2D" but is "Rect2".
+   at: GDScript::reload (res://scripts/ui/gallery/GalleryRecordPaper.gd:18)
+SCRIPT ERROR: Parse Error: Invalid argument for "draw_texture_rect()" function: argument 2 should be "Rect2" but is "Texture2D".
+   at: GDScript::reload (res://scripts/ui/gallery/GalleryRecordPaper.gd:18)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+   at: GDScript::reload (res://scripts/ui/GalleryScene.gd:0)
+ERROR: Failed to load script "res://scripts/ui/GalleryScene.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript.cpp:2907)

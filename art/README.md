@@ -52,6 +52,14 @@ During a Minesweeper date, the board retains its current dimensions. Character p
 
 Gallery follows the compact archive layout. Its optional picture requires a separate, registered **258 by 78 pixel export**, shown at exact 2x inside a **520 by 160 logical-pixel aperture** with a 2-pixel perimeter. The game must not crop or rescale a scene CG/background into this archive picture. No Gallery exports are registered yet, so there is no picture, border, or reserved picture space; the existing record title starts at the top of the paper. Record descriptions and version cues still need authored catalog copy. See the [Gallery media specification](../docs/design/2026-08-24-gallery-maintained-microfiche-registrar-standard-palette-and-state-disposition.md#62-optional-media) before preparing exports; dropping a new file alone does not register it.
 
+The registration path is now available:
+
+1. Put the exact export under `art/archive/`, then add its semantic asset ID, `res://` path, and `[258, 78]` size to the existing art catalog's `assets` section. Keep its source/provenance alongside the other art records. An example ID is `archive.ending.alone`; this example is not a shipped registration.
+2. In [GalleryRecordCatalog.gd](../scripts/ui/gallery/GalleryRecordCatalog.gd), `RECORD_DETAILS` supplies defaults for a semantic record such as `ending.alone`. Set `media_asset_id` to the registered asset ID. An optional `sentence` is a three-string array in English, Simplified Chinese, Traditional Chinese order. The existing `TITLES` table owns the record's title.
+3. When one exact reached presentation needs different details, add a `PRESENTATION_DETAILS` entry containing its full canonical `signature` and the fields it overrides. The catalog validates that signature and binds the details to the correct record. Omitted fields inherit defaults; an empty asset ID or empty sentence strings explicitly remove them. Do not use a run ID, save path, or guessed signature hash.
+
+Both details collections are empty in the shipped source until authored content is supplied. Missing, unregistered, or incorrectly sized images leave no frame or gap. Changing details only changes the archive's presentation; it never discovers a record, adds a reached version, or starts Replay. The test-only export at `tests/fixtures/art/gallery-258x78.svg` demonstrates dimensions and pixel preservation and is not game artwork.
+
 Reached-date replay and Day 7 echo cards continue to use their exact entry's scene art above the reading panel. Full/residue and normal/dark entries have separate optional CG slots. Installing a picture does not unlock a record or invent a reached version; unreached or missing pictures remain hidden.
 
 ## Import and export
