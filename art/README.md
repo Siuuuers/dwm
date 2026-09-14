@@ -50,7 +50,9 @@ The narrative artwork area is 1280 ? 448 at 100% text size, 1280 ? 392 at 125%, 
 
 During a Minesweeper date, the board retains its current dimensions. Character pictures fit inside the left and right 160-pixel margins; avoid tiny facial details that depend on a large portrait. The background fills the scene behind the board. Images never receive mouse or keyboard input.
 
-Gallery uses the exact reached ending's CG, or the reached Dating scene's background. Reached-date replay and Day 7 echo cards also use their exact entry's scene art above the existing reading panel. Full/residue and normal/dark entries have separate optional CG slots. Installing a picture does not unlock a record or invent a reached version. Unreached or missing pictures remain hidden. A CG also stays centered inside Gallery's 520 ? 512 preview area.
+Gallery follows the compact archive layout. Its optional picture requires a separate, registered **258 by 78 pixel export**, shown at exact 2x inside a **520 by 160 logical-pixel aperture** with a 2-pixel perimeter. The game must not crop or rescale a scene CG/background into this archive picture. No Gallery exports are registered yet, so there is no picture, border, or reserved picture space; the existing record title starts at the top of the paper. Record descriptions and version cues still need authored catalog copy. See the [Gallery media specification](../docs/design/2026-08-24-gallery-maintained-microfiche-registrar-standard-palette-and-state-disposition.md#62-optional-media) before preparing exports; dropping a new file alone does not register it.
+
+Reached-date replay and Day 7 echo cards continue to use their exact entry's scene art above the reading panel. Full/residue and normal/dark entries have separate optional CG slots. Installing a picture does not unlock a record or invent a reached version; unreached or missing pictures remain hidden.
 
 ## Import and export
 

@@ -9,8 +9,6 @@ const RECORD := preload("res://scripts/ui/gallery/GalleryRecordButton.gd")
 const REPLAY_OWNER := preload("res://scripts/application/ending/GalleryReplayOwner.gd")
 const PRACTICE_HOST := preload("res://scripts/ui/gallery/GalleryRehearsalHost.gd")
 const DATING_PRESENTATION := preload("res://scripts/ui/DatingScene.gd")
-const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
-const PRESENTATION_SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
 signal practice_visibility_changed(active: bool)
 const RECORD_CATALOG := preload("res://scripts/ui/gallery/GalleryRecordCatalog.gd")
 const STATUS_FALLBACK := {
@@ -51,7 +49,7 @@ var _practice_game: Object
 var _practice_input: Object
 var _practice_button: Button
 var _practice_host: CanvasLayer
-var _art_preview: TextureRect
+var _record_title_label: Label
 
 func configure_title_host(home: Button, localization: Node, profile: Object) -> Dictionary:
 	if is_node_ready() or _host_return != null or not is_instance_valid(home) \
@@ -116,7 +114,6 @@ func _sync_practice_button() -> void:
 	_practice_button.disabled = _replay_owner != null and _replay_owner.is_playing()
 	_practice_button.focus_mode = Control.FOCUS_ALL if _practice_button.visible and not _practice_button.disabled else Control.FOCUS_NONE
 	refresh_return_navigation()
-	_layout_record_controls()
 
 func _on_practice_pressed() -> void:
 	if has_active_rehearsal() or _practice_game == null or _replay_bridge == null \
@@ -156,49 +153,25 @@ func _ensure_version_selector() -> void:
 	_canvas.add_child(_version_selector)
 	_version_selector.hide()
 
-func _ensure_art_preview() -> void:
-	if _art_preview != null: return
-	_art_preview = TextureRect.new()
-	_art_preview.name = "GalleryArtworkPreview"
-	_art_preview.position = Vector2(392, 32)
-	_art_preview.size = Vector2(520, 512)
-	_art_preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_art_preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_art_preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_art_preview.focus_mode = Control.FOCUS_NONE
-	_canvas.add_child(_art_preview)
-	_canvas.move_child(_art_preview, 0)
-
-func _refresh_art_preview() -> void:
-	_ensure_art_preview()
-	_layout_record_controls()
-	_art_preview.texture = null
-	_art_preview.hide()
-	if _selected_version < 0 or _selected_version >= _versions.size(): return
-	var signature: Variant = _versions[_selected_version].get("signature")
-	if not signature is Dictionary: return
-	var entry_id := str(signature.get("entry_id", ""))
-	var entry: Dictionary = PRESENTATION_SIGNATURE.entry_record(entry_id)
-	if not entry.get("ok", false): return
-	var scene_art: Variant = ART_MANIFEST.get_scene_art(entry_id)
-	if not scene_art is Dictionary: return
-	var role := str(entry.value.get("role", ""))
-	var asset_id := str(scene_art.get("cg", "")) if role in ["solo_ending_step", "pair_ending_step", "alone_step"] \
-		else str(scene_art.get("background", "")) if entry.value.get("ending_id") == null else ""
-	if asset_id.is_empty(): return
-	var texture: Variant = ART_MANIFEST.get_texture(asset_id)
-	if not texture is Texture2D: return
-	_art_preview.texture = texture
-	_art_preview.show()
-
-func _layout_record_controls() -> void:
-	if not is_instance_valid(_art_preview): return
-	var controls_visible := (is_instance_valid(_version_selector) and _version_selector.visible) \
-		or (is_instance_valid(_practice_button) and _practice_button.visible)
-	_art_preview.size.y = 448 if controls_visible else 512
-	if is_instance_valid(_version_selector) and theme != null:
-		for state: String in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
-			_version_selector.add_theme_color_override(state, theme.get_color("paper_ink", "Gallery"))
+func _refresh_record_copy() -> void:
+	if _record_title_label == null:
+		_record_title_label = Label.new()
+		_record_title_label.name = "RecordTitle"
+		_record_title_label.position = Vector2(392, 32)
+		_record_title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_record_title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_record_title_label.focus_mode = Control.FOCUS_NONE
+		_record_title_label.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		_canvas.add_child(_record_title_label)
+	var visible_record := not _selected_id.is_empty() and _status_key not in [
+		"gallery.empty", "gallery.record.unavailable", "gallery.archive.unavailable"]
+	_record_title_label.language = str(_localization.get_locale()).replace("_", "-") if _localization != null else "en"
+	_record_title_label.text = _record_title(_selected_id) if visible_record else ""
+	_record_title_label.visible = visible_record
+	# There are no registered compact Gallery exports or authored sentences yet.
+	# Their absence contributes no media aperture or spacer before this title.
+	_record_title_label.size = Vector2(504, 0)
+	_record_title_label.size.y = ceilf(_record_title_label.get_minimum_size().y / 2) * 2
 
 func open_in_title_host() -> void:
 	show()
@@ -374,7 +347,6 @@ func _refresh_replay_selection() -> void:
 		if str(_versions[index].signature_id) == previous: _selected_version = index
 	if not _versions.is_empty(): _version_selector.select(_selected_version)
 	_version_selector.visible = _versions.size() > 1
-	_refresh_art_preview()
 	_sync_replay_controls()
 	if not _retry_signature_id.is_empty() and _retry_signature_id == _selected_signature_id():
 		_set_replay_status("gallery.replay.start_failed")
@@ -390,7 +362,7 @@ func _clear_replay_versions() -> void:
 	_ensure_version_selector()
 	_version_selector.clear()
 	_version_selector.hide()
-	_refresh_art_preview()
+	_refresh_record_copy()
 	_sync_replay_controls()
 
 func _sync_replay_controls() -> void:
@@ -405,12 +377,10 @@ func _sync_replay_controls() -> void:
 func _on_version_selected(index: int) -> void:
 	if index < 0 or index >= _versions.size() or (_replay_owner != null and _replay_owner.is_playing()): return
 	if str(_versions[index].signature_id) == _selected_signature_id():
-		_refresh_art_preview()
 		return
 	_retry_signature_id = ""
 	_selected_version = index
 	_set_replay_status("")
-	_refresh_art_preview()
 
 func _selected_signature_id() -> String:
 	return str(_versions[_selected_version].signature_id) if _selected_version >= 0 and _selected_version < _versions.size() else ""
@@ -483,7 +453,8 @@ func _set_replay_status(key: String) -> void:
 	_canvas.replay_start_failed = key == "gallery.replay.start_failed"
 	_canvas.replay_unavailable = key == "gallery.replay.unavailable"
 	_canvas.unavailable_record = key == "gallery.record.unavailable"
-	if _canvas.replay_start_failed or _canvas.replay_unavailable:
+	_refresh_record_copy()
+	if _canvas.replay_start_failed or _canvas.replay_unavailable or (not _selected_id.is_empty() and key.begins_with("gallery.replay.")):
 		_replay_status.position = Vector2(408, 568)
 		_replay_status.size = Vector2(360, 64)
 		_replay_status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -533,6 +504,8 @@ func _refresh_presentation() -> void:
 	if is_instance_valid(_version_selector):
 		text_controls.append(_version_selector)
 		_version_selector.get_popup().canvas_item_default_texture_filter = Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST
+		for state: String in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+			_version_selector.add_theme_color_override(state, theme.get_color("paper_ink", "Gallery"))
 	if _host_return == null:
 		text_controls.append(%TitleLabel)
 		text_controls.append(_return_button)

@@ -1,0 +1,242 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/9e307799-9b53-4407-bb63-df7666106064/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/integration/test_gallery_art_placements.gd
+* test_exact_reached_version_selects_authored_title_without_scene_media_or_mutation
+WARNING: Localization missing for key 'gallery.replay'
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] _warn_once (res://autoload/LocalizationManager.gd:454)
+       [1] t (res://autoload/LocalizationManager.gd:204)
+       [2] _localized (res://scripts/ui/GalleryScene.gd:505)
+       [3] _refresh_replay_caption (res://scripts/ui/GalleryScene.gd:551)
+       [4] _refresh_presentation (res://scripts/ui/GalleryScene.gd:545)
+       [5] _ready (res://scripts/ui/GalleryScene.gd:241)
+       [6] add_child_autofree (res://addons/gut/test.gd:2784)
+       [7] _mount (res://tests/integration/test_gallery_art_placements.gd:58)
+       [8] test_exact_reached_version_selects_authored_title_without_scene_media_or_mutation (res://tests/integration/test_gallery_art_placements.gd:87)
+       [9] _run_test (res://addons/gut/gut.gd:622)
+       [10] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [11] test_scripts (res://addons/gut/gut.gd:1047)
+       [12] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [13] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [14] main (res://addons/gut/cli/gut_cli.gd:297)
+       [15] _init (res://addons/gut/gut_cmdln.gd:39)
+ERROR: Node not found: "%GalleryHost/RecordTitle" (relative to "/root/GutRunner/@Node@17/GalleryScene").
+   at: get_node (scene/main/node.cpp:1963)
+   GDScript backtrace (most recent call first):
+       [0] _record_title (res://tests/integration/test_gallery_art_placements.gd:63)
+       [1] test_exact_reached_version_selects_authored_title_without_scene_media_or_mutation (res://tests/integration/test_gallery_art_placements.gd:90)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Expected [GalleryArtworkPreview:<TextureRect#315092896244>] to be NULL:
+      at line 91
+    [Failed]:  Gallery must not render arbitrary narrative scene media
+      at line 91
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'null instance'.
+   at: _assert_written_archive (res://tests/integration/test_gallery_art_placements.gd:69)
+   GDScript backtrace (most recent call first):
+       [0] _assert_written_archive (res://tests/integration/test_gallery_art_placements.gd:69)
+       [1] test_exact_reached_version_selects_authored_title_without_scene_media_or_mutation (res://tests/integration/test_gallery_art_placements.gd:91)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  ["c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e"] expected to equal ["ending.alone.normal"]:
+      at line 97
+SCRIPT ERROR: Invalid access to property or key 'visible' on a base object of type 'null instance'.
+   at: test_exact_reached_version_selects_authored_title_without_scene_media_or_mutation (res://tests/integration/test_gallery_art_placements.gd:98)
+   GDScript backtrace (most recent call first):
+       [0] test_exact_reached_version_selects_authored_title_without_scene_media_or_mutation (res://tests/integration/test_gallery_art_placements.gd:98)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Method/function failed. Returning: nullptr
+    [2] <engine-2>Invalid access to property or key 'position' on a base object of type 'null instance'.
+    [3] <engine-2>Invalid access to property or key 'visible' on a base object of type 'null instance'.
+      at line -1
+    6 Orphans
+        * [@Button@29:<Button#314522470882>(GalleryRecordButton.gd)] + 2
+        * [@Button@32:<Button#314639911401>(GalleryRecordButton.gd)] + 2
+* test_unreached_and_empty_records_keep_inert_title_semantics
+WARNING: Localization missing for key 'gallery.replay.unreached'
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] _warn_once (res://autoload/LocalizationManager.gd:454)
+       [1] t (res://autoload/LocalizationManager.gd:204)
+       [2] _localized (res://scripts/ui/GalleryScene.gd:505)
+       [3] _set_replay_status (res://scripts/ui/GalleryScene.gd:480)
+       [4] _refresh_replay_selection (res://scripts/ui/GalleryScene.gd:384)
+       [5] _select_record (res://scripts/ui/GalleryScene.gd:336)
+       [6] _refresh_tiles (res://scripts/ui/GalleryScene.gd:304)
+       [7] _ready (res://scripts/ui/GalleryScene.gd:242)
+       [8] add_child_autofree (res://addons/gut/test.gd:2784)
+       [9] _mount (res://tests/integration/test_gallery_art_placements.gd:58)
+       [10] test_unreached_and_empty_records_keep_inert_title_semantics (res://tests/integration/test_gallery_art_placements.gd:117)
+       [11] _run_test (res://addons/gut/gut.gd:622)
+       [12] _test_the_scripts (res://addons/gut/gut.gd:835)
+ERROR: Node not found: "%GalleryHost/RecordTitle" (relative to "/root/GutRunner/@Node@17/GalleryScene").
+   at: get_node (scene/main/node.cpp:1963)
+   GDScript backtrace (most recent call first):
+       [0] _record_title (res://tests/integration/test_gallery_art_placements.gd:63)
+       [1] test_unreached_and_empty_records_keep_inert_title_semantics (res://tests/integration/test_gallery_art_placements.gd:119)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Expected [GalleryArtworkPreview:<TextureRect#344151034331>] to be NULL:
+      at line 120
+    [Failed]:  Gallery must not render arbitrary narrative scene media
+      at line 120
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'null instance'.
+   at: _assert_written_archive (res://tests/integration/test_gallery_art_placements.gd:69)
+   GDScript backtrace (most recent call first):
+       [0] _assert_written_archive (res://tests/integration/test_gallery_art_placements.gd:69)
+       [1] test_unreached_and_empty_records_keep_inert_title_semantics (res://tests/integration/test_gallery_art_placements.gd:120)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid access to property or key 'visible' on a base object of type 'null instance'.
+   at: test_unreached_and_empty_records_keep_inert_title_semantics (res://tests/integration/test_gallery_art_placements.gd:121)
+   GDScript backtrace (most recent call first):
+       [0] test_unreached_and_empty_records_keep_inert_title_semantics (res://tests/integration/test_gallery_art_placements.gd:121)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Method/function failed. Returning: nullptr
+    [2] <engine-2>Invalid access to property or key 'position' on a base object of type 'null instance'.
+    [3] <engine-2>Invalid access to property or key 'visible' on a base object of type 'null instance'.
+      at line -1
+    3 Orphans
+        * [@Button@51:<Button#344033593766>(GalleryRecordButton.gd)] + 2
+* test_record_title_uses_active_locale_font_and_wraps_fully
+ERROR: Node not found: "%GalleryHost/RecordTitle" (relative to "/root/GutRunner/@Node@17/GalleryScene").
+   at: get_node (scene/main/node.cpp:1963)
+   GDScript backtrace (most recent call first):
+       [0] _record_title (res://tests/integration/test_gallery_art_placements.gd:63)
+       [1] test_record_title_uses_active_locale_font_and_wraps_fully (res://tests/integration/test_gallery_art_placements.gd:163)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Expected [GalleryArtworkPreview:<TextureRect#525730843079>] to be NULL:
+      at line 165
+    [Failed]:  Gallery must not render arbitrary narrative scene media
+      at line 165
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'null instance'.
+   at: _assert_written_archive (res://tests/integration/test_gallery_art_placements.gd:69)
+   GDScript backtrace (most recent call first):
+       [0] _assert_written_archive (res://tests/integration/test_gallery_art_placements.gd:69)
+       [1] test_record_title_uses_active_locale_font_and_wraps_fully (res://tests/integration/test_gallery_art_placements.gd:165)
+SCRIPT ERROR: Invalid access to property or key 'visible' on a base object of type 'null instance'.
+   at: test_record_title_uses_active_locale_font_and_wraps_fully (res://tests/integration/test_gallery_art_placements.gd:166)
+   GDScript backtrace (most recent call first):
+       [0] test_record_title_uses_active_locale_font_and_wraps_fully (res://tests/integration/test_gallery_art_placements.gd:166)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Method/function failed. Returning: nullptr
+    [2] <engine-2>Invalid access to property or key 'position' on a base object of type 'null instance'.
+    [3] <engine-2>Invalid access to property or key 'visible' on a base object of type 'null instance'.
+      at line 166
+0/3 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/integration/test_gallery_art_placements.gd
+    - Outside Tests
+        * [<Node#131617261336>(subsystem_animation.gd)]
+        * [<Node#131634038564>(subsystem_audio.gd)]
+        * [<Node#131650815796>]
+        * [<Node#131667593021>]
+        * [<Node#131684370243>(subsystem_backgrounds.gd)]
+        * [<Node#132221241156>(subsystem_choices.gd)]
+        * [<Timer#132238018373>]
+        * [<Node#132254795590>(subsystem_expression.gd)]
+        * [<Node#132288350027>(subsystem_glossary.gd)]
+        * [<Node#132305127244>(subsystem_history.gd)]
+        * [<Node#132321904461>(subsystem_input.gd)]
+        * [<Timer#132338681678>]
+        * [<Node#132355458895>(subsystem_jump.gd)]
+        * [<Node#132372236112>(subsystem_containers.gd)]
+        * [<Node#132389013329>(subsystem_portraits.gd)]
+        * [<Node#132925884242>(subsystem_save.gd)]
+        * [<Timer#132942661459>]
+        * [<Node#132959438676>(subsystem_settings.gd)]
+        * [<Node#132976215896>(subsystem_styles.gd)]
+        * [<Node#132992993113>(subsystem_text.gd)]
+        * [<Node#133076879198>(subsystem_text_input.gd)]
+        * [<Node#133093656415>(subsystem_variables.gd)]
+        * [<Node#133110433632>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133127210849>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/integration/test_gallery_art_placements.gd
+- test_exact_reached_version_selects_authored_title_without_scene_media_or_mutation
+    [Failed]:  Expected [GalleryArtworkPreview:<TextureRect#315092896244>] to be NULL:
+          at line 91
+    [Failed]:  Gallery must not render arbitrary narrative scene media
+          at line 91
+    [Failed]:  ["c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e"] expected to equal ["ending.alone.normal"]:
+          at line 97
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Method/function failed. Returning: nullptr
+    [2] <engine-2>Invalid access to property or key 'position' on a base object of type 'null instance'.
+    [3] <engine-2>Invalid access to property or key 'visible' on a base object of type 'null instance'.
+          at line -1
+- test_unreached_and_empty_records_keep_inert_title_semantics
+    [Failed]:  Expected [GalleryArtworkPreview:<TextureRect#344151034331>] to be NULL:
+          at line 120
+    [Failed]:  Gallery must not render arbitrary narrative scene media
+          at line 120
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Method/function failed. Returning: nullptr
+    [2] <engine-2>Invalid access to property or key 'position' on a base object of type 'null instance'.
+    [3] <engine-2>Invalid access to property or key 'visible' on a base object of type 'null instance'.
+          at line -1
+- test_record_title_uses_active_locale_font_and_wraps_fully
+    [Failed]:  Expected [GalleryArtworkPreview:<TextureRect#525730843079>] to be NULL:
+          at line 165
+    [Failed]:  Gallery must not render arbitrary narrative scene media
+          at line 165
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Method/function failed. Returning: nullptr
+    [2] <engine-2>Invalid access to property or key 'position' on a base object of type 'null instance'.
+    [3] <engine-2>Invalid access to property or key 'visible' on a base object of type 'null instance'.
+          at line 166
+
+Totals
+------
+Scripts               1
+Tests                 3
+Passing Tests      none
+Failing Tests         3
+Asserts           21/31
+Orphans              24
+Time              0.904s
+
+
+---- 3 failing tests ----

@@ -167,7 +167,7 @@ func _sample(locale: String, percent: int, palette: String) -> bool:
 	var replay: Button = _gallery.get_node("%ReplayButton")
 	var status: Label = _gallery.get_node("%ReplayStatus")
 	var picker: OptionButton = _gallery.get("_version_selector")
-	var art: TextureRect = _gallery.get("_art_preview")
+	var title: Label = _gallery.get_node("%GalleryHost/RecordTitle")
 	var signature := str(_gallery.call("_selected_signature_id"))
 	if not _check(not signature.is_empty(), "Gallery selected no reached signature"): return false
 	var starts_before := _bridge.starts.size()
@@ -180,7 +180,7 @@ func _sample(locale: String, percent: int, palette: String) -> bool:
 			or not _check(status.text == _localization.t("gallery.replay.start_failed"), "localized start Error changed") \
 			or not _check(replay.text == _localization.t("gallery.retry"), "localized Retry changed"):
 		return false
-	var geometry := _geometry(status, replay, picker, art)
+	var geometry := _geometry(status, replay, picker, title)
 	if not geometry.get("ok", false): return false
 	var filename := "%s-%d-%s-error.png" % [locale.replace("_", "-"), percent, palette]
 	var image := await _capture(filename)
@@ -209,26 +209,30 @@ func _sample(locale: String, percent: int, palette: String) -> bool:
 	return _failures.is_empty()
 
 
-func _geometry(status: Label, replay: Button, picker: OptionButton, art: TextureRect) -> Dictionary:
+func _geometry(status: Label, replay: Button, picker: OptionButton, title: Label) -> Dictionary:
 	var status_rect := Rect2(status.position, status.size)
 	var replay_rect := Rect2(replay.position, replay.size)
 	var picker_rect := Rect2(picker.position, picker.size)
-	var art_rect := Rect2(art.position, art.size)
+	var title_rect := Rect2(title.position, title.size)
 	var font := replay.get_theme_font("font")
 	var text_width := font.get_string_size(replay.text, HORIZONTAL_ALIGNMENT_LEFT, -1,
 		replay.get_theme_font_size("font_size")).x
 	var ok := _check(status_rect == Rect2(408, 568, 360, 64), "Error status rectangle changed") \
 		and _check(replay_rect == Rect2(776, 568, 160, 64), "Replay rectangle changed") \
 		and _check(picker_rect == Rect2(408, 488, 288, 64), "version picker rectangle changed") \
-		and _check(art_rect == Rect2(392, 32, 520, 448), "plural-version art aperture changed") \
-		and _check(not picker_rect.intersects(art_rect), "version picker overlaps artwork") \
-		and _check(art.visible and art.texture != null, "registered ending artwork is not rendered") \
+		and _check(title.position == Vector2(392, 32) and title.size.x == 504,
+			"compact title has a reserved media gap or wrong measure") \
+		and _check(title.visible and not title.text.is_empty() and title.get_minimum_size().y <= title.size.y,
+			"compact title is hidden or clipped") \
+		and _check(not picker_rect.intersects(title_rect), "version picker overlaps record title") \
+		and _check(_gallery.get_node_or_null("%GalleryHost/GalleryArtworkPreview") == null,
+			"unregistered scene artwork still owns Gallery geometry") \
 		and _check(status.get_line_count() <= 2 and status.get_minimum_size().y <= status.size.y,
 			"Error status overflows its two-line dock") \
 		and _check(not replay.text.contains("\n") and text_width <= replay.size.x,
 			"Replay/Retry does not fit one line")
 	return {"ok": ok, "status": [408, 568, 360, 64], "replay": [776, 568, 160, 64],
-		"picker": [408, 488, 288, 64], "art": [392, 32, 520, 448], "status_lines": status.get_line_count(),
+		"picker": [408, 488, 288, 64], "title": [392, 32, 504, title.size.y], "status_lines": status.get_line_count(),
 		"replay_text_width": text_width}
 
 
@@ -240,19 +244,24 @@ func _pixel_proof(image: Image, gallery_theme: Theme) -> Dictionary:
 	var rule_point := Vector2i(196, 300)
 	var ink_point := _find_ink(image, Rect2i(204, 284, 180, 32), ink, face)
 	var paper := gallery_theme.get_color("paper", "Gallery")
-	var art_pixels := 0
-	for y: int in range(20, 240, 4):
+	var title: Label = _gallery.get_node("%GalleryHost/RecordTitle")
+	var title_ink := _find_ink(image, Rect2i(196, 16, 252, int(title.size.y / 2)),
+		gallery_theme.get_color("paper_ink", "Gallery"), paper)
+	var nonpaper_pixels := 0
+	for y: int in range(16 + int(title.size.y / 2), 240, 4):
 		for x: int in range(200, 456, 4):
-			if not _near_rgb8(image.get_pixel(x, y), paper): art_pixels += 1
+			if not _near_rgb8(image.get_pixel(x, y), paper): nonpaper_pixels += 1
 	var ok := _check(image.get_size() == Vector2i(640, 360), "native capture size changed") \
 		and _check(_near_rgb8(image.get_pixelv(dock_point), face), "dock face sample changed") \
 		and _check(_near_rgb8(image.get_pixelv(rule_point), rule), "2x48 Error rule sample changed") \
 		and _check(ink_point != Vector2i(-1, -1), "Error status has no protected ink pixel") \
-		and _check(art_pixels > 500, "registered artwork has no visible native pixels")
+		and _check(title_ink != Vector2i(-1, -1), "compact title has no native ink pixels") \
+		and _check(nonpaper_pixels == 0, "unregistered media painted the bare record paper")
 	return {"ok": ok, "dock_point": [dock_point.x, dock_point.y],
 		"rule_point": [rule_point.x, rule_point.y], "ink_point": [ink_point.x, ink_point.y],
 		"dock_rgb": image.get_pixelv(dock_point).to_html(false),
-		"rule_rgb": image.get_pixelv(rule_point).to_html(false), "art_sample_count": art_pixels}
+		"rule_rgb": image.get_pixelv(rule_point).to_html(false),
+		"title_ink_point": [title_ink.x, title_ink.y], "nonpaper_sample_count": nonpaper_pixels}
 
 
 func _find_ink(image: Image, rect: Rect2i, ink: Color, face: Color) -> Vector2i:
