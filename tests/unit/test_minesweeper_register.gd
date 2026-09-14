@@ -116,3 +116,37 @@ func test_invalid_or_private_input_preserves_existing_facts() -> void:
 	malformed.difficulty_enabled = ["expert","expert"]
 	assert_false(register.present(malformed))
 	assert_eq(register.public_view,original)
+
+func test_repeated_present_retains_every_difficulty_button_and_metric_control() -> void:
+	var register := _register()
+	var retained_buttons: Dictionary = register.difficulties.duplicate()
+	var retained_metrics: Dictionary = register.metrics.duplicate()
+	var children: int = register.get_child_count()
+	var view := _view()
+	view.rounds = 1
+	view.mine_estimate = 8
+	assert_true(register.present(view))
+	assert_eq(register.get_child_count(),children)
+	for key: String in retained_buttons: assert_same(register.difficulties[key],retained_buttons[key],key)
+	for key: String in retained_metrics: assert_same(register.metrics[key],retained_metrics[key],key)
+	assert_eq(register.metrics.rounds.value_copy,"1/2")
+	assert_eq(register.metrics.mine_estimate.value_copy,"8")
+	assert_eq(register.metrics.foresight.value_copy,"125%")
+	var malformed := _view()
+	malformed.no_flag = "qualifying"
+	assert_false(register.present(malformed))
+	assert_eq(register.metrics.no_flag.value_copy,"Lost","a refused publication leaves every bay untouched")
+	for key: String in retained_metrics: assert_same(register.metrics[key],retained_metrics[key],key)
+
+func test_retained_difficulty_button_keeps_its_focus_and_commitment_signal() -> void:
+	var register := _register()
+	var expert: Button = register.difficulties.expert
+	expert.grab_focus()
+	var view := _view()
+	view.mine_estimate = 7
+	assert_true(register.present(view))
+	assert_same(register.difficulties.expert,expert,"a published metric change cannot replace a focused bay")
+	assert_true(expert.has_focus())
+	watch_signals(register)
+	expert.pressed.emit()
+	assert_signal_emitted_with_parameters(register,"difficulty_requested",[&"expert"])

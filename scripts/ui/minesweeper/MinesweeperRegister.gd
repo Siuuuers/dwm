@@ -22,7 +22,9 @@ class Metric extends Control:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 		focus_mode = Control.FOCUS_NONE
 
-	func configure(label: String, value: String, next_theme: Theme, width: int) -> bool:
+	## Shaping is the fallible half and changes nothing; a refused composition leaves
+	## every retained bay exactly as the last accepted one left it.
+	func measure(label: String, value: String, next_theme: Theme, width: int) -> Dictionary:
 		var label_result: Dictionary = TEXT.measure_copy(label,next_theme,width-16)
 		var tabular := next_theme.duplicate() as Theme
 		var font := FontVariation.new()
@@ -30,16 +32,24 @@ class Metric extends Control:
 		font.opentype_features = {"tnum":1}
 		tabular.default_font = font
 		var value_result: Dictionary = TEXT.measure_copy(value,tabular,width-16)
-		if label_result.is_empty() or value_result.is_empty(): return false
-		theme = next_theme
-		label_shape = label_result
-		value_shape = value_result
-		label_copy = label
-		value_copy = value
-		custom_minimum_size = Vector2(width,label_result.height+value_result.height+16)
+		if label_result.is_empty() or value_result.is_empty(): return {}
+		return {"label":label,"value":value,"theme":next_theme,"width":width,
+			"label_shape":label_result,"value_shape":value_result,
+			"height":label_result.height+value_result.height+16}
+
+	func apply(measured: Dictionary) -> void:
+		theme = measured.theme
+		label_shape = measured.label_shape
+		value_shape = measured.value_shape
+		label_copy = measured.label
+		value_copy = measured.value
+		custom_minimum_size = Vector2(measured.width,measured.height)
 		size = custom_minimum_size
-		accessibility_name = label+": "+value
-		return true
+		accessibility_name = label_copy+": "+value_copy
+		queue_redraw()
+
+	func content_height() -> float:
+		return label_shape.height+value_shape.height+16
 
 	func _draw_shape(shape: Dictionary, y: float, color: Color) -> void:
 		var paragraph: TextParagraph = shape.paragraph
@@ -111,6 +121,8 @@ func _valid(view: Dictionary) -> bool:
 		seen.append(tier)
 	return true
 
+## Plans the whole composition without mutating a single installed bay: retained nodes are
+## reused, and only a changed theme, scale or copy costs a rebuilt button or a reshaped metric.
 func _compose(view: Dictionary, next_theme: Theme, host: String, locale: String, large: bool) -> Dictionary:
 	var copy := COPY.get_copy(locale)
 	var candidate_buttons: Dictionary = {}
@@ -119,15 +131,16 @@ func _compose(view: Dictionary, next_theme: Theme, host: String, locale: String,
 	if host == "desktop_app":
 		for index in TIERS.size():
 			var key: String = TIERS[index]
-			var button: Button = BUTTON.new()
-			if not button.configure(copy[key],next_theme,large,96):
-				button.free()
-				_free_candidates(candidate_buttons,candidate_metrics)
-				return {}
-			button.position.x = index*96
-			button.present_state(key in view.difficulty_enabled,key == view.difficulty)
-			button.accessibility_description = copy.selected if key == view.difficulty else ""
-			candidate_buttons[key] = button
+			var button: Button = difficulties.get(key)
+			if button == null or button.theme != next_theme or button.public_copy != copy[key] or large != _large:
+				button = BUTTON.new()
+				if not button.configure(copy[key],next_theme,large,96):
+					button.free()
+					_free_candidates(candidate_buttons,candidate_metrics)
+					return {}
+			candidate_buttons[key] = {"node":button,"x":index*96,
+				"enabled":key in view.difficulty_enabled,"selected":key == view.difficulty,
+				"description":copy.selected if key == view.difficulty else ""}
 			height = maxi(height,int(button.custom_minimum_size.y)+44)
 	var allocations: Array = [["rounds",144,56],["mine_estimate",200,72],["foresight",272,64],["no_flag",336,64]] if host == "desktop_app" else [["mine_estimate",280,72],["foresight",352,64],["no_flag",416,64]]
 	for allocation: Array in allocations:
@@ -138,40 +151,60 @@ func _compose(view: Dictionary, next_theme: Theme, host: String, locale: String,
 			"no_flag": value = copy[view.no_flag]
 			"foresight": value = "—" if view.foresight == null else str(view.foresight)+"%"
 			"mine_estimate": value = "—" if view.mine_estimate == null else str(view.mine_estimate)
-		var metric := Metric.new()
-		if not metric.configure(copy[key],value,next_theme,allocation[2]*2):
-			metric.free()
+		var width: int = allocation[2]*2
+		var metric: Metric = metrics.get(key)
+		var retained: bool = metric != null and metric.theme == next_theme and metric.label_copy == copy[key] \
+			and metric.value_copy == value and int(metric.custom_minimum_size.x) == width
+		if metric == null: metric = Metric.new()
+		var measured: Dictionary = {} if retained else metric.measure(copy[key],value,next_theme,width)
+		if not retained and measured.is_empty():
+			if not metrics.has(key): metric.free()
 			_free_candidates(candidate_buttons,candidate_metrics)
 			return {}
-		metric.position.x = allocation[1]*2
-		metric.trailing_rule = key != "no_flag"
-		candidate_metrics[key] = metric
-		height = maxi(height,int(metric.custom_minimum_size.y))
+		candidate_metrics[key] = {"node":metric,"measured":measured,"x":allocation[1]*2,"trailing_rule":key != "no_flag"}
+		height = maxi(height,int(metric.content_height() if retained else measured.height))
 	return {"buttons":candidate_buttons,"metrics":candidate_metrics,"height":height}
 
 func _free_candidates(buttons: Dictionary, fields: Dictionary) -> void:
-	for child: Control in buttons.values()+fields.values(): child.free()
+	for key: String in buttons:
+		if not is_same(difficulties.get(key),buttons[key].node): buttons[key].node.free()
+	for key: String in fields:
+		if not is_same(metrics.get(key),fields[key].node): fields[key].node.free()
 
 func _install(measured: Dictionary) -> void:
 	var focused := ""
 	for key: String in difficulties:
 		if difficulties[key].has_focus(): focused = key
+	var buttons: Dictionary = {}
+	var fields: Dictionary = {}
+	for key: String in measured.buttons: buttons[key] = measured.buttons[key].node
+	for key: String in measured.metrics: fields[key] = measured.metrics[key].node
 	for child: Control in difficulties.values()+metrics.values():
+		if child in buttons.values() or child in fields.values(): continue
 		remove_child(child)
 		child.queue_free()
-	difficulties = measured.buttons
-	metrics = measured.metrics
+	difficulties = buttons
+	metrics = fields
 	custom_minimum_size = Vector2(800 if _host == "desktop_app" else 960,measured.height)
 	size = custom_minimum_size
-	for key: String in difficulties:
-		var button: Button = difficulties[key]
-		button.position.y = floorf((size.y-button.custom_minimum_size.y)/4.0)*2.0
-		add_child(button)
-		button.pressed.connect(_request.bind(key))
-	for metric: Control in metrics.values():
+	for key: String in measured.buttons:
+		var plan: Dictionary = measured.buttons[key]
+		var button: Button = plan.node
+		button.position = Vector2(plan.x,floorf((size.y-button.custom_minimum_size.y)/4.0)*2.0)
+		button.present_state(plan.enabled,plan.selected)
+		button.accessibility_description = plan.description
+		if button.get_parent() == null:
+			add_child(button)
+			button.pressed.connect(_request.bind(key))
+	for key: String in measured.metrics:
+		var plan: Dictionary = measured.metrics[key]
+		var metric: Metric = plan.node
+		if not plan.measured.is_empty(): metric.apply(plan.measured)
+		metric.position.x = plan.x
+		metric.trailing_rule = plan.trailing_rule
 		metric.custom_minimum_size.y = size.y
 		metric.size = metric.custom_minimum_size
-		add_child(metric)
+		if metric.get_parent() == null: add_child(metric)
 	if difficulties.has(focused) and not difficulties[focused].disabled: difficulties[focused].grab_focus()
 	queue_redraw()
 

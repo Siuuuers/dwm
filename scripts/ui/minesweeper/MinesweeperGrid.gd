@@ -135,27 +135,20 @@ func can_present(value: Dictionary) -> bool:
 	if typeof(value.terminal) != TYPE_BOOL or typeof(value.custody) != TYPE_BOOL: return false
 	var terminal_choices := 0
 	if typeof(value.cells) != TYPE_ARRAY or value.cells.size() != value.width*value.height: return false
-	var probe: Control = CELL.new()
 	_last_validated_projection = {}
+	# dwm-634.1: the cell's own rule set validates each public cell where it lies. Presenting a
+	# probe cell instead cost one allocation and a deep copy of every cell on every click.
 	for index in value.cells.size():
-		if typeof(value.cells[index]) != TYPE_DICTIONARY or value.cells[index].get("index") != index or not probe.present(value.cells[index]):
-			probe.free()
-			return false
+		if typeof(value.cells[index]) != TYPE_DICTIONARY or value.cells[index].get("index") != index \
+				or not CELL.validate(value.cells[index]): return false
 		var public_cell: Dictionary = value.cells[index]
-		if value.custody and (public_cell.inspectable or not public_cell.actions.is_empty()):
-			probe.free()
-			return false
+		if value.custody and (public_cell.inspectable or not public_cell.actions.is_empty()): return false
 		if value.terminal:
 			var marked_choice: bool = not value.custody and public_cell.mark in ["marked_mine", "marked_flag"] \
 				and public_cell.inspectable and public_cell.pressable and public_cell.actions == ["activate"] and not public_cell.bracketed
 			if marked_choice: terminal_choices += 1
-			elif public_cell.bracketed or public_cell.inspectable or public_cell.pressable or not public_cell.actions.is_empty():
-				probe.free()
-				return false
-		if not value.terminal and public_cell.mark in ["mine","exploded","correct_flag","incorrect_flag"]:
-			probe.free()
-			return false
-	probe.free()
+			elif public_cell.bracketed or public_cell.inspectable or public_cell.pressable or not public_cell.actions.is_empty(): return false
+		if not value.terminal and public_cell.mark in ["mine","exploded","correct_flag","incorrect_flag"]: return false
 	var valid: bool = terminal_choices == 1 if value.terminal and not value.custody else terminal_choices == 0
 	if valid: _last_validated_projection = value
 	return valid
@@ -166,7 +159,8 @@ func present(value: Dictionary) -> bool:
 	if not is_same(value, _last_validated_projection) and not can_present(value): return false
 	_last_validated_projection = {}
 	_cancel_for_projection()
-	projection = value.duplicate(true)
+	# The publishing panel owns the one deep copy; this grid and its cells read that instance.
+	projection = value
 	_rebuild()
 	if projection.custody:
 		_disarm_trigger_zoom()

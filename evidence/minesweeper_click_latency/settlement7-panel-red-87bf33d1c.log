@@ -1,0 +1,762 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/click-latency-3/.godot/phase2r_tests/4de4d512-b329-4340-81cf-89b142059bbb/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_minesweeper_panel.gd
+* test_dock_mode_and_real_f_shortcut_share_selection_without_board_commands
+* test_sheet_restores_source_mode_cell_and_scroll_while_dock_stays_inert
+    26 Orphans
+        * [@Control@715:<Control#295648104517>(MinesweeperInformationSheet.gd)] + 9
+        * [@Control@725:<Control#435754635366>(MinesweeperInformationSheet.gd)] + 15
+* test_invalid_composite_preserves_facts_blocks_input_and_refresh_recovers
+    14 Orphans
+        * [@Button@808:<Button#595993823354>(MinesweeperActionButton.gd)]
+        * [@Button@907:<Button#641090980393>(MinesweeperActionButton.gd)]
+        * [@Control@811:<Control#596446808690>(/Unregistered-Inner-Class)]
+        * [@Control@812:<Control#596547471992>(/Unregistered-Inner-Class)]
+        * [@Control@813:<Control#596648135289>(/Unregistered-Inner-Class)]
+        * [@Button@809:<Button#596144818818>(MinesweeperActionButton.gd)]
+        * [@Control@814:<Control#596748798771>(/Unregistered-Inner-Class)]
+        * [@Button@810:<Button#596295813943>(MinesweeperActionButton.gd)]
+        * [@Control@913:<Control#641845955510>(/Unregistered-Inner-Class)]
+        * [@Button@909:<Button#641392970688>(MinesweeperActionButton.gd)]
+        * [@Control@911:<Control#641644628939>(/Unregistered-Inner-Class)]
+        * [@Control@910:<Control#641543965644>(/Unregistered-Inner-Class)]
+        * [@Control@912:<Control#641745292243>(/Unregistered-Inner-Class)]
+        * [@Button@908:<Button#641241975772>(MinesweeperActionButton.gd)]
+* test_same_size_dispatch_refreshes_public_facts_without_replacing_cells
+    7 Orphans
+        * [@Button@1016:<Button#665954814478>(MinesweeperActionButton.gd)]
+        * [@Control@1022:<Control#666709789384>(/Unregistered-Inner-Class)]
+        * [@Control@1021:<Control#666609127493>(/Unregistered-Inner-Class)]
+        * [@Button@1017:<Button#666105811040>(MinesweeperActionButton.gd)]
+        * [@Control@1019:<Control#666407800938>(/Unregistered-Inner-Class)]
+        * [@Control@1020:<Control#666508464236>(/Unregistered-Inner-Class)]
+        * [@Button@1018:<Button#666256806022>(MinesweeperActionButton.gd)]
+* test_all_locale_scale_and_target_tuples_close_fixed_body_without_shrinking_fonts
+    236 Orphans
+        * [@Button@1288:<Button#702462036088>(MinesweeperActionButton.gd)]
+        * [@Button@1155:<Button#689761683609>(MinesweeperActionButton.gd)]
+        * [@Button@1329:<Button#708887710193>(MinesweeperActionButton.gd)]
+        * [@Button@1746:<Button#774704728570>(MinesweeperActionButton.gd)]
+        * [@Button@1157:<Button#690063673911>(MinesweeperActionButton.gd)]
+        * [@Button@1156:<Button#689912678970>(MinesweeperActionButton.gd)]
+        * [@Button@1159:<Button#690365663841>(MinesweeperActionButton.gd)]
+        * [@Button@1747:<Button#774855723621>(MinesweeperActionButton.gd)]
+        * [@Button@1751:<Button#775459703442>(MinesweeperActionButton.gd)]
+        * [VerticalRail:<Control#715380492947>(MinesweeperScrollRail.gd)]
+        * [@Button@1780:<Button#780274764441>(MinesweeperActionButton.gd)]
+        * [@Button@1189:<Button#693922433690>(MinesweeperActionButton.gd)]
+        * [VerticalRail:<Control#773781981879>(MinesweeperScrollRail.gd)]
+        * [@Control@1744:<Control#774486624975>(/Unregistered-Inner-Class)]
+        * [@Button@1741:<Button#774134303444>(MinesweeperActionButton.gd)]
+        * [@Control@1702:<Control#767859624668>(/Unregistered-Inner-Class)]
+        * [@Button@1700:<Button#767607966434>(MinesweeperActionButton.gd)]
+        * [@Control@1701:<Control#767758961384>(/Unregistered-Inner-Class)]
+        * [@Control@1703:<Control#767960287981>(/Unregistered-Inner-Class)]
+        * [@Button@1739:<Button#773832313583>(MinesweeperActionButton.gd)]
+        * [@Button@1821:<Button#786700438280>(MinesweeperActionButton.gd)]
+        * [@Button@1749:<Button#775157713674>(MinesweeperActionButton.gd)]
+        * [@Button@1748:<Button#775006718739>(MinesweeperActionButton.gd)]
+        * [@Button@1750:<Button#775308708636>(MinesweeperActionButton.gd)]
+        * [@Control@1745:<Control#774587288368>(/Unregistered-Inner-Class)]
+        * [@Button@1158:<Button#690214669117>(MinesweeperActionButton.gd)]
+        * [@Button@1297:<Button#703636441943>(MinesweeperActionButton.gd)]
+        * [@Button@1298:<Button#703787436895>(MinesweeperActionButton.gd)]
+        * [@Button@1299:<Button#703938431848>(MinesweeperActionButton.gd)]
+        * [@Button@1300:<Button#704089426798>(MinesweeperActionButton.gd)]
+        * [@Control@1194:<Control#694576745332>(/Unregistered-Inner-Class)]
+        * [@Button@1411:<Button#721923607419>(MinesweeperActionButton.gd)]
+        * [@Button@1191:<Button#694224423847>(MinesweeperActionButton.gd)]
+        * [@Control@1192:<Control#694375418869>(/Unregistered-Inner-Class)]
+        * [@Control@1193:<Control#694476082167>(/Unregistered-Inner-Class)]
+        * [@Control@1195:<Control#694677408779>(/Unregistered-Inner-Class)]
+        * [@Button@1296:<Button#703485447192>(MinesweeperActionButton.gd)]
+        * [@Button@1493:<Button#734925949987>(MinesweeperActionButton.gd)]
+        * [@Button@1452:<Button#728433167430>(MinesweeperActionButton.gd)]
+        * [@Button@1295:<Button#703334452303>(MinesweeperActionButton.gd)]
+        * [@Control@1294:<Control#703217011796>(/Unregistered-Inner-Class)]
+        * [@Button@1290:<Button#702764026974>(MinesweeperActionButton.gd)]
+        * [@Control@1291:<Control#702915021924>(/Unregistered-Inner-Class)]
+        * [@Control@1292:<Control#703015685228>(/Unregistered-Inner-Class)]
+        * [@Control@1293:<Control#703116348529>(/Unregistered-Inner-Class)]
+        * [@Button@1289:<Button#702613032058>(MinesweeperActionButton.gd)]
+        * [@Button@1337:<Button#709911121020>(MinesweeperActionButton.gd)]
+        * [@Button@1338:<Button#710062115973>(MinesweeperActionButton.gd)]
+        * [@Button@1339:<Button#710213110926>(MinesweeperActionButton.gd)]
+        * [@Button@1340:<Button#710364105879>(MinesweeperActionButton.gd)]
+        * [@Button@1341:<Button#710515100832>(MinesweeperActionButton.gd)]
+        * [@Button@1336:<Button#709760126130>(MinesweeperActionButton.gd)]
+        * [@Control@1335:<Control#709642685623>(/Unregistered-Inner-Class)]
+        * [@Button@1331:<Button#709189700801>(MinesweeperActionButton.gd)]
+        * [@Control@1332:<Control#709340695751>(/Unregistered-Inner-Class)]
+        * [@Control@1333:<Control#709441359055>(/Unregistered-Inner-Class)]
+        * [@Button@1370:<Button#715430825171>(MinesweeperActionButton.gd)]
+        * [@Control@1334:<Control#709542022356>(/Unregistered-Inner-Class)]
+        * [@Button@1330:<Button#709038705885>(MinesweeperActionButton.gd)]
+        * [@Button@1378:<Button#716454235362>(MinesweeperActionButton.gd)]
+        * [@Button@1379:<Button#716605230315>(MinesweeperActionButton.gd)]
+        * [@Button@1380:<Button#716756225268>(MinesweeperActionButton.gd)]
+        * [@Button@1381:<Button#716907220221>(MinesweeperActionButton.gd)]
+        * [@Button@1382:<Button#717058215174>(MinesweeperActionButton.gd)]
+        * [@Control@1376:<Control#716185799957>(/Unregistered-Inner-Class)]
+        * [@Control@1375:<Control#716085136662>(/Unregistered-Inner-Class)]
+        * [@Button@1377:<Button#716303240472>(MinesweeperActionButton.gd)]
+        * [@Button@1372:<Button#715732815134>(MinesweeperActionButton.gd)]
+        * [@Button@1371:<Button#715581820199>(MinesweeperActionButton.gd)]
+        * [@Control@1373:<Control#715883810096>(/Unregistered-Inner-Class)]
+        * [@Control@1374:<Control#715984473394>(/Unregistered-Inner-Class)]
+        * [@Button@1419:<Button#722947018053>(MinesweeperActionButton.gd)]
+        * [@Button@1420:<Button#723098013006>(MinesweeperActionButton.gd)]
+        * [@Button@1421:<Button#723249007959>(MinesweeperActionButton.gd)]
+        * [@Button@1422:<Button#723400002912>(MinesweeperActionButton.gd)]
+        * [@Button@1423:<Button#723550997865>(MinesweeperActionButton.gd)]
+        * [@Button@1418:<Button#722796023163>(MinesweeperActionButton.gd)]
+        * [@Control@1417:<Control#722678582656>(/Unregistered-Inner-Class)]
+        * [@Button@1413:<Button#722225597831>(MinesweeperActionButton.gd)]
+        * [@Control@1414:<Control#722376592784>(/Unregistered-Inner-Class)]
+        * [@Control@1415:<Control#722477256088>(/Unregistered-Inner-Class)]
+        * [@Control@1416:<Control#722577919389>(/Unregistered-Inner-Class)]
+        * [@Button@1412:<Button#722074602918>(MinesweeperActionButton.gd)]
+        * [@Button@1460:<Button#729456577962>(MinesweeperActionButton.gd)]
+        * [@Button@1461:<Button#729607572915>(MinesweeperActionButton.gd)]
+        * [@Button@1462:<Button#729758567868>(MinesweeperActionButton.gd)]
+        * [@Button@1463:<Button#729909562821>(MinesweeperActionButton.gd)]
+        * [@Button@1464:<Button#730060557774>(MinesweeperActionButton.gd)]
+        * [@Button@1459:<Button#729305583072>(MinesweeperActionButton.gd)]
+        * [@Control@1458:<Control#729188142565>(/Unregistered-Inner-Class)]
+        * [@Button@1454:<Button#728735157740>(MinesweeperActionButton.gd)]
+        * [@Control@1455:<Control#728886152693>(/Unregistered-Inner-Class)]
+        * [@Control@1456:<Control#728986815997>(/Unregistered-Inner-Class)]
+        * [@Control@1457:<Control#729087479295>(/Unregistered-Inner-Class)]
+        * [@Button@1453:<Button#728584162824>(MinesweeperActionButton.gd)]
+        * [@Button@1501:<Button#735949360653>(MinesweeperActionButton.gd)]
+        * [@Button@1502:<Button#736100355606>(MinesweeperActionButton.gd)]
+        * [@Button@1503:<Button#736251350559>(MinesweeperActionButton.gd)]
+        * [@Button@1504:<Button#736402345512>(MinesweeperActionButton.gd)]
+        * [@Button@1505:<Button#736553340465>(MinesweeperActionButton.gd)]
+        * [@Button@1534:<Button#741401955897>(MinesweeperActionButton.gd)]
+        * [@Button@1575:<Button#747827629631>(MinesweeperActionButton.gd)]
+        * [@Button@1500:<Button#735798365763>(MinesweeperActionButton.gd)]
+        * [@Control@1499:<Control#735680925256>(/Unregistered-Inner-Class)]
+        * [@Button@1495:<Button#735227940431>(MinesweeperActionButton.gd)]
+        * [@Control@1496:<Control#735378935384>(/Unregistered-Inner-Class)]
+        * [@Control@1497:<Control#735479598688>(/Unregistered-Inner-Class)]
+        * [@Control@1498:<Control#735580261986>(/Unregistered-Inner-Class)]
+        * [@Button@1494:<Button#735076945515>(MinesweeperActionButton.gd)]
+        * [@Button@1542:<Button#742425366129>(MinesweeperActionButton.gd)]
+        * [@Button@1543:<Button#742576361082>(MinesweeperActionButton.gd)]
+        * [@Button@1544:<Button#742727356035>(MinesweeperActionButton.gd)]
+        * [@Button@1545:<Button#742878350988>(MinesweeperActionButton.gd)]
+        * [@Button@1546:<Button#743029345941>(MinesweeperActionButton.gd)]
+        * [@Button@1616:<Button#754286857883>(MinesweeperActionButton.gd)]
+        * [@Button@1541:<Button#742274371239>(MinesweeperActionButton.gd)]
+        * [@Control@1540:<Control#742156930732>(/Unregistered-Inner-Class)]
+        * [@Button@1536:<Button#741703945901>(MinesweeperActionButton.gd)]
+        * [@Button@1535:<Button#741552950966>(MinesweeperActionButton.gd)]
+        * [@Control@1537:<Control#741854940863>(/Unregistered-Inner-Class)]
+        * [@Control@1538:<Control#741955604164>(/Unregistered-Inner-Class)]
+        * [@Control@1539:<Control#742056267462>(/Unregistered-Inner-Class)]
+        * [@Button@1583:<Button#748851039958>(MinesweeperActionButton.gd)]
+        * [@Button@1584:<Button#749002034911>(MinesweeperActionButton.gd)]
+        * [@Button@1585:<Button#749153029864>(MinesweeperActionButton.gd)]
+        * [@Button@1586:<Button#749304024817>(MinesweeperActionButton.gd)]
+        * [@Button@1587:<Button#749455019770>(MinesweeperActionButton.gd)]
+        * [@Button@1657:<Button#760779640584>(MinesweeperActionButton.gd)]
+        * [@Button@1582:<Button#748700045068>(MinesweeperActionButton.gd)]
+        * [@Control@1581:<Control#748582604561>(/Unregistered-Inner-Class)]
+        * [@Button@1577:<Button#748129619739>(MinesweeperActionButton.gd)]
+        * [@Control@1578:<Control#748280614689>(/Unregistered-Inner-Class)]
+        * [@Control@1579:<Control#748381277993>(/Unregistered-Inner-Class)]
+        * [@Control@1580:<Control#748481941291>(/Unregistered-Inner-Class)]
+        * [@Button@1576:<Button#747978624820>(MinesweeperActionButton.gd)]
+        * [@Button@1624:<Button#755310268219>(MinesweeperActionButton.gd)]
+        * [@Button@1625:<Button#755461263172>(MinesweeperActionButton.gd)]
+        * [@Button@1626:<Button#755612258125>(MinesweeperActionButton.gd)]
+        * [@Button@1627:<Button#755763253078>(MinesweeperActionButton.gd)]
+        * [@Button@1628:<Button#755914248031>(MinesweeperActionButton.gd)]
+        * [@Button@1698:<Button#767305977706>(MinesweeperActionButton.gd)]
+        * [@Button@1623:<Button#755159273329>(MinesweeperActionButton.gd)]
+        * [@Control@1622:<Control#755041832819>(/Unregistered-Inner-Class)]
+        * [@Button@1618:<Button#754588848000>(MinesweeperActionButton.gd)]
+        * [@Control@1619:<Control#754739842949>(/Unregistered-Inner-Class)]
+        * [@Control@1620:<Control#754840506253>(/Unregistered-Inner-Class)]
+        * [@Control@1621:<Control#754941169554>(/Unregistered-Inner-Class)]
+        * [@Button@1617:<Button#754437853083>(MinesweeperActionButton.gd)]
+        * [@Button@1665:<Button#761803050909>(MinesweeperActionButton.gd)]
+        * [@Button@1666:<Button#761954045862>(MinesweeperActionButton.gd)]
+        * [@Button@1667:<Button#762105040815>(MinesweeperActionButton.gd)]
+        * [@Button@1668:<Button#762256035768>(MinesweeperActionButton.gd)]
+        * [@Button@1669:<Button#762407030721>(MinesweeperActionButton.gd)]
+        * [@Button@1664:<Button#761652056019>(MinesweeperActionButton.gd)]
+        * [@Control@1663:<Control#761534615512>(/Unregistered-Inner-Class)]
+        * [@Button@1659:<Button#761081630687>(MinesweeperActionButton.gd)]
+        * [@Control@1660:<Control#761232625640>(/Unregistered-Inner-Class)]
+        * [@Control@1661:<Control#761333288944>(/Unregistered-Inner-Class)]
+        * [@Control@1662:<Control#761433952245>(/Unregistered-Inner-Class)]
+        * [@Button@1658:<Button#760930635774>(MinesweeperActionButton.gd)]
+        * [@Button@1706:<Button#768329388034>(MinesweeperActionButton.gd)]
+        * [@Button@1707:<Button#768480382987>(MinesweeperActionButton.gd)]
+        * [@Button@1708:<Button#768631377940>(MinesweeperActionButton.gd)]
+        * [@Button@1709:<Button#768782372893>(MinesweeperActionButton.gd)]
+        * [@Button@1710:<Button#768933367846>(MinesweeperActionButton.gd)]
+        * [@Button@1705:<Button#768178393144>(MinesweeperActionButton.gd)]
+        * [@Control@1704:<Control#768060952637>(/Unregistered-Inner-Class)]
+        * [@Button@1699:<Button#767456972866>(MinesweeperActionButton.gd)]
+        * [@Button@1160:<Button#690516660311>(MinesweeperActionButton.gd)]
+        * [@Button@1190:<Button#694073430132>(MinesweeperActionButton.gd)]
+        * [@Button@1740:<Button#773983309978>(MinesweeperActionButton.gd)]
+        * [@Control@1742:<Control#774285299873>(/Unregistered-Inner-Class)]
+        * [@Control@1743:<Control#774385963170>(/Unregistered-Inner-Class)]
+        * [@Button@1788:<Button#781298176185>(MinesweeperActionButton.gd)]
+        * [@Button@1789:<Button#781449171138>(MinesweeperActionButton.gd)]
+        * [@Button@1790:<Button#781600166091>(MinesweeperActionButton.gd)]
+        * [@Button@1791:<Button#781751161044>(MinesweeperActionButton.gd)]
+        * [@Button@1792:<Button#781902155997>(MinesweeperActionButton.gd)]
+        * [@Button@1862:<Button#793159667939>(MinesweeperActionButton.gd)]
+        * [@Button@1787:<Button#781147181295>(MinesweeperActionButton.gd)]
+        * [@Control@1786:<Control#781029740787>(/Unregistered-Inner-Class)]
+        * [@Button@1782:<Button#780576755957>(MinesweeperActionButton.gd)]
+        * [@Button@1781:<Button#780425761022>(MinesweeperActionButton.gd)]
+        * [@Control@1783:<Control#780727750919>(/Unregistered-Inner-Class)]
+        * [@Control@1784:<Control#780828414219>(/Unregistered-Inner-Class)]
+        * [@Control@1785:<Control#780929077516>(/Unregistered-Inner-Class)]
+        * [@Button@1829:<Button#787723850012>(MinesweeperActionButton.gd)]
+        * [@Button@1830:<Button#787874844965>(MinesweeperActionButton.gd)]
+        * [@Button@1831:<Button#788025839918>(MinesweeperActionButton.gd)]
+        * [@Button@1832:<Button#788176834871>(MinesweeperActionButton.gd)]
+        * [@Button@1833:<Button#788327829824>(MinesweeperActionButton.gd)]
+        * [@Button@1903:<Button#799652450637>(MinesweeperActionButton.gd)]
+        * [@Button@1828:<Button#787572855122>(MinesweeperActionButton.gd)]
+        * [@Control@1827:<Control#787455414614>(/Unregistered-Inner-Class)]
+        * [@Button@1823:<Button#787002429793>(MinesweeperActionButton.gd)]
+        * [@Control@1824:<Control#787153424743>(/Unregistered-Inner-Class)]
+        * [@Control@1825:<Control#787254088046>(/Unregistered-Inner-Class)]
+        * [@Control@1826:<Control#787354751346>(/Unregistered-Inner-Class)]
+        * [@Button@1822:<Button#786851434875>(MinesweeperActionButton.gd)]
+        * [@Button@1870:<Button#794183078272>(MinesweeperActionButton.gd)]
+        * [@Button@1871:<Button#794334073225>(MinesweeperActionButton.gd)]
+        * [@Button@1872:<Button#794485068178>(MinesweeperActionButton.gd)]
+        * [@Button@1873:<Button#794636063131>(MinesweeperActionButton.gd)]
+        * [@Button@1874:<Button#794787058084>(MinesweeperActionButton.gd)]
+        * [@Button@1944:<Button#806178787761>(MinesweeperActionButton.gd)]
+        * [@Button@1869:<Button#794032083382>(MinesweeperActionButton.gd)]
+        * [@Control@1868:<Control#793914642874>(/Unregistered-Inner-Class)]
+        * [@Button@1864:<Button#793461658053>(MinesweeperActionButton.gd)]
+        * [@Control@1865:<Control#793612653004>(/Unregistered-Inner-Class)]
+        * [@Control@1866:<Control#793713316307>(/Unregistered-Inner-Class)]
+        * [@Control@1867:<Control#793813979607>(/Unregistered-Inner-Class)]
+        * [@Button@1863:<Button#793310663136>(MinesweeperActionButton.gd)]
+        * [@Button@1911:<Button#800675860964>(MinesweeperActionButton.gd)]
+        * [@Button@1912:<Button#800826855917>(MinesweeperActionButton.gd)]
+        * [@Button@1913:<Button#800977850870>(MinesweeperActionButton.gd)]
+        * [@Button@1914:<Button#801128845823>(MinesweeperActionButton.gd)]
+        * [@Button@1915:<Button#801279840776>(MinesweeperActionButton.gd)]
+        * [@Button@1910:<Button#800524866074>(MinesweeperActionButton.gd)]
+        * [@Control@1909:<Control#800407425566>(/Unregistered-Inner-Class)]
+        * [@Button@1905:<Button#799954440742>(MinesweeperActionButton.gd)]
+        * [@Control@1906:<Control#800105435695>(/Unregistered-Inner-Class)]
+        * [@Control@1907:<Control#800206098998>(/Unregistered-Inner-Class)]
+        * [@Control@1908:<Control#800306762298>(/Unregistered-Inner-Class)]
+        * [@Button@1904:<Button#799803445827>(MinesweeperActionButton.gd)]
+        * [@Button@1952:<Button#807202198088>(MinesweeperActionButton.gd)]
+        * [@Button@1953:<Button#807353193041>(MinesweeperActionButton.gd)]
+        * [@Button@1954:<Button#807504187994>(MinesweeperActionButton.gd)]
+        * [@Button@1955:<Button#807655182947>(MinesweeperActionButton.gd)]
+        * [@Button@1956:<Button#807806177900>(MinesweeperActionButton.gd)]
+        * [@Button@1951:<Button#807051203198>(MinesweeperActionButton.gd)]
+        * [@Control@1950:<Control#806933762690>(/Unregistered-Inner-Class)]
+        * [@Button@1946:<Button#806480777866>(MinesweeperActionButton.gd)]
+        * [@Control@1947:<Control#806631772820>(/Unregistered-Inner-Class)]
+        * [@Control@1948:<Control#806732436123>(/Unregistered-Inner-Class)]
+        * [@Control@1949:<Control#806833099423>(/Unregistered-Inner-Class)]
+        * [@Button@1945:<Button#806329782952>(MinesweeperActionButton.gd)]
+* test_replacement_and_difficulty_remain_disabled_and_unpublished_actions_are_rejected
+* test_settled_terminal_enables_real_new_board_and_returns_to_unpaid_view
+    14 Orphans
+        * [@Control@2206:<Control#881458153628>(/Unregistered-Inner-Class)]
+        * [@Control@2307:<Control#889024678546>(/Unregistered-Inner-Class)]
+        * [@Button@2303:<Button#888521362187>(MinesweeperActionButton.gd)]
+        * [@Button@2304:<Button#888672358650>(MinesweeperActionButton.gd)]
+        * [@Control@2308:<Control#889125343494>(/Unregistered-Inner-Class)]
+        * [@Control@2305:<Control#888823353618>(/Unregistered-Inner-Class)]
+        * [@Control@2306:<Control#888924016915>(/Unregistered-Inner-Class)]
+        * [@Control@2209:<Control#881760145692>(/Unregistered-Inner-Class)]
+        * [@Button@2205:<Button#881307160862>(MinesweeperActionButton.gd)]
+        * [@Button@2302:<Button#888370368878>(MinesweeperActionButton.gd)]
+        * [@Button@2203:<Button#881005171088>(MinesweeperActionButton.gd)]
+        * [@Button@2204:<Button#881156166230>(MinesweeperActionButton.gd)]
+        * [@Control@2208:<Control#881659482715>(/Unregistered-Inner-Class)]
+        * [@Control@2207:<Control#881558819428>(/Unregistered-Inner-Class)]
+* test_binding_is_idempotent_and_cannot_redirect_to_a_replacement_port
+    7 Orphans
+        * [@Button@2413:<Button#913519415681>(MinesweeperActionButton.gd)]
+        * [@Control@2414:<Control#913670410628>(/Unregistered-Inner-Class)]
+        * [@Control@2415:<Control#913771073926>(/Unregistered-Inner-Class)]
+        * [@Button@2412:<Button#913368420793>(MinesweeperActionButton.gd)]
+        * [@Control@2416:<Control#913871737274>(/Unregistered-Inner-Class)]
+        * [@Button@2411:<Button#913217425900>(MinesweeperActionButton.gd)]
+        * [@Control@2417:<Control#913972400768>(/Unregistered-Inner-Class)]
+* test_real_tab_visits_manual_grid_rails_zoom_and_dock_then_exits_to_the_host
+    7 Orphans
+        * [@Control@2587:<Control#941487033104>(/Unregistered-Inner-Class)]
+        * [@Control@2588:<Control#941587696402>(/Unregistered-Inner-Class)]
+        * [@Button@2586:<Button#941336038201>(MinesweeperActionButton.gd)]
+        * [@Control@2590:<Control#941789024302>(/Unregistered-Inner-Class)]
+        * [@Button@2584:<Button#941034049717>(MinesweeperActionButton.gd)]
+        * [@Control@2589:<Control#941688361186>(/Unregistered-Inner-Class)]
+        * [@Button@2585:<Button#941185044940>(MinesweeperActionButton.gd)]
+* test_synchronous_long_press_publication_retains_touch_gate_and_all_cell_nodes
+    7 Orphans
+        * [@Control@3185:<Control#991248255792>(/Unregistered-Inner-Class)]
+        * [@Button@3179:<Button#990493282558>(MinesweeperActionButton.gd)]
+        * [@Button@3181:<Button#990795272504>(MinesweeperActionButton.gd)]
+        * [@Button@3180:<Button#990644277653>(MinesweeperActionButton.gd)]
+        * [@Control@3182:<Control#990946267650>(/Unregistered-Inner-Class)]
+        * [@Control@3184:<Control#991147594402>(/Unregistered-Inner-Class)]
+        * [@Control@3183:<Control#991046931107>(/Unregistered-Inner-Class)]
+* test_locale_configuration_during_sheet_restores_rebuilt_semantic_source_and_pan
+    33 Orphans
+        * [@Control@3357:<Control#1019165543194>(/Unregistered-Inner-Class)]
+        * [@Control@3356:<Control#1019064879914>(/Unregistered-Inner-Class)]
+        * [@Control@3843:<Control#1043794496504>(MinesweeperInformationSheet.gd)] + 10
+        * [@Control@3844:<Control#1044549472299>] + 8
+        * [@Button@3352:<Button#1018511233280>(MinesweeperActionButton.gd)]
+        * [@Control@3355:<Control#1018964218124>(/Unregistered-Inner-Class)]
+        * [@Button@3322:<Button#1014954463529>(MinesweeperActionButton.gd)]
+        * [@Button@3320:<Button#1014652473743>(MinesweeperActionButton.gd)]
+        * [@Button@3318:<Button#1014350483924>(MinesweeperActionButton.gd)]
+        * [@Button@3319:<Button#1014501478888>(MinesweeperActionButton.gd)]
+        * [@Control@3358:<Control#1019266208291>(/Unregistered-Inner-Class)]
+        * [@Button@3321:<Button#1014803468869>(MinesweeperActionButton.gd)]
+        * [@Button@3353:<Button#1018662228583>(MinesweeperActionButton.gd)]
+        * [@Button@3354:<Button#1018813223594>(MinesweeperActionButton.gd)]
+        * [@Button@3323:<Button#1015105458859>(MinesweeperActionButton.gd)]
+* test_unchanged_assignment_refresh_preserves_scrolled_rail_identity_and_focus
+    7 Orphans
+        * [@Control@3977:<Control#1079144090107>(/Unregistered-Inner-Class)]
+        * [@Button@3973:<Button#1078691106972>(MinesweeperActionButton.gd)]
+        * [@Button@3972:<Button#1078540112068>(MinesweeperActionButton.gd)]
+        * [@Control@3976:<Control#1079043428557>(/Unregistered-Inner-Class)]
+        * [@Control@3974:<Control#1078842101972>(/Unregistered-Inner-Class)]
+        * [@Button@3971:<Button#1078389117226>(MinesweeperActionButton.gd)]
+        * [@Control@3975:<Control#1078942765396>(/Unregistered-Inner-Class)]
+* test_real_difficulty_buttons_dispatch_frozen_revision_and_reset_mode_only_on_success
+    7 Orphans
+        * [@Button@4160:<Button#1107497585171>(MinesweeperActionButton.gd)]
+        * [@Control@4165:<Control#1108151896801>(/Unregistered-Inner-Class)]
+        * [@Button@4161:<Button#1107648581628>(MinesweeperActionButton.gd)]
+        * [@Control@4164:<Control#1108051234845>(/Unregistered-Inner-Class)]
+        * [@Control@4163:<Control#1107950572028>(/Unregistered-Inner-Class)]
+        * [@Control@4166:<Control#1108252562059>(/Unregistered-Inner-Class)]
+        * [@Button@4162:<Button#1107799577255>(MinesweeperActionButton.gd)]
+* test_difficulty_change_waits_for_pending_view_preference_write
+    7 Orphans
+        * [@Control@4769:<Control#1158382881572>(/Unregistered-Inner-Class)]
+        * [@Control@4766:<Control#1158080891933>(/Unregistered-Inner-Class)]
+        * [@Button@4764:<Button#1157778903235>(MinesweeperActionButton.gd)]
+        * [@Control@4768:<Control#1158282219724>(/Unregistered-Inner-Class)]
+        * [@Button@4765:<Button#1157929898286>(MinesweeperActionButton.gd)]
+        * [@Button@4763:<Button#1157627908582>(MinesweeperActionButton.gd)]
+        * [@Control@4767:<Control#1158181556902>(/Unregistered-Inner-Class)]
+* test_touched_space_and_new_board_share_dispatch_while_untouched_space_is_inert
+    14 Orphans
+        * [@Button@5358:<Button#1207120693791>(MinesweeperActionButton.gd)]
+        * [@Button@5357:<Button#1206969699037>(MinesweeperActionButton.gd)]
+        * [@Control@5360:<Control#1207372352485>(/Unregistered-Inner-Class)]
+        * [@Control@5461:<Control#1214972432188>(/Unregistered-Inner-Class)]
+        * [@Button@5457:<Button#1214519447415>(MinesweeperActionButton.gd)]
+        * [@Control@5460:<Control#1214871768960>(/Unregistered-Inner-Class)]
+        * [@Control@5459:<Control#1214771105672>(/Unregistered-Inner-Class)]
+        * [@Control@5458:<Control#1214670442381>(/Unregistered-Inner-Class)]
+        * [@Button@5456:<Button#1214368452507>(MinesweeperActionButton.gd)]
+        * [@Button@5455:<Button#1214217457580>(MinesweeperActionButton.gd)]
+        * [@Control@5361:<Control#1207473016858>(/Unregistered-Inner-Class)]
+        * [@Control@5359:<Control#1207271690301>(/Unregistered-Inner-Class)]
+        * [@Control@5362:<Control#1207573680418>(/Unregistered-Inner-Class)]
+        * [@Button@5356:<Button#1206818705974>(MinesweeperActionButton.gd)]
+* test_settled_space_uses_new_board_even_when_grid_has_no_focus
+    7 Orphans
+        * [@Button@5566:<Button#1239467166326>(MinesweeperActionButton.gd)]
+        * [@Button@5565:<Button#1239316173055>(MinesweeperActionButton.gd)]
+        * [@Button@5564:<Button#1239165178169>(MinesweeperActionButton.gd)]
+        * [@Control@5569:<Control#1239819489794>(/Unregistered-Inner-Class)]
+        * [@Control@5567:<Control#1239618163232>(/Unregistered-Inner-Class)]
+        * [@Control@5568:<Control#1239718826549>(/Unregistered-Inner-Class)]
+        * [@Control@5570:<Control#1239920153186>(/Unregistered-Inner-Class)]
+* test_settled_difficulty_uses_only_authoritative_capability
+    7 Orphans
+        * [@Button@5739:<Button#1267468339824>(MinesweeperActionButton.gd)]
+        * [@Button@5738:<Button#1267317346110>(MinesweeperActionButton.gd)]
+        * [@Control@5742:<Control#1267820662644>(/Unregistered-Inner-Class)]
+        * [@Control@5741:<Control#1267719999378>(/Unregistered-Inner-Class)]
+        * [@Control@5740:<Control#1267619336090>(/Unregistered-Inner-Class)]
+        * [@Button@5737:<Button#1267166351677>(MinesweeperActionButton.gd)]
+        * [@Control@5743:<Control#1267921326544>(/Unregistered-Inner-Class)]
+* test_measure_retains_one_result_per_configuration_and_every_input_invalidates_it
+    [Failed]:  [DICTIONARY({ "band": (400, 210), "register_height": 116.0 })] expected to be same as  [DICTIONARY({ "band": (400, 210), "register_height": 116.0 })]:  an unchanged configuration must reuse the retained measurement, not rebuild three probes
+      at line 474
+* test_publication_keeps_one_detached_copy_shared_by_grid_and_cells
+    [Failed]:  [DICTIONARY({ "width": 8, "height": 8, "revision": 0, "mine_estimate": <null>, "terminal": false, "custody": false, "cells": [{ "index": 0, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 1, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 2, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 3, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 4, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 5, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 6, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 7, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 8, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 9, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 10, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 11, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 12, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 13, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 14, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 15, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 16, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 17, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 18, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 19, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 20, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 21, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 22, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 23, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 24, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 25, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 26, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 27, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 28, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 29, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 30, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 31, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 32, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 33, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 34, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 35, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 36, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 37, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 38, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 39, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 40, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 41, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 42, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 43, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 44, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 45, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 46, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 47, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 48, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 49, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 50, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 51, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 52, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 53, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 54, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 55, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 56, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 57, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 58, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 59, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 60, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 61, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 62, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 63, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }] })] expected to be same as  [DICTIONARY({ "width": 8, "height": 8, "revision": 0, "mine_estimate": <null>, "terminal": false, "custody": false, "cells": [{ "index": 0, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 1, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 2, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 3, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 4, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 5, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 6, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 7, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 8, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 9, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 10, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 11, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 12, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 13, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 14, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 15, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 16, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 17, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 18, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 19, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 20, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 21, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 22, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 23, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 24, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 25, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 26, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 27, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 28, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 29, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 30, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 31, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 32, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 33, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 34, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 35, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 36, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 37, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 38, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 39, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 40, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 41, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 42, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 43, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 44, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 45, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 46, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 47, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 48, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 49, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 50, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 51, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 52, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 53, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 54, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 55, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 56, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 57, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 58, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 59, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 60, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 61, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 62, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 63, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }] })]:  the grid reads the panel's own copy
+      at line 502
+    [Failed]:  [DICTIONARY({ "index": 0, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] })] expected to be same as  [DICTIONARY({ "index": 0, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] })]:  each cell reads its own slice of that copy
+      at line 503
+    7 Orphans
+        * [@Control@6975:<Control#1398330624666>(/Unregistered-Inner-Class)]
+        * [@Control@6978:<Control#1398632615763>(/Unregistered-Inner-Class)]
+        * [@Control@6977:<Control#1398531952493>(/Unregistered-Inner-Class)]
+        * [@Button@6973:<Button#1398028636023>(MinesweeperActionButton.gd)]
+        * [@Control@6976:<Control#1398431289338>(/Unregistered-Inner-Class)]
+        * [@Button@6972:<Button#1397877641523>(MinesweeperActionButton.gd)]
+        * [@Button@6974:<Button#1398179631523>(MinesweeperActionButton.gd)]
+7 orphans
+17/19 passed.
+
+
+res://tests/unit/test_minesweeper_grid.gd
+* test_strict_projection_builds_contiguous_exact_mount
+* test_invalid_projection_is_atomic_and_rejects_private_keys
+* test_same_dimensions_reuse_cell_and_theme_instances_across_revisions
+* test_resize_keeps_prefix_frees_removed_suffix_and_reflows_positions
+* test_roving_focus_moves_without_wrap_and_bracketed_repairs_first
+* test_modes_and_explicit_actions_never_infer_illegal_commands
+* test_paired_pointer_release_and_keyboard_emit_once_with_revision
+* test_pointer_focuses_read_only_cell_and_press_submits_before_any_release
+* test_accessibility_exposes_one_based_coordinate_and_visible_fact_only
+* test_keyboard_f_toggles_mode_and_space_requests_new_board_without_cell_action
+* test_cross_cell_rules_reject_terminal_or_custody_contacts_atomically
+* test_joy_axis_navigation_is_edge_latched_until_neutral
+* test_confirm_is_shared_latched_and_blocks_pointer_and_space_until_release
+* test_custody_cancels_contact_and_removes_grid_focus
+* test_drag_mode_mouse_slop_emits_content_motion_and_stationary_release_is_inert
+* test_touch_short_tap_long_press_and_pan_are_mutually_exclusive
+* test_touch_press_chrome_requires_current_mode_primary_action
+* test_canceled_touch_and_double_tap_never_activate
+* test_second_touch_cancels_pending_tap_and_public_cancel_does_not_release_confirm
+* test_long_press_refresh_keeps_release_gate_until_same_finger_lifts
+* test_right_stick_pan_waits_for_touch_release_and_latches_until_neutral
+* test_focus_signal_reports_repair_move_and_focus_reentry
+* test_real_f_route_emits_only_actual_valid_mode_changes
+* test_identical_or_rejected_mode_preserves_pending_contact_and_active_pan
+* test_can_present_validates_without_changing_grid_projection_focus_or_children
+* test_projection_validation_reuses_the_cell_rules_without_a_probe_cell
+    [Failed]:  a projection check cannot allocate and present a probe cell per board
+      at line 571
+    [Failed]:  the probe-free check must reuse the cell's own published rules
+      at line 572
+* test_interaction_block_cancels_real_touch_and_ignores_input_without_changing_facts
+* test_mouse_press_submits_once_and_release_or_drag_off_submits_nothing_more
+27/28 passed.
+
+
+res://tests/unit/test_minesweeper_register.gd
+* test_exact_bays_present_signed_public_values_without_metric_operands
+* test_difficulty_commitment_is_owner_controlled_and_same_tier_is_inert
+    7 Orphans
+        * [@Button@7200:<Button#1458460167998>(MinesweeperActionButton.gd)]
+        * [@Control@7205:<Control#1459114479467>(/Unregistered-Inner-Class)]
+        * [@Control@7204:<Control#1459013816215>(/Unregistered-Inner-Class)]
+        * [@Control@7203:<Control#1458913153012>(/Unregistered-Inner-Class)]
+        * [@Button@7202:<Button#1458762158145>(MinesweeperActionButton.gd)]
+        * [@Button@7201:<Button#1458611163427>(MinesweeperActionButton.gd)]
+        * [@Control@7206:<Control#1459215143474>(/Unregistered-Inner-Class)]
+* test_unknown_metrics_use_dash_and_no_flag_does_not_become_forecast
+    7 Orphans
+        * [@Control@7219:<Control#1461127744985>(/Unregistered-Inner-Class)]
+        * [@Control@7218:<Control#1461027082089>(/Unregistered-Inner-Class)]
+        * [@Button@7216:<Button#1460725092307>(MinesweeperActionButton.gd)]
+        * [@Button@7217:<Button#1460876087283>(MinesweeperActionButton.gd)]
+        * [@Control@7221:<Control#1461329072138>(/Unregistered-Inner-Class)]
+        * [@Control@7220:<Control#1461228409380>(/Unregistered-Inner-Class)]
+        * [@Button@7215:<Button#1460574097988>(MinesweeperActionButton.gd)]
+* test_all_font_scales_preserve_bay_order_and_do_not_shrink_copy
+    126 Orphans
+        * [@Control@7268:<Control#1468090288292>(/Unregistered-Inner-Class)]
+        * [@Button@7244:<Button#1464466409637>(MinesweeperActionButton.gd)]
+        * [@Control@7254:<Control#1465976359455>(/Unregistered-Inner-Class)]
+        * [@Control@7249:<Control#1465120721598>(/Unregistered-Inner-Class)]
+        * [@Control@7276:<Control#1469247916851>(/Unregistered-Inner-Class)]
+        * [@Control@7278:<Control#1469449243448>(/Unregistered-Inner-Class)]
+        * [@Button@7329:<Button#1477300980637>(MinesweeperActionButton.gd)]
+        * [@Control@7313:<Control#1474734066591>(/Unregistered-Inner-Class)]
+        * [@Button@7267:<Button#1467939294121>(MinesweeperActionButton.gd)]
+        * [@Control@7269:<Control#1468190952362>(/Unregistered-Inner-Class)]
+        * [@Control@7346:<Control#1479817563151>(/Unregistered-Inner-Class)]
+        * [@Button@7239:<Button#1463711435805>(MinesweeperActionButton.gd)]
+        * [@Control@7355:<Control#1481075854601>(/Unregistered-Inner-Class)]
+        * [@Control@7345:<Control#1479716900171>(/Unregistered-Inner-Class)]
+        * [@Button@7344:<Button#1479565905236>(MinesweeperActionButton.gd)]
+        * [@Button@7343:<Button#1479414910301>(MinesweeperActionButton.gd)]
+        * [@Control@7341:<Control#1478961925473>(/Unregistered-Inner-Class)]
+        * [@Button@7342:<Button#1479263915364>(MinesweeperActionButton.gd)]
+        * [@Control@7339:<Control#1478760598891>(/Unregistered-Inner-Class)]
+        * [@Control@7338:<Control#1478659935596>(/Unregistered-Inner-Class)]
+        * [@Control@7340:<Control#1478861262191>(/Unregistered-Inner-Class)]
+        * [@Button@7330:<Button#1477451976054>(MinesweeperActionButton.gd)]
+        * [@Control@7348:<Control#1480018890110>(/Unregistered-Inner-Class)]
+        * [@Control@7347:<Control#1479918226816>(/Unregistered-Inner-Class)]
+        * [@Button@7350:<Button#1480471874948>(MinesweeperActionButton.gd)]
+        * [@Button@7349:<Button#1480320880029>(MinesweeperActionButton.gd)]
+        * [@Button@7351:<Button#1480622869918>(MinesweeperActionButton.gd)]
+        * [@Control@7352:<Control#1480773864864>(/Unregistered-Inner-Class)]
+        * [@Control@7353:<Control#1480874528161>(/Unregistered-Inner-Class)]
+        * [@Control@7354:<Control#1480975191460>(/Unregistered-Inner-Class)]
+        * [@Control@7326:<Control#1476747333051>(/Unregistered-Inner-Class)]
+        * [@Control@7327:<Control#1476847996352>(/Unregistered-Inner-Class)]
+        * [@Button@7328:<Button#1477149986242>(MinesweeperActionButton.gd)]
+        * [@Control@7325:<Control#1476646669766>(/Unregistered-Inner-Class)]
+        * [@Control@7324:<Control#1476546006474>(/Unregistered-Inner-Class)]
+        * [@Button@7323:<Button#1476395011539>(MinesweeperActionButton.gd)]
+        * [@Button@7322:<Button#1476244016598>(MinesweeperActionButton.gd)]
+        * [@Control@7331:<Control#1477602971105>(/Unregistered-Inner-Class)]
+        * [@Button@7335:<Button#1478206950889>(MinesweeperActionButton.gd)]
+        * [@Button@7336:<Button#1478357945838>(MinesweeperActionButton.gd)]
+        * [@Control@7333:<Control#1477804297720>(/Unregistered-Inner-Class)]
+        * [@Control@7334:<Control#1477904961020>(/Unregistered-Inner-Class)]
+        * [@Control@7332:<Control#1477703634431>(/Unregistered-Inner-Class)]
+        * [@Button@7337:<Button#1478508940804>(MinesweeperActionButton.gd)]
+        * [@Button@7314:<Button#1475036057103>(MinesweeperActionButton.gd)]
+        * [@Control@7310:<Control#1474432077334>(/Unregistered-Inner-Class)]
+        * [@Control@7312:<Control#1474633403927>(/Unregistered-Inner-Class)]
+        * [@Control@7311:<Control#1474532740635>(/Unregistered-Inner-Class)]
+        * [@Button@7309:<Button#1474281082399>(MinesweeperActionButton.gd)]
+        * [@Button@7308:<Button#1474130087464>(MinesweeperActionButton.gd)]
+        * [@Control@7299:<Control#1472620138045>(/Unregistered-Inner-Class)]
+        * [@Button@7316:<Button#1475338047047>(MinesweeperActionButton.gd)]
+        * [@Control@7319:<Control#1475690368587>(/Unregistered-Inner-Class)]
+        * [@Button@7321:<Button#1476093021774>(MinesweeperActionButton.gd)]
+        * [@Control@7320:<Control#1475791031889>(/Unregistered-Inner-Class)]
+        * [@Control@7318:<Control#1475589705303>(/Unregistered-Inner-Class)]
+        * [@Control@7317:<Control#1475489042012>(/Unregistered-Inner-Class)]
+        * [@Button@7307:<Button#1473979092580>(MinesweeperActionButton.gd)]
+        * [@Button@7315:<Button#1475187052141>(MinesweeperActionButton.gd)]
+        * [@Control@7297:<Control#1472418811507>(/Unregistered-Inner-Class)]
+        * [@Control@7296:<Control#1472318148212>(/Unregistered-Inner-Class)]
+        * [@Control@7298:<Control#1472519474811>(/Unregistered-Inner-Class)]
+        * [@Button@7295:<Button#1472167153277>(MinesweeperActionButton.gd)]
+        * [@Button@7294:<Button#1472016158342>(MinesweeperActionButton.gd)]
+        * [@Button@7293:<Button#1471865163404>(MinesweeperActionButton.gd)]
+        * [@Control@7292:<Control#1471563173527>(/Unregistered-Inner-Class)]
+        * [@Control@7291:<Control#1471462510232>(/Unregistered-Inner-Class)]
+        * [@Control@7290:<Control#1471361846941>(/Unregistered-Inner-Class)]
+        * [@Button@7301:<Button#1473073122987>(MinesweeperActionButton.gd)]
+        * [@Button@7302:<Button#1473224117933>(MinesweeperActionButton.gd)]
+        * [@Control@7304:<Control#1473475776178>(/Unregistered-Inner-Class)]
+        * [@Control@7303:<Control#1473375112886>(/Unregistered-Inner-Class)]
+        * [@Control@7305:<Control#1473576439500>(/Unregistered-Inner-Class)]
+        * [@Control@7306:<Control#1473677102799>(/Unregistered-Inner-Class)]
+        * [@Button@7300:<Button#1472922128085>(MinesweeperActionButton.gd)]
+        * [@Button@7281:<Button#1470053224155>(MinesweeperActionButton.gd)]
+        * [@Button@7260:<Button#1466882330365>(MinesweeperActionButton.gd)]
+        * [@Button@7258:<Button#1466580340479>(MinesweeperActionButton.gd)]
+        * [@Button@7286:<Button#1470808198923>(MinesweeperActionButton.gd)]
+        * [@Control@7284:<Control#1470405545741>(/Unregistered-Inner-Class)]
+        * [@Button@7287:<Button#1470959193877>(MinesweeperActionButton.gd)]
+        * [@Button@7288:<Button#1471110188830>(MinesweeperActionButton.gd)]
+        * [@Control@7285:<Control#1470506209067>(/Unregistered-Inner-Class)]
+        * [@Control@7289:<Control#1471261183793>(/Unregistered-Inner-Class)]
+        * [@Control@7283:<Control#1470304882486>(/Unregistered-Inner-Class)]
+        * [@Control@7282:<Control#1470204219192>(/Unregistered-Inner-Class)]
+        * [@Control@7257:<Control#1466278350671>(/Unregistered-Inner-Class)]
+        * [@Button@7237:<Button#1463409446776>(MinesweeperActionButton.gd)]
+        * [@Control@7235:<Control#1463191342970>(/Unregistered-Inner-Class)]
+        * [@Control@7236:<Control#1463292006278>(/Unregistered-Inner-Class)]
+        * [@Button@7251:<Button#1465523376009>(MinesweeperActionButton.gd)]
+        * [@Button@7231:<Button#1462688026525>(MinesweeperActionButton.gd)]
+        * [@Control@7240:<Control#1463862431654>(/Unregistered-Inner-Class)]
+        * [@Control@7271:<Control#1468392279982>(/Unregistered-Inner-Class)]
+        * [@Button@7273:<Button#1468845264863>(MinesweeperActionButton.gd)]
+        * [@Button@7252:<Button#1465674371050>(MinesweeperActionButton.gd)]
+        * [@Button@7272:<Button#1468694269935>(MinesweeperActionButton.gd)]
+        * [@Button@7274:<Button#1468996259824>(MinesweeperActionButton.gd)]
+        * [@Button@7265:<Button#1467637305346>(MinesweeperActionButton.gd)]
+        * [@Control@7275:<Control#1469147254788>(/Unregistered-Inner-Class)]
+        * [@Control@7277:<Control#1469348581384>(/Unregistered-Inner-Class)]
+        * [@Control@7234:<Control#1463090679822>(/Unregistered-Inner-Class)]
+        * [@Button@7279:<Button#1469751234577>(MinesweeperActionButton.gd)]
+        * [@Button@7238:<Button#1463560441885>(MinesweeperActionButton.gd)]
+        * [@Control@7233:<Control#1462990016548>(/Unregistered-Inner-Class)]
+        * [@Control@7261:<Control#1467033325622>(/Unregistered-Inner-Class)]
+        * [@Control@7256:<Control#1466177687609>(/Unregistered-Inner-Class)]
+        * [@Control@7241:<Control#1463963095226>(/Unregistered-Inner-Class)]
+        * [@Control@7264:<Control#1467335315646>(/Unregistered-Inner-Class)]
+        * [@Control@7248:<Control#1465020059896>(/Unregistered-Inner-Class)]
+        * [@Control@7243:<Control#1464164421894>(/Unregistered-Inner-Class)]
+        * [@Control@7263:<Control#1467234652456>(/Unregistered-Inner-Class)]
+        * [@Button@7259:<Button#1466731335979>(MinesweeperActionButton.gd)]
+        * [@Control@7255:<Control#1466077024568>(/Unregistered-Inner-Class)]
+        * [@Control@7270:<Control#1468291617106>(/Unregistered-Inner-Class)]
+        * [@Button@7230:<Button#1462537032068>(MinesweeperActionButton.gd)]
+        * [@Button@7245:<Button#1464617406856>(MinesweeperActionButton.gd)]
+        * [@Control@7242:<Control#1464063758778>(/Unregistered-Inner-Class)]
+        * [@Button@7266:<Button#1467788300780>(MinesweeperActionButton.gd)]
+        * [@Control@7247:<Control#1464919396863>(/Unregistered-Inner-Class)]
+        * [@Control@7250:<Control#1465221386764>(/Unregistered-Inner-Class)]
+        * [@Control@7262:<Control#1467133989459>(/Unregistered-Inner-Class)]
+        * [@Button@7280:<Button#1469902230107>(MinesweeperActionButton.gd)]
+        * [@Button@7246:<Button#1464768402026>(MinesweeperActionButton.gd)]
+        * [@Button@7253:<Button#1465825366669>(MinesweeperActionButton.gd)]
+        * [@Button@7232:<Button#1462839022235>(MinesweeperActionButton.gd)]
+* test_canonical_blank_capacity_has_no_placeholder_control_or_difficulty
+* test_large_foresight_label_wraps_at_word_parts_without_changing_metric_truth
+    7 Orphans
+        * [@Button@7370:<Button#1485320489970>(MinesweeperActionButton.gd)]
+        * [@Button@7369:<Button#1485169495057>(MinesweeperActionButton.gd)]
+        * [@Button@7368:<Button#1485018500223>(MinesweeperActionButton.gd)]
+        * [@Control@7373:<Control#1485672811713>(/Unregistered-Inner-Class)]
+        * [@Control@7374:<Control#1485773475017>(/Unregistered-Inner-Class)]
+        * [@Control@7371:<Control#1485471485130>(/Unregistered-Inner-Class)]
+        * [@Control@7372:<Control#1485572148433>(/Unregistered-Inner-Class)]
+* test_invalid_or_private_input_preserves_existing_facts
+* test_repeated_present_retains_every_difficulty_button_and_metric_control
+    [Failed]:  [@Button@7398:<Button#1489145695153>(MinesweeperActionButton.gd)] expected to be same as  [@Button@7391:<Button#1488290057328>(MinesweeperActionButton.gd)]:  beginner
+      at line 130
+    [Failed]:  [@Button@7399:<Button#1489296689704>(MinesweeperActionButton.gd)] expected to be same as  [@Button@7392:<Button#1488441052024>(MinesweeperActionButton.gd)]:  intermediate
+      at line 130
+    [Failed]:  [@Button@7400:<Button#1489447685141>(MinesweeperActionButton.gd)] expected to be same as  [@Button@7393:<Button#1488592046947>(MinesweeperActionButton.gd)]:  expert
+      at line 130
+    [Failed]:  [@Control@7401:<Control#1489598680142>(/Unregistered-Inner-Class)] expected to be same as  [@Control@7394:<Control#1488743041883>(/Unregistered-Inner-Class)]:  rounds
+      at line 131
+    [Failed]:  [@Control@7402:<Control#1489699343460>(/Unregistered-Inner-Class)] expected to be same as  [@Control@7395:<Control#1488843705188>(/Unregistered-Inner-Class)]:  mine_estimate
+      at line 131
+    [Failed]:  [@Control@7403:<Control#1489800006747>(/Unregistered-Inner-Class)] expected to be same as  [@Control@7396:<Control#1488944368486>(/Unregistered-Inner-Class)]:  foresight
+      at line 131
+    [Failed]:  [@Control@7404:<Control#1489900670053>(/Unregistered-Inner-Class)] expected to be same as  [@Control@7397:<Control#1489045031773>(/Unregistered-Inner-Class)]:  no_flag
+      at line 131
+    [Failed]:  [@Control@7401:<Control#1489598680142>(/Unregistered-Inner-Class)] expected to be same as  [@Control@7394:<Control#1488743041883>(/Unregistered-Inner-Class)]:  rounds
+      at line 139
+    [Failed]:  [@Control@7402:<Control#1489699343460>(/Unregistered-Inner-Class)] expected to be same as  [@Control@7395:<Control#1488843705188>(/Unregistered-Inner-Class)]:  mine_estimate
+      at line 139
+    [Failed]:  [@Control@7403:<Control#1489800006747>(/Unregistered-Inner-Class)] expected to be same as  [@Control@7396:<Control#1488944368486>(/Unregistered-Inner-Class)]:  foresight
+      at line 139
+    [Failed]:  [@Control@7404:<Control#1489900670053>(/Unregistered-Inner-Class)] expected to be same as  [@Control@7397:<Control#1489045031773>(/Unregistered-Inner-Class)]:  no_flag
+      at line 139
+    7 Orphans
+        * [@Control@7394:<Control#1488743041883>(/Unregistered-Inner-Class)]
+        * [@Control@7397:<Control#1489045031773>(/Unregistered-Inner-Class)]
+        * [@Button@7393:<Button#1488592046947>(MinesweeperActionButton.gd)]
+        * [@Control@7395:<Control#1488843705188>(/Unregistered-Inner-Class)]
+        * [@Control@7396:<Control#1488944368486>(/Unregistered-Inner-Class)]
+        * [@Button@7392:<Button#1488441052024>(MinesweeperActionButton.gd)]
+        * [@Button@7391:<Button#1488290057328>(MinesweeperActionButton.gd)]
+* test_retained_difficulty_button_keeps_its_focus_and_commitment_signal
+    [Failed]:  [@Button@7415:<Button#1491813272128>(MinesweeperActionButton.gd)] expected to be same as  [@Button@7408:<Button#1490957634663>(MinesweeperActionButton.gd)]:  a published metric change cannot replace a focused bay
+      at line 148
+    [Failed]
+      at line 149
+    7 Orphans
+        * [@Control@7412:<Control#1491410618977>(/Unregistered-Inner-Class)]
+        * [@Control@7411:<Control#1491309955771>(/Unregistered-Inner-Class)]
+        * [@Button@7407:<Button#1490806639698>(MinesweeperActionButton.gd)]
+        * [@Control@7409:<Control#1491108629606>(/Unregistered-Inner-Class)]
+        * [@Button@7408:<Button#1490957634663>(MinesweeperActionButton.gd)]
+        * [@Control@7410:<Control#1491209292914>(/Unregistered-Inner-Class)]
+        * [@Button@7406:<Button#1490655644795>(MinesweeperActionButton.gd)]
+161 orphans
+7/9 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_minesweeper_panel.gd
+    - Outside Tests
+        * [<Node#131617261336>(subsystem_animation.gd)]
+        * [<Node#131634038564>(subsystem_audio.gd)]
+        * [<Node#131650815796>]
+        * [<Node#131667593021>]
+        * [<Node#131684370243>(subsystem_backgrounds.gd)]
+        * [<Node#132221241156>(subsystem_choices.gd)]
+        * [<Timer#132238018373>]
+        * [<Node#132254795590>(subsystem_expression.gd)]
+        * [<Node#132288350027>(subsystem_glossary.gd)]
+        * [<Node#132305127244>(subsystem_history.gd)]
+        * [<Node#132321904461>(subsystem_input.gd)]
+        * [<Timer#132338681678>]
+        * [<Node#132355458895>(subsystem_jump.gd)]
+        * [<Node#132372236112>(subsystem_containers.gd)]
+        * [<Node#132389013329>(subsystem_portraits.gd)]
+        * [<Node#132925884242>(subsystem_save.gd)]
+        * [<Timer#132942661459>]
+        * [<Node#132959438676>(subsystem_settings.gd)]
+        * [<Node#132976215896>(subsystem_styles.gd)]
+        * [<Node#132992993113>(subsystem_text.gd)]
+        * [<Node#133076879198>(subsystem_text_input.gd)]
+        * [<Node#133093656415>(subsystem_variables.gd)]
+        * [<Node#133110433632>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133127210849>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_minesweeper_panel.gd
+- test_measure_retains_one_result_per_configuration_and_every_input_invalidates_it
+    [Failed]:  [DICTIONARY({ "band": (400, 210), "register_height": 116.0 })] expected to be same as  [DICTIONARY({ "band": (400, 210), "register_height": 116.0 })]:  an unchanged configuration must reuse the retained measurement, not rebuild three probes
+          at line 474
+- test_publication_keeps_one_detached_copy_shared_by_grid_and_cells
+    [Failed]:  [DICTIONARY({ "width": 8, "height": 8, "revision": 0, "mine_estimate": <null>, "terminal": false, "custody": false, "cells": [{ "index": 0, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 1, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 2, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 3, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 4, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 5, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 6, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 7, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 8, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 9, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 10, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 11, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 12, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 13, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 14, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 15, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 16, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 17, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 18, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 19, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 20, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 21, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 22, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 23, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 24, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 25, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 26, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 27, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 28, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 29, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 30, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 31, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 32, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 33, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 34, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 35, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 36, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 37, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 38, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 39, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 40, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 41, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 42, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 43, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 44, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 45, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 46, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 47, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 48, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 49, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 50, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 51, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 52, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 53, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 54, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 55, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 56, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 57, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 58, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 59, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 60, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 61, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 62, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 63, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }] })] expected to be same as  [DICTIONARY({ "width": 8, "height": 8, "revision": 0, "mine_estimate": <null>, "terminal": false, "custody": false, "cells": [{ "index": 0, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 1, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 2, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 3, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 4, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 5, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 6, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 7, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 8, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 9, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 10, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 11, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 12, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 13, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 14, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 15, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 16, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 17, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 18, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 19, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 20, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 21, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 22, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 23, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 24, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 25, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 26, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 27, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 28, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 29, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 30, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 31, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 32, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 33, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 34, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 35, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 36, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 37, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 38, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 39, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 40, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 41, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 42, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 43, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 44, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 45, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 46, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 47, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 48, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 49, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 50, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 51, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 52, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 53, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 54, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 55, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 56, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 57, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 58, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 59, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 60, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 61, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 62, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }, { "index": 63, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] }] })]:  the grid reads the panel's own copy
+          at line 502
+    [Failed]:  [DICTIONARY({ "index": 0, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] })] expected to be same as  [DICTIONARY({ "index": 0, "face": "covered", "mark": "none", "number": 0, "bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal", "flag"] })]:  each cell reads its own slice of that copy
+          at line 503
+
+res://tests/unit/test_minesweeper_grid.gd
+- test_projection_validation_reuses_the_cell_rules_without_a_probe_cell
+    [Failed]:  a projection check cannot allocate and present a probe cell per board
+          at line 571
+    [Failed]:  the probe-free check must reuse the cell's own published rules
+          at line 572
+
+res://tests/unit/test_minesweeper_register.gd
+- test_repeated_present_retains_every_difficulty_button_and_metric_control
+    [Failed]:  [@Button@7398:<Button#1489145695153>(MinesweeperActionButton.gd)] expected to be same as  [@Button@7391:<Button#1488290057328>(MinesweeperActionButton.gd)]:  beginner
+          at line 130
+    [Failed]:  [@Button@7399:<Button#1489296689704>(MinesweeperActionButton.gd)] expected to be same as  [@Button@7392:<Button#1488441052024>(MinesweeperActionButton.gd)]:  intermediate
+          at line 130
+    [Failed]:  [@Button@7400:<Button#1489447685141>(MinesweeperActionButton.gd)] expected to be same as  [@Button@7393:<Button#1488592046947>(MinesweeperActionButton.gd)]:  expert
+          at line 130
+    [Failed]:  [@Control@7401:<Control#1489598680142>(/Unregistered-Inner-Class)] expected to be same as  [@Control@7394:<Control#1488743041883>(/Unregistered-Inner-Class)]:  rounds
+          at line 131
+    [Failed]:  [@Control@7402:<Control#1489699343460>(/Unregistered-Inner-Class)] expected to be same as  [@Control@7395:<Control#1488843705188>(/Unregistered-Inner-Class)]:  mine_estimate
+          at line 131
+    [Failed]:  [@Control@7403:<Control#1489800006747>(/Unregistered-Inner-Class)] expected to be same as  [@Control@7396:<Control#1488944368486>(/Unregistered-Inner-Class)]:  foresight
+          at line 131
+    [Failed]:  [@Control@7404:<Control#1489900670053>(/Unregistered-Inner-Class)] expected to be same as  [@Control@7397:<Control#1489045031773>(/Unregistered-Inner-Class)]:  no_flag
+          at line 131
+    [Failed]:  [@Control@7401:<Control#1489598680142>(/Unregistered-Inner-Class)] expected to be same as  [@Control@7394:<Control#1488743041883>(/Unregistered-Inner-Class)]:  rounds
+          at line 139
+    [Failed]:  [@Control@7402:<Control#1489699343460>(/Unregistered-Inner-Class)] expected to be same as  [@Control@7395:<Control#1488843705188>(/Unregistered-Inner-Class)]:  mine_estimate
+          at line 139
+    [Failed]:  [@Control@7403:<Control#1489800006747>(/Unregistered-Inner-Class)] expected to be same as  [@Control@7396:<Control#1488944368486>(/Unregistered-Inner-Class)]:  foresight
+          at line 139
+    [Failed]:  [@Control@7404:<Control#1489900670053>(/Unregistered-Inner-Class)] expected to be same as  [@Control@7397:<Control#1489045031773>(/Unregistered-Inner-Class)]:  no_flag
+          at line 139
+- test_retained_difficulty_button_keeps_its_focus_and_commitment_signal
+    [Failed]:  [@Button@7415:<Button#1491813272128>(MinesweeperActionButton.gd)] expected to be same as  [@Button@7408:<Button#1490957634663>(MinesweeperActionButton.gd)]:  a published metric change cannot replace a focused bay
+          at line 148
+    [Failed]:
+          at line 149
+
+Totals
+------
+Scripts               3
+Tests                56
+Passing Tests        51
+Failing Tests         5
+Asserts           1420/1438
+Orphans              24
+Time              1.533s
+
+
+---- 5 failing tests ----

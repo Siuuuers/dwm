@@ -563,6 +563,19 @@ func test_can_present_validates_without_changing_grid_projection_focus_or_childr
 	assert_signal_emit_count(grid,"focused_cell_changed",0)
 	assert_signal_emit_count(grid,"cell_action_requested",0)
 
+func test_projection_validation_reuses_the_cell_rules_without_a_probe_cell() -> void:
+	var source: String = FileAccess.get_file_as_string("res://scripts/ui/minesweeper/MinesweeperGrid.gd")
+	var start: int = source.find("func can_present(")
+	assert_gt(start,0,"the projection check must exist to be validated")
+	var body: String = source.substr(start,source.find("\nfunc present(")-start)
+	assert_false(body.contains("CELL.new()"),"a projection check cannot allocate and present a probe cell per board")
+	assert_true(body.contains("CELL.validate("),"the probe-free check must reuse the cell's own published rules")
+	var grid := _grid()
+	assert_true(grid.can_present(_projection([_cell(0),_cell(1)])))
+	assert_false(grid.can_present(_projection([_cell(0),_cell(1,{"number":2})])),"a covered numbered cell stays refused")
+	assert_false(grid.can_present(_projection([_cell(0),_cell(1,{"actions":["reveal","reveal"]})])),"a repeated action stays refused")
+	assert_false(grid.can_present(_projection([_cell(0),_cell(1,{"inspectable":false})])),"a pressable uninspectable cell stays refused")
+
 func test_interaction_block_cancels_real_touch_and_ignores_input_without_changing_facts() -> void:
 	var viewport := SubViewport.new()
 	viewport.size = Vector2i(320,240)

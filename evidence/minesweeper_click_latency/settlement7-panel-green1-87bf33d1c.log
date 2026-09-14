@@ -1,0 +1,368 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/click-latency-3/.godot/phase2r_tests/9576de09-e7f1-4989-8b5d-b9f1c8a0aef1/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_minesweeper_panel.gd
+* test_dock_mode_and_real_f_shortcut_share_selection_without_board_commands
+* test_sheet_restores_source_mode_cell_and_scroll_while_dock_stays_inert
+    26 Orphans
+        * [@Control@715:<Control#295580995653>(MinesweeperInformationSheet.gd)] + 9
+        * [@Control@725:<Control#435687526502>(MinesweeperInformationSheet.gd)] + 15
+* test_invalid_composite_preserves_facts_blocks_input_and_refresh_recovers
+* test_same_size_dispatch_refreshes_public_facts_without_replacing_cells
+* test_all_locale_scale_and_target_tuples_close_fixed_body_without_shrinking_fonts
+    164 Orphans
+        * [@Button@1050:<Button#676910336129>(MinesweeperActionButton.gd)]
+        * [@Button@1742:<Button#785643473396>(MinesweeperActionButton.gd)]
+        * [@Button@1054:<Button#677514316296>(MinesweeperActionButton.gd)]
+        * [@Button@1294:<Button#708636052006>(MinesweeperActionButton.gd)]
+        * [@Button@1301:<Button#709978229288>(MinesweeperActionButton.gd)]
+        * [@Button@1220:<Button#695868590639>(MinesweeperActionButton.gd)]
+        * [@Button@1053:<Button#677363321406>(MinesweeperActionButton.gd)]
+        * [@Button@1331:<Button#715011394116>(MinesweeperActionButton.gd)]
+        * [@Button@1055:<Button#677665311304>(MinesweeperActionButton.gd)]
+        * [@Button@1051:<Button#677061331530>(MinesweeperActionButton.gd)]
+        * [@Button@1183:<Button#689577134674>(MinesweeperActionButton.gd)]
+        * [@Button@1085:<Button#681188526703>(MinesweeperActionButton.gd)]
+        * [VerticalRail:<Control#759420684938>(MinesweeperScrollRail.gd)]
+        * [@Button@1084:<Button#681037531817>(MinesweeperActionButton.gd)]
+        * [@Button@1368:<Button#721369959116>(MinesweeperActionButton.gd)]
+        * [@Button@1705:<Button#779284908776>(MinesweeperActionButton.gd)]
+        * [@Button@1703:<Button#778697706226>(MinesweeperActionButton.gd)]
+        * [@Button@1702:<Button#778546711306>(MinesweeperActionButton.gd)]
+        * [@Button@1706:<Button#779435903766>(MinesweeperActionButton.gd)]
+        * [@Button@1746:<Button#786247453466>(MinesweeperActionButton.gd)]
+        * [@Button@1741:<Button#785492478764>(MinesweeperActionButton.gd)]
+        * [@Button@1263:<Button#703468669788>(MinesweeperActionButton.gd)]
+        * [@Button@1264:<Button#703619664740>(MinesweeperActionButton.gd)]
+        * [@Button@1226:<Button#697059773298>(MinesweeperActionButton.gd)]
+        * [@Button@1227:<Button#697210768246>(MinesweeperActionButton.gd)]
+        * [@Button@1189:<Button#690768317314>(MinesweeperActionButton.gd)]
+        * [@Button@1190:<Button#690919312267>(MinesweeperActionButton.gd)]
+        * [@Button@1191:<Button#691070307220>(MinesweeperActionButton.gd)]
+        * [@Button@1338:<Button#716353571747>(MinesweeperActionButton.gd)]
+        * [@Button@1300:<Button#709827234730>(MinesweeperActionButton.gd)]
+        * [@Button@1187:<Button#690466327475>(MinesweeperActionButton.gd)]
+        * [@Button@1185:<Button#689879124934>(MinesweeperActionButton.gd)]
+        * [@Button@1223:<Button#696606788562>(MinesweeperActionButton.gd)]
+        * [@Button@1184:<Button#689728130015>(MinesweeperActionButton.gd)]
+        * [@Button@1188:<Button#690617322465>(MinesweeperActionButton.gd)]
+        * [@Button@1228:<Button#697361763302>(MinesweeperActionButton.gd)]
+        * [@Button@1374:<Button#722561141743>(MinesweeperActionButton.gd)]
+        * [@Button@1375:<Button#722712136695>(MinesweeperActionButton.gd)]
+        * [@Button@1337:<Button#716202576895>(MinesweeperActionButton.gd)]
+        * [@Button@1224:<Button#696757783560>(MinesweeperActionButton.gd)]
+        * [@Button@1222:<Button#696170581016>(MinesweeperActionButton.gd)]
+        * [@Button@1260:<Button#703015685156>(MinesweeperActionButton.gd)]
+        * [@Button@1257:<Button#702277487658>(MinesweeperActionButton.gd)]
+        * [@Button@1221:<Button#696019586097>(MinesweeperActionButton.gd)]
+        * [@Button@1225:<Button#696908778547>(MinesweeperActionButton.gd)]
+        * [@Button@1265:<Button#703770659902>(MinesweeperActionButton.gd)]
+        * [@Button@1412:<Button#729053924417>(MinesweeperActionButton.gd)]
+        * [@Button@1261:<Button#703166680162>(MinesweeperActionButton.gd)]
+        * [@Button@1259:<Button#702579477604>(MinesweeperActionButton.gd)]
+        * [@Button@1258:<Button#702428482669>(MinesweeperActionButton.gd)]
+        * [@Button@1297:<Button#709374250108>(MinesweeperActionButton.gd)]
+        * [@Button@1262:<Button#703317675145>(MinesweeperActionButton.gd)]
+        * [@Button@1302:<Button#710129224848>(MinesweeperActionButton.gd)]
+        * [@Button@1449:<Button#735345380515>(MinesweeperActionButton.gd)]
+        * [@Button@1411:<Button#728902929574>(MinesweeperActionButton.gd)]
+        * [@Button@1298:<Button#709525245103>(MinesweeperActionButton.gd)]
+        * [@Button@1296:<Button#708938042559>(MinesweeperActionButton.gd)]
+        * [@Button@1334:<Button#715749592270>(MinesweeperActionButton.gd)]
+        * [@Button@1295:<Button#708787047643>(MinesweeperActionButton.gd)]
+        * [@Button@1299:<Button#709676240093>(MinesweeperActionButton.gd)]
+        * [@Button@1339:<Button#716504567012>(MinesweeperActionButton.gd)]
+        * [@Button@1486:<Button#741670391025>(MinesweeperActionButton.gd)]
+        * [@Button@1448:<Button#735194385665>(MinesweeperActionButton.gd)]
+        * [@Button@1335:<Button#715900587267>(MinesweeperActionButton.gd)]
+        * [@Button@1333:<Button#715313384723>(MinesweeperActionButton.gd)]
+        * [@Button@1371:<Button#722108157218>(MinesweeperActionButton.gd)]
+        * [@Button@1332:<Button#715162389807>(MinesweeperActionButton.gd)]
+        * [@Button@1336:<Button#716051582257>(MinesweeperActionButton.gd)]
+        * [@Button@1376:<Button#722863131958>(MinesweeperActionButton.gd)]
+        * [@Button@1442:<Button#734003203388>(MinesweeperActionButton.gd)]
+        * [@Button@1523:<Button#748028955969>(MinesweeperActionButton.gd)]
+        * [@Button@1405:<Button#727711747394>(MinesweeperActionButton.gd)]
+        * [@Button@1485:<Button#741519396181>(MinesweeperActionButton.gd)]
+        * [@Button@1372:<Button#722259152216>(MinesweeperActionButton.gd)]
+        * [@Button@1370:<Button#721671949669>(MinesweeperActionButton.gd)]
+        * [@Button@1408:<Button#728449944948>(MinesweeperActionButton.gd)]
+        * [@Button@1369:<Button#721520954753>(MinesweeperActionButton.gd)]
+        * [@Button@1373:<Button#722410147203>(MinesweeperActionButton.gd)]
+        * [@Button@1413:<Button#729204919692>(MinesweeperActionButton.gd)]
+        * [@Button@1479:<Button#740328213910>(MinesweeperActionButton.gd)]
+        * [@Button@1560:<Button#754421075354>(MinesweeperActionButton.gd)]
+        * [@Button@1522:<Button#747877961128>(MinesweeperActionButton.gd)]
+        * [@Button@1409:<Button#728600939952>(MinesweeperActionButton.gd)]
+        * [@Button@1407:<Button#728013737397>(MinesweeperActionButton.gd)]
+        * [@Button@1406:<Button#727862742462>(MinesweeperActionButton.gd)]
+        * [@Button@1445:<Button#734741401037>(MinesweeperActionButton.gd)]
+        * [@Button@1410:<Button#728751934938>(MinesweeperActionButton.gd)]
+        * [@Button@1450:<Button#735496375776>(MinesweeperActionButton.gd)]
+        * [@Button@1516:<Button#746686778854>(MinesweeperActionButton.gd)]
+        * [@Button@1597:<Button#760813194740>(MinesweeperActionButton.gd)]
+        * [@Button@1559:<Button#754270080505>(MinesweeperActionButton.gd)]
+        * [@Button@1446:<Button#734892396031>(MinesweeperActionButton.gd)]
+        * [@Button@1444:<Button#734305193490>(MinesweeperActionButton.gd)]
+        * [@Button@1482:<Button#741066411550>(MinesweeperActionButton.gd)]
+        * [@Button@1443:<Button#734154198571>(MinesweeperActionButton.gd)]
+        * [@Button@1447:<Button#735043391021>(MinesweeperActionButton.gd)]
+        * [@Button@1487:<Button#741821386292>(MinesweeperActionButton.gd)]
+        * [@Button@1553:<Button#753078898234>(MinesweeperActionButton.gd)]
+        * [@Button@1634:<Button#767121428035>(MinesweeperActionButton.gd)]
+        * [@Button@1596:<Button#760662199882>(MinesweeperActionButton.gd)]
+        * [@Button@1483:<Button#741217406547>(MinesweeperActionButton.gd)]
+        * [@Button@1481:<Button#740630204006>(MinesweeperActionButton.gd)]
+        * [@Button@1519:<Button#747424976497>(MinesweeperActionButton.gd)]
+        * [@Button@1484:<Button#741368401536>(MinesweeperActionButton.gd)]
+        * [@Button@1480:<Button#740479209089>(MinesweeperActionButton.gd)]
+        * [@Button@1524:<Button#748179951240>(MinesweeperActionButton.gd)]
+        * [@Button@1671:<Button#773412884119>(MinesweeperActionButton.gd)]
+        * [@Button@1633:<Button#766970433189>(MinesweeperActionButton.gd)]
+        * [@Button@1520:<Button#747575971495>(MinesweeperActionButton.gd)]
+        * [@Button@1518:<Button#746988768951>(MinesweeperActionButton.gd)]
+        * [@Button@1556:<Button#753817095878>(MinesweeperActionButton.gd)]
+        * [@Button@1517:<Button#746837774035>(MinesweeperActionButton.gd)]
+        * [@Button@1521:<Button#747726966485>(MinesweeperActionButton.gd)]
+        * [@Button@1561:<Button#754572070620>(MinesweeperActionButton.gd)]
+        * [@Button@1708:<Button#779737894641>(MinesweeperActionButton.gd)]
+        * [@Button@1670:<Button#773261889266>(MinesweeperActionButton.gd)]
+        * [@Button@1557:<Button#753968090875>(MinesweeperActionButton.gd)]
+        * [@Button@1555:<Button#753380888331>(MinesweeperActionButton.gd)]
+        * [@Button@1593:<Button#760209215257>(MinesweeperActionButton.gd)]
+        * [@Button@1590:<Button#759471017759>(MinesweeperActionButton.gd)]
+        * [@Button@1558:<Button#754119085864>(MinesweeperActionButton.gd)]
+        * [@Button@1554:<Button#753229893417>(MinesweeperActionButton.gd)]
+        * [@Button@1598:<Button#760964190001>(MinesweeperActionButton.gd)]
+        * [@Button@1745:<Button#786096459572>(MinesweeperActionButton.gd)]
+        * [@Button@1664:<Button#772070707006>(MinesweeperActionButton.gd)]
+        * [@Button@1627:<Button#765779251009>(MinesweeperActionButton.gd)]
+        * [@Button@1707:<Button#779586899784>(MinesweeperActionButton.gd)]
+        * [@Button@1594:<Button#760360210261>(MinesweeperActionButton.gd)]
+        * [@Button@1592:<Button#759773007706>(MinesweeperActionButton.gd)]
+        * [@Button@1591:<Button#759622012771>(MinesweeperActionButton.gd)]
+        * [@Button@1630:<Button#766517448562>(MinesweeperActionButton.gd)]
+        * [@Button@1595:<Button#760511205244>(MinesweeperActionButton.gd)]
+        * [@Button@1635:<Button#767272423303>(MinesweeperActionButton.gd)]
+        * [@Button@1701:<Button#778395717521>(MinesweeperActionButton.gd)]
+        * [@Button@1782:<Button#792488578965>(MinesweeperActionButton.gd)]
+        * [@Button@1744:<Button#785945464739>(MinesweeperActionButton.gd)]
+        * [@Button@1631:<Button#766668443563>(MinesweeperActionButton.gd)]
+        * [@Button@1629:<Button#766081241008>(MinesweeperActionButton.gd)]
+        * [@Button@1628:<Button#765930246073>(MinesweeperActionButton.gd)]
+        * [@Button@1667:<Button#772808904648>(MinesweeperActionButton.gd)]
+        * [@Button@1632:<Button#766819438547>(MinesweeperActionButton.gd)]
+        * [@Button@1672:<Button#773563879385>(MinesweeperActionButton.gd)]
+        * [@Button@1738:<Button#784754282463>(MinesweeperActionButton.gd)]
+        * [@Button@1781:<Button#792337584117>(MinesweeperActionButton.gd)]
+        * [@Button@1668:<Button#772959899643>(MinesweeperActionButton.gd)]
+        * [@Button@1666:<Button#772372697099>(MinesweeperActionButton.gd)]
+        * [@Button@1704:<Button#779133915159>(MinesweeperActionButton.gd)]
+        * [@Button@1665:<Button#772221702180>(MinesweeperActionButton.gd)]
+        * [@Button@1669:<Button#773110894630>(MinesweeperActionButton.gd)]
+        * [@Button@1709:<Button#779888889901>(MinesweeperActionButton.gd)]
+        * [@Button@1775:<Button#791146401843>(MinesweeperActionButton.gd)]
+        * [@Button@1186:<Button#690315333706>(MinesweeperActionButton.gd)]
+        * [@Button@1086:<Button#681339523164>(MinesweeperActionButton.gd)]
+        * [@Button@1052:<Button#677212328029>(MinesweeperActionButton.gd)]
+        * [VerticalRail:<Control#702227157142>(MinesweeperScrollRail.gd)]
+        * [@Button@1740:<Button#785056272540>(MinesweeperActionButton.gd)]
+        * [@Button@1778:<Button#791884599465>(MinesweeperActionButton.gd)]
+        * [@Button@1739:<Button#784905277625>(MinesweeperActionButton.gd)]
+        * [@Button@1743:<Button#785794470074>(MinesweeperActionButton.gd)]
+        * [@Button@1783:<Button#792639574210>(MinesweeperActionButton.gd)]
+        * [@Button@1779:<Button#792035594466>(MinesweeperActionButton.gd)]
+        * [@Button@1777:<Button#791448391920>(MinesweeperActionButton.gd)]
+        * [@Button@1776:<Button#791297397006>(MinesweeperActionButton.gd)]
+        * [@Button@1780:<Button#792186589455>(MinesweeperActionButton.gd)]
+* test_replacement_and_difficulty_remain_disabled_and_unpublished_actions_are_rejected
+* test_settled_terminal_enables_real_new_board_and_returns_to_unpaid_view
+* test_binding_is_idempotent_and_cannot_redirect_to_a_replacement_port
+* test_real_tab_visits_manual_grid_rails_zoom_and_dock_then_exits_to_the_host
+* test_synchronous_long_press_publication_retains_touch_gate_and_all_cell_nodes
+* test_locale_configuration_during_sheet_restores_rebuilt_semantic_source_and_pan
+    29 Orphans
+        * [@Button@3052:<Button#986466749071>(MinesweeperActionButton.gd)]
+        * [@Button@3086:<Button#990593945065>(MinesweeperActionButton.gd)]
+        * [@Button@3084:<Button#990291955433>(MinesweeperActionButton.gd)]
+        * [@Button@3050:<Button#986164760298>(MinesweeperActionButton.gd)]
+        * [@Button@3055:<Button#986919735085>(MinesweeperActionButton.gd)]
+        * [@Button@3051:<Button#986315755390>(MinesweeperActionButton.gd)]
+        * [@Button@3053:<Button#986617745331>(MinesweeperActionButton.gd)]
+        * [@Control@3575:<Control#1015575220245>(MinesweeperInformationSheet.gd)] + 10
+        * [@Control@3576:<Control#1016330195008>] + 8
+        * [@Button@3054:<Button#986768740509>(MinesweeperActionButton.gd)]
+        * [@Button@3085:<Button#990442950848>(MinesweeperActionButton.gd)]
+* test_unchanged_assignment_refresh_preserves_scrolled_rail_identity_and_focus
+* test_real_difficulty_buttons_dispatch_frozen_revision_and_reset_mode_only_on_success
+* test_difficulty_change_waits_for_pending_view_preference_write
+* test_touched_space_and_new_board_share_dispatch_while_untouched_space_is_inert
+* test_settled_space_uses_new_board_even_when_grid_has_no_focus
+* test_settled_difficulty_uses_only_authoritative_capability
+* test_measure_retains_one_result_per_configuration_and_every_input_invalidates_it
+* test_publication_keeps_one_detached_copy_shared_by_grid_and_cells
+19/19 passed.
+
+
+res://tests/unit/test_minesweeper_grid.gd
+* test_strict_projection_builds_contiguous_exact_mount
+* test_invalid_projection_is_atomic_and_rejects_private_keys
+* test_same_dimensions_reuse_cell_and_theme_instances_across_revisions
+* test_resize_keeps_prefix_frees_removed_suffix_and_reflows_positions
+* test_roving_focus_moves_without_wrap_and_bracketed_repairs_first
+* test_modes_and_explicit_actions_never_infer_illegal_commands
+* test_paired_pointer_release_and_keyboard_emit_once_with_revision
+* test_pointer_focuses_read_only_cell_and_press_submits_before_any_release
+* test_accessibility_exposes_one_based_coordinate_and_visible_fact_only
+* test_keyboard_f_toggles_mode_and_space_requests_new_board_without_cell_action
+* test_cross_cell_rules_reject_terminal_or_custody_contacts_atomically
+* test_joy_axis_navigation_is_edge_latched_until_neutral
+* test_confirm_is_shared_latched_and_blocks_pointer_and_space_until_release
+* test_custody_cancels_contact_and_removes_grid_focus
+* test_drag_mode_mouse_slop_emits_content_motion_and_stationary_release_is_inert
+* test_touch_short_tap_long_press_and_pan_are_mutually_exclusive
+* test_touch_press_chrome_requires_current_mode_primary_action
+* test_canceled_touch_and_double_tap_never_activate
+* test_second_touch_cancels_pending_tap_and_public_cancel_does_not_release_confirm
+* test_long_press_refresh_keeps_release_gate_until_same_finger_lifts
+* test_right_stick_pan_waits_for_touch_release_and_latches_until_neutral
+* test_focus_signal_reports_repair_move_and_focus_reentry
+* test_real_f_route_emits_only_actual_valid_mode_changes
+* test_identical_or_rejected_mode_preserves_pending_contact_and_active_pan
+* test_can_present_validates_without_changing_grid_projection_focus_or_children
+* test_projection_validation_reuses_the_cell_rules_without_a_probe_cell
+* test_interaction_block_cancels_real_touch_and_ignores_input_without_changing_facts
+* test_mouse_press_submits_once_and_release_or_drag_off_submits_nothing_more
+28/28 passed.
+
+
+res://tests/unit/test_minesweeper_register.gd
+* test_exact_bays_present_signed_public_values_without_metric_operands
+* test_difficulty_commitment_is_owner_controlled_and_same_tier_is_inert
+* test_unknown_metrics_use_dash_and_no_flag_does_not_become_forecast
+* test_all_font_scales_preserve_bay_order_and_do_not_shrink_copy
+    54 Orphans
+        * [@Button@6720:<Button#1406937336458>(MinesweeperActionButton.gd)]
+        * [@Button@6704:<Button#1401702845169>(MinesweeperActionButton.gd)]
+        * [@Button@6746:<Button#1414621301753>(MinesweeperActionButton.gd)]
+        * [@Button@6727:<Button#1408933825612>(MinesweeperActionButton.gd)]
+        * [@Button@6739:<Button#1412624813313>(MinesweeperActionButton.gd)]
+        * [@Button@6747:<Button#1415242059059>(MinesweeperActionButton.gd)]
+        * [@Button@6745:<Button#1414470307131>(MinesweeperActionButton.gd)]
+        * [@Button@6728:<Button#1409084820803>(MinesweeperActionButton.gd)]
+        * [@Button@6726:<Button#1408782830926>(MinesweeperActionButton.gd)]
+        * [@Button@6749:<Button#1415544048988>(MinesweeperActionButton.gd)]
+        * [@Button@6748:<Button#1415393054084>(MinesweeperActionButton.gd)]
+        * [@Button@6732:<Button#1410628324742>(MinesweeperActionButton.gd)]
+        * [@Button@6738:<Button#1412473818510>(MinesweeperActionButton.gd)]
+        * [@Button@6736:<Button#1411702066575>(MinesweeperActionButton.gd)]
+        * [@Button@6740:<Button#1412775808406>(MinesweeperActionButton.gd)]
+        * [@Button@6729:<Button#1409705577907>(MinesweeperActionButton.gd)]
+        * [@Button@6742:<Button#1413547560372>(MinesweeperActionButton.gd)]
+        * [@Button@6743:<Button#1413698555325>(MinesweeperActionButton.gd)]
+        * [@Button@6744:<Button#1414319312321>(MinesweeperActionButton.gd)]
+        * [@Button@6730:<Button#1409856572875>(MinesweeperActionButton.gd)]
+        * [@Button@6735:<Button#1411551071707>(MinesweeperActionButton.gd)]
+        * [@Button@6719:<Button#1406316580324>(MinesweeperActionButton.gd)]
+        * [@Button@6707:<Button#1402625592819>(MinesweeperActionButton.gd)]
+        * [@Button@6731:<Button#1410007567874>(MinesweeperActionButton.gd)]
+        * [@Button@6734:<Button#1410930314763>(MinesweeperActionButton.gd)]
+        * [@Button@6733:<Button#1410779319831>(MinesweeperActionButton.gd)]
+        * [@Button@6741:<Button#1413396565540>(MinesweeperActionButton.gd)]
+        * [@Button@6711:<Button#1404169096766>(MinesweeperActionButton.gd)]
+        * [@Button@6718:<Button#1406165585482>(MinesweeperActionButton.gd)]
+        * [@Button@6708:<Button#1403246349901>(MinesweeperActionButton.gd)]
+        * [@Button@6702:<Button#1401400856142>(MinesweeperActionButton.gd)]
+        * [@Button@6700:<Button#1400629104215>(MinesweeperActionButton.gd)]
+        * [@Button@6737:<Button#1411853061754>(MinesweeperActionButton.gd)]
+        * [@Button@6725:<Button#1408162074295>(MinesweeperActionButton.gd)]
+        * [@Button@6710:<Button#1403548339902>(MinesweeperActionButton.gd)]
+        * [@Button@6715:<Button#1405242838726>(MinesweeperActionButton.gd)]
+        * [@Button@6706:<Button#1402474598091>(MinesweeperActionButton.gd)]
+        * [@Button@6724:<Button#1408011079385>(MinesweeperActionButton.gd)]
+        * [@Button@6699:<Button#1400478109408>(MinesweeperActionButton.gd)]
+        * [@Button@6717:<Button#1406014590718>(MinesweeperActionButton.gd)]
+        * [@Button@6721:<Button#1407088332586>(MinesweeperActionButton.gd)]
+        * [@Button@6714:<Button#1405091843940>(MinesweeperActionButton.gd)]
+        * [@Button@6722:<Button#1407239327670>(MinesweeperActionButton.gd)]
+        * [@Button@6694:<Button#1399907684283>(MinesweeperActionButton.gd)]
+        * [@Button@6709:<Button#1403397345256>(MinesweeperActionButton.gd)]
+        * [@Button@6713:<Button#1404471087090>(MinesweeperActionButton.gd)]
+        * [@Button@6705:<Button#1402323603507>(MinesweeperActionButton.gd)]
+        * [@Button@6701:<Button#1400780099750>(MinesweeperActionButton.gd)]
+        * [@Button@6693:<Button#1399756689610>(MinesweeperActionButton.gd)]
+        * [@Button@6716:<Button#1405393834292>(MinesweeperActionButton.gd)]
+        * [@Button@6703:<Button#1401551851831>(MinesweeperActionButton.gd)]
+        * [@Button@6692:<Button#1399605694829>(MinesweeperActionButton.gd)]
+        * [@Button@6723:<Button#1407860085104>(MinesweeperActionButton.gd)]
+        * [@Button@6712:<Button#1404320092530>(MinesweeperActionButton.gd)]
+* test_canonical_blank_capacity_has_no_placeholder_control_or_difficulty
+* test_large_foresight_label_wraps_at_word_parts_without_changing_metric_truth
+    3 Orphans
+        * [@Button@6758:<Button#1418530393375>(MinesweeperActionButton.gd)]
+        * [@Button@6760:<Button#1418832383354>(MinesweeperActionButton.gd)]
+        * [@Button@6759:<Button#1418681388421>(MinesweeperActionButton.gd)]
+* test_invalid_or_private_input_preserves_existing_facts
+* test_repeated_present_retains_every_difficulty_button_and_metric_control
+* test_retained_difficulty_button_keeps_its_focus_and_commitment_signal
+3 orphans
+9/9 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_minesweeper_panel.gd
+    - Outside Tests
+        * [<Node#131617261336>(subsystem_animation.gd)]
+        * [<Node#131634038564>(subsystem_audio.gd)]
+        * [<Node#131650815796>]
+        * [<Node#131667593021>]
+        * [<Node#131684370243>(subsystem_backgrounds.gd)]
+        * [<Node#132221241156>(subsystem_choices.gd)]
+        * [<Timer#132238018373>]
+        * [<Node#132254795590>(subsystem_expression.gd)]
+        * [<Node#132288350027>(subsystem_glossary.gd)]
+        * [<Node#132305127244>(subsystem_history.gd)]
+        * [<Node#132321904461>(subsystem_input.gd)]
+        * [<Timer#132338681678>]
+        * [<Node#132355458895>(subsystem_jump.gd)]
+        * [<Node#132372236112>(subsystem_containers.gd)]
+        * [<Node#132389013329>(subsystem_portraits.gd)]
+        * [<Node#132925884242>(subsystem_save.gd)]
+        * [<Timer#132942661459>]
+        * [<Node#132959438676>(subsystem_settings.gd)]
+        * [<Node#132976215896>(subsystem_styles.gd)]
+        * [<Node#132992993113>(subsystem_text.gd)]
+        * [<Node#133076879198>(subsystem_text_input.gd)]
+        * [<Node#133093656415>(subsystem_variables.gd)]
+        * [<Node#133110433632>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133127210849>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               3
+Tests                56
+Passing Tests        56
+Asserts            1438
+Orphans              24
+Time              1.489s
+
+
+---- All tests passed! ----

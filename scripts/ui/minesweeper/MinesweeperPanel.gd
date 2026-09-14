@@ -25,6 +25,9 @@ var _palette: StringName = &"after_hours"
 var _high_contrast := false
 var _colour_preset := "standard"
 var _band := Vector2i.ZERO
+## The last measurement and the exact inputs it was derived from.
+var _measured_key: Array = []
+var _measured: Dictionary = {}
 var _failed := true
 var _sheet_source := ""
 var _previous_focus: WeakRef
@@ -91,8 +94,11 @@ func connect_host_focus(previous: Control, next: Control) -> bool:
 	return true
 
 func present(value: Dictionary) -> bool:
-	if not _valid(value): return _fail(&"minesweeper_panel_invalid_view")
-	var measured := _measure(value,_locale,_percent,_large,_palette,_high_contrast,_colour_preset)
+	# The one deep copy of a publication. The worksheet, grid and cells below read this
+	# instance, so the caller's dictionary stays detached without copying it three times.
+	var accepted: Dictionary = value.duplicate(true)
+	if not _valid(accepted): return _fail(&"minesweeper_panel_invalid_view")
+	var measured := _measure(accepted,_locale,_percent,_large,_palette,_high_contrast,_colour_preset)
 	if measured.is_empty(): return _fail(&"minesweeper_panel_invalid_view")
 	# Reconfigure only for changed geometry: a synchronous Flag publication must
 	# retain the grid's touch-release latch and all existing cell nodes.
@@ -102,11 +108,11 @@ func present(value: Dictionary) -> bool:
 		_band = measured.band
 	if register.theme == null: register.configure("desktop_app",_locale,_percent,_large,_palette,_high_contrast,_colour_preset)
 	if dock.theme == null: dock.configure("desktop_app",_locale,_percent,_large,_palette,_high_contrast,_colour_preset)
-	var assignments_changed: bool = public_view.get("assignments") != value.assignments
-	register.present(value.register)
-	if not worksheet.set_view_scope("app_" + str(value.register.difficulty)): return _fail(&"minesweeper_view_preferences_unavailable")
-	worksheet.present(value.board)
-	public_view = value.duplicate(true)
+	var assignments_changed: bool = public_view.get("assignments") != accepted.assignments
+	register.present(accepted.register)
+	if not worksheet.set_view_scope("app_" + str(accepted.register.difficulty)): return _fail(&"minesweeper_view_preferences_unavailable")
+	worksheet.present(accepted.board)
+	public_view = accepted
 	_failed = false
 	_place(measured.register_height)
 	if assignments_changed and worksheet.information_sheet != null and _sheet_source == "assignments":
@@ -139,18 +145,25 @@ func _valid(value: Dictionary) -> bool:
 	if "new_board" in seen:
 		var touched := false
 		for cell: Dictionary in value.board.cells:
-			if cell.face == "revealed": touched = true
+			if cell.face == "revealed":
+				touched = true
+				break
 		if not touched: return false
 		expected.append("new_board")
 	return not value.board.terminal and seen == expected
 
 func _measure(value: Dictionary, locale: String, percent: int, large: bool, palette: StringName,
 		high_contrast: bool = false, colour_preset: String = "standard") -> Dictionary:
+	var facts: Dictionary = value.get("register",{"difficulty":"beginner","rounds":2,"mine_estimate":null,
+		"foresight":null,"no_flag":"intact","custody":false,"difficulty_enabled":[]})
+	var claimed: Array = value.get("assignments",[false,false,false,false,false,false,false,false,false])
+	# The band and register height are a pure function of these inputs. A click that changes
+	# none of them must not build, configure, present and free three probe controls again.
+	var key: Array = [locale,percent,large,palette,high_contrast,colour_preset,facts,claimed]
+	if key == _measured_key: return _measured
 	var probe_register: Control = REGISTER.new()
 	var probe_dock: Control = DOCK.new()
 	var probe_sheet: Control = SHEET.new()
-	var facts: Dictionary = value.get("register",{"difficulty":"beginner","rounds":2,"mine_estimate":null,
-		"foresight":null,"no_flag":"intact","custody":false,"difficulty_enabled":[]})
 	var valid: bool = probe_register.configure("desktop_app",locale,percent,large,palette,high_contrast,colour_preset)
 	if valid: valid = probe_register.present(facts)
 	if valid: valid = probe_dock.configure("desktop_app",locale,percent,large,palette,high_contrast,colour_preset)
@@ -160,11 +173,13 @@ func _measure(value: Dictionary, locale: String, percent: int, large: bool, pale
 		var band := sheet_band - Vector2i(0, WORKSHEET.view_controls_height(locale, probe_dock.theme, large) / 2)
 		valid = LAYOUT.measure(1,1,band,large).ok
 		if valid: valid = probe_sheet.configure("desktop_app",locale,percent,large,palette,sheet_band,high_contrast,colour_preset)
-		if valid: valid = probe_sheet.present_assignments(value.get("assignments",[false,false,false,false,false,false,false,false,false]))
+		if valid: valid = probe_sheet.present_assignments(claimed)
 		if valid: result = {"band":band,"register_height":probe_register.size.y}
 	probe_register.free()
 	probe_dock.free()
 	probe_sheet.free()
+	_measured_key = key.duplicate(true)
+	_measured = result
 	return result
 
 func _place(register_height: float) -> void:

@@ -713,3 +713,94 @@ saves) stays the next handoff. Remaining long-history costs, in order: write_ato
 file-operation floor per write (marker writes, flushes, renames; ruled to stay), the read, decode
 and sha256 of the 800 KB final and .bak inside the ledger reconcile (13-14 ms per write; the law),
 the two owner reads (9 ms) and the panel present (12.6 ms) of the routine click.
+
+## settlement7 (branch perf/terminal-settlement-7 from master 87bf33d1c, dwm-634.3)
+
+Session 7 starts from the session 6 fast-forward plus three Gallery commits (none touches a file this
+branch changes or a bound path). The seeded benchmark needs `--phase2r-bootstrap-mode=final` after `++`
+(the proven wrapper root otherwise selects test_manual, which never becomes ready; two runs failed in
+4 s that way before the flag was found). Same-window baseline, quiet machine (routine reveal medians
+24-30 ms, live Log In 20.7 s), all profiled: settlement7-baseline-87bf33d1c-live.log, -fresh-win.log,
+-fresh-loss.log. Live copy: App first reveal 78 ms, New Board first reveal 165 ms, win settled two
+frames later at 1022 ms and loss at 885 ms, accept_prepared_action 494 ms median; per publication
+ledger write 86 ms median (write_atomic 47, disk_refresh 14, compose 7); per big autosave 93 ms
+(write_atomic 43, outgoing_schema 25, stringify 8, journal 7). Fresh account: App first reveal 76-77 ms,
+New Board 139-162 ms, win 553 / 542 ms, loss 496 / 554 ms, dating first reveal 204-208 ms, dating win
+357 ms, loss 335 ms, dating routine reveal 17-18 ms.
+
+Rulings for this session (memory note dwm-terminal-settlement-rulings-2026-09-13, seventh extension):
+the two owner reads of MinesweeperPresentationPort.dispatch stay and their counted-read pins stay,
+only repeated validation and copies inside each read move; MinesweeperPanel.present takes four
+UI-side cuts (memoised _measure, validation without the probe cell, one boundary deep copy, pooled
+register nodes) with cell-node identity and detachment rows kept; the ledger reconcile keeps its law
+and reads each family artifact once per write; run-start remember stays last; the write_atomic floor
+gets one measure-only attribution.
+
+### Write floor attribution (measure only, tree unchanged): four marker rewrites per commit
+
+A temporary probe (scripts/tools/WriteFloorProbe.gd plus lines ending `# WRITE_FLOOR_PROBE` in
+FileOps.gd and JsonFileStorage.gd, gated by DWM_WRITE_FLOOR_PROBE=1, stripped after the runs and both
+files verified byte-identical to HEAD by blob hash) timed every FileOps primitive inside write_atomic
+and write_atomic_if_revision and printed one WRITE_ATOMIC_FLOOR line per write with the ordered
+operation sequence. settlement7-floor-probe-87bf33d1c-live.log (33 writes) and -fresh-win.log (61
+writes). Every happy-path write_atomic performs the same 31 operations: family classification (three
+exists, two read_bytes plus sha256), then write_bytes+flush_path of the "prepared" marker, of the .next
+candidate, of the "next_validated" marker, rename final to .bak, write+flush of the "backup_preserved"
+marker, rename .next to final, read_bytes+sha256 of the promoted final, write+flush of the
+"final_promoted" marker, remove the marker. Five write_bytes per commit, four of them marker rewrites.
+On the fresh account (5-27 KB documents) write_bytes is the floor: 14-29 ms of the 22-41 ms median per
+write (autosave.json 29.0 of 41.0, desktop-publications.json 23.2 of 26.2, issuer root 23.9 of 50.9,
+continuation operations 22.1 of 33.1), so one FileAccess.open(WRITE) costs 3-6 ms on this Windows
+volume regardless of size; the five flush_path calls cost about 1 ms together, the two renames 1 ms,
+the reads and hashes under 1 ms. On the live copy the same five writes cost 6-16 ms and the
+document-size-bound work dominates instead: sha256 15.8 ms and read_bytes 12.2 ms per publication
+ledger write (8 hashes, 7 reads: the dedupe target of Step 3), and the "other" time inside write_atomic
+(the caller's validator on the read-back and reconcile) is 171 ms per issuer-root write and 1.5 s per
+continuation-journal write during Log In, off the click path. Ruled 2026-09-15 with these numbers: the
+four marker stages stay as four file creates; the floor remains closed.
+
+### Step 1: MinesweeperPanel.present without probe controls, probe cells and two of its three copies (commit after the baseline chore)
+
+The routine-click profile of session 6 put MinesweeperPanel.present at 12.6 ms of the 31 ms click.
+Four cuts, ruled 2026-09-14, none of the files contract-bound: (1) MinesweeperPanel._measure keeps its
+last result keyed on every input it reads (locale, percent, large, palette, high_contrast,
+colour_preset, the register facts and the nine assignments, compared by value) instead of building,
+configuring, presenting and freeing a probe register, dock and information sheet on every present;
+(2) MinesweeperCell gains a static validate() holding the complete public-cell rule set, which
+present() and MinesweeperGrid.can_present() both call, so can_present no longer allocates a probe cell
+and deep-copies every cell into it, and the panel's new_board scan breaks on the first revealed cell;
+(3) the panel takes ONE deep copy of the publication (accepted), validates and presents from it and
+adopts it as public_view, while the grid's projection and each cell's public_cell read that instance
+(the caller's dictionary stays detached, the grid's _last_validated_projection identity cache keeps
+matching because validation and presentation see the same instance); (4) MinesweeperRegister plans its
+composition without mutating installed bays, reuses the three difficulty buttons and four metrics
+unless theme, scale or copy changed (Metric.configure split into fallible measure() and apply()), and
+_install adds and connects only newly created nodes, keeping the focus-by-key restore. Refusal codes,
+node identity across presents, child order and the touch-release latch are unchanged.
+
+- settlement7-panel-red-87bf33d1c.log: tests/unit/test_minesweeper_panel.gd, test_minesweeper_grid.gd
+  and test_minesweeper_register.gd with the new rows against the untouched UI scripts, 56 tests,
+  51 passing / 5 failing: the measure memo returns the identical instance for equal inputs and every
+  input invalidates it; the publication keeps one detached copy shared by grid and cells; the grid
+  validates through MinesweeperCell.validate without CELL.new() (source pin plus three refusal rows);
+  repeated presents retain every difficulty button and metric (assert_same, plus a rejected present
+  leaving the nodes and copy untouched); a retained focused button keeps focus and its pressed
+  connection.
+- settlement7-panel-green1-87bf33d1c.log: the same three suites, 56 / 56.
+- settlement7-panel-green-87bf33d1c.log: the fifteen suites that reference the panel, grid, cell,
+  register or worksheet scripts, 191 tests, 188 passing / 3 failing: the three are pre-existing at
+  87bf33d1c and reproduced with production reverted (settlement7-port-attrib-87bf33d1c.log:
+  test_minesweeper_board_presentation_query test_unpaid_shell_uses_catalog_without_estimated_or_generated_mines
+  and test_preparation_publishes_only_the_bracket_locus_after_certification;
+  settlement7-palette-attrib-87bf33d1c.log: test_minesweeper_palette_components
+  test_palette_only_change_preserves_grid_contact_and_manual_pan, a Vector2i(22, 200) grid contact).
+- settlement7-panel-profile-87bf33d1c-live.log and -live2-: the live copy, panel change only (Log In
+  21.7 / 23.2 s, quiet). Routine reveal median 24.1 ms at the baseline to 20.8 / 21.8 ms, the 244-click
+  set 30.4 to 26.6 / 26.7 ms, flag 31.5 to 28.2 / 28.7 ms; App first reveal 78 to 64 / 66 ms; New Board
+  first reveal 165 to 157 / 157 ms. Win settled 907 / 898 ms and loss 894 / 803 ms two frames after the
+  click (1022 / 885 at the baseline; the terminal frame is storage-bound and not this step's).
+- settlement7-panel-profile-87bf33d1c-fresh-win.log and -fresh-loss-: fresh account, 244-click set
+  25.3 / 25.9 ms (baseline runs 25.5 / 26.0 on the 15-click set), App first reveal 85 / 62 ms, New Board
+  146 / 210 ms; dating routine reveal 18.5 / 16.2 ms, dating first reveal 225 / 255 ms (the fresh
+  end-to-end figures vary 20 percent run to run in this window; the live medians over 244 clicks are the
+  measurement).

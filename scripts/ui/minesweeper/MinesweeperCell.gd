@@ -39,6 +39,17 @@ func configure(locale: String = "en", percent: int = 100, large: bool = false, p
 	return true
 
 func present(cell: Dictionary) -> bool:
+	if not validate(cell): return false
+	# The panel owns the one deep copy of a publication; this renderer reads that instance.
+	public_cell = cell
+	set_contact(focused,hovered,pressed)
+	_update_accessibility()
+	queue_redraw()
+	return true
+
+## The complete public cell rule set. The grid validates a whole projection with it, so
+## acceptance and presentation cannot drift apart.
+static func validate(cell: Dictionary) -> bool:
 	if cell.size() != KEYS.size(): return false
 	for key: String in KEYS:
 		if not cell.has(key): return false
@@ -52,12 +63,7 @@ func present(cell: Dictionary) -> bool:
 		if typeof(action) != TYPE_STRING or action not in ACTIONS or seen.has(action): return false
 		seen[action] = true
 	if cell.pressable and not cell.inspectable: return false
-	if not _valid_content(cell): return false
-	public_cell = cell.duplicate(true)
-	set_contact(focused,hovered,pressed)
-	_update_accessibility()
-	queue_redraw()
-	return true
+	return _valid_content(cell)
 
 func set_contact(next_focused: bool, next_hovered: bool, next_pressed: bool) -> void:
 	var inspectable: bool = public_cell.get("inspectable",false)
@@ -67,7 +73,7 @@ func set_contact(next_focused: bool, next_hovered: bool, next_pressed: bool) -> 
 	hovered = next_hovered and inspectable and not pressed
 	queue_redraw()
 
-func _valid_content(cell: Dictionary) -> bool:
+static func _valid_content(cell: Dictionary) -> bool:
 	var legal_sets: Array = []
 	if cell.face == "covered":
 		if cell.number != 0 or cell.mark in ["mine","exploded","marked_mine"]: return false

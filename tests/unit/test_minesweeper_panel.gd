@@ -465,3 +465,41 @@ func test_settled_difficulty_uses_only_authoritative_capability() -> void:
 	assert_eq(port.calls,[{"difficulty":"expert","revision":0}])
 	assert_eq(panel.public_view.board.width,22)
 	assert_false(panel.public_view.settled)
+
+func test_measure_retains_one_result_per_configuration_and_every_input_invalidates_it() -> void:
+	var panel := _panel(_port())
+	var view: Dictionary = panel.public_view
+	var base: Dictionary = panel._measure(view,"en",100,false,&"after_hours",false,"standard")
+	assert_false(base.is_empty())
+	assert_same(panel._measure(view,"en",100,false,&"after_hours",false,"standard"),base,
+		"an unchanged configuration must reuse the retained measurement, not rebuild three probes")
+	for tuple: Array in [["zh-CN",100,false,&"after_hours",false,"standard"],["en",125,false,&"after_hours",false,"standard"],
+			["en",100,true,&"after_hours",false,"standard"],["en",100,false,&"midnight",false,"standard"],
+			["en",100,false,&"after_hours",true,"standard"],["en",100,false,&"after_hours",false,"tritan"]]:
+		var retained: Dictionary = panel._measure(view,"en",100,false,&"after_hours",false,"standard")
+		var changed: Dictionary = panel._measure(view,tuple[0],tuple[1],tuple[2],tuple[3],tuple[4],tuple[5])
+		assert_false(changed.is_empty(),str(tuple))
+		assert_not_same(changed,retained,str(tuple))
+	var other_register: Dictionary = view.duplicate(true)
+	other_register.register.rounds = 1
+	var other_assignments: Dictionary = view.duplicate(true)
+	other_assignments.assignments[4] = true
+	for altered: Dictionary in [other_register,other_assignments]:
+		var retained: Dictionary = panel._measure(view,"en",100,false,&"after_hours",false,"standard")
+		assert_not_same(panel._measure(altered,"en",100,false,&"after_hours",false,"standard"),retained,
+			"a changed register fact or assignment must measure again")
+
+func test_publication_keeps_one_detached_copy_shared_by_grid_and_cells() -> void:
+	var panel := _panel(_port())
+	var value := _view()
+	assert_true(panel.present(value))
+	value.board.cells[0].mark = "flag"
+	value.register.rounds = 99
+	value.assignments[8] = true
+	assert_eq(panel.public_view.board.cells[0].mark,"none","a caller cannot reach inside a published view")
+	assert_eq(panel.public_view.register.rounds,2)
+	assert_false(panel.public_view.assignments[8])
+	assert_same(panel.public_view.board,panel.worksheet.grid.projection,"the grid reads the panel's own copy")
+	assert_same(panel.worksheet.grid.projection.cells[0],panel.worksheet.grid.cell_nodes[0].public_cell,
+		"each cell reads its own slice of that copy")
+	assert_eq(panel.worksheet.grid.cell_nodes[0].public_cell.index,0)
