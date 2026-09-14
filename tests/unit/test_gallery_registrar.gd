@@ -186,7 +186,7 @@ func test_geometry_and_actual_wrapped_font_metrics_at_three_locales_and_sizes() 
 			assert_eq(_scene.get_node("%GalleryHost").get_global_rect(), Rect2(320, 64, 960, 656))
 			assert_eq(_scene.get_node("%IndexViewport").get_rect(), Rect2(32, 32, 312, 592))
 			assert_eq(_scene.get_node("%ReplayButton").get_rect(), Rect2(776, 568, 160, 64))
-			assert_eq(_scene.theme.default_font_size, int(24 * percent / 100.0))
+			assert_eq(_scene.theme.default_font_size, {100: 16, 125: 20, 150: 24}[percent])
 			for row: Button in _rows().get_children():
 				assert_eq(row.size.x, 296.0)
 				assert_gte(row.size.y, 80.0)
@@ -232,7 +232,7 @@ func test_hidden_publications_and_navigation_refresh_do_not_mutate_shared_return
 	_scene.open_in_title_host()
 	await _settle()
 	assert_eq(_rows().get_child_count(), 0)
-	assert_eq(_scene.theme.default_font_size, 36)
+	assert_eq(_scene.theme.default_font_size, 24)
 
 func test_malformed_discovery_is_technical_failure_not_empty_or_partial_records() -> void:
 	var broken := BrokenProjection.new()

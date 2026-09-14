@@ -12,6 +12,7 @@ var _pointer_down := false
 var _pointer_hover := false
 
 func _ready() -> void:
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	caption = Label.new()
 	caption.position = Vector2(16, 8)
 	caption.size.x = 264
@@ -76,6 +77,7 @@ func _pointer_input(event: InputEvent) -> void:
 
 func refresh_caption() -> void:
 	if not is_instance_valid(caption): return
+	caption.language = language
 	caption.text = text
 	caption.size = Vector2(264, 0)
 	# Measure the actual localized Label, including fallback-font line metrics.

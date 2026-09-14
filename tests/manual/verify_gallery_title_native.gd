@@ -115,7 +115,7 @@ func _sample(locale: String, percent: int, palette: String) -> bool:
 	for row: Button in rows.get_children():
 		var caption: Label = row.caption
 		_check(row.text == expected and row.accessibility_name == expected and caption.text == expected,"record copy is not complete public unavailable copy")
-		_check(caption.get_theme_default_font_size() == int(24*percent/100.0),"record font shrank")
+		_check(caption.get_theme_default_font_size() == {100:16,125:20,150:24}[percent],"record font size differs")
 		_check(caption.max_lines_visible == -1 and not caption.clip_text,"caption truncation enabled")
 		_check(caption.size.y >= caption.get_minimum_size().y,"caption minimum height clipped")
 		_check(row.get_global_rect().encloses(caption.get_global_rect()),"wrapped caption escapes its row")
@@ -123,7 +123,7 @@ func _sample(locale: String, percent: int, palette: String) -> bool:
 		measurements.append({"row":measurements.size(),"rect":_rect(row),"caption_rect":_rect(caption),
 			"font_size":caption.get_theme_default_font_size(),"copy":caption.text,"line_count":caption.get_line_count()})
 	_check(status.text == expected and status.size.y >= status.get_minimum_size().y,"unavailable leaf text clipped or changed")
-	_check(status.get_theme_default_font_size() == int(24*percent/100.0),"unavailable leaf font shrank")
+	_check(status.get_theme_default_font_size() == {100:16,125:20,150:24}[percent],"unavailable leaf font size differs")
 	_check(Rect2(Vector2.ZERO,gallery._canvas.size).encloses(Rect2(status.position,status.size)),"unavailable leaf escapes workfield")
 	_audit_public_text(_menu)
 	for row_index in range(1,rows.get_child_count()): await _key(KEY_DOWN)

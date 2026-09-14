@@ -104,6 +104,8 @@ func _sync_practice_button() -> void:
 		_practice_button.pressed.connect(_on_practice_pressed)
 		_canvas.add_child(_practice_button)
 	var locale := str(_localization.get_locale()) if _localization != null else "en"
+	_practice_button.language = locale.replace("_", "-")
+	_practice_button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_practice_button.text = "\u7df4\u7fd2" if locale.replace("_", "-") == "zh-HK" else ("\u7ec3\u4e60" if locale.begins_with("zh") else "Practice")
 	_practice_button.visible = _practice_game != null and _replay_bridge != null and _profile != null \
 		and _profile.has_method("has_completed_ending") and _profile.has_completed_ending()
@@ -362,6 +364,7 @@ func _refresh_replay_selection() -> void:
 	for index: int in range(_versions.size()):
 		var locale := str(_localization.get_locale()) if _localization != null else "en"
 		_version_selector.add_item(("版本 %d" if locale.begins_with("zh") else "Version %d") % (index + 1))
+		_version_selector.get_popup().set_item_language(index, locale.replace("_", "-"))
 		if str(_versions[index].signature_id) == previous: _selected_version = index
 	if not _versions.is_empty(): _version_selector.select(_selected_version)
 	_version_selector.visible = _versions.size() > 1
@@ -527,10 +530,19 @@ func _refresh_presentation() -> void:
 	var locale := str(_localization.get_locale()) if _localization != null else "en"
 	var midnight: bool = _preference(&"preferences.dark_mode.available", false) and _preference(&"preferences.dark_mode.next_run_enabled", false)
 	theme = PRESENTATION.build(locale, int(_preference(&"preferences.accessibility.text_size", 100)), &"midnight" if midnight else &"after_hours")
+	var text_controls: Array[Control] = [_replay_status, _replay_button]
+	if is_instance_valid(_version_selector):
+		text_controls.append(_version_selector)
+		_version_selector.get_popup().canvas_item_default_texture_filter = Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST
 	if _host_return == null:
+		text_controls.append(%TitleLabel)
+		text_controls.append(_return_button)
 		%TitleLabel.add_theme_color_override("font_color", theme.get_color("ink", "Gallery"))
 		_return_button.text = _localized("button.return")
 		%TitleLabel.text = _localized("gallery.title")
+	for control: Control in text_controls:
+		control.set("language", locale.replace("_", "-"))
+		control.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_refresh_replay_caption()
 	_sync_practice_button()
 	_canvas.queue_redraw()
@@ -548,8 +560,10 @@ func _draw() -> void:
 func _relayout_rows() -> void:
 	var rows := _ending_tile_grid.get_children()
 	var extent := 16.0
+	var locale := str(_localization.get_locale()) if _localization != null else "en"
 	for i: int in range(rows.size()):
 		var row: Button = rows[i]
+		row.language = locale.replace("_", "-")
 		row.refresh_caption()
 		extent += row.custom_minimum_size.y + (8 if i > 0 else 0)
 		row.focus_neighbor_top = rows[maxi(0, i - 1)].get_path()
