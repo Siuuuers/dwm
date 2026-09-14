@@ -114,11 +114,7 @@ func _sync_practice_button() -> void:
 		_practice_button.add_theme_color_override(state, theme.get_color("paper_ink", "Gallery"))
 	_practice_button.disabled = _replay_owner != null and _replay_owner.is_playing()
 	_practice_button.focus_mode = Control.FOCUS_ALL if _practice_button.visible and not _practice_button.disabled else Control.FOCUS_NONE
-	_practice_button.focus_next = _return_button.get_path()
-	_practice_button.focus_previous = _replay_button.get_path() if not _replay_button.disabled else _return_button.get_path()
-	if _practice_button.visible and not _practice_button.disabled:
-		_replay_button.focus_next = _practice_button.get_path()
-		_return_button.focus_previous = _practice_button.get_path()
+	refresh_return_navigation()
 	_layout_record_controls()
 
 func _on_practice_pressed() -> void:
@@ -312,6 +308,11 @@ func _refresh_tiles() -> void:
 		_replay_button.grab_focus()
 	elif previous_focus == _version_selector and _version_selector.visible and not _version_selector.disabled:
 		_version_selector.grab_focus()
+	elif previous_focus in [_replay_button, _version_selector] and (_replay_owner == null or not _replay_owner.is_playing()):
+		for row: Button in _ending_tile_grid.get_children():
+			if str(row.get_meta(&"gallery_record_id")) == _selected_id:
+				row.grab_focus()
+				break
 
 func _focus_return() -> void:
 	if is_visible_in_tree() and _return_button.focus_mode != Control.FOCUS_NONE:
@@ -394,13 +395,6 @@ func _sync_replay_controls() -> void:
 	_version_selector.disabled = playing
 	_version_selector.focus_mode = Control.FOCUS_ALL if _version_selector.visible and not playing else Control.FOCUS_NONE
 	for row: Button in _ending_tile_grid.get_children(): row.disabled = playing
-	if _ending_tile_grid.get_child_count() > 0:
-		var last: Button = _ending_tile_grid.get_child(_ending_tile_grid.get_child_count()-1)
-		last.focus_next = _version_selector.get_path() if _version_selector.visible else (_replay_button.get_path() if not _replay_button.disabled else _return_button.get_path())
-		_replay_button.focus_previous = _version_selector.get_path() if _version_selector.visible else last.get_path()
-		_version_selector.focus_previous = last.get_path()
-	_version_selector.focus_next = _replay_button.get_path()
-	_replay_button.focus_next = _return_button.get_path()
 	_sync_practice_button()
 
 func _on_version_selected(index: int) -> void:
@@ -579,17 +573,37 @@ func _relayout_rows() -> void:
 func refresh_return_navigation() -> void:
 	if not is_node_ready() or not is_visible_in_tree() or not is_instance_valid(_return_button): return
 	var rows := _ending_tile_grid.get_children()
-	_return_button.focus_next = rows[0].get_path() if not rows.is_empty() else _return_button.get_path()
-	_return_button.focus_previous = rows[-1].get_path() if not rows.is_empty() else _return_button.get_path()
+	var sequence: Array[Control] = []
+	var selected_row: Button = null
+	for row: Button in rows:
+		if str(row.get_meta(&"gallery_record_id")) == _selected_id: selected_row = row
+		if not row.disabled: sequence.append(row)
+	var deeper: Array[Control] = []
+	for control: Control in [_version_selector, _replay_button]:
+		if is_instance_valid(control) and control.visible and control.focus_mode != Control.FOCUS_NONE:
+			deeper.append(control)
+	sequence.append_array(deeper)
+	if is_instance_valid(_practice_button) and _practice_button.visible and not _practice_button.disabled:
+		sequence.append(_practice_button)
+	sequence.append(_return_button)
+	for index: int in range(sequence.size()):
+		sequence[index].focus_previous = sequence[posmod(index - 1, sequence.size())].get_path()
+		sequence[index].focus_next = sequence[(index + 1) % sequence.size()].get_path()
+	for row: Button in rows:
+		row.focus_neighbor_right = deeper[0].get_path() if not deeper.is_empty() else row.get_path()
+	for index: int in range(deeper.size()):
+		deeper[index].focus_neighbor_left = selected_row.get_path() if selected_row != null else deeper[index].get_path()
+		deeper[index].focus_neighbor_right = deeper[mini(index + 1, deeper.size() - 1)].get_path()
 
 func _reveal_focused_row() -> void:
 	var focus := get_viewport().gui_get_focus_owner()
 	if focus != null and focus.get_parent() == _ending_tile_grid: _reveal_row(focus)
 
-func _reveal_row(row: Control) -> void:
+func _reveal_row(row: Variant) -> void:
+	# A queued reveal may outlive a replaced row; validate before a typed access.
 	if not is_instance_valid(row) or row.get_parent() != _ending_tile_grid: return
-	var top := row.position.y
-	var bottom := top + row.size.y + 16
+	var top: float = row.position.y
+	var bottom: float = top + row.size.y + 16
 	if top < _index_offset: _index_offset = top
 	elif bottom > _index_offset + 592: _index_offset = bottom - 592
 	_update_scroll()

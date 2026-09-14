@@ -1,0 +1,30 @@
+{
+  "base_commit": "630eb274f1b66d78de1ca924459f81f5f0ee72c4",
+  "files": [
+    {
+      "path": "scripts/ui/GalleryScene.gd",
+      "bytes": 29977,
+      "sha256": "a55709cf5ae72526eb5fd401ec9e652282077ec58d50dc233714d77ff471b707"
+    },
+    {
+      "path": "scripts/ui/gallery/GalleryRecordButton.gd",
+      "bytes": 4238,
+      "sha256": "5705b9043a709ac5f8c61e96005ec5fb6dfd2234656b13626f6020602eaa3025"
+    },
+    {
+      "path": "tests/integration/test_gallery_navigation.gd",
+      "bytes": 12133,
+      "sha256": "47fc3861f5a4d42f86fd0100672d86e691c393cf15c1048eb8b82d75ef840ce8"
+    },
+    {
+      "path": "evidence/phase_2r/runtime/game_state_surface.json",
+      "bytes": 502273,
+      "sha256": "ae91892b2682c381e745888024d1caaa7fd9ba18ee03a765f8e8775894b1cbdc"
+    },
+    {
+      "path": "evidence/phase_2r/runtime/save_manager_surface.json",
+      "bytes": 126838,
+      "sha256": "8f1f420d2d34a0d6679d1cdc536dc3f70e25e225a6d850b936fae7efa79e48df"
+    }
+  ]
+}

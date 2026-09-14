@@ -1,0 +1,71 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/74e30ff7-d6e3-49e4-9654-0c967e2f7781/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/integration/test_gallery_navigation.gd
+* test_single_version_spatial_and_sequential_navigation_reaches_replay_and_return
+* test_plural_versions_follow_record_selector_replay_spatial_and_tab_order
+* test_temporarily_unavailable_replay_query_keeps_record_and_history_while_repairing_focus
+* test_existing_practice_action_remains_in_the_reversible_tab_path
+* test_authoritative_refresh_disabling_replay_repairs_focus_to_fallback_record
+* test_screen_drag_over_row_scrolls_owner_and_cancels_held_pointer_selection
+6/6 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/integration/test_gallery_navigation.gd
+    - Outside Tests
+        * [<Node#132170909466>(subsystem_animation.gd)]
+        * [<Node#132187686694>(subsystem_audio.gd)]
+        * [<Node#132204463926>]
+        * [<Node#132221241151>]
+        * [<Node#132238018373>(subsystem_backgrounds.gd)]
+        * [<Node#132774889286>(subsystem_choices.gd)]
+        * [<Timer#132791666503>]
+        * [<Node#132808443720>(subsystem_expression.gd)]
+        * [<Node#132841998157>(subsystem_glossary.gd)]
+        * [<Node#132858775374>(subsystem_history.gd)]
+        * [<Node#132875552591>(subsystem_input.gd)]
+        * [<Timer#132892329808>]
+        * [<Node#132909107025>(subsystem_jump.gd)]
+        * [<Node#132925884242>(subsystem_containers.gd)]
+        * [<Node#132942661459>(subsystem_portraits.gd)]
+        * [<Node#133479532372>(subsystem_save.gd)]
+        * [<Timer#133496309589>]
+        * [<Node#133513086806>(subsystem_settings.gd)]
+        * [<Node#133529864026>(subsystem_styles.gd)]
+        * [<Node#133546641243>(subsystem_text.gd)]
+        * [<Node#133630527328>(subsystem_text_input.gd)]
+        * [<Node#133647304545>(subsystem_variables.gd)]
+        * [<Node#133664081762>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133680858979>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               1
+Tests                 6
+Passing Tests         6
+Asserts             108
+Orphans              24
+Time              6.519s
+
+
+---- All tests passed! ----

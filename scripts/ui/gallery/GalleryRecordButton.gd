@@ -27,7 +27,7 @@ func _ready() -> void:
 	_pointer = Control.new()
 	_pointer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_pointer.focus_mode = Control.FOCUS_NONE
-	_pointer.mouse_filter = Control.MOUSE_FILTER_STOP
+	_pointer.mouse_filter = Control.MOUSE_FILTER_PASS
 	_pointer.gui_input.connect(_pointer_input)
 	_pointer.mouse_exited.connect(_cancel_pointer)
 	add_child(_pointer)
