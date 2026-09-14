@@ -54,6 +54,11 @@ var _current_timeline_id: String = ""
 var _current_timeline_context: Dictionary = {}
 ## Ephemeral ordinary playback, never inferred from a restored checkpoint cache.
 var _ordinary_playback: Dictionary = {}
+var _ordinary_speech_counter := 0
+var _speech_publication_generation := 0
+var _speech_publication: Dictionary = {}
+var _speech_append_base: Dictionary = {}
+var _speech_append_requested := false
 var _start_in_progress := false
 var _pause_handle: Dictionary = {}
 var _pause_frontier: Dictionary = {}
@@ -414,10 +419,13 @@ func _start_at_path(timeline_id: String, path: String, context: Dictionary, labe
 	if has_active_playback():
 		return {"ok": false, "reason": "narrative_playback_active", "timeline_id": timeline_id}
 	var before := {"id": _current_timeline_id, "context": _current_timeline_context.duplicate(true)}
+	_ordinary_speech_counter += 1
 	_start_in_progress = true
 	_current_timeline_id = timeline_id
 	_current_timeline_context = context.duplicate(true)
-	_ordinary_playback = {"timeline_id": timeline_id, "context": context.duplicate(true), "cache_before": before}
+	_ordinary_playback = {"timeline_id": timeline_id, "context": context.duplicate(true), "cache_before": before,
+		"speech_token": "ordinary-%d" % _ordinary_speech_counter, "content_locale": "en",
+		"suppress_first_speech": false}
 	scene_art_changed.emit()
 	preference_boundary_step.emit(&"clear")
 	# An art hold would substitute a canned card for that start and wait on a Continue press, so
@@ -449,12 +457,176 @@ func _ensure_runtime_adapter(dialogic: Node) -> Dictionary:
 
 func _connect_runtime_adapter(adapter: RefCounted) -> void:
 	_runtime_adapter = adapter
+	_connect_speech_runtime()
 	if adapter.has_signal("timeline_ended_signal") and not adapter.timeline_ended_signal.is_connected(_on_runtime_timeline_ended):
 		adapter.timeline_ended_signal.connect(_on_runtime_timeline_ended)
 	if adapter.has_signal("runtime_signal_event") and not adapter.runtime_signal_event.is_connected(_on_runtime_signal_event):
 		adapter.runtime_signal_event.connect(_on_runtime_signal_event)
 	if adapter.has_signal("playback_start_failed") and not adapter.playback_start_failed.is_connected(_on_playback_start_failed):
 		adapter.playback_start_failed.connect(_on_playback_start_failed)
+
+
+func _connect_speech_runtime() -> void:
+	var dialogic := get_node_or_null("/root/Dialogic")
+	if dialogic == null or not dialogic.has_method("has_subsystem") \
+			or not dialogic.has_method("get_subsystem") or not dialogic.has_subsystem("Text"):
+		return
+	var text: Object = dialogic.get_subsystem("Text")
+	if text == null:
+		return
+	if text.has_signal("about_to_show_text") and not text.about_to_show_text.is_connected(_on_speech_about_to_show_text):
+		text.about_to_show_text.connect(_on_speech_about_to_show_text)
+	if text.has_signal("text_started") and not text.text_started.is_connected(_on_speech_text_started):
+		text.text_started.connect(_on_speech_text_started)
+
+
+func _on_speech_about_to_show_text(info: Dictionary) -> void:
+	var append_value: Variant = info.get("append", false)
+	_speech_append_requested = append_value is bool and bool(append_value)
+	_speech_append_base = _speech_publication.duplicate(true) if _speech_append_requested else {}
+	_speech_publication_generation += 1
+	_speech_publication.clear()
+
+
+func _on_speech_text_started(_info: Dictionary) -> void:
+	var owner := _current_speech_owner()
+	var native := _current_native_speech_frontier()
+	if owner.is_empty() or native.is_empty():
+		_speech_append_base.clear()
+		_speech_append_requested = false
+		_speech_publication.clear()
+		return
+	var content_locale := str(owner.get("content_locale", ""))
+	var dialogic := get_node_or_null("/root/Dialogic")
+	var state: Variant = dialogic.get("current_state_info") if dialogic != null else null
+	var display_text := str((state as Dictionary).get("text_parsed", "")) if state is Dictionary else ""
+	if content_locale.is_empty() or display_text.strip_edges().is_empty():
+		_speech_append_base.clear()
+		_speech_append_requested = false
+		_speech_publication.clear()
+		return
+	var identity := {
+		"bridge_id": get_instance_id(),
+		"owner_kind": owner.kind,
+		"owner_token": owner.token,
+		"timeline_id": owner.timeline_id,
+		"runtime_generation": native.runtime_generation,
+		"event_index": native.event_index,
+		"segment_index": native.segment_index,
+		"publication_generation": _speech_publication_generation,
+	}
+	if _speech_publication.get("identity", {}) == identity:
+		return
+	var suppress_replay := bool(owner.get("suppress_first_speech", false))
+	if suppress_replay:
+		_consume_first_speech_suppression(owner)
+	var primary_text := display_text
+	if _speech_append_requested:
+		var prior_identity: Dictionary = _speech_append_base.get("identity", {})
+		var prior_display := str(_speech_append_base.get("display_text", ""))
+		var same_source: bool = not prior_identity.is_empty() \
+			and prior_identity.get("owner_kind") == identity.owner_kind \
+			and str(prior_identity.get("owner_token", "")) == str(identity.owner_token) \
+			and str(prior_identity.get("timeline_id", "")) == str(identity.timeline_id) \
+			and int(prior_identity.get("runtime_generation", -1)) == int(identity.runtime_generation) \
+			and int(prior_identity.get("event_index", -1)) == int(identity.event_index) \
+			and int(prior_identity.get("segment_index", -1)) + 1 == int(identity.segment_index) \
+			and str(_speech_append_base.get("content_locale", "")) == content_locale
+		if not same_source or prior_display.is_empty() or not display_text.begins_with(prior_display) \
+				or display_text.length() == prior_display.length():
+			# A restored append has no process-local predecessor to prove its suffix against. Retain
+			# the exact full display as a suppressed base so only a later proven append may speak.
+			if not suppress_replay:
+				_speech_append_base.clear()
+				_speech_append_requested = false
+				_speech_publication.clear()
+				return
+		else:
+			primary_text = display_text.substr(prior_display.length())
+	_speech_append_base.clear()
+	_speech_append_requested = false
+	_speech_publication = {
+		"identity": identity,
+		"primary_text": primary_text,
+		"display_text": display_text,
+		"content_locale": content_locale,
+		"suppress_replay": suppress_replay,
+	}
+
+
+func _current_native_speech_frontier() -> Dictionary:
+	var dialogic := get_node_or_null("/root/Dialogic")
+	if dialogic == null or not dialogic.has_method("get_timeline_generation"):
+		return {}
+	var state: Variant = dialogic.get("current_state_info")
+	if not state is Dictionary:
+		return {}
+	var event_index: Variant = dialogic.get("current_event_idx")
+	if typeof(event_index) != TYPE_INT or int(event_index) < 0:
+		return {}
+	var segment: Variant = (state as Dictionary).get("text_sub_idx", 0)
+	if typeof(segment) != TYPE_INT or int(segment) < 0:
+		return {}
+	return {"runtime_generation": int(dialogic.call("get_timeline_generation")),
+		"event_index": int(event_index), "segment_index": int(segment)}
+
+
+func _current_speech_owner() -> Dictionary:
+	var owner: Dictionary = {}
+	if not _active_entry.is_empty():
+		owner = {"kind": &"entry", "token": str(_active_entry.get("token", "")),
+			"timeline_id": str(_active_entry.get("entry_id", "")),
+			"content_locale": str(_active_entry.get("content_locale", "")),
+			"suppress_first_speech": bool(_active_entry.get("suppress_first_speech", false))}
+	elif not _ordinary_playback.is_empty():
+		owner = {"kind": &"ordinary", "token": str(_ordinary_playback.get("speech_token", "")),
+			"timeline_id": str(_ordinary_playback.get("timeline_id", "")),
+			"content_locale": str(_ordinary_playback.get("content_locale", "")),
+			"suppress_first_speech": bool(_ordinary_playback.get("suppress_first_speech", false))}
+	elif not _active_playback.is_empty():
+		owner = {"kind": &"ending", "token": str(_active_playback.get("token", "")),
+			"timeline_id": str(_active_playback.get("timeline_id", "")),
+			"content_locale": str(_active_playback.get("content_locale", "")),
+			"suppress_first_speech": bool(_active_playback.get("suppress_first_speech", false))}
+	if str(owner.get("token", "")).is_empty() or str(owner.get("timeline_id", "")).is_empty() \
+			or str(owner.get("content_locale", "")).is_empty():
+		return {}
+	return owner
+
+
+func _consume_first_speech_suppression(owner: Dictionary) -> void:
+	match owner.kind:
+		&"entry":
+			if str(_active_entry.get("token", "")) == str(owner.token):
+				_active_entry["suppress_first_speech"] = false
+		&"ordinary":
+			if str(_ordinary_playback.get("speech_token", "")) == str(owner.token):
+				_ordinary_playback["suppress_first_speech"] = false
+		&"ending":
+			if str(_active_playback.get("token", "")) == str(owner.token):
+				_active_playback["suppress_first_speech"] = false
+
+
+## Transient Primary speech projection. It is exact to the current native publication and never
+## creates a visited line, speaker identity, receipt, or durable restore field.
+func capture_current_speech_presentation() -> Dictionary:
+	if _speech_publication.is_empty():
+		return _command_failure(&"speech_presentation_unavailable")
+	var owner := _current_speech_owner()
+	var native := _current_native_speech_frontier()
+	var identity: Dictionary = _speech_publication.get("identity", {})
+	if owner.is_empty() or native.is_empty() \
+			or int(identity.get("bridge_id", 0)) != get_instance_id() \
+			or identity.get("owner_kind") != owner.get("kind") \
+			or str(identity.get("owner_token", "")) != str(owner.get("token", "")) \
+			or str(identity.get("timeline_id", "")) != str(owner.get("timeline_id", "")) \
+			or int(identity.get("runtime_generation", -1)) != int(native.runtime_generation) \
+			or int(identity.get("event_index", -1)) != int(native.event_index) \
+			or int(identity.get("segment_index", -1)) != int(native.segment_index) \
+			or int(identity.get("publication_generation", -1)) != _speech_publication_generation \
+			or str(_speech_publication.get("content_locale", "")) != str(owner.get("content_locale", "")):
+		return _command_failure(&"speech_presentation_changed")
+	return {"ok": true, "code": &"ok", "value": _speech_publication.duplicate(true), "receipt": {}}
 
 
 func _on_playback_start_failed(failure: Dictionary, halt_runtime: bool = false) -> void:
@@ -586,9 +758,12 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 				var captured: Dictionary = _runtime_adapter.capture_restore_state()
 				if not captured.get("ok", false): return captured
 				var before := {"id": _current_timeline_id, "context": _current_timeline_context.duplicate(true)}
+				_ordinary_speech_counter += 1
 				_ordinary_playback = {"timeline_id": str(checkpoint.get("timeline_id", "")),
 					"context": checkpoint.duplicate(true), "cache_before": before,
-					"runtime_before": captured.get("value", {}).get("backup", {}).duplicate(true)}
+					"runtime_before": captured.get("value", {}).get("backup", {}).duplicate(true),
+					"speech_token": "ordinary-%d" % _ordinary_speech_counter, "content_locale": "en",
+					"suppress_first_speech": true}
 				_current_timeline_id = str(checkpoint.get("timeline_id", ""))
 				_current_timeline_context = checkpoint.duplicate(true)
 				_restore_playback_started = true
@@ -726,7 +901,8 @@ func start_ending_presentation(ending_id: String, context: Dictionary, signature
 	_current_timeline_id = timeline_id
 	_active_playback = {"token":token, "ending_id":ending_id, "role":str(context.role),
 		"timeline_id":timeline_id, "label":str(locator.label), "cache_before":before,
-		"presentation_signature":signature.duplicate(true)}
+		"presentation_signature":signature.duplicate(true),
+		"content_locale": str(locator.get("content_locale", "")), "suppress_first_speech": false}
 	_start_in_progress = true
 	var started := _start_through_runtime(str(locator.path), str(locator.label))
 	_start_in_progress = false
@@ -1635,6 +1811,7 @@ func _resolve_entry_for_playback(entry_id: String, expected_version: int) -> Dic
 			% [expected_version, content_version])
 	return {"ok": true, "value": {
 		"content_version": content_version,
+		"content_locale": str(locator.get("locale", "")),
 		"label": str(locator.get("label", "")),
 		"path": path,
 		"used_fallback": bool(locator.get("used_fallback", false)),
@@ -1695,6 +1872,8 @@ func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode
 		"path": path,
 		"label": label,
 		"used_fallback": bool(locator.get("used_fallback", false)),
+		"content_locale": str(locator.get("content_locale", "")),
+		"suppress_first_speech": token_kind == "resume",
 		"frozen_context": frozen,
 	}
 	_start_in_progress = true
@@ -1849,7 +2028,9 @@ func _start_playback(ending_id: String, expected_role: String) -> Dictionary:
 	var token := "playback-%d" % _playback_counter
 	var before := {"id": _current_timeline_id, "context": _current_timeline_context.duplicate(true)}
 	_current_timeline_id = timeline_id
-	_active_playback = {"token": token, "ending_id": ending_id, "role": expected_role, "timeline_id": timeline_id, "label": label, "cache_before": before}
+	_active_playback = {"token": token, "ending_id": ending_id, "role": expected_role,
+		"timeline_id": timeline_id, "label": label, "cache_before": before,
+		"content_locale": "en", "suppress_first_speech": false}
 	_start_in_progress = true
 	var started: Dictionary = _start_through_runtime(path, label)
 	_start_in_progress = false

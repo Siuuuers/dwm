@@ -1,0 +1,132 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/c6789624-86ce-4ab6-ba05-360ad1c4c187/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_system_tts_coordinator.gd
+* test_compatible_voice_and_rate_preserve_primary_text_without_speaker_prefix
+* test_missing_compatible_voice_never_substitutes_another_language
+* test_replacement_retires_one_utterance_and_late_completion_cannot_finish_successor
+* test_stale_source_stop_cannot_cancel_a_settings_sample
+* test_reentrant_admission_stop_prevents_native_speech_and_completes_once
+* test_speech_waits_for_duck_and_stop_during_fade_never_dispatches
+* test_completion_and_replacement_wait_for_confirmed_duck_recovery
+* test_native_failure_releases_duck_and_reports_failure_without_replay
+* test_invalid_request_does_not_replace_current_owner_and_focus_loss_stops_it
+* test_failed_duck_recovery_cannot_be_reported_as_a_successful_stop_confirmation
+    [Failed]:  Recovery must expose a truthful outcome to confirmation callers
+      at line 193
+9/10 passed.
+
+
+res://tests/scene/test_settings_localization_scene.gd
+* test_settings_controller_and_scenes_exist_with_shared_contract
+* test_both_settings_hosts_share_languages_skip_modes_and_confirmed_resets
+* test_shared_controller_exposes_closed_settings_allowlist_without_dark_or_legacy_aliases
+* test_each_reset_is_inert_until_its_own_confirmation
+* test_task9_hosts_instance_the_same_shared_content_scene
+* test_task9_pointer_drag_previews_then_commits_once_with_exact_handle
+* test_task9_discrete_volume_steps_and_failure_restore_committed_visible_value
+* test_task9_mute_and_output_mode_use_atomic_audio_sink
+* test_task9_audio_tests_never_autoplay_and_muted_or_zero_prevent_admission
+* test_task9_test_replacement_and_back_precedence_preserve_host
+* test_task9_tts_test_works_while_read_aloud_off_and_uses_frozen_specimen
+* test_task9_reading_omits_internal_duck_preference_but_registry_retains_it
+* test_task9_settings_stops_only_the_source_owned_by_its_detached_test
+* test_task9_deliberate_tts_stop_confirms_only_after_owned_recovery
+* test_task9_failed_duck_recovery_suppresses_stop_confirmation_and_reports_failure
+    [Failed]:  ARRAY(["button_accept"]) != ARRAY([]).
+    ["button_accept"] != []  1 of 1 indexes do not match.  Failed duck recovery cannot emit a positive confirmation
+      at line 466
+    [Failed]:  [""] expected to equal ["The change could not be applied."]:
+      at line 467
+* test_task9_old_recovery_wait_cannot_stop_a_newer_settings_source
+* test_task9_shared_settings_uses_real_speech_owner_and_projects_async_failure
+* test_task9_unavailable_tts_preserves_desired_preference_and_disables_controls
+* test_task9_independent_scroll_wrapping_and_exact_rail_at_all_text_sizes
+* test_task9_stale_drag_completion_cancels_only_its_old_handle
+* test_task9_missing_audio_sink_has_no_direct_profile_write_fallback
+* test_task9_exact_localized_tts_specimens_and_rates_use_no_receipt_api
+* test_task9_committed_primary_locale_refreshes_shared_rail_labels
+* test_task9_title_settings_reopens_after_closing_its_cached_host
+* test_review_back_cancels_pending_drag_before_returning_focus
+* test_review_late_tts_admission_cannot_rebind_new_test
+* test_review_old_departure_cannot_stop_test_started_after_reopen
+* test_review_busy_commit_restores_rejected_control_value
+* test_review_drag_cancel_cannot_release_unrelated_pending_commit
+* test_review_reset_labels_exist_in_each_locale_without_fallback
+* test_review_confirmation_body_and_buttons_follow_accessibility_size
+* test_audio_affecting_reset_uses_physical_sink_and_never_falls_back_after_refusal
+* test_audio_affecting_reset_without_sink_does_not_write_profile
+32/33 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_system_tts_coordinator.gd
+    - Outside Tests
+        * [<Node#131617261336>(subsystem_animation.gd)]
+        * [<Node#131634038564>(subsystem_audio.gd)]
+        * [<Node#131650815796>]
+        * [<Node#131667593021>]
+        * [<Node#131684370243>(subsystem_backgrounds.gd)]
+        * [<Node#132221241156>(subsystem_choices.gd)]
+        * [<Timer#132238018373>]
+        * [<Node#132254795590>(subsystem_expression.gd)]
+        * [<Node#132288350027>(subsystem_glossary.gd)]
+        * [<Node#132305127244>(subsystem_history.gd)]
+        * [<Node#132321904461>(subsystem_input.gd)]
+        * [<Timer#132338681678>]
+        * [<Node#132355458895>(subsystem_jump.gd)]
+        * [<Node#132372236112>(subsystem_containers.gd)]
+        * [<Node#132389013329>(subsystem_portraits.gd)]
+        * [<Node#132925884242>(subsystem_save.gd)]
+        * [<Timer#132942661459>]
+        * [<Node#132959438676>(subsystem_settings.gd)]
+        * [<Node#132976215896>(subsystem_styles.gd)]
+        * [<Node#132992993113>(subsystem_text.gd)]
+        * [<Node#133076879198>(subsystem_text_input.gd)]
+        * [<Node#133093656415>(subsystem_variables.gd)]
+        * [<Node#133110433632>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133127210849>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_system_tts_coordinator.gd
+- test_failed_duck_recovery_cannot_be_reported_as_a_successful_stop_confirmation
+    [Failed]:  Recovery must expose a truthful outcome to confirmation callers
+          at line 193
+
+res://tests/scene/test_settings_localization_scene.gd
+- test_task9_failed_duck_recovery_suppresses_stop_confirmation_and_reports_failure
+    [Failed]:  ARRAY(["button_accept"]) != ARRAY([]).
+    ["button_accept"] != []  1 of 1 indexes do not match.  Failed duck recovery cannot emit a positive confirmation
+          at line 466
+    [Failed]:  [""] expected to equal ["The change could not be applied."]:
+          at line 467
+
+Totals
+------
+Scripts               2
+Tests                43
+Passing Tests        41
+Failing Tests         2
+Asserts           553/556
+Orphans              24
+Time              9.276s
+
+
+---- 2 failing tests ----

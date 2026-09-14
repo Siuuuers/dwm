@@ -15,6 +15,10 @@ run/main_scene="res://scenes/menu/MenuScene.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
+[audio]
+
+general/text_to_speech=true
+
 [autoload]
 
 ProfileManager="*res://autoload/ProfileManager.gd"
@@ -22,6 +26,7 @@ GameState="*res://autoload/GameState.gd"
 SaveManager="*res://autoload/SaveManager.gd"
 LocalizationManager="*res://autoload/LocalizationManager.gd"
 AudioManager="*res://autoload/AudioManager.gd"
+SystemTtsCoordinator="*res://autoload/SystemTtsCoordinator.gd"
 WindowModeManager="*res://autoload/WindowModeManager.gd"
 EffectResolver="*res://autoload/EffectResolver.gd"
 SceneRouter="*res://autoload/SceneRouter.gd"

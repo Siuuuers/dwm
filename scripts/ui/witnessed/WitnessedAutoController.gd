@@ -11,6 +11,7 @@ const DELAYS := {"short": 1.0, "normal": 2.0, "long": 4.0}
 var _profile: Object
 var _bridge: Object
 var _admission: Callable
+var _completion_barrier: Callable
 var _auto_enabled := false
 var _delay := 2.0
 var _delay_key := "normal"
@@ -93,6 +94,12 @@ func is_auto_enabled() -> bool:
 	return _auto_enabled
 
 
+## Optional host-owned completion gate. It is consulted only after the foreground delay reaches
+## zero; speech never enters custody admission and never pauses the countdown itself.
+func bind_completion_barrier(barrier: Callable) -> void:
+	_completion_barrier = barrier
+
+
 func arm_after_reveal(frontier: Dictionary) -> void:
 	if not _auto_enabled or not _is_configured() or not frontier.get("ok", false):
 		return
@@ -147,8 +154,10 @@ func _process(delta: float) -> void:
 			or not bool(_bridge.call("can_auto_advance_current_line")):
 		_retire_without_rearm()
 		return
-	_remaining -= maxf(delta, 0.0)
+	_remaining = maxf(0.0, _remaining - maxf(delta, 0.0))
 	if _remaining > 0.0:
+		return
+	if _completion_barrier.is_valid() and not bool(_completion_barrier.call(_frontier.duplicate(true))):
 		return
 	var expected := _frontier.duplicate(true)
 	var request_generation := _generation

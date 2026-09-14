@@ -148,7 +148,7 @@ func _accepted_settings_paths() -> Array:
 	var suffixes: Array = [
 		"language.primary_locale_id",
 		"reading.reveal_speed", "reading.auto_enabled", "reading.auto_delay", "reading.skip_mode",
-		"reading.read_aloud_enabled", "reading.read_aloud_rate", "reading.lower_background_during_narration",
+		"reading.read_aloud_enabled", "reading.read_aloud_rate",
 		"audio.master_volume", "audio.master_muted", "audio.music_volume", "audio.music_muted",
 		"audio.ambience_volume", "audio.ambience_muted", "audio.sfx_volume", "audio.sfx_muted",
 		"audio.mute_when_inactive", "audio.output_mode", "display.window_mode",
@@ -237,6 +237,7 @@ class FakeSettingsAudio:
 	signal settings_preview_finished(handle: Dictionary, result: Dictionary)
 	var starts: Array = []
 	var stops: Array = []
+	var sfx: Array[String] = []
 	var available: bool = false
 	func start_settings_preview(holder: StringName, channel: StringName) -> Dictionary:
 		starts.append(channel)
@@ -246,6 +247,9 @@ class FakeSettingsAudio:
 	func stop_settings_preview(handle: Variant) -> Dictionary:
 		stops.append(handle)
 		return {"ok": true, "code": &"ok"}
+	func play_sfx(cue_id: String, _context: Dictionary = {}) -> Dictionary:
+		sfx.append(cue_id)
+		return {"ok": true, "code": &"ok"}
 
 class FakeSettingsTts:
 	extends RefCounted
@@ -254,16 +258,73 @@ class FakeSettingsTts:
 	var available: bool = true
 	var requests: Array = []
 	var stops: Array = []
+	var source_stops: Array = []
+	var active_source: String = ""
+	var recovery_waits: int = 0
 	func refresh_capability(_locale: String) -> Dictionary:
 		return {"ok": true, "value": {"available": available}}
 	func request_speech(text: String, locale: String, rate: StringName, source: String) -> Dictionary:
 		requests.append({"text": text, "locale": locale, "rate": rate, "source": source})
+		active_source = source
 		return {"ok": true, "value": {"token": requests.size()}}
+	func stop_source(source: String, reason: StringName) -> Dictionary:
+		source_stops.append({"source": source, "reason": reason})
+		var stopped := source == active_source
+		if source == active_source:
+			active_source = ""
+		return {"ok": true, "value": {"stopped": stopped}}
+	func is_speaking(source: String) -> bool:
+		return not source.is_empty() and source == active_source
+	func wait_until_recovered():
+		recovery_waits += 1
 	func stop(reason: StringName) -> Dictionary:
 		stops.append(reason)
+		active_source = ""
 		return {"ok": true}
 	func get_state() -> Dictionary:
 		return {"available": available, "state": &"IDLE"}
+
+class DelayedSettingsTts:
+	extends FakeSettingsTts
+	signal recovery_completed()
+	var delay_recovery: bool = false
+	func wait_until_recovered():
+		recovery_waits += 1
+		if delay_recovery:
+			await recovery_completed
+
+class FailedRecoverySettingsTts:
+	extends FakeSettingsTts
+	func wait_until_recovered():
+		recovery_waits += 1
+		return {"ok": false, "code": &"duck_recovery_failed"}
+
+class SettingsProductionSpeechPort:
+	extends RefCounted
+	signal utterance_finished(token: int, outcome: StringName)
+	var requests: Array[Dictionary] = []
+	var stops: int = 0
+	func get_voices() -> Array[Dictionary]:
+		return [{"id": "english", "language": "en-US", "name": "English"}]
+	func speak(text: String, voice_id: String, rate: float, token: int) -> Dictionary:
+		requests.append({"text": text, "voice": voice_id, "rate": rate, "token": token})
+		return {"ok": true}
+	func stop() -> Dictionary:
+		stops += 1
+		return {"ok": true}
+
+class SettingsProductionDuckPort:
+	extends RefCounted
+	var begins: Array[int] = []
+	var finishes: Array[int] = []
+	func begin(token: int) -> Dictionary:
+		begins.append(token)
+		return {"ok": true}
+	func finish(token: int) -> Dictionary:
+		finishes.append(token)
+		return {"ok": true}
+	func reset() -> void:
+		pass
 
 func test_task9_pointer_drag_previews_then_commits_once_with_exact_handle() -> void:
 	var fixture: Dictionary = _task9_fixture()
@@ -360,6 +421,116 @@ func test_task9_tts_test_works_while_read_aloud_off_and_uses_frozen_specimen() -
 	assert_eq(fixture["tts"].requests[0]["rate"], &"normal")
 	assert_eq(fixture["profile"].commits, [])
 
+func test_task9_reading_omits_internal_duck_preference_but_registry_retains_it() -> void:
+	var fixture: Dictionary = _task9_fixture()
+	var path := &"preferences.reading.lower_background_during_narration"
+	assert_null(fixture["content"].control_for(path), "The uniform TTS duck has no visible preference row")
+	var registry: GDScript = load(REGISTRY_PATH)
+	assert_true(registry.validate(path, false).get("ok", false), "Existing stored values remain registered")
+	assert_eq(registry.default_value(path), true)
+
+func test_task9_settings_stops_only_the_source_owned_by_its_detached_test() -> void:
+	var fixture: Dictionary = _task9_fixture()
+	var controller: RefCounted = fixture["content"].get_controller()
+	await controller.toggle_test("TTS")
+	var source: String = fixture["tts"].requests[0]["source"]
+	assert_true(fixture["tts"].is_speaking(source))
+	await controller.stop_test()
+	assert_eq(fixture["tts"].source_stops, [{"source": source, "reason": &"settings_departure"}])
+	assert_eq(fixture["tts"].stops, [], "A Settings departure must not issue an unowned global stop")
+	assert_eq(fixture["tts"].recovery_waits, 1)
+	assert_false(fixture["tts"].is_speaking(source))
+
+func test_task9_deliberate_tts_stop_confirms_only_after_owned_recovery() -> void:
+	var fixture: Dictionary = _task9_fixture()
+	var controller: RefCounted = fixture["content"].get_controller()
+	await controller.toggle_test("TTS")
+	await controller.toggle_test("TTS")
+	assert_eq(fixture["tts"].source_stops.size(), 1)
+	assert_eq(fixture["tts"].recovery_waits, 1)
+	assert_eq(fixture["audio"].sfx, ["button_accept"],
+		"Only the deliberate visible Stop confirms after speech and duck settlement")
+	await controller.toggle_test("TTS")
+	await controller.stop_test()
+	assert_eq(fixture["audio"].sfx, ["button_accept"],
+		"Lifecycle/source retirement has no positive confirmation")
+
+func test_task9_failed_duck_recovery_suppresses_stop_confirmation_and_reports_failure() -> void:
+	var tts := FailedRecoverySettingsTts.new()
+	var fixture: Dictionary = _task9_fixture(true, false, false, tts)
+	var controller: RefCounted = fixture["content"].get_controller()
+	await controller.toggle_test("TTS")
+	await controller.toggle_test("TTS")
+	assert_eq(tts.source_stops.size(), 1, "The exact owned speech is still retired")
+	assert_eq(tts.recovery_waits, 1)
+	assert_eq(fixture["audio"].sfx, [], "Failed duck recovery cannot emit a positive confirmation")
+	assert_eq(fixture["content"].get_node("SheetScroll/Sheets/SettingsStatus").text,
+		_settings_text("settings.status.failed"))
+
+func test_task9_old_recovery_wait_cannot_stop_a_newer_settings_source() -> void:
+	var tts := DelayedSettingsTts.new()
+	var fixture: Dictionary = _task9_fixture(true, false, false, tts)
+	var controller: RefCounted = fixture["content"].get_controller()
+	await controller.toggle_test("TTS")
+	var old_source: String = tts.requests[0]["source"]
+	tts.delay_recovery = true
+	controller.toggle_test("TTS")
+	assert_eq(tts.source_stops, [{"source": old_source, "reason": &"settings_departure"}])
+	await controller.toggle_test("TTS")
+	var new_source: String = tts.requests[1]["source"]
+	assert_ne(new_source, old_source)
+	assert_true(tts.is_speaking(new_source))
+	tts.recovery_completed.emit()
+	await get_tree().process_frame
+	assert_true(tts.is_speaking(new_source), "Old recovery completion cannot retire replacement speech")
+	assert_eq(tts.source_stops.size(), 1)
+	assert_eq(tts.stops, [])
+	assert_eq(fixture["audio"].sfx, [], "A stale Stop interaction cannot confirm over its successor")
+
+func test_task9_shared_settings_uses_real_speech_owner_and_projects_async_failure() -> void:
+	var path := "res://autoload/SystemTtsCoordinator.gd"
+	assert_true(FileAccess.file_exists(path), "The installed Primary speech owner is required")
+	if not FileAccess.file_exists(path):
+		return
+	var loaded: Dictionary = PROBE.load_script(path)
+	assert_true(loaded.get("ok", false), str(loaded))
+	if not loaded.get("ok", false):
+		return
+	var port := SettingsProductionSpeechPort.new()
+	var duck := SettingsProductionDuckPort.new()
+	var coordinator: Node = loaded["value"].new(port, duck)
+	_surface.add_child(coordinator)
+	for method: StringName in [&"refresh_capability", &"request_speech", &"stop_source", &"is_speaking", &"stop"]:
+		assert_true(coordinator.has_method(method), String(method))
+	for signal_name: StringName in [&"speech_admitted", &"speech_completed"]:
+		assert_true(coordinator.has_signal(signal_name), String(signal_name))
+	var fixture: Dictionary = _task9_fixture(true, false, false, coordinator)
+	var controller: RefCounted = fixture["content"].get_controller()
+	assert_false(fixture["content"].control_for(&"preferences.reading.read_aloud_enabled").disabled)
+	var test_button: Button = fixture["content"].test_buttons["TTS"]
+	assert_false(test_button.disabled, "an available OS voice admits the visible TTS Test control")
+	assert_eq(fixture["content"].test_status("TTS"), "")
+	test_button.pressed.emit()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_eq(port.requests.size(), 1)
+	if port.requests.is_empty():
+		return
+	var request: Dictionary = port.requests[0]
+	assert_eq(request.text, "This is a reading test.")
+	assert_eq(request.voice, "english")
+	assert_eq(request.rate, 1.0)
+	assert_eq(duck.begins, [request.token])
+	var source := String(controller.get("_tts_source"))
+	assert_true(coordinator.is_speaking(source))
+	port.utterance_finished.emit(request.token, &"failed")
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_eq(duck.finishes, [request.token])
+	assert_eq(fixture["content"].test_buttons["TTS"].text, _settings_text("settings.test"))
+	assert_eq(fixture["content"].get_node("SheetScroll/Sheets/SettingsStatus").text, _settings_text("settings.status.failed"))
+	assert_eq(fixture["profile"].commits, [], "Speech failure never mutates the desired preference")
+
 func test_task9_unavailable_tts_preserves_desired_preference_and_disables_controls() -> void:
 	var fixture: Dictionary = _task9_fixture(false)
 	assert_not_null(fixture["content"].get_controller())
@@ -368,6 +539,10 @@ func test_task9_unavailable_tts_preserves_desired_preference_and_disables_contro
 	fixture["profile"].set_preference(&"preferences.reading.read_aloud_enabled", true)
 	assert_true(fixture["content"].control_for(&"preferences.reading.read_aloud_enabled").disabled)
 	assert_true(fixture["content"].control_for(&"preferences.reading.read_aloud_rate").disabled)
+	assert_true(fixture["content"].test_buttons["TTS"].disabled,
+		"a missing compatible OS voice keeps Test truthful and unavailable")
+	assert_eq(fixture["content"].test_status("TTS"),
+		_settings_text("settings.status.no_compatible_voice"))
 	assert_true(fixture["profile"].get_preference(&"preferences.reading.read_aloud_enabled"))
 	assert_eq(fixture["tts"].requests, [])
 
@@ -390,13 +565,14 @@ func test_task9_independent_scroll_wrapping_and_exact_rail_at_all_text_sizes() -
 		for label: Label in content.wrapping_labels():
 			assert_eq(label.autowrap_mode, TextServer.AUTOWRAP_WORD_SMART)
 
-func _task9_fixture(tts_available: bool = true, delayed_volume: bool = false, title_admission: bool = false) -> Dictionary:
+func _task9_fixture(tts_available: bool = true, delayed_volume: bool = false, title_admission: bool = false, tts_override: Object = null) -> Dictionary:
 	var profile := FakeSettingsProfile.new()
 	var volume: RefCounted = DelayedVolumeSink.new() if delayed_volume else FakeVolumeSink.new()
 	volume.profile = profile
 	var audio := FakeSettingsAudio.new()
-	var tts := FakeSettingsTts.new()
-	tts.available = tts_available
+	var tts: Object = tts_override if tts_override != null else FakeSettingsTts.new()
+	if tts_override == null:
+		tts.available = tts_available
 	var content: Control = load("res://scenes/shared/SettingsContent.tscn").instantiate()
 	if title_admission:
 		content.host_context = "title"

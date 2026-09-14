@@ -359,7 +359,7 @@ func toggle_test(kind: String) -> void:
 	if kind not in ["Music", "Ambience", "SFX", "TTS"]:
 		return
 	if _test_kind == kind:
-		await stop_test()
+		await stop_test(kind == "TTS")
 		return
 	if not _interactive():
 		return
@@ -404,7 +404,7 @@ func toggle_test(kind: String) -> void:
 
 func _detach_test() -> Dictionary:
 	_test_generation += 1
-	var test := {"kind": _test_kind, "handle": _audio_handle}
+	var test := {"kind": _test_kind, "handle": _audio_handle, "tts_source": _tts_source}
 	_test_kind = ""
 	_audio_handle = null
 	_tts_token = -1
@@ -412,18 +412,41 @@ func _detach_test() -> Dictionary:
 	return test
 
 
-func _stop_detached_test(test: Dictionary) -> void:
+func _stop_detached_test(test: Dictionary) -> Dictionary:
+	var stopped := {"ok": true, "value": {"stopped": false}}
 	if test["kind"] == "TTS" and _tts != null:
-		_tts.stop(&"settings_departure")
+		var source := String(test.get("tts_source", ""))
+		var stop_result: Variant
+		if not source.is_empty() and _tts.has_method("stop_source"):
+			stop_result = _tts.stop_source(source, &"settings_departure")
+		else:
+			stop_result = _tts.stop(&"settings_departure")
+		if stop_result is Dictionary: stopped = stop_result
+		if _tts.has_method("wait_until_recovered"):
+			var recovery: Variant = await _tts.wait_until_recovered()
+			if recovery is Dictionary and not recovery.get("ok", false):
+				stopped["ok"] = false
+				stopped["code"] = recovery.get("code", &"speech_recovery_failed")
 	elif test["handle"] != null and _audio != null:
 		var operation := _begin_preview_operation()
 		await _audio.stop_settings_preview(test["handle"])
 		_finish_preview_operation(operation)
 	_refresh_tests()
+	return stopped
 
 
-func stop_test() -> void:
-	await _stop_detached_test(_detach_test())
+func stop_test(confirm_deliberate_tts_stop: bool = false) -> void:
+	var test := _detach_test()
+	var generation := _test_generation
+	var stopped: Dictionary = await _stop_detached_test(test)
+	if not stopped.get("ok", false) and generation == _test_generation \
+			and is_instance_valid(_content):
+		_content.set_general_status("settings.status.failed")
+	if confirm_deliberate_tts_stop and test.get("kind") == "TTS" \
+			and stopped.get("ok", false) and stopped.get("value", {}).get("stopped", false) \
+			and generation == _test_generation and _test_kind.is_empty() and _interactive() \
+			and is_instance_valid(_audio) and _audio.has_method("play_sfx"):
+		_audio.play_sfx("button_accept")
 
 
 func back() -> bool:
@@ -458,7 +481,8 @@ func depart() -> void:
 		for control: Control in _controls.values():
 			if control is OptionButton:
 				control.get_popup().hide()
-	# TTS stop is not token-addressed, so it must run before the first await.
+	# Retire the detached source before the first await. A reopened presentation may
+	# own a different speech source while the old duck finishes recovering.
 	await _stop_detached_test(test)
 	if handle != null and _has_audio_sink():
 		await _cancel_volume_preview(handle)
@@ -592,11 +616,13 @@ func _on_speech_admitted(token: int, source: String) -> void:
 		_tts_token = token
 
 
-func _on_speech_completed(token: int, _outcome: StringName) -> void:
+func _on_speech_completed(token: int, outcome: StringName) -> void:
 	if _test_kind == "TTS" and token == _tts_token:
 		_test_kind = ""
 		_tts_token = -1
 		_tts_source = ""
+		if outcome == &"failed" and is_instance_valid(_content):
+			_content.set_general_status("settings.status.failed")
 		_refresh_tests()
 
 

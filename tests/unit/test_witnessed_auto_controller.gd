@@ -272,3 +272,87 @@ func test_retirement_and_reentrant_replacement_cannot_leak_an_old_generation() -
 	replaced.controller._process(0.0)
 	replaced.controller._process(1.01)
 	assert_eq(replaced.bridge.requests, [FakeBridge._proof("line-a", 1), replacement])
+
+
+func test_completion_barrier_spends_foreground_delay_concurrently_then_holds_at_zero() -> void:
+	var f := _fixture(true, "short")
+	assert_true(f.controller.has_method("bind_completion_barrier"),
+		"Auto exposes the host-owned speech completion barrier")
+	if not f.controller.has_method("bind_completion_barrier"): return
+	var speech := {"complete": false}
+	f.controller.call("bind_completion_barrier", func(_frontier: Dictionary) -> bool:
+		return bool(speech.complete))
+	_arm(f)
+	f.controller._process(0.4)
+	assert_almost_eq(float(f.controller.get("_remaining")), 0.6, 0.001,
+		"speech does not pause the foreground countdown")
+	f.controller._process(0.7)
+	assert_eq(f.bridge.requests, [])
+	assert_almost_eq(float(f.controller.get("_remaining")), 0.0, 0.001,
+		"the expired delay clamps at zero while the utterance remains active")
+	f.controller._process(30.0)
+	assert_almost_eq(float(f.controller.get("_remaining")), 0.0, 0.001)
+	assert_eq(f.bridge.requests, [])
+
+	speech.complete = true
+	f.controller._process(20.0)
+	f.controller._process(20.0)
+	assert_eq(f.bridge.requests, [f.bridge.frontier],
+		"matching speech completion releases exactly one automatic advance")
+
+
+func test_zero_delay_wait_still_obeys_custody_and_quarantines_resume_delta() -> void:
+	var f := _fixture(true, "short")
+	if not f.controller.has_method("bind_completion_barrier"):
+		assert_true(false, "missing completion barrier")
+		return
+	var speech := {"complete": false}
+	f.controller.call("bind_completion_barrier", func(_frontier: Dictionary) -> bool:
+		return bool(speech.complete))
+	_arm(f)
+	f.controller._process(1.01)
+	assert_eq(f.bridge.requests, [])
+	f.custody.admitted = false
+	speech.complete = true
+	f.controller._process(10.0)
+	assert_eq(f.bridge.requests, [], "speech completion cannot bypass lost custody")
+	f.custody.admitted = true
+	f.controller._process(10.0)
+	assert_eq(f.bridge.requests, [], "the first resumed delta remains ineligible at zero")
+	f.controller._process(0.0)
+	assert_eq(f.bridge.requests, [f.bridge.frontier])
+
+
+func test_frontier_or_semantic_boundary_change_retires_a_zero_delay_wait() -> void:
+	for semantic_boundary: bool in [false, true]:
+		var f := _fixture(true, "short")
+		if not f.controller.has_method("bind_completion_barrier"):
+			assert_true(false, "missing completion barrier")
+			return
+		var speech := {"complete": false}
+		f.controller.call("bind_completion_barrier", func(_frontier: Dictionary) -> bool:
+			return bool(speech.complete))
+		_arm(f)
+		f.controller._process(1.01)
+		if semantic_boundary:
+			f.bridge.can_advance = false
+		else:
+			f.bridge.frontier = FakeBridge._proof("line-b", 2)
+		f.controller._process(0.0)
+		speech.complete = true
+		f.bridge.can_advance = true
+		f.controller._process(30.0)
+		assert_eq(f.bridge.requests, [],
+			"a changed source/boundary cannot be released by the old utterance completion")
+
+
+func test_empty_optional_barrier_preserves_existing_auto_timing() -> void:
+	var f := _fixture(true, "short")
+	if not f.controller.has_method("bind_completion_barrier"):
+		assert_true(false, "missing completion barrier")
+		return
+	f.controller.call("bind_completion_barrier", Callable())
+	_arm(f)
+	f.controller._process(1.01)
+	assert_eq(f.bridge.requests, [f.bridge.frontier],
+		"no speech owner leaves the existing exact Auto timer unchanged")

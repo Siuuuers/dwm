@@ -1,0 +1,167 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/bcdbb241-3c4a-4c86-80bc-59c7af9dd41a/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/scene/test_settings_localization_scene.gd
+* test_settings_controller_and_scenes_exist_with_shared_contract
+* test_both_settings_hosts_share_languages_skip_modes_and_confirmed_resets
+* test_shared_controller_exposes_closed_settings_allowlist_without_dark_or_legacy_aliases
+    [Failed]:  [30] expected to equal [29]:
+      at line 81
+* test_each_reset_is_inert_until_its_own_confirmation
+* test_task9_hosts_instance_the_same_shared_content_scene
+* test_task9_pointer_drag_previews_then_commits_once_with_exact_handle
+* test_task9_discrete_volume_steps_and_failure_restore_committed_visible_value
+* test_task9_mute_and_output_mode_use_atomic_audio_sink
+* test_task9_audio_tests_never_autoplay_and_muted_or_zero_prevent_admission
+* test_task9_test_replacement_and_back_precedence_preserve_host
+* test_task9_tts_test_works_while_read_aloud_off_and_uses_frozen_specimen
+* test_task9_reading_omits_internal_duck_preference_but_registry_retains_it
+    [Failed]:  Expected [ReadingLowerBackgroundDuringNarrationRowControl:<CheckBox#2029221055783>] to be NULL:  The uniform TTS duck has no visible preference row
+      at line 377
+* test_task9_settings_stops_only_the_source_owned_by_its_detached_test
+    [Failed]:  ARRAY([]) != ARRAY([{ "source": "settings_ui_2086230035727.test.1", "reason": &"settings_departure" }]).
+    [] != [{ "source": "settings_ui_2086230035727....arture" }]  1 of 1 indexes do not match.
+      at line 389
+    [Failed]:  ARRAY([&"settings_departure"]) != ARRAY([]).
+    [&"settings_departure"] != []  1 of 1 indexes do not match.  A Settings departure must not issue an unowned global stop
+      at line 390
+* test_task9_production_tts_owner_exposes_the_shared_settings_contract
+    [Failed]:  The installed Primary speech owner is required
+      at line 395
+* test_task9_unavailable_tts_preserves_desired_preference_and_disables_controls
+* test_task9_independent_scroll_wrapping_and_exact_rail_at_all_text_sizes
+* test_task9_stale_drag_completion_cancels_only_its_old_handle
+* test_task9_missing_audio_sink_has_no_direct_profile_write_fallback
+* test_task9_exact_localized_tts_specimens_and_rates_use_no_receipt_api
+* test_task9_committed_primary_locale_refreshes_shared_rail_labels
+* test_task9_title_settings_reopens_after_closing_its_cached_host
+* test_review_back_cancels_pending_drag_before_returning_focus
+* test_review_late_tts_admission_cannot_rebind_new_test
+* test_review_old_departure_cannot_stop_test_started_after_reopen
+* test_review_busy_commit_restores_rejected_control_value
+* test_review_drag_cancel_cannot_release_unrelated_pending_commit
+* test_review_reset_labels_exist_in_each_locale_without_fallback
+* test_review_confirmation_body_and_buttons_follow_accessibility_size
+* test_audio_affecting_reset_uses_physical_sink_and_never_falls_back_after_refusal
+* test_audio_affecting_reset_without_sink_does_not_write_profile
+26/30 passed.
+
+
+res://tests/integration/test_witnessed_speech_projection.gd
+* test_semantic_entry_projects_native_primary_and_resolved_fallback_locale_without_read_identity
+    [Failed]:  DialogicBridge must expose the transient Primary speech presentation
+      at line 101
+* test_ordinary_hospital_projects_without_registered_line_or_visited_receipt
+    [Failed]:  DialogicBridge must expose the transient Primary speech presentation
+      at line 132
+* test_ordered_ending_projects_from_active_playback_without_semantic_entry_receipt
+    [Failed]:  DialogicBridge must expose the transient Primary speech presentation
+      at line 153
+* test_about_to_show_and_native_or_owner_replacement_refuse_the_stale_publication
+    [Failed]:  DialogicBridge must expose the transient Primary speech presentation
+      at line 173
+* test_resume_suppresses_only_the_first_exact_native_publication
+    [Failed]:  DialogicBridge must expose the transient Primary speech presentation
+      at line 198
+* test_idle_empty_and_unparsed_publications_fail_closed
+    [Failed]:  DialogicBridge must expose the transient Primary speech presentation
+      at line 220
+0/6 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/scene/test_settings_localization_scene.gd
+    - Outside Tests
+        * [<Node#131264939798>(subsystem_animation.gd)]
+        * [<Node#131281717026>(subsystem_audio.gd)]
+        * [<Node#131298494258>]
+        * [<Node#131315271483>]
+        * [<Node#131332048705>(subsystem_backgrounds.gd)]
+        * [<Node#131868919618>(subsystem_choices.gd)]
+        * [<Timer#131885696835>]
+        * [<Node#131902474052>(subsystem_expression.gd)]
+        * [<Node#131936028489>(subsystem_glossary.gd)]
+        * [<Node#131952805706>(subsystem_history.gd)]
+        * [<Node#131969582923>(subsystem_input.gd)]
+        * [<Timer#131986360140>]
+        * [<Node#132003137357>(subsystem_jump.gd)]
+        * [<Node#132019914574>(subsystem_containers.gd)]
+        * [<Node#132036691791>(subsystem_portraits.gd)]
+        * [<Node#132573562704>(subsystem_save.gd)]
+        * [<Timer#132590339921>]
+        * [<Node#132607117138>(subsystem_settings.gd)]
+        * [<Node#132623894358>(subsystem_styles.gd)]
+        * [<Node#132640671575>(subsystem_text.gd)]
+        * [<Node#132724557660>(subsystem_text_input.gd)]
+        * [<Node#132741334877>(subsystem_variables.gd)]
+        * [<Node#132758112094>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132774889311>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/scene/test_settings_localization_scene.gd
+- test_shared_controller_exposes_closed_settings_allowlist_without_dark_or_legacy_aliases
+    [Failed]:  [30] expected to equal [29]:
+          at line 81
+- test_task9_reading_omits_internal_duck_preference_but_registry_retains_it
+    [Failed]:  Expected [ReadingLowerBackgroundDuringNarrationRowControl:<CheckBox#2029221055783>] to be NULL:  The uniform TTS duck has no visible preference row
+          at line 377
+- test_task9_settings_stops_only_the_source_owned_by_its_detached_test
+    [Failed]:  ARRAY([]) != ARRAY([{ "source": "settings_ui_2086230035727.test.1", "reason": &"settings_departure" }]).
+    [] != [{ "source": "settings_ui_2086230035727....arture" }]  1 of 1 indexes do not match.
+          at line 389
+    [Failed]:  ARRAY([&"settings_departure"]) != ARRAY([]).
+    [&"settings_departure"] != []  1 of 1 indexes do not match.  A Settings departure must not issue an unowned global stop
+          at line 390
+- test_task9_production_tts_owner_exposes_the_shared_settings_contract
+    [Failed]:  The installed Primary speech owner is required
+          at line 395
+
+res://tests/integration/test_witnessed_speech_projection.gd
+- test_semantic_entry_projects_native_primary_and_resolved_fallback_locale_without_read_identity
+    [Failed]:  DialogicBridge must expose the transient Primary speech presentation
+          at line 101
+- test_ordinary_hospital_projects_without_registered_line_or_visited_receipt
+    [Failed]:  DialogicBridge must expose the transient Primary speech presentation
+          at line 132
+- test_ordered_ending_projects_from_active_playback_without_semantic_entry_receipt
+    [Failed]:  DialogicBridge must expose the transient Primary speech presentation
+          at line 153
+- test_about_to_show_and_native_or_owner_replacement_refuse_the_stale_publication
+    [Failed]:  DialogicBridge must expose the transient Primary speech presentation
+          at line 173
+- test_resume_suppresses_only_the_first_exact_native_publication
+    [Failed]:  DialogicBridge must expose the transient Primary speech presentation
+          at line 198
+- test_idle_empty_and_unparsed_publications_fail_closed
+    [Failed]:  DialogicBridge must expose the transient Primary speech presentation
+          at line 220
+
+Totals
+------
+Scripts               2
+Tests                36
+Passing Tests        26
+Failing Tests        10
+Asserts           432/443
+Orphans              24
+Time              7.756s
+
+
+---- 10 failing tests ----

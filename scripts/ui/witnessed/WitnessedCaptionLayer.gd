@@ -55,6 +55,16 @@ var _reading_owner_generation := 0
 var _reading_recovery: Dictionary = {}
 var _reading_retry_in_progress := false
 var _recovery_bound := false
+var _speech_profile: Object
+var _speech_bridge: Object
+var _speech_owner: Object
+var _speech_generation := 0
+var _speech_candidate := false
+var _speech_pending := false
+var _speech_source := ""
+var _speech_token := 0
+var _speech_identity: Dictionary = {}
+var _speech_status: Label
 
 @onready var canvas: Control = $Canvas
 @onready var scroll: ScrollContainer = $Canvas/Scroll
@@ -88,6 +98,9 @@ func _ready() -> void:
 	configure_presentation(_locale, _text_percent, _palette, _high_contrast, _colour_preset, _large_targets, _day)
 	_profile = get_node_or_null("/root/ProfileManager")
 	_localization = get_node_or_null("/root/LocalizationManager")
+	_speech_status = load("res://scripts/ui/witnessed/WitnessedSpeechStatus.gd").new()
+	_speech_status.name = "SpeechStatus"
+	overlay.add_child(_speech_status)
 	transport_rail.bind_localization(_localization)
 	if _profile != null and _profile.has_signal("preference_changed"):
 		_profile.connect("preference_changed", _on_preference_changed)
@@ -106,6 +119,8 @@ func _ready() -> void:
 	skip_controller.state_changed.connect(_sync_transport)
 	auto_controller.state_changed.connect(_on_auto_state_changed)
 	configure_reading_transport(_profile, get_node_or_null("/root/DialogicBridge"))
+	configure_speech(_profile, get_node_or_null("/root/DialogicBridge"), get_node_or_null("/root/SystemTtsCoordinator"))
+	auto_controller.bind_completion_barrier(_speech_allows_auto)
 	var input_owner := get_node_or_null("/root/InputManager")
 	_reading_input_owner = input_owner
 	_backup_load_router = get_node_or_null("/root/SceneRouter")
@@ -129,6 +144,84 @@ func _ready() -> void:
 		runtime.connect("timeline_ended", _on_playback_ended)
 		runtime.connect("dialogic_paused", _retire_transport)
 	_sync_transport()
+
+func configure_speech(profile: Object, bridge: Object, owner: Object) -> bool:
+	_cancel_speech()
+	if is_instance_valid(_speech_owner) and _speech_owner.has_signal("speech_completed") \
+			and _speech_owner.is_connected("speech_completed", _on_speech_completed):
+		_speech_owner.disconnect("speech_completed", _on_speech_completed)
+	_speech_profile = profile
+	_speech_bridge = bridge
+	_speech_owner = owner
+	if is_instance_valid(owner) and owner.has_signal("speech_completed"):
+		owner.connect("speech_completed", _on_speech_completed)
+	return is_instance_valid(profile) and profile.has_method("get_preference") \
+		and is_instance_valid(bridge) and bridge.has_method("capture_current_speech_presentation") \
+		and is_instance_valid(owner) and owner.has_method("request_speech") \
+		and owner.has_method("stop_source") and owner.has_method("is_speaking")
+
+func _cancel_speech() -> void:
+	_speech_generation += 1
+	_speech_candidate = false
+	_speech_pending = false
+	var retired_source := _speech_source
+	_speech_source = ""
+	_speech_token = 0
+	_speech_identity.clear()
+	if is_instance_valid(_speech_status): _speech_status.clear_status()
+	if not retired_source.is_empty() and is_instance_valid(_speech_owner):
+		_speech_owner.stop_source(retired_source, &"source_retired")
+
+func _speech_admitted() -> bool:
+	return not _pause_covered and _reading_source_admitted() and _has_caption() \
+		and accept_input.is_source_admitted() and not skip_controller.is_skip_active()
+
+func _speech_allows_auto(expected_frontier: Dictionary) -> bool:
+	return expected_frontier == _presented_line and not _speech_pending \
+		and (_speech_source.is_empty() or not is_instance_valid(_speech_owner) \
+		or not _speech_owner.is_speaking(_speech_source))
+
+func _speak_publication(generation: int) -> void:
+	if generation != _speech_generation or not _speech_candidate: return
+	# Consume once even when Off, unavailable, restored, or denied. Preferences,
+	# focus return and duplicate native signals cannot replay this publication.
+	_speech_candidate = false
+	_speech_pending = false
+	if not _speech_admitted() or not is_instance_valid(_speech_profile) \
+			or not is_instance_valid(_speech_bridge) or not is_instance_valid(_speech_owner) \
+			or not _speech_bridge.has_method("capture_current_speech_presentation"): return
+	var captured: Dictionary = _speech_bridge.capture_current_speech_presentation()
+	if not captured.get("ok", false): return
+	var publication: Dictionary = captured.value
+	if publication.suppress_replay or publication.display_text != caption_text.get_parsed_text(): return
+	if not bool(_speech_profile.get_preference(&"preferences.reading.read_aloud_enabled", false)): return
+	_speech_source = "witnessed.%d.%d" % [get_instance_id(), generation]
+	_speech_identity = publication.identity.duplicate(true)
+	var result: Dictionary = _speech_owner.request_speech(publication.primary_text, publication.content_locale,
+		StringName(_speech_profile.get_preference(&"preferences.reading.read_aloud_rate", "normal")), _speech_source)
+	if generation != _speech_generation or _speech_source.is_empty(): return
+	_speech_token = int(result.get("value", {}).get("token", 0))
+	if not result.get("ok", false) and _speech_failure_is_current(): _speech_status.show_failure()
+
+func _speech_failure_is_current() -> bool:
+	if not _speech_admitted() or _speech_identity.is_empty() or not is_instance_valid(_speech_status) \
+			or not is_instance_valid(_speech_bridge): return false
+	var current: Dictionary = _speech_bridge.capture_current_speech_presentation()
+	return current.get("ok", false) and current.value.identity == _speech_identity
+
+func _on_speech_completed(token: int, outcome: StringName) -> void:
+	if token <= 0 or token != _speech_token: return
+	_speech_token = 0
+	if outcome == &"failed" and _speech_failure_is_current(): _speech_status.show_failure()
+
+func _configure_speech_status() -> void:
+	if not is_instance_valid(_speech_status): return
+	_speech_status.update_presentation(_localization, _locale, _caption_theme, _text_percent)
+	_speech_status.position = Vector2(24, FIELD_TOP[_text_percent] - 64)
+	_speech_status.size = Vector2(1232, 64)
+
+func _exit_tree() -> void:
+	_cancel_speech()
 
 func configure_reading_transport(profile: Object, bridge: Object) -> bool:
 	if not is_node_ready() or not is_instance_valid(bridge) \
@@ -234,6 +327,7 @@ func _restore_load_focus() -> void:
 	_load_focus_restore_id = 0
 
 func _on_reading_profile_restored(_snapshot: Dictionary) -> void:
+	_cancel_speech()
 	_reading_owner_generation += 1
 
 func _reading_profile_revision() -> int:
@@ -313,6 +407,7 @@ func _on_skip_requested() -> void:
 
 func _request_reading_command(kind: StringName, target: bool) -> void:
 	if not _recovery_bound or not _reading_recovery.is_empty(): return
+	_cancel_speech()
 	var focused := get_viewport().gui_get_focus_owner()
 	var request := {"kind": kind, "target": target, "frontier": _presented_line.duplicate(true),
 		"profile_id": _reading_profile.get_instance_id(), "bridge_id": _transport_bridge.get_instance_id(),
@@ -410,6 +505,7 @@ func _configure_recovery_presentation() -> void:
 			_high_contrast, _colour_preset, _large_targets)
 
 func _retire_transport() -> void:
+	_cancel_speech()
 	_auto_resume_pending = true
 	if is_instance_valid(auto_controller): auto_controller.suspend_current()
 	if is_instance_valid(skip_controller): skip_controller.stop_skip()
@@ -522,6 +618,7 @@ func configure_presentation(locale: String = "en", text_percent: int = 100, pale
 	_colour_preset = colour_preset
 	_large_targets = large_targets
 	_caption_theme = next_theme
+	_configure_speech_status()
 	if is_instance_valid(canvas):
 		var first_mount := canvas.theme == null
 		if metrics_changed:
@@ -543,6 +640,7 @@ func configure_presentation(locale: String = "en", text_percent: int = 100, pale
 	return true
 
 func reset_caption_stack() -> void:
+	_cancel_speech()
 	if is_instance_valid(auto_controller): auto_controller.retire_current()
 	_line_waiting_for_text = true
 	_presented_line.clear()
@@ -558,6 +656,7 @@ func reproject_retained_captions(captions: Array) -> bool:
 	for copy: Variant in captions:
 		if typeof(copy) != TYPE_STRING or String(copy).strip_edges().is_empty():
 			return false
+	_cancel_speech()
 	_retained.assign(captions)
 	if is_instance_valid(stack):
 		_current_copy = caption_text.get_parsed_text()
@@ -601,6 +700,7 @@ func get_caption_projection() -> Dictionary:
 	}
 
 func _on_about_to_show_text(_info: Dictionary) -> void:
+	_cancel_speech()
 	_dismiss_reading_recovery(false)
 	auto_controller.retire_current()
 	# Old caption text can remain in the node until the next text_started signal.
@@ -613,6 +713,7 @@ func _on_about_to_show_text(_info: Dictionary) -> void:
 	# Runs before replacement, catching a clear even when its native node was already hidden.
 	if caption_text.get_parsed_text().is_empty():
 		reset_caption_stack()
+	_speech_candidate = true
 
 func _on_text_started(info: Dictionary) -> void:
 	if not _has_caption():
@@ -626,8 +727,12 @@ func _on_text_started(info: Dictionary) -> void:
 	_layout_stack(true)
 	_capture_presented_line()
 	_acknowledge_visible_line()
+	if _speech_candidate:
+		_speech_pending = true
+		_speak_publication.call_deferred(_speech_generation)
 
 func _on_caption_visibility_changed() -> void:
+	if not caption_text.is_visible_in_tree(): _cancel_speech()
 	if is_instance_valid(transport_rail): transport_rail.retire_input()
 	_sync_native_processing()
 	if caption_text.get_parsed_text().is_empty():
@@ -679,15 +784,19 @@ func _apply_preferences() -> void:
 	configure_presentation(locale, int(text_size), _palette, high_contrast, colour_preset, large_targets, _day)
 
 func _on_locale_changed(_locale_id: String) -> void:
+	_cancel_speech()
 	_apply_preferences()
 	_configure_recovery_presentation()
 
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
+	if path in [&"preferences.reading.read_aloud_enabled", &"preferences.reading.read_aloud_rate"]:
+		_cancel_speech()
 	if path in [&"preferences.accessibility.text_size", &"preferences.accessibility.high_contrast", &"preferences.accessibility.colour_differentiation", &"preferences.accessibility.large_targets"]:
 		_apply_preferences()
 		_configure_recovery_presentation()
 
 func _process(_delta: float) -> void:
+	if (_speech_pending or not _speech_source.is_empty()) and not _speech_admitted(): _cancel_speech()
 	if not _reading_recovery.is_empty() and not _reading_request_matches(_reading_recovery):
 		_dismiss_reading_recovery(false)
 	_sync_transport()

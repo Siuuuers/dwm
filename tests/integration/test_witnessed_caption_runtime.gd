@@ -25,6 +25,217 @@ var _window_size := Vector2i.ZERO
 var _window_content_size := Vector2i.ZERO
 var _caption_display_sources: Array[Dictionary] = []
 
+class SpeechProfile extends Node:
+	var enabled := true
+	func get_preference(path: StringName, fallback: Variant = null) -> Variant:
+		if path == &"preferences.reading.read_aloud_enabled": return enabled
+		if path == &"preferences.reading.read_aloud_rate": return "normal"
+		return fallback
+
+class SpeechRecorder extends Node:
+	signal speech_completed(token: int, outcome: StringName)
+	var requests: Array[Dictionary] = []
+	var active_source := ""
+	func request_speech(text: String, locale: String, rate: StringName, source: String) -> Dictionary:
+		requests.append({"text": text, "locale": locale, "rate": rate, "source": source})
+		active_source = source
+		return {"ok": true, "value": {"token": requests.size()}}
+	func stop_source(source: String, _reason: StringName) -> Dictionary:
+		if source == active_source: active_source = ""
+		return {"ok": true}
+	func is_speaking(source: String = "") -> bool:
+		return not active_source.is_empty() and (source.is_empty() or source == active_source)
+
+func _mount_speech_fixture(suppressed: bool = false) -> Dictionary:
+	if not _mount(): return {}
+	await _settle()
+	assert_true(caption.has_method("configure_speech"), "Mounted captions must bind the Primary speech owner")
+	if not caption.has_method("configure_speech"): return {}
+	var profile := SpeechProfile.new()
+	var speech := SpeechRecorder.new()
+	var bridge := BRIDGE.new()
+	viewport.add_child(profile)
+	viewport.add_child(speech)
+	viewport.add_child(bridge)
+	bridge.set("_ordinary_playback", {"timeline_id": "hospital.faint", "speech_token": "speech-fixture",
+		"content_locale": "en", "suppress_first_speech": suppressed})
+	bridge.call("_connect_speech_runtime")
+	assert_true(caption.configure_speech(profile, bridge, speech))
+	return {"profile": profile, "speech": speech, "bridge": bridge}
+
+func test_speech_starts_with_visible_primary_during_reveal_without_speaker_or_markup() -> void:
+	var fixture := await _mount_speech_fixture()
+	if fixture.is_empty(): return
+	runtime.start(_timeline("[b]A first line still revealing.[/b]\nSecond line."))
+	await _settle()
+	assert_true(caption.caption_text.revealing)
+	assert_eq(fixture.speech.requests.size(), 1, str({"admitted": caption.call("_speech_admitted"),
+		"candidate": caption.get("_speech_candidate"), "pending": caption.get("_speech_pending"),
+		"profile_matches": caption.get("_speech_profile") == fixture.profile,
+		"owner_matches": caption.get("_speech_owner") == fixture.speech,
+		"enabled": fixture.profile.enabled, "source": caption.get("_speech_source"),
+		"captured": fixture.bridge.capture_current_speech_presentation(),
+		"native": runtime.current_state_info, "text": caption.caption_text.get_parsed_text()}))
+	if fixture.speech.requests.size() != 1: return
+	assert_eq(fixture.speech.requests[0].text, "A first line still revealing.")
+	assert_eq(fixture.speech.requests[0].locale, "en")
+	var expected_frontier: Dictionary = caption.get("_presented_line")
+	assert_false(caption.call("_speech_allows_auto", expected_frontier))
+	var before := _history()
+	fixture.speech.active_source = ""
+	assert_true(caption.call("_speech_allows_auto", expected_frontier))
+	assert_false(caption.call("_speech_allows_auto", {"different": true}))
+	assert_eq(_history(), before, "speech completion cannot create read/history receipts")
+
+func test_accept_or_custody_cancels_current_speech_and_uncover_cannot_replay() -> void:
+	var fixture := await _mount_speech_fixture()
+	if fixture.is_empty(): return
+	runtime.start(_timeline("A line held while the player examines the room.\nSecond line."))
+	await _settle()
+	assert_false(fixture.speech.active_source.is_empty())
+	caption.call("_on_normal_accept_requested")
+	_advance()
+	await _settle()
+	assert_true(fixture.speech.active_source.is_empty())
+	assert_eq(fixture.speech.requests.size(), 1)
+	caption.call("_retire_transport")
+	caption.call("_on_text_finished", {})
+	await _settle()
+	assert_eq(fixture.speech.requests.size(), 1)
+	_advance()
+	await _settle()
+	assert_eq(fixture.speech.requests.size(), 2, "only a newly presented line may speak again")
+
+func test_disabled_or_restored_current_line_never_replays_but_next_line_can_speak() -> void:
+	var fixture := await _mount_speech_fixture(true)
+	if fixture.is_empty(): return
+	runtime.start(_timeline("Restored current line.\nA genuinely new line."))
+	await _settle()
+	assert_eq(fixture.speech.requests.size(), 0)
+	fixture.profile.enabled = true
+	caption.call("_on_text_started", {})
+	await _settle()
+	assert_eq(fixture.speech.requests.size(), 0)
+	_advance()
+	await _settle()
+	_advance()
+	await _settle()
+	assert_eq(fixture.speech.requests.size(), 1)
+	if fixture.speech.requests.size() == 1:
+		assert_eq(fixture.speech.requests[0].text, "A genuinely new line.")
+
+func test_turning_read_aloud_on_does_not_replay_a_line_presented_while_off() -> void:
+	var fixture := await _mount_speech_fixture()
+	if fixture.is_empty(): return
+	fixture.profile.enabled = false
+	runtime.start(_timeline("A current line admitted while speech was disabled.\nSecond line."))
+	await _settle()
+	assert_eq(fixture.speech.requests.size(), 0)
+	fixture.profile.enabled = true
+	caption.call("_on_text_started", {})
+	caption.call("_on_preference_changed", &"preferences.reading.read_aloud_enabled", true)
+	await _settle()
+	assert_eq(fixture.speech.requests.size(), 0)
+
+func test_stale_caption_cancellation_cannot_stop_a_replacing_settings_sample() -> void:
+	var fixture := await _mount_speech_fixture()
+	if fixture.is_empty(): return
+	runtime.start(_timeline("A line replaced by a deliberate Settings speech test.\nSecond line."))
+	await _settle()
+	fixture.speech.request_speech("This is a reading test.", "en", &"normal", "settings.test.1")
+	caption.call("_retire_transport")
+	assert_eq(fixture.speech.active_source, "settings.test.1")
+	await _settle()
+	assert_eq(fixture.speech.requests.size(), 2)
+
+func test_mounted_auto_expiry_calls_caption_barrier_and_advances_once_after_speech() -> void:
+	var fixture := await _mount_speech_fixture()
+	if fixture.is_empty(): return
+	runtime.start(_timeline("A caption speaking while Auto counts down.\nSecond line."))
+	await _settle()
+	var auto_fixtures: Script = load("res://tests/unit/test_witnessed_auto_controller.gd")
+	var profile: Node = auto_fixtures.FakeProfile.new()
+	var bridge: Node = auto_fixtures.FakeBridge.new()
+	viewport.add_child(profile)
+	viewport.add_child(bridge)
+	profile.values["preferences.reading.auto_enabled"] = true
+	profile.values["preferences.reading.auto_delay"] = "short"
+	caption.set("_presented_line", bridge.frontier.duplicate(true))
+	var controller: Node = caption.auto_controller
+	assert_true(controller.configure(profile, bridge, func(): return true))
+	controller.set_process(false)
+	controller._process(0.0)
+	controller._process(1.0)
+	assert_eq(bridge.requests.size(), 0, "the mounted speech barrier holds at expired delay")
+	fixture.speech.active_source = ""
+	controller._process(0.0)
+	controller._process(2.0)
+	assert_eq(bridge.requests.size(), 1, "the exact mounted callback releases one advancement")
+
+func test_appended_primary_speaks_only_new_words_without_repeating_the_current_card() -> void:
+	var fixture := await _mount_speech_fixture()
+	if fixture.is_empty(): return
+	runtime.start(_timeline("First caption.[n+] Appended caption.\nNext card."))
+	await _settle()
+	_advance()
+	await _settle()
+	_advance()
+	await _settle()
+	assert_eq(fixture.speech.requests.size(), 2)
+	if fixture.speech.requests.size() != 2: return
+	assert_eq(fixture.speech.requests[0].text, "First caption.")
+	assert_eq(String(fixture.speech.requests[1].text).strip_edges(), "Appended caption.")
+	assert_true(caption.caption_text.get_parsed_text().begins_with("First caption."),
+		"the visual card retains its earlier words without repeating them aloud")
+
+func _check_current_speech_failure(locale: String, expected_text: String) -> void:
+	var display_profile: Node = preload("res://autoload/ProfileManager.gd").new()
+	var storage: RefCounted = preload("res://scripts/infrastructure/storage/JsonFileStorage.gd").new(
+		"speech-status-locale", preload("res://tests/support/FakeFileOps.gd").new())
+	assert_true(display_profile.initialize(storage).get("ok", false))
+	var display_locale: Node = preload("res://autoload/LocalizationManager.gd").new()
+	assert_true(display_locale.initialize(display_profile).get("ok", false))
+	assert_true(display_locale.set_locale(locale).get("ok", false))
+	_replace_caption_display_source("ProfileManager", display_profile)
+	_replace_caption_display_source("LocalizationManager", display_locale)
+	var fixture := await _mount_speech_fixture()
+	if fixture.is_empty(): return
+	var status: Label = caption.get_node_or_null("Canvas/Overlay/SpeechStatus")
+	assert_not_null(status, "optional speech failure needs a nonmodal factual notice")
+	if status == null: return
+	assert_false(status.visible)
+	assert_true(caption.configure_presentation(locale, 150))
+	runtime.start(_timeline("A caption remains readable if optional speech fails.\nSecond line."))
+	await _settle()
+	assert_eq(fixture.speech.requests.size(), 1)
+	var before := _history()
+	var native_before: String = caption.caption_text.get_parsed_text()
+	var focused_before := viewport.gui_get_focus_owner()
+	fixture.speech.active_source = ""
+	fixture.speech.speech_completed.emit(1, &"failed")
+	assert_true(status.visible)
+	assert_eq(status.text, expected_text)
+	assert_eq(status.focus_mode, Control.FOCUS_NONE)
+	assert_eq(status.mouse_filter, Control.MOUSE_FILTER_IGNORE)
+	assert_eq(status.accessibility_live, DisplayServer.LIVE_POLITE)
+	assert_eq(caption.caption_text.get_parsed_text(), native_before)
+	assert_eq(_history(), before)
+	assert_eq(viewport.gui_get_focus_owner(), focused_before)
+	assert_true(caption.call("_speech_allows_auto", caption.get("_presented_line")))
+	caption.call("_retire_transport")
+	assert_false(status.visible)
+	fixture.speech.speech_completed.emit(1, &"failed")
+	assert_false(status.visible, "a retired speech callback cannot recreate a notice")
+
+func test_current_speech_failure_notice_is_nonmodal_in_english() -> void:
+	await _check_current_speech_failure("en", "Read Aloud encountered a problem.")
+
+func test_current_speech_failure_notice_is_nonmodal_in_simplified_chinese() -> void:
+	await _check_current_speech_failure("zh_CN", "朗读遇到问题。")
+
+func test_current_speech_failure_notice_is_nonmodal_in_traditional_chinese() -> void:
+	await _check_current_speech_failure("zh_HK", "朗讀遇到問題。")
+
 class MemoryProfile extends Node:
 	signal preference_changed(path: StringName, value: Variant)
 	func is_line_visited(_line_id: String) -> bool: return false
