@@ -320,7 +320,7 @@ func _accessibility_scroll(unit: Variant, direction: int) -> void:
 	var amount := VIEW_SIZE.y if unit == DisplayServer.SCROLL_UNIT_PAGE else _line_height()
 	scroll_to(scroll_offset + direction * amount)
 
-func _accessibility_page(direction: int) -> void:
+func _accessibility_page(_request: Variant, direction: int) -> void:
 	if _interactive and has_overflow(): scroll_to(scroll_offset + direction * VIEW_SIZE.y)
 
 func _accessibility_set_offset(value: Variant) -> void:
