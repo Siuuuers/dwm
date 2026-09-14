@@ -468,3 +468,31 @@ full_emit_us, canonical_rebuilt on the one-time rebuild). Neither handoff contra
 - settlement5-step3-profile-fresh-win-8c62e2913.log and -loss-: fresh account, every ledger write
   takes the composed path (compose 0.3-1.1 ms on the 5-22 KB documents, 9.7-14 ms on the 89-107 KB
   board_fate write) with the one-time rebuild on the first write; App first reveal 89 / 117 ms.
+
+### Post-merge re-verification (merge commit c53679203, master 366255a7d)
+
+Master gained 352 files of Gallery work between the branch point and the merge, including a
+DialogicBridge.gd change that master had already re-sealed in the desktop handoff contract. Both
+sides therefore changed that single-line document and the merge conflicted on it; the resolution
+takes master's file and regenerates the contract from the merged tree
+(settlement5-merge-reseal-desktop.log, settlement5-merge-reseal-minesweeper.log: the minesweeper
+contract byte-identical), and the leaf diff of the result carries exactly one moved leaf against
+each parent: DialogicBridge.gd against this branch, SaveManagerCheckpointPort.gd against master.
+
+- settlement5-post-merge-green-c53679203.log: the 32-suite set plus test_minesweeper_presentation_port,
+  test_game_state_desktop_board_port and test_desktop_board_fate_port, 35 suites, 652 passing / 0
+  failing, both contract evidence suites included, so no further re-seal is needed.
+- settlement5-post-merge-bench-fresh-c53679203.log and -live-: the merged tree on the same loaded
+  machine (routine reveal medians 50-56 ms against the usual 30). Fresh: App first reveal 144 ms,
+  New Board 252 ms, win 957 / loss 912 ms, dating 603 ms. Live copy: Log In 30.8 s, App first reveal
+  129 ms, New Board first reveal 265 ms, win 1517 / loss 1521 ms, issuer root 928474 bytes.
+
+Session 5 summary: dwm-6fl fixed and closed (real players' journals boot again); the autosave no
+longer re-walks its retained history (document_build 16-83 to 8-12 ms per big save on the live
+copy); the first reveal writes the issuer root once instead of five times (live copy 1.19 / 1.14 s
+to 112-166 ms, New Board 1.53-1.56 s to 265-404 ms) and has a permanent profile scope; the
+publication ledger composes its text from a per-record canonical cache (full_emit 56-111 ms to
+compose 7.5-15 ms per write). What remains on the live copy, in order: write_atomic plus the storage
+reconcile on the 800 KB ledger and the 300-450 KB autosaves (ruled to stay), the four deferred
+mints each deep-copying the 808 KB issuer root (prepare_spec 10-27 ms, the port read-amplification
+candidate), and the 30-40 ms routine click of pure GDScript.
