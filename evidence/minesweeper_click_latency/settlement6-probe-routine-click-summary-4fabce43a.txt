@@ -1,0 +1,75 @@
+== settlement6-probe-routine-click-live-4fabce43a.log: 267 clicks, 265 routine (no pull), 2 with pull
+  phase                                          median      p90  (ms, routine clicks)
+  board_dispatch_body_us                          14.22    18.61
+  elapsed_us                                      30.97    36.08
+  has_fresh_difficulty_get_state_us                0.36     0.64
+  has_fresh_difficulty_us                          0.47     0.82
+  measure_us                                       2.24     2.60
+  owner_command_capture_us                         0.28     0.47
+  owner_command_commit_us                          0.77     1.46
+  owner_command_ledger_lookup_us                   0.47     0.71
+  owner_command_prepare_us                         1.32     1.70
+  owner_command_reduce_us                          1.05     1.26
+  owner_read_configuration_us                      0.97     1.65
+  owner_read_derive_routine_us                     0.52     0.62
+  owner_read_get_state_us                          0.61     1.03
+  owner_read_query_desktop_us                      5.19     6.64
+  panel_present_copy_us                            0.47     0.58
+  panel_present_grid_us                            5.37     6.08
+  panel_present_register_us                        0.84     1.02
+  panel_present_total_us                          12.60    13.63
+  panel_present_valid_us                           3.27     3.65
+  port_board_dispatch_us                          15.06    19.47
+  port_dispatch_adopt_us                           0.64     0.75
+  port_dispatch_board_capture_us                   3.96     6.74
+  port_dispatch_owner_command_us                   4.15     5.89
+  port_dispatch_owner_read_1_us                    4.18     5.51
+  port_dispatch_owner_read_2_us                    4.85     6.47
+  port_dispatch_present_success_us                 1.27     1.48
+  port_dispatch_total_us                          17.98    23.17
+  port_routine_context_us                          0.72     1.15
+  port_routine_view_us                             0.40     0.47
+  measure_count                                median=1
+  owner_read_count                             median=2
+  port_dispatch_board_capture_count            median=9
+  -- clicks with pull (first reveals):
+     {'board_dispatch_body_us': 68.0, 'elapsed_us': 89.2, 'owner_read_query_desktop_us': 3.9, 'panel_present_grid_us': 5.3, 'panel_present_total_us': 12.7, 'panel_present_valid_us': 3.5, 'port_board_dispatch_us': 68.9, 'port_dispatch_board_capture_us': 64.4, 'port_dispatch_owner_command_us': 63.2, 'port_dispatch_total_us': 76.3, 'pull_board_port_pull_us': 3.1, 'pull_total_us': 7.4}
+     {'board_dispatch_body_us': 150.8, 'elapsed_us': 176.3, 'owner_read_query_desktop_us': 5.6, 'panel_present_grid_us': 5.6, 'panel_present_total_us': 13.0, 'panel_present_valid_us': 3.4, 'port_board_dispatch_us': 151.6, 'port_dispatch_board_capture_us': 147.3, 'port_dispatch_owner_command_us': 141.1, 'port_dispatch_owner_read_1_us': 3.3, 'port_dispatch_owner_read_2_us': 5.3, 'port_dispatch_total_us': 163.1, 'pull_board_port_pull_us': 4.8, 'pull_total_us': 10.9}
+
+== settlement6-probe-routine-click-fresh-4fabce43a.log: 222 clicks, 220 routine (no pull), 2 with pull
+  phase                                          median      p90  (ms, routine clicks)
+  board_dispatch_body_us                          13.94    18.55
+  elapsed_us                                      30.57    41.95
+  has_fresh_difficulty_get_state_us                0.30     0.55
+  has_fresh_difficulty_us                          0.39     0.70
+  measure_us                                       2.16     3.28
+  owner_command_capture_us                         0.23     0.41
+  owner_command_commit_us                          0.71     1.29
+  owner_command_ledger_lookup_us                   0.39     0.62
+  owner_command_prepare_us                         1.38     1.92
+  owner_command_reduce_us                          1.07     1.61
+  owner_read_configuration_us                      0.82     1.42
+  owner_read_derive_routine_us                     0.56     0.94
+  owner_read_get_state_us                          0.51     0.94
+  owner_read_query_desktop_us                      5.32     7.03
+  panel_present_copy_us                            0.45     0.76
+  panel_present_grid_us                            5.39     9.33
+  panel_present_register_us                        0.87     1.39
+  panel_present_total_us                          12.43    20.69
+  panel_present_valid_us                           3.30     5.74
+  port_board_dispatch_us                          14.64    19.32
+  port_dispatch_adopt_us                           0.60     0.94
+  port_dispatch_board_capture_us                   3.32     5.94
+  port_dispatch_owner_command_us                   4.08     5.52
+  port_dispatch_owner_read_1_us                    4.14     5.61
+  port_dispatch_owner_read_2_us                    4.88     6.59
+  port_dispatch_present_success_us                 1.22     2.06
+  port_dispatch_total_us                          17.56    23.01
+  port_routine_context_us                          0.62     1.10
+  port_routine_view_us                             0.39     0.67
+  measure_count                                median=1.0
+  owner_read_count                             median=2.0
+  port_dispatch_board_capture_count            median=9.0
+  -- clicks with pull (first reveals):
+     {'board_dispatch_body_us': 65.8, 'elapsed_us': 101.3, 'measure_us': 4.7, 'owner_read_query_desktop_us': 4.2, 'panel_present_grid_us': 6.6, 'panel_present_total_us': 22.0, 'panel_present_valid_us': 8.2, 'port_board_dispatch_us': 66.7, 'port_dispatch_board_capture_us': 61.9, 'port_dispatch_owner_command_us': 60.7, 'port_dispatch_total_us': 79.0, 'pull_board_port_pull_us': 4.8, 'pull_copies_us': 4.1, 'pull_total_us': 12.3}
+     {'board_dispatch_body_us': 200.3, 'elapsed_us': 246.2, 'measure_us': 4.7, 'owner_read_configuration_us': 3.1, 'owner_read_query_desktop_us': 7.7, 'panel_present_grid_us': 11.3, 'panel_present_total_us': 24.6, 'panel_present_valid_us': 5.9, 'port_board_dispatch_us': 201.7, 'port_dispatch_board_capture_us': 194.7, 'port_dispatch_owner_command_us': 186.3, 'port_dispatch_owner_read_1_us': 5.3, 'port_dispatch_owner_read_2_us': 6.7, 'port_dispatch_total_us': 221.2, 'pull_board_port_pull_us': 7.6, 'pull_copies_us': 3.7, 'pull_register_us': 5.4, 'pull_total_us': 18.5}

@@ -655,3 +655,32 @@ settlement6-step2b-reseal-minesweeper-263c775e7.log).
   port still reached the production witness through the per-call cache commit() seeds; the reference
   port is now a sibling inner class that bypasses the witness as it bypasses the cached validator and
   the proof, and RED was re-proven with that final test file against the reverted port.
+
+### Routine-click profile (after 4fabce43a): the gate for DesktopBoardState.capture and MinesweeperPanelPort.pull
+
+A temporary, marker-tagged probe (176 inserted lines each ending in `# ROUTINE_CLICK_PROBE`, no
+existing line changed, stripped after the runs and the tree verified byte-identical; the patch file
+is not archived because the exact-path commit's whitespace check refuses patch context lines, and
+it is rebuilt from the phase list below by inserting Time.get_ticks_usec() reads around each named
+call, accumulated in a static Dictionary on a preloaded scripts/tools/RoutineClickProbe.gd and
+printed once from MinesweeperPanel._dispatch) printed one ROUTINE_CLICK_PROFILE line per cell click across
+MinesweeperPanel, MinesweeperPanelPort, MinesweeperPresentationPort, MinesweeperRoundCoordinator and
+DesktopBoardState. settlement6-probe-routine-click-live-4fabce43a.log (267 clicks, 265 routine) and
+-fresh- (222 clicks, 220 routine); medians in settlement6-probe-routine-click-summary-4fabce43a.txt.
+The routine click is 31.0 / 30.6 ms median on the live copy and the fresh account, so nothing in it
+depends on history any more. Inside: MinesweeperPanelPort.dispatch 18.0 / 17.6 ms, of which the two
+owner reads of MinesweeperPresentationPort.dispatch cost 4.2 + 4.9 ms (their query_desktop projection
+5.2 ms over both reads, configuration 1.0, get_state 0.6, derive_routine 0.5), the owner command 4.1 ms
+(prepare 1.3, reduce 1.1, commit 0.8, ledger lookup 0.5, capture 0.3), nine DesktopBoardState.capture
+calls 4.0 / 3.3 ms as an upper bound (each span ends at the next probe mark, so it includes a few
+statements after the capture), adopt 0.6, present_success 1.3; MinesweeperPanel.present 12.6 / 12.4 ms
+(grid 5.4, _valid 3.3, register 0.8, copy 0.5); _measure 2.2. MinesweeperPanelPort.pull does not run
+on the routine path at all (the dwm-634.1 fast path returns the routine view directly); it runs only
+on the two first reveals of each run at 7-12 ms of a 90-250 ms frame.
+
+Gate ruling applied (2026-09-14): capture at 4 ms as an upper bound sits inside the run-to-run noise of
+the routine click (p90 minus median 5-11 ms) and pull is absent from the routine path, so neither the
+capture receipts step (1b) nor the pull step (1c) is built this session. The profile hands the next
+session two better-defined candidates instead: the before/after owner-read pair of the board port
+(9 ms, 29 percent of the click, a strict snapshot-transaction law) and the panel present (12.6 ms,
+40 percent, UI-side grid rebuild and validation), both requiring their own rulings.
