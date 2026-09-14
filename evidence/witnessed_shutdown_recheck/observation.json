@@ -1,0 +1,45 @@
+{
+  "issue": "dwm-eei.17",
+  "subject_commit": "c68af391eb98b1ca5a4c31971908de00c328ef13",
+  "historical_observation": "evidence/witnessed_palettes/render-shutdown-observation.json",
+  "purpose": "Recheck the native caption sequence after the Dialogic allocation repair; no new rendering or whole-game acceptance claim.",
+  "finding": "The intermittent shutdown stall did not reproduce. The native process exited without intervention after the verification marker.",
+  "root_cause_established": false,
+  "issue_remains_open": true,
+  "captures_verified_by_probe": {
+    "primary": 148,
+    "unfocused_overflow": 3,
+    "combinations": 144
+  },
+  "capture_files_retained": false,
+  "capture_retention_note": "Invoke-IsolatedGodot used its default cleanup. The synthetic images and measurement JSON were temporary; only the log and terminal invocation receipt are retained here.",
+  "diagnostics": "No ERROR, WARNING, SCRIPT ERROR or Orphan lines in the native log.",
+  "log": "native.log",
+  "log_sha256": "6a976beb145ce3e2c6b084e5267de64ec4b53cb88d8f43ecd2ab74a6356f9bb3",
+  "invocation": {
+    "suite_id": "witnessed-shutdown-current",
+    "argv": [
+      "--headless",
+      "--path",
+      "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls",
+      "--log-file",
+      "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_logs\\witnessed-shutdown-current.log",
+      "--display-driver",
+      "windows",
+      "--rendering-method",
+      "gl_compatibility",
+      "--rendering-driver",
+      "opengl3",
+      "--position",
+      "-32000,-32000",
+      "-s",
+      "res://tests/ui/render_witnessed_caption.gd"
+    ],
+    "exit_code": 0,
+    "log_path": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_logs\\witnessed-shutdown-current.log",
+    "test_root": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_tests\\864b4ac0-0122-489a-8f04-fda91a3c332c",
+    "user_dir": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_tests\\864b4ac0-0122-489a-8f04-fda91a3c332c\\appdata\\Godot\\app_userdata\\DWM",
+    "started_at_utc": "2026-09-14T22:39:26.3161888Z",
+    "ended_at_utc": "2026-09-14T22:42:47.5064810Z"
+  }
+}
