@@ -7,6 +7,9 @@ var replay_unavailable := false
 var unavailable_height := 0.0
 var index_extent := 0.0
 var index_offset := 0.0
+var paper_extent := 0.0
+var paper_offset := 0.0
+var paper_focus := false
 
 func _draw() -> void:
 	if not has_theme_color("habitat", "Gallery"): return
@@ -36,3 +39,13 @@ func _draw() -> void:
 		var ink := get_theme_color("ink", "Gallery")
 		draw_rect(Rect2(352, 32, 2, 592), ink)
 		draw_rect(Rect2(350, 32 + offset * 2, 6, thumb * 2), ink)
+	if paper_extent > 512:
+		var extent := paper_extent / 2
+		var thumb := maxf(8, floorf(256 * 256 / extent))
+		var offset := floorf((256 - thumb) * (paper_offset / 2) / (extent - 256))
+		var ink := get_theme_color("paper_ink", "Gallery")
+		draw_rect(Rect2(936, 32, 2, 512), ink)
+		draw_rect(Rect2(934, 32 + offset * 2, 6, thumb * 2), ink)
+		if paper_focus:
+			draw_rect(Rect2(385, 25, 534, 526), ink, false, 2)
+			draw_rect(Rect2(389, 29, 526, 518), get_theme_color("paper_focus", "Gallery"), false, 2)

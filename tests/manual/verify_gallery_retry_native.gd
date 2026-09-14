@@ -118,7 +118,7 @@ func _run() -> void:
 		return
 	var home := Button.new()
 	_viewport.add_child(home)
-	_gallery = GALLERY.instantiate()
+	_gallery = _create_gallery()
 	if not _check(_gallery.configure_title_host(home, _localization, _profile).get("ok", false), "Gallery host rejected") \
 			or not _check(_gallery.configure_replay(_bridge).get("ok", false), "real replay owner rejected"):
 		_finish()
@@ -145,6 +145,10 @@ func _run() -> void:
 	_finish()
 
 
+func _create_gallery() -> Control:
+	return GALLERY.instantiate()
+
+
 func _alone(entry_id: String, form: String) -> Dictionary:
 	return {"entry_id": entry_id, "schema_version": 1,
 		"fields": {"ending_role": "core", "ending_form": form}}
@@ -167,7 +171,7 @@ func _sample(locale: String, percent: int, palette: String) -> bool:
 	var replay: Button = _gallery.get_node("%ReplayButton")
 	var status: Label = _gallery.get_node("%ReplayStatus")
 	var picker: OptionButton = _gallery.get("_version_selector")
-	var title: Label = _gallery.get_node("%GalleryHost/RecordTitle")
+	var title: Label = _gallery._record_title_label
 	var signature := str(_gallery.call("_selected_signature_id"))
 	if not _check(not signature.is_empty(), "Gallery selected no reached signature"): return false
 	var starts_before := _bridge.starts.size()
@@ -212,15 +216,16 @@ func _sample(locale: String, percent: int, palette: String) -> bool:
 func _geometry(status: Label, replay: Button, picker: OptionButton, title: Label) -> Dictionary:
 	var status_rect := Rect2(status.position, status.size)
 	var replay_rect := Rect2(replay.position, replay.size)
-	var picker_rect := Rect2(picker.position, picker.size)
-	var title_rect := Rect2(title.position, title.size)
+	var host: Control = _gallery.get_node("%GalleryHost")
+	var picker_rect := Rect2(picker.global_position - host.global_position, picker.size)
+	var title_rect := Rect2(title.global_position - host.global_position, title.size)
 	var font := replay.get_theme_font("font")
 	var text_width := font.get_string_size(replay.text, HORIZONTAL_ALIGNMENT_LEFT, -1,
 		replay.get_theme_font_size("font_size")).x
 	var ok := _check(status_rect == Rect2(408, 568, 360, 64), "Error status rectangle changed") \
 		and _check(replay_rect == Rect2(776, 568, 160, 64), "Replay rectangle changed") \
-		and _check(picker_rect == Rect2(408, 488, 288, 64), "version picker rectangle changed") \
-		and _check(title.position == Vector2(392, 32) and title.size.x == 504,
+		and _check(picker_rect == Rect2(408, 64 + title.size.y, 288, 64), "version picker rectangle changed") \
+		and _check(title_rect.position == Vector2(392, 32) and title.size.x == 504,
 			"compact title has a reserved media gap or wrong measure") \
 		and _check(title.visible and not title.text.is_empty() and title.get_minimum_size().y <= title.size.y,
 			"compact title is hidden or clipped") \
@@ -232,7 +237,7 @@ func _geometry(status: Label, replay: Button, picker: OptionButton, title: Label
 		and _check(not replay.text.contains("\n") and text_width <= replay.size.x,
 			"Replay/Retry does not fit one line")
 	return {"ok": ok, "status": [408, 568, 360, 64], "replay": [776, 568, 160, 64],
-		"picker": [408, 488, 288, 64], "title": [392, 32, 504, title.size.y], "status_lines": status.get_line_count(),
+		"picker": [408, picker_rect.position.y, 288, 64], "title": [392, 32, 504, title.size.y], "status_lines": status.get_line_count(),
 		"replay_text_width": text_width}
 
 
@@ -244,11 +249,11 @@ func _pixel_proof(image: Image, gallery_theme: Theme) -> Dictionary:
 	var rule_point := Vector2i(196, 300)
 	var ink_point := _find_ink(image, Rect2i(204, 284, 180, 32), ink, face)
 	var paper := gallery_theme.get_color("paper", "Gallery")
-	var title: Label = _gallery.get_node("%GalleryHost/RecordTitle")
+	var title: Label = _gallery._record_title_label
 	var title_ink := _find_ink(image, Rect2i(196, 16, 252, int(title.size.y / 2)),
 		gallery_theme.get_color("paper_ink", "Gallery"), paper)
 	var nonpaper_pixels := 0
-	for y: int in range(16 + int(title.size.y / 2), 240, 4):
+	for y: int in range(16 + int(_gallery._record_paper.content_extent / 2), 256, 4):
 		for x: int in range(200, 456, 4):
 			if not _near_rgb8(image.get_pixel(x, y), paper): nonpaper_pixels += 1
 	var ok := _check(image.get_size() == Vector2i(640, 360), "native capture size changed") \
