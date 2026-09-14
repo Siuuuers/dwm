@@ -559,3 +559,42 @@ write_atomic) all hit the witness. Reads, hashes, bytes, the reread and the exac
 - settlement6-step2a-profile-a3dcb775f-fresh-win.log and -fresh-loss-: fresh account, ledger writes
   on 5-22 KB documents 25-53 ms (34-68 at the baseline), write_atomic 24-43 (31-41); the ~25-30 ms
   floor per write is marker writes, flushes and renames independent of size.
+
+### Step 1a: the deferred issuer mint appends into the live root instead of copying it (commit after 08d88194e)
+
+DesktopIssuerRootStore.issue_deferred minted through _minted_document, which deep-copies the whole
+issuer root (928 KB on the live copy) so that the DURABLE issue() can write a candidate and burn no
+counter if that write fails. The deferred path never writes (a crash loses receipt and effect
+together by design, and every run save flushes the root first), so the copy bought nothing: four
+such copies sat inside every first reveal (prepare_spec 11-17 ms live) and one inside every routine
+click. Under the 2026-09-14 ruling issue_deferred decides both refusals first, then mints the receipt
+from the live namespace and counter with the existing _mint_receipt, inserts a copy of it into the
+live receipts map, advances next_counter and adopts it into the incremental canonical cache exactly
+as before (_adopt_deferred drops its now-redundant document parameter). issue(), _minted_document and
+the allocation paths are untouched; the returned token and receipts are still deep copies. The
+identity-issuer boundary contract binds the store's blob at its historical commit and its public
+surface (public, non-static, column-0 signatures), neither of which moves.
+
+- settlement6-step1a-red-a3dcb775f.log: tests/unit/test_desktop_issuer_root_store.gd with the new rows
+  against the untouched store, 41 tests, 40 passing / 1 failing: the source pin that issue_deferred no
+  longer mints through _minted_document nor copies _document. Green before and after by design (byte
+  equality on two FakeFileOps roots with the same namespace): six deferred mints then flush write the
+  bytes six durable issues write, with identical tokens and receipt ids in order; a refused deferred
+  mint (unknown purpose) leaves the live root, next_counter and the flushed bytes untouched; mutating
+  a returned receipt or a capture() cannot reach the flushed bytes; one durable issue then two deferred
+  mints flush three durable issues' bytes; and the same with the canonical cache cleared (the fallback
+  _write_document path, reachable in production only after a refused canonical stringify).
+- settlement6-step1a-green-08d88194e.log: the 35-suite set plus the seven first-reveal and issuer
+  suites of settlement5 Step 2, 42 suites, 785 tests, 779 passing / 6 failing; the six are the
+  expected-4-saw-5 request rows in test_desktop_bootstrap_wiring and
+  test_desktop_completion_transaction already listed as pre-existing in settlement4 Step 1 and
+  reproduced with production reverted in settlement5-step2-attrib-baseline-f684f34bb.log; every row is
+  inside the session 5 failing set.
+- settlement6-step1a-profile-08d88194e-live.log and -live2-: the live copy. first_reveal_durable
+  prepare_spec 11-17 ms at the baseline (and in the Step 2a runs) to 0.3-3.6 ms; App first reveal
+  125 ms at the baseline to 73 / 75 ms two frames after the click (the first run quiet at routine
+  median 30 ms, the second loaded: New Board 339 ms, win 61 ms sync, accept 865-1053 ms, so only its
+  prepare_spec is compared). Ledger and autosave phases unchanged in kind from Step 2a.
+- settlement6-step1a-profile-08d88194e-fresh-win.log and -fresh-loss-: fresh account in a loaded
+  window (routine medians 47 / 36 ms, App first reveal 133 / 129 ms against 89-96 at the quiet
+  baseline); prepare_spec 0.3-2.1 ms, as before on a 100 KB root; no end-to-end claim.

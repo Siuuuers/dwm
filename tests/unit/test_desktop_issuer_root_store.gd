@@ -1525,3 +1525,229 @@ func _root_candidate_writes() -> int:
 		if entry.get("operation") == &"write_bytes" and str(entry.get("path")) == ROOT_FINAL_PATH + ".next":
 			count += 1
 	return count
+
+
+# ---------------------------------------------------------------------------------------------
+# In-place deferred minting (dwm-634.3). issue_deferred mints straight into the live document
+# instead of copying the whole issuer root first, because the deferred path never writes and so
+# can never need to abandon a copy. The rows below pin what that copy used to guarantee: identical
+# durable bytes, refusals that mutate nothing, and returned values that stay detached.
+# ---------------------------------------------------------------------------------------------
+
+# Six allowed purposes, in issue order. The ROOT accepts every PURPOSE_UNION member (the two
+# allocator purposes are refused by the ISSUER, not here), so any six would do.
+const DEFERRED_EQUIVALENCE_PURPOSES: Array[StringName] = [
+	&"transaction_id",
+	&"debug_nonce",
+	&"board_id",
+	&"placement_nonce",
+	&"explosion_nonce",
+	&"receipt_id",
+]
+
+
+## The deferred mint must not route through the helper that duplicates the entire root document.
+## A source pin rather than a timing assertion: the cost is one deep copy per call, and nothing in
+## the returned envelope or the durable bytes can distinguish a copy from an in-place mint.
+func test_issue_deferred_mints_without_copying_the_whole_issuer_root() -> void:
+	var body := _issue_deferred_source_body()
+	assert_false(body.is_empty(), "the issue_deferred body must be readable from source")
+	assert_false(body.contains("_minted_document("),
+		"issue_deferred must not mint through _minted_document, which copies the whole root")
+	assert_false(body.contains("_document.duplicate(true)"),
+		"issue_deferred must not deep-copy the live document")
+
+
+## GREEN BEFORE AND AFTER BY DESIGN. This row does not witness the in-place mint; it pins the
+## equivalence the in-place mint must preserve, so it is the row that fails if the optimisation
+## ever changes what reaches storage.
+func test_six_deferred_mints_flush_the_bytes_six_durable_issues_write() -> void:
+	if _opened_document().is_empty():
+		return
+	var twin := _opened_twin_stack()
+	if twin.is_empty():
+		return
+	var twin_store: ROOT_STORE = twin["store"]
+	var twin_ops: FakeFileOps = twin["ops"]
+	var durable: Array[Dictionary] = []
+	var deferred: Array[Dictionary] = []
+	for purpose: StringName in DEFERRED_EQUIVALENCE_PURPOSES:
+		var issued: Dictionary = twin_store.issue(purpose)
+		var minted: Dictionary = _store.issue_deferred(purpose)
+		if not _require_ok(issued, "issue(%s)" % purpose):
+			return
+		if not _require_ok(minted, "issue_deferred(%s)" % purpose):
+			return
+		durable.append(_issuer_receipt(issued))
+		deferred.append(_issuer_receipt(minted))
+	if not _require_ok(_store.flush(), "flush after six deferred mints"):
+		return
+	for index: int in range(durable.size()):
+		assert_eq(deferred[index].get("token"), durable[index].get("token"),
+			"deferred token #%d matches the durable token" % index)
+		assert_eq(deferred[index].get("receipt_id"), durable[index].get("receipt_id"),
+			"deferred receipt_id #%d matches the durable receipt_id" % index)
+	assert_eq(_persisted_root_bytes(_file_ops), _persisted_root_bytes(twin_ops),
+		"six deferred mints flush exactly the bytes six durable issues write")
+
+
+## Both refusals are decided before the first mutation, so a refused mint is invisible to the live
+## counter, to the pending receipts, and to the bytes the next flush writes.
+func test_a_refused_deferred_mint_leaves_the_live_root_and_its_flushed_bytes_untouched() -> void:
+	if _opened_document().is_empty():
+		return
+	var twin := _opened_twin_stack()
+	if twin.is_empty():
+		return
+	var twin_store: ROOT_STORE = twin["store"]
+	var twin_ops: FakeFileOps = twin["ops"]
+	if not _require_ok(_store.issue_deferred(&"transaction_id"), "issue_deferred"):
+		return
+	if not _require_ok(twin_store.issue_deferred(&"transaction_id"), "twin issue_deferred"):
+		return
+	var before := _captured_document()
+	_assert_rejected(_store.issue_deferred(&"not_a_purpose"), "issue_deferred(not_a_purpose)")
+	var after := _captured_document()
+	assert_eq(after.get("next_counter"), before.get("next_counter"),
+		"a refused deferred mint advances no counter")
+	assert_eq((after.get("receipts", {}) as Dictionary).size(),
+		(before.get("receipts", {}) as Dictionary).size(),
+		"a refused deferred mint records no receipt")
+	if not _require_ok(_store.flush(), "flush after the refusal"):
+		return
+	if not _require_ok(twin_store.flush(), "twin flush"):
+		return
+	assert_eq(_persisted_root_bytes(_file_ops), _persisted_root_bytes(twin_ops),
+		"the refusal leaves the flushed bytes identical to a twin that never attempted it")
+	var idle: Dictionary = _store.flush()
+	if not _require_ok(idle, "idle flush"):
+		return
+	assert_false(bool(idle.get("value", {}).get("written", true)), "the flush left nothing pending")
+
+
+## Minting in place must not hand the caller a live alias: neither the returned receipt nor the
+## captured document may reach the bytes a later flush writes.
+func test_mutating_a_deferred_receipt_or_a_capture_cannot_reach_the_flushed_bytes() -> void:
+	if _opened_document().is_empty():
+		return
+	var twin := _opened_twin_stack()
+	if twin.is_empty():
+		return
+	var twin_store: ROOT_STORE = twin["store"]
+	var twin_ops: FakeFileOps = twin["ops"]
+	var minted: Dictionary = _store.issue_deferred(&"transaction_id")
+	if not _require_ok(minted, "issue_deferred"):
+		return
+	if not _require_ok(twin_store.issue_deferred(&"transaction_id"), "twin issue_deferred"):
+		return
+	var issuer_receipt := _issuer_receipt(minted)
+	issuer_receipt["counter"] = 999
+	issuer_receipt["token"] = "tampered"
+	var outer_receipt: Dictionary = minted.get("receipt", {})
+	outer_receipt["purpose"] = "tampered"
+	var captured := _captured_document()
+	captured["next_counter"] = 999
+	var captured_receipts: Dictionary = captured.get("receipts", {})
+	captured_receipts.clear()
+	assert_eq(_captured_document().get("next_counter"), 2,
+		"the live counter ignores a mutated capture")
+	if not _require_ok(_store.flush(), "flush after the mutations"):
+		return
+	if not _require_ok(twin_store.flush(), "twin flush"):
+		return
+	assert_eq(_persisted_root_bytes(_file_ops), _persisted_root_bytes(twin_ops),
+		"mutating a returned receipt or capture cannot reach the flushed bytes")
+
+
+## The in-place mint composes with a canonical cache that a durable write has already seeded.
+func test_one_durable_issue_then_two_deferred_mints_flush_three_durable_bytes() -> void:
+	var pair := _durable_then_deferred_byte_pair(false)
+	if pair.is_empty():
+		return
+	var flushed: PackedByteArray = pair["flushed"]
+	var twin_written: PackedByteArray = pair["twin_written"]
+	assert_eq(flushed, twin_written,
+		"one durable issue then two deferred mints flush what three durable issues write")
+
+
+## The same composition with an EMPTY incremental cache, where _write_pending_document falls back
+## to a whole-document canonical write. A successful load always leaves that cache populated, so
+## the fallback is reached here the only way production reaches it: by clearing the cache the way
+## a refused canonical stringify does.
+func test_deferred_mints_flush_durable_bytes_with_an_empty_canonical_cache() -> void:
+	var pair := _durable_then_deferred_byte_pair(true)
+	if pair.is_empty():
+		return
+	var flushed: PackedByteArray = pair["flushed"]
+	var twin_written: PackedByteArray = pair["twin_written"]
+	assert_eq(flushed, twin_written,
+		"the whole-document fallback flushes what three durable issues write")
+
+
+# ---------------------------------------------------------------------------------------------
+# In-place deferred minting helpers
+# ---------------------------------------------------------------------------------------------
+
+## One durable issue then two deferred mints on this store, three durable issues on the twin.
+## Returns {flushed, twin_written} bytes, or {} when a guard already reported the failure.
+func _durable_then_deferred_byte_pair(clear_canonical_cache: bool) -> Dictionary:
+	if _opened_document().is_empty():
+		return {}
+	var twin := _opened_twin_stack()
+	if twin.is_empty():
+		return {}
+	var twin_store: ROOT_STORE = twin["store"]
+	var twin_ops: FakeFileOps = twin["ops"]
+	var purposes: Array[StringName] = [&"transaction_id", &"debug_nonce", &"board_id"]
+	for purpose: StringName in purposes:
+		if not _require_ok(twin_store.issue(purpose), "twin issue(%s)" % purpose):
+			return {}
+	if not _require_ok(_store.issue(purposes[0]), "issue(%s)" % purposes[0]):
+		return {}
+	if clear_canonical_cache:
+		_store._canonical_field_values = {}
+		_store._canonical_receipt_entries = {}
+	if not _require_ok(_store.issue_deferred(purposes[1]), "issue_deferred(%s)" % purposes[1]):
+		return {}
+	if not _require_ok(_store.issue_deferred(purposes[2]), "issue_deferred(%s)" % purposes[2]):
+		return {}
+	if not _require_ok(_store.flush(), "flush after the mixed sequence"):
+		return {}
+	return {
+		"flushed": _persisted_root_bytes(_file_ops),
+		"twin_written": _persisted_root_bytes(twin_ops),
+	}
+
+
+## The exact source text of issue_deferred, from its own declaration to the next top-level one.
+func _issue_deferred_source_body() -> String:
+	var source := FileAccess.get_file_as_string(str(SKELETON_PATHS["DesktopIssuerRootStore"]))
+	var opened := source.find("func issue_deferred(")
+	if opened < 0:
+		return ""
+	var closed := source.find("\nfunc ", opened)
+	if closed < 0:
+		return ""
+	return source.substr(opened, closed - opened)
+
+
+## A second complete stack over its own in-memory filesystem, opened at the same namespace. Two
+## FakeFileOps are two independent durable roots, so the twin's bytes witness the other path.
+func _opened_twin_stack() -> Dictionary:
+	var ops := FakeFileOps.new()
+	var store := ROOT_STORE.new()
+	if not _require_ok(
+			store.configure(JsonFileStorage.new(ROOT, ops), FAKE_NAMESPACE_SOURCE.new(NAMESPACE_A)),
+			"configure twin"):
+		return {}
+	if not _require_ok(store.load_or_create(), "load_or_create twin"):
+		return {}
+	return {"ops": ops, "store": store}
+
+
+func _persisted_root_bytes(ops: FakeFileOps) -> PackedByteArray:
+	var persisted := ops.snapshot_persisted()
+	if not persisted.has(ROOT_FINAL_PATH):
+		return PackedByteArray()
+	var bytes: PackedByteArray = persisted[ROOT_FINAL_PATH]
+	return bytes

@@ -254,15 +254,22 @@ func issue(purpose: StringName) -> Dictionary:
 ## commands whose own effects are not yet durable: a crash loses receipt and effect together,
 ## and a restart resumes at the last durable counter without reusing one, because every run
 ## save flushes this ledger first.
+##
+## dwm-634.3: mints IN PLACE into the live document, so a routine click never copies the whole root.
+## Both refusals are decided before the first mutation. issue() still mints into a copy, because
+## only a durable write can fail after minting and a failed advance must burn no counter.
 func issue_deferred(purpose: StringName) -> Dictionary:
 	var ready := _require_loaded("issue_deferred")
 	if not ready.get("ok", false):
 		return ready
 	if not PURPOSE_UNION.has(String(purpose)):
 		return _failed(&"unknown_purpose", String(purpose))
-	var minted := _minted_document([{"purpose": String(purpose), "numeric_value": null}])
-	var receipt: Dictionary = (minted["receipts"] as Array)[0]
-	_adopt_deferred(minted["document"], receipt)
+	var counter := int(_document["next_counter"])
+	var receipt := _mint_receipt(str(_document["namespace"]), counter, String(purpose), null)
+	var receipts: Dictionary = _document["receipts"]
+	receipts[str(receipt["receipt_id"])] = receipt.duplicate(true)
+	_document["next_counter"] = counter + 1
+	_adopt_deferred(receipt)
 	return {
 		"ok": true,
 		"value": {"token": str(receipt["token"]), "issuer_receipt": receipt.duplicate(true)},
@@ -446,9 +453,8 @@ func _write_issued_document(document: Dictionary, receipt: Dictionary) -> Dictio
 	return {"ok": true}
 
 
-## Adopts a deferred mint into the live document and the incremental canonical cache.
-func _adopt_deferred(document: Dictionary, receipt: Dictionary) -> void:
-	_document = document
+## Adopts a deferred mint, already applied to the live document, into the incremental canonical cache.
+func _adopt_deferred(receipt: Dictionary) -> void:
 	_pending_flush = true
 	if _canonical_field_values.is_empty():
 		return
@@ -460,7 +466,7 @@ func _adopt_deferred(document: Dictionary, receipt: Dictionary) -> void:
 		_canonical_receipt_entries = {}
 		return
 	_canonical_receipt_entries[receipt_id] = str(encoded_id["value"]) + ":" + str(encoded_receipt["value"])
-	_canonical_field_values["next_counter"] = str(int(document["next_counter"]))
+	_canonical_field_values["next_counter"] = str(int(_document["next_counter"]))
 
 
 ## Writes the live document, which already carries every deferred receipt.
