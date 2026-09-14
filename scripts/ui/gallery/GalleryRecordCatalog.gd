@@ -18,9 +18,10 @@ const TITLES := {
 	"ending.priscilla_lavinia.observer": ["Another Side", "另一面", "另一面"],
 }
 
-## Provisional descriptions use only the public Day 7 actions in
-## story/library/03-seven-day-plot-material-library.md (Day 7 / Day 7 Eligibility).
-## Unwritten outcomes, exceptional/pair details and optional media stay absent.
+## Provisional descriptions use only the public Day 7 actions and witnessed
+## ending actions in story/library/03-seven-day-plot-material-library.md
+## (Day 7 Eligibility / Thirteen Ending Identities). Unwritten outcomes,
+## inferred causes, eligibility rules and optional media stay absent.
 const RECORD_DETAILS := {
 	"ending.alone": {"sentence": ["Angela completes the final observation.",
 		"安吉拉完成最后一次观测。", "安吉拉完成最後一次觀測。"]},
@@ -36,6 +37,20 @@ const RECORD_DETAILS := {
 		"安吉拉接收找到的物品。", "安吉拉接收找到的物品。"]},
 	"ending.sylvia.dark": {"sentence": ["Angela collects what was found.",
 		"安吉拉接收找到的物品。", "安吉拉接收找到的物品。"]},
+	"ending.priscilla.observer": {"sentence": ["Priscilla asks Angela which of two conflicting lines she believes.",
+		"Priscilla 问安吉拉，在两句互相矛盾的话中她相信哪一句。",
+		"Priscilla 問安吉拉，在兩句互相矛盾的話中她相信哪一句。"]},
+	"ending.lavinia.observer": {"sentence": ["Lavinia calls to Angela and asks in her own words.",
+		"Lavinia 呼唤安吉拉，用自己的话提出请求。", "Lavinia 呼喚安吉拉，用自己的話提出請求。"]},
+	"ending.sylvia.special": {"sentence": ["Angela wakes beside an unsent draft.",
+		"安吉拉醒来时，身旁有一份尚未发送的草稿。", "安吉拉醒來時，身旁有一份尚未傳送的草稿。"]},
+	"ending.priscilla_lavinia.sweet": {"sentence": ["Lavinia asks Priscilla to come.",
+		"Lavinia 请 Priscilla 一起来。", "Lavinia 請 Priscilla 一起來。"]},
+	"ending.priscilla_lavinia.dark": {"sentence": ["Lavinia admits prolonging her distress; Priscilla reveals what she had already arranged.",
+		"Lavinia 承认自己刻意延续不适；Priscilla 揭示自己早已作出的安排。",
+		"Lavinia 承認自己刻意延續不適；Priscilla 揭示自己早已作出的安排。"]},
+	"ending.priscilla_lavinia.observer": {"sentence": ["Lavinia gives back one of two identical keys.",
+		"Lavinia 交回两把相同钥匙中的一把。", "Lavinia 交回兩把相同鑰匙中的一把。"]},
 }
 const PRESENTATION_DETAILS := []
 
