@@ -1,0 +1,287 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/d5307570-0515-479e-9f93-3d5e3b79f2b5/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/scene/test_witnessed_transport_recovery.gd
+* test_determinate_recovery_consumes_keyboard_and_controller_back_without_acting_or_escaping
+* test_uncertain_recovery_consumes_back_while_exposing_no_false_action
+* test_hidden_and_dismissed_recovery_return_back_to_the_lower_owner
+* test_determinate_recovery_tabs_only_between_its_two_actions
+4/4 passed.
+
+
+res://tests/integration/test_narrative_pause_frontier.gd
+* test_witnessed_recovery_refuses_pause_and_backup_before_session_capture
+    24 Orphans
+        * [<Timer#738398832793>]
+        * [<Node#738214283462>]
+        * [<Node#738197506403>(subsystem_audio.gd)]
+        * [<Node#738180729378>(subsystem_animation.gd)]
+        * [<Node#738231061028>]
+        * [<Node#738247838245>(subsystem_backgrounds.gd)]
+        * [<Node#738650491433>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#738684045866>]
+        * [<Node#738667268651>(subsystem_voice.gd)]
+        * [<Node#738549828140>(subsystem_text.gd)]
+        * [<Node#738633714221>(subsystem_text_input.gd)]
+        * [<Timer#738298169908>]
+        * [<Node#738348501567>(subsystem_glossary.gd)]
+        * [<Node#738365278784>(subsystem_history.gd)]
+        * [<Node#738382056001>(subsystem_input.gd)]
+        * [<Timer#738499496520>]
+        * [<Node#738516273737>(subsystem_settings.gd)]
+        * [<Node#738533050954>(subsystem_styles.gd)]
+        * [<Node#738281392729>(subsystem_choices.gd)]
+        * [<Node#738432387677>(subsystem_containers.gd)]
+        * [<Node#738449164895>(subsystem_portraits.gd)]
+        * [<Node#738415610464>(subsystem_jump.gd)]
+        * [<Node#738482719329>(subsystem_save.gd)]
+        * [<Node#738314947177>(subsystem_expression.gd)]
+* test_later_same_viewport_recovery_blocks_load_while_subviewport_recovery_does_not
+    24 Orphans
+        * [<Node#900970055099>(subsystem_settings.gd)]
+        * [<Node#900902946937>(subsystem_portraits.gd)]
+        * [<AudioStreamPlayer#901137827964>]
+        * [<Node#901121050749>(subsystem_voice.gd)]
+        * [<Node#901003610246>(subsystem_text.gd)]
+        * [<Node#900869392529>(subsystem_jump.gd)]
+        * [<Timer#900852615314>]
+        * [<Node#900835838099>(subsystem_input.gd)]
+        * [<Node#900819060884>(subsystem_history.gd)]
+        * [<Node#900802283669>(subsystem_glossary.gd)]
+        * [<Timer#900953278626>]
+        * [<Node#900651289134>(subsystem_audio.gd)]
+        * [<Node#900634511921>(subsystem_animation.gd)]
+        * [<Node#900735175221>(subsystem_choices.gd)]
+        * [<Node#900684843590>]
+        * [<Timer#900751952478>]
+        * [<Node#900668066405>]
+        * [<Node#900768729715>(subsystem_expression.gd)]
+        * [<Node#900936501879>(subsystem_save.gd)]
+        * [<Node#900986833539>(subsystem_styles.gd)]
+        * [<Node#901087496843>(subsystem_text_input.gd)]
+        * [<Node#901104274061>(subsystem_variables.gd)]
+        * [<Node#900886170257>(subsystem_containers.gd)]
+        * [<Node#900701621212>(subsystem_backgrounds.gd)]
+48 orphans
+2/2 passed.
+
+
+res://tests/integration/test_dialogic_production_skip.gd
+* test_failed_auto_off_owns_visible_recovery_until_native_retry_commits_same_beat
+    24 Orphans
+        * [<Node#1166184286365>(subsystem_audio.gd)]
+        * [<Node#1166217841238>]
+        * [<Node#1166519831199>(subsystem_styles.gd)]
+        * [<Timer#1166486276768>]
+        * [<Node#1166503053985>(subsystem_settings.gd)]
+        * [<Node#1166234618717>(subsystem_backgrounds.gd)]
+        * [<Node#1166469499768>(subsystem_save.gd)]
+        * [<Node#1166435945371>(subsystem_portraits.gd)]
+        * [<Node#1166268173213>(subsystem_choices.gd)]
+        * [<Node#1166301727651>(subsystem_expression.gd)]
+        * [<Node#1166402390950>(subsystem_jump.gd)]
+        * [<Node#1166368836519>(subsystem_input.gd)]
+        * [<Timer#1166385613736>]
+        * [<Node#1166167509931>(subsystem_animation.gd)]
+        * [<Node#1166201064377>]
+        * [<AudioStreamPlayer#1166670826426>]
+        * [<Node#1166637271995>(subsystem_variables.gd)]
+        * [<Node#1166654049212>(subsystem_voice.gd)]
+        * [<Node#1166335282109>(subsystem_glossary.gd)]
+        * [<Timer#1166284950462>]
+        * [<Node#1166352059327>(subsystem_history.gd)]
+        * [<Node#1166419168192>(subsystem_containers.gd)]
+        * [<Node#1166536608710>(subsystem_text.gd)]
+        * [<Node#1166620494791>(subsystem_text_input.gd)]
+* test_recovery_retry_refuses_a_command_after_the_presented_source_changes
+    24 Orphans
+        * [<Node#1582427015790>(subsystem_animation.gd)]
+        * [<Node#1582477347590>]
+        * [<Node#1582460570375>]
+        * [<Node#1582494124808>(subsystem_backgrounds.gd)]
+        * [<Node#1582561233674>(subsystem_expression.gd)]
+        * [<Timer#1582544456459>]
+        * [<Node#1582527679244>(subsystem_choices.gd)]
+        * [<Node#1582594788109>(subsystem_glossary.gd)]
+        * [<Node#1582779337510>(subsystem_styles.gd)]
+        * [<Node#1582762560297>(subsystem_settings.gd)]
+        * [<Timer#1582745783116>]
+        * [<Node#1582611565429>(subsystem_history.gd)]
+        * [<Node#1582443793370>(subsystem_audio.gd)]
+        * [<Node#1582628342754>(subsystem_input.gd)]
+        * [<Timer#1582645119974>]
+        * [<Node#1582661897192>(subsystem_jump.gd)]
+        * [<Node#1582896778229>(subsystem_variables.gd)]
+        * [<Node#1582678674425>(subsystem_containers.gd)]
+        * [<Node#1582796114938>(subsystem_text.gd)]
+        * [<Node#1582913555452>(subsystem_voice.gd)]
+        * [<Node#1582695451651>(subsystem_portraits.gd)]
+        * [<Node#1582729006084>(subsystem_save.gd)]
+        * [<Node#1582880001076>(subsystem_text_input.gd)]
+        * [<AudioStreamPlayer#1582930332726>]
+48 orphans
+2/2 passed.
+
+
+
+
+==============================================
+= 120 Orphans
+==============================================
+res://tests/scene/test_witnessed_transport_recovery.gd
+    - Outside Tests
+        * [<Node#131617261336>(subsystem_animation.gd)]
+        * [<Node#131634038564>(subsystem_audio.gd)]
+        * [<Node#131650815796>]
+        * [<Node#131667593021>]
+        * [<Node#131684370243>(subsystem_backgrounds.gd)]
+        * [<Node#132221241156>(subsystem_choices.gd)]
+        * [<Timer#132238018373>]
+        * [<Node#132254795590>(subsystem_expression.gd)]
+        * [<Node#132288350027>(subsystem_glossary.gd)]
+        * [<Node#132305127244>(subsystem_history.gd)]
+        * [<Node#132321904461>(subsystem_input.gd)]
+        * [<Timer#132338681678>]
+        * [<Node#132355458895>(subsystem_jump.gd)]
+        * [<Node#132372236112>(subsystem_containers.gd)]
+        * [<Node#132389013329>(subsystem_portraits.gd)]
+        * [<Node#132925884242>(subsystem_save.gd)]
+        * [<Timer#132942661459>]
+        * [<Node#132959438676>(subsystem_settings.gd)]
+        * [<Node#132976215896>(subsystem_styles.gd)]
+        * [<Node#132992993113>(subsystem_text.gd)]
+        * [<Node#133076879198>(subsystem_text_input.gd)]
+        * [<Node#133093656415>(subsystem_variables.gd)]
+        * [<Node#133110433632>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133127210849>]
+test_narrative_pause_frontier.gd
+    - test_witnessed_recovery_refuses_pause_and_backup_before_session_capture
+        * [<Timer#738398832793>]
+        * [<Node#738214283462>]
+        * [<Node#738197506403>(subsystem_audio.gd)]
+        * [<Node#738180729378>(subsystem_animation.gd)]
+        * [<Node#738231061028>]
+        * [<Node#738247838245>(subsystem_backgrounds.gd)]
+        * [<Node#738650491433>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#738684045866>]
+        * [<Node#738667268651>(subsystem_voice.gd)]
+        * [<Node#738549828140>(subsystem_text.gd)]
+        * [<Node#738633714221>(subsystem_text_input.gd)]
+        * [<Timer#738298169908>]
+        * [<Node#738348501567>(subsystem_glossary.gd)]
+        * [<Node#738365278784>(subsystem_history.gd)]
+        * [<Node#738382056001>(subsystem_input.gd)]
+        * [<Timer#738499496520>]
+        * [<Node#738516273737>(subsystem_settings.gd)]
+        * [<Node#738533050954>(subsystem_styles.gd)]
+        * [<Node#738281392729>(subsystem_choices.gd)]
+        * [<Node#738432387677>(subsystem_containers.gd)]
+        * [<Node#738449164895>(subsystem_portraits.gd)]
+        * [<Node#738415610464>(subsystem_jump.gd)]
+        * [<Node#738482719329>(subsystem_save.gd)]
+        * [<Node#738314947177>(subsystem_expression.gd)]
+    - test_later_same_viewport_recovery_blocks_load_while_subviewport_recovery_does_not
+        * [<Node#900970055099>(subsystem_settings.gd)]
+        * [<Node#900902946937>(subsystem_portraits.gd)]
+        * [<AudioStreamPlayer#901137827964>]
+        * [<Node#901121050749>(subsystem_voice.gd)]
+        * [<Node#901003610246>(subsystem_text.gd)]
+        * [<Node#900869392529>(subsystem_jump.gd)]
+        * [<Timer#900852615314>]
+        * [<Node#900835838099>(subsystem_input.gd)]
+        * [<Node#900819060884>(subsystem_history.gd)]
+        * [<Node#900802283669>(subsystem_glossary.gd)]
+        * [<Timer#900953278626>]
+        * [<Node#900651289134>(subsystem_audio.gd)]
+        * [<Node#900634511921>(subsystem_animation.gd)]
+        * [<Node#900735175221>(subsystem_choices.gd)]
+        * [<Node#900684843590>]
+        * [<Timer#900751952478>]
+        * [<Node#900668066405>]
+        * [<Node#900768729715>(subsystem_expression.gd)]
+        * [<Node#900936501879>(subsystem_save.gd)]
+        * [<Node#900986833539>(subsystem_styles.gd)]
+        * [<Node#901087496843>(subsystem_text_input.gd)]
+        * [<Node#901104274061>(subsystem_variables.gd)]
+        * [<Node#900886170257>(subsystem_containers.gd)]
+        * [<Node#900701621212>(subsystem_backgrounds.gd)]
+test_dialogic_production_skip.gd
+    - test_failed_auto_off_owns_visible_recovery_until_native_retry_commits_same_beat
+        * [<Node#1166184286365>(subsystem_audio.gd)]
+        * [<Node#1166217841238>]
+        * [<Node#1166519831199>(subsystem_styles.gd)]
+        * [<Timer#1166486276768>]
+        * [<Node#1166503053985>(subsystem_settings.gd)]
+        * [<Node#1166234618717>(subsystem_backgrounds.gd)]
+        * [<Node#1166469499768>(subsystem_save.gd)]
+        * [<Node#1166435945371>(subsystem_portraits.gd)]
+        * [<Node#1166268173213>(subsystem_choices.gd)]
+        * [<Node#1166301727651>(subsystem_expression.gd)]
+        * [<Node#1166402390950>(subsystem_jump.gd)]
+        * [<Node#1166368836519>(subsystem_input.gd)]
+        * [<Timer#1166385613736>]
+        * [<Node#1166167509931>(subsystem_animation.gd)]
+        * [<Node#1166201064377>]
+        * [<AudioStreamPlayer#1166670826426>]
+        * [<Node#1166637271995>(subsystem_variables.gd)]
+        * [<Node#1166654049212>(subsystem_voice.gd)]
+        * [<Node#1166335282109>(subsystem_glossary.gd)]
+        * [<Timer#1166284950462>]
+        * [<Node#1166352059327>(subsystem_history.gd)]
+        * [<Node#1166419168192>(subsystem_containers.gd)]
+        * [<Node#1166536608710>(subsystem_text.gd)]
+        * [<Node#1166620494791>(subsystem_text_input.gd)]
+    - test_recovery_retry_refuses_a_command_after_the_presented_source_changes
+        * [<Node#1582427015790>(subsystem_animation.gd)]
+        * [<Node#1582477347590>]
+        * [<Node#1582460570375>]
+        * [<Node#1582494124808>(subsystem_backgrounds.gd)]
+        * [<Node#1582561233674>(subsystem_expression.gd)]
+        * [<Timer#1582544456459>]
+        * [<Node#1582527679244>(subsystem_choices.gd)]
+        * [<Node#1582594788109>(subsystem_glossary.gd)]
+        * [<Node#1582779337510>(subsystem_styles.gd)]
+        * [<Node#1582762560297>(subsystem_settings.gd)]
+        * [<Timer#1582745783116>]
+        * [<Node#1582611565429>(subsystem_history.gd)]
+        * [<Node#1582443793370>(subsystem_audio.gd)]
+        * [<Node#1582628342754>(subsystem_input.gd)]
+        * [<Timer#1582645119974>]
+        * [<Node#1582661897192>(subsystem_jump.gd)]
+        * [<Node#1582896778229>(subsystem_variables.gd)]
+        * [<Node#1582678674425>(subsystem_containers.gd)]
+        * [<Node#1582796114938>(subsystem_text.gd)]
+        * [<Node#1582913555452>(subsystem_voice.gd)]
+        * [<Node#1582695451651>(subsystem_portraits.gd)]
+        * [<Node#1582729006084>(subsystem_save.gd)]
+        * [<Node#1582880001076>(subsystem_text_input.gd)]
+        * [<AudioStreamPlayer#1582930332726>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               3
+Tests                 8
+Passing Tests         8
+Asserts             193
+Orphans             120
+Time              2.077s
+
+
+Ran Tests matching "recovery"
+---- All tests passed! ----

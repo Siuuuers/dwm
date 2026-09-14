@@ -15,6 +15,13 @@ const COPY := {
 }
 
 var _localization: Node
+var _added_cancel_joy_binding := false
+
+
+class BackObserver extends Node:
+	var count := 0
+	func _unhandled_input(event: InputEvent) -> void:
+		if event.is_action_pressed(&"ui_cancel", false): count += 1
 
 
 class Admission extends RefCounted:
@@ -41,6 +48,20 @@ func before_each() -> void:
 	assert_true(profile.initialize(STORAGE.new("witnessed-recovery-localization", FILES.new())).get("ok", false))
 	_localization = autofree(LOCALIZATION.new())
 	assert_true(_localization.initialize(profile).get("ok", false))
+	var controller_back := InputEventJoypadButton.new()
+	controller_back.button_index = JOY_BUTTON_B
+	controller_back.device = 37
+	_added_cancel_joy_binding = not InputMap.action_has_event(&"ui_cancel", controller_back)
+	if _added_cancel_joy_binding: InputMap.action_add_event(&"ui_cancel", controller_back)
+
+
+func after_each() -> void:
+	if not _added_cancel_joy_binding: return
+	var controller_back := InputEventJoypadButton.new()
+	controller_back.button_index = JOY_BUTTON_B
+	controller_back.device = 37
+	InputMap.action_erase_event(&"ui_cancel", controller_back)
+	_added_cancel_joy_binding = false
 
 
 func _surface(locale: String = "en") -> Variant:
@@ -60,6 +81,30 @@ func _bind(surface: Variant, admission: Admission = null) -> Dictionary:
 	add_child_autofree(input_owner)
 	assert_true(surface.bind_owners(_localization, input_owner, resolved_admission.is_admitted))
 	return {"admission": resolved_admission, "input": input_owner}
+
+
+func _key(surface: Control, code: Key, pressed: bool, shift: bool = false) -> void:
+	var event := InputEventKey.new()
+	event.keycode = code
+	event.physical_keycode = code
+	event.shift_pressed = shift
+	event.pressed = pressed
+	surface.get_viewport().push_input(event, true)
+
+
+func _tap_key(surface: Control, code: Key, shift: bool = false) -> void:
+	_key(surface, code, true, shift)
+	_key(surface, code, false, shift)
+
+
+func _tap_controller_back(surface: Control) -> void:
+	var event := InputEventJoypadButton.new()
+	event.button_index = JOY_BUTTON_B
+	event.device = 37
+	event.pressed = true
+	surface.get_viewport().push_input(event, true)
+	event.pressed = false
+	surface.get_viewport().push_input(event, true)
 
 
 func test_determinate_failure_is_a_modal_retry_cancel_surface_above_the_frozen_composition() -> void:
@@ -132,6 +177,91 @@ func test_uncertain_failure_has_truthful_inert_copy_and_no_false_retry_or_cancel
 	assert_false(cancel.visible)
 	assert_false(retry.has_focus())
 	assert_false(cancel.has_focus())
+
+
+func test_determinate_recovery_consumes_keyboard_and_controller_back_without_acting_or_escaping() -> void:
+	var surface: Variant = _surface()
+	if surface == null: return
+	_bind(surface)
+	var observer := BackObserver.new()
+	surface.add_child(observer)
+	assert_true(surface.configure_presentation("en", 100, "AfterHours", false, "standard", false))
+	assert_true(surface.present(true, true))
+	await get_tree().process_frame
+	watch_signals(surface)
+	_tap_key(surface, KEY_ESCAPE)
+	_tap_controller_back(surface)
+	await get_tree().process_frame
+	assert_true(surface.is_presented(), "Back cannot leave determinate technical recovery")
+	assert_signal_not_emitted(surface, "retry_requested")
+	assert_signal_not_emitted(surface, "cancel_requested")
+	assert_eq(observer.count, 0, "both physical Back activations are consumed before lower owners")
+	assert_true((surface.get_node("%RetryButton") as Button).has_focus())
+
+
+func test_uncertain_recovery_consumes_back_while_exposing_no_false_action() -> void:
+	var surface: Variant = _surface()
+	if surface == null: return
+	_bind(surface)
+	var observer := BackObserver.new()
+	surface.add_child(observer)
+	assert_true(surface.configure_presentation("en", 100, "AfterHours", false, "standard", false))
+	assert_true(surface.present(false, false))
+	await get_tree().process_frame
+	watch_signals(surface)
+	_tap_key(surface, KEY_ESCAPE)
+	_tap_controller_back(surface)
+	await get_tree().process_frame
+	assert_true(surface.is_presented(), "Back cannot escape an indeterminate recovery notice")
+	assert_signal_not_emitted(surface, "retry_requested")
+	assert_signal_not_emitted(surface, "cancel_requested")
+	assert_eq(observer.count, 0, "an inert recovery still owns both physical Back activations")
+
+
+func test_hidden_and_dismissed_recovery_return_back_to_the_lower_owner() -> void:
+	var surface: Variant = _surface()
+	if surface == null: return
+	_bind(surface)
+	var observer := BackObserver.new()
+	surface.add_child(observer)
+	assert_true(surface.configure_presentation("en", 100, "AfterHours", false, "standard", false))
+	assert_true(surface.present(true, true))
+	await get_tree().process_frame
+	watch_signals(surface)
+	surface.hide()
+	_tap_key(surface, KEY_ESCAPE)
+	_tap_controller_back(surface)
+	await get_tree().process_frame
+	assert_eq(observer.count, 2, "a hidden active component does not retain modal Back custody")
+	surface.dismiss()
+	surface.show()
+	_tap_key(surface, KEY_ESCAPE)
+	_tap_controller_back(surface)
+	await get_tree().process_frame
+	assert_eq(observer.count, 4, "an inactive component does not capture Back even if its node is visible")
+	assert_signal_not_emitted(surface, "retry_requested")
+	assert_signal_not_emitted(surface, "cancel_requested")
+
+
+func test_determinate_recovery_tabs_only_between_its_two_actions() -> void:
+	var surface: Variant = _surface()
+	if surface == null: return
+	_bind(surface)
+	assert_true(surface.configure_presentation("en", 100, "AfterHours", false, "standard", false))
+	assert_true(surface.present(true, true))
+	await get_tree().process_frame
+	var retry := surface.get_node("%RetryButton") as Button
+	var cancel := surface.get_node("%CancelButton") as Button
+	assert_true(retry.has_focus())
+	_tap_key(surface, KEY_TAB)
+	await get_tree().process_frame
+	assert_true(cancel.has_focus(), "Tab advances to the other recovery action")
+	_tap_key(surface, KEY_TAB)
+	await get_tree().process_frame
+	assert_true(retry.has_focus(), "Tab wraps inside the recovery modal")
+	_tap_key(surface, KEY_TAB, true)
+	await get_tree().process_frame
+	assert_true(cancel.has_focus(), "Shift-Tab wraps inside the recovery modal")
 
 
 func test_three_locales_and_accessibility_sizes_publish_one_atomic_complete_tuple() -> void:
