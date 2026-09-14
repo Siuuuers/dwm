@@ -1,0 +1,68 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/click-latency-3/.godot/phase2r_tests/86df47b4-0895-4559-83b5-6d235180dafc/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_new_run_materials.gd
+* test_complete_material_accepts_raw_profile_source_revision_and_round_trips_detached
+* test_profile_material_allows_only_pending_dark_consumption_and_exact_canonical_output
+* test_legacy_profile_material_whose_validation_reports_migrated_is_admitted_as_normalized
+* test_autosave_is_exact_initial_day_one_and_binds_context_and_allocated_identity
+* test_material_and_allocation_shapes_are_closed_and_fingerprint_bound
+5/5 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_new_run_materials.gd
+    - Outside Tests
+        * [<Node#131600484120>(subsystem_animation.gd)]
+        * [<Node#131617261348>(subsystem_audio.gd)]
+        * [<Node#131634038580>]
+        * [<Node#131650815805>]
+        * [<Node#131667593027>(subsystem_backgrounds.gd)]
+        * [<Node#132204463940>(subsystem_choices.gd)]
+        * [<Timer#132221241157>]
+        * [<Node#132238018374>(subsystem_expression.gd)]
+        * [<Node#132271572811>(subsystem_glossary.gd)]
+        * [<Node#132288350028>(subsystem_history.gd)]
+        * [<Node#132305127245>(subsystem_input.gd)]
+        * [<Timer#132321904462>]
+        * [<Node#132338681679>(subsystem_jump.gd)]
+        * [<Node#132355458896>(subsystem_containers.gd)]
+        * [<Node#132372236113>(subsystem_portraits.gd)]
+        * [<Node#132909107026>(subsystem_save.gd)]
+        * [<Timer#132925884243>]
+        * [<Node#132942661460>(subsystem_settings.gd)]
+        * [<Node#132959438680>(subsystem_styles.gd)]
+        * [<Node#132976215897>(subsystem_text.gd)]
+        * [<Node#133060101982>(subsystem_text_input.gd)]
+        * [<Node#133076879199>(subsystem_variables.gd)]
+        * [<Node#133093656416>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133110433633>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               1
+Tests                 5
+Passing Tests         5
+Asserts              31
+Orphans              24
+Time              0.502s
+
+
+---- All tests passed! ----

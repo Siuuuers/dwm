@@ -273,3 +273,50 @@ Session 4 summary: the board_fate ledger write lost its emit + re-parse and two 
 passes (100-225 ms to 42-70 ms per terminal frame), the prepare side is now profiled and shows
 SaveDocumentSchema.build as the next 25-62 ms target, the benchmark can replay a seeded user
 directory, and the live-data stress run is blocked by dwm-6fl.
+
+## dwm-6fl (branch fix/dwm-6fl from master 524409049, P1 boot refusal of pre-2026-09-13 continuation journals)
+
+Master 524409049 also carried an unsealed drift: commit 3d37a3e80 (SystemTtsCoordinator autoload)
+changed project.godot and autoload/DialogicBridge.gd, both bound by the desktop handoff contract
+(project.godot by the minesweeper one too), so test_desktop_contract_evidence and
+test_minesweeper_contract_evidence were red on master. The first commit on this branch regenerates
+the two contracts through their no-arg generators; the leaf-level diff moves exactly the three
+sha256 leaves (desktop: DialogicBridge.gd and project.godot; minesweeper: project.godot) and nothing
+else (174 and 290 leaves before and after).
+
+- 6fl-reseal-desktop-524409049.log and 6fl-reseal-minesweeper-524409049.log: the generator runs.
+- 6fl-reseal-green-524409049.log: both contract evidence suites, 22 passing / 0 failing.
+- 6fl-probe-checkpoint-journal-524409049.log: a one-file GUT run on the master-based warm worktree
+  (no --import), 15 passing / 0, so the new master scripts compile from the existing class cache.
+
+The fix (NewRunMaterials): ProfileSchema.validate has admitted default leaves into its validated
+value since 2026-09-13 (Minesweeper view defaults 3a1712f39, Steady Interface default 7b911b5ca) and
+reports migrated=true when it does. NewRunMaterials compared the stored before/candidate profile
+material against that value and refused every pre-admission journal with "profile material is not
+normalized"; the outgoing_text canonical check would have refused it a second way, because the
+validated candidate carries leaves the stored canonical text does not. Under the 2026-09-14 ruling a
+validation that reports migrated is admitted as normalized, and the candidate-vs-expected comparison
+and the outgoing_text canonical check run over the stored material; for non-migrated material the
+stored and validated values are equal, so nothing else moves. Journal bytes are untouched.
+
+- 6fl-red-954a6b54c.log: tests/unit/test_new_run_materials.gd, 5 tests, 4 passing / 1 failing: the
+  new legacy-material row (all eight Minesweeper view leaves and steady_interface erased from both
+  stored profiles, outgoing text and hash recomputed from the stored candidate, ProfileSchema
+  precondition asserts migrated) fails against the untouched validator on the refusal.
+- 6fl-green-954a6b54c.log: 5 passing / 0. 6fl-green-journal-954a6b54c.log: the three caller suites
+  (test_desktop_continuation_operation_journal, test_completed_load_continuation,
+  test_new_run_replacement_baseline), 42 passing / 0.
+- 6fl-live-run1-954a6b54c.log and -run2-: the click benchmark with --user-data on the hash-verified
+  live-data copy (22 files, 14.5 MB) that settlement4 could not boot. Final-mode bootstrap now
+  passes initialize_saves, Log In and the picker Load complete (CLICK_LATENCY_LOGIN 21.4 / 23.7 s,
+  off-click), the loaded Day-1 run has the Minesweeper app open with two rounds left, and the App
+  win and loss sequence plays to CLICK_LATENCY_PASS. These two runs are therefore also the first
+  long-history measurement, taken with DWM_CHECKPOINT_PROFILE=1 and DWM_CONSEQUENCE_PROFILE=1 on the
+  same shared-machine day as the settlement4 runs: App first reveal 1208 / 1277 ms and New Board
+  first reveal 1562 / 1525 ms (against 265 ms fresh), win settled end to end 1343 / 1311 ms and loss
+  1329 / 1470 ms (against 623-733 ms fresh), routine reveal median 29-35 ms (unchanged from fresh).
+  Inside the win accept (852 / 780 ms) the two publication ledger writes cost 235 + 208 ms and
+  197 + 242 ms on a 790-807 KB ledger document (write_atomic 88-116, disk_refresh 46-59, full_emit
+  44-50 ms each); the three big autosaves cost 82-138 ms each (document_build 30-49 ms of every
+  prepare). The routine click carries none of that growth. The stress candidate of dwm-634.3 now
+  has its baseline; those phases are the next targets.

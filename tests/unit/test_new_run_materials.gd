@@ -212,6 +212,39 @@ func test_profile_material_allows_only_pending_dark_consumption_and_exact_canoni
 		"the validator retains a valid raw-byte revision without pretending it can rebuild source bytes")
 
 
+func test_legacy_profile_material_whose_validation_reports_migrated_is_admitted_as_normalized() -> void:
+	var fixture: Dictionary = make_valid_fixture()
+	assert_true(fixture.get("ok", false), str(fixture))
+	if not fixture.get("ok", false):
+		return
+	var value: Dictionary = fixture["value"]
+	# Every entry of ProfileSchema._MINESWEEPER_VIEW_LEAVES, named here because that constant is
+	# script-private; ProfileSchema admits these display defaults into a validated legacy profile.
+	var admitted_display_leaves: Array[String] = [
+		"minesweeper_app_beginner_cell_size", "minesweeper_app_beginner_always_fit",
+		"minesweeper_app_intermediate_cell_size", "minesweeper_app_intermediate_always_fit",
+		"minesweeper_app_expert_cell_size", "minesweeper_app_expert_always_fit",
+		"minesweeper_challenge_cell_size", "minesweeper_challenge_always_fit",
+	]
+	var legacy: Dictionary = value["materials"].duplicate(true)
+	for side: String in ["before", "candidate"]:
+		var preferences: Dictionary = legacy["profile"][side]["preferences"]
+		for leaf: String in admitted_display_leaves:
+			(preferences["display"] as Dictionary).erase(leaf)
+		(preferences["accessibility"] as Dictionary).erase("steady_interface")
+	_rewrite_profile_output(legacy)
+	var before_valid: Dictionary = PROFILE_SCHEMA.validate(legacy["profile"]["before"] as Dictionary)
+	assert_true(before_valid.get("ok", false), str(before_valid))
+	assert_true(before_valid.get("migrated", false),
+		"the erased leaves are exactly the ones ProfileSchema admits, so validation reports migrated")
+	assert_true(_validate(legacy, value).get("ok", false),
+		"a legacy profile material whose validation reports migrated is admitted as normalized (dwm-6fl)")
+	var foreign_candidate: Dictionary = value["materials"].duplicate(true)
+	foreign_candidate["profile"]["candidate"]["preferences"]["reading"]["reveal_speed"] = "slow"
+	assert_false(_validate(foreign_candidate, value).get("ok", true),
+		"a non-admission difference is still refused")
+
+
 func test_autosave_is_exact_initial_day_one_and_binds_context_and_allocated_identity() -> void:
 	var fixture: Dictionary = make_valid_fixture()
 	assert_true(fixture.get("ok", false), str(fixture))

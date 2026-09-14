@@ -175,7 +175,10 @@ static func _validate_profile(value: Variant, captured_dark: bool) -> Dictionary
 		return _fail(&"new_run_profile_invalid", "profile documents do not satisfy the current schema")
 	var before: Dictionary = before_valid["value"]
 	var candidate: Dictionary = candidate_valid["value"]
-	if before != profile["before"] or candidate != profile["candidate"]:
+	# Legacy material whose validation reports migrated is admitted as normalized: ProfileSchema
+	# admits default leaves the stored bytes predate, so only unmigrated drift is denormalized.
+	if (not bool(before_valid.get("migrated", false)) and before != profile["before"]) \
+			or (not bool(candidate_valid.get("migrated", false)) and candidate != profile["candidate"]):
 		return _fail(&"new_run_profile_invalid", "profile material is not normalized")
 	var before_dark_group: Dictionary = (before.get("preferences", {}) as Dictionary).get("dark_mode", {})
 	var before_dark: Variant = before_dark_group.get("next_run_enabled")
@@ -183,15 +186,15 @@ static func _validate_profile(value: Variant, captured_dark: bool) -> Dictionary
 		return _fail(&"new_run_profile_invalid", "source profile does not carry captured Dark")
 	if captured_dark and not bool(before_dark_group.get("available", false)):
 		return _fail(&"new_run_profile_invalid", "unavailable Dark cannot be captured for New Run")
-	var expected_candidate := before.duplicate(true)
+	var expected_candidate := (profile["before"] as Dictionary).duplicate(true)
 	var expected_preferences: Dictionary = expected_candidate["preferences"]
 	var expected_dark: Dictionary = expected_preferences["dark_mode"]
 	expected_dark["next_run_enabled"] = false
 	expected_preferences["dark_mode"] = expected_dark
 	expected_candidate["preferences"] = expected_preferences
-	if candidate != expected_candidate:
+	if profile["candidate"] != expected_candidate:
 		return _fail(&"new_run_profile_invalid", "consumption may change only the pending Dark selector")
-	var candidate_text: String = _canonical_text(candidate)
+	var candidate_text: String = _canonical_text(profile["candidate"])
 	if candidate_text.is_empty():
 		return _fail(&"new_run_profile_invalid", "candidate profile is not canonically serializable")
 	if str(profile["outgoing_text"]) != candidate_text \
