@@ -9,6 +9,7 @@ const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 
 const COORDINATOR := preload("res://scripts/application/run/DayResolutionCoordinator.gd")
 const STATE_PORT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
+const START_PORT := preload("res://scripts/application/run/DayResolutionStartPort.gd")
 const CHECKPOINT_PORT := preload("res://scripts/application/run/SaveManagerCheckpointPort.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 const DAY_ADVANCE_IDENTITY_PORT := preload("res://scripts/application/run/CausalDayAdvanceIdentityPort.gd")
@@ -27,9 +28,16 @@ const SCHEDULE_RESTORE_FIXTURE := preload("res://tests/support/ScheduleRestoreFi
 
 var _root := ""
 var _manager: Node
+var _gate: Object
+var _schedule_view: Object
+var _board: Object
+var _consequence: Object
 
 
 func before_each() -> void:
+	_issuer = null
+	_commit_port = null
+	_schedule_ledger = null
 	GameState.reset_game()
 	_root = ""
 	var result: Dictionary = TEMPORARY_STORAGE.create("dwm7e6-disk")
@@ -37,18 +45,23 @@ func before_each() -> void:
 	if not result.get("ok", false):
 		return
 	_root = str(result["value"])
+	_initialize_run_identity()
 	_manager = SAVE_MANAGER.new()
 	add_child_autofree(_manager)
 	_manager.initialize(STORAGE.new(_root))
 	# Real nine-participant wiring so a restore genuinely prepares plans rather than failing with
 	# TRANSACTION_PARTICIPANTS_NOT_CONFIGURED (dwm-7e6 repair).
-	_manager.configure_mutation_gate(GATE.new())
+	_gate = GATE.new()
+	assert_true(_manager.configure_mutation_gate(_gate).get("ok", false))
 	# The real participants delegate to live autoloads, so those must be initialized too -- in
 	# ApplicationBootstrap's dependency order (profile -> localization -> input -> accessibility ->
 	# audio -> dialogic), because each later manager reads the profile the earlier ones established.
 	_initialize_live_autoloads()
 	var schedule_restore: Dictionary = SCHEDULE_RESTORE_FIXTURE.create(_identity_issuer())
 	assert_true(schedule_restore.get("ok", false), "schedule-view restore fixture configured")
+	_schedule_view = schedule_restore["value"]["view"]
+	_board = preload("res://scripts/domain/minesweeper/DesktopBoardState.gd").new()
+	_consequence = preload("res://scripts/domain/desktop/DesktopConsequenceState.gd").new()
 	var lifecycle: Dictionary = GameState._run_lifecycle.to_dict()
 	assert_true(schedule_restore["value"]["view"].open_day(
 		int(lifecycle["day"]), str(lifecycle["causal_day_instance"])).get("ok", false),
@@ -57,12 +70,11 @@ func before_each() -> void:
 		"run": preload("res://scripts/application/restore/RunRestoreParticipant.gd").new(GameState),
 		# Plan 02 Task 6 (dwm-p2r.32), Phase C2: forced ripple -- SaveManager.configure_restore_
 		# participants() requires all 9 of DesktopContinuationOperationJournal.PARTICIPANT_ORDER.
-		# This suite only calls prepare_restore_autosave() (never commit_prepared_restore()), so real,
-		# freshly-constructed DesktopConsequenceState/DesktopBoardState instances suffice here.
+		# Day advancement and restore must share the same live owners.
 		"desktop_consequence": preload("res://scripts/application/restore/DesktopConsequenceRestoreParticipant.gd")
-			.new(preload("res://scripts/domain/desktop/DesktopConsequenceState.gd").new()),
+			.new(_consequence),
 		"desktop_board": preload("res://scripts/application/restore/DesktopBoardRestoreParticipant.gd")
-			.new(preload("res://scripts/domain/minesweeper/DesktopBoardState.gd").new()),
+			.new(_board),
 		"schedule_view": schedule_restore["value"]["participant"],
 		"profile": preload("res://scripts/application/restore/ProfileRestoreParticipant.gd").new(ProfileManager),
 		"localization": preload("res://scripts/application/restore/LocalizationRestoreParticipant.gd").new(LocalizationManager),
@@ -72,6 +84,31 @@ func before_each() -> void:
 	})
 	assert_true(restore_configured.get("ok", false),
 		"all nine restore participants configured: " + str(restore_configured))
+
+
+func _initialize_run_identity() -> void:
+	var issuer: Object = _identity_issuer()
+	var issued: Dictionary = issuer.issue(&"transaction_id")
+	assert_true(issued.get("ok", false), str(issued))
+	if not issued.get("ok", false): return
+	var allocation: Dictionary = issuer.prepare_continuation_allocation({
+		"existing_run_id": null, "kind": "new_run", "remap_source_transaction_ids": [],
+		"source_desktop_timeline_generation": null, "transaction_id": issued.value.token,
+		"transaction_issuer_receipt": issued.value.issuer_receipt,
+	})
+	assert_true(allocation.get("ok", false), str(allocation))
+	if not allocation.get("ok", false): return
+	var committed: Dictionary = issuer.commit_continuation_allocation(allocation.value)
+	assert_true(committed.get("ok", false), str(committed))
+	if not committed.get("ok", false): return
+	var identity: Dictionary = committed.value
+	var prepared: Dictionary = GameState.prepare_new_run_snapshot_input(
+		identity.run_id, identity.branch_id, identity.desktop_timeline_generation,
+		identity.causal_day_instance, identity.causal_day_instance_issuer_receipt, false)
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return
+	assert_true(GameState._run_lifecycle.commit_restore(prepared.value.snapshot_input.lifecycle)
+		.get("ok", false), "initial run and causal day use a durable real allocation")
 
 
 ## Brings the live autoloads the restore participants delegate to into a genuinely initialized
@@ -117,6 +154,8 @@ func _content_version() -> int:
 func _wired() -> Dictionary:
 	var run_id := str(GameState._run_lifecycle.to_dict()["run_id"])
 	var state_port: Object = STATE_PORT.new(GameState)
+	assert_true(state_port.configure_day_advance_owners(_schedule_view, _board, _consequence)
+		.get("ok", false), "day advancement shares the restore owners")
 	# The same five providers ApplicationBootstrap._configure_day_resolution_providers installs.
 	# Without them the port falls back to safe defaults whose empty audio context writes an autosave
 	# that cannot be restored -- which is precisely what this suite exists to catch.
@@ -136,9 +175,19 @@ func _wired() -> Dictionary:
 		"Day-7 provenance bound to the retained registry/issuer pair")
 	assert_true(state_port.configure_day7_provenance(provenance).get("ok", false),
 		"Day-7 provenance injected into the state port")
+	assert_true(state_port.configure_resolution_identity(_identity_issuer(),
+		START_PORT.new(state_port, _schedule_registry(), _identity_issuer(),
+			_schedule_publication_ledger())).get("ok", false),
+		"resolution starts use the same issuer and ledger as Schedule Done")
+	_configure_desktop_source(state_port)
 	var checkpoint_port: Object = CHECKPOINT_PORT.new(_manager)
-	var gate: Object = GATE.new()
+	var gate: Object = _gate
 	assert_true(checkpoint_port.configure_fatal_latch(gate).get("ok", false), "checkpoint port latched")
+	var pair_deck: Object = preload("res://scripts/application/run/PairDeckDrawPort.gd").new()
+	assert_true(pair_deck.configure(GameState, ProfileManager, gate,
+		preload("res://scripts/application/run/ConditionHospitalCoordinator.gd").new())
+		.get("ok", false), "Schedule uses the real Profile-backed pair draw")
+	assert_true(state_port.configure_pair_deck(pair_deck).get("ok", false))
 	_manager._journal.reset(run_id)
 	var coordinator: Object = COORDINATOR.new()
 	# One three-owner seam (Plan 01 Task 6 Step 6.5, dwm-p2r.13): the gate arrives with the ports.
@@ -154,6 +203,30 @@ func _wired() -> Dictionary:
 		"advance identity port injected")
 	return {"coordinator": coordinator, "run_id": run_id, "checkpoint_port": checkpoint_port,
 		"day_advance_port": day_advance_port}
+
+
+func _configure_desktop_source(state_port: Object) -> void:
+	var ledger: Object = preload("res://scripts/infrastructure/save/DesktopPublicationLedger.gd").new()
+	assert_true(ledger.configure(STORAGE.new(_root.path_join("desktop"))).get("ok", false))
+	assert_true(ledger.load().get("ok", false))
+	var fate: Object = preload("res://scripts/application/minesweeper/DesktopBoardFatePort.gd").new()
+	assert_true(fate.configure_publication_ledger(ledger).get("ok", false))
+	assert_true(fate.configure(_board, _identity_issuer()).get("ok", false))
+	var source: Object = preload("res://scripts/application/desktop/DesktopConsequenceSourcePort.gd").new()
+	assert_true(source.configure(
+		preload("res://scripts/application/desktop/DesktopConsequenceCoordinator.gd").new(),
+		fate, _identity_issuer(), Callable(self, "_identity_context")).get("ok", false))
+	assert_true(source.configure_current_condition_owner(GameState).get("ok", false))
+	assert_true(state_port.configure_desktop_consequence_source(source).get("ok", false))
+
+
+func _identity_context() -> Dictionary:
+	var lifecycle: Dictionary = GameState._run_lifecycle.to_dict()
+	return {"ok": true, "value": {
+		"run_id": lifecycle["run_id"], "branch_id": lifecycle["branch_id"],
+		"desktop_timeline_generation": lifecycle["desktop_timeline_generation"],
+		"causal_day_instance": lifecycle["causal_day_instance"],
+	}}
 
 
 ## One real issuer over this suite's sandbox root, built exactly the way
@@ -179,40 +252,56 @@ func _identity_issuer() -> Object:
 ## One production commit port over this suite's sandbox, built the way
 ## ApplicationBootstrap._construct_schedule_foundation builds the retained one.
 var _commit_port: Object = null
+var _schedule_ledger: Object = null
+
+func _schedule_publication_ledger() -> Object:
+	if _schedule_ledger == null:
+		_schedule_ledger = SCHEDULE_PUBLICATION_LEDGER.new()
+		assert_true(_schedule_ledger.configure(STORAGE.new(_root.path_join("schedule"))).get("ok", false))
+		assert_true(_schedule_ledger.load().get("ok", false))
+	return _schedule_ledger
 
 func _schedule_commit_port() -> Object:
 	if _commit_port == null:
-		var ledger: Object = SCHEDULE_PUBLICATION_LEDGER.new()
-		assert_true(ledger.configure(STORAGE.new(_root.path_join("schedule"))).get("ok", false))
-		assert_true(ledger.load().get("ok", false))
 		_commit_port = SCHEDULE_COMMIT_PORT.new(GameState, _schedule_registry(),
-			_identity_issuer(), ledger)
+			_identity_issuer(), _schedule_publication_ledger())
 	return _commit_port
 
 
-## Commits a receipt-backed EMPTY Done for one day through the production port. The walk's own
-## `_lifecycle_set_playing_day` has already put the owner on that day, so the aggregate this mints
-## is the one the resolution then reads back.
-func _commit_empty_done(day: int) -> void:
+## Commits empty Done against the live view and causally advanced day.
+func _commit_empty_done(day: int) -> bool:
+	var fingerprint: Dictionary = _schedule_view.fingerprint()
+	assert_true(fingerprint.get("ok", false), str(fingerprint))
+	if not fingerprint.get("ok", false): return false
 	var issued: Dictionary = _identity_issuer().call(&"issue", &"transaction_id")
 	assert_true(issued.get("ok", false), str(issued))
 	if not issued.get("ok", false):
-		return
+		return false
 	var value: Dictionary = issued["value"]
 	var prepared: Dictionary = _schedule_commit_port().call(&"prepare_commit", {
 		"transaction_id": str(value["token"]),
 		"transaction_issuer_receipt": (value["issuer_receipt"] as Dictionary).duplicate(true),
-		"expected_view_fingerprint": "schedule_view.%s" % "d".repeat(32),
+		"expected_view_fingerprint": fingerprint.value.fingerprint,
 		"day": day,
-		"causal_day_instance": "causal_day_instance.%s" % "e".repeat(64),
+		"causal_day_instance": str(GameState._run_lifecycle.to_dict()["causal_day_instance"]),
 		"draft_entries": [],
 		"registry_fingerprint": str(_schedule_registry().call(&"fingerprint")),
 	})
 	assert_true(prepared.get("ok", false), "empty Done commits for day %d: %s" % [day, str(prepared)])
 	if not prepared.get("ok", false):
-		return
-	assert_true(_schedule_commit_port().call(&"commit",
-		(prepared["value"] as Dictionary)["game_state_candidate"]).get("ok", false))
+		return false
+	var committed: Dictionary = _schedule_commit_port().call(&"commit",
+		(prepared["value"] as Dictionary)["game_state_candidate"])
+	assert_true(committed.get("ok", false), str(committed))
+	return committed.get("ok", false)
+
+
+func _resolve_day(coordinator: Object, run_id: String, day: int) -> Dictionary:
+	if not _commit_empty_done(day):
+		return {}
+	var result: Dictionary = coordinator.request_schedule_done("done:%s:day-%d" % [run_id, day])
+	assert_true(result.get("ok", false), "day %d resolved: %s" % [day, str(result)])
+	return result
 
 
 ## The production registry, loaded once per suite. The Day-7 handoff resolves the aggregate's SAVED
@@ -239,7 +328,7 @@ func test_real_ports_resolve_a_day_without_rejecting_the_snapshot() -> void:
 		return
 	var wired := _wired()
 	var run_id: String = wired["run_id"]
-	var result: Dictionary = wired["coordinator"].request_schedule_done("done:%s:day-1" % run_id)
+	var result: Dictionary = _resolve_day(wired["coordinator"], run_id, 1)
 	assert_false(str(result.get("code", "")) == "invalid_checkpoint_inputs",
 		"the real checkpoint port must accept real snapshot production: " + str(result))
 	assert_true(result.get("ok", false), str(result))
@@ -250,7 +339,8 @@ func test_real_day_resolution_writes_a_parsable_disk_autosave() -> void:
 		return
 	var wired := _wired()
 	var run_id: String = wired["run_id"]
-	assert_true(wired["coordinator"].request_schedule_done("done:%s:day-1" % run_id).get("ok", false), "day resolved")
+	if not _resolve_day(wired["coordinator"], run_id, 1).get("ok", false):
+		return
 	var text := _autosave_text()
 	assert_false(text.is_empty(), "a real autosave.json is written to disk")
 	if text.is_empty():
@@ -264,7 +354,8 @@ func test_disk_autosave_validates_as_a_save_document() -> void:
 		return
 	var wired := _wired()
 	var run_id: String = wired["run_id"]
-	wired["coordinator"].request_schedule_done("done:%s:day-1" % run_id)
+	if not _resolve_day(wired["coordinator"], run_id, 1).get("ok", false):
+		return
 	var text := _autosave_text()
 	if text.is_empty():
 		assert_true(false, "no autosave written")
@@ -279,7 +370,8 @@ func test_persisted_snapshot_carries_the_live_lifecycle_and_ledger() -> void:
 		return
 	var wired := _wired()
 	var run_id: String = wired["run_id"]
-	wired["coordinator"].request_schedule_done("done:%s:day-1" % run_id)
+	if not _resolve_day(wired["coordinator"], run_id, 1).get("ok", false):
+		return
 	var text := _autosave_text()
 	if text.is_empty():
 		assert_true(false, "no autosave written")
@@ -287,6 +379,9 @@ func test_persisted_snapshot_carries_the_live_lifecycle_and_ledger() -> void:
 	var document: Dictionary = STRICT_JSON.parse_object(text)["value"]
 	var snapshot: Dictionary = document["current_snapshot"]["snapshot"]
 	assert_eq(str(snapshot["run_id"]), run_id, "the live run id persisted")
+	assert_eq(snapshot["lifecycle"]["day"], 2, "the completed day boundary persisted")
+	assert_eq(snapshot["lifecycle"]["day"], GameState._run_lifecycle.get_day(),
+		"the persisted day matches the live owner")
 	assert_true((snapshot["lifecycle"] as Dictionary).has("ending_plan"), "ending_plan persisted with the lifecycle")
 	assert_true(snapshot.has("command_receipts"), "the effect/variable ledger persisted")
 	assert_true(snapshot.has("narrative_checkpoint"), "the narrative checkpoint field persisted")
@@ -297,7 +392,8 @@ func test_persisted_snapshot_is_restorable_by_the_save_manager() -> void:
 		return
 	var wired := _wired()
 	var run_id: String = wired["run_id"]
-	wired["coordinator"].request_schedule_done("done:%s:day-1" % run_id)
+	if not _resolve_day(wired["coordinator"], run_id, 1).get("ok", false):
+		return
 	var text := _autosave_text()
 	if text.is_empty():
 		assert_true(false, "no autosave written")
@@ -333,8 +429,7 @@ func _drive_days(coordinator: Object, run_id: String, through_day: int) -> Dicti
 		# receipt-backed cause, not the absence of a commit. Day 7's provenance handoff needs that
 		# receipt, so the walk mints it through the production commit port rather than resolving a
 		# day the owner never actually finished (Task 8 Step 8.7, dwm-p2r.14).
-		_commit_empty_done(day)
-		var result: Dictionary = coordinator.request_schedule_done("done:%s:day-%d" % [run_id, day])
+		var result: Dictionary = _resolve_day(coordinator, run_id, day)
 		results.append({"day": day, "ok": result.get("ok", false), "code": str(result.get("code", ""))})
 		if not result.get("ok", false):
 			break
