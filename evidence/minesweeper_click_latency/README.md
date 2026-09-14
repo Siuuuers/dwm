@@ -804,3 +804,41 @@ node identity across presents, child order and the touch-release latch are uncha
   146 / 210 ms; dating routine reveal 18.5 / 16.2 ms, dating first reveal 225 / 255 ms (the fresh
   end-to-end figures vary 20 percent run to run in this window; the live medians over 244 clicks are the
   measurement).
+
+### Step 2: the board presentation query projects without a per-cell neighbour walk or discarded allocations (commit after 761da355a)
+
+Both owner reads of MinesweeperPresentationPort.dispatch stay, in their order, with their counted-read
+pins (test_minesweeper_panel_port CountingOwner: 4 / 6 state reads, 2 configuration reads) and every
+row of test_minesweeper_presentation_port untouched; only the inside of
+MinesweeperBoardPresentationQuery.desktop moves. (1) Adjacent flags are scattered once per flag into a
+count array instead of a 3x3 walk (two range() allocations and nine probes) per revealed numbered
+cell; adjacency is symmetric, self is excluded on both sides and validate_board bounds every flag, so
+every cell gets the identical count. (2) Each cell dictionary is built as one literal instead of
+_cell() plus two to six mutations, dropping a discarded ["reveal","flag"] array for every revealed or
+flagged cell and a discarded [] for chord-less cells; the eight members keep _cell's order and
+pressable is still computed after the terminal block. (3) The mine set is built only when the board is
+terminal, and adjacency, exploded and terminal are hoisted out of the loop. Bytes identical: the
+projection keys, order, values and int/float types are frozen in the tests for an active 3x3 with two
+flags and a revealed number, a terminal exploded 3x3 and a 64-cell shell. Left alone by design: the
+board copy inside MinesweeperBoardSchema.validate_board (the schema is line-bound by
+evidence/phase_2r/runtime/game_state_surface.json) and the owner's own copy in
+DesktopBoardState.prepare_restore (contract-bound), which are the larger part of the 2.6 ms per read.
+
+- settlement7-port-red-87bf33d1c.log: tests/unit/test_minesweeper_board_presentation_query.gd with the
+  new rows against the untouched query, 14 tests, 9 passing / 5 failing: the three new rows (frozen
+  active projection without _adjacent_flags(index; frozen terminal projection and a covered read that
+  skips the mine set; shell and retained-spec reads that build no discarded action list) plus the two
+  rows pre-existing at 87bf33d1c (settlement7-port-attrib-87bf33d1c.log: the suite at HEAD, 11 tests,
+  9 passing / 2 failing, test_unpaid_shell_uses_catalog_without_estimated_or_generated_mines and
+  test_preparation_publishes_only_the_bracket_locus_after_certification).
+- settlement7-port-green-87bf33d1c.log: the ten suites that reference the query or the presentation
+  port, 133 tests, 130 passing / 3 failing (the two above plus the palette row attributed in
+  settlement7-palette-attrib-87bf33d1c.log); settlement7-port-green-761da355a.log: the same ten suites
+  on top of the panel commit, 135 tests, 132 passing / the same 3.
+- settlement7-port-profile-87bf33d1c-live.log and -live2-: the live copy, query change only over the
+  baseline tree (Log In 21.3 / 22.1 s). Routine reveal median 24.1 to 23.6 / 23.2 ms and the 244-click
+  set 30.4 to 28.9 / 31.0 ms: inside the run-to-run noise, as forecast (about 1 ms of the 9 ms read
+  pair). App first reveal 68 / 56 ms, New Board 164 / 213 ms (the second run loaded), win 920 / 1005 ms,
+  loss 899 / 1060 ms two frames after the click.
+- settlement7-port-profile-87bf33d1c-fresh-win.log and -fresh-loss-: fresh account, 244-click set
+  29.0 / 27.8 ms, dating routine 17.6 / 16.4 ms; no end-to-end claim.

@@ -1,0 +1,859 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/click-latency-3/.godot/phase2r_tests/13a153fb-4df6-4d09-8dcd-6e9e9d336f16/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/scene/test_minesweeper_new_board_bindings.gd
+* test_default_and_saved_bindings_dispatch_only_published_active_new_board
+* test_settled_board_accepts_keyboard_and_controller_without_grid_focus
+* test_held_key_cannot_become_new_board_after_rebind_focus_sheet_or_pause
+* test_settled_board_does_not_replay_held_key_across_focus_or_pause
+* test_canonical_challenge_hosts_do_not_offer_new_board_even_with_a_saved_binding
+5/5 passed.
+
+
+res://tests/scene/test_minesweeper_view_gestures.gd
+* test_second_touch_in_blank_well_cancels_cell_action_and_finishes_one_pinch_write
+* test_ctrl_wheel_over_grid_and_blank_well_each_zoom_once_with_vertical_anchor
+* test_forced_cell_publication_reveals_it_without_stealing_external_focus
+* test_fit_toggle_rebuilds_rail_tab_order_and_exits_to_host
+    2 Orphans
+        * [VerticalRail:<Control#559906033911>(MinesweeperScrollRail.gd)]
+        * [HorizontalRail:<Control#559939588345>(MinesweeperScrollRail.gd)]
+2 orphans
+4/4 passed.
+
+
+res://tests/unit/test_desktop_paid_replacement.gd
+* test_untouched_new_board_and_same_tier_are_byte_equal_without_spec_or_storage
+* test_unpaid_flags_are_saved_without_capacity_then_preserved_by_first_reveal
+* test_free_difficulty_checkpoint_resets_shell_and_does_not_allocate_layout
+* test_paid_replacement_retains_original_payment_and_fresh_spec_on_each_touch
+* test_failed_final_reread_rolls_back_full_artifact_then_exact_retry_reuses_spec
+* test_prepare_failure_keeps_original_board_and_exact_retry_does_not_refreeze_inputs
+* test_paid_shell_save_restore_keeps_layout_recipe_and_flags_without_second_charge
+* test_restore_to_new_identity_rejects_stale_replacement_retry_and_discards_local_candidate
+* test_shell_public_projection_and_departure_fate_preserve_paid_status
+* test_terminal_and_foreign_gate_refuse_configuration_before_spec_or_checkpoint
+* test_paid_first_reveal_failed_checkpoint_retries_same_materialization_once
+* test_replacement_terminal_reward_uses_current_tier_and_original_paid_session
+* test_failed_artifact_rollback_latches_shared_fatal_fence
+* test_owned_debug_refuses_direct_first_reveal_before_spec_or_layout_allocation
+* test_paid_frozen_debug_refuses_materialization_even_if_live_debug_was_removed
+* test_certified_unpaid_flags_can_be_removed_without_changing_layout_or_payment
+* test_certified_unpaid_difficulty_change_drops_recipe_without_new_spec_or_cost
+* test_certified_paid_difficulty_change_retains_payment_and_new_board_is_noop
+* test_cold_paid_shell_remaps_identity_keeps_recipe_and_rejects_old_reveal_without_repayment
+* test_cold_paid_preparing_restore_keeps_frontier_and_rejects_old_issued_slice
+* test_cost_free_failure_uses_captured_journal_with_real_candidate_storage_descriptor
+21/21 passed.
+
+
+res://tests/unit/test_minesweeper_app.gd
+* test_scene_contains_real_panel_without_local_topbar_or_simulation_controls
+* test_prepared_lifecycle_commits_before_visibility_changes
+* test_owner_refusal_keeps_visible_window_and_emits_no_hidden_signal
+* test_failed_resume_never_shows_a_hidden_window
+* test_missing_foreground_publication_blocks_old_facts_until_a_valid_refresh
+* test_rules_and_assignments_block_home_and_escape_closes_only_the_sheet
+    26 Orphans
+        * [@Control@4903:<Control#1199839382359>(MinesweeperInformationSheet.gd)] + 9
+        * [@Control@4913:<Control#1200879570023>(MinesweeperInformationSheet.gd)] + 15
+* test_reopening_retains_mode_semantic_cell_manual_pan_and_focus
+* test_hide_cancels_pending_touch_without_a_delayed_flag_or_release_action
+* test_locale_and_profile_signals_apply_real_font_preferences_without_resetting_view_state
+    63 Orphans
+        * [@Button@6838:<Button#1387123444522>(MinesweeperActionButton.gd)]
+        * [@Button@6190:<Button#1290285353784>(MinesweeperActionButton.gd)]
+        * [@Button@6714:<Button#1328319302487>(MinesweeperActionButton.gd)]
+        * [@Button@6160:<Button#1286762138568>(MinesweeperActionButton.gd)]
+        * [@Button@6713:<Button#1328168307815>(MinesweeperActionButton.gd)]
+        * [@Button@6829:<Button#1377157778675>(MinesweeperActionButton.gd)]
+        * [@Button@6783:<Button#1353887780161>(MinesweeperActionButton.gd)]
+        * [@Button@6820:<Button#1367192112756>(MinesweeperActionButton.gd)]
+        * [@Button@6156:<Button#1286158159563>(MinesweeperActionButton.gd)]
+        * [@Button@6709:<Button#1327279115984>(MinesweeperActionButton.gd)]
+        * [@Button@6746:<Button#1340549893866>(MinesweeperActionButton.gd)]
+        * [@Button@6158:<Button#1286460149503>(MinesweeperActionButton.gd)]
+        * [@Button@6157:<Button#1286309154568>(MinesweeperActionButton.gd)]
+        * [@Button@6159:<Button#1286611144465>(MinesweeperActionButton.gd)]
+        * [@Button@6161:<Button#1286913134366>(MinesweeperActionButton.gd)]
+        * [@Button@6712:<Button#1328017313589>(MinesweeperActionButton.gd)]
+        * [@Button@6192:<Button#1290587344699>(MinesweeperActionButton.gd)]
+        * [@Button@6191:<Button#1290436349780>(MinesweeperActionButton.gd)]
+        * [@Button@6753:<Button#1341892071772>(MinesweeperActionButton.gd)]
+        * [@Button@6789:<Button#1355078963551>(MinesweeperActionButton.gd)]
+        * [@Button@6790:<Button#1355229958497>(MinesweeperActionButton.gd)]
+        * [@Button@6752:<Button#1341741076842>(MinesweeperActionButton.gd)]
+        * [@Button@6749:<Button#1341288092025>(MinesweeperActionButton.gd)]
+        * [@Button@6715:<Button#1328470299011>(MinesweeperActionButton.gd)]
+        * [@Button@6826:<Button#1368383295902>(MinesweeperActionButton.gd)]
+        * [@Button@6716:<Button#1328621294002>(MinesweeperActionButton.gd)]
+        * [@Button@6717:<Button#1328772288955>(MinesweeperActionButton.gd)]
+        * [@Button@6710:<Button#1327430111678>(MinesweeperActionButton.gd)]
+        * [@Button@6836:<Button#1378499957201>(MinesweeperActionButton.gd)]
+        * [@Button@6711:<Button#1327581106644>(MinesweeperActionButton.gd)]
+        * [@Button@6827:<Button#1368534290909>(MinesweeperActionButton.gd)]
+        * [@Button@6754:<Button#1342043066853>(MinesweeperActionButton.gd)]
+        * [@Button@6834:<Button#1378197967347>(MinesweeperActionButton.gd)]
+        * [@Button@6835:<Button#1378348962307>(MinesweeperActionButton.gd)]
+        * [@Button@6750:<Button#1341439087109>(MinesweeperActionButton.gd)]
+        * [@Button@6748:<Button#1340851884563>(MinesweeperActionButton.gd)]
+        * [@Button@6786:<Button#1354625978914>(MinesweeperActionButton.gd)]
+        * [@Button@6747:<Button#1340700889648>(MinesweeperActionButton.gd)]
+        * [@Button@6751:<Button#1341590082097>(MinesweeperActionButton.gd)]
+        * [@Button@6791:<Button#1355380953657>(MinesweeperActionButton.gd)]
+        * [@Button@6841:<Button#1387861643851>(MinesweeperActionButton.gd)]
+        * [@Button@6833:<Button#1378046972496>(MinesweeperActionButton.gd)]
+        * [@Button@6787:<Button#1354776973913>(MinesweeperActionButton.gd)]
+        * [@Button@6785:<Button#1354189771367>(MinesweeperActionButton.gd)]
+        * [@Button@6823:<Button#1367930311287>(MinesweeperActionButton.gd)]
+        * [@Button@6784:<Button#1354038776454>(MinesweeperActionButton.gd)]
+        * [@Button@6788:<Button#1354927968903>(MinesweeperActionButton.gd)]
+        * [@Button@6828:<Button#1368685286031>(MinesweeperActionButton.gd)]
+        * [@Button@6830:<Button#1377308775074>(MinesweeperActionButton.gd)]
+        * [@Button@6831:<Button#1377459770027>(MinesweeperActionButton.gd)]
+        * [@Button@6824:<Button#1368081306287>(MinesweeperActionButton.gd)]
+        * [@Button@6822:<Button#1367494103741>(MinesweeperActionButton.gd)]
+        * [@Button@6832:<Button#1377895977677>(MinesweeperActionButton.gd)]
+        * [@Button@6821:<Button#1367343108827>(MinesweeperActionButton.gd)]
+        * [@Button@6825:<Button#1368232301276>(MinesweeperActionButton.gd)]
+        * [@Button@6837:<Button#1378650952419>(MinesweeperActionButton.gd)]
+        * [@Button@6839:<Button#1387274441462>(MinesweeperActionButton.gd)]
+        * [@Button@6840:<Button#1387425436415>(MinesweeperActionButton.gd)]
+        * [@Button@6842:<Button#1388012638994>(MinesweeperActionButton.gd)]
+        * [@Button@6843:<Button#1388163633947>(MinesweeperActionButton.gd)]
+        * [@Button@6844:<Button#1388314628900>(MinesweeperActionButton.gd)]
+        * [@Button@6845:<Button#1388465623853>(MinesweeperActionButton.gd)]
+        * [@Button@6846:<Button#1388616618806>(MinesweeperActionButton.gd)]
+* test_configured_dependencies_are_idempotent_and_cannot_be_rebound
+    9 Orphans
+        * [@Button@6922:<Button#1548151165271>(MinesweeperActionButton.gd)]
+        * [@Button@6891:<Button#1544476955041>(MinesweeperActionButton.gd)]
+        * [@Button@6889:<Button#1544174965154>(MinesweeperActionButton.gd)]
+        * [@Button@6923:<Button#1548302160442>(MinesweeperActionButton.gd)]
+        * [@Button@6921:<Button#1548000170579>(MinesweeperActionButton.gd)]
+        * [@Button@6890:<Button#1544325960310>(MinesweeperActionButton.gd)]
+        * [@Button@6888:<Button#1544023970480>(MinesweeperActionButton.gd)]
+        * [@Button@6892:<Button#1544627950299>(MinesweeperActionButton.gd)]
+        * [@Button@6887:<Button#1543872975591>(MinesweeperActionButton.gd)]
+* test_accessibility_preferences_retheme_without_owner_commands_or_navigation_changes
+    18 Orphans
+        * [@Button@8007:<Button#1629805874069>(MinesweeperActionButton.gd)]
+        * [@Button@8006:<Button#1629654879162>(MinesweeperActionButton.gd)]
+        * [@Button@8009:<Button#1630393077070>(MinesweeperActionButton.gd)]
+        * [@Button@8012:<Button#1630846061938>(MinesweeperActionButton.gd)]
+        * [@Button@8010:<Button#1630544072125>(MinesweeperActionButton.gd)]
+        * [@Button@7486:<Button#1592577232500>(MinesweeperActionButton.gd)]
+        * [@Button@7488:<Button#1592879223222>(MinesweeperActionButton.gd)]
+        * [@Button@8008:<Button#1630242083290>(MinesweeperActionButton.gd)]
+        * [@Button@7457:<Button#1589205012962>(MinesweeperActionButton.gd)]
+        * [@Button@8013:<Button#1630997058026>(MinesweeperActionButton.gd)]
+        * [@Button@7487:<Button#1592728228368>(MinesweeperActionButton.gd)]
+        * [@Button@7454:<Button#1588752028198>(MinesweeperActionButton.gd)]
+        * [@Button@8011:<Button#1630695068219>(MinesweeperActionButton.gd)]
+        * [@Button@7456:<Button#1589054018142>(MinesweeperActionButton.gd)]
+        * [@Button@7455:<Button#1588903023205>(MinesweeperActionButton.gd)]
+        * [@Button@7453:<Button#1588601033330>(MinesweeperActionButton.gd)]
+        * [@Button@7452:<Button#1588450038501>(MinesweeperActionButton.gd)]
+        * [@Button@8005:<Button#1629503886108>(MinesweeperActionButton.gd)]
+* test_legacy_colour_preference_is_read_only_compatibility_with_canonical_precedence
+    54 Orphans
+        * [@Button@8726:<Button#1867606133453>(MinesweeperActionButton.gd)]
+        * [@Button@8614:<Button#1827844131645>(MinesweeperActionButton.gd)]
+        * [@Button@8718:<Button#1866112961355>(MinesweeperActionButton.gd)]
+        * [@Button@8721:<Button#1866851158929>(MinesweeperActionButton.gd)]
+        * [@Button@8760:<Button#1880356817836>(MinesweeperActionButton.gd)]
+        * [@Button@8685:<Button#1853798485044>(MinesweeperActionButton.gd)]
+        * [@Button@8087:<Button#1789474638982>(MinesweeperActionButton.gd)]
+        * [@Button@8615:<Button#1827995126961>(MinesweeperActionButton.gd)]
+        * [@Button@8613:<Button#1827693137198>(MinesweeperActionButton.gd)]
+        * [@Button@8607:<Button#1826501954886>(MinesweeperActionButton.gd)]
+        * [@Button@8762:<Button#1880658808150>(MinesweeperActionButton.gd)]
+        * [@Button@8608:<Button#1826652949857>(MinesweeperActionButton.gd)]
+        * [@Button@8609:<Button#1826803944809>(MinesweeperActionButton.gd)]
+        * [@Button@8755:<Button#1879316630901>(MinesweeperActionButton.gd)]
+        * [@Button@8648:<Button#1840594816377>(MinesweeperActionButton.gd)]
+        * [@Button@8761:<Button#1880507813271>(MinesweeperActionButton.gd)]
+        * [@Button@8647:<Button#1840443821467>(MinesweeperActionButton.gd)]
+        * [@Button@8644:<Button#1839705623967>(MinesweeperActionButton.gd)]
+        * [@Button@8651:<Button#1841047801285>(MinesweeperActionButton.gd)]
+        * [@Button@8085:<Button#1789172649421>(MinesweeperActionButton.gd)]
+        * [@Button@8083:<Button#1788870659542>(MinesweeperActionButton.gd)]
+        * [@Button@8652:<Button#1841198796266>(MinesweeperActionButton.gd)]
+        * [@Button@8756:<Button#1879467626000>(MinesweeperActionButton.gd)]
+        * [@Button@8645:<Button#1839856619030>(MinesweeperActionButton.gd)]
+        * [@Button@8084:<Button#1789021654558>(MinesweeperActionButton.gd)]
+        * [@Button@8684:<Button#1853647490595>(MinesweeperActionButton.gd)]
+        * [@Button@8649:<Button#1840745811509>(MinesweeperActionButton.gd)]
+        * [@Button@8683:<Button#1853211283031>(MinesweeperActionButton.gd)]
+        * [@Button@8689:<Button#1854402465368>(MinesweeperActionButton.gd)]
+        * [@Button@8682:<Button#1853060288131>(MinesweeperActionButton.gd)]
+        * [@Button@8686:<Button#1853949480597>(MinesweeperActionButton.gd)]
+        * [@Button@8720:<Button#1866414952126>(MinesweeperActionButton.gd)]
+        * [@Button@8722:<Button#1867002154688>(MinesweeperActionButton.gd)]
+        * [@Button@8719:<Button#1866263957204>(MinesweeperActionButton.gd)]
+        * [@Button@8723:<Button#1867153149659>(MinesweeperActionButton.gd)]
+        * [@Button@8763:<Button#1880809803490>(MinesweeperActionButton.gd)]
+        * [@Button@8758:<Button#1880054828785>(MinesweeperActionButton.gd)]
+        * [@Button@8118:<Button#1793148850584>(MinesweeperActionButton.gd)]
+        * [@Button@8116:<Button#1792846860769>(MinesweeperActionButton.gd)]
+        * [@Button@8117:<Button#1792997855737>(MinesweeperActionButton.gd)]
+        * [@Button@8681:<Button#1852909294090>(MinesweeperActionButton.gd)]
+        * [@Button@8086:<Button#1789323645451>(MinesweeperActionButton.gd)]
+        * [@Button@8724:<Button#1867304145470>(MinesweeperActionButton.gd)]
+        * [@Button@8725:<Button#1867455140533>(MinesweeperActionButton.gd)]
+        * [@Button@8687:<Button#1854100476602>(MinesweeperActionButton.gd)]
+        * [@Button@8082:<Button#1788719665858>(MinesweeperActionButton.gd)]
+        * [@Button@8688:<Button#1854251471558>(MinesweeperActionButton.gd)]
+        * [@Button@8646:<Button#1840007615186>(MinesweeperActionButton.gd)]
+        * [@Button@8650:<Button#1840896807640>(MinesweeperActionButton.gd)]
+        * [@Button@8610:<Button#1827240153833>(MinesweeperActionButton.gd)]
+        * [@Button@8611:<Button#1827391148782>(MinesweeperActionButton.gd)]
+        * [@Button@8612:<Button#1827542143741>(MinesweeperActionButton.gd)]
+        * [@Button@8759:<Button#1880205824870>(MinesweeperActionButton.gd)]
+        * [@Button@8757:<Button#1879618622334>(MinesweeperActionButton.gd)]
+* test_invalid_accessibility_preference_keeps_last_valid_theme_and_public_facts
+    9 Orphans
+        * [@Button@8840:<Button#1901294783994>(MinesweeperActionButton.gd)]
+        * [@Button@8807:<Button#1897318583862>(MinesweeperActionButton.gd)]
+        * [@Button@8805:<Button#1897016593976>(MinesweeperActionButton.gd)]
+        * [@Button@8809:<Button#1897620573827>(MinesweeperActionButton.gd)]
+        * [@Button@8804:<Button#1896865599114>(MinesweeperActionButton.gd)]
+        * [@Button@8838:<Button#1900992794350>(MinesweeperActionButton.gd)]
+        * [@Button@8808:<Button#1897469579953>(MinesweeperActionButton.gd)]
+        * [@Button@8806:<Button#1897167590070>(MinesweeperActionButton.gd)]
+        * [@Button@8839:<Button#1901143790371>(MinesweeperActionButton.gd)]
+* test_palette_change_with_open_sheet_retains_sheet_focus_scroll_and_home_block
+    66 Orphans
+        * [@Button@10034:<Button#2152080607363>(MinesweeperActionButton.gd)]
+        * [@Button@9966:<Button#2136410688223>(MinesweeperActionButton.gd)]
+        * [@Button@9924:<Button#2122116500221>(MinesweeperActionButton.gd)]
+        * [@Button@9967:<Button#2136561683231>(MinesweeperActionButton.gd)]
+        * [@Button@9965:<Button#2136259693465>(MinesweeperActionButton.gd)]
+        * [@Button@10035:<Button#2152231603135>(MinesweeperActionButton.gd)]
+        * [@Button@10030:<Button#2151476628437>(MinesweeperActionButton.gd)]
+        * [@Button@9930:<Button#2123307682801>(MinesweeperActionButton.gd)]
+        * [@Button@9928:<Button#2123005692957>(MinesweeperActionButton.gd)]
+        * [@Button@9403:<Button#2084854303777>(MinesweeperActionButton.gd)]
+        * [@Button@9926:<Button#2122703703111>(MinesweeperActionButton.gd)]
+        * [@Control@9969:<Control#2137970969680>] + 14
+        * [@Button@9962:<Button#2135806708871>(MinesweeperActionButton.gd)]
+        * [@Button@9923:<Button#2121965505705>(MinesweeperActionButton.gd)]
+        * [@Button@9927:<Button#2122854698165>(MinesweeperActionButton.gd)]
+        * [@Button@9960:<Button#2135219506364>(MinesweeperActionButton.gd)]
+        * [@Button@9963:<Button#2135957703879>(MinesweeperActionButton.gd)]
+        * [@Button@9961:<Button#2135370501326>(MinesweeperActionButton.gd)]
+        * [@Button@9964:<Button#2136108698858>(MinesweeperActionButton.gd)]
+        * [@Button@10033:<Button#2151929613577>(MinesweeperActionButton.gd)]
+        * [@Button@10028:<Button#2150889426214>(MinesweeperActionButton.gd)]
+        * [@Button@9373:<Button#2081331088722>(MinesweeperActionButton.gd)]
+        * [@Button@9369:<Button#2080727109000>(MinesweeperActionButton.gd)]
+        * [@Button@9405:<Button#2085156294066>(MinesweeperActionButton.gd)]
+        * [@Button@10027:<Button#2150738431416>(MinesweeperActionButton.gd)]
+        * [@Button@9959:<Button#2135068511685>(MinesweeperActionButton.gd)]
+        * [@Button@9922:<Button#2121814511079>(MinesweeperActionButton.gd)]
+        * [@Button@9371:<Button#2081029099022>(MinesweeperActionButton.gd)]
+        * [@Button@9370:<Button#2080878104139>(MinesweeperActionButton.gd)]
+        * [@Button@9372:<Button#2081180094127>(MinesweeperActionButton.gd)]
+        * [@Button@9929:<Button#2123156688586>(MinesweeperActionButton.gd)]
+        * [@Button@9374:<Button#2081482084058>(MinesweeperActionButton.gd)]
+        * [@Button@9925:<Button#2122552708833>(MinesweeperActionButton.gd)]
+        * [@Control@10012:<Control#2142299492686>] + 14
+        * [@Button@9404:<Button#2085005300292>(MinesweeperActionButton.gd)]
+        * [@Button@10031:<Button#2151627625038>(MinesweeperActionButton.gd)]
+        * [@Button@10032:<Button#2151778620166>(MinesweeperActionButton.gd)]
+        * [@Button@10029:<Button#2151040422681>(MinesweeperActionButton.gd)]
+* test_palette_publication_preserves_pending_touch_without_issuing_an_action
+    18 Orphans
+        * [@Button@10154:<Button#2315524245655>(MinesweeperActionButton.gd)]
+        * [@Button@10119:<Button#2311246056200>(MinesweeperActionButton.gd)]
+        * [@Button@10676:<Button#2353155541878>(MinesweeperActionButton.gd)]
+        * [@Button@10673:<Button#2352417344417>(MinesweeperActionButton.gd)]
+        * [@Button@10677:<Button#2353306536899>(MinesweeperActionButton.gd)]
+        * [@Button@10674:<Button#2352568339414>(MinesweeperActionButton.gd)]
+        * [@Button@10675:<Button#2353004547098>(MinesweeperActionButton.gd)]
+        * [@Button@10122:<Button#2311699041360>(MinesweeperActionButton.gd)]
+        * [@Button@10123:<Button#2311850036312>(MinesweeperActionButton.gd)]
+        * [@Button@10153:<Button#2315373251760>(MinesweeperActionButton.gd)]
+        * [@Button@10121:<Button#2311548046524>(MinesweeperActionButton.gd)]
+        * [@Button@10155:<Button#2315675241690>(MinesweeperActionButton.gd)]
+        * [@Button@10124:<Button#2312001031387>(MinesweeperActionButton.gd)]
+        * [@Button@10672:<Button#2352266349879>(MinesweeperActionButton.gd)]
+        * [@Button@10120:<Button#2311397051845>(MinesweeperActionButton.gd)]
+        * [@Button@10678:<Button#2353457533150>(MinesweeperActionButton.gd)]
+        * [@Button@10679:<Button#2353608528103>(MinesweeperActionButton.gd)]
+        * [@Button@10680:<Button#2353759523056>(MinesweeperActionButton.gd)]
+* test_first_open_focuses_and_reveals_the_only_legal_prepared_cell
+* test_reopen_discards_illegal_cached_cell_and_pan_for_current_prepared_target
+* test_focus_loss_clears_held_keyboard_confirmation_and_pending_touch
+* test_preparation_pump_is_foreground_one_step_and_stops_for_sheet_pause_or_failure
+    10 Orphans
+        * [@Control@13553:<Control#2546227746956>(MinesweeperInformationSheet.gd)] + 9
+* test_preparation_home_parks_only_published_stable_frontier_and_hidden_app_does_no_work
+* test_unfocused_window_parks_preparation_and_retains_explicit_retry
+* test_host_resize_keeps_complete_app_inside_available_display_area
+22/22 passed.
+
+
+res://tests/unit/test_minesweeper_board_presentation_query.gd
+* test_unpaid_shell_uses_catalog_without_estimated_or_generated_mines
+    [Failed]
+      at line 65
+* test_retained_dimensions_and_top_level_revision_are_literal
+* test_changing_hidden_mines_without_changing_public_facts_cannot_change_projection
+* test_estimate_is_signed_and_chord_depends_only_on_public_flags
+* test_blank_is_inspectable_without_a_press_state
+* test_preparation_publishes_only_the_bracket_locus_after_certification
+    [Failed]:  [true] expected to equal [false]:
+      at line 119
+    [Failed]:  [true] expected to equal [false]:
+      at line 119
+    [Failed]:  [true] expected to equal [false]:
+      at line 119
+    [Failed]:  [true] expected to equal [false]:
+      at line 119
+    [Failed]:  [true] expected to equal [false]:
+      at line 119
+    [Failed]:  [true] expected to equal [false]:
+      at line 119
+    [Failed]:  [true] expected to equal [false]:
+      at line 119
+    [Failed]:  [true] expected to equal [false]:
+      at line 119
+* test_suspended_custody_preserves_content_and_removes_all_contact
+* test_terminal_classification_is_public_before_durable_inspection_is_available
+* test_all_projected_cells_are_accepted_by_the_inert_renderer
+* test_projection_is_detached_and_has_no_private_metadata
+* test_corrupt_deep_owner_data_refuses_without_echoing_private_diagnostics
+* test_active_projection_bytes_are_frozen_without_a_per_cell_neighbor_walk
+* test_terminal_projection_bytes_are_frozen_and_a_covered_read_skips_the_mine_set
+* test_shell_and_retained_spec_reads_build_no_discarded_action_list
+12/14 passed.
+
+
+res://tests/unit/test_minesweeper_palette_components.gd
+* test_accessibility_tuple_reaches_existing_new_and_ephemeral_components
+    202 Orphans
+        * [@Button@17143:<Button#3135728781457>(MinesweeperActionButton.gd)]
+        * [@Button@16932:<Button#3072545786582>(MinesweeperActionButton.gd)]
+        * [@Button@17249:<Button#3167404165859>(MinesweeperActionButton.gd)]
+        * [@Button@16939:<Button#3073887963886>(MinesweeperActionButton.gd)]
+        * [@Button@16931:<Button#3072394791745>(MinesweeperActionButton.gd)]
+        * [@Control@16940:<Control#3074978483252>(MinesweeperInformationSheet.gd)] + 15
+        * [@Button@16412:<Button#3035585580166>(MinesweeperActionButton.gd)]
+        * [@Button@16937:<Button#3073585974497>(MinesweeperActionButton.gd)]
+        * [@Button@16935:<Button#3073283984641>(MinesweeperActionButton.gd)]
+        * [@Button@16378:<Button#3031424830764>(MinesweeperActionButton.gd)]
+        * [@Button@16984:<Button#3088215706976>(MinesweeperActionButton.gd)]
+        * [@Button@16987:<Button#3088953904648>(MinesweeperActionButton.gd)]
+        * [@Button@16380:<Button#3031726820875>(MinesweeperActionButton.gd)]
+        * [@Button@17196:<Button#3151566474784>(MinesweeperActionButton.gd)]
+        * [@Button@17090:<Button#3119891091008>(MinesweeperActionButton.gd)]
+        * [@Button@16933:<Button#3072696783089>(MinesweeperActionButton.gd)]
+        * [@Button@16383:<Button#3032179806571>(MinesweeperActionButton.gd)]
+        * [@Button@16414:<Button#3035887571314>(MinesweeperActionButton.gd)]
+        * [@Button@16413:<Button#3035736576372>(MinesweeperActionButton.gd)]
+        * [@Button@17037:<Button#3104053400014>(MinesweeperActionButton.gd)]
+        * [@Button@16934:<Button#3073132990943>(MinesweeperActionButton.gd)]
+        * [@Button@16379:<Button#3031575826961>(MinesweeperActionButton.gd)]
+        * [@Button@16381:<Button#3031877816878>(MinesweeperActionButton.gd)]
+        * [@Button@16382:<Button#3032028811914>(MinesweeperActionButton.gd)]
+        * [@Button@16936:<Button#3073434981259>(MinesweeperActionButton.gd)]
+        * [@Button@16938:<Button#3073736971151>(MinesweeperActionButton.gd)]
+        * [HorizontalRail:<Control#3060835292136>(MinesweeperScrollRail.gd)]
+        * [VerticalRail:<Control#3060801737705>(MinesweeperScrollRail.gd)]
+        * [@Button@16990:<Button#3089406891026>(MinesweeperActionButton.gd)]
+        * [@Button@16991:<Button#3089557885979>(MinesweeperActionButton.gd)]
+        * [@Button@16992:<Button#3089708880932>(MinesweeperActionButton.gd)]
+        * [@Control@16993:<Control#3090799399981>(MinesweeperInformationSheet.gd)] + 15
+        * [@Button@16988:<Button#3089104901193>(MinesweeperActionButton.gd)]
+        * [@Button@16986:<Button#3088517698646>(MinesweeperActionButton.gd)]
+        * [@Button@17040:<Button#3104791598178>(MinesweeperActionButton.gd)]
+        * [@Button@16985:<Button#3088366703727>(MinesweeperActionButton.gd)]
+        * [@Button@16989:<Button#3089255896177>(MinesweeperActionButton.gd)]
+        * [@Button@17043:<Button#3105244583064>(MinesweeperActionButton.gd)]
+        * [@Button@17044:<Button#3105395578017>(MinesweeperActionButton.gd)]
+        * [@Button@17045:<Button#3105546572970>(MinesweeperActionButton.gd)]
+        * [@Control@17046:<Control#3106637092019>(MinesweeperInformationSheet.gd)] + 15
+        * [@Button@17041:<Button#3104942593225>(MinesweeperActionButton.gd)]
+        * [@Button@17039:<Button#3104355390687>(MinesweeperActionButton.gd)]
+        * [@Button@17093:<Button#3120629290219>(MinesweeperActionButton.gd)]
+        * [@Button@17038:<Button#3104204395765>(MinesweeperActionButton.gd)]
+        * [@Button@17042:<Button#3105093588218>(MinesweeperActionButton.gd)]
+        * [@Button@17096:<Button#3121082275105>(MinesweeperActionButton.gd)]
+        * [@Button@17097:<Button#3121233270058>(MinesweeperActionButton.gd)]
+        * [@Button@17098:<Button#3121384265011>(MinesweeperActionButton.gd)]
+        * [@Control@17099:<Control#3122474784060>(MinesweeperInformationSheet.gd)] + 15
+        * [@Button@17094:<Button#3120780285263>(MinesweeperActionButton.gd)]
+        * [@Button@17092:<Button#3120193082719>(MinesweeperActionButton.gd)]
+        * [@Button@17146:<Button#3136466982251>(MinesweeperActionButton.gd)]
+        * [@Button@17095:<Button#3120931280250>(MinesweeperActionButton.gd)]
+        * [@Button@17091:<Button#3120042087806>(MinesweeperActionButton.gd)]
+        * [@Button@17149:<Button#3136919967137>(MinesweeperActionButton.gd)]
+        * [@Button@17150:<Button#3137070962090>(MinesweeperActionButton.gd)]
+        * [@Button@17151:<Button#3137221957043>(MinesweeperActionButton.gd)]
+        * [@Control@17152:<Control#3138312476092>(MinesweeperInformationSheet.gd)] + 15
+        * [@Button@17147:<Button#3136617977304>(MinesweeperActionButton.gd)]
+        * [@Button@17145:<Button#3136030774757>(MinesweeperActionButton.gd)]
+        * [@Button@17199:<Button#3152304674289>(MinesweeperActionButton.gd)]
+        * [@Button@17144:<Button#3135879779838>(MinesweeperActionButton.gd)]
+        * [@Button@17148:<Button#3136768972288>(MinesweeperActionButton.gd)]
+        * [@Button@17202:<Button#3152757659175>(MinesweeperActionButton.gd)]
+        * [@Button@17203:<Button#3152908654128>(MinesweeperActionButton.gd)]
+        * [@Button@17204:<Button#3153059649081>(MinesweeperActionButton.gd)]
+        * [@Control@17205:<Control#3154150168130>(MinesweeperInformationSheet.gd)] + 15
+        * [@Button@17200:<Button#3152455669336>(MinesweeperActionButton.gd)]
+        * [@Button@17198:<Button#3151868466798>(MinesweeperActionButton.gd)]
+        * [@Button@17252:<Button#3168142366330>(MinesweeperActionButton.gd)]
+        * [@Button@17197:<Button#3151717471876>(MinesweeperActionButton.gd)]
+        * [@Button@17201:<Button#3152606664329>(MinesweeperActionButton.gd)]
+        * [@Button@17255:<Button#3168595351216>(MinesweeperActionButton.gd)]
+        * [@Button@17256:<Button#3168746346169>(MinesweeperActionButton.gd)]
+        * [@Button@17257:<Button#3168897341122>(MinesweeperActionButton.gd)]
+        * [@Control@17258:<Control#3169987860171>(MinesweeperInformationSheet.gd)] + 15
+        * [@Button@17253:<Button#3168293361374>(MinesweeperActionButton.gd)]
+        * [@Button@17251:<Button#3167706158830>(MinesweeperActionButton.gd)]
+        * [@Button@17254:<Button#3168444356361>(MinesweeperActionButton.gd)]
+        * [@Button@17250:<Button#3167555163917>(MinesweeperActionButton.gd)]
+        * [@Control@17311:<Control#3185825552203>(MinesweeperInformationSheet.gd)] + 15
+* test_palette_only_change_preserves_grid_contact_and_manual_pan
+    [Failed]:  [VECTOR2I(22, 200)] expected to equal [VECTOR2I(0, 0)]:
+      at line 65
+    18 Orphans
+        * [@Button@18392:<Button#3263168515365>(MinesweeperActionButton.gd)]
+        * [@Button@18393:<Button#3263319511107>(MinesweeperActionButton.gd)]
+        * [@Button@18394:<Button#3263470506060>(MinesweeperActionButton.gd)]
+        * [@Button@18395:<Button#3263621501013>(MinesweeperActionButton.gd)]
+        * [@Button@18391:<Button#3263017521298>(MinesweeperActionButton.gd)]
+        * [@Button@18389:<Button#3262430318742>(MinesweeperActionButton.gd)]
+        * [@Button@18388:<Button#3262279323808>(MinesweeperActionButton.gd)]
+        * [@Button@18390:<Button#3262866527627>(MinesweeperActionButton.gd)]
+        * [@Button@17836:<Button#3221460358681>(MinesweeperActionButton.gd)]
+        * [@Button@17835:<Button#3221309363747>(MinesweeperActionButton.gd)]
+        * [@Button@17839:<Button#3221913343533>(MinesweeperActionButton.gd)]
+        * [@Button@17870:<Button#3225621108312>(MinesweeperActionButton.gd)]
+        * [@Button@17868:<Button#3225319118453>(MinesweeperActionButton.gd)]
+        * [@Button@17869:<Button#3225470113404>(MinesweeperActionButton.gd)]
+        * [@Button@17834:<Button#3221158368962>(MinesweeperActionButton.gd)]
+        * [@Button@17837:<Button#3221611353805>(MinesweeperActionButton.gd)]
+        * [@Button@17838:<Button#3221762348758>(MinesweeperActionButton.gd)]
+        * [@Button@18387:<Button#3262128330568>(MinesweeperActionButton.gd)]
+* test_open_sheet_reconfigures_without_losing_semantic_focus_scroll_or_public_truth
+    24 Orphans
+        * [@Button@18467:<Button#3420404583323>(MinesweeperActionButton.gd)]
+        * [@Button@18465:<Button#3420102593534>(MinesweeperActionButton.gd)]
+        * [@Control@18990:<Control#3450553241620>] + 14
+        * [@Button@18464:<Button#3419951599766>(MinesweeperActionButton.gd)]
+        * [@Button@18468:<Button#3420555580965>(MinesweeperActionButton.gd)]
+        * [@Button@18466:<Button#3420253591172>(MinesweeperActionButton.gd)]
+        * [@Button@18498:<Button#3424112350867>(MinesweeperActionButton.gd)]
+        * [@Button@18500:<Button#3424414340798>(MinesweeperActionButton.gd)]
+        * [@Button@18499:<Button#3424263345894>(MinesweeperActionButton.gd)]
+        * [@Button@18469:<Button#3420706576147>(MinesweeperActionButton.gd)]
+* test_invalid_component_tuple_leaves_valid_themes_and_cell_identity_intact
+3/4 passed.
+
+
+res://tests/unit/test_minesweeper_panel.gd
+* test_dock_mode_and_real_f_shortcut_share_selection_without_board_commands
+* test_sheet_restores_source_mode_cell_and_scroll_while_dock_stays_inert
+    26 Orphans
+        * [@Control@20311:<Control#3845606346844>(MinesweeperInformationSheet.gd)] + 9
+        * [@Control@20321:<Control#3985712877847>(MinesweeperInformationSheet.gd)] + 15
+* test_invalid_composite_preserves_facts_blocks_input_and_refresh_recovers
+* test_same_size_dispatch_refreshes_public_facts_without_replacing_cells
+* test_all_locale_scale_and_target_tuples_close_fixed_body_without_shrinking_fonts
+    164 Orphans
+        * [@Button@20935:<Button#4266295036041>(MinesweeperActionButton.gd)]
+        * [@Button@21338:<Button#4335366834875>(MinesweeperActionButton.gd)]
+        * [@Button@20966:<Button#4271462419178>(MinesweeperActionButton.gd)]
+        * [@Button@21376:<Button#4341876394793>(MinesweeperActionButton.gd)]
+        * [@Button@21228:<Button#4316576353160>(MinesweeperActionButton.gd)]
+        * [@Button@21156:<Button#4304177990578>(MinesweeperActionButton.gd)]
+        * [@Button@21186:<Button#4309227932599>(MinesweeperActionButton.gd)]
+        * [@Button@21152:<Button#4303574010835>(MinesweeperActionButton.gd)]
+        * [@Button@21042:<Button#4284649311199>(MinesweeperActionButton.gd)]
+        * [@Button@21263:<Button#4322565819393>(MinesweeperActionButton.gd)]
+        * [@Button@21336:<Button#4334779632659>(MinesweeperActionButton.gd)]
+        * [@Button@20972:<Button#4272653601857>(MinesweeperActionButton.gd)]
+        * [@Button@21149:<Button#4302835813451>(MinesweeperActionButton.gd)]
+        * [@Button@21115:<Button#4297181891703>(MinesweeperActionButton.gd)]
+        * [@Button@21303:<Button#4329310260348>(MinesweeperActionButton.gd)]
+        * [@Button@21372:<Button#4340987202700>(MinesweeperActionButton.gd)]
+        * [@Button@21040:<Button#4284062108824>(MinesweeperActionButton.gd)]
+        * [@Button@21157:<Button#4304328985784>(MinesweeperActionButton.gd)]
+        * [@Button@21038:<Button#4283760118972>(MinesweeperActionButton.gd)]
+        * [@Button@20968:<Button#4272049622208>(MinesweeperActionButton.gd)]
+        * [@Button@21118:<Button#4297634876614>(MinesweeperActionButton.gd)]
+        * [@Button@20930:<Button#4265540062409>(MinesweeperActionButton.gd)]
+        * [@Button@21001:<Button#4277468662988>(MinesweeperActionButton.gd)]
+        * [@Button@21153:<Button#4303725006052>(MinesweeperActionButton.gd)]
+        * [@Button@20965:<Button#4271311424763>(MinesweeperActionButton.gd)]
+        * [@Button@21375:<Button#4341725400322>(MinesweeperActionButton.gd)]
+        * [@Button@21192:<Button#4310419115409>(MinesweeperActionButton.gd)]
+        * [@Button@21078:<Button#4290823327130>(MinesweeperActionButton.gd)]
+        * [@Button@21113:<Button#4296594689447>(MinesweeperActionButton.gd)]
+        * [@Button@21190:<Button#4310117125544>(MinesweeperActionButton.gd)]
+        * [@Button@21083:<Button#4291578301954>(MinesweeperActionButton.gd)]
+        * [@Button@21002:<Button#4277619658251>(MinesweeperActionButton.gd)]
+        * [@Button@20894:<Button#4259332492866>(MinesweeperActionButton.gd)]
+        * [@Button@21004:<Button#4278206860895>(MinesweeperActionButton.gd)]
+        * [@Button@21189:<Button#4309966130788>(MinesweeperActionButton.gd)]
+        * [@Button@21117:<Button#4297483882092>(MinesweeperActionButton.gd)]
+        * [@Button@21151:<Button#4303137803889>(MinesweeperActionButton.gd)]
+        * [@Button@21008:<Button#4278810840764>(MinesweeperActionButton.gd)]
+        * [@Button@21267:<Button#4323169799917>(MinesweeperActionButton.gd)]
+        * [@Button@21075:<Button#4290085129966>(MinesweeperActionButton.gd)]
+        * [@Button@21304:<Button#4329461255920>(MinesweeperActionButton.gd)]
+        * [@Button@20967:<Button#4271898627826>(MinesweeperActionButton.gd)]
+        * [@Button@21120:<Button#4297936867080>(MinesweeperActionButton.gd)]
+        * [@Button@21229:<Button#4316727349006>(MinesweeperActionButton.gd)]
+        * [@Button@21080:<Button#4291125317395>(MinesweeperActionButton.gd)]
+        * [@Button@21114:<Button#4296745684777>(MinesweeperActionButton.gd)]
+        * [@Button@21266:<Button#4323018805039>(MinesweeperActionButton.gd)]
+        * [@Button@21116:<Button#4297332887347>(MinesweeperActionButton.gd)]
+        * [@Button@21260:<Button#4321827622743>(MinesweeperActionButton.gd)]
+        * [@Button@21188:<Button#4309529923428>(MinesweeperActionButton.gd)]
+        * [@Button@21187:<Button#4309378928493>(MinesweeperActionButton.gd)]
+        * [@Button@21191:<Button#4310268120954>(MinesweeperActionButton.gd)]
+        * [@Button@21226:<Button#4316274364284>(MinesweeperActionButton.gd)]
+        * [@Button@21297:<Button#4328119078799>(MinesweeperActionButton.gd)]
+        * [@Button@21231:<Button#4317029339025>(MinesweeperActionButton.gd)]
+        * [@Button@21378:<Button#4342178385818>(MinesweeperActionButton.gd)]
+        * [@Button@21340:<Button#4335668826011>(MinesweeperActionButton.gd)]
+        * [@Button@21227:<Button#4316425359285>(MinesweeperActionButton.gd)]
+        * [@Button@21261:<Button#4321978617800>(MinesweeperActionButton.gd)]
+        * [@Button@21262:<Button#4322129612751>(MinesweeperActionButton.gd)]
+        * [@Button@20648:<Button#4227036352465>(MinesweeperActionButton.gd)]
+        * [@Button@21300:<Button#4328857276379>(MinesweeperActionButton.gd)]
+        * [@Button@20779:<Button#4239401160674>(MinesweeperActionButton.gd)]
+        * [@Button@21265:<Button#4322867810277>(MinesweeperActionButton.gd)]
+        * [@Button@20647:<Button#4226885357558>(MinesweeperActionButton.gd)]
+        * [@Button@20649:<Button#4227187347459>(MinesweeperActionButton.gd)]
+        * [@Button@21301:<Button#4329008271377>(MinesweeperActionButton.gd)]
+        * [@Button@21379:<Button#4342329380902>(MinesweeperActionButton.gd)]
+        * [@Button@21264:<Button#4322716815423>(MinesweeperActionButton.gd)]
+        * [@Button@20682:<Button#4231163547712>(MinesweeperActionButton.gd)]
+        * [@Button@21334:<Button#4334477643892>(MinesweeperActionButton.gd)]
+        * [VerticalRail:<Control#4252034404495>(MinesweeperScrollRail.gd)]
+        * [@Button@20932:<Button#4265842053291>(MinesweeperActionButton.gd)]
+        * [@Button@21373:<Button#4341138198787>(MinesweeperActionButton.gd)]
+        * [@Button@21224:<Button#4315687162131>(MinesweeperActionButton.gd)]
+        * [@Button@21006:<Button#4278508851571>(MinesweeperActionButton.gd)]
+        * [@Button@21112:<Button#4296443695476>(MinesweeperActionButton.gd)]
+        * [@Button@21194:<Button#4310721106308>(MinesweeperActionButton.gd)]
+        * [@Button@21076:<Button#4290236125578>(MinesweeperActionButton.gd)]
+        * [@Button@21046:<Button#4285253292463>(MinesweeperActionButton.gd)]
+        * [@Button@21039:<Button#4283911115189>(MinesweeperActionButton.gd)]
+        * [@Button@21341:<Button#4335819821572>(MinesweeperActionButton.gd)]
+        * [@Button@21230:<Button#4316878344717>(MinesweeperActionButton.gd)]
+        * [@Button@21041:<Button#4284498317839>(MinesweeperActionButton.gd)]
+        * [@Button@21005:<Button#4278357856789>(MinesweeperActionButton.gd)]
+        * [@Button@21003:<Button#4277770654254>(MinesweeperActionButton.gd)]
+        * [@Button@21079:<Button#4290974323342>(MinesweeperActionButton.gd)]
+        * [@Button@21077:<Button#4290387120799>(MinesweeperActionButton.gd)]
+        * [@Button@21081:<Button#4291276313313>(MinesweeperActionButton.gd)]
+        * [@Button@21223:<Button#4315536167755>(MinesweeperActionButton.gd)]
+        * [@Button@21150:<Button#4302986810193>(MinesweeperActionButton.gd)]
+        * [@Button@21154:<Button#4303876002646>(MinesweeperActionButton.gd)]
+        * [@Button@21043:<Button#4284800308074>(MinesweeperActionButton.gd)]
+        * [@Button@21119:<Button#4297785873280>(MinesweeperActionButton.gd)]
+        * [@Button@20931:<Button#4265691059077>(MinesweeperActionButton.gd)]
+        * [@Button@21009:<Button#4278961836942>(MinesweeperActionButton.gd)]
+        * [@Button@20928:<Button#4264952861629>(MinesweeperActionButton.gd)]
+        * [@Button@20969:<Button#4272200618988>(MinesweeperActionButton.gd)]
+        * [@Button@21082:<Button#4291427308529>(MinesweeperActionButton.gd)]
+        * [@Button@20893:<Button#4259181499380>(MinesweeperActionButton.gd)]
+        * [@Button@20858:<Button#4253124924420>(MinesweeperActionButton.gd)]
+        * [@Button@21007:<Button#4278659847193>(MinesweeperActionButton.gd)]
+        * [@Button@21045:<Button#4285102298146>(MinesweeperActionButton.gd)]
+        * [@Button@20929:<Button#4265103856694>(MinesweeperActionButton.gd)]
+        * [@Button@21044:<Button#4284951303235>(MinesweeperActionButton.gd)]
+        * [@Button@20892:<Button#4258745291849>(MinesweeperActionButton.gd)]
+        * [@Button@20895:<Button#4259483489368>(MinesweeperActionButton.gd)]
+        * [@Button@20891:<Button#4258594296921>(MinesweeperActionButton.gd)]
+        * [@Button@20855:<Button#4252386727029>(MinesweeperActionButton.gd)]
+        * [@Button@20854:<Button#4252235732089>(MinesweeperActionButton.gd)]
+        * [@Button@20934:<Button#4266144044165>(MinesweeperActionButton.gd)]
+        * [@Button@20821:<Button#4246732805264>(MinesweeperActionButton.gd)]
+        * [@Button@20853:<Button#4252084737184>(MinesweeperActionButton.gd)]
+        * [@Button@20856:<Button#4252822934690>(MinesweeperActionButton.gd)]
+        * [@Button@20818:<Button#4245994607794>(MinesweeperActionButton.gd)]
+        * [@Button@20898:<Button#4259936474299>(MinesweeperActionButton.gd)]
+        * [@Button@20861:<Button#4253577909452>(MinesweeperActionButton.gd)]
+        * [@Button@20970:<Button#4272351614191>(MinesweeperActionButton.gd)]
+        * [@Button@20857:<Button#4252973929712>(MinesweeperActionButton.gd)]
+        * [@Button@20780:<Button#4239552156913>(MinesweeperActionButton.gd)]
+        * [@Button@20817:<Button#4245843612920>(MinesweeperActionButton.gd)]
+        * [@Button@20824:<Button#4247185790206>(MinesweeperActionButton.gd)]
+        * [@Button@20784:<Button#4240441349376>(MinesweeperActionButton.gd)]
+        * [@Button@20823:<Button#4247034795272>(MinesweeperActionButton.gd)]
+        * [@Button@20822:<Button#4246883800336>(MinesweeperActionButton.gd)]
+        * [@Button@20787:<Button#4240894334261>(MinesweeperActionButton.gd)]
+        * [@Button@20820:<Button#4246581810491>(MinesweeperActionButton.gd)]
+        * [@Button@20933:<Button#4265993049408>(MinesweeperActionButton.gd)]
+        * [@Button@20971:<Button#4272502609233>(MinesweeperActionButton.gd)]
+        * [@Button@20783:<Button#4240290354514>(MinesweeperActionButton.gd)]
+        * [@Button@20896:<Button#4259634484570>(MinesweeperActionButton.gd)]
+        * [@Button@20819:<Button#4246430815584>(MinesweeperActionButton.gd)]
+        * [@Button@20781:<Button#4239703151975>(MinesweeperActionButton.gd)]
+        * [@Button@20786:<Button#4240743339398>(MinesweeperActionButton.gd)]
+        * [@Button@20860:<Button#4253426914698>(MinesweeperActionButton.gd)]
+        * [@Button@21302:<Button#4329159267726>(MinesweeperActionButton.gd)]
+        * [@Button@21299:<Button#4328421070236>(MinesweeperActionButton.gd)]
+        * [@Button@20646:<Button#4226734364069>(MinesweeperActionButton.gd)]
+        * [@Button@20927:<Button#4264801867181>(MinesweeperActionButton.gd)]
+        * [@Button@21342:<Button#4335970817455>(MinesweeperActionButton.gd)]
+        * [@Button@20651:<Button#4227489338807>(MinesweeperActionButton.gd)]
+        * [@Button@20785:<Button#4240592344509>(MinesweeperActionButton.gd)]
+        * [@Button@20859:<Button#4253275919806>(MinesweeperActionButton.gd)]
+        * [@Button@20816:<Button#4245692618214>(MinesweeperActionButton.gd)]
+        * [@Button@20890:<Button#4258443302380>(MinesweeperActionButton.gd)]
+        * [@Button@20897:<Button#4259785479672>(MinesweeperActionButton.gd)]
+        * [@Button@21337:<Button#4335215842833>(MinesweeperActionButton.gd)]
+        * [@Button@20681:<Button#4231012554259>(MinesweeperActionButton.gd)]
+        * [@Button@21298:<Button#4328270075478>(MinesweeperActionButton.gd)]
+        * [@Button@20782:<Button#4240139359837>(MinesweeperActionButton.gd)]
+        * [@Button@21225:<Button#4315838158435>(MinesweeperActionButton.gd)]
+        * [@Button@21305:<Button#4329612252780>(MinesweeperActionButton.gd)]
+        * [@Button@20964:<Button#4271160432241>(MinesweeperActionButton.gd)]
+        * [@Button@21371:<Button#4340836210302>(MinesweeperActionButton.gd)]
+        * [@Button@21335:<Button#4334628640423>(MinesweeperActionButton.gd)]
+        * [@Button@21377:<Button#4342027392683>(MinesweeperActionButton.gd)]
+        * [@Button@20680:<Button#4230861559482>(MinesweeperActionButton.gd)]
+        * [@Button@20650:<Button#4227338344134>(MinesweeperActionButton.gd)]
+        * [@Button@21339:<Button#4335517832915>(MinesweeperActionButton.gd)]
+        * [VerticalRail:<Control#4309177603853>(MinesweeperScrollRail.gd)]
+        * [@Button@21268:<Button#4323320796951>(MinesweeperActionButton.gd)]
+        * [@Button@21374:<Button#4341574408036>(MinesweeperActionButton.gd)]
+        * [@Button@21155:<Button#4304026998932>(MinesweeperActionButton.gd)]
+        * [@Button@21193:<Button#4310570113191>(MinesweeperActionButton.gd)]
+* test_replacement_and_difficulty_remain_disabled_and_unpublished_actions_are_rejected
+* test_settled_terminal_enables_real_new_board_and_returns_to_unpaid_view
+* test_binding_is_idempotent_and_cannot_redirect_to_a_replacement_port
+* test_real_tab_visits_manual_grid_rails_zoom_and_dock_then_exits_to_the_host
+* test_synchronous_long_press_publication_retains_touch_gate_and_all_cell_nodes
+* test_locale_configuration_during_sheet_restores_rebuilt_semantic_source_and_pan
+    29 Orphans
+        * [@Button@22649:<Button#4536307550990>(MinesweeperActionButton.gd)]
+        * [@Control@23172:<Control#4566020000955>] + 8
+        * [@Button@22680:<Button#4539981762296>(MinesweeperActionButton.gd)]
+        * [@Button@22651:<Button#4536609541946>(MinesweeperActionButton.gd)]
+        * [@Button@22682:<Button#4540283752269>(MinesweeperActionButton.gd)]
+        * [@Button@22646:<Button#4535854567273>(MinesweeperActionButton.gd)]
+        * [@Button@22647:<Button#4536005562248>(MinesweeperActionButton.gd)]
+        * [@Control@23171:<Control#4565265027001>(MinesweeperInformationSheet.gd)] + 10
+        * [@Button@22650:<Button#4536458547204>(MinesweeperActionButton.gd)]
+        * [@Button@22681:<Button#4540132757511>(MinesweeperActionButton.gd)]
+        * [@Button@22648:<Button#4536156559080>(MinesweeperActionButton.gd)]
+* test_unchanged_assignment_refresh_preserves_scrolled_rail_identity_and_focus
+* test_real_difficulty_buttons_dispatch_frozen_revision_and_reset_mode_only_on_success
+* test_difficulty_change_waits_for_pending_view_preference_write
+* test_touched_space_and_new_board_share_dispatch_while_untouched_space_is_inert
+* test_settled_space_uses_new_board_even_when_grid_has_no_focus
+* test_settled_difficulty_uses_only_authoritative_capability
+* test_measure_retains_one_result_per_configuration_and_every_input_invalidates_it
+* test_publication_keeps_one_detached_copy_shared_by_grid_and_cells
+19/19 passed.
+
+
+res://tests/unit/test_minesweeper_presentation_port.gd
+* test_pull_exposes_only_public_projection_and_pre_reveal_flag_action
+* test_valid_first_reveal_and_active_flag_use_real_coordinator_and_issuer
+* test_accepted_routine_context_is_exactly_projection_bound_detached_and_ephemeral
+* test_real_grid_routes_keyboard_and_pointer_actions_through_port_and_coordinator
+* test_real_worksheet_long_press_routes_one_public_flag_command_end_to_end
+* test_unconfigured_invalid_and_stale_actions_allocate_nothing
+* test_same_revision_with_changed_full_identity_is_stale_before_allocation
+* test_replaying_an_old_public_revision_does_not_allocate_twice
+* test_live_entry_eligibility_is_rechecked_before_allocation
+* test_prepared_round_refuses_a_stale_caller_difficulty
+* test_owner_refusal_is_sanitized_and_refreshes_the_public_projection
+* test_terminal_action_settles_once_and_pull_retries_the_same_request_without_losing_projection
+* test_foreground_suspends_and_resumes_real_board_without_spending_or_regenerating
+* test_foreground_noops_unpaid_and_cold_preparation_parks_exact_frontier
+* test_foreground_stale_revision_refuses_before_allocation_and_returns_current_public_view
+* test_foreground_cannot_hide_or_resume_an_unsettled_terminal
+* test_preparation_is_explicit_and_retry_reuses_exact_issued_request
+* test_preparation_rejects_stale_identity_or_revision_without_issuance
+* test_preparation_parking_refuses_owner_recovery_without_allocation
+* test_first_reveal_and_routine_commands_all_issue_deferred
+* test_pull_and_other_entries_settle_a_deferred_terminal_before_proceeding
+21/21 passed.
+
+
+res://tests/unit/test_minesweeper_view_controls.gd
+* test_default_manual_size_and_fit_restore_do_not_change_the_board
+    2 Orphans
+        * [HorizontalRail:<Control#5033215135237>(MinesweeperScrollRail.gd)]
+        * [VerticalRail:<Control#5033181580911>(MinesweeperScrollRail.gd)]
+* test_scope_switch_and_reopening_restore_permanent_preferences
+    2 Orphans
+        * [VerticalRail:<Control#5197111758167>(MinesweeperScrollRail.gd)]
+        * [HorizontalRail:<Control#5197145315495>(MinesweeperScrollRail.gd)]
+* test_manual_step_from_fit_starts_at_displayed_size_and_preserves_anchor
+    4 Orphans
+        * [HorizontalRail:<Control#5248181603738>(MinesweeperScrollRail.gd)]
+        * [HorizontalRail:<Control#5248097717685>(MinesweeperScrollRail.gd)]
+        * [VerticalRail:<Control#5248064163451>(MinesweeperScrollRail.gd)]
+        * [VerticalRail:<Control#5248131272460>(MinesweeperScrollRail.gd)]
+* test_rapid_wheel_updates_are_immediate_and_flush_as_one_preference_transaction
+* test_preference_write_refusal_restores_last_saved_view
+* test_large_targets_and_text_size_do_not_change_selected_cell_size
+* test_sheet_and_held_cell_block_zoom_without_writing_preferences
+    10 Orphans
+        * [@Control@30187:<Control#5563089950479>(MinesweeperInformationSheet.gd)] + 9
+10 orphans
+7/7 passed.
+
+
+res://tests/unit/test_minesweeper_worksheet.gd
+* test_every_host_tier_text_and_target_size_fits_the_complete_board
+* test_rules_replace_only_worksheet_and_return_restores_mode_cell_scroll_and_source
+    12 Orphans
+        * [@Control@32013:<Control#6411396321228>(MinesweeperInformationSheet.gd)] + 9
+        * [VerticalRail:<Control#6411329213827>(MinesweeperScrollRail.gd)]
+        * [HorizontalRail:<Control#6411362768556>(MinesweeperScrollRail.gd)]
+* test_sheet_tab_traps_focus_and_escape_restores_grid_without_command
+* test_missing_assignment_truth_does_not_open_or_disturb_grid
+    1 Orphans
+        * [@Control@32167:<Control#6560361221834>(MinesweeperInformationSheet.gd)]
+* test_sheet_return_preserves_fitted_board_and_semantic_focus
+    12 Orphans
+        * [HorizontalRail:<Control#6587557089150>(MinesweeperScrollRail.gd)]
+        * [VerticalRail:<Control#6587523536268>(MinesweeperScrollRail.gd)]
+        * [@Control@32671:<Control#6587607422590>(MinesweeperInformationSheet.gd)] + 9
+* test_pan_and_scroll_cannot_hide_any_part_of_the_fitted_board
+    2 Orphans
+        * [VerticalRail:<Control#6613964425977>(MinesweeperScrollRail.gd)]
+        * [HorizontalRail:<Control#6613997982464>(MinesweeperScrollRail.gd)]
+* test_focus_navigation_and_return_reveal_the_complete_semantic_cell
+    2 Orphans
+        * [VerticalRail:<Control#6777793943314>(MinesweeperScrollRail.gd)]
+        * [HorizontalRail:<Control#6777827497966>(MinesweeperScrollRail.gd)]
+* test_real_wheel_route_keeps_the_complete_board_in_view
+* test_fractional_pointer_motion_cannot_shift_the_fitted_board
+    2 Orphans
+        * [HorizontalRail:<Control#6828897341314>(MinesweeperScrollRail.gd)]
+        * [VerticalRail:<Control#6828863788715>(MinesweeperScrollRail.gd)]
+* test_actual_drag_route_keeps_full_fit_without_issuing_a_cell_command
+* test_touch_drag_uses_real_gui_routing_and_never_activates_on_release
+    2 Orphans
+        * [VerticalRail:<Control#6880034293883>(MinesweeperScrollRail.gd)]
+        * [HorizontalRail:<Control#6880067849849>(MinesweeperScrollRail.gd)]
+* test_fitted_pointer_release_uses_original_cell_coordinates
+    2 Orphans
+        * [HorizontalRail:<Control#6905703435176>(MinesweeperScrollRail.gd)]
+        * [VerticalRail:<Control#6905669881955>(MinesweeperScrollRail.gd)]
+* test_custody_keeps_truth_and_scroll_but_removes_all_input
+    2 Orphans
+        * [HorizontalRail:<Control#6931406129299>(MinesweeperScrollRail.gd)]
+        * [VerticalRail:<Control#6931372578758>(MinesweeperScrollRail.gd)]
+* test_configuration_and_invalid_projection_preserve_the_current_view_atomically
+    2 Orphans
+        * [HorizontalRail:<Control#7079012076611>(MinesweeperScrollRail.gd)]
+        * [VerticalRail:<Control#7078978522451>(MinesweeperScrollRail.gd)]
+* test_changing_difficulty_refits_without_stale_pan_or_rails
+    2 Orphans
+        * [HorizontalRail:<Control#7104748326281>(MinesweeperScrollRail.gd)]
+        * [VerticalRail:<Control#7104714772868>(MinesweeperScrollRail.gd)]
+* test_configure_and_present_before_tree_mount_keep_focus_and_geometry
+* test_information_closing_reenables_external_source_before_exact_focus_restoration
+    12 Orphans
+        * [VerticalRail:<Control#7134276226438>(MinesweeperScrollRail.gd)]
+        * [HorizontalRail:<Control#7134309780877>(MinesweeperScrollRail.gd)]
+        * [@Control@38105:<Control#7134393669050>(MinesweeperInformationSheet.gd)] + 9
+* test_interaction_block_preserves_public_facts_scroll_and_open_sheet_return
+    12 Orphans
+        * [HorizontalRail:<Control#7160935222827>(MinesweeperScrollRail.gd)]
+        * [VerticalRail:<Control#7160901668468>(MinesweeperScrollRail.gd)]
+        * [@Control@38602:<Control#7160968779321>(MinesweeperInformationSheet.gd)] + 9
+28 orphans
+18/18 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/scene/test_minesweeper_new_board_bindings.gd
+    - Outside Tests
+        * [<Node#131617261336>(subsystem_animation.gd)]
+        * [<Node#131634038564>(subsystem_audio.gd)]
+        * [<Node#131650815796>]
+        * [<Node#131667593021>]
+        * [<Node#131684370243>(subsystem_backgrounds.gd)]
+        * [<Node#132221241156>(subsystem_choices.gd)]
+        * [<Timer#132238018373>]
+        * [<Node#132254795590>(subsystem_expression.gd)]
+        * [<Node#132288350027>(subsystem_glossary.gd)]
+        * [<Node#132305127244>(subsystem_history.gd)]
+        * [<Node#132321904461>(subsystem_input.gd)]
+        * [<Timer#132338681678>]
+        * [<Node#132355458895>(subsystem_jump.gd)]
+        * [<Node#132372236112>(subsystem_containers.gd)]
+        * [<Node#132389013329>(subsystem_portraits.gd)]
+        * [<Node#132925884242>(subsystem_save.gd)]
+        * [<Timer#132942661459>]
+        * [<Node#132959438676>(subsystem_settings.gd)]
+        * [<Node#132976215896>(subsystem_styles.gd)]
+        * [<Node#132992993113>(subsystem_text.gd)]
+        * [<Node#133076879198>(subsystem_text_input.gd)]
+        * [<Node#133093656415>(subsystem_variables.gd)]
+        * [<Node#133110433632>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133127210849>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_minesweeper_board_presentation_query.gd
+- test_unpaid_shell_uses_catalog_without_estimated_or_generated_mines
+    [Failed]:
+          at line 65
+- test_preparation_publishes_only_the_bracket_locus_after_certification
+    [Failed]:  [true] expected to equal [false]:
+          at line 119
+    [Failed]:  [true] expected to equal [false]:
+          at line 119
+    [Failed]:  [true] expected to equal [false]:
+          at line 119
+    [Failed]:  [true] expected to equal [false]:
+          at line 119
+    [Failed]:  [true] expected to equal [false]:
+          at line 119
+    [Failed]:  [true] expected to equal [false]:
+          at line 119
+    [Failed]:  [true] expected to equal [false]:
+          at line 119
+    [Failed]:  [true] expected to equal [false]:
+          at line 119
+
+res://tests/unit/test_minesweeper_palette_components.gd
+- test_palette_only_change_preserves_grid_contact_and_manual_pan
+    [Failed]:  [VECTOR2I(22, 200)] expected to equal [VECTOR2I(0, 0)]:
+          at line 65
+
+Totals
+------
+Scripts              10
+Tests               135
+Passing Tests       132
+Failing Tests         3
+Asserts           5759/5769
+Orphans              24
+Time              8.881s
+
+
+---- 3 failing tests ----

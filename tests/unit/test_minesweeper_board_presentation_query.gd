@@ -4,6 +4,7 @@ const QUERY := preload("res://scripts/application/minesweeper/MinesweeperBoardPr
 const STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
 const REDUCER := preload("res://scripts/domain/minesweeper/MinesweeperBoardReducer.gd")
 const CELL := preload("res://scripts/ui/minesweeper/MinesweeperCell.gd")
+const SOURCE_PATH := "res://scripts/application/minesweeper/MinesweeperBoardPresentationQuery.gd"
 const IDENTITY := {"run_id":"private-run", "branch_id":"private-branch", "desktop_timeline_generation":0,
 	"causal_day_instance":"private-day", "app_round_ordinal":1}
 
@@ -42,6 +43,13 @@ func _prepared(preparing: bool = false) -> Dictionary:
 		assert_true(certified.ok, str(certified))
 		assert_true(state.commit(certified.value.candidate).ok)
 	return state.capture()
+
+func _frozen_cell(index: int, face: String, mark: String, number: int, inspectable: bool, actions: Array) -> Dictionary:
+	return {"index":index, "face":face, "mark":mark, "number":number, "bracketed":false,
+		"inspectable":inspectable, "pressable":not actions.is_empty(), "actions":actions}
+
+func _frozen(value: Dictionary) -> Dictionary:
+	return {"ok":true, "code":&"ok", "value":value}
 
 func test_unpaid_shell_uses_catalog_without_estimated_or_generated_mines() -> void:
 	var state := STATE.new()
@@ -173,3 +181,70 @@ func test_corrupt_deep_owner_data_refuses_without_echoing_private_diagnostics() 
 		var result: Dictionary = QUERY.desktop(snapshot,"beginner")
 		assert_eq(result,{"ok":false,"code":&"invalid_minesweeper_presentation_source"})
 	assert_false(QUERY.desktop(STATE.new().capture(),"unknown").ok)
+
+func test_active_projection_bytes_are_frozen_without_a_per_cell_neighbor_walk() -> void:
+	var snapshot := _snapshot()
+	snapshot.board.board = REDUCER.set_flag(snapshot.board.board,2,true,"flag-a").value.board
+	snapshot.board.board = REDUCER.set_flag(snapshot.board.board,3,true,"flag-b").value.board
+	var cells: Array[Dictionary] = [
+		_frozen_cell(0,"revealed","none",1,true,["chord"]),
+		_frozen_cell(1,"covered","none",0,true,["reveal","flag"]),
+		_frozen_cell(2,"covered","flag",0,true,["unflag"]),
+		_frozen_cell(3,"covered","flag",0,true,["unflag"]),
+		_frozen_cell(4,"covered","none",0,true,["reveal","flag"]),
+		_frozen_cell(5,"covered","none",0,true,["reveal","flag"]),
+		_frozen_cell(6,"covered","none",0,true,["reveal","flag"]),
+		_frozen_cell(7,"covered","none",0,true,["reveal","flag"]),
+		_frozen_cell(8,"covered","none",0,true,["reveal","flag"])]
+	var expected := _frozen({"width":3, "height":3, "revision":1, "mine_estimate":-1, "terminal":false,
+		"custody":false, "cells":cells})
+	var result: Dictionary = QUERY.desktop(snapshot,"beginner")
+	assert_eq(result,expected)
+	assert_eq(JSON.stringify(result),JSON.stringify(expected),"Member order and int/float typing are part of the projection.")
+	var source := FileAccess.get_file_as_string(SOURCE_PATH)
+	assert_false(source.contains("_adjacent_flags(index"),"Adjacent flags are counted once per flag, never once per cell.")
+
+func test_terminal_projection_bytes_are_frozen_and_a_covered_read_skips_the_mine_set() -> void:
+	var snapshot := _snapshot([1,3])
+	var board: Dictionary = snapshot.board.board
+	board = REDUCER.set_flag(board,1,true,"flag-mine").value.board
+	board = REDUCER.set_flag(board,2,true,"flag-safe").value.board
+	snapshot.board.board = REDUCER.reveal(board,3,"explode").value.board
+	var cells: Array[Dictionary] = [
+		_frozen_cell(0,"revealed","none",2,false,[]),
+		_frozen_cell(1,"covered","correct_flag",0,false,[]),
+		_frozen_cell(2,"covered","incorrect_flag",0,false,[]),
+		_frozen_cell(3,"revealed","exploded",0,false,[]),
+		_frozen_cell(4,"covered","none",0,false,[]),
+		_frozen_cell(5,"covered","none",0,false,[]),
+		_frozen_cell(6,"covered","none",0,false,[]),
+		_frozen_cell(7,"covered","none",0,false,[]),
+		_frozen_cell(8,"covered","none",0,false,[])]
+	var expected := _frozen({"width":3, "height":3, "revision":1, "mine_estimate":0, "terminal":true,
+		"custody":true, "cells":cells})
+	var result: Dictionary = QUERY.desktop(snapshot,"beginner")
+	assert_eq(result,expected)
+	assert_eq(JSON.stringify(result),JSON.stringify(expected),"Member order and int/float typing are part of the projection.")
+	var cleared := _snapshot()
+	cleared.board.board = REDUCER.reveal(cleared.board.board,6,"open-blank").value.board
+	cleared.board.board = REDUCER.reveal(cleared.board.board,2,"open-last").value.board
+	var won: Dictionary = QUERY.desktop(cleared,"beginner").value
+	assert_true(won.terminal)
+	assert_eq(won.mine_estimate,1)
+	assert_eq(won.cells[1],_frozen_cell(1,"revealed","mine",0,false,[]),"A cleared board publishes the unexploded mine.")
+	var source := FileAccess.get_file_as_string(SOURCE_PATH)
+	assert_false(source.contains("_index_set(board.mine_indices)\n"),"A covered read must not build the mine set it never probes.")
+
+func test_shell_and_retained_spec_reads_build_no_discarded_action_list() -> void:
+	var shell: Dictionary = QUERY.desktop(STATE.new().capture(),"beginner",true)
+	assert_eq(shell.value.cells.size(),64)
+	assert_eq(shell.value.cells[0],_frozen_cell(0,"covered","none",0,true,["reveal","flag"]))
+	var specced := _snapshot()
+	specced.board.spec = _spec()
+	assert_eq(QUERY.desktop(specced,"beginner"),QUERY.desktop(_snapshot(),"beginner"),
+		"A retained spec is validated, never projected.")
+	specced.board.spec.width = 0
+	assert_eq(QUERY.desktop(specced,"beginner"),{"ok":false,"code":&"invalid_minesweeper_presentation_source"})
+	var source := FileAccess.get_file_as_string(SOURCE_PATH)
+	assert_false(source.contains("if inspectable: cell.actions = [\"reveal\", \"flag\"]"),
+		"A revealed or flagged cell must not build an action list the same pass discards.")

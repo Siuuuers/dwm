@@ -36,32 +36,41 @@ static func desktop(snapshot: Dictionary, difficulty: String, entry_eligible: bo
 	if phase == "SETTLING" and (not board.terminal or snapshot.settlement.is_empty()): return _fail()
 	# Retained dimensions remain literal, including older valid boards. Never reshape a save.
 	var cells: Array[Dictionary] = []
-	var inspectable: bool = phase == "ACTIVE_VISIBLE" and not board.terminal
+	var terminal: bool = board.terminal
+	var inspectable: bool = phase == "ACTIVE_VISIBLE" and not terminal
 	# dwm-634.1: one pass builds the index sets so each cell is a dictionary probe, not a scan.
 	var revealed_set := _index_set(board.revealed_indices)
 	var flagged_set := _index_set(board.flagged_indices)
-	var mine_set := _index_set(board.mine_indices)
+	# The mine set and the adjacent-flag tally are built only for the reads that probe them.
+	var mine_set: Dictionary = _index_set(board.mine_indices) if terminal else {}
+	var adjacent_flags: Dictionary = _adjacent_flag_counts(board, flagged_set) if inspectable else {}
+	var adjacency: Array = board.adjacency_counts
+	var exploded: Variant = board.exploded_index
 	for index in int(board.width) * int(board.height):
 		var revealed: bool = revealed_set.has(index)
 		var flagged: bool = flagged_set.has(index)
-		var cell := _cell(index, inspectable)
-		if inspectable: cell.actions = ["reveal", "flag"]
+		var face := "covered"
+		var mark := "none"
+		var number := 0
+		var actions: Array = []
 		if revealed:
-			cell.face = "revealed"
-			cell.number = int(board.adjacency_counts[index])
-			cell.actions = ["chord"] if inspectable and cell.number > 0 and _adjacent_flags(index, board, flagged_set) == cell.number else []
+			face = "revealed"
+			number = int(adjacency[index])
+			if inspectable and number > 0 and int(adjacent_flags.get(index, 0)) == number: actions = ["chord"]
 		elif flagged:
-			cell.mark = "flag"
-			cell.actions = ["unflag"] if inspectable else []
-		if board.terminal:
+			mark = "flag"
+			if inspectable: actions = ["unflag"]
+		elif inspectable:
+			actions = ["reveal", "flag"]
+		if terminal:
 			if flagged:
-				cell.mark = "correct_flag" if mine_set.has(index) else "incorrect_flag"
+				mark = "correct_flag" if mine_set.has(index) else "incorrect_flag"
 			elif mine_set.has(index):
-				cell.face = "revealed"
-				cell.number = 0
-				cell.mark = "exploded" if index == board.exploded_index else "mine"
-		cell.pressable = not cell.actions.is_empty()
-		cells.append(cell)
+				face = "revealed"
+				number = 0
+				mark = "exploded" if index == exploded else "mine"
+		cells.append({"index": index, "face": face, "mark": mark, "number": number,
+			"bracketed": false, "inspectable": inspectable, "pressable": not actions.is_empty(), "actions": actions})
 	return _ok({"width": int(board.width), "height": int(board.height), "revision": snapshot.revision,
 		"mine_estimate": int(board.mine_count) - board.flagged_indices.size(), "terminal": board.terminal,
 		"custody": phase != "ACTIVE_VISIBLE" or board.terminal, "cells": cells})
@@ -113,15 +122,20 @@ static func _cell(index: int, inspectable: bool) -> Dictionary:
 	return {"index": index, "face": "covered", "mark": "none", "number": 0,
 		"bracketed": false, "inspectable": inspectable, "pressable": false, "actions": []}
 
-static func _adjacent_flags(index: int, board: Dictionary, flagged_set: Dictionary) -> int:
+## Adjacency is symmetric, so one scatter per flag tallies every cell a 3x3 walk per cell would.
+static func _adjacent_flag_counts(board: Dictionary, flagged_set: Dictionary) -> Dictionary:
 	var width: int = int(board.width)
-	var column: int = index % width
-	var row: int = index / width
-	var count := 0
-	for y in range(maxi(0, row - 1), mini(int(board.height), row + 2)):
-		for x in range(maxi(0, column - 1), mini(width, column + 2)):
-			if (x != column or y != row) and flagged_set.has(y * width + x): count += 1
-	return count
+	var height: int = int(board.height)
+	var counts := {}
+	for flag: int in flagged_set.keys():
+		var column: int = flag % width
+		var row: int = flag / width
+		for y in range(maxi(0, row - 1), mini(height, row + 2)):
+			for x in range(maxi(0, column - 1), mini(width, column + 2)):
+				if x == column and y == row: continue
+				var neighbor: int = y * width + x
+				counts[neighbor] = int(counts.get(neighbor, 0)) + 1
+	return counts
 
 static func _index_set(indices: Variant) -> Dictionary:
 	var members := {}
