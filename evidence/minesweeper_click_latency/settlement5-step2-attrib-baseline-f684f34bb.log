@@ -1,0 +1,195 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/click-latency-3/.godot/phase2r_tests/c9f43598-ab6a-4958-a2cc-81c7edb70095/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/integration/test_desktop_completion_transaction.gd
+* test_complete_round_transacts_exactly_once_against_real_ports
+    [Failed]:  {"code":"invalid_request","details":{"size":5},"message":"expected 4 members, saw 5","ok":false}
+      at line 211
+    [Failed]:  [STRING_NAME(invalid_request)] expected to equal [STRING_NAME(action_consequence_accepted)]:
+      at line 212
+SCRIPT ERROR: Invalid access to property or key 'receipt' on a base object of type 'Dictionary'.
+   at: test_complete_round_transacts_exactly_once_against_real_ports (res://tests/integration/test_desktop_completion_transaction.gd:216)
+   GDScript backtrace (most recent call first):
+       [0] test_complete_round_transacts_exactly_once_against_real_ports (res://tests/integration/test_desktop_completion_transaction.gd:216)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'receipt' on a base object of type 'Dictionary'.
+      at line -1
+* test_complete_round_departure_commits_board_fate_against_real_ports
+    [Failed]:  {"code":"invalid_request","details":{"size":5},"message":"expected 4 members, saw 5","ok":false}
+      at line 296
+    [Failed]:  [STRING_NAME(invalid_request)] expected to equal [STRING_NAME(action_consequence_accepted)]:
+      at line 297
+SCRIPT ERROR: Invalid access to property or key 'receipt' on a base object of type 'Dictionary'.
+   at: test_complete_round_departure_commits_board_fate_against_real_ports (res://tests/integration/test_desktop_completion_transaction.gd:298)
+   GDScript backtrace (most recent call first):
+       [0] test_complete_round_departure_commits_board_fate_against_real_ports (res://tests/integration/test_desktop_completion_transaction.gd:298)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'receipt' on a base object of type 'Dictionary'.
+      at line -1
+* test_a_source_already_holding_the_gate_blocks_the_other_source_until_it_releases
+    [Failed]:  [STRING_NAME(invalid_request)] expected to equal [STRING_NAME(minesweeper_round_requires_no_other_pending_transaction)]:
+      at line 373
+0/3 passed.
+
+
+res://tests/integration/test_desktop_bootstrap_wiring.gd
+* test_the_probe_exists_and_returns_only_integers_and_booleans
+* test_the_probe_names_every_foundation_identity_step_8_1_requires
+* test_reading_the_probe_twice_is_stable_and_mutates_nothing
+* test_presentation_configuration_reconstructs_no_foundation_instance
+* test_identical_startup_replay_reuses_every_instance
+* test_a_swapped_issuer_is_visible_in_the_probe
+* test_the_probe_reports_hospital_ready_and_dating_deliberately_not_ready
+* test_the_producer_is_not_ready_before_the_desktop_graph_stage
+* test_an_unbuilt_foundation_reports_zero_rather_than_guessing
+* test_the_production_graph_wires_every_object_identity_and_readiness
+* test_the_desktop_publication_ledger_is_shared_by_causal_round_shop_and_board_fate
+* test_the_round_coordinator_and_board_fate_port_drive_the_exact_same_shared_board_state
+* test_the_consequence_coordinator_retains_the_exact_round_and_shop_source_objects
+* test_the_consequence_coordinator_holds_the_real_condition_departure_pair
+* test_snapshot_provider_instance_id_equals_game_state
+* test_the_probe_names_identity_allocation_plus_the_nine_participant_keys
+* test_identical_replay_of_the_production_graph_reuses_every_instance
+* test_the_production_graph_never_touches_the_retained_simulator_install_seam
+* test_the_desktop_graph_composes_the_condition_pair_and_flips_the_producer_ready
+* test_replaying_the_desktop_graph_reuses_the_condition_pair_and_dispatcher
+* test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge
+    [Failed]:  the injected full-save failure retains terminal custody
+      at line 668
+    [Failed]
+      at line 672
+    [Failed]:  the public panel retries and releases custody
+      at line 674
+    [Failed]:  minesweeper_panel_command_refused
+      at line 676
+* test_fresh_graph_keeps_prior_day_two_autosave_after_failed_completion
+    [Failed]
+      at line 792
+    [Failed]
+      at line 792
+* test_fresh_graph_keeps_prior_autosave_after_failed_condition_departure
+    [Failed]
+      at line 798
+    [Failed]
+      at line 798
+* test_shop_purchase_saves_authored_effects_and_retries_without_a_second_charge
+* test_fresh_graph_keeps_prior_autosave_after_failed_ordinary_purchase
+* test_fresh_graph_keeps_prior_autosave_after_failed_special_purchase
+* test_shop_batch_and_public_gift_alias_commit_authored_values_and_inventory
+24/27 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/integration/test_desktop_completion_transaction.gd
+    - Outside Tests
+        * [<Node#131617261336>(subsystem_animation.gd)]
+        * [<Node#131634038564>(subsystem_audio.gd)]
+        * [<Node#131650815796>]
+        * [<Node#131667593021>]
+        * [<Node#131684370243>(subsystem_backgrounds.gd)]
+        * [<Node#132221241156>(subsystem_choices.gd)]
+        * [<Timer#132238018373>]
+        * [<Node#132254795590>(subsystem_expression.gd)]
+        * [<Node#132288350027>(subsystem_glossary.gd)]
+        * [<Node#132305127244>(subsystem_history.gd)]
+        * [<Node#132321904461>(subsystem_input.gd)]
+        * [<Timer#132338681678>]
+        * [<Node#132355458895>(subsystem_jump.gd)]
+        * [<Node#132372236112>(subsystem_containers.gd)]
+        * [<Node#132389013329>(subsystem_portraits.gd)]
+        * [<Node#132925884242>(subsystem_save.gd)]
+        * [<Timer#132942661459>]
+        * [<Node#132959438676>(subsystem_settings.gd)]
+        * [<Node#132976215896>(subsystem_styles.gd)]
+        * [<Node#132992993113>(subsystem_text.gd)]
+        * [<Node#133076879198>(subsystem_text_input.gd)]
+        * [<Node#133093656415>(subsystem_variables.gd)]
+        * [<Node#133110433632>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133127210849>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/integration/test_desktop_completion_transaction.gd
+- test_complete_round_transacts_exactly_once_against_real_ports
+    [Failed]:  {"code":"invalid_request","details":{"size":5},"message":"expected 4 members, saw 5","ok":false}
+          at line 211
+    [Failed]:  [STRING_NAME(invalid_request)] expected to equal [STRING_NAME(action_consequence_accepted)]:
+          at line 212
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'receipt' on a base object of type 'Dictionary'.
+          at line -1
+- test_complete_round_departure_commits_board_fate_against_real_ports
+    [Failed]:  {"code":"invalid_request","details":{"size":5},"message":"expected 4 members, saw 5","ok":false}
+          at line 296
+    [Failed]:  [STRING_NAME(invalid_request)] expected to equal [STRING_NAME(action_consequence_accepted)]:
+          at line 297
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'receipt' on a base object of type 'Dictionary'.
+          at line -1
+- test_a_source_already_holding_the_gate_blocks_the_other_source_until_it_releases
+    [Failed]:  [STRING_NAME(invalid_request)] expected to equal [STRING_NAME(minesweeper_round_requires_no_other_pending_transaction)]:
+          at line 373
+
+res://tests/integration/test_desktop_bootstrap_wiring.gd
+- test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge
+    [Failed]:  the injected full-save failure retains terminal custody
+          at line 668
+    [Failed]:
+          at line 672
+    [Failed]:  the public panel retries and releases custody
+          at line 674
+    [Failed]:  minesweeper_panel_command_refused
+          at line 676
+- test_fresh_graph_keeps_prior_day_two_autosave_after_failed_completion
+    [Failed]:
+          at line 792
+    [Failed]:
+          at line 792
+- test_fresh_graph_keeps_prior_autosave_after_failed_condition_departure
+    [Failed]:
+          at line 798
+    [Failed]:
+          at line 798
+
+Totals
+------
+Scripts               2
+Tests                30
+Passing Tests        24
+Failing Tests         6
+Asserts           901/916
+Orphans              24
+Time              8.004s
+
+
+---- 6 failing tests ----

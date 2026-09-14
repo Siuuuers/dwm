@@ -370,3 +370,54 @@ commit (one leaf moved, the port's own digest; the minesweeper contract came bac
   End-to-end: fresh App win 644 / 558 ms, loss 660 / 691 ms, dating 427 / 416 ms; live win 1275 /
   1181 ms, loss 1302 / 1236 ms, first reveal 1193 / 1142 ms, routine 29-34 ms; all inside the
   day's noise band and no end-to-end claim is attached beyond the phase figures.
+
+### Step 2: the first reveal mints its identities deferred and the pre-board autosave flushes the issuer root once (commit after f684f34bb)
+
+A read-only trace of the App first reveal (no profile record covered the frame) found five DURABLE
+identity mints per first reveal: the transaction id in MinesweeperPresentationPort._mint_transaction
+and board_token, placement_nonce, debug_nonce and explosion_nonce in
+GameStateDesktopBoardPort.prepare_spec, each a whole rewrite of desktop-issuer-root.json through
+write_atomic (808 KB on the live account: two deep copies, compose, write, read-back, backup
+classification and about four SHA-256 passes each). The same frame then commits the pre-board
+autosave, whose write already runs the saves root's before-write hook
+(ApplicationBootstrap._flush_before_run_save, dwm-634.1) and flushes every deferred receipt before
+the autosave bytes. Under the 2026-09-14 ruling all five mints now use issue_deferred (the
+has_method fallback to issue stays for issuers without the seam), so the root is written once per
+frame by that hook, durably before anything that references the receipts, and the final root bytes
+are the same. MinesweeperRoundCoordinator._first_reveal_durable gains a permanent env-gated
+DWM_CONSEQUENCE_PROFILE record, scope first_reveal_durable, mirroring complete_round's block with
+eighteen phases. Neither handoff contract binds these three files (the bound
+MinesweeperRoundCoordinator.gd is the domain one), so the regenerated contracts came back
+byte-identical. The benchmark's seeded login deadline is widened from 30 s to 120 s: the live copy's
+Log In measured 21-33 s on this loaded day and two runs (-live-run1- and -run2-, plus the
+attribution run -attrib-live-) hit the old deadline and reported desktop_not_mounted_after_load with
+the production files both applied and reverted, so that verdict was the harness, not the change.
+
+- settlement5-step2-red-f684f34bb.log: test_minesweeper_presentation_port (the old
+  first-reveal-issues-durably row rewritten to the new law), the new
+  test_game_state_desktop_board_port (prepare_spec mints its four identities deferred, and a
+  durable-only issuer still takes issue) and test_minesweeper_round_coordinator (the scope and every
+  phase pinned in order; the env-unset helpers return an empty profile and write nothing): 78
+  tests, 75 passing / 3 failing, one RED row per suite.
+- settlement5-step2-green-f684f34bb.log: the 32-suite set plus the three suites above, the issuer
+  suites and five first-reveal integration suites, 39 suites, 714 tests, 708 passing / 6 failing;
+  settlement5-step2-attrib-baseline-f684f34bb.log: the two failing integration suites with the
+  three production files reverted, 30 tests, 24 passing / 6 failing, the same six rows (the
+  expected-4-saw-5 request class already listed as pre-existing in settlement4 Step 1).
+- settlement5-step2-reseal-*.log and settlement5-step2-contracts-green-f684f34bb.log: generators
+  and both contract suites, 22 passing / 0, no leaf moved.
+- settlement5-step2-profile-live-run3-f684f34bb.log and -run4-: the live copy with the widened
+  deadline. App first reveal 166 / 112 ms against 1193 / 1142 ms in the Step 1 runs, New Board first
+  reveal 404 / 358 ms against 1562 / 1525 ms, issuer_root_bytes unchanged at 928474. The
+  first_reveal_durable record reads elapsed 98 / 64 ms on the first board (checkpoint_commit 49 / 38,
+  prepare_spec 18 / 10, checkpoint_prepare 9 / 7) and 318 / 285 ms on the New Board
+  (checkpoint_commit 220 / 206 with the larger document, checkpoint_prepare 40 / 32, prepare_spec
+  27 / 22). prepare_spec is now the four deferred mints, each still deep-copying the 808 KB root in
+  memory (the port read-amplification candidate, not this step). These runs sat in a heavy-load
+  window (routine reveal 46-55 ms, Log In 33 s), so their terminal end-to-end figures (win 1829 /
+  1734, loss 2134 / 1702 ms) are not compared.
+- settlement5-step2-profile-fresh-win-f684f34bb.log and -loss- (first pair, loaded window) and
+  -fresh-win-run2- / -fresh-loss-run2- (second pair, still loaded: App win 956 / 817 ms against
+  563-644 at the baseline): App first reveal 122 / 111 / 137 / 137 ms against 232 / 249 ms at the
+  baseline, first_reveal_durable elapsed 61-83 ms of which checkpoint_commit 42-61 and
+  prepare_spec 0.3-1.1 ms; routine reveal 36-38 ms medians under that load.

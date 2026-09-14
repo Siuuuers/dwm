@@ -394,8 +394,14 @@ func publish(_publication: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"published": true}, "receipt": {}}
 
 
+## dwm-634.1: the four spec identities mint in memory. First Reveal's own pre-board checkpoint runs
+## the saves root's before-write hook, which flushes the issuer ledger BEFORE the checkpoint's own
+## bytes, so each of these receipts is durable before any document that references it -- and the
+## issuer root is rewritten once for that frame instead of once per mint. An issuer without the
+## deferred seam keeps the durable path.
 func _mint(purpose: StringName, label: String) -> Dictionary:
-	var issued: Dictionary = _identity_issuer.call(&"issue", purpose)
+	var issued: Dictionary = _identity_issuer.call(&"issue_deferred", purpose) \
+		if _identity_issuer.has_method("issue_deferred") else _identity_issuer.call(&"issue", purpose)
 	if not issued.get("ok", false):
 		return issued
 	var value: Dictionary = issued["value"]

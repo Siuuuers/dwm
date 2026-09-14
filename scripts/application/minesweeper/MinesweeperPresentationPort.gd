@@ -106,8 +106,7 @@ func dispatch(action: String, cell_index: int, expected_revision: int) -> Dictio
 		return _failure(&"stale_minesweeper_presentation", _projection)
 	var routine_command: bool = current.value.phase == "ACTIVE_VISIBLE" \
 		and not bool(current_projection.get("terminal", false))
-	var durable_first_reveal := action == "reveal" and _phase in ["NONE", "UNPAID_UNSTARTED", "PAID_UNSTARTED", "PREPARED_UNSTARTED"]
-	var issued: Dictionary = _mint_transaction(durable_first_reveal)
+	var issued: Dictionary = _mint_transaction()
 	if not issued.get("ok", false):
 		return _failure(&"minesweeper_command_refused")
 	var issued_value: Dictionary = issued.get("value", {})
@@ -499,11 +498,13 @@ func get_terminal_foresight(projection: Dictionary) -> Dictionary:
 	return {"ok": true, "value": _terminal_foresight}
 
 
-## Routine board commands leave the board in memory, so their receipts stay in memory too
-## (dwm-634.1); the ledger is written whenever the board is. First Reveal consumes a round and
-## commits a durable checkpoint, so its receipt is durable before the command runs.
-func _mint_transaction(durable: bool) -> Dictionary:
-	if durable or not _issuer.has_method("issue_deferred"):
+## Every board command leaves its receipt in memory (dwm-634.1); the ledger is written whenever the
+## board is. First Reveal is no exception: the pre-board checkpoint it commits runs the saves root's
+## before-write hook, which flushes this ledger BEFORE the checkpoint's own bytes, so the receipt is
+## durable before anything that references it -- and the issuer root is rewritten once for that
+## frame instead of once per mint.
+func _mint_transaction() -> Dictionary:
+	if not _issuer.has_method("issue_deferred"):
 		return _issuer.call(&"issue", &"transaction_id")
 	return _issuer.call(&"issue_deferred", &"transaction_id")
 

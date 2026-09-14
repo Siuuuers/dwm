@@ -122,7 +122,9 @@ func _run() -> void:
 	root.get_node("SceneRouter").goto_menu()
 	await _frames()
 	var menu: Node = current_scene
-	var deadline := Time.get_ticks_msec() + 30000
+	# A seeded long-history login has measured 21-32 s on a loaded shared machine (session 5), so
+	# the seeded journey gets a wider deadline; the fresh-account deadline is unchanged.
+	var deadline := Time.get_ticks_msec() + (120000 if seeded else 30000)
 	var login_started := Time.get_ticks_usec()
 	if seeded:
 		if not await _title_login(menu): return

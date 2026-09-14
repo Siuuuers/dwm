@@ -1091,6 +1091,8 @@ func _first_reveal(request: Dictionary) -> Dictionary:
 ## Nothing is adopted live before checkpoint commit. Mirrors _first_reveal()'s exact rollback
 ## ordering, substituting the durable checkpoint port for the Task-5 fake one.
 func _first_reveal_durable(request: Dictionary) -> Dictionary:
+	var profile := _consequence_profile_start("first_reveal_durable")
+	var profile_tick := int(profile.get("_started_us", 0))
 	var shape := _exact_keys(request, _FIRST_REVEAL_REQUEST_KEYS, &"invalid_request")
 	if not shape.get("ok", false):
 		return shape
@@ -1105,8 +1107,10 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 		if str(stored.get("code", "")) != "first_reveal_committed": return stored.duplicate(true)
 		var stored_value: Dictionary = stored.get("value", {})
 		return _republish_first_reveal(stored_value)
+	profile_tick = _consequence_profile_phase(profile, "board_capture_us", profile_tick)
 
 	var verify := _verify_transaction(transaction_id, request["transaction_issuer_receipt"])
+	profile_tick = _consequence_profile_phase(profile, "verify_transaction_us", profile_tick)
 	if not verify.get("ok", false):
 		return verify
 
@@ -1144,10 +1148,12 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 	if phase in ["NONE", "UNPAID_UNSTARTED"]:
 		var spec_prepared: Dictionary = _state_port.call(&"prepare_spec", str(request["difficulty_id"]),
 			transaction_id, request["transaction_issuer_receipt"])
+		profile_tick = _consequence_profile_phase(profile, "prepare_spec_us", profile_tick)
 		if not spec_prepared.get("ok", false):
 			return spec_prepared
 		spec = (spec_prepared["value"] as Dictionary)["spec"]
 		var materialized: Dictionary = _generation_port.call(&"materialize", spec, int(request["cell_index"]))
+		profile_tick = _consequence_profile_phase(profile, "materialize_us", profile_tick)
 		if not materialized.get("ok", false):
 			return materialized
 		layout = (materialized["value"] as Dictionary)["layout"]
@@ -1162,12 +1168,14 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 		proof_sha256 = live_candidate.get("proof_sha256")
 
 	var reveal_result := _REDUCER.first_reveal(layout, int(request["cell_index"]), _board_state.shell_state())
+	profile_tick = _consequence_profile_phase(profile, "reducer_us", profile_tick)
 	if not reveal_result.get("ok", false):
 		return reveal_result
 	var board: Dictionary = (reveal_result["value"] as Dictionary)["board"]
 
 	var run_id := str(identity["run_id"])
 	var preview: Dictionary = _durable_checkpoint_port.call(&"preview_checkpoint_id", run_id)
+	profile_tick = _consequence_profile_phase(profile, "preview_checkpoint_us", profile_tick)
 	if not preview.get("ok", false):
 		return preview
 	var expected_checkpoint_id := str((preview["value"] as Dictionary)["checkpoint_id"])
@@ -1178,6 +1186,7 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 	}
 	var consequence_prepared: Dictionary = _state_port.call(&"prepare_first_reveal_consequence",
 		board_candidate_for_port, transaction_id, request["transaction_issuer_receipt"], expected_checkpoint_id)
+	profile_tick = _consequence_profile_phase(profile, "prepare_consequence_us", profile_tick)
 	if not consequence_prepared.get("ok", false):
 		return consequence_prepared
 	var prep_value: Dictionary = consequence_prepared["value"]
@@ -1193,22 +1202,26 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 	}
 	var board_prepared := _board_state.prepare_first_reveal(board_input, {"layout": layout, "board": board},
 		receipt)
+	profile_tick = _consequence_profile_phase(profile, "board_prepare_us", profile_tick)
 	if not board_prepared.get("ok", false):
 		return board_prepared
 	var board_candidate: Dictionary = (board_prepared["value"] as Dictionary)["candidate"]
 
 	var validated: Dictionary = _state_port.call(&"validate_first_reveal_candidates",
 		game_state_candidate, board_candidate, consequence_candidate)
+	profile_tick = _consequence_profile_phase(profile, "validate_candidates_us", profile_tick)
 	if not validated.get("ok", false):
 		return validated
 
 	var base_captured: Dictionary = _state_port.call(&"capture_base_snapshot_input")
+	profile_tick = _consequence_profile_phase(profile, "capture_base_snapshot_us", profile_tick)
 	if not base_captured.get("ok", false):
 		return base_captured
 	var base_snapshot_input: Dictionary = (base_captured["value"] as Dictionary)["snapshot_input"]
 
 	var composed: Dictionary = _snapshot_composer.call(&"compose", base_snapshot_input,
 		game_state_candidate, board_candidate, consequence_candidate)
+	profile_tick = _consequence_profile_phase(profile, "compose_us", profile_tick)
 	if not composed.get("ok", false):
 		return composed
 	var post_commit_snapshot_input: Dictionary = (composed["value"] as Dictionary)["snapshot_input"]
@@ -1220,16 +1233,19 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 	}
 
 	var state_backup_captured: Dictionary = _state_port.call(&"capture")
+	profile_tick = _consequence_profile_phase(profile, "state_capture_us", profile_tick)
 	if not state_backup_captured.get("ok", false):
 		return state_backup_captured
 	var state_backup: Dictionary = (state_backup_captured["value"] as Dictionary)["backup"]
 	var checkpoint_backup_captured: Dictionary = _durable_checkpoint_port.call(&"capture")
+	profile_tick = _consequence_profile_phase(profile, "checkpoint_capture_us", profile_tick)
 	if not checkpoint_backup_captured.get("ok", false):
 		return checkpoint_backup_captured
 	var checkpoint_backup: Dictionary = (checkpoint_backup_captured["value"] as Dictionary)["backup"]
 
 	var checkpoint_prepared: Dictionary = _durable_checkpoint_port.call(&"prepare_checkpoint",
 		post_commit_snapshot_input, &"pre_board", {"kind": &"autosave", "reason": &"pre_board"})
+	profile_tick = _consequence_profile_phase(profile, "checkpoint_prepare_us", profile_tick)
 	if not checkpoint_prepared.get("ok", false):
 		return checkpoint_prepared
 	var checkpoint_value: Dictionary = checkpoint_prepared["value"]
@@ -1238,16 +1254,19 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 		return _fail(&"checkpoint_id_mismatch", "", {})
 
 	var checkpoint_commit: Dictionary = _durable_checkpoint_port.call(&"commit_checkpoint", checkpoint_candidate)
+	profile_tick = _consequence_profile_phase(profile, "checkpoint_commit_us", profile_tick)
 	if not checkpoint_commit.get("ok", false):
 		return checkpoint_commit  # nothing applied yet; no charge, no sequence consumed
 
 	var state_commit: Dictionary = _state_port.call(&"commit", game_state_candidate)
+	profile_tick = _consequence_profile_phase(profile, "state_commit_us", profile_tick)
 	if not state_commit.get("ok", false):
 		return _rollback_participants("state_commit", transaction_id, [
 			["checkpoint_port", func(): return _durable_checkpoint_port.call(&"rollback", checkpoint_backup)],
 		], state_commit)
 
 	var board_commit := _board_state.commit(board_candidate)
+	profile_tick = _consequence_profile_phase(profile, "board_commit_us", profile_tick)
 	if not board_commit.get("ok", false):
 		return _rollback_participants("board_commit", transaction_id, [
 			["state_port", func(): return _state_port.call(&"rollback", state_backup)],
@@ -1255,9 +1274,11 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 		], board_commit)
 
 	var published: Dictionary = _state_port.call(&"publish", publication)
+	_consequence_profile_phase(profile, "publish_us", profile_tick)
 	if not published.get("ok", false):
 		return _fail(&"FIRST_REVEAL_COMMITTED_UNPUBLISHED", "", {"receipt": receipt.duplicate(true)})
-	return {"ok": true, "code": &"first_reveal_committed", "value": {"receipt": receipt.duplicate(true)}, "receipt": {}}
+	return _consequence_profile_result(profile,
+		{"ok": true, "code": &"first_reveal_committed", "value": {"receipt": receipt.duplicate(true)}, "receipt": {}})
 
 
 func _republish_first_reveal(stored_value: Dictionary) -> Dictionary:

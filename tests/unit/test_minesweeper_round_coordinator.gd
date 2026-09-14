@@ -936,6 +936,45 @@ func test_get_state_returns_the_board_state_capture() -> void:
 	assert_eq(state["value"]["phase"], "NONE")
 
 
+## The permanent DWM_CONSEQUENCE_PROFILE record for the first-Reveal frame (dwm-634.1 cost slice),
+## mirroring complete_round()'s own scope. This repo has no stdout-capture harness, so the phase set
+## is pinned against the source in the order the frame records them, while the env gate's zero-cost
+## half is proven behaviorally through the same two helpers complete_round uses.
+func test_first_reveal_durable_records_every_profile_phase_under_the_env_gate() -> void:
+	var source := FileAccess.get_file_as_string(COORDINATOR_PATH)
+	var start := source.find("func _first_reveal_durable(")
+	assert_true(start >= 0, "the durable first-Reveal frame must still be its own function")
+	if start < 0:
+		return
+	var finish := source.find("\nfunc ", start + 1)
+	var body := source.substr(start, finish - start) if finish > start else source.substr(start)
+	assert_true(body.contains("_consequence_profile_start(\"first_reveal_durable\")"),
+		"the scope name is first_reveal_durable")
+	assert_true(body.contains("return _consequence_profile_result(profile,"),
+		"the committed return prints the record, exactly as complete_round's own does")
+	var phases: Array = [
+		"board_capture_us", "verify_transaction_us", "prepare_spec_us", "materialize_us",
+		"reducer_us", "preview_checkpoint_us", "prepare_consequence_us", "board_prepare_us",
+		"validate_candidates_us", "capture_base_snapshot_us", "compose_us", "state_capture_us",
+		"checkpoint_capture_us", "checkpoint_prepare_us", "checkpoint_commit_us", "state_commit_us",
+		"board_commit_us", "publish_us",
+	]
+	var cursor := 0
+	for phase: String in phases:
+		var needle := "_consequence_profile_phase(profile, \"%s\", profile_tick)" % phase
+		var at := body.find(needle, cursor)
+		assert_true(at >= cursor, "the frame records %s, after the work it times" % phase)
+		if at < cursor:
+			return
+		cursor = at + needle.length()
+	assert_true(_coordinator._consequence_profile_start("first_reveal_durable").is_empty(),
+		"DWM_CONSEQUENCE_PROFILE is unset here, so opening the scope allocates nothing")
+	var disabled := {}
+	assert_eq(COORDINATOR._consequence_profile_phase(disabled, "board_capture_us", 0), 0,
+		"a disabled scope reads no clock")
+	assert_true(disabled.is_empty(), "and records no phase at all")
+
+
 # ---- helpers ----
 
 var _tx_counter := 0

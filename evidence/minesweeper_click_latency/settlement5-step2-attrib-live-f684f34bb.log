@@ -1,0 +1,9 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+CLICK_LATENCY_SEED: {"bytes":14563753,"files":22,"source":"C:/Users/glori/Documents/dwm-stress-20260914/data","target":"C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/click-latency-3/.godot/phase2r_tests/147898c9-a438-482a-ab49-93b1a9aa2dd7/appdata/Godot/app_userdata/DWM"}
+CLICK_LATENCY_LOGIN: {"elapsed_us":31507740}
+CLICK_LATENCY_UNPLAYABLE: {"reason":"desktop_not_mounted_after_load","state":{"day":1,"scene":"MainGameScene","session_active":true}}
+CLICK_LATENCY_MODE: {"mode":"user-data","playable":false,"user_data":"C:/Users/glori/Documents/dwm-stress-20260914/data"}
