@@ -8,20 +8,23 @@ const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 # TWO HALVES, AND THEY PROVE DIFFERENT THINGS.
 #
 # 1. THE GUARD half feeds Phase2RScheduleDesktopHandoffGuard the three real sealed upstream
-#    documents, the real detached bootstrap probe, and the real raw snapshot input, then mutates
-#    ONE field at a time and requires an EXACT failure code. Every rejection below names its code,
-#    so nothing here can pass against a stub or against an all-rejecting validator.
+#    documents, the real detached CURRENT bootstrap probe, and GameState's real raw predecessor
+#    snapshot input. The guard keeps the sealed predecessor facts separate from the successor
+#    composition now visible in that probe, then this suite mutates ONE field at a time and
+#    requires an EXACT failure code. Every rejection below names its code, so nothing here can
+#    pass against a stub or against an all-rejecting validator.
 #
 # 2. THE PREPARATION half constructs DISPOSABLE instances of the real production classes against
 #    isolated production-shaped state and exercises their mutation-free capture/prepare/validation
-#    paths. No fake manufactures a domain success anywhere in this file. ONE genuine mutation
-#    exists and is deliberate: the Schedule commit port's own commit() installs its prepared
-#    aggregate into the DISPOSABLE in-test GameState, because the day-start port must be shown
-#    starting from an aggregate an owner really holds. It touches no ledger, no durable store and
-#    nothing production-scoped, and it is the only one.
+#    paths. No fake manufactures a domain success anywhere in this file. The disposable boot opens
+#    a real playable lifecycle day, installs that GameState's canonical initial consequence in the
+#    real disposable consequence owner, and opens the exact retained ScheduleView for that day so
+#    the CURRENT v6 snapshot can be exercised; a later preparation test also has the Schedule
+#    commit port install its prepared aggregate into a separate DISPOSABLE GameState. None touches
+#    a ledger, durable store, or production-scoped state.
 #
 # WHAT THIS FILE DELIBERATELY DOES NOT DO. It never commits an identity allocation, never commits
-# a causal/admission sequence, never publishes, never composes a Done command, ScheduleView,
+# a causal/admission sequence, never publishes, never composes a Done command, destination outbox,
 # route, Hospital decision, terminal intent, relationship mutation, or ending. Durable allocation,
 # combined commit, publication and irreversible recovery are validated only from their sealed
 # owning Plan-01/02 evidence, which is exactly what the guard reads.
@@ -81,8 +84,12 @@ const GATE_PATH := "res://evidence/phase_2r/schedule/gate.json"
 const DESKTOP_PATH := "res://evidence/phase_2r/contracts/desktop_contract.json"
 const MINESWEEPER_PATH := "res://evidence/phase_2r/contracts/minesweeper_contract.json"
 
-const RESTORE_ROLES: Array[String] = [
+const SEALED_RESTORE_ROLES: Array[String] = [
 	"identity_allocation", "run", "desktop_consequence", "desktop_board",
+	"profile", "localization", "audio", "route", "narrative",
+]
+const CURRENT_RESTORE_ROLES: Array[String] = [
+	"identity_allocation", "run", "desktop_consequence", "desktop_board", "schedule_view",
 	"profile", "localization", "audio", "route", "narrative",
 ]
 const PREDECESSOR_INTEGER_FIELDS: Array[String] = [
@@ -101,6 +108,7 @@ const RESTORE_PARTICIPANT_PATHS: Dictionary = {
 	"run": "res://scripts/application/restore/RunRestoreParticipant.gd",
 	"desktop_consequence": "res://scripts/application/restore/DesktopConsequenceRestoreParticipant.gd",
 	"desktop_board": "res://scripts/application/restore/DesktopBoardRestoreParticipant.gd",
+	"schedule_view": "res://scripts/application/restore/ScheduleViewRestoreParticipant.gd",
 	"profile": "res://scripts/application/restore/ProfileRestoreParticipant.gd",
 	"localization": "res://scripts/application/restore/LocalizationRestoreParticipant.gd",
 	"audio": "res://scripts/application/restore/AudioRestoreParticipant.gd",
@@ -142,12 +150,17 @@ class UnavailableWindowOutput extends RefCounted:
 # guard test works on deep duplicates of these detached primitives anyway.
 var _state: Dictionary = {}
 var _snapshot: Dictionary = {}
+var _current_snapshot: Dictionary = {}
 var _gate: Dictionary = {}
 var _desktop: Dictionary = {}
 var _minesweeper: Dictionary = {}
 var _live_game_state_id: int = 0
 var _advance_replay_ok: bool = false
 var _advance_id_stable: bool = false
+var _schedule_view_replay_ok: bool = false
+var _schedule_view_participant_id_stable: bool = false
+var _schedule_view_controller_id_stable: bool = false
+var _schedule_view_snapshot_stable: bool = false
 var _graph_nodes: Array[Node] = []
 var _root_counter: int = 0
 var _fixture_ready: bool = false
@@ -209,6 +222,12 @@ func _compose_production_graph() -> void:
 
 	var game_state: Node = _adopt(load(GAME_STATE_PATH).new())
 	game_state.reset_game()
+	# reset_game() deliberately leaves a template at day zero. Move this disposable owner to the
+	# first playable day so the retained ScheduleView and the current v6 snapshot can share the
+	# same real lifecycle identity.
+	game_state.call(&"_lifecycle_set_playing_day", 1)
+	var initial_input: Dictionary = game_state.call(&"capture_run_snapshot_input")
+	var initial_desktop: Dictionary = initial_input["desktop"]
 	var state_port: RefCounted = STATE_PORT.new(game_state)
 	var coordinator: RefCounted = COORDINATOR.new()
 
@@ -265,14 +284,66 @@ func _compose_production_graph() -> void:
 	assert_true(bootstrap.call(&"_construct_schedule_foundation", game_state, state_port)
 		.get("ok", false), "the Plan-01 Schedule foundation composes")
 	var participants: Dictionary = bootstrap.call(&"_configure_restore_participants")
-	assert_true(participants.get("ok", false), "the nine restore participants compose: " + str(participants))
+	assert_true(participants.get("ok", false), "the ten restore participants compose: " + str(participants))
+	# Bootstrap's consequence owner begins unbound until New Run/restore applies its participant.
+	# Install GameState's real canonical initial consequence through that owner's validation and
+	# commit seams before Bootstrap replaces GameState's detached default with its live provider.
+	var consequence_owner: Object = bootstrap.get("_desktop_consequence_state")
+	assert_not_null(consequence_owner, "current Bootstrap retains the consequence owner")
+	if consequence_owner == null:
+		return
+	var consequence_prepared: Dictionary = consequence_owner.call(&"prepare_restore",
+		initial_desktop["consequence"])
+	assert_true(consequence_prepared.get("ok", false),
+		"the real consequence owner accepts GameState's canonical initial state")
+	if not consequence_prepared.get("ok", false):
+		return
+	var consequence_committed: Dictionary = consequence_owner.call(&"commit",
+		(consequence_prepared["value"] as Dictionary)["candidate"])
+	assert_true(consequence_committed.get("ok", false),
+		"the disposable consequence owner installs its validated initial state")
+	if not consequence_committed.get("ok", false):
+		return
 	assert_true(bootstrap.call(&"_construct_schedule_presentation", coordinator).get("ok", false),
 		"the presentation ports compose before the desktop graph, exactly as production orders them")
 	assert_true(bootstrap.call(&"_configure_desktop_production_graph").get("ok", false),
 		"the Plan-02 desktop production graph composes")
 
+	# Open the exact controller retained by current Bootstrap, then replay restore configuration.
+	# The replay must preserve both its participant identity and its live view bytes.
+	var view_controller: Object = bootstrap.get("_retained_schedule_view_controller")
+	assert_not_null(view_controller, "current Bootstrap retains the ScheduleView controller")
+	if view_controller == null:
+		return
+	var raw_snapshot: Dictionary = game_state.call(&"capture_run_snapshot_input")
+	var lifecycle: Dictionary = raw_snapshot["lifecycle"]
+	var opened: Dictionary = view_controller.call(&"open_day", int(lifecycle["day"]),
+		str(lifecycle["causal_day_instance"]))
+	assert_true(opened.get("ok", false), "the retained ScheduleView opens the live playable day")
+	if not opened.get("ok", false):
+		return
+	var before_replay_state: Dictionary = bootstrap.call(&"get_desktop_contract_state")
+	var before_replay_participant_id: int = int(
+		(before_replay_state["restore_participant_instance_ids"] as Dictionary)["schedule_view"])
+	var before_replay_controller_id: int = view_controller.get_instance_id()
+	var before_replay_view: Dictionary = view_controller.call(&"snapshot")
+	var replayed: Dictionary = bootstrap.call(&"_configure_restore_participants")
+	_schedule_view_replay_ok = bool(replayed.get("ok", false))
 	_state = bootstrap.call(&"get_desktop_contract_state")
+	_schedule_view_participant_id_stable = int(
+		(_state["restore_participant_instance_ids"] as Dictionary)["schedule_view"]) \
+		== before_replay_participant_id
+	var current_view_controller: Object = bootstrap.get("_retained_schedule_view_controller")
+	_schedule_view_controller_id_stable = current_view_controller != null \
+		and current_view_controller.get_instance_id() == before_replay_controller_id
+	var after_replay_view: Dictionary = current_view_controller.call(&"snapshot") \
+		if current_view_controller != null else {}
+	_schedule_view_snapshot_stable = before_replay_view == after_replay_view
 	_snapshot = game_state.call(&"capture_run_snapshot_input")
+	_current_snapshot = _snapshot.duplicate(true)
+	if after_replay_view.get("ok", false):
+		_current_snapshot["schedule_view"] = \
+			(after_replay_view["value"] as Dictionary)["view"].duplicate(true)
 	_live_game_state_id = game_state.get_instance_id()
 
 	# The reflection-free shared-allocator proof: a lawful second composition pass must be accepted
@@ -328,18 +399,45 @@ func test_every_declared_predecessor_role_is_a_nonzero_same_boot_integer() -> vo
 		assert_ne(int(_state[field]), 0, field + " names a retained owner")
 
 
-func test_the_nine_restore_roles_are_nine_distinct_retained_participants() -> void:
+func test_the_current_ten_restore_roles_are_ten_distinct_retained_participants() -> void:
 	if not _fixture_ready:
 		return
 	var roles: Dictionary = _state["restore_participant_instance_ids"]
 	var seen: Dictionary = {}
-	for role: String in RESTORE_ROLES:
+	var live_order: Array[String] = []
+	for item: Variant in _state["restore_order"] as Array:
+		live_order.append(String(item))
+	assert_eq(live_order, CURRENT_RESTORE_ROLES,
+		"the live probe reports Bootstrap's exact current restore order")
+	for role: String in CURRENT_RESTORE_ROLES:
 		assert_true(roles.has(role), "the restore role " + role + " is retained")
 		assert_ne(int(roles[role]), 0, role + " names a retained participant")
 		assert_false(seen.has(int(roles[role])),
 			"no two restore roles share one participant: " + role)
 		seen[int(roles[role])] = role
-	assert_eq(roles.size(), RESTORE_ROLES.size(), "there are exactly nine restore roles")
+	assert_eq(roles.size(), CURRENT_RESTORE_ROLES.size(), "there are exactly ten restore roles")
+
+
+func test_the_retained_schedule_view_survives_restore_configuration_replay_and_matches_the_run() -> void:
+	if not _fixture_ready:
+		return
+	assert_true(_schedule_view_replay_ok, "restore configuration replay succeeds")
+	assert_true(_schedule_view_participant_id_stable,
+		"replay keeps the exact retained ScheduleView participant")
+	assert_true(_schedule_view_controller_id_stable,
+		"replay keeps the exact retained ScheduleView controller")
+	assert_true(_schedule_view_snapshot_stable,
+		"replay preserves the retained ScheduleView bytes")
+	assert_true(_current_snapshot.has("schedule_view"),
+		"the full current snapshot includes Bootstrap's retained ScheduleView")
+	var view: Dictionary = _current_snapshot["schedule_view"]
+	assert_false(view.is_empty(), "the retained ScheduleView is an opened seven-key view")
+	assert_eq(view.size(), 7, "the retained ScheduleView carries its complete current shape")
+	assert_eq(int(view["day"]), int((_current_snapshot["lifecycle"] as Dictionary)["day"]),
+		"the ScheduleView day matches the live run")
+	assert_eq(str(view["causal_day_instance"]),
+		str((_current_snapshot["lifecycle"] as Dictionary)["causal_day_instance"]),
+		"the ScheduleView causal identity matches the live run")
 
 
 func test_the_round_and_shop_action_sources_are_two_different_owners() -> void:
@@ -374,9 +472,15 @@ func test_the_guard_accepts_the_real_sealed_evidence_and_the_real_live_probe() -
 	var value: Dictionary = result["value"]
 	var keys: Array = value.keys()
 	keys.sort()
-	assert_eq(keys, ["allocator_binding", "deferred_composition", "predecessor_subset",
+	assert_eq(keys, ["allocator_binding", "predecessor_subset",
 		"publication_relations", "requirement_attestation", "role_relations", "seals",
-		"snapshot_facts"], "the success envelope is exactly the eight declared members")
+		"snapshot_facts", "successor_composition"],
+		"the success envelope is exactly the eight declared members")
+	var predecessor: Dictionary = value["predecessor_subset"]
+	assert_eq(predecessor["sealed_restore_order"], SEALED_RESTORE_ROLES,
+		"the verdict keeps the historical nine-role order attached to its seal")
+	assert_eq(predecessor["live_restore_order"], CURRENT_RESTORE_ROLES,
+		"the verdict reports the distinct current ten-role successor")
 
 
 func test_the_success_envelope_serializes_no_numeric_instance_id() -> void:
@@ -387,13 +491,13 @@ func test_the_success_envelope_serializes_no_numeric_instance_id() -> void:
 		assert_true(false, "precondition: the real handoff validates")
 		return
 	var rendered: String = JSON.stringify(result["value"])
-	# All twelve integer roles AND all nine restore-role ids: sampling a few would leave the
+	# All twelve integer roles AND all ten restore-role ids: sampling a few would leave the
 	# envelope free to leak the rest.
 	for field: String in PREDECESSOR_INTEGER_FIELDS:
 		assert_false(rendered.contains(str(_state[field])),
 			"no live numeric id reaches the verdict for " + field)
 	var roles: Dictionary = _state["restore_participant_instance_ids"]
-	for role: String in RESTORE_ROLES:
+	for role: String in CURRENT_RESTORE_ROLES:
 		assert_false(rendered.contains(str(roles[role])),
 			"no live restore-participant id reaches the verdict for " + role)
 	assert_eq(bool((result["value"]["predecessor_subset"] as Dictionary)["instance_ids_serialized"]),
@@ -444,19 +548,22 @@ func test_the_verdict_reports_the_two_requirements_no_seal_attests() -> void:
 		"nine of Task 2's eleven requirements really are named by a seal")
 
 
-func test_the_verdict_keeps_the_later_composition_with_its_later_owner() -> void:
+func test_the_verdict_separates_historical_handoff_from_current_successor_composition() -> void:
 	if not _fixture_ready:
 		return
 	var result: Dictionary = _validate()
 	if not result.get("ok", false):
 		assert_true(false, "precondition: the real handoff validates")
 		return
-	var deferred: Dictionary = result["value"]["deferred_composition"]
-	assert_eq(str(deferred["schedule_view_owner"]), "dwm-oyo.3")
-	assert_eq(str(deferred["destination_composition_owner"]), "dwm-oyo.3")
-	assert_eq(bool(deferred["destination_composition_ready"]), false)
-	assert_eq(bool(deferred["dating_presentation_ready"]), false)
-	assert_eq(str(deferred["dating_production_owner"]), "dwm-oyo.4")
+	var successor: Dictionary = result["value"]["successor_composition"]
+	assert_eq(str(successor["schedule_view_owner"]), "dwm-oyo.3")
+	assert_eq(str(successor["destination_composition_owner"]), "dwm-oyo.3")
+	assert_eq(bool(successor["destination_composition_probe_ready"]), false)
+	assert_eq(bool(successor["sealed_dating_presentation_ready"]), false)
+	assert_eq(bool(successor["live_dating_presentation_ready"]), true)
+	assert_eq(str(successor["dating_production_owner"]), "dwm-oyo.4")
+	assert_eq(bool(successor["full_runtime_acceptance"]), false,
+		"this historical guard does not claim complete current-game acceptance")
 
 
 func test_the_verdict_records_the_one_lawful_forward_readiness_divergence() -> void:
@@ -720,9 +827,22 @@ func test_a_reordered_restore_order_is_refused() -> void:
 		return
 	var state: Dictionary = _state_copy()
 	state["restore_order"] = ["run", "identity_allocation", "desktop_consequence", "desktop_board",
+		"schedule_view",
 		"profile", "localization", "audio", "route", "narrative"]
 	_reject(&"restore_order_drift", _gate, _desktop, _minesweeper, state, _snapshot,
 		"identity_allocation demoted out of first place")
+
+
+func test_the_schedule_view_restore_role_cannot_move_out_of_its_current_slot() -> void:
+	if not _fixture_ready:
+		return
+	var state: Dictionary = _state_copy()
+	var order: Array[String] = CURRENT_RESTORE_ROLES.duplicate()
+	order.erase("schedule_view")
+	order.insert(5, "schedule_view")
+	state["restore_order"] = order
+	_reject(&"restore_order_drift", _gate, _desktop, _minesweeper, state, _snapshot,
+		"ScheduleView moving behind profile")
 
 
 func test_a_missing_restore_role_is_refused() -> void:
@@ -731,7 +851,16 @@ func test_a_missing_restore_role_is_refused() -> void:
 	var state: Dictionary = _state_copy()
 	(state["restore_participant_instance_ids"] as Dictionary).erase("narrative")
 	_reject(&"restore_role_set_drift", _gate, _desktop, _minesweeper, state, _snapshot,
-		"eight restore roles")
+		"nine current restore roles")
+
+
+func test_a_missing_schedule_view_restore_role_is_refused() -> void:
+	if not _fixture_ready:
+		return
+	var state: Dictionary = _state_copy()
+	(state["restore_participant_instance_ids"] as Dictionary).erase("schedule_view")
+	_reject(&"restore_role_set_drift", _gate, _desktop, _minesweeper, state, _snapshot,
+		"the successor omits its ScheduleView participant")
 
 
 func test_an_unretained_restore_role_is_refused() -> void:
@@ -751,6 +880,16 @@ func test_one_object_serving_two_restore_roles_is_refused() -> void:
 	roles["route"] = roles["profile"]
 	_reject(&"restore_role_not_distinct", _gate, _desktop, _minesweeper, state, _snapshot,
 		"one participant claiming two roles")
+
+
+func test_the_schedule_view_restore_role_cannot_alias_an_older_participant() -> void:
+	if not _fixture_ready:
+		return
+	var state: Dictionary = _state_copy()
+	var roles: Dictionary = state["restore_participant_instance_ids"]
+	roles["schedule_view"] = roles["desktop_board"]
+	_reject(&"restore_role_not_distinct", _gate, _desktop, _minesweeper, state, _snapshot,
+		"ScheduleView sharing the desktop-board participant")
 
 
 func test_one_object_serving_both_action_sources_is_refused() -> void:
@@ -896,9 +1035,36 @@ func test_a_live_snapshot_version_that_disagrees_with_its_owner_is_refused() -> 
 	if not _fixture_ready:
 		return
 	var state: Dictionary = _state_copy()
-	state["run_snapshot_schema_version"] = 6
+	state["run_snapshot_schema_version"] = RUN_SNAPSHOT_SCHEMA.SCHEMA_VERSION + 1
 	_reject(&"snapshot_schema_version_drift", _gate, _desktop, _minesweeper, state, _snapshot,
-		"a v6 snapshot disagrees with the current owner")
+		"a future snapshot version disagrees with the current owner")
+
+
+func test_schema_versions_require_strict_integers_at_live_and_sealed_boundaries() -> void:
+	if not _fixture_ready:
+		return
+	for mutation: Dictionary in [
+		{"target": "live", "field": "run_snapshot_schema_version", "value": "6"},
+		{"target": "live", "field": "save_document_schema_version", "value": 6.0},
+		{"target": "desktop", "field": "schema_version", "value": "4"},
+		{"target": "desktop", "field": "schema_version", "value": 4.0},
+		{"target": "gate", "field": "run_snapshot_schema_version", "value": "3"},
+		{"target": "gate", "field": "save_document_version", "value": 3.0},
+	]:
+		var state: Dictionary = _state_copy()
+		var desktop: Dictionary = _desktop_copy()
+		var gate: Dictionary = _gate_copy()
+		match str(mutation["target"]):
+			"live":
+				state[str(mutation["field"])] = mutation["value"]
+			"desktop":
+				(desktop["run_snapshot_v4"] as Dictionary)[str(mutation["field"])] = \
+					mutation["value"]
+			"gate":
+				(gate["current_versions"] as Dictionary)[str(mutation["field"])] = mutation["value"]
+		_reject(&"snapshot_schema_version_drift", gate, desktop, _minesweeper, state, _snapshot,
+			"schema version types are strict at " + str(mutation["target"]) + "." \
+			+ str(mutation["field"]))
 
 
 func test_a_readiness_fact_that_stopped_matching_its_seal_is_refused() -> void:
@@ -917,6 +1083,24 @@ func test_a_producer_regression_below_finished_deviation_5_is_refused() -> void:
 	state["presentation_producer_ready"] = false
 	_reject(&"sealed_readiness_drift", _gate, _desktop, _minesweeper, state, _snapshot,
 		"the presentation producer going dark again")
+
+
+func test_sealed_readiness_requires_strict_booleans() -> void:
+	if not _fixture_ready:
+		return
+	var hospital_state: Dictionary = _state_copy()
+	hospital_state["hospital_presentation_ready"] = 1
+	_reject(&"sealed_readiness_drift", _gate, _desktop, _minesweeper, hospital_state, _snapshot,
+		"Hospital readiness encoded as an integer")
+	var producer_state: Dictionary = _state_copy()
+	producer_state["presentation_producer_ready"] = 1
+	_reject(&"sealed_readiness_drift", _gate, _desktop, _minesweeper, producer_state, _snapshot,
+		"producer readiness encoded as an integer")
+	var gate: Dictionary = _gate_copy()
+	((gate["bootstrap_probe"] as Dictionary)["readiness"] as Dictionary)\
+		["presentation_producer_ready"] = 0
+	_reject(&"sealed_readiness_drift", gate, _desktop, _minesweeper, _state, _snapshot,
+		"sealed producer readiness encoded as an integer")
 
 
 func test_a_requirement_split_that_overstates_its_evidence_is_refused() -> void:
@@ -958,13 +1142,48 @@ func test_a_seal_that_stops_recording_dating_as_deferred_is_refused() -> void:
 		"a seal that stops deferring Dating to dwm-oyo.4")
 
 
-func test_a_dating_presentation_declared_ready_inside_phase_2r_is_refused() -> void:
+func test_a_current_dating_presentation_regression_is_refused() -> void:
 	if not _fixture_ready:
 		return
 	var state: Dictionary = _state_copy()
-	state["dating_presentation_ready"] = true
+	state["dating_presentation_ready"] = false
 	_reject(&"oyo_composition_claimed", _gate, _desktop, _minesweeper, state, _snapshot,
-		"dwm-oyo.4's Dating owner claimed early")
+		"the configured dwm-oyo.4 Dating owner regressing to unready")
+
+
+func test_successor_readiness_requires_strict_booleans() -> void:
+	if not _fixture_ready:
+		return
+	var dating_state: Dictionary = _state_copy()
+	dating_state["dating_presentation_ready"] = 1
+	_reject(&"oyo_composition_claimed", _gate, _desktop, _minesweeper, dating_state, _snapshot,
+		"live Dating readiness encoded as an integer")
+	var destination_state: Dictionary = _state_copy()
+	destination_state["destination_composition_ready"] = 0
+	_reject(&"oyo_composition_claimed", _gate, _desktop, _minesweeper, destination_state, _snapshot,
+		"legacy destination readiness encoded as an integer")
+	var gate: Dictionary = _gate_copy()
+	((gate["bootstrap_probe"] as Dictionary)["readiness"] as Dictionary)\
+		["dating_presentation_ready"] = 0
+	_reject(&"oyo_composition_claimed", gate, _desktop, _minesweeper, _state, _snapshot,
+		"sealed Dating readiness encoded as an integer")
+
+
+func test_a_ready_successor_requires_a_retained_integer_dating_port() -> void:
+	if not _fixture_ready:
+		return
+	for mutation: Dictionary in [
+		{"kind": "missing", "value": null},
+		{"kind": "zero", "value": 0},
+		{"kind": "non_integer", "value": "dating-port"},
+	]:
+		var state: Dictionary = _state_copy()
+		if str(mutation["kind"]) == "missing":
+			state.erase("dating_presentation_port_instance_id")
+		else:
+			state["dating_presentation_port_instance_id"] = mutation["value"]
+		_reject(&"oyo_composition_claimed", _gate, _desktop, _minesweeper, state, _snapshot,
+			"ready Dating with a " + str(mutation["kind"]) + " port identity")
 
 
 # -------------------------------------------------------------------------------------------------
@@ -1579,10 +1798,10 @@ func test_the_real_minesweeper_save_port_binds_the_real_checkpoint_owner() -> vo
 		"binding the port takes no board lock: preparation stays mutation-free")
 
 
-func test_the_nine_real_restore_participant_classes_share_one_interface() -> void:
+func test_the_ten_real_restore_participant_classes_share_one_interface() -> void:
 	if not _fixture_ready:
 		return
-	for role: String in RESTORE_ROLES:
+	for role: String in CURRENT_RESTORE_ROLES:
 		var script: Script = load(str(RESTORE_PARTICIPANT_PATHS[role]))
 		assert_not_null(script, "the real participant class for " + role + " exists")
 		var method_names: Array[String] = []
@@ -1593,21 +1812,22 @@ func test_the_nine_real_restore_participant_classes_share_one_interface() -> voi
 				"the real " + role + " participant declares " + method)
 
 
-## capture_run_snapshot_input() is the production INPUT shape, NOT a v5 snapshot: feeding it
-## straight to validate() fails invalid_snapshot_shape. The real round trip is the production one
-## -- build() consumes the input and stamps the snapshot, then validate() re-accepts what build
-## produced.
-func test_the_captured_snapshot_input_round_trips_through_the_real_v5_schema() -> void:
+## GameState.capture_run_snapshot_input() is still the raw nine-key predecessor contribution.
+## Current Bootstrap adds its retained ScheduleView before RunSnapshotSchema.build(); this fixture
+## does the same with the exact controller whose participant survived configuration replay.
+func test_the_current_snapshot_input_round_trips_through_the_real_v6_schema() -> void:
 	if not _fixture_ready:
 		return
-	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(_snapshot.duplicate(true), {}, "main", null,
+	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(_current_snapshot.duplicate(true), {}, "main", null,
 		{}, 1, 1)
 	assert_true(built.get("ok", false),
-		"the REAL live snapshot input builds a real v5 snapshot: " + str(built))
+		"the real current snapshot input builds a real v6 snapshot: " + str(built))
 	if not built.get("ok", false):
 		return
 	var snapshot: Dictionary = (built["value"] as Dictionary)["snapshot"]
-	assert_eq(int(snapshot["schema_version"]), 5, "build stamps the current version")
+	assert_eq(int(snapshot["schema_version"]), 6, "build stamps the current v6 version")
+	assert_eq(snapshot["schedule_view"], _current_snapshot["schedule_view"],
+		"the v6 builder preserves the exact retained ScheduleView")
 	assert_true(RUN_SNAPSHOT_SCHEMA.validate(snapshot.duplicate(true)).get("ok", false),
 		"the produced snapshot revalidates, which is what makes this a round trip")
 	assert_eq(int(_state["run_snapshot_schema_version"]), RUN_SNAPSHOT_SCHEMA.SCHEMA_VERSION,
@@ -1616,13 +1836,23 @@ func test_the_captured_snapshot_input_round_trips_through_the_real_v5_schema() -
 		"the historical desktop seal remains v4")
 
 
-func test_the_real_v5_builder_refuses_a_snapshot_input_missing_a_declared_member() -> void:
+func test_the_real_v6_builder_refuses_a_snapshot_input_missing_a_declared_member() -> void:
 	if not _fixture_ready:
 		return
-	var incomplete: Dictionary = _snapshot_copy()
+	var incomplete: Dictionary = _current_snapshot_copy()
 	incomplete.erase("desktop")
 	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(incomplete, {}, "main", null, {}, 1, 1)
 	assert_false(built.get("ok", true), "a snapshot input missing desktop builds nothing")
+	assert_eq(str(built.get("code", "")), "invalid_snapshot_input", "the exact production code")
+
+
+func test_the_real_v6_builder_refuses_a_snapshot_input_missing_schedule_view() -> void:
+	if not _fixture_ready:
+		return
+	var incomplete: Dictionary = _current_snapshot_copy()
+	incomplete.erase("schedule_view")
+	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(incomplete, {}, "main", null, {}, 1, 1)
+	assert_false(built.get("ok", true), "a v6 snapshot input missing ScheduleView builds nothing")
 	assert_eq(str(built.get("code", "")), "invalid_snapshot_input", "the exact production code")
 
 
@@ -1662,6 +1892,10 @@ func _snapshot_copy() -> Dictionary:
 	return _snapshot.duplicate(true)
 
 
+func _current_snapshot_copy() -> Dictionary:
+	return _current_snapshot.duplicate(true)
+
+
 func _reject(code: StringName, gate: Dictionary, desktop: Dictionary, minesweeper: Dictionary,
 		state: Dictionary, snapshot: Dictionary, note: String) -> void:
 	_expect(code, GUARD.validate(gate, desktop, minesweeper, state, snapshot), note)
@@ -1679,8 +1913,18 @@ func test_pre_cutover_or_future_live_schema_claims_are_refused() -> void:
 	if not _fixture_ready:
 		return
 	for key: String in ["run_snapshot_schema_version", "save_document_schema_version"]:
-		for version: int in [4, 6]:
+		for version: int in [int(_state[key]) - 1, int(_state[key]) + 1]:
 			var state := _state_copy()
 			state[key] = version
 			_reject(&"snapshot_schema_version_drift", _gate, _desktop, _minesweeper, state, _snapshot,
 				"live schema facts must match the current owner: %s=%d" % [key, version])
+
+
+func test_sealed_hospital_readiness_requires_a_strict_boolean() -> void:
+	if not _fixture_ready:
+		return
+	var gate: Dictionary = _gate_copy()
+	((gate["bootstrap_probe"] as Dictionary)["readiness"] as Dictionary)\
+		["hospital_presentation_ready"] = 1
+	_reject(&"sealed_readiness_drift", gate, _desktop, _minesweeper, _state, _snapshot,
+		"sealed Hospital readiness encoded as an integer")

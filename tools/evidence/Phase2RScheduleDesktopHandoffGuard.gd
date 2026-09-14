@@ -1,9 +1,9 @@
 class_name Phase2RScheduleDesktopHandoffGuard
 extends RefCounted
 
-## Proves Plan 01's Schedule participant and Plan 02's desktop participants can be consumed
-## together by a later owner, WITHOUT composing the Plan-03/dwm-oyo.3 player-facing departure
-## (dwm-p2r.10 Plan 04 Task 2).
+## Validates the frozen Plan-01/02 handoff and the explicit successor facts reported by today's
+## bootstrap probe. Historical seals prove their own subjects; current restore composition and
+## schema/readiness checks do not turn those seals into full current-game acceptance.
 ##
 ## PURE, stated precisely. It reads three sealed evidence documents plus two detached primitive
 ## Dictionaries, reads the Git object database read-only, and mutates no input and no repository
@@ -24,8 +24,8 @@ extends RefCounted
 ##     reports a false drift. The curated log directory is immutable and append-only.
 ##
 ## WHAT IT DELIBERATELY DOES NOT DO. No compatibility mutation path, no participant fingerprint
-## method, no live-reference getter, no private bootstrap reflection, and no Done/ScheduleView/
-## route/Hospital/terminal-intent/ending composition. A predecessor mismatch is returned as a
+## method, no live-reference getter, no private bootstrap reflection, and no gameplay dispatch or
+## full-snapshot construction. A predecessor mismatch is returned as a
 ## failure for the owning Plan-01/02 issue to answer, never patched around here.
 
 const _GIT := preload("res://tools/evidence/DesktopAmendmentEvidenceGit.gd")
@@ -114,8 +114,16 @@ const OBSERVED_HEAD_EXTENSION_FIELDS: Array[String] = [
 
 ## The nine restore roles, in the frozen apply order. identity_allocation applies once, before the
 ## ordinary eight-participant loop SaveManager itself drives.
-const RESTORE_ROLES: Array[String] = [
+const SEALED_RESTORE_ROLES: Array[String] = [
 	"identity_allocation", "run", "desktop_consequence", "desktop_board",
+	"profile", "localization", "audio", "route", "narrative",
+]
+
+## Amendment Plan 03 Task 4 adds the retained ScheduleView participant between board and profile.
+## ApplicationBootstrap._RESTORE_ORDER and SaveManager's ordinary participant order implement
+## this exact successor. No other extra role or reordering is admitted, and the seal stays nine.
+const CURRENT_RESTORE_ROLES: Array[String] = [
+	"identity_allocation", "run", "desktop_consequence", "desktop_board", "schedule_view",
 	"profile", "localization", "audio", "route", "narrative",
 ]
 
@@ -221,13 +229,12 @@ const TASK2_UNATTESTED_REQUIREMENT_IDS: Array[String] = [
 	"req.run.day_resolution_plan", "req.runtime.schedule_ownership",
 ]
 
-## The ONE permitted forward divergence between gate.json's frozen readiness and live HEAD.
+## The producer's forward divergence between gate.json's frozen readiness and live HEAD.
 ## gate.json is a HISTORICAL seal at 2bd24eb2 that is never regenerated; DEVIATION-5 was finished
 ## afterwards by dwm-p2r.32 and the dwm-oyo.3 slice, so the sealed false became a live true. The
-## other two readiness facts must still agree exactly, and a live FALSE here would be a real
-## regression rather than lawful drift.
-## dating_presentation_ready is deliberately NOT here: it is owned end to end by the deferred
-## composition guard below, so exactly one guard and one failure code answer for it.
+## Hospital readiness must still agree; a live FALSE producer would be a real regression.
+## Dating's separately owned false-to-true transition is checked by the successor composition
+## guard below, so exactly one guard and one failure code answer for it.
 const READINESS_MUST_MATCH: Array[String] = ["hospital_presentation_ready"]
 const READINESS_FORWARD_ONLY := "presentation_producer_ready"
 
@@ -303,9 +310,9 @@ static func validate(schedule_gate: Variant, desktop_contract: Variant,
 	if not attestation.get("ok", false):
 		return attestation
 
-	var deferred: Dictionary = _validate_deferred_composition(state, desktop, gate)
-	if not deferred.get("ok", false):
-		return deferred
+	var successor: Dictionary = _validate_successor_composition(state, desktop, gate)
+	if not successor.get("ok", false):
+		return successor
 
 	return _ok({
 		"seals": seals,
@@ -315,7 +322,7 @@ static func validate(schedule_gate: Variant, desktop_contract: Variant,
 		"publication_relations": publication["value"],
 		"snapshot_facts": snapshot_facts["value"],
 		"requirement_attestation": attestation["value"],
-		"deferred_composition": deferred["value"],
+		"successor_composition": successor["value"],
 	})
 
 
@@ -523,9 +530,9 @@ static func _validate_predecessor_subset(state: Dictionary, desktop: Dictionary)
 	if typeof(desktop.get("restore_order")) == TYPE_ARRAY:
 		for item: Variant in desktop["restore_order"] as Array:
 			sealed_order.append(String(item))
-	if order != RESTORE_ROLES or sealed_order != RESTORE_ROLES:
+	if order != CURRENT_RESTORE_ROLES or sealed_order != SEALED_RESTORE_ROLES:
 		return _fail(&"restore_order_drift",
-			"the live restore order and its seal must both be the frozen nine-role order",
+			"the seal must retain nine roles and the live successor must have the exact ten-role order",
 			{"live": order, "sealed": sealed_order})
 
 	if typeof(state["restore_participant_instance_ids"]) != TYPE_DICTIONARY:
@@ -536,14 +543,14 @@ static func _validate_predecessor_subset(state: Dictionary, desktop: Dictionary)
 	for key: Variant in roles.keys():
 		role_names.append(str(key))
 	role_names.sort()
-	var expected_names: Array[String] = RESTORE_ROLES.duplicate()
+	var expected_names: Array[String] = CURRENT_RESTORE_ROLES.duplicate()
 	expected_names.sort()
 	if role_names != expected_names:
 		return _fail(&"restore_role_set_drift",
-			"the restore participant roles are not exactly the nine declared roles",
+			"the restore participant roles are not exactly the ten current roles",
 			{"observed": role_names})
 	var seen: Dictionary = {}
-	for role: String in RESTORE_ROLES:
+	for role: String in CURRENT_RESTORE_ROLES:
 		if typeof(roles[role]) != TYPE_INT or int(roles[role]) == 0:
 			return _fail(&"restore_role_instance_id_zero", "a restore role is unretained",
 				{"role": role})
@@ -560,7 +567,8 @@ static func _validate_predecessor_subset(state: Dictionary, desktop: Dictionary)
 			extensions.append(str(key))
 	extensions.sort()
 	return _ok({
-		"restore_order": RESTORE_ROLES.duplicate(),
+		"sealed_restore_order": SEALED_RESTORE_ROLES.duplicate(),
+		"live_restore_order": CURRENT_RESTORE_ROLES.duplicate(),
 		"restore_roles_retained": expected_names,
 		"integer_fields": integer_fields,
 		"admitted_extension_fields": extensions,
@@ -798,12 +806,17 @@ static func _validate_snapshot(snapshot: Dictionary, state: Dictionary, gate: Di
 	var sealed_v4: Variant = desktop.get("run_snapshot_v4")
 	if typeof(sealed_v4) != TYPE_DICTIONARY:
 		return _fail(&"snapshot_schema_version_drift", "the desktop seal records no v4 facts", {})
+	if typeof(sealed_v4.get("schema_version")) != TYPE_INT \
+			or typeof(state.get("run_snapshot_schema_version")) != TYPE_INT \
+			or typeof(state.get("save_document_schema_version")) != TYPE_INT:
+		return _fail(&"snapshot_schema_version_drift", "schema version facts must be integers", {})
 	var sealed_version: int = int((sealed_v4 as Dictionary).get("schema_version", 0))
 	var live_snapshot_version: int = int(state.get("run_snapshot_schema_version", 0))
 	var live_document_version: int = int(state.get("save_document_schema_version", 0))
-	# The immutable desktop seal describes v4. The current v5 cutover preserves its
-	# desktop structure and adds captured configuration in lifecycle. Validate the
-	# live version against its actual owners; never relabel or regenerate the seal.
+	# The immutable desktop seal describes v4. Validate live versions against the current
+	# schema owners, including the v6 ScheduleView cutover, without relabelling the seal.
+	# This raw GameState input is only one contribution; the full current snapshot also
+	# needs Bootstrap's retained ScheduleView, tested separately through the real schema.
 	if sealed_version != 4 or live_snapshot_version != _RUN_SCHEMA.SCHEMA_VERSION \
 			or live_document_version != _SAVE_SCHEMA.DOCUMENT_VERSION:
 		return _fail(&"snapshot_schema_version_drift",
@@ -816,6 +829,9 @@ static func _validate_snapshot(snapshot: Dictionary, state: Dictionary, gate: Di
 	var gate_versions: Variant = gate.get("current_versions")
 	if typeof(gate_versions) != TYPE_DICTIONARY:
 		return _fail(&"snapshot_schema_version_drift", "the gate records no current versions", {})
+	if typeof(gate_versions.get("run_snapshot_schema_version")) != TYPE_INT \
+			or typeof(gate_versions.get("save_document_version")) != TYPE_INT:
+		return _fail(&"snapshot_schema_version_drift", "the gate's schema versions must be integers", {})
 	var gate_snapshot: int = int((gate_versions as Dictionary).get("run_snapshot_schema_version", 0))
 	var gate_document: int = int((gate_versions as Dictionary).get("save_document_version", 0))
 	if live_snapshot_version < gate_snapshot or live_document_version < gate_document:
@@ -837,8 +853,8 @@ static func _validate_snapshot(snapshot: Dictionary, state: Dictionary, gate: Di
 	})
 
 
-## The gate's frozen readiness against live HEAD. Two facts must still agree exactly; the third is
-## the ONE recorded forward-only divergence.
+## Hospital readiness still agrees with its seal; the producer has a recorded forward transition.
+## Dating's separate forward transition is validated below.
 static func _validate_sealed_readiness(state: Dictionary, gate: Dictionary) -> Dictionary:
 	var probe: Variant = gate.get("bootstrap_probe")
 	if typeof(probe) != TYPE_DICTIONARY:
@@ -847,16 +863,18 @@ static func _validate_sealed_readiness(state: Dictionary, gate: Dictionary) -> D
 	if typeof(readiness) != TYPE_DICTIONARY:
 		return _fail(&"sealed_readiness_drift", "the gate records no readiness", {})
 	for field: String in READINESS_MUST_MATCH:
-		if bool((readiness as Dictionary).get(field, !bool(state.get(field, false)))) \
-				!= bool(state.get(field, false)):
+		if typeof(readiness.get(field)) != TYPE_BOOL or typeof(state.get(field)) != TYPE_BOOL \
+				or readiness[field] != state[field]:
 			return _fail(&"sealed_readiness_drift",
 				"a sealed readiness fact no longer matches the live probe",
 				{"field": field, "sealed": (readiness as Dictionary).get(field),
 					"live": state.get(field)})
-	if bool((readiness as Dictionary).get(READINESS_FORWARD_ONLY, true)) != false:
+	if typeof(readiness.get(READINESS_FORWARD_ONLY)) != TYPE_BOOL \
+			or readiness[READINESS_FORWARD_ONLY] != false:
 		return _fail(&"sealed_readiness_drift",
 			"the gate no longer records the producer as deliberately not ready", {})
-	if bool(state.get(READINESS_FORWARD_ONLY, false)) != true:
+	if typeof(state.get(READINESS_FORWARD_ONLY)) != TYPE_BOOL \
+			or state[READINESS_FORWARD_ONLY] != true:
 		return _fail(&"sealed_readiness_drift",
 			"the presentation producer regressed below its finished DEVIATION-5 state", {})
 	return _ok({
@@ -867,7 +885,7 @@ static func _validate_sealed_readiness(state: Dictionary, gate: Dictionary) -> D
 
 
 # =============================================================================================
-# Requirement attestation and the deferred OYO3 composition.
+# Requirement attestation and the explicit successor composition.
 # =============================================================================================
 
 static func _validate_requirement_attestation(gate: Dictionary, desktop: Dictionary,
@@ -899,8 +917,9 @@ static func _validate_requirement_attestation(gate: Dictionary, desktop: Diction
 	})
 
 
-## Task 2 proves the contracts CAN be consumed later; it must never look like the later owner has
-## already consumed them.
+## Historical ownership stays attached to its seal. Current Bootstrap additionally configures
+## DatingPhysicalOwner into the retained DatingPresentationPort (dwm-oyo.4), so that port must now
+## report ready. Reject both a rewritten historical false and a regressed current false.
 ##
 ## RECORDED DIVERGENCE FROM PLAN 04 TASK 2 STEP 2. That step, written 2026-08-11, says "The
 ## production consequence coordinator remains condition-policy-unconfigured at the Phase-2R
@@ -910,12 +929,11 @@ static func _validate_requirement_attestation(gate: Dictionary, desktop: Diction
 ## consequence_coordinator_contract.fail_closed_until as "FULFILLED by the dwm-oyo.3 slice
 ## (2026-08-24)". The seal is the later authority, so this guard binds to the seal.
 ##
-## WHAT IS ENFORCED IN ITS PLACE, since the original boundary still has to hold somewhere: both
-## ScheduleView and destination-composition ownership must still read dwm-oyo.3,
-## destination_composition_ready must still be false, and Dating must still be deferred in BOTH the
-## seal and the live probe. condition_policy_port_instance_id is therefore admitted as a configured
-## extension rather than required absent.
-static func _validate_deferred_composition(state: Dictionary, desktop: Dictionary,
+## The legacy destination_composition_ready probe remains a hardcoded false in Bootstrap. We pin
+## that probe fact, not infer that today's destination dispatch is absent or unready. Neither this
+## flag nor this guard proves complete runtime acceptance. The configured condition-policy port
+## is an admitted extension, as already recorded by the later desktop seal.
+static func _validate_successor_composition(state: Dictionary, desktop: Dictionary,
 		gate: Dictionary) -> Dictionary:
 	if str(desktop.get("schedule_view_owner", "")) != OYO3_OWNER \
 			or str(desktop.get("destination_composition_owner", "")) != OYO3_OWNER:
@@ -923,23 +941,32 @@ static func _validate_deferred_composition(state: Dictionary, desktop: Dictionar
 			"the later ScheduleView/destination composition is no longer owned by dwm-oyo.3",
 			{"schedule_view_owner": desktop.get("schedule_view_owner", ""),
 				"destination_composition_owner": desktop.get("destination_composition_owner", "")})
-	if bool(state.get("destination_composition_ready", true)) != false:
+	if typeof(state.get("destination_composition_ready")) != TYPE_BOOL \
+			or state["destination_composition_ready"] != false:
 		return _fail(&"oyo_composition_claimed",
-			"the destination composition claims readiness inside Phase 2R", {})
+			"the legacy destination-composition probe changed without successor evidence", {})
 	var readiness: Variant = (gate.get("bootstrap_probe", {}) as Dictionary).get("readiness", {})
 	if typeof(readiness) != TYPE_DICTIONARY \
-			or bool((readiness as Dictionary).get("dating_presentation_ready", true)) != false:
+			or typeof(readiness.get("dating_presentation_ready")) != TYPE_BOOL \
+			or readiness["dating_presentation_ready"] != false:
 		return _fail(&"oyo_composition_claimed",
 			"the gate no longer records Dating as deliberately not ready", {})
-	if bool(state.get("dating_presentation_ready", true)) != false:
+	if typeof(state.get("dating_presentation_ready")) != TYPE_BOOL \
+			or state["dating_presentation_ready"] != true:
 		return _fail(&"oyo_composition_claimed",
-			"the Dating presentation claims readiness inside Phase 2R; dwm-oyo.4 owns it", {})
+			"the current Dating presentation regressed below the configured dwm-oyo.4 owner", {})
+	if typeof(state.get("dating_presentation_port_instance_id")) != TYPE_INT \
+			or state["dating_presentation_port_instance_id"] == 0:
+		return _fail(&"oyo_composition_claimed",
+			"the current Dating presentation requires its retained port", {})
 	return _ok({
 		"schedule_view_owner": OYO3_OWNER,
 		"destination_composition_owner": OYO3_OWNER,
-		"destination_composition_ready": false,
-		"dating_presentation_ready": false,
+		"destination_composition_probe_ready": false,
+		"sealed_dating_presentation_ready": false,
+		"live_dating_presentation_ready": true,
 		"dating_production_owner": "dwm-oyo.4",
+		"full_runtime_acceptance": false,
 	})
 
 
