@@ -73,8 +73,8 @@ func _native_invoke() -> void:
 	for argument: String in OS.get_cmdline_user_args():
 		if argument.begins_with("--control="):
 			control = argument.trim_prefix("--control=").capitalize()
-	if control not in ["Skip", "Auto"]:
-		push_error("Native accessibility control must be Skip or Auto.")
+	if control not in ["Skip", "Auto", "Load"]:
+		push_error("Native accessibility control must be Skip, Auto, or Load.")
 		quit(1)
 		return
 	var pid := OS.get_process_id()
@@ -107,7 +107,7 @@ func _native_invoke() -> void:
 		if not rail.project(false, false, auto_before, true):
 			quit(1)
 			return
-	else:
+	elif control == "Skip":
 		if not rail.bind_admission(func() -> bool: return true, input_owner):
 			quit(1)
 			return
@@ -115,7 +115,23 @@ func _native_invoke() -> void:
 		if not rail.project(true, false, auto_before):
 			quit(1)
 			return
+	else:
+		if not rail.has_method("bind_load_admission") or not rail.has_signal("load_requested") \
+				or not bool(rail.call("bind_load_admission", func() -> bool: return true, input_owner)):
+			quit(1)
+			return
+		rail.connect(&"load_requested", func(): _activations += 1)
+		if not bool(rail.call("project", false, false, auto_before, false, true)):
+			quit(1)
+			return
 	var button: Button = rail.get_node(control)
+	var save_disabled: bool = (rail.get_node("Save") as Button).disabled
+	var next_disabled: bool = (rail.get_node("Next") as Button).disabled
+	if not save_disabled or not next_disabled:
+		print("RESULT " + JSON.stringify({"ok": false, "code": "unowned_transport_enabled",
+			"save_disabled": save_disabled, "next_disabled": next_disabled}))
+		quit(1)
+		return
 	button.accessibility_name = control
 	button.pressed.connect(func(): _pressed_signals += 1)
 	button.pressed.emit()
@@ -130,10 +146,12 @@ func _native_invoke() -> void:
 	for frame: int in 3: await process_frame
 	await RenderingServer.frame_post_draw
 	print("READY " + JSON.stringify({"pid": pid, "window_title": title,
-		"control": control, "expected_caption": control + ": " + button.text,
+		"control": control, "expected_caption": button.text if control == "Load" else control + ": " + button.text,
 		"activations": _activations, "physical_contacts": input_owner.get_physical_contacts().size(),
 		"profile_auto_enabled": auto_before, "programmatic_pressed_rejected": true,
-		"scope": "native UIA provider and isolated Profile preference; no narrative integration claim"}))
+		"raw_pressed_inert": true,
+		"save_disabled": save_disabled, "next_disabled": next_disabled,
+		"scope": "native UIA rail dispatch only; no storage operation or mounted Backup flow claim"}))
 	var deadline := Time.get_ticks_msec() + 30000
 	while _activations == 0 and _pressed_signals == 0 and Time.get_ticks_msec() < deadline:
 		await process_frame
@@ -142,10 +160,16 @@ func _native_invoke() -> void:
 	var profile_ok: bool = control != "Auto" or (probe.profile_result.get("ok", false)
 		and not auto_before and auto_after)
 	var ok: bool = _activations == 1 and _pressed_signals == 0 \
-		and input_owner.get_physical_contacts().is_empty() and profile_ok
+		and input_owner.get_physical_contacts().is_empty() and profile_ok \
+		and (rail.get_node("Save") as Button).disabled \
+		and (rail.get_node("Next") as Button).disabled
 	print("RESULT " + JSON.stringify({"ok": ok, "activations": _activations,
 		"control": control, "pressed_signals": _pressed_signals,
 		"physical_contacts": input_owner.get_physical_contacts().size(),
+		"save_disabled": (rail.get_node("Save") as Button).disabled,
+		"next_disabled": (rail.get_node("Next") as Button).disabled,
 		"profile_auto_enabled_before": auto_before, "profile_auto_enabled_after": auto_after,
-		"profile_write_ok": probe.profile_result.get("ok", false) if control == "Auto" else null}))
+		"profile_write_ok": probe.profile_result.get("ok", false) if control == "Auto" else null,
+		"native_invoke_exact_once": _activations == 1 and _pressed_signals == 0,
+		"scope": "native UIA rail dispatch only; no storage operation or mounted Backup flow claim"}))
 	quit(0 if ok else 1)

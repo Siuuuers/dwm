@@ -2,7 +2,7 @@
 param(
     [Parameter(Mandatory = $true)][string]$LogPath,
     [string]$OutputPath,
-    [ValidateSet('Skip', 'Auto')][string]$Control = 'Skip'
+    [ValidateSet('Skip', 'Auto', 'Load')][string]$Control = 'Skip'
 )
 
 Set-StrictMode -Version Latest
@@ -33,10 +33,12 @@ if ($null -eq $ready) { throw "READY_TIMEOUT: $logFull" }
 
 $targetPid = [int]$ready.pid
 $expectedTitle = "DWM Witnessed Transport Accessibility $targetPid"
-$expectedCaption = $Control + ': ' + $Control + ' ' + [char]0x00b7 + ' Off'
+$expectedCaption = if ($Control -ceq 'Load') { 'Load' } else { $Control + ': ' + $Control + ' ' + [char]0x00b7 + ' Off' }
 if ($targetPid -le 0 -or [string]$ready.window_title -cne $expectedTitle -or
     [string]$ready.control -cne $Control -or [string]$ready.expected_caption -cne $expectedCaption -or
     -not [bool]$ready.programmatic_pressed_rejected -or
+    -not [bool]$ready.raw_pressed_inert -or
+    -not [bool]$ready.save_disabled -or -not [bool]$ready.next_disabled -or
     [int]$ready.activations -ne 0 -or [int]$ready.physical_contacts -ne 0 -or
     ($Control -ceq 'Auto' -and [bool]$ready.profile_auto_enabled)) {
     throw 'READY_CONTRACT_INVALID'
@@ -51,7 +53,7 @@ $scriptArgument = 'res://tests/manual/witnessed_transport_capture.gd'
 if ($commandLine.IndexOf($repositoryRoot, [StringComparison]::OrdinalIgnoreCase) -lt 0 -or
     $commandLine.IndexOf($scriptArgument, [StringComparison]::Ordinal) -lt 0 -or
     $commandLine.IndexOf('--native-invoke', [StringComparison]::Ordinal) -lt 0 -or
-    ($Control -ceq 'Auto' -and $commandLine.IndexOf('--control=Auto', [StringComparison]::Ordinal) -lt 0)) {
+    ($Control -cne 'Skip' -and $commandLine.IndexOf("--control=$Control", [StringComparison]::Ordinal) -lt 0)) {
     throw "READY_PROCESS_COMMAND_MISMATCH: $targetPid"
 }
 
@@ -95,6 +97,10 @@ if ($null -eq $button) {
     [IO.File]::WriteAllText($outputFull, $discovery, (New-Object Text.UTF8Encoding($false)))
     [Console]::Out.WriteLine($discovery)
     throw "UIA_BUTTON_NOT_FOUND: $Control pid=$targetPid"
+}
+
+if (-not [bool]$button.Current.IsEnabled) {
+    throw "UIA_BUTTON_DISABLED: $Control pid=$targetPid"
 }
 
 $invokeObject = $null

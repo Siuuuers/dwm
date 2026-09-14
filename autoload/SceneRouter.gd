@@ -49,6 +49,17 @@ func capture_pause_backup_checkpoint_inputs() -> Dictionary:
 	return _production_pause.capture_backup_checkpoint_inputs()
 
 
+func can_open_witnessed_backup_load(caption: Node) -> bool:
+	return is_instance_valid(_production_pause) \
+		and _production_pause.can_open_witnessed_backup_load(caption)
+
+
+func open_witnessed_backup_load(caption: Node) -> Dictionary:
+	if not is_instance_valid(_production_pause):
+		return {"ok": false, "code": &"pause_backup_unavailable"}
+	return await _production_pause.open_witnessed_backup_load(caption)
+
+
 func is_restore_publication_held() -> bool:
 	return not _restore_publication_handle.is_empty()
 

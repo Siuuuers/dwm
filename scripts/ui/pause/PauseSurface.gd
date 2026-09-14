@@ -212,6 +212,32 @@ func open_surface() -> void:
 	_sync_custody()
 	if _interactive: rows[&"continue"].grab_focus()
 
+## Enters the already configured Pause Backup host in Load mode without synthesizing
+## a Pause-row press. The host validates its own operation and mode state.
+func open_backup_load() -> bool:
+	if not is_node_ready() or not _opened or not _interactive or _return_retry \
+			or entered_action != &"" or is_instance_valid(_host_confirmation):
+		return false
+	var host: Control = _hosts.get(&"backup")
+	if not is_instance_valid(host) or not host.has_method("focus_entry") \
+			or not host.has_method("can_return_home") or not bool(host.call("can_return_home")):
+		return false
+	var prior_selected := selected_action
+	var prior_focus := get_viewport().gui_get_focus_owner()
+	selected_action = &"backup"
+	entered_action = &"backup"
+	_sync_custody()
+	var opened: Variant = host.call("focus_entry", &"load")
+	if typeof(opened) == TYPE_BOOL and opened:
+		return true
+	entered_action = &""
+	selected_action = prior_selected
+	_sync_custody()
+	if prior_focus is Control and prior_focus.is_visible_in_tree() \
+			and prior_focus.get_focus_mode_with_override() != Control.FOCUS_NONE:
+		prior_focus.grab_focus()
+	return false
+
 func close_surface() -> void:
 	if is_instance_valid(_host_confirmation): _host_confirmation._finish(false)
 	_opened = false

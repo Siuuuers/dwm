@@ -52,6 +52,15 @@ class InputOwner extends Node:
 		return true
 
 
+func _has_load_contract(rail: Control) -> bool:
+	if not rail.has_method("bind_load_admission"):
+		return false
+	for method: Dictionary in rail.get_method_list():
+		if method.name == "project":
+			return (method.get("args", []) as Array).size() >= 5
+	return false
+
+
 func test_six_controls_cover_the_exact_scaled_native_hit_rectangles() -> void:
 	var rail := _new_rail()
 	assert_true(rail.configure_presentation(CAPTION_THEME.build("en", 100, "AfterHours"), "en"))
@@ -131,6 +140,86 @@ func test_auto_signal_has_its_own_binding_and_final_admission() -> void:
 	(rail.get_node("Skip") as Node).emit_signal(&"activated")
 	assert_signal_emit_count(rail, "skip_requested", 1,
 		"Auto refusal does not disable the independent Skip owner")
+
+
+func test_load_signal_has_its_own_binding_projection_and_final_admission() -> void:
+	var rail := _new_rail()
+	assert_true(rail.configure_presentation(CAPTION_THEME.build("en", 100, "AfterHours"), "en"))
+	var skip_admission := Admission.new()
+	var load_admission := Admission.new()
+	var input_owner := InputOwner.new()
+	add_child_autofree(input_owner)
+	add_child_autofree(rail)
+	assert_true(rail.bind_admission(skip_admission.is_admitted, input_owner))
+	if not _has_load_contract(rail):
+		assert_true(false, "the rail must expose independent Load binding and projection")
+		return
+	assert_true(rail.call("bind_load_admission", load_admission.is_admitted, input_owner))
+	assert_true(rail.call("project", false, false, false, false, true))
+	var load := rail.get_node("Load") as Button
+	assert_false(load.disabled, "Load has independent projected availability")
+	assert_eq(load.focus_mode, Control.FOCUS_ALL)
+	assert_true((rail.get_node("Save") as Button).disabled, "Save remains an unowned placeholder")
+	assert_true((rail.get_node("Next") as Button).disabled, "Next remains an unowned placeholder")
+	watch_signals(rail)
+	load.pressed.emit()
+	assert_signal_not_emitted(rail, "load_requested",
+		"programmatic Button.pressed is not Load command admission")
+	load.emit_signal(&"activated")
+	assert_signal_emit_count(rail, "load_requested", 1)
+	skip_admission.allowed = false
+	load.emit_signal(&"activated")
+	assert_signal_emit_count(rail, "load_requested", 2,
+		"Skip admission cannot deny independently admitted Load")
+	load_admission.allowed = false
+	load.emit_signal(&"activated")
+	assert_signal_emit_count(rail, "load_requested", 2,
+		"the rail rechecks the Load owner at the activation boundary")
+
+
+func test_load_projection_retires_stale_native_actions_without_steady_state_churn() -> void:
+	var rail := _new_rail()
+	assert_true(rail.configure_presentation(CAPTION_THEME.build("en", 100, "AfterHours"), "en"))
+	var admission := Admission.new()
+	var input_owner := InputOwner.new()
+	add_child_autofree(input_owner)
+	add_child_autofree(rail)
+	if not _has_load_contract(rail):
+		assert_true(false, "the rail must expose independent Load binding and projection")
+		return
+	assert_true(rail.call("bind_load_admission", admission.is_admitted, input_owner))
+	assert_true(rail.call("project", false, false, false, false, true))
+	await get_tree().process_frame
+	var load := rail.get_node("Load") as Button
+	var enabled_generation: int = int(load.get("_generation"))
+	assert_true(rail.call("project", false, false, false, false, true))
+	assert_eq(int(load.get("_generation")), enabled_generation,
+		"an identical projection does not churn the Load input generation")
+	load.grab_focus()
+	assert_true(load.has_focus())
+	assert_true(rail.call("project", false, false, false, false, false))
+	assert_false(load.has_focus(), "disabled Load leaves Focus traversal")
+	assert_eq(int(load.get("_generation")), enabled_generation + 1,
+		"disabling Load retires exactly one input generation")
+	var disabled_generation: int = int(load.get("_generation"))
+	assert_true(rail.call("project", false, false, false, false, true))
+	await get_tree().process_frame
+	watch_signals(rail)
+	load.call("_on_accessibility_click", null, enabled_generation)
+	assert_signal_not_emitted(rail, "load_requested",
+		"a native callback queued before disable cannot activate after re-enable")
+	load.call("_on_accessibility_click", null, disabled_generation + 1)
+	assert_signal_emit_count(rail, "load_requested", 1,
+		"the current post-projection Load generation remains operable")
+	var before_hide: int = int(load.get("_generation"))
+	rail.hide()
+	rail.show()
+	await get_tree().process_frame
+	assert_gt(int(load.get("_generation")), before_hide,
+		"visibility retires Load with the rail")
+	load.call("_on_accessibility_click", null, before_hide)
+	assert_signal_emit_count(rail, "load_requested", 1,
+		"a native Load callback queued before hide cannot activate after show")
 
 
 func test_all_locales_and_text_sizes_keep_complete_labels_inside_their_plates() -> void:

@@ -105,6 +105,114 @@ func _request_delete() -> Control:
 	assert_not_null(sheet)
 	return sheet
 
+func test_direct_load_entry_uses_the_existing_backup_host_once_without_writing() -> void:
+	assert_true(_surface.has_method("open_backup_load"),
+		"Pause exposes one semantic rail-to-Backup Load entry")
+	if not _surface.has_method("open_backup_load"): return
+	var before_measure: int = _backup._measure_revision
+	assert_true(bool(_surface.call("open_backup_load")))
+	assert_eq(_surface.selected_action, &"backup")
+	assert_eq(_surface.entered_action, &"backup")
+	assert_true(_backup.is_visible_in_tree())
+	assert_eq(_backup.active_mode, "load")
+	assert_true(_backup.drawer_buttons["slot:1"].has_focus(),
+		"direct Load entry retains the Backup owner's ordinary selected-drawer focus")
+	assert_eq(_backup._measure_revision, before_measure + 1,
+		"entry refreshes the real record projection exactly once")
+	assert_eq(_files.snapshot_persisted(), _before)
+	assert_false(bool(_surface.call("open_backup_load")),
+		"an already entered host cannot be entered again")
+	assert_eq(_backup._measure_revision, before_measure + 1)
+
+func test_direct_load_entry_refuses_missing_busy_and_retired_pause_custody() -> void:
+	assert_true(_surface.has_method("open_backup_load"))
+	if not _surface.has_method("open_backup_load"): return
+	var bare: Control = PAUSE.instantiate()
+	_viewport.add_child(bare)
+	bare.open_surface()
+	assert_false(bool(bare.call("open_backup_load")),
+		"a Pause surface with no configured Backup host stays at its root")
+	assert_eq(bare.selected_action, &"continue")
+	assert_eq(bare.entered_action, &"")
+	bare.free()
+
+	var unconfigured_surface: Control = PAUSE.instantiate()
+	var unconfigured_backup: Control = BACKUP.instantiate()
+	assert_true(unconfigured_surface.set_host(&"backup", unconfigured_backup))
+	_viewport.add_child(unconfigured_surface)
+	unconfigured_surface.open_surface()
+	assert_false(bool(unconfigured_surface.call("open_backup_load")),
+		"a mounted Backup with no operation port cannot become the active host")
+	assert_eq(unconfigured_surface.selected_action, &"continue")
+	assert_eq(unconfigured_surface.entered_action, &"")
+	unconfigured_surface.free()
+
+	_surface.set_interactive(false)
+	assert_false(bool(_surface.call("open_backup_load")))
+	assert_eq(_surface.selected_action, &"continue")
+	assert_eq(_surface.entered_action, &"")
+	_surface.set_interactive(true)
+	_backup._in_operation = true
+	assert_false(bool(_surface.call("open_backup_load")),
+		"an operation in progress cannot be reset by a new host entry")
+	assert_true(_backup._in_operation)
+	_backup._in_operation = false
+	_backup._recovering = true
+	assert_false(bool(_surface.call("open_backup_load")),
+		"Backup recovery retains custody instead of being cleared on entry")
+	assert_true(_backup._recovering)
+	_backup._recovering = false
+	_surface.retain_return_retry()
+	assert_false(bool(_surface.call("open_backup_load")),
+		"retired-source recovery cannot be replaced by a fresh Backup command")
+	assert_eq(_surface.selected_action, &"return")
+	assert_eq(_surface.entered_action, &"return")
+
+func test_direct_load_entry_never_clears_backup_confirmation_or_prepared_token() -> void:
+	assert_true(_surface.has_method("open_backup_load"))
+	if not _surface.has_method("open_backup_load"): return
+	_enter_backup()
+	var sheet := _request_delete()
+	var token: Variant = _backup._pending_token
+	var mode: String = _backup.active_mode
+	var before_measure: int = _backup._measure_revision
+	assert_false(bool(_surface.call("open_backup_load")))
+	assert_same(_backup.confirmation, sheet)
+	assert_eq(_backup._pending_token, token)
+	assert_eq(_backup.active_mode, mode)
+	assert_eq(_backup._measure_revision, before_measure)
+	assert_eq(_files.snapshot_persisted(), _before)
+
+func test_backup_focus_entry_validates_mode_before_changing_live_operation_state() -> void:
+	assert_true(_backup.has_method("focus_entry"),
+		"Backup exposes its own validated semantic entry instead of host reach-through")
+	if not _backup.has_method("focus_entry"): return
+	var before_measure: int = _backup._measure_revision
+	assert_false(bool(_backup.call("focus_entry", &"history")))
+	assert_eq(_backup.active_mode, "save")
+	assert_eq(_backup._measure_revision, before_measure)
+	var title_backup: Control = BACKUP.instantiate()
+	title_backup.configure_title_login()
+	assert_true(title_backup.configure_backup(_port).get("ok", false))
+	_viewport.add_child(title_backup)
+	assert_false(bool(title_backup.call("focus_entry", &"load")),
+		"the in-run Pause seam cannot enter the title-only Log in cabinet")
+	title_backup.free()
+
+	_surface.rows[&"backup"].grab_focus()
+	_tap(KEY_RIGHT)
+	assert_eq(_backup.active_mode, "save",
+		"the established no-argument Pause entry still opens in the ordinary Save mode")
+	_backup.mode_buttons.load.grab_focus()
+	_tap(KEY_ENTER)
+	assert_eq(_backup.active_mode, "load")
+	var sheet := _request_delete()
+	var token: Variant = _backup._pending_token
+	assert_false(bool(_backup.call("focus_entry", &"load")))
+	assert_same(_backup.confirmation, sheet)
+	assert_eq(_backup._pending_token, token)
+	assert_eq(_backup.active_mode, "load")
+
 func test_preview_retains_real_nine_records_and_source_save_refusal_without_mutation() -> void:
 	_surface.rows[&"backup"].grab_focus()
 	assert_true(_backup.visible)

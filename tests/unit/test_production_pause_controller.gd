@@ -17,11 +17,14 @@ class RunOwner extends RefCounted:
 	var dating_state: Object
 	var day := 1
 	var dark_mode := false
+	var session_captures := 0
 	func capture_dating_challenge_state() -> Dictionary:
 		return dating_state.capture_dating_challenge_state()
 	var gate: Object
 	var handle := {"active": true, "generation": 1, "run_id": "pause-run", "owner_id": 42}
-	func capture_live_session() -> Dictionary: return {"ok": true, "value": handle.duplicate(true)}
+	func capture_live_session() -> Dictionary:
+		session_captures += 1
+		return {"ok": true, "value": handle.duplicate(true)}
 	func validate_live_session(expected: Dictionary) -> Dictionary:
 		return {"ok": expected == handle and handle.active and gate.guard_external(&"pause_fixture").ok}
 	func get_run_configuration() -> Dictionary: return {"ok": true, "value": {"dark_mode": dark_mode}}
@@ -186,6 +189,37 @@ func _open_pause() -> bool:
 	var result: Dictionary = await controller.request_pause()
 	assert_true(result.get("ok", false), JSON.stringify(result))
 	return result.get("ok", false)
+
+func test_witnessed_load_refuses_foreign_caption_without_session_or_backup_work() -> void:
+	assert_true(controller.has_method("can_open_witnessed_backup_load"))
+	assert_true(controller.has_method("open_witnessed_backup_load"))
+	if not controller.has_method("open_witnessed_backup_load"): return
+	var foreign := Node.new()
+	source.add_child(foreign)
+	var captures := run_owner.session_captures
+	for frame in 100:
+		assert_false(controller.call("can_open_witnessed_backup_load", foreign))
+		assert_false(controller.call("can_open_witnessed_backup_load", null))
+	var refused: Dictionary = await controller.call("open_witnessed_backup_load", foreign)
+	assert_false(refused.get("ok", true))
+	assert_eq(run_owner.session_captures, captures,
+		"availability projection and refused foreign input never copy the live session")
+	assert_eq(saves.inspections, 0)
+	assert_eq(saves.writes, 0)
+	assert_false(get_tree().paused)
+	assert_true(source.visible)
+	assert_true(focus.has_focus())
+
+func test_router_witnessed_load_facade_refuses_when_pause_owner_is_absent() -> void:
+	var facade: Node = load("res://autoload/SceneRouter.gd").new()
+	add_child_autofree(facade)
+	assert_true(facade.has_method("can_open_witnessed_backup_load"))
+	assert_true(facade.has_method("open_witnessed_backup_load"))
+	if not facade.has_method("open_witnessed_backup_load"): return
+	assert_false(facade.call("can_open_witnessed_backup_load", source))
+	var refused: Dictionary = await facade.call("open_witnessed_backup_load", source)
+	assert_false(refused.get("ok", true))
+	assert_false(get_tree().paused)
 
 func test_desktop_pause_continue_preserves_scene_focus_and_real_input_custody() -> void:
 	if not await _open_pause(): return

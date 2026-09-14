@@ -93,6 +93,7 @@ var _backup_port: RefCounted
 var _busy := false
 var _loading := false
 var _witnessed_load := false
+var _requested_load_caption: Node
 
 func _init() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -131,6 +132,41 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not source.get("ok", false): return
 	get_viewport().set_input_as_handled()
 	request_pause()
+
+## Projection only rules out unavailable sources. Native frontier/session capture belongs
+## to the activation boundary, never to a caption's per-frame rail projection.
+func can_open_witnessed_backup_load(caption: Node) -> bool:
+	if _services.is_empty() or not is_inside_tree() or _busy or _loading \
+			or not _handle.is_empty() or get_tree().paused:
+		return false
+	if not is_instance_valid(caption) or caption.get_script() != CAPTION \
+			or not caption.is_inside_tree() or caption.is_queued_for_deletion() \
+			or caption.get_viewport() != get_viewport():
+		return false
+	var canvas: Control = caption.get("canvas")
+	var scene := get_tree().current_scene as Control
+	if not is_instance_valid(canvas) or not canvas.is_visible_in_tree() \
+			or scene == null or scene.is_queued_for_deletion() or not scene.is_visible_in_tree():
+		return false
+	if _router.get_current_route_id() not in ["main", "dating", "hospital", "ending"] \
+			or not _services.bridge.has_active_playback() \
+			or not _services.input.is_source_input_admitted():
+		return false
+	return _services.gate.guard_external(&"universal_pause").get("ok", false)
+
+## The real Pause owner retains source and Back custody. A rejected Backup entry
+## leaves its ordinary Continue surface available instead of abandoning suspension.
+func open_witnessed_backup_load(caption: Node) -> Dictionary:
+	if not can_open_witnessed_backup_load(caption): return _failure(&"pause_backup_unavailable")
+	if _find_caption(get_tree().root) != caption: return _failure(&"pause_source_changed")
+	_requested_load_caption = caption
+	var opened: Dictionary = await request_pause()
+	_requested_load_caption = null
+	if not opened.get("ok", false): return opened
+	if not is_instance_valid(caption) or _caption != caption or not can_load_backup():
+		return _failure(&"pause_source_changed")
+	if not surface.open_backup_load(): return _failure(&"pause_backup_unavailable")
+	return {"ok": true, "value": {"opened": true}}
 
 func request_pause() -> Dictionary:
 	if _busy or not _handle.is_empty(): return _failure(&"pause_busy")
@@ -284,9 +320,13 @@ func capture_pause_view(source: Dictionary) -> Dictionary:
 		_caption = bridge.get_art_hold_view() if bridge != null and bridge.has_method("get_art_hold_view") else null
 		if _caption == null: _caption = _find_caption(get_tree().root)
 		if _caption == null: return _failure(&"pause_view_unavailable")
+		if _requested_load_caption != null and _caption != _requested_load_caption:
+			return _failure(&"pause_source_changed")
 		var captured: Dictionary = _caption.capture_pause_view(source)
 		if not captured.get("ok", false): return captured
 		_caption_anchor = captured.value.duplicate(true)
+	elif _requested_load_caption != null:
+		return _failure(&"pause_source_changed")
 	return {"ok": true, "value": _view_anchor.duplicate(true)}
 
 func cover_pause_view(anchor: Dictionary) -> bool:
