@@ -71,7 +71,7 @@ static func get_module_path(name:String, builtin:=true) -> String:
 ## This is a private and editor-only function.
 ##
 ## Populates the [class DialogicGameHandler] with new custom subsystems by
-## directly manipulating the file's content and then importing the file.
+## directly manipulating the file's content and refreshing the editor filesystem.
 static func _update_autoload_subsystem_access() -> void:
 	if not Engine.is_editor_hint():
 		printerr("[Dialogic] This function is only available in the editor.")
@@ -91,12 +91,20 @@ static func _update_autoload_subsystem_access() -> void:
 	)
 
 	for subsystem: Dictionary in subsystems_sorted:
-		new_subsystem_access_list += '\nvar {name} := preload("{script}").new():\n\tget: return get_subsystem("{name}")\n'.format(subsystem)
+		new_subsystem_access_list += _subsystem_access_declaration(subsystem)
 
 	new_subsystem_access_list += "\n#endregion"
 	script.source_code = RegEx.create_from_string(r"#region SUBSYSTEMS\n#*\n((?!#endregion)(.*\n))*#endregion").sub(script.source_code, new_subsystem_access_list)
 	ResourceSaver.save(script)
-	Engine.get_singleton("EditorInterface").get_resource_filesystem().reimport_files(["res://addons/dialogic/Core/DialogicGameHandler.gd"])
+	# GDScript is a text resource, not an asset handled by an import plugin.
+	Engine.get_singleton("EditorInterface").get_resource_filesystem().update_file("res://addons/dialogic/Core/DialogicGameHandler.gd")
+
+
+static func _subsystem_access_declaration(subsystem: Dictionary) -> String:
+	# Keep the anonymous script type without constructing an unused Node for type inference.
+	return ('\nconst _DIALOGIC_SUBSYSTEM_TYPE_{name} = preload("{script}")\n'
+		+ 'var {name}: _DIALOGIC_SUBSYSTEM_TYPE_{name}:\n'
+		+ '\tget: return get_subsystem("{name}")\n').format(subsystem)
 
 
 static func get_indexers(include_custom := true, force_reload := false) -> Array[DialogicIndexer]:
