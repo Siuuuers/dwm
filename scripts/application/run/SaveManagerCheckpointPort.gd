@@ -130,9 +130,16 @@ func capture() -> Dictionary:
 
 func prepare(checkpoint_inputs: Dictionary, checkpoint_kind: StringName, disk_write: Dictionary) -> Dictionary:
 	_clear_prepared_text_validation()
+	# Permanent env-gated prepare-side profile (dwm-634.3): one boolean per phase while unset,
+	# the same gate, helpers and output line as commit()'s `save_checkpoint` record.
+	var profile := {}
+	var tick := 0
 	if OS.get_environment("DWM_CHECKPOINT_PROFILE") == "1":
 		_profile_text_validator_calls = 0
 		_profile_text_validator_us = 0
+		tick = Time.get_ticks_usec()
+		profile = {"scope": "save_checkpoint_prepare", "checkpoint_kind": str(checkpoint_kind),
+			"autosave": str(disk_write.get("kind", "")) == "autosave", "_started_us": tick}
 	var readiness := _readiness()
 	if not readiness.is_empty():
 		return readiness
@@ -199,19 +206,22 @@ func prepare(checkpoint_inputs: Dictionary, checkpoint_kind: StringName, disk_wr
 	var view_participant: Object = _restore_participants().get("schedule_view")
 	if is_instance_valid(view_participant) and view_participant.has_method("compose_live_checkpoint_input"):
 		snapshot_input = view_participant.compose_live_checkpoint_input(snapshot_input)
+	tick = _profile_phase(profile, "view_capture_us", tick)
 	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(
 		snapshot_input, checkpoint_inputs["dialogic_checkpoint"],
 		str(checkpoint_inputs["route_id"]), active_app_id,
 		checkpoint_inputs["audio_context"], int(checkpoint_inputs["content_version"]),
 		int(peeked["value"]["checkpoint_sequence"]))
+	tick = _profile_phase(profile, "run_snapshot_build_us", tick)
 	if not built.get("ok", false):
-		return built
+		return _profile_result(profile, built)
 	# `RunSnapshotSchema.build()` returns the candidate its own `validate()` produced, so the journal is
 	# handed that exact object as the proof it was already validated (identity, not a flag).
 	var prepared_record: Dictionary = _journal().prepare_record(built["value"]["snapshot"], checkpoint_kind,
 		built["value"]["snapshot"])
+	tick = _profile_phase(profile, "journal_prepare_us", tick)
 	if not prepared_record.get("ok", false):
-		return prepared_record
+		return _profile_result(profile, prepared_record)
 	var journal_candidate: Dictionary = prepared_record["value"]["candidate"]
 	var checkpoint_id := str(built["value"]["snapshot"]["checkpoint_id"])
 	var candidate := {
@@ -226,18 +236,20 @@ func prepare(checkpoint_inputs: Dictionary, checkpoint_kind: StringName, disk_wr
 		var projected_earlier: Array = journal_candidate["earlier"]
 		var document: Dictionary = SAVE_DOCUMENT_SCHEMA.build(
 			&"autosave", null, StringName(reason), journal_candidate["current"], projected_earlier)
+		tick = _profile_phase(profile, "document_build_us", tick)
 		if not document.get("ok", false):
-			return document
+			return _profile_result(profile, document)
 		candidate["autosave_document"] = document["value"]
 		var backup := _capture_storage_backup(AUTOSAVE_RELATIVE_PATH, validated_texts)
+		tick = _profile_phase(profile, "backup_us", tick)
 		if not backup.get("ok", false):
-			return backup
+			return _profile_result(profile, backup)
 		candidate["storage_backup"] = backup["value"]["descriptor"]
 	_prepared_text_validations = validated_texts
 	_prepared_validation_checkpoint = checkpoint_id
 	_prepared_validation_frame = Engine.get_process_frames()
-	return {"ok": true, "code": &"ok",
-		"value": {"candidate": candidate, "checkpoint_id": checkpoint_id}}
+	return _profile_result(profile, {"ok": true, "code": &"ok",
+		"value": {"candidate": candidate, "checkpoint_id": checkpoint_id}})
 
 func commit(candidate: Dictionary) -> Dictionary:
 	var validated_texts := _take_prepared_text_validation(candidate)

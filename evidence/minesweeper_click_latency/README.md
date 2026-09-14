@@ -194,3 +194,32 @@ exists to measure).
   of it write_atomic. App win settled 733 ms, loss 665-714 ms, dating 445-451 ms; on this slower
   machine day those sit inside the noise band and no end-to-end claim is attached beyond the
   phase figures above.
+
+### Step 2: prepare-side profile record, and no redundant journal copy in SaveDocumentSchema.build (commit after 7d38c4fbf)
+
+SaveManagerCheckpointPort.prepare had no timer at all; commit() was the only decomposed side. The
+commit adds a permanent env-gated record (same DWM_CHECKPOINT_PROFILE=1 gate, helpers and output
+line as commit's save_checkpoint record) scoped save_checkpoint_prepare with the phases
+view_capture_us (entry through the schedule-view capture and live composition),
+run_snapshot_build_us, journal_prepare_us, document_build_us and backup_us (the last two on
+autosave prepares only); one boolean per phase while unset. It also drops the journal.duplicate(true)
+in SaveDocumentSchema.build: RunSnapshotSchema._normalize_integral_floats allocates a fresh
+container at every node, so the copy rebuilt the whole retained history twice per save, and every
+production caller passes a fresh copy nothing else retains. SaveManagerCheckpointPort.gd is bound by
+the desktop handoff contract, so evidence/phase_2r/handoff/desktop_contract.json is regenerated in
+this commit (the minesweeper contract came back byte-identical).
+
+- settlement4-step2-red-7d38c4fbf.log: test_save_document_schema and test_save_manager_checkpoint_port,
+  51 tests, 49 passing / 2 failing on the source pins (no journal.duplicate(true); the
+  save_checkpoint_prepare scope and the five phase strings). The detachment guard (both mutation
+  directions, identity at depth) and the profiled-prepare guard are green before and after.
+- settlement4-step2-green-7d38c4fbf.log: the 26 unit suites that reference either file, 485 passing / 0.
+- settlement4-step2-reseal-desktop-7d38c4fbf.log and -minesweeper-: the handoff contracts regenerated.
+- settlement4-step2-profile-win-7d38c4fbf.log and -loss-: the first prepare split. Per big autosave
+  prepare (35-76 ms): document_build 25-62 ms, run_snapshot_build 3-10, backup 2-6, journal_prepare
+  1-3, view_capture under 1.5. Non-autosave day_resolution_stage prepares are 6-8 ms. So the
+  remaining prepare cost is SaveDocumentSchema.build re-validating and re-normalizing the two
+  retained journal bundles (about 300 KB) on every save although the journal already holds them
+  validated; that is the next measured candidate, not this step. The duplicate removal is not
+  separable from run noise. App win settled 678-691 ms, loss 693-808 ms, dating 424-446 ms;
+  board_fate ledger write 56-70 ms (write_atomic 35-42 of it).

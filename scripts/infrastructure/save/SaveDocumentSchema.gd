@@ -59,7 +59,9 @@ static func build(
 	# `schema_version`, `kind` and `save_reason` are int/String literals and `checkpoint_kind` is
 	# `str()`-ed, so only `slot_id`, the journal and the optional metadata can carry an integral
 	# float. `saved_time` is still normalized BEFORE `validate_saved_time()` reads it below, and
-	# the journal is still deep-copied and rebuilt untyped.
+	# the journal is still rebuilt untyped and detached by `_normalize_integral_floats()` itself,
+	# which allocates a fresh Dictionary/Array at every container node: the `duplicate(true)`
+	# that used to precede it copied the whole retained history a second time per save.
 	var document := {
 		"schema_version": DOCUMENT_VERSION,
 		"kind": String(kind),
@@ -69,8 +71,7 @@ static func build(
 			"checkpoint_kind": str(current_bundle["checkpoint_kind"]),
 			"snapshot": bundle_error["value"]["candidate"],
 		},
-		"recovery_journal": RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(
-			journal.duplicate(true)),
+		"recovery_journal": RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(journal),
 	}
 	if not saved_time.is_empty():
 		document["saved_time"] = RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(
@@ -249,7 +250,7 @@ static func _fail(code: StringName, message: String) -> Dictionary:
 ## Identity-preserving: a subtree that holds no StringName is returned AS IS, so the common
 ## StringName-free build allocates nothing here. Exact mirror of
 ## `SaveManagerCheckpointPort._normalize_json_string_types()`. Detachment is unaffected --
-## `build()` replaces the bundle with `_validate_bundle()`'s own candidate and still deep-copies
+## `build()` replaces the bundle with `_validate_bundle()`'s own candidate and still detaches
 ## the journal when it composes the document -- so the persisted document never aliases an input.
 static func _normalize_engine_text(value: Variant) -> Variant:
 	match typeof(value):

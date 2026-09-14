@@ -558,3 +558,50 @@ func test_build_passes_the_validated_bundle_through_instead_of_renormalizing_it(
 	assert_eq(typeof(current.snapshot.schema_version), TYPE_FLOAT,
 		"the caller's bundle is never mutated")
 	assert_eq(typeof(journal[0]["count"]), TYPE_FLOAT, "the caller's journal is never mutated")
+
+
+func test_build_composes_the_journal_without_a_redundant_deep_copy() -> void:
+	# dwm-634.3 session 4 Step 2 (a): build() deep-copies the journal and then hands the copy to
+	# _normalize_integral_floats, which already allocates a fresh Dictionary/Array at EVERY container
+	# node (see SaveManagerCheckpointPort.gd's _validate_document note). The copy is pure waste, and
+	# every production caller passes a journal nobody mutates. Like A1 the change is allocation-only
+	# with no value observable, so the source text is the observable (RED row); the detachment the
+	# copy used to guarantee is then pinned behaviourally, green before and after.
+	assert_true(_schema_exists(), "SaveDocumentSchema must exist")
+	if not _schema_exists():
+		return
+	var source := FileAccess.get_file_as_string(SCHEMA_PATH)
+	assert_false(source.is_empty(), "the schema source must be readable")
+	assert_false(source.contains("journal.duplicate(true)"),
+		"build() must not deep-copy the journal before a walk that rebuilds every container")
+
+	# Detachment rests on the normalizer alone once the copy is gone: a two-bundle journal whose
+	# fixture bundles carry no StringName (so _normalize_engine_text hands them back by identity).
+	var schema: Script = load(SCHEMA_PATH)
+	var first := _bundle()
+	var second := _bundle()
+	var journal: Array = [first, second]
+	var built: Dictionary = schema.build(&"autosave", null, &"automatic", _bundle(), journal)
+	assert_true(built.get("ok", false), str(built))
+	if not built.get("ok", false):
+		return
+	var persisted: Array = built["value"]["recovery_journal"]
+	assert_eq(persisted.size(), 2, "both journal bundles are persisted")
+	assert_false(is_same(persisted, journal), "the persisted journal is not the caller's Array")
+	assert_false(is_same(persisted[0], first), "...nor its first entry")
+	assert_false(is_same(persisted[1], second), "...nor its second entry")
+	assert_false(is_same(persisted[0]["snapshot"], first["snapshot"]), "...at depth")
+	assert_false(is_same(persisted[0]["snapshot"]["lifecycle"], first["snapshot"]["lifecycle"]),
+		"...at every depth")
+
+	# Document -> input: the fixture's integer leaf lifecycle.day is 3 on both sides.
+	assert_eq(int(first["snapshot"]["lifecycle"]["day"]), 3, "fixture precondition")
+	(persisted[0]["snapshot"]["lifecycle"] as Dictionary)["day"] = 99
+	assert_eq(int(first["snapshot"]["lifecycle"]["day"]), 3,
+		"mutating the persisted journal cannot reach the input bundle")
+	# Input -> document.
+	(second["snapshot"]["lifecycle"] as Dictionary)["day"] = 42
+	assert_eq(int(persisted[1]["snapshot"]["lifecycle"]["day"]), 3,
+		"mutating the input bundle after build cannot reach the persisted journal")
+	journal.append({"late": true})
+	assert_eq(persisted.size(), 2, "mutating the input journal after build cannot reach the document")

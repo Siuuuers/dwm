@@ -1098,3 +1098,45 @@ func test_normalized_preimage_is_deep_equal_and_never_aliases_the_callers_stage_
 	assert_eq((prepared["value"] as Dictionary)["checkpoint_receipt"], receipt_before)
 	assert_eq(str(((prepared["value"] as Dictionary)["checkpoint_receipt"] as Dictionary)["content_sha256"]),
 		expected_hash, "the content hash still proves the bytes that were prepared")
+
+
+## --- Permanent env-gated prepare profile (dwm-634.3 session 4 Step 2 (b)) ----------------------
+## prepare() gains the same DWM_CHECKPOINT_PROFILE=1 record commit() already emits, scoped
+## "save_checkpoint_prepare" and stamped with the five phase names below through the existing
+## static _profile_phase(); results flow through _profile_result(), which prints the
+## `DWM_CHECKPOINT_PROFILE {json}` line. The record's FIELDS (elapsed_us, ok, per-phase micros) are
+## asserted by the archived benchmark log in evidence/minesweeper_click_latency, not here, matching
+## how the commit-side markers are covered; this test pins the scope and phase names in the source
+## and guards that a profiled autosave prepare still succeeds.
+const PREPARE_PROFILE_PHASES := ["view_capture_us", "run_snapshot_build_us", "journal_prepare_us",
+	"document_build_us", "backup_us"]
+
+
+func test_prepare_emits_a_permanent_env_gated_profile_record() -> void:
+	var source := FileAccess.get_file_as_string(CHECKPOINT_PORT_PATH)
+	assert_false(source.is_empty(), "the port source must be readable")
+	assert_true(source.contains('"scope": "save_checkpoint_prepare"'),
+		"prepare() builds a profile record scoped save_checkpoint_prepare")
+	for phase: String in PREPARE_PROFILE_PHASES:
+		assert_true(source.contains('_profile_phase(profile, "' + phase + '"'),
+			"prepare() stamps the " + phase + " phase through _profile_phase")
+
+	# Behavioural guard: an autosave disk_write so document_build_us and backup_us are exercised.
+	var wired := _isolated_wired()
+	var snapshot := _completion_snapshot()
+	assert_true(wired["manager"]._journal.reset(str(snapshot["run_id"])).get("ok", false))
+	var lease: Dictionary = wired["gate"].acquire(&"causal_transaction")
+	assert_true(lease.get("ok", false), JSON.stringify(lease))
+	OS.set_environment("DWM_CHECKPOINT_PROFILE", "1")
+	var prepared: Dictionary = wired["port"].prepare(_checkpoint_inputs(snapshot), &"post_result",
+		{"kind": &"autosave", "reason": &"automatic"})
+	OS.unset_environment("DWM_CHECKPOINT_PROFILE")
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	if prepared.get("ok", false):
+		var candidate: Dictionary = prepared["value"]["candidate"]
+		assert_false(str(candidate.get("checkpoint_id", "")).is_empty(),
+			"a profiled prepare still issues a checkpoint_id")
+		assert_eq(str(candidate["checkpoint_id"]), str(prepared["value"]["checkpoint_id"]))
+		assert_not_null(candidate.get("autosave_document"), "the autosave document was built under profiling")
+		assert_not_null(candidate.get("storage_backup"), "the storage backup was captured under profiling")
+	assert_true(wired["gate"].release(&"causal_transaction", lease["value"]["token"]).get("ok", false))
