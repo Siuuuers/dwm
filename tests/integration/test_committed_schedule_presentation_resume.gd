@@ -49,6 +49,7 @@ const HOSPITAL_PORT := preload("res://scripts/application/run/HospitalPresentati
 const PRESENTATION_OWNER := preload("res://scripts/application/narrative/DialogicPresentationOwnerAdapter.gd")
 const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 const MINESWEEPER_PORT := preload("res://scripts/application/minesweeper/GameStateMinesweeperPort.gd")
+const SCHEDULE_RESTORE_FIXTURE := preload("res://tests/support/ScheduleRestoreFixture.gd")
 
 const CAUSAL_DAY := "causal_day_instance.5555555555555555555555555555555555555555555555555555555555555555"
 const VIEW_FINGERPRINT := "schedule_view.55555555555555555555555555555555"
@@ -65,6 +66,7 @@ var _state_port: RefCounted
 var _dating_port: RefCounted
 var _dating_owner: RefCounted
 var _hospital_port: RefCounted
+var _schedule_view: RefCounted
 ## Retained only so the Cut-9 crash can carry the Plan-02 consequence records across it; every
 ## other cut ignores it. See `_crash_from_document`.
 var _consequence: RefCounted
@@ -99,6 +101,9 @@ func _boot() -> void:
 	assert_true(store.load_or_create().get("ok", false))
 	_issuer = ISSUER.new()
 	assert_true(_issuer.configure(store).get("ok", false))
+	var schedule_fixture: Dictionary = SCHEDULE_RESTORE_FIXTURE.create(_issuer)
+	assert_true(schedule_fixture.get("ok", false), JSON.stringify(schedule_fixture))
+	_schedule_view = (schedule_fixture.get("value", {}) as Dictionary).get("view")
 
 	_game_state = load(GAME_STATE_PATH).new()
 	add_child_autofree(_game_state)
@@ -125,7 +130,7 @@ func _boot() -> void:
 		_completions.append((result["receipt"] as Dictionary).duplicate(true)))
 
 	# A TRIGGERED Hospital presents as well, so a walk that passes through one needs the real
-	# narrative owner over a real bridge to carry it.
+	# narrative owner over a real bridge to carry its notice or receipt-proven playback.
 	_bridge = load("res://autoload/DialogicBridge.gd").new()
 	add_child_autofree(_bridge)
 	var narrative_owner: RefCounted = PRESENTATION_OWNER.new()
@@ -591,7 +596,11 @@ func test_a_crash_across_the_hospital_presentation_restores_the_flag_with_the_pl
 	if _root.is_empty():
 		return
 	_commit_and_begin(3, [_date("d-lav", 0, "lavinia", 3)])
-	_game_state.pending_hospital = true
+	# Exercise the real carried-condition rule rather than forcing its result flag. The
+	# commit_outcomes stage derives and installs pending_hospital from these exact live inputs.
+	_game_state.set_stat("pressure", 10)
+	_game_state.set_stat("health", 5)
+	_game_state.condition_effects_today.assign(["sequela"])
 
 	# The durable restore point is the checkpoint the stage BEFORE Hospital wrote: a presentation
 	# checkpoints nothing until it completes, so this is the document a crash DURING one actually
@@ -710,7 +719,7 @@ func _complete_begun(begun_value: Dictionary) -> bool:
 	return completed.get("ok", false)
 
 
-## Carries an awaiting HOSPITAL presentation to a completed stage, through the real narrative owner.
+## Carries an awaiting ordinary HOSPITAL notice to a completed stage through the real owner.
 func _settle_hospital_presentation(begun_value: Dictionary) -> bool:
 	var command: Dictionary = begun_value["command"]
 	assert_eq(str(command["route_id"]), "hospital",
@@ -720,7 +729,13 @@ func _settle_hospital_presentation(begun_value: Dictionary) -> bool:
 	if not started.get("ok", false):
 		return false
 	_completions = []
-	_bridge.call(&"_on_runtime_timeline_ended")
+	assert_false(_bridge.has_active_playback(),
+		"an ordinary Hospital notice starts no Dialogic playback")
+	var acknowledged: Dictionary = _hospital_port.acknowledge_notice(
+		(started["value"] as Dictionary)["presentation_command"])
+	assert_true(acknowledged.get("ok", false), JSON.stringify(acknowledged))
+	if not acknowledged.get("ok", false):
+		return false
 	if _completions.size() != 1:
 		assert_true(false, "the Hospital port published exactly one completion")
 		return false
@@ -858,9 +873,16 @@ func _command(label: String) -> Dictionary:
 ## `snapshot_input` the coordinator forwards verbatim to the checkpoint port -- and writing each one
 ## to disk. Returns the LAST document, read back from those bytes.
 ##
-## `prepare_completion` is pure (it applies the stage to a DETACHED lifecycle clone), so calling it
-## for the bundle and then completing the live stage records exactly what a checkpoint would have.
+## `prepare_completion` is pure and returns the complete detached Run candidate. The coordinator's
+## real order is prepare -> persist that candidate -> commit the SAME candidate through the state
+## port; following that order here keeps gameplay and lifecycle on the same durable boundary.
 func _walk_to_hospital_checkpoint() -> Dictionary:
+	var lifecycle: Dictionary = _game_state._run_lifecycle.to_dict()
+	var opened: Dictionary = _schedule_view.open_day(
+		int(lifecycle["day"]), str(lifecycle["causal_day_instance"])) if _schedule_view != null else {}
+	assert_true(opened.get("ok", false), JSON.stringify(opened))
+	if not opened.get("ok", false):
+		return {}
 	var written := {}
 	var steps := 0
 	while steps < MAX_WALK_STEPS:
@@ -871,6 +893,8 @@ func _walk_to_hospital_checkpoint() -> Dictionary:
 			return {}
 		var record: Dictionary = cursor["value"]["stage"]
 		if str(record.get("stage_id", "")) == "hospital_if_triggered":
+			assert_true(bool(_game_state.pending_hospital),
+				"the committed condition stage derived the live Hospital flag")
 			return written
 		var begun: Dictionary = _state_port.begin_next_stage()
 		assert_true(begun.get("ok", false), JSON.stringify(begun))
@@ -893,20 +917,26 @@ func _walk_to_hospital_checkpoint() -> Dictionary:
 		written = _persist_checkpoint((prepared["value"] as Dictionary)["snapshot_input"], steps)
 		if written.is_empty():
 			return {}
-		var completed: Dictionary = _game_state._run_lifecycle.complete_active_stage(
-			transaction_id, {"value": (receipt["value"] as Dictionary).duplicate(true)})
-		assert_true(completed.get("ok", false), JSON.stringify(completed))
-		if not completed.get("ok", false):
+		var committed: Dictionary = _state_port.commit(
+			(prepared["value"] as Dictionary)["run_candidate"])
+		assert_true(committed.get("ok", false), JSON.stringify(committed))
+		if not committed.get("ok", false):
 			return {}
 	assert_true(false, "the walk stopped advancing before the Hospital stage")
 	return {}
 
 
-## Builds the v3 snapshot from the port's own checkpoint inputs, writes it as JSON, and reads it
+## Builds the current snapshot from the port's own checkpoint inputs, writes it as JSON, and reads it
 ## BACK. The round trip is the point: the restore may only see what actually survived as bytes.
 func _persist_checkpoint(inputs: Dictionary, sequence: int) -> Dictionary:
+	var snapshot_input: Dictionary = (inputs["snapshot_input"] as Dictionary).duplicate(true)
+	var schedule: Dictionary = _schedule_view.snapshot() if _schedule_view != null else {}
+	assert_true(schedule.get("ok", false), JSON.stringify(schedule))
+	if not schedule.get("ok", false):
+		return {}
+	snapshot_input["schedule_view"] = (schedule["value"] as Dictionary)["view"]
 	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(
-		inputs["snapshot_input"], inputs["dialogic_checkpoint"], str(inputs["route_id"]),
+		snapshot_input, inputs["dialogic_checkpoint"], str(inputs["route_id"]),
 		inputs["active_app_id"], inputs["audio_context"], int(inputs["content_version"]), sequence)
 	assert_true(built.get("ok", false), JSON.stringify(built))
 	if not built.get("ok", false):

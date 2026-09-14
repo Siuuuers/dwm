@@ -92,8 +92,8 @@ func before_each() -> void:
 	assert_true(_state_port.configure_resolution_identity(
 		_issuer, START_PORT.new(_state_port, _registry, _issuer, ledger)).get("ok", false))
 
-	# The REAL narrative owner over a real bridge: a Hospital presentation completes only when a
-	# timeline actually ends, never because a test said so.
+	# The REAL narrative owner over a real bridge: an ordinary Hospital completes only through its
+	# explicit notice acknowledgment; the receipt-proven Sylvia branch retains real playback.
 	_presentation_receipts = []
 	_bridge = load("res://autoload/DialogicBridge.gd").new()
 	add_child_autofree(_bridge)
@@ -512,16 +512,22 @@ func _complete_current() -> bool:
 ## Carries one awaiting presentation to its physical completion through the REAL port and owner,
 ## and returns the stage envelope value that embeds the port's completion receipt.
 ##
-## The physical completion is driven by ending a timeline on the bridge -- the same seam production
-## uses -- so nothing here fabricates evidence that a presentation happened. The stage is left
-## ACTIVE: committing it is the caller's decision.
+## The physical completion is driven through the ordinary notice's public acknowledgment seam, so
+## nothing here fabricates Dialogic playback that did not happen. The stage is left ACTIVE:
+## committing it is the caller's decision.
 func _presentation_receipt_value(begun_value: Dictionary) -> Dictionary:
 	var command: Dictionary = begun_value["command"]
 	var started: Dictionary = _hospital_port.begin(command["presentation_request"])
 	assert_true(started.get("ok", false), JSON.stringify(started))
 	if not started.get("ok", false):
 		return {}
-	_bridge.call(&"_on_runtime_timeline_ended")
+	assert_false(_bridge.has_active_playback(),
+		"an ordinary Hospital notice starts no Dialogic playback")
+	var acknowledged: Dictionary = _hospital_port.acknowledge_notice(
+		(started["value"] as Dictionary)["presentation_command"])
+	assert_true(acknowledged.get("ok", false), JSON.stringify(acknowledged))
+	if not acknowledged.get("ok", false):
+		return {}
 	assert_eq(_presentation_receipts.size(), 1, "the port published exactly one completion")
 	if _presentation_receipts.size() != 1:
 		return {}

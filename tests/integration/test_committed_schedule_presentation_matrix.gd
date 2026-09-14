@@ -52,6 +52,10 @@ const CONTACT_STATE := preload("res://scripts/domain/contact/ContactInvitationSt
 const CONSEQUENCE_SOURCE := preload("res://tests/support/FakeDesktopConsequenceSource.gd")
 const STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
 const MINESWEEPER_PORT := preload("res://scripts/application/minesweeper/GameStateMinesweeperPort.gd")
+const PROFILE := preload("res://autoload/ProfileManager.gd")
+const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
+const PAIR_DECK := preload("res://scripts/application/run/PairDeckDrawPort.gd")
+const CONDITION_COORDINATOR := preload("res://scripts/application/run/ConditionHospitalCoordinator.gd")
 
 const CAUSAL_DAY := "causal_day_instance.6666666666666666666666666666666666666666666666666666666666666666"
 const VIEW_FINGERPRINT := "schedule_view.66666666666666666666666666666666"
@@ -85,6 +89,8 @@ var _registry: RefCounted
 var _fingerprint := ""
 var _issuer: RefCounted
 var _game_state: Node
+var _profile: Node
+var _gate: RefCounted
 var _state_port: RefCounted
 var _consequence: RefCounted
 var _commands: Dictionary = {}
@@ -115,6 +121,12 @@ func before_each() -> void:
 	_game_state = load(GAME_STATE_PATH).new()
 	add_child_autofree(_game_state)
 	_game_state.reset_game()
+	_gate = GATE.new()
+	assert_true(_game_state.configure_mutation_gate(_gate).get("ok", false))
+	_profile = PROFILE.new()
+	add_child_autofree(_profile)
+	assert_true(_profile.initialize(JsonFileStorage.new(_root.path_join("profile"))).get("ok", false))
+	assert_true(_profile.configure_mutation_gate(_gate).get("ok", false))
 
 	var ledger: RefCounted = LEDGER.new()
 	assert_true(ledger.configure(storage).get("ok", false))
@@ -125,6 +137,11 @@ func before_each() -> void:
 	assert_true(_state_port.configure_desktop_consequence_source(_consequence).get("ok", false))
 	assert_true(_state_port.configure_resolution_identity(
 		_issuer, START_PORT.new(_state_port, _registry, _issuer, ledger)).get("ok", false))
+	var pair_deck: RefCounted = PAIR_DECK.new()
+	assert_true(pair_deck.configure(
+		_game_state, _profile, _gate, CONDITION_COORDINATOR.new()).get("ok", false),
+		"presentation matrix uses the real Profile-backed pair draw")
+	assert_true(_state_port.configure_pair_deck(pair_deck).get("ok", false))
 
 
 # -------------------------------------------------------------------------------------------------

@@ -13,7 +13,7 @@ const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 # THE CENTRAL CLAIM. `schedule-foundation-publications.json` is an EXTERNAL durable record. It is not
 # a RunSnapshot member, not a SaveDocument member, not a recovery-journal member, not a profile
 # member, and never a selectable restore participant. Selected Load, New Run and rollback must leave
-# its bytes identical, while the committed Schedule itself travels inside the v3 snapshot.
+# its bytes identical, while the committed Schedule itself travels inside the current snapshot.
 
 const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 const PORT_PATH := "res://scripts/application/schedule/GameStateScheduleCommitPort.gd"
@@ -28,6 +28,7 @@ const ROOT_STORE := preload("res://scripts/infrastructure/identity/DesktopIssuer
 const NAMESPACE_SOURCE := preload("res://scripts/infrastructure/identity/CryptoDesktopNamespaceSource.gd")
 const REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
 const CONTACT_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
+const SCHEDULE_RESTORE_FIXTURE := preload("res://tests/support/ScheduleRestoreFixture.gd")
 
 const LEDGER_FIXED_PATH := "schedule-foundation-publications.json"
 const CAUSAL_DAY := "causal_day_instance.1111111111111111111111111111111111111111111111111111111111111111"
@@ -42,6 +43,7 @@ var _issuer: RefCounted = null
 var _registry: RefCounted = null
 var _fingerprint := ""
 var _game_state: Node = null
+var _schedule_view: RefCounted = null
 var _ledger: Object = null
 var _port: Object = null
 var _commands: Dictionary = {}
@@ -52,6 +54,7 @@ func before_each() -> void:
 	_commands = {}
 	_root = ""
 	_storage = null
+	_schedule_view = null
 	var port_loaded: Dictionary = PROBE.load_script(PORT_PATH)
 	_port_script = port_loaded["value"] if port_loaded.get("ok", false) else null
 	var ledger_loaded: Dictionary = PROBE.load_script(LEDGER_PATH)
@@ -76,6 +79,18 @@ func before_each() -> void:
 	_game_state = load(GAME_STATE_PATH).new()
 	autofree(_game_state)
 	_game_state.reset_game()
+	var schedule_restore: Dictionary = SCHEDULE_RESTORE_FIXTURE.create(_issuer)
+	assert_true(schedule_restore.get("ok", false), str(schedule_restore))
+	if not schedule_restore.get("ok", false):
+		return
+	_schedule_view = schedule_restore["value"]["view"]
+	var lifecycle: Dictionary = _game_state.capture_run_snapshot_input()["lifecycle"]
+	var opened: Dictionary = _schedule_view.open_day(
+		int(lifecycle["day"]), str(lifecycle["causal_day_instance"]))
+	assert_true(opened.get("ok", false), str(opened))
+	if not opened.get("ok", false):
+		_schedule_view = null
+		return
 
 	if _ledger_script != null:
 		_ledger = _ledger_script.new()
@@ -106,6 +121,9 @@ func _require_substrate() -> bool:
 		return false
 	if _port == null:
 		assert_true(false, "the four-dependency port constructor did not produce an instance")
+		return false
+	if _schedule_view == null:
+		assert_true(false, "the retained Schedule view did not open on the live lifecycle day")
 		return false
 	return true
 
@@ -168,23 +186,37 @@ func _ledger_bytes() -> String:
 	return FileAccess.get_file_as_string(_root.path_join(LEDGER_FIXED_PATH))
 
 
-func _v3_snapshot() -> Dictionary:
+func _run_snapshot() -> Dictionary:
 	var schema: Script = load(RUN_SNAPSHOT_SCHEMA_PATH)
+	# GameState owns the run aggregate; the retained ScheduleViewController contributes its
+	# separate restore participant exactly as ApplicationBootstrap does during capture.
+	var inputs: Dictionary = _game_state.capture_run_snapshot_input()
+	var view_snapshot: Dictionary = _schedule_view.snapshot()
+	assert_true(view_snapshot.get("ok", false), str(view_snapshot))
+	if not view_snapshot.get("ok", false):
+		return {}
+	inputs["schedule_view"] = view_snapshot["value"]["view"]
 	var built: Dictionary = schema.build(
-		_game_state.capture_run_snapshot_input(), {}, "main", null, {}, 1, 7)
+		inputs, {}, "main", null, {}, 1, 7)
 	assert_true(built.get("ok", false), str(built))
+	if not built.get("ok", false):
+		return {}
 	return built["value"]["snapshot"]
 
 
-# ---- the committed aggregate travels inside the v3 snapshot ----
+# ---- the committed aggregate travels inside the current snapshot ----
 
-func test_committed_schedule_is_captured_into_the_v3_snapshot() -> void:
+func test_committed_schedule_is_captured_into_the_current_snapshot() -> void:
 	if not _require_substrate():
 		return
 	var aggregate := _commit_one_real_entry()
 	assert_false((aggregate["entries"] as Array).is_empty(), "a real entry was committed")
-	var snapshot := _v3_snapshot()
-	assert_eq(int(snapshot["schema_version"]), 5, "capture produces a v5 snapshot")
+	var snapshot := _run_snapshot()
+	if snapshot.is_empty():
+		return
+	var schema: Script = load(RUN_SNAPSHOT_SCHEMA_PATH)
+	assert_eq(int(snapshot["schema_version"]), schema.SCHEMA_VERSION,
+		"capture produces the current snapshot version")
 	assert_eq(snapshot["committed_schedule"], aggregate,
 		"the canonical aggregate is captured byte-for-byte, receipt included")
 	assert_false(snapshot.has("schedule"), "no legacy top-level Schedule survives capture")
@@ -196,18 +228,28 @@ func test_committed_schedule_survives_a_whole_document_round_trip() -> void:
 	if not _require_substrate():
 		return
 	var aggregate := _commit_one_real_entry()
+	var snapshot := _run_snapshot()
+	if snapshot.is_empty():
+		return
 	var document_schema: Script = load(SAVE_DOCUMENT_SCHEMA_PATH)
 	var built: Dictionary = document_schema.build(
-		&"slot", 1, &"manual", {"checkpoint_kind": "day_start", "snapshot": _v3_snapshot()}, [])
+		&"slot", 1, &"manual", {"checkpoint_kind": "day_start", "snapshot": snapshot}, [])
 	assert_true(built.get("ok", false), str(built))
-	assert_eq(int(built["value"]["schema_version"]), 5, "the document lands on v5")
+	if not built.get("ok", false):
+		return
+	assert_eq(int(built["value"]["schema_version"]), document_schema.DOCUMENT_VERSION,
+		"the document uses the current version")
 
 	# A complete JSON round trip: the aggregate must survive serialization unchanged.
 	var text := JSON.stringify(built["value"])
 	var reparsed: Variant = JSON.parse_string(text)
 	assert_eq(typeof(reparsed), TYPE_DICTIONARY, "the document reparses")
+	if not reparsed is Dictionary:
+		return
 	var revalidated: Dictionary = document_schema.validate(reparsed as Dictionary)
 	assert_true(revalidated.get("ok", false), str(revalidated))
+	if not revalidated.get("ok", false):
+		return
 	assert_eq(revalidated["value"]["candidate"]["current_snapshot"]["snapshot"]["committed_schedule"],
 		aggregate, "the committed aggregate is byte-equal after a full document round trip")
 
@@ -216,7 +258,9 @@ func test_restore_reinstalls_the_committed_schedule_without_signals_until_finali
 	if not _require_substrate():
 		return
 	var aggregate := _commit_one_real_entry()
-	var snapshot := _v3_snapshot()
+	var snapshot := _run_snapshot()
+	if snapshot.is_empty():
+		return
 
 	# A cold owner that has never committed exposes the canonical empty aggregate.
 	var fresh: Node = load(GAME_STATE_PATH).new()
@@ -229,6 +273,8 @@ func test_restore_reinstalls_the_committed_schedule_without_signals_until_finali
 	var participant: RefCounted = load(RUN_RESTORE_PARTICIPANT_PATH).new(fresh)
 	var prepared: Dictionary = participant.prepare({"snapshot": snapshot})
 	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false):
+		return
 	var applied: Dictionary = participant.apply_silent(prepared["value"]["run_plan"])
 	assert_true(applied.get("ok", false), str(applied))
 	assert_eq(emissions, [] as Array[String], "apply_silent emits nothing")
@@ -246,7 +292,9 @@ func test_publication_ledger_is_not_a_snapshot_or_document_member() -> void:
 	if not _require_substrate():
 		return
 	var _aggregate := _commit_one_real_entry()
-	var snapshot := _v3_snapshot()
+	var snapshot := _run_snapshot()
+	if snapshot.is_empty():
+		return
 	var run_schema: Script = load(RUN_SNAPSHOT_SCHEMA_PATH)
 	var document_schema: Script = load(SAVE_DOCUMENT_SCHEMA_PATH)
 
@@ -263,6 +311,8 @@ func test_publication_ledger_is_not_a_snapshot_or_document_member() -> void:
 	var built: Dictionary = document_schema.build(
 		&"slot", 1, &"manual", {"checkpoint_kind": "day_start", "snapshot": snapshot}, [])
 	assert_true(built.get("ok", false), str(built))
+	if not built.get("ok", false):
+		return
 	assert_false(JSON.stringify(built["value"]).contains(LEDGER_FIXED_PATH),
 		"the ledger path never appears inside a whole document, journal included")
 
@@ -280,7 +330,9 @@ func test_selectable_operations_leave_the_ledger_bytes_identical() -> void:
 	var after_publish := _ledger_bytes()
 	assert_false(after_publish.strip_edges().is_empty(), "a real durable record was written")
 
-	var snapshot := _v3_snapshot()
+	var snapshot := _run_snapshot()
+	if snapshot.is_empty():
+		return
 
 	# Selected Load onto a different owner.
 	var loaded_owner: Node = load(GAME_STATE_PATH).new()
@@ -289,6 +341,8 @@ func test_selectable_operations_leave_the_ledger_bytes_identical() -> void:
 	var participant: RefCounted = load(RUN_RESTORE_PARTICIPANT_PATH).new(loaded_owner)
 	var prepared: Dictionary = participant.prepare({"snapshot": snapshot})
 	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false):
+		return
 	assert_true(participant.apply_silent(prepared["value"]["run_plan"]).get("ok", false))
 	assert_true(participant.finalize().get("ok", false))
 	assert_eq(_ledger_bytes(), after_publish, "selected Load never rewrites the ledger")
