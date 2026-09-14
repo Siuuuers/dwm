@@ -34,6 +34,11 @@ scope: ["shared_shell_authority_and_custody","logical_and_native_canvas_geometry
 
 # Shared Title, Desktop, and Pause Shell Current-UI Canonical Dossier
 
+> Later narrow UI update: the [2026-09-15 desktop divider and touch focus
+> amendment](../2026-09-15-desktop-divider-and-touch-focus-amendment.md) records
+> the adjustable Angela width and shared bottom strip. Its delegated layout
+> choice and unfinished app-body reflow are stated explicitly there.
+
 > **Accepted exact writing; not yet cut over.** This dossier is accepted as an
 > exact written design artifact but remains nonbinding until every current
 > Shared Shell consumer is repointed or deliberately retained as provenance,

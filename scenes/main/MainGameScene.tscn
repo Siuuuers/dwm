@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/shared/StatHud.tscn" id="1"]
 [ext_resource type="Script" path="res://scripts/ui/MainGameScene.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/ui/desktop/DesktopPanelSplit.gd" id="3_split"]
 [ext_resource type="Script" path="res://scripts/ui/LocalePresentationRoot.gd" id="99_presentation"]
 
 [node name="MainGameScene" type="Control"]
@@ -14,8 +15,8 @@ script = ExtResource("2")
 [node name="LocalePresentationRoot" type="Node" parent="."]
 script = ExtResource("99_presentation")
 
-[node name="RootHBox" type="HBoxContainer" parent="."]
-theme_override_constants/separation = 0
+[node name="RootHBox" type="Container" parent="."]
+script = ExtResource("3_split")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -32,6 +33,7 @@ layout_mode = 2
 
 [node name="StatHud" parent="RootHBox/AngelaPanel/AngelaVBox" instance=ExtResource("1")]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
 
 [node name="AngelaImage" type="Control" parent="RootHBox/AngelaPanel/AngelaVBox"]

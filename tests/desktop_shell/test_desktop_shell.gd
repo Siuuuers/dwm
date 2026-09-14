@@ -101,7 +101,7 @@ func check_grid(desktop: Control) -> void:
 	check(desktop.launcher_buttons.size() == 7, "Eighth grid position has no selectable app")
 	for index in range(APP_IDS.size()):
 		var button: Button = desktop.launcher_buttons[APP_IDS[index]]
-		var expected := Vector2(24 + (index % 4) * 192, 88 + (index / 4) * 192)
+		var expected := Vector2(24 + (index % 4) * 192, 24 + (index / 4) * 192)
 		check(button.size.is_equal_approx(Vector2(176, 176)), "Launcher cell is 176 square: " + str(APP_IDS[index]))
 		check((button.global_position - desktop.global_position).is_equal_approx(expected), "Launcher uses inset24 and gutter16: " + str(APP_IDS[index]))
 		check(button.focus_mode == Control.FOCUS_ALL, "Launcher remains keyboard reachable: " + str(APP_IDS[index]))
@@ -114,7 +114,7 @@ func check_shell_geometry(main: Control, desktop: Control) -> void:
 	check(main.get_global_rect().encloses(desktop.get_global_rect()), "Desktop fits main scene")
 	for control in [desktop.home_button, desktop.title_label, desktop.clock_label]:
 		var relative: Vector2 = control.global_position - desktop.global_position
-		check(relative.y >= 0 and relative.y + control.size.y <= 64.1, "Shared chrome remains inside 64px strip")
+		check(relative.y >= 656 and relative.y + control.size.y <= 720.1, "Shared chrome remains inside the 64px footer")
 		check(relative.x >= 0 and relative.x + control.size.x <= 800.1, "Shared chrome fits available width")
 
 func verify_cross_app_home() -> void:
@@ -288,9 +288,9 @@ func verify_foundation(main: Control, desktop: Control) -> void:
 	await settle()
 	var app: Control = desktop.app_window_host.get_child(0)
 	var panel = app.get_node("%ContactsPanel")
-	check(app.size.is_equal_approx(Vector2(800, 656)), "Contacts content uses800 by656 beneath shared strip")
+	check(app.size.is_equal_approx(Vector2(800, 656)), "Contacts retains800 by656 above shared strip")
 	check(not desktop.home_button.disabled and not desktop.home_button.current_on_launcher, "Active Contacts Home is available without claiming Current")
-	check((app.global_position - desktop.global_position).is_equal_approx(Vector2(0, 64)), "Contacts starts immediately below shared strip")
+	check((app.global_position - desktop.global_position).is_equal_approx(Vector2.ZERO), "Contacts begins at the top of the app workfield")
 	check(panel.size.is_equal_approx(Vector2(800, 656)), "Contacts plate retains full content area")
 	check(not app.get_node("VBoxContainer/TopBar").is_visible_in_tree(), "Contacts has no duplicate visible toolbar")
 	check(panel.selected_friend == "" and port.opens.is_empty(), "App activation begins blank without opening any friend")

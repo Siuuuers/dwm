@@ -37,10 +37,10 @@ func test_title_desktop_launcher_and_contact_attach_valid_optional_art() -> void
 		assert_eq(title_art.size, Vector2(960, 656))
 	var background := desktop.get_node("BackgroundImage") as TextureRect
 	assert_not_null(background.texture)
-	assert_eq(background.position, Vector2(0, 64))
-	assert_eq(background.offset_top, 64.0)
+	assert_eq(background.position, Vector2.ZERO)
+	assert_eq(background.offset_top, 0.0)
 	assert_eq(background.offset_right, 0.0)
-	assert_eq(background.offset_bottom, 0.0)
+	assert_eq(background.offset_bottom, -64.0)
 	var launcher: Button = desktop.launcher_buttons[&"minesweeper"]
 	assert_not_null(launcher.get("_icon_texture"))
 	assert_not_null(contacts.rows[0].get("portrait_texture"))

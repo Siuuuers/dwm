@@ -14,6 +14,23 @@ var _computer_desktop_instance: Node = null
 func _ready() -> void:
 	_mount_angela_art()
 	_ensure_computer_desktop()
+	var localization := get_node_or_null("/root/LocalizationManager")
+	if localization != null:
+		localization.locale_changed.connect(_refresh_split_presentation)
+	_refresh_split_presentation()
+	%StatHud.theme_changed.connect(_refresh_split_presentation)
+
+func _refresh_split_presentation(_locale_id: String = "") -> void:
+	var localization := get_node_or_null("/root/LocalizationManager")
+	var locale := str(localization.get_locale()) if localization != null else "en"
+	var copy: Array = {
+		"en": ["Resize Angela panel", "Drag horizontally. Left/Right adjust width; Home/End use the minimum/maximum."],
+		"zh-CN": ["调整安吉拉面板大小", "横向拖动。左右键调整宽度，Home/End 键设为最小/最大。"],
+		"zh-HK": ["調整安吉拉面板大小", "橫向拖動。左右鍵調整寬度，Home/End 鍵設為最小/最大。"],
+	}.get(locale, ["Resize Angela panel", "Drag horizontally to resize."])
+	if $RootHBox.theme != %StatHud.theme:
+		$RootHBox.theme = %StatHud.theme
+	$RootHBox.set_handle_accessibility(copy[0], copy[1])
 
 func _mount_angela_art() -> void:
 	for asset_id: String in ["shell.background", "shell.character.angela", "shell.keepsakes"]:

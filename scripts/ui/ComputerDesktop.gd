@@ -10,6 +10,7 @@ const HOME_BUTTON := preload("res://scripts/ui/desktop/DesktopHomeButton.gd")
 const BACKUP_PORT := preload("res://scripts/application/backup/BackupPresentationPort.gd")
 const QUICK_COMMANDS := preload("res://scripts/ui/desktop/DesktopQuickCommands.gd")
 const CONFIRMATION := preload("res://scripts/ui/desktop/DesktopConfirmation.gd")
+const TOUCH_NAVIGATION := preload("res://scripts/ui/desktop/DesktopTouchNavigation.gd")
 const MINESWEEPER_GRID := preload("res://scripts/ui/minesweeper/MinesweeperGrid.gd")
 const WARNING_NAVIGATION_TARGETS := {
 	&"open_contacts_list": &"contacts",
@@ -38,6 +39,7 @@ var home_button: Button
 var title_label: Label
 var clock_label: Label
 var status_label: Label
+var touch_navigation: HBoxContainer
 var _clock_timer: Timer
 var _clock_reader: Callable
 var _cached_app_windows: Dictionary = {}
@@ -104,13 +106,14 @@ func _ready() -> void:
 		background_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 		background_image.texture = desktop_art
 		background_image.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		background_image.offset_top = 64
+		background_image.offset_bottom = -64
 	app_window_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	notification_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	message_notification.mouse_filter = Control.MOUSE_FILTER_STOP
 	notification_close.pressed.connect(_dismiss_message_notification)
 	notification_go.pressed.connect(_open_contacts_from_notification)
 	_build_shell()
+	resized.connect(queue_redraw)
 	_refresh_launcher()
 	_foreground_eligible = get_window().has_focus()
 	configure_clock(_clock_reader if _clock_reader.is_valid() else Time.get_time_dict_from_system)
@@ -154,9 +157,10 @@ func _focus_initial_launcher() -> void:
 func _build_shell() -> void:
 	var strip := HBoxContainer.new()
 	strip.name = "AppStrip"
-	strip.size = Vector2(800, 64)
 	strip.add_theme_constant_override("separation", 16)
 	add_child(strip)
+	strip.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+	strip.offset_top = -64
 	home_button = HOME_BUTTON.new()
 	home_button.name = "HomeButton"
 	home_button.custom_minimum_size = Vector2(64, 64)
@@ -173,11 +177,17 @@ func _build_shell() -> void:
 	clock_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	clock_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	strip.add_child(clock_label)
+	touch_navigation = TOUCH_NAVIGATION.new()
+	touch_navigation.name = "TouchNavigation"
+	touch_navigation.configure(_touch_focus_scope, _touch_input_admitted)
+	# Only these inert navigation buttons remain pointer-reachable over a modal.
+	touch_navigation.mouse_behavior_recursive = Control.MOUSE_BEHAVIOR_ENABLED
+	strip.add_child(touch_navigation)
 	_clock_timer = Timer.new()
 	_clock_timer.one_shot = true
 	_clock_timer.timeout.connect(refresh_clock)
 	add_child(_clock_timer)
-	icon_grid.position = Vector2(24, 88)
+	icon_grid.position = Vector2(24, 24)
 	icon_grid.add_theme_constant_override("h_separation", 16)
 	icon_grid.add_theme_constant_override("v_separation", 16)
 	var ids: Array[StringName] = APP_REGISTRY.new().get_ids()
@@ -205,12 +215,38 @@ func _build_shell() -> void:
 		button.focus_previous = button.get_path_to(launcher_buttons[ids[maxi(index - 1, 0)]])
 	status_label = Label.new()
 	status_label.name = "DesktopStatus"
-	status_label.position = Vector2(24, 484)
+	status_label.position = Vector2(24, 420)
 	status_label.size = Vector2(752, 140)
 	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	status_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	status_label.hide()
 	add_child(status_label)
+
+func _touch_input_admitted() -> bool:
+	if not is_visible_in_tree() or not can_process() or not _foreground_eligible or _restoration_failed:
+		return false
+	if _run_configuration_required and (not _run_configuration_ready or _run_configuration_masked):
+		return false
+	var input_owner := get_node_or_null("/root/InputManager")
+	if input_owner != null and not input_owner.is_source_input_admitted(): return false
+	var bridge := get_node_or_null("/root/DialogicBridge")
+	return bridge == null or (not bridge.has_active_playback() and bridge.get_current_timeline_id().is_empty())
+
+func _touch_focus_scope() -> Control:
+	if is_instance_valid(_confirmation): return _confirmation
+	var app: Control = _cached_app_windows.get(_active_id)
+	if is_instance_valid(app):
+		match _active_id:
+			&"settings":
+				# Native popups and binding capture own a different input scope.
+				if not app.can_return_home(): return null
+			&"schedule":
+				if is_instance_valid(app.warning_sheet): return app.warning_sheet
+			&"shop":
+				if is_instance_valid(app._supportz_confirmation): return app._supportz_confirmation
+			&"minesweeper":
+				if is_instance_valid(app.panel.worksheet.information_sheet): return app.panel.worksheet.information_sheet
+	return self
 
 func configure_contacts(port: Object, localization: Object = null, profile: Object = null,
 		host_state: Object = null, day: int = 1) -> Dictionary:
@@ -421,8 +457,8 @@ func quick_status_safe_rect() -> Rect2:
 	# Known blank regions only. Other apps wait for their own protected-region map.
 	for child: Node in notification_layer.get_children():
 		if child is Control and child.is_visible_in_tree(): return Rect2()
-	if _active_id == &"backup": return Rect2(480, 80, 304, 64)
-	if _active_id == &"": return Rect2(24, 640, 752, 64)
+	if _active_id == &"backup": return Rect2(480, 16, 304, 64)
+	if _active_id == &"": return Rect2(24, 576, 752, 64)
 	return Rect2()
 
 func present_confirmation(request: Dictionary, accept: Callable, cancel: Callable) -> Dictionary:
@@ -435,6 +471,8 @@ func present_confirmation(request: Dictionary, accept: Callable, cancel: Callabl
 		_confirmation = null
 		(accept if accepted else cancel).call())
 	add_child(_confirmation)
+	# The navigation bar handles its own pointer contacts before modal input.
+	move_child($AppStrip, get_child_count() - 1)
 	return {"ok": true, "value": {"confirmation": _confirmation}}
 
 func open_app(app_id: StringName) -> Dictionary:
@@ -530,6 +568,7 @@ func open_app(app_id: StringName) -> Dictionary:
 	_active_id = app_id
 	_restoration_failed = false
 	app.configure_desktop_home(home_button)
+	home_button.focus_neighbor_top = home_button.focus_next
 	icon_grid.hide()
 	status_label.hide()
 	_refresh_launcher()
@@ -778,6 +817,18 @@ func _refresh_launcher(refresh_contacts: bool = true) -> void:
 	title_label.text = home if _active_id == &"" else (LABELS[_locale][ids.find(_active_id)] if _active_id in ids else {"en": "Unavailable", "zh-CN": "不可用", "zh-HK": "不可用"}[_locale])
 	clock_label.add_theme_font_override("font", DESKTOP_THEME.ENGLISH)
 	clock_label.accessibility_name = {"en": "Local time", "zh-CN": "本地时间", "zh-HK": "本地時間"}[_locale]
+	var navigation_copy: Array = {
+		"en": ["Previous control", "Next control", "Confirm focused control"],
+		"zh-CN": ["上一个控件", "下一个控件", "确认当前控件"],
+		"zh-HK": ["上一個控制項", "下一個控制項", "確認目前控制項"],
+	}[_locale]
+	var navigation_buttons: Array = [touch_navigation.previous_button, touch_navigation.next_button, touch_navigation.confirm_button]
+	for index: int in navigation_buttons.size():
+		var button: Button = navigation_buttons[index]
+		button.text = ["←", "→", "✓"][index]
+		button.add_theme_font_override("font", DESKTOP_THEME.ENGLISH)
+		button.accessibility_name = navigation_copy[index]
+		button.tooltip_text = navigation_copy[index]
 	_refresh_clock_description()
 	if refresh_contacts: _refresh_contact_notice()
 	if status_label.visible:
@@ -900,6 +951,6 @@ func _notification(what: int) -> void:
 func _draw() -> void:
 	if theme == null:
 		return
-	draw_rect(Rect2(0, 0, 800, 720), get_theme_color("habitat", "Desktop"))
-	draw_rect(Rect2(0, 0, 800, 64), get_theme_color("face", "Desktop"))
-	draw_rect(Rect2(0, 62, 800, 2), get_theme_color("structure", "Desktop"))
+	draw_rect(Rect2(Vector2.ZERO, size), get_theme_color("habitat", "Desktop"))
+	draw_rect(Rect2(0, size.y - 64, size.x, 64), get_theme_color("face", "Desktop"))
+	draw_rect(Rect2(0, size.y - 64, size.x, 2), get_theme_color("structure", "Desktop"))
