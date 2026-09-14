@@ -421,3 +421,50 @@ the production files both applied and reverted, so that verdict was the harness,
   563-644 at the baseline): App first reveal 122 / 111 / 137 / 137 ms against 232 / 249 ms at the
   baseline, first_reveal_durable elapsed 61-83 ms of which checkpoint_commit 42-61 and
   prepare_spec 0.3-1.1 ms; routine reveal 36-38 ms medians under that load.
+
+### Step 3: the publication ledger composes its document text from cached per-record canonical entries (commit after 8c62e2913)
+
+On the live copy each of the two per-accept ledger writes cost 254-385 ms on the 790-807 KB
+document: full_emit (canonicalizing the whole document for one appended record) 56-111 ms,
+disk_refresh 64-106 ms, candidate_build 2.5-6.8 ms (a whole-document deep copy), cache_seed 4-16 ms
+(another), confirmation 5-11 ms (a third, to fetch one record), write_atomic 98-142 ms. Under the
+2026-09-14 ruling DesktopPublicationLedger now keeps, inside the validated-text memo entry of the
+document it describes, the canonical text of every record and of every other top-level field, and
+composes the outgoing text exactly as DesktopIssuerRootStore composes the issuer root: sorted
+keys, one emit of the new record, the retained records' cached texts joined. The cache is rebuilt
+once per distinct document text (the first write of a process, or after externally changed bytes)
+and any composition it cannot prove identical (a non-printable-ASCII key, a refused emit) falls
+back to the historical full emit, so a miss costs speed and never bytes. Cached documents are
+immutable once cached: refresh no longer re-copies the parsed document, the candidate is a shallow
+copy of the envelope and of the records map with the new key inserted, an already-owned document is
+memoized without a copy, and the confirmation reads its one record from the memoized document by
+reference. Whole-document deep copies per successful write go from 11 to 6 (the six remaining are
+the storage validator callback's own copies). The pre-write reread, the exact byte read-back, the
+_deep_same confirmation, every refusal and its order, and write_atomic with keep_backup are
+unchanged; the profile record names which path fired (emit_path composed / full, compose_us beside
+full_emit_us, canonical_rebuilt on the one-time rebuild). Neither handoff contract binds the ledger.
+
+- settlement5-step3-red-f684f34bb.log: tests/unit/test_desktop_publication_ledger.gd with the new
+  rows against the untouched ledger, 23 tests, 19 passing / 4 failing (the composed path and its
+  per-record cache; externally changed bytes between two writes rebuild the cache and still write
+  the full writer's bytes; a refused write leaves the cached document, the memo and the cache
+  intact; the removed whole-document copies pinned by source). The byte-equality guard (six records
+  with StringName keys and values, unsorted nested keys, 1.0 and 2.5, non-ASCII and brace-bearing
+  strings, every write compared to the full canonical writer, a cold restart plus one more record,
+  an identical replay) is green before and after by design.
+- settlement5-step3-green-8c62e2913.log: the 32-suite set plus the thirteen suites that reference
+  the ledger, 42 suites, 806 tests, 739 passing / 67 failing; settlement5-step3-attrib-baseline-
+  8c62e2913.log: the six failing integration suites with the ledger reverted to HEAD, 159 tests, 92
+  passing / 67 failing, the failing sets identical row for row (the frozen nine-role handoff gate
+  against the live ten-role order, missing schedule_view members and expected-4-saw-5 requests,
+  all listed as pre-existing in settlement4 Step 1).
+- settlement5-step3-profile-live-run1-8c62e2913.log and -run2-: the live copy, still in the loaded
+  window (routine reveal 47-50 ms, Log In 30-32 s). Per big ledger write: compose 7.5-15 ms where
+  full_emit was 56-111 ms (the first write of each process rebuilds the cache once, 66 ms),
+  candidate_build 0.03-0.07 ms from 2.5-6.8, cache_seed 0.9-5 from 4-16, confirmation 2.2-4.7
+  from 5-11; disk_refresh 42-88 ms and write_atomic 91-158 ms unchanged in kind (the storage
+  reconcile reading and hashing the final and its backup, ruled to stay). Per write elapsed
+  162-260 ms against 254-385 ms in the Step 2 live runs of the same window.
+- settlement5-step3-profile-fresh-win-8c62e2913.log and -loss-: fresh account, every ledger write
+  takes the composed path (compose 0.3-1.1 ms on the 5-22 KB documents, 9.7-14 ms on the 89-107 KB
+  board_fate write) with the one-time rebuild on the first write; App first reveal 89 / 117 ms.

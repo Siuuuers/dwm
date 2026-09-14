@@ -1,0 +1,703 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/click-latency-3/.godot/phase2r_tests/a4d219b0-6746-476e-ac2f-73338539aa64/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/integration/test_desktop_bootstrap_wiring.gd
+* test_the_probe_exists_and_returns_only_integers_and_booleans
+* test_the_probe_names_every_foundation_identity_step_8_1_requires
+* test_reading_the_probe_twice_is_stable_and_mutates_nothing
+* test_presentation_configuration_reconstructs_no_foundation_instance
+* test_identical_startup_replay_reuses_every_instance
+* test_a_swapped_issuer_is_visible_in_the_probe
+* test_the_probe_reports_hospital_ready_and_dating_deliberately_not_ready
+* test_the_producer_is_not_ready_before_the_desktop_graph_stage
+* test_an_unbuilt_foundation_reports_zero_rather_than_guessing
+* test_the_production_graph_wires_every_object_identity_and_readiness
+* test_the_desktop_publication_ledger_is_shared_by_causal_round_shop_and_board_fate
+* test_the_round_coordinator_and_board_fate_port_drive_the_exact_same_shared_board_state
+* test_the_consequence_coordinator_retains_the_exact_round_and_shop_source_objects
+* test_the_consequence_coordinator_holds_the_real_condition_departure_pair
+* test_snapshot_provider_instance_id_equals_game_state
+* test_the_probe_names_identity_allocation_plus_the_nine_participant_keys
+* test_identical_replay_of_the_production_graph_reuses_every_instance
+* test_the_production_graph_never_touches_the_retained_simulator_install_seam
+* test_the_desktop_graph_composes_the_condition_pair_and_flips_the_producer_ready
+* test_replaying_the_desktop_graph_reuses_the_condition_pair_and_dispatcher
+* test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge
+    [Failed]:  the injected full-save failure retains terminal custody
+      at line 668
+    [Failed]
+      at line 672
+    [Failed]:  the public panel retries and releases custody
+      at line 674
+    [Failed]:  minesweeper_panel_command_refused
+      at line 676
+* test_fresh_graph_keeps_prior_day_two_autosave_after_failed_completion
+    [Failed]
+      at line 792
+    [Failed]
+      at line 792
+* test_fresh_graph_keeps_prior_autosave_after_failed_condition_departure
+    [Failed]
+      at line 798
+    [Failed]
+      at line 798
+* test_shop_purchase_saves_authored_effects_and_retries_without_a_second_charge
+* test_fresh_graph_keeps_prior_autosave_after_failed_ordinary_purchase
+* test_fresh_graph_keeps_prior_autosave_after_failed_special_purchase
+* test_shop_batch_and_public_gift_alias_commit_authored_values_and_inventory
+24/27 passed.
+
+
+res://tests/integration/test_desktop_completion_transaction.gd
+* test_complete_round_transacts_exactly_once_against_real_ports
+    [Failed]:  {"code":"invalid_request","details":{"size":5},"message":"expected 4 members, saw 5","ok":false}
+      at line 211
+    [Failed]:  [STRING_NAME(invalid_request)] expected to equal [STRING_NAME(action_consequence_accepted)]:
+      at line 212
+SCRIPT ERROR: Invalid access to property or key 'receipt' on a base object of type 'Dictionary'.
+   at: test_complete_round_transacts_exactly_once_against_real_ports (res://tests/integration/test_desktop_completion_transaction.gd:216)
+   GDScript backtrace (most recent call first):
+       [0] test_complete_round_transacts_exactly_once_against_real_ports (res://tests/integration/test_desktop_completion_transaction.gd:216)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'receipt' on a base object of type 'Dictionary'.
+      at line -1
+* test_complete_round_departure_commits_board_fate_against_real_ports
+    [Failed]:  {"code":"invalid_request","details":{"size":5},"message":"expected 4 members, saw 5","ok":false}
+      at line 296
+    [Failed]:  [STRING_NAME(invalid_request)] expected to equal [STRING_NAME(action_consequence_accepted)]:
+      at line 297
+SCRIPT ERROR: Invalid access to property or key 'receipt' on a base object of type 'Dictionary'.
+   at: test_complete_round_departure_commits_board_fate_against_real_ports (res://tests/integration/test_desktop_completion_transaction.gd:298)
+   GDScript backtrace (most recent call first):
+       [0] test_complete_round_departure_commits_board_fate_against_real_ports (res://tests/integration/test_desktop_completion_transaction.gd:298)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'receipt' on a base object of type 'Dictionary'.
+      at line -1
+* test_a_source_already_holding_the_gate_blocks_the_other_source_until_it_releases
+    [Failed]:  [STRING_NAME(invalid_request)] expected to equal [STRING_NAME(minesweeper_round_requires_no_other_pending_transaction)]:
+      at line 373
+0/3 passed.
+
+
+res://tests/integration/test_phase2r_schedule_desktop_handoff.gd
+* test_the_probe_is_read_from_the_real_public_seam_and_carries_only_primitives
+* test_the_snapshot_provider_role_is_the_live_game_state_in_this_same_boot
+* test_the_coordinator_holds_exactly_the_advance_port_the_probe_reports
+* test_every_declared_predecessor_role_is_a_nonzero_same_boot_integer
+* test_the_nine_restore_roles_are_nine_distinct_retained_participants
+    [Failed]:  [10] expected to equal [9]:  there are exactly nine restore roles
+      at line 342
+* test_the_round_and_shop_action_sources_are_two_different_owners
+* test_the_two_publication_ledgers_are_two_different_live_owners
+* test_the_guard_accepts_the_real_sealed_evidence_and_the_real_live_probe
+    [Failed]:  the real handoff validates: { "ok": false, "code": &"restore_order_drift", "message": "the live restore order and its seal must both be the frozen nine-role order", "details": { "live": ["identity_allocation", "run", "desktop_consequence", "desktop_board", "schedule_view", "profile", "localization", "audio", "route", "narrative"], "sealed": ["identity_allocation", "run", "desktop_consequence", "desktop_board", "profile", "localization", "audio", "route", "narrative"] } }
+      at line 369
+* test_the_success_envelope_serializes_no_numeric_instance_id
+    [Failed]:  precondition: the real handoff validates
+      at line 387
+* test_the_guard_mutates_neither_seal_nor_probe
+* test_the_verdict_pins_the_sealed_bytes_of_the_suite_this_task_may_only_run
+    [Failed]:  precondition: the real handoff validates
+      at line 424
+* test_the_verdict_reports_the_two_requirements_no_seal_attests
+    [Failed]:  precondition: the real handoff validates
+      at line 437
+* test_the_verdict_keeps_the_later_composition_with_its_later_owner
+    [Failed]:  precondition: the real handoff validates
+      at line 452
+* test_the_verdict_records_the_one_lawful_forward_readiness_divergence
+    [Failed]:  precondition: the real handoff validates
+      at line 467
+* test_a_non_dictionary_input_is_refused
+* test_a_relabelled_seal_subject_is_refused
+* test_a_seal_pointing_at_another_commit_is_refused
+* test_a_seal_pointing_at_an_off_history_commit_is_refused
+* test_a_reachable_ancestor_carrying_the_wrong_subject_is_refused
+* test_a_malformed_declared_surface_digest_is_refused
+* test_a_role_relation_set_that_is_not_the_frozen_six_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(role_relation_verdict_drift)]:  a dropped sealed role relation must fail exactly role_relation_verdict_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 552
+* test_two_ledgers_claiming_one_fixed_path_are_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_ledger_relation_violated)]:  both ledgers writing one document must fail exactly publication_ledger_relation_violated, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 562
+* test_a_drifted_allocation_key_format_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(allocator_receipt_shape_drift)]:  an allocation key no longer anchored to its source resolution receipt must fail exactly allocator_receipt_shape_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 571
+* test_an_allocator_receipt_missing_its_disposition_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(allocator_receipt_shape_drift)]:  an allocator receipt that stopped recording its disposition must fail exactly allocator_receipt_shape_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 585
+* test_a_dropped_recipe_exclusion_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_recipe_drift)]:  a recipe exclusion quietly dropped from the seal must fail exactly publication_recipe_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 599
+* test_a_gate_that_stops_attesting_preserved_schedule_keys_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  a gate that stopped attesting the committed Schedule keys survive must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 608
+* test_a_gate_whose_frozen_readiness_was_regenerated_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(sealed_readiness_drift)]:  a gate re-recording live readiness instead of its frozen historical value must fail exactly sealed_readiness_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 620
+* test_a_seal_that_drops_a_consumed_binding_is_refused
+* test_a_repointed_binding_digest_is_refused
+* test_a_fourth_allocator_seam_is_refused
+* test_a_seal_without_command_records_is_refused
+* test_a_repointed_test_log_digest_is_refused
+* test_a_probe_missing_a_predecessor_member_is_refused
+* test_an_unnamed_probe_key_is_refused
+* test_a_non_integer_predecessor_role_is_refused
+* test_an_unretained_predecessor_role_is_refused
+* test_a_reordered_restore_order_is_refused
+* test_a_missing_restore_role_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(restore_role_set_drift)]:  eight restore roles must fail exactly restore_role_set_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 733
+* test_an_unretained_restore_role_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(restore_role_instance_id_zero)]:  an unretained audio participant must fail exactly restore_role_instance_id_zero, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 742
+* test_one_object_serving_two_restore_roles_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(restore_role_not_distinct)]:  one participant claiming two roles must fail exactly restore_role_not_distinct, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 752
+* test_one_object_serving_both_action_sources_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(action_source_roles_not_distinct)]:  a merged Round/Shop source must fail exactly action_source_roles_not_distinct, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 762
+* test_a_flipped_sealed_role_verdict_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(role_relation_verdict_drift)]:  the Round/Shop distinctness verdict flipped to equal must fail exactly role_relation_verdict_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 772
+* test_a_ledger_attestation_that_contradicts_the_probe_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_ledger_relation_violated)]:  a ledger attesting distinctness from itself must fail exactly publication_ledger_relation_violated, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 782
+* test_one_live_object_serving_both_ledger_roles_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_ledger_relation_violated)]:  one live ledger serving both plans must fail exactly publication_ledger_relation_violated, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 791
+* test_an_allocator_that_is_not_the_dot16_owner_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(allocator_binding_drift)]:  a substituted allocator owner must fail exactly allocator_binding_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 801
+* test_a_raw_causal_day_issue_path_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(allocator_raw_causal_day_issue)]:  Plan 01 minting a raw causal day must fail exactly allocator_raw_causal_day_issue, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 810
+* test_a_third_resolution_kind_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(allocator_resolution_kind_drift)]:  a third resolution kind smuggled in from Plan 03 must fail exactly allocator_resolution_kind_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 820
+* test_a_caller_supplied_target_day_identity_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(allocator_receipt_shape_drift)]:  a caller handing the allocator its own target identity must fail exactly allocator_receipt_shape_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 833
+* test_a_publication_delivered_twice_across_a_restart_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_first_delivery_drift)]:  a second first-delivery after restart must fail exactly publication_first_delivery_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 843
+* test_an_undeclared_conflict_code_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_conflict_code_drift)]:  a conflict code the ledger never declared must fail exactly publication_conflict_code_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 853
+* test_a_schedule_done_recipe_carrying_a_checkpoint_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_recipe_drift)]:  a checkpoint receipt inside a publication recipe must fail exactly publication_recipe_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 864
+* test_a_changed_snapshot_input_shape_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_input_key_set_drift)]:  a tenth snapshot member must fail exactly snapshot_input_key_set_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 873
+* test_an_undeclared_desktop_snapshot_member_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_desktop_member_drift)]:  a Plan-03 outbox member appearing early must fail exactly snapshot_desktop_member_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 882
+* test_a_regressed_schema_version_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  a save-document version below its Plan-01 seal must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 891
+* test_a_live_snapshot_version_that_disagrees_with_its_owner_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  a v6 snapshot disagrees with the current owner must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 900
+* test_a_readiness_fact_that_stopped_matching_its_seal_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(sealed_readiness_drift)]:  Hospital readiness regressing away from its seal must fail exactly sealed_readiness_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 909
+* test_a_producer_regression_below_finished_deviation_5_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(sealed_readiness_drift)]:  the presentation producer going dark again must fail exactly sealed_readiness_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 918
+* test_a_requirement_split_that_overstates_its_evidence_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(requirement_attestation_drift)]:  a seal suddenly claiming an unattested requirement must fail exactly requirement_attestation_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 929
+* test_a_later_owner_that_has_already_taken_the_composition_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(oyo_composition_claimed)]:  Phase 2R claiming ScheduleView ownership must fail exactly oyo_composition_claimed, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 938
+* test_a_destination_composition_declared_ready_inside_phase_2r_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(oyo_composition_claimed)]:  the destination outbox claiming readiness early must fail exactly oyo_composition_claimed, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 947
+* test_a_seal_that_stops_recording_dating_as_deferred_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(oyo_composition_claimed)]:  a seal that stops deferring Dating to dwm-oyo.4 must fail exactly oyo_composition_claimed, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 957
+* test_a_dating_presentation_declared_ready_inside_phase_2r_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(oyo_composition_claimed)]:  dwm-oyo.4's Dating owner claimed early must fail exactly oyo_composition_claimed, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 966
+* test_a_seal_without_an_array_of_source_bindings_is_refused
+* test_an_allocator_binding_without_a_declared_surface_is_refused
+* test_a_command_record_that_is_not_an_object_is_refused
+* test_a_command_record_naming_no_log_is_refused
+* test_a_recorded_log_absent_at_head_is_refused
+* test_a_restore_order_that_is_not_an_array_is_refused
+* test_restore_roles_that_are_not_a_dictionary_are_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(predecessor_field_type)]:  restore roles supplied as an Array must fail exactly predecessor_field_type, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 1054
+* test_a_desktop_seal_without_a_bootstrap_probe_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(role_relation_verdict_drift)]:  a desktop seal that records no probe must fail exactly role_relation_verdict_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 1063
+* test_a_desktop_seal_without_external_stores_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_ledger_relation_violated)]:  a desktop seal that records no external stores must fail exactly publication_ledger_relation_violated, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 1072
+* test_an_unrecorded_desktop_ledger_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_ledger_relation_violated)]:  a desktop ledger entry that is not an object must fail exactly publication_ledger_relation_violated, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 1081
+* test_a_gate_without_a_day_advance_identity_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(allocator_binding_drift)]:  a gate that records no allocator must fail exactly allocator_binding_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 1090
+* test_a_gate_recording_no_observed_publications_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_first_delivery_drift)]:  a gate with an empty publication record must fail exactly publication_first_delivery_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 1099
+* test_a_gate_recording_no_conflict_codes_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_conflict_code_drift)]:  a ledger that declares no conflict codes must fail exactly publication_conflict_code_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 1108
+* test_an_observed_publication_that_is_not_an_object_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_first_delivery_drift)]:  an observed publication that is not an object must fail exactly publication_first_delivery_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 1117
+* test_a_minesweeper_seal_without_recipes_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_recipe_drift)]:  a Minesweeper seal that records no recipes must fail exactly publication_recipe_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 1126
+* test_a_snapshot_desktop_member_that_is_not_an_object_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_input_key_set_drift)]:  a snapshot desktop member that is not an object must fail exactly snapshot_input_key_set_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 1135
+* test_a_desktop_seal_without_v4_facts_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  a desktop seal that records no v4 facts must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 1144
+* test_a_gate_without_current_versions_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  a gate that records no current versions must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 1153
+* test_a_gate_without_a_bootstrap_probe_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(sealed_readiness_drift)]:  a gate that records no probe must fail exactly sealed_readiness_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 1162
+* test_a_gate_probe_without_readiness_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(sealed_readiness_drift)]:  a gate probe whose readiness is not an object must fail exactly sealed_readiness_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 1171
+* test_a_seal_recording_no_requirement_ids_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(requirement_attestation_drift)]:  a seal that records no requirement ids must fail exactly requirement_attestation_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 1180
+* test_the_three_seal_documents_match_their_committed_bytes
+* test_a_hand_edited_seal_that_stays_internally_consistent_is_refused
+* test_the_document_seam_refuses_a_non_dictionary_seal
+* test_the_real_schedule_commit_port_prepares_a_detached_aggregate_without_mutating
+* test_the_real_day_start_port_prepares_from_a_real_commit_without_starting_anything
+* test_the_real_shared_allocator_prepares_both_variants_without_committing_the_root
+* test_the_real_allocator_refuses_an_id_only_source_causal_day_receipt
+* test_the_real_provenance_owner_refuses_a_malformed_handoff
+* test_the_real_causal_sequence_port_stays_mutation_free_before_configuration
+* test_the_real_causal_sequence_port_refuses_a_malformed_reservation
+* test_the_real_board_fate_port_refuses_a_projected_departure_before_configuration
+* test_the_real_minesweeper_save_port_refuses_an_incapable_checkpoint_owner
+* test_the_real_minesweeper_save_port_binds_the_real_checkpoint_owner
+* test_the_nine_real_restore_participant_classes_share_one_interface
+* test_the_captured_snapshot_input_round_trips_through_the_real_v5_schema
+    [Failed]:  the REAL live snapshot input builds a real v5 snapshot: { "ok": false, "code": &"invalid_snapshot_input", "message": "missing member: schedule_view" }
+      at line 1605
+* test_the_real_v5_builder_refuses_a_snapshot_input_missing_a_declared_member
+* test_the_real_schedule_state_schema_rejects_the_aggregate_the_seal_forbids
+* test_pre_cutover_or_future_live_schema_claims_are_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  live schema facts must match the current owner: run_snapshot_schema_version=4 must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 1685
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  live schema facts must match the current owner: run_snapshot_schema_version=6 must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 1685
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  live schema facts must match the current owner: save_document_schema_version=4 must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 1685
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  live schema facts must match the current owner: save_document_schema_version=6 must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+      at line 1685
+45/101 passed.
+
+
+res://tests/integration/test_schedule_done_public_walk.gd
+* test_a_committed_schedule_walk_presents_settles_and_advances_through_public_doors
+    [Failed]:  {"code":"invalid_snapshot_input","message":"missing member: schedule_view","ok":false}
+      at line 252
+    [Failed]:  [STRING_NAME(invalid_snapshot_input)] expected to equal [STRING_NAME(await_registered_command)]:  the walk pauses awaiting the date presentation
+      at line 253
+    [Failed]:  [0] expected to equal [1]:  exactly one presentation was routed
+      at line 256
+SCRIPT ERROR: Out of bounds get index '0' (on base: 'Array[Dictionary]')
+   at: test_a_committed_schedule_walk_presents_settles_and_advances_through_public_doors (res://tests/integration/test_schedule_done_public_walk.gd:257)
+   GDScript backtrace (most recent call first):
+       [0] test_a_committed_schedule_walk_presents_settles_and_advances_through_public_doors (res://tests/integration/test_schedule_done_public_walk.gd:257)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Out of bounds get index '0' (on base: 'Array[Dictionary]')
+      at line -1
+* test_the_walk_is_replay_safe_at_the_public_doors
+    [Failed]
+      at line 280
+SCRIPT ERROR: Invalid access of index '0' on a base object of type: 'Array[Dictionary]'.
+   at: test_the_walk_is_replay_safe_at_the_public_doors (res://tests/integration/test_schedule_done_public_walk.gd:281)
+   GDScript backtrace (most recent call first):
+       [0] test_the_walk_is_replay_safe_at_the_public_doors (res://tests/integration/test_schedule_done_public_walk.gd:281)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access of index '0' on a base object of type: 'Array[Dictionary]'.
+      at line -1
+* test_the_disk_autosave_of_the_advanced_day_is_written
+    [Failed]
+      at line 301
+SCRIPT ERROR: Invalid access of index '0' on a base object of type: 'Array[Dictionary]'.
+   at: test_the_disk_autosave_of_the_advanced_day_is_written (res://tests/integration/test_schedule_done_public_walk.gd:302)
+   GDScript backtrace (most recent call first):
+       [0] test_the_disk_autosave_of_the_advanced_day_is_written (res://tests/integration/test_schedule_done_public_walk.gd:302)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access of index '0' on a base object of type: 'Array[Dictionary]'.
+      at line -1
+0/3 passed.
+
+
+res://tests/integration/test_schedule_downstream_contracts.gd
+* test_a01_validate_ports_covers_every_frozen_downstream_method
+* test_a02_schedule_prepare_commit_matches_the_frozen_contract
+* test_a03_day7_empty_done_provenance_matches_the_frozen_contract
+* test_a04_schedule_done_causal_reservation_matches_the_frozen_contract
+* test_a05_causal_admission_binds_reservation_checkpoint_and_payload_hash
+* test_a06_causal_commit_returns_the_combined_admission_receipt
+* test_a07_board_fate_schedule_done_uses_the_live_board_with_null_source_action_members
+* test_a08_board_fate_condition_departure_binds_the_exact_source_action
+* test_a09_consequence_accept_returns_the_frozen_value_and_receipt
+* test_a10_day_resolution_start_matches_the_frozen_contract
+* test_a11_board_fate_forfeits_a_started_board_with_nonnull_identity
+    [Failed]:  the real board start/reveal must succeed before the law under test is reachable: {"code":"layout_field_invalid","details":{"field":"width"},"message":"width must match the spec","ok":false}
+      at line 876
+* test_a12_day7_scheduled_solo_provenance_binds_the_nonnull_trio
+* test_b01_schedule_prepare_commit_refuses_a_missing_member_without_mutation
+* test_b02_schedule_prepare_commit_refuses_an_extra_member_without_mutation
+* test_b03_schedule_prepare_commit_refuses_a_stale_registry_fingerprint_without_mutation
+* test_b04_schedule_prepare_commit_refuses_caller_supplied_route_effect_and_cost
+* test_b05_board_fate_accepts_only_its_own_request_shape_and_reason
+* test_b06_board_fate_refuses_a_stale_board_revision_without_mutation
+* test_b07_board_fate_refuses_a_wrong_causal_day_without_mutation
+* test_b08_board_fate_refuses_a_bad_projection_hash_and_a_foreign_action_identity
+* test_b09_causal_reservation_refuses_shape_and_stale_expectation_mutations
+* test_b10_day7_provenance_refuses_shape_mutations_and_a_non_day7_commit
+* test_b11_day_resolution_start_refuses_shape_mutations_and_a_wrong_causal_day
+22/23 passed.
+
+
+res://tests/integration/test_shop_condition_contract_departure.gd
+* test_shop_purchase_departure_discards_an_unstarted_candidate
+    [Failed]:  {"code":"debug_capability_required","details":{},"message":"","ok":false}
+      at line 187
+    [Failed]:  ["NONE"] expected to equal ["PREPARING"]:
+      at line 188
+* test_shop_purchase_without_a_departure_leaves_the_board_untouched
+1/2 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/integration/test_desktop_bootstrap_wiring.gd
+    - Outside Tests
+        * [<Node#131617261336>(subsystem_animation.gd)]
+        * [<Node#131634038564>(subsystem_audio.gd)]
+        * [<Node#131650815796>]
+        * [<Node#131667593021>]
+        * [<Node#131684370243>(subsystem_backgrounds.gd)]
+        * [<Node#132221241156>(subsystem_choices.gd)]
+        * [<Timer#132238018373>]
+        * [<Node#132254795590>(subsystem_expression.gd)]
+        * [<Node#132288350027>(subsystem_glossary.gd)]
+        * [<Node#132305127244>(subsystem_history.gd)]
+        * [<Node#132321904461>(subsystem_input.gd)]
+        * [<Timer#132338681678>]
+        * [<Node#132355458895>(subsystem_jump.gd)]
+        * [<Node#132372236112>(subsystem_containers.gd)]
+        * [<Node#132389013329>(subsystem_portraits.gd)]
+        * [<Node#132925884242>(subsystem_save.gd)]
+        * [<Timer#132942661459>]
+        * [<Node#132959438676>(subsystem_settings.gd)]
+        * [<Node#132976215896>(subsystem_styles.gd)]
+        * [<Node#132992993113>(subsystem_text.gd)]
+        * [<Node#133076879198>(subsystem_text_input.gd)]
+        * [<Node#133093656415>(subsystem_variables.gd)]
+        * [<Node#133110433632>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133127210849>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/integration/test_desktop_bootstrap_wiring.gd
+- test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge
+    [Failed]:  the injected full-save failure retains terminal custody
+          at line 668
+    [Failed]:
+          at line 672
+    [Failed]:  the public panel retries and releases custody
+          at line 674
+    [Failed]:  minesweeper_panel_command_refused
+          at line 676
+- test_fresh_graph_keeps_prior_day_two_autosave_after_failed_completion
+    [Failed]:
+          at line 792
+    [Failed]:
+          at line 792
+- test_fresh_graph_keeps_prior_autosave_after_failed_condition_departure
+    [Failed]:
+          at line 798
+    [Failed]:
+          at line 798
+
+res://tests/integration/test_desktop_completion_transaction.gd
+- test_complete_round_transacts_exactly_once_against_real_ports
+    [Failed]:  {"code":"invalid_request","details":{"size":5},"message":"expected 4 members, saw 5","ok":false}
+          at line 211
+    [Failed]:  [STRING_NAME(invalid_request)] expected to equal [STRING_NAME(action_consequence_accepted)]:
+          at line 212
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'receipt' on a base object of type 'Dictionary'.
+          at line -1
+- test_complete_round_departure_commits_board_fate_against_real_ports
+    [Failed]:  {"code":"invalid_request","details":{"size":5},"message":"expected 4 members, saw 5","ok":false}
+          at line 296
+    [Failed]:  [STRING_NAME(invalid_request)] expected to equal [STRING_NAME(action_consequence_accepted)]:
+          at line 297
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'receipt' on a base object of type 'Dictionary'.
+          at line -1
+- test_a_source_already_holding_the_gate_blocks_the_other_source_until_it_releases
+    [Failed]:  [STRING_NAME(invalid_request)] expected to equal [STRING_NAME(minesweeper_round_requires_no_other_pending_transaction)]:
+          at line 373
+
+res://tests/integration/test_phase2r_schedule_desktop_handoff.gd
+- test_the_nine_restore_roles_are_nine_distinct_retained_participants
+    [Failed]:  [10] expected to equal [9]:  there are exactly nine restore roles
+          at line 342
+- test_the_guard_accepts_the_real_sealed_evidence_and_the_real_live_probe
+    [Failed]:  the real handoff validates: { "ok": false, "code": &"restore_order_drift", "message": "the live restore order and its seal must both be the frozen nine-role order", "details": { "live": ["identity_allocation", "run", "desktop_consequence", "desktop_board", "schedule_view", "profile", "localization", "audio", "route", "narrative"], "sealed": ["identity_allocation", "run", "desktop_consequence", "desktop_board", "profile", "localization", "audio", "route", "narrative"] } }
+          at line 369
+- test_the_success_envelope_serializes_no_numeric_instance_id
+    [Failed]:  precondition: the real handoff validates
+          at line 387
+- test_the_verdict_pins_the_sealed_bytes_of_the_suite_this_task_may_only_run
+    [Failed]:  precondition: the real handoff validates
+          at line 424
+- test_the_verdict_reports_the_two_requirements_no_seal_attests
+    [Failed]:  precondition: the real handoff validates
+          at line 437
+- test_the_verdict_keeps_the_later_composition_with_its_later_owner
+    [Failed]:  precondition: the real handoff validates
+          at line 452
+- test_the_verdict_records_the_one_lawful_forward_readiness_divergence
+    [Failed]:  precondition: the real handoff validates
+          at line 467
+- test_a_role_relation_set_that_is_not_the_frozen_six_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(role_relation_verdict_drift)]:  a dropped sealed role relation must fail exactly role_relation_verdict_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 552
+- test_two_ledgers_claiming_one_fixed_path_are_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_ledger_relation_violated)]:  both ledgers writing one document must fail exactly publication_ledger_relation_violated, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 562
+- test_a_drifted_allocation_key_format_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(allocator_receipt_shape_drift)]:  an allocation key no longer anchored to its source resolution receipt must fail exactly allocator_receipt_shape_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 571
+- test_an_allocator_receipt_missing_its_disposition_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(allocator_receipt_shape_drift)]:  an allocator receipt that stopped recording its disposition must fail exactly allocator_receipt_shape_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 585
+- test_a_dropped_recipe_exclusion_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_recipe_drift)]:  a recipe exclusion quietly dropped from the seal must fail exactly publication_recipe_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 599
+- test_a_gate_that_stops_attesting_preserved_schedule_keys_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  a gate that stopped attesting the committed Schedule keys survive must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 608
+- test_a_gate_whose_frozen_readiness_was_regenerated_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(sealed_readiness_drift)]:  a gate re-recording live readiness instead of its frozen historical value must fail exactly sealed_readiness_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 620
+- test_a_missing_restore_role_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(restore_role_set_drift)]:  eight restore roles must fail exactly restore_role_set_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 733
+- test_an_unretained_restore_role_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(restore_role_instance_id_zero)]:  an unretained audio participant must fail exactly restore_role_instance_id_zero, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 742
+- test_one_object_serving_two_restore_roles_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(restore_role_not_distinct)]:  one participant claiming two roles must fail exactly restore_role_not_distinct, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 752
+- test_one_object_serving_both_action_sources_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(action_source_roles_not_distinct)]:  a merged Round/Shop source must fail exactly action_source_roles_not_distinct, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 762
+- test_a_flipped_sealed_role_verdict_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(role_relation_verdict_drift)]:  the Round/Shop distinctness verdict flipped to equal must fail exactly role_relation_verdict_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 772
+- test_a_ledger_attestation_that_contradicts_the_probe_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_ledger_relation_violated)]:  a ledger attesting distinctness from itself must fail exactly publication_ledger_relation_violated, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 782
+- test_one_live_object_serving_both_ledger_roles_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_ledger_relation_violated)]:  one live ledger serving both plans must fail exactly publication_ledger_relation_violated, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 791
+- test_an_allocator_that_is_not_the_dot16_owner_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(allocator_binding_drift)]:  a substituted allocator owner must fail exactly allocator_binding_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 801
+- test_a_raw_causal_day_issue_path_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(allocator_raw_causal_day_issue)]:  Plan 01 minting a raw causal day must fail exactly allocator_raw_causal_day_issue, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 810
+- test_a_third_resolution_kind_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(allocator_resolution_kind_drift)]:  a third resolution kind smuggled in from Plan 03 must fail exactly allocator_resolution_kind_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 820
+- test_a_caller_supplied_target_day_identity_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(allocator_receipt_shape_drift)]:  a caller handing the allocator its own target identity must fail exactly allocator_receipt_shape_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 833
+- test_a_publication_delivered_twice_across_a_restart_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_first_delivery_drift)]:  a second first-delivery after restart must fail exactly publication_first_delivery_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 843
+- test_an_undeclared_conflict_code_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_conflict_code_drift)]:  a conflict code the ledger never declared must fail exactly publication_conflict_code_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 853
+- test_a_schedule_done_recipe_carrying_a_checkpoint_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_recipe_drift)]:  a checkpoint receipt inside a publication recipe must fail exactly publication_recipe_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 864
+- test_a_changed_snapshot_input_shape_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_input_key_set_drift)]:  a tenth snapshot member must fail exactly snapshot_input_key_set_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 873
+- test_an_undeclared_desktop_snapshot_member_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_desktop_member_drift)]:  a Plan-03 outbox member appearing early must fail exactly snapshot_desktop_member_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 882
+- test_a_regressed_schema_version_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  a save-document version below its Plan-01 seal must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 891
+- test_a_live_snapshot_version_that_disagrees_with_its_owner_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  a v6 snapshot disagrees with the current owner must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 900
+- test_a_readiness_fact_that_stopped_matching_its_seal_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(sealed_readiness_drift)]:  Hospital readiness regressing away from its seal must fail exactly sealed_readiness_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 909
+- test_a_producer_regression_below_finished_deviation_5_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(sealed_readiness_drift)]:  the presentation producer going dark again must fail exactly sealed_readiness_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 918
+- test_a_requirement_split_that_overstates_its_evidence_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(requirement_attestation_drift)]:  a seal suddenly claiming an unattested requirement must fail exactly requirement_attestation_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 929
+- test_a_later_owner_that_has_already_taken_the_composition_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(oyo_composition_claimed)]:  Phase 2R claiming ScheduleView ownership must fail exactly oyo_composition_claimed, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 938
+- test_a_destination_composition_declared_ready_inside_phase_2r_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(oyo_composition_claimed)]:  the destination outbox claiming readiness early must fail exactly oyo_composition_claimed, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 947
+- test_a_seal_that_stops_recording_dating_as_deferred_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(oyo_composition_claimed)]:  a seal that stops deferring Dating to dwm-oyo.4 must fail exactly oyo_composition_claimed, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 957
+- test_a_dating_presentation_declared_ready_inside_phase_2r_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(oyo_composition_claimed)]:  dwm-oyo.4's Dating owner claimed early must fail exactly oyo_composition_claimed, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 966
+- test_restore_roles_that_are_not_a_dictionary_are_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(predecessor_field_type)]:  restore roles supplied as an Array must fail exactly predecessor_field_type, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 1054
+- test_a_desktop_seal_without_a_bootstrap_probe_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(role_relation_verdict_drift)]:  a desktop seal that records no probe must fail exactly role_relation_verdict_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 1063
+- test_a_desktop_seal_without_external_stores_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_ledger_relation_violated)]:  a desktop seal that records no external stores must fail exactly publication_ledger_relation_violated, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 1072
+- test_an_unrecorded_desktop_ledger_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_ledger_relation_violated)]:  a desktop ledger entry that is not an object must fail exactly publication_ledger_relation_violated, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 1081
+- test_a_gate_without_a_day_advance_identity_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(allocator_binding_drift)]:  a gate that records no allocator must fail exactly allocator_binding_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 1090
+- test_a_gate_recording_no_observed_publications_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_first_delivery_drift)]:  a gate with an empty publication record must fail exactly publication_first_delivery_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 1099
+- test_a_gate_recording_no_conflict_codes_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_conflict_code_drift)]:  a ledger that declares no conflict codes must fail exactly publication_conflict_code_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 1108
+- test_an_observed_publication_that_is_not_an_object_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_first_delivery_drift)]:  an observed publication that is not an object must fail exactly publication_first_delivery_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 1117
+- test_a_minesweeper_seal_without_recipes_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_recipe_drift)]:  a Minesweeper seal that records no recipes must fail exactly publication_recipe_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 1126
+- test_a_snapshot_desktop_member_that_is_not_an_object_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_input_key_set_drift)]:  a snapshot desktop member that is not an object must fail exactly snapshot_input_key_set_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 1135
+- test_a_desktop_seal_without_v4_facts_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  a desktop seal that records no v4 facts must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 1144
+- test_a_gate_without_current_versions_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  a gate that records no current versions must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 1153
+- test_a_gate_without_a_bootstrap_probe_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(sealed_readiness_drift)]:  a gate that records no probe must fail exactly sealed_readiness_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 1162
+- test_a_gate_probe_without_readiness_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(sealed_readiness_drift)]:  a gate probe whose readiness is not an object must fail exactly sealed_readiness_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 1171
+- test_a_seal_recording_no_requirement_ids_is_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(requirement_attestation_drift)]:  a seal that records no requirement ids must fail exactly requirement_attestation_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 1180
+- test_the_captured_snapshot_input_round_trips_through_the_real_v5_schema
+    [Failed]:  the REAL live snapshot input builds a real v5 snapshot: { "ok": false, "code": &"invalid_snapshot_input", "message": "missing member: schedule_view" }
+          at line 1605
+- test_pre_cutover_or_future_live_schema_claims_are_refused
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  live schema facts must match the current owner: run_snapshot_schema_version=4 must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 1685
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  live schema facts must match the current owner: run_snapshot_schema_version=6 must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 1685
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  live schema facts must match the current owner: save_document_schema_version=4 must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 1685
+    [Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  live schema facts must match the current owner: save_document_schema_version=6 must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order
+          at line 1685
+
+res://tests/integration/test_schedule_done_public_walk.gd
+- test_a_committed_schedule_walk_presents_settles_and_advances_through_public_doors
+    [Failed]:  {"code":"invalid_snapshot_input","message":"missing member: schedule_view","ok":false}
+          at line 252
+    [Failed]:  [STRING_NAME(invalid_snapshot_input)] expected to equal [STRING_NAME(await_registered_command)]:  the walk pauses awaiting the date presentation
+          at line 253
+    [Failed]:  [0] expected to equal [1]:  exactly one presentation was routed
+          at line 256
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Out of bounds get index '0' (on base: 'Array[Dictionary]')
+          at line -1
+- test_the_walk_is_replay_safe_at_the_public_doors
+    [Failed]:
+          at line 280
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access of index '0' on a base object of type: 'Array[Dictionary]'.
+          at line -1
+- test_the_disk_autosave_of_the_advanced_day_is_written
+    [Failed]:
+          at line 301
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access of index '0' on a base object of type: 'Array[Dictionary]'.
+          at line -1
+
+res://tests/integration/test_schedule_downstream_contracts.gd
+- test_a11_board_fate_forfeits_a_started_board_with_nonnull_identity
+    [Failed]:  the real board start/reveal must succeed before the law under test is reachable: {"code":"layout_field_invalid","details":{"field":"width"},"message":"width must match the spec","ok":false}
+          at line 876
+
+res://tests/integration/test_shop_condition_contract_departure.gd
+- test_shop_purchase_departure_discards_an_unstarted_candidate
+    [Failed]:  {"code":"debug_capability_required","details":{},"message":"","ok":false}
+          at line 187
+    [Failed]:  ["NONE"] expected to equal ["PREPARING"]:
+          at line 188
+
+Totals
+------
+Scripts               6
+Tests               159
+Passing Tests        92
+Failing Tests        67
+Asserts           2558/2643
+Orphans              24
+Time              27.915s
+
+
+---- 67 failing tests ----

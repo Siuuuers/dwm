@@ -106,8 +106,16 @@ var _cached_document: Dictionary = {}
 var _has_cached_document := false
 # Exact canonical documents constructed and fully validated in this process. Storage callbacks may
 # reuse them only while the text is byte-identical; cold or changed bytes always take the full parser.
+# An entry may also carry `canonical_records` (record key -> the exact text CanonicalJsonWriter
+# emits for that record value) and `canonical_fields` (each OTHER top-level field's canonical text):
+# the incremental emit cache `_compose_candidate_text()` composes an append from. It lives INSIDE
+# the memo entry on purpose, so a cache and the document text it describes share one lifetime and
+# an evicted or superseded text can never leave a stale cache behind.
 var _validated_text_documents: Dictionary = {}
 var _validated_text_order: Array[String] = []
+## The exact text `_cached_document` was parsed from, or written as. The canonical cache is keyed by
+## text, so this is how a cache entry is proved to describe THIS document and not a superseded one.
+var _cached_text := ""
 ## DWM_CONSEQUENCE_PROFILE gate, read from the environment once per instance in _init(). Every
 ## profile marker below costs exactly one boolean check while the variable is unset.
 var _profile_enabled: bool = false
@@ -133,6 +141,7 @@ func configure(storage: Object) -> Dictionary:
 	_storage = storage
 	_has_cached_document = false
 	_cached_document = {}
+	_cached_text = ""
 	_validated_text_documents = {}
 	_validated_text_order = []
 	return _accepted({"already_configured": false})
@@ -236,8 +245,15 @@ func _commit_new_entry(entry: Dictionary, profile: Dictionary = {}) -> Dictionar
 	# digested `publication`, and every kind binds `semantic_receipt` to a member of it.
 	var normalized_entry: Dictionary = _normalize_engine_text(entry)
 	tick = _profile_phase(profile, "entry_normalize_us", tick)
-	var candidate_document := _cached_document.duplicate(true)
-	(candidate_document["records"] as Dictionary)[normalized_entry["key"]] = normalized_entry
+	# A cached document is immutable once cached (`_parse_known_document()` hands the memoized
+	# document out by reference), and a record is only ever APPENDED under a key `record_before_emit`
+	# has already proved absent -- never mutated in place. So the candidate copies exactly the two
+	# containers this append changes, the envelope and the records map, and shares every retained
+	# record object with the cached document instead of deep-copying the whole ~800 KB document.
+	var candidate_document := _cached_document.duplicate()
+	var candidate_records: Dictionary = (_cached_document.get("records", {}) as Dictionary).duplicate()
+	candidate_records[normalized_entry["key"]] = normalized_entry
+	candidate_document["records"] = candidate_records
 	tick = _profile_phase(profile, "candidate_build_us", tick)
 	# The cached document was fully validated by refresh; check only the newly appended record. The
 	# publication digest was already emitted and compared in `_check_request()`, so it is passed
@@ -247,15 +263,25 @@ func _commit_new_entry(entry: Dictionary, profile: Dictionary = {}) -> Dictionar
 	tick = _profile_phase(profile, "shape_check_us", tick)
 	if not entry_error.is_empty():
 		return _rejected(&"publication_ledger_schema_invalid", entry_error)
-	var body := _digest_source(candidate_document)
-	tick = _profile_phase(profile, "full_emit_us", tick)
+	# One emit of the ONE new record, joined to the retained records' already-cached canonical texts,
+	# instead of re-canonicalizing the whole ~800 KB document for every append. The composer returns
+	# nothing when no cache describes the cached document (a cold instance, externally changed bytes,
+	# an exotic key set), and then the historical full emit below runs exactly as it always did.
+	var composed := _compose_candidate_text(normalized_entry, profile)
+	var body := str(composed.get("text", ""))
+	if body.is_empty():
+		body = _digest_source(candidate_document)
+		tick = _profile_phase(profile, "full_emit_us", tick)
+	else:
+		tick = _profile_phase(profile, "compose_us", tick)
 	if not profile.is_empty():
+		profile["emit_path"] = "full" if composed.is_empty() else "composed"
 		profile["document_bytes"] = body.to_utf8_buffer().size() + 1
 		tick = Time.get_ticks_usec()
 	if body.is_empty():
 		return _rejected(&"publication_ledger_serialization_failed", "candidate document is not canonicalizable")
 	var payload := body + "\n"
-	_remember_validated_text(payload, candidate_document)
+	_remember_validated_text(payload, candidate_document, true, true)
 	tick = _profile_phase(profile, "cache_seed_us", tick)
 	var write_result: Dictionary = _storage.call(
 		&"write_atomic", FIXED_PATH, payload, Callable(self, "_parse_known_storage_text"), true)
@@ -266,7 +292,9 @@ func _commit_new_entry(entry: Dictionary, profile: Dictionary = {}) -> Dictionar
 	if not confirmed.get("ok", false):
 		return confirmed
 	_cached_document = candidate_document
+	_cached_text = payload
 	_has_cached_document = true
+	_adopt_canonical_texts(payload, composed)
 	return _accepted({"record": entry.duplicate(true), "first_delivery": true})
 
 
@@ -283,6 +311,8 @@ func _confirm_written_entry(expected_payload: String, entry: Dictionary,
 	var known: Dictionary = _parse_known_document(expected_payload)
 	if not known.get("ok", false):
 		return _rejected(&"publication_record_unverified", "the durable record diverges from the candidate")
+	# ONE record is read out of the validated document: `_parse_known_document()` hands the memoized
+	# document out by reference, so fetching it no longer deep-copies the whole ~800 KB document.
 	var reparsed_entry: Variant = (known["value"] as Dictionary)["records"].get(entry["key"])
 	# Type-aware deep equality (StringName folded on the entry side only, 1 and 1.0 distinct) is the
 	# same proof the two canonical emits gave, without emitting the ~100 KB entry twice.
@@ -328,10 +358,14 @@ func _refresh_from_disk() -> Dictionary:
 	var read_result: Dictionary = _storage.call(&"read_text", FIXED_PATH)
 	if not read_result.get("ok", false):
 		return _from_storage_failure(read_result)
-	var parsed: Dictionary = _parse_known_document(str(read_result.get("value", "")))
+	var text := str(read_result.get("value", ""))
+	var parsed: Dictionary = _parse_known_document(text)
 	if not parsed.get("ok", false):
 		return parsed
-	_cached_document = (parsed["value"] as Dictionary).duplicate(true)
+	# The parsed document is the memoized one and is never mutated in place, so refresh does not copy
+	# what the parser already owns; `load()` below still hands its caller an own deep copy.
+	_cached_document = parsed["value"]
+	_cached_text = text
 	_has_cached_document = true
 	return {"ok": true}
 
@@ -357,6 +391,10 @@ func _parse_known_storage_text(text: String) -> Dictionary:
 	return parsed
 
 
+## Returns the validated document BY REFERENCE. Every document this class caches is immutable once
+## cached -- `_commit_new_entry()` copies the two containers an append changes and mutates neither
+## source, and `load()` gives its caller an own deep copy -- so this internal reader no longer
+## deep-copies an ~800 KB document on every refresh and every write confirmation.
 func _parse_known_document(text: String) -> Dictionary:
 	var document: Dictionary
 	if _validated_text_documents.has(text):
@@ -364,7 +402,7 @@ func _parse_known_document(text: String) -> Dictionary:
 		var known: Dictionary = _validated_text_documents[text]
 		document = known["document"]
 		if bool(known["schema_validated"]):
-			return {"ok": true, "code": &"ok", "value": document.duplicate(true)}
+			return {"ok": true, "code": &"ok", "value": document}
 	else:
 		var parsed: Dictionary = _JSON.parse_object(text)
 		if not parsed.get("ok", false):
@@ -373,13 +411,20 @@ func _parse_known_document(text: String) -> Dictionary:
 	var shape_error := _document_shape_error(document)
 	if not shape_error.is_empty():
 		return _rejected(&"publication_ledger_schema_invalid", shape_error)
-	_remember_validated_text(text, document, true)
-	return {"ok": true, "code": &"ok", "value": document.duplicate(true)}
+	# Both branches hold a document only this instance owns: the memo's own copy, or a strict parse
+	# nothing else has seen.
+	_remember_validated_text(text, document, true, true)
+	return {"ok": true, "code": &"ok", "value": document}
 
 
-func _remember_validated_text(text: String, document: Dictionary, schema_validated: bool = true) -> void:
+## `already_owned` marks a document this instance alone holds -- the memo's own document, a fresh
+## strict parse, or a candidate it just built -- which is memoized as it is. The storage-callback
+## path hands its parsed value to storage as well, so that one is still copied in.
+func _remember_validated_text(text: String, document: Dictionary, schema_validated: bool = true,
+		already_owned: bool = false) -> void:
 	_validated_text_documents[text] = {
-		"document": document.duplicate(true), "schema_validated": schema_validated,
+		"document": document if already_owned else document.duplicate(true),
+		"schema_validated": schema_validated,
 	}
 	_touch_validated_text(text)
 	while _validated_text_order.size() > 3:
@@ -389,6 +434,131 @@ func _remember_validated_text(text: String, document: Dictionary, schema_validat
 func _touch_validated_text(text: String) -> void:
 	_validated_text_order.erase(text)
 	_validated_text_order.append(text)
+
+
+## Composes the outgoing document text from the per-record canonical cache plus ONE emit of the new
+## record, byte-identically to `_digest_source(candidate_document)` -- exactly the arrangement
+## `DesktopIssuerRootStore._write_issued_document()` / `_compose_issue_document()` already use for
+## the issuer root. Returns `{}` whenever the composed text cannot be proved identical (no cache
+## describes the cached document, a piece refuses to canonicalize, an exotic key set); the caller
+## then takes the historical full emit, so a miss costs speed and never bytes.
+func _compose_candidate_text(normalized_entry: Dictionary, profile: Dictionary) -> Dictionary:
+	var cache := _canonical_cache_entry(profile)
+	if cache.is_empty():
+		return {}
+	var encoded_entry: Dictionary = _CANON.stringify(normalized_entry)
+	if not encoded_entry.get("ok", false):
+		return {}
+	# The cached map may still describe a memoized document, so the append copies it (String values,
+	# one shallow copy) instead of writing the new record into the map the old text is composed of.
+	var record_texts: Dictionary = (cache["canonical_records"] as Dictionary).duplicate()
+	record_texts[str(normalized_entry["key"])] = str(encoded_entry["value"])
+	var fields: Dictionary = cache["canonical_fields"]
+	var text := _compose_document_text(record_texts, fields)
+	if text.is_empty():
+		return {}
+	return {"text": text, "records": record_texts, "fields": fields}
+
+
+## The exact bytes `CanonicalJsonWriter.stringify()` emits for a document whose records are already
+## encoded: sorted keys, `"key":value` pairs joined by commas, no separator whitespace anywhere.
+func _compose_document_text(record_texts: Dictionary, fields: Dictionary) -> String:
+	var record_keys: Variant = _canonical_key_order(record_texts.keys())
+	if record_keys == null:
+		return ""
+	var encoded_records := PackedStringArray()
+	for record_key: Variant in record_keys as Array:
+		var encoded_key: Dictionary = _CANON.stringify(str(record_key))
+		if not encoded_key.get("ok", false):
+			return ""
+		encoded_records.append(str(encoded_key["value"]) + ":" + str(record_texts[record_key]))
+	var names: Array = fields.keys()
+	names.append("records")
+	var ordered: Variant = _canonical_key_order(names)
+	if ordered == null:
+		return ""
+	var parts := PackedStringArray()
+	for name_key: Variant in ordered as Array:
+		var name := str(name_key)
+		var encoded_name: Dictionary = _CANON.stringify(name)
+		if not encoded_name.get("ok", false):
+			return ""
+		var encoded_value := ""
+		if name == "records":
+			encoded_value = "{" + ",".join(encoded_records) + "}"
+		else:
+			encoded_value = str(fields.get(name, ""))
+		if encoded_value.is_empty():
+			return ""
+		parts.append(str(encoded_name["value"]) + ":" + encoded_value)
+	return "{" + ",".join(parts) + "}"
+
+
+## `null` when any key falls outside printable ASCII: the writer then orders that dictionary with
+## its own UTF-8 byte comparator, which this composer deliberately does not reproduce, so the caller
+## falls back to the full emit. On printable ASCII the writer sorts by plain String order in BOTH
+## its native and its checked emitter, which is exactly what this returns.
+static func _canonical_key_order(keys: Array) -> Variant:
+	for key: Variant in keys:
+		var name := str(key)
+		for index in range(name.length()):
+			var codepoint := name.unicode_at(index)
+			if codepoint < 0x20 or codepoint > 0x7E:
+				return null
+	var ordered: Array = keys.duplicate()
+	ordered.sort()
+	return ordered
+
+
+## The memo entry for `_cached_text` once it carries the canonical cache, rebuilding that cache ONCE
+## per distinct document text. The rebuild costs one full emit and replaces the full emit every
+## append used to pay; a cache that cannot be PROVED to describe `_cached_document` -- an evicted
+## memo entry, a document refreshed from externally changed bytes -- is rebuilt, never trusted.
+func _canonical_cache_entry(profile: Dictionary) -> Dictionary:
+	if _cached_text.is_empty() or not _validated_text_documents.has(_cached_text):
+		return {}
+	var known: Dictionary = _validated_text_documents[_cached_text]
+	if not is_same(known.get("document"), _cached_document):
+		return {}
+	if known.has("canonical_records"):
+		return known
+	var rebuilt := _rebuild_canonical_cache(_cached_document)
+	if rebuilt.is_empty():
+		return {}
+	known["canonical_records"] = rebuilt["records"]
+	known["canonical_fields"] = rebuilt["fields"]
+	if not profile.is_empty():
+		profile["canonical_rebuilt"] = true
+	return known
+
+
+func _rebuild_canonical_cache(document: Dictionary) -> Dictionary:
+	var records := {}
+	var fields := {}
+	for key: Variant in document:
+		var name := str(key)
+		if name == "records":
+			for record_key: Variant in document[name] as Dictionary:
+				var encoded_record: Dictionary = _CANON.stringify((document[name] as Dictionary)[record_key])
+				if not encoded_record.get("ok", false):
+					return {}
+				records[str(record_key)] = str(encoded_record["value"])
+			continue
+		var encoded_field: Dictionary = _CANON.stringify(document[name])
+		if not encoded_field.get("ok", false):
+			return {}
+		fields[name] = str(encoded_field["value"])
+	return {"records": records, "fields": fields}
+
+
+## The new record joins the canonical cache only once its exact bytes are durable AND confirmed, so
+## a refused or unverified write leaves the cache describing what is really on disk.
+func _adopt_canonical_texts(text: String, composed: Dictionary) -> void:
+	if composed.is_empty() or not _validated_text_documents.has(text):
+		return
+	var known: Dictionary = _validated_text_documents[text]
+	known["canonical_records"] = composed["records"]
+	known["canonical_fields"] = composed["fields"]
 
 
 func _document_shape_error(document: Variant) -> String:

@@ -553,3 +553,289 @@ func test_normalize_engine_text_folds_string_names_and_preserves_identity_and_nu
 	var clean := {"a": 1, "b": [1, 2.5, "x", null, true], "c": {"d": "e"}}
 	var clean_result: Variant = _ledger_script.call(&"_normalize_engine_text", clean)
 	assert_true(is_same(clean_result, clean), "a StringName-free dictionary must be returned by identity")
+
+
+# ---- dwm-634.3 session 5: compose the append from a per-record canonical cache ----
+#
+# `_commit_new_entry` used to canonicalize the WHOLE document for every append: on a real account
+# that is ~800 KB over ~110 records, 44-50 ms of emit per record_before_emit, beside four deep
+# copies of that same document (the refresh's parse AND its own re-copy of it, the candidate, the
+# memo seed) and a fifth to fetch ONE record back out of the memo during confirmation. Session 5
+# keeps, beside the cached document, the exact canonical text of every record and of every other
+# top-level field -- the arrangement DesktopIssuerRootStore._write_issued_document() already uses
+# for the issuer root -- and composes the outgoing text from those cached pieces plus ONE emit of
+# the new record. The cache lives inside the validated-text memo, so it shares the lifetime of the
+# exact text it describes, and anything it cannot describe falls back to the historical full emit.
+#
+# The bytes on disk must not move by one byte. The rows below pin them against the full canonical
+# writer after EVERY write, across a cold restart, across an external change to the file, and after
+# a refused write; the source rows pin which emit path fired and which deep copies are gone.
+
+
+class FailingStorage:
+	extends RefCounted
+
+	var _inner: RefCounted
+	var fail_write := false
+
+	func _init(inner: RefCounted) -> void:
+		_inner = inner
+
+	func describe_root() -> String:
+		return _inner.describe_root()
+
+	func exists(relative_path: String) -> bool:
+		return _inner.exists(relative_path)
+
+	func reconcile(relative_path: String, validator: Callable) -> Dictionary:
+		return _inner.reconcile(relative_path, validator)
+
+	func read_text(relative_path: String) -> Dictionary:
+		return _inner.read_text(relative_path)
+
+	func write_atomic(relative_path: String, text: String, validator: Callable,
+			keep_backup: bool = true) -> Dictionary:
+		if fail_write:
+			return {"ok": false, "code": &"write_not_committed", "message": relative_path}
+		return _inner.write_atomic(relative_path, text, validator, keep_backup)
+
+
+## The record the OLD whole-document path produced for a request: the exact entry the ledger builds,
+## canonically emitted and strict-parsed back (StringName -> String, typed Array -> untyped,
+## canonical key order). Every golden document below is composed from these, so the goldens are
+## computed the pre-cache way, exactly as the session-4 golden row above computes its own.
+func _old_path_record(key: String, request: Dictionary) -> Dictionary:
+	var entry := {
+		"key": key,
+		"kind": str(request["kind"]),
+		"semantic_receipt": (request["semantic_receipt"] as Dictionary).duplicate(true),
+		"publication": (request["publication"] as Dictionary).duplicate(true),
+		"publication_sha256": str(request["publication_sha256"]),
+	}
+	var reparsed: Dictionary = STRICT_JSON.parse_object(_canonical(entry))
+	assert_true(reparsed.get("ok", false), str(reparsed))
+	return reparsed["value"] if reparsed.get("ok", false) else {}
+
+
+func _golden_document(records: Dictionary) -> String:
+	return _canonical({"records": records, "schema_version": 1}) + "\n"
+
+
+func _exotic_board_fate_request(receipt_id: String, board_candidate: Dictionary) -> Dictionary:
+	var receipt := {"receipt_id": receipt_id, "fate": &"none"}
+	var publication := {"board_candidate": board_candidate, "board_fate_receipt": receipt}
+	return {
+		"kind": "board_fate", "publication": publication,
+		"publication_sha256": _sha256(publication), "semantic_receipt": receipt,
+	}
+
+
+## Six publications whose canonical text exercises everything a composer must reproduce exactly:
+## StringName keys and values, insertion-ordered nested keys, the floats 1.0 and 2.5, non-ASCII
+## text, and a string carrying the very punctuation the composition joins with. The float-free ones
+## come FIRST on purpose -- CanonicalJsonWriter takes its native encoder while the whole document is
+## float-free and its checked emitter once a float lands, so the composed bytes are pinned against
+## both of the writer's own paths.
+func _exotic_requests() -> Array:
+	return [
+		["board_fate:exotic-names", _exotic_board_fate_request("exotic-names", {
+			&"phase": &"ACTIVE_VISIBLE", "zulu": {"mid": 4, "alpha": "x"}, "label": "你好",
+		})],
+		["board_fate:exotic-punctuation", _exotic_board_fate_request("exotic-punctuation", {
+			"quoted": "he said \"{a,b}:c\" and \\ left", "empty": {},
+		})],
+		["action_source:exotic-commit", _action_request("exotic-commit")],
+		["board_fate:exotic-floats", _exotic_board_fate_request("exotic-floats", {
+			"ratio": 2.5, "unit": 1.0, "count": 3,
+		})],
+		["board_fate:exotic-nested", _exotic_board_fate_request("exotic-nested", {
+			"nested": {"zeta": {"inner": 1.0}, "alpha": [1.0, 2.5, &"tag", "你好"]},
+		})],
+		["board_fate:exotic-plain", _board_fate_request("exotic-plain")],
+	]
+
+
+## RED-safe member probe: on a tree without the cache the member does not exist, so a row that reads
+## it fails once with a readable message instead of erroring out mid-assertion.
+func _has_ledger_property(property_name: String) -> bool:
+	for property: Dictionary in _ledger_script.get_script_property_list():
+		if str(property.get("name", "")) == property_name:
+			return true
+	assert_true(false, "DesktopPublicationLedger must own " + property_name)
+	return false
+
+
+## The per-record canonical cache the ledger holds for the document it currently caches. Reaching
+## into the validated-text memo is this suite's own idiom (see the bounded-cache row above).
+func _canonical_cache_of(ledger: Object) -> Dictionary:
+	var memo: Dictionary = ledger._validated_text_documents
+	var cached_text: String = ledger._cached_text
+	assert_true(memo.has(cached_text), "the cached document's own text must still be memoized")
+	var entry: Dictionary = memo.get(cached_text, {})
+	assert_true(entry.has("canonical_records"),
+		"the memo entry for the cached document must carry the per-record canonical map")
+	return entry.get("canonical_records", {})
+
+
+func test_every_write_lands_on_the_full_canonical_writers_exact_bytes() -> void:
+	if not _require_ledger():
+		return
+	var ledger := _loaded()
+	var path := _root.path_join(FIXED_PATH)
+	var expected_records := {}
+	for fixture: Array in _exotic_requests():
+		var key := str(fixture[0])
+		var request: Dictionary = fixture[1]
+		var recorded: Dictionary = ledger.record_before_emit(request)
+		assert_true(recorded.get("ok", false), key + ": " + str(recorded))
+		expected_records[key] = _old_path_record(key, request)
+		assert_eq(FileAccess.get_file_as_string(path), _golden_document(expected_records),
+			"after " + key + " the document must be exactly what the full canonical writer emits")
+	assert_eq(expected_records.size(), 6, "the fixture set must cover six distinct records")
+
+	# Cold restart: a fresh instance over the same bytes rebuilds its cache from disk, and the next
+	# record still lands on the full writer's exact bytes.
+	var restarted := _loaded()
+	var after_restart := _board_fate_request("after-restart")
+	var restart_key := "board_fate:after-restart"
+	var appended: Dictionary = restarted.record_before_emit(after_restart)
+	assert_true(appended.get("ok", false), str(appended))
+	expected_records[restart_key] = _old_path_record(restart_key, after_restart)
+	assert_eq(FileAccess.get_file_as_string(path), _golden_document(expected_records),
+		"a cache rebuilt from disk must compose exactly what the full writer emits")
+
+	# A replay of an identical request stays a no-op success that writes nothing at all.
+	var before_replay := FileAccess.get_file_as_string(path)
+	var replay: Dictionary = restarted.record_before_emit(after_restart)
+	assert_true(replay.get("ok", false), str(replay))
+	assert_false(replay["value"]["first_delivery"], "an identical replay is not a first delivery")
+	assert_eq(FileAccess.get_file_as_string(path), before_replay, "a replay writes nothing")
+
+
+func test_the_append_is_composed_from_the_cached_per_record_texts() -> void:
+	if not _require_ledger():
+		return
+	var source := FileAccess.get_file_as_string(LEDGER_PATH)
+	assert_false(source.is_empty(), "the ledger source must be readable: " + LEDGER_PATH)
+	assert_true(source.contains("func _compose_document_text("),
+		"the ledger must compose the outgoing document from cached per-record canonical texts")
+	assert_true(source.contains('profile["emit_path"] = "full" if composed.is_empty() else "composed"'),
+		"the profile record must name which of the two emit paths fired")
+	assert_true(source.contains('tick = _profile_phase(profile, "compose_us", tick)'),
+		"the composed path must be timed under its own phase")
+	assert_true(source.contains('tick = _profile_phase(profile, "full_emit_us", tick)'),
+		"the full emit must keep its historical phase name for the fallback")
+	if not _has_ledger_property("_cached_text"):
+		return
+	var ledger := _loaded()
+	for index: int in 3:
+		var recorded: Dictionary = ledger.record_before_emit(_action_request("composed-" + str(index)))
+		assert_true(recorded.get("ok", false), str(recorded))
+	var cache := _canonical_cache_of(ledger)
+	assert_eq(cache.size(), 3, "every durable record must carry its own cached canonical text")
+	var records: Dictionary = ledger._cached_document["records"]
+	for record_key: Variant in records:
+		assert_eq(str(cache.get(record_key, "")), _canonical(records[record_key]),
+			"the cached text for " + str(record_key) + " must be what the writer emits for that record")
+
+
+func test_external_bytes_between_two_writes_rebuild_the_cache_before_the_next_append() -> void:
+	if not _require_ledger():
+		return
+	if not _has_ledger_property("_cached_text"):
+		return
+	var ledger := _loaded()
+	var path := _root.path_join(FIXED_PATH)
+	assert_true(ledger.record_before_emit(_board_fate_request("before-external")).get("ok", false),
+		"the ledger must own a durable record before the file changes underneath it")
+
+	# Different, still valid bytes written straight past the ledger, carrying a DIFFERENT record set:
+	# a cache still describing the previous document would compose a record this file does not have.
+	var external_request := _action_request("external-writer")
+	var external_key := "action_source:external-writer"
+	var external_records := {external_key: _old_path_record(external_key, external_request)}
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	assert_true(file != null, "the durable document must be overwritable for this test")
+	if file == null:
+		return
+	file.store_string(_golden_document(external_records))
+	file.close()
+
+	var after_request := _board_fate_request("after-external")
+	var after_key := "board_fate:after-external"
+	var appended: Dictionary = ledger.record_before_emit(after_request)
+	assert_true(appended.get("ok", false), str(appended))
+	var expected_records := external_records.duplicate()
+	expected_records[after_key] = _old_path_record(after_key, after_request)
+	assert_eq(FileAccess.get_file_as_string(path), _golden_document(expected_records),
+		"the rebuilt cache must compose the full writer's exact bytes over the external document")
+	var on_disk: Dictionary = STRICT_JSON.parse_object(FileAccess.get_file_as_string(path))
+	assert_true(on_disk.get("ok", false), str(on_disk))
+	if not on_disk.get("ok", false):
+		return
+	var durable_keys: Array = ((on_disk["value"] as Dictionary)["records"] as Dictionary).keys()
+	durable_keys.sort()
+	assert_eq(durable_keys, [external_key, after_key],
+		"the durable record set is the externally written one plus the new record")
+	var cached_keys: Array = _canonical_cache_of(ledger).keys()
+	cached_keys.sort()
+	assert_eq(cached_keys, [external_key, after_key],
+		"the per-record cache must describe the document that is really on disk")
+
+
+func test_a_refused_write_leaves_the_cached_document_and_its_canonical_cache_intact() -> void:
+	if not _require_ledger():
+		return
+	if not _has_ledger_property("_cached_text"):
+		return
+	var failing := FailingStorage.new(_storage)
+	var ledger := _loaded(failing)
+	var path := _root.path_join(FIXED_PATH)
+	var kept := _action_request("kept-1")
+	var kept_key := "action_source:kept-1"
+	assert_true(ledger.record_before_emit(kept).get("ok", false), "the first record must commit")
+	var expected_records := {kept_key: _old_path_record(kept_key, kept)}
+	var before_bytes := FileAccess.get_file_as_string(path)
+	var before_document: Dictionary = (ledger.load()["value"]["document"] as Dictionary).duplicate(true)
+	var before_cache: Dictionary = _canonical_cache_of(ledger).duplicate()
+
+	failing.fail_write = true
+	var refused: Dictionary = ledger.record_before_emit(_action_request("refused-1"))
+	assert_false(refused.get("ok", true), "the storage refusal must surface")
+	assert_eq(refused["code"], &"write_not_committed")
+	assert_eq(FileAccess.get_file_as_string(path), before_bytes, "a refused write never reaches storage")
+	assert_eq(ledger._cached_document, before_document, "a refused write leaves the cached document")
+	assert_eq(_canonical_cache_of(ledger), before_cache,
+		"a refused write leaves the per-record cache describing the durable document")
+
+	failing.fail_write = false
+	var next_request := _board_fate_request("kept-2")
+	var next_key := "board_fate:kept-2"
+	assert_true(ledger.record_before_emit(next_request).get("ok", false),
+		"the ledger must still commit once storage accepts writes again")
+	expected_records[next_key] = _old_path_record(next_key, next_request)
+	assert_eq(FileAccess.get_file_as_string(path), _golden_document(expected_records),
+		"the write after a refusal emits exactly what a fresh instance would")
+
+
+func test_the_whole_document_deep_copies_this_change_removed_are_gone_from_the_source() -> void:
+	if not _require_ledger():
+		return
+	var source := FileAccess.get_file_as_string(LEDGER_PATH)
+	assert_false(source.is_empty(), "the ledger source must be readable: " + LEDGER_PATH)
+	# Allocation-only, so each removed whole-document deep copy is pinned by its exact former source
+	# line, the way this repo pins every allocation-only change.
+	assert_false(source.contains('_cached_document = (parsed["value"] as Dictionary).duplicate(true)'),
+		"_refresh_from_disk must not re-copy the document _parse_known_document already owns")
+	assert_false(source.contains("var candidate_document := _cached_document.duplicate(true)"),
+		"the candidate must copy only the envelope and the records map, not the whole document")
+	assert_false(source.contains('"document": document.duplicate(true), "schema_validated": schema_validated,'),
+		"an already-owned document must be memoized as it is")
+	assert_false(source.contains('"value": document.duplicate(true)}'),
+		"_parse_known_document must hand the memoized document out by reference")
+	# The two copies that MUST remain: storage is handed a document of its own, and so is load()'s
+	# caller. Neither may ever share a reference with the cached document.
+	assert_true(source.contains('"value": (known["document"] as Dictionary).duplicate(true)}'),
+		"_parse_known_storage_text must still hand storage a document of its own")
+	assert_true(source.contains('return _accepted({"document": _cached_document.duplicate(true)})'),
+		"load() must still return a caller-owned deep copy")
