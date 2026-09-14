@@ -13,7 +13,7 @@
   },
   "capture_files_retained": false,
   "capture_retention_note": "Invoke-IsolatedGodot used its default cleanup. The synthetic images and measurement JSON were temporary; only the log and terminal invocation receipt are retained here.",
-  "diagnostics": "No ERROR, WARNING, SCRIPT ERROR or Orphan lines in the native log.",
+  "diagnostics": "No uppercase engine ERROR:, WARNING: or SCRIPT ERROR: markers and no orphan diagnostics. Three Unicode parsing errors for unexpected NUL characters remain; the same three messages occur in evidence/witnessed_palettes/witnessed-palettes-render-b.log.",
   "log": "native.log",
   "log_sha256": "6a976beb145ce3e2c6b084e5267de64ec4b53cb88d8f43ecd2ab74a6356f9bb3",
   "invocation": {
