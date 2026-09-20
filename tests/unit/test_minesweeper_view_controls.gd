@@ -89,30 +89,59 @@ func test_rapid_wheel_updates_are_immediate_and_flush_as_one_preference_transact
 func test_preference_write_refusal_restores_last_saved_view() -> void:
 	var profile := Preferences.new()
 	var sheet := _worksheet(profile)
+	await get_tree().process_frame
+	var normal_width: float = sheet.cell_size_menu.size.x
 	profile.refuse = true
 	assert_false(sheet.step_zoom(1))
+	await get_tree().process_frame
 	assert_eq(sheet.cell_size,36)
 	assert_false(sheet.always_fit)
 	assert_true(sheet.view_save_failed)
 	assert_string_contains(sheet.cell_size_menu.text,"!")
+	_assert_picker_caption_fits(sheet.cell_size_menu)
+	assert_gt(sheet.cell_size_menu.size.x,normal_width,"A failed-save marker is visible without clipping.")
+	profile.refuse = false
+	assert_true(sheet.step_zoom(1))
+	await get_tree().process_frame
+	assert_false(sheet.view_save_failed)
+	assert_eq(sheet.cell_size_menu.text,"38 px")
+	_assert_picker_caption_fits(sheet.cell_size_menu)
+	assert_eq(sheet.cell_size_menu.size.x,normal_width,"Successful zoom removes the transient warning width.")
 
 func test_large_targets_and_text_size_do_not_change_selected_cell_size() -> void:
 	var sheet := _worksheet()
-	for locale: String in ["en","zh-CN","zh-HK"]:
-		for percent: int in [100,125,150]:
-			for large: bool in [false,true]:
-				assert_true(sheet.configure("desktop_app",locale,percent,large))
-				await get_tree().process_frame
-				assert_almost_eq(sheet.geometry.target*2.0,36.0,0.001)
-				assert_eq(sheet.zoom_controls.size(),2)
-				assert_lte(sheet.view_controls.get_combined_minimum_size().x,312.0)
-				assert_lte(sheet.view_controls.get_combined_minimum_size().y,64.0)
-				assert_eq(sheet.zoom_controls[1]._paragraph.get_line_count(),1,"Fit stays on one line in every supported locale.")
-				for control: Control in sheet.zoom_controls:
-					var local_rect := Rect2(control.global_position-sheet.global_position,control.size)
-					assert_true(Rect2(Vector2.ZERO,sheet.size).encloses(local_rect),str([locale,percent,large,local_rect]))
-					assert_gte(control.size.y,control.get_combined_minimum_size().y)
-					assert_gte(control.size.y,64.0 if large else 48.0)
+	for font_style: String in ["pixel","readable"]:
+		for locale: String in ["en","zh-CN","zh-HK","ja","ko"]:
+			for percent: int in [100,125,150]:
+				for host: String in ["desktop_app","canonical_solo","canonical_pair"]:
+					for flags: Vector2i in [Vector2i.ZERO,Vector2i(0,1),Vector2i(1,0),Vector2i.ONE]:
+						var large := bool(flags.x)
+						assert_true(sheet.configure(host,locale,percent,large,&"after_hours",Vector2i.ZERO,bool(flags.y),"standard",font_style))
+						await get_tree().process_frame
+						assert_almost_eq(sheet.geometry.target*2.0,36.0,0.001)
+						assert_eq(sheet.zoom_controls.size(),2)
+						assert_lte(sheet.view_controls.get_combined_minimum_size().x,312.0)
+						assert_lte(sheet.view_controls.get_combined_minimum_size().y,64.0)
+						assert_eq(sheet.zoom_controls[1]._paragraph.get_line_count(),1,"Fit stays on one line in every supported locale.")
+						for control: Control in sheet.zoom_controls:
+							var local_rect := Rect2(control.global_position-sheet.global_position,control.size)
+							assert_true(Rect2(Vector2.ZERO,sheet.size).encloses(local_rect),str([font_style,locale,percent,host,flags,local_rect]))
+							assert_gte(control.size.y,control.get_combined_minimum_size().y)
+							assert_gte(control.size.y,64.0 if large else 48.0)
+						_assert_picker_caption_fits(sheet.cell_size_menu)
+						var numeric_width: float = sheet.cell_size_menu.size.x
+						assert_true(sheet.set_always_fit(true))
+						await get_tree().process_frame
+						_assert_picker_caption_fits(sheet.cell_size_menu)
+						assert_lt(sheet.cell_size_menu.size.x,numeric_width,"Fit uses its shorter selected caption without reserving numeric-choice width.")
+						assert_true(sheet.set_always_fit(false))
+
+func _assert_picker_caption_fits(picker: OptionButton) -> void:
+	var face: StyleBox = picker.get_theme_stylebox("normal")
+	var text_width := ceilf(picker.get_theme_font("font").get_string_size(picker.text,HORIZONTAL_ALIGNMENT_LEFT,-1,picker.get_theme_font_size("font_size")).x)
+	var occupied := text_width + face.get_minimum_size().x + picker.get_theme_icon("arrow").get_width() + maxi(0,picker.get_theme_constant("h_separation"))
+	assert_gte(picker.size.x,occupied,"The selected text, padding and dropdown arrow fit completely.")
+	assert_lte(picker.size.x,occupied+1.0,"The closed picker reserves no width beyond its selected caption and native chrome.")
 
 func test_sheet_and_held_cell_block_zoom_without_writing_preferences() -> void:
 	var profile := Preferences.new()

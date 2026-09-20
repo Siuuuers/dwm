@@ -151,21 +151,30 @@ func _refresh_presentation() -> void:
 	font.opentype_features = {"tnum": 1}
 	theme.default_font = font
 	%DayLabel.add_theme_font_size_override("font_size", roundi(theme.default_font_size * (4.0 / 3.0 if font_style == "pixel" else 1.16)))
-	var day_spacing := StyleBoxEmpty.new()
-	day_spacing.content_margin_bottom = 6
-	%DayLabel.add_theme_stylebox_override("normal", day_spacing)
+	var rule_color := theme.get_color("structure", "Desktop")
+	rule_color.a = 1.0 if high_contrast else 0.6
+	var day_rule := StyleBoxFlat.new()
+	day_rule.draw_center = false
+	day_rule.border_color = rule_color
+	day_rule.border_width_bottom = 1
+	day_rule.content_margin_bottom = 8
+	%DayLabel.add_theme_stylebox_override("normal", day_rule)
+	var balance_rule := StyleBoxFlat.new()
+	balance_rule.draw_center = false
+	balance_rule.border_color = rule_color
+	balance_rule.border_width_top = 1
+	balance_rule.content_margin_top = 8
+	%MoneyRow.add_theme_stylebox_override("normal", balance_rule)
 	var panel := StyleBoxFlat.new()
-	panel.bg_color = theme.get_color("habitat", "Desktop")
-	panel.bg_color.a = 1.0 if high_contrast else 0.74
-	panel.border_color = theme.get_color("structure" if high_contrast else "ink", "Desktop")
-	panel.border_color.a = 1.0 if high_contrast else 0.32
+	panel.bg_color = theme.get_color("habitat" if high_contrast else "face", "Desktop")
+	panel.bg_color.a = 1.0 if high_contrast else 0.82
+	panel.border_color = rule_color
 	panel.set_border_width_all(1)
-	panel.border_width_top = 2
-	panel.set_corner_radius_all(12)
+	panel.set_corner_radius_all(4)
 	if not high_contrast:
 		panel.shadow_color = Color(0, 0, 0, 0.2)
-		panel.shadow_size = 10
-		panel.shadow_offset = Vector2(0, 4)
+		panel.shadow_size = 4
+		panel.shadow_offset = Vector2(0, 2)
 	panel.content_margin_left = 16
 	panel.content_margin_right = 16
 	panel.content_margin_top = 14

@@ -103,6 +103,7 @@ func _init() -> void:
 	add_child(view_controls)
 	cell_size_menu = OptionButton.new()
 	cell_size_menu.name = "CellSize"
+	cell_size_menu.fit_to_longest_item = false
 	cell_size_menu.item_selected.connect(_select_cell_size)
 	view_controls.add_child(cell_size_menu)
 	zoom_controls.append(cell_size_menu)
@@ -373,7 +374,7 @@ func _configure_view_controls() -> void:
 	cell_size_menu.clear()
 	cell_size_menu.add_item(fit_copy, 0)
 	for pixels in range(10, 61, 2): cell_size_menu.add_item(str(pixels) + " px", pixels)
-	cell_size_menu.custom_minimum_size = Vector2(152 if _percent == 100 else 192, 64 if _large else 48)
+	cell_size_menu.custom_minimum_size = Vector2(0, 64 if _large else 48)
 	cell_size_menu.add_theme_color_override("font_color", theme.get_color(&"primary_dark_copy", &"Minesweeper"))
 	var face := StyleBoxFlat.new()
 	face.bg_color = theme.get_color(&"controlled_face", &"Minesweeper")
