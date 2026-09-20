@@ -1,5 +1,5 @@
 extends Control
-## Fixed-bay action dock. Selection and action availability are presented, never inferred.
+## Centered action dock. Selection and action availability are presented, never inferred.
 
 signal action_requested(action: StringName)
 
@@ -8,9 +8,9 @@ const FLAG_BUTTON := preload("res://scripts/ui/minesweeper/MinesweeperFlagButton
 const MS_THEME := preload("res://scripts/ui/minesweeper/MinesweeperTheme.gd")
 const COPY := preload("res://scripts/ui/minesweeper/MinesweeperChromeCopy.gd")
 const MODES := [&"reveal",&"flag",&"drag"]
-const LEFT := [["flag",4,40],["drag",48,56]]
-const DESKTOP := [["new_board",108,64],["assignments",176,80],["rules",260,48]]
-const CANONICAL := [["rules",376,48],["pause",428,48]]
+const DESKTOP := ["flag","drag","new_board","assignments","rules"]
+const CANONICAL := ["flag","drag","rules","pause"]
+const GAP := 8
 
 var buttons: Dictionary = {}
 var mode: StringName = &"reveal"
@@ -33,16 +33,25 @@ func configure(host: String = "desktop_app", locale: String = "en", percent: int
 	var next_theme := MS_THEME.build(locale,percent,palette,high_contrast,colour_preset)
 	if next_theme == null: return false
 	var copy := COPY.get_copy(locale)
-	var allocations: Array = LEFT+(DESKTOP if host == "desktop_app" else CANONICAL)
+	var actions: Array = DESKTOP if host == "desktop_app" else CANONICAL
+	var dock_width := 800 if host == "desktop_app" else 960
+	var widths: Dictionary = {}
+	var group_width := (actions.size()-1)*GAP
+	for key: String in actions:
+		var width := 80 if key == "flag" else BUTTON.single_line_width(copy[key],next_theme,large)
+		if width == 0: return false
+		widths[key] = width
+		group_width += width
+	if group_width > dock_width: return false
 	var candidates: Dictionary = {}
 	var height := 64 if large else 48
-	for allocation: Array in allocations:
-		var button: Button = FLAG_BUTTON.new() if allocation[0] == "flag" else BUTTON.new()
-		if not button.configure(copy[allocation[0]],next_theme,large,allocation[2]*2):
+	for key: String in actions:
+		var button: Button = FLAG_BUTTON.new() if key == "flag" else BUTTON.new()
+		if not button.configure(copy[key],next_theme,large,widths[key]):
 			button.free()
 			for prior: Button in candidates.values(): prior.free()
 			return false
-		candidates[allocation[0]] = button
+		candidates[key] = button
 		height = maxi(height,int(button.custom_minimum_size.y))
 	var focused := ""
 	for key: String in buttons:
@@ -55,13 +64,14 @@ func configure(host: String = "desktop_app", locale: String = "en", percent: int
 	_copy = copy
 	theme = next_theme
 	var inset := 6 if large else 4
-	custom_minimum_size = Vector2(800 if host == "desktop_app" else 960,height+inset*2)
+	custom_minimum_size = Vector2(dock_width,height+inset*2)
 	size = custom_minimum_size
-	for allocation: Array in allocations:
-		var key: String = allocation[0]
+	var left := floorf((dock_width-group_width)/4.0)*2.0
+	for key: String in actions:
 		var button: Button = buttons[key]
 		button.custom_minimum_size.y = height
-		button.position = Vector2(allocation[1]*2,inset)
+		button.position = Vector2(left,inset)
+		left += widths[key]+GAP
 		add_child(button)
 		button.pressed.connect(_request.bind(key))
 	_apply_state()

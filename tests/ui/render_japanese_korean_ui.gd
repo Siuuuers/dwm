@@ -15,6 +15,7 @@ const SCHEDULE := preload("res://tests/manual/verify_schedule_desktop_native.gd"
 const SCHEDULE_COPY := preload("res://scripts/ui/schedule/ScheduleCopy.gd")
 const QUICK := preload("res://tests/manual/verify_quick_status_native.gd")
 const MINES := preload("res://tests/unit/test_minesweeper_app.gd")
+const DESKTOP_RENDER := preload("res://tests/ui/render_desktop_scaling.gd")
 const MENU := preload("res://scenes/menu/MenuScene.tscn")
 const GALLERY := preload("res://scenes/menu/GalleryScene.tscn")
 const EXPECTED_CAPTURES := 30
@@ -115,6 +116,9 @@ func capture(name: String, language: String, percent: int, scene: Node) -> void:
 	await settle()
 	check(locale.get_locale() == language, name + ": active locale provider")
 	check(profile.get_preference(&"preferences.accessibility.text_size") == percent, name + ": actual text preference")
+	if name == "minesweeper":
+		for issue: String in DESKTOP_RENDER.mines_control_layout_failures(desktop._cached_app_windows[&"minesweeper"].panel):
+			check(false,name+": "+issue)
 	var measured := {"labels": 0, "missing_glyphs": []}
 	_measure_text(scene, measured)
 	check(measured.labels > 0, name + ": visible production text")
@@ -319,6 +323,7 @@ func _desktop_samples(language: String) -> void:
 		await settle()
 		check(opened.value.app.last_result.get("ok", false), "Mines150 enlarged-target projection " + str(opened.value.app.last_result))
 		check(opened.value.app.panel._percent == 150 and opened.value.app.panel._large, "Mines applies both accessibility preferences")
+		for issue: String in DESKTOP_RENDER.mines_control_layout_failures(opened.value.app.panel): check(false,"Mines large targets: "+issue)
 		_check_mines_footer(opened.value.app.panel.worksheet)
 		desktop.app_scroll.ensure_control_visible(opened.value.app.panel.dock)
 		await settle()

@@ -48,6 +48,9 @@ func capture(name: String, width: int) -> void:
 	check(desktop.desktop_canvas.scale.is_equal_approx(Vector2.ONE * (width / 800.0)), name + ": proportional canvas")
 	check(desktop.get_global_rect().encloses(desktop.home_button.get_global_rect()), name + ": Home stays visible")
 	check(not desktop.status_label.visible, name + ": no presentation failure notice")
+	if name.begins_with("minesweeper"):
+		for issue: String in mines_control_layout_failures(desktop._cached_app_windows[&"minesweeper"].panel):
+			check(false,name+": "+issue)
 	geometry_samples += 1
 	if DisplayServer.get_name() != "headless":
 		for frame in 3: await RenderingServer.frame_post_draw
@@ -58,6 +61,38 @@ func capture(name: String, width: int) -> void:
 	print("SCALING_SAMPLE ",name," width=",width," scale=",desktop.desktop_canvas.scale," scroll=",desktop.app_scroll.scroll_vertical)
 func pair(name: String) -> void:
 	for width in [800,960]: await capture(name,width)
+
+static func mines_control_layout_failures(panel: Control) -> Array[String]:
+	var issues: Array[String] = []
+	var dock: Control = panel.dock
+	var controls: Array = dock.buttons.values()
+	controls.sort_custom(func(a: Button,b: Button): return a.position.x < b.position.x)
+	if controls.is_empty(): return ["Mines dock has no controls"]
+	var gap := -1.0
+	for index in controls.size():
+		var button: Button = controls[index]
+		if not Rect2(Vector2.ZERO,dock.size).grow(0.01).encloses(button.get_rect()):
+			issues.append("Mines dock control escapes row: "+button.name)
+		if button != dock.buttons.flag:
+			if button._paragraph.get_line_count() != 1:
+				issues.append("Mines dock label must stay on one line: "+button.public_copy)
+			elif button._paragraph.get_line_width(0) > button.size.x-button._inset*2-8+0.01:
+				issues.append("Mines dock label exceeds its text area: "+button.public_copy)
+		if index > 0:
+			var current_gap: float = button.position.x-controls[index-1].get_rect().end.x
+			if current_gap < 0 or (gap >= 0 and not is_equal_approx(current_gap,gap)):
+				issues.append("Mines dock gaps must be equal and nonnegative")
+			gap = current_gap
+	var left: float = controls[0].position.x
+	var right: float = dock.size.x-controls.back().get_rect().end.x
+	if absf(left-right) > 2.01: issues.append("Mines dock outer margins must balance on the two-pixel grid")
+	for button: Button in panel.register.difficulties.values():
+		if button._paragraph.get_line_count() != 1:
+			issues.append("Mines difficulty label must stay on one line: "+button.public_copy)
+		elif button._paragraph.get_line_width(0) > button.size.x-button._inset*2-8+0.01:
+			issues.append("Mines difficulty label exceeds its text area: "+button.public_copy)
+	return issues
+
 func _run() -> void:
 	if folder.is_empty(): folder = ProjectSettings.globalize_path("user://evidence/all_app_scaling")
 	DirAccess.make_dir_recursive_absolute(folder)

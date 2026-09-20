@@ -61,14 +61,26 @@ func test_unknown_mines_use_dash_and_hidden_metrics_retain_authoritative_values(
 
 func test_all_font_scales_preserve_bay_order_and_do_not_shrink_copy() -> void:
 	var register := _register()
-	for locale: String in ["en","zh-CN","zh-HK"]:
+	for locale: String in ["en","zh-CN","zh-HK","ja","ko"]:
 		for percent: int in [100,125,150]:
 			for large: bool in [false,true]:
+				var context := "%s %d%% large=%s" % [locale,percent,large]
+				var authored_theme: Theme = preload("res://scripts/ui/minesweeper/MinesweeperTheme.gd").build(locale,percent,&"midnight")
+				register.difficulties.expert.grab_focus()
 				assert_true(register.configure("desktop_app",locale,percent,large,&"midnight"))
+				assert_true(register.difficulties.expert.has_focus(),context)
+				assert_true(register.difficulties.beginner.selected,context)
+				assert_eq(register.difficulties.keys(),["beginner","intermediate","expert"],context)
+				var previous: Button
 				for button: Button in register.difficulties.values():
-					assert_eq(button.theme.default_font_size,20*percent/100)
+					assert_same(button.theme.default_font,authored_theme.default_font,context)
+					assert_eq(button.theme.default_font_size,authored_theme.default_font_size,context)
 					assert_gt(button.size.x,96.0)
 					assert_gte(button.size.y,64.0 if large else 48.0)
+					assert_eq(button._paragraph.get_line_count(),1,context+" "+button.public_copy)
+					assert_lte(button.position.x+button.size.x,register.metrics.rounds.position.x,context+" difficulty cannot collide with status fields")
+					if previous != null: assert_lte(previous.position.x+previous.size.x,button.position.x,context)
+					previous = button
 				for metric: Control in register.metrics.values():
 					assert_eq(metric.size.y,register.size.y)
 					assert_lte(metric.label_shape.height+metric.value_shape.height+16,register.size.y)

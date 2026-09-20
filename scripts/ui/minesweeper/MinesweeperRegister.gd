@@ -129,18 +129,49 @@ func _compose(view: Dictionary, next_theme: Theme, host: String, locale: String,
 	var candidate_metrics: Dictionary = {}
 	var height := 72 if large else 56
 	if host == "desktop_app":
+		var widths: Array[int] = []
+		if large == _large:
+			for key: String in TIERS:
+				var button: Button = difficulties.get(key)
+				if button == null or button.theme != next_theme or button.public_copy != copy[key]:
+					widths.clear()
+					break
+				widths.append(int(button.custom_minimum_size.x))
+		if widths.is_empty():
+			widths.assign([160,160,160])
+			var minimums: Array[int] = []
+			var excess := 0
+			for index in TIERS.size():
+				var minimum := BUTTON.single_line_width(copy[TIERS[index]],next_theme,large)
+				if minimum == 0: return {}
+				minimums.append(minimum)
+				widths[index] = maxi(160,minimum)
+				excess += widths[index]-160
+			# Keep the authored bays unless a label needs room; borrow only spare width.
+			while excess > 0:
+				var reduced := false
+				for index in TIERS.size():
+					if excess == 0: break
+					if widths[index]-2 >= minimums[index]:
+						widths[index] -= 2
+						excess -= 2
+						reduced = true
+				if not reduced: return {}
+		var left := 0
 		for index in TIERS.size():
 			var key: String = TIERS[index]
 			var button: Button = difficulties.get(key)
-			if button == null or button.theme != next_theme or button.public_copy != copy[key] or large != _large:
+			if button == null or button.theme != next_theme or button.public_copy != copy[key] or large != _large \
+					or int(button.custom_minimum_size.x) != widths[index]:
 				button = BUTTON.new()
-				if not button.configure(copy[key],next_theme,large,160):
+				if not button.configure(copy[key],next_theme,large,widths[index]):
 					button.free()
 					_free_candidates(candidate_buttons,candidate_metrics)
 					return {}
-			candidate_buttons[key] = {"node":button,"x":index*160,
+			candidate_buttons[key] = {"node":button,"x":left,
 				"enabled":key in view.difficulty_enabled,"selected":key == view.difficulty,
 				"description":copy.selected if key == view.difficulty else ""}
+			left += widths[index]
 			height = maxi(height,int(button.custom_minimum_size.y)+8)
 	var allocations: Array = [["rounds",240,72],["mine_estimate",312,88]] if host == "desktop_app" else [["mine_estimate",392,88]]
 	for allocation: Array in allocations:
@@ -216,8 +247,12 @@ func _draw() -> void:
 	if theme == null or public_view.is_empty(): return
 	draw_rect(Rect2(Vector2.ZERO,size),theme.get_color(&"controlled_face" if _host == "desktop_app" else &"habitat",&"Minesweeper"))
 	# Canonical blank capacity has no field face, seam, label or node.
-	var boundaries: Array = [80,160,240,312] if _host == "desktop_app" else []
+	var boundaries: Array = []
+	if _host == "desktop_app":
+		for key: String in TIERS:
+			boundaries.append(int(difficulties[key].position.x+difficulties[key].size.x))
+		boundaries.append(624)
 	for x: int in boundaries:
-		draw_rect(Rect2(x*2-2,0,2,size.y),theme.get_color(&"dark_registration",&"Minesweeper"))
+		draw_rect(Rect2(x-2,0,2,size.y),theme.get_color(&"dark_registration",&"Minesweeper"))
 	draw_rect(Rect2(0,size.y-2,size.x,2),theme.get_color(&"dark_registration",&"Minesweeper"))
 
