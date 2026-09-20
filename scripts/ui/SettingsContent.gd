@@ -415,10 +415,11 @@ func _ensure_focus_visible(scroll: ScrollContainer, control: Control) -> void:
 func _clear_focus_perimeter(scroll: ScrollContainer, control: Control) -> void:
 	if not is_instance_valid(control) or not control.has_focus() or not control.is_visible_in_tree():
 		return
-	var target := control.get_global_rect().grow(8)
-	var viewport := scroll.get_global_rect()
+	var to_scroll := scroll.get_global_transform().affine_inverse()
+	var target := (to_scroll * control.get_global_rect()).grow(8)
+	var viewport := Rect2(Vector2.ZERO, scroll.size)
 	if control == controls.get(&"preferences.accessibility.steady_interface"):
-		var reading_row: Rect2 = rows[&"preferences.accessibility.steady_interface"].get_global_rect().grow(8)
+		var reading_row: Rect2 = (to_scroll * rows[&"preferences.accessibility.steady_interface"].get_global_rect()).grow(8)
 		if reading_row.size.y <= viewport.size.y:
 			target = reading_row
 	if target.position.y < viewport.position.y:
@@ -651,7 +652,7 @@ func _draw_selected_extension() -> void:
 	if not _rails.has(_selected):
 		return
 	var button: Button = _rails[_selected]
-	var row := Rect2(button.global_position - global_position, button.size)
+	var row := get_global_transform().affine_inverse() * button.get_global_rect()
 	var top := maxf(row.position.y, rail_scroll.position.y + 8)
 	var bottom := minf(row.end.y, rail_scroll.position.y + rail_scroll.size.y - 8)
 	if bottom <= top:

@@ -33,6 +33,7 @@ var _has_cached_navigation := false
 var _preparation_retry: Button
 var _preparation_retry_needed := false
 var _preparation_foreground := false
+var _desktop_layout_height := 0
 
 func _ready() -> void:
 	super._ready()
@@ -61,13 +62,23 @@ func _ready() -> void:
 	if get_parent() is Control: get_parent().resized.connect(_fit_host)
 	_fit_host()
 
+func set_desktop_height(height: int) -> void:
+	if height <= 0 or height == _desktop_layout_height: return
+	_desktop_layout_height = height
+	_fit_host()
+
+
 func _fit_host() -> void:
 	var host := get_parent() as Control
 	if host == null or host.size.x <= 0 or host.size.y <= 0: return
-	var factor := minf(1.2, host.size.x / 800.0)
+	# Desktop enlargement belongs to the shared canvas; small standalone hosts
+	# still fit the complete app without adding another enlargement factor.
+	var factor := minf(1.0, minf(host.size.x / 800.0, host.size.y / 656.0))
 	var height := floori(host.size.y / factor / 2.0) * 2
+	if _desktop_layout_height > 0:
+		factor = 1.0
+		height = _desktop_layout_height / 2 * 2
 	if not panel.set_layout_height(height):
-		factor = minf(1.0, minf(host.size.x / 800.0, host.size.y / 656.0))
 		panel.set_layout_height(656)
 	custom_minimum_size = Vector2(800, panel.layout_height)
 	_content_host.custom_minimum_size = custom_minimum_size

@@ -42,7 +42,7 @@ func configure(desktop: Control, port: Object, input_owner: Object, admission: C
 func _ready() -> void:
 	edge = EDGE.new()
 	edge.name = "QuickStatus"
-	_desktop.add_child.call_deferred(edge)
+	_desktop.desktop_canvas.add_child.call_deferred(edge)
 	_desktop.visibility_changed.connect(retain_contacts)
 	retain_contacts()
 

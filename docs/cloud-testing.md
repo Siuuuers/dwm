@@ -10,13 +10,21 @@ one bounded GUT suite: Minesweeper, Shop, desktop input/layout, or Settings/disp
 The current production project uses GDScript and does not include a C# project.
 This workflow does not compile C# or produce a distributable Windows export.
 
+A fifth job renders the computer panel on Ubuntu 24.04 using the same pinned
+Godot release, Xvfb, and Mesa software OpenGL. The desktop scaling harness
+captures 26 states covering the launcher, apps, scrolled content, menus, and
+confirmations at baseline and enlarged widths. Geometry assertions, a successful
+JSON report, and all 26 nonempty PNG files are required. Its screenshots and logs
+are uploaded for visual review; a headless geometry run cannot satisfy this job.
+This supplementary renderer does not replace the four Windows test groups.
+
 `tools/testing/Invoke-CloudTests.ps1` lists the exact test scripts. It reuses the
 existing isolated runner, which gives each run disposable user data and rejects
 requested scripts that never execute. A missing or empty JUnit report also fails
 the job. The four groups continue independently so one failure does not conceal
 the other results. Each job has a 20-minute limit.
 
-Open the run under the repository's **Actions** tab to see its outcome. Each job
+Open the run under the repository's **Actions** tab to see its outcome. Each Windows job
 uploads import logs, GUT logs, an execution record, and JUnit XML for seven days,
 including when a test fails. Downloads/checkout failures may occur before logs
 exist; their cause remains in the job log. Private-repository Actions usage is
@@ -45,9 +53,10 @@ committed or pushed, and this workaround can be removed when those repository
 gitlinks are repaired.
 
 Headless tests can verify scene geometry, focus, commands, preserved game state,
-and display transactions through test ports. They do not establish pixel-perfect
-rendering, GPU behavior, audible output, real monitor/DPI behavior, or release
-packaging. The existing `tests/manual/verify_window_mode_native.gd` needs an
+and display transactions through test ports. The supplementary Linux screenshots
+provide rendered layout evidence, but do not establish Windows GPU behavior,
+audible output, real monitor/DPI behavior, or release packaging. The existing
+`tests/manual/verify_window_mode_native.gd` needs an
 isolated, non-headless Windows desktop to test the physical window. Do not label
 headless success as completion of that native check.
 

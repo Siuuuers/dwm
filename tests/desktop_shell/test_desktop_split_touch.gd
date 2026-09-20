@@ -6,6 +6,8 @@ const SHELL_FIXTURES := preload("res://tests/desktop_shell/test_desktop_shell.gd
 const CONTACT_FIXTURES := preload("res://tests/contacts_shell/test_contacts_shell.gd")
 const HUD_FIXTURES := preload("res://tests/unit/test_stat_hud_week_tint.gd")
 const MINESWEEPER_FIXTURES := preload("res://tests/unit/test_minesweeper_app.gd")
+const BACKUP_FIXTURES := preload("res://tests/unit/test_backup_panel_resize.gd")
+const SETTINGS_FIXTURES := preload("res://tests/unit/test_settings_panel_resize.gd")
 
 class ShellMinesweeperPort extends MINESWEEPER_FIXTURES.PublicPort:
 	var desktop_owner: Control
@@ -34,6 +36,7 @@ func before_each() -> void:
 	viewport = SubViewport.new()
 	viewport.size = Vector2i(1280, 720)
 	viewport.handle_input_locally = true
+	viewport.gui_embed_subwindows = true
 	add_child_autofree(viewport)
 	locale = CONTACT_FIXTURES.FakeLocale.new()
 	add_child_autofree(locale)
@@ -108,7 +111,7 @@ func test_three_button_footer_leaves_full_app_height_and_navigation_never_launch
 	await settle()
 	assert_true(navigation.visible, "large targets retains assisted focus navigation")
 	assert_eq(navigation.get_child_count(), 3)
-	var strip: Control = desktop.get_node("AppStrip")
+	var strip: Control = desktop.get_node("DesktopCanvas/AppStrip")
 	assert_eq(strip.position.y, 656.0)
 	assert_eq(desktop.app_window_host.size.y, 656.0)
 	assert_eq(desktop.app_window_host.position.y, 0.0)
@@ -147,22 +150,23 @@ func test_contacts_expands_the_same_thread_and_retains_its_reading_position() ->
 	var anchor: Dictionary = panel._scroll_anchor()
 	var port: RefCounted = app._presentation_port
 	var reads: int = port.reads
+	var original_transcript_size := transcript.get_global_rect().size
 	app._status_label.text = "Temporary status"
 	app._status_label.show()
 	for width: int in [960, 880, 800]:
 		main.get_node("RootHBox").set_angela_width(1280 - width)
 		await settle()
-		assert_eq(app.size, Vector2(width, 656), "app uses the expanded desktop")
+		assert_eq(app.size, Vector2(800, 656), "app retains its logical canvas while magnifying")
 		assert_eq(panel.size, app.size)
-		assert_eq(transcript.size, Vector2(width - 248, 560), "extra width goes to reading")
+		assert_true(transcript.get_global_rect().size.is_equal_approx(original_transcript_size * (width / 800.0)),
+			"reading content enlarges proportionally with the pane")
 		assert_same(panel.messages, messages, "resize retains message nodes")
 		assert_same(panel.transcript, transcript)
 		assert_same(app._reply_button, reply, "pending action is not recreated")
 		assert_same(viewport.gui_get_focus_owner(), transcript)
 		assert_eq(panel._scroll_anchor().get("id"), anchor.get("id"), "same message remains at the top")
 		assert_eq(port.reads, reads, "resize does not query or commit gameplay")
-		assert_eq(app._status_label.get_rect().end.x, float(width - 16))
-		assert_eq(app._status_label.get_rect(), Rect2(264, 608, width - 280, 48), "visible notice stays in its bottom strip")
+		assert_eq(app._status_label.get_rect(), Rect2(264, 608, 520, 48), "visible notice retains its logical bottom strip")
 		assert_true(panel.get_global_rect().encloses(transcript.get_global_rect()))
 
 
@@ -196,6 +200,8 @@ func test_footer_home_keeps_hardware_navigation_into_current_app() -> void:
 
 func test_footer_navigates_real_confirmation_without_activating_background() -> void:
 	profile.change_large_targets(true)
+	main.get_node("RootHBox").set_angela_width(320)
+	await settle()
 	var decisions: Array[bool] = []
 	var response: Dictionary = desktop.present_confirmation({
 		"title": "Test confirmation", "body": "Inspect before confirming.",
@@ -205,6 +211,12 @@ func test_footer_navigates_real_confirmation_without_activating_background() -> 
 	assert_true(response.get("ok", false))
 	await settle()
 	var modal: Control = response.value.confirmation
+	var sheet: Control = modal.get_node("ConfirmationSheet")
+	assert_true(desktop.get_global_rect().encloses(sheet.get_global_rect()))
+	assert_lte(sheet.get_global_rect().end.y, desktop.home_button.get_global_rect().position.y,
+		"enlarged confirmation and its actions stay above the accessible footer")
+	assert_eq(desktop.contacts_button.get_focus_mode_with_override(), Control.FOCUS_NONE,
+		"moving confirmations into the scaled canvas preserves background input custody")
 	modal.cancel_button.grab_focus()
 	await tap_navigation(desktop.touch_navigation.next_button)
 	assert_same(viewport.gui_get_focus_owner(), modal.confirm_button)
@@ -223,6 +235,8 @@ func test_footer_confirm_reaches_real_grid_without_changing_its_input_contract()
 	var grid: Control = preload("res://scripts/ui/minesweeper/MinesweeperGrid.gd").new()
 	desktop.app_window_host.add_child(grid)
 	desktop.icon_grid.hide()
+	desktop._active_id = &"minesweeper"
+	desktop._refresh_app_scroll()
 	assert_true(grid.configure("en", 100, false))
 	var cells: Array = []
 	for index: int in range(2):
@@ -255,6 +269,126 @@ func test_launcher_enlarges_after_resize_without_remounting_or_losing_focus() ->
 		assert_lt(button.get_global_rect().end.y, desktop.home_button.get_global_rect().position.y)
 
 
+func test_real_desktop_content_enlarges_only_after_divider_release() -> void:
+	var first: Button = desktop.launcher_buttons[&"minesweeper"]
+	first.grab_focus()
+	var original := first.get_global_rect()
+	var home_original: Rect2 = desktop.home_button.get_global_rect()
+	var button := InputEventMouseButton.new()
+	button.position = Vector2(472, 360)
+	button.global_position = button.position
+	button.button_index = MOUSE_BUTTON_LEFT
+	button.pressed = true
+	viewport.push_input(button, true)
+	var motion := InputEventMouseMotion.new()
+	motion.position = Vector2(312, 360)
+	motion.global_position = motion.position
+	motion.relative = Vector2(-160, 0)
+	motion.button_mask = MOUSE_BUTTON_MASK_LEFT
+	viewport.push_input(motion, true)
+	await settle()
+	assert_eq(first.get_global_rect(), original, "dragging only previews the divider")
+	assert_eq(desktop.home_button.get_global_rect(), home_original)
+	button = InputEventMouseButton.new()
+	button.position = motion.position
+	button.global_position = button.position
+	button.button_index = MOUSE_BUTTON_LEFT
+	button.pressed = false
+	viewport.push_input(button, true)
+	await settle()
+	assert_eq(desktop.size.x, 960.0)
+	assert_true(first.get_global_rect().size.is_equal_approx(original.size * 1.2))
+	assert_true(desktop.home_button.get_global_rect().size.is_equal_approx(home_original.size * 1.2),
+		"the footer shares the same enlargement as app content")
+	assert_same(viewport.gui_get_focus_owner(), first)
+	assert_true(desktop.get_global_rect().encloses(desktop.home_button.get_global_rect()))
+
+
+func test_backup_enlargement_preserves_pending_action_and_reaches_bottom_drawer() -> void:
+	var port := BACKUP_FIXTURES.Port.new()
+	assert_true(desktop.configure_backup_port(port).get("ok", false))
+	var opened: Dictionary = desktop.open_app(&"backup")
+	assert_true(opened.get("ok", false))
+	if not opened.get("ok", false): return
+	var app: Control = opened.value.app
+	await settle()
+	app._select_drawer("slot:7")
+	var drawer: Button = app.drawer_buttons["slot:7"]
+	var action: Button = app.action_buttons.save
+	action.grab_focus()
+	app._pending_token = "prepared-resize-token"
+	var original_size := drawer.get_global_rect().size
+	var projections: int = port.projections
+	main.get_node("RootHBox").set_angela_width(320)
+	await settle()
+	assert_true(drawer.get_global_rect().size.is_equal_approx(original_size * 1.2))
+	assert_same(desktop._cached_app_windows[&"backup"], app)
+	assert_same(app.drawer_buttons["slot:7"], drawer)
+	assert_same(app.action_buttons.save, action)
+	assert_same(viewport.gui_get_focus_owner(), action)
+	assert_eq(app.selected_locator, "slot:7")
+	assert_eq(app._pending_token, "prepared-resize-token")
+	assert_eq(port.projections, projections, "resize cannot replace a prepared backup action")
+	desktop.app_scroll.ensure_control_visible(drawer)
+	await settle()
+	assert_true(desktop.app_scroll.get_global_rect().grow(0.01).encloses(drawer.get_global_rect()),
+		"the bottom row stays reachable when the whole app is enlarged")
+	assert_true(desktop.get_global_rect().encloses(desktop.home_button.get_global_rect()))
+
+
+func test_settings_enlargement_preserves_preview_and_reaches_deep_controls() -> void:
+	var app: Control = preload("res://scenes/apps/SettingsApp.tscn").instantiate()
+	var content: Control = app.get_node("SettingsContent")
+	var settings_profile := SETTINGS_FIXTURES.MemoryProfile.new()
+	var volume := SETTINGS_FIXTURES.MemoryVolume.new()
+	content.configure_services({"profile": settings_profile,
+		"localization": SETTINGS_FIXTURES.MemoryLocalization.new(), "volume": volume,
+		"audio": null, "tts": null, "input": null, "window": null})
+	desktop.app_window_host.add_child(app)
+	desktop._cached_app_windows[&"settings"] = app
+	assert_true(desktop.open_app(&"settings").get("ok", false))
+	await settle()
+	content.select_category("audio")
+	var category: Button = content.find_child("AudioCategory", true, false)
+	var slider: HSlider = content.control_for(SETTINGS_FIXTURES.VOLUME_PATH)
+	var controller: RefCounted = content.get_controller()
+	slider.grab_focus()
+	controller.begin_volume_drag(SETTINGS_FIXTURES.VOLUME_PATH)
+	slider.set_value_no_signal(0.37)
+	await controller._on_volume_changed(0.37, SETTINGS_FIXTURES.VOLUME_PATH)
+	var pending: Dictionary = controller.get("_drag").duplicate(true)
+	assert_false(pending.is_empty())
+	var original_size := category.get_global_rect().size
+	main.get_node("RootHBox").set_angela_width(320)
+	await settle()
+	assert_true(category.get_global_rect().size.is_equal_approx(original_size * 1.2))
+	assert_same(content.find_child("AudioCategory", true, false), category)
+	assert_same(content.control_for(SETTINGS_FIXTURES.VOLUME_PATH), slider)
+	assert_same(viewport.gui_get_focus_owner(), slider)
+	assert_true(category.button_pressed)
+	assert_eq(slider.value, 0.37)
+	assert_eq(controller.get("_drag"), pending)
+	assert_true(settings_profile.commits.is_empty())
+	await controller.cancel_volume_drag()
+	content.select_category("accessibility")
+	var last: Control = content.control_for(&"preferences.accessibility.sound_detail_text")
+	last.grab_focus()
+	await settle()
+	assert_true(content.sheet_scroll.get_global_rect().encloses(last.get_global_rect()),
+		"inner focus scrolling uses logical distances under desktop magnification")
+	assert_true(desktop.app_scroll.get_global_rect().encloses(last.get_global_rect()),
+		"outer scrolling leaves the focused setting above the fixed footer")
+	var menu: OptionButton = content.control_for(&"preferences.accessibility.text_size")
+	menu.grab_focus()
+	await settle()
+	menu.show_popup()
+	await settle()
+	assert_true(menu.get_popup().visible)
+	assert_almost_eq(menu.get_popup().content_scale_factor, 1.2, 0.001,
+		"native popup text follows the same desktop enlargement")
+	menu.get_popup().hide()
+
+
 func test_app_footer_controls_fit_with_large_navigation_and_release_space_when_hidden() -> void:
 	var controls := HBoxContainer.new()
 	controls.custom_minimum_size = Vector2(320, 48)
@@ -263,7 +397,7 @@ func test_app_footer_controls_fit_with_large_navigation_and_release_space_when_h
 	await settle()
 	assert_true(desktop.app_footer_slot.visible)
 	assert_false(desktop.clock_label.visible, "secondary clock yields space to app and accessible controls")
-	var strip: Control = desktop.get_node("AppStrip")
+	var strip: Control = desktop.get_node("DesktopCanvas/AppStrip")
 	for control: Control in [desktop.home_button, controls, desktop.touch_navigation]:
 		assert_true(strip.get_global_rect().encloses(control.get_global_rect()))
 	controls.hide()
@@ -290,6 +424,8 @@ func test_real_minesweeper_footer_mounts_fits_and_tracks_cached_app_visibility()
 	assert_same(controls.get_parent(), desktop.app_footer_slot)
 	assert_true(controls.is_visible_in_tree())
 	assert_eq(menu.item_count, 27, "Fit and all 26 supported sizes are available in the real footer")
+	main.get_node("RootHBox").set_angela_width(320)
+	await settle()
 	for language: String in ["en", "zh-CN", "zh-HK"]:
 		locale.change(language)
 		for percent: float in [1.0, 1.25, 1.5]:
@@ -297,12 +433,15 @@ func test_real_minesweeper_footer_mounts_fits_and_tracks_cached_app_visibility()
 			for large: bool in [false, true]:
 				profile.change_large_targets(large)
 				await settle()
-				var strip: Control = desktop.get_node("AppStrip")
+				var strip: Control = desktop.get_node("DesktopCanvas/AppStrip")
 				assert_true(desktop.get_global_rect().encloses(strip.get_global_rect()),
 					"footer stays inside the desktop at %s/%s/large=%s" % [language, percent, large])
 				assert_lte(strip.size.y, 64.0, "footer controls cannot expand the bar below the desktop")
 				assert_true(strip.get_global_rect().encloses(controls.get_global_rect()),
 					"real Minesweeper footer fits %s/%s/large=%s" % [language, percent, large])
+				assert_true(desktop.app_scroll.get_global_rect().grow(0.01).encloses(app.panel.dock.get_global_rect()),
+					"board actions stay above the enlarged footer at %s/%s/large=%s" % [language, percent, large])
+				assert_false(desktop.app_scroll_rail.visible, "Minesweeper reflows without scrolling its action dock away")
 				if desktop.touch_navigation.visible:
 					assert_true(strip.get_global_rect().encloses(desktop.touch_navigation.get_global_rect()),
 						"assisted navigation stays inside the footer alongside the board controls")

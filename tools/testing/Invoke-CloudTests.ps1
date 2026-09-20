@@ -47,6 +47,7 @@ $suites = @{
         'tests/unit/test_desktop_app_host_state.gd'
         'tests/unit/test_desktop_accessibility_contract.gd'
         'tests/integration/test_desktop_quick_commands.gd'
+        'tests/integration/test_schedule_desktop_host.gd'
         'tests/scene/test_controls_input_contact_release.gd'
     )
     settings = @(
@@ -57,6 +58,7 @@ $suites = @{
         'tests/unit/test_window_mode_port.gd'
         'tests/unit/test_bootstrap_window_output.gd'
         'tests/scene/test_settings_window_mode_live.gd'
+        'tests/scene/test_settings_reset_confirmation.gd'
         'tests/scene/test_settings_folio.gd'
         'tests/scene/test_settings_host_geometry.gd'
         'tests/scene/test_settings_localization_scene.gd'

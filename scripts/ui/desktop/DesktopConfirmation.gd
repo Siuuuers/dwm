@@ -31,8 +31,8 @@ func _ready() -> void:
 			_suspend(sibling)
 	var sheet := PanelContainer.new()
 	sheet.name = "ConfirmationSheet"
-	sheet.position = Vector2(120, 112)
-	sheet.size = Vector2(560, 480)
+	_layout_sheet(sheet)
+	resized.connect(_layout_sheet.bind(sheet))
 	var paper := StyleBoxFlat.new()
 	paper.bg_color = get_theme_color("paper", "Backup")
 	paper.border_color = get_theme_color("paper_ink", "Backup")
@@ -103,6 +103,12 @@ func _ready() -> void:
 	body_scroll.get_v_scroll_bar().focus_mode = Control.FOCUS_NONE
 	(cancel_button if _cancelable else confirm_button).grab_focus()
 	visibility_changed.connect(_on_visibility_changed)
+
+func _layout_sheet(sheet: Control) -> void:
+	# Keep confirmation actions above the fixed desktop footer at every scale.
+	sheet.size = Vector2(560, minf(480, maxf(0, size.y - 96)))
+	sheet.position = Vector2(120, minf(112, maxf(16, size.y - 80 - sheet.size.y)))
+
 
 func _suspend(node: Node) -> void:
 	if node is Control:

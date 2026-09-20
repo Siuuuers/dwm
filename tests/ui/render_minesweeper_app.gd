@@ -187,7 +187,7 @@ func _verify_mount(sheet_open: bool) -> bool:
 	if not _check(_app.is_visible_in_tree() and _app.panel.is_visible_in_tree() and not _desktop.icon_grid.visible,"App is not the visible desktop body"): return false
 	if not _check(_host.get_state().active_app_id == &"minesweeper","host no longer owns Minesweeper"): return false
 	if not _check(_app.get_global_rect() == Rect2(0,64,800,656) and _app.panel.get_global_rect() == Rect2(0,64,800,656),"App body does not close at the delegated mount"): return false
-	var strip: Control = _desktop.get_node("AppStrip")
+	var strip: Control = _desktop.get_node("DesktopCanvas/AppStrip")
 	if not _check(strip.is_visible_in_tree() and strip.get_global_rect() == Rect2(0,0,800,64),"shared AppStrip mount changed"): return false
 	if not _check(_desktop.home_button.is_visible_in_tree() and _desktop.home_button.disabled == sheet_open,"shared Home does not match local input ownership"): return false
 	if not _check(not _app.get_node("VBoxContainer/TopBar").visible,"local TopBar duplicates shared chrome"): return false

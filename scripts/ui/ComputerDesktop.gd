@@ -23,11 +23,14 @@ const LABELS := {
 }
 const CONTACT_NAMES := {"priscilla": "Priscilla", "lavinia": "Lavinia", "sylvia": "Sylvia"}
 
+@onready var desktop_canvas: Control = %DesktopCanvas
+@onready var app_scroll: ScrollContainer = %AppScroll
+@onready var app_scroll_rail: VScrollBar = %AppScrollRail
 @onready var icon_grid: GridContainer = %IconGrid
 @onready var app_window_host: Control = %AppWindowHost
 @onready var notification_layer: Control = %NotificationLayer
 @onready var contacts_button: Button = %ContactsButton
-@onready var background_image: TextureRect = $BackgroundImage
+@onready var background_image: TextureRect = $DesktopCanvas/BackgroundImage
 @onready var message_notification: PanelContainer = %MinesweeperMessageNotification
 @onready var notification_title: Label = %NotificationTitle
 @onready var notification_body: Label = %NotificationBody
@@ -115,8 +118,22 @@ func _ready() -> void:
 	notification_go.pressed.connect(_open_contacts_from_notification)
 	_build_shell()
 	resized.connect(queue_redraw)
-	resized.connect(_layout_launcher)
-	_layout_launcher.call_deferred()
+	resized.connect(_layout_desktop)
+	_layout_desktop()
+	var native_scroll := app_scroll.get_v_scroll_bar()
+	native_scroll.share(app_scroll_rail)
+	native_scroll.changed.connect(_refresh_app_scroll)
+	app_scroll_rail.add_theme_stylebox_override("scroll", StyleBoxEmpty.new())
+	var grabber := StyleBoxFlat.new()
+	grabber.bg_color = Color(0.55, 0.55, 0.55, 0.7)
+	grabber.content_margin_left = 4
+	grabber.content_margin_right = 4
+	grabber.set_corner_radius_all(4)
+	for state: String in ["grabber", "grabber_highlight", "grabber_pressed"]:
+		app_scroll_rail.add_theme_stylebox_override(state, grabber)
+	for state: String in ["increment", "increment_highlight", "increment_pressed", "decrement", "decrement_highlight", "decrement_pressed"]:
+		app_scroll_rail.add_theme_icon_override(state, ImageTexture.new())
+	_refresh_app_scroll()
 	_refresh_launcher()
 	_foreground_eligible = get_window().has_focus()
 	configure_clock(_clock_reader if _clock_reader.is_valid() else Time.get_time_dict_from_system)
@@ -161,7 +178,7 @@ func _build_shell() -> void:
 	var strip := HBoxContainer.new()
 	strip.name = "AppStrip"
 	strip.add_theme_constant_override("separation", 16)
-	add_child(strip)
+	desktop_canvas.add_child(strip)
 	strip.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
 	strip.offset_top = -64
 	home_button = HOME_BUTTON.new()
@@ -231,17 +248,30 @@ func _build_shell() -> void:
 	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	status_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	status_label.hide()
-	add_child(status_label)
+	desktop_canvas.add_child(status_label)
 	_refresh_strip_layout()
 
 
-func _layout_launcher() -> void:
-	if not is_node_ready(): return
-	# The launcher has vertical room for proportional growth even when app height
-	# stays constant. Scale the whole grid so icons, captions and hit targets agree.
-	var factor := minf(1.25, minf(size.x / 800.0, maxf(0, size.y - 64.0) / 416.0))
-	icon_grid.scale = Vector2.ONE * factor
-	icon_grid.position = Vector2(24, 24) * factor
+func _layout_desktop() -> void:
+	if not is_node_ready() or size.x <= 0: return
+	# One canvas keeps artwork, text, controls, overlays and hit targets in the
+	# same coordinate system. Fixed-height apps scroll instead of being clipped.
+	var factor := size.x / 800.0
+	desktop_canvas.scale = Vector2.ONE * factor
+	desktop_canvas.size = size / factor
+	status_label.size.y = minf(140, maxf(0, desktop_canvas.size.y - 80 - status_label.position.y))
+	_refresh_app_scroll()
+
+
+func _refresh_app_scroll() -> void:
+	if not is_instance_valid(app_scroll_rail): return
+	app_scroll.visible = _active_id != &""
+	var app: Control = _cached_app_windows.get(_active_id)
+	if is_instance_valid(app):
+		if app.has_method("set_desktop_height"):
+			app.set_desktop_height(floori(desktop_canvas.size.y - 64))
+		app_window_host.custom_minimum_size.y = app.get_combined_minimum_size().y
+	app_scroll_rail.visible = app_scroll.visible and app_scroll_rail.max_value > app_scroll_rail.page
 
 
 func _on_footer_child_added(child: Node) -> void:
@@ -493,10 +523,11 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func quick_status_safe_rect() -> Rect2:
 	# Known blank regions only. Other apps wait for their own protected-region map.
+	if status_label.visible: return Rect2()
 	for child: Node in notification_layer.get_children():
 		if child is Control and child.is_visible_in_tree(): return Rect2()
-	if _active_id == &"backup": return Rect2(480, 16, 304, 64)
-	if _active_id == &"": return Rect2(24, 576, 752, 64)
+	if _active_id == &"backup" and app_scroll.scroll_vertical == 0: return Rect2(480, 16, 304, 64)
+	if _active_id == &"": return Rect2(24, desktop_canvas.size.y - 144, 752, 64)
 	return Rect2()
 
 func present_confirmation(request: Dictionary, accept: Callable, cancel: Callable) -> Dictionary:
@@ -508,9 +539,9 @@ func present_confirmation(request: Dictionary, accept: Callable, cancel: Callabl
 	_confirmation.finished.connect(func(accepted: bool):
 		_confirmation = null
 		(accept if accepted else cancel).call())
-	add_child(_confirmation)
+	desktop_canvas.add_child(_confirmation)
 	# The navigation bar handles its own pointer contacts before modal input.
-	move_child($AppStrip, get_child_count() - 1)
+	desktop_canvas.move_child($DesktopCanvas/AppStrip, desktop_canvas.get_child_count() - 1)
 	return {"ok": true, "value": {"confirmation": _confirmation}}
 
 func open_app(app_id: StringName) -> Dictionary:
@@ -833,6 +864,7 @@ func _refresh_launcher(refresh_contacts: bool = true) -> void:
 	var colour_preset := str(_profile.get_preference("preferences.accessibility.colour_differentiation", "standard")) if _profile != null and _profile.has_method("get_preference") else "standard"
 	touch_navigation.visible = bool(_profile.get_preference("preferences.accessibility.large_targets", false)) if _profile != null and _profile.has_method("get_preference") else false
 	_refresh_strip_layout()
+	_refresh_app_scroll()
 	theme = DESKTOP_THEME.build(_locale, percent, _run_palette, WEEK_TINT.tint_for_day(_day), high_contrast, colour_preset)
 	var notice_style := StyleBoxFlat.new()
 	notice_style.bg_color = theme.get_color("face", "Desktop")
@@ -994,5 +1026,6 @@ func _draw() -> void:
 	if theme == null:
 		return
 	draw_rect(Rect2(Vector2.ZERO, size), get_theme_color("habitat", "Desktop"))
-	draw_rect(Rect2(0, size.y - 64, size.x, 64), get_theme_color("face", "Desktop"))
-	draw_rect(Rect2(0, size.y - 64, size.x, 2), get_theme_color("structure", "Desktop"))
+	var footer_height := 64.0 * desktop_canvas.scale.y
+	draw_rect(Rect2(0, size.y - footer_height, size.x, footer_height), get_theme_color("face", "Desktop"))
+	draw_rect(Rect2(0, size.y - footer_height, size.x, 2 * desktop_canvas.scale.y), get_theme_color("structure", "Desktop"))

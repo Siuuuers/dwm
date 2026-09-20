@@ -35,7 +35,7 @@ func test_title_desktop_launcher_and_contact_attach_valid_optional_art() -> void
 	if title_art != null:
 		assert_eq(title_art.position, Vector2(320, 64))
 		assert_eq(title_art.size, Vector2(960, 656))
-	var background := desktop.get_node("BackgroundImage") as TextureRect
+	var background := desktop.get_node("DesktopCanvas/BackgroundImage") as TextureRect
 	assert_not_null(background.texture)
 	assert_eq(background.position, Vector2.ZERO)
 	assert_eq(background.offset_top, 0.0)

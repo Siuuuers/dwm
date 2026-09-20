@@ -128,6 +128,23 @@ func test_panel_keeps_the_canonical_layout_at_800_and_expands_only_the_reading_s
 	_assert_panel_geometry(800)
 
 
+func test_focus_scroll_uses_the_same_logical_distance_when_the_panel_is_enlarged() -> void:
+	_content.select_category("accessibility")
+	var target: Control = _content.control_for(&"preferences.accessibility.steady_interface")
+	target.grab_focus()
+	await _settle()
+	var scroll: ScrollContainer = _content.sheet_scroll
+	var corrected: Array[int] = []
+	for factor: float in [1.0, 1.2]:
+		_host.scale = Vector2.ONE * factor
+		scroll.scroll_vertical = 0
+		await _settle()
+		_content._clear_focus_perimeter(scroll, target)
+		corrected.append(scroll.scroll_vertical)
+	assert_gt(corrected[0], 0, "The lower reading row needs scrolling.")
+	assert_eq(corrected[1], corrected[0], "Magnification must not overscroll the same focused row.")
+
+
 func test_live_resize_preserves_category_focus_and_uncommitted_volume_preview() -> void:
 	_content.select_category("audio")
 	var audio_category: Button = _content.find_child("AudioCategory", true, false)

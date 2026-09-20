@@ -314,6 +314,59 @@ func test_home_cache_retains_page_selection_quantity_and_focus_then_hidden_prefe
 	assert_true(app.cards.healthy_meal.has_focus())
 
 
+func test_desktop_enlargement_preserves_shop_state_and_maps_physical_card_input() -> void:
+	var desktop := await _desktop_on_tree()
+	desktop.size = Vector2(800, 720)
+	assert_true(_configure_shop(desktop).ok)
+	var app := _open_shop(desktop)
+	if app == null: return
+	await _settle()
+	app.quantity_buttons.maximum.pressed.emit()
+	var card: Button = app.cards.coffee
+	card.grab_focus()
+	var card_rect := card.get_global_rect()
+	var page_before: int = app.page_index
+	var calls_before: int = _provider.calls.size()
+	desktop.size.x = 960
+	await _settle()
+	assert_true(card.get_global_rect().size.is_equal_approx(card_rect.size * 1.2),
+		"card artwork, captions and input bounds magnify together")
+	assert_same(desktop._cached_app_windows[&"shop"], app)
+	assert_same(app.cards.coffee, card)
+	assert_same(_viewport.gui_get_focus_owner(), card)
+	assert_eq(app.selected_id, "coffee")
+	assert_eq(app.quantity, 4)
+	assert_eq(app.page_index, page_before)
+	assert_eq(_provider.calls.size(), calls_before, "presentation resize does not refresh the catalog")
+	var wine: Button = app.cards.wine
+	var point := wine.get_global_rect().get_center()
+	var motion := InputEventMouseMotion.new()
+	motion.position = point
+	motion.global_position = point
+	_viewport.push_input(motion, true)
+	for pressed: bool in [true, false]:
+		var event := InputEventMouseButton.new()
+		event.position = point
+		event.global_position = point
+		event.button_index = MOUSE_BUTTON_LEFT
+		event.pressed = pressed
+		_viewport.push_input(event, true)
+		await get_tree().process_frame
+	await _settle()
+	assert_eq(app.selected_id, "wine", "physical input reaches the enlarged card")
+	assert_true(_provider.purchase_calls.is_empty(), "inspection does not purchase")
+	desktop.app_scroll.ensure_control_visible(app.get("_buy_button"))
+	await _settle()
+	assert_true(desktop.app_scroll.get_global_rect().encloses(app.get("_buy_button").get_global_rect()),
+		"the enlarged bottom action remains reachable above the fixed footer")
+	desktop.size.x = 800
+	await _settle()
+	assert_true(card.get_global_rect().size.is_equal_approx(card_rect.size))
+	assert_same(app.cards.coffee, card)
+	assert_eq(app.selected_id, "wine")
+	assert_eq(_provider.calls.size(), calls_before)
+
+
 func test_changed_owner_snapshot_resets_quantity_to_one_and_uses_new_legal_max() -> void:
 	var desktop := await _desktop_on_tree()
 	assert_true(_configure_shop(desktop).ok)
