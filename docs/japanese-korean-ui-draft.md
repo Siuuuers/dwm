@@ -49,7 +49,7 @@ godot --path . --script res://tests/ui/render_japanese_korean_ui.gd
 
 The cloud workflow renders real UI scenes with controlled fixture data and
 checks Japanese and Korean layouts, fonts, missing glyphs, and overflow.
-Enlarged-text samples cover Minesweeper, Settings, Gallery, and captions.
+Enlarged-text samples cover Minesweeper, Settings, Backup, Gallery, and captions.
 Any Japanese/Korean caption specimen in that harness is test copy rather than
 authored story. Headless layout checks do not count as rendered previews.
 

@@ -14,6 +14,10 @@ const RAIL_SIZE := Vector2(1280, 64)
 const PLATE_INSET := 4.0
 const CONTROL_IDS: Array[StringName] = [&"history", &"skip", &"auto", &"save", &"load", &"next"]
 const LOCALES := ["en", "zh-CN", "zh-HK", "ja", "ko"]
+const COMPACT_COPY := {
+	"ja": {&"skip": "早送り", &"auto": "オート", &"on": "入", &"off": "切"},
+	"ko": {&"skip": "스킵", &"auto": "자동", &"on": "켬", &"off": "끔"},
+}
 const COPY_IDS: Array[StringName] = [&"history", &"skip", &"auto", &"save", &"load", &"next", &"on", &"off"]
 
 
@@ -235,6 +239,8 @@ func _apply_projection() -> void:
 		button.language = _locale
 		var enabled_mode := (id == &"skip" and _skip_active) or (id == &"auto" and _auto_enabled)
 		button.text = _label(id, enabled_mode)
+		button.accessibility_name = _full_label(id, enabled_mode)
+		button.tooltip_text = button.accessibility_name if button.text != button.accessibility_name else ""
 		var command_available := (id == &"skip" and _can_skip) \
 			or (id == &"auto" and _can_auto) or (id == &"load" and _can_load)
 		button.disabled = not command_available or _copy.is_empty() or not is_instance_valid(_localization)
@@ -246,6 +252,17 @@ func _apply_projection() -> void:
 
 
 func _label(id: StringName, enabled_mode: bool) -> String:
+	var full := _full_label(id, enabled_mode)
+	if not COMPACT_COPY.has(_locale) or id not in [&"skip", &"auto"] or full.is_empty(): return full
+	var button: Button = _buttons[id]
+	var font := button.get_theme_font("font")
+	var text_width := font.get_string_size(full, HORIZONTAL_ALIGNMENT_LEFT, -1, button.get_theme_font_size("font_size")).x
+	if text_width <= button.size.x - 20.0: return full
+	var compact: Dictionary = COMPACT_COPY[_locale]
+	return "%s%s%s" % [compact[id], "・" if _locale == "ja" else "·", compact[&"on"] if enabled_mode else compact[&"off"]]
+
+
+func _full_label(id: StringName, enabled_mode: bool) -> String:
 	if _copy.is_empty(): return ""
 	if id in [&"skip", &"auto"]:
 		return "%s \u00b7 %s" % [_copy[id], _copy[&"on"] if enabled_mode else _copy[&"off"]]

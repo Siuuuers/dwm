@@ -344,7 +344,9 @@ func _draw() -> void:
 
 static func view_controls_height(locale: String, next_theme: Theme, large: bool) -> int:
 	var measured: Dictionary = VIEW_BUTTON.ROW.measure_copy(FIT_COPY[locale.replace("_", "-")], next_theme, FIT_WIDTH - 20)
-	return 2 * ceili(maxf(64 if large else 48, float(measured.height) + 16) / 2.0)
+	# The 36px pixel face has a 50px line box; retain it inside the 64px footer.
+	var vertical_padding := 14 if locale.replace("_", "-") in ["ja", "ko"] and next_theme.default_font_size == 36 else 16
+	return 2 * ceili(maxf(64 if large else 48, float(measured.height) + vertical_padding) / 2.0)
 
 func set_footer_host(host: Control) -> void:
 	if not is_instance_valid(host) or view_controls.get_parent() == host: return

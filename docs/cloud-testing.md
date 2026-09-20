@@ -35,12 +35,12 @@ English and Chinese locales, high contrast, and scrolled content. Its captures
 and logs are uploaded as `angela-overlay-render`.
 
 A fourth pass runs `tests/ui/render_japanese_korean_ui.gd`, again with separate
-user data, and requires 28 Japanese and Korean UI previews plus a successful
+user data, and requires 30 Japanese and Korean UI previews plus a successful
 report. Before rendering, `tools/localization/validate_japanese_korean_catalogs.py`
 checks catalog IDs, placeholders, and Unicode NFC normalization. The previews
 exercise the selectable UI drafts and their pixel fonts; story text continues
 to use the English fallback. The `japanese-korean-ui-render` artifact contains
-the screenshots, report, and log. All four passes together require 83 nonempty
+the screenshots, report, and log. All four passes together require 85 nonempty
 PNG captures; headless geometry checks cannot replace them.
 
 `tools/testing/Invoke-CloudTests.ps1` lists the exact test scripts. It reuses the

@@ -11,6 +11,10 @@ const RIGHT_X := 480.0
 const RIGHT_MARGIN := 16.0
 const RIGHT_MIN_WIDTH := 304.0
 const ACTION_GAP := 16.0
+const COMPACT_COPY := {
+	"ja": {"save": "保存", "load": "読込", "autosave": "自動", "quick": "Q保存", "slot": "保存 {n}"},
+	"ko": {"load": "로드", "autosave": "자동", "quick": "퀵 저장"},
+}
 const COPY := {
 	"ja": {"save": "セーブ","load": "ロード","delete": "削除","cancel": "キャンセル","retry": "再試行","overwrite": "上書き","autosave": "オートセーブ","quick": "クイックセーブ","slot": "セーブ {n}","empty": "空き","unavailable": "利用不可","day": "{day}日目 · {time}","automatic": "オートセーブは自動で作成されます。","fallback": "以前の互換性のあるチェックポイントのみロードできます。","newer": "より新しいゲームバージョンが必要です。","unreadable": "このセーブは読み取れません。","save_unavailable": "現在はセーブできません。","saved": "セーブしました","failed": "処理に失敗しました。","stale": "セーブが変更されました。","failure_details": "処理が完了しませんでした。キャンセルするか、現在のセーブ情報を確認して再試行してください。","overwrite_title": "{record}を上書きしますか？","delete_title": "{record}を削除しますか？","load_title": "{record}をロードしますか？","fallback_title": "以前のチェックポイントをロードしますか？","replace_progress": "現在の未保存の進行状況は置き換えられます。","delete_body": "このセーブは削除されます。","older": "旧バージョンのセーブ","older_details": "古いバージョンのセーブのためロードできません。","replaceable": "「セーブ」で現在のゲームをこのセーブに上書きできます。"},
 	"ko": {"save": "저장","load": "불러오기","delete": "삭제","cancel": "취소","retry": "다시 시도","overwrite": "덮어쓰기","autosave": "자동 저장","quick": "빠른 저장","slot": "저장 {n}","empty": "비어 있음","unavailable": "사용 불가","day": "{day}일째 · {time}","automatic": "자동 저장은 자동으로 생성됩니다.","fallback": "이전의 호환되는 체크포인트만 불러올 수 있습니다.","newer": "더 최신 게임 버전이 필요합니다.","unreadable": "이 저장을 읽을 수 없습니다.","save_unavailable": "지금은 저장할 수 없습니다.","saved": "저장 완료","failed": "작업에 실패했습니다.","stale": "저장이 변경되었습니다.","failure_details": "작업이 완료되지 않았습니다. 취소하거나 현재 저장 정보를 확인한 뒤 다시 시도하세요.","overwrite_title": "{record}을(를) 덮어쓸까요?","delete_title": "{record}을(를) 삭제할까요?","load_title": "{record}을(를) 불러올까요?","fallback_title": "이전 체크포인트를 불러올까요?","replace_progress": "현재 게임의 저장하지 않은 진행 상황이 대체됩니다.","delete_body": "이 저장이 삭제됩니다.","older": "이전 버전의 저장","older_details": "이전 버전에서 만든 저장이므로 불러올 수 없습니다.","replaceable": "저장을 선택하면 현재 게임으로 이 저장을 덮어쓸 수 있습니다."},
@@ -305,10 +309,23 @@ func _refresh_presentation() -> void:
 	for locator in LOCATORS:
 		var drawer: Button = drawer_buttons[locator]
 		drawer.selected = locator == selected_locator
-		drawer.present(_identity(locator), _record_state(_records[locator]), _records[locator].state == "unavailable")
+		var identity := _identity(locator)
+		var identity_key := "slot" if locator.begins_with("slot:") else str(locator)
+		var compact := _compact_text(identity_key, identity, {"n": locator.trim_prefix("slot:")})
+		var visible_identity := _fit_caption(identity, compact, drawer.identity_label)
+		drawer.present(visible_identity, _record_state(_records[locator]), _records[locator].state == "unavailable")
+		if _locale in ["ja", "ko"]:
+			drawer.identity_label.size = Vector2(128, 52)
+		drawer.accessibility_name = identity + ", " + _record_state(_records[locator])
+		drawer.tooltip_text = identity if visible_identity != identity else ""
 	for mode in mode_buttons:
-		mode_buttons[mode].selected = mode == active_mode
-		mode_buttons[mode].set_caption(_t(mode))
+		var button: Button = mode_buttons[mode]
+		button.selected = mode == active_mode
+		var full := _t(mode)
+		var visible_copy := _fit_caption(full, _compact_text(mode, full), button.caption)
+		button.set_caption(visible_copy)
+		button.accessibility_name = full
+		button.tooltip_text = full if visible_copy != full else ""
 	var record: Dictionary = _records[selected_locator]
 	var facts := [_identity(selected_locator), _record_state(record)]
 	if selected_locator == "autosave":
@@ -666,6 +683,14 @@ func _on_preference_changed(path: StringName, _value: Variant) -> void:
 
 func _t(key: String, replacements: Dictionary = {}) -> String:
 	return str(COPY[_locale].get(key, key)).format(replacements)
+
+func _compact_text(key: String, fallback: String, replacements: Dictionary = {}) -> String:
+	return str(COMPACT_COPY.get(_locale, {}).get(key, fallback)).format(replacements)
+
+func _fit_caption(full: String, compact: String, label: Label) -> String:
+	var font := label.get_theme_font("font")
+	var width := font.get_string_size(full, HORIZONTAL_ALIGNMENT_LEFT, -1, label.get_theme_font_size("font_size")).x
+	return full if width <= label.size.x else compact
 
 func _identity(locator: String) -> String:
 	return _t("slot", {"n": locator.trim_prefix("slot:")}) if locator.begins_with("slot:") else _t(locator)

@@ -271,9 +271,9 @@ jobs:
           report = json.loads((output / 'results.json').read_text())
           assert report['ok'] is True and not report['failures'], report
           assert report['renderer'] != 'headless', report
-          assert report['samples'] == report['captures'] == 28, report
+          assert report['samples'] == report['captures'] == 30, report
           captures = list(output.glob('*.png'))
-          assert len(captures) == 28 and all(path.stat().st_size > 0 for path in captures)
+          assert len(captures) == 30 and all(path.stat().st_size > 0 for path in captures)
           PY
       - name: Upload Japanese and Korean UI evidence
         if: always()

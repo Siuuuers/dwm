@@ -17,7 +17,7 @@ const QUICK := preload("res://tests/manual/verify_quick_status_native.gd")
 const MINES := preload("res://tests/unit/test_minesweeper_app.gd")
 const MENU := preload("res://scenes/menu/MenuScene.tscn")
 const GALLERY := preload("res://scenes/menu/GalleryScene.tscn")
-const EXPECTED_CAPTURES := 28
+const EXPECTED_CAPTURES := 30
 
 class ContactPort extends CONTACT.FakePort:
 	func get_projection(friend_id: String, primary: String, secondary: String = "") -> Dictionary:
@@ -76,8 +76,8 @@ func _run() -> void:
 		await _title_and_gallery(language)
 		await _desktop_samples(language)
 	await _caption_samples()
-	check(samples.size() == EXPECTED_CAPTURES, "all 28 UI states checked")
-	if DisplayServer.get_name() != "headless": check(captures == EXPECTED_CAPTURES, "all 28 native screenshots captured")
+	check(samples.size() == EXPECTED_CAPTURES, "all 30 UI states checked")
+	if DisplayServer.get_name() != "headless": check(captures == EXPECTED_CAPTURES, "all 30 native screenshots captured")
 	var report := {"ok": failures.is_empty(), "renderer": DisplayServer.get_name(),
 		"samples": samples.size(), "captures": captures, "failures": failures, "states": samples,
 		"fixture": "Real production UI, active locale/profile providers and Fusion fonts; synthetic shop/contact/board records, empty Gallery, English dialogue fixture. No player commands."}
@@ -154,6 +154,53 @@ func _measure_text(node: Node, result: Dictionary) -> void:
 			check(font != null and font.get_font_name().to_lower().contains("fusion"), str(node.name) + ": draft UI uses actual Fusion face")
 	for child: Node in node.get_children(): _measure_text(child, result)
 
+func _check_backup_geometry(backup: Control) -> void:
+	for key: Button in backup.mode_buttons.values() + backup.action_buttons.values():
+		if not key.is_visible_in_tree(): continue
+		check(Rect2(Vector2.ZERO, key.size).grow(0.01).encloses(key.caption.get_rect()),
+			"Backup caption stays within its button: " + key.caption.text)
+	for mode: String in backup.mode_buttons:
+		check(backup.mode_buttons[mode].accessibility_name == backup._t(mode), "Backup full accessible mode: " + mode)
+	for locator: String in backup.drawer_buttons:
+		var drawer: Button = backup.drawer_buttons[locator]
+		var bounds := Rect2(Vector2.ZERO, drawer.size).grow(0.01)
+		check(bounds.encloses(drawer.identity_label.get_rect()), "Backup identity stays within drawer: " + drawer.identity_label.text)
+		check(bounds.encloses(drawer.state_label.get_rect()), "Backup state stays within drawer: " + drawer.state_label.text)
+		check(not drawer.identity_label.get_rect().intersects(drawer.state_label.get_rect()),
+			"Backup identity and state do not overlap: " + drawer.identity_label.text)
+		check(drawer.accessibility_name.begins_with(backup._identity(locator) + ", "), "Backup full accessible identity: " + locator)
+
+func _check_mines_footer(worksheet: Control) -> void:
+	var canvas: Rect2 = desktop.desktop_canvas.get_global_rect()
+	var footer := Rect2(canvas.position + Vector2(0, canvas.size.y - 64), Vector2(canvas.size.x, 64))
+	check(footer.grow(0.01).encloses(worksheet.view_controls.get_global_rect()), "Mines controls stay inside the visible 64px footer")
+	var fit: Button = worksheet.zoom_controls[1]
+	check(footer.grow(0.01).encloses(fit.get_global_rect()), "Mines Fit button stays inside footer and viewport")
+	check(fit._paragraph.get_line_count() == 1, "Mines compact Fit label stays on one line")
+	var top := floorf((fit.size.y - fit._text_height) / 4.0) * 2.0
+	check(top >= 0 and top + fit._text_height <= fit.size.y, "Mines Fit paragraph stays inside button")
+	check(fit._paragraph.get_line_width(0) <= fit.size.x - 2 * fit._inset, "Mines Fit paragraph width fits")
+
+func _check_transport_labels() -> void:
+	var rail: Control = caption.transport_rail
+	var original := [rail._can_skip, rail._skip_active, rail._auto_enabled, rail._can_auto, rail._can_load]
+	var visible_states := {"skip": {}, "auto": {}}
+	for states: Array in [[false, false], [true, false], [false, true]]:
+		check(rail.project(true, states[0], states[1], true, true), "transport state projection")
+		for id: String in ["skip", "auto"]:
+			var button: Button = rail.get_node(id.capitalize())
+			var style: StyleBox = button.get_theme_stylebox("normal")
+			var available := button.size.x - style.get_content_margin(SIDE_LEFT) - style.get_content_margin(SIDE_RIGHT)
+			var width := button.get_theme_font("font").get_string_size(button.text, HORIZONTAL_ALIGNMENT_LEFT, -1, button.get_theme_font_size("font_size")).x
+			check(width <= available + 0.01, "transport complete state label fits: %s (%spx text, %spx available, %spx font)" % [button.text, width, available, button.get_theme_font_size("font_size")])
+			var enabled: bool = states[0] if id == "skip" else states[1]
+			visible_states[id][enabled] = button.text
+			var full_copy := "%s · %s" % [locale.t("witnessed.transport." + id), locale.t("witnessed.transport.on" if enabled else "witnessed.transport.off")]
+			check(button.accessibility_name == full_copy, "transport full accessible state: " + full_copy)
+	for id: String in visible_states:
+		check(visible_states[id][false] != visible_states[id][true], "transport on and off remain visibly distinct: " + id)
+	check(rail.project(original[0], original[1], original[2], original[3], original[4]), "restore transport projection")
+
 func _title_and_gallery(language: String) -> void:
 	var menu: Control = MENU.instantiate()
 	menu.configure_settings_services({"profile": profile, "localization": locale})
@@ -196,12 +243,11 @@ func _desktop_samples(language: String) -> void:
 	check(desktop.configure_backup_port(QUICK.RecordsFixture.new()).get("ok", false), "Backup records")
 	if check(desktop.open_app(&"backup").get("ok", false), "Backup open"):
 		await capture("backup", language, 100, main)
+		_check_backup_geometry(desktop._cached_app_windows[&"backup"])
 		check(profile.set_preference(&"preferences.accessibility.text_size", 150).get("ok", false), "Backup large preference")
-		await settle()
+		await capture("backup", language, 150, main)
 		var backup: Control = desktop._cached_app_windows[&"backup"]
-		for label: Label in backup.find_children("*", "Label", true, false):
-			if label.is_visible_in_tree():
-				check(label.get_minimum_size().y <= label.size.y + 1, "Backup150 full label height: " + label.text)
+		_check_backup_geometry(backup)
 		desktop.app_scroll.ensure_control_visible(backup.drawer_buttons["slot:7"])
 		await settle()
 		check(desktop.app_scroll.get_global_rect().grow(0.01).encloses(backup.drawer_buttons["slot:7"].get_global_rect()), "Backup150 final drawer reachable")
@@ -267,11 +313,13 @@ func _desktop_samples(language: String) -> void:
 		await settle()
 		desktop.app_scroll.ensure_control_visible(opened.value.app.panel.dock)
 		await capture("minesweeper", language, 150, main)
+		_check_mines_footer(opened.value.app.panel.worksheet)
 		check(opened.value.app.last_result.get("ok", false), "Mines large projection " + str(opened.value.app.last_result))
 		check(profile.set_preference(&"preferences.accessibility.large_targets", true).get("ok", false), "Mines enlarged pointer targets")
 		await settle()
 		check(opened.value.app.last_result.get("ok", false), "Mines150 enlarged-target projection " + str(opened.value.app.last_result))
 		check(opened.value.app.panel._percent == 150 and opened.value.app.panel._large, "Mines applies both accessibility preferences")
+		_check_mines_footer(opened.value.app.panel.worksheet)
 		desktop.app_scroll.ensure_control_visible(opened.value.app.panel.dock)
 		await settle()
 		check(desktop.app_scroll.get_global_rect().grow(0.01).encloses(opened.value.app.panel.dock.get_global_rect()), "Mines150 enlarged dock remains reachable")
@@ -326,6 +374,7 @@ func _caption_samples() -> void:
 				check(caption.get_caption_projection().locale == language, "caption UI language")
 				check(caption.get_caption_projection().caption_window.size() == 3, "three English fixture captions")
 				await capture("witnessed", language, percent, layout)
+				_check_transport_labels()
 	await runtime.clear()
 	if is_instance_valid(layout): layout.queue_free()
 	await settle()
