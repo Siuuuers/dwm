@@ -99,7 +99,6 @@ var _continue_button: Button
 var _special_mine_button: Button
 var _mode_buttons: Array[Button] = []
 var _rules_button: Button
-var _board_button: Button
 var _view_footer: HBoxContainer
 var _physical_view: Dictionary = {}
 var _input_owner: Object
@@ -225,11 +224,6 @@ func _build_challenge() -> void:
 		button.pressed.connect(_select_mode.bind(mode))
 		toolbar.add_child(button)
 		_mode_buttons.append(button)
-	_board_button = Button.new()
-	_board_button.name = "Board"
-	_board_button.custom_minimum_size = Vector2(120, 40)
-	_board_button.pressed.connect(func(): worksheet.close_information(true))
-	toolbar.add_child(_board_button)
 	worksheet.information_closed.connect(_refresh_challenge)
 	worksheet.grid.mode_changed.connect(func(_mode: StringName): _refresh_mode_controls())
 	_rules_button = Button.new()
@@ -313,9 +307,6 @@ func _refresh_mode_controls() -> void:
 			button.text = copy[mode]
 			button.disabled = not active or document_open
 			button.set_pressed_no_signal(worksheet.grid.mode == StringName(mode))
-	_board_button.text = copy.board
-	_board_button.visible = active
-	_board_button.disabled = not active or not document_open
 	_rules_button.text = copy.rules
 	_rules_button.visible = active
 	_rules_button.disabled = not active
@@ -324,11 +315,13 @@ func _refresh_mode_controls() -> void:
 	if document_open:
 		var sheet: Control = worksheet.information_sheet
 		# The sheet remains part of the host's navigation, rather than a focus trap.
-		sheet.return_button.focus_next = sheet.return_button.get_path_to(_board_button)
-		_board_button.focus_previous = _board_button.get_path_to(sheet.return_button)
-		_board_button.focus_next = _board_button.get_path_to(_rules_button)
+		sheet.return_button.focus_next = sheet.return_button.get_path_to(_rules_button)
+		_rules_button.focus_previous = _rules_button.get_path_to(sheet.return_button)
 		_rules_button.focus_next = _rules_button.get_path_to(sheet.rows[0])
 		sheet.rows[0].focus_previous = sheet.rows[0].get_path_to(_rules_button)
+	else:
+		_rules_button.focus_previous = NodePath()
+		_rules_button.focus_next = NodePath()
 
 func _refresh_terminal_choice() -> void:
 	if _physical_view.get("phase") != "cleared_awaiting_terminal_choice":

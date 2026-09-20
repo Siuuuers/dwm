@@ -19,6 +19,7 @@ var _claims: Array = []
 var _host := "desktop_app"
 var _locale := "en"
 var _large := false
+var _high_contrast := false
 var _band := Vector2i(400,246)
 var _scroll := 0
 var _extent := 0
@@ -47,6 +48,7 @@ func configure(host: String = "desktop_app", locale: String = "en", percent: int
 	_host = host
 	_locale = locale
 	_large = large
+	_high_contrast = high_contrast
 	_band = band
 	theme = next_theme
 	custom_minimum_size = Vector2(band*2)
@@ -246,5 +248,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 func _draw() -> void:
-	if theme != null: draw_rect(Rect2(Vector2.ZERO,size),theme.get_color(&"paper",&"Minesweeper"))
+	if theme == null: return
+	var paper := theme.get_color(&"paper",&"Minesweeper")
+	if not _high_contrast: paper.a = 0.82
+	draw_rect(Rect2(Vector2.ZERO,size),paper)
 

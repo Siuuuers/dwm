@@ -11,9 +11,19 @@ const SHOP := preload("res://tests/manual/verify_shop_desktop_native.gd")
 const SCHEDULE := preload("res://tests/manual/verify_schedule_desktop_native.gd")
 const QUICK := preload("res://tests/manual/verify_quick_status_native.gd")
 const MINES := preload("res://tests/unit/test_minesweeper_app.gd")
+const EXPECTED_CAPTURES := 30
 class VisualLocale extends QUICK.CatalogLocale:
 	func get_selectable_locales() -> Array[Dictionary]:
 		return [{"id":"en","native_name":"English","release_status":"complete"},{"id":"zh_CN","native_name":"简体中文","release_status":"draft"},{"id":"zh_HK","native_name":"繁體中文","release_status":"draft"}]
+
+class VisualPreferences extends SCHEDULE.Preferences:
+	var high_contrast := false
+	func get_preference(path: StringName, fallback: Variant = null) -> Variant:
+		if path == &"preferences.accessibility.high_contrast": return high_contrast
+		return super.get_preference(path, fallback)
+	func present_contrast(value: bool) -> void:
+		high_contrast = value
+		preference_changed.emit(&"preferences.accessibility.high_contrast", value)
 
 var viewport: SubViewport
 var main: Control
@@ -60,7 +70,7 @@ func _run() -> void:
 	locale = VisualLocale.new()
 	viewport.add_child(locale)
 	check(locale.present("en"),"catalog locale")
-	profile = SCHEDULE.Preferences.new()
+	profile = VisualPreferences.new()
 	viewport.add_child(profile)
 	main = SPLIT.MAIN.instantiate()
 	var stats := HUD.OwnerFixture.new()
@@ -187,17 +197,79 @@ func _run() -> void:
 		mine_menu.show_popup()
 		await capture("minesweeper-popup",960)
 		mine_menu.get_popup().hide()
+		await _overlay_samples(opened.value.app, mine_port)
 	desktop.return_home()
 	var confirmation: Dictionary = desktop.present_confirmation({"title":"Review your choice","body":"This dialog and its controls enlarge with the whole computer panel.","cancel":"Cancel","confirm":"Confirm","theme":preload("res://scripts/ui/backup/BackupTheme.gd").build("en",100)},func():pass,func():pass)
 	check(confirmation.get("ok",false),"confirmation configured")
 	await pair("confirmation")
-	check(geometry_samples == 26, "all expected sample states checked")
-	if DisplayServer.get_name() != "headless": check(captures == 26, "all expected screenshots saved")
+	check(geometry_samples == EXPECTED_CAPTURES, "all expected sample states checked")
+	if DisplayServer.get_name() != "headless": check(captures == EXPECTED_CAPTURES, "all expected screenshots saved")
 	var report := {"ok":failures.is_empty(),"renderer":DisplayServer.get_name(),"samples":geometry_samples,"captures":captures,"failures":failures}
 	var file := FileAccess.open(folder.path_join("results.json"),FileAccess.WRITE)
 	file.store_string(JSON.stringify(report,"\t"))
 	file.close()
-	print("DESKTOP_SCALING_RENDER_VERIFIED ",JSON.stringify(report)) if captures == 26 else print("DESKTOP_SCALING_GEOMETRY_CHECKED ",JSON.stringify(report))
+	print("DESKTOP_SCALING_RENDER_VERIFIED ",JSON.stringify(report)) if captures == EXPECTED_CAPTURES and failures.is_empty() else print("DESKTOP_SCALING_GEOMETRY_CHECKED ",JSON.stringify(report))
 	viewport.queue_free()
 	await settle()
 	quit(0 if failures.is_empty() else 1)
+
+func _overlay_samples(app: Control, port: RefCounted) -> void:
+	# A valid public touched-board fixture supplies New Board permission. No game command runs.
+	var original_view: Dictionary = port.view.duplicate(true)
+	port.view = app.panel.public_view.duplicate(true)
+	port.view.board.cells[0].face = "revealed"
+	port.view.board.cells[0].actions = []
+	port.view.board.cells[0].pressable = false
+	port.view.actions.append("new_board")
+	port.view.register.difficulty_enabled = ["beginner", "intermediate", "expert"]
+	port.live_view = port.view.duplicate(true)
+	check(app.refresh_view().get("ok",false), "valid touched board for overlay evidence")
+	await _capture_overlay(app,"rules","en",800)
+	await _capture_overlay(app,"assignments","en",960)
+	check(locale.present("ja"), "Japanese overlay catalog")
+	profile.present(150,true)
+	profile.present_contrast(true)
+	await settle()
+	check(app.panel._locale == "ja" and app.panel._percent == 150 and app.panel._large and app.panel._high_contrast,
+		"overlay applies Japanese enlarged text, targets and high contrast")
+	await _capture_overlay(app,"rules","ja-large-contrast",960)
+	await _capture_overlay(app,"assignments","ja-large-contrast",960)
+	port.view = original_view
+	port.live_view = original_view.duplicate(true)
+	check(app.refresh_view().get("ok",false), "restore ordinary board fixture after overlay evidence")
+	profile.present_contrast(false)
+	profile.present(100,false)
+	check(locale.present("en"), "restore English after overlay evidence")
+	await settle()
+	check(port.commands.is_empty(), "overlay screenshots do not dispatch gameplay commands")
+
+func _capture_overlay(app: Control, kind: String, variant: String, width: int) -> void:
+	main.get_node("RootHBox").set_angela_width(1280-width)
+	await settle()
+	var worksheet: Control = app.panel.worksheet
+	var grid: Control = worksheet.grid
+	var board_rect := grid.get_rect()
+	var board_scroll: Vector2i = worksheet.get_scroll()
+	app.panel.dock.buttons[kind].pressed.emit()
+	await settle()
+	var sheet: Control = worksheet.information_sheet
+	check(sheet != null, kind+": real information overlay opened")
+	if sheet == null: return
+	check(not app.panel.dock.buttons.has("board"), kind+": redundant Board control absent")
+	check(worksheet.well.is_visible_in_tree() and grid.is_visible_in_tree(), kind+": board remains mounted and visible beneath sheet")
+	check(grid.process_mode == Node.PROCESS_MODE_DISABLED, kind+": covered board input remains blocked")
+	check(grid.get_rect() == board_rect and worksheet.get_scroll() == board_scroll, kind+": opening sheet preserves board geometry and pan")
+	check(sheet.get_global_rect().encloses(sheet.return_button.get_global_rect()), kind+": Return remains within overlay")
+	check(is_equal_approx(sheet.return_button.position.x,sheet.size.x-144)
+		and is_equal_approx(sheet.return_button.position.y+sheet.return_button.custom_minimum_size.y,sheet.size.y-24),
+		kind+": Return keeps its original lower-right placement")
+	check(not desktop.home_button.disabled and not app.panel.dock.buttons.new_board.disabled, kind+": Home and permitted New Board remain available")
+	for button: Button in app.panel.register.difficulties.values():
+		check(not button.disabled, kind+": permitted difficulty remains available")
+	desktop.app_scroll.ensure_control_visible(sheet.return_button)
+	await settle()
+	check(desktop.app_scroll.get_global_rect().grow(0.01).encloses(sheet.return_button.get_global_rect()), kind+": Return remains reachable in desktop viewport")
+	await capture("minesweeper-"+kind+"-"+variant,width)
+	sheet.return_button.pressed.emit()
+	await settle()
+	check(worksheet.information_sheet == null and worksheet.grid == grid, kind+": Return closes only overlay and retains board")

@@ -219,6 +219,9 @@ func test_stale_home_keeps_app_visible_and_host_active_without_allocating_or_spe
 	var app := _open_from_launcher(desktop)
 	if app == null: return
 	_reveal_first(app)
+	app.panel.dock.buttons.rules.pressed.emit()
+	var sheet: Control = app.panel.worksheet.information_sheet
+	assert_not_null(sheet)
 	var snapshot: Dictionary = coordinator.get_state().value
 	var issued: Dictionary = issuer.issue(&"transaction_id")
 	assert_true(coordinator.set_flag({
@@ -236,7 +239,11 @@ func test_stale_home_keeps_app_visible_and_host_active_without_allocating_or_spe
 	assert_eq(root_store.next_counter, counter_before)
 	assert_eq(state.to_save_dict(), state_before)
 	assert_eq(app.panel.worksheet.grid.projection.cells[2].mark, "flag", "Refusal refreshes safe current facts.")
+	assert_same(app.panel.worksheet.information_sheet, sheet)
+	assert_true(sheet.is_visible_in_tree())
 	assert_true(desktop.return_home().ok, "A fresh explicit retry may suspend the current board.")
+	assert_null(app.panel.worksheet.information_sheet)
+	assert_null(sheet.get_parent())
 
 
 func test_unsettled_terminal_cannot_hide_the_host_or_spend_another_round() -> void:

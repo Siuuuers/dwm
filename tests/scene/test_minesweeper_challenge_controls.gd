@@ -43,7 +43,7 @@ func test_flag_toggle_drag_and_rules_preserve_challenge_board_and_navigation() -
 	var flag: Button = _scene.find_child("Flag",true,false)
 	var drag: Button = _scene.find_child("Drag",true,false)
 	var rules: Button = _scene.find_child("Rules",true,false)
-	var board: Button = _scene.find_child("Board",true,false)
+	assert_null(_scene.find_child("Board",true,false))
 	assert_not_null(flag)
 	assert_not_null(drag)
 	assert_null(_scene.find_child("Reveal",true,false))
@@ -62,12 +62,14 @@ func test_flag_toggle_drag_and_rules_preserve_challenge_board_and_navigation() -
 	var retained_scroll: Vector2i = sheet.get_scroll()
 	rules.pressed.emit()
 	assert_not_null(sheet.information_sheet)
-	assert_false(board.disabled)
+	assert_true(sheet.well.is_visible_in_tree())
+	assert_true(sheet.grid.is_visible_in_tree())
 	assert_false(rules.disabled)
 	assert_true(flag.disabled)
 	assert_true(drag.disabled)
-	board.pressed.emit()
+	sheet.information_sheet.return_button.pressed.emit()
 	assert_null(sheet.information_sheet)
+	assert_true(rules.has_focus())
 	assert_eq(sheet.grid.mode,&"drag")
 	assert_eq(sheet.grid.focused_index,200)
 	assert_eq(sheet.get_scroll(),retained_scroll)
@@ -91,3 +93,41 @@ func test_challenge_size_and_fit_controls_live_in_footer_and_preserve_progress()
 	assert_true(Rect2(Vector2.ZERO,sheet.well.size).encloses(Rect2(sheet.grid.position,sheet.grid.size*sheet.grid.scale)))
 	assert_eq(sheet.grid.projection,original)
 	assert_true(_port.commands.is_empty())
+
+
+func test_challenge_rules_overlay_blocks_native_cell_contacts_and_return_restores_play() -> void:
+	var worksheet: Control = _scene.worksheet
+	var grid: Control = worksheet.grid
+	var rules: Button = _scene.find_child("Rules", true, false)
+	var cell: Control = grid.cell_nodes[0]
+	var point: Vector2 = cell.get_global_transform_with_canvas() * (cell.size / 2.0)
+	var original: Dictionary = grid.projection.duplicate(true)
+	rules.pressed.emit()
+	assert_not_null(worksheet.information_sheet)
+	assert_true(worksheet.well.is_visible_in_tree())
+	assert_eq(grid.process_mode, Node.PROCESS_MODE_DISABLED)
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.position = point
+	click.pressed = true
+	_scene.get_viewport().push_input(click, true)
+	click.pressed = false
+	_scene.get_viewport().push_input(click, true)
+	var touch := InputEventScreenTouch.new()
+	touch.index = 9
+	touch.position = point
+	touch.pressed = true
+	_scene.get_viewport().push_input(touch, true)
+	touch.pressed = false
+	_scene.get_viewport().push_input(touch, true)
+	assert_false(grid.has_held_touch())
+	assert_true(_port.commands.is_empty())
+	assert_eq(grid.projection, original)
+	worksheet.information_sheet.return_button.pressed.emit()
+	assert_null(worksheet.information_sheet)
+	assert_true(rules.has_focus())
+	click.pressed = true
+	_scene.get_viewport().push_input(click, true)
+	click.pressed = false
+	_scene.get_viewport().push_input(click, true)
+	assert_eq(_port.commands, [{"action":"reveal", "index":0, "revision":original.revision}])

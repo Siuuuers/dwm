@@ -152,14 +152,19 @@ func test_prepared_lifecycle_commits_before_visibility_changes() -> void:
 	assert_signal_emit_count(_app,"window_hidden",1)
 	assert_true(_port.commands.is_empty())
 
-func test_owner_refusal_keeps_visible_window_and_emits_no_hidden_signal() -> void:
+func test_owner_refusal_keeps_visible_window_and_information_overlay_without_hidden_signal() -> void:
 	_show()
+	_app.panel.dock.buttons.rules.pressed.emit()
+	var sheet: Control = _app.panel.worksheet.information_sheet
+	assert_not_null(sheet)
 	_port.refused = true
 	watch_signals(_app)
 	assert_false(_app.prepare_return_home().ok)
 	assert_true(_app.visible)
 	_app.hide_window()
 	assert_true(_app.visible,"A direct hide cannot bypass a refused suspension.")
+	assert_same(_app.panel.worksheet.information_sheet, sheet)
+	assert_true(sheet.is_visible_in_tree())
 	assert_signal_emit_count(_app,"window_hidden",0)
 	assert_true(_port.commands.is_empty())
 
@@ -205,11 +210,17 @@ func test_rules_and_assignments_allow_home_and_escape_closes_only_the_sheet() ->
 		assert_signal_emit_count(_app,"window_hidden",0)
 	assert_true(_port.commands.is_empty())
 	_app.panel.dock.buttons.assignments.pressed.emit()
+	var sheet: Control = _app.panel.worksheet.information_sheet
 	var before: int = _port.lifecycle.size()
 	assert_true(_app.prepare_return_home().ok)
 	assert_eq(_port.lifecycle.size(),before+1,"Home from information still uses the authoritative suspension path.")
+	assert_null(_app.panel.worksheet.information_sheet)
+	assert_null(sheet.get_parent())
 	_app.hide_window()
 	assert_false(_app.visible)
+	_show()
+	assert_null(_app.panel.worksheet.information_sheet, "Reopening Home's parked app cannot resurrect the old overlay.")
+	assert_true(_app.panel.worksheet.grid.is_visible_in_tree())
 	assert_true(_port.commands.is_empty())
 
 func test_reopening_retains_mode_semantic_cell_manual_pan_and_focus() -> void:

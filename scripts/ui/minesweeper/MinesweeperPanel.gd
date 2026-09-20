@@ -33,7 +33,7 @@ var _sheet_source := ""
 var _previous_focus: WeakRef
 var _next_focus: WeakRef
 var layout_height := 656
-var _return_to_board := false
+var _closing_for_command := false
 
 func _init() -> void:
 	focus_mode = Control.FOCUS_NONE
@@ -200,8 +200,7 @@ func _place(register_height: float) -> void:
 
 func _apply_availability() -> void:
 	var settled: bool = bool(public_view.get("settled",false))
-	var blocked: bool = _failed or worksheet.information_sheet != null \
-		or (public_view.get("board",{}).get("custody",true) and not settled)
+	var blocked: bool = _failed or (public_view.get("board",{}).get("custody",true) and not settled)
 	worksheet.set_interaction_blocked(_failed or settled)
 	for key: String in register.difficulties:
 		register.difficulties[key].present_state(not blocked \
@@ -209,7 +208,7 @@ func _apply_availability() -> void:
 	var document_open: bool = worksheet.information_sheet != null
 	var dock_blocked: bool = _failed or (public_view.get("board",{}).get("custody",true) and not settled)
 	var actions: Array = public_view.get("actions",[]).duplicate()
-	if document_open: actions = actions.filter(func(action: String): return action in ["rules", "assignments"])
+	if document_open: actions = actions.filter(func(action: String): return action in ["rules", "assignments", "new_board"])
 	dock.present(worksheet.grid.mode,actions,dock_blocked,
 		worksheet.information_sheet.kind if document_open else "board")
 	_wire_focus()
@@ -219,8 +218,9 @@ func _wire_focus() -> void:
 	var controls: Array[Control] = []
 	for control: Control in register.difficulties.values():
 		if control.focus_mode != Control.FOCUS_NONE: controls.append(control)
-	for control: Control in [worksheet.grid,worksheet.vertical_rail,worksheet.horizontal_rail]:
-		if control != null and control.focus_mode != Control.FOCUS_NONE and control.is_visible_in_tree(): controls.append(control)
+	if worksheet.information_sheet == null:
+		for control: Control in [worksheet.grid,worksheet.vertical_rail,worksheet.horizontal_rail]:
+			if control != null and control.focus_mode != Control.FOCUS_NONE and control.is_visible_in_tree(): controls.append(control)
 	for control: Control in worksheet.zoom_controls:
 		if not worksheet.view_controls_external and control.focus_mode != Control.FOCUS_NONE and control.is_visible_in_tree(): controls.append(control)
 	if worksheet.information_sheet != null:
@@ -244,20 +244,14 @@ func _wire_focus() -> void:
 
 func _action(action: StringName) -> void:
 	if _failed: return
-	if action == &"board":
-		_return_to_board = true
-		worksheet.close_information(true)
-		_return_to_board = false
-		return
 	if action not in public_view.get("actions",[]): return
-	if worksheet.information_sheet != null and action not in [&"rules", &"assignments"]: return
+	if worksheet.information_sheet != null and action not in [&"rules", &"assignments", &"new_board"]: return
 	if action in [&"reveal",&"flag",&"drag"]:
 		worksheet.set_mode(action)
 		return
 	if action == &"new_board":
 		if _receive(_port.call("dispatch","new_board",-1,int(public_view.board.revision))):
-			worksheet.set_mode(&"reveal")
-			worksheet.reveal_focus(worksheet.grid.focused_index)
+			_finish_board_command()
 		return
 	var opened := false
 	if action == &"rules": opened = worksheet.open_rules(dock.buttons.rules)
@@ -267,7 +261,7 @@ func _action(action: StringName) -> void:
 		_apply_availability()
 
 func _information_closed() -> void:
-	if not _failed and not _return_to_board and dock.buttons.has(_sheet_source) and not dock.buttons[_sheet_source].disabled:
+	if not _failed and not _closing_for_command and dock.buttons.has(_sheet_source) and not dock.buttons[_sheet_source].disabled:
 		dock.buttons[_sheet_source].grab_focus()
 	_sheet_source = ""
 	_wire_focus()
@@ -277,14 +271,26 @@ func _dispatch(action: StringName, index: int, revision: int) -> void:
 	_receive(_port.call("dispatch",String(action),index,revision))
 
 func _select_difficulty(difficulty: StringName) -> void:
-	if _failed or worksheet.information_sheet != null or not is_instance_valid(_port) \
+	if _failed or not is_instance_valid(_port) \
 			or not _port.has_method("select_difficulty") \
-			or (public_view.board.custody and not public_view.settled) or String(difficulty) == public_view.register.difficulty \
+			or (public_view.board.custody and not public_view.settled) \
 			or String(difficulty) not in public_view.register.difficulty_enabled: return
+	if String(difficulty) == public_view.register.difficulty:
+		_close_information_for_command()
+		return
 	if not worksheet.flush_view_preferences(): return
 	if _receive(_port.call("select_difficulty",String(difficulty),int(public_view.board.revision))):
-		worksheet.set_mode(&"reveal")
-		worksheet.reveal_focus(worksheet.grid.focused_index)
+		_finish_board_command()
+
+func _close_information_for_command() -> void:
+	_closing_for_command = true
+	worksheet.close_information(true)
+	_closing_for_command = false
+
+func _finish_board_command() -> void:
+	_close_information_for_command()
+	worksheet.set_mode(&"reveal")
+	worksheet.reveal_focus(worksheet.grid.focused_index)
 
 func _receive(result: Variant) -> bool:
 	if result is Dictionary and result.get("value") is Dictionary:

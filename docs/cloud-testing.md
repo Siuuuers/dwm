@@ -14,11 +14,13 @@ This workflow does not compile C# or produce a distributable Windows export.
 
 A supplementary job renders the computer panel on Ubuntu 24.04 using the same pinned
 Godot release, Xvfb, and Mesa software OpenGL. The desktop scaling harness
-captures 26 states covering the launcher, apps, scrolled content, menus, and
+captures 30 states covering the launcher, apps, scrolled content, menus, and
 confirmations at baseline and enlarged widths. Geometry assertions, a successful
-JSON report, and all 26 nonempty PNG files are required. Its screenshots and logs
+JSON report, and all 30 nonempty PNG files are required. Its screenshots and logs
 are uploaded for visual review; a headless geometry run cannot satisfy this job.
 This supplementary renderer does not replace the seven Windows test groups.
+The desktop captures include Minesweeper Rules and Assignments overlays in
+English, plus Japanese at 150% text size with large targets and high contrast.
 
 A second rendered pass in the same job reuses Godot and the software display
 with separate user data. It requires 19 screenshots and a successful report
@@ -40,7 +42,7 @@ report. Before rendering, `tools/localization/validate_japanese_korean_catalogs.
 checks catalog IDs, placeholders, and Unicode NFC normalization. The previews
 exercise the selectable UI drafts and their pixel fonts; story text continues
 to use the English fallback. The `japanese-korean-ui-render` artifact contains
-the screenshots, report, and log. All four passes together require 85 nonempty
+the screenshots, report, and log. All four passes together require 89 nonempty
 PNG captures; headless geometry checks cannot replace them.
 
 `tools/testing/Invoke-CloudTests.ps1` lists the exact test scripts. It reuses the

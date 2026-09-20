@@ -26,11 +26,13 @@ func test_header_gives_difficulties_room_and_only_displays_rounds_and_mines() ->
 		assert_gt(button.size.x,96.0)
 		assert_true(Rect2(Vector2.ZERO,register.size).encloses(Rect2(button.position,button.size)))
 
-func test_difficulty_commitment_is_owner_controlled_and_same_tier_is_inert() -> void:
+func test_difficulty_requests_include_current_tier_but_commitment_stays_owner_controlled() -> void:
 	var register := _register()
 	watch_signals(register)
 	register.difficulties.beginner.pressed.emit()
-	assert_signal_emit_count(register,"difficulty_requested",0)
+	assert_signal_emitted_with_parameters(register,"difficulty_requested",[&"beginner"])
+	assert_signal_emit_count(register,"difficulty_requested",1)
+	assert_true(register.difficulties.beginner.selected)
 	register.difficulties.expert.pressed.emit()
 	assert_signal_emitted_with_parameters(register,"difficulty_requested",[&"expert"])
 	assert_true(register.difficulties.beginner.selected)
@@ -44,7 +46,7 @@ func test_difficulty_commitment_is_owner_controlled_and_same_tier_is_inert() -> 
 		assert_true(button.disabled)
 		assert_eq(button.focus_mode,Control.FOCUS_NONE)
 	register.difficulties.beginner.pressed.emit()
-	assert_signal_emit_count(register,"difficulty_requested",1)
+	assert_signal_emit_count(register,"difficulty_requested",2)
 
 func test_unknown_mines_use_dash_and_hidden_metrics_retain_authoritative_values() -> void:
 	var register := _register()

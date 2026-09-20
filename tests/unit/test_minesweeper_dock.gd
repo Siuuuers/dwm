@@ -8,11 +8,12 @@ func _dock() -> Control:
 	assert_true(dock.configure())
 	return dock
 
-func test_desktop_actions_fit_without_a_separate_reveal_button() -> void:
+func test_desktop_actions_fit_without_board_or_separate_reveal_buttons() -> void:
 	var dock := _dock()
 	assert_eq(dock.size.x,800.0)
 	assert_false(dock.buttons.has("reveal"))
-	for action: String in ["flag","drag","board","new_board","assignments","rules"]:
+	assert_false(dock.buttons.has("board"))
+	for action: String in ["flag","drag","new_board","assignments","rules"]:
 		assert_true(dock.buttons.has(action))
 	for button: Button in dock.buttons.values():
 		assert_true(Rect2(Vector2.ZERO,dock.size).encloses(Rect2(button.position,button.size)))
@@ -49,7 +50,8 @@ func test_host_locale_scale_targets_keep_accessible_actions_inside_dock() -> voi
 			for large: bool in [false,true]:
 				assert_true(dock.configure("canonical_solo",locale,percent,large,&"midnight"))
 				assert_false(dock.buttons.has("reveal"))
-				for action: String in ["flag","drag","board","rules","pause"]:
+				assert_false(dock.buttons.has("board"))
+				for action: String in ["flag","drag","rules","pause"]:
 					assert_true(dock.buttons.has(action))
 				assert_eq(dock.size.x,960.0)
 				for button: Button in dock.buttons.values():

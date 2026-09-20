@@ -8,8 +8,8 @@ const FLAG_BUTTON := preload("res://scripts/ui/minesweeper/MinesweeperFlagButton
 const MS_THEME := preload("res://scripts/ui/minesweeper/MinesweeperTheme.gd")
 const COPY := preload("res://scripts/ui/minesweeper/MinesweeperChromeCopy.gd")
 const MODES := [&"reveal",&"flag",&"drag"]
-const LEFT := [["flag",4,40],["drag",48,56],["board",108,56]]
-const DESKTOP := [["new_board",168,64],["assignments",236,80],["rules",320,48]]
+const LEFT := [["flag",4,40],["drag",48,56]]
+const DESKTOP := [["new_board",108,64],["assignments",176,80],["rules",260,48]]
 const CANONICAL := [["rules",376,48],["pause",428,48]]
 
 var buttons: Dictionary = {}
@@ -86,7 +86,7 @@ func present(next_mode: StringName, enabled_actions: Array, custody: bool = fals
 func _apply_state() -> void:
 	for key: String in buttons:
 		var selected: bool = key == mode if key in ["flag", "drag"] else key == _view
-		var enabled: bool = key in _enabled or (key == "board" and _view != "board")
+		var enabled: bool = key in _enabled
 		if key == "flag": enabled = ("reveal" if mode == &"flag" else "flag") in _enabled
 		buttons[key].present_state(not _custody and enabled,selected)
 		buttons[key].accessibility_description = _selected_copy if selected else ""
@@ -96,7 +96,7 @@ func _apply_state() -> void:
 
 func _request(action: String) -> void:
 	if action == "flag": action = "reveal" if mode == &"flag" else "flag"
-	if not _custody and (action in _enabled or (action == "board" and _view != "board")):
+	if not _custody and action in _enabled:
 		action_requested.emit(StringName(action))
 
 func _draw() -> void:

@@ -209,7 +209,7 @@ func _install(measured: Dictionary) -> void:
 	queue_redraw()
 
 func _request(tier: String) -> void:
-	if tier in public_view.difficulty_enabled and tier != public_view.difficulty:
+	if tier in public_view.difficulty_enabled:
 		difficulty_requested.emit(StringName(tier))
 
 func _draw() -> void:

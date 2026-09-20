@@ -180,13 +180,13 @@ func prepare_show_window() -> Dictionary:
 func prepare_return_home() -> Dictionary:
 	if _hide_prepared: return {"ok":true}
 	if not can_return_home(): return {"ok":false,"code":&"desktop_modal_active"}
-	panel.worksheet.close_information()
 	if not panel.worksheet.flush_view_preferences(): return {"ok":false,"code":&"minesweeper_view_preferences_unavailable"}
 	remember_focus()
 	_cell = maxi(0,panel.worksheet.grid.focused_index)
 	_scroll = panel.worksheet.get_scroll()
 	_has_cached_navigation = true
 	var result := _foreground(false)
+	if result.get("ok",false): panel.worksheet.close_information()
 	_hide_prepared = result.get("ok",false)
 	return result
 
@@ -238,7 +238,7 @@ func _update_home() -> void:
 	_home.disabled = not enabled
 	_home.focus_mode = Control.FOCUS_ALL if enabled else Control.FOCUS_NONE
 	panel.connect_host_focus(_home,_home)
-	var first: Control = panel.worksheet.grid
+	var first: Control = panel.worksheet.information_sheet.rows[0] if panel.worksheet.information_sheet != null else panel.worksheet.grid
 	for button: Control in panel.register.difficulties.values():
 		if button.focus_mode != Control.FOCUS_NONE:
 			first = button
@@ -289,9 +289,9 @@ func _on_visibility_changed() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not is_visible_in_tree(): return
-	if panel.worksheet.information_sheet != null: return
 	if event.is_action_pressed("ui_cancel"):
-		hide_window()
+		if panel.worksheet.information_sheet != null: panel.worksheet.close_information()
+		else: hide_window()
 		get_viewport().set_input_as_handled()
 
 func _notification(what: int) -> void:

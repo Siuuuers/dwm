@@ -48,6 +48,7 @@ var _high_contrast := false
 var _colour_preset := "standard"
 var _source_focus: WeakRef
 var _grid_process_mode: ProcessMode
+var _grid_focus_behavior: Control.FocusBehaviorRecursive
 var _scroll := Vector2i.ZERO
 var _pan_remainder := Vector2.ZERO
 var _panning := false
@@ -84,8 +85,10 @@ func _init() -> void:
 	_seam.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_seam.visible = false
 	add_child(_seam)
-	grid.cell_action_requested.connect(func(action: StringName, index: int, revision: int): cell_action_requested.emit(action, index, revision))
-	grid.new_board_requested.connect(func(): new_board_requested.emit())
+	grid.cell_action_requested.connect(func(action: StringName, index: int, revision: int):
+		if information_sheet == null: cell_action_requested.emit(action, index, revision))
+	grid.new_board_requested.connect(func():
+		if information_sheet == null: new_board_requested.emit())
 	grid.focused_cell_changed.connect(reveal_focus)
 	grid.pan_requested.connect(_pan)
 	grid.panning_changed.connect(_set_panning)
@@ -197,10 +200,11 @@ func _open_information(kind: String, claimed: Array, source: Control) -> bool:
 	var focused: Control = source if source != null else get_viewport().gui_get_focus_owner()
 	_source_focus = weakref(focused) if focused != null else null
 	information_sheet = sheet
-	grid.cancel_pointer_gesture()
+	grid.cancel_input()
 	_grid_process_mode = grid.process_mode
+	_grid_focus_behavior = grid.focus_behavior_recursive
 	grid.process_mode = Node.PROCESS_MODE_DISABLED
-	well.hide()
+	grid.focus_behavior_recursive = Control.FOCUS_BEHAVIOR_DISABLED
 	view_controls.hide()
 	if vertical_rail != null: vertical_rail.hide()
 	if horizontal_rail != null: horizontal_rail.hide()
@@ -216,7 +220,7 @@ func close_information(focus_board: bool = false) -> void:
 	remove_child(sheet)
 	sheet.queue_free()
 	grid.process_mode = _grid_process_mode
-	well.show()
+	grid.focus_behavior_recursive = _grid_focus_behavior
 	view_controls.visible = is_visible_in_tree()
 	if vertical_rail != null: vertical_rail.show()
 	if horizontal_rail != null: horizontal_rail.show()
@@ -312,7 +316,7 @@ func _update_seam() -> void:
 	_seam.queue_redraw()
 
 func _gui_input(event: InputEvent) -> void:
-	if _interaction_blocked: return
+	if _interaction_blocked or information_sheet != null: return
 	if event is InputEventScreenTouch or event is InputEventScreenDrag:
 		# The board can be smaller than the well. A second finger in that blank
 		# space still belongs to the same gesture and must cancel the pending tap.
