@@ -11,16 +11,21 @@ const SHOP := preload("res://tests/manual/verify_shop_desktop_native.gd")
 const SCHEDULE := preload("res://tests/manual/verify_schedule_desktop_native.gd")
 const QUICK := preload("res://tests/manual/verify_quick_status_native.gd")
 const MINES := preload("res://tests/unit/test_minesweeper_app.gd")
-const EXPECTED_CAPTURES := 30
+const EXPECTED_CAPTURES := 34
 class VisualLocale extends QUICK.CatalogLocale:
 	func get_selectable_locales() -> Array[Dictionary]:
 		return [{"id":"en","native_name":"English","release_status":"complete"},{"id":"zh_CN","native_name":"简体中文","release_status":"draft"},{"id":"zh_HK","native_name":"繁體中文","release_status":"draft"}]
 
 class VisualPreferences extends SCHEDULE.Preferences:
 	var high_contrast := false
+	var font_style := "pixel"
 	func get_preference(path: StringName, fallback: Variant = null) -> Variant:
 		if path == &"preferences.accessibility.high_contrast": return high_contrast
+		if path == &"preferences.accessibility.font_style": return font_style
 		return super.get_preference(path, fallback)
+	func present_font(value: String) -> void:
+		font_style = value
+		preference_changed.emit(&"preferences.accessibility.font_style", value)
 	func present_contrast(value: bool) -> void:
 		high_contrast = value
 		preference_changed.emit(&"preferences.accessibility.high_contrast", value)
@@ -35,6 +40,7 @@ var folder := OS.get_environment("DWM_RENDER_OUTPUT")
 var failures: Array[String] = []
 var captures := 0
 var geometry_samples := 0
+var launcher_pixels: Array[Dictionary] = []
 func _initialize() -> void: _run.call_deferred()
 func check(value: bool, message: String) -> void:
 	if not value:
@@ -48,6 +54,8 @@ func capture(name: String, width: int) -> void:
 	check(desktop.desktop_canvas.scale.is_equal_approx(Vector2.ONE * (width / 800.0)), name + ": proportional canvas")
 	check(desktop.get_global_rect().encloses(desktop.home_button.get_global_rect()), name + ": Home stays visible")
 	check(not desktop.status_label.visible, name + ": no presentation failure notice")
+	if name.begins_with("launcher"):
+		_check_launcher_geometry(name)
 	if name.begins_with("minesweeper"):
 		for issue: String in mines_control_layout_failures(desktop._cached_app_windows[&"minesweeper"].panel):
 			check(false,name+": "+issue)
@@ -56,6 +64,7 @@ func capture(name: String, width: int) -> void:
 		for frame in 3: await RenderingServer.frame_post_draw
 		var image: Image = viewport.get_texture().get_image()
 		check(not image.is_empty() and image.get_size() == Vector2i(1280,720), name + ": full viewport pixels")
+		if name.begins_with("launcher"): _check_launcher_pixels(image,name)
 		check(image.save_png(folder.path_join("%s-%d.png" % [name,width])) == OK,"capture "+name)
 		captures += 1
 	print("SCALING_SAMPLE ",name," width=",width," scale=",desktop.desktop_canvas.scale," scroll=",desktop.app_scroll.scroll_vertical)
@@ -126,10 +135,12 @@ func _run() -> void:
 	viewport.add_child(main)
 	host = SCHEDULE.HOST.new()
 	host.reset(1)
-	check(desktop.configure_contacts(CONTACT.FakePort.new(),locale,profile,host).get("ok",false),"contacts configured")
+	var contact_port := CONTACT.FakePort.new()
+	check(desktop.configure_contacts(contact_port,locale,profile,host).get("ok",false),"contacts configured")
 	desktop._foreground_eligible = true
 	await settle()
 	await pair("launcher")
+	await _launcher_samples(contact_port)
 	var opened: Dictionary = desktop.open_contacts()
 	check(opened.get("ok",false),"contacts opened")
 	if opened.get("ok",false):
@@ -245,7 +256,7 @@ func _run() -> void:
 	await pair("confirmation")
 	check(geometry_samples == EXPECTED_CAPTURES, "all expected sample states checked")
 	if DisplayServer.get_name() != "headless": check(captures == EXPECTED_CAPTURES, "all expected screenshots saved")
-	var report := {"ok":failures.is_empty(),"renderer":DisplayServer.get_name(),"samples":geometry_samples,"captures":captures,"failures":failures}
+	var report := {"ok":failures.is_empty(),"renderer":DisplayServer.get_name(),"samples":geometry_samples,"captures":captures,"failures":failures,"launcher_pixels":launcher_pixels}
 	var file := FileAccess.open(folder.path_join("results.json"),FileAccess.WRITE)
 	file.store_string(JSON.stringify(report,"\t"))
 	file.close()
@@ -314,3 +325,72 @@ func _capture_overlay(app: Control, kind: String, variant: String, width: int) -
 	sheet.return_button.pressed.emit()
 	await settle()
 	check(worksheet.information_sheet == null and worksheet.grid == grid, kind+": Return closes only overlay and retains board")
+
+func _check_launcher_geometry(name: String) -> void:
+	check(desktop.launcher_buttons.keys() == SHELL.APP_IDS, name+": seven original app targets in registry order")
+	for id: StringName in desktop.launcher_buttons:
+		var button: Button = desktop.launcher_buttons[id]
+		var caption: Label = button.caption
+		check(button.icon_id == id, name+": icon identifies "+String(id))
+		check(caption.get_theme_font("font") == SPLIT.TYPOGRAPHY.font(desktop._locale,profile.percent,profile.font_style), name+": selected font face is applied to "+String(id))
+		check(caption.get_theme_font_size("font_size") == SPLIT.TYPOGRAPHY.font_size(desktop._locale,profile.percent,24,profile.font_style), name+": selected font size is retained for "+String(id))
+		check(button.get_global_rect().grow(0.01).encloses(caption.get_global_rect()), name+": complete caption remains inside "+String(id))
+		check(caption.size.y >= caption.get_minimum_size().y, name+": native caption height retained for "+String(id))
+		check(button.find_children("*","BaseButton",true,false).is_empty(), name+": decorative icon adds no action target")
+		check(caption.mouse_filter == Control.MOUSE_FILTER_IGNORE and caption.focus_mode == Control.FOCUS_NONE, name+": caption remains inert")
+	check(desktop.contacts_button.caption.text == desktop.LABELS[desktop._locale][1], name+": unread marker does not wrap the Contacts name")
+
+func _icon_sample(image: Image, button: Control, point: Vector2) -> Color:
+	return image.get_pixelv(Vector2i(button.get_global_transform() * point))
+
+func _check_launcher_pixels(image: Image, name: String) -> void:
+	var silhouettes: Array[String] = []
+	for id: StringName in desktop.launcher_buttons:
+		var button: Button = desktop.launcher_buttons[id]
+		check(button.get("_icon_texture") == null, name+": procedural fallback is actually rendered for "+String(id))
+		var background := _icon_sample(image,button,Vector2(65,9))
+		var mask := ""
+		# Sample the centers of the24x24 logical pixels, independent of canvas scaling phase.
+		for y: int in range(24):
+			for x: int in range(24):
+				mask += "0" if _icon_sample(image,button,Vector2(65+x*2,9+y*2)) == background else "1"
+		check(mask.count("1") >= 8 and mask.count("0") >= 8, name+": nonempty visible silhouette for "+String(id))
+		var signature := mask.sha256_text()
+		check(not silhouettes.has(signature), name+": distinct silhouette for "+String(id))
+		silhouettes.append(signature)
+	var contacts: Button = desktop.contacts_button
+	var badge_visible := _icon_sample(image,contacts,Vector2(108,12)) != _icon_sample(image,contacts,Vector2(65,9))
+	check(badge_visible == contacts.unread, name+": unread badge matches visible native pixels")
+	launcher_pixels.append({"sample":name,"distinct_icons":silhouettes.size(),"unread":contacts.unread})
+
+func _launcher_samples(port: RefCounted) -> void:
+	var before_unread: Dictionary = port.unread.duplicate(true)
+	var before_opens: Array = port.opens.duplicate()
+	var before_replies: int = port.reply_count
+	var focus := viewport.gui_get_focus_owner()
+	profile.present(150,false)
+	await capture("launcher-en-pixel-large-unread",960)
+	profile.present_font("readable")
+	await capture("launcher-en-readable-large",960)
+	check(locale.present("ja"),"Japanese enlarged launcher locale")
+	await capture("launcher-ja-readable-large",960)
+	profile.present_contrast(true)
+	await capture("launcher-ja-readable-large-contrast",960)
+	for friend_id: String in port.unread: port.unread[friend_id] = false
+	desktop._on_contacts_changed({})
+	await settle()
+	check(not desktop.contacts_button.unread,"all-read fixture clears the inert badge")
+	if DisplayServer.get_name() != "headless":
+		for frame in 3: await RenderingServer.frame_post_draw
+		var image: Image = viewport.get_texture().get_image()
+		var contacts: Button = desktop.contacts_button
+		check(_icon_sample(image,contacts,Vector2(108,12)) == _icon_sample(image,contacts,Vector2(65,9)),"all-read badge clears from native pixels")
+	port.unread = before_unread
+	desktop._on_contacts_changed({})
+	profile.present_contrast(false)
+	profile.present_font("pixel")
+	profile.present(100,false)
+	check(locale.present("en"),"restore English launcher preferences")
+	await settle()
+	check(viewport.gui_get_focus_owner() == focus,"launcher preview preserves the same focused app")
+	check(port.opens == before_opens and port.reply_count == before_replies and port.unread == before_unread,"launcher previews do not open messages, submit replies or change saved unread state")

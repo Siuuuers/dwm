@@ -240,7 +240,8 @@ func test_live_accessibility_recolours_existing_transcript_without_owner_or_focu
 	var launcher: Button = f.desktop.contacts_button
 	var launcher_caption: String = launcher.caption.text
 	var launcher_name: String = launcher.accessibility_name
-	assert_true(launcher_caption.contains("•"))
+	assert_eq(launcher_caption,"Contacts")
+	assert_true(launcher.unread)
 	assert_true(launcher_name.contains("new message"))
 	var choice: Button = app._ordinary_choices[0]
 	var choice_caption: Label = choice.get_child(0) as Label
@@ -258,6 +259,7 @@ func test_live_accessibility_recolours_existing_transcript_without_owner_or_focu
 	_assert_paper_button_colours(choice, expected)
 	assert_eq(f.port.call_counts(),calls_before,"Colour signals cannot request correspondence or ordinary commands.")
 	assert_eq(launcher.caption.text,launcher_caption)
+	assert_true(launcher.unread,"Colour refresh preserves the displayed unread badge.")
 	assert_eq(launcher.accessibility_name,launcher_name)
 	assert_same(panel.transcript,transcript)
 	assert_same(panel.rows[1],row)

@@ -49,17 +49,17 @@ func verify_contacts_notice(desktop: Control, port: RefCounted, locale: Node) ->
 	var before_opens: Array = port.opens.duplicate()
 	var before_replies: int = port.reply_count
 	var caption: Label = desktop.contacts_button.get_node("Caption")
-	check(caption.text == "Contacts \u2022" and desktop.contacts_button.accessibility_name == "Contacts, new message",
+	check(caption.text == "Contacts" and desktop.contacts_button.unread and desktop.contacts_button.accessibility_name == "Contacts, new message",
 		"Saved unread Contacts has both a visible indicator and an accessible notice")
 	locale.change("zh-CN")
-	check(caption.text == "\u8054\u7cfb\u4eba \u2022" and desktop.contacts_button.accessibility_name == "\u8054\u7cfb\u4eba\uff0c\u6709\u65b0\u6d88\u606f",
+	check(caption.text == "\u8054\u7cfb\u4eba" and desktop.contacts_button.unread and desktop.contacts_button.accessibility_name == "\u8054\u7cfb\u4eba\uff0c\u6709\u65b0\u6d88\u606f",
 		"Unread caption and accessible notice survive a locale change")
 	for friend_id: String in port.unread: port.unread[friend_id] = false
 	desktop._on_contacts_changed({})
-	check(caption.text == "\u8054\u7cfb\u4eba" and desktop.contacts_button.accessibility_name == "\u8054\u7cfb\u4eba",
+	check(caption.text == "\u8054\u7cfb\u4eba" and not desktop.contacts_button.unread and desktop.contacts_button.accessibility_name == "\u8054\u7cfb\u4eba",
 		"A committed all-read projection clears the visual and accessible notices")
 	locale.change("en")
-	check(caption.text == "Contacts" and desktop.contacts_button.accessibility_name == "Contacts",
+	check(caption.text == "Contacts" and not desktop.contacts_button.unread and desktop.contacts_button.accessibility_name == "Contacts",
 		"Cleared notice stays cleared after another locale change")
 	check(port.opens == before_opens and port.reply_count == before_replies,
 		"Notice and locale refresh never open a friend or submit a reply")
@@ -94,6 +94,7 @@ func press_key(key: Key, shifted: bool = false) -> void:
 func check_font(control: Control, caption: String, label: String) -> void:
 	var font: Font = control.get_theme_font("font")
 	for character in caption:
+		if character == "\n": continue
 		check(font.has_char(character.unicode_at(0)), label + " has configured glyph: " + character)
 
 func check_grid(desktop: Control) -> void:

@@ -8,9 +8,14 @@ including when a restored destination cannot currently be presented.
 The 800×720 workspace contains one 64px Home/title/clock strip and an 800×656
 content area. The seven 176px launcher targets keep the design's order, 24px
 inset and 16px gutters. The eighth position has no node or drawn placeholder.
-Arrows and Tab do not wrap. Focus and hover do not activate apps. A generic inert
-document silhouette occupies each missing icon's aperture; literal labels supply
-identity. Home's Current and Disabled facts are independent.
+Arrows and Tab do not wrap. Focus and hover do not activate apps. Each 48px icon
+aperture uses an original 24×24 pixel silhouette drawn in code when no optional
+authored icon is installed. The seven shapes use the desktop's existing palette;
+literal labels and accessible names retain app identity. Contacts draws its
+saved unread fact as a separate inert mark, so it cannot wrap onto its own text
+line. Enlarged English uses a measured Mine/sweeper break, and the caption band
+accommodates Japanese Readable text. Home's Current and Disabled facts remain
+independent.
 
 DesktopTheme maps the Standard After-Hours roles to the existing licensed fonts
 and 24/30/36 logical-pixel presets. English and both Chinese locales share fixed

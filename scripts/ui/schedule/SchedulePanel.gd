@@ -326,21 +326,24 @@ func _build() -> void:
 			y += empty_h+8
 			continue
 		var entry: Dictionary = _projection.entries[index]
-		var name_width := 160 if _projection.day_seven else (72 if _large else 88)
+		var entry_width := 176 if _projection.day_seven else 196
+		var grip_size := 64 if _large else 48
+		# Use the spare space before the folio without overlapping its command targets.
+		var name_width := 160 if _projection.day_seven else entry_width-32-grip_size
 		var label_h := _height(entry.name,name_width)
 		var height := 16 + maxf(64 if _large else 48,label_h)
 		_docket_rows.append({"key":"entry:"+entry.id,"y":y,"span":height+8})
-		var key := _key(_docket_body,Rect2(8,y,176,height),"day7" if _projection.day_seven else "entry")
+		var key := _key(_docket_body,Rect2(8,y,entry_width,height),"day7" if _projection.day_seven else "entry")
 		key.selected = entry.id == selected_id and not _projection.day_seven
 		key.accessibility_name = entry.name if _projection.day_seven else "%s, %d / 7" % [entry.name,index+1]
 		_label(key,entry.name,Rect2(8 if _projection.day_seven else 32,8,name_width,label_h))
 		if not _projection.day_seven:
 			_label(key,str(index+1),Rect2(0,0,24,height))
-			var gx := 136 if _large else 144
+			var gx := entry_width-grip_size+(grip_size-16)/2
 			var gy := 34 if _large else 26
 			_paper(key,Rect2(gx,gy,16,2),"paper_ink")
 			_paper(key,Rect2(gx,gy+8,16,2),"paper_ink")
-			key.drag_grip = Rect2(112 if _large else 128,8,64 if _large else 48,64 if _large else 48)
+			key.drag_grip = Rect2(entry_width-grip_size,8,grip_size,grip_size)
 			key.drag_started = func(): return _begin_docket_drag(entry.id)
 			key.drag_ended = _finish_docket_drag
 			filled_geometry.append(Vector2(y,height))

@@ -19,9 +19,11 @@ class ShellMinesweeperPort extends MINESWEEPER_FIXTURES.PublicPort:
 class NavigationProfile extends CONTACT_FIXTURES.FakeProfile:
 	var large_targets := false
 	var font_style := "pixel"
+	var high_contrast := false
 	func get_preference(path: StringName, default: Variant = null) -> Variant:
 		if path == &"preferences.accessibility.large_targets": return large_targets
 		if path == &"preferences.accessibility.font_style": return font_style
+		if path == &"preferences.accessibility.high_contrast": return high_contrast
 		return super.get_preference(path, default)
 	func change_large_targets(value: bool) -> void:
 		large_targets = value
@@ -29,6 +31,9 @@ class NavigationProfile extends CONTACT_FIXTURES.FakeProfile:
 	func change_font_style(value: String) -> void:
 		font_style = value
 		preference_changed.emit(&"preferences.accessibility.font_style", value)
+	func change_high_contrast(value: bool) -> void:
+		high_contrast = value
+		preference_changed.emit(&"preferences.accessibility.high_contrast", value)
 
 var viewport: SubViewport
 var main: Control
@@ -277,6 +282,82 @@ func test_launcher_enlarges_after_resize_without_remounting_or_losing_focus() ->
 	for button: Button in desktop.launcher_buttons.values():
 		assert_true(desktop.get_global_rect().encloses(button.get_global_rect()))
 		assert_lt(button.get_global_rect().end.y, desktop.home_button.get_global_rect().position.y)
+	var ids: Array[StringName] = [&"minesweeper", &"contacts", &"schedule", &"shop", &"backup", &"settings", &"logout"]
+	assert_eq(desktop.launcher_buttons.keys(), ids, "the same seven apps retain their launcher order")
+	var original_buttons: Array = desktop.find_children("*", "Button", true, false)
+	var originals: Dictionary = desktop.launcher_buttons.duplicate()
+	var presses: Array[StringName] = []
+	for id: StringName in ids:
+		desktop.launcher_buttons[id].pressed.connect(func(): presses.append(id))
+	var port: RefCounted = desktop._presentation_port
+	var original_unread: Dictionary = port.unread.duplicate()
+	var host: RefCounted = desktop._host_state
+	var contact_copy := {"en": "Contacts", "zh-CN": "联系人", "zh-HK": "聯絡人", "ja": "連絡先", "ko": "연락처"}
+	var unread_copy := {"en": ", new message", "zh-CN": "，有新消息", "zh-HK": "，有新訊息", "ja": "、新着メッセージ", "ko": ", 새 메시지"}
+	for font_style: String in ["pixel", "readable"]:
+		var reads: int = port.reads
+		profile.change_font_style(font_style)
+		assert_eq(port.reads, reads, "font selection preserves the displayed unread fact without querying Contacts")
+		for high_contrast: bool in [false, true]:
+			reads = port.reads
+			profile.change_high_contrast(high_contrast)
+			assert_eq(port.reads, reads, "contrast selection does not query Contacts")
+			for pane_width: int in [800, 960]:
+				main.get_node("RootHBox").set_angela_width(1280 - pane_width)
+				for language: String in ["en", "zh-CN", "zh-HK", "ja", "ko"]:
+					locale.change(language)
+					for scale_value: float in [1.0, 1.25, 1.5]:
+						profile.change_scale(scale_value)
+						await settle()
+						var context := "%s/%s/%s/HC=%s/%s" % [font_style, language, scale_value, high_contrast, pane_width]
+						var percent := int(scale_value * 100)
+						var expected_font: Font = TYPOGRAPHY.font(language, percent, font_style)
+						var expected_size := TYPOGRAPHY.font_size(language, percent, 24, font_style)
+						assert_same(viewport.gui_get_focus_owner(), first, context + " preserves launcher focus")
+						assert_eq(desktop.find_children("*", "Button", true, false), original_buttons,
+							context + " introduces no Buttons or remounted launchers")
+						for id: StringName in ids:
+							var button: Button = desktop.launcher_buttons[id]
+							var caption: Label = button.get_node("Caption")
+							var detail := context + "/" + str(id)
+							assert_same(button, originals[id], detail + " retains its action target")
+							assert_eq(button.icon_id, id, detail + " selects its own app icon")
+							assert_same(caption.get_theme_font("font"), expected_font, detail + " retains the selected font")
+							assert_eq(caption.get_theme_font_size("font_size"), expected_size, detail + " retains the requested text size")
+							assert_true(button.get_global_rect().encloses(caption.get_global_rect()), detail + " keeps the caption inside its target")
+							assert_true(desktop.get_global_rect().encloses(button.get_global_rect()), detail + " stays inside the pane")
+							assert_lt(button.get_global_rect().end.y, desktop.home_button.get_global_rect().position.y, detail + " clears the footer")
+							assert_eq(caption.get_visible_line_count(), caption.get_line_count(), detail + " displays every line")
+							for character: int in caption.text.length():
+								if caption.text[character] in [" ", "\n"]: continue
+								var bounds := caption.get_character_bounds(character)
+								assert_true(bounds.has_area(), detail + " measures visible glyph " + str(character))
+								assert_true(Rect2(Vector2.ZERO, caption.size).grow(0.01).encloses(bounds),
+									detail + " contains actual glyph " + str(character) + ": " + str(bounds))
+							for child: Control in button.find_children("*", "Control", true, false):
+								assert_false(child is BaseButton, detail + " presentation adds no action target")
+								assert_eq(child.focus_mode, Control.FOCUS_NONE, detail + " presentation adds no focus target")
+								assert_eq(child.mouse_filter, Control.MOUSE_FILTER_IGNORE, detail + " presentation cannot intercept pointer input")
+							if language == "en" and id == &"minesweeper":
+								var full_width := expected_font.get_string_size("Minesweeper", HORIZONTAL_ALIGNMENT_LEFT, -1, expected_size).x
+								assert_eq(caption.text, "Minesweeper" if full_width <= caption.size.x else "Mine\nsweeper",
+									detail + " keeps the full word when it fits and uses the deliberate break when it overflows")
+								assert_eq(caption.get_line_count(), 1 if full_width <= caption.size.x else 2, detail + " avoids a third or orphaned line")
+								assert_eq(button.accessibility_name, "Minesweeper", detail + " keeps the unbroken accessible app name")
+							elif id != &"contacts":
+								assert_eq(caption.text, button.accessibility_name, detail + " preserves literal app copy")
+							assert_eq(button.unread, id == &"contacts", detail + " unread badge belongs only to Contacts")
+						assert_eq(desktop.contacts_button.caption.text, contact_copy[language], context + " Contacts caption stays plain text")
+						assert_eq(desktop.contacts_button.accessibility_name, contact_copy[language] + unread_copy[language],
+							context + " preserves the localized accessible unread message")
+						assert_true(presses.is_empty(), context + " presentation dispatches no launcher action")
+						assert_true(desktop._cached_app_windows.is_empty(), context + " presentation mounts no app")
+						assert_eq(desktop._active_id, &"", context + " remains on the launcher")
+	assert_eq(port.unread, original_unread, "presentation changes never mark a message read")
+	assert_true(port.opens.is_empty(), "presentation changes never open a contact")
+	assert_eq(port.reply_count, 0, "presentation changes never submit a reply")
+	assert_null(host.active, "presentation changes never open an app through the host")
+	assert_eq(host.close_count, 0, "presentation changes never close an app")
 
 
 func test_real_desktop_content_enlarges_only_after_divider_release() -> void:

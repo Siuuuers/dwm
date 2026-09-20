@@ -240,6 +240,7 @@ func _build_shell() -> void:
 			icon_grid.add_child(button)
 		icon_grid.move_child(button, index)
 		launcher_buttons[id] = button
+		button.icon_id = id
 		button.set_icon_texture(ART_MANIFEST.get_texture("launcher.%s" % String(id), Vector2i(48, 48)))
 		button.pressed.connect(open_app.bind(id))
 	for index in ids.size():
@@ -1080,7 +1081,8 @@ func _refresh_contact_notice() -> void:
 	if not view.get("ok", false): return
 	var unread: bool = view.value.unread.values().has(true)
 	var caption: String = LABELS[_locale][1]
-	contacts_button.set_caption(caption + (" •" if unread else ""))
+	contacts_button.set_caption(caption)
+	contacts_button.set_unread(unread)
 	contacts_button.accessibility_name = caption + ({"en": ", new message",
 		"zh-CN": "，有新消息", "zh-HK": "，有新訊息", "ja": "、新着メッセージ", "ko": ", 새 메시지"}[_locale] if unread else "")
 
