@@ -11,6 +11,7 @@ const COPY := {
 }
 const CONDITION_IDS := ["nausea", "dizzy", "sequela", "faint"]
 const STAT_ROWS := {"pressure": "PressureRow", "health": "HealthRow", "motivation": "MotivationRow"}
+const SCROLL_NAMES := {"en": "Scroll status", "zh-CN": "滚动查看状态", "zh-HK": "捲動查看狀態"}
 
 var _owner: Object
 var _localization: Object
@@ -38,6 +39,7 @@ func _ready() -> void:
 		_localization = get_node_or_null("/root/LocalizationManager")
 		_profile = get_node_or_null("/root/ProfileManager")
 	_bind_sources()
+	%StatScroll.get_v_scroll_bar().focus_mode = Control.FOCUS_ALL
 	refresh_all()
 
 
@@ -134,16 +136,31 @@ func _refresh_presentation() -> void:
 	if next_theme == null: return
 	_presentation_key = presentation_key
 	theme = next_theme
+	%StatScroll.get_v_scroll_bar().accessibility_name = SCROLL_NAMES[_locale]
 	var font := FontVariation.new()
 	font.base_font = theme.default_font
 	font.opentype_features = {"tnum": 1}
 	theme.default_font = font
+	%DayLabel.add_theme_font_size_override("font_size", roundi(theme.default_font_size * 1.16))
+	var day_spacing := StyleBoxEmpty.new()
+	day_spacing.content_margin_bottom = 6
+	%DayLabel.add_theme_stylebox_override("normal", day_spacing)
 	var panel := StyleBoxFlat.new()
 	panel.bg_color = theme.get_color("habitat", "Desktop")
+	panel.bg_color.a = 1.0 if high_contrast else 0.74
+	panel.border_color = theme.get_color("structure" if high_contrast else "ink", "Desktop")
+	panel.border_color.a = 1.0 if high_contrast else 0.32
+	panel.set_border_width_all(1)
+	panel.border_width_top = 2
+	panel.set_corner_radius_all(12)
+	if not high_contrast:
+		panel.shadow_color = Color(0, 0, 0, 0.2)
+		panel.shadow_size = 10
+		panel.shadow_offset = Vector2(0, 4)
 	panel.content_margin_left = 16
 	panel.content_margin_right = 16
-	panel.content_margin_top = 12
-	panel.content_margin_bottom = 12
+	panel.content_margin_top = 14
+	panel.content_margin_bottom = 14
 	add_theme_stylebox_override("panel", panel)
 
 

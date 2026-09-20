@@ -27,11 +27,20 @@ The dating samples verify live and reviewed captions over production artwork
 in English and both Chinese locales, including enlarged text. The
 `delivery-dialogue-render` artifact contains its screenshots, report, and log.
 
+A third pass runs `tests/ui/render_angela_overlay.gd` with its own user data and
+requires 10 screenshots plus a successful report. It checks Angela's stat
+overlay at normal and narrow pane widths, enlarged text, long conditions,
+English and Chinese locales, high contrast, and scrolled content. Its captures
+and logs are uploaded as `angela-overlay-render`.
+
 `tools/testing/Invoke-CloudTests.ps1` lists the exact test scripts. It reuses the
 existing isolated runner, which gives each run disposable user data and rejects
 requested scripts that never execute. A missing or empty JUnit report also fails
 the job. The six groups continue independently so one failure does not conceal
 the other results. Each job has a 20-minute limit.
+
+The desktop group also covers Angela's stat overlay geometry, preserved stat
+values, the existing week tint behavior, and artwork placement in the shell.
 
 The `reading_delivery` group covers Minesweeper delivery notice lifecycle and
 input behavior, witnessed caption input and transport, and the dating caption

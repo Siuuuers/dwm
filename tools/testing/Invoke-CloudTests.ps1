@@ -49,6 +49,9 @@ $suites = @{
         'tests/integration/test_desktop_quick_commands.gd'
         'tests/integration/test_schedule_desktop_host.gd'
         'tests/scene/test_controls_input_contact_release.gd'
+        'tests/unit/test_angela_stat_overlay.gd'
+        'tests/unit/test_stat_hud_week_tint.gd'
+        'tests/integration/test_ui_art_placements.gd'
     )
     settings = @(
         'tests/unit/test_settings_panel_resize.gd'

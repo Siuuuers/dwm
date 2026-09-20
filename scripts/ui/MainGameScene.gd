@@ -5,6 +5,7 @@ class_name MainGameScene
 
 const COMPUTER_DESKTOP_SCENE := preload("res://scenes/desktop/ComputerDesktop.tscn")
 const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
+const PANEL_SPLIT := preload("res://scripts/ui/desktop/DesktopPanelSplit.gd")
 
 @onready var _computer_panel: PanelContainer = %ComputerPanel
 @onready var _angela_image: Control = %AngelaImage
@@ -14,11 +15,24 @@ var _computer_desktop_instance: Node = null
 func _ready() -> void:
 	_mount_angela_art()
 	_ensure_computer_desktop()
+	%AngelaPanel.resized.connect(_layout_angela_overlay)
+	%StatHud.get_node("%Rows").minimum_size_changed.connect(_layout_angela_overlay)
 	var localization := get_node_or_null("/root/LocalizationManager")
 	if localization != null:
 		localization.locale_changed.connect(_refresh_split_presentation)
 	_refresh_split_presentation()
 	%StatHud.theme_changed.connect(_refresh_split_presentation)
+	_layout_angela_overlay.call_deferred()
+
+func _layout_angela_overlay() -> void:
+	var hud: Control = %StatHud
+	var rows: Control = hud.get_node("%Rows")
+	var natural_height: float = rows.get_combined_minimum_size().y + hud.get_theme_stylebox("panel").get_minimum_size().y
+	# Keep the whole card and native scroll rail above the divider's hit target.
+	var handle_top: float = maxf(0.0, (%AngelaPanel.size.y - PANEL_SPLIT.HANDLE_SIZE.y) * 0.5)
+	hud.offset_left = 16.0
+	hud.offset_right = -16.0
+	hud.offset_bottom = hud.offset_top + minf(natural_height, maxf(0.0, handle_top - hud.offset_top - 12.0))
 
 func _refresh_split_presentation(_locale_id: String = "") -> void:
 	var localization := get_node_or_null("/root/LocalizationManager")
@@ -31,6 +45,7 @@ func _refresh_split_presentation(_locale_id: String = "") -> void:
 	if $RootHBox.theme != %StatHud.theme:
 		$RootHBox.theme = %StatHud.theme
 	$RootHBox.set_handle_accessibility(copy[0], copy[1])
+	_layout_angela_overlay.call_deferred()
 
 func _mount_angela_art() -> void:
 	for asset_id: String in ["shell.background", "shell.character.angela", "shell.keepsakes"]:
@@ -40,7 +55,7 @@ func _mount_angela_art() -> void:
 		layer.name = asset_id.get_slice(".", asset_id.get_slice_count(".") - 1).to_pascal_case() + "Artwork"
 		_angela_image.add_child(layer)
 		layer.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		layer.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		layer.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 		layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		layer.texture = texture
 		layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

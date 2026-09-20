@@ -759,6 +759,21 @@ anchors before any functional text is reduced, clipped, or overlapped.
 The Angela panel remains present while any desktop app is open. It never
 overlays the computer workspace.
 
+### 13.1A Glass HUD overlay refinement (2026-09-20)
+
+The current desktop composition extends the existing artwork across Angela's
+full panel and places the stats above it in an inset, translucent dark card.
+The artwork retains its aspect ratio and layer registration; changing stats
+or text size does not reserve or remove a separate strip of artwork. A subtle
+rim and highlight give the card a glass appearance, while a stronger Day
+heading and tabular figures keep the public facts easy to scan.
+
+The card ends above the divider's complete pointer/touch target. Enlarged
+text and longer condition or penalty copy scroll within this bounded area;
+facts are never shortened or silently hidden. High Contrast uses an opaque
+surface. All public-value, localization, accessibility and read-only rules
+in section 14 continue to apply.
+
 ### 13.2 Non-geographic alcove
 
 The tableau is an intentionally non-geographic old-campus work alcove. It may

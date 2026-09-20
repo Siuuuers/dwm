@@ -87,10 +87,14 @@ func test_resizing_keeps_current_app_and_focus_and_hud_inside_the_shell() -> voi
 			assert_eq(panel.size.x, 320.0)
 			assert_eq(desktop.size.x, 960.0)
 			assert_true(panel.get_global_rect().encloses(hud.get_global_rect()), "HUD fits %s at %s" % [language, scale_value])
+			var stat_scroll: ScrollContainer = hud.get_node("%StatScroll")
 			for row: Control in hud.get_node("%Rows").get_children():
-				if row.visible: assert_true(hud.get_global_rect().encloses(row.get_global_rect()), "visible fact fits")
+				if row.visible:
+					stat_scroll.ensure_control_visible(row)
+					await settle()
+					assert_true(stat_scroll.get_global_rect().grow(0.01).encloses(row.get_global_rect()), "every fact remains reachable in the overlay")
 			var art: Control = main.get_node("%AngelaImage")
-			assert_gt(art.size.y, 0.0, "text leaves some portrait height")
+			assert_eq(art.get_global_rect(), panel.get_global_rect(), "portrait continues behind the stat overlay")
 			for layer: Control in art.get_children():
 				assert_true(panel.get_global_rect().encloses(layer.get_global_rect()), "art remains inside Angela")
 	assert_same(desktop._cached_app_windows[&"contacts"], app, "resize never remounts the app")
