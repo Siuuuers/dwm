@@ -5,6 +5,7 @@ const SANDBOX := preload("res://scripts/application/run/DatingRehearsalOwner.gd"
 const SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
 const ADMISSION := preload("res://scripts/domain/narrative/DatingRehearsalAdmission.gd")
 const DATING := preload("res://scenes/dating/DatingScene.tscn")
+const TYPOGRAPHY := preload("res://scripts/ui/gallery/GalleryTypography.gd")
 const COPY := {
 	"ja": ["練習","練習の結果は仮のものです。現在のゲームには影響しません。","開始","戻る","練習できるデートの記録はまだありません。","練習を開始できませんでした。再試行してください。","練習が完了しました。","%d日目","バージョン %d","練習 / 仮の結果"],
 	"ko": ["연습","연습 결과는 가상 결과입니다. 현재 게임에는 영향을 주지 않습니다.","시작","돌아가기","아직 연습할 수 있는 데이트 기록이 없습니다.","연습을 시작하지 못했습니다. 다시 시도하세요.","연습 완료.","%d일째","버전 %d","연습 / 가상 결과"],
@@ -48,6 +49,8 @@ func configure(profile: Object, game: Object, bridge: Object, input_owner: Objec
 	var result: Dictionary = sandbox.configure(profile, game)
 	if not result.get("ok", false): return result
 	_profile = profile
+	if _profile.has_signal("preference_changed"):
+		_profile.connect("preference_changed", _on_font_style_changed)
 	_game = game
 	_bridge = bridge
 	_input = input_owner
@@ -226,3 +229,8 @@ func _return_to_selection(completed: bool) -> void:
 
 func _exit_tree() -> void:
 	if _sandbox != null: _sandbox.close()
+
+func _on_font_style_changed(path: StringName, _value: Variant) -> void:
+	if path != &"preferences.accessibility.font_style" or not is_instance_valid(_root): return
+	_root.theme.default_font = TYPOGRAPHY.font(_locale, _percent,
+		str(_profile.get_preference("preferences.accessibility.font_style", "pixel")))

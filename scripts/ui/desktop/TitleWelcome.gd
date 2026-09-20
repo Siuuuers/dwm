@@ -2,7 +2,6 @@ extends Control
 ## Title-only presentation. Busy copy describes the current operation, never a guessed percentage.
 
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
-const TITLE_FONT := preload("res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2")
 const BUSY_COPY := {
 	"en": {"preparing": "Preparing your account", "starting": "Starting your desktop", "retrying": "Resuming startup"},
 	"zh-CN": {"preparing": "正在准备账户", "starting": "正在启动桌面", "retrying": "正在恢复启动"},
@@ -22,10 +21,8 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	wordmark = _label("Wordmark", Vector2(104, 140), Vector2(752, 204))
 	wordmark.text = "DWM"
-	wordmark.add_theme_font_override("font", TITLE_FONT)
 	welcome = _label("Welcome", Vector2(112, 344), Vector2(744, 84))
 	welcome.text = "Welcome! :)"
-	welcome.add_theme_font_override("font", TITLE_FONT)
 	status = _label("StartupStatus", Vector2(112, 472), Vector2(744, 120))
 	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	set_presentation(_locale, 100)
@@ -39,14 +36,16 @@ func _label(node_name: String, at: Vector2, extent: Vector2) -> Label:
 	add_child(label)
 	return label
 
-func set_presentation(locale: String, percent: int) -> void:
+func set_presentation(locale: String, percent: int, font_style: String = "pixel") -> void:
 	_locale = locale if BUSY_COPY.has(locale) else "en"
 	if not is_instance_valid(wordmark): return
+	wordmark.add_theme_font_override("font", TYPOGRAPHY.font("en", 100, font_style))
 	wordmark.add_theme_font_size_override("font_size", 144)
 	welcome.text = {"ja": "ようこそ！ :)", "ko": "환영해요! :)"}.get(_locale, "Welcome! :)")
-	welcome.add_theme_font_override("font", TYPOGRAPHY.font(_locale, percent) if _locale in ["ja", "ko"] else TITLE_FONT)
-	welcome.add_theme_font_size_override("font_size", int(32 * percent / 100.0))
-	status.add_theme_font_size_override("font_size", int(24 * percent / 100.0))
+	welcome.add_theme_font_override("font", TYPOGRAPHY.font(_locale, percent, font_style))
+	welcome.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(_locale, percent, 32, font_style))
+	status.add_theme_font_override("font", TYPOGRAPHY.font(_locale, percent, font_style))
+	status.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(_locale, percent, 24, font_style))
 	wordmark.add_theme_color_override("font_color", get_theme_color("ink", "Desktop"))
 	welcome.add_theme_color_override("font_color", get_theme_color("ink", "Desktop"))
 	status.add_theme_color_override("font_color", get_theme_color("ink", "Desktop"))

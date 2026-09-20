@@ -71,26 +71,41 @@ func _ready() -> void:
 	var contacts: Dictionary = game.contacts if game != null and game.get("contacts") is Dictionary else {}
 	var schedule: Dictionary = game._canonical_committed_schedule() if game != null and game.has_method("_canonical_committed_schedule") else {}
 	var sylvia_present := art_participants(contacts, _presentation_command.get("context", {}), schedule) == ["sylvia"]
+	var profile := get_node_or_null("/root/ProfileManager")
+	var localization := get_node_or_null("/root/LocalizationManager")
+	if profile != null and profile.has_signal("preference_changed"):
+		profile.connect("preference_changed", _on_presentation_preference_changed)
+	if localization != null and localization.has_signal("locale_changed"):
+		localization.connect("locale_changed", _refresh_notice_presentation)
+	_refresh_notice_presentation()
+	_notice_panel.visible = not sylvia_present
+	if not sylvia_present:
+		_continue_button.pressed.connect(_acknowledge_notice)
+		_continue_button.grab_focus()
+
+
+func _refresh_notice_presentation(_locale_id: String = "") -> void:
 	var locale_manager: Node = get_node_or_null("/root/LocalizationManager")
 	var locale := str(locale_manager.get_locale()).replace("_", "-") if locale_manager != null else "en"
 	if locale not in ["en", "zh-CN", "zh-HK", "ja", "ko"]: locale = "en"
 	var profile: Node = get_node_or_null("/root/ProfileManager")
 	var percent := int(profile.get_preference("preferences.accessibility.text_size", 100)) if profile != null else 100
+	var font_style := str(profile.get_preference("preferences.accessibility.font_style", "pixel")) if profile != null else "pixel"
 	var scale := float(percent) / 100.0
 	_message_label.text = {"en": "You fainted.", "zh-CN": "你晕倒了。", "zh-HK": "你暈倒了。", "ja": "気を失いました。", "ko": "정신을 잃었습니다."}[locale]
 	_continue_button.text = {"en": "Continue", "zh-CN": "继续", "zh-HK": "繼續", "ja": "続ける", "ko": "계속"}[locale]
-	if locale in ["ja", "ko"]:
-		for control: Control in [_message_label, _continue_button]:
-			control.add_theme_font_override("font", TYPOGRAPHY.font(locale, percent))
-			control.language = locale
-	_message_label.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(locale, percent))
-	_continue_button.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(locale, percent, 20))
+	for control: Control in [_message_label, _continue_button]:
+		control.add_theme_font_override("font", TYPOGRAPHY.font(locale, percent, font_style))
+		control.language = locale
+	_message_label.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(locale, percent, 24, font_style))
+	_continue_button.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(locale, percent, 20, font_style))
 	_continue_button.custom_minimum_size.y = roundf(48.0 * scale)
 	_notice_panel.custom_minimum_size = Vector2(roundf(360.0 * scale), roundf(144.0 * scale))
-	_notice_panel.visible = not sylvia_present
-	if not sylvia_present:
-		_continue_button.pressed.connect(_acknowledge_notice)
-		_continue_button.grab_focus()
+
+
+func _on_presentation_preference_changed(path: StringName, _value: Variant) -> void:
+	if path in [&"preferences.accessibility.text_size", &"preferences.accessibility.font_style"]:
+		_refresh_notice_presentation()
 
 
 func _acknowledge_notice() -> void:

@@ -3,9 +3,7 @@ class_name ContactListApp
 
 ## Contact list + chat panel app window (prompt_docs/requirements/contacts_invitations.md).
 
-const ENGLISH_FONT := preload("res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2")
-const SIMPLIFIED_FONT := preload("res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf")
-const TRADITIONAL_FONT := preload("res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf")
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const CONTACTS_THEME := preload("res://scripts/ui/contacts/ContactsTheme.gd")
 
 signal presentation_failed(result: Dictionary)
@@ -132,8 +130,10 @@ func _apply_typography() -> void:
 		percent = int(_profile.get_preference("preferences.accessibility.text_size", 100))
 	var appearance := _read_appearance()
 	if appearance.is_empty(): return
-	if not contacts_panel.configure(ENGLISH_FONT, SIMPLIFIED_FONT, TRADITIONAL_FONT, percent,
-			_palette == &"midnight", _day, appearance.high_contrast, appearance.colour_preset): return
+	var font_style := str(_profile.get_preference("preferences.accessibility.font_style", "pixel")) if _profile != null else "pixel"
+	if not contacts_panel.configure(TYPOGRAPHY.font("en", percent, font_style),
+			TYPOGRAPHY.font("zh-CN", percent, font_style), TYPOGRAPHY.font("zh-HK", percent, font_style), percent,
+			_palette == &"midnight", _day, appearance.high_contrast, appearance.colour_preset, font_style): return
 	_apply_app_colours()
 	_title_label.text = {"en": "Contacts", "zh-CN": "联系人", "zh-HK": "聯絡人", "ja": "連絡先", "ko": "연락처"}[_primary]
 	_title_label.add_theme_font_override("font", contacts_panel._fonts[_primary])
@@ -391,7 +391,7 @@ func _on_presentation_locale_changed(_locale_id: String) -> void:
 
 
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
-	if path == &"preferences.accessibility.text_size":
+	if path in [&"preferences.accessibility.text_size", &"preferences.accessibility.font_style"]:
 		refresh_view()
 	elif is_node_ready() and path in [&"preferences.accessibility.high_contrast", &"preferences.accessibility.colour_differentiation"]:
 		var appearance := _read_appearance()

@@ -647,3 +647,25 @@ func test_supportz_confirmation_holds_old_colours_until_modal_finishes() -> void
 	current_modal.cancel_button.pressed.emit()
 	await _settle()
 	assert_true(_provider.purchase_calls.is_empty())
+
+func test_font_style_only_change_bypasses_colour_cache_and_preserves_purchase_selection() -> void:
+	var desktop := await _desktop_on_tree()
+	assert_true(_configure_shop(desktop).ok)
+	var app := _open_shop(desktop)
+	if app == null: return
+	await _settle()
+	app.cards.coffee.grab_focus()
+	app.quantity_buttons.maximum.pressed.emit()
+	app.cards.coffee.grab_focus()
+	var quantity: int = app.quantity
+	var page: int = app.page_index
+	var typography := preload("res://scripts/ui/UiTypography.gd")
+	for style: String in ["readable","pixel"]:
+		assert_true(_localization.set_font_style(style).ok)
+		await _settle()
+		assert_eq(app._font_style,style)
+		assert_same(app.theme.default_font.base_font,typography.font("en",100,style))
+		assert_eq(app.selected_id,"coffee")
+		assert_eq(app.quantity,quantity)
+		assert_eq(app.page_index,page)
+		assert_true(app.cards.coffee.has_focus())

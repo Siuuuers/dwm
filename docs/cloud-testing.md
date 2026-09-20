@@ -42,8 +42,15 @@ report. Before rendering, `tools/localization/validate_japanese_korean_catalogs.
 checks catalog IDs, placeholders, and Unicode NFC normalization. The previews
 exercise the selectable UI drafts and their pixel fonts; story text continues
 to use the English fallback. The `japanese-korean-ui-render` artifact contains
-the screenshots, report, and log. All four passes together require 89 nonempty
-PNG captures; headless geometry checks cannot replace them.
+the screenshots, report, and log.
+
+A fifth pass runs `tests/ui/render_font_choices.gd` and requires 30 previews
+using the real saved font preference and Settings picker. It checks Pixel and
+Readable in all five languages at enlarged text sizes, including the rightmost
+footer clock, Minesweeper controls, readable Gallery text, and witnessed captions.
+The `font-choices-render` artifact contains its screenshots, report, and log.
+All five passes together require 119 nonempty PNG captures; headless geometry
+checks cannot replace them.
 
 `tools/testing/Invoke-CloudTests.ps1` lists the exact test scripts. It reuses the
 existing isolated runner, which gives each run disposable user data and rejects
@@ -51,20 +58,36 @@ requested scripts that never execute. A missing or empty JUnit report also fails
 the job. The seven groups continue independently so one failure does not conceal
 the other results. Each job has a 20-minute limit.
 
-The `localization` group adds 15 scripts covering Japanese and Korean UI,
+The `localization` group includes 17 scripts covering Japanese and Korean UI,
 catalog extraction, font preparation, Gallery typography, correspondence,
 speech and transport, control bindings, Backup resizing, desktop recovery,
-and ending recovery. There are 81 requested scripts across the seven Windows
+and ending recovery. Font tests check explicit style selection, regional glyph
+coverage, shared resource isolation, and text measurement. Settings tests cover
+font migration, persistence, refused writes, and restoring a candidate font and
+size. There are 97 requested scripts across the seven Windows
 groups, plus the supplementary rendering job, for eight jobs in total.
 
 The desktop group also covers Angela's stat overlay geometry, preserved stat
 values, the existing week tint behavior, and artwork placement in the shell.
+
+Settings → Accessibility → Font style selects Pixel (the default) or Readable
+for all game text. The preference is saved independently of language and text
+size. Pixel uses the existing regional Fusion masters; Readable uses Source
+Sans 3 and regional Source Han Sans faces, including the bundled Japanese and
+Korean subsets. Their existing OFL notices and asset provenance are retained.
+The divider's enlarged vector grip keeps its original drag target and input
+behavior. The footer clock stays visible in the final rightmost slot, even when
+Minesweeper controls and large-target navigation share the bar. The largest
+English Pixel header uses a second statistics row when complete labels cannot
+fit on one row; it retains full text size and the original wording.
 
 The `reading_delivery` group covers Minesweeper delivery notice lifecycle and
 input behavior, witnessed caption input and transport, and the dating caption
 style. It includes targeted pause, auto, skip, and speech regressions to verify
 that reading controls retain their existing behavior, plus scene-art binding
 checks for the shared artwork layout.
+Font changes are also exercised in late-game cards and Gallery replay while
+preserving their current text, reading delay, and replay ownership.
 
 The `new_account` group also runs `tests/integration/verify_new_acc_latency.gd`
 in a separate isolated process. It exercises the real New Account button for a

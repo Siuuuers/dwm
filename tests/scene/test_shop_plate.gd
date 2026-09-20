@@ -6,7 +6,7 @@ const SHOP_THEME := preload("res://scripts/ui/shop/ShopTheme.gd")
 const WEEK_TINT := preload("res://scripts/ui/theme/WeekTint.gd")
 
 func _fixture(locale: String = "en", percent: int = 100, large: bool = false, palette: StringName = &"after_hours",
-		day: int = 1, high_contrast: bool = false, colour_preset: String = "standard") -> Dictionary:
+		day: int = 1, high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> Dictionary:
 	var root := Control.new()
 	root.size = Vector2(1280, 720)
 	add_child_autofree(root)
@@ -20,7 +20,7 @@ func _fixture(locale: String = "en", percent: int = 100, large: bool = false, pa
 	var rows := _valid_rows()
 	for row: Dictionary in rows: row.name = COPY.item_name(locale, row.id)
 	shop.configure_host(home)
-	var result: Dictionary = shop.configure_shop(rows, locale, percent, large, palette, day, high_contrast, colour_preset)
+	var result: Dictionary = shop.configure_shop(rows, locale, percent, large, palette, day, high_contrast, colour_preset, font_style)
 	assert_true(result.ok)
 	root.add_child(shop)
 	return {"root": root, "shop": shop, "rows": rows, "home": home}
@@ -146,37 +146,39 @@ func _key(code: int) -> void:
 		await _settle()
 
 func test_every_locale_and_size_keeps_full_catalog_inside_the_plate() -> void:
-	for locale in ["en", "zh_CN", "zh_HK"]:
-		for percent in [100, 125, 150]:
-			var f := _fixture(locale, percent)
-			await _settle()
-			var shop: Control = f.shop
-			assert_eq(shop.size, Vector2(800, 656))
-			assert_eq(shop.get_node("VBoxContainer/TopBar").visible, false)
-			assert_eq(shop.cards.size(), 17)
-			assert_eq(shop.page_capacity, 9)
-			assert_eq(shop.page_count, 2)
-			assert_true(shop.cards.coffee.has_focus())
-			var seen: Array[String] = []
-			for page in shop.page_count:
-				assert_eq(shop.page_index, page)
-				assert_eq(shop.previous_button.disabled, page == 0)
-				assert_eq(shop.next_button.disabled, page == shop.page_count - 1)
-				for item_id in shop.cards:
-					var card: Control = shop.cards[item_id]
-					if not card.visible: continue
-					seen.append(item_id)
-					assert_true(Rect2(0, 0, 448, 544).encloses(card.get_rect()), "%s %s%% %s" % [locale, percent, item_id])
-					assert_eq(card.name_label.text, COPY.item_name(locale, item_id))
-					assert_lte(card.availability_label.position.y + card.availability_label.size.y, card.size.y - 8)
-				if page < shop.page_count - 1:
-					shop.next_button.pressed.emit()
-					await _settle()
-			var expected: Array = ORDER.duplicate()
-			expected.erase("supportz")
-			assert_eq(seen, expected)
-			assert_false(shop.cards.has("supportz"), "Blank capacity has no Control/assistive/hidden target.")
-			f.root.hide()
+	for font_style: String in ["pixel","readable"]:
+		for locale in ["en", "zh_CN", "zh_HK", "ja", "ko"]:
+			for percent in [100, 125, 150]:
+				var f := _fixture(locale, percent, false, &"after_hours", 1, false, "standard", font_style)
+				await _settle()
+				var shop: Control = f.shop
+				assert_true(shop.last_result.ok,"%s %s %s%%" % [font_style,locale,percent])
+				assert_eq(shop.size, Vector2(800, 656))
+				assert_eq(shop.get_node("VBoxContainer/TopBar").visible, false)
+				assert_eq(shop.cards.size(), 17)
+				assert_eq(shop.page_capacity, 9)
+				assert_eq(shop.page_count, 2)
+				assert_true(shop.cards.coffee.has_focus())
+				var seen: Array[String] = []
+				for page in shop.page_count:
+					assert_eq(shop.page_index, page)
+					assert_eq(shop.previous_button.disabled, page == 0)
+					assert_eq(shop.next_button.disabled, page == shop.page_count - 1)
+					for item_id in shop.cards:
+						var card: Control = shop.cards[item_id]
+						if not card.visible: continue
+						seen.append(item_id)
+						assert_true(Rect2(0, 0, 448, 544).encloses(card.get_rect()), "%s %s%% %s" % [locale, percent, item_id])
+						assert_eq(card.name_label.text, COPY.item_name(locale, item_id))
+						assert_lte(card.availability_label.position.y + card.availability_label.size.y, card.size.y - 8)
+					if page < shop.page_count - 1:
+						shop.next_button.pressed.emit()
+						await _settle()
+				var expected: Array = ORDER.duplicate()
+				expected.erase("supportz")
+				assert_eq(seen, expected)
+				assert_false(shop.cards.has("supportz"), "Blank capacity has no Control/assistive/hidden target.")
+				f.root.hide()
 
 func test_selection_quantity_and_page_memory_are_presentation_only() -> void:
 	var f := _fixture()

@@ -79,7 +79,7 @@ func test_all_font_scales_preserve_bay_order_and_do_not_shrink_copy() -> void:
 					assert_gt(button.size.x,96.0)
 					assert_gte(button.size.y,64.0 if large else 48.0)
 					assert_eq(button._paragraph.get_line_count(),1,context+" "+button.public_copy)
-					assert_lte(button.position.x+button.size.x,register.metrics.rounds.position.x,context+" difficulty cannot collide with status fields")
+					assert_false(Rect2(button.position,button.size).intersects(Rect2(register.metrics.rounds.position,register.metrics.rounds.size)),context+" difficulty cannot collide with status fields")
 					if previous != null: assert_lte(previous.position.x+previous.size.x,button.position.x,context)
 					previous = button
 				for metric: Control in register.metrics.values():
@@ -87,9 +87,12 @@ func test_all_font_scales_preserve_bay_order_and_do_not_shrink_copy() -> void:
 					assert_eq(metric.theme.default_font_size,authored_theme.default_font_size,context)
 					assert_eq(metric.label_shape.paragraph.get_line_count(),1,context+" "+metric.label_copy)
 					assert_true(Rect2(Vector2.ZERO,register.size).encloses(Rect2(metric.position,metric.size)),context)
-					assert_eq(metric.size.y,register.size.y)
+					assert_eq(metric.position.y+metric.size.y,register.size.y)
 					assert_lte(metric.label_shape.height+metric.value_shape.height+16,register.size.y)
-				assert_eq(register.metrics.rounds.position.x,status_start,context+" status region stays fixed")
+				if register.metrics.rounds.position.y == 0:
+					assert_lte(register.metrics.rounds.position.x,status_start,context+" single-row status can borrow spare difficulty width")
+				else:
+					assert_eq(register.metrics.rounds.position.x,0.0,context+" full-width second row")
 				assert_lte(register.metrics.rounds.position.x+register.metrics.rounds.size.x,register.metrics.mine_estimate.position.x,context+" status fields do not overlap")
 				assert_eq(register.metrics.mine_estimate.position.x+register.metrics.mine_estimate.size.x,register.size.x,context)
 				assert_eq(fmod(register.size.y,2.0),0.0)

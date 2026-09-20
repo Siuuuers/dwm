@@ -128,7 +128,7 @@ func test_live_preferences_and_day_change_keep_prepared_confirmation() -> void:
 	assert_true(initial_focus.has_focus())
 	assert_eq(app.theme.get_color("paper", "Backup"),
 		PALETTES.resolve(&"after_hours", true, "protan")["paper"])
-	assert_eq(app.drawer_buttons["slot:2"].identity_label.get_theme_font_size("font_size"), 25)
+	assert_eq(app.drawer_buttons["slot:2"].identity_label.get_theme_font_size("font_size"), 30)
 	app.action_buttons["save"].grab_focus()
 	profile.change(&"preferences.accessibility.colour_differentiation", "deutan")
 	profile.change(&"preferences.accessibility.colour_differentiation", "protan")
@@ -184,3 +184,23 @@ func _contrast(a: Color, b: Color) -> float:
 	var light := maxf(a.srgb_to_linear().get_luminance(), b.srgb_to_linear().get_luminance())
 	var dark := minf(a.srgb_to_linear().get_luminance(), b.srgb_to_linear().get_luminance())
 	return (light + 0.05) / (dark + 0.05)
+
+func test_font_style_change_keeps_backup_selection_and_owner_idle() -> void:
+	var app: BackupApp = load("res://scenes/apps/BackupApp.tscn").instantiate()
+	add_child_autofree(app)
+	var port := FakePort.new()
+	var profile := FakeProfile.new()
+	assert_true(app.configure_backup(port,null,profile).ok)
+	app._select_drawer("slot:2")
+	app.drawer_buttons["slot:2"].grab_focus()
+	var projections := port.projections
+	var typography := preload("res://scripts/ui/UiTypography.gd")
+	for style: String in ["readable","pixel"]:
+		profile.change(&"preferences.accessibility.font_style",style)
+		assert_same(app.theme.default_font,typography.font("en",100,style))
+		assert_eq(app.selected_locator,"slot:2")
+		assert_true(app.drawer_buttons["slot:2"].has_focus())
+		assert_eq(port.projections,projections)
+		assert_eq(port.preparations,0)
+		assert_eq(port.commits,0)
+		await get_tree().process_frame

@@ -3,6 +3,7 @@ extends GutTest
 ## The confirmed-load row composes all eight production restore participants over real owners;
 ## only storage, native audio/window-independent playback, and the live capture adapter are bounded.
 
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const DESKTOP := preload("res://scenes/desktop/ComputerDesktop.tscn")
 const HOST := preload("res://scripts/domain/desktop/DesktopAppHostState.gd")
 const MANAGER := preload("res://autoload/SaveManager.gd")
@@ -276,6 +277,20 @@ func test_f5_commits_current_quick_through_real_owner_without_displacing_backup_
 	var inspected: Dictionary = _manager.inspect_backup("quick")
 	assert_true(inspected.ok)
 	assert_eq(inspected.value.state, "occupied")
+	var edge: Label = _desktop._quick_commands.edge
+	edge.set_process(false)
+	watch_signals(edge)
+	var binding: Dictionary = edge.current_binding
+	var remaining: float = edge.remaining_seconds
+	for font_style: String in ["readable", "pixel"]:
+		var changed: Dictionary = _profile.prepare_font_style_preference(font_style)
+		assert_true(changed.ok,JSON.stringify(changed))
+		assert_true(_profile.commit_prepared_profile(changed.value).ok)
+		await get_tree().process_frame
+		assert_same(edge.theme.default_font,TYPOGRAPHY.font("en",100,font_style))
+		assert_eq(edge.current_binding,binding,"font preference does not replace the published saved fact")
+		assert_eq(edge.remaining_seconds,remaining,"font preference does not restart status lifetime")
+	assert_signal_not_emitted(edge,"status_announced")
 
 
 func test_f9_uses_shared_confirmation_and_escape_consumes_the_real_token() -> void:
@@ -284,8 +299,12 @@ func test_f9_uses_shared_confirmation_and_escape_consumes_the_real_token() -> vo
 	var backup: Control = _desktop._cached_app_windows[&"backup"]
 	backup.action_buttons["save"].grab_focus()
 	var before := _backup_presentation()
+	var changed: Dictionary = _profile.prepare_font_style_preference("readable")
+	assert_true(changed.ok,JSON.stringify(changed))
+	assert_true(_profile.commit_prepared_profile(changed.value).ok)
 	_tap(KEY_F9)
 	assert_not_null(_desktop._confirmation)
+	assert_same(_desktop._confirmation.theme.default_font,TYPOGRAPHY.font("en",100,"readable"))
 	assert_eq(_desktop._quick_commands.edge.key, &"")
 	var token: String = _desktop._quick_commands._pending_token
 	assert_false(token.is_empty())

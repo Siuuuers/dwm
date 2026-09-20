@@ -844,7 +844,8 @@ func _prepare_new_run_plans(snapshot: Dictionary, profile_candidate: Dictionary)
 		"desktop_consequence": {"state": snapshot["desktop"]["consequence"]},
 		"desktop_board": {"state": snapshot["desktop"]["board"]},
 		"schedule_view": _schedule_view_input(snapshot),
-		"localization": {"locale_id": str(profile["value"]["locale_id"])},
+		"localization": {"locale_id": str(profile["value"]["locale_id"]),
+			"font_style": profile["value"].get("font_style", "pixel"), "text_size": profile["value"].get("text_size", 100)},
 		"audio": {"preferences": profile_candidate["preferences"], "audio_context": snapshot["audio_context"]},
 		"route": {"route_id": "main", "route_context": {}, "active_app_id": null, "day": 1}}
 	var plan_keys := {"run": "run_plan", "desktop_consequence": "consequence_plan",
@@ -1865,7 +1866,8 @@ func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output:
 	var locale_id := str(profile_prep["value"]["locale_id"])
 	var preferences: Dictionary = (plans["profile"].get("profile", {}) as Dictionary).get("preferences", {})
 
-	var loc_prep: Dictionary = _restore_participants["localization"].prepare({"locale_id": locale_id})
+	var loc_prep: Dictionary = _restore_participants["localization"].prepare({"locale_id": locale_id,
+		"font_style": profile_prep["value"].get("font_style", "pixel"), "text_size": profile_prep["value"].get("text_size", 100)})
 	if not loc_prep.get("ok", false):
 		return _content_incompatible_or_fail("localization", sequence, loc_prep)
 	plans["localization"] = loc_prep["value"]["localization_plan"]

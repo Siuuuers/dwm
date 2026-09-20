@@ -229,7 +229,8 @@ func close_for_title_host() -> bool:
 	return true
 
 func _ready() -> void:
-	if _localization == null: _localization = get_node_or_null("/root/LocalizationManager")
+	if _localization == null and _host_return == null:
+		_localization = get_node_or_null("/root/LocalizationManager")
 	if _localization != null and _localization.has_signal(&"locale_changed"):
 		_localization.locale_changed.connect(_on_locale_changed)
 	if _host_return == null:
@@ -564,7 +565,7 @@ func _on_locale_changed(_locale: String) -> void:
 
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
 	if not is_visible_in_tree(): return
-	if path in [&"preferences.accessibility.text_size", &"preferences.dark_mode.available", &"preferences.dark_mode.next_run_enabled"]:
+	if path in [&"preferences.accessibility.font_style", &"preferences.accessibility.text_size", &"preferences.dark_mode.available", &"preferences.dark_mode.next_run_enabled"]:
 		_refresh_presentation()
 		_relayout_rows()
 		_set_replay_status(_status_key)
@@ -575,7 +576,7 @@ func _preference(path: StringName, fallback: Variant) -> Variant:
 func _refresh_presentation() -> void:
 	var locale := str(_localization.get_locale()) if _localization != null else "en"
 	var midnight: bool = _preference(&"preferences.dark_mode.available", false) and _preference(&"preferences.dark_mode.next_run_enabled", false)
-	theme = PRESENTATION.build(locale, int(_preference(&"preferences.accessibility.text_size", 100)), &"midnight" if midnight else &"after_hours")
+	theme = PRESENTATION.build(locale, int(_preference(&"preferences.accessibility.text_size", 100)), &"midnight" if midnight else &"after_hours", str(_preference(&"preferences.accessibility.font_style", "pixel")))
 	var text_controls: Array[Control] = [_replay_status, _replay_button]
 	if is_instance_valid(_version_selector):
 		text_controls.append(_version_selector)

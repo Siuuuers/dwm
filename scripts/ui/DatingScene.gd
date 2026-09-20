@@ -108,6 +108,7 @@ var _large_cells: bool = false
 var _palette: StringName = &"after_hours"
 var _high_contrast: bool = false
 var _colour_preset: String = "standard"
+var _font_style := "pixel"
 var _dispatching: bool = false
 var _terminal_choice_key := ""
 var _terminal_contacts: Dictionary = {}
@@ -161,7 +162,12 @@ func configure_presentation_services(input_owner: Object, locale: String = "en",
 	if _input_owner != null and _input_owner != input_owner:
 		return _fail(&"presentation_services_already_configured", "input owner replacement refused")
 	_input_owner = input_owner
+	if is_instance_valid(_view_profile) and _view_profile.has_signal("preference_changed") and _view_profile.is_connected("preference_changed", _on_font_style_changed):
+		_view_profile.disconnect("preference_changed", _on_font_style_changed)
 	_view_profile = view_profile
+	_font_style = str(_view_profile.get_preference("preferences.accessibility.font_style", "pixel")) if _view_profile != null else "pixel"
+	if _view_profile != null and _view_profile.has_signal("preference_changed"):
+		_view_profile.connect("preference_changed", _on_font_style_changed)
 	_locale = locale.replace("_", "-")
 	_percent = percent
 	_large_cells = large_cells
@@ -172,12 +178,18 @@ func configure_presentation_services(input_owner: Object, locale: String = "en",
 		if not worksheet.bind_view_preferences(_view_profile, "challenge"):
 			return _fail(&"invalid_challenge_presentation", "view preferences unavailable")
 		if not worksheet.configure(str(_physical_view.host), _locale, _percent, _large_cells,
-				_palette, Vector2i.ZERO, _high_contrast, _colour_preset):
+				_palette, Vector2i.ZERO, _high_contrast, _colour_preset, _font_style):
 			return _fail(&"invalid_challenge_presentation", "unsupported presentation settings")
 		if input_owner != null and not worksheet.grid.configure_input(input_owner):
 			return _fail(&"invalid_challenge_input", "input contract incomplete")
+		worksheet.get_parent().theme = worksheet.theme
 		_refresh_challenge()
 	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
+
+func _on_font_style_changed(path: StringName, _value: Variant) -> void:
+	if path != &"preferences.accessibility.font_style": return
+	configure_presentation_services(_input_owner, _locale, _percent, _large_cells,
+		_palette, _high_contrast, _colour_preset, _view_profile)
 
 func _build_challenge() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -207,7 +219,7 @@ func _build_challenge() -> void:
 	worksheet.name = "DatingWorksheet"
 	worksheet.bind_view_preferences(_view_profile, "challenge")
 	worksheet.configure(str(_physical_view.host), _locale, _percent, _large_cells,
-		_palette, Vector2i.ZERO, _high_contrast, _colour_preset)
+		_palette, Vector2i.ZERO, _high_contrast, _colour_preset, _font_style)
 	if _input_owner != null: worksheet.grid.configure_input(_input_owner)
 	panel.theme = worksheet.theme
 	panel.add_child(worksheet)

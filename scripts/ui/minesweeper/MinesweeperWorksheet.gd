@@ -46,6 +46,7 @@ var _percent := 100
 var _palette: StringName = &"after_hours"
 var _high_contrast := false
 var _colour_preset := "standard"
+var _font_style := "pixel"
 var _source_focus: WeakRef
 var _grid_process_mode: ProcessMode
 var _grid_focus_behavior: Control.FocusBehaviorRecursive
@@ -127,23 +128,24 @@ func _ready() -> void:
 
 func configure(host: String = "desktop_app", locale: String = "en", percent: int = 100,
 		large: bool = false, palette: StringName = &"after_hours", native_band: Vector2i = Vector2i.ZERO,
-		high_contrast: bool = false, colour_preset: String = "standard") -> bool:
+		high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> bool:
 	if host not in ["desktop_app", "canonical_solo", "canonical_pair"]: return false
-	var candidate_theme := MS_THEME.build(locale, percent, palette, high_contrast, colour_preset)
+	var candidate_theme := MS_THEME.build(locale, percent, palette, high_contrast, colour_preset, font_style)
 	var candidate_band := native_band
 	if candidate_band == Vector2i.ZERO: candidate_band = Vector2i(400 if host == "desktop_app" else 480, 232 if large else 246)
 	if candidate_theme == null or not LAYOUT.measure(1, 1, candidate_band, large).ok: return false
 	var sheet_band := candidate_band + Vector2i(0, (0 if view_controls_external else view_controls_height(locale, candidate_theme, large)) / 2)
-	if information_sheet != null and not information_sheet.configure(host,locale,percent,large,palette,sheet_band,high_contrast,colour_preset): return false
+	if information_sheet != null and not information_sheet.configure(host,locale,percent,large,palette,sheet_band,high_contrast,colour_preset,font_style): return false
 	var geometry_changed: bool = candidate_band != _band or large != _large
 	if geometry_changed: grid.cancel_pointer_gesture()
-	if not grid.configure(locale, percent, large, palette, high_contrast, colour_preset): return false
+	if not grid.configure(locale, percent, large, palette, high_contrast, colour_preset, font_style): return false
 	_locale = locale.replace("_", "-")
 	_host = host
 	_percent = percent
 	_palette = palette
 	_high_contrast = high_contrast
 	_colour_preset = colour_preset
+	_font_style = font_style
 	_large = large
 	_band = candidate_band
 	theme = candidate_theme
@@ -191,7 +193,7 @@ func _open_information(kind: String, claimed: Array, source: Control) -> bool:
 	var sheet: Control = SHEET.new()
 	sheet.hide()
 	add_child(sheet)
-	var accepted: bool = sheet.configure(_host,_locale,_percent,_large,_palette,_band + Vector2i(0, _view_height / 2),_high_contrast,_colour_preset)
+	var accepted: bool = sheet.configure(_host,_locale,_percent,_large,_palette,_band + Vector2i(0, _view_height / 2),_high_contrast,_colour_preset,_font_style)
 	if accepted: accepted = sheet.present_rules() if kind == "rules" else sheet.present_assignments(claimed)
 	if not accepted:
 		remove_child(sheet)
@@ -349,7 +351,7 @@ func _draw() -> void:
 static func view_controls_height(locale: String, next_theme: Theme, large: bool) -> int:
 	var measured: Dictionary = VIEW_BUTTON.ROW.measure_copy(FIT_COPY[locale.replace("_", "-")], next_theme, FIT_WIDTH - 20)
 	# The 36px pixel face has a 50px line box; retain it inside the 64px footer.
-	var vertical_padding := 14 if locale.replace("_", "-") in ["ja", "ko"] and next_theme.default_font_size == 36 else 16
+	var vertical_padding := 14 if next_theme.default_font_size == 36 else 16
 	return 2 * ceili(maxf(64 if large else 48, float(measured.height) + vertical_padding) / 2.0)
 
 func set_footer_host(host: Control) -> void:

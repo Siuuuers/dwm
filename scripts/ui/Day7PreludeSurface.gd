@@ -24,6 +24,7 @@ class AccessibleNextButton extends Button:
 	func _on_accessibility_click(_data: Variant, generation: int) -> void:
 		accessibility_requested.emit(generation)
 
+const TYPOGRAPHY := preload("res://scripts/ui/gallery/GalleryTypography.gd")
 const SCENE_ART := preload("res://scripts/ui/art/SceneArtView.gd")
 const AUTO_DELAYS := {"short": 1.0, "normal": 2.0, "long": 4.0}
 const AUTO_COPY := {"ja": ["オート：オフ", "オート：オン"], "ko": ["자동: 꺼짐", "자동: 켜짐"], "en": ["Auto Off", "Auto On"],
@@ -72,6 +73,7 @@ var _covered := false
 var _pause_anchor: Dictionary = {}
 var _capture_id := 0
 var _acknowledgment_pending := false
+var _typography_profile: Object
 var _reading_profile: Object
 var _auto_state: Label
 var _auto_enabled := false
@@ -93,6 +95,7 @@ func configure(card: Dictionary, acknowledge: Callable, locale: String = "en", p
 	_acknowledge = acknowledge
 	_locale = locale.replace("_", "-")
 	_presentation_theme = presentation_theme
+	_refresh_typography_preferences()
 	return {"ok": true}
 
 func configure_waiting(retry: Callable, acknowledge: Callable, locale: String = "en", presentation_theme: Theme = null) -> Dictionary:
@@ -103,6 +106,7 @@ func configure_waiting(retry: Callable, acknowledge: Callable, locale: String = 
 	_acknowledge = acknowledge
 	_locale = locale.replace("_", "-")
 	_presentation_theme = presentation_theme
+	_refresh_typography_preferences()
 	return {"ok": true}
 
 ## Day 7 witnesses on presentation, then keeps the card until navigation. Gallery
@@ -152,6 +156,46 @@ func present_card(card: Dictionary, allow_auto_advance: bool = false) -> Diction
 func get_presentation_history() -> Array[Dictionary]:
 	return _history.duplicate(true)
 
+## Font selection follows this surface's profile without changing its card or Auto clock.
+func bind_typography_preferences(profile: Object) -> bool:
+	if is_inside_tree() or not is_instance_valid(profile) or not profile.has_method("get_preference"):
+		return false
+	if not profile.has_signal("preference_changed") or not profile.has_signal("profile_restored"):
+		return false
+	if _typography_profile != null: return _typography_profile == profile
+	_typography_profile = profile
+	profile.connect("preference_changed", _on_typography_preference_changed)
+	profile.connect("profile_restored", _on_typography_profile_restored)
+	_refresh_typography_preferences()
+	return true
+
+func _on_typography_preference_changed(path: StringName, _value: Variant) -> void:
+	if path in [&"preferences.accessibility.font_style", &"preferences.accessibility.text_size"]:
+		_refresh_typography_preferences()
+
+func _on_typography_profile_restored(_profile: Dictionary) -> void:
+	_refresh_typography_preferences()
+
+func _refresh_typography_preferences() -> void:
+	if not _configured or not is_instance_valid(_typography_profile): return
+	var percent: Variant = _typography_profile.get_preference(&"preferences.accessibility.text_size", null)
+	if percent == null:
+		percent = int(float(_typography_profile.get_preference(&"preferences.accessibility.font_scale", 1.0)) * 100)
+	var style := str(_typography_profile.get_preference(&"preferences.accessibility.font_style", "pixel"))
+	var face: Font = TYPOGRAPHY.font(_locale, int(percent), style)
+	var size: int = TYPOGRAPHY.font_size(int(percent))
+	if face == null or size == 0: return
+	if _presentation_theme != null and _presentation_theme.default_font == face \
+			and _presentation_theme.default_font_size == size: return
+	# Share immutable font assets; detach only the theme's typography properties.
+	var updated: Theme = _presentation_theme.duplicate() if _presentation_theme != null else Theme.new()
+	updated.default_font = face
+	updated.default_font_size = size
+	_presentation_theme = updated
+	if is_instance_valid(_root):
+		_retire_input()
+		_root.theme = updated
+
 ## Auto is the installed profile preference, not a run-save field or an inferred receipt.
 func bind_reading_preferences(profile: Object) -> bool:
 	if is_inside_tree() or not is_instance_valid(profile) or not profile.has_method("get_preference"):
@@ -159,6 +203,7 @@ func bind_reading_preferences(profile: Object) -> bool:
 	if not profile.has_signal("preference_changed") or not profile.has_signal("profile_restored"):
 		return false
 	if _reading_profile != null: return _reading_profile == profile
+	if not bind_typography_preferences(profile): return false
 	_reading_profile = profile
 	profile.connect("preference_changed", _on_reading_preference_changed)
 	profile.connect("profile_restored", _on_reading_profile_restored)

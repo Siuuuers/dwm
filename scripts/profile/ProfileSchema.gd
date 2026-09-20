@@ -253,6 +253,7 @@ static func _validate_modern_document(source: Dictionary, version: int, root_key
 	var admitted_view_defaults := _admit_legacy_minesweeper_view_defaults(profile)
 	var admitted_steady_default := _admit_legacy_steady_interface_default(profile)
 	var admitted_window_default := _admit_legacy_window_size_default(profile)
+	var admitted_font_default := _admit_legacy_font_style_default(profile)
 	var preferences := _validate_preferences(profile["preferences"])
 	if not preferences.get("ok", false): return preferences
 	var mappings := _validate_input_mappings(profile["input_mappings"], version == 2)
@@ -296,7 +297,7 @@ static func _validate_modern_document(source: Dictionary, version: int, root_key
 			var draw := PAIR_DECK.validate(profile["pair_deck_draws"][run_id])
 			if not draw.ok: return draw
 	var result := {"ok": true, "code": &"ok", "value": profile}
-	if admitted_view_defaults or admitted_steady_default or admitted_window_default:
+	if admitted_view_defaults or admitted_steady_default or admitted_window_default or admitted_font_default:
 		result["migrated"] = true
 	return result
 
@@ -333,6 +334,15 @@ static func _admit_legacy_steady_interface_default(profile: Dictionary) -> bool:
 	if typeof(accessibility) != TYPE_DICTIONARY or accessibility.has("steady_interface"):
 		return false
 	accessibility["steady_interface"] = false
+	return true
+
+
+static func _admit_legacy_font_style_default(profile: Dictionary) -> bool:
+	var preferences: Variant = profile.get("preferences")
+	if typeof(preferences) != TYPE_DICTIONARY: return false
+	var accessibility: Variant = preferences.get("accessibility")
+	if typeof(accessibility) != TYPE_DICTIONARY or accessibility.has("font_style"): return false
+	accessibility["font_style"] = PREFERENCE_REGISTRY.default_value(&"preferences.accessibility.font_style")
 	return true
 
 

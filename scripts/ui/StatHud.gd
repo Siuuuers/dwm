@@ -137,10 +137,11 @@ func _refresh_presentation() -> void:
 			palette = &"midnight" if configuration.value.dark_mode else &"after_hours"
 	var day: Variant = _owner.get("day") if is_instance_valid(_owner) else null
 	var tint: float = WEEK_TINT.tint_for_day(int(day)) if typeof(day) == TYPE_INT else 0.0
-	var presentation_key := "%s:%d:%s:%s:%s:%.2f" % [_locale, percent, palette, high_contrast, colour_preset, tint]
+	var font_style := str(_profile.get_preference("preferences.accessibility.font_style", "pixel")) if is_instance_valid(_profile) and _profile.has_method("get_preference") else "pixel"
+	var presentation_key := "%s:%d:%s:%s:%s:%.2f:%s" % [_locale, percent, palette, high_contrast, colour_preset, tint, font_style]
 	if presentation_key == _presentation_key:
 		return
-	var next_theme: Theme = DESKTOP_THEME.build(_locale, percent, palette, tint, high_contrast, colour_preset)
+	var next_theme: Theme = DESKTOP_THEME.build(_locale, percent, palette, tint, high_contrast, colour_preset, font_style)
 	if next_theme == null: return
 	_presentation_key = presentation_key
 	theme = next_theme
@@ -149,7 +150,7 @@ func _refresh_presentation() -> void:
 	font.base_font = theme.default_font
 	font.opentype_features = {"tnum": 1}
 	theme.default_font = font
-	%DayLabel.add_theme_font_size_override("font_size", roundi(theme.default_font_size * (4.0 / 3.0 if _locale in ["ja", "ko"] else 1.16)))
+	%DayLabel.add_theme_font_size_override("font_size", roundi(theme.default_font_size * (4.0 / 3.0 if font_style == "pixel" else 1.16)))
 	var day_spacing := StyleBoxEmpty.new()
 	day_spacing.content_margin_bottom = 6
 	%DayLabel.add_theme_stylebox_override("normal", day_spacing)

@@ -227,10 +227,10 @@ func _process(delta: float) -> void:
 	var rect: Rect2 = _desktop.quick_status_safe_rect()
 	edge.position = rect.position
 	edge.size = rect.size
-	var presentation := {"locale": _desktop._locale, "percent": int(_desktop.theme.default_font_size * 100 / 24)}
+	var presentation := {"locale": _desktop._locale, "percent": _desktop._percent, "font_style": _desktop._font_style}
 	if _presentation != presentation:
 		_presentation = presentation
-		edge.set_presentation(presentation.locale, presentation.percent)
+		edge.set_presentation(presentation.locale, presentation.percent, presentation.font_style)
 	edge.set_eligible(admitted and rect.has_area())
 
 func _load_copy(record: Dictionary) -> Dictionary:
@@ -243,4 +243,4 @@ func _load_copy(record: Dictionary) -> Dictionary:
 	body += "\n\n" + copy.replace_progress
 	return {"title": copy.fallback_title if fallback else copy.load_title.replace("{record}", copy.quick),
 		"body": body, "cancel": copy.cancel, "confirm": copy.load, "risk": "danger",
-		"theme": BACKUP_THEME.build(_desktop._locale, int(_desktop.theme.default_font_size * 100 / 24))}
+		"theme": BACKUP_THEME.build(_desktop._locale, _desktop._percent, &"after_hours", 1, false, "standard", _desktop._font_style)}

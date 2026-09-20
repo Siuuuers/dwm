@@ -2251,7 +2251,8 @@ func _present_pending_day7_prelude(game_state: Object, router: Object) -> bool:
 	var profile: Object = _target(&"ProfileManager")
 	var percent: Variant = profile.get_preference("preferences.accessibility.text_size", null)
 	if percent == null: percent = int(float(profile.get_preference("preferences.accessibility.font_scale", 1.0)) * 100)
-	var presentation_theme: Theme = preload("res://scripts/ui/gallery/GalleryTheme.gd").build(locale, int(percent), &"after_hours")
+	var font_style := str(profile.get_preference("preferences.accessibility.font_style", "pixel"))
+	var presentation_theme: Theme = preload("res://scripts/ui/gallery/GalleryTheme.gd").build(locale, int(percent), &"after_hours", font_style)
 	var configured: Dictionary = owner.configure(game_state, _contacts_presentation_port,
 		_desktop_identity_nonce_issuer, locale, presentation_theme, profile)
 	if not configured.get("ok", false):

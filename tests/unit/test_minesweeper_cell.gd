@@ -25,7 +25,7 @@ func test_fixed_geometry_and_inert_grid_owned_input() -> void:
 	assert_eq(ordinary.focus_mode,Control.FOCUS_NONE)
 	assert_true(ordinary.configure("en",150,false))
 	assert_eq(ordinary.size,Vector2(48,48),"Text scale never changes cell geometry.")
-	assert_eq(ordinary._numeral_font_size(),30,"Numerals retain the configured 150-percent preset without shrinking to the aperture.")
+	assert_eq(ordinary._numeral_font_size(),36,"Numerals retain the configured 150-percent preset without shrinking to the aperture.")
 
 func test_exact_public_shape_and_contradictions_refuse_atomically() -> void:
 	var cell := _cell()

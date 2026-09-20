@@ -1,4 +1,5 @@
 ﻿extends "res://addons/gut/test.gd"
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const EDGE := preload("res://scripts/ui/desktop/QuickStatusEdge.gd")
 
 func _edge() -> Label:
@@ -102,15 +103,17 @@ func test_full_localized_font_reflow_does_not_reannounce_or_reset() -> void:
 	edge.set_eligible(true)
 	edge.publish_status(&"please_wait",{},func(): return true)
 	edge.advance_eligible_time(1)
-	for locale: String in ["en","zh_CN","zh_HK"]:
-		for percent: int in [100,125,150]:
-			edge.set_presentation(locale,percent)
-			assert_eq(edge.get_theme_default_font_size(),int(24*percent/100.0))
-			assert_eq(edge.text,EDGE.COPY[locale.replace("_","-")][&"please_wait"])
-			assert_eq(edge.accessibility_name,edge.text)
-			assert_eq(edge.remaining_seconds,3.0)
-			assert_eq(edge.max_lines_visible,-1)
-			assert_false(edge.clip_text)
+	for font_style: String in ["pixel","readable"]:
+		for locale: String in ["en","zh_CN","zh_HK","ja","ko"]:
+			for percent: int in [100,125,150]:
+				edge.set_presentation(locale,percent,font_style)
+				assert_eq(edge.get_theme_default_font_size(),int(24*percent/100.0))
+				assert_same(edge.theme.default_font,TYPOGRAPHY.font(locale,percent,font_style))
+				assert_eq(edge.text,EDGE.COPY[locale.replace("_","-")][&"please_wait"])
+				assert_eq(edge.accessibility_name,edge.text)
+				assert_eq(edge.remaining_seconds,3.0)
+				assert_eq(edge.max_lines_visible,-1)
+				assert_false(edge.clip_text)
 	assert_signal_emit_count(edge,"status_announced",1)
 
 func test_edge_is_one_inert_label_and_does_not_capture_native_pointer_focus() -> void:

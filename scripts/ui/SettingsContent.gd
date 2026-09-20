@@ -19,7 +19,7 @@ const CATEGORY_FIELDS: Dictionary = {
 	"audio": ["audio.master_volume", "audio.master_muted", "audio.music_volume", "audio.music_muted", "audio.ambience_volume", "audio.ambience_muted", "audio.sfx_volume", "audio.sfx_muted", "audio.mute_when_inactive", "audio.output_mode"],
 	"display": ["display.window_mode", "display.window_size"],
 	"controls": [],
-	"accessibility": ["accessibility.text_size", "accessibility.large_targets", "accessibility.high_contrast", "accessibility.reduced_motion", "accessibility.steady_interface", "accessibility.screen_shake", "accessibility.colour_differentiation", "accessibility.sound_detail_text"],
+	"accessibility": ["accessibility.font_style", "accessibility.text_size", "accessibility.large_targets", "accessibility.high_contrast", "accessibility.reduced_motion", "accessibility.steady_interface", "accessibility.screen_shake", "accessibility.colour_differentiation", "accessibility.sound_detail_text"],
 	"records": ["exceptional_replay.available", "exceptional_replay.replay_full", "dark_mode.next_run_enabled"],
 }
 const RESET_METHODS: Dictionary = {
@@ -50,6 +50,7 @@ var _comfort_note: Label
 var _general_status: Label
 var _sample_labels: Array[Label] = []
 var _presentation_locale: String = ""
+var _presentation_font_style: String = ""
 var _presentation_percent: int = 0
 var _presentation_palette: StringName = &""
 var _presentation_high_contrast: bool = false
@@ -486,6 +487,7 @@ func apply_text_size(percent: int, large_targets: bool) -> void:
 	var palette_id := get_palette_id()
 	var day := 1 if host_context == "title" else _run_day
 	var presentation_profile: Variant = _services.get("profile")
+	var font_style := str(presentation_profile.get_preference(&"preferences.accessibility.font_style", "pixel")) if presentation_profile != null else "pixel"
 	var contrast_value: Variant = presentation_profile.get_preference(&"preferences.accessibility.high_contrast", false) if presentation_profile != null else false
 	var colour_value: Variant = presentation_profile.get_preference(&"preferences.accessibility.colour_differentiation", "standard") if presentation_profile != null else "standard"
 	if typeof(contrast_value) != TYPE_BOOL or typeof(colour_value) != TYPE_STRING:
@@ -493,12 +495,13 @@ func apply_text_size(percent: int, large_targets: bool) -> void:
 	var high_contrast: bool = contrast_value
 	var colour_preset: String = colour_value
 	var font_size := roundi(24.0 * float(percent) / 100.0)
-	if locale != _presentation_locale or percent != _presentation_percent or palette_id != _presentation_palette \
+	if locale != _presentation_locale or font_style != _presentation_font_style or percent != _presentation_percent or palette_id != _presentation_palette \
 			or high_contrast != _presentation_high_contrast or colour_preset != _presentation_colour_preset or day != _presentation_day:
-		var candidate := PRESENTATION.build(locale, percent, palette_id, high_contrast, colour_preset, day)
+		var candidate := PRESENTATION.build(locale, percent, palette_id, high_contrast, colour_preset, day, font_style)
 		if candidate == null:
 			return
 		_presentation_locale = locale
+		_presentation_font_style = font_style
 		_presentation_percent = percent
 		_presentation_palette = palette_id
 		_presentation_high_contrast = high_contrast

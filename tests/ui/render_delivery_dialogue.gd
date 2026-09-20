@@ -267,7 +267,8 @@ func _caption_capture(name: String, language: String, percent: int, offset: int,
 	for index: int in indices: expected.append(COPY[language][index])
 	check(projection.get("caption_window", []) == expected, name + ": exact three-caption sliding window")
 	check(projection.get("review_offset", -1) == offset, name + ": expected review offset")
-	check(projection.font_size == int(percent / 5), name + ": full requested caption size")
+	check(projection.font_style == "pixel", name + ": default Pixel caption style")
+	check(projection.font_size == int(24 * percent / 100.0), name + ": full requested Pixel caption size")
 	check(projection.visible_leaf_rects.size() == 3, name + ": three visible caption cards")
 	for rect: Rect2 in projection.visible_leaf_rects:
 		check(projection.field_rect.encloses(rect), name + ": card enclosed in caption field")

@@ -70,6 +70,8 @@ var _day := 1
 var _bootstrap: Node
 var _active_id: StringName = &""
 var _locale := "en"
+var _percent := 100
+var _font_style := "pixel"
 var _clock_available := false
 var _foreground_eligible := true
 var _restoration_failed := false
@@ -209,7 +211,6 @@ func _build_shell() -> void:
 	clock_label.custom_minimum_size.x = 152
 	clock_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	clock_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	strip.add_child(clock_label)
 	app_footer_slot = HBoxContainer.new()
 	app_footer_slot.name = "AppFooterSlot"
 	app_footer_slot.alignment = BoxContainer.ALIGNMENT_END
@@ -222,6 +223,7 @@ func _build_shell() -> void:
 	# Only these inert navigation buttons remain pointer-reachable over a modal.
 	touch_navigation.mouse_behavior_recursive = Control.MOUSE_BEHAVIOR_ENABLED
 	strip.add_child(touch_navigation)
+	strip.add_child(clock_label)
 	_clock_timer = Timer.new()
 	_clock_timer.one_shot = true
 	_clock_timer.timeout.connect(refresh_clock)
@@ -299,9 +301,8 @@ func _refresh_strip_layout() -> void:
 			has_app_controls = true
 			break
 	app_footer_slot.visible = has_app_controls
-	# Large-target users retain the existing assisted focus controls. Hide the
-	# secondary clock when they share the footer with an app's controls.
-	clock_label.visible = not (has_app_controls and touch_navigation.visible)
+	# The expanding title yields width before app controls, navigation, and time.
+	clock_label.show()
 
 func _touch_input_admitted() -> bool:
 	if not is_visible_in_tree() or not can_process() or not _foreground_eligible or _restoration_failed:
@@ -610,8 +611,8 @@ func open_app(app_id: StringName) -> Dictionary:
 			configured = app.configure_catalog(_shop_port, _localization, _profile, _run_palette, _day)
 		elif app_id == &"schedule":
 			app.configure_desktop_home(home_button)
-			configured = app.configure_presentation(_schedule_port, _locale, int(theme.default_font_size * 100 / 24),
-				false, _schedule_done, _run_palette, _schedule_warning_port, _schedule_warning_commands, _day)
+			configured = app.configure_presentation(_schedule_port, _locale, _percent,
+				false, _schedule_done, _run_palette, _schedule_warning_port, _schedule_warning_commands, _day, _font_style)
 			if configured.get("ok",false): configured = app.configure_shared_preferences(_localization, _profile)
 		elif app_id == &"backup":
 			app.set_confirmation_host(self)
@@ -874,13 +875,14 @@ func _refresh_launcher(refresh_contacts: bool = true) -> void:
 		var requested := str(_localization.get_locale()).replace("_", "-")
 		if LABELS.has(requested):
 			_locale = requested
-	var percent := int(_profile.get_preference("preferences.accessibility.text_size", 100)) if _profile != null and _profile.has_method("get_preference") else 100
+	_percent = int(_profile.get_preference("preferences.accessibility.text_size", 100)) if _profile != null and _profile.has_method("get_preference") else 100
+	_font_style = str(_profile.get_preference("preferences.accessibility.font_style", "pixel")) if _profile != null and _profile.has_method("get_preference") else "pixel"
 	var high_contrast := bool(_profile.get_preference("preferences.accessibility.high_contrast", false)) if _profile != null and _profile.has_method("get_preference") else false
 	var colour_preset := str(_profile.get_preference("preferences.accessibility.colour_differentiation", "standard")) if _profile != null and _profile.has_method("get_preference") else "standard"
 	touch_navigation.visible = bool(_profile.get_preference("preferences.accessibility.large_targets", false)) if _profile != null and _profile.has_method("get_preference") else false
 	_refresh_strip_layout()
 	_refresh_app_scroll()
-	theme = DESKTOP_THEME.build(_locale, percent, _run_palette, WEEK_TINT.tint_for_day(_day), high_contrast, colour_preset)
+	theme = DESKTOP_THEME.build(_locale, _percent, _run_palette, WEEK_TINT.tint_for_day(_day), high_contrast, colour_preset, _font_style)
 	var notice_style := StyleBoxFlat.new()
 	notice_style.bg_color = theme.get_color("face", "Desktop")
 	notice_style.border_color = theme.get_color("structure", "Desktop")
@@ -889,7 +891,6 @@ func _refresh_launcher(refresh_contacts: bool = true) -> void:
 		notice_style.set_content_margin(edge, 16)
 	message_notification.add_theme_stylebox_override("panel", notice_style)
 	delivery_notice.add_theme_stylebox_override("panel", notice_style)
-	delivery_caption.add_theme_font_override("font", theme.default_font if _locale in ["ja", "ko"] else DESKTOP_THEME.ENGLISH)
 	_refresh_message_notification_copy()
 	_refresh_delivery_caption()
 	var ids: Array[StringName] = APP_REGISTRY.new().get_ids()
@@ -907,7 +908,6 @@ func _refresh_launcher(refresh_contacts: bool = true) -> void:
 	if is_instance_valid(_confirmation) or is_instance_valid(foreground) and foreground.has_method("can_return_home") and not foreground.can_return_home():
 		home_button.focus_mode = Control.FOCUS_NONE
 	title_label.text = home if _active_id == &"" else (LABELS[_locale][ids.find(_active_id)] if _active_id in ids else {"en": "Unavailable", "zh-CN": "不可用", "zh-HK": "不可用", "ja": "利用できません", "ko": "이용할 수 없어요"}[_locale])
-	clock_label.add_theme_font_override("font", DESKTOP_THEME.ENGLISH)
 	clock_label.accessibility_name = {"en": "Local time", "zh-CN": "本地时间", "zh-HK": "本地時間", "ja": "現地時刻", "ko": "현지 시간"}[_locale]
 	var navigation_copy: Array = {
 		"en": ["Previous control", "Next control", "Confirm focused control"],
@@ -920,7 +920,9 @@ func _refresh_launcher(refresh_contacts: bool = true) -> void:
 	for index: int in navigation_buttons.size():
 		var button: Button = navigation_buttons[index]
 		button.text = ["←", "→", "✓"][index]
-		button.add_theme_font_override("font", DESKTOP_THEME.ENGLISH)
+		button.remove_theme_font_override("font")
+		if not theme.default_font.has_char(button.text.unicode_at(0)):
+			button.add_theme_font_override("font", DESKTOP_THEME.ENGLISH)
 		button.accessibility_name = navigation_copy[index]
 		button.tooltip_text = navigation_copy[index]
 	_refresh_clock_description()
@@ -1061,8 +1063,8 @@ func _open_contacts_from_notification() -> void:
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
 	if path in [&"preferences.accessibility.text_size", &"preferences.accessibility.large_targets"]:
 		_refresh_launcher()
-	elif path in [&"preferences.accessibility.high_contrast", &"preferences.accessibility.colour_differentiation"]:
-		# Preserve the displayed unread fact; colours do not invalidate correspondence.
+	elif path in [&"preferences.accessibility.high_contrast", &"preferences.accessibility.colour_differentiation", &"preferences.accessibility.font_style"]:
+		# Preserve the displayed unread fact; presentation does not invalidate correspondence.
 		_refresh_launcher(false)
 
 func _on_contacts_changed(_result: Dictionary) -> void:

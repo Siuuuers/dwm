@@ -14,6 +14,7 @@ const KEYBOARD_STEP := 16.0
 class SplitDragHandle extends Control:
 	var separator_height := 0.0
 	var separator_color := Color(0.65, 0.68, 0.72)
+	var grip_color := Color(0.11, 0.14, 0.18)
 	var focus_color := Color(0.95, 0.78, 0.30)
 	var preview_offset := 0.0
 	var preview_visible := false
@@ -24,7 +25,10 @@ class SplitDragHandle extends Control:
 
 	func _draw() -> void:
 		draw_rect(Rect2(63, -position.y, 2, separator_height), separator_color)
-		draw_rect(Rect2(40, 27, 16, 10), separator_color)
+		var grip := Rect2(30, 16, 28, 32)
+		draw_rect(grip, grip_color)
+		draw_rect(grip, separator_color, false, 2)
+		draw_polyline(PackedVector2Array([Vector2(47, 24), Vector2(39, 32), Vector2(47, 40)]), separator_color, 2)
 		if preview_visible:
 			draw_rect(Rect2(63 + preview_offset, -position.y, 2, separator_height), focus_color)
 		if has_focus():
@@ -144,6 +148,8 @@ func _layout_children() -> void:
 	_handle.separator_height = size.y
 	if has_theme_color(&"font_color", &"Label"):
 		_handle.separator_color = get_theme_color(&"font_color", &"Label")
+	if has_theme_color(&"face", &"Desktop"):
+		_handle.grip_color = get_theme_color(&"face", &"Desktop")
 	if has_theme_color(&"focus", &"Desktop"):
 		_handle.focus_color = get_theme_color(&"focus", &"Desktop")
 	_handle.queue_redraw()

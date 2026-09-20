@@ -33,5 +33,27 @@
     "bytes": 4463,
     "sha256": "fcac737e761ec63dbfbdce11030a1780161920d80315edba9c8beff1c2bac5a2",
     "scope": "Original official release-branch review download; not production registered"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/adobe-fonts/source-han-sans/6c709ca72d3d7c46ab42ebecc1a26e7d69595a37/SubsetOTF/JP/SourceHanSansJP-Regular.otf",
+    "file": "fonts/source-han-sans-jp-regular.otf",
+    "bytes": 4562224,
+    "sha256": "40d1b760d1135539f6b6e0ee2b9f415de6d97576f7676840b06306c7c190c074",
+    "release": "2.005R",
+    "commit": "6c709ca72d3d7c46ab42ebecc1a26e7d69595a37",
+    "license": "SIL Open Font License 1.1",
+    "license_file": "fonts/SOURCE-HAN-LICENSE.txt",
+    "scope": "Unmodified official regional Regular font bundled for the Readable UI style. Commercial software bundling is permitted with the copyright notice and OFL license retained."
+  },
+  {
+    "url": "https://raw.githubusercontent.com/adobe-fonts/source-han-sans/6c709ca72d3d7c46ab42ebecc1a26e7d69595a37/SubsetOTF/KR/SourceHanSansKR-Regular.otf",
+    "file": "fonts/source-han-sans-kr-regular.otf",
+    "bytes": 4632304,
+    "sha256": "d8299926a5284f7461b46fa0617cc05d4f1fce8f034ffff78084225ce8b38071",
+    "release": "2.005R",
+    "commit": "6c709ca72d3d7c46ab42ebecc1a26e7d69595a37",
+    "license": "SIL Open Font License 1.1",
+    "license_file": "fonts/SOURCE-HAN-LICENSE.txt",
+    "scope": "Unmodified official regional Regular font bundled for the Readable UI style. Commercial software bundling is permitted with the copyright notice and OFL license retained."
   }
 ]

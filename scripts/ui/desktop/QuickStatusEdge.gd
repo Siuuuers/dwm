@@ -72,12 +72,12 @@ func set_eligible(eligible: bool) -> void:
 		hide()
 	else: _show_current()
 
-func set_presentation(locale: String, percent: int) -> void:
+func set_presentation(locale: String, percent: int, font_style: String = "pixel") -> void:
 	var normalized := locale.replace("_","-")
-	if not COPY.has(normalized) or percent not in [100,125,150]: return
+	if not COPY.has(normalized) or percent not in [100,125,150] or font_style not in ["pixel","readable"]: return
 	_locale = normalized
 	accessibility_live = DisplayServer.LIVE_OFF
-	theme = PRESENTATION.build(_locale,percent)
+	theme = PRESENTATION.build(_locale,percent,&"after_hours",0.0,false,"standard",font_style)
 	if not key.is_empty() and _announced:
 		text = COPY[_locale][key]
 		accessibility_name = text

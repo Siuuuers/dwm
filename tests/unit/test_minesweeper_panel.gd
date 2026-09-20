@@ -220,7 +220,7 @@ func test_all_locale_scale_and_target_tuples_close_fixed_body_without_shrinking_
 				assert_gte(panel.worksheet.size.y,128.0 if large else 96.0)
 				assert_eq(fmod(panel.worksheet.size.y,2.0),0.0)
 				for button: Button in panel.dock.buttons.values():
-					assert_eq(button.theme.default_font_size,20*percent/100)
+					assert_eq(button.theme.default_font_size,24*percent/100)
 					assert_gte(button.size.y,64.0 if large else 48.0)
 
 func test_replacement_and_difficulty_remain_disabled_and_unpublished_actions_are_rejected() -> void:
@@ -627,3 +627,36 @@ func test_open_information_does_not_bypass_new_custody_or_unpublished_actions() 
 	assert_null(panel.worksheet.information_sheet)
 	assert_eq(panel.public_view, custody)
 	assert_eq(panel.worksheet.grid.focus_mode, Control.FOCUS_NONE)
+
+func test_both_font_styles_keep_full_size_labels_and_board_reachable_across_120_presentations() -> void:
+	var port := _port()
+	var panel := _panel(port)
+	var footer := Control.new()
+	panel.get_parent().add_child(footer)
+	var typography := preload("res://scripts/ui/UiTypography.gd")
+	var original: Dictionary = port.view.duplicate(true)
+	for external_footer: bool in [false,true]:
+		panel.worksheet.set_footer_host(footer if external_footer else null)
+		for font_style: String in ["pixel","readable"]:
+			for locale: String in ["en","zh-CN","zh-HK","ja","ko"]:
+				for percent: int in [100,125,150]:
+					for large: bool in [false,true]:
+						var context := "%s %s %d%% large=%s external=%s" % [font_style,locale,percent,large,external_footer]
+						assert_true(panel.configure(locale,percent,large,&"after_hours",false,"standard",font_style),context)
+						assert_true(panel.refresh(),context)
+						var expected: Font = typography.font(locale,percent,font_style)
+						assert_same(panel.register.theme.default_font,expected,context)
+						assert_same(panel.dock.theme.default_font,expected,context)
+						assert_same(panel.worksheet.grid.theme.default_font,expected,context)
+						for button: Button in panel.register.difficulties.values():
+							assert_eq(button._paragraph.get_line_count(),1,context)
+							assert_true(Rect2(Vector2.ZERO,panel.register.size).encloses(Rect2(button.position,button.size)),context)
+						for metric: Control in panel.register.metrics.values():
+							assert_eq(metric.label_shape.paragraph.get_line_count(),1,context)
+							assert_true(Rect2(Vector2.ZERO,panel.register.size).encloses(Rect2(metric.position,metric.size)),context)
+						assert_gte(panel.worksheet.position.y,panel.register.size.y,context)
+						assert_gt(panel.worksheet.size.y,0.0,context)
+						assert_lte(panel.dock.position.y+panel.dock.size.y,float(panel.layout_height),context)
+						await get_tree().process_frame
+	assert_eq(port.view,original,"Changing reading presentation never changes the round.")
+	assert_true(port.calls.is_empty())

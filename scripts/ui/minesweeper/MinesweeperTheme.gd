@@ -5,7 +5,7 @@ const PALETTE_REGISTRY := preload("res://scripts/ui/minesweeper/MinesweeperPalet
 
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 
-static func build(locale: String, percent: int, palette: StringName, high_contrast: bool = false, colour_preset: String = "standard") -> Theme:
+static func build(locale: String, percent: int, palette: StringName, high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> Theme:
 	locale = locale.replace("_","-")
 	if not TYPOGRAPHY.supports(locale) or percent not in [100,125,150]:
 		return null
@@ -13,8 +13,9 @@ static func build(locale: String, percent: int, palette: StringName, high_contra
 	if roles.is_empty():
 		return null
 	var theme := Theme.new()
-	theme.default_font = TYPOGRAPHY.font(locale, percent)
-	theme.default_font_size = TYPOGRAPHY.font_size(locale, percent, 20)
+	theme.default_font = TYPOGRAPHY.font(locale, percent, font_style)
+	if theme.default_font == null: return null
+	theme.default_font_size = TYPOGRAPHY.font_size(locale, percent, 20, font_style)
 	for role: StringName in roles:
 		theme.set_color(role, &"Minesweeper", roles[role])
 	return theme

@@ -8,13 +8,14 @@ const WEEK_TINT := preload("res://scripts/ui/theme/WeekTint.gd")
 const PALETTES := preload("res://scripts/settings/SettingsPaletteRegistry.gd")
 
 static func build(locale: String, percent: int, palette: StringName = &"after_hours", week_tint: float = 0.0,
-		high_contrast: bool = false, colour_preset: String = "standard") -> Theme:
+		high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> Theme:
 	if palette not in [&"after_hours", &"midnight"]: return null
 	var tuple: Dictionary = PALETTES.resolve(palette, high_contrast, colour_preset)
 	if tuple.is_empty(): return null
 	var result := Theme.new()
-	result.default_font = TYPOGRAPHY.font(locale, percent)
-	result.default_font_size = TYPOGRAPHY.font_size(locale, percent)
+	result.default_font = TYPOGRAPHY.font(locale, percent, font_style)
+	if result.default_font == null: return null
+	result.default_font_size = TYPOGRAPHY.font_size(locale, percent, 24, font_style)
 	var roles := {"habitat": tuple.habitat, "face": tuple.face, "ink": tuple.ink,
 		"structure": tuple.structure, "focus": tuple.focus, "current": tuple.filed}
 	roles = WEEK_TINT.apply(roles, week_tint, high_contrast, colour_preset)

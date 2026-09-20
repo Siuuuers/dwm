@@ -3,7 +3,6 @@ extends Label
 ## Nonmodal factual status for a failed Primary system-speech utterance.
 ## The Caption owner decides whether a completion still belongs to the visible publication.
 
-const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const COPY_KEY := "witnessed.speech.failed"
 const LOCALES := ["en", "zh-CN", "zh-HK", "ja", "ko"]
 const PRESENTATION := preload("res://scripts/ui/SettingsTheme.gd")
@@ -44,7 +43,7 @@ func update_presentation(localization: Node, locale: String, presentation_theme:
 	_configured = true
 	theme = presentation_theme
 	language = normalized
-	add_theme_font_size_override(&"font_size", TYPOGRAPHY.font_size(normalized, text_percent, 20))
+	add_theme_font_size_override(&"font_size", presentation_theme.default_font_size)
 	var error_color: Color = PRESENTATION.ROLES.danger
 	if presentation_theme.has_color(&"danger", &"Settings"):
 		error_color = presentation_theme.get_color(&"danger", &"Settings")

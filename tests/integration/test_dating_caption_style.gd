@@ -226,7 +226,7 @@ func _assert_dating_leaf(leaf: RichTextLabel, percent: int) -> void:
 	var outline := leaf.get_theme_color(&"font_outline_color")
 	assert_lt(outline.get_luminance(), 0.1, "readable dark outline")
 	assert_gt(outline.a, 0.0)
-	assert_eq(leaf.get_theme_font_size(&"normal_font_size"), int(20 * percent / 100.0))
+	assert_eq(leaf.get_theme_font_size(&"normal_font_size"), int(24 * percent / 100.0))
 
 func test_dating_subtitles_keep_all_four_labels_transparent_and_centered_at_each_text_size() -> void:
 	var mounted := await _mount_dating_captions()

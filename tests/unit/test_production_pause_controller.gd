@@ -375,6 +375,15 @@ func test_production_pause_reuses_hosts_with_current_day_and_appearance_cannot_t
 	if not prepared.get("ok", false): return
 	var pending: Dictionary = saves.pending.duplicate(true)
 	var inspections: int = saves.inspections
+	var pause_focus: Control = get_viewport().gui_get_focus_owner()
+	for style: String in ["readable", "pixel"]:
+		assert_true(localization.set_font_style(style).get("ok", false))
+		assert_same(controller.surface.theme.default_font, preload("res://scripts/ui/UiTypography.gd").font("en", 100, style))
+		assert_same(controller.surface.get("_hosts")[&"settings"], settings)
+		assert_same(get_viewport().gui_get_focus_owner(), pause_focus)
+		assert_eq(saves.pending, pending)
+		assert_eq(saves.inspections, inspections)
+		assert_true(get_tree().paused)
 	assert_true(profile.set_preference(&"preferences.accessibility.high_contrast", true).get("ok", false))
 	run_owner.day = 7
 	controller._refresh_presentation()

@@ -46,6 +46,7 @@ var _confirmation_host: Object
 var _records: Dictionary = {}
 var _locale := "en"
 var _percent := 100
+var _font_style := "pixel"
 var _run_palette: StringName = &"after_hours"
 var _day := 1
 var _pending_presentation := false
@@ -270,10 +271,11 @@ func _presentation_candidate(palette: StringName, day: int, localization: Object
 	var percent := int(profile.get_preference("preferences.accessibility.text_size", 100)) if profile != null else 100
 	var high_contrast := bool(profile.get_preference("preferences.accessibility.high_contrast", false)) if profile != null else false
 	var colour_preset := str(profile.get_preference("preferences.accessibility.colour_differentiation", "standard")) if profile != null else "standard"
-	var candidate: Theme = BACKUP_THEME.build(locale, percent, palette, day, high_contrast, colour_preset)
+	var font_style := str(profile.get_preference("preferences.accessibility.font_style", "pixel")) if profile != null else "pixel"
+	var candidate: Theme = BACKUP_THEME.build(locale, percent, palette, day, high_contrast, colour_preset, font_style)
 	if candidate == null:
 		return {}
-	return {"locale": locale, "percent": percent, "theme": candidate}
+	return {"locale": locale, "percent": percent, "font_style": font_style, "theme": candidate}
 
 func _apply_typography(refresh_content: bool = false) -> void:
 	var candidate: Dictionary = _presentation_candidate(_run_palette, _day, _localization, _profile)
@@ -283,12 +285,13 @@ func _apply_typography(refresh_content: bool = false) -> void:
 func _apply_presentation(candidate: Dictionary, refresh_content: bool = true) -> void:
 	_locale = candidate.locale
 	_percent = candidate.percent
+	_font_style = candidate.font_style
 	theme = candidate.theme
 	_pending_presentation = false
 	for drawer in drawer_buttons.values():
 		drawer.theme = theme
 		for label in [drawer.identity_label, drawer.state_label]:
-			label.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(_locale, _percent, 20))
+			label.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(_locale, _percent, 20, _font_style))
 	_info_text.add_theme_color_override("font_color", theme.get_color("paper_ink", "Backup"))
 	status_label.add_theme_color_override("font_color", theme.get_color("paper_ink", "Backup"))
 	_body.queue_redraw()
@@ -370,7 +373,7 @@ func _build_actions() -> void:
 		key.position = Vector2.ZERO
 		key.size = Vector2(304, 64)
 		key.set_caption(_t(action if action != "retry" or _source_action == "save" and _confirmation_kind == "none" else (_source_action if _source_action != "save" else "overwrite")))
-		key.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(_locale, _percent, 20))
+		key.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(_locale, _percent, 20, _font_style))
 		key.disabled = not _projection_valid or (not record.actions.get(action, false) if not _recovering else false)
 		key.focus_mode = Control.FOCUS_NONE if key.disabled else Control.FOCUS_ALL
 		key.risk = "danger" if action == "load" and not _title_login else ("destructive" if action == "delete" else "neutral")
@@ -378,7 +381,7 @@ func _build_actions() -> void:
 			key.risk = "danger" if _source_action == "load" and not _title_login else ("destructive" if _source_action == "delete" or _confirmation_kind == "overwrite" else "neutral")
 		key.pressed.connect(_action_pressed.bind(action))
 		action_dock.add_child(key)
-		key.caption.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(_locale, _percent, 20))
+		key.caption.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(_locale, _percent, 20, _font_style))
 		action_buttons[action] = key
 	_layout_action_buttons()
 	if action_buttons.has(prior_focus) and not action_buttons[prior_focus].disabled:
@@ -677,7 +680,7 @@ func _on_locale_changed(_value: String) -> void:
 	_refresh_appearance()
 
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
-	if path in [&"preferences.accessibility.text_size", &"preferences.accessibility.high_contrast",
+	if path in [&"preferences.accessibility.font_style", &"preferences.accessibility.text_size", &"preferences.accessibility.high_contrast",
 			&"preferences.accessibility.colour_differentiation"]:
 		_refresh_appearance()
 

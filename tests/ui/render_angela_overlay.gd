@@ -149,7 +149,12 @@ func _check_geometry(fixture: Dictionary) -> void:
 	check(art.get_global_rect() == angela.get_global_rect(), name + ": artwork fills panel from top to bottom")
 	check(_art_geometry() == art_geometry[fixture.width], name + ": facts and font changes preserve artwork framing")
 	check(angela.get_global_rect().encloses(hud.get_global_rect()), name + ": overlay fits Angela panel")
-	check(not hud.get_global_rect().intersects(main.get_node("RootHBox")._handle.get_global_rect()), name + ": glass card clears divider hitbox")
+	var handle: Control = main.get_node("RootHBox")._handle
+	check(handle.size == Vector2(64, 64), name + ": enlarged divider cue retains its safe hit target")
+	check(angela.get_global_rect().encloses(handle.get_global_rect()), name + ": divider stays on Angela's side")
+	check(handle.grip_color == hud.theme.get_color("face", "Desktop"), name + ": divider backing follows the active palette")
+	check(handle.separator_color == hud.theme.get_color("ink", "Desktop"), name + ": divider cue follows the active palette")
+	check(not hud.get_global_rect().intersects(handle.get_global_rect()), name + ": glass card clears divider hitbox")
 	check(hud.get_global_rect().position.y > angela.get_global_rect().position.y, name + ": artwork remains above inset overlay")
 	check(art.get_child_count() > 0, name + ": authored art layers present")
 	for layer: Node in art.get_children():

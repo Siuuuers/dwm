@@ -12,6 +12,7 @@ $ErrorActionPreference = 'Stop'
 $suites = @{
     minesweeper = @(
         'tests/unit/test_minesweeper_app.gd'
+        'tests/unit/test_minesweeper_cell.gd'
         'tests/unit/test_gallery_rehearsal_host.gd'
         'tests/unit/test_minesweeper_dock.gd'
         'tests/unit/test_minesweeper_register.gd'
@@ -48,6 +49,8 @@ $suites = @{
         'tests/unit/test_desktop_accessibility_contract.gd'
         'tests/integration/test_desktop_quick_commands.gd'
         'tests/integration/test_schedule_desktop_host.gd'
+        'tests/unit/test_schedule_app.gd'
+        'tests/integration/test_contacts_run_presentation.gd'
         'tests/scene/test_controls_input_contact_release.gd'
         'tests/unit/test_angela_stat_overlay.gd'
         'tests/unit/test_stat_hud_week_tint.gd'
@@ -66,6 +69,12 @@ $suites = @{
         'tests/scene/test_settings_host_geometry.gd'
         'tests/scene/test_settings_localization_scene.gd'
         'tests/integration/test_settings_shared_hosts.gd'
+        'tests/unit/test_profile_manager.gd'
+        'tests/unit/test_restore_participants.gd'
+        'tests/integration/test_restore_preserves_current_profile.gd'
+        'tests/integration/test_restore_production_adapters.gd'
+        'tests/integration/test_desktop_board_persistence.gd'
+        'tests/integration/test_minesweeper_first_reveal_transaction.gd'
     )
     new_account = @(
         'tests/unit/test_canonical_writer_compatibility.gd'
@@ -87,6 +96,11 @@ $suites = @{
         'tests/integration/test_witnessed_speech_projection.gd'
         'tests/integration/test_dating_caption_style.gd'
         'tests/unit/test_scene_art_bindings.gd'
+        'tests/unit/test_scene_art_hold.gd'
+        'tests/unit/test_production_pause_controller.gd'
+        'tests/scene/test_hospital_scene.gd'
+        'tests/unit/test_day7_font_preferences.gd'
+        'tests/unit/test_gallery_replay_owner.gd'
     )
     localization = @(
         'tests/unit/test_japanese_korean_ui.gd'
@@ -94,6 +108,7 @@ $suites = @{
         'tests/unit/test_localization_extraction.gd'
         'tests/unit/test_locale_font_preparation.gd'
         'tests/unit/test_gallery_typography.gd'
+        'tests/unit/test_font_styles.gd'
         'tests/unit/test_ordinary_reply_echo_state.gd'
         'tests/unit/test_provisional_correspondence_catalog.gd'
         'tests/unit/test_system_tts_coordinator.gd'
@@ -102,6 +117,7 @@ $suites = @{
         'tests/unit/test_gallery_registrar.gd'
         'tests/unit/test_controls_binding_rules.gd'
         'tests/unit/test_backup_panel_resize.gd'
+        'tests/unit/test_backup_presentation.gd'
         'tests/integration/test_desktop_crash_recovery.gd'
         'tests/scene/test_ending_recovery_localization.gd'
     )

@@ -285,3 +285,31 @@ func test_visited_reset_leaves_other_profile_state_intact() -> void:
 	manager.call(&"reset_visited_history")
 	assert_eq(manager.call(&"get_preference", &"preferences.audio.music_volume"), volume_before,
 		"resetting visited history touches nothing else")
+
+func test_font_style_missing_leaf_is_persisted_as_pixel_and_explicit_values_remain_strict() -> void:
+	var legacy: Dictionary = _schema.make_defaults()
+	legacy.preferences.accessibility.erase("font_style")
+	legacy.preferences.audio.music_volume = 0.37
+	var repaired: Dictionary = _schema.validate(legacy)
+	assert_true(repaired.get("ok", false), str(repaired))
+	assert_true(repaired.get("migrated", false))
+	assert_false(legacy.preferences.accessibility.has("font_style"), "Migration leaves the caller detached")
+	var ops: RefCounted = _fake_ops_script.new({ROOT + "/profile.json": JSON.stringify(legacy)})
+	var first: Node = autofree(_manager_script.new())
+	assert_true(first.initialize(_storage_script.new(ROOT, ops)).get("ok", false))
+	assert_eq(first.get_preference(&"preferences.accessibility.font_style"), "pixel")
+	assert_eq(first.get_preference(&"preferences.audio.music_volume"), 0.37)
+	assert_eq(first.set_preference(&"preferences.accessibility.font_style", "readable").get("code"), &"managed_preference")
+	var candidate: Dictionary = first.prepare_font_style_preference("readable")
+	assert_true(candidate.get("ok", false), str(candidate))
+	assert_eq(first.get_preference(&"preferences.accessibility.font_style"), "pixel", "Preparation is inert")
+	assert_true(first.commit_prepared_profile(candidate.value).get("ok", false))
+	var restarted: Node = autofree(_manager_script.new())
+	assert_true(restarted.initialize(_storage_script.new(ROOT, ops)).get("ok", false))
+	assert_eq(restarted.get_preference(&"preferences.accessibility.font_style"), "readable")
+	assert_true(restarted.reset_preferences().get("ok", false))
+	assert_eq(restarted.get_preference(&"preferences.accessibility.font_style"), "pixel")
+	for bad: Variant in [null, true, 100, "serif"]:
+		var malformed: Dictionary = _schema.make_defaults()
+		malformed.preferences.accessibility.font_style = bad
+		assert_false(_schema.validate(malformed).get("ok", true), "Invalid style must not be repaired: " + str(bad))

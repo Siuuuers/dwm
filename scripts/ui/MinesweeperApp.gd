@@ -8,7 +8,7 @@ signal foreground_availability_changed()
 const PANEL := preload("res://scripts/ui/minesweeper/MinesweeperPanel.gd")
 const GRID := preload("res://scripts/ui/minesweeper/MinesweeperGrid.gd")
 const RETRY_BUTTON := preload("res://scripts/ui/minesweeper/MinesweeperActionButton.gd")
-const PREFERENCE_KEYS := ["preferences.accessibility.text_size","preferences.accessibility.large_targets",
+const PREFERENCE_KEYS := ["preferences.accessibility.font_style","preferences.accessibility.text_size","preferences.accessibility.large_targets",
 	"preferences.accessibility.font_scale","preferences.accessibility.large_click_targets",
 	"preferences.accessibility.high_contrast","preferences.accessibility.colour_differentiation",
 	"preferences.accessibility.colorblind_mode"]
@@ -89,7 +89,7 @@ func set_footer_host(host: Control) -> void:
 	if panel == null: return
 	panel.worksheet.set_footer_host(host)
 	panel.configure(panel._locale, panel._percent, panel._large, panel._palette,
-		panel._high_contrast, panel._colour_preset)
+		panel._high_contrast, panel._colour_preset, panel._font_style)
 	_fit_host()
 	_update_home()
 
@@ -318,13 +318,14 @@ func _apply_preferences() -> bool:
 		if typeof(legacy) != TYPE_STRING or not LEGACY_COLOUR_PRESETS.has(legacy): return false
 		colour = LEGACY_COLOUR_PRESETS[legacy]
 	if typeof(high_contrast) != TYPE_BOOL or typeof(colour) != TYPE_STRING: return false
+	var font_style := str(_profile.get_preference("preferences.accessibility.font_style", "pixel")) if _profile != null else "pixel"
 	var retained_scroll: Vector2i = panel.worksheet.get_scroll()
-	if not panel.configure(locale,percent,large,_palette,high_contrast,colour):
+	if not panel.configure(locale,percent,large,_palette,high_contrast,colour,font_style):
 		var previous_height: int = panel.layout_height
 		# Large text can outgrow the compact board. Keep its readable layout and
 		# let the desktop scroll the page instead of rejecting valid preferences.
 		if _desktop_layout_height <= 0 or previous_height >= 656 or not panel.set_layout_height(656): return false
-		if not panel.configure(locale,percent,large,_palette,high_contrast,colour):
+		if not panel.configure(locale,percent,large,_palette,high_contrast,colour,font_style):
 			panel.set_layout_height(previous_height)
 			return false
 	_fit_host()

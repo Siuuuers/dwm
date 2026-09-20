@@ -85,16 +85,16 @@ func _input(event: InputEvent) -> void:
 
 func configure(locale: String = "en", percent: int = 100, large_targets: bool = false,
 		palette: StringName = &"after_hours", day: int = 1,
-		high_contrast: bool = false, colour_preset: String = "standard") -> bool:
+		high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> bool:
 	locale = locale.replace("_","-")
-	if not TYPOGRAPHY.supports(locale) or percent not in [100,125,150]: return false
+	if font_style not in ["pixel","readable"] or not TYPOGRAPHY.supports(locale) or percent not in [100,125,150]: return false
 	var next_theme: Theme = PALETTE.build(palette, day, high_contrast, colour_preset)
 	if next_theme == null: return false
 	_locale = locale
-	_font_size = TYPOGRAPHY.font_size(locale, percent, 20)
+	_font_size = TYPOGRAPHY.font_size(locale, percent, 20, font_style)
 	_large = large_targets
 	theme = next_theme
-	theme.default_font = TYPOGRAPHY.font(locale, percent)
+	theme.default_font = TYPOGRAPHY.font(locale, percent, font_style)
 	theme.default_font_size = _font_size
 	if not _refusal_id.is_empty() and is_instance_valid(done_button): _rebuild_status()
 	return true

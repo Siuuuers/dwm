@@ -1018,6 +1018,8 @@ func _begin_reached_date_card(signature: Dictionary) -> Dictionary:
 	var locale := "en"
 	var localization := get_node_or_null("/root/LocalizationManager")
 	if localization != null: locale = str(localization.get_locale())
+	if _replay_profile.has_method("get_preference"):
+		locale = str(_replay_profile.get_preference("preferences.language.primary_locale_id", locale))
 	var projected: Dictionary = _DATING_PRESENTATION.reached_presentation_copy(signature, locale)
 	if not projected.get("ok", false): return projected
 	if not is_inside_tree(): return _command_failure(&"replay_surface_unavailable")
@@ -1029,6 +1031,9 @@ func _begin_reached_date_card(signature: Dictionary) -> Dictionary:
 	if not configured.get("ok", false):
 		surface.free()
 		return configured
+	if _replay_profile.has_method("get_preference") and not surface.bind_typography_preferences(_replay_profile):
+		surface.free()
+		return _command_failure(&"replay_typography_unavailable")
 	_reached_replay["surface"] = surface
 	_reached_replay["card"] = card.duplicate(true)
 	surface.card_acknowledged.connect(_on_reached_date_card_acknowledged)

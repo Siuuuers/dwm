@@ -5,6 +5,7 @@ signal _preview_operation_finished()
 
 const REGISTRY := preload("res://scripts/settings/SettingsPreferenceRegistry.gd")
 const PRIMARY := &"preferences.language.primary_locale_id"
+const FONT_STYLE := &"preferences.accessibility.font_style"
 const REDUCED_MOTION := &"preferences.accessibility.reduced_motion"
 const SCREEN_SHAKE := &"preferences.accessibility.screen_shake"
 const WINDOW_MODE := &"preferences.display.window_mode"
@@ -101,6 +102,9 @@ func refresh() -> void:
 		if String(path).begins_with("preferences.audio.") and not _has_audio_sink():
 			disabled = true
 			reason = "settings.status.unavailable"
+		elif path == FONT_STYLE and not _localization.has_method("set_font_style"):
+			disabled = true
+			reason = "settings.status.unavailable"
 		elif path in [WINDOW_MODE, WINDOW_SIZE] and not _has_window_sink():
 			disabled = true
 			reason = "settings.status.unavailable"
@@ -182,6 +186,8 @@ func commit_preference(path: StringName, value: Variant, preview_handle: Variant
 		result = await _window.commit_settings_window_preference(_holder, value) if _has_window_sink() else _failure()
 	elif path == PRIMARY:
 		result = _localization.set_locale(str(value))
+	elif path == FONT_STYLE:
+		result = _localization.set_font_style(str(value)) if _localization.has_method("set_font_style") else _failure()
 	elif path == &"preferences.language.secondary_locale_id" and value == _value(PRIMARY):
 		# The locale owner already swaps the complete language tuple atomically.
 		result = _localization.set_locale(str(_value(&"preferences.language.secondary_locale_id")))

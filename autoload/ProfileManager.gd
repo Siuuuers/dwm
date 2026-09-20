@@ -25,6 +25,7 @@ const NEW_RUN_MATERIAL_KEYS := ["before", "candidate", "captured_dark", "profile
 	"source_revision", "outgoing_text", "outgoing_hash"]
 
 const PRIMARY_LOCALE_PATH := &"preferences.language.primary_locale_id"
+const FONT_STYLE_PATH := &"preferences.accessibility.font_style"
 const _AUDIO_MEMORY_SURFACES := [&"META_POST_ENDING_TITLE", &"META_BACKUP_LOAD", &"META_GALLERY_REPLAY"]
 
 var _new_run_storage_bound := false
@@ -332,8 +333,8 @@ func prepare_preferences(changes: Dictionary) -> Dictionary:
 		var validated := SCHEMA.validate_preference(path, changes[path_value])
 		if not validated.get("ok", false):
 			return validated
-		if path == PRIMARY_LOCALE_PATH:
-			return _failure(&"managed_preference", "Primary language is managed by locale preparation")
+		if path in [PRIMARY_LOCALE_PATH, FONT_STYLE_PATH]:
+			return _failure(&"managed_preference", "Language and font style are managed by presentation preparation")
 		if not PREFERENCE_REGISTRY.is_player_writable(path):
 			return _failure(&"managed_preference", "Preference is capability-owned")
 		normalized[path] = validated["value"]
@@ -364,6 +365,16 @@ func prepare_locale_preference(locale_id: String) -> Dictionary:
 	if not document_validation.get("ok", false):
 		return document_validation
 	return {"ok": true, "code": &"ok", "value": document_validation["value"], "changed_paths": [PRIMARY_LOCALE_PATH]}
+
+
+func prepare_font_style_preference(font_style: String) -> Dictionary:
+	if not _initialized:
+		return _failure(&"not_initialized", "ProfileManager is not initialized")
+	var validated := SCHEMA.validate_preference(FONT_STYLE_PATH, font_style)
+	if not validated.get("ok", false): return validated
+	var candidate := _profile.duplicate(true)
+	_set_profile_path(candidate, FONT_STYLE_PATH, font_style)
+	return SCHEMA.validate(candidate)
 
 
 func commit_prepared_profile(candidate: Dictionary, defer_signals: bool = false, expected_revision: int = -1) -> Dictionary:

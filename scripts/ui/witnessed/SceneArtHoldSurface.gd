@@ -12,6 +12,7 @@ var _footer: ColorRect
 var _token := ""
 var _entry_id := ""
 var _percent := 100
+var _font_style := "pixel"
 var _locale := "en"
 var _show_portraits := true
 var _palette := "AfterHours"
@@ -30,11 +31,11 @@ var _capture_id := 0
 var _input_owner: Node
 
 func configure(entry_id: String, token: String, percent: int = 100,
-		locale: String = "en", show_portraits: bool = true) -> bool:
+		locale: String = "en", show_portraits: bool = true, font_style: String = "pixel") -> bool:
 	# Standalone legacy callers may mount before LocalizationManager initializes.
 	if locale.is_empty(): locale = "en"
 	if not configure_presentation(locale, percent, _palette, _high_contrast,
-			_colour_preset, _large_targets, _day): return false
+			_colour_preset, _large_targets, _day, font_style): return false
 	_token = token
 	_entry_id = entry_id
 	_show_portraits = show_portraits
@@ -70,14 +71,15 @@ func configure(entry_id: String, token: String, percent: int = 100,
 
 func configure_presentation(locale: String = "en", text_percent: int = 100,
 		palette: String = "AfterHours", high_contrast: bool = false,
-		colour_preset: String = "standard", large_targets: bool = false, day: int = 1) -> bool:
+		colour_preset: String = "standard", large_targets: bool = false, day: int = 1, font_style: String = "pixel") -> bool:
 	if _retired: return false
 	var next_theme: Theme = CAPTION_THEME.build(locale, text_percent, palette,
-		high_contrast, colour_preset, large_targets, day)
+		high_contrast, colour_preset, large_targets, day, false, font_style)
 	if next_theme == null: return false
 	var resize_art := text_percent != _percent
 	_locale = locale.replace("_", "-")
 	_percent = text_percent
+	_font_style = font_style
 	_palette = palette
 	_day = day
 	_high_contrast = high_contrast
@@ -94,7 +96,7 @@ func configure_presentation(locale: String = "en", text_percent: int = 100,
 func configure_run_presentation(owner: Object) -> bool:
 	var installed: Dictionary = RUN_PRESENTATION.read(owner)
 	if installed.is_empty() or not configure_presentation(_locale, _percent,
-			installed.palette, _high_contrast, _colour_preset, _large_targets, installed.day): return false
+			installed.palette, _high_contrast, _colour_preset, _large_targets, installed.day, _font_style): return false
 	_run_owner = owner
 	return true
 
@@ -125,7 +127,7 @@ func _apply_presentation() -> void:
 		_footer.color = theme.get_color("deep", "WitnessedCaption")
 	if is_instance_valid(next_button):
 		next_button.text = {"en": "Continue", "zh-CN": "\u7ee7\u7eed", "zh-HK": "\u7e7c\u7e8c", "ja": "続ける", "ko": "계속"}[_locale]
-		next_button.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(_locale, _percent, 20))
+		next_button.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(_locale, _percent, 20, _font_style))
 	# Continue stays 384x48 at (448,656); the fixed 80px footer contains its ring.
 	# Large-target preference belongs to shared theme, without moving this action.
 
@@ -140,29 +142,33 @@ func _ready() -> void:
 		var contrast: Variant = profile.get_preference(&"preferences.accessibility.high_contrast", _high_contrast)
 		var preset: Variant = profile.get_preference(&"preferences.accessibility.colour_differentiation", _colour_preset)
 		var targets: Variant = profile.get_preference(&"preferences.accessibility.large_targets", _large_targets)
-		if contrast is bool and preset is String and targets is bool:
-			configure_presentation(_locale, _percent, _palette, contrast, preset, targets, _day)
+		var font_style: Variant = profile.get_preference(&"preferences.accessibility.font_style", "pixel")
+		if contrast is bool and preset is String and targets is bool and font_style is String:
+			configure_presentation(_locale, _percent, _palette, contrast, preset, targets, _day, font_style)
 	var localization := get_node_or_null("/root/LocalizationManager")
 	if localization != null and localization.has_signal("locale_changed"):
 		localization.connect("locale_changed", _on_locale_changed)
 
 func _on_preference_changed(path: StringName, value: Variant) -> void:
 	match path:
+		&"preferences.accessibility.font_style":
+			if value is String:
+				configure_presentation(_locale, _percent, _palette, _high_contrast, _colour_preset, _large_targets, _day, value)
 		&"preferences.accessibility.text_size":
 			if value is int:
-				configure_presentation(_locale, value, _palette, _high_contrast, _colour_preset, _large_targets, _day)
+				configure_presentation(_locale, value, _palette, _high_contrast, _colour_preset, _large_targets, _day, _font_style)
 		&"preferences.accessibility.high_contrast":
 			if value is bool:
-				configure_presentation(_locale, _percent, _palette, value, _colour_preset, _large_targets, _day)
+				configure_presentation(_locale, _percent, _palette, value, _colour_preset, _large_targets, _day, _font_style)
 		&"preferences.accessibility.colour_differentiation":
 			if value is String:
-				configure_presentation(_locale, _percent, _palette, _high_contrast, value, _large_targets, _day)
+				configure_presentation(_locale, _percent, _palette, _high_contrast, value, _large_targets, _day, _font_style)
 		&"preferences.accessibility.large_targets":
 			if value is bool:
-				configure_presentation(_locale, _percent, _palette, _high_contrast, _colour_preset, value, _day)
+				configure_presentation(_locale, _percent, _palette, _high_contrast, _colour_preset, value, _day, _font_style)
 
 func _on_locale_changed(locale: String) -> void:
-	configure_presentation(locale, _percent, _palette, _high_contrast, _colour_preset, _large_targets, _day)
+	configure_presentation(locale, _percent, _palette, _high_contrast, _colour_preset, _large_targets, _day, _font_style)
 
 func _on_art_drawn() -> void:
 	if not _retired: _drawn = true

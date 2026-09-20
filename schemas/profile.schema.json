@@ -250,6 +250,7 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
+            "font_style",
             "text_size",
             "large_targets",
             "high_contrast",
@@ -259,6 +260,14 @@
             "sound_detail_text"
           ],
           "properties": {
+            "font_style": {
+              "type": "string",
+              "enum": [
+                "pixel",
+                "readable"
+              ],
+              "default": "pixel"
+            },
             "text_size": {
               "type": "integer",
               "enum": [

@@ -11,6 +11,7 @@ const PROFILE_COLOUR_PRESETS := {
 
 var _locale := "en"
 var _text_percent := 100
+var _font_style := "pixel"
 var _palette := "AfterHours"
 var _day := 1
 var _run_owner: Object
@@ -103,7 +104,7 @@ func _ready() -> void:
 	canvas.draw.connect(_draw_canvas)
 	overlay.draw.connect(_draw_seam)
 	get_scroll_bar().focus_mode = Control.FOCUS_NONE
-	configure_presentation(_locale, _text_percent, _palette, _high_contrast, _colour_preset, _large_targets, _day)
+	configure_presentation(_locale, _text_percent, _palette, _high_contrast, _colour_preset, _large_targets, _day, _font_style)
 	_profile = get_node_or_null("/root/ProfileManager")
 	_localization = get_node_or_null("/root/LocalizationManager")
 	_speech_status = load("res://scripts/ui/witnessed/WitnessedSpeechStatus.gd").new()
@@ -526,7 +527,7 @@ func _dismiss_reading_recovery(restore_focus: bool = true) -> void:
 func _configure_recovery_presentation() -> void:
 	if is_instance_valid(recovery_overlay) and _recovery_bound:
 		recovery_overlay.configure_presentation(_locale, _text_percent, _palette,
-			_high_contrast, _colour_preset, _large_targets)
+			_high_contrast, _colour_preset, _large_targets, _font_style)
 
 func _retire_transport() -> void:
 	_cancel_speech()
@@ -543,7 +544,7 @@ func configure_run_presentation(owner: Object) -> bool:
 	var context := RUN_PRESENTATION.read(owner)
 	if context.is_empty(): return false
 	if not configure_presentation(_locale, _text_percent, context.palette,
-			_high_contrast, _colour_preset, _large_targets, context.day): return false
+			_high_contrast, _colour_preset, _large_targets, context.day, _font_style): return false
 	_run_owner = owner
 	return true
 
@@ -640,19 +641,20 @@ func configure_dating_overlay(enabled: bool) -> void:
 	if not is_instance_valid(canvas): return
 	for leaf: RichTextLabel in [older, previous, review_current, caption_text]:
 		leaf.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if enabled else HORIZONTAL_ALIGNMENT_LEFT
-	configure_presentation(_locale, _text_percent, _palette, _high_contrast, _colour_preset, _large_targets, _day)
+	configure_presentation(_locale, _text_percent, _palette, _high_contrast, _colour_preset, _large_targets, _day, _font_style)
 	_layout_stack()
 
-func configure_presentation(locale: String = "en", text_percent: int = 100, palette: String = "AfterHours", high_contrast: bool = false, colour_preset: String = "standard", large_targets: bool = false, day: int = 1) -> bool:
-	var next_theme := CAPTION_THEME.build(locale, text_percent, palette, high_contrast, colour_preset, large_targets, day, _dating_overlay)
+func configure_presentation(locale: String = "en", text_percent: int = 100, palette: String = "AfterHours", high_contrast: bool = false, colour_preset: String = "standard", large_targets: bool = false, day: int = 1, font_style: String = "pixel") -> bool:
+	var next_theme := CAPTION_THEME.build(locale, text_percent, palette, high_contrast, colour_preset, large_targets, day, _dating_overlay, font_style)
 	if next_theme == null:
 		return false
 	# Caption and rail publish one locale tuple. Refusal leaves both unchanged.
 	if is_instance_valid(transport_rail) and not transport_rail.configure_presentation(next_theme, locale):
 		return false
-	var metrics_changed := _caption_theme == null or _locale != locale.replace("_", "-") or _text_percent != text_percent or _large_targets != large_targets
+	var metrics_changed := _caption_theme == null or _locale != locale.replace("_", "-") or _text_percent != text_percent or _large_targets != large_targets or _font_style != font_style
 	_locale = locale.replace("_", "-")
 	_text_percent = text_percent
+	_font_style = font_style
 	_palette = palette
 	_day = day
 	_high_contrast = high_contrast
@@ -737,7 +739,8 @@ func get_caption_projection() -> Dictionary:
 		"high_contrast": _high_contrast, "colour_preset": _colour_preset,
 		"large_targets": _large_targets,
 		"dating_overlay": _dating_overlay,
-		"font_size": int(20 * _text_percent / 100.0),
+		"font_style": _font_style,
+		"font_size": _caption_theme.default_font_size if _caption_theme != null else 0,
 		"text": caption_text.get_parsed_text() if mounted else "",
 		"visible_characters": caption_text.visible_characters if mounted else 0,
 		"total_characters": caption_text.get_total_character_count() if mounted else 0,
@@ -838,16 +841,18 @@ func _apply_preferences() -> void:
 	var high_contrast: Variant = _high_contrast
 	var large_targets: Variant = _large_targets
 	var colour_preset := _colour_preset
+	var font_style: Variant = _font_style
 	if _profile != null and _profile.has_method("get_preference"):
 		high_contrast = _profile.call("get_preference", &"preferences.accessibility.high_contrast", false)
 		large_targets = _profile.call("get_preference", &"preferences.accessibility.large_targets", false)
+		font_style = _profile.call("get_preference", &"preferences.accessibility.font_style", "pixel")
 		var colour_mode: Variant = _profile.call("get_preference", &"preferences.accessibility.colour_differentiation", "standard")
 		if typeof(colour_mode) != TYPE_STRING or not PROFILE_COLOUR_PRESETS.has(colour_mode):
 			return
 		colour_preset = PROFILE_COLOUR_PRESETS[colour_mode]
-	if typeof(high_contrast) != TYPE_BOOL or typeof(large_targets) != TYPE_BOOL:
+	if typeof(high_contrast) != TYPE_BOOL or typeof(large_targets) != TYPE_BOOL or typeof(font_style) != TYPE_STRING:
 		return
-	configure_presentation(locale, int(text_size), _palette, high_contrast, colour_preset, large_targets, _day)
+	configure_presentation(locale, int(text_size), _palette, high_contrast, colour_preset, large_targets, _day, font_style)
 
 func _on_locale_changed(_locale_id: String) -> void:
 	_cancel_speech()
@@ -857,7 +862,7 @@ func _on_locale_changed(_locale_id: String) -> void:
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
 	if path in [&"preferences.reading.read_aloud_enabled", &"preferences.reading.read_aloud_rate"]:
 		_cancel_speech()
-	if path in [&"preferences.accessibility.text_size", &"preferences.accessibility.high_contrast", &"preferences.accessibility.colour_differentiation", &"preferences.accessibility.large_targets"]:
+	if path in [&"preferences.accessibility.text_size", &"preferences.accessibility.font_style", &"preferences.accessibility.high_contrast", &"preferences.accessibility.colour_differentiation", &"preferences.accessibility.large_targets"]:
 		_apply_preferences()
 		_configure_recovery_presentation()
 

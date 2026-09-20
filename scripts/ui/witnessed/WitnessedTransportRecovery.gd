@@ -63,7 +63,7 @@ func bind_owners(localization: Object, input_owner: Node, admission: Callable) -
 
 
 func configure_presentation(locale: String, percent: int, palette: String,
-		high_contrast: bool, colour: String, large_targets: bool) -> bool:
+		high_contrast: bool, colour: String, large_targets: bool, font_style: String = "pixel") -> bool:
 	var normalized := locale.replace("_", "-")
 	if normalized not in LOCALES or percent not in [100, 125, 150] \
 			or colour not in COLOUR_PRESETS or not _bound:
@@ -75,7 +75,7 @@ func configure_presentation(locale: String, percent: int, palette: String,
 	var palette_id := _palette_id(palette)
 	if palette_id == &"": return false
 	var next_theme: Theme = PRESENTATION.build(
-		normalized, percent, palette_id, high_contrast, colour)
+		normalized, percent, palette_id, high_contrast, colour, 1, font_style)
 	if next_theme == null: return false
 	_retire_buttons()
 	_locale = normalized

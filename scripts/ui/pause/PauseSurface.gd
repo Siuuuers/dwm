@@ -35,6 +35,7 @@ var _high_contrast := false
 var _large_targets := false
 var _locale := "en"
 var _percent := 100
+var _font_style := "pixel"
 var _palette := "AfterHours"
 var _colour_preset := "standard"
 var _day := 1
@@ -130,11 +131,12 @@ func _build_confirmation() -> void:
 	return_button.focus_neighbor_left = return_button.get_path()
 	return_button.focus_neighbor_right = return_button.get_path_to(cancel_button)
 
-func configure_presentation(locale: String, percent: int, palette: String = "AfterHours", high_contrast: bool = false, colour_preset: String = "standard", large_targets: bool = false, day: int = 1) -> bool:
-	var candidate := PRESENTATION.build(locale,percent,palette,high_contrast,colour_preset,day)
+func configure_presentation(locale: String, percent: int, palette: String = "AfterHours", high_contrast: bool = false, colour_preset: String = "standard", large_targets: bool = false, day: int = 1, font_style: String = "pixel") -> bool:
+	var candidate := PRESENTATION.build(locale,percent,palette,high_contrast,colour_preset,day,font_style)
 	if candidate == null or not _can_measure(_copy,candidate): return false
 	_locale = locale
 	_percent = percent
+	_font_style = font_style
 	_palette = palette
 	_high_contrast = high_contrast
 	_colour_preset = colour_preset

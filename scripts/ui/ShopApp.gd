@@ -53,6 +53,7 @@ var _palette: StringName = &"after_hours"
 var _day := 1
 var _high_contrast := false
 var _colour_preset := "standard"
+var _font_style := "pixel"
 var _roles: Dictionary = SHOP_THEME.resolve(&"after_hours")
 var _provider: Object
 var _localization: Object
@@ -68,7 +69,8 @@ var _focus_viewport: Viewport
 var _view_exiting := false
 var _catalog_layout_pending := false
 const PREFERENCE_KEYS := ["preferences.accessibility.text_size","preferences.accessibility.large_targets",
-	"preferences.accessibility.high_contrast","preferences.accessibility.colour_differentiation"]
+	"preferences.accessibility.high_contrast","preferences.accessibility.colour_differentiation",
+	"preferences.accessibility.font_style"]
 
 func _enter_tree() -> void:
 	_view_exiting = false
@@ -148,10 +150,11 @@ func _read_preferences(localization: Object, profile: Object) -> Dictionary:
 	var large: Variant = profile.get_preference(PREFERENCE_KEYS[1],null) if profile != null else _large_targets
 	var high_contrast: Variant = profile.get_preference(PREFERENCE_KEYS[2], false) if profile != null else _high_contrast
 	var colour_preset: Variant = profile.get_preference(PREFERENCE_KEYS[3], "standard") if profile != null else _colour_preset
+	var font_style: Variant = profile.get_preference(PREFERENCE_KEYS[4], "pixel") if profile != null else _font_style
 	if typeof(locale) != TYPE_STRING or locale.replace("-","_") not in ["en","zh_CN","zh_HK", "ja", "ko"] or typeof(percent) != TYPE_INT or percent not in [100,125,150] or typeof(large) != TYPE_BOOL \
-		or typeof(high_contrast) != TYPE_BOOL or typeof(colour_preset) != TYPE_STRING or colour_preset not in ["standard","protan","deutan","tritan"]:
+		or typeof(high_contrast) != TYPE_BOOL or typeof(colour_preset) != TYPE_STRING or colour_preset not in ["standard","protan","deutan","tritan"] or font_style not in ["pixel","readable"]:
 		return {"ok":false,"code":"invalid_shop_preferences"}
-	return {"ok":true,"value":[locale.replace("-","_"),percent,large,high_contrast,colour_preset]}
+	return {"ok":true,"value":[locale.replace("-","_"),percent,large,high_contrast,colour_preset,font_style]}
 
 func _on_catalog_changed() -> void:
 	_source_pending = true
@@ -180,8 +183,8 @@ func refresh_view(on_open: bool = false, _presentation_only: bool = false, prepa
 	# Colour-only changes use the retained projection. Catalog refresh on show or after
 	# a purchase still reaches the owner, even when ordinary rows would look identical.
 	if _presentation_only and not on_open and not prepare_hidden and not _source_pending \
-		and last_result.ok and preferences.value.slice(0, 3) == [_locale,_percent,_large_targets]:
-		var unchanged: bool = preferences.value.slice(3) == [_high_contrast,_colour_preset]
+		and last_result.ok and preferences.value.slice(0, 3) == [_locale,_percent,_large_targets] and preferences.value[5] == _font_style:
+		var unchanged: bool = preferences.value.slice(3, 5) == [_high_contrast,_colour_preset]
 		_high_contrast = preferences.value[3]
 		_colour_preset = preferences.value[4]
 		_roles = SHOP_THEME.resolve(_palette, _day, _high_contrast, _colour_preset)
@@ -202,8 +205,8 @@ func refresh_view(on_open: bool = false, _presentation_only: bool = false, prepa
 		return _catalog_failure(str(projected.code))
 	var changed: bool = rows != _catalog_rows
 	var source_changed: bool = (changed and _source_pending) or (not _catalog_rows.is_empty() and _catalog_facts(projected.value) != _catalog_facts(_records))
-	if not changed and last_result.ok and preferences.value.slice(0, 3) == [_locale,_percent,_large_targets]:
-		var colours_changed: bool = preferences.value.slice(3) != [_high_contrast,_colour_preset]
+	if not changed and last_result.ok and preferences.value.slice(0, 3) == [_locale,_percent,_large_targets] and preferences.value[5] == _font_style:
+		var colours_changed: bool = preferences.value.slice(3, 5) != [_high_contrast,_colour_preset]
 		_high_contrast = preferences.value[3]
 		_colour_preset = preferences.value[4]
 		_roles = SHOP_THEME.resolve(_palette, _day, _high_contrast, _colour_preset)
@@ -223,7 +226,7 @@ func refresh_view(on_open: bool = false, _presentation_only: bool = false, prepa
 		if on_open or (focused != null and is_ancestor_of(focused)):
 			_host_anchor = {"focus":_remembered_focus,"scroll":info_scroll.scroll_vertical}
 	var result := configure_shop(rows,preferences.value[0],preferences.value[1],preferences.value[2],_palette,
-		_day,preferences.value[3],preferences.value[4])
+		_day,preferences.value[3],preferences.value[4],preferences.value[5])
 	_focus_after_layout = false
 	if result.ok:
 		_catalog_rows = rows.duplicate(true)
@@ -312,14 +315,14 @@ func _restore_host_view(revision: int) -> void:
 	if is_instance_valid(target) and target.get_focus_mode_with_override() == Control.FOCUS_ALL: target.grab_focus()
 	info_scroll.scroll_vertical = clampi(int(anchor.scroll),0,maxi(0,int(_document.size.y-info_scroll.size.y)))
 
-func configure_shop(items: Array, locale: String = "en", percent: int = 100, large_targets: bool = false, palette: StringName = &"after_hours", day: int = 1, high_contrast: bool = false, colour_preset: String = "standard") -> Dictionary:
+func configure_shop(items: Array, locale: String = "en", percent: int = 100, large_targets: bool = false, palette: StringName = &"after_hours", day: int = 1, high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> Dictionary:
 	if is_node_ready() and not _view_is_current(): return {"ok":false,"code":"shop_view_detached"}
 	# Refuse an unknown presentation before disturbing a valid mounted snapshot.
 	var candidate_roles: Dictionary = SHOP_THEME.resolve(palette, day, high_contrast, colour_preset)
 	if candidate_roles.is_empty():
 		return {"ok": false, "code": "invalid_shop_palette"}
 	var normalized_locale := locale.replace("-","_")
-	if normalized_locale not in ["en","zh_CN","zh_HK", "ja", "ko"] or percent not in [100,125,150]:
+	if normalized_locale not in ["en","zh_CN","zh_HK", "ja", "ko"] or percent not in [100,125,150] or font_style not in ["pixel","readable"]:
 		return {"ok":false,"code":"invalid_shop_presentation"}
 	var projected := PROJECTION.project(items)
 	if not projected.ok: return {"ok":false,"code":projected.code}
@@ -338,6 +341,7 @@ func configure_shop(items: Array, locale: String = "en", percent: int = 100, lar
 	_day = day
 	_high_contrast = high_contrast
 	_colour_preset = colour_preset
+	_font_style = font_style
 	_roles = candidate_roles
 	# No hidden action is admitted before its real purchase owner is bound.
 	last_result = projected
@@ -435,7 +439,7 @@ func _ready() -> void:
 	_connect_focus_observer()
 
 func _apply_colours() -> void:
-	theme = SHOP_THEME.build(_locale, _percent, _palette, _day, _high_contrast, _colour_preset)
+	theme = SHOP_THEME.build(_locale, _percent, _palette, _day, _high_contrast, _colour_preset, _font_style)
 	for card: Button in cards.values():
 		card.apply_palette(_palette, _day, _high_contrast, _colour_preset)
 	for found: Node in find_children("*", "Label", true, false):
@@ -561,6 +565,11 @@ func _render_selection() -> void:
 	_description_label.text = record.get("description", "")
 	_meta_price.text = _price(record.unit_price, record.currency)
 	_meta_state.text = _t("available" if record.available else "sold_out")
+	var state_width := mini(272,maxi(136,2*ceili(_meta_state.get_theme_font("font").get_string_size(
+		_meta_state.text,HORIZONTAL_ALIGNMENT_LEFT,-1,_meta_state.get_theme_font_size("font_size")).x/2.0)))
+	_meta_price.size = Vector2(272-state_width,48)
+	_meta_state.position.x = 496+_meta_price.size.x
+	_meta_state.size = Vector2(state_width,48)
 	var meta_y := 336 if _large else 400
 	info_scroll.size.y = meta_y - 16
 	_meta_price.position.y = meta_y
@@ -604,7 +613,7 @@ func _render_selection() -> void:
 
 func _verify_dock_fit() -> void:
 	if not _view_is_current(): return
-	if not last_result.ok: return
+	if _catalog_layout_pending or not last_result.ok: return
 	# Do not truncate exact amounts or invent a lower owner maximum to fit a key.
 	for label: Label in [_quantity_label, _total_label, _meta_price, _meta_state]:
 		if not label.visible: continue
@@ -691,7 +700,7 @@ func _purchase_supportz() -> void:
 	_cancel_contacts()
 	_supportz_confirmation = SUPPORTZ_CONFIRMATION.new()
 	_supportz_confirmation.name = "ShopConfirmation"
-	_supportz_confirmation.theme = CONFIRMATION_THEME.build(_locale, _percent, _palette, _day, _high_contrast, _colour_preset)
+	_supportz_confirmation.theme = CONFIRMATION_THEME.build(_locale, _percent, _palette, _day, _high_contrast, _colour_preset, _font_style)
 	_supportz_confirmation.request = {"title": _price(45, "money"), "body": "", "warning": false,
 		"cancel": _t("no"), "confirm": _t("yes"), "risk": "neutral", "dialog_name": _t("confirmation")}
 	_supportz_confirmation.attempt_purchase = _attempt_supportz_purchase

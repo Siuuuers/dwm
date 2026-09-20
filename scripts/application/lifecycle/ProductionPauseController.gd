@@ -548,7 +548,8 @@ func _refresh_presentation() -> void:
 		bool(_services.profile.get_preference("preferences.accessibility.high_contrast", false)),
 		str(_services.profile.get_preference("preferences.accessibility.colour_differentiation", "standard")),
 		bool(_services.profile.get_preference("preferences.accessibility.large_targets", false)),
-		int(_services.game_state.day))
+		int(_services.game_state.day),
+		str(_services.profile.get_preference("preferences.accessibility.font_style", "pixel")))
 	var copy := {}
 	for key: String in surface.COPY_KEYS:
 		copy[key] = _services.localization.t("ui.pause." + key)

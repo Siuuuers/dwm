@@ -457,3 +457,25 @@ func test_desktop_rejects_invalid_or_foreign_day_before_binding_contacts_owners(
 	assert_same(candidate._presentation_port,f.port)
 	assert_same(candidate._host_state,f.host)
 	assert_eq(candidate._day,5)
+
+func test_font_style_switch_reflows_retained_thread_without_opening_or_replying_again() -> void:
+	var f := _fixture()
+	var app := _open(f)
+	if app == null: return
+	_open_lavinia(app)
+	await _settle()
+	var copy: Array = []
+	for label: Label in app.contacts_panel.transcript.find_children("*","Label",true,false): copy.append(label.text)
+	var before: Dictionary = f.port.call_counts()
+	var typography := preload("res://scripts/ui/UiTypography.gd")
+	for style: String in ["readable","pixel"]:
+		assert_true(f.localization.set_font_style(style).ok)
+		await _settle()
+		assert_eq(app.contacts_panel.selected_friend,"lavinia")
+		assert_same(app.contacts_panel._fonts.en,typography.font("en",100,style))
+		var current: Array = []
+		for label: Label in app.contacts_panel.transcript.find_children("*","Label",true,false): current.append(label.text)
+		assert_eq(current,copy)
+		var after: Dictionary = f.port.call_counts()
+		for key: String in ["open","reply","prepare","acknowledge","cancel"]:
+			assert_eq(after[key],before[key],"Font selection never changes contact progress: "+key)

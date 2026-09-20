@@ -28,9 +28,9 @@ func _ready() -> void:
 	_resize()
 
 func configure(locale: String = "en", percent: int = 100, large: bool = false, palette: StringName = &"after_hours",
-		high_contrast: bool = false, colour_preset: String = "standard") -> bool:
+		high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> bool:
 	locale = locale.replace("_","-")
-	var candidate: Theme = MINESWEEPER_THEME.build(locale,percent,palette,high_contrast,colour_preset)
+	var candidate: Theme = MINESWEEPER_THEME.build(locale,percent,palette,high_contrast,colour_preset,font_style)
 	if candidate == null: return false
 	_locale = locale
 	_large = large
@@ -155,7 +155,7 @@ func _draw_public_mark(covered: bool) -> void:
 		baseline = (baseline/2.0).round()*2.0
 		# Source Han's numeral ink sits below its typographic centre. Lift one native pixel;
 		# retain the complete theme font size and the fixed aperture.
-		if _locale in ["zh-CN", "zh-HK"]: baseline.y -= 2
+		if font.get_font_name().begins_with("Source Han Sans"): baseline.y -= 2
 		draw_string(font,baseline,text,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size,ink)
 
 func _numeral_font_size() -> int:

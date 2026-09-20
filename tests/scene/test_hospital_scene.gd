@@ -16,6 +16,15 @@ const FAKE_DATING_OWNER := preload("res://tests/support/FakeDatingPresentationOw
 
 var _port: RefCounted
 
+class PresentationProfile extends Node:
+	signal preference_changed(path: StringName, value: Variant)
+	var font_style := "pixel"
+	func get_preference(path: StringName, fallback: Variant = null) -> Variant:
+		return font_style if path == &"preferences.accessibility.font_style" else fallback
+	func change_style(value: String) -> void:
+		font_style = value
+		preference_changed.emit(&"preferences.accessibility.font_style", value)
+
 
 func before_each() -> void:
 	GameState.reset_game()
@@ -117,6 +126,34 @@ func test_ready_mutates_no_gameplay_state() -> void:
 	assert_eq(_owner_snapshot(), before,
 		"_ready() touches no stat, day, Schedule, Contacts index, or route context")
 
+
+func test_notice_font_style_updates_preserve_command_focus_and_gameplay_state() -> void:
+	var original := get_tree().root.get_node("ProfileManager")
+	var original_index := original.get_index()
+	get_tree().root.remove_child(original)
+	var profile := PresentationProfile.new()
+	profile.name = "ProfileManager"
+	get_tree().root.add_child(profile)
+	var scene := _instantiate()
+	assert_true(scene.configure_presentation(_port, _command()).get("ok", false))
+	add_child(scene)
+	var button: Button = scene.get_node("%ContinueButton")
+	var message: Label = scene.get_node("%Message")
+	var state := _owner_snapshot()
+	var command: Dictionary = scene.get_presentation_projection()
+	button.grab_focus()
+	for style: String in ["readable", "pixel"]:
+		profile.change_style(style)
+		assert_eq(button.get_theme_font_size("font_size"), 20 if style == "readable" else 24)
+		assert_same(message.get_theme_font("font"), preload("res://scripts/ui/UiTypography.gd").font(message.language, 100, style))
+		assert_true(button.has_focus())
+		assert_false(button.disabled)
+		assert_eq(scene.get_presentation_projection(), command)
+		assert_eq(_owner_snapshot(), state)
+	scene.free()
+	profile.free()
+	get_tree().root.add_child(original)
+	get_tree().root.move_child(original, original_index)
 
 func test_an_unconfigured_scene_reaching_the_tree_does_nothing_at_all() -> void:
 	# A Hospital scene without a committed presentation intent behind it is a bug. Showing an empty

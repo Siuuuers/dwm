@@ -7,15 +7,16 @@ const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 
 static func build(locale: String, text_percent: int, palette: String,
 		high_contrast: bool = false, colour_preset: String = "standard",
-		large_targets: bool = false, day: int = 1, dating_overlay: bool = false) -> Theme:
+		large_targets: bool = false, day: int = 1, dating_overlay: bool = false, font_style: String = "pixel") -> Theme:
 	locale = locale.replace("_", "-")
 	var roles := PALETTES.resolve_tinted(palette, high_contrast, colour_preset, day)
 	if not TYPOGRAPHY.supports(locale) or text_percent not in [100, 125, 150] \
 			or roles.is_empty():
 		return null
 	var result := Theme.new()
-	result.default_font = TYPOGRAPHY.font(locale, text_percent)
-	result.default_font_size = TYPOGRAPHY.font_size(locale, text_percent, 20)
+	result.default_font = TYPOGRAPHY.font(locale, text_percent, font_style)
+	if result.default_font == null: return null
+	result.default_font_size = TYPOGRAPHY.font_size(locale, text_percent, 20, font_style)
 	for role: StringName in roles:
 		result.set_color(role, &"WitnessedCaption", roles[role])
 	for font_name: StringName in [&"normal_font", &"bold_font", &"italics_font", &"bold_italics_font", &"mono_font"]:

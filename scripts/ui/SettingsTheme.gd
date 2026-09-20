@@ -29,24 +29,25 @@ const SAMPLE_COPY := {
 }
 
 
-static func build(locale: String, percent: int, palette_id: StringName = &"after_hours", high_contrast: bool = false, colour_preset: String = "standard", day: int = 1) -> Theme:
+static func build(locale: String, percent: int, palette_id: StringName = &"after_hours", high_contrast: bool = false, colour_preset: String = "standard", day: int = 1, font_style: String = "pixel") -> Theme:
 	var roles: Dictionary = PALETTES.resolve(palette_id, high_contrast, colour_preset)
 	if roles.is_empty() or day < 1 or day > 7:
 		return null
 	roles = WEEK_TINT.apply(roles, WEEK_TINT.tint_for_day(day), high_contrast, colour_preset)
 	var result := Theme.new()
-	var primary: Font = TYPOGRAPHY.font(locale, percent)
+	var primary: Font = TYPOGRAPHY.font(locale, percent, font_style)
+	if primary == null: return null
 	var font := FontVariation.new()
 	font.base_font = primary
 	var fallbacks: Array[Font] = []
 	# Every language name must remain readable while another language is selected.
-	for companion: Font in [ENGLISH, SIMPLIFIED, TRADITIONAL,
-			TYPOGRAPHY.font("ja", percent), TYPOGRAPHY.font("ko", percent)]:
+	for companion_locale: String in ["en", "zh-CN", "zh-HK", "ja", "ko"]:
+		var companion := TYPOGRAPHY.font(companion_locale, percent, font_style)
 		if companion != primary:
 			fallbacks.append(companion)
 	font.fallbacks = fallbacks
 	result.default_font = font
-	result.default_font_size = TYPOGRAPHY.font_size(locale, percent)
+	result.default_font_size = TYPOGRAPHY.font_size(locale, percent, 24, font_style)
 	for role: String in roles:
 		result.set_color(role, "Settings", roles[role])
 	result.set_color("font_color", "Label", roles.paper_ink)

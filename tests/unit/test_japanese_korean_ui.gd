@@ -40,12 +40,12 @@ func test_real_registry_exposes_five_languages_with_two_selectable_drafts() -> v
 		assert_eq(manager.get_presentation_profile().font_profile, language + "_pixel")
 	assert_eq(manager.prepare_locale("xx-QA-unregistered").get("code"), &"unknown_locale")
 
-func test_both_catalogs_cover_all_297_source_ids_and_exact_placeholders() -> void:
+func test_both_catalogs_cover_all_300_source_ids_and_exact_placeholders() -> void:
 	var loaded: Dictionary = CATALOG.load_bundle("res://localization/manifest.json")
 	assert_true(loaded.get("ok", false), str(loaded))
 	if not loaded.get("ok", false): return
 	var source: Dictionary = SCHEMA._message_map(loaded.value.catalogs.en)
-	assert_eq(source.size(), 297)
+	assert_eq(source.size(), 300)
 	for language: String in ["ja", "ko"]:
 		var translated: Dictionary = SCHEMA._message_map(loaded.value.catalogs[language])
 		assert_eq(translated.size(), source.size())
@@ -110,23 +110,22 @@ func test_five_language_round_trip_updates_real_presentation_without_losing_pref
 	assert_true(manager.register_presentation_root(explicit_root).get("ok", false))
 	assert_true(profile.set_preference(&"preferences.accessibility.text_size", 150).get("ok", false))
 	var sequence: Array = LOCALES + ["en", "ja", "zh_CN", "ko", "zh_HK", "en"]
-	for language: String in sequence:
-		assert_true(manager.set_locale(language).get("ok", false), language)
-		assert_eq(manager.get_locale(), language)
-		assert_eq(profile.get_preference(&"preferences.accessibility.text_size"), 150)
-		assert_eq(target.layout_direction, Control.LAYOUT_DIRECTION_LTR)
-		assert_false(manager.t("menu.setting").begins_with("[missing:"))
-		assert_not_null(target.theme)
-		if language in ["ja", "ko"]:
+	for font_style: String in ["pixel", "readable"]:
+		assert_true(manager.set_font_style(font_style).get("ok", false))
+		for language: String in sequence:
+			assert_true(manager.set_locale(language).get("ok", false), language)
+			assert_eq(manager.get_locale(), language)
+			assert_eq(profile.get_preference(&"preferences.accessibility.text_size"), 150)
+			assert_eq(profile.get_preference(&"preferences.accessibility.font_style"), font_style)
+			assert_eq(target.layout_direction, Control.LAYOUT_DIRECTION_LTR)
+			assert_false(manager.t("menu.setting").begins_with("[missing:"))
+			var selected := TYPOGRAPHY.font(language, 150, font_style)
 			assert_not_null(target.theme.default_font)
-		else:
-			assert_null(target.theme.default_font, "empty project font restores inherited default after a draft language")
-			var restored_font := explicit_target.theme.default_font as FontVariation
-			assert_not_null(restored_font, "explicit original font survives draft language round trips")
-			if restored_font != null:
-				assert_eq(restored_font.get_font_name(), original_font.get_font_name())
-				assert_eq(restored_font.variation_embolden, 0.5)
-			assert_eq(explicit_target.theme.default_font_size, 27)
+			assert_eq(target.theme.default_font.get_font_name(), selected.get_font_name())
+			assert_true((target.theme.default_font as FontFile).data == (selected as FontFile).data,
+				"The selected style and size choose the exact face, including EN and Chinese")
+			assert_eq(explicit_target.theme.default_font.get_font_name(), selected.get_font_name())
+			assert_eq(explicit_target.theme.default_font_size, 27, "Root typography preserves host font size")
 	assert_true(manager.set_locale("ja").get("ok", false))
 	var before: Dictionary = profile.get_profile_snapshot()
 	var before_face: String = target.theme.default_font.get_font_name()
@@ -218,3 +217,24 @@ func test_schedule_warning_copy_and_error_body_fit_all_draft_sizes_and_target_pr
 					cases += 1
 					sheet.free()
 	assert_eq(cases, 36)
+
+func test_legacy_manifest_only_root_restores_original_explicit_font() -> void:
+	var target: Control = autofree(Control.new())
+	target.theme = Theme.new()
+	var original := FontVariation.new()
+	original.base_font = TYPOGRAPHY.ENGLISH
+	original.variation_embolden = 0.5
+	target.theme.default_font = original
+	var presentation: Node = autofree(ROOT.new())
+	presentation._target = target
+	presentation._localization = manager
+	for font_profile: String in ["ja_pixel", "ko_pixel", "project_default"]:
+		var plan: Dictionary = presentation.prepare_presentation({"locale_id": "en", "font_profile": font_profile, "layout_direction": "ltr"})
+		assert_true(plan.get("ok", false), str(plan))
+		if not plan.get("ok", false): continue
+		assert_true(presentation.apply_presentation_silent(plan.value).get("ok", false))
+	var restored := target.theme.default_font as FontVariation
+	assert_not_null(restored)
+	if restored != null:
+		assert_eq(restored.get_font_name(), original.get_font_name())
+		assert_eq(restored.variation_embolden, 0.5)

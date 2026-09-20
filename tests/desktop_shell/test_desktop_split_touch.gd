@@ -1,5 +1,6 @@
 extends "res://addons/gut/test.gd"
 
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const MAIN := preload("res://scenes/main/MainGameScene.tscn")
 const DESKTOP := preload("res://scenes/desktop/ComputerDesktop.tscn")
 const SHELL_FIXTURES := preload("res://tests/desktop_shell/test_desktop_shell.gd")
@@ -17,12 +18,17 @@ class ShellMinesweeperPort extends MINESWEEPER_FIXTURES.PublicPort:
 
 class NavigationProfile extends CONTACT_FIXTURES.FakeProfile:
 	var large_targets := false
+	var font_style := "pixel"
 	func get_preference(path: StringName, default: Variant = null) -> Variant:
 		if path == &"preferences.accessibility.large_targets": return large_targets
+		if path == &"preferences.accessibility.font_style": return font_style
 		return super.get_preference(path, default)
 	func change_large_targets(value: bool) -> void:
 		large_targets = value
 		preference_changed.emit(&"preferences.accessibility.large_targets", value)
+	func change_font_style(value: String) -> void:
+		font_style = value
+		preference_changed.emit(&"preferences.accessibility.font_style", value)
 
 var viewport: SubViewport
 var main: Control
@@ -400,14 +406,34 @@ func test_app_footer_controls_fit_with_large_navigation_and_release_space_when_h
 	profile.change_large_targets(true)
 	await settle()
 	assert_true(desktop.app_footer_slot.visible)
-	assert_false(desktop.clock_label.visible, "secondary clock yields space to app and accessible controls")
+	assert_true(desktop.clock_label.visible, "local time stays visible with app and accessible controls")
 	var strip: Control = desktop.get_node("DesktopCanvas/AppStrip")
 	for control: Control in [desktop.home_button, controls, desktop.touch_navigation]:
 		assert_true(strip.get_global_rect().encloses(control.get_global_rect()))
+	_assert_footer_clock()
 	controls.hide()
 	await settle()
 	assert_false(desktop.app_footer_slot.visible)
-	assert_true(desktop.clock_label.visible)
+	_assert_footer_clock()
+
+
+func _assert_footer_clock() -> void:
+	var strip: Control = desktop.get_node("DesktopCanvas/AppStrip")
+	var clock_rect: Rect2 = desktop.clock_label.get_global_rect()
+	assert_true(desktop.clock_label.is_visible_in_tree(), "local time never yields to footer controls")
+	assert_same(strip.get_child(strip.get_child_count()-1),desktop.clock_label, "clock is the final footer item")
+	assert_almost_eq(clock_rect.end.x,strip.get_global_rect().end.x,desktop.desktop_canvas.scale.x+0.01,
+		"clock stays at the far right within one snapped logical pixel")
+	assert_true(strip.get_global_rect().encloses(clock_rect), "clock fits the fixed footer")
+	var font: Font = desktop.clock_label.get_theme_font("font")
+	var font_size: int = desktop.clock_label.get_theme_font_size("font_size")
+	assert_lte(font.get_string_size(desktop.clock_label.text,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size).x,
+		desktop.clock_label.size.x, "clock text fits without clipping")
+	var right := strip.get_global_rect().position.x
+	for control: Control in [desktop.home_button,desktop.title_label,desktop.app_footer_slot,desktop.touch_navigation,desktop.clock_label]:
+		if not control.is_visible_in_tree(): continue
+		assert_gte(control.get_global_rect().position.x,right-0.01, "footer items never overlap")
+		right = control.get_global_rect().end.x
 
 
 func test_real_minesweeper_footer_mounts_fits_and_tracks_cached_app_visibility() -> void:
@@ -428,36 +454,45 @@ func test_real_minesweeper_footer_mounts_fits_and_tracks_cached_app_visibility()
 	assert_same(controls.get_parent(), desktop.app_footer_slot)
 	assert_true(controls.is_visible_in_tree())
 	assert_eq(menu.item_count, 27, "Fit and all 26 supported sizes are available in the real footer")
-	main.get_node("RootHBox").set_angela_width(320)
-	await settle()
-	for language: String in ["en", "zh-CN", "zh-HK"]:
-		locale.change(language)
-		for percent: float in [1.0, 1.25, 1.5]:
-			profile.change_scale(percent)
-			for large: bool in [false, true]:
-				profile.change_large_targets(large)
-				await settle()
-				assert_true(app.last_result.get("ok", false),
-					"the requested presentation succeeds at %s/%s/large=%s: %s" % [language, percent, large, app.last_result])
-				assert_eq(app.panel._locale, language)
-				assert_eq(app.panel._percent, int(percent * 100), "font size must be applied before checking geometry")
-				assert_eq(app.panel._large, large, "large-target presentation cannot silently retain an earlier state")
-				var strip: Control = desktop.get_node("DesktopCanvas/AppStrip")
-				assert_true(desktop.get_global_rect().encloses(strip.get_global_rect()),
-					"footer stays inside the desktop at %s/%s/large=%s" % [language, percent, large])
-				assert_lte(strip.size.y, 64.0, "footer controls cannot expand the bar below the desktop")
-				assert_true(strip.get_global_rect().encloses(controls.get_global_rect()),
-					"real Minesweeper footer fits %s/%s/large=%s" % [language, percent, large])
-				if desktop.app_scroll_rail.visible:
-					desktop.app_scroll.ensure_control_visible(app.panel.dock)
-					await settle()
-				assert_true(desktop.app_scroll.get_global_rect().grow(0.01).encloses(app.panel.dock.get_global_rect()),
-					"board actions remain reachable above the enlarged footer at %s/%s/large=%s" % [language, percent, large])
-				if desktop.touch_navigation.visible:
-					assert_true(strip.get_global_rect().encloses(desktop.touch_navigation.get_global_rect()),
-						"assisted navigation stays inside the footer alongside the board controls")
-				for control: Control in app.panel.worksheet.zoom_controls:
-					assert_true(strip.get_global_rect().encloses(control.get_global_rect()))
+	for font_style: String in ["pixel","readable"]:
+		profile.change_font_style(font_style)
+		for pane_width: int in [800,960]:
+			main.get_node("RootHBox").set_angela_width(1280-pane_width)
+			await settle()
+			for language: String in ["en", "zh-CN", "zh-HK", "ja", "ko"]:
+				locale.change(language)
+				for percent: float in [1.0, 1.25, 1.5]:
+					profile.change_scale(percent)
+					for large: bool in [false, true]:
+						profile.change_large_targets(large)
+						await settle()
+						assert_true(app.last_result.get("ok", false),
+							"the requested presentation succeeds at %s/%s/large=%s: %s" % [language, percent, large, app.last_result])
+						assert_eq(app.panel._locale, language)
+						assert_eq(app.panel._percent, int(percent * 100), "font size must be applied before checking geometry")
+						assert_eq(app.panel._large, large, "large-target presentation cannot silently retain an earlier state")
+						var strip: Control = desktop.get_node("DesktopCanvas/AppStrip")
+						assert_true(desktop.get_global_rect().encloses(strip.get_global_rect()),
+							"footer stays inside the desktop at %s/%s/large=%s" % [language, percent, large])
+						assert_lte(strip.size.y, 64.0, "footer controls cannot expand the bar below the desktop")
+						_assert_footer_clock()
+						var expected_font: Font = TYPOGRAPHY.font(language,int(percent*100),font_style)
+						assert_same(desktop.theme.default_font,expected_font,"desktop applies selected font style")
+						assert_same(desktop.clock_label.get_theme_font("font"),expected_font,
+							"persistent clock follows the selected face with tabular digits")
+						assert_same(app.panel.worksheet.theme.default_font,expected_font,"Mines footer follows selected font style")
+						assert_true(strip.get_global_rect().encloses(controls.get_global_rect()),
+							"real Minesweeper footer fits %s/%s/large=%s" % [language, percent, large])
+						if desktop.app_scroll_rail.visible:
+							desktop.app_scroll.ensure_control_visible(app.panel.dock)
+							await settle()
+						assert_true(desktop.app_scroll.get_global_rect().grow(0.01).encloses(app.panel.dock.get_global_rect()),
+							"board actions remain reachable above the enlarged footer at %s/%s/large=%s" % [language, percent, large])
+						if desktop.touch_navigation.visible:
+							assert_true(strip.get_global_rect().encloses(desktop.touch_navigation.get_global_rect()),
+								"assisted navigation stays inside the footer alongside the board controls")
+						for control: Control in app.panel.worksheet.zoom_controls:
+							assert_true(strip.get_global_rect().encloses(control.get_global_rect()))
 	profile.change_scale(1.0)
 	profile.change_large_targets(false)
 	await settle()
@@ -472,6 +507,7 @@ func test_real_minesweeper_footer_mounts_fits_and_tracks_cached_app_visibility()
 	await settle()
 	assert_false(controls.is_visible_in_tree())
 	assert_false(desktop.app_footer_slot.visible)
+	_assert_footer_clock()
 	assert_true(desktop.open_app(&"minesweeper").get("ok", false))
 	await settle()
 	assert_same(app.panel.worksheet.view_controls, controls, "cached app reuses its footer controls")
@@ -480,6 +516,7 @@ func test_real_minesweeper_footer_mounts_fits_and_tracks_cached_app_visibility()
 	await settle()
 	assert_same(desktop._touch_focus_scope(), desktop, "switchable views keep their tabs and Home in scope")
 	assert_false(controls.is_visible_in_tree(), "board sizing stays out of document views")
+	_assert_footer_clock()
 	app.panel.worksheet.information_sheet.return_button.grab_focus()
 	await tap_navigation(desktop.touch_navigation.next_button)
 	assert_true(app.panel.dock.is_ancestor_of(viewport.gui_get_focus_owner()),

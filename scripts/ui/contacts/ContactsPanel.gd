@@ -62,15 +62,15 @@ func _on_resized() -> void:
 	queue_redraw()
 
 func configure(english: Font, simplified: Font, traditional: Font, text_percent: int = 100,
-		midnight: bool = false, day: int = 1, high_contrast: bool = false, colour_preset: String = "standard") -> bool:
-	if english == null or simplified == null or traditional == null or text_percent not in [100, 125, 150]:
+		midnight: bool = false, day: int = 1, high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> bool:
+	if font_style not in ["pixel","readable"] or english == null or simplified == null or traditional == null or text_percent not in [100, 125, 150]:
 		return false
 	var palette: StringName = &"midnight" if midnight else &"after_hours"
 	var candidate := CONTACTS_THEME.build(english, 24 * text_percent / 100, palette, day, high_contrast, colour_preset)
 	if candidate == null: return false
 	var anchor := _scroll_anchor()
 	_fonts = {"en": english, "zh-CN": simplified, "zh-HK": traditional,
-		"ja": TYPOGRAPHY.font("ja", text_percent), "ko": TYPOGRAPHY.font("ko", text_percent)}
+		"ja": TYPOGRAPHY.font("ja", text_percent, font_style), "ko": TYPOGRAPHY.font("ko", text_percent, font_style)}
 	font_size = 24 * text_percent / 100
 	theme = candidate
 	_presentation = [palette, day, high_contrast, colour_preset]
