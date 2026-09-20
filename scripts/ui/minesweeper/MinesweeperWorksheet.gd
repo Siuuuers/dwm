@@ -13,6 +13,8 @@ const LAYOUT := preload("res://scripts/ui/minesweeper/MinesweeperWorksheetLayout
 const MS_THEME := preload("res://scripts/ui/minesweeper/MinesweeperTheme.gd")
 const SHEET := preload("res://scripts/ui/minesweeper/MinesweeperInformationSheet.gd")
 const VIEW_BUTTON := preload("res://scripts/ui/minesweeper/MinesweeperActionButton.gd")
+const FIT_WIDTH := 112
+const FIT_COPY := {"en": "Fit", "zh-CN": "适应", "zh-HK": "適應"}
 const VIEW_SCOPES := ["app_beginner", "app_intermediate", "app_expert", "challenge"]
 const VIEW_COPY := {
 	"en": ["Fit entire board", "Cell: %s px", "Fit: %s px", "Could not save view", "Zoom: Ctrl + wheel, pinch, or LT / RT. Pan: wheel, Drag mode, or right stick."],
@@ -335,8 +337,9 @@ func _gui_input(event: InputEvent) -> void:
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), get_theme_color(&"habitat", &"Minesweeper"))
 
-static func view_controls_height(_locale: String, _next_theme: Theme, large: bool) -> int:
-	return 64 if large else 48
+static func view_controls_height(locale: String, next_theme: Theme, large: bool) -> int:
+	var measured: Dictionary = VIEW_BUTTON.ROW.measure_copy(FIT_COPY[locale.replace("_", "-")], next_theme, FIT_WIDTH - 20)
+	return 2 * ceili(maxf(64 if large else 48, float(measured.height) + 16) / 2.0)
 
 func set_footer_host(host: Control) -> void:
 	if not is_instance_valid(host) or view_controls.get_parent() == host: return
@@ -349,8 +352,10 @@ func set_footer_host(host: Control) -> void:
 
 func _configure_view_controls() -> void:
 	view_controls.theme = theme
-	var fit_copy: String = {"en": "Fit", "zh-CN": "适应", "zh-HK": "適應"}[_locale]
-	zoom_controls[1].configure(fit_copy, theme, _large, 80)
+	var fit_copy: String = FIT_COPY[_locale]
+	# Compact face padding keeps the footer within its bar; large targets still get 64px.
+	zoom_controls[1].configure(fit_copy, theme, false, FIT_WIDTH)
+	zoom_controls[1].custom_minimum_size.y = view_controls_height(_locale, theme, _large)
 	zoom_controls[1].accessibility_name = VIEW_COPY[_locale][0]
 	cell_size_menu.clear()
 	cell_size_menu.add_item(fit_copy, 0)

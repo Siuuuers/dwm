@@ -100,11 +100,19 @@ func test_large_targets_and_text_size_do_not_change_selected_cell_size() -> void
 	var sheet := _worksheet()
 	for locale: String in ["en","zh-CN","zh-HK"]:
 		for percent: int in [100,125,150]:
-			assert_true(sheet.configure("desktop_app",locale,percent,true))
-			assert_almost_eq(sheet.geometry.target*2.0,36.0,0.001)
-			assert_eq(sheet.zoom_controls.size(),2)
-			for control: Control in sheet.zoom_controls:
-				assert_true(Rect2(Vector2.ZERO,sheet.size).encloses(Rect2(control.position,control.size)))
+			for large: bool in [false,true]:
+				assert_true(sheet.configure("desktop_app",locale,percent,large))
+				await get_tree().process_frame
+				assert_almost_eq(sheet.geometry.target*2.0,36.0,0.001)
+				assert_eq(sheet.zoom_controls.size(),2)
+				assert_lte(sheet.view_controls.get_combined_minimum_size().x,312.0)
+				assert_lte(sheet.view_controls.get_combined_minimum_size().y,64.0)
+				assert_eq(sheet.zoom_controls[1]._paragraph.get_line_count(),1,"Fit stays on one line in every supported locale.")
+				for control: Control in sheet.zoom_controls:
+					var local_rect := Rect2(control.global_position-sheet.global_position,control.size)
+					assert_true(Rect2(Vector2.ZERO,sheet.size).encloses(local_rect),str([locale,percent,large,local_rect]))
+					assert_gte(control.size.y,control.get_combined_minimum_size().y)
+					assert_gte(control.size.y,64.0 if large else 48.0)
 
 func test_sheet_and_held_cell_block_zoom_without_writing_preferences() -> void:
 	var profile := Preferences.new()

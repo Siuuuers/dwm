@@ -8,8 +8,8 @@ const FLAG_BUTTON := preload("res://scripts/ui/minesweeper/MinesweeperFlagButton
 const MS_THEME := preload("res://scripts/ui/minesweeper/MinesweeperTheme.gd")
 const COPY := preload("res://scripts/ui/minesweeper/MinesweeperChromeCopy.gd")
 const MODES := [&"reveal",&"flag",&"drag"]
-const LEFT := [["flag",4,40],["drag",48,40],["board",92,48]]
-const DESKTOP := [["new_board",144,64],["assignments",212,80],["rules",296,48]]
+const LEFT := [["flag",4,40],["drag",48,56],["board",108,56]]
+const DESKTOP := [["new_board",168,64],["assignments",236,80],["rules",320,48]]
 const CANONICAL := [["rules",376,48],["pause",428,48]]
 
 var buttons: Dictionary = {}

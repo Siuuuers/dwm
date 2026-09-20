@@ -66,3 +66,15 @@ func test_custody_and_invalid_updates_preserve_selection_without_command() -> vo
 	assert_false(dock.present(&"reveal",["rules","rules"]))
 	assert_false(dock.present(&"guess",[]))
 	assert_eq(dock.mode,&"drag")
+
+func test_flag_icon_height_is_independent_of_its_hidden_localized_label() -> void:
+	var flag: Button = preload("res://scripts/ui/minesweeper/MinesweeperFlagButton.gd").new()
+	add_child_autofree(flag)
+	for locale: String in ["en","zh-CN","zh-HK"]:
+		var copy: Dictionary = preload("res://scripts/ui/minesweeper/MinesweeperChromeCopy.gd").get_copy(locale)
+		for percent: int in [100,125,150]:
+			for large: bool in [false,true]:
+				var next_theme: Theme = preload("res://scripts/ui/minesweeper/MinesweeperTheme.gd").build(locale,percent,&"after_hours")
+				assert_true(flag.configure(copy.flag,next_theme,large,80))
+				assert_eq(flag.get_combined_minimum_size().y,64.0 if large else 48.0)
+				assert_eq(flag.accessibility_name,copy.flag)

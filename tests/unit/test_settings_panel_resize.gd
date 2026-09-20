@@ -97,7 +97,8 @@ func _assert_panel_geometry(width: float) -> void:
 	assert_eq(_content.rail_scroll.position, Vector2(16, 16))
 	assert_eq(_content.rail_scroll.size, Vector2(208, 624))
 	assert_eq(_content.get_node("Heading").get_rect(), Rect2(240, 16, width - 256, 80))
-	assert_eq(_content.sheet_scroll.get_rect(), Rect2(240, 96, width - 256, 400))
+	# Language hides the accessibility specimen footer, reclaiming its 144 pixels.
+	assert_eq(_content.sheet_scroll.get_rect(), Rect2(240, 96, width - 256, 544))
 	assert_eq(_content.get_node("Footer").get_rect(), Rect2(240, 496, width - 256, 144))
 	assert_eq(_content.get_node("Heading/CategoryHeading").get_rect(),
 		Rect2(16, 8, width - 288, 64))

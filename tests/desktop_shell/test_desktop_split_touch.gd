@@ -298,8 +298,14 @@ func test_real_minesweeper_footer_mounts_fits_and_tracks_cached_app_visibility()
 				profile.change_large_targets(large)
 				await settle()
 				var strip: Control = desktop.get_node("AppStrip")
+				assert_true(desktop.get_global_rect().encloses(strip.get_global_rect()),
+					"footer stays inside the desktop at %s/%s/large=%s" % [language, percent, large])
+				assert_lte(strip.size.y, 64.0, "footer controls cannot expand the bar below the desktop")
 				assert_true(strip.get_global_rect().encloses(controls.get_global_rect()),
 					"real Minesweeper footer fits %s/%s/large=%s" % [language, percent, large])
+				if desktop.touch_navigation.visible:
+					assert_true(strip.get_global_rect().encloses(desktop.touch_navigation.get_global_rect()),
+						"assisted navigation stays inside the footer alongside the board controls")
 				for control: Control in app.panel.worksheet.zoom_controls:
 					assert_true(strip.get_global_rect().encloses(control.get_global_rect()))
 	assert_true(desktop.return_home().get("ok", false))
