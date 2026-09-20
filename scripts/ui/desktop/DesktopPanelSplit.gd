@@ -7,6 +7,7 @@ const MIN_ANGELA_WIDTH := 320.0
 const MAX_ANGELA_WIDTH := 480.0
 const MIN_COMPUTER_WIDTH := 800.0
 const HANDLE_SIZE := Vector2(64, 64)
+const WIDTH_STEP := 2.0
 const KEYBOARD_STEP := 16.0
 
 
@@ -74,7 +75,7 @@ func _input(event: InputEvent) -> void:
 
 
 func set_angela_width(width: float) -> void:
-	var next := clampf(width, MIN_ANGELA_WIDTH, MAX_ANGELA_WIDTH)
+	var next := clampf(snappedf(width, WIDTH_STEP), MIN_ANGELA_WIDTH, MAX_ANGELA_WIDTH)
 	if is_equal_approx(next, _angela_width):
 		return
 	_angela_width = next
@@ -211,7 +212,7 @@ func _begin_drag(pointer_x: float, mouse: bool = true) -> void:
 
 func _update_drag(pointer_x: float) -> void:
 	# Keep both panes and their hit targets stable until the pointer is released.
-	_preview_width = clampf(_drag_origin_width + pointer_x - _drag_origin_x,
+	_preview_width = clampf(snappedf(_drag_origin_width + pointer_x - _drag_origin_x, WIDTH_STEP),
 		MIN_ANGELA_WIDTH, MAX_ANGELA_WIDTH)
 	_handle.preview_offset = _preview_width - _angela_width
 	_handle.queue_redraw()

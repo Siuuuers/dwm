@@ -140,6 +140,75 @@ func test_central_pointer_drag_clamps_and_preserves_existing_focus_and_children(
 	assert_eq(_split.get_child_count(), 3, "resizing does not remount either pane")
 
 
+func test_programmatic_widths_snap_to_two_pixels_and_publish_only_changed_steps() -> void:
+	var changes: Array[float] = []
+	_split.split_changed.connect(func(width: float): changes.append(width))
+	var requests := [401.0, 402.9, 403.0, 401.1, 400.9, 400.1, 319.8, 321.0, 479.1, 900.0]
+	var expected := [402.0, 402.0, 404.0, 402.0, 400.0, 400.0, 320.0, 322.0, 480.0, 480.0]
+	for index: int in range(requests.size()):
+		_split.set_angela_width(requests[index])
+		await _settle()
+		assert_eq(_split.get_angela_width(), expected[index], "nearest two-pixel width for %s" % requests[index])
+		assert_eq(_angela.get_rect(), Rect2(0, 0, expected[index], 720))
+		assert_eq(_computer.get_rect(), Rect2(expected[index], 0, 1280 - expected[index], 720))
+	assert_eq(changes, [402.0, 404.0, 402.0, 400.0, 320.0, 322.0, 480.0],
+		"fractional jitter inside one step cannot publish another layout commit")
+
+
+func test_pointer_preview_and_release_share_the_two_pixel_grid() -> void:
+	_focus_target.grab_focus()
+	var changes: Array[float] = []
+	_split.split_changed.connect(func(width: float): changes.append(width))
+	var handle := _split.get_node("SplitDragHandle") as Control
+	assert_true(_mouse_button(Vector2(472, 360), true))
+	assert_true(_mouse_motion(Vector2(393.4, 360), Vector2(-78.6, 0)))
+	assert_eq(handle.preview_offset, -78.0, "401.4px candidate previews the 402px step")
+	assert_true(_mouse_motion(Vector2(392.6, 360), Vector2(-0.8, 0)))
+	assert_eq(handle.preview_offset, -80.0, "400.6px candidate previews the 400px step")
+	assert_true(_mouse_motion(Vector2(393.1, 360), Vector2(0.5, 0)))
+	assert_eq(handle.preview_offset, -78.0)
+	assert_eq(_angela.get_rect(), Rect2(0, 0, 480, 720))
+	assert_true(changes.is_empty(), "preview never commits or reflows the artwork")
+	assert_true(_mouse_button(Vector2(393.1, 360), false))
+	await _settle()
+	assert_eq(_split.get_angela_width(), 402.0, "release commits exactly the previewed step")
+	assert_eq(changes, [402.0])
+	assert_false(handle.preview_visible)
+	assert_true(_focus_target.has_focus())
+	assert_true(_mouse_button(Vector2(394, 360), true))
+	assert_true(_mouse_motion(Vector2(394.8, 360), Vector2(0.8, 0)))
+	assert_eq(handle.preview_offset, 0.0)
+	assert_true(_mouse_button(Vector2(394.8, 360), false))
+	await _settle()
+	assert_eq(changes, [402.0], "a released drag within the same step emits nothing")
+	assert_eq(_computer.get_rect(), Rect2(402, 0, 878, 720))
+
+
+func test_touch_preview_and_release_share_the_same_steps_without_jitter_commits() -> void:
+	_split.set_angela_width(400)
+	await _settle()
+	var changes: Array[float] = []
+	_split.split_changed.connect(func(width: float): changes.append(width))
+	var handle := _split.get_node("SplitDragHandle") as Control
+	assert_true(_touch(Vector2(392, 360), true))
+	assert_true(_touch_drag(Vector2(391.4, 360), Vector2(-0.6, 0)))
+	assert_eq(handle.preview_offset, 0.0)
+	assert_true(_touch(Vector2(391.4, 360), false))
+	await _settle()
+	assert_true(changes.is_empty(), "touch jitter inside the current step is a no-op")
+	assert_true(_touch(Vector2(392, 360), true))
+	assert_true(_touch_drag(Vector2(390.9, 360), Vector2(-1.1, 0)))
+	assert_eq(handle.preview_offset, -2.0, "touch uses the same two-pixel visual preview")
+	assert_eq(_split.get_angela_width(), 400.0)
+	assert_true(changes.is_empty())
+	assert_true(_touch(Vector2(390.9, 360), false))
+	await _settle()
+	assert_eq(changes, [398.0])
+	assert_eq(_angela.get_rect(), Rect2(0, 0, 398, 720))
+	assert_eq(_computer.get_rect(), Rect2(398, 0, 882, 720))
+	assert_false(handle.preview_visible)
+
+
 func test_app_control_near_the_seam_remains_clickable() -> void:
 	var presses: Array[int] = [0]
 	_edge_button.pressed.connect(func(): presses[0] += 1)

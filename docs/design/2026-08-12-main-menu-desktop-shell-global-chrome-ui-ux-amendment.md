@@ -768,6 +768,15 @@ or text size does not reserve or remove a separate strip of artwork. A subtle
 rim and highlight give the card a glass appearance, while a stronger Day
 heading and tabular figures keep the public facts easy to scan.
 
+Horizontal divider adjustment keeps the artwork centered at its existing
+height. Within the supported panel widths, narrowing crops both sides equally
+without zooming or changing vertical framing. Divider preview and committed
+widths share a 2px grid in logical game coordinates: each step changes the
+visible artwork by 1px on each side. Window or display scaling may map these
+logical pixels to fractional physical pixels. Dragging still previews only;
+the panels and artwork update on release. Keyboard adjustment retains its
+existing 16px step, which also lands on this grid.
+
 The card ends above the divider's complete pointer/touch target. Enlarged
 text and longer condition or penalty copy scroll within this bounded area;
 facts are never shortened or silently hidden. High Contrast uses an opaque

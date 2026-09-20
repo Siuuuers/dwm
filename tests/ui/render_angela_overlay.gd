@@ -30,6 +30,7 @@ var samples: Array[Dictionary] = []
 var captures := 0
 var art_geometry := {}
 var art_pixels := {}
+var crop_checks: Array[Dictionary] = []
 
 func _initialize() -> void: _run.call_deferred()
 
@@ -58,10 +59,11 @@ func _run() -> void:
 		{"name": "wide-en100-day7-conditions", "width": 480, "locale": "en", "percent": 100, "conditions": true, "day": 7},
 	]:
 		await _show(fixture)
+	await _check_centered_crop()
 	check(samples.size() == EXPECTED_CAPTURES, "all expected states checked")
 	if DisplayServer.get_name() != "headless": check(captures == EXPECTED_CAPTURES, "all expected screenshots saved")
 	var report := {"ok": failures.is_empty(), "renderer": DisplayServer.get_name(), "samples": samples.size(),
-		"captures": captures, "failures": failures, "evidence": samples,
+		"captures": captures, "failures": failures, "evidence": samples, "crop_checks": crop_checks,
 		"scope": "production Main/StatHud and authored artwork; synthetic public stat values"}
 	var file := FileAccess.open(folder.path_join("results.json"), FileAccess.WRITE)
 	check(file != null, "results file opened")
@@ -191,7 +193,7 @@ func _scroll_to_last_row() -> void:
 	scroll.ensure_control_visible(hud.get_node("%PenaltyLabel"))
 	await settle()
 
-func _check_material_pixels(pixels: Image, fixture: Dictionary) -> void:
+func _art_reference(name: String) -> Image:
 	# Alpha-only reference changes no visibility, layout, ownership or facts.
 	var original: Color = hud.modulate
 	var focus: Control = viewport.gui_get_focus_owner()
@@ -201,11 +203,15 @@ func _check_material_pixels(pixels: Image, fixture: Dictionary) -> void:
 	var reference: Image = viewport.get_texture().get_image()
 	hud.modulate = original
 	for frame in 3: await RenderingServer.frame_post_draw
-	check(_art_geometry() == geometry and viewport.gui_get_focus_owner() == focus, fixture.name + ": reference preserves geometry/focus")
+	check(_art_geometry() == geometry and viewport.gui_get_focus_owner() == focus, name + ": reference preserves geometry/focus")
+	return reference
+
+func _check_material_pixels(pixels: Image, fixture: Dictionary) -> void:
+	var reference := await _art_reference(fixture.name)
 	# Omit only the split handle's 64px hit area, whose theme can change independently.
-	var art_data := reference.get_region(Rect2i(0, 0, int(fixture.width) - 64, 720)).get_data()
-	if not art_pixels.has(fixture.width): art_pixels[fixture.width] = art_data
-	check(art_data == art_pixels[fixture.width], fixture.name + ": same-width artwork pixels do not move with stats or preferences")
+	var art_image := reference.get_region(Rect2i(0, 0, int(fixture.width) - 64, 720))
+	if not art_pixels.has(fixture.width): art_pixels[fixture.width] = art_image
+	check(art_image.get_data() == art_pixels[fixture.width].get_data(), fixture.name + ": same-width artwork pixels do not move with stats or preferences")
 	var bounds := hud.get_global_rect()
 	var rendered_colors := {}
 	var underlying_colors := {}
@@ -225,3 +231,33 @@ func _check_material_pixels(pixels: Image, fixture: Dictionary) -> void:
 		check(rendered_colors.size() == 1, fixture.name + ": high-contrast padding fully masks artwork")
 	else:
 		check(rendered_colors.size() > 5, fixture.name + ": glass retains artwork variation through blank padding")
+
+func _check_centered_crop() -> void:
+	if DisplayServer.get_name() != "headless":
+		_compare_crop(art_pixels[480], art_pixels[320], 80, 320)
+	main.get_node("RootHBox").set_angela_width(478)
+	await settle()
+	check(angela.size == Vector2(478, 720), "minimum divider step commits exactly two pixels")
+	check(art.get_global_rect() == Rect2(0, 0, 478, 720), "minimum step preserves full artwork height")
+	for layer: Node in art.get_children():
+		if layer is TextureRect: check(layer.get_global_rect() == art.get_global_rect(), "minimum step preserves aligned full-height art layers")
+	if DisplayServer.get_name() != "headless":
+		var reference := await _art_reference("minimum two-pixel step")
+		_compare_crop(art_pixels[480], reference.get_region(Rect2i(0, 0, 478 - 64, 720)), 1, 478)
+	main.get_node("RootHBox").set_angela_width(480)
+	await settle()
+
+func _compare_crop(wide: Image, narrow: Image, source_x: int, width: int) -> void:
+	var expected := wide.get_region(Rect2i(source_x, 0, narrow.get_width(), 720)).get_data()
+	var actual := narrow.get_data()
+	var identical := actual == expected
+	var largest_difference := 0
+	if not identical:
+		for index: int in actual.size():
+			largest_difference = maxi(largest_difference, absi(int(actual[index]) - int(expected[index])))
+	var record := {"source_width": 480, "target_width": width, "source_x": source_x,
+		"sample_width": narrow.get_width(), "sample_height": 720, "identical": identical,
+		"maximum_channel_difference": largest_difference}
+	crop_checks.append(record)
+	print("ANGELA_ART_CROP_CHECK ", JSON.stringify(record))
+	check(identical, "480 to %d: constant-height artwork exactly matches centered crop at x=%d" % [width, source_x])
