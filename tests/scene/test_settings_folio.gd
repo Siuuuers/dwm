@@ -70,7 +70,7 @@ func test_fixed_geometry_fonts_and_targets_in_all_eighteen_presentations() -> vo
 				assert_eq(content.size, Vector2(800, 656), context)
 				for entry: Array in [
 					["RailScroll", Rect2(16, 16, 208, 624)],
-					["SheetScroll", Rect2(240, 96, 544, 400)],
+					["SheetScroll", Rect2(240, 96, 544, 544)],
 					["Heading", Rect2(240, 16, 544, 80)],
 					["Footer", Rect2(240, 496, 544, 144)],
 				]:
@@ -203,6 +203,9 @@ func test_control_sample_is_noninteractive_and_only_in_accessibility_footer() ->
 		content.select_category(category)
 		await _settle()
 		assert_eq(sample.is_visible_in_tree(), category == "accessibility", category)
+		assert_eq(content.get_node("Footer").visible, category == "accessibility", category)
+		var expected_bottom := 496.0 if category == "accessibility" else 640.0
+		assert_eq(content.get_node("SheetScroll").get_rect().end.y, expected_bottom, category + ": unused footer space returns to the sheet")
 	assert_eq(sample.get_child_count(), 4, "Four fixed visual specimens")
 	for name: String in ["Selected", "Focus", "Warning", "Unavailable"]:
 		var specimen: Control = sample.get_node(name)

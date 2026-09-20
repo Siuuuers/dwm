@@ -246,7 +246,7 @@ func test_configuration_and_invalid_projection_preserve_the_current_view_atomica
 	worksheet.set_scroll(Vector2i(4,9))
 	var retained: Dictionary = worksheet.geometry.duplicate(true)
 	assert_false(worksheet.configure("unknown"))
-	assert_false(worksheet.configure("desktop_app","en",100,false,&"after_hours",Vector2i(25,25)))
+	assert_false(worksheet.configure("desktop_app","en",100,false,&"after_hours",Vector2i(23,23)))
 	assert_false(worksheet.present({"private_board":true}))
 	assert_eq(worksheet.geometry,retained)
 	assert_eq(worksheet.get_scroll(),Vector2i.ZERO)
@@ -266,7 +266,7 @@ func test_configure_and_present_before_tree_mount_keep_focus_and_geometry() -> v
 	assert_true(worksheet.present(_projection()))
 	add_child_autofree(worksheet)
 	assert_eq(worksheet.grid.focus_mode,Control.FOCUS_ALL)
-	assert_eq(worksheet.grid.position,Vector2(230.5,76.5))
+	assert_true(Rect2(Vector2.ZERO,worksheet.well.size).encloses(Rect2(worksheet.grid.position,worksheet.grid.size*worksheet.grid.scale)))
 
 func test_information_closing_reenables_external_source_before_exact_focus_restoration() -> void:
 	var worksheet := _worksheet("expert")

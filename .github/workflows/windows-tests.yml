@@ -3,7 +3,7 @@ name: Windows automated tests
 on:
   pull_request:
   push:
-    branches: [master, 'codex/**']
+    branches: [master]
   workflow_dispatch:
 
 permissions:
@@ -72,6 +72,12 @@ jobs:
           if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load' -Quiet) {
             throw 'Project import reported script errors; inspect import.log.'
           }
+      - name: Restore committed project settings after editor import
+        run: |
+          # Dialogic's editor scan rewrites its timeline lookup during import.
+          # Execute the committed configuration with the freshly imported assets.
+          git restore -- project.godot
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Run focused regression suite
         timeout-minutes: 10
         env:

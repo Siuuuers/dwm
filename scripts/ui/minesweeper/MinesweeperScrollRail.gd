@@ -16,6 +16,7 @@ var _locale := "en"
 var _dragging := false
 var _drag_start := 0.0
 var _drag_value := 0
+var _large := false
 
 
 func _ready() -> void:
@@ -25,13 +26,14 @@ func _ready() -> void:
 	focus_exited.connect(_on_focus_exited)
 
 
-func configure(next_vertical: bool, locale: String, next_theme: Theme) -> bool:
+func configure(next_vertical: bool, locale: String, next_theme: Theme, large: bool = false) -> bool:
 	var normalized: String = locale.replace("_","-")
 	if normalized not in LOCALES or next_theme == null: return false
 	for role: StringName in ROLES:
 		if not next_theme.has_color(role,&"Minesweeper"): return false
 	if vertical != next_vertical: _dragging = false
 	vertical = next_vertical
+	_large = large
 	_locale = normalized
 	theme = next_theme
 	_refresh_accessibility()
@@ -71,7 +73,7 @@ func _valid(next_rail: Dictionary, next_maximum: int, next_value: int, next_page
 	var axis := 1 if vertical else 0
 	var cross := 0 if vertical else 1
 	var target: int = rect.size[cross]
-	if target not in [24,32]: return false
+	if target not in [12,24,32]: return false
 	if next_page != rect.size[axis]: return false
 	if thumb.position[cross] != rect.position[cross] or thumb.size[cross] != rect.size[cross]: return false
 	var expected_length: int = maxi(target,floori(float(next_page*next_page)/(next_page+next_maximum)))
@@ -146,8 +148,7 @@ func _request(next_value: int) -> void:
 
 
 func _step() -> int:
-	var rect: Rect2i = rail.rect
-	return rect.size.x if vertical else rect.size.y
+	return 32 if _large else 24
 
 
 func _coordinate(point: Vector2) -> float:
@@ -187,8 +188,14 @@ func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO,size),get_theme_color(&"controlled_face",&"Minesweeper"))
 	draw_rect(Rect2(1,1,size.x-2,size.y-2),get_theme_color(&"dark_registration",&"Minesweeper"),false,2)
 	var thumb: Rect2 = _local_thumb()
+	# The hit rail stays generous; only the centred thumb is visually narrow.
+	var cross := 0 if vertical else 1
+	var inset := maxf(3.0, (thumb.size[cross] - 8.0) / 2.0)
+	thumb.position[cross] += inset
+	thumb.size[cross] -= inset * 2.0
 	draw_rect(thumb,get_theme_color(&"dark_scroll_thumb",&"Minesweeper"))
 	draw_rect(thumb.grow(-1),get_theme_color(&"dark_separation",&"Minesweeper"),false,2)
 	if has_focus() and interactive:
 		draw_rect(Rect2(2,2,size.x-4,size.y-4),get_theme_color(&"dark_focus_outer",&"Minesweeper"),false,2)
 		draw_rect(Rect2(6,6,size.x-12,size.y-12),get_theme_color(&"dark_focus_inner",&"Minesweeper"),false,2)
+

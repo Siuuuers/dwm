@@ -15,9 +15,9 @@ const SHEET := preload("res://scripts/ui/minesweeper/MinesweeperInformationSheet
 const VIEW_BUTTON := preload("res://scripts/ui/minesweeper/MinesweeperActionButton.gd")
 const VIEW_SCOPES := ["app_beginner", "app_intermediate", "app_expert", "challenge"]
 const VIEW_COPY := {
-	"en": ["Fit entire board", "Cell: %s px", "Fit: %s px", "Could not save view", "Zoom out", "Zoom in", "Zoom: Ctrl + wheel, pinch, or LT / RT. Pan: wheel, Drag mode, or right stick."],
-	"zh-CN": ["完整显示棋盘", "格子：%s 像素", "适应：%s 像素", "无法保存视图", "缩小格子", "放大格子", "缩放：Ctrl + 滚轮、双指捏合或 LT / RT。平移：滚轮、拖动模式或右摇杆。"],
-	"zh-HK": ["完整顯示棋盤", "格子：%s 像素", "適應：%s 像素", "無法儲存檢視", "縮小格子", "放大格子", "縮放：Ctrl + 滾輪、雙指捏合或 LT / RT。平移：滾輪、拖曳模式或右搖桿。"],
+	"en": ["Fit entire board", "Cell: %s px", "Fit: %s px", "Could not save view", "Zoom: Ctrl + wheel, pinch, or LT / RT. Pan: wheel, Drag mode, or right stick."],
+	"zh-CN": ["完整显示棋盘", "格子：%s 像素", "适应：%s 像素", "无法保存视图", "缩放：Ctrl + 滚轮、双指捏合或 LT / RT。平移：滚轮、拖动模式或右摇杆。"],
+	"zh-HK": ["完整顯示棋盤", "格子：%s 像素", "適應：%s 像素", "無法儲存檢視", "縮放：Ctrl + 滾輪、雙指捏合或 LT / RT。平移：滾輪、拖曳模式或右搖桿。"],
 }
 
 class ContactSeam extends Control:
@@ -50,7 +50,9 @@ var cell_size := 36
 var always_fit := false
 var view_save_failed := false
 var zoom_controls: Array[Control] = []
-var view_label: Label
+var view_controls: HBoxContainer
+var cell_size_menu: OptionButton
+var view_controls_external := false
 var _view_profile: Object
 var _view_scope := "app_beginner"
 var _view_dirty := false
@@ -84,27 +86,28 @@ func _init() -> void:
 	grid.pinch_zoom_requested.connect(_pinch_zoom)
 	grid.pinch_zoom_finished.connect(_finish_pinch)
 	grid.view_input_changed.connect(_refresh_view_controls)
-	for copy: String in ["−", "+", "Fit entire board"]:
-		var button: Control = VIEW_BUTTON.new()
-		button.name = ["ZoomOut", "ZoomIn", "FitBoard"][zoom_controls.size()]
-		zoom_controls.append(button)
-		add_child(button)
-	zoom_controls[0].pressed.connect(func(): step_zoom(-1))
-	zoom_controls[1].pressed.connect(func(): step_zoom(1))
-	zoom_controls[2].pressed.connect(func(): set_always_fit(not always_fit))
-	view_label = Label.new()
-	view_label.name = "CellSize"
-	view_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	view_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	view_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(view_label)
+	view_controls = HBoxContainer.new()
+	view_controls.name = "BoardViewControls"
+	view_controls.add_theme_constant_override("separation", 8)
+	add_child(view_controls)
+	cell_size_menu = OptionButton.new()
+	cell_size_menu.name = "CellSize"
+	cell_size_menu.item_selected.connect(_select_cell_size)
+	view_controls.add_child(cell_size_menu)
+	zoom_controls.append(cell_size_menu)
+	var fit_button: Button = VIEW_BUTTON.new()
+	fit_button.name = "FitBoard"
+	fit_button.pressed.connect(func(): set_always_fit(not always_fit))
+	view_controls.add_child(fit_button)
+	zoom_controls.append(fit_button)
 	_view_flush = Timer.new()
 	_view_flush.one_shot = true
 	_view_flush.wait_time = 0.25
 	_view_flush.timeout.connect(flush_view_preferences)
 	add_child(_view_flush)
 	visibility_changed.connect(func():
-		if not is_visible_in_tree(): flush_view_preferences())
+		if not is_visible_in_tree(): flush_view_preferences()
+		view_controls.visible = is_visible_in_tree() and information_sheet == null)
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -120,7 +123,7 @@ func configure(host: String = "desktop_app", locale: String = "en", percent: int
 	var candidate_band := native_band
 	if candidate_band == Vector2i.ZERO: candidate_band = Vector2i(400 if host == "desktop_app" else 480, 232 if large else 246)
 	if candidate_theme == null or not LAYOUT.measure(1, 1, candidate_band, large).ok: return false
-	var sheet_band := candidate_band + Vector2i(0, view_controls_height(locale, candidate_theme, large) / 2)
+	var sheet_band := candidate_band + Vector2i(0, (0 if view_controls_external else view_controls_height(locale, candidate_theme, large)) / 2)
 	if information_sheet != null and not information_sheet.configure(host,locale,percent,large,palette,sheet_band,high_contrast,colour_preset): return false
 	var geometry_changed: bool = candidate_band != _band or large != _large
 	if geometry_changed: grid.cancel_pointer_gesture()
@@ -170,7 +173,10 @@ func open_assignments(claimed: Array, source: Control = null) -> bool:
 	return _open_information("assignments",claimed,source)
 
 func _open_information(kind: String, claimed: Array, source: Control) -> bool:
-	if _interaction_blocked or information_sheet != null or grid.projection.is_empty() or grid.projection.custody: return false
+	if _interaction_blocked or grid.projection.is_empty() or grid.projection.custody: return false
+	if information_sheet != null:
+		# Switching documents keeps the board, focus index and pan completely untouched.
+		return information_sheet.present_rules() if kind == "rules" else information_sheet.present_assignments(claimed)
 	if not flush_view_preferences(): return false
 	var sheet: Control = SHEET.new()
 	sheet.hide()
@@ -188,8 +194,7 @@ func _open_information(kind: String, claimed: Array, source: Control) -> bool:
 	_grid_process_mode = grid.process_mode
 	grid.process_mode = Node.PROCESS_MODE_DISABLED
 	well.hide()
-	for control: Control in zoom_controls: control.hide()
-	view_label.hide()
+	view_controls.hide()
 	if vertical_rail != null: vertical_rail.hide()
 	if horizontal_rail != null: horizontal_rail.hide()
 	sheet.return_requested.connect(close_information)
@@ -197,7 +202,7 @@ func _open_information(kind: String, claimed: Array, source: Control) -> bool:
 	sheet.rows[0].grab_focus()
 	return true
 
-func close_information() -> void:
+func close_information(focus_board: bool = false) -> void:
 	if information_sheet == null: return
 	var sheet := information_sheet
 	information_sheet = null
@@ -205,8 +210,7 @@ func close_information() -> void:
 	sheet.queue_free()
 	grid.process_mode = _grid_process_mode
 	well.show()
-	for control: Control in zoom_controls: control.show()
-	view_label.show()
+	view_controls.visible = is_visible_in_tree()
 	if vertical_rail != null: vertical_rail.show()
 	if horizontal_rail != null: horizontal_rail.show()
 	var source: Control = _source_focus.get_ref() if _source_focus != null else null
@@ -215,7 +219,8 @@ func close_information() -> void:
 	# offscreen. A subsequent grid navigation resumes normal focus revelation.
 	_applying = true
 	information_closing.emit()
-	if source != null and source.is_visible_in_tree() and source.focus_mode != Control.FOCUS_NONE: source.grab_focus()
+	if focus_board and grid.focus_mode != Control.FOCUS_NONE: grid.grab_focus()
+	elif source != null and source.is_visible_in_tree() and source.focus_mode != Control.FOCUS_NONE: source.grab_focus()
 	elif grid.focus_mode != Control.FOCUS_NONE: grid.grab_focus()
 	_applying = false
 	information_closed.emit()
@@ -266,7 +271,7 @@ func _update_rail(existing: Control, public_rail: Variant, vertical: bool, inter
 		add_child(rail)
 		rail.scroll_requested.connect(func(value: int): _scroll_axis(value, vertical))
 	var axis := 1 if vertical else 0
-	rail.configure(vertical, _locale, theme)
+	rail.configure(vertical, _locale, theme, _large)
 	rail.present(public_rail, geometry.maximum_scroll[axis], _scroll[axis], geometry.well.size[axis], interactive)
 	return rail
 
@@ -330,47 +335,95 @@ func _gui_input(event: InputEvent) -> void:
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), get_theme_color(&"habitat", &"Minesweeper"))
 
-static func view_controls_height(locale: String, next_theme: Theme, large: bool) -> int:
-	var measured: Dictionary = VIEW_BUTTON.ROW.measure_copy(VIEW_COPY[locale.replace("_", "-")][0], next_theme, 160 - (16 if large else 12) - 8)
-	return 2 * ceili(maxf(64 if large else 48, float(measured.height) + (16 if large else 12) + 4) / 2.0)
+static func view_controls_height(_locale: String, _next_theme: Theme, large: bool) -> int:
+	return 64 if large else 48
+
+func set_footer_host(host: Control) -> void:
+	if not is_instance_valid(host) or view_controls.get_parent() == host: return
+	view_controls.reparent(host, false)
+	view_controls_external = true
+	_view_height = 0
+	view_controls.visible = is_visible_in_tree() and information_sheet == null
+	_apply_geometry()
+	view_controls_changed.emit()
 
 func _configure_view_controls() -> void:
-	zoom_controls[0].configure("−", theme, _large, 80)
-	zoom_controls[1].configure("+", theme, _large, 80)
-	zoom_controls[2].configure(VIEW_COPY[_locale][0], theme, _large, 160)
-	zoom_controls[0].accessibility_name = VIEW_COPY[_locale][4]
-	zoom_controls[1].accessibility_name = VIEW_COPY[_locale][5]
-	for control: Control in zoom_controls: control.tooltip_text = VIEW_COPY[_locale][6]
-	_view_height = view_controls_height(_locale, theme, _large)
-	view_label.add_theme_color_override("font_color", theme.get_color(&"primary_dark_copy", &"Minesweeper"))
+	view_controls.theme = theme
+	var fit_copy: String = {"en": "Fit", "zh-CN": "适应", "zh-HK": "適應"}[_locale]
+	zoom_controls[1].configure(fit_copy, theme, _large, 80)
+	zoom_controls[1].accessibility_name = VIEW_COPY[_locale][0]
+	cell_size_menu.clear()
+	cell_size_menu.add_item(fit_copy, 0)
+	for pixels in range(10, 61, 2): cell_size_menu.add_item(str(pixels) + " px", pixels)
+	cell_size_menu.custom_minimum_size = Vector2(152 if _percent == 100 else 192, 64 if _large else 48)
+	cell_size_menu.add_theme_color_override("font_color", theme.get_color(&"primary_dark_copy", &"Minesweeper"))
+	var face := StyleBoxFlat.new()
+	face.bg_color = theme.get_color(&"controlled_face", &"Minesweeper")
+	face.border_color = theme.get_color(&"dark_registration", &"Minesweeper")
+	face.set_border_width_all(2)
+	face.content_margin_left = 12
+	face.content_margin_right = 24
+	face.content_margin_top = 6
+	face.content_margin_bottom = 6
+	for state: String in ["normal", "hover", "pressed", "disabled"]:
+		cell_size_menu.add_theme_stylebox_override(state, face)
+		if state != "normal":
+			cell_size_menu.add_theme_color_override("font_" + state + "_color", theme.get_color(&"secondary_dark_copy" if state == "disabled" else &"primary_dark_copy", &"Minesweeper"))
+	var focus_face: StyleBoxFlat = face.duplicate()
+	focus_face.draw_center = false
+	focus_face.border_color = theme.get_color(&"dark_focus_outer", &"Minesweeper")
+	cell_size_menu.add_theme_stylebox_override("focus", focus_face)
+	var popup := cell_size_menu.get_popup()
+	popup.max_size = Vector2i(0, 360)
+	popup.add_theme_stylebox_override("panel", face)
+	popup.add_theme_color_override("font_color", theme.get_color(&"primary_dark_copy", &"Minesweeper"))
+	var selected_face: StyleBoxFlat = face.duplicate()
+	selected_face.bg_color = theme.get_color(&"selected_plane", &"Minesweeper")
+	popup.add_theme_stylebox_override("hover", selected_face)
+	popup.add_theme_color_override("font_hover_color", theme.get_color(&"selected_ink", &"Minesweeper"))
+	cell_size_menu.accessibility_name = VIEW_COPY[_locale][1] % str(cell_size)
+	_view_height = 0 if view_controls_external else view_controls_height(_locale, theme, _large)
 	_place_view_controls()
 	_refresh_view_controls()
 
 func _place_view_controls() -> void:
-	zoom_controls[0].position = Vector2(0, _band.y * 2)
-	zoom_controls[1].position = Vector2(_band.x * 2 - 240, _band.y * 2)
-	zoom_controls[2].position = Vector2(_band.x * 2 - 160, _band.y * 2)
-	for control: Control in zoom_controls:
-		control.position.y += floorf((_view_height - control.size.y) / 4.0) * 2.0
-	view_label.position = Vector2(80, _band.y * 2)
-	view_label.size = Vector2(maxi(0, _band.x * 2 - 320), _view_height)
+	if not view_controls_external:
+		view_controls.position = Vector2(8, _band.y * 2)
+		view_controls.size = Vector2(_band.x * 2 - 16, _view_height)
+		view_controls.alignment = BoxContainer.ALIGNMENT_END
 	if not is_inside_tree(): return
 	for index in zoom_controls.size():
 		var control: Control = zoom_controls[index]
 		control.focus_neighbor_left = control.get_path_to(zoom_controls[maxi(0, index - 1)])
-		control.focus_neighbor_right = control.get_path_to(zoom_controls[mini(2, index + 1)])
+		control.focus_neighbor_right = control.get_path_to(zoom_controls[mini(zoom_controls.size() - 1, index + 1)])
 		control.focus_neighbor_top = control.get_path_to(grid)
 	grid.focus_neighbor_bottom = grid.get_path_to(zoom_controls[0])
 
 func _refresh_view_controls() -> void:
 	var enabled: bool = _view_allowed()
-	zoom_controls[0].present_state(enabled and (always_fit or cell_size > 10), false)
-	zoom_controls[1].present_state(enabled and (always_fit or cell_size < 60), false)
-	zoom_controls[2].present_state(enabled, always_fit)
+	cell_size_menu.disabled = not enabled
+	cell_size_menu.focus_mode = Control.FOCUS_ALL if enabled else Control.FOCUS_NONE
+	cell_size_menu.select(0 if always_fit else cell_size_menu.get_item_index(cell_size))
+	zoom_controls[1].present_state(enabled, always_fit)
 	var displayed: String = ("%.1f" % (float(geometry.get("target", cell_size / 2.0)) * 2.0)) if always_fit else str(cell_size)
-	view_label.text = VIEW_COPY[_locale][2 if always_fit else 1] % displayed
-	if view_save_failed: view_label.text += "\n" + VIEW_COPY[_locale][3]
-	for control: Control in zoom_controls: control.accessibility_description = view_label.text
+	var description: String = VIEW_COPY[_locale][2 if always_fit else 1] % displayed
+	if view_save_failed:
+		description += "\n" + VIEW_COPY[_locale][3]
+		if cell_size_menu.selected >= 0: cell_size_menu.text = cell_size_menu.get_item_text(cell_size_menu.selected) + " !"
+	for control: Control in zoom_controls:
+		control.accessibility_description = description
+		control.tooltip_text = description + "\n" + VIEW_COPY[_locale][4]
+	cell_size_menu.accessibility_name = description
+
+func _select_cell_size(index: int) -> void:
+	var selected_size := cell_size_menu.get_item_id(index)
+	if selected_size == 0: set_always_fit(true)
+	else: set_cell_size(selected_size)
+	_refresh_view_controls()
+
+func set_cell_size(pixels: int) -> bool:
+	if pixels < 10 or pixels > 60 or pixels % 2 != 0 or not _view_allowed(): return false
+	return _change_view(pixels, false, _view_anchor(), false)
 
 func bind_view_preferences(profile: Object, scope: String) -> bool:
 	if scope not in VIEW_SCOPES or (profile != null and not profile.has_method("get_preference")): return false
@@ -486,3 +539,5 @@ func flush_view_preferences() -> bool:
 
 func _exit_tree() -> void:
 	flush_view_preferences()
+	if view_controls_external and is_instance_valid(view_controls): view_controls.queue_free()
+

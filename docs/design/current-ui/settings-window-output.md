@@ -1,10 +1,15 @@
 # Window Mode output on shared Settings
 
 This successor to `53829764cb4bdfc2f8a3d77bab073296205b8e96` connects the existing
-Windowed and Borderless choices to the native main window. Windowed uses
-1280 × 720; Borderless uses the current display's usable rectangle without
-exclusive fullscreen. A rejected operation restores the prior physical window,
+Windowed and Borderless choices to the native main window. Windowed offers
+1280 × 720, 1600 × 900 and 1920 × 1080 client-size presets. The picker disables
+choices that do not fit the current monitor with ordinary frame space. A saved
+size reopened on a smaller monitor is fitted proportionally without rewriting
+the preference. Borderless uses the current display's usable rectangle without
+exclusive fullscreen, retaining the selected Windowed size for the return trip. A rejected operation restores the prior physical window,
 selected option, and meaningful focus, then presents the existing factual error.
+Changes use immediate native readback and existing exact rollback; there is no
+new confirmation timer, exclusive-resolution switch, or render-scale preference.
 
 WindowModeManager owns platform output through WindowModePort. The shared
 SettingsOutputTransactions coordinator retains one Profile prepare/commit/
@@ -35,9 +40,11 @@ there while omitting unavailable physical window composition; the Settings row
 remains disabled. Other platform backends require their own completion and exact
 rollback evidence before being enabled.
 
-Verification is recorded in
+Earlier mode-only verification is recorded in
 [the window evidence summary](../../../evidence/settings_window/summary.json).
-Native tests use a disposable Godot process, memory-only Profile storage, and
+That historical evidence predates the size picker. The extended native test
+still needs execution on Windows for the new presets. Native tests use a
+disposable Godot process, memory-only Profile storage, and
 silent fake audio. They restore the entry window before exiting. Scene tests
 exercise the actual shared Settings plate, error/focus restoration, unavailable
 controls, and confirmed audio/window preference reset. The combined regression

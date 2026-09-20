@@ -127,29 +127,27 @@ func _compose(view: Dictionary, next_theme: Theme, host: String, locale: String,
 	var copy := COPY.get_copy(locale)
 	var candidate_buttons: Dictionary = {}
 	var candidate_metrics: Dictionary = {}
-	var height := 108 if large else 92
+	var height := 72 if large else 56
 	if host == "desktop_app":
 		for index in TIERS.size():
 			var key: String = TIERS[index]
 			var button: Button = difficulties.get(key)
 			if button == null or button.theme != next_theme or button.public_copy != copy[key] or large != _large:
 				button = BUTTON.new()
-				if not button.configure(copy[key],next_theme,large,96):
+				if not button.configure(copy[key],next_theme,large,160):
 					button.free()
 					_free_candidates(candidate_buttons,candidate_metrics)
 					return {}
-			candidate_buttons[key] = {"node":button,"x":index*96,
+			candidate_buttons[key] = {"node":button,"x":index*160,
 				"enabled":key in view.difficulty_enabled,"selected":key == view.difficulty,
 				"description":copy.selected if key == view.difficulty else ""}
-			height = maxi(height,int(button.custom_minimum_size.y)+44)
-	var allocations: Array = [["rounds",144,56],["mine_estimate",200,72],["foresight",272,64],["no_flag",336,64]] if host == "desktop_app" else [["mine_estimate",280,72],["foresight",352,64],["no_flag",416,64]]
+			height = maxi(height,int(button.custom_minimum_size.y)+8)
+	var allocations: Array = [["rounds",240,72],["mine_estimate",312,88]] if host == "desktop_app" else [["mine_estimate",392,88]]
 	for allocation: Array in allocations:
 		var key: String = allocation[0]
 		var value := ""
 		match key:
 			"rounds": value = str(view.rounds)+"/2"
-			"no_flag": value = copy[view.no_flag]
-			"foresight": value = "—" if view.foresight == null else str(view.foresight)+"%"
 			"mine_estimate": value = "—" if view.mine_estimate == null else str(view.mine_estimate)
 		var width: int = allocation[2]*2
 		var metric: Metric = metrics.get(key)
@@ -161,7 +159,7 @@ func _compose(view: Dictionary, next_theme: Theme, host: String, locale: String,
 			if not metrics.has(key): metric.free()
 			_free_candidates(candidate_buttons,candidate_metrics)
 			return {}
-		candidate_metrics[key] = {"node":metric,"measured":measured,"x":allocation[1]*2,"trailing_rule":key != "no_flag"}
+		candidate_metrics[key] = {"node":metric,"measured":measured,"x":allocation[1]*2,"trailing_rule":key != "mine_estimate"}
 		height = maxi(height,int(metric.content_height() if retained else measured.height))
 	return {"buttons":candidate_buttons,"metrics":candidate_metrics,"height":height}
 
@@ -216,7 +214,8 @@ func _draw() -> void:
 	if theme == null or public_view.is_empty(): return
 	draw_rect(Rect2(Vector2.ZERO,size),theme.get_color(&"controlled_face" if _host == "desktop_app" else &"habitat",&"Minesweeper"))
 	# Canonical blank capacity has no field face, seam, label or node.
-	var boundaries: Array = [48,96,144,200,272,336] if _host == "desktop_app" else []
+	var boundaries: Array = [80,160,240,312] if _host == "desktop_app" else []
 	for x: int in boundaries:
 		draw_rect(Rect2(x*2-2,0,2,size.y),theme.get_color(&"dark_registration",&"Minesweeper"))
 	draw_rect(Rect2(0,size.y-2,size.x,2),theme.get_color(&"dark_registration",&"Minesweeper"))
+

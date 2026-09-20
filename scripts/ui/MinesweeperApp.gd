@@ -64,8 +64,23 @@ func _ready() -> void:
 func _fit_host() -> void:
 	var host := get_parent() as Control
 	if host == null or host.size.x <= 0 or host.size.y <= 0: return
-	var factor := minf(1.0,minf(host.size.x/800.0,host.size.y/656.0))
+	var factor := minf(1.2, host.size.x / 800.0)
+	var height := floori(host.size.y / factor / 2.0) * 2
+	if not panel.set_layout_height(height):
+		factor = minf(1.0, minf(host.size.x / 800.0, host.size.y / 656.0))
+		panel.set_layout_height(656)
+	custom_minimum_size = Vector2(800, panel.layout_height)
+	_content_host.custom_minimum_size = custom_minimum_size
+	size = custom_minimum_size
 	scale = Vector2.ONE * factor
+
+func set_footer_host(host: Control) -> void:
+	if panel == null: return
+	panel.worksheet.set_footer_host(host)
+	panel.configure(panel._locale, panel._percent, panel._large, panel._palette,
+		panel._high_contrast, panel._colour_preset)
+	_fit_host()
+	_update_home()
 
 func _process(_delta: float) -> void:
 	if _busy or _port == null or not _port.has_method("advance_preparation") or panel == null \
@@ -154,6 +169,7 @@ func prepare_show_window() -> Dictionary:
 func prepare_return_home() -> Dictionary:
 	if _hide_prepared: return {"ok":true}
 	if not can_return_home(): return {"ok":false,"code":&"desktop_modal_active"}
+	panel.worksheet.close_information()
 	if not panel.worksheet.flush_view_preferences(): return {"ok":false,"code":&"minesweeper_view_preferences_unavailable"}
 	remember_focus()
 	_cell = maxi(0,panel.worksheet.grid.focused_index)
@@ -195,8 +211,7 @@ func hide_window() -> void:
 
 func can_return_home() -> bool:
 	if _hide_prepared: return true
-	if _busy or panel == null or not panel.has_valid_presentation() \
-			or panel.worksheet.information_sheet != null: return false
+	if _busy or panel == null or not panel.has_valid_presentation(): return false
 	if panel.public_view.settled or not panel.public_view.board.custody: return true
 	return last_result.get("ok",false) and _port != null \
 		and _port.has_method("can_park_preparation") \
@@ -220,6 +235,10 @@ func _update_home() -> void:
 	_home.focus_next = _home.get_path_to(first)
 	_home.focus_neighbor_bottom = _home.focus_next
 	_home.focus_previous = _home.get_path_to(panel.dock.buttons.rules) if panel.dock.buttons.has("rules") else NodePath()
+	if panel.worksheet.view_controls_external:
+		for control: Control in panel.worksheet.zoom_controls:
+			if control.is_visible_in_tree() and control.focus_mode != Control.FOCUS_NONE:
+				_home.focus_previous = _home.get_path_to(control)
 	foreground_availability_changed.emit()
 
 func remember_focus() -> void:
@@ -315,3 +334,4 @@ func _on_failure(code: StringName) -> void:
 func _fail(code: StringName) -> Dictionary:
 	_on_failure(code)
 	return last_result.duplicate()
+

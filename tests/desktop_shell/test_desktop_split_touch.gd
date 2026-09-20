@@ -5,6 +5,22 @@ const DESKTOP := preload("res://scenes/desktop/ComputerDesktop.tscn")
 const SHELL_FIXTURES := preload("res://tests/desktop_shell/test_desktop_shell.gd")
 const CONTACT_FIXTURES := preload("res://tests/contacts_shell/test_contacts_shell.gd")
 const HUD_FIXTURES := preload("res://tests/unit/test_stat_hud_week_tint.gd")
+const MINESWEEPER_FIXTURES := preload("res://tests/unit/test_minesweeper_app.gd")
+
+class ShellMinesweeperPort extends MINESWEEPER_FIXTURES.PublicPort:
+	var desktop_owner: Control
+	func set_foreground(foreground: bool, revision: int) -> Dictionary:
+		if app == null: app = desktop_owner.app_window_host.get_child(0)
+		return super.set_foreground(foreground, revision)
+
+class NavigationProfile extends CONTACT_FIXTURES.FakeProfile:
+	var large_targets := false
+	func get_preference(path: StringName, default: Variant = null) -> Variant:
+		if path == &"preferences.accessibility.large_targets": return large_targets
+		return super.get_preference(path, default)
+	func change_large_targets(value: bool) -> void:
+		large_targets = value
+		preference_changed.emit(&"preferences.accessibility.large_targets", value)
 
 var viewport: SubViewport
 var main: Control
@@ -21,7 +37,7 @@ func before_each() -> void:
 	add_child_autofree(viewport)
 	locale = CONTACT_FIXTURES.FakeLocale.new()
 	add_child_autofree(locale)
-	profile = CONTACT_FIXTURES.FakeProfile.new()
+	profile = NavigationProfile.new()
 	stats = HUD_FIXTURES.OwnerFixture.new()
 	stats.condition_effects_today = ["nausea", "dizzy", "sequela", "faint"]
 	stats.penalty_points_today = 10
@@ -87,6 +103,10 @@ func test_three_button_footer_leaves_full_app_height_and_navigation_never_launch
 	var navigation := desktop.find_child("TouchNavigation", true, false)
 	assert_not_null(navigation, "desktop mounts the three-control focus bar")
 	if navigation == null: return
+	assert_false(navigation.visible, "ordinary pointer and keyboard users have a compact footer")
+	profile.change_large_targets(true)
+	await settle()
+	assert_true(navigation.visible, "large targets retains assisted focus navigation")
 	assert_eq(navigation.get_child_count(), 3)
 	var strip: Control = desktop.get_node("AppStrip")
 	assert_eq(strip.position.y, 656.0)
@@ -175,6 +195,7 @@ func test_footer_home_keeps_hardware_navigation_into_current_app() -> void:
 
 
 func test_footer_navigates_real_confirmation_without_activating_background() -> void:
+	profile.change_large_targets(true)
 	var decisions: Array[bool] = []
 	var response: Dictionary = desktop.present_confirmation({
 		"title": "Test confirmation", "body": "Inspect before confirming.",
@@ -197,6 +218,7 @@ func test_footer_navigates_real_confirmation_without_activating_background() -> 
 
 
 func test_footer_confirm_reaches_real_grid_without_changing_its_input_contract() -> void:
+	profile.change_large_targets(true)
 	# Read-only reuse of the existing grid: this feature owns no board mechanics.
 	var grid: Control = preload("res://scripts/ui/minesweeper/MinesweeperGrid.gd").new()
 	desktop.app_window_host.add_child(grid)
@@ -215,3 +237,88 @@ func test_footer_confirm_reaches_real_grid_without_changing_its_input_contract()
 	await tap_navigation(desktop.touch_navigation.confirm_button)
 	assert_eq(actions, [[&"reveal", 0, 7]], "one footer confirmation delivers one published grid action")
 	assert_false(grid._confirm_held, "the paired release clears the grid's held confirm state")
+
+
+func test_launcher_enlarges_after_resize_without_remounting_or_losing_focus() -> void:
+	var first: Button = desktop.launcher_buttons[&"minesweeper"]
+	first.grab_focus()
+	var original_rect := first.get_global_rect()
+	main.get_node("RootHBox").set_angela_width(320)
+	await settle()
+	assert_almost_eq(first.get_global_rect().size.x, original_rect.size.x * 1.2, 0.1,
+		"wider computer pane enlarges icons and captions at the same window height")
+	assert_almost_eq(first.get_global_rect().size.y, original_rect.size.y * 1.2, 0.1)
+	assert_same(desktop.launcher_buttons[&"minesweeper"], first)
+	assert_same(viewport.gui_get_focus_owner(), first)
+	for button: Button in desktop.launcher_buttons.values():
+		assert_true(desktop.get_global_rect().encloses(button.get_global_rect()))
+		assert_lt(button.get_global_rect().end.y, desktop.home_button.get_global_rect().position.y)
+
+
+func test_app_footer_controls_fit_with_large_navigation_and_release_space_when_hidden() -> void:
+	var controls := HBoxContainer.new()
+	controls.custom_minimum_size = Vector2(320, 48)
+	desktop.app_footer_slot.add_child(controls)
+	profile.change_large_targets(true)
+	await settle()
+	assert_true(desktop.app_footer_slot.visible)
+	assert_false(desktop.clock_label.visible, "secondary clock yields space to app and accessible controls")
+	var strip: Control = desktop.get_node("AppStrip")
+	for control: Control in [desktop.home_button, controls, desktop.touch_navigation]:
+		assert_true(strip.get_global_rect().encloses(control.get_global_rect()))
+	controls.hide()
+	await settle()
+	assert_false(desktop.app_footer_slot.visible)
+	assert_true(desktop.clock_label.visible)
+
+
+func test_real_minesweeper_footer_mounts_fits_and_tracks_cached_app_visibility() -> void:
+	var fixture := MINESWEEPER_FIXTURES.new()
+	add_child_autofree(fixture)
+	var port := ShellMinesweeperPort.new()
+	port.desktop_owner = desktop
+	port.view = fixture._view()
+	port.live_view = port.view.duplicate(true)
+	assert_true(desktop.configure_minesweeper(port, locale, profile).get("ok", false))
+	var opened: Dictionary = desktop.open_app(&"minesweeper")
+	assert_true(opened.get("ok", false))
+	if not opened.get("ok", false): return
+	var app: Control = opened.value.app
+	var controls: Control = app.panel.worksheet.view_controls
+	var menu: OptionButton = app.panel.worksheet.cell_size_menu
+	await settle()
+	assert_same(controls.get_parent(), desktop.app_footer_slot)
+	assert_true(controls.is_visible_in_tree())
+	assert_eq(menu.item_count, 27, "Fit and all 26 supported sizes are available in the real footer")
+	for language: String in ["en", "zh-CN", "zh-HK"]:
+		locale.change(language)
+		for percent: float in [1.0, 1.25, 1.5]:
+			profile.change_scale(percent)
+			for large: bool in [false, true]:
+				profile.change_large_targets(large)
+				await settle()
+				var strip: Control = desktop.get_node("AppStrip")
+				assert_true(strip.get_global_rect().encloses(controls.get_global_rect()),
+					"real Minesweeper footer fits %s/%s/large=%s" % [language, percent, large])
+				for control: Control in app.panel.worksheet.zoom_controls:
+					assert_true(strip.get_global_rect().encloses(control.get_global_rect()))
+	assert_true(desktop.return_home().get("ok", false))
+	await settle()
+	assert_false(controls.is_visible_in_tree())
+	assert_false(desktop.app_footer_slot.visible)
+	assert_true(desktop.open_app(&"minesweeper").get("ok", false))
+	await settle()
+	assert_same(app.panel.worksheet.view_controls, controls, "cached app reuses its footer controls")
+	assert_true(controls.is_visible_in_tree())
+	app.panel.dock.buttons.rules.pressed.emit()
+	await settle()
+	assert_same(desktop._touch_focus_scope(), desktop, "switchable views keep their tabs and Home in scope")
+	assert_false(controls.is_visible_in_tree(), "board sizing stays out of document views")
+	app.panel.worksheet.information_sheet.return_button.grab_focus()
+	await tap_navigation(desktop.touch_navigation.next_button)
+	assert_true(app.panel.dock.is_ancestor_of(viewport.gui_get_focus_owner()),
+		"assisted navigation can leave the document and reach its view tabs")
+	app.panel.dock.buttons.assignments.grab_focus()
+	await tap_navigation(desktop.touch_navigation.confirm_button)
+	assert_eq(app.panel.worksheet.information_sheet.kind, "assignments")
+	assert_true(port.commands.is_empty(), "view switching cannot dispatch a board action")

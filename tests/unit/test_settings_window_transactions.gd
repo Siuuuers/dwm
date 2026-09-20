@@ -38,6 +38,8 @@ class WindowOutput extends Node:
 		return {"ok": true, "value": {"available": available and not _fatal}}
 	func get_applied_mode() -> String:
 		return state.window_mode
+	func get_applied_size() -> String:
+		return state.get("window_size", "1280x720")
 	func capture_restore_state() -> Dictionary:
 		trace.append("window_capture")
 		var captured := state.duplicate(true)
@@ -51,7 +53,7 @@ class WindowOutput extends Node:
 		if fail_apply:
 			fail_apply = false
 			return {"ok": false, "code": &"injected_window_apply_failure"}
-		state = {"window_mode": candidate.window_mode, "rect": Rect2i(0, 0, 1280, 720) if candidate.window_mode == "borderless" else Rect2i(100, 100, 960, 540)}
+		state = {"window_mode": candidate.window_mode, "window_size": candidate.window_size, "rect": Rect2i(0, 0, 1280, 720) if candidate.window_mode == "borderless" else Rect2i(100, 100, 960, 540)}
 		if on_apply.is_valid():
 			var callback := on_apply
 			on_apply = Callable()
@@ -268,11 +270,11 @@ class FirstRollbackFailurePort extends RefCounted:
 	var rollback_count := 0
 	func capture_output() -> Dictionary:
 		return {"ok": true, "value": state.duplicate(true)}
-	func apply_mode(mode: String) -> Dictionary:
+	func apply_mode(mode: String, _window_size: String = "1280x720") -> Dictionary:
 		state = {"mode": mode, "rect": Rect2i(0, 0, 1280, 720)}
 		if armed: return {"ok": false, "code": &"injected_window_apply_failure"}
 		return {"ok": true}
-	func output_matches(mode: String) -> bool:
+	func output_matches(mode: String, _window_size: String = "1280x720") -> bool:
 		return state.mode == mode
 	func restore_output(capsule: Dictionary) -> Dictionary:
 		rollback_count += 1

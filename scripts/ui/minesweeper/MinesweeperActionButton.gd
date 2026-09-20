@@ -94,14 +94,19 @@ func _draw() -> void:
 			draw_rect(Rect2(face.position+Vector2(4,4),Vector2(face.size.x-8,2)),structure)
 		elif is_hovered():
 			draw_rect(Rect2(face.position+Vector2(2,4),Vector2(2,face.size.y-8)),structure)
-	var top: float = floorf((size.y-_text_height)/4.0)*2.0
-	for line: int in _paragraph.get_line_count():
-		var x: float = floorf((size.x-_paragraph.get_line_width(line))/4.0)*2.0
-		_paragraph.draw_line(get_canvas_item(),Vector2(x,top+_baselines[line]-_paragraph.get_line_ascent(line)),line,ink)
+	_draw_copy(ink)
 	if has_focus() and not disabled:
 		draw_rect(Rect2(Vector2.ONE,size-Vector2(2,2)),_role(&"filed_focus_outer" if selected else &"dark_focus_outer"),false,2)
 		draw_rect(Rect2(Vector2(4,4),size-Vector2(8,8)),_role(&"filed_focus_inner" if selected else &"dark_focus_inner"),false,2)
 
 
+func _draw_copy(ink: Color) -> void:
+	var top: float = floorf((size.y-_text_height)/4.0)*2.0
+	for line: int in _paragraph.get_line_count():
+		var x: float = floorf((size.x-_paragraph.get_line_width(line))/4.0)*2.0
+		_paragraph.draw_line(get_canvas_item(),Vector2(x,top+_baselines[line]-_paragraph.get_line_ascent(line)),line,ink)
+
+
 func _role(role: StringName) -> Color:
 	return get_theme_color(role,&"Minesweeper")
+

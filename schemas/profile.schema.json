@@ -232,6 +232,11 @@
             "window_mode"
           ],
           "properties": {
+            "window_size": {
+              "type": "string",
+              "enum": ["1280x720", "1600x900", "1920x1080"],
+              "default": "1280x720"
+            },
             "window_mode": {
               "type": "string",
               "enum": [

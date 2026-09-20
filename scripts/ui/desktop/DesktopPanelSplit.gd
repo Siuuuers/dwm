@@ -14,6 +14,8 @@ class SplitDragHandle extends Control:
 	var separator_height := 0.0
 	var separator_color := Color(0.65, 0.68, 0.72)
 	var focus_color := Color(0.95, 0.78, 0.30)
+	var preview_offset := 0.0
+	var preview_visible := false
 
 	func _init() -> void:
 		focus_entered.connect(queue_redraw)
@@ -22,6 +24,8 @@ class SplitDragHandle extends Control:
 	func _draw() -> void:
 		draw_rect(Rect2(63, -position.y, 2, separator_height), separator_color)
 		draw_rect(Rect2(40, 27, 16, 10), separator_color)
+		if preview_visible:
+			draw_rect(Rect2(63 + preview_offset, -position.y, 2, separator_height), focus_color)
 		if has_focus():
 			draw_rect(Rect2(2, 2, 60, 60), focus_color, false, 2)
 
@@ -32,6 +36,7 @@ var _mouse_dragging := false
 var _touch_index := -1
 var _drag_origin_x := 0.0
 var _drag_origin_width := MAX_ANGELA_WIDTH
+var _preview_width := MAX_ANGELA_WIDTH
 var _focus_before_pointer: Control
 
 
@@ -55,6 +60,11 @@ func _notification(what: int) -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if (_mouse_dragging or _touch_index >= 0) and event is InputEventKey \
+			and event.pressed and event.keycode == KEY_ESCAPE:
+		_retire_drag()
+		get_viewport().set_input_as_handled()
+		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed \
 			and is_instance_valid(_handle) and _handle.get_global_rect().has_point(event.position):
 		_focus_before_pointer = get_viewport().gui_get_focus_owner()
@@ -144,7 +154,9 @@ func _on_handle_gui_input(event: InputEvent) -> void:
 			_begin_drag(_handle_point_to_split_x(event.position))
 			_restore_pointer_focus.call_deferred()
 		else:
-			_mouse_dragging = false
+			if _mouse_dragging:
+				_update_drag(_handle_point_to_split_x(event.position))
+				_finish_drag()
 		_handle.accept_event()
 		return
 	if event is InputEventMouseMotion and _mouse_dragging:
@@ -161,7 +173,11 @@ func _on_handle_gui_input(event: InputEvent) -> void:
 			_restore_pointer_focus.call_deferred()
 			_handle.accept_event()
 		elif not event.pressed and event.index == _touch_index:
-			_touch_index = -1
+			if event.canceled:
+				_retire_drag()
+			else:
+				_update_drag(_handle_point_to_split_x(event.position))
+				_finish_drag()
 			_handle.accept_event()
 		return
 	if event is InputEventScreenDrag and event.index == _touch_index:
@@ -187,15 +203,33 @@ func _begin_drag(pointer_x: float, mouse: bool = true) -> void:
 	_mouse_dragging = mouse
 	_drag_origin_x = pointer_x
 	_drag_origin_width = _angela_width
+	_preview_width = _angela_width
+	_handle.preview_visible = true
+	_handle.preview_offset = 0.0
+	_handle.queue_redraw()
 
 
 func _update_drag(pointer_x: float) -> void:
-	set_angela_width(_drag_origin_width + pointer_x - _drag_origin_x)
+	# Keep both panes and their hit targets stable until the pointer is released.
+	_preview_width = clampf(_drag_origin_width + pointer_x - _drag_origin_x,
+		MIN_ANGELA_WIDTH, MAX_ANGELA_WIDTH)
+	_handle.preview_offset = _preview_width - _angela_width
+	_handle.queue_redraw()
+
+
+func _finish_drag() -> void:
+	var committed_width := _preview_width
+	_retire_drag()
+	set_angela_width(committed_width)
 
 
 func _retire_drag() -> void:
 	_mouse_dragging = false
 	_touch_index = -1
+	if is_instance_valid(_handle):
+		_handle.preview_visible = false
+		_handle.preview_offset = 0.0
+		_handle.queue_redraw()
 
 
 func _handle_point_to_split_x(point: Vector2) -> float:

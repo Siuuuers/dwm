@@ -114,6 +114,8 @@ func test_default_and_programmatic_widths_lay_out_two_panes_without_a_stolen_gut
 
 func test_central_pointer_drag_clamps_and_preserves_existing_focus_and_children() -> void:
 	_focus_target.grab_focus()
+	var changes: Array[float] = []
+	_split.split_changed.connect(func(width: float): changes.append(width))
 	var handle := _split.get_node("SplitDragHandle") as Control
 	assert_eq(handle.size, Vector2(64, 64), "drag affordance is a large target")
 	assert_eq(handle.position, Vector2(416, 328), "large target stays wholly on Angela's side")
@@ -121,13 +123,17 @@ func test_central_pointer_drag_clamps_and_preserves_existing_focus_and_children(
 	var computer_id := _computer.get_instance_id()
 	assert_true(_mouse_button(Vector2(472, 360), true))
 	assert_true(_mouse_motion(Vector2(372, 360), Vector2(-100, 0)))
-	assert_eq(_split.get_angela_width(), 380.0)
+	assert_eq(_split.get_angela_width(), 480.0, "pointer motion previews without resizing content")
+	assert_eq(_computer.get_rect(), Rect2(480, 0, 800, 720))
+	assert_true(changes.is_empty(), "no layout commit is published during a drag")
 	assert_true(_mouse_motion(Vector2(332, 360), Vector2(-40, 0)))
-	assert_eq(_split.get_angela_width(), 340.0, "successive motion uses stable split coordinates")
+	assert_eq(_split.get_angela_width(), 480.0)
 	assert_true(_mouse_motion(Vector2(252, 360), Vector2(-80, 0)))
 	assert_true(_mouse_button(Vector2(252, 360), false))
 	await _settle()
 	assert_eq(_split.get_angela_width(), 320.0)
+	assert_eq(changes, [320.0], "release publishes the final clamped width once")
+	assert_eq(_computer.get_rect(), Rect2(320, 0, 960, 720))
 	assert_true(_focus_target.has_focus(), "resizing does not steal semantic app focus")
 	assert_eq(_angela.get_instance_id(), angela_id)
 	assert_eq(_computer.get_instance_id(), computer_id)
@@ -168,26 +174,44 @@ func test_focused_affordance_supports_bounded_keyboard_adjustment() -> void:
 	assert_true(handle.has_focus())
 
 
-func test_touch_drag_resizes_and_cancellation_ends_pointer_custody() -> void:
+func test_touch_drag_commits_on_release_and_cancellation_discards_preview() -> void:
 	assert_true(_touch(Vector2(472, 360), true))
 	assert_true(_touch_drag(Vector2(422, 360), Vector2(-50, 0)))
-	assert_eq(_split.get_angela_width(), 430.0)
+	assert_eq(_split.get_angela_width(), 480.0)
 	assert_true(_touch_drag(Vector2(362, 360), Vector2(-60, 0)))
-	assert_eq(_split.get_angela_width(), 370.0, "successive touch motion uses stable split coordinates")
+	assert_eq(_split.get_angela_width(), 480.0)
 	assert_true(_touch(Vector2(362, 360), false, true))
 	_touch_drag(Vector2(350, 360), Vector2(-50, 0))
-	assert_eq(_split.get_angela_width(), 370.0)
+	assert_eq(_split.get_angela_width(), 480.0, "canceled touch leaves the committed layout unchanged")
+	assert_true(_touch(Vector2(472, 360), true))
+	assert_true(_touch_drag(Vector2(362, 360), Vector2(-110, 0)))
+	assert_true(_touch(Vector2(362, 360), false))
+	await _settle()
+	assert_eq(_split.get_angela_width(), 370.0, "normal release applies the final touch position")
 
 
 func test_focus_loss_and_missing_release_retire_mouse_drag_ownership() -> void:
 	assert_true(_mouse_button(Vector2(472, 360), true))
 	assert_true(_mouse_motion(Vector2(422, 360), Vector2(-50, 0)))
-	assert_eq(_split.get_angela_width(), 430.0)
+	assert_eq(_split.get_angela_width(), 480.0)
 	_split.notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
 	_mouse_motion(Vector2(372, 360), Vector2(-50, 0))
-	assert_eq(_split.get_angela_width(), 430.0, "focus loss retires an unreleased drag")
-	assert_true(_mouse_button(Vector2(422, 360), true))
+	assert_eq(_split.get_angela_width(), 480.0, "focus loss discards an unreleased drag")
+	assert_true(_mouse_button(Vector2(472, 360), true))
 	_mouse_motion(Vector2(392, 360), Vector2(-30, 0), 0)
-	assert_eq(_split.get_angela_width(), 430.0, "motion without a held left button cannot resize")
+	assert_eq(_split.get_angela_width(), 480.0, "motion without a held left button cannot resize")
 	_mouse_motion(Vector2(362, 360), Vector2(-30, 0))
-	assert_eq(_split.get_angela_width(), 430.0, "missing-button motion retires stale ownership")
+	assert_eq(_split.get_angela_width(), 480.0, "missing-button motion retires stale ownership")
+
+
+func test_escape_cancels_pointer_preview_without_a_commit() -> void:
+	_focus_target.grab_focus()
+	var changes: Array[float] = []
+	_split.split_changed.connect(func(width: float): changes.append(width))
+	assert_true(_mouse_button(Vector2(472, 360), true))
+	assert_true(_mouse_motion(Vector2(352, 360), Vector2(-120, 0)))
+	assert_true(_key(KEY_ESCAPE))
+	_mouse_button(Vector2(352, 360), false)
+	await _settle()
+	assert_eq(_split.get_angela_width(), 480.0)
+	assert_true(changes.is_empty())

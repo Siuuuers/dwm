@@ -40,6 +40,7 @@ var title_label: Label
 var clock_label: Label
 var status_label: Label
 var touch_navigation: HBoxContainer
+var app_footer_slot: HBoxContainer
 var _clock_timer: Timer
 var _clock_reader: Callable
 var _cached_app_windows: Dictionary = {}
@@ -114,6 +115,8 @@ func _ready() -> void:
 	notification_go.pressed.connect(_open_contacts_from_notification)
 	_build_shell()
 	resized.connect(queue_redraw)
+	resized.connect(_layout_launcher)
+	_layout_launcher.call_deferred()
 	_refresh_launcher()
 	_foreground_eligible = get_window().has_focus()
 	configure_clock(_clock_reader if _clock_reader.is_valid() else Time.get_time_dict_from_system)
@@ -169,6 +172,8 @@ func _build_shell() -> void:
 	title_label = Label.new()
 	title_label.name = "CurrentTitle"
 	title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_label.clip_text = true
+	title_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	strip.add_child(title_label)
 	clock_label = Label.new()
@@ -177,6 +182,12 @@ func _build_shell() -> void:
 	clock_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	clock_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	strip.add_child(clock_label)
+	app_footer_slot = HBoxContainer.new()
+	app_footer_slot.name = "AppFooterSlot"
+	app_footer_slot.alignment = BoxContainer.ALIGNMENT_END
+	app_footer_slot.child_entered_tree.connect(_on_footer_child_added)
+	app_footer_slot.child_exiting_tree.connect(func(_child: Node): _refresh_strip_layout.call_deferred())
+	strip.add_child(app_footer_slot)
 	touch_navigation = TOUCH_NAVIGATION.new()
 	touch_navigation.name = "TouchNavigation"
 	touch_navigation.configure(_touch_focus_scope, _touch_input_admitted)
@@ -221,6 +232,35 @@ func _build_shell() -> void:
 	status_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	status_label.hide()
 	add_child(status_label)
+	_refresh_strip_layout()
+
+
+func _layout_launcher() -> void:
+	if not is_node_ready(): return
+	# The launcher has vertical room for proportional growth even when app height
+	# stays constant. Scale the whole grid so icons, captions and hit targets agree.
+	var factor := minf(1.25, minf(size.x / 800.0, maxf(0, size.y - 64.0) / 416.0))
+	icon_grid.scale = Vector2.ONE * factor
+	icon_grid.position = Vector2(24, 24) * factor
+
+
+func _on_footer_child_added(child: Node) -> void:
+	if child is Control:
+		child.visibility_changed.connect(_refresh_strip_layout)
+	_refresh_strip_layout.call_deferred()
+
+
+func _refresh_strip_layout() -> void:
+	if not is_instance_valid(app_footer_slot) or not is_instance_valid(touch_navigation): return
+	var has_app_controls := false
+	for child: Node in app_footer_slot.get_children():
+		if child is Control and child.visible:
+			has_app_controls = true
+			break
+	app_footer_slot.visible = has_app_controls
+	# Large-target users retain the existing assisted focus controls. Hide the
+	# secondary clock when they share the footer with an app's controls.
+	clock_label.visible = not (has_app_controls and touch_navigation.visible)
 
 func _touch_input_admitted() -> bool:
 	if not is_visible_in_tree() or not can_process() or not _foreground_eligible or _restoration_failed:
@@ -244,8 +284,6 @@ func _touch_focus_scope() -> Control:
 				if is_instance_valid(app.warning_sheet): return app.warning_sheet
 			&"shop":
 				if is_instance_valid(app._supportz_confirmation): return app._supportz_confirmation
-			&"minesweeper":
-				if is_instance_valid(app.panel.worksheet.information_sheet): return app.panel.worksheet.information_sheet
 	return self
 
 func configure_contacts(port: Object, localization: Object = null, profile: Object = null,
@@ -543,6 +581,8 @@ func open_app(app_id: StringName) -> Dictionary:
 			app.queue_free()
 			return _route_failure(configured.get("code", &"desktop_app_unavailable"))
 		app.configure_desktop_home(home_button)
+		if app.has_method("set_footer_host"):
+			app.set_footer_host(app_footer_slot)
 		app.window_hidden.connect(_on_app_hidden.bind(app_id))
 		if app_id == &"minesweeper":
 			app.recovery_requested.connect(_route_failure)
@@ -791,6 +831,8 @@ func _refresh_launcher(refresh_contacts: bool = true) -> void:
 	var percent := int(_profile.get_preference("preferences.accessibility.text_size", 100)) if _profile != null and _profile.has_method("get_preference") else 100
 	var high_contrast := bool(_profile.get_preference("preferences.accessibility.high_contrast", false)) if _profile != null and _profile.has_method("get_preference") else false
 	var colour_preset := str(_profile.get_preference("preferences.accessibility.colour_differentiation", "standard")) if _profile != null and _profile.has_method("get_preference") else "standard"
+	touch_navigation.visible = bool(_profile.get_preference("preferences.accessibility.large_targets", false)) if _profile != null and _profile.has_method("get_preference") else false
+	_refresh_strip_layout()
 	theme = DESKTOP_THEME.build(_locale, percent, _run_palette, WEEK_TINT.tint_for_day(_day), high_contrast, colour_preset)
 	var notice_style := StyleBoxFlat.new()
 	notice_style.bg_color = theme.get_color("face", "Desktop")
@@ -893,7 +935,7 @@ func _open_contacts_from_notification() -> void:
 		_dismiss_message_notification()
 
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
-	if path == &"preferences.accessibility.text_size":
+	if path in [&"preferences.accessibility.text_size", &"preferences.accessibility.large_targets"]:
 		_refresh_launcher()
 	elif path in [&"preferences.accessibility.high_contrast", &"preferences.accessibility.colour_differentiation"]:
 		# Preserve the displayed unread fact; colours do not invalidate correspondence.

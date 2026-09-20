@@ -18,6 +18,7 @@ var page_capacity := 9
 var page_count := 2
 var selected_id := "coffee"
 var quantity := 1
+var _item_quantities: Dictionary = {}
 var previous_button: Button
 var next_button: Button
 var page_label: Label
@@ -215,6 +216,7 @@ func refresh_view(on_open: bool = false, _presentation_only: bool = false, prepa
 		_source_pending = false
 		return {"ok":true,"code":"unchanged"}
 	var prior_quantity := quantity
+	var prior_item_quantities := _item_quantities.duplicate()
 	if is_node_ready():
 		_remember_focus()
 		var focused := get_viewport().gui_get_focus_owner()
@@ -226,6 +228,7 @@ func refresh_view(on_open: bool = false, _presentation_only: bool = false, prepa
 	if result.ok:
 		_catalog_rows = rows.duplicate(true)
 		if not source_changed:
+			_item_quantities = prior_item_quantities
 			var maximum: int = _records[_index_of(selected_id)].legal_max
 			quantity = prior_quantity if prior_quantity <= maxi(1,maximum) else 1
 	else: _host_anchor.clear()
@@ -326,6 +329,7 @@ func configure_shop(items: Array, locale: String = "en", percent: int = 100, lar
 	_cancel_contacts()
 	# A new owner snapshot cannot retain a quantity against an expired maximum.
 	quantity = 1
+	_item_quantities.clear()
 	_locale = locale.replace("-", "_")
 	_percent = percent
 	_large_targets = large_targets
@@ -471,6 +475,7 @@ func _rebuild_catalog() -> void:
 		card.apply_palette(_palette, _day, _high_contrast, _colour_preset)
 		card.configure(record, _price(record.unit_price, record.currency), _t("available" if record.available else "sold_out"))
 		card.pressed.connect(_select_item.bind(record.id))
+		card.inspection_requested.connect(_inspect_item.bind(record.id))
 		card.gui_input.connect(_card_input.bind(record.id))
 		_catalog.add_child(card)
 		cards[record.id] = card
@@ -513,7 +518,7 @@ func _show_page(focus_selection: bool = true) -> void:
 				if not _records[index].blank:
 					selected_id = _records[index].id
 					break
-		quantity = 1
+		quantity = _item_quantity(selected_id)
 	_page_selection[page_index] = selected_id
 	previous_button.disabled = page_index == 0
 	next_button.disabled = page_index == page_count - 1
@@ -524,13 +529,22 @@ func _show_page(focus_selection: bool = true) -> void:
 	_body.queue_redraw()
 	if focus_selection: _focus_selected.call_deferred()
 
+func _inspect_item(item_id: String) -> void:
+	# Hover/focus must not retarget an action whose press is already in progress.
+	if not can_return_home(): return
+	_select_item(item_id)
+
+func _item_quantity(item_id: String) -> int:
+	var record: Dictionary = _records[_index_of(item_id)]
+	return clampi(int(_item_quantities.get(item_id, 1)), 1, maxi(1, record.legal_max))
+
 func _select_item(item_id: String) -> void:
 	if not _has_host_custody(): return
 	if not cards.has(item_id) or not cards[item_id].is_visible_in_tree(): return
+	if selected_id == item_id: return
 	_cancel_contacts()
-	if selected_id != item_id:
-		quantity = 1
-		info_scroll.scroll_vertical = 0
+	quantity = _item_quantity(item_id)
+	info_scroll.scroll_vertical = 0
 	selected_id = item_id
 	_page_selection[page_index] = item_id
 	_render_selection()
@@ -568,6 +582,8 @@ func _render_selection() -> void:
 	_quantity_label.visible = record.batchable and record.available
 	_quantity_label.text = str(quantity)
 	_total_label.text = _price(record.unit_price * quantity, record.currency)
+	_buy_button.accessibility_name = "%s: %s × %d" % [_t("buy"), record.name, quantity]
+	_buy_button.tooltip_text = _buy_button.accessibility_name
 	status_label.position = Vector2(496, 576)
 	status_label.size = Vector2(136, 64)
 	var has_purchase := _provider != null and _provider.has_method("purchase")
@@ -625,6 +641,7 @@ func _quantity_action(key: String) -> void:
 		"minus": quantity = maxi(1, quantity - 1)
 		"plus": quantity = mini(record.legal_max, quantity + 1)
 		"maximum": quantity = record.legal_max
+	_item_quantities[selected_id] = quantity
 	_render_selection()
 	var focused := get_viewport().gui_get_focus_owner()
 	if focused == null or (focused is BaseButton and focused.disabled):
@@ -717,6 +734,7 @@ func _dispatch_purchase(item_id: String, requested_quantity: int) -> void:
 		else {"ok": false, "code": &"shop_purchase_result_malformed"}
 	if _purchase_result.get("ok", false):
 		quantity = 1
+		_item_quantities.erase(item_id)
 		status_label.text = ""
 		refresh_view(true, true)
 	else:
@@ -813,7 +831,7 @@ func _focus_selected() -> void:
 
 func _cancel_contacts() -> void:
 	for card in cards.values(): card.cancel_contact()
-	for button in quantity_buttons.values() + [previous_button, next_button, _supportz_button]:
+	for button in quantity_buttons.values() + [previous_button, next_button, _buy_button, _supportz_button]:
 		if not is_instance_valid(button): continue
 		var was_disabled: bool = button.disabled
 		button.disabled = true

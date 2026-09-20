@@ -93,12 +93,11 @@ func test_dock_mode_and_real_f_shortcut_share_selection_without_board_commands()
 	_key(panel,KEY_ENTER,false)
 	assert_eq(panel.worksheet.grid.mode,&"flag")
 	assert_true(panel.dock.buttons.flag.selected)
-	assert_false(panel.dock.buttons.reveal.selected)
+	assert_false(panel.dock.buttons.has("reveal"))
 	panel.worksheet.grid.grab_focus()
 	_key(panel,KEY_F)
 	_key(panel,KEY_F,false)
 	assert_eq(panel.worksheet.grid.mode,&"reveal")
-	assert_true(panel.dock.buttons.reveal.selected)
 	assert_false(panel.dock.buttons.flag.selected)
 	panel.dock.buttons.drag.pressed.emit()
 	assert_eq(panel.worksheet.grid.mode,&"drag")
@@ -108,7 +107,7 @@ func test_dock_mode_and_real_f_shortcut_share_selection_without_board_commands()
 	assert_true(panel.dock.buttons.flag.selected)
 	assert_true(port.calls.is_empty())
 
-func test_sheet_restores_source_mode_cell_and_scroll_while_dock_stays_inert() -> void:
+func test_switchable_information_preserves_board_mode_cell_scroll_and_facts() -> void:
 	var port := _port("expert")
 	var panel := _panel(port)
 	panel.dock.buttons.flag.pressed.emit()
@@ -127,9 +126,11 @@ func test_sheet_restores_source_mode_cell_and_scroll_while_dock_stays_inert() ->
 		assert_true(panel.register.visible)
 		assert_true(panel.dock.visible)
 		assert_false(panel.worksheet.well.visible)
-		for button: Button in panel.dock.buttons.values():
-			assert_true(button.disabled)
-			assert_eq(button.focus_mode,Control.FOCUS_NONE)
+		for action_name: String in ["flag","drag","new_board"]:
+			assert_true(panel.dock.buttons[action_name].disabled)
+		for action_name: String in ["board","rules","assignments"]:
+			assert_false(panel.dock.buttons[action_name].disabled)
+			assert_eq(panel.dock.buttons[action_name].focus_mode,Control.FOCUS_ALL)
 		panel.dock.buttons.drag.pressed.emit()
 		_key(panel,KEY_F)
 		_key(panel,KEY_F,false)
@@ -143,6 +144,19 @@ func test_sheet_restores_source_mode_cell_and_scroll_while_dock_stays_inert() ->
 		assert_eq(panel.worksheet.grid.focused_index,200)
 		assert_eq(panel.worksheet.get_scroll(),retained_scroll)
 		assert_eq(panel.public_view,before)
+	panel.dock.buttons.rules.pressed.emit()
+	panel.dock.buttons.assignments.pressed.emit()
+	assert_eq(panel.worksheet.information_sheet.kind,"assignments")
+	panel.dock.buttons.rules.pressed.emit()
+	assert_eq(panel.worksheet.information_sheet.kind,"rules")
+	panel.dock.buttons.board.pressed.emit()
+	assert_null(panel.worksheet.information_sheet)
+	assert_true(panel.worksheet.grid.has_focus(),"Board returns focus to the retained cell.")
+	assert_eq(panel.worksheet.grid.mode,&"flag")
+	assert_eq(panel.worksheet.grid.focused_index,200)
+	assert_eq(panel.worksheet.get_scroll(),retained_scroll)
+	assert_eq(panel.public_view,before)
+	assert_true(port.calls.is_empty(),"Switching views never dispatches a board command.")
 
 func test_invalid_composite_preserves_facts_blocks_input_and_refresh_recovers() -> void:
 	var port := _port()
@@ -275,8 +289,8 @@ func test_real_tab_visits_manual_grid_rails_zoom_and_dock_then_exits_to_the_host
 	assert_not_null(panel.worksheet.horizontal_rail)
 	panel.worksheet.grid.grab_focus()
 	var order: Array[Control] = [panel.worksheet.vertical_rail,panel.worksheet.horizontal_rail,
-		panel.worksheet.zoom_controls[0],panel.worksheet.zoom_controls[1],panel.worksheet.zoom_controls[2],
-		panel.dock.buttons.reveal,panel.dock.buttons.flag,panel.dock.buttons.drag,
+		panel.worksheet.zoom_controls[0],panel.worksheet.zoom_controls[1],
+		panel.dock.buttons.flag,panel.dock.buttons.drag,
 		panel.dock.buttons.assignments,panel.dock.buttons.rules,after]
 	for target: Control in order:
 		_key(panel,KEY_TAB)

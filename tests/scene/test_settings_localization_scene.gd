@@ -151,7 +151,7 @@ func _accepted_settings_paths() -> Array:
 		"reading.read_aloud_enabled", "reading.read_aloud_rate",
 		"audio.master_volume", "audio.master_muted", "audio.music_volume", "audio.music_muted",
 		"audio.ambience_volume", "audio.ambience_muted", "audio.sfx_volume", "audio.sfx_muted",
-		"audio.mute_when_inactive", "audio.output_mode", "display.window_mode",
+		"audio.mute_when_inactive", "audio.output_mode", "display.window_mode", "display.window_size",
 		"accessibility.text_size", "accessibility.large_targets", "accessibility.high_contrast",
 		"accessibility.reduced_motion", "accessibility.steady_interface", "accessibility.screen_shake", "accessibility.colour_differentiation",
 		"accessibility.sound_detail_text", "exceptional_replay.available", "exceptional_replay.replay_full", "dark_mode.next_run_enabled",

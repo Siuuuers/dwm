@@ -32,6 +32,8 @@ var _failed := true
 var _sheet_source := ""
 var _previous_focus: WeakRef
 var _next_focus: WeakRef
+var layout_height := 656
+var _return_to_board := false
 
 func _init() -> void:
 	focus_mode = Control.FOCUS_NONE
@@ -70,6 +72,14 @@ func configure(locale: String = "en", percent: int = 100, large: bool = false,
 	_place(measured.register_height)
 	_apply_availability()
 	return true
+
+func set_layout_height(height: int) -> bool:
+	if height == layout_height: return true
+	var previous := layout_height
+	layout_height = height
+	if configure(_locale, _percent, _large, _palette, _high_contrast, _colour_preset): return true
+	layout_height = previous
+	return false
 
 func bind(port: Object) -> bool:
 	if not is_instance_valid(port) or not port.has_method("pull") or not port.has_method("dispatch"): return false
@@ -159,7 +169,7 @@ func _measure(value: Dictionary, locale: String, percent: int, large: bool, pale
 	var claimed: Array = value.get("assignments",[false,false,false,false,false,false,false,false,false])
 	# The band and register height are a pure function of these inputs. A click that changes
 	# none of them must not build, configure, present and free three probe controls again.
-	var key: Array = [locale,percent,large,palette,high_contrast,colour_preset,facts,claimed]
+	var key: Array = [locale,percent,large,palette,high_contrast,colour_preset,facts,claimed,worksheet.view_controls_external,layout_height]
 	if key == _measured_key: return _measured
 	var probe_register: Control = REGISTER.new()
 	var probe_dock: Control = DOCK.new()
@@ -169,8 +179,8 @@ func _measure(value: Dictionary, locale: String, percent: int, large: bool, pale
 	if valid: valid = probe_dock.configure("desktop_app",locale,percent,large,palette,high_contrast,colour_preset)
 	var result: Dictionary = {}
 	if valid:
-		var sheet_band := Vector2i(400,328-int(probe_register.size.y/2)-int(probe_dock.size.y/2))
-		var band := sheet_band - Vector2i(0, WORKSHEET.view_controls_height(locale, probe_dock.theme, large) / 2)
+		var sheet_band := Vector2i(400,layout_height/2-int(probe_register.size.y/2)-int(probe_dock.size.y/2))
+		var band := sheet_band - Vector2i(0, 0 if worksheet.view_controls_external else WORKSHEET.view_controls_height(locale, probe_dock.theme, large) / 2)
 		valid = LAYOUT.measure(1,1,band,large).ok
 		if valid: valid = probe_sheet.configure("desktop_app",locale,percent,large,palette,sheet_band,high_contrast,colour_preset)
 		if valid: valid = probe_sheet.present_assignments(claimed)
@@ -183,7 +193,7 @@ func _measure(value: Dictionary, locale: String, percent: int, large: bool, pale
 	return result
 
 func _place(register_height: float) -> void:
-	custom_minimum_size = Vector2(800,656)
+	custom_minimum_size = Vector2(800,layout_height)
 	size = custom_minimum_size
 	worksheet.position = Vector2(0,register_height)
 	dock.position = Vector2(0,register_height+worksheet.size.y)
@@ -196,7 +206,12 @@ func _apply_availability() -> void:
 	for key: String in register.difficulties:
 		register.difficulties[key].present_state(not blocked \
 			and key in register.public_view.difficulty_enabled,key == register.public_view.difficulty)
-	dock.present(worksheet.grid.mode,public_view.get("actions",[]),blocked)
+	var document_open: bool = worksheet.information_sheet != null
+	var dock_blocked: bool = _failed or (public_view.get("board",{}).get("custody",true) and not settled)
+	var actions: Array = public_view.get("actions",[]).duplicate()
+	if document_open: actions = actions.filter(func(action: String): return action in ["rules", "assignments"])
+	dock.present(worksheet.grid.mode,actions,dock_blocked,
+		worksheet.information_sheet.kind if document_open else "board")
 	_wire_focus()
 
 func _wire_focus() -> void:
@@ -207,9 +222,17 @@ func _wire_focus() -> void:
 	for control: Control in [worksheet.grid,worksheet.vertical_rail,worksheet.horizontal_rail]:
 		if control != null and control.focus_mode != Control.FOCUS_NONE and control.is_visible_in_tree(): controls.append(control)
 	for control: Control in worksheet.zoom_controls:
-		if control.focus_mode != Control.FOCUS_NONE and control.is_visible_in_tree(): controls.append(control)
+		if not worksheet.view_controls_external and control.focus_mode != Control.FOCUS_NONE and control.is_visible_in_tree(): controls.append(control)
+	if worksheet.information_sheet != null:
+		var sheet: Control = worksheet.information_sheet
+		for control: Control in sheet.rows: controls.append(control)
+		if sheet.rail != null: controls.append(sheet.rail)
+		controls.append(sheet.return_button)
 	for control: Control in dock.buttons.values():
 		if control.focus_mode != Control.FOCUS_NONE: controls.append(control)
+	if worksheet.view_controls_external:
+		for control: Control in worksheet.zoom_controls:
+			if control.focus_mode != Control.FOCUS_NONE and control.is_visible_in_tree(): controls.append(control)
 	for index in controls.size():
 		controls[index].focus_previous = controls[index].get_path_to(controls[index-1]) if index > 0 else NodePath()
 		controls[index].focus_next = controls[index].get_path_to(controls[index+1]) if index+1 < controls.size() else NodePath()
@@ -220,7 +243,14 @@ func _wire_focus() -> void:
 	if next != null and next.is_inside_tree(): controls[-1].focus_next = controls[-1].get_path_to(next)
 
 func _action(action: StringName) -> void:
-	if _failed or worksheet.information_sheet != null or action not in public_view.get("actions",[]): return
+	if _failed: return
+	if action == &"board":
+		_return_to_board = true
+		worksheet.close_information(true)
+		_return_to_board = false
+		return
+	if action not in public_view.get("actions",[]): return
+	if worksheet.information_sheet != null and action not in [&"rules", &"assignments"]: return
 	if action in [&"reveal",&"flag",&"drag"]:
 		worksheet.set_mode(action)
 		return
@@ -237,7 +267,7 @@ func _action(action: StringName) -> void:
 		_apply_availability()
 
 func _information_closed() -> void:
-	if not _failed and dock.buttons.has(_sheet_source) and not dock.buttons[_sheet_source].disabled:
+	if not _failed and not _return_to_board and dock.buttons.has(_sheet_source) and not dock.buttons[_sheet_source].disabled:
 		dock.buttons[_sheet_source].grab_focus()
 	_sheet_source = ""
 	_wire_focus()
@@ -279,3 +309,4 @@ func _input(event: InputEvent) -> void:
 	if not grid.consume_new_board_input(event, true): return
 	get_viewport().set_input_as_handled()
 	_action(&"new_board")
+

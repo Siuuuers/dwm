@@ -6,6 +6,7 @@ class_name DatingScene
 ## Narrative scenes remain scene-oriented assets, with detailed dialogue deferred.
 const _PORT_METHODS: Array[String] = ["begin", "complete"]
 const WORKSHEET := preload("res://scripts/ui/minesweeper/MinesweeperWorksheet.gd")
+const FLAG_BUTTON := preload("res://scripts/ui/minesweeper/MinesweeperFlagButton.gd")
 const CHROME_COPY := preload("res://scripts/ui/minesweeper/MinesweeperChromeCopy.gd")
 const PRESENTATION_SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
 const SCENE_ART_VIEW := preload("res://scripts/ui/art/SceneArtView.gd")
@@ -61,6 +62,8 @@ var _continue_button: Button
 var _special_mine_button: Button
 var _mode_buttons: Array[Button] = []
 var _rules_button: Button
+var _board_button: Button
+var _view_footer: HBoxContainer
 var _physical_view: Dictionary = {}
 var _input_owner: Object
 var _locale: String = "en"
@@ -176,8 +179,8 @@ func _build_challenge() -> void:
 	var toolbar := HBoxContainer.new()
 	toolbar.alignment = BoxContainer.ALIGNMENT_CENTER
 	panel.add_child(toolbar)
-	for mode: String in ["reveal", "flag", "drag"]:
-		var button := Button.new()
+	for mode: String in ["flag", "drag"]:
+		var button: Button = FLAG_BUTTON.new() if mode == "flag" else Button.new()
 		button.name = mode.capitalize()
 		button.set_meta("mode", mode)
 		button.toggle_mode = true
@@ -185,10 +188,19 @@ func _build_challenge() -> void:
 		button.pressed.connect(_select_mode.bind(mode))
 		toolbar.add_child(button)
 		_mode_buttons.append(button)
+	_board_button = Button.new()
+	_board_button.name = "Board"
+	_board_button.custom_minimum_size = Vector2(120, 40)
+	_board_button.pressed.connect(func(): worksheet.close_information(true))
+	toolbar.add_child(_board_button)
+	worksheet.information_closed.connect(_refresh_challenge)
+	worksheet.grid.mode_changed.connect(func(_mode: StringName): _refresh_mode_controls())
 	_rules_button = Button.new()
 	_rules_button.name = "Rules"
 	_rules_button.custom_minimum_size = Vector2(120, 40)
-	_rules_button.pressed.connect(func(): worksheet.open_rules(_rules_button))
+	_rules_button.pressed.connect(func():
+		worksheet.open_rules(_rules_button)
+		_refresh_mode_controls())
 	toolbar.add_child(_rules_button)
 	_special_mine_button = Button.new()
 	_special_mine_button.name = "SpecialMine"
@@ -208,6 +220,11 @@ func _build_challenge() -> void:
 	_continue_button.custom_minimum_size = Vector2(0, 44)
 	_continue_button.pressed.connect(_on_continue)
 	panel.add_child(_continue_button)
+	_view_footer = HBoxContainer.new()
+	_view_footer.name = "ChallengeViewFooter"
+	_view_footer.alignment = BoxContainer.ALIGNMENT_END
+	panel.add_child(_view_footer)
+	worksheet.set_footer_host(_view_footer)
 
 func _refresh_challenge() -> void:
 	if not is_instance_valid(worksheet) or _physical_view.is_empty(): return
@@ -226,15 +243,8 @@ func _refresh_challenge() -> void:
 	var ink: Color = worksheet.get_theme_color("primary_dark_copy" if _palette == &"after_hours" else "primary_paper_copy", "Minesweeper")
 	title.add_theme_color_override("font_color", ink)
 	_status_label.add_theme_color_override("font_color", ink)
-	for button: Button in _mode_buttons:
-		var mode: String = str(button.get_meta("mode"))
-		button.text = str(CHROME_COPY.get_copy(_locale).get(mode, mode.capitalize()))
-		button.visible = phase == "challenge"
-		button.disabled = phase != "challenge"
-		button.set_pressed_no_signal(str(worksheet.grid.mode) == mode)
-	_rules_button.text = str(CHROME_COPY.get_copy(_locale).get("rules", "Rules"))
-	_rules_button.visible = phase == "challenge"
-	_rules_button.disabled = phase != "challenge"
+	_refresh_mode_controls()
+	_view_footer.visible = worksheet.visible
 	_special_mine_button.visible = bool(_physical_view.special_mine_visible)
 	_special_mine_button.disabled = not bool(_physical_view.special_mine_enabled)
 	_continue_button.visible = phase not in ["challenge", "preparing"] or _preparation_failed or _settlement_failed
@@ -249,6 +259,39 @@ func _refresh_challenge() -> void:
 		_: _status_label.text = str(copy.value.body)
 	_refresh_terminal_choice()
 	_refresh_observer()
+
+func _refresh_mode_controls() -> void:
+	var active: bool = _physical_view.get("phase") == "challenge"
+	var document_open: bool = worksheet.information_sheet != null
+	var copy := CHROME_COPY.get_copy(_locale)
+	for button: Button in _mode_buttons:
+		var mode := str(button.get_meta("mode"))
+		button.visible = active
+		if mode == "flag":
+			button.configure(copy.flag, worksheet.theme, _large_cells, 80)
+			button.present_state(active and not document_open, worksheet.grid.mode == &"flag")
+			button.accessibility_name = copy.flag + ": " + copy[String(worksheet.grid.mode)]
+			button.tooltip_text = button.accessibility_name
+		else:
+			button.text = copy[mode]
+			button.disabled = not active or document_open
+			button.set_pressed_no_signal(worksheet.grid.mode == StringName(mode))
+	_board_button.text = copy.board
+	_board_button.visible = active
+	_board_button.disabled = not active or not document_open
+	_rules_button.text = copy.rules
+	_rules_button.visible = active
+	_rules_button.disabled = not active
+	_rules_button.toggle_mode = true
+	_rules_button.set_pressed_no_signal(document_open)
+	if document_open:
+		var sheet: Control = worksheet.information_sheet
+		# The sheet remains part of the host's navigation, rather than a focus trap.
+		sheet.return_button.focus_next = sheet.return_button.get_path_to(_board_button)
+		_board_button.focus_previous = _board_button.get_path_to(sheet.return_button)
+		_board_button.focus_next = _board_button.get_path_to(_rules_button)
+		_rules_button.focus_next = _rules_button.get_path_to(sheet.rows[0])
+		sheet.rows[0].focus_previous = sheet.rows[0].get_path_to(_rules_button)
 
 func _refresh_terminal_choice() -> void:
 	if _physical_view.get("phase") != "cleared_awaiting_terminal_choice":
@@ -489,7 +532,8 @@ func _refresh_observer() -> void:
 			_false_cursor.position = Vector2(30.0 + fraction * 160.0, -40.0 + fraction * 50.0)
 
 func _select_mode(mode: String) -> void:
-	if worksheet.set_mode(StringName(mode)): _refresh_challenge()
+	if mode == "flag": mode = "reveal" if worksheet.grid.mode == &"flag" else "flag"
+	if worksheet.set_mode(StringName(mode)): _refresh_mode_controls()
 
 func _on_cell_action(action: StringName, index: int, revision: int) -> void:
 	if _physical_view.get("phase") == "cleared_awaiting_terminal_choice" and not _choice_released: return
@@ -587,3 +631,4 @@ func append_previous_dialogue_line(rendered_text: String) -> void:
 	line.text = rendered_text
 	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	previous_dialogue_list.add_child(line)
+

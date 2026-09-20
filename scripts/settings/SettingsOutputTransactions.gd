@@ -16,7 +16,7 @@ var _generation := 0
 var _window: Node
 var _window_bound := false
 var _window_backup: Dictionary = {}
-var _window_baseline_mode := ""
+var _window_baseline: Dictionary = {}
 
 func _init(owner: Node) -> void:
 	_owner = owner
@@ -34,8 +34,8 @@ func bind_window_output(window: Node) -> Dictionary:
 	_window_bound = true
 	return _success({"already_bound": false})
 
-func commit_settings_window_preference(holder_id: Variant, value: Variant) -> Dictionary:
-	if not _valid_path(holder_id, &"preferences.audio.master_volume"):
+func commit_settings_window_preference(holder_id: Variant, value: Variant, path: StringName = &"preferences.display.window_mode") -> Dictionary:
+	if path not in [&"preferences.display.window_mode", &"preferences.display.window_size"] or not _valid_path(holder_id, &"preferences.audio.master_volume"):
 		return _failure(&"invalid_settings_window_preference")
 	if has_preview(): return _failure(&"settings_audio_busy")
 	var admitted := _begin()
@@ -43,7 +43,7 @@ func commit_settings_window_preference(holder_id: Variant, value: Variant) -> Di
 	if not _window_available(): return _finish(_failure(&"settings_window_unavailable"))
 	var revision := _revision()
 	var baseline := _snapshot()
-	var prepared: Dictionary = _owner._profile.prepare_preferences({&"preferences.display.window_mode": value})
+	var prepared: Dictionary = _owner._profile.prepare_preferences({path: value})
 	if not prepared.get("ok", false): return _finish(prepared)
 	return _commit(prepared.value, baseline, revision)
 
@@ -125,16 +125,16 @@ func _commit(candidate: Dictionary, baseline: Dictionary, revision: int, section
 	if not _unchanged(revision, baseline, generation):
 		var conflict := _failure(&"settings_audio_commit_conflict")
 		return _recover(conflict) if has_preview() else _finish(conflict)
-	if String(candidate.preferences.display.window_mode) != String(baseline.preferences.display.window_mode) and not _window_available():
+	if _window_plan(candidate) != _window_plan(baseline) and not _window_available():
 		return _finish(_failure(&"settings_window_unavailable"))
 	if _window_bound:
 		if not _window_identity_valid(): return _finish(_failure(&"settings_window_unavailable"))
-		if String(candidate.preferences.display.window_mode) != _window.get_applied_mode():
+		if _window_plan(candidate) != _applied_window_plan():
 			if not _window_available(): return _finish(_failure(&"settings_window_unavailable"))
 			var captured: Dictionary = _window.capture_restore_state()
 			if not captured.get("ok", false): return _finish(captured)
 			_window_backup = captured.value.duplicate(true)
-			_window_baseline_mode = String(baseline.preferences.display.window_mode)
+			_window_baseline = _window_plan(baseline)
 			if not _unchanged(revision, baseline, generation): return _recover(_failure(&"settings_audio_commit_conflict"))
 	var settings := _candidate(candidate)
 	var applied: Dictionary = _owner._apply_settings_output(settings)
@@ -194,13 +194,20 @@ func _window_available() -> bool:
 func _apply_window(profile: Dictionary, restore_original: bool = false) -> Dictionary:
 	if not _window_bound: return _success({})
 	if not _window_identity_valid(): return _failure(&"settings_window_unavailable")
-	var mode := String(profile.preferences.display.window_mode)
-	if restore_original and not _window_backup.is_empty() and mode == _window_baseline_mode:
+	var plan := _window_plan(profile)
+	if restore_original and not _window_backup.is_empty() and plan == _window_baseline:
 		return _window.rollback_restore_silent(_window_backup.duplicate(true))
 	if _window._fatal: return _failure(&"settings_window_unavailable")
-	if mode == _window.get_applied_mode(): return _success({})
+	if plan == _applied_window_plan(): return _success({})
 	if not _window_available(): return _failure(&"settings_window_unavailable")
-	return _window.apply_restore_silent({"window_mode": mode})
+	return _window.apply_restore_silent(plan)
+
+func _window_plan(profile: Dictionary) -> Dictionary:
+	return {"window_mode": String(profile.preferences.display.window_mode),
+		"window_size": String(profile.preferences.display.get("window_size", "1280x720"))}
+
+func _applied_window_plan() -> Dictionary:
+	return {"window_mode": _window.get_applied_mode(), "window_size": _window.get_applied_size() if _window.has_method("get_applied_size") else "1280x720"}
 
 func _recover(cause: Dictionary) -> Dictionary:
 	invalidate_preview()
@@ -253,7 +260,7 @@ func _valid_path(holder_id: Variant, path: Variant) -> bool:
 
 func _finish(result: Dictionary) -> Dictionary:
 	_window_backup.clear()
-	_window_baseline_mode = ""
+	_window_baseline.clear()
 	_busy = false
 	return result
 

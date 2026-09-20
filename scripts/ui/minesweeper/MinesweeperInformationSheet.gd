@@ -105,7 +105,7 @@ func _compose(next_theme: Theme, band: Vector2i, large: bool, locale: String, ne
 		extent += int(row.custom_minimum_size.y/2)
 	var overflow := extent > page
 	if overflow:
-		row_width -= target*2
+		row_width -= (24 if large else 12)*2
 		extent = 0
 		for index in measured_rows.size():
 			measured_rows[index].configure(text_rows[index],next_theme,row_width,target*2)
@@ -175,7 +175,7 @@ func _install(measured: Dictionary, reset: bool) -> void:
 		var paper_theme := theme.duplicate() as Theme
 		for pair: Array in [[&"controlled_face",&"paper"],[&"dark_registration",&"paper_structure"],[&"dark_scroll_thumb",&"paper_scroll_thumb"],[&"dark_separation",&"paper_structure"],[&"dark_focus_outer",&"paper_focus_outer"],[&"dark_focus_inner",&"paper_focus_inner"]]:
 			paper_theme.set_color(pair[0],&"Minesweeper",theme.get_color(pair[1],&"Minesweeper"))
-		rail.configure(true,_locale,paper_theme)
+		rail.configure(true,_locale,paper_theme,_large)
 		rail.scroll_requested.connect(set_scroll)
 	_update_scroll()
 	var focus_order: Array[Control] = rows.duplicate()
@@ -208,7 +208,7 @@ func set_scroll(value: int) -> void:
 func _update_scroll() -> void:
 	document.position.y = -_scroll*2
 	if rail == null: return
-	var target := 32 if _large else 24
+	var target := 24 if _large else 12
 	var rect := Rect2i(_band.x-8-target,int(body.position.y/2),target,_page)
 	var length := maxi(target,floori(float(_page*_page)/_extent))
 	var leading := floori(float((_page-length)*_scroll)/(_extent-_page))
@@ -247,3 +247,4 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _draw() -> void:
 	if theme != null: draw_rect(Rect2(Vector2.ZERO,size),theme.get_color(&"paper",&"Minesweeper"))
+

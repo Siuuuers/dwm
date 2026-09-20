@@ -185,7 +185,7 @@ func test_app_back_suspends_once_before_host_hides_and_reopens_same_instance() -
 	assert_eq(state.minesweeper_rounds_left, 1)
 
 
-func test_information_sheets_block_host_home_and_app_back_without_commands() -> void:
+func test_home_from_information_suspends_once_and_reopening_preserves_board() -> void:
 	var desktop := _desktop()
 	var app := _open_from_launcher(desktop)
 	if app == null: return
@@ -195,17 +195,22 @@ func test_information_sheets_block_host_home_and_app_back_without_commands() -> 
 		assert_not_null(app.panel.worksheet.information_sheet)
 		if app.panel.worksheet.information_sheet == null: continue
 		var counter_before: int = root_store.next_counter
-		var board_before: Dictionary = coordinator.get_state().value
-		assert_true(desktop.home_button.disabled)
-		assert_false(desktop.return_home().ok)
-		app.hide_window()
-		assert_true(app.visible)
-		assert_false(desktop.icon_grid.visible)
-		assert_eq(host.get_state().active_app_id, &"minesweeper")
-		assert_eq(root_store.next_counter, counter_before)
-		assert_eq(coordinator.get_state().value, board_before)
-		app.panel.worksheet.information_sheet.return_requested.emit()
+		var board_before: Dictionary = coordinator.get_state().value.board.duplicate(true)
 		assert_false(desktop.home_button.disabled)
+		assert_true(desktop.return_home().ok)
+		assert_false(app.visible)
+		assert_true(desktop.icon_grid.visible)
+		assert_null(host.get_state().active_app_id)
+		assert_eq(root_store.next_counter, counter_before+1)
+		assert_eq(coordinator.get_state().value.phase,"ACTIVE_SUSPENDED")
+		assert_eq(coordinator.get_state().value.board, board_before)
+		var reopened: Dictionary = desktop.open_app(&"minesweeper")
+		assert_true(reopened.ok)
+		if not reopened.ok: return
+		assert_same(reopened.value.app,app)
+		assert_null(app.panel.worksheet.information_sheet)
+		assert_eq(coordinator.get_state().value.phase,"ACTIVE_VISIBLE")
+		assert_eq(coordinator.get_state().value.board,board_before)
 	assert_true(desktop.return_home().ok)
 
 

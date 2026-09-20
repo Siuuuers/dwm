@@ -1,7 +1,7 @@
 # Windows automated testing
 
 The `Windows automated tests` GitHub Actions workflow runs on pull requests,
-pushes to `master` and `codex/**`, and manual dispatch. No local Godot installation
+pushes to `master`, and manual dispatch. No local Godot installation
 or cloud desktop is required to start these checks.
 
 Each Windows Server 2022 job downloads the standard Godot 4.6.3 editor from the

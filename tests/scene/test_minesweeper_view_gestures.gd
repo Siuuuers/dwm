@@ -121,8 +121,11 @@ func test_second_touch_in_blank_well_cancels_cell_action_and_finishes_one_pinch_
 
 func test_ctrl_wheel_over_grid_and_blank_well_each_zoom_once_with_vertical_anchor() -> void:
 	var worksheet := _worksheet()
+	# Keep vertical overflow and horizontal whitespace after the rails become thinner.
+	assert_true(worksheet.configure("desktop_app", "en", 100, false, &"after_hours", Vector2i(400, 200)))
 	assert_true(worksheet.step_zoom(10))
 	assert_eq(worksheet.cell_size, 56)
+	assert_gt(worksheet.geometry.maximum_scroll.y, 2)
 	worksheet.set_scroll(Vector2i(0, 2))
 	var cell: Control = worksheet.grid.cell_nodes[0]
 	var over_grid: Vector2 = worksheet.position + worksheet.grid.position + (cell.position + cell.size / 2.0) * worksheet.grid.scale
@@ -180,8 +183,8 @@ func test_fit_toggle_rebuilds_rail_tab_order_and_exits_to_host() -> void:
 	assert_null(panel.worksheet.vertical_rail)
 	assert_null(panel.worksheet.horizontal_rail)
 	panel.worksheet.grid.grab_focus()
-	for target: Control in panel.worksheet.zoom_controls + [panel.dock.buttons.reveal,
-		panel.dock.buttons.flag, panel.dock.buttons.drag, panel.dock.buttons.assignments,
+	for target: Control in panel.worksheet.zoom_controls + [panel.dock.buttons.flag,
+		panel.dock.buttons.drag, panel.dock.buttons.assignments,
 		panel.dock.buttons.rules, after]:
 		_tab()
 		assert_same(_surface.gui_get_focus_owner(), target)
@@ -190,8 +193,8 @@ func test_fit_toggle_rebuilds_rail_tab_order_and_exits_to_host() -> void:
 	assert_not_null(panel.worksheet.horizontal_rail)
 	panel.worksheet.grid.grab_focus()
 	for target: Control in [panel.worksheet.vertical_rail, panel.worksheet.horizontal_rail] \
-			+ panel.worksheet.zoom_controls + [panel.dock.buttons.reveal,
-		panel.dock.buttons.flag, panel.dock.buttons.drag, panel.dock.buttons.assignments,
+			+ panel.worksheet.zoom_controls + [panel.dock.buttons.flag,
+		panel.dock.buttons.drag, panel.dock.buttons.assignments,
 		panel.dock.buttons.rules, after]:
 		_tab()
 		assert_same(_surface.gui_get_focus_owner(), target)

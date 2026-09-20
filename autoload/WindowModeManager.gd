@@ -4,6 +4,7 @@ extends Node
 
 const PORT := preload("res://scripts/display/WindowModePort.gd")
 const PATH := &"preferences.display.window_mode"
+const SIZE_PATH := &"preferences.display.window_size"
 
 var _port: RefCounted
 var _profile: Node
@@ -15,6 +16,7 @@ var _available := false
 var _fatal := false
 var _applying := false
 var _mode := ""
+var _size := "1280x720"
 
 func _init(port: RefCounted = null) -> void:
 	_port = PORT.new() if port == null else port
@@ -62,6 +64,7 @@ func initialize(profile: Node, transactions: RefCounted) -> Dictionary:
 			return applied
 	else:
 		_mode = prepared.value.window_mode
+		_size = prepared.value.window_size
 	_profile.preference_changed.connect(_on_preference_changed)
 	return _success({"available": _available})
 
@@ -77,6 +80,19 @@ func get_settings_output_transactions() -> RefCounted:
 func get_applied_mode() -> String:
 	return _mode
 
+func get_applied_size() -> String:
+	return _size
+
+func get_available_window_sizes() -> Array:
+	if not get_settings_window_capability().value.available or not _port.has_method("get_available_window_sizes"): return []
+	return _port.get_available_window_sizes()
+
+func commit_settings_window_size(holder_id: Variant, value: Variant) -> Dictionary:
+	if not get_settings_window_capability().value.available: return _failure(&"window_output_unavailable")
+	if _mode != "windowed": return _failure(&"window_size_unavailable")
+	if value not in get_available_window_sizes(): return _failure(&"window_size_unavailable")
+	return _transactions.commit_settings_window_preference(holder_id, value, SIZE_PATH)
+
 func commit_settings_window_preference(holder_id: Variant, value: Variant) -> Dictionary:
 	if not get_settings_window_capability().value.available: return _failure(&"window_output_unavailable")
 	return _transactions.commit_settings_window_preference(holder_id, value)
@@ -87,27 +103,35 @@ func prepare_restore(preferences: Dictionary) -> Dictionary:
 	var mode: Variant = display.get("window_mode")
 	if typeof(mode) != TYPE_STRING or mode not in ["windowed", "borderless"]:
 		return _failure(&"invalid_window_mode")
-	return _success({"window_mode": mode})
+	var window_size: Variant = display.get("window_size", "1280x720")
+	if typeof(window_size) != TYPE_STRING or not PORT.WINDOW_SIZES.has(window_size):
+		return _failure(&"invalid_window_size")
+	return _success({"window_mode": mode, "window_size": window_size})
 
 func capture_restore_state() -> Dictionary:
 	if _fatal: return _failure(&"window_output_indeterminate")
 	if not _available: return _failure(&"window_output_unavailable")
 	var captured: Dictionary = _port.capture_output()
 	if not captured.get("ok", false): return captured
-	return _success({"output": captured.value, "mode": _mode})
+	return _success({"output": captured.value, "mode": _mode, "window_size": _size})
 
 func apply_restore_silent(plan: Dictionary) -> Dictionary:
-	if plan.size() != 1 or not plan.has("window_mode") \
-		or typeof(plan.window_mode) != TYPE_STRING or plan.window_mode not in ["windowed", "borderless"]:
+	if plan.size() not in [1, 2] or not plan.has("window_mode") \
+		or (plan.size() == 2 and not plan.has("window_size")):
 		return _failure(&"invalid_window_restore_plan")
+	var checked := prepare_restore({"display": plan})
+	if not checked.ok: return _failure(&"invalid_window_restore_plan")
+	var window_size: String = checked.value.window_size
 	if _fatal: return _failure(&"window_output_indeterminate")
 	if not _available: return _failure(&"window_output_unavailable")
 	var captured: Dictionary = _port.capture_output()
 	if not captured.get("ok", false): return captured
 	_applying = true
-	var applied: Dictionary = _port.apply_mode(plan.window_mode)
-	if applied.get("ok", false) and not _port.output_matches(plan.window_mode):
-		applied = _failure(&"window_output_unproven")
+	# Preserve the mode-only adapter contract for the original baseline.
+	var applied: Dictionary = _port.apply_mode(plan.window_mode) if window_size == "1280x720" else _port.apply_mode(plan.window_mode, window_size)
+	if applied.get("ok", false):
+		var matches: bool = _port.output_matches(plan.window_mode) if window_size == "1280x720" else _port.output_matches(plan.window_mode, window_size)
+		if not matches: applied = _failure(&"window_output_unproven")
 	if not applied.get("ok", false):
 		var restored: Dictionary = _port.restore_output(captured.value)
 		_applying = false
@@ -116,13 +140,15 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 			return _failure(&"window_output_indeterminate")
 		return applied
 	_mode = plan.window_mode
+	_size = window_size
 	_applying = false
 	return _success({})
 
 func rollback_restore_silent(backup: Dictionary) -> Dictionary:
-	if backup.size() != 2 or not backup.has_all(["output", "mode"]) \
+	if backup.size() != 3 or not backup.has_all(["output", "mode", "window_size"]) \
 		or typeof(backup.output) != TYPE_DICTIONARY or typeof(backup.mode) != TYPE_STRING \
-		or backup.mode not in ["windowed", "borderless"]:
+		or backup.mode not in ["windowed", "borderless"] \
+		or typeof(backup.window_size) != TYPE_STRING or not PORT.WINDOW_SIZES.has(backup.window_size):
 		return _failure(&"invalid_window_restore_backup")
 	_applying = true
 	var restored: Dictionary = _port.restore_output(backup.output)
@@ -131,18 +157,20 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 		latch_output_failure(&"window_output_rollback", restored)
 		return _failure(&"window_output_indeterminate")
 	_mode = backup.mode
+	_size = backup.window_size
 	return _success({})
 
 func finalize_restore() -> Dictionary:
 	return _failure(&"window_output_indeterminate") if _fatal else _success({})
 
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
-	if path != PATH or _applying or _transactions.is_busy() or not _available or _fatal: return
+	if path not in [PATH, SIZE_PATH] or _applying or _transactions.is_busy() or not _available or _fatal: return
 	for _attempt: int in range(8):
 		var revision: int = _profile.get_profile_revision()
 		var mode: String = _profile.get_preference(PATH)
-		if mode != _mode:
-			var applied := apply_restore_silent({"window_mode": mode})
+		var window_size: String = _profile.get_preference(SIZE_PATH, "1280x720")
+		if mode != _mode or window_size != _size:
+			var applied := apply_restore_silent({"window_mode": mode, "window_size": window_size})
 			if not applied.ok:
 				latch_output_failure(&"committed_window_preference", applied)
 				return

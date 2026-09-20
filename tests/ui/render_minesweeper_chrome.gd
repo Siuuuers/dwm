@@ -52,7 +52,7 @@ func _render() -> void:
 		register.position = Vector2(64,32)
 		worksheet.position = register.position+Vector2(0,register.size.y)
 		dock.position = worksheet.position+Vector2(0,worksheet.size.y)
-		dock.buttons.reveal.grab_focus()
+		dock.buttons.flag.grab_focus()
 		for frame in 4: await RenderingServer.frame_post_draw
 		var pixels: Image = viewport.get_texture().get_image()
 		var file: String = folder.path_join(sample[0]+".png")

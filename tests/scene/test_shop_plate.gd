@@ -186,7 +186,7 @@ func test_selection_quantity_and_page_memory_are_presentation_only() -> void:
 	assert_eq(shop.quantity, 4)
 	assert_eq(f.rows[0].legal_max, 4)
 	shop.cards.wine.grab_focus()
-	assert_eq(shop.selected_id, "coffee", "Focus alone does not select.")
+	assert_eq(shop.selected_id, "wine", "Focus immediately inspects the item.")
 	shop.cards.wine.pressed.emit()
 	assert_eq(shop.selected_id, "wine")
 	assert_eq(shop.quantity, 1)
@@ -203,13 +203,13 @@ func test_selection_quantity_and_page_memory_are_presentation_only() -> void:
 	assert_eq(shop.selected_id, "lucky_charm")
 	assert_eq(shop.quantity, 1)
 
-func test_keyboard_moves_focus_without_selection_and_returns_from_inspector() -> void:
+func test_keyboard_focus_inspects_immediately_and_returns_from_inspector() -> void:
 	var f := _fixture()
 	await _settle()
 	var shop = f.shop
 	await _key(KEY_RIGHT)
 	assert_true(shop.cards.wine.has_focus())
-	assert_eq(shop.selected_id, "coffee")
+	assert_eq(shop.selected_id, "wine")
 	await _key(KEY_ENTER)
 	assert_eq(shop.selected_id, "wine")
 	await _key(KEY_RIGHT)
@@ -217,7 +217,7 @@ func test_keyboard_moves_focus_without_selection_and_returns_from_inspector() ->
 	await _key(KEY_RIGHT)
 	assert_true(shop.quantity_buttons.plus.has_focus())
 	await _key(KEY_LEFT)
-	assert_true(shop.cards.wine.has_focus())
+	assert_true(shop.cards.pineapple_bun.has_focus())
 	f.home.grab_focus()
 	await _key(KEY_TAB)
 	assert_true(shop.cards.coffee.has_focus())
@@ -324,7 +324,7 @@ func test_held_page_button_is_cancelled_by_a_new_snapshot() -> void:
 func test_right_edge_without_an_inspector_action_is_a_deliberate_noop() -> void:
 	var f := _fixture()
 	await _settle()
-	f.rows[0].legal_max = 0
+	f.rows[2].legal_max = 0
 	f.shop.configure_shop(f.rows)
 	await _settle()
 	f.shop.cards.pineapple_bun.grab_focus()
@@ -390,6 +390,7 @@ class Preferences extends RefCounted:
 func test_rejected_direct_configuration_preserves_valid_projection_quantity_and_focus() -> void:
 	var f := _fixture()
 	await _settle()
+	f.shop.cards.wine.grab_focus()
 	f.shop.quantity_buttons.maximum.pressed.emit()
 	f.shop.cards.wine.grab_focus()
 	var old_card: Button = f.shop.cards.wine
@@ -410,6 +411,7 @@ func test_catalog_owner_updates_preserve_selection_page_focus_and_reset_only_cha
 	provider.rows = f.rows
 	assert_true(f.shop.configure_catalog(provider).ok)
 	await _settle()
+	f.shop.cards.wine.grab_focus()
 	f.shop.quantity_buttons.maximum.pressed.emit()
 	f.shop.cards.wine.grab_focus()
 	var old_card: Button = f.shop.cards.wine
@@ -420,10 +422,10 @@ func test_catalog_owner_updates_preserve_selection_page_focus_and_reset_only_cha
 	provider.rows[0].legal_max = 2
 	provider.catalog_changed.emit()
 	await _settle()
-	assert_eq(f.shop.selected_id,"coffee")
+	assert_eq(f.shop.selected_id,"wine")
 	assert_eq(f.shop.page_index,0)
 	assert_eq(f.shop.quantity,1)
-	assert_true(f.shop.cards.wine.has_focus(),"Focused inspection is distinct from selected merchandise")
+	assert_true(f.shop.cards.wine.has_focus(),"The inspector and purchase target follow the focused merchandise")
 	var replacement := CatalogProvider.new()
 	replacement.rows = f.rows
 	assert_false(f.shop.configure_catalog(replacement).ok)
@@ -725,6 +727,6 @@ func test_remount_resumes_retired_measurement_with_identical_catalog_and_prefere
 	assert_true(f.shop.last_result.ok)
 	assert_true(f.shop.cards.wine.is_visible_in_tree())
 	assert_true(f.shop.cards.wine.has_focus())
-	assert_eq(f.shop.selected_id,"coffee")
+	assert_eq(f.shop.selected_id,"wine")
 	assert_eq(f.shop._records[0].legal_max,2)
 	assert_gt(f.shop.cards.wine.size.y,0.0)

@@ -12,6 +12,7 @@ $ErrorActionPreference = 'Stop'
 $suites = @{
     minesweeper = @(
         'tests/unit/test_minesweeper_app.gd'
+        'tests/unit/test_gallery_rehearsal_host.gd'
         'tests/unit/test_minesweeper_dock.gd'
         'tests/unit/test_minesweeper_register.gd'
         'tests/unit/test_minesweeper_panel.gd'
@@ -27,6 +28,7 @@ $suites = @{
         'tests/scene/test_minesweeper_toggle_bindings.gd'
         'tests/scene/test_minesweeper_new_board_bindings.gd'
         'tests/scene/test_minesweeper_view_gestures.gd'
+        'tests/scene/test_minesweeper_challenge_controls.gd'
         'tests/integration/test_minesweeper_desktop_host.gd'
     )
     shop = @(
@@ -40,6 +42,7 @@ $suites = @{
     )
     desktop = @(
         'tests/unit/test_desktop_panel_split.gd'
+        'tests/desktop_shell/test_desktop_split_touch.gd'
         'tests/unit/test_desktop_touch_navigation.gd'
         'tests/unit/test_desktop_app_host_state.gd'
         'tests/unit/test_desktop_accessibility_contract.gd'

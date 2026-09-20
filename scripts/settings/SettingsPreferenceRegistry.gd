@@ -1,6 +1,8 @@
 class_name SettingsPreferenceRegistry
 extends RefCounted
 
+const WINDOW_SIZES := ["1280x720", "1600x900", "1920x1080"]
+
 const _LOCALE_IDS := ["en", "zh_CN", "zh_HK"]
 const _MINESWEEPER_CELL_SIZES := [10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60]
 
@@ -26,6 +28,7 @@ const _RECORDS := [
 	{"path": &"preferences.audio.mute_when_inactive", "type": &"bool", "default_value": true, "section_id": &"audio", "renderer": &"toggle", "player_writable": true, "visible": true, "allowed_values": [], "step": 0.0, "label": "Mute when inactive"},
 	{"path": &"preferences.audio.output_mode", "type": &"enum_string", "default_value": "stereo", "section_id": &"audio", "renderer": &"enum_option", "player_writable": true, "visible": true, "allowed_values": ["stereo", "mono"], "step": 0.0, "label": "Output mode"},
 	{"path": &"preferences.display.window_mode", "type": &"enum_string", "default_value": "windowed", "section_id": &"display", "renderer": &"enum_option", "player_writable": true, "visible": true, "allowed_values": ["windowed", "borderless"], "step": 0.0, "label": "Window mode"},
+	{"path": &"preferences.display.window_size", "type": &"enum_string", "default_value": "1280x720", "section_id": &"display", "renderer": &"enum_option", "player_writable": true, "visible": true, "allowed_values": WINDOW_SIZES, "step": 0.0, "label": "Window size"},
 	{"path": &"preferences.display.minesweeper_app_beginner_cell_size", "type": &"enum_int", "default_value": 36, "section_id": &"display", "renderer": &"enum_option", "player_writable": true, "visible": false, "allowed_values": _MINESWEEPER_CELL_SIZES, "step": 2.0, "label": "Beginner cell size"},
 	{"path": &"preferences.display.minesweeper_app_beginner_always_fit", "type": &"bool", "default_value": false, "section_id": &"display", "renderer": &"toggle", "player_writable": true, "visible": false, "allowed_values": [], "step": 0.0, "label": "Fit beginner board"},
 	{"path": &"preferences.display.minesweeper_app_intermediate_cell_size", "type": &"enum_int", "default_value": 36, "section_id": &"display", "renderer": &"enum_option", "player_writable": true, "visible": false, "allowed_values": _MINESWEEPER_CELL_SIZES, "step": 2.0, "label": "Intermediate cell size"},

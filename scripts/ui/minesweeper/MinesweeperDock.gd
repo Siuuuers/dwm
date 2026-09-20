@@ -4,11 +4,12 @@ extends Control
 signal action_requested(action: StringName)
 
 const BUTTON := preload("res://scripts/ui/minesweeper/MinesweeperActionButton.gd")
+const FLAG_BUTTON := preload("res://scripts/ui/minesweeper/MinesweeperFlagButton.gd")
 const MS_THEME := preload("res://scripts/ui/minesweeper/MinesweeperTheme.gd")
 const COPY := preload("res://scripts/ui/minesweeper/MinesweeperChromeCopy.gd")
 const MODES := [&"reveal",&"flag",&"drag"]
-const LEFT := [["reveal",4,48],["flag",56,40],["drag",100,40]]
-const DESKTOP := [["new_board",196,64],["assignments",264,80],["rules",348,48]]
+const LEFT := [["flag",4,40],["drag",48,40],["board",92,48]]
+const DESKTOP := [["new_board",144,64],["assignments",212,80],["rules",296,48]]
 const CANONICAL := [["rules",376,48],["pause",428,48]]
 
 var buttons: Dictionary = {}
@@ -17,6 +18,8 @@ var _enabled: Array = []
 var _custody := false
 var _host := "desktop_app"
 var _selected_copy := ""
+var _copy: Dictionary = {}
+var _view := "board"
 
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -34,7 +37,7 @@ func configure(host: String = "desktop_app", locale: String = "en", percent: int
 	var candidates: Dictionary = {}
 	var height := 64 if large else 48
 	for allocation: Array in allocations:
-		var button: Button = BUTTON.new()
+		var button: Button = FLAG_BUTTON.new() if allocation[0] == "flag" else BUTTON.new()
 		if not button.configure(copy[allocation[0]],next_theme,large,allocation[2]*2):
 			button.free()
 			for prior: Button in candidates.values(): prior.free()
@@ -49,8 +52,9 @@ func configure(host: String = "desktop_app", locale: String = "en", percent: int
 	buttons = candidates
 	_host = host
 	_selected_copy = copy.selected
+	_copy = copy
 	theme = next_theme
-	var inset := 10 if large else 12
+	var inset := 6 if large else 4
 	custom_minimum_size = Vector2(800 if host == "desktop_app" else 960,height+inset*2)
 	size = custom_minimum_size
 	for allocation: Array in allocations:
@@ -65,14 +69,15 @@ func configure(host: String = "desktop_app", locale: String = "en", percent: int
 	queue_redraw()
 	return true
 
-func present(next_mode: StringName, enabled_actions: Array, custody: bool = false) -> bool:
-	if next_mode not in MODES: return false
+func present(next_mode: StringName, enabled_actions: Array, custody: bool = false, active_view: String = "board") -> bool:
+	if next_mode not in MODES or active_view not in ["board", "rules", "assignments"]: return false
 	var allowed := ["reveal","flag","drag","new_board","assignments","rules"] if _host == "desktop_app" else ["reveal","flag","drag","rules","pause"]
 	var seen: Array = []
 	for action: Variant in enabled_actions:
 		if typeof(action) != TYPE_STRING or action not in allowed or action in seen: return false
 		seen.append(action)
 	mode = next_mode
+	_view = active_view
 	_enabled = enabled_actions.duplicate()
 	_custody = custody
 	_apply_state()
@@ -80,14 +85,22 @@ func present(next_mode: StringName, enabled_actions: Array, custody: bool = fals
 
 func _apply_state() -> void:
 	for key: String in buttons:
-		var selected: bool = key == mode
-		buttons[key].present_state(not _custody and key in _enabled,selected)
+		var selected: bool = key == mode if key in ["flag", "drag"] else key == _view
+		var enabled: bool = key in _enabled or (key == "board" and _view != "board")
+		if key == "flag": enabled = ("reveal" if mode == &"flag" else "flag") in _enabled
+		buttons[key].present_state(not _custody and enabled,selected)
 		buttons[key].accessibility_description = _selected_copy if selected else ""
+		if key == "flag":
+			buttons[key].accessibility_name = _copy.flag + ": " + _copy[String(mode)]
+			buttons[key].tooltip_text = buttons[key].accessibility_name
 
 func _request(action: String) -> void:
-	if not _custody and action in _enabled: action_requested.emit(StringName(action))
+	if action == "flag": action = "reveal" if mode == &"flag" else "flag"
+	if not _custody and (action in _enabled or (action == "board" and _view != "board")):
+		action_requested.emit(StringName(action))
 
 func _draw() -> void:
 	if theme == null: return
 	draw_rect(Rect2(Vector2.ZERO,size),theme.get_color(&"controlled_face",&"Minesweeper"))
 	draw_rect(Rect2(0,0,size.x,2),theme.get_color(&"dark_registration",&"Minesweeper"))
+
