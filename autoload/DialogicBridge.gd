@@ -379,9 +379,10 @@ func _prepare_scene_art() -> void:
 	scene_art_changed.emit()
 	var source := get_current_scene_art()
 	var art: Dictionary = _SCENE_ART.get_scene_art(source.entry_id)
-	# Hospital owns this caption style even without optional images or a scene-art day.
+	# Hospital and dating own this caption style even without optional artwork.
 	var hospital := str(source.entry_id) == "hospital.faint" or str(source.entry_id).begins_with("hospital.faint.")
-	if not hospital and (str(source.entry_id).is_empty() or (str(art.get("background", "")).is_empty() \
+	var dating := str(source.entry_id).begins_with("dating.")
+	if not hospital and not dating and (str(source.entry_id).is_empty() or (str(art.get("background", "")).is_empty() \
 		and art.get("portraits", []).is_empty() and str(art.get("cg", "")).is_empty())): return
 	var runtime := get_node_or_null("/root/Dialogic") if is_inside_tree() else null
 	# Isolated adapters never borrow the autoload's physical layout.

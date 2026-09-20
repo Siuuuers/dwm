@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [minesweeper, shop, desktop, settings, new_account]
+        suite: [minesweeper, shop, desktop, settings, new_account, reading_delivery]
     defaults:
       run:
         shell: pwsh
@@ -99,7 +99,7 @@ jobs:
           retention-days: 7
 
   rendered-desktop:
-    name: Rendered desktop scaling / Linux software OpenGL
+    name: Rendered desktop and dialogue / Linux software OpenGL
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
@@ -168,6 +168,43 @@ jobs:
         with:
           name: desktop-scaling-render-${{ github.run_id }}-${{ github.run_attempt }}
           path: .godot/ci/desktop-scaling/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Render and verify delivery and dialogue
+        timeout-minutes: 5
+        env:
+          XDG_DATA_HOME: ${{ github.workspace }}/.godot/ci/delivery-dialogue-user/data
+          DWM_TEST_ROOT: ${{ github.workspace }}/.godot/ci/delivery-dialogue-user/test-root
+          DWM_RENDER_OUTPUT: ${{ github.workspace }}/.godot/ci/delivery-dialogue
+        run: |
+          mkdir -p "$DWM_RENDER_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
+          xvfb-run -a -s '-screen 0 1920x1080x24' "$GODOT_CONSOLE_PATH" \
+            --path "$GITHUB_WORKSPACE" --rendering-method gl_compatibility \
+            --rendering-driver opengl3 --audio-driver Dummy \
+            --log-file "$DWM_RENDER_OUTPUT/render.log" \
+            --script res://tests/ui/render_delivery_dialogue.gd
+          grep 'DELIVERY_DIALOGUE_RENDER_VERIFIED' "$DWM_RENDER_OUTPUT/render.log"
+          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load' "$DWM_RENDER_OUTPUT/render.log"; then
+            exit 1
+          fi
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          output = Path(os.environ['DWM_RENDER_OUTPUT'])
+          report = json.loads((output / 'results.json').read_text())
+          assert report['ok'] is True and not report['failures'], report
+          assert report['renderer'] != 'headless', report
+          assert report['samples'] == report['captures'] == 15, report
+          captures = list(output.glob('*.png'))
+          assert len(captures) == 15 and all(path.stat().st_size > 0 for path in captures)
+          PY
+      - name: Upload delivery and dialogue evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: delivery-dialogue-render-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/delivery-dialogue/
           include-hidden-files: true
           if-no-files-found: warn
           retention-days: 7

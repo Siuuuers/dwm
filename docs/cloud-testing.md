@@ -7,7 +7,7 @@ or cloud desktop is required to start these checks.
 Each Windows Server 2022 job downloads the standard Godot 4.6.3 editor from the
 official release, verifies its SHA256, imports the complete repository, and runs
 one bounded GUT suite: Minesweeper, Shop, desktop input/layout, Settings/display,
-or New Account persistence and serialization.
+New Account persistence and serialization, or reading/delivery behavior.
 The current production project uses GDScript and does not include a C# project.
 This workflow does not compile C# or produce a distributable Windows export.
 
@@ -17,13 +17,25 @@ captures 26 states covering the launcher, apps, scrolled content, menus, and
 confirmations at baseline and enlarged widths. Geometry assertions, a successful
 JSON report, and all 26 nonempty PNG files are required. Its screenshots and logs
 are uploaded for visual review; a headless geometry run cannot satisfy this job.
-This supplementary renderer does not replace the five Windows test groups.
+This supplementary renderer does not replace the six Windows test groups.
+
+A second rendered pass in the same job reuses Godot and the software display
+with separate user data. It requires 15 screenshots and a successful report
+from `tests/ui/render_delivery_dialogue.gd`, covering pending and delivered
+notices, dialogue review and return to the current line, and dating captions.
+The samples include enlarged content and Chinese locales. The
+`delivery-dialogue-render` artifact contains its screenshots, report, and log.
 
 `tools/testing/Invoke-CloudTests.ps1` lists the exact test scripts. It reuses the
 existing isolated runner, which gives each run disposable user data and rejects
 requested scripts that never execute. A missing or empty JUnit report also fails
-the job. The five groups continue independently so one failure does not conceal
+the job. The six groups continue independently so one failure does not conceal
 the other results. Each job has a 20-minute limit.
+
+The `reading_delivery` group covers Minesweeper delivery notice lifecycle and
+input behavior, witnessed caption input and transport, and the dating caption
+style. It includes targeted pause, auto, skip, and speech regressions to verify
+that reading controls retain their existing behavior.
 
 The `new_account` group also runs `tests/integration/verify_new_acc_latency.gd`
 in a separate isolated process. It exercises the real New Account button for a

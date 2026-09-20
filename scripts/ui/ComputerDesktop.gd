@@ -36,6 +36,8 @@ const CONTACT_NAMES := {"priscilla": "Priscilla", "lavinia": "Lavinia", "sylvia"
 @onready var notification_body: Label = %NotificationBody
 @onready var notification_close: Button = %CloseButton
 @onready var notification_go: Button = %GoButton
+@onready var delivery_notice: PanelContainer = %DeliveryNotice
+@onready var delivery_caption: Label = %DeliveryCaption
 
 var launcher_buttons: Dictionary = {}
 var home_button: Button
@@ -79,6 +81,11 @@ var _warning_navigation_serial := 0
 var _prepared_warning_navigation: Dictionary = {}
 var _message_notification_queue: Array[Dictionary] = []
 var _seen_message_notifications: Dictionary = {}
+var _delivery_generation := 0
+var _delivery_pending := false
+var _delivery_has_message := false
+var _delivery_stage: StringName = &""
+var _delivery_elapsed := 0.0
 
 func configure_run_configuration(owner: Object) -> Dictionary:
 	if not is_instance_valid(owner) or not owner.has_method("get_run_configuration") or Callable(owner,"get_run_configuration").get_argument_count() != 0:
@@ -116,6 +123,8 @@ func _ready() -> void:
 	message_notification.mouse_filter = Control.MOUSE_FILTER_STOP
 	notification_close.pressed.connect(_dismiss_message_notification)
 	notification_go.pressed.connect(_open_contacts_from_notification)
+	visibility_changed.connect(_on_delivery_visibility_changed)
+	set_process(false)
 	_build_shell()
 	resized.connect(queue_redraw)
 	resized.connect(_layout_desktop)
@@ -617,7 +626,9 @@ func open_app(app_id: StringName) -> Dictionary:
 		app.window_hidden.connect(_on_app_hidden.bind(app_id))
 		if app_id == &"minesweeper":
 			app.recovery_requested.connect(_route_failure)
+			app.recovery_requested.connect(_on_delivery_failed)
 			app.panel.presentation_changed.connect(status_label.hide)
+			app.panel.presentation_changed.connect(_on_minesweeper_delivery_presented.bind(app))
 		if app_id == &"shop":
 			app.recovery_requested.connect(func(code: String): _route_failure(StringName(code)))
 		if app_id == &"schedule":
@@ -787,6 +798,7 @@ func _on_app_hidden(app_id: StringName) -> void:
 		_cached_app_windows[app_id].show()
 
 func _on_daily_state_reset() -> void:
+	_reset_delivery_notice()
 	if is_instance_valid(_confirmation):
 		_confirmation._finish(false)
 	for window in _cached_app_windows.values():
@@ -874,6 +886,8 @@ func _refresh_launcher(refresh_contacts: bool = true) -> void:
 	for edge: int in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
 		notice_style.set_content_margin(edge, 16)
 	message_notification.add_theme_stylebox_override("panel", notice_style)
+	delivery_notice.add_theme_stylebox_override("panel", notice_style)
+	delivery_caption.add_theme_font_override("font", DESKTOP_THEME.ENGLISH)
 	_refresh_message_notification_copy()
 	var ids: Array[StringName] = APP_REGISTRY.new().get_ids()
 	for index in ids.size():
@@ -927,7 +941,14 @@ func _on_contact_message_unlocked(result: Dictionary) -> void:
 	var friend_id := str(result.get("friend_id", ""))
 	if notification_id.is_empty() or friend_id not in CONTACT_NAMES or _seen_message_notifications.has(notification_id): return
 	_seen_message_notifications[notification_id] = true
-	_message_notification_queue.append({"notification_id": notification_id, "friend_id": friend_id})
+	var generation := 0
+	if _delivery_pending:
+		generation = _delivery_generation
+		_delivery_has_message = true
+		# A durable retry may publish after its earlier error cleared the spinner.
+		if _delivery_stage == &"": _show_delivery_notice(&"delivering")
+	_message_notification_queue.append({"notification_id": notification_id, "friend_id": friend_id,
+		"delivery_generation": generation})
 	_present_next_message_notification()
 
 
@@ -938,6 +959,65 @@ func _present_next_message_notification() -> void:
 	message_notification.set_meta("friend_id", entry.friend_id)
 	_refresh_message_notification_copy()
 	message_notification.show()
+	if int(entry.get("delivery_generation", 0)) == _delivery_generation and _delivery_has_message:
+		_show_delivery_notice(&"delivered")
+
+
+func _on_minesweeper_delivery_presented(app: Control) -> void:
+	if _cached_app_windows.get(&"minesweeper") != app: return
+	var view: Dictionary = app.panel.public_view
+	if not bool(view.get("board", {}).get("terminal", false)): return
+	if not bool(view.get("settled", false)):
+		if _delivery_pending: return
+		_delivery_generation += 1
+		_delivery_pending = true
+		_delivery_has_message = false
+		_show_delivery_notice(&"delivering")
+	elif _delivery_pending:
+		_delivery_pending = false
+		# Some rounds have no eligible friend notice. Never invent a delivery.
+		if not _delivery_has_message: _reset_delivery_notice()
+
+
+func _show_delivery_notice(stage: StringName) -> void:
+	_delivery_stage = stage
+	_delivery_elapsed = 0.0
+	delivery_caption.text = "delivered :)" if stage == &"delivered" else "delivering."
+	delivery_notice.modulate.a = 1.0
+	delivery_notice.show()
+	set_process(true)
+
+
+func _process(delta: float) -> void:
+	_delivery_elapsed += delta
+	if _delivery_stage == &"delivering":
+		delivery_caption.text = "delivering" + ".".repeat(1 + int(_delivery_elapsed / 0.4) % 3)
+	elif _delivery_stage == &"delivered":
+		delivery_notice.modulate.a = clampf(1.0 - (_delivery_elapsed - 2.0) / 0.5, 0.0, 1.0)
+		if _delivery_elapsed >= 2.5:
+			_hide_delivery_notice()
+
+
+func _on_delivery_failed(_code: StringName) -> void:
+	# Keep the pending generation so the existing Retry path can finish this delivery.
+	if _delivery_pending and _delivery_stage != &"delivered": _hide_delivery_notice()
+
+
+func _hide_delivery_notice() -> void:
+	_delivery_stage = &""
+	delivery_notice.hide()
+	set_process(false)
+
+
+func _reset_delivery_notice() -> void:
+	_delivery_generation += 1
+	_delivery_pending = false
+	_delivery_has_message = false
+	_hide_delivery_notice()
+
+
+func _on_delivery_visibility_changed() -> void:
+	if not is_visible_in_tree(): _reset_delivery_notice()
 
 
 func _refresh_message_notification_copy() -> void:

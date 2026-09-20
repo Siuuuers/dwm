@@ -33,6 +33,12 @@ offset_right = 1280.0
 offset_bottom = 720.0
 mouse_filter = 2
 
+[node name="BackgroundInput" type="Control" parent="Canvas"]
+layout_mode = 0
+offset_right = 1280.0
+offset_bottom = 656.0
+mouse_filter = 0
+
 [node name="Scroll" type="ScrollContainer" parent="Canvas"]
 layout_mode = 0
 offset_left = 16.0
@@ -75,6 +81,15 @@ fit_content = true
 scroll_active = false
 
 [node name="Previous" type="RichTextLabel" parent="Canvas/Scroll/Stack"]
+visible = false
+layout_mode = 0
+mouse_filter = 2
+focus_mode = 0
+theme_type_variation = &"WitnessedPrevious"
+fit_content = true
+scroll_active = false
+
+[node name="ReviewCurrent" type="RichTextLabel" parent="Canvas/Scroll/Stack"]
 visible = false
 layout_mode = 0
 mouse_filter = 2

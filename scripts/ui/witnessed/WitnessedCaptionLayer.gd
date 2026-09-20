@@ -24,6 +24,9 @@ var _had_caption := false
 var _profile: Node
 var _localization: Node
 var _retained: Array[String] = []
+var _scrollback: Array[String] = []
+var _review_offset := 0
+var _live_scroll := 0.0
 var _current_copy := ""
 var _layout_generation := 0
 var _layout_pending := false
@@ -72,6 +75,8 @@ var _speech_status: Label
 @onready var caption_text: DialogicNode_DialogText = $Canvas/Scroll/Stack/Caption
 @onready var older: RichTextLabel = $Canvas/Scroll/Stack/Older
 @onready var previous: RichTextLabel = $Canvas/Scroll/Stack/Previous
+@onready var review_current: RichTextLabel = $Canvas/Scroll/Stack/ReviewCurrent
+@onready var background_input: Control = $Canvas/BackgroundInput
 @onready var overlay: Control = $Canvas/Overlay
 @onready var accept_input: Node = $AcceptInput
 @onready var skip_controller: Node = $SkipController
@@ -90,8 +95,9 @@ func _ready() -> void:
 	caption_text.focus_entered.connect(caption_text.queue_redraw)
 	caption_text.focus_exited.connect(caption_text.queue_redraw)
 	caption_text.draw.connect(_draw_current_frame)
-	scroll.gui_input.connect(_on_passive_input)
-	stack.gui_input.connect(_on_passive_input)
+	background_input.gui_input.connect(_on_background_input)
+	scroll.gui_input.connect(_on_passive_input.bind(scroll))
+	stack.gui_input.connect(_on_passive_input.bind(stack))
 	canvas.draw.connect(_draw_canvas)
 	overlay.draw.connect(_draw_seam)
 	get_scroll_bar().focus_mode = Control.FOCUS_NONE
@@ -111,6 +117,8 @@ func _ready() -> void:
 	configure_run_presentation(run_owner)
 	var runtime := get_node_or_null("/root/Dialogic")
 	accept_input.bind(caption_text, scroll, runtime)
+	accept_input.bind_scene_input(background_input)
+	accept_input.bind_presentation_admission(_before_normal_accept, _automatic_line_admitted)
 	accept_input.bind_local_admission(_reading_source_admitted)
 	accept_input.normal_accept_requested.connect(_on_normal_accept_requested)
 	transport_rail.skip_requested.connect(_on_skip_requested)
@@ -173,7 +181,7 @@ func _cancel_speech() -> void:
 		_speech_owner.stop_source(retired_source, &"source_retired")
 
 func _speech_admitted() -> bool:
-	return not _pause_covered and _reading_source_admitted() and _has_caption() \
+	return _review_offset == 0 and not _pause_covered and _reading_source_admitted() and _has_caption() \
 		and accept_input.is_source_admitted() and not skip_controller.is_skip_active()
 
 func _speech_allows_auto(expected_frontier: Dictionary) -> bool:
@@ -239,14 +247,21 @@ func configure_reading_transport(profile: Object, bridge: Object) -> bool:
 	_transport_bridge = bridge
 	_transport_configured = true
 	_auto_configured = auto_controller.configure(profile, bridge, _auto_controller_admitted)
-	accept_input.bind_presentation_admission(_acknowledge_visible_line, _automatic_line_admitted)
+	accept_input.bind_presentation_admission(_before_normal_accept, _automatic_line_admitted)
 	_capture_presented_line()
 	_acknowledge_visible_line()
 	_sync_transport()
 	return _transport_configured
 
 
+func _before_normal_accept() -> bool:
+	if _review_offset > 0:
+		_set_review_offset(0)
+		return false
+	return _acknowledge_visible_line()
+
 func _acknowledge_visible_line() -> bool:
+	if _review_offset > 0: return false
 	if _line_waiting_for_text: return false
 	var has_proof: bool = _presented_line.get("ok", false)
 	if not is_instance_valid(_transport_bridge) \
@@ -270,6 +285,7 @@ func _capture_presented_line() -> void:
 
 
 func _automatic_line_admitted() -> bool:
+	if _review_offset > 0: return false
 	if _line_waiting_for_text: return false
 	var has_proof: bool = _presented_line.get("ok", false)
 	if not is_instance_valid(_transport_bridge) \
@@ -281,6 +297,7 @@ func _automatic_line_admitted() -> bool:
 		and bool(_transport_bridge.call("is_current_line_presentation_acknowledged"))
 
 func _transport_admitted() -> bool:
+	if _review_offset > 0: return false
 	return _transport_configured and _transport_input_bound and not _pause_covered \
 		and not _line_waiting_for_text and is_instance_valid(transport_rail) \
 		and transport_rail.is_visible_in_tree() and accept_input.is_source_admitted() \
@@ -343,7 +360,7 @@ func _auto_controller_admitted() -> bool:
 		and _reading_recovery.get("kind") == &"auto" and _recovery_action_admitted())
 
 func _auto_button_admitted() -> bool:
-	return _auto_configured and _auto_input_bound and not _pause_covered \
+	return _review_offset == 0 and _auto_configured and _auto_input_bound and not _pause_covered \
 		and not _line_waiting_for_text and _presented_line.get("ok", false) \
 		and transport_rail.is_visible_in_tree() and accept_input.is_source_admitted() \
 		and is_instance_valid(_transport_bridge) \
@@ -375,6 +392,7 @@ func _on_normal_accept_requested() -> void:
 	_try_arm_auto.call_deferred()
 
 func _on_playback_ended() -> void:
+	reset_caption_stack()
 	_dismiss_reading_recovery(false)
 	auto_controller.retire_current()
 	_retire_transport()
@@ -387,14 +405,14 @@ func _sync_transport() -> void:
 	transport_rail.visible = not rehearsal
 	transport_rail.project(_transport_admitted(), skip_controller.is_skip_active(),
 		skip_controller.is_auto_enabled(), _auto_button_admitted(), _load_admitted())
-	var ring: Array[Control] = [caption_text]
+	var ring: Array[Control] = [review_current if _review_offset > 0 else caption_text]
 	var names: PackedStringArray = []
 	for name: String in ["Skip", "Auto", "Load"]:
 		var command: Control = transport_rail.get_node(name)
 		if command.focus_mode != Control.FOCUS_NONE:
 			ring.append(command)
 			names.append(name)
-	var focus_key := ",".join(names)
+	var focus_key := ("review:" if _review_offset > 0 else "live:") + ",".join(names)
 	if focus_key == _rail_focus_key: return
 	_rail_focus_key = focus_key
 	for index: int in ring.size():
@@ -643,11 +661,17 @@ func configure_presentation(locale: String = "en", text_percent: int = 100, pale
 	return true
 
 func reset_caption_stack() -> void:
+	var was_reviewing := _review_offset > 0
 	_cancel_speech()
 	if is_instance_valid(auto_controller): auto_controller.retire_current()
 	_line_waiting_for_text = true
 	_presented_line.clear()
 	_retained.clear()
+	_scrollback.clear()
+	_review_offset = 0
+	if is_instance_valid(accept_input): accept_input.set_review_caption(null)
+	if was_reviewing and is_instance_valid(caption_text) and not caption_text.get_parsed_text().is_empty():
+		caption_text.show()
 	_current_copy = ""
 	_publication_pending = false
 	if is_instance_valid(stack):
@@ -659,8 +683,12 @@ func reproject_retained_captions(captions: Array) -> bool:
 	for copy: Variant in captions:
 		if typeof(copy) != TYPE_STRING or String(copy).strip_edges().is_empty():
 			return false
+	if _review_offset > 0: _set_review_offset(0)
 	_cancel_speech()
 	_retained.assign(captions)
+	_scrollback.assign(captions)
+	_review_offset = 0
+	accept_input.set_review_caption(null)
 	if is_instance_valid(stack):
 		_current_copy = caption_text.get_parsed_text()
 		_layout_stack()
@@ -675,7 +703,7 @@ func get_caption_projection() -> Dictionary:
 	var leaves: Array[Rect2] = []
 	var visible_leaves: Array[Rect2] = []
 	if mounted:
-		for leaf: RichTextLabel in [older, previous, caption_text]:
+		for leaf: RichTextLabel in [older, previous, review_current, caption_text]:
 			if not leaf.visible or leaf.get_parsed_text().is_empty():
 				continue
 			var rect := _leaf_rect(leaf)
@@ -697,12 +725,17 @@ func get_caption_projection() -> Dictionary:
 		"field_rect": _field_rect(), "caption_rect": current_rect,
 		"caption_visible_rect": current_rect.intersection(_field_rect()) if mounted and _has_caption() else Rect2(),
 		"retained_captions": _retained.duplicate(), "leaf_rects": leaves,
+		"caption_window": _caption_window(), "review_offset": _review_offset,
 		"visible_leaf_rects": visible_leaves,
 		"scroll_offset": bar.value if bar != null else 0.0,
 		"scroll_extent": maxf(0.0, bar.max_value - bar.page) if bar != null else 0.0,
 	}
 
 func _on_about_to_show_text(_info: Dictionary) -> void:
+	if not _current_copy.is_empty():
+		_current_copy = caption_text.get_parsed_text()
+		if caption_text.visible_characters >= 0:
+			_current_copy = _current_copy.left(caption_text.visible_characters)
 	_cancel_speech()
 	_dismiss_reading_recovery(false)
 	auto_controller.retire_current()
@@ -722,11 +755,14 @@ func _on_text_started(info: Dictionary) -> void:
 	if not _has_caption():
 		return
 	if not bool(info.get("append", false)) and not _current_copy.is_empty():
+		_scrollback.append(_current_copy)
 		_retained.append(_current_copy)
 		if _retained.size() > 2:
 			_retained.pop_front()
 	# Only already-parsed display text crosses this seam; never character/portrait data.
 	_current_copy = caption_text.get_parsed_text()
+	_review_offset = 0
+	accept_input.set_review_caption(null)
 	_layout_stack(true)
 	_capture_presented_line()
 	_acknowledge_visible_line()
@@ -740,6 +776,9 @@ func _on_caption_visibility_changed() -> void:
 	_sync_native_processing()
 	if caption_text.get_parsed_text().is_empty():
 		_retained.clear()
+		_scrollback.clear()
+		_review_offset = 0
+		accept_input.set_review_caption(null)
 		_current_copy = ""
 		_publication_pending = false
 		older.hide()
@@ -748,7 +787,7 @@ func _on_caption_visibility_changed() -> void:
 	_request_layout()
 
 func _sync_native_processing() -> void:
-	if _pause_covered or not _reading_recovery.is_empty():
+	if _review_offset > 0 or _pause_covered or not _reading_recovery.is_empty():
 		caption_text.set_process(false)
 		return
 	if caption_text.get_parsed_text().is_empty():
@@ -758,6 +797,9 @@ func _sync_native_processing() -> void:
 		caption_text.set_process(false)
 		if not _retained.is_empty() or not _current_copy.is_empty():
 			_retained.clear()
+			_scrollback.clear()
+			_review_offset = 0
+			accept_input.set_review_caption(null)
 			_current_copy = ""
 			_publication_pending = false
 			older.hide()
@@ -829,19 +871,22 @@ func _settle_layout() -> void:
 	_layout_pending = false
 	_layout_stack()
 
-func _layout_stack(publication: bool = false) -> void:
+func _layout_stack(publication: bool = false, desired_scroll: float = -1.0) -> void:
 	if not is_instance_valid(stack) or _caption_theme == null:
 		return
 	_publication_pending = _publication_pending or publication
-	var retained_scroll := get_scroll_bar().value
+	var retained_scroll := get_scroll_bar().value if desired_scroll < 0 else desired_scroll
 	scroll.position = Vector2(16, FIELD_TOP[_text_percent])
 	scroll.size = Vector2(1248, FIELD_BOTTOM - FIELD_TOP[_text_percent])
-	older.text = _retained[0] if _retained.size() == 2 else ""
-	previous.text = _retained.back() if not _retained.is_empty() else ""
-	older.visible = _has_caption() and _retained.size() == 2
-	previous.visible = _has_caption() and not _retained.is_empty()
+	var window := _caption_window()
+	older.text = window[0] if window.size() == 3 else ""
+	previous.text = window[window.size() - 2] if window.size() >= 2 else ""
+	review_current.text = window.back() if _review_offset > 0 and not window.is_empty() else ""
+	older.visible = _has_caption() and window.size() == 3
+	previous.visible = _has_caption() and window.size() >= 2
+	review_current.visible = _has_caption() and _review_offset > 0
 	var leaves: Array[RichTextLabel] = []
-	for leaf: RichTextLabel in [older, previous, caption_text]:
+	for leaf: RichTextLabel in [older, previous, review_current, caption_text]:
 		if leaf.visible and not leaf.get_parsed_text().is_empty():
 			leaves.append(leaf)
 	var width := 1248.0
@@ -899,30 +944,42 @@ func _restore_scroll(generation: int, value: float, publication: bool) -> void:
 	_publication_pending = false
 
 func _has_caption() -> bool:
-	return caption_text.visible and not caption_text.get_parsed_text().is_empty()
+	return (caption_text.visible or _review_offset > 0) and not caption_text.get_parsed_text().is_empty()
 
 func _sync_focus() -> void:
 	if _pause_covered or not _reading_recovery.is_empty():
+		background_input.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		caption_text.focus_mode = Control.FOCUS_NONE
+		review_current.focus_mode = Control.FOCUS_NONE
+		if review_current.has_focus(): review_current.release_focus()
 		caption_text.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		if caption_text.has_focus(): caption_text.release_focus()
 		return
 	var has_caption := _has_caption()
-	caption_text.focus_mode = Control.FOCUS_ALL if has_caption else Control.FOCUS_NONE
-	caption_text.mouse_filter = Control.MOUSE_FILTER_STOP if has_caption else Control.MOUSE_FILTER_IGNORE
+	background_input.mouse_filter = Control.MOUSE_FILTER_STOP if has_caption else Control.MOUSE_FILTER_IGNORE
+	var focused_caption: RichTextLabel = review_current if _review_offset > 0 else caption_text
+	caption_text.focus_mode = Control.FOCUS_ALL if has_caption and _review_offset == 0 else Control.FOCUS_NONE
+	review_current.focus_mode = Control.FOCUS_ALL if has_caption and _review_offset > 0 else Control.FOCUS_NONE
+	caption_text.mouse_filter = Control.MOUSE_FILTER_STOP if has_caption and _review_offset == 0 else Control.MOUSE_FILTER_IGNORE
 	if has_caption and not _had_caption:
-		caption_text.grab_focus()
+		focused_caption.grab_focus()
 	_had_caption = has_caption
 	if not has_caption and caption_text.has_focus():
 		caption_text.release_focus()
 
-func _on_passive_input(event: InputEvent) -> void:
-	_handle_input(event, false)
+func _on_background_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+		_handle_input(event, false)
+	else:
+		accept_input.handle_background_gui_input(event, background_input)
+
+func _on_passive_input(event: InputEvent, source_control: Control) -> void:
+	_handle_input(event, false, source_control)
 
 func _on_caption_input(event: InputEvent) -> void:
 	_handle_input(event, true)
 
-func _handle_input(event: InputEvent, current: bool) -> void:
+func _handle_input(event: InputEvent, current: bool, source_control: Control = null) -> void:
 	if _pause_covered or not _reading_recovery.is_empty(): return
 	if event is InputEventMouse and event.device == InputEvent.DEVICE_ID_EMULATION:
 		scroll.accept_event()
@@ -934,16 +991,17 @@ func _handle_input(event: InputEvent, current: bool) -> void:
 	elif event is InputEventMouseButton:
 		if event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
 			accept_input.cancel_pending_accept()
-			var direction := -1.0 if event.button_index == MOUSE_BUTTON_WHEEL_UP else 1.0
-			bar.value += direction * _caption_theme.default_font_size * 3.0 * event.factor
-		elif current and event.button_index == MOUSE_BUTTON_LEFT:
-			accept_input.handle_caption_gui_input(event)
+			if accept_input.is_source_admitted():
+				_set_review_offset(_review_offset + (1 if event.button_index == MOUSE_BUTTON_WHEEL_DOWN else -1))
+		elif event.button_index == MOUSE_BUTTON_LEFT:
+			if current: accept_input.handle_caption_gui_input(event)
+			else: accept_input.handle_background_gui_input(event, source_control if source_control != null else scroll)
 	elif event is InputEventPanGesture:
 		accept_input.cancel_pending_accept()
 		bar.value += event.delta.y * 20
 	elif event is InputEventScreenTouch:
-		if current:
-			accept_input.handle_caption_gui_input(event)
+		if current: accept_input.handle_caption_gui_input(event)
+		else: accept_input.handle_background_gui_input(event, source_control if source_control != null else scroll)
 	elif event is InputEventScreenDrag:
 		if event.device != InputEvent.DEVICE_ID_EMULATION:
 			accept_input.cancel_pending_accept()
@@ -951,6 +1009,29 @@ func _handle_input(event: InputEvent, current: bool) -> void:
 	else:
 		return
 	scroll.accept_event()
+
+func _caption_window() -> Array[String]:
+	if _review_offset == 0:
+		var result := _retained.duplicate()
+		if is_instance_valid(caption_text) and not caption_text.get_parsed_text().is_empty():
+			result.append(caption_text.get_parsed_text())
+		return result
+	var end := _scrollback.size() - _review_offset
+	return _scrollback.slice(maxi(0, end - 2), end + 1)
+
+func _set_review_offset(value: int) -> void:
+	var next := clampi(value, 0, maxi(0, _scrollback.size() - 2))
+	if next == _review_offset: return
+	if _review_offset == 0: _live_scroll = get_scroll_bar().value
+	_review_offset = next
+	_retire_transport()
+	accept_input.cancel_pending_accept()
+	review_current.visible = next > 0
+	accept_input.set_review_caption(review_current if next > 0 else null)
+	caption_text.visible = next == 0
+	_layout_stack(false, 0.0 if next > 0 else _live_scroll)
+	_sync_native_processing()
+	(review_current if next > 0 else caption_text).grab_focus()
 
 func _field_rect() -> Rect2:
 	return Rect2(0, FIELD_TOP[_text_percent], 1280, FIELD_BOTTOM - FIELD_TOP[_text_percent])

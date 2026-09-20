@@ -155,6 +155,10 @@ func test_settings_reprojection_under_cover_preserves_native_copy_and_restores_c
 	assert_true(captured.get("ok",false))
 	var before := _native_state()
 	assert_true(caption.cover_pause_view(captured.value))
+	var locale_source := preload("res://tests/integration/test_witnessed_caption_runtime.gd").CaptionFixtureLocale.new()
+	locale_source.locale = "zh-HK"
+	viewport.add_child(locale_source)
+	assert_true(caption.transport_rail.bind_localization(locale_source))
 	assert_true(caption.configure_presentation("zh-HK",150,"Midnight",true,"tritan",true))
 	for frame in 5: await get_tree().process_frame
 	assert_false(caption.canvas.visible)

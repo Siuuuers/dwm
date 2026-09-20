@@ -837,6 +837,32 @@ A hold is never invented to conceal loading, persistence, routing, failure, or
 a dramatic minimum dwell. The first operable state begins only when a real
 caption publishes and owns Focus.
 
+### Mouse-wheel review and scene-background acceptance (2026-09-20)
+
+The visible window remains at most three caption cards. The mouse wheel moves
+that window exactly one already-published caption per press: **down reviews
+older text; up returns toward the live caption**. With captions 1, 2, 3, 4
+already shown, down changes the visible 2–3–4 window to 1–2–3. Both endpoints
+clamp. Wheel direction does not advance the timeline or reveal unseen prose.
+The scrollbar, trackpad pan, touch drag, Page Up/Down and controller shoulders
+still scroll within an oversized three-card window.
+
+Review uses transient copies of text actually displayed, leaving the single
+native current caption and its reveal generation intact. The hidden native
+caption pauses reveal and pending text effects; Auto, Skip and Read Aloud stop
+taking action while older cards are inspected. No preference, visited state,
+receipt, story effect or Dialogic History is written by review. Returning live
+never repeats speech. This local buffer resets on an authored empty clear,
+new timeline or playback retirement; temporary hiding retains it. It is not a
+cross-session saved History or canonical ending-chain restoration mechanism.
+
+A fresh click or short tap on the scene background, caption field or current
+caption performs normal Accept: finish the current reveal first, then advance
+on a later gesture. While reviewing, the first such gesture only returns to
+the live window. Buttons, choices, the scrollbar and transport region keep
+their own input. Drag, cancellation, wheel, overlapping contacts, Pause and
+other input custody cannot turn a held gesture into prose activation.
+
 ## 8. Canonical rail, Normal Accept, and transport
 
 Canonical run scenes expose exactly:

@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'new_account')]
+    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'new_account', 'reading_delivery')]
     [string]$Suite
 )
 
@@ -73,6 +73,16 @@ $suites = @{
         'tests/integration/test_new_run_pair_durability.gd'
         'tests/integration/test_new_run_startup_publication.gd'
         'tests/unit/test_new_run_durability_journal.gd'
+    )
+    reading_delivery = @(
+        'tests/unit/test_minesweeper_delivery_notice.gd'
+        'tests/integration/test_witnessed_caption_runtime.gd'
+        'tests/unit/test_witnessed_pause_view.gd'
+        'tests/unit/test_witnessed_auto_controller.gd'
+        'tests/unit/test_witnessed_skip_controller.gd'
+        'tests/scene/test_witnessed_transport_recovery.gd'
+        'tests/integration/test_witnessed_speech_projection.gd'
+        'tests/integration/test_dating_caption_style.gd'
     )
 }
 
