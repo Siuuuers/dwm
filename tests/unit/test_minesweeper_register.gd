@@ -61,6 +61,7 @@ func test_unknown_mines_use_dash_and_hidden_metrics_retain_authoritative_values(
 
 func test_all_font_scales_preserve_bay_order_and_do_not_shrink_copy() -> void:
 	var register := _register()
+	var status_start: float = register.metrics.rounds.position.x
 	for locale: String in ["en","zh-CN","zh-HK","ja","ko"]:
 		for percent: int in [100,125,150]:
 			for large: bool in [false,true]:
@@ -82,8 +83,15 @@ func test_all_font_scales_preserve_bay_order_and_do_not_shrink_copy() -> void:
 					if previous != null: assert_lte(previous.position.x+previous.size.x,button.position.x,context)
 					previous = button
 				for metric: Control in register.metrics.values():
+					assert_same(metric.theme.default_font,authored_theme.default_font,context)
+					assert_eq(metric.theme.default_font_size,authored_theme.default_font_size,context)
+					assert_eq(metric.label_shape.paragraph.get_line_count(),1,context+" "+metric.label_copy)
+					assert_true(Rect2(Vector2.ZERO,register.size).encloses(Rect2(metric.position,metric.size)),context)
 					assert_eq(metric.size.y,register.size.y)
 					assert_lte(metric.label_shape.height+metric.value_shape.height+16,register.size.y)
+				assert_eq(register.metrics.rounds.position.x,status_start,context+" status region stays fixed")
+				assert_lte(register.metrics.rounds.position.x+register.metrics.rounds.size.x,register.metrics.mine_estimate.position.x,context+" status fields do not overlap")
+				assert_eq(register.metrics.mine_estimate.position.x+register.metrics.mine_estimate.size.x,register.size.x,context)
 				assert_eq(fmod(register.size.y,2.0),0.0)
 
 func test_canonical_blank_capacity_has_no_placeholder_control_or_difficulty() -> void:
@@ -94,8 +102,22 @@ func test_canonical_blank_capacity_has_no_placeholder_control_or_difficulty() ->
 	assert_eq(register.size.x,960.0)
 	assert_true(register.difficulties.is_empty())
 	assert_eq(register.metrics.keys(),["mine_estimate"])
-	for metric: Control in register.metrics.values():
-		assert_true(Rect2(Vector2.ZERO,register.size).encloses(Rect2(metric.position,metric.size)))
+	for host: String in ["canonical_solo","canonical_pair"]:
+		for locale: String in ["en","zh-CN","zh-HK","ja","ko"]:
+			for percent: int in [100,125,150]:
+				for large: bool in [false,true]:
+					var context := "%s %s %d%% large=%s" % [host,locale,percent,large]
+					var authored_theme: Theme = preload("res://scripts/ui/minesweeper/MinesweeperTheme.gd").build(locale,percent,&"midnight")
+					assert_true(register.configure(host,locale,percent,large,&"midnight"),context)
+					var metric: Control = register.metrics.mine_estimate
+					assert_true(register.difficulties.is_empty(),context)
+					assert_eq(register.metrics.keys(),["mine_estimate"],context)
+					assert_same(metric.theme.default_font,authored_theme.default_font,context)
+					assert_eq(metric.theme.default_font_size,authored_theme.default_font_size,context)
+					assert_eq(metric.label_shape.paragraph.get_line_count(),1,context)
+					assert_true(Rect2(Vector2.ZERO,register.size).encloses(Rect2(metric.position,metric.size)),context)
+					assert_eq(metric.position.x+metric.size.x,register.size.x,context+" metric remains right-aligned")
+					assert_lte(metric.label_shape.height+metric.value_shape.height+16,register.size.y,context)
 	assert_false(register.present(_view()))
 
 func test_large_text_does_not_reintroduce_hidden_challenge_metrics() -> void:

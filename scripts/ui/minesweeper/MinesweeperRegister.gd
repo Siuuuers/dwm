@@ -173,7 +173,7 @@ func _compose(view: Dictionary, next_theme: Theme, host: String, locale: String,
 				"description":copy.selected if key == view.difficulty else ""}
 			left += widths[index]
 			height = maxi(height,int(button.custom_minimum_size.y)+8)
-	var allocations: Array = [["rounds",240,72],["mine_estimate",312,88]] if host == "desktop_app" else [["mine_estimate",392,88]]
+	var allocations := _status_allocations(next_theme,host,locale,copy)
 	for allocation: Array in allocations:
 		var key: String = allocation[0]
 		var value := ""
@@ -194,6 +194,33 @@ func _compose(view: Dictionary, next_theme: Theme, host: String, locale: String,
 		candidate_metrics[key] = {"node":metric,"measured":measured,"x":allocation[1]*2,"trailing_rule":key != "mine_estimate", "accessible_name":copy[key]+": "+value}
 		height = maxi(height,int(metric.content_height() if retained else measured.height))
 	return {"buttons":candidate_buttons,"metrics":candidate_metrics,"height":height}
+
+## Keep the status block fixed; extra heading width comes from its spare capacity.
+func _status_allocations(next_theme: Theme, host: String, locale: String, copy: Dictionary) -> Array:
+	var allocations: Array = [["rounds",240,72],["mine_estimate",312,88]] if host == "desktop_app" else [["mine_estimate",392,88]]
+	var labels: Dictionary = {}
+	var retained := true
+	for allocation: Array in allocations:
+		var key: String = allocation[0]
+		labels[key] = COPY.COMPACT_METRICS.get(locale.replace("_","-"),{}).get(key,copy[key])
+		var metric: Metric = metrics.get(key)
+		if metric == null or metric.theme != next_theme or metric.label_copy != labels[key]: retained = false
+	if retained:
+		for allocation: Array in allocations:
+			var metric: Metric = metrics[allocation[0]]
+			allocation[1] = int(metric.position.x/2.0)
+			allocation[2] = int(metric.custom_minimum_size.x/2.0)
+		return allocations
+	var measured := TEXT.measure_copy(labels.mine_estimate,next_theme,304)
+	if measured.is_empty() or measured.paragraph.get_line_count() != 1: return allocations
+	var width := maxi(176,int(ceilf((measured.paragraph.get_line_width(0)+16)/2.0))*2)
+	if width == 176: return allocations
+	var half_width := int(width/2.0)
+	if host == "desktop_app":
+		var rounds := TEXT.measure_copy(labels.rounds,next_theme,320-width-16)
+		if rounds.is_empty() or rounds.paragraph.get_line_count() != 1: return allocations
+		return [["rounds",240,160-half_width],["mine_estimate",400-half_width,half_width]]
+	return [["mine_estimate",480-half_width,half_width]]
 
 func _free_candidates(buttons: Dictionary, fields: Dictionary) -> void:
 	for key: String in buttons:
@@ -251,7 +278,7 @@ func _draw() -> void:
 	if _host == "desktop_app":
 		for key: String in TIERS:
 			boundaries.append(int(difficulties[key].position.x+difficulties[key].size.x))
-		boundaries.append(624)
+		boundaries.append(int(metrics["mine_estimate"].position.x))
 	for x: int in boundaries:
 		draw_rect(Rect2(x-2,0,2,size.y),theme.get_color(&"dark_registration",&"Minesweeper"))
 	draw_rect(Rect2(0,size.y-2,size.x,2),theme.get_color(&"dark_registration",&"Minesweeper"))

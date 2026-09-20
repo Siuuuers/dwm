@@ -91,6 +91,12 @@ static func mines_control_layout_failures(panel: Control) -> Array[String]:
 			issues.append("Mines difficulty label must stay on one line: "+button.public_copy)
 		elif button._paragraph.get_line_width(0) > button.size.x-button._inset*2-8+0.01:
 			issues.append("Mines difficulty label exceeds its text area: "+button.public_copy)
+	for metric: Control in panel.register.metrics.values():
+		var paragraph: TextParagraph = metric.label_shape.paragraph
+		if paragraph.get_line_count() != 1:
+			issues.append("Mines metric heading must stay on one line: "+metric.label_copy)
+		elif paragraph.get_line_width(0) > metric.size.x-16+0.01:
+			issues.append("Mines metric heading exceeds its text area: "+metric.label_copy)
 	return issues
 
 func _run() -> void:
