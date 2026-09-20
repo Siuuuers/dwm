@@ -37,6 +37,7 @@ func capture(name: String, width: int) -> void:
 	await settle()
 	check(desktop.desktop_canvas.scale.is_equal_approx(Vector2.ONE * (width / 800.0)), name + ": proportional canvas")
 	check(desktop.get_global_rect().encloses(desktop.home_button.get_global_rect()), name + ": Home stays visible")
+	check(not desktop.status_label.visible, name + ": no presentation failure notice")
 	geometry_samples += 1
 	if DisplayServer.get_name() != "headless":
 		for frame in 3: await RenderingServer.frame_post_draw
@@ -171,8 +172,17 @@ func _run() -> void:
 	if opened.get("ok",false):
 		await pair("minesweeper")
 		profile.present(150,true)
+		await settle()
+		check(opened.value.app.last_result.get("ok",false), "Minesweeper accepts enlarged preferences")
+		check(opened.value.app.panel._percent == 150 and opened.value.app.panel._large, "Minesweeper applies enlarged text and targets")
+		desktop.app_scroll.ensure_control_visible(opened.value.app.panel.dock)
+		await settle()
+		check(desktop.app_scroll.get_global_rect().grow(0.01).encloses(opened.value.app.panel.dock.get_global_rect()), "large Minesweeper dock remains reachable")
 		await capture("minesweeper-large",960)
 		profile.present(100,false)
+		await settle()
+		check(opened.value.app.panel._percent == 100 and not opened.value.app.panel._large, "Minesweeper restores ordinary preferences")
+		check(opened.value.app.panel.layout_height == 536 and desktop.app_scroll.scroll_vertical == 0, "Minesweeper restores compact height and removes extra scrolling")
 		var mine_menu: OptionButton = opened.value.app.panel.worksheet.cell_size_menu
 		mine_menu.show_popup()
 		await capture("minesweeper-popup",960)

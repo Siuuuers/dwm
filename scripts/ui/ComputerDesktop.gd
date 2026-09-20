@@ -625,6 +625,7 @@ func open_app(app_id: StringName) -> Dictionary:
 			app.warning_foreground_changed.connect(func(_active: bool): _refresh_launcher())
 			app.command_custody_changed.connect(func(_active: bool): _refresh_launcher())
 		_cached_app_windows[app_id] = app
+		app.minimum_size_changed.connect(_refresh_app_scroll)
 	elif app_id in [&"backup", &"minesweeper", &"schedule", &"shop"]:
 		var refreshed: Dictionary = app.refresh_view()
 		if not refreshed.get("ok", false):

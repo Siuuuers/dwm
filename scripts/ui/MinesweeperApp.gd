@@ -319,12 +319,22 @@ func _apply_preferences() -> bool:
 		colour = LEGACY_COLOUR_PRESETS[legacy]
 	if typeof(high_contrast) != TYPE_BOOL or typeof(colour) != TYPE_STRING: return false
 	var retained_scroll: Vector2i = panel.worksheet.get_scroll()
-	if not panel.configure(locale,percent,large,_palette,high_contrast,colour): return false
+	if not panel.configure(locale,percent,large,_palette,high_contrast,colour):
+		var previous_height: int = panel.layout_height
+		# Large text can outgrow the compact board. Keep its readable layout and
+		# let the desktop scroll the page instead of rejecting valid preferences.
+		if _desktop_layout_height <= 0 or previous_height >= 656 or not panel.set_layout_height(656): return false
+		if not panel.configure(locale,percent,large,_palette,high_contrast,colour):
+			panel.set_layout_height(previous_height)
+			return false
+	_fit_host()
 	if panel.worksheet.get_scroll() != retained_scroll: panel.worksheet.set_scroll(retained_scroll)
 	return true
 
 func _on_locale_changed(_locale: String) -> void:
 	if not _apply_preferences(): _fail(&"invalid_minesweeper_preferences")
+	elif last_result.get("code") == &"invalid_minesweeper_preferences" and panel.has_valid_presentation():
+		last_result = {"ok":true}
 	_refresh_preparation_retry()
 	_update_home()
 

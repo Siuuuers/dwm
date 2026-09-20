@@ -433,20 +433,37 @@ func test_real_minesweeper_footer_mounts_fits_and_tracks_cached_app_visibility()
 			for large: bool in [false, true]:
 				profile.change_large_targets(large)
 				await settle()
+				assert_true(app.last_result.get("ok", false),
+					"the requested presentation succeeds at %s/%s/large=%s: %s" % [language, percent, large, app.last_result])
+				assert_eq(app.panel._locale, language)
+				assert_eq(app.panel._percent, int(percent * 100), "font size must be applied before checking geometry")
+				assert_eq(app.panel._large, large, "large-target presentation cannot silently retain an earlier state")
 				var strip: Control = desktop.get_node("DesktopCanvas/AppStrip")
 				assert_true(desktop.get_global_rect().encloses(strip.get_global_rect()),
 					"footer stays inside the desktop at %s/%s/large=%s" % [language, percent, large])
 				assert_lte(strip.size.y, 64.0, "footer controls cannot expand the bar below the desktop")
 				assert_true(strip.get_global_rect().encloses(controls.get_global_rect()),
 					"real Minesweeper footer fits %s/%s/large=%s" % [language, percent, large])
+				if desktop.app_scroll_rail.visible:
+					desktop.app_scroll.ensure_control_visible(app.panel.dock)
+					await settle()
 				assert_true(desktop.app_scroll.get_global_rect().grow(0.01).encloses(app.panel.dock.get_global_rect()),
-					"board actions stay above the enlarged footer at %s/%s/large=%s" % [language, percent, large])
-				assert_false(desktop.app_scroll_rail.visible, "Minesweeper reflows without scrolling its action dock away")
+					"board actions remain reachable above the enlarged footer at %s/%s/large=%s" % [language, percent, large])
 				if desktop.touch_navigation.visible:
 					assert_true(strip.get_global_rect().encloses(desktop.touch_navigation.get_global_rect()),
 						"assisted navigation stays inside the footer alongside the board controls")
 				for control: Control in app.panel.worksheet.zoom_controls:
 					assert_true(strip.get_global_rect().encloses(control.get_global_rect()))
+	profile.change_scale(1.0)
+	profile.change_large_targets(false)
+	await settle()
+	assert_true(app.last_result.get("ok", false), "a readable fallback can return to the compact presentation")
+	assert_eq(app.panel._percent, 100)
+	assert_false(app.panel._large)
+	assert_lte(app.size.y, desktop.app_scroll.size.y + 0.01, "normal text fits the visible app height again")
+	assert_false(desktop.app_scroll_rail.visible, "returning to normal text releases the outer scroll range")
+	profile.change_large_targets(true)
+	await settle()
 	assert_true(desktop.return_home().get("ok", false))
 	await settle()
 	assert_false(controls.is_visible_in_tree())
