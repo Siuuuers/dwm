@@ -863,6 +863,17 @@ the live window. Buttons, choices, the scrollbar and transport region keep
 their own input. Drag, cancellation, wheel, overlapping contacts, Pause and
 other input custody cannot turn a held gesture into prose activation.
 
+### Dating subtitle overlay (2026-09-20)
+
+Dating scenes keep that three-caption window but center its text horizontally
+near the bottom, above the existing controls. Caption leaves, the surrounding
+field and their dividing/focus rectangles are transparent; only light text
+with a dark outline overlays the artwork. The artwork extends behind the
+caption area to the top of the control rail and keeps the same geometry when
+text size changes. Long captions retain the existing scrolling behavior.
+This presentation is specific to dating scenes; the existing reveal, review,
+input custody and speaker-name suppression remain in effect.
+
 ## 8. Canonical rail, Normal Accept, and transport
 
 Canonical run scenes expose exactly:

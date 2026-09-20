@@ -18,6 +18,8 @@ var _high_contrast := false
 var _colour_preset := "standard"
 var _large_targets := false
 var _caption_theme: Theme
+var _dating_overlay := false
+var _scene_art_bridge: Node
 var _last_text := ""
 var _last_content_height := -1
 var _had_caption := false
@@ -115,6 +117,10 @@ func _ready() -> void:
 	var run_owner: Object = _run_owner if is_instance_valid(_run_owner) else get_node_or_null("/root/GameState")
 	_apply_preferences()
 	configure_run_presentation(run_owner)
+	_scene_art_bridge = get_node_or_null("/root/DialogicBridge")
+	if _scene_art_bridge != null and _scene_art_bridge.has_signal("scene_art_changed"):
+		_scene_art_bridge.connect("scene_art_changed", _refresh_dating_overlay)
+	_refresh_dating_overlay()
 	var runtime := get_node_or_null("/root/Dialogic")
 	accept_input.bind(caption_text, scroll, runtime)
 	accept_input.bind_scene_input(background_input)
@@ -623,8 +629,22 @@ func _pause_runtime_identity() -> Dictionary:
 		"generation":int(runtime.call("get_timeline_generation")) if runtime.has_method("get_timeline_generation") else 0,
 		"event_index":runtime.get("current_event_idx")}
 
+func _refresh_dating_overlay() -> void:
+	var source: Dictionary = _scene_art_bridge.get_current_scene_art() if is_instance_valid(_scene_art_bridge) \
+		and _scene_art_bridge.has_method("get_current_scene_art") else {}
+	configure_dating_overlay(str(source.get("entry_id", "")).begins_with("dating."))
+
+func configure_dating_overlay(enabled: bool) -> void:
+	if _dating_overlay == enabled: return
+	_dating_overlay = enabled
+	if not is_instance_valid(canvas): return
+	for leaf: RichTextLabel in [older, previous, review_current, caption_text]:
+		leaf.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if enabled else HORIZONTAL_ALIGNMENT_LEFT
+	configure_presentation(_locale, _text_percent, _palette, _high_contrast, _colour_preset, _large_targets, _day)
+	_layout_stack()
+
 func configure_presentation(locale: String = "en", text_percent: int = 100, palette: String = "AfterHours", high_contrast: bool = false, colour_preset: String = "standard", large_targets: bool = false, day: int = 1) -> bool:
-	var next_theme := CAPTION_THEME.build(locale, text_percent, palette, high_contrast, colour_preset, large_targets, day)
+	var next_theme := CAPTION_THEME.build(locale, text_percent, palette, high_contrast, colour_preset, large_targets, day, _dating_overlay)
 	if next_theme == null:
 		return false
 	# Caption and rail publish one locale tuple. Refusal leaves both unchanged.
@@ -716,6 +736,7 @@ func get_caption_projection() -> Dictionary:
 		"locale": _locale, "text_percent": _text_percent, "palette": _palette, "day": _day,
 		"high_contrast": _high_contrast, "colour_preset": _colour_preset,
 		"large_targets": _large_targets,
+		"dating_overlay": _dating_overlay,
 		"font_size": int(20 * _text_percent / 100.0),
 		"text": caption_text.get_parsed_text() if mounted else "",
 		"visible_characters": caption_text.visible_characters if mounted else 0,
@@ -890,17 +911,20 @@ func _layout_stack(publication: bool = false, desired_scroll: float = -1.0) -> v
 		if leaf.visible and not leaf.get_parsed_text().is_empty():
 			leaves.append(leaf)
 	var width := 1248.0
+	var left_inset := 0.0
 	var total := _measure_leaves(leaves, width)
 	if total > scroll.size.y:
-		width -= get_scroll_bar().get_combined_minimum_size().x
+		var gutter := get_scroll_bar().get_combined_minimum_size().x
+		left_inset = gutter if _dating_overlay else 0.0
+		width -= gutter + left_inset
 		total = _measure_leaves(leaves, width)
 	var cursor := maxf(0, scroll.size.y - total)
 	for leaf: RichTextLabel in leaves:
-		leaf.position = Vector2(0, cursor)
+		leaf.position = Vector2(left_inset, cursor)
 		cursor += leaf.size.y
 	stack.custom_minimum_size = Vector2(0, maxf(scroll.size.y, total))
 	stack.update_minimum_size()
-	stack.size = Vector2(width, maxf(scroll.size.y, total))
+	stack.size = Vector2(width + left_inset, maxf(scroll.size.y, total))
 	_last_text = caption_text.text
 	_last_content_height = caption_text.get_content_height()
 	_sync_focus()
@@ -1042,15 +1066,16 @@ func _leaf_rect(leaf: RichTextLabel) -> Rect2:
 func _draw_canvas() -> void:
 	if _caption_theme == null:
 		return
-	canvas.draw_rect(_field_rect(), _color(&"field"))
+	if not _dating_overlay:
+		canvas.draw_rect(_field_rect(), _color(&"field"))
 	canvas.draw_rect(Rect2(0, FIELD_BOTTOM, 1280, 64), _color(&"deep"))
 
 func _draw_seam() -> void:
-	if _caption_theme != null:
+	if _caption_theme != null and not _dating_overlay:
 		overlay.draw_rect(Rect2(0, FIELD_TOP[_text_percent], 1280, 2), _color(&"rule"))
 
 func _draw_current_frame() -> void:
-	if _caption_theme == null:
+	if _caption_theme == null or _dating_overlay:
 		return
 	var frame_size := caption_text.size
 	# These rails and protected padding belong to the full leaf and scroll with it.

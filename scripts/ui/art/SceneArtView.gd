@@ -17,12 +17,12 @@ func configure_entry(entry_id: String, text_percent: int = 100,
 		for asset_id: String in placement.get("portraits", []):
 			portraits.append(ART.get_texture(asset_id))
 	configure_textures(ART.get_texture(str(placement.get("background", ""))), portraits,
-		ART.get_texture(str(placement.get("cg", ""))), text_percent, challenge)
+		ART.get_texture(str(placement.get("cg", ""))), text_percent, challenge, entry_id.begins_with("dating."))
 
 func configure_textures(background: Texture2D, portraits: Array[Texture2D], cg: Texture2D = null,
-		text_percent: int = 100, challenge: bool = false) -> void:
+		text_percent: int = 100, challenge: bool = false, dating_overlay: bool = false) -> void:
 	_build()
-	var height := 720 if challenge else int(APERTURE_HEIGHT.get(text_percent, 448))
+	var height := 720 if challenge else (656 if dating_overlay else int(APERTURE_HEIGHT.get(text_percent, 448)))
 	size = Vector2(1280, height)
 	_background.texture = background
 	_background.size = size

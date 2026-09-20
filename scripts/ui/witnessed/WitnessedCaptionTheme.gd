@@ -11,7 +11,7 @@ const FONTS := {
 
 static func build(locale: String, text_percent: int, palette: String,
 		high_contrast: bool = false, colour_preset: String = "standard",
-		large_targets: bool = false, day: int = 1) -> Theme:
+		large_targets: bool = false, day: int = 1, dating_overlay: bool = false) -> Theme:
 	locale = locale.replace("_", "-")
 	var roles := PALETTES.resolve_tinted(palette, high_contrast, colour_preset, day)
 	if locale not in FONTS or text_percent not in [100, 125, 150] \
@@ -25,22 +25,28 @@ static func build(locale: String, text_percent: int, palette: String,
 	for font_name: StringName in [&"normal_font", &"bold_font", &"italics_font", &"bold_italics_font", &"mono_font"]:
 		result.set_font(font_name, &"RichTextLabel", FONTS[locale])
 		result.set_font_size(StringName(str(font_name) + "_size"), &"RichTextLabel", result.default_font_size)
-	result.set_color(&"default_color", &"RichTextLabel", roles[&"text"])
+	result.set_color(&"default_color", &"RichTextLabel", Color.WHITE if dating_overlay else roles[&"text"])
 	result.set_color(&"font_shadow_color", &"RichTextLabel", Color.TRANSPARENT)
-	result.set_color(&"font_outline_color", &"RichTextLabel", Color.TRANSPARENT)
-	result.set_constant(&"outline_size", &"RichTextLabel", 0)
-	var leaf := StyleBoxFlat.new()
-	leaf.bg_color = roles[&"current"]
-	leaf.border_color = roles[&"rule"]
-	leaf.border_width_top = 2
+	result.set_color(&"font_outline_color", &"RichTextLabel", Color(0.05, 0.05, 0.05, 0.9) if dating_overlay else Color.TRANSPARENT)
+	result.set_constant(&"outline_size", &"RichTextLabel", 2 if dating_overlay else 0)
+	var leaf: StyleBox
+	if dating_overlay:
+		leaf = StyleBoxEmpty.new()
+	else:
+		var plate := StyleBoxFlat.new()
+		plate.bg_color = roles[&"current"]
+		plate.border_color = roles[&"rule"]
+		plate.border_width_top = 2
+		leaf = plate
 	for side: int in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
 		leaf.set_content_margin(side, 16)
 	result.set_stylebox(&"normal", &"RichTextLabel", leaf)
 	result.set_stylebox(&"focus", &"RichTextLabel", StyleBoxEmpty.new())
 	for variation: StringName in [&"WitnessedPrevious", &"WitnessedOldest"]:
 		result.set_type_variation(variation, &"RichTextLabel")
-		var retained_leaf: StyleBoxFlat = leaf.duplicate()
-		retained_leaf.bg_color = roles[&"field"] if variation == &"WitnessedPrevious" else roles[&"deep"]
+		var retained_leaf: StyleBox = leaf.duplicate()
+		if not dating_overlay:
+			(retained_leaf as StyleBoxFlat).bg_color = roles[&"field"] if variation == &"WitnessedPrevious" else roles[&"deep"]
 		result.set_stylebox(&"normal", variation, retained_leaf)
 	result.set_stylebox(&"panel", &"ScrollContainer", StyleBoxEmpty.new())
 	var track := StyleBoxFlat.new()

@@ -83,6 +83,7 @@ $suites = @{
         'tests/scene/test_witnessed_transport_recovery.gd'
         'tests/integration/test_witnessed_speech_projection.gd'
         'tests/integration/test_dating_caption_style.gd'
+        'tests/unit/test_scene_art_bindings.gd'
     )
 }
 

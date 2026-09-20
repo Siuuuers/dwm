@@ -20,10 +20,11 @@ are uploaded for visual review; a headless geometry run cannot satisfy this job.
 This supplementary renderer does not replace the six Windows test groups.
 
 A second rendered pass in the same job reuses Godot and the software display
-with separate user data. It requires 15 screenshots and a successful report
+with separate user data. It requires 19 screenshots and a successful report
 from `tests/ui/render_delivery_dialogue.gd`, covering pending and delivered
 notices, dialogue review and return to the current line, and dating captions.
-The samples include enlarged content and Chinese locales. The
+The dating samples verify live and reviewed captions over production artwork
+in English and both Chinese locales, including enlarged text. The
 `delivery-dialogue-render` artifact contains its screenshots, report, and log.
 
 `tools/testing/Invoke-CloudTests.ps1` lists the exact test scripts. It reuses the
@@ -35,7 +36,8 @@ the other results. Each job has a 20-minute limit.
 The `reading_delivery` group covers Minesweeper delivery notice lifecycle and
 input behavior, witnessed caption input and transport, and the dating caption
 style. It includes targeted pause, auto, skip, and speech regressions to verify
-that reading controls retain their existing behavior.
+that reading controls retain their existing behavior, plus scene-art binding
+checks for the shared artwork layout.
 
 The `new_account` group also runs `tests/integration/verify_new_acc_latency.gd`
 in a separate isolated process. It exercises the real New Account button for a

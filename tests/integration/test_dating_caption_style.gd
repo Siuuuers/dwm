@@ -7,6 +7,8 @@ const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 const ART := preload("res://scripts/data/ArtManifest.gd")
 const STYLE := "res://dialogic/styles/witnessed_caption_style.tres"
 const LAYER := "res://scripts/ui/witnessed/WitnessedCaptionLayer.gd"
+const ART_LAYER := "res://scripts/ui/witnessed/WitnessedArtLayer.gd"
+const ART_VIEW := preload("res://scripts/ui/art/SceneArtView.gd")
 const DATING := "dating.solo.priscilla.day1.pre_challenge"
 
 class Completion extends RefCounted:
@@ -20,6 +22,8 @@ var bridge: Node
 var completion: Completion
 var _original_runtime: Node
 var _original_index := 0
+var _original_bridge: Node
+var _original_bridge_index := 0
 var _original_layout: Node
 var _original_parent: Node
 var _original_layout_index := 0
@@ -62,8 +66,12 @@ func before_each() -> void:
 	runtime.Text.text_started.connect(func(info): _text_events.append(info.duplicate()))
 	var adapter := ADAPTER.new()
 	assert_true(adapter.bind_runtime(runtime).get("ok", false))
+	_original_bridge = get_node("/root/DialogicBridge")
+	_original_bridge_index = _original_bridge.get_index()
+	get_tree().root.remove_child(_original_bridge)
 	bridge = BRIDGE.new()
-	add_child(bridge)
+	bridge.name = "DialogicBridge"
+	get_tree().root.add_child(bridge)
 	assert_true(bridge.initialize(null, adapter).get("ok", false))
 	completion = Completion.new()
 	assert_true(bridge.configure_playback_completion_port(completion).get("ok", false))
@@ -77,6 +85,8 @@ func after_each() -> void:
 	if is_instance_valid(remaining): remaining.queue_free()
 	await get_tree().process_frame
 	runtime.free()
+	get_tree().root.add_child(_original_bridge)
+	get_tree().root.move_child(_original_bridge, _original_bridge_index)
 	get_tree().remove_meta("dialogic_layout_node")
 	get_tree().root.add_child(_original_runtime)
 	get_tree().root.move_child(_original_runtime, _original_index)
@@ -171,3 +181,157 @@ func test_dating_natural_end_restores_ordinary_default_style() -> void:
 		await get_tree().create_timer(0.05).timeout
 	assert_ne(layout.get_meta("style").resource_path, STYLE, "dating style has no global effect")
 	assert_eq(_text_events.size(), 1)
+
+func _mount_dating_captions(current: String = "Four still revealing.") -> Dictionary:
+	bridge.set("_ordinary_playback", {"timeline_id": DATING, "context": {}})
+	bridge.call("_prepare_scene_art")
+	var timeline := DialogicTimeline.new()
+	timeline.from_text("One.\nTwo.\nThree.\n" + current)
+	var layout: Node = runtime.start(timeline)
+	await _settle()
+	var result := {}
+	for layer: Node in layout.get_layers():
+		if layer.get_script().resource_path == LAYER: result.caption = layer
+		if layer.get_script().resource_path == ART_LAYER: result.art = layer.get_node("SceneArt")
+	assert_has(result, "caption")
+	assert_has(result, "art")
+	if not result.has("caption") or not result.has("art"): return {}
+	for step in 3:
+		runtime.Text.skip_text_reveal()
+		await _settle()
+		runtime.Inputs.input_block_timer.stop()
+		runtime.Inputs.handle_input()
+		await _settle()
+	result.caption.caption_text.set_process(false)
+	result.caption.set_process(false)
+	return result
+
+func _native_snapshot(caption: Node) -> Dictionary:
+	return {"event": runtime.current_event_idx, "text": caption.caption_text.get_parsed_text(),
+		"revealing": caption.caption_text.revealing,
+		"visible": caption.caption_text.visible_characters,
+		"generation": caption.caption_text.get_reveal_generation(),
+		"history": runtime.History.simple_history_content.duplicate(true),
+		"full_history": runtime.History.full_event_history_content.duplicate(),
+		"visited": runtime.History.visited_event_history_content.duplicate(true)}
+
+func _assert_dating_leaf(leaf: RichTextLabel, percent: int) -> void:
+	assert_eq(leaf.horizontal_alignment, HORIZONTAL_ALIGNMENT_CENTER, str(leaf.name))
+	assert_true(leaf.get_theme_stylebox(&"normal") is StyleBoxEmpty, "transparent subtitle leaf: " + str(leaf.name))
+	assert_true(leaf.get_theme_stylebox(&"focus") is StyleBoxEmpty, "no focus rectangle: " + str(leaf.name))
+	for side in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
+		assert_eq(leaf.get_theme_stylebox(&"normal").get_content_margin(side), 16.0)
+	assert_eq(leaf.get_theme_color(&"default_color"), Color.WHITE)
+	assert_eq(leaf.get_theme_constant(&"outline_size"), 2)
+	var outline := leaf.get_theme_color(&"font_outline_color")
+	assert_lt(outline.get_luminance(), 0.1, "readable dark outline")
+	assert_gt(outline.a, 0.0)
+	assert_eq(leaf.get_theme_font_size(&"normal_font_size"), int(20 * percent / 100.0))
+
+func test_dating_subtitles_keep_all_four_labels_transparent_and_centered_at_each_text_size() -> void:
+	var mounted := await _mount_dating_captions()
+	if mounted.is_empty(): return
+	var caption: Node = mounted.caption
+	assert_true(caption.get_caption_projection().get("dating_overlay", false), "real Bridge ownership selects the overlay")
+	var before := _native_snapshot(caption)
+	for percent: int in [100, 125, 150]:
+		assert_true(caption.configure_presentation("en", percent))
+		await _settle()
+		for leaf: RichTextLabel in [caption.older, caption.previous, caption.review_current, caption.caption_text]:
+			_assert_dating_leaf(leaf, percent)
+		var projection: Dictionary = caption.get_caption_projection()
+		assert_eq(projection.caption_window, ["Two.", "Three.", "Four still revealing."])
+		assert_eq(projection.visible_leaf_rects.size(), 3)
+		assert_almost_eq(projection.caption_rect.end.y, caption.transport_rail.position.y, 0.01, "caption stack sits just above controls")
+		for rect: Rect2 in projection.leaf_rects:
+			assert_almost_eq(rect.get_center().x, 640.0, 0.01, "subtitle region is centered")
+			assert_lte(rect.end.y, 656.0)
+		assert_eq(_native_snapshot(caption), before, "material publication cannot change native reading")
+
+func test_dating_art_extends_behind_subtitles_without_consuming_control_or_challenge_space() -> void:
+	var view := ART_VIEW.new()
+	add_child_autofree(view)
+	var pixels := Image.create(8, 8, false, Image.FORMAT_RGBA8)
+	pixels.fill(Color.WHITE)
+	var texture := ImageTexture.create_from_image(pixels)
+	for percent: int in [100, 125, 150]:
+		view.configure_entry(DATING, percent)
+		assert_eq(view.size, Vector2(1280, 656), "dating entry controls art geometry without optional images")
+		if not view.size.is_equal_approx(Vector2(1280, 656)): continue
+		view.configure_textures(texture, [texture, texture], null, percent, false, true)
+		assert_true(view.visible)
+		assert_true(view.clip_contents)
+		for control: Control in [view, view._background, view._portraits[0], view._portraits[1], view._cg]:
+			assert_eq(control.size.y, 656.0)
+			assert_eq(control.mouse_filter, Control.MOUSE_FILTER_IGNORE)
+			assert_eq(control.focus_mode, Control.FOCUS_NONE)
+		view.configure_entry("hospital.faint", percent)
+		assert_eq(view.size.y, float(ART_VIEW.APERTURE_HEIGHT[percent]), "Hospital keeps its existing art aperture")
+		view.configure_textures(texture, [texture], null, percent, true, true)
+		assert_eq(view.size, Vector2(1280, 720), "challenge retains its full worksheet space")
+		assert_eq(view._portraits[0].size.x, 160.0)
+
+func test_long_dating_caption_stays_centered_and_scrollable_with_both_scrollbar_sizes() -> void:
+	var mounted := await _mount_dating_captions("A long dating caption remains centered while scrolling. ".repeat(160))
+	if mounted.is_empty(): return
+	var caption: Node = mounted.caption
+	var before := _native_snapshot(caption)
+	for large_targets: bool in [false, true]:
+		assert_true(caption.configure_presentation("en", 150, "AfterHours", false, "standard", large_targets))
+		await _settle()
+		var bar: VScrollBar = caption.get_scroll_bar()
+		assert_true(bar.visible, "long text uses the actual native scrollbar")
+		assert_eq(bar.size.x, 64.0 if large_targets else 48.0)
+		var projection: Dictionary = caption.get_caption_projection()
+		assert_gt(projection.scroll_extent, 0.0)
+		for rect: Rect2 in projection.leaf_rects:
+			assert_almost_eq(rect.get_center().x, 640.0, 0.01, "native right scrollbar cannot shift dating text left")
+			assert_gte(rect.position.x, 16.0)
+			assert_lte(rect.end.x, 1264.0)
+		bar.value = projection.scroll_extent
+		await _settle()
+		projection = caption.get_caption_projection()
+		assert_almost_eq(projection.caption_rect.end.y, 656.0, 0.01, "the final words remain reachable above controls")
+		assert_gt(projection.visible_leaf_rects.size(), 0)
+		for rect: Rect2 in projection.visible_leaf_rects:
+			assert_true(projection.field_rect.encloses(rect))
+		bar.value = 0
+		await _settle()
+		assert_eq(bar.value, 0.0, "scrolling back reaches the start of the three-caption window")
+		assert_eq(_native_snapshot(caption), before, "layout and manual scrolling preserve reveal and narrative history")
+
+func test_dating_review_and_hospital_scope_reset_preserve_native_text_and_history() -> void:
+	var mounted := await _mount_dating_captions()
+	if mounted.is_empty(): return
+	var caption: Node = mounted.caption
+	var native: Node = caption.caption_text
+	var before := _native_snapshot(caption)
+	caption.call("_set_review_offset", 1)
+	await _settle()
+	assert_eq(caption.get_caption_projection().caption_window, ["One.", "Two.", "Three."])
+	assert_false(native.visible)
+	_assert_dating_leaf(caption.review_current, 100)
+	assert_eq(_native_snapshot(caption), before, "review remains a projection of already-seen text")
+	assert_false(caption.call("_before_normal_accept"), "first accept returns to live without advancing")
+	native.set_process(false)
+	assert_eq(caption.get_caption_projection().review_offset, 0)
+	assert_eq(caption.caption_text, native)
+	assert_eq(_native_snapshot(caption), before)
+	# The reused layout must reset from the same authoritative scene-art publication.
+	bridge.set("_ordinary_playback", {"timeline_id": "hospital.faint", "context": {}})
+	bridge.scene_art_changed.emit()
+	await _settle()
+	assert_false(caption.get_caption_projection().get("dating_overlay", true))
+	for leaf: RichTextLabel in [caption.older, caption.previous, caption.review_current, caption.caption_text]:
+		assert_eq(leaf.horizontal_alignment, HORIZONTAL_ALIGNMENT_LEFT)
+		assert_true(leaf.get_theme_stylebox(&"normal") is StyleBoxFlat)
+		assert_eq(leaf.get_theme_constant(&"outline_size"), 0)
+	assert_eq(mounted.art.size, Vector2(1280, 448))
+	assert_eq(_native_snapshot(caption), before, "scope changes do not replay or advance text")
+	bridge.set("_ordinary_playback", {"timeline_id": DATING, "context": {}})
+	bridge.scene_art_changed.emit()
+	await _settle()
+	assert_true(caption.get_caption_projection().get("dating_overlay", false))
+	assert_eq(mounted.art.size, Vector2(1280, 656))
+	_assert_dating_leaf(native, 100)
+	assert_eq(_native_snapshot(caption), before)

@@ -13,7 +13,9 @@ const MINES := preload("res://tests/unit/test_minesweeper_app.gd")
 const BRIDGE := preload("res://autoload/DialogicBridge.gd")
 const STYLE := "res://dialogic/styles/witnessed_caption_style.tres"
 const LAYER := "res://scripts/ui/witnessed/WitnessedCaptionLayer.gd"
-const EXPECTED_CAPTURES := 15
+const ART_LAYER := "res://scripts/ui/witnessed/WitnessedArtLayer.gd"
+const DATING_ENTRY := "dating.solo.priscilla.day1.pre_challenge"
+const EXPECTED_CAPTURES := 19
 const COPY := {
 	"en": ["1. We found a quiet place.", "2. The afternoon light filled the room.", "3. I remembered what you said.", "4. There was no need to hurry.", "5. We stayed a little longer.", "6. This caption is still unread."],
 	"zh-CN": ["1. 我们找到一个安静的地方。", "2. 午后的阳光照进房间。", "3. 我记得你说过的话。", "4. 我们不必着急。", "5. 我们又多待了一会儿。", "6. 这条字幕还没有读过。"],
@@ -28,6 +30,7 @@ var locale: Node
 var runtime: DialogicGameHandler
 var layout: Node
 var caption: Node
+var dating_art: Control
 var original_runtime: Node
 var original_index := 0
 var original_layout: Node
@@ -60,6 +63,7 @@ func capture(name: String, detail: Dictionary) -> void:
 		for frame in 3: await RenderingServer.frame_post_draw
 		var pixels: Image = viewport.get_texture().get_image()
 		check(not pixels.is_empty() and pixels.get_size() == Vector2i(1280, 720), name + ": full viewport pixels")
+		if name.begins_with("dating-"): await _check_dating_art_pixels(pixels, name)
 		check(pixels.save_png(folder.path_join(name + ".png")) == OK, name + ": saved screenshot")
 		captures += 1
 	print("DELIVERY_DIALOGUE_SAMPLE ", name, " ", JSON.stringify(detail))
@@ -270,33 +274,86 @@ func _caption_capture(name: String, language: String, percent: int, offset: int,
 	check(get_nodes_in_group("dialogic_name_label").is_empty(), name + ": no visible speaker name control")
 	check(caption.caption_text.get_parsed_text() == COPY[language][4], name + ": original native caption unchanged")
 	check(not COPY[language][5] in projection.get("caption_window", []), name + ": unread caption absent")
+	if name.begins_with("dating-"):
+		check(projection.get("dating_overlay", false), name + ": dating overlay selected automatically")
+		check(dating_art.size == Vector2(1280, 656), name + ": artwork extends behind every caption")
+		check(dating_art._background.texture != null, name + ": actual dating painting loaded")
+		check(projection.visible_leaf_rects.back().end.y == 656, name + ": captions meet bottom control strip")
+		for leaf: RichTextLabel in [caption.older, caption.previous, caption.review_current, caption.caption_text]:
+			check(leaf.horizontal_alignment == HORIZONTAL_ALIGNMENT_CENTER, name + ": text centered")
+			check(leaf.get_theme_stylebox("normal") is StyleBoxEmpty and leaf.get_theme_stylebox("focus") is StyleBoxEmpty, name + ": no card fill or focus box")
+			check(leaf.get_theme_constant("outline_size") == 2, name + ": dark outline remains visible")
+	else:
+		check(not projection.get("dating_overlay", false), name + ": non-dating caption presentation unchanged")
 	await capture(name, {"kind": "caption", "locale": language, "text_percent": percent, "review_offset": offset,
-		"caption_window": projection.get("caption_window", []), "visible_leaf_rects": str(projection.visible_leaf_rects)})
+		"caption_window": projection.get("caption_window", []), "visible_leaf_rects": str(projection.visible_leaf_rects),
+		"dating_overlay": projection.get("dating_overlay", false)})
 
 func _dating_samples() -> void:
 	await runtime.clear()
 	layout.queue_free()
 	await settle()
 	remove_meta("dialogic_layout_node")
+	var original_bridge: Node = root.get_node("DialogicBridge")
+	var original_bridge_index := original_bridge.get_index()
+	root.remove_child(original_bridge)
 	var bridge: Node = BRIDGE.new()
-	viewport.add_child(bridge)
+	bridge.name = "DialogicBridge"
+	root.add_child(bridge)
 	check(bridge._ensure_runtime_adapter(runtime).get("ok", false), "dating Bridge bound to real runtime")
-	bridge._ordinary_playback = {"timeline_id": "dating.solo.priscilla.day1.pre_challenge", "context": {}}
+	bridge._ordinary_playback = {"timeline_id": DATING_ENTRY, "context": {}}
 	bridge._prepare_scene_art()
 	layout = runtime.Styles.get_layout_node()
 	check(is_instance_valid(layout), "production dating selector mounts a layout")
 	if not is_instance_valid(layout):
-		bridge.queue_free()
+		bridge.free()
+		root.add_child(original_bridge)
+		root.move_child(original_bridge, original_bridge_index)
 		return
 	await settle()
 	if layout.get_parent() != viewport: layout.reparent(viewport)
 	check(layout.get_meta("style").resource_path == STYLE, "production dating selector chooses nameless caption style")
 	_find_caption()
-	for tuple: Array in [["en", 100], ["zh-HK", 150]]:
+	for layer: Node in layout.get_layers():
+		if layer.get_script().resource_path == ART_LAYER: dating_art = layer._view
+	check(is_instance_valid(dating_art), "real dating style mounts production artwork")
+	for tuple: Array in [["en", 100], ["zh-CN", 150], ["zh-HK", 150]]:
 		await _show_text(tuple[0], tuple[1], true)
+		dating_art.configure_entry(DATING_ENTRY, tuple[1], false, true)
 		check(runtime.current_timeline.events[4].character.display_name == "Priscilla", "dating fixture has a real named speaker")
-		await _caption_capture("dating-nameless-%s%d" % tuple, tuple[0], tuple[1], 0, [2, 3, 4])
-	bridge.queue_free()
+		await _caption_capture("dating-overlay-live-%s%d" % tuple, tuple[0], tuple[1], 0, [2, 3, 4])
+		var before := _native_state()
+		await _wheel(MOUSE_BUTTON_WHEEL_DOWN)
+		await _caption_capture("dating-overlay-review-%s%d" % tuple, tuple[0], tuple[1], 1, [1, 2, 3])
+		check(_native_state() == before, "dating review preserves native narrative state")
+	bridge.free()
+	root.add_child(original_bridge)
+	root.move_child(original_bridge, original_bridge_index)
+
+func _check_dating_art_pixels(pixels: Image, name: String) -> void:
+	# Alpha-only reference leaves native text, focus and timeline state untouched.
+	# Comparing blank margins across the old caption field catches opaque fills,
+	# horizontal seams and focus frames that node-level theme checks cannot detect.
+	var before := _native_state()
+	var focus: Control = viewport.gui_get_focus_owner()
+	var visible_modulate: Color = caption.canvas.modulate
+	caption.canvas.modulate.a = 0.0
+	for frame in 3: await RenderingServer.frame_post_draw
+	var artwork: Image = viewport.get_texture().get_image()
+	caption.canvas.modulate = visible_modulate
+	for frame in 3: await RenderingServer.frame_post_draw
+	check(_native_state() == before and viewport.gui_get_focus_owner() == focus, name + ": pixel reference preserves narration and focus")
+	var colors := {}
+	var mismatches := 0
+	var top: int = int(caption.get_caption_projection().field_rect.position.y)
+	for x: int in [8, 20, 100, 200, 1080, 1180, 1260]:
+		for y: int in range(top, 656, 4):
+			var point := Vector2i(x, y)
+			var expected := artwork.get_pixelv(point)
+			colors[expected.to_html()] = true
+			if pixels.get_pixelv(point) != expected: mismatches += 1
+	check(colors.size() > 30, name + ": actual painting has varied pixels throughout former caption field")
+	check(mismatches == 0, name + ": blank caption margins preserve artwork without panel/seam/frame pixels (%d changed)" % mismatches)
 
 func _wheel(button: MouseButton) -> void:
 	var event := InputEventMouseButton.new()
