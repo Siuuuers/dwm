@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [minesweeper, shop, desktop, settings]
+        suite: [minesweeper, shop, desktop, settings, new_account]
     defaults:
       run:
         shell: pwsh
@@ -91,6 +91,7 @@ jobs:
           path: |
             .godot/ci/*.log
             .godot/ci/*.jsonl
+            .godot/ci/*.json
             .godot/ci/*.xml
             .godot/phase2r_logs/cloud-*.log
           include-hidden-files: true

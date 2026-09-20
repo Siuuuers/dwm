@@ -6,23 +6,45 @@ or cloud desktop is required to start these checks.
 
 Each Windows Server 2022 job downloads the standard Godot 4.6.3 editor from the
 official release, verifies its SHA256, imports the complete repository, and runs
-one bounded GUT suite: Minesweeper, Shop, desktop input/layout, or Settings/display.
+one bounded GUT suite: Minesweeper, Shop, desktop input/layout, Settings/display,
+or New Account persistence and serialization.
 The current production project uses GDScript and does not include a C# project.
 This workflow does not compile C# or produce a distributable Windows export.
 
-A fifth job renders the computer panel on Ubuntu 24.04 using the same pinned
+A supplementary job renders the computer panel on Ubuntu 24.04 using the same pinned
 Godot release, Xvfb, and Mesa software OpenGL. The desktop scaling harness
 captures 26 states covering the launcher, apps, scrolled content, menus, and
 confirmations at baseline and enlarged widths. Geometry assertions, a successful
 JSON report, and all 26 nonempty PNG files are required. Its screenshots and logs
 are uploaded for visual review; a headless geometry run cannot satisfy this job.
-This supplementary renderer does not replace the four Windows test groups.
+This supplementary renderer does not replace the five Windows test groups.
 
 `tools/testing/Invoke-CloudTests.ps1` lists the exact test scripts. It reuses the
 existing isolated runner, which gives each run disposable user data and rejects
 requested scripts that never execute. A missing or empty JUnit report also fails
-the job. The four groups continue independently so one failure does not conceal
+the job. The five groups continue independently so one failure does not conceal
 the other results. Each job has a 20-minute limit.
+
+The `new_account` group also runs `tests/integration/verify_new_acc_latency.gd`
+in a separate isolated process. It exercises the real New Account button for a
+fresh account, then Logout and confirmed account replacement, and verifies that
+both reach the active Day 1 desktop. The job requires its correctness marker
+and records button-to-desktop time and maximum frame gap in microseconds for both
+cases. `new-account-latency.json` and the probe log are uploaded with the test
+results. Timings are diagnostic evidence; there is no fixed latency threshold
+that could fail merely because a shared runner is slower.
+
+The New Account encoding change was measured against its predecessor with Godot
+4.6.3 headless on the same Linux host, using three separate processes per case
+and identical isolated starting data. Median button-to-visible-desktop time fell
+from 653.830 to 522.322 ms for fresh accounts and from 806.935 to 652.466 ms for
+replacement accounts (about 20% and 19%). Replacement confirmation was automatic,
+so these numbers exclude human decision time. They do not predict another
+computer's loading time. The optimization keeps persisted bytes and transaction
+validation unchanged; newline-terminated retained JSON uses native escaping for
+the five standard JSON short control escapes, while other controls retain the
+checked encoder. Compatibility tests pin the original 1,177-case byte/refusal
+signature and exercise nested save text beside floating-point preferences.
 
 Open the run under the repository's **Actions** tab to see its outcome. Each Windows job
 uploads import logs, GUT logs, an execution record, and JUnit XML for seven days,

@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings')]
+    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'new_account')]
     [string]$Suite
 )
 
@@ -64,6 +64,16 @@ $suites = @{
         'tests/scene/test_settings_localization_scene.gd'
         'tests/integration/test_settings_shared_hosts.gd'
     )
+    new_account = @(
+        'tests/unit/test_canonical_writer_compatibility.gd'
+        'tests/unit/test_continuation_serialization_cache.gd'
+        'tests/unit/test_new_acc_title_lifetime.gd'
+        'tests/integration/test_prepared_new_run.gd'
+        'tests/integration/test_new_run_transaction.gd'
+        'tests/integration/test_new_run_pair_durability.gd'
+        'tests/integration/test_new_run_startup_publication.gd'
+        'tests/unit/test_new_run_durability_journal.gd'
+    )
 }
 
 $repositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
@@ -104,3 +114,39 @@ $executed = $xml.SelectNodes('//testcase').Count
 if ($executed -eq 0) { throw 'GUT did not report any executed tests.' }
 if ($xml.SelectNodes('//failure | //error').Count -ne 0) { throw 'GUT reported test failures.' }
 Write-Host "${Suite}: $executed test cases completed across $($testPaths.Count) requested scripts."
+
+if ($Suite -eq 'new_account') {
+    # Measure the real title-button flow in a fresh isolated process. Correctness
+    # gates this job; machine-dependent timings are evidence, not a fixed budget.
+    $latencyLogName = 'cloud-new-account-latency.log'
+    & (Join-Path $PSScriptRoot 'Invoke-IsolatedGodot.ps1') `
+        -SuiteId 'cloud-new-account-latency' `
+        -LogName $latencyLogName `
+        -EvidenceLogPath '.godot/ci/new-account-latency.jsonl' `
+        -GodotArgs @('-s', 'res://tests/integration/verify_new_acc_latency.gd', '--', '--phase2r-bootstrap-mode=final')
+    $result = $LASTEXITCODE
+    $latencyLog = Join-Path $repositoryRoot ".godot/phase2r_logs/$latencyLogName"
+    if ($result -ne 0) {
+        if (Test-Path -LiteralPath $latencyLog) { Get-Content -LiteralPath $latencyLog }
+        exit $result
+    }
+    $prefix = 'NEW_ACC_LATENCY_VERIFIED '
+    $markers = @(Get-Content -LiteralPath $latencyLog | Where-Object { $_.StartsWith($prefix, [StringComparison]::Ordinal) })
+    if ($markers.Count -ne 1) { throw 'New Account latency probe did not report verified results.' }
+    if (Select-String -LiteralPath $latencyLog -Pattern 'SCRIPT ERROR:|ERROR: Failed to load' -Quiet) {
+        throw 'New Account latency probe reported script errors.'
+    }
+    $timingJson = $markers[0].Substring($prefix.Length)
+    $timing = $timingJson | ConvertFrom-Json
+    if ($timing.ok -ne $true -or @($timing.samples).Count -ne 2 -or
+        (@($timing.samples.case | Sort-Object) -join ',') -cne 'fresh,replacement') {
+        throw 'New Account latency probe did not verify both account creation cases.'
+    }
+    foreach ($sample in $timing.samples) {
+        if ($sample.button_to_desktop_us -le 0 -or $sample.max_frame_gap_us -lt 0) {
+            throw 'New Account latency probe returned invalid measurements.'
+        }
+    }
+    Set-Content -LiteralPath (Join-Path $output 'new-account-latency.json') -Value $timingJson -Encoding utf8
+    Write-Host "$prefix$timingJson"
+}
