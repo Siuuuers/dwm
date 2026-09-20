@@ -20,6 +20,8 @@ const LABELS := {
 	"en": ["Minesweeper", "Contacts", "Schedule", "Shop", "Backup", "Settings", "Log out"],
 	"zh-CN": ["扫雷", "联系人", "日程", "商店", "备份", "设置", "退出登录"],
 	"zh-HK": ["踩地雷", "聯絡人", "日程", "商店", "備份", "設定", "登出"],
+	"ja": ["マインスイーパー", "連絡先", "予定", "ショップ", "バックアップ", "設定", "ログアウト"],
+	"ko": ["지뢰찾기", "연락처", "일정", "상점", "백업", "설정", "로그아웃"],
 }
 const CONTACT_NAMES := {"priscilla": "Priscilla", "lavinia": "Lavinia", "sylvia": "Sylvia"}
 
@@ -887,15 +889,16 @@ func _refresh_launcher(refresh_contacts: bool = true) -> void:
 		notice_style.set_content_margin(edge, 16)
 	message_notification.add_theme_stylebox_override("panel", notice_style)
 	delivery_notice.add_theme_stylebox_override("panel", notice_style)
-	delivery_caption.add_theme_font_override("font", DESKTOP_THEME.ENGLISH)
+	delivery_caption.add_theme_font_override("font", theme.default_font if _locale in ["ja", "ko"] else DESKTOP_THEME.ENGLISH)
 	_refresh_message_notification_copy()
+	_refresh_delivery_caption()
 	var ids: Array[StringName] = APP_REGISTRY.new().get_ids()
 	for index in ids.size():
 		var button: Button = launcher_buttons[ids[index]]
 		button.theme = theme
 		if ids[index] != &"contacts" or refresh_contacts:
 			button.set_caption(LABELS[_locale][index])
-	var home: String = {"en": "Home", "zh-CN": "主页", "zh-HK": "主頁"}[_locale]
+	var home: String = {"en": "Home", "zh-CN": "主页", "zh-HK": "主頁", "ja": "ホーム", "ko": "홈"}[_locale]
 	home_button.accessibility_name = home
 	home_button.current_on_launcher = _active_id == &""
 	home_button.disabled = _active_id == &"" or _restoration_failed
@@ -903,13 +906,15 @@ func _refresh_launcher(refresh_contacts: bool = true) -> void:
 	var foreground: Node = _cached_app_windows.get(_active_id)
 	if is_instance_valid(_confirmation) or is_instance_valid(foreground) and foreground.has_method("can_return_home") and not foreground.can_return_home():
 		home_button.focus_mode = Control.FOCUS_NONE
-	title_label.text = home if _active_id == &"" else (LABELS[_locale][ids.find(_active_id)] if _active_id in ids else {"en": "Unavailable", "zh-CN": "不可用", "zh-HK": "不可用"}[_locale])
+	title_label.text = home if _active_id == &"" else (LABELS[_locale][ids.find(_active_id)] if _active_id in ids else {"en": "Unavailable", "zh-CN": "不可用", "zh-HK": "不可用", "ja": "利用できません", "ko": "이용할 수 없어요"}[_locale])
 	clock_label.add_theme_font_override("font", DESKTOP_THEME.ENGLISH)
-	clock_label.accessibility_name = {"en": "Local time", "zh-CN": "本地时间", "zh-HK": "本地時間"}[_locale]
+	clock_label.accessibility_name = {"en": "Local time", "zh-CN": "本地时间", "zh-HK": "本地時間", "ja": "現地時刻", "ko": "현지 시간"}[_locale]
 	var navigation_copy: Array = {
 		"en": ["Previous control", "Next control", "Confirm focused control"],
 		"zh-CN": ["上一个控件", "下一个控件", "确认当前控件"],
 		"zh-HK": ["上一個控制項", "下一個控制項", "確認目前控制項"],
+		"ja": ["前の操作項目", "次の操作項目", "選択した操作を実行"],
+		"ko": ["이전 조작 항목", "다음 조작 항목", "선택한 조작 실행"],
 	}[_locale]
 	var navigation_buttons: Array = [touch_navigation.previous_button, touch_navigation.next_button, touch_navigation.confirm_button]
 	for index: int in navigation_buttons.size():
@@ -930,7 +935,7 @@ func _route_failure(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code}
 
 func _set_failure_copy() -> void:
-	status_label.text = {"en": "This action is currently unavailable.", "zh-CN": "此操作暂不可用。", "zh-HK": "此操作暫不可用。"}[_locale]
+	status_label.text = {"en": "This action is currently unavailable.", "zh-CN": "此操作暂不可用。", "zh-HK": "此操作暫不可用。", "ja": "現在この操作は利用できません。", "ko": "현재 이 작업을 이용할 수 없어요."}[_locale]
 
 func _on_launcher_locale_changed(_locale_id: String) -> void:
 	_refresh_launcher()
@@ -982,7 +987,7 @@ func _on_minesweeper_delivery_presented(app: Control) -> void:
 func _show_delivery_notice(stage: StringName) -> void:
 	_delivery_stage = stage
 	_delivery_elapsed = 0.0
-	delivery_caption.text = "delivered :)" if stage == &"delivered" else "delivering."
+	_refresh_delivery_caption()
 	delivery_notice.modulate.a = 1.0
 	delivery_notice.show()
 	set_process(true)
@@ -991,12 +996,18 @@ func _show_delivery_notice(stage: StringName) -> void:
 func _process(delta: float) -> void:
 	_delivery_elapsed += delta
 	if _delivery_stage == &"delivering":
-		delivery_caption.text = "delivering" + ".".repeat(1 + int(_delivery_elapsed / 0.4) % 3)
+		_refresh_delivery_caption()
 	elif _delivery_stage == &"delivered":
 		delivery_notice.modulate.a = clampf(1.0 - (_delivery_elapsed - 2.0) / 0.5, 0.0, 1.0)
 		if _delivery_elapsed >= 2.5:
 			_hide_delivery_notice()
 
+
+func _refresh_delivery_caption() -> void:
+	if _delivery_stage == &"delivered":
+		delivery_caption.text = {"ja": "届きました :)", "ko": "전달했어요 :)"}.get(_locale, "delivered :)")
+	elif _delivery_stage == &"delivering":
+		delivery_caption.text = {"ja": "お届け中", "ko": "전달 중"}.get(_locale, "delivering") + ".".repeat(1 + int(_delivery_elapsed / 0.4) % 3)
 
 func _on_delivery_failed(_code: StringName) -> void:
 	# Keep the pending generation so the existing Retry path can finish this delivery.
@@ -1069,7 +1080,7 @@ func _refresh_contact_notice() -> void:
 	var caption: String = LABELS[_locale][1]
 	contacts_button.set_caption(caption + (" •" if unread else ""))
 	contacts_button.accessibility_name = caption + ({"en": ", new message",
-		"zh-CN": "，有新消息", "zh-HK": "，有新訊息"}[_locale] if unread else "")
+		"zh-CN": "，有新消息", "zh-HK": "，有新訊息", "ja": "、新着メッセージ", "ko": ", 새 메시지"}[_locale] if unread else "")
 
 
 func configure_clock(reader: Callable) -> void:
@@ -1091,7 +1102,7 @@ func refresh_clock() -> void:
 	_clock_timer.start(60 - int(second) if valid else 60)
 
 func _refresh_clock_description() -> void:
-	clock_label.accessibility_description = "" if _clock_available else {"en": "Time unavailable", "zh-CN": "时间不可用", "zh-HK": "時間不可用"}[_locale]
+	clock_label.accessibility_description = "" if _clock_available else {"en": "Time unavailable", "zh-CN": "时间不可用", "zh-HK": "時間不可用", "ja": "時刻を表示できません", "ko": "시간을 표시할 수 없어요"}[_locale]
 
 func _notification(what: int) -> void:
 	if not is_node_ready():

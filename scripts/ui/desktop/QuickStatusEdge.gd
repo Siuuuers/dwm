@@ -6,6 +6,8 @@ const COPY := {
 	"en": {&"saving":"Saving…",&"saved":"Saved",&"unavailable":"Unavailable",&"please_wait":"Please wait"},
 	"zh-CN": {&"saving":"正在保存…",&"saved":"已保存",&"unavailable":"不可用",&"please_wait":"请稍候"},
 	"zh-HK": {&"saving":"正在儲存…",&"saved":"已儲存",&"unavailable":"不可用",&"please_wait":"請稍候"},
+	"ja": {"saving": "保存中…", "saved": "保存しました", "unavailable": "利用できません", "please_wait": "お待ちください"},
+	"ko": {"saving": "저장 중…", "saved": "저장했어요", "unavailable": "이용할 수 없어요", "please_wait": "잠시 기다려 주세요"},
 }
 const VALIDATION_INTERVAL := 0.25
 var key: StringName = &""

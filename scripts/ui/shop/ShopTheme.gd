@@ -3,6 +3,7 @@ extends RefCounted
 ## Room materials and structure age; copy, selection and focus stay authored.
 
 const FONTS := preload("res://scripts/ui/desktop/DesktopTheme.gd")
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const PALETTES := preload("res://scripts/ui/minesweeper/MinesweeperPaletteRegistry.gd")
 const WEEK_TINT := preload("res://scripts/ui/theme/WeekTint.gd")
 
@@ -52,12 +53,11 @@ static func resolve(palette: StringName, day: int = 1, high_contrast: bool = fal
 static func build(locale: String, percent: int, palette: StringName, day: int = 1,
 		high_contrast: bool = false, colour_preset: String = "standard") -> Theme:
 	var roles: Dictionary = resolve(palette, day, high_contrast, colour_preset)
-	if roles.is_empty() or locale.replace("-", "_") not in ["en", "zh_CN", "zh_HK"] \
+	if roles.is_empty() or not TYPOGRAPHY.supports(locale) \
 			or percent not in [100, 125, 150]:
 		return null
 	var result := Theme.new()
-	var primary: Font = {"en": FONTS.ENGLISH, "zh_CN": FONTS.SIMPLIFIED,
-		"zh_HK": FONTS.TRADITIONAL}[locale.replace("-", "_")]
+	var primary: Font = TYPOGRAPHY.font(locale, percent)
 	var font := FontVariation.new()
 	font.base_font = primary
 	var fallbacks: Array[Font] = []
@@ -66,7 +66,7 @@ static func build(locale: String, percent: int, palette: StringName, day: int = 
 			fallbacks.append(companion)
 	font.fallbacks = fallbacks
 	result.default_font = font
-	result.default_font_size = int(20 * percent / 100.0)
+	result.default_font_size = TYPOGRAPHY.font_size(locale, percent, 20)
 	for state: String in ["normal", "hover", "pressed", "disabled", "focus"]:
 		result.set_stylebox(state, "Button", StyleBoxEmpty.new())
 	for role: String in roles:

@@ -3,6 +3,7 @@ extends RefCounted
 const ENGLISH := preload("res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2")
 const SIMPLIFIED := preload("res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf")
 const TRADITIONAL := preload("res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf")
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const WEEK_TINT := preload("res://scripts/ui/theme/WeekTint.gd")
 const PALETTES := preload("res://scripts/settings/SettingsPaletteRegistry.gd")
 
@@ -12,8 +13,8 @@ static func build(locale: String, percent: int, palette: StringName = &"after_ho
 	var tuple: Dictionary = PALETTES.resolve(palette, high_contrast, colour_preset)
 	if tuple.is_empty(): return null
 	var result := Theme.new()
-	result.default_font = {"en": ENGLISH, "zh-CN": SIMPLIFIED, "zh-HK": TRADITIONAL}.get(locale, ENGLISH)
-	result.default_font_size = int(24 * percent / 100.0)
+	result.default_font = TYPOGRAPHY.font(locale, percent)
+	result.default_font_size = TYPOGRAPHY.font_size(locale, percent)
 	var roles := {"habitat": tuple.habitat, "face": tuple.face, "ink": tuple.ink,
 		"structure": tuple.structure, "focus": tuple.focus, "current": tuple.filed}
 	roles = WEEK_TINT.apply(roles, week_tint, high_contrast, colour_preset)

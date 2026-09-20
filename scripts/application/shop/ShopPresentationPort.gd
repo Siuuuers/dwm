@@ -104,7 +104,7 @@ func get_catalog(locale: String) -> Dictionary:
 	if not admitted.get("ok", false):
 		return admitted
 	var locale_id := locale.replace("-", "_")
-	if locale_id not in ["en", "zh_CN", "zh_HK"]:
+	if locale_id not in ["en", "zh_CN", "zh_HK", "ja", "ko"]:
 		return _fail(&"invalid_shop_locale")
 	var source_items: Variant = _data_catalog.call(&"get_shop_items")
 	if typeof(source_items) != TYPE_ARRAY or (source_items as Array).size() != 18:

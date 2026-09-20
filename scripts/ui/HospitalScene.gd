@@ -18,6 +18,7 @@ class_name HospitalScene
 ## committed presentation intent behind it would be a bug, and showing an empty room is a far better
 ## failure than inventing a recovery.
 
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const _PORT_METHODS: Array[String] = ["begin", "complete", "acknowledge_notice"]
 const _CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 
@@ -72,14 +73,18 @@ func _ready() -> void:
 	var sylvia_present := art_participants(contacts, _presentation_command.get("context", {}), schedule) == ["sylvia"]
 	var locale_manager: Node = get_node_or_null("/root/LocalizationManager")
 	var locale := str(locale_manager.get_locale()).replace("_", "-") if locale_manager != null else "en"
-	if locale not in ["en", "zh-CN", "zh-HK"]: locale = "en"
+	if locale not in ["en", "zh-CN", "zh-HK", "ja", "ko"]: locale = "en"
 	var profile: Node = get_node_or_null("/root/ProfileManager")
 	var percent := int(profile.get_preference("preferences.accessibility.text_size", 100)) if profile != null else 100
 	var scale := float(percent) / 100.0
-	_message_label.text = {"en": "You fainted.", "zh-CN": "你晕倒了。", "zh-HK": "你暈倒了。"}[locale]
-	_continue_button.text = {"en": "Continue", "zh-CN": "继续", "zh-HK": "繼續"}[locale]
-	_message_label.add_theme_font_size_override("font_size", roundi(24.0 * scale))
-	_continue_button.add_theme_font_size_override("font_size", roundi(20.0 * scale))
+	_message_label.text = {"en": "You fainted.", "zh-CN": "你晕倒了。", "zh-HK": "你暈倒了。", "ja": "気を失いました。", "ko": "정신을 잃었습니다."}[locale]
+	_continue_button.text = {"en": "Continue", "zh-CN": "继续", "zh-HK": "繼續", "ja": "続ける", "ko": "계속"}[locale]
+	if locale in ["ja", "ko"]:
+		for control: Control in [_message_label, _continue_button]:
+			control.add_theme_font_override("font", TYPOGRAPHY.font(locale, percent))
+			control.language = locale
+	_message_label.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(locale, percent))
+	_continue_button.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(locale, percent, 20))
 	_continue_button.custom_minimum_size.y = roundf(48.0 * scale)
 	_notice_panel.custom_minimum_size = Vector2(roundf(360.0 * scale), roundf(144.0 * scale))
 	_notice_panel.visible = not sylvia_present

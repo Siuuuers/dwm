@@ -3,7 +3,7 @@ extends Control
 
 signal scroll_requested(native_value: int)
 
-const LOCALES := ["en","zh-CN","zh-HK"]
+const LOCALES := ["en","zh-CN","zh-HK", "ja", "ko"]
 const ROLES := [&"controlled_face",&"dark_registration",&"dark_scroll_thumb",&"dark_separation",&"dark_focus_outer",&"dark_focus_inner"]
 
 var vertical := false
@@ -178,6 +178,12 @@ func _refresh_accessibility() -> void:
 		"zh-HK":
 			accessibility_name = "垂直捲動" if vertical else "水平捲動"
 			accessibility_description = "位置%d，共%d" % [value,maximum]
+		"ja":
+			accessibility_name = "縦スクロール" if vertical else "横スクロール"
+			accessibility_description = "位置 %d / %d" % [value,maximum]
+		"ko":
+			accessibility_name = "세로 스크롤" if vertical else "가로 스크롤"
+			accessibility_description = "위치 %d / %d" % [value,maximum]
 		_:
 			accessibility_name = "Vertical scroll" if vertical else "Horizontal scroll"
 			accessibility_description = "Position %d of %d" % [value,maximum]

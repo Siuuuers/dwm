@@ -3,7 +3,7 @@ extends RefCounted
 
 const WINDOW_SIZES := ["1280x720", "1600x900", "1920x1080"]
 
-const _LOCALE_IDS := ["en", "zh_CN", "zh_HK"]
+const _LOCALE_IDS := ["en", "zh_CN", "zh_HK", "ja", "ko"]
 const _MINESWEEPER_CELL_SIZES := [10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60]
 
 const _RECORDS := [

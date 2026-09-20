@@ -4,8 +4,8 @@ const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 const REGISTRY_PATH := "res://scripts/settings/SettingsPreferenceRegistry.gd"
 
 const EXPECTED_RECORDS := {
-	"preferences.language.primary_locale_id": {"type": "locale_id", "default_value": "en", "section_id": "language", "renderer": "locale_option", "player_writable": true, "allowed_values": ["en", "zh_CN", "zh_HK"], "step": 0.0},
-	"preferences.language.secondary_locale_id": {"type": "locale_id", "default_value": "zh_CN", "section_id": "language", "renderer": "locale_option", "player_writable": true, "allowed_values": ["en", "zh_CN", "zh_HK"], "step": 0.0},
+	"preferences.language.primary_locale_id": {"type": "locale_id", "default_value": "en", "section_id": "language", "renderer": "locale_option", "player_writable": true, "allowed_values": ["en", "zh_CN", "zh_HK", "ja", "ko"], "step": 0.0},
+	"preferences.language.secondary_locale_id": {"type": "locale_id", "default_value": "zh_CN", "section_id": "language", "renderer": "locale_option", "player_writable": true, "allowed_values": ["en", "zh_CN", "zh_HK", "ja", "ko"], "step": 0.0},
 	"preferences.language.dual_enabled": {"type": "bool", "default_value": false, "section_id": "language", "renderer": "toggle", "player_writable": true, "allowed_values": [], "step": 0.0},
 	"preferences.reading.reveal_speed": {"type": "enum_string", "default_value": "normal", "section_id": "reading", "renderer": "enum_option", "player_writable": true, "allowed_values": ["instant", "fast", "normal", "slow"], "step": 0.0},
 	"preferences.reading.auto_enabled": {"type": "bool", "default_value": false, "section_id": "reading", "renderer": "toggle", "player_writable": true, "allowed_values": [], "step": 0.0},

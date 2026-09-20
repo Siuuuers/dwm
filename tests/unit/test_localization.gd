@@ -90,7 +90,7 @@ func test_initialization_loads_manifest_and_returns_detached_selectable_records(
 	assert_eq(_manager.get_readiness(), &"ready")
 	assert_eq(_manager.get_locale(), "en")
 	var locales: Array[Dictionary] = _manager.get_selectable_locales()
-	assert_eq(locales.size(), 3)
+	assert_eq(locales.size(), 5)
 	assert_eq(locales[1]["release_status"], "draft")
 	locales[0]["native_name"] = "mutated"
 	assert_eq(_manager.get_selectable_locales()[0]["native_name"], "English")

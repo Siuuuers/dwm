@@ -112,7 +112,7 @@ func _sync_practice_button() -> void:
 	var locale := str(_localization.get_locale()) if _localization != null else "en"
 	_practice_button.language = locale.replace("_", "-")
 	_practice_button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	_practice_button.text = "\u7df4\u7fd2" if locale.replace("_", "-") == "zh-HK" else ("\u7ec3\u4e60" if locale.begins_with("zh") else "Practice")
+	_practice_button.text = "\u7df4\u7fd2" if locale.replace("_", "-") == "zh-HK" else ("\u7ec3\u4e60" if locale.begins_with("zh") else {"ja": "練習", "ko": "연습"}.get(locale, "Practice"))
 	_practice_button.visible = _practice_game != null and _replay_bridge != null and _profile != null \
 		and _status_key != "gallery.record.unavailable" \
 		and _profile.has_method("has_completed_ending") and _profile.has_completed_ending()
@@ -378,6 +378,8 @@ func _trusted_record_title(ending_id: String) -> String:
 				var phase := "After" if post else "Before"
 				if locale.replace("_", "-") == "zh-CN": phase = "\u7ed3\u675f\u540e" if post else "\u5f00\u59cb\u524d"
 				elif locale.replace("_", "-") == "zh-HK": phase = "\u7d50\u675f\u5f8c" if post else "\u958b\u59cb\u524d"
+				elif locale == "ja": phase = "終了後" if post else "開始前"
+				elif locale == "ko": phase = "종료 후" if post else "시작 전"
 				return str(caption.value.title) + " / " + phase
 	return ""
 
@@ -400,7 +402,7 @@ func _refresh_replay_selection() -> void:
 			for record: Dictionary in available.value.records: _versions.append(record.duplicate(true))
 	for index: int in range(_versions.size()):
 		var locale := str(_localization.get_locale()) if _localization != null else "en"
-		_version_selector.add_item(("版本 %d" if locale.begins_with("zh") else "Version %d") % (index + 1))
+		_version_selector.add_item(("版本 %d" if locale.begins_with("zh") else {"ja": "バージョン %d", "ko": "버전 %d"}.get(locale, "Version %d")) % (index + 1))
 		_version_selector.get_popup().set_item_language(index, locale.replace("_", "-"))
 		if str(_versions[index].signature_id) == previous: _selected_version = index
 	if not _versions.is_empty(): _version_selector.select(_selected_version)

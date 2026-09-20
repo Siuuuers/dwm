@@ -100,9 +100,13 @@ func _advance() -> Dictionary:
 			"echo_id": echo.echo_id, "presentation_atom_id": echo.presentation_atom_id}
 		title = "A remembered reply" if _locale == "en" else "\u8bb0\u5f97\u7684\u56de\u590d"
 		if _locale == "zh-HK": title = "\u8a18\u5f97\u7684\u56de\u8986"
+		elif _locale == "ja": title = "記憶に残る返事"
+		elif _locale == "ko": title = "기억에 남은 답장"
 		title += " / " + str(echo.friend_id).capitalize()
 		body = ("Earlier, you said:\n" if _locale == "en" else "\u4f60\u66fe\u8bf4\uff1a\n") + str(echo.plain_text_snapshot)
 		if _locale == "zh-HK": body = "\u4f60\u66fe\u8aaa\uff1a\n" + str(echo.plain_text_snapshot)
+		elif _locale == "ja": body = "以前、あなたはこう言いました：\n" + str(echo.plain_text_snapshot)
+		elif _locale == "ko": body = "이전에 이렇게 말했습니다:\n" + str(echo.plain_text_snapshot)
 	var card := {"receipt": receipt.duplicate(true), "title": title, "body": body}
 	# Auto may drain staged cards, but the final route handoff requires fresh player input.
 	var allow_auto_advance := followups.size() + echoes.size() > 1

@@ -150,16 +150,17 @@ func _compose(view: Dictionary, next_theme: Theme, host: String, locale: String,
 			"rounds": value = str(view.rounds)+"/2"
 			"mine_estimate": value = "—" if view.mine_estimate == null else str(view.mine_estimate)
 		var width: int = allocation[2]*2
+		var label: String = COPY.COMPACT_METRICS.get(locale.replace("_","-"),{}).get(key,copy[key])
 		var metric: Metric = metrics.get(key)
-		var retained: bool = metric != null and metric.theme == next_theme and metric.label_copy == copy[key] \
+		var retained: bool = metric != null and metric.theme == next_theme and metric.label_copy == label \
 			and metric.value_copy == value and int(metric.custom_minimum_size.x) == width
 		if metric == null: metric = Metric.new()
-		var measured: Dictionary = {} if retained else metric.measure(copy[key],value,next_theme,width)
+		var measured: Dictionary = {} if retained else metric.measure(label,value,next_theme,width)
 		if not retained and measured.is_empty():
 			if not metrics.has(key): metric.free()
 			_free_candidates(candidate_buttons,candidate_metrics)
 			return {}
-		candidate_metrics[key] = {"node":metric,"measured":measured,"x":allocation[1]*2,"trailing_rule":key != "mine_estimate"}
+		candidate_metrics[key] = {"node":metric,"measured":measured,"x":allocation[1]*2,"trailing_rule":key != "mine_estimate", "accessible_name":copy[key]+": "+value}
 		height = maxi(height,int(metric.content_height() if retained else measured.height))
 	return {"buttons":candidate_buttons,"metrics":candidate_metrics,"height":height}
 
@@ -198,6 +199,7 @@ func _install(measured: Dictionary) -> void:
 		var plan: Dictionary = measured.metrics[key]
 		var metric: Metric = plan.node
 		if not plan.measured.is_empty(): metric.apply(plan.measured)
+		metric.accessibility_name = plan.accessible_name
 		metric.position.x = plan.x
 		metric.trailing_rule = plan.trailing_rule
 		metric.custom_minimum_size.y = size.y

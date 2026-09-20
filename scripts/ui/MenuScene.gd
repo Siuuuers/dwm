@@ -15,6 +15,8 @@ const ROUTINE_CLOCK := preload("res://scripts/ui/desktop/RoutineClock.gd")
 const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
 const TITLE_WELCOME := preload("res://scripts/ui/desktop/TitleWelcome.gd")
 const SHUTDOWN_COPY := {
+	"ja": ["終了しますか？","ゲームを終了します。","キャンセル","終了"],
+	"ko": ["종료할까요?","게임을 종료합니다.","취소","종료"],
 	"en": ["Shut down?", "Close the game.", "Cancel", "Shut down"],
 	"zh-CN": ["关闭游戏？", "退出游戏。", "取消", "关闭游戏"],
 	"zh-HK": ["關閉遊戲？", "退出遊戲。", "取消", "關閉遊戲"],
@@ -23,6 +25,8 @@ const SHUTDOWN_COPY := {
 # Operational copy follows the accepted New Acc sheet; live-only replacement
 # must not claim an Autosave exists. These facts come only from the owner.
 const NEW_ACC_COPY := {
+	"ja": ["新しいアカウントを始めますか？","オートセーブを置き換えます。他のセーブは残ります。","現在の進行状況を置き換えます。他のセーブは残ります。","キャンセル","開始","新規作成できません","アカウントを準備できませんでした。再試行してください。","状態が変わりました。開始前に新規作成の内容を確認してください。","新規アカウントの復旧が必要です","開始処理が完了していません。再試行して同じ処理を完了してください。","再試行"],
+	"ko": ["새 계정을 시작할까요?","자동 저장을 덮어씁니다. 다른 저장은 유지됩니다.","현재 진행 상황을 덮어씁니다. 다른 저장은 유지됩니다.","취소","시작","새 계정을 만들 수 없음","계정을 준비하지 못했습니다. 다시 시도하세요.","상태가 변경되었습니다. 시작하기 전에 새 계정 내용을 다시 확인하세요.","새 계정 복구 필요","계정 시작이 완료되지 않았습니다. 다시 시도하여 같은 작업을 완료하세요.","다시 시도"],
 	"en": ["Start a new account?", "Autosave will be replaced. Other saves will remain.",
 		"Current progress will be replaced. Other saves will remain.", "Cancel", "Start",
 		"New Acc unavailable", "The account could not be prepared. Try again.",
@@ -41,6 +45,8 @@ const NEW_ACC_COPY := {
 }
 
 const STARTUP_UNAVAILABLE_COPY := {
+	"ja": ["起動を完了できません","起動が完了しませんでした。ゲームを閉じて開き直してください。"],
+	"ko": ["시작을 완료할 수 없음","시작이 완료되지 않았습니다. 게임을 닫고 다시 여세요."],
 	"en": ["Unable to finish starting", "Startup could not finish. Close and reopen the game to try again."],
 	"zh-CN": ["无法完成启动", "启动未能完成。请关闭并重新打开游戏以重试。"],
 	"zh-HK": ["無法完成啟動", "啟動未能完成。請關閉並重新開啟遊戲以重試。"],
@@ -638,10 +644,10 @@ func _refresh_login_shell(_value: String = "") -> void:
 	_percent = int(profile.get_preference("preferences.accessibility.text_size", 100)) if profile != null else 100
 	theme = DESKTOP_THEME.build(_locale, _percent)
 	_title_home.theme = theme
-	_title_home.accessibility_name = {"en": "Return", "zh-CN": "返回", "zh-HK": "返回"}.get(locale, "Return")
+	_title_home.accessibility_name = {"en": "Return", "zh-CN": "返回", "zh-HK": "返回", "ja": "戻る", "ko": "돌아가기"}.get(locale, "Return")
 	for button in [_new_acc_button, _log_in_button, _gallery_button, _setting_button, _shut_down_button]:
 		button.custom_minimum_size.y = 64
-	_title_status.text = {"en": "Unavailable", "zh-CN": "不可用", "zh-HK": "不可用"}.get(locale, "Unavailable")
+	_title_status.text = {"en": "Unavailable", "zh-CN": "不可用", "zh-HK": "不可用", "ja": "利用不可", "ko": "사용 불가"}.get(locale, "Unavailable")
 	_clock_label.set_presentation(_locale, _percent)
 	_title_welcome.set_presentation(_locale, _percent)
 	_title_strip.queue_redraw()

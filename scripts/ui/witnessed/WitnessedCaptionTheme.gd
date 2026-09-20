@@ -3,27 +3,23 @@ extends RefCounted
 
 const PALETTES := preload("res://scripts/ui/witnessed/WitnessedPaletteRegistry.gd")
 
-const FONTS := {
-	"en": preload("res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2"),
-	"zh-CN": preload("res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf"),
-	"zh-HK": preload("res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf"),
-}
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 
 static func build(locale: String, text_percent: int, palette: String,
 		high_contrast: bool = false, colour_preset: String = "standard",
 		large_targets: bool = false, day: int = 1, dating_overlay: bool = false) -> Theme:
 	locale = locale.replace("_", "-")
 	var roles := PALETTES.resolve_tinted(palette, high_contrast, colour_preset, day)
-	if locale not in FONTS or text_percent not in [100, 125, 150] \
+	if not TYPOGRAPHY.supports(locale) or text_percent not in [100, 125, 150] \
 			or roles.is_empty():
 		return null
 	var result := Theme.new()
-	result.default_font = FONTS[locale]
-	result.default_font_size = int(20 * text_percent / 100.0)
+	result.default_font = TYPOGRAPHY.font(locale, text_percent)
+	result.default_font_size = TYPOGRAPHY.font_size(locale, text_percent, 20)
 	for role: StringName in roles:
 		result.set_color(role, &"WitnessedCaption", roles[role])
 	for font_name: StringName in [&"normal_font", &"bold_font", &"italics_font", &"bold_italics_font", &"mono_font"]:
-		result.set_font(font_name, &"RichTextLabel", FONTS[locale])
+		result.set_font(font_name, &"RichTextLabel", result.default_font)
 		result.set_font_size(StringName(str(font_name) + "_size"), &"RichTextLabel", result.default_font_size)
 	result.set_color(&"default_color", &"RichTextLabel", Color.WHITE if dating_overlay else roles[&"text"])
 	result.set_color(&"font_shadow_color", &"RichTextLabel", Color.TRANSPARENT)

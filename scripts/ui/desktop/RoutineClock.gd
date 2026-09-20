@@ -2,8 +2,14 @@ extends Label
 ## Read-only audience local time. No gameplay clock or background elapsed-time model.
 
 const FONT := preload("res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2")
-const NAMES := {"en": "Local time", "zh-CN": "本地时间", "zh-HK": "本地時間"}
-const UNAVAILABLE := {"en": "Time unavailable", "zh-CN": "时间不可用", "zh-HK": "時間不可用"}
+const NAMES := {"en": "Local time", "zh-CN": "本地时间", "zh-HK": "本地時間",
+	"ja": "現地時刻",
+	"ko": "현지 시간",
+}
+const UNAVAILABLE := {"en": "Time unavailable", "zh-CN": "时间不可用", "zh-HK": "時間不可用",
+	"ja": "時刻を表示できません",
+	"ko": "시간을 표시할 수 없어요",
+}
 
 var _reader: Callable = Time.get_time_dict_from_system
 var _timer: Timer

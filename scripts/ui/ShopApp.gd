@@ -148,7 +148,7 @@ func _read_preferences(localization: Object, profile: Object) -> Dictionary:
 	var large: Variant = profile.get_preference(PREFERENCE_KEYS[1],null) if profile != null else _large_targets
 	var high_contrast: Variant = profile.get_preference(PREFERENCE_KEYS[2], false) if profile != null else _high_contrast
 	var colour_preset: Variant = profile.get_preference(PREFERENCE_KEYS[3], "standard") if profile != null else _colour_preset
-	if typeof(locale) != TYPE_STRING or locale.replace("-","_") not in ["en","zh_CN","zh_HK"] or typeof(percent) != TYPE_INT or percent not in [100,125,150] or typeof(large) != TYPE_BOOL \
+	if typeof(locale) != TYPE_STRING or locale.replace("-","_") not in ["en","zh_CN","zh_HK", "ja", "ko"] or typeof(percent) != TYPE_INT or percent not in [100,125,150] or typeof(large) != TYPE_BOOL \
 		or typeof(high_contrast) != TYPE_BOOL or typeof(colour_preset) != TYPE_STRING or colour_preset not in ["standard","protan","deutan","tritan"]:
 		return {"ok":false,"code":"invalid_shop_preferences"}
 	return {"ok":true,"value":[locale.replace("-","_"),percent,large,high_contrast,colour_preset]}
@@ -319,7 +319,7 @@ func configure_shop(items: Array, locale: String = "en", percent: int = 100, lar
 	if candidate_roles.is_empty():
 		return {"ok": false, "code": "invalid_shop_palette"}
 	var normalized_locale := locale.replace("-","_")
-	if normalized_locale not in ["en","zh_CN","zh_HK"] or percent not in [100,125,150]:
+	if normalized_locale not in ["en","zh_CN","zh_HK", "ja", "ko"] or percent not in [100,125,150]:
 		return {"ok":false,"code":"invalid_shop_presentation"}
 	var projected := PROJECTION.project(items)
 	if not projected.ok: return {"ok":false,"code":projected.code}
@@ -871,7 +871,7 @@ func _index_of(item_id: String) -> int:
 	return 0
 
 func _t(key: String) -> String:
-	return COPY.text(_locale if _locale in ["en", "zh_CN", "zh_HK"] else "en", key)
+	return COPY.text(_locale if _locale in ["en", "zh_CN", "zh_HK", "ja", "ko"] else "en", key)
 
 func _price(amount: int, currency: String) -> String:
 	return COPY.price(_locale, amount, currency)

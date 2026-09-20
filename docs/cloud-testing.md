@@ -7,7 +7,8 @@ or cloud desktop is required to start these checks.
 Each Windows Server 2022 job downloads the standard Godot 4.6.3 editor from the
 official release, verifies its SHA256, imports the complete repository, and runs
 one bounded GUT suite: Minesweeper, Shop, desktop input/layout, Settings/display,
-New Account persistence and serialization, or reading/delivery behavior.
+New Account persistence and serialization, reading/delivery behavior, or
+localization and language fallback.
 The current production project uses GDScript and does not include a C# project.
 This workflow does not compile C# or produce a distributable Windows export.
 
@@ -17,7 +18,7 @@ captures 26 states covering the launcher, apps, scrolled content, menus, and
 confirmations at baseline and enlarged widths. Geometry assertions, a successful
 JSON report, and all 26 nonempty PNG files are required. Its screenshots and logs
 are uploaded for visual review; a headless geometry run cannot satisfy this job.
-This supplementary renderer does not replace the six Windows test groups.
+This supplementary renderer does not replace the seven Windows test groups.
 
 A second rendered pass in the same job reuses Godot and the software display
 with separate user data. It requires 19 screenshots and a successful report
@@ -33,11 +34,26 @@ overlay at normal and narrow pane widths, enlarged text, long conditions,
 English and Chinese locales, high contrast, and scrolled content. Its captures
 and logs are uploaded as `angela-overlay-render`.
 
+A fourth pass runs `tests/ui/render_japanese_korean_ui.gd`, again with separate
+user data, and requires 28 Japanese and Korean UI previews plus a successful
+report. Before rendering, `tools/localization/validate_japanese_korean_catalogs.py`
+checks catalog IDs, placeholders, and Unicode NFC normalization. The previews
+exercise the selectable UI drafts and their pixel fonts; story text continues
+to use the English fallback. The `japanese-korean-ui-render` artifact contains
+the screenshots, report, and log. All four passes together require 83 nonempty
+PNG captures; headless geometry checks cannot replace them.
+
 `tools/testing/Invoke-CloudTests.ps1` lists the exact test scripts. It reuses the
 existing isolated runner, which gives each run disposable user data and rejects
 requested scripts that never execute. A missing or empty JUnit report also fails
-the job. The six groups continue independently so one failure does not conceal
+the job. The seven groups continue independently so one failure does not conceal
 the other results. Each job has a 20-minute limit.
+
+The `localization` group adds 15 scripts covering Japanese and Korean UI,
+catalog extraction, font preparation, Gallery typography, correspondence,
+speech and transport, control bindings, Backup resizing, desktop recovery,
+and ending recovery. There are 81 requested scripts across the seven Windows
+groups, plus the supplementary rendering job, for eight jobs in total.
 
 The desktop group also covers Angela's stat overlay geometry, preserved stat
 values, the existing week tint behavior, and artwork placement in the shell.

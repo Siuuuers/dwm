@@ -14,12 +14,17 @@ const MS_THEME := preload("res://scripts/ui/minesweeper/MinesweeperTheme.gd")
 const SHEET := preload("res://scripts/ui/minesweeper/MinesweeperInformationSheet.gd")
 const VIEW_BUTTON := preload("res://scripts/ui/minesweeper/MinesweeperActionButton.gd")
 const FIT_WIDTH := 112
-const FIT_COPY := {"en": "Fit", "zh-CN": "适应", "zh-HK": "適應"}
+const FIT_COPY := {"en": "Fit", "zh-CN": "适应", "zh-HK": "適應",
+	"ja": "全体",
+	"ko": "맞춤",
+}
 const VIEW_SCOPES := ["app_beginner", "app_intermediate", "app_expert", "challenge"]
 const VIEW_COPY := {
 	"en": ["Fit entire board", "Cell: %s px", "Fit: %s px", "Could not save view", "Zoom: Ctrl + wheel, pinch, or LT / RT. Pan: wheel, Drag mode, or right stick."],
 	"zh-CN": ["完整显示棋盘", "格子：%s 像素", "适应：%s 像素", "无法保存视图", "缩放：Ctrl + 滚轮、双指捏合或 LT / RT。平移：滚轮、拖动模式或右摇杆。"],
 	"zh-HK": ["完整顯示棋盤", "格子：%s 像素", "適應：%s 像素", "無法儲存檢視", "縮放：Ctrl + 滾輪、雙指捏合或 LT / RT。平移：滾輪、拖曳模式或右搖桿。"],
+	"ja": ["盤面に合わせる", "マス：%s px", "全体表示：%s px", "表示設定を保存できません", "拡大・縮小：Ctrl + ホイール、ピンチ、LT / RT。移動：ホイール、ドラッグモード、右スティック。"],
+	"ko": ["보드에 맞추기", "칸 크기: %s px", "맞춤: %s px", "보기 설정을 저장할 수 없어요", "확대/축소: Ctrl + 휠, 두 손가락 모으기/벌리기, LT / RT. 이동: 휠, 드래그 모드, 오른쪽 스틱."],
 }
 
 class ContactSeam extends Control:

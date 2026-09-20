@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'new_account', 'reading_delivery')]
+    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'new_account', 'reading_delivery', 'localization')]
     [string]$Suite
 )
 
@@ -87,6 +87,23 @@ $suites = @{
         'tests/integration/test_witnessed_speech_projection.gd'
         'tests/integration/test_dating_caption_style.gd'
         'tests/unit/test_scene_art_bindings.gd'
+    )
+    localization = @(
+        'tests/unit/test_japanese_korean_ui.gd'
+        'tests/unit/test_localization.gd'
+        'tests/unit/test_localization_extraction.gd'
+        'tests/unit/test_locale_font_preparation.gd'
+        'tests/unit/test_gallery_typography.gd'
+        'tests/unit/test_ordinary_reply_echo_state.gd'
+        'tests/unit/test_provisional_correspondence_catalog.gd'
+        'tests/unit/test_system_tts_coordinator.gd'
+        'tests/unit/test_witnessed_transport_rail.gd'
+        'tests/unit/test_witnessed_speech_status.gd'
+        'tests/unit/test_gallery_registrar.gd'
+        'tests/unit/test_controls_binding_rules.gd'
+        'tests/unit/test_backup_panel_resize.gd'
+        'tests/integration/test_desktop_crash_recovery.gd'
+        'tests/scene/test_ending_recovery_localization.gd'
     )
 }
 

@@ -8,7 +8,7 @@ signal cancel_requested
 
 const TRANSPORT_BUTTON := preload("res://scripts/ui/witnessed/WitnessedTransportButton.gd")
 const PRESENTATION := preload("res://scripts/ui/SettingsTheme.gd")
-const LOCALES := ["en", "zh-CN", "zh-HK"]
+const LOCALES := ["en", "zh-CN", "zh-HK", "ja", "ko"]
 const COLOUR_PRESETS := ["standard", "protan", "deutan", "tritan"]
 const COPY_KEYS := {
 	"failure": "witnessed.recovery.preference_failed",

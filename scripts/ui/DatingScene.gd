@@ -10,6 +10,41 @@ const FLAG_BUTTON := preload("res://scripts/ui/minesweeper/MinesweeperFlagButton
 const CHROME_COPY := preload("res://scripts/ui/minesweeper/MinesweeperChromeCopy.gd")
 const PRESENTATION_SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
 const SCENE_ART_VIEW := preload("res://scripts/ui/art/SceneArtView.gd")
+const DRAFT_UI_COPY := {
+	"ja": {
+		"Special mine": "特殊な地雷",
+		"Retry": "再試行",
+		"Continue": "続ける",
+		"Retry to finish processing the result.": "再試行して結果の処理を完了してください。",
+		"Reveal, flag, or drag to explore the board.": "マスを開く、旗を立てる、ドラッグで盤面を操作できます。",
+		"Board cleared.": "盤面をクリアしました。",
+		"Try again.": "再試行してください。",
+		"The attempt is saved. Retry to finish saving this point.": "プレイ結果は保存済みです。再試行してこの時点の保存を完了してください。",
+		"This moment could not be saved. Try again.": "この場面を保存できませんでした。再試行してください。",
+		"A blank in the previous line": "前の行の空白",
+		"COMPARE": "比較",
+		"CAPTURE": "記録",
+		"Move the cup": "カップを動かす",
+		"Action unavailable. ": "この操作は利用できません。 "
+	},
+	"ko": {
+		"Special mine": "특수 지뢰",
+		"Retry": "다시 시도",
+		"Continue": "계속",
+		"Retry to finish processing the result.": "다시 시도하여 결과 처리를 완료하세요.",
+		"Reveal, flag, or drag to explore the board.": "칸을 열고, 깃발을 놓거나 드래그하여 보드를 살펴보세요.",
+		"Board cleared.": "보드를 클리어했습니다.",
+		"Try again.": "다시 시도하세요.",
+		"The attempt is saved. Retry to finish saving this point.": "시도는 저장되었습니다. 다시 시도하여 이 지점의 저장을 완료하세요.",
+		"This moment could not be saved. Try again.": "이 장면을 저장하지 못했습니다. 다시 시도하세요.",
+		"A blank in the previous line": "이전 줄의 빈칸",
+		"COMPARE": "비교",
+		"CAPTURE": "기록",
+		"Move the cup": "컵 옮기기",
+		"Action unavailable. ": "이 작업은 사용할 수 없습니다. "
+	}
+}
+
 
 ## Art follows the admitted scene, never a result, relationship tier, or expression variant.
 static func scene_art_entry(context: Dictionary) -> String:
@@ -37,6 +72,8 @@ static func presentation_copy(context: Dictionary, phase: String, locale: String
 	var normalized: String = locale.replace("_", "-")
 	if normalized == "zh-CN": copy = ["\u7b2c %d \u5929", "\u51c6\u5907\u5f00\u59cb\u3002", "\u6311\u6218\u5b8c\u6210\u3002"]
 	elif normalized == "zh-HK": copy = ["\u7b2c %d \u5929", "\u6e96\u5099\u958b\u59cb\u3002", "\u6311\u6230\u5b8c\u6210\u3002"]
+	elif normalized == "ja": copy = ["%d日目", "開始の準備ができました。", "チャレンジ完了。"]
+	elif normalized == "ko": copy = ["%d일째", "시작할 준비가 되었습니다.", "도전 완료."]
 	return {"ok": true, "value": {"title": names + " / " + (str(copy[0]) % int(context.day)),
 		"body": str(copy[1 if phase == "pre_challenge" else 2])}}
 
@@ -205,8 +242,8 @@ func _build_challenge() -> void:
 	_special_mine_button = Button.new()
 	_special_mine_button.name = "SpecialMine"
 	_special_mine_button.text = "\u25c6"
-	_special_mine_button.accessibility_name = "Special mine"
-	_special_mine_button.tooltip_text = "Special mine"
+	_special_mine_button.accessibility_name = _ui_text("Special mine")
+	_special_mine_button.tooltip_text = _ui_text("Special mine")
 	_special_mine_button.custom_minimum_size = Vector2(64, 40)
 	_special_mine_button.pressed.connect(_dispatch_action.bind("special_mine", -1))
 	toolbar.add_child(_special_mine_button)
@@ -248,14 +285,14 @@ func _refresh_challenge() -> void:
 	_special_mine_button.visible = bool(_physical_view.special_mine_visible)
 	_special_mine_button.disabled = not bool(_physical_view.special_mine_enabled)
 	_continue_button.visible = phase not in ["challenge", "preparing"] or _preparation_failed or _settlement_failed
-	_continue_button.text = "Retry" if phase in ["settlement_retry", "checkpoint_retry", "preparing"] or _settlement_failed else "Continue"
+	_continue_button.text = _ui_text("Retry") if phase in ["settlement_retry", "checkpoint_retry", "preparing"] or _settlement_failed else _ui_text("Continue")
 	match phase:
 		"pre_challenge": _status_label.text = str(copy.value.body)
-		"challenge": _status_label.text = "Retry to finish processing the result." if _settlement_failed else "Reveal, flag, or drag to explore the board."
-		"cleared_awaiting_terminal_choice": _status_label.text = "Board cleared."
-		"preparing": _status_label.text = "Try again." if _preparation_failed else ""
-		"checkpoint_retry": _status_label.text = "The attempt is saved. Retry to finish saving this point."
-		"settlement_retry": _status_label.text = "Retry to finish processing the result."
+		"challenge": _status_label.text = _ui_text("Retry to finish processing the result.") if _settlement_failed else _ui_text("Reveal, flag, or drag to explore the board.")
+		"cleared_awaiting_terminal_choice": _status_label.text = _ui_text("Board cleared.")
+		"preparing": _status_label.text = _ui_text("Try again.") if _preparation_failed else ""
+		"checkpoint_retry": _status_label.text = _ui_text("The attempt is saved. Retry to finish saving this point.")
+		"settlement_retry": _status_label.text = _ui_text("Retry to finish processing the result.")
 		_: _status_label.text = str(copy.value.body)
 	_refresh_terminal_choice()
 	_refresh_observer()
@@ -348,8 +385,8 @@ func _acknowledge_pre_challenge_draw() -> bool:
 	var reached: Dictionary = _presentation_port.acknowledge_pre_challenge_render(_presentation_command)
 	_pre_challenge_reached = bool(reached.get("ok", false))
 	if not _pre_challenge_reached:
-		_status_label.text = "This moment could not be saved. Try again."
-		_continue_button.text = "Retry"
+		_status_label.text = _ui_text("This moment could not be saved. Try again.")
+		_continue_button.text = _ui_text("Retry")
 	return _pre_challenge_reached
 
 func _on_challenge_status_drawn() -> void:
@@ -367,8 +404,8 @@ func _acknowledge_post_challenge_draw() -> bool:
 	var reached: Dictionary = _presentation_port.acknowledge_post_challenge_render(_presentation_command)
 	_post_challenge_reached = bool(reached.get("ok", false))
 	if not _post_challenge_reached:
-		_status_label.text = "This moment could not be saved. Try again."
-		_continue_button.text = "Retry"
+		_status_label.text = _ui_text("This moment could not be saved. Try again.")
+		_continue_button.text = _ui_text("Retry")
 	return _post_challenge_reached
 
 func _build_observer() -> void:
@@ -384,14 +421,14 @@ func _build_observer() -> void:
 	line.name = "PreviousSceneLine"
 	line.flat = true
 	line.text = "                    " if _observer_view.counterpart else str(_observer_view.text)
-	line.accessibility_name = "A blank in the previous line" if _observer_view.counterpart else line.text
+	line.accessibility_name = _ui_text("A blank in the previous line") if _observer_view.counterpart else line.text
 	line.custom_minimum_size = Vector2(500, 44)
 	_observer_panel.add_child(line)
 	line.draw.connect(func(): _observer_drawn = true)
 	if _observer_view.scope == "priscilla":
 		_observer_action = Button.new()
 		_observer_action.name = "Compare" if _observer_view.counterpart else "Capture"
-		_observer_action.text = "COMPARE" if _observer_view.counterpart else "CAPTURE"
+		_observer_action.text = _ui_text("COMPARE") if _observer_view.counterpart else _ui_text("CAPTURE")
 		_observer_action.visible = bool(_observer_view.counterpart)
 		if _observer_view.counterpart:
 			_observer_panel.add_child(_observer_action)
@@ -414,7 +451,7 @@ func _build_observer() -> void:
 	else:
 		_observer_action = Button.new()
 		_observer_action.name = "MoveCup"
-		_observer_action.text = "Move the cup"
+		_observer_action.text = _ui_text("Move the cup")
 		_observer_panel.add_child(_observer_action)
 		_observer_action.pressed.connect(_on_observer_action)
 		_false_cursor = Label.new()
@@ -469,7 +506,7 @@ func _process(delta: float) -> void:
 		var closed := _send_observer("close")
 		if not closed.get("ok", false):
 			_observer_close_failed = true
-			_observer_action.text = "Retry"
+			_observer_action.text = _ui_text("Retry")
 
 func _send_observer(action: String, elapsed_ms: int = 0) -> Dictionary:
 	var result: Dictionary = _presentation_port.dispatch_observer(_presentation_command,
@@ -519,9 +556,9 @@ func _refresh_observer() -> void:
 	if _observer_view.checkpoint_pending:
 		_observer_action.show()
 		_observer_action.disabled = false
-		_observer_action.text = "Retry"
+		_observer_action.text = _ui_text("Retry")
 		return
-	_observer_action.text = ("COMPARE" if _observer_view.counterpart else "CAPTURE") if _observer_view.scope == "priscilla" else "Move the cup"
+	_observer_action.text = (_ui_text("COMPARE") if _observer_view.counterpart else _ui_text("CAPTURE")) if _observer_view.scope == "priscilla" else _ui_text("Move the cup")
 	if _observer_view.scope == "priscilla":
 		_observer_action.disabled = not _observer_view.counterpart and bool(_observer_view.captured)
 	else:
@@ -575,7 +612,7 @@ func _dispatch_action(action: String, index: int, revision: int = -1) -> void:
 		elif action == "settle":
 			_settlement_failed = true
 			_refresh_challenge()
-		else: _status_label.text = "Action unavailable. " + str(result.get("code", ""))
+		else: _status_label.text = _ui_text("Action unavailable. ") + str(result.get("code", ""))
 
 
 ## The ONE injection seam. Called by `SceneRouter` before `add_child()`. Identical replay is
@@ -632,3 +669,7 @@ func append_previous_dialogue_line(rendered_text: String) -> void:
 	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	previous_dialogue_list.add_child(line)
 
+
+
+func _ui_text(english: String) -> String:
+	return str(DRAFT_UI_COPY.get(_locale, {}).get(english, english))

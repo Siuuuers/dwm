@@ -41,6 +41,8 @@ func _refresh_split_presentation(_locale_id: String = "") -> void:
 		"en": ["Resize Angela panel", "Drag horizontally. Left/Right adjust width; Home/End use the minimum/maximum."],
 		"zh-CN": ["调整安吉拉面板大小", "横向拖动。左右键调整宽度，Home/End 键设为最小/最大。"],
 		"zh-HK": ["調整安吉拉面板大小", "橫向拖動。左右鍵調整寬度，Home/End 鍵設為最小/最大。"],
+		"ja": ["アンジェラパネルのサイズ変更", "左右にドラッグ。左右キーで幅を調整、Home/End で最小/最大にします。"],
+		"ko": ["안젤라 패널 크기 조절", "가로로 드래그하세요. 좌우 키로 너비를 조절하고 Home/End로 최소/최대 크기를 설정하세요."],
 	}.get(locale, ["Resize Angela panel", "Drag horizontally to resize."])
 	if $RootHBox.theme != %StatHud.theme:
 		$RootHBox.theme = %StatHud.theme

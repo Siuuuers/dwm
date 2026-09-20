@@ -13,7 +13,7 @@ const RAIL_POSITION := Vector2(0, 656)
 const RAIL_SIZE := Vector2(1280, 64)
 const PLATE_INSET := 4.0
 const CONTROL_IDS: Array[StringName] = [&"history", &"skip", &"auto", &"save", &"load", &"next"]
-const LOCALES := ["en", "zh-CN", "zh-HK"]
+const LOCALES := ["en", "zh-CN", "zh-HK", "ja", "ko"]
 const COPY_IDS: Array[StringName] = [&"history", &"skip", &"auto", &"save", &"load", &"next", &"on", &"off"]
 
 

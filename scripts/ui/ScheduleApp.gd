@@ -132,7 +132,7 @@ func _read_shared_preferences(localization: Object, profile: Object) -> Dictiona
 	var large: Variant = profile.get_preference(SHARED_KEYS[1],null) if profile != null else _large
 	var high_contrast: Variant = profile.get_preference(SHARED_KEYS[2],false) if profile != null else _high_contrast
 	var colour_preset: Variant = profile.get_preference(SHARED_KEYS[3],"standard") if profile != null else _colour_preset
-	if typeof(locale) != TYPE_STRING or locale.replace("_","-") not in ["en","zh-CN","zh-HK"] or typeof(percent) != TYPE_INT or percent not in [100,125,150] or typeof(large) != TYPE_BOOL or typeof(high_contrast) != TYPE_BOOL or typeof(colour_preset) != TYPE_STRING or colour_preset not in ["standard","protan","deutan","tritan"]:
+	if typeof(locale) != TYPE_STRING or locale.replace("_","-") not in ["en","zh-CN","zh-HK", "ja", "ko"] or typeof(percent) != TYPE_INT or percent not in [100,125,150] or typeof(large) != TYPE_BOOL or typeof(high_contrast) != TYPE_BOOL or typeof(colour_preset) != TYPE_STRING or colour_preset not in ["standard","protan","deutan","tritan"]:
 		return {"ok":false,"code":&"invalid_schedule_preferences"}
 	return {"ok":true,"code":&"ok","value":[locale.replace("_","-"),percent,large,high_contrast,colour_preset]}
 

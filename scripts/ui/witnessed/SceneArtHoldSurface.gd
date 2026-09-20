@@ -1,6 +1,7 @@
 extends Control
 ## Transient art-only reading surface. Its Continue starts the original DTL; it witnesses no text.
 signal continue_requested(token: String)
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const ART_VIEW := preload("res://scripts/ui/art/SceneArtView.gd")
 const CAPTION_THEME := preload("res://scripts/ui/witnessed/WitnessedCaptionTheme.gd")
 const RUN_PRESENTATION := preload("res://scripts/ui/witnessed/WitnessedRunPresentation.gd")
@@ -123,8 +124,8 @@ func _apply_presentation() -> void:
 	if is_instance_valid(_footer):
 		_footer.color = theme.get_color("deep", "WitnessedCaption")
 	if is_instance_valid(next_button):
-		next_button.text = {"en": "Continue", "zh-CN": "\u7ee7\u7eed", "zh-HK": "\u7e7c\u7e8c"}[_locale]
-		next_button.add_theme_font_size_override("font_size", int(20 * _percent / 100.0))
+		next_button.text = {"en": "Continue", "zh-CN": "\u7ee7\u7eed", "zh-HK": "\u7e7c\u7e8c", "ja": "続ける", "ko": "계속"}[_locale]
+		next_button.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(_locale, _percent, 20))
 	# Continue stays 384x48 at (448,656); the fixed 80px footer contains its ring.
 	# Large-target preference belongs to shared theme, without moving this action.
 

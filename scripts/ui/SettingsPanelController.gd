@@ -9,7 +9,7 @@ const REDUCED_MOTION := &"preferences.accessibility.reduced_motion"
 const SCREEN_SHAKE := &"preferences.accessibility.screen_shake"
 const WINDOW_MODE := &"preferences.display.window_mode"
 const WINDOW_SIZE := &"preferences.display.window_size"
-const SPECIMENS := {"en": "This is a reading test.", "zh_CN": "这是朗读测试。", "zh_HK": "這是朗讀測試。"}
+const SPECIMENS := {"en": "This is a reading test.", "zh_CN": "这是朗读测试。", "zh_HK": "這是朗讀測試。", "ja": "これは読み上げのテストです。", "ko": "음성 읽기 테스트입니다."}
 
 var _content: Control
 var _profile: Object

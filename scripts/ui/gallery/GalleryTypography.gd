@@ -5,16 +5,22 @@ const _FONTS := {
 		"en": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
 		"zh-CN": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-zh_hans.otf.woff2",
 		"zh-HK": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-zh_hant.otf.woff2",
+		"ja": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-ja.otf.woff2",
+		"ko": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-ko.otf.woff2",
 	},
 	125: {
 		"en": "res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-latin.otf.woff2",
 		"zh-CN": "res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-zh_hans.otf.woff2",
 		"zh-HK": "res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-zh_hant.otf.woff2",
+		"ja": "res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-ja.otf.woff2",
+		"ko": "res://assets/ui/gallery/fonts/fusion-pixel-10px-proportional-ko.otf.woff2",
 	},
 	150: {
 		"en": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-latin.otf.woff2",
 		"zh-CN": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
 		"zh-HK": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+		"ja": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-ja.otf.woff2",
+		"ko": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-ko.otf.woff2",
 	},
 }
 
@@ -59,4 +65,6 @@ static func _locale_key(locale: String) -> String:
 		"en": return "en"
 		"zh-cn": return "zh-CN"
 		"zh-hk": return "zh-HK"
+		"ja": return "ja"
+		"ko": return "ko"
 		_: return ""

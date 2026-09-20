@@ -15,7 +15,7 @@ const RECEIPT_KINDS := ["ordinary_reply", "ordinary_echo_presented"]
 const REPLY_KEYS := ["command_issuer_receipt", "content_version", "day", "echo_id", "entry_id", "friend_id", "kind", "locale", "message_ids", "message_sequences", "plain_text_snapshot", "presentation_atom_id", "rendered_line", "reply_id", "transaction_id", "witnessed_line_id"]
 const ECHO_KEYS := ["command_issuer_receipt", "echo_id", "kind", "presentation_atom_id", "presentation_receipt", "reply_transaction_id", "transaction_id"]
 const PROOF_KEYS := ["counter", "namespace", "numeric_value", "purpose", "receipt_id", "token"]
-const LOCALES := ["en", "zh-CN", "zh-HK"]
+const LOCALES := ["en", "zh-CN", "zh-HK", "ja", "ko"]
 # Provisional functional copy. Keep versioned historical literals when later prose replaces v1.
 const COPY := {
 	"en": {
@@ -69,9 +69,11 @@ static func reply_definition(reply_id: String, locale: String = "en") -> Diction
 	var ordinal: int = result.choice_ordinal
 	result.erase("choice_ordinal")
 	result["locale"] = locale
-	result["text"] = str(COPY[locale].choices[ordinal])
-	result["incoming_text"] = str(COPY[locale].incoming)
-	result["response_text"] = str(COPY[locale].responses[ordinal])
+	# UI-only draft locales retain the authored English correspondence.
+	var copy: Dictionary = COPY.get(locale, COPY.en)
+	result["text"] = str(copy.choices[ordinal])
+	result["incoming_text"] = str(copy.incoming)
+	result["response_text"] = str(copy.responses[ordinal])
 	return _ok(result)
 
 ## The fixed six-entry namespace needs no narrative file loading at midnight.

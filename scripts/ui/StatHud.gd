@@ -8,10 +8,15 @@ const COPY := {
 	"en": {"day": "Day", "pressure": "Pressure", "health": "Health", "motivation": "Motivation", "money": "Money", "coins": "Coins", "condition": "Condition", "penalty": "Daily penalty", "unavailable": "Status unavailable", "condition_unavailable": "Condition unavailable", "nausea": "Nausea", "dizzy": "Dizziness", "sequela": "Aftereffects", "faint": "Fainting"},
 	"zh-CN": {"day": "天数", "pressure": "压力", "health": "健康", "motivation": "动力", "money": "金钱", "coins": "硬币", "condition": "状态", "penalty": "当日惩罚", "unavailable": "状态信息不可用", "condition_unavailable": "状态不可用", "nausea": "恶心", "dizzy": "头晕", "sequela": "后遗症", "faint": "昏厥"},
 	"zh-HK": {"day": "天數", "pressure": "壓力", "health": "健康", "motivation": "動力", "money": "金錢", "coins": "硬幣", "condition": "狀態", "penalty": "當日懲罰", "unavailable": "狀態資訊無法使用", "condition_unavailable": "狀態無法使用", "nausea": "噁心", "dizzy": "頭暈", "sequela": "後遺症", "faint": "昏厥"},
+	"ja": {"day": "日数", "pressure": "プレッシャー", "health": "体調", "motivation": "意欲", "money": "所持金", "coins": "コイン", "condition": "状態", "penalty": "本日のペナルティ", "unavailable": "状態を表示できません", "condition_unavailable": "状態を確認できません", "nausea": "吐き気", "dizzy": "めまい", "sequela": "後遺症", "faint": "失神"},
+	"ko": {"day": "일수", "pressure": "압박감", "health": "건강", "motivation": "의욕", "money": "소지금", "coins": "코인", "condition": "상태", "penalty": "오늘의 페널티", "unavailable": "상태 정보를 볼 수 없어요", "condition_unavailable": "상태를 확인할 수 없어요", "nausea": "메스꺼움", "dizzy": "어지러움", "sequela": "후유증", "faint": "실신"},
 }
 const CONDITION_IDS := ["nausea", "dizzy", "sequela", "faint"]
 const STAT_ROWS := {"pressure": "PressureRow", "health": "HealthRow", "motivation": "MotivationRow"}
-const SCROLL_NAMES := {"en": "Scroll status", "zh-CN": "滚动查看状态", "zh-HK": "捲動查看狀態"}
+const SCROLL_NAMES := {"en": "Scroll status", "zh-CN": "滚动查看状态", "zh-HK": "捲動查看狀態",
+	"ja": "状態をスクロール",
+	"ko": "상태 스크롤",
+}
 
 var _owner: Object
 var _localization: Object
@@ -85,7 +90,10 @@ func refresh_all(_a: Variant = null, _b: Variant = null, _c: Variant = null, _d:
 	if typeof(day) != TYPE_INT or day < 1 or day > 7:
 		_publish(%UnavailableLabel, COPY[_locale].unavailable)
 		return
-	_publish(%DayLabel, "%s: %d" % [COPY[_locale].day, day])
+	var day_text := "%s: %d" % [COPY[_locale].day, day]
+	if _locale == "ja": day_text = "%d日目" % day
+	elif _locale == "ko": day_text = "%d일차" % day
+	_publish(%DayLabel, day_text)
 	for stat: String in STAT_ROWS:
 		var value: int = _owner.get_stat_display_value(stat)
 		var maximum: int = _owner.get_stat_display_max(stat)
@@ -111,7 +119,7 @@ func _refresh_conditions(conditions: Variant) -> void:
 		if public_name not in names:
 			names.append(public_name)
 	if not names.is_empty():
-		_publish(%ConditionDisplay, "%s: %s" % [COPY[_locale].condition, (", " if _locale == "en" else "、").join(names)])
+		_publish(%ConditionDisplay, "%s: %s" % [COPY[_locale].condition, (", " if _locale in ["en", "ko"] else "、").join(names)])
 
 
 func _refresh_presentation() -> void:
@@ -141,7 +149,7 @@ func _refresh_presentation() -> void:
 	font.base_font = theme.default_font
 	font.opentype_features = {"tnum": 1}
 	theme.default_font = font
-	%DayLabel.add_theme_font_size_override("font_size", roundi(theme.default_font_size * 1.16))
+	%DayLabel.add_theme_font_size_override("font_size", roundi(theme.default_font_size * (4.0 / 3.0 if _locale in ["ja", "ko"] else 1.16)))
 	var day_spacing := StyleBoxEmpty.new()
 	day_spacing.content_margin_bottom = 6
 	%DayLabel.add_theme_stylebox_override("normal", day_spacing)

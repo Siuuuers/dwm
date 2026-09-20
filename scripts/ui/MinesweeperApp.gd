@@ -131,7 +131,7 @@ func _refresh_preparation_retry() -> void:
 		_preparation_retry.hide()
 		return
 	var locale := str(_localization.get_locale()).replace("_","-") if _localization != null else "en"
-	var copy: String = {"en":"Retry","zh-CN":"\u91cd\u8bd5","zh-HK":"\u91cd\u8a66"}.get(locale,"Retry")
+	var copy: String = {"en":"Retry","zh-CN":"\u91cd\u8bd5","zh-HK":"\u91cd\u8a66", "ja": "再試行", "ko": "다시 시도"}.get(locale,"Retry")
 	if not _preparation_retry.configure(copy,panel.register.theme,bool(panel.get("_large")),160): return
 	_preparation_retry.present_state(true,false)
 	_preparation_retry.position = Vector2(320,300)

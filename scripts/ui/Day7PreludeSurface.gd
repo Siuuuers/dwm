@@ -26,9 +26,11 @@ class AccessibleNextButton extends Button:
 
 const SCENE_ART := preload("res://scripts/ui/art/SceneArtView.gd")
 const AUTO_DELAYS := {"short": 1.0, "normal": 2.0, "long": 4.0}
-const AUTO_COPY := {"en": ["Auto Off", "Auto On"],
+const AUTO_COPY := {"ja": ["オート：オフ", "オート：オン"], "ko": ["자동: 꺼짐", "자동: 켜짐"], "en": ["Auto Off", "Auto On"],
 	"zh-CN": ["自动：关闭", "自动：开启"], "zh-HK": ["自動：關閉", "自動：開啟"]}
 const COPY := {
+	"ja": ["次へ","再試行","この場面を保存できませんでした。再試行してください。","続行できませんでした。再試行してください。"],
+	"ko": ["다음","다시 시도","이 장면을 저장하지 못했습니다. 다시 시도하세요.","계속할 수 없습니다. 다시 시도하세요."],
 	"en": ["Next", "Retry", "This moment could not be saved. Please try again.", "Unable to continue. Please try again."],
 	"zh-CN": ["\u4e0b\u4e00\u9879", "\u91cd\u8bd5", "\u6682\u65f6\u65e0\u6cd5\u4fdd\u5b58\u8fd9\u4e00\u523b\uff0c\u8bf7\u91cd\u8bd5\u3002", "\u6682\u65f6\u65e0\u6cd5\u7ee7\u7eed\uff0c\u8bf7\u91cd\u8bd5\u3002"],
 	"zh-HK": ["\u4e0b\u4e00\u9805", "\u91cd\u8a66", "\u66ab\u6642\u7121\u6cd5\u5132\u5b58\u9019\u4e00\u523b\uff0c\u8acb\u91cd\u8a66\u3002", "\u66ab\u6642\u7121\u6cd5\u7e7c\u7e8c\uff0c\u8acb\u91cd\u8a66\u3002"]}

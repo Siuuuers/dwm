@@ -697,10 +697,14 @@ func _refresh_accessibility() -> void:
 		match _locale:
 			"zh-CN": visible = "未揭开" if covered else "空白"
 			"zh-HK": visible = "未揭開" if covered else "空白"
+			"ja": visible = "未開封" if covered else "空白"
+			"ko": visible = "닫힌 칸" if covered else "빈칸"
 			_: visible = "Covered" if covered else "Blank"
 	match _locale:
 		"zh-CN": accessibility_name = "第%d行，第%d列，%s" % [row,column,visible]
 		"zh-HK": accessibility_name = "第%d行，第%d欄，%s" % [row,column,visible]
+		"ja": accessibility_name = "%d行、%d列、%s" % [row,column,visible]
+		"ko": accessibility_name = "%d행, %d열, %s" % [row,column,visible]
 		_: accessibility_name = "Row %d, column %d, %s" % [row,column,visible]
 
 func _draw() -> void:

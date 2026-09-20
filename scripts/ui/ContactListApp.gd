@@ -57,6 +57,8 @@ func _ready() -> void:
 	# Technical feedback is a transient notice in the pane, not correspondence
 	# or a second title bar. It leaves the reading geometry unchanged.
 	_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_status_label.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	var notice_style := StyleBoxFlat.new()
 	notice_style.bg_color = Color("151b25")
 	_status_label.add_theme_stylebox_override("normal", notice_style)
@@ -119,7 +121,7 @@ func refresh_view() -> Dictionary:
 func _requested_locale() -> String:
 	if _localization != null and _localization.has_method("get_locale"):
 		var requested := str(_localization.get_locale()).replace("_", "-")
-		if requested in ["en", "zh-CN", "zh-HK"]:
+		if requested in ["en", "zh-CN", "zh-HK", "ja", "ko"]:
 			return requested
 	return _primary
 
@@ -133,11 +135,11 @@ func _apply_typography() -> void:
 	if not contacts_panel.configure(ENGLISH_FONT, SIMPLIFIED_FONT, TRADITIONAL_FONT, percent,
 			_palette == &"midnight", _day, appearance.high_contrast, appearance.colour_preset): return
 	_apply_app_colours()
-	_title_label.text = {"en": "Contacts", "zh-CN": "联系人", "zh-HK": "聯絡人"}[_primary]
-	_title_label.add_theme_font_override("font", {"en": ENGLISH_FONT, "zh-CN": SIMPLIFIED_FONT, "zh-HK": TRADITIONAL_FONT}[_primary])
-	_hide_button.accessibility_name = {"en": "Back to desktop", "zh-CN": "返回桌面", "zh-HK": "返回桌面"}[_primary]
+	_title_label.text = {"en": "Contacts", "zh-CN": "联系人", "zh-HK": "聯絡人", "ja": "連絡先", "ko": "연락처"}[_primary]
+	_title_label.add_theme_font_override("font", contacts_panel._fonts[_primary])
+	_hide_button.accessibility_name = {"en": "Back to desktop", "zh-CN": "返回桌面", "zh-HK": "返回桌面", "ja": "デスクトップに戻る", "ko": "데스크톱으로 돌아가기"}[_primary]
 	_hide_button.custom_minimum_size = Vector2(64, 48)
-	_status_label.add_theme_font_override("font", {"en": ENGLISH_FONT, "zh-CN": SIMPLIFIED_FONT, "zh-HK": TRADITIONAL_FONT}[_primary])
+	_status_label.add_theme_font_override("font", contacts_panel._fonts[_primary])
 
 
 func _read_appearance() -> Dictionary:
@@ -191,7 +193,7 @@ func _present(result: Dictionary) -> Dictionary:
 	var restore_reply_focus := is_instance_valid(_reply_button) and _reply_button.has_focus() and is_visible_in_tree()
 	last_result = result.duplicate(true)
 	if not result.get("ok", false):
-		_status_label.text = {"en": "Conversation unavailable", "zh-CN": "会话暂不可用", "zh-HK": "對話暫不可用"}[_primary]
+		_status_label.text = {"en": "Conversation unavailable", "zh-CN": "会话暂不可用", "zh-HK": "對話暫不可用", "ja": "会話を表示できません", "ko": "대화를 볼 수 없어요"}[_primary]
 		_status_label.show()
 		presentation_failed.emit(last_result)
 		return last_result
@@ -208,8 +210,8 @@ func _present(result: Dictionary) -> Dictionary:
 	if value.get("reply_required", false) and contacts_panel.messages != null:
 		_reply_button = Button.new()
 		_reply_button.name = "ReplyButton"
-		_reply_button.text = {"en": "Reply", "zh-CN": "回复", "zh-HK": "回覆"}[_primary]
-		_reply_button.add_theme_font_override("font", {"en": ENGLISH_FONT, "zh-CN": SIMPLIFIED_FONT, "zh-HK": TRADITIONAL_FONT}[_primary])
+		_reply_button.text = {"en": "Reply", "zh-CN": "回复", "zh-HK": "回覆", "ja": "返信", "ko": "답장"}[_primary]
+		_reply_button.add_theme_font_override("font", contacts_panel._fonts[_primary])
 		_reply_button.custom_minimum_size.y = 48
 		_reply_button.focus_mode = Control.FOCUS_ALL
 		_reply_button.pressed.connect(_on_reply_requested)
@@ -272,6 +274,7 @@ func _present_ordinary_controls(value: Dictionary) -> void:
 		_ordinary_retry = Button.new()
 		_ordinary_retry.name = "RetryOrdinaryReply"
 		_ordinary_retry.text = _ordinary_retry_copy()
+		_ordinary_retry.add_theme_font_override("font", contacts_panel._fonts[_primary])
 		_ordinary_retry.custom_minimum_size.y = 48
 		_ordinary_retry.disabled = true
 		_ordinary_retry.pressed.connect(_on_ordinary_retry)
@@ -295,7 +298,7 @@ func _present_ordinary_controls(value: Dictionary) -> void:
 		caption.text = button.accessibility_name
 		caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		caption.add_theme_font_override("font", {"en": ENGLISH_FONT, "zh-CN": SIMPLIFIED_FONT, "zh-HK": TRADITIONAL_FONT}[_primary])
+		caption.add_theme_font_override("font", contacts_panel._fonts[_primary])
 		caption.set_meta("contacts_color_role", "bone")
 		caption.set_meta("locale", _primary)
 		caption.add_theme_color_override("font_color", theme.get_color("bone", "Contacts"))
@@ -372,7 +375,7 @@ func _exit_tree() -> void:
 		_presentation_port.cancel_pending_ordinary_reply(_ordinary_pending.duplicate(true))
 
 func _ordinary_retry_copy() -> String:
-	return {"en": "Retry", "zh-CN": "\u91cd\u8bd5", "zh-HK": "\u91cd\u8a66"}[_primary]
+	return {"en": "Retry", "zh-CN": "\u91cd\u8bd5", "zh-HK": "\u91cd\u8a66", "ja": "再試行", "ko": "다시 시도"}[_primary]
 
 func _show_ordinary_failure(result: Dictionary, phase: StringName) -> void:
 	# Keep player logs useful without recording correspondence, identity tokens, or file paths.
@@ -380,7 +383,7 @@ func _show_ordinary_failure(result: Dictionary, phase: StringName) -> void:
 	last_result = result.duplicate(true)
 	presentation_failed.emit(last_result.duplicate(true))
 	_status_label.text = {"en": "Your reply could not be saved. Please try again.",
-		"zh-CN": "\u6682\u65f6\u65e0\u6cd5\u4fdd\u5b58\u56de\u590d\uff0c\u8bf7\u91cd\u8bd5\u3002", "zh-HK": "\u66ab\u6642\u7121\u6cd5\u5132\u5b58\u56de\u8986\uff0c\u8acb\u91cd\u8a66\u3002"}[_primary]
+		"zh-CN": "\u6682\u65f6\u65e0\u6cd5\u4fdd\u5b58\u56de\u590d\uff0c\u8bf7\u91cd\u8bd5\u3002", "zh-HK": "\u66ab\u6642\u7121\u6cd5\u5132\u5b58\u56de\u8986\uff0c\u8acb\u91cd\u8a66\u3002", "ja": "返信を保存できませんでした。もう一度お試しください。", "ko": "답장을 저장하지 못했어요. 다시 시도해 주세요."}[_primary]
 	_status_label.show()
 
 func _on_presentation_locale_changed(_locale_id: String) -> void:

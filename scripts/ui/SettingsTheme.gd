@@ -4,6 +4,7 @@ extends RefCounted
 const ENGLISH := preload("res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2")
 const SIMPLIFIED := preload("res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf")
 const TRADITIONAL := preload("res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf")
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const PALETTES := preload("res://scripts/settings/SettingsPaletteRegistry.gd")
 const WEEK_TINT := preload("res://scripts/ui/theme/WeekTint.gd")
 const ROLES := {
@@ -20,6 +21,8 @@ const MIDNIGHT_OVERRIDES := {
 	"paper_ink": Color("14201d"),
 }
 const SAMPLE_COPY := {
+	"ja": ["選択中","フォーカス","警告","利用不可"],
+	"ko": ["선택됨","포커스","경고","사용 불가"],
 	"en": ["Selected", "Focus", "Warning", "Unavailable"],
 	"zh-CN": ["已选择", "焦点", "警告", "不可用"],
 	"zh-HK": ["已選擇", "焦點", "警告", "無法使用"],
@@ -32,16 +35,18 @@ static func build(locale: String, percent: int, palette_id: StringName = &"after
 		return null
 	roles = WEEK_TINT.apply(roles, WEEK_TINT.tint_for_day(day), high_contrast, colour_preset)
 	var result := Theme.new()
-	var primary: Font = {"en": ENGLISH, "zh-CN": SIMPLIFIED, "zh-HK": TRADITIONAL}.get(locale.replace("_", "-"), ENGLISH)
+	var primary: Font = TYPOGRAPHY.font(locale, percent)
 	var font := FontVariation.new()
 	font.base_font = primary
 	var fallbacks: Array[Font] = []
-	for companion: Font in [ENGLISH, SIMPLIFIED, TRADITIONAL]:
+	# Every language name must remain readable while another language is selected.
+	for companion: Font in [ENGLISH, SIMPLIFIED, TRADITIONAL,
+			TYPOGRAPHY.font("ja", percent), TYPOGRAPHY.font("ko", percent)]:
 		if companion != primary:
 			fallbacks.append(companion)
 	font.fallbacks = fallbacks
 	result.default_font = font
-	result.default_font_size = roundi(24.0 * percent / 100.0)
+	result.default_font_size = TYPOGRAPHY.font_size(locale, percent)
 	for role: String in roles:
 		result.set_color(role, "Settings", roles[role])
 	result.set_color("font_color", "Label", roles.paper_ink)

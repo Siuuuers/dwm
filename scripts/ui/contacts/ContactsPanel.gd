@@ -8,10 +8,11 @@ signal pending_reply_drawn(rendered_line: Dictionary)
 
 const Row = preload("res://scripts/ui/contacts/ContactsRow.gd")
 const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const CONTACTS_THEME := preload("res://scripts/ui/contacts/ContactsTheme.gd")
 const FRIENDS := ["priscilla", "lavinia", "sylvia"]
 const NAMES := ["Priscilla", "Lavinia", "Sylvia"]
-const LOCALES := ["en", "zh-CN", "zh-HK"]
+const LOCALES := ["en", "zh-CN", "zh-HK", "ja", "ko"]
 
 var selected_friend := ""
 var rows: Array[Button] = []
@@ -68,7 +69,8 @@ func configure(english: Font, simplified: Font, traditional: Font, text_percent:
 	var candidate := CONTACTS_THEME.build(english, 24 * text_percent / 100, palette, day, high_contrast, colour_preset)
 	if candidate == null: return false
 	var anchor := _scroll_anchor()
-	_fonts = {"en": english, "zh-CN": simplified, "zh-HK": traditional}
+	_fonts = {"en": english, "zh-CN": simplified, "zh-HK": traditional,
+		"ja": TYPOGRAPHY.font("ja", text_percent), "ko": TYPOGRAPHY.font("ko", text_percent)}
 	font_size = 24 * text_percent / 100
 	theme = candidate
 	_presentation = [palette, day, high_contrast, colour_preset]
@@ -165,7 +167,7 @@ func _update_rows() -> void:
 	for i in range(rows.size()):
 		rows[i].selected = selected_friend == FRIENDS[i]
 		rows[i].unread = _unread.get(FRIENDS[i], false)
-		var words := {"en": ["Open thread", "Unread"], "zh-CN": ["已打开的会话", "未读"], "zh-HK": ["已開啟的對話", "未讀"]}
+		var words := {"en": ["Open thread", "Unread"], "zh-CN": ["已打开的会话", "未读"], "zh-HK": ["已開啟的對話", "未讀"], "ja": ["開いている会話", "未読"], "ko": ["열린 대화", "읽지 않음"]}
 		var facts: Array[String] = []
 		if rows[i].selected:
 			facts.append(words[_primary][0])

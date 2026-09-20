@@ -7,7 +7,7 @@ extends RefCounted
 const CONTACT_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const ORDINARY_REPLIES := preload("res://scripts/domain/contact/OrdinaryReplyEchoState.gd")
 const DAY7_FOLLOWUPS := preload("res://scripts/domain/contact/Day7FollowupState.gd")
-const LOCALES := ["en", "zh-CN", "zh-HK"]
+const LOCALES := ["en", "zh-CN", "zh-HK", "ja", "ko"]
 
 var _game_state: Object = null
 var _command_port: Object = null
@@ -233,6 +233,8 @@ func _resolve_entry(id: String, primary: String, secondary: String, hospital_rol
 		if locale == "":
 			continue
 		var body: Variant = copy["texts"].get(locale)
+		if body == null and locale in ["ja", "ko"]:
+			body = copy["texts"].get("en")
 		if typeof(body) != TYPE_STRING or body.strip_edges().is_empty():
 			return _fail(&"contact_translation_unavailable", id)
 		texts[locale] = body

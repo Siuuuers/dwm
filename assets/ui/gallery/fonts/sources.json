@@ -41,7 +41,7 @@
       "glyph_canvas_baseline": 7,
       "natural_line_height": 12,
       "baseline_from_line_top": 9,
-      "note": "OpenType ascent/descent/line-gap read independently from each selected file with fontTools 4.65.0; all three locale flavors match."
+      "note": "OpenType ascent/descent/line-gap read independently from each selected file with fontTools; all five locale flavors match."
     },
     {
       "native_master": 10,
@@ -52,7 +52,7 @@
       "glyph_canvas_baseline": 9,
       "natural_line_height": 14,
       "baseline_from_line_top": 11,
-      "note": "OpenType ascent/descent/line-gap read independently from each selected file with fontTools 4.65.0; all three locale flavors match."
+      "note": "OpenType ascent/descent/line-gap read independently from each selected file with fontTools; all five locale flavors match."
     },
     {
       "native_master": 12,
@@ -63,13 +63,15 @@
       "glyph_canvas_baseline": 11,
       "natural_line_height": 16,
       "baseline_from_line_top": 13,
-      "note": "OpenType ascent/descent/line-gap read independently from each selected file with fontTools 4.65.0; all three locale flavors match."
+      "note": "OpenType ascent/descent/line-gap read independently from each selected file with fontTools; all five locale flavors match."
     }
   ],
   "locale_mapping": {
     "en": "latin",
     "zh-CN": "zh_hans",
-    "zh-HK": "zh_hant"
+    "zh-HK": "zh_hant",
+    "ja": "ja",
+    "ko": "ko"
   },
   "selected_files": [
     {
@@ -152,6 +154,60 @@
       "style": "Regular",
       "version": "2026.08.11",
       "postscript_name": "Fusion-Pixel-12px-Prop-zh_hant-Regular"
+    },
+    {
+      "file": "fusion-pixel-8px-proportional-ja.otf.woff2",
+      "bytes": 347980,
+      "sha256": "074afe7265be85f8c4434a0c9da46e5cf03d3c15ab55710d9eb14feb8158e6f2",
+      "family": "Fusion Pixel 8px Prop ja",
+      "style": "Regular",
+      "version": "2026.08.11",
+      "postscript_name": "Fusion-Pixel-8px-Prop-ja-Regular"
+    },
+    {
+      "file": "fusion-pixel-8px-proportional-ko.otf.woff2",
+      "bytes": 363292,
+      "sha256": "84c24f42e0564dba94299c880cd75d2bb2640523491055bbcb0f58375e8f2aef",
+      "family": "Fusion Pixel 8px Prop ko",
+      "style": "Regular",
+      "version": "2026.08.11",
+      "postscript_name": "Fusion-Pixel-8px-Prop-ko-Regular"
+    },
+    {
+      "file": "fusion-pixel-10px-proportional-ja.otf.woff2",
+      "bytes": 399436,
+      "sha256": "eb9ef0199bf79d587c5072aba4c3cba0ca445902c19268eff972e3230d7d4f66",
+      "family": "Fusion Pixel 10px Prop ja",
+      "style": "Regular",
+      "version": "2026.08.11",
+      "postscript_name": "Fusion-Pixel-10px-Prop-ja-Regular"
+    },
+    {
+      "file": "fusion-pixel-10px-proportional-ko.otf.woff2",
+      "bytes": 414372,
+      "sha256": "722dd039c80a192f9648bb38cb153e12cf08ef76c5cadedc7481f1ea48e2b420",
+      "family": "Fusion Pixel 10px Prop ko",
+      "style": "Regular",
+      "version": "2026.08.11",
+      "postscript_name": "Fusion-Pixel-10px-Prop-ko-Regular"
+    },
+    {
+      "file": "fusion-pixel-12px-proportional-ja.otf.woff2",
+      "bytes": 668392,
+      "sha256": "4822f1b69b9227aa144593e1ed1429d2136539508dced734b7348ce20e86c44d",
+      "family": "Fusion Pixel 12px Prop ja",
+      "style": "Regular",
+      "version": "2026.08.11",
+      "postscript_name": "Fusion-Pixel-12px-Prop-ja-Regular"
+    },
+    {
+      "file": "fusion-pixel-12px-proportional-ko.otf.woff2",
+      "bytes": 667248,
+      "sha256": "16768c82961a02e0ad730c96d0192060ef655cd5ba55282bd1aeaab99f614fcb",
+      "family": "Fusion Pixel 12px Prop ko",
+      "style": "Regular",
+      "version": "2026.08.11",
+      "postscript_name": "Fusion-Pixel-12px-Prop-ko-Regular"
     }
   ],
   "upstream_license_notices": [

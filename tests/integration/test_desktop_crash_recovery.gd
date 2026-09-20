@@ -222,7 +222,7 @@ func test_a_failed_new_run_leaves_a_genuinely_incomplete_continuation_that_recon
 		"the seeding New Run itself must complete and retain current Profile receipts")
 	var profile: Node = process["profile"]
 	var before: Dictionary = profile.get_profile_snapshot()
-	var prepared: Dictionary = profile.call(&"prepare_locale_preference", "ja")
+	var prepared: Dictionary = profile.call(&"prepare_locale_preference", "fr_unregistered")
 	assert_false(prepared.get("ok", true), "canonical Profile refuses an unregistered locale before commit")
 	assert_eq(profile.get_profile_snapshot(), before)
 	_fail_future_localization_applies(process["localization"])
