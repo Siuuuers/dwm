@@ -1,0 +1,30 @@
+name: Temporary cloud inspection
+
+on:
+  push:
+    branches: ['codex/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspection-files:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Prepare source for inspection
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/dwm-inspection"
+          git archive --format=zip --output="$RUNNER_TEMP/dwm-inspection/dwm-source.zip" HEAD
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dwm-inspection-${{ github.sha }}
+          path: ${{ runner.temp }}/dwm-inspection/*
+          retention-days: 1
+          if-no-files-found: error
