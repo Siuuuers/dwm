@@ -15,11 +15,13 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          persist-credentials: false
+          persist-credentials: true
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             /*
             !/.claude/
+      - name: Remove unrelated orphan gitlinks from the temporary checkout index
+        run: git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
       - name: Prepare source for inspection
         shell: bash
         run: |
