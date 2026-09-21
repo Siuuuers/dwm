@@ -1371,3 +1371,11 @@ func _canonical_sha256(value: Variant) -> String:
 
 func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": details}
+
+
+
+## Bootstrap calls this only when the application owner is being destroyed.
+## The round source retains this consequence coordinator for settlement.
+## Break that lifetime cycle without transactions, signals, or durable writes.
+func release_runtime_dependencies() -> void:
+	_minesweeper_round_source_port = null

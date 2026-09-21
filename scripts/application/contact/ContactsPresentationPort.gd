@@ -7,6 +7,7 @@ extends RefCounted
 const CONTACT_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const ORDINARY_REPLIES := preload("res://scripts/domain/contact/OrdinaryReplyEchoState.gd")
 const DAY7_FOLLOWUPS := preload("res://scripts/domain/contact/Day7FollowupState.gd")
+const FROZEN := preload("res://scripts/narrative/ContactsFrozenContext.gd")
 const LOCALES := ["en", "zh-CN", "zh-HK", "ja", "ko"]
 
 var _game_state: Object = null
@@ -33,8 +34,28 @@ func configure(game_state: Object, command_port: Object, catalog: Dictionary = {
 func get_projection(friend_id: String, primary: String = "en", secondary: String = "") -> Dictionary:
 	if _game_state == null:
 		return _fail(&"contacts_presentation_unconfigured")
+	primary = primary.replace("_", "-")
+	secondary = secondary.replace("_", "-")
+	if (friend_id != "" and friend_id not in CONTACT_STATE.FRIEND_IDS) or primary not in LOCALES \
+			or (secondary != "" and secondary not in LOCALES) or primary == secondary:
+		return _fail(&"invalid_contacts_projection_request")
+	var cached := _projection_contexts(friend_id)
+	if not cached.ok: return cached
 	return _project((_game_state.get("contacts") as Dictionary).duplicate(true),
-		int(_game_state.get("day")), friend_id, primary.replace("_", "-"), secondary.replace("_", "-"), _missed_history())
+		int(_game_state.get("day")), friend_id, primary, secondary, _missed_history(), cached.value)
+
+func _frozen_enabled() -> bool:
+	return _game_state != null and _game_state.has_method("frozen_contacts_contexts_enabled") \
+		and _game_state.frozen_contacts_contexts_enabled()
+
+func _projection_contexts(friend_id: String = "") -> Dictionary:
+	return _game_state.ensure_contact_presentation_contexts(friend_id) if _frozen_enabled() else _ok({})
+
+func get_echo_presentation(echo: Dictionary) -> Dictionary:
+	if not _frozen_enabled(): return _ok({})
+	var cached := _projection_contexts()
+	if not cached.ok: return cached
+	return FROZEN.read(cached.value, "echo.fallback.day7", str(echo.get("echo_id", "")))
 
 
 ## Mandatory Day 7 cards reuse exact saved messages and the ordinary localized bubble
@@ -49,6 +70,8 @@ func get_day7_followup_cards(primary: String = "en", secondary: String = "") -> 
 	if int(_game_state.get("day")) != 7: return _ok({"cards": cards})
 	var state: Dictionary = (_game_state.get("contacts") as Dictionary).duplicate(true)
 	var missed := _missed_history()
+	var cached := _projection_contexts()
+	if not cached.ok: return cached
 	for row: Dictionary in DAY7_FOLLOWUPS.pending_day7_followups(state):
 		var message: Dictionary = row.message
 		var friend: String = row.friend_id
@@ -56,13 +79,19 @@ func get_day7_followup_cards(primary: String = "en", secondary: String = "") -> 
 		var resolved := _resolve_entry(id, primary, secondary)
 		if not resolved.ok: return resolved
 		var entries: Array = [resolved.value]
-		if _has_hospital_miss(message, friend, missed):
+		var presentation := _message_presentation(state, friend, message, cached.value)
+		if not presentation.ok: return presentation
+		var hospital_miss := _has_hospital_miss(message, friend, missed) if cached.value.is_empty() \
+			else presentation.value.fields.miss_reason == "prevented_by_fainting"
+		if hospital_miss:
 			for role: String in ["explanation", "reaction"]:
 				var followup := _resolve_entry(id, primary, secondary, role)
 				if not followup.ok: return followup
 				entries.append(followup.value)
-		cards.append({"message_id": id, "friend_id": friend,
-			"sequence": int(message.sequence), "entries": entries})
+		var card := {"message_id": id, "friend_id": friend,
+			"sequence": int(message.sequence), "entries": entries}
+		if not presentation.value.is_empty(): card["presentation"] = presentation.value
+		cards.append(card)
 	return _ok({"cards": cards})
 
 
@@ -130,10 +159,15 @@ func _admit_candidate(preview: Dictionary, prior: Dictionary, day: int, selected
 	var candidate: Variant = preview.get("value", {}).get("candidate")
 	if typeof(candidate) != TYPE_DICTIONARY:
 		return _fail(&"contact_preview_malformed")
+	var cache := {}
+	if _frozen_enabled():
+		var frozen := FROZEN.capture_candidate(prior, candidate, _game_state.to_save_dict(), day)
+		if not frozen.ok: return frozen
+		cache = frozen.value.route_context[FROZEN.CACHE_KEY]
 	for friend_id: String in CONTACT_STATE.FRIEND_IDS:
 		if friend_id != selected and candidate["messages"][friend_id] == prior["messages"][friend_id]:
 			continue
-		var admitted := _project(candidate, day, friend_id, primary, secondary, _missed_history())
+		var admitted := _project(candidate, day, friend_id, primary, secondary, _missed_history(), cache)
 		if not admitted.get("ok", false):
 			return admitted
 	return _ok({})
@@ -151,7 +185,7 @@ func _needs_open(state: Dictionary, day: int, friend_id: String) -> bool:
 	return solo.get("state", "") == "AVAILABLE"
 
 
-func _project(state: Dictionary, day: int, friend_id: String, primary: String, secondary: String, missed: Array = []) -> Dictionary:
+func _project(state: Dictionary, day: int, friend_id: String, primary: String, secondary: String, missed: Array = [], cache: Dictionary = {}) -> Dictionary:
 	if (friend_id != "" and friend_id not in CONTACT_STATE.FRIEND_IDS) \
 			or primary not in LOCALES or (secondary != "" and secondary not in LOCALES) \
 			or primary == secondary:
@@ -184,11 +218,17 @@ func _project(state: Dictionary, day: int, friend_id: String, primary: String, s
 				if message.get("type") in ORDINARY_REPLIES.MESSAGE_KINDS else _resolve_entry(id, primary, secondary)
 			if not resolved.get("ok", false):
 				return resolved
+			var presentation := _message_presentation(state, friend_id, message, cache)
+			if not presentation.ok: return presentation
+			if not presentation.value.is_empty(): resolved.value["presentation"] = presentation.value
 			entries.append(resolved["value"])
-			if _has_hospital_miss(message, friend_id, missed):
+			var hospital_miss := _has_hospital_miss(message, friend_id, missed) if cache.is_empty() \
+				else presentation.value.fields.get("miss_reason") == "prevented_by_fainting"
+			if hospital_miss:
 				for role: String in ["explanation", "reaction"]:
 					var followup := _resolve_entry(id, primary, secondary, role)
 					if not followup.ok: return followup
+					if not presentation.value.is_empty(): followup.value["presentation"] = presentation.value
 					entries.append(followup.value)
 
 	if not ordinary.is_empty():
@@ -197,12 +237,22 @@ func _project(state: Dictionary, day: int, friend_id: String, primary: String, s
 			var translated: Dictionary = ORDINARY_REPLIES.available(state, day, friend_id, secondary)
 			if not translated.get("ok", false): return translated
 			texts[secondary] = translated.value.incoming_text
-		entries.append({"id": ordinary.entry_id, "outgoing": false, "texts": texts})
+		var entry := {"id": ordinary.entry_id, "outgoing": false, "texts": texts}
+		if not cache.is_empty():
+			var frozen := FROZEN.read(cache, ordinary.entry_id, "awaiting_reply")
+			if not frozen.ok: return frozen
+			entry["presentation"] = frozen.value
+		entries.append(entry)
 		ordinary_choices = ordinary.choices.duplicate(true)
 	return _ok({"friend_id": friend_id, "entries": entries, "unread": unread,
 		"ordinary_choices": ordinary_choices,
 		"reply_required": friend_id != "" and group.get("day") == day \
 			and CONTACT_STATE.is_reply_required(state, friend_id)})
+
+func _message_presentation(state: Dictionary, friend: String, message: Dictionary, cache: Dictionary) -> Dictionary:
+	if cache.is_empty(): return _ok({})
+	var entry_id := FROZEN.entry_id_for_message(state, friend, message)
+	return FROZEN.read(cache, entry_id, "after_selection" if message.type in ORDINARY_REPLIES.MESSAGE_KINDS else "")
 
 
 func _resolve_ordinary_entry(state: Dictionary, message: Dictionary, primary: String, secondary: String) -> Dictionary:

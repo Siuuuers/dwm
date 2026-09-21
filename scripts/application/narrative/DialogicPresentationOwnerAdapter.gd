@@ -25,6 +25,7 @@ extends RefCounted
 
 const _STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
 const _HOSPITAL_ART := preload("res://scripts/ui/HospitalScene.gd")
+const _FROZEN_CONTEXT := preload("res://scripts/narrative/HospitalFrozenContext.gd")
 
 ## The owner kind this adapter declares. `HospitalPresentationPort` accepts only this value; the
 ## Dating port accepts only `dating_challenge`, so the two owners can never be swapped.
@@ -66,6 +67,11 @@ var _in_flight: Dictionary = {}
 ## completion_transaction_id -> the exact receipt this adapter emitted. Replay returns these bytes.
 var _completed: Dictionary = {}
 var _presentation_revision := 0
+var _frozen_contexts_required := false
+
+func configure_frozen_hospital_contexts() -> Dictionary:
+	_frozen_contexts_required = true
+	return _ok({})
 
 
 ## Retains the exact existing `DialogicBridge` and connects its trusted completion signal once.
@@ -113,6 +119,10 @@ func begin_physical(command: Dictionary) -> Dictionary:
 		return _fail(&"invalid_presentation_command",
 			"completion_transaction_id and command_sha256 must be nonblank", {})
 	var timeline_id := str(command["timeline_id"])
+	var context: Variant = command.get("context")
+	if timeline_id == "hospital.faint" and (_frozen_contexts_required or (context is Dictionary and context.has("presentation"))):
+		var frozen := _FROZEN_CONTEXT.validate(context)
+		if not frozen.get("ok", false): return frozen
 	var token := derive_token(completion_id, command_sha256)
 
 	if _completed.has(completion_id):
@@ -178,6 +188,9 @@ func complete_notice(presentation_command: Dictionary) -> Dictionary:
 
 
 func _has_sylvia_hospital_witness(context: Dictionary) -> bool:
+	if context.has("presentation"):
+		var checked := _FROZEN_CONTEXT.validate(context)
+		return checked.get("ok", false) and bool(checked.value.presentation.fields.sylvia_eligible)
 	var game: Node = _bridge.get_node_or_null("/root/GameState") if _bridge is Node and _bridge.is_inside_tree() else null
 	if game == null: return false
 	var contacts: Variant = game.get("contacts")

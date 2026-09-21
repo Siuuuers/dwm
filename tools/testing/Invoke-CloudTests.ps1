@@ -11,6 +11,7 @@ $ErrorActionPreference = 'Stop'
 # execute; Invoke-IsolatedGodot also rejects GUT's silent suite-load failures.
 $suites = @{
     persistence = @(
+        'tests/unit/test_frozen_run_context.gd'
         'tests/unit/test_profile_presentation_chronology.gd'
         'tests/unit/test_profile_dating_attempts.gd'
         'tests/unit/test_profile_dating_branches.gd'
@@ -28,6 +29,7 @@ $suites = @{
         'tests/integration/test_save_manager_public_boundaries.gd'
     )
     endings = @(
+        'tests/unit/test_ending_frozen_context.gd'
         'tests/unit/test_day7_condition_ending.gd'
         'tests/unit/test_ending_completion_durability.gd'
         'tests/unit/test_ending_presentation_signature.gd'
@@ -91,6 +93,8 @@ $suites = @{
         'tests/unit/test_minesweeper_shop_purchase_participant.gd'
     )
     desktop = @(
+        'tests/unit/test_application_runtime_lifetime.gd'
+        'tests/unit/test_contacts_frozen_context.gd'
         'tests/unit/test_desktop_panel_split.gd'
         'tests/desktop_shell/test_desktop_split_touch.gd'
         'tests/unit/test_desktop_touch_navigation.gd'
@@ -146,6 +150,8 @@ $suites = @{
         'tests/unit/tooling/test_phase2r_closeout_sentinel.gd'
     )
     reading_delivery = @(
+        'tests/unit/test_hospital_frozen_context.gd'
+        'tests/unit/test_frozen_replay_context.gd'
         'tests/unit/test_minesweeper_delivery_notice.gd'
         'tests/integration/test_witnessed_caption_runtime.gd'
         'tests/unit/test_witnessed_pause_view.gd'

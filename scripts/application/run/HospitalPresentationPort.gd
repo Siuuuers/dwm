@@ -28,6 +28,7 @@ extends RefCounted
 
 const _STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
 const _NARRATIVE_OWNER := preload("res://scripts/application/narrative/DialogicPresentationOwnerAdapter.gd")
+const _FROZEN_CONTEXT := preload("res://scripts/narrative/HospitalFrozenContext.gd")
 
 const ROUTE_ID := "hospital"
 const CONTEXT_KIND := "hospital"
@@ -75,6 +76,11 @@ var _physical_owner: Object = null
 var _commands: Dictionary = {}
 ## completion_transaction_id -> the exact settled completion receipt. Replay returns these bytes.
 var _settled: Dictionary = {}
+var _frozen_contexts_required := false
+
+func configure_frozen_hospital_contexts() -> Dictionary:
+	_frozen_contexts_required = true
+	return _ok({})
 
 
 ## Retains the exact `.16` issuer and the ONE physical owner, and connects that exact owner's two
@@ -333,6 +339,9 @@ func _completion_sources(request: Dictionary) -> Array:
 func _context_error(context: Variant) -> String:
 	if typeof(context) != TYPE_DICTIONARY:
 		return "context must be a dictionary"
+	if _frozen_contexts_required or context.has("presentation"):
+		var checked := _FROZEN_CONTEXT.validate(context)
+		return "" if checked.get("ok", false) else str(checked.get("code", &"hospital_frozen_context_invalid"))
 	var keys: Array = (context as Dictionary).keys()
 	keys.sort()
 	if keys != CONTEXT_KEYS:

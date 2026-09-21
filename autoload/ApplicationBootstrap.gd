@@ -273,6 +273,23 @@ var _state := {
 func _ready() -> void:
 	call_deferred("start", _requested_mode_from_debug_args())
 
+func _exit_tree() -> void:
+	_release_runtime_dependencies()
+
+func _notification(what: int) -> void:
+	# Off-tree startup fixtures and failed compositions can be freed without ever
+	# receiving _exit_tree. The same release is deliberately idempotent.
+	if what == NOTIFICATION_PREDELETE:
+		_release_runtime_dependencies()
+
+func _release_runtime_dependencies() -> void:
+	# These three strong back-links are needed while commands are live. The
+	# composition owner ends their lifetime without advancing or saving the run.
+	for owner: RefCounted in [_retained_day_resolution_start_port,
+			_retained_desktop_consequence_coordinator, _pair_deck_draw_port]:
+		if owner != null:
+			owner.release_runtime_dependencies()
+
 func configure_debug_mutation_gate_factory(factory: Callable) -> Dictionary:
 	if _start_begun: return _failure(&"debug_gate_factory_too_late", "Bootstrap start has begun")
 	if _debug_gate_factory.is_valid(): return _failure(&"debug_gate_factory_already_configured", "A debug gate factory is already configured")
@@ -673,6 +690,8 @@ func _construct_identity_issuer_and_contact_commands() -> Dictionary:
 		&"configure_identity_issuer", _desktop_identity_nonce_issuer)
 	if not injected.get("ok", false):
 		return injected
+	var frozen_contacts: Dictionary = game_state.configure_frozen_contacts_contexts()
+	if not frozen_contacts.get("ok", false): return frozen_contacts
 	if int(injected.get("value", {}).get("issuer_instance_id", 0)) \
 			!= _desktop_identity_nonce_issuer.get_instance_id():
 		return _failure(&"identity_issuer_mismatch", "GameState retained another issuer")
@@ -745,8 +764,11 @@ func _wire_narrative_and_ending_ports(bridge: Object) -> Dictionary:
 		var ending_initialized: Dictionary = _ending_playback_port.initialize(bridge)
 		if not ending_initialized.get("ok", false):
 			return ending_initialized
+	var frozen_endings: Dictionary = game_state.configure_frozen_ending_contexts()
+	if not frozen_endings.get("ok", false): return frozen_endings
 	var reached_bound: Dictionary = _ending_playback_port.configure_reached_presentations(
-		_target(&"ProfileManager"), game_state.capture_ending_presentation_signature)
+		_target(&"ProfileManager"), game_state.capture_ending_presentation_signature,
+		game_state.capture_ending_frozen_presentation)
 	if not reached_bound.get("ok", false): return reached_bound
 	var ending_writer: Dictionary = game_state.call(&"configure_ending_checkpoint_writer",
 		Callable(self, "_commit_ending_checkpoint"))
@@ -985,6 +1007,8 @@ func configure_day_resolution(game_state: Object, save_manager: Object) -> Dicti
 		_retained_day_resolution_coordinator = DAY_RESOLUTION_COORDINATOR.new()
 	var state_port: RefCounted = _retained_day_resolution_state_port
 	var coordinator: RefCounted = _retained_day_resolution_coordinator
+	var frozen_hospital: Dictionary = state_port.configure_frozen_hospital_contexts()
+	if not frozen_hospital.get("ok", false): return frozen_hospital
 	if not coordinator.resolution_completed.is_connected(_on_day_resolution_completed):
 		coordinator.resolution_completed.connect(_on_day_resolution_completed)
 	var configured: Dictionary = coordinator.configure(state_port, checkpoint_port,
@@ -1058,6 +1082,10 @@ func _construct_schedule_presentation(coordinator: RefCounted) -> Dictionary:
 			return _failure(&"presentation_owner_identity_mismatch",
 				"the Hospital port retained another owner")
 		_retained_hospital_presentation_port = hospital
+	var frozen_owner: Dictionary = _retained_presentation_owner_adapter.configure_frozen_hospital_contexts()
+	if not frozen_owner.get("ok", false): return frozen_owner
+	var frozen_hospital: Dictionary = _retained_hospital_presentation_port.configure_frozen_hospital_contexts()
+	if not frozen_hospital.get("ok", false): return frozen_hospital
 	if _retained_dating_presentation_port == null:
 		# The late graph supplies the shared physical generation owner.
 		_retained_dating_presentation_port = DATING_PRESENTATION_PORT.new()
@@ -2094,6 +2122,8 @@ func _configure_condition_hospital(game_state: Object) -> Dictionary:
 	if not configured.get("ok", false): return configured
 	configured = adapter.configure_presentation(_retained_hospital_presentation_port,
 		Callable(_target(&"SceneRouter"), "route_presentation"), _retained_dating_presentation_port)
+	if not configured.get("ok", false): return configured
+	configured = adapter.configure_frozen_hospital_contexts()
 	if not configured.get("ok", false): return configured
 	var coordinator: RefCounted = preload("res://scripts/application/run/ConditionHospitalCoordinator.gd").new()
 	configured = coordinator.configure(state, _desktop_consequence_state, adapter,

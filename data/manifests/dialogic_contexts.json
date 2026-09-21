@@ -233,7 +233,8 @@
         "qualifying_cause": "hospital_cause",
         "accepted_record_ids": "ids",
         "unfulfilled_record_ids": "ids",
-        "sylvia_witness_receipt_id": "nullable_id"
+        "sylvia_witness_receipt_id": "nullable_id",
+        "sylvia_eligible": "bool"
       }
     },
     {
@@ -928,7 +929,8 @@
         "qualifying_cause": "hospital_cause",
         "accepted_record_ids": "ids",
         "unfulfilled_record_ids": "ids",
-        "sylvia_witness_receipt_id": "nullable_id"
+        "sylvia_witness_receipt_id": "nullable_id",
+        "sylvia_eligible": "bool"
       }
     },
     {
@@ -1438,7 +1440,8 @@
         "qualifying_cause": "hospital_cause",
         "accepted_record_ids": "ids",
         "unfulfilled_record_ids": "ids",
-        "sylvia_witness_receipt_id": "nullable_id"
+        "sylvia_witness_receipt_id": "nullable_id",
+        "sylvia_eligible": "bool"
       }
     },
     {
@@ -1789,7 +1792,8 @@
         "qualifying_cause": "hospital_cause",
         "accepted_record_ids": "ids",
         "unfulfilled_record_ids": "ids",
-        "sylvia_witness_receipt_id": "nullable_id"
+        "sylvia_witness_receipt_id": "nullable_id",
+        "sylvia_eligible": "bool"
       }
     },
     {
@@ -2140,7 +2144,8 @@
         "qualifying_cause": "hospital_cause",
         "accepted_record_ids": "ids",
         "unfulfilled_record_ids": "ids",
-        "sylvia_witness_receipt_id": "nullable_id"
+        "sylvia_witness_receipt_id": "nullable_id",
+        "sylvia_eligible": "bool"
       }
     },
     {
@@ -2837,7 +2842,8 @@
         "qualifying_cause": "hospital_cause",
         "accepted_record_ids": "ids",
         "unfulfilled_record_ids": "ids",
-        "sylvia_witness_receipt_id": "nullable_id"
+        "sylvia_witness_receipt_id": "nullable_id",
+        "sylvia_eligible": "bool"
       }
     },
     {
@@ -3225,7 +3231,8 @@
         "qualifying_cause": "hospital_cause",
         "accepted_record_ids": "ids",
         "unfulfilled_record_ids": "ids",
-        "sylvia_witness_receipt_id": "nullable_id"
+        "sylvia_witness_receipt_id": "nullable_id",
+        "sylvia_eligible": "bool"
       }
     },
     {

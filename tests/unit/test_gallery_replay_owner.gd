@@ -13,6 +13,14 @@ class Runtime extends RefCounted:
 	signal playback_start_failed(failure: Dictionary)
 	var starts: Array[Dictionary] = []
 	var active := false
+	var frozen_fields: Dictionary = {}
+	func install_frozen_replay(signature: Dictionary, mode: String) -> Dictionary:
+		var built := preload("res://scripts/narrative/FrozenReplayContext.gd").immutable_fields(signature, mode)
+		if not built.ok: return built
+		frozen_fields = built.value
+		return {"ok": true}
+	func release_frozen_presentation() -> void:
+		frozen_fields = {}
 	func start_timeline(path: String, label: Variant = 0) -> Dictionary:
 		starts.append({"path":path,"label":label})
 		active = true
@@ -20,9 +28,11 @@ class Runtime extends RefCounted:
 	func has_active_playback() -> bool: return active
 	func halt_with_error(_result: Dictionary) -> Dictionary:
 		active = false
+		release_frozen_presentation()
 		return {"ok":true}
 	func finish() -> void:
 		active = false
+		release_frozen_presentation()
 		timeline_ended_signal.emit()
 
 class Reader extends RefCounted:
@@ -80,9 +90,14 @@ func test_canonical_completion_records_the_exact_label_then_gallery_has_no_canon
 	var old_counter: int = bridge._playback_counter
 	assert_true(replay.begin(rows[0].signature_id).ok)
 	assert_eq(runtime.starts.back().label,"ending.alone.dark_mode")
+	assert_true(runtime.frozen_fields.is_read_only())
+	assert_eq(runtime.frozen_fields.execution_mode, "gallery_replay")
+	assert_false(runtime.frozen_fields.has("step_token"))
+	assert_false(runtime.frozen_fields.has("alone_cause"), "legacy signatures never guess the missing cause")
 	runtime.runtime_signal_event.emit({"kind":"effect_transaction","transaction_id":"forbidden"})
 	runtime.finish()
 	assert_false(replay.is_playing())
+	assert_true(runtime.frozen_fields.is_empty())
 	assert_eq(profile.get_profile_snapshot(),before)
 	assert_eq(bridge._playback_counter,old_counter,"Gallery has its own process-local token sequence")
 	assert_signal_emit_count(port,"playback_completed",1,"Gallery never enters canonical ending completion")

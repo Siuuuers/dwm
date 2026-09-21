@@ -228,6 +228,13 @@ func start_timeline_id(timeline_id: String, context: Dictionary = {}) -> Diction
 		var fail := {"ok": false, "reason": "dialogic_missing", "timeline_id": timeline_id, "message": MISSING_DIALOGIC_MESSAGE}
 		emit_signal("timeline_failed", fail)
 		return fail
+	if timeline_id == "hospital.faint" and context.has("presentation"):
+		var frozen := preload("res://scripts/narrative/HospitalFrozenContext.gd").validate(context)
+		if not frozen.get("ok", false): return frozen
+		var semantic_id: String = str(frozen.value.presentation.fields.entry_id)
+		var located := _resolve_entry_for_playback(semantic_id, -1)
+		if not located.get("ok", false): return located
+		return _start_at_path(timeline_id, str(located.value.path), frozen.value, str(located.value.label))
 	if not DialogicTimelineCatalog.has_timeline_id(timeline_id):
 		var fail2 := {"ok": false, "reason": "unknown_timeline_id", "timeline_id": timeline_id}
 		emit_signal("timeline_failed", fail2)
@@ -279,12 +286,15 @@ func get_current_scene_art() -> Dictionary:
 		entry_id += ".day%d" % int(context.day)
 	if entry_id == "hospital.faint" or entry_id.begins_with("hospital.faint."):
 		show_portraits = false
-		var game := get_node_or_null("/root/GameState") if is_inside_tree() else null
-		if game != null:
-			var contacts: Variant = game.get("contacts")
-			if contacts is Dictionary:
-				var schedule: Dictionary = game._canonical_committed_schedule() if game.has_method("_canonical_committed_schedule") else {}
-				show_portraits = _HOSPITAL_ART.art_participants(contacts, context, schedule) == ["sylvia"]
+		if context.has("presentation"):
+			show_portraits = _HOSPITAL_ART.art_participants({}, context) == ["sylvia"]
+		else:
+			var game := get_node_or_null("/root/GameState") if is_inside_tree() else null
+			if game != null:
+				var contacts: Variant = game.get("contacts")
+				if contacts is Dictionary:
+					var schedule: Dictionary = game._canonical_committed_schedule() if game.has_method("_canonical_committed_schedule") else {}
+					show_portraits = _HOSPITAL_ART.art_participants(contacts, context, schedule) == ["sylvia"]
 	return {"entry_id": entry_id, "show_portraits": show_portraits}
 
 ## Conservative source proof for an art-only pause before native execution.
@@ -419,6 +429,11 @@ func _start_at_path(timeline_id: String, path: String, context: Dictionary, labe
 		return {"ok": false, "reason": "dialogic_runtime_mismatch", "timeline_id": timeline_id}
 	if has_active_playback():
 		return {"ok": false, "reason": "narrative_playback_active", "timeline_id": timeline_id}
+	if witnessed_hospital and context.has("presentation"):
+		var frozen := preload("res://scripts/narrative/HospitalFrozenContext.gd").validate(context)
+		if not frozen.get("ok", false): return frozen
+		var installed: Dictionary = _runtime_adapter.install_frozen_presentation(frozen.value.presentation)
+		if not installed.get("ok", false): return installed
 	var before := {"id": _current_timeline_id, "context": _current_timeline_context.duplicate(true)}
 	_ordinary_speech_counter += 1
 	_start_in_progress = true
@@ -434,6 +449,7 @@ func _start_at_path(timeline_id: String, path: String, context: Dictionary, labe
 	var started: Dictionary = _start_with_scene_art(path, label, not witnessed_hospital)
 	_start_in_progress = false
 	if not started.get("ok", false):
+		if witnessed_hospital and context.has("presentation"): _runtime_adapter.release_frozen_presentation()
 		_ordinary_playback = {}
 		scene_art_changed.emit()
 		_current_timeline_id = before.id
@@ -632,6 +648,8 @@ func capture_current_speech_presentation() -> Dictionary:
 
 func _on_playback_start_failed(failure: Dictionary, halt_runtime: bool = false) -> void:
 	_close_art_hold()
+	if _runtime_adapter != null and _runtime_adapter.has_method("release_frozen_presentation"):
+		_runtime_adapter.release_frozen_presentation()
 	var ordinary := _ordinary_playback.duplicate(true)
 	var ordinary_id := str(_ordinary_playback.get("timeline_id", ""))
 	var ending := _active_playback.duplicate(true)
@@ -882,7 +900,7 @@ func start_ending_id(ending_id: String, context: Dictionary = {}) -> Dictionary:
 
 ## Canonical reached recording must name the label that physically played, including
 ## Alone mode and exceptional full/residue variants; legacy callers keep their old API.
-func start_ending_presentation(ending_id: String, context: Dictionary, signature: Dictionary) -> Dictionary:
+func start_ending_presentation(ending_id: String, context: Dictionary, signature: Dictionary, presentation: Dictionary = {}) -> Dictionary:
 	if not _initialized: return _command_failure(&"not_initialized")
 	if has_active_playback() or not _pause_handle.is_empty(): return _command_failure(&"narrative_playback_active")
 	if not _exact_context_keys(context): return _command_failure(&"invalid_playback_context")
@@ -897,19 +915,32 @@ func start_ending_presentation(ending_id: String, context: Dictionary, signature
 	if not _ending_records.has(ending_id): return _command_failure(&"unknown_ending_id")
 	var timeline_id := str(_ending_records[ending_id].timeline_id)
 	var locator: Dictionary = resolved.value
+	if not presentation.is_empty():
+		var frozen := preload("res://scripts/narrative/FrozenPresentationContext.gd").validate(signature.entry_id, presentation)
+		if not frozen.ok: return frozen
+		if frozen.value.fields.step_token != context.playback_id or frozen.value.fields.ending_role != str(context.role) \
+				or frozen.value.fields.ending_form != signature.fields.ending_form:
+			return _command_failure(&"ending_frozen_step_mismatch")
+		if _runtime_adapter == null or not _runtime_adapter.has_method("install_frozen_presentation"):
+			return _command_failure(&"frozen_context_runtime_unavailable")
+		var installed: Dictionary = _runtime_adapter.install_frozen_presentation(frozen.value)
+		if not installed.get("ok", false): return installed
 	_playback_counter += 1
 	var token := "playback-%d" % _playback_counter
 	var before := {"id": _current_timeline_id, "context": _current_timeline_context.duplicate(true)}
 	_current_timeline_id = timeline_id
 	_active_playback = {"token":token, "ending_id":ending_id, "role":str(context.role),
+		"stable_playback_id": str(context.playback_id),
 		"timeline_id":timeline_id, "label":str(locator.label), "cache_before":before,
 		"presentation_signature":signature.duplicate(true),
+		"presentation": presentation.duplicate(true),
 		"content_locale": str(locator.get("content_locale", "")), "suppress_first_speech": false}
 	_start_in_progress = true
 	var started := _start_through_runtime(str(locator.path), str(locator.label))
 	_start_in_progress = false
 	if not started.get("ok", false):
 		if str(_active_playback.get("token", "")) == token:
+			if not presentation.is_empty(): _runtime_adapter.release_frozen_presentation()
 			_active_playback.clear()
 			scene_art_changed.emit()
 			_current_timeline_id = before.id
@@ -1883,11 +1914,19 @@ func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode
 		return fingerprinted
 	var frozen: Dictionary = (fingerprinted["value"] as Dictionary)["frozen"]
 	var fingerprint := str((fingerprinted["value"] as Dictionary)["fingerprint"])
+	var has_frozen_variables := false
 	if frozen.has("presentation"):
 		if _runtime_adapter == null or not _runtime_adapter.has_method("install_frozen_presentation"):
 			return _playback_failure(&"frozen_context_runtime_unavailable", entry_id)
 		var installed: Dictionary = _runtime_adapter.install_frozen_presentation(frozen.presentation)
 		if not installed.get("ok", false): return installed
+		has_frozen_variables = true
+	elif execution_mode == &"rehearsal" and frozen.has("presentation_signature"):
+		if _runtime_adapter == null or not _runtime_adapter.has_method("install_frozen_replay"):
+			return _playback_failure(&"frozen_context_runtime_unavailable", entry_id)
+		var installed: Dictionary = _runtime_adapter.install_frozen_replay(frozen.presentation_signature, "gallery_replay")
+		if not installed.get("ok", false): return installed
+		has_frozen_variables = true
 	var token := ""
 	if token_kind == "gallery":
 		token = "gallery-%d" % _replay_counter
@@ -1917,7 +1956,7 @@ func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode
 	_start_in_progress = false
 	if not started.get("ok", false):
 		if str(_active_entry.get("token", "")) == token:
-			if frozen.has("presentation"): _runtime_adapter.release_frozen_presentation()
+			if has_frozen_variables: _runtime_adapter.release_frozen_presentation()
 			_active_entry = {}
 			scene_art_changed.emit()
 		return started
@@ -2119,7 +2158,7 @@ func _on_runtime_timeline_ended() -> void:
 			_current_timeline_id = ""
 			_current_timeline_context = {}
 		ending_playback_finished.emit(str(playback["token"]), str(playback["ending_id"]),
-			{"receipt_id": "%s:complete" % str(playback["token"]), "ending_id": str(playback["ending_id"]), "timeline_id": str(playback["timeline_id"])})
+			{"receipt_id": "%s:complete" % str(playback.get("stable_playback_id", playback["token"])), "ending_id": str(playback["ending_id"]), "timeline_id": str(playback["timeline_id"])})
 		return
 	# Task 5 semantic-entry branch (R-FF): physical completion advances NOTHING directly; it
 	# builds ONE intent from the validated frozen context (R-GG: stage and transaction_id come

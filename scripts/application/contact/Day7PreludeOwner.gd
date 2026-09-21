@@ -80,11 +80,13 @@ func _advance() -> Dictionary:
 	var receipt: Dictionary
 	var title: String
 	var body := ""
+	var presentation := {}
 	if not followups.is_empty():
 		var card: Dictionary = followups[0]
 		var original: Dictionary = _game.get_pending_day7_followups()[0]
 		var entry_id: String = FOLLOWUPS.entry_id_for(_game.contacts, original)
 		if entry_id.is_empty(): return {"ok": false, "code": &"day7_followup_entry_unavailable"}
+		presentation = card.get("presentation", {})
 		command.merge({"friend_id": card.friend_id, "message_id": card.message_id, "sequence": card.sequence})
 		receipt = {"entry_id": entry_id, "kind": "day7_followup", "view_token": command.command_id,
 			"friend_id": card.friend_id, "message_id": card.message_id, "sequence": card.sequence}
@@ -95,6 +97,10 @@ func _advance() -> Dictionary:
 		body = "\n\n".join(lines)
 	else:
 		var echo: Dictionary = echoes[0]
+		if _contacts.has_method("get_echo_presentation"):
+			var frozen: Dictionary = _contacts.get_echo_presentation(echo)
+			if not frozen.ok: return frozen
+			presentation = frozen.value
 		command.merge({"echo_id": echo.echo_id, "presentation_atom_id": echo.presentation_atom_id})
 		receipt = {"entry_id": "echo.fallback.day7", "view_token": command.command_id,
 			"echo_id": echo.echo_id, "presentation_atom_id": echo.presentation_atom_id}
@@ -108,6 +114,7 @@ func _advance() -> Dictionary:
 		elif _locale == "ja": body = "以前、あなたはこう言いました：\n" + str(echo.plain_text_snapshot)
 		elif _locale == "ko": body = "이전에 이렇게 말했습니다:\n" + str(echo.plain_text_snapshot)
 	var card := {"receipt": receipt.duplicate(true), "title": title, "body": body}
+	if not presentation.is_empty(): card["presentation"] = presentation
 	# Auto may drain staged cards, but the final route handoff requires fresh player input.
 	var allow_auto_advance := followups.size() + echoes.size() > 1
 	if is_instance_valid(_surface):

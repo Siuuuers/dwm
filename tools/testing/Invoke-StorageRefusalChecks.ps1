@@ -104,12 +104,18 @@ foreach ($case in @('empty', 'whitespace')) {
         $cases = $xml.SelectNodes('//testcase')
         $failures = $xml.SelectNodes('//failure')
         $passes = $xml.SelectNodes('//testcase[not(failure) and not(error) and not(skipped)]')
-        if ($cases.Count -ne 78 -or $failures.Count -ne 75 -or $passes.Count -ne 3 -or
+        # Five new checkpoint proof regressions use _isolated_wired() first and
+        # must refuse a missing root just like the original storage-backed cases.
+        foreach ($failure in $failures) {
+            if ($failure.InnerText -notmatch 'test_root_missing') {
+                $detail = $failure.InnerText
+                if ($detail.Length -gt 1200) { $detail = $detail.Substring(0, 1200) }
+                throw "Unexpected refusal failure: $($failure.ParentNode.GetAttribute('name')): $detail"
+            }
+        }
+        if ($cases.Count -ne 83 -or $failures.Count -ne 80 -or $passes.Count -ne 3 -or
             $xml.SelectNodes('//error | //skipped').Count -ne 0) {
             throw "Refusal counts changed: $($cases.Count) cases, $($failures.Count) failures, $($passes.Count) passes."
-        }
-        foreach ($failure in $failures) {
-            if ($failure.InnerText -notmatch 'test_root_missing') { throw 'Unexpected refusal failure reason.' }
         }
         $results += [ordered]@{ case = $case; exit_code = $run.ExitCode; tests = $cases.Count
             expected_root_refusals = $failures.Count; storage_free_passes = $passes.Count; user_dir = $userDir }
@@ -123,3 +129,4 @@ foreach ($case in @('empty', 'whitespace')) {
 }
 $results | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $output 'results.json') -Encoding utf8
 Write-Host 'STORAGE_REFUSAL_VERIFIED: empty and whitespace roots refused without repository mutations.'
+

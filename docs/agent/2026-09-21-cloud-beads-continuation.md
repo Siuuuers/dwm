@@ -22,10 +22,16 @@ fully passing at the checkpoint recorded below.
   preserving app/modal custody, Cancel-first Load consent, and held-contact
   quarantine. The existing Controls rules reject modifier chords; tests preserve
   that deliberate restriction and the unchanged default binding.
-- The first frozen-story-context checkpoint captures immutable Dating facts and
-  rejects malformed retained contexts before Profile history reconciliation.
-  It does not finish Contacts, Hospital, ordered endings, or the final RunSave
-  migration; `dwm-n3h` remains open until those producers are covered.
+- Frozen presentation contexts now cover Dating, native Contacts, Hospital and
+  ordered endings. Saved-context validation runs before installation and Profile
+  reconciliation. This producer checkpoint remains RunSave v6 and validates
+  present caches; strict v7 completeness still requires cloud proof. Historical
+  replay exposes only facts its saved signature actually contains. Missing old
+  selectors remain a separate tracked decision, without invented history.
+- Application destruction explicitly breaks three retained reference cycles:
+  day-resolution/start, desktop consequence/round, and Condition Hospital/pair
+  draw. Normal command ownership is unchanged; teardown performs no save,
+  advancement or signal publication. Cloud shutdown verification is pending.
 
 Dating retains automatic pre-board/post-board handoff with no Continue/Done
 interstitial or special-mine action. Observer interactions remain retired from
@@ -39,6 +45,7 @@ current play and preserved at `archive/observer-interactions-2026-09-21`.
 | 40 / `35627055044` | `34926b45af076559de40d8ee00c3403254428a3b` | All 17 jobs stopped at import: Godot rejected an array-expression constant in ProfileSchema. No test-pass claim. |
 | 41 / `35627369190` | `86e511f5c05e902d2ab7e625fcd91581d510a470` | Parser fixed; 12/17 jobs passed. Settings, persistence, reading/delivery, exported startup, and full rendered journeys still failed. |
 | 42 / `35629589023` | `0fa182fdf5ca6999f4adcfe0369781d2a308a6db` | 11/17 jobs passed. All five rendered journeys reached their markers/captures; strict native-TTS and shutdown-resource gates still failed. Three focused fixture corrections and one real no-mutation Dating refusal fix remain under verification. |
+| 43 / `35631315483` | `c832233de93de88a91c25ff3ae255d1c1859eb78` | 14/17 jobs passed. All focused GUT suites passed, including 262 Settings tests and 150 persistence tests. Linux native TTS setup and all five journey markers/captures passed. Strict shutdown retained 48 resources, native Windows EXE exited 1 before diagnostics, and the storage-refusal census was stale. |
 
 Run 41's focused failures were two invalid checkpoint-field fixture accesses,
 two paused-Quick fixture assumptions, and one expected storage-refusal code.
@@ -97,3 +104,19 @@ cues and canonical dialogue History require their accepted content/catalogs;
 native Windows UI Automation requires the missing upstream scroll-provider
 capability. Headless tests, software-rendered screenshots, and package startup
 do not substitute for those gates.
+
+
+Run 43 phase instrumentation measured Day 7 manual save at 5.063 s (2.110 s
+prepare and 2.953 s commit). Atomic storage write took 2.224 s. Cold Login
+was 11.848 s and included three Autosave and two Slot 1 inspections; inspection
+parsing totalled 4.273 s. Nested timing scopes are inclusive and must not be
+summed. Synchronous metadata signal delivery was only 8 microseconds.
+A bounded exact-text parse cache is being reviewed separately; schema, migration,
+revision and disk-read guards will remain active. No cache speedup is claimed.
+
+The next validation batch corrects the refusal census to 83 cases / 80 expected
+root refusals / 3 passes (five new existing checkpoint tests explain the change).
+Every failure must still be the expected root refusal and repository snapshots
+must remain unchanged. Export validation now runs the independent native EXE
+and PCK checks even if one fails, prints bounded diagnostics before throwing,
+and permits neither the release manifest nor ZIP after either failure.

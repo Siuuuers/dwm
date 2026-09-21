@@ -145,8 +145,8 @@ func _frozen_pre_presentation() -> Dictionary:
 		"challenge_slot": "dating.solo.priscilla.day1", "phase": "pre_challenge",
 		"due_echoes": [], "attempt_residue_id": null}).value
 
-func _inject_frozen_context_prose() -> void:
-	var located: Dictionary = bridge.call("_resolve_entry_for_playback", DATING, -1)
+func _inject_frozen_context_prose(entry_id: String = DATING, prose: String = "Tier {Frozen.tier}; tone {Frozen.tone}.") -> void:
+	var located: Dictionary = bridge.call("_resolve_entry_for_playback", entry_id, -1)
 	assert_true(located.get("ok", false), str(located))
 	var injected := runtime as CaptionRuntime
 	injected.injected_path = str(located.value.path)
@@ -154,8 +154,134 @@ func _inject_frozen_context_prose() -> void:
 	_replaced_timeline = load(_replaced_timeline_path)
 	injected.injected_timeline = DialogicTimeline.new()
 	injected.injected_timeline.from_text("return\nlabel " + str(located.value.label)
-		+ "\nNarrator: Tier {Frozen.tier}; tone {Frozen.tone}.\nreturn")
+		+ "\nNarrator: " + prose + "\nreturn")
 	injected.injected_timeline.take_over_path(injected.injected_path)
+
+func test_ending_frozen_prose_keeps_stable_completion_identity_across_runtime_counter_restart() -> void:
+	var helper := preload("res://scripts/narrative/EndingFrozenContext.gd")
+	var inputs := {"dark_mode": false, "pair_form": "", "special_variant": "full"}
+	for friend: String in helper.FRIENDS:
+		inputs[friend] = {"tier": "friend", "tone": "sweet", "attitude": "", "echo_ids": [], "miss_reasons": []}
+	var seed: Dictionary = helper.make_seed(inputs, {"priscilla": [], "lavinia": [], "sylvia": [], "priscilla_lavinia": []}, [], "empty_done").value
+	var plan := {"steps": [{"ending_id": "ending.priscilla.sweet", "role": "core"}], "playback_receipts": {}}
+	_inject_frozen_context_prose("ending.priscilla.sweet", "Stored tone {Frozen.stored_tone}.")
+	var receipts: Array = []
+	bridge.ending_playback_finished.connect(func(_token, _ending_id, receipt): receipts.append(receipt.duplicate(true)))
+	for index: int in range(2):
+		# A fresh process restarts this transient counter; the admitted step ID persists.
+		bridge.set("_playback_counter", 0)
+		runtime.current_state_info["variables"] = {"prior_fixture": "preserved"}
+		var playback_id := "saved:run:ending:%d" % index
+		var frozen: Dictionary = helper.build(plan, 0, seed, playback_id).value
+		var context := {"expected_stage": "PRIMARY_PENDING", "playback_id": playback_id, "role": "core", "transaction_id": "saved:transaction:%d" % index}
+		var started: Dictionary = bridge.start_ending_presentation("ending.priscilla.sweet", context, frozen.signature, frozen.presentation)
+		assert_true(started.get("ok", false), str(started))
+		if not started.get("ok", false): return
+		frozen.presentation.fields.stored_tone = "dark"
+		await _settle()
+		var texts := get_tree().get_nodes_in_group("dialogic_dialog_text")
+		assert_eq(texts.size(), 1)
+		if texts.size() != 1: return
+		assert_eq(texts[0].get_parsed_text(), "Stored tone sweet.")
+		assert_true(runtime.current_state_info.variables.Frozen.is_read_only())
+		runtime.Text.skip_text_reveal()
+		await _settle()
+		runtime.Inputs.input_block_timer.stop()
+		runtime.Inputs.handle_input()
+		for frame in 60:
+			if receipts.size() == index + 1 and not runtime.Styles.has_active_layout_node(): break
+			await get_tree().create_timer(0.05).timeout
+		assert_eq(receipts.size(), index + 1)
+		if receipts.size() != index + 1: return
+		assert_eq(receipts[index].receipt_id, playback_id + ":complete")
+		assert_eq(runtime.current_state_info.variables, {"prior_fixture": "preserved"})
+	assert_ne(receipts[0].receipt_id, receipts[1].receipt_id)
+
+func test_hospital_plays_exact_day_label_with_frozen_facts_and_keeps_physical_completion_owner() -> void:
+	_inject_frozen_context_prose("hospital.faint.day1", "Cause {Frozen.qualifying_cause}.")
+	runtime.current_state_info["variables"] = {"prior_fixture": "preserved"}
+	var built := preload("res://scripts/narrative/FrozenPresentationContext.gd").build("hospital.faint.day1", {
+		"entry_id": "hospital.faint.day1", "entry_role": "hospital", "day": 1, "qualifying_cause": "schedule_done",
+		"accepted_record_ids": ["actual:accepted:sylvia"], "unfulfilled_record_ids": ["actual:accepted:sylvia"],
+		"sylvia_eligible": true, "sylvia_witness_receipt_id": null})
+	assert_true(built.ok, str(built))
+	if not built.ok: return
+	var context := {"kind": "hospital", "day": 1, "source_entry_ids": ["actual:schedule:sylvia"], "miss_receipt_ids": [], "presentation": built.value}
+	var finished: Array = []
+	bridge.timeline_finished.connect(func(id, result): finished.append({"id": id, "result": result.duplicate(true)}))
+	var started: Dictionary = bridge.start_timeline_id("hospital.faint", context)
+	assert_true(started.get("ok", false), str(started))
+	if not started.get("ok", false): return
+	context.presentation.fields.qualifying_cause = "condition_hospital"
+	await _settle()
+	var texts := get_tree().get_nodes_in_group("dialogic_dialog_text")
+	assert_eq(texts.size(), 1)
+	if texts.size() != 1: return
+	assert_eq(texts[0].get_parsed_text(), "Cause schedule_done.")
+	assert_true(runtime.current_state_info.variables.Frozen.is_read_only())
+	runtime.Text.skip_text_reveal()
+	await _settle()
+	runtime.Inputs.input_block_timer.stop()
+	runtime.Inputs.handle_input()
+	for frame in 60:
+		if finished.size() == 1 and not runtime.Styles.has_active_layout_node(): break
+		await get_tree().create_timer(0.05).timeout
+	assert_eq(finished.size(), 1)
+	if finished.size() == 1:
+		assert_eq(finished[0].id, "hospital.faint")
+		assert_eq(finished[0].result.context.presentation.fields.qualifying_cause, "schedule_done")
+	assert_true(completion.calls.is_empty(), "Hospital retains its physical owner instead of the Dating completion port")
+	assert_eq(runtime.current_state_info.variables, {"prior_fixture": "preserved"})
+
+func test_gallery_real_dtl_reads_only_saved_signature_and_releases_frozen_variables() -> void:
+	var profile: Node = preload("res://autoload/ProfileManager.gd").new()
+	add_child_autofree(profile)
+	var storage := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd").new(
+		"frozen-replay-memory", preload("res://tests/support/FakeFileOps.gd").new())
+	assert_true(profile.initialize(storage).ok)
+	var signature := {"entry_id": "ending.priscilla.sweet", "schema_version": 1, "fields": {
+		"tier": "love", "tone": "sweet", "attitude": "affectionate", "echo_ids": [], "miss_reasons": [],
+		"ending_role": "core", "ending_form": "derived_sweet", "residue": false}}
+	var recorded: Dictionary = profile.record_reached_presentation(signature)
+	assert_true(recorded.ok, str(recorded))
+	if not recorded.ok: return
+	assert_true(profile.unlock_ending("ending.priscilla.sweet", "fixture:discovery").ok)
+	var replay := preload("res://scripts/application/ending/GalleryReplayOwner.gd").new()
+	assert_true(replay.configure(profile, bridge).ok)
+	_inject_frozen_context_prose("ending.priscilla.sweet", "Replay tone {Frozen.stored_tone}.")
+	var profile_before: Dictionary = profile.get_profile_snapshot()
+	var run: Node = get_node("/root/GameState")
+	var run_before: Dictionary = run.capture_restore_state().value.backup
+	for outcome: String in ["completed", "cancelled"]:
+		runtime.current_state_info["variables"] = {"prior_fixture": "preserved"}
+		var started: Dictionary = replay.begin(recorded.value.signature_id)
+		assert_true(started.ok, str(started))
+		if not started.ok: return
+		await _settle()
+		var texts := get_tree().get_nodes_in_group("dialogic_dialog_text")
+		assert_eq(texts.size(), 1)
+		if texts.size() != 1: return
+		assert_eq(texts[0].get_parsed_text(), "Replay tone sweet.")
+		assert_true(runtime.current_state_info.variables.Frozen.is_read_only())
+		assert_eq(runtime.current_state_info.variables.Frozen.context_source, "reached_signature")
+		for key: String in ["run_id", "attempt_id", "step_token", "prerequisite_receipt_ids"]:
+			assert_false(runtime.current_state_info.variables.Frozen.has(key))
+		bridge.call("_on_runtime_signal_event", {"kind": "effect_transaction", "transaction_id": "forbidden"})
+		if outcome == "cancelled":
+			assert_true(replay.close().ok)
+		else:
+			runtime.Text.skip_text_reveal()
+			await _settle()
+			runtime.Inputs.input_block_timer.stop()
+			runtime.Inputs.handle_input()
+		for frame in 60:
+			if not replay.is_playing() and not runtime.Styles.has_active_layout_node(): break
+			await get_tree().create_timer(0.05).timeout
+		assert_false(replay.is_playing())
+		assert_eq(runtime.current_state_info.variables, {"prior_fixture": "preserved"})
+		assert_true(completion.calls.is_empty())
+		assert_eq(profile.get_profile_snapshot(), profile_before)
+		assert_eq(run.capture_restore_state().value.backup, run_before)
 
 func test_frozen_context_drives_real_dtl_without_mutable_source_aliases() -> void:
 	_inject_frozen_context_prose()

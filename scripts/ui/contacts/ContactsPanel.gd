@@ -114,6 +114,9 @@ func set_projection(friend_id: String, entries: Array, unread: Dictionary, prima
 	var had_transcript_focus := transcript != null and transcript.has_focus()
 	selected_friend = friend_id
 	_entries = entries.duplicate(true)
+	for entry: Dictionary in _entries:
+		if entry.has("presentation"):
+			entry.presentation = preload("res://scripts/narrative/ContactsFrozenContext.gd").immutable_snapshot(entry.presentation)
 	_unread = unread.duplicate(true)
 	_primary = primary_locale
 	_secondary = secondary_locale
@@ -146,6 +149,13 @@ func _valid_projection(friend_id: String, entries: Array, unread: Dictionary, pr
 			return false
 		if not entry.get("outgoing") is bool or not entry.get("texts") is Dictionary:
 			return false
+		if entry.has("presentation"):
+			var presentation: Variant = entry.presentation
+			if not presentation is Dictionary: return false
+			var fields: Dictionary = presentation.get("fields", {})
+			var checked := preload("res://scripts/narrative/FrozenPresentationContext.gd").validate(str(fields.get("entry_id", "")), presentation)
+			if not checked.ok or fields.get("friend_id", friend_id) != friend_id \
+					or fields.get("target_participant_id", friend_id) != friend_id: return false
 		ids[entry.id] = true
 		for locale in [primary, secondary]:
 			if locale != "" and (not entry.texts.get(locale) is String or entry.texts[locale].is_empty()):
@@ -234,6 +244,7 @@ func _append_entry(entry: Dictionary, locales: Array) -> Label:
 	var first_label: Label
 	var margin := MarginContainer.new()
 	margin.set_meta("entry_id", entry.id)
+	if entry.has("presentation"): margin.set_meta("frozen_presentation", entry.presentation)
 	margin.add_theme_constant_override("margin_left", 56 if entry.outgoing else 24)
 	margin.add_theme_constant_override("margin_right", 24)
 	margin.add_theme_constant_override("margin_top", 24)

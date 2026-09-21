@@ -21,9 +21,13 @@ class_name HospitalScene
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const _PORT_METHODS: Array[String] = ["begin", "complete", "acknowledge_notice"]
 const _CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
+const _FROZEN_CONTEXT := preload("res://scripts/narrative/HospitalFrozenContext.gd")
 
 ## Pure projection of already validated Run receipts. A different day/source never supplies art.
 static func art_participants(contacts: Dictionary, context: Dictionary, committed_schedule: Dictionary = {}) -> Array[String]:
+	if context.has("presentation"):
+		var checked := _FROZEN_CONTEXT.validate(context)
+		return ["sylvia"] if checked.get("ok", false) and checked.value.presentation.fields.sylvia_eligible else []
 	if context.get("kind") != "hospital" or not context.get("source_entry_ids") is Array \
 			or not context.get("miss_receipt_ids") is Array or context.get("day") not in range(1, 8):
 		return []
@@ -67,10 +71,15 @@ var _presentation_command: Dictionary = {}
 
 func _ready() -> void:
 	if not is_presentation_configured(): return
-	var game: Node = get_node_or_null("/root/GameState")
-	var contacts: Dictionary = game.contacts if game != null and game.get("contacts") is Dictionary else {}
-	var schedule: Dictionary = game._canonical_committed_schedule() if game != null and game.has_method("_canonical_committed_schedule") else {}
-	var sylvia_present := art_participants(contacts, _presentation_command.get("context", {}), schedule) == ["sylvia"]
+	var context: Dictionary = _presentation_command.get("context", {})
+	var sylvia_present := false
+	if context.has("presentation"):
+		sylvia_present = art_participants({}, context) == ["sylvia"]
+	else:
+		var game: Node = get_node_or_null("/root/GameState")
+		var contacts: Dictionary = game.contacts if game != null and game.get("contacts") is Dictionary else {}
+		var schedule: Dictionary = game._canonical_committed_schedule() if game != null and game.has_method("_canonical_committed_schedule") else {}
+		sylvia_present = art_participants(contacts, context, schedule) == ["sylvia"]
 	var profile := get_node_or_null("/root/ProfileManager")
 	var localization := get_node_or_null("/root/LocalizationManager")
 	if profile != null and profile.has_signal("preference_changed"):
@@ -129,6 +138,9 @@ func configure_presentation(port: Object, presentation_command: Dictionary) -> D
 		return _fail(&"invalid_presentation_port", "the presentation port contract is incomplete")
 	if typeof(presentation_command) != TYPE_DICTIONARY or presentation_command.is_empty():
 		return _fail(&"invalid_presentation_command", "a presentation command is required")
+	if presentation_command.get("context") is Dictionary and presentation_command.context.has("presentation"):
+		var frozen := _FROZEN_CONTEXT.validate(presentation_command.context)
+		if not frozen.get("ok", false): return frozen
 	if _presentation_port != null and _presentation_port != port:
 		return _fail(&"presentation_port_already_configured",
 			"a configured scene never adopts a replacement port")

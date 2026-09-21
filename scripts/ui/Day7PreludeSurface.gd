@@ -89,7 +89,7 @@ func configure(card: Dictionary, acknowledge: Callable, locale: String = "en", p
 	var checked := _validate_card(card)
 	if not checked.ok: return checked
 	_configured = true
-	_card = card.duplicate(true)
+	_card = _detach_card(card)
 	_auto_allowed = allow_auto_advance
 	_reset_auto_delay()
 	_acknowledge = acknowledge
@@ -143,7 +143,7 @@ func present_card(card: Dictionary, allow_auto_advance: bool = false) -> Diction
 	if not _card.is_empty() and card.receipt.view_token == _card.receipt.view_token: return _fail("prelude_card_identity_mismatch")
 	_retire_input()
 	_pause_anchor.clear()
-	_card = card.duplicate(true)
+	_card = _detach_card(card)
 	_auto_allowed = allow_auto_advance
 	_reset_auto_delay()
 	_advance_retry = Callable()
@@ -154,7 +154,9 @@ func present_card(card: Dictionary, allow_auto_advance: bool = false) -> Diction
 	return {"ok": true}
 
 func get_presentation_history() -> Array[Dictionary]:
-	return _history.duplicate(true)
+	var cards: Array[Dictionary] = []
+	for card: Dictionary in _history: cards.append(_detach_card(card))
+	return cards
 
 ## Font selection follows this surface's profile without changing its card or Auto clock.
 func bind_typography_preferences(profile: Object) -> bool:
@@ -371,7 +373,7 @@ func _on_body_drawn(receipt: Dictionary) -> void:
 	if _presentation_receipts and not _beginning_is_visible(): return
 	_drawn = true
 	_reset_auto_delay()
-	_history.append(_card.duplicate(true))
+	_history.append(_detach_card(_card))
 	if _presentation_receipts:
 		# The renderer's acceptance is the witness. Save outside its draw callback;
 		# a retired or replaced source cannot admit this queued receipt afterward.
@@ -672,13 +674,25 @@ func _copy(index: int) -> String:
 	return COPY.get(_locale, COPY.en)[index]
 
 static func _validate_card(card: Dictionary) -> Dictionary:
-	if card.size() != 3 or not card.get("title") is String or not card.get("body") is String \
+	if card.size() != (4 if card.has("presentation") else 3) or not card.get("title") is String or not card.get("body") is String \
 		or not card.get("receipt") is Dictionary or card.title.is_empty() or card.body.is_empty():
 		return _fail("invalid_prelude_card")
 	var receipt: Dictionary = card.receipt
 	if not receipt.get("entry_id") is String or not receipt.get("view_token") is String \
 		or receipt.entry_id.is_empty() or receipt.view_token.is_empty(): return _fail("invalid_prelude_receipt")
+	if card.has("presentation"):
+		var checked := preload("res://scripts/narrative/FrozenPresentationContext.gd").validate(receipt.entry_id, card.presentation)
+		if not checked.ok: return checked
+		var fields: Dictionary = card.presentation.fields
+		if fields.entry_role == "echo_fallback" and fields.due_echoes != [{"echo_id": receipt.get("echo_id"),
+			"presentation_atom_id": receipt.get("presentation_atom_id")}]: return _fail("invalid_prelude_context")
 	return {"ok": true}
+
+static func _detach_card(card: Dictionary) -> Dictionary:
+	var detached := card.duplicate(true)
+	if detached.has("presentation"):
+		detached.presentation = preload("res://scripts/narrative/ContactsFrozenContext.gd").immutable_snapshot(detached.presentation)
+	return detached
 
 static func _fail(code: String) -> Dictionary:
 	return {"ok": false, "code": StringName(code)}

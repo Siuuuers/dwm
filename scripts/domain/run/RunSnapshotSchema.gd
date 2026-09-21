@@ -250,6 +250,10 @@ static func validate(snapshot: Dictionary) -> Dictionary:
 		candidate["applied_effect_transaction_ids"], candidate["applied_variable_transaction_ids"])
 	if receipts_error != "":
 		return _fail(&"invalid_command_receipts", receipts_error)
+	# Inspect the detached saved facts before any restore participant installs them.
+	# The staged v6 schema validates present caches; v7 will require completeness.
+	var frozen_check: Dictionary = preload("res://scripts/narrative/FrozenRunContext.gd").validate(candidate)
+	if not frozen_check.get("ok", false): return frozen_check
 	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
 
 ## Effect/variable command ledger only (dwm-p2r.8, Plan-05 Task 3). Ending/gallery receipt

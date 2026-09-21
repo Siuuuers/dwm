@@ -60,12 +60,10 @@ function Invoke-CheckedProcess {
         Set-Content -LiteralPath (Join-Path $output "$Name.console.log") -Value $text -Encoding utf8
         $engineLog = Join-Path $output "$Name.log"
         if (Test-Path -LiteralPath $engineLog) { $text += "`n" + (Get-Content -LiteralPath $engineLog -Raw) }
-        if ($timedOut) { throw "$Name exceeded $TimeoutSeconds seconds." }
-        if ($process.ExitCode -ne 0) { throw "$Name exited with $($process.ExitCode)." }
         $errorPattern = 'SCRIPT ERROR:|^\s*ERROR:|STARTUP_FAILED|Unicode parsing error|Unexpected NUL character'
         $engineErrors = @(($text -split '\r?\n') | Select-String -Pattern $errorPattern -Context 0,4)
-        if ($engineErrors.Count -ne 0) {
-            Write-Host "WINDOWS_EXPORT_PROCESS_ERRORS_BEGIN: $Name"
+        if ($timedOut -or $process.ExitCode -ne 0 -or $engineErrors.Count -ne 0) {
+            Write-Host "WINDOWS_EXPORT_PROCESS_ERRORS_BEGIN: $Name exit=$($process.ExitCode) timeout=$timedOut"
             foreach ($engineError in $engineErrors) {
                 Write-Host $engineError.Line
                 foreach ($contextLine in $engineError.Context.PostContext) { Write-Host $contextLine }
@@ -73,7 +71,13 @@ function Invoke-CheckedProcess {
             $resourcePaths = @(($text -split '\r?\n') | Where-Object { $_ -match 'Resource still in use:' } | Select-Object -Unique)
             Write-Host "WINDOWS_EXPORT_RETAINED_RESOURCE_COUNT: $($resourcePaths.Count)"
             foreach ($resourcePath in ($resourcePaths | Select-Object -First 80)) { Write-Host $resourcePath }
+            if ($engineErrors.Count -eq 0) {
+                # Native startup can fail before Godot emits a structured ERROR line.
+                foreach ($tailLine in (($text -split '\r?\n') | Select-Object -Last 40)) { Write-Host $tailLine }
+            }
             Write-Host "WINDOWS_EXPORT_PROCESS_ERRORS_END: $Name"
+            if ($timedOut) { throw "$Name exceeded $TimeoutSeconds seconds." }
+            if ($process.ExitCode -ne 0) { throw "$Name exited with $($process.ExitCode)." }
             throw "$Name reported an engine, script, data, or startup error; inspect its logs."
         }
         return $text
@@ -156,14 +160,20 @@ try {
     $engineLicenses = Join-Path $licenses 'Godot'
     New-Item -ItemType Directory -Force -Path $engineLicenses | Out-Null
 
-    # Run the exported release executable with its adjacent PCK and no source
-    # project, script override, test bootstrap, or pre-existing user state.
-    $null = Invoke-CheckedProcess $executable @('--headless', '--path', $package, '--max-fps', '60',
-        '--quit-after', '240', '--log-file', (Join-Path $output 'smoke.log')) 'smoke' $smokeUser 90
-    $profilePath = Join-Path $smokeUser 'appdata/Godot/app_userdata/DWM/profile.json'
-    if (-not (Test-Path -LiteralPath $profilePath -PathType Leaf)) { throw 'Exported startup did not create its isolated profile.' }
-    $null = Get-Content -LiteralPath $profilePath -Raw | ConvertFrom-Json
-
+    $validationFailures = [Collections.Generic.List[string]]::new()
+    try {
+        # Run the exported release executable with its adjacent PCK and no source
+        # project, script override, test bootstrap, or pre-existing user state.
+        $null = Invoke-CheckedProcess $executable @('--headless', '--verbose', '--path', $package, '--max-fps', '60',
+            '--quit-after', '240', '--log-file', (Join-Path $output 'smoke.log')) 'smoke' $smokeUser 90
+        $profilePath = Join-Path $smokeUser 'appdata/Godot/app_userdata/DWM/profile.json'
+        if (-not (Test-Path -LiteralPath $profilePath -PathType Leaf)) { throw 'Exported startup did not create its isolated profile.' }
+        $null = Get-Content -LiteralPath $profilePath -Raw | ConvertFrom-Json
+        $result.smoke = @{ executable = 'DWM.exe'; headless = $true; iterations = 240; isolated_profile_created = $true; ok = $true }
+    } catch {
+        $result.smoke = @{ ok = $false; failure = $_.Exception.Message }
+        $validationFailures.Add('Native startup: ' + $_.Exception.Message)
+    }
 
     # Audit the actual PCK using the editor's pack reader from outside the source
     # tree. Hash every runtime JSON/DTL/DCH to prove filters retained its bytes.
@@ -212,18 +222,23 @@ func _initialize() -> void:
 '@
     $probePath = Join-Path $work 'verify_pack.gd'
     Set-Content -LiteralPath $probePath -Value $probe -Encoding utf8NoBOM
-    $auditLog = Invoke-CheckedProcess $env:GODOT_CONSOLE_PATH @('--headless', '--verbose', '--path', $package,
-        '--main-pack', (Join-Path $package 'DWM.pck'), '--script', $probePath,
-        '--log-file', (Join-Path $output 'pack-audit.log'), '--', (Join-Path $work 'expected.json'), $engineLicenses) 'pack-audit' $exportUser
-    if ($auditLog -notmatch "WINDOWS_PACK_DATA_VERIFIED count=$($expected.Count)\b") { throw 'Pack audit did not report success.' }
-
+    try {
+        $auditLog = Invoke-CheckedProcess $env:GODOT_CONSOLE_PATH @('--headless', '--verbose', '--path', $package,
+            '--main-pack', (Join-Path $package 'DWM.pck'), '--script', $probePath,
+            '--log-file', (Join-Path $output 'pack-audit.log'), '--', (Join-Path $work 'expected.json'), $engineLicenses) 'pack-audit' $exportUser
+        if ($auditLog -notmatch "WINDOWS_PACK_DATA_VERIFIED count=$($expected.Count)\b") { throw 'Pack audit did not report success.' }
+        $result.pack_audit = @{ ok = $true; runtime_data_files_verified = $expected.Count }
+    } catch {
+        $result.pack_audit = @{ ok = $false; failure = $_.Exception.Message }
+        $validationFailures.Add('Pack audit: ' + $_.Exception.Message)
+    }
+    if ($validationFailures.Count -ne 0) { throw ($validationFailures -join '; ') }
 
     $files = @(Get-ChildItem -LiteralPath $package -Recurse -File | Sort-Object FullName | ForEach-Object {
         [ordered]@{ path = [IO.Path]::GetRelativePath($package, $_.FullName).Replace('\', '/')
             bytes = $_.Length; sha256 = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant() }
     })
     $result.runtime_data_files_verified = $expected.Count
-    $result.smoke = @{ executable = 'DWM.exe'; headless = $true; iterations = 240; isolated_profile_created = $true }
     $result.files = $files
     $result.ok = $true
     $result | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $package 'validation.json') -Encoding utf8
