@@ -41,7 +41,7 @@ func set_presentation(locale: String, percent: int, font_style: String = "pixel"
 	if not is_instance_valid(wordmark): return
 	wordmark.add_theme_font_override("font", TYPOGRAPHY.font("en", 100, font_style))
 	wordmark.add_theme_font_size_override("font_size", 144)
-	welcome.text = {"ja": "ようこそ！ :)", "ko": "환영해요! :)"}.get(_locale, "Welcome! :)")
+	welcome.text = {"zh-CN": "欢迎！ :)", "zh-HK": "歡迎！ :)", "ja": "ようこそ！ :)", "ko": "환영해요! :)"}.get(_locale, "Welcome! :)")
 	welcome.add_theme_font_override("font", TYPOGRAPHY.font(_locale, percent, font_style))
 	welcome.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(_locale, percent, 32, font_style))
 	status.add_theme_font_override("font", TYPOGRAPHY.font(_locale, percent, font_style))

@@ -234,7 +234,6 @@ func _build() -> void:
 		_portrait_slots.append(slot)
 		_portraits.append(_texture_rect("PortraitLeft" if index == 0 else "PortraitRight", TextureRect.STRETCH_KEEP_ASPECT_CENTERED))
 	_cg = _texture_rect("EndingCG", TextureRect.STRETCH_KEEP_ASPECT_CENTERED)
-	_split.set_handle_accessibility("Resize portrait panel", "Drag horizontally or use Left and Right arrow keys")
 	_split.split_changed.connect(_on_split_changed)
 	_split.width_committed.connect(_on_split_width_committed)
 	_split.drag_changed.connect(func(active: bool): split_drag_changed.emit(active))

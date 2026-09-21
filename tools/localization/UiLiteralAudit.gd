@@ -13,16 +13,24 @@ const VALID_DISPOSITIONS := ["localized_binding", "localized_call", "runtime_dat
 ## Exact dormant scene values with a current, inspectable presenter. Including the literal in the
 ## key prevents changed copy from silently inheriting an obsolete disposition.
 const SCENE_LITERAL_OWNERS := {
-	"res://scenes/desktop/ComputerDesktop.tscn|NotificationLayer/MinesweeperMessageNotification/NotifContent/NotificationTitle|text|New message": {
+	"res://scenes/desktop/ComputerDesktop.tscn|DesktopCanvas/NotificationLayer/MinesweeperMessageNotification/NotifContent/NotificationTitle|text|New message": {
 		"disposition": "localized_call", "key": "desktop.notification.new_message_title",
 		"reason": "ComputerDesktop catalogs the hidden notification before show",
 		"owner_path": "res://scripts/ui/ComputerDesktop.gd",
 		"markers": ['notification_title.text = _localization.t("desktop.notification.new_message_title")', "message_notification.show()"]},
-	"res://scenes/desktop/ComputerDesktop.tscn|NotificationLayer/MinesweeperMessageNotification/NotifContent/NotificationBody|text|Angela received a new message.": {
+	"res://scenes/desktop/ComputerDesktop.tscn|DesktopCanvas/NotificationLayer/MinesweeperMessageNotification/NotifContent/NotificationBody|text|Angela received a new message.": {
 		"disposition": "localized_call", "key": "desktop.notification.new_message_from_friend",
 		"reason": "ComputerDesktop catalogs the hidden notification before show",
 		"owner_path": "res://scripts/ui/ComputerDesktop.gd",
 		"markers": ['notification_body.text = _localization.t("desktop.notification.new_message_from_friend"', "message_notification.show()"]},
+	"res://scenes/desktop/ComputerDesktop.tscn|DesktopCanvas/DeliveryNotice/DeliveryCaption|text|delivering.": {
+		"disposition": "runtime_data", "key": "", "reason": "hidden delivery initializer replaced by the localized stage caption before show",
+		"owner_path": "res://scripts/ui/ComputerDesktop.gd",
+		"markers": ["_refresh_delivery_caption()\n\tdelivery_notice.modulate.a = 1.0\n\tdelivery_notice.show()"]},
+	"res://scenes/menu/GalleryScene.tscn|GalleryHost/ReplayButton|text|Replay": {
+		"disposition": "localized_call", "key": "gallery.replay", "reason": "Gallery refreshes the Replay or Retry caption from the catalog before its first draw",
+		"owner_path": "res://scripts/ui/GalleryScene.gd",
+		"markers": ['_replay_button.text = _localized("gallery.retry" if not _retry_signature_id.is_empty() else "gallery.replay")', "_refresh_replay_caption()"]},
 	"res://scenes/hospital/HospitalScene.tscn|FaintNotice/Margin/Content/Message|text|You fainted.": {
 		"disposition": "runtime_data", "key": "",
 		"reason": "HospitalScene replaces the dormant hidden notice from its five-locale presentation table",
@@ -80,42 +88,49 @@ const SCRIPT_LITERAL_OWNERS := {
 		"key": "desktop.notification.new_message_from_friend", "reason": "English fallback for the adjacent catalog lookup",
 		"marker": 'notification_body.text = _localization.t("desktop.notification.new_message_from_friend"'},
 	"res://scripts/ui/desktop/TitleWelcome.gd|text|\"DWM\"": {"disposition": "decorative", "key": "", "reason": "product mark"},
-	"res://scripts/ui/desktop/TitleWelcome.gd|text|\"Welcome! :)\"": {"disposition": "decorative", "key": "", "reason": "fixed title brand line required verbatim by current UI authority"},
-	"res://scripts/ui/GalleryScene.gd|text|\"\\u7df4\\u7fd2\" if locale.replace(\"_\", \"-\") == \"zh-HK\" else (\"\\u7ec3\\u4e60\" if locale.begins_with(\"zh\") else \"Practice\")": {
-		"disposition": "localized_call", "key": "GalleryScene.practice.inline", "reason": "explicit English and both Chinese projections"},
-	"res://scripts/ui/GalleryScene.gd|add_item|(\"版本 %d\" if locale.begins_with(\"zh\") else \"Version %d\") % (index + 1))": {
-		"disposition": "localized_call", "key": "GalleryScene.version.inline", "reason": "explicit English and shared Chinese projection"},
+	"res://scripts/ui/desktop/TitleWelcome.gd|text|\"Welcome! :)\"": {"disposition": "runtime_data", "key": "", "reason": "initial label replaced by the five-locale presentation before first draw", "marker": "set_presentation(_locale, 100)"},
 	"res://scripts/ui/HospitalScene.gd|text|{\"en\": \"You fainted.\", \"zh-CN\": \"你晕倒了。\", \"zh-HK\": \"你暈倒了。\", \"ja\": \"気を失いました。\", \"ko\": \"정신을 잃었습니다.\"}[locale]": {
 		"disposition": "localized_call", "key": "HospitalScene.message.inline", "reason": "exact five-locale Hospital projection"},
 	"res://scripts/ui/HospitalScene.gd|text|{\"en\": \"Continue\", \"zh-CN\": \"继续\", \"zh-HK\": \"繼續\", \"ja\": \"続ける\", \"ko\": \"계속\"}[locale]": {
 		"disposition": "localized_call", "key": "HospitalScene.continue.inline", "reason": "exact five-locale Hospital projection"},
+	"res://scripts/ui/desktop/DesktopLauncherButton.gd|text|\"Mine\\nsweeper\"": {"disposition": "runtime_data", "key": "", "reason": "English-only line wrapping of the supplied localized caption; accessibility keeps its unbroken value", "marker": "if value == \"Minesweeper\" and caption.get_theme_font(\"font\").get_string_size(value,\n\t\t\tHORIZONTAL_ALIGNMENT_LEFT, -1, caption.get_theme_font_size(\"font_size\")).x > caption.size.x:"},
+	"res://scripts/ui/minesweeper/MinesweeperWorksheet.gd|add_item|str(pixels) + \" px\", pixels)": {"disposition": "runtime_data", "key": "", "reason": "numeric cell size with the invariant pixel unit; the menu has a separate localized accessible label", "marker": "cell_size_menu.accessibility_name = VIEW_COPY[_locale][1]"},
 }
 
 ## Exact expression digests keep component-owned locale tables reviewable without granting a
 ## general exemption to any expression that happens to contain locale names.
 const SCRIPT_EXPRESSION_OWNERS := {
-	"res://scripts/ui/ComputerDesktop.gd|text|7b1f861b7d8a5f75a97cad819f510ed4ad13adc64754f6459f7b95ccdf599ab8": {"key": "ComputerDesktop.launcher.inline", "reason": "exact localized launcher label with complete three-locale unavailable fallback"},
-	"res://scripts/ui/ComputerDesktop.gd|accessibility_name|1c2117f764f304b74d023b945e3a86e66d53b2b7dc26a38bddc55776f981ea17": {"key": "ComputerDesktop.local_time.inline", "reason": "exact three-locale local-time label"},
-	"res://scripts/ui/ComputerDesktop.gd|text|15a5427cd300c95fddb2bbdc872b6735e0b4680dd4006db5d3eace9ef45ea0b2": {"key": "ComputerDesktop.unavailable.inline", "reason": "exact three-locale unavailable status"},
-	"res://scripts/ui/ComputerDesktop.gd|accessibility_name|52c0617d8a7c2ec41f50e0da0f47fd2fd4666aaabad54ca5f245e5f74a766ca5": {"key": "ComputerDesktop.unread.inline", "reason": "exact three-locale unread accessibility suffix"},
-	"res://scripts/ui/ComputerDesktop.gd|accessibility_description|602b33f9d12df877dcfead78497301a74199f1316c973ae08cffa7a202dbcb53": {"key": "ComputerDesktop.time_unavailable.inline", "reason": "exact three-locale clock availability description"},
-	"res://scripts/ui/ContactListApp.gd|text|88268794607df1839e375e9779a22a6f4a505c306b332e4c2dd03d43f1a2abe3": {"key": "ContactListApp.title.inline", "reason": "exact three-locale Contacts title"},
-	"res://scripts/ui/ContactListApp.gd|accessibility_name|296c8b33851da4c172df8087c04e08b3604098f0b3eec1f5c70c6e51cb75a3e7": {"key": "ContactListApp.back.inline", "reason": "exact three-locale back label"},
-	"res://scripts/ui/ContactListApp.gd|text|ed708873309db354445be81a1104d5b21b6aeff4dbffc91c62a070f7641911d6": {"key": "ContactListApp.unavailable.inline", "reason": "exact three-locale unavailable status"},
-	"res://scripts/ui/ContactListApp.gd|text|6ee54144674bebdc62c81f74b3dc9f4c95cd9c782d32bd011cedff4d8a46d27f": {"key": "ContactListApp.reply.inline", "reason": "exact three-locale Reply control"},
-	"res://scripts/ui/ContactListApp.gd|text|69fa4a662c542ebc0f4c573a11aadfa768e62c75964e644530f58637be6ab19c": {"key": "ContactListApp.failure.inline", "reason": "exact three-locale reply failure"},
-	"res://scripts/ui/LogOutApp.gd|text|398d77227e83e0b9a74652c53dadc255e97fe6519cd36b279d96bfca3a664ef8": {"key": "LogOutApp.prompt.inline", "reason": "exact three-locale logout prompt"},
-	"res://scripts/ui/LogOutApp.gd|text|e2379bcc62ed1dce475ed6566a0e2ae540e3f5be3d906aec2c4eaf10d861e2bf": {"key": "LogOutApp.failure.inline", "reason": "exact three-locale logout failure"},
-	"res://scripts/ui/MenuScene.gd|accessibility_name|d64daaa57285e651f898f2ef57e395b750530598561a9ebc9354383e4eafbaf6": {"key": "MenuScene.return.inline", "reason": "exact three-locale Return projection"},
-	"res://scripts/ui/MenuScene.gd|text|f821301dd49e52a83e6763d0f48b0dacf0fe41bb7bf943525e6e95d613008c87": {"key": "MenuScene.unavailable.inline", "reason": "exact three-locale unavailable projection"},
+	"res://scripts/ui/ComputerDesktop.gd|text|8430a485cab6df7fed0e8ee884372956dad0bc4415f7aec12594bfe4acb58bd8": {"key": "ComputerDesktop.launcher.inline", "reason": "exact five-locale launcher label and unavailable fallback"},
+	"res://scripts/ui/ComputerDesktop.gd|accessibility_name|bb0b77d6035e06ce98e92d2a75870d80cfa834bbb4627b7df21c87e20b04e094": {"key": "ComputerDesktop.local_time.inline", "reason": "exact five-locale local-time label"},
+	"res://scripts/ui/ComputerDesktop.gd|text|a2bc83fc17b93b8751b921a8fbdcc62d5cb0f9232c546927b70b6228ac42cec9": {"key": "ComputerDesktop.unavailable.inline", "reason": "exact five-locale unavailable status"},
+	"res://scripts/ui/ComputerDesktop.gd|accessibility_name|2ecb3f5b2a47a0495a32a7956ce8f96444568b0791e93a04ab4bdcb9b6b71df1": {"key": "ComputerDesktop.unread.inline", "reason": "exact five-locale unread accessibility suffix"},
+	"res://scripts/ui/ComputerDesktop.gd|accessibility_description|b9b2ca4e48d3129f8fca4d0c31d20836e838fa19845b4ebe4c3307bd277c2aeb": {"key": "ComputerDesktop.time_unavailable.inline", "reason": "exact five-locale clock availability description"},
+	"res://scripts/ui/ContactListApp.gd|text|c2114cbca8b224c522d0d99c19be2f39ddaae51ceb12faa742ab426247443f78": {"key": "ContactListApp.title.inline", "reason": "exact five-locale Contacts title"},
+	"res://scripts/ui/ContactListApp.gd|accessibility_name|6ea3914762e2a8a2d489300ff8cd62f82a3594a8843e916eff381e6e37e9c7a3": {"key": "ContactListApp.back.inline", "reason": "exact five-locale back label"},
+	"res://scripts/ui/ContactListApp.gd|text|4f886814c95d889987571a7fa00139fcd0b29e1ea6d17a2b3dc1c81855a657d9": {"key": "ContactListApp.unavailable.inline", "reason": "exact five-locale unavailable status"},
+	"res://scripts/ui/ContactListApp.gd|text|7a09fd68c19e8573416dce17ffb9ad6526316dc6f90ed20f3785b90041b841f5": {"key": "ContactListApp.reply.inline", "reason": "exact five-locale Reply control"},
+	"res://scripts/ui/ContactListApp.gd|text|0b61ddbf34775e4b381910ac7b828afa5a693d20f391e2234951fe32f026ae50": {"key": "ContactListApp.failure.inline", "reason": "exact five-locale reply failure"},
+	"res://scripts/ui/LogOutApp.gd|text|d28930b9f4337db1435dd9223a4e2b3bb27815320c800ea14d07102f5a9d61cd": {"key": "LogOutApp.prompt.inline", "reason": "exact five-locale logout prompt"},
+	"res://scripts/ui/LogOutApp.gd|text|179901d02594c411921a0f552748c492d47d8c8d2777f7060f5febd56130d9f2": {"key": "LogOutApp.failure.inline", "reason": "exact five-locale logout failure"},
+	"res://scripts/ui/MenuScene.gd|accessibility_name|fc2ccbb45adbff45cc08a8114b5a68797a46df59669e0c5f91fa7feeaa9a796b": {"key": "MenuScene.return.inline", "reason": "exact five-locale Return projection"},
+	"res://scripts/ui/MenuScene.gd|text|7f53f5f8ba26b4d80d2b1cb0cf6ac3b4ce601a0e8aff33bbfff4c800d4001119": {"key": "MenuScene.unavailable.inline", "reason": "exact five-locale unavailable projection"},
 	"res://scripts/ui/MenuScene.gd|text|4681aad1314c04a7d1b9d28f4a9048e586270a11c861d79ed8d6ade3a0014504": {"key": "dynamic", "reason": "exact catalog lookup with matching English fail-closed menu labels"},
 	"res://scripts/ui/minesweeper/MinesweeperScrollRail.gd|accessibility_name|83f1428a93f2041ec5409af4a75dcdacf349024b16869a0033d20910f120be84": {"key": "MinesweeperScrollRail.name.inline", "reason": "exact Simplified Chinese branch of the three-locale scroll projection", "group": "scroll"},
 	"res://scripts/ui/minesweeper/MinesweeperScrollRail.gd|accessibility_description|6dd7175fb4e6ea843a2a8fc107b3b42c51ed44146f7ff2b5ebd9d5d862fadb94": {"key": "MinesweeperScrollRail.position.inline", "reason": "exact shared Chinese branch of the three-locale scroll projection", "group": "scroll"},
 	"res://scripts/ui/minesweeper/MinesweeperScrollRail.gd|accessibility_name|a6a49202e2b131662916bf536b35bb6561fd69744bbdf0550e9ebf86c3cafdbf": {"key": "MinesweeperScrollRail.name.inline", "reason": "exact Traditional Chinese branch of the three-locale scroll projection", "group": "scroll"},
 	"res://scripts/ui/minesweeper/MinesweeperScrollRail.gd|accessibility_name|d66da7d74b497a8bc139186b0c0a875ff137c14432d7efdcdefb4ceba4f7371d": {"key": "MinesweeperScrollRail.name.inline", "reason": "exact English branch of the three-locale scroll projection", "group": "scroll"},
 	"res://scripts/ui/minesweeper/MinesweeperScrollRail.gd|accessibility_description|f903b033daa374eb58b1260edd1a2d8f272e578a13a536418ca5b4bc1dca0bf2": {"key": "MinesweeperScrollRail.position.inline", "reason": "exact English branch of the three-locale scroll projection", "group": "scroll"},
-	"res://scripts/ui/witnessed/SceneArtHoldSurface.gd|text|e801ceb24e8ac1a3d5bbe9e357fb8176c25abc77959436fe6b7a9d4429b755e4": {"key": "SceneArtHoldSurface.continue.inline", "reason": "exact three-locale Continue projection"},
+	"res://scripts/ui/witnessed/SceneArtHoldSurface.gd|text|83561c9f5ab0298c37abe120050122aae7b7c879631728d8c61d4e3373462c14": {"key": "SceneArtHoldSurface.continue.inline", "reason": "exact five-locale Continue projection"},
 	"res://scripts/ui/DatingScene.gd|text|bff246e7d990bb1b0c821baf376c255284c95b50393e025236c4e9be876fdcee": {"key": "MinesweeperChromeCopy.rules.inline", "reason": "exact Rules fallback backed by the complete three-locale chrome table", "group": "chrome_rules"},
+	"res://scripts/ui/GalleryScene.gd|text|e5df4ccee93beaf29175e29ebcef126d7c4c26f18a9e7389d16e9af219f7e725": {"key": "GalleryScene.practice.inline", "reason": "exact five-locale Practice caption"},
+	"res://scripts/ui/GalleryScene.gd|add_item|109ef00e3710dd39f76996ddd84bed6cd768befe8e0d1372b7163019b3d453a4": {"key": "GalleryScene.version.inline", "reason": "exact five-locale version caption"},
+	"res://scripts/ui/minesweeper/MinesweeperScrollRail.gd|accessibility_name|92290e40e734d4fb146ed395e523c481bee85c792b65899367b1cdd2c8a0ce98": {"key": "MinesweeperScrollRail.name.inline", "reason": "exact Japanese branch of the five-locale scroll projection", "group": "scroll"},
+	"res://scripts/ui/minesweeper/MinesweeperScrollRail.gd|accessibility_description|dbeef4aefcdce6c353f753a59b35b7d7bddf0c749d955ad8a9aaa91c62b994d1": {"key": "MinesweeperScrollRail.position.inline", "reason": "exact Japanese branch of the five-locale scroll projection", "group": "scroll"},
+	"res://scripts/ui/minesweeper/MinesweeperScrollRail.gd|accessibility_name|989486ebcea4820f555bd3a9536945923d60035d5c0a8b829d806751b27f5aad": {"key": "MinesweeperScrollRail.name.inline", "reason": "exact Korean branch of the five-locale scroll projection", "group": "scroll"},
+	"res://scripts/ui/minesweeper/MinesweeperScrollRail.gd|accessibility_description|bb1cf70f65f0706e9509841e30cb2ee2572aa31caabbba2336436f1ba747afb4": {"key": "MinesweeperScrollRail.position.inline", "reason": "exact Korean branch of the five-locale scroll projection", "group": "scroll"},
+	"res://scripts/ui/ComputerDesktop.gd|text|9974a83b9a4c20ba322e8ad75441fa8eef97ddd72c4f8e129a75c6d7f032a037": {"key": "ComputerDesktop.delivered.inline", "reason": "exact English fallback and four translated locale projections"},
+	"res://scripts/ui/ComputerDesktop.gd|text|a352a79534af992328560ab4bfa2e0190692458609dc2f9b157e8d5689919ec5": {"key": "ComputerDesktop.delivering.inline", "reason": "exact English fallback and four translated locale projections"},
+	"res://scripts/ui/desktop/TitleWelcome.gd|text|0787a2c453729d1fbad817a0290fcc59e7b60b09929788af61fda1df267a1eed": {"key": "TitleWelcome.welcome.inline", "reason": "exact English fallback and four translated locale projections"},
 }
 
 
@@ -541,7 +556,11 @@ static func _scroll_locale_group_is_complete(source: String) -> bool:
 	for marker in ['accessibility_name = "垂直滚动" if vertical else "水平滚动"',
 		'accessibility_name = "垂直捲動" if vertical else "水平捲動"',
 		'accessibility_name = "Vertical scroll" if vertical else "Horizontal scroll"',
+		'accessibility_name = "縦スクロール" if vertical else "横スクロール"',
+		'accessibility_name = "세로 스크롤" if vertical else "가로 스크롤"',
 		'accessibility_description = "位置%d，共%d" % [value,maximum]',
+		'accessibility_description = "位置 %d / %d" % [value,maximum]',
+		'accessibility_description = "위치 %d / %d" % [value,maximum]',
 		'accessibility_description = "Position %d of %d" % [value,maximum]']:
 		if not _source_contains_code_marker(source, marker):
 			return false

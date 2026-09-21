@@ -95,6 +95,7 @@ $suites = @{
         'tests/unit/test_temporary_storage.gd'
         'tests/unit/test_save_document_schema.gd'
         'tests/unit/test_run_snapshot_schema.gd'
+        'tests/unit/tooling/test_phase2r_closeout_sentinel.gd'
     )
     reading_delivery = @(
         'tests/unit/test_minesweeper_delivery_notice.gd'

@@ -11,6 +11,13 @@ const MIN_COMPUTER_WIDTH := 800.0
 const HANDLE_SIZE := Vector2(64, 64)
 const WIDTH_STEP := 2.0
 const KEYBOARD_STEP := 16.0
+const HANDLE_ACCESSIBILITY_COPY := {
+	"en": ["Resize panels", "Drag horizontally. Left/Right adjust width; Home/End use the minimum/maximum."],
+	"zh-CN": ["调整面板大小", "横向拖动。左右键调整宽度，Home/End 键设为最小/最大。"],
+	"zh-HK": ["調整面板大小", "橫向拖動。左右鍵調整寬度，Home/End 鍵設為最小/最大。"],
+	"ja": ["パネルのサイズ変更", "左右にドラッグ。左右キーで幅を調整、Home/End で最小/最大にします。"],
+	"ko": ["패널 크기 조절", "가로로 드래그하세요. 좌우 키로 너비를 조절하고 Home/End로 최소/최대 크기를 설정하세요."],
+}
 
 
 class SplitDragHandle extends Control:
@@ -50,11 +57,16 @@ var maximum_first_width := MAX_ANGELA_WIDTH
 var minimum_second_width := MIN_COMPUTER_WIDTH
 var width_step := WIDTH_STEP
 var _input_admission: Callable
+var _custom_handle_accessibility := false
 
 
 func _ready() -> void:
 	child_entered_tree.connect(_on_child_entered_tree)
 	_ensure_handle()
+	var localization := get_node_or_null("/root/LocalizationManager")
+	if localization != null:
+		localization.locale_changed.connect(_refresh_handle_accessibility)
+		_refresh_handle_accessibility(str(localization.get_locale()))
 	set_process(_input_admission.is_valid())
 	queue_sort()
 
@@ -149,8 +161,16 @@ func get_angela_width() -> float:
 
 func set_handle_accessibility(name: String, description: String) -> void:
 	_ensure_handle()
+	_custom_handle_accessibility = true
 	_handle.accessibility_name = name
 	_handle.accessibility_description = description
+
+
+func _refresh_handle_accessibility(locale_id: String) -> void:
+	if _custom_handle_accessibility: return
+	var copy: Array = HANDLE_ACCESSIBILITY_COPY.get(locale_id, HANDLE_ACCESSIBILITY_COPY["en"])
+	_handle.accessibility_name = copy[0]
+	_handle.accessibility_description = copy[1]
 
 
 func _ensure_handle() -> void:
@@ -161,8 +181,7 @@ func _ensure_handle() -> void:
 	_handle.custom_minimum_size = HANDLE_SIZE
 	_handle.focus_mode = Control.FOCUS_ALL
 	_handle.mouse_default_cursor_shape = Control.CURSOR_HSIZE
-	_handle.accessibility_name = "Resize Angela panel"
-	_handle.accessibility_description = "Drag horizontally or use Left and Right arrow keys"
+	_refresh_handle_accessibility("en")
 	_handle.gui_input.connect(_on_handle_gui_input)
 	add_child(_handle)
 	move_child(_handle, get_child_count() - 1)

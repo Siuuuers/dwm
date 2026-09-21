@@ -333,6 +333,17 @@ func test_dating_copy_has_concrete_five_locale_ownership() -> void:
 		assert_eq(rejected.get("code"), &"unclassified_script_literal")
 
 
+func test_notification_copy_exists_in_all_five_catalogs_with_the_friend_parameter() -> void:
+	for locale: String in ["en", "zh_CN", "zh_HK", "ja", "ko"]:
+		var catalog: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://localization/ui/%s.json" % locale))
+		var translated := ""
+		for message: Dictionary in catalog.messages:
+			if message.id == "desktop.notification.new_message_from_friend":
+				translated = message.text
+		assert_false(translated.is_empty(), locale)
+		assert_eq(translated.count("{friend_name}"), 1, locale)
+
+
 func test_dating_copy_rejects_unknown_phrases_untranslated_siblings_and_spoofed_helpers() -> void:
 	var path := "res://scripts/ui/DatingScene.gd"
 	var source := FileAccess.get_file_as_string(path)

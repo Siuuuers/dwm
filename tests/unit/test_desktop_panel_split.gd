@@ -228,7 +228,7 @@ func test_app_control_near_the_seam_remains_clickable() -> void:
 func test_focused_affordance_supports_bounded_keyboard_adjustment() -> void:
 	var handle := _split.get_node("SplitDragHandle") as Control
 	assert_eq(handle.focus_mode, Control.FOCUS_ALL)
-	assert_eq(handle.accessibility_name, "Resize Angela panel")
+	assert_eq(handle.accessibility_name, "Resize panels")
 	_split.set_handle_accessibility("调整安吉拉面板", "左右拖动或使用方向键")
 	assert_eq(handle.accessibility_name, "调整安吉拉面板")
 	assert_eq(handle.accessibility_description, "左右拖动或使用方向键")
@@ -249,6 +249,41 @@ func test_focused_affordance_supports_bounded_keyboard_adjustment() -> void:
 	assert_true(handle.has_focus())
 	assert_true(_key(KEY_END))
 	assert_eq(_commits, [464.0, 320.0, 336.0, 480.0], "bounded no-op does not add a keyboard commit")
+
+
+func test_shared_accessibility_retranslates_on_locale_changes_without_resizing() -> void:
+	var localization := get_node_or_null("/root/LocalizationManager")
+	assert_not_null(localization)
+	if localization == null: return
+	var original_locale: String = localization.get_locale()
+	var handle := _split.get_node("SplitDragHandle") as Control
+	var copy := {
+		"en": ["Resize panels", "Drag horizontally. Left/Right adjust width; Home/End use the minimum/maximum."],
+		"zh-CN": ["调整面板大小", "横向拖动。左右键调整宽度，Home/End 键设为最小/最大。"],
+		"zh-HK": ["調整面板大小", "橫向拖動。左右鍵調整寬度，Home/End 鍵設為最小/最大。"],
+		"ja": ["パネルのサイズ変更", "左右にドラッグ。左右キーで幅を調整、Home/End で最小/最大にします。"],
+		"ko": ["패널 크기 조절", "가로로 드래그하세요. 좌우 키로 너비를 조절하고 Home/End로 최소/최대 크기를 설정하세요."],
+	}
+	_split.set_angela_width(400)
+	for locale: String in copy:
+		localization.locale_changed.emit(locale)
+		assert_eq(handle.accessibility_name, copy[locale][0], locale)
+		assert_eq(handle.accessibility_description, copy[locale][1], locale)
+		assert_eq(_split.get_angela_width(), 400.0, "translation cannot resize either panel")
+	assert_true(_commits.is_empty(), "translation cannot save a width preference")
+	localization.locale_changed.emit(original_locale)
+
+
+func test_explicit_owner_accessibility_is_not_replaced_by_shared_locale_copy() -> void:
+	var localization := get_node_or_null("/root/LocalizationManager")
+	assert_not_null(localization)
+	if localization == null: return
+	var handle := _split.get_node("SplitDragHandle") as Control
+	_split.set_handle_accessibility("調整安吉拉面板大小", "橫向拖動。")
+	localization.locale_changed.emit("ja")
+	assert_eq(handle.accessibility_name, "調整安吉拉面板大小")
+	assert_eq(handle.accessibility_description, "橫向拖動。")
+	localization.locale_changed.emit(str(localization.get_locale()))
 
 
 func test_touch_drag_commits_on_release_and_cancellation_discards_preview() -> void:
