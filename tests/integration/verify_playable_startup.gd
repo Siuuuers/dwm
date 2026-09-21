@@ -5,6 +5,23 @@ var _first_day_board_identity: Dictionary = {}
 var _ordinary_reply_receipt: Dictionary = {}
 
 
+func _continue_drawn_art_if_ready() -> void:
+	var view: Node = root.get_node("DialogicBridge").get_art_hold_view()
+	if view == null or not view.has_drawn_art() or view.next_button.disabled: return
+	# Ending artwork retains its own real Continue. Dating has no routine card.
+	view.next_button.pressed.emit()
+
+
+func _wait_for_dating_board(dating: Node) -> bool:
+	for frame: int in 180:
+		if not is_instance_valid(dating): return _check(false, "Dating scene vanished before its board")
+		if dating.get("_physical_view").get("phase") == "challenge":
+			return _check(not dating.get("_continue_button").visible and not dating.get("_special_mine_button").visible,
+				"automatic Dating board exposes no retired confirmation or special-mine choice")
+		await process_frame
+	return _check(false, "empty semantic pre-DTL did not automatically enter the challenge")
+
+
 # Test-only failure wrapper; all other prepare/commit work stays on the real checkpoint port.
 class FailOneHospitalCheckpoint extends RefCounted:
 	var target: Object
@@ -343,6 +360,7 @@ func _logout_journey(game: Node) -> void:
 
 func _dating_journey(game: Node, desktop: Node) -> void:
 	var date_day: int = game.day
+	var reached_before: Dictionary = root.get_node("ProfileManager").get_profile_snapshot().reached_presentations.duplicate(true)
 	var friend_id := "lavinia" if "--probe-observer-lavinia" in OS.get_cmdline_user_args() else "priscilla"
 	var invitation_id := "solo:%s:day%d" % [friend_id, date_day]
 	# Day-2 Observer scenes follow their real per-round invitation unlocks.
@@ -401,8 +419,7 @@ func _dating_journey(game: Node, desktop: Node) -> void:
 	if "--probe-dating-debug" in OS.get_cmdline_user_args() or "--probe-dating-marked" in OS.get_cmdline_user_args():
 		await preload("res://tests/integration/PlayableDatingCapabilityProbe.gd").new().run(self, game, dating, "--probe-dating-debug" in OS.get_cmdline_user_args())
 		return
-	dating.get("_continue_button").pressed.emit()
-	if not _check(dating.get("_physical_view").phase == "challenge", "Continue starts challenge"): return
+	if not await _wait_for_dating_board(dating): return
 	dating.worksheet.cell_action_requested.emit(&"reveal", 0, int(dating.get("_physical_view").board.revision))
 	var record: Dictionary = game.capture_dating_challenge_state().value
 	if not _check(record.board != null, "first reveal generated a canonical date board"): return
@@ -437,14 +454,14 @@ func _dating_journey(game: Node, desktop: Node) -> void:
 	# The fixture chooses a hidden mine; the real worksheet/owner determines and persists its result.
 	dating.worksheet.cell_action_requested.emit(&"reveal", int(record.board.mine_indices[0]),
 		int(dating.get("_physical_view").board.revision))
-	if not _check(dating.get("_physical_view").phase == "post_challenge",
-		"Dating outcome visible: " + str(dating.get("_status_label").text)): return
-	for frame: int in 24:
+	# Terminal cells paint before settlement; empty post-DTL may retire this scene.
+	# Observe the durable day/route rather than calling the removed Done control.
+	for frame: int in 240:
+		if game.day == date_day + 1 and current_scene != null \
+				and current_scene.find_child("ComputerDesktop", true, false) != null: break
 		await process_frame
-		if dating.get("_post_challenge_reached"): break
-	if not _check(bool(dating.get("_post_challenge_reached")), "actual post-result draw records its reached presentation"): return
-	dating.get("_continue_button").pressed.emit()
-	await _frames()
+	if not _check(root.get_node("ProfileManager").get_profile_snapshot().reached_presentations == reached_before,
+		"empty pre/post DTL adds no fabricated witnessed Gallery signature"): return
 	if not _check(game.day == date_day + 1, "Dating outcome advances exactly one day: " + JSON.stringify(
 		root.get_node("ApplicationBootstrap").get("_retained_schedule_done_dispatcher").get_last_dispatch_result())): return
 	if not _check(current_scene.find_child("ComputerDesktop", true, false) != null, "Dating returns to desktop"): return
@@ -458,34 +475,14 @@ func _dating_journey(game: Node, desktop: Node) -> void:
 
 
 func _observer_scene_journey(game: Node, dating: Node, friend_id: String) -> bool:
-	var profile: Node = root.get_node("ProfileManager")
-	if not _check(game.day == 2 and not dating.get("_observer_view").is_empty(), "Day 2 has the registered Observer scene moment"): return false
-	# A real rendered source and actual focused window are required by the production UI.
-	dating.get_window().grab_focus()
-	var deadline := Time.get_ticks_msec() + 5000
-	while not dating.get("_observer_rendered") and Time.get_ticks_msec() < deadline:
-		await process_frame
-	if not _check(dating.get("_observer_rendered"), "Observer source rendered in the focused player window"): return false
-	if friend_id == "priscilla":
-		var line: Control = dating.find_child("PreviousSceneLine", true, false)
-		if not _check(line != null, "Capture source line is present"): return false
-		line.grab_focus()
-		await _frames()
-		var capture: Button = dating.get("_observer_action")
-		if not _check(capture.is_visible_in_tree() and not capture.disabled, "keyboard focus reveals actionable Capture"): return false
-		await _capture_screen("10-observer-capture")
-		capture.pressed.emit()
-		if not _check(dating.get("_observer_view").captured, "actual Capture button persists its source receipt"): return false
-		var evidence: Dictionary = profile.get_observer_evidence().value
-		if not _check(evidence.receipts.size() == 1 and not evidence.by_scope.priscilla, "a capture alone does not fabricate cross-run verification"): return false
-	else:
-		await _capture_screen("10-observer-cup")
-		deadline = Time.get_ticks_msec() + 25000
-		while not dating.get("_observer_view").closed and Time.get_ticks_msec() < deadline:
-			await process_frame
-		if not _check(dating.get("_observer_view").closed and not dating.get("_observer_view").intervened, "the real visible withholding window closes without intervention"): return false
-		if not _check(profile.get_observer_evidence().value.by_scope.lavinia, "the actual elapsed window persists restraint evidence"): return false
-	print("PLAYABLE_OBSERVER_PASS: actual Day 2 %s scene -> rendered source -> player gesture -> durable evidence" % friend_id)
+	# These preserved CLI aliases now verify the current retirement decision.
+	if not _check(game.day == 2 and dating.get("_observer_view").is_empty(),
+		"Day 2 has no active Observer interaction"): return false
+	for name: String in ["PreviousSceneLine", "ObserverCapture", "ObserverAction"]:
+		if not _check(dating.find_child(name, true, false) == null, "retired Observer control absent: " + name): return false
+	var evidence: Dictionary = root.get_node("ProfileManager").get_observer_evidence().value
+	if not _check(evidence.receipts.is_empty(), "no retired interaction manufactured an evidence receipt"): return false
+	print("PLAYABLE_OBSERVER_RETIRED_PASS: actual Day 2 %s date has no provisional interaction or evidence" % friend_id)
 	return true
 
 
@@ -502,7 +499,8 @@ func _ending_journey(game: Node) -> void:
 		if warning == null: break
 		var dismissed: Dictionary = ports.warning_commands.resolve_warning(str(warning.activation_id), &"dismiss")
 		if not _check(dismissed.get("ok", false), "final warning: " + JSON.stringify(dismissed)): return
-	for frame: int in 100:
+	for frame: int in 240:
+		_continue_drawn_art_if_ready()
 		await process_frame
 		if current_scene != null and current_scene.has_node("%NewAccButton"): break
 	if not _check(str(game._run_lifecycle.get_state()) == "COMPLETED", "ending completed: " +
@@ -544,7 +542,8 @@ func _gallery_journey(game: Node) -> void:
 	var completions: Array = []
 	root.get_node("DialogicBridge").reached_replay_finished.connect(func(result: Dictionary): completions.append(result.duplicate(true)))
 	gallery.get("_replay_button").pressed.emit()
-	for frame: int in 40:
+	for frame: int in 240:
+		_continue_drawn_art_if_ready()
 		await process_frame
 		if not owner.is_playing() and not completions.is_empty(): break
 	if not _check(completions.size() == 1 and completions[0].get("outcome") == "completed" and not owner.is_playing(),
@@ -621,7 +620,8 @@ func _day_seven_condition_journey(game: Node) -> void:
 	buy.pressed.emit()
 	var purchase: Dictionary = shop.get("_purchase_result").duplicate(true)
 	if not _check(purchase.get("ok", false), "Day 7 actual wine purchase: " + JSON.stringify(purchase)): return
-	for frame: int in 160:
+	for frame: int in 240:
+		_continue_drawn_art_if_ready()
 		await process_frame
 		if current_scene != null and current_scene.has_node("%NewAccButton"): break
 	var lifecycle: Dictionary = game._run_lifecycle.to_dict()

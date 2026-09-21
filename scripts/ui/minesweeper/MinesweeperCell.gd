@@ -28,9 +28,9 @@ func _ready() -> void:
 	_resize()
 
 func configure(locale: String = "en", percent: int = 100, large: bool = false, palette: StringName = &"after_hours",
-		high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> bool:
+		high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel", day: int = 1) -> bool:
 	locale = locale.replace("_","-")
-	var candidate: Theme = MINESWEEPER_THEME.build(locale,percent,palette,high_contrast,colour_preset,font_style)
+	var candidate: Theme = MINESWEEPER_THEME.build(locale,percent,palette,high_contrast,colour_preset,font_style,day)
 	if candidate == null: return false
 	_locale = locale
 	_large = large

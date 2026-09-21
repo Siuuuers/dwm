@@ -635,7 +635,7 @@ func open_app(app_id: StringName) -> Dictionary:
 		if app_id == &"contacts":
 			configured = app.configure_presentation(_presentation_port, _localization, _profile, _run_palette, _day)
 		elif app_id == &"minesweeper":
-			configured = app.configure_presentation(_minesweeper_port, _localization, _profile, _minesweeper_input, _run_palette)
+			configured = app.configure_presentation(_minesweeper_port, _localization, _profile, _minesweeper_input, _run_palette, _day)
 		elif app_id == &"shop":
 			app.configure_desktop_home(home_button)
 			configured = app.configure_catalog(_shop_port, _localization, _profile, _run_palette, _day)

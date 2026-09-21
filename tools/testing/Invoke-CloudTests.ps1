@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'new_account', 'reading_delivery', 'localization', 'dating')]
+    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio')]
     [string]$Suite
 )
 
@@ -10,6 +10,37 @@ $ErrorActionPreference = 'Stop'
 # Deliberate, bounded UI and input regression coverage. Each path must actually
 # execute; Invoke-IsolatedGodot also rejects GUT's silent suite-load failures.
 $suites = @{
+    persistence = @(
+        'tests/unit/test_profile_dating_attempts.gd'
+        'tests/unit/test_profile_dating_branches.gd'
+        'tests/unit/test_profile_pair_form_witness.gd'
+        'tests/unit/test_pair_deck_draw.gd'
+        'tests/unit/test_pair_deck_draw_port.gd'
+        'tests/unit/test_profile_v4_upgrade.gd'
+        'tests/unit/test_profile_new_run_consumption.gd'
+        'tests/unit/test_save_migrations.gd'
+        'tests/integration/test_save_manager_journal.gd'
+        'tests/integration/test_restore_transaction.gd'
+        'tests/integration/test_unified_restore_contract.gd'
+        'tests/integration/test_save_manager_public_boundaries.gd'
+    )
+    endings = @(
+        'tests/unit/test_day7_condition_ending.gd'
+        'tests/unit/test_ending_completion_durability.gd'
+        'tests/unit/test_ending_presentation_signature.gd'
+        'tests/unit/test_dialogic_ending_playback_port.gd'
+        'tests/unit/test_run_lifecycle.gd'
+        'tests/unit/test_dating_ending_rules.gd'
+        'tests/unit/test_dating_ending_rules_migration.gd'
+        'tests/integration/test_ordered_ending_playback.gd'
+        'tests/integration/test_ending_dialogic_wiring.gd'
+        'tests/scenario/test_day7_endings.gd'
+        'tests/scenario/test_day7_schedule_provenance.gd'
+    )
+    audio = @(
+        'tests/unit/test_audio_manager.gd'
+        'tests/unit/test_audio_settings_transactions.gd'
+    )
     dating = @(
         'tests/unit/test_dating_narrative_playback.gd'
         'tests/unit/test_canonical_dating_mastery.gd'
@@ -22,6 +53,8 @@ $suites = @{
         'tests/integration/test_ordered_ending_real_runtime.gd'
     )
     minesweeper = @(
+        'tests/unit/test_minesweeper_theme.gd'
+        'tests/unit/test_minesweeper_palette_components.gd'
         'tests/unit/test_minesweeper_app.gd'
         'tests/unit/test_minesweeper_cell.gd'
         'tests/unit/test_gallery_rehearsal_host.gd'

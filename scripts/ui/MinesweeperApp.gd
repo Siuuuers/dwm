@@ -21,6 +21,7 @@ var _localization: Object
 var _profile: Object
 var _input_owner: Object
 var _palette: StringName = &"after_hours"
+var _day := 1
 var _home: Button
 var _busy := false
 var _show_prepared := false
@@ -89,7 +90,7 @@ func set_footer_host(host: Control) -> void:
 	if panel == null: return
 	panel.worksheet.set_footer_host(host)
 	panel.configure(panel._locale, panel._percent, panel._large, panel._palette,
-		panel._high_contrast, panel._colour_preset, panel._font_style)
+		panel._high_contrast, panel._colour_preset, panel._font_style, panel._day)
 	_fit_host()
 	_update_home()
 
@@ -138,8 +139,8 @@ func _refresh_preparation_retry() -> void:
 	_preparation_retry.show()
 
 func configure_presentation(port: Object, localization: Object = null, profile: Object = null,
-		input_owner: Object = null, palette: StringName = &"after_hours") -> Dictionary:
-	if palette not in [&"after_hours",&"midnight"]: return {"ok":false,"code":&"invalid_minesweeper_palette"}
+		input_owner: Object = null, palette: StringName = &"after_hours", day: int = 1) -> Dictionary:
+	if day not in range(1, 8) or palette not in [&"after_hours",&"midnight"]: return {"ok":false,"code":&"invalid_minesweeper_palette"}
 	if not is_node_ready() or not is_instance_valid(port): return _fail(&"minesweeper_unconfigured")
 	for method: String in ["pull","dispatch","set_foreground"]:
 		if not port.has_method(method): return _fail(&"invalid_minesweeper_presentation")
@@ -147,7 +148,7 @@ func configure_presentation(port: Object, localization: Object = null, profile: 
 	if profile != null and not profile.has_method("get_preference"): return _fail(&"invalid_minesweeper_preferences")
 	var candidate_input: Object = input_owner if input_owner != null else get_node_or_null("/root/InputManager")
 	if candidate_input != null and not GRID.accepts_input_owner(candidate_input): return _fail(&"invalid_minesweeper_input")
-	if _port != null and (_port != port or _localization != localization or _profile != profile or _input_owner != candidate_input or _palette != palette):
+	if _port != null and (_port != port or _localization != localization or _profile != profile or _input_owner != candidate_input or _palette != palette or _day != day):
 		return {"ok":false,"code":&"minesweeper_already_configured"}
 	if not panel.bind(port): return _fail(&"invalid_minesweeper_presentation")
 	if candidate_input != null and not panel.worksheet.grid.configure_input(candidate_input): return _fail(&"invalid_minesweeper_input")
@@ -158,6 +159,7 @@ func configure_presentation(port: Object, localization: Object = null, profile: 
 		return _fail(&"invalid_minesweeper_preferences")
 	_input_owner = candidate_input
 	_palette = palette
+	_day = day
 	if localization != null and localization.has_signal("locale_changed") and not localization.is_connected("locale_changed",_on_locale_changed):
 		localization.connect("locale_changed",_on_locale_changed)
 	if profile != null and profile.has_signal("preference_changed") and not profile.is_connected("preference_changed",_on_preference_changed):
@@ -320,12 +322,12 @@ func _apply_preferences() -> bool:
 	if typeof(high_contrast) != TYPE_BOOL or typeof(colour) != TYPE_STRING: return false
 	var font_style := str(_profile.get_preference("preferences.accessibility.font_style", "pixel")) if _profile != null else "pixel"
 	var retained_scroll: Vector2i = panel.worksheet.get_scroll()
-	if not panel.configure(locale,percent,large,_palette,high_contrast,colour,font_style):
+	if not panel.configure(locale,percent,large,_palette,high_contrast,colour,font_style,_day):
 		var previous_height: int = panel.layout_height
 		# Large text can outgrow the compact board. Keep its readable layout and
 		# let the desktop scroll the page instead of rejecting valid preferences.
 		if _desktop_layout_height <= 0 or previous_height >= 656 or not panel.set_layout_height(656): return false
-		if not panel.configure(locale,percent,large,_palette,high_contrast,colour,font_style):
+		if not panel.configure(locale,percent,large,_palette,high_contrast,colour,font_style,_day):
 			panel.set_layout_height(previous_height)
 			return false
 	_fit_host()

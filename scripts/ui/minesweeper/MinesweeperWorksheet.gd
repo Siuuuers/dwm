@@ -47,6 +47,7 @@ var _palette: StringName = &"after_hours"
 var _high_contrast := false
 var _colour_preset := "standard"
 var _font_style := "pixel"
+var _day := 1
 var _source_focus: WeakRef
 var _grid_process_mode: ProcessMode
 var _grid_focus_behavior: Control.FocusBehaviorRecursive
@@ -129,17 +130,17 @@ func _ready() -> void:
 
 func configure(host: String = "desktop_app", locale: String = "en", percent: int = 100,
 		large: bool = false, palette: StringName = &"after_hours", native_band: Vector2i = Vector2i.ZERO,
-		high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> bool:
+		high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel", day: int = 1) -> bool:
 	if host not in ["desktop_app", "canonical_solo", "canonical_pair"]: return false
-	var candidate_theme := MS_THEME.build(locale, percent, palette, high_contrast, colour_preset, font_style)
+	var candidate_theme := MS_THEME.build(locale, percent, palette, high_contrast, colour_preset, font_style, day)
 	var candidate_band := native_band
 	if candidate_band == Vector2i.ZERO: candidate_band = Vector2i(400 if host == "desktop_app" else 480, 232 if large else 246)
 	if candidate_theme == null or not LAYOUT.measure(1, 1, candidate_band, large).ok: return false
 	var sheet_band := candidate_band + Vector2i(0, (0 if view_controls_external else view_controls_height(locale, candidate_theme, large)) / 2)
-	if information_sheet != null and not information_sheet.configure(host,locale,percent,large,palette,sheet_band,high_contrast,colour_preset,font_style): return false
+	if information_sheet != null and not information_sheet.configure(host,locale,percent,large,palette,sheet_band,high_contrast,colour_preset,font_style,day): return false
 	var geometry_changed: bool = candidate_band != _band or large != _large
 	if geometry_changed: grid.cancel_pointer_gesture()
-	if not grid.configure(locale, percent, large, palette, high_contrast, colour_preset, font_style): return false
+	if not grid.configure(locale, percent, large, palette, high_contrast, colour_preset, font_style, day): return false
 	_locale = locale.replace("_", "-")
 	_host = host
 	_percent = percent
@@ -147,6 +148,7 @@ func configure(host: String = "desktop_app", locale: String = "en", percent: int
 	_high_contrast = high_contrast
 	_colour_preset = colour_preset
 	_font_style = font_style
+	_day = day
 	_large = large
 	_band = candidate_band
 	theme = candidate_theme
@@ -194,7 +196,7 @@ func _open_information(kind: String, claimed: Array, source: Control) -> bool:
 	var sheet: Control = SHEET.new()
 	sheet.hide()
 	add_child(sheet)
-	var accepted: bool = sheet.configure(_host,_locale,_percent,_large,_palette,_band + Vector2i(0, _view_height / 2),_high_contrast,_colour_preset,_font_style)
+	var accepted: bool = sheet.configure(_host,_locale,_percent,_large,_palette,_band + Vector2i(0, _view_height / 2),_high_contrast,_colour_preset,_font_style,_day)
 	if accepted: accepted = sheet.present_rules() if kind == "rules" else sheet.present_assignments(claimed)
 	if not accepted:
 		remove_child(sheet)

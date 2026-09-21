@@ -28,9 +28,9 @@ func _init() -> void:
 
 func configure(host: String = "desktop_app", locale: String = "en", percent: int = 100,
 		large: bool = false, palette: StringName = &"after_hours",
-		high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> bool:
+		high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel", day: int = 1) -> bool:
 	if host not in ["desktop_app","canonical_solo","canonical_pair"]: return false
-	var next_theme := MS_THEME.build(locale,percent,palette,high_contrast,colour_preset,font_style)
+	var next_theme := MS_THEME.build(locale,percent,palette,high_contrast,colour_preset,font_style,day)
 	if next_theme == null: return false
 	var copy := COPY.get_copy(locale)
 	var actions: Array = DESKTOP if host == "desktop_app" else CANONICAL

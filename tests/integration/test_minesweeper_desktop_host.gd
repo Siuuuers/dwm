@@ -366,3 +366,21 @@ func test_input_owner_replacement_is_refused_without_rebinding_the_cached_grid()
 	assert_same(desktop._minesweeper_input, input)
 	assert_same(app._input_owner, input)
 	assert_same(grid._input_owner, input)
+
+
+func test_desktop_forwards_installed_day_and_keeps_it_after_preference_refresh() -> void:
+	host.reset(7)
+	state.day = 7
+	var desktop := _desktop(false)
+	assert_true(desktop.configure_minesweeper(panel_port, null, profile, host, 7, input).ok)
+	var opened: Dictionary = desktop.open_app(&"minesweeper")
+	assert_true(opened.ok)
+	if not opened.ok: return
+	var app: Control = desktop._cached_app_windows[&"minesweeper"]
+	var theme_builder := preload("res://scripts/ui/minesweeper/MinesweeperTheme.gd")
+	var expected: Theme = theme_builder.build("en",100,&"after_hours",false,"standard","pixel",7)
+	assert_eq(app.panel.worksheet.theme.get_color("paper","Minesweeper"),expected.get_color("paper","Minesweeper"))
+	var before: Dictionary = app.panel.public_view.duplicate(true)
+	app._on_locale_changed("en")
+	assert_eq(app.panel.worksheet.theme.get_color("paper","Minesweeper"),expected.get_color("paper","Minesweeper"))
+	assert_eq(app.panel.public_view,before)

@@ -228,7 +228,7 @@ func configure_presentation_services(input_owner: Object, locale: String = "en",
 		if not worksheet.bind_view_preferences(_view_profile, "challenge"):
 			return _fail(&"invalid_challenge_presentation", "view preferences unavailable")
 		if not worksheet.configure(str(_physical_view.host), _locale, _percent, _large_cells,
-				_palette, _challenge_band, _high_contrast, _colour_preset, _font_style):
+				_palette, _challenge_band, _high_contrast, _colour_preset, _font_style, int(_presentation_command.context.day)):
 			return _fail(&"invalid_challenge_presentation", "unsupported presentation settings")
 		if input_owner != null and not worksheet.grid.configure_input(input_owner):
 			return _fail(&"invalid_challenge_input", "input contract incomplete")
@@ -280,7 +280,7 @@ func _build_challenge() -> void:
 	worksheet.name = "DatingWorksheet"
 	worksheet.bind_view_preferences(_view_profile, "challenge")
 	worksheet.configure(str(_physical_view.host), _locale, _percent, _large_cells,
-		_palette, Vector2i.ZERO, _high_contrast, _colour_preset, _font_style)
+		_palette, Vector2i.ZERO, _high_contrast, _colour_preset, _font_style, int(_presentation_command.context.day))
 	if _input_owner != null: worksheet.grid.configure_input(_input_owner)
 	panel.theme = worksheet.theme
 	_scene_art.theme = worksheet.theme
@@ -420,7 +420,7 @@ func _layout_challenge() -> void:
 	var band := Vector2i(width / 2, maxi(minimum_height / 2, floori((_challenge_content.size.y - chrome_height) / 2.0)))
 	if band == _challenge_band: return
 	if worksheet.configure(str(_physical_view.host), _locale, _percent, _large_cells,
-			_palette, band, _high_contrast, _colour_preset, _font_style):
+			_palette, band, _high_contrast, _colour_preset, _font_style, int(_presentation_command.context.day)):
 		_challenge_band = band
 
 func _is_split_input_admitted() -> bool:

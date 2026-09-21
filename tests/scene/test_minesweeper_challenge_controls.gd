@@ -295,3 +295,15 @@ func test_divider_drag_keeps_pending_contacts_out_of_challenge_and_preserves_doc
 	assert_eq(grid.process_mode,Node.PROCESS_MODE_DISABLED)
 	assert_true(_scene.find_child("Flag",true,false).disabled)
 	assert_true(_port.commands.is_empty())
+
+func test_challenge_uses_command_day_for_board_and_rules_after_presentation_changes() -> void:
+	var ms_theme := preload("res://scripts/ui/minesweeper/MinesweeperTheme.gd")
+	var original: Dictionary = _scene.worksheet.grid.projection.duplicate(true)
+	var expected: Theme = ms_theme.build("en",100,&"after_hours",false,"standard","pixel",3)
+	assert_eq(_scene.worksheet.theme.get_color("paper","Minesweeper"),expected.get_color("paper","Minesweeper"))
+	assert_true(_scene.configure_presentation_services(null,"en",100,false,&"midnight",false,"deutan").ok)
+	assert_true(_scene.worksheet.open_rules())
+	expected = ms_theme.build("en",100,&"midnight",false,"deutan","pixel",3)
+	assert_eq(_scene.worksheet.information_sheet.theme.get_color("paper","Minesweeper"),expected.get_color("paper","Minesweeper"))
+	assert_eq(_scene.worksheet.grid.projection,original)
+	assert_true(_port.commands.is_empty())
