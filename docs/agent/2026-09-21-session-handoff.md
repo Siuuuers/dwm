@@ -1,13 +1,13 @@
 # Session handoff — 21 September 2026
 
-The user is pausing for sleep. Their latest decision is to **keep the repository public**, superseding the earlier request to make it private. No sign-in or visibility change is needed. Preserve this checkpoint before further development. Do not merge PR #1 or start another broad change during this pause.
+The user has explicitly resumed work after the sleep checkpoint and asks to continue the remaining Beads. Keep the repository **public**, as most recently instructed. No sign-in or visibility change is needed. First validate the three saved repairs in a fresh cloud run before proceeding to the coordinated strict-v7 work. PR #1 stays draft; do not merge.
 
 ## Resume location and authority
 
 - Repository: `Siuuuers/dwm`; draft PR: https://github.com/Siuuuers/dwm/pull/1
 - Working branch: `codex/windows-cloud-ux`. Read its **current remote head**, this handoff, `Prompt.md`, `CLAUDE.md`, `bd prime`, and relevant Beads records before editing. This handoff supplements, not replaces, specification authority.
 - Last executed head: `17c31be1014f70592b06a76c23a48a965e310384`; run47 tested PR merge `dba429ba7432642e253e218e2095eaec799e43fa`, whose other parent is master `9e43b52c9884ccd59e82245d2168c3113ee4d037`.
-- Source checkpoint `4190e3a616e7b94d4845aebe33b3480c1fb7d8b3` adds **reviewed but runtime-unverified** repairs on top of that head. Its commit message and this subsequent handoff correction use `[skip ci]` to save the sleep checkpoint without starting another automatic run. This is not test acceptance. Resume with a cloud workflow dispatch on the branch, or a subsequent normal commit, then verify the exact tested head/merge SHA.
+- Source checkpoint `4190e3a616e7b94d4845aebe33b3480c1fb7d8b3` adds **reviewed but runtime-unverified** repairs on top of that head. Its commit message and the visibility correction used `[skip ci]` to save the sleep checkpoint without starting another automatic run. This is not test acceptance. This resumption commit has no skip directive and starts a fresh PR cloud run; verify its exact tested head/merge SHA before recording results.
 - Godot **4.6.3 standard GDScript** and all Godot/PowerShell execution belong in GitHub Actions only. Local source review, Python/static checks are allowed. Do not run the game or PowerShell locally.
 - The former local checkout was partial and based on an old commit. It was published through deliberate GitHub tree/commit/ref snapshots, never `git push`. Use a fresh complete checkout or the same exact-base API workflow. Never push that partial checkout.
 
