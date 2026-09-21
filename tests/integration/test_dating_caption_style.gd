@@ -360,7 +360,8 @@ func _mount_root_split_fixture() -> Dictionary:
 	var pixels := Image.create(8, 8, false, Image.FORMAT_RGBA8)
 	pixels.fill(Color.WHITE)
 	var texture := ImageTexture.create_from_image(pixels)
-	mounted.art.configure_textures(texture, [texture, texture], null, 100, false, true)
+	var portraits: Array[Texture2D] = [texture, texture]
+	mounted.art.configure_textures(texture, portraits, null, 100, false, true)
 	mounted.art.set_portrait_width(480)
 	mounted.caption.configure_dating_overlay(true)
 	mounted.caption.call("_sync_transport")

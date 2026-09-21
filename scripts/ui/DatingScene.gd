@@ -212,7 +212,8 @@ func _build_challenge() -> void:
 	var center := ScrollContainer.new()
 	_challenge_content = center
 	center.name = "ChallengeContent"
-	center.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	# Do not let the previous worksheet width become the pane's minimum width.
+	center.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
 	center.follow_focus = true
 	challenge_overlay_host.add_child(center)
 	var panel := VBoxContainer.new()
@@ -344,7 +345,8 @@ func _queue_challenge_layout() -> void:
 
 func _layout_challenge() -> void:
 	_challenge_layout_pending = false
-	if not is_instance_valid(worksheet) or not is_instance_valid(_challenge_content): return
+	if not is_inside_tree() or not is_instance_valid(worksheet) or not worksheet.is_inside_tree() \
+			or not is_instance_valid(_challenge_content): return
 	var scroll_bar := _challenge_content.get_v_scroll_bar()
 	var width := floori((_challenge_content.size.x - 24.0 - (scroll_bar.size.x if scroll_bar.visible else 0.0)) / 2.0) * 2
 	if width <= 128: return
