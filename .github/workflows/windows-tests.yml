@@ -158,9 +158,9 @@ jobs:
           report = json.loads((output / 'results.json').read_text())
           assert report['ok'] is True and not report['failures'], report
           assert report['renderer'] != 'headless', report
-          assert report['samples'] == report['captures'] == 34, report
+          assert report['samples'] == report['captures'] == 38, report
           captures = list(output.glob('*.png'))
-          assert len(captures) == 34 and all(path.stat().st_size > 0 for path in captures)
+          assert len(captures) == 38 and all(path.stat().st_size > 0 for path in captures)
           PY
       - name: Upload rendered evidence
         if: always()

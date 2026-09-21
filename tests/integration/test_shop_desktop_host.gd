@@ -1,6 +1,6 @@
 ﻿extends GutTest
 ## Production Desktop and ShopApp over a strict public-catalog provider. Art uses generated
-## dimension fixtures only; these tests make no asset provenance claim and expose no purchase API.
+## dimension fixtures, except the appearance-refresh case uses production procedural item art.
 
 const DESKTOP := preload("res://scenes/desktop/ComputerDesktop.tscn")
 const HOST := preload("res://scripts/domain/desktop/DesktopAppHostState.gd")
@@ -501,6 +501,10 @@ func test_shared_confirmation_owns_higher_routing_and_native_input_custody() -> 
 
 func test_live_accessibility_colours_repaint_cached_shop_without_catalog_or_selection_mutation() -> void:
 	var desktop := await _desktop_on_tree()
+	var art_port := preload("res://scripts/application/shop/ShopPresentationPort.gd").new()
+	for row: Dictionary in _provider.rows:
+		row.card_art = art_port._texture(row.id,28)
+		row.inspector_art = art_port._texture(row.id,56)
 	var meal: Dictionary = _record("healthy_meal")
 	meal.description = "Public fixture description. ".repeat(80)
 	assert_true(_configure_shop(desktop).ok)

@@ -1,6 +1,7 @@
 extends SceneTree
 ## Production desktop scenes with isolated existing test owners.
-## Shop catalog/art and contact messages are synthetic; no player commands or saves are performed.
+## Shop catalog facts and contact messages are synthetic; Shop item artwork is production code.
+## No player commands or saves are performed.
 ## Native captures require a renderer; headless mode checks setup/geometry only.
 const SPLIT := preload("res://tests/desktop_shell/test_desktop_split_touch.gd")
 const SHELL := preload("res://tests/desktop_shell/test_desktop_shell.gd")
@@ -8,10 +9,11 @@ const CONTACT := preload("res://tests/contacts_shell/test_contacts_shell.gd")
 const HUD := preload("res://tests/unit/test_stat_hud_week_tint.gd")
 const SETTINGS := preload("res://tests/unit/test_settings_panel_resize.gd")
 const SHOP := preload("res://tests/manual/verify_shop_desktop_native.gd")
+const SHOP_PORT := preload("res://scripts/application/shop/ShopPresentationPort.gd")
 const SCHEDULE := preload("res://tests/manual/verify_schedule_desktop_native.gd")
 const QUICK := preload("res://tests/manual/verify_quick_status_native.gd")
 const MINES := preload("res://tests/unit/test_minesweeper_app.gd")
-const EXPECTED_CAPTURES := 34
+const EXPECTED_CAPTURES := 38
 class VisualLocale extends QUICK.CatalogLocale:
 	func get_selectable_locales() -> Array[Dictionary]:
 		return [{"id":"en","native_name":"English","release_status":"complete"},{"id":"zh_CN","native_name":"简体中文","release_status":"draft"},{"id":"zh_HK","native_name":"繁體中文","release_status":"draft"}]
@@ -41,6 +43,7 @@ var failures: Array[String] = []
 var captures := 0
 var geometry_samples := 0
 var launcher_pixels: Array[Dictionary] = []
+var shop_pixels: Array[Dictionary] = []
 func _initialize() -> void: _run.call_deferred()
 func check(value: bool, message: String) -> void:
 	if not value:
@@ -56,6 +59,8 @@ func capture(name: String, width: int) -> void:
 	check(not desktop.status_label.visible, name + ": no presentation failure notice")
 	if name.begins_with("launcher"):
 		_check_launcher_geometry(name)
+	if name.begins_with("shop"):
+		_check_shop_geometry(name)
 	if name.begins_with("minesweeper"):
 		for issue: String in mines_control_layout_failures(desktop._cached_app_windows[&"minesweeper"].panel):
 			check(false,name+": "+issue)
@@ -65,6 +70,7 @@ func capture(name: String, width: int) -> void:
 		var image: Image = viewport.get_texture().get_image()
 		check(not image.is_empty() and image.get_size() == Vector2i(1280,720), name + ": full viewport pixels")
 		if name.begins_with("launcher"): _check_launcher_pixels(image,name)
+		if name.begins_with("shop"): _check_shop_pixels(image,name)
 		check(image.save_png(folder.path_join("%s-%d.png" % [name,width])) == OK,"capture "+name)
 		captures += 1
 	print("SCALING_SAMPLE ",name," width=",width," scale=",desktop.desktop_canvas.scale," scroll=",desktop.app_scroll.scroll_vertical)
@@ -194,6 +200,10 @@ func _run() -> void:
 	var catalog := SHOP.CatalogFixture.new()
 	catalog.rows = shop_fixture._valid_rows()
 	shop_fixture.free()
+	var shop_art := SHOP_PORT.new()
+	for row: Dictionary in catalog.rows:
+		row.card_art = shop_art._texture(row.id,28)
+		row.inspector_art = shop_art._texture(row.id,56)
 	check(desktop.configure_shop(catalog,locale,profile,host,1).get("ok",false),"shop configured")
 	opened = desktop.open_app(&"shop")
 	check(opened.get("ok",false),"shop opened")
@@ -201,6 +211,7 @@ func _run() -> void:
 		await settle()
 		opened.value.app.cards.wine.grab_focus()
 		await pair("shop")
+		await _shop_samples(opened.value.app,catalog)
 		desktop.app_scroll.ensure_control_visible(opened.value.app._buy_button)
 		await capture("shop-bottom",960)
 	desktop.return_home()
@@ -256,7 +267,7 @@ func _run() -> void:
 	await pair("confirmation")
 	check(geometry_samples == EXPECTED_CAPTURES, "all expected sample states checked")
 	if DisplayServer.get_name() != "headless": check(captures == EXPECTED_CAPTURES, "all expected screenshots saved")
-	var report := {"ok":failures.is_empty(),"renderer":DisplayServer.get_name(),"samples":geometry_samples,"captures":captures,"failures":failures,"launcher_pixels":launcher_pixels}
+	var report := {"ok":failures.is_empty(),"renderer":DisplayServer.get_name(),"samples":geometry_samples,"captures":captures,"failures":failures,"launcher_pixels":launcher_pixels,"shop_pixels":shop_pixels}
 	var file := FileAccess.open(folder.path_join("results.json"),FileAccess.WRITE)
 	file.store_string(JSON.stringify(report,"\t"))
 	file.close()
@@ -264,6 +275,98 @@ func _run() -> void:
 	viewport.queue_free()
 	await settle()
 	quit(0 if failures.is_empty() else 1)
+
+func _shop_samples(app: Control, catalog: RefCounted) -> void:
+	var original: Array = catalog.rows.duplicate(true)
+	app.next_button.pressed.emit()
+	await settle()
+	check(app.page_index == 1,"Shop page two reached without a purchase")
+	await _hover_shop_item(app,"protein_box")
+	await pair("shop-page-two")
+	var sold_out: Dictionary = catalog.rows[12]
+	check(sold_out.id == "lucky_charm","sold-out preview uses the intended ordinary item")
+	sold_out.available = false
+	sold_out.legal_max = 0
+	catalog.catalog_changed.emit()
+	await settle()
+	await _hover_shop_item(app,"lucky_charm")
+	check(app.cards.lucky_charm.availability_label.text == "Sold out","sold-out item remains inspectable")
+	await capture("shop-page-two-sold-out",960)
+	profile.present_font("readable")
+	profile.present(150,true)
+	profile.present_contrast(true)
+	await settle()
+	await _hover_shop_item(app,"healthy_meal")
+	await capture("shop-page-two-readable-large-contrast",960)
+	for index: int in original.size():
+		check(catalog.rows[index].card_art == original[index].card_art
+			and catalog.rows[index].inspector_art == original[index].inspector_art,"Shop preferences and sold-out state retain item art")
+	catalog.rows = original
+	catalog.catalog_changed.emit()
+	profile.present_contrast(false)
+	profile.present(100,false)
+	profile.present_font("pixel")
+	await settle()
+	app.previous_button.pressed.emit()
+	await settle()
+	app.cards.wine.grab_focus()
+	await settle()
+	check(catalog.rows == original,"Shop art previews restore their isolated public facts")
+
+func _hover_shop_item(app: Control, item_id: String) -> void:
+	var card: Button = app.cards[item_id]
+	desktop.app_scroll.ensure_control_visible(card)
+	await settle()
+	var motion := InputEventMouseMotion.new()
+	motion.position = card.get_global_rect().get_center()
+	viewport.push_input(motion,true)
+	await settle()
+	check(app.selected_id == item_id,"native hover inspects "+item_id+" without clicking")
+	var row: Dictionary = app._records[app._index_of(item_id)]
+	check(app._art.texture == row.inspector_art,"right inspector uses the hovered item's matching art")
+	check(app._art.get_global_rect().get_center().x > card.get_global_rect().get_center().x,"Shop inspector stays to the right")
+
+func _check_shop_geometry(name: String) -> void:
+	var app: Control = desktop._cached_app_windows[&"shop"]
+	check(app.cards.size() == 17 and not app.cards.has("supportz"),name+": blank position gains no card or art target")
+	for row: Dictionary in app._records:
+		if row.blank: continue
+		check(app.cards[row.id].get("_art") == row.card_art,name+": card keeps matching production art for "+row.id)
+	var selected: Dictionary = app._records[app._index_of(app.selected_id)]
+	check(app._art.texture == selected.inspector_art,name+": selected inspector matches catalog")
+	check(app._art.modulate == Color.WHITE,name+": palette does not tint item art")
+
+func _check_shop_pixels(image: Image, name: String) -> void:
+	var app: Control = desktop._cached_app_windows[&"shop"]
+	var visible_items := 0
+	var sampled := 0
+	for card: Button in app.cards.values():
+		if not card.is_visible_in_tree(): continue
+		var count := _check_texture_pixels(image,card,card.get("_art_rect"),card.get("_art"),desktop.app_scroll.get_global_rect(),name+": "+card.item_id)
+		if count > 0: visible_items += 1
+		sampled += count
+	check(visible_items > 0 and sampled > 0,name+": visible cards contain rendered item pixels")
+	var inspector_count := _check_texture_pixels(image,app._art,Rect2(Vector2.ZERO,app._art.size),app._art.texture,
+		app.info_scroll.get_global_rect().intersection(desktop.app_scroll.get_global_rect()),name+": inspector")
+	if not name.contains("bottom"): check(inspector_count > 0,name+": inspector artwork is visible")
+	shop_pixels.append({"sample":name,"page":app.page_index+1,"selected":app.selected_id,
+		"visible_items":visible_items,"card_pixels":sampled,"inspector_pixels":inspector_count})
+
+func _check_texture_pixels(image: Image, control: Control, rect: Rect2, texture: Texture2D, clip: Rect2, label: String) -> int:
+	var source: Image = texture.get_image()
+	var transform := control.get_global_transform_with_canvas()
+	var checked := 0
+	var mismatched := 0
+	for y: int in source.get_height():
+		for x: int in source.get_width():
+			var expected := source.get_pixel(x,y)
+			if expected.a != 1.0: continue
+			var point: Vector2 = transform * (rect.position+Vector2(x+0.5,y+0.5)*rect.size/Vector2(source.get_size()))
+			if not clip.has_point(point) or not Rect2(Vector2.ZERO,Vector2(image.get_size())).has_point(point): continue
+			checked += 1
+			if image.get_pixelv(Vector2i(point)).to_html(false) != expected.to_html(false): mismatched += 1
+	check(mismatched == 0,label+": rendered opaque pixels match production texture (%d checked, %d mismatched)" % [checked,mismatched])
+	return checked
 
 func _overlay_samples(app: Control, port: RefCounted) -> void:
 	# A valid public touched-board fixture supplies New Board permission. No game command runs.

@@ -3,6 +3,8 @@ extends "res://addons/gut/test.gd"
 const PORT := preload("res://scripts/application/shop/ShopPresentationPort.gd")
 const DATA_CATALOG := preload("res://scripts/data/DataCatalog.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
+const ITEM_ART := preload("res://scripts/ui/shop/ShopItemArt.gd")
+const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
 
 const PUBLIC_ORDER := [
 	"coffee", "wine", "pineapple_bun", "bandage_pack", "quiet_tea",
@@ -146,17 +148,88 @@ func test_catalog_projects_all_current_items_from_the_authoritative_eighteen_tem
 	var rows: Array = result["value"]
 	assert_eq(rows.size(), 17, "Supportz remains the secret structural eighteenth position")
 	var ids: Array = []
+	var art_signatures: Array[String] = []
 	for row: Dictionary in rows:
 		ids.append(row["id"])
 		assert_eq((row["card_art"] as Texture2D).get_size(), Vector2(28, 28))
 		assert_eq((row["inspector_art"] as Texture2D).get_size(), Vector2(56, 56))
+		var card: Image = row.card_art.get_image()
+		var inspector: Image = row.inspector_art.get_image()
+		var opaque := 0
+		var partial_alpha := 0
+		var mismatched := 0
+		for y: int in range(28):
+			for x: int in range(28):
+				var pixel := card.get_pixel(x,y)
+				if pixel.a == 1.0: opaque += 1
+				elif pixel.a != 0.0: partial_alpha += 1
+				for offset: Vector2i in [Vector2i.ZERO,Vector2i.RIGHT,Vector2i.DOWN,Vector2i.ONE]:
+					if inspector.get_pixelv(Vector2i(x,y)*2+offset) != pixel: mismatched += 1
+		assert_gt(opaque,0,row.id+": visible object")
+		assert_lt(opaque,28*28,row.id+": transparent surround")
+		assert_eq(partial_alpha,0,row.id+": crisp pixel edges")
+		assert_eq(mismatched,0,row.id+": inspector is the same object at exact double coverage")
+		var signature := card.get_data().hex_encode().sha256_text()
+		assert_false(art_signatures.has(signature),row.id+": distinct item artwork")
+		art_signatures.append(signature)
 	assert_eq(ids, PUBLIC_ORDER)
+	assert_null(ITEM_ART.texture("supportz",28),"The secret position gains no public artwork")
+	assert_null(ITEM_ART.texture("supportz",56))
 	assert_eq(rows[0]["name"], "咖啡")
 	assert_eq(rows[0]["unit_price"], 20)
 	assert_eq(rows[0]["legal_max"], 9)
 	assert_eq(rows[3]["legal_max"], 1, "DataCatalog max=0 means repeatable without a branch cap, one per command")
 	assert_eq(rows[14]["id"], "bookend_keepsake")
 	assert_eq(rows[14]["unit_price"], 3)
+
+
+func test_item_art_cache_survives_locale_reconfiguration_and_sold_out_facts() -> void:
+	var original: Array = _port.get_catalog("en").value
+	assert_true(_port.configure(_game_state,_port._data_catalog,_participant,_consequence,
+		_port._round_coordinator,_issuer,_gate).ok)
+	for language: String in ["zh_CN","zh_HK","ja","ko","en"]:
+		var localized: Array = _port.get_catalog(language).value
+		for index: int in original.size():
+			assert_same(localized[index].card_art,original[index].card_art)
+			assert_same(localized[index].inspector_art,original[index].inspector_art)
+			for key: String in ["id","unit_price","currency","available","batchable","legal_max"]:
+				assert_eq(localized[index][key],original[index][key],language+": art does not change "+key)
+	_game_state.inventory["lucky_charm"] = 1
+	var sold_out: Array = _port.get_catalog("en").value
+	assert_false(sold_out[12].available)
+	assert_eq(sold_out[12].legal_max,0)
+	for index: int in original.size():
+		assert_same(sold_out[index].card_art,original[index].card_art)
+		assert_same(sold_out[index].inspector_art,original[index].inspector_art)
+		var expected: Dictionary = original[index].duplicate()
+		if expected.id == "lucky_charm":
+			expected.available = false
+			expected.legal_max = 0
+		assert_eq(sold_out[index],expected,"Only the owner's availability facts change")
+	assert_eq(_issuer.next,0,"Art and catalog queries do not issue purchase identities")
+	assert_true(_participant.quote_requests.is_empty())
+	assert_true(_game_state.effect_requests.is_empty())
+
+
+func test_valid_authored_item_pair_takes_precedence_over_code_art() -> void:
+	# Resource cache fixtures exercise the real manifest without writing imported assets.
+	var authored: Array[Texture2D] = []
+	for size: int in [28,56]:
+		var image := Image.create(size,size,false,Image.FORMAT_RGBA8)
+		image.fill(Color("e9bb65"))
+		var texture := ImageTexture.create_from_image(image)
+		var path := "res://tests/fixtures/shop-authored-%d.png" % size
+		texture.take_over_path(path)
+		authored.append(texture)
+		ART_MANIFEST.set_overlay_info("shop","coffee."+("card" if size == 28 else "inspector"),
+			path,Vector2i(size,size),"test fixture")
+	var rows: Array = _port.get_catalog("en").value
+	assert_same(rows[0].card_art,authored[0])
+	assert_same(rows[0].inspector_art,authored[1])
+	var repeated: Array = _port.get_catalog("en").value
+	assert_same(repeated[0].card_art,authored[0])
+	assert_same(repeated[0].inspector_art,authored[1])
+	ART_MANIFEST.reload_placements()
 
 
 func test_ordinary_quantity_uses_the_same_durable_consequence_flow() -> void:

@@ -14,9 +14,9 @@ This workflow does not compile C# or produce a distributable Windows export.
 
 A supplementary job renders the computer panel on Ubuntu 24.04 using the same pinned
 Godot release, Xvfb, and Mesa software OpenGL. The desktop scaling harness
-captures 34 states covering the launcher, apps, scrolled content, menus, and
+captures 38 states covering the launcher, apps, scrolled content, menus, and
 confirmations at baseline and enlarged widths. Geometry assertions, a successful
-JSON report, and all 34 nonempty PNG files are required. Its screenshots and logs
+JSON report, and all 38 nonempty PNG files are required. Its screenshots and logs
 are uploaded for visual review; a headless geometry run cannot satisfy this job.
 This supplementary renderer does not replace the seven Windows test groups.
 The desktop captures include Minesweeper Rules and Assignments overlays in
@@ -25,6 +25,11 @@ The launcher samples also cover the seven procedural pixel icons, the separate
 Contacts unread mark, English at 150% in both fonts, and Japanese Readable at
 150% with and without high contrast. Icon apertures and complete caption bounds
 are checked alongside the existing focus and navigation contracts.
+Shop previews use the production procedural art for all 17 ordinary items, with
+both catalog pages at 800 and 960 pixels, a sold-out item, and Readable at 150%
+with large targets and high contrast. Native pixel checks verify the visible
+card and inspector art, and pointer hover changes the right inspector without
+a click. Public prices and stock remain controlled test fixtures.
 
 A second rendered pass in the same job reuses Godot and the software display
 with separate user data. It requires 19 screenshots and a successful report
@@ -53,7 +58,7 @@ using the real saved font preference and Settings picker. It checks Pixel and
 Readable in all five languages at enlarged text sizes, including the rightmost
 footer clock, Minesweeper controls, readable Gallery text, and witnessed captions.
 The `font-choices-render` artifact contains its screenshots, report, and log.
-All five passes together require 123 nonempty PNG captures; headless geometry
+All five passes together require 127 nonempty PNG captures; headless geometry
 checks cannot replace them.
 
 `tools/testing/Invoke-CloudTests.ps1` lists the exact test scripts. It reuses the
