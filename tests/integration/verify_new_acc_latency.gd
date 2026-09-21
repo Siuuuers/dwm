@@ -24,11 +24,14 @@ func _run() -> void:
 	var game: Node = root.get_node("GameState")
 	var first_session: Dictionary = game.capture_live_session().value
 	var desktop: Node = current_scene.find_child("ComputerDesktop", true, false)
-	if not _check(desktop.open_app(&"logout").get("ok", false), "latency public Logout opens"): return
+	desktop.launcher_buttons[&"logout"].pressed.emit()
 	await _frames()
-	var logout: Node = desktop._cached_app_windows[&"logout"]
-	if not _check(not logout.yes_button.disabled, "latency Logout enabled"): return
-	logout.yes_button.pressed.emit()
+	var logout: Control = desktop._confirmation
+	if not _check(is_instance_valid(logout) and logout.is_visible_in_tree(), "latency launcher opens Logout consent"): return
+	if not _check(desktop.icon_grid.visible and desktop._active_id == &"" \
+			and not desktop._cached_app_windows.has(&"logout"), "latency Logout preserves launcher and cache"): return
+	if not _check(not logout.confirm_button.disabled, "latency Logout enabled"): return
+	logout.confirm_button.pressed.emit()
 	await _frames()
 	if not _check(current_scene != null and current_scene.has_node("%NewAccButton") \
 			and not game.capture_live_session().value.active, "latency Logout retires session and returns to title"): return
