@@ -202,9 +202,19 @@ def process_failures(receipt: dict, log_path: Path) -> list[str]:
         if not path.is_file():
             failures.append(f"LOG_MISSING: {path.name}")
             continue
-        for line in read_log(path).splitlines():
+        lines = read_log(path).splitlines()
+        for index, line in enumerate(lines):
             if ERROR_PATTERN.search(line):
-                failures.append(f"{path.name}: {line.strip()}")
+                # Preserve bounded engine locations/backtraces in supported job logs.
+                # Artifact downloads may be unavailable to the diagnosing client.
+                context = "\n    ".join(item.strip() for item in lines[index:index + 6])
+                failures.append(f"{path.name}: {context}")
+        resource_details = [line.strip() for line in lines if re.search(
+            r"Leaked instance:|Resource still in use:|Orphan StringName:", line,
+        )]
+        if resource_details:
+            failures.append(f"{path.name}: LIFETIME_DIAGNOSTICS count={len(resource_details)}\n    "
+                            + "\n    ".join(resource_details[:80]))
     return list(dict.fromkeys(failures))
 
 
@@ -282,7 +292,7 @@ def run_case(repository: Path, output: Path, godot: str, xvfb: str, case: dict) 
         log = folder / "journey.log"
         argv = [
             xvfb, "-a", "-s", "-screen 0 1920x1080x24", godot,
-            "--path", str(repository), "--rendering-method", "gl_compatibility",
+            "--path", str(repository), "--verbose", "--rendering-method", "gl_compatibility",
             "--rendering-driver", "opengl3", "--audio-driver", "Dummy",
             "--log-file", str(log), "--script", case["script"], "--",
             "--phase2r-bootstrap-mode=final", "--render-evidence", *case["flags"],

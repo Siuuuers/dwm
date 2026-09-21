@@ -1487,6 +1487,8 @@ func start_entry(entry_id: String, context: Dictionary, execution_mode: StringNa
 	if not _exact_context_keys(context):
 		return _playback_failure(&"invalid_playback_context",
 			"start_entry context keys must be exactly " + str(_PLAYBACK_CONTEXT_KEYS))
+	var presentation := _validate_frozen_projection(entry_id, context)
+	if not presentation.ok: return presentation
 	return _begin_entry_playback(entry_id, context, execution_mode, "playback")
 
 
@@ -1797,6 +1799,8 @@ func _check_resume_checkpoint(checkpoint: Dictionary, execution_mode: StringName
 	if typeof(frozen) != TYPE_DICTIONARY or not _exact_context_keys(frozen as Dictionary):
 		return _playback_failure(&"invalid_playback_context",
 			"resume frozen_context keys must be exactly " + str(_PLAYBACK_CONTEXT_KEYS))
+	var presentation := _validate_frozen_projection(str(checkpoint["entry_id"]), frozen)
+	if not presentation.ok: return presentation
 	if str(checkpoint["stage"]) != str((frozen as Dictionary)["expected_stage"]):
 		return _playback_failure(&"resume_stage_mismatch",
 			"checkpoint stage %s != frozen expected_stage %s"
@@ -1861,6 +1865,8 @@ func _context_fingerprint(context: Dictionary) -> Dictionary:
 ## old-process token can never equal a live one (staleness is exact string equality).
 func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode: StringName,
 		token_kind: String, expected_version: int = -1) -> Dictionary:
+	var presentation := _validate_frozen_projection(entry_id, context)
+	if not presentation.ok: return presentation
 	if not _pause_handle.is_empty(): return _playback_failure(&"narrative_suspended", "Pause retains playback custody")
 	if has_active_playback():
 		var standing := str(_active_entry.get("token", _active_playback.get("token", "")))
@@ -1877,6 +1883,11 @@ func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode
 		return fingerprinted
 	var frozen: Dictionary = (fingerprinted["value"] as Dictionary)["frozen"]
 	var fingerprint := str((fingerprinted["value"] as Dictionary)["fingerprint"])
+	if frozen.has("presentation"):
+		if _runtime_adapter == null or not _runtime_adapter.has_method("install_frozen_presentation"):
+			return _playback_failure(&"frozen_context_runtime_unavailable", entry_id)
+		var installed: Dictionary = _runtime_adapter.install_frozen_presentation(frozen.presentation)
+		if not installed.get("ok", false): return installed
 	var token := ""
 	if token_kind == "gallery":
 		token = "gallery-%d" % _replay_counter
@@ -1906,6 +1917,7 @@ func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode
 	_start_in_progress = false
 	if not started.get("ok", false):
 		if str(_active_entry.get("token", "")) == token:
+			if frozen.has("presentation"): _runtime_adapter.release_frozen_presentation()
 			_active_entry = {}
 			scene_art_changed.emit()
 		return started
@@ -2187,14 +2199,28 @@ func _load_ending_records() -> Dictionary:
 
 
 func _exact_context_keys(context: Dictionary) -> bool:
-	if context.size() != _PLAYBACK_CONTEXT_KEYS.size():
+	# The four-key envelope remains readable during staged producer migration.
+	# New production Dating always supplies the separately versioned presentation.
+	if context.size() != _PLAYBACK_CONTEXT_KEYS.size() + (1 if context.has("presentation") else 0):
 		return false
 	for key in _PLAYBACK_CONTEXT_KEYS:
 		if not context.has(key):
 			return false
 	return true
 
+func _validate_frozen_projection(entry_id: String, context: Dictionary) -> Dictionary:
+	if not context.has("presentation"): return {"ok": true}
+	for key: String in _PLAYBACK_CONTEXT_KEYS:
+		if not context.get(key) is String or str(context[key]).strip_edges().is_empty():
+			return _playback_failure(&"invalid_playback_context", key)
+	var checked := preload("res://scripts/narrative/FrozenPresentationContext.gd").validate(entry_id, context.presentation)
+	if not checked.ok: return checked
+	var fields: Dictionary = checked.value.fields
+	if str(fields.entry_role) in ["solo_pre_challenge", "solo_post_challenge", "pair_pre_challenge_scene", "pair_post_challenge_scene"] \
+			and (context.role != "dating_phase" or context.expected_stage != fields.phase):
+		return _playback_failure(&"frozen_context_stage_mismatch", entry_id)
+	return checked
+
 
 func _playback_failure(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": {}}
-

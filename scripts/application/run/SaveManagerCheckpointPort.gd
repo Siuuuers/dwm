@@ -234,11 +234,11 @@ func prepare(checkpoint_inputs: Dictionary, checkpoint_kind: StringName, disk_wr
 	if str(disk_write["kind"]) == "autosave":
 		var reason := str(disk_write["reason"])
 		var projected_earlier: Array = journal_candidate["earlier"]
-		# Every projected earlier bundle was validated, normalized and byte-proven at its OWN
-		# commit, and the journal still holds the document bundle those proven bytes describe. Hand
+		# Every proven earlier bundle was validated, normalized and byte-proven by a completed
+		# durable write, and the journal still holds the bundle those proven bytes describe. Hand
 		# those back as `build()`'s per-entry proofs so it does not re-walk the whole retained
 		# history (~150 KB per bundle) a second time per save. A bundle the journal remembers no
-		# document for -- a journal seeded from disk, restored, reset, or one whose commit was
+		# document for -- new memory-only history, a journal seeded from disk, restored, reset, or a commit
 		# refused the memory because the outgoing bundle had been edited -- leaves the WHOLE journal
 		# unproven: a partial proof set says nothing about any entry, exactly like the splice.
 		var proven_journal: Array = []
@@ -283,6 +283,8 @@ func commit(candidate: Dictionary) -> Dictionary:
 			"autosave": candidate.get("autosave_document") != null,
 			"history_bundles": history.size() if history is Array else -1, "_started_us": tick}
 	var proven_current_text := ""
+	var written_history: Array = []
+	var written_document_text := ""
 	if candidate.get("autosave_document") != null:
 		var autosave_document: Variant = candidate["autosave_document"]
 		var document_text := ""
@@ -335,6 +337,11 @@ func commit(candidate: Dictionary) -> Dictionary:
 				checked = SAVE_DOCUMENT_SCHEMA.validate(normalized)
 			if checked.get("ok", false):
 				validated_texts[outgoing_text] = {"ok": true, "code": &"ok", "value": checked["value"]["candidate"]}
+				if not spliced:
+					# Capture a detached copy of the normalized history the full writer emitted.
+					# It grants no reusable proof until all durability steps succeed.
+					written_history = (normalized["recovery_journal"] as Array).duplicate(true)
+					written_document_text = document_text
 		# Failed proof and all unknown physical bytes retain the original strict parser
 		# and storage refusal path. Physical writes, hashes and final reread are unchanged.
 		tick = _profile_phase(profile, "outgoing_schema_us", tick)
@@ -357,7 +364,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 		if not valid:
 			return _profile_result(profile, _fail(&"reread_mismatch", AUTOSAVE_RELATIVE_PATH))
 	var committed: Dictionary = _journal().commit_prepared(candidate["journal_candidate"])
-	_profile_phase(profile, "journal_us", tick)
+	tick = _profile_phase(profile, "journal_us", tick)
 	if not committed.get("ok", false):
 		return _profile_result(profile, committed)
 	# The reread above proved these exact bytes on disk, so the journal may reuse this bundle's region
@@ -384,9 +391,33 @@ func commit(candidate: Dictionary) -> Dictionary:
 		_journal().remember_committed_bundle_text(
 			str(committed["value"]["checkpoint_id"]), proven_current_text,
 			(candidate["autosave_document"] as Dictionary)["current_snapshot"])
+	_remember_written_history(written_history, written_document_text)
+	_profile_phase(profile, "journal_proof_us", tick)
 	_remember_proven_documents(validated_texts)
 	return _profile_result(profile, {"ok": true, "code": &"ok",
 		"value": {"checkpoint_id": str(committed["value"]["checkpoint_id"])}})
+
+
+## Learn only previously missing history proofs from the full writer's completed durable output.
+## Re-emission must occur verbatim in those exact bytes; the journal then checks the still-retained
+## value before taking its private copy. A mismatch is only a cache miss, never a new save refusal.
+func _remember_written_history(bundles: Array, document_text: String) -> void:
+	for value: Variant in bundles:
+		# External documents may keep malformed fallback entries for later recovery diagnostics.
+		# Whole-document acceptance does not promise that every historical entry is a snapshot.
+		if value is not Dictionary or value.get("snapshot") is not Dictionary:
+			continue
+		var bundle: Dictionary = value
+		var checkpoint_id := str((bundle["snapshot"] as Dictionary).get("checkpoint_id", ""))
+		if not _journal().get_retained_bundle_text(checkpoint_id).is_empty() \
+				and not _journal().get_retained_bundle_document(checkpoint_id).is_empty():
+			continue
+		var emitted: Dictionary = CANONICAL_JSON.stringify(bundle)
+		if not emitted.get("ok", false):
+			continue
+		var text := str(emitted["value"])
+		if document_text.find(text) >= 0:
+			_journal().remember_written_retained_bundle(checkpoint_id, text, bundle)
 
 
 ## Composes the outgoing autosave text from the new current bundle's canonical text plus the

@@ -121,7 +121,13 @@ func begin_narrative_phase(presentation_command: Dictionary, retry: bool = false
 	if not pulled.get("ok", false): return pulled
 	if _is_pair_explosion_cutoff(trusted.value, pulled.value):
 		return _ok({"status": "completed", "reason": "pair_explosion_cutoff"})
-	return _narrative_playback.begin_phase(trusted.value, str(pulled.value.phase), retry)
+	var presentation := {}
+	if _physical_owner.has_method("pull_frozen_narrative_context"):
+		var frozen: Dictionary = _physical_owner.pull_frozen_narrative_context(
+			str(trusted.value.physical_token), str(pulled.value.phase))
+		if not frozen.get("ok", false): return frozen
+		presentation = frozen.value
+	return _narrative_playback.begin_phase(trusted.value, str(pulled.value.phase), retry, presentation)
 
 func pull_narrative_phase(presentation_command: Dictionary) -> Dictionary:
 	var trusted := _trusted_physical_command(presentation_command)

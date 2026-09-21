@@ -437,9 +437,10 @@ func _dating_journey(game: Node, desktop: Node) -> void:
 		if not _check(restored.get("ok", false), "mid-Dating Autosave commits: " + JSON.stringify(restored)): return
 		for frame: int in 40:
 			await process_frame
-			if current_scene.get("worksheet") != null: break
-		if not _check(current_scene.get("worksheet") != null, "Load remounts active Dating scene: " + JSON.stringify({
-			"route": root.get_node("SceneRouter").get_current_route_id(), "scene": current_scene.scene_file_path,
+			# change_scene_to_* retires the outgoing node before installing its replacement.
+			if current_scene != null and current_scene.get("worksheet") != null: break
+		if not _check(current_scene != null and current_scene.get("worksheet") != null, "Load remounts active Dating scene: " + JSON.stringify({
+			"route": root.get_node("SceneRouter").get_current_route_id(), "scene": current_scene.scene_file_path if current_scene != null else "none",
 			"record_phase": game.capture_dating_challenge_state().value.get("phase", ""),
 			"dispatch": root.get_node("ApplicationBootstrap").get("_retained_schedule_done_dispatcher").get_last_dispatch_result(),
 			"loaded": restored})): return

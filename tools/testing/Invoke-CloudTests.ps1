@@ -45,6 +45,7 @@ $suites = @{
         'tests/unit/test_audio_settings_transactions.gd'
     )
     dating = @(
+        'tests/unit/test_frozen_presentation_context.gd'
         'tests/unit/test_dating_narrative_playback.gd'
         'tests/unit/test_canonical_dating_mastery.gd'
         'tests/unit/test_dating_attempt_runtime.gd'

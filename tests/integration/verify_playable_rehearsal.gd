@@ -324,11 +324,21 @@ func _run() -> void:
 	if not await _wait_until(func(): return practice_scene.get("_physical_view").get("phase") == "challenge",
 		"empty private pre-DTL enters its real board automatically"): return
 	if not _check(not practice_scene.get("_continue_button").visible, "private board has no routine Continue"): return
+	var private_before: Dictionary = sandbox.get("_sandbox").capture_dating_challenge_state().value
+	var frozen_spec: Dictionary = private_before.spec.duplicate(true)
+	if not _check(frozen_spec.width == 18 and frozen_spec.height == 18 and frozen_spec.base_mine_count == 36
+		and frozen_spec.pressure == _game.get_stat("pressure")
+		and frozen_spec.penalty_points_today == _game.penalty_points_today,
+		"private board retains the canonical base dimensions and copied current hidden inputs"): return
 	practice_scene.worksheet.cell_action_requested.emit(&"reveal", 0, int(practice_scene.get("_physical_view").board.revision))
 	# Read-only inspection verifies the production generator/reducer; no board is fabricated.
+	# 36 is the base count. Retained pressure/capabilities determine the requested total.
 	var private_record: Dictionary = sandbox.get("_sandbox").capture_dating_challenge_state().value
-	if not _check(private_record.board != null and private_record.spec.width == 18 and private_record.spec.height == 18
-		and private_record.spec.requested_mine_count == 36 and private_record.board.revealed_indices.has(0), "real 18x18/36 Practice board accepts first Reveal"): return
+	if not _check(private_record.board != null and private_record.spec == frozen_spec
+		and private_record.board.width == 18 and private_record.board.height == 18
+		and private_record.board.mine_count == frozen_spec.requested_mine_count
+		and private_record.board.revealed_indices.has(0) and not private_record.board.mine_indices.has(0),
+		"real Practice board reveals a safe first cell with the exact retained specification"): return
 	if not _unchanged("practice first Reveal"): return
 	if not await _capture_screen("06-practice-board"): return
 	_stage = "Practice returns without canonical mutation"

@@ -62,7 +62,15 @@ function Invoke-CheckedProcess {
         if (Test-Path -LiteralPath $engineLog) { $text += "`n" + (Get-Content -LiteralPath $engineLog -Raw) }
         if ($timedOut) { throw "$Name exceeded $TimeoutSeconds seconds." }
         if ($process.ExitCode -ne 0) { throw "$Name exited with $($process.ExitCode)." }
-        if ($text -match 'SCRIPT ERROR:|(?m)^\s*ERROR:|STARTUP_FAILED|Unicode parsing error|Unexpected NUL character') {
+        $errorPattern = 'SCRIPT ERROR:|^\s*ERROR:|STARTUP_FAILED|Unicode parsing error|Unexpected NUL character'
+        $engineErrors = @(($text -split '\r?\n') | Select-String -Pattern $errorPattern -Context 0,4)
+        if ($engineErrors.Count -ne 0) {
+            Write-Host "WINDOWS_EXPORT_PROCESS_ERRORS_BEGIN: $Name"
+            foreach ($engineError in $engineErrors) {
+                Write-Host $engineError.Line
+                foreach ($contextLine in $engineError.Context.PostContext) { Write-Host $contextLine }
+            }
+            Write-Host "WINDOWS_EXPORT_PROCESS_ERRORS_END: $Name"
             throw "$Name reported an engine, script, data, or startup error; inspect its logs."
         }
         return $text

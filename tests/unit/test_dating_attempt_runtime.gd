@@ -152,6 +152,178 @@ func _finish_solo() -> void:
 	_clear_nonperfect_fixture()
 	assert_eq(_record().phase, "post_challenge")
 
+func test_production_pre_context_is_frozen_before_checkpoint_and_survives_load() -> void:
+	assert_true(physical_owner.configure_frozen_narrative_contexts().ok)
+	assert_true(_begin("frozen-pre").ok)
+	var frozen: Dictionary = physical_owner.pull_frozen_narrative_context(command.physical_token, "pre_challenge")
+	assert_true(frozen.ok, str(frozen))
+	if not frozen.ok: return
+	var expected: Dictionary = frozen.value.duplicate(true)
+	assert_eq(expected.fields.tier, "friend")
+	assert_false(expected.fields.has("attempt_id"), "pre prose precedes canonical attempt admission")
+	assert_eq(expected.fields.branch_id, state.capture_run_snapshot_input().lifecycle.branch_id)
+	var saved := _backup()
+	state.dating_route_state.priscilla.relationship_state = "love"
+	state.dating_route_state.priscilla.dark_points = 3
+	state.friend_attitude.priscilla = "fixated"
+	assert_eq(physical_owner.pull_frozen_narrative_context(command.physical_token, "pre_challenge").value, expected)
+	_restore(saved)
+	assert_true(_begin("frozen-restored-envelope").ok)
+	assert_eq(physical_owner.pull_frozen_narrative_context(command.physical_token, "pre_challenge").value, expected)
+	assert_true(profile.get_profile_snapshot().observer_evidence.is_empty(), "freezing prose creates no Observer receipts")
+
+func test_production_post_context_names_the_committed_effect_and_terminal_result() -> void:
+	assert_true(physical_owner.configure_frozen_narrative_contexts().ok)
+	assert_true(_begin("frozen-post").ok)
+	_finish_solo()
+	var frozen: Dictionary = physical_owner.pull_frozen_narrative_context(command.physical_token, "post_challenge")
+	assert_true(frozen.ok, str(frozen))
+	if not frozen.ok: return
+	var effect: Dictionary = _record().applied_result.receipt
+	assert_eq(frozen.value.fields.board_result, _record().outcome)
+	assert_eq(frozen.value.fields.relationship_outcome, "loved")
+	assert_eq(frozen.value.fields.effect_receipt_id, effect.terminal_fact.transaction_id)
+	assert_false(frozen.value.fields.has("progression_window_result"), "Day1 has no progression valve")
+	assert_false(frozen.value.fields.has("special_mine_phase"))
+	state.dating_route_state.priscilla.relationship_state = "love"
+	assert_eq(physical_owner.pull_frozen_narrative_context(command.physical_token, "post_challenge").value, frozen.value)
+
+func test_production_restore_refuses_missing_frozen_context_without_mutating_run_or_profile() -> void:
+	assert_true(physical_owner.configure_frozen_narrative_contexts().ok)
+	assert_true(_begin("frozen-required").ok)
+	state.route_context.erase("dating_frozen_contexts_v1")
+	var run_before := _backup()
+	var profile_before: Dictionary = profile.get_profile_snapshot()
+	var result := _begin("frozen-absent-restore")
+	assert_false(result.ok)
+	assert_eq(result.get("code"), &"frozen_context_snapshot_required")
+	assert_eq(_backup(), run_before)
+	assert_eq(profile.get_profile_snapshot(), profile_before)
+
+func test_pair_projection_copies_real_draw_and_window_fact_without_solo_sentinels() -> void:
+	assert_true(physical_owner.configure_frozen_narrative_contexts().ok)
+	var draw: Dictionary = preload("res://scripts/domain/relationship/PairDeckDraw.gd").build_draw([], 0).value
+	state.inter_friend_route_state.priscilla_lavinia = {"frozen_form": draw.form, "pair_deck_draw": draw}
+	state.contacts.transaction_receipts["fixture:pair-window"] = {"kind": "resolve_day_end", "day": 2,
+		"transaction_id": "fixture:pair-window", "pl_window": {"outcome": "group", "counts": true, "visible": true},
+		"group_date_variation": null}
+	assert_true(_begin("frozen-pair", "group", 2).ok)
+	var frozen: Dictionary = physical_owner.pull_frozen_narrative_context(command.physical_token, "pre_challenge")
+	assert_true(frozen.ok, str(frozen))
+	if not frozen.ok: return
+	assert_eq(frozen.value.fields.stable_deck_state, draw)
+	assert_eq(frozen.value.fields.pair_count_receipt.transaction_id, "fixture:pair-window")
+	assert_eq(frozen.value.fields.encounter_presentation, "group")
+	for key: String in ["friend_id", "tier", "attitude"]: assert_false(frozen.value.fields.has(key))
+	var original: Dictionary = frozen.value.duplicate(true)
+	state.contacts.transaction_receipts.clear()
+	state.inter_friend_route_state.priscilla_lavinia.pair_deck_draw = {}
+	assert_true(_begin("frozen-pair-remapped", "twofriends_if_deferred", 2).ok)
+	var remapped: Dictionary = physical_owner.pull_frozen_narrative_context(command.physical_token, "pre_challenge")
+	assert_true(remapped.ok, str(remapped))
+	if not remapped.ok: return
+	assert_eq(remapped.value.fields.encounter_presentation, "twofriends_if_deferred")
+	assert_false(remapped.value.fields.has("attempt_id"))
+	assert_eq(remapped.value.fields.stable_deck_state, original.fields.stable_deck_state)
+	assert_eq(remapped.value.fields.pair_count_receipt, original.fields.pair_count_receipt,
+		"a remap never reads the later live count or deck")
+	assert_eq(state.route_context.dating_frozen_contexts_v1.entries[original.fields.entry_id], original,
+		"the distinct remapped presentation cannot rewrite the first entry's snapshot")
+	assert_true(_begin("frozen-pair-remapped-restored", "twofriends_if_deferred", 2).ok)
+	assert_eq(physical_owner.pull_frozen_narrative_context(command.physical_token, "pre_challenge").value, remapped.value)
+
+func test_mid_board_restore_requires_the_original_pre_context_before_profile_reconciliation() -> void:
+	assert_true(physical_owner.configure_frozen_narrative_contexts().ok)
+	assert_true(_begin("frozen-mid-board").ok)
+	assert_true(_dispatch("continue").ok)
+	assert_true(_dispatch("reveal", 36).ok)
+	state.route_context.erase("dating_frozen_contexts_v1")
+	var run_before := _backup()
+	var profile_before: Dictionary = profile.get_profile_snapshot()
+	var result: Dictionary = physical_owner.reconcile_restore_silent({"route_id": "dating"})
+	assert_false(result.ok)
+	assert_eq(result.get("code"), &"frozen_context_snapshot_required")
+	assert_eq(_backup(), run_before)
+	assert_eq(profile.get_profile_snapshot(), profile_before)
+
+func test_pair_before_invitation_rollover_freezes_pending_without_minting_a_receipt() -> void:
+	assert_true(physical_owner.configure_frozen_narrative_contexts().ok)
+	state._lifecycle_set_playing_day(2)
+	var draw: Dictionary = preload("res://scripts/domain/relationship/PairDeckDraw.gd").build_draw([], 0).value
+	state.inter_friend_route_state.priscilla_lavinia = {"frozen_form": draw.form, "pair_deck_draw": draw}
+	assert_true(state._run_lifecycle.begin_day_resolution("fixture:resolution", {"entries": []}).ok)
+	assert_true(_begin("frozen-pair-pending", "group", 2).ok)
+	var frozen: Dictionary = physical_owner.pull_frozen_narrative_context(command.physical_token, "pre_challenge")
+	assert_true(frozen.ok, str(frozen))
+	if not frozen.ok: return
+	assert_eq(frozen.value.fields.pair_count_status, "pending_rollover")
+	assert_null(frozen.value.fields.pair_count_receipt)
+	assert_true(state.contacts.transaction_receipts.is_empty())
+	assert_true(_dispatch("continue").ok)
+	_clear_nonperfect_fixture()
+	var post: Dictionary = physical_owner.pull_frozen_narrative_context(command.physical_token, "post_challenge")
+	assert_true(post.ok, str(post))
+	if not post.ok: return
+	assert_eq(post.value.fields.pair_count_status, "pending_rollover")
+	assert_null(post.value.fields.pair_count_receipt)
+	state.contacts.transaction_receipts["fixture:later-window"] = {"kind": "resolve_day_end", "day": 2,
+		"transaction_id": "fixture:later-window", "pl_window": {"outcome": "group", "counts": true, "visible": true}}
+	state.inter_friend_route_state.priscilla_lavinia.pair_deck_draw = {}
+	assert_true(_begin("frozen-pair-pending-remap", "twofriends_if_deferred", 2).ok)
+	var remapped: Dictionary = physical_owner.pull_frozen_narrative_context(command.physical_token, "post_challenge")
+	assert_true(remapped.ok, str(remapped))
+	if not remapped.ok: return
+	assert_eq(remapped.value.fields.pair_count_status, "pending_rollover")
+	assert_null(remapped.value.fields.pair_count_receipt, "later rollover cannot rewrite a remapped snapshot")
+	assert_true(_begin("frozen-pair-pending-restored", "twofriends_if_deferred", 2).ok)
+
+func test_pair_without_a_committed_count_or_retained_rollover_plan_is_refused() -> void:
+	assert_true(physical_owner.configure_frozen_narrative_contexts().ok)
+	var draw: Dictionary = preload("res://scripts/domain/relationship/PairDeckDraw.gd").build_draw([], 0).value
+	state.inter_friend_route_state.priscilla_lavinia = {"frozen_form": draw.form, "pair_deck_draw": draw}
+	var before := _backup()
+	var refused := _begin("frozen-pair-no-count", "group", 2)
+	assert_false(refused.ok)
+	assert_eq(refused.get("code"), &"frozen_context_pair_receipt_required")
+	assert_eq(_backup(), before)
+
+func test_saved_context_cannot_claim_another_attempt_or_terminal_result() -> void:
+	assert_true(physical_owner.configure_frozen_narrative_contexts().ok)
+	assert_true(_begin("frozen-bindings").ok)
+	_finish_solo()
+	var original := _backup()
+	var entry_id := "dating.solo.priscilla.day1.post_challenge"
+	for change: Dictionary in [{"attempt_id": "another-board"}, {"board_result": "exploded", "relationship_outcome": "hatred"},
+			{"effect_receipt_id": "another-effect"}]:
+		_restore(original)
+		state.route_context.dating_frozen_contexts_v1.entries[entry_id].fields.merge(change, true)
+		var run_before := _backup()
+		var profile_before: Dictionary = profile.get_profile_snapshot()
+		assert_false(_begin("frozen-binding-restore").ok, str(change))
+		assert_eq(_backup(), run_before)
+		assert_eq(profile.get_profile_snapshot(), profile_before)
+
+func test_restore_before_date_admission_keeps_pre_facts_when_locked_attempt_is_selected() -> void:
+	assert_true(physical_owner.configure_frozen_narrative_contexts().ok)
+	var before_admission := _backup()
+	assert_true(_begin("frozen-first-attempt").ok)
+	_finish_solo()
+	var locked := _attempt()
+	_restore(before_admission)
+	assert_true(_begin("frozen-before-admission-load").ok)
+	var pre: Dictionary = physical_owner.pull_frozen_narrative_context(command.physical_token, "pre_challenge").value
+	assert_false(pre.fields.has("attempt_id"))
+	assert_eq(state.dating_route_state.priscilla.get("date_count", 0), 0)
+	assert_true(_dispatch("continue").ok)
+	assert_eq(_record().spec.board_token, locked.attempt_id)
+	assert_eq(_record().phase, "post_challenge")
+	assert_eq(state.route_context.dating_frozen_contexts_v1.entries[pre.fields.entry_id], pre)
+	assert_true(physical_owner.reconcile_restore_silent({"route_id": "dating"}).ok)
+	assert_true(_begin("frozen-locked-attempt-restored").ok)
+	var post: Dictionary = physical_owner.pull_frozen_narrative_context(command.physical_token, "post_challenge")
+	assert_true(post.ok, str(post))
+	if post.ok: assert_eq(post.value.fields.attempt_id, locked.attempt_id)
+
 ## Rows 0-1 hold 33 mines and three more wall off the bottom-left corner (306), so the flood
 ## from 323 leaves exactly one safe cell covered and the board stays in play.
 func _arm_walled_board() -> void:
@@ -511,8 +683,10 @@ func test_post_ending_old_midboard_and_sibling_loads_keep_exact_progress() -> vo
 	assert_eq(generation.call_log.size(), 1)
 
 func test_post_ending_pre_entry_load_gets_fresh_attempt_only_at_continue() -> void:
+	assert_true(physical_owner.configure_frozen_narrative_contexts().ok)
 	assert_true(_begin().ok)
 	var pre_entry := _backup()
+	var frozen_pre: Dictionary = physical_owner.pull_frozen_narrative_context(command.physical_token, "pre_challenge").value
 	var preliminary: Dictionary = _record().spec.duplicate(true)
 	_finish_solo()
 	assert_true(_dispatch("continue").ok)
@@ -528,6 +702,8 @@ func test_post_ending_pre_entry_load_gets_fresh_attempt_only_at_continue() -> vo
 	assert_eq(entered.generation, 2)
 	assert_ne(entered.attempt_id, first.attempt_id)
 	assert_ne(_record().spec.placement_nonce, preliminary.placement_nonce)
+	assert_eq(state.route_context.dating_frozen_contexts_v1.entries[frozen_pre.fields.entry_id], frozen_pre)
+	assert_true(physical_owner.reconcile_restore_silent({"route_id": "dating"}).ok)
 	assert_null(entered.materialization_receipt)
 	assert_eq(entered.branch_id, "fresh-loaded-branch")
 	assert_eq(_attempt(), first)

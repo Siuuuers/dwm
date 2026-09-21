@@ -13,7 +13,7 @@ func begin_presentation(_command_to_present: Dictionary) -> Dictionary:
 	_status = "idle"
 	return {"ok": true}
 
-func begin_phase(command: Dictionary, phase: String, retry: bool = false) -> Dictionary:
+func begin_phase(command: Dictionary, phase: String, retry: bool = false, _presentation: Dictionary = {}) -> Dictionary:
 	if phase not in ["pre_challenge", "post_challenge"]: return _fail()
 	if not _command.is_empty():
 		if _command != command or _phase != phase: return _fail()

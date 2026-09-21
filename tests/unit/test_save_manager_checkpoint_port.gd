@@ -995,6 +995,8 @@ func test_seeded_journal_without_remembered_texts_writes_full_writer_bytes() -> 
 	assert_true(seeded.get("ok", false), JSON.stringify(seeded))
 	assert_true(journal.commit_prepared(seeded["value"]["candidate"]).get("ok", false))
 	assert_eq((journal.get_bundles_for_disk() as Array).size(), 2, "the seed retained both earlier bundles")
+	assert_eq(journal.get_retained_bundle_text(str(snapshot["run_id"]) + ":2"), "",
+		"a cold seed starts without any byte proof")
 	var candidate := _commit_autosave(wired, snapshot, 444)
 	var document: Dictionary = candidate["autosave_document"]
 	assert_eq((document["recovery_journal"] as Array).size(), 2)
@@ -1005,6 +1007,12 @@ func test_seeded_journal_without_remembered_texts_writes_full_writer_bytes() -> 
 	assert_false(CANONICAL_JSON._can_use_native_encoder(document),
 		"the whole document is not native-eligible (float in an earlier bundle)")
 	_assert_autosave_matches_full_writer(wired, candidate, "autosave after a seeded journal")
+	for bundle: Dictionary in document["recovery_journal"]:
+		var checkpoint_id := str(bundle.snapshot.checkpoint_id)
+		assert_eq(journal.get_retained_bundle_text(checkpoint_id), _canonical_text(bundle),
+			"the full durable write proves the cold retained bundle: " + checkpoint_id)
+	var warm := _commit_autosave(wired, snapshot, 555)
+	_assert_autosave_matches_full_writer(wired, warm, "autosave after cold history was durably proven")
 
 
 ## The mixed encoding case on the SPLICE side: commit 1 carries a non-integral float (through
@@ -1297,7 +1305,7 @@ func test_spliced_normalization_preserves_validation_and_refusal_results() -> vo
 		var document := original.duplicate(true)
 		match fault:
 			"engine_text":
-				document.current_snapshot.snapshot.gameplay.route_context[&"history_probe"] = &"kept"
+				document.current_snapshot.snapshot.narrative_checkpoint[&"history_probe"] = &"kept"
 			"unknown_member": document["unexpected"] = 1.0
 			"invalid_current": document.current_snapshot["unexpected"] = true
 			"wrong_journal_type": document.recovery_journal = 3
@@ -1331,10 +1339,156 @@ func test_spliced_commit_uses_proven_history_even_when_caller_journal_is_edited(
 		var expected := (_canonical_text(candidate.autosave_document) + "\n").to_utf8_buffer()
 		var forged: Dictionary = candidate.autosave_document.recovery_journal[0]
 		forged.snapshot.gameplay.money = 999
-		forged.snapshot.gameplay.route_context[&"forged_history"] = &"must_not_be_written"
+		forged.snapshot.narrative_checkpoint[&"forged_history"] = &"must_not_be_written"
 		var committed: Dictionary = wired.port.commit(candidate)
 		assert_true(committed.get("ok", false), str(committed))
 		_assert_same_bytes(_written_autosave(wired), expected,
 			"journal-owned bytes and both semantic fallbacks remain exact after caller edits")
 		assert_eq(int(forged.snapshot.gameplay.money), 999, "caller journal stays untouched")
 	assert_true(wired.gate.release(&"causal_transaction", lease.value.token).get("ok", false))
+
+
+class HistoryProofFailureStorage:
+	extends "res://scripts/infrastructure/storage/JsonFileStorage.gd"
+	var failure_mode := ""
+	var completed_write := false
+
+	func _init(root_dir: String) -> void:
+		super(root_dir)
+
+	func write_atomic(relative_path: String, text: String, validator: Callable,
+			keep_backup: bool = true) -> Dictionary:
+		if failure_mode == "write":
+			return {"ok": false, "code": &"injected_write_failure"}
+		var result: Dictionary = super.write_atomic(relative_path, text, validator, keep_backup)
+		completed_write = result.get("ok", false)
+		return result
+
+	func read_text(relative_path: String) -> Dictionary:
+		if completed_write and failure_mode == "read":
+			return {"ok": false, "code": &"injected_read_failure"}
+		var result: Dictionary = super.read_text(relative_path)
+		if completed_write and failure_mode == "mismatch" and result.get("ok", false):
+			result["value"] = str(result["value"]) + "\n"
+		return result
+
+
+func _record_memory_history(wired: Dictionary, snapshot: Dictionary, kind: StringName) -> Dictionary:
+	var inputs := _checkpoint_inputs(snapshot)
+	inputs["dialogic_checkpoint"] = {"history_note": "kept"}
+	inputs["active_app_id"] = &"minesweeper"
+	var lease: Dictionary = wired.gate.acquire(&"causal_transaction")
+	assert_true(lease.get("ok", false), str(lease))
+	var prepared: Dictionary = wired.port.prepare(inputs, kind, {"kind": &"none", "reason": &"stage"})
+	assert_true(prepared.get("ok", false), str(prepared))
+	var bundle := {}
+	if prepared.get("ok", false):
+		assert_true(wired.port.commit(prepared.value.candidate).get("ok", false))
+		bundle = prepared.value.candidate.journal_candidate.current
+	assert_true(wired.gate.release(&"causal_transaction", lease.value.token).get("ok", false))
+	return bundle
+
+
+func test_full_autosave_proves_memory_only_history_for_the_next_splice() -> void:
+	var wired := _isolated_wired()
+	if wired.is_empty(): return
+	var snapshot := _completion_snapshot()
+	assert_true(wired.manager._journal.reset(str(snapshot.run_id)).get("ok", false))
+	for kind: StringName in [&"line", &"manual_save"]:
+		var bundle := _record_memory_history(wired, snapshot, kind)
+		assert_eq(typeof(bundle.snapshot.active_app_id), TYPE_STRING_NAME)
+		assert_eq(wired.manager._journal.get_retained_bundle_text(str(bundle.snapshot.checkpoint_id)), "",
+			"a memory-only record grants no durable proof")
+	var first := _commit_autosave(wired, snapshot, 301)
+	_assert_autosave_matches_full_writer(wired, first, "first durable full write")
+	for bundle: Dictionary in first.autosave_document.recovery_journal:
+		var checkpoint_id := str(bundle.snapshot.checkpoint_id)
+		assert_eq(wired.manager._journal.get_retained_bundle_text(checkpoint_id), _canonical_text(bundle))
+		assert_true(CANONICAL_JSON._deep_same(
+			wired.manager._journal.get_retained_bundle_document(checkpoint_id), bundle))
+		assert_eq(typeof(bundle.snapshot.active_app_id), TYPE_STRING,
+			"normalized written text agrees with retained engine StringName values")
+	var lease: Dictionary = wired.gate.acquire(&"causal_transaction")
+	assert_true(lease.get("ok", false))
+	var prepared: Dictionary = wired.port.prepare(_checkpoint_inputs(snapshot), &"post_result",
+		{"kind": &"autosave", "reason": &"automatic"})
+	assert_true(prepared.get("ok", false), str(prepared))
+	if prepared.get("ok", false):
+		var candidate: Dictionary = prepared.value.candidate
+		var document: Dictionary = candidate.autosave_document
+		var proofs: Array = []
+		var spliced: String = wired.port._splice_autosave_text(document,
+			_canonical_text(document.current_snapshot), proofs)
+		assert_eq(spliced, _canonical_text(document), "every actual retained entry now has an exact splice proof")
+		assert_eq(proofs.size(), document.recovery_journal.size())
+		assert_true(wired.port.commit(candidate).get("ok", false))
+		_assert_autosave_matches_full_writer(wired, candidate, "next write after warming history")
+	assert_true(wired.gate.release(&"causal_transaction", lease.value.token).get("ok", false))
+
+
+func test_history_proofs_require_successful_write_reread_and_journal_commit() -> void:
+	for failure: String in ["write", "read", "mismatch", "journal"]:
+		var wired := _isolated_wired()
+		if wired.is_empty(): return
+		var storage := HistoryProofFailureStorage.new(str(wired.root))
+		wired.manager._storage = storage
+		var snapshot := _completion_snapshot()
+		assert_true(wired.manager._journal.reset(str(snapshot.run_id)).get("ok", false))
+		var bundle := _record_memory_history(wired, snapshot, &"line")
+		var checkpoint_id := str(bundle.snapshot.checkpoint_id)
+		var lease: Dictionary = wired.gate.acquire(&"causal_transaction")
+		assert_true(lease.get("ok", false))
+		var prepared: Dictionary = wired.port.prepare(_checkpoint_inputs(snapshot), &"post_result",
+			{"kind": &"autosave", "reason": &"automatic"})
+		assert_true(prepared.get("ok", false), str(prepared))
+		if prepared.get("ok", false):
+			var candidate: Dictionary = prepared.value.candidate
+			storage.failure_mode = failure
+			if failure == "journal": candidate.journal_candidate.next_sequence += 1
+			var committed: Dictionary = wired.port.commit(candidate)
+			assert_false(committed.get("ok", true), failure)
+			var expected_codes := {"write": &"injected_write_failure", "read": &"injected_read_failure",
+				"mismatch": &"reread_mismatch", "journal": &"invalid_candidate"}
+			assert_eq(committed.get("code"), expected_codes[failure], failure)
+			assert_eq(storage.completed_write, failure != "write", "failure occurs at its intended gate")
+			assert_eq(wired.manager._journal.get_retained_bundle_text(checkpoint_id), "", failure)
+			assert_true(wired.manager._journal.get_retained_bundle_document(checkpoint_id).is_empty(), failure)
+			assert_eq(wired.manager._journal.get_retained_bundle_text(str(candidate.checkpoint_id)), "", failure)
+		assert_true(wired.gate.release(&"causal_transaction", lease.value.token).get("ok", false))
+
+
+func test_full_write_history_edits_never_prove_a_different_retained_bundle() -> void:
+	for edit: String in ["value", "float", "both_float", "malformed", "during_write"]:
+		var wired := _isolated_wired()
+		if wired.is_empty(): return
+		var snapshot := _completion_snapshot()
+		assert_true(wired.manager._journal.reset(str(snapshot.run_id)).get("ok", false))
+		var recorded := _record_memory_history(wired, snapshot, &"line")
+		var checkpoint_id := str(recorded.snapshot.checkpoint_id)
+		var lease: Dictionary = wired.gate.acquire(&"causal_transaction")
+		assert_true(lease.get("ok", false))
+		var prepared: Dictionary = wired.port.prepare(_checkpoint_inputs(snapshot), &"post_result",
+			{"kind": &"autosave", "reason": &"automatic"})
+		assert_true(prepared.get("ok", false), str(prepared))
+		if prepared.get("ok", false):
+			var candidate: Dictionary = prepared.value.candidate
+			var historical: Dictionary = candidate.autosave_document.recovery_journal[0]
+			match edit:
+				"value": historical.snapshot.gameplay.money += 100
+				"float": historical.snapshot.gameplay.money = float(historical.snapshot.gameplay.money)
+				"both_float":
+					historical.snapshot.gameplay.money = float(historical.snapshot.gameplay.money)
+					candidate.journal_candidate.earlier[0].snapshot.gameplay.money = historical.snapshot.gameplay.money
+				"malformed": candidate.autosave_document.recovery_journal[0] = {}
+				"during_write":
+					assert_true(wired.manager._storage.configure_before_write(func() -> Dictionary:
+						historical.snapshot.gameplay.money += 100
+						candidate.journal_candidate.earlier[0].snapshot.gameplay.money += 100
+						return {"ok": true}).get("ok", false))
+			var expected := (_canonical_text(candidate.autosave_document) + "\n").to_utf8_buffer()
+			var committed: Dictionary = wired.port.commit(candidate)
+			assert_true(committed.get("ok", false), edit + ": " + str(committed))
+			_assert_same_bytes(_written_autosave(wired), expected, "full writer stays authoritative: " + edit)
+			assert_eq(wired.manager._journal.get_retained_bundle_text(checkpoint_id), "", edit)
+			assert_true(wired.manager._journal.get_retained_bundle_document(checkpoint_id).is_empty(), edit)
+		assert_true(wired.gate.release(&"causal_transaction", lease.value.token).get("ok", false))

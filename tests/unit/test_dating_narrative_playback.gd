@@ -103,6 +103,42 @@ func test_repeated_begin_waits_for_natural_completion_without_restarting() -> vo
 	assert_eq(playback.begin_phase(command, "pre_challenge").value.status, "completed")
 	assert_eq(bridge.starts.size(), 1, "completed prose remains completed until its boundary succeeds")
 
+func test_full_projection_is_checked_frozen_and_cannot_change_during_the_same_phase() -> void:
+	var fields := preload("res://tests/unit/test_frozen_presentation_context.gd").solo_fields()
+	var presentation: Dictionary = preload("res://scripts/narrative/FrozenPresentationContext.gd").build(
+		command.timeline_id, fields).value
+	assert_true(playback.begin_phase(command, "pre_challenge", false, presentation).get("ok", false))
+	assert_eq(bridge.starts.size(), 1)
+	assert_eq(bridge.starts[0].context.presentation, presentation)
+	presentation.fields.tier = "love"
+	assert_eq(bridge.starts[0].context.presentation.fields.tier, "friend")
+	assert_eq(playback.begin_phase(command, "pre_challenge", false, presentation).get("code"), &"dating_narrative_context_conflict")
+	assert_true(bridge.has_active_playback(), "a conflicting projection cannot retire the admitted playback")
+	assert_true(bridge.finish().get("ok", false))
+
+func test_invalid_full_projection_never_calls_bridge() -> void:
+	var fields := preload("res://tests/unit/test_frozen_presentation_context.gd").solo_fields()
+	var presentation: Dictionary = preload("res://scripts/narrative/FrozenPresentationContext.gd").build(
+		command.timeline_id, fields).value
+	presentation.fields.friend_id = "lavinia"
+	assert_false(playback.begin_phase(command, "pre_challenge", false, presentation).get("ok", false))
+	assert_true(bridge.starts.is_empty())
+
+func test_invalid_replacement_projection_does_not_abort_the_current_entry() -> void:
+	bridge.allow_abort = true
+	assert_true(playback.begin_phase(command, "pre_challenge").get("ok", false))
+	var fields := preload("res://tests/unit/test_frozen_presentation_context.gd").solo_fields()
+	var presentation: Dictionary = preload("res://scripts/narrative/FrozenPresentationContext.gd").build(
+		command.timeline_id, fields).value
+	presentation.fields.friend_id = "lavinia"
+	var replacement := command.duplicate(true)
+	replacement.physical_token = "physical:replacement"
+	replacement.completion_transaction_id = "transaction:replacement"
+	assert_false(playback.begin_phase(replacement, "pre_challenge", false, presentation).get("ok", false))
+	assert_eq(bridge.abort_calls, 0)
+	assert_true(bridge.has_active_playback())
+	assert_true(playback.pull_phase(command, "pre_challenge").get("ok", false))
+
 func test_return_only_entry_can_complete_synchronously_inside_start() -> void:
 	bridge.complete_during_start = true
 	var started: Dictionary = playback.begin_phase(command, "pre_challenge")

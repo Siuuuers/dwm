@@ -1619,6 +1619,8 @@ func _configure_desktop_production_graph() -> Dictionary:
 			_retained_dating_physical_owner = dating_owner
 		var history_bound: Dictionary = _retained_dating_physical_owner.configure_attempt_history(_application_gate)
 		if not history_bound.get("ok", false): return history_bound
+		var frozen_contexts_bound: Dictionary = _retained_dating_physical_owner.configure_frozen_narrative_contexts()
+		if not frozen_contexts_bound.get("ok", false): return frozen_contexts_bound
 		var restore_bound: Dictionary = game_state.configure_dating_restore_reconciler(
 			Callable(_retained_dating_physical_owner, "reconcile_restore_silent"))
 		if not restore_bound.get("ok", false): return restore_bound
@@ -2286,4 +2288,3 @@ func _finish_day_resolution_route() -> Dictionary:
 	var router := _target(&"SceneRouter")
 	if str(router.get_current_route_id()) != "ending": router.goto_ending()
 	return resumed
-

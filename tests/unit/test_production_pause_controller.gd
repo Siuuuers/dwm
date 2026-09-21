@@ -790,12 +790,13 @@ func test_paused_debug_preparation_save_preserves_exact_frontier_without_enterin
 	assert_true((await controller.request_continue()).ok)
 
 
-func _quick_native_key(code: Key, pressed: bool, echo: bool = false) -> void:
+func _quick_native_key(code: Key, pressed: bool, echo: bool = false, shift_pressed: bool = false) -> void:
 	var event := InputEventKey.new()
 	event.keycode = code
 	event.physical_keycode = code
 	event.pressed = pressed
 	event.echo = echo
+	event.shift_pressed = shift_pressed
 	get_viewport().push_input(event, true)
 
 func _quick_native_tap(code: Key) -> void:
@@ -808,6 +809,12 @@ func _quick_native_pad(button: JoyButton, pressed: bool) -> void:
 	event.button_index = button
 	event.pressed = pressed
 	get_viewport().push_input(event, true)
+
+func _quick_write_count(files: RefCounted) -> int:
+	var count := 0
+	for operation: Dictionary in files.operation_trace():
+		if operation.operation == &"write_bytes": count += 1
+	return count
 
 func test_paused_quick_save_uses_real_dating_capture_without_changing_focus_or_backup_selection() -> void:
 	var fixture := _dating_save_fixture()
@@ -827,14 +834,16 @@ func test_paused_quick_save_uses_real_dating_capture_without_changing_focus_or_b
 	assert_same(get_viewport().gui_get_focus_owner(), focused)
 	assert_eq(controller.surface.entered_action, &"")
 	assert_eq(controller._quick_commands.edge.key, &"saved")
-	var revision: Dictionary = fixture.storage.inspect_revision("quicksave.json")
+	# Identical captured bytes can retain the same content-hash revision. Count
+	# the real storage writes to distinguish a fresh press from held repeats.
+	var written := _quick_write_count(fixture.files)
 	_quick_native_key(KEY_F5, true)
-	var once: Dictionary = fixture.storage.inspect_revision("quicksave.json")
+	var once := _quick_write_count(fixture.files)
 	_quick_native_key(KEY_F5, true, true)
 	_quick_native_key(KEY_F5, true)
-	assert_eq(fixture.storage.inspect_revision("quicksave.json"), once, "Held and echoed contacts do not write again")
+	assert_eq(_quick_write_count(fixture.files), once, "Held and echoed contacts do not write again")
 	_quick_native_key(KEY_F5, false)
-	assert_ne(once, revision)
+	assert_gt(once, written, "A released and freshly pressed contact reaches real storage again")
 
 func test_paused_quick_rebinding_quarantines_the_held_new_key_until_release() -> void:
 	var fixture := _dating_save_fixture()
@@ -850,6 +859,30 @@ func test_paused_quick_rebinding_quarantines_the_held_new_key_until_release() ->
 	assert_false(fixture.storage.exists("quicksave.json"), "The replaced binding is inert")
 	_quick_native_tap(KEY_F6)
 	assert_true(fixture.storage.exists("quicksave.json"), str(controller._quick_commands.last_result))
+
+func test_paused_quick_accepts_a_saved_modifier_chord_but_not_an_unrelated_held_contact() -> void:
+	var fixture := _dating_save_fixture()
+	if fixture.is_empty(): return
+	var replacement := InputEventKey.new()
+	replacement.physical_keycode = KEY_F6
+	replacement.shift_pressed = true
+	assert_true(input_owner.rebind_action("game_quick_save", replacement).ok)
+	if not await _open_pause(): return
+	_quick_native_key(KEY_F7, true)
+	_quick_native_key(KEY_SHIFT, true, false, true)
+	_quick_native_key(KEY_F6, true, false, true)
+	assert_false(fixture.storage.exists("quicksave.json"), "An unrelated held key still owns the contact interval")
+	_quick_native_key(KEY_F6, false, false, true)
+	_quick_native_key(KEY_SHIFT, false)
+	_quick_native_key(KEY_F7, false)
+	_quick_native_key(KEY_SHIFT, true, false, true)
+	_quick_native_key(KEY_F6, true, false, true)
+	assert_true(fixture.storage.exists("quicksave.json"), str(controller._quick_commands.last_result))
+	var writes := _quick_write_count(fixture.files)
+	_quick_native_key(KEY_F6, true, true, true)
+	assert_eq(_quick_write_count(fixture.files), writes)
+	_quick_native_key(KEY_F6, false, false, true)
+	_quick_native_key(KEY_SHIFT, false)
 
 func test_paused_quick_load_cancel_retains_backup_drawer_mode_and_exact_focus() -> void:
 	saves.populated = true
@@ -877,14 +910,14 @@ func test_paused_controller_quick_load_uses_saved_binding_and_compensates_failur
 	saves.populated = true
 	saves.fail_load = true
 	var replacement := InputEventJoypadButton.new()
-	replacement.button_index = JOY_BUTTON_RIGHT_SHOULDER
+	replacement.button_index = JOY_BUTTON_PADDLE1
 	assert_true(input_owner.rebind_action("game_quick_load", replacement).ok)
 	if not await _open_pause(): return
 	_quick_native_pad(JOY_BUTTON_RIGHT_STICK, true)
 	_quick_native_pad(JOY_BUTTON_RIGHT_STICK, false)
 	assert_null(controller.surface._host_confirmation)
-	_quick_native_pad(JOY_BUTTON_RIGHT_SHOULDER, true)
-	_quick_native_pad(JOY_BUTTON_RIGHT_SHOULDER, false)
+	_quick_native_pad(JOY_BUTTON_PADDLE1, true)
+	_quick_native_pad(JOY_BUTTON_PADDLE1, false)
 	var sheet: Control = controller.surface._host_confirmation
 	assert_not_null(sheet)
 	if sheet == null: return

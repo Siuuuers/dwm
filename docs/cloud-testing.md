@@ -6,11 +6,15 @@ or cloud desktop is required to start these checks.
 
 Each Windows Server 2022 job downloads the standard Godot 4.6.3 editor from the
 official release, verifies its SHA256, imports the complete repository, and runs
-one bounded GUT suite: Minesweeper, Shop, desktop input/layout, Settings/display,
-New Account persistence and serialization, reading/delivery behavior, or
-localization and language fallback.
+one bounded GUT suite. The eleven groups cover Minesweeper, Shop, desktop
+input/layout, Settings/display, New Account persistence and serialization,
+reading/delivery, localization, dating, persistence, endings, and audio.
 The current production project uses GDScript and does not include a C# project.
-This workflow does not compile C# or produce a distributable Windows export.
+The workflow also has six separate jobs for rendered desktop UI, rendered
+playable journeys, public API contracts, paired checkpoint measurements,
+seven-day retained-history measurements, and Windows release export/startup.
+There are seventeen jobs in total; their individual results determine which
+claims the run supports.
 
 A supplementary job renders the computer panel on Ubuntu 24.04 using the same pinned
 Godot release, Xvfb, and Mesa software OpenGL. The desktop scaling harness
@@ -18,7 +22,7 @@ captures 38 states covering the launcher, apps, scrolled content, menus, and
 confirmations at baseline and enlarged widths. Geometry assertions, a successful
 JSON report, and all 38 nonempty PNG files are required. Its screenshots and logs
 are uploaded for visual review; a headless geometry run cannot satisfy this job.
-This supplementary renderer does not replace the seven Windows test groups.
+This supplementary renderer does not replace the Windows test groups.
 The desktop captures include Minesweeper Rules and Assignments overlays in
 English, plus Japanese at 150% text size with large targets and high contrast.
 The launcher samples also cover the seven procedural pixel icons, the separate
@@ -68,17 +72,18 @@ checks cannot replace them.
 `tools/testing/Invoke-CloudTests.ps1` lists the exact test scripts. It reuses the
 existing isolated runner, which gives each run disposable user data and rejects
 requested scripts that never execute. A missing or empty JUnit report also fails
-the job. The seven groups continue independently so one failure does not conceal
+the job. The eleven groups continue independently so one failure does not conceal
 the other results. Each job has a 20-minute limit.
 
-The `localization` group includes 17 scripts covering Japanese and Korean UI,
+The `localization` group includes scripts covering Japanese and Korean UI,
 catalog extraction, font preparation, Gallery typography, correspondence,
 speech and transport, control bindings, Backup resizing, desktop recovery,
 and ending recovery. Font tests check explicit style selection, regional glyph
 coverage, shared resource isolation, and text measurement. Settings tests cover
 font migration, persistence, refused writes, and restoring a candidate font and
-size. There are 97 requested scripts across the seven Windows
-groups, plus the supplementary rendering job, for eight jobs in total.
+size. The script arrays in `Invoke-CloudTests.ps1` are the authoritative inventory
+of requested tests; adding a path does not count as coverage until the isolated
+runner proves that it executed.
 
 The desktop group also covers Angela's stat overlay geometry, preserved stat
 values, the existing week tint behavior, and artwork placement in the shell.
@@ -101,6 +106,50 @@ that reading controls retain their existing behavior, plus scene-art binding
 checks for the shared artwork layout.
 Font changes are also exercised in late-game cards and Gallery replay while
 preserving their current text, reading delay, and replay ownership.
+
+The dating group checks physical ownership, automatic pre-board/post-board
+handoffs, capability admission, retained attempt evidence, and rehearsal. The
+dating challenge has no Continue/Done interstitial or special-mine action: a
+solved board enters its represented post-board timeline. Empty authored timelines
+do not create invented Gallery witnesses. Observer endings use the current
+non-interaction requirements; retired Observer interaction code remains available
+in the dedicated archive branch.
+
+The persistence group exercises Profile chronology and migration, dating/pair
+evidence, retained checkpoints, restore compensation, and public SaveManager
+boundaries. The endings group checks ordered playback, durable completion, and
+Day 7 provenance. Audio tests distinguish an exact failed-restore rollback from
+the accepted curated audio anchors used by a successful Load.
+
+`run_cloud_journeys.py` runs five isolated rendered journeys with fresh user
+directories, per-process timeouts, required completion markers, and screenshot
+hashes. They cover a full week, normal and condition endings, dating/Load, and
+Gallery/rehearsal. Explicit prior-ending and legacy-reached fixtures are labelled
+in the report; they are navigation fixtures, not evidence of newly authored
+story content. All five cases run even if an earlier case fails.
+
+The public-surface job checks GameState and SaveManager against their required
+contracts and scans production scenes/scripts and tests for the six retired
+GameState wrappers. Canonical inventories are generated by the existing Godot
+tooling. A temporary regeneration step used when updating those committed
+inventories must be replaced by a read-only check before acceptance; a generator
+silently repairing stale output cannot establish a clean committed inventory.
+
+The checkpoint jobs keep correctness separate from timing. The retained-history
+journey writes through the real New Account and Slot 1 paths across seven days,
+adds explicitly synthetic line/manual checkpoints, verifies retention, and then
+checks the exact Day 7 continuation in a fresh process. Its paired microbenchmark
+uses the same inputs with the baseline and candidate checkpoint port, verifies
+identical output, and reports individual phases. Do not sum overlapping profiler
+scopes or infer an improvement from separate runners' wall-clock durations.
+
+The Windows export job downloads and verifies the official 4.6.3 templates,
+exports the release preset, audits packed runtime data and excluded development
+files, collects applicable licence notices, and starts the actual exported EXE
+with clean isolated user data. A package is zipped only after these checks pass.
+Its manifest records file hashes and the startup receipt. This validates a
+headless package startup; it does not establish physical Windows window, GPU,
+screen-reader, audible-output, or distribution-signing acceptance.
 
 The `new_account` group also runs `tests/integration/verify_new_acc_latency.gd`
 in a separate isolated process. It exercises the real New Account button for a
@@ -154,7 +203,8 @@ gitlinks are repaired.
 Headless tests can verify scene geometry, focus, commands, preserved game state,
 and display transactions through test ports. The supplementary Linux screenshots
 provide rendered layout evidence, but do not establish Windows GPU behavior,
-audible output, real monitor/DPI behavior, or release packaging. The existing
+audible output, or real monitor/DPI behavior. Release packaging has its own export
+job and must be assessed from that job's results. The existing
 `tests/manual/verify_window_mode_native.gd` needs an
 isolated, non-headless Windows desktop to test the physical window. Do not label
 headless success as completion of that native check.

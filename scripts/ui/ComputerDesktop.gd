@@ -13,6 +13,7 @@ const CONFIRMATION := preload("res://scripts/ui/desktop/DesktopConfirmation.gd")
 const CONFIRMATION_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
 const TOUCH_NAVIGATION := preload("res://scripts/ui/desktop/DesktopTouchNavigation.gd")
 const MINESWEEPER_GRID := preload("res://scripts/ui/minesweeper/MinesweeperGrid.gd")
+const QUICK_STATUS_APPS := [&"minesweeper", &"contacts", &"schedule", &"shop", &"settings"]
 const WARNING_NAVIGATION_TARGETS := {
 	&"open_contacts_list": &"contacts",
 	&"open_minesweeper": &"minesweeper",
@@ -280,13 +281,18 @@ func _layout_desktop() -> void:
 
 func _refresh_app_scroll() -> void:
 	if not is_instance_valid(app_scroll_rail): return
+	var chrome_height := 64.0 + _quick_status_band_height()
+	app_scroll.offset_bottom = -chrome_height
+	app_scroll_rail.offset_bottom = -chrome_height
+	background_image.offset_bottom = -chrome_height
 	app_scroll.visible = _active_id != &""
 	var app: Control = _cached_app_windows.get(_active_id)
 	if is_instance_valid(app):
 		if app.has_method("set_desktop_height"):
-			app.set_desktop_height(floori(desktop_canvas.size.y - 64))
+			app.set_desktop_height(floori(desktop_canvas.size.y - chrome_height))
 		app_window_host.custom_minimum_size.y = app.get_combined_minimum_size().y
 	app_scroll_rail.visible = app_scroll.visible and app_scroll_rail.max_value > app_scroll_rail.page
+	queue_redraw()
 
 
 func _on_footer_child_added(child: Node) -> void:
@@ -519,6 +525,7 @@ func configure_quick_commands(port: Object, input_owner: Object, source_admissio
 		return {"ok": false, "code": &"quick_owners_unavailable"}
 	_quick_commands = candidate
 	add_child(candidate)
+	_refresh_app_scroll()
 	return {"ok": true}
 
 func _quick_production_admitted() -> bool:
@@ -529,20 +536,33 @@ func _quick_production_admitted() -> bool:
 		and bridge.get_current_timeline_id().is_empty()
 
 func _input(event: InputEvent) -> void:
-	if is_instance_valid(_quick_commands): _quick_commands.observe_input(event)
+	if not is_instance_valid(_quick_commands): return
+	_quick_commands.observe_input(event)
+	# Focused app controls can consume keyboard packets during GUI dispatch.
+	# Only an admitted Quick command precedes them; capture and modal owners keep
+	# every denied packet through their existing can_return_home custody seam.
+	if _quick_commands._admitted() and _quick_commands.handle_input(event):
+		get_viewport().set_input_as_handled()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if is_instance_valid(_quick_commands) and _quick_commands.handle_input(event) and is_inside_tree():
 		get_viewport().set_input_as_handled()
 
 func quick_status_safe_rect() -> Rect2:
-	# Known blank regions only. Other apps wait for their own protected-region map.
-	if status_label.visible: return Rect2()
+	if status_label.visible or delivery_notice.is_visible_in_tree(): return Rect2()
 	for child: Node in notification_layer.get_children():
 		if child is Control and child.is_visible_in_tree(): return Rect2()
 	if _active_id == &"backup" and app_scroll.scroll_vertical == 0: return Rect2(480, 16, 304, 64)
 	if _active_id == &"": return Rect2(24, desktop_canvas.size.y - 144, 752, 64)
+	if _quick_status_band_height() > 0:
+		return Rect2(24, desktop_canvas.size.y - 128, 752, 64)
 	return Rect2()
+
+func _quick_status_band_height() -> float:
+	# Reserve geometry while the app is open, even when no status is visible.
+	# The board/transcript and transaction controls remain inside AppScroll;
+	# the existing app strip keeps its full height and input targets.
+	return 64.0 if is_instance_valid(_quick_commands) and _active_id in QUICK_STATUS_APPS else 0.0
 
 func present_confirmation(request: Dictionary, accept: Callable, cancel: Callable) -> Dictionary:
 	if is_instance_valid(_confirmation):
@@ -1152,5 +1172,6 @@ func _draw() -> void:
 		return
 	draw_rect(Rect2(Vector2.ZERO, size), get_theme_color("habitat", "Desktop"))
 	var footer_height := 64.0 * desktop_canvas.scale.y
-	draw_rect(Rect2(0, size.y - footer_height, size.x, footer_height), get_theme_color("face", "Desktop"))
+	var chrome_height := (64.0 + _quick_status_band_height()) * desktop_canvas.scale.y
+	draw_rect(Rect2(0, size.y - chrome_height, size.x, chrome_height), get_theme_color("face", "Desktop"))
 	draw_rect(Rect2(0, size.y - footer_height, size.x, 2 * desktop_canvas.scale.y), get_theme_color("structure", "Desktop"))

@@ -120,6 +120,36 @@ func start_timeline(path: String, label_or_index: Variant = 0) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"path": path, "label_or_index": label_or_index}}
 
 
+## Frozen is a reserved, transient DTL namespace. The variable tree is read-only for
+## this entry; gameplay changes still travel through acknowledged semantic signals.
+var _frozen_variables_before: Dictionary = {}
+var _frozen_variables_installed := false
+
+func install_frozen_presentation(presentation: Dictionary) -> Dictionary:
+	if not _bound or has_active_playback() or _frozen_variables_installed:
+		return _fail(&"frozen_context_runtime_busy", "no idle presentation slot")
+	if not presentation.get("fields") is Dictionary:
+		return _fail(&"frozen_context_schema_mismatch", "fields must be a dictionary")
+	var checked := preload("res://scripts/narrative/FrozenPresentationContext.gd").validate(
+		str(presentation.get("fields", {}).get("entry_id", "")), presentation)
+	if not checked.ok: return checked
+	var prior: Variant = _dialogic.current_state_info.get("variables", {})
+	if not prior is Dictionary: return _fail(&"frozen_context_variables_invalid", "variables must be a dictionary")
+	var fields: Dictionary = preload("res://scripts/narrative/FrozenPresentationContext.gd").immutable_fields(checked.value)
+	var projected: Dictionary = prior.duplicate(true)
+	_frozen_variables_before = prior.duplicate(true)
+	projected["Frozen"] = fields
+	projected.make_read_only()
+	_dialogic.current_state_info["variables"] = projected
+	_frozen_variables_installed = true
+	return {"ok": true}
+
+func release_frozen_presentation() -> void:
+	if not _frozen_variables_installed: return
+	_dialogic.current_state_info["variables"] = _frozen_variables_before.duplicate(true)
+	_frozen_variables_before = {}
+	_frozen_variables_installed = false
+
 func has_active_playback() -> bool:
 	return _activity_phase != ""
 
@@ -151,6 +181,7 @@ func _verify_pending_start(generation: int) -> void:
 	_activity_phase = ""
 	_requested_path = ""
 	_discard_pending_layout()
+	release_frozen_presentation()
 	playback_start_failed.emit(_fail(&"runtime_start_failed", "ready layout did not start its timeline"))
 
 
@@ -206,6 +237,7 @@ func restore_captured_state(backup: Dictionary) -> Dictionary:
 
 
 func halt_with_error(result: Dictionary) -> Dictionary:
+	release_frozen_presentation()
 	_start_generation += 1
 	if _activity_phase == "starting":
 		# Cancel only the queued native start this adapter admitted. No prose ran.
@@ -350,6 +382,7 @@ func _on_timeline_started() -> void:
 
 
 func _on_timeline_ended() -> void:
+	release_frozen_presentation()
 	_activity_phase = ""
 	_runtime_generation = 0
 	_pending_layout = null
@@ -362,6 +395,7 @@ func _on_qualified_timeline_started(generation: int, request_id: String) -> void
 		or request_id != _request_id or str(_dialogic.current_timeline.resource_path) != _requested_path)
 	_runtime_generation = generation
 	if replaced:
+		release_frozen_presentation()
 		_start_generation += 1
 		_requested_path = ""
 		# Never delete a layout now used by foreign native playback.

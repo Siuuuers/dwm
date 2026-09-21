@@ -511,3 +511,79 @@ func test_prepare_record_keeps_every_refusal_and_its_order_when_a_proof_is_suppl
 		"a proven candidate is byte-equal to the one a second validation produces")
 	assert_eq(int(journal.peek_next_sequence("run-a")["value"]["checkpoint_sequence"]), 1,
 		"preparation never consumes the cursor, proven or not")
+
+
+func test_written_retained_proof_requires_matching_normalized_snapshot_and_detaches() -> void:
+	var journal := _fresh("run-a")
+	_commit_record(journal, "run-a", 1, &"line")
+	_commit_record(journal, "run-a", 2, &"post_result")
+	var bundle: Dictionary = journal.get_retained_bundle("run-a:1").duplicate(true)
+	var emitted: Dictionary = preload("res://scripts/validation/CanonicalJsonWriter.gd").stringify(bundle)
+	assert_true(emitted.get("ok", false), str(emitted))
+	assert_false(journal.remember_committed_bundle_text("run-a:1", str(emitted.value), bundle),
+		"the original API remains current-only")
+	assert_false(journal.remember_written_retained_bundle("absent", str(emitted.value), bundle))
+	assert_false(journal.remember_written_retained_bundle("run-a:1", "", bundle))
+	var changed := bundle.duplicate(true)
+	changed.snapshot.gameplay.money += 1
+	assert_false(journal.remember_written_retained_bundle("run-a:1", str(emitted.value), changed))
+	changed = bundle.duplicate(true)
+	changed.snapshot.gameplay.money = float(changed.snapshot.gameplay.money)
+	assert_false(journal.remember_written_retained_bundle("run-a:1", str(emitted.value), changed),
+		"equal numeric magnitude does not prove equal physical JSON types")
+	assert_true(journal.remember_written_retained_bundle("run-a:1", str(emitted.value), bundle))
+	bundle.snapshot.gameplay.money += 100
+	assert_eq(journal.get_retained_bundle_text("run-a:1"), str(emitted.value))
+	assert_ne(journal.get_retained_bundle_document("run-a:1").snapshot.gameplay.money,
+		bundle.snapshot.gameplay.money, "remembered proof owns a private deep copy")
+
+
+func test_written_history_proof_rejects_jointly_edited_unnormalized_or_invalid_snapshot() -> void:
+	for edit: String in ["float", "unknown_snapshot_key", "unknown_bundle_key"]:
+		var journal := _fresh("run-a")
+		_commit_record(journal, "run-a", 1, &"line")
+		var prepared: Dictionary = journal.prepare_record(_snapshot("run-a", 2), &"post_result")
+		assert_true(prepared.get("ok", false))
+		var candidate: Dictionary = prepared.value.candidate
+		var history: Dictionary = candidate.earlier[0]
+		match edit:
+			"float": history.snapshot.gameplay.money = float(history.snapshot.gameplay.money)
+			"unknown_snapshot_key": history.snapshot["unknown"] = true
+			"unknown_bundle_key": history["unknown"] = true
+		assert_true(journal.commit_prepared(candidate).get("ok", false),
+			"existing journal commit preserves caller history for recovery: " + edit)
+		var text: String = preload("res://scripts/validation/CanonicalJsonWriter.gd").stringify(history).value
+		assert_false(journal.remember_written_retained_bundle("run-a:1", text, history),
+			"matching ids and values alone cannot authorize future validation bypass: " + edit)
+		assert_eq(journal.get_retained_bundle_text("run-a:1"), "")
+
+
+func test_written_retained_proofs_expire_with_eviction_restore_seed_and_reset() -> void:
+	var journal := _fresh("run-a")
+	for sequence: int in [1, 2, 3]:
+		_commit_record(journal, "run-a", sequence, &"post_result")
+	var bundle: Dictionary = journal.get_retained_bundle("run-a:1").duplicate(true)
+	var text: String = preload("res://scripts/validation/CanonicalJsonWriter.gd").stringify(bundle).value
+	assert_true(journal.remember_written_retained_bundle("run-a:1", text, bundle))
+	_commit_record(journal, "run-a", 4, &"post_result")
+	assert_eq(journal.get_retained_bundle_text("run-a:1"), "", "eviction clears historical proofs")
+	assert_false(journal.remember_written_retained_bundle("run-a:1", text, bundle),
+		"a late proof cannot resurrect an evicted bundle")
+	for reset_kind: String in ["restore", "seed", "reset"]:
+		bundle = journal.get_retained_bundle("run-a:2").duplicate(true)
+		text = str(preload("res://scripts/validation/CanonicalJsonWriter.gd").stringify(bundle).value)
+		assert_true(journal.remember_written_retained_bundle("run-a:2", text, bundle))
+		match reset_kind:
+			"restore":
+				assert_true(journal.restore_state(journal.capture_state().value.backup).get("ok", false))
+			"seed":
+				var current: Dictionary = journal.get_current_bundle().value.bundle
+				var document: Dictionary = load(DOCUMENT_SCHEMA_PATH).build(&"autosave", null, &"automatic",
+					current, journal.get_bundles_for_disk())
+				assert_true(document.get("ok", false))
+				var prepared: Dictionary = journal.prepare_seed(document.value, current)
+				assert_true(prepared.get("ok", false))
+				assert_true(journal.commit_prepared(prepared.value.candidate).get("ok", false))
+			"reset": assert_true(journal.reset("run-a").get("ok", false))
+		assert_eq(journal.get_retained_bundle_text("run-a:2"), "", reset_kind)
+		assert_true(journal.get_retained_bundle_document("run-a:2").is_empty(), reset_kind)

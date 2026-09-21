@@ -5,6 +5,7 @@ extends RefCounted
 ## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 5).
 
 const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
+const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
 const LINE_RETENTION := 32
 const MANUAL_SAVE_RETENTION := 32
@@ -22,7 +23,7 @@ var _run_id := ""
 var _next_sequence := 1
 var _current: Dictionary = {}
 var _earlier: Array[Dictionary] = []
-# What the checkpoint port proved for a bundle at that bundle's OWN commit, keyed by checkpoint_id:
+# What the checkpoint port proved for a bundle in a completed durable write, keyed by checkpoint_id:
 # {"text": canonical text, "document_bundle": private deep copy of the document bundle those bytes
 # describe}. ONE map, so the two proofs share one lifetime and cannot diverge -- the journal owns
 # bundle lifetime, so a proof lives exactly as long as its bundle stays a retained private
@@ -143,6 +144,35 @@ func remember_committed_bundle_text(checkpoint_id: String, text: String,
 	if text.is_empty() or _current.is_empty():
 		return false
 	if str((_current["snapshot"] as Dictionary)["checkpoint_id"]) != checkpoint_id:
+		return false
+	_bundle_proofs[checkpoint_id] = {"text": text, "document_bundle": document_bundle.duplicate(true)}
+	return true
+
+## A full Autosave can first persist a previously memory-only or cold-seeded earlier bundle.
+## The port calls this only AFTER a successful write, exact reread and journal commit, and proves
+## that `text` is the canonical region actually written for `document_bundle`. A checkpoint id
+## alone is insufficient: caller edits may have made the written and retained bundles differ.
+## Keep the journal value on the left so engine StringName values compare to normalized strings;
+## numeric widening remains a mismatch. Proofs share the existing retention/reset/restore rules.
+func remember_written_retained_bundle(checkpoint_id: String, text: String,
+		document_bundle: Dictionary) -> bool:
+	if text.is_empty() or document_bundle.is_empty():
+		return false
+	var retained := get_retained_bundle(checkpoint_id)
+	if retained.is_empty() or not CANONICAL_JSON._deep_same(retained, document_bundle):
+		return false
+	# Full document validation preserves primitive fallback entries even when their snapshot is
+	# unusable. Prove the stronger invariant needed by the future builder fast path exactly once.
+	var keys: Array = document_bundle.keys()
+	keys.sort()
+	if keys != ["checkpoint_kind", "snapshot"] or document_bundle.get("snapshot") is not Dictionary:
+		return false
+	var kind := str(document_bundle.get("checkpoint_kind", ""))
+	if kind != "line" and kind not in SEMANTIC_KINDS:
+		return false
+	var validated := RUN_SNAPSHOT_SCHEMA.validate(document_bundle["snapshot"])
+	if not validated.get("ok", false) or not CANONICAL_JSON._deep_same(
+			document_bundle["snapshot"], validated["value"]["candidate"]):
 		return false
 	_bundle_proofs[checkpoint_id] = {"text": text, "document_bundle": document_bundle.duplicate(true)}
 	return true

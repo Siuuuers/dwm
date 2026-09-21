@@ -56,7 +56,7 @@ function Get-HistoryProfileSummary {
         $items = @($groups[$key])
         $summary = [ordered]@{ family = $Family; group = $key; count = $items.Count; phases = [ordered]@{} }
         foreach ($metric in @('elapsed_us', 'run_snapshot_build_us', 'journal_prepare_us', 'document_build_us',
-            'backup_us', 'outgoing_schema_us', 'stringify_us', 'splice_us', 'write_atomic_us', 'reread_us', 'journal_us')) {
+            'backup_us', 'outgoing_schema_us', 'stringify_us', 'splice_us', 'write_atomic_us', 'reread_us', 'journal_us', 'journal_proof_us')) {
             $values = @($items | Where-Object { $null -ne $_.PSObject.Properties[$metric] } | ForEach-Object { [long]$_.$metric } | Sort-Object)
             if ($values.Count -gt 0) {
                 $summary.phases[$metric] = [ordered]@{

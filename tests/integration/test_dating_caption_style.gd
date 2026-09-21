@@ -137,6 +137,97 @@ func _context() -> Dictionary:
 	return {"expected_stage": "dating_pre", "playback_id": "caption-fixture",
 		"role": "solo_pre_challenge", "transaction_id": "caption-fixture"}
 
+func _frozen_pre_presentation() -> Dictionary:
+	return preload("res://scripts/narrative/FrozenPresentationContext.gd").build(DATING, {
+		"entry_id": DATING, "entry_role": "solo_pre_challenge", "day": 1,
+		"friend_id": "priscilla", "tier": "friend", "tone": "sweet", "attitude": "",
+		"run_id": "fixture:run", "branch_id": "fixture:branch",
+		"challenge_slot": "dating.solo.priscilla.day1", "phase": "pre_challenge",
+		"due_echoes": [], "attempt_residue_id": null}).value
+
+func _inject_frozen_context_prose() -> void:
+	var located: Dictionary = bridge.call("_resolve_entry_for_playback", DATING, -1)
+	assert_true(located.get("ok", false), str(located))
+	var injected := runtime as CaptionRuntime
+	injected.injected_path = str(located.value.path)
+	_replaced_timeline_path = injected.injected_path
+	_replaced_timeline = load(_replaced_timeline_path)
+	injected.injected_timeline = DialogicTimeline.new()
+	injected.injected_timeline.from_text("return\nlabel " + str(located.value.label)
+		+ "\nNarrator: Tier {Frozen.tier}; tone {Frozen.tone}.\nreturn")
+	injected.injected_timeline.take_over_path(injected.injected_path)
+
+func test_frozen_context_drives_real_dtl_without_mutable_source_aliases() -> void:
+	_inject_frozen_context_prose()
+	runtime.current_state_info["variables"] = {"prior_fixture": "preserved"}
+	var playback := _dating_playback()
+	var command := _dating_command()
+	var presentation := _frozen_pre_presentation()
+	var started: Dictionary = playback.begin_phase(command, "pre_challenge", false, presentation)
+	assert_true(started.get("ok", false), str(started))
+	if not started.get("ok", false): return
+	presentation.fields.tier = "love"
+	presentation.fields.tone = "dark"
+	presentation.fields.due_echoes.append({"echo_id": "not a registered echo"})
+	await _settle()
+	var texts := get_tree().get_nodes_in_group("dialogic_dialog_text")
+	assert_eq(texts.size(), 1)
+	if texts.size() != 1: return
+	assert_eq(texts[0].get_parsed_text(), "Tier friend; tone sweet.")
+	assert_true(runtime.current_state_info.variables.is_read_only(), "the namespace cannot be replaced during playback")
+	assert_true(runtime.current_state_info.variables.Frozen.is_read_only())
+	assert_true(runtime.current_state_info.variables.Frozen.due_echoes.is_read_only())
+	assert_eq(runtime.VAR.get_variable("Frozen.tier"), "friend")
+	runtime.Text.skip_text_reveal()
+	await _settle()
+	runtime.Inputs.input_block_timer.stop()
+	runtime.Inputs.handle_input()
+	await _wait_for_dating_phase(playback, command)
+	assert_eq(runtime.current_state_info.variables, {"prior_fixture": "preserved"})
+	assert_false(runtime.current_state_info.variables.is_read_only())
+
+func test_full_context_start_resume_and_preflight_refuse_the_same_invalid_fields() -> void:
+	var valid := {"expected_stage": "pre_challenge", "playback_id": "frozen-fixture",
+		"role": "dating_phase", "transaction_id": "frozen-fixture", "presentation": _frozen_pre_presentation()}
+	var prior: Dictionary = runtime.current_state_info.variables.duplicate(true)
+	for changed: Dictionary in [{"day": 2}, {"friend_id": "lavinia"}, {"undeclared": true}, {"tone": "neutral"}]:
+		var context := valid.duplicate(true)
+		context.presentation.fields.merge(changed, true)
+		var checkpoint := {"entry_id": DATING, "content_version": 1, "frozen_context": context,
+			"stage": context.expected_stage, "transaction_id": context.transaction_id}
+		var start: Dictionary = bridge.start_entry(DATING, context)
+		var prepare: Dictionary = bridge.validate_resume_checkpoint(checkpoint)
+		var resume: Dictionary = bridge.resume_entry(checkpoint)
+		assert_false(start.get("ok", false), str(changed))
+		assert_eq(prepare.get("code"), start.get("code"))
+		assert_eq(resume.get("code"), start.get("code"))
+		assert_false(bridge.has_active_playback())
+		assert_eq(runtime.current_state_info.variables, prior, "rejected contexts leave the live variable tree intact")
+		assert_true(_text_events.is_empty())
+
+func test_saved_full_context_resumes_real_prose_and_abort_restores_variables() -> void:
+	_inject_frozen_context_prose()
+	runtime.current_state_info["variables"] = {"prior_fixture": "preserved"}
+	var context := {"expected_stage": "pre_challenge", "playback_id": "frozen-resume",
+		"role": "dating_phase", "transaction_id": "frozen-resume", "presentation": _frozen_pre_presentation()}
+	var checkpoint := {"entry_id": DATING, "content_version": 1, "frozen_context": context,
+		"stage": context.expected_stage, "transaction_id": context.transaction_id}
+	var validated: Dictionary = bridge.validate_resume_checkpoint(checkpoint)
+	assert_true(validated.get("ok", false), str(validated))
+	var resumed: Dictionary = bridge.resume_entry(checkpoint)
+	assert_true(resumed.get("ok", false), str(resumed))
+	if not resumed.get("ok", false): return
+	assert_eq(resumed.receipt.context_fingerprint, validated.value.context_fingerprint)
+	context.presentation.fields.tier = "love"
+	await _settle()
+	var texts := get_tree().get_nodes_in_group("dialogic_dialog_text")
+	assert_eq(texts.size(), 1)
+	if texts.size() == 1: assert_eq(texts[0].get_parsed_text(), "Tier friend; tone sweet.")
+	assert_true(bridge.abort_current_entry(&"fixture_abort").get("ok", false))
+	await _settle()
+	assert_eq(runtime.current_state_info.variables, {"prior_fixture": "preserved"})
+	assert_true(completion.calls.is_empty(), "abort grants no semantic completion")
+
 func _settle() -> void:
 	for frame in 4: await get_tree().process_frame
 

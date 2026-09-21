@@ -40,13 +40,19 @@ func begin_presentation(_command_to_present: Dictionary) -> Dictionary:
 	_clear()
 	return _ok()
 
-func begin_phase(command: Dictionary, phase: String, retry: bool = false) -> Dictionary:
+func begin_phase(command: Dictionary, phase: String, retry: bool = false, presentation: Dictionary = {}) -> Dictionary:
 	if _bridge == null or phase not in ["pre_challenge", "post_challenge"] \
 			or not str(command.get("timeline_id", "")).begins_with("dating.") \
 			or not str(command.get("timeline_id", "")).ends_with(".pre_challenge") \
 			or str(command.get("physical_token", "")).is_empty() \
 			or str(command.get("completion_transaction_id", "")).is_empty():
 		return _fail(&"dating_narrative_unavailable")
+	var requested_entry := str(command.timeline_id).trim_suffix(".pre_challenge") + "." + phase
+	var frozen := {}
+	if not presentation.is_empty():
+		var checked := preload("res://scripts/narrative/FrozenPresentationContext.gd").validate(requested_entry, presentation)
+		if not checked.ok: return checked
+		frozen = checked.value
 	if not _command.is_empty():
 		if _command != command or _phase != phase:
 			if _command.get("completion_transaction_id") == command.get("completion_transaction_id") \
@@ -61,14 +67,17 @@ func begin_phase(command: Dictionary, phase: String, retry: bool = false) -> Dic
 				if not aborted.get("ok", false): return aborted
 			_clear()
 		else:
+			if _context.get("presentation", {}) != presentation:
+				return _fail(&"dating_narrative_context_conflict")
 			var current := pull_phase(command, phase)
 			if current.get("ok", false) or not retry: return current
 			_clear()
 	_command = command.duplicate(true)
 	_phase = phase
-	_entry_id = str(command.timeline_id).trim_suffix(".pre_challenge") + "." + phase
+	_entry_id = requested_entry
 	_context = {"expected_stage": phase, "playback_id": str(command.physical_token) + ":" + phase,
 		"role": "dating_phase", "transaction_id": str(command.completion_transaction_id) + ":" + phase}
+	if not frozen.is_empty(): _context["presentation"] = frozen
 	_status = "playing"
 	_starting = true
 	var started: Dictionary = _bridge.start_entry(_entry_id, _context.duplicate(true), &"canonical")
