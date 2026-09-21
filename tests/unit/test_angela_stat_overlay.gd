@@ -85,6 +85,7 @@ func before_each() -> void:
 	add_child_autofree(_owner)
 	add_child_autofree(_locale)
 	_main = MAIN.instantiate()
+	assert_true(_main.bind_view_preferences(null))
 	_hud = _main.get_node("%StatHud")
 	_hud.configure(_owner, _locale, _profile)
 	# Main's actual art, stat overlay and divider; unrelated desktop commands stay absent.

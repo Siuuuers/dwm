@@ -218,7 +218,8 @@ func test_presentation_changes_noop_and_cancellation_do_not_freeze_inheritance()
 	view.set_portrait_width(640)
 	assert_eq(view.get_portrait_width(), 640.0)
 	assert_true(_profile.writes.is_empty(), "presentation-only sizing never saves")
-	view.configure_textures(_texture(), [_texture()], null, 100, false, true)
+	var portraits: Array[Texture2D] = [_texture()]
+	view.configure_textures(_texture(), portraits, null, 100, false, true)
 	assert_eq(view.get_portrait_width(), 640.0, "same-kind rebuild retains presentation without saving it")
 	var click := InputEventMouseButton.new()
 	click.button_index = MOUSE_BUTTON_LEFT
