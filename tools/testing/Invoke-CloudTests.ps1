@@ -164,8 +164,32 @@ if ($result -ne 0) {
     if (Test-Path -LiteralPath $logPath) { Get-Content -LiteralPath $logPath }
     exit $result
 }
-if (Select-String -LiteralPath $logPath -Pattern 'Unicode parsing error|Unexpected NUL character' -Quiet) {
-    throw 'Focused suite reported an unexpected Unicode/NUL diagnostic.'
+$sourceTestScript = ''
+$sourceTestName = ''
+$expectedUnreadableDiagnostics = 0
+foreach ($line in Get-Content -LiteralPath $logPath) {
+    if ($line.StartsWith('res://tests/', [StringComparison]::Ordinal)) {
+        $sourceTestScript = $line
+        $sourceTestName = ''
+    }
+    if ($line.StartsWith('* test_', [StringComparison]::Ordinal)) { $sourceTestName = $line.Substring(2) }
+    if ($line -notmatch '^(?:ERROR: )?(?:Unicode parsing error\b|Unexpected NUL character\b)') { continue }
+    # This existing negative fixture deliberately loads exactly one 0xff byte.
+    # Keep its corrupt-save consent coverage; no NUL diagnostic is expected.
+    if ($Suite -eq 'new_account' -and $expectedUnreadableDiagnostics -eq 0 -and
+        $sourceTestScript -ceq 'res://tests/integration/test_prepared_new_run.gd' -and
+        $sourceTestName -ceq 'test_prepare_counts_nonempty_unreadable_autosave_but_not_zero_bytes' -and
+        $line -ceq 'Unicode parsing error, some characters were replaced with � (U+FFFD): Invalid UTF-8 leading byte (ff)') {
+        $expectedUnreadableDiagnostics += 1
+        continue
+    }
+    throw "Unexpected Unicode/NUL diagnostic in $sourceTestScript / ${sourceTestName}: $line"
+}
+if ($Suite -eq 'new_account' -and $expectedUnreadableDiagnostics -ne 1) {
+    throw 'The corrupt-save fixture did not produce its one expected 0xff diagnostic.'
+}
+if ($expectedUnreadableDiagnostics -eq 1) {
+    Write-Host 'CORRUPT_SAVE_DIAGNOSTIC_VERIFIED: expected 0xff fixture diagnostic observed once.'
 }
 
 # A zero process status alone is insufficient (GUT can quit early with zero).
