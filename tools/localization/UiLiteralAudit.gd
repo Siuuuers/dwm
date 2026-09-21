@@ -533,12 +533,15 @@ static func _dating_copy_disposition(expression: String, source: String) -> Dict
 		var collected := _collect_expression(lines, index, lines[index].trim_prefix(prefix), false)
 		if not _source_contains_code_marker(source, lines[index]):
 			continue
-		var decoded: Variant = JSON.parse_string(str(collected.expression))
-		if decoded is Dictionary:
-			table = decoded
+		var table_json := JSON.new()
+		if table_json.parse(str(collected.expression)) == OK and table_json.data is Dictionary:
+			table = table_json.data
 		break
 	for argument: String in owned.arguments:
-		var english: Variant = JSON.parse_string(argument)
+		var parsed := JSON.new()
+		if parsed.parse(argument) != OK:
+			return _unclassified("Dating UI copy requires a registered literal source phrase")
+		var english: Variant = parsed.data
 		if not english is String or str(english).strip_edges().is_empty():
 			return _unclassified("Dating UI copy requires a registered literal source phrase")
 		for locale: String in ["zh-CN", "zh-HK", "ja", "ko"]:

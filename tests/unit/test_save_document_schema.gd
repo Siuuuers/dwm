@@ -835,7 +835,7 @@ func test_outgoing_journal_container_check_retains_refusal_precedence() -> void:
 	assert_eq(schema.validate_outgoing(document, proofs).get("code"), &"invalid_discriminator")
 	document.schema_version = 7
 	assert_eq(schema.validate_outgoing(document, proofs).get("code"), &"unsupported_schema_version")
-	document.saved_time = {"broken": true}
+	document["saved_time"] = {"broken": true}
 	assert_eq(schema.validate_outgoing(document, proofs).get("code"), &"invalid_saved_time")
 	document["extra"] = 1
 	assert_eq(schema.validate_outgoing(document, proofs).get("code"), &"invalid_document_shape")

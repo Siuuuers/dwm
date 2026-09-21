@@ -110,6 +110,11 @@ func test_lookup_uses_registered_fallback_and_exact_placeholder_sets() -> void:
 	assert_true(_initialize().get("ok", false))
 	assert_true(_manager.set_locale("zh_CN").get("ok", false))
 	assert_eq(_manager.t("app.minesweeper"), "扫雷")
+	assert_eq(_manager.t("desktop.notification.new_message_from_friend", {"friend_name": "Priscilla"}), "Angela 收到了来自 Priscilla 的新消息。")
+	# Remove only this isolated manager's detached translation to exercise the registered fallback.
+	var catalog: Dictionary = _manager.get("_bundle")["catalogs"]["zh_CN"]
+	catalog["messages"] = (catalog["messages"] as Array).filter(func(message: Dictionary) -> bool:
+		return message["id"] != "desktop.notification.new_message_from_friend")
 	assert_eq(_manager.t("desktop.notification.new_message_from_friend", {"friend_name": "Priscilla"}), "Angela received a new message from Priscilla.")
 	assert_eq(_manager.t("hud.minesweeper_rounds", {"remaining": 1}), "[format_error:hud.minesweeper_rounds]")
 	assert_eq(_manager.t("hud.minesweeper_rounds", {"remaining": 1, "max": 2, "extra": 3}), "[format_error:hud.minesweeper_rounds]")
