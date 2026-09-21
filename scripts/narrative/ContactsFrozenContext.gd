@@ -254,6 +254,9 @@ static func _source_matches(state: Dictionary, cache: Dictionary, presentation: 
 			if expected.ok and expected.value == presentation: return true
 		return false
 	if fields.entry_role == "group_contact_offer" and fields.contact_variation in ["offer", "need_reply_priscilla_first", "need_reply_lavinia_first"]:
+		# A virtual offer/guard phase has its own registered identity. Message cards
+		# cannot borrow that phase's receipt by changing their variation fields.
+		if entry_id != "contact.invitation.group.priscilla_lavinia.day%d.%s" % [int(fields.day), fields.contact_variation]: return false
 		for source: Dictionary in state.get("transaction_receipts", {}).values():
 			if source.get("day") != fields.day: continue
 			var group := {}

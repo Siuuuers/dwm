@@ -182,6 +182,12 @@ func test_group_history_keeps_generation_phase_after_resolution_and_next_group()
 	var cache: Dictionary = gameplay.route_context[FROZEN.CACHE_KEY]
 	assert_true(FROZEN.validate_cache(cache, later.value.candidate, true, [], 6).ok)
 	assert_eq(FROZEN.read(cache, id).value, original)
+	var forged: Dictionary = cache.duplicate(true)
+	forged.entries[id].fields.merge({"contact_variation": "offer", "group_action_state": "AVAILABLE_UNOPENED",
+		"inviter_id": null, "target_participant_id": null, "opened_ids": [], "replied_ids": []}, true)
+	assert_true(preload("res://scripts/narrative/FrozenPresentationContext.gd").validate(id, forged.entries[id]).ok)
+	assert_false(FROZEN.validate_cache(forged, later.value.candidate, true, [], 6).ok,
+		"A first-open card cannot borrow the virtual offer's activation receipt")
 	cache.entries[id].fields.opened_ids = ["priscilla", "lavinia"]
 	assert_false(FROZEN.validate_cache(cache, later.value.candidate, true, [], 6).ok)
 

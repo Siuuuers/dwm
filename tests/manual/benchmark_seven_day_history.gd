@@ -195,7 +195,10 @@ func _history_read(bootstrap: Node, game: Node, manager: Node) -> void:
 		and board.phase == expected.desktop.board.phase and restored.desktop.consequence.pending == null,
 		"cold history restore preserves exact physical board and complete outcome"): return
 	print("SEVEN_DAY_HISTORY_READ_PASS: " + JSON.stringify({"day": game.day,
-		"login_us": elapsed, "retained": proof.retained, "autosave_sha256": proof.autosave_sha256}))
+		"login_us": elapsed, "retained": proof.retained, "autosave_sha256": proof.autosave_sha256,
+		"parse_cache_enabled": OS.get_environment("DWM_SAVE_PARSE_CACHE_DISABLED") != "1",
+		"restored_gameplay_sha256": str(CANONICAL_JSON.stringify(restored.gameplay).value).sha256_text(),
+		"restored_board_sha256": str(CANONICAL_JSON.stringify(board.board).value).sha256_text()}))
 	quit(0)
 
 func _history_autosave(manager: Node) -> String:

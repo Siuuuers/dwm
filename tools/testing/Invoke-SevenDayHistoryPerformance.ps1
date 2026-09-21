@@ -9,18 +9,21 @@ New-Item -ItemType Directory -Force -Path $output | Out-Null
 $previousCheckpointProfile = $env:DWM_CHECKPOINT_PROFILE
 $previousConsequenceProfile = $env:DWM_CONSEQUENCE_PROFILE
 $previousSaveLoadProfile = $env:DWM_SAVE_LOAD_PROFILE
+$previousParseCacheDisabled = $env:DWM_SAVE_PARSE_CACHE_DISABLED
 $env:DWM_CHECKPOINT_PROFILE = '1'
 $env:DWM_CONSEQUENCE_PROFILE = '1'
 $env:DWM_SAVE_LOAD_PROFILE = '1'
+$env:DWM_SAVE_PARSE_CACHE_DISABLED = ''
 
 function Invoke-HistoryProbe {
-    param([string]$Phase, [string]$Source = '')
-    $evidence = ".godot/ci/seven-day-history/$Phase.jsonl"
-    $logName = "cloud-seven-day-history-$Phase.log"
+    param([string]$Phase, [string]$Source = '', [string]$Name = '')
+    if (-not $Name) { $Name = $Phase }
+    $evidence = ".godot/ci/seven-day-history/$Name.jsonl"
+    $logName = "cloud-seven-day-history-$Name.log"
     $arguments = @('-s', 'res://tests/manual/benchmark_seven_day_history.gd', '--',
         '--phase2r-bootstrap-mode=final', "--history-phase=$Phase")
     if ($Source) { $arguments += "--user-data=$Source" }
-    & $runner -SuiteId "cloud-seven-day-history-$Phase" -LogName $logName `
+    & $runner -SuiteId "cloud-seven-day-history-$Name" -LogName $logName `
         -EvidenceLogPath $evidence -GodotArgs $arguments -KeepRoot | Out-Null
     $result = $LASTEXITCODE
     $log = Join-Path $repositoryRoot ".godot/phase2r_logs/$logName"
@@ -41,6 +44,16 @@ function Read-HistoryMarkers {
     param([string[]]$Lines, [string]$Prefix)
     return @($Lines | Where-Object { $_.StartsWith($Prefix, [StringComparison]::Ordinal) } |
         ForEach-Object { $_.Substring($Prefix.Length) | ConvertFrom-Json })
+}
+
+function Get-HistorySourceHashes {
+    param([string]$Source)
+    $hashes = [ordered]@{}
+    foreach ($file in @(Get-ChildItem -LiteralPath $Source -Recurse -File -Filter '*.json' | Sort-Object FullName)) {
+        $relative = [IO.Path]::GetRelativePath($Source, $file.FullName).Replace('\', '/')
+        $hashes[$relative] = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+    }
+    return $hashes
 }
 
 function Get-HistoryProfileSummary {
@@ -77,6 +90,11 @@ function Get-HistoryProfileSummary {
             $summary['spliced'] = @($spliceRecords | Where-Object { $_.journal_spliced }).Count
             $summary['full_document'] = @($spliceRecords | Where-Object { -not $_.journal_spliced }).Count
         }
+        $parseRecords = @($items | Where-Object { $null -ne $_.PSObject.Properties['cache_hit'] })
+        if ($parseRecords.Count -gt 0) {
+            $summary['cache_hits'] = @($parseRecords | Where-Object { $_.cache_hit }).Count
+            $summary['parse_calls'] = @($parseRecords | Where-Object { -not $_.cache_hit }).Count
+        }
         Write-Output $summary
     }
 }
@@ -100,10 +118,40 @@ try {
     Copy-Item -LiteralPath (Join-Path $write.Record.user_dir 'saves/autosave.json') -Destination $fixed
     $hash = (Get-FileHash -LiteralPath $fixed -Algorithm SHA256).Hash.ToLowerInvariant()
     if ($hash -cne $written[0].autosave_sha256) { throw 'Copied Day 7 payload hash differs.' }
-    $read = Invoke-HistoryProbe -Phase 'read' -Source $write.Record.user_dir
-    $restored = @(Read-HistoryMarkers $read.Lines 'SEVEN_DAY_HISTORY_READ_PASS: ')
-    if ($restored.Count -ne 1 -or $restored[0].day -ne 7 -or $restored[0].autosave_sha256 -cne $hash) {
-        throw 'Cold Login must restore the exact completed Day 7 history.'
+    # Each process clones the same untouched write root before Bootstrap starts. The control
+    # changes only parser reuse; real reads, revision/schema checks and the Login journey remain.
+    $reads = [ordered]@{}
+    $restores = [ordered]@{}
+    $sourceHashes = Get-HistorySourceHashes $write.Record.user_dir
+    $sourceManifest = $sourceHashes | ConvertTo-Json -Compress
+    foreach ($variant in @('disabled', 'enabled')) {
+        $env:DWM_SAVE_PARSE_CACHE_DISABLED = if ($variant -eq 'disabled') { '1' } else { '' }
+        $probe = Invoke-HistoryProbe -Phase 'read' -Source $write.Record.user_dir -Name "read-cache-$variant"
+        $records = @(Read-HistoryMarkers $probe.Lines 'SEVEN_DAY_HISTORY_READ_PASS: ')
+        if ($records.Count -ne 1 -or $records[0].day -ne 7 -or $records[0].autosave_sha256 -cne $hash -or
+            $records[0].parse_cache_enabled -ne ($variant -eq 'enabled')) {
+            throw 'Each cold Login control must restore the exact completed Day 7 history.'
+        }
+        $reads[$variant] = $probe
+        $restores[$variant] = $records[0]
+        $afterSource = Get-HistorySourceHashes $write.Record.user_dir
+        if (($afterSource | ConvertTo-Json -Compress) -cne $sourceManifest) {
+            throw 'A read control changed the retained source root.'
+        }
+    }
+    foreach ($field in @('restored_gameplay_sha256', 'restored_board_sha256')) {
+        if ($restores.disabled.$field -cnotmatch '^[0-9a-f]{64}$' -or
+            $restores.disabled.$field -cne $restores.enabled.$field) {
+            throw "Cold Login controls differ in $field."
+        }
+    }
+    $read = $reads.enabled
+    $restored = @($restores.enabled)
+    $parseCacheComparison = [ordered]@{
+        control = 'Same checkout and retained user-data source, cloned into a new isolated process per variant. Only DWM_SAVE_PARSE_CACHE_DISABLED differs.'
+        sampling = 'One cold Login per variant, fixed disabled-then-enabled order on one shared Windows runner; observational, not a repeated-sample or frame-time guarantee.'
+        source_json_sha256 = $sourceHashes
+        disabled = $restores.disabled; enabled = $restores.enabled
     }
     $report = [ordered]@{
         checkout_ref = (& git rev-parse HEAD)
@@ -118,11 +166,13 @@ try {
         days = $days
         write = $written[0]
         cold_read = $restored[0]
+        parse_cache_comparison = $parseCacheComparison
         payload_sha256 = $hash
         checkpoint_profiles = @(Read-HistoryMarkers $write.Lines 'DWM_CHECKPOINT_PROFILE ')
         consequence_profiles = @(Read-HistoryMarkers $write.Lines 'DWM_CONSEQUENCE_PROFILE ')
         save_load_write_profiles = @(Read-HistoryMarkers $write.Lines 'DWM_SAVE_LOAD_PROFILE ' | Where-Object { $_.context -ne '' })
         save_load_read_profiles = @(Read-HistoryMarkers $read.Lines 'DWM_SAVE_LOAD_PROFILE ' | Where-Object { $_.context -ne '' })
+        save_load_read_control_profiles = @(Read-HistoryMarkers $reads.disabled.Lines 'DWM_SAVE_LOAD_PROFILE ' | Where-Object { $_.context -ne '' })
     }
     $report | ConvertTo-Json -Depth 40 | Set-Content -LiteralPath (Join-Path $output 'results.json') -Encoding utf8
     # Also expose bounded machine-readable evidence through the job log. Artifact download may
@@ -145,12 +195,14 @@ try {
         payload_sha256 = $hash; write = $written[0]; cold_read = $restored[0]
         fixture = $report.fixture; timing_policy = $report.timing_policy
         timing_boundaries = $report.timing_boundaries
+        parse_cache_comparison = $parseCacheComparison
     }
     Write-Host ('SEVEN_DAY_HISTORY_PROOF: ' + ($proofSummary | ConvertTo-Json -Depth 8 -Compress))
     foreach ($summary in @(Get-HistoryProfileSummary $report.checkpoint_profiles 'checkpoint') +
         @(Get-HistoryProfileSummary $report.consequence_profiles 'consequence') +
         @(Get-HistoryProfileSummary $report.save_load_write_profiles 'save_load_write') +
-        @(Get-HistoryProfileSummary $report.save_load_read_profiles 'save_load_read')) {
+        @(Get-HistoryProfileSummary $report.save_load_read_profiles 'save_load_read') +
+        @(Get-HistoryProfileSummary $report.save_load_read_control_profiles 'save_load_read_cache_disabled')) {
         Write-Host ('SEVEN_DAY_HISTORY_PROFILE_SUMMARY: ' + ($summary | ConvertTo-Json -Depth 8 -Compress))
     }
     Write-Host 'SEVEN_DAY_HISTORY_PERFORMANCE_VERIFIED: seven real days, saturated checkpoint budgets, exact cold Login.'
@@ -158,4 +210,5 @@ try {
     $env:DWM_CHECKPOINT_PROFILE = $previousCheckpointProfile
     $env:DWM_CONSEQUENCE_PROFILE = $previousConsequenceProfile
     $env:DWM_SAVE_LOAD_PROFILE = $previousSaveLoadProfile
+    $env:DWM_SAVE_PARSE_CACHE_DISABLED = $previousParseCacheDisabled
 }

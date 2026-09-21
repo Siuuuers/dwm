@@ -112,6 +112,7 @@ $suites = @{
         'tests/unit/test_session_exit_coordinator.gd'
     )
     settings = @(
+        'tests/unit/test_save_manager_parse_cache.gd'
         'tests/unit/test_settings_panel_resize.gd'
         'tests/unit/test_settings_preference_registry.gd'
         'tests/unit/test_settings_window_transactions.gd'

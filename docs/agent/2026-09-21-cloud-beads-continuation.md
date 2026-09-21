@@ -46,6 +46,8 @@ current play and preserved at `archive/observer-interactions-2026-09-21`.
 | 41 / `35627369190` | `86e511f5c05e902d2ab7e625fcd91581d510a470` | Parser fixed; 12/17 jobs passed. Settings, persistence, reading/delivery, exported startup, and full rendered journeys still failed. |
 | 42 / `35629589023` | `0fa182fdf5ca6999f4adcfe0369781d2a308a6db` | 11/17 jobs passed. All five rendered journeys reached their markers/captures; strict native-TTS and shutdown-resource gates still failed. Three focused fixture corrections and one real no-mutation Dating refusal fix remain under verification. |
 | 43 / `35631315483` | `c832233de93de88a91c25ff3ae255d1c1859eb78` | 14/17 jobs passed. All focused GUT suites passed, including 262 Settings tests and 150 persistence tests. Linux native TTS setup and all five journey markers/captures passed. Strict shutdown retained 48 resources, native Windows EXE exited 1 before diagnostics, and the storage-refusal census was stale. |
+| 44 / `35633177416` | `8e4d127f5aec8534506988c6669f94d3f145b86d` | All 17 jobs stopped at import on four Boolean type-inference errors. Fixed by explicit types in the next commit; no runtime tests executed. |
+| 45 / `35633568072` | `53d01b48413c37c327d94a521598bae5deb359ec` | GitHub assigned no runners: all 17 jobs ended in 2–8 seconds with no steps, logs or artifacts. Cause unverified; each check has an annotation unavailable through the connector. |
 
 Run 41's focused failures were two invalid checkpoint-field fixture accesses,
 two paused-Quick fixture assumptions, and one expected storage-refusal code.
@@ -111,8 +113,11 @@ prepare and 2.953 s commit). Atomic storage write took 2.224 s. Cold Login
 was 11.848 s and included three Autosave and two Slot 1 inspections; inspection
 parsing totalled 4.273 s. Nested timing scopes are inclusive and must not be
 summed. Synchronous metadata signal delivery was only 8 microseconds.
-A bounded exact-text parse cache is being reviewed separately; schema, migration,
-revision and disk-read guards will remain active. No cache speedup is claimed.
+A reviewed two-entry parse cache now reuses only successful strict parses of
+exactly identical text, with detached results and an 8 MiB source-byte budget.
+Schema, migration, revision, participant and disk-read guards remain active. Seven
+focused tests and disabled/enabled cold-Login controls are registered. No cache
+speedup or runtime-pass claim is made until those cloud checks execute.
 
 The next validation batch corrects the refusal census to 83 cases / 80 expected
 root refusals / 3 passes (five new existing checkpoint tests explain the change).
@@ -120,3 +125,25 @@ Every failure must still be the expected root refusal and repository snapshots
 must remain unchanged. Export validation now runs the independent native EXE
 and PCK checks even if one fails, prints bounded diagnostics before throwing,
 and permits neither the release manifest nor ZIP after either failure.
+
+
+The latest review also binds a Contacts virtual group phase to its exact registered
+entry identity. A schema-valid message snapshot cannot borrow an activation receipt
+by changing its variation. Its tamper regression is included.
+
+Cloud execution is presently blocked before runner allocation. The browser is
+not signed into the private repository, so its job annotations could not be read.
+Billing, quota, repository policy and service availability have not been diagnosed;
+none is asserted as the cause. Do not close the canonical context, release or
+performance gates from these unexecuted runs. Restore cloud execution first, then
+run the entire matrix, recover exact public inventories, commit them, and switch
+the public-inventory workflow back to its read-only check. Keep RunSave v7 gated
+on successful producer validation and its compatible performance fixtures.
+
+
+Three bounded children are closed from exact run43 evidence: `dwm-7wj.1`
+(Profile/Gallery chronology), `dwm-vky.16` (Minesweeper week tint), and
+`dwm-nqn.1` (failed-Load audio compensation). Their implemented source remains
+unchanged by the later context/cache batches. Parent feature and release gates
+remain open. The four SaveManager contract child stays open until committed
+public inventories reproduce under the final read-only gate.

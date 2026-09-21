@@ -81,6 +81,12 @@ var _backup_action_sequence := 0
 var _backup_capture_provider: Callable
 var _paused_desktop_admission: Callable
 var _backup_capture_configured := false
+## Bytes-only parser reuse. Schema/content admission and all storage custody checks
+## still run on every call. Keep no more than two documents or 8 MiB of source UTF-8.
+const _PARSE_CACHE_MAX_ENTRIES := 2
+const _PARSE_CACHE_MAX_TEXT_BYTES := 8 * 1024 * 1024
+var _document_parse_cache: Array[Dictionary] = []
+var _document_parse_cache_text_bytes := 0
 
 ## Bootstrap owns the live desktop source. Fixtures without this provider retain
 ## their explicit latest-stable contract; production never silently falls back.
@@ -112,6 +118,8 @@ const _PARTICIPANT_APPLY_ORDER: Array[String] = [
 func initialize(storage: StorageAdapter = null) -> Dictionary:
 	if storage == null:
 		return _fail(&"invalid_storage", "SaveManager requires an injected StorageAdapter")
+	_document_parse_cache.clear()
+	_document_parse_cache_text_bytes = 0
 	_storage = storage
 	var journal_ready: Dictionary = _continuation_journal.configure(storage, self)
 	if not journal_ready.get("ok", false):
@@ -1421,7 +1429,7 @@ func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictio
 	if typeof(evidence.get("text")) != TYPE_STRING:
 		record["reason"] = "unreadable"
 		return {"ok": true, "value": record}
-	var parsed := STRICT_JSON.parse_object(evidence["text"])
+	var parsed := _parse_document_text(evidence["text"])
 	_save_load_profile_phase(profile, "parse_us")
 	if not parsed.get("ok", false):
 		record["reason"] = "unreadable"
@@ -2535,13 +2543,49 @@ func _delete(locator: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"deleted": true, "relative_path": relative_path}}
 
 func _document_text_validator(text: String) -> Dictionary:
-	var parsed: Dictionary = STRICT_JSON.parse_object(text)
+	var parsed: Dictionary = _parse_document_text(text)
 	if not parsed.get("ok", false):
 		return {"ok": false, "code": &"invalid_json", "message": "strict parse failed"}
 	var validated: Dictionary = SAVE_DOCUMENT_SCHEMA.validate(parsed["value"])
 	if not validated.get("ok", false):
 		return validated
 	return {"ok": true, "code": &"ok", "value": validated["value"]["candidate"]}
+
+## A cache entry proves only strict JSON parsing of this exact String. In particular,
+## it never proves current schema, locator, content compatibility, or disk durability.
+func _parse_document_text(text: String) -> Dictionary:
+	var disabled := OS.get_environment("DWM_SAVE_PARSE_CACHE_DISABLED") == "1"
+	var profile := _save_load_profile_begin("document_parse")
+	if not profile.is_empty():
+		profile["cache_enabled"] = not disabled
+		profile["cache_hit"] = false
+	if disabled:
+		return _save_load_profile_finish(profile, STRICT_JSON.parse_object(text))
+	for index: int in _document_parse_cache.size():
+		var entry: Dictionary = _document_parse_cache[index]
+		if entry["text"] == text:
+			_document_parse_cache.remove_at(index)
+			_document_parse_cache.append(entry)
+			if not profile.is_empty(): profile["cache_hit"] = true
+			return _save_load_profile_finish(profile, (entry["parsed"] as Dictionary).duplicate(true))
+	var parsed := STRICT_JSON.parse_object(text)
+	if not parsed.get("ok", false):
+		return _save_load_profile_finish(profile, parsed)
+	# Count real UTF-8 bytes only for admission, after the unchanged strict parser.
+	# Oversized valid inputs keep their normal result without displacing useful entries.
+	var text_bytes := text.to_utf8_buffer().size()
+	if text_bytes > _PARSE_CACHE_MAX_TEXT_BYTES:
+		return _save_load_profile_finish(profile, parsed)
+	while not _document_parse_cache.is_empty() and (
+		_document_parse_cache.size() >= _PARSE_CACHE_MAX_ENTRIES
+		or _document_parse_cache_text_bytes + text_bytes > _PARSE_CACHE_MAX_TEXT_BYTES):
+		var oldest: Dictionary = _document_parse_cache.pop_front()
+		_document_parse_cache_text_bytes -= int(oldest["text_bytes"])
+	# The miss result belongs to this caller. Retain a separate tree even on first use.
+	_document_parse_cache.append({"text": text, "text_bytes": text_bytes,
+		"parsed": parsed.duplicate(true)})
+	_document_parse_cache_text_bytes += text_bytes
+	return _save_load_profile_finish(profile, parsed)
 
 func _validate_checkpoint_inputs(checkpoint_inputs: Dictionary) -> String:
 	var keys: Array = checkpoint_inputs.keys()
