@@ -8,6 +8,15 @@ const ROOT := preload("res://tests/support/FakeDesktopIssuerRootStore.gd")
 const REDUCER := preload("res://scripts/domain/minesweeper/MinesweeperBoardReducer.gd")
 const RULES := preload("res://scripts/application/run/DatingChallengeRules.gd")
 
+# Specs use the neutral capability/condition inputs required by the fixed board below.
+class SpecState extends RefCounted:
+	var inventory: Dictionary:
+		get: return {}
+	var penalty_points_today: int:
+		get: return 0
+	func get_stat(_stat: String) -> int:
+		return 0
+
 class Game extends "res://autoload/GameState.gd":
 	var mastery_profile: Node = null
 	var mastery_lookups: Array[Dictionary] = []
@@ -27,6 +36,7 @@ static func completed(run_id: String, scope: String, day: int, branch: String = 
 	if not configured.ok: return configured
 	var owner := OWNER.new()
 	owner._issuer = issuer
+	owner._game_state = SpecState.new()
 	var made: Dictionary = owner._make_spec(host)
 	if not made.ok: return made
 	var transaction := "completed-%s-%d" % [scope, day]
