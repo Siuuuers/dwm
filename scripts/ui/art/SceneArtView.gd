@@ -1,14 +1,17 @@
 extends Control
-## Presentation-only scene art. Dating shares a portrait divider across its hosts.
+## Scene artwork and the profile's independent solo/group portrait dividers.
 const ART := preload("res://scripts/data/ArtManifest.gd")
 const PANEL_SPLIT := preload("res://scripts/ui/desktop/DesktopPanelSplit.gd")
 const APERTURE_HEIGHT := {100: 448, 125: 392, 150: 328}
+const DESKTOP_WIDTH_PATH := &"preferences.display.angela_panel_width"
+const SOLO_WIDTH_PATH := &"preferences.display.dating_solo_portrait_width"
+const GROUP_WIDTH_PATH := &"preferences.display.dating_group_portrait_width"
 
 signal split_changed(right_rect: Rect2)
 signal split_drag_changed(active: bool)
 
-# Remember the dating composition through dialogue/challenge transitions in this session.
-static var _dating_width := 480.0
+var _view_profile: Object
+var _view_preferences_bound := false
 var _background: TextureRect
 var _portraits: Array[TextureRect] = []
 var _portrait_slots: Array[Control] = []
@@ -21,6 +24,46 @@ var _cg: TextureRect
 var _entry_id := ""
 var _dating_split := false
 var _portrait_count := 0
+var _preference_scope: StringName = &"solo"
+
+func _ready() -> void:
+	if not _view_preferences_bound:
+		bind_view_preferences(get_node_or_null("/root/ProfileManager"))
+
+func bind_view_preferences(profile: Object) -> bool:
+	if profile != null and (not profile.has_method("get_preference") or not profile.has_method("set_preference")): return false
+	if is_instance_valid(_view_profile) and _view_profile.has_signal("preference_changed") \
+			and _view_profile.is_connected("preference_changed", _on_split_preference_changed):
+		_view_profile.disconnect("preference_changed", _on_split_preference_changed)
+	_view_profile = profile
+	_view_preferences_bound = true
+	if profile != null and profile.has_signal("preference_changed"):
+		profile.connect("preference_changed", _on_split_preference_changed)
+	_sync_split_preferences()
+	return true
+
+func _width_preference_path() -> StringName:
+	return GROUP_WIDTH_PATH if _preference_scope == &"group" else SOLO_WIDTH_PATH
+
+func _saved_portrait_width() -> float:
+	if not is_instance_valid(_view_profile): return 480.0
+	var width := int(_view_profile.get_preference(_width_preference_path(), 0))
+	return float(width if width != 0 else _view_profile.get_preference(DESKTOP_WIDTH_PATH, 480))
+
+func _sync_split_preferences() -> void:
+	if not _dating_split or not is_instance_valid(_split): return
+	cancel_split_input()
+	_split.set_angela_width(_saved_portrait_width())
+
+func _on_split_preference_changed(path: StringName, _value: Variant) -> void:
+	if path == _width_preference_path() or (path == DESKTOP_WIDTH_PATH \
+			and int(_view_profile.get_preference(_width_preference_path(), 0)) == 0):
+		_sync_split_preferences()
+
+func _on_split_width_committed(width: float) -> void:
+	if not _dating_split or not is_instance_valid(_view_profile): return
+	var saved: Dictionary = _view_profile.set_preference(_width_preference_path(), roundi(width))
+	if not saved.get("ok", false): _sync_split_preferences()
 
 func configure_entry(entry_id: String, text_percent: int = 100,
 		challenge: bool = false, show_portraits: bool = true) -> void:
@@ -31,14 +74,20 @@ func configure_entry(entry_id: String, text_percent: int = 100,
 		for asset_id: String in placement.get("portraits", []):
 			portraits.append(ART.get_texture(asset_id))
 	configure_textures(ART.get_texture(str(placement.get("background", ""))), portraits,
-		ART.get_texture(str(placement.get("cg", ""))), text_percent, challenge, entry_id.begins_with("dating."))
+		ART.get_texture(str(placement.get("cg", ""))), text_percent, challenge, entry_id.begins_with("dating."),
+		&"solo" if entry_id.begins_with("dating.solo.") else &"group")
 
 func configure_textures(background: Texture2D, portraits: Array[Texture2D], cg: Texture2D = null,
-		text_percent: int = 100, challenge: bool = false, dating_overlay: bool = false) -> void:
+		text_percent: int = 100, challenge: bool = false, dating_overlay: bool = false,
+		preference_scope: StringName = &"") -> void:
 	_build()
+	var previous_count := _portrait_count
+	var previous_split := _dating_split
+	var previous_scope := _preference_scope
 	var height := 720 if challenge else (656 if dating_overlay else int(APERTURE_HEIGHT.get(text_percent, 448)))
 	size = Vector2(1280, height)
 	_portrait_count = mini(portraits.size(), 2)
+	_preference_scope = preference_scope if not preference_scope.is_empty() else (&"group" if _portrait_count > 1 else &"solo")
 	_dating_split = (dating_overlay or challenge) and _portrait_count > 0 and cg == null
 	_background.texture = background
 	_portrait_background.texture = background
@@ -46,7 +95,7 @@ func configure_textures(background: Texture2D, portraits: Array[Texture2D], cg: 
 	_cg.size = size
 	_split.visible = _dating_split
 	_split.size = size
-	_split.width_step = 4.0 if _portrait_count == 2 else 2.0
+	_split.width_step = 4.0 if _preference_scope == &"group" or _portrait_count == 2 else 2.0
 	for index: int in range(2):
 		var portrait: TextureRect = _portraits[index]
 		var texture: Texture2D = portraits[index] if index < _portrait_count else null
@@ -67,7 +116,8 @@ func configure_textures(background: Texture2D, portraits: Array[Texture2D], cg: 
 	if _background.get_parent() != background_parent: _background.reparent(background_parent)
 	_background.position = Vector2.ZERO
 	if _dating_split:
-		_split.set_angela_width(_dating_width)
+		if not previous_split or previous_count != _portrait_count or previous_scope != _preference_scope:
+			_sync_split_preferences()
 		_layout_dating_art()
 	else:
 		cancel_split_input()
@@ -81,12 +131,11 @@ func get_right_rect() -> Rect2:
 	return Rect2(width, 0, size.x - width, size.y)
 
 func get_portrait_width() -> float:
-	return _split.get_angela_width() if is_instance_valid(_split) else _dating_width
+	return _split.get_angela_width() if is_instance_valid(_split) else _saved_portrait_width()
 
 func set_portrait_width(width: float) -> void:
 	_build()
 	_split.set_angela_width(width)
-	_dating_width = _split.get_angela_width()
 
 func get_split_handle() -> Control:
 	return _split._handle if is_instance_valid(_split) and _dating_split else null
@@ -118,8 +167,7 @@ func handle_split_input(event: InputEvent, source_control: Control) -> bool:
 	get_viewport().set_input_as_handled()
 	return true
 
-func _on_split_changed(width: float) -> void:
-	_dating_width = width
+func _on_split_changed(_width: float) -> void:
 	if not _dating_split: return
 	_layout_dating_art()
 	split_changed.emit(get_right_rect())
@@ -188,6 +236,7 @@ func _build() -> void:
 	_cg = _texture_rect("EndingCG", TextureRect.STRETCH_KEEP_ASPECT_CENTERED)
 	_split.set_handle_accessibility("Resize portrait panel", "Drag horizontally or use Left and Right arrow keys")
 	_split.split_changed.connect(_on_split_changed)
+	_split.width_committed.connect(_on_split_width_committed)
 	_split.drag_changed.connect(func(active: bool): split_drag_changed.emit(active))
 
 func _texture_rect(node_name: String, stretch: TextureRect.StretchMode) -> TextureRect:

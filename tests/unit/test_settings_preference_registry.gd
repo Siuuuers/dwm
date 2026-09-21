@@ -52,13 +52,21 @@ const EXPECTED_RECORDS := {
 
 func test_registry_records_are_the_complete_accepted_vocabulary() -> void:
 	var records_by_path := _records_by_path(_records())
-	assert_eq(_sorted_strings(records_by_path.keys()), _sorted_strings(EXPECTED_RECORDS.keys()),
+	var expected_records := EXPECTED_RECORDS.duplicate(true)
+	for item: Array in [["angela_panel_width", 480, 480, 2],
+			["dating_solo_portrait_width", 0, 640, 2], ["dating_group_portrait_width", 0, 640, 4]]:
+		var values := range(320, int(item[2]) + 1, int(item[3]))
+		if item[1] == 0: values.push_front(0)
+		expected_records["preferences.display." + item[0]] = {"type": "enum_int", "default_value": item[1],
+			"section_id": "display", "renderer": "enum_option", "player_writable": true,
+			"allowed_values": values, "step": float(item[3])}
+	assert_eq(_sorted_strings(records_by_path.keys()), _sorted_strings(expected_records.keys()),
 			"registry must expose exactly the accepted v2 preference paths and no retired aliases")
-	if records_by_path.size() != EXPECTED_RECORDS.size():
+	if records_by_path.size() != expected_records.size():
 		return
-	for path in EXPECTED_RECORDS.keys():
+	for path in expected_records.keys():
 		var record: Dictionary = records_by_path[path]
-		var expected: Dictionary = EXPECTED_RECORDS[path]
+		var expected: Dictionary = expected_records[path]
 		assert_eq(str(record.get("path")), path)
 		assert_eq(str(record.get("type")), expected["type"], path)
 		assert_eq(record.get("default_value"), expected["default_value"], path)

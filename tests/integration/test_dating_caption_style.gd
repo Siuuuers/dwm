@@ -9,6 +9,7 @@ const STYLE := "res://dialogic/styles/witnessed_caption_style.tres"
 const LAYER := "res://scripts/ui/witnessed/WitnessedCaptionLayer.gd"
 const ART_LAYER := "res://scripts/ui/witnessed/WitnessedArtLayer.gd"
 const ART_VIEW := preload("res://scripts/ui/art/SceneArtView.gd")
+const ART_FIXTURES := preload("res://tests/unit/test_scene_art_bindings.gd")
 const DATING := "dating.solo.priscilla.day1.pre_challenge"
 
 class Completion extends RefCounted:
@@ -38,13 +39,13 @@ var _text_events: Array[Dictionary] = []
 var _root_size: Vector2i
 var _root_content_size: Vector2i
 var _mouse_from_touch := false
-var _portrait_width := 480.0
+var _width_profile: RefCounted
 
 func before_each() -> void:
 	_root_size = get_tree().root.size
 	_root_content_size = get_tree().root.content_scale_size
 	_mouse_from_touch = Input.emulate_mouse_from_touch
-	_portrait_width = ART_VIEW._dating_width
+	_width_profile = ART_FIXTURES.ViewProfile.new()
 	_selected.clear()
 	_text_events.clear()
 	_art = ART._placements.duplicate(true)
@@ -88,7 +89,6 @@ func after_each() -> void:
 	Input.emulate_mouse_from_touch = _mouse_from_touch
 	get_tree().root.size = _root_size
 	get_tree().root.content_scale_size = _root_content_size
-	ART_VIEW._dating_width = _portrait_width
 	for text_node: Node in get_tree().get_nodes_in_group("dialogic_dialog_text"):
 		text_node.set_process(false)
 	bridge.free()
@@ -208,6 +208,7 @@ func _mount_dating_captions(current: String = "Four still revealing.") -> Dictio
 	assert_has(result, "caption")
 	assert_has(result, "art")
 	if not result.has("caption") or not result.has("art"): return {}
+	assert_true(result.art.bind_view_preferences(_width_profile))
 	for step in 3:
 		runtime.Text.skip_text_reveal()
 		await _settle()
@@ -262,6 +263,7 @@ func test_dating_subtitles_keep_all_four_labels_transparent_and_centered_at_each
 
 func test_dating_art_extends_behind_subtitles_without_consuming_control_or_challenge_space() -> void:
 	var view := ART_VIEW.new()
+	assert_true(view.bind_view_preferences(_width_profile))
 	add_child_autofree(view)
 	var pixels := Image.create(8, 8, false, Image.FORMAT_RGBA8)
 	pixels.fill(Color.WHITE)
@@ -429,6 +431,7 @@ func test_dating_split_mouse_commits_on_release_without_advancing_caption() -> v
 	assert_false(art.is_split_dragging())
 	assert_true(get_node("/root/InputManager").get_physical_contacts().is_empty(), "consumed mouse and secondary key releases leave no held contacts")
 	assert_eq(art.get_portrait_width(), 552.0)
+	assert_eq(_width_profile.writes, [{"path": &"preferences.display.dating_group_portrait_width", "value": 552}])
 	assert_eq(_native_snapshot(caption), before, "divider cannot reveal, advance, or write history")
 	for rect: Rect2 in caption.get_caption_projection().leaf_rects:
 		assert_almost_eq(rect.get_center().x, 640.0, 0.01, "captions stay centered across both panels")
@@ -480,6 +483,8 @@ func test_dating_split_touch_keyboard_and_reading_custody_preserve_native_text()
 	_split_key(KEY_RIGHT, false)
 	await _settle()
 	assert_eq(art.get_portrait_width(), 432.0, "keyboard adjusts the focused divider")
+	assert_eq(_width_profile.writes.size(), 2, "touch and keyboard each save once without emulation duplicates")
+	assert_eq(_width_profile.values[&"preferences.display.dating_group_portrait_width"], 432)
 	assert_eq(_native_snapshot(caption), before)
 	point = _root_control_point(handle, handle.size * 0.5)
 	_split_touch(point, true)

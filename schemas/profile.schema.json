@@ -229,9 +229,31 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "window_mode"
+            "window_mode",
+            "angela_panel_width",
+            "dating_solo_portrait_width",
+            "dating_group_portrait_width"
           ],
           "properties": {
+            "angela_panel_width": {
+              "type": "integer",
+              "minimum": 320,
+              "maximum": 480,
+              "multipleOf": 2,
+              "default": 480
+            },
+            "dating_solo_portrait_width": {
+              "type": "integer",
+              "anyOf": [{"const": 0}, {"minimum": 320, "maximum": 640, "multipleOf": 2}],
+              "default": 0,
+              "description": "Zero inherits the current Angela panel width."
+            },
+            "dating_group_portrait_width": {
+              "type": "integer",
+              "anyOf": [{"const": 0}, {"minimum": 320, "maximum": 640, "multipleOf": 4}],
+              "default": 0,
+              "description": "Zero inherits the current Angela panel width."
+            },
             "window_size": {
               "type": "string",
               "enum": ["1280x720", "1600x900", "1920x1080"],

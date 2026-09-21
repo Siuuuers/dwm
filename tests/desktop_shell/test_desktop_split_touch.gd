@@ -17,14 +17,27 @@ class ShellMinesweeperPort extends MINESWEEPER_FIXTURES.PublicPort:
 		return super.set_foreground(foreground, revision)
 
 class NavigationProfile extends CONTACT_FIXTURES.FakeProfile:
+	var angela_width := 480
+	var width_writes: Array[int] = []
+	var fail_width_writes := false
 	var large_targets := false
 	var font_style := "pixel"
 	var high_contrast := false
 	func get_preference(path: StringName, default: Variant = null) -> Variant:
+		if path == &"preferences.display.angela_panel_width": return angela_width
 		if path == &"preferences.accessibility.large_targets": return large_targets
 		if path == &"preferences.accessibility.font_style": return font_style
 		if path == &"preferences.accessibility.high_contrast": return high_contrast
 		return super.get_preference(path, default)
+	func set_preference(path: StringName, value: Variant) -> Dictionary:
+		width_writes.append(int(value))
+		if fail_width_writes: return {"ok": false, "code": &"fixture_write_failed"}
+		angela_width = int(value)
+		preference_changed.emit(path, value)
+		return {"ok": true}
+	func change_angela_width(value: int) -> void:
+		angela_width = value
+		preference_changed.emit(&"preferences.display.angela_panel_width", value)
 	func change_large_targets(value: bool) -> void:
 		large_targets = value
 		preference_changed.emit(&"preferences.accessibility.large_targets", value)
@@ -57,6 +70,7 @@ func before_each() -> void:
 	stats.penalty_points_today = 10
 	add_child_autofree(stats)
 	main = MAIN.instantiate()
+	assert_true(main.bind_view_preferences(profile))
 	main.get_node("%StatHud").configure(stats, locale, profile)
 	desktop = DESKTOP.instantiate()
 	desktop.set_script(SHELL_FIXTURES.IsolatedDesktop)
@@ -74,6 +88,67 @@ func before_each() -> void:
 
 func settle() -> void:
 	for frame: int in range(5): await get_tree().process_frame
+
+
+func _resize_mouse(point: Vector2, pressed: bool) -> void:
+	var event := InputEventMouseButton.new()
+	event.position = point
+	event.global_position = point
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.button_mask = MOUSE_BUTTON_MASK_LEFT if pressed else 0
+	event.pressed = pressed
+	viewport.push_input(event, true)
+
+func _resize_key(code: Key) -> void:
+	for pressed: bool in [true, false]:
+		var event := InputEventKey.new()
+		event.keycode = code
+		event.physical_keycode = code
+		event.pressed = pressed
+		viewport.push_input(event, true)
+
+func test_desktop_resize_saves_only_user_commits_and_rolls_back_failed_saves() -> void:
+	var split: Control = main.get_node("RootHBox")
+	profile.change_angela_width(400)
+	await settle()
+	assert_eq(split.get_angela_width(), 400.0)
+	split.set_angela_width(320)
+	assert_true(profile.width_writes.is_empty(), "programmatic layout does not overwrite the profile")
+	assert_true(main.bind_view_preferences(profile))
+	await settle()
+	assert_eq(split.get_angela_width(), 400.0, "binding reads the saved desktop preference")
+	var handle: Control = split.get_node("SplitDragHandle")
+	handle.grab_focus()
+	_resize_key(KEY_LEFT)
+	await settle()
+	assert_eq(split.get_angela_width(), 384.0)
+	assert_eq(profile.angela_width, 384)
+	assert_eq(profile.width_writes, [384])
+	var origin := handle.get_global_rect().get_center()
+	_resize_mouse(origin, true)
+	var motion := InputEventMouseMotion.new()
+	motion.position = origin + Vector2(48, 0)
+	motion.global_position = motion.position
+	motion.relative = Vector2(48, 0)
+	motion.button_mask = MOUSE_BUTTON_MASK_LEFT
+	viewport.push_input(motion, true)
+	assert_eq(profile.width_writes, [384], "preview motion does not save")
+	_resize_mouse(motion.position, false)
+	await settle()
+	assert_eq(split.get_angela_width(), 432.0)
+	assert_eq(profile.angela_width, 432)
+	assert_eq(profile.width_writes, [384, 432])
+	profile.fail_width_writes = true
+	handle.grab_focus()
+	_resize_key(KEY_LEFT)
+	await settle()
+	assert_eq(split.get_angela_width(), 432.0, "rejected persistence restores the saved width")
+	assert_eq(profile.angela_width, 432)
+	assert_eq(profile.width_writes, [384, 432, 416])
+	assert_true(main.bind_view_preferences(null))
+	var unbound_width: float = split.get_angela_width()
+	profile.change_angela_width(352)
+	assert_eq(split.get_angela_width(), unbound_width, "explicitly disabling binding disconnects the old owner")
 
 
 func test_resizing_keeps_current_app_and_focus_and_hud_inside_the_shell() -> void:

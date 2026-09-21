@@ -6,6 +6,36 @@ const WINDOW_SIZES := ["1280x720", "1600x900", "1920x1080"]
 const _LOCALE_IDS := ["en", "zh_CN", "zh_HK", "ja", "ko"]
 const _MINESWEEPER_CELL_SIZES := [10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60]
 
+const _ANGELA_PANEL_WIDTHS := [
+	320, 322, 324, 326, 328, 330, 332, 334, 336, 338, 340, 342, 344, 346, 348, 350,
+	352, 354, 356, 358, 360, 362, 364, 366, 368, 370, 372, 374, 376, 378, 380, 382,
+	384, 386, 388, 390, 392, 394, 396, 398, 400, 402, 404, 406, 408, 410, 412, 414,
+	416, 418, 420, 422, 424, 426, 428, 430, 432, 434, 436, 438, 440, 442, 444, 446,
+	448, 450, 452, 454, 456, 458, 460, 462, 464, 466, 468, 470, 472, 474, 476, 478,
+	480,
+]
+const _DATING_SOLO_WIDTHS := [
+	0, 320, 322, 324, 326, 328, 330, 332, 334, 336, 338, 340, 342, 344, 346, 348,
+	350, 352, 354, 356, 358, 360, 362, 364, 366, 368, 370, 372, 374, 376, 378, 380,
+	382, 384, 386, 388, 390, 392, 394, 396, 398, 400, 402, 404, 406, 408, 410, 412,
+	414, 416, 418, 420, 422, 424, 426, 428, 430, 432, 434, 436, 438, 440, 442, 444,
+	446, 448, 450, 452, 454, 456, 458, 460, 462, 464, 466, 468, 470, 472, 474, 476,
+	478, 480, 482, 484, 486, 488, 490, 492, 494, 496, 498, 500, 502, 504, 506, 508,
+	510, 512, 514, 516, 518, 520, 522, 524, 526, 528, 530, 532, 534, 536, 538, 540,
+	542, 544, 546, 548, 550, 552, 554, 556, 558, 560, 562, 564, 566, 568, 570, 572,
+	574, 576, 578, 580, 582, 584, 586, 588, 590, 592, 594, 596, 598, 600, 602, 604,
+	606, 608, 610, 612, 614, 616, 618, 620, 622, 624, 626, 628, 630, 632, 634, 636,
+	638, 640,
+]
+const _DATING_GROUP_WIDTHS := [
+	0, 320, 324, 328, 332, 336, 340, 344, 348, 352, 356, 360, 364, 368, 372, 376,
+	380, 384, 388, 392, 396, 400, 404, 408, 412, 416, 420, 424, 428, 432, 436, 440,
+	444, 448, 452, 456, 460, 464, 468, 472, 476, 480, 484, 488, 492, 496, 500, 504,
+	508, 512, 516, 520, 524, 528, 532, 536, 540, 544, 548, 552, 556, 560, 564, 568,
+	572, 576, 580, 584, 588, 592, 596, 600, 604, 608, 612, 616, 620, 624, 628, 632,
+	636, 640,
+]
+
 const _RECORDS := [
 	{"path": &"preferences.language.primary_locale_id", "type": &"locale_id", "default_value": "en", "section_id": &"language", "renderer": &"locale_option", "player_writable": true, "visible": true, "allowed_values": _LOCALE_IDS, "step": 0.0, "label": "Primary language"},
 	{"path": &"preferences.language.secondary_locale_id", "type": &"locale_id", "default_value": "zh_CN", "section_id": &"language", "renderer": &"locale_option", "player_writable": true, "visible": true, "allowed_values": _LOCALE_IDS, "step": 0.0, "label": "Secondary language"},
@@ -29,6 +59,9 @@ const _RECORDS := [
 	{"path": &"preferences.audio.output_mode", "type": &"enum_string", "default_value": "stereo", "section_id": &"audio", "renderer": &"enum_option", "player_writable": true, "visible": true, "allowed_values": ["stereo", "mono"], "step": 0.0, "label": "Output mode"},
 	{"path": &"preferences.display.window_mode", "type": &"enum_string", "default_value": "windowed", "section_id": &"display", "renderer": &"enum_option", "player_writable": true, "visible": true, "allowed_values": ["windowed", "borderless"], "step": 0.0, "label": "Window mode"},
 	{"path": &"preferences.display.window_size", "type": &"enum_string", "default_value": "1280x720", "section_id": &"display", "renderer": &"enum_option", "player_writable": true, "visible": true, "allowed_values": WINDOW_SIZES, "step": 0.0, "label": "Window size"},
+	{"path": &"preferences.display.angela_panel_width", "type": &"enum_int", "default_value": 480, "section_id": &"display", "renderer": &"enum_option", "player_writable": true, "visible": false, "allowed_values": _ANGELA_PANEL_WIDTHS, "step": 2.0, "label": "Angela panel width"},
+	{"path": &"preferences.display.dating_solo_portrait_width", "type": &"enum_int", "default_value": 0, "section_id": &"display", "renderer": &"enum_option", "player_writable": true, "visible": false, "allowed_values": _DATING_SOLO_WIDTHS, "step": 2.0, "label": "Solo dating portrait width"},
+	{"path": &"preferences.display.dating_group_portrait_width", "type": &"enum_int", "default_value": 0, "section_id": &"display", "renderer": &"enum_option", "player_writable": true, "visible": false, "allowed_values": _DATING_GROUP_WIDTHS, "step": 4.0, "label": "Group dating portrait width"},
 	{"path": &"preferences.display.minesweeper_app_beginner_cell_size", "type": &"enum_int", "default_value": 36, "section_id": &"display", "renderer": &"enum_option", "player_writable": true, "visible": false, "allowed_values": _MINESWEEPER_CELL_SIZES, "step": 2.0, "label": "Beginner cell size"},
 	{"path": &"preferences.display.minesweeper_app_beginner_always_fit", "type": &"bool", "default_value": false, "section_id": &"display", "renderer": &"toggle", "player_writable": true, "visible": false, "allowed_values": [], "step": 0.0, "label": "Fit beginner board"},
 	{"path": &"preferences.display.minesweeper_app_intermediate_cell_size", "type": &"enum_int", "default_value": 36, "section_id": &"display", "renderer": &"enum_option", "player_writable": true, "visible": false, "allowed_values": _MINESWEEPER_CELL_SIZES, "step": 2.0, "label": "Intermediate cell size"},

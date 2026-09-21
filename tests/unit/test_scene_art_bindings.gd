@@ -5,9 +5,26 @@ const VIEW := preload("res://scripts/ui/art/SceneArtView.gd")
 const DATING := preload("res://scripts/ui/DatingScene.gd")
 const HOSPITAL := preload("res://scripts/ui/HospitalScene.gd")
 const BRIDGE := preload("res://autoload/DialogicBridge.gd")
-const PANEL_SPLIT := preload("res://scripts/ui/desktop/DesktopPanelSplit.gd")
 
-var _dating_width_before := 480.0
+class ViewProfile extends RefCounted:
+	signal preference_changed(path: StringName, value: Variant)
+	var values := {&"preferences.display.angela_panel_width": 480,
+		&"preferences.display.dating_solo_portrait_width": 0,
+		&"preferences.display.dating_group_portrait_width": 0}
+	var writes: Array[Dictionary] = []
+	var fail_writes := false
+	func get_preference(path: StringName, fallback: Variant = null) -> Variant:
+		return values.get(path, fallback)
+	func set_preference(path: StringName, value: Variant) -> Dictionary:
+		writes.append({"path": path, "value": value})
+		if fail_writes: return {"ok": false, "code": &"fixture_write_failed"}
+		change(path, value)
+		return {"ok": true}
+	func change(path: StringName, value: Variant) -> void:
+		values[path] = value
+		preference_changed.emit(path, value)
+
+var _profile: ViewProfile
 
 class PhysicalPort extends RefCounted:
 	var notice_acks := 0
@@ -27,18 +44,18 @@ class PhysicalPort extends RefCounted:
 			"special_mine_visible": false, "special_mine_enabled": false}}
 
 func before_each() -> void:
-	_dating_width_before = VIEW._dating_width
-	VIEW._dating_width = 480.0
+	_profile = ViewProfile.new()
 
 func after_each() -> void:
 	ART.reload_placements()
-	VIEW._dating_width = _dating_width_before
 
 func _dating_art_fixture(enabled: bool) -> void:
 	var catalog := {"schema_version": 1,
 		"assets": {"fixture.portrait": {"path": "res://icon.svg", "size": [128, 128]}},
 		"scenes": {"dating.solo.priscilla.day1.pre_challenge": {"background": "", "cg": "",
-			"portraits": ["fixture.portrait"] if enabled else []}}}
+			"portraits": ["fixture.portrait"] if enabled else []},
+			"dating.group.priscilla_lavinia.day1.pre_challenge": {"background": "", "cg": "",
+				"portraits": ["fixture.portrait"] if enabled else []}}}
 	var file := FileAccess.open("user://dating-art-binding.json", FileAccess.WRITE)
 	file.store_string(JSON.stringify(catalog))
 	file.close()
@@ -56,6 +73,7 @@ func _settle_layout() -> void:
 
 func test_art_is_inert_and_clipped_above_each_caption_aperture() -> void:
 	var view := VIEW.new()
+	assert_true(view.bind_view_preferences(_profile))
 	add_child_autofree(view)
 	for percent: int in [100, 125, 150]:
 		view.configure_textures(_texture(), [_texture(), _texture()], null, percent)
@@ -71,6 +89,7 @@ func test_art_is_inert_and_clipped_above_each_caption_aperture() -> void:
 
 func test_challenge_retains_left_portraits_and_empty_mapping_clears_old_images() -> void:
 	var view := VIEW.new()
+	assert_true(view.bind_view_preferences(_profile))
 	add_child_autofree(view)
 	var portrait := _texture()
 	view.configure_textures(_texture(), [portrait, portrait], null, 150, true)
@@ -98,6 +117,7 @@ func test_challenge_retains_left_portraits_and_empty_mapping_clears_old_images()
 
 func test_dating_solo_crop_stays_centered_at_fixed_height_with_shared_background() -> void:
 	var view := VIEW.new()
+	assert_true(view.bind_view_preferences(_profile))
 	add_child_autofree(view)
 	var background := _texture()
 	view.configure_textures(background, [_texture(true)], null, 150, false, true)
@@ -124,6 +144,7 @@ func test_dating_solo_crop_stays_centered_at_fixed_height_with_shared_background
 
 func test_two_portraits_keep_equal_centers_and_overlap_only_for_transparent_art() -> void:
 	var view := VIEW.new()
+	assert_true(view.bind_view_preferences(_profile))
 	add_child_autofree(view)
 	var left := _texture(true)
 	var right := _texture(true)
@@ -148,27 +169,115 @@ func test_two_portraits_keep_equal_centers_and_overlap_only_for_transparent_art(
 	view.set_portrait_width(325)
 	assert_eq(view.get_portrait_width(), 324.0, "four-pixel steps give each portrait a symmetric two-pixel slot change")
 
-func test_dating_width_survives_host_changes_without_changing_desktop_width() -> void:
-	var dialogue := VIEW.new()
-	add_child_autofree(dialogue)
-	dialogue.configure_textures(_texture(), [_texture()], null, 100, false, true)
-	dialogue.set_portrait_width(640)
-	var challenge := VIEW.new()
-	add_child_autofree(challenge)
-	challenge.configure_textures(_texture(), [_texture()], null, 100, true)
-	assert_eq(challenge.get_right_rect(), Rect2(640, 0, 640, 720))
-	var desktop := PANEL_SPLIT.new()
-	add_child_autofree(desktop)
-	assert_eq(desktop.get_angela_width(), 480.0)
-	desktop.set_angela_width(640)
-	assert_eq(desktop.get_angela_width(), 480.0, "the desktop retains its original maximum")
-	desktop.set_angela_width(320)
-	assert_eq(challenge.get_portrait_width(), 640.0, "desktop adjustments do not change dating")
-	challenge.set_portrait_width(400)
-	dialogue.configure_textures(_texture(), [_texture()], null, 100, false, true)
-	assert_eq(dialogue.get_portrait_width(), 400.0, "returning dialogue uses the latest dating width")
-	assert_eq(desktop.get_angela_width(), 320.0)
-	assert_eq(desktop.minimum_second_width, 800.0)
+func _dating_view(portrait_count: int = 1, challenge: bool = false) -> Control:
+	var view := VIEW.new()
+	assert_true(view.bind_view_preferences(_profile))
+	add_child_autofree(view)
+	var portraits: Array[Texture2D] = []
+	for index: int in range(portrait_count): portraits.append(_texture(true))
+	view.configure_textures(_texture(), portraits, null, 100, challenge, true)
+	return view
+
+func _resize_key(view: Control, key: Key) -> void:
+	var event := InputEventKey.new()
+	event.keycode = key
+	event.physical_keycode = key
+	event.pressed = true
+	view.get_split_handle().gui_input.emit(event)
+
+func test_unadjusted_kinds_follow_desktop_until_each_kind_is_committed() -> void:
+	_profile.change(&"preferences.display.angela_panel_width", 400)
+	var solo := _dating_view()
+	var group := _dating_view(2)
+	assert_eq(solo.get_portrait_width(), 400.0)
+	assert_eq(group.get_portrait_width(), 400.0)
+	_profile.change(&"preferences.display.angela_panel_width", 360)
+	assert_eq(solo.get_portrait_width(), 360.0)
+	assert_eq(group.get_portrait_width(), 360.0)
+	_resize_key(solo, KEY_END)
+	assert_eq(_profile.values[&"preferences.display.dating_solo_portrait_width"], 640)
+	assert_eq(_profile.values[&"preferences.display.dating_group_portrait_width"], 0)
+	_profile.change(&"preferences.display.angela_panel_width", 448)
+	assert_eq(solo.get_portrait_width(), 640.0, "adjusted solo dates ignore later desktop changes")
+	assert_eq(group.get_portrait_width(), 448.0, "untouched group dates still inherit the desktop")
+	_resize_key(group, KEY_HOME)
+	_profile.change(&"preferences.display.angela_panel_width", 400)
+	assert_eq(solo.get_portrait_width(), 640.0)
+	assert_eq(group.get_portrait_width(), 320.0)
+	var solo_challenge := _dating_view(1, true)
+	var group_challenge := _dating_view(2, true)
+	assert_eq(solo_challenge.get_right_rect(), Rect2(640, 0, 640, 720))
+	assert_eq(group_challenge.get_right_rect(), Rect2(320, 0, 960, 720))
+	assert_eq(_profile.writes.size(), 2, "reopening hosts only reads each saved preference")
+	assert_eq(_profile.values[&"preferences.display.angela_panel_width"], 400,
+		"dating adjustments never alter the desktop preference")
+
+func test_presentation_changes_noop_and_cancellation_do_not_freeze_inheritance() -> void:
+	_profile.change(&"preferences.display.angela_panel_width", 400)
+	var view := _dating_view()
+	view.set_portrait_width(640)
+	assert_eq(view.get_portrait_width(), 640.0)
+	assert_true(_profile.writes.is_empty(), "presentation-only sizing never saves")
+	view.configure_textures(_texture(), [_texture()], null, 100, false, true)
+	assert_eq(view.get_portrait_width(), 640.0, "same-kind rebuild retains presentation without saving it")
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.position = Vector2(32, 32)
+	click.pressed = true
+	view.get_split_handle().gui_input.emit(click)
+	click.pressed = false
+	view.get_split_handle().gui_input.emit(click)
+	click.pressed = true
+	view.get_split_handle().gui_input.emit(click)
+	var motion := InputEventMouseMotion.new()
+	motion.position = Vector2(-32, 32)
+	motion.button_mask = MOUSE_BUTTON_MASK_LEFT
+	view.get_split_handle().gui_input.emit(motion)
+	view.cancel_split_input()
+	click.position = motion.position
+	click.pressed = false
+	view.get_split_handle().gui_input.emit(click)
+	assert_true(_profile.writes.is_empty(), "a click or canceled preview does not create an override")
+	assert_eq(_profile.values[&"preferences.display.dating_solo_portrait_width"], 0)
+	_profile.change(&"preferences.display.angela_panel_width", 432)
+	assert_eq(view.get_portrait_width(), 432.0)
+	view.set_portrait_width(640)
+	_resize_key(view, KEY_END)
+	assert_true(_profile.writes.is_empty(), "a bounded keyboard no-op also leaves inheritance intact")
+
+func test_failed_width_save_rolls_back_to_the_previous_preference_policy() -> void:
+	_profile.change(&"preferences.display.angela_panel_width", 400)
+	var view := _dating_view()
+	_profile.fail_writes = true
+	_resize_key(view, KEY_END)
+	assert_eq(view.get_portrait_width(), 400.0, "failed first save restores the inherited width")
+	assert_eq(_profile.values[&"preferences.display.dating_solo_portrait_width"], 0)
+	_profile.change(&"preferences.display.angela_panel_width", 416)
+	assert_eq(view.get_portrait_width(), 416.0, "failure must not silently freeze inheritance")
+	_profile.fail_writes = false
+	_resize_key(view, KEY_END)
+	assert_eq(view.get_portrait_width(), 640.0)
+	_profile.fail_writes = true
+	_resize_key(view, KEY_HOME)
+	assert_eq(view.get_portrait_width(), 640.0, "failed replacement restores the last saved override")
+	assert_eq(_profile.values[&"preferences.display.dating_solo_portrait_width"], 640)
+	assert_eq(_profile.values[&"preferences.display.dating_group_portrait_width"], 0)
+	assert_eq(_dating_view().get_portrait_width(), 640.0)
+
+func test_group_entry_with_one_portrait_uses_the_group_preference() -> void:
+	_dating_art_fixture(true)
+	_profile.change(&"preferences.display.dating_solo_portrait_width", 400)
+	_profile.change(&"preferences.display.dating_group_portrait_width", 600)
+	var view := VIEW.new()
+	assert_true(view.bind_view_preferences(_profile))
+	add_child_autofree(view)
+	view.configure_entry("dating.group.priscilla_lavinia.day1.pre_challenge")
+	assert_eq(view.get_portrait_width(), 600.0, "entry kind survives incomplete optional portrait art")
+	_resize_key(view, KEY_LEFT)
+	assert_eq(_profile.values[&"preferences.display.dating_group_portrait_width"], 584)
+	assert_eq(_profile.values[&"preferences.display.dating_solo_portrait_width"], 400)
+	view.configure_entry("dating.solo.priscilla.day1.pre_challenge")
+	assert_eq(view.get_portrait_width(), 400.0, "switching kind with the same portrait count rereads its own width")
 
 func test_dating_mapping_uses_one_fixed_scene_for_all_phases_and_no_variants() -> void:
 	var solo := {"kind": "solo", "day": 2, "participants": ["priscilla"]}
@@ -187,6 +296,7 @@ func test_actual_dating_host_keeps_art_left_and_fits_board_in_right_panel() -> v
 	add_child_autofree(scene)
 	await _settle_layout()
 	var art: VIEW = scene._scene_art
+	assert_true(art.bind_view_preferences(_profile))
 	assert_eq(art.get_parent(), scene.challenge_overlay_host)
 	assert_true(scene.challenge_overlay_host.visible)
 	assert_true(art.visible, "the imported fixture portrait is actually loaded")

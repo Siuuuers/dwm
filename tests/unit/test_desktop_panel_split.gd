@@ -8,6 +8,7 @@ var _angela: Control
 var _computer: Control
 var _focus_target: Button
 var _edge_button: Button
+var _commits: Array[float] = []
 
 
 func before_each() -> void:
@@ -15,7 +16,9 @@ func before_each() -> void:
 	_viewport.size = Vector2i(1280, 720)
 	_viewport.handle_input_locally = true
 	add_child_autofree(_viewport)
+	_commits.clear()
 	_split = SPLIT.new()
+	_split.width_committed.connect(func(width: float): _commits.append(width))
 	_split.size = Vector2(1280, 720)
 	_viewport.add_child(_split)
 	_angela = Control.new()
@@ -110,6 +113,7 @@ func test_default_and_programmatic_widths_lay_out_two_panes_without_a_stolen_gut
 	assert_eq(_split.get_angela_width(), 480.0)
 	assert_eq(_computer.get_rect(), Rect2(480, 0, 800, 720))
 	assert_eq(changes, [400.0, 320.0, 480.0], "only effective public width changes are published")
+	assert_true(_commits.is_empty(), "programmatic layout changes are not user preference commits")
 
 
 func test_central_pointer_drag_clamps_and_preserves_existing_focus_and_children() -> void:
@@ -126,6 +130,7 @@ func test_central_pointer_drag_clamps_and_preserves_existing_focus_and_children(
 	assert_eq(_split.get_angela_width(), 480.0, "pointer motion previews without resizing content")
 	assert_eq(_computer.get_rect(), Rect2(480, 0, 800, 720))
 	assert_true(changes.is_empty(), "no layout commit is published during a drag")
+	assert_true(_commits.is_empty(), "pointer preview cannot save a preference")
 	assert_true(_mouse_motion(Vector2(332, 360), Vector2(-40, 0)))
 	assert_eq(_split.get_angela_width(), 480.0)
 	assert_true(_mouse_motion(Vector2(252, 360), Vector2(-80, 0)))
@@ -133,6 +138,7 @@ func test_central_pointer_drag_clamps_and_preserves_existing_focus_and_children(
 	await _settle()
 	assert_eq(_split.get_angela_width(), 320.0)
 	assert_eq(changes, [320.0], "release publishes the final clamped width once")
+	assert_eq(_commits, [320.0], "one completed gesture emits one preference commit")
 	assert_eq(_computer.get_rect(), Rect2(320, 0, 960, 720))
 	assert_true(_focus_target.has_focus(), "resizing does not steal semantic app focus")
 	assert_eq(_angela.get_instance_id(), angela_id)
@@ -241,6 +247,8 @@ func test_focused_affordance_supports_bounded_keyboard_adjustment() -> void:
 	await _settle()
 	assert_eq(_split.get_angela_width(), 480.0)
 	assert_true(handle.has_focus())
+	assert_true(_key(KEY_END))
+	assert_eq(_commits, [464.0, 320.0, 336.0, 480.0], "bounded no-op does not add a keyboard commit")
 
 
 func test_touch_drag_commits_on_release_and_cancellation_discards_preview() -> void:
@@ -252,11 +260,13 @@ func test_touch_drag_commits_on_release_and_cancellation_discards_preview() -> v
 	assert_true(_touch(Vector2(362, 360), false, true))
 	_touch_drag(Vector2(350, 360), Vector2(-50, 0))
 	assert_eq(_split.get_angela_width(), 480.0, "canceled touch leaves the committed layout unchanged")
+	assert_true(_commits.is_empty())
 	assert_true(_touch(Vector2(472, 360), true))
 	assert_true(_touch_drag(Vector2(362, 360), Vector2(-110, 0)))
 	assert_true(_touch(Vector2(362, 360), false))
 	await _settle()
 	assert_eq(_split.get_angela_width(), 370.0, "normal release applies the final touch position")
+	assert_eq(_commits, [370.0], "canceled touch saves nothing; successful touch saves once")
 
 
 func test_focus_loss_and_missing_release_retire_mouse_drag_ownership() -> void:
@@ -271,6 +281,7 @@ func test_focus_loss_and_missing_release_retire_mouse_drag_ownership() -> void:
 	assert_eq(_split.get_angela_width(), 480.0, "motion without a held left button cannot resize")
 	_mouse_motion(Vector2(362, 360), Vector2(-30, 0))
 	assert_eq(_split.get_angela_width(), 480.0, "missing-button motion retires stale ownership")
+	assert_true(_commits.is_empty(), "focus loss and lost releases do not freeze preferences")
 
 
 func test_escape_cancels_pointer_preview_without_a_commit() -> void:
@@ -284,3 +295,4 @@ func test_escape_cancels_pointer_preview_without_a_commit() -> void:
 	await _settle()
 	assert_eq(_split.get_angela_width(), 480.0)
 	assert_true(changes.is_empty())
+	assert_true(_commits.is_empty(), "Escape retires a preview without saving")

@@ -6,13 +6,19 @@ class_name MainGameScene
 const COMPUTER_DESKTOP_SCENE := preload("res://scenes/desktop/ComputerDesktop.tscn")
 const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
 const PANEL_SPLIT := preload("res://scripts/ui/desktop/DesktopPanelSplit.gd")
+const PANEL_WIDTH_PATH := &"preferences.display.angela_panel_width"
 
 @onready var _computer_panel: PanelContainer = %ComputerPanel
 @onready var _angela_image: Control = %AngelaImage
 
 var _computer_desktop_instance: Node = null
+var _view_profile: Object
+var _view_preferences_bound := false
 
 func _ready() -> void:
+	if not _view_preferences_bound:
+		bind_view_preferences(get_node_or_null("/root/ProfileManager"))
+	$RootHBox.width_committed.connect(_on_panel_width_committed)
 	_mount_angela_art()
 	_ensure_computer_desktop()
 	%AngelaPanel.resized.connect(_layout_angela_overlay)
@@ -23,6 +29,33 @@ func _ready() -> void:
 	_refresh_split_presentation()
 	%StatHud.theme_changed.connect(_refresh_split_presentation)
 	_layout_angela_overlay.call_deferred()
+
+func bind_view_preferences(profile: Object) -> bool:
+	if profile != null and (not profile.has_method("get_preference") or not profile.has_method("set_preference")): return false
+	if is_instance_valid(_view_profile) and _view_profile.has_signal("preference_changed") \
+			and _view_profile.is_connected("preference_changed", _on_panel_preference_changed):
+		_view_profile.disconnect("preference_changed", _on_panel_preference_changed)
+	_view_profile = profile
+	_view_preferences_bound = true
+	if profile != null and profile.has_signal("preference_changed"):
+		profile.connect("preference_changed", _on_panel_preference_changed)
+	_refresh_panel_width()
+	return true
+
+func _refresh_panel_width() -> void:
+	var split := get_node_or_null("RootHBox")
+	if split == null: return
+	split._retire_drag()
+	var width := float(_view_profile.get_preference(PANEL_WIDTH_PATH, 480)) if is_instance_valid(_view_profile) else 480.0
+	split.set_angela_width(width)
+
+func _on_panel_preference_changed(path: StringName, _value: Variant) -> void:
+	if path == PANEL_WIDTH_PATH: _refresh_panel_width()
+
+func _on_panel_width_committed(width: float) -> void:
+	if not is_instance_valid(_view_profile): return
+	var saved: Dictionary = _view_profile.set_preference(PANEL_WIDTH_PATH, roundi(width))
+	if not saved.get("ok", false): _refresh_panel_width()
 
 func _layout_angela_overlay() -> void:
 	var hud: Control = %StatHud

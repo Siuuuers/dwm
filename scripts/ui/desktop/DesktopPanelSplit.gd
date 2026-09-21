@@ -2,6 +2,7 @@ extends Container
 class_name DesktopPanelSplit
 
 signal split_changed(width: float)
+signal width_committed(width: float)
 signal drag_changed(active: bool)
 
 const MIN_ANGELA_WIDTH := 320.0
@@ -256,13 +257,13 @@ func _on_handle_gui_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
 		match event.keycode:
 			KEY_LEFT:
-				set_angela_width(_angela_width - KEYBOARD_STEP)
+				_commit_width(_angela_width - KEYBOARD_STEP)
 			KEY_RIGHT:
-				set_angela_width(_angela_width + KEYBOARD_STEP)
+				_commit_width(_angela_width + KEYBOARD_STEP)
 			KEY_HOME:
-				set_angela_width(minimum_first_width)
+				_commit_width(minimum_first_width)
 			KEY_END:
-				set_angela_width(maximum_first_width)
+				_commit_width(maximum_first_width)
 			_:
 				return
 		_handle.accept_event()
@@ -290,7 +291,14 @@ func _update_drag(pointer_x: float) -> void:
 func _finish_drag() -> void:
 	var committed_width := _preview_width
 	_retire_drag()
-	set_angela_width(committed_width)
+	_commit_width(committed_width)
+
+
+func _commit_width(width: float) -> void:
+	var previous := _angela_width
+	set_angela_width(width)
+	if not is_equal_approx(previous, _angela_width):
+		width_committed.emit(_angela_width)
 
 
 func _retire_drag() -> void:

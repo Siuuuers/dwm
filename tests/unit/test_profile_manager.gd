@@ -313,3 +313,108 @@ func test_font_style_missing_leaf_is_persisted_as_pixel_and_explicit_values_rema
 		var malformed: Dictionary = _schema.make_defaults()
 		malformed.preferences.accessibility.font_style = bad
 		assert_false(_schema.validate(malformed).get("ok", true), "Invalid style must not be repaired: " + str(bad))
+
+func test_missing_panel_widths_migrate_together_and_persist_without_touching_other_preferences() -> void:
+	var legacy: Dictionary = _schema.make_defaults()
+	for leaf: String in ["angela_panel_width", "dating_solo_portrait_width", "dating_group_portrait_width"]:
+		legacy.preferences.display.erase(leaf)
+	legacy.preferences.audio.music_volume = 0.37
+	var before := legacy.duplicate(true)
+	var repaired: Dictionary = _schema.validate(legacy)
+	assert_true(repaired.get("ok", false), str(repaired))
+	assert_true(repaired.get("migrated", false))
+	assert_eq(legacy, before, "Migration leaves the caller detached")
+	var partial := legacy.duplicate(true)
+	partial.preferences.display.angela_panel_width = 400
+	assert_false(_schema.validate(partial).get("ok", true), "An incomplete new preference set is not a legacy document")
+	var ops: RefCounted = _fake_ops_script.new({ROOT + "/profile.json": JSON.stringify(legacy)})
+	var first: Node = autofree(_manager_script.new())
+	assert_true(first.initialize(_storage_script.new(ROOT, ops)).get("ok", false))
+	var migrated_bytes: Dictionary = ops.snapshot_persisted()
+	var strict_json := _load("res://scripts/validation/StrictJson.gd")
+	var durable: Dictionary = strict_json.parse_object(migrated_bytes[ROOT + "/profile.json"].get_string_from_utf8())
+	assert_true(durable.get("ok", false), str(durable))
+	if not durable.get("ok", false): return
+	assert_eq(durable.value.preferences.display.angela_panel_width, 480)
+	assert_eq(durable.value.preferences.display.dating_solo_portrait_width, 0)
+	assert_eq(durable.value.preferences.display.dating_group_portrait_width, 0)
+	var restarted: Node = autofree(_manager_script.new())
+	assert_true(restarted.initialize(_storage_script.new(ROOT, _fake_ops_script.new(migrated_bytes))).get("ok", false))
+	assert_eq(restarted.get_preference(&"preferences.display.angela_panel_width"), 480)
+	assert_eq(restarted.get_preference(&"preferences.display.dating_solo_portrait_width"), 0)
+	assert_eq(restarted.get_preference(&"preferences.display.dating_group_portrait_width"), 0)
+	assert_eq(restarted.get_preference(&"preferences.audio.music_volume"), 0.37)
+	assert_false(_schema.validate(restarted.get_profile_snapshot()).get("migrated", false), "Persisted defaults require no second admission")
+
+
+func test_panel_width_preferences_are_hidden_and_reject_invalid_ranges_steps_and_types() -> void:
+	var registry := _load("res://scripts/settings/SettingsPreferenceRegistry.gd")
+	var paths := [&"preferences.display.angela_panel_width", &"preferences.display.dating_solo_portrait_width", &"preferences.display.dating_group_portrait_width"]
+	for record: Dictionary in registry.visible_records(&"display"):
+		assert_false(record.path in paths, "The divider owns width adjustment; Settings gains no extra rows")
+	for path: StringName in paths:
+		assert_true(registry.is_player_writable(path))
+		for valid: int in [320, 400, 480]:
+			assert_true(_schema.validate_preference(path, valid).get("ok", false), "%s: %s" % [path, valid])
+		for invalid: Variant in [null, true, "400", 400.0, -1, 318, 321, 642]:
+			assert_false(_schema.validate_preference(path, invalid).get("ok", true), "%s: %s" % [path, invalid])
+	assert_false(_schema.validate_preference(paths[0], 0).get("ok", true))
+	assert_false(_schema.validate_preference(paths[0], 482).get("ok", true))
+	for path: StringName in [paths[1], paths[2]]:
+		assert_true(_schema.validate_preference(path, 0).get("ok", false), "Zero retains inheritance")
+		assert_true(_schema.validate_preference(path, 640).get("ok", false))
+	assert_true(_schema.validate_preference(paths[1], 402).get("ok", false))
+	assert_false(_schema.validate_preference(paths[2], 402).get("ok", true), "Two portrait centres need four-pixel width steps")
+
+
+func test_solo_group_and_desktop_widths_are_independent_and_survive_restart() -> void:
+	var fixture := _new_manager()
+	var manager: Node = fixture.manager
+	assert_true(manager.set_preference(&"preferences.display.angela_panel_width", 402).get("ok", false))
+	assert_true(manager.set_preference(&"preferences.display.dating_solo_portrait_width", 562).get("ok", false))
+	assert_eq(manager.get_preference(&"preferences.display.dating_group_portrait_width"), 0, "A solo adjustment leaves group inheritance intact")
+	assert_true(manager.set_preference(&"preferences.display.dating_group_portrait_width", 600).get("ok", false))
+	assert_true(manager.set_preference(&"preferences.display.angela_panel_width", 360).get("ok", false))
+	var restarted: Node = autofree(_manager_script.new())
+	assert_true(restarted.initialize(_storage_script.new(ROOT, _fake_ops_script.new(fixture.ops.snapshot_persisted()))).get("ok", false))
+	assert_eq(restarted.get_preference(&"preferences.display.angela_panel_width"), 360)
+	assert_eq(restarted.get_preference(&"preferences.display.dating_solo_portrait_width"), 562)
+	assert_eq(restarted.get_preference(&"preferences.display.dating_group_portrait_width"), 600)
+
+
+func test_failed_first_dating_width_write_preserves_inheritance_and_publishes_no_change() -> void:
+	var fixture := _new_manager()
+	var manager: Node = fixture.manager
+	assert_true(manager.set_preference(&"preferences.display.angela_panel_width", 400).get("ok", false))
+	var before_profile: Dictionary = manager.get_profile_snapshot()
+	var before_bytes: Dictionary = fixture.ops.snapshot_persisted()
+	var changes: Array = []
+	manager.preference_changed.connect(func(path: StringName, _value: Variant) -> void: changes.append(path))
+	fixture.ops.fail_after(fixture.ops.operation_count() + 1)
+	var result: Dictionary = manager.set_preference(&"preferences.display.dating_solo_portrait_width", 560)
+	assert_false(result.get("ok", true), str(result))
+	assert_eq(manager.get_preference(&"preferences.display.dating_solo_portrait_width"), 0, "A failed save never becomes an override")
+	assert_eq(manager.get_profile_snapshot(), before_profile)
+	assert_eq(fixture.ops.snapshot_persisted(), before_bytes)
+	assert_eq(changes, [])
+
+
+func test_new_account_preserves_panel_widths_and_preferences_reset_restores_inheritance() -> void:
+	var fixture := _new_manager()
+	var manager: Node = fixture.manager
+	assert_true(manager.configure_new_run_storage(fixture.storage).get("ok", false))
+	assert_true(manager.set_preferences({&"preferences.display.angela_panel_width": 400,
+		&"preferences.display.dating_solo_portrait_width": 562,
+		&"preferences.display.dating_group_portrait_width": 600}).get("ok", false))
+	var before: Dictionary = manager.get_profile_snapshot()
+	var disk: Dictionary = fixture.ops.snapshot_persisted()
+	var prepared: Dictionary = manager.prepare_new_run_consumption(manager.get_profile_revision())
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return
+	assert_eq(prepared.value.candidate.preferences.display, before.preferences.display)
+	assert_eq(manager.get_profile_snapshot(), before)
+	assert_eq(fixture.ops.snapshot_persisted(), disk, "New Account preparation leaves permanent widths untouched")
+	assert_true(manager.reset_preferences().get("ok", false))
+	assert_eq(manager.get_preference(&"preferences.display.angela_panel_width"), 480)
+	assert_eq(manager.get_preference(&"preferences.display.dating_solo_portrait_width"), 0)
+	assert_eq(manager.get_preference(&"preferences.display.dating_group_portrait_width"), 0)

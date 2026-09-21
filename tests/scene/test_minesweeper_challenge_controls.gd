@@ -5,7 +5,7 @@ const SCENE := preload("res://scenes/dating/DatingScene.tscn")
 const QUERY := preload("res://scripts/application/minesweeper/MinesweeperBoardPresentationQuery.gd")
 const STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
-const ART_VIEW := preload("res://scripts/ui/art/SceneArtView.gd")
+const ART_FIXTURES := preload("res://tests/unit/test_scene_art_bindings.gd")
 
 class PublicPort extends RefCounted:
 	var view: Dictionary
@@ -30,11 +30,10 @@ class ViewProfile extends RefCounted:
 
 var _port: PublicPort
 var _scene: Control
-var _previous_dating_width := 480.0
+var _width_profile: RefCounted
 
 func before_each() -> void:
-	_previous_dating_width = ART_VIEW._dating_width
-	ART_VIEW._dating_width = 480.0
+	_width_profile = ART_FIXTURES.ViewProfile.new()
 	var viewport := SubViewport.new()
 	viewport.size = Vector2i(1280,720)
 	add_child_autofree(viewport)
@@ -46,11 +45,9 @@ func before_each() -> void:
 	assert_true(_scene.configure_presentation(_port,{"physical_token":"test.challenge",
 		"context":{"kind":"solo","day":3,"participants":["sylvia"]}}).ok)
 	viewport.add_child(_scene)
+	assert_true(_scene._scene_art.bind_view_preferences(_width_profile))
 	_scene.set_process(false)
 	await _settle_layout()
-
-func after_each() -> void:
-	ART_VIEW._dating_width = _previous_dating_width
 
 func _settle_layout() -> void:
 	for frame in 4: await get_tree().process_frame
@@ -254,6 +251,7 @@ func test_divider_drag_keeps_pending_contacts_out_of_challenge_and_preserves_doc
 	assert_false(art.is_split_dragging())
 	assert_false(_scene._split_dragging)
 	assert_eq(art.get_portrait_width(),576.0)
+	assert_eq(_width_profile.writes, [{"path": &"preferences.display.dating_group_portrait_width", "value":576}])
 	assert_true(grid.is_view_input_admitted())
 	assert_eq(grid.projection,original)
 	assert_true(_port.commands.is_empty())
