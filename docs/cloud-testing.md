@@ -16,6 +16,12 @@ seven-day retained-history measurements, and Windows release export/startup.
 There are seventeen jobs in total; their individual results determine which
 claims the run supports.
 
+The public-surface job runs first and imports the project before checking its
+contracts. The other sixteen jobs depend on its success, then run their own
+platform imports and checks. A failed prerequisite leaves those jobs unvalidated;
+a skipped job is never a pass. This avoids repeating a shared import failure
+across the entire matrix.
+
 A supplementary job renders the computer panel on Ubuntu 24.04 using the same pinned
 Godot release, Xvfb, and Mesa software OpenGL. The desktop scaling harness
 captures 38 states covering the launcher, apps, scrolled content, menus, and

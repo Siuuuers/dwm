@@ -343,9 +343,13 @@ static func _message_existed(messages: Array, candidate: Dictionary) -> bool:
 	return false
 
 static func _relationship(relationship: Dictionary, attitude: String) -> Dictionary:
-	if not relationship.get("relationship_state") is String or typeof(relationship.get("dark_points")) != TYPE_INT:
+	# New Run intentionally stores sparse Dating state. Its absent progression
+	# fields mean the same initial friend/zero state as the gameplay owner.
+	var tier: Variant = relationship.get("relationship_state", "friend")
+	var dark_points: Variant = relationship.get("dark_points", 0)
+	if not tier is String or typeof(dark_points) != TYPE_INT:
 		return _fail(&"contacts_frozen_relationship_unavailable")
-	return _ok({"tier": relationship.relationship_state, "tone": "dark" if relationship.dark_points >= RELATIONSHIP.DARK_TONE_THRESHOLD else "sweet", "attitude": attitude})
+	return _ok({"tier": tier, "tone": "dark" if dark_points >= RELATIONSHIP.DARK_TONE_THRESHOLD else "sweet", "attitude": attitude})
 
 static func _constants(entry_id: String) -> Dictionary:
 	var schema := FROZEN.schema_for_entry(entry_id)

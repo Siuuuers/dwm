@@ -1940,6 +1940,62 @@
       "disposition": "retain",
       "replacement": "",
       "contract_test": "test_silent_restore_uses_final_route_and_current_day_before_overlaying_profile"
+    },
+    {
+      "symbol": "capture_ending_frozen_presentation",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_owner_freezes_admission_then_checkpoints_exact_current_step_and_refuses_missing_seed"
+    },
+    {
+      "symbol": "configure_frozen_contacts_contexts",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_current_ordinary_freeze_is_durable_before_native_projection_and_failed_write_rolls_back"
+    },
+    {
+      "symbol": "configure_frozen_ending_contexts",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_owner_freezes_admission_then_checkpoints_exact_current_step_and_refuses_missing_seed"
+    },
+    {
+      "symbol": "ensure_contact_presentation_contexts",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_current_ordinary_freeze_is_durable_before_native_projection_and_failed_write_rolls_back"
+    },
+    {
+      "symbol": "frozen_contacts_contexts_enabled",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_current_ordinary_freeze_is_durable_before_native_projection_and_failed_write_rolls_back"
+    },
+    {
+      "symbol": "read_hospital_presentation_request",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_owner_hospital_request_is_bound_durable_detached_and_idempotent"
+    },
+    {
+      "symbol": "retain_hospital_presentation_request",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_owner_hospital_request_is_bound_durable_detached_and_idempotent"
     }
   ]
 }

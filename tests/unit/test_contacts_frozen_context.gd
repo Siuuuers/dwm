@@ -303,3 +303,14 @@ func test_failed_generation_freeze_leaves_live_unlock_and_contacts_untouched() -
 	assert_eq(game.contact_message_unlocks, unlocked)
 	assert_signal_not_emitted(game, "contact_message_unlocked")
 	assert_signal_not_emitted(game, "save_relevant_state_changed")
+
+func test_current_sparse_relationship_defaults_do_not_coerce_present_invalid_fields() -> void:
+	var entry_id := ORDINARY.entry_id_for_day(1)
+	for invalid: Variant in [null, true, 0, [], {}]:
+		var refused := FROZEN.ordinary_awaiting(entry_id, {"relationship_state": invalid}, "")
+		assert_false(refused.ok)
+		assert_eq(refused.get("code"), &"contacts_frozen_relationship_unavailable")
+	for invalid: Variant in [null, true, 0.0, "0", [], {}]:
+		var refused := FROZEN.ordinary_awaiting(entry_id, {"dark_points": invalid}, "")
+		assert_false(refused.ok)
+		assert_eq(refused.get("code"), &"contacts_frozen_relationship_unavailable")

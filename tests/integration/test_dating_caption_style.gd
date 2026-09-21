@@ -53,6 +53,7 @@ var _mouse_from_touch := false
 var _width_profile: RefCounted
 var _replaced_timeline: Resource
 var _replaced_timeline_path := ""
+var _replaced_timeline_source: PackedByteArray
 
 func before_each() -> void:
 	_root_size = get_tree().root.size
@@ -111,9 +112,16 @@ func after_each() -> void:
 	await get_tree().process_frame
 	runtime.free()
 	if _replaced_timeline != null:
+		var source := FileAccess.open(_replaced_timeline_path, FileAccess.WRITE)
+		assert_not_null(source, "fixture source is restored after real DTL playback")
+		if source != null:
+			source.store_buffer(_replaced_timeline_source)
+			source.close()
+			assert_eq(FileAccess.get_file_as_bytes(_replaced_timeline_path), _replaced_timeline_source)
 		_replaced_timeline.take_over_path(_replaced_timeline_path)
 		_replaced_timeline = null
 		_replaced_timeline_path = ""
+		_replaced_timeline_source = PackedByteArray()
 	get_tree().root.add_child(_original_bridge)
 	get_tree().root.move_child(_original_bridge, _original_bridge_index)
 	get_tree().remove_meta("dialogic_layout_node")
@@ -152,9 +160,19 @@ func _inject_frozen_context_prose(entry_id: String = DATING, prose: String = "Ti
 	injected.injected_path = str(located.value.path)
 	_replaced_timeline_path = injected.injected_path
 	_replaced_timeline = load(_replaced_timeline_path)
+	_replaced_timeline_source = FileAccess.get_file_as_bytes(_replaced_timeline_path)
+	var prose_source := "return\nlabel " + str(located.value.label) + "\nNarrator: " + prose + "\nreturn"
+	# The production art-only probe reads source bytes before Dialogic starts.
+	# Give it the same prose as the runtime, then restore the exact original bytes.
+	var source := FileAccess.open(_replaced_timeline_path, FileAccess.WRITE)
+	assert_not_null(source)
+	if source == null: return
+	source.store_string(prose_source)
+	source.close()
+	assert_false(BRIDGE.is_return_only_entry(_replaced_timeline_path, str(located.value.label)),
+		"the source probe and runtime must both observe the injected prose")
 	injected.injected_timeline = DialogicTimeline.new()
-	injected.injected_timeline.from_text("return\nlabel " + str(located.value.label)
-		+ "\nNarrator: " + prose + "\nreturn")
+	injected.injected_timeline.from_text(prose_source)
 	injected.injected_timeline.take_over_path(injected.injected_path)
 
 func test_ending_frozen_prose_keeps_stable_completion_identity_across_runtime_counter_restart() -> void:

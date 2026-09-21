@@ -15,6 +15,7 @@ concurrency:
 
 jobs:
   focused-tests:
+    needs: public-surfaces
     name: Windows / ${{ matrix.suite }}
     runs-on: windows-2022
     timeout-minutes: 20
@@ -100,6 +101,7 @@ jobs:
           retention-days: 7
 
   windows-export:
+    needs: public-surfaces
     name: Windows / exported release startup
     runs-on: windows-2022
     timeout-minutes: 35
@@ -278,6 +280,7 @@ jobs:
           retention-days: 7
 
   checkpoint-performance:
+    needs: public-surfaces
     name: Windows / paired checkpoint performance
     runs-on: windows-2022
     timeout-minutes: 20
@@ -358,6 +361,7 @@ jobs:
           retention-days: 7
 
   seven-day-history:
+    needs: public-surfaces
     name: Windows / seven-day retained history
     runs-on: windows-2022
     timeout-minutes: 45
@@ -443,6 +447,7 @@ jobs:
           retention-days: 7
 
   rendered-journeys:
+    needs: public-surfaces
     name: Rendered seven-day, ending, Gallery and Dating journeys
     runs-on: ubuntu-24.04
     timeout-minutes: 65
@@ -509,6 +514,7 @@ jobs:
           retention-days: 7
 
   rendered-desktop:
+    needs: public-surfaces
     name: Rendered desktop and dialogue / Linux software OpenGL
     runs-on: ubuntu-24.04
     timeout-minutes: 20

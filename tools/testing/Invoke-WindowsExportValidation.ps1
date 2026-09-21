@@ -116,8 +116,31 @@ try {
     }
 
     $executable = Join-Path $package 'DWM.exe'
-    $null = Invoke-CheckedProcess $env:GODOT_CONSOLE_PATH @('--headless', '--path', $repositoryRoot,
-        '--export-release', 'Windows Desktop', $executable, '--log-file', (Join-Path $output 'export.log')) 'export' $exportUser 600
+    # GUT is excluded from the release pack, but its editor plugin otherwise
+    # performs a network update check during export. A rate-limited check emits
+    # ERROR and correctly fails the strict scan. Disable only that editor plugin
+    # for this export; keep runtime plugins and all error checks intact.
+    $projectPath = Join-Path $repositoryRoot 'project.godot'
+    $projectBytes = [IO.File]::ReadAllBytes($projectPath)
+    $projectText = [Text.Encoding]::UTF8.GetString($projectBytes)
+    $pluginPattern = '(?m)(^\[editor_plugins\]\r?\n(?:\r?\n)*enabled=PackedStringArray\()([^\r\n]*)(\))(?=\r?$)'
+    $pluginMatches = [regex]::Matches($projectText, $pluginPattern)
+    if ($pluginMatches.Count -ne 1) { throw 'Expected exactly one editor plugin setting.' }
+    $pluginMatch = $pluginMatches[0]
+    $gutPlugin = '"res://addons/gut/plugin.cfg"'
+    $plugins = @($pluginMatch.Groups[2].Value.Split(',') | ForEach-Object { $_.Trim() })
+    if (@($plugins | Where-Object { $_ -ceq $gutPlugin }).Count -ne 1) { throw 'Expected exactly one enabled GUT editor plugin.' }
+    $exportPlugins = @($plugins | Where-Object { $_ -cne $gutPlugin })
+    $exportSetting = $pluginMatch.Groups[1].Value + ($exportPlugins -join ', ') + $pluginMatch.Groups[3].Value
+    $exportProjectText = $projectText.Remove($pluginMatch.Index, $pluginMatch.Length).Insert($pluginMatch.Index, $exportSetting)
+    try {
+        [IO.File]::WriteAllText($projectPath, $exportProjectText, [Text.UTF8Encoding]::new($false))
+        $null = Invoke-CheckedProcess $env:GODOT_CONSOLE_PATH @('--headless', '--path', $repositoryRoot,
+            '--export-release', 'Windows Desktop', $executable, '--log-file', (Join-Path $output 'export.log')) 'export' $exportUser 600
+    } finally {
+        [IO.File]::WriteAllBytes($projectPath, $projectBytes)
+    }
+    $result.export_editor_plugin_exclusion = 'res://addons/gut/plugin.cfg'
     foreach ($required in @('DWM.exe', 'DWM.pck')) {
         if (-not (Test-Path -LiteralPath (Join-Path $package $required) -PathType Leaf)) { throw "Export did not produce $required." }
     }

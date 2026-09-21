@@ -12,6 +12,19 @@ const PORT := preload("res://scripts/application/run/HospitalPresentationPort.gd
 const SCENE := preload("res://scripts/ui/HospitalScene.gd")
 const CANON := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
 const DAY_PORT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
+const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
+
+class CheckpointWriter extends RefCounted:
+	var game: Node
+	var gate: RefCounted
+	var fail := false
+	var snapshots: Array[Dictionary] = []
+	func write() -> Dictionary:
+		if not gate.is_internal_owner_active(&"causal_transaction"):
+			return {"ok": false, "code": &"fixture_missing_custody"}
+		if fail: return {"ok": false, "code": &"fixture_write_failed"}
+		snapshots.append(game.capture_restore_state().value.backup)
+		return {"ok": true}
 
 class Lifecycle extends RefCounted:
 	var activations := 0
@@ -215,3 +228,74 @@ func test_schedule_resume_uses_saved_request_before_consulting_later_live_state(
 	assert_eq(refused.code, &"hospital_frozen_context_required")
 	assert_eq(state.live_queries, 0, "missing snapshots refuse before querying either true or false live eligibility")
 	assert_eq(state._run_lifecycle.activations, 1, "an active presentation missing its snapshot stays refused")
+
+func test_game_owner_hospital_request_is_bound_durable_detached_and_idempotent() -> void:
+	var game: Node = autofree(GAME.new())
+	game.reset_game()
+	var gate := GATE.new()
+	assert_true(game.configure_mutation_gate(gate).ok)
+	var writer := CheckpointWriter.new()
+	writer.game = game
+	writer.gate = gate
+	assert_true(game.configure_contact_checkpoint_writer(writer.write).ok)
+	var issuer := ISSUER.new()
+	assert_true(issuer.configure(ROOT.new("93".repeat(32), 1)).ok)
+	var issued: Dictionary = issuer.issue(&"transaction_id")
+	assert_true(issued.ok, str(issued))
+	if not issued.ok: return
+	var root: Dictionary = issued.value
+	var derived: Dictionary = issuer.derive_child({"child_kind": "day_resolution_stage", "ordinal": 0,
+		"parent_receipt_id": root.issuer_receipt.receipt_id, "source_ids": ["fixture:hospital-start"]})
+	assert_true(derived.ok, str(derived))
+	if not derived.ok: return
+	var start := {"receipt_id": derived.value.child_id, "receipt_provenance": derived.value.provenance,
+		"resolution_id": root.token, "causal_day_instance": game._run_lifecycle.to_dict().causal_day_instance,
+		"source_day": 1, "schedule_entry_ids": [], "schedule_commit_receipt_id": null, "board_fate_receipt_id": null}
+	var begun: Dictionary = game._run_lifecycle.begin_day_resolution(root.token, {"entries": []}, [], null, null,
+		{"command_id": "fixture:hospital-done", "resolution_issuer_receipt": root.issuer_receipt,
+		"day_resolution_start_receipt": start})
+	assert_true(begun.ok, str(begun))
+	if not begun.ok: return
+	var request := _command(_context(false), "owner")
+	request.erase("command_sha256")
+	request.resolution_id = root.token
+	request.resolution_issuer_receipt = root.issuer_receipt.duplicate(true)
+	for stage: Dictionary in begun.value.plan.stages:
+		if stage.stage_id == "hospital_if_triggered": request.stage_id = stage.transaction_id
+	var before: Dictionary = game.capture_restore_state().value.backup
+	assert_eq(game.read_hospital_presentation_request(root.token).value, {})
+	var wrong_stage := request.duplicate(true)
+	wrong_stage.stage_id = "fixture:unrelated-stage"
+	assert_eq(game.retain_hospital_presentation_request(wrong_stage).get("code"), &"hospital_frozen_request_mismatch")
+	assert_eq(game.capture_restore_state().value.backup, before)
+	assert_true(writer.snapshots.is_empty())
+	assert_false(gate.is_active())
+	writer.fail = true
+	assert_eq(game.retain_hospital_presentation_request(request).get("code"), &"fixture_write_failed")
+	assert_eq(game.capture_restore_state().value.backup, before)
+	assert_true(writer.snapshots.is_empty())
+	assert_false(gate.is_active())
+	writer.fail = false
+	var retained: Dictionary = game.retain_hospital_presentation_request(request)
+	assert_true(retained.ok, str(retained))
+	if not retained.ok: return
+	assert_eq(writer.snapshots.size(), 1)
+	assert_eq(writer.snapshots[0].gameplay.route_context.hospital_frozen_contexts_v1.requests[root.token], request)
+	assert_false(gate.is_active())
+	var original := request.duplicate(true)
+	retained.value.substage_id = "fixture:changed-return"
+	request.context.presentation.fields.qualifying_cause = "condition_hospital"
+	var read: Dictionary = game.read_hospital_presentation_request(root.token)
+	assert_true(read.ok, str(read))
+	if not read.ok: return
+	assert_eq(read.value, original, "input and output dictionaries cannot mutate the saved request")
+	read.value.substage_id = "fixture:changed-read"
+	assert_eq(game.read_hospital_presentation_request(root.token).value, original)
+	assert_eq(game.retain_hospital_presentation_request(original).value, original)
+	assert_eq(writer.snapshots.size(), 1, "exact replay does not checkpoint twice")
+	var conflict := original.duplicate(true)
+	conflict.substage_id = "fixture:conflicting-intent"
+	assert_eq(game.retain_hospital_presentation_request(conflict).get("code"), &"hospital_frozen_request_conflict")
+	game.route_context.hospital_frozen_contexts_v1.requests[root.token].resolution_issuer_receipt = {}
+	assert_eq(game.read_hospital_presentation_request(root.token).get("code"), &"hospital_frozen_request_mismatch")
+	assert_eq(writer.snapshots.size(), 1)

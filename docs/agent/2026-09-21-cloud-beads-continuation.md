@@ -131,14 +131,26 @@ The latest review also binds a Contacts virtual group phase to its exact registe
 entry identity. A schema-valid message snapshot cannot borrow an activation receipt
 by changing its variation. Its tamper regression is included.
 
-Cloud execution is presently blocked before runner allocation. The browser is
-not signed into the private repository, so its job annotations could not be read.
-Billing, quota, repository policy and service availability have not been diagnosed;
-none is asserted as the cause. Do not close the canonical context, release or
-performance gates from these unexecuted runs. Restore cloud execution first, then
-run the entire matrix, recover exact public inventories, commit them, and switch
-the public-inventory workflow back to its read-only check. Keep RunSave v7 gated
-on successful producer validation and its compatible performance fixtures.
+GitHub's job annotations confirmed that runs 45 and 46 initially could not start
+because of account billing enforcement. After the owner made the repository public,
+run 46 attempt 2 allocated a Windows runner and imported the current source
+successfully. Attempt 3 then allocated all seventeen jobs. The earlier billing
+failure is no longer the current execution blocker.
+
+The resumed run exposed seven new GameState methods missing public contract
+classifications, a sparse New Account relationship-default mismatch in Contacts
+capture, and a typed-array return error in frozen Hospital artwork. Two real-DTL
+tests also injected cached prose while the art-hold probe still read a return-only
+file; their fixture must replace and restore both representations. The release
+export also encountered the GUT editor plugin's optional version-check HTTP 403.
+These are concrete integration/setup failures; they do not justify weakening
+validators. In particular, the failed journey cannot establish a parse-cache
+speedup. Full resumed results and fixes are recorded with their exact commit/run
+identities in the continuation evidence.
+
+Keep RunSave v7 gated on successful producer validation and compatible performance
+fixtures. Canonical public inventories still need recovery from the final source,
+commit, and a subsequent read-only cloud check before inventory acceptance.
 
 
 Three bounded children are closed from exact run43 evidence: `dwm-7wj.1`

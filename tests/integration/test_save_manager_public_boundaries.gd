@@ -176,6 +176,48 @@ func test_responsive_prepared_commit_yields_with_custody_and_publishes_one_live_
 	assert_eq(published.size(), 1)
 
 
+func test_real_new_run_sparse_dating_supports_current_contacts_and_first_earned_offer() -> void:
+	var f := _fixture()
+	var prepared: Dictionary = f.manager.prepare_new_run_action(_context())
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return
+	var started: Dictionary = f.manager.commit_prepared_new_run(prepared.value.token)
+	assert_true(started.get("ok", false), str(started))
+	if not started.get("ok", false): return
+	assert_eq(f.gs.dating_route_state, {}, "production New Run installs sparse initial progression")
+	assert_true(f.gs.configure_frozen_contacts_contexts().ok)
+	assert_true(f.gs.configure_contact_checkpoint_writer(func() -> Dictionary:
+		return f.manager.record_stable_checkpoint(_inputs(f), &"scene_transition")).ok)
+	var ordinary: Dictionary = f.gs.ensure_contact_presentation_contexts("lavinia")
+	assert_true(ordinary.ok, str(ordinary))
+	if not ordinary.ok: return
+	var frozen := preload("res://scripts/narrative/ContactsFrozenContext.gd")
+	var entry_id := preload("res://scripts/domain/contact/OrdinaryReplyEchoState.gd").entry_id_for_day(1)
+	var awaiting: Dictionary = frozen.read(ordinary.value, entry_id, "awaiting_reply")
+	assert_true(awaiting.ok, str(awaiting))
+	if not awaiting.ok: return
+	assert_eq(awaiting.value.fields.tier, "friend")
+	assert_eq(awaiting.value.fields.tone, "sweet")
+	var stable: Dictionary = f.manager.get_latest_stable_checkpoint()
+	assert_eq(stable.value.bundle.snapshot.gameplay.route_context[frozen.CACHE_KEY], ordinary.value)
+	var port := preload("res://scripts/application/minesweeper/GameStateMinesweeperPort.gd").new(f.gs)
+	assert_true(port.configure(f.gate).ok)
+	var contacts_before: Dictionary = f.gs.contacts.duplicate(true)
+	var round: Dictionary = port.prepare_complete({"round_id": "fixture:new-run-round", "context": "app",
+		"difficulty": "easy"}, {"outcome": "cleared"}, "fixture:new-run-complete")
+	assert_true(round.ok, str(round))
+	if not round.ok: return
+	var candidate: Dictionary = round.value.prepared_candidate
+	var offer: Dictionary = frozen.read(candidate.gameplay.route_context[frozen.CACHE_KEY],
+		"contact.invitation.solo.priscilla.day1.offer")
+	assert_true(offer.ok, str(offer))
+	if offer.ok:
+		assert_eq(offer.value.fields.tier, "friend")
+		assert_eq(offer.value.fields.tone, "sweet")
+	assert_eq(f.gs.contacts, contacts_before, "detached settlement does not publish its earned offer")
+	assert_eq(f.gs.dating_route_state, {}, "capturing current defaults does not backfill progression")
+
+
 func test_responsive_retry_reuses_the_durable_decision_without_replaying_preparation() -> void:
 	var f := _fixture()
 	var prepared: Dictionary = f.manager.prepare_new_run_action(_context())
