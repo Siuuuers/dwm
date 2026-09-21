@@ -8,8 +8,10 @@ $runner = Join-Path $PSScriptRoot 'Invoke-IsolatedGodot.ps1'
 New-Item -ItemType Directory -Force -Path $output | Out-Null
 $previousCheckpointProfile = $env:DWM_CHECKPOINT_PROFILE
 $previousConsequenceProfile = $env:DWM_CONSEQUENCE_PROFILE
+$previousSaveLoadProfile = $env:DWM_SAVE_LOAD_PROFILE
 $env:DWM_CHECKPOINT_PROFILE = '1'
 $env:DWM_CONSEQUENCE_PROFILE = '1'
+$env:DWM_SAVE_LOAD_PROFILE = '1'
 
 function Invoke-HistoryProbe {
     param([string]$Phase, [string]$Source = '')
@@ -49,14 +51,18 @@ function Get-HistoryProfileSummary {
         $phase = if ($null -ne $record.PSObject.Properties['phase']) { [string]$record.phase } else { '' }
         $kind = if ($null -ne $record.PSObject.Properties['checkpoint_kind']) { [string]$record.checkpoint_kind } else { '' }
         $key = "$($record.scope)|$phase|$kind"
+        if ($Family.StartsWith('save_load', [StringComparison]::Ordinal)) {
+            $key = "$($record.context)|$($record.scope)|$($record.action)|$($record.locator)"
+        }
         if (-not $groups.ContainsKey($key)) { $groups[$key] = @() }
         $groups[$key] += $record
     }
     foreach ($key in @($groups.Keys | Sort-Object)) {
         $items = @($groups[$key])
         $summary = [ordered]@{ family = $Family; group = $key; count = $items.Count; phases = [ordered]@{} }
-        foreach ($metric in @('elapsed_us', 'run_snapshot_build_us', 'journal_prepare_us', 'document_build_us',
-            'backup_us', 'outgoing_schema_us', 'stringify_us', 'splice_us', 'write_atomic_us', 'reread_us', 'journal_us', 'journal_proof_us')) {
+        $metrics = @($items | ForEach-Object { $_.PSObject.Properties.Name } |
+            Where-Object { $_.EndsWith('_us', [StringComparison]::Ordinal) } | Sort-Object -Unique)
+        foreach ($metric in $metrics) {
             $values = @($items | Where-Object { $null -ne $_.PSObject.Properties[$metric] } | ForEach-Object { [long]$_.$metric } | Sort-Object)
             if ($values.Count -gt 0) {
                 $summary.phases[$metric] = [ordered]@{
@@ -102,6 +108,12 @@ try {
     $report = [ordered]@{
         checkout_ref = (& git rev-parse HEAD)
         timing_policy = 'Observations on one shared Windows runner; no speed threshold or physical input-to-paint guarantee.'
+        timing_boundaries = [ordered]@{
+            manual_slot_save_us = 'Production prepare_backup_action(save, slot:1) plus commit_backup_action, including synchronous signal handlers.'
+            login_us = 'Automated Title Login, Backup picker opening and Autosave selection, load consent, restore and awaited process frames.'
+            phase_scopes = 'Each scope is inclusive. Parent and child scopes overlap and must not be summed; repeated phases inside one scope accumulate.'
+            phase_collection = 'Save/load profiles include only labeled manual-save and Title Login measurement windows; startup and opening each daily Backup app before its save timer are excluded.'
+        }
         fixture = '7 synthetic line and 7 synthetic manual checkpoint records/day, plus one real Slot 1 save and App loss/day. Public Schedule Done advances to Day 7. This is not an authored-dialogue playthrough.'
         days = $days
         write = $written[0]
@@ -109,6 +121,8 @@ try {
         payload_sha256 = $hash
         checkpoint_profiles = @(Read-HistoryMarkers $write.Lines 'DWM_CHECKPOINT_PROFILE ')
         consequence_profiles = @(Read-HistoryMarkers $write.Lines 'DWM_CONSEQUENCE_PROFILE ')
+        save_load_write_profiles = @(Read-HistoryMarkers $write.Lines 'DWM_SAVE_LOAD_PROFILE ' | Where-Object { $_.context -ne '' })
+        save_load_read_profiles = @(Read-HistoryMarkers $read.Lines 'DWM_SAVE_LOAD_PROFILE ' | Where-Object { $_.context -ne '' })
     }
     $report | ConvertTo-Json -Depth 40 | Set-Content -LiteralPath (Join-Path $output 'results.json') -Encoding utf8
     # Also expose bounded machine-readable evidence through the job log. Artifact download may
@@ -120,6 +134,8 @@ try {
             terminal_reveal_sync_us = $day.terminal_reveal_sync_us
             terminal_settlement_us = $day.terminal_settlement_us
             manual_slot_save_us = $day.manual_slot_save_us
+            manual_slot_prepare_us = $day.manual_slot_prepare_us
+            manual_slot_commit_us = $day.manual_slot_commit_us
             autosave_sha256 = $day.autosave_sha256
         }
         Write-Host ('SEVEN_DAY_HISTORY_MEASUREMENT: ' + ($compactDay | ConvertTo-Json -Depth 8 -Compress))
@@ -128,14 +144,18 @@ try {
         checkout_ref = $report.checkout_ref; payload_bytes = (Get-Item -LiteralPath $fixed).Length
         payload_sha256 = $hash; write = $written[0]; cold_read = $restored[0]
         fixture = $report.fixture; timing_policy = $report.timing_policy
+        timing_boundaries = $report.timing_boundaries
     }
     Write-Host ('SEVEN_DAY_HISTORY_PROOF: ' + ($proofSummary | ConvertTo-Json -Depth 8 -Compress))
     foreach ($summary in @(Get-HistoryProfileSummary $report.checkpoint_profiles 'checkpoint') +
-        @(Get-HistoryProfileSummary $report.consequence_profiles 'consequence')) {
+        @(Get-HistoryProfileSummary $report.consequence_profiles 'consequence') +
+        @(Get-HistoryProfileSummary $report.save_load_write_profiles 'save_load_write') +
+        @(Get-HistoryProfileSummary $report.save_load_read_profiles 'save_load_read')) {
         Write-Host ('SEVEN_DAY_HISTORY_PROFILE_SUMMARY: ' + ($summary | ConvertTo-Json -Depth 8 -Compress))
     }
     Write-Host 'SEVEN_DAY_HISTORY_PERFORMANCE_VERIFIED: seven real days, saturated checkpoint budgets, exact cold Login.'
 } finally {
     $env:DWM_CHECKPOINT_PROFILE = $previousCheckpointProfile
     $env:DWM_CONSEQUENCE_PROFILE = $previousConsequenceProfile
+    $env:DWM_SAVE_LOAD_PROFILE = $previousSaveLoadProfile
 }

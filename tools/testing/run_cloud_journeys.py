@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+from collections import Counter
 from pathlib import Path
 import re
 import shutil
@@ -209,12 +210,16 @@ def process_failures(receipt: dict, log_path: Path) -> list[str]:
                 # Artifact downloads may be unavailable to the diagnosing client.
                 context = "\n    ".join(item.strip() for item in lines[index:index + 6])
                 failures.append(f"{path.name}: {context}")
-        resource_details = [line.strip() for line in lines if re.search(
-            r"Leaked instance:|Resource still in use:|Orphan StringName:", line,
-        )]
-        if resource_details:
-            failures.append(f"{path.name}: LIFETIME_DIAGNOSTICS count={len(resource_details)}\n    "
-                            + "\n    ".join(resource_details[:80]))
+        # Resource paths identify their owners. Summarize the opaque instances
+        # and orphaned names separately so they cannot crowd paths out of logs.
+        resource_paths = list(dict.fromkeys(line.strip() for line in lines if "Resource still in use:" in line))
+        leaked_types = Counter(match.group(1) for line in lines
+                               if (match := re.search(r"Leaked instance: ([^:]+):", line)))
+        orphan_names = sum("Orphan StringName:" in line for line in lines)
+        if resource_paths or leaked_types or orphan_names:
+            counts = {"resources": len(resource_paths), "leaked_types": dict(leaked_types), "orphan_names": orphan_names}
+            failures.append(f"{path.name}: LIFETIME_DIAGNOSTICS {json.dumps(counts, sort_keys=True)}\n    "
+                            + "\n    ".join(resource_paths[:128]))
     return list(dict.fromkeys(failures))
 
 

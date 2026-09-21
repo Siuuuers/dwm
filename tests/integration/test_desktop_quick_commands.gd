@@ -577,23 +577,23 @@ func test_contacts_notification_suppresses_status_until_eligible_without_repeati
 	assert_false(edge.visible, "Delivery copy has the same protected-text priority")
 
 
-func test_quick_saved_modifier_binding_rejects_unrelated_held_keys() -> void:
-	_rebind("game_quick_save", "keyboard", {"kind": "key", "physical_keycode": KEY_F6,
-		"keycode": 0, "shift": true, "alt": false, "ctrl": false, "meta": false})
-	var modified := _key(KEY_F6, true)
+func test_quick_rejects_unsupported_modifier_binding_and_preserves_default() -> void:
+	var mappings: Dictionary = _profile.get_controls_binding_snapshot()
+	var proposed: Dictionary = _profile.prepare_controls_change("game_quick_save", "keyboard",
+		{"kind": "key", "physical_keycode": KEY_F6, "keycode": 0,
+		"shift": true, "alt": false, "ctrl": false, "meta": false})
+	assert_false(proposed.ok)
+	assert_eq(proposed.code, &"modifier_arbitration_unavailable")
+	assert_eq(_profile.get_controls_binding_snapshot(), mappings)
+	var modified := _key(KEY_F5, true)
 	modified.shift_pressed = true
-	_viewport.push_input(_key(KEY_F7, true), true)
 	_viewport.push_input(_key(KEY_SHIFT, true), true)
 	_viewport.push_input(modified, true)
-	assert_false(_storage.exists("quicksave.json"))
-	_viewport.push_input(_key(KEY_F6, false), true)
+	assert_false(_storage.exists("quicksave.json"), "A modified packet cannot trigger the unmodified default")
+	_viewport.push_input(_key(KEY_F5, false), true)
 	_viewport.push_input(_key(KEY_SHIFT, false), true)
-	_viewport.push_input(_key(KEY_F7, false), true)
-	_viewport.push_input(_key(KEY_SHIFT, true), true)
-	_viewport.push_input(modified, true)
+	_tap(KEY_F5)
 	assert_true(_storage.exists("quicksave.json"), JSON.stringify(_desktop._quick_commands.last_result))
-	_viewport.push_input(_key(KEY_F6, false), true)
-	_viewport.push_input(_key(KEY_SHIFT, false), true)
 
 
 func test_focus_out_and_in_before_a_frame_consumes_quick_load_consent() -> void:

@@ -390,15 +390,22 @@ func reconcile_restore_silent(restored_snapshot: Dictionary) -> Dictionary:
 	var snapshot: Dictionary = _game_state.capture_run_snapshot_input()
 	var route_context: Dictionary = snapshot.gameplay.get("route_context", {})
 	var stored: Dictionary = route_context.get("active_dating_challenge", {})
+	var active_dating := not stored.is_empty() and int(stored.get("context", {}).get("day", 0)) == int(snapshot.lifecycle.day) \
+		and str(restored_snapshot.get("route_id", "")) == "dating"
+	if active_dating:
+		if not _valid_record(stored, {}): return _fail(&"invalid_restored_dating_challenge")
+		# Refusal must preserve the retained owner too: its pending board progress
+		# is part of the restore backup, not just the public gameplay snapshot.
+		var previous_record := _record
+		_record = stored.duplicate(true)
+		var frozen := _validate_retained_frozen_contexts()
+		_record = previous_record
+		if not frozen.ok: return frozen
 	_pending_checkpoint = {}
 	_routine_pending = false
 	_clear_history_state()
-	if stored.is_empty() or int(stored.get("context", {}).get("day", 0)) != int(snapshot.lifecycle.day) \
-			or str(restored_snapshot.get("route_id", "")) != "dating": return _ok({})
-	if not _valid_record(stored, {}): return _fail(&"invalid_restored_dating_challenge")
+	if not active_dating: return _ok({})
 	_record = stored.duplicate(true)
-	var frozen := _validate_retained_frozen_contexts()
-	if not frozen.ok: return frozen
 	if stored.phase in ["pre_challenge", "preparing"]: return _ok({})
 	return _restore_attempt(stored, true)
 

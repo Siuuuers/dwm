@@ -1,7 +1,6 @@
 extends Node
 ## Live desktop shortcut presentation; Backup owns target preparation and durability.
 const EDGE := preload("res://scripts/ui/desktop/QuickStatusEdge.gd")
-const CONTACTS := preload("res://scripts/ui/desktop/QuickPhysicalContacts.gd")
 const BACKUP_COPY := preload("res://scripts/ui/BackupApp.gd").COPY
 const BACKUP_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
 const ACTIONS := {&"game_quick_save": "save", &"game_quick_load": "load"}
@@ -85,7 +84,7 @@ func handle_input(event: InputEvent) -> bool:
 		if current.get(contact) != _contacts[contact]: _contacts.erase(contact)
 	var id: String = _input_owner.get_physical_contact_id(event)
 	if id.is_empty() or not current.has(id): return true
-	var fresh := _contacts.is_empty() and CONTACTS.only_activation(_input_owner, event, current, id)
+	var fresh := _contacts.is_empty() and current.size() == 1
 	_contacts[id] = current[id]
 	if not fresh or not _admitted(): return true
 	if Input.is_action_pressed(&"ui_accept"): return true

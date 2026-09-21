@@ -834,16 +834,19 @@ func test_paused_quick_save_uses_real_dating_capture_without_changing_focus_or_b
 	assert_same(get_viewport().gui_get_focus_owner(), focused)
 	assert_eq(controller.surface.entered_action, &"")
 	assert_eq(controller._quick_commands.edge.key, &"saved")
-	# Identical captured bytes can retain the same content-hash revision. Count
-	# the real storage writes to distinguish a fresh press from held repeats.
+	# This fixture deliberately has no restore graph. Once the file exists, the
+	# real owner refuses a further overwrite of that unproved target.
 	var written := _quick_write_count(fixture.files)
+	controller._quick_commands.last_result = {}
 	_quick_native_key(KEY_F5, true)
-	var once := _quick_write_count(fixture.files)
+	assert_eq(controller._quick_commands.last_result.get("code"), &"backup_action_unavailable")
+	assert_eq(controller._quick_commands.edge.key, &"unavailable")
+	controller._quick_commands.last_result = {}
 	_quick_native_key(KEY_F5, true, true)
 	_quick_native_key(KEY_F5, true)
-	assert_eq(_quick_write_count(fixture.files), once, "Held and echoed contacts do not write again")
+	assert_true(controller._quick_commands.last_result.is_empty(), "Held and echoed contacts never call the owner again")
+	assert_eq(_quick_write_count(fixture.files), written)
 	_quick_native_key(KEY_F5, false)
-	assert_gt(once, written, "A released and freshly pressed contact reaches real storage again")
 
 func test_paused_quick_rebinding_quarantines_the_held_new_key_until_release() -> void:
 	var fixture := _dating_save_fixture()
@@ -860,29 +863,25 @@ func test_paused_quick_rebinding_quarantines_the_held_new_key_until_release() ->
 	_quick_native_tap(KEY_F6)
 	assert_true(fixture.storage.exists("quicksave.json"), str(controller._quick_commands.last_result))
 
-func test_paused_quick_accepts_a_saved_modifier_chord_but_not_an_unrelated_held_contact() -> void:
+func test_paused_quick_rejects_unsupported_modifier_binding_and_preserves_default() -> void:
 	var fixture := _dating_save_fixture()
 	if fixture.is_empty(): return
+	var mappings: Dictionary = profile.get_controls_binding_snapshot()
 	var replacement := InputEventKey.new()
 	replacement.physical_keycode = KEY_F6
 	replacement.shift_pressed = true
-	assert_true(input_owner.rebind_action("game_quick_save", replacement).ok)
+	var rebound: Dictionary = input_owner.rebind_action("game_quick_save", replacement)
+	assert_false(rebound.ok)
+	assert_eq(rebound.code, &"modifier_arbitration_unavailable")
+	assert_eq(profile.get_controls_binding_snapshot(), mappings)
 	if not await _open_pause(): return
-	_quick_native_key(KEY_F7, true)
 	_quick_native_key(KEY_SHIFT, true, false, true)
-	_quick_native_key(KEY_F6, true, false, true)
-	assert_false(fixture.storage.exists("quicksave.json"), "An unrelated held key still owns the contact interval")
-	_quick_native_key(KEY_F6, false, false, true)
+	_quick_native_key(KEY_F5, true, false, true)
+	assert_false(fixture.storage.exists("quicksave.json"), "A modified packet cannot trigger the unmodified default")
+	_quick_native_key(KEY_F5, false, false, true)
 	_quick_native_key(KEY_SHIFT, false)
-	_quick_native_key(KEY_F7, false)
-	_quick_native_key(KEY_SHIFT, true, false, true)
-	_quick_native_key(KEY_F6, true, false, true)
+	_quick_native_tap(KEY_F5)
 	assert_true(fixture.storage.exists("quicksave.json"), str(controller._quick_commands.last_result))
-	var writes := _quick_write_count(fixture.files)
-	_quick_native_key(KEY_F6, true, true, true)
-	assert_eq(_quick_write_count(fixture.files), writes)
-	_quick_native_key(KEY_F6, false, false, true)
-	_quick_native_key(KEY_SHIFT, false)
 
 func test_paused_quick_load_cancel_retains_backup_drawer_mode_and_exact_focus() -> void:
 	saves.populated = true

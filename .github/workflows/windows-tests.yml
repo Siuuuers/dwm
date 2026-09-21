@@ -464,7 +464,7 @@ jobs:
         timeout-minutes: 5
         run: |
           sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri
+          sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri pulseaudio pulseaudio-utils libspeechd2 speech-dispatcher speech-dispatcher-audio-plugins speech-dispatcher-espeak-ng
           archive="$RUNNER_TEMP/godot-4.6.3-linux.zip"
           curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip' --output "$archive"
           printf '%s  %s\n' 'd0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3' "$archive" | sha256sum --check
@@ -473,6 +473,18 @@ jobs:
           chmod +x "$editor"
           echo "GODOT_CONSOLE_PATH=$editor" >> "$GITHUB_ENV"
           "$editor" --version
+      - name: Start and verify native Linux speech service
+        timeout-minutes: 2
+        run: bash tools/testing/start_cloud_speech.sh
+      - name: Upload native speech environment evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloud-speech-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/cloud-speech/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7
       - name: Import project
         timeout-minutes: 8
         run: |
@@ -518,7 +530,7 @@ jobs:
         timeout-minutes: 5
         run: |
           sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri
+          sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri pulseaudio pulseaudio-utils libspeechd2 speech-dispatcher speech-dispatcher-audio-plugins speech-dispatcher-espeak-ng
           archive="$RUNNER_TEMP/godot-4.6.3-linux.zip"
           curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip' --output "$archive"
           printf '%s  %s\n' 'd0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3' "$archive" | sha256sum --check
@@ -527,6 +539,18 @@ jobs:
           chmod +x "$editor"
           echo "GODOT_CONSOLE_PATH=$editor" >> "$GITHUB_ENV"
           "$editor" --version
+      - name: Start and verify native Linux speech service
+        timeout-minutes: 2
+        run: bash tools/testing/start_cloud_speech.sh
+      - name: Upload native speech environment evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloud-speech-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/cloud-speech/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7
       - name: Import project
         timeout-minutes: 8
         run: |

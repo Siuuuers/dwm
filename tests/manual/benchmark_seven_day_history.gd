@@ -114,11 +114,17 @@ func _history_fill(manager: Node, desktop: Node, row: Dictionary) -> bool:
 			if not _check(recorded.get("ok", false), "synthetic " + kind + " record: " + JSON.stringify(recorded)): return false
 			await process_frame
 	row["synthetic_checkpoint_us"] = samples
+	var previous_profile_context := OS.get_environment("DWM_SAVE_LOAD_CONTEXT")
+	OS.set_environment("DWM_SAVE_LOAD_CONTEXT", "day%d-manual-slot-save" % int(row["day"]))
 	var save_started := Time.get_ticks_usec()
 	var prepared: Dictionary = manager.prepare_backup_action("save", "slot:1")
+	row["manual_slot_prepare_us"] = Time.get_ticks_usec() - save_started
 	if not _check(prepared.get("ok", false), "real Slot 1 prepares: " + JSON.stringify(prepared)): return false
+	var commit_started := Time.get_ticks_usec()
 	var saved: Dictionary = manager.commit_backup_action(str(prepared.value.token))
+	row["manual_slot_commit_us"] = Time.get_ticks_usec() - commit_started
 	row["manual_slot_save_us"] = Time.get_ticks_usec() - save_started
+	OS.set_environment("DWM_SAVE_LOAD_CONTEXT", previous_profile_context)
 	if not _check(saved.get("ok", false), "real Slot 1 commits: " + JSON.stringify(saved)): return false
 	return _check(desktop.return_home().get("ok", false), "Home after history save")
 
@@ -170,9 +176,12 @@ func _history_read(bootstrap: Node, game: Node, manager: Node) -> void:
 	var loaded_document := _history_document(manager)
 	if loaded_document.is_empty(): return
 	if not _check(_history_counts(loaded_document.recovery_journal) == proof.retained, "cold disk retains all history budgets"): return
+	var previous_profile_context := OS.get_environment("DWM_SAVE_LOAD_CONTEXT")
+	OS.set_environment("DWM_SAVE_LOAD_CONTEXT", "day7-title-login")
 	var started := Time.get_ticks_usec()
 	if not await _title_login(current_scene): return
 	var elapsed := Time.get_ticks_usec() - started
+	OS.set_environment("DWM_SAVE_LOAD_CONTEXT", previous_profile_context)
 	if not _check(game.capture_live_session().value.active and game.day == 7, "history Login restores Day 7"): return
 	var expected: Dictionary = proof.snapshot
 	var routing := HISTORY_SNAPSHOT.derive_route_restore_context(expected)

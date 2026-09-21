@@ -1474,16 +1474,16 @@ func test_full_write_history_edits_never_prove_a_different_retained_bundle() -> 
 			var candidate: Dictionary = prepared.value.candidate
 			var historical: Dictionary = candidate.autosave_document.recovery_journal[0]
 			match edit:
-				"value": historical.snapshot.gameplay.money += 100
-				"float": historical.snapshot.gameplay.money = float(historical.snapshot.gameplay.money)
+				"value": historical.snapshot.content_version += 100
+				"float": historical.snapshot.content_version = float(historical.snapshot.content_version)
 				"both_float":
-					historical.snapshot.gameplay.money = float(historical.snapshot.gameplay.money)
-					candidate.journal_candidate.earlier[0].snapshot.gameplay.money = historical.snapshot.gameplay.money
+					historical.snapshot.content_version = float(historical.snapshot.content_version)
+					candidate.journal_candidate.earlier[0].snapshot.content_version = historical.snapshot.content_version
 				"malformed": candidate.autosave_document.recovery_journal[0] = {}
 				"during_write":
 					assert_true(wired.manager._storage.configure_before_write(func() -> Dictionary:
-						historical.snapshot.gameplay.money += 100
-						candidate.journal_candidate.earlier[0].snapshot.gameplay.money += 100
+						historical.snapshot.content_version += 100
+						candidate.journal_candidate.earlier[0].snapshot.content_version += 100
 						return {"ok": true}).get("ok", false))
 			var expected := (_canonical_text(candidate.autosave_document) + "\n").to_utf8_buffer()
 			var committed: Dictionary = wired.port.commit(candidate)

@@ -525,17 +525,17 @@ func test_written_retained_proof_requires_matching_normalized_snapshot_and_detac
 	assert_false(journal.remember_written_retained_bundle("absent", str(emitted.value), bundle))
 	assert_false(journal.remember_written_retained_bundle("run-a:1", "", bundle))
 	var changed := bundle.duplicate(true)
-	changed.snapshot.gameplay.money += 1
+	changed.snapshot.content_version += 1
 	assert_false(journal.remember_written_retained_bundle("run-a:1", str(emitted.value), changed))
 	changed = bundle.duplicate(true)
-	changed.snapshot.gameplay.money = float(changed.snapshot.gameplay.money)
+	changed.snapshot.content_version = float(changed.snapshot.content_version)
 	assert_false(journal.remember_written_retained_bundle("run-a:1", str(emitted.value), changed),
 		"equal numeric magnitude does not prove equal physical JSON types")
 	assert_true(journal.remember_written_retained_bundle("run-a:1", str(emitted.value), bundle))
-	bundle.snapshot.gameplay.money += 100
+	bundle.snapshot.content_version += 100
 	assert_eq(journal.get_retained_bundle_text("run-a:1"), str(emitted.value))
-	assert_ne(journal.get_retained_bundle_document("run-a:1").snapshot.gameplay.money,
-		bundle.snapshot.gameplay.money, "remembered proof owns a private deep copy")
+	assert_ne(journal.get_retained_bundle_document("run-a:1").snapshot.content_version,
+		bundle.snapshot.content_version, "remembered proof owns a private deep copy")
 
 
 func test_written_history_proof_rejects_jointly_edited_unnormalized_or_invalid_snapshot() -> void:
@@ -547,7 +547,7 @@ func test_written_history_proof_rejects_jointly_edited_unnormalized_or_invalid_s
 		var candidate: Dictionary = prepared.value.candidate
 		var history: Dictionary = candidate.earlier[0]
 		match edit:
-			"float": history.snapshot.gameplay.money = float(history.snapshot.gameplay.money)
+			"float": history.snapshot.content_version = float(history.snapshot.content_version)
 			"unknown_snapshot_key": history.snapshot["unknown"] = true
 			"unknown_bundle_key": history["unknown"] = true
 		assert_true(journal.commit_prepared(candidate).get("ok", false),

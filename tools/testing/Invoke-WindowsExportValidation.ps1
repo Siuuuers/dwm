@@ -70,6 +70,9 @@ function Invoke-CheckedProcess {
                 Write-Host $engineError.Line
                 foreach ($contextLine in $engineError.Context.PostContext) { Write-Host $contextLine }
             }
+            $resourcePaths = @(($text -split '\r?\n') | Where-Object { $_ -match 'Resource still in use:' } | Select-Object -Unique)
+            Write-Host "WINDOWS_EXPORT_RETAINED_RESOURCE_COUNT: $($resourcePaths.Count)"
+            foreach ($resourcePath in ($resourcePaths | Select-Object -First 80)) { Write-Host $resourcePath }
             Write-Host "WINDOWS_EXPORT_PROCESS_ERRORS_END: $Name"
             throw "$Name reported an engine, script, data, or startup error; inspect its logs."
         }
@@ -153,6 +156,15 @@ try {
     $engineLicenses = Join-Path $licenses 'Godot'
     New-Item -ItemType Directory -Force -Path $engineLicenses | Out-Null
 
+    # Run the exported release executable with its adjacent PCK and no source
+    # project, script override, test bootstrap, or pre-existing user state.
+    $null = Invoke-CheckedProcess $executable @('--headless', '--path', $package, '--max-fps', '60',
+        '--quit-after', '240', '--log-file', (Join-Path $output 'smoke.log')) 'smoke' $smokeUser 90
+    $profilePath = Join-Path $smokeUser 'appdata/Godot/app_userdata/DWM/profile.json'
+    if (-not (Test-Path -LiteralPath $profilePath -PathType Leaf)) { throw 'Exported startup did not create its isolated profile.' }
+    $null = Get-Content -LiteralPath $profilePath -Raw | ConvertFrom-Json
+
+
     # Audit the actual PCK using the editor's pack reader from outside the source
     # tree. Hash every runtime JSON/DTL/DCH to prove filters retained its bytes.
     $expected = [ordered]@{}
@@ -200,18 +212,11 @@ func _initialize() -> void:
 '@
     $probePath = Join-Path $work 'verify_pack.gd'
     Set-Content -LiteralPath $probePath -Value $probe -Encoding utf8NoBOM
-    $auditLog = Invoke-CheckedProcess $env:GODOT_CONSOLE_PATH @('--headless', '--path', $package,
+    $auditLog = Invoke-CheckedProcess $env:GODOT_CONSOLE_PATH @('--headless', '--verbose', '--path', $package,
         '--main-pack', (Join-Path $package 'DWM.pck'), '--script', $probePath,
         '--log-file', (Join-Path $output 'pack-audit.log'), '--', (Join-Path $work 'expected.json'), $engineLicenses) 'pack-audit' $exportUser
     if ($auditLog -notmatch "WINDOWS_PACK_DATA_VERIFIED count=$($expected.Count)\b") { throw 'Pack audit did not report success.' }
 
-    # Run the exported release executable with its adjacent PCK and no source
-    # project, script override, test bootstrap, or pre-existing user state.
-    $null = Invoke-CheckedProcess $executable @('--headless', '--path', $package, '--max-fps', '60',
-        '--quit-after', '240', '--log-file', (Join-Path $output 'smoke.log')) 'smoke' $smokeUser 90
-    $profilePath = Join-Path $smokeUser 'appdata/Godot/app_userdata/DWM/profile.json'
-    if (-not (Test-Path -LiteralPath $profilePath -PathType Leaf)) { throw 'Exported startup did not create its isolated profile.' }
-    $null = Get-Content -LiteralPath $profilePath -Raw | ConvertFrom-Json
 
     $files = @(Get-ChildItem -LiteralPath $package -Recurse -File | Sort-Object FullName | ForEach-Object {
         [ordered]@{ path = [IO.Path]::GetRelativePath($package, $_.FullName).Replace('\', '/')
