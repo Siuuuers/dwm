@@ -102,7 +102,7 @@ func _input(event: InputEvent) -> void:
 		_retire_drag()
 		return
 	# Own the remainder of a resize gesture even when it leaves the grip.
-	var captured := (_mouse_dragging and (event is InputEventMouseMotion or
+	var captured: bool = (_mouse_dragging and (event is InputEventMouseMotion or
 		(event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed))) \
 		or (_touch_index >= 0 and ((event is InputEventScreenTouch or event is InputEventScreenDrag) and event.index == _touch_index))
 	if captured:

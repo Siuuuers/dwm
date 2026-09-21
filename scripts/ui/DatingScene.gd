@@ -378,7 +378,7 @@ func _on_challenge_split_drag_changed(active: bool) -> void:
 	_special_mine_button.disabled = active or not bool(_physical_view.get("special_mine_enabled", false))
 
 func _refresh_challenge_input() -> void:
-	var blocked := _split_dragging or (_physical_view.get("phase") == "cleared_awaiting_terminal_choice" and not _choice_released)
+	var blocked: bool = _split_dragging or (_physical_view.get("phase") == "cleared_awaiting_terminal_choice" and not _choice_released)
 	worksheet.set_interaction_blocked(blocked)
 	_continue_button.disabled = blocked
 
