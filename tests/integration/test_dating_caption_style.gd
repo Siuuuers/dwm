@@ -51,6 +51,8 @@ var _root_size: Vector2i
 var _root_content_size: Vector2i
 var _mouse_from_touch := false
 var _width_profile: RefCounted
+var _replaced_timeline: Resource
+var _replaced_timeline_path := ""
 
 func before_each() -> void:
 	_root_size = get_tree().root.size
@@ -108,6 +110,10 @@ func after_each() -> void:
 	if is_instance_valid(remaining): remaining.queue_free()
 	await get_tree().process_frame
 	runtime.free()
+	if _replaced_timeline != null:
+		_replaced_timeline.take_over_path(_replaced_timeline_path)
+		_replaced_timeline = null
+		_replaced_timeline_path = ""
 	get_tree().root.add_child(_original_bridge)
 	get_tree().root.move_child(_original_bridge, _original_bridge_index)
 	get_tree().remove_meta("dialogic_layout_node")
@@ -189,6 +195,13 @@ func _wait_for_dating_phase(playback: RefCounted, command: Dictionary) -> void:
 	assert_true(result.get("ok", false), str(result))
 	assert_eq(result.get("value", {}).get("status"), "completed", "the real runtime must naturally complete the semantic entry")
 
+func _assert_dating_playing(playback: RefCounted, command: Dictionary) -> bool:
+	var result: Dictionary = playback.pull_phase(command, "pre_challenge")
+	assert_true(result.get("ok", false), "dating playback remains admitted: " + str(result))
+	if not result.get("ok", false): return false
+	assert_eq(result.value.status, "playing")
+	return result.value.status == "playing"
+
 func test_return_only_date_with_available_art_completes_without_continue_hold() -> void:
 	ART._placements = {"schema_version": 1,
 		"assets": {"fixture.portrait": {"path": "res://icon.svg", "size": [128, 128]}},
@@ -211,9 +224,14 @@ func test_dating_adapter_waits_for_both_real_dialogue_lines_and_natural_end() ->
 	if not located.get("ok", false): return
 	var injected := runtime as CaptionRuntime
 	injected.injected_path = str(located.value.path)
+	_replaced_timeline_path = injected.injected_path
+	_replaced_timeline = load(_replaced_timeline_path)
 	injected.injected_timeline = DialogicTimeline.new()
 	injected.injected_timeline.from_text("return\nlabel " + str(located.value.label)
 		+ "\nNarrator: First dating fixture line.\nNarrator: Final dating fixture line.\nreturn")
+	# The production adapter checks the admitted resource path on native start. Keep
+	# that identity for injected prose, then restore the original cache in after_each.
+	injected.injected_timeline.take_over_path(injected.injected_path)
 	var playback := _dating_playback()
 	var command := _dating_command()
 	assert_true(playback.begin_phase(command, "pre_challenge").get("ok", false))
@@ -224,7 +242,7 @@ func test_dating_adapter_waits_for_both_real_dialogue_lines_and_natural_end() ->
 	var caption: RichTextLabel = texts[0]
 	assert_eq(caption.get_parsed_text(), "First dating fixture line.", "semantic label skips the root return")
 	assert_eq(_text_events.size(), 1)
-	assert_eq(playback.pull_phase(command, "pre_challenge").value.status, "playing")
+	if not _assert_dating_playing(playback, command): return
 	assert_true(get_tree().get_nodes_in_group("dialogic_name_label").is_empty())
 	var first_index := runtime.current_event_idx
 	await _settle()
@@ -237,11 +255,11 @@ func test_dating_adapter_waits_for_both_real_dialogue_lines_and_natural_end() ->
 	await _settle()
 	assert_eq(caption.get_parsed_text(), "Final dating fixture line.")
 	assert_eq(_text_events.size(), 2)
-	assert_eq(playback.pull_phase(command, "pre_challenge").value.status, "playing")
+	if not _assert_dating_playing(playback, command): return
 	assert_false(playback.finish_phase(command, "pre_challenge").get("ok", false), "displaying the final line is not completion")
 	runtime.Text.skip_text_reveal()
 	await _settle()
-	assert_eq(playback.pull_phase(command, "pre_challenge").value.status, "playing")
+	if not _assert_dating_playing(playback, command): return
 	runtime.Inputs.input_block_timer.stop()
 	runtime.Inputs.handle_input()
 	await _wait_for_dating_phase(playback, command)

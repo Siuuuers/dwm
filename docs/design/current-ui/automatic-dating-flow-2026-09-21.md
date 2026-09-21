@@ -38,6 +38,11 @@ Canonical pre/post recovery remains at the existing physical phase boundary.
 This work does not add exact mid-line save/resume. Most authored dating entries
 are still empty. Actual prose must still be authored and reviewed.
 
+A successfully mounted replacement scene clears transient playback completion,
+including when Load restores the same command and phase. A checkpoint Retry in
+the existing scene retains completed playback, so it does not repeat the prose.
+The playback adapter cancels only its own exact active entry token.
+
 Private Rehearsal automatically completes only a verified return-only semantic
 entry. It fails closed for future nonempty prose until that playback is composed
 with its private narrative sandbox; it never borrows canonical progression.

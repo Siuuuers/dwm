@@ -49,7 +49,7 @@ func test_practice_requires_milestone_and_start_rechecks_exact_reached_record() 
 	assert_null(f.host._dating, "a now-cleared record cannot open through a stale picker")
 	assert_eq(f.game.capture_run_snapshot_input(), before)
 
-func test_public_start_continue_and_return_keep_selected_presentation_board_and_variables_private() -> void:
+func test_public_start_automatic_board_and_return_keep_selected_presentation_board_and_variables_private() -> void:
 	var f := _fixture()
 	assert_true(f.configured.ok, str(f.configured))
 	add_child_autofree(f.host)
@@ -73,10 +73,16 @@ func test_public_start_continue_and_return_keep_selected_presentation_board_and_
 	assert_true(physical_copy.ok and replay_copy.ok)
 	assert_eq(replay_copy.value, physical_copy.value)
 	assert_eq(title.text, replay_copy.value.title)
-	assert_eq(dating._status_label.text, replay_copy.value.body)
+	assert_eq(dating._status_label.text, "", "the retired Ready card is not shown in private practice")
+	assert_false(dating._continue_button.visible, "empty pre-DTL advances without a confirmation")
 	assert_eq(f.host._sandbox.capture_presentation(f.host._command).value.variables.presentation.value, 77,
 		"variables are copied at Start, not when the Gallery was configured")
-	f.host._dating._continue_button.pressed.emit()
+	for _frame in 16:
+		if f.host._sandbox.pull_physical(f.host._command).value.phase == "challenge": break
+		await get_tree().process_frame
+	var automatic: Dictionary = f.host._sandbox.pull_physical(f.host._command)
+	assert_eq(automatic.value.phase, "challenge", "empty private pre-DTL admits the board automatically")
+	if automatic.value.phase != "challenge": return
 	f.host._dating.worksheet.cell_action_requested.emit(&"reveal", 0, int(f.host._sandbox.pull_physical(f.host._command).value.board.revision))
 	var view: Dictionary = f.host._sandbox.pull_physical(f.host._command)
 	assert_true(view.ok, str(view))
