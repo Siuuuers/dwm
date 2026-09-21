@@ -21,6 +21,7 @@ var _large_targets := false
 var _caption_theme: Theme
 var _dating_overlay := false
 var _scene_art_bridge: Node
+var _dating_split_surface: Control
 var _last_text := ""
 var _last_content_height := -1
 var _had_caption := false
@@ -237,6 +238,7 @@ func _configure_speech_status() -> void:
 
 func _exit_tree() -> void:
 	_cancel_speech()
+	if is_instance_valid(_dating_split_surface): _dating_split_surface.cancel_split_input()
 
 func configure_reading_transport(profile: Object, bridge: Object) -> bool:
 	if not is_node_ready() or not is_instance_valid(bridge) \
@@ -414,6 +416,11 @@ func _sync_transport() -> void:
 		skip_controller.is_auto_enabled(), _auto_button_admitted(), _load_admitted())
 	var ring: Array[Control] = [review_current if _review_offset > 0 else caption_text]
 	var names: PackedStringArray = []
+	if is_instance_valid(_dating_split_surface) and is_dating_split_input_admitted():
+		var handle: Control = _dating_split_surface.get_split_handle()
+		if is_instance_valid(handle) and handle.is_visible_in_tree() and handle.focus_mode != Control.FOCUS_NONE:
+			ring.append(handle)
+			names.append("Split:%d" % handle.get_instance_id())
 	for name: String in ["Skip", "Auto", "Load"]:
 		var command: Control = transport_rail.get_node(name)
 		if command.focus_mode != Control.FOCUS_NONE:
@@ -517,9 +524,11 @@ func _dismiss_reading_recovery(restore_focus: bool = true) -> void:
 	_sync_focus()
 	_sync_transport()
 	_auto_resume_pending = true
+	if is_instance_valid(_dating_split_surface):
+		_dating_split_surface.set_split_input_admission(is_dating_split_input_admitted)
 	if restore_focus and _reading_request_matches(retained):
 		var focused: Object = instance_from_id(int(retained.focus_id)) if int(retained.focus_id) != 0 else null
-		if focused is Control and canvas.is_ancestor_of(focused) and focused.is_visible_in_tree() \
+		if focused is Control and _owns_caption_focus(focused) and focused.is_visible_in_tree() \
 				and focused.focus_mode != Control.FOCUS_NONE:
 			focused.grab_focus()
 		elif caption_text.focus_mode != Control.FOCUS_NONE: caption_text.grab_focus()
@@ -567,7 +576,7 @@ func capture_pause_view(source: Dictionary) -> Dictionary:
 	_pause_capture_id += 1
 	_pause_anchor = {"view_id":get_instance_id(),"capture_id":_pause_capture_id,"source":source.duplicate(true)}
 	var focused := get_viewport().gui_get_focus_owner()
-	var focus_id := focused.get_instance_id() if focused != null and canvas.is_ancestor_of(focused) else 0
+	var focus_id := focused.get_instance_id() if focused != null and _owns_caption_focus(focused) else 0
 	if _load_pending: focus_id = _load_activation_focus_id
 	_pause_view = {"caption_id":caption_text.get_instance_id(),"reveal_generation":caption_text.get_reveal_generation(),
 		"runtime":_pause_runtime_identity(),"focus_id":focus_id,"scroll":get_scroll_bar().value,
@@ -596,8 +605,10 @@ func restore_pause_view(anchor: Dictionary) -> bool:
 	recovery_layer.show()
 	canvas.visible = bool(_pause_view.canvas_visible)
 	_sync_focus()
+	if is_instance_valid(_dating_split_surface):
+		_dating_split_surface.set_split_input_admission(is_dating_split_input_admitted)
 	var focused: Object = instance_from_id(int(_pause_view.focus_id)) if int(_pause_view.focus_id) != 0 else null
-	if (focused is Control and canvas.is_ancestor_of(focused) and focused.is_visible_in_tree()
+	if (focused is Control and _owns_caption_focus(focused) and focused.is_visible_in_tree()
 		and focused.focus_mode != Control.FOCUS_NONE):
 		focused.grab_focus()
 	if focused == transport_rail.get_node("Load"):
@@ -636,6 +647,7 @@ func _refresh_dating_overlay() -> void:
 	configure_dating_overlay(str(source.get("entry_id", "")).begins_with("dating."))
 
 func configure_dating_overlay(enabled: bool) -> void:
+	_bind_dating_split_surface()
 	if _dating_overlay == enabled: return
 	_dating_overlay = enabled
 	if not is_instance_valid(canvas): return
@@ -643,6 +655,38 @@ func configure_dating_overlay(enabled: bool) -> void:
 		leaf.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if enabled else HORIZONTAL_ALIGNMENT_LEFT
 	configure_presentation(_locale, _text_percent, _palette, _high_contrast, _colour_preset, _large_targets, _day, _font_style)
 	_layout_stack()
+
+func _bind_dating_split_surface() -> void:
+	if not is_inside_tree(): return
+	# Only the sibling Dialogic art layer belongs to this caption owner. A retained
+	# physical challenge or art-only hold must keep its own input admission.
+	for surface: Node in get_tree().get_nodes_in_group("dating_split_surface"):
+		var layer := surface.get_parent()
+		if layer == null or layer.get_parent() != get_parent() or layer.get_script() == null \
+				or layer.get_script().resource_path != "res://scripts/ui/witnessed/WitnessedArtLayer.gd": continue
+		_dating_split_surface = surface as Control
+		_dating_split_surface.set_split_input_admission(is_dating_split_input_admitted)
+		return
+
+func is_dating_split_input_admitted() -> bool:
+	return _dating_overlay and not _pause_covered and _reading_source_admitted() \
+		and is_instance_valid(canvas) and canvas.is_visible_in_tree() \
+		and is_instance_valid(accept_input) and accept_input.is_source_admitted()
+
+func _owns_caption_focus(control: Control) -> bool:
+	return canvas.is_ancestor_of(control) or (is_instance_valid(_dating_split_surface) \
+		and control == _dating_split_surface.get_split_handle())
+
+func _forward_split_input(event: InputEvent, source_control: Control) -> bool:
+	if not is_instance_valid(_dating_split_surface): return false
+	if not is_dating_split_input_admitted():
+		_dating_split_surface.cancel_split_input()
+		return false
+	if not _dating_split_surface.handle_split_input(event, source_control): return false
+	accept_input.cancel_pending_accept()
+	_retire_transport()
+	source_control.accept_event()
+	return true
 
 func configure_presentation(locale: String = "en", text_percent: int = 100, palette: String = "AfterHours", high_contrast: bool = false, colour_preset: String = "standard", large_targets: bool = false, day: int = 1, font_style: String = "pixel") -> bool:
 	var next_theme := CAPTION_THEME.build(locale, text_percent, palette, high_contrast, colour_preset, large_targets, day, _dating_overlay, font_style)
@@ -997,6 +1041,7 @@ func _sync_focus() -> void:
 		caption_text.release_focus()
 
 func _on_background_input(event: InputEvent) -> void:
+	if _forward_split_input(event, background_input): return
 	if event is InputEventMouseButton and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
 		_handle_input(event, false)
 	else:
@@ -1010,6 +1055,7 @@ func _on_caption_input(event: InputEvent) -> void:
 
 func _handle_input(event: InputEvent, current: bool, source_control: Control = null) -> void:
 	if _pause_covered or not _reading_recovery.is_empty(): return
+	if _forward_split_input(event, caption_text if current else (source_control if source_control != null else scroll)): return
 	if event is InputEventMouse and event.device == InputEvent.DEVICE_ID_EMULATION:
 		scroll.accept_event()
 		return

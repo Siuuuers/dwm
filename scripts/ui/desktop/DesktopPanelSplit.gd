@@ -2,6 +2,7 @@ extends Container
 class_name DesktopPanelSplit
 
 signal split_changed(width: float)
+signal drag_changed(active: bool)
 
 const MIN_ANGELA_WIDTH := 320.0
 const MAX_ANGELA_WIDTH := 480.0
@@ -43,16 +44,48 @@ var _drag_origin_x := 0.0
 var _drag_origin_width := MAX_ANGELA_WIDTH
 var _preview_width := MAX_ANGELA_WIDTH
 var _focus_before_pointer: Control
+var minimum_first_width := MIN_ANGELA_WIDTH
+var maximum_first_width := MAX_ANGELA_WIDTH
+var minimum_second_width := MIN_COMPUTER_WIDTH
+var width_step := WIDTH_STEP
+var _input_admission: Callable
 
 
 func _ready() -> void:
 	child_entered_tree.connect(_on_child_entered_tree)
 	_ensure_handle()
+	set_process(_input_admission.is_valid())
 	queue_sort()
 
 
 func _get_minimum_size() -> Vector2:
-	return Vector2(MIN_ANGELA_WIDTH + MIN_COMPUTER_WIDTH, 0)
+	return Vector2(minimum_first_width + minimum_second_width, 0)
+
+
+func set_input_admission(admission: Callable) -> void:
+	_input_admission = admission
+	set_process(admission.is_valid())
+	_sync_input_admission()
+
+
+func _process(_delta: float) -> void:
+	_sync_input_admission()
+
+
+func _input_admitted() -> bool:
+	return not _input_admission.is_valid() or bool(_input_admission.call())
+
+
+func _sync_input_admission() -> void:
+	if not is_instance_valid(_handle): return
+	var admitted := _input_admitted()
+	if not admitted: _retire_drag()
+	_handle.mouse_filter = Control.MOUSE_FILTER_STOP if admitted else Control.MOUSE_FILTER_IGNORE
+	_handle.focus_mode = Control.FOCUS_ALL if admitted else Control.FOCUS_NONE
+
+
+func is_dragging() -> bool:
+	return _mouse_dragging or _touch_index >= 0
 
 
 func _notification(what: int) -> void:
@@ -65,9 +98,24 @@ func _notification(what: int) -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if (_mouse_dragging or _touch_index >= 0) and event is InputEventKey \
-			and event.pressed and event.keycode == KEY_ESCAPE:
+	if not _input_admitted():
 		_retire_drag()
+		return
+	# Own the remainder of a resize gesture even when it leaves the grip.
+	var captured := (_mouse_dragging and (event is InputEventMouseMotion or
+		(event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed))) \
+		or (_touch_index >= 0 and ((event is InputEventScreenTouch or event is InputEventScreenDrag) and event.index == _touch_index))
+	if captured:
+		_observe_consumed_contact(event)
+		var local_event: InputEvent = event.duplicate()
+		local_event.position = _handle.get_global_transform_with_canvas().affine_inverse() * event.position
+		_on_handle_gui_input(local_event)
+		get_viewport().set_input_as_handled()
+		return
+	if is_dragging():
+		_observe_consumed_contact(event)
+		if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+			_retire_drag()
 		get_viewport().set_input_as_handled()
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed \
@@ -78,8 +126,15 @@ func _input(event: InputEvent) -> void:
 		_focus_before_pointer = get_viewport().gui_get_focus_owner()
 
 
+func _observe_consumed_contact(event: InputEvent) -> void:
+	# Global capture runs before the autoload: keep its contact ledger in sync.
+	var input_owner := get_node_or_null("/root/InputManager")
+	if input_owner != null and input_owner.has_method("observe_physical_contact"):
+		input_owner.observe_physical_contact(event)
+
+
 func set_angela_width(width: float) -> void:
-	var next := clampf(snappedf(width, WIDTH_STEP), MIN_ANGELA_WIDTH, MAX_ANGELA_WIDTH)
+	var next := clampf(snappedf(width, width_step), minimum_first_width, maximum_first_width)
 	if is_equal_approx(next, _angela_width):
 		return
 	_angela_width = next
@@ -156,6 +211,13 @@ func _layout_children() -> void:
 
 
 func _on_handle_gui_input(event: InputEvent) -> void:
+	if not _input_admitted():
+		_retire_drag()
+		_handle.accept_event()
+		return
+	if (event is InputEventMouseButton or event is InputEventMouseMotion) and event.device == -1:
+		_handle.accept_event()
+		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
 			_begin_drag(_handle_point_to_split_x(event.position))
@@ -198,9 +260,9 @@ func _on_handle_gui_input(event: InputEvent) -> void:
 			KEY_RIGHT:
 				set_angela_width(_angela_width + KEYBOARD_STEP)
 			KEY_HOME:
-				set_angela_width(MIN_ANGELA_WIDTH)
+				set_angela_width(minimum_first_width)
 			KEY_END:
-				set_angela_width(MAX_ANGELA_WIDTH)
+				set_angela_width(maximum_first_width)
 			_:
 				return
 		_handle.accept_event()
@@ -214,12 +276,13 @@ func _begin_drag(pointer_x: float, mouse: bool = true) -> void:
 	_handle.preview_visible = true
 	_handle.preview_offset = 0.0
 	_handle.queue_redraw()
+	drag_changed.emit(true)
 
 
 func _update_drag(pointer_x: float) -> void:
 	# Keep both panes and their hit targets stable until the pointer is released.
-	_preview_width = clampf(snappedf(_drag_origin_width + pointer_x - _drag_origin_x, WIDTH_STEP),
-		MIN_ANGELA_WIDTH, MAX_ANGELA_WIDTH)
+	_preview_width = clampf(snappedf(_drag_origin_width + pointer_x - _drag_origin_x, width_step),
+		minimum_first_width, maximum_first_width)
 	_handle.preview_offset = _preview_width - _angela_width
 	_handle.queue_redraw()
 
@@ -231,12 +294,14 @@ func _finish_drag() -> void:
 
 
 func _retire_drag() -> void:
+	var was_dragging := is_dragging()
 	_mouse_dragging = false
 	_touch_index = -1
 	if is_instance_valid(_handle):
 		_handle.preview_visible = false
 		_handle.preview_offset = 0.0
 		_handle.queue_redraw()
+	if was_dragging: drag_changed.emit(false)
 
 
 func _handle_point_to_split_x(point: Vector2) -> float:

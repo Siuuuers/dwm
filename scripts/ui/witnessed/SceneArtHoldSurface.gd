@@ -51,6 +51,7 @@ func configure(entry_id: String, token: String, percent: int = 100,
 	art.name = "SceneArt"
 	add_child(art)
 	art.configure_entry(entry_id, percent, false, show_portraits)
+	art.set_split_input_admission(_split_input_admitted)
 	art.draw.connect(_on_art_drawn)
 	_footer = ColorRect.new()
 	_footer.name = "ContinueFooter"
@@ -176,6 +177,12 @@ func _on_art_drawn() -> void:
 func has_drawn_art() -> bool:
 	return _drawn and not _retired
 
+func _split_input_admitted() -> bool:
+	var admitted := _input_owner == null or not _input_owner.has_method("is_source_input_admitted") \
+		or bool(_input_owner.is_source_input_admitted())
+	return _drawn and not _retired and not _paused and not _covered and not _await_neutral \
+		and is_inside_tree() and is_visible_in_tree() and not get_tree().paused and admitted
+
 func _process(_delta: float) -> void:
 	if _retired: return
 	var held := Input.is_action_pressed(&"ui_accept") or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
@@ -185,22 +192,26 @@ func _process(_delta: float) -> void:
 	var admitted := _input_owner == null or not _input_owner.has_method("is_source_input_admitted") \
 		or bool(_input_owner.is_source_input_admitted())
 	var enabled := _drawn and not _paused and not _covered and not _await_neutral \
-		and not get_tree().paused and admitted
+		and not get_tree().paused and admitted and not art.is_split_dragging()
 	var was_disabled := next_button.disabled
 	next_button.disabled = not enabled
 	if enabled and was_disabled and is_visible_in_tree(): next_button.grab_focus()
 
 func _on_continue() -> void:
-	if _retired or _paused or _covered or not _drawn or _await_neutral or next_button.disabled: return
+	if _retired or _paused or _covered or not _drawn or _await_neutral or next_button.disabled \
+			or art.is_split_dragging(): return
 	next_button.disabled = true
 	continue_requested.emit(_token)
 
 func set_presentation_paused(value: bool) -> void:
 	_paused = value
-	if value: next_button.disabled = true
+	if value:
+		art.cancel_split_input()
+		next_button.disabled = true
 
 func retire() -> void:
 	_retired = true
+	art.cancel_split_input()
 	hide()
 	set_process(false)
 	next_button.disabled = true
@@ -216,6 +227,7 @@ func capture_pause_view(source: Dictionary) -> Dictionary:
 func cover_pause_view(anchor: Dictionary) -> bool:
 	if _retired or anchor != _anchor or _anchor.is_empty(): return false
 	_covered = true
+	art.cancel_split_input()
 	hide()
 	return true
 

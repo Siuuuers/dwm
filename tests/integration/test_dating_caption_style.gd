@@ -35,8 +35,16 @@ var _art := {}
 var _art_loaded := false
 var _selected: Array[String] = []
 var _text_events: Array[Dictionary] = []
+var _root_size: Vector2i
+var _root_content_size: Vector2i
+var _mouse_from_touch := false
+var _portrait_width := 480.0
 
 func before_each() -> void:
+	_root_size = get_tree().root.size
+	_root_content_size = get_tree().root.content_scale_size
+	_mouse_from_touch = Input.emulate_mouse_from_touch
+	_portrait_width = ART_VIEW._dating_width
 	_selected.clear()
 	_text_events.clear()
 	_art = ART._placements.duplicate(true)
@@ -77,6 +85,10 @@ func before_each() -> void:
 	assert_true(bridge.configure_playback_completion_port(completion).get("ok", false))
 
 func after_each() -> void:
+	Input.emulate_mouse_from_touch = _mouse_from_touch
+	get_tree().root.size = _root_size
+	get_tree().root.content_scale_size = _root_content_size
+	ART_VIEW._dating_width = _portrait_width
 	for text_node: Node in get_tree().get_nodes_in_group("dialogic_dialog_text"):
 		text_node.set_process(false)
 	bridge.free()
@@ -189,7 +201,7 @@ func _mount_dating_captions(current: String = "Four still revealing.") -> Dictio
 	timeline.from_text("One.\nTwo.\nThree.\n" + current)
 	var layout: Node = runtime.start(timeline)
 	await _settle()
-	var result := {}
+	var result := {"layout": layout}
 	for layer: Node in layout.get_layers():
 		if layer.get_script().resource_path == LAYER: result.caption = layer
 		if layer.get_script().resource_path == ART_LAYER: result.art = layer.get_node("SceneArt")
@@ -269,7 +281,8 @@ func test_dating_art_extends_behind_subtitles_without_consuming_control_or_chall
 		assert_eq(view.size.y, float(ART_VIEW.APERTURE_HEIGHT[percent]), "Hospital keeps its existing art aperture")
 		view.configure_textures(texture, [texture], null, percent, true, true)
 		assert_eq(view.size, Vector2(1280, 720), "challenge retains its full worksheet space")
-		assert_eq(view._portraits[0].size.x, 160.0)
+		assert_eq(view._portraits[0].size.y, 720.0, "challenge portrait retains full panel height")
+		assert_eq(view.get_right_rect(), Rect2(view.get_portrait_width(), 0, 1280 - view.get_portrait_width(), 720))
 
 func test_long_dating_caption_stays_centered_and_scrollable_with_both_scrollbar_sizes() -> void:
 	var mounted := await _mount_dating_captions("A long dating caption remains centered while scrolling. ".repeat(160))
@@ -317,6 +330,7 @@ func test_dating_review_and_hospital_scope_reset_preserve_native_text_and_histor
 	assert_eq(caption.get_caption_projection().review_offset, 0)
 	assert_eq(caption.caption_text, native)
 	assert_eq(_native_snapshot(caption), before)
+
 	# The reused layout must reset from the same authoritative scene-art publication.
 	bridge.set("_ordinary_playback", {"timeline_id": "hospital.faint", "context": {}})
 	bridge.scene_art_changed.emit()
@@ -334,4 +348,157 @@ func test_dating_review_and_hospital_scope_reset_preserve_native_text_and_histor
 	assert_true(caption.get_caption_projection().get("dating_overlay", false))
 	assert_eq(mounted.art.size, Vector2(1280, 656))
 	_assert_dating_leaf(native, 100)
+	assert_eq(_native_snapshot(caption), before)
+
+func _mount_root_split_fixture() -> Dictionary:
+	var mounted := await _mount_dating_captions("Four still revealing.\nFollowing guard caption.")
+	if mounted.is_empty(): return {}
+	if mounted.layout.get_parent() != get_tree().root: mounted.layout.reparent(get_tree().root)
+	mounted.layout.layer = 129 # Real input above GUT's own CanvasLayer128.
+	get_tree().root.size = Vector2i(1280, 720)
+	get_tree().root.content_scale_size = Vector2i(1280, 720)
+	var pixels := Image.create(8, 8, false, Image.FORMAT_RGBA8)
+	pixels.fill(Color.WHITE)
+	var texture := ImageTexture.create_from_image(pixels)
+	mounted.art.configure_textures(texture, [texture, texture], null, 100, false, true)
+	mounted.art.set_portrait_width(480)
+	mounted.caption.configure_dating_overlay(true)
+	mounted.caption.call("_sync_transport")
+	mounted.caption.caption_text.grab_focus()
+	runtime.Inputs.input_block_timer.stop()
+	await _settle()
+	return mounted
+
+func _root_control_point(control: Control, point: Vector2) -> Vector2:
+	return get_tree().root.get_final_transform() * (control.get_global_transform_with_canvas() * point)
+
+func _split_mouse(point: Vector2, pressed: bool) -> void:
+	var event := InputEventMouseButton.new()
+	event.position = point
+	event.global_position = point
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.button_mask = MOUSE_BUTTON_MASK_LEFT if pressed else 0
+	event.pressed = pressed
+	Input.parse_input_event(event)
+	Input.flush_buffered_events()
+
+func _split_touch(point: Vector2, pressed: bool, canceled: bool = false) -> void:
+	var event := InputEventScreenTouch.new()
+	event.index = 0
+	event.position = point
+	event.pressed = pressed
+	event.canceled = canceled
+	Input.parse_input_event(event)
+	Input.flush_buffered_events()
+
+func _split_key(key: Key, pressed: bool) -> void:
+	var event := InputEventKey.new()
+	event.keycode = key
+	event.physical_keycode = key
+	event.pressed = pressed
+	Input.parse_input_event(event)
+	Input.flush_buffered_events()
+
+func test_dating_split_mouse_commits_on_release_without_advancing_caption() -> void:
+	var mounted := await _mount_root_split_fixture()
+	if mounted.is_empty(): return
+	var caption: Node = mounted.caption
+	var art: Control = mounted.art
+	var handle: Control = art.get_split_handle()
+	assert_same(caption.get("_dating_split_surface"), art, "caption binds its sibling art layer")
+	assert_true(caption.is_dating_split_input_admitted())
+	var before := _native_snapshot(caption)
+	var point := _root_control_point(handle, handle.size * 0.5)
+	_split_mouse(point, true)
+	assert_true(art.is_split_dragging(), "background input forwards grip press")
+	_split_key(KEY_ENTER, true)
+	_split_key(KEY_ENTER, false)
+	assert_true(art.is_split_dragging(), "secondary Accept cannot interrupt divider ownership")
+	assert_eq(_native_snapshot(caption), before, "Enter during a drag cannot accept dialogue")
+	var motion := InputEventMouseMotion.new()
+	motion.position = point + Vector2(72, 0)
+	motion.global_position = motion.position
+	motion.relative = Vector2(72, 0)
+	motion.button_mask = MOUSE_BUTTON_MASK_LEFT
+	Input.parse_input_event(motion)
+	Input.flush_buffered_events()
+	assert_eq(art.get_portrait_width(), 480.0, "drag only previews its boundary")
+	_split_mouse(motion.position, false)
+	await _settle()
+	assert_false(art.is_split_dragging())
+	assert_true(get_node("/root/InputManager").get_physical_contacts().is_empty(), "consumed mouse and secondary key releases leave no held contacts")
+	assert_eq(art.get_portrait_width(), 552.0)
+	assert_eq(_native_snapshot(caption), before, "divider cannot reveal, advance, or write history")
+	for rect: Rect2 in caption.get_caption_projection().leaf_rects:
+		assert_almost_eq(rect.get_center().x, 640.0, 0.01, "captions stay centered across both panels")
+	# Crossing only four pixels onto the grip must not turn a background press
+	# into an accepted caption release, even below the ordinary drag threshold.
+	_split_mouse(_root_control_point(handle, Vector2(-2, 32)), true)
+	_split_mouse(_root_control_point(handle, Vector2(2, 32)), false)
+	await _settle()
+	assert_eq(_native_snapshot(caption), before, "release belongs to the grip hit area")
+	var background_point := _root_control_point(caption.background_input, Vector2(900, 200))
+	_split_mouse(background_point, true)
+	_split_mouse(background_point, false)
+	await _settle()
+	assert_false(caption.caption_text.revealing, "a later ordinary scene click still finishes reveal")
+	assert_eq(runtime.current_event_idx, before.event, "one click never also advances")
+	assert_eq(runtime.History.simple_history_content, before.history)
+
+func test_dating_split_touch_keyboard_and_reading_custody_preserve_native_text() -> void:
+	var foreign_art := ART_VIEW.new()
+	add_child_autofree(foreign_art)
+	foreign_art.configure_entry(DATING)
+	var mounted := await _mount_root_split_fixture()
+	if mounted.is_empty(): return
+	var caption: Node = mounted.caption
+	var art: Control = mounted.art
+	var handle: Control = art.get_split_handle()
+	assert_same(caption.get("_dating_split_surface"), art, "another scene's earlier art surface cannot acquire caption custody")
+	var before := _native_snapshot(caption)
+	Input.emulate_mouse_from_touch = true
+	var point := _root_control_point(handle, handle.size * 0.5)
+	_split_touch(point, true)
+	assert_true(art.is_split_dragging())
+	var drag := InputEventScreenDrag.new()
+	drag.index = 0
+	drag.position = point - Vector2(64, 0)
+	drag.relative = Vector2(-64, 0)
+	Input.parse_input_event(drag)
+	Input.flush_buffered_events()
+	assert_eq(art.get_portrait_width(), 480.0)
+	_split_touch(drag.position, false)
+	await _settle()
+	assert_true(get_node("/root/InputManager").get_physical_contacts().is_empty(), "consumed touch release leaves no held contacts")
+	assert_eq(art.get_portrait_width(), 416.0, "real touch and its emulated mouse commit once")
+	assert_eq(_native_snapshot(caption), before)
+	caption.call("_sync_transport")
+	assert_same(caption.caption_text.get_node(caption.caption_text.focus_next), handle, "divider participates in caption focus order")
+	handle.grab_focus()
+	_split_key(KEY_RIGHT, true)
+	_split_key(KEY_RIGHT, false)
+	await _settle()
+	assert_eq(art.get_portrait_width(), 432.0, "keyboard adjusts the focused divider")
+	assert_eq(_native_snapshot(caption), before)
+	point = _root_control_point(handle, handle.size * 0.5)
+	_split_touch(point, true)
+	assert_true(art.is_split_dragging())
+	caption.set("_load_pending", true)
+	await _settle()
+	assert_false(art.is_split_dragging(), "losing reading custody retires an unfinished drag")
+	_split_touch(point - Vector2(48, 0), false)
+	caption.set("_load_pending", false)
+	await _settle()
+	assert_eq(art.get_portrait_width(), 432.0, "late release cannot commit after custody returns")
+	assert_eq(_native_snapshot(caption), before)
+	handle.grab_focus()
+	var captured: Dictionary = caption.capture_pause_view({"fixture": "dating-split"})
+	assert_true(captured.get("ok", false))
+	if not captured.get("ok", false): return
+	assert_true(caption.cover_pause_view(captured.value))
+	await _settle()
+	assert_eq(handle.focus_mode, Control.FOCUS_NONE, "covered captions also withdraw the sibling divider")
+	assert_true(caption.restore_pause_view(captured.value))
+	await _settle()
+	assert_same(get_viewport().gui_get_focus_owner(), handle, "uncover restores keyboard focus to the divider")
 	assert_eq(_native_snapshot(caption), before)

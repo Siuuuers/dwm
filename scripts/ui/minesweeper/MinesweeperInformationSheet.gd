@@ -42,7 +42,7 @@ func configure(host: String = "desktop_app", locale: String = "en", percent: int
 	var next_theme := MS_THEME.build(locale,percent,palette,high_contrast,colour_preset,font_style)
 	var band := native_band
 	if band == Vector2i.ZERO: band = Vector2i(400 if host == "desktop_app" else 480,232 if large else 246)
-	if next_theme == null or band.x != (400 if host == "desktop_app" else 480) or band.y <= 0: return false
+	if next_theme == null or band.x <= 16 or (host == "desktop_app" and band.x != 400) or band.y <= 0: return false
 	var measured := _compose(next_theme,band,large,locale,"rules" if kind.is_empty() else kind,_claims)
 	if measured.is_empty(): return false
 	_host = host

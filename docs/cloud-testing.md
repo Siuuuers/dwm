@@ -32,11 +32,15 @@ card and inspector art, and pointer hover changes the right inspector without
 a click. Public prices and stock remain controlled test fixtures.
 
 A second rendered pass in the same job reuses Godot and the software display
-with separate user data. It requires 19 screenshots and a successful report
+with separate user data. It requires 25 screenshots and a successful report
 from `tests/ui/render_delivery_dialogue.gd`, covering pending and delivered
 notices, dialogue review and return to the current line, and dating captions.
 The dating samples verify live and reviewed captions over production artwork
-in English and both Chinese locales, including enlarged text. The
+in English and both Chinese locales, including enlarged text. Paired portraits
+are captured at default and enlarged panel widths. Physical challenge samples
+retain one or two actual portraits beside the board and include Japanese and
+Korean Rules at 150% with large targets. Geometry checks preserve full fonts,
+and native pixel checks verify that the challenge fills only the right pane. The
 `delivery-dialogue-render` artifact contains its screenshots, report, and log.
 
 A third pass runs `tests/ui/render_angela_overlay.gd` with its own user data and
@@ -58,7 +62,7 @@ using the real saved font preference and Settings picker. It checks Pixel and
 Readable in all five languages at enlarged text sizes, including the rightmost
 footer clock, Minesweeper controls, readable Gallery text, and witnessed captions.
 The `font-choices-render` artifact contains its screenshots, report, and log.
-All five passes together require 127 nonempty PNG captures; headless geometry
+All five passes together require 133 nonempty PNG captures; headless geometry
 checks cannot replace them.
 
 `tools/testing/Invoke-CloudTests.ps1` lists the exact test scripts. It reuses the
