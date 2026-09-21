@@ -48,7 +48,8 @@ rewrite them as events that happened in the current playthrough.
 
 The accepted removal of dating confirmation cards and the special-mine choice
 is separately tracked as `dwm-cb1`, including actual semantic DTL playback.
-That separate work is not established by this Observer change.
+Its implemented flow and recovery boundaries are described in
+[automatic-dating-flow-2026-09-21.md](automatic-dating-flow-2026-09-21.md).
 
 ## Verification
 
