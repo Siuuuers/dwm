@@ -3,6 +3,7 @@ extends "res://addons/gut/test.gd"
 const FROZEN := preload("res://scripts/narrative/EndingFrozenContext.gd")
 const STATE := preload("res://autoload/GameState.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
+const CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 
 class Writer extends RefCounted:
 	var state: Node
@@ -85,6 +86,37 @@ func test_cache_rejects_missing_reached_step_and_changed_seed_or_context() -> vo
 
 func _source() -> Dictionary:
 	return {"ok": true, "value": {"source_kind": "schedule_done"}}
+
+func test_game_owner_admits_ending_with_real_nullable_day_closures_and_retains_only_counted_pair_receipts() -> void:
+	var state: Node = autofree(STATE.new())
+	state.reset_game()
+	for closed_day: int in range(1, 8):
+		var closed := CONTACTS.prepare_resolve_day_end(state.contacts, closed_day, {}, "fixture:close:%d" % closed_day)
+		assert_true(closed.ok, str(closed))
+		if not closed.ok: return
+		state.contacts = closed.value.candidate
+	assert_null(state.contacts.transaction_receipts["fixture:close:1"].pl_window)
+	assert_true(state.contacts.transaction_receipts["fixture:close:2"].pl_window.counts)
+	assert_true(state.contacts.transaction_receipts["fixture:close:6"].pl_window.counts)
+	var retained_receipts: Dictionary = state.contacts.transaction_receipts.duplicate(true)
+	state._lifecycle_set_playing_day(7)
+	assert_true(state.configure_mutation_gate(GATE.new()).ok)
+	assert_true(state.configure_frozen_ending_contexts().ok)
+	var writer := Writer.new()
+	writer.state = state
+	assert_true(state.configure_ending_source_reader(_source).ok)
+	assert_true(state.configure_ending_checkpoint_writer(writer.write).ok)
+	var admitted: Dictionary = state.resume_terminal_ending()
+	assert_true(admitted.ok, str(admitted))
+	if not admitted.ok: return
+	var cache: Dictionary = state.route_context.ending_frozen_contexts_v1
+	assert_eq(cache.seed.pair_count_receipt_ids, ["fixture:close:2", "fixture:close:6"])
+	assert_true(cache.presentations.is_empty())
+	assert_eq(state.contacts.transaction_receipts, retained_receipts)
+	assert_eq(writer.snapshots.size(), 1)
+	assert_eq(writer.snapshots[0].gameplay.route_context.ending_frozen_contexts_v1, cache)
+	var command: Dictionary = state.request_next_ending_command().value
+	assert_true(state.capture_ending_frozen_presentation(command.ending_id, command.playback_context).ok)
 
 func test_game_owner_freezes_admission_then_checkpoints_exact_current_step_and_refuses_missing_seed() -> void:
 	var state: Node = autofree(STATE.new())

@@ -1324,7 +1324,8 @@ func _capture_ending_frozen_seed(provisional: Dictionary) -> Dictionary:
 	var pair_counts: Array = []
 	for transaction_id: String in contacts.get("transaction_receipts", {}):
 		var receipt: Dictionary = contacts.transaction_receipts[transaction_id]
-		if receipt.get("kind") == "resolve_day_end" and receipt.get("pl_window", {}).get("counts") == true:
+		var window: Variant = receipt.get("pl_window")
+		if receipt.get("kind") == "resolve_day_end" and window is Dictionary and window.get("counts") == true:
 			pair_counts.append(transaction_id)
 	pair_counts.sort()
 	return _ENDING_FROZEN_CONTEXT.make_seed(snapshot.presentation_by_scope, evidence, pair_counts,

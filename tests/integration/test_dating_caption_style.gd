@@ -117,7 +117,8 @@ func after_each() -> void:
 		if source != null:
 			source.store_buffer(_replaced_timeline_source)
 			source.close()
-			assert_eq(FileAccess.get_file_as_bytes(_replaced_timeline_path), _replaced_timeline_source)
+			assert_true(FileAccess.get_file_as_bytes(_replaced_timeline_path) == _replaced_timeline_source,
+				"fixture restores every original DTL byte")
 		_replaced_timeline.take_over_path(_replaced_timeline_path)
 		_replaced_timeline = null
 		_replaced_timeline_path = ""
@@ -192,11 +193,12 @@ func test_ending_frozen_prose_keeps_stable_completion_identity_across_runtime_co
 		var playback_id := "saved:run:ending:%d" % index
 		var frozen: Dictionary = helper.build(plan, 0, seed, playback_id).value
 		var context := {"expected_stage": "PRIMARY_PENDING", "playback_id": playback_id, "role": "core", "transaction_id": "saved:transaction:%d" % index}
+		var prior_text_events := _text_events.size()
 		var started: Dictionary = bridge.start_ending_presentation("ending.priscilla.sweet", context, frozen.signature, frozen.presentation)
 		assert_true(started.get("ok", false), str(started))
 		if not started.get("ok", false): return
 		frozen.presentation.fields.stored_tone = "dark"
-		await _settle()
+		if not await _wait_for_published_text("Stored tone sweet.", prior_text_events): return
 		var texts := get_tree().get_nodes_in_group("dialogic_dialog_text")
 		assert_eq(texts.size(), 1)
 		if texts.size() != 1: return
@@ -272,10 +274,11 @@ func test_gallery_real_dtl_reads_only_saved_signature_and_releases_frozen_variab
 	var run_before: Dictionary = run.capture_restore_state().value.backup
 	for outcome: String in ["completed", "cancelled"]:
 		runtime.current_state_info["variables"] = {"prior_fixture": "preserved"}
+		var prior_text_events := _text_events.size()
 		var started: Dictionary = replay.begin(recorded.value.signature_id)
 		assert_true(started.ok, str(started))
 		if not started.ok: return
-		await _settle()
+		if not await _wait_for_published_text("Replay tone sweet.", prior_text_events): return
 		var texts := get_tree().get_nodes_in_group("dialogic_dialog_text")
 		assert_eq(texts.size(), 1)
 		if texts.size() != 1: return
@@ -375,6 +378,37 @@ func test_saved_full_context_resumes_real_prose_and_abort_restores_variables() -
 func _settle() -> void:
 	for frame in 4: await get_tree().process_frame
 
+func _text_publication_diagnostic() -> Dictionary:
+	var layout: Node = runtime.Styles.get_layout_node()
+	var texts := get_tree().get_nodes_in_group("dialogic_dialog_text")
+	return {"event_index": runtime.current_event_idx, "text_events": _text_events.size(),
+		"timeline": runtime.current_timeline.resource_path if runtime.current_timeline != null else "",
+		"style": layout.get_meta("style").resource_path if is_instance_valid(layout) else "",
+		"animating": runtime.Animations.is_animating(), "paused": runtime.paused,
+		"art_hold": bridge.get_art_hold_view() != null, "text_nodes": texts.size(),
+		"text": str(texts[0].get_parsed_text()).left(200) if texts.size() == 1 else ""}
+
+func _wait_for_published_text(expected: String, prior_events: int) -> bool:
+	# The ordinary default style awaits its 0.7s textbox animation before publishing
+	# text. Frame settling alone cannot admit reveal-skip or manual advance yet.
+	await _settle()
+	var initial := _text_publication_diagnostic()
+	var started_at := Time.get_ticks_msec()
+	var published := false
+	for attempt in 60:
+		var texts := get_tree().get_nodes_in_group("dialogic_dialog_text")
+		if _text_events.size() == prior_events + 1 and texts.size() == 1 \
+				and texts[0].get_parsed_text() == expected:
+			published = true
+			break
+		await get_tree().create_timer(0.05).timeout
+	var observed := _text_publication_diagnostic()
+	print("DWM_DTL_TEXT_PUBLICATION " + JSON.stringify({"expected": expected, "initial": initial,
+		"final": observed, "wait_ms": Time.get_ticks_msec() - started_at, "published": published}))
+	assert_true(published, "fresh native text must publish before input: " + str(observed))
+	assert_null(bridge.get_art_hold_view(), "authored fixture prose cannot be replaced by an artwork hold")
+	return published
+
 func _wait_for_completion(count: int) -> void:
 	for frame in 60:
 		if completion.calls.size() == count and not runtime.Styles.has_active_layout_node(): return
@@ -461,6 +495,7 @@ func test_dating_adapter_waits_for_both_real_dialogue_lines_and_natural_end() ->
 	injected.injected_path = str(located.value.path)
 	_replaced_timeline_path = injected.injected_path
 	_replaced_timeline = load(_replaced_timeline_path)
+	_replaced_timeline_source = FileAccess.get_file_as_bytes(_replaced_timeline_path)
 	injected.injected_timeline = DialogicTimeline.new()
 	injected.injected_timeline.from_text("return\nlabel " + str(located.value.label)
 		+ "\nNarrator: First dating fixture line.\nNarrator: Final dating fixture line.\nreturn")

@@ -187,7 +187,9 @@ try {
     try {
         # Run the exported release executable with its adjacent PCK and no source
         # project, script override, test bootstrap, or pre-existing user state.
-        $null = Invoke-CheckedProcess $executable @('--headless', '--verbose', '--path', $package, '--max-fps', '60',
+        # The official release template rejects --path; WorkingDirectory is the
+        # package directory and native discovery must open the adjacent DWM.pck.
+        $null = Invoke-CheckedProcess $executable @('--headless', '--verbose', '--max-fps', '60',
             '--quit-after', '240', '--log-file', (Join-Path $output 'smoke.log')) 'smoke' $smokeUser 90
         $profilePath = Join-Path $smokeUser 'appdata/Godot/app_userdata/DWM/profile.json'
         if (-not (Test-Path -LiteralPath $profilePath -PathType Leaf)) { throw 'Exported startup did not create its isolated profile.' }
