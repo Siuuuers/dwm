@@ -118,6 +118,30 @@ func test_challenge_size_and_fit_controls_live_in_footer_and_preserve_progress()
 	assert_true(_port.commands.is_empty())
 
 
+func test_challenge_locale_changes_retranslate_live_controls_status_and_accessibility() -> void:
+	var original: Dictionary = _scene.worksheet.grid.projection.duplicate(true)
+	var cases := {
+		"en": ["Continue", "Retry", "Special mine", "The attempt is saved. Retry to finish saving this point."],
+		"zh_CN": ["继续", "重试", "特殊地雷", "本次尝试已记录。重试以完成此处的保存。"],
+		"zh_HK": ["繼續", "重試", "特殊地雷", "本次嘗試已記錄。重試以完成此處的儲存。"],
+		"ja": ["続ける", "再試行", "特殊な地雷", "プレイ結果は保存済みです。再試行してこの時点の保存を完了してください。"],
+		"ko": ["계속", "다시 시도", "특수 지뢰", "시도는 저장되었습니다. 다시 시도하여 이 지점의 저장을 완료하세요."],
+	}
+	for locale: String in cases:
+		assert_true(_scene.configure_presentation_services(null, locale).ok)
+		_scene._physical_view.phase = "pre_challenge"
+		_scene._refresh_challenge()
+		assert_eq(_scene._continue_button.text, cases[locale][0])
+		assert_eq(_scene._special_mine_button.accessibility_name, cases[locale][2])
+		assert_eq(_scene._special_mine_button.tooltip_text, cases[locale][2])
+		_scene._physical_view.phase = "checkpoint_retry"
+		_scene._refresh_challenge()
+		assert_eq(_scene._continue_button.text, cases[locale][1])
+		assert_eq(_scene._status_label.text, cases[locale][3])
+		assert_eq(_scene.worksheet.grid.projection, original)
+	assert_true(_port.commands.is_empty(), "translation never dispatches a challenge command")
+
+
 func test_challenge_rules_overlay_blocks_native_cell_contacts_and_return_restores_play() -> void:
 	var worksheet: Control = _scene.worksheet
 	var grid: Control = worksheet.grid

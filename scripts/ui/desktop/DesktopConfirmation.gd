@@ -23,6 +23,8 @@ var _await_neutral := false
 
 func _ready() -> void:
 	_cancelable = request.get("cancelable", true)
+	accessibility_name = str(request.get("title", ""))
+	accessibility_description = str(request.get("body", ""))
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_await_neutral = Input.is_action_pressed(&"ui_accept") or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
@@ -103,6 +105,12 @@ func _ready() -> void:
 	body_scroll.get_v_scroll_bar().focus_mode = Control.FOCUS_NONE
 	(cancel_button if _cancelable else confirm_button).grab_focus()
 	visibility_changed.connect(_on_visibility_changed)
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_ACCESSIBILITY_UPDATE:
+		var element := get_accessibility_element()
+		DisplayServer.accessibility_update_set_role(element, DisplayServer.ROLE_DIALOG)
+		DisplayServer.accessibility_update_set_flag(element, DisplayServer.FLAG_MODAL, true)
 
 func _layout_sheet(sheet: Control) -> void:
 	# Keep confirmation actions above the fixed desktop footer at every scale.

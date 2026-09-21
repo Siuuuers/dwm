@@ -282,15 +282,38 @@ func _seven_day_journey(game: Node) -> void:
 	quit(0)
 
 
+func _click_logout_control(button: Button) -> void:
+	var point := button.get_global_transform_with_canvas() * (button.size / 2)
+	for pressed: bool in [true, false]:
+		var event := InputEventMouseButton.new()
+		event.button_index = MOUSE_BUTTON_LEFT
+		event.position = point
+		event.global_position = point
+		event.pressed = pressed
+		root.push_input(event, true)
+		await process_frame
+	await _frames()
+
 func _logout_journey(game: Node) -> void:
 	var desktop: Node = current_scene.find_child("ComputerDesktop", true, false)
 	var session: Dictionary = game.capture_live_session().value
-	var opened: Dictionary = desktop.open_app(&"logout")
-	if not _check(opened.get("ok", false), "Logout opens: " + JSON.stringify(opened)): return
-	await _frames()
-	var logout: Node = desktop.get("_cached_app_windows")[&"logout"]
-	if not _check(not logout.yes_button.disabled, "Logout confirmation enabled"): return
-	logout.yes_button.pressed.emit()
+	var host: Object = desktop.get("_host_state")
+	var before: Dictionary = host.get_state()
+	var launcher: Button = desktop.launcher_buttons[&"logout"]
+	await _click_logout_control(launcher)
+	var logout: Control = desktop.get("_confirmation")
+	if not _check(logout != null and logout.is_visible_in_tree(), "real launcher opens Logout consent"): return
+	if not _check(desktop.icon_grid.visible and desktop.get("_active_id") == &"", "Logout retains the launcher"): return
+	if not _check(host.get_state() == before and host.capture_persistent_state().active_app_id == null, "consent preserves canonical host and saved launcher"): return
+	if not _check(not desktop.get("_cached_app_windows").has(&"logout"), "Logout never enters the content cache"): return
+	if not _check(root.gui_get_focus_owner() == logout.cancel_button, "No owns initial consent focus"): return
+	if not await _capture_screen("logout-01-consent"): return
+	await _click_logout_control(logout.cancel_button)
+	if not _check(desktop.get("_confirmation") == null and root.gui_get_focus_owner() == launcher, "No restores exact Logout launcher focus"): return
+	await _click_logout_control(launcher)
+	logout = desktop.get("_confirmation")
+	if not _check(logout != null, "Logout consent can reopen"): return
+	await _click_logout_control(logout.confirm_button)
 	await _frames()
 	if not _check(current_scene.has_node("%LogInButton"), "Logout returns to title"): return
 	if not _check(not game.capture_live_session().value.active, "Logout retires live session"): return
@@ -310,6 +333,9 @@ func _logout_journey(game: Node) -> void:
 		"Login restores the desktop: " + JSON.stringify(loaded)): return
 	var resumed: Dictionary = game.capture_live_session().value
 	if not _check(resumed.active and resumed != session, "Login activates a fresh session handle"): return
+	var restored_desktop: Node = current_scene.find_child("ComputerDesktop", true, false)
+	if not _check(restored_desktop.icon_grid.visible and restored_desktop.get("_active_id") == &"", "Logout Autosave restores launcher, never consent"): return
+	if not _check(restored_desktop.get("_host_state").capture_persistent_state().active_app_id == null, "restored canonical workspace remains launcher"): return
 	if not _check(game.day == 2 and game.minesweeper_rounds_left == 2, "Login preserves Day 2 resources"): return
 	print("PLAYABLE_LOGOUT_PASS: actual Logout confirmation -> saved title -> Login -> restored Day 2 desktop")
 	quit(0)

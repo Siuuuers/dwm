@@ -774,3 +774,68 @@ func test_build_falls_back_to_the_full_path_when_any_proof_is_missing() -> void:
 		"nor does one empty proof beside a good one")
 	assert_eq(schema.build(&"autosave", null, &"automatic", current, [poisoned], {}, [])["code"],
 		&"invalid_recovery_journal", "and the empty default changes nothing")
+
+
+func test_outgoing_journal_uses_proofs_and_detaches_from_discarded_caller_entries() -> void:
+	var schema: Script = load(SCHEMA_PATH)
+	var proofs: Array[Dictionary] = [_proof_for(_engine_typed_bundle(1)),
+		_proof_for(_engine_typed_bundle(2))]
+	var built: Dictionary = schema.build(&"autosave", null, &"automatic",
+		_engine_typed_bundle(3), proofs)
+	assert_true(built.get("ok", false), str(built))
+	if not built.get("ok", false): return
+	var document: Dictionary = built.value
+	var expected: Dictionary = schema.validate(document)
+	assert_true(expected.get("ok", false), str(expected))
+	if not expected.get("ok", false): return
+	var caller_entries: Array[Dictionary] = [{"ignored": [1.0, RefCounted.new()]}]
+	document.recovery_journal = caller_entries
+	var outgoing: Dictionary = schema.validate_outgoing(document, proofs)
+	assert_true(outgoing.get("ok", false), str(outgoing))
+	if not outgoing.get("ok", false): return
+	var candidate: Dictionary = outgoing.value.candidate
+	assert_true(CANONICAL_JSON._deep_same(candidate, expected.value.candidate),
+		"the discarded entries cannot change the typed candidate described by the proof bytes")
+	assert_eq(_canonical(candidate), _canonical(expected.value.candidate),
+		"the outgoing document retains exact canonical bytes")
+	assert_eq(candidate.recovery_journal.size(), 2, "both proven fallbacks are retained")
+	assert_false((candidate.recovery_journal as Array).is_typed(),
+		"typed proof and input arrays still compose an untyped JSON array")
+	assert_eq(typeof(candidate.recovery_journal[0].snapshot.narrative_checkpoint.integral), TYPE_INT)
+	assert_eq(typeof(candidate.recovery_journal[0].snapshot.narrative_checkpoint.fractional), TYPE_FLOAT)
+	assert_true(caller_entries.is_typed(), "the caller's array is unchanged")
+	assert_eq(typeof(caller_entries[0].ignored[0]), TYPE_FLOAT,
+		"discarded input entries are not normalized in place")
+	assert_eq(schema.validate(document).get("code"), &"invalid_recovery_journal",
+		"unproven validation still refuses the unsupported caller entry")
+	caller_entries[0].ignored.append("late")
+	assert_true(CANONICAL_JSON._deep_same(candidate, expected.value.candidate),
+		"editing discarded caller entries cannot affect the outgoing candidate")
+	candidate.current_snapshot.snapshot.narrative_checkpoint["outgoing_only"] = true
+	assert_false(document.current_snapshot.snapshot.narrative_checkpoint.has("outgoing_only"),
+		"the current snapshot remains detached from the caller")
+
+
+func test_outgoing_journal_container_check_retains_refusal_precedence() -> void:
+	var schema: Script = load(SCHEMA_PATH)
+	var built: Dictionary = schema.build(&"autosave", null, &"automatic", _bundle(), [])
+	assert_true(built.get("ok", false), str(built))
+	if not built.get("ok", false): return
+	var document: Dictionary = built.value
+	var proofs: Array = [_proof_for(_engine_typed_bundle(1))]
+	for invalid: Variant in [null, {}, "journal", 1, PackedInt32Array([1])]:
+		document.recovery_journal = invalid
+		var refused: Dictionary = schema.validate_outgoing(document, proofs)
+		assert_eq(refused.get("code"), &"invalid_document_shape")
+		assert_eq(refused.get("message"), "recovery_journal must be an array",
+			"proofs never waive the journal container check")
+	document.current_snapshot = {"unknown": true}
+	assert_eq(schema.validate_outgoing(document, proofs).get("code"), &"invalid_bundle_shape")
+	document.slot_id = 0
+	assert_eq(schema.validate_outgoing(document, proofs).get("code"), &"invalid_discriminator")
+	document.schema_version = 7
+	assert_eq(schema.validate_outgoing(document, proofs).get("code"), &"unsupported_schema_version")
+	document.saved_time = {"broken": true}
+	assert_eq(schema.validate_outgoing(document, proofs).get("code"), &"invalid_saved_time")
+	document["extra"] = 1
+	assert_eq(schema.validate_outgoing(document, proofs).get("code"), &"invalid_document_shape")

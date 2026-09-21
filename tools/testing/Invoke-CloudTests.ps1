@@ -40,6 +40,7 @@ $suites = @{
         'tests/scene/test_shop_plate.gd'
         'tests/integration/test_shop_desktop_host.gd'
         'tests/integration/test_minesweeper_shop_transaction.gd'
+        'tests/unit/test_minesweeper_shop_purchase_participant.gd'
     )
     desktop = @(
         'tests/unit/test_desktop_panel_split.gd'
@@ -55,6 +56,8 @@ $suites = @{
         'tests/unit/test_angela_stat_overlay.gd'
         'tests/unit/test_stat_hud_week_tint.gd'
         'tests/integration/test_ui_art_placements.gd'
+        'tests/integration/test_desktop_logout_consent.gd'
+        'tests/unit/test_session_exit_coordinator.gd'
     )
     settings = @(
         'tests/unit/test_settings_panel_resize.gd'
@@ -75,6 +78,9 @@ $suites = @{
         'tests/integration/test_restore_production_adapters.gd'
         'tests/integration/test_desktop_board_persistence.gd'
         'tests/integration/test_minesweeper_first_reveal_transaction.gd'
+        'tests/unit/test_save_manager_checkpoint_port.gd'
+        'tests/unit/test_checkpoint_validation_reuse.gd'
+        'tests/unit/test_checkpoint_journal.gd'
     )
     new_account = @(
         'tests/unit/test_canonical_writer_compatibility.gd'
@@ -85,6 +91,10 @@ $suites = @{
         'tests/integration/test_new_run_pair_durability.gd'
         'tests/integration/test_new_run_startup_publication.gd'
         'tests/unit/test_new_run_durability_journal.gd'
+        'tests/unit/test_json_file_storage.gd'
+        'tests/unit/test_temporary_storage.gd'
+        'tests/unit/test_save_document_schema.gd'
+        'tests/unit/test_run_snapshot_schema.gd'
     )
     reading_delivery = @(
         'tests/unit/test_minesweeper_delivery_notice.gd'
@@ -120,6 +130,7 @@ $suites = @{
         'tests/unit/test_backup_presentation.gd'
         'tests/integration/test_desktop_crash_recovery.gd'
         'tests/scene/test_ending_recovery_localization.gd'
+        'tests/unit/tooling/test_ui_literal_audit.gd'
     )
 }
 
@@ -152,6 +163,9 @@ if ($result -ne 0) {
     if (Test-Path -LiteralPath $logPath) { Get-Content -LiteralPath $logPath }
     exit $result
 }
+if (Select-String -LiteralPath $logPath -Pattern 'Unicode parsing error|Unexpected NUL character' -Quiet) {
+    throw 'Focused suite reported an unexpected Unicode/NUL diagnostic.'
+}
 
 # A zero process status alone is insufficient (GUT can quit early with zero).
 $report = Join-Path $output "$Suite.xml"
@@ -161,6 +175,11 @@ $executed = $xml.SelectNodes('//testcase').Count
 if ($executed -eq 0) { throw 'GUT did not report any executed tests.' }
 if ($xml.SelectNodes('//failure | //error').Count -ne 0) { throw 'GUT reported test failures.' }
 Write-Host "${Suite}: $executed test cases completed across $($testPaths.Count) requested scripts."
+
+if ($Suite -eq 'settings') {
+    # Expected fixture refusals are reported separately from passing GUT cases.
+    & (Join-Path $PSScriptRoot 'Invoke-StorageRefusalChecks.ps1')
+}
 
 if ($Suite -eq 'new_account') {
     # Measure the real title-button flow in a fresh isolated process. Correctness

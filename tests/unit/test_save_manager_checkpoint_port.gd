@@ -16,18 +16,21 @@ const CONSEQUENCE_STATE_PATH := "res://scripts/domain/desktop/DesktopConsequence
 const CONSEQUENCE_STATE := preload(CONSEQUENCE_STATE_PATH)
 const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
-var _suite_counter := 0
-
 func _canonical_text(value: Variant) -> String:
 	var emitted: Dictionary = CANONICAL_JSON.stringify(value)
 	assert_true(emitted.get("ok", false), str(emitted))
 	return str(emitted.get("value", ""))
 
 func _isolated_wired() -> Dictionary:
-	_suite_counter += 1
-	var root := OS.get_environment("DWM_TEST_ROOT").path_join("save_manager_consequence_checkpoint") \
-		.path_join(str(_suite_counter)).path_join("saves")
-	assert_eq(DirAccess.make_dir_recursive_absolute(root), OK)
+	var created := TemporaryStorage.create("save_manager_consequence_checkpoint")
+	assert_true(created.get("ok", false), str(created))
+	if not created.get("ok", false):
+		return {}
+	var root: String = str(created["value"]).path_join("saves")
+	var mkdir_error := DirAccess.make_dir_recursive_absolute(root)
+	assert_eq(mkdir_error, OK)
+	if mkdir_error != OK:
+		return {}
 	var storage: RefCounted = load(STORAGE_PATH).new(root)
 	var manager: Node = load(SAVE_MANAGER_PATH).new()
 	autofree(manager)
@@ -128,6 +131,8 @@ func _evict_issued_checkpoints(port: RefCounted) -> void:
 
 func test_prepare_consequence_checkpoint_builds_a_candidate_and_receipt() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var port: RefCounted = wired["port"]
 	var candidate_state := _admitted_state_candidate()
 	var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), candidate_state)
@@ -155,6 +160,8 @@ func test_prepare_consequence_checkpoint_builds_a_candidate_and_receipt() -> voi
 ## unlike the raw un-patched input -- the exact shape that makes the durable record loadable.
 func test_prepare_consequence_checkpoint_attaches_the_receipt_to_the_admission_candidate() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var port: RefCounted = wired["port"]
 	var candidate_state := _admitted_state_candidate()
 	var input_pending: Dictionary = candidate_state["pending"]
@@ -173,6 +180,8 @@ func test_prepare_consequence_checkpoint_attaches_the_receipt_to_the_admission_c
 
 func test_commit_consequence_checkpoint_retains_and_rereads_in_same_process() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var port: RefCounted = wired["port"]
 	var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), _admitted_state_candidate())
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
@@ -190,6 +199,8 @@ func test_commit_consequence_checkpoint_retains_and_rereads_in_same_process() ->
 
 func test_issued_transient_record_cache_is_bounded_and_cleared_with_transient_state() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var port: RefCounted = wired["port"]
 	for index: int in 10:
 		var transaction_id := "cache-txn-" + str(index)
@@ -205,6 +216,8 @@ func test_issued_transient_record_cache_is_bounded_and_cleared_with_transient_st
 
 func test_commit_consequence_checkpoint_rejects_a_receipt_mismatch() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var port: RefCounted = wired["port"]
 	var candidate_state := _admitted_state_candidate()
 	var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), candidate_state)
@@ -220,6 +233,8 @@ func test_commit_consequence_checkpoint_rejects_a_receipt_mismatch() -> void:
 
 func test_known_issued_checkpoint_rejects_equal_float_payload_before_first_commit() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var port: RefCounted = wired["port"]
 	var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), _admitted_state_candidate())
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
@@ -242,6 +257,8 @@ func test_known_issued_checkpoint_rejects_equal_float_payload_before_first_commi
 
 func test_supplied_checkpoint_receipt_rejects_equal_float_ordinal() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var port: RefCounted = wired["port"]
 	var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), _admitted_state_candidate())
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
@@ -256,6 +273,8 @@ func test_supplied_checkpoint_receipt_rejects_equal_float_ordinal() -> void:
 
 func test_known_issued_checkpoint_accepts_string_name_aliases_after_normalization() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var port: RefCounted = wired["port"]
 	var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), _admitted_state_candidate())
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
@@ -277,6 +296,8 @@ func test_known_issued_checkpoint_accepts_string_name_aliases_after_normalizatio
 
 func test_cache_evicted_prepared_checkpoint_still_commits_through_cold_validation() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var port: RefCounted = wired["port"]
 	var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), _admitted_state_candidate())
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
@@ -293,6 +314,8 @@ func test_cache_evicted_prepared_checkpoint_still_commits_through_cold_validatio
 
 func test_evicted_checkpoints_accept_each_legitimate_recovery_stage() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var port: RefCounted = wired["port"]
 	# Different payload content is valid when freshly prepared with its matching receipt;
 	# cold validation proves self-consistency, not the historical origin of those bytes.
@@ -355,6 +378,8 @@ func test_evicted_checkpoint_rejects_inconsistent_fields_before_insertion() -> v
 	for fault: String in ["payload_numeric_type", "payload_value", "header_receipt", "receipt_digest",
 			"receipt_content_hash", "ordinal_stage"]:
 		var wired := _isolated_wired()
+		if wired.is_empty():
+			return
 		var port: RefCounted = wired["port"]
 		var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), _admitted_state_candidate())
 		assert_true(prepared.get("ok", false), JSON.stringify(prepared))
@@ -397,6 +422,8 @@ func test_evicted_checkpoint_rejects_inconsistent_fields_before_insertion() -> v
 
 func test_evicted_reprepared_admission_preserves_its_older_admission_receipt() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var port: RefCounted = wired["port"]
 	var admission: Dictionary = port.prepare_consequence_checkpoint(_header(), _admitted_state_candidate())
 	assert_true(admission.get("ok", false), JSON.stringify(admission))
@@ -427,6 +454,8 @@ func test_evicted_preadmission_checkpoints_preserve_receipt_free_state() -> void
 	# coordinator's admission-ready payload before its sequence reservation is adopted.
 	for ordinal: int in [0, 1]:
 		var wired := _isolated_wired()
+		if wired.is_empty():
+			return
 		var port: RefCounted = wired["port"]
 		var header := _pre_admission_header()
 		header.operation_ordinal = ordinal
@@ -461,6 +490,8 @@ func test_evicted_preadmission_checkpoints_preserve_receipt_free_state() -> void
 ## and leaves the durable record untouched.
 func test_commit_consequence_checkpoint_rejects_malformed_or_uncanonicalizable_records() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var port: RefCounted = wired["port"]
 	var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), _admitted_state_candidate())
 	var missing_header: Dictionary = prepared.value.candidate.duplicate(true)
@@ -482,6 +513,8 @@ func test_commit_consequence_checkpoint_rejects_malformed_or_uncanonicalizable_r
 
 func test_commit_consequence_checkpoint_replays_an_identical_rewrite_at_an_occupied_slot() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var port: RefCounted = wired["port"]
 	var candidate_state := _admitted_state_candidate()
 	var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), candidate_state)
@@ -498,6 +531,8 @@ func test_commit_consequence_checkpoint_replays_an_identical_rewrite_at_an_occup
 
 func test_commit_consequence_checkpoint_rejects_a_different_rewrite_at_an_occupied_slot() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var port: RefCounted = wired["port"]
 	var first: Dictionary = port.prepare_consequence_checkpoint(_header(), _admitted_state_candidate("txn-1", 1))
 	assert_true(port.commit_consequence_checkpoint(first.value.candidate,
@@ -518,6 +553,8 @@ func test_commit_consequence_checkpoint_rejects_a_different_rewrite_at_an_occupi
 ## byte-written.
 func test_a_committed_admission_checkpoint_reads_back_and_validates() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var port: RefCounted = wired["port"]
 	var candidate_state := _admitted_state_candidate()
 	var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), candidate_state)
@@ -543,6 +580,8 @@ func test_a_committed_admission_checkpoint_reads_back_and_validates() -> void:
 ## closing clause) and replays idempotently.
 func test_abandon_pending_consequence_checkpoint_marks_a_pre_admission_checkpoint_abandoned() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var port: RefCounted = wired["port"]
 	var candidate_state := _pre_admission_state_candidate()
 	var header := _pre_admission_header()
@@ -574,6 +613,8 @@ func test_abandon_pending_consequence_checkpoint_marks_a_pre_admission_checkpoin
 
 func test_abandon_pending_consequence_checkpoint_rejects_a_nonexistent_transaction() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var port: RefCounted = wired["port"]
 	var rejected: Dictionary = port.abandon_pending_consequence_checkpoint("no-such-txn")
 	assert_false(rejected.get("ok", true))
@@ -584,6 +625,8 @@ func test_abandon_pending_consequence_checkpoint_rejects_a_nonexistent_transacti
 ## never be abandoned; forward recovery, not abandonment, is the only legal path from there.
 func test_abandon_pending_consequence_checkpoint_rejects_an_already_admitted_transaction() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var port: RefCounted = wired["port"]
 	var candidate_state := _admitted_state_candidate()
 	var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), candidate_state)
@@ -597,6 +640,8 @@ func test_abandon_pending_consequence_checkpoint_rejects_an_already_admitted_tra
 
 func test_read_pending_consequence_checkpoint_finds_nothing_when_no_checkpoint_exists() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var port: RefCounted = wired["port"]
 	var read: Dictionary = port.read_pending_consequence_checkpoint()
 	assert_true(read.get("ok", false), JSON.stringify(read))
@@ -605,6 +650,8 @@ func test_read_pending_consequence_checkpoint_finds_nothing_when_no_checkpoint_e
 
 func test_clear_transient_consequence_checkpoints_is_explicit_and_complete() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var port: RefCounted = wired.port
 	var prepared: Dictionary = port.prepare_consequence_checkpoint(_header(), _admitted_state_candidate())
 	assert_true(port.commit_consequence_checkpoint(prepared.value.candidate,
@@ -632,6 +679,8 @@ func test_clear_transient_consequence_checkpoints_does_not_depend_on_storage_rea
 
 func test_fresh_port_ignores_and_preserves_every_legacy_sidecar_artifact() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var base := str(wired.root).path_join("desktop-consequence-checkpoint.json")
 	var artifacts := {
 		base: "malformed final bytes",
@@ -666,6 +715,8 @@ func test_checkpoint_content_preimage_is_the_sole_builder() -> void:
 	# The preimage/receipt fields the port produces must trace back to DesktopConsequenceState's own
 	# checkpoint_content_preimage(), never a second copy of that hashing law inside the port.
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var port: RefCounted = wired["port"]
 	var candidate_state := _admitted_state_candidate()
 	var expected_preimage: Dictionary = CONSEQUENCE_STATE.checkpoint_content_preimage(_header(), candidate_state)
@@ -684,6 +735,8 @@ func test_checkpoint_content_preimage_is_the_sole_builder() -> void:
 ## "action_prepared"; pairing it with any other stage is rejected before anything reaches disk.
 func test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_ordinal_0() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var port: RefCounted = wired["port"]
 	var candidate_state := _admitted_state_candidate()
 	var bad_header := _header("txn-1", 0, "sequence_committed")
@@ -698,6 +751,8 @@ func test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_
 ## "publication_pending", never with an earlier stage.
 func test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_ordinal_9() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var port: RefCounted = wired["port"]
 	var candidate_state := _admitted_state_candidate()
 	var bad_header := _header("txn-1", 9, "action_prepared")
@@ -755,6 +810,8 @@ func _write_full_result(wired: Dictionary, snapshot: Dictionary) -> void:
 
 func test_restart_drops_unfinished_action_but_preserves_completed_post_result_autosave() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var snapshot := _completion_snapshot()
 	_write_pending_for_snapshot(wired.port, snapshot)
 	assert_true(wired.port.read_pending_consequence_checkpoint().value.found)
@@ -851,6 +908,8 @@ func _assert_autosave_matches_full_writer(wired: Dictionary, candidate: Dictiona
 
 func test_autosave_bytes_equal_the_full_canonical_writer_across_three_commits() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var snapshot := _completion_snapshot()
 	assert_true(wired["manager"]._journal.reset(str(snapshot["run_id"])).get("ok", false))
 	var first := _commit_autosave(wired, snapshot, 101)
@@ -891,6 +950,8 @@ func test_autosave_bytes_equal_the_full_canonical_writer_across_three_commits() 
 ## inside the reused bundle texts) must still produce bytes equal to the full writer.
 func test_autosave_bytes_survive_snapshot_strings_equal_to_splice_sentinels() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var snapshot := _completion_snapshot()
 	assert_true(wired["manager"]._journal.reset(str(snapshot["run_id"])).get("ok", false))
 	var poisoned := {"sentinels": SPLICE_SENTINELS.duplicate(), "nested": {"current": SPLICE_SENTINELS[0]}}
@@ -914,6 +975,8 @@ func test_autosave_bytes_survive_snapshot_strings_equal_to_splice_sentinels() ->
 ## whole document is ineligible for the writer's native encoder while the new current bundle is not.
 func test_seeded_journal_without_remembered_texts_writes_full_writer_bytes() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var snapshot := _completion_snapshot()
 	var bundles: Array = []
 	for sequence: int in [1, 2, 3]:
@@ -951,6 +1014,8 @@ func test_seeded_journal_without_remembered_texts_writes_full_writer_bytes() -> 
 ## splice -- not by the fallback the seeded test pins -- and must still equal the full writer.
 func test_autosave_bytes_equal_the_full_writer_when_an_earlier_bundle_is_not_native_eligible() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var snapshot := _completion_snapshot()
 	assert_true(wired["manager"]._journal.reset(str(snapshot["run_id"])).get("ok", false))
 	var first := _commit_autosave(wired, snapshot, 111, {"probe": 0.1})
@@ -984,6 +1049,8 @@ func test_autosave_bytes_equal_the_full_writer_when_an_earlier_bundle_is_not_nat
 
 func test_committed_autosave_remembers_the_document_bundle_under_the_texts_own_gate() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var snapshot := _completion_snapshot()
 	assert_true(wired["manager"]._journal.reset(str(snapshot["run_id"])).get("ok", false))
 	var journal: RefCounted = wired["manager"]._journal
@@ -1077,6 +1144,8 @@ func _as_json_string_types(value: Variant) -> Variant:
 
 func test_normalized_preimage_is_deep_equal_and_never_aliases_the_callers_stage_candidate() -> void:
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var port: RefCounted = wired["port"]
 
 	# 1. Identity preservation, observed directly on the normalizer.
@@ -1194,6 +1263,8 @@ func test_prepare_emits_a_permanent_env_gated_profile_record() -> void:
 
 	# Behavioural guard: an autosave disk_write so document_build_us and backup_us are exercised.
 	var wired := _isolated_wired()
+	if wired.is_empty():
+		return
 	var snapshot := _completion_snapshot()
 	assert_true(wired["manager"]._journal.reset(str(snapshot["run_id"])).get("ok", false))
 	var lease: Dictionary = wired["gate"].acquire(&"causal_transaction")

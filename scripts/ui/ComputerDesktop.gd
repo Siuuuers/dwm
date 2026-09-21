@@ -10,6 +10,7 @@ const HOME_BUTTON := preload("res://scripts/ui/desktop/DesktopHomeButton.gd")
 const BACKUP_PORT := preload("res://scripts/application/backup/BackupPresentationPort.gd")
 const QUICK_COMMANDS := preload("res://scripts/ui/desktop/DesktopQuickCommands.gd")
 const CONFIRMATION := preload("res://scripts/ui/desktop/DesktopConfirmation.gd")
+const CONFIRMATION_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
 const TOUCH_NAVIGATION := preload("res://scripts/ui/desktop/DesktopTouchNavigation.gd")
 const MINESWEEPER_GRID := preload("res://scripts/ui/minesweeper/MinesweeperGrid.gd")
 const WARNING_NAVIGATION_TARGETS := {
@@ -557,6 +558,35 @@ func present_confirmation(request: Dictionary, accept: Callable, cancel: Callabl
 	desktop_canvas.move_child($DesktopCanvas/AppStrip, desktop_canvas.get_child_count() - 1)
 	return {"ok": true, "value": {"confirmation": _confirmation}}
 
+func _present_logout_confirmation(retry: bool = false, forward_only: bool = false) -> Dictionary:
+	var body: String = {
+		"en": "Log out could not finish. Please try again." if retry else "Save your progress and log out?",
+		"zh-CN": "暂时无法登出。请重试。" if retry else "保存进度并登出？",
+		"zh-HK": "暫時無法登出。請重試。" if retry else "儲存進度並登出？",
+		"ja": "ログアウトを完了できませんでした。再試行してください。" if retry else "進行状況を保存してログアウトしますか？",
+		"ko": "로그아웃을 완료하지 못했습니다. 다시 시도하세요." if retry else "진행 상황을 저장하고 로그아웃할까요?",
+	}[_locale]
+	var confirm: String = {"en": "Retry", "zh-CN": "重试", "zh-HK": "重試", "ja": "再試行", "ko": "다시 시도"}[_locale] if retry else {"en": "Yes", "zh-CN": "是", "zh-HK": "是", "ja": "はい", "ko": "예"}[_locale]
+	var cancel: String = {"en": "No", "zh-CN": "否", "zh-HK": "否", "ja": "いいえ", "ko": "아니요"}[_locale]
+	var high_contrast := bool(_profile.get_preference("preferences.accessibility.high_contrast", false)) if _profile != null and _profile.has_method("get_preference") else false
+	var colour_preset := str(_profile.get_preference("preferences.accessibility.colour_differentiation", "standard")) if _profile != null and _profile.has_method("get_preference") else "standard"
+	var shown := present_confirmation({"title": LABELS[_locale][6], "body": body,
+		"confirm": confirm, "cancel": cancel, "cancelable": not forward_only, "warning": false,
+		"theme": CONFIRMATION_THEME.build(_locale, _percent, _run_palette, _day, high_contrast, colour_preset, _font_style)},
+		_confirm_logout, _cancel_logout)
+	_refresh_launcher()
+	return shown
+
+func _confirm_logout() -> void:
+	var result: Dictionary = _session_exit.return_to_title(true)
+	if not result.get("ok", false):
+		# A retired session can only retry its existing forward exit operation.
+		_present_logout_confirmation(true, result.get("code") == &"exit_route_retry_required")
+
+func _cancel_logout() -> void:
+	_refresh_launcher()
+	launcher_buttons[&"logout"].grab_focus()
+
 func open_app(app_id: StringName) -> Dictionary:
 	if _run_configuration_required and (not _run_configuration_ready or _run_configuration_masked):
 		return _route_failure(&"run_configuration_unavailable")
@@ -576,8 +606,9 @@ func open_app(app_id: StringName) -> Dictionary:
 			return _route_failure(&"desktop_app_transition_unavailable")
 	if app_id == &"contacts" and _presentation_port == null:
 		return _route_failure(&"contacts_unavailable")
-	if app_id == &"logout" and _session_exit == null:
-		return _route_failure(&"logout_unavailable")
+	if app_id == &"logout":
+		if _session_exit == null: return _route_failure(&"logout_unavailable")
+		return _present_logout_confirmation()
 	if app_id == &"shop" and _shop_port == null:
 		return _route_failure(&"shop_unavailable")
 	if app_id == &"schedule" and _schedule_port == null:
@@ -605,8 +636,6 @@ func open_app(app_id: StringName) -> Dictionary:
 			configured = app.configure_presentation(_presentation_port, _localization, _profile, _run_palette, _day)
 		elif app_id == &"minesweeper":
 			configured = app.configure_presentation(_minesweeper_port, _localization, _profile, _minesweeper_input, _run_palette)
-		elif app_id == &"logout":
-			configured = app.configure_exit(_session_exit, _locale)
 		elif app_id == &"shop":
 			app.configure_desktop_home(home_button)
 			configured = app.configure_catalog(_shop_port, _localization, _profile, _run_palette, _day)

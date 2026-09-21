@@ -34,6 +34,8 @@ func reset(current_day: int) -> void:
 
 
 func open_app(app_id: StringName, current_day: int, board_phase: StringName = &"NONE") -> Dictionary:
+	if app_id == &"logout":
+		return {"ok": false, "code": &"desktop_action_not_workspace", "message": "Logout is launcher consent, not a workspace"}
 	if not REGISTRY.new().has_app(app_id):
 		return {"ok": false, "code": &"unknown_app_id", "message": "app_id is not a registered desktop app"}
 	_current_day = current_day
@@ -130,6 +132,8 @@ func prepare_restore(active_app_id: Variant, current_day: int) -> Dictionary:
 			saved_id = StringName(active_app_id)
 		else:
 			return {"ok": false, "code": &"invalid_active_app_id", "message": "active_app_id must be a registered ID or null"}
+		if saved_id == &"logout":
+			return {"ok": false, "code": &"desktop_action_not_workspace", "message": "Logout cannot be restored as a workspace"}
 		if not REGISTRY.new().has_app(saved_id):
 			return {"ok": false, "code": &"unknown_app_id", "message": "saved active_app_id is not a registered desktop app"}
 	var candidate_state := {
@@ -160,11 +164,11 @@ func commit_restore(candidate: Dictionary) -> Dictionary:
 			or typeof(candidate.get("cached_app_ids")) != TYPE_ARRAY:
 		return {"ok": false, "code": &"invalid_desktop_restore", "message": "invalid host snapshot"}
 	var active: Variant = candidate["active_app_id"]
-	if active != null and (typeof(active) not in [TYPE_STRING, TYPE_STRING_NAME] or not REGISTRY.new().has_app(StringName(active))):
+	if active != null and (typeof(active) not in [TYPE_STRING, TYPE_STRING_NAME] or active == &"logout" or not REGISTRY.new().has_app(StringName(active))):
 		return {"ok": false, "code": &"invalid_desktop_restore", "message": "unknown active app"}
 	var cached: Array[StringName] = []
 	for id: Variant in candidate["cached_app_ids"]:
-		if typeof(id) not in [TYPE_STRING, TYPE_STRING_NAME] or not REGISTRY.new().has_app(StringName(id)) or cached.has(StringName(id)):
+		if typeof(id) not in [TYPE_STRING, TYPE_STRING_NAME] or id == &"logout" or not REGISTRY.new().has_app(StringName(id)) or cached.has(StringName(id)):
 			return {"ok": false, "code": &"invalid_desktop_restore", "message": "invalid cached app"}
 		cached.append(StringName(id))
 	# Day zero is only the pristine host before Bootstrap initializes it.
@@ -178,8 +182,8 @@ func commit_restore(candidate: Dictionary) -> Dictionary:
 
 ## Reopening the already-active app neither hides nor suspends itself. Switching away from a
 ## visible board suspends it before hiding minesweeper; opening minesweeper while its board is
-## suspended resumes it. open_app never blocks Contacts, Schedule, Shop, Backup, Settings, or
-## Logout regardless of board_phase -- only minesweeper's own open/leave ever touches the board.
+## suspended resumes it. open_app admits the six content apps regardless of board_phase.
+## Only minesweeper's own open/leave ever touches the board.
 func _open_app_commands(previous_app_id: StringName, app_id: StringName, board_phase: StringName) -> Array[Dictionary]:
 	var commands: Array[Dictionary] = []
 	if previous_app_id != &"" and previous_app_id != app_id:

@@ -164,12 +164,12 @@ static func validate(snapshot: Dictionary) -> Dictionary:
 	if typeof(candidate["route_id"]) != TYPE_STRING or str(candidate["route_id"]).is_empty():
 		return _fail(&"invalid_snapshot_shape", "route_id must be a nonempty String")
 	if candidate["active_app_id"] != null:
-		# Null is allowed; a non-null id must be a registered desktop app (replaces the
-		# provisional free-string validation, dwm-p2r.9 Plan 02 Task 1). Paths/UI state
-		# are never persisted here.
+		# Logout is registered on the launcher, but its consent is never saved as a workspace.
+		if typeof(candidate["active_app_id"]) not in [TYPE_STRING, TYPE_STRING_NAME]:
+			return _fail(&"invalid_snapshot_shape", "active_app_id must be null or a content app id")
 		var aid := StringName(candidate["active_app_id"])
-		if not DESKTOP_APP_REGISTRY.new().has_app(aid):
-			return _fail(&"invalid_snapshot_shape", "active_app_id must be null or a registered desktop app id")
+		if aid == &"logout" or not DESKTOP_APP_REGISTRY.new().has_app(aid):
+			return _fail(&"invalid_snapshot_shape", "active_app_id must be null or a content app id")
 	for member: String in ["narrative_checkpoint", "contacts", "dating", "audio_context"]:
 		if typeof(candidate[member]) != TYPE_DICTIONARY:
 			return _fail(&"invalid_snapshot_shape", member + " must be an object")

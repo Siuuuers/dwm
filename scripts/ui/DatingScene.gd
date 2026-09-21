@@ -11,6 +11,38 @@ const CHROME_COPY := preload("res://scripts/ui/minesweeper/MinesweeperChromeCopy
 const PRESENTATION_SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
 const SCENE_ART_VIEW := preload("res://scripts/ui/art/SceneArtView.gd")
 const DRAFT_UI_COPY := {
+	"zh-CN": {
+		"Special mine": "特殊地雷",
+		"Retry": "重试",
+		"Continue": "继续",
+		"Retry to finish processing the result.": "重试以完成结果处理。",
+		"Reveal, flag, or drag to explore the board.": "揭开格子、标旗或拖动以查看棋盘。",
+		"Board cleared.": "棋盘已完成。",
+		"Try again.": "请重试。",
+		"The attempt is saved. Retry to finish saving this point.": "本次尝试已记录。重试以完成此处的保存。",
+		"This moment could not be saved. Try again.": "无法保存此刻。请重试。",
+		"A blank in the previous line": "上一句中的空白",
+		"COMPARE": "比较",
+		"CAPTURE": "记录",
+		"Move the cup": "移动杯子",
+		"Action unavailable. ": "此操作不可用。 "
+	},
+	"zh-HK": {
+		"Special mine": "特殊地雷",
+		"Retry": "重試",
+		"Continue": "繼續",
+		"Retry to finish processing the result.": "重試以完成結果處理。",
+		"Reveal, flag, or drag to explore the board.": "揭開格子、標旗或拖動以查看棋盤。",
+		"Board cleared.": "棋盤已完成。",
+		"Try again.": "請重試。",
+		"The attempt is saved. Retry to finish saving this point.": "本次嘗試已記錄。重試以完成此處的儲存。",
+		"This moment could not be saved. Try again.": "無法儲存此刻。請重試。",
+		"A blank in the previous line": "上一句中的空白",
+		"COMPARE": "比較",
+		"CAPTURE": "記錄",
+		"Move the cup": "移動杯子",
+		"Action unavailable. ": "此操作不可用。 "
+	},
 	"ja": {
 		"Special mine": "特殊な地雷",
 		"Retry": "再試行",
@@ -264,8 +296,6 @@ func _build_challenge() -> void:
 	_special_mine_button = Button.new()
 	_special_mine_button.name = "SpecialMine"
 	_special_mine_button.text = "\u25c6"
-	_special_mine_button.accessibility_name = _ui_text("Special mine")
-	_special_mine_button.tooltip_text = _ui_text("Special mine")
 	_special_mine_button.custom_minimum_size = Vector2(64, 40)
 	_special_mine_button.pressed.connect(_dispatch_action.bind("special_mine", -1))
 	toolbar.add_child(_special_mine_button)
@@ -318,8 +348,11 @@ func _refresh_challenge() -> void:
 	_view_footer.custom_minimum_size.y = WORKSHEET.view_controls_height(_locale, worksheet.theme, _large_cells)
 	_special_mine_button.visible = bool(_physical_view.special_mine_visible)
 	_special_mine_button.disabled = _split_dragging or not bool(_physical_view.special_mine_enabled)
+	_special_mine_button.accessibility_name = _ui_text("Special mine")
+	_special_mine_button.tooltip_text = _ui_text("Special mine")
 	_continue_button.visible = phase not in ["challenge", "preparing"] or _preparation_failed or _settlement_failed
-	_continue_button.text = _ui_text("Retry") if phase in ["settlement_retry", "checkpoint_retry", "preparing"] or _settlement_failed else _ui_text("Continue")
+	var retrying := phase in ["settlement_retry", "checkpoint_retry", "preparing"] or _settlement_failed
+	_continue_button.text = _ui_text("Retry") if retrying else _ui_text("Continue")
 	match phase:
 		"pre_challenge": _status_label.text = str(copy.value.body)
 		"challenge": _status_label.text = _ui_text("Retry to finish processing the result.") if _settlement_failed else _ui_text("Reveal, flag, or drag to explore the board.")
@@ -768,4 +801,4 @@ func append_previous_dialogue_line(rendered_text: String) -> void:
 
 
 func _ui_text(english: String) -> String:
-	return str(DRAFT_UI_COPY.get(_locale, {}).get(english, english))
+	return str(DRAFT_UI_COPY.get(_locale.replace("_", "-"), {}).get(english, english))

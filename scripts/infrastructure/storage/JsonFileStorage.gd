@@ -755,8 +755,12 @@ func _validate_request(relative_path: String, validator: Callable) -> Dictionary
 	return {"ok": true}
 
 func _validate_relative_path(relative_path: String) -> Dictionary:
-	if relative_path.is_empty() or relative_path.is_absolute_path() or ":" in relative_path or "\\" in relative_path or "\u0000" in relative_path:
+	if relative_path.is_empty() or relative_path.is_absolute_path() or ":" in relative_path or "\\" in relative_path:
 		return _failure(&"invalid_relative_path", "Storage path must be a safe relative path")
+	for index: int in relative_path.length():
+		var codepoint := relative_path.unicode_at(index)
+		if codepoint == 0 or codepoint == 0xFFFD:
+			return _failure(&"invalid_relative_path", "Storage path must be a safe relative path")
 	var parts := relative_path.split("/", true)
 	if parts.is_empty() or "" in parts or "." in parts or ".." in parts or relative_path.simplify_path() != relative_path:
 		return _failure(&"invalid_relative_path", "Storage path contains an unsafe segment")

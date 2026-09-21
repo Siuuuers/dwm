@@ -20,8 +20,10 @@ func _run() -> void:
 		_fail("An existing --document path is required")
 		return
 	var text := FileAccess.get_file_as_string(document)
-	var samples := {"parse_us": [], "schema_us": [], "stringify_us": [], "value_validation_us": []}
+	var samples := {"parse_us": [], "schema_us": [], "stringify_us": [], "value_validation_us": [],
+		"outgoing_validation_us": []}
 	var output_hash := ""
+	var journal_bundles := 0
 	for attempt: int in 5:
 		var started := Time.get_ticks_usec()
 		var parsed := STRICT.parse_object(text)
@@ -45,13 +47,24 @@ func _run() -> void:
 		if not direct.get("ok", false) or not CANONICAL._deep_same(direct.value, validated.value):
 			_fail("Direct value validation must equal strict parse plus schema validation")
 			return
+		# These bundles came from full validation of the exact measured save. Production
+		# supplies its journal-owned proofs after their own byte-verified commits.
+		var proofs: Array = validated.value.candidate.recovery_journal
+		journal_bundles = proofs.size()
+		var outgoing_started := Time.get_ticks_usec()
+		var outgoing := SCHEMA.validate_outgoing(parsed.value, proofs)
+		var outgoing_validated_at := Time.get_ticks_usec()
+		if not outgoing.get("ok", false) or not CANONICAL._deep_same(outgoing.value, validated.value):
+			_fail("Outgoing proven-journal validation must equal full validation")
+			return
 		output_hash = (str(emitted.value) + "\n").sha256_text()
 		samples.parse_us.append(parsed_at - started)
 		samples.schema_us.append(validated_at - parsed_at)
 		samples.stringify_us.append(emitted_at - validated_at)
 		samples.value_validation_us.append(value_validated_at - value_started)
+		samples.outgoing_validation_us.append(outgoing_validated_at - outgoing_started)
 	var report := {"bytes": text.to_utf8_buffer().size(), "input_sha256": text.sha256_text(),
-		"output_sha256": output_hash, "samples": samples}
+		"output_sha256": output_hash, "journal_bundles": journal_bundles, "samples": samples}
 	for phase: String in samples:
 		var ordered: Array = samples[phase].duplicate()
 		ordered.sort()

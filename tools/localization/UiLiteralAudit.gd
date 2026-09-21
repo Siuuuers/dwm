@@ -25,14 +25,14 @@ const SCENE_LITERAL_OWNERS := {
 		"markers": ['notification_body.text = _localization.t("desktop.notification.new_message_from_friend"', "message_notification.show()"]},
 	"res://scenes/hospital/HospitalScene.tscn|FaintNotice/Margin/Content/Message|text|You fainted.": {
 		"disposition": "runtime_data", "key": "",
-		"reason": "HospitalScene replaces the dormant hidden notice from its three-locale table in _ready",
+		"reason": "HospitalScene replaces the dormant hidden notice from its five-locale presentation table",
 		"owner_path": "res://scripts/ui/HospitalScene.gd",
-		"markers": ['_message_label.text = {"en": "You fainted.", "zh-CN": "你晕倒了。", "zh-HK": "你暈倒了。"}[locale]', "_notice_panel.visible = not sylvia_present"]},
+		"markers": ['_message_label.text = {"en": "You fainted.", "zh-CN": "你晕倒了。", "zh-HK": "你暈倒了。", "ja": "気を失いました。", "ko": "정신을 잃었습니다."}[locale]', "_notice_panel.visible = not sylvia_present"]},
 	"res://scenes/hospital/HospitalScene.tscn|FaintNotice/Margin/Content/ContinueButton|text|Continue": {
 		"disposition": "runtime_data", "key": "",
-		"reason": "HospitalScene replaces the dormant hidden control from its three-locale table in _ready",
+		"reason": "HospitalScene replaces the dormant hidden control from its five-locale presentation table",
 		"owner_path": "res://scripts/ui/HospitalScene.gd",
-		"markers": ['_continue_button.text = {"en": "Continue", "zh-CN": "继续", "zh-HK": "繼續"}[locale]', "_notice_panel.visible = not sylvia_present"]},
+		"markers": ['_continue_button.text = {"en": "Continue", "zh-CN": "继续", "zh-HK": "繼續", "ja": "続ける", "ko": "계속"}[locale]', "_notice_panel.visible = not sylvia_present"]},
 	"res://scenes/shared/AppWindowBase.tscn|VBoxContainer/TopBar/TopBarHBox/TitleLabel|text|App": {
 		"disposition": "localized_call", "key": "dynamic", "reason": "AppWindowBase catalogs the configured app title",
 		"owner_path": "res://scripts/ui/AppWindowBase.gd", "markers": ["_title_label.text = get_node(\"/root/LocalizationManager\").t(title_key)"]},
@@ -85,10 +85,10 @@ const SCRIPT_LITERAL_OWNERS := {
 		"disposition": "localized_call", "key": "GalleryScene.practice.inline", "reason": "explicit English and both Chinese projections"},
 	"res://scripts/ui/GalleryScene.gd|add_item|(\"版本 %d\" if locale.begins_with(\"zh\") else \"Version %d\") % (index + 1))": {
 		"disposition": "localized_call", "key": "GalleryScene.version.inline", "reason": "explicit English and shared Chinese projection"},
-	"res://scripts/ui/HospitalScene.gd|text|{\"en\": \"You fainted.\", \"zh-CN\": \"你晕倒了。\", \"zh-HK\": \"你暈倒了。\"}[locale]": {
-		"disposition": "localized_call", "key": "HospitalScene.message.inline", "reason": "exact three-locale Hospital projection"},
-	"res://scripts/ui/HospitalScene.gd|text|{\"en\": \"Continue\", \"zh-CN\": \"继续\", \"zh-HK\": \"繼續\"}[locale]": {
-		"disposition": "localized_call", "key": "HospitalScene.continue.inline", "reason": "exact three-locale Hospital projection"},
+	"res://scripts/ui/HospitalScene.gd|text|{\"en\": \"You fainted.\", \"zh-CN\": \"你晕倒了。\", \"zh-HK\": \"你暈倒了。\", \"ja\": \"気を失いました。\", \"ko\": \"정신을 잃었습니다.\"}[locale]": {
+		"disposition": "localized_call", "key": "HospitalScene.message.inline", "reason": "exact five-locale Hospital projection"},
+	"res://scripts/ui/HospitalScene.gd|text|{\"en\": \"Continue\", \"zh-CN\": \"继续\", \"zh-HK\": \"繼續\", \"ja\": \"続ける\", \"ko\": \"계속\"}[locale]": {
+		"disposition": "localized_call", "key": "HospitalScene.continue.inline", "reason": "exact five-locale Hospital projection"},
 }
 
 ## Exact expression digests keep component-owned locale tables reviewable without granting a
@@ -321,7 +321,7 @@ static func scan_script_source(path: String, source: String) -> Dictionary:
 			continue
 		var collected := _collect_expression(lines, index, str(found.expression), bool(found.call))
 		var expression := str(collected.expression)
-		var disposition := _script_disposition(path, str(found.sink), expression)
+		var disposition := _script_disposition(path, str(found.sink), expression, source)
 		if disposition.disposition == "localized_call" and _requires_catalog_key(str(disposition.key)) \
 				and not catalog_keys.has(disposition.key):
 			disposition = _unclassified("literal translation key is absent from the English source catalog")
@@ -451,7 +451,7 @@ static func _delimiter_delta(text: String) -> int:
 	return delta
 
 
-static func _script_disposition(path: String, sink: String, expression: String) -> Dictionary:
+static func _script_disposition(path: String, sink: String, expression: String, source: String) -> Dictionary:
 	var exact_key := "%s|%s|%s" % [path, sink, expression]
 	if SCRIPT_LITERAL_OWNERS.has(exact_key):
 		var owner: Dictionary = SCRIPT_LITERAL_OWNERS[exact_key]
@@ -470,6 +470,10 @@ static func _script_disposition(path: String, sink: String, expression: String) 
 		return {"disposition": "localized_call", "key": owner.key, "reason": owner.reason}
 	if expression in ['"\\u25c6"', '"\\u2196"', '"◆"', '"↖"']:
 		return {"disposition": "decorative", "key": "", "reason": "symbol-only control glyph"}
+	if path == "res://scripts/ui/DatingScene.gd":
+		var dating_copy := _dating_copy_disposition(expression, source)
+		if not dating_copy.is_empty():
+			return dating_copy
 	if ".t(" in expression or "LocalizationManager" in expression:
 		var translation_key := _literal_translation_key(expression)
 		for literal: String in _string_literals(expression):
@@ -498,6 +502,41 @@ static func _script_disposition(path: String, sink: String, expression: String) 
 	return _unclassified("stable script literal requires a demonstrated translation owner or specific disposition")
 
 
+static func _dating_copy_disposition(expression: String, source: String) -> Dictionary:
+	var owned := _remove_owned_helper_spans(expression, "_ui_text(")
+	if not owned.found:
+		return {}
+	var helper := 'func _ui_text(english: String) -> String:\n\treturn str(DRAFT_UI_COPY.get(_locale.replace("_", "-"), {}).get(english, english))'
+	if not _source_contains_code_marker(source, helper):
+		return _unclassified("the Dating copy helper does not match its locale projection")
+	var table: Dictionary = {}
+	var lines := source.split("\n")
+	var prefix := "const DRAFT_UI_COPY := "
+	for index in range(lines.size()):
+		if not lines[index].begins_with(prefix):
+			continue
+		var collected := _collect_expression(lines, index, lines[index].trim_prefix(prefix), false)
+		if not _source_contains_code_marker(source, lines[index]):
+			continue
+		var decoded: Variant = JSON.parse_string(str(collected.expression))
+		if decoded is Dictionary:
+			table = decoded
+		break
+	for argument: String in owned.arguments:
+		var english: Variant = JSON.parse_string(argument)
+		if not english is String or str(english).strip_edges().is_empty():
+			return _unclassified("Dating UI copy requires a registered literal source phrase")
+		for locale: String in ["zh-CN", "zh-HK", "ja", "ko"]:
+			var translated: Variant = table.get(locale, {}).get(english) if table.get(locale) is Dictionary else null
+			if not translated is String or str(translated).strip_edges().is_empty() or translated == english:
+				return _unclassified("Dating UI copy is missing a translated source phrase")
+	for literal: String in _string_literals(owned.remainder):
+		if _is_stable_display_literal(literal) and not _literal_is_structural(owned.remainder, literal):
+			return _unclassified("Dating UI copy does not own its sibling display literal")
+	return {"disposition": "localized_call", "key": "DatingScene.ui.inline",
+		"reason": "literal English source phrase with four complete translations and the exact locale helper"}
+
+
 static func _scroll_locale_group_is_complete(source: String) -> bool:
 	for marker in ['accessibility_name = "垂直滚动" if vertical else "水平滚动"',
 		'accessibility_name = "垂直捲動" if vertical else "水平捲動"',
@@ -520,6 +559,7 @@ static func _chrome_rules_group_is_complete() -> bool:
 static func _remove_owned_helper_spans(expression: String, marker: String) -> Dictionary:
 	var remainder := expression
 	var found := false
+	var arguments: Array[String] = []
 	var search_from := 0
 	while search_from < remainder.length():
 		var start := remainder.find(marker, search_from)
@@ -533,10 +573,11 @@ static func _remove_owned_helper_spans(expression: String, marker: String) -> Di
 		var close_position := _matching_delimiter(remainder, open_position)
 		if close_position < 0:
 			break
+		arguments.append(remainder.substr(open_position + 1, close_position - open_position - 1).strip_edges())
 		remainder = remainder.left(start) + " ".repeat(close_position - start + 1) + remainder.substr(close_position + 1)
 		found = true
 		search_from = start + 1
-	return {"found": found, "remainder": remainder}
+	return {"found": found, "remainder": remainder, "arguments": arguments}
 
 
 static func _matching_delimiter(text: String, open_position: int) -> int:
@@ -660,6 +701,7 @@ static func _literal_is_structural(expression: String, literal: String) -> bool:
 			var postfix_index := before.ends_with("[") and after.begins_with("]") \
 				and _bracket_has_postfix_owner(before)
 			if not (after.begins_with(":") or postfix_index \
+					or before.ends_with("==") or before.ends_with("!=") \
 					or before.ends_with(".get(") or before.ends_with("get_meta(") \
 					or before.ends_with("get_node(") \
 					or before.ends_with("has_meta(")):

@@ -551,3 +551,47 @@ func test_validate_neither_aliases_nor_mutates_the_caller_snapshot() -> void:
 		"depth 3 stayed detached")
 	assert_eq((candidate["applied_effect_transaction_ids"] as Array).size(), 1,
 		"the Array member stayed detached")
+
+func test_logout_is_neither_a_valid_saved_workspace_nor_a_buildable_checkpoint() -> void:
+	var schema: Script = load(SCHEMA_PATH)
+	var base := _fixture(VALID_FIXTURE)
+	for invalid: Variant in ["logout", &"logout", 7, [], {}]:
+		var candidate := base.duplicate(true)
+		candidate.active_app_id = invalid
+		assert_false(schema.validate(candidate).get("ok", true), "invalid workspace identity rejects without coercion")
+	var built: Dictionary = schema.build(_snapshot_input_from(base), {}, "main", &"logout", {}, 1, 42)
+	assert_false(built.get("ok", true), "even an invalid capture cannot write Logout into a new checkpoint")
+	for id: StringName in [&"minesweeper", &"contacts", &"schedule", &"shop", &"backup", &"settings"]:
+		var candidate := base.duplicate(true)
+		candidate.active_app_id = id
+		assert_true(schema.validate(candidate).get("ok", false), "%s remains restorable" % id)
+
+func test_legacy_logout_autosave_is_unavailable_without_rewriting_or_guessing_journal_fallback() -> void:
+	var document_schema: Script = load("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
+	var snapshot := _fixture(VALID_FIXTURE)
+	var earlier := snapshot.duplicate(true)
+	earlier.checkpoint_sequence = int(snapshot.checkpoint_sequence) - 1
+	earlier.checkpoint_id = "%s:%d" % [earlier.run_id, earlier.checkpoint_sequence]
+	var built: Dictionary = document_schema.build(&"autosave", null, &"logout",
+		{"checkpoint_kind": "day_start", "snapshot": snapshot},
+		[{"checkpoint_kind": "day_start", "snapshot": earlier}])
+	assert_true(built.get("ok", false))
+	if not built.get("ok", false): return
+	var legacy: Dictionary = built.value
+	legacy.current_snapshot.snapshot.active_app_id = "logout"
+	var source := JSON.stringify(legacy)
+	assert_false(document_schema.validate(legacy).get("ok", true), "invalid current workspace refuses before valid earlier bundles")
+	assert_eq(JSON.stringify(legacy), source, "validation never rewrites the supplied save")
+	var files: RefCounted = load("res://tests/support/FakeFileOps.gd").new({"memory/legacy-logout/autosave.json": source})
+	var storage: RefCounted = load("res://scripts/infrastructure/storage/JsonFileStorage.gd").new("memory/legacy-logout", files)
+	var manager: Node = load("res://autoload/SaveManager.gd").new()
+	add_child_autofree(manager)
+	assert_true(manager.initialize(storage).ok)
+	var before: Dictionary = files.snapshot_persisted()
+	var inspected: Dictionary = manager.inspect_backup("autosave")
+	assert_true(inspected.get("ok", false))
+	assert_eq(inspected.value.state, "unavailable")
+	assert_eq(inspected.value.reason, "unreadable")
+	assert_false(inspected.value.loadable)
+	assert_false(inspected.value.fallback)
+	assert_eq(files.snapshot_persisted(), before, "inspection preserves old data for an explicit compatibility disposition")

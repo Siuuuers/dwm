@@ -142,7 +142,9 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 	# order, and every check below still runs where it ran before.
 	var candidate := {}
 	for key: Variant in document:
-		if key == "current_snapshot":
+		# The outgoing splice replaces the caller's journal with proven bundles below;
+		# retain only its container here so the existing array check keeps its order.
+		if key == "current_snapshot" or (use_proven_journal and key == "recovery_journal"):
 			candidate[key] = document[key]
 		else:
 			candidate[key] = RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(document[key])
