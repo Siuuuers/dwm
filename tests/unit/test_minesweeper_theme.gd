@@ -33,7 +33,7 @@ func test_all_tuples_have_identical_role_closure_and_independent_theme_instances
 				var actual_roles := theme.get_color_list("Minesweeper")
 				actual_roles.sort()
 				assert_eq(actual_roles,expected_roles,"No number or result-specific colours are introduced.")
-				assert_eq(theme.default_font_size,30)
+				assert_eq(theme.default_font_size,36,"The CJK pixel family keeps its 150% size step.")
 				for role: String in actual_roles:
 					assert_eq(theme.get_color(role,"Minesweeper").a,1.0,role)
 				var face: Color = theme.get_color("controlled_face","Minesweeper")

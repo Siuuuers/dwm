@@ -81,6 +81,15 @@ class Saves extends RefCounted:
 	var on_load := Callable()
 	var fail_load := false
 	var loaded := 0
+	func get_backup_quick_capability(action: String) -> Dictionary:
+		return {"ok": true, "value": {"enabled": populated and action == "load", "status_key": "unavailable",
+			"condition": {"action": action, "populated": populated}}}
+	func is_quick_condition_current(condition: Dictionary) -> bool:
+		return condition == {"action": "load", "populated": populated}
+	func prepare_quick_backup_action(action: String) -> Dictionary:
+		var result := prepare_backup_action(action, "quick")
+		if result.get("ok", false): result.value.condition = {"action": action, "populated": populated}
+		return result
 	func get_backup_save_capability() -> Dictionary: return {"enabled": false, "reason": "fixture_capture_unavailable"}
 	func inspect_backup(locator: String) -> Dictionary:
 		inspections += 1
@@ -779,3 +788,237 @@ func test_paused_debug_preparation_save_preserves_exact_frontier_without_enterin
 	assert_true(get_tree().paused)
 	assert_false(source.visible)
 	assert_true((await controller.request_continue()).ok)
+
+
+func _quick_native_key(code: Key, pressed: bool, echo: bool = false) -> void:
+	var event := InputEventKey.new()
+	event.keycode = code
+	event.physical_keycode = code
+	event.pressed = pressed
+	event.echo = echo
+	get_viewport().push_input(event, true)
+
+func _quick_native_tap(code: Key) -> void:
+	_quick_native_key(code, true)
+	_quick_native_key(code, false)
+
+func _quick_native_pad(button: JoyButton, pressed: bool) -> void:
+	var event := InputEventJoypadButton.new()
+	event.device = 42
+	event.button_index = button
+	event.pressed = pressed
+	get_viewport().push_input(event, true)
+
+func test_paused_quick_save_uses_real_dating_capture_without_changing_focus_or_backup_selection() -> void:
+	var fixture := _dating_save_fixture()
+	if fixture.is_empty() or not await _open_pause(): return
+	var backup: Control = controller.surface._hosts[&"backup"]
+	var selected: String = backup.selected_locator
+	var mode: String = backup.active_mode
+	var focused := get_viewport().gui_get_focus_owner()
+	var held: Dictionary = controller._handle.duplicate(true)
+	_quick_native_tap(KEY_F5)
+	assert_true(fixture.storage.exists("quicksave.json"), str(controller._quick_commands.last_result))
+	assert_true(controller._quick_commands.last_result.get("ok", false))
+	assert_eq(controller._handle, held)
+	assert_true(get_tree().paused)
+	assert_eq(backup.selected_locator, selected)
+	assert_eq(backup.active_mode, mode)
+	assert_same(get_viewport().gui_get_focus_owner(), focused)
+	assert_eq(controller.surface.entered_action, &"")
+	assert_eq(controller._quick_commands.edge.key, &"saved")
+	var revision: Dictionary = fixture.storage.inspect_revision("quicksave.json")
+	_quick_native_key(KEY_F5, true)
+	var once: Dictionary = fixture.storage.inspect_revision("quicksave.json")
+	_quick_native_key(KEY_F5, true, true)
+	_quick_native_key(KEY_F5, true)
+	assert_eq(fixture.storage.inspect_revision("quicksave.json"), once, "Held and echoed contacts do not write again")
+	_quick_native_key(KEY_F5, false)
+	assert_ne(once, revision)
+
+func test_paused_quick_rebinding_quarantines_the_held_new_key_until_release() -> void:
+	var fixture := _dating_save_fixture()
+	if fixture.is_empty() or not await _open_pause(): return
+	_quick_native_key(KEY_F6, true)
+	var replacement := InputEventKey.new()
+	replacement.physical_keycode = KEY_F6
+	assert_true(input_owner.rebind_action("game_quick_save", replacement).ok)
+	_quick_native_key(KEY_F6, true)
+	assert_false(fixture.storage.exists("quicksave.json"))
+	_quick_native_key(KEY_F6, false)
+	_quick_native_tap(KEY_F5)
+	assert_false(fixture.storage.exists("quicksave.json"), "The replaced binding is inert")
+	_quick_native_tap(KEY_F6)
+	assert_true(fixture.storage.exists("quicksave.json"), str(controller._quick_commands.last_result))
+
+func test_paused_quick_load_cancel_retains_backup_drawer_mode_and_exact_focus() -> void:
+	saves.populated = true
+	if not await _open_pause(): return
+	var backup: Control = controller.surface._hosts[&"backup"]
+	var selected: String = backup.selected_locator
+	var mode: String = backup.active_mode
+	var focused := get_viewport().gui_get_focus_owner()
+	_quick_native_tap(KEY_F9)
+	assert_not_null(controller.surface._host_confirmation)
+	assert_eq(controller.surface.entered_action, &"")
+	assert_eq(controller.surface.selected_action, &"continue")
+	assert_eq(backup.selected_locator, selected)
+	assert_eq(backup.active_mode, mode)
+	assert_eq(saves.loaded, 0)
+	assert_eq(saves.pending.size(), 1)
+	_quick_native_tap(KEY_ESCAPE)
+	assert_null(controller.surface._host_confirmation)
+	assert_true(saves.pending.is_empty())
+	assert_same(get_viewport().gui_get_focus_owner(), focused)
+	assert_eq(controller.surface.entered_action, &"")
+	assert_true(get_tree().paused)
+
+func test_paused_controller_quick_load_uses_saved_binding_and_compensates_failure() -> void:
+	saves.populated = true
+	saves.fail_load = true
+	var replacement := InputEventJoypadButton.new()
+	replacement.button_index = JOY_BUTTON_RIGHT_SHOULDER
+	assert_true(input_owner.rebind_action("game_quick_load", replacement).ok)
+	if not await _open_pause(): return
+	_quick_native_pad(JOY_BUTTON_RIGHT_STICK, true)
+	_quick_native_pad(JOY_BUTTON_RIGHT_STICK, false)
+	assert_null(controller.surface._host_confirmation)
+	_quick_native_pad(JOY_BUTTON_RIGHT_SHOULDER, true)
+	_quick_native_pad(JOY_BUTTON_RIGHT_SHOULDER, false)
+	var sheet: Control = controller.surface._host_confirmation
+	assert_not_null(sheet)
+	if sheet == null: return
+	var old_handle: Dictionary = controller._handle.duplicate(true)
+	sheet._finish(true)
+	for frame in 4: await get_tree().process_frame
+	assert_eq(saves.loaded, 1)
+	assert_true(get_tree().paused)
+	assert_false(source.visible)
+	assert_ne(controller._handle, old_handle)
+	assert_eq(input_owner.get_state().value.state, &"Suspended")
+	assert_eq(controller._quick_commands.edge.key, &"unavailable")
+	assert_true(saves.pending.is_empty())
+
+func test_paused_quick_refusal_is_visible_and_settings_custody_blocks_shortcuts() -> void:
+	if not await _open_pause(): return
+	_quick_native_tap(KEY_F5)
+	controller._quick_commands._process(0.0)
+	assert_false(controller._quick_commands.last_result.get("ok", true))
+	assert_eq(controller._quick_commands.edge.key, &"unavailable")
+	assert_true(controller._quick_commands.edge.visible)
+	assert_eq(saves.writes, 0)
+	controller.surface._activate(&"settings")
+	assert_eq(controller.surface.entered_action, &"settings")
+	controller._quick_commands.last_result = {}
+	_quick_native_key(KEY_F5, true)
+	assert_true(controller._quick_commands.last_result.is_empty())
+	controller.surface.leave_host()
+	_quick_native_key(KEY_F5, true)
+	assert_true(controller._quick_commands.last_result.is_empty(), "Held Settings contact cannot turn into a Quick command")
+	_quick_native_key(KEY_F5, false)
+	_quick_native_tap(KEY_F5)
+	assert_eq(controller._quick_commands.edge.key, &"unavailable")
+	assert_false(controller._quick_commands.last_result.is_empty())
+
+func test_paused_quick_load_success_releases_only_through_the_existing_restore_owner() -> void:
+	saves.populated = true
+	saves.on_load = func() -> void:
+		run_owner.handle.generation += 1
+		router.title = Control.new()
+		router.title.scene_file_path = "res://scenes/main/MainGameScene.tscn"
+		get_tree().root.add_child(router.title)
+		get_tree().current_scene = router.title
+		source.hide()
+	if not await _open_pause(): return
+	_quick_native_tap(KEY_F9)
+	var sheet: Control = controller.surface._host_confirmation
+	assert_not_null(sheet)
+	if sheet == null: return
+	sheet._finish(true)
+	for frame in 4: await get_tree().process_frame
+	assert_eq(saves.loaded, 1)
+	assert_eq(saves.writes, 0)
+	assert_true(saves.pending.is_empty())
+	assert_false(get_tree().paused)
+	assert_false(controller.surface.visible)
+	assert_true(controller._handle.is_empty())
+	assert_eq(input_owner.get_state().value.state, &"Active")
+	assert_same(get_tree().current_scene, router.title)
+
+func test_paused_quick_focus_loss_cancels_prepared_consent_without_loading() -> void:
+	saves.populated = true
+	if not await _open_pause(): return
+	var origin := get_viewport().gui_get_focus_owner()
+	_quick_native_tap(KEY_F9)
+	assert_not_null(controller.surface._host_confirmation)
+	controller._quick_commands._notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
+	controller._quick_commands._process(0.0)
+	assert_null(controller.surface._host_confirmation)
+	assert_true(saves.pending.is_empty())
+	assert_eq(saves.loaded, 0)
+	assert_true(get_tree().paused)
+	controller._quick_commands._notification(NOTIFICATION_APPLICATION_FOCUS_IN)
+	controller._quick_commands._process(0.0)
+	assert_same(get_viewport().gui_get_focus_owner(), origin)
+	_quick_native_tap(KEY_F9)
+	assert_not_null(controller.surface._host_confirmation)
+	_quick_native_tap(KEY_ESCAPE)
+
+func test_paused_quick_cancel_restores_rebuilt_backup_action_by_semantic_focus() -> void:
+	saves.populated = true
+	if not await _open_pause(): return
+	controller.surface._activate(&"backup")
+	var backup: Control = controller.surface._hosts[&"backup"]
+	assert_true(backup.focus_entry(&"load"))
+	backup.action_buttons.load.grab_focus()
+	var old_focus_id: int = backup.action_buttons.load.get_instance_id()
+	var selected: String = backup.selected_locator
+	_quick_native_tap(KEY_F9)
+	assert_not_null(controller.surface._host_confirmation)
+	backup.refresh_view()
+	await get_tree().process_frame
+	assert_ne(backup.action_buttons.load.get_instance_id(), old_focus_id)
+	_quick_native_tap(KEY_ESCAPE)
+	assert_null(controller.surface._host_confirmation)
+	assert_true(backup.action_buttons.load.has_focus())
+	assert_eq(backup.selected_locator, selected)
+	assert_eq(backup.active_mode, "load")
+	assert_eq(saves.loaded, 0)
+	assert_true(saves.pending.is_empty())
+
+func test_quick_focus_out_and_in_before_a_frame_still_retires_load_consent() -> void:
+	saves.populated = true
+	if not await _open_pause(): return
+	var origin := get_viewport().gui_get_focus_owner()
+	_quick_native_tap(KEY_F9)
+	assert_not_null(controller.surface._host_confirmation)
+	controller._quick_commands._notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
+	controller._quick_commands._notification(NOTIFICATION_APPLICATION_FOCUS_IN)
+	assert_null(controller.surface._host_confirmation)
+	assert_true(saves.pending.is_empty())
+	controller._quick_commands._process(0.0)
+	assert_same(get_viewport().gui_get_focus_owner(), origin)
+	assert_eq(saves.loaded, 0)
+
+func test_failed_quick_load_while_backgrounded_restores_origin_on_focus_return() -> void:
+	saves.populated = true
+	saves.fail_load = true
+	saves.on_load = func() -> void:
+		controller._quick_commands._notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
+	if not await _open_pause(): return
+	var origin := get_viewport().gui_get_focus_owner()
+	var old_handle: Dictionary = controller._handle.duplicate(true)
+	_quick_native_tap(KEY_F9)
+	var sheet: Control = controller.surface._host_confirmation
+	assert_not_null(sheet)
+	if sheet == null: return
+	sheet._finish(true)
+	for frame in 4: await get_tree().process_frame
+	assert_eq(saves.loaded, 1)
+	assert_ne(controller._handle, old_handle)
+	assert_true(get_tree().paused)
+	controller._quick_commands._notification(NOTIFICATION_APPLICATION_FOCUS_IN)
+	controller._quick_commands._process(0.0)
+	assert_same(get_viewport().gui_get_focus_owner(), origin)
+	assert_eq(controller._quick_commands.edge.key, &"unavailable")
+	assert_eq(input_owner.get_state().value.state, &"Suspended")

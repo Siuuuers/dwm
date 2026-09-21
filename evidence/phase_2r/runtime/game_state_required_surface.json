@@ -834,14 +834,6 @@
       "contract_test": "test_relationship_mutations_via_effect_transactions"
     },
     {
-      "symbol": "get_affection_tier",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_affection_tier_contract"
-    },
-    {
       "symbol": "set_friend_attitude",
       "kind": "function",
       "availability": "current",
@@ -1034,22 +1026,6 @@
       "contract_test": "test_contact_query_contracts"
     },
     {
-      "symbol": "is_contact_choice_selected",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_contact_query_contracts"
-    },
-    {
-      "symbol": "get_contact_choices",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_contact_query_contracts"
-    },
-    {
       "symbol": "is_date_unlocked",
       "kind": "function",
       "availability": "current",
@@ -1112,30 +1088,6 @@
       "disposition": "retain",
       "replacement": "",
       "contract_test": "test_ending_query_contracts"
-    },
-    {
-      "symbol": "can_respond_to_invitation",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_contact_query_contracts"
-    },
-    {
-      "symbol": "can_buy_supportz",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_shop_query_contracts"
-    },
-    {
-      "symbol": "has_unread_friend_messages",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_contact_query_contracts"
     },
     {
       "symbol": "should_warn_minesweeper_before_schedule_done",

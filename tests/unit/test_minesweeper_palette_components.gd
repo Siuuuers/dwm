@@ -59,10 +59,11 @@ func test_palette_only_change_preserves_grid_contact_and_manual_pan() -> void:
 	touch.pressed = true
 	grid._gui_input(touch)
 	assert_true(grid.has_held_touch())
+	var retained_pan: Vector2i = worksheet.get_scroll()
 	assert_true(panel.configure("en",100,false,&"after_hours",true,"deutan"))
 	assert_true(grid.has_held_touch())
 	assert_true(grid.has_focus())
-	assert_eq(worksheet.get_scroll(),Vector2i.ZERO)
+	assert_eq(worksheet.get_scroll(),retained_pan)
 	assert_eq(grid.projection,before)
 	touch.pressed = false
 	touch.canceled = true
@@ -136,12 +137,12 @@ func test_installed_day_reaches_retained_grid_rules_and_new_cells_without_changi
 	var sheet: Control = panel.worksheet.information_sheet
 	sheet.set_scroll(17)
 	var retained_scroll: int = sheet.get_scroll()
-	sheet.rail.grab_focus()
+	sheet.return_button.grab_focus()
 	assert_true(panel.configure("en",100,false,&"midnight",false,"standard","pixel",6))
 	_assert_roles(sheet,MS_THEME.build("en",100,&"midnight",false,"standard","pixel",6))
 	assert_same(panel.worksheet.information_sheet,sheet)
 	assert_eq(sheet.get_scroll(),retained_scroll)
-	assert_true(sheet.rail.has_focus())
+	assert_true(sheet.return_button.has_focus())
 	assert_eq(panel.public_view,before)
 	panel.worksheet.close_information()
 	assert_true(panel.present(_view("beginner")))

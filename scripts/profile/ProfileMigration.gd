@@ -31,18 +31,20 @@ static func prepare_document(raw: Dictionary) -> Dictionary:
 	var version: Variant = detached.get("schema_version")
 	if version == SCHEMA.SCHEMA_VERSION:
 		return SCHEMA.validate(detached)
+	if version == 8:
+		return _migration_result(SCHEMA.prepare_v8_upgrade(detached), &"profile_v8_to_v9")
 	if version == 7:
-		return _migration_result(SCHEMA.prepare_v7_upgrade(detached), &"profile_v7_to_v8")
+		return _migration_result(SCHEMA.prepare_v7_upgrade(detached), &"profile_v7_to_v9")
 	if version == 6:
-		return _migration_result(SCHEMA.prepare_v6_upgrade(detached), &"profile_v6_to_v8")
+		return _migration_result(SCHEMA.prepare_v6_upgrade(detached), &"profile_v6_to_v9")
 	if version == 5:
-		return _migration_result(SCHEMA.prepare_v5_upgrade(detached), &"profile_v5_to_v8")
+		return _migration_result(SCHEMA.prepare_v5_upgrade(detached), &"profile_v5_to_v9")
 	if version == 4:
-		return _migration_result(SCHEMA.prepare_v4_upgrade(detached), &"profile_v4_to_v8")
+		return _migration_result(SCHEMA.prepare_v4_upgrade(detached), &"profile_v4_to_v9")
 	if version == 3:
-		return _migration_result(SCHEMA.prepare_v3_upgrade(detached), &"profile_v3_to_v8")
+		return _migration_result(SCHEMA.prepare_v3_upgrade(detached), &"profile_v3_to_v9")
 	if version == 2:
-		return _migration_result(SCHEMA.prepare_v2_upgrade(detached), &"profile_v2_to_v8")
+		return _migration_result(SCHEMA.prepare_v2_upgrade(detached), &"profile_v2_to_v9")
 	if version == 1:
 		return _prepare_v1_upgrade(detached)
 	return {"ok": false, "code": &"unsupported_profile_schema", "path": "schema_version",
@@ -156,7 +158,7 @@ static func _prepare_v1_upgrade(detached: Dictionary) -> Dictionary:
 	_apply_v1_preferences(candidate, source["preferences"])
 	_apply_controls_import(candidate)
 	var validation := SCHEMA.validate(candidate)
-	return _migration_result(validation, &"profile_v1_to_v8")
+	return _migration_result(validation, &"profile_v1_to_v9")
 
 
 static func _apply_v1_preferences(candidate: Dictionary, legacy: Dictionary) -> void:

@@ -14,6 +14,15 @@ const OPS := preload("res://tests/support/FakeFileOps.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 const SLOT := "dating.solo.priscilla.day1"
 
+# The historical schema-2 records below use a neutral fixed-board capability.
+class SpecState extends RefCounted:
+	var inventory: Dictionary:
+		get: return {}
+	var penalty_points_today: int:
+		get: return 0
+	func get_stat(_stat: String) -> int:
+		return 0
+
 class RejectingStorage extends "res://scripts/infrastructure/storage/JsonFileStorage.gd":
 	var reject_write := false
 	func _init(root_dir: String, file_ops: RefCounted) -> void:
@@ -27,6 +36,7 @@ func _record(seed_hex: String = "86") -> Dictionary:
 	assert_true(issuer.configure(ROOT_STORE.new(seed_hex.repeat(32), 1)).ok)
 	var owner := OWNER.new()
 	owner._issuer = issuer
+	owner._game_state = SpecState.new()
 	var spec: Dictionary = owner._make_spec("canonical_solo").value
 	return {"schema_version": 2, "completion_transaction_id": "date-completion",
 		"command_sha256": "a".repeat(64), "physical_token": owner._token("date-completion", "a".repeat(64)),
@@ -45,7 +55,7 @@ func _materialize(record: Dictionary, index: int = 36) -> Dictionary:
 	next.board.outcome = str(next.board.outcome)
 	next.mine_dispositions = RULES.dispositions(next.spec, 36)
 	if next.board.terminal:
-		next.perfect_reasons = RULES.perfect_reasons(next.board)
+		next.perfect_reasons = RULES.perfect_reasons(next.board, 2)
 		next.outcome = "perfect" if not next.perfect_reasons.is_empty() else "cleared"
 		next.phase = "cleared_awaiting_terminal_choice"
 	return next
@@ -65,12 +75,13 @@ func test_v6_migration_retains_original_attempt_progress_and_receipts() -> void:
 	old.erase("observer_evidence")
 	old.erase("pair_deck_draws")
 	old.erase("reached_presentations")
+	old.erase("reached_presentation_chronology")
 	old.dating_attempts = flat
 	var before := old.duplicate(true)
 	var migrated := MIGRATION.prepare_document(old)
 	assert_true(migrated.ok, str(migrated))
 	if not migrated.ok: return
-	assert_eq(migrated.value.schema_version, 8)
+	assert_eq(migrated.value.schema_version, PROFILE.SCHEMA_VERSION)
 	var restored: Dictionary = LEDGER.read(migrated.value.dating_attempts, "run-a", SLOT).value
 	var original: Dictionary = flat["run-a"][SLOT].duplicate(true)
 	original["generation"] = 1

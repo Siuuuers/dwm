@@ -201,10 +201,64 @@ func _date(post: bool = false, pair: bool = false) -> Dictionary:
 	return {"entry_id": ("dating.group.priscilla_lavinia.day2." if pair else "dating.solo.lavinia.day2.") + ("post_challenge" if post else "pre_challenge"),
 		"schema_version":1, "fields":fields}
 
+func test_ending_versions_keep_first_witness_order_and_replay_does_not_reorder() -> void:
+	var oldest := _record(_alone())
+	var newest := _record(_alone("alone_dark_mode"))
+	assert_true(profile.unlock_ending("ending.alone", "fixture:discovery").ok)
+	var variants: Dictionary = replay.get_variants("ending.alone")
+	assert_eq(variants.value.records[0].signature_id, newest)
+	assert_eq(variants.value.records[1].signature_id, oldest)
+	assert_eq(variants.value.chronology, {"first_witnessed": [oldest, newest], "legacy_unordered": []})
+	var before: Dictionary = profile.get_profile_snapshot()
+	assert_true(replay.begin(oldest).ok)
+	runtime.finish()
+	assert_eq(profile.get_profile_snapshot(), before)
+	assert_eq(replay.get_variants("ending.alone"), variants)
+
+func test_date_versions_preserve_owner_order_and_filter_chronology_by_exact_entry() -> void:
+	var first := _date()
+	var second := first.duplicate(true)
+	second.fields.tone = "dark"
+	var signatures: Array[Dictionary] = [first, second]
+	signatures.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return str(SIGNATURE.validate(a).value.signature_id) < str(SIGNATURE.validate(b).value.signature_id))
+	var oldest := _record(signatures[0])
+	_record(_date(true, true))
+	var newest := _record(signatures[1])
+	assert_true(profile.unlock_ending("ending.alone", "fixture:discovery").ok)
+	var variants: Dictionary = replay.get_reached_entry_variants(first.entry_id)
+	assert_eq(variants.value.records.size(), 2)
+	assert_eq(variants.value.records[0].signature_id, newest, "Gallery cannot re-sort authoritative chronology by hash")
+	assert_eq(variants.value.records[1].signature_id, oldest)
+	assert_eq(variants.value.chronology, {"first_witnessed": [oldest, newest], "legacy_unordered": []})
+	variants.value.chronology.first_witnessed.clear()
+	assert_eq(replay.get_reached_entry_variants(first.entry_id).value.chronology.first_witnessed, [oldest, newest])
+
+func test_gallery_refresh_retains_selected_identity_when_a_newest_version_is_added() -> void:
+	var selected := _record(_alone())
+	assert_true(profile.unlock_ending("ending.alone", "fixture:discovery").ok)
+	var home := Button.new()
+	add_child_autofree(home)
+	var gallery: Control = preload("res://scenes/menu/GalleryScene.tscn").instantiate()
+	assert_true(gallery.configure_title_host(home, null, profile).ok)
+	assert_true(gallery.configure_replay(bridge).ok)
+	add_child_autofree(gallery)
+	gallery.open_in_title_host()
+	assert_eq(gallery._selected_signature_id(), selected)
+	var newest := _record(_alone("alone_dark_mode"))
+	var before: Dictionary = profile.get_profile_snapshot()
+	gallery._refresh_replay_selection()
+	assert_eq(gallery._versions[0].signature_id, newest)
+	assert_eq(gallery._selected_signature_id(), selected, "reprojection follows signature identity, not prior row index")
+	assert_eq(gallery._selected_version, 1)
+	assert_eq(runtime.starts, [], "selection and refresh never start replay")
+	assert_eq(profile.get_profile_snapshot(), before)
+
 func test_nonending_replay_requires_milestone_and_exact_reached_signature() -> void:
 	var signature := _date()
 	var identity := _record(signature)
-	assert_eq(replay.get_reached_entry_variants().value.records, [])
+	assert_eq(replay.get_reached_entry_variants().value, {"records": [], "entry_ids": [],
+		"chronology": {"first_witnessed": [], "legacy_unordered": []}})
 	assert_eq(replay.begin(identity).get("code"), &"reached_replay_locked")
 	assert_true(profile.unlock_ending("ending.alone", "fixture:discovery").ok)
 	var variants: Dictionary = replay.get_reached_entry_variants(signature.entry_id)

@@ -25,6 +25,7 @@ var _warning: Label
 var _left: Control
 var _hosts: Dictionary = {}
 var _host_confirmation: Control
+var _quick_confirmation := false
 var _suspended_inputs: Dictionary = {}
 var _opened := false
 var _return_retry := false
@@ -294,6 +295,35 @@ func present_confirmation(request: Dictionary, accept: Callable, cancel: Callabl
 	workfield.add_child(sheet)
 	return {"ok": true, "value": {"confirmation": sheet}}
 
+## Quick commands retain the current row, Backup drawer and mode. Their consent
+## temporarily owns the same workfield without entering the Backup application.
+func quick_input_admitted() -> bool:
+	if not _opened or not _interactive or _return_retry or not is_visible_in_tree() \
+			or not can_process() or is_instance_valid(_host_confirmation) \
+			or entered_action not in [&"", &"backup"]:
+		return false
+	var host: Control = _hosts.get(&"backup")
+	return not is_instance_valid(host) or not host.has_method("can_return_home") or host.can_return_home()
+
+func present_quick_confirmation(request: Dictionary, accept: Callable, cancel: Callable) -> Dictionary:
+	if not quick_input_admitted() or not accept.is_valid() or not cancel.is_valid():
+		return {"ok": false, "code": &"pause_confirmation_unavailable"}
+	var sheet := HOST_CONFIRMATION.new()
+	sheet.request = request.duplicate(true)
+	sheet.theme = request.get("theme", theme)
+	_host_confirmation = sheet
+	_quick_confirmation = true
+	_sync_custody()
+	sheet.finished.connect(func(accepted: bool):
+		if _host_confirmation != sheet: return
+		_host_confirmation = null
+		_quick_confirmation = false
+		_sync_custody()
+		var callback := accept if accepted else cancel
+		if callback.is_valid(): callback.call())
+	workfield.add_child(sheet)
+	return {"ok": true, "value": {"confirmation": sheet}}
+
 func _wire_rows() -> void:
 	for index: int in ACTIONS.size():
 		var row: Control = rows[ACTIONS[index]]
@@ -387,7 +417,7 @@ func _sync_custody() -> void:
 		if not is_instance_valid(_hosts[id]):
 			_hosts.erase(id)
 			if entered_action == id: entered_action = &""
-	var root_active := _opened and _interactive and entered_action == &""
+	var root_active := _opened and _interactive and entered_action == &"" and not is_instance_valid(_host_confirmation)
 	_set_custody(_left,root_active)
 	for id: StringName in ACTIONS:
 		rows[id].selected = id == selected_action
@@ -403,11 +433,11 @@ func _sync_custody() -> void:
 	if is_instance_valid(_host_confirmation):
 		_set_custody(_host_confirmation,_opened and _interactive)
 		_host_script_input(_host_confirmation,_opened and _interactive)
-	confirmation.visible = _opened and selected_action == &"return"
+	confirmation.visible = _opened and selected_action == &"return" and not is_instance_valid(_host_confirmation)
 	_set_custody(confirmation,_opened and _interactive and entered_action == &"return")
-	context_strip.visible = _opened and selected_action != &"continue"
+	context_strip.visible = _opened and (selected_action != &"continue" or _quick_confirmation)
 	workfield.visible = context_strip.visible
-	_title.text = _copy[selected_action]
+	_title.text = _copy.backup if _quick_confirmation else _copy[selected_action]
 	queue_redraw()
 
 func _set_custody(control: Control, active: bool) -> void:

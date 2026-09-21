@@ -38,12 +38,13 @@ func _manager(storage: RefCounted = null) -> Node:
 func test_v7_upgrade_adds_empty_evidence_without_inventing_proofs() -> void:
 	var old := SCHEMA.make_defaults()
 	old["schema_version"] = 7
+	old.erase("reached_presentation_chronology")
 	for key: String in ["observer_evidence", "pair_deck_draws", "reached_presentations"]: old.erase(key)
 	var before := old.duplicate(true)
 	var migrated := MIGRATION.prepare_document(old)
 	assert_true(migrated.ok, str(migrated))
 	if not migrated.ok: return
-	assert_eq(migrated.value.schema_version, 8)
+	assert_eq(migrated.value.schema_version, SCHEMA.SCHEMA_VERSION)
 	for key: String in ["observer_evidence", "pair_deck_draws", "reached_presentations"]: assert_eq(migrated.value[key], {})
 	assert_eq(old, before)
 	old["observer_evidence"] = {}

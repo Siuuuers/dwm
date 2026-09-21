@@ -317,12 +317,13 @@ func commit(candidate: Dictionary) -> Dictionary:
 		tick = _profile_phase(profile, "splice_us", tick)
 		if not profile.is_empty():
 			profile["document_bytes"] = document_text.to_utf8_buffer().size() + 1
+			profile["journal_spliced"] = spliced
 			tick = Time.get_ticks_usec()
 		var outgoing_text := document_text + "\n"
 		# Canonical emission proves the text round-trips exactly. Validate this detached
 		# value now (the caller may have edited it since prepare), preserving JSON's
 		# StringName conversion. Only successful proof can seed this exact-text cache.
-		var normalized: Variant = _normalize_json_string_types(candidate["autosave_document"])
+		var normalized: Variant = _normalize_outgoing_document(candidate["autosave_document"], spliced)
 		if normalized is Dictionary:
 			# On the splice path the journal entries in these bytes came from the journal's remembered
 			# texts, not from this document, so the lease for them is composed from the bundles those
@@ -686,6 +687,18 @@ func read_pending_consequence_checkpoint() -> Dictionary:
 		"found": true,
 		"stage_candidate": ((latest_by_transaction[chosen] as Dictionary)["stage_candidate"] as Dictionary).duplicate(true),
 	}}
+
+static func _normalize_outgoing_document(value: Variant, spliced: bool) -> Variant:
+	# A successful splice writes journal-owned, byte-proven bundles, not this document's journal.
+	# validate_outgoing() replaces it with those exact proofs. Normalize only the envelope/current
+	# bundle that it will actually read; the empty Array preserves its existing container check.
+	# Cold/missing-proof paths still normalize and validate the entire caller document unchanged.
+	if spliced and value is Dictionary and value.get("recovery_journal") is Array:
+		var envelope: Dictionary = value.duplicate()
+		envelope["recovery_journal"] = []
+		return _normalize_json_string_types(envelope)
+	return _normalize_json_string_types(value)
+
 
 ## Converts every StringName (key or value) to String and returns everything else untouched. A
 ## container with no converted descendant is returned AS IS rather than rebuilt: only the path that

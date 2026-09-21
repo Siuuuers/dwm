@@ -18,13 +18,14 @@ func test_v4_profile_upgrade_preserves_facts_without_inventing_pair_witnesses() 
 	old.erase("observer_evidence")
 	old.erase("pair_deck_draws")
 	old.erase("reached_presentations")
+	old.erase("reached_presentation_chronology")
 	old.erase("pair_form_witness_receipts")
 	old.erase("dating_attempts")
 	old.gallery_unlocks = ["ending.priscilla_lavinia"]
 	var migrated: Dictionary = MIGRATION.prepare_document(old)
 	assert_true(migrated.get("ok", false), str(migrated))
 	if not migrated.get("ok", false): return
-	assert_eq(migrated.value.schema_version, 8)
+	assert_eq(migrated.value.schema_version, SCHEMA.SCHEMA_VERSION)
 	assert_eq(migrated.value.get("pair_form_witness_receipts"), {})
 	assert_eq(migrated.value.gallery_unlocks, old.gallery_unlocks)
 

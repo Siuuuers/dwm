@@ -1282,3 +1282,59 @@ func test_prepare_emits_a_permanent_env_gated_profile_record() -> void:
 		assert_not_null(candidate.get("autosave_document"), "the autosave document was built under profiling")
 		assert_not_null(candidate.get("storage_backup"), "the storage backup was captured under profiling")
 	assert_true(wired["gate"].release(&"causal_transaction", lease["value"]["token"]).get("ok", false))
+
+
+func test_spliced_normalization_preserves_validation_and_refusal_results() -> void:
+	var wired := _isolated_wired()
+	if wired.is_empty(): return
+	var snapshot := _completion_snapshot()
+	assert_true(wired.manager._journal.reset(str(snapshot.run_id)).get("ok", false))
+	_commit_autosave(wired, snapshot, 101)
+	var candidate := _commit_autosave(wired, snapshot, 202)
+	var original: Dictionary = candidate.autosave_document
+	var proofs: Array = original.recovery_journal.duplicate(true)
+	for fault: String in ["none", "engine_text", "unknown_member", "invalid_current", "wrong_journal_type"]:
+		var document := original.duplicate(true)
+		match fault:
+			"engine_text":
+				document.current_snapshot.snapshot.gameplay.route_context[&"history_probe"] = &"kept"
+			"unknown_member": document["unexpected"] = 1.0
+			"invalid_current": document.current_snapshot["unexpected"] = true
+			"wrong_journal_type": document.recovery_journal = 3
+		var before := _canonical_text(document)
+		var baseline: Dictionary = DOCUMENT_SCHEMA.validate_outgoing(
+			wired.port._normalize_json_string_types(document), proofs)
+		var candidate_result: Dictionary = DOCUMENT_SCHEMA.validate_outgoing(
+			wired.port._normalize_outgoing_document(document, true), proofs)
+		assert_true(preload("res://scripts/validation/CanonicalJsonWriter.gd")._deep_same(
+			candidate_result, _as_json_string_types(baseline)), "same exact normalized result/refusal: " + fault)
+		assert_eq(_canonical_text(document), before, "normalization never edits caller: " + fault)
+		assert_true(preload("res://scripts/validation/CanonicalJsonWriter.gd")._deep_same(
+			wired.port._normalize_outgoing_document(document, false),
+			wired.port._normalize_json_string_types(document)), "cold path is unchanged: " + fault)
+
+
+func test_spliced_commit_uses_proven_history_even_when_caller_journal_is_edited() -> void:
+	var wired := _isolated_wired()
+	if wired.is_empty(): return
+	var snapshot := _completion_snapshot()
+	assert_true(wired.manager._journal.reset(str(snapshot.run_id)).get("ok", false))
+	_commit_autosave(wired, snapshot, 101)
+	_commit_autosave(wired, snapshot, 202)
+	var lease: Dictionary = wired.gate.acquire(&"causal_transaction")
+	assert_true(lease.get("ok", false))
+	var prepared: Dictionary = wired.port.prepare(_checkpoint_inputs(snapshot), &"post_result",
+		{"kind": &"autosave", "reason": &"automatic"})
+	assert_true(prepared.get("ok", false), str(prepared))
+	if prepared.get("ok", false):
+		var candidate: Dictionary = prepared.value.candidate
+		var expected := (_canonical_text(candidate.autosave_document) + "\n").to_utf8_buffer()
+		var forged: Dictionary = candidate.autosave_document.recovery_journal[0]
+		forged.snapshot.gameplay.money = 999
+		forged.snapshot.gameplay.route_context[&"forged_history"] = &"must_not_be_written"
+		var committed: Dictionary = wired.port.commit(candidate)
+		assert_true(committed.get("ok", false), str(committed))
+		_assert_same_bytes(_written_autosave(wired), expected,
+			"journal-owned bytes and both semantic fallbacks remain exact after caller edits")
+		assert_eq(int(forged.snapshot.gameplay.money), 999, "caller journal stays untouched")
+	assert_true(wired.gate.release(&"causal_transaction", lease.value.token).get("ok", false))

@@ -9,6 +9,7 @@ const BACKUP_PORT := preload("res://scripts/application/lifecycle/PauseBackupPre
 const SETTINGS := preload("res://scenes/apps/SettingsApp.tscn")
 const CAPTION := preload("res://scripts/ui/witnessed/WitnessedCaptionLayer.gd")
 const PRELUDE := preload("res://scripts/ui/Day7PreludeSurface.gd")
+const QUICK := preload("res://scripts/ui/pause/PauseQuickCommands.gd")
 
 ## Idle desktop/challenge sources have no narrative to suspend. A real reading source
 ## delegates to the bridge's exact retained runtime; foreign activity is never accepted as idle.
@@ -94,6 +95,7 @@ var _busy := false
 var _loading := false
 var _witnessed_load := false
 var _requested_load_caption: Node
+var _quick_commands: Node
 
 func _init() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -124,6 +126,10 @@ func configure(services: Dictionary, router: Object) -> Dictionary:
 ## Called after GUI and the current scene's input. Text fields, open sheets and consumed
 ## Back actions retain priority. The same press cannot both open and close Pause.
 func _unhandled_input(event: InputEvent) -> void:
+	if not _handle.is_empty():
+		if is_instance_valid(_quick_commands) and _quick_commands.handle_input(event):
+			get_viewport().set_input_as_handled()
+		return
 	if _busy or not _handle.is_empty() or not event.is_action_pressed(&"ui_cancel", false): return
 	var focused := get_viewport().gui_get_focus_owner()
 	if focused is LineEdit or focused is TextEdit: return
@@ -132,6 +138,18 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not source.get("ok", false): return
 	get_viewport().set_input_as_handled()
 	request_pause()
+
+func _input(event: InputEvent) -> void:
+	if is_instance_valid(_quick_commands): _quick_commands.observe_input(event)
+
+func _quick_input_admitted() -> bool:
+	return not _handle.is_empty() and not _busy and not _loading \
+		and coordinator.get_state().value.state == &"Suspended"
+
+func _quick_source_snapshot() -> Dictionary:
+	if _handle.is_empty() or not is_instance_valid(_scene) or _scene != get_tree().current_scene: return {}
+	return {"handle": _handle.duplicate(true), "scene_id": _scene.get_instance_id(),
+		"source": _captured_source.duplicate(true)}
 
 ## Projection only rules out unavailable sources. Native frontier/session capture belongs
 ## to the activation boundary, never to a caption's per-frame rail projection.
@@ -379,6 +397,12 @@ func _ensure_hosts() -> void:
 		"input": _services.input, "audio": _services.audio, "volume": _services.audio}, true)
 	settings.get_node("SettingsContent").configure_services(settings_services)
 	surface.set_host(&"settings", settings)
+	_quick_commands = QUICK.new()
+	if _quick_commands.configure(surface, _backup_port, _services.input, _quick_input_admitted, _quick_source_snapshot):
+		add_child(_quick_commands)
+	else:
+		_quick_commands.free()
+		_quick_commands = null
 
 func _backup_admission() -> Dictionary:
 	if _loading:

@@ -11,14 +11,15 @@ const OBSERVER_EVIDENCE := preload("res://scripts/profile/ObserverEvidence.gd")
 const PAIR_DECK := preload("res://scripts/domain/relationship/PairDeckDraw.gd")
 const PRESENTATION_SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
 
-const SCHEMA_VERSION := 8
+const SCHEMA_VERSION := 9
 const V1_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "migration_receipts"]
 const V2_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings"]
 const V3_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending"]
 const V4_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1"]
 const V5_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts"]
 const V7_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts", "dating_attempts"]
-const ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts", "dating_attempts", "observer_evidence", "pair_deck_draws", "reached_presentations"]
+const V8_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts", "dating_attempts", "observer_evidence", "pair_deck_draws", "reached_presentations"]
+const ROOT_KEYS := V8_ROOT_KEYS + ["reached_presentation_chronology"]
 const PAIR_FORMS := ["ambiguous_sweet", "ambiguous_dark", "love_sweet", "love_dark"]
 const MIGRATION_RECEIPT_KEYS := ["legacy_game_state_profile_v1", "legacy_input_bindings_v1", "invalid_persisted_skip_mode_v1"]
 const PREFERENCE_GROUPS := ["language", "reading", "audio", "display", "accessibility", "exceptional_replay", "dark_mode"]
@@ -106,6 +107,7 @@ static func make_defaults() -> Dictionary:
 		"pair_form_witness_receipts": {},
 		"dating_attempts": {},
 		"observer_evidence": {}, "pair_deck_draws": {}, "reached_presentations": {},
+		"reached_presentation_chronology": {"first_witnessed": [], "legacy_unordered": []},
 		"visited_line_ids": [],
 		"preferences": preferences,
 		"input_mappings": {},
@@ -168,6 +170,7 @@ static func prepare_v2_upgrade(raw: Dictionary) -> Dictionary:
 	candidate["pair_form_witness_receipts"] = {}
 	candidate["dating_attempts"] = {}
 	_add_v8_fields(candidate)
+	_add_presentation_chronology(candidate)
 	return validate(candidate)
 
 static func prepare_v3_upgrade(raw: Dictionary) -> Dictionary:
@@ -179,8 +182,24 @@ static func prepare_v3_upgrade(raw: Dictionary) -> Dictionary:
 	candidate["pair_form_witness_receipts"] = {}
 	candidate["dating_attempts"] = {}
 	_add_v8_fields(candidate)
+	_add_presentation_chronology(candidate)
 	return validate(candidate)
 
+
+static func prepare_v8_upgrade(raw: Dictionary) -> Dictionary:
+	var checked := _validate_modern_document(raw, 8, V8_ROOT_KEYS, true)
+	if not checked.get("ok", false): return checked
+	var candidate: Dictionary = checked.value
+	candidate["schema_version"] = SCHEMA_VERSION
+	_add_presentation_chronology(candidate)
+	return validate(candidate)
+
+## Older documents prove membership, never the order in which signatures were reached.
+static func _add_presentation_chronology(candidate: Dictionary) -> void:
+	var legacy: Array = candidate.reached_presentations.keys()
+	legacy.sort()
+	candidate["reached_presentation_chronology"] = {
+		"first_witnessed": [], "legacy_unordered": legacy}
 
 static func prepare_v7_upgrade(raw: Dictionary) -> Dictionary:
 	var checked := _validate_modern_document(raw, 7, V7_ROOT_KEYS, true)
@@ -188,6 +207,7 @@ static func prepare_v7_upgrade(raw: Dictionary) -> Dictionary:
 	var candidate: Dictionary = checked.value
 	candidate["schema_version"] = SCHEMA_VERSION
 	_add_v8_fields(candidate)
+	_add_presentation_chronology(candidate)
 	return validate(candidate)
 
 static func _add_v8_fields(candidate: Dictionary) -> void:
@@ -203,6 +223,7 @@ static func prepare_v6_upgrade(raw: Dictionary) -> Dictionary:
 	candidate["schema_version"] = SCHEMA_VERSION
 	candidate["dating_attempts"] = upgraded.value
 	_add_v8_fields(candidate)
+	_add_presentation_chronology(candidate)
 	return validate(candidate)
 
 
@@ -213,6 +234,7 @@ static func prepare_v5_upgrade(raw: Dictionary) -> Dictionary:
 	candidate["schema_version"] = SCHEMA_VERSION
 	candidate["dating_attempts"] = {}
 	_add_v8_fields(candidate)
+	_add_presentation_chronology(candidate)
 	return validate(candidate)
 
 
@@ -224,6 +246,7 @@ static func prepare_v4_upgrade(raw: Dictionary) -> Dictionary:
 	candidate["pair_form_witness_receipts"] = {}
 	candidate["dating_attempts"] = {}
 	_add_v8_fields(candidate)
+	_add_presentation_chronology(candidate)
 	return validate(candidate)
 
 
@@ -298,10 +321,38 @@ static func _validate_modern_document(source: Dictionary, version: int, root_key
 			if not run_id is String or run_id.strip_edges().is_empty(): return _invalid("pair_deck_draws", "A run identity is required")
 			var draw := PAIR_DECK.validate(profile["pair_deck_draws"][run_id])
 			if not draw.ok: return draw
+	if version >= 9:
+		var chronology := _validate_presentation_chronology(profile)
+		if not chronology.ok: return chronology
 	var result := {"ok": true, "code": &"ok", "value": profile}
 	if admitted_view_defaults or admitted_steady_default or admitted_window_default or admitted_font_default or admitted_panel_widths:
 		result["migrated"] = true
 	return result
+
+
+## Each reached signature has exactly one provenance: first-witness sequence or unknown legacy order.
+static func _validate_presentation_chronology(profile: Dictionary) -> Dictionary:
+	var path := "reached_presentation_chronology"
+	var chronology: Variant = profile[path]
+	if not chronology is Dictionary:
+		return _invalid(path, "Presentation chronology must be an object")
+	var exact := _require_keys(chronology, ["first_witnessed", "legacy_unordered"], path)
+	if not exact.ok: return exact
+	var seen := {}
+	for partition: String in ["first_witnessed", "legacy_unordered"]:
+		var checked := _validate_unique_strings(chronology[partition], path + "." + partition)
+		if not checked.ok: return checked
+		for identity: String in chronology[partition]:
+			if not profile.reached_presentations.has(identity) or seen.has(identity):
+				return _invalid(path, "Every chronology identity must name one distinct reached signature")
+			seen[identity] = true
+	if seen.size() != profile.reached_presentations.size():
+		return _invalid(path, "Every reached signature requires chronology provenance")
+	var sorted_legacy: Array = chronology.legacy_unordered.duplicate()
+	sorted_legacy.sort()
+	if sorted_legacy != chronology.legacy_unordered:
+		return _invalid(path, "Legacy membership must use canonical identity order, not witness order")
+	return {"ok": true}
 
 
 static func _admit_legacy_minesweeper_view_defaults(profile: Dictionary) -> bool:

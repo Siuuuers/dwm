@@ -41,6 +41,40 @@ function Read-HistoryMarkers {
         ForEach-Object { $_.Substring($Prefix.Length) | ConvertFrom-Json })
 }
 
+function Get-HistoryProfileSummary {
+    param([object[]]$Records, [string]$Family)
+    # Keep scopes/phases separate: consequence parent and child elapsed values overlap.
+    $groups = @{}
+    foreach ($record in $Records) {
+        $phase = if ($null -ne $record.PSObject.Properties['phase']) { [string]$record.phase } else { '' }
+        $kind = if ($null -ne $record.PSObject.Properties['checkpoint_kind']) { [string]$record.checkpoint_kind } else { '' }
+        $key = "$($record.scope)|$phase|$kind"
+        if (-not $groups.ContainsKey($key)) { $groups[$key] = @() }
+        $groups[$key] += $record
+    }
+    foreach ($key in @($groups.Keys | Sort-Object)) {
+        $items = @($groups[$key])
+        $summary = [ordered]@{ family = $Family; group = $key; count = $items.Count; phases = [ordered]@{} }
+        foreach ($metric in @('elapsed_us', 'run_snapshot_build_us', 'journal_prepare_us', 'document_build_us',
+            'backup_us', 'outgoing_schema_us', 'stringify_us', 'splice_us', 'write_atomic_us', 'reread_us', 'journal_us')) {
+            $values = @($items | Where-Object { $null -ne $_.PSObject.Properties[$metric] } | ForEach-Object { [long]$_.$metric } | Sort-Object)
+            if ($values.Count -gt 0) {
+                $summary.phases[$metric] = [ordered]@{
+                    sum = ($values | Measure-Object -Sum).Sum
+                    median = $values[[int][Math]::Floor($values.Count / 2)]
+                    max = $values[-1]
+                }
+            }
+        }
+        $spliceRecords = @($items | Where-Object { $null -ne $_.PSObject.Properties['journal_spliced'] })
+        if ($spliceRecords.Count -gt 0) {
+            $summary['spliced'] = @($spliceRecords | Where-Object { $_.journal_spliced }).Count
+            $summary['full_document'] = @($spliceRecords | Where-Object { -not $_.journal_spliced }).Count
+        }
+        Write-Output $summary
+    }
+}
+
 try {
     $write = Invoke-HistoryProbe -Phase 'write'
     $days = @(Read-HistoryMarkers $write.Lines 'SEVEN_DAY_HISTORY_DAY: ')
@@ -77,6 +111,29 @@ try {
         consequence_profiles = @(Read-HistoryMarkers $write.Lines 'DWM_CONSEQUENCE_PROFILE ')
     }
     $report | ConvertTo-Json -Depth 40 | Set-Content -LiteralPath (Join-Path $output 'results.json') -Encoding utf8
+    # Also expose bounded machine-readable evidence through the job log. Artifact download may
+    # be unavailable to a reviewer; never print save contents or the thousands of raw events.
+    foreach ($day in $days) {
+        $compactDay = [ordered]@{
+            day = $day.day; retained = $day.retained; files = $day.files
+            first_reveal_sync_us = $day.first_reveal_sync_us
+            terminal_reveal_sync_us = $day.terminal_reveal_sync_us
+            terminal_settlement_us = $day.terminal_settlement_us
+            manual_slot_save_us = $day.manual_slot_save_us
+            autosave_sha256 = $day.autosave_sha256
+        }
+        Write-Host ('SEVEN_DAY_HISTORY_MEASUREMENT: ' + ($compactDay | ConvertTo-Json -Depth 8 -Compress))
+    }
+    $proofSummary = [ordered]@{
+        checkout_ref = $report.checkout_ref; payload_bytes = (Get-Item -LiteralPath $fixed).Length
+        payload_sha256 = $hash; write = $written[0]; cold_read = $restored[0]
+        fixture = $report.fixture; timing_policy = $report.timing_policy
+    }
+    Write-Host ('SEVEN_DAY_HISTORY_PROOF: ' + ($proofSummary | ConvertTo-Json -Depth 8 -Compress))
+    foreach ($summary in @(Get-HistoryProfileSummary $report.checkpoint_profiles 'checkpoint') +
+        @(Get-HistoryProfileSummary $report.consequence_profiles 'consequence')) {
+        Write-Host ('SEVEN_DAY_HISTORY_PROFILE_SUMMARY: ' + ($summary | ConvertTo-Json -Depth 8 -Compress))
+    }
     Write-Host 'SEVEN_DAY_HISTORY_PERFORMANCE_VERIFIED: seven real days, saturated checkpoint budgets, exact cold Login.'
 } finally {
     $env:DWM_CHECKPOINT_PROFILE = $previousCheckpointProfile

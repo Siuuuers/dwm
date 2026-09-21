@@ -369,8 +369,8 @@ func test_input_owner_replacement_is_refused_without_rebinding_the_cached_grid()
 
 
 func test_desktop_forwards_installed_day_and_keeps_it_after_preference_refresh() -> void:
+	# The host owns the installed presentation day; this test never mutates game facts.
 	host.reset(7)
-	state.day = 7
 	var desktop := _desktop(false)
 	assert_true(desktop.configure_minesweeper(panel_port, null, profile, host, 7, input).ok)
 	var opened: Dictionary = desktop.open_app(&"minesweeper")

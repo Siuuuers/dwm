@@ -107,12 +107,18 @@ func _fixture(seed: Dictionary = {}, initialize_profile: bool = true) -> Diction
 		"localization": localization, "audio": audio, "route": route, "narrative": narrative}).get("ok", false))
 	return {"ops": ops, "saves": saves, "profiles": profiles, "gate": gate, "profile": profile,
 		"manager": manager, "gs": gs, "calls": calls, "localization": localization,
-		"audio": audio, "route": route, "narrative": narrative}
+		"audio": audio, "route": route, "narrative": narrative, "schedule": schedule.value.view}
 
 
 func _inputs(fixture: Dictionary) -> Dictionary:
 	var inputs := _context()
 	inputs["snapshot_input"] = fixture.gs.capture_run_snapshot_input()
+	# Production composition joins the retained Schedule owner to GameState's
+	# snapshot. Read the same real view installed by the new-run transaction.
+	var view: Dictionary = fixture.schedule.snapshot()
+	assert_true(view.get("ok", false), str(view))
+	if view.get("ok", false):
+		inputs.snapshot_input["schedule_view"] = view.value.view
 	return inputs
 
 

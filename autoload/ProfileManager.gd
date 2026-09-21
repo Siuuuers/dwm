@@ -402,8 +402,11 @@ func _commit_profile_candidate(candidate: Dictionary, defer_signals: bool = fals
 		for key: String in ["observer_evidence", "pair_deck_draws"]:
 			if not _preserves_receipts(_profile[key], detached[key]):
 				return _failure(&"profile_evidence_rewind", "Only full Profile reset may remove durable evidence")
-		if not allow_gallery_reset and not _preserves_receipts(_profile.reached_presentations, detached.reached_presentations):
-			return _failure(&"presentation_history_rewind", "Only Clear Gallery or full reset may remove reached presentations")
+		if not allow_gallery_reset:
+			if not _preserves_receipts(_profile.reached_presentations, detached.reached_presentations):
+				return _failure(&"presentation_history_rewind", "Only Clear Gallery or full reset may remove reached presentations")
+			if not _preserves_presentation_chronology(_profile, detached):
+				return _failure(&"presentation_chronology_rewrite", "First-witness order and unknown legacy provenance cannot be rewritten")
 	var old := _profile.duplicate(true)
 	var persisted := _persist_candidate(detached)
 	if not persisted.get("ok", false):
@@ -657,6 +660,7 @@ func record_reached_presentation(signature: Dictionary) -> Dictionary:
 		return {"ok": true, "value": {"signature_id": id, "already_reached": true}}
 	var candidate := _profile.duplicate(true)
 	candidate["reached_presentations"][id] = signature.duplicate(true)
+	candidate.reached_presentation_chronology.first_witnessed.append(id)
 	# Canonical physical completion may retain its causal lease; standalone canonical owners
 	# use the ordinary Profile admission gate. Rehearsal owns neither path.
 	var committed: Dictionary
@@ -668,14 +672,28 @@ func record_reached_presentation(signature: Dictionary) -> Dictionary:
 
 func get_reached_presentations(entry_id: String = "") -> Dictionary:
 	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
-	var ids: Array = _profile.reached_presentations.keys()
-	ids.sort()
+	var chronology: Dictionary = _profile.reached_presentation_chronology
+	var ids: Array = chronology.first_witnessed.duplicate()
+	ids.reverse()
+	ids.append_array(chronology.legacy_unordered)
 	var records: Array = []
-	for id: String in ids:
+	var projected := {"first_witnessed": [], "legacy_unordered": []}
+	for index: int in range(ids.size()):
+		var id: String = ids[index]
 		var signature: Dictionary = _profile.reached_presentations[id]
 		if entry_id.is_empty() or signature.entry_id == entry_id:
 			records.append({"signature_id": id, "signature": signature.duplicate(true)})
-	return {"ok": true, "value": {"records": records}}
+			projected["first_witnessed" if index < chronology.first_witnessed.size() else "legacy_unordered"].append(id)
+	# The durable sequence is oldest-first; only the visible record query is newest-first.
+	projected.first_witnessed.reverse()
+	return {"ok": true, "value": {"records": records, "chronology": projected}}
+
+static func _preserves_presentation_chronology(before: Dictionary, after: Dictionary) -> bool:
+	var prior: Dictionary = before.reached_presentation_chronology
+	var next: Dictionary = after.reached_presentation_chronology
+	return next.legacy_unordered == prior.legacy_unordered \
+		and next.first_witnessed.size() >= prior.first_witnessed.size() \
+		and next.first_witnessed.slice(0, prior.first_witnessed.size()) == prior.first_witnessed
 
 func _evidence_custody() -> Dictionary:
 	if _mutation_gate != null and not _mutation_gate.is_internal_owner_active(&"causal_transaction"):
@@ -1036,6 +1054,7 @@ func reset_gallery(expected_revision: int = -1) -> Dictionary:
 	_preserve_legacy_ending_milestone(candidate)
 	candidate["gallery_unlocks"] = []
 	candidate["reached_presentations"] = {}
+	candidate["reached_presentation_chronology"] = {"first_witnessed": [], "legacy_unordered": []}
 	candidate["preferences"]["exceptional_replay"]["available"] = false
 	candidate["preferences"]["exceptional_replay"]["replay_full"] = false
 	return _commit_reset(candidate, &"gallery", expected_revision)
@@ -1080,6 +1099,8 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 	for key: String in ["observer_evidence", "pair_deck_draws", "reached_presentations"]:
 		if not _preserves_receipts(_profile[key], validation.value[key]):
 			return _failure(&"profile_evidence_rewind", "Run restoration cannot rewind durable Profile evidence")
+	if not _preserves_presentation_chronology(_profile, validation.value):
+		return _failure(&"presentation_chronology_rewrite", "Run restoration cannot rewrite reached-presentation chronology")
 	_restore_backup = _profile.duplicate(true)
 	_profile = (validation["value"] as Dictionary).duplicate(true)
 	_profile_revision += 1

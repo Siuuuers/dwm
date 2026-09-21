@@ -455,17 +455,6 @@ func change_affection(friend_id: String, delta: int) -> bool:
 	return true
 
 
-func get_affection_tier(friend_id: String) -> String:
-	var a: int = int(affection.get(friend_id, 0))
-	if a < 0:
-		return "hatred"
-	if a <= 3:
-		return "just_friend"
-	if a <= 6:
-		return "ambiguous"
-	return "love"
-
-
 func set_friend_attitude(friend_id: String, attitude: String) -> bool:
 	friend_attitude[friend_id] = attitude
 	emit_signal("friends_changed")
@@ -950,17 +939,6 @@ func is_contact_message_unlocked(friend_id: String, target_day: int = -1) -> boo
 	return bool(contact_message_unlocks.get("day:%d:friend:%s" % [d, friend_id], false))
 
 
-func is_contact_choice_selected(friend_id: String, target_day: int = -1) -> bool:
-	var d: int = target_day if target_day >= 0 else day
-	return bool(contact_choice_state.get("day:%d:friend:%s" % [d, friend_id], false))
-
-
-func get_contact_choices(friend_id: String, target_day: int = -1) -> Array:
-	var selected_day: int = day if target_day < 0 else target_day
-	var available: Dictionary = _ORDINARY_CORRESPONDENCE.available(contacts, selected_day, friend_id)
-	return available.value.get("choices", []).duplicate(true) if available.get("ok", false) else []
-
-
 func get_contact_view(friend_id: String, target_day: int = -1) -> Dictionary:
 	# Player-visible contact history for a friend (dwm-p2r.6); delegates to the pure module.
 	var d: int = target_day if target_day >= 0 else day
@@ -1422,28 +1400,6 @@ func should_route_sylvia_special_ending() -> bool:
 		return false
 	var steps: Variant = (plan as Dictionary).get("steps")
 	return typeof(steps) == TYPE_ARRAY and not (steps as Array).is_empty() and str(((steps as Array)[0] as Dictionary).get("ending_id", "")) == "ending.sylvia.special"
-
-func can_respond_to_invitation(friend_id: String) -> bool:
-	if is_invitation_day(friend_id) and not is_contact_choice_selected(friend_id):
-		return true
-	if is_group_invitation_day() and _group_pair_contains(friend_id) and not _group_is_active():
-		return true
-	return false
-
-
-func can_buy_supportz() -> bool:
-	return minesweeper_app_rounds_finished_today >= 2 and minesweeper_round_floor > MINESWEEPER_ROUND_FLOOR_MIN
-
-
-func has_unread_friend_messages() -> Dictionary:
-	var out: Dictionary = {}
-	for fid in FRIEND_IDS:
-		var unread: bool = is_contact_message_unlocked(fid) and not is_contact_choice_selected(fid)
-		out[fid] = unread
-		if unread:
-			emit_signal("unread_friend", {"friend_id": fid, "day": day})
-	return out
-
 
 # ---- Schedule ----
 # The canonical committed aggregate is the ONLY Schedule source of truth (Plan 01 Task 5,
