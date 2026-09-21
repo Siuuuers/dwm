@@ -81,7 +81,7 @@ func get_day7_followup_cards(primary: String = "en", secondary: String = "") -> 
 		var entries: Array = [resolved.value]
 		var presentation := _message_presentation(state, friend, message, cached.value)
 		if not presentation.ok: return presentation
-		var hospital_miss := _has_hospital_miss(message, friend, missed) if cached.value.is_empty() \
+		var hospital_miss: bool = _has_hospital_miss(message, friend, missed) if cached.value.is_empty() \
 			else presentation.value.fields.miss_reason == "prevented_by_fainting"
 		if hospital_miss:
 			for role: String in ["explanation", "reaction"]:
@@ -222,7 +222,7 @@ func _project(state: Dictionary, day: int, friend_id: String, primary: String, s
 			if not presentation.ok: return presentation
 			if not presentation.value.is_empty(): resolved.value["presentation"] = presentation.value
 			entries.append(resolved["value"])
-			var hospital_miss := _has_hospital_miss(message, friend_id, missed) if cache.is_empty() \
+			var hospital_miss: bool = _has_hospital_miss(message, friend_id, missed) if cache.is_empty() \
 				else presentation.value.fields.get("miss_reason") == "prevented_by_fainting"
 			if hospital_miss:
 				for role: String in ["explanation", "reaction"]:

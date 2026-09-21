@@ -200,7 +200,7 @@ static func entry_id_for_message(state: Dictionary, friend: String, message: Dic
 	var source := _message_operation(state, message)
 	if source.get("kind") != "resolve_day_end" or int(source.get("day", 0)) + 1 != target_day: return ""
 	var solo: Dictionary = state.get("solo_actions", {}).get("solo:%s:day%d" % [friend, target_day - 1], {})
-	var group_source := solo.get("state") == "SUPERSEDED"
+	var group_source: bool = solo.get("state") == "SUPERSEDED"
 	return "contact.invitation.group.priscilla_lavinia.day%d.%s_%s" % [target_day - 1, kind, friend] if group_source \
 		else "contact.invitation.solo.%s.day%d.%s" % [friend, target_day - 1, kind]
 

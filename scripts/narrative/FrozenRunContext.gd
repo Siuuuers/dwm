@@ -52,7 +52,7 @@ static func _dating(route: Dictionary, lifecycle: Dictionary, contacts: Dictiona
 			or record.spec.get("board_token") != cache.board_token:
 		return _fail(&"frozen_context_attempt_mismatch")
 	var context: Dictionary = record.context
-	var solo := record.get("host") == "canonical_solo"
+	var solo: bool = record.get("host") == "canonical_solo"
 	if typeof(context.get("day")) != TYPE_INT or context.day not in range(1, 8) \
 			or record.get("phase") not in ["pre_challenge", "preparing", "challenge", "cleared_awaiting_terminal_choice", "settlement_retry", "post_challenge", "completed"] \
 			or (solo and (context.get("kind") != "solo" or context.participants.size() != 1)) \
