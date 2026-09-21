@@ -152,6 +152,14 @@ var _choice_released := false
 var _preparation_failed := false
 ## dwm-634.2: a refused `settle` waits for Retry instead of being re-sent every frame.
 var _settlement_failed := false
+var _narrative_phase := ""
+var _narrative_started := false
+var _narrative_failed := false
+var _narrative_retry_requested := false
+var _narrative_attachment_failed := false
+var _boundary_failed := false
+var _advance_contacts: Dictionary = {}
+var _advance_contact_key := ""
 var _pre_challenge_drawn := false
 var _pre_challenge_ack_attempted := false
 var _pre_challenge_reached := false
@@ -187,6 +195,12 @@ func _ready() -> void:
 	var pulled: Dictionary = _presentation_port.pull_physical(_presentation_command)
 	if not pulled.get("ok", false): return
 	_physical_view = pulled.value.duplicate(true)
+	if _presentation_port.has_method("attach_narrative_presentation"):
+		var attached: Dictionary = _presentation_port.attach_narrative_presentation(_presentation_command)
+		_narrative_attachment_failed = not attached.get("ok", false)
+		if _narrative_attachment_failed:
+			_narrative_failed = true
+			_narrative_phase = str(_physical_view.phase)
 	_build_challenge()
 	_refresh_challenge()
 	# Provisional Observer interactions are suspended; see dwm-6gk.
@@ -321,6 +335,11 @@ func _refresh_challenge() -> void:
 	if not is_instance_valid(worksheet) or _physical_view.is_empty(): return
 	worksheet.present(_physical_view.board)
 	var phase: String = str(_physical_view.phase)
+	var terminal := bool(_physical_view.get("board", {}).get("terminal", false))
+	var contact_key := phase + (":terminal" if terminal else "")
+	if contact_key != _advance_contact_key:
+		_advance_contact_key = contact_key
+		_advance_contacts = _input_owner.get_physical_contacts() if is_instance_valid(_input_owner) else {}
 	_scene_art.configure_entry(scene_art_entry(_presentation_command.context), _percent, true)
 	worksheet.visible = phase in ["challenge", "cleared_awaiting_terminal_choice", "preparing"]
 	_challenge_panel.alignment = BoxContainer.ALIGNMENT_BEGIN if worksheet.visible else BoxContainer.ALIGNMENT_CENTER
@@ -346,22 +365,24 @@ func _refresh_challenge() -> void:
 	_refresh_mode_controls()
 	_view_footer.visible = worksheet.visible
 	_view_footer.custom_minimum_size.y = WORKSHEET.view_controls_height(_locale, worksheet.theme, _large_cells)
-	_special_mine_button.visible = bool(_physical_view.special_mine_visible)
-	_special_mine_button.disabled = _split_dragging or not bool(_physical_view.special_mine_enabled)
+	_special_mine_button.visible = false
+	_special_mine_button.disabled = true
 	_special_mine_button.accessibility_name = _ui_text("Special mine")
 	_special_mine_button.tooltip_text = _ui_text("Special mine")
-	_continue_button.visible = phase not in ["challenge", "preparing"] or _preparation_failed or _settlement_failed
-	var retrying := phase in ["settlement_retry", "checkpoint_retry", "preparing"] or _settlement_failed
-	_continue_button.text = _ui_text("Retry") if retrying else _ui_text("Continue")
+	_continue_button.visible = phase in ["settlement_retry", "checkpoint_retry"] \
+		or _preparation_failed or _settlement_failed or _narrative_failed or _boundary_failed
+	_continue_button.text = _ui_text("Retry")
+	title.visible = worksheet.visible
+	_challenge_content.visible = worksheet.visible or _continue_button.visible
 	match phase:
-		"pre_challenge": _status_label.text = str(copy.value.body)
+		"pre_challenge", "post_challenge", "completed": _status_label.text = _ui_text("Try again.") if _narrative_failed or _boundary_failed else ""
 		"challenge": _status_label.text = _ui_text("Retry to finish processing the result.") if _settlement_failed else _ui_text("Reveal, flag, or drag to explore the board.")
 		"cleared_awaiting_terminal_choice": _status_label.text = _ui_text("Board cleared.")
 		"preparing": _status_label.text = _ui_text("Try again.") if _preparation_failed else ""
 		"checkpoint_retry": _status_label.text = _ui_text("The attempt is saved. Retry to finish saving this point.")
 		"settlement_retry": _status_label.text = _ui_text("Retry to finish processing the result.")
 		_: _status_label.text = str(copy.value.body)
-	_refresh_terminal_choice()
+	_refresh_challenge_input()
 	_refresh_observer()
 	_queue_challenge_layout()
 
@@ -404,6 +425,7 @@ func _layout_challenge() -> void:
 
 func _is_split_input_admitted() -> bool:
 	return is_visible_in_tree() and can_process() and not get_tree().paused \
+		and _physical_view.get("phase") not in ["pre_challenge", "post_challenge", "completed"] \
 		and (not is_instance_valid(_input_owner) or _input_owner.is_source_input_admitted())
 
 func _on_challenge_split_drag_changed(active: bool) -> void:
@@ -414,7 +436,7 @@ func _on_challenge_split_drag_changed(active: bool) -> void:
 	_special_mine_button.disabled = active or not bool(_physical_view.get("special_mine_enabled", false))
 
 func _refresh_challenge_input() -> void:
-	var blocked: bool = _split_dragging or (_physical_view.get("phase") == "cleared_awaiting_terminal_choice" and not _choice_released)
+	var blocked: bool = _split_dragging
 	worksheet.set_interaction_blocked(blocked)
 	_continue_button.disabled = blocked
 
@@ -595,8 +617,7 @@ func _hide_capture_if_unfocused(line: Control) -> void:
 	if line.get_global_rect().has_point(pointer) or _observer_action.get_global_rect().has_point(pointer): return
 	_observer_action.hide()
 
-func _process(delta: float) -> void:
-	_poll_terminal_release()
+func _process(_delta: float) -> void:
 	# dwm-634.2: a terminal click paints first; its settlement runs here on the next processed
 	# frame and waits for neither window focus nor a held contact, because it is a durable save.
 	# A save taken before it runs commits the painted board as unsettled (flush_pending_attempt).
@@ -608,29 +629,56 @@ func _process(delta: float) -> void:
 		if not _preparation_failed and not get_tree().paused and get_window().has_focus():
 			_dispatch_action("prepare", -1)
 		return
-	if _post_challenge_drawn and not _post_challenge_ack_attempted and _physical_view.get("phase") == "post_challenge":
-		_acknowledge_post_challenge_draw()
-	if _pre_challenge_drawn and not _pre_challenge_ack_attempted and _physical_view.get("phase") == "pre_challenge":
-		_acknowledge_pre_challenge_draw()
-	if not is_instance_valid(_observer_panel) or not _observer_panel.is_visible_in_tree() \
-			or _physical_view.get("phase") != "pre_challenge": return
-	if get_tree().paused or not get_window().has_focus(): return
-	if not _observer_rendered:
-		if not _observer_drawn: return
-		_observer_rendered = _send_observer("render").get("ok", false)
+	if not _phase_input_released() or _boundary_failed: return
+	var phase := str(_physical_view.get("phase", ""))
+	if phase in ["pre_challenge", "post_challenge"]:
+		_pump_narrative_phase(_narrative_retry_requested)
+	elif phase in ["cleared_awaiting_terminal_choice", "completed"]:
+		_dispatch_action("resume_completion" if phase == "completed" else "continue", -1)
+
+## Settlement never waits for input release. The next dialogue/board does, so one held
+## pointer/key/controller activation cannot clear the board and consume its first line.
+func _phase_input_released() -> bool:
+	if not is_visible_in_tree() or get_tree().paused or _split_dragging: return false
+	if DisplayServer.get_name() != "headless" and not get_window().has_focus(): return false
+	if is_instance_valid(_input_owner) and _input_owner.has_method("is_source_input_admitted") \
+			and not _input_owner.is_source_input_admitted(): return false
+	var contacts: Dictionary = _input_owner.get_physical_contacts() if is_instance_valid(_input_owner) else {}
+	for contact: String in _advance_contacts.keys():
+		if contacts.get(contact) != _advance_contacts[contact]: _advance_contacts.erase(contact)
+	return _advance_contacts.is_empty() and contacts.is_empty()
+
+func _pump_narrative_phase(retry: bool = false) -> void:
+	var phase := str(_physical_view.get("phase", ""))
+	if phase not in ["pre_challenge", "post_challenge"] or not _phase_input_released(): return
+	if phase != _narrative_phase:
+		_narrative_phase = phase
+		_narrative_started = false
+		_narrative_failed = false
+	if _narrative_failed and not retry: return
+	_narrative_retry_requested = false
+	var refresh_needed := _narrative_failed or not _narrative_started or retry
+	if _narrative_attachment_failed:
+		var attached: Dictionary = _presentation_port.attach_narrative_presentation(_presentation_command)
+		_narrative_attachment_failed = not attached.get("ok", false)
+		if _narrative_attachment_failed:
+			_refresh_challenge()
+			return
+	var played: Dictionary
+	if not _presentation_port.has_method("begin_narrative_phase") or not _presentation_port.has_method("pull_narrative_phase"):
+		played = {"ok": false, "code": &"dating_narrative_unavailable"}
+	elif not _narrative_started or retry:
+		played = _presentation_port.begin_narrative_phase(_presentation_command, retry)
+		_narrative_started = bool(played.get("ok", false))
+	else:
+		played = _presentation_port.pull_narrative_phase(_presentation_command)
+	_narrative_failed = not played.get("ok", false)
+	if _narrative_failed:
+		_refresh_challenge()
 		return
-	if _observer_view.scope != "lavinia" or _observer_view.closed or _observer_close_failed or _observer_view.checkpoint_pending: return
-	_observer_tick_ms += delta * 1000.0
-	if _observer_tick_ms < 100.0: return
-	var elapsed := mini(1000, int(_observer_tick_ms))
-	_observer_tick_ms = 0.0
-	var ticked := _send_observer("tick", elapsed)
-	if not ticked.get("ok", false): return
-	if int(_observer_view.elapsed_ms) >= int(_observer_view.duration_ms):
-		var closed := _send_observer("close")
-		if not closed.get("ok", false):
-			_observer_close_failed = true
-			_observer_action.text = _ui_text("Retry")
+	if refresh_needed: _refresh_challenge()
+	if played.value.get("status") == "completed":
+		_dispatch_action("continue", -1)
 
 func _send_observer(action: String, elapsed_ms: int = 0) -> Dictionary:
 	var result: Dictionary = _presentation_port.dispatch_observer(_presentation_command,
@@ -706,7 +754,15 @@ func _on_cell_action(action: StringName, index: int, revision: int) -> void:
 func _on_continue() -> void:
 	if _split_dragging: return
 	var phase: String = str(_physical_view.get("phase", ""))
-	if phase == "cleared_awaiting_terminal_choice" and not _choice_released: return
+	if phase in ["pre_challenge", "post_challenge"]:
+		if not _narrative_failed and not _boundary_failed: return
+		_boundary_failed = false
+		_narrative_retry_requested = true
+		_pump_narrative_phase(true)
+		return
+	if phase in ["cleared_awaiting_terminal_choice", "completed"]:
+		_boundary_failed = false
+		return
 	if phase == "preparing":
 		_preparation_failed = false
 		_dispatch_action("prepare", -1)
@@ -715,8 +771,6 @@ func _on_continue() -> void:
 		_settlement_failed = false
 		_dispatch_action("settle", -1)
 		return
-	if phase == "pre_challenge" and not _pre_challenge_reached and not _acknowledge_pre_challenge_draw(): return
-	if phase == "post_challenge" and not _post_challenge_reached and not _acknowledge_post_challenge_draw(): return
 	_dispatch_action("retry" if phase in ["settlement_retry", "checkpoint_retry"] else (
 		"resume_completion" if phase == "completed" else "continue"), -1)
 
@@ -727,6 +781,7 @@ func _dispatch_action(action: String, index: int, revision: int = -1) -> void:
 	var expected: int = int(_physical_view.board.revision) if revision < 0 else revision
 	var result: Dictionary = _presentation_port.dispatch_physical(_presentation_command, action, index, expected)
 	_dispatching = false
+	if result.get("ok", false): _boundary_failed = false
 	# Completion may synchronously remove this scene; do not republish its stale projection.
 	if not is_inside_tree() or is_queued_for_deletion(): return
 	var pulled: Dictionary = _presentation_port.pull_physical(_presentation_command)
@@ -741,7 +796,9 @@ func _dispatch_action(action: String, index: int, revision: int = -1) -> void:
 		elif action == "settle":
 			_settlement_failed = true
 			_refresh_challenge()
-		else: _status_label.text = _ui_text("Action unavailable. ") + str(result.get("code", ""))
+		else:
+			_boundary_failed = true
+			_refresh_challenge()
 
 
 ## The ONE injection seam. Called by `SceneRouter` before `add_child()`. Identical replay is

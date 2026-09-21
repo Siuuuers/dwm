@@ -11,10 +11,13 @@ $ErrorActionPreference = 'Stop'
 # execute; Invoke-IsolatedGodot also rejects GUT's silent suite-load failures.
 $suites = @{
     dating = @(
+        'tests/unit/test_dating_narrative_playback.gd'
         'tests/unit/test_canonical_dating_mastery.gd'
         'tests/unit/test_dating_attempt_runtime.gd'
         'tests/unit/test_profile_evidence_v8.gd'
         'tests/unit/test_dating_physical_owner.gd'
+        'tests/unit/test_dating_capability_envelope.gd'
+        'tests/unit/test_dating_rehearsal_owner.gd'
         'tests/unit/test_dating_presentation_port.gd'
         'tests/integration/test_ordered_ending_real_runtime.gd'
     )

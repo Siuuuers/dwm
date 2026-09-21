@@ -64,7 +64,7 @@ static func completed(run_id: String, scope: String, day: int, branch: String = 
 		"context": context, "host": host, "spec": made.value, "board": board, "phase": "completed",
 		"outcome": outcome, "applied_result": {"board_only": true} if pair else {},
 		"pair_form": "love_sweet" if pair else "", "mine_dispositions": dispositions,
-		"relationship_outcome": relationship, "perfect_reasons": RULES.perfect_reasons(board)}
+		"relationship_outcome": relationship, "perfect_reasons": RULES.perfect_reasons(board, 2)}
 	var effect := {}
 	if not pair:
 		effect = {"terminal_fact": {"transaction_id": transaction, "outcome": outcome,

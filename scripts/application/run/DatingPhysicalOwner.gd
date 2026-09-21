@@ -214,12 +214,9 @@ func _dispatch_physical(physical_token: String, action: String, cell_index: int,
 			var changed: Dictionary = _settle_board() if action == "settle" else _board_action(action,cell_index)
 			if not changed.get("ok",false): return changed
 		"cleared_awaiting_terminal_choice":
-			if _record.schema_version == 3:
-				if action == "activate" and cell_index != int(_record.envelope.special_cell):
-					return _fail(&"dating_special_cell_mismatch")
-				if action == "continue" and cell_index != -1: return _fail(&"dating_challenge_command_refused")
-			_record.relationship_outcome = "dark" if action in ["special_mine", "activate"] else (
-				"foresight" if _record.outcome == "perfect" else "loved")
+			# Read old saved phases, but the retired special-mine decision cannot be replayed.
+			if action != "continue" or cell_index != -1: return _fail(&"dating_challenge_command_refused")
+			_record.relationship_outcome = "foresight" if _record.outcome == "perfect" else "loved"
 			var chosen: Dictionary = _settle_terminal()
 			if not chosen.get("ok", false): return chosen
 		"settlement_retry":
@@ -665,8 +662,8 @@ func _settle_board() -> Dictionary:
 		_record.relationship_outcome = "foresight"
 		return _settle_terminal()
 	if _record.outcome != "exploded":
-		_record.phase = "cleared_awaiting_terminal_choice"
-		return _ok({})
+		_record.relationship_outcome = "foresight" if _record.outcome == "perfect" else "loved"
+		return _settle_terminal()
 	var mine_ordinal: int = _record.board.mine_indices.find(_record.board.exploded_index)
 	_record.relationship_outcome = _record.mine_dispositions[mine_ordinal]
 	return _settle_terminal()
@@ -1014,7 +1011,7 @@ func _view() -> Dictionary:
 	if not _pending_checkpoint.is_empty():
 		return {"phase": "checkpoint_retry", "host": _record.host, "board": _project_board(),
 			"outcome": _record.outcome, "actions": ["retry"], "no_flag": _no_flag_status(),
-			"special_mine_visible": _record.schema_version == 2 and _record.host == "canonical_solo", "special_mine_enabled": false}
+			"special_mine_visible": false, "special_mine_enabled": false}
 	var actions: Array=[]
 	match _record.phase:
 		"pre_challenge","post_challenge": actions=["continue"]
@@ -1022,11 +1019,10 @@ func _view() -> Dictionary:
 		"completed": actions=["resume_completion"]
 		"preparing": actions=["prepare"]
 		"challenge": actions=["settle"] if _record.board is Dictionary and bool(_record.board.terminal) else ["reveal","flag","unflag","chord"]
-		"cleared_awaiting_terminal_choice": actions=["continue","activate"] if _record.schema_version == 3 else ["continue","special_mine"]
+		"cleared_awaiting_terminal_choice": actions=["continue"]
 	return {"phase":_record.phase,"host":_record.host,"board":_project_board(),
 		"outcome":_record.outcome,"actions":actions,"no_flag":_no_flag_status(),
-		"special_mine_visible":_record.schema_version == 2 and _record.host == "canonical_solo",
-		"special_mine_enabled":_record.phase == "cleared_awaiting_terminal_choice"}
+		"special_mine_visible":false,"special_mine_enabled":false}
 
 func _project_board() -> Variant:
 	if _record.board == null:
@@ -1054,7 +1050,6 @@ func _project_board() -> Variant:
 	var board: Dictionary=checked.value.board
 	var cells: Array=[]
 	var inspectable: bool = not bool(board.terminal)
-	var choice: bool = _record.schema_version == 3 and _record.phase == "cleared_awaiting_terminal_choice"
 	for index in int(board.width)*int(board.height):
 		var revealed: bool=board.revealed_indices.has(index)
 		var flagged: bool=board.flagged_indices.has(index)
@@ -1072,15 +1067,11 @@ func _project_board() -> Variant:
 			cell.face="covered" if flagged else "revealed"; cell.number=0; cell.mark="exploded" if index==board.exploded_index else ("correct_flag" if flagged else "mine")
 		elif board.terminal and flagged:
 			cell.mark = "correct_flag" if board.mine_indices.has(index) else "incorrect_flag"
-		if choice and index == int(_record.envelope.special_cell):
-			cell.mark = "marked_flag" if flagged else "marked_mine"
-			cell.inspectable = true
-			cell.actions = ["activate"]
 		cell.pressable=not cell.actions.is_empty()
 		cells.append(cell)
 	return {"width":board.width,"height":board.height,"revision":board.revision,
 		"mine_estimate":board.mine_count-board.flagged_indices.size(),"terminal":board.terminal,
-		"custody":board.terminal and not choice,"cells":cells}
+		"custody":board.terminal,"cells":cells}
 
 func _revision() -> int:
 	return int(_record.board.revision) if _record.get("board") is Dictionary else (_record.envelope.shell.actions.size() if _record.get("schema_version") == 3 else 0)

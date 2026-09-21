@@ -63,6 +63,7 @@ signal completion_failed(failure: Dictionary)
 
 var _identity_issuer: Object = null
 var _physical_owner: Object = null
+var _narrative_playback: Object = null
 ## completion_transaction_id -> the exact canonical command this port issued. Ephemeral projection
 ## of the coordinator-owned pending command, never a second canonical gameplay ledger.
 var _commands: Dictionary = {}
@@ -98,6 +99,46 @@ func configure(identity_issuer: Object, physical_owner: Object) -> Dictionary:
 ## Validates one committed-Schedule dating intent end to end, then starts the physical presentation.
 ##
 ## An unconfigured port refuses before any routing or physical start.
+func configure_narrative_playback(playback: Object) -> Dictionary:
+	if playback == null or not _has_methods(playback, ["begin_presentation", "begin_phase", "pull_phase", "finish_phase"]):
+		return _fail(&"dating_narrative_unavailable", "", {})
+	if _narrative_playback != null and _narrative_playback != playback:
+		return _fail(&"dating_narrative_already_configured", "", {})
+	_narrative_playback = playback
+	return _ok({})
+
+func attach_narrative_presentation(presentation_command: Dictionary) -> Dictionary:
+	var trusted := _trusted_physical_command(presentation_command)
+	if not trusted.ok: return trusted
+	if _narrative_playback == null: return _fail(&"dating_narrative_unavailable", "", {})
+	return _narrative_playback.begin_presentation(trusted.value)
+
+func begin_narrative_phase(presentation_command: Dictionary, retry: bool = false) -> Dictionary:
+	var trusted := _trusted_physical_command(presentation_command)
+	if not trusted.ok: return trusted
+	if _narrative_playback == null: return _fail(&"dating_narrative_unavailable", "", {})
+	var pulled := pull_physical(presentation_command)
+	if not pulled.get("ok", false): return pulled
+	if _is_pair_explosion_cutoff(trusted.value, pulled.value):
+		return _ok({"status": "completed", "reason": "pair_explosion_cutoff"})
+	return _narrative_playback.begin_phase(trusted.value, str(pulled.value.phase), retry)
+
+func pull_narrative_phase(presentation_command: Dictionary) -> Dictionary:
+	var trusted := _trusted_physical_command(presentation_command)
+	if not trusted.ok: return trusted
+	if _narrative_playback == null: return _fail(&"dating_narrative_unavailable", "", {})
+	var pulled := pull_physical(presentation_command)
+	if not pulled.get("ok", false): return pulled
+	if _is_pair_explosion_cutoff(trusted.value, pulled.value):
+		return _ok({"status": "completed", "reason": "pair_explosion_cutoff"})
+	return _narrative_playback.pull_phase(trusted.value, str(pulled.value.phase))
+
+## Angela-absent pair explosions end the encounter. This is a physical cutoff, not
+## a manufactured Dialogic completion or a witnessed post-challenge presentation.
+static func _is_pair_explosion_cutoff(command: Dictionary, view: Dictionary) -> bool:
+	return command.get("context", {}).get("kind") == "twofriends_if_deferred" \
+		and view.get("phase") == "post_challenge" and view.get("outcome") == "exploded"
+
 func begin(request: Dictionary) -> Dictionary:
 	if _identity_issuer == null or _physical_owner == null:
 		return _fail(&"dating_physical_owner_unconfigured",
@@ -274,8 +315,21 @@ func dispatch_physical(presentation_command: Dictionary, action: String, cell_in
 		return _fail(&"physical_presentation_unavailable",
 			"the configured owner exposes no physical commands", {})
 	var command: Dictionary = trusted["value"]
+	var narrative_phase := ""
+	if _narrative_playback != null and action == "continue":
+		var pulled: Dictionary = pull_physical(command)
+		if not pulled.get("ok", false): return pulled
+		if str(pulled.value.phase) in ["pre_challenge", "post_challenge"] \
+				and not _is_pair_explosion_cutoff(command, pulled.value):
+			narrative_phase = str(pulled.value.phase)
+			var playback: Dictionary = _narrative_playback.pull_phase(command, narrative_phase)
+			if not playback.get("ok", false): return playback
+			if playback.value.get("status") != "completed":
+				return _fail(&"dating_narrative_not_complete", "", {})
 	var result: Variant = _physical_owner.call(&"dispatch_physical",
 		str(command["physical_token"]), action, cell_index, expected_revision)
+	if result is Dictionary and result.get("ok", false) and not narrative_phase.is_empty():
+		_narrative_playback.finish_phase(command, narrative_phase)
 	return result if result is Dictionary else _fail(&"physical_presentation_unavailable",
 		"the owner returned no physical command result", {})
 

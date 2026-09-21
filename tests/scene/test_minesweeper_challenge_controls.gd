@@ -150,7 +150,9 @@ func test_challenge_locale_changes_retranslate_live_controls_status_and_accessib
 		assert_true(_scene.configure_presentation_services(null, locale).ok)
 		_scene._physical_view.phase = "pre_challenge"
 		_scene._refresh_challenge()
-		assert_eq(_scene._continue_button.text, cases[locale][0])
+		assert_eq(_scene._continue_button.text, cases[locale][1])
+		assert_false(_scene._continue_button.visible, "routine pre-challenge confirmation is retired")
+		assert_false(_scene._special_mine_button.visible)
 		assert_eq(_scene._special_mine_button.accessibility_name, cases[locale][2])
 		assert_eq(_scene._special_mine_button.tooltip_text, cases[locale][2])
 		_scene._physical_view.phase = "checkpoint_retry"
@@ -239,21 +241,7 @@ func test_resized_challenge_keeps_board_rules_and_full_size_copy_inside_right_pa
 	assert_true(_port.commands.is_empty())
 	assert_true(_scene.configure_presentation_services(null,"en",150,true,
 		&"after_hours",false,"standard",profile).ok)
-	_port.observer = {"scope":"priscilla", "counterpart":false, "captured":false,
-		"checkpoint_pending":false, "text":"I remembered the words that we had left unfinished beside the window. ".repeat(3)}
-	_scene._physical_view.phase = "pre_challenge"
-	_scene._refresh_challenge()
-	_scene._build_observer()
-	_paint_portrait_fixture()
-	_scene._scene_art.set_portrait_width(640.0)
-	await _settle_layout()
-	var line: Button = _scene.find_child("PreviousSceneLine",true,false)
-	assert_eq(line.text,_port.observer.text)
-	assert_eq(line.autowrap_mode,TextServer.AUTOWRAP_WORD_SMART)
-	assert_gt(line.size.y,44.0,"Long observer copy wraps at full font size.")
-	assert_lte(_scene._challenge_panel.get_combined_minimum_size().x,640.0)
-	assert_lte(line.get_global_rect().end.x,1280.0)
-	assert_lte(_scene._observer_action.get_global_rect().end.x,1280.0)
+	assert_null(_scene.find_child("DatingSceneMoment",true,false), "retired interactions consume no layout")
 	assert_true(_port.commands.is_empty())
 
 func test_divider_drag_keeps_pending_contacts_out_of_challenge_and_preserves_document_gate() -> void:

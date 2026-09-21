@@ -183,6 +183,7 @@ var _retained_presentation_owner_adapter: RefCounted = null
 var _retained_hospital_presentation_port: RefCounted = null
 var _retained_dating_presentation_port: RefCounted = null
 var _retained_dating_physical_owner: RefCounted = null
+var _retained_dating_narrative_playback: RefCounted = null
 var _retained_condition_hospital_state: RefCounted = null
 var _retained_condition_hospital_adapter: RefCounted = null
 var _retained_condition_hospital_coordinator: RefCounted = null
@@ -1627,6 +1628,12 @@ func _configure_desktop_production_graph() -> Dictionary:
 		var dating_bound: Dictionary = _retained_dating_presentation_port.configure(
 			_desktop_identity_nonce_issuer, _retained_dating_physical_owner)
 		if not dating_bound.get("ok", false): return dating_bound
+		if _retained_dating_narrative_playback == null:
+			_retained_dating_narrative_playback = preload("res://scripts/application/run/DatingNarrativePlayback.gd").new()
+		var narrative_bound: Dictionary = _retained_dating_narrative_playback.configure(_target(&"DialogicBridge"))
+		if not narrative_bound.get("ok", false): return narrative_bound
+		var playback_bound: Dictionary = _retained_dating_presentation_port.configure_narrative_playback(_retained_dating_narrative_playback)
+		if not playback_bound.get("ok", false): return playback_bound
 
 	var care_writer: Dictionary = game_state.configure_contact_checkpoint_writer(
 		Callable(self, "_commit_presentation_checkpoint").bind("main"))
@@ -2279,3 +2286,4 @@ func _finish_day_resolution_route() -> Dictionary:
 	var router := _target(&"SceneRouter")
 	if str(router.get_current_route_id()) != "ending": router.goto_ending()
 	return resumed
+

@@ -116,6 +116,29 @@ func pull_physical(command: Dictionary) -> Dictionary:
 	if not _matches(command): return _fail("rehearsal_identity_mismatch")
 	return _physical.pull_physical(str(_command.physical_token))
 
+## Current practice entries are authored return-only stubs. Prove the exact semantic
+## label is empty before advancing; future prose needs the private playback sandbox.
+## This path neither invokes canonical Dialogic nor grants a witnessed line/signature.
+func begin_narrative_phase(command: Dictionary, _retry: bool = false) -> Dictionary:
+	if not _matches(command): return _fail("rehearsal_identity_mismatch")
+	var pulled := pull_physical(command)
+	if not pulled.get("ok", false): return pulled
+	var phase := str(pulled.value.phase)
+	if phase not in ["pre_challenge", "post_challenge"]: return _fail("rehearsal_narrative_phase_unavailable")
+	if command.context.kind == "twofriends_if_deferred" and phase == "post_challenge" \
+			and pulled.value.outcome == "exploded":
+		return _ok({"status": "completed", "reason": "pair_explosion_cutoff"})
+	var entry_id := str(_source.signature.entry_id).trim_suffix(".pre_challenge") + "." + phase
+	var located: Dictionary = preload("res://scripts/data/DialogicTimelineCatalog.gd").get_entry(entry_id, "en")
+	if not located.get("ok", false): return located
+	if not preload("res://autoload/DialogicBridge.gd").is_return_only_entry(
+			str(located.value.path), str(located.value.label)):
+		return _fail("rehearsal_authored_playback_unavailable")
+	return _ok({"status": "completed", "entry_id": entry_id, "reason": "empty_authored_entry"})
+
+func pull_narrative_phase(command: Dictionary) -> Dictionary:
+	return begin_narrative_phase(command)
+
 func dispatch_physical(command: Dictionary, action: String, index: int, revision: int) -> Dictionary:
 	if not _matches(command): return _fail("rehearsal_identity_mismatch")
 	var result: Dictionary = _physical.dispatch_physical(str(_command.physical_token), action, index, revision)
@@ -196,3 +219,4 @@ static func _ok(value: Dictionary) -> Dictionary:
 
 static func _fail(code: String) -> Dictionary:
 	return {"ok": false, "code": StringName(code), "message": ""}
+

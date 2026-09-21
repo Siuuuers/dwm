@@ -1553,6 +1553,11 @@ func has_active_playback() -> bool:
 		or (_runtime_adapter != null and _runtime_adapter.has_method("has_active_playback") and _runtime_adapter.has_active_playback())
 
 
+## Narrow playback identity check for the retained Dating phase adapter.
+func is_entry_playback_active(playback_token: String, entry_id: String) -> bool:
+	return not _active_entry.is_empty() and _active_entry.get("token") == playback_token \
+		and _active_entry.get("entry_id") == entry_id
+
 func capture_pause_frontier(timeline_id: String = "") -> Dictionary:
 	if (int(not _ordinary_playback.is_empty()) + int(not _active_entry.is_empty()) + int(not _active_playback.is_empty())) != 1 or _start_in_progress or not _active_transaction.is_empty() or _restore_playback_started \
 		or not _pending_resume_token.is_empty() or _runtime_adapter == null \
@@ -1922,7 +1927,9 @@ func _start_semantic_playback(path: String, label: String) -> Dictionary:
 		# The adapter performs the physical clear inside start_timeline, so the boundary step is
 		# announced first; the reapply itself arrives via the runtime's own timeline_started.
 		preference_boundary_step.emit(&"clear")
-		var result: Variant = _start_with_scene_art(path, label)
+		# Empty dating DTL returns naturally. It must never introduce an art-hold Continue.
+		var allow_art_hold := not str(_active_entry.get("entry_id", "")).begins_with("dating.")
+		var result: Variant = _start_with_scene_art(path, label, allow_art_hold)
 		if typeof(result) != TYPE_DICTIONARY or not (result as Dictionary).get("ok", false):
 			return _playback_failure(&"runtime_start_failed", label)
 		return {"ok": true}
@@ -2190,3 +2197,4 @@ func _exact_context_keys(context: Dictionary) -> bool:
 
 func _playback_failure(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": {}}
+

@@ -156,8 +156,13 @@ func test_solved_and_exploded_remain_real_distinct_outcomes_and_reject_debug_set
 	assert_false(_action(f, "force_perfect").ok)
 	_clear(f, true)
 	assert_eq(_board(f).outcome, "cleared")
-	assert_true(_action(f, "continue").ok)
+	assert_eq(_board(f).phase, "post_challenge")
 	assert_eq(_board(f).relationship_outcome, "loved")
+	var settled: Dictionary = _board(f).duplicate(true)
+	assert_false(_action(f, "activate", int(settled.envelope.special_cell)).ok)
+	assert_false(_action(f, "special_mine").ok)
+	assert_false(_action(f, "settle").ok)
+	assert_eq(_board(f), settled, "retired choice and repeated settlement leave private state unchanged")
 	assert_true(f.owner.close().ok)
 	if not _begin(f): return
 	assert_true(_action(f, "continue").ok)
@@ -208,3 +213,4 @@ func test_only_current_rendered_line_witness_can_persist_and_variables_remain_de
 	assert_ne(f.command.physical_token, stale.physical_token, "each practice receives its own namespace")
 	assert_false(f.owner.pull_physical(stale).ok)
 	assert_true(f.owner.close().ok)
+

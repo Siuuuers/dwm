@@ -35,12 +35,21 @@ class PreparationGeneration extends "res://tests/support/FakeMinesweeperGenerati
 
 class PostRenderPort extends RefCounted:
 	var physical: RefCounted
+	var narrative := preload("res://tests/support/FakeDatingNarrativePlayback.gd").new()
 	func begin(_command: Dictionary) -> Dictionary: return {"ok": true}
 	func complete(_command: Dictionary) -> Dictionary: return {"ok": false}
 	func pull_physical(value: Dictionary) -> Dictionary:
 		return physical.pull_physical(value.physical_token)
 	func dispatch_physical(value: Dictionary, action: String, index: int, revision: int) -> Dictionary:
-		return physical.dispatch_physical(value.physical_token, action, index, revision)
+		var phase: String = str(physical.pull_physical(value.physical_token).value.phase)
+		var result: Dictionary = physical.dispatch_physical(value.physical_token, action, index, revision)
+		if result.get("ok", false) and action == "continue" and phase in ["pre_challenge", "post_challenge"]:
+			narrative.finish_phase(value, phase)
+		return result
+	func begin_narrative_phase(value: Dictionary, retry: bool = false) -> Dictionary:
+		return narrative.begin_phase(value, str(physical.pull_physical(value.physical_token).value.phase), retry)
+	func pull_narrative_phase(value: Dictionary) -> Dictionary:
+		return narrative.pull_phase(value, str(physical.pull_physical(value.physical_token).value.phase))
 	func acknowledge_post_challenge_render(value: Dictionary) -> Dictionary:
 		return physical.acknowledge_post_challenge_render(value.physical_token)
 
@@ -123,17 +132,24 @@ func _restore(backup: Dictionary) -> void:
 	var restored: Dictionary = state.rollback_restore_silent(backup)
 	assert_true(restored.ok, str(restored))
 
-func _clear_nonperfect_fixture() -> void:
-	# These regressions exercise a saved unresolved Loved/Dark decision, not Perfect.
+func _paint_nonperfect_fixture() -> void:
+	# Retain the terminal-paint/settlement boundary while exercising ordinary Solved.
 	if _record().host == "canonical_solo":
 		assert_true(_dispatch("flag", 0).ok)
 		assert_true(_dispatch("unflag", 0).ok)
-	assert_true(_dispatch("reveal", 323).ok)
+	var record := _record()
+	var revision: int = int(record.board.revision) if record.board is Dictionary else record.envelope.shell.actions.size()
+	assert_true(physical_owner.dispatch_physical(command.physical_token, "reveal", 323, revision).ok)
+	assert_eq(_record().phase, "challenge", "the last cell paints before settlement")
+	assert_true(_record().board.terminal)
+
+func _clear_nonperfect_fixture() -> void:
+	_paint_nonperfect_fixture()
+	assert_true(_dispatch("settle").ok)
 
 func _finish_solo() -> void:
 	assert_true(_dispatch("continue").ok)
 	_clear_nonperfect_fixture()
-	assert_true(_dispatch("activate", int(_record().envelope.special_cell)).ok)
 	assert_eq(_record().phase, "post_challenge")
 
 ## Rows 0-1 hold 33 mines and three more wall off the bottom-left corner (306), so the flood
@@ -285,10 +301,10 @@ func test_profile_ahead_after_board_autosave_failure_only_retries_same_committed
 func test_terminal_profile_ahead_replays_frozen_effect_once_after_checkpoint_retry() -> void:
 	assert_true(_begin().ok)
 	assert_true(_dispatch("continue").ok)
-	_clear_nonperfect_fixture()
+	_paint_nonperfect_fixture()
 	var before: Dictionary = state.to_save_dict()
 	reject_checkpoint = true
-	assert_eq(_dispatch("activate", int(_record().envelope.special_cell)).code, &"fixture_checkpoint_failure")
+	assert_eq(_dispatch("settle").code, &"fixture_checkpoint_failure")
 	assert_eq(state.to_save_dict(), before)
 	var durable := _attempt()
 	var effect_id: String = durable.effect_receipt.receipt_id
@@ -517,7 +533,6 @@ func test_post_ending_pre_entry_load_gets_fresh_attempt_only_at_continue() -> vo
 	assert_eq(_attempt(), first)
 	assert_eq(generation.call_log.size(), 1, "Continue allocates a fresh spec but waits for first-click generation")
 	_clear_nonperfect_fixture()
-	assert_true(_dispatch("activate", int(_record().envelope.special_cell)).ok)
 	assert_true(_dispatch("continue").ok)
 	var slot := LEDGER.semantic_slot(command.context)
 	assert_eq(state.route_context.dating_canonical_heads[slot],
@@ -589,25 +604,25 @@ func test_post_ending_entered_unmaterialized_save_keeps_spec_and_chooses_its_own
 	assert_eq(_attempt().materialization_receipt.first_cell_index, 36)
 	assert_eq(generation.call_log.size(), 2)
 
-func test_post_ending_saved_clear_can_choose_independent_frozen_effect_and_head() -> void:
+func test_post_ending_saved_terminal_board_keeps_automatic_loved_effect_and_exact_head() -> void:
 	assert_true(_begin().ok)
 	assert_true(_dispatch("continue").ok)
-	_clear_nonperfect_fixture()
+	_paint_nonperfect_fixture()
 	var cleared := _backup()
-	assert_true(_dispatch("activate", int(_record().envelope.special_cell)).ok)
+	assert_true(_dispatch("settle").ok)
 	assert_true(_dispatch("continue").ok)
 	var parent := _attempt()
 	_milestone()
 	_load_branch(cleared, "independent-terminal")
 	assert_true(_begin("independent-terminal").ok)
-	assert_eq(_record().phase, "cleared_awaiting_terminal_choice")
+	assert_eq(_record().phase, "challenge")
 	assert_eq(state.dating_route_state.priscilla.get("date_count", 0), 0)
-	assert_true(_dispatch("continue").ok)
+	assert_true(_dispatch("settle").ok)
 	var branch := _selected_attempt()
 	assert_eq(branch.record.relationship_outcome, "loved")
-	assert_eq(parent.record.relationship_outcome, "dark")
+	assert_eq(parent.record.relationship_outcome, "loved")
 	assert_eq(branch.effect_receipt.receipt_id, parent.effect_receipt.receipt_id)
-	assert_ne(branch.effect_receipt.value, parent.effect_receipt.value)
+	assert_eq(branch.effect_receipt.value, parent.effect_receipt.value)
 	assert_eq(state.dating_route_state.priscilla.date_count, 1)
 	assert_true(_dispatch("continue").ok)
 	assert_eq(state.route_context.dating_canonical_heads[LEDGER.semantic_slot(command.context)],
@@ -818,8 +833,8 @@ func test_post_challenge_reach_freezes_terminal_fields_and_exact_draw_deduplicat
 	var reached: Array = profile.get_reached_presentations("dating.solo.priscilla.day1.post_challenge").value.records
 	assert_eq(reached.size(), 1)
 	assert_eq(reached[0].signature.fields.attitude, frozen.fields.attitude)
-	assert_eq(reached[0].signature.fields.relationship_outcome, "dark")
-	assert_eq(reached[0].signature.fields.special_mine_phase, "detonated")
+	assert_eq(reached[0].signature.fields.relationship_outcome, "loved")
+	assert_eq(reached[0].signature.fields.special_mine_phase, "declined")
 	assert_eq(reached[0].signature.fields.perfect_reasons, _record().perfect_reasons)
 	assert_eq(state.to_save_dict(), before, "render recording does not replay terminal effects")
 	var revision: int = profile.get_profile_revision()
@@ -849,9 +864,9 @@ func test_post_challenge_profile_failure_restores_exact_fields_and_rehearsal_has
 func test_failed_terminal_checkpoint_cannot_record_post_until_exact_retry_is_saved() -> void:
 	assert_true(_begin().ok)
 	assert_true(_dispatch("continue").ok)
-	_clear_nonperfect_fixture()
+	_paint_nonperfect_fixture()
 	reject_checkpoint = true
-	assert_false(_dispatch("activate", int(_record().envelope.special_cell)).ok)
+	assert_false(_dispatch("settle").ok)
 	assert_false(physical_owner.acknowledge_post_challenge_render(command.physical_token).ok)
 	assert_eq(profile.get_reached_presentations().value.records, [])
 	reject_checkpoint = false
@@ -860,30 +875,37 @@ func test_failed_terminal_checkpoint_cannot_record_post_until_exact_retry_is_sav
 	assert_true(physical_owner.acknowledge_post_challenge_render(command.physical_token).ok)
 	assert_eq(profile.get_reached_presentations().value.records.size(), 1)
 
-func test_actual_post_status_draw_gates_continue_and_failed_record_stays_retryable() -> void:
+func test_post_dtl_completion_gates_progression_and_start_failure_stays_retryable() -> void:
 	assert_true(_begin().ok)
 	_finish_solo()
 	var port := PostRenderPort.new()
 	port.physical = physical_owner
+	port.narrative.auto_complete = false
+	port.narrative.fail_begin = true
 	var scene: Control = load("res://scenes/dating/DatingScene.tscn").instantiate()
 	assert_true(scene.configure_presentation(port, command).ok)
 	add_child_autofree(scene)
-	scene._continue_button.pressed.emit()
-	assert_eq(_record().phase, "post_challenge", "Continue cannot finish an undrawn post scene")
-	assert_eq(profile.get_reached_presentations().value.records, [])
-	storage.reject_write = true
-	scene._status_label.draw.emit()
+	scene.set_process(false)
 	scene._process(0.0)
-	assert_false(scene._post_challenge_reached)
-	assert_eq(scene._continue_button.text, "Retry")
-	scene._continue_button.pressed.emit()
 	assert_eq(_record().phase, "post_challenge")
-	assert_eq(profile.get_reached_presentations().value.records, [])
-	storage.reject_write = false
+	assert_true(scene._narrative_failed)
+	assert_true(scene._continue_button.visible)
+	assert_eq(scene._continue_button.text, "Retry")
+	assert_eq(port.narrative.started.size(), 1)
+	scene._process(0.0)
+	assert_eq(port.narrative.started.size(), 1, "a failed start is not retried every frame")
+	scene._status_label.draw.emit()
+	assert_eq(profile.get_reached_presentations().value.records, [], "a title draw is not witnessed dialogue")
+	port.narrative.fail_begin = false
 	scene._continue_button.pressed.emit()
-	assert_eq(_record().phase, "completed")
-	assert_eq(profile.get_reached_presentations().value.records.size(), 1)
-
+	assert_false(scene._narrative_failed)
+	assert_eq(_record().phase, "post_challenge", "a playing DTL cannot be bypassed")
+	assert_false(scene._continue_button.visible)
+	assert_eq(port.narrative.started.size(), 2)
+	port.narrative.finish()
+	scene._process(0.0)
+	assert_eq(_record().phase, "completed", "natural DTL completion advances automatically")
+	assert_eq(profile.get_reached_presentations().value.records, [], "an empty fixture grants no prose receipt")
 
 func _begin_post_ending_preparation(label: String) -> Dictionary:
 	_milestone()
