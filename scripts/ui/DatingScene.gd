@@ -360,9 +360,10 @@ func _layout_challenge() -> void:
 		child.size.x = width
 		chrome_height += child.get_combined_minimum_size().y
 	chrome_height += maxi(0, visible_count - 1) * _challenge_panel.get_theme_constant("separation")
-	# Keep one complete Rules row reachable at the largest font/target setting.
-	# Only unusually tall chrome scrolls; ordinary settings use the whole right pane.
-	var band := Vector2i(width / 2, maxi(200, floori((_challenge_content.size.y - chrome_height) / 2.0)))
+	# Measure the complete Rules row, including its header, Return button and rail.
+	# Tall copy scrolls the host instead of shrinking fonts or refusing Rules.
+	var minimum_height: int = WORKSHEET.SHEET.minimum_rules_height(worksheet.theme, _locale, _large_cells, width)
+	var band := Vector2i(width / 2, maxi(minimum_height / 2, floori((_challenge_content.size.y - chrome_height) / 2.0)))
 	if band == _challenge_band: return
 	if worksheet.configure(str(_physical_view.host), _locale, _percent, _large_cells,
 			_palette, band, _high_contrast, _colour_preset, _font_style):

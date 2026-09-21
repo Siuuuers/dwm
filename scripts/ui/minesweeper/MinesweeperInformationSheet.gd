@@ -77,7 +77,20 @@ func _present(next_kind: String, claimed: Array) -> bool:
 	_install(measured,new_sheet)
 	return true
 
-func _compose(next_theme: Theme, band: Vector2i, large: bool, locale: String, next_kind: String, claimed: Array) -> Dictionary:
+## The challenge host reserves enough height for the longest complete Rules row.
+## A zero-height measurement reserves the rail, using the same shaped copy as drawing.
+static func minimum_rules_height(next_theme: Theme, locale: String, large: bool, width_logical: int) -> int:
+	var measured := _compose(next_theme,Vector2i(width_logical/2,0),large,locale,"rules",[],true)
+	if measured.is_empty(): return 0
+	var page := 32 if large else 24
+	for row: Control in measured.rows:
+		page = maxi(page,ceili(row.custom_minimum_size.y/2.0))
+	var height := 2 * (int(measured.body_top)+4+page-int(measured.footer_top))
+	_free_measured(measured)
+	return height
+
+static func _compose(next_theme: Theme, band: Vector2i, large: bool, locale: String, next_kind: String,
+		claimed: Array, measure_height_only: bool = false) -> Dictionary:
 	var copy := COPY.get_copy(locale)
 	var target := 32 if large else 24
 	var button: Button = RETURN.new()
@@ -114,13 +127,14 @@ func _compose(next_theme: Theme, band: Vector2i, large: bool, locale: String, ne
 			extent += int(measured_rows[index].custom_minimum_size.y/2)
 	var result := {"rows":measured_rows,"button":button,"title":copy[next_kind],"heading":heading_height,
 		"body_top":body_top,"footer_top":footer_top,"page":page,"extent":extent,"row_width":row_width,"overflow":overflow}
+	if measure_height_only: return result
 	for row: Control in measured_rows:
 		if page < target or row.custom_minimum_size.y > page*2:
 			_free_measured(result)
 			return {}
 	return result
 
-func _free_measured(measured: Dictionary) -> void:
+static func _free_measured(measured: Dictionary) -> void:
 	for row: Control in measured.rows: row.free()
 	measured.button.free()
 
@@ -252,4 +266,3 @@ func _draw() -> void:
 	var paper := theme.get_color(&"paper",&"Minesweeper")
 	if not _high_contrast: paper.a = 0.82
 	draw_rect(Rect2(Vector2.ZERO,size),paper)
-
