@@ -355,16 +355,23 @@ func _check_shop_pixels(image: Image, name: String) -> void:
 func _check_texture_pixels(image: Image, control: Control, rect: Rect2, texture: Texture2D, clip: Rect2, label: String) -> int:
 	var source: Image = texture.get_image()
 	var transform := control.get_global_transform_with_canvas()
+	var inverse := transform.affine_inverse()
+	var visible: Rect2 = (transform * rect).intersection(clip).intersection(Rect2(Vector2.ZERO,Vector2(image.get_size())))
 	var checked := 0
 	var mismatched := 0
-	for y: int in source.get_height():
-		for x: int in source.get_width():
-			var expected := source.get_pixel(x,y)
+	# Large text can shrink a card aperture below28px. Sample the displayed pixels,
+	# then resolve the nearest source texel; not every source pixel survives reduction.
+	for y: int in range(floori(visible.position.y),ceili(visible.end.y)):
+		for x: int in range(floori(visible.position.x),ceili(visible.end.x)):
+			var point := Vector2(x+0.5,y+0.5)
+			if not visible.has_point(point): continue
+			var local: Vector2 = inverse * point
+			if not rect.has_point(local): continue
+			var texel := Vector2i((local-rect.position)*Vector2(source.get_size())/rect.size)
+			var expected := source.get_pixelv(texel)
 			if expected.a != 1.0: continue
-			var point: Vector2 = transform * (rect.position+Vector2(x+0.5,y+0.5)*rect.size/Vector2(source.get_size()))
-			if not clip.has_point(point) or not Rect2(Vector2.ZERO,Vector2(image.get_size())).has_point(point): continue
 			checked += 1
-			if image.get_pixelv(Vector2i(point)).to_html(false) != expected.to_html(false): mismatched += 1
+			if image.get_pixel(x,y).to_html(false) != expected.to_html(false): mismatched += 1
 	check(mismatched == 0,label+": rendered opaque pixels match production texture (%d checked, %d mismatched)" % [checked,mismatched])
 	return checked
 
