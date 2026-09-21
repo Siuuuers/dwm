@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="136" >
+  <testsuite name="tests/unit/test_canonical_writer_compatibility.gd" tests="17" failures="0" skipped="0" time="0.350516" >
+      <testcase name="test_preserves_canonical_bytes_and_refusals_for_boundary_and_random_values" assertions="554" status="pass" classname="tests/unit/test_canonical_writer_compatibility.gd" time="0.230862" >
+      </testcase>
+      <testcase name="test_printable_ascii_keys_keep_byte_order_after_string_name_normalization" assertions="1" status="pass" classname="tests/unit/test_canonical_writer_compatibility.gd" time="0.001259" >
+      </testcase>
+      <testcase name="test_control_and_unicode_keys_keep_utf8_order" assertions="3" status="pass" classname="tests/unit/test_canonical_writer_compatibility.gd" time="0.001892" >
+      </testcase>
+      <testcase name="test_sorted_key_order_preserves_first_structural_refusal" assertions="2" status="pass" classname="tests/unit/test_canonical_writer_compatibility.gd" time="0.00061" >
+      </testcase>
+      <testcase name="test_native_integer_document_preserves_values_beyond_double_precision" assertions="17" status="pass" classname="tests/unit/test_canonical_writer_compatibility.gd" time="0.003847" >
+      </testcase>
+      <testcase name="test_native_document_escapes_every_printable_ascii_character_in_keys_and_values" assertions="3" status="pass" classname="tests/unit/test_canonical_writer_compatibility.gd" time="0.001543" >
+      </testcase>
+      <testcase name="test_native_document_preserves_nested_string_names_typed_arrays_and_shared_children" assertions="6" status="pass" classname="tests/unit/test_canonical_writer_compatibility.gd" time="0.002176" >
+      </testcase>
+      <testcase name="test_native_depth_limit_changes_only_encoder_selection_not_accepted_bytes" assertions="6" status="pass" classname="tests/unit/test_canonical_writer_compatibility.gd" time="0.004244" >
+      </testcase>
+      <testcase name="test_native_preflight_exclusions_retain_original_values_and_refusals" assertions="33" status="pass" classname="tests/unit/test_canonical_writer_compatibility.gd" time="0.008956" >
+      </testcase>
+      <testcase name="test_native_unicode_scalar_boundaries_retain_exact_unescaped_bytes" assertions="50" status="pass" classname="tests/unit/test_canonical_writer_compatibility.gd" time="0.014719" >
+      </testcase>
+      <testcase name="test_native_unicode_keys_keep_utf8_order_without_normalizing_combining_sequences" assertions="5" status="pass" classname="tests/unit/test_canonical_writer_compatibility.gd" time="0.003386" >
+      </testcase>
+      <testcase name="test_native_unicode_documents_escape_quotes_and_backslashes_without_stripping_bom" assertions="4" status="pass" classname="tests/unit/test_canonical_writer_compatibility.gd" time="0.001502" >
+      </testcase>
+      <testcase name="test_c0_controls_keep_exact_bytes_and_only_json_short_escapes_use_native_encoding" assertions="217" status="pass" classname="tests/unit/test_canonical_writer_compatibility.gd" time="0.068121" >
+      </testcase>
+      <testcase name="test_short_controls_and_unicode_keep_exact_bytes_with_quotes_backslashes_and_string_names" assertions="5" status="pass" classname="tests/unit/test_canonical_writer_compatibility.gd" time="0.002146" >
+      </testcase>
+      <testcase name="test_multiline_autosave_payload_retains_exact_bytes_inside_float_profile_materials" assertions="9" status="pass" classname="tests/unit/test_canonical_writer_compatibility.gd" time="0.002979" >
+      </testcase>
+      <testcase name="test_control_string_optimization_keeps_structural_error_precedence" assertions="3" status="pass" classname="tests/unit/test_canonical_writer_compatibility.gd" time="0.00079" >
+      </testcase>
+      <testcase name="test_native_short_control_keys_retain_canonical_order_after_normalization" assertions="3" status="pass" classname="tests/unit/test_canonical_writer_compatibility.gd" time="0.001484" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_continuation_serialization_cache.gd" tests="9" failures="0" skipped="0" time="0.040202" >
+      <testcase name="test_reuses_unchanged_history_and_matches_canonical_utf8_order" assertions="6" status="pass" classname="tests/unit/test_continuation_serialization_cache.gd" time="0.002974" >
+      </testcase>
+      <testcase name="test_single_operation_hint_matches_whole_canonical_for_change_new_entry_and_cache_miss" assertions="5" status="pass" classname="tests/unit/test_continuation_serialization_cache.gd" time="0.002436" >
+      </testcase>
+      <testcase name="test_generic_path_detects_unhinted_history_mutation_and_numeric_subtype" assertions="3" status="pass" classname="tests/unit/test_continuation_serialization_cache.gd" time="0.001573" >
+      </testcase>
+      <testcase name="test_hinted_encoding_failure_keeps_prior_proof_and_exact_retry_succeeds" assertions="3" status="pass" classname="tests/unit/test_continuation_serialization_cache.gd" time="0.001205" >
+      </testcase>
+      <testcase name="test_nested_mutation_and_equal_numeric_values_cannot_reuse_stale_bytes" assertions="5" status="pass" classname="tests/unit/test_continuation_serialization_cache.gd" time="0.002389" >
+      </testcase>
+      <testcase name="test_removed_history_does_not_accumulate_cache_entries" assertions="5" status="pass" classname="tests/unit/test_continuation_serialization_cache.gd" time="0.001797" >
+      </testcase>
+      <testcase name="test_failed_encoding_does_not_poison_previous_operation_proof" assertions="3" status="pass" classname="tests/unit/test_continuation_serialization_cache.gd" time="0.025271" >
+      </testcase>
+      <testcase name="test_strict_cold_parse_is_reused_without_aliasing_or_relaxing_schema" assertions="6" status="pass" classname="tests/unit/test_continuation_serialization_cache.gd" time="0.00129" >
+      </testcase>
+      <testcase name="test_parse_proof_lru_keeps_active_outgoing_current_and_backup_texts" assertions="6" status="pass" classname="tests/unit/test_continuation_serialization_cache.gd" time="0.001267" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_new_acc_title_lifetime.gd" tests="6" failures="0" skipped="0" time="0.350584" >
+      <testcase name="test_scene_replacement_during_settings_departure_cannot_prepare_from_still_live_title" assertions="8" status="pass" classname="tests/unit/test_new_acc_title_lifetime.gd" time="0.074205" >
+      </testcase>
+      <testcase name="test_queued_source_ancestor_during_departure_cannot_prepare_before_frame_end" assertions="9" status="pass" classname="tests/unit/test_new_acc_title_lifetime.gd" time="0.036343" >
+      </testcase>
+      <testcase name="test_synchronous_commit_retiring_title_cannot_mount_post_return_recovery" assertions="7" status="pass" classname="tests/unit/test_new_acc_title_lifetime.gd" time="0.067304" >
+      </testcase>
+      <testcase name="test_synchronous_commit_detaches_source_before_return_without_new_root_lookup" assertions="6" status="pass" classname="tests/unit/test_new_acc_title_lifetime.gd" time="0.062235" >
+      </testcase>
+      <testcase name="test_busy_preparation_is_visible_before_save_and_duplicate_press_is_ignored" assertions="6" status="pass" classname="tests/unit/test_new_acc_title_lifetime.gd" time="0.04828" >
+      </testcase>
+      <testcase name="test_scene_change_during_busy_commit_cancels_preparation_without_starting" assertions="5" status="pass" classname="tests/unit/test_new_acc_title_lifetime.gd" time="0.062217" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_prepared_new_run.gd" tests="10" failures="0" skipped="0" time="2.47507" >
+      <testcase name="test_prepare_is_pure_and_replaces_only_one_transient_token" assertions="28" status="pass" classname="tests/integration/test_prepared_new_run.gd" time="0.082011" >
+      </testcase>
+      <testcase name="test_prepare_counts_nonempty_unreadable_autosave_but_not_zero_bytes" assertions="32" status="pass" classname="tests/integration/test_prepared_new_run.gd" time="0.046556" >
+      </testcase>
+      <testcase name="test_cancel_requires_exact_token_and_performs_no_io" assertions="19" status="pass" classname="tests/integration/test_prepared_new_run.gd" time="0.05312" >
+      </testcase>
+      <testcase name="test_commit_consumes_token_when_profile_autosave_or_live_source_changes" assertions="55" status="pass" classname="tests/integration/test_prepared_new_run.gd" time="0.175374" >
+      </testcase>
+      <testcase name="test_prepare_reports_real_live_and_autosave_replacement" assertions="19" status="pass" classname="tests/integration/test_prepared_new_run.gd" time="0.428491" >
+      </testcase>
+      <testcase name="test_success_enters_existing_durable_new_run_with_frozen_dark" assertions="20" status="pass" classname="tests/integration/test_prepared_new_run.gd" time="0.425784" >
+      </testcase>
+      <testcase name="test_predecision_failure_retains_same_token_for_exact_retry" assertions="19" status="pass" classname="tests/integration/test_prepared_new_run.gd" time="0.450357" >
+      </testcase>
+      <testcase name="test_postdecision_failure_returns_transaction_and_never_replays_ui_token" assertions="20" status="pass" classname="tests/integration/test_prepared_new_run.gd" time="0.438313" >
+      </testcase>
+      <testcase name="test_prepare_refuses_retained_recovery_without_journal_io" assertions="17" status="pass" classname="tests/integration/test_prepared_new_run.gd" time="0.187302" >
+      </testcase>
+      <testcase name="test_fresh_prepare_defers_durable_pending_discovery_to_gated_commit" assertions="32" status="pass" classname="tests/integration/test_prepared_new_run.gd" time="0.187762" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_new_run_transaction.gd" tests="12" failures="0" skipped="0" time="7.915359" >
+      <testcase name="test_start_new_run_rejects_bad_context" assertions="15" status="pass" classname="tests/integration/test_new_run_transaction.gd" time="0.022987" >
+      </testcase>
+      <testcase name="test_start_new_run_builds_day1_run_b" assertions="24" status="pass" classname="tests/integration/test_new_run_transaction.gd" time="0.422692" >
+      </testcase>
+      <testcase name="test_start_new_run_requires_identity_issuer" assertions="3" status="pass" classname="tests/integration/test_new_run_transaction.gd" time="0.001706" >
+      </testcase>
+      <testcase name="test_start_new_run_allocates_a_fresh_identity_per_call" assertions="17" status="pass" classname="tests/integration/test_new_run_transaction.gd" time="0.42361" >
+      </testcase>
+      <testcase name="test_start_new_run_requires_participants" assertions="2" status="pass" classname="tests/integration/test_new_run_transaction.gd" time="0.001108" >
+      </testcase>
+      <testcase name="test_finalize_failure_retains_new_run_and_retries_the_same_durable_identity" assertions="29" status="pass" classname="tests/integration/test_new_run_transaction.gd" time="1.087648" >
+      </testcase>
+      <testcase name="test_successful_finalization_keeps_new_checkpoint_instead_of_restoring_backup" assertions="25" status="pass" classname="tests/integration/test_new_run_transaction.gd" time="1.046937" >
+      </testcase>
+      <testcase name="test_predecision_failure_preserves_old_run_and_postdecision_failures_retain_recovery" assertions="76" status="pass" classname="tests/integration/test_new_run_transaction.gd" time="2.647528" >
+      </testcase>
+      <testcase name="test_durable_new_run_does_not_invoke_legacy_checkpoint_compensation" assertions="28" status="pass" classname="tests/integration/test_new_run_transaction.gd" time="1.083843" >
+      </testcase>
+      <testcase name="test_new_run_captures_pending_dark_once_and_consumes_it_before_live_publication" assertions="24" status="pass" classname="tests/integration/test_new_run_transaction.gd" time="1.050363" >
+      </testcase>
+      <testcase name="test_invalid_prepared_dark_facts_fail_before_durable_intent_and_release_gate" assertions="72" status="pass" classname="tests/integration/test_new_run_transaction.gd" time="0.108279" >
+      </testcase>
+      <testcase name="test_caller_cannot_override_captured_dark_intent" assertions="14" status="pass" classname="tests/integration/test_new_run_transaction.gd" time="0.018658" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_new_run_pair_durability.gd" tests="8" failures="0" skipped="0" time="3.426026" >
+      <testcase name="test_pair_is_durable_before_live_effects_and_only_pending_dark_is_consumed" assertions="28" status="pass" classname="tests/integration/test_new_run_pair_durability.gd" time="0.48784" >
+      </testcase>
+      <testcase name="test_predecision_failure_preserves_both_targets_and_has_no_live_effects" assertions="20" status="pass" classname="tests/integration/test_new_run_pair_durability.gd" time="0.046685" >
+      </testcase>
+      <testcase name="test_profile_write_failure_retains_decision_and_startup_settles_without_live_launch" assertions="43" status="pass" classname="tests/integration/test_new_run_pair_durability.gd" time="0.532064" >
+      </testcase>
+      <testcase name="test_partial_live_replay_uses_same_snapshot_with_fresh_route_token" assertions="24" status="pass" classname="tests/integration/test_new_run_pair_durability.gd" time="0.475012" >
+      </testcase>
+      <testcase name="test_foreign_autosave_bytes_and_pending_marker_refuse_without_reconciliation" assertions="42" status="pass" classname="tests/integration/test_new_run_pair_durability.gd" time="0.3648" >
+      </testcase>
+      <testcase name="test_completed_retry_does_not_restore_old_targets_after_subsequent_changes" assertions="21" status="pass" classname="tests/integration/test_new_run_pair_durability.gd" time="0.485629" >
+      </testcase>
+      <testcase name="test_decision_and_autosave_write_cuts_retry_exact_same_retained_materials" assertions="65" status="pass" classname="tests/integration/test_new_run_pair_durability.gd" time="0.977484" >
+      </testcase>
+      <testcase name="test_busy_unrelated_gate_refuses_before_unloaded_journal_can_reconcile" assertions="27" status="pass" classname="tests/integration/test_new_run_pair_durability.gd" time="0.056512" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_new_run_startup_publication.gd" tests="3" failures="0" skipped="0" time="1.966325" >
+      <testcase name="test_real_completion_journal_failure_keeps_title_then_same_startup_retry_publishes_once" assertions="56" status="pass" classname="tests/integration/test_new_run_startup_publication.gd" time="0.786573" >
+      </testcase>
+      <testcase name="test_completed_new_run_ignores_unreadable_retired_consequence_sidecar" assertions="46" status="pass" classname="tests/integration/test_new_run_startup_publication.gd" time="0.572865" >
+      </testcase>
+      <testcase name="test_real_early_pair_failure_retries_before_profile_initialization_with_same_owners" assertions="52" status="pass" classname="tests/integration/test_new_run_startup_publication.gd" time="0.606887" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_new_run_durability_journal.gd" tests="6" failures="0" skipped="0" time="0.52117" >
+      <testcase name="test_complete_intent_is_the_durable_decision_and_survives_restart_byte_exact" assertions="12" status="pass" classname="tests/unit/test_new_run_durability_journal.gd" time="0.098428" >
+      </testcase>
+      <testcase name="test_target_readback_proofs_are_strictly_ordered_exact_and_gate_participant_apply" assertions="19" status="pass" classname="tests/unit/test_new_run_durability_journal.gd" time="0.125222" >
+      </testcase>
+      <testcase name="test_failed_target_persistence_returns_no_proof_and_exact_retry_advances_same_operation" assertions="10" status="pass" classname="tests/unit/test_new_run_durability_journal.gd" time="0.115742" >
+      </testcase>
+      <testcase name="test_post_promotion_failure_invalidates_cache_and_retry_observes_durable_target" assertions="13" status="pass" classname="tests/unit/test_new_run_durability_journal.gd" time="0.108892" >
+      </testcase>
+      <testcase name="test_new_run_intent_cannot_abort_and_startup_reconciliation_retains_the_decision" assertions="9" status="pass" classname="tests/unit/test_new_run_durability_journal.gd" time="0.059535" >
+      </testcase>
+      <testcase name="test_schema_v2_journal_is_refused_without_conversion" assertions="5" status="pass" classname="tests/unit/test_new_run_durability_journal.gd" time="0.013351" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_json_file_storage.gd" tests="14" failures="0" skipped="0" time="0.06202" >
+      <testcase name="test_absent_reconcile_write_read_replace_and_restart" assertions="11" status="pass" classname="tests/unit/test_json_file_storage.gd" time="0.003399" >
+      </testcase>
+      <testcase name="test_read_and_remove_require_a_fresh_unchanged_lease" assertions="7" status="pass" classname="tests/unit/test_json_file_storage.gd" time="0.001483" >
+      </testcase>
+      <testcase name="test_remove_uses_durable_tombstone_and_cannot_resurrect_backup" assertions="5" status="pass" classname="tests/unit/test_json_file_storage.gd" time="0.001449" >
+      </testcase>
+      <testcase name="test_markerless_final_wins_but_unowned_next_alone_is_indeterminate" assertions="6" status="pass" classname="tests/unit/test_json_file_storage.gd" time="0.001407" >
+      </testcase>
+      <testcase name="test_prepared_marker_with_outgoing_next_promotes_new_winner" assertions="3" status="pass" classname="tests/unit/test_json_file_storage.gd" time="0.00157" >
+      </testcase>
+      <testcase name="test_missing_validated_candidate_and_corrupt_marker_fail_closed" assertions="4" status="pass" classname="tests/unit/test_json_file_storage.gd" time="0.001581" >
+      </testcase>
+      <testcase name="test_first_write_failpoints_restart_to_exact_new_or_absence" assertions="28" status="pass" classname="tests/unit/test_json_file_storage.gd" time="0.012172" >
+      </testcase>
+      <testcase name="test_path_escapes_and_unbound_validators_reject_before_mutation" assertions="12" status="pass" classname="tests/unit/test_json_file_storage.gd" time="0.002757" >
+      </testcase>
+      <testcase name="test_before_write_hook_runs_before_any_mutation_and_a_refusal_writes_nothing" assertions="14" status="pass" classname="tests/unit/test_json_file_storage.gd" time="0.004294" >
+      </testcase>
+      <testcase name="test_successful_writes_read_back_only_the_promoted_final" assertions="17" status="pass" classname="tests/unit/test_json_file_storage.gd" time="0.005031" >
+      </testcase>
+      <testcase name="test_a_reconciled_write_reads_each_family_artifact_once_and_lands_the_same_bytes" assertions="12" status="pass" classname="tests/unit/test_json_file_storage.gd" time="0.004728" >
+      </testcase>
+      <testcase name="test_the_plain_write_keeps_its_own_full_reconcile_and_reread_trace" assertions="5" status="pass" classname="tests/unit/test_json_file_storage.gd" time="0.00207" >
+      </testcase>
+      <testcase name="test_the_fresh_classification_is_consumed_by_one_write_and_never_outlives_it" assertions="7" status="pass" classname="tests/unit/test_json_file_storage.gd" time="0.002109" >
+      </testcase>
+      <testcase name="test_reconciled_write_failpoints_restart_to_exact_new_or_exact_previous" assertions="45" status="pass" classname="tests/unit/test_json_file_storage.gd" time="0.01797" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_temporary_storage.gd" tests="4" failures="0" skipped="0" time="0.004458" >
+      <testcase name="test_native_windows_wrapper_is_normalized_and_contained" assertions="5" status="pass" classname="tests/unit/test_temporary_storage.gd" time="0.001432" >
+      </testcase>
+      <testcase name="test_forward_slash_wrapper_is_equivalently_contained" assertions="5" status="pass" classname="tests/unit/test_temporary_storage.gd" time="0.001346" >
+      </testcase>
+      <testcase name="test_missing_root_is_rejected_and_environment_restored" assertions="4" status="pass" classname="tests/unit/test_temporary_storage.gd" time="0.000838" >
+      </testcase>
+      <testcase name="test_parent_traversal_to_wrapper_is_rejected_without_creating_outside_it" assertions="4" status="pass" classname="tests/unit/test_temporary_storage.gd" time="0.000842" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_save_document_schema.gd" tests="21" failures="0" skipped="0" time="0.137612" >
+      <testcase name="test_save_document_schema_exists" assertions="1" status="pass" classname="tests/unit/test_save_document_schema.gd" time="0.000306" >
+      </testcase>
+      <testcase name="test_quick_document_build_round_trips_json_null_slot_id" assertions="8" status="pass" classname="tests/unit/test_save_document_schema.gd" time="0.002996" >
+      </testcase>
+      <testcase name="test_discriminator_matrix" assertions="21" status="pass" classname="tests/unit/test_save_document_schema.gd" time="0.013427" >
+      </testcase>
+      <testcase name="test_validate_rejects_malformed_documents" assertions="7" status="pass" classname="tests/unit/test_save_document_schema.gd" time="0.002756" >
+      </testcase>
+      <testcase name="test_document_version_is_six_and_embedded_snapshot_version_must_agree" assertions="6" status="pass" classname="tests/unit/test_save_document_schema.gd" time="0.002136" >
+      </testcase>
+      <testcase name="test_prepare_candidate_is_detached" assertions="4" status="pass" classname="tests/unit/test_save_document_schema.gd" time="0.002088" >
+      </testcase>
+      <testcase name="test_current_and_recovery_snapshots_normalize_engine_text_without_mutating_source" assertions="6" status="pass" classname="tests/unit/test_save_document_schema.gd" time="0.003938" >
+      </testcase>
+      <testcase name="test_build_keeps_numeric_normalization_and_detaches_current_history_and_time" assertions="10" status="pass" classname="tests/unit/test_save_document_schema.gd" time="0.007238" >
+      </testcase>
+      <testcase name="test_build_keeps_invalid_bundle_journal_and_metadata_rejection_order" assertions="4" status="pass" classname="tests/unit/test_save_document_schema.gd" time="0.00289" >
+      </testcase>
+      <testcase name="test_validate_normalizes_the_document_without_a_prior_deep_copy" assertions="17" status="pass" classname="tests/unit/test_save_document_schema.gd" time="0.004291" >
+      </testcase>
+      <testcase name="test_validate_composes_the_current_bundle_instead_of_renormalizing_it" assertions="18" status="pass" classname="tests/unit/test_save_document_schema.gd" time="0.004635" >
+      </testcase>
+      <testcase name="test_validate_refusal_order_survives_multiple_simultaneous_defects" assertions="9" status="pass" classname="tests/unit/test_save_document_schema.gd" time="0.003838" >
+      </testcase>
+      <testcase name="test_normalize_engine_text_returns_stringname_free_subtrees_by_identity" assertions="20" status="pass" classname="tests/unit/test_save_document_schema.gd" time="0.003152" >
+      </testcase>
+      <testcase name="test_build_detaches_the_persisted_document_from_identity_preserved_inputs" assertions="10" status="pass" classname="tests/unit/test_save_document_schema.gd" time="0.002553" >
+      </testcase>
+      <testcase name="test_build_passes_the_validated_bundle_through_instead_of_renormalizing_it" assertions="26" status="pass" classname="tests/unit/test_save_document_schema.gd" time="0.010136" >
+      </testcase>
+      <testcase name="test_build_composes_the_journal_without_a_redundant_deep_copy" assertions="14" status="pass" classname="tests/unit/test_save_document_schema.gd" time="0.004837" >
+      </testcase>
+      <testcase name="test_build_composes_proven_journal_entries_byte_equal_to_the_full_builder" assertions="21" status="pass" classname="tests/unit/test_save_document_schema.gd" time="0.013551" >
+      </testcase>
+      <testcase name="test_build_with_proven_journal_never_reads_the_journal_entries" assertions="12" status="pass" classname="tests/unit/test_save_document_schema.gd" time="0.006916" >
+      </testcase>
+      <testcase name="test_build_falls_back_to_the_full_path_when_any_proof_is_missing" assertions="16" status="pass" classname="tests/unit/test_save_document_schema.gd" time="0.020275" >
+      </testcase>
+      <testcase name="test_outgoing_journal_uses_proofs_and_detaches_from_discarded_caller_entries" assertions="18" status="pass" classname="tests/unit/test_save_document_schema.gd" time="0.018208" >
+      </testcase>
+      <testcase name="test_outgoing_journal_container_check_retains_refusal_precedence" assertions="17" status="pass" classname="tests/unit/test_save_document_schema.gd" time="0.007445" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_run_snapshot_schema.gd" tests="25" failures="0" skipped="0" time="0.068072" >
+      <testcase name="test_run_snapshot_schema_exists" assertions="1" status="pass" classname="tests/unit/test_run_snapshot_schema.gd" time="0.000364" >
+      </testcase>
+      <testcase name="test_build_produces_exact_valid_shape" assertions="4" status="pass" classname="tests/unit/test_run_snapshot_schema.gd" time="0.005503" >
+      </testcase>
+      <testcase name="test_validate_accepts_fixture_and_rejects_day8_and_shapes" assertions="4" status="pass" classname="tests/unit/test_run_snapshot_schema.gd" time="0.001891" >
+      </testcase>
+      <testcase name="test_validate_rejection_matrix" assertions="9" status="pass" classname="tests/unit/test_run_snapshot_schema.gd" time="0.003926" >
+      </testcase>
+      <testcase name="test_validate_enforces_ending_id_is_a_canonical_primary" assertions="6" status="pass" classname="tests/unit/test_run_snapshot_schema.gd" time="0.003367" >
+      </testcase>
+      <testcase name="test_validate_primitive_tree_rejects_engine_types" assertions="8" status="pass" classname="tests/unit/test_run_snapshot_schema.gd" time="0.001277" >
+      </testcase>
+      <testcase name="test_prepare_candidate_is_detached" assertions="3" status="pass" classname="tests/unit/test_run_snapshot_schema.gd" time="0.001516" >
+      </testcase>
+      <testcase name="test_is_compatible_bundle_checks_versions" assertions="4" status="pass" classname="tests/unit/test_run_snapshot_schema.gd" time="0.001828" >
+      </testcase>
+      <testcase name="test_derive_route_restore_context_exact_shape" assertions="5" status="pass" classname="tests/unit/test_run_snapshot_schema.gd" time="0.00251" >
+      </testcase>
+      <testcase name="test_schema_version_is_six" assertions="2" status="pass" classname="tests/unit/test_run_snapshot_schema.gd" time="0.000472" >
+      </testcase>
+      <testcase name="test_top_level_committed_schedule_replaces_legacy_schedule" assertions="6" status="pass" classname="tests/unit/test_run_snapshot_schema.gd" time="0.001925" >
+      </testcase>
+      <testcase name="test_gameplay_schedule_entries_is_retired" assertions="3" status="pass" classname="tests/unit/test_run_snapshot_schema.gd" time="0.001171" >
+      </testcase>
+      <testcase name="test_committed_schedule_validation_delegates_to_schedule_state_schema" assertions="5" status="pass" classname="tests/unit/test_run_snapshot_schema.gd" time="0.001503" >
+      </testcase>
+      <testcase name="test_committed_schedule_day_must_equal_lifecycle_day" assertions="3" status="pass" classname="tests/unit/test_run_snapshot_schema.gd" time="0.001364" >
+      </testcase>
+      <testcase name="test_committed_schedule_is_recursively_detached" assertions="6" status="pass" classname="tests/unit/test_run_snapshot_schema.gd" time="0.003599" >
+      </testcase>
+      <testcase name="test_v3_build_round_trips_the_aggregate_unchanged" assertions="6" status="pass" classname="tests/unit/test_run_snapshot_schema.gd" time="0.003666" >
+      </testcase>
+      <testcase name="test_validate_active_app_id_rejects_unregistered_and_accepts_registered_or_null" assertions="4" status="pass" classname="tests/unit/test_run_snapshot_schema.gd" time="0.001996" >
+      </testcase>
+      <testcase name="test_desktop_is_a_v4_top_level_member" assertions="5" status="pass" classname="tests/unit/test_run_snapshot_schema.gd" time="0.001598" >
+      </testcase>
+      <testcase name="test_desktop_lifecycle_identity_fields_are_exact_and_bound" assertions="9" status="pass" classname="tests/unit/test_run_snapshot_schema.gd" time="0.001939" >
+      </testcase>
+      <testcase name="test_desktop_board_and_consequence_delegate_to_their_own_owners" assertions="3" status="pass" classname="tests/unit/test_run_snapshot_schema.gd" time="0.001265" >
+      </testcase>
+      <testcase name="test_v3_pre_desktop_fixture_lacks_the_v4_member" assertions="3" status="pass" classname="tests/unit/test_run_snapshot_schema.gd" time="0.000826" >
+      </testcase>
+      <testcase name="test_validate_normalizes_the_snapshot_without_a_prior_deep_copy" assertions="15" status="pass" classname="tests/unit/test_run_snapshot_schema.gd" time="0.003198" >
+      </testcase>
+      <testcase name="test_validate_neither_aliases_nor_mutates_the_caller_snapshot" assertions="15" status="pass" classname="tests/unit/test_run_snapshot_schema.gd" time="0.00295" >
+      </testcase>
+      <testcase name="test_logout_is_neither_a_valid_saved_workspace_nor_a_buildable_checkpoint" assertions="12" status="pass" classname="tests/unit/test_run_snapshot_schema.gd" time="0.005669" >
+      </testcase>
+      <testcase name="test_legacy_logout_autosave_is_unavailable_without_rewriting_or_guessing_journal_fallback" assertions="10" status="pass" classname="tests/unit/test_run_snapshot_schema.gd" time="0.012749" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/tooling/test_phase2r_closeout_sentinel.gd" tests="1" failures="0" skipped="0" time="0.001847" >
+      <testcase name="test_canonical_failures_cannot_reopen_an_equality_gate" assertions="10" status="pass" classname="tests/unit/tooling/test_phase2r_closeout_sentinel.gd" time="0.001847" >
+      </testcase>
+  </testsuite>
+</testsuites>

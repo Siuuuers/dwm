@@ -1,0 +1,83 @@
+{
+  "repository": "Siuuuers/dwm",
+  "code_head": "e1d3428fbfc9de27a0f350f3a858478cd06c0978",
+  "workflow_run_id": 35577704852,
+  "workflow_url": "https://github.com/Siuuuers/dwm/actions/runs/35577704852",
+  "checkout_sha": "e585dc45f4305add2c7c37b316cea74d7153efae",
+  "source_tree": "47e601d2b235fca8eacf2a4389e26543330f1558",
+  "source_and_checkout_trees_equal": true,
+  "jobs": [
+    {
+      "id": 106263188493,
+      "name": "Windows / paired checkpoint performance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106263188857,
+      "name": "Rendered desktop and dialogue / Linux software OpenGL",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106263188895,
+      "name": "Windows / reading_delivery",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106263188903,
+      "name": "Windows / minesweeper",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106263188943,
+      "name": "Windows / settings",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106263188969,
+      "name": "Windows / desktop",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106263188995,
+      "name": "Windows / localization",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106263188998,
+      "name": "Windows / shop",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106263189076,
+      "name": "Windows / new_account",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "windows_tests": 1218,
+  "unique_windows_scripts": 109,
+  "native_captures": 137,
+  "github_artifacts": 15,
+  "closed_original_beads": [
+    "dwm-bap",
+    "dwm-01b",
+    "dwm-1w9",
+    "dwm-6zh",
+    "dwm-ryl",
+    "dwm-vky.15"
+  ],
+  "original_unfinished_before": 28,
+  "original_unfinished_after": 22,
+  "batch_bead": "dwm-8gr",
+  "batch_status": "closed",
+  "task_export_policy": "Imported isolated tracker; selected fields merged into eight original records plus one new task; 173 untouched original rows retained byte-for-byte. No synchronization of unavailable old local databases.",
+  "final_commit_scope": "Evidence and task export only; no game, test or workflow changes after code_head."
+}
