@@ -743,86 +743,36 @@ func _begin_observer(friend_id: String = "priscilla", label: String = "observer"
 	command["physical_token"] = physical_owner._token(command.completion_transaction_id, command.command_sha256)
 	return physical_owner.begin_physical(command)
 
-func _observer_action(action: String, elapsed_ms: int = 0) -> Dictionary:
-	var view: Dictionary = physical_owner.pull_observer(command.physical_token).value
-	return physical_owner.dispatch_observer(command.physical_token, view.presentation_atom_id, action, elapsed_ms)
+func test_retired_observer_actions_have_no_source_and_cannot_write_evidence() -> void:
+	for friend_id: String in ["priscilla", "lavinia"]:
+		assert_true(_begin_observer(friend_id).ok)
+		var before: Dictionary = profile.get_profile_snapshot().duplicate(true)
+		var route_before: Dictionary = state.route_context.duplicate(true)
+		assert_eq(physical_owner.pull_observer(command.physical_token).value, {})
+		assert_eq(physical_owner.pull_observer("stale-token").code, &"stale_dating_physical_token")
+		for action: String in ["render", "capture", "compare", "compare_rendered", "tick", "intervene", "close", "retry"]:
+			var denied: Dictionary = physical_owner.dispatch_observer(
+				command.physical_token, "retired.atom", action, 1000)
+			assert_eq(denied.code, &"observer_source_not_admitted", action)
+		assert_eq(profile.get_profile_snapshot(), before, "Retirement grants no fictitious evidence.")
+		assert_eq(state.route_context, route_before, "Refused interactions mutate no run state.")
+		state.route_context.erase("active_dating_challenge")
 
-func test_observer_capture_requires_rendered_exact_source_and_fresh_run_compare() -> void:
-	assert_true(_begin_observer().ok)
-	assert_false(_observer_action("capture").ok)
-	assert_false(physical_owner.dispatch_observer(command.physical_token, "atom.unregistered", "render").ok)
-	physical_owner._admitted_command["execution_mode"] = "rehearsal"
+func test_retired_observer_checkpoint_cannot_strand_restored_board_entry() -> void:
+	assert_true(_begin_observer("lavinia").ok)
+	var run_id: String = str(state.capture_run_snapshot_input().lifecycle.run_id)
+	var stale := {"run_id": run_id, "entry_id": "dating.solo.lavinia.day2.pre_challenge",
+		"checkpoint_pending": true, "rendered": true, "playback_token": "retired-token",
+		"comparison_shown": false, "elapsed_ms": 5000, "closed": false,
+		"capture_receipt_id": "", "intervened": false}
+	state.route_context["dating_observer_source"] = stale.duplicate(true)
+	var profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)
+	assert_true(physical_owner.begin_physical(command).ok, "An older pending interaction may be loaded.")
+	assert_eq(state.route_context.dating_observer_source, stale, "Admission does not rewrite historical evidence.")
 	assert_eq(physical_owner.pull_observer(command.physical_token).value, {})
-	physical_owner._admitted_command.erase("execution_mode")
-	assert_true(_observer_action("render").ok)
-	assert_true(_observer_action("capture").ok)
-	assert_false(_observer_action("compare").ok, "same run cannot manufacture a counterpart")
-	var before := _backup()
-	var source: Dictionary = state.capture_run_snapshot_input()
-	source.lifecycle.run_id = "fresh-observer-run"
-	source.lifecycle.branch_id = "fresh-observer-branch"
-	source.gameplay.route_context.erase("dating_observer_source")
-	assert_true(state.apply_restore_silent({"snapshot": source}).ok)
-	assert_true(_begin_observer("priscilla", "fresh-observer").ok)
-	assert_true(physical_owner.pull_observer(command.physical_token).value.counterpart)
-	assert_true(_observer_action("render").ok)
-	assert_true(_observer_action("compare").ok)
-	assert_false(profile.get_observer_evidence().value.by_scope.priscilla, "opening an overlay is not its visible acknowledgement")
-	assert_true(_observer_action("compare_rendered").ok)
-	assert_true(profile.get_observer_evidence().value.by_scope.priscilla)
-	_restore(before)
-	assert_true(profile.get_observer_evidence().value.by_scope.priscilla, "Run rollback preserves durable Observer evidence")
-
-func test_observer_withholding_is_explicit_timed_and_intervention_disqualifies() -> void:
-	assert_true(_begin_observer("lavinia").ok)
-	assert_false(_observer_action("tick", 1000).ok)
-	assert_true(_observer_action("render").ok)
-	assert_false(_observer_action("close").ok)
-	assert_false(_observer_action("tick", 15000).ok, "one fabricated full-window tick is refused")
-	assert_true(_observer_action("intervene").ok)
-	for tick in 15: assert_true(_observer_action("tick", 1000).ok)
-	assert_true(_observer_action("close").ok)
-	assert_false(profile.get_observer_evidence().value.by_scope.lavinia)
-
-func test_observer_window_load_rebind_preserves_elapsed_but_requires_new_render_proof() -> void:
-	assert_true(_begin_observer("lavinia").ok)
-	assert_true(_observer_action("render").ok)
-	for tick in 5: assert_true(_observer_action("tick", 1000).ok)
-	var before := _backup()
-	assert_true(_begin_observer("lavinia").ok, "same cached command may be re-admitted")
-	assert_false(_observer_action("tick", 1000).ok, "same-token re-entry still requires actual rendering")
-	assert_true(_observer_action("render").ok)
-	assert_true(_begin_observer("lavinia", "rebound-observer").ok)
-	assert_eq(physical_owner.pull_observer(command.physical_token).value.elapsed_ms, 5000)
-	assert_false(_observer_action("tick", 1000).ok)
-	assert_true(_observer_action("render").ok)
-	for tick in 10: assert_true(_observer_action("tick", 1000).ok)
-	assert_true(_observer_action("close").ok)
-	assert_true(profile.get_observer_evidence().value.by_scope.lavinia)
-	_restore(before)
-	assert_eq(state.route_context.dating_observer_source.elapsed_ms, 5000)
-
-func test_observer_profile_failure_and_profile_ahead_checkpoint_retry_are_exact() -> void:
-	assert_true(_begin_observer().ok)
-	assert_true(_observer_action("render").ok)
-	storage.reject_write = true
-	assert_false(_observer_action("capture").ok)
-	assert_eq(profile.get_observer_evidence().value.receipts, {})
-	storage.reject_write = false
-	reject_checkpoint = true
-	assert_false(_observer_action("capture").ok)
-	assert_eq(profile.get_observer_evidence().value.receipts.size(), 1)
-	var calls_before_block: int = checkpoint_calls
-	assert_eq(_dispatch("continue").code, &"observer_checkpoint_retry_required")
-	assert_eq(_record().phase, "pre_challenge", "blocked board entry must not hide the Observer retry view")
-	assert_eq(checkpoint_calls, calls_before_block, "rejected Continue does not try an unrelated board checkpoint")
-	assert_false(physical_owner.pull_observer(command.physical_token).value.is_empty())
-	var revision: int = profile.get_profile_revision()
-	assert_false(_observer_action("capture").ok)
-	reject_checkpoint = false
-	assert_true(_observer_action("retry").ok)
-	assert_eq(profile.get_profile_revision(), revision)
-	assert_true(_dispatch("continue").ok)
+	assert_true(_dispatch("continue").ok, "The retired checkpoint cannot own current input.")
+	assert_eq(_record().phase, "challenge")
+	assert_eq(profile.get_profile_snapshot().observer_evidence, profile_before.observer_evidence)
 
 func test_pre_challenge_reached_signature_needs_actual_draw_and_uses_saved_base_fields() -> void:
 	assert_true(_begin().ok)

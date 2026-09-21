@@ -189,7 +189,7 @@ func _ready() -> void:
 	_physical_view = pulled.value.duplicate(true)
 	_build_challenge()
 	_refresh_challenge()
-	_build_observer()
+	# Provisional Observer interactions are suspended; see dwm-6gk.
 
 ## Input/accessibility settings are composition-owned. This scene never looks up autoloads.
 func configure_presentation_services(input_owner: Object, locale: String = "en", percent: int = 100,

@@ -10,6 +10,7 @@ const ART_FIXTURES := preload("res://tests/unit/test_scene_art_bindings.gd")
 class PublicPort extends RefCounted:
 	var view: Dictionary
 	var observer: Dictionary = {}
+	var observer_reads: int = 0
 	var commands: Array[Dictionary] = []
 	func begin(_command: Dictionary) -> Dictionary:
 		return {"ok":true}
@@ -18,6 +19,7 @@ class PublicPort extends RefCounted:
 	func pull_physical(_command: Dictionary) -> Dictionary:
 		return {"ok":true,"value":view.duplicate(true)}
 	func pull_observer(_command: Dictionary) -> Dictionary:
+		observer_reads += 1
 		return {"ok":true,"value":observer.duplicate(true)}
 	func dispatch_physical(_command: Dictionary, action: String, index: int, revision: int) -> Dictionary:
 		commands.append({"action":action,"index":index,"revision":revision})
@@ -58,6 +60,23 @@ func _paint_portrait_fixture() -> void:
 	var texture := ImageTexture.create_from_image(image)
 	var portraits: Array[Texture2D] = [texture,texture]
 	_scene._scene_art.configure_textures(texture,portraits,null,_scene._percent,true,true)
+
+func test_day2_scene_does_not_mount_retired_observer_interactions() -> void:
+	for friend_id: String in ["priscilla", "lavinia"]:
+		var port := PublicPort.new()
+		port.view = _port.view.duplicate(true)
+		port.view.phase = "pre_challenge"
+		port.observer = {"scope": friend_id, "counterpart": false, "captured": false,
+			"checkpoint_pending": false, "text": "Retired scene interaction."}
+		var scene: Control = SCENE.instantiate()
+		assert_true(scene.configure_presentation(port, {"physical_token": "retired." + friend_id,
+			"context": {"kind": "solo", "day": 2, "participants": [friend_id]}}).ok)
+		add_child_autofree(scene)
+		scene.set_process(false)
+		assert_eq(port.observer_reads, 0, "The live scene never requests the dormant interaction.")
+		for retired_name: String in ["DatingSceneMoment", "PreviousSceneLine", "Capture", "Compare", "FalseCursor"]:
+			assert_null(scene.find_child(retired_name, true, false), retired_name)
+		assert_true(port.commands.is_empty())
 
 func test_flag_toggle_drag_and_rules_preserve_challenge_board_and_navigation() -> void:
 	var sheet: Control = _scene.worksheet

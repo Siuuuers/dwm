@@ -91,13 +91,6 @@ func begin_physical(command: Dictionary) -> Dictionary:
 		# a refused admission leaves the live board and its pending progress untouched.
 		_routine_pending = false
 		_admitted_command = command.duplicate(true)
-		var source: Variant = _game_state.route_context.get("dating_observer_source")
-		if source is Dictionary:
-			# A saved proof is not proof that this newly admitted view has rendered.
-			# Window progress and durable receipts remain unchanged, including same-token Load.
-			source["rendered"] = false
-			source["playback_token"] = ""
-			source["comparison_shown"] = false
 	return result
 
 func _begin_physical(command: Dictionary) -> Dictionary:
@@ -176,9 +169,7 @@ func dispatch_physical(physical_token: String, action: String, cell_index: int,
 func _dispatch_physical(physical_token: String, action: String, cell_index: int,
 		expected_revision: int) -> Dictionary:
 	if not _adopt(physical_token): return _fail(&"dating_challenge_unavailable")
-	var observer_pending: Variant = _game_state.route_context.get("dating_observer_source")
-	if observer_pending is Dictionary and observer_pending.get("checkpoint_pending", false) and observer_pending.get("run_id") == str(_attempt_identity().run_id) and _record.get("phase") == "pre_challenge":
-		return _fail(&"observer_checkpoint_retry_required")
+	# Retired Observer interactions cannot retain input custody in an older save.
 	# A later restore participant can roll GameState back without touching this retained
 	# owner's local preview. Rebuild that preview from the live branch before accepting input.
 	if _post_ending_history() and _record.phase not in ["pre_challenge", "preparing"] and (
@@ -877,26 +868,9 @@ func dispatch_observer(physical_token: String, atom_id: String, action: String, 
 	return result
 
 func _observer_source() -> Dictionary:
-	if _admitted_command.get("execution_mode", "canonical") != "canonical": return {}
-	if _record.is_empty() or _record.get("phase") != "pre_challenge" or _record.get("host") != "canonical_solo" \
-			or int(_record.context.get("day", 0)) != 2 or not _profile.has_method("get_observer_evidence"):
-		return {}
-	var participants: Array = _record.context.get("participants", [])
-	if participants.size() != 1 or participants[0] not in ["priscilla", "lavinia"]: return {}
-	var atom: Dictionary = OBSERVER_RULES.OBSERVER_ATOMS[participants[0]].duplicate(true)
-	# This is the same exact scene identity emitted by _entry(), not a loose friend match.
-	if (ATTEMPTS.semantic_slot(_record.context) + ".pre_challenge") != atom.entry_id: return {}
-	var registered: Dictionary = PRESENTATION_SIGNATURE.entry_record(str(atom.entry_id))
-	if not registered.ok: return {}
-	var expected := {"atom_id": atom.presentation_atom_id, "line_id": atom.line_id,
-		"evidence_id": "observer.%s.%s" % [participants[0], "verification" if participants[0] == "priscilla" else "restraint"],
-		"comparison_key": atom.comparison_key,
-		"grammar": "capture_compare" if participants[0] == "priscilla" else "withholding"}
-	var grants: Variant = registered.value.get("observer_atoms", [])
-	if not grants is Array or not grants.has(expected): return {}
-	atom["scope"] = participants[0]
-	atom["run_id"] = str(_attempt_identity().run_id)
-	return atom
+	# Current-build suspension (dwm-6gk). Original admission and tests are preserved
+	# at archive/observer-interactions-2026-09-21. No evidence is fabricated.
+	return {}
 
 func _observer_state(source: Dictionary) -> Dictionary:
 	var stored: Variant = _game_state.route_context.get("dating_observer_source")

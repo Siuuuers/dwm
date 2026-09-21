@@ -1194,8 +1194,9 @@ func _prepare_day7_ending_plan(condition_source: Dictionary, attempt_reader: Cal
 			if found is Dictionary and found.get("ok", false) and found.get("value") is Dictionary:
 				selected_attempts[slot] = found.value
 	var mastery: Dictionary = MASTERY.evaluate(run_id, heads, selected_attempts)
-	# Profile behavior evidence and actual prior postscript completion are separate from
-	# current canonical board mastery. Caller-supplied variant flags carry no authority.
+	# Observer interactions are deferred; solo postscripts require current board mastery
+	# and Sweet tone. Profile receipts still own replay form and pair Persistence.
+	# Caller-supplied variant flags carry no authority.
 	var evidence_profile: Dictionary = {}
 	if not profile_reader.is_valid() and is_inside_tree():
 		var profile_owner: Node = get_node_or_null("/root/ProfileManager")
@@ -1204,10 +1205,6 @@ func _prepare_day7_ending_plan(condition_source: Dictionary, attempt_reader: Cal
 	if profile_reader.is_valid():
 		var read_profile: Variant = profile_reader.call()
 		if read_profile is Dictionary: evidence_profile = read_profile.duplicate(true)
-	const OBSERVER := preload("res://scripts/profile/ObserverEvidence.gd")
-	var proof: Variant = evidence_profile.get("observer_evidence", {})
-	var valid_proof: Dictionary = OBSERVER.validate(proof)
-	var behavior: Dictionary = OBSERVER.evidence(valid_proof.value) if valid_proof.ok else {"priscilla": false, "lavinia": false}
 	var completed_posts := {}
 	var gallery_receipts: Variant = evidence_profile.get("gallery_transaction_receipts", {})
 	if gallery_receipts is Dictionary:
@@ -1218,7 +1215,7 @@ func _prepare_day7_ending_plan(condition_source: Dictionary, attempt_reader: Cal
 				completed_posts[receipt.ending_id] = true
 	var observer_variants := {}
 	for friend_id: String in ["priscilla", "lavinia"]:
-		if mastery[friend_id] and behavior[friend_id] \
+		if mastery[friend_id] \
 				and int((dating_route_state.get(friend_id, {}) as Dictionary).get("dark_points", 0)) \
 				< _PROVISIONAL_RELATIONSHIP_RULES.DARK_TONE_THRESHOLD:
 			observer_variants[friend_id] = "residue" if completed_posts.has("ending.%s.observation" % friend_id) else "full"
@@ -3796,3 +3793,4 @@ func _apply_gameplay_silent(gameplay: Dictionary) -> void:
 			self.set(key, v.duplicate())
 		else:
 			self.set(key, v)
+

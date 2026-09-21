@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [minesweeper, shop, desktop, settings, new_account, reading_delivery, localization]
+        suite: [minesweeper, shop, desktop, settings, new_account, reading_delivery, localization, dating]
     defaults:
       run:
         shell: pwsh
