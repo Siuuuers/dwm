@@ -48,6 +48,8 @@ $suites = @{
         'tests/unit/test_audio_settings_transactions.gd'
     )
     dating = @(
+        'tests/unit/test_active_dating_backup_capture.gd'
+        'tests/integration/test_dating_quick_commands.gd'
         'tests/unit/test_frozen_presentation_context.gd'
         'tests/unit/test_dating_narrative_playback.gd'
         'tests/unit/test_canonical_dating_mastery.gd'
@@ -119,11 +121,13 @@ $suites = @{
         'tests/unit/test_save_manager_parse_cache.gd'
         'tests/unit/test_settings_panel_resize.gd'
         'tests/unit/test_settings_preference_registry.gd'
+        'tests/unit/test_shared_week_tint.gd'
         'tests/unit/test_settings_window_transactions.gd'
         'tests/unit/test_window_mode_manager.gd'
         'tests/unit/test_window_mode_port.gd'
         'tests/unit/test_bootstrap_window_output.gd'
         'tests/scene/test_settings_window_mode_live.gd'
+        'tests/scene/test_settings_audio_live.gd'
         'tests/scene/test_settings_reset_confirmation.gd'
         'tests/scene/test_settings_folio.gd'
         'tests/scene/test_settings_host_geometry.gd'
@@ -262,6 +266,17 @@ $executed = $xml.SelectNodes('//testcase').Count
 if ($executed -eq 0) { throw 'GUT did not report any executed tests.' }
 if ($xml.SelectNodes('//failure | //error').Count -ne 0) { throw 'GUT reported test failures.' }
 Write-Host "${Suite}: $executed test cases completed across $($testPaths.Count) requested scripts."
+# Keep actual per-script results observable when the JUnit artifact is unavailable.
+$scriptResults = @($xml.SelectNodes('//testsuite') | ForEach-Object {
+    $cases = $_.SelectNodes('./testcase').Count
+    $skipped = $_.SelectNodes('./testcase[skipped]').Count
+    [ordered]@{ script = $_.GetAttribute('name'); test_cases = $cases; passed = $cases - $skipped; skipped = $skipped }
+})
+$skippedCases = $xml.SelectNodes('//testcase[skipped]').Count
+Write-Host ('CLOUD_GUT_RESULT ' + ([ordered]@{
+    suite = $Suite; test_cases = $executed; passed = $executed - $skippedCases; skipped = $skippedCases
+    requested_scripts = $testPaths.Count; reported_scripts = $scriptResults.Count; scripts = $scriptResults
+} | ConvertTo-Json -Depth 4 -Compress))
 
 if ($Suite -eq 'settings') {
     # Expected fixture refusals are reported separately from passing GUT cases.

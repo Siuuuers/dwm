@@ -835,8 +835,10 @@ func _capture_backup_checkpoint_inputs() -> Dictionary:
 	if not guarded.get("ok", false):
 		return guarded
 	var router := _target(&"SceneRouter")
-	if router != null and (get_tree().paused or router.get_current_route_id() == "dating"):
+	if router != null and get_tree().paused:
 		return router.capture_pause_backup_checkpoint_inputs()
+	if router != null and router.get_current_route_id() == "dating":
+		return _capture_active_dating_checkpoint_inputs()
 	var scene := get_tree().current_scene
 	var desktop: Object = _contacts_desktop_eviction_port.view.get_ref() if _contacts_desktop_eviction_port != null and _contacts_desktop_eviction_port.view != null else null
 	if scene == null or scene.scene_file_path != "res://scenes/main/MainGameScene.tscn" or desktop == null or not scene.is_ancestor_of(desktop) or not desktop.is_visible_in_tree():
@@ -872,7 +874,7 @@ func _admit_paused_desktop_backup(inputs: Dictionary) -> bool:
 	return paused.get("ok", false) and paused.value == inputs
 
 
-## Called only after the retained Pause owner validates its exact paused source.
+## The retained Pause or active Dating owner validates its exact source first.
 func _capture_paused_checkpoint_inputs() -> Dictionary:
 	var bridge := _target(&"DialogicBridge")
 	var game := _target(&"GameState")
@@ -892,6 +894,60 @@ func _capture_paused_checkpoint_inputs() -> Dictionary:
 	inputs.snapshot_input["schedule_view"] = view.value.view
 	inputs["dialogic_checkpoint"] = {}
 	return {"ok": true, "value": inputs}
+
+
+## Active Quick uses the same canonical producers as Pause, with its own exact live
+## scene/command proof. A narrative frontier never becomes an empty checkpoint here.
+func _capture_active_dating_checkpoint_inputs() -> Dictionary:
+	var scene := get_tree().current_scene
+	var admitted := _admit_active_dating_quick(scene)
+	if not admitted.get("ok", false): return admitted
+	var source: Dictionary = admitted.value
+	if source.phase not in ["pre_challenge", "preparing", "challenge",
+			"cleared_awaiting_terminal_choice", "post_challenge"]:
+		return _failure(&"backup_capture_unavailable", "Dating is not at an idle save boundary")
+	var captured := _capture_paused_checkpoint_inputs()
+	if not captured.get("ok", false): return captured
+	var inputs: Dictionary = captured.value
+	var snapshot: Dictionary = inputs.get("snapshot_input", {})
+	var current := _admit_active_dating_quick(scene)
+	if not current.get("ok", false) or current.value != source \
+			or inputs.get("route_id") != "dating" or inputs.get("dialogic_checkpoint") != {} \
+			or snapshot.get("lifecycle", {}).get("run_id") != source.session.get("run_id") \
+			or snapshot.get("gameplay", {}).get("route_context", {}).get("active_dating_challenge") != source.record:
+		return _failure(&"backup_source_changed", "Dating source changed during capture")
+	return {"ok": true, "value": inputs.duplicate(true)}
+
+
+func _admit_active_dating_quick(scene: Node) -> Dictionary:
+	var router := _target(&"SceneRouter")
+	var bridge := _target(&"DialogicBridge")
+	var game := _target(&"GameState")
+	if not is_instance_valid(scene) or scene != get_tree().current_scene or get_tree().paused \
+			or scene.scene_file_path != "res://scenes/dating/DatingScene.tscn" \
+			or not scene.is_visible_in_tree() or not scene.can_process() \
+			or not scene.has_method("get_presentation_projection") \
+			or router == null or router.get_current_route_id() != "dating" \
+			or bridge == null or bridge.has_active_playback() or not bridge.get_current_timeline_id().is_empty() \
+			or game == null or _retained_dating_presentation_port == null:
+		return _failure(&"backup_capture_unavailable", "Active Dating source is unavailable")
+	var guarded: Dictionary = _application_gate.guard_external(&"backup_capture")
+	if not guarded.get("ok", false): return guarded
+	var session: Dictionary = game.capture_live_session()
+	if not session.get("ok", false): return session
+	var valid: Dictionary = game.validate_live_session(session.value)
+	if not valid.get("ok", false): return valid
+	var command: Dictionary = scene.get_presentation_projection()
+	var physical: Dictionary = _retained_dating_presentation_port.pull_physical(command)
+	if not physical.get("ok", false): return physical
+	var record: Dictionary = game.capture_dating_challenge_state()
+	if not record.get("ok", false): return record
+	for key: String in ["physical_token", "command_sha256", "completion_transaction_id", "context"]:
+		if not command.has(key) or record.value.get(key) != command[key]:
+			return _failure(&"backup_source_changed", "Dating command changed")
+	return {"ok": true, "value": {"session": session.value.duplicate(true),
+		"command": command.duplicate(true), "record": record.value.duplicate(true),
+		"phase": str(physical.value.get("phase", ""))}}
 
 
 ## Mount the retained Contacts owners with explicitly provisional, replaceable copy.
@@ -2103,8 +2159,13 @@ func configure_dating_scene_services(scene: Node) -> Dictionary:
 	if colour == null:
 		var legacy: String = str(profile.get_preference("preferences.accessibility.colorblind_mode", "none"))
 		colour = preload("res://scripts/ui/MinesweeperApp.gd").LEGACY_COLOUR_PRESETS.get(legacy, "standard")
-	return scene.configure_presentation_services(input_owner, str(locale.get_locale()), int(percent),
+	var configured: Dictionary = scene.configure_presentation_services(input_owner, str(locale.get_locale()), int(percent),
 		bool(large), &"after_hours", bool(profile.get_preference("preferences.accessibility.high_contrast", false)), str(colour), profile)
+	if not configured.get("ok", false): return configured
+	var quick_port := preload("res://scripts/application/backup/BackupPresentationPort.gd").new()
+	configured = quick_port.configure(_target(&"SaveManager"), "in_run", _admit_active_dating_quick.bind(scene))
+	if not configured.get("ok", false): return configured
+	return scene.configure_quick_commands(quick_port, _target(&"DialogicBridge"), _target(&"GameState"))
 
 
 func _configure_condition_hospital(game_state: Object) -> Dictionary:

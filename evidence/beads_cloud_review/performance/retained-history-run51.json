@@ -1,0 +1,864 @@
+{
+  "repository": "Siuuuers/dwm",
+  "run_id": 35704376317,
+  "attempt": 1,
+  "job_id": 106671586400,
+  "head_sha": "a858fa787e911bed273abf0155304226d90fe9cb",
+  "tested_merge_sha": "4e1e63c8a0122feaa0c5af8902d8db13fc87aed1",
+  "markers": [
+    {
+      "marker": "SAVE_ADMISSION_PAIR",
+      "data": {
+        "pair": 1,
+        "order": [
+          "baseline",
+          "candidate"
+        ],
+        "baseline": {
+          "autosave_sha256": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+          "day": 7,
+          "login_us": 10451946,
+          "parse_cache_enabled": true,
+          "restored_board_sha256": "28b2b9652c640d1b891fefe46c273e2983b410629b236933531462d8eef5f8c6",
+          "restored_gameplay_sha256": "691b338d498e7e57d389569ad5e0d3c300e8e133e85031044204cd28d2da6827",
+          "restored_recovery_journal_sha256": "7f7b0a7fc6784ea8cebc4cc1271a0cd6af69b961e41193e1bd6f4da6e55eac4f",
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "abc55fbfc11cb8f882b7e6dda9030ccd9af09dc1a6db59b1cb0b179216143a27"
+        },
+        "candidate": {
+          "autosave_sha256": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+          "day": 7,
+          "login_us": 9043098,
+          "parse_cache_enabled": true,
+          "restored_board_sha256": "28b2b9652c640d1b891fefe46c273e2983b410629b236933531462d8eef5f8c6",
+          "restored_gameplay_sha256": "691b338d498e7e57d389569ad5e0d3c300e8e133e85031044204cd28d2da6827",
+          "restored_recovery_journal_sha256": "7f7b0a7fc6784ea8cebc4cc1271a0cd6af69b961e41193e1bd6f4da6e55eac4f",
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "1ba6f37640ca15527366d7cc9092ba55e1bcb12b9616f6ea7fa86fb5b56f67d2"
+        },
+        "candidate_minus_baseline_us": -1408848
+      }
+    },
+    {
+      "marker": "SAVE_ADMISSION_PAIR",
+      "data": {
+        "pair": 2,
+        "order": [
+          "candidate",
+          "baseline"
+        ],
+        "baseline": {
+          "autosave_sha256": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+          "day": 7,
+          "login_us": 10412743,
+          "parse_cache_enabled": true,
+          "restored_board_sha256": "28b2b9652c640d1b891fefe46c273e2983b410629b236933531462d8eef5f8c6",
+          "restored_gameplay_sha256": "691b338d498e7e57d389569ad5e0d3c300e8e133e85031044204cd28d2da6827",
+          "restored_recovery_journal_sha256": "7f7b0a7fc6784ea8cebc4cc1271a0cd6af69b961e41193e1bd6f4da6e55eac4f",
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "abc55fbfc11cb8f882b7e6dda9030ccd9af09dc1a6db59b1cb0b179216143a27"
+        },
+        "candidate": {
+          "autosave_sha256": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+          "day": 7,
+          "login_us": 9099332,
+          "parse_cache_enabled": true,
+          "restored_board_sha256": "28b2b9652c640d1b891fefe46c273e2983b410629b236933531462d8eef5f8c6",
+          "restored_gameplay_sha256": "691b338d498e7e57d389569ad5e0d3c300e8e133e85031044204cd28d2da6827",
+          "restored_recovery_journal_sha256": "7f7b0a7fc6784ea8cebc4cc1271a0cd6af69b961e41193e1bd6f4da6e55eac4f",
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "1ba6f37640ca15527366d7cc9092ba55e1bcb12b9616f6ea7fa86fb5b56f67d2"
+        },
+        "candidate_minus_baseline_us": -1313411
+      }
+    },
+    {
+      "marker": "SAVE_ADMISSION_PAIR",
+      "data": {
+        "pair": 3,
+        "order": [
+          "baseline",
+          "candidate"
+        ],
+        "baseline": {
+          "autosave_sha256": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+          "day": 7,
+          "login_us": 10499136,
+          "parse_cache_enabled": true,
+          "restored_board_sha256": "28b2b9652c640d1b891fefe46c273e2983b410629b236933531462d8eef5f8c6",
+          "restored_gameplay_sha256": "691b338d498e7e57d389569ad5e0d3c300e8e133e85031044204cd28d2da6827",
+          "restored_recovery_journal_sha256": "7f7b0a7fc6784ea8cebc4cc1271a0cd6af69b961e41193e1bd6f4da6e55eac4f",
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "abc55fbfc11cb8f882b7e6dda9030ccd9af09dc1a6db59b1cb0b179216143a27"
+        },
+        "candidate": {
+          "autosave_sha256": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+          "day": 7,
+          "login_us": 9085870,
+          "parse_cache_enabled": true,
+          "restored_board_sha256": "28b2b9652c640d1b891fefe46c273e2983b410629b236933531462d8eef5f8c6",
+          "restored_gameplay_sha256": "691b338d498e7e57d389569ad5e0d3c300e8e133e85031044204cd28d2da6827",
+          "restored_recovery_journal_sha256": "7f7b0a7fc6784ea8cebc4cc1271a0cd6af69b961e41193e1bd6f4da6e55eac4f",
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "1ba6f37640ca15527366d7cc9092ba55e1bcb12b9616f6ea7fa86fb5b56f67d2"
+        },
+        "candidate_minus_baseline_us": -1413266
+      }
+    },
+    {
+      "marker": "SAVE_ADMISSION_PAIR",
+      "data": {
+        "pair": 4,
+        "order": [
+          "candidate",
+          "baseline"
+        ],
+        "baseline": {
+          "autosave_sha256": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+          "day": 7,
+          "login_us": 10399399,
+          "parse_cache_enabled": true,
+          "restored_board_sha256": "28b2b9652c640d1b891fefe46c273e2983b410629b236933531462d8eef5f8c6",
+          "restored_gameplay_sha256": "691b338d498e7e57d389569ad5e0d3c300e8e133e85031044204cd28d2da6827",
+          "restored_recovery_journal_sha256": "7f7b0a7fc6784ea8cebc4cc1271a0cd6af69b961e41193e1bd6f4da6e55eac4f",
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "abc55fbfc11cb8f882b7e6dda9030ccd9af09dc1a6db59b1cb0b179216143a27"
+        },
+        "candidate": {
+          "autosave_sha256": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+          "day": 7,
+          "login_us": 9025656,
+          "parse_cache_enabled": true,
+          "restored_board_sha256": "28b2b9652c640d1b891fefe46c273e2983b410629b236933531462d8eef5f8c6",
+          "restored_gameplay_sha256": "691b338d498e7e57d389569ad5e0d3c300e8e133e85031044204cd28d2da6827",
+          "restored_recovery_journal_sha256": "7f7b0a7fc6784ea8cebc4cc1271a0cd6af69b961e41193e1bd6f4da6e55eac4f",
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "1ba6f37640ca15527366d7cc9092ba55e1bcb12b9616f6ea7fa86fb5b56f67d2"
+        },
+        "candidate_minus_baseline_us": -1373743
+      }
+    },
+    {
+      "marker": "SAVE_ADMISSION_PAIR",
+      "data": {
+        "pair": 5,
+        "order": [
+          "baseline",
+          "candidate"
+        ],
+        "baseline": {
+          "autosave_sha256": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+          "day": 7,
+          "login_us": 10470861,
+          "parse_cache_enabled": true,
+          "restored_board_sha256": "28b2b9652c640d1b891fefe46c273e2983b410629b236933531462d8eef5f8c6",
+          "restored_gameplay_sha256": "691b338d498e7e57d389569ad5e0d3c300e8e133e85031044204cd28d2da6827",
+          "restored_recovery_journal_sha256": "7f7b0a7fc6784ea8cebc4cc1271a0cd6af69b961e41193e1bd6f4da6e55eac4f",
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "abc55fbfc11cb8f882b7e6dda9030ccd9af09dc1a6db59b1cb0b179216143a27"
+        },
+        "candidate": {
+          "autosave_sha256": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+          "day": 7,
+          "login_us": 9042599,
+          "parse_cache_enabled": true,
+          "restored_board_sha256": "28b2b9652c640d1b891fefe46c273e2983b410629b236933531462d8eef5f8c6",
+          "restored_gameplay_sha256": "691b338d498e7e57d389569ad5e0d3c300e8e133e85031044204cd28d2da6827",
+          "restored_recovery_journal_sha256": "7f7b0a7fc6784ea8cebc4cc1271a0cd6af69b961e41193e1bd6f4da6e55eac4f",
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "1ba6f37640ca15527366d7cc9092ba55e1bcb12b9616f6ea7fa86fb5b56f67d2"
+        },
+        "candidate_minus_baseline_us": -1428262
+      }
+    },
+    {
+      "marker": "SAVE_ADMISSION_PAIR",
+      "data": {
+        "pair": 6,
+        "order": [
+          "candidate",
+          "baseline"
+        ],
+        "baseline": {
+          "autosave_sha256": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+          "day": 7,
+          "login_us": 10491326,
+          "parse_cache_enabled": true,
+          "restored_board_sha256": "28b2b9652c640d1b891fefe46c273e2983b410629b236933531462d8eef5f8c6",
+          "restored_gameplay_sha256": "691b338d498e7e57d389569ad5e0d3c300e8e133e85031044204cd28d2da6827",
+          "restored_recovery_journal_sha256": "7f7b0a7fc6784ea8cebc4cc1271a0cd6af69b961e41193e1bd6f4da6e55eac4f",
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "abc55fbfc11cb8f882b7e6dda9030ccd9af09dc1a6db59b1cb0b179216143a27"
+        },
+        "candidate": {
+          "autosave_sha256": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+          "day": 7,
+          "login_us": 9028678,
+          "parse_cache_enabled": true,
+          "restored_board_sha256": "28b2b9652c640d1b891fefe46c273e2983b410629b236933531462d8eef5f8c6",
+          "restored_gameplay_sha256": "691b338d498e7e57d389569ad5e0d3c300e8e133e85031044204cd28d2da6827",
+          "restored_recovery_journal_sha256": "7f7b0a7fc6784ea8cebc4cc1271a0cd6af69b961e41193e1bd6f4da6e55eac4f",
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "1ba6f37640ca15527366d7cc9092ba55e1bcb12b9616f6ea7fa86fb5b56f67d2"
+        },
+        "candidate_minus_baseline_us": -1462648
+      }
+    },
+    {
+      "marker": "SAVE_ADMISSION_PAIR",
+      "data": {
+        "pair": 7,
+        "order": [
+          "baseline",
+          "candidate"
+        ],
+        "baseline": {
+          "autosave_sha256": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+          "day": 7,
+          "login_us": 10447403,
+          "parse_cache_enabled": true,
+          "restored_board_sha256": "28b2b9652c640d1b891fefe46c273e2983b410629b236933531462d8eef5f8c6",
+          "restored_gameplay_sha256": "691b338d498e7e57d389569ad5e0d3c300e8e133e85031044204cd28d2da6827",
+          "restored_recovery_journal_sha256": "7f7b0a7fc6784ea8cebc4cc1271a0cd6af69b961e41193e1bd6f4da6e55eac4f",
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "abc55fbfc11cb8f882b7e6dda9030ccd9af09dc1a6db59b1cb0b179216143a27"
+        },
+        "candidate": {
+          "autosave_sha256": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+          "day": 7,
+          "login_us": 9010670,
+          "parse_cache_enabled": true,
+          "restored_board_sha256": "28b2b9652c640d1b891fefe46c273e2983b410629b236933531462d8eef5f8c6",
+          "restored_gameplay_sha256": "691b338d498e7e57d389569ad5e0d3c300e8e133e85031044204cd28d2da6827",
+          "restored_recovery_journal_sha256": "7f7b0a7fc6784ea8cebc4cc1271a0cd6af69b961e41193e1bd6f4da6e55eac4f",
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "1ba6f37640ca15527366d7cc9092ba55e1bcb12b9616f6ea7fa86fb5b56f67d2"
+        },
+        "candidate_minus_baseline_us": -1436733
+      }
+    },
+    {
+      "marker": "SAVE_ADMISSION_PAIR",
+      "data": {
+        "pair": 8,
+        "order": [
+          "candidate",
+          "baseline"
+        ],
+        "baseline": {
+          "autosave_sha256": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+          "day": 7,
+          "login_us": 10453202,
+          "parse_cache_enabled": true,
+          "restored_board_sha256": "28b2b9652c640d1b891fefe46c273e2983b410629b236933531462d8eef5f8c6",
+          "restored_gameplay_sha256": "691b338d498e7e57d389569ad5e0d3c300e8e133e85031044204cd28d2da6827",
+          "restored_recovery_journal_sha256": "7f7b0a7fc6784ea8cebc4cc1271a0cd6af69b961e41193e1bd6f4da6e55eac4f",
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "abc55fbfc11cb8f882b7e6dda9030ccd9af09dc1a6db59b1cb0b179216143a27"
+        },
+        "candidate": {
+          "autosave_sha256": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+          "day": 7,
+          "login_us": 9051544,
+          "parse_cache_enabled": true,
+          "restored_board_sha256": "28b2b9652c640d1b891fefe46c273e2983b410629b236933531462d8eef5f8c6",
+          "restored_gameplay_sha256": "691b338d498e7e57d389569ad5e0d3c300e8e133e85031044204cd28d2da6827",
+          "restored_recovery_journal_sha256": "7f7b0a7fc6784ea8cebc4cc1271a0cd6af69b961e41193e1bd6f4da6e55eac4f",
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "1ba6f37640ca15527366d7cc9092ba55e1bcb12b9616f6ea7fa86fb5b56f67d2"
+        },
+        "candidate_minus_baseline_us": -1401658
+      }
+    },
+    {
+      "marker": "SAVE_ADMISSION_COMPARISON",
+      "data": {
+        "control": "Current SaveManager versus the same source with only the four redundant schema validations restored. Same current schemas, parse cache enabled, identical retained source bytes, one new isolated process per sample.",
+        "sampling": "Eight matched pairs / sixteen processes; odd pairs baseline then candidate, even pairs candidate then baseline. Shared Windows runner; process-cold Login, not flushed OS filesystem caches or physical input-to-paint.",
+        "source_code_sha256": {
+          "candidate": "1ba6f37640ca15527366d7cc9092ba55e1bcb12b9616f6ea7fa86fb5b56f67d2",
+          "baseline": "abc55fbfc11cb8f882b7e6dda9030ccd9af09dc1a6db59b1cb0b179216143a27",
+          "shared": {
+            "scripts/infrastructure/save/SaveMigrations.gd": "7bc5ff311c552276cb276a7e0c1b739109d64eb0e0fd7db225cbdcc76f3b467c",
+            "scripts/infrastructure/save/SaveDocumentSchema.gd": "c47f17d39043ab597c1f2699cd3f5256aeee50d29f4b8b8226763d46034b0b1a",
+            "scripts/domain/run/RunSnapshotSchema.gd": "88c329ce56350c8cd09124222cc69ae2f0335731f6519d655c8c8a14beff9158",
+            "scripts/infrastructure/save/CheckpointJournal.gd": "617aa35fe71b426c8c0b643b9fdda2e65322f5e37e652fb98bf7f78f64e7c344"
+          }
+        },
+        "source_json_sha256": {
+          "desktop-issuer-root.json": "3a8dbf898a5ca2b682c00e5ad1bd595691ad5d6b9f4c621404600a138d59b6d1",
+          "desktop-publications.json": "9fac975169e56786ab64b627d888516f9576fd51920cdead60c8640f3b27ef6d",
+          "profile.json": "3ce714347c5df34f23e5bc82c5d7bdcb096eb3fd67d174c9bbac8dd04482bae1",
+          "saves/autosave.json": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+          "saves/desktop-continuation-operations.json": "637cc3e11824a6a6c87f1a0211c6777804b0363babb215dd00783e8e85aeae9a",
+          "saves/slot_1.json": "5dff5e06cbd205a1ad837fd702cc6c74aa6b626a9003346e9c6b8ebe4301e499",
+          "schedule-foundation-publications.json": "c1d48055f4086131a8a4b91c8a014733472226d98ab031d43b0000e335a565d3",
+          "seven-day-history-proof.json": "7afb5f6b53ae48e50fcd7604e7ff9c07ffe4377d1671792ccffce157c4846866"
+        },
+        "summary": {
+          "pair_count": 8,
+          "baseline_median_login_us": 10452574,
+          "candidate_median_login_us": 9042848.5,
+          "median_paired_candidate_minus_baseline_us": -1411057
+        }
+      }
+    },
+    {
+      "marker": "SEVEN_DAY_HISTORY_MEASUREMENT",
+      "data": {
+        "day": 1,
+        "retained": {
+          "line": 7,
+          "manual_save": 8,
+          "semantic": 2
+        },
+        "files": {
+          "desktop-issuer-root.json": 7710,
+          "desktop-publications.json": 10779,
+          "profile.json": 2711,
+          "saves/autosave.json": 111981,
+          "saves/desktop-continuation-operations.json": 21775,
+          "saves/slot_1.json": 78266,
+          "schedule-foundation-publications.json": 34
+        },
+        "first_reveal_sync_us": 111625,
+        "terminal_reveal_sync_us": 10254,
+        "terminal_settlement_us": 176423,
+        "manual_slot_save_us": 171143,
+        "manual_slot_prepare_us": 45452,
+        "manual_slot_commit_us": 125668,
+        "autosave_sha256": "2d750703b5c4c3fd9a8400070252ee52bea931b4ab059dea265a7e720aaadc23"
+      }
+    },
+    {
+      "marker": "SEVEN_DAY_HISTORY_MEASUREMENT",
+      "data": {
+        "day": 2,
+        "retained": {
+          "line": 14,
+          "manual_save": 16,
+          "semantic": 2
+        },
+        "files": {
+          "desktop-issuer-root.json": 17156,
+          "desktop-publications.json": 31294,
+          "profile.json": 2711,
+          "saves/autosave.json": 441294,
+          "saves/desktop-continuation-operations.json": 21775,
+          "saves/slot_1.json": 393155,
+          "schedule-foundation-publications.json": 6048
+        },
+        "first_reveal_sync_us": 351755,
+        "terminal_reveal_sync_us": 10834,
+        "terminal_settlement_us": 289491,
+        "manual_slot_save_us": 729694,
+        "manual_slot_prepare_us": 232934,
+        "manual_slot_commit_us": 496730,
+        "autosave_sha256": "74029acc370c35b71fd1e25fe6f07a12ae485198b087a9b70369d0afd7ae6021"
+      }
+    },
+    {
+      "marker": "SEVEN_DAY_HISTORY_MEASUREMENT",
+      "data": {
+        "day": 3,
+        "retained": {
+          "line": 21,
+          "manual_save": 24,
+          "semantic": 2
+        },
+        "files": {
+          "desktop-issuer-root.json": 26604,
+          "desktop-publications.json": 51808,
+          "profile.json": 3001,
+          "saves/autosave.json": 780649,
+          "saves/desktop-continuation-operations.json": 21775,
+          "saves/slot_1.json": 729505,
+          "schedule-foundation-publications.json": 12063
+        },
+        "first_reveal_sync_us": 588489,
+        "terminal_reveal_sync_us": 11003,
+        "terminal_settlement_us": 421788,
+        "manual_slot_save_us": 1386317,
+        "manual_slot_prepare_us": 468159,
+        "manual_slot_commit_us": 918127,
+        "autosave_sha256": "1fb8b02d0f27a08ebbc9959573c5721922e1c9574f74025239d159f4173d71e5"
+      }
+    },
+    {
+      "marker": "SEVEN_DAY_HISTORY_MEASUREMENT",
+      "data": {
+        "day": 4,
+        "retained": {
+          "line": 28,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "files": {
+          "desktop-issuer-root.json": 36052,
+          "desktop-publications.json": 72341,
+          "profile.json": 3001,
+          "saves/autosave.json": 1155971,
+          "saves/desktop-continuation-operations.json": 21775,
+          "saves/slot_1.json": 1102029,
+          "schedule-foundation-publications.json": 18078
+        },
+        "first_reveal_sync_us": 822555,
+        "terminal_reveal_sync_us": 11485,
+        "terminal_settlement_us": 553213,
+        "manual_slot_save_us": 2180947,
+        "manual_slot_prepare_us": 757649,
+        "manual_slot_commit_us": 1423254,
+        "autosave_sha256": "cf5d0e7b22fb4c2a5f0bf89490b6813a544e8f4793faeaf4c1ef80cc0a1f5ad8"
+      }
+    },
+    {
+      "marker": "SEVEN_DAY_HISTORY_MEASUREMENT",
+      "data": {
+        "day": 5,
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "files": {
+          "desktop-issuer-root.json": 45500,
+          "desktop-publications.json": 92927,
+          "profile.json": 3001,
+          "saves/autosave.json": 1518033,
+          "saves/desktop-continuation-operations.json": 21775,
+          "saves/slot_1.json": 1466561,
+          "schedule-foundation-publications.json": 24093
+        },
+        "first_reveal_sync_us": 1065305,
+        "terminal_reveal_sync_us": 10919,
+        "terminal_settlement_us": 684309,
+        "manual_slot_save_us": 2955924,
+        "manual_slot_prepare_us": 1052531,
+        "manual_slot_commit_us": 1903350,
+        "autosave_sha256": "09c52a46cfbb95f780b135e5ee91657d128afa2254d483f6b3ad4686711beedd"
+      }
+    },
+    {
+      "marker": "SEVEN_DAY_HISTORY_MEASUREMENT",
+      "data": {
+        "day": 6,
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "files": {
+          "desktop-issuer-root.json": 54948,
+          "desktop-publications.json": 113446,
+          "profile.json": 3001,
+          "saves/autosave.json": 1740125,
+          "saves/desktop-continuation-operations.json": 21775,
+          "saves/slot_1.json": 1700594,
+          "schedule-foundation-publications.json": 30108
+        },
+        "first_reveal_sync_us": 1234758,
+        "terminal_reveal_sync_us": 9966,
+        "terminal_settlement_us": 765854,
+        "manual_slot_save_us": 3561211,
+        "manual_slot_prepare_us": 1309613,
+        "manual_slot_commit_us": 2251549,
+        "autosave_sha256": "6a7e284784e7fbd18f8d245ce13f769492197b7e21fb6093c14335d30f2d818c"
+      }
+    },
+    {
+      "marker": "SEVEN_DAY_HISTORY_MEASUREMENT",
+      "data": {
+        "day": 7,
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "files": {
+          "desktop-issuer-root.json": 64810,
+          "desktop-publications.json": 133926,
+          "profile.json": 3001,
+          "saves/autosave.json": 1910409,
+          "saves/desktop-continuation-operations.json": 21775,
+          "saves/slot_1.json": 1872307,
+          "schedule-foundation-publications.json": 36123
+        },
+        "first_reveal_sync_us": 1371789,
+        "terminal_reveal_sync_us": 10957,
+        "terminal_settlement_us": 842650,
+        "manual_slot_save_us": 4016858,
+        "manual_slot_prepare_us": 1503361,
+        "manual_slot_commit_us": 2513453,
+        "autosave_sha256": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990"
+      }
+    },
+    {
+      "marker": "SEVEN_DAY_HISTORY_PROOF",
+      "data": {
+        "checkout_ref": "4e1e63c8a0122feaa0c5af8902d8db13fc87aed1",
+        "payload_bytes": 1910409,
+        "payload_sha256": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+        "write": {
+          "autosave_sha256": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+          "days": 7,
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "synthetic_checkpoints": 98
+        },
+        "cold_read": {
+          "autosave_sha256": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+          "day": 7,
+          "login_us": 9073971,
+          "parse_cache_enabled": true,
+          "restored_board_sha256": "28b2b9652c640d1b891fefe46c273e2983b410629b236933531462d8eef5f8c6",
+          "restored_gameplay_sha256": "691b338d498e7e57d389569ad5e0d3c300e8e133e85031044204cd28d2da6827",
+          "restored_recovery_journal_sha256": "7f7b0a7fc6784ea8cebc4cc1271a0cd6af69b961e41193e1bd6f4da6e55eac4f",
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "1ba6f37640ca15527366d7cc9092ba55e1bcb12b9616f6ea7fa86fb5b56f67d2"
+        },
+        "fixture": "7 synthetic line and 7 synthetic manual checkpoint records/day, plus one real Slot 1 save and App loss/day. Public Schedule Done advances to Day 7. This is not an authored-dialogue playthrough.",
+        "timing_policy": "Observations on one shared Windows runner; no speed threshold or physical input-to-paint guarantee.",
+        "timing_boundaries": {
+          "manual_slot_save_us": "Production prepare_backup_action(save, slot:1) plus commit_backup_action, including synchronous signal handlers.",
+          "login_us": "Automated Title Login, Backup picker opening and Autosave selection, load consent, restore and awaited process frames.",
+          "phase_scopes": "Each scope is inclusive. Parent and child scopes overlap and must not be summed; repeated phases inside one scope accumulate.",
+          "phase_collection": "Save/load profiles include only labeled manual-save and Title Login measurement windows; startup and opening each daily Backup app before its save timer are excluded."
+        },
+        "parse_cache_comparison": {
+          "control": "Same checkout and retained user-data source, cloned into a new isolated process per variant. Only DWM_SAVE_PARSE_CACHE_DISABLED differs.",
+          "sampling": "One cold Login per variant, fixed disabled-then-enabled order on one shared Windows runner; observational, not a repeated-sample or frame-time guarantee.",
+          "source_json_sha256": {
+            "desktop-issuer-root.json": "3a8dbf898a5ca2b682c00e5ad1bd595691ad5d6b9f4c621404600a138d59b6d1",
+            "desktop-publications.json": "9fac975169e56786ab64b627d888516f9576fd51920cdead60c8640f3b27ef6d",
+            "profile.json": "3ce714347c5df34f23e5bc82c5d7bdcb096eb3fd67d174c9bbac8dd04482bae1",
+            "saves/autosave.json": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+            "saves/desktop-continuation-operations.json": "637cc3e11824a6a6c87f1a0211c6777804b0363babb215dd00783e8e85aeae9a",
+            "saves/slot_1.json": "5dff5e06cbd205a1ad837fd702cc6c74aa6b626a9003346e9c6b8ebe4301e499",
+            "schedule-foundation-publications.json": "c1d48055f4086131a8a4b91c8a014733472226d98ab031d43b0000e335a565d3",
+            "seven-day-history-proof.json": "7afb5f6b53ae48e50fcd7604e7ff9c07ffe4377d1671792ccffce157c4846866"
+          },
+          "disabled": {
+            "autosave_sha256": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+            "day": 7,
+            "login_us": 13931749,
+            "parse_cache_enabled": false,
+            "restored_board_sha256": "28b2b9652c640d1b891fefe46c273e2983b410629b236933531462d8eef5f8c6",
+            "restored_gameplay_sha256": "691b338d498e7e57d389569ad5e0d3c300e8e133e85031044204cd28d2da6827",
+            "restored_recovery_journal_sha256": "7f7b0a7fc6784ea8cebc4cc1271a0cd6af69b961e41193e1bd6f4da6e55eac4f",
+            "retained": {
+              "line": 32,
+              "manual_save": 32,
+              "semantic": 2
+            },
+            "retained_checkpoint_count": 66,
+            "save_manager_sha256": "1ba6f37640ca15527366d7cc9092ba55e1bcb12b9616f6ea7fa86fb5b56f67d2"
+          },
+          "enabled": {
+            "autosave_sha256": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+            "day": 7,
+            "login_us": 9073971,
+            "parse_cache_enabled": true,
+            "restored_board_sha256": "28b2b9652c640d1b891fefe46c273e2983b410629b236933531462d8eef5f8c6",
+            "restored_gameplay_sha256": "691b338d498e7e57d389569ad5e0d3c300e8e133e85031044204cd28d2da6827",
+            "restored_recovery_journal_sha256": "7f7b0a7fc6784ea8cebc4cc1271a0cd6af69b961e41193e1bd6f4da6e55eac4f",
+            "retained": {
+              "line": 32,
+              "manual_save": 32,
+              "semantic": 2
+            },
+            "retained_checkpoint_count": 66,
+            "save_manager_sha256": "1ba6f37640ca15527366d7cc9092ba55e1bcb12b9616f6ea7fa86fb5b56f67d2"
+          }
+        }
+      }
+    },
+    {
+      "marker": "OUTGOING_NORMALIZATION_MEASUREMENT",
+      "data": {
+        "variant": "baseline",
+        "label": "zh-CN",
+        "measurement": {
+          "bytes": 146694,
+          "input_sha256": "b99c1ea26bb8d7e7eee5a9a1234ba0179c4b19120e2bf67acb535d591d9644aa",
+          "journal_bundles": 2,
+          "median_us": 21272,
+          "output_sha256": "b99c1ea26bb8d7e7eee5a9a1234ba0179c4b19120e2bf67acb535d591d9644aa",
+          "proof_source": "strict current validation of every fixed-payload bundle; seam measurement, not evidence that gameplay had a complete splice proof set",
+          "samples_us": [
+            21272,
+            21056,
+            20914,
+            21284,
+            21479
+          ],
+          "schema_version": 7,
+          "snapshot_schema_version": 7,
+          "validated_journal_bundles": 2,
+          "variant": "baseline"
+        }
+      }
+    },
+    {
+      "marker": "OUTGOING_NORMALIZATION_MEASUREMENT",
+      "data": {
+        "variant": "baseline",
+        "label": "zh-HK",
+        "measurement": {
+          "bytes": 119160,
+          "input_sha256": "0f0ac4d45d605649d81669ad4eb79f2234488fa300c3ea16c97b30f2d6ceb7e2",
+          "journal_bundles": 2,
+          "median_us": 16732,
+          "output_sha256": "0f0ac4d45d605649d81669ad4eb79f2234488fa300c3ea16c97b30f2d6ceb7e2",
+          "proof_source": "strict current validation of every fixed-payload bundle; seam measurement, not evidence that gameplay had a complete splice proof set",
+          "samples_us": [
+            16732,
+            16753,
+            16846,
+            16645,
+            16608
+          ],
+          "schema_version": 7,
+          "snapshot_schema_version": 7,
+          "validated_journal_bundles": 2,
+          "variant": "baseline"
+        }
+      }
+    },
+    {
+      "marker": "OUTGOING_NORMALIZATION_MEASUREMENT",
+      "data": {
+        "variant": "baseline",
+        "label": "day7",
+        "measurement": {
+          "bytes": 1910409,
+          "input_sha256": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+          "journal_bundles": 66,
+          "median_us": 185011,
+          "output_sha256": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+          "proof_source": "strict current validation of every fixed-payload bundle; seam measurement, not evidence that gameplay had a complete splice proof set",
+          "samples_us": [
+            184874,
+            185347,
+            184700,
+            185011,
+            185025
+          ],
+          "schema_version": 7,
+          "snapshot_schema_version": 7,
+          "validated_journal_bundles": 66,
+          "variant": "baseline"
+        }
+      }
+    },
+    {
+      "marker": "OUTGOING_NORMALIZATION_MEASUREMENT",
+      "data": {
+        "variant": "candidate",
+        "label": "zh-CN",
+        "measurement": {
+          "bytes": 146694,
+          "input_sha256": "b99c1ea26bb8d7e7eee5a9a1234ba0179c4b19120e2bf67acb535d591d9644aa",
+          "journal_bundles": 2,
+          "median_us": 16140,
+          "output_sha256": "b99c1ea26bb8d7e7eee5a9a1234ba0179c4b19120e2bf67acb535d591d9644aa",
+          "proof_source": "strict current validation of every fixed-payload bundle; seam measurement, not evidence that gameplay had a complete splice proof set",
+          "samples_us": [
+            16205,
+            16233,
+            16034,
+            16140,
+            15869
+          ],
+          "schema_version": 7,
+          "snapshot_schema_version": 7,
+          "validated_journal_bundles": 2,
+          "variant": "candidate"
+        }
+      }
+    },
+    {
+      "marker": "OUTGOING_NORMALIZATION_MEASUREMENT",
+      "data": {
+        "variant": "candidate",
+        "label": "zh-HK",
+        "measurement": {
+          "bytes": 119160,
+          "input_sha256": "0f0ac4d45d605649d81669ad4eb79f2234488fa300c3ea16c97b30f2d6ceb7e2",
+          "journal_bundles": 2,
+          "median_us": 12822,
+          "output_sha256": "0f0ac4d45d605649d81669ad4eb79f2234488fa300c3ea16c97b30f2d6ceb7e2",
+          "proof_source": "strict current validation of every fixed-payload bundle; seam measurement, not evidence that gameplay had a complete splice proof set",
+          "samples_us": [
+            12809,
+            13102,
+            12822,
+            12907,
+            12558
+          ],
+          "schema_version": 7,
+          "snapshot_schema_version": 7,
+          "validated_journal_bundles": 2,
+          "variant": "candidate"
+        }
+      }
+    },
+    {
+      "marker": "OUTGOING_NORMALIZATION_MEASUREMENT",
+      "data": {
+        "variant": "candidate",
+        "label": "day7",
+        "measurement": {
+          "bytes": 1910409,
+          "input_sha256": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+          "journal_bundles": 66,
+          "median_us": 98066,
+          "output_sha256": "2736376674f206f02c7483a12c83b81d1a10646797cff8e084d95a30e5e96990",
+          "proof_source": "strict current validation of every fixed-payload bundle; seam measurement, not evidence that gameplay had a complete splice proof set",
+          "samples_us": [
+            98066,
+            97188,
+            101213,
+            98394,
+            96999
+          ],
+          "schema_version": 7,
+          "snapshot_schema_version": 7,
+          "validated_journal_bundles": 66,
+          "variant": "candidate"
+        }
+      }
+    },
+    {
+      "marker": "OUTGOING_NORMALIZATION_PROOF",
+      "data": {
+        "checkout_ref": "4e1e63c8a0122feaa0c5af8902d8db13fc87aed1",
+        "source_sha256": {
+          "checkpoint_port": "11236f7375b94729d00bcb9952954a9d2fb6cb564103fb93912ba412347b3b38",
+          "document_schema": "c47f17d39043ab597c1f2699cd3f5256aeee50d29f4b8b8226763d46034b0b1a",
+          "run_schema": "88c329ce56350c8cd09124222cc69ae2f0335731f6519d655c8c8a14beff9158"
+        },
+        "localized_payload_manifest": {
+          "checkout_ref": "4e1e63c8a0122feaa0c5af8902d8db13fc87aed1",
+          "producer_run_id": "35704376317",
+          "producer_run_attempt": 1,
+          "payloads": [
+            {
+              "locale": "zh-CN",
+              "file": "fixed-zh-CN-autosave.json",
+              "sha256": "b99c1ea26bb8d7e7eee5a9a1234ba0179c4b19120e2bf67acb535d591d9644aa",
+              "schema_version": 7,
+              "snapshot_schema_version": 7,
+              "journal_bundles": 2,
+              "producer_variant": "baseline",
+              "producer_schema_sha256": "cbe20e697476ad671c6a62891cd72ff8165a96e581bfd638926ef7090894682a",
+              "dating_ending": "win"
+            },
+            {
+              "locale": "zh-HK",
+              "file": "fixed-zh-HK-autosave.json",
+              "sha256": "0f0ac4d45d605649d81669ad4eb79f2234488fa300c3ea16c97b30f2d6ceb7e2",
+              "schema_version": 7,
+              "snapshot_schema_version": 7,
+              "journal_bundles": 2,
+              "producer_variant": "baseline",
+              "producer_schema_sha256": "cbe20e697476ad671c6a62891cd72ff8165a96e581bfd638926ef7090894682a",
+              "dating_ending": "loss"
+            }
+          ]
+        },
+        "ablation": "Current port and strict schema for both variants; only complete-document versus proven-journal normalization differs. Five timed samples after two warmups reuse each identical document. No timing threshold."
+      }
+    },
+    {
+      "raw": "2026-09-22T08:40:01.5164447Z OUTGOING_NORMALIZATION_PERFORMANCE_VERIFIED: six exact-payload probes with unchanged validation and retention."
+    }
+  ]
+}

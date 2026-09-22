@@ -452,6 +452,9 @@ func _dating_journey(game: Node, desktop: Node) -> void:
 			"mid-Dating Load activates a new session"): return
 		if not _check(dating.get("_physical_view").phase == "challenge", "restored Dating input is playable"): return
 		print("PLAYABLE_DATING_RELOAD_PASS: actual mid-board Autosave Load preserves board and resumes current command")
+		if not await _active_dating_quick_journey(game, dating): return
+		dating = current_scene
+		record = game.capture_dating_challenge_state().value
 	# The fixture chooses a hidden mine; the real worksheet/owner determines and persists its result.
 	dating.worksheet.cell_action_requested.emit(&"reveal", int(record.board.mine_indices[0]),
 		int(dating.get("_physical_view").board.revision))
@@ -473,6 +476,91 @@ func _dating_journey(game: Node, desktop: Node) -> void:
 		await _logout_journey(game)
 		return
 	quit(0)
+
+
+## The rendered reload case also crosses the actual active Quick input, capture,
+## storage and restore boundary. No Backup or capture owner is replaced here.
+func _active_dating_quick_journey(game: Node, dating: Node) -> bool:
+	var saves: Node = root.get_node("SaveManager")
+	var profile: Node = root.get_node("ProfileManager")
+	var prior_scene_id: int = dating.get_instance_id()
+	var quick: Node = dating.get("_quick_commands")
+	if not _check(is_instance_valid(quick), "active Dating has its composed Quick command owner"): return false
+	await _frames()
+	dating.get_window().grab_focus()
+	dating.worksheet.grid.grab_focus()
+	var focus: Control = root.gui_get_focus_owner()
+	var before: Dictionary = game.capture_dating_challenge_state().value.duplicate(true)
+	var prior_session: Dictionary = game.capture_live_session().value.duplicate(true)
+	var prior_profile: Dictionary = profile.get_profile_snapshot()
+	var command: Dictionary = dating.get_presentation_projection()
+	await _dating_quick_key(KEY_F5)
+	if not _check(quick.last_result.get("ok", false), "active F5 commits Quick through SaveManager: " + JSON.stringify(quick.last_result)): return false
+	if not _check(not paused and current_scene == dating and dating.get("_confirmation") == null
+			and root.gui_get_focus_owner() == focus and game.capture_live_session().value == prior_session,
+			"active F5 retains live Dating source and focus without opening Pause"): return false
+	var disk: Dictionary = saves.get("_storage").read_text("quicksave.json")
+	if not _check(disk.get("ok", false), "active F5 writes the isolated physical Quick file"): return false
+	var schema := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
+	var admitted: Dictionary = schema.validate(JSON.parse_string(disk.value))
+	if not _check(admitted.get("ok", false), "active F5 writes a strictly admitted current document: " + JSON.stringify(admitted.get("code"))): return false
+	var document: Dictionary = admitted.value.candidate
+	var snapshot: Dictionary = document.current_snapshot.snapshot
+	var writer := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+	var expected: Dictionary = writer.stringify(before)
+	var stored: Dictionary = writer.stringify(snapshot.gameplay.route_context.active_dating_challenge)
+	if not _check(document.schema_version == schema.DOCUMENT_VERSION and snapshot.schema_version == schema.RUN_SNAPSHOT_SCHEMA.SCHEMA_VERSION
+			and snapshot.route_id == "dating" and snapshot.active_app_id == null and snapshot.narrative_checkpoint == {}
+			and expected.get("ok", false) and stored.get("ok", false) and expected.value == stored.value,
+			"Quick file contains the exact current Dating record and an idle narrative frontier"): return false
+	await _dating_quick_key(KEY_F9)
+	var sheet: Control = dating.get("_confirmation")
+	if not _check(is_instance_valid(sheet) and sheet.cancel_button.has_focus() and not paused,
+			"active F9 opens its Cancel-first confirmation without hidden Pause"): return false
+	if not await _capture_screen("06-dating-quick-consent"): return false
+	if not _check(game.capture_live_session().value == prior_session and game.capture_dating_challenge_state().value == before,
+			"Quick Load consent has not restored or advanced its source"): return false
+	if not await _ordinary_accept_focused(sheet.cancel_button, "active Quick Load Cancel"): return false
+	if not _check(dating.get("_confirmation") == null and root.gui_get_focus_owner() == focus
+			and game.capture_live_session().value == prior_session and game.capture_dating_challenge_state().value == before
+			and saves.get("_storage").read_text("quicksave.json").value == disk.value,
+			"Cancel preserves source, exact focus and every Quick-file byte"): return false
+	# A real flag changes the live record after saving. Load must restore the file,
+	# rather than merely retaining the same board and reporting a new session.
+	dating.worksheet.cell_action_requested.emit(&"flag", int(before.board.mine_indices[0]), int(dating.get("_physical_view").board.revision))
+	if not _check(game.capture_dating_challenge_state().value.board != before.board, "real flag makes the live board differ from Quick"): return false
+	await _dating_quick_key(KEY_F9)
+	sheet = dating.get("_confirmation")
+	if not _check(is_instance_valid(sheet) and sheet.cancel_button.has_focus(), "a fresh F9 requires fresh consent"): return false
+	sheet.confirm_button.grab_focus()
+	if not await _ordinary_accept_focused(sheet.confirm_button, "active Quick Load confirm"): return false
+	for frame: int in 80:
+		if current_scene != null and current_scene.get_instance_id() != prior_scene_id and current_scene.get("worksheet") != null \
+				and game.capture_live_session().value != prior_session: break
+		await process_frame
+	if not _check(not paused and current_scene != null and current_scene.get_instance_id() != prior_scene_id and current_scene.get("worksheet") != null
+			and game.capture_live_session().value.active and game.capture_live_session().value != prior_session,
+			"confirmed F9 remounts Dating and activates a new live session"): return false
+	var restored: Dictionary = writer.stringify(game.capture_dating_challenge_state().value)
+	if not _check(restored.get("ok", false) and restored.value == expected.value
+			and current_scene.get_presentation_projection() == command and current_scene.get("_physical_view").phase == "challenge"
+			and profile.get_profile_snapshot() == prior_profile,
+			"real Quick Load restores exact saved record/command, drops the later flag, and preserves Profile history"): return false
+	if not await _capture_screen("07-dating-quick-restored"): return false
+	print("PLAYABLE_DATING_QUICK_PASS: native F5 -> strict current Quick file -> native F9 Cancel -> changed board -> native F9 confirm -> exact active Dating restore")
+	return true
+
+
+func _dating_quick_key(code: Key) -> void:
+	for pressed: bool in [true, false]:
+		var event := InputEventKey.new()
+		event.keycode = code
+		event.physical_keycode = code
+		event.pressed = pressed
+		Input.parse_input_event(event)
+		Input.flush_buffered_events()
+		await process_frame
+	await _frames()
 
 
 func _observer_scene_journey(game: Node, dating: Node, friend_id: String) -> bool:

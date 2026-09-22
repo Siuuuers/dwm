@@ -665,7 +665,15 @@ func test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge() 
 	var finished_before: int = _game_state.minesweeper_app_rounds_finished_today
 	graph.checkpoint_port.fail_completion_once = true
 	var terminal: Dictionary = desktop.panel.dispatch("reveal", int(board.mine_indices[0]), int(revealed.value.board.revision))
+	assert_true(terminal.get("ok", false), str(terminal))
+	if not terminal.get("ok", false): return
+	assert_false(terminal.value.settled, "the terminal click publishes before its next-frame settlement")
+	assert_true(desktop.panel.has_pending_settlement())
+	assert_true(graph.checkpoint_port.fail_completion_once, "the click has not attempted the result save")
+	# The production panel pumps this public seam on the next frame after painting the board.
+	terminal = desktop.panel.advance_preparation(int(terminal.value.board.revision))
 	assert_false(terminal.get("ok", true), "the injected full-save failure retains terminal custody")
+	assert_false(graph.checkpoint_port.fail_completion_once, "the pump reached the injected result-save failure")
 	assert_signal_emit_count(_game_state, "contact_message_unlocked", 0, "notification waits for durable result")
 	assert_eq(_bootstrap.get("_desktop_board_state").capture().phase, "ACTIVE_VISIBLE", "failed durable settlement retains the terminal board")
 	assert_true(_bootstrap.get("_desktop_board_state").capture().board.board.terminal)
@@ -819,8 +827,15 @@ func _assert_fresh_graph_preserves_last_saved_action(departure: bool, shop_item:
 		before_interrupted = _game_state.capture_run_snapshot_input().duplicate(true)
 		graph.checkpoint_port.fail_completion_once = true
 		var interrupted: Dictionary = desktop.panel.dispatch("reveal", int(board.mine_indices[0]), reveal.value.board.revision)
-		assert_false(interrupted.get("ok", true))
-		assert_true(graph.gate.is_active())
+		assert_true(interrupted.get("ok", false), str(interrupted))
+		if not interrupted.get("ok", false): return
+		assert_false(interrupted.value.settled, "the terminal board is presented before deferred settlement")
+		assert_true(desktop.panel.has_pending_settlement())
+		assert_true(graph.checkpoint_port.fail_completion_once, "the result save remains deferred")
+		interrupted = desktop.panel.advance_preparation(int(interrupted.value.board.revision))
+		assert_false(interrupted.get("ok", true), str(interrupted))
+		assert_false(graph.checkpoint_port.fail_completion_once, "the result-save fault must be exercised")
+		assert_true(graph.gate.is_active(), str(interrupted))
 	else:
 		_game_state.money = 200
 		_game_state.coins = 4

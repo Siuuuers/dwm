@@ -63,9 +63,10 @@ CASES = (
         "id": "dating-reload",
         "script": STARTUP_SCRIPT,
         "flags": ("--probe-dating", "--probe-dating-reload"),
-        "markers": ("PLAYABLE_STARTUP_PASS", "PLAYABLE_DATING_RELOAD_PASS", "PLAYABLE_DATING_PASS"),
+        "markers": ("PLAYABLE_STARTUP_PASS", "PLAYABLE_DATING_RELOAD_PASS", "PLAYABLE_DATING_QUICK_PASS", "PLAYABLE_DATING_PASS"),
         "evidence_folder": "playable",
-        "captures": BASE_CAPTURES + ("04-dating-entry.png", "05-dating-board.png"),
+        "captures": BASE_CAPTURES + ("04-dating-entry.png", "05-dating-board.png",
+            "06-dating-quick-consent.png", "07-dating-quick-restored.png"),
         "fixture_scope": "No prior ending or reached-presentation fixture; empty DTL earns no signature.",
     },
     {

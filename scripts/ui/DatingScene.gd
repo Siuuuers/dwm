@@ -10,6 +10,15 @@ const FLAG_BUTTON := preload("res://scripts/ui/minesweeper/MinesweeperFlagButton
 const CHROME_COPY := preload("res://scripts/ui/minesweeper/MinesweeperChromeCopy.gd")
 const PRESENTATION_SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
 const SCENE_ART_VIEW := preload("res://scripts/ui/art/SceneArtView.gd")
+const QUICK_COMMANDS := preload("res://scripts/ui/dating/DatingQuickCommands.gd")
+class QuickConfirmation extends "res://scripts/ui/desktop/DesktopConfirmation.gd":
+	var input_owner: Object
+	func _input(event: InputEvent) -> void:
+		# Confirmation can consume input before the scene sees it. Keep physical
+		# contacts in the same ledger so its closing contact cannot advance Dating.
+		input_owner.observe_physical_contact(event)
+		super._input(event)
+
 const DRAFT_UI_COPY := {
 	"zh-CN": {
 		"Special mine": "特殊地雷",
@@ -181,6 +190,9 @@ var _observer_close_failed := false
 var _presentation_port: Object = null
 var _presentation_command: Dictionary = {}
 var _view_profile: Object
+var _quick_commands: Node
+var _confirmation: Control
+var _quick_status_rect := Rect2()
 
 @onready var dating_background: TextureRect = %DatingBackground
 @onready var character_zone_left: Control = %CharacterZoneLeft
@@ -204,6 +216,44 @@ func _ready() -> void:
 	_build_challenge()
 	_refresh_challenge()
 	# Provisional Observer interactions are suspended; see dwm-6gk.
+
+
+## Off-tree composition installs only the canonical run's Backup port. Gallery
+## rehearsal configures presentation services alone and never receives this door.
+func configure_quick_commands(port: Object, bridge: Object, session_owner: Object) -> Dictionary:
+	if _quick_commands != null or is_node_ready():
+		return _fail(&"quick_already_configured", "")
+	var candidate := QUICK_COMMANDS.new()
+	if not candidate.configure_dating(self, port, _input_owner, bridge, session_owner):
+		candidate.free()
+		return _fail(&"quick_owners_unavailable", "")
+	_quick_commands = candidate
+	add_child(candidate)
+	return {"ok": true}
+
+
+func present_quick_confirmation(request: Dictionary, accept: Callable, cancel: Callable) -> Dictionary:
+	if is_instance_valid(_confirmation) or not is_instance_valid(_quick_commands):
+		return _fail(&"confirmation_already_active", "")
+	_confirmation = QuickConfirmation.new()
+	_confirmation.input_owner = _input_owner
+	_confirmation.request = request.duplicate(true)
+	_confirmation.theme = request.get("theme", theme)
+	_confirmation.finished.connect(func(accepted: bool):
+		_confirmation = null
+		(accept if accepted else cancel).call())
+	challenge_overlay_host.add_child(_confirmation)
+	_quick_commands.retain_contacts()
+	return {"ok": true, "value": {"confirmation": _confirmation}}
+
+
+func quick_status_safe_rect() -> Rect2:
+	return _quick_status_rect
+
+
+func _quick_blocks_gameplay() -> bool:
+	return is_instance_valid(_quick_commands) and _quick_commands.blocks_gameplay()
+
 
 ## Input/accessibility settings are composition-owned. This scene never looks up autoloads.
 func configure_presentation_services(input_owner: Object, locale: String = "en", percent: int = 100,
@@ -390,6 +440,12 @@ func _on_challenge_split_changed(right_rect: Rect2) -> void:
 	if not is_instance_valid(_challenge_content): return
 	_challenge_content.position = right_rect.position
 	_challenge_content.size = right_rect.size
+	_quick_status_rect = Rect2()
+	if is_instance_valid(_quick_commands):
+		# Reserve one inert shell band; status never covers board, Rules or footer.
+		_challenge_content.size.y = maxf(0.0, right_rect.size.y - 64.0)
+		_quick_status_rect = Rect2(right_rect.position + Vector2(24, _challenge_content.size.y),
+			Vector2(maxf(0.0, right_rect.size.x - 48.0), 64))
 	_queue_challenge_layout()
 
 func _queue_challenge_layout() -> void:
@@ -424,6 +480,7 @@ func _layout_challenge() -> void:
 		_challenge_band = band
 
 func _is_split_input_admitted() -> bool:
+	if _quick_blocks_gameplay(): return false
 	return is_visible_in_tree() and can_process() and not get_tree().paused \
 		and _physical_view.get("phase") not in ["pre_challenge", "post_challenge", "completed"] \
 		and (not is_instance_valid(_input_owner) or _input_owner.is_source_input_admitted())
@@ -501,6 +558,12 @@ func _poll_terminal_release() -> void:
 	if entered and not _split_dragging: _continue_button.grab_focus()
 
 func _input(event: InputEvent) -> void:
+	if is_instance_valid(_quick_commands):
+		_quick_commands.observe_input(event)
+		if _quick_commands.handle_input(event):
+			get_viewport().set_input_as_handled()
+			return
+	if _quick_blocks_gameplay(): return
 	if _split_dragging or _physical_view.get("phase") != "cleared_awaiting_terminal_choice" or not _choice_released \
 			or not is_visible_in_tree() or not event.is_pressed() or get_tree().paused: return
 	if not (event is InputEventKey or event is InputEventJoypadButton): return
@@ -618,6 +681,9 @@ func _hide_capture_if_unfocused(line: Control) -> void:
 	_observer_action.hide()
 
 func _process(_delta: float) -> void:
+	# Quick Load consent retains the exact physical boundary, including a painted
+	# terminal board whose automatic settlement would otherwise run below.
+	if _quick_blocks_gameplay(): return
 	# dwm-634.2: a terminal click paints first; its settlement runs here on the next processed
 	# frame and waits for neither window focus nor a held contact, because it is a durable save.
 	# A save taken before it runs commits the painted board as unsettled (flush_pending_attempt).
@@ -639,6 +705,7 @@ func _process(_delta: float) -> void:
 ## Settlement never waits for input release. The next dialogue/board does, so one held
 ## pointer/key/controller activation cannot clear the board and consume its first line.
 func _phase_input_released() -> bool:
+	if _quick_blocks_gameplay(): return false
 	if not is_visible_in_tree() or get_tree().paused or _split_dragging: return false
 	if DisplayServer.get_name() != "headless" and not get_window().has_focus(): return false
 	if is_instance_valid(_input_owner) and _input_owner.has_method("is_source_input_admitted") \
@@ -775,6 +842,7 @@ func _on_continue() -> void:
 		"resume_completion" if phase == "completed" else "continue"), -1)
 
 func _dispatch_action(action: String, index: int, revision: int = -1) -> void:
+	if _quick_blocks_gameplay(): return
 	if _split_dragging and action == "special_mine": return
 	if _dispatching or _physical_view.is_empty(): return
 	_dispatching = true

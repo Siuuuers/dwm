@@ -1045,7 +1045,7 @@ func test_schema_versions_require_strict_integers_at_live_and_sealed_boundaries(
 		return
 	for mutation: Dictionary in [
 		{"target": "live", "field": "run_snapshot_schema_version", "value": str(RUN_SNAPSHOT_SCHEMA.SCHEMA_VERSION)},
-		{"target": "live", "field": "save_document_schema_version", "value": float(preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd").SCHEMA_VERSION)},
+		{"target": "live", "field": "save_document_schema_version", "value": float(preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd").DOCUMENT_VERSION)},
 		{"target": "desktop", "field": "schema_version", "value": "4"},
 		{"target": "desktop", "field": "schema_version", "value": 4.0},
 		{"target": "gate", "field": "run_snapshot_schema_version", "value": "3"},
