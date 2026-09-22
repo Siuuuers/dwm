@@ -10,9 +10,29 @@ var _previous_control := ""
 
 class ReadFaultOps extends "res://tests/support/FakeFileOps.gd":
 	var refuse_reads := false
+	var promoted_replacement := ""
+	var promotion_changed := false
 	func read_bytes(path: String) -> Dictionary:
 		if refuse_reads: return {"ok": false, "code": &"fixture_read_refused"}
 		return super.read_bytes(path)
+	func rename_path(from_path: String, to_path: String) -> Dictionary:
+		var result := super.rename_path(from_path, to_path)
+		if result.get("ok", false) and from_path.ends_with(".next") and not promoted_replacement.is_empty():
+			var changed := super.write_bytes(to_path, promoted_replacement.to_utf8_buffer())
+			if not changed.get("ok", false): return changed
+			changed = super.flush_path(to_path)
+			if not changed.get("ok", false): return changed
+			promotion_changed = true
+		return result
+
+class ValidationProbe extends "res://autoload/SaveManager.gd":
+	var validation_texts: Array[String] = []
+	func _document_text_validator(text: String) -> Dictionary:
+		validation_texts.append(text)
+		return super._document_text_validator(text)
+	func _capture_saved_time() -> Dictionary:
+		# Equal saves across separate calls must not miss reuse merely because the clock advanced.
+		return {"unix_seconds": 0, "utc_offset_minutes": 0, "hhmm": "00:00"}
 
 class Participant extends RefCounted:
 	var plan_key := ""
@@ -38,7 +58,7 @@ func after_each() -> void:
 func _manager() -> Node:
 	return autofree(SAVE.new())
 
-func _fixture() -> Dictionary:
+func _fixture(validation_probe: bool = false) -> Dictionary:
 	var snapshot := STRICT.parse_object(FileAccess.get_file_as_string(
 		"res://tests/fixtures/saves/v7_desktop_prepared.json"))
 	assert_true(snapshot.get("ok", false), str(snapshot))
@@ -53,9 +73,21 @@ func _fixture() -> Dictionary:
 	var text: String = emitted.value + "\n"
 	var ops := ReadFaultOps.new({"parse-cache/slot_1.json": text})
 	var storage := STORAGE.new("parse-cache", ops)
-	var manager := _manager()
+	var manager: Node = autofree(ValidationProbe.new()) if validation_probe else _manager()
 	assert_true(manager.initialize(storage).get("ok", false))
 	return {"manager": manager, "ops": ops, "storage": storage, "text": text}
+
+func _write_fixture() -> Dictionary:
+	var f := _fixture(true)
+	if f.is_empty(): return {}
+	var parsed := STRICT.parse_object(f.text)
+	var snapshot: Dictionary = parsed.value.current_snapshot.snapshot
+	assert_true(f.manager._journal.reset(snapshot.run_id).get("ok", false))
+	var prepared: Dictionary = f.manager._journal.prepare_record(snapshot, &"day_start")
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return {}
+	assert_true(f.manager._journal.commit_prepared(prepared.value.candidate).get("ok", false))
+	return f
 
 func _replace(fixture: Dictionary, path: String, text: String) -> void:
 	assert_true(fixture.ops.write_bytes(path, text.to_utf8_buffer()).get("ok", false))
@@ -182,3 +214,99 @@ func test_warm_inspection_reprepares_participants_and_current_guard() -> void:
 	assert_true(f.manager.acquire_save_lock(&"restore").get("ok", false))
 	assert_false(f.manager.inspect_backup("slot:1").value.operation_allowed)
 	assert_true(f.manager.release_save_lock(&"restore").get("ok", false))
+
+func test_backup_write_validates_exact_text_once_but_separate_writes_start_fresh() -> void:
+	for locator: String in ["slot:1", "quick"]:
+		var f := _write_fixture()
+		if f.is_empty(): return
+		var path := "slot_1.json" if locator == "slot:1" else "quicksave.json"
+		var first_text := ""
+		for index: int in 2:
+			var prepared: Dictionary = f.manager.prepare_backup_action("save", locator)
+			assert_true(prepared.get("ok", false), str(prepared))
+			if not prepared.get("ok", false): return
+			var committed: Dictionary = f.manager.commit_backup_action(prepared.value.token)
+			assert_true(committed.get("ok", false), str(committed))
+			if not committed.get("ok", false): return
+			var read: Dictionary = f.storage.read_text(path)
+			assert_true(read.get("ok", false), str(read))
+			if not read.get("ok", false): return
+			if index == 0: first_text = read.value
+			assert_eq(read.value, first_text, "both writes use identical bytes, including saved_time")
+			assert_eq(f.manager.validation_texts.size(), index + 1,
+				"each write validates once; promoted reread reuses only its own proof")
+			assert_eq(f.manager.validation_texts[index], first_text)
+			assert_false(f.manager.commit_backup_action(prepared.value.token).get("ok", true),
+				"reuse never keeps consumed consent alive")
+
+func test_backup_write_validation_results_are_detached_and_refusals_are_not_memoized() -> void:
+	var f := _fixture(true)
+	if f.is_empty(): return
+	var memo := {}
+	var first: Dictionary = f.manager._write_document_text_validator(f.text, memo)
+	assert_true(first.get("ok", false), str(first))
+	if not first.get("ok", false): return
+	first.value.current_snapshot.snapshot.lifecycle.day = 99
+	var second: Dictionary = f.manager._write_document_text_validator(f.text, memo)
+	assert_eq(second.value.current_snapshot.snapshot.lifecycle.day, 1)
+	second.value.recovery_journal.append({"caller": "edit"})
+	assert_true(f.manager._write_document_text_validator(f.text, memo).value.recovery_journal.is_empty())
+	assert_eq(f.manager.validation_texts.size(), 1)
+	var changed: String = " " + f.text
+	assert_true(f.manager._write_document_text_validator(changed, memo).get("ok", false))
+	assert_eq(f.manager.validation_texts.size(), 2, "semantically equal JSON still has distinct exact text")
+	for invalid: String in ['{"schema_version":999}', '{"duplicate":1,"duplicate":2}']:
+		var expected: Dictionary = f.manager._document_text_validator(invalid)
+		var count: int = f.manager.validation_texts.size()
+		assert_false(expected.get("ok", true))
+		for attempt: int in 2:
+			assert_eq(f.manager._write_document_text_validator(invalid, memo), expected)
+		assert_eq(f.manager.validation_texts.size(), count + 2, "every refused text takes the full validator")
+		assert_false(memo.has(invalid))
+
+func test_backup_write_revalidates_changed_or_corrupt_promoted_bytes_and_preserves_custody() -> void:
+	for corrupt: bool in [false, true]:
+		var f := _write_fixture()
+		if f.is_empty(): return
+		var before_journal: Dictionary = f.manager._journal.capture_state()
+		var prepared: Dictionary = f.manager.prepare_backup_action("save", "slot:1")
+		assert_true(prepared.get("ok", false), str(prepared))
+		if not prepared.get("ok", false): return
+		var document: Dictionary = f.manager._backup_actions[prepared.value.token].document
+		var emitted := CANONICAL.stringify(document)
+		assert_true(emitted.get("ok", false), str(emitted))
+		if not emitted.get("ok", false): return
+		var outgoing: String = emitted.value + "\n"
+		var replacement := "{" if corrupt else " " + outgoing
+		f.ops.promoted_replacement = replacement
+		var committed: Dictionary = f.manager.commit_backup_action(prepared.value.token)
+		assert_false(committed.get("ok", true), str(committed))
+		assert_eq(committed.get("code"), &"indeterminate_commit")
+		assert_true(f.ops.promotion_changed, "fault occurs after actual final promotion")
+		assert_eq(f.manager.validation_texts, [outgoing, replacement],
+			"changed physical text cannot inherit the outgoing proof")
+		var persisted: Dictionary = f.ops.snapshot_persisted()
+		assert_eq(persisted["parse-cache/slot_1.json"].get_string_from_utf8(), replacement,
+			"unbound evidence is preserved")
+		assert_eq(persisted["parse-cache/slot_1.json.revision-prior"].get_string_from_utf8(), f.text,
+			"previous save remains in exact custody")
+		assert_true(persisted.has("parse-cache/slot_1.json.txn.json"))
+		assert_false(f.storage._leases.has("slot_1.json"), "changed final earns no playable lease")
+		assert_eq(f.manager._journal.capture_state(), before_journal)
+		assert_false(f.manager._backup_actions.has(prepared.value.token))
+
+func test_backup_write_invalid_outgoing_document_keeps_prior_bytes_without_starting_transaction() -> void:
+	var f := _write_fixture()
+	if f.is_empty(): return
+	var prepared: Dictionary = f.manager.prepare_backup_action("save", "slot:1")
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return
+	# Fault injection proves the memo is not seeded from a prepared in-memory document.
+	f.manager._backup_actions[prepared.value.token].document.schema_version = 999
+	var before: Dictionary = f.ops.snapshot_persisted()
+	var committed: Dictionary = f.manager.commit_backup_action(prepared.value.token)
+	assert_false(committed.get("ok", true), str(committed))
+	assert_eq(committed.get("code"), &"outgoing_validation_failed")
+	assert_eq(f.manager.validation_texts.size(), 1)
+	assert_eq(f.ops.snapshot_persisted(), before)
+	assert_false(f.manager._backup_actions.has(prepared.value.token))

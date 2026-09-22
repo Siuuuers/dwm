@@ -1590,7 +1590,9 @@ func _commit_backup_action_profiled(token: String, profile: Dictionary) -> Dicti
 			if not canonical.get("ok", false):
 				return canonical
 			var bytes := str(canonical["value"]) + "\n"
-			var written: Dictionary = _storage.write_atomic_if_revision(path, bytes, _document_text_validator, candidate["revision"])
+			var validated_texts := {}
+			var validator := _write_document_text_validator.bind(validated_texts)
+			var written: Dictionary = _storage.write_atomic_if_revision(path, bytes, validator, candidate["revision"])
 			_save_load_profile_phase(profile, "write_atomic_us")
 			if not written.get("ok", false):
 				save_failed.emit(written)
@@ -2524,6 +2526,18 @@ func _delete(locator: Dictionary) -> Dictionary:
 		return _fail(&"delete_incomplete", relative_path)
 	slot_metadata_changed.emit()
 	return {"ok": true, "code": &"ok", "value": {"deleted": true, "relative_path": relative_path}}
+
+## One synchronous Backup write may validate the same outgoing text before and after promotion.
+## Reuse only a successful validation of that exact String within this call. Storage still reads
+## and proves the physical revision/bytes itself; another write receives a fresh empty memo.
+## Both the first result and later results are detached from the retained validation.
+func _write_document_text_validator(text: String, validated_texts: Dictionary) -> Dictionary:
+	if validated_texts.has(text):
+		return (validated_texts[text] as Dictionary).duplicate(true)
+	var result := _document_text_validator(text)
+	if result.get("ok", false):
+		validated_texts[text] = result.duplicate(true)
+	return result
 
 func _document_text_validator(text: String) -> Dictionary:
 	var parsed: Dictionary = _parse_document_text(text)

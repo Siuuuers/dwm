@@ -12,6 +12,15 @@ $baseline = Join-Path $output 'baseline-SaveManager.gd'
 python (Join-Path $PSScriptRoot 'derive_save_admission_baseline.py') $saveManager $baseline
 if ($LASTEXITCODE -ne 0) { throw 'Could not derive the current-source SaveManager baseline.' }
 $baselineBytes = [IO.File]::ReadAllBytes($baseline)
+$writeBaseline = Join-Path $output 'baseline-write-SaveManager.gd'
+python (Join-Path $PSScriptRoot 'derive_save_write_baseline.py') $saveManager $writeBaseline
+if ($LASTEXITCODE -ne 0) { throw 'Could not derive the single-write validation baseline.' }
+$writeBaselineBytes = [IO.File]::ReadAllBytes($writeBaseline)
+$writeSourceHashes = [ordered]@{
+    candidate = (Get-FileHash -LiteralPath $saveManager -Algorithm SHA256).Hash.ToLowerInvariant()
+    baseline = (Get-FileHash -LiteralPath $writeBaseline -Algorithm SHA256).Hash.ToLowerInvariant()
+    storage = (Get-FileHash -LiteralPath (Join-Path $repositoryRoot 'scripts/infrastructure/storage/JsonFileStorage.gd') -Algorithm SHA256).Hash.ToLowerInvariant()
+}
 $sourceCodeHashes = [ordered]@{
     candidate = (Get-FileHash -LiteralPath $saveManager -Algorithm SHA256).Hash.ToLowerInvariant()
     baseline = (Get-FileHash -LiteralPath $baseline -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -36,9 +45,14 @@ function Invoke-HistoryProbe {
     if (-not $Name) { $Name = $Phase }
     $evidence = ".godot/ci/seven-day-history/$Name.jsonl"
     $logName = "cloud-seven-day-history-$Name.log"
-    $arguments = @('-s', 'res://tests/manual/benchmark_seven_day_history.gd', '--',
-        '--phase2r-bootstrap-mode=final', "--history-phase=$Phase")
-    if ($Source) { $arguments += "--user-data=$Source" }
+    if ($Phase -eq 'write-commit') {
+        $arguments = @('-s', 'res://tests/manual/benchmark_manual_save_write.gd', '--',
+            '--phase2r-bootstrap-mode=test_manual', "--write-source=$(Join-Path $Source 'saves')")
+    } else {
+        $arguments = @('-s', 'res://tests/manual/benchmark_seven_day_history.gd', '--',
+            '--phase2r-bootstrap-mode=final', "--history-phase=$Phase")
+        if ($Source) { $arguments += "--user-data=$Source" }
+    }
     $timeout = if ($Phase -eq 'write') { 660 } else { 180 }
     & $runner -SuiteId "cloud-seven-day-history-$Name" -LogName $logName `
         -EvidenceLogPath $evidence -GodotArgs $arguments -TimeoutSeconds $timeout -KeepRoot | Out-Null
@@ -244,6 +258,74 @@ try {
         source_code_sha256 = $sourceCodeHashes; source_json_sha256 = $sourceHashes
         summary = $admissionComparison.summary
     } | ConvertTo-Json -Depth 8 -Compress))
+    $writeComparison = [ordered]@{
+        control = 'Public prepare_backup_action and commit_backup_action with real storage, the same seeded Day7 journal, immutable capture fixture and a test-subclass fixed clock. Only the write validation memo differs; parse cache enabled in both.'
+        sampling = 'Eight alternating pairs / sixteen fresh isolated processes; identical prepared candidate, physical source files, target revision and pre-commit parser cache. Commit timing excludes preparation, live UI callbacks, issuer-flush callbacks and rendering. OS filesystem caches are not flushed.'
+        source_code_sha256 = $writeSourceHashes
+        shared_schema_sha256 = $sourceCodeHashes.shared
+        pairs = @()
+    }
+    $referenceWrite = $null
+    $invariantFields = @('candidate_sha256', 'source_revision', 'source_files_sha256',
+        'output_files_sha256', 'prior_journal_sha256', 'journal_sha256', 'output_sha256',
+        'output_bytes', 'retained_checkpoint_count', 'parse_cache_before')
+    for ($pair = 1; $pair -le 8; $pair++) {
+        $order = if ($pair % 2 -eq 1) { @('baseline', 'candidate') } else { @('candidate', 'baseline') }
+        $measurements = [ordered]@{}
+        $profiles = [ordered]@{}
+        foreach ($variant in $order) {
+            $variantBytes = if ($variant -eq 'baseline') { $writeBaselineBytes } else { $candidateBytes }
+            [IO.File]::WriteAllBytes($saveManager, $variantBytes)
+            if ((Get-FileHash -LiteralPath $saveManager -Algorithm SHA256).Hash.ToLowerInvariant() -cne $writeSourceHashes[$variant]) {
+                throw 'Installed write comparison source differs from its recorded hash.'
+            }
+            $probe = Invoke-HistoryProbe -Phase 'write-commit' -Source $write.Record.user_dir -Name "write-pair-$pair-$variant"
+            $records = @(Read-HistoryMarkers $probe.Lines 'MANUAL_SAVE_WRITE_PASS: ')
+            if ($records.Count -ne 1 -or $records[0].commit_us -lt 0 -or
+                $records[0].retained_checkpoint_count -ne 66 -or -not $records[0].parse_cache_enabled -or
+                $records[0].save_manager_sha256 -cne $writeSourceHashes[$variant]) {
+                throw 'Manual write sample must prove its exact source and retained output.'
+            }
+            if ($null -eq $referenceWrite) { $referenceWrite = $records[0] }
+            foreach ($field in $invariantFields) {
+                if (($records[0].$field | ConvertTo-Json -Depth 12 -Compress) -cne
+                    ($referenceWrite.$field | ConvertTo-Json -Depth 12 -Compress)) {
+                    throw "Manual write comparison changed $field."
+                }
+            }
+            if (((Get-HistorySourceHashes $write.Record.user_dir) | ConvertTo-Json -Compress) -cne $sourceManifest) {
+                throw 'Manual write comparison changed retained source bytes.'
+            }
+            $measurements[$variant] = $records[0]
+            $profiles[$variant] = @(Read-HistoryMarkers $probe.Lines 'DWM_SAVE_LOAD_PROFILE ' | Where-Object { $_.context -eq 'manual-write-commit' })
+        }
+        if ($measurements.baseline.strict_validation_calls -le 1 -or $measurements.candidate.strict_validation_calls -ne 1) {
+            throw 'Ablation did not exercise repeated baseline validation and one successful candidate validation.'
+        }
+        $comparison = [ordered]@{
+            pair = $pair; order = $order; baseline = $measurements.baseline; candidate = $measurements.candidate
+            candidate_minus_baseline_us = [long]$measurements.candidate.commit_us - [long]$measurements.baseline.commit_us
+            profiles = $profiles
+        }
+        $writeComparison.pairs += $comparison
+        $writeComparison | ConvertTo-Json -Depth 40 | Set-Content -LiteralPath (Join-Path $output 'manual-write-pairs.json') -Encoding utf8
+        Write-Host ('MANUAL_SAVE_WRITE_PAIR: ' + ([ordered]@{
+            pair = $pair; order = $order; baseline = $measurements.baseline; candidate = $measurements.candidate
+            candidate_minus_baseline_us = $comparison.candidate_minus_baseline_us
+        } | ConvertTo-Json -Depth 12 -Compress))
+    }
+    [IO.File]::WriteAllBytes($saveManager, $candidateBytes)
+    $writeComparison['summary'] = [ordered]@{
+        pair_count = $writeComparison.pairs.Count
+        baseline_median_commit_us = Get-HistoryMedian @($writeComparison.pairs | ForEach-Object { $_.baseline.commit_us })
+        candidate_median_commit_us = Get-HistoryMedian @($writeComparison.pairs | ForEach-Object { $_.candidate.commit_us })
+        median_paired_candidate_minus_baseline_us = Get-HistoryMedian @($writeComparison.pairs | ForEach-Object { $_.candidate_minus_baseline_us })
+    }
+    $writeComparison | ConvertTo-Json -Depth 40 | Set-Content -LiteralPath (Join-Path $output 'manual-write-pairs.json') -Encoding utf8
+    Write-Host ('MANUAL_SAVE_WRITE_COMPARISON: ' + ([ordered]@{
+        control = $writeComparison.control; sampling = $writeComparison.sampling
+        source_code_sha256 = $writeSourceHashes; summary = $writeComparison.summary
+    } | ConvertTo-Json -Depth 8 -Compress))
     $report = [ordered]@{
         checkout_ref = (& git rev-parse HEAD)
         timing_policy = 'Observations on one shared Windows runner; no speed threshold or physical input-to-paint guarantee.'
@@ -259,6 +341,7 @@ try {
         cold_read = $restored[0]
         parse_cache_comparison = $parseCacheComparison
         save_admission_comparison = $admissionComparison
+        manual_write_comparison = $writeComparison
         payload_sha256 = $hash
         checkpoint_profiles = @(Read-HistoryMarkers $write.Lines 'DWM_CHECKPOINT_PROFILE ')
         consequence_profiles = @(Read-HistoryMarkers $write.Lines 'DWM_CONSEQUENCE_PROFILE ')
