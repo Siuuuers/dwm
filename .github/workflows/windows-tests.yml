@@ -226,6 +226,52 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           git submodule foreach --recursive 'true'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Record fixture and schema version census
+        run: |
+          @'
+          import json, pathlib, re, subprocess
+          root = pathlib.Path.cwd()
+          paths = subprocess.check_output([
+              "git", "ls-files", "-z", "--", "autoload/", "scripts/", "tests/",
+              "tools/testing/", ".github/workflows/"
+          ]).decode("utf-8").split("\0")
+          patterns = {
+              "legacy_prepared_fixture": r"\bv[1-6]_desktop_prepared\.json\b",
+              "historical_day3_seed": r"valid_day3\.json",
+              "backup_fixture_helper": r"BackupSnapshotFixture",
+              "run_document_version": r"\b(?:schema_version|SCHEMA_VERSION|DOCUMENT_VERSION)\b",
+              "empty_contacts_literal": r"\bcontacts\b[\"']?\s*[:=]\s*\{\s*\}",
+          }
+          compiled = {key: re.compile(value) for key, value in patterns.items()}
+          records = []
+          scanned = 0
+          for name in sorted(paths):
+              path = root / name
+              if path.suffix not in {".gd", ".ps1", ".py", ".yml", ".yaml"} or not path.is_file():
+                  continue
+              scanned += 1
+              for number, line in enumerate(path.read_text(encoding="utf-8-sig").splitlines(), 1):
+                  families = [key for key, pattern in compiled.items() if pattern.search(line)]
+                  if families:
+                      records.append({"path": name, "line": number, "families": families, "text": line})
+          report = {
+              "checkout_ref": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+              "policy": "Observational census only; historical, refusal and Profile references require review, not automatic failure.",
+              "scanned_files": scanned, "patterns": patterns, "matches": records,
+          }
+          output = root / ".godot/ci/public-surfaces/fixture-version-census.json"
+          output.parent.mkdir(parents=True, exist_ok=True)
+          output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+          for record in records:
+              print("FIXTURE_VERSION_CENSUS_MATCH: " + json.dumps(record))
+          print("FIXTURE_VERSION_CENSUS_SUMMARY: " + json.dumps({
+              "checkout_ref": report["checkout_ref"], "scanned_files": scanned,
+              "matching_lines": len(records), "logged_lines": len(records),
+              "complete_artifact": ".godot/ci/public-surfaces/fixture-version-census.json",
+              "policy": report["policy"],
+          }))
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Install Godot 4.6.3 standard
         run: |
           $ErrorActionPreference = 'Stop'
@@ -303,10 +349,6 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           git submodule foreach --recursive 'true'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Fetch pinned schema for paired ablation
-        run: |
-          git fetch --no-tags --depth=1 origin 681251dc832262c08826ce74d6a4480291eac4a8
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Install Godot 4.6.3 standard
         run: |
           $ErrorActionPreference = 'Stop'
@@ -347,6 +389,20 @@ jobs:
       - name: Measure localized journeys and matched payloads
         timeout-minutes: 12
         run: ./tools/testing/Invoke-CheckpointPerformance.ps1
+      - name: Share current localized payloads
+        uses: actions/upload-artifact@v4
+        with:
+          # A failed-job retry reuses this run's successful producer artifact; a rerun
+          # of the producer replaces it. The consumer verifies checkout and file hashes.
+          name: checkpoint-payloads-${{ github.run_id }}
+          path: |
+            .godot/ci/performance/fixed-zh-CN-autosave.json
+            .godot/ci/performance/fixed-zh-HK-autosave.json
+            .godot/ci/performance/payload-manifest.json
+          overwrite: true
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
       - name: Upload paired performance evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -361,7 +417,7 @@ jobs:
           retention-days: 7
 
   seven-day-history:
-    needs: public-surfaces
+    needs: [public-surfaces, checkpoint-performance]
     name: Windows / seven-day retained history
     runs-on: windows-2022
     timeout-minutes: 45
@@ -383,10 +439,6 @@ jobs:
           git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           git submodule foreach --recursive 'true'
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Fetch pinned checkpoint port for paired normalization comparison
-        run: |
-          git fetch --no-tags --depth=1 origin 4c4f9c987c96b65293554b1ce0f083f9263aa791
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Install Godot 4.6.3 standard
         run: |
@@ -425,6 +477,11 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Download current localized payloads
+        uses: actions/download-artifact@v4
+        with:
+          name: checkpoint-payloads-${{ github.run_id }}
+          path: .godot/ci/performance
       - name: Measure seven days and saturated retained history
         timeout-minutes: 22
         run: ./tools/testing/Invoke-SevenDayHistoryPerformance.ps1

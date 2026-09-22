@@ -20,6 +20,19 @@ func _run() -> void:
 		_fail("An existing --document path is required")
 		return
 	var text := FileAccess.get_file_as_string(document)
+	# The document schema deliberately tolerates malformed historical fallback entries.
+	# These benchmark proofs must instead all be strict current snapshots, outside timing.
+	var preflight := STRICT.parse_object(text)
+	if not preflight.get("ok", false) or not SCHEMA.validate(preflight.value).get("ok", false):
+		_fail("Fixed payload preflight failed")
+		return
+	for index: int in preflight.value.recovery_journal.size():
+		var bundle: Dictionary = preflight.value.recovery_journal[index]
+		var bundle_check := SCHEMA._validate_bundle(bundle)
+		if not bundle_check.get("ok", false):
+			_fail("Retained benchmark bundle %d refused: %s %s" % [index,
+				bundle_check.get("code", ""), bundle_check.get("message", "")])
+			return
 	var samples := {"parse_us": [], "schema_us": [], "stringify_us": [], "value_validation_us": [],
 		"outgoing_validation_us": []}
 	var output_hash := ""
@@ -64,7 +77,10 @@ func _run() -> void:
 		samples.value_validation_us.append(value_validated_at - value_started)
 		samples.outgoing_validation_us.append(outgoing_validated_at - outgoing_started)
 	var report := {"bytes": text.to_utf8_buffer().size(), "input_sha256": text.sha256_text(),
-		"output_sha256": output_hash, "journal_bundles": journal_bundles, "samples": samples}
+		"output_sha256": output_hash, "journal_bundles": journal_bundles, "samples": samples,
+		"validated_journal_bundles": preflight.value.recovery_journal.size(),
+		"schema_version": preflight.value.schema_version,
+		"snapshot_schema_version": preflight.value.current_snapshot.snapshot.schema_version}
 	for phase: String in samples:
 		var ordered: Array = samples[phase].duplicate()
 		ordered.sort()

@@ -764,7 +764,7 @@ func test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_
 
 func _completion_snapshot() -> Dictionary:
 	var raw: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(
-		FileAccess.get_file_as_string("res://tests/fixtures/saves/v6_desktop_prepared.json"))["value"]
+		FileAccess.get_file_as_string("res://tests/fixtures/saves/v7_desktop_prepared.json"))["value"]
 	return preload("res://scripts/domain/run/RunSnapshotSchema.gd").validate(raw)["value"]["candidate"]
 
 
@@ -940,7 +940,7 @@ func test_autosave_bytes_equal_the_full_canonical_writer_across_three_commits() 
 	assert_true(_canonical_text((document["recovery_journal"] as Array)[1]) == second_current,
 		"recovery_journal[1] text equals the second commit's current_snapshot text")
 	var composed := "{\"current_snapshot\":" + third_current + ",\"kind\":\"autosave\",\"recovery_journal\":[" \
-		+ first_current + "," + second_current + "],\"save_reason\":\"automatic\",\"schema_version\":6,\"slot_id\":null}\n"
+		+ first_current + "," + second_current + "],\"save_reason\":\"automatic\",\"schema_version\":7,\"slot_id\":null}\n"
 	_assert_same_bytes(written, composed.to_utf8_buffer(), "third autosave equals the envelope composed around the reused regions")
 	var text := written.get_string_from_utf8()
 	assert_eq(text.count(first_current), 1, "the first bundle's text appears exactly once in the third document")

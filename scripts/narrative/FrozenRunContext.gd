@@ -203,7 +203,7 @@ static func _condition_candidates(plan: Dictionary, lifecycle: Dictionary, conta
 			if dating_contacts.transaction_receipts.has(key) and dating_contacts.transaction_receipts[key] != receipt:
 				return _fail(&"frozen_context_pair_receipt_required")
 			dating_contacts.transaction_receipts[key] = receipt
-		var dating := _dating(route, lifecycle, dating_contacts, false)
+		var dating := _dating(route, lifecycle, dating_contacts, required)
 		if not dating.ok: return dating
 		var ending := _ending(route, lifecycle, false)
 		if not ending.ok: return ending
@@ -270,8 +270,12 @@ static func _hospital_misses(missed: Array, lifecycle: Dictionary, route: Dictio
 	return _ok()
 
 static func _narrative_checkpoint(checkpoint: Variant, route: Dictionary, lifecycle: Dictionary, required: bool) -> Dictionary:
-	if not checkpoint is Dictionary or not checkpoint.has("entry_id") or not checkpoint.has("frozen_context"):
+	if not checkpoint is Dictionary:
+		return _ok() # The owning Run schema checks the transport container.
+	if not checkpoint.has("entry_id") and not checkpoint.has("frozen_context"):
 		return _ok() # Generic physical-owner restart keeps its existing transport.
+	if not checkpoint.has("entry_id") or not checkpoint.has("frozen_context"):
+		return _fail(&"frozen_run_narrative_context_invalid") if required else _ok()
 	var context: Variant = checkpoint.frozen_context
 	if not context is Dictionary: return _fail(&"frozen_run_narrative_context_invalid")
 	if context.get("execution_mode", "canonical") != "canonical": return _fail(&"frozen_run_narrative_context_invalid")

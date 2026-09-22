@@ -24,7 +24,9 @@ extends RefCounted
 ## condition-departure ledger law. It owns only the in-document bindings a snapshot's single day
 ## and causal-day identity impose, plus the date-latch coherence check below.
 
-const SCHEMA_VERSION := 6
+## v7 requires every admitted canonical presentation's immutable source-bound context.
+## Earlier Run snapshots are refused; no historical context or Profile fact is reconstructed.
+const SCHEMA_VERSION := 7
 const RECOVERY_LINE_HISTORY_LIMIT := 32
 
 const ORDINARY_CORRESPONDENCE := preload("res://scripts/domain/contact/OrdinaryReplyEchoState.gd")
@@ -251,8 +253,8 @@ static func validate(snapshot: Dictionary) -> Dictionary:
 	if receipts_error != "":
 		return _fail(&"invalid_command_receipts", receipts_error)
 	# Inspect the detached saved facts before any restore participant installs them.
-	# The staged v6 schema validates present caches; v7 will require completeness.
-	var frozen_check: Dictionary = preload("res://scripts/narrative/FrozenRunContext.gd").validate(candidate)
+	# v7 requires the applicable producer caches and their exact admitted projections.
+	var frozen_check: Dictionary = preload("res://scripts/narrative/FrozenRunContext.gd").validate(candidate, true)
 	if not frozen_check.get("ok", false): return frozen_check
 	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
 
@@ -423,8 +425,8 @@ static func _validate_ending_plan(plan: Variant) -> String:
 	if typeof(plan) != TYPE_DICTIONARY:
 		return "ending_plan must be null or an object"
 	# RunLifecycle is the single owner of both exact admitted shapes and their semantic laws.
-	# v6 remains strict: this delegates a closed legacy/ordered union rather than accepting
-	# optional or unknown members at the document boundary.
+	# The structural delegate retains its closed legacy/ordered union. The v7 frozen-context
+	# check additionally requires the admitted ordered plan's source-bound seed.
 	return RUN_LIFECYCLE._validate_ending_plan(plan as Dictionary)
 
 

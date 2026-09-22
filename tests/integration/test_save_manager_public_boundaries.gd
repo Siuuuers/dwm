@@ -218,6 +218,63 @@ func test_real_new_run_sparse_dating_supports_current_contacts_and_first_earned_
 	assert_eq(f.gs.dating_route_state, {}, "capturing current defaults does not backfill progression")
 
 
+func test_old_v6_load_refusal_preserves_run_files_and_profile_v9_history() -> void:
+	var f := _fixture()
+	var started: Dictionary = f.manager.start_new_run(_context())
+	assert_true(started.ok, str(started))
+	if not started.ok: return
+	for form: String in ["normal", "dark_mode"]:
+		var reached: Dictionary = f.profile.record_reached_presentation({"schema_version": 1,
+			"entry_id": "ending.alone." + form, "fields": {"ending_role": "core",
+				"ending_form": "alone_" + form}})
+		assert_true(reached.ok, str(reached))
+		if not reached.ok: return
+	var source_path := "res://tests/fixtures/saves/v6_desktop_prepared.json"
+	var source_bytes := FileAccess.get_file_as_bytes(source_path)
+	var parsed: Dictionary = READER.parse_object(source_bytes.get_string_from_utf8())
+	assert_true(parsed.ok, str(parsed))
+	if not parsed.ok: return
+	assert_eq(parsed.value.schema_version, 6)
+	var historical := {"schema_version": 6, "kind": "slot", "slot_id": 1, "save_reason": "manual",
+		"current_snapshot": {"checkpoint_kind": "manual_save", "snapshot": parsed.value}, "recovery_journal": []}
+	var emitted: Dictionary = WRITER.stringify(historical)
+	assert_true(emitted.ok, str(emitted))
+	if not emitted.ok: return
+	# Real storage owns a proved revision of the old document. An out-of-band
+	# replacement would stop at reconcile_required before reaching schema admission.
+	var written: Dictionary = f.saves.write_atomic("slot_1.json", emitted.value + "\n",
+		func(text: String) -> Dictionary: return READER.parse_object(text))
+	assert_true(written.ok, str(written))
+	if not written.ok: return
+	assert_eq(f.saves.read_text("slot_1.json").value, emitted.value + "\n")
+	var before_files: Dictionary = f.ops.snapshot_persisted()
+	var before_run: Dictionary = f.gs.capture_restore_state()
+	var before_session: Dictionary = f.gs.capture_live_session()
+	var before_journal: Dictionary = f.manager._journal.capture_state()
+	var before_profile: Dictionary = f.profile.get_profile_snapshot()
+	var before_revision: int = f.profile.get_profile_revision()
+	var before_calls: Array = f.calls.duplicate()
+	var before_trace_size: int = f.ops.operation_trace().size()
+	assert_eq(before_profile.schema_version, 9)
+	assert_eq(before_profile.reached_presentation_chronology.first_witnessed.size(), 2,
+		"the refusal proof retains actual nonempty first-witness order")
+	var prepared: Dictionary = f.manager.prepare_restore_slot(1)
+	assert_eq(prepared.get("code"), &"unsupported_run_configuration_schema", str(prepared))
+	assert_false(prepared.has("value"), "no prepared Run or Profile patch escapes refusal")
+	assert_eq(f.manager.load_slot(1).get("code"), &"unsupported_run_configuration_schema")
+	assert_eq(f.ops.snapshot_persisted(), before_files, "all saved and Profile bytes stay exact")
+	assert_eq(f.gs.capture_restore_state(), before_run)
+	assert_eq(f.gs.capture_live_session(), before_session)
+	assert_eq(f.manager._journal.capture_state(), before_journal)
+	assert_eq(f.profile.get_profile_snapshot(), before_profile, "history and preferences survive refused old Run data")
+	assert_eq(f.profile.get_profile_revision(), before_revision)
+	assert_eq(f.calls, before_calls, "no restore participant installs or finalizes")
+	assert_eq(FileAccess.get_file_as_bytes(source_path), source_bytes)
+	for operation: Dictionary in f.ops.operation_trace().slice(before_trace_size):
+		assert_false(operation.operation in ["write_bytes", "flush_path", "rename_path", "remove_path"],
+			"refusal performs no durable mutation: " + str(operation))
+
+
 func test_responsive_retry_reuses_the_durable_decision_without_replaying_preparation() -> void:
 	var f := _fixture()
 	var prepared: Dictionary = f.manager.prepare_new_run_action(_context())

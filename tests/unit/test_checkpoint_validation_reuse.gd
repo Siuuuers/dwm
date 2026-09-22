@@ -74,7 +74,7 @@ class ChangedRereadStorage extends "res://scripts/infrastructure/storage/JsonFil
 
 func _snapshot() -> Dictionary:
 	var parsed := STRICT.parse_object(FileAccess.get_file_as_string(
-		"res://tests/fixtures/saves/v6_desktop_prepared.json"))
+		"res://tests/fixtures/saves/v7_desktop_prepared.json"))
 	assert_true(parsed.get("ok", false), str(parsed))
 	var validated := SNAPSHOT.validate(parsed.get("value", {}))
 	assert_true(validated.get("ok", false), str(validated))

@@ -9,6 +9,7 @@ const PREPARED_BOARD_SEED := "res://tests/fixtures/saves/v5_desktop_prepared.jso
 static func make_snapshot() -> Dictionary:
 	var snapshot: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(PREPARED_BOARD_SEED))
 	snapshot["schema_version"] = SCHEMA.SCHEMA_VERSION
+	snapshot["contacts"] = preload("res://scripts/domain/contact/ContactInvitationState.gd").make_defaults()
 	snapshot["gameplay"]["money"] = 0
 	snapshot["lifecycle"]["active_condition_hospital_plan"] = null
 	snapshot["lifecycle"]["condition_hospital_history"] = {}

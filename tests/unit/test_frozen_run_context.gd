@@ -244,3 +244,83 @@ func test_prepared_condition_owner_cache_is_validated_before_it_can_be_installed
 			"owner_candidate": {"contacts": snapshot.contacts.duplicate(true), "gameplay": gameplay}}},
 		{"stage_id": "present_hospital", "state": "pending", "prepared": null}]}
 	assert_eq(RUN.validate(snapshot).get("code"), &"contacts_frozen_cache_invalid")
+
+func test_strict_prepared_condition_candidate_requires_its_generated_dating_cache_without_repair() -> void:
+	var snapshot := _snapshot()
+	var earlier := _dating()
+	var owner := {"contacts": earlier.contacts.duplicate(true), "gameplay": earlier.gameplay.duplicate(true)}
+	snapshot.lifecycle.active_condition_hospital_plan = {"source_day": 2, "stages": [
+		{"stage_id": "close_invitation_sources", "state": "active", "prepared": {"owner_candidate": owner}},
+		{"stage_id": "present_hospital", "state": "pending", "prepared": null}]}
+	assert_true(RUN.validate(snapshot, true).ok, "the prepared candidate retains its own admitted challenge facts")
+	owner.gameplay.route_context.erase(RUN.DATING_KEY)
+	var before := snapshot.duplicate(true)
+	assert_true(RUN.validate(snapshot).ok, "the explicit pre-cutover optional seam remains unchanged")
+	assert_eq(RUN.validate(snapshot, true).get("code"), &"frozen_context_snapshot_required")
+	assert_eq(snapshot, before, "refusal preserves both current gameplay and its prepared candidate")
+	owner.gameplay.route_context.erase("active_dating_challenge")
+	assert_true(RUN.validate(snapshot, true).ok, "a candidate with no admitted challenge needs no Dating cache")
+
+func test_strict_historical_candidate_does_not_inherit_a_later_ending_requirement() -> void:
+	var snapshot := _ending()
+	var earlier := _snapshot()
+	var plan := {"source_day": 2, "stages": [{"stage_id": "advance_day", "prepared": {
+		"owner_candidate": {"contacts": earlier.contacts, "gameplay": earlier.gameplay}}}]}
+	var before := plan.duplicate(true)
+	assert_true(RUN.validate(snapshot, true).ok)
+	assert_true(RUN._condition_candidates(plan, snapshot.lifecycle, snapshot.contacts, true).ok,
+		"later ENDING state does not fabricate admission in an earlier prepared gameplay bag")
+	assert_eq(plan, before)
+
+func test_strict_prepared_pair_keeps_pending_projection_after_a_real_saved_rollover() -> void:
+	var earlier := _snapshot()
+	var deck: Dictionary = DECK.build_draw([], 0).value
+	var fields := {"entry_id": "dating.group.priscilla_lavinia.day2.pre_challenge", "entry_role": "pair_pre_challenge_scene",
+		"day": 2, "phase": "pre_challenge", "run_id": "fixture:run", "branch_id": "original:branch", "attempt_residue_id": null,
+		"pair_id": "priscilla_lavinia", "window_day": 2, "encounter_presentation": "group", "group_variation": null,
+		"pair_count_receipt": null, "pair_count_status": "pending_rollover", "stable_deck_state": deck}
+	var built := FROZEN.build(fields.entry_id, fields)
+	assert_true(built.ok, str(built))
+	if not built.ok: return
+	earlier.gameplay.route_context["active_dating_challenge"] = {
+		"context": {"kind": "group", "day": 2, "participants": ["priscilla", "lavinia"]},
+		"spec": {"board_token": "pair:board"}, "host": "canonical_pair", "pair_form": deck.form,
+		"phase": "pre_challenge", "applied_result": {}}
+	earlier.gameplay.route_context[RUN.DATING_KEY] = {
+		"schema_version": 1, "board_token": "pair:board", "entries": {fields.entry_id: built.value}}
+	var closed := CONTACTS.prepare_resolve_day_end(earlier.contacts, 2, {}, "fixture:actual-rollover")
+	assert_true(closed.ok, str(closed))
+	if not closed.ok: return
+	assert_true(closed.value.candidate.transaction_receipts["fixture:actual-rollover"].pl_window is Dictionary)
+	var plan := {"source_day": 2, "stages": [{"stage_id": "advance_day", "prepared": {
+		"owner_candidate": {"contacts": earlier.contacts.duplicate(true), "gameplay": earlier.gameplay.duplicate(true)}}}]}
+	var later_lifecycle: Dictionary = earlier.lifecycle.duplicate(true)
+	later_lifecycle.day = 3
+	var before := plan.duplicate(true)
+	var receipts_before: Dictionary = closed.value.candidate.duplicate(true)
+	assert_eq(RUN._condition_candidates(plan, later_lifecycle, earlier.contacts, true).get("code"),
+		&"frozen_context_pair_receipt_required", "neither a pending source nor a committed source exists yet")
+	assert_true(RUN._condition_candidates(plan, later_lifecycle, closed.value.candidate, true).ok,
+		"the real append-only current receipt proves an earlier saved pending pair without rewriting it")
+	assert_eq(plan, before)
+	assert_eq(closed.value.candidate, receipts_before, "using the later receipt cannot modify its Contacts owner")
+	assert_null(plan.stages[0].prepared.owner_candidate.gameplay.route_context[RUN.DATING_KEY].entries[fields.entry_id].fields.pair_count_receipt)
+
+func test_strict_semantic_checkpoint_requires_both_discriminators_and_preserves_generic_restart() -> void:
+	var snapshot := _dating()
+	var entry_id := "dating.solo.priscilla.day2.pre_challenge"
+	var presentation: Dictionary = snapshot.gameplay.route_context[RUN.DATING_KEY].entries[entry_id].duplicate(true)
+	var semantic := {"entry_id": entry_id, "frozen_context": {"presentation": presentation}}
+	snapshot["narrative_checkpoint"] = semantic.duplicate(true)
+	assert_true(RUN.validate(snapshot, true).ok)
+	for missing: String in ["entry_id", "frozen_context"]:
+		snapshot.narrative_checkpoint = semantic.duplicate(true)
+		snapshot.narrative_checkpoint.erase(missing)
+		var before := snapshot.duplicate(true)
+		assert_eq(RUN.validate(snapshot, true).get("code"), &"frozen_run_narrative_context_invalid")
+		assert_eq(snapshot, before)
+	for generic: Dictionary in [{}, {"timeline_id": "fixture:timeline", "boundary": "restart"}]:
+		snapshot.narrative_checkpoint = generic.duplicate(true)
+		var before := snapshot.duplicate(true)
+		assert_true(RUN.validate(snapshot, true).ok, "generic restart transport has no semantic producer discriminator")
+		assert_eq(snapshot, before)

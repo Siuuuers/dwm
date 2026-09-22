@@ -10,7 +10,7 @@ extends RefCounted
 ## `RunSnapshotSchema.validate()` -- so a document/embedded-snapshot version mismatch can never both
 ## pass: whichever one carries the wrong integer is rejected by its own owning check.
 
-const DOCUMENT_VERSION := 6
+const DOCUMENT_VERSION := 7
 
 const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 
@@ -321,3 +321,4 @@ static func _normalize_engine_text(value: Variant) -> Variant:
 				dictionary[key] = normalized_member
 			return dictionary if dictionary_converted else source_dictionary
 	return value
+

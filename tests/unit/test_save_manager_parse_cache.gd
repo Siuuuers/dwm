@@ -40,7 +40,7 @@ func _manager() -> Node:
 
 func _fixture() -> Dictionary:
 	var snapshot := STRICT.parse_object(FileAccess.get_file_as_string(
-		"res://tests/fixtures/saves/v6_desktop_prepared.json"))
+		"res://tests/fixtures/saves/v7_desktop_prepared.json"))
 	assert_true(snapshot.get("ok", false), str(snapshot))
 	if not snapshot.get("ok", false): return {}
 	var built := SCHEMA.build(&"slot", 1, &"manual",

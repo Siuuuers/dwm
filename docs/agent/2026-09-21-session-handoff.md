@@ -1,78 +1,67 @@
 # Session handoff — 21 September 2026
 
-The user has explicitly resumed work after the sleep checkpoint and asks to continue the remaining Beads. Keep the repository **public**, as most recently instructed. No sign-in or visibility change is needed. Validate the remaining ending regression fixture correction before publishing the coordinated strict-v7 work. PR #1 stays draft; do not merge.
+The user explicitly resumed work and asks to continue the remaining Beads. Keep the repository **public**. PR #1 remains draft; do not merge. No authentication or visibility change is outstanding.
 
-## Latest executed checkpoint — run48
+## Resume location and working constraints
 
-Run48 (https://github.com/Siuuuers/dwm/actions/runs/35648249324) completed **16/17 jobs** at head `eccf563e5cf5fbe287b4e55a6ea6d81578f8baae`, tested merge `9ea410cb292bff0fbf23e0125fd68f5c5af1ae0e`.
+- Repository: `Siuuuers/dwm`; PR: https://github.com/Siuuuers/dwm/pull/1; branch: `codex/windows-cloud-ux`.
+- Read the current remote head, this handoff, `Prompt.md`, `CLAUDE.md`, `bd prime`, and relevant Beads. This document supplements specification authority; Beads owns live issue status.
+- Godot **4.6.3 standard GDScript** and PowerShell execution are **GitHub cloud only**. Local Python/static/source review is allowed.
+- The former local checkout is partial and has an obsolete Git baseline. Never `git push` it. Source was published through intentional GitHub tree/commit/ref snapshots. Obtain a complete fresh checkout or continue with exact-base snapshots.
+- Root alone updates Beads. Preserve unrelated JSONL records byte-for-byte; do not publish the local Dolt database.
+- Keep the supplied Karpathy Guidelines: bounded changes, no invented history or speculative abstractions, explicit tested subject and observable acceptance.
 
-- All five strict rendered journeys passed, including both complete seven-day ending routes and Gallery.
-- Reading/delivery passed all 210 tests. Across ten passing focused suites: 1,641 tests / 144 scripts.
-- Actual native Windows release startup, isolated Profile creation, and all 111 packaged runtime-data hashes passed. The unsigned headless validation ZIP is available through the recorded artifact, expiring 28 September; this does not establish graphical Windows or accessibility acceptance.
-- Both performance lanes and rendered desktop passed. Public surface regeneration passed; final committed inventories/read-only gate still remain pending.
-- Endings passed 105/106. The sole failed case is the newly added nullable-closure regression: it earned pair-ending eligibility but omitted the Profile-owned form draw at the first counted encounter. This checkpoint corrects that fixture using real PairDeckDrawPort before the Day2 closure, preserving every existing assertion. **This latest fixture correction is runtime-unverified.** It does not change production source.
-- Strict v7 work is being staged separately. Do not publish it until the fixture correction obtains a coherent baseline pass. Run/document remain v6 in this published checkpoint, Profile remains v9.
-- Exact evidence: `evidence/beads_cloud_review/resumed-public-cloud-run48.json`, `run48-reading-journey-ending.json`, `run48-native-export.json`, and `run48-public-inventory-receipt.json`. Successful reading job logs omit publication timing diagnostics; those remain artifact-only, so no exact animation timing observation is claimed.
+## Last fully executed baseline
 
-## Resume location and authority
+**Run49 passed all 17 jobs**, including **1,747 tests / 156 scripts**, all five strict rendered journeys, both performance lanes, rendered desktop/dialogue, public inventory regeneration, and actual native Windows headless startup/packaging.
 
-- Repository: `Siuuuers/dwm`; draft PR: https://github.com/Siuuuers/dwm/pull/1
-- Working branch: `codex/windows-cloud-ux`. Read its **current remote head**, this handoff, `Prompt.md`, `CLAUDE.md`, `bd prime`, and relevant Beads records before editing. This handoff supplements, not replaces, specification authority.
-- Historical run47 head: `17c31be1014f70592b06a76c23a48a965e310384`; run47 tested PR merge `dba429ba7432642e253e218e2095eaec799e43fa`, whose other parent is master `9e43b52c9884ccd59e82245d2168c3113ee4d037`.
-- Source checkpoint `4190e3a616e7b94d4845aebe33b3480c1fb7d8b3` adds **reviewed but runtime-unverified** repairs on top of that head. Its commit message and the visibility correction used `[skip ci]` to save the sleep checkpoint without starting another automatic run. This is not test acceptance. This resumption commit has no skip directive and starts a fresh PR cloud run; verify its exact tested head/merge SHA before recording results.
-- Godot **4.6.3 standard GDScript** and all Godot/PowerShell execution belong in GitHub Actions only. Local source review, Python/static checks are allowed. Do not run the game or PowerShell locally.
-- The former local checkout was partial and based on an old commit. It was published through deliberate GitHub tree/commit/ref snapshots, never `git push`. Use a fresh complete checkout or the same exact-base API workflow. Never push that partial checkout.
+- Run: https://github.com/Siuuuers/dwm/actions/runs/35649361163
+- Head: `e80023ab2bb63563392d695346aa62a876a59166`.
+- Tested PR merge: `3947205de6b6c36895258be26266ad5a7f0cdcec` (master parent `9e43b52c9884ccd59e82245d2168c3113ee4d037`). Record head and tested merge separately.
+- Exact job evidence: `evidence/beads_cloud_review/resumed-public-cloud-run49.json`.
+- Reading/ending/journeys: `evidence/beads_cloud_review/run49-reading-journey-ending.json`. Endings106/106, reading210/210 and all5 rendered cases pass. Detailed publication timings/capture hashes remain artifact-only; do not invent inspected timing values.
+- Native release receipt: `evidence/beads_cloud_review/run49-native-export.json`. It proves isolated executable startup, Profile creation, strict diagnostics, and111 actual packaged runtime-data hashes. The recorded unsigned ZIP is a validation artifact, not graphical Windows/UIA/screen-reader/full release acceptance.
+- Performance: `evidence/beads_cloud_review/performance/retained-history-run49.json`. All66 retained checkpoints survive; exact8 source hashes and restored gameplay/board match in both cold controls.
 
-## User decisions that remain in force
+The three earlier failures are resolved at this baseline: release templates reject native `--path`; legitimate non-group day closures have `pl_window:null`; and real DTL fixture publication/restoration needed a proper barrier and original source bytes. The new seven-closure test additionally needed its actual Profile-owned pair draw **at the first counted encounter**, before installing Day2 closure. Pair form is not drawn simply by New Run. It now uses the real PairDeckDrawPort and passes all receipt/checkpoint assertions.
 
-- Old Run saves may be refused/discarded; preserve Profile history. Current Run/document schema remains **v6**, Profile remains **v9**. Strict v7 cutover is pending.
-- Dating goes from pre-DTL to its board to the matching post-DTL automatically. No starting/ending Continue or Done popup, and no special mine.
-- Observer interactions are retired from the current game and preserved on `archive/observer-interactions-2026-09-21`. Observer endings do not require interaction receipts.
-- Continue the Beads and lag work with scoped changes, explicit assumptions, actual automated evidence, and the supplied Karpathy Guidelines. Do not fabricate missing historical presentation contexts or weaken checks to make them pass.
-- **Keep the repository public**, as the user explicitly confirmed after the source checkpoint. Earlier privacy requests in Beads notes are historical and superseded. Do not change spending settings. PR #1 remains draft; no merge requested.
+## Current source cutover — fresh cloud verification required
 
-## Run47: what actually executed
+The commit containing this handoff publishes the reviewed, coordinated **Run snapshot/document v7** cutover after the coherent v6 baseline above. **Run49 does not validate this new source.** Fetch the new head and its fresh workflow; inspect all required results before closing the canonical-context work.
 
-Run: https://github.com/Siuuuers/dwm/actions/runs/35642962190
+- Both version constants advance together. Central Run validation now requires applicable immutable canonical presentation caches before installation.
+- Nested Condition prepared candidates require Dating facts for their own admitted challenge. Earlier candidates do not inherit a later ending admission requirement; saved pending pair context stays immutable and is proven by actual append-only rollover receipts.
+- A semantic checkpoint containing either `entry_id` or `frozen_context` must contain both. Empty and genuine generic restart transports remain legal.
+- Profile remains **v9**, frozen-cache schemas remain **v1**. Existing migration admission refuses old Run versions without conversion or Profile patches. It does not delete saves automatically.
+- Invalid retained recovery candidates remain diagnosed/skipped; valid current candidates can still be selected. Do not replace fallback recovery with blanket rejection of an entire history.
+- A separately authored v7 prepared-board fixture has lawful empty Contacts/narrative state. Historical fixtures and old measured payloads are unchanged. Current helper consumers explicitly author valid Contacts rather than silently treating `{}` as complete current state.
+- New tests cover generated-contact cache deletion, prepared Dating cache deletion, partial semantic checkpoints, earlier/later applicability, actual rollover receipts, version agreement/refusal, mixed invalid fallback selection, and real storage Load refusal preserving all bytes, nonempty Profile9 chronology, Run, journal and participant calls.
+- Performance tools derive the baseline from CURRENT schema by reversing exactly one normalization condition, then restore exact bytes in `finally`. The outgoing comparison selects the two CURRENT port functions. Every retained measured bundle passes strict current validation before timing.
+- Fresh localized production journeys generate the shared payloads. The seven-day job depends on the paired job, downloads its stable per-run artifact, and verifies checkout/run/attempt and file hashes. Retrying a failed consumer may reuse a prior successful producer attempt at the identical checkout.
+- Public-surface CI logs the complete observational source/fixture/version census. Review matches for missed current consumers; historical negative tests and Profile versions are legitimate. A match alone is not an automatic failure.
 
-**14 of 17 jobs passed; 3 failed.** All jobs completed. Machine-readable job IDs and results are in `evidence/beads_cloud_review/resumed-public-cloud-run47.json`.
+Source groups were independently reviewed and statically checked; no local Godot or PowerShell ran. Static review is not runtime proof.
 
-- Ten focused scopes passed **1,536 tests across 140 scripts**: desktop, persistence, endings, settings, dating, new_account, audio, minesweeper, shop, localization.
-- Public surface generation/validation passed: 240 GameState and 74 SaveManager records, zero inventory errors; six retired symbols had zero references across 902 scanned files.
-- Rendered desktop/dialogue passed, including 133 previews, startup/Logout captures, and UI literal audit.
-- Seven-day retained history and paired checkpoint performance passed. All 66 retained checkpoints survived (32 line, 32 manual, 2 semantic). Complete inspectable performance receipts are in `evidence/beads_cloud_review/performance/retained-history-run47.json`.
-- `reading_delivery` passed 207/210 tests in 16 scripts; three fixture tests failed.
-- Rendered full journeys passed 3/5: Dating reload and both Practice journeys. The two full-week ending routes failed when a legitimate null pair window reached ending-seed capture.
-- Native Windows export reached the actual exported executable, which refused `--path`. No accepted release ZIP exists.
+## Player decisions that remain in force
 
-## Three repairs saved in this checkpoint — cloud verification required
+- Old Run saves may be refused/discarded; preserve Profile history. Current v7 refusal tests must demonstrate this at the real storage boundary.
+- Dating automatically follows pre-DTL → board → matching post-DTL. No Continue/Done interstitial and no special mine.
+- Observer interactions are retired; their code/tests remain on `archive/observer-interactions-2026-09-21`. Solo Observer endings do not require interaction receipts.
+- No missing historical selector, receipt, Profile achievement, or authored dialogue may be reconstructed from current live facts.
+- Keep repository public; do not alter billing/spending settings. Earlier private runs were denied runner allocation. The later public runs prove runner availability, not any change to account billing.
 
-1. `tools/testing/Invoke-WindowsExportValidation.ps1`: remove only `--path` from the native release executable invocation. Its package working directory and adjacent PCK discovery remain; keep isolation, timeout, diagnostic scans, Profile creation proof, and independent PCK audit.
-2. `autoload/GameState.gd`: read `pl_window` as a Variant and check that it is a Dictionary before accessing `counts`. Null is legal on non-group days. `tests/unit/test_ending_frozen_context.gd` now creates seven real domain closures, checks only counted Day 2/6 receipts enter the seed, preserves source receipts, and exercises admission/checkpoint/presentation. Independently reviewed; not executed yet.
-3. `tests/integration/test_dating_caption_style.gd`: both replacement sites now retain original DTL bytes. The older two-line fixture previously let teardown write an empty byte array, contaminating the later Dating natural-end test. Ending/Gallery fixtures now wait boundedly for one fresh `text_started` plus exact parsed text before sending input. Source inspection shows the default Visual Novel textbox has a 0.7-second fade before publication; the next run must confirm this explanation using `DWM_DTL_TEXT_PUBLICATION` diagnostics. Keep all original text, completion, and cleanup assertions. No production Dialogic behavior changed.
+## Beads status and next order
 
-Do not label these repairs tested or close their Beads based on review alone. Inspect all required cloud jobs, including both full-week routes and native export. Preserve strict error/leak scanning and existing lifetime regression tests.
+There are191 records: **166 closed,25 unfinished**. `dwm-oyo.8` is now closed only for its bounded cloud-gate extension, using run49 exact evidence. Its parent and full native/content release work remain open. Earlier closed children `dwm-7wj.1`, `dwm-vky.16`, `dwm-nqn.1` retain their recorded evidence.
 
-## Inventory and performance limits
+1. Validate this v7 head in cloud. Check import/census/public contract prerequisites, focused persistence/settings/reading/endings/New Account, both full-week journeys and all other rendered cases, actual export, and both performance lanes. A skipped dependent job is unvalidated. Fix only concrete remaining failures and rerun the relevant subject.
+2. Review the complete fixture census for current consumers missed by the partial local checkout; retain legitimate historical refusal cases. `dwm-n3h.1` remains in progress until strict successor and real producer/adapter/storage proof pass.
+3. After final source/test edits, regenerate/recover exact canonical public inventories, verify transport hashes, commit them and restore the read-only gate. `dwm-sx8.1` remains in progress until that check reproduces the committed inventories. Temporary `-Regenerate -EmitPayloads` is still active in this cutover.
+4. Continue lag work (`dwm-634`, `dwm-634.3`) from matched bytes and exact phases. Run49 Day7: first reveal1.397074s, settlement0.858808s, Slot1save4.134218s. One fixed-order cache pair measured coldLogin14.160247s disabled /10.379490s enabled, strictparses7→3 plus4hits. This is diagnostic only, not a reliable percentage or hardware guarantee. Do not sum overlapping inclusive phases; splice coverage is14/35 eligible records, not14/95 total events.
+5. Consult remaining Beads. Active Dating/Witnessed Quick routing and Controls composition remain engineering work. `dwm-n3h.2` retains incomplete historical replay selectors. Authored Gallery/version/History DTL content, undefined dual-language behavior, native Windows renderer/accessibility, and other existing blockers remain. Do not invent Profile10 or story content to mark them complete.
 
-The public-surface workflow is temporarily in `-Regenerate -EmitPayloads` mode. Its six downstream job definitions require the public-surface job. Run47 payload inventories were recovered and hash-verified, but the GameState/fixture edits in this checkpoint make them stale. After all source edits, regenerate at the final head, recover the exact canonical inventories, commit them, restore the read-only gate, and prove that gate on the final source. A skipped dependent job is not validation.
-
-The exact same 1,910,526-byte Day7 Autosave produced cold Login 13.878894 seconds with cache disabled and 10.233698 seconds enabled. This was **one fixed-order pair**, diagnostic only. Strict parses went from 7 to 3 with 4 hits; all eight source hashes and restored gameplay/board hashes matched. Do not infer a reliable percentage or general hardware improvement from one pair.
-
-Material lag remains: Day7 first reveal 1.306134 seconds, settlement 0.854962 seconds, Slot1 save 4.041201 seconds. The cache does not close `dwm-634`. Six same-byte outgoing-normalization comparisons retained exact equality. For checkpoint splice coverage, 14/35 eligible records carried the flag; do not use all 95 events as the denominator. Inclusive timing phases overlap and must not be summed.
-
-## Beads and next order
-
-There are 191 records: 165 closed and 26 unfinished. This pause closes none. Root alone mutated Beads; unrelated JSONL lines were preserved exactly. Publish intentional issue rows only; do not publish the local Dolt database.
-
-1. Keep the repository **public**, per the latest user instruction; no authentication or visibility action is outstanding. Public visibility was verified by API. Earlier private runs were denied runner allocation by GitHub billing; switching public permitted run46 retries and run47. The four Beads notes in source checkpoint4190e3a record the earlier privacy request; this later decision supersedes it. Do not repeatedly retry a billing admission failure or change spending settings.
-2. Run the corrected first-counted-encounter ending fixture in cloud CI at the current branch head. All three earlier production/adapter paths passed run48; obtain coherent baseline acceptance before strict-v7 publication. Record head and actual PR merge SHA separately.
-3. Finish canonical producer and adapter proof before strict v7 work. Active `dwm-n3h.1` is still open. Read `docs/agent/2026-09-21-successor-cutover-readiness.md` and `docs/agent/2026-09-21-v7-frozen-predicate-scope.md`; these are readiness audits, not implementation evidence. Coordinate snapshot/document v7, historical refusal fixtures, nested Condition/semantic predicates, and compatible performance harnesses in one bounded cutover. Preserve Profile v9.
-4. Regenerate final API inventories and restore/prove the read-only contract gate (`dwm-sx8.1`). Complete release/full-journey gates (`dwm-oyo.8`). Continue measured lag work (`dwm-634`) with matched payloads and an appropriate repetition/order design before causal claims.
-5. Consult Beads for the remaining work. `dwm-n3h.2` retains missing legacy replay selectors; do not synthesize them. Authored Gallery/version cues and History DTL content, undefined dual-language behavior, native Windows renderer/accessibility acceptance, and other existing blockers remain. None is silently resolved by the current green subscopes.
-
-Earlier bounded children `dwm-7wj.1`, `dwm-vky.16`, and `dwm-nqn.1` were already closed with their recorded evidence. Do not reopen or reclose them just to recount this session.
+Readiness notes in `docs/agent/2026-09-21-successor-cutover-readiness.md` and `2026-09-21-v7-frozen-predicate-scope.md` record the pre-cutover audit and historical rationale; their old 'not implemented' status is superseded by the current source, not by claimed test success. Older run47/48 evidence remains under `evidence/beads_cloud_review/` with its original limits.
 
 ## Copyable new-session request
 
-Continue `Siuuuers/dwm` draft PR #1 on `codex/windows-cloud-ux`. Read `docs/agent/2026-09-21-session-handoff.md` at the current remote head, then the repository instructions and relevant Beads. Keep the repository public; use cloud-only Godot 4.6.3 automated tests. First verify the saved ending fixture correction; run48 passed 16/17 jobs, including all rendered journeys, dialogue tests and native export. The later fixture correction is unverified; staged strict v7 changes must stay out of its baseline-validation commit. Preserve Profile history, automatic Dating transitions with no Continue/Done popup or special mine, and retired Observer interactions. Finish the remaining Beads using actual evidence; do not merge the PR.
+Continue `Siuuuers/dwm` draft PR#1 on `codex/windows-cloud-ux`. Read `docs/agent/2026-09-21-session-handoff.md` at the current remote head, then repository instructions and relevant Beads. Keep the repository public and use cloud-only Godot4.6.3 automated tests. Run49 was the green v6 baseline; verify the later coordinated v7 cutover on its own head, finish final read-only public inventories, then continue remaining Beads. Preserve Profile9/history, automatic Dating without Continue/Done/special mine, and retired Observer interactions. Do not merge.

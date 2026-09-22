@@ -1,7 +1,4 @@
-param(
-    [ValidatePattern('^[0-9a-f]{40}$')]
-    [string]$BaselineRef = '681251dc832262c08826ce74d6a4480291eac4a8'
-)
+param()
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -13,9 +10,10 @@ $schema = Join-Path $repositoryRoot $schemaRelative
 New-Item -ItemType Directory -Force -Path $output | Out-Null
 $candidateBytes = [IO.File]::ReadAllBytes($schema)
 $baseline = Join-Path $output 'baseline-SaveDocumentSchema.gd'
-# Preserve the exact committed bytes; PowerShell's native text pipeline changes line endings.
-python -c 'import pathlib,subprocess,sys; pathlib.Path(sys.argv[2]).write_bytes(subprocess.check_output(["git","show",sys.argv[1]]))' "${BaselineRef}:$schemaRelative" $baseline
-if ($LASTEXITCODE -ne 0) { throw 'Could not read the pinned baseline schema.' }
+# Reverse only the redundant journal-normalization optimization. Both variants retain every
+# current schema/version/frozen-context check; never transplant a historical validator.
+python -c 'import pathlib,sys; source=pathlib.Path(sys.argv[1]).read_bytes(); needle=b"if key == \"current_snapshot\" or (use_proven_journal and key == \"recovery_journal\"):"; assert source.count(needle)==1, "expected one normalization condition"; pathlib.Path(sys.argv[2]).write_bytes(source.replace(needle,b"if key == \"current_snapshot\":"))' $schema $baseline
+if ($LASTEXITCODE -ne 0) { throw 'Could not derive the single-condition baseline schema.' }
 $baselineBytes = [IO.File]::ReadAllBytes($baseline)
 $previousCheckpointProfile = $env:DWM_CHECKPOINT_PROFILE
 $previousConsequenceProfile = $env:DWM_CONSEQUENCE_PROFILE
@@ -50,9 +48,8 @@ function Read-Markers {
 }
 
 $report = [ordered]@{
-    baseline_ref = $BaselineRef
     checkout_ref = (& git rev-parse HEAD)
-    ablation = 'Only SaveDocumentSchema.gd is replaced; all other code is the candidate.'
+    ablation = 'Current SaveDocumentSchema with only its outgoing proven-journal normalization shortcut reversed; all current validation remains in both variants.'
     timing_policy = 'Observations on one shared Windows runner; no speed threshold or frame-time guarantee.'
     journey_comparison = 'Fresh journeys may generate different boards; fixed_payloads reuse identical saved bytes.'
     journeys = @()
@@ -60,6 +57,12 @@ $report = [ordered]@{
     schema_sha256 = @{}
 }
 $fixed = @{}
+$payloadManifest = [ordered]@{
+    checkout_ref = $report.checkout_ref
+    producer_run_id = [string]$env:GITHUB_RUN_ID
+    producer_run_attempt = [int]$env:GITHUB_RUN_ATTEMPT
+    payloads = @()
+}
 try {
     foreach ($variant in @('baseline', 'candidate')) {
         if ($variant -eq 'baseline') {
@@ -105,8 +108,18 @@ try {
             $measurement = $measurements[0]
             $hash = (Get-FileHash -LiteralPath $fixed[$locale] -Algorithm SHA256).Hash.ToLowerInvariant()
             if ($measurement.input_sha256 -cne $hash -or $measurement.output_sha256 -cne $hash -or
-                $measurement.journal_bundles -ne 2) {
+                $measurement.journal_bundles -ne 2 -or $measurement.validated_journal_bundles -ne 2) {
                 throw 'Fixed payload must retain exact canonical bytes and both journal bundles.'
+            }
+            if ($variant -eq 'baseline') {
+                $payloadManifest.payloads += [ordered]@{
+                    locale = $locale; file = "fixed-$locale-autosave.json"; sha256 = $hash
+                    schema_version = $measurement.schema_version
+                    snapshot_schema_version = $measurement.snapshot_schema_version
+                    journal_bundles = $measurement.validated_journal_bundles
+                    producer_variant = $variant; producer_schema_sha256 = $report.schema_sha256[$variant]
+                    dating_ending = $ending
+                }
             }
             foreach ($phase in @('parse_us', 'schema_us', 'stringify_us', 'value_validation_us', 'outgoing_validation_us')) {
                 $samples = @($measurement.samples.$phase)
@@ -117,7 +130,9 @@ try {
             $report.fixed_payloads += [ordered]@{ variant = $variant; locale = $locale; measurement = $measurement }
         }
     }
+    $payloadManifest | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $output 'payload-manifest.json') -Encoding utf8
     $report | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath (Join-Path $output 'results.json') -Encoding utf8
+    Write-Host ('CHECKPOINT_PERFORMANCE_PAYLOADS: ' + ($payloadManifest | ConvertTo-Json -Depth 8 -Compress))
     Write-Host 'CHECKPOINT_PERFORMANCE_VERIFIED: four localized journeys and four matched-payload probes.'
 } finally {
     [IO.File]::WriteAllBytes($schema, $candidateBytes)

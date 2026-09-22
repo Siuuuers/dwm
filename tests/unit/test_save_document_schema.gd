@@ -1,6 +1,7 @@
 extends "res://addons/gut/test.gd"
 
 const SCHEMA_PATH := "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
+const CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const VALID_FIXTURE := "res://tests/fixtures/snapshots/valid_day3.json"
 const RUN_SNAPSHOT_SCHEMA_PATH := "res://scripts/domain/run/RunSnapshotSchema.gd"
 const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
@@ -37,7 +38,10 @@ func _empty_desktop() -> Dictionary:
 
 func _current_fixture(snapshot: Dictionary) -> Dictionary:
 	var upgraded := snapshot.duplicate(true)
-	upgraded["schema_version"] = 6
+	upgraded["schema_version"] = 7
+	# Current empty fixtures explicitly author the Contacts owner; malformed shapes stay malformed.
+	if upgraded.get("contacts") is Dictionary and upgraded.contacts.is_empty():
+		upgraded["contacts"] = CONTACTS.make_defaults()
 	upgraded["gameplay"].erase("opening_seen")
 	upgraded["gameplay"].erase("tutorial_seen")
 	var lifecycle: Dictionary = (upgraded["lifecycle"] as Dictionary).duplicate(true)
@@ -137,27 +141,30 @@ func test_validate_rejects_malformed_documents() -> void:
 	bad_journal["recovery_journal"] = [{"entry": &"stringname"}]
 	assert_false(schema.validate(bad_journal).get("ok", true), "non-primitive journal entry rejects")
 
-	# v6 is current; the unsupported-future probe must remain newer.
+	# v7 is current; the unsupported-future probe must remain newer.
 	var future: Dictionary = document.duplicate(true)
-	future["schema_version"] = 7
+	future["schema_version"] = 8
 	assert_false(schema.validate(future).get("ok", true), "unsupported future document version rejects")
 
-func test_document_version_is_six_and_embedded_snapshot_version_must_agree() -> void:
+func test_document_version_is_seven_and_embedded_snapshot_version_must_agree() -> void:
 	assert_true(_schema_exists(), "SaveDocumentSchema must exist")
 	if not _schema_exists():
 		return
 	var schema: Script = load(SCHEMA_PATH)
-	assert_eq(int(schema.DOCUMENT_VERSION), 6)
+	assert_eq(int(schema.DOCUMENT_VERSION), 7)
 	var built: Dictionary = schema.build(&"slot", 1, &"manual", _bundle(), [])
 	assert_true(built["ok"], JSON.stringify(built))
 	var document: Dictionary = built["value"]
-	assert_eq(int(document["schema_version"]), 6)
-	assert_eq(int(document["current_snapshot"]["snapshot"]["schema_version"]), 6)
+	assert_eq(int(document["schema_version"]), 7)
+	assert_eq(int(document["current_snapshot"]["snapshot"]["schema_version"]), 7)
 	# A current document whose embedded snapshot carries an older tag disagrees and rejects.
-	var skewed: Dictionary = document.duplicate(true)
-	(skewed["current_snapshot"]["snapshot"] as Dictionary)["schema_version"] = 3
-	assert_false(schema.validate(skewed).get("ok", true),
-		"a document/embedded-snapshot version mismatch rejects")
+	for version: int in [3, 6, 8]:
+		var skewed: Dictionary = document.duplicate(true)
+		(skewed["current_snapshot"]["snapshot"] as Dictionary)["schema_version"] = version
+		var before := skewed.duplicate(true)
+		assert_false(schema.validate(skewed).get("ok", true),
+			"a v7 document never installs an older or future current snapshot")
+		assert_eq(skewed, before, "version refusal cannot relabel the embedded snapshot")
 
 func test_prepare_candidate_is_detached() -> void:
 	assert_true(_schema_exists(), "SaveDocumentSchema must exist")
@@ -192,7 +199,7 @@ func test_current_and_recovery_snapshots_normalize_engine_text_without_mutating_
 func test_build_keeps_numeric_normalization_and_detaches_current_history_and_time() -> void:
 	var schema: Script = load(SCHEMA_PATH)
 	var current := _bundle()
-	current.snapshot.schema_version = 6.0
+	current.snapshot.schema_version = 7.0
 	var history := [{"count": 4.0, "nested": [&"hint", 2.25]}]
 	var saved_time := {"unix_seconds": 0.0, "utc_offset_minutes": 0.0, "hhmm": "00:00"}
 	var built: Dictionary = schema.build(&"autosave", null, &"automatic", current, history, saved_time)
@@ -295,7 +302,7 @@ func test_validate_composes_the_current_bundle_instead_of_renormalizing_it() -> 
 	if not built.get("ok", false):
 		return
 	var document: Dictionary = (built["value"] as Dictionary).duplicate(true)
-	document["schema_version"] = 6.0
+	document["schema_version"] = 7.0
 	(document["saved_time"] as Dictionary)["unix_seconds"] = 0.0
 	(document["recovery_journal"][0] as Dictionary)["count"] = 4.0
 	(document["current_snapshot"]["snapshot"]["lifecycle"] as Dictionary)["day"] = 3.0
@@ -382,7 +389,7 @@ func test_validate_refusal_order_survives_multiple_simultaneous_defects() -> voi
 		"a wrong document version is answered before the discriminators")
 
 	var future_version_too: Dictionary = discriminator_too.duplicate(true)
-	future_version_too["schema_version"] = 7
+	future_version_too["schema_version"] = 8
 	assert_eq(schema.validate(future_version_too).get("code", &""), &"unsupported_schema_version",
 		"a future document version keeps its own code, ahead of the discriminators")
 
@@ -500,7 +507,7 @@ func test_build_passes_the_validated_bundle_through_instead_of_renormalizing_it(
 
 	var schema: Script = load(SCHEMA_PATH)
 	var current := _bundle()
-	current.snapshot.schema_version = 6.0
+	current.snapshot.schema_version = 7.0
 	var journal := [{"count": 4.0, "nested": [&"hint", 2.25]}]
 	var saved_time := {"unix_seconds": 0.0, "utc_offset_minutes": 0.0, "hhmm": "00:00"}
 	var built: Dictionary = schema.build(&"autosave", null, &"automatic", current, journal, saved_time)
@@ -524,7 +531,7 @@ func test_build_passes_the_validated_bundle_through_instead_of_renormalizing_it(
 	# ...and the bundle that is passed through must already be normalized by its own owner.
 	assert_eq(typeof(document["current_snapshot"]["snapshot"]["schema_version"]), TYPE_INT,
 		"the embedded snapshot is normalized by RunSnapshotSchema.validate, not by build")
-	assert_eq(int(document["current_snapshot"]["snapshot"]["schema_version"]), 6,
+	assert_eq(int(document["current_snapshot"]["snapshot"]["schema_version"]), 7,
 		"normalization preserves the value")
 	var bundle_keys: Array = (document["current_snapshot"] as Dictionary).keys()
 	assert_eq(bundle_keys.size(), 2, "the persisted bundle has exactly two members")
@@ -833,7 +840,7 @@ func test_outgoing_journal_container_check_retains_refusal_precedence() -> void:
 	assert_eq(schema.validate_outgoing(document, proofs).get("code"), &"invalid_bundle_shape")
 	document.slot_id = 0
 	assert_eq(schema.validate_outgoing(document, proofs).get("code"), &"invalid_discriminator")
-	document.schema_version = 7
+	document.schema_version = 8
 	assert_eq(schema.validate_outgoing(document, proofs).get("code"), &"unsupported_schema_version")
 	document["saved_time"] = {"broken": true}
 	assert_eq(schema.validate_outgoing(document, proofs).get("code"), &"invalid_saved_time")

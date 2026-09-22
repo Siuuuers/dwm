@@ -14,7 +14,7 @@ const SEMANTIC_KINDS := [
 func _journal_exists() -> bool:
 	return ResourceLoader.exists(JOURNAL_PATH, "Script")
 
-## Test-authored v6 cases retain the source payload and explicitly choose Dark=false.
+## Test-authored current cases retain the board scaffold and choose empty Contacts and Dark=false.
 ## This fixture construction is not a player-save migration.
 func _issuer_receipt(token: String) -> Dictionary:
 	return {"receipt_id": "issuer_receipt.fixture-" + token, "purpose": "causal_day_instance",
@@ -33,7 +33,8 @@ func _empty_desktop() -> Dictionary:
 
 func _snapshot(run_id: String, sequence: int, day: int = 3) -> Dictionary:
 	var snapshot: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(SNAPSHOT_FIXTURE))
-	snapshot["schema_version"] = 6
+	snapshot["schema_version"] = 7
+	snapshot["contacts"] = preload("res://scripts/domain/contact/ContactInvitationState.gd").make_defaults()
 	snapshot["lifecycle"]["dark_mode"] = false
 	snapshot["gameplay"].erase("opening_seen")
 	snapshot["gameplay"].erase("tutorial_seen")
@@ -215,6 +216,55 @@ func test_prepare_seed_selects_and_excludes() -> void:
 	assert_false(journal.prepare_seed(built["value"], {"checkpoint_kind": "line",
 		"snapshot": _snapshot("run-z", 9)}).get("ok", true),
 		"a selected bundle outside the document rejects")
+
+func test_v7_seed_skips_old_and_missing_context_history_without_repair() -> void:
+	var contacts := preload("res://scripts/domain/contact/ContactInvitationState.gd")
+	var frozen := preload("res://scripts/narrative/ContactsFrozenContext.gd")
+	var schema := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
+	var historical: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(
+		FileAccess.get_file_as_string("res://tests/fixtures/saves/v6_desktop_prepared.json")).value
+	assert_eq(historical.schema_version, 6)
+	var old := {"checkpoint_kind": "line", "snapshot": historical}
+	var valid := {"checkpoint_kind": "line", "snapshot": _snapshot("fixture-run-1", 2, 1)}
+	var generated := _snapshot("fixture-run-1", 3, 1)
+	var offered: Dictionary = contacts.prepare_offer_solo(generated.contacts, "priscilla", 1,
+		"fixture:offer-message", "fixture:offer")
+	assert_true(offered.ok, str(offered))
+	if not offered.ok: return
+	var captured: Dictionary = frozen.capture_candidate(generated.contacts, offered.value.candidate,
+		generated.gameplay, 1)
+	assert_true(captured.ok, str(captured))
+	if not captured.ok: return
+	generated.contacts = offered.value.candidate
+	generated.gameplay = captured.value
+	var proved: Dictionary = schema.validate(generated)
+	assert_true(proved.ok, str(proved))
+	if not proved.ok: return
+	generated.gameplay.route_context.erase(frozen.CACHE_KEY)
+	assert_eq(schema.validate(generated).get("code"), &"contacts_frozen_history_missing")
+	var missing := {"checkpoint_kind": "line", "snapshot": generated}
+	var selected := {"checkpoint_kind": "day_start", "snapshot": _snapshot("fixture-run-1", 4, 1)}
+	var built: Dictionary = load(DOCUMENT_SCHEMA_PATH).build(&"slot", 1, &"manual", selected, [old, valid, missing])
+	assert_true(built.ok, str(built))
+	if not built.ok: return
+	var before: Dictionary = built.value.duplicate(true)
+	var journal := _fresh("seed-host")
+	var before_live: Dictionary = journal.capture_state()
+	for refused: Dictionary in [old, missing]:
+		assert_eq(journal.prepare_seed(built.value, refused).get("code"), &"selected_bundle_missing")
+		assert_eq(journal.capture_state(), before_live, "an invalid selection cannot install or repair history")
+	var prepared: Dictionary = journal.prepare_seed(built.value, selected)
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	assert_eq(prepared.value.diagnostics, [
+		{"index": 1, "code": "invalid_snapshot_shape"},
+		{"index": 3, "code": "contacts_frozen_history_missing"},
+	])
+	assert_eq(journal.capture_state(), before_live, "preparation stays detached")
+	assert_eq(built.value, before, "invalid retained snapshots are neither converted nor filled in")
+	assert_true(journal.commit_prepared(prepared.value.candidate).ok)
+	assert_eq(journal.get_current_bundle().value.bundle.snapshot, schema.validate(selected.snapshot).value.candidate)
+	assert_eq(journal.get_bundles_for_disk(), [{"checkpoint_kind": "line", "snapshot": schema.validate(valid.snapshot).value.candidate}])
 
 func test_seed_replaces_same_counter_contents_and_history_and_can_repeat() -> void:
 	var journal := _fresh("run-a")

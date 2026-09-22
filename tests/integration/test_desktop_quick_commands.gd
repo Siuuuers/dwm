@@ -33,7 +33,7 @@ const IDENTITY_RESTORE := preload("res://scripts/application/restore/DesktopIden
 const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
 const ROOT_STORE := preload("res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd")
 const NAMESPACE := preload("res://tests/support/FakeDesktopNamespaceSource.gd")
-const FIXTURE := "res://tests/fixtures/saves/v6_desktop_prepared.json"
+const FIXTURE := "res://tests/fixtures/saves/v7_desktop_prepared.json"
 
 
 class IsolatedDesktop extends "res://scripts/ui/ComputerDesktop.gd":

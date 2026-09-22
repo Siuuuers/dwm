@@ -18,10 +18,17 @@ the retained resolution plan must prove that pending boundary. Committed context
 require the actual count receipt. Neither case mints a future receipt.
 
 The restore validator reads saved facts only and runs before installation or
-Profile reconciliation. The staged v6 checkpoint validates every present cache.
-The planned v7 cutover additionally requires complete applicable caches and refuses
-older Run documents without repairing them. Profile v9 and its append-only history
-are separate from that Run admission policy.
+Profile reconciliation. Run snapshot and document v7 require complete applicable
+caches and refuse older Run documents without repairing them. Profile v9 and its
+append-only history are separate from that Run admission policy.
+
+Prepared Condition owner candidates must retain the Dating cache for their own
+admitted challenge. An earlier candidate does not inherit a later ending's admission
+requirement; present historical caches and append-only rollover receipts are still
+validated. A semantic checkpoint carrying either `entry_id` or `frozen_context`
+must carry both. Empty and genuine generic physical-owner restart transports remain
+valid. Recovery history keeps its existing policy: invalid fallback bundles are
+diagnosed and skipped, never selected, repaired or installed.
 
 Dialogic receives a detached, recursively read-only `Frozen` namespace before its
 first event. Completion, failure and cancellation restore the prior variables.
