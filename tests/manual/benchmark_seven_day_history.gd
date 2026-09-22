@@ -194,8 +194,17 @@ func _history_read(bootstrap: Node, game: Node, manager: Node) -> void:
 	if not _check(CANONICAL_JSON._deep_same(board.board, expected.desktop.board.board)
 		and board.phase == expected.desktop.board.phase and restored.desktop.consequence.pending == null,
 		"cold history restore preserves exact physical board and complete outcome"): return
+	var retained: Array = manager._journal.get_bundles_for_disk()
+	if not _check(retained.size() == 66 and retained.size() == loaded_document.recovery_journal.size(),
+		"cold Login restores all 66 retained checkpoints"): return
+	for index: int in retained.size():
+		if not _check(CANONICAL_JSON._deep_same(retained[index], loaded_document.recovery_journal[index]),
+			"cold Login retains exact checkpoint %d" % index): return
 	print("SEVEN_DAY_HISTORY_READ_PASS: " + JSON.stringify({"day": game.day,
 		"login_us": elapsed, "retained": proof.retained, "autosave_sha256": proof.autosave_sha256,
+		"save_manager_sha256": FileAccess.get_sha256("res://autoload/SaveManager.gd"),
+		"retained_checkpoint_count": retained.size(),
+		"restored_recovery_journal_sha256": str(CANONICAL_JSON.stringify(retained).value).sha256_text(),
 		"parse_cache_enabled": OS.get_environment("DWM_SAVE_PARSE_CACHE_DISABLED") != "1",
 		"restored_gameplay_sha256": str(CANONICAL_JSON.stringify(restored.gameplay).value).sha256_text(),
 		"restored_board_sha256": str(CANONICAL_JSON.stringify(board.board).value).sha256_text()}))

@@ -2,6 +2,20 @@
 
 The user explicitly resumed work and asks to continue the remaining Beads. Keep the repository **public**. PR #1 remains draft; do not merge. No authentication or visibility change is outstanding.
 
+## 22 September continuation — next cloud run pending
+
+A complete fresh clone at `ad9c1801d89c1eee37655ce3684b5d6a18b69a46` recovered the interrupted work. Reviewed v7 repair commit `1180197843dd7840a431410a83a6f56570918142` was initially local only: ordinary Git push has no credential, and the root GitHub connection returned HTTP400 `Invalid MCP request metadata` after a conversation steering turn. A fresh agent successfully read PR1 through the same authorized GitHub connector, recovering the publication route. The remote was still `ad9c180` at that read; identify the resulting published head and new cloud run before claiming verification. The old session's staged edits were not published; this batch reconstructs and independently reviews them.
+
+- Run50 (`35686788394`, merge checkout `f0ca0b97bdbdd24e5dd37d3e78e2aa1f0fe37890`) completed with 13 successful jobs, three failed suites (10 failed tests), and cancelled Settings. Exact evidence: `evidence/beads_cloud_review/resumed-public-cloud-run50.json`. All five rendered journeys and Windows export passed. Settings logs/artifact are unavailable, so its cancellation cause is unknown.
+- Twelve test files now use valid current v7 inputs, actual generated frozen Dating contexts, or correct current-version expectations. Historical refusal fixtures and old sealed contract versions remain unchanged. Six previously omitted GUT suites and the standalone capture/retention script are added to cloud coverage. New Account fetches full Git history for its historical-seal ancestry assertions.
+- Focused Godot children have an eight-minute timeout below the Actions step limit, with process-tree termination and retained timeout output. A real forced-timeout runner contract runs in the prerequisite job. Long-running benchmark callers opt into their own explicit limits.
+- SaveManager removes four schema traversals already performed by admission. Independent storage, locator, transaction, participant and recovery proofs remain. The cloud driver derives a baseline byte-identical to the prior v7 SaveManager, then runs eight alternating baseline/candidate pairs on identical retained saves in fresh processes. Each proves all 66 checkpoints plus gameplay/board/source hashes. Static review is complete; no new speedup or runtime success is claimed yet.
+- Public inventories still regenerate in cloud. Recover final canonical payloads, commit them, and switch to the read-only gate after the final production/test edits.
+- Active Dating Quick routing is a separate next batch. Direct capture currently belongs to retained Pause; consent must also prevent automatic terminal settlement and story advancement. Do not expose shortcuts by merely widening SaveManager's accepted phases.
+- On 22 September the user clarified that **all dialogue remains unsettled** and explicitly authorized **non-canon drafts for tests**. Such drafts must be clearly labelled and kept in test scope; they are not approved production story text, Gallery descriptions, or recovered historical facts. The incompatible legacy Gallery replay policy is still unanswered, so existing Gallery behavior stays unchanged.
+- The non-canon test permission now has one bounded use: a real-DTL conditional fixture branches on the existing saved `Frozen.tier` selector and compares canonical and Gallery playback. Exact line publication, immutable facts, completion and unchanged Run/Profile are asserted. It adds no production dialogue, locale source format or missing legacy selector. Cloud execution is still pending.
+- Root alone updates the committed Beads JSONL snapshot because `bd` is unavailable in this environment; unrelated lines remain byte-for-byte preserved. No issue closes before its cloud acceptance evidence exists.
+
 ## Resume location and working constraints
 
 - Repository: `Siuuuers/dwm`; PR: https://github.com/Siuuuers/dwm/pull/1; branch: `codex/windows-cloud-ux`.

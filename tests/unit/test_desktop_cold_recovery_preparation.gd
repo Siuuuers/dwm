@@ -10,7 +10,7 @@ var _counter := 0
 
 func _snapshot() -> Dictionary:
 	var parsed: Dictionary = STRICT_JSON.parse_object(FileAccess.get_file_as_string(
-		"res://tests/fixtures/saves/v6_desktop_prepared.json"))
+		"res://tests/fixtures/saves/v7_desktop_prepared.json"))
 	var source: Dictionary = parsed.value
 	source["lifecycle"]["day"] = 2
 	source["committed_schedule"]["day"] = 2

@@ -751,7 +751,7 @@ func _activate_gameplay_fixture(graph: Dictionary, day: int = 1) -> Dictionary:
 	assert_true(_game_state.configure_mutation_gate(gate).ok)
 	assert_true(graph.save_manager.configure_mutation_gate(gate).ok)
 	var snapshot: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
-		"res://tests/fixtures/saves/v6_desktop_prepared.json"))
+		"res://tests/fixtures/saves/v7_desktop_prepared.json"))
 	snapshot.lifecycle.day = day
 	snapshot.committed_schedule.day = day
 	snapshot.schedule_view.day = day

@@ -12,6 +12,7 @@ const FILES := preload("res://tests/support/FakeFileOps.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 const SETTINGS_THEME := preload("res://scripts/ui/SettingsTheme.gd")
 const PRELUDE := preload("res://scripts/ui/Day7PreludeSurface.gd")
+const DATING_FIXTURE := preload("res://tests/unit/test_dating_physical_owner.gd")
 
 class RunOwner extends RefCounted:
 	var dating_state: Object
@@ -548,21 +549,32 @@ func test_failed_load_with_changed_session_cannot_resume_either_source() -> void
 	assert_eq(saves.writes, 0)
 
 
+class DatingSaveState extends DATING_FIXTURE.State:
+	var lifecycle: Dictionary
+	func capture_run_snapshot_input() -> Dictionary:
+		return {"lifecycle": lifecycle.duplicate(true)}
+
+
 class DatingCapture extends RefCounted:
 	var snapshot: Dictionary
 	var state: Object
 	func capture() -> Dictionary:
 		var current := snapshot.duplicate(true)
-		current.gameplay["route_context"] = {"active_dating_challenge": state.saved.duplicate(true)}
+		current.gameplay["route_context"] = state.route_context.duplicate(true)
+		current.gameplay.route_context["active_dating_challenge"] = state.saved.duplicate(true)
 		return {"ok": true, "value": {"snapshot_input": current, "route_id": "dating",
 			"active_app_id": null, "dialogic_checkpoint": {}, "audio_context": {}, "content_version": 1}}
 
 
 func _dating_save_fixture(debug: bool = false) -> Dictionary:
-	var fixture_script := preload("res://tests/unit/test_dating_physical_owner.gd")
-	var dating_state: RefCounted = fixture_script.State.new()
+	var snapshot_result: Dictionary = preload("res://tests/support/BackupSnapshotFixture.gd").make_snapshot()
+	assert_true(snapshot_result.get("ok", false), str(snapshot_result))
+	if not snapshot_result.get("ok", false): return {}
+	var snapshot: Dictionary = snapshot_result.value.candidate
+	var dating_state := DatingSaveState.new()
+	dating_state.lifecycle = snapshot.lifecycle.duplicate(true)
 	if debug: dating_state.inventory = {"debug_key": 1, "lucky_charm": 1}
-	var dating_profile: RefCounted = fixture_script.Profile.new()
+	var dating_profile: RefCounted = DATING_FIXTURE.ReachedProfile.new()
 	var issuer := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd").new()
 	assert_true(issuer.configure(preload("res://tests/support/FakeDesktopIssuerRootStore.gd").new("91".repeat(32), 1)).ok)
 	var generation: RefCounted = preload("res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd").new() if debug else preload("res://tests/support/FakeMinesweeperGenerationPort.gd").new()
@@ -573,6 +585,7 @@ func _dating_save_fixture(debug: bool = false) -> Dictionary:
 			"mine_indices": mines, "mine_count": 36})
 	var physical := preload("res://scripts/application/run/DatingPhysicalOwner.gd").new()
 	assert_true(physical.configure(issuer, dating_state, dating_profile, generation).ok)
+	assert_true(physical.configure_frozen_narrative_contexts().ok)
 	var presentation := preload("res://scripts/application/run/DatingPresentationPort.gd").new()
 	assert_true(presentation.configure(issuer, physical).ok)
 	var context := {"day": 1, "kind": "solo", "participants": ["priscilla"], "schedule_entry_id": "pause-date"}
@@ -599,10 +612,6 @@ func _dating_save_fixture(debug: bool = false) -> Dictionary:
 	source.command = begun.value.presentation_command
 	source.scene_file_path = "res://scenes/dating/DatingScene.tscn"
 	router.route = "dating"
-	var snapshot_result: Dictionary = preload("res://tests/support/BackupSnapshotFixture.gd").make_snapshot()
-	assert_true(snapshot_result.get("ok", false), str(snapshot_result))
-	if not snapshot_result.get("ok", false): return {}
-	var snapshot: Dictionary = snapshot_result.value.candidate
 	run_owner.handle.run_id = snapshot.run_id
 	run_owner.dating_state = dating_state
 	var files := FILES.new()
@@ -672,6 +681,8 @@ func test_paused_dating_manual_and_quick_save_restore_exact_board_and_command() 
 	assert_null(saved.active_app_id, "there is no substitute main/Backup foreground app")
 	assert_eq(saved.narrative_checkpoint, {})
 	assert_eq(saved.gameplay.route_context.active_dating_challenge, exact_record)
+	assert_eq(saved.gameplay.route_context.dating_frozen_contexts_v1,
+		fixture.state.route_context.dating_frozen_contexts_v1)
 	var restored: Node = add_child_autofree(preload("res://autoload/GameState.gd").new())
 	restored.reset_game()
 	var participant := preload("res://scripts/application/restore/RunRestoreParticipant.gd").new(restored)
@@ -682,8 +693,11 @@ func test_paused_dating_manual_and_quick_save_restore_exact_board_and_command() 
 	if not applied.get("ok", false): return
 	var fresh := preload("res://scripts/application/run/DatingPhysicalOwner.gd").new()
 	assert_true(fresh.configure(fixture.issuer, restored, fixture.profile, fixture.generation).ok)
+	assert_true(fresh.configure_frozen_narrative_contexts().ok)
 	assert_true(fresh.begin_physical(source.command).ok)
 	assert_eq(restored.capture_dating_challenge_state().value, exact_record)
+	assert_eq(restored.route_context.dating_frozen_contexts_v1,
+		fixture.state.route_context.dating_frozen_contexts_v1)
 	assert_eq(fresh.pull_physical(source.command.physical_token).value.board,
 		fixture.presentation.pull_physical(source.command).value.board)
 	assert_eq(fixture.generation.call_log.size(), 1, "restore never rerolls the saved board")

@@ -42,7 +42,7 @@ const AUDIO_PARTICIPANT_PATH := "res://scripts/application/restore/AudioRestoreP
 const ROUTE_PARTICIPANT_PATH := "res://scripts/application/restore/RouteRestoreParticipant.gd"
 const NARRATIVE_PARTICIPANT_PATH := "res://scripts/application/restore/NarrativeRestoreParticipant.gd"
 const RUN_SNAPSHOT_SCHEMA_PATH := "res://scripts/domain/run/RunSnapshotSchema.gd"
-const RECOVERY_FIXTURE_PATH := "res://tests/fixtures/saves/v6_desktop_prepared.json"
+const RECOVERY_FIXTURE_PATH := "res://tests/fixtures/saves/v7_desktop_prepared.json"
 
 const RUN_ID := "run-local"
 const IDENTITY_CONTEXT := {
@@ -287,8 +287,8 @@ func _wired_for_recovery() -> Dictionary:
 		"consequence_state": consequence_state, "board_state": board_state}
 
 
-## Builds a schema-valid v4 snapshot for a DIFFERENT run (reusing the same fixture
-## test_desktop_board_persistence.gd already established as a proven-valid v4 base), so that run can
+## Builds a current snapshot for a DIFFERENT run (reusing the same fixture
+## test_desktop_board_persistence.gd validates), so that run can
 ## be seeded as the live journal bundle before restoring "run-local" -- CheckpointJournal.
 ## commit_prepared()'s own duplicate-commit guard would otherwise fire for a same-run/same-sequence
 ## restore (test_desktop_board_persistence.gd's own established pattern, see _seed_and_save()).

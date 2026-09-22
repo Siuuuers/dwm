@@ -6,6 +6,22 @@ $repositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $output = Join-Path $repositoryRoot '.godot/ci/seven-day-history'
 $runner = Join-Path $PSScriptRoot 'Invoke-IsolatedGodot.ps1'
 New-Item -ItemType Directory -Force -Path $output | Out-Null
+$saveManager = Join-Path $repositoryRoot 'autoload/SaveManager.gd'
+$candidateBytes = [IO.File]::ReadAllBytes($saveManager)
+$baseline = Join-Path $output 'baseline-SaveManager.gd'
+python (Join-Path $PSScriptRoot 'derive_save_admission_baseline.py') $saveManager $baseline
+if ($LASTEXITCODE -ne 0) { throw 'Could not derive the current-source SaveManager baseline.' }
+$baselineBytes = [IO.File]::ReadAllBytes($baseline)
+$sourceCodeHashes = [ordered]@{
+    candidate = (Get-FileHash -LiteralPath $saveManager -Algorithm SHA256).Hash.ToLowerInvariant()
+    baseline = (Get-FileHash -LiteralPath $baseline -Algorithm SHA256).Hash.ToLowerInvariant()
+    shared = [ordered]@{}
+}
+foreach ($relative in @('scripts/infrastructure/save/SaveMigrations.gd',
+    'scripts/infrastructure/save/SaveDocumentSchema.gd', 'scripts/domain/run/RunSnapshotSchema.gd',
+    'scripts/infrastructure/save/CheckpointJournal.gd')) {
+    $sourceCodeHashes.shared[$relative] = (Get-FileHash -LiteralPath (Join-Path $repositoryRoot $relative) -Algorithm SHA256).Hash.ToLowerInvariant()
+}
 $previousCheckpointProfile = $env:DWM_CHECKPOINT_PROFILE
 $previousConsequenceProfile = $env:DWM_CONSEQUENCE_PROFILE
 $previousSaveLoadProfile = $env:DWM_SAVE_LOAD_PROFILE
@@ -23,8 +39,9 @@ function Invoke-HistoryProbe {
     $arguments = @('-s', 'res://tests/manual/benchmark_seven_day_history.gd', '--',
         '--phase2r-bootstrap-mode=final', "--history-phase=$Phase")
     if ($Source) { $arguments += "--user-data=$Source" }
+    $timeout = if ($Phase -eq 'write') { 660 } else { 180 }
     & $runner -SuiteId "cloud-seven-day-history-$Name" -LogName $logName `
-        -EvidenceLogPath $evidence -GodotArgs $arguments -KeepRoot | Out-Null
+        -EvidenceLogPath $evidence -GodotArgs $arguments -TimeoutSeconds $timeout -KeepRoot | Out-Null
     $result = $LASTEXITCODE
     $log = Join-Path $repositoryRoot ".godot/phase2r_logs/$logName"
     if ($result -ne 0) {
@@ -54,6 +71,15 @@ function Get-HistorySourceHashes {
         $hashes[$relative] = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
     }
     return $hashes
+}
+
+function Get-HistoryMedian {
+    param([long[]]$Values)
+    $ordered = @($Values | Sort-Object)
+    if ($ordered.Count -eq 0) { throw 'A timing median requires samples.' }
+    $middle = [int][Math]::Floor($ordered.Count / 2)
+    if ($ordered.Count % 2 -eq 0) { return ($ordered[$middle - 1] + $ordered[$middle]) / 2.0 }
+    return $ordered[$middle]
 }
 
 function Get-HistoryProfileSummary {
@@ -129,7 +155,8 @@ try {
         $probe = Invoke-HistoryProbe -Phase 'read' -Source $write.Record.user_dir -Name "read-cache-$variant"
         $records = @(Read-HistoryMarkers $probe.Lines 'SEVEN_DAY_HISTORY_READ_PASS: ')
         if ($records.Count -ne 1 -or $records[0].day -ne 7 -or $records[0].autosave_sha256 -cne $hash -or
-            $records[0].parse_cache_enabled -ne ($variant -eq 'enabled')) {
+            $records[0].parse_cache_enabled -ne ($variant -eq 'enabled') -or
+            $records[0].save_manager_sha256 -cne $sourceCodeHashes.candidate -or $records[0].retained_checkpoint_count -ne 66) {
             throw 'Each cold Login control must restore the exact completed Day 7 history.'
         }
         $reads[$variant] = $probe
@@ -139,7 +166,7 @@ try {
             throw 'A read control changed the retained source root.'
         }
     }
-    foreach ($field in @('restored_gameplay_sha256', 'restored_board_sha256')) {
+    foreach ($field in @('restored_gameplay_sha256', 'restored_board_sha256', 'restored_recovery_journal_sha256')) {
         if ($restores.disabled.$field -cnotmatch '^[0-9a-f]{64}$' -or
             $restores.disabled.$field -cne $restores.enabled.$field) {
             throw "Cold Login controls differ in $field."
@@ -153,6 +180,70 @@ try {
         source_json_sha256 = $sourceHashes
         disabled = $restores.disabled; enabled = $restores.enabled
     }
+    # Eight matched pairs, each with fresh processes and cloned identical saved bytes. Keep
+    # parser reuse enabled in BOTH variants; only the four redundant admission traversals differ.
+    $env:DWM_SAVE_PARSE_CACHE_DISABLED = ''
+    $admissionComparison = [ordered]@{
+        control = 'Current SaveManager versus the same source with only the four redundant schema validations restored. Same current schemas, parse cache enabled, identical retained source bytes, one new isolated process per sample.'
+        sampling = 'Eight matched pairs / sixteen processes; odd pairs baseline then candidate, even pairs candidate then baseline. Shared Windows runner; process-cold Login, not flushed OS filesystem caches or physical input-to-paint.'
+        source_code_sha256 = $sourceCodeHashes
+        source_json_sha256 = $sourceHashes
+        pairs = @()
+    }
+    for ($pair = 1; $pair -le 8; $pair++) {
+        $order = if ($pair % 2 -eq 1) { @('baseline', 'candidate') } else { @('candidate', 'baseline') }
+        $measurements = [ordered]@{}
+        $profiles = [ordered]@{}
+        foreach ($variant in $order) {
+            $variantBytes = if ($variant -eq 'baseline') { $baselineBytes } else { $candidateBytes }
+            [IO.File]::WriteAllBytes($saveManager, $variantBytes)
+            if ((Get-FileHash -LiteralPath $saveManager -Algorithm SHA256).Hash.ToLowerInvariant() -cne $sourceCodeHashes[$variant]) {
+                throw 'Installed SaveManager differs from its measured source hash.'
+            }
+            $probe = Invoke-HistoryProbe -Phase 'read' -Source $write.Record.user_dir -Name "read-admission-pair-$pair-$variant"
+            $records = @(Read-HistoryMarkers $probe.Lines 'SEVEN_DAY_HISTORY_READ_PASS: ')
+            if ($records.Count -ne 1 -or $records[0].day -ne 7 -or $records[0].autosave_sha256 -cne $hash -or
+                -not $records[0].parse_cache_enabled -or $records[0].save_manager_sha256 -cne $sourceCodeHashes[$variant] -or
+                $records[0].retained_checkpoint_count -ne 66 -or $records[0].login_us -lt 0) {
+                throw 'Admission sample must prove its source variant and exact Day 7 recovery.'
+            }
+            foreach ($field in @('restored_gameplay_sha256', 'restored_board_sha256', 'restored_recovery_journal_sha256')) {
+                if ($records[0].$field -cne $restores.enabled.$field) {
+                    throw "Admission comparison changed $field."
+                }
+            }
+            if (((Get-HistorySourceHashes $write.Record.user_dir) | ConvertTo-Json -Compress) -cne $sourceManifest) {
+                throw 'Admission comparison changed retained source bytes.'
+            }
+            $measurements[$variant] = $records[0]
+            $profiles[$variant] = @(Read-HistoryMarkers $probe.Lines 'DWM_SAVE_LOAD_PROFILE ' | Where-Object { $_.context -ne '' })
+        }
+        $comparison = [ordered]@{
+            pair = $pair; order = $order; baseline = $measurements.baseline; candidate = $measurements.candidate
+            candidate_minus_baseline_us = [long]$measurements.candidate.login_us - [long]$measurements.baseline.login_us
+            profiles = $profiles
+        }
+        $admissionComparison.pairs += $comparison
+        # Preserve completed pairs if a later probe fails or reaches its bounded timeout.
+        $admissionComparison | ConvertTo-Json -Depth 40 | Set-Content -LiteralPath (Join-Path $output 'admission-pairs.json') -Encoding utf8
+        Write-Host ('SAVE_ADMISSION_PAIR: ' + ([ordered]@{
+            pair = $pair; order = $order; baseline = $measurements.baseline; candidate = $measurements.candidate
+            candidate_minus_baseline_us = $comparison.candidate_minus_baseline_us
+        } | ConvertTo-Json -Depth 8 -Compress))
+    }
+    [IO.File]::WriteAllBytes($saveManager, $candidateBytes)
+    $admissionComparison['summary'] = [ordered]@{
+        pair_count = $admissionComparison.pairs.Count
+        baseline_median_login_us = Get-HistoryMedian @($admissionComparison.pairs | ForEach-Object { $_.baseline.login_us })
+        candidate_median_login_us = Get-HistoryMedian @($admissionComparison.pairs | ForEach-Object { $_.candidate.login_us })
+        median_paired_candidate_minus_baseline_us = Get-HistoryMedian @($admissionComparison.pairs | ForEach-Object { $_.candidate_minus_baseline_us })
+    }
+    $admissionComparison | ConvertTo-Json -Depth 40 | Set-Content -LiteralPath (Join-Path $output 'admission-pairs.json') -Encoding utf8
+    Write-Host ('SAVE_ADMISSION_COMPARISON: ' + ([ordered]@{
+        control = $admissionComparison.control; sampling = $admissionComparison.sampling
+        source_code_sha256 = $sourceCodeHashes; source_json_sha256 = $sourceHashes
+        summary = $admissionComparison.summary
+    } | ConvertTo-Json -Depth 8 -Compress))
     $report = [ordered]@{
         checkout_ref = (& git rev-parse HEAD)
         timing_policy = 'Observations on one shared Windows runner; no speed threshold or physical input-to-paint guarantee.'
@@ -167,6 +258,7 @@ try {
         write = $written[0]
         cold_read = $restored[0]
         parse_cache_comparison = $parseCacheComparison
+        save_admission_comparison = $admissionComparison
         payload_sha256 = $hash
         checkpoint_profiles = @(Read-HistoryMarkers $write.Lines 'DWM_CHECKPOINT_PROFILE ')
         consequence_profiles = @(Read-HistoryMarkers $write.Lines 'DWM_CONSEQUENCE_PROFILE ')
@@ -207,6 +299,7 @@ try {
     }
     Write-Host 'SEVEN_DAY_HISTORY_PERFORMANCE_VERIFIED: seven real days, saturated checkpoint budgets, exact cold Login.'
 } finally {
+    [IO.File]::WriteAllBytes($saveManager, $candidateBytes)
     $env:DWM_CHECKPOINT_PROFILE = $previousCheckpointProfile
     $env:DWM_CONSEQUENCE_PROFILE = $previousConsequenceProfile
     $env:DWM_SAVE_LOAD_PROFILE = $previousSaveLoadProfile

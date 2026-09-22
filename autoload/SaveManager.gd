@@ -1434,27 +1434,19 @@ func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictio
 	if not parsed.get("ok", false):
 		record["reason"] = "unreadable"
 		return {"ok": true, "value": record}
-	# The legacy migrator reconstructs outer keys. Validate the actual outer evidence first;
-	# otherwise a future version/wrong locator or false time could be silently relabeled.
-	var valid := SAVE_DOCUMENT_SCHEMA.validate(parsed["value"])
-	_save_load_profile_phase(profile, "schema_us")
-	if not valid.get("ok", false):
+	# Admission validates the original evidence, including its version and locator, and
+	# returns a detached candidate. It does not reconstruct or relabel outer fields.
+	var migrated := SAVE_MIGRATIONS.migrate_document(parsed["value"],
+		{"kind": locator["kind"], "slot_id": locator["slot_id"]})
+	_save_load_profile_phase(profile, "admission_us")
+	if not migrated.get("ok", false):
 		var version: Variant = parsed["value"].get("schema_version")
 		record["reason"] = "unreadable"
 		if typeof(version) == TYPE_INT and version > 0:
 			if version > SAVE_DOCUMENT_SCHEMA.DOCUMENT_VERSION: record["reason"] = "newer_version"
 			elif version < SAVE_DOCUMENT_SCHEMA.DOCUMENT_VERSION: record["reason"] = "older_version"
 		return {"ok": true, "value": record}
-	var document: Dictionary = valid["value"]["candidate"]
-	var migrated := SAVE_MIGRATIONS.migrate_document(parsed["value"],
-		{"kind": locator["kind"], "slot_id": locator["slot_id"]})
-	_save_load_profile_phase(profile, "migration_us")
-	if not migrated.get("ok", false):
-		record["reason"] = "unreadable"
-		return {"ok": true, "value": record}
-	if document["kind"] != locator["kind"] or document["slot_id"] != locator["slot_id"]:
-		record["reason"] = "unreadable"
-		return {"ok": true, "value": record}
+	var document: Dictionary = migrated["value"]["document"]
 	var snapshot: Dictionary = document["current_snapshot"]["snapshot"]
 	record["state"] = "occupied"
 	record["day"] = int(snapshot["lifecycle"]["day"])
@@ -1907,10 +1899,7 @@ func _prepare_restore(locator: Dictionary) -> Dictionary:
 	if not migrated.get("ok", false):
 		return migrated
 	var document: Dictionary = migrated["value"]["document"]
-	var validated: Dictionary = SAVE_DOCUMENT_SCHEMA.validate(document)
-	if not validated.get("ok", false):
-		return validated
-	document = validated["value"]["candidate"]
+	# Admission already returned the validated, detached document.
 	return _prepare_restore_document(locator, document, migrated["value"])
 
 ## Pure shared preparation: Backup inspections do not reconcile files or acquire leases.
@@ -2070,10 +2059,7 @@ func load_context(locator: Dictionary) -> Dictionary:
 	if not migrated.get("ok", false):
 		return migrated
 	var document: Dictionary = migrated["value"]["document"]
-	var validated: Dictionary = SAVE_DOCUMENT_SCHEMA.validate(document)
-	if not validated.get("ok", false):
-		return validated
-	document = validated["value"]["candidate"]
+	# Admission already returned the validated, detached document.
 	var bundle := _find_bundle_by_checkpoint_id(document, str(locator.get("checkpoint_id", "")))
 	if bundle.is_empty():
 		return _fail(&"source_bundle_not_found", str(locator.get("checkpoint_id", "")))
@@ -2413,10 +2399,7 @@ func _reconstruct_restore_materials(operation: Dictionary) -> Dictionary:
 	if not migrated.get("ok", false):
 		return migrated
 	var document: Dictionary = migrated["value"]["document"]
-	var validated: Dictionary = SAVE_DOCUMENT_SCHEMA.validate(document)
-	if not validated.get("ok", false):
-		return validated
-	document = validated["value"]["candidate"]
+	# Admission already returned the validated, detached document.
 
 	var bundle := _find_bundle_by_checkpoint_id(document, str(locator.get("checkpoint_id", "")))
 	if bundle.is_empty():

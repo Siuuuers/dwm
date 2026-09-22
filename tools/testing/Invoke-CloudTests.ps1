@@ -27,6 +27,7 @@ $suites = @{
         'tests/integration/test_restore_transaction.gd'
         'tests/integration/test_unified_restore_contract.gd'
         'tests/integration/test_save_manager_public_boundaries.gd'
+        'tests/integration/test_save_capability.gd'
     )
     endings = @(
         'tests/unit/test_ending_frozen_context.gd'
@@ -101,7 +102,10 @@ $suites = @{
         'tests/unit/test_desktop_app_host_state.gd'
         'tests/unit/test_desktop_accessibility_contract.gd'
         'tests/integration/test_desktop_quick_commands.gd'
+        'tests/integration/test_desktop_bootstrap_wiring.gd'
+        'tests/unit/test_desktop_cold_recovery_preparation.gd'
         'tests/integration/test_schedule_desktop_host.gd'
+        'tests/integration/test_phase2r_schedule_desktop_handoff.gd'
         'tests/unit/test_schedule_app.gd'
         'tests/integration/test_contacts_run_presentation.gd'
         'tests/scene/test_controls_input_contact_release.gd'
@@ -139,6 +143,7 @@ $suites = @{
         'tests/unit/test_canonical_writer_compatibility.gd'
         'tests/unit/test_continuation_serialization_cache.gd'
         'tests/unit/test_new_acc_title_lifetime.gd'
+        'tests/unit/test_run_dark_configuration.gd'
         'tests/integration/test_prepared_new_run.gd'
         'tests/integration/test_new_run_transaction.gd'
         'tests/integration/test_new_run_pair_durability.gd'
@@ -149,6 +154,7 @@ $suites = @{
         'tests/unit/test_save_document_schema.gd'
         'tests/unit/test_run_snapshot_schema.gd'
         'tests/unit/tooling/test_phase2r_closeout_sentinel.gd'
+        'tests/unit/tooling/test_phase2r_schedule_gate.gd'
     )
     reading_delivery = @(
         'tests/unit/test_hospital_frozen_context.gd'
@@ -212,6 +218,7 @@ $logName = "cloud-$Suite.log"
     -SuiteId "cloud-$Suite" `
     -LogName $logName `
     -EvidenceLogPath ".godot/ci/$Suite.jsonl" `
+    -TimeoutSeconds 480 `
     -GodotArgs $arguments
 $result = $LASTEXITCODE
 $logPath = Join-Path $repositoryRoot ".godot/phase2r_logs/$logName"
@@ -259,6 +266,26 @@ Write-Host "${Suite}: $executed test cases completed across $($testPaths.Count) 
 if ($Suite -eq 'settings') {
     # Expected fixture refusals are reported separately from passing GUT cases.
     & (Join-Path $PSScriptRoot 'Invoke-StorageRefusalChecks.ps1')
+}
+
+if ($Suite -eq 'persistence') {
+    # This standalone capture/retention contract is a SceneTree script, not a GUT suite.
+    $captureLogName = 'cloud-save-load-capture.log'
+    & (Join-Path $PSScriptRoot 'Invoke-IsolatedGodot.ps1') `
+        -SuiteId 'cloud-save-load-capture' -LogName $captureLogName `
+        -EvidenceLogPath '.godot/ci/save-load-capture.jsonl' -TimeoutSeconds 180 `
+        -GodotArgs @('-s', 'res://tests/save_load_capture/test_capture.gd')
+    $captureResult = $LASTEXITCODE
+    $captureLog = Join-Path $repositoryRoot ".godot/phase2r_logs/$captureLogName"
+    if ($captureResult -ne 0) {
+        if (Test-Path -LiteralPath $captureLog) { Get-Content -LiteralPath $captureLog }
+        exit $captureResult
+    }
+    $markers = @(Get-Content -LiteralPath $captureLog | Where-Object { $_ -cmatch '^SAVE_LOAD_CAPTURE_PASS [0-9]+ checks; failures=0$' })
+    if ($markers.Count -ne 1 -or (Select-String -LiteralPath $captureLog -Pattern 'SCRIPT ERROR:|ERROR: Failed to load' -Quiet)) {
+        throw 'Standalone save capture did not prove its complete contract.'
+    }
+    Write-Host $markers[0]
 }
 
 if ($Suite -eq 'new_account') {

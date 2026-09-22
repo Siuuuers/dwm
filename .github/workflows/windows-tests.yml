@@ -29,6 +29,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          # The schedule-gate contract inspects its immutable historical seals.
+          fetch-depth: ${{ matrix.suite == 'new_account' && '0' || '1' }}
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
@@ -309,6 +311,11 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify isolated runner contracts and timeout diagnostics
+        timeout-minutes: 4
+        run: |
+          $ErrorActionPreference = 'Stop'
+          ./tests/tooling/Test-InvokeIsolatedGodot.ps1
       - name: Regenerate and verify complete public inventories
         timeout-minutes: 10
         run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
@@ -320,6 +327,8 @@ jobs:
           path: |
             .godot/ci/import.log
             .godot/ci/public-surfaces/
+            .godot/ci/isolation-timeout.jsonl
+            .godot/phase2r_logs/cloud-isolation-timeout.log*
             .godot/phase2r_logs/cloud-public-surface-*.log
           include-hidden-files: true
           if-no-files-found: warn
@@ -420,7 +429,7 @@ jobs:
     needs: [public-surfaces, checkpoint-performance]
     name: Windows / seven-day retained history
     runs-on: windows-2022
-    timeout-minutes: 45
+    timeout-minutes: 55
     defaults:
       run:
         shell: pwsh
@@ -483,7 +492,7 @@ jobs:
           name: checkpoint-payloads-${{ github.run_id }}
           path: .godot/ci/performance
       - name: Measure seven days and saturated retained history
-        timeout-minutes: 22
+        timeout-minutes: 30
         run: ./tools/testing/Invoke-SevenDayHistoryPerformance.ps1
       - name: Compare outgoing normalization on identical retained payloads
         timeout-minutes: 12

@@ -21,10 +21,10 @@ function ConvertTo-SingleQuotedLiteral {
 }
 
 function Invoke-HelperProcess {
-    param([string]$SuiteId, [string]$LogName, [string[]]$GodotArgs, [AllowEmptyString()][string]$EvidenceLogPath = '')
+    param([string]$SuiteId, [string]$LogName, [string[]]$GodotArgs, [AllowEmptyString()][string]$EvidenceLogPath = '', [int]$TimeoutSeconds = 0)
     $argumentLiterals = @($GodotArgs | ForEach-Object { ConvertTo-SingleQuotedLiteral ([string]$_) })
     $evidenceClause = if ($EvidenceLogPath.Length -eq 0) { '' } else { " -EvidenceLogPath $(ConvertTo-SingleQuotedLiteral $EvidenceLogPath)" }
-    $command = "& $(ConvertTo-SingleQuotedLiteral $helper) -SuiteId $(ConvertTo-SingleQuotedLiteral $SuiteId) -LogName $(ConvertTo-SingleQuotedLiteral $LogName) -GodotArgs @($($argumentLiterals -join ','))$evidenceClause; exit `$LASTEXITCODE"
+    $command = "& $(ConvertTo-SingleQuotedLiteral $helper) -SuiteId $(ConvertTo-SingleQuotedLiteral $SuiteId) -LogName $(ConvertTo-SingleQuotedLiteral $LogName) -GodotArgs @($($argumentLiterals -join ','))$evidenceClause -TimeoutSeconds $TimeoutSeconds; exit `$LASTEXITCODE"
     $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($command))
     $start = New-Object Diagnostics.ProcessStartInfo
     $start.FileName = $powershell
@@ -76,6 +76,54 @@ if (-not $user.StartsWith($root + [IO.Path]::DirectorySeparatorChar, [StringComp
     throw 'ISOLATION_USER_DIR: user_dir is not a strict descendant of test_root.'
 }
 if (Test-Path -LiteralPath $root) { throw 'ISOLATION_CLEANUP: GUID root survived without -KeepRoot.' }
+
+# A real non-exiting Godot process must fail before the Actions step timeout,
+# retain its last output and command record, and still remove isolated user data.
+$timeoutOutput = Join-Path $repositoryRoot '.godot\ci'
+[void][IO.Directory]::CreateDirectory($timeoutOutput)
+$timeoutProbe = Join-Path $timeoutOutput ('isolation-timeout-' + [guid]::NewGuid().ToString('N') + '.gd')
+$timeoutEvidence = '.godot/ci/isolation-timeout.jsonl'
+$timeoutEvidenceFull = Join-Path $repositoryRoot $timeoutEvidence
+$timeoutLog = Join-Path $repositoryRoot '.godot\phase2r_logs\cloud-isolation-timeout.log'
+try {
+    $timeoutScript = @'
+extends SceneTree
+
+func _init() -> void:
+    print("ISOLATION_TIMEOUT_PROBE_STARTED")
+'@
+    [IO.File]::WriteAllText($timeoutProbe, $timeoutScript, (New-Object Text.UTF8Encoding($false)))
+    if (Test-Path -LiteralPath $timeoutEvidenceFull) { Remove-Item -LiteralPath $timeoutEvidenceFull -Force }
+    foreach ($priorLog in @($timeoutLog, ($timeoutLog + '.timeout.log'))) {
+        if (Test-Path -LiteralPath $priorLog) { Remove-Item -LiteralPath $priorLog -Force }
+    }
+    $timeout = Invoke-HelperProcess -SuiteId 'fixture-timeout' -LogName 'cloud-isolation-timeout.log' `
+        -GodotArgs @('-s', $timeoutProbe) -EvidenceLogPath $timeoutEvidence -TimeoutSeconds 20
+    if ($timeout.ExitCode -ne 124 -or -not $timeout.Stdout.Contains('GODOT_CHILD_TIMEOUT:')) {
+        throw "ISOLATION_TIMEOUT_EXIT: expected timed-out exit 124, got $($timeout.ExitCode): $($timeout.Stdout)"
+    }
+    foreach ($retainedLog in @($timeoutLog, ($timeoutLog + '.timeout.log'))) {
+        if (-not (Test-Path -LiteralPath $retainedLog) -or
+            -not (Get-Content -LiteralPath $retainedLog -Raw).Contains('ISOLATION_TIMEOUT_PROBE_STARTED')) {
+            throw "ISOLATION_TIMEOUT_OUTPUT_MISSING: $retainedLog"
+        }
+    }
+    $timeoutRecords = @(Get-Content -LiteralPath $timeoutEvidenceFull)
+    if ($timeoutRecords.Count -ne 1) { throw 'ISOLATION_TIMEOUT_EVIDENCE_COUNT' }
+    $timeoutRecord = $timeoutRecords[0] | ConvertFrom-Json
+    if ($timeoutRecord.exit_code -ne 124 -or $timeoutRecord.suite_id -cne 'fixture-timeout') {
+        throw 'ISOLATION_TIMEOUT_EVIDENCE_RESULT'
+    }
+    if (Test-Path -LiteralPath ([string]$timeoutRecord.test_root)) {
+        throw 'ISOLATION_TIMEOUT_CLEANUP: GUID root survived the timeout.'
+    }
+    $timeoutDuration = ([DateTime]$timeoutRecord.ended_at_utc - [DateTime]$timeoutRecord.started_at_utc).TotalSeconds
+    if ($timeoutDuration -lt 19 -or $timeoutDuration -gt 50) {
+        throw "ISOLATION_TIMEOUT_DURATION: expected bounded termination, got $timeoutDuration seconds."
+    }
+} finally {
+    if (Test-Path -LiteralPath $timeoutProbe) { Remove-Item -LiteralPath $timeoutProbe -Force }
+}
 
 # -EvidenceLogPath containment for the closeout log root (dwm-p2r.10 Plan 04 Task 3 Step 2).
 #

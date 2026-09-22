@@ -71,12 +71,12 @@ func test_new_run_preparation_is_strict_detached_and_does_not_install_configurat
 		assert_false(owner.get_run_configuration().ok)
 	assert_eq(owner.capture_restore_state(), before)
 
-func test_v6_document_round_trip_and_retired_fields_are_rejected() -> void:
+func test_v7_document_round_trip_and_retired_fields_are_rejected() -> void:
 	var owner := _game_state()
 	for dark: bool in [false, true]:
 		var snapshot := _snapshot(owner, dark)
 		if snapshot.is_empty(): continue
-		assert_eq(snapshot.schema_version, 6)
+		assert_eq(snapshot.schema_version, 7)
 		assert_eq(snapshot.lifecycle.dark_mode, dark)
 		assert_false(snapshot.gameplay.has("opening_seen"))
 		assert_false(snapshot.gameplay.has("tutorial_seen"))
@@ -84,7 +84,7 @@ func test_v6_document_round_trip_and_retired_fields_are_rejected() -> void:
 			{"checkpoint_kind": "day_start", "snapshot": snapshot}, [])
 		assert_true(document.ok, str(document))
 		if not document.ok: continue
-		assert_eq(document.value.schema_version, 6)
+		assert_eq(document.value.schema_version, 7)
 		var decoded: Dictionary = JSON.parse_string(JSON.stringify(document.value))
 		var validated: Dictionary = DOCUMENT.validate(decoded)
 		assert_true(validated.ok, str(validated))

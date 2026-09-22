@@ -155,6 +155,9 @@ func _frozen_pre_presentation() -> Dictionary:
 		"due_echoes": [], "attempt_residue_id": null}).value
 
 func _inject_frozen_context_prose(entry_id: String = DATING, prose: String = "Tier {Frozen.tier}; tone {Frozen.tone}.") -> void:
+	_inject_frozen_context_body(entry_id, "Narrator: " + prose)
+
+func _inject_frozen_context_body(entry_id: String, body: String) -> void:
 	var located: Dictionary = bridge.call("_resolve_entry_for_playback", entry_id, -1)
 	assert_true(located.get("ok", false), str(located))
 	var injected := runtime as CaptionRuntime
@@ -162,7 +165,7 @@ func _inject_frozen_context_prose(entry_id: String = DATING, prose: String = "Ti
 	_replaced_timeline_path = injected.injected_path
 	_replaced_timeline = load(_replaced_timeline_path)
 	_replaced_timeline_source = FileAccess.get_file_as_bytes(_replaced_timeline_path)
-	var prose_source := "return\nlabel " + str(located.value.label) + "\nNarrator: " + prose + "\nreturn"
+	var prose_source := "return\nlabel " + str(located.value.label) + "\n" + body + "\nreturn"
 	# The production art-only probe reads source bytes before Dialogic starts.
 	# Give it the same prose as the runtime, then restore the exact original bytes.
 	var source := FileAccess.open(_replaced_timeline_path, FileAccess.WRITE)
@@ -303,6 +306,84 @@ func test_gallery_real_dtl_reads_only_saved_signature_and_releases_frozen_variab
 		assert_true(completion.calls.is_empty())
 		assert_eq(profile.get_profile_snapshot(), profile_before)
 		assert_eq(run.capture_restore_state().value.backup, run_before)
+
+func test_noncanon_conditional_dtl_keeps_canonical_and_saved_signature_branches_equal() -> void:
+	# NON-CANON TEST ONLY: these mechanical lines test existing selectors, not story content.
+	# No new line identity, missing legacy fact, or translation format is implied.
+	var branch_a := "NON-CANON TEST ONLY branch A."
+	var branch_b := "NON-CANON TEST ONLY branch B."
+	var shared_line := "NON-CANON TEST ONLY shared line."
+	_inject_frozen_context_body("ending.priscilla.sweet",
+		"# NON-CANON TEST ONLY\nif {Frozen.tier} == \"friend\":\n\t" + branch_a
+		+ "\nelse:\n\t" + branch_b + "\n" + shared_line)
+	var profile: Node = preload("res://autoload/ProfileManager.gd").new()
+	add_child_autofree(profile)
+	var storage := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd").new(
+		"frozen-branch-memory", preload("res://tests/support/FakeFileOps.gd").new())
+	assert_true(profile.initialize(storage).ok)
+	assert_true(profile.unlock_ending("ending.priscilla.sweet", "fixture:branch-discovery").ok)
+	var helper := preload("res://scripts/narrative/EndingFrozenContext.gd")
+	var plan := {"steps": [{"ending_id": "ending.priscilla.sweet", "role": "core"}], "playback_receipts": {}}
+	var fixtures: Array[Dictionary] = []
+	for tier: String in ["friend", "love"]:
+		var inputs := {"dark_mode": false, "pair_form": "", "special_variant": "full"}
+		for friend: String in helper.FRIENDS:
+			inputs[friend] = {"tier": "friend", "tone": "sweet", "attitude": "", "echo_ids": [], "miss_reasons": []}
+		inputs.priscilla.tier = tier
+		var seed: Dictionary = helper.make_seed(inputs,
+			{"priscilla": [], "lavinia": [], "sylvia": [], "priscilla_lavinia": []}, [], "empty_done")
+		assert_true(seed.ok, str(seed))
+		if not seed.ok: return
+		var playback_id := "fixture:branch:" + tier
+		var built: Dictionary = helper.build(plan, 0, seed.value, playback_id)
+		assert_true(built.ok, str(built))
+		if not built.ok: return
+		var recorded: Dictionary = profile.record_reached_presentation(built.value.signature)
+		assert_true(recorded.ok, str(recorded))
+		if not recorded.ok: return
+		fixtures.append({"tier": tier, "branch": branch_a if tier == "friend" else branch_b,
+			"frozen": built.value, "signature_id": recorded.value.signature_id,
+			"context": {"expected_stage": "PRIMARY_PENDING", "playback_id": playback_id,
+				"role": "core", "transaction_id": playback_id + ":transaction"}})
+	assert_ne(fixtures[0].signature_id, fixtures[1].signature_id)
+	var replay := preload("res://scripts/application/ending/GalleryReplayOwner.gd").new()
+	assert_true(replay.configure(profile, bridge).ok)
+	var receipts: Array = []
+	bridge.ending_playback_finished.connect(func(_token, _ending_id, receipt): receipts.append(receipt.duplicate(true)))
+	var profile_before: Dictionary = profile.get_profile_snapshot()
+	var run: Node = get_node("/root/GameState")
+	var run_before: Dictionary = run.capture_restore_state().value.backup
+	for fixture: Dictionary in fixtures:
+		for mode: String in ["canonical", "gallery"]:
+			runtime.current_state_info["variables"] = {"prior_fixture": "preserved"}
+			var prior_events := _text_events.size()
+			var started: Dictionary = bridge.start_ending_presentation("ending.priscilla.sweet",
+				fixture.context, fixture.frozen.signature, fixture.frozen.presentation) if mode == "canonical" \
+				else replay.begin(fixture.signature_id)
+			assert_true(started.ok, str(started))
+			if not started.ok: return
+			var expected_lines: Array[String] = [str(fixture.branch), shared_line]
+			for index: int in range(expected_lines.size()):
+				if not await _wait_for_published_text(expected_lines[index], prior_events + index): return
+				assert_eq(runtime.current_state_info.variables.Frozen.tier, fixture.tier)
+				assert_true(runtime.current_state_info.variables.Frozen.is_read_only())
+				runtime.Text.skip_text_reveal()
+				await _settle()
+				runtime.Inputs.input_block_timer.stop()
+				runtime.Inputs.handle_input()
+			for frame in 60:
+				if not bridge.has_active_playback() and not runtime.Styles.has_active_layout_node(): break
+				await get_tree().create_timer(0.05).timeout
+			assert_false(bridge.has_active_playback(), mode + " completes naturally")
+			assert_false(replay.is_playing())
+			var published: Array[String] = []
+			for event: Dictionary in _text_events.slice(prior_events): published.append(str(event.text))
+			assert_eq(published, expected_lines, "the unselected branch never publishes in " + mode)
+			assert_eq(runtime.current_state_info.variables, {"prior_fixture": "preserved"})
+			assert_true(completion.calls.is_empty())
+			assert_eq(profile.get_profile_snapshot(), profile_before)
+			assert_eq(run.capture_restore_state().value.backup, run_before)
+	assert_eq(receipts.size(), 2, "only the two canonical plays report ending completion")
 
 func test_frozen_context_drives_real_dtl_without_mutable_source_aliases() -> void:
 	_inject_frozen_context_prose()
