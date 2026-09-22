@@ -1,0 +1,3247 @@
+{
+  "repository": "Siuuuers/dwm",
+  "run_id": 35710770852,
+  "attempt": 1,
+  "job_id": 106692415536,
+  "head_sha": "217cc23cfe2018518e0d6037b9ea32ffc5b94957",
+  "tested_merge_sha": "8a328f52cdef7a0317e599ffcc4fa3639019acdd",
+  "source": "Completed GitHub Actions job log; public machine-readable markers. Raw user save documents are not included.",
+  "phase_scope": "Inclusive parent/child scopes overlap and must not be summed as independent costs.",
+  "profiles": [
+    {
+      "family": "checkpoint",
+      "group": "save_checkpoint_prepare||day_resolution_stage",
+      "count": 66,
+      "phases": {
+        "backup_us": {
+          "sum": 74965,
+          "median": 15285,
+          "max": 22029
+        },
+        "document_build_us": {
+          "sum": 901610,
+          "median": 180625,
+          "max": 269119
+        },
+        "elapsed_us": {
+          "sum": 1859629,
+          "median": 15110,
+          "max": 314236
+        },
+        "journal_prepare_us": {
+          "sum": 523864,
+          "median": 7553,
+          "max": 15464
+        },
+        "run_snapshot_build_us": {
+          "sum": 341567,
+          "median": 5161,
+          "max": 7799
+        },
+        "view_capture_us": {
+          "sum": 16870,
+          "median": 270,
+          "max": 511
+        }
+      }
+    },
+    {
+      "family": "checkpoint",
+      "group": "save_checkpoint_prepare||day_start",
+      "count": 6,
+      "phases": {
+        "backup_us": {
+          "sum": 76637,
+          "median": 15553,
+          "max": 22254
+        },
+        "document_build_us": {
+          "sum": 871681,
+          "median": 174308,
+          "max": 268559
+        },
+        "elapsed_us": {
+          "sum": 1026103,
+          "median": 205022,
+          "max": 313051
+        },
+        "journal_prepare_us": {
+          "sum": 49211,
+          "median": 9994,
+          "max": 15379
+        },
+        "run_snapshot_build_us": {
+          "sum": 27266,
+          "median": 4945,
+          "max": 6594
+        },
+        "view_capture_us": {
+          "sum": 1226,
+          "median": 209,
+          "max": 266
+        }
+      }
+    },
+    {
+      "family": "checkpoint",
+      "group": "save_checkpoint_prepare||post_result",
+      "count": 7,
+      "phases": {
+        "backup_us": {
+          "sum": 96277,
+          "median": 14472,
+          "max": 24496
+        },
+        "document_build_us": {
+          "sum": 107136,
+          "median": 15555,
+          "max": 25466
+        },
+        "elapsed_us": {
+          "sum": 308758,
+          "median": 45401,
+          "max": 75656
+        },
+        "journal_prepare_us": {
+          "sum": 67579,
+          "median": 10015,
+          "max": 17944
+        },
+        "run_snapshot_build_us": {
+          "sum": 37394,
+          "median": 5312,
+          "max": 7688
+        },
+        "view_capture_us": {
+          "sum": 267,
+          "median": 37,
+          "max": 44
+        }
+      }
+    },
+    {
+      "family": "checkpoint",
+      "group": "save_checkpoint_prepare||pre_board",
+      "count": 7,
+      "phases": {
+        "backup_us": {
+          "sum": 73447,
+          "median": 9715,
+          "max": 22162
+        },
+        "document_build_us": {
+          "sum": 1140657,
+          "median": 173456,
+          "max": 292134
+        },
+        "elapsed_us": {
+          "sum": 1309574,
+          "median": 196135,
+          "max": 338642
+        },
+        "journal_prepare_us": {
+          "sum": 60183,
+          "median": 8030,
+          "max": 16239
+        },
+        "run_snapshot_build_us": {
+          "sum": 32933,
+          "median": 4636,
+          "max": 7619
+        },
+        "view_capture_us": {
+          "sum": 2261,
+          "median": 286,
+          "max": 468
+        }
+      }
+    },
+    {
+      "family": "checkpoint",
+      "group": "save_checkpoint_prepare||safe_marker",
+      "count": 9,
+      "phases": {
+        "backup_us": {
+          "sum": 123614,
+          "median": 14450,
+          "max": 24341
+        },
+        "document_build_us": {
+          "sum": 366034,
+          "median": 14756,
+          "max": 263828
+        },
+        "elapsed_us": {
+          "sum": 612467,
+          "median": 43880,
+          "max": 308070
+        },
+        "journal_prepare_us": {
+          "sum": 83460,
+          "median": 10244,
+          "max": 17470
+        },
+        "run_snapshot_build_us": {
+          "sum": 38537,
+          "median": 4379,
+          "max": 7143
+        },
+        "view_capture_us": {
+          "sum": 691,
+          "median": 39,
+          "max": 330
+        }
+      }
+    },
+    {
+      "family": "checkpoint",
+      "group": "save_checkpoint||",
+      "count": 95,
+      "phases": {
+        "elapsed_us": {
+          "sum": 12046128,
+          "median": 22406,
+          "max": 969760
+        },
+        "journal_proof_us": {
+          "sum": 1603564,
+          "median": 7,
+          "max": 268262
+        },
+        "journal_us": {
+          "sum": 1452260,
+          "median": 14988,
+          "max": 32050
+        },
+        "outgoing_schema_us": {
+          "sum": 4107718,
+          "median": 82084,
+          "max": 308500
+        },
+        "reread_us": {
+          "sum": 231830,
+          "median": 7399,
+          "max": 12677
+        },
+        "reread_validate_us": {
+          "sum": 53535,
+          "median": 1686,
+          "max": 2926
+        },
+        "splice_us": {
+          "sum": 2553296,
+          "median": 21499,
+          "max": 240063
+        },
+        "stringify_us": {
+          "sum": 211689,
+          "median": 5273,
+          "max": 12520
+        },
+        "write_atomic_us": {
+          "sum": 1250163,
+          "median": 37330,
+          "max": 67103
+        }
+      },
+      "spliced": 14,
+      "full_document": 21
+    },
+    {
+      "family": "consequence",
+      "group": "accept|admission_checks|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 265,
+          "median": 37,
+          "max": 44
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "accept|prepare_and_forward_inclusive|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 2025426,
+          "median": 297024,
+          "max": 457992
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "accept|request_fingerprint|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 24387,
+          "median": 3500,
+          "max": 4543
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "admit|admission_commit|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 16760,
+          "median": 2362,
+          "max": 3270
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "admit|admission_prepare|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 2082,
+          "median": 284,
+          "max": 362
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "admit|checkpoint2_prepare|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 46972,
+          "median": 6810,
+          "max": 8534
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "admit|sequence_state_prepare|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 5629,
+          "median": 787,
+          "max": 995
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "completion_save|capture|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 6692,
+          "median": 975,
+          "max": 1102
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "completion_save|commit_inclusive|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 1046511,
+          "median": 155558,
+          "max": 256406
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "completion_save|prepare|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 309763,
+          "median": 45541,
+          "max": 75851
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "desktop_publication_ledger||",
+      "count": 20,
+      "phases": {
+        "cache_seed_us": {
+          "sum": 3611,
+          "median": 164,
+          "max": 632
+        },
+        "candidate_build_us": {
+          "sum": 179,
+          "median": 9,
+          "max": 15
+        },
+        "compose_us": {
+          "sum": 25805,
+          "median": 1221,
+          "max": 2512
+        },
+        "confirmation_us": {
+          "sum": 8249,
+          "median": 433,
+          "max": 703
+        },
+        "disk_refresh_us": {
+          "sum": 31847,
+          "median": 1566,
+          "max": 2805
+        },
+        "elapsed_us": {
+          "sum": 155914,
+          "median": 7867,
+          "max": 12062
+        },
+        "entry_normalize_us": {
+          "sum": 4948,
+          "median": 181,
+          "max": 464
+        },
+        "request_check_us": {
+          "sum": 10848,
+          "median": 315,
+          "max": 1448
+        },
+        "request_digest_us": {
+          "sum": 9671,
+          "median": 266,
+          "max": 1357
+        },
+        "shape_check_us": {
+          "sum": 2525,
+          "median": 120,
+          "max": 160
+        },
+        "write_atomic_us": {
+          "sum": 62000,
+          "median": 3061,
+          "max": 4108
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "first_reveal_durable||",
+      "count": 7,
+      "phases": {
+        "board_capture_us": {
+          "sum": 882,
+          "median": 121,
+          "max": 146
+        },
+        "board_commit_us": {
+          "sum": 905,
+          "median": 128,
+          "max": 141
+        },
+        "board_prepare_us": {
+          "sum": 3598,
+          "median": 521,
+          "max": 529
+        },
+        "capture_base_snapshot_us": {
+          "sum": 1955,
+          "median": 269,
+          "max": 400
+        },
+        "checkpoint_capture_us": {
+          "sum": 68467,
+          "median": 9912,
+          "max": 18373
+        },
+        "checkpoint_commit_us": {
+          "sum": 3981010,
+          "median": 594899,
+          "max": 984221
+        },
+        "checkpoint_prepare_us": {
+          "sum": 1312155,
+          "median": 196449,
+          "max": 339162
+        },
+        "compose_us": {
+          "sum": 2097,
+          "median": 311,
+          "max": 412
+        },
+        "elapsed_us": {
+          "sum": 5397342,
+          "median": 806449,
+          "max": 1347647
+        },
+        "materialize_us": {
+          "sum": 4176,
+          "median": 593,
+          "max": 684
+        },
+        "prepare_consequence_us": {
+          "sum": 2808,
+          "median": 379,
+          "max": 598
+        },
+        "prepare_spec_us": {
+          "sum": 3472,
+          "median": 508,
+          "max": 526
+        },
+        "preview_checkpoint_us": {
+          "sum": 194,
+          "median": 27,
+          "max": 31
+        },
+        "publish_us": {
+          "sum": 42,
+          "median": 6,
+          "max": 7
+        },
+        "reducer_us": {
+          "sum": 2050,
+          "median": 284,
+          "max": 349
+        },
+        "state_capture_us": {
+          "sum": 297,
+          "median": 42,
+          "max": 48
+        },
+        "state_commit_us": {
+          "sum": 12772,
+          "median": 1842,
+          "max": 1973
+        },
+        "validate_candidates_us": {
+          "sum": 145,
+          "median": 20,
+          "max": 23
+        },
+        "verify_transaction_us": {
+          "sum": 215,
+          "median": 30,
+          "max": 33
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "forward|capture_and_recovery_prepare|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 1340,
+          "median": 194,
+          "max": 238
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "forward|cleanup_inclusive|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 1449273,
+          "median": 214310,
+          "max": 353235
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "forward|departure_commits|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 11,
+          "median": 2,
+          "max": 2
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "forward|progress_action_source|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 70744,
+          "median": 10097,
+          "max": 12487
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "forward|progress_causal_sequence|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 66541,
+          "median": 9469,
+          "max": 11850
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "forward|publication_pending_inclusive|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 63338,
+          "median": 9455,
+          "max": 11064
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "forward|publish_action_source|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 87117,
+          "median": 11994,
+          "max": 15972
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "forward|publish_causal_sequence|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 52244,
+          "median": 7161,
+          "max": 11212
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "forward|release_and_receipt|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 10367,
+          "median": 1376,
+          "max": 2525
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "forward|source_commit_inclusive|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 15789,
+          "median": 2246,
+          "max": 2622
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "minesweeper_round_accept_finalize||",
+      "count": 7,
+      "phases": {
+        "accept_prepared_action_us": {
+          "sum": 2051285,
+          "median": 300747,
+          "max": 462777
+        },
+        "cache_or_release_us": {
+          "sum": 176,
+          "median": 21,
+          "max": 46
+        },
+        "elapsed_us": {
+          "sum": 2051479,
+          "median": 300769,
+          "max": 462804
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "minesweeper_round_complete||",
+      "count": 7,
+      "phases": {
+        "accept_finalize_us": {
+          "sum": 2051769,
+          "median": 300807,
+          "max": 462848
+        },
+        "accept_request_retain_us": {
+          "sum": 1179,
+          "median": 158,
+          "max": 266
+        },
+        "action_candidate_prepare_us": {
+          "sum": 34529,
+          "median": 3844,
+          "max": 12499
+        },
+        "admission_and_board_capture_us": {
+          "sum": 2417,
+          "median": 315,
+          "max": 487
+        },
+        "consequence_capture_us": {
+          "sum": 120,
+          "median": 17,
+          "max": 18
+        },
+        "consequence_checkpoint_commit_us": {
+          "sum": 337,
+          "median": 48,
+          "max": 52
+        },
+        "consequence_checkpoint_prepare_us": {
+          "sum": 8334,
+          "median": 1191,
+          "max": 1225
+        },
+        "elapsed_us": {
+          "sum": 3511463,
+          "median": 518198,
+          "max": 818512
+        },
+        "handoff_prepare_us": {
+          "sum": 10576,
+          "median": 1512,
+          "max": 1539
+        },
+        "pending_state_commit_us": {
+          "sum": 595,
+          "median": 85,
+          "max": 103
+        },
+        "receipt_assembly_us": {
+          "sum": 109847,
+          "median": 16340,
+          "max": 25233
+        },
+        "source_capture_us": {
+          "sum": 2881,
+          "median": 410,
+          "max": 478
+        },
+        "source_commit_us": {
+          "sum": 990481,
+          "median": 149519,
+          "max": 247650
+        },
+        "source_prepare_us": {
+          "sum": 298382,
+          "median": 44176,
+          "max": 74171
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "minesweeper_round_recovery_commit||",
+      "count": 7,
+      "phases": {
+        "base_completion_commit_us": {
+          "sum": 2857,
+          "median": 416,
+          "max": 524
+        },
+        "base_completion_prepare_us": {
+          "sum": 1406,
+          "median": 209,
+          "max": 248
+        },
+        "board_commit_us": {
+          "sum": 6614,
+          "median": 958,
+          "max": 1000
+        },
+        "board_prepare_us": {
+          "sum": 629,
+          "median": 90,
+          "max": 95
+        },
+        "elapsed_us": {
+          "sum": 15195,
+          "median": 2159,
+          "max": 2527
+        },
+        "receipt_and_cache_us": {
+          "sum": 1782,
+          "median": 242,
+          "max": 313
+        },
+        "reward_commit_us": {
+          "sum": 1482,
+          "median": 223,
+          "max": 287
+        },
+        "validation_us": {
+          "sum": 404,
+          "median": 57,
+          "max": 69
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "ordinal_10|commit|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 2444,
+          "median": 355,
+          "max": 407
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "ordinal_10|live_commit|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 4173,
+          "median": 625,
+          "max": 747
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "ordinal_10|live_restore|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 2230,
+          "median": 303,
+          "max": 439
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "ordinal_10|prepare|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 54690,
+          "median": 7701,
+          "max": 9519
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "ordinal_12|commit|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 540,
+          "median": 72,
+          "max": 97
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "ordinal_12|live_commit|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 1659,
+          "median": 225,
+          "max": 304
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "ordinal_12|live_restore|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 1762,
+          "median": 247,
+          "max": 292
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "ordinal_12|prepare|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 11721,
+          "median": 1677,
+          "max": 1832
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "ordinal_8|commit|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 2310,
+          "median": 333,
+          "max": 412
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "ordinal_8|live_commit|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 3757,
+          "median": 482,
+          "max": 678
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "ordinal_8|live_restore|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 2082,
+          "median": 293,
+          "max": 406
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "ordinal_8|prepare|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 49832,
+          "median": 7532,
+          "max": 8669
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "ordinal_9|commit|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 2407,
+          "median": 350,
+          "max": 423
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "ordinal_9|live_commit|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 4097,
+          "median": 551,
+          "max": 763
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "ordinal_9|live_restore|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 2289,
+          "median": 341,
+          "max": 378
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "ordinal_9|prepare|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 51289,
+          "median": 7387,
+          "max": 8997
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "prepare|checkpoint1_commit|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 2358,
+          "median": 327,
+          "max": 475
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "prepare|checkpoint1_prepare|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 46795,
+          "median": 6891,
+          "max": 8539
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "prepare|condition_policy|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 8196,
+          "median": 1208,
+          "max": 1766
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "prepare|departure_preparation|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 15,
+          "median": 2,
+          "max": 4
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "prepare|live_restore1|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 5236,
+          "median": 725,
+          "max": 1088
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "prepare|recovery_payload|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 57320,
+          "median": 8282,
+          "max": 10483
+        }
+      }
+    },
+    {
+      "family": "consequence",
+      "group": "prepare|reservation|",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 1878,
+          "median": 269,
+          "max": 294
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day1-manual-slot-save|backup_commit|save|slot_1.json",
+      "count": 1,
+      "phases": {
+        "elapsed_us": {
+          "sum": 118648,
+          "median": 118648,
+          "max": 118648
+        },
+        "journal_commit_us": {
+          "sum": 14132,
+          "median": 14132,
+          "max": 14132
+        },
+        "metadata_refresh_us": {
+          "sum": 8,
+          "median": 8,
+          "max": 8
+        },
+        "reread_us": {
+          "sum": 611,
+          "median": 611,
+          "max": 611
+        },
+        "revision_read_us": {
+          "sum": 207,
+          "median": 207,
+          "max": 207
+        },
+        "save_completed_signal_us": {
+          "sum": 10,
+          "median": 10,
+          "max": 10
+        },
+        "serialize_us": {
+          "sum": 11207,
+          "median": 11207,
+          "max": 11207
+        },
+        "source_recheck_us": {
+          "sum": 13815,
+          "median": 13815,
+          "max": 13815
+        },
+        "unphased_us": {
+          "sum": 1561,
+          "median": 1561,
+          "max": 1561
+        },
+        "write_atomic_us": {
+          "sum": 77097,
+          "median": 77097,
+          "max": 77097
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day1-manual-slot-save|backup_inspection||slot:1",
+      "count": 1,
+      "phases": {
+        "elapsed_us": {
+          "sum": 173,
+          "median": 173,
+          "max": 173
+        },
+        "revision_read_us": {
+          "sum": 164,
+          "median": 164,
+          "max": 164
+        },
+        "unphased_us": {
+          "sum": 9,
+          "median": 9,
+          "max": 9
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day1-manual-slot-save|backup_prepare|save|slot:1",
+      "count": 1,
+      "phases": {
+        "candidate_copy_us": {
+          "sum": 1345,
+          "median": 1345,
+          "max": 1345
+        },
+        "capture_us": {
+          "sum": 29868,
+          "median": 29868,
+          "max": 29868
+        },
+        "document_build_us": {
+          "sum": 16352,
+          "median": 16352,
+          "max": 16352
+        },
+        "elapsed_us": {
+          "sum": 49032,
+          "median": 49032,
+          "max": 49032
+        },
+        "inspection_us": {
+          "sum": 244,
+          "median": 244,
+          "max": 244
+        },
+        "stable_hash_us": {
+          "sum": 767,
+          "median": 767,
+          "max": 767
+        },
+        "unphased_us": {
+          "sum": 456,
+          "median": 456,
+          "max": 456
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day1-manual-slot-save|document_parse||",
+      "count": 1,
+      "phases": {
+        "elapsed_us": {
+          "sum": 57207,
+          "median": 57207,
+          "max": 57207
+        },
+        "unphased_us": {
+          "sum": 57207,
+          "median": 57207,
+          "max": 57207
+        }
+      },
+      "cache_hits": 0,
+      "parse_calls": 1
+    },
+    {
+      "family": "save_load_write",
+      "group": "day2-manual-slot-save|backup_commit|save|slot_1.json",
+      "count": 1,
+      "phases": {
+        "elapsed_us": {
+          "sum": 458835,
+          "median": 458835,
+          "max": 458835
+        },
+        "journal_commit_us": {
+          "sum": 57620,
+          "median": 57620,
+          "max": 57620
+        },
+        "metadata_refresh_us": {
+          "sum": 8,
+          "median": 8,
+          "max": 8
+        },
+        "reread_us": {
+          "sum": 2705,
+          "median": 2705,
+          "max": 2705
+        },
+        "revision_read_us": {
+          "sum": 856,
+          "median": 856,
+          "max": 856
+        },
+        "save_completed_signal_us": {
+          "sum": 10,
+          "median": 10,
+          "max": 10
+        },
+        "serialize_us": {
+          "sum": 46755,
+          "median": 46755,
+          "max": 46755
+        },
+        "source_recheck_us": {
+          "sum": 56578,
+          "median": 56578,
+          "max": 56578
+        },
+        "unphased_us": {
+          "sum": 6507,
+          "median": 6507,
+          "max": 6507
+        },
+        "write_atomic_us": {
+          "sum": 287796,
+          "median": 287796,
+          "max": 287796
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day2-manual-slot-save|backup_inspection||slot:1",
+      "count": 1,
+      "phases": {
+        "admission_us": {
+          "sum": 11405,
+          "median": 11405,
+          "max": 11405
+        },
+        "elapsed_us": {
+          "sum": 38482,
+          "median": 38482,
+          "max": 38482
+        },
+        "parse_us": {
+          "sum": 1124,
+          "median": 1124,
+          "max": 1124
+        },
+        "restore_prepare_us": {
+          "sum": 24463,
+          "median": 24463,
+          "max": 24463
+        },
+        "revision_read_us": {
+          "sum": 765,
+          "median": 765,
+          "max": 765
+        },
+        "unphased_us": {
+          "sum": 725,
+          "median": 725,
+          "max": 725
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day2-manual-slot-save|backup_prepare|save|slot:1",
+      "count": 1,
+      "phases": {
+        "candidate_copy_us": {
+          "sum": 6690,
+          "median": 6690,
+          "max": 6690
+        },
+        "capture_us": {
+          "sum": 118674,
+          "median": 118674,
+          "max": 118674
+        },
+        "document_build_us": {
+          "sum": 62534,
+          "median": 62534,
+          "max": 62534
+        },
+        "elapsed_us": {
+          "sum": 230694,
+          "median": 230694,
+          "max": 230694
+        },
+        "inspection_us": {
+          "sum": 38555,
+          "median": 38555,
+          "max": 38555
+        },
+        "stable_hash_us": {
+          "sum": 2393,
+          "median": 2393,
+          "max": 2393
+        },
+        "unphased_us": {
+          "sum": 1848,
+          "median": 1848,
+          "max": 1848
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day2-manual-slot-save|document_parse||",
+      "count": 2,
+      "phases": {
+        "elapsed_us": {
+          "sum": 209228,
+          "median": 208190,
+          "max": 208190
+        },
+        "unphased_us": {
+          "sum": 209228,
+          "median": 208190,
+          "max": 208190
+        }
+      },
+      "cache_hits": 1,
+      "parse_calls": 1
+    },
+    {
+      "family": "save_load_write",
+      "group": "day2-manual-slot-save|restore_prepare||slot_1.json",
+      "count": 1,
+      "phases": {
+        "candidate_order_us": {
+          "sum": 806,
+          "median": 806,
+          "max": 806
+        },
+        "elapsed_us": {
+          "sum": 24374,
+          "median": 24374,
+          "max": 24374
+        },
+        "participant_prepare_us": {
+          "sum": 23107,
+          "median": 23107,
+          "max": 23107
+        },
+        "unphased_us": {
+          "sum": 461,
+          "median": 461,
+          "max": 461
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day3-manual-slot-save|backup_commit|save|slot_1.json",
+      "count": 1,
+      "phases": {
+        "elapsed_us": {
+          "sum": 820692,
+          "median": 820692,
+          "max": 820692
+        },
+        "journal_commit_us": {
+          "sum": 102155,
+          "median": 102155,
+          "max": 102155
+        },
+        "metadata_refresh_us": {
+          "sum": 7,
+          "median": 7,
+          "max": 7
+        },
+        "reread_us": {
+          "sum": 4839,
+          "median": 4839,
+          "max": 4839
+        },
+        "revision_read_us": {
+          "sum": 3239,
+          "median": 3239,
+          "max": 3239
+        },
+        "save_completed_signal_us": {
+          "sum": 10,
+          "median": 10,
+          "max": 10
+        },
+        "serialize_us": {
+          "sum": 86066,
+          "median": 86066,
+          "max": 86066
+        },
+        "source_recheck_us": {
+          "sum": 102839,
+          "median": 102839,
+          "max": 102839
+        },
+        "unphased_us": {
+          "sum": 11372,
+          "median": 11372,
+          "max": 11372
+        },
+        "write_atomic_us": {
+          "sum": 510165,
+          "median": 510165,
+          "max": 510165
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day3-manual-slot-save|backup_inspection||slot:1",
+      "count": 1,
+      "phases": {
+        "admission_us": {
+          "sum": 43668,
+          "median": 43668,
+          "max": 43668
+        },
+        "elapsed_us": {
+          "sum": 120440,
+          "median": 120440,
+          "max": 120440
+        },
+        "parse_us": {
+          "sum": 3441,
+          "median": 3441,
+          "max": 3441
+        },
+        "restore_prepare_us": {
+          "sum": 68009,
+          "median": 68009,
+          "max": 68009
+        },
+        "revision_read_us": {
+          "sum": 2621,
+          "median": 2621,
+          "max": 2621
+        },
+        "unphased_us": {
+          "sum": 2701,
+          "median": 2701,
+          "max": 2701
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day3-manual-slot-save|backup_prepare|save|slot:1",
+      "count": 1,
+      "phases": {
+        "candidate_copy_us": {
+          "sum": 11930,
+          "median": 11930,
+          "max": 11930
+        },
+        "capture_us": {
+          "sum": 206496,
+          "median": 206496,
+          "max": 206496
+        },
+        "document_build_us": {
+          "sum": 110817,
+          "median": 110817,
+          "max": 110817
+        },
+        "elapsed_us": {
+          "sum": 455624,
+          "median": 455624,
+          "max": 455624
+        },
+        "inspection_us": {
+          "sum": 120508,
+          "median": 120508,
+          "max": 120508
+        },
+        "stable_hash_us": {
+          "sum": 2687,
+          "median": 2687,
+          "max": 2687
+        },
+        "unphased_us": {
+          "sum": 3186,
+          "median": 3186,
+          "max": 3186
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day3-manual-slot-save|document_parse||",
+      "count": 2,
+      "phases": {
+        "elapsed_us": {
+          "sum": 381485,
+          "median": 378128,
+          "max": 378128
+        },
+        "unphased_us": {
+          "sum": 381485,
+          "median": 378128,
+          "max": 378128
+        }
+      },
+      "cache_hits": 1,
+      "parse_calls": 1
+    },
+    {
+      "family": "save_load_write",
+      "group": "day3-manual-slot-save|restore_prepare||slot_1.json",
+      "count": 1,
+      "phases": {
+        "candidate_order_us": {
+          "sum": 3126,
+          "median": 3126,
+          "max": 3126
+        },
+        "elapsed_us": {
+          "sum": 67923,
+          "median": 67923,
+          "max": 67923
+        },
+        "participant_prepare_us": {
+          "sum": 63246,
+          "median": 63246,
+          "max": 63246
+        },
+        "unphased_us": {
+          "sum": 1551,
+          "median": 1551,
+          "max": 1551
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day4-manual-slot-save|backup_commit|save|slot_1.json",
+      "count": 1,
+      "phases": {
+        "elapsed_us": {
+          "sum": 1299210,
+          "median": 1299210,
+          "max": 1299210
+        },
+        "journal_commit_us": {
+          "sum": 163818,
+          "median": 163818,
+          "max": 163818
+        },
+        "metadata_refresh_us": {
+          "sum": 9,
+          "median": 9,
+          "max": 9
+        },
+        "reread_us": {
+          "sum": 7362,
+          "median": 7362,
+          "max": 7362
+        },
+        "revision_read_us": {
+          "sum": 4837,
+          "median": 4837,
+          "max": 4837
+        },
+        "save_completed_signal_us": {
+          "sum": 12,
+          "median": 12,
+          "max": 12
+        },
+        "serialize_us": {
+          "sum": 128735,
+          "median": 128735,
+          "max": 128735
+        },
+        "source_recheck_us": {
+          "sum": 154848,
+          "median": 154848,
+          "max": 154848
+        },
+        "unphased_us": {
+          "sum": 20406,
+          "median": 20406,
+          "max": 20406
+        },
+        "write_atomic_us": {
+          "sum": 819183,
+          "median": 819183,
+          "max": 819183
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day4-manual-slot-save|backup_inspection||slot:1",
+      "count": 1,
+      "phases": {
+        "admission_us": {
+          "sum": 84773,
+          "median": 84773,
+          "max": 84773
+        },
+        "elapsed_us": {
+          "sum": 229137,
+          "median": 229137,
+          "max": 229137
+        },
+        "parse_us": {
+          "sum": 8223,
+          "median": 8223,
+          "max": 8223
+        },
+        "restore_prepare_us": {
+          "sum": 125223,
+          "median": 125223,
+          "max": 125223
+        },
+        "revision_read_us": {
+          "sum": 4698,
+          "median": 4698,
+          "max": 4698
+        },
+        "unphased_us": {
+          "sum": 6220,
+          "median": 6220,
+          "max": 6220
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day4-manual-slot-save|backup_prepare|save|slot:1",
+      "count": 1,
+      "phases": {
+        "candidate_copy_us": {
+          "sum": 21537,
+          "median": 21537,
+          "max": 21537
+        },
+        "capture_us": {
+          "sum": 328055,
+          "median": 328055,
+          "max": 328055
+        },
+        "document_build_us": {
+          "sum": 169141,
+          "median": 169141,
+          "max": 169141
+        },
+        "elapsed_us": {
+          "sum": 758209,
+          "median": 758209,
+          "max": 758209
+        },
+        "inspection_us": {
+          "sum": 229214,
+          "median": 229214,
+          "max": 229214
+        },
+        "stable_hash_us": {
+          "sum": 3195,
+          "median": 3195,
+          "max": 3195
+        },
+        "unphased_us": {
+          "sum": 7067,
+          "median": 7067,
+          "max": 7067
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day4-manual-slot-save|document_parse||",
+      "count": 2,
+      "phases": {
+        "elapsed_us": {
+          "sum": 582543,
+          "median": 574436,
+          "max": 574436
+        },
+        "unphased_us": {
+          "sum": 582543,
+          "median": 574436,
+          "max": 574436
+        }
+      },
+      "cache_hits": 1,
+      "parse_calls": 1
+    },
+    {
+      "family": "save_load_write",
+      "group": "day4-manual-slot-save|restore_prepare||slot_1.json",
+      "count": 1,
+      "phases": {
+        "candidate_order_us": {
+          "sum": 7794,
+          "median": 7794,
+          "max": 7794
+        },
+        "elapsed_us": {
+          "sum": 125110,
+          "median": 125110,
+          "max": 125110
+        },
+        "participant_prepare_us": {
+          "sum": 113457,
+          "median": 113457,
+          "max": 113457
+        },
+        "unphased_us": {
+          "sum": 3859,
+          "median": 3859,
+          "max": 3859
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day5-manual-slot-save|backup_commit|save|slot_1.json",
+      "count": 1,
+      "phases": {
+        "elapsed_us": {
+          "sum": 1777717,
+          "median": 1777717,
+          "max": 1777717
+        },
+        "journal_commit_us": {
+          "sum": 224813,
+          "median": 224813,
+          "max": 224813
+        },
+        "metadata_refresh_us": {
+          "sum": 9,
+          "median": 9,
+          "max": 9
+        },
+        "reread_us": {
+          "sum": 9896,
+          "median": 9896,
+          "max": 9896
+        },
+        "revision_read_us": {
+          "sum": 7580,
+          "median": 7580,
+          "max": 7580
+        },
+        "save_completed_signal_us": {
+          "sum": 14,
+          "median": 14,
+          "max": 14
+        },
+        "serialize_us": {
+          "sum": 172479,
+          "median": 172479,
+          "max": 172479
+        },
+        "source_recheck_us": {
+          "sum": 204558,
+          "median": 204558,
+          "max": 204558
+        },
+        "unphased_us": {
+          "sum": 28552,
+          "median": 28552,
+          "max": 28552
+        },
+        "write_atomic_us": {
+          "sum": 1129816,
+          "median": 1129816,
+          "max": 1129816
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day5-manual-slot-save|backup_inspection||slot:1",
+      "count": 1,
+      "phases": {
+        "admission_us": {
+          "sum": 130477,
+          "median": 130477,
+          "max": 130477
+        },
+        "elapsed_us": {
+          "sum": 352615,
+          "median": 352615,
+          "max": 352615
+        },
+        "parse_us": {
+          "sum": 13481,
+          "median": 13481,
+          "max": 13481
+        },
+        "restore_prepare_us": {
+          "sum": 189957,
+          "median": 189957,
+          "max": 189957
+        },
+        "revision_read_us": {
+          "sum": 7387,
+          "median": 7387,
+          "max": 7387
+        },
+        "unphased_us": {
+          "sum": 11313,
+          "median": 11313,
+          "max": 11313
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day5-manual-slot-save|backup_prepare|save|slot:1",
+      "count": 1,
+      "phases": {
+        "candidate_copy_us": {
+          "sum": 28740,
+          "median": 28740,
+          "max": 28740
+        },
+        "capture_us": {
+          "sum": 443668,
+          "median": 443668,
+          "max": 443668
+        },
+        "document_build_us": {
+          "sum": 221829,
+          "median": 221829,
+          "max": 221829
+        },
+        "elapsed_us": {
+          "sum": 1061260,
+          "median": 1061260,
+          "max": 1061260
+        },
+        "inspection_us": {
+          "sum": 352746,
+          "median": 352746,
+          "max": 352746
+        },
+        "stable_hash_us": {
+          "sum": 3457,
+          "median": 3457,
+          "max": 3457
+        },
+        "unphased_us": {
+          "sum": 10820,
+          "median": 10820,
+          "max": 10820
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day5-manual-slot-save|document_parse||",
+      "count": 2,
+      "phases": {
+        "elapsed_us": {
+          "sum": 793031,
+          "median": 779715,
+          "max": 779715
+        },
+        "unphased_us": {
+          "sum": 793031,
+          "median": 779715,
+          "max": 779715
+        }
+      },
+      "cache_hits": 1,
+      "parse_calls": 1
+    },
+    {
+      "family": "save_load_write",
+      "group": "day5-manual-slot-save|restore_prepare||slot_1.json",
+      "count": 1,
+      "phases": {
+        "candidate_order_us": {
+          "sum": 11534,
+          "median": 11534,
+          "max": 11534
+        },
+        "elapsed_us": {
+          "sum": 189835,
+          "median": 189835,
+          "max": 189835
+        },
+        "participant_prepare_us": {
+          "sum": 172383,
+          "median": 172383,
+          "max": 172383
+        },
+        "unphased_us": {
+          "sum": 5918,
+          "median": 5918,
+          "max": 5918
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day6-manual-slot-save|backup_commit|save|slot_1.json",
+      "count": 1,
+      "phases": {
+        "elapsed_us": {
+          "sum": 2086502,
+          "median": 2086502,
+          "max": 2086502
+        },
+        "journal_commit_us": {
+          "sum": 265891,
+          "median": 265891,
+          "max": 265891
+        },
+        "metadata_refresh_us": {
+          "sum": 10,
+          "median": 10,
+          "max": 10
+        },
+        "reread_us": {
+          "sum": 11427,
+          "median": 11427,
+          "max": 11427
+        },
+        "revision_read_us": {
+          "sum": 10259,
+          "median": 10259,
+          "max": 10259
+        },
+        "save_completed_signal_us": {
+          "sum": 13,
+          "median": 13,
+          "max": 13
+        },
+        "serialize_us": {
+          "sum": 207878,
+          "median": 207878,
+          "max": 207878
+        },
+        "source_recheck_us": {
+          "sum": 249449,
+          "median": 249449,
+          "max": 249449
+        },
+        "unphased_us": {
+          "sum": 31937,
+          "median": 31937,
+          "max": 31937
+        },
+        "write_atomic_us": {
+          "sum": 1309638,
+          "median": 1309638,
+          "max": 1309638
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day6-manual-slot-save|backup_inspection||slot:1",
+      "count": 1,
+      "phases": {
+        "admission_us": {
+          "sum": 168349,
+          "median": 168349,
+          "max": 168349
+        },
+        "elapsed_us": {
+          "sum": 465301,
+          "median": 465301,
+          "max": 465301
+        },
+        "parse_us": {
+          "sum": 17657,
+          "median": 17657,
+          "max": 17657
+        },
+        "restore_prepare_us": {
+          "sum": 255088,
+          "median": 255088,
+          "max": 255088
+        },
+        "revision_read_us": {
+          "sum": 9711,
+          "median": 9711,
+          "max": 9711
+        },
+        "unphased_us": {
+          "sum": 14496,
+          "median": 14496,
+          "max": 14496
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day6-manual-slot-save|backup_prepare|save|slot:1",
+      "count": 1,
+      "phases": {
+        "candidate_copy_us": {
+          "sum": 35436,
+          "median": 35436,
+          "max": 35436
+        },
+        "capture_us": {
+          "sum": 523202,
+          "median": 523202,
+          "max": 523202
+        },
+        "document_build_us": {
+          "sum": 260528,
+          "median": 260528,
+          "max": 260528
+        },
+        "elapsed_us": {
+          "sum": 1300097,
+          "median": 1300097,
+          "max": 1300097
+        },
+        "inspection_us": {
+          "sum": 465430,
+          "median": 465430,
+          "max": 465430
+        },
+        "stable_hash_us": {
+          "sum": 4002,
+          "median": 4002,
+          "max": 4002
+        },
+        "unphased_us": {
+          "sum": 11499,
+          "median": 11499,
+          "max": 11499
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day6-manual-slot-save|document_parse||",
+      "count": 2,
+      "phases": {
+        "elapsed_us": {
+          "sum": 925499,
+          "median": 908008,
+          "max": 908008
+        },
+        "unphased_us": {
+          "sum": 925499,
+          "median": 908008,
+          "max": 908008
+        }
+      },
+      "cache_hits": 1,
+      "parse_calls": 1
+    },
+    {
+      "family": "save_load_write",
+      "group": "day6-manual-slot-save|restore_prepare||slot_1.json",
+      "count": 1,
+      "phases": {
+        "candidate_order_us": {
+          "sum": 14830,
+          "median": 14830,
+          "max": 14830
+        },
+        "elapsed_us": {
+          "sum": 254975,
+          "median": 254975,
+          "max": 254975
+        },
+        "participant_prepare_us": {
+          "sum": 232478,
+          "median": 232478,
+          "max": 232478
+        },
+        "unphased_us": {
+          "sum": 7667,
+          "median": 7667,
+          "max": 7667
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day7-manual-slot-save|backup_commit|save|slot_1.json",
+      "count": 1,
+      "phases": {
+        "elapsed_us": {
+          "sum": 2357766,
+          "median": 2357766,
+          "max": 2357766
+        },
+        "journal_commit_us": {
+          "sum": 299876,
+          "median": 299876,
+          "max": 299876
+        },
+        "metadata_refresh_us": {
+          "sum": 9,
+          "median": 9,
+          "max": 9
+        },
+        "reread_us": {
+          "sum": 12614,
+          "median": 12614,
+          "max": 12614
+        },
+        "revision_read_us": {
+          "sum": 11525,
+          "median": 11525,
+          "max": 11525
+        },
+        "save_completed_signal_us": {
+          "sum": 15,
+          "median": 15,
+          "max": 15
+        },
+        "serialize_us": {
+          "sum": 234183,
+          "median": 234183,
+          "max": 234183
+        },
+        "source_recheck_us": {
+          "sum": 280103,
+          "median": 280103,
+          "max": 280103
+        },
+        "unphased_us": {
+          "sum": 38066,
+          "median": 38066,
+          "max": 38066
+        },
+        "write_atomic_us": {
+          "sum": 1481375,
+          "median": 1481375,
+          "max": 1481375
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day7-manual-slot-save|backup_inspection||slot:1",
+      "count": 1,
+      "phases": {
+        "admission_us": {
+          "sum": 202955,
+          "median": 202955,
+          "max": 202955
+        },
+        "elapsed_us": {
+          "sum": 581459,
+          "median": 581459,
+          "max": 581459
+        },
+        "parse_us": {
+          "sum": 21056,
+          "median": 21056,
+          "max": 21056
+        },
+        "restore_prepare_us": {
+          "sum": 326046,
+          "median": 326046,
+          "max": 326046
+        },
+        "revision_read_us": {
+          "sum": 11560,
+          "median": 11560,
+          "max": 11560
+        },
+        "unphased_us": {
+          "sum": 19842,
+          "median": 19842,
+          "max": 19842
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day7-manual-slot-save|backup_prepare|save|slot:1",
+      "count": 1,
+      "phases": {
+        "candidate_copy_us": {
+          "sum": 40592,
+          "median": 40592,
+          "max": 40592
+        },
+        "capture_us": {
+          "sum": 594186,
+          "median": 594186,
+          "max": 594186
+        },
+        "document_build_us": {
+          "sum": 294525,
+          "median": 294525,
+          "max": 294525
+        },
+        "elapsed_us": {
+          "sum": 1530263,
+          "median": 1530263,
+          "max": 1530263
+        },
+        "inspection_us": {
+          "sum": 581606,
+          "median": 581606,
+          "max": 581606
+        },
+        "stable_hash_us": {
+          "sum": 4413,
+          "median": 4413,
+          "max": 4413
+        },
+        "unphased_us": {
+          "sum": 14941,
+          "median": 14941,
+          "max": 14941
+        }
+      }
+    },
+    {
+      "family": "save_load_write",
+      "group": "day7-manual-slot-save|document_parse||",
+      "count": 2,
+      "phases": {
+        "elapsed_us": {
+          "sum": 1034234,
+          "median": 1013355,
+          "max": 1013355
+        },
+        "unphased_us": {
+          "sum": 1034234,
+          "median": 1013355,
+          "max": 1013355
+        }
+      },
+      "cache_hits": 1,
+      "parse_calls": 1
+    },
+    {
+      "family": "save_load_write",
+      "group": "day7-manual-slot-save|restore_prepare||slot_1.json",
+      "count": 1,
+      "phases": {
+        "candidate_order_us": {
+          "sum": 17540,
+          "median": 17540,
+          "max": 17540
+        },
+        "elapsed_us": {
+          "sum": 325901,
+          "median": 325901,
+          "max": 325901
+        },
+        "participant_prepare_us": {
+          "sum": 298934,
+          "median": 298934,
+          "max": 298934
+        },
+        "unphased_us": {
+          "sum": 9427,
+          "median": 9427,
+          "max": 9427
+        }
+      }
+    },
+    {
+      "family": "save_load_read",
+      "group": "day7-title-login|backup_commit|load|autosave.json",
+      "count": 1,
+      "phases": {
+        "elapsed_us": {
+          "sum": 3377634,
+          "median": 3377634,
+          "max": 3377634
+        },
+        "reconcile_us": {
+          "sum": 1689097,
+          "median": 1689097,
+          "max": 1689097
+        },
+        "restore_commit_us": {
+          "sum": 1640589,
+          "median": 1640589,
+          "max": 1640589
+        },
+        "revision_read_us": {
+          "sum": 12744,
+          "median": 12744,
+          "max": 12744
+        },
+        "revision_recheck_us": {
+          "sum": 12615,
+          "median": 12615,
+          "max": 12615
+        },
+        "unphased_us": {
+          "sum": 22589,
+          "median": 22589,
+          "max": 22589
+        }
+      }
+    },
+    {
+      "family": "save_load_read",
+      "group": "day7-title-login|backup_inspection||autosave",
+      "count": 3,
+      "phases": {
+        "admission_us": {
+          "sum": 663634,
+          "median": 219928,
+          "max": 224616
+        },
+        "elapsed_us": {
+          "sum": 3154194,
+          "median": 685205,
+          "max": 1786505
+        },
+        "parse_us": {
+          "sum": 1064171,
+          "median": 22354,
+          "max": 1020269
+        },
+        "restore_prepare_us": {
+          "sum": 1320505,
+          "median": 408273,
+          "max": 510917
+        },
+        "revision_read_us": {
+          "sum": 38604,
+          "median": 12867,
+          "max": 12938
+        },
+        "unphased_us": {
+          "sum": 67280,
+          "median": 22592,
+          "max": 22621
+        }
+      }
+    },
+    {
+      "family": "save_load_read",
+      "group": "day7-title-login|backup_inspection||quick",
+      "count": 2,
+      "phases": {
+        "elapsed_us": {
+          "sum": 579,
+          "median": 296,
+          "max": 296
+        },
+        "revision_read_us": {
+          "sum": 545,
+          "median": 279,
+          "max": 279
+        },
+        "unphased_us": {
+          "sum": 34,
+          "median": 17,
+          "max": 17
+        }
+      }
+    },
+    {
+      "family": "save_load_read",
+      "group": "day7-title-login|backup_inspection||slot:1",
+      "count": 2,
+      "phases": {
+        "admission_us": {
+          "sum": 436106,
+          "median": 219030,
+          "max": 219030
+        },
+        "elapsed_us": {
+          "sum": 2324589,
+          "median": 1646021,
+          "max": 1646021
+        },
+        "parse_us": {
+          "sum": 1015760,
+          "median": 994615,
+          "max": 994615
+        },
+        "restore_prepare_us": {
+          "sum": 804360,
+          "median": 405387,
+          "max": 405387
+        },
+        "revision_read_us": {
+          "sum": 24811,
+          "median": 12478,
+          "max": 12478
+        },
+        "unphased_us": {
+          "sum": 43552,
+          "median": 22482,
+          "max": 22482
+        }
+      }
+    },
+    {
+      "family": "save_load_read",
+      "group": "day7-title-login|backup_inspection||slot:2",
+      "count": 2,
+      "phases": {
+        "elapsed_us": {
+          "sum": 610,
+          "median": 331,
+          "max": 331
+        },
+        "revision_read_us": {
+          "sum": 575,
+          "median": 313,
+          "max": 313
+        },
+        "unphased_us": {
+          "sum": 35,
+          "median": 18,
+          "max": 18
+        }
+      }
+    },
+    {
+      "family": "save_load_read",
+      "group": "day7-title-login|backup_inspection||slot:3",
+      "count": 2,
+      "phases": {
+        "elapsed_us": {
+          "sum": 323,
+          "median": 167,
+          "max": 167
+        },
+        "revision_read_us": {
+          "sum": 293,
+          "median": 147,
+          "max": 147
+        },
+        "unphased_us": {
+          "sum": 30,
+          "median": 21,
+          "max": 21
+        }
+      }
+    },
+    {
+      "family": "save_load_read",
+      "group": "day7-title-login|backup_inspection||slot:4",
+      "count": 2,
+      "phases": {
+        "elapsed_us": {
+          "sum": 287,
+          "median": 144,
+          "max": 144
+        },
+        "revision_read_us": {
+          "sum": 271,
+          "median": 136,
+          "max": 136
+        },
+        "unphased_us": {
+          "sum": 16,
+          "median": 8,
+          "max": 8
+        }
+      }
+    },
+    {
+      "family": "save_load_read",
+      "group": "day7-title-login|backup_inspection||slot:5",
+      "count": 2,
+      "phases": {
+        "elapsed_us": {
+          "sum": 308,
+          "median": 170,
+          "max": 170
+        },
+        "revision_read_us": {
+          "sum": 292,
+          "median": 162,
+          "max": 162
+        },
+        "unphased_us": {
+          "sum": 16,
+          "median": 8,
+          "max": 8
+        }
+      }
+    },
+    {
+      "family": "save_load_read",
+      "group": "day7-title-login|backup_inspection||slot:6",
+      "count": 2,
+      "phases": {
+        "elapsed_us": {
+          "sum": 278,
+          "median": 143,
+          "max": 143
+        },
+        "revision_read_us": {
+          "sum": 263,
+          "median": 135,
+          "max": 135
+        },
+        "unphased_us": {
+          "sum": 15,
+          "median": 8,
+          "max": 8
+        }
+      }
+    },
+    {
+      "family": "save_load_read",
+      "group": "day7-title-login|backup_inspection||slot:7",
+      "count": 2,
+      "phases": {
+        "elapsed_us": {
+          "sum": 264,
+          "median": 132,
+          "max": 132
+        },
+        "revision_read_us": {
+          "sum": 249,
+          "median": 125,
+          "max": 125
+        },
+        "unphased_us": {
+          "sum": 15,
+          "median": 8,
+          "max": 8
+        }
+      }
+    },
+    {
+      "family": "save_load_read",
+      "group": "day7-title-login|backup_prepare|load|autosave",
+      "count": 1,
+      "phases": {
+        "candidate_copy_us": {
+          "sum": 20971,
+          "median": 20971,
+          "max": 20971
+        },
+        "elapsed_us": {
+          "sum": 714996,
+          "median": 714996,
+          "max": 714996
+        },
+        "inspection_us": {
+          "sum": 682637,
+          "median": 682637,
+          "max": 682637
+        },
+        "unphased_us": {
+          "sum": 11388,
+          "median": 11388,
+          "max": 11388
+        }
+      }
+    },
+    {
+      "family": "save_load_read",
+      "group": "day7-title-login|document_parse||",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 3116757,
+          "median": 22163,
+          "max": 1020052
+        },
+        "unphased_us": {
+          "sum": 3116757,
+          "median": 22163,
+          "max": 1020052
+        }
+      },
+      "cache_hits": 4,
+      "parse_calls": 3
+    },
+    {
+      "family": "save_load_read",
+      "group": "day7-title-login|restore_commit||",
+      "count": 1,
+      "phases": {
+        "continuation_us": {
+          "sum": 1335156,
+          "median": 1335156,
+          "max": 1335156
+        },
+        "elapsed_us": {
+          "sum": 1640496,
+          "median": 1640496,
+          "max": 1640496
+        },
+        "input_copy_us": {
+          "sum": 1199,
+          "median": 1199,
+          "max": 1199
+        },
+        "lock_us": {
+          "sum": 45,
+          "median": 45,
+          "max": 45
+        },
+        "participant_transaction_us": {
+          "sum": 302200,
+          "median": 302200,
+          "max": 302200
+        },
+        "remapped_prepare_us": {
+          "sum": 1249,
+          "median": 1249,
+          "max": 1249
+        },
+        "unphased_us": {
+          "sum": 647,
+          "median": 647,
+          "max": 647
+        }
+      }
+    },
+    {
+      "family": "save_load_read",
+      "group": "day7-title-login|restore_prepare||autosave.json",
+      "count": 3,
+      "phases": {
+        "candidate_order_us": {
+          "sum": 64297,
+          "median": 21555,
+          "max": 21706
+        },
+        "elapsed_us": {
+          "sum": 1319794,
+          "median": 408116,
+          "max": 510516
+        },
+        "participant_prepare_us": {
+          "sum": 1222721,
+          "median": 375360,
+          "max": 478372
+        },
+        "unphased_us": {
+          "sum": 32776,
+          "median": 11050,
+          "max": 11137
+        }
+      }
+    },
+    {
+      "family": "save_load_read",
+      "group": "day7-title-login|restore_prepare||slot_1.json",
+      "count": 2,
+      "phases": {
+        "candidate_order_us": {
+          "sum": 43329,
+          "median": 21783,
+          "max": 21783
+        },
+        "elapsed_us": {
+          "sum": 804069,
+          "median": 405243,
+          "max": 405243
+        },
+        "participant_prepare_us": {
+          "sum": 739279,
+          "median": 372723,
+          "max": 372723
+        },
+        "unphased_us": {
+          "sum": 21461,
+          "median": 10737,
+          "max": 10737
+        }
+      }
+    },
+    {
+      "family": "save_load_read",
+      "group": "day7-title-login|restore_transaction||",
+      "count": 1,
+      "phases": {
+        "activation_prepare_us": {
+          "sum": 33,
+          "median": 33,
+          "max": 33
+        },
+        "completion_us": {
+          "sum": 25917,
+          "median": 25917,
+          "max": 25917
+        },
+        "continuation_advance_us": {
+          "sum": 229455,
+          "median": 229455,
+          "max": 229455
+        },
+        "elapsed_us": {
+          "sum": 302095,
+          "median": 302095,
+          "max": 302095
+        },
+        "journal_commit_us": {
+          "sum": 27419,
+          "median": 27419,
+          "max": 27419
+        },
+        "participant_apply_us": {
+          "sum": 12039,
+          "median": 12039,
+          "max": 12039
+        },
+        "participant_capture_us": {
+          "sum": 919,
+          "median": 919,
+          "max": 919
+        },
+        "participant_finalize_us": {
+          "sum": 4935,
+          "median": 4935,
+          "max": 4935
+        },
+        "restored_signals_us": {
+          "sum": 56,
+          "median": 56,
+          "max": 56
+        },
+        "run_remap_us": {
+          "sum": 1003,
+          "median": 1003,
+          "max": 1003
+        },
+        "unphased_us": {
+          "sum": 319,
+          "median": 319,
+          "max": 319
+        }
+      }
+    },
+    {
+      "family": "save_load_read_cache_disabled",
+      "group": "day7-title-login|backup_commit|load|autosave.json",
+      "count": 1,
+      "phases": {
+        "elapsed_us": {
+          "sum": 4298761,
+          "median": 4298761,
+          "max": 4298761
+        },
+        "reconcile_us": {
+          "sum": 2613857,
+          "median": 2613857,
+          "max": 2613857
+        },
+        "restore_commit_us": {
+          "sum": 1630237,
+          "median": 1630237,
+          "max": 1630237
+        },
+        "revision_read_us": {
+          "sum": 13123,
+          "median": 13123,
+          "max": 13123
+        },
+        "revision_recheck_us": {
+          "sum": 13279,
+          "median": 13279,
+          "max": 13279
+        },
+        "unphased_us": {
+          "sum": 28265,
+          "median": 28265,
+          "max": 28265
+        }
+      }
+    },
+    {
+      "family": "save_load_read_cache_disabled",
+      "group": "day7-title-login|backup_inspection||autosave",
+      "count": 3,
+      "phases": {
+        "admission_us": {
+          "sum": 671659,
+          "median": 223409,
+          "max": 227675
+        },
+        "elapsed_us": {
+          "sum": 5055175,
+          "median": 1648741,
+          "max": 1759539
+        },
+        "parse_us": {
+          "sum": 2964410,
+          "median": 990119,
+          "max": 991838
+        },
+        "restore_prepare_us": {
+          "sum": 1315315,
+          "median": 399961,
+          "max": 521462
+        },
+        "revision_read_us": {
+          "sum": 38998,
+          "median": 12991,
+          "max": 13206
+        },
+        "unphased_us": {
+          "sum": 64793,
+          "median": 21843,
+          "max": 22451
+        }
+      }
+    },
+    {
+      "family": "save_load_read_cache_disabled",
+      "group": "day7-title-login|backup_inspection||quick",
+      "count": 2,
+      "phases": {
+        "elapsed_us": {
+          "sum": 589,
+          "median": 301,
+          "max": 301
+        },
+        "revision_read_us": {
+          "sum": 554,
+          "median": 283,
+          "max": 283
+        },
+        "unphased_us": {
+          "sum": 35,
+          "median": 18,
+          "max": 18
+        }
+      }
+    },
+    {
+      "family": "save_load_read_cache_disabled",
+      "group": "day7-title-login|backup_inspection||slot:1",
+      "count": 2,
+      "phases": {
+        "admission_us": {
+          "sum": 443524,
+          "median": 222436,
+          "max": 222436
+        },
+        "elapsed_us": {
+          "sum": 3209273,
+          "median": 1607632,
+          "max": 1607632
+        },
+        "parse_us": {
+          "sum": 1925512,
+          "median": 963094,
+          "max": 963094
+        },
+        "restore_prepare_us": {
+          "sum": 774487,
+          "median": 390166,
+          "max": 390166
+        },
+        "revision_read_us": {
+          "sum": 24804,
+          "median": 12591,
+          "max": 12591
+        },
+        "unphased_us": {
+          "sum": 40946,
+          "median": 20547,
+          "max": 20547
+        }
+      }
+    },
+    {
+      "family": "save_load_read_cache_disabled",
+      "group": "day7-title-login|backup_inspection||slot:2",
+      "count": 2,
+      "phases": {
+        "elapsed_us": {
+          "sum": 552,
+          "median": 278,
+          "max": 278
+        },
+        "revision_read_us": {
+          "sum": 519,
+          "median": 261,
+          "max": 261
+        },
+        "unphased_us": {
+          "sum": 33,
+          "median": 17,
+          "max": 17
+        }
+      }
+    },
+    {
+      "family": "save_load_read_cache_disabled",
+      "group": "day7-title-login|backup_inspection||slot:3",
+      "count": 2,
+      "phases": {
+        "elapsed_us": {
+          "sum": 316,
+          "median": 161,
+          "max": 161
+        },
+        "revision_read_us": {
+          "sum": 298,
+          "median": 152,
+          "max": 152
+        },
+        "unphased_us": {
+          "sum": 18,
+          "median": 9,
+          "max": 9
+        }
+      }
+    },
+    {
+      "family": "save_load_read_cache_disabled",
+      "group": "day7-title-login|backup_inspection||slot:4",
+      "count": 2,
+      "phases": {
+        "elapsed_us": {
+          "sum": 306,
+          "median": 165,
+          "max": 165
+        },
+        "revision_read_us": {
+          "sum": 288,
+          "median": 156,
+          "max": 156
+        },
+        "unphased_us": {
+          "sum": 18,
+          "median": 9,
+          "max": 9
+        }
+      }
+    },
+    {
+      "family": "save_load_read_cache_disabled",
+      "group": "day7-title-login|backup_inspection||slot:5",
+      "count": 2,
+      "phases": {
+        "elapsed_us": {
+          "sum": 273,
+          "median": 137,
+          "max": 137
+        },
+        "revision_read_us": {
+          "sum": 257,
+          "median": 129,
+          "max": 129
+        },
+        "unphased_us": {
+          "sum": 16,
+          "median": 8,
+          "max": 8
+        }
+      }
+    },
+    {
+      "family": "save_load_read_cache_disabled",
+      "group": "day7-title-login|backup_inspection||slot:6",
+      "count": 2,
+      "phases": {
+        "elapsed_us": {
+          "sum": 264,
+          "median": 134,
+          "max": 134
+        },
+        "revision_read_us": {
+          "sum": 249,
+          "median": 126,
+          "max": 126
+        },
+        "unphased_us": {
+          "sum": 15,
+          "median": 8,
+          "max": 8
+        }
+      }
+    },
+    {
+      "family": "save_load_read_cache_disabled",
+      "group": "day7-title-login|backup_inspection||slot:7",
+      "count": 2,
+      "phases": {
+        "elapsed_us": {
+          "sum": 266,
+          "median": 135,
+          "max": 135
+        },
+        "revision_read_us": {
+          "sum": 251,
+          "median": 127,
+          "max": 127
+        },
+        "unphased_us": {
+          "sum": 15,
+          "median": 8,
+          "max": 8
+        }
+      }
+    },
+    {
+      "family": "save_load_read_cache_disabled",
+      "group": "day7-title-login|backup_prepare|load|autosave",
+      "count": 1,
+      "phases": {
+        "candidate_copy_us": {
+          "sum": 21269,
+          "median": 21269,
+          "max": 21269
+        },
+        "elapsed_us": {
+          "sum": 1680359,
+          "median": 1680359,
+          "max": 1680359
+        },
+        "inspection_us": {
+          "sum": 1647068,
+          "median": 1647068,
+          "max": 1647068
+        },
+        "unphased_us": {
+          "sum": 12022,
+          "median": 12022,
+          "max": 12022
+        }
+      }
+    },
+    {
+      "family": "save_load_read_cache_disabled",
+      "group": "day7-title-login|document_parse||",
+      "count": 7,
+      "phases": {
+        "elapsed_us": {
+          "sum": 6844537,
+          "median": 982253,
+          "max": 991678
+        },
+        "unphased_us": {
+          "sum": 6844537,
+          "median": 982253,
+          "max": 991678
+        }
+      },
+      "cache_hits": 0,
+      "parse_calls": 7
+    },
+    {
+      "family": "save_load_read_cache_disabled",
+      "group": "day7-title-login|restore_commit||",
+      "count": 1,
+      "phases": {
+        "continuation_us": {
+          "sum": 1328976,
+          "median": 1328976,
+          "max": 1328976
+        },
+        "elapsed_us": {
+          "sum": 1630159,
+          "median": 1630159,
+          "max": 1630159
+        },
+        "input_copy_us": {
+          "sum": 1247,
+          "median": 1247,
+          "max": 1247
+        },
+        "lock_us": {
+          "sum": 41,
+          "median": 41,
+          "max": 41
+        },
+        "participant_transaction_us": {
+          "sum": 297826,
+          "median": 297826,
+          "max": 297826
+        },
+        "remapped_prepare_us": {
+          "sum": 1355,
+          "median": 1355,
+          "max": 1355
+        },
+        "unphased_us": {
+          "sum": 714,
+          "median": 714,
+          "max": 714
+        }
+      }
+    },
+    {
+      "family": "save_load_read_cache_disabled",
+      "group": "day7-title-login|restore_prepare||autosave.json",
+      "count": 3,
+      "phases": {
+        "candidate_order_us": {
+          "sum": 67308,
+          "median": 22556,
+          "max": 23449
+        },
+        "elapsed_us": {
+          "sum": 1314588,
+          "median": 399812,
+          "max": 521029
+        },
+        "participant_prepare_us": {
+          "sum": 1213160,
+          "median": 365300,
+          "max": 487316
+        },
+        "unphased_us": {
+          "sum": 34120,
+          "median": 11063,
+          "max": 12410
+        }
+      }
+    },
+    {
+      "family": "save_load_read_cache_disabled",
+      "group": "day7-title-login|restore_prepare||slot_1.json",
+      "count": 2,
+      "phases": {
+        "candidate_order_us": {
+          "sum": 46757,
+          "median": 23526,
+          "max": 23526
+        },
+        "elapsed_us": {
+          "sum": 774207,
+          "median": 390024,
+          "max": 390024
+        },
+        "participant_prepare_us": {
+          "sum": 706833,
+          "median": 356284,
+          "max": 356284
+        },
+        "unphased_us": {
+          "sum": 20617,
+          "median": 10403,
+          "max": 10403
+        }
+      }
+    },
+    {
+      "family": "save_load_read_cache_disabled",
+      "group": "day7-title-login|restore_transaction||",
+      "count": 1,
+      "phases": {
+        "activation_prepare_us": {
+          "sum": 32,
+          "median": 32,
+          "max": 32
+        },
+        "completion_us": {
+          "sum": 25820,
+          "median": 25820,
+          "max": 25820
+        },
+        "continuation_advance_us": {
+          "sum": 224289,
+          "median": 224289,
+          "max": 224289
+        },
+        "elapsed_us": {
+          "sum": 297720,
+          "median": 297720,
+          "max": 297720
+        },
+        "journal_commit_us": {
+          "sum": 28465,
+          "median": 28465,
+          "max": 28465
+        },
+        "participant_apply_us": {
+          "sum": 11700,
+          "median": 11700,
+          "max": 11700
+        },
+        "participant_capture_us": {
+          "sum": 953,
+          "median": 953,
+          "max": 953
+        },
+        "participant_finalize_us": {
+          "sum": 5003,
+          "median": 5003,
+          "max": 5003
+        },
+        "restored_signals_us": {
+          "sum": 49,
+          "median": 49,
+          "max": 49
+        },
+        "run_remap_us": {
+          "sum": 1013,
+          "median": 1013,
+          "max": 1013
+        },
+        "unphased_us": {
+          "sum": 396,
+          "median": 396,
+          "max": 396
+        }
+      }
+    }
+  ]
+}
