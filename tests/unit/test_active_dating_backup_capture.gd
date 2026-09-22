@@ -286,9 +286,12 @@ func test_replaced_scene_during_capture_refuses_the_previous_scene() -> void:
 	var replacement := Source.new()
 	replacement.scene_file_path = DATING_PATH
 	replacement.command = source.command.duplicate(true)
-	add_child_autofree(replacement)
+	get_tree().root.add_child(replacement)
 	day_capture.on_capture = func() -> void: get_tree().current_scene = replacement
 	assert_eq(_capture().get("code"), &"backup_source_changed")
+	assert_same(get_tree().current_scene, replacement)
+	get_tree().current_scene = source
+	replacement.free()
 
 func test_snapshot_run_or_record_drift_is_not_repaired_from_the_live_source() -> void:
 	day_capture.inputs.snapshot_input.lifecycle.run_id = "another-run"

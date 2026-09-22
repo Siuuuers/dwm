@@ -65,7 +65,7 @@ class Saves extends RefCounted:
 		return {"ok": not fail_load, "code": &"fixture_compensated_load" if fail_load else &"ok"}
 	func cancel_backup_action(token: String) -> void: pending.erase(token)
 
-var _viewport: SubViewport
+var _viewport: Viewport
 var _scene: Control
 var _old_scene: Node
 var _input: Node
@@ -118,16 +118,16 @@ func before_each() -> void:
 	var command: Dictionary = begun.value.presentation_command
 	assert_true(_port.dispatch_physical(command, "continue", -1, 0).ok)
 	_port.calls.clear()
-	_viewport = SubViewport.new()
-	_viewport.size = Vector2i(1280, 720)
-	_viewport.handle_input_locally = true
-	add_child(_viewport)
+	# Current scenes must be direct children of the SceneTree root. Keep the
+	# real current-scene admission and send input through that same viewport.
+	_viewport = get_tree().root
 	_scene = DATING.instantiate()
 	assert_true(_scene.configure_presentation(_port, command).ok)
 	assert_true(_scene.configure_presentation_services(_input).ok)
 	assert_true(_scene.configure_quick_commands(_backup, _bridge, _session).ok)
 	_viewport.add_child(_scene)
 	get_tree().current_scene = _scene
+	assert_same(get_tree().current_scene, _scene)
 	await get_tree().process_frame
 	await get_tree().process_frame
 	_scene.worksheet.grid.grab_focus()
@@ -135,7 +135,7 @@ func before_each() -> void:
 func after_each() -> void:
 	get_tree().paused = false
 	get_tree().current_scene = _old_scene
-	if is_instance_valid(_viewport): _viewport.free()
+	if is_instance_valid(_scene): _scene.free()
 	if is_instance_valid(_destination): _destination.free()
 	if is_instance_valid(_input): _input.free()
 	if is_instance_valid(_profile): _profile.free()

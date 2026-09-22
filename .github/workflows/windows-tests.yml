@@ -30,7 +30,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           # The schedule-gate contract inspects its immutable historical seals.
-          fetch-depth: ${{ matrix.suite == 'new_account' && '0' || '1' }}
+          fetch-depth: ${{ (matrix.suite == 'new_account' || matrix.suite == 'desktop') && '0' || '1' }}
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
@@ -319,6 +319,9 @@ jobs:
       - name: Regenerate and verify complete public inventories
         timeout-minutes: 10
         run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
+      - name: Verify public inventory drift and read-only contracts
+        timeout-minutes: 10
+        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite public_surfaces
       - name: Upload canonical inventories and retirement evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -327,9 +330,12 @@ jobs:
           path: |
             .godot/ci/import.log
             .godot/ci/public-surfaces/
+            .godot/ci/public_surfaces.xml
+            .godot/ci/public_surfaces.jsonl
             .godot/ci/isolation-timeout.jsonl
             .godot/phase2r_logs/cloud-isolation-timeout.log*
             .godot/phase2r_logs/cloud-public-surface-*.log
+            .godot/phase2r_logs/cloud-public_surfaces.log*
           include-hidden-files: true
           if-no-files-found: warn
           retention-days: 7

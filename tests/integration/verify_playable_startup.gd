@@ -502,7 +502,11 @@ func _active_dating_quick_journey(game: Node, dating: Node) -> bool:
 	var disk: Dictionary = saves.get("_storage").read_text("quicksave.json")
 	if not _check(disk.get("ok", false), "active F5 writes the isolated physical Quick file"): return false
 	var schema := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
-	var admitted: Dictionary = schema.validate(JSON.parse_string(disk.value))
+	# Match the storage owner's exact-number parser; JSON.parse_string converts
+	# integer tokens to floats before this byte-for-byte record comparison.
+	var parsed: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(disk.value)
+	if not _check(parsed.get("ok", false), "active F5 writes exact strict JSON: " + str(parsed.get("code", "ok"))): return false
+	var admitted: Dictionary = schema.validate(parsed.value)
 	if not _check(admitted.get("ok", false), "active F5 writes a strictly admitted current document: " + JSON.stringify(admitted.get("code"))): return false
 	var document: Dictionary = admitted.value.candidate
 	var snapshot: Dictionary = document.current_snapshot.snapshot
@@ -510,9 +514,16 @@ func _active_dating_quick_journey(game: Node, dating: Node) -> bool:
 	var expected: Dictionary = writer.stringify(before)
 	var stored: Dictionary = writer.stringify(snapshot.gameplay.route_context.active_dating_challenge)
 	if not _check(document.schema_version == schema.DOCUMENT_VERSION and snapshot.schema_version == schema.RUN_SNAPSHOT_SCHEMA.SCHEMA_VERSION
-			and snapshot.route_id == "dating" and snapshot.active_app_id == null and snapshot.narrative_checkpoint == {}
-			and expected.get("ok", false) and stored.get("ok", false) and expected.value == stored.value,
-			"Quick file contains the exact current Dating record and an idle narrative frontier"): return false
+			and snapshot.route_id == "dating" and snapshot.active_app_id == null and snapshot.narrative_checkpoint == {},
+			"Quick file has current versions, Dating route and an idle narrative frontier: " + JSON.stringify({
+				"document_version": document.schema_version, "snapshot_version": snapshot.schema_version,
+				"route": snapshot.route_id, "app": snapshot.active_app_id,
+				"narrative_keys": snapshot.narrative_checkpoint.keys()})): return false
+	if not _check(expected.get("ok", false) and stored.get("ok", false) and expected.value == stored.value,
+			"Quick file contains the exact current Dating record: " + JSON.stringify({
+				"expected_code": expected.get("code", "ok"), "stored_code": stored.get("code", "ok"),
+				"expected_sha256": str(expected.get("value", "")).sha256_text(),
+				"stored_sha256": str(stored.get("value", "")).sha256_text()})): return false
 	await _dating_quick_key(KEY_F9)
 	var sheet: Control = dating.get("_confirmation")
 	if not _check(is_instance_valid(sheet) and sheet.cancel_button.has_focus() and not paused,

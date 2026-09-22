@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio')]
+    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces')]
     [string]$Suite
 )
 
@@ -10,6 +10,9 @@ $ErrorActionPreference = 'Stop'
 # Deliberate, bounded UI and input regression coverage. Each path must actually
 # execute; Invoke-IsolatedGodot also rejects GUT's silent suite-load failures.
 $suites = @{
+    public_surfaces = @(
+        'tests/unit/tooling/test_public_surface_inventory.gd'
+    )
     persistence = @(
         'tests/unit/test_frozen_run_context.gd'
         'tests/unit/test_profile_presentation_chronology.gd'

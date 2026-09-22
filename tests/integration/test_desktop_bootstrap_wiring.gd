@@ -93,6 +93,12 @@ class HarnessBootstrap extends "res://autoload/ApplicationBootstrap.gd":
 
 class CompletionFailureCheckpoint extends SAVE_CHECKPOINT_PORT:
 	var fail_completion_once := false
+	var last_prepare_failure: Dictionary = {}
+	func prepare(inputs: Dictionary, kind: StringName, disk_write: Dictionary) -> Dictionary:
+		var prepared: Dictionary = super.prepare(inputs, kind, disk_write)
+		last_prepare_failure = {} if prepared.get("ok", false) else prepared.duplicate(true)
+		return prepared
+
 	func commit(candidate: Dictionary) -> Dictionary:
 		if fail_completion_once and candidate.get("autosave_document") is Dictionary \
 				and candidate.autosave_document.current_snapshot.get("checkpoint_kind") == "post_result":
@@ -673,7 +679,8 @@ func test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge() 
 	# The production panel pumps this public seam on the next frame after painting the board.
 	terminal = desktop.panel.advance_preparation(int(terminal.value.board.revision))
 	assert_false(terminal.get("ok", true), "the injected full-save failure retains terminal custody")
-	assert_false(graph.checkpoint_port.fail_completion_once, "the pump reached the injected result-save failure")
+	assert_false(graph.checkpoint_port.fail_completion_once,
+		"the pump reached the injected result-save failure: " + str(graph.checkpoint_port.last_prepare_failure))
 	assert_signal_emit_count(_game_state, "contact_message_unlocked", 0, "notification waits for durable result")
 	assert_eq(_bootstrap.get("_desktop_board_state").capture().phase, "ACTIVE_VISIBLE", "failed durable settlement retains the terminal board")
 	assert_true(_bootstrap.get("_desktop_board_state").capture().board.board.terminal)
@@ -723,6 +730,12 @@ func test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge() 
 		winning = desktop.panel.dispatch("reveal", index, int(winning.value.board.revision))
 		assert_true(winning.get("ok", false), str(winning.get("code")))
 		if not winning.get("ok", false): return
+	assert_true(winning.value.board.terminal, "the real reducer reached the winning terminal board")
+	assert_false(winning.value.settled, "the winning terminal click also paints before settlement")
+	assert_true(desktop.panel.has_pending_settlement())
+	winning = desktop.panel.advance_preparation(int(winning.value.board.revision))
+	assert_true(winning.get("ok", false), str(winning))
+	if not winning.get("ok", false): return
 	assert_true(winning.value.settled)
 	assert_signal_emit_count(_game_state, "contact_message_unlocked", 2)
 
@@ -750,6 +763,12 @@ func test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge() 
 
 func _activate_gameplay_fixture(graph: Dictionary, day: int = 1) -> Dictionary:
 	_bootstrap.get("targets")["SceneRouter"].set("_current_scene_id", "main")
+	# Production configures the issuer and frozen Contacts before gameplay can generate offers.
+	# Without this stage, result preparation correctly refuses the missing v7 presentation facts.
+	var identity: Dictionary = _bootstrap.call(&"_construct_identity_issuer_and_contact_commands")
+	assert_true(identity.get("ok", false), str(identity))
+	if not identity.get("ok", false): return {}
+	assert_true(_game_state.frozen_contacts_contexts_enabled())
 	assert_true(_bootstrap.call(&"_configure_day_resolution_providers", _state_port).get("ok", false))
 	add_child(_game_state)
 	if not _bootstrap.has_method("configure_gameplay_desktop"):
@@ -834,7 +853,8 @@ func _assert_fresh_graph_preserves_last_saved_action(departure: bool, shop_item:
 		assert_true(graph.checkpoint_port.fail_completion_once, "the result save remains deferred")
 		interrupted = desktop.panel.advance_preparation(int(interrupted.value.board.revision))
 		assert_false(interrupted.get("ok", true), str(interrupted))
-		assert_false(graph.checkpoint_port.fail_completion_once, "the result-save fault must be exercised")
+		assert_false(graph.checkpoint_port.fail_completion_once,
+			"the result-save fault must be exercised: " + str(graph.checkpoint_port.last_prepare_failure))
 		assert_true(graph.gate.is_active(), str(interrupted))
 	else:
 		_game_state.money = 200
