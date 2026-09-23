@@ -18,17 +18,27 @@ in `SaveManager._prepare_backup_action_profiled` into its unconfigured fallback.
 Configured capture already supplies its own detached earlier history or refuses,
 so the prior copy was discarded. Stable checkpoint reads, strict validation,
 source/revision hashes, write ordering, consent and retention remain intact.
-This candidate affects manual/Quick preparation, not first-reveal or settlement.
-Real-journal branch/custody tests and an eight-pair alternating same-source cloud
-comparison cover the change. The existing benchmark's historical write-memo mode
-remains available; CI selects the preparation comparison. No runtime acceptance
-or speed benefit exists until this candidate's own cloud evidence is inspected.
+This change affects manual/Quick preparation, not first-reveal or settlement.
+Run56 (`35813056478`) passed all 17 jobs at source head
+`ca7a9193d78c718e14a65b8f2c0ec96e2c666ee1`, tested merge
+`a05c088b66d1b135fa7c160a4d25f36e83b76589`: 1,997 GUT executions with zero skips,
+136 capture checks, all five rendered journeys and Windows exported startup.
+The three new branch/custody tests passed. The matched preparation comparison
+retained identical candidates, physical inputs/outputs and all 66 checkpoints.
+All eight candidate samples were faster: baseline median 2.253166 s, candidate
+median 2.2224785 s; median paired reduction 25.388 ms. This is a modest preparation
+improvement on one shared runner, not whole-game or first-reveal acceptance.
+Historical write-memo comparison mode remains available; CI selects preparation.
+Exact evidence is `evidence/beads_cloud_review/resumed-public-cloud-run56.json`.
 
-The first source run temporarily regenerates public inventories because changed
-source/test line references make prior inventories stale. Recover its exact
-payloads, commit them, restore the read-only gate and verify that gate before
-claiming the new source fully accepted. No Beads task closes from this candidate.
-Run55 below remains the executed baseline until later evidence supersedes it.
+Run56 regenerated both inventories for its final source. The accompanying final
+cut commits those exact recovered bytes and restores the read-only gate; its own
+cloud check remains pending at publication. It also exposes selected timing-only
+checkpoint/first-reveal/day trace events after measurement, preserving original
+log line order. This enables exact attribution when raw artifact downloads are
+unavailable; it adds no runtime change or measurement process. Inspect that
+run's gate and output before declaring the final cut fully accepted. All 23
+unfinished task statuses remain unchanged; no lag task closes from this result.
 
 ## Current continuation — Run55 validates committed inventories
 

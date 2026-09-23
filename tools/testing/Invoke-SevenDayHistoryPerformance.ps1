@@ -390,6 +390,24 @@ try {
         }
         Write-Host ('SEVEN_DAY_HISTORY_MEASUREMENT: ' + ($compactDay | ConvertTo-Json -Depth 8 -Compress))
     }
+    # Preserve first-Reveal/checkpoint ordering after timing, with one-based write-log lines.
+    $tracePrefixes = [ordered]@{
+        checkpoint = 'DWM_CHECKPOINT_PROFILE '
+        consequence = 'DWM_CONSEQUENCE_PROFILE '
+        day = 'SEVEN_DAY_HISTORY_DAY: '
+    }
+    for ($lineIndex = 0; $lineIndex -lt $write.Lines.Count; $lineIndex++) {
+        foreach ($family in $tracePrefixes.Keys) {
+            $prefix = $tracePrefixes[$family]
+            if (-not $write.Lines[$lineIndex].StartsWith($prefix, [StringComparison]::Ordinal)) { continue }
+            $value = $write.Lines[$lineIndex].Substring($prefix.Length) | ConvertFrom-Json
+            if ($family -eq 'consequence' -and $value.scope -cne 'first_reveal_durable') { continue }
+            if ($family -eq 'day') { $value = [ordered]@{ day = $value.day } }
+            Write-Host ('SEVEN_DAY_HISTORY_TRACE: ' + ([ordered]@{
+                log_line = $lineIndex + 1; family = $family; value = $value
+            } | ConvertTo-Json -Depth 8 -Compress))
+        }
+    }
     $proofSummary = [ordered]@{
         checkout_ref = $report.checkout_ref; payload_bytes = (Get-Item -LiteralPath $fixed).Length
         payload_sha256 = $hash; write = $written[0]; cold_read = $restored[0]
