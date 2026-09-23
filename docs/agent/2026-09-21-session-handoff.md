@@ -13,7 +13,7 @@ feature stays deferred. These accepted choices are recorded in the owner UI
 updates and frozen presentation context policy; their full implementation and
 remaining authored selector/translation contracts are not claimed complete.
 
-The next bounded performance candidate moves the pure retained-history deep copy
+The accepted performance change moves the pure retained-history deep copy
 in `SaveManager._prepare_backup_action_profiled` into its unconfigured fallback.
 Configured capture already supplies its own detached earlier history or refuses,
 so the prior copy was discarded. Stable checkpoint reads, strict validation,
@@ -31,16 +31,61 @@ improvement on one shared runner, not whole-game or first-reveal acceptance.
 Historical write-memo comparison mode remains available; CI selects preparation.
 Exact evidence is `evidence/beads_cloud_review/resumed-public-cloud-run56.json`.
 
-Run56 regenerated both inventories for its final source. The accompanying final
-cut commits those exact recovered bytes and restores the read-only gate; its own
-cloud check remains pending at publication. It also exposes selected timing-only
-checkpoint/first-reveal/day trace events after measurement, preserving original
-log line order. This enables exact attribution when raw artifact downloads are
-unavailable; it adds no runtime change or measurement process. Inspect that
-run's gate and output before declaring the final cut fully accepted. All 23
-unfinished task statuses remain unchanged; no lag task closes from this result.
+Run56 regenerated both inventories for its final source. Final source cut
+`cc42b9e4c4f0c5c736fef625c0be6b1fa0855f00` commits those exact recovered bytes and
+restores the read-only gate. [Run57](https://github.com/Siuuuers/dwm/actions/runs/35814988598)
+passed all 17 jobs at tested merge `efcc6d210896389641a270c0c2ee9e0e5074404c`.
+Both committed inventories reproduce without regeneration; all 1,997 GUT
+executions passed with zero skips, alongside 136 standalone capture checks, five
+rendered journeys and Windows exported startup. Exact acceptance is recorded in
+`evidence/beads_cloud_review/resumed-public-cloud-run57.json`.
 
-## Current continuation — Run55 validates committed inventories
+Run57 separately repeated the eight-pair preparation comparison: candidate faster
+in 7/8 pairs, baseline median 2.234064 s, candidate median 2.219007 s, median
+paired reduction 13.122 ms. Run56's 8/8 and 25.388 ms are its own measurements,
+not replacements for this noisier repeat. All 66 checkpoints and compared
+candidate/file/journal invariants remain preserved. Run57 Day7 observed full
+manual save 3.802030 s, first reveal 1.368389 s and cold Login 9.018146 s. These
+end-to-end observations are not a matched cross-run speedup or latency acceptance.
+
+Exact Day7 trace/source correlation assigns 333.060 ms to coordinator checkpoint
+prepare and 980.392 ms to checkpoint commit: 98.3317% of its 1.335736 s elapsed
+time. The benchmark's wider first-reveal timer is 1.368389 s. Nested port timers
+overlap these boundaries and must not be added again. Port document build takes
+287.697 ms; commit outgoing normalization/schema takes 303.212 ms, combined
+journal proof work 262.795 ms, and fallback whole-document serialization
+255.100 ms. The latter is labelled `splice_us` despite `journal_spliced=false`;
+it is not successful splicing. Next subdivide these measured document/proof
+boundaries and count proof hits/misses before changing them. No discarded work
+or safe proof omission is established by these timings. Full reconciliation and
+source references are retained in the Run57 receipt.
+
+The final cut exposes selected timing-only checkpoint/first-reveal/day events
+after measurement, preserving original log line order. The complete selected
+trace is retained in `evidence/beads_cloud_review/performance/run57-checkpoint-trace.json`
+so exact attribution survives temporary artifact expiry. This adds no game
+runtime change or measurement process. The following records-only update changes
+no production, tests, workflow or inventory bytes and uses `[skip ci]`; Run57 is
+the identified executed source acceptance. All 23 unfinished task statuses remain
+unchanged; no lag task closes from this result.
+
+The accepted design choices introduce no further owner question for this batch.
+Limited legacy Gallery playback must never count as witnessing a missing exact
+variant for Next. Dual-language captions share one semantic leaf and one History
+entry, with Primary-only TTS; they must not create a second traversal or duplicate
+history. These constraints follow `docs/design/current-ui/gallery.md` section
+14.1 and `docs/design/current-ui/witnessed-scene.md` sections 7 and 9. Selector,
+catalog, translation, schema and public-copy work remain separate prerequisites.
+The next bounded Witnessed prerequisite is an internal, token-bound ordered
+caption ledger exercised through one real non-canon Dialogic fixture with two
+explicitly registered beats: immutable identity/context, publication ordering,
+idempotent duplicate publication, conflict/foreign-session refusal and detached
+snapshots. This first slice leaves Profile visited state, canonical completion,
+save schemas and History/Save/Next controls unchanged; it does not complete their
+durable integration. Never derive canonical identities from visible prose,
+scrollback, DTL position or event indices.
+
+## Run55 checkpoint — committed inventories and two bounded closures
 
 The prior inventory-publication blocker is superseded by the live repository. Commit
 `f7de91e644c907b0ae6080dfd5a1bd081d9d097c` published both exact Run54 inventories,
