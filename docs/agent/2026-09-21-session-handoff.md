@@ -1,5 +1,11 @@
 # Session handoff — 21 September 2026
 
+**Fresh-session starting point:** read
+[`2026-09-23-next-session-handoff.md`](2026-09-23-next-session-handoff.md)
+for the final Run57 baseline, published evidence, current task counts and next
+bounded work. The detailed checkpoints below remain historical context; their
+earlier pending-run and publication-blocker statements are superseded there.
+
 The user explicitly resumed work and asks to continue the remaining Beads. Keep the repository **public**. PR #1 remains draft; do not merge. No authentication or visibility change is outstanding.
 
 ## 23 September continuation — accepted choices and measured preparation work
