@@ -448,7 +448,7 @@ func _remember_written_history(bundles: Array, document_text: String,
 		var bundle: Dictionary = value
 		var checkpoint_id := str((bundle["snapshot"] as Dictionary).get("checkpoint_id", ""))
 		var sub_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
-		var proven := not _journal().get_retained_bundle_text(checkpoint_id).is_empty() \
+		var proven: bool = not _journal().get_retained_bundle_text(checkpoint_id).is_empty() \
 				and not _journal().get_retained_bundle_document(checkpoint_id).is_empty()
 		sub_tick = _profile_accumulate_phase(profile, "history_proof_lookup_us", sub_tick)
 		if proven:
