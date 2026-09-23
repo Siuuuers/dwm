@@ -1,0 +1,192 @@
+extends "res://addons/gut/test.gd"
+## Real mounted Dialogic, with explicitly non-canon prose. No Profile/Run writer
+## is installed by this suite. The native publication ledger is not witnessing.
+
+const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
+const LEDGER := preload("res://scripts/narrative/NarrativeCaptionLedger.gd")
+const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
+const FIXTURE := "res://tests/fixtures/dialogic/non_canon_caption_ledger.dtl"
+const REGISTRY := "res://tests/fixtures/dialogic/non_canon_caption_registry.json"
+const STYLE := "res://dialogic/styles/witnessed_caption_style.tres"
+const ENTRY := "fixture.non_canon.caption_ledger"
+const TOKEN := "fixture:native-caption-session"
+
+var _runtime: DialogicGameHandler
+var _adapter: DialogicRuntimeAdapter
+var _ledger: NarrativeCaptionLedger
+var _viewport: SubViewport
+var _original_runtime: Node
+var _original_runtime_index := 0
+var _original_layout: Node
+var _original_layout_parent: Node
+var _original_layout_index := 0
+var _settings: Dictionary = {}
+var _style_directory: Dictionary = {}
+var _persistent: Variant
+var _had_persistent := false
+var _results: Array[Dictionary] = []
+var _completion_at_publication: Array[bool] = []
+var _profile_before: Dictionary = {}
+
+func before_each() -> void:
+	_results.clear()
+	_completion_at_publication.clear()
+	_profile_before = get_node("/root/ProfileManager").get_profile_snapshot().duplicate(true)
+	var parsed := STRICT_JSON.parse_object(FileAccess.get_file_as_string(REGISTRY))
+	assert_true(parsed.ok, str(parsed))
+	_ledger = LEDGER.new()
+	assert_true(_ledger.initialize(TOKEN, parsed.value.frozen_context,
+		parsed.value.entry_manifest, parsed.value.registry).ok)
+	_had_persistent = Engine.has_meta("dialogic_persistent_style_info")
+	_persistent = Engine.get_meta("dialogic_persistent_style_info", {})
+	_style_directory = DialogicStylesUtil.style_directory.duplicate(true)
+	_original_runtime = get_node("/root/Dialogic")
+	_original_runtime_index = _original_runtime.get_index()
+	_original_layout = _original_runtime.Styles.get_layout_node()
+	if is_instance_valid(_original_layout) and _original_layout.is_inside_tree():
+		_original_layout_parent = _original_layout.get_parent()
+		_original_layout_index = _original_layout.get_index()
+		_original_layout_parent.remove_child(_original_layout)
+	get_tree().remove_meta("dialogic_layout_node")
+	get_tree().root.remove_child(_original_runtime)
+	for key: String in ["dialogic/save/autosave", "dialogic/layout/end_behaviour"]:
+		_settings[key] = {"exists": ProjectSettings.has_setting(key), "value": ProjectSettings.get_setting(key)}
+	ProjectSettings.set_setting("dialogic/save/autosave", false)
+	ProjectSettings.set_setting("dialogic/layout/end_behaviour", 0)
+	_runtime = DialogicGameHandler.new()
+	_runtime.name = "Dialogic"
+	get_tree().root.add_child(_runtime)
+	_runtime.History.save_visited_history_on_save = false
+	_runtime.History.save_visited_history_on_autosave = false
+	_viewport = SubViewport.new()
+	_viewport.size = Vector2i(1280, 720)
+	add_child(_viewport)
+	assert_not_null(_runtime.Styles.load_style(STYLE, _viewport))
+	_adapter = ADAPTER.new()
+	assert_true(_adapter.bind_runtime(_runtime).ok)
+	_adapter.caption_publication_recorded.connect(func(result: Dictionary) -> void:
+		_results.append(result.duplicate(true))
+		_completion_at_publication.append(_adapter.is_current_line_complete()))
+
+func after_each() -> void:
+	assert_eq(get_node("/root/ProfileManager").get_profile_snapshot(), _profile_before,
+		"internal publication capture cannot write the real Profile")
+	for text_node: Node in get_tree().get_nodes_in_group("dialogic_dialog_text"):
+		text_node.set_process(false)
+	if is_instance_valid(_runtime):
+		_runtime.paused = false
+		await _runtime.clear()
+		var remaining: Node = _runtime.Styles.get_layout_node()
+		if is_instance_valid(remaining) and not _viewport.is_ancestor_of(remaining): remaining.queue_free()
+	_viewport.queue_free()
+	await get_tree().process_frame
+	if is_instance_valid(_runtime): _runtime.free()
+	_adapter = null
+	get_tree().remove_meta("dialogic_layout_node")
+	get_tree().root.add_child(_original_runtime)
+	get_tree().root.move_child(_original_runtime, _original_runtime_index)
+	if is_instance_valid(_original_layout) and is_instance_valid(_original_layout_parent):
+		_original_layout_parent.add_child(_original_layout)
+		_original_layout_parent.move_child(_original_layout, _original_layout_index)
+		get_tree().set_meta("dialogic_layout_node", _original_layout)
+	for key: String in _settings:
+		ProjectSettings.set_setting(key, _settings[key].value if _settings[key].exists else null)
+	if _had_persistent: Engine.set_meta("dialogic_persistent_style_info", _persistent)
+	else: Engine.remove_meta("dialogic_persistent_style_info")
+	DialogicStylesUtil.style_directory = _style_directory
+	_original_layout_parent = null
+
+func _settle() -> void:
+	for frame: int in 6: await get_tree().process_frame
+
+func _start(label: String = ENTRY) -> bool:
+	var bound := _adapter.bind_caption_ledger(_ledger, TOKEN, ENTRY)
+	assert_true(bound.ok, str(bound))
+	if not bound.ok: return false
+	var started := _adapter.start_timeline(FIXTURE, label)
+	assert_true(started.ok, str(started))
+	await _settle()
+	return started.ok
+
+func test_native_publications_use_authored_identity_and_actual_order_before_reveal_finishes() -> void:
+	if not await _start(): return
+	var first: Array = _ledger.snapshot().captions
+	assert_eq(first.size(), 1, str(_results))
+	if first.size() != 1: return
+	assert_eq(first[0].beat.line_id, "fixture.caption.beta")
+	assert_eq(first[0].beat.beat_id, "fixture.beat.beta")
+	assert_false(_completion_at_publication[0], "publication is recorded before glyph completion")
+	assert_true(_adapter.reveal_current_line(true).ok)
+	await _settle()
+	assert_eq(_ledger.snapshot().captions.size(), 1, "reveal completion creates no second publication")
+	assert_true(_adapter.advance_one_event().ok)
+	await _settle()
+	var captions: Array = _ledger.snapshot().captions
+	assert_eq(captions.size(), 2, str(_results))
+	if captions.size() != 2: return
+	assert_eq(captions[1].beat.line_id, "fixture.caption.alpha")
+	assert_ne(captions[0].publication_id, captions[1].publication_id)
+	assert_eq(captions[0].beat.presentation_signature.text_revision, "beta-v1")
+	assert_eq(captions[1].beat.presentation_signature.text_revision, "alpha-v1")
+	assert_true(_adapter.reveal_current_line(true).ok)
+	await _settle()
+	var before := _ledger.snapshot()
+	assert_true(_adapter.advance_one_event().ok)
+	await _settle()
+	assert_eq(_ledger.snapshot(), before, "return/completion creates no caption")
+
+func test_duplicate_native_signal_and_glyph_completion_do_not_duplicate_the_ledger() -> void:
+	if not await _start(): return
+	var before := _ledger.snapshot()
+	_runtime.Text.text_started.emit({"text": "foreign visible prose cannot become identity"})
+	assert_eq(_ledger.snapshot(), before)
+	assert_true(_results[-1].ok)
+	assert_true(_results[-1].value["duplicate"])
+	_runtime.Text.text_finished.emit({"text": "glyph completion"})
+	assert_eq(_ledger.snapshot(), before)
+
+func test_same_path_foreign_playback_and_late_signals_cannot_enter_the_bound_session() -> void:
+	if not await _start(): return
+	var before := _ledger.snapshot()
+	_runtime.start_timeline(FIXTURE, ENTRY, "foreign:request")
+	await _settle()
+	_runtime.Text.about_to_show_text.emit({})
+	_runtime.Text.text_started.emit({})
+	assert_eq(_ledger.snapshot(), before)
+
+func test_halt_retires_the_binding_before_failure_and_late_publication_callbacks() -> void:
+	if not await _start(): return
+	var before := _ledger.snapshot()
+	_adapter.halt_with_error({"code": &"fixture_stop"})
+	_runtime.Text.about_to_show_text.emit({})
+	_runtime.Text.text_started.emit({})
+	assert_eq(_ledger.snapshot(), before)
+
+func test_missing_authored_id_is_refused_without_inference_from_prose_or_position() -> void:
+	if not await _start("fixture.non_canon.caption_missing_id"): return
+	assert_eq(_ledger.snapshot().captions.size(), 0)
+	assert_false(_results.is_empty())
+	if not _results.is_empty(): assert_eq(_results[-1].code, &"caption_line_unregistered")
+
+func test_multiple_text_segments_cannot_share_one_registered_caption_identity() -> void:
+	if not await _start("fixture.non_canon.caption_split"): return
+	assert_eq(_ledger.snapshot().captions.size(), 0)
+	assert_false(_results.is_empty())
+	if not _results.is_empty(): assert_eq(_results[-1].code, &"caption_publication_source_invalid")
+
+func test_paused_publication_duplicate_remains_bound_without_enabling_skip() -> void:
+	if not await _start(): return
+	var before := _ledger.snapshot()
+	_runtime.paused = true
+	assert_eq(_adapter.current_line_id(), "", "Skip still refuses paused playback")
+	_runtime.Text.text_started.emit({})
+	assert_true(_results[-1].ok)
+	assert_true(_results[-1].value["duplicate"])
+	assert_eq(_ledger.snapshot(), before)
+
+func test_unconfigured_runtime_has_no_ledger_side_effects() -> void:
+	assert_true(_adapter.start_timeline(FIXTURE, ENTRY).ok)
+	await _settle()
+	assert_eq(_ledger.snapshot().captions.size(), 0)
+	assert_true(_results.is_empty())
+	assert_eq(_adapter.bind_caption_ledger(_ledger, TOKEN, ENTRY).code, &"caption_binding_unavailable")

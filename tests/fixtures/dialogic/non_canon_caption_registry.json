@@ -1,0 +1,31 @@
+{
+  "notice": "NON-CANON TEST FIXTURE ONLY. This is not a production narrative catalog or Profile visited registry.",
+  "entry_manifest": {
+    "entries": [
+      {"entry_id": "fixture.non_canon.caption_ledger"},
+      {"entry_id": "fixture.non_canon.foreign_entry"}
+    ]
+  },
+  "frozen_context": {
+    "fixture_only": true,
+    "selectors": {"variant": "synthetic", "inputs": ["fixed"]}
+  },
+  "registry": {
+    "kind": "narrative_caption_registry",
+    "schema_version": 1,
+    "beats": [
+      {
+        "beat_id": "fixture.beat.alpha",
+        "line_id": "fixture.caption.alpha",
+        "owning_entry_id": "fixture.non_canon.caption_ledger",
+        "presentation_signature": {"fixture_only": true, "text_revision": "alpha-v1", "projection_variant_id": "fixture.alpha", "selectors": ["fixed"]}
+      },
+      {
+        "beat_id": "fixture.beat.beta",
+        "line_id": "fixture.caption.beta",
+        "owning_entry_id": "fixture.non_canon.caption_ledger",
+        "presentation_signature": {"fixture_only": true, "text_revision": "beta-v1", "projection_variant_id": "fixture.beta", "selectors": ["fixed"]}
+      }
+    ]
+  }
+}

@@ -49,23 +49,34 @@ static func build(
 		current_bundle: Dictionary,
 		journal: Array,
 		saved_time: Dictionary = {},
-		proven_journal: Array = []
+		proven_journal: Array = [],
+		profile: Dictionary = {}
 ) -> Dictionary:
+	# Optional caller-owned diagnostics only. Timers never enter the returned document.
+	var tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 	var discriminator_error := _validate_discriminators(String(kind), slot_id, String(save_reason))
+	tick = _profile_phase(profile, "document_schema_discriminators_us", tick)
 	if discriminator_error != "":
 		return _fail(&"invalid_discriminator", discriminator_error)
 	var proven := _journal_is_proven(journal, proven_journal)
+	tick = _profile_phase(profile, "document_schema_proof_selection_us", tick)
+	if not profile.is_empty(): profile["document_schema_journal_proven"] = proven
 	# Only the internal builder converts immutable engine text; external validation stays strict.
 	current_bundle = _normalize_engine_text(current_bundle)
+	tick = _profile_phase(profile, "document_schema_normalize_current_us", tick)
 	if not proven:
 		journal = _normalize_engine_text(journal)
+	tick = _profile_phase(profile, "document_schema_normalize_journal_us", tick)
 	var bundle_error := _validate_bundle(current_bundle)
+	tick = _profile_phase(profile, "document_schema_validate_current_us", tick)
 	if not bundle_error.get("ok", false):
 		return bundle_error
 	if not proven:
 		var journal_error := _validate_journal(journal)
 		if journal_error != "":
+			_profile_phase(profile, "document_schema_validate_journal_us", tick)
 			return _fail(&"invalid_recovery_journal", journal_error)
+	tick = _profile_phase(profile, "document_schema_validate_journal_us", tick)
 	# The builder already proved its discriminators, current bundle and journal above. Its fixed
 	# envelope cannot gain unknown members; only optional metadata remains to check. So normalize
 	# each member AS the document is composed, in the same member order, and pass the current
@@ -93,15 +104,18 @@ static func build(
 		"recovery_journal": (_proven_entries(proven_journal) if proven
 			else RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(journal)),
 	}
+	tick = _profile_phase(profile, "document_schema_compose_us", tick)
 	if not saved_time.is_empty():
 		document["saved_time"] = RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(
 			saved_time.duplicate(true))
 	if document.has("saved_time") and not validate_saved_time(document["saved_time"]):
+		_profile_phase(profile, "document_schema_metadata_us", tick)
 		return _fail(&"invalid_saved_time", "saved_time must bind a UTC instant, original offset, and frozen HH:MM")
+	_profile_phase(profile, "document_schema_metadata_us", tick)
 	return {"ok": true, "code": &"ok", "value": document}
 
-static func validate(document: Dictionary) -> Dictionary:
-	return _validate_document(document, [], false)
+static func validate(document: Dictionary, profile: Dictionary = {}) -> Dictionary:
+	return _validate_document(document, [], false, profile)
 
 ## `validate()` for an outgoing document whose `recovery_journal` bytes are NOT being emitted from
 ## the document itself. The checkpoint port splices each journal entry's bytes from the text its own
@@ -125,11 +139,13 @@ static func validate(document: Dictionary) -> Dictionary:
 ## - The composed Array is deliberately UNTYPED, exactly as `_normalize_integral_floats()` rebuilds
 ##   every Array: a proven journal handed in as `Array[Dictionary]` must not leak its typedness into
 ##   a candidate that is supposed to match a strict re-parse of JSON.
-static func validate_outgoing(document: Dictionary, proven_journal: Array) -> Dictionary:
-	return _validate_document(document, proven_journal, true)
+static func validate_outgoing(document: Dictionary, proven_journal: Array,
+		profile: Dictionary = {}) -> Dictionary:
+	return _validate_document(document, proven_journal, true, profile)
 
 static func _validate_document(document: Dictionary, proven_journal: Array,
-		use_proven_journal: bool) -> Dictionary:
+		use_proven_journal: bool, profile: Dictionary = {}) -> Dictionary:
+	var tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 	# Normalize each envelope member, and NEVER the current bundle: its `snapshot` is rebuilt by
 	# `_validate_bundle()` -> `RunSnapshotSchema.validate()`, which normalizes it itself, and that
 	# candidate overwrites whatever a whole-document walk would have produced here. The caller's
@@ -148,6 +164,7 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 			candidate[key] = document[key]
 		else:
 			candidate[key] = RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(document[key])
+	tick = _profile_phase(profile, "outgoing_schema_envelope_normalize_us", tick)
 	var keys: Array = candidate.keys()
 	keys.sort()
 	var expected := DOCUMENT_KEYS.duplicate()
@@ -170,8 +187,10 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 		return _fail(&"invalid_discriminator", discriminator_error)
 	if typeof(candidate["current_snapshot"]) != TYPE_DICTIONARY:
 		return _fail(&"invalid_document_shape", "current_snapshot must be an object")
+	tick = _profile_phase(profile, "outgoing_schema_shape_us", tick)
 	var current_bundle: Dictionary = candidate["current_snapshot"]
 	var bundle_result := _validate_bundle(current_bundle)
+	tick = _profile_phase(profile, "outgoing_schema_validate_current_us", tick)
 	if not bundle_result.get("ok", false):
 		return bundle_result
 	# `_validate_bundle()` proved this bundle holds exactly `checkpoint_kind` and `snapshot`, so
@@ -185,6 +204,7 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 	}
 	if typeof(candidate["recovery_journal"]) != TYPE_ARRAY:
 		return _fail(&"invalid_document_shape", "recovery_journal must be an array")
+	tick = _profile_phase(profile, "outgoing_schema_compose_current_us", tick)
 	if use_proven_journal:
 		# The document's own entries are not validated here because they are not what is being
 		# written: the caller's proven bundles are, one per entry, in this order. See
@@ -193,11 +213,20 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 		for bundle: Variant in proven_journal:
 			composed.append(_normalize_engine_text(bundle))
 		candidate["recovery_journal"] = composed
+		_profile_phase(profile, "outgoing_schema_compose_proven_journal_us", tick)
 		return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
 	var journal_error := _validate_journal(candidate["recovery_journal"])
+	_profile_phase(profile, "outgoing_schema_validate_journal_us", tick)
 	if journal_error != "":
 		return _fail(&"invalid_recovery_journal", journal_error)
 	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
+
+## These subphases are nested inside the checkpoint port's inclusive schema timers.
+static func _profile_phase(profile: Dictionary, phase: String, started_us: int) -> int:
+	if profile.is_empty(): return 0
+	var now := Time.get_ticks_usec()
+	profile[phase] = now - started_us
+	return now
 
 static func prepare_candidate(document: Dictionary) -> Dictionary:
 	return validate(document)

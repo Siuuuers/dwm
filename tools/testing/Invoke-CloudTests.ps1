@@ -144,6 +144,7 @@ $suites = @{
         'tests/integration/test_minesweeper_first_reveal_transaction.gd'
         'tests/unit/test_save_manager_checkpoint_port.gd'
         'tests/unit/test_checkpoint_validation_reuse.gd'
+        'tests/unit/test_checkpoint_phase_diagnostics.gd'
         'tests/unit/test_checkpoint_journal.gd'
     )
     new_account = @(
@@ -167,6 +168,8 @@ $suites = @{
         'tests/unit/test_hospital_frozen_context.gd'
         'tests/unit/test_frozen_replay_context.gd'
         'tests/unit/test_minesweeper_delivery_notice.gd'
+        'tests/unit/test_narrative_caption_ledger.gd'
+        'tests/integration/test_narrative_caption_ledger_runtime.gd'
         'tests/integration/test_witnessed_caption_runtime.gd'
         'tests/unit/test_witnessed_pause_view.gd'
         'tests/unit/test_witnessed_auto_controller.gd'

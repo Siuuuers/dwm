@@ -14,6 +14,7 @@ signal event_handled_signal(resource)
 signal runtime_signal_event(argument)
 signal preference_reapply_requested
 signal playback_start_failed(result: Dictionary)
+signal caption_publication_recorded(result: Dictionary)
 
 const CLEAR_KEEP_VARIABLES := 1
 const REQUIRED_METHODS := ["start", "start_timeline", "end_timeline", "handle_next_event", "handle_event", "clear", "has_subsystem", "get_subsystem"]
@@ -33,6 +34,15 @@ var _requested_path := ""
 var _runtime_generation := 0
 var _qualified_runtime := false
 var _request_id := ""
+var _caption_ledger: NarrativeCaptionLedger
+var _caption_token := ""
+var _caption_entry := ""
+var _caption_request := ""
+var _caption_generation := 0
+var _caption_publication := ""
+var _caption_publication_serial := 0
+var _caption_event: DialogicTextEvent
+var _caption_line := ""
 
 
 func bind_runtime(dialogic: Node) -> Dictionary:
@@ -81,6 +91,66 @@ func bind_runtime(dialogic: Node) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"already_bound": false}}
 
 
+## Opt-in internal publication capture only. This is not visible-witness admission,
+## Profile history, durable History, or a save participant. Bind before start():
+## the installed runtime may publish its first caption synchronously.
+func bind_caption_ledger(ledger: NarrativeCaptionLedger, token: String, entry_id: String) -> Dictionary:
+	if not _bound or not _qualified_runtime or has_active_playback() or _caption_ledger != null:
+		return _fail(&"caption_binding_unavailable", "no idle qualified publication slot")
+	if ledger == null: return _fail(&"caption_ledger_missing", "ledger is required")
+	var checked := ledger.check_session(token, entry_id)
+	if not checked.ok: return checked
+	var text: Object = _dialogic.get_subsystem("Text")
+	if not text.has_signal("about_to_show_text"):
+		return _fail(&"caption_publication_signal_missing", "publication start signal is required")
+	_caption_ledger = ledger
+	_caption_token = token
+	_caption_entry = entry_id
+	_connect_once(text, "about_to_show_text", _on_caption_about_to_show)
+	_connect_once(text, "text_started", _on_caption_text_started)
+	return {"ok": true}
+
+
+func _caption_source_is_current() -> bool:
+	return _caption_ledger != null and _activity_phase == "live" \
+		and not _caption_request.is_empty() and _caption_request == _request_id \
+		and _caption_generation == _runtime_generation \
+		and _dialogic.get_timeline_generation() == _caption_generation \
+		and not _dialogic.is_ending_timeline() and _dialogic.current_timeline != null \
+		and str(_dialogic.current_timeline.resource_path) == _requested_path
+
+
+func _on_caption_about_to_show(_info: Dictionary) -> void:
+	if not _caption_source_is_current(): return
+	_caption_event = _current_skip_text(true)
+	_caption_line = _authored_line_id(_caption_event)
+	_caption_publication_serial += 1
+	_caption_publication = "caption:%d:%d" % [get_instance_id(), _caption_publication_serial]
+
+
+func _on_caption_text_started(_info: Dictionary) -> void:
+	if not _caption_source_is_current(): return
+	if _caption_event == null or _caption_event != _current_skip_text(true):
+		caption_publication_recorded.emit(_fail(&"caption_publication_source_invalid", "no matching single-beat publication"))
+		return
+	# An authored #id identifies the registered semantic beat. The independent
+	# opaque publication identity is reused if text_started is delivered twice.
+	var result := _caption_ledger.publish_line(_caption_token, _caption_publication,
+		_caption_entry, _caption_line)
+	caption_publication_recorded.emit(result)
+
+
+func _retire_caption_binding() -> void:
+	_caption_ledger = null
+	_caption_token = ""
+	_caption_entry = ""
+	_caption_request = ""
+	_caption_generation = 0
+	_caption_publication = ""
+	_caption_event = null
+	_caption_line = ""
+
+
 ## Task 5 (dwm-oyo.2 R-BB): widened to Dialogic's own two-argument vocabulary - the second
 ## argument is a String label to jump to or an int event index, exactly like
 ## DialogicGameHandler.start(timeline, label_or_idx). The default stays 0 so every existing int
@@ -95,6 +165,7 @@ func start_timeline(path: String, label_or_index: Variant = 0) -> Dictionary:
 	_start_generation += 1
 	var generation := _start_generation
 	_request_id = "%d:%d" % [get_instance_id(), generation]
+	if _caption_ledger != null: _caption_request = _request_id
 	_activity_phase = "starting"
 	_requested_path = path
 	_runtime_generation = 0
@@ -111,6 +182,7 @@ func start_timeline(path: String, label_or_index: Variant = 0) -> Dictionary:
 			_pending_start = Callable(_dialogic, "start_timeline").bind(path, label_or_index)
 			if _qualified_runtime: _pending_start = Callable(_dialogic, "start_timeline").bind(path, label_or_index, _request_id)
 		if not is_instance_valid(layout) or not layout is Node or layout.is_node_ready():
+			_retire_caption_binding()
 			_activity_phase = ""
 			_requested_path = ""
 			_discard_pending_layout()
@@ -190,6 +262,7 @@ func capture_pause_frontier() -> Dictionary:
 func _verify_pending_start(generation: int) -> void:
 	if generation != _start_generation or _activity_phase != "starting":
 		return
+	_retire_caption_binding()
 	_activity_phase = ""
 	_requested_path = ""
 	_discard_pending_layout()
@@ -249,6 +322,7 @@ func restore_captured_state(backup: Dictionary) -> Dictionary:
 
 
 func halt_with_error(result: Dictionary) -> Dictionary:
+	_retire_caption_binding()
 	release_frozen_presentation()
 	_start_generation += 1
 	if _activity_phase == "starting":
@@ -291,7 +365,10 @@ func reveal_current_line(preserve_next_boundary: bool = false) -> Dictionary:
 ## The authored #id is a semantic identity, never a path/index/prose-derived fallback.
 ## The bridge checks its registered owner before revealing or writing visited history.
 func current_line_id() -> String:
-	var event := _current_skip_text()
+	return _authored_line_id(_current_skip_text())
+
+
+func _authored_line_id(event: DialogicTextEvent) -> String:
 	if event == null:
 		return ""
 	var parts := event.get_property_translation_key("text").split("/")
@@ -303,9 +380,9 @@ func is_current_line_complete() -> bool:
 	return event != null and event.state == DialogicTextEvent.States.DONE
 
 
-func _current_skip_text() -> DialogicTextEvent:
+func _current_skip_text(allow_paused: bool = false) -> DialogicTextEvent:
 	if not _bound or _activity_phase != "live" or _dialogic.current_timeline == null \
-		or _dialogic.paused or _dialogic.current_state not in [
+		or (_dialogic.paused and not allow_paused) or _dialogic.current_state not in [
 			DialogicGameHandler.States.IDLE, DialogicGameHandler.States.REVEALING_TEXT]:
 		return null
 	var index := int(_dialogic.current_event_idx)
@@ -394,6 +471,7 @@ func _on_timeline_started() -> void:
 
 
 func _on_timeline_ended() -> void:
+	_retire_caption_binding()
 	release_frozen_presentation()
 	_activity_phase = ""
 	_runtime_generation = 0
@@ -407,6 +485,7 @@ func _on_qualified_timeline_started(generation: int, request_id: String) -> void
 		or request_id != _request_id or str(_dialogic.current_timeline.resource_path) != _requested_path)
 	_runtime_generation = generation
 	if replaced:
+		_retire_caption_binding()
 		release_frozen_presentation()
 		_start_generation += 1
 		_requested_path = ""
@@ -421,6 +500,8 @@ func _on_qualified_timeline_started(generation: int, request_id: String) -> void
 		_activity_phase = "live"
 		playback_start_failed.emit(_fail(&"runtime_playback_replaced", "native playback replaced the admitted timeline"))
 		return
+	if _caption_ledger != null and _caption_request == request_id:
+		_caption_generation = generation
 	_on_timeline_started()
 
 

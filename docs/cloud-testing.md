@@ -112,6 +112,11 @@ input behavior, witnessed caption input and transport, and the dating caption
 style. It includes targeted pause, auto, skip, and speech regressions to verify
 that reading controls retain their existing behavior, plus scene-art binding
 checks for the shared artwork layout.
+It also exercises an opt-in internal caption ledger through an explicitly
+non-canon two-beat Dialogic fixture. Registered semantic identity and opaque
+publication identity are separate; duplicate delivery, session isolation, order
+and detached snapshots are checked. This groundwork does not enable durable
+History, Witnessed Save or Next, or establish that a player witnessed a caption.
 Font changes are also exercised in late-game cards and Gallery replay while
 preserving their current text, reading delay, and replay ownership.
 
@@ -161,6 +166,13 @@ may reuse the successful producer's earlier attempt in the same run only when
 that checkout and those bytes match. Both comparisons require identical output
 and retention, and report individual phases. Do not sum overlapping profiler
 scopes or infer an improvement from separate runners' wall-clock durations.
+The retained-history lane requires version 2 checkpoint diagnostics that split
+document construction, outgoing validation and journal proof work. Proof lookup
+hits/misses and successful learning are counted separately; prepare lookup
+stops at the first missing proof. Nested timers overlap their parent timers,
+and measurement overhead prevents treating this instrumentation as a speedup.
+The Settings suite compares profiling on/off persisted bytes, storage operations
+and journal state, including refused commits and rejected proof learning.
 
 The Windows export job downloads and verifies the official 4.6.3 templates,
 exports the release preset, audits packed runtime data and excluded development

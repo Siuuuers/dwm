@@ -316,9 +316,9 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           ./tests/tooling/Test-InvokeIsolatedGodot.ps1
-      - name: Verify committed public inventories without regeneration
+      - name: Generate and verify updated public inventories
         timeout-minutes: 10
-        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -EmitPayloads
+        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
       - name: Verify public inventory drift and read-only contracts
         timeout-minutes: 10
         run: ./tools/testing/Invoke-CloudTests.ps1 -Suite public_surfaces

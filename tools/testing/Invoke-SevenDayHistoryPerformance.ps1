@@ -101,6 +101,56 @@ function Get-HistoryMedian {
     return $ordered[$middle]
 }
 
+function Assert-CheckpointDiagnostics {
+    param([object[]]$Records)
+    $prepareFields = @('document_proof_entries', 'document_proof_hits', 'document_proof_misses',
+        'document_proof_lookup_us', 'document_schema_build_us', 'document_schema_discriminators_us',
+        'document_schema_proof_selection_us', 'document_schema_normalize_current_us',
+        'document_schema_normalize_journal_us', 'document_schema_validate_current_us',
+        'document_schema_validate_journal_us', 'document_schema_compose_us', 'document_schema_metadata_us')
+    $commitFields = @('outgoing_normalize_us', 'outgoing_validate_us', 'outgoing_history_capture_us',
+        'outgoing_schema_envelope_normalize_us', 'outgoing_schema_shape_us',
+        'outgoing_schema_validate_current_us', 'outgoing_schema_compose_current_us',
+        'journal_current_compare_us', 'journal_current_remember_us', 'journal_history_learning_us',
+        'journal_current_learn_attempts', 'journal_current_learn_successes', 'document_proof_remember_us',
+        'history_proof_entries', 'history_proof_hits', 'history_proof_misses', 'history_proof_skipped',
+        'history_proof_emit_failures', 'history_proof_region_misses', 'history_proof_learn_attempts',
+        'history_proof_learn_successes', 'history_proof_lookup_us', 'history_proof_emit_us',
+        'history_proof_region_us', 'history_proof_remember_us')
+    $counts = [ordered]@{ diagnostics_version = 2; prepare_records = 0; commit_records = 0 }
+    foreach ($record in $Records) {
+        if ($record.scope -cnotin @('save_checkpoint_prepare', 'save_checkpoint')) { continue }
+        if (-not $record.ok -or -not $record.autosave) { continue }
+        if ($null -eq $record.PSObject.Properties['diagnostics_version'] -or $record.diagnostics_version -ne 2) {
+            throw 'Checkpoint profiles must contain version 2 phase diagnostics.'
+        }
+        if ($record.scope -ceq 'save_checkpoint_prepare') {
+            $fields = $prepareFields
+            $booleans = @('document_schema_journal_proven')
+            $counts.prepare_records += 1
+        } elseif ($record.scope -ceq 'save_checkpoint') {
+            $journalField = if ($record.journal_spliced) { 'outgoing_schema_compose_proven_journal_us' } else { 'outgoing_schema_validate_journal_us' }
+            $fields = $commitFields + @($journalField)
+            $booleans = @('journal_current_proof_available', 'journal_current_proof_matches')
+            $counts.commit_records += 1
+        } else { throw "Unexpected checkpoint diagnostic scope: $($record.scope)" }
+        foreach ($field in $fields) {
+            if ($null -eq $record.PSObject.Properties[$field] -or $null -eq $record.$field -or [long]$record.$field -lt 0) {
+                throw "Missing or invalid checkpoint diagnostic: $($record.scope).$field"
+            }
+        }
+        foreach ($field in $booleans) {
+            if ($null -eq $record.PSObject.Properties[$field] -or $record.$field -isnot [bool]) {
+                throw "Missing checkpoint proof outcome: $($record.scope).$field"
+            }
+        }
+    }
+    if ($counts.prepare_records -eq 0 -or $counts.prepare_records -ne $counts.commit_records) {
+        throw 'Checkpoint diagnostics need matched successful autosave prepare and commit records.'
+    }
+    return $counts
+}
+
 function Get-HistoryProfileSummary {
     param([object[]]$Records, [string]$Family)
     # Keep scopes/phases separate: consequence parent and child elapsed values overlap.
@@ -125,7 +175,7 @@ function Get-HistoryProfileSummary {
             if ($values.Count -gt 0) {
                 $summary.phases[$metric] = [ordered]@{
                     sum = ($values | Measure-Object -Sum).Sum
-                    median = $values[[int][Math]::Floor($values.Count / 2)]
+                    median = Get-HistoryMedian $values
                     max = $values[-1]
                 }
             }
@@ -140,6 +190,15 @@ function Get-HistoryProfileSummary {
             $summary['cache_hits'] = @($parseRecords | Where-Object { $_.cache_hit }).Count
             $summary['parse_calls'] = @($parseRecords | Where-Object { -not $_.cache_hit }).Count
         }
+        $proofCounts = [ordered]@{}
+        $countFields = @($items | ForEach-Object { $_.PSObject.Properties.Name } |
+            Where-Object { $_ -match '^(document_proof|journal_current|history_proof)_(entries|hits|misses|skipped|emit_failures|region_misses|learn_attempts|learn_successes)$' } |
+            Sort-Object -Unique)
+        foreach ($field in $countFields) {
+            $proofCounts[$field] = ($items | Where-Object { $null -ne $_.PSObject.Properties[$field] } |
+                ForEach-Object { [long]$_.$field } | Measure-Object -Sum).Sum
+        }
+        if ($proofCounts.Count -gt 0) { $summary['proof_counts'] = $proofCounts }
         Write-Output $summary
     }
 }
@@ -159,6 +218,9 @@ try {
     if ($written[0].retained.line -ne 32 -or $written[0].retained.manual_save -ne 32 -or $written[0].retained.semantic -ne 2) {
         throw 'History stress must saturate the unchanged 32 line / 32 manual / 2 semantic budgets.'
     }
+    $checkpointProfiles = @(Read-HistoryMarkers $write.Lines 'DWM_CHECKPOINT_PROFILE ')
+    $checkpointDiagnostics = Assert-CheckpointDiagnostics $checkpointProfiles
+    Write-Host ('CHECKPOINT_PHASE_DIAGNOSTICS_VERIFIED: ' + ($checkpointDiagnostics | ConvertTo-Json -Compress))
     $fixed = Join-Path $output 'day7-autosave.json'
     Copy-Item -LiteralPath (Join-Path $write.Record.user_dir 'saves/autosave.json') -Destination $fixed
     $hash = (Get-FileHash -LiteralPath $fixed -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -359,6 +421,7 @@ try {
             login_us = 'Automated Title Login, Backup picker opening and Autosave selection, load consent, restore and awaited process frames.'
             phase_scopes = 'Each scope is inclusive. Parent and child scopes overlap and must not be summed; repeated phases inside one scope accumulate.'
             phase_collection = 'Save/load profiles include only labeled manual-save and Title Login measurement windows; startup and opening each daily Backup app before its save timer are excluded.'
+            checkpoint_subphases = 'Version 2 document/schema/proof timers are nested inclusive measurements. History proof timers accumulate across entries; document proof lookup stops at its first miss. Profile instrumentation adds overhead and is not a speedup comparison.'
         }
         fixture = '7 synthetic line and 7 synthetic manual checkpoint records/day, plus one real Slot 1 save and App loss/day. Public Schedule Done advances to Day 7. This is not an authored-dialogue playthrough.'
         days = $days
@@ -367,7 +430,8 @@ try {
         parse_cache_comparison = $parseCacheComparison
         save_admission_comparison = $admissionComparison
         payload_sha256 = $hash
-        checkpoint_profiles = @(Read-HistoryMarkers $write.Lines 'DWM_CHECKPOINT_PROFILE ')
+        checkpoint_profiles = $checkpointProfiles
+        checkpoint_diagnostics = $checkpointDiagnostics
         consequence_profiles = @(Read-HistoryMarkers $write.Lines 'DWM_CONSEQUENCE_PROFILE ')
         save_load_write_profiles = @(Read-HistoryMarkers $write.Lines 'DWM_SAVE_LOAD_PROFILE ' | Where-Object { $_.context -ne '' })
         save_load_read_profiles = @(Read-HistoryMarkers $read.Lines 'DWM_SAVE_LOAD_PROFILE ' | Where-Object { $_.context -ne '' })

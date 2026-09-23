@@ -1115,7 +1115,7 @@ func test_prepare_composes_the_autosave_journal_from_the_journals_own_proofs() -
 	assert_false(source.is_empty(), "the port source must be readable")
 	assert_true(source.contains("_journal().get_retained_bundle_document("),
 		"prepare() asks the journal for each retained bundle's proven document bundle")
-	assert_true(source.contains("{}, proven_journal)"),
+	assert_true(source.contains("{}, proven_journal, profile)"),
 		"...and hands them to SaveDocumentSchema.build() as its trailing proven journal")
 
 

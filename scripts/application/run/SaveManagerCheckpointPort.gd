@@ -139,7 +139,8 @@ func prepare(checkpoint_inputs: Dictionary, checkpoint_kind: StringName, disk_wr
 		_profile_text_validator_us = 0
 		tick = Time.get_ticks_usec()
 		profile = {"scope": "save_checkpoint_prepare", "checkpoint_kind": str(checkpoint_kind),
-			"autosave": str(disk_write.get("kind", "")) == "autosave", "_started_us": tick}
+			"autosave": str(disk_write.get("kind", "")) == "autosave", "_started_us": tick,
+			"diagnostics_version": 2}
 	var readiness := _readiness()
 	if not readiness.is_empty():
 		return readiness
@@ -242,16 +243,25 @@ func prepare(checkpoint_inputs: Dictionary, checkpoint_kind: StringName, disk_wr
 		# refused the memory because the outgoing bundle had been edited -- leaves the WHOLE journal
 		# unproven: a partial proof set says nothing about any entry, exactly like the splice.
 		var proven_journal: Array = []
+		var sub_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
+		if not profile.is_empty():
+			profile["document_proof_entries"] = projected_earlier.size()
+			profile["document_proof_hits"] = 0
+			profile["document_proof_misses"] = 0
 		for entry: Variant in projected_earlier:
 			var proof: Dictionary = _journal().get_retained_bundle_document(
 				str(((entry as Dictionary)["snapshot"] as Dictionary)["checkpoint_id"]))
 			if proof.is_empty():
+				_profile_count(profile, "document_proof_misses")
 				proven_journal.clear()
 				break
+			_profile_count(profile, "document_proof_hits")
 			proven_journal.append(proof)
+		sub_tick = _profile_phase(profile, "document_proof_lookup_us", sub_tick)
 		var document: Dictionary = SAVE_DOCUMENT_SCHEMA.build(
 			&"autosave", null, StringName(reason), journal_candidate["current"], projected_earlier,
-			{}, proven_journal)
+			{}, proven_journal, profile)
+		_profile_phase(profile, "document_schema_build_us", sub_tick)
 		tick = _profile_phase(profile, "document_build_us", tick)
 		if not document.get("ok", false):
 			return _profile_result(profile, document)
@@ -281,7 +291,8 @@ func commit(candidate: Dictionary) -> Dictionary:
 		var history: Variant = candidate["journal_candidate"].get("earlier")
 		profile = {"scope": "save_checkpoint", "checkpoint_id": str(candidate.get("checkpoint_id", "")),
 			"autosave": candidate.get("autosave_document") != null,
-			"history_bundles": history.size() if history is Array else -1, "_started_us": tick}
+			"history_bundles": history.size() if history is Array else -1, "_started_us": tick,
+			"diagnostics_version": 2}
 	var proven_current_text := ""
 	var written_history: Array = []
 	var written_document_text := ""
@@ -325,16 +336,20 @@ func commit(candidate: Dictionary) -> Dictionary:
 		# Canonical emission proves the text round-trips exactly. Validate this detached
 		# value now (the caller may have edited it since prepare), preserving JSON's
 		# StringName conversion. Only successful proof can seed this exact-text cache.
+		var sub_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 		var normalized: Variant = _normalize_outgoing_document(candidate["autosave_document"], spliced)
+		sub_tick = _profile_phase(profile, "outgoing_normalize_us", sub_tick)
 		if normalized is Dictionary:
 			# On the splice path the journal entries in these bytes came from the journal's remembered
 			# texts, not from this document, so the lease for them is composed from the bundles those
 			# texts belong to. Every other path validates the outgoing document verbatim, as before.
 			var checked := {}
 			if spliced:
-				checked = SAVE_DOCUMENT_SCHEMA.validate_outgoing(normalized, proven_journal)
+				checked = SAVE_DOCUMENT_SCHEMA.validate_outgoing(normalized, proven_journal, profile)
 			else:
-				checked = SAVE_DOCUMENT_SCHEMA.validate(normalized)
+				checked = SAVE_DOCUMENT_SCHEMA.validate(normalized, profile)
+			sub_tick = _profile_phase(profile, "outgoing_validate_us", sub_tick)
+			if not profile.is_empty(): profile["outgoing_validation_ok"] = bool(checked.get("ok", false))
 			if checked.get("ok", false):
 				validated_texts[outgoing_text] = {"ok": true, "code": &"ok", "value": checked["value"]["candidate"]}
 				if not spliced:
@@ -342,6 +357,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 					# It grants no reusable proof until all durability steps succeed.
 					written_history = (normalized["recovery_journal"] as Array).duplicate(true)
 					written_document_text = document_text
+			_profile_phase(profile, "outgoing_history_capture_us", sub_tick)
 		# Failed proof and all unknown physical bytes retain the original strict parser
 		# and storage refusal path. Physical writes, hashes and final reread are unchanged.
 		tick = _profile_phase(profile, "outgoing_schema_us", tick)
@@ -385,15 +401,28 @@ func commit(candidate: Dictionary) -> Dictionary:
 	# save falls back to the whole-document writer, which is always correct. The document bundle
 	# remembered beside the text rides the same gate for the same reason: the next save composes its
 	# journal entry for this id from that object, so bytes an edit produced must seed neither.
-	if proven_current_text != "" and CANONICAL_JSON._deep_same(
+	var proof_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
+	var current_matches := proven_current_text != "" and CANONICAL_JSON._deep_same(
 			(candidate["journal_candidate"] as Dictionary)["current"],
-			(candidate["autosave_document"] as Dictionary)["current_snapshot"]):
-		_journal().remember_committed_bundle_text(
+			(candidate["autosave_document"] as Dictionary)["current_snapshot"])
+	proof_tick = _profile_phase(profile, "journal_current_compare_us", proof_tick)
+	if not profile.is_empty():
+		profile["journal_current_proof_available"] = proven_current_text != ""
+		profile["journal_current_proof_matches"] = current_matches
+		profile["journal_current_learn_attempts"] = 0
+		profile["journal_current_learn_successes"] = 0
+	if current_matches:
+		var learned: bool = _journal().remember_committed_bundle_text(
 			str(committed["value"]["checkpoint_id"]), proven_current_text,
 			(candidate["autosave_document"] as Dictionary)["current_snapshot"])
-	_remember_written_history(written_history, written_document_text)
-	_profile_phase(profile, "journal_proof_us", tick)
+		_profile_count(profile, "journal_current_learn_attempts")
+		if learned: _profile_count(profile, "journal_current_learn_successes")
+	proof_tick = _profile_phase(profile, "journal_current_remember_us", proof_tick)
+	_remember_written_history(written_history, written_document_text, profile)
+	_profile_phase(profile, "journal_history_learning_us", proof_tick)
+	tick = _profile_phase(profile, "journal_proof_us", tick)
 	_remember_proven_documents(validated_texts)
+	_profile_phase(profile, "document_proof_remember_us", tick)
 	return _profile_result(profile, {"ok": true, "code": &"ok",
 		"value": {"checkpoint_id": str(committed["value"]["checkpoint_id"])}})
 
@@ -401,23 +430,46 @@ func commit(candidate: Dictionary) -> Dictionary:
 ## Learn only previously missing history proofs from the full writer's completed durable output.
 ## Re-emission must occur verbatim in those exact bytes; the journal then checks the still-retained
 ## value before taking its private copy. A mismatch is only a cache miss, never a new save refusal.
-func _remember_written_history(bundles: Array, document_text: String) -> void:
+func _remember_written_history(bundles: Array, document_text: String,
+		profile: Dictionary = {}) -> void:
+	if not profile.is_empty():
+		profile["history_proof_entries"] = bundles.size()
+		for field: String in ["history_proof_hits", "history_proof_misses", "history_proof_skipped",
+				"history_proof_emit_failures", "history_proof_region_misses", "history_proof_learn_attempts",
+				"history_proof_learn_successes", "history_proof_lookup_us", "history_proof_emit_us",
+				"history_proof_region_us", "history_proof_remember_us"]:
+			profile[field] = 0
 	for value: Variant in bundles:
 		# External documents may keep malformed fallback entries for later recovery diagnostics.
 		# Whole-document acceptance does not promise that every historical entry is a snapshot.
 		if value is not Dictionary or value.get("snapshot") is not Dictionary:
+			_profile_count(profile, "history_proof_skipped")
 			continue
 		var bundle: Dictionary = value
 		var checkpoint_id := str((bundle["snapshot"] as Dictionary).get("checkpoint_id", ""))
-		if not _journal().get_retained_bundle_text(checkpoint_id).is_empty() \
-				and not _journal().get_retained_bundle_document(checkpoint_id).is_empty():
+		var sub_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
+		var proven := not _journal().get_retained_bundle_text(checkpoint_id).is_empty() \
+				and not _journal().get_retained_bundle_document(checkpoint_id).is_empty()
+		sub_tick = _profile_accumulate_phase(profile, "history_proof_lookup_us", sub_tick)
+		if proven:
+			_profile_count(profile, "history_proof_hits")
 			continue
+		_profile_count(profile, "history_proof_misses")
 		var emitted: Dictionary = CANONICAL_JSON.stringify(bundle)
+		sub_tick = _profile_accumulate_phase(profile, "history_proof_emit_us", sub_tick)
 		if not emitted.get("ok", false):
+			_profile_count(profile, "history_proof_emit_failures")
 			continue
 		var text := str(emitted["value"])
-		if document_text.find(text) >= 0:
-			_journal().remember_written_retained_bundle(checkpoint_id, text, bundle)
+		var region_present := document_text.find(text) >= 0
+		sub_tick = _profile_accumulate_phase(profile, "history_proof_region_us", sub_tick)
+		if region_present:
+			var learned: bool = _journal().remember_written_retained_bundle(checkpoint_id, text, bundle)
+			_profile_accumulate_phase(profile, "history_proof_remember_us", sub_tick)
+			_profile_count(profile, "history_proof_learn_attempts")
+			if learned: _profile_count(profile, "history_proof_learn_successes")
+		else:
+			_profile_count(profile, "history_proof_region_misses")
 
 
 ## Composes the outgoing autosave text from the new current bundle's canonical text plus the
@@ -487,6 +539,17 @@ static func _profile_phase(profile: Dictionary, phase: String, started_us: int) 
 	var now := Time.get_ticks_usec()
 	profile[phase] = now - started_us
 	return now
+
+## Sum disjoint calls inside a loop; these remain nested in the inclusive journal proof timer.
+static func _profile_accumulate_phase(profile: Dictionary, phase: String, started_us: int) -> int:
+	if profile.is_empty(): return 0
+	var now := Time.get_ticks_usec()
+	profile[phase] = int(profile.get(phase, 0)) + now - started_us
+	return now
+
+
+static func _profile_count(profile: Dictionary, field: String) -> void:
+	if not profile.is_empty(): profile[field] = int(profile.get(field, 0)) + 1
 
 
 func _profile_result(profile: Dictionary, result: Dictionary) -> Dictionary:
