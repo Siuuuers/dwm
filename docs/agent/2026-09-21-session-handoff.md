@@ -2,22 +2,54 @@
 
 The user explicitly resumed work and asks to continue the remaining Beads. Keep the repository **public**. PR #1 remains draft; do not merge. No authentication or visibility change is outstanding.
 
-## Publication block — exact generated inventory payloads need explicit approval
+## Current continuation — Run55 validates committed inventories
 
-Run 54 completed successfully: **17/17 jobs**, **1,983 focused GUT executions plus 11 inventory regressions (1,994 total), zero skips**; 136 standalone capture checks; all five rendered journeys including real Dating F5/F9; rendered UI; exported Windows startup; and both performance lanes. Source head is `217cc23cfe2018518e0d6037b9ea32ffc5b94957`; tested merge is `8a328f52cdef7a0317e599ffcc4fa3639019acdd`. The aggregate `evidence/beads_cloud_review/resumed-public-cloud-run54.json` records final job and step states. This green run still regenerated inventories; it does not satisfy the subsequent committed read-only inventory check.
+The prior inventory-publication blocker is superseded by the live repository. Commit
+`f7de91e644c907b0ae6080dfd5a1bd081d9d097c` published both exact Run54 inventories,
+the workflow change removing `-Regenerate` while retaining `-EmitPayloads`, and
+the prepared evidence/tracker notes. Do not upload those inventories again or ask
+again for the completed publication.
 
-The new manual-save commit comparison passed all eight alternating pairs / sixteen fresh processes. Median commit time fell from **2.482376 s to 2.316723 s (6.67%)**, with the candidate faster in all eight pairs. Each sample retained all 66 checkpoints and matched prepared candidate, target revision, source/output files, pre-commit parser cache and complete journal hashes. Strict document validation calls fell from two to one per write. Timing excludes preparation, live UI callbacks, issuer-flush callbacks and rendering; OS filesystem caches were not flushed. The complete live Day 7 save still took **3.888412 s**, first reveal **1.384054 s**, and terminal settlement **0.867411 s**, so lag work remains open. Exact public markers and independently checked invariants are in the four `evidence/beads_cloud_review/performance/*run54*.json` files. The existing admission comparison also passed eight pairs, with median Login 10.4256415 s to 8.9449815 s; the outgoing-normalization comparison completed successfully.
+[Run55](https://github.com/Siuuuers/dwm/actions/runs/35715266621) completed
+successfully with **17/17 jobs** at source head `f7de91e644c907b0ae6080dfd5a1bd081d9d097c`,
+tested PR merge `ce9c00e1129ec949260a07cad4056ec434848816`. The executed prerequisite
+verified both committed inventories without regeneration and ran the 11-test
+no-write/drift suite. All **1,994 GUT executions passed with zero skips** (1,983
+focused plus 11 inventory checks), alongside 136 standalone capture checks, all
+five rendered journeys, rendered UI, exported Windows startup, and both
+performance lanes. Exact job states, log-derived counts, inventory hashes and
+limits are recorded in `evidence/beads_cloud_review/resumed-public-cloud-run55.json`.
 
-The exact Run 54 cloud inventories have been recovered, strictly decoded and installed locally, with the final workflow diff removing only `-Regenerate` and retaining `-EmitPayloads` and the 11-test drift/no-write suite:
-
-| Pending public file | Bytes | SHA256 |
+| Committed public file | Bytes | SHA256 |
 | --- | ---: | --- |
 | `evidence/phase_2r/runtime/game_state_surface.json` | 547953 | `4bb647f068a554c507d11a426f42495c9d241e3eb9e013dd1ff27951ec11683e` |
 | `evidence/phase_2r/runtime/save_manager_surface.json` | 140637 | `7f429412267ebbe32d68c3c5568d3ce2c7e5c17505377ce0923e5456bc6a9989` |
 
-Automatic approval review rejected the GameState inventory upload, calling it private source/API metadata sent to an untrusted public destination without explicit authorization for this payload. A normal retry after verification was also rejected. Checks confirmed the same public Siuuuers/dwm repository and connected owner/push access, an existing public inventory predecessor, exact public Run 54 payload provenance, and all 530 GameState and 304 SaveManager referenced source paths present in the already-published tree. That evidence did not resolve the automatic review block. Do not retry through another agent, route, workflow or other workaround. Ask the user directly to authorize public publication of these two exact inventory files to Siuuuers/dwm PR #1 and then running the committed read-only gate. The prepared workflow blob alone is uploaded but unreferenced; neither new inventory nor the read-only branch change is published.
+This final gate supports bounded closure of `dwm-n3h.1` (immutable canonical
+presentation contexts with strict Run/document v7 admission and preserved
+Profile9 history) and `dwm-sx8.1` (four directly demonstrated SaveManager public
+boundary contracts and reproducible inventories). The accompanying tracker
+reconciliation closes only these two children: **168 closed, 23 unfinished, 191
+total**. Their parent tasks remain open. Broader GameState behavioral mappings,
+legacy Gallery selectors, Witnessed History/Save/Next, final authored dialogue,
+narrative translations and native Windows graphical/accessibility acceptance
+remain separate.
 
-Source head remains `217cc23`. Both `dwm-n3h.1` and `dwm-sx8.1` remain open pending the blocked committed/read-only gate; all 25 unfinished statuses remain unchanged. The independent closure audit found no additional concrete acceptance gap. Parent `dwm-sx8`, lag work, legacy Gallery selectors, Witnessed History/Save/Next, final dialogue and native Windows accessibility remain outside these bounded closures. All game source, fixtures and benchmark harness changes are already published and validated; the pending batch contains only the two generated inventories, the read-only CI switch, evidence, handoff and Beads progress notes. After explicit approval, publish that prepared batch against remote head `217cc23` / tree `30518cc98c4255b737788b766465b40cbf8a4478`, run the gate, inspect actual results, and only then record bounded closures. Do not alter unrelated issue statuses.
+Lag is still measured. Run55's retained-history workload recorded approximately
+1.365 seconds for Day7 first reveal, 3.783 seconds for a full manual save and
+9.323 seconds for cold Login. These are shared-runner observations, not a
+cross-run speedup comparison or a consumer-hardware guarantee. Performance
+tasks remain open; preserve every checkpoint, transaction and recovery proof.
+
+This continuation changes only evidence, handoff and the two task records; it
+adds no runtime, fixture, workflow or inventory change. Run55 remains the
+identified executed source acceptance. No local Godot or PowerShell runs.
+`bd` is unavailable here, so the existing handoff's root-only JSONL snapshot
+procedure is used, preserving every unrelated record byte-for-byte. PR #1 stays
+draft, the repository stays public and master stays unchanged.
+
+The sections below are historical checkpoints. Their earlier pending-run,
+publication-blocker and task-count statements are superseded by this section.
 
 ## Latest publication — Run54 passed combined repairs and save-write reuse
 
@@ -137,4 +169,14 @@ Readiness notes in `docs/agent/2026-09-21-successor-cutover-readiness.md` and `2
 
 ## Copyable new-session request
 
-Continue `Siuuuers/dwm` draft PR#1 on `codex/windows-cloud-ux`. Read `docs/agent/2026-09-21-session-handoff.md` at the current remote head, then repository instructions and relevant Beads. Keep the repository public and use cloud-only Godot4.6.3 automated tests. Run49 was the green v6 baseline; verify the later coordinated v7 cutover on its own head, finish final read-only public inventories, then continue remaining Beads. Preserve Profile9/history, automatic Dating without Continue/Done/special mine, and retired Observer interactions. Do not merge.
+Continue `Siuuuers/dwm` draft PR #1 on `codex/windows-cloud-ux`. Read the current
+remote head, this handoff, repository instructions and live Beads first. Keep
+the repository public and use cloud-only Godot 4.6.3 standard/GDScript tests.
+Run55 (`35715266621`) passed 17/17 jobs at head `f7de91e`, tested merge
+`ce9c00e`, including both committed read-only public inventories. The later
+records-only reconciliation closes `dwm-n3h.1` and `dwm-sx8.1`; their parents
+and 23 other records remain unfinished. Do not repeat completed inventory
+publication. Continue one bounded remaining task, preserving Profile9/history,
+automatic Dating without Continue/Done/special mine, and retired Observer
+interactions. Clearly labelled non-canon test dialogue is authorized; production
+dialogue and legacy replay policy remain unsettled. Do not merge.
