@@ -316,9 +316,9 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           ./tests/tooling/Test-InvokeIsolatedGodot.ps1
-      - name: Verify committed public inventories without regeneration
+      - name: Regenerate and verify public inventories for the reviewed source change
         timeout-minutes: 10
-        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -EmitPayloads
+        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
       - name: Verify public inventory drift and read-only contracts
         timeout-minutes: 10
         run: ./tools/testing/Invoke-CloudTests.ps1 -Suite public_surfaces
@@ -499,7 +499,7 @@ jobs:
           path: .godot/ci/performance
       - name: Measure seven days and saturated retained history
         timeout-minutes: 30
-        run: ./tools/testing/Invoke-SevenDayHistoryPerformance.ps1
+        run: ./tools/testing/Invoke-SevenDayHistoryPerformance.ps1 -ComparePreparation
       - name: Compare outgoing normalization on identical retained payloads
         timeout-minutes: 12
         run: ./tools/testing/Invoke-OutgoingNormalizationPerformance.ps1

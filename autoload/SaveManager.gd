@@ -1494,7 +1494,7 @@ func _prepare_backup_action_profiled(action: String, locator_id: String, profile
 		if not stable.get("ok", false):
 			return _fail(&"no_stable_checkpoint", "")
 		var bundle: Dictionary = stable["value"]["bundle"]
-		var earlier: Array = _journal.get_bundles_for_disk()
+		var earlier: Array
 		if _backup_capture_configured:
 			var fresh := _prepare_backup_capture()
 			if not fresh.get("ok", false):
@@ -1502,6 +1502,8 @@ func _prepare_backup_action_profiled(action: String, locator_id: String, profile
 			candidate.merge(fresh["value"])
 			bundle = candidate["journal_candidate"]["current"]
 			earlier = candidate["journal_candidate"]["earlier"]
+		else:
+			earlier = _journal.get_bundles_for_disk()
 		_save_load_profile_phase(profile, "capture_us")
 		var built := SAVE_DOCUMENT_SCHEMA.build(StringName(locator["kind"]), locator["slot_id"],
 			&"quick" if locator_id == "quick" else &"manual", bundle, earlier, _capture_saved_time())

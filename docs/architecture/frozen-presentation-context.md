@@ -66,7 +66,24 @@ fields are retained as historical data and grant no gameplay capability.
 
 Current replay behavior is preserved. Future authored prose that needs a missing
 selector requires an explicit reached-signature successor and a compatibility
-policy. Relabeling old records cannot recover those facts. A successor must record
+policy consistent with the accepted owner decision below. Relabeling old records
+cannot recover those facts. A successor must record
 all prose-selecting fields when reached, preserve existing Profile chronology, and
 define the legacy presentation available for old signatures. This work does not
 invent a Profile migration or claim that the broader signature-design gap is closed.
+
+### Accepted legacy Gallery policy — 2026-09-23
+
+The owner accepted a clearly identified limited replay for an old Gallery record
+when its saved facts support an honest limited presentation. That replay must use
+only facts actually recorded, including derivations from immutable entry metadata
+described above. It must not imply that it reproduces the exact original scene.
+When the recorded facts cannot support such a presentation, retain the achievement
+and mark exact replay unavailable. Missing selectors must never be guessed from
+current state or filled with invented historical prose.
+
+This is an accepted compatibility decision, not an implemented replay mode or a
+new signature schema. Existing Profile records, append-only history and chronology
+must be preserved. A future implementation must define the supported limited
+presentations and their validation before changing runtime replay behavior; this
+decision does not relax canonical Run admission or save-recovery rules.

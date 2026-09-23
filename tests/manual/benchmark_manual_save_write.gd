@@ -1,5 +1,5 @@
 extends SceneTree
-## Paired real SaveManager commit on the same retained Day-7 storage and candidate.
+## Paired real SaveManager preparation and commit on the same retained Day-7 storage.
 ## The capture provider is an immutable fixture; no live UI, issuer-flush callback or renderer
 ## is timed. Public prepare/commit, source/revision checks, disk I/O and journal commit are real.
 
@@ -88,7 +88,11 @@ func _run() -> void:
 		"content_version": int(snapshot.content_version)}
 	if not _check(snapshot.lifecycle.state == "PLAYING" and snapshot.narrative_checkpoint.is_empty(), "desktop capture source"): return
 	if not _check(manager.configure_backup_capture_provider(_capture).get("ok", false), "immutable capture configured"): return
+	OS.set_environment("DWM_SAVE_LOAD_CONTEXT", "manual-write-prepare")
+	var prepare_started := Time.get_ticks_usec()
 	var prepared: Dictionary = manager.prepare_backup_action("save", "slot:1")
+	var prepare_elapsed := Time.get_ticks_usec() - prepare_started
+	OS.set_environment("DWM_SAVE_LOAD_CONTEXT", "")
 	if not _check(prepared.get("ok", false), "normal public preparation: " + str(prepared.get("code", ""))): return
 	var token: String = prepared.value.token
 	var candidate: Dictionary = manager._backup_actions[token].duplicate(true)
@@ -119,7 +123,7 @@ func _run() -> void:
 		and actual_journal.earlier.size() == 66, "exact prepared journal and retention committed"): return
 	if not _check(DOCUMENT.validate(STRICT.parse_object(written).value).get("ok", false), "written save strictly validates"): return
 	if not _check(_files(source) == source_files, "retained source is untouched"): return
-	print("MANUAL_SAVE_WRITE_PASS: " + JSON.stringify({"commit_us": elapsed,
+	print("MANUAL_SAVE_WRITE_PASS: " + JSON.stringify({"prepare_us": prepare_elapsed, "commit_us": elapsed,
 		"candidate_sha256": candidate_hash, "source_revision": candidate.revision,
 		"source_files_sha256": source_files, "output_files_sha256": _files(target),
 		"prior_journal_sha256": prior_journal_hash, "journal_sha256": _hash(actual_journal),

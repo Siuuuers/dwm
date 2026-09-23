@@ -34,6 +34,17 @@ class ValidationProbe extends "res://autoload/SaveManager.gd":
 		# Equal saves across separate calls must not miss reuse merely because the clock advanced.
 		return {"unix_seconds": 0, "utc_offset_minutes": 0, "hhmm": "00:00"}
 
+class JournalReadProbe extends "res://scripts/infrastructure/save/CheckpointJournal.gd":
+	var disk_bundle_reads := 0
+	func get_bundles_for_disk() -> Array[Dictionary]:
+		disk_bundle_reads += 1
+		return super.get_bundles_for_disk()
+
+class BackupCapture extends RefCounted:
+	var result: Dictionary = {"ok": false, "code": &"fixture_capture_unavailable"}
+	func capture() -> Dictionary:
+		return result.duplicate(true)
+
 class Participant extends RefCounted:
 	var plan_key := ""
 	var unavailable := false
@@ -89,9 +100,108 @@ func _write_fixture() -> Dictionary:
 	assert_true(f.manager._journal.commit_prepared(prepared.value.candidate).get("ok", false))
 	return f
 
+func _history_write_fixture() -> Dictionary:
+	var f := _fixture(true)
+	if f.is_empty(): return {}
+	var snapshot: Dictionary = STRICT.parse_object(f.text).value.current_snapshot.snapshot
+	var journal := JournalReadProbe.new()
+	f.manager._journal = journal
+	assert_true(journal.reset(snapshot.run_id).get("ok", false))
+	var kinds: Array[StringName] = [&"day_start", &"line", &"manual_save"]
+	for index: int in kinds.size():
+		snapshot.checkpoint_sequence = index + 1
+		snapshot.checkpoint_id = str(snapshot.run_id) + ":" + str(index + 1)
+		var prepared := journal.prepare_record(snapshot, kinds[index])
+		assert_true(prepared.get("ok", false), str(prepared))
+		if not prepared.get("ok", false): return {}
+		assert_true(journal.commit_prepared(prepared.value.candidate).get("ok", false))
+	var capture := BackupCapture.new()
+	capture.result = {"ok": true, "value": {"snapshot_input": snapshot.duplicate(true),
+		"dialogic_checkpoint": {}, "route_id": "main", "active_app_id": "backup",
+		"audio_context": snapshot.audio_context.duplicate(true), "content_version": int(snapshot.content_version)}}
+	f["capture"] = capture
+	return f
+
 func _replace(fixture: Dictionary, path: String, text: String) -> void:
 	assert_true(fixture.ops.write_bytes(path, text.to_utf8_buffer()).get("ok", false))
 	assert_true(fixture.ops.flush_path(path).get("ok", false))
+
+func test_configured_backup_capture_uses_fresh_history_without_reading_discarded_bundles() -> void:
+	for locator: String in ["slot:1", "quick"]:
+		var f := _history_write_fixture()
+		if f.is_empty(): return
+		assert_true(f.manager.configure_backup_capture_provider(f.capture.capture).get("ok", false))
+		var prior: Dictionary = f.manager._journal.capture_state()
+		var persisted: Dictionary = f.ops.snapshot_persisted()
+		var expected_earlier: Array = prior.value.backup.earlier.duplicate(true)
+		expected_earlier.append(prior.value.backup.current.duplicate(true))
+		assert_eq(expected_earlier.size(), 3, "fixture retains semantic, line and manual checkpoints")
+		var prepared: Dictionary = f.manager.prepare_backup_action("save", locator)
+		assert_true(prepared.get("ok", false), str(prepared))
+		if not prepared.get("ok", false): return
+		assert_eq(f.manager._journal.disk_bundle_reads, 0)
+		assert_eq(f.manager._journal.capture_state(), prior, "prepare does not publish the fresh checkpoint")
+		assert_eq(f.ops.snapshot_persisted(), persisted, "prepare cannot write")
+		var candidate: Dictionary = f.manager._backup_actions[prepared.value.token].duplicate(true)
+		assert_true(CANONICAL._deep_same(candidate.document.recovery_journal, expected_earlier))
+		assert_true(CANONICAL._deep_same(candidate.journal_candidate.earlier, expected_earlier))
+		assert_eq(candidate.document.current_snapshot.snapshot.checkpoint_sequence, 4)
+		assert_eq(candidate.document.current_snapshot.snapshot.active_app_id, "backup")
+		assert_eq(prior.value.backup.current.snapshot.active_app_id, null,
+			"the fresh capture differs from the stable source")
+		var committed: Dictionary = f.manager.commit_backup_action(prepared.value.token)
+		assert_true(committed.get("ok", false), str(committed))
+		if not committed.get("ok", false): return
+		var path := "slot_1.json" if locator == "slot:1" else "quicksave.json"
+		assert_eq(f.storage.read_text(path).value, CANONICAL.stringify(candidate.document).value + "\n")
+		var expected_journal: Dictionary = candidate.journal_candidate.duplicate(true)
+		expected_journal.erase("candidate_kind")
+		assert_true(CANONICAL._deep_same(f.manager._journal.capture_state().value.backup, expected_journal))
+		assert_false(f.manager._backup_actions.has(prepared.value.token), "commit consumes consent")
+
+func test_refused_backup_capture_preserves_history_disk_and_existing_consent_without_bundle_read() -> void:
+	var f := _history_write_fixture()
+	if f.is_empty(): return
+	var pending: Dictionary = f.manager.prepare_backup_action("save", "slot:2")
+	assert_true(pending.get("ok", false), str(pending))
+	if not pending.get("ok", false): return
+	f.capture.result = {"ok": false, "code": &"fixture_capture_unavailable"}
+	assert_true(f.manager.configure_backup_capture_provider(f.capture.capture).get("ok", false))
+	f.manager._journal.disk_bundle_reads = 0
+	var prior: Dictionary = f.manager._journal.capture_state()
+	var persisted: Dictionary = f.ops.snapshot_persisted()
+	var actions: Dictionary = f.manager._backup_actions.duplicate(true)
+	var sequence: int = f.manager._backup_action_sequence
+	for locator: String in ["slot:1", "quick"]:
+		assert_eq(f.manager.prepare_backup_action("save", locator).get("code"), &"fixture_capture_unavailable")
+		assert_eq(f.manager._journal.disk_bundle_reads, 0)
+		assert_eq(f.manager._journal.capture_state(), prior)
+		assert_eq(f.ops.snapshot_persisted(), persisted)
+		assert_eq(f.manager._backup_actions, actions, "refusal retains prior consent and creates none")
+		assert_eq(f.manager._backup_action_sequence, sequence)
+	f.manager.cancel_backup_action(pending.value.token)
+
+func test_unconfigured_backup_capture_reads_and_preserves_stable_retained_history() -> void:
+	for locator: String in ["slot:1", "quick"]:
+		var f := _history_write_fixture()
+		if f.is_empty(): return
+		var prior: Dictionary = f.manager._journal.capture_state()
+		var persisted: Dictionary = f.ops.snapshot_persisted()
+		assert_eq(prior.value.backup.earlier.size(), 2)
+		var prepared: Dictionary = f.manager.prepare_backup_action("save", locator)
+		assert_true(prepared.get("ok", false), str(prepared))
+		if not prepared.get("ok", false): return
+		assert_eq(f.manager._journal.disk_bundle_reads, 1)
+		var candidate: Dictionary = f.manager._backup_actions[prepared.value.token]
+		assert_false(candidate.has("journal_candidate"), "unconfigured save never fabricates a capture")
+		assert_true(CANONICAL._deep_same(candidate.document.current_snapshot, prior.value.backup.current))
+		assert_true(CANONICAL._deep_same(candidate.document.recovery_journal, prior.value.backup.earlier))
+		assert_eq(f.manager._journal.capture_state(), prior)
+		assert_eq(f.ops.snapshot_persisted(), persisted)
+		f.manager.cancel_backup_action(prepared.value.token)
+		assert_true(f.manager._backup_actions.is_empty())
+		assert_eq(f.manager._journal.capture_state(), prior, "cancel preserves history")
+		assert_eq(f.ops.snapshot_persisted(), persisted, "cancel preserves disk")
 
 func test_cold_and_warm_results_preserve_types_and_are_detached() -> void:
 	var manager := _manager()

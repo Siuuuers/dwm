@@ -2,6 +2,34 @@
 
 The user explicitly resumed work and asks to continue the remaining Beads. Keep the repository **public**. PR #1 remains draft; do not merge. No authentication or visibility change is outstanding.
 
+## 23 September continuation — accepted choices and measured preparation work
+
+The owner accepted both recommendations from the resumed review. Legacy Gallery
+records may offer a clearly identified limited replay only where recorded facts
+support it; otherwise retain the achievement and mark exact replay unavailable.
+Never reconstruct missing past facts. Future dual-language rendering starts with
+story captions and History; menus and other UI remain single-language. The
+feature stays deferred. These accepted choices are recorded in the owner UI
+updates and frozen presentation context policy; their full implementation and
+remaining authored selector/translation contracts are not claimed complete.
+
+The next bounded performance candidate moves the pure retained-history deep copy
+in `SaveManager._prepare_backup_action_profiled` into its unconfigured fallback.
+Configured capture already supplies its own detached earlier history or refuses,
+so the prior copy was discarded. Stable checkpoint reads, strict validation,
+source/revision hashes, write ordering, consent and retention remain intact.
+This candidate affects manual/Quick preparation, not first-reveal or settlement.
+Real-journal branch/custody tests and an eight-pair alternating same-source cloud
+comparison cover the change. The existing benchmark's historical write-memo mode
+remains available; CI selects the preparation comparison. No runtime acceptance
+or speed benefit exists until this candidate's own cloud evidence is inspected.
+
+The first source run temporarily regenerates public inventories because changed
+source/test line references make prior inventories stale. Recover its exact
+payloads, commit them, restore the read-only gate and verify that gate before
+claiming the new source fully accepted. No Beads task closes from this candidate.
+Run55 below remains the executed baseline until later evidence supersedes it.
+
 ## Current continuation — Run55 validates committed inventories
 
 The prior inventory-publication blocker is superseded by the live repository. Commit
@@ -179,4 +207,7 @@ and 23 other records remain unfinished. Do not repeat completed inventory
 publication. Continue one bounded remaining task, preserving Profile9/history,
 automatic Dating without Continue/Done/special mine, and retired Observer
 interactions. Clearly labelled non-canon test dialogue is authorized; production
-dialogue and legacy replay policy remain unsettled. Do not merge.
+dialogue and the complete authored replay-selector contract remain unsettled. The
+owner accepted truthful limited legacy replay where supported, otherwise replay
+unavailable with achievements retained; future dual-language scope is captions
+and History, still deferred. Do not merge.

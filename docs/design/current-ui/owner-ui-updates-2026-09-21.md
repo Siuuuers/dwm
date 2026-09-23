@@ -76,6 +76,24 @@ only three supported UI languages. Controls should fit complete labels where
 possible; readability and access take precedence over forcing every locale and
 enlarged-text combination onto one row.
 
+### Accepted dual-language scope — 2026-09-23
+
+The owner accepted story captions and History as the initial scope of a future
+two-language display. Menus and other interface text remain in the selected single
+UI language. Dual-language rendering remains deferred while current game
+engineering is completed. This records the intended scope; it does not establish
+implemented rendering, completed narrative translations or a new History schema.
+
+## Accepted legacy Gallery decision — 2026-09-23
+
+For an old Gallery record that lacks selectors needed to reproduce the original
+scene, offer a clearly identified limited replay where the recorded facts support
+one. Otherwise retain the achievement and mark exact replay unavailable. Missing
+history must never be guessed. Preserve existing Profile records and append-only
+history. The [frozen presentation context policy](../../architecture/frozen-presentation-context.md#accepted-legacy-gallery-policy--2026-09-23)
+defines this accepted compatibility decision; runtime implementation and a future
+signature successor remain separate work.
+
 ## Beads disposition and limits
 
 `dwm-01b` should be assessed against the accepted shared scaling behavior above,

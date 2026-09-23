@@ -1,4 +1,4 @@
-param()
+param([switch]$ComparePreparation)
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -12,14 +12,19 @@ $baseline = Join-Path $output 'baseline-SaveManager.gd'
 python (Join-Path $PSScriptRoot 'derive_save_admission_baseline.py') $saveManager $baseline
 if ($LASTEXITCODE -ne 0) { throw 'Could not derive the current-source SaveManager baseline.' }
 $baselineBytes = [IO.File]::ReadAllBytes($baseline)
-$writeBaseline = Join-Path $output 'baseline-write-SaveManager.gd'
-python (Join-Path $PSScriptRoot 'derive_save_write_baseline.py') $saveManager $writeBaseline
-if ($LASTEXITCODE -ne 0) { throw 'Could not derive the single-write validation baseline.' }
-$writeBaselineBytes = [IO.File]::ReadAllBytes($writeBaseline)
-$writeSourceHashes = [ordered]@{
+$manualMode = if ($ComparePreparation) { 'prepare' } else { 'write' }
+$manualMetric = if ($ComparePreparation) { 'prepare_us' } else { 'commit_us' }
+$manualMarker = if ($ComparePreparation) { 'MANUAL_SAVE_PREPARE' } else { 'MANUAL_SAVE_WRITE' }
+$manualBaseline = Join-Path $output "baseline-$manualMode-SaveManager.gd"
+$manualDeriver = if ($ComparePreparation) { 'derive_save_prepare_baseline.py' } else { 'derive_save_write_baseline.py' }
+python (Join-Path $PSScriptRoot $manualDeriver) $saveManager $manualBaseline
+if ($LASTEXITCODE -ne 0) { throw "Could not derive the manual $manualMode baseline." }
+$manualBaselineBytes = [IO.File]::ReadAllBytes($manualBaseline)
+$manualSourceHashes = [ordered]@{
     candidate = (Get-FileHash -LiteralPath $saveManager -Algorithm SHA256).Hash.ToLowerInvariant()
-    baseline = (Get-FileHash -LiteralPath $writeBaseline -Algorithm SHA256).Hash.ToLowerInvariant()
+    baseline = (Get-FileHash -LiteralPath $manualBaseline -Algorithm SHA256).Hash.ToLowerInvariant()
     storage = (Get-FileHash -LiteralPath (Join-Path $repositoryRoot 'scripts/infrastructure/storage/JsonFileStorage.gd') -Algorithm SHA256).Hash.ToLowerInvariant()
+    harness = (Get-FileHash -LiteralPath (Join-Path $repositoryRoot 'tests/manual/benchmark_manual_save_write.gd') -Algorithm SHA256).Hash.ToLowerInvariant()
 }
 $sourceCodeHashes = [ordered]@{
     candidate = (Get-FileHash -LiteralPath $saveManager -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -258,14 +263,29 @@ try {
         source_code_sha256 = $sourceCodeHashes; source_json_sha256 = $sourceHashes
         summary = $admissionComparison.summary
     } | ConvertTo-Json -Depth 8 -Compress))
-    $writeComparison = [ordered]@{
-        control = 'Public prepare_backup_action and commit_backup_action with real storage, the same seeded Day7 journal, immutable capture fixture and a test-subclass fixed clock. Only the write validation memo differs; parse cache enabled in both.'
-        sampling = 'Eight alternating pairs / sixteen fresh isolated processes; identical prepared candidate, physical source files, target revision and pre-commit parser cache. Commit timing excludes preparation, live UI callbacks, issuer-flush callbacks and rendering. OS filesystem caches are not flushed.'
-        source_code_sha256 = $writeSourceHashes
+    # Select one manual-save ablation; preparation mode replaces the historical write
+    # comparison rather than adding another sixteen processes to the bounded job.
+    $manualControl = if ($ComparePreparation) {
+        'Public prepare_backup_action and commit_backup_action with real storage, the same seeded Day7 journal, immutable capture fixture and a test-subclass fixed clock. Only the discarded eager journal copy in configured capture differs; parse cache and write validation memo are enabled in both.'
+    } else {
+        'Public prepare_backup_action and commit_backup_action with real storage, the same seeded Day7 journal, immutable capture fixture and a test-subclass fixed clock. Only the write validation memo differs; parse cache enabled in both.'
+    }
+    $manualSampling = if ($ComparePreparation) {
+        'Eight alternating pairs / sixteen fresh isolated processes; identical prepared candidate, physical source files, target revision and pre-commit parser cache. Preparation timing covers only the public prepare_backup_action call, including immutable fixture copying, and excludes source cloning, journal seeding, proof generation, commit, live UI callbacks, issuer-flush callbacks and rendering. OS filesystem caches are not flushed.'
+    } else {
+        'Eight alternating pairs / sixteen fresh isolated processes; identical prepared candidate, physical source files, target revision and pre-commit parser cache. Commit timing excludes preparation, live UI callbacks, issuer-flush callbacks and rendering. OS filesystem caches are not flushed.'
+    }
+    $manualContext = if ($ComparePreparation) { 'manual-write-prepare' } else { 'manual-write-commit' }
+    $manualPairsPath = Join-Path $output "manual-$manualMode-pairs.json"
+    $manualComparison = [ordered]@{
+        control = $manualControl
+        sampling = $manualSampling
+        metric = $manualMetric
+        source_code_sha256 = $manualSourceHashes
         shared_schema_sha256 = $sourceCodeHashes.shared
         pairs = @()
     }
-    $referenceWrite = $null
+    $referenceManual = $null
     $invariantFields = @('candidate_sha256', 'source_revision', 'source_files_sha256',
         'output_files_sha256', 'prior_journal_sha256', 'journal_sha256', 'output_sha256',
         'output_bytes', 'retained_checkpoint_count', 'parse_cache_before')
@@ -274,57 +294,62 @@ try {
         $measurements = [ordered]@{}
         $profiles = [ordered]@{}
         foreach ($variant in $order) {
-            $variantBytes = if ($variant -eq 'baseline') { $writeBaselineBytes } else { $candidateBytes }
+            $variantBytes = if ($variant -eq 'baseline') { $manualBaselineBytes } else { $candidateBytes }
             [IO.File]::WriteAllBytes($saveManager, $variantBytes)
-            if ((Get-FileHash -LiteralPath $saveManager -Algorithm SHA256).Hash.ToLowerInvariant() -cne $writeSourceHashes[$variant]) {
-                throw 'Installed write comparison source differs from its recorded hash.'
+            if ((Get-FileHash -LiteralPath $saveManager -Algorithm SHA256).Hash.ToLowerInvariant() -cne $manualSourceHashes[$variant]) {
+                throw "Installed manual $manualMode comparison source differs from its recorded hash."
             }
-            $probe = Invoke-HistoryProbe -Phase 'write-commit' -Source $write.Record.user_dir -Name "write-pair-$pair-$variant"
+            $probe = Invoke-HistoryProbe -Phase 'write-commit' -Source $write.Record.user_dir -Name "$manualMode-pair-$pair-$variant"
             $records = @(Read-HistoryMarkers $probe.Lines 'MANUAL_SAVE_WRITE_PASS: ')
-            if ($records.Count -ne 1 -or $records[0].commit_us -lt 0 -or
+            if ($records.Count -ne 1 -or $records[0].commit_us -lt 0 -or $records[0].prepare_us -lt 0 -or
                 $records[0].retained_checkpoint_count -ne 66 -or -not $records[0].parse_cache_enabled -or
-                $records[0].save_manager_sha256 -cne $writeSourceHashes[$variant]) {
-                throw 'Manual write sample must prove its exact source and retained output.'
+                $records[0].save_manager_sha256 -cne $manualSourceHashes[$variant]) {
+                throw "Manual $manualMode sample must prove its exact source and retained output."
             }
-            if ($null -eq $referenceWrite) { $referenceWrite = $records[0] }
+            if ($null -eq $referenceManual) { $referenceManual = $records[0] }
             foreach ($field in $invariantFields) {
                 if (($records[0].$field | ConvertTo-Json -Depth 12 -Compress) -cne
-                    ($referenceWrite.$field | ConvertTo-Json -Depth 12 -Compress)) {
-                    throw "Manual write comparison changed $field."
+                    ($referenceManual.$field | ConvertTo-Json -Depth 12 -Compress)) {
+                    throw "Manual $manualMode comparison changed $field."
                 }
             }
             if (((Get-HistorySourceHashes $write.Record.user_dir) | ConvertTo-Json -Compress) -cne $sourceManifest) {
-                throw 'Manual write comparison changed retained source bytes.'
+                throw "Manual $manualMode comparison changed retained source bytes."
             }
             $measurements[$variant] = $records[0]
-            $profiles[$variant] = @(Read-HistoryMarkers $probe.Lines 'DWM_SAVE_LOAD_PROFILE ' | Where-Object { $_.context -eq 'manual-write-commit' })
+            $profiles[$variant] = @(Read-HistoryMarkers $probe.Lines 'DWM_SAVE_LOAD_PROFILE ' | Where-Object { $_.context -eq $manualContext })
         }
-        if ($measurements.baseline.strict_validation_calls -le 1 -or $measurements.candidate.strict_validation_calls -ne 1) {
+        if ($ComparePreparation -and ($measurements.baseline.strict_validation_calls -ne 1 -or
+            $measurements.candidate.strict_validation_calls -ne 1)) {
+            throw 'Preparation ablation must retain one successful write validation in both variants.'
+        }
+        if (-not $ComparePreparation -and ($measurements.baseline.strict_validation_calls -le 1 -or
+            $measurements.candidate.strict_validation_calls -ne 1)) {
             throw 'Ablation did not exercise repeated baseline validation and one successful candidate validation.'
         }
         $comparison = [ordered]@{
             pair = $pair; order = $order; baseline = $measurements.baseline; candidate = $measurements.candidate
-            candidate_minus_baseline_us = [long]$measurements.candidate.commit_us - [long]$measurements.baseline.commit_us
+            candidate_minus_baseline_us = [long]$measurements.candidate.$manualMetric - [long]$measurements.baseline.$manualMetric
             profiles = $profiles
         }
-        $writeComparison.pairs += $comparison
-        $writeComparison | ConvertTo-Json -Depth 40 | Set-Content -LiteralPath (Join-Path $output 'manual-write-pairs.json') -Encoding utf8
-        Write-Host ('MANUAL_SAVE_WRITE_PAIR: ' + ([ordered]@{
+        $manualComparison.pairs += $comparison
+        $manualComparison | ConvertTo-Json -Depth 40 | Set-Content -LiteralPath $manualPairsPath -Encoding utf8
+        Write-Host ($manualMarker + '_PAIR: ' + ([ordered]@{
             pair = $pair; order = $order; baseline = $measurements.baseline; candidate = $measurements.candidate
             candidate_minus_baseline_us = $comparison.candidate_minus_baseline_us
         } | ConvertTo-Json -Depth 12 -Compress))
     }
     [IO.File]::WriteAllBytes($saveManager, $candidateBytes)
-    $writeComparison['summary'] = [ordered]@{
-        pair_count = $writeComparison.pairs.Count
-        baseline_median_commit_us = Get-HistoryMedian @($writeComparison.pairs | ForEach-Object { $_.baseline.commit_us })
-        candidate_median_commit_us = Get-HistoryMedian @($writeComparison.pairs | ForEach-Object { $_.candidate.commit_us })
-        median_paired_candidate_minus_baseline_us = Get-HistoryMedian @($writeComparison.pairs | ForEach-Object { $_.candidate_minus_baseline_us })
+    $manualComparison['summary'] = [ordered]@{
+        pair_count = $manualComparison.pairs.Count
+        median_paired_candidate_minus_baseline_us = Get-HistoryMedian @($manualComparison.pairs | ForEach-Object { $_.candidate_minus_baseline_us })
     }
-    $writeComparison | ConvertTo-Json -Depth 40 | Set-Content -LiteralPath (Join-Path $output 'manual-write-pairs.json') -Encoding utf8
-    Write-Host ('MANUAL_SAVE_WRITE_COMPARISON: ' + ([ordered]@{
-        control = $writeComparison.control; sampling = $writeComparison.sampling
-        source_code_sha256 = $writeSourceHashes; summary = $writeComparison.summary
+    $manualComparison.summary["baseline_median_$manualMetric"] = Get-HistoryMedian @($manualComparison.pairs | ForEach-Object { $_.baseline.$manualMetric })
+    $manualComparison.summary["candidate_median_$manualMetric"] = Get-HistoryMedian @($manualComparison.pairs | ForEach-Object { $_.candidate.$manualMetric })
+    $manualComparison | ConvertTo-Json -Depth 40 | Set-Content -LiteralPath $manualPairsPath -Encoding utf8
+    Write-Host ($manualMarker + '_COMPARISON: ' + ([ordered]@{
+        control = $manualComparison.control; sampling = $manualComparison.sampling; metric = $manualMetric
+        source_code_sha256 = $manualSourceHashes; summary = $manualComparison.summary
     } | ConvertTo-Json -Depth 8 -Compress))
     $report = [ordered]@{
         checkout_ref = (& git rev-parse HEAD)
@@ -341,7 +366,6 @@ try {
         cold_read = $restored[0]
         parse_cache_comparison = $parseCacheComparison
         save_admission_comparison = $admissionComparison
-        manual_write_comparison = $writeComparison
         payload_sha256 = $hash
         checkpoint_profiles = @(Read-HistoryMarkers $write.Lines 'DWM_CHECKPOINT_PROFILE ')
         consequence_profiles = @(Read-HistoryMarkers $write.Lines 'DWM_CONSEQUENCE_PROFILE ')
@@ -349,6 +373,7 @@ try {
         save_load_read_profiles = @(Read-HistoryMarkers $read.Lines 'DWM_SAVE_LOAD_PROFILE ' | Where-Object { $_.context -ne '' })
         save_load_read_control_profiles = @(Read-HistoryMarkers $reads.disabled.Lines 'DWM_SAVE_LOAD_PROFILE ' | Where-Object { $_.context -ne '' })
     }
+    $report["manual_${manualMode}_comparison"] = $manualComparison
     $report | ConvertTo-Json -Depth 40 | Set-Content -LiteralPath (Join-Path $output 'results.json') -Encoding utf8
     # Also expose bounded machine-readable evidence through the job log. Artifact download may
     # be unavailable to a reviewer; never print save contents or the thousands of raw events.
