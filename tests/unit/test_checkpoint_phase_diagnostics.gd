@@ -37,9 +37,9 @@ func after_each() -> void:
 func _wired() -> Dictionary:
 	var parsed := STRICT.parse_object(FileAccess.get_file_as_string(
 		"res://tests/fixtures/saves/v7_desktop_prepared.json"))
-	assert_true(parsed.get("ok", false), str(parsed))
+	assert_true(parsed.get("ok", false), "fixture strict parse: " + str(parsed.get("code", "")))
 	var validated := SNAPSHOT.validate(parsed.get("value", {}))
-	assert_true(validated.get("ok", false), str(validated))
+	assert_true(validated.get("ok", false), "fixture snapshot validation: " + str(validated.get("code", "")))
 	var snapshot: Dictionary = validated.get("value", {}).get("candidate", {})
 	var files := FILES.new()
 	var manager := Manager.new()
@@ -63,14 +63,14 @@ func _prepare(wired: Dictionary, money: int, durable: bool = true,
 	var result: Dictionary = wired.port.prepare({"snapshot_input": input, "dialogic_checkpoint": {},
 		"route_id": "main", "active_app_id": snapshot.active_app_id,
 		"audio_context": snapshot.audio_context, "content_version": snapshot.content_version}, kind, disk_write)
-	assert_true(result.get("ok", false), str(result))
+	assert_true(result.get("ok", false), "checkpoint prepare: " + str(result.get("code", "")))
 	return result.get("value", {}).get("candidate", {})
 
 func _commit(wired: Dictionary, money: int, durable: bool = true,
 		kind: StringName = &"post_result") -> Dictionary:
 	var candidate := _prepare(wired, money, durable, kind)
 	var result: Dictionary = wired.port.commit(candidate)
-	assert_true(result.get("ok", false), str(result))
+	assert_true(result.get("ok", false), "checkpoint commit: " + str(result.get("code", "")))
 	return candidate
 
 func _last(wired: Dictionary, scope: String) -> Dictionary:
@@ -100,9 +100,9 @@ func test_profile_on_and_off_preserve_documents_journal_and_every_physical_opera
 		var actual := _commit(measured, 200 + step, step != 1,
 			&"line" if step == 1 else &"post_result")
 		assert_true(WRITER._deep_same(actual, expected), "diagnostics never enter prepared data")
-		assert_eq(measured.files.snapshot_persisted(), plain.files.snapshot_persisted())
-		assert_eq(measured.files.operation_trace(), plain.files.operation_trace())
-		assert_eq(measured.manager._journal.capture_state(), plain.manager._journal.capture_state())
+		assert_true(measured.files.snapshot_persisted() == plain.files.snapshot_persisted(), "profile preserves exact persisted bytes")
+		assert_true(measured.files.operation_trace() == plain.files.operation_trace(), "profile preserves every physical operation")
+		assert_true(measured.manager._journal.capture_state() == plain.manager._journal.capture_state(), "profile preserves exact journal state")
 	assert_true(plain.port.records.is_empty(), "disabled diagnostics emit no records")
 	var prepared := _last(measured, "save_checkpoint_prepare")
 	_assert_timers(prepared, ["document_build_us", "document_proof_lookup_us", "document_schema_build_us",
@@ -163,7 +163,7 @@ func test_schema_valid_history_edit_counts_a_learning_attempt_without_a_success(
 	var checkpoint_id := str(history[0].snapshot.checkpoint_id)
 	history[0].snapshot.content_version += 100
 	var result: Dictionary = wired.port.commit(candidate)
-	assert_true(result.get("ok", false), str(result))
+	assert_true(result.get("ok", false), "edited-history checkpoint commit: " + str(result.get("code", "")))
 	var committed := _last(wired, "save_checkpoint")
 	assert_eq(committed.get("history_proof_misses"), 1)
 	assert_eq(committed.get("history_proof_learn_attempts"), 1)
@@ -187,9 +187,9 @@ func test_refused_journal_commit_never_reports_or_creates_successful_learning() 
 	var result: Dictionary = measured.port.commit(candidate)
 	assert_false(result.get("ok", true))
 	assert_eq(result, reference)
-	assert_eq(measured.files.snapshot_persisted(), plain.files.snapshot_persisted())
-	assert_eq(measured.files.operation_trace(), plain.files.operation_trace())
-	assert_eq(measured.manager._journal.capture_state(), plain.manager._journal.capture_state())
+	assert_true(measured.files.snapshot_persisted() == plain.files.snapshot_persisted(), "refusal preserves exact persisted bytes")
+	assert_true(measured.files.operation_trace() == plain.files.operation_trace(), "refusal preserves every physical operation")
+	assert_true(measured.manager._journal.capture_state() == plain.manager._journal.capture_state(), "refusal preserves exact journal state")
 	var committed := _last(measured, "save_checkpoint")
 	assert_false(bool(committed.get("ok", true)))
 	assert_false(committed.has("journal_proof_us"), "proof phase was not reached")

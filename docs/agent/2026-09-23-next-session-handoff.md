@@ -1,170 +1,139 @@
-# Next-session handoff — 23 September 2026
+# Next-session handoff — updated 27 September 2026 (Hong Kong)
 
-Read this first when continuing public `Siuuuers/dwm` draft PR #1. The owner
-requested this checkpoint so implementation can continue in a fresh session.
-This is navigation and a record of the session, not a replacement for the
-selected task's requirements. Older detailed history is in
-`docs/agent/2026-09-21-session-handoff.md`.
+Continue public `Siuuuers/dwm` draft PR #1 on `codex/windows-cloud-ux`.
+Fetch the live PR head and Beads before work. Keep master unchanged; do not merge,
+change visibility, or mark the PR ready. Last verified master:
+`9e43b52c9884ccd59e82245d2168c3113ee4d037`.
 
-## Verified starting point
+## Immediate state and next action
 
-- PR: <https://github.com/Siuuuers/dwm/pull/1>; branch `codex/windows-cloud-ux`.
-- Repository stays **public**; PR stays **draft**. Do not merge or change master.
-- Last verified master: `9e43b52c9884ccd59e82245d2168c3113ee4d037`.
-- Tested game source: `cc42b9e4c4f0c5c736fef625c0be6b1fa0855f00`.
-- Tested PR merge: `efcc6d210896389641a270c0c2ee9e0e5074404c`.
-- Completed cloud Run57: <https://github.com/Siuuuers/dwm/actions/runs/35814988598>.
-- Evidence publication: `ef76304eb981aef1686812f0d921b57a0511198c`, a records-only
-  `[skip ci]` commit. This subsequent handoff checkpoint is documentation-only.
-  Neither changes the tested production, tests, workflow or inventories.
-- **Godot 4.6.3 standard, GDScript.** Older memory describing .NET/C# is stale.
-- Owner is phone-only: execute Godot and PowerShell validation in GitHub cloud.
-  Local source inspection and static Python analysis are permitted.
+The current cut contains a **test-only Settings diagnostic experiment** requiring
+its own cloud CI. Resume that run before starting another source batch. Six
+assertions now use the same native equality predicate without GUT's unconditional
+full dictionary/array diff and byte formatting. Five success messages print stage
+and code instead of complete result trees. All four tests, 55 assertion sites and
+198 lines remain; runtime code, timeouts and test coverage are unchanged. This
+removes demonstrated unnecessary work, but the Settings stall's cause is **not
+established**. Do not call it fixed without the cloud result.
 
-Fetch and inspect the **live PR head** before work; do not reset newer work to
-one of the reference commits above. Verify draft/base/branch and the worktree.
-At this checkpoint there is no pending source batch or CI run to resume.
-Older warnings about an obsolete partial checkout describe an earlier workspace;
-establish the current checkout's provenance rather than applying them blindly.
+The previous source is `d3647767fc058185fcc893d469b54e707f660102`, tested as merge
+`843036fcf10e6490e44f933ac8ecbb3f83b3744e`. Run60
+<https://github.com/Siuuuers/dwm/actions/runs/35822448296> finished with **16 successful
+jobs and one cancelled Settings job**. Its Settings log remains unavailable
+(BlobNotFound/404), including after terminal cancellation. It stayed in progress
+beyond the configured isolated 480 seconds, step 10 minutes and job 20 minutes;
+elapsed status alone does not diagnose a runner fault or test deadlock. Run59
+had the same unresolved Settings symptom. Run58 failed import on inferred `proven`
+type; the published explicit bool annotation repaired that import error.
 
-Run57 passed all **17 jobs**, **1,997 GUT executions with zero skips**, 136
-standalone capture checks, all five rendered journeys, rendered UI checks and
-Windows exported startup. Both committed public inventories reproduce **without
-regeneration**. These counts are executions, not a deduplicated test census;
-Linux rendered evidence and Windows export startup do not establish full native
-Windows graphical or accessibility acceptance.
+Run60 passed committed **read-only** inventory verification, 11 drift/no-write
+regressions, all 17 new caption-ledger tests, the other reported GUT tests, 136
+standalone capture checks, five rendered journeys, rendered UI checks, exported
+Windows headless startup and both performance lanes. **1,730 GUT executions were
+reported, all passing with zero skips; Settings contributes no accepted count.**
+Do not substitute the expected full count of 2,018 for observed results.
 
-Authoritative retained evidence:
+Retained current evidence:
 
-- `evidence/beads_cloud_review/resumed-public-cloud-run57.json`
-- `evidence/beads_cloud_review/performance/run57-checkpoint-trace.json`
+- `evidence/beads_cloud_review/resumed-public-cloud-run60.json`
+- `evidence/beads_cloud_review/performance/run60-checkpoint-trace.json`
 - `evidence/phase_2r/runtime/game_state_surface.json`
 - `evidence/phase_2r/runtime/save_manager_surface.json`
 
-The ordered trace is in git, so the next investigation does not depend on
-temporary Actions artifacts or this session's scratch files.
+**Run57 remains the last fully accepted source baseline**, with 17/17 jobs,
+1,997 GUT executions and zero skips. Its source is
+`cc42b9e4c4f0c5c736fef625c0be6b1fa0855f00`, tested merge
+`efcc6d210896389641a270c0c2ee9e0e5074404c`; receipt and ordered trace remain in git.
+Newer work must not be reset to that older baseline.
 
-## Tracker and startup
+## Completed implementation slices, pending full acceptance
 
-Verified `.beads/issues.jsonl`: **191 records; 168 closed; 23 unfinished**
-(11 in progress, five open, six deferred, one blocked). Parent tasks are included;
-this is not a count of independent features or a percentage of release readiness.
-Only `dwm-n3h.1` and `dwm-sx8.1` closed after Run55. The subsequent performance
-batch closed no task; its parents and broader feature/acceptance work remain open.
+Opt-in checkpoint diagnostics version 2 separate document construction,
+outgoing normalization/validation and journal proof work. They count proof hits,
+misses, attempted and successful learning without changing validation, storage
+operations, transaction order, save formats or checkpoint retention. Four focused
+regressions compare profiling on/off, cold/warm proofs, edited-history learning
+refusal and journal-commit refusal; Settings acceptance remains outstanding.
 
-Read `Prompt.md`, `CLAUDE.md`, `docs/agent/AGENT_WORKFLOW.md`, and the selected
-issue's current metadata and linked requirements before edits. Use the ongoing
-owner-authorized PR continuation and recorded task scope; do not invent new
-behavior from a handoff or treat historical blockers as current observations.
-`bd` was unavailable in this environment: recheck availability, and if still
-unavailable use the previously recorded root-only JSONL snapshot procedure.
-Exactly one coordinator writes Beads; preserve unrelated records byte-for-byte
-and close work only against its specific demonstrated acceptance criteria.
+The opt-in internal ordered caption ledger has explicit authored beat/line
+identities, frozen detached fixture context, session binding, actual publication
+order, idempotent duplicates and conflict/foreign-session refusal. One real,
+clearly non-canon Dialogic fixture exercises two registered beats. Its 9 unit and
+8 runtime tests passed in Runs59 and60. Publication capture follows actual text
+publication; pause/replacement/end custody and split/missing-ID refusal are tested.
+This is **not** durable canonical History, witnessed Save, exact-variant Next,
+Profile witnessing or production narrative coverage. Production use is not enabled.
 
-## Next priority: measured checkpoint lag
+## Measured lag and next bounded experiment
 
-Continue `dwm-634` / `dwm-634.3` with one bounded investigation before selecting
-the next optimization. Run57 Day7 observed first reveal **1.368389 s**, full
-manual save **3.802030 s**, terminal settlement **0.842601 s**, and cold Login
-**9.018146 s**. These are synthetic retained-history observations on one shared
-Windows runner, not cross-run speedups or physical input-to-paint guarantees.
+Run60 synthetic Day7 observed first reveal **1.380864 s**, manual save
+**3.863498 s**, terminal settlement **0.883418 s** and cold Login **9.258772 s**.
+All **66 retained checkpoints** survive. These are shared-runner workload
+observations, not matched cross-run speedups or input-to-paint guarantees.
 
-Exact Day7 source/trace correlation is already complete: write-log lines
-2050/2051/2052 bind `pre_board` preparation, checkpoint commit and
-`first_reveal_durable`, between Day6 line1795 and Day7 line2105. The coordinator's
-333.060 ms prepare plus 980.392 ms commit comprise **98.3317%** of its
-1.335736 s elapsed time. Nested port timers overlap these parents; never add them
-again. Document build costs 287.697 ms; outgoing normalization/schema 303.212 ms;
-combined journal proof work 262.795 ms; fallback whole-document serialization
-255.100 ms. On this event `journal_spliced=false`: `splice_us` names the fallback
-serialization interval. Journal proof timing is not exclusively history proof
-learning, and unassigned residuals must stay unassigned.
+The version2 trace now exposes the cost of journal primitive validation,
+engine-text normalization, composition and exact proof learning. Run59's audited
+Day7 first reveal had 51 proof hits and 15 missing proofs, all 15 successfully
+learned. Prepare stops lookup after its first miss, so its one recorded miss is
+not a census of all missing proofs. Nested inclusive timers overlap: never add a
+parent and its children or assign unexplained residuals to a guessed cause.
 
-Next measure the subphases of document construction, outgoing validation and
-journal proof work, including proof hits/misses and successful proof learning.
-No safe proof omission or discarded work has yet been established in these
-boundaries. Prefer a surgical removal of demonstrated redundant work over a new
-cache or architectural change. Preserve strict validation, physical byte/revision
-checks, consent, transaction order, complete-action recovery and all checkpoints.
-Any speed claim needs a matched cloud comparison on identical retained saves,
-with relevant correctness/refusal cases and unchanged output/retention proofs.
+A source review found temporary Array/Dictionary containers built and discarded
+on unchanged branches in `SaveDocumentSchema._normalize_engine_text` and
+`SaveManagerCheckpointPort._normalize_json_string_types`. The measured scopes
+justify a **bounded lazy-allocation experiment**, after Settings is resolved.
+Preserve traversal/key order, StringName conversion, numeric types, unchanged
+identity, changed untyped arrays, final detachment and refusal ordering. Compare
+against the current eager implementation on identical retained payloads and proof
+states with alternating cloud samples; verify bytes, physical operations, proof
+counts and all retention guarantees. No cache, validation omission or history
+compaction belongs in this candidate. No new runtime optimization is implemented.
 
-Start with:
+The earlier manual/Quick preparation optimization is already published; do not
+redo it. Run60's eight alternating pairs preserve all ten candidate/file/journal/
+cache invariants and 66 checkpoints; median paired prepare reduction is 26.974 ms.
+That comparison concerns the older preparation change, not the new diagnostics.
 
-- `scripts/application/run/SaveManagerCheckpointPort.gd`
-- `scripts/application/minesweeper/SaveManagerDesktopBoardPort.gd`
-- `scripts/application/minesweeper/MinesweeperRoundCoordinator.gd`
-- `tests/manual/benchmark_seven_day_history.gd`
-- `tools/testing/Invoke-SevenDayHistoryPerformance.ps1`
+## Tracker, authority and constraints
 
-The previous manual/Quick preparation change is already published: the eager
-retained-history copy now runs only in the unconfigured fallback. Do not redo it.
-Run57's eight alternating pairs retained all ten checked invariants and all 66
-checkpoints: candidate faster 7/8, median paired reduction **13.122 ms**. Run56's
-separate 8/8 and 25.388 ms result must not be substituted for Run57. This modest
-improvement does not fix first reveal or establish overall latency acceptance.
+Beads: **191 records; 168 closed; 23 unfinished** (11 in progress, five open,
+six deferred, one blocked). No task closes from these bounded slices.
+`dwm-634`, `dwm-634.3` and `dwm-vky.14` remain in progress. Root alone updates
+`.beads/issues.jsonl`; if `bd` is unavailable, preserve unrelated records byte for
+byte and append accurate evidence notes to only the selected records.
 
-## Parallel feature slice: ordered caption ledger
+Read `Prompt.md`, `CLAUDE.md`, `docs/agent/AGENT_WORKFLOW.md` and the selected
+issue's linked requirements. **Godot4.6.3 standard, GDScript** is authoritative;
+older .NET/C# memory is stale. Execute Godot and PowerShell only in GitHub cloud.
+Local source inspection and static Python analysis are allowed. Temporary local
+checkouts can expire; published source and retained evidence are authoritative.
 
-Inspect the Witnessed work under `dwm-vky.14` and its related caption/History
-requirements. The first bounded slice is an **internal token-bound ordered
-caption ledger**, exercised through one real, clearly non-canon Dialogic fixture
-with two explicitly registered beats. Prove immutable identity/context, actual
-publication order, idempotent duplicate publication, conflict and foreign-session
-refusal, and detached snapshots. Do not derive identity from visible prose,
-scrollback, DTL position or event indices.
+Preserve strict Run/document v7 and Profile v9 chronology, physical byte/revision
+checks, consent, complete-action recovery and history. Old Run-save permission
+never authorizes erasing Profile history or unrelated slots. Keep both public
+inventories committed and check without regeneration; this test-only edit keeps
+all six inventory reference locations unchanged, but its own cloud gate must
+confirm exact bytes. Keep full Git ancestry for Desktop/New Account seal tests.
+Verify exact blobs/tree and freshly checked parent before non-force publication.
+Do not overlap pushes with a useful acceptance run. Distinguish source, tested
+merge and later records-only commits.
 
-Read `docs/design/current-ui/witnessed-scene.md` sections 3, 7–9 and 13.1–13.3,
-plus `scripts/narrative/DialogicRuntimeAdapter.gd` and
-`scripts/narrative/DialogicEntryManifest.gd`. Existing reply/Observer line
-registration is not a complete narrative beat registry. This initial slice
-leaves Profile visited state, canonical completion, save schemas and
-History/Save/Next controls unchanged. Their later durable integration remains
-required. Assign separate files to parallel agents; coordinate any shared save,
-narrative, inventory or workflow edits through one integrator.
+## Settled design and remaining inputs
 
-## Settled decisions and remaining inputs
+Neither current slice needs a new owner answer. Legacy Gallery may offer clearly
+identified limited replay only from recorded facts; never invent missing exact
+selectors/history or count it as witnessing the missing variant. Exact Gallery
+selector/successor contracts remain open. Future dual-language rendering begins
+with captions and History; menus stay single-language, semantic identity is shared
+and Read Aloud uses Primary only. Implementation remains deferred.
 
-- Legacy Gallery may provide clearly identified limited replay only where saved
-  facts support it; otherwise preserve the achievement and mark exact replay
-  unavailable. Never invent missing selectors/history or count limited playback
-  as witnessing the missing exact original variant. Full selector/successor
-  contracts and implementation remain open.
-- Future dual-language rendering starts with captions and History. Menus remain
-  single-language; implementation stays deferred. Both languages share one
-  semantic leaf, receipt, History entry and advance boundary; Read Aloud uses
-  Primary only.
-- Clearly labelled non-canon dialogue fixtures are authorized. Production prose,
-  narrative translations and final authored selectors/version cues remain
-  unsettled; seek representative translated files when that adapter work begins.
-- Keep strict Run/document v7 admission and Profile v9 chronology/history.
-  Permission concerning old Run saves does not authorize erasing Profile history
-  or unrelated slots.
-- Dating already advances automatically into and out of its challenge. Do not
-  reintroduce Continue/Done or special mines. Other settled UI choices are in
-  `docs/design/current-ui/owner-ui-updates-2026-09-21.md`.
-
-The two next engineering slices need no new owner design answer. Original
-intermittent save failure and renderer-stall tasks still need diagnostic evidence
-of the real fault; injected recovery tests or a clean rerun alone do not close
-them. Native Windows Gallery ScrollPattern support remains recorded as an
-upstream blocker; recheck actual support when resuming that task.
-
-## Cloud validation and publication
-
-Keep `.github/workflows/windows-tests.yml` on the committed/read-only inventory
-gate and the intended matched performance mode. If source/test changes invalidate
-inventory references, obtain new inventories in cloud, verify exact payload
-bytes/hashes, commit them, restore read-only checking, and inspect that final
-cut's own CI. A regeneration pass alone is not committed-inventory acceptance.
-Retain full Git ancestry in Desktop and New Account CI: historical seal tests
-require it. Use explicit commit-to-commit comparisons when auditing a shallow
-local checkout; a shallow commit's apparent root diff can misrepresent scope.
-
-Publish through the available GitHub connection to the existing PR branch;
-verify exact blobs/tree and freshly checked parent before a non-force ref update.
-Avoid overlapping source pushes that cancel the run being used for acceptance.
-Distinguish source head, tested merge and later records-only commits in receipts.
-Do not include account metadata, credentials or signed download URLs in evidence.
-No merge, visibility change, new implementation or new test run belongs to this
-handoff-only checkpoint.
+Non-canon test dialogue is authorized; production prose and representative
+translated narrative files remain owner inputs for later work. Dating already
+advances into/out of its challenge; do not restore Continue/Done or special mines.
+Other settled UI choices are in `docs/design/current-ui/owner-ui-updates-2026-09-21.md`.
+Original intermittent save failure and renderer stall require evidence of the real
+fault; injected tests or a clean rerun alone do not close them. Linux rendered
+checks and Windows exported headless startup do not establish full native Windows
+graphics/accessibility acceptance. Recheck the recorded upstream ScrollPattern
+blocker when that task resumes. Reference Windows hardware and a responsiveness
+target are still needed for broad latency acceptance.
