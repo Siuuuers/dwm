@@ -611,7 +611,7 @@ Observer Pressure has no supernatural theme. Ordinary sounds may occur in the wr
 
 ## Language, Subtitle, History, and TTS Rules
 
-The characters’ language use follows their established backgrounds: Cantonese carries local everyday intimacy for Angela and Priscilla; English is a credible academic and shared language; Putonghua is situational rather than an automatic private language; Romanian belongs to Lavinia’s private and familial life. Developing Cantonese never makes Lavinia comic or incompetentence. Authentic colloquial Cantonese uses Traditional Chinese characters and appropriate particles when shown as the native original.
+The characters’ language use follows their established backgrounds: Cantonese carries local everyday intimacy for Angela and Priscilla; English is a credible academic and shared language; Putonghua is situational rather than an automatic private language; Romanian belongs to Lavinia’s private and familial life. Developing Cantonese never makes Lavinia comic or incompetent. Authentic colloquial Cantonese uses Traditional Chinese characters and appropriate particles when shown as the native original.
 
 The two subtitle modes preserve these meanings:
 
