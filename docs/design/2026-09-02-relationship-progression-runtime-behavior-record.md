@@ -1,7 +1,7 @@
 # Relationship Progression and Ending Evaluation Runtime Behavior Record
 
 **Date:** 2026-09-02  
-**Last updated:** 2026-09-06  
+**Last updated:** 2026-09-26  
 **Status:** Reconciled future-behavior boundary; provisional P–L plot material isolated  
 **Document kind:** Code-change inventory and required behavior; **not** an
 implementation plan, task list, specification, or authorization to edit code
@@ -156,6 +156,10 @@ It must not queue a missed story scene, invent prior conduct, or persist any
 plot-specific pair residue merely because Day 2 or Day 6 counted. The candidate
 details remain inspectable in the
 [working decision ledger](2026-09-02-narrative-constitution-working-decision-ledger.md#78-core-ending-closure-and-interpretive-openness).
+
+The later [conditional Day 6 and one-meeting ending proposal](#2026-09-26-conditional-day-6-and-one-meeting-ending-proposal)
+is recorded below for preservation only. It does not release this hold or make
+an older injury-dependent check a fact of the new portrait audition.
 
 ### 2.4 Relationship-progression evaluation
 
@@ -529,3 +533,82 @@ design or implementation plan.
 - No Dialogic timeline is added or altered.
 - No old Bible or audition becomes authoritative through citation here.
 - No implementation work is scheduled or authorized.
+
+<a id="2026-09-26-conditional-day-6-and-one-meeting-ending-proposal"></a>
+## 7. 2026-09-26 conditional Day 6 and one-meeting ending proposal
+
+**Status: OWNER-ORIGINATED PROPOSAL, RETAINED FOR PLOT COMPARISON. NOT IMPLEMENTED.**
+The owner asked to preserve this possible change in the separate story PR.
+This is not a verified recovery of the older one-meeting rule they remembered,
+a completed mechanical approval, an `APPROVED` Matrix row, or release of 2.3.1.
+The underlying discussion and narrative alternatives are captured in the
+[portrait and intimacy working record](../story-auditions/2026-09-26-priscilla-lavinia-portrait-and-intimacy-working-record.md).
+
+### Proposed dispatch and eligibility scope
+
+| Actual Day 2 pair occurrence | Actual Day 6 pair occurrence | Proposed Day 6 content | Proposed P-L ending effect |
+|---|---|---|---|
+| Occurred and counted | Occurs | Tea continuation authored for the actual Day 2 conduct and frozen form | Existing two-meeting history can qualify, subject to its approved ending conditions. |
+| Did not occur | Occurs | Distinct standalone Room 2.17 collaboration, not delayed playback of the bar | This Day-6-only history can also qualify once its own required ending facts are authored and approved. |
+| Occurred | Does not occur | No Day 6 pair event | No new Day-2-only eligibility is proposed. |
+| Did not occur | Does not occur | No pair event | No new eligibility is proposed. |
+
+`Private-offscreen`, `Private-visible`, attended Group, and `Missed` Group can
+still be occurring/counting histories under the current mode rules. Missing
+Angela or missing audience access does not select the standalone history.
+`Prevented` supplies no Day 2 bar event. A cutoff does not manufacture absence.
+The fixed umbrella history never supplies pair count or ending eligibility.
+
+Do not implement this as generic `pair_count >= 1`: that would also change the
+Day-2-only case, which the owner did not propose. Do not invent flag names,
+thresholds, schema fields, classes, or migration behavior from this table.
+Room 2.17's Group/private versions must remain the selected collaboration's
+corresponding surfaces rather than unrelated premises chosen by visibility.
+
+### Current baseline and explicit reconciliation debt
+
+The current Matrix and Bible still retain the two-count pair-ending baseline.
+This section records an alternative to evaluate, not a silent amendment of that
+baseline. Section 4.2 item 40 already preserved a dormant distinct-standalone
+Day 6 idea; it did not previously select Room 2.17 or a one-meeting ending.
+The exact old approval recalled by the owner has not been recovered.
+
+Before promotion, reconcile the owning mechanical design, the Matrix, and the
+Bible's derived ending wording in the same approved change. In particular,
+recheck the old claim that Priscilla/Lavinia solo Observer evidence cannot
+coexist with a P-L ending: that proof uses two counted windows and cannot be
+silently reused for a new Day-6-only route. No Observer compatibility is granted
+or prohibited by this note alone.
+
+The separate double-R3 rule suppressing Priscilla's and Lavinia's personal
+Day 7 invitations is not changed here. A new one-meeting eligible path can
+therefore expose different combinations of ending layers. The final plot must
+make those combinations coherent or select an explicit incompatibility; it must
+not silently confiscate Angela's options or replace her personal core.
+Frozen form, scene occurrence, count, audience witness, Angela's knowledge,
+mastery, profile receipts, and ending eligibility remain separate. No hidden
+intimacy, injury, or reconciliation is supplied merely because a meeting counts.
+
+### Fictional and presentation debts
+
+- Establish why necessary Room 2.17 work belongs on Day 6 and what happens to
+  the corresponding work in tea histories; a hidden count cannot make an
+  ordinary institutional obligation vanish.
+- Reconcile Room 2.17's protected Love future-return function with Day 7
+  without inventing another encounter window or automatic Day 8 scene.
+- Author tea after different occurring Day 2 forms rather than copying the
+  Sweet-Love mood after Dark. The portrait read-through establishes no
+  continuing mark or healing duration.
+- Give each ending-eligible history its own necessary decisions and evidence.
+  The Room history cannot remember the bar; the two-meeting history must retain
+  the significance of its additional encounter.
+- Preserve one shared ending situation with the required four substantive
+  form resolutions where earned; history-sensitive setup must not manufacture
+  missing promises, permissions, or hidden agreement.
+- Check reload/replay determinism only after the actual approved content and
+  predicates are selected. No tests have been run for this proposal.
+
+The 2026-09-26 capture did not inspect implementation bodies or re-audit all
+historical drift rows in Section 3. Those rows retain their earlier inspection
+scope; PR #1's current runtime is not being described anew by this docs change.
+No code, save schema, manifest, workflow, runtime test, or PR #1 file is changed.
