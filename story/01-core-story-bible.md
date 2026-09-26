@@ -75,8 +75,6 @@ No reaction test becomes hidden history by repetition. No unresolved cause recei
 
 ## East Harbour University and Conservatory
 
-The university and conservatory are institutionally affiliated.
-
 East Harbour University and the East Harbour Conservatory of Performing Arts share a fictional urban campus near Kowloon. The site is dense and vertical: stacked buildings, covered walkways, stairs beside lifts, retaining walls, short steep streets, and rail-plus-minibus access. It evokes Hong Kong circulation without copying one real institution or claiming that every building connects underground.
 
 The conservatory is institutionally affiliated with the university. Angela studies astrophysics at the university; Priscilla studies English literature; Lavinia studies ballet through the conservatory; Sylvia studies statistics or decision science at the university. Ordinary academic and conservatory work continues during the story.
@@ -282,7 +280,7 @@ The three Angela pairings remain deliberately unequal on Day 1:
 - Priscilla, Lavinia, and Sylvia each begin at Friend in Angela's relationship state.
 - Hate is not a reachable tier; hostility, refusal, and resistance remain character-specific attitudes that can occur at any tier.
 - The internal `affection` value means relational momentum: it may contribute to an approved readiness predicate but never measures or manufactures love, desire, consent, virtue, compatibility, or truth.
-- Relationship progression remains a real code-owned event at a small explicit list of scene-authored progression windows. The exact forward window list and predicates are reopened until the approved seven-day plot earns them; the former Priscilla Day 4/6, Lavinia Day 5/6, and Sylvia Day 4/5 schedule is legacy provenance rather than a current plot constraint.
+- Relationship progression remains a real code-owned event at a small explicit list of scene-authored windows. The exact forward window list and predicates are reopened until the approved seven-day plot earns them; the former Priscilla Day 4/6, Lavinia Day 5/6, and Sylvia Day 4/5 schedule is legacy provenance rather than a current plot constraint.
 - An approved window may move at most one tier only after its complete attended consequence and inputs are frozen and committed.
 - Unread, missed, prevented, and Hospital-superseded opportunities do not evaluate or silently relocate. Whether a committed Sylvia Hospital dating variant inherits an approved window remains open; Hospital access alone cannot supply progression.
 - Friend receives restrained mutuality, Ambiguous receives fuller mutuality, and Love receives deeper specificity without another tier. Romantic desire or behavior may become legible in any approved scene or ending when character-authored conduct earns it; the tier neither proves nor forbids romance.
@@ -301,7 +299,7 @@ No state, tone, event, or ending applies an official relationship label. Dialogu
 
 ### Asymmetric but Romantically Open Geometry
 
-Priscilla and Lavinia retain unmatched shared history and the strongest autonomous gravity between them. That asymmetry does not categorically forbid either woman from romantically desiring Angela in any continuation; Sweet and Dark do not govern romantic eligibility. An exact scene may make desire or romantic behavior clear while leaving the relationship's final category unsettled, or remain charged without becoming romantic. Angela's attendance never displaces the older bond, and attention directed toward her never proves reciprocity.
+Priscilla and Lavinia retain unmatched shared history and the strongest autonomous gravity between them. That asymmetry does not categorically forbid either woman from romantically desiring Angela in any continuation; Sweet and Dark do not govern romantic eligibility. An exact scene may make desire or romantic behavior clear while leaving the relationship's final category unsettled; it may also remain charged without becoming romantic. Angela's attendance never displaces the older bond, and attention directed toward her never proves reciprocity.
 
 An Angela solo encounter may make Priscilla or Lavinia's attention conspicuous to the other woman, and a particular act may be intended to provoke jealousy. That motive cannot explain every encounter. Each woman must also have a self-sufficient want concerning Angela, so Angela remains a person in both relationships rather than a prop passed between them.
 
@@ -351,7 +349,7 @@ The arc moves from return through embodied play and provocation to attention wit
 
 9. **Exactly on Time:** Sylvia appears with precisely what Angela needs; an earlier faint activates the hospital-arrival variant.
 10. **A Quiet Table:** Sylvia already knows Angela’s likely order, schedule, and preferred route.
-11. **The Caretaker’s Break:** Angela notices Sylvia neglecting her own food or rest. Reciprocal care supplies the one-tier leveling opportunity.
+11. **The Caretaker’s Break:** Angela notices Sylvia neglecting her own food and rest. Reciprocal care supplies the one-tier leveling opportunity.
 12. **Contingency:** Welfare preparation exposes the incident slip and check-in system. A high code-owned health-neglect state introduces concealed, non-actionable preparation for the Special postscript.
 
 The arc moves from timely help through studied familiarity and genuine reciprocity to manufactured necessity.
@@ -613,7 +611,7 @@ Observer Pressure has no supernatural theme. Ordinary sounds may occur in the wr
 
 ## Language, Subtitle, History, and TTS Rules
 
-The characters’ language use follows their established backgrounds: Cantonese carries local everyday intimacy for Angela and Priscilla; English is a credible academic and shared language; Putonghua is situational rather than an automatic private language; Romanian belongs to Lavinia’s private and familial life. Developing Cantonese never makes Lavinia comic or incompetent. Authentic colloquial Cantonese uses Traditional Chinese characters and appropriate particles when shown as the native original.
+The characters’ language use follows their established backgrounds: Cantonese carries local everyday intimacy for Angela and Priscilla; English is a credible academic and shared language; Putonghua is situational rather than an automatic private language; Romanian belongs to Lavinia’s private and familial life. Developing Cantonese never makes Lavinia comic or incompetentence. Authentic colloquial Cantonese uses Traditional Chinese characters and appropriate particles when shown as the native original.
 
 The two subtitle modes preserve these meanings:
 
