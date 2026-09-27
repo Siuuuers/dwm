@@ -9,12 +9,28 @@ this task did not move it. The normalized PR base field still reports the older
 
 ## Immediate state and next action
 
-The current cut adds a separate **checkpoint_diagnostics** cloud job containing
-the four new diagnostic tests. The same tests remain in Settings, with all
-timeouts and runtime code unchanged. Resume its cloud result before another
-source batch: an isolated failure implicates the fixture, while an isolated pass
-with a Settings failure points toward the surrounding suite or its runner path.
-This diagnostic duplication adds four executions, not four unique tests.
+The current cut corrects the new diagnostic fixture's insertion of its absent
+`money` key: explicit String indexing replaces dot insertion of a StringName key
+that strict gameplay validation refuses. Failure messages retain the stage, code
+and short message. Runtime validation is unchanged. The inventory delta moves
+only that test reference from static to quoted/dynamic; cloud read-only inventory
+verification must confirm the committed result.
+
+Run62 <https://github.com/Siuuuers/dwm/actions/runs/36295890230> tested source
+`504b242d79b1380e843c19edf27d89bb78b09b5c` as merge
+`9c2230ceb93c86622df08a812fb4e7259c8f1e69`: 16 successful jobs, one failed isolated
+diagnostic job and one cancelled Settings job. The isolated job ran **four tests,
+zero passes in 0.511 s**: every prepare refused `invalid_gameplay`, followed by
+invalid-candidate and missing-property errors. Its RED log is retained at
+`evidence/beads_cloud_review/run62-checkpoint-diagnostics-red.log`.
+This proves a fixture defect; it does not establish the cause of the longer
+Settings stall. The terminal Settings job again has no available log.
+
+The separate **checkpoint_diagnostics** job remains, and the same four tests remain
+in Settings. Resume both cloud results before a runtime optimization. If only
+Settings stalls, distinguish its GUT phase from the later storage-refusal driver;
+that older driver has unbounded cleanup/output waits but is not a proven cause.
+The 18-job workflow adds four repeated executions, not four unique tests.
 
 Run61 <https://github.com/Siuuuers/dwm/actions/runs/36260578366> tested source
 `8ceca91cd5b084c04b5a1c34db82d3cdccd53396` as merge
@@ -50,6 +66,7 @@ Do not substitute the expected full count of 2,018 for observed results.
 Retained current evidence:
 
 - `evidence/beads_cloud_review/resumed-public-cloud-run60.json`
+- `evidence/beads_cloud_review/resumed-public-cloud-run61.json`
 - `evidence/beads_cloud_review/performance/run60-checkpoint-trace.json`
 - `evidence/phase_2r/runtime/game_state_surface.json`
 - `evidence/phase_2r/runtime/save_manager_surface.json`

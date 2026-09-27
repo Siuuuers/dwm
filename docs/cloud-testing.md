@@ -10,14 +10,19 @@ one bounded GUT suite. The eleven groups cover Minesweeper, Shop, desktop
 input/layout, Settings/display, New Account persistence and serialization,
 reading/delivery, localization, dating, persistence, endings, and audio.
 The current production project uses GDScript and does not include a C# project.
+An additional `checkpoint_diagnostics` group repeats the four new diagnostic
+tests in a separate process while they remain in Settings. This isolates their
+fixture from the surrounding suite and its later storage-refusal checks; it does
+not replace Settings acceptance. Count these as four repeated executions, not
+four additional unique tests.
 The workflow also has six separate jobs for rendered desktop UI, rendered
 playable journeys, public API contracts, paired checkpoint measurements,
 seven-day retained-history measurements, and Windows release export/startup.
-There are seventeen jobs in total; their individual results determine which
+There are eighteen jobs in total; their individual results determine which
 claims the run supports.
 
 The public-surface job runs first and imports the project before checking its
-contracts. The other sixteen jobs depend on its success, then run their own
+contracts. The other seventeen jobs depend on its success, then run their own
 platform imports and checks. The seven-day lane additionally waits for the paired
 checkpoint lane's fresh localized payload artifact and verifies its exact checkout
 and file hashes before using it. A failed prerequisite leaves downstream jobs
@@ -80,7 +85,7 @@ checks cannot replace them.
 `tools/testing/Invoke-CloudTests.ps1` lists the exact test scripts. It reuses the
 existing isolated runner, which gives each run disposable user data and rejects
 requested scripts that never execute. A missing or empty JUnit report also fails
-the job. The eleven groups continue independently so one failure does not conceal
+the job. The twelve groups continue independently so one failure does not conceal
 the other results. Each job has a 20-minute limit.
 
 The `localization` group includes scripts covering Japanese and Korean UI,

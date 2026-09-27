@@ -1,0 +1,352 @@
+res://tests/unit/test_checkpoint_phase_diagnostics.gd
+* test_profile_on_and_off_preserve_documents_journal_and_every_physical_operation
+    [Passed]:  fixture strict parse:
+    [Passed]:  fixture snapshot validation: ok
+    [Passed]
+    [Passed]
+    [Passed]:  fixture strict parse:
+    [Passed]:  fixture snapshot validation: ok
+    [Passed]
+    [Passed]
+    [Failed]:  checkpoint prepare: invalid_gameplay
+      at line 97
+    [Failed]:  checkpoint commit: invalid_candidate
+      at line 97
+DWM_CHECKPOINT_PROFILE {"autosave":true,"checkpoint_kind":"post_result","code":"invalid_gameplay","diagnostics_version":2,"elapsed_us":940,"ok":false,"run_snapshot_build_us":908,"scope":"save_checkpoint_prepare","text_validator_calls_since_prepare":0,"text_validator_us_since_prepare":0,"view_capture_us":28}
+    [Failed]:  checkpoint prepare: invalid_gameplay
+      at line 100
+    [Failed]:  checkpoint commit: invalid_candidate
+      at line 100
+    [Passed]:  diagnostics never enter prepared data
+    [Passed]:  profile preserves exact persisted bytes
+    [Passed]:  profile preserves every physical operation
+    [Passed]:  profile preserves exact journal state
+    [Failed]:  checkpoint prepare: invalid_gameplay
+      at line 97
+    [Failed]:  checkpoint commit: invalid_candidate
+      at line 97
+DWM_CHECKPOINT_PROFILE {"autosave":false,"checkpoint_kind":"line","code":"invalid_gameplay","diagnostics_version":2,"elapsed_us":1464,"ok":false,"run_snapshot_build_us":1429,"scope":"save_checkpoint_prepare","text_validator_calls_since_prepare":0,"text_validator_us_since_prepare":0,"view_capture_us":30}
+    [Failed]:  checkpoint prepare: invalid_gameplay
+      at line 100
+    [Failed]:  checkpoint commit: invalid_candidate
+      at line 100
+    [Passed]:  diagnostics never enter prepared data
+    [Passed]:  profile preserves exact persisted bytes
+    [Passed]:  profile preserves every physical operation
+    [Passed]:  profile preserves exact journal state
+    [Failed]:  checkpoint prepare: invalid_gameplay
+      at line 97
+    [Failed]:  checkpoint commit: invalid_candidate
+      at line 97
+DWM_CHECKPOINT_PROFILE {"autosave":true,"checkpoint_kind":"post_result","code":"invalid_gameplay","diagnostics_version":2,"elapsed_us":1434,"ok":false,"run_snapshot_build_us":1400,"scope":"save_checkpoint_prepare","text_validator_calls_since_prepare":0,"text_validator_us_since_prepare":0,"view_capture_us":30}
+    [Failed]:  checkpoint prepare: invalid_gameplay
+      at line 100
+    [Failed]:  checkpoint commit: invalid_candidate
+      at line 100
+    [Passed]:  diagnostics never enter prepared data
+    [Passed]:  profile preserves exact persisted bytes
+    [Passed]:  profile preserves every physical operation
+    [Passed]:  profile preserves exact journal state
+    [Passed]:  disabled diagnostics emit no records
+    [Passed]:  [2] expected to equal [2]:
+    [Failed]:  missing timer: document_build_us
+      at line 108
+    [Failed]:  missing timer: document_proof_lookup_us
+      at line 108
+    [Failed]:  missing timer: document_schema_build_us
+      at line 108
+    [Failed]:  missing timer: document_schema_normalize_current_us
+      at line 108
+    [Failed]:  missing timer: document_schema_normalize_journal_us
+      at line 108
+    [Failed]:  missing timer: document_schema_validate_current_us
+      at line 108
+    [Failed]:  missing timer: document_schema_validate_journal_us
+      at line 108
+    [Failed]:  missing timer: document_schema_compose_us
+      at line 108
+    [Passed]:  [2] expected to equal [2]:  view_capture_us
+    [Passed]:  [30] expected to be >= than [0]:  view_capture_us
+    [Passed]:  [2] expected to equal [2]:  run_snapshot_build_us
+    [Passed]:  [1400] expected to be >= than [0]:  run_snapshot_build_us
+    [Passed]:  [2] expected to equal [2]:  elapsed_us
+    [Passed]:  [1434] expected to be >= than [0]:  elapsed_us
+    [Failed]:  missing diagnostic scope: save_checkpoint
+      at line 111
+    [Failed]:  [<null>] expected to equal [2]:
+      at line 112
+    [Failed]:  missing timer: outgoing_schema_us
+      at line 112
+    [Failed]:  missing timer: outgoing_normalize_us
+      at line 112
+    [Failed]:  missing timer: outgoing_validate_us
+      at line 112
+    [Failed]:  missing timer: outgoing_history_capture_us
+      at line 112
+    [Failed]:  missing timer: outgoing_schema_envelope_normalize_us
+      at line 112
+    [Failed]:  missing timer: outgoing_schema_validate_current_us
+      at line 112
+    [Failed]:  missing timer: journal_proof_us
+      at line 112
+    [Failed]:  missing timer: journal_current_compare_us
+      at line 112
+    [Failed]:  missing timer: journal_current_remember_us
+      at line 112
+    [Failed]:  missing timer: journal_history_learning_us
+      at line 112
+    [Failed]:  missing timer: document_proof_remember_us
+      at line 112
+    [Failed]:  [0] expected to be > than [0]:  the full write encounters a warm retained proof
+      at line 116
+    [Failed]:  [0] expected to be > than [0]:  the same full write encounters memory-only history
+      at line 117
+    [Passed]:  [<null>] expected to equal [<null>]:
+SCRIPT ERROR: Invalid access to property or key 'document_build_us' on a base object of type 'Dictionary'.
+   at: test_profile_on_and_off_preserve_documents_journal_and_every_physical_operation (res://tests/unit/test_checkpoint_phase_diagnostics.gd:119)
+   GDScript backtrace (most recent call first):
+       [0] test_profile_on_and_off_preserve_documents_journal_and_every_physical_operation (res://tests/unit/test_checkpoint_phase_diagnostics.gd:119)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'document_build_us' on a base object of type 'Dictionary'.
+      at line -1
+* test_cold_history_learning_is_distinct_from_next_prepares_proof_hits
+    [Passed]:  fixture strict parse:
+    [Passed]:  fixture snapshot validation: ok
+    [Passed]
+    [Passed]
+    [Failed]:  checkpoint prepare: invalid_gameplay
+      at line 124
+    [Failed]:  checkpoint commit: invalid_candidate
+      at line 124
+    [Failed]:  checkpoint prepare: invalid_gameplay
+      at line 125
+    [Failed]:  checkpoint commit: invalid_candidate
+      at line 125
+DWM_CHECKPOINT_PROFILE {"autosave":true,"checkpoint_kind":"post_result","code":"invalid_gameplay","diagnostics_version":2,"elapsed_us":836,"ok":false,"run_snapshot_build_us":814,"scope":"save_checkpoint_prepare","text_validator_calls_since_prepare":0,"text_validator_us_since_prepare":0,"view_capture_us":19}
+    [Failed]:  checkpoint prepare: invalid_gameplay
+      at line 127
+    [Failed]:  checkpoint commit: invalid_candidate
+      at line 127
+    [Failed]:  missing diagnostic scope: save_checkpoint
+      at line 129
+SCRIPT ERROR: Invalid access to property or key 'autosave_document' on a base object of type 'Dictionary'.
+   at: test_cold_history_learning_is_distinct_from_next_prepares_proof_hits (res://tests/unit/test_checkpoint_phase_diagnostics.gd:130)
+   GDScript backtrace (most recent call first):
+       [0] test_cold_history_learning_is_distinct_from_next_prepares_proof_hits (res://tests/unit/test_checkpoint_phase_diagnostics.gd:130)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'autosave_document' on a base object of type 'Dictionary'.
+      at line -1
+* test_schema_valid_history_edit_counts_a_learning_attempt_without_a_success
+    [Passed]:  fixture strict parse:
+    [Passed]:  fixture snapshot validation: ok
+    [Passed]
+    [Passed]
+    [Failed]:  checkpoint prepare: invalid_gameplay
+      at line 158
+    [Failed]:  checkpoint commit: invalid_candidate
+      at line 158
+DWM_CHECKPOINT_PROFILE {"autosave":true,"checkpoint_kind":"post_result","code":"invalid_gameplay","diagnostics_version":2,"elapsed_us":823,"ok":false,"run_snapshot_build_us":803,"scope":"save_checkpoint_prepare","text_validator_calls_since_prepare":0,"text_validator_us_since_prepare":0,"view_capture_us":18}
+    [Failed]:  checkpoint prepare: invalid_gameplay
+      at line 160
+SCRIPT ERROR: Invalid access to property or key 'autosave_document' on a base object of type 'Dictionary'.
+   at: test_schema_valid_history_edit_counts_a_learning_attempt_without_a_success (res://tests/unit/test_checkpoint_phase_diagnostics.gd:161)
+   GDScript backtrace (most recent call first):
+       [0] test_schema_valid_history_edit_counts_a_learning_attempt_without_a_success (res://tests/unit/test_checkpoint_phase_diagnostics.gd:161)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'autosave_document' on a base object of type 'Dictionary'.
+      at line -1
+* test_refused_journal_commit_never_reports_or_creates_successful_learning
+    [Passed]:  fixture strict parse:
+    [Passed]:  fixture snapshot validation: ok
+    [Passed]
+    [Passed]
+    [Passed]:  fixture strict parse:
+    [Passed]:  fixture snapshot validation: ok
+    [Passed]
+    [Passed]
+    [Failed]:  checkpoint prepare: invalid_gameplay
+      at line 177
+    [Failed]:  checkpoint commit: invalid_candidate
+      at line 177
+    [Failed]:  checkpoint prepare: invalid_gameplay
+      at line 178
+    [Failed]:  checkpoint commit: invalid_candidate
+      at line 178
+    [Failed]:  checkpoint prepare: invalid_gameplay
+      at line 179
+DWM_CHECKPOINT_PROFILE {"autosave":true,"checkpoint_kind":"post_result","code":"invalid_gameplay","diagnostics_version":2,"elapsed_us":805,"ok":false,"run_snapshot_build_us":784,"scope":"save_checkpoint_prepare","text_validator_calls_since_prepare":0,"text_validator_us_since_prepare":0,"view_capture_us":18}
+    [Failed]:  checkpoint prepare: invalid_gameplay
+      at line 181
+SCRIPT ERROR: Invalid access to property or key 'journal_candidate' on a base object of type 'Dictionary'.
+   at: test_refused_journal_commit_never_reports_or_creates_successful_learning (res://tests/unit/test_checkpoint_phase_diagnostics.gd:182)
+   GDScript backtrace (most recent call first):
+       [0] test_refused_journal_commit_never_reports_or_creates_successful_learning (res://tests/unit/test_checkpoint_phase_diagnostics.gd:182)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'journal_candidate' on a base object of type 'Dictionary'.
+      at line -1
+0/4 passed.
+
+
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_checkpoint_phase_diagnostics.gd
+- test_profile_on_and_off_preserve_documents_journal_and_every_physical_operation
+    [Failed]:  checkpoint prepare: invalid_gameplay
+          at line 97
+    [Failed]:  checkpoint commit: invalid_candidate
+          at line 97
+    [Failed]:  checkpoint prepare: invalid_gameplay
+          at line 100
+    [Failed]:  checkpoint commit: invalid_candidate
+          at line 100
+    [Failed]:  checkpoint prepare: invalid_gameplay
+          at line 97
+    [Failed]:  checkpoint commit: invalid_candidate
+          at line 97
+    [Failed]:  checkpoint prepare: invalid_gameplay
+          at line 100
+    [Failed]:  checkpoint commit: invalid_candidate
+          at line 100
+    [Failed]:  checkpoint prepare: invalid_gameplay
+          at line 97
+    [Failed]:  checkpoint commit: invalid_candidate
+          at line 97
+    [Failed]:  checkpoint prepare: invalid_gameplay
+          at line 100
+    [Failed]:  checkpoint commit: invalid_candidate
+          at line 100
+    [Failed]:  missing timer: document_build_us
+          at line 108
+    [Failed]:  missing timer: document_proof_lookup_us
+          at line 108
+    [Failed]:  missing timer: document_schema_build_us
+          at line 108
+    [Failed]:  missing timer: document_schema_normalize_current_us
+          at line 108
+    [Failed]:  missing timer: document_schema_normalize_journal_us
+          at line 108
+    [Failed]:  missing timer: document_schema_validate_current_us
+          at line 108
+    [Failed]:  missing timer: document_schema_validate_journal_us
+          at line 108
+    [Failed]:  missing timer: document_schema_compose_us
+          at line 108
+    [Failed]:  missing diagnostic scope: save_checkpoint
+          at line 111
+    [Failed]:  [<null>] expected to equal [2]:
+          at line 112
+    [Failed]:  missing timer: outgoing_schema_us
+          at line 112
+    [Failed]:  missing timer: outgoing_normalize_us
+          at line 112
+    [Failed]:  missing timer: outgoing_validate_us
+          at line 112
+    [Failed]:  missing timer: outgoing_history_capture_us
+          at line 112
+    [Failed]:  missing timer: outgoing_schema_envelope_normalize_us
+          at line 112
+    [Failed]:  missing timer: outgoing_schema_validate_current_us
+          at line 112
+    [Failed]:  missing timer: journal_proof_us
+          at line 112
+    [Failed]:  missing timer: journal_current_compare_us
+          at line 112
+    [Failed]:  missing timer: journal_current_remember_us
+          at line 112
+    [Failed]:  missing timer: journal_history_learning_us
+          at line 112
+    [Failed]:  missing timer: document_proof_remember_us
+          at line 112
+    [Failed]:  [0] expected to be > than [0]:  the full write encounters a warm retained proof
+          at line 116
+    [Failed]:  [0] expected to be > than [0]:  the same full write encounters memory-only history
+          at line 117
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'document_build_us' on a base object of type 'Dictionary'.
+          at line -1
+- test_cold_history_learning_is_distinct_from_next_prepares_proof_hits
+    [Failed]:  checkpoint prepare: invalid_gameplay
+          at line 124
+    [Failed]:  checkpoint commit: invalid_candidate
+          at line 124
+    [Failed]:  checkpoint prepare: invalid_gameplay
+          at line 125
+    [Failed]:  checkpoint commit: invalid_candidate
+          at line 125
+    [Failed]:  checkpoint prepare: invalid_gameplay
+          at line 127
+    [Failed]:  checkpoint commit: invalid_candidate
+          at line 127
+    [Failed]:  missing diagnostic scope: save_checkpoint
+          at line 129
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'autosave_document' on a base object of type 'Dictionary'.
+          at line -1
+- test_schema_valid_history_edit_counts_a_learning_attempt_without_a_success
+    [Failed]:  checkpoint prepare: invalid_gameplay
+          at line 158
+    [Failed]:  checkpoint commit: invalid_candidate
+          at line 158
+    [Failed]:  checkpoint prepare: invalid_gameplay
+          at line 160
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'autosave_document' on a base object of type 'Dictionary'.
+          at line -1
+- test_refused_journal_commit_never_reports_or_creates_successful_learning
+    [Failed]:  checkpoint prepare: invalid_gameplay
+          at line 177
+    [Failed]:  checkpoint commit: invalid_candidate
+          at line 177
+    [Failed]:  checkpoint prepare: invalid_gameplay
+          at line 178
+    [Failed]:  checkpoint commit: invalid_candidate
+          at line 178
+    [Failed]:  checkpoint prepare: invalid_gameplay
+          at line 179
+    [Failed]:  checkpoint prepare: invalid_gameplay
+          at line 181
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'journal_candidate' on a base object of type 'Dictionary'.
+          at line -1
+
+Totals
+------
+Scripts               1
+Tests                 4
+Passing Tests      none
+Failing Tests         4
+Asserts           45/100
+Time              0.511s
+
+
+---- 4 failing tests ----
+
+Results saved to res://.godot/ci/checkpoint_diagnostics.xml
+[INFO]:  Exiting with code 1

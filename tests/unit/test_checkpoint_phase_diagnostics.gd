@@ -52,7 +52,7 @@ func _wired() -> Dictionary:
 func _prepare(wired: Dictionary, money: int, durable: bool = true,
 		kind: StringName = &"post_result") -> Dictionary:
 	var snapshot: Dictionary = wired.snapshot.duplicate(true)
-	snapshot.gameplay.money = money
+	snapshot["gameplay"]["money"] = money # The absent key must be a JSON String, not StringName.
 	var input := {}
 	for key: String in ["lifecycle", "gameplay", "contacts", "committed_schedule", "dating",
 			"applied_effect_transaction_ids", "applied_variable_transaction_ids", "desktop",
@@ -63,14 +63,14 @@ func _prepare(wired: Dictionary, money: int, durable: bool = true,
 	var result: Dictionary = wired.port.prepare({"snapshot_input": input, "dialogic_checkpoint": {},
 		"route_id": "main", "active_app_id": snapshot.active_app_id,
 		"audio_context": snapshot.audio_context, "content_version": snapshot.content_version}, kind, disk_write)
-	assert_true(result.get("ok", false), "checkpoint prepare: " + str(result.get("code", "")))
+	assert_true(result.get("ok", false), "checkpoint prepare: " + str(result.get("code", "")) + " " + str(result.get("message", "")))
 	return result.get("value", {}).get("candidate", {})
 
 func _commit(wired: Dictionary, money: int, durable: bool = true,
 		kind: StringName = &"post_result") -> Dictionary:
 	var candidate := _prepare(wired, money, durable, kind)
 	var result: Dictionary = wired.port.commit(candidate)
-	assert_true(result.get("ok", false), "checkpoint commit: " + str(result.get("code", "")))
+	assert_true(result.get("ok", false), "checkpoint commit: " + str(result.get("code", "")) + " " + str(result.get("message", "")))
 	return candidate
 
 func _last(wired: Dictionary, scope: String) -> Dictionary:
