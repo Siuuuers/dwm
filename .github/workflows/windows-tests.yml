@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [minesweeper, shop, desktop, settings, new_account, reading_delivery, localization, dating, persistence, endings, audio]
+        suite: [minesweeper, shop, desktop, settings, checkpoint_diagnostics, new_account, reading_delivery, localization, dating, persistence, endings, audio]
     defaults:
       run:
         shell: pwsh

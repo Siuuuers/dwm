@@ -2,19 +2,33 @@
 
 Continue public `Siuuuers/dwm` draft PR #1 on `codex/windows-cloud-ux`.
 Fetch the live PR head and Beads before work. Keep master unchanged; do not merge,
-change visibility, or mark the PR ready. Last verified master:
-`9e43b52c9884ccd59e82245d2168c3113ee4d037`.
+change visibility, or mark the PR ready. Live master is now
+`538b61ba96457eb5448053c8b0897b4fcbaa464a` after the owner's separate story PR #2;
+this task did not move it. The normalized PR base field still reports the older
+`9e43b52c9884ccd59e82245d2168c3113ee4d037`; check the actual master ref.
 
 ## Immediate state and next action
 
-The current cut contains a **test-only Settings diagnostic experiment** requiring
-its own cloud CI. Resume that run before starting another source batch. Six
+The current cut adds a separate **checkpoint_diagnostics** cloud job containing
+the four new diagnostic tests. The same tests remain in Settings, with all
+timeouts and runtime code unchanged. Resume its cloud result before another
+source batch: an isolated failure implicates the fixture, while an isolated pass
+with a Settings failure points toward the surrounding suite or its runner path.
+This diagnostic duplication adds four executions, not four unique tests.
+
+Run61 <https://github.com/Siuuuers/dwm/actions/runs/36260578366> tested source
+`8ceca91cd5b084c04b5a1c34db82d3cdccd53396` as merge
+`efbeec18006c5397ed2427a09849b65bb349c430`: **16 successful jobs and one cancelled
+Settings job**, again without an available Settings log. The assertion-formatting
+experiment did not resolve the stall. It retained the same predicates: six
 assertions now use the same native equality predicate without GUT's unconditional
 full dictionary/array diff and byte formatting. Five success messages print stage
 and code instead of complete result trees. All four tests, 55 assertion sites and
-198 lines remain; runtime code, timeouts and test coverage are unchanged. This
-removes demonstrated unnecessary work, but the Settings stall's cause is **not
-established**. Do not call it fixed without the cloud result.
+198 lines remain. This removes demonstrated unnecessary work, but the Settings
+stall's cause is **not established**. Do not call it fixed without executed proof.
+The Run61 merge differs from its source only in five Markdown files introduced
+by story PR #2; runtime, tests, workflow and inventory bytes are identical.
+That story work does not authorize its noncanonical scene/intimacy proposals.
 
 The previous source is `d3647767fc058185fcc893d469b54e707f660102`, tested as merge
 `843036fcf10e6490e44f933ac8ecbb3f83b3744e`. Run60
@@ -59,7 +73,7 @@ The opt-in internal ordered caption ledger has explicit authored beat/line
 identities, frozen detached fixture context, session binding, actual publication
 order, idempotent duplicates and conflict/foreign-session refusal. One real,
 clearly non-canon Dialogic fixture exercises two registered beats. Its 9 unit and
-8 runtime tests passed in Runs59 and60. Publication capture follows actual text
+8 runtime tests passed in Runs59,60 and61. Publication capture follows actual text
 publication; pause/replacement/end custody and split/missing-ID refusal are tested.
 This is **not** durable canonical History, witnessed Save, exact-variant Next,
 Profile witnessing or production narrative coverage. Production use is not enabled.

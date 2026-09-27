@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces')]
+    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces')]
     [string]$Suite
 )
 
@@ -12,6 +12,10 @@ $ErrorActionPreference = 'Stop'
 $suites = @{
     public_surfaces = @(
         'tests/unit/tooling/test_public_surface_inventory.gd'
+    )
+    # Isolate the new fixture without removing its order/interaction coverage in Settings.
+    checkpoint_diagnostics = @(
+        'tests/unit/test_checkpoint_phase_diagnostics.gd'
     )
     persistence = @(
         'tests/unit/test_frozen_run_context.gd'
