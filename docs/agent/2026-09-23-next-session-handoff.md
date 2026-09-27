@@ -10,6 +10,13 @@ The latest master commit adds one Markdown archive and no runtime changes. The n
 
 ## Immediate state and next action
 
+Run64 (`36333194985`, source `963dedefffd19031004f9a1ebc061becca3975b5`,
+merge `ff5f390f8e99db4c265197fe5b1f32213d89a416`) failed project import:
+the port normalizer's array return was indented inside its loop. Godot rejected
+the missing empty-array return path; downstream tests and benchmarks were skipped.
+The current correction dedents that one return and requires a fresh complete run.
+The RED receipt is `evidence/beads_cloud_review/resumed-public-cloud-run64.json`.
+
 Run63 is the new fully verified baseline. The current cut adds the bounded lazy
 normalization candidate and its cloud experiment; it needs its own acceptance.
 The two helpers delay result-container allocation until the first changed child,

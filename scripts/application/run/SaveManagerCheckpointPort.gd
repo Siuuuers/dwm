@@ -814,7 +814,7 @@ static func _normalize_json_string_types(value: Variant) -> Variant:
 					for prior: int in index:
 						normalized_array.append(source_array[prior])
 				if normalized_array != null: normalized_array.append(normalized_item)
-				return source_array if normalized_array == null else normalized_array
+			return source_array if normalized_array == null else normalized_array
 		TYPE_DICTIONARY:
 			var source_dictionary: Dictionary = value
 			var normalized_dictionary: Variant = null
