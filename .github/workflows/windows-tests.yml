@@ -503,6 +503,9 @@ jobs:
       - name: Compare outgoing normalization on identical retained payloads
         timeout-minutes: 12
         run: ./tools/testing/Invoke-OutgoingNormalizationPerformance.ps1
+      - name: Compare lazy normalization with frozen eager helpers
+        timeout-minutes: 8
+        run: ./tools/testing/Invoke-LazyNormalizationPerformance.ps1
       - name: Upload seven-day history evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -512,8 +515,10 @@ jobs:
             .godot/ci/import.log
             .godot/ci/seven-day-history/
             .godot/ci/outgoing-normalization/
+            .godot/ci/lazy-normalization/
             .godot/phase2r_logs/cloud-seven-day-history-*.log
             .godot/phase2r_logs/cloud-outgoing-normalization-*.log
+            .godot/phase2r_logs/cloud-lazy-normalization-*.log
           include-hidden-files: true
           if-no-files-found: warn
           retention-days: 7

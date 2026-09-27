@@ -15,6 +15,12 @@ tests in a separate process while they remain in Settings. This isolates their
 fixture from the surrounding suite and its later storage-refusal checks; it does
 not replace Settings acceptance. Count these as four repeated executions, not
 four additional unique tests.
+That group also runs six unique normalization regressions covering clean identity,
+changed typed containers, sibling order, numeric types and unsupported leaves.
+The seven-day job compares frozen eager normalization helpers with the current
+candidate over its freshly generated Day7 payload. Four alternating pairs per
+full/splice mode preserve exact bytes and all 66 bundles. Direct helper timings
+and the port seam use separate metrics; this is not a full-save speedup claim.
 The workflow also has six separate jobs for rendered desktop UI, rendered
 playable journeys, public API contracts, paired checkpoint measurements,
 seven-day retained-history measurements, and Windows release export/startup.

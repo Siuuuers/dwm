@@ -1,20 +1,30 @@
-# Next-session handoff — updated 27 September 2026 (Hong Kong)
+# Next-session handoff — updated 28 September 2026 (Hong Kong)
 
 Continue public `Siuuuers/dwm` draft PR #1 on `codex/windows-cloud-ux`.
 Fetch the live PR head and Beads before work. Keep master unchanged; do not merge,
 change visibility, or mark the PR ready. Live master is now
-`538b61ba96457eb5448053c8b0897b4fcbaa464a` after the owner's separate story PR #2;
-this task did not move it. The normalized PR base field still reports the older
+`1c55cd103014a932dc5936ab3e16c08acbda62d2` after the owner's separate story PR #2
+and one additional story conversation archive; this task did not move it.
+The latest master commit adds one Markdown archive and no runtime changes. The normalized PR base field still reports the older
 `9e43b52c9884ccd59e82245d2168c3113ee4d037`; check the actual master ref.
 
 ## Immediate state and next action
 
-The current cut corrects the new diagnostic fixture's insertion of its absent
-`money` key: explicit String indexing replaces dot insertion of a StringName key
-that strict gameplay validation refuses. Failure messages retain the stage, code
-and short message. Runtime validation is unchanged. The inventory delta moves
-only that test reference from static to quoted/dynamic; cloud read-only inventory
-verification must confirm the committed result.
+Run63 is the new fully verified baseline. The current cut adds the bounded lazy
+normalization candidate and its cloud experiment; it needs its own acceptance.
+The two helpers delay result-container allocation until the first changed child,
+then preserve the unchanged prefix and the original order. Six new regressions
+exercise both helpers in `checkpoint_diagnostics`; the original four diagnostics
+remain in both that job and Settings. No validation, storage operation, retention,
+save format or durable narrative integration changes.
+
+The new benchmark freezes the two exact eager helper bodies from Run63. Four
+alternating pairs per full/splice mode use sixteen fresh cloud processes and the
+same verified Day7 JSON with all 66 bundles. Each metric retains five samples after
+two warmups. Direct helper costs and a port-normalization-plus-current-validator
+seam are separate; both variants use the SAME current outgoing validator. This
+does not measure a matched schema-build or full physical checkpoint speedup.
+Check all correctness gates and the raw paired results before accepting a benefit.
 
 Run62 <https://github.com/Siuuuers/dwm/actions/runs/36295890230> tested source
 `504b242d79b1380e843c19edf27d89bb78b09b5c` as merge
@@ -27,10 +37,24 @@ This proves a fixture defect; it does not establish the cause of the longer
 Settings stall. The terminal Settings job again has no available log.
 
 The separate **checkpoint_diagnostics** job remains, and the same four tests remain
-in Settings. Resume both cloud results before a runtime optimization. If only
+in Settings. If only
 Settings stalls, distinguish its GUT phase from the later storage-refusal driver;
 that older driver has unbounded cleanup/output waits but is not a proven cause.
 The 18-job workflow adds four repeated executions, not four unique tests.
+
+Run63 <https://github.com/Siuuuers/dwm/actions/runs/36314617828>, source
+`dae70bf9aa05b6b3debb60f95738e5ffc4e97548`, tested merge
+`682355a8031d13069290cbe85b0269aea0c758ee`, passed **18/18 jobs and 2,022 GUT
+executions with zero skips**, including **288/288 Settings** and **4/4 isolated
+diagnostics**. The four diagnostic cases are intentionally repeated. Storage
+refusals, 136 standalone capture checks, five rendered journeys, rendered UI,
+Windows exported headless startup and all 66 retained checkpoints passed.
+The fixture correction explicitly inserts its absent `money` as a String key;
+runtime validation continues to reject StringName gameplay keys. Its read-only public
+inventory gate also passed with the exact new GameState hash
+`8c5e0a110fe05bc418894ba273ce7e3a72cfe60963535f227e17bd416ee0e08c`.
+The complete receipt and ordered trace are retained in git. Earlier missing logs
+do not establish the internal cause of those historical 25-minute stalls.
 
 Run61 <https://github.com/Siuuuers/dwm/actions/runs/36260578366> tested source
 `8ceca91cd5b084c04b5a1c34db82d3cdccd53396` as merge
@@ -65,40 +89,42 @@ Do not substitute the expected full count of 2,018 for observed results.
 
 Retained current evidence:
 
+- `evidence/beads_cloud_review/resumed-public-cloud-run63.json`
+- `evidence/beads_cloud_review/performance/run63-checkpoint-trace.json`
 - `evidence/beads_cloud_review/resumed-public-cloud-run60.json`
 - `evidence/beads_cloud_review/resumed-public-cloud-run61.json`
 - `evidence/beads_cloud_review/performance/run60-checkpoint-trace.json`
 - `evidence/phase_2r/runtime/game_state_surface.json`
 - `evidence/phase_2r/runtime/save_manager_surface.json`
 
-**Run57 remains the last fully accepted source baseline**, with 17/17 jobs,
+Run57 is the older accepted baseline, with 17/17 jobs,
 1,997 GUT executions and zero skips. Its source is
 `cc42b9e4c4f0c5c736fef625c0be6b1fa0855f00`, tested merge
 `efcc6d210896389641a270c0c2ee9e0e5074404c`; receipt and ordered trace remain in git.
 Newer work must not be reset to that older baseline.
 
-## Completed implementation slices, pending full acceptance
+## Completed bounded implementation slices
 
 Opt-in checkpoint diagnostics version 2 separate document construction,
 outgoing normalization/validation and journal proof work. They count proof hits,
 misses, attempted and successful learning without changing validation, storage
 operations, transaction order, save formats or checkpoint retention. Four focused
 regressions compare profiling on/off, cold/warm proofs, edited-history learning
-refusal and journal-commit refusal; Settings acceptance remains outstanding.
+refusal and journal-commit refusal; all passed in Run63, including full Settings.
 
 The opt-in internal ordered caption ledger has explicit authored beat/line
 identities, frozen detached fixture context, session binding, actual publication
 order, idempotent duplicates and conflict/foreign-session refusal. One real,
 clearly non-canon Dialogic fixture exercises two registered beats. Its 9 unit and
-8 runtime tests passed in Runs59,60 and61. Publication capture follows actual text
+8 runtime tests passed in Run63 and earlier partial runs. Publication capture follows actual text
 publication; pause/replacement/end custody and split/missing-ID refusal are tested.
 This is **not** durable canonical History, witnessed Save, exact-variant Next,
 Profile witnessing or production narrative coverage. Production use is not enabled.
 
 ## Measured lag and next bounded experiment
 
-Run60 synthetic Day7 observed first reveal **1.380864 s**, manual save
-**3.863498 s**, terminal settlement **0.883418 s** and cold Login **9.258772 s**.
+Run63 synthetic Day7 observed first reveal **1.082592 s**, manual save
+**3.092748 s**, terminal settlement **0.703029 s** and cold Login **7.297254 s**.
 All **66 retained checkpoints** survive. These are shared-runner workload
 observations, not matched cross-run speedups or input-to-paint guarantees.
 
@@ -112,17 +138,30 @@ parent and its children or assign unexplained residuals to a guessed cause.
 A source review found temporary Array/Dictionary containers built and discarded
 on unchanged branches in `SaveDocumentSchema._normalize_engine_text` and
 `SaveManagerCheckpointPort._normalize_json_string_types`. The measured scopes
-justify a **bounded lazy-allocation experiment**, after Settings is resolved.
+justify the current **bounded lazy-allocation experiment**, now that Settings passed.
 Preserve traversal/key order, StringName conversion, numeric types, unchanged
 identity, changed untyped arrays, final detachment and refusal ordering. Compare
 against the current eager implementation on identical retained payloads and proof
 states with alternating cloud samples; verify bytes, physical operations, proof
 counts and all retention guarantees. No cache, validation omission or history
-compaction belongs in this candidate. No new runtime optimization is implemented.
+compaction belongs in this candidate. This candidate awaits its own cloud measurements.
+
+The source audit supports allocating a fresh **untyped** result only at the first
+changed child, copying already-visited unchanged siblings in their original order.
+Keep the exact `is_same` predicate and one recursive traversal; track dictionary
+prefix length by ordinal. Godot 4.6.3 `duplicate()`/`slice()` preserve typing, so
+they cannot replace construction of the current changed untyped containers.
+Exercise first/middle/last conversion, unchanged sibling identity, typed keys and
+values, numeric types and source immutability. Existing outgoing-normalization
+benchmarks compare full journal versus splice envelope with the **same helper**
+on both sides: they cannot attribute a lazy-allocation gain. Freeze the exact
+eager helper bodies as the control, bind source/output hashes, and compare the
+same payload, proof state and splice/full mode. A microbenchmark gain would not
+establish that complete checkpoint lag is fixed.
 
 The earlier manual/Quick preparation optimization is already published; do not
-redo it. Run60's eight alternating pairs preserve all ten candidate/file/journal/
-cache invariants and 66 checkpoints; median paired prepare reduction is 26.974 ms.
+redo it. Run63's eight alternating pairs preserve all ten candidate/file/journal/
+cache invariants and 66 checkpoints; median paired prepare reduction is 30.367 ms.
 That comparison concerns the older preparation change, not the new diagnostics.
 
 ## Tracker, authority and constraints
@@ -142,9 +181,8 @@ checkouts can expire; published source and retained evidence are authoritative.
 Preserve strict Run/document v7 and Profile v9 chronology, physical byte/revision
 checks, consent, complete-action recovery and history. Old Run-save permission
 never authorizes erasing Profile history or unrelated slots. Keep both public
-inventories committed and check without regeneration; this test-only edit keeps
-all six inventory reference locations unchanged, but its own cloud gate must
-confirm exact bytes. Keep full Git ancestry for Desktop/New Account seal tests.
+inventories committed and check without regeneration; source-reference line shifts
+must match the candidate exactly. Keep full Git ancestry for Desktop/New Account seal tests.
 Verify exact blobs/tree and freshly checked parent before non-force publication.
 Do not overlap pushes with a useful acceptance run. Distinguish source, tested
 merge and later records-only commits.

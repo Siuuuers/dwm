@@ -805,28 +805,34 @@ static func _normalize_json_string_types(value: Variant) -> Variant:
 			return String(value)
 		TYPE_ARRAY:
 			var source_array: Array = value
-			var normalized_array: Array = []
-			var array_converted := false
-			for item: Variant in source_array:
+			var normalized_array: Variant = null
+			for index: int in source_array.size():
+				var item: Variant = source_array[index]
 				var normalized_item: Variant = _normalize_json_string_types(item)
-				if not is_same(normalized_item, item):
-					array_converted = true
-				normalized_array.append(normalized_item)
-			return normalized_array if array_converted else source_array
+				if normalized_array == null and not is_same(normalized_item, item):
+					normalized_array = []
+					for prior: int in index:
+						normalized_array.append(source_array[prior])
+				if normalized_array != null: normalized_array.append(normalized_item)
+				return source_array if normalized_array == null else normalized_array
 		TYPE_DICTIONARY:
 			var source_dictionary: Dictionary = value
-			var normalized_dictionary: Dictionary = {}
-			var dictionary_converted := false
+			var normalized_dictionary: Variant = null
+			var visited := 0
 			for raw_key: Variant in source_dictionary:
 				var key: Variant = String(raw_key) if typeof(raw_key) == TYPE_STRING_NAME else raw_key
-				if not is_same(key, raw_key):
-					dictionary_converted = true
 				var member: Variant = source_dictionary[raw_key]
 				var normalized_member: Variant = _normalize_json_string_types(member)
-				if not is_same(normalized_member, member):
-					dictionary_converted = true
-				normalized_dictionary[key] = normalized_member
-			return normalized_dictionary if dictionary_converted else source_dictionary
+				if normalized_dictionary == null and (not is_same(key, raw_key) or not is_same(normalized_member, member)):
+					normalized_dictionary = {}
+					var copied := 0
+					for prior_key: Variant in source_dictionary:
+						if copied == visited: break
+						normalized_dictionary[prior_key] = source_dictionary[prior_key]
+						copied += 1
+				if normalized_dictionary != null: normalized_dictionary[key] = normalized_member
+				visited += 1
+			return source_dictionary if normalized_dictionary == null else normalized_dictionary
 		_:
 			return value
 

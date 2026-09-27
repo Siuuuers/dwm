@@ -16,6 +16,7 @@ $suites = @{
     # Isolate the new fixture without removing its order/interaction coverage in Settings.
     checkpoint_diagnostics = @(
         'tests/unit/test_checkpoint_phase_diagnostics.gd'
+        'tests/unit/test_normalization_identity.gd'
     )
     persistence = @(
         'tests/unit/test_frozen_run_context.gd'

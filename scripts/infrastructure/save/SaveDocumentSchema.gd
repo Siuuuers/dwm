@@ -327,27 +327,32 @@ static func _normalize_engine_text(value: Variant) -> Variant:
 		TYPE_STRING_NAME: return String(value)
 		TYPE_ARRAY:
 			var source_array: Array = value
-			var array: Array = []
-			var array_converted := false
-			for element: Variant in source_array:
+			var array: Variant = null
+			for index: int in source_array.size():
+				var element: Variant = source_array[index]
 				var normalized_element: Variant = _normalize_engine_text(element)
-				if not is_same(normalized_element, element):
-					array_converted = true
-				array.append(normalized_element)
-			return array if array_converted else source_array
+				if array == null and not is_same(normalized_element, element):
+					array = []
+					for prior: int in index:
+						array.append(source_array[prior])
+				if array != null: array.append(normalized_element)
+			return source_array if array == null else array
 		TYPE_DICTIONARY:
 			var source_dictionary: Dictionary = value
-			var dictionary := {}
-			var dictionary_converted := false
+			var dictionary: Variant = null
+			var visited := 0
 			for raw_key: Variant in source_dictionary:
 				var key: Variant = String(raw_key) if typeof(raw_key) == TYPE_STRING_NAME else raw_key
-				if not is_same(key, raw_key):
-					dictionary_converted = true
 				var member: Variant = source_dictionary[raw_key]
 				var normalized_member: Variant = _normalize_engine_text(member)
-				if not is_same(normalized_member, member):
-					dictionary_converted = true
-				dictionary[key] = normalized_member
-			return dictionary if dictionary_converted else source_dictionary
+				if dictionary == null and (not is_same(key, raw_key) or not is_same(normalized_member, member)):
+					dictionary = {}
+					var copied := 0
+					for prior_key: Variant in source_dictionary:
+						if copied == visited: break
+						dictionary[prior_key] = source_dictionary[prior_key]
+						copied += 1
+				if dictionary != null: dictionary[key] = normalized_member
+				visited += 1
+			return source_dictionary if dictionary == null else dictionary
 	return value
-
