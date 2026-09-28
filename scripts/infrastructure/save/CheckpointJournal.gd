@@ -174,7 +174,11 @@ func remember_written_retained_bundle(checkpoint_id: String, text: String,
 	if not validated.get("ok", false) or not CANONICAL_JSON._deep_same(
 			document_bundle["snapshot"], validated["value"]["candidate"]):
 		return false
-	_bundle_proofs[checkpoint_id] = {"text": text, "document_bundle": document_bundle.duplicate(true)}
+	# Validation already produced fresh plain containers; the unchanged exact-value checks above
+	# prove they describe these bytes. Keep that detached candidate instead of copying the input.
+	_bundle_proofs[checkpoint_id] = {"text": text, "document_bundle": {
+		"checkpoint_kind": kind, "snapshot": validated["value"]["candidate"],
+	}}
 	return true
 
 ## The remembered canonical text of a still-retained bundle; "" once that bundle left retention.

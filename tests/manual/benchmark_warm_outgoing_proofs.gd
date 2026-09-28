@@ -8,6 +8,7 @@ const STRICT := preload("res://scripts/validation/StrictJson.gd")
 const CANON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const SCHEMA := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 const JOURNAL := preload("res://scripts/infrastructure/save/CheckpointJournal.gd")
+const JOURNAL_REFERENCE := preload("res://tests/support/WarmOutgoingJournalReference.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const FILES := preload("res://tests/support/FakeFileOps.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
@@ -16,9 +17,11 @@ const REFERENCE := preload("res://tests/support/WarmOutgoingProofReference.gd")
 const ROOT := "warm-outgoing-proof-benchmark"
 
 class Manager extends RefCounted:
-	var _journal := JOURNAL.new()
+	var _journal: RefCounted
 	var _storage: RefCounted
 	var _restore_participants := {}
+	func _init(reference: bool = false) -> void:
+		_journal = JOURNAL_REFERENCE.new() if reference else JOURNAL.new()
 
 var _failed := false
 
@@ -66,8 +69,8 @@ func _run() -> void:
 		var bucket := kind if kind in ["line", "manual_save"] else "semantic"
 		kinds[bucket] += 1
 	if not _require(kinds == {"line": 32, "manual_save": 32, "semantic": 2}, "unchanged retention classes"): return
-	var seed_journal := JOURNAL.new()
-	var seeded := seed_journal.prepare_seed(document, document["current_snapshot"])
+	var seed_journal: RefCounted = JOURNAL_REFERENCE.new() if variant == "baseline" else JOURNAL.new()
+	var seeded: Dictionary = seed_journal.prepare_seed(document, document["current_snapshot"])
 	if not _require(seeded.get("ok", false) and seeded["value"]["diagnostics"].is_empty(), "strict complete seed"): return
 	if not _require(seed_journal.commit_prepared(seeded["value"]["candidate"]).get("ok", false), "seed commit"): return
 	var final_state: Dictionary = seed_journal.capture_state()["value"]["backup"]
@@ -87,7 +90,7 @@ func _run() -> void:
 	var evidence := {}
 	for metric: String in samples:
 		for index: int in 7:
-			var manager := Manager.new()
+			var manager := Manager.new(variant == "baseline")
 			var files := FILES.new({ROOT + "/autosave.json": text})
 			manager._storage = STORAGE.new(ROOT, files)
 			var port: RefCounted = REFERENCE.new(manager) if variant == "baseline" else PORT.new(manager)
@@ -207,11 +210,16 @@ func _run() -> void:
 		"reference_commit_method_sha256": REFERENCE.COMMIT_METHOD_SHA256,
 		"reference_splice_method_sha256": REFERENCE.SPLICE_METHOD_SHA256,
 		"reference_validate_method_sha256": REFERENCE.VALIDATE_METHOD_SHA256,
+		"reference_journal_commit": JOURNAL_REFERENCE.SOURCE_COMMIT,
+		"reference_journal_source_sha256": JOURNAL_REFERENCE.JOURNAL_SOURCE_SHA256,
+		"reference_remember_method_sha256": JOURNAL_REFERENCE.REMEMBER_METHOD_SHA256,
 		"candidate_port_source_sha256": FileAccess.get_file_as_string("res://" + REFERENCE.PORT_SOURCE_PATH).sha256_text(),
 		"candidate_schema_source_sha256": FileAccess.get_file_as_string("res://" + REFERENCE.SCHEMA_SOURCE_PATH).sha256_text(),
+		"candidate_journal_source_sha256": FileAccess.get_file_as_string("res://" + JOURNAL_REFERENCE.JOURNAL_SOURCE_PATH).sha256_text(),
+		"journal_reference_source_sha256": FileAccess.get_file_as_string("res://tests/support/WarmOutgoingJournalReference.gd").sha256_text(),
 		"exact_composed_values_types_and_bytes": true,
 		"timing_boundary": "Independent schema validator call and complete port.commit call, nested profiling disabled. Preparation, proof collection, port normalization for direct composition and result verification are outside timing.",
-		"control_boundary": "Accepted226 commit/splice methods versus current methods; all other port methods and the current public raw-proof schema path are shared. Direct composition compares that public raw path with the new private document-proof adapter.",
+		"control_boundary": "Accepted226 commit/splice and journal proof-learning methods versus current methods; all other port/journal methods and the current public raw-proof schema path are shared. Each variant seeds its own journal implementation outside timing. Direct composition compares the public raw path with the private document-proof adapter.",
 		"scope": "Direct composition always has 66 strictly proven raw bundles; normalized document proof availability is 0/51/66. Complete commit uses the same real journal proof count, so cold/mixed take whole-document fallback and warm takes splice. Real journal/storage protocol with FakeFileOps; no public port.prepare/live capture, physical disk or gameplay/input-to-paint comparison."}
 	for metric: String in samples:
 		var ordered: Array = samples[metric].duplicate()

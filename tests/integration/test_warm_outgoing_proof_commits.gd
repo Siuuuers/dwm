@@ -1,11 +1,12 @@
 extends "res://addons/gut/test.gd"
 
 ## Complete save-boundary comparisons: real port, journal and storage protocol; deterministic I/O.
-## The reference freezes the accepted commit/splice, while strict reparsing independently checks
-## that each cached lease describes the actual written bytes.
+## The reference freezes the accepted commit/splice and journal proof learning. Strict reparsing
+## independently checks that each cached lease describes the actual written bytes.
 const PORT := preload("res://scripts/application/run/SaveManagerCheckpointPort.gd")
 const REFERENCE := preload("res://tests/support/WarmOutgoingProofReference.gd")
 const JOURNAL := preload("res://scripts/infrastructure/save/CheckpointJournal.gd")
+const JOURNAL_REFERENCE := preload("res://tests/support/WarmOutgoingJournalReference.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const FILES := preload("res://tests/support/FakeFileOps.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
@@ -18,9 +19,11 @@ const FINAL := ROOT + "/autosave.json"
 const PROFILE_ENV := "DWM_CHECKPOINT_PROFILE"
 
 class Manager extends RefCounted:
-	var _journal := JOURNAL.new()
+	var _journal: RefCounted
 	var _storage: RefCounted
 	var _restore_participants := {}
+	func _init(reference: bool = false) -> void:
+		_journal = JOURNAL_REFERENCE.new() if reference else JOURNAL.new()
 
 var _had_profile := false
 var _previous_profile := ""
@@ -40,7 +43,7 @@ func _wired(reference: bool = false) -> Dictionary:
 	assert_true(parsed.get("ok", false), "fixture strict parse")
 	var validated := SNAPSHOT.validate(parsed.get("value", {}))
 	assert_true(validated.get("ok", false), "fixture snapshot validation")
-	var manager := Manager.new()
+	var manager := Manager.new(reference)
 	var files := FILES.new()
 	manager._storage = STORAGE.new(ROOT, files)
 	var port: RefCounted = REFERENCE.new(manager) if reference else PORT.new(manager)
@@ -247,6 +250,30 @@ func test_reset_restore_and_seed_drop_proofs_before_the_next_complete_write() ->
 			else:
 				assert_false(proof.is_empty(), "cold full writer learns a reusable normalized document")
 				_assert_document_shape(proof)
+				# Exercise the producer itself with equal typed containers and String keys. The
+				# port owns StringName normalization; the journal must not borrow caller containers.
+				var checkpoint_id := str(bundle.snapshot.checkpoint_id)
+				var supplied := proof.duplicate(true)
+				var effects: Array[String] = []
+				var audio: Dictionary[String, String] = {}
+				supplied.snapshot["applied_effect_transaction_ids"] = effects
+				supplied.snapshot["audio_context"] = audio
+				var original_input := var_to_bytes(supplied)
+				var proof_text: String = actual.manager._journal.get_retained_bundle_text(checkpoint_id)
+				assert_true(actual.manager._journal.remember_written_retained_bundle(checkpoint_id, proof_text, supplied))
+				assert_true(reference.manager._journal.remember_written_retained_bundle(checkpoint_id, proof_text, supplied))
+				assert_eq(var_to_bytes(supplied), original_input, "proof learning leaves its caller input untouched")
+				proof = actual.manager._journal.get_retained_bundle_document(checkpoint_id)
+				_assert_document_shape(proof)
+				var old_proof: Dictionary = reference.manager._journal.get_retained_bundle_document(checkpoint_id)
+				assert_true((old_proof.snapshot.applied_effect_transaction_ids as Array).is_typed(),
+					"frozen producer reproduces the typed-container obligation")
+				var proof_before := var_to_bytes(proof)
+				supplied.snapshot.gameplay["money"] = 777777
+				effects.append("caller-mutation")
+				audio["caller"] = "mutation"
+				assert_eq(var_to_bytes(actual.manager._journal.get_retained_bundle_document(checkpoint_id)), proof_before,
+					"validated proof owns detached nested dictionaries and typed source containers")
 		if operation == "numeric_history":
 			var text: String = actual.files.snapshot_persisted()[FINAL].get_string_from_utf8()
 			assert_gte(text.find(original_region), 0, "the tempting normalized region was really written elsewhere")

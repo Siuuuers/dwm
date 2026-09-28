@@ -22,27 +22,46 @@ function Get-WarmProofGitText {
     return [string]::Join("`n", $lines) + "`n"
 }
 # This accepted source already contains the measured history-region cursor. The new control
-# freezes its commit and splice methods. Current public raw-proof schema behavior is common to
-# both variants; the new private adapter is entered only by the candidate's warm splice path.
+# freezes its commit/splice and journal proof-learning methods. Current public raw-proof schema
+# behavior is common to both variants; the new private adapter is entered only by the candidate's
+# warm splice path. All remaining journal methods are checked by whole-source reconstruction.
 $referenceCommit = '226d3da868784baacc6fc33f58823f95b5815a51'
 $portHash = 'bac00cb4df7573a6c670bbab1593e77f6ca8d0dd31b3cd7dade6d50616fd04bc'
 $schemaHash = '1676d41225675acf4e3c154c60e38c2bd831417047266d5a9f00e4466bd448b2'
+$journalHash = '617aa35fe71b426c8c0b643b9fdda2e65322f5e37e652fb98bf7f78f64e7c344'
 $methodHashes = @{
     commit = 'c8a1d78923cee29d2af4b6520e34d3d131d83ead92b170e8f907f8454132ed58'
     _splice_autosave_text = '2d35e02daecdb6fc77cb7058132a76b7301825115f6db29750e3de81145b6d9c'
     _validate_document = 'f5836a5a142eab40679a4b4f76dbff9bd2dc0c1ee92dc18874db350c6526ef61'
+    remember_written_retained_bundle = '70a0dcfb3e8668366339d986a2b96949a0b6a36b31fad67957f33a3698c994d4'
 }
 $portPath = 'scripts/application/run/SaveManagerCheckpointPort.gd'
 $schemaPath = 'scripts/infrastructure/save/SaveDocumentSchema.gd'
+$journalPath = 'scripts/infrastructure/save/CheckpointJournal.gd'
 $historicalPort = Get-WarmProofGitText $referenceCommit $portPath
 $historicalSchema = Get-WarmProofGitText $referenceCommit $schemaPath
+$historicalJournal = Get-WarmProofGitText $referenceCommit $journalPath
 if ((Get-WarmProofTextHash $historicalPort) -cne $portHash -or
-    (Get-WarmProofTextHash $historicalSchema) -cne $schemaHash) {
+    (Get-WarmProofTextHash $historicalSchema) -cne $schemaHash -or
+    (Get-WarmProofTextHash $historicalJournal) -cne $journalHash) {
     throw 'Warm-proof accepted historical Git blob hashes changed.'
 }
 $currentPort = [IO.File]::ReadAllText((Join-Path $RepositoryRoot $portPath)).Replace("`r`n", "`n")
 $currentSchema = [IO.File]::ReadAllText((Join-Path $RepositoryRoot $schemaPath)).Replace("`r`n", "`n")
 $frozen = [IO.File]::ReadAllText((Join-Path $RepositoryRoot 'tests/support/WarmOutgoingProofReference.gd')).Replace("`r`n", "`n")
+$currentJournal = [IO.File]::ReadAllText((Join-Path $RepositoryRoot $journalPath)).Replace("`r`n", "`n")
+$frozenJournal = [IO.File]::ReadAllText((Join-Path $RepositoryRoot 'tests/support/WarmOutgoingJournalReference.gd')).Replace("`r`n", "`n")
+$originalRemember = Get-WarmProofMethod $historicalJournal 'remember_written_retained_bundle'
+$controlRemember = Get-WarmProofMethod $frozenJournal 'remember_written_retained_bundle'
+if ((Get-WarmProofTextHash $originalRemember) -cne $methodHashes.remember_written_retained_bundle -or
+    $controlRemember -cne $originalRemember) {
+    throw 'Frozen warm-proof journal learning is not the exact accepted historical method.'
+}
+$bridgedJournal = $currentJournal.Replace(
+    (Get-WarmProofMethod $currentJournal 'remember_written_retained_bundle'), $originalRemember)
+if ((Get-WarmProofTextHash $bridgedJournal) -cne $journalHash) {
+    throw 'Reversing only reviewed journal proof learning does not reproduce the accepted whole journal.'
+}
 $bridgedPort = $currentPort
 foreach ($name in @('commit', '_splice_autosave_text')) {
     $original = Get-WarmProofMethod $historicalPort $name
@@ -94,5 +113,6 @@ if ((Get-WarmProofTextHash $bridgedSchema) -cne $schemaHash) {
 [pscustomobject]@{
     reference_commit = $referenceCommit; reference_port_source_sha256 = $portHash
     reference_schema_source_sha256 = $schemaHash; reference_method_sha256 = $methodHashes
+    reference_journal_source_sha256 = $journalHash
     accepted_port_source = $historicalPort
 }

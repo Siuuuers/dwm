@@ -362,15 +362,9 @@ func commit(candidate: Dictionary) -> Dictionary:
 				if CANONICAL_JSON._deep_same(normalized["current_snapshot"], checked_current):
 					proven_current_document = checked_current
 				if not spliced:
-					# Keep schema-normalized containers, not caller-held typed/StringName aliases
-					# that compare equal and emit the same text. Preserve original numeric types
-					# otherwise: their emission/region/retained-value refusals still own learning.
-					var original_history: Array = normalized["recovery_journal"]
-					var checked_history: Array = checked["value"]["candidate"]["recovery_journal"]
-					for index: int in original_history.size():
-						written_history.append(checked_history[index] if CANONICAL_JSON._deep_same(
-							original_history[index], checked_history[index]) else original_history[index])
-					written_history = written_history.duplicate(true)
+					# Capture a detached copy of the normalized history the full writer emitted.
+					# It grants no reusable proof until all durability steps succeed.
+					written_history = (normalized["recovery_journal"] as Array).duplicate(true)
 					written_document_text = document_text
 			_profile_phase(profile, "outgoing_history_capture_us", sub_tick)
 		# Failed proof and all unknown physical bytes retain the original strict parser

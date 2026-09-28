@@ -26,17 +26,19 @@ foreach ($entry in @(
     @('storage', 'scripts/infrastructure/storage/JsonFileStorage.gd'),
     @('file_ops', 'tests/support/FakeFileOps.gd'),
     @('reference', 'tests/support/WarmOutgoingProofReference.gd'),
+    @('journal_reference', 'tests/support/WarmOutgoingJournalReference.gd'),
     @('harness', 'tests/manual/benchmark_warm_outgoing_proofs.gd'),
     @('driver', 'tools/testing/Invoke-WarmOutgoingProofPerformance.ps1'))) {
     $sourceHashes[$entry[0]] = (Get-FileHash -LiteralPath (Join-Path $repositoryRoot $entry[1]) -Algorithm SHA256).Hash.ToLowerInvariant()
 }
 
 # The guard reads actual accepted Git blobs and proves the frozen method bodies plus the
-# exact, narrowly reviewed port/schema difference boundaries before any measurements run.
+# exact, narrowly reviewed port/schema/journal difference boundaries before any measurements run.
 $provenance = & (Join-Path $PSScriptRoot 'Assert-WarmOutgoingProofBaseline.ps1') -RepositoryRoot $repositoryRoot
 $referenceCommit = $provenance.reference_commit
 $referencePortHash = $provenance.reference_port_source_sha256
 $referenceSchemaHash = $provenance.reference_schema_source_sha256
+$referenceJournalHash = $provenance.reference_journal_source_sha256
 
 function Get-Median {
     param([object[]]$Values)
@@ -98,8 +100,13 @@ foreach ($mode in @('cold', 'mixed', 'warm')) {
                 $measurement.reference_commit_method_sha256 -cne $provenance.reference_method_sha256.commit -or
                 $measurement.reference_splice_method_sha256 -cne $provenance.reference_method_sha256._splice_autosave_text -or
                 $measurement.reference_validate_method_sha256 -cne $provenance.reference_method_sha256._validate_document -or
+                $measurement.reference_journal_commit -cne $referenceCommit -or
+                $measurement.reference_journal_source_sha256 -cne $referenceJournalHash -or
+                $measurement.reference_remember_method_sha256 -cne $provenance.reference_method_sha256.remember_written_retained_bundle -or
                 $measurement.candidate_port_source_sha256 -cne $sourceHashes.port -or
                 $measurement.candidate_schema_source_sha256 -cne $sourceHashes.schema -or
+                $measurement.candidate_journal_source_sha256 -cne $sourceHashes.journal -or
+                $measurement.journal_reference_source_sha256 -cne $sourceHashes.journal_reference -or
                 $measurement.exact_composed_values_types_and_bytes -ne $true) {
                 throw 'Warm outgoing proofs changed its source, payload, proof state, schema or retention contract.'
             }
@@ -133,7 +140,9 @@ foreach ($mode in @('cold', 'mixed', 'warm')) {
                 'initial_proofs_present', 'initial_proofs_missing', 'evidence', 'reference_commit',
                 'reference_port_source_sha256', 'reference_schema_source_sha256',
                 'reference_commit_method_sha256', 'reference_splice_method_sha256', 'reference_validate_method_sha256',
-                'candidate_port_source_sha256', 'candidate_schema_source_sha256', 'control_boundary', 'scope', 'timing_boundary')) {
+                'reference_journal_commit', 'reference_journal_source_sha256', 'reference_remember_method_sha256',
+                'candidate_port_source_sha256', 'candidate_schema_source_sha256', 'candidate_journal_source_sha256',
+                'journal_reference_source_sha256', 'control_boundary', 'scope', 'timing_boundary')) {
                 $invariants[$field] = $measurement.PSObject.Properties[$field].Value
             }
             $invariantText = ConvertTo-EvidenceText $invariants
@@ -166,7 +175,7 @@ $report = [ordered]@{
     checkout_ref = $checkoutRef; run_id = [string]$env:GITHUB_RUN_ID; source_sha256 = $sourceHashes
     input_sha256 = $inputHash; retained_checkpoint_count = 66; pairs = $pairs; summaries = $summaries
     sampling = 'Four alternating pairs per cold/mixed/warm mode; twenty-four fresh isolated processes. Each independent metric keeps five fresh-state samples after two warmups. No pooled/nested timing sum or timing threshold; OS caches are not flushed.'
-    scope = 'Accepted226 commit/splice versus current warm document-proof path; remaining port methods and public raw-proof validator are shared and source-guarded. Direct schema composition always has 66 trusted raw bundles with 0/51/66 normalized proofs. Complete commit uses the same real journal proof count, causing full fallback for cold/mixed and splice for warm. Exact Day7 bytes, types, proofs, journal and physical files/ordered traces with FakeFileOps; no physical disk, public preparation, gameplay or input-to-paint claim.'
+    scope = 'Accepted226 commit/splice and journal proof learning versus current warm document-proof path; remaining port/journal methods and public raw-proof validator are shared and source-guarded. Each variant seeds its own journal implementation outside timing. Direct schema composition always has 66 trusted raw bundles with 0/51/66 normalized proofs. Complete commit uses the same real journal proof count, causing full fallback for cold/mixed and splice for warm. Exact Day7 bytes, types, proofs, journal and physical files/ordered traces with FakeFileOps; no physical disk, public preparation, gameplay or input-to-paint claim.'
 }
 $report | ConvertTo-Json -Depth 24 | Set-Content -LiteralPath (Join-Path $output 'results.json') -Encoding utf8
 Write-Host ('WARM_OUTGOING_PROOF_COMPARISON: ' + ([ordered]@{
