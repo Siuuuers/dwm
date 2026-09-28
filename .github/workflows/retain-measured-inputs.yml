@@ -17,16 +17,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - number: 69
-            run_id: '36471714121'
-            source: '9ddc144a6a497e17bb3452c0046948011d980fc2'
-            bytes: 1911042
-            sha256: 'f3f3c263772ca82e0a520acb6cf277a8d63404490f39db6aa03f35953d40973e'
-          - number: 70
-            run_id: '36480010657'
-            source: '9958c66fd345ca8c30d7114fdff4c4bb1b356ec7'
-            bytes: 1911012
-            sha256: '2ee9968cce7502971f50a541e95946a1e79bcc1ffd129d91c2af88b805b51be4'
+          - number: 71
+            run_id: '36486629798'
+            source: 'd4b0fa924af2f83f0a77e9ab3f177c7f86b3e632'
+            bytes: 1911169
+            sha256: '078cbf4095498420a8c117b5fa5bd55c8a6386c708fb980cb4158fec1e59bb00'
     steps:
       - name: Download the exact completed run archive
         uses: actions/download-artifact@v4
