@@ -9,33 +9,95 @@ check the actual ref and bind every test to its executed merge and source.
 
 ## Current accepted source and next action
 
-**Run66 is the latest fully accepted source baseline.**
+**Run68 is the latest fully accepted source baseline.**
 
-- Run: <https://github.com/Siuuuers/dwm/actions/runs/36449012704>
-- Source: `33ad80cc25c592153292e4e8544564877ac9d99e`
-- Tested PR merge: `5c0d393da7808be8b9df1e4a5d4b6e0d1c84b8bb`
-- Source tree: `974ab90a4d1f4f2c5320a16f6963424ba68606d3`
-- Tested merge tree: `4e7dafd2814cc74c12ddc3292aacff5850adece0`
-- All **18/18 jobs** passed; **2,028 GUT executions**, all passing, **zero skips**.
-  There are **2,024 unique cases**; the four diagnostic cases intentionally run
-  in both Settings and the isolated diagnostic job.
-- Settings **288/288** plus storage-refusal checks; isolated diagnostics **10/10**
-  (four checkpoint diagnostics and six normalization identity cases).
+- Run: <https://github.com/Siuuuers/dwm/actions/runs/36460570529>
+- Source: `274bcff60e7bdba32c2fc4d6961ef51909f0d7a1`
+- Tested PR merge: `c89aae5a022dee3262391e68126954f2e01085e7`
+- Source tree: `3c7596cdcb3495030a446b106de699a672679132`
+- Tested merge tree: `8b502d397e37adcb6db42f69de7e3255db92e4f3`
+- All **18/18 jobs** passed; **2,035 GUT executions**, all passing, **zero skips**.
+  There are **2,031 unique cases**; four checkpoint diagnostic cases intentionally
+  run in both Settings and the isolated diagnostic job.
+- Settings **288/288** plus storage-refusal checks; isolated diagnostics **17/17**
+  (four checkpoint diagnostics, six normalization identity and seven region-search cases).
 - All 17 internal caption-ledger cases, 136 standalone capture checks, five
-  rendered journeys, rendered UI, and exported Windows headless startup passed.
+  rendered journeys, rendered UI and exported Windows headless startup passed.
 - The source-to-merge comparison has seven Markdown differences only. Runtime,
   tests, workflow and inventories are identical. The owner's story archives do
   not approve their noncanonical proposals or runtime behavior.
 
 Later evidence-only commits do not create a new tested runtime baseline. Never
-reset newer work to an older accepted source. Continue with `dwm-634.3`'s measured
-remaining checkpoint costs: use the Run66 phase trace to choose one bounded
-experiment and compare identical retained payloads and proof states. The small
-normalization improvement does not settle the larger save/first-reveal pauses.
-No new architecture decision was required for this completed increment. Ask when
-a proposed next change would alter save/recovery custody or another unsettled law.
+reset newer work to an older accepted source. Continue `dwm-634.3` from the measured
+remaining costs. The next bounded hypothesis is warm outgoing composition's
+re-traversal of already-normalized retained history: Run68's following two Day7
+checkpoints spend **72.801 ms** and **75.082 ms** in proven-journal composition,
+inside complete port commits of **227.377 ms** and **234.288 ms**. Investigate the
+journal's existing normalized document proofs tied to the exact spliced texts.
+Preserve generic raw-proof validation, missing-document/cold fallbacks, detachment,
+proof lifetimes and every storage boundary. Compare a frozen control on identical
+payloads and proof states. This targets warm checkpoints; the cold/full first-reveal
+path remains separate. Do not add nested timers.
 
-## Accepted normalization change and its measurement limits
+Keep the manual-save storage-only success witness as a separate, unmeasured
+hypothesis: source inspection finds downstream copies of a validation value the
+caller discards. Measure complete matched manual writes before assigning a cost or
+claiming a benefit. Preserve strict validation, exact-text memo scope, physical
+readback/revisions, failures and consent. No save-format, retention or asynchronous
+custody change is authorized by either hypothesis.
+
+No architecture question blocked this increment. The
+[continuation audit](2026-09-29-continuation-audit.md) maps all 23 unfinished records,
+corrects stale descriptions, supplies a six-family replay-selector matrix and
+identifies independent cloud-regression candidates. It is navigation-only. Settings
+recovery requires an explicit Profile reconciliation owner; do not mistake existing
+recovery presentation components for an already-complete Profile recovery path.
+
+## Accepted retained-history region search and its measurement limits
+
+`SaveManagerCheckpointPort._remember_written_history` now continues searching
+from the end of the last exact match. A forward miss still searches the whole
+text, preserving the original any-occurrence semantics for reordered, duplicated,
+nested or missing entries. String positions remain character offsets, including
+Unicode. Existing-proof skips and retained-value refusals are unchanged. The
+production change is confined to this method; it adds no cache or schema change.
+Seven new cases compare exact proof values/bytes and decisions with the frozen
+original and assert journal/source custody.
+
+The reference freezes the exact method from `5c3368dbba14475a3749bd71df971bfed353699f`.
+The cloud driver verifies its historical Git blob and method hashes, and verifies
+that replacing only the candidate method reconstructs the original whole port.
+**A later port change outside this method requires a deliberate provenance and
+comparison-contract review; do not silently remove that guard.**
+
+Run68 median paired reductions:
+
+| Initial retained proofs | Direct learning | Complete port commit with FakeFileOps |
+|---|---:|---:|
+| 0 of 66 | 154.841 ms | 157.613 ms |
+| First 51 of 66 | 60.6805 ms | 59.2855 ms |
+
+All four pairs improve each metric in each mode. Four alternating pairs per mode
+use sixteen fresh isolated processes. Each independent metric retains five
+fresh-state samples after two warmups; OS caches are not flushed. The mixed seed
+is the first 51 proofs, not a reconstruction of the exact gameplay proof set.
+Real journal and storage protocol run against FakeFileOps. Exact proof strings and
+documents, all 66 bundles, complete journal state, physical-byte manifests and
+ordered operation traces match. Source bytes remain unchanged.
+
+These are matched learning/commit measurements; public port preparation, live UI
+capture, physical disk and input-to-paint are outside their scope. Timers overlap
+and must not be added. Run68's actual Day7 first-reveal trace learns 15/15 missing
+proofs and spends **3.872 ms** in region searching, but cross-run phase differences
+are not causal speedup evidence.
+
+Run68 synthetic Day7 observed first reveal **1.276668 s**, complete manual save
+**3.745364 s**, terminal settlement **0.817582 s** and cold Login **9.008212 s**.
+All 66 checkpoints survive (32 line, 32 manual-save, two semantic). These shared
+Windows runner observations do not establish a latency threshold or full-save
+speedup. The broader lag tasks remain in progress.
+
+## Earlier accepted normalization change and its measurement limits
 
 `SaveDocumentSchema._normalize_engine_text` and
 `SaveManagerCheckpointPort._normalize_json_string_types` now allocate a result
@@ -94,6 +156,29 @@ normalization.
 
 ## Retained evidence and resolved test defects
 
+- `evidence/beads_cloud_review/resumed-public-cloud-run68.json`
+- `evidence/beads_cloud_review/performance/run68-history-region-search.json`
+- `evidence/beads_cloud_review/performance/run68-checkpoint-trace.json`
+- `evidence/beads_cloud_review/performance/run68-lazy-normalization.json`
+- Equivalent Run67 receipt, ordered trace and lazy-normalization pairs remain.
+- `evidence/beads_cloud_review/run67-checkpoint-diagnostics-red.log`
+- `evidence/beads_cloud_review/run67-history-region-red.log`
+
+Run67 passed 16 jobs and failed two harness gates. The new unit helper collided
+with GUT's inherited `_compare` member; the guarded runner rejected the unloaded
+seven-case script even though ten existing cases passed. The benchmark separately
+failed because a JSON-directed comparator normalizes StringName on its left side
+but cannot compare two native StringName operation traces. Run68 renames the helper,
+compares native trace evidence with exact `var_to_bytes` equality, and compares the
+journal's backup data rather than its Result wrapper's StringName code. The last
+fixture issue was found statically behind the parse failure. All original custody,
+proof, byte and trace assertions remain; all seven new cases now execute and pass.
+Run67 retained-history, outgoing and lazy comparison steps passed, but no region
+pair or region comparison completed, and Run67 is not accepted. No timeout or test
+omission was used to obtain Run68 acceptance.
+
+Earlier retained evidence:
+
 - `evidence/beads_cloud_review/resumed-public-cloud-run66.json`
 - `evidence/beads_cloud_review/performance/run66-lazy-normalization.json`
 - `evidence/beads_cloud_review/performance/run66-checkpoint-trace.json`
@@ -120,8 +205,8 @@ proven cause. Neither timeouts nor test omissions were used to obtain acceptance
 
 The public inventories reproduce canonical bytes **without regeneration**:
 
-- GameState SHA-256: `8c5e0a110fe05bc418894ba273ce7e3a72cfe60963535f227e17bd416ee0e08c`
-- SaveManager SHA-256: `35921b0d7023421e2e81bcfc4642f026d31b318bc6287967f9119dc4ed81038e`
+- GameState SHA-256: `1e150c1630729f70e1b4923312ad803435ea8e44afb973ed830d488a8d857bb0`
+- SaveManager SHA-256: `0acdbf76ddf356c8e2321d9f6c694528691ce3657a6f15c81eee2184ab88a7ea`
 
 ## Caption ledger and unsettled narrative integration
 
