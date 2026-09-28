@@ -1,3 +1,33 @@
+# Current verification — 29 September 2026 (Hong Kong)
+
+Accepted source `d4b0fa924af2f83f0a77e9ab3f177c7f86b3e632`, tested as merge
+`386adf3911a76e734baf951c758dc445c4d6e588`:
+[Run71](https://github.com/Siuuuers/dwm/actions/runs/36486629798) passed all 18 jobs,
+2,049 executions / 2,045 unique cases, zero skips, and all 66 retained checkpoints.
+Records commits after that source contain only task, documentation and evidence updates.
+
+Read the [current handoff](../../docs/agent/2026-09-23-next-session-handoff.md),
+[complete receipt](resumed-public-cloud-run71.json),
+[raw warm-proof comparison](performance/run71-warm-outgoing-proof.json),
+and [exact-input replay instructions](performance/README-warm-proof-replay.md).
+
+The corrected path is kept with median paired complete-commit deltas of
+−28.8505 ms cold, +2.572 ms mixed and −48.7915 ms warm. The small mixed regression
+is explicit. These are FakeFileOps protocol measurements, not physical disk or
+gameplay responsiveness. Runs69/70 and their unfavorable measurements remain retained.
+Exact synthetic inputs for Runs69–71 survive original Actions artifact expiration.
+
+The restore/facade isolation and internal ordered caption ledger increments passed.
+All three broader parent Beads remain in progress; production History/Save/Next,
+remaining facade coverage, and native/latency acceptance are not claimed complete.
+Existing Run7 loadability and all Profile history must remain supported.
+
+The following 21 September report is historical and preserves its original claims
+and permission scope. Its earlier save-reset permission does not authorize rejecting
+current Run7 records in future narrative work.
+
+---
+
 # Beads and cloud verification — 2026-09-21
 
 Working branch: `codex/windows-cloud-ux`, draft PR #1. The source baseline was
