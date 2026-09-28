@@ -21,6 +21,8 @@ $retired = @(
     'can_respond_to_invitation'
     'can_buy_supportz'
     'has_unread_friend_messages'
+    'prepare_run_candidate'
+    'commit_run_candidate'
 )
 $searchRoots = @('autoload', 'scripts', 'scenes', 'tests')
 $pattern = '\b(?:' + (($retired | ForEach-Object { [regex]::Escape($_) }) -join '|') + ')\b'

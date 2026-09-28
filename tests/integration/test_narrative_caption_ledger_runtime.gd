@@ -99,13 +99,25 @@ func after_each() -> void:
 func _settle() -> void:
 	for frame: int in 6: await get_tree().process_frame
 
-func _start(label: String = ENTRY) -> bool:
-	var bound := _adapter.bind_caption_ledger(_ledger, TOKEN, ENTRY)
+func _start(label: String = ENTRY, entry_id: String = ENTRY) -> bool:
+	# end_behaviour=0 frees the preceding layout. Every new entry must remount
+	# the real Witnessed host instead of silently taking Dialogic's default style.
+	var layout: Node = _runtime.Styles.get_layout_node()
+	if layout == null: layout = _runtime.Styles.load_style(STYLE, _viewport)
+	assert_not_null(layout)
+	if layout == null: return false
+	var style: Resource = layout.get_meta("style", null)
+	assert_not_null(style)
+	if style == null: return false
+	assert_eq(style.resource_path, STYLE)
+	var bound := _adapter.bind_caption_ledger(_ledger, TOKEN, entry_id)
 	assert_true(bound.ok, str(bound))
 	if not bound.ok: return false
 	var started := _adapter.start_timeline(FIXTURE, label)
 	assert_true(started.ok, str(started))
 	await _settle()
+	assert_same(_runtime.Styles.get_layout_node(), layout, "native start retains the explicitly mounted host")
+	assert_same(layout.get_parent(), _viewport, "every entry stays in the exact test viewport")
 	return started.ok
 
 func test_native_publications_use_authored_identity_and_actual_order_before_reveal_finishes() -> void:
@@ -206,12 +218,14 @@ func test_native_entries_share_one_sequence_across_retirement_reconstruction_and
 	assert_true(initialized.ok, str(initialized))
 	if not initialized.ok: return
 	if not await _start(): return
+	var first_layout: WeakRef = weakref(_runtime.Styles.get_layout_node())
 	for line: int in 2:
 		assert_true(_adapter.reveal_current_line(true).ok)
 		await _settle()
 		assert_true(_adapter.advance_one_event().ok)
 		await _settle()
 	assert_false(_adapter.has_active_playback())
+	assert_null(first_layout.get_ref(), "natural completion frees the old host and its native handlers")
 	var first_entry := _ledger.snapshot()
 	assert_eq(first_entry.captions.size(), 2)
 	if first_entry.captions.size() != 2: return
@@ -221,11 +235,10 @@ func test_native_entries_share_one_sequence_across_retirement_reconstruction_and
 	_runtime.Text.text_started.emit({})
 	assert_eq(_ledger.snapshot(), first_entry)
 	var second_entry := "fixture.non_canon.foreign_entry"
-	assert_true(_adapter.bind_caption_ledger(_ledger, TOKEN, second_entry).ok)
-	assert_true(_adapter.start_timeline(FIXTURE, second_entry).ok)
-	await _settle()
+	if not await _start(second_entry, second_entry): return
+	var second_layout: WeakRef = weakref(_runtime.Styles.get_layout_node())
 	var together := _ledger.snapshot()
-	assert_eq(together.captions.size(), 3)
+	assert_eq(together.captions.size(), 3, str(_results))
 	if together.captions.size() != 3: return
 	assert_eq(together.captions.slice(0, 2), first_entry.captions)
 	assert_eq(together.captions[2].beat.line_id, "fixture.caption.gamma")
@@ -237,6 +250,7 @@ func test_native_entries_share_one_sequence_across_retirement_reconstruction_and
 	assert_true(_adapter.advance_one_event().ok)
 	await _settle()
 	assert_false(_adapter.has_active_playback())
+	assert_null(second_layout.get_ref(), "reconstruction begins after the second host is released")
 	var retired := _ledger
 	var reconstructed := LEDGER.new()
 	var empty := reconstructed.snapshot()

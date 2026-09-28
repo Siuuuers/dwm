@@ -79,7 +79,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_game_state_constant_contracts"
+      "contract_test": "test_the_friend_roster_has_one_owner_and_two_aliases"
     },
     {
       "symbol": "STAT_PRESSURE",
@@ -215,7 +215,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_game_state_signals_after_commit"
+      "contract_test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge"
     },
     {
       "symbol": "contact_choice_selected",
@@ -311,7 +311,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_game_state_signals_after_commit"
+      "contract_test": "test_prepared_restore_plan_and_installed_owner_remain_independent_until_finalize"
     },
     {
       "symbol": "contact_open_committed",
@@ -343,7 +343,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_game_state_facade_reads_committed_state"
+      "contract_test": "test_shop_purchase_saves_authored_effects_and_retries_without_a_second_charge"
     },
     {
       "symbol": "coins",
@@ -351,7 +351,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_game_state_facade_reads_committed_state"
+      "contract_test": "test_lucky_charm_purchase_transacts_exactly_once_against_real_ports"
     },
     {
       "symbol": "stats",
@@ -407,7 +407,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_game_state_facade_reads_committed_state"
+      "contract_test": "test_first_count_draw_is_profile_durable_before_run_candidate_and_retry_reuses_it"
     },
     {
       "symbol": "missed_group_date_counts",
@@ -487,7 +487,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_game_state_facade_reads_committed_state"
+      "contract_test": "test_lucky_charm_purchase_transacts_exactly_once_against_real_ports"
     },
     {
       "symbol": "chat_state",
@@ -511,7 +511,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_game_state_facade_reads_committed_state"
+      "contract_test": "test_supportz_purchase_decrements_the_real_round_floor_and_spends_real_money"
     },
     {
       "symbol": "minesweeper_rounds_left",
@@ -519,7 +519,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_game_state_facade_reads_committed_state"
+      "contract_test": "test_restore_after_a_crash_between_checkpoint_commit_and_live_adoption_recovers_the_paid_first_reveal"
     },
     {
       "symbol": "minesweeper_rng_seed",
@@ -535,7 +535,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_game_state_facade_reads_committed_state"
+      "contract_test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge"
     },
     {
       "symbol": "minesweeper_selected_difficulty",
@@ -567,7 +567,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_game_state_facade_reads_committed_state"
+      "contract_test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge"
     },
     {
       "symbol": "penalty_points_today",
@@ -695,7 +695,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_game_state_facade_reads_committed_state"
+      "contract_test": "test_game_owner_hospital_request_is_bound_durable_detached_and_idempotent"
     },
     {
       "symbol": "reset_game",
@@ -887,7 +887,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_minesweeper_query_contracts"
+      "contract_test": "test_sylvia_achieved_third_round_offer_uses_tier_without_granting_a_round"
     },
     {
       "symbol": "change_minesweeper_round_floor",
@@ -1023,7 +1023,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_contact_query_contracts"
+      "contract_test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge"
     },
     {
       "symbol": "is_date_unlocked",
@@ -1031,7 +1031,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_contact_query_contracts"
+      "contract_test": "test_sylvia_achieved_third_round_offer_uses_tier_without_granting_a_round"
     },
     {
       "symbol": "build_date_entry_from_unlock",
@@ -1293,9 +1293,9 @@
       "symbol": "apply_save_dict",
       "kind": "function",
       "availability": "current",
-      "disposition": "replace",
-      "replacement": "func commit_run_candidate(candidate: Dictionary) -> Dictionary",
-      "contract_test": "test_run_candidate_commit"
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_active_run_rollback_keeps_independent_nested_gameplay_and_existing_publication"
     },
     {
       "symbol": "get_save_summary",
@@ -1508,28 +1508,12 @@
       "signature": "func prepare_new_run_snapshot_input(run_id: String, branch_id: String, desktop_timeline_generation: int,"
     },
     {
-      "symbol": "prepare_run_candidate",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_detached_run_candidate_seam_is_required"
-    },
-    {
       "symbol": "capture_live_run_state",
       "kind": "function",
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_detached_run_candidate_seam_is_required"
-    },
-    {
-      "symbol": "commit_run_candidate",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_detached_run_candidate_seam_is_required"
+      "contract_test": "test_active_run_capture_and_owner_keep_independent_nested_gameplay"
     },
     {
       "symbol": "restore_live_run_state",
@@ -1537,7 +1521,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_detached_run_candidate_seam_is_required"
+      "contract_test": "test_active_run_rollback_keeps_independent_nested_gameplay_and_existing_publication"
     },
     {
       "symbol": "commit_effect_transaction",

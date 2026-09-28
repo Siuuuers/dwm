@@ -3170,17 +3170,9 @@ static func _transaction_failure(code: StringName, message: String) -> Dictionar
 	return {"ok": false, "code": code, "message": message, "details": {}}
 
 
-# ---- Detached run candidate seam (Plan-05 Task 3 Step 3.2) ----
-
-func prepare_run_candidate(snapshot: Dictionary) -> Dictionary:
-	if typeof(snapshot) != TYPE_DICTIONARY or snapshot.is_empty():
-		return _transaction_failure(&"invalid_run_candidate", "a snapshot input is required")
-	return {"ok": true, "code": &"ok", "value": {"candidate": snapshot.duplicate(true)}, "receipt": {}}
-
-
 func capture_live_run_state() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"backup": {
-		"gameplay": to_save_dict(),
+		"gameplay": to_save_dict().duplicate(true),
 		"contacts": contacts.duplicate(true),
 		"command_receipts": _command_receipts.duplicate(true),
 		"applied_effect_transaction_ids": _applied_effect_transaction_ids.duplicate(true),
@@ -3189,19 +3181,13 @@ func capture_live_run_state() -> Dictionary:
 	}}}
 
 
-func commit_run_candidate(candidate: Dictionary) -> Dictionary:
-	if typeof(candidate) != TYPE_DICTIONARY or candidate.is_empty():
-		return _transaction_failure(&"invalid_run_candidate", "candidate was not issued by this seam")
-	return {"ok": true, "code": &"ok", "value": {"committed": true}, "receipt": {}}
-
-
 func restore_live_run_state(backup: Dictionary) -> Dictionary:
 	var source: Variant = backup.get("backup", backup)
 	if typeof(source) != TYPE_DICTIONARY or not (source as Dictionary).has("command_receipts"):
 		return _transaction_failure(&"invalid_run_backup", "backup was not issued by capture_live_run_state")
 	var detached: Dictionary = source as Dictionary
 	if typeof(detached.get("gameplay")) == TYPE_DICTIONARY:
-		apply_save_dict(detached["gameplay"])
+		apply_save_dict(detached["gameplay"].duplicate(true))
 	if typeof(detached.get("contacts")) == TYPE_DICTIONARY:
 		contacts = (detached["contacts"] as Dictionary).duplicate(true)
 	_command_receipts = (detached["command_receipts"] as Dictionary).duplicate(true)

@@ -33,7 +33,7 @@ func _mutate_owner(owner: Node) -> void:
 
 
 func _assert_publication(owner: Node, finalized: bool) -> void:
-	for declaration: Dictionary in GAME_STATE.get_script_signal_list():
+	for declaration: Dictionary in owner.get_signal_list():
 		var signal_name := str(declaration.name)
 		if finalized and signal_name == "save_relevant_state_changed":
 			assert_signal_emit_count(owner, signal_name, 1, "one publication at finalization")
@@ -128,29 +128,80 @@ func _source_method(source: String, method_name: String) -> String:
 	return "\n".join(lines).strip_edges(false, true) + "\n" if started else ""
 
 
+func _restore_retired_source(source: String) -> String:
+	# The removed unused methods are evidence, never executable compatibility APIs.
+	# Pin their exact historical bytes without exempting test code from retirement.
+	var text := FileAccess.get_file_as_string("res://tests/fixtures/source/game_state_retired_candidate_seams.json").replace("\r\n", "\n")
+	const SOURCE_ARTIFACT_SHA256 := "a5cdc71da32cc7d6bbe2298157d63e8edda3511658b346e8536023ecd4874e82"
+	assert_eq(text.sha256_text(), SOURCE_ARTIFACT_SHA256, "exact non-executable retirement source artifact")
+	if text.sha256_text() != SOURCE_ARTIFACT_SHA256: return ""
+	var parsed: Variant = JSON.parse_string(text)
+	assert_true(parsed is Dictionary, "retirement source artifact is an object")
+	if not parsed is Dictionary: return ""
+	var keys: Array = parsed.keys()
+	keys.sort()
+	var expected_keys := ["before_live_capture", "before_live_restore", "schema", "source_commit", "source_sha256"]
+	assert_eq(keys, expected_keys, "exact retirement source fields")
+	if keys != expected_keys: return ""
+	assert_eq(parsed.schema, "dwm_retired_game_state_source.v1")
+	assert_eq(parsed.source_commit, REFERENCE.SOURCE_COMMIT, "retirement and alias controls share the historical source")
+	assert_eq(parsed.source_sha256, REFERENCE.SOURCE_SHA256)
+	if parsed.schema != "dwm_retired_game_state_source.v1" or parsed.source_commit != REFERENCE.SOURCE_COMMIT \
+			or parsed.source_sha256 != REFERENCE.SOURCE_SHA256: return ""
+	for placement: Array in [
+			["before_live_capture", "func capture_live_run_state() -> Dictionary:"],
+			["before_live_restore", "func restore_live_run_state(backup: Dictionary) -> Dictionary:"]]:
+		var fragment: Variant = parsed[placement[0]]
+		var anchor: String = placement[1]
+		assert_true(fragment is String and not fragment.is_empty(), "historical source fragment is present")
+		assert_eq(source.count(anchor), 1, "one retained method anchors the historical fragment")
+		if not fragment is String or fragment.is_empty() or source.count(anchor) != 1: return ""
+		source = source.replace(anchor, fragment + anchor)
+	return source
+
+
 func _assert_frozen_provenance() -> bool:
 	# A later owner edit must deliberately rebase this comparison contract and
 	# retain a reproducible failing control; do not silently loosen these hashes.
+	const LIVE_REFERENCE := preload("res://tests/support/LiveRunRollbackAliasingReference.gd")
 	var source := FileAccess.get_file_as_string("res://autoload/GameState.gd").replace("\r\n", "\n")
 	var reference := FileAccess.get_file_as_string("res://tests/support/RunRestoreAliasingReference.gd").replace("\r\n", "\n")
+	var live_reference := FileAccess.get_file_as_string("res://tests/support/LiveRunRollbackAliasingReference.gd").replace("\r\n", "\n")
 	var capture := _source_method(source, "capture_restore_state")
 	var install := _source_method(source, "_apply_gameplay_silent")
+	var live_capture := _source_method(source, "capture_live_run_state")
+	var live_rollback := _source_method(source, "restore_live_run_state")
 	var capture_reference := _source_method(reference, "capture_restore_state")
 	var install_reference := _source_method(reference, "_apply_gameplay_silent")
+	var live_capture_reference := _source_method(live_reference, "capture_live_run_state")
+	var live_rollback_reference := _source_method(live_reference, "restore_live_run_state")
 	assert_eq(capture_reference.sha256_text(), REFERENCE.CAPTURE_RESTORE_STATE_SHA256, "exact historical capture control")
 	assert_eq(install_reference.sha256_text(), REFERENCE.APPLY_GAMEPLAY_SILENT_SHA256, "exact historical installation control")
+	assert_eq(live_capture_reference.sha256_text(), LIVE_REFERENCE.CAPTURE_LIVE_RUN_STATE_SHA256, "exact historical active-run capture control")
+	assert_eq(live_rollback_reference.sha256_text(), LIVE_REFERENCE.RESTORE_LIVE_RUN_STATE_SHA256, "exact historical active-run rollback control")
 	assert_eq(capture.count("to_save_dict().duplicate(true)"), 1, "one capture detachment edit")
 	assert_eq(install.count("v.duplicate(true)"), 2, "dictionary and array installation edits")
+	assert_eq(live_capture.count("to_save_dict().duplicate(true)"), 1, "one active-run capture detachment edit")
+	assert_eq(live_rollback.count('detached["gameplay"].duplicate(true)'), 1, "one active-run rollback detachment edit")
 	if capture.is_empty() or install.is_empty() or capture.count("to_save_dict().duplicate(true)") != 1 \
-			or install.count("v.duplicate(true)") != 2:
+			or install.count("v.duplicate(true)") != 2 or live_capture.is_empty() or live_rollback.is_empty() \
+			or live_capture.count("to_save_dict().duplicate(true)") != 1 \
+			or live_rollback.count('detached["gameplay"].duplicate(true)') != 1:
 		return false
 	assert_eq(source.count(capture), 1, "unique capture source body")
 	assert_eq(source.count(install), 1, "unique installation source body")
+	assert_eq(source.count(live_capture), 1, "unique active-run capture source body")
+	assert_eq(source.count(live_rollback), 1, "unique active-run rollback source body")
 	var restored := source.replace(capture, capture.replace("to_save_dict().duplicate(true)", "to_save_dict()"))
 	restored = restored.replace(install, install.replace("v.duplicate(true)", "v.duplicate()"))
-	assert_eq(restored.sha256_text(), REFERENCE.SOURCE_SHA256, "three edits reconstruct the exact historical owner source")
+	restored = restored.replace(live_capture, live_capture.replace("to_save_dict().duplicate(true)", "to_save_dict()"))
+	restored = restored.replace(live_rollback, live_rollback.replace('detached["gameplay"].duplicate(true)', 'detached["gameplay"]'))
+	restored = _restore_retired_source(restored)
+	assert_eq(restored.sha256_text(), REFERENCE.SOURCE_SHA256, "five isolation edits and exact retirement fragments reconstruct the historical owner")
 	return capture_reference.sha256_text() == REFERENCE.CAPTURE_RESTORE_STATE_SHA256 \
 		and install_reference.sha256_text() == REFERENCE.APPLY_GAMEPLAY_SILENT_SHA256 \
+		and live_capture_reference.sha256_text() == LIVE_REFERENCE.CAPTURE_LIVE_RUN_STATE_SHA256 \
+		and live_rollback_reference.sha256_text() == LIVE_REFERENCE.RESTORE_LIVE_RUN_STATE_SHA256 \
 		and restored.sha256_text() == REFERENCE.SOURCE_SHA256
 
 
