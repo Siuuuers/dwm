@@ -93,9 +93,13 @@ func test_changed_typed_nodes_become_untyped_without_mutating_sources() -> void:
 		assert_eq(typeof(normalize.call(&"root")), TYPE_STRING, "root StringName converts too")
 
 func test_numeric_values_keep_exact_types_and_signed_zero() -> void:
+	var negative_zero_bytes := PackedByteArray([0, 0, 0, 0, 0, 0, 0, 128])
+	var negative_zero := negative_zero_bytes.decode_double(0)
+	assert_true(PackedFloat64Array([negative_zero]).to_byte_array() == negative_zero_bytes,
+		"negative-zero fixture has the exact IEEE 754 sign bit before normalization")
 	for normalize: Callable in _normalizers():
 		var source: Array = [9223372036854775807, -9223372036854775807 - 1,
-			1, 1.0, 0.1, -0.0, 0.0, &"last"]
+			1, 1.0, 0.1, negative_zero, 0.0, &"last"]
 		var before := var_to_bytes(source)
 		var result: Array = normalize.call(source)
 		assert_eq(result.size(), source.size())
@@ -105,6 +109,8 @@ func test_numeric_values_keep_exact_types_and_signed_zero() -> void:
 				"numeric bits are unchanged")
 		assert_false(PackedFloat64Array([result[5]]).to_byte_array() ==
 			PackedFloat64Array([result[6]]).to_byte_array(), "negative zero retains its sign")
+		assert_true(PackedFloat64Array([result[5]]).to_byte_array() == negative_zero_bytes,
+			"normalized negative zero keeps its exact original bits")
 		assert_eq(typeof(result[7]), TYPE_STRING)
 		assert_true(var_to_bytes(source) == before)
 

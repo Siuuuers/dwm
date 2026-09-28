@@ -1,14 +1,33 @@
-# Next-session handoff — updated 28 September 2026 (Hong Kong)
+# Next-session handoff — updated 29 September 2026 (Hong Kong)
 
 Continue public `Siuuuers/dwm` draft PR #1 on `codex/windows-cloud-ux`.
 Fetch the live PR head and Beads before work. Keep master unchanged; do not merge,
 change visibility, or mark the PR ready. Live master is now
-`1c55cd103014a932dc5936ab3e16c08acbda62d2` after the owner's separate story PR #2
-and one additional story conversation archive; this task did not move it.
-The latest master commit adds one Markdown archive and no runtime changes. The normalized PR base field still reports the older
+`2e8602d5f098eebbab18241f370b5f4d14adf99b` after the owner's separate story PR #2
+and additional story conversation archives; this task did not move it.
+The latest master delta adds `docs/story-auditions/Our_PL.md` and no runtime changes.
+The normalized PR base field still reports the older
 `9e43b52c9884ccd59e82245d2168c3113ee4d037`; check the actual master ref.
 
 ## Immediate state and next action
+
+Run65 (`36333378449`, source `1e7d266d5b8cc9d743150e78f7d82c7e459d840c`,
+merge `4a7b8ed7e68b85f45956119801a76ea52e9789b3`) completed with 17 successful
+jobs and one failed isolated diagnostic job. The completed suites report 2,018
+passing GUT executions with zero skips; the isolated job separately ran 10 cases,
+9 passing and one signed-zero test failing (506/508 assertions). Numeric source
+preservation passed, but the literal-based signed-zero distinction failed for both
+helpers. The current test-only correction constructs negative zero from explicit
+IEEE 754 bytes, checks the input sign before normalization, and checks exact output
+bits. No production helper or previous assertion is removed. A complete new run
+is required; Run63 remains the accepted baseline until then.
+
+Run65's successful matched benchmark ran sixteen processes, preserving exact bytes,
+identity and all 66 checkpoints. Both direct helpers improved in all four full
+pairs: median paired reductions were 8.198 ms (schema) and 7.753 ms (port). Splice
+helper reductions were 0.220 ms and 0.193 ms. These bounded results support retaining
+the candidate for its complete acceptance rerun; they do not establish a matched
+full-save or input-to-paint speedup. Retain the full Run65 receipt and raw pairs.
 
 Run64 (`36333194985`, source `963dedefffd19031004f9a1ebc061becca3975b5`,
 merge `ff5f390f8e99db4c265197fe5b1f32213d89a416`) failed project import:
