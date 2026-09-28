@@ -18,6 +18,7 @@ $suites = @{
         'tests/unit/test_checkpoint_phase_diagnostics.gd'
         'tests/unit/test_normalization_identity.gd'
         'tests/unit/test_checkpoint_history_region_search.gd'
+        'tests/integration/test_warm_outgoing_proof_commits.gd'
     )
     persistence = @(
         'tests/unit/test_frozen_run_context.gd'
@@ -35,6 +36,7 @@ $suites = @{
         'tests/integration/test_save_manager_journal.gd'
         'tests/integration/test_restore_transaction.gd'
         'tests/integration/test_unified_restore_contract.gd'
+        'tests/integration/test_run_restore_isolation.gd'
         'tests/integration/test_save_manager_public_boundaries.gd'
         'tests/integration/test_save_capability.gd'
     )

@@ -190,3 +190,102 @@ func test_unconfigured_runtime_has_no_ledger_side_effects() -> void:
 	assert_eq(_ledger.snapshot().captions.size(), 0)
 	assert_true(_results.is_empty())
 	assert_eq(_adapter.bind_caption_ledger(_ledger, TOKEN, ENTRY).code, &"caption_binding_unavailable")
+
+func test_native_entries_share_one_sequence_across_retirement_reconstruction_and_fresh_publication() -> void:
+	var parsed := STRICT_JSON.parse_object(FileAccess.get_file_as_string(REGISTRY))
+	assert_true(parsed.ok)
+	# Each component admits primitives through depth 32. Wrapping them in a
+	# snapshot must not shrink that existing contract during reconstruction.
+	var deepest: Variant = "component depth 32"
+	for depth: int in 31: deepest = {"nested": deepest}
+	parsed.value.frozen_context["depth_boundary"] = deepest
+	parsed.value.registry.beats[2].presentation_signature["depth_boundary"] = deepest.duplicate(true)
+	_ledger = LEDGER.new()
+	var initialized := _ledger.initialize(TOKEN, parsed.value.frozen_context,
+		parsed.value.entry_manifest, parsed.value.registry)
+	assert_true(initialized.ok, str(initialized))
+	if not initialized.ok: return
+	if not await _start(): return
+	for line: int in 2:
+		assert_true(_adapter.reveal_current_line(true).ok)
+		await _settle()
+		assert_true(_adapter.advance_one_event().ok)
+		await _settle()
+	assert_false(_adapter.has_active_playback())
+	var first_entry := _ledger.snapshot()
+	assert_eq(first_entry.captions.size(), 2)
+	if first_entry.captions.size() != 2: return
+	# A no-playback seam retains History but owns no publication. Late signals
+	# must not even reserve an occurrence before the next semantic entry starts.
+	_runtime.Text.about_to_show_text.emit({})
+	_runtime.Text.text_started.emit({})
+	assert_eq(_ledger.snapshot(), first_entry)
+	var second_entry := "fixture.non_canon.foreign_entry"
+	assert_true(_adapter.bind_caption_ledger(_ledger, TOKEN, second_entry).ok)
+	assert_true(_adapter.start_timeline(FIXTURE, second_entry).ok)
+	await _settle()
+	var together := _ledger.snapshot()
+	assert_eq(together.captions.size(), 3)
+	if together.captions.size() != 3: return
+	assert_eq(together.captions.slice(0, 2), first_entry.captions)
+	assert_eq(together.captions[2].beat.line_id, "fixture.caption.gamma")
+	assert_eq(together.captions[2].publication_id, "caption:3")
+	_runtime.Text.text_started.emit({})
+	assert_eq(_ledger.snapshot(), together, "duplicate native delivery remains idempotent")
+	assert_true(_adapter.reveal_current_line(true).ok)
+	await _settle()
+	assert_true(_adapter.advance_one_event().ok)
+	await _settle()
+	assert_false(_adapter.has_active_playback())
+	var retired := _ledger
+	var reconstructed := LEDGER.new()
+	var empty := reconstructed.snapshot()
+	var damaged := together.duplicate(true)
+	damaged.captions[2].beat.presentation_signature.text_revision = "unregistered"
+	assert_eq(reconstructed.restore_snapshot(TOKEN, parsed.value.frozen_context,
+		parsed.value.entry_manifest, parsed.value.registry, damaged).code,
+		&"caption_registration_mismatch")
+	assert_eq(reconstructed.snapshot(), empty, "a damaged native suffix cannot install its valid prefix")
+	assert_eq(_adapter.bind_caption_ledger(reconstructed, TOKEN, ENTRY).code,
+		&"caption_session_uninitialized", "failed reconstruction cannot admit native playback")
+	damaged = together.duplicate(true)
+	damaged.captions.append(damaged.captions[0].duplicate(true))
+	assert_eq(reconstructed.restore_snapshot(TOKEN, parsed.value.frozen_context,
+		parsed.value.entry_manifest, parsed.value.registry, damaged).code, &"caption_snapshot_duplicate")
+	assert_eq(reconstructed.snapshot(), empty, "duplicate retained occurrences cannot be silently collapsed")
+	_runtime.Text.about_to_show_text.emit({})
+	_runtime.Text.text_started.emit({})
+	assert_eq(retired.snapshot(), together, "failed reconstruction and late callbacks preserve the source")
+	var restored := reconstructed.restore_snapshot(TOKEN, parsed.value.frozen_context,
+		parsed.value.entry_manifest, parsed.value.registry, together)
+	assert_true(restored.ok, str(restored))
+	if not restored.ok: return
+	assert_eq(reconstructed.snapshot(), together, "reconstruction preserves exact publication order")
+	assert_eq(reconstructed.publish_line(TOKEN, "caption:1", ENTRY, "fixture.caption.beta").value,
+		{"duplicate": true, "ordinal": 0}, "reconstruction retains idempotence indexes")
+	var expected := together.duplicate(true)
+	together.frozen_context.selectors.inputs.clear()
+	together.captions[0].beat.presentation_signature.selectors.append("caller mutation")
+	parsed.value.frozen_context.selectors.inputs.clear()
+	parsed.value.registry.beats[0].presentation_signature.selectors.append("catalog mutation")
+	assert_eq(reconstructed.snapshot(), expected, "restored context and identities are detached")
+	var exposed := reconstructed.snapshot()
+	exposed.captions.clear()
+	exposed.frozen_context.selectors.inputs.clear()
+	assert_eq(reconstructed.snapshot(), expected, "returned snapshots are also detached")
+	_ledger = reconstructed
+	_runtime.Text.about_to_show_text.emit({})
+	_runtime.Text.text_started.emit({})
+	assert_eq(_ledger.snapshot(), expected, "restoration itself cannot publish native text")
+	_adapter = ADAPTER.new()
+	assert_true(_adapter.bind_runtime(_runtime).ok, "a fresh adapter needs no old occurrence counter")
+	if not await _start(): return
+	var continued := _ledger.snapshot()
+	assert_eq(continued.captions.size(), 4)
+	if continued.captions.size() != 4: return
+	assert_eq(continued.captions.slice(0, 3), expected.captions)
+	assert_eq(continued.captions[3].publication_id, "caption:4")
+	assert_eq(continued.captions[3].beat.line_id, "fixture.caption.beta")
+	assert_eq(retired.snapshot(), expected, "fresh native playback cannot mutate the departed ledger")
+	_runtime.Text.text_started.emit({})
+	assert_eq(_ledger.snapshot(), continued)

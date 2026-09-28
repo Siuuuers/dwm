@@ -40,7 +40,6 @@ var _caption_entry := ""
 var _caption_request := ""
 var _caption_generation := 0
 var _caption_publication := ""
-var _caption_publication_serial := 0
 var _caption_event: DialogicTextEvent
 var _caption_line := ""
 
@@ -124,8 +123,8 @@ func _on_caption_about_to_show(_info: Dictionary) -> void:
 	if not _caption_source_is_current(): return
 	_caption_event = _current_skip_text(true)
 	_caption_line = _authored_line_id(_caption_event)
-	_caption_publication_serial += 1
-	_caption_publication = "caption:%d:%d" % [get_instance_id(), _caption_publication_serial]
+	var allocated := _caption_ledger.allocate_publication(_caption_token, _caption_entry)
+	_caption_publication = allocated.value if allocated.ok else ""
 
 
 func _on_caption_text_started(_info: Dictionary) -> void:

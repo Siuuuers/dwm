@@ -143,8 +143,19 @@ static func validate_outgoing(document: Dictionary, proven_journal: Array,
 		profile: Dictionary = {}) -> Dictionary:
 	return _validate_document(document, proven_journal, true, profile)
 
+## Internal splice adapter: the port collected each normalized document proof from the journal
+## under the SAME checkpoint id as its raw bundle and exact spliced text. These journal-owned
+## proofs were normalized before their bytes were proven, never mutated in place, and share the
+## text's retention/reset/restore lifetime. A complete set needs only detached composition; an
+## absent, partial or text-only set retains validate_outgoing()'s raw normalization unchanged.
+static func _validate_outgoing_document_proofs(document: Dictionary, proven_journal: Array,
+		proven_documents: Array, profile: Dictionary = {}) -> Dictionary:
+	if _journal_is_proven(proven_journal, proven_documents):
+		return _validate_document(document, proven_documents, true, profile, true)
+	return validate_outgoing(document, proven_journal, profile)
+
 static func _validate_document(document: Dictionary, proven_journal: Array,
-		use_proven_journal: bool, profile: Dictionary = {}) -> Dictionary:
+		use_proven_journal: bool, profile: Dictionary = {}, normalized_proofs: bool = false) -> Dictionary:
 	var tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 	# Normalize each envelope member, and NEVER the current bundle: its `snapshot` is rebuilt by
 	# `_validate_bundle()` -> `RunSnapshotSchema.validate()`, which normalizes it itself, and that
@@ -210,8 +221,11 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 		# written: the caller's proven bundles are, one per entry, in this order. See
 		# `validate_outgoing()` for the obligation that carries and the equivalence it rests on.
 		var composed: Array = []
-		for bundle: Variant in proven_journal:
-			composed.append(_normalize_engine_text(bundle))
+		if normalized_proofs:
+			composed = _proven_entries(proven_journal)
+		else:
+			for bundle: Variant in proven_journal:
+				composed.append(_normalize_engine_text(bundle))
 		candidate["recovery_journal"] = composed
 		_profile_phase(profile, "outgoing_schema_compose_proven_journal_us", tick)
 		return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}

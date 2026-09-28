@@ -3051,7 +3051,7 @@ func capture_restore_state() -> Dictionary:
 		var captured: Dictionary = _dating_restore_owner.capture_reconciliation_state()
 		if not captured.get("ok", false): return captured
 		dating_backup = captured.value.duplicate(true)
-	var gameplay := to_save_dict()
+	var gameplay := to_save_dict().duplicate(true)
 	gameplay["narrative_variables"] = _narrative_variables.duplicate(true)
 	return {"ok": true, "code": &"ok", "value": {"backup": {
 		"gameplay": gameplay,
@@ -3857,9 +3857,9 @@ func _apply_gameplay_silent(gameplay: Dictionary) -> void:
 					typed.append(str(item))
 			self.set(key, typed)
 		elif v is Dictionary:
-			self.set(key, v.duplicate())
+			self.set(key, v.duplicate(true))
 		elif v is Array:
-			self.set(key, v.duplicate())
+			self.set(key, v.duplicate(true))
 		else:
 			self.set(key, v)
 

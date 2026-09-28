@@ -294,6 +294,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 			"history_bundles": history.size() if history is Array else -1, "_started_us": tick,
 			"diagnostics_version": 2}
 	var proven_current_text := ""
+	var proven_current_document: Dictionary = {}
 	var written_history: Array = []
 	var written_document_text := ""
 	if candidate.get("autosave_document") != null:
@@ -301,6 +302,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 		var document_text := ""
 		# The journal-owned bundles whose committed texts the splice writes, in written order.
 		var proven_journal: Array = []
+		var proven_documents: Array = []
 		var spliced := false
 		# Only the NEW current bundle is canonicalised here; the earlier bundles are byte-identical
 		# copies of what their own commits already wrote and proved. A non-object outgoing value
@@ -312,12 +314,13 @@ func commit(candidate: Dictionary) -> Dictionary:
 			if current_emitted.get("ok", false):
 				proven_current_text = str(current_emitted["value"])
 				document_text = _splice_autosave_text(autosave_document as Dictionary, proven_current_text,
-					proven_journal)
+					proven_journal, proven_documents)
 				spliced = not document_text.is_empty()
 		tick = _profile_phase(profile, "stringify_us", tick)
 		if document_text.is_empty():
 			# A partial splice proves nothing about the bytes the whole-document writer emits below.
 			proven_journal.clear()
+			proven_documents.clear()
 			# Some earlier bundle has no remembered text (a journal seeded from disk, restored or
 			# reset): the whole-document writer remains the authority for these bytes, and this
 			# bundle's own text is only reusable later if it appears verbatim in them.
@@ -345,17 +348,29 @@ func commit(candidate: Dictionary) -> Dictionary:
 			# texts belong to. Every other path validates the outgoing document verbatim, as before.
 			var checked := {}
 			if spliced:
-				checked = SAVE_DOCUMENT_SCHEMA.validate_outgoing(normalized, proven_journal, profile)
+				checked = SAVE_DOCUMENT_SCHEMA._validate_outgoing_document_proofs(
+					normalized, proven_journal, proven_documents, profile)
 			else:
 				checked = SAVE_DOCUMENT_SCHEMA.validate(normalized, profile)
 			sub_tick = _profile_phase(profile, "outgoing_validate_us", sub_tick)
 			if not profile.is_empty(): profile["outgoing_validation_ok"] = bool(checked.get("ok", false))
 			if checked.get("ok", false):
 				validated_texts[outgoing_text] = {"ok": true, "code": &"ok", "value": checked["value"]["candidate"]}
+				var checked_current: Dictionary = checked["value"]["candidate"]["current_snapshot"]
+				# Equal JSON-shaped values may differ in container types, but a numeric change
+				# cannot authorize a document proof for the original emitted text.
+				if CANONICAL_JSON._deep_same(normalized["current_snapshot"], checked_current):
+					proven_current_document = checked_current
 				if not spliced:
-					# Capture a detached copy of the normalized history the full writer emitted.
-					# It grants no reusable proof until all durability steps succeed.
-					written_history = (normalized["recovery_journal"] as Array).duplicate(true)
+					# Keep schema-normalized containers, not caller-held typed/StringName aliases
+					# that compare equal and emit the same text. Preserve original numeric types
+					# otherwise: their emission/region/retained-value refusals still own learning.
+					var original_history: Array = normalized["recovery_journal"]
+					var checked_history: Array = checked["value"]["candidate"]["recovery_journal"]
+					for index: int in original_history.size():
+						written_history.append(checked_history[index] if CANONICAL_JSON._deep_same(
+							original_history[index], checked_history[index]) else original_history[index])
+					written_history = written_history.duplicate(true)
 					written_document_text = document_text
 			_profile_phase(profile, "outgoing_history_capture_us", sub_tick)
 		# Failed proof and all unknown physical bytes retain the original strict parser
@@ -414,7 +429,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 	if current_matches:
 		var learned: bool = _journal().remember_committed_bundle_text(
 			str(committed["value"]["checkpoint_id"]), proven_current_text,
-			(candidate["autosave_document"] as Dictionary)["current_snapshot"])
+			proven_current_document)
 		_profile_count(profile, "journal_current_learn_attempts")
 		if learned: _profile_count(profile, "journal_current_learn_successes")
 	proof_tick = _profile_phase(profile, "journal_current_remember_us", proof_tick)
@@ -492,8 +507,10 @@ func _remember_written_history(bundles: Array, document_text: String,
 ## the caller then stringifies the whole document instead.
 ## `proven_journal` is filled, in written order, with the journal's own bundle for each entry whose
 ## remembered text this splice writes -- the only in-memory objects that describe these bytes.
+## `proven_documents` collects the normalized document proofs under those same ids/text lifetimes;
+## an empty entry preserves the raw-proof fallback. Neither output is trusted on a failed splice.
 func _splice_autosave_text(document: Dictionary, current_text: String,
-		proven_journal: Array = []) -> String:
+		proven_journal: Array = [], proven_documents: Array = []) -> String:
 	var earlier: Variant = document.get("recovery_journal")
 	if typeof(earlier) != TYPE_ARRAY:
 		return ""
@@ -512,6 +529,7 @@ func _splice_autosave_text(document: Dictionary, current_text: String,
 		if retained.is_empty():
 			return ""
 		proven_journal.append(retained)
+		proven_documents.append(_journal().get_retained_bundle_document(checkpoint_id))
 		var sentinel: String = SPLICE_SENTINEL_JOURNAL % index
 		sentinels.append(sentinel)
 		replacements.append([sentinel, remembered])

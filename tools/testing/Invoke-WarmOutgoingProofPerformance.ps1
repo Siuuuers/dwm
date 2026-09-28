@@ -3,7 +3,7 @@ param()
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $repositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-$output = Join-Path $repositoryRoot '.godot/ci/history-region-search'
+$output = Join-Path $repositoryRoot '.godot/ci/warm-outgoing-proof'
 $runner = Join-Path $PSScriptRoot 'Invoke-IsolatedGodot.ps1'
 New-Item -ItemType Directory -Force -Path $output | Out-Null
 $checkoutRef = (& git rev-parse HEAD)
@@ -15,64 +15,28 @@ $inputHash = (Get-FileHash -LiteralPath $document -Algorithm SHA256).Hash.ToLowe
 if ($history.checkout_ref -cne $checkoutRef -or $history.payload_sha256 -cne $inputHash -or
     $history.cold_read.retained_checkpoint_count -ne 66 -or $history.write.retained.line -ne 32 -or
     $history.write.retained.manual_save -ne 32 -or $history.write.retained.semantic -ne 2) {
-    throw "History region search requires this checkout's fresh verified Day7 payload and all 66 checkpoints."
+    throw "Warm outgoing proofs requires this checkout's fresh verified Day7 payload and all 66 checkpoints."
 }
 $sourceHashes = [ordered]@{}
 foreach ($entry in @(
     @('port', 'scripts/application/run/SaveManagerCheckpointPort.gd'),
     @('schema', 'scripts/infrastructure/save/SaveDocumentSchema.gd'),
-    @('warm_reference', 'tests/support/WarmOutgoingProofReference.gd'),
     @('warm_provenance', 'tools/testing/Assert-WarmOutgoingProofBaseline.ps1'),
     @('journal', 'scripts/infrastructure/save/CheckpointJournal.gd'),
     @('storage', 'scripts/infrastructure/storage/JsonFileStorage.gd'),
     @('file_ops', 'tests/support/FakeFileOps.gd'),
-    @('reference', 'tests/support/HistoryRegionSearchReference.gd'),
-    @('harness', 'tests/manual/benchmark_history_region_search.gd'),
-    @('driver', 'tools/testing/Invoke-HistoryRegionSearchPerformance.ps1'))) {
+    @('reference', 'tests/support/WarmOutgoingProofReference.gd'),
+    @('harness', 'tests/manual/benchmark_warm_outgoing_proofs.gd'),
+    @('driver', 'tools/testing/Invoke-WarmOutgoingProofPerformance.ps1'))) {
     $sourceHashes[$entry[0]] = (Get-FileHash -LiteralPath (Join-Path $repositoryRoot $entry[1]) -Algorithm SHA256).Hash.ToLowerInvariant()
 }
 
-function Get-TextHash {
-    param([string]$Text)
-    $sha = [Security.Cryptography.SHA256]::Create()
-    try { return ([BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($Text)))).Replace('-', '').ToLowerInvariant() }
-    finally { $sha.Dispose() }
-}
-
-function Get-ReferenceMethod {
-    param([string]$Text)
-    $match = [regex]::Match($Text, '(?ms)^func _remember_written_history\(.*?(?=^(?:func |static func |## )|\z)')
-    if (-not $match.Success) { throw 'Missing frozen history-learning method.' }
-    return $match.Value.TrimEnd([char[]]"`r`n") + "`n"
-}
-
-# Read and bind the actual historical git blob, not merely the reference's claimed hashes.
-$referenceCommit = '5c3368dbba14475a3749bd71df971bfed353699f'
-$referencePortHash = '72d400998c3bc6d9a3b4a7645bfd24a749e34a78eaa140ba73d1b23d6fc20310'
-$referenceMethodHash = '470919ccd5ff929337c6a0c00185e9082772c97de7f5ce72a3b9e0209dff4617'
-$historicalLines = @(& git show "${referenceCommit}:scripts/application/run/SaveManagerCheckpointPort.gd")
-if ($LASTEXITCODE -ne 0) { throw 'Frozen reference source is unavailable in this checkout history.' }
-$historicalSource = [string]::Join("`n", $historicalLines) + "`n"
-$referenceSource = [IO.File]::ReadAllText((Join-Path $repositoryRoot 'tests/support/HistoryRegionSearchReference.gd')).Replace("`r`n", "`n")
-$historicalMethod = Get-ReferenceMethod $historicalSource
-$frozenMethod = Get-ReferenceMethod $referenceSource
-$candidateSource = [IO.File]::ReadAllText((Join-Path $repositoryRoot 'scripts/application/run/SaveManagerCheckpointPort.gd')).Replace("`r`n", "`n")
-$candidateMethod = Get-ReferenceMethod $candidateSource
-if ((Get-TextHash $historicalSource) -cne $referencePortHash -or
-    (Get-TextHash $historicalMethod) -cne $referenceMethodHash -or
-    (Get-TextHash $frozenMethod) -cne $referenceMethodHash -or $frozenMethod -cne $historicalMethod) {
-    throw 'Frozen history-learning control is not the exact identified original method.'
-}
-# Deliberate provenance update: warm document proofs changed commit/splice after this search
-# experiment was accepted. Both region variants inherit those identical current methods. First
-# prove that only those reviewed warm methods/schema adapter differ from accepted226, then prove
-# that reversing the search method still reconstructs the exact original 5c3368d whole port.
-$warmProvenance = & (Join-Path $PSScriptRoot 'Assert-WarmOutgoingProofBaseline.ps1') -RepositoryRoot $repositoryRoot
-$acceptedPort = $warmProvenance.accepted_port_source
-if ((Get-ReferenceMethod $acceptedPort) -cne $candidateMethod -or
-    (Get-TextHash $acceptedPort.Replace($candidateMethod, $historicalMethod)) -cne $referencePortHash) {
-    throw 'The reviewed warm bridge plus only the search reversal does not reproduce the original whole port.'
-}
+# The guard reads actual accepted Git blobs and proves the frozen method bodies plus the
+# exact, narrowly reviewed port/schema difference boundaries before any measurements run.
+$provenance = & (Join-Path $PSScriptRoot 'Assert-WarmOutgoingProofBaseline.ps1') -RepositoryRoot $repositoryRoot
+$referenceCommit = $provenance.reference_commit
+$referencePortHash = $provenance.reference_port_source_sha256
+$referenceSchemaHash = $provenance.reference_schema_source_sha256
 
 function Get-Median {
     param([object[]]$Values)
@@ -88,35 +52,35 @@ function ConvertTo-EvidenceText {
     return ConvertTo-Json -InputObject $Value -Depth 20 -Compress
 }
 
-$metrics = @('learning_seam', 'port_commit_fake_io')
+$metrics = @('schema_composition', 'port_commit_fake_io')
 $pairs = @()
 $modeInvariants = @{}
-foreach ($mode in @('cold', 'mixed')) {
+foreach ($mode in @('cold', 'mixed', 'warm')) {
     for ($pair = 1; $pair -le 4; $pair++) {
         $order = if ($pair % 2 -eq 1) { @('baseline', 'candidate') } else { @('candidate', 'baseline') }
         $row = [ordered]@{ mode = $mode; pair = $pair; order = $order }
         foreach ($variant in $order) {
             $name = "$mode-$pair-$variant"
-            $logName = "cloud-history-region-search-$name.log"
-            & $runner -SuiteId "cloud-history-region-search-$name" -LogName $logName `
-                -EvidenceLogPath ".godot/ci/history-region-search/$name.jsonl" -TimeoutSeconds 300 `
-                -GodotArgs @('-s', 'res://tests/manual/benchmark_history_region_search.gd', '--',
+            $logName = "cloud-warm-outgoing-proof-$name.log"
+            & $runner -SuiteId "cloud-warm-outgoing-proof-$name" -LogName $logName `
+                -EvidenceLogPath ".godot/ci/warm-outgoing-proof/$name.jsonl" -TimeoutSeconds 300 `
+                -GodotArgs @('-s', 'res://tests/manual/benchmark_warm_outgoing_proofs.gd', '--',
                     "--document=$document", "--variant=$variant", "--mode=$mode") | Out-Null
             $result = $LASTEXITCODE
             $log = Join-Path $repositoryRoot ".godot/phase2r_logs/$logName"
             if ($result -ne 0) {
                 if (Test-Path -LiteralPath $log) { Get-Content -LiteralPath $log | Write-Host }
-                throw "History region search $name failed with exit $result."
+                throw "Warm outgoing proofs $name failed with exit $result."
             }
-            if (Select-String -LiteralPath $log -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character|HISTORY_REGION_SEARCH_FAIL:' -Quiet) {
-                throw "History region search $name reported a script, invariant or Unicode error."
+            if (Select-String -LiteralPath $log -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character|WARM_OUTGOING_PROOF_FAIL:' -Quiet) {
+                throw "Warm outgoing proofs $name reported a script, invariant or Unicode error."
             }
-            $prefix = 'HISTORY_REGION_SEARCH_BENCHMARK: '
+            $prefix = 'WARM_OUTGOING_PROOF_BENCHMARK: '
             $markers = @(Get-Content -LiteralPath $log | Where-Object { $_.StartsWith($prefix, [StringComparison]::Ordinal) } |
                 ForEach-Object { $_.Substring($prefix.Length) | ConvertFrom-Json })
-            if ($markers.Count -ne 1) { throw 'Expected one history region search measurement.' }
+            if ($markers.Count -ne 1) { throw 'Expected one warm outgoing proof measurement.' }
             $measurement = $markers[0]
-            $present = if ($mode -ceq 'mixed') { 51 } else { 0 }
+            $present = if ($mode -ceq 'warm') { 66 } elseif ($mode -ceq 'mixed') { 51 } else { 0 }
             if ($measurement.variant -cne $variant -or $measurement.mode -cne $mode -or
                 $measurement.input_sha256 -cne $inputHash -or $measurement.output_sha256 -cne $inputHash -or
                 $measurement.bytes -ne (Get-Item -LiteralPath $document).Length -or
@@ -130,9 +94,14 @@ foreach ($mode in @('cold', 'mixed')) {
                 $measurement.exact_physical_bytes -ne $true -or
                 $measurement.reference_commit -cne $referenceCommit -or
                 $measurement.reference_port_source_sha256 -cne $referencePortHash -or
-                $measurement.reference_method_sha256 -cne $referenceMethodHash -or
-                $measurement.candidate_port_source_sha256 -cne $sourceHashes.port) {
-                throw 'History region search changed its source, payload, proof state, schema or retention contract.'
+                $measurement.reference_schema_source_sha256 -cne $referenceSchemaHash -or
+                $measurement.reference_commit_method_sha256 -cne $provenance.reference_method_sha256.commit -or
+                $measurement.reference_splice_method_sha256 -cne $provenance.reference_method_sha256._splice_autosave_text -or
+                $measurement.reference_validate_method_sha256 -cne $provenance.reference_method_sha256._validate_document -or
+                $measurement.candidate_port_source_sha256 -cne $sourceHashes.port -or
+                $measurement.candidate_schema_source_sha256 -cne $sourceHashes.schema -or
+                $measurement.exact_composed_values_types_and_bytes -ne $true) {
+                throw 'Warm outgoing proofs changed its source, payload, proof state, schema or retention contract.'
             }
             foreach ($metric in $metrics) {
                 $samples = @($measurement.PSObject.Properties["${metric}_samples_us"].Value)
@@ -144,12 +113,17 @@ foreach ($mode in @('cold', 'mixed')) {
                     throw "Unexpected $metric final journal."
                 }
             }
-            if (@($measurement.evidence.learning_seam.operation_trace).Count -ne 0 -or
-                @($measurement.evidence.port_commit_fake_io.operation_trace).Count -eq 0) {
+            if (@($measurement.evidence.schema_composition.operation_trace).Count -ne 0 -or
+                @($measurement.evidence.port_commit_fake_io.operation_trace).Count -eq 0 -or
+                $measurement.evidence.schema_composition.final_proof_count -ne $present -or
+                $measurement.evidence.port_commit_fake_io.final_proof_count -ne 66 -or
+                @($measurement.evidence.schema_composition.proof_state).Count -ne 66 -or
+                @($measurement.evidence.port_commit_fake_io.proof_state).Count -ne 66 -or
+                [string]::IsNullOrEmpty($measurement.evidence.schema_composition.composed_type_sha256)) {
                 throw 'Measured scopes did not preserve their physical-operation boundary.'
             }
             if ((Get-FileHash -LiteralPath $document -Algorithm SHA256).Hash.ToLowerInvariant() -cne $inputHash) {
-                throw 'History region search mutated its source file.'
+                throw 'Warm outgoing proofs mutated its source file.'
             }
             # Compare complete ordered physical traces and file hashes, exact proof manifests and
             # journal hashes across every sample process in each mode, not only within one pair.
@@ -157,7 +131,9 @@ foreach ($mode in @('cold', 'mixed')) {
             foreach ($field in @('input_sha256', 'output_sha256', 'bytes', 'proof_seed', 'proof_seed_sha256',
                 'final_proof_manifest', 'final_proof_manifest_sha256', 'prior_journal_sha256', 'final_journal_sha256',
                 'initial_proofs_present', 'initial_proofs_missing', 'evidence', 'reference_commit',
-                'reference_port_source_sha256', 'reference_method_sha256', 'candidate_port_source_sha256')) {
+                'reference_port_source_sha256', 'reference_schema_source_sha256',
+                'reference_commit_method_sha256', 'reference_splice_method_sha256', 'reference_validate_method_sha256',
+                'candidate_port_source_sha256', 'candidate_schema_source_sha256', 'control_boundary', 'scope', 'timing_boundary')) {
                 $invariants[$field] = $measurement.PSObject.Properties[$field].Value
             }
             $invariantText = ConvertTo-EvidenceText $invariants
@@ -173,11 +149,11 @@ foreach ($mode in @('cold', 'mixed')) {
         }
         $row['candidate_minus_baseline_us'] = $delta
         $pairs += $row
-        Write-Host ('HISTORY_REGION_SEARCH_PAIR: ' + ($row | ConvertTo-Json -Depth 20 -Compress))
+        Write-Host ('WARM_OUTGOING_PROOF_PAIR: ' + ($row | ConvertTo-Json -Depth 20 -Compress))
     }
 }
 $summaries = @()
-foreach ($mode in @('cold', 'mixed')) {
+foreach ($mode in @('cold', 'mixed', 'warm')) {
     $selected = @($pairs | Where-Object { $_.mode -ceq $mode })
     foreach ($metric in $metrics) {
         $summaries += [ordered]@{ mode = $mode; metric = $metric; pairs = $selected.Count
@@ -189,12 +165,12 @@ foreach ($mode in @('cold', 'mixed')) {
 $report = [ordered]@{
     checkout_ref = $checkoutRef; run_id = [string]$env:GITHUB_RUN_ID; source_sha256 = $sourceHashes
     input_sha256 = $inputHash; retained_checkpoint_count = 66; pairs = $pairs; summaries = $summaries
-    sampling = 'Four alternating pairs per cold/mixed mode; sixteen fresh isolated processes. Each independent metric keeps five fresh-state samples after two warmups. No pooled/nested timing sum or timing threshold; OS caches are not flushed.'
-    scope = 'Frozen original method versus current ordered cursor; both variants inherit the same current warm document-proof path, checked through the accepted226 provenance bridge. Exact Day7 bytes and 66 history bundles; mixed has the same first 51 proofs and 15 misses. Direct learning plus complete port commit use real journal and storage protocol with FakeFileOps, not physical disk, public port preparation, gameplay or input-to-paint timing.'
+    sampling = 'Four alternating pairs per cold/mixed/warm mode; twenty-four fresh isolated processes. Each independent metric keeps five fresh-state samples after two warmups. No pooled/nested timing sum or timing threshold; OS caches are not flushed.'
+    scope = 'Accepted226 commit/splice versus current warm document-proof path; remaining port methods and public raw-proof validator are shared and source-guarded. Direct schema composition always has 66 trusted raw bundles with 0/51/66 normalized proofs. Complete commit uses the same real journal proof count, causing full fallback for cold/mixed and splice for warm. Exact Day7 bytes, types, proofs, journal and physical files/ordered traces with FakeFileOps; no physical disk, public preparation, gameplay or input-to-paint claim.'
 }
 $report | ConvertTo-Json -Depth 24 | Set-Content -LiteralPath (Join-Path $output 'results.json') -Encoding utf8
-Write-Host ('HISTORY_REGION_SEARCH_COMPARISON: ' + ([ordered]@{
+Write-Host ('WARM_OUTGOING_PROOF_COMPARISON: ' + ([ordered]@{
     checkout_ref = $checkoutRef; source_sha256 = $sourceHashes; input_sha256 = $inputHash
     sampling = $report.sampling; scope = $report.scope; summaries = $summaries
 } | ConvertTo-Json -Depth 8 -Compress))
-Write-Host 'HISTORY_REGION_SEARCH_VERIFIED: sixteen matched processes preserved exact proof strings/documents, journal, physical bytes/traces and 66 retained checkpoints.'
+Write-Host 'WARM_OUTGOING_PROOF_VERIFIED: twenty-four matched processes preserved exact composed values/types/bytes, proof strings/documents, journal, physical bytes/traces and 66 retained checkpoints.'

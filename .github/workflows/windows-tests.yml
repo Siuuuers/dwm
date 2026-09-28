@@ -511,6 +511,9 @@ jobs:
       - name: Compare retained-history proof region searches
         timeout-minutes: 20
         run: ./tools/testing/Invoke-HistoryRegionSearchPerformance.ps1
+      - name: Compare warm outgoing proof composition
+        timeout-minutes: 20
+        run: ./tools/testing/Invoke-WarmOutgoingProofPerformance.ps1
       - name: Upload seven-day history evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -522,10 +525,12 @@ jobs:
             .godot/ci/outgoing-normalization/
             .godot/ci/lazy-normalization/
             .godot/ci/history-region-search/
+            .godot/ci/warm-outgoing-proof/
             .godot/phase2r_logs/cloud-seven-day-history-*.log
             .godot/phase2r_logs/cloud-outgoing-normalization-*.log
             .godot/phase2r_logs/cloud-lazy-normalization-*.log
             .godot/phase2r_logs/cloud-history-region-search-*.log
+            .godot/phase2r_logs/cloud-warm-outgoing-proof-*.log
           include-hidden-files: true
           if-no-files-found: warn
           retention-days: 7

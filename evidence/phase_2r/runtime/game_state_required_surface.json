@@ -1447,7 +1447,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_run_restore_round_trips_via_participant"
+      "contract_test": "test_captured_backup_mutation_cannot_change_live_gameplay"
     },
     {
       "symbol": "apply_restore_silent",
@@ -1455,7 +1455,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_run_restore_round_trips_via_participant"
+      "contract_test": "test_prepared_restore_plan_and_installed_owner_remain_independent_until_finalize"
     },
     {
       "symbol": "rollback_restore_silent",
@@ -1463,7 +1463,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_run_restore_round_trips_via_participant"
+      "contract_test": "test_rollback_backup_and_restored_owner_remain_independent_until_finalize"
     },
     {
       "symbol": "finalize_restore",
@@ -1471,7 +1471,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_run_restore_round_trips_via_participant"
+      "contract_test": "test_prepared_restore_plan_and_installed_owner_remain_independent_until_finalize"
     },
     {
       "symbol": "apply_continuation_remap_silent",

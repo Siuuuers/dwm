@@ -11,6 +11,10 @@ label fixture.non_canon.caption_missing_id
 NON-CANON TEST ONLY: this line deliberately lacks an authored identity.
 return
 
+label fixture.non_canon.foreign_entry
+NON-CANON TEST ONLY: another entry in the retained semantic session. #id:fixture.caption.gamma
+return
+
 label fixture.non_canon.caption_split
 NON-CANON TEST ONLY: a segment.[n] A second segment without a separate identity. #id:fixture.caption.alpha
 return
