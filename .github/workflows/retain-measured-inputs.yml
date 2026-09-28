@@ -1,0 +1,75 @@
+name: Retain measured checkpoint inputs
+
+on:
+  push:
+    branches: [codex/retain-run69-71-inputs-20260929]
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  retain:
+    name: Retain Run ${{ matrix.number }} input
+    runs-on: windows-2022
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - number: 69
+            run_id: '36471714121'
+            source: '9ddc144a6a497e17bb3452c0046948011d980fc2'
+            bytes: 1911042
+            sha256: 'f3f3c263772ca82e0a520acb6cf277a8d63404490f39db6aa03f35953d40973e'
+          - number: 70
+            run_id: '36480010657'
+            source: '9958c66fd345ca8c30d7114fdff4c4bb1b356ec7'
+            bytes: 1911012
+            sha256: '2ee9968cce7502971f50a541e95946a1e79bcc1ffd129d91c2af88b805b51be4'
+    steps:
+      - name: Download the exact completed run archive
+        uses: actions/download-artifact@v4
+        with:
+          name: seven-day-history-${{ matrix.run_id }}-1
+          run-id: ${{ matrix.run_id }}
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/dwm-retained-input
+      - name: Verify and expose only the synthetic benchmark input
+        shell: pwsh
+        env:
+          EVIDENCE_RUN_NUMBER: ${{ matrix.number }}
+          EVIDENCE_RUN_ID: ${{ matrix.run_id }}
+          EVIDENCE_SOURCE: ${{ matrix.source }}
+          EXPECTED_BYTES: ${{ matrix.bytes }}
+          EXPECTED_SHA256: ${{ matrix.sha256 }}
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = 'Stop'
+          $inputRoot = Join-Path $env:RUNNER_TEMP 'dwm-retained-input'
+          $payloadFiles = @(Get-ChildItem -LiteralPath $inputRoot -Recurse -File -Filter 'day7-autosave.json')
+          if ($payloadFiles.Count -ne 1) { throw 'Expected exactly one measured Day7 input.' }
+          $payload = [IO.File]::ReadAllBytes($payloadFiles[0].FullName)
+          if ($payload.Length -ne [int]$env:EXPECTED_BYTES) { throw 'Payload byte count differs from the measured run.' }
+          $digest = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($payload)).ToLowerInvariant()
+          if ($digest -cne $env:EXPECTED_SHA256) { throw 'Payload SHA256 differs from the measured run.' }
+          $encoded = [Convert]::ToBase64String($payload)
+          $chunkSize = 12000
+          $chunkCount = [int][Math]::Ceiling($encoded.Length / [double]$chunkSize)
+          $receipt = [ordered]@{
+            run_number = [int]$env:EVIDENCE_RUN_NUMBER
+            run_id = $env:EVIDENCE_RUN_ID
+            source_sha = $env:EVIDENCE_SOURCE
+            payload_bytes = $payload.Length
+            payload_sha256 = $digest
+            base64_length = $encoded.Length
+            base64_chunks = $chunkCount
+          }
+          Write-Output ('RETAINED_PAYLOAD_META: ' + (ConvertTo-Json -InputObject $receipt -Compress))
+          for ($index = 0; $index -lt $chunkCount; $index++) {
+            $offset = $index * $chunkSize
+            $length = [Math]::Min($chunkSize, $encoded.Length - $offset)
+            $chunk = [ordered]@{ index = $index; data = $encoded.Substring($offset, $length) }
+            Write-Output ('RETAINED_PAYLOAD_CHUNK: ' + (ConvertTo-Json -InputObject $chunk -Compress))
+          }
+          Write-Output ('RETAINED_PAYLOAD_VERIFIED: ' + $env:EVIDENCE_RUN_NUMBER)
