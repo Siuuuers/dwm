@@ -439,6 +439,10 @@ func _remember_written_history(bundles: Array, document_text: String,
 				"history_proof_learn_successes", "history_proof_lookup_us", "history_proof_emit_us",
 				"history_proof_region_us", "history_proof_remember_us"]:
 			profile[field] = 0
+	# The full writer emits these bundles in order. Continue after the last matched region so
+	# newly learned history does not repeatedly scan the preceding retained document. A helper
+	# caller may supply reordered or repeated entries, so a miss still checks the whole text.
+	var region_cursor := 0
 	for value: Variant in bundles:
 		# External documents may keep malformed fallback entries for later recovery diagnostics.
 		# Whole-document acceptance does not promise that every historical entry is a snapshot.
@@ -461,7 +465,12 @@ func _remember_written_history(bundles: Array, document_text: String,
 			_profile_count(profile, "history_proof_emit_failures")
 			continue
 		var text := str(emitted["value"])
-		var region_present := document_text.find(text) >= 0
+		var region_at := document_text.find(text, region_cursor)
+		if region_at < 0 and region_cursor > 0:
+			region_at = document_text.find(text)
+		var region_present := region_at >= 0
+		if region_present:
+			region_cursor = region_at + text.length()
 		sub_tick = _profile_accumulate_phase(profile, "history_proof_region_us", sub_tick)
 		if region_present:
 			var learned: bool = _journal().remember_written_retained_bundle(checkpoint_id, text, bundle)

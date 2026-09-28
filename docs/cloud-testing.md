@@ -27,6 +27,14 @@ seven-day retained-history measurements, and Windows release export/startup.
 There are eighteen jobs in total; their individual results determine which
 claims the run supports.
 
+The isolated diagnostic group also exercises retained-history proof searches.
+The seven-day lane compares the original full-text search with a cursor search
+that falls back to the full text when necessary. Both variants use identical
+Day7 bytes and cold or mixed retained-proof states, with all strict journal
+checks preserved. Its report distinguishes proof-learning costs from complete
+commit costs and identifies simulated file operations; these measurements do
+not establish physical disk or player input-to-paint latency.
+
 The public-surface job runs first and imports the project before checking its
 contracts. The other seventeen jobs depend on its success, then run their own
 platform imports and checks. The seven-day lane additionally waits for the paired

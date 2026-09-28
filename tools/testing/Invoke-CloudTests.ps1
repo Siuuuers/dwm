@@ -17,6 +17,7 @@ $suites = @{
     checkpoint_diagnostics = @(
         'tests/unit/test_checkpoint_phase_diagnostics.gd'
         'tests/unit/test_normalization_identity.gd'
+        'tests/unit/test_checkpoint_history_region_search.gd'
     )
     persistence = @(
         'tests/unit/test_frozen_run_context.gd'

@@ -442,6 +442,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          # Verify the frozen region-search control against its historical source blob.
+          fetch-depth: 0
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
@@ -506,6 +508,9 @@ jobs:
       - name: Compare lazy normalization with frozen eager helpers
         timeout-minutes: 8
         run: ./tools/testing/Invoke-LazyNormalizationPerformance.ps1
+      - name: Compare retained-history proof region searches
+        timeout-minutes: 20
+        run: ./tools/testing/Invoke-HistoryRegionSearchPerformance.ps1
       - name: Upload seven-day history evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -516,9 +521,11 @@ jobs:
             .godot/ci/seven-day-history/
             .godot/ci/outgoing-normalization/
             .godot/ci/lazy-normalization/
+            .godot/ci/history-region-search/
             .godot/phase2r_logs/cloud-seven-day-history-*.log
             .godot/phase2r_logs/cloud-outgoing-normalization-*.log
             .godot/phase2r_logs/cloud-lazy-normalization-*.log
+            .godot/phase2r_logs/cloud-history-region-search-*.log
           include-hidden-files: true
           if-no-files-found: warn
           retention-days: 7
