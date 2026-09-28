@@ -38,11 +38,11 @@ func _text(value: Variant) -> String:
 
 func _exercise(wired: Dictionary, bundles: Array, document_text: String) -> Dictionary:
 	var source_before: Array = bundles.duplicate(true)
-	var retained_before: Dictionary = wired.manager._journal.capture_state()
+	var retained_before: Dictionary = wired.manager._journal.capture_state()["value"]["backup"]
 	var profile := {"diagnostics_version": 2}
 	wired.port._remember_written_history(bundles, document_text, profile)
 	assert_true(WRITER._deep_same(bundles, source_before), "search never mutates supplied history")
-	assert_true(WRITER._deep_same(wired.manager._journal.capture_state(), retained_before),
+	assert_true(WRITER._deep_same(wired.manager._journal.capture_state()["value"]["backup"], retained_before),
 		"proof learning never changes retained bundles or the journal cursor")
 	var proofs := {}
 	for bundle: Dictionary in wired.bundles:
@@ -58,7 +58,7 @@ func _exercise(wired: Dictionary, bundles: Array, document_text: String) -> Dict
 			profile.erase(key)
 	return {"profile": profile, "proofs": proofs}
 
-func _compare(actual: Dictionary, reference: Dictionary, bundles: Array, document_text: String,
+func _assert_search_equivalence(actual: Dictionary, reference: Dictionary, bundles: Array, document_text: String,
 		learned_indexes: Array, expected_counts: Dictionary) -> void:
 	var observed := _exercise(actual, bundles, document_text)
 	var expected := _exercise(reference, bundles.duplicate(true), document_text)
@@ -77,21 +77,21 @@ func test_ordered_regions_with_unicode_prefix_preserve_every_proof() -> void:
 	var actual := _wired()
 	var reference := _wired(true)
 	var document_text := _text({"prefix": "繁體中文／日本語🌌é", "recovery_journal": actual.bundles})
-	_compare(actual, reference, actual.bundles, document_text, [0, 1, 2], {
+	_assert_search_equivalence(actual, reference, actual.bundles, document_text, [0, 1, 2], {
 		"history_proof_misses": 3, "history_proof_learn_successes": 3, "history_proof_region_misses": 0})
 
 func test_reordered_regions_still_learn_from_any_exact_occurrence() -> void:
 	var actual := _wired()
 	var reference := _wired(true)
 	var reordered: Array = [actual.bundles[2], actual.bundles[0], actual.bundles[1]]
-	_compare(actual, reference, reordered, _text(actual.bundles), [0, 1, 2], {
+	_assert_search_equivalence(actual, reference, reordered, _text(actual.bundles), [0, 1, 2], {
 		"history_proof_learn_attempts": 3, "history_proof_learn_successes": 3})
 
 func test_duplicate_bundle_is_idempotent_after_successful_learning() -> void:
 	var actual := _wired()
 	var reference := _wired(true)
 	var repeated: Array = [actual.bundles[0], actual.bundles[1], actual.bundles[0], actual.bundles[2]]
-	_compare(actual, reference, repeated, _text(actual.bundles), [0, 1, 2], {
+	_assert_search_equivalence(actual, reference, repeated, _text(actual.bundles), [0, 1, 2], {
 		"history_proof_entries": 4, "history_proof_hits": 1, "history_proof_learn_successes": 3})
 
 func test_missing_first_or_middle_region_does_not_hide_later_proofs() -> void:
@@ -102,7 +102,7 @@ func test_missing_first_or_middle_region_does_not_hide_later_proofs() -> void:
 		written.remove_at(missing_index)
 		var learned: Array = [0, 1, 2]
 		learned.erase(missing_index)
-		_compare(actual, reference, actual.bundles, _text(written), learned, {
+		_assert_search_equivalence(actual, reference, actual.bundles, _text(written), learned, {
 			"history_proof_misses": 3, "history_proof_region_misses": 1,
 			"history_proof_learn_attempts": 2, "history_proof_learn_successes": 2})
 
@@ -113,7 +113,7 @@ func test_existing_proof_is_preserved_even_when_its_region_is_absent() -> void:
 		var bundle: Dictionary = wired.bundles[1]
 		assert_true(wired.manager._journal.remember_written_retained_bundle(
 			str(bundle.snapshot.checkpoint_id), _text(bundle), bundle))
-	_compare(actual, reference, actual.bundles, _text([actual.bundles[0], actual.bundles[2]]), [0, 1, 2], {
+	_assert_search_equivalence(actual, reference, actual.bundles, _text([actual.bundles[0], actual.bundles[2]]), [0, 1, 2], {
 		"history_proof_hits": 1, "history_proof_misses": 2, "history_proof_learn_successes": 2})
 
 func test_repeated_mismatched_bundle_cannot_gain_a_proof_from_region_presence() -> void:
@@ -122,7 +122,7 @@ func test_repeated_mismatched_bundle_cannot_gain_a_proof_from_region_presence() 
 	var changed: Dictionary = actual.bundles[0].duplicate(true)
 	changed["snapshot"]["content_version"] += 100
 	var repeated: Array = [changed, actual.bundles[1], changed, actual.bundles[2]]
-	_compare(actual, reference, repeated, _text([changed, actual.bundles[1], actual.bundles[2]]), [1, 2], {
+	_assert_search_equivalence(actual, reference, repeated, _text([changed, actual.bundles[1], actual.bundles[2]]), [1, 2], {
 		"history_proof_misses": 4, "history_proof_learn_attempts": 4,
 		"history_proof_learn_successes": 2, "history_proof_region_misses": 0})
 
@@ -131,5 +131,5 @@ func test_nested_exact_occurrence_keeps_original_region_semantics() -> void:
 	var reference := _wired(true)
 	var document_text := _text({"prefix": {"nested": actual.bundles[1]},
 		"recovery_journal": [actual.bundles[0], actual.bundles[2]]})
-	_compare(actual, reference, actual.bundles, document_text, [0, 1, 2], {
+	_assert_search_equivalence(actual, reference, actual.bundles, document_text, [0, 1, 2], {
 		"history_proof_learn_attempts": 3, "history_proof_learn_successes": 3})

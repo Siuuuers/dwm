@@ -144,7 +144,7 @@ func _run() -> void:
 			var observation := {"physical_files": physical_manifest, "operation_trace": trace,
 				"journal_sha256": _hash(manager._journal.capture_state()["value"]["backup"])}
 			if evidence.has(metric):
-				if not _require(CANON._deep_same(evidence[metric], observation), "identical state/files/trace across fresh samples"): return
+				if not _require(var_to_bytes(evidence[metric]) == var_to_bytes(observation), "identical state/files/trace across fresh samples"): return
 			else:
 				evidence[metric] = observation
 			if index >= 2: samples[metric].append(elapsed)
