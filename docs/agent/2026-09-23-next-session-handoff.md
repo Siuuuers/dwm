@@ -1,234 +1,178 @@
 # Next-session handoff — updated 29 September 2026 (Hong Kong)
 
 Continue public `Siuuuers/dwm` draft PR #1 on `codex/windows-cloud-ux`.
-Fetch the live PR head and Beads before work. Keep master unchanged; do not merge,
-change visibility, or mark the PR ready. Live master is now
-`2e8602d5f098eebbab18241f370b5f4d14adf99b` after the owner's separate story PR #2
-and additional story conversation archives; this task did not move it.
-The latest master delta adds `docs/story-auditions/Our_PL.md` and no runtime changes.
-The normalized PR base field still reports the older
-`9e43b52c9884ccd59e82245d2168c3113ee4d037`; check the actual master ref.
+Read the live PR head and Beads before work. Keep the repository public and PR
+draft; do not merge, mark ready, or change master. The actual master ref last
+checked was `2e8602d5f098eebbab18241f370b5f4d14adf99b`. The owner has separately added story documentation;
+this task did not move master. The connector's normalized PR base may be stale:
+check the actual ref and bind every test to its executed merge and source.
 
-## Immediate state and next action
+## Current accepted source and next action
 
-Run65 (`36333378449`, source `1e7d266d5b8cc9d743150e78f7d82c7e459d840c`,
-merge `4a7b8ed7e68b85f45956119801a76ea52e9789b3`) completed with 17 successful
-jobs and one failed isolated diagnostic job. The completed suites report 2,018
-passing GUT executions with zero skips; the isolated job separately ran 10 cases,
-9 passing and one signed-zero test failing (506/508 assertions). Numeric source
-preservation passed, but the literal-based signed-zero distinction failed for both
-helpers. The current test-only correction constructs negative zero from explicit
-IEEE 754 bytes, checks the input sign before normalization, and checks exact output
-bits. No production helper or previous assertion is removed. A complete new run
-is required; Run63 remains the accepted baseline until then.
+**Run66 is the latest fully accepted source baseline.**
 
-Run65's successful matched benchmark ran sixteen processes, preserving exact bytes,
-identity and all 66 checkpoints. Both direct helpers improved in all four full
-pairs: median paired reductions were 8.198 ms (schema) and 7.753 ms (port). Splice
-helper reductions were 0.220 ms and 0.193 ms. These bounded results support retaining
-the candidate for its complete acceptance rerun; they do not establish a matched
-full-save or input-to-paint speedup. Retain the full Run65 receipt and raw pairs.
+- Run: <https://github.com/Siuuuers/dwm/actions/runs/36449012704>
+- Source: `33ad80cc25c592153292e4e8544564877ac9d99e`
+- Tested PR merge: `5c0d393da7808be8b9df1e4a5d4b6e0d1c84b8bb`
+- Source tree: `974ab90a4d1f4f2c5320a16f6963424ba68606d3`
+- Tested merge tree: `4e7dafd2814cc74c12ddc3292aacff5850adece0`
+- All **18/18 jobs** passed; **2,028 GUT executions**, all passing, **zero skips**.
+  There are **2,024 unique cases**; the four diagnostic cases intentionally run
+  in both Settings and the isolated diagnostic job.
+- Settings **288/288** plus storage-refusal checks; isolated diagnostics **10/10**
+  (four checkpoint diagnostics and six normalization identity cases).
+- All 17 internal caption-ledger cases, 136 standalone capture checks, five
+  rendered journeys, rendered UI, and exported Windows headless startup passed.
+- The source-to-merge comparison has seven Markdown differences only. Runtime,
+  tests, workflow and inventories are identical. The owner's story archives do
+  not approve their noncanonical proposals or runtime behavior.
 
-Run64 (`36333194985`, source `963dedefffd19031004f9a1ebc061becca3975b5`,
-merge `ff5f390f8e99db4c265197fe5b1f32213d89a416`) failed project import:
-the port normalizer's array return was indented inside its loop. Godot rejected
-the missing empty-array return path; downstream tests and benchmarks were skipped.
-The current correction dedents that one return and requires a fresh complete run.
-The RED receipt is `evidence/beads_cloud_review/resumed-public-cloud-run64.json`.
+Later evidence-only commits do not create a new tested runtime baseline. Never
+reset newer work to an older accepted source. Continue with `dwm-634.3`'s measured
+remaining checkpoint costs: use the Run66 phase trace to choose one bounded
+experiment and compare identical retained payloads and proof states. The small
+normalization improvement does not settle the larger save/first-reveal pauses.
+No new architecture decision was required for this completed increment. Ask when
+a proposed next change would alter save/recovery custody or another unsettled law.
 
-Run63 is the new fully verified baseline. The current cut adds the bounded lazy
-normalization candidate and its cloud experiment; it needs its own acceptance.
-The two helpers delay result-container allocation until the first changed child,
-then preserve the unchanged prefix and the original order. Six new regressions
-exercise both helpers in `checkpoint_diagnostics`; the original four diagnostics
-remain in both that job and Settings. No validation, storage operation, retention,
-save format or durable narrative integration changes.
+## Accepted normalization change and its measurement limits
 
-The new benchmark freezes the two exact eager helper bodies from Run63. Four
-alternating pairs per full/splice mode use sixteen fresh cloud processes and the
-same verified Day7 JSON with all 66 bundles. Each metric retains five samples after
-two warmups. Direct helper costs and a port-normalization-plus-current-validator
-seam are separate; both variants use the SAME current outgoing validator. This
-does not measure a matched schema-build or full physical checkpoint speedup.
-Check all correctness gates and the raw paired results before accepting a benefit.
+`SaveDocumentSchema._normalize_engine_text` and
+`SaveManagerCheckpointPort._normalize_json_string_types` now allocate a result
+container only when a child actually changes. They preserve unchanged identity,
+StringName conversion, traversal/key order, numeric types and bits, source
+immutability, changed **untyped** containers, and existing detachment boundaries.
+The unchanged prefix is copied in original order; dictionary prefixes use an
+ordinal, and recursive children are visited once. Do not replace this with typed
+`duplicate()`/`slice()` results. No cache, validation omission, retention change,
+save-format change or storage-operation change is part of this increment.
 
-Run62 <https://github.com/Siuuuers/dwm/actions/runs/36295890230> tested source
-`504b242d79b1380e843c19edf27d89bb78b09b5c` as merge
-`9c2230ceb93c86622df08a812fb4e7259c8f1e69`: 16 successful jobs, one failed isolated
-diagnostic job and one cancelled Settings job. The isolated job ran **four tests,
-zero passes in 0.511 s**: every prepare refused `invalid_gameplay`, followed by
-invalid-candidate and missing-property errors. Its RED log is retained at
-`evidence/beads_cloud_review/run62-checkpoint-diagnostics-red.log`.
-This proves a fixture defect; it does not establish the cause of the longer
-Settings stall. The terminal Settings job again has no available log.
+The benchmark freezes the exact eager helper bodies from Run63 source
+`dae70bf9aa05b6b3debb60f95738e5ffc4e97548`. Source and function hashes are recorded
+and verified. Four alternating pairs per full/splice mode use sixteen fresh cloud
+processes on the same verified Day7 JSON with all 66 bundles. Each metric retains
+five samples after two warmups; OS caches are not flushed.
 
-The separate **checkpoint_diagnostics** job remains, and the same four tests remain
-in Settings. If only
-Settings stalls, distinguish its GUT phase from the later storage-refusal driver;
-that older driver has unbounded cleanup/output waits but is not a proven cause.
-The 18-job workflow adds four repeated executions, not four unique tests.
+Run66 median paired reductions:
 
-Run63 <https://github.com/Siuuuers/dwm/actions/runs/36314617828>, source
-`dae70bf9aa05b6b3debb60f95738e5ffc4e97548`, tested merge
-`682355a8031d13069290cbe85b0269aea0c758ee`, passed **18/18 jobs and 2,022 GUT
-executions with zero skips**, including **288/288 Settings** and **4/4 isolated
-diagnostics**. The four diagnostic cases are intentionally repeated. Storage
-refusals, 136 standalone capture checks, five rendered journeys, rendered UI,
-Windows exported headless startup and all 66 retained checkpoints passed.
-The fixture correction explicitly inserts its absent `money` as a String key;
-runtime validation continues to reject StringName gameplay keys. Its read-only public
-inventory gate also passed with the exact new GameState hash
-`8c5e0a110fe05bc418894ba273ce7e3a72cfe60963535f227e17bd416ee0e08c`.
-The complete receipt and ordered trace are retained in git. Earlier missing logs
-do not establish the internal cause of those historical 25-minute stalls.
+| Measured scope | Full retained payload | Splice envelope |
+|---|---:|---:|
+| Direct schema helper | 8.399 ms | 0.247 ms |
+| Direct port helper | 7.869 ms | 0.185 ms |
+| Port helper plus current outgoing validator | 8.298 ms | 1.655 ms |
 
-Run61 <https://github.com/Siuuuers/dwm/actions/runs/36260578366> tested source
-`8ceca91cd5b084c04b5a1c34db82d3cdccd53396` as merge
-`efbeec18006c5397ed2427a09849b65bb349c430`: **16 successful jobs and one cancelled
-Settings job**, again without an available Settings log. The assertion-formatting
-experiment did not resolve the stall. It retained the same predicates: six
-assertions now use the same native equality predicate without GUT's unconditional
-full dictionary/array diff and byte formatting. Five success messages print stage
-and code instead of complete result trees. All four tests, 55 assertion sites and
-198 lines remain. This removes demonstrated unnecessary work, but the Settings
-stall's cause is **not established**. Do not call it fixed without executed proof.
-The Run61 merge differs from its source only in five Markdown files introduced
-by story PR #2; runtime, tests, workflow and inventory bytes are identical.
-That story work does not authorize its noncanonical scene/intimacy proposals.
+All sixteen processes preserve exact canonical output bytes, identity and all 66
+checkpoints. Both seam variants use the SAME current strict outgoing validator.
+Proof creation, envelope construction, canonical emission and equality checks are
+outside timing. These are matched helper/seam measurements, **not** a matched
+schema-build, complete physical save, gameplay or input-to-paint comparison.
+Do not add nested timers or pool independent run medians as if they were one sample.
 
-The previous source is `d3647767fc058185fcc893d469b54e707f660102`, tested as merge
-`843036fcf10e6490e44f933ac8ecbb3f83b3744e`. Run60
-<https://github.com/Siuuuers/dwm/actions/runs/35822448296> finished with **16 successful
-jobs and one cancelled Settings job**. Its Settings log remains unavailable
-(BlobNotFound/404), including after terminal cancellation. It stayed in progress
-beyond the configured isolated 480 seconds, step 10 minutes and job 20 minutes;
-elapsed status alone does not diagnose a runner fault or test deadlock. Run59
-had the same unresolved Settings symptom. Run58 failed import on inferred `proven`
-type; the published explicit bool annotation repaired that import error.
+Run65 independently measured direct full-payload reductions of 8.198 ms and
+7.753 ms, with both helpers faster in all four pairs. Its performance lane passed,
+but the overall source was not accepted because one fixture test failed.
+The older outgoing-normalization benchmark compares full versus splice with the
+same helper on both sides; it cannot attribute a lazy-allocation gain.
 
-Run60 passed committed **read-only** inventory verification, 11 drift/no-write
-regressions, all 17 new caption-ledger tests, the other reported GUT tests, 136
-standalone capture checks, five rendered journeys, rendered UI checks, exported
-Windows headless startup and both performance lanes. **1,730 GUT executions were
-reported, all passing with zero skips; Settings contributes no accepted count.**
-Do not substitute the expected full count of 2,018 for observed results.
+Run66 synthetic Day7 observed first reveal **1.162124 s**,
+complete manual save **3.258836 s**, terminal settlement
+**0.739865 s**, and cold Login
+**8.310559 s**. All **66 retained
+checkpoints** survive (32 line, 32 manual-save, two semantic). These are workload
+observations on one shared Windows runner; cross-run differences are not causal
+speedup evidence or a latency acceptance threshold.
 
-Retained current evidence:
+Version2 profiling separates document construction, normalization, validation,
+composition and proof learning. The ordered trace has 204 records (190 checkpoint,
+seven consequence, seven day), including 35 profiled autosave prepare/commit pairs.
+Timers are nested and inclusive. Prepare stops proof lookup after the first miss:
+its miss count is not a census of every missing proof. Never assign unexplained
+residuals to a guessed cause. The earlier manual/Quick preparation optimization is
+already published; its separate eight-pair comparison preserves ten physical,
+candidate, journal and cache invariants. Do not redo it or conflate its gain with
+normalization.
 
-- `evidence/beads_cloud_review/resumed-public-cloud-run63.json`
-- `evidence/beads_cloud_review/performance/run63-checkpoint-trace.json`
-- `evidence/beads_cloud_review/resumed-public-cloud-run60.json`
-- `evidence/beads_cloud_review/resumed-public-cloud-run61.json`
-- `evidence/beads_cloud_review/performance/run60-checkpoint-trace.json`
-- `evidence/phase_2r/runtime/game_state_surface.json`
-- `evidence/phase_2r/runtime/save_manager_surface.json`
+## Retained evidence and resolved test defects
 
-Run57 is the older accepted baseline, with 17/17 jobs,
-1,997 GUT executions and zero skips. Its source is
-`cc42b9e4c4f0c5c736fef625c0be6b1fa0855f00`, tested merge
-`efcc6d210896389641a270c0c2ee9e0e5074404c`; receipt and ordered trace remain in git.
-Newer work must not be reset to that older baseline.
+- `evidence/beads_cloud_review/resumed-public-cloud-run66.json`
+- `evidence/beads_cloud_review/performance/run66-lazy-normalization.json`
+- `evidence/beads_cloud_review/performance/run66-checkpoint-trace.json`
+- Equivalent Run65 receipt, raw pairs and ordered trace remain alongside them.
+- `evidence/beads_cloud_review/run65-normalization-identity-red.log`
+- Run63 and earlier accepted/partial receipts remain in git.
 
-## Completed bounded implementation slices
+Run64 failed import because the port array return was indented inside its loop;
+Godot rejected the empty-array path. Commit `1e7d266d5b8cc9d743150e78f7d82c7e459d840c`
+dedented that return. Run65 passed 17 jobs but the isolated job passed only 9/10
+cases (506/508 assertions): the literal-based signed-zero distinction failed for
+both helpers while source-preservation checks passed. Run66 constructs negative
+zero from explicit IEEE 754 bytes and verifies its sign before normalization and
+its exact output bits. All prior predicates remain; the six identity cases pass.
 
-Opt-in checkpoint diagnostics version 2 separate document construction,
-outgoing normalization/validation and journal proof work. They count proof hits,
-misses, attempted and successful learning without changing validation, storage
-operations, transaction order, save formats or checkpoint retention. Four focused
-regressions compare profiling on/off, cold/warm proofs, edited-history learning
-refusal and journal-commit refusal; all passed in Run63, including full Settings.
+Run62's separate diagnostics had exposed an absent `money` key inserted as
+StringName. Explicit String indexing fixed the fixture; runtime validation still
+rejects StringName gameplay keys. Run63 then passed 18 jobs, 2,022 executions,
+Settings 288/288 and isolated diagnostics 4/4. Earlier Settings cancellation logs
+were unavailable, so the internal mechanism of those historical 25-minute stalls
+is not established. Do not claim the fixture evidence proves that mechanism.
+The old storage-refusal driver has unbounded cleanup/output waits, but it is not a
+proven cause. Neither timeouts nor test omissions were used to obtain acceptance.
 
-The opt-in internal ordered caption ledger has explicit authored beat/line
-identities, frozen detached fixture context, session binding, actual publication
-order, idempotent duplicates and conflict/foreign-session refusal. One real,
-clearly non-canon Dialogic fixture exercises two registered beats. Its 9 unit and
-8 runtime tests passed in Run63 and earlier partial runs. Publication capture follows actual text
-publication; pause/replacement/end custody and split/missing-ID refusal are tested.
-This is **not** durable canonical History, witnessed Save, exact-variant Next,
-Profile witnessing or production narrative coverage. Production use is not enabled.
+The public inventories reproduce canonical bytes **without regeneration**:
 
-## Measured lag and next bounded experiment
+- GameState SHA-256: `8c5e0a110fe05bc418894ba273ce7e3a72cfe60963535f227e17bd416ee0e08c`
+- SaveManager SHA-256: `35921b0d7023421e2e81bcfc4642f026d31b318bc6287967f9119dc4ed81038e`
 
-Run63 synthetic Day7 observed first reveal **1.082592 s**, manual save
-**3.092748 s**, terminal settlement **0.703029 s** and cold Login **7.297254 s**.
-All **66 retained checkpoints** survive. These are shared-runner workload
-observations, not matched cross-run speedups or input-to-paint guarantees.
+## Caption ledger and unsettled narrative integration
 
-The version2 trace now exposes the cost of journal primitive validation,
-engine-text normalization, composition and exact proof learning. Run59's audited
-Day7 first reveal had 51 proof hits and 15 missing proofs, all 15 successfully
-learned. Prepare stops lookup after its first miss, so its one recorded miss is
-not a census of all missing proofs. Nested inclusive timers overlap: never add a
-parent and its children or assign unexplained residuals to a guessed cause.
+The opt-in internal ordered caption ledger has stable authored beat/line identity,
+frozen detached fixture context, session binding, actual publication order,
+idempotent duplicates and conflict/foreign-session refusal. A clearly noncanonical
+Dialogic fixture exercises two registered beats. Nine unit and eight runtime cases
+pass, including pause/replacement/end custody and split/missing-ID refusal.
+Production use remains disabled. This does not establish durable canonical History,
+witnessed Save, exact-variant Next, Profile witnessing or production story coverage.
 
-A source review found temporary Array/Dictionary containers built and discarded
-on unchanged branches in `SaveDocumentSchema._normalize_engine_text` and
-`SaveManagerCheckpointPort._normalize_json_string_types`. The measured scopes
-justify the current **bounded lazy-allocation experiment**, now that Settings passed.
-Preserve traversal/key order, StringName conversion, numeric types, unchanged
-identity, changed untyped arrays, final detachment and refusal ordering. Compare
-against the current eager implementation on identical retained payloads and proof
-states with alternating cloud samples; verify bytes, physical operations, proof
-counts and all retention guarantees. No cache, validation omission or history
-compaction belongs in this candidate. This candidate awaits its own cloud measurements.
+Legacy Gallery may offer a clearly identified limited replay only from recorded
+facts; otherwise preserve the achievement and mark exact replay unavailable. Never
+invent missing selectors/history or count limited playback as witnessing a missing
+exact variant. Selector/successor contracts and runtime integration remain open.
+Future dual-language rendering starts with captions and History; menus remain
+single-language. Both languages share one semantic leaf and History entry, and
+Read Aloud uses Primary only. Implementation remains deferred.
 
-The source audit supports allocating a fresh **untyped** result only at the first
-changed child, copying already-visited unchanged siblings in their original order.
-Keep the exact `is_same` predicate and one recursive traversal; track dictionary
-prefix length by ordinal. Godot 4.6.3 `duplicate()`/`slice()` preserve typing, so
-they cannot replace construction of the current changed untyped containers.
-Exercise first/middle/last conversion, unchanged sibling identity, typed keys and
-values, numeric types and source immutability. Existing outgoing-normalization
-benchmarks compare full journal versus splice envelope with the **same helper**
-on both sides: they cannot attribute a lazy-allocation gain. Freeze the exact
-eager helper bodies as the control, bind source/output hashes, and compare the
-same payload, proof state and splice/full mode. A microbenchmark gain would not
-establish that complete checkpoint lag is fixed.
+Noncanonical test dialogue is authorized. Production prose and representative
+translated narrative files remain owner inputs for later work. Dating already
+advances into and out of its challenge; do not restore Continue/Done or special
+mines. Other settled choices are in
+`docs/design/current-ui/owner-ui-updates-2026-09-21.md`.
 
-The earlier manual/Quick preparation optimization is already published; do not
-redo it. Run63's eight alternating pairs preserve all ten candidate/file/journal/
-cache invariants and 66 checkpoints; median paired prepare reduction is 30.367 ms.
-That comparison concerns the older preparation change, not the new diagnostics.
-
-## Tracker, authority and constraints
+## Tracker, authority and workflow constraints
 
 Beads: **191 records; 168 closed; 23 unfinished** (11 in progress, five open,
-six deferred, one blocked). No task closes from these bounded slices.
-`dwm-634`, `dwm-634.3` and `dwm-vky.14` remain in progress. Root alone updates
-`.beads/issues.jsonl`; if `bd` is unavailable, preserve unrelated records byte for
-byte and append accurate evidence notes to only the selected records.
+six deferred, one blocked). No task closes from this increment. `dwm-634`,
+`dwm-634.3` and `dwm-vky.14` remain in progress. Root alone updates `.beads/issues.jsonl`;
+if `bd` is unavailable, preserve unrelated records byte for byte and append accurate
+evidence notes to only selected records.
 
-Read `Prompt.md`, `CLAUDE.md`, `docs/agent/AGENT_WORKFLOW.md` and the selected
-issue's linked requirements. **Godot4.6.3 standard, GDScript** is authoritative;
-older .NET/C# memory is stale. Execute Godot and PowerShell only in GitHub cloud.
-Local source inspection and static Python analysis are allowed. Temporary local
-checkouts can expire; published source and retained evidence are authoritative.
+Read `Prompt.md`, `CLAUDE.md`, `docs/agent/AGENT_WORKFLOW.md` and the selected issue's
+linked requirements. **Godot 4.6.3 standard, GDScript** is authoritative; old
+.NET/C# memory is stale. Run Godot and PowerShell only in GitHub cloud. Local source
+inspection and static Python analysis are allowed. Temporary workspaces can revert
+or expire; the freshly fetched published head and retained evidence are authoritative.
 
 Preserve strict Run/document v7 and Profile v9 chronology, physical byte/revision
-checks, consent, complete-action recovery and history. Old Run-save permission
-never authorizes erasing Profile history or unrelated slots. Keep both public
-inventories committed and check without regeneration; source-reference line shifts
-must match the candidate exactly. Keep full Git ancestry for Desktop/New Account seal tests.
-Verify exact blobs/tree and freshly checked parent before non-force publication.
-Do not overlap pushes with a useful acceptance run. Distinguish source, tested
-merge and later records-only commits.
+checks, consent, complete-action recovery and all retained history. Old Run-save
+permission never authorizes deleting Profile history or unrelated slots. Keep both
+public inventories committed and verify without regeneration; source-reference line
+shifts must match the candidate. Preserve full Git ancestry for Desktop/New Account
+seal tests. Verify exact blobs/tree and freshly checked parent before non-force
+publication. Do not overlap pushes with a useful acceptance run. Distinguish source,
+tested merge and subsequent records-only commits.
 
-## Settled design and remaining inputs
-
-Neither current slice needs a new owner answer. Legacy Gallery may offer clearly
-identified limited replay only from recorded facts; never invent missing exact
-selectors/history or count it as witnessing the missing variant. Exact Gallery
-selector/successor contracts remain open. Future dual-language rendering begins
-with captions and History; menus stay single-language, semantic identity is shared
-and Read Aloud uses Primary only. Implementation remains deferred.
-
-Non-canon test dialogue is authorized; production prose and representative
-translated narrative files remain owner inputs for later work. Dating already
-advances into/out of its challenge; do not restore Continue/Done or special mines.
-Other settled UI choices are in `docs/design/current-ui/owner-ui-updates-2026-09-21.md`.
-Original intermittent save failure and renderer stall require evidence of the real
-fault; injected tests or a clean rerun alone do not close them. Linux rendered
-checks and Windows exported headless startup do not establish full native Windows
-graphics/accessibility acceptance. Recheck the recorded upstream ScrollPattern
-blocker when that task resumes. Reference Windows hardware and a responsiveness
-target are still needed for broad latency acceptance.
+Original intermittent save failure and native renderer stall still need evidence of
+the real fault; injected tests or a clean rerun alone cannot close them. Linux
+software-rendered checks plus exported Windows headless startup do not establish
+native Windows graphics/accessibility or physical input-to-paint acceptance. Recheck
+the upstream ScrollPattern blocker when that task resumes. Reference Windows
+hardware and a responsiveness target remain needed for broad latency acceptance.
