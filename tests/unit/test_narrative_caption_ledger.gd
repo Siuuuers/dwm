@@ -133,3 +133,116 @@ func test_uninitialized_ledger_and_empty_publication_identity_are_refused() -> v
 	assert_eq(ledger.publish_line(TOKEN, "", ENTRY, "fixture.caption.alpha").code,
 		&"caption_publication_invalid")
 	assert_eq(ledger.snapshot().captions.size(), 0)
+
+func test_entry_context_admission_is_causal_immutable_and_detached() -> void:
+	var fixture := _fixture()
+	fixture.entry_contexts[ENTRY].selectors["fixture_counter"] = 1
+	var ledger := LEDGER.new()
+	assert_true(ledger.initialize(TOKEN, fixture.frozen_context, fixture.entry_manifest,
+		fixture.registry, true).ok)
+	var empty := ledger.snapshot()
+	assert_eq(empty.entry_contexts, {}, "registration cannot admit a future entry's facts")
+	assert_eq(ledger.allocate_publication(TOKEN, ENTRY).code, &"caption_entry_context_missing")
+	assert_eq(ledger.publish_caption(TOKEN, "first", fixture.registry.beats[0]).code,
+		&"caption_entry_context_missing", "direct publication cannot bypass frame admission")
+	assert_eq(ledger.admit_entry_context("foreign", ENTRY, fixture.entry_contexts[ENTRY]).code,
+		&"caption_foreign_session")
+	assert_eq(ledger.admit_entry_context(TOKEN, "unregistered", fixture.entry_contexts[ENTRY]).code,
+		&"caption_entry_unregistered")
+	assert_eq(ledger.admit_entry_context(TOKEN, ENTRY, {"object": RefCounted.new()}).code,
+		&"caption_entry_context_invalid")
+	assert_eq(ledger.snapshot(), empty, "failed admissions and publications reserve no state")
+	var original: Dictionary = fixture.entry_contexts[ENTRY].duplicate(true)
+	assert_true(ledger.admit_entry_context(TOKEN, ENTRY, fixture.entry_contexts[ENTRY]).ok)
+	assert_true(ledger.admit_entry_context(TOKEN, ENTRY, original).ok, "identical retry is idempotent")
+	assert_true(ledger.publish_line(TOKEN, "first", ENTRY, "fixture.caption.alpha").ok)
+	var before := ledger.snapshot()
+	var conflicting := original.duplicate(true)
+	conflicting.selectors.fixture_counter = true
+	assert_eq(ledger.admit_entry_context(TOKEN, ENTRY, conflicting).code,
+		&"caption_entry_context_conflict", "nested bool and int are distinct frozen facts")
+	fixture.entry_contexts[ENTRY].selectors.inputs.append("caller changed")
+	assert_eq(ledger.admit_entry_context(TOKEN, ENTRY, fixture.entry_contexts[ENTRY]).code,
+		&"caption_entry_context_conflict")
+	var exposed := ledger.snapshot()
+	exposed.entry_contexts[ENTRY].selectors.inputs.clear()
+	exposed.entry_contexts.clear()
+	assert_eq(ledger.snapshot(), before)
+	var second := "fixture.non_canon.foreign_entry"
+	assert_eq(ledger.publish_line(TOKEN, "second", second, "fixture.caption.gamma").code,
+		&"caption_entry_context_missing")
+	assert_eq(ledger.snapshot(), before)
+	assert_true(ledger.admit_entry_context(TOKEN, second, fixture.entry_contexts[second]).ok)
+	assert_eq(ledger.publish_line(TOKEN, "second", second, "fixture.caption.alpha").code,
+		&"caption_line_foreign_entry", "a second admitted frame cannot claim the first entry's line")
+	assert_true(ledger.publish_line(TOKEN, "second", second, "fixture.caption.gamma").ok)
+	var together := ledger.snapshot()
+	assert_eq(together.captions[0], before.captions[0])
+	assert_eq(together.entry_contexts[ENTRY], original, "later facts cannot rewrite the earlier frame")
+	assert_eq(together.entry_contexts[together.captions[1].beat.owning_entry_id],
+		fixture.entry_contexts[second], "authored entry identity binds the occurrence to its exact frame")
+
+func test_framed_reconstruction_validates_all_contexts_and_occurrences_before_installing() -> void:
+	var fixture := _fixture()
+	var source := LEDGER.new()
+	assert_true(source.initialize(TOKEN, fixture.frozen_context, fixture.entry_manifest,
+		fixture.registry, true).ok)
+	var empty_framed := source.snapshot()
+	var empty_restored := LEDGER.new()
+	var before_empty := empty_restored.snapshot()
+	var downgraded := empty_framed.duplicate(true)
+	downgraded.erase("entry_contexts")
+	assert_eq(empty_restored.restore_snapshot(TOKEN, fixture.frozen_context, fixture.entry_manifest,
+		fixture.registry, downgraded, {}, true).code, &"caption_entry_context_mismatch")
+	assert_eq(empty_restored.snapshot(), before_empty,
+		"even zero admitted frames cannot downgrade the independently required mode")
+	assert_true(empty_restored.restore_snapshot(TOKEN, fixture.frozen_context, fixture.entry_manifest,
+		fixture.registry, empty_framed, {}, true).ok)
+	assert_eq(empty_restored.snapshot(), empty_framed)
+	assert_eq(empty_restored.publish_caption(TOKEN, "unadmitted", fixture.registry.beats[0]).code,
+		&"caption_entry_context_missing", "restoring no frames preserves the publication gate")
+	for entry_id: String in fixture.entry_contexts:
+		assert_true(source.admit_entry_context(TOKEN, entry_id, fixture.entry_contexts[entry_id]).ok)
+	assert_true(source.publish_caption(TOKEN, "first", fixture.registry.beats[0]).ok)
+	assert_true(source.publish_caption(TOKEN, "second", fixture.registry.beats[2]).ok)
+	var saved := source.snapshot()
+	var restored := LEDGER.new()
+	var empty := restored.snapshot()
+	var second := "fixture.non_canon.foreign_entry"
+	var damaged := saved.duplicate(true)
+	damaged.entry_contexts[second] = damaged.entry_contexts[ENTRY].duplicate(true)
+	assert_eq(restored.restore_snapshot(TOKEN, fixture.frozen_context, fixture.entry_manifest,
+		fixture.registry, damaged, fixture.entry_contexts, true).code, &"caption_entry_context_mismatch")
+	assert_eq(restored.snapshot(), empty, "changed later facts do not install the earlier frame")
+	damaged = saved.duplicate(true)
+	damaged.entry_contexts.erase(second)
+	var incomplete: Dictionary = fixture.entry_contexts.duplicate(true)
+	incomplete.erase(second)
+	assert_eq(restored.restore_snapshot(TOKEN, fixture.frozen_context, fixture.entry_manifest,
+		fixture.registry, damaged, incomplete, true).code, &"caption_entry_context_missing")
+	assert_eq(restored.snapshot(), empty, "a valid first occurrence cannot install before a bad suffix")
+	damaged = saved.duplicate(true)
+	damaged.erase("entry_contexts")
+	assert_eq(restored.restore_snapshot(TOKEN, fixture.frozen_context, fixture.entry_manifest,
+		fixture.registry, damaged, fixture.entry_contexts, true).code, &"caption_entry_context_mismatch")
+	assert_eq(restored.snapshot(), empty, "removing the frame map cannot downgrade a framed reconstruction")
+	assert_true(restored.restore_snapshot(TOKEN, fixture.frozen_context, fixture.entry_manifest,
+		fixture.registry, saved, fixture.entry_contexts, true).ok)
+	var expected := saved.duplicate(true)
+	saved.entry_contexts[ENTRY].selectors.inputs.clear()
+	fixture.entry_contexts[second].selectors.inputs.clear()
+	assert_eq(restored.snapshot(), expected, "saved and independently admitted inputs are detached")
+	assert_eq(source.snapshot(), expected)
+
+func test_original_unframed_snapshot_and_restore_contract_remains_available() -> void:
+	var fixture := _fixture()
+	var ledger := _ledger(fixture)
+	assert_true(ledger.publish_line(TOKEN, "first", ENTRY, "fixture.caption.alpha").ok)
+	var saved := ledger.snapshot()
+	assert_false(saved.has("entry_contexts"))
+	assert_eq(ledger.admit_entry_context(TOKEN, ENTRY, fixture.entry_contexts[ENTRY]).code,
+		&"caption_entry_contexts_disabled", "an existing session cannot silently change its contract")
+	var restored := LEDGER.new()
+	assert_true(restored.restore_snapshot(TOKEN, fixture.frozen_context,
+		fixture.entry_manifest, fixture.registry, saved).ok)
+	assert_eq(restored.snapshot(), saved)
