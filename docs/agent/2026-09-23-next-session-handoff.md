@@ -5,6 +5,65 @@ Verify the live branch, actual master ref and Beads first. Keep the PR draft:
 do not merge, mark ready or change master. The last checked master was
 `2e8602d5f098eebbab18241f370b5f4d14adf99b`; normalized PR-base fields may be stale.
 
+## Working guidance for the next session
+
+These lessons guide the already-authorized work; they do not amend game behavior,
+save compatibility, acceptance gates or the project's authority map. Aim for a
+feature that is easy to explain, verify and resume. Keep one bounded outcome
+moving through review and proof before starting another implementation.
+
+1. **Define the outcome and failure before editing.** State the player-visible
+   result (or protected guarantee), its current owner, the observed problem and
+   how success will be checked. List the relevant failure modes: for a saved
+   action, that may include a refused write, retry, interruption and restore.
+   Use this small statement inside the existing task; do not create another
+   planning system or try to enumerate hypothetical failures without limit.
+2. **Simplify decisions and state ownership.** Prefer the existing canonical
+   owner and a direct implementation over another manager, parallel state bag or
+   speculative abstraction. Reuse an abstraction when actual repeated needs
+   justify it. Before retirement, inspect real callers, current authority and
+   persistence obligations; an unused saved field can still be a compatibility
+   contract. Isolation copies and recovery checks have purposes that a shorter
+   implementation must still satisfy.
+3. **Complete inexpensive review before final cloud acceptance.** Audit callers,
+   test bodies, ownership and provenance in parallel where independent. Combine
+   compatible findings within the chosen scope, stabilize the candidate, then
+   regenerate affected inventories once and run read-only acceptance against the
+   exact source. Early diagnostic runs are useful when they answer a concrete
+   uncertainty; avoid overlapping acceptance runs for a still-expanding batch.
+   This session's three-label run was superseded by the larger coherent slice.
+4. **Choose tests by the failure they expose.** Reuse meaningful existing checks.
+   Use focused unit tests for isolated rules, integration tests for real owner,
+   storage, retry and recovery boundaries, and rendered E2E journeys for connected
+   player flows. A test name, helper invocation, green exit code or coverage count
+   is insufficient proof. Start with affected suites; broaden only for a concrete
+   interaction risk or required gate. Keep Godot and PowerShell cloud-only.
+5. **Measure complete operations before optimizing.** Shorter code is not proof
+   of less lag. Reproduce the pause, record the baseline and exact input, change
+   one suspected cost, then compare matched complete-operation samples across
+   relevant cold, mixed and warm states. Retain unfavorable results and independent
+   correctness checks. Do not sum nested timers or equate a journal benchmark with
+   player-perceived responsiveness. Preserve all fixture files needed for replay.
+6. **Parallelize independent work with explicit ownership.** Assign disjoint edits
+   or read-only questions to agents. Keep one integrator for shared owner files,
+   publication and Beads records; use an independent reviewer for material risks.
+   More agents are useful only while their work reduces uncertainty or elapsed
+   time. Future CI parallelization must preserve identical source/input admission
+   and isolated paired benchmarks; its speedup is not yet measured.
+7. **Make continuity small and factual.** Verify the live head and selected issue,
+   then read their relevant authority rather than reload all project history.
+   Keep the accepted source, exact run, outcome, evidence limits, next bounded
+   action and unresolved decisions in the existing handoff; link detailed proof.
+   Do not reopen accepted work without new evidence. Consolidate navigation
+   duplication without deleting historical evidence or changing its authority.
+8. **Ask consequential questions and use a stopping rule.** Routine engineering
+   remains delegated. Batch independent questions whose answers change player
+   behavior, architecture, saved-data compatibility or authored narrative policy.
+   Once the selected acceptance is satisfied, publish the verified increment and
+   stop optional polishing. A broad parent remains open until all its acceptance
+   is met. Start a fresh session at a durable checkpoint when the next slice needs
+   different context; preserve the reading-rail questions below.
+
 ## Current checkpoint
 
 The latest accepted bounded `dwm-sx8` increment is source
