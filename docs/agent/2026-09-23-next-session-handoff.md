@@ -66,6 +66,55 @@ moving through review and proof before starting another implementation.
 
 ## Current checkpoint
 
+Latest bounded source: `d0831f1dfe420443803658c47c28ee95caa7be9f`
+(tree `363380fdf677665004d3f1edef11d2eabe5d6613`). [Run76](https://github.com/Siuuuers/dwm/actions/runs/36523397197)
+passes both selected jobs: **243/243 cases  / 19 scripts, zero skips** (232 reading,
+11 public; ledger 12 unit + 9 mounted). Both actual checkouts match this source.
+The final public gate reproduces committed inventories without regeneration and
+verifies ten retired APIs over 925 source files with zero references. All 236/74
+contract rows remain unchanged; only source/test references changed. Inventory
+hashes: GameState `2865701b8571ca308b4d63b23e09d4e345a1937801bcb076c5515b24612e81eb`;
+SaveManager `02e7dd3b3d3ffe7d69ed52fe2ef03bb80d1f37f93e74620c86153f851c150b08`.
+Auxiliary workflow head `3127ffe1e10234b1132d40fe3857f7766bd34085` differs only in
+workflow and explicitly checks out the source. The PR workflow is unchanged.
+
+The internal ledger now admits a separate immutable context per authored entry,
+refuses publications before admission and reconstructs the complete sequence
+transactionally against independent frames and caller-pinned mode. Empty framed
+snapshots cannot downgrade to unframed mode. Existing unframed callers remain
+compatible. One entry ID has one frame per internal session; changed-fact re-entry
+needs future owner design. Production History/Save/Next remains unconfigured.
+
+[Run75](https://github.com/Siuuuers/dwm/actions/runs/36522797798) separately measures
+source `2dd0f8c91fe7b1f7dcf105e56f4309f2658b3aa2` (3/3 jobs). Final source differs
+only in the two inventories. A test-only storage-success witness makes all 8 paired
+manual-save envelopes faster: median paired delta -141.790 ms with parse caching
+enabled and -129.8065 ms disabled, four alternating pairs each. Remaining fixture
+operations still take roughly 4.5 seconds. All 48 raw timings / 24 deltas / 6 summaries,
+13 source hashes, 18 process roots,66 recovered checkpoints and full 15-file fixture
+were independently verified. Production persistence code is unchanged; do not
+claim production adoption, statistical significance or a gameplay speedup.
+
+Next checkpoint slice: witness-specific malformed-success/refusal, stale revision
+and consent, Quick Save, changed promoted bytes and ordered physical fault/restart
+equivalence before any production adoption. The full original manual-save fixture,
+including slot_1 and all backups, is now retained with exact replay instructions;
+Run71's autosave-only limitation does not apply to this new artifact.
+
+Only `dwm-634.3` and `dwm-vky.14` notes/timestamps change in this records descendant;
+189 other Beads records remain byte-identical, no status changes or Dolt sync claim.
+The three selected parents remain in progress and the export still has 23 unfinished
+records. Run76 is focused exact-source acceptance, not a new full 18-job, PR-merge,
+rendered-journey or native Windows graphics/input-to-paint proof.
+
+See the [bounded proof and remaining choices](2026-09-29-entry-frame-and-save-witness-proof.md),
+[receipt](../../evidence/beads_cloud_review/entry-frames-and-save-witness-run75-76.json),
+and [manual-save replay instructions](../../evidence/beads_cloud_review/performance/README-manual-witness-replay.md).
+The two production reading questions below remain unresolved; they did not block
+the internal frame work. Preserve existing Run7 loadability and all Profile history.
+
+## Earlier facade checkpoint
+
 The latest accepted bounded `dwm-sx8` increment is source
 `d6896d7d6c00390b05b4c0cf59e17a37b2fc2419`
 (tree `fac82dbe728dff43a3b3d570ab60cee9e95346df`). It repairs fifteen more
@@ -188,12 +237,13 @@ Exact values/types/bytes, proof text/documents, journal state, file manifests an
 ordered operations are required across variants.
 
 Run68's region-search and Run66's lazy-normalization increments remain accepted;
-do not redo them. The next manual-save storage-only success-witness idea is
-**unmeasured**: first inspect its consumers and measure the existing boundary.
-Do not implement it from guessed profiler attribution or claim broad lag closure.
+do not redo them. Run75 now measures the manual-save storage-only success-witness hypothesis; see
+the current checkpoint above. It is a test-subclass ablation only. Production
+adoption still requires the listed refusal/fault/restart proof; no broad lag closure.
 
-Read-only follow-up found six full-result deep-copy sites across memoization and
-storage validation/promotion, but their cost is unmeasured. The production
+Read-only follow-up identified six executed full-result deep-copy operations
+across memoization and storage validation/promotion. Run75 now measures their
+bounded success-witness ablation without changing production code. The production
 `_write_document_text_validator` caller ignores its success value and separately
 verifies exact bytes/journal state; that alone does not authorize relaxing admission.
 Any future ablation must keep matched physical inputs, cache/preparation state,
@@ -256,8 +306,9 @@ Production remains unconfigured. This does not complete canonical History,
 Witnessed Save, exact-variant Next, Profile witnessing or story coverage.
 The [next-slice proposal](2026-09-29-reading-rail-next-slice.md) scopes one English
 Solo Dating session through automatic board handoff, History, Save and fresh Load.
-It needs authored stable caption/signature identities, immutable per-entry frames
-as post-board facts become available, and coordinated semantic-frontier restoration.
+It still needs authored stable caption/signature identities, production admission
+and wiring of the now-supported internal per-entry frames as post-board facts become
+available, and coordinated semantic-frontier restoration.
 
 **Preserve existing Run7 loadability and all Profile history.** Earlier Run6→7
 permission does not authorize rejecting Run7 now. Never invent missing captions.
