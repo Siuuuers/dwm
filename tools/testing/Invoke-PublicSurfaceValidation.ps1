@@ -10,7 +10,7 @@ $output = Join-Path $repositoryRoot '.godot/ci/public-surfaces'
 $runner = Join-Path $PSScriptRoot 'Invoke-IsolatedGodot.ps1'
 New-Item -ItemType Directory -Force -Path $output | Out-Null
 
-# These were a closed, unused compatibility cluster. Search the complete CI
+# These unused APIs were retired after caller and authority review. Search the complete CI
 # checkout, including the facade itself: the normal inventory excludes internal
 # references and stops looking for a symbol once its declaration is removed.
 # tools/ is intentionally outside the production inventory's four search roots.
@@ -23,6 +23,8 @@ $retired = @(
     'has_unread_friend_messages'
     'prepare_run_candidate'
     'commit_run_candidate'
+    'get_minesweeper_safety_level'
+    'should_warn_minesweeper_before_schedule_done'
 )
 $searchRoots = @('autoload', 'scripts', 'scenes', 'tests')
 $pattern = '\b(?:' + (($retired | ForEach-Object { [regex]::Escape($_) }) -join '|') + ')\b'

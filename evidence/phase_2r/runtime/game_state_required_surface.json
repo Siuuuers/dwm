@@ -359,7 +359,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_game_state_facade_reads_committed_state"
+      "contract_test": "test_restore_after_a_crash_between_checkpoint_commit_and_live_adoption_recovers_the_paid_first_reveal"
     },
     {
       "symbol": "friends",
@@ -455,7 +455,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_game_state_facade_reads_committed_state"
+      "contract_test": "test_prepared_restore_plan_and_installed_owner_remain_independent_until_finalize"
     },
     {
       "symbol": "daily_opened_contacts",
@@ -751,7 +751,7 @@
       "availability": "current",
       "disposition": "replace",
       "replacement": "func commit_effect_transaction(transaction_id: String, effect_ids: Array[String], source_id: String) -> Dictionary",
-      "contract_test": "test_stat_mutations_via_effect_transactions"
+      "contract_test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge"
     },
     {
       "symbol": "change_stat",
@@ -767,7 +767,7 @@
       "availability": "current",
       "disposition": "replace",
       "replacement": "func commit_effect_transaction(transaction_id: String, effect_ids: Array[String], source_id: String) -> Dictionary",
-      "contract_test": "test_economy_mutations_via_effect_transactions"
+      "contract_test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge"
     },
     {
       "symbol": "can_spend_money",
@@ -783,7 +783,7 @@
       "availability": "current",
       "disposition": "replace",
       "replacement": "func commit_effect_transaction(transaction_id: String, effect_ids: Array[String], source_id: String) -> Dictionary",
-      "contract_test": "test_economy_mutations_via_effect_transactions"
+      "contract_test": "test_supportz_purchase_decrements_the_real_round_floor_and_spends_real_money"
     },
     {
       "symbol": "change_coins",
@@ -807,7 +807,7 @@
       "availability": "current",
       "disposition": "replace",
       "replacement": "func commit_effect_transaction(transaction_id: String, effect_ids: Array[String], source_id: String) -> Dictionary",
-      "contract_test": "test_economy_mutations_via_effect_transactions"
+      "contract_test": "test_lucky_charm_purchase_transacts_exactly_once_against_real_ports"
     },
     {
       "symbol": "add_inventory",
@@ -815,7 +815,7 @@
       "availability": "current",
       "disposition": "replace",
       "replacement": "func commit_effect_transaction(transaction_id: String, effect_ids: Array[String], source_id: String) -> Dictionary",
-      "contract_test": "test_inventory_mutations_via_effect_transactions"
+      "contract_test": "test_lucky_charm_purchase_transacts_exactly_once_against_real_ports"
     },
     {
       "symbol": "remove_inventory",
@@ -895,15 +895,7 @@
       "availability": "current",
       "disposition": "replace",
       "replacement": "func commit_effect_transaction(transaction_id: String, effect_ids: Array[String], source_id: String) -> Dictionary",
-      "contract_test": "test_minesweeper_round_commands"
-    },
-    {
-      "symbol": "get_minesweeper_safety_level",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_minesweeper_query_contracts"
+      "contract_test": "test_supportz_purchase_decrements_the_real_round_floor_and_spends_real_money"
     },
     {
       "symbol": "can_start_minesweeper_app_round",
@@ -935,7 +927,7 @@
       "availability": "current",
       "disposition": "replace",
       "replacement": "func complete_minesweeper_round(round_id: String, result: Dictionary, transaction_id: String) -> Dictionary",
-      "contract_test": "test_minesweeper_round_commands"
+      "contract_test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge"
     },
     {
       "symbol": "clear_unfinished_minesweeper_round",
@@ -959,7 +951,7 @@
       "availability": "current",
       "disposition": "replace",
       "replacement": "func complete_minesweeper_round(round_id: String, result: Dictionary, transaction_id: String) -> Dictionary",
-      "contract_test": "test_minesweeper_round_commands"
+      "contract_test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge"
     },
     {
       "symbol": "check_and_claim_minesweeper_task_rewards",
@@ -967,7 +959,7 @@
       "availability": "current",
       "disposition": "replace",
       "replacement": "func complete_minesweeper_round(round_id: String, result: Dictionary, transaction_id: String) -> Dictionary",
-      "contract_test": "test_minesweeper_round_commands"
+      "contract_test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge"
     },
     {
       "symbol": "is_invitation_day",
@@ -1015,7 +1007,7 @@
       "availability": "current",
       "disposition": "replace",
       "replacement": "func complete_minesweeper_round(round_id: String, result: Dictionary, transaction_id: String) -> Dictionary",
-      "contract_test": "test_minesweeper_round_commands"
+      "contract_test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge"
     },
     {
       "symbol": "is_contact_message_unlocked",
@@ -1088,14 +1080,6 @@
       "disposition": "retain",
       "replacement": "",
       "contract_test": "test_ending_query_contracts"
-    },
-    {
-      "symbol": "should_warn_minesweeper_before_schedule_done",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_schedule_query_contracts"
     },
     {
       "symbol": "get_scheduled_date_friend_ids",

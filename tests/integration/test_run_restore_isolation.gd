@@ -160,6 +160,46 @@ func _restore_retired_source(source: String) -> String:
 	return source
 
 
+func _restore_retired_query_source(source: String) -> String:
+	# Superseded query bodies and their old comment remain non-executable evidence.
+	var text := FileAccess.get_file_as_string("res://tests/fixtures/source/game_state_retired_query_seams.json").replace("\r\n", "\n")
+	const SOURCE_ARTIFACT_SHA256 := "9c896f9f868f5d3b7d4fcbc59c4db013ba626284974d428a440e54cc174fe442"
+	assert_eq(text.sha256_text(), SOURCE_ARTIFACT_SHA256, "exact non-executable query retirement artifact")
+	if text.sha256_text() != SOURCE_ARTIFACT_SHA256: return ""
+	var parsed: Variant = JSON.parse_string(text)
+	assert_true(parsed is Dictionary, "query retirement artifact is an object")
+	if not parsed is Dictionary: return ""
+	var keys: Array = parsed.keys()
+	keys.sort()
+	var expected_keys := ["before_app_start", "before_scheduled_friends", "current_schedule_comment",
+		"historical_schedule_comment", "schema", "source_commit", "source_sha256"]
+	assert_eq(keys, expected_keys, "exact query retirement source fields")
+	if keys != expected_keys: return ""
+	assert_eq(parsed.schema, "dwm_retired_game_state_queries.v1")
+	assert_eq(parsed.source_commit, REFERENCE.SOURCE_COMMIT, "query retirement shares the historical source")
+	assert_eq(parsed.source_sha256, REFERENCE.SOURCE_SHA256)
+	if parsed.schema != "dwm_retired_game_state_queries.v1" or parsed.source_commit != REFERENCE.SOURCE_COMMIT \
+			or parsed.source_sha256 != REFERENCE.SOURCE_SHA256: return ""
+	for placement: Array in [
+			["before_app_start", "func can_start_minesweeper_app_round() -> bool:"],
+			["before_scheduled_friends", "func get_scheduled_date_friend_ids() -> Array[String]:"]]:
+		var fragment: Variant = parsed[placement[0]]
+		var anchor: String = placement[1]
+		assert_true(fragment is String and not fragment.is_empty(), "historical query source fragment is present")
+		assert_eq(source.count(anchor), 1, "one retained method anchors each retired query")
+		if not fragment is String or fragment.is_empty() or source.count(anchor) != 1: return ""
+		source = source.replace(anchor, fragment + anchor)
+	var current_comment: Variant = parsed.current_schedule_comment
+	var historical_comment: Variant = parsed.historical_schedule_comment
+	assert_true(current_comment is String and not current_comment.is_empty(), "current comment anchor is present")
+	assert_true(historical_comment is String and not historical_comment.is_empty(), "historical comment is present")
+	if not current_comment is String or current_comment.is_empty() \
+			or not historical_comment is String or historical_comment.is_empty(): return ""
+	assert_eq(source.count(current_comment), 1, "one exact current comment anchors the historical comment")
+	if source.count(current_comment) != 1: return ""
+	return source.replace(current_comment, historical_comment)
+
+
 func _assert_frozen_provenance() -> bool:
 	# A later owner edit must deliberately rebase this comparison contract and
 	# retain a reproducible failing control; do not silently loosen these hashes.
@@ -197,6 +237,7 @@ func _assert_frozen_provenance() -> bool:
 	restored = restored.replace(live_capture, live_capture.replace("to_save_dict().duplicate(true)", "to_save_dict()"))
 	restored = restored.replace(live_rollback, live_rollback.replace('detached["gameplay"].duplicate(true)', 'detached["gameplay"]'))
 	restored = _restore_retired_source(restored)
+	restored = _restore_retired_query_source(restored)
 	assert_eq(restored.sha256_text(), REFERENCE.SOURCE_SHA256, "five isolation edits and exact retirement fragments reconstruct the historical owner")
 	return capture_reference.sha256_text() == REFERENCE.CAPTURE_RESTORE_STATE_SHA256 \
 		and install_reference.sha256_text() == REFERENCE.APPLY_GAMEPLAY_SILENT_SHA256 \

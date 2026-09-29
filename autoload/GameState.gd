@@ -500,14 +500,6 @@ func change_minesweeper_round_floor(delta: int) -> bool:
 	return true
 
 
-func get_minesweeper_safety_level() -> int:
-	if inventory.has("debug_key"):
-		return 3
-	if inventory.has("lucky_charm"):
-		return 2
-	return 1
-
-
 func can_start_minesweeper_app_round() -> bool:
 	return get_stat(STAT_MOTIVATION) > 0 \
 		and minesweeper_rounds_left > minesweeper_round_floor \
@@ -1522,8 +1514,8 @@ func _committed_entries() -> Array:
 ## `create_missed_group_twofriends_entry`.
 ##
 ## SCOPE NOTE, deliberately not glossed over: the DATE TRANSPORT is behaviour-preserving, but the
-## pre-Done QUERY surface is not. `should_warn_minesweeper_before_schedule_done`,
-## `get_scheduled_date_count` and `get_max_scheduled_dates_for_current_day` were written to inspect
+## pre-Done QUERY surface is not. `get_scheduled_date_count` and
+## `get_max_scheduled_dates_for_current_day` were written to inspect
 ## the draft the player had built BEFORE pressing Done. There is no draft in GameState any more --
 ## the aggregate is empty until the Done commit transaction lands -- so those queries now answer
 ## from post-commit state and their draft-time branches are unreachable. That is the amendment's
@@ -1560,46 +1552,6 @@ func _reset_committed_schedule_for_day_end() -> void:
 	_committed_schedule = {}
 	emit_signal("schedule_changed")
 	emit_signal("save_relevant_state_changed")
-
-
-func should_warn_minesweeper_before_schedule_done() -> Dictionary:
-	var has_unfinished: bool = not unfinished_minesweeper_result.is_empty()
-	var has_playable: bool = has_minesweeper_app_round_available()
-	var motivation: int = get_stat(STAT_MOTIVATION)
-	var has_date_entry: bool = false
-	var has_non_date_entry: bool = false
-	for entry in _committed_entries():
-		if _is_committed_date_entry(entry):
-			has_date_entry = true
-		else:
-			has_non_date_entry = true
-
-	var should_warn: bool = false
-	var reason: String = ""
-	if not has_date_entry:
-		var cond1: bool = motivation > 0 and has_unfinished
-		var cond2: bool = motivation > 0 and has_playable
-		var cond3: bool = motivation == 0 and has_non_date_entry and has_playable
-		should_warn = cond1 or cond2 or cond3
-		if cond1:
-			reason = "unfinished_round_and_motivation"
-		elif cond2:
-			reason = "playable_round_and_motivation"
-		elif cond3:
-			reason = "playable_round_zero_motivation_with_non_date"
-		else:
-			reason = "no_warn"
-	else:
-		reason = "date_present"
-
-	return {
-		"should_warn": should_warn,
-		"reason": reason,
-		"has_unfinished_round": has_unfinished,
-		"has_playable_round": has_playable,
-		"motivation": motivation,
-		"has_non_date_entry": has_non_date_entry,
-	}
 
 
 func get_scheduled_date_friend_ids() -> Array[String]:
