@@ -10,6 +10,10 @@ inspected_source: "9958c66fd345ca8c30d7114fdff4c4bb1b356ec7"
 
 # Facade contract follow-up — 29 September 2026
 
+Historical bounded increment below. The later [facade contract proof](2026-09-29-facade-contract-proof.md)
+records the next fifteen mapping repairs and two query retirements, with its own
+exact-source cloud receipt. Follow that record and the live handoff for current counts.
+
 Navigation for `dwm-sx8` at source `9958c66fd345ca8c30d7114fdff4c4bb1b356ec7`. This records reviewed changes and remaining work, not cloud acceptance or closure. Check the live handoff for later results. Checkpoint performance acceptance is tracked separately in the live handoff.
 
 The required surface contains **238 current GameState rows**. **131 still reference absent test functions across 28 distinct labels**. A name's existence alone does not establish meaningful coverage. SaveManager has 74 current rows with no absent labels; their broader behavioral completeness is a separate question.

@@ -7,7 +7,40 @@ do not merge, mark ready or change master. The last checked master was
 
 ## Current checkpoint
 
-**Run71 is accepted for this bounded source increment.** [All 18 jobs passed](https://github.com/Siuuuers/dwm/actions/runs/36486629798).
+The latest accepted bounded `dwm-sx8` increment is source
+`d6896d7d6c00390b05b4c0cf59e17a37b2fc2419`
+(tree `fac82dbe728dff43a3b3d570ab60cee9e95346df`). It repairs fifteen more
+contract mappings and retires two unused, explicitly superseded queries.
+See the [facade contract proof](2026-09-29-facade-contract-proof.md) for exact
+mapping scope, authority and remaining work. [Run74](https://github.com/Siuuuers/dwm/actions/runs/36519455086)
+passed all six selected jobs: **1,107 cases / 85 unique scripts, zero skips**.
+Every actual checkout is the source above. The auxiliary workflow head is
+`f7070d5998dadf8f6c1f5c531fc1f728f031fad4`; it differs only in the workflow,
+which copies the original jobs with explicit source refs and a five-suite matrix.
+This is exact-source focused acceptance, not a new PR-merge or full 18-job run.
+
+The public gate verifies ten retired names over 925 source files with zero
+references and reproduces both committed inventories without regeneration:
+GameState `23d43604951254a65baa9c5fdcd2cf34b1399cce6dce6c1e16eda00cf91003b8`;
+SaveManager `b3d04e0b66b29ee45b84151418db21cf280247759fdf3279ed1f476519f5ddef`.
+Persistence passes all five restore and three active rollback cases. No test
+case or predicate was dropped. The [Run74 receipt](../../evidence/beads_cloud_review/facade-contract-run74.json)
+retains all per-script counts, checkout excerpts, log hashes, source bindings,
+mapping deltas and replay instructions. Generation Run73 and the narrower
+three-label Run72 are separate evidence, not substitutes for final acceptance.
+
+This handoff follows that source in a records-only descendant. Only `dwm-sx8`
+notes/timestamp change this session; its status remains in progress and the other
+190 Beads records retain exact bytes. No fresh benchmark or rendered journey is
+claimed. The next useful facade slice is a body/authority audit of the existing
+relationship-policy, day-resolution and Schedule-preservation tests; they have
+not been selected for new mappings here. Ask only if that review exposes a real
+authority or ownership choice. Reading remains the separate owner-favorite slice
+with the two unresolved questions below.
+
+### Earlier broad runtime baseline
+
+**Run71 is accepted for its earlier bounded source increment.** [All 18 jobs passed](https://github.com/Siuuuers/dwm/actions/runs/36486629798).
 Accepted source: `d4b0fa924af2f83f0a77e9ab3f177c7f86b3e632`
 (tree `e57e2c8148aba79643e09f00028ef03811c47bf7`).
 Actual tested merge: `386adf3911a76e734baf951c758dc445c4d6e588`
@@ -21,9 +54,10 @@ checks passed 136 assertions; all five rendered journeys, exported Windows start
 eight restore/rollback cases and eighteen ledger cases passed. All 66 retained
 checkpoints survive fresh-process recovery.
 
-This handoff follows D4 in a records-only commit: Beads, docs and evidence only.
-It does not claim that a different records SHA was engine-tested. Inspect the live
-diff before continuing, and retain source/run/merge distinctions.
+The earlier `955e0bfb449eac0829388ee4ba0ff7e20938bcae` records commit follows D4
+with Beads, docs and evidence only. The latest source increment above has separate
+focused verification. Do not claim Run71 tested that later source or its records
+descendant; retain source/run/merge distinctions.
 
 The owner delegated testing and routine engineering choices and especially values
 the reading rail. Continue unblocked work without routine permission questions.
@@ -99,6 +133,16 @@ do not redo them. The next manual-save storage-only success-witness idea is
 **unmeasured**: first inspect its consumers and measure the existing boundary.
 Do not implement it from guessed profiler attribution or claim broad lag closure.
 
+Read-only follow-up found six full-result deep-copy sites across memoization and
+storage validation/promotion, but their cost is unmeasured. The production
+`_write_document_text_validator` caller ignores its success value and separately
+verifies exact bytes/journal state; that alone does not authorize relaxing admission.
+Any future ablation must keep matched physical inputs, cache/preparation state,
+full-commit timing and refusal checks. Run71's retained replay input is the Day7
+autosave only: its manual-save benchmark also needs the original `slot_1.json` and
+exact saves-directory contents. Retain a fresh producer directory plus manifest
+before claiming repeatable manual-save comparison; autosave alone is insufficient.
+
 ## Restore and public facade
 
 Source `9958c66` adds five scoped deep-copy changes at restore capture,
@@ -120,12 +164,21 @@ No executable-test exemption weakens the eight-name retirement scan.
 
 Reviewed mappings cover 15 existing behaviors, two active rollback helpers,
 narrow `apply_save_dict` installation, and four earlier restore seams.
-**Remaining:** 238 current GameState rows include 131 mappings using 28 absent
+The latest bounded source repairs fifteen more mappings and removes two unused
+queries: `get_minesweeper_safety_level` and
+`should_warn_minesweeper_before_schedule_done`. The approved August11 amendment
+explicitly supersedes both behaviors; executable caller review found no consumers.
+Their exact historical source and old comment remain in a second hashed,
+non-executable fragment artifact. Historical whole-file and four method hashes
+remain unchanged, with unique-anchor reconstruction checks intact.
+
+**Remaining:** 236 current GameState rows include 114 mappings using 28 absent
 test names; one identified `commit_variable_transaction` label is existence-only.
 SaveManager's 74 current rows have no absent names, which is not exhaustive
 behavior proof. Legacy API disposition still needs caller/current-authority review.
 Do not mechanically substitute unrelated passing tests.
-See the [exact mapping follow-up](2026-09-29-facade-contract-follow-up.md).
+See the [latest exact mappings and limits](2026-09-29-facade-contract-proof.md)
+and [earlier mapping follow-up](2026-09-29-facade-contract-follow-up.md).
 
 ## Reading rail
 
@@ -201,11 +254,12 @@ only in GitHub cloud. Preserve full Git ancestry, coordinated Run/document v7 an
 Profile v9 chronology, strict revisions/bytes/hashes, consent, complete-action
 recovery and retained history. No unrelated slot or Profile-history deletion.
 
-The prior editor workspace went offline. GitHub source reads, Git object creation
-and cloud verification continued. If that workspace returns, inspect and reconcile
-our exact staged changes; never reset or overwrite unrelated work.
-The unavailable local aggregate verifier was not run; explicit cloud logs and
-independent JSON/source checks support the retained receipts.
+The prior editor workspace went offline. A fresh clone was restored for this
+facade increment; static Python/source review works locally. Authenticated Git
+object publication uses the connector; Godot and PowerShell remain cloud-only.
+The earlier unavailable local aggregate verifier was not retrospectively run;
+explicit cloud logs and independent JSON/source checks support the receipts.
+Inspect any older restored checkout before reconciling it; preserve unrelated work.
 
 Linux rendered captures and Windows exported headless startup do not establish
 native Windows graphics/accessibility or physical input-to-paint acceptance.
