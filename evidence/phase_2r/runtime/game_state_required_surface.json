@@ -383,7 +383,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_game_state_facade_reads_committed_state"
+      "contract_test": "test_offer_freezes_generation_facts_and_missing_history_is_not_recreated"
     },
     {
       "symbol": "dating_route_state",
@@ -391,7 +391,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_game_state_facade_reads_committed_state"
+      "contract_test": "test_terminal_profile_ahead_replays_frozen_effect_once_after_checkpoint_retry"
     },
     {
       "symbol": "inter_friend_affection",
@@ -463,7 +463,7 @@
       "availability": "current",
       "disposition": "retain",
       "replacement": "",
-      "contract_test": "test_game_state_facade_reads_committed_state"
+      "contract_test": "test_retiring_solo_interactions_preserves_tone_mastery_and_destination_gates"
     },
     {
       "symbol": "daily_group_invitation_generated",
