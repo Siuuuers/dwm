@@ -1540,7 +1540,12 @@ merged by ID; a slot snapshot is never allowed to replace them wholesale.
 Writes are atomic: write a temporary candidate, validate it, replace the target,
 and retain a last-known-good backup. Compatible prose, translation, and physical
 file moves preserve saves because semantic contracts remain stable. Breaking
-semantic changes require an explicit migration map and contract-version bump.
+semantic changes require an explicit contract-version boundary. Under the
+owner-confirmed [2026-09-29 unshipped development-save policy](2026-09-29-unshipped-development-save-policy.md),
+obsolete development Run/Profile formats may be rejected without a migration
+map or continued reader. A deliberately retained migration must be explicit and
+verified. This narrowly supersedes the earlier mandatory migration-map rule;
+same-format checkpoint, Profile-history and recovery guarantees remain intact.
 
 Operations spanning a run slot and profile use a recoverable transaction journal:
 

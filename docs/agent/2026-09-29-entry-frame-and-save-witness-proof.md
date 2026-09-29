@@ -47,5 +47,5 @@ Only the two selected Beads notes/timestamps change;189 other records retain exa
 
 ## Remaining owner choices
 
-- Older supported Run7 records: an explicit missing-History gap followed by new captions (proposed), or History unavailable until a new semantic session. Loading remains supported either way.
+- Later owner clarification on 29 September 2026: the game is unshipped and obsolete development-save compatibility is optional. The [recorded decision](../design/2026-09-29-unshipped-development-save-policy.md) retires the legacy-History gap question. The Run7/Profile preservation reported above remains a factual result of the tested source, not a continuing cross-version obligation.
 - Before a production Solo Dating catalogue is frozen, confirm whether any additional independent fact changes wording or staging beyond the inspected selectors. The audit has not demonstrated a missing current Solo discriminator; production prose remains unsettled.

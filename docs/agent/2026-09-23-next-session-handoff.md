@@ -5,6 +5,21 @@ Verify the live branch, actual master ref and Beads first. Keep the PR draft:
 do not merge, mark ready or change master. The last checked master was
 `2e8602d5f098eebbab18241f370b5f4d14adf99b`; normalized PR-base fields may be stale.
 
+## Latest owner decision: the game is unshipped
+
+On 29 September 2026 the owner removed older development-save compatibility as
+a constraint on the ongoing redesign. See the
+[unshipped development-save policy](../design/2026-09-29-unshipped-development-save-policy.md).
+Obsolete Run/Profile formats can be retired without migration or a further
+compatibility interview. Use an explicit version/refusal boundary when a chosen
+implementation becomes incompatible; keep supported-format save, history and
+recovery correctness. No runtime format or saved data changes in this records update.
+
+The legacy-History gap question below is retired. Earlier preservation wording
+in historical notes and proof records describes their prior scope; it is not a
+new compatibility obligation. Only `dwm-vky.14` receives an appended decision
+note; no task status changes or Dolt synchronization are claimed.
+
 ## Working guidance for the next session
 
 These lessons guide the already-authorized work; they do not amend game behavior,
@@ -22,9 +37,10 @@ moving through review and proof before starting another implementation.
    owner and a direct implementation over another manager, parallel state bag or
    speculative abstraction. Reuse an abstraction when actual repeated needs
    justify it. Before retirement, inspect real callers, current authority and
-   persistence obligations; an unused saved field can still be a compatibility
-   contract. Isolation copies and recovery checks have purposes that a shorter
-   implementation must still satisfy.
+   persistence obligations; an unused saved field can still participate in a
+   supported-format contract. Obsolete development-format compatibility alone
+   is not a reason to keep it. Isolation copies and recovery checks have purposes
+   that a shorter implementation must still satisfy.
 3. **Complete inexpensive review before final cloud acceptance.** Audit callers,
    test bodies, ownership and provenance in parallel where independent. Combine
    compatible findings within the chosen scope, stabilize the candidate, then
@@ -58,7 +74,8 @@ moving through review and proof before starting another implementation.
    duplication without deleting historical evidence or changing its authority.
 8. **Ask consequential questions and use a stopping rule.** Routine engineering
    remains delegated. Batch independent questions whose answers change player
-   behavior, architecture, saved-data compatibility or authored narrative policy.
+   behavior, architecture or authored narrative policy. Retirement of obsolete
+   development-save compatibility is already delegated under the policy above.
    Once the selected acceptance is satisfied, publish the verified increment and
    stop optional polishing. A broad parent remains open until all its acceptance
    is met. Start a fresh session at a durable checkpoint when the next slice needs
@@ -110,8 +127,9 @@ rendered-journey or native Windows graphics/input-to-paint proof.
 See the [bounded proof and remaining choices](2026-09-29-entry-frame-and-save-witness-proof.md),
 [receipt](../../evidence/beads_cloud_review/entry-frames-and-save-witness-run75-76.json),
 and [manual-save replay instructions](../../evidence/beads_cloud_review/performance/README-manual-witness-replay.md).
-The two production reading questions below remain unresolved; they did not block
-the internal frame work. Preserve existing Run7 loadability and all Profile history.
+The production reading selector question below remains unresolved; it did not
+block the internal frame work. The later owner decision above removes mandatory
+Run7/Profile development-save compatibility and retires the legacy-gap question.
 
 ## Earlier facade checkpoint
 
@@ -310,16 +328,14 @@ It still needs authored stable caption/signature identities, production admissio
 and wiring of the now-supported internal per-entry frames as post-board facts become
 available, and coordinated semantic-frontier restoration.
 
-**Preserve existing Run7 loadability and all Profile history.** Earlier Run6→7
-permission does not authorize rejecting Run7 now. Never invent missing captions.
-Only ask architecture/content questions that remain unresolved:
+**Unshipped development-save compatibility is optional.** The owner decision
+above permits a clean successor without preserving obsolete Run7 or Profile
+formats. Keep explicit version admission and supported-format history/recovery
+guarantees; never invent missing captions. The legacy-gap question is retired.
 
-1. Should older records show an explicit History gap followed by new captions
-   (proposed default), or keep History unavailable until a new semantic session?
-   Run7 loading stays supported either way.
-2. Are there Solo Dating wording/staging selectors beyond the inspected
-   friend/day/phase/tier/tone/attitude/due echoes and committed post-board
-   result/perfect reason/relationship outcome?
+Remaining authored-content question: are there Solo Dating wording/staging
+selectors beyond the inspected friend/day/phase/tier/tone/attitude/due echoes
+and committed post-board result/perfect reason/relationship outcome?
 
 Settled: one History per date; fresh Hospital; uninterrupted ordered-ending
 History. Ordinary Next may include witnessed traversed beats; Hospital/ending

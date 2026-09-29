@@ -48,19 +48,17 @@ Use already-authorized noncanonical dialogue for cloud verification. Production 
 
 **One durable semantic sequence.** Persist session identity, admitted entry/context frames, ordered occurrence identities and exact signatures, plus the current stable line/atom and canonical boundary. Reuse authoritative board, effect and completion records rather than duplicating them in another History document.
 
-**Coordinated restoration.** Extend the exact narrative checkpoint/restore contract deliberately, coordinating any Run/document and narrative version successor while retaining a supported reader for existing Run7 records. Validate catalogue compatibility, complete sequence, context bindings and frontier before installing any participant. Preserve journal, recovery and retained-checkpoint guarantees.
+**Coordinated restoration.** Extend the exact narrative checkpoint/restore contract deliberately, coordinating any Run/document and narrative version successor with explicit admission for the formats it supports. The unshipped-save decision below allows obsolete Run7 readers to be retired. Validate catalogue compatibility, complete sequence, context bindings and frontier before installing any participant. Preserve journal, recovery and retained-checkpoint guarantees within supported formats.
 
-**Exact Next later.** Next also needs exact variant witnessing and a reviewed compatibility contract for existing Profile records. History need not wait for an unnecessary simultaneous rewrite of every replay family.
+**Exact Next later.** Next also needs exact variant witnessing and a coherent Profile contract. Obsolete development Profile formats need not migrate. History need not wait for an unnecessary simultaneous rewrite of every replay family.
 
 Existing Solo Dating selectors include friend/day/phase, tier, tone, attitude and due echoes. Post-challenge adds board result, perfect reasons and relationship outcome. Current residue is explicitly null. Causal run, branch, attempt and receipt IDs bind ownership; they must not automatically create distinct prose variants. English implementation does not depend on the deferred translated-file adapter.
 
-## Compatibility constraint
+## Unshipped development-save policy
 
-**Preserve existing Run7 loadability and all Profile history.** Earlier permission for Run6-to-Run7 does not authorize refusing Run7 in this separate change.
+The [owner decision of 29 September 2026](../design/2026-09-29-unshipped-development-save-policy.md) confirms that the game is unshipped and removes mandatory support for obsolete development Run/Profile formats. A successor can require a clean start, with an explicit version/refusal boundary; migration, old readers and legacy-gap UI are optional engineering choices. Do not synthesize missing captions, receipts or achievements.
 
-Older records may lack an ordered caption sequence. Do not synthesize missing captions from receipts, gameplay, visited IDs or current prose. Do not delete unrelated records or achievements. Keep compatibility handling inside coordinated restoration and disclose a legacy gap honestly.
-
-The proposed default is to preserve recorded facts, disclose the gap, and retain newly published captions normally. Its player-facing presentation remains an owner decision.
+The legacy-History gap versus unavailable-History question is retired. Supported-format history, exact checkpoint restoration, Profile monotonicity and journal/recovery guarantees remain current correctness requirements. This policy update does not itself change runtime formats or stored data.
 
 ## Settled rules
 
@@ -81,9 +79,8 @@ Use the real Dating owner, installed Dialogic runtime, actual board handoff and 
 
 Retain source SHA, tested merge/run/job identities, machine-readable ordered transcript, saved-file hashes, transaction trace and screenshots. Preserve failed attempts and distinguish fixture evidence from production content acceptance.
 
-## Owner decisions for the next cut
+## Remaining owner decision for the next cut
 
-1. Should incomplete older records show an explicit legacy gap followed by newly published captions, or keep History unavailable until a new semantic session starts? The proposed default is the explicit gap. Run7 loading stays supported either way.
-2. Before freezing the first authored Solo Dating catalogue, identify wording or staging selectors beyond the fields above. Final prose can arrive later; hidden reads of mutable gameplay cannot define exact variants.
+Before freezing the first authored Solo Dating catalogue, identify wording or staging selectors beyond the fields above. Final prose can arrive later; hidden reads of mutable gameplay cannot define exact variants. Old-development-save compatibility no longer requires an owner decision.
 
 Routine ownership, implementation and testing choices remain engineering work.
