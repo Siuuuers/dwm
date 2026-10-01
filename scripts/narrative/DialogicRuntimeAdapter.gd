@@ -16,6 +16,7 @@ signal preference_reapply_requested
 signal playback_start_failed(result: Dictionary)
 signal caption_publication_recorded(result: Dictionary)
 signal reading_frontier_restored(result: Dictionary)
+signal reading_seek_finished(result: Dictionary)
 
 const CLEAR_KEEP_VARIABLES := 1
 const REQUIRED_METHODS := ["start", "start_timeline", "end_timeline", "handle_next_event", "handle_event", "clear", "has_subsystem", "get_subsystem"]
@@ -45,6 +46,11 @@ var _caption_event: DialogicTextEvent
 var _caption_line := ""
 var _caption_restore_frontier: Dictionary = {}
 var _caption_restore_queued := false
+var _prepared_reading_seek: Dictionary = {}
+var _reading_seek_serial := 0
+var _caption_seek_frontier: Dictionary = {}
+var _caption_seek_result: Dictionary = {}
+var _caption_seek_queued := false
 
 
 func bind_runtime(dialogic: Node) -> Dictionary:
@@ -126,6 +132,12 @@ func _on_caption_about_to_show(_info: Dictionary) -> void:
 	if not _caption_source_is_current(): return
 	_caption_event = _current_skip_text(true)
 	_caption_line = _authored_line_id(_caption_event)
+	if not _caption_seek_frontier.is_empty():
+		if _caption_line != _caption_seek_frontier.line_id:
+			_fail_reading_seek(_fail(&"reading_seek_changed", "the destination publication changed"))
+			return
+		_caption_publication = _caption_seek_frontier.publication_id
+		return
 	if not _caption_restore_frontier.is_empty():
 		if _caption_line != _caption_restore_frontier.line_id:
 			_fail_reading_restore(_fail(&"reading_frontier_changed", "the resumed publication changed"))
@@ -146,6 +158,15 @@ func _on_caption_text_started(_info: Dictionary) -> void:
 	var result := _caption_ledger.publish_line(_caption_token, _caption_publication,
 		_caption_entry, _caption_line)
 	caption_publication_recorded.emit(result)
+	if not _caption_seek_frontier.is_empty():
+		if not result.ok or not result.value.get("duplicate", false):
+			_fail_reading_seek(_fail(&"reading_seek_changed", "the destination must reuse its committed occurrence"))
+			return
+		if not _caption_seek_queued:
+			_caption_seek_queued = true
+			# Let the ordinary visible publication and its first speech admission
+			# finish. Unlike Load, Next leaves this unseen caption revealing.
+			_finish_reading_seek.call_deferred(_request_id, _caption_event)
 	if not _caption_restore_frontier.is_empty():
 		if not result.ok or not result.value.get("duplicate", false):
 			_fail_reading_restore(_fail(&"reading_frontier_occurrence_changed", "resume must reuse the saved occurrence"))
@@ -168,6 +189,10 @@ func _retire_caption_binding() -> void:
 	_caption_line = ""
 	_caption_restore_frontier = {}
 	_caption_restore_queued = false
+	_prepared_reading_seek = {}
+	_caption_seek_frontier = {}
+	_caption_seek_result = {}
+	_caption_seek_queued = false
 
 
 ## Opt-in durable frontier. Publication identity comes from the session ledger;
@@ -289,6 +314,211 @@ func validate_reading_entry(path: String, entry_label: String, lines: Array) -> 
 	if labels != 1 or not ended or ordinal != lines.size():
 		return _fail(&"reading_entry_mismatch", "the complete fixed entry must end with return")
 	return {"ok": true}
+
+
+## The coordinator owns exact witnessing, exclusive custody and durable source /
+## destination commits. This transient capability admits only the already fixed
+## native programme; no event index or runtime identity belongs in its Run record.
+func prepare_reading_seek(source_frontier: Dictionary, entry_label: String,
+		ordered_lines: Array, destination_line_id: String = "") -> Dictionary:
+	var source := capture_reading_frontier()
+	if not source.ok or source.value != source_frontier or _dialogic.paused \
+			or not _caption_seek_result.is_empty() or _dialogic.Inputs.auto_skip.enabled \
+			or _dialogic.Inputs.auto_advance.is_enabled():
+		return _fail(&"reading_seek_unavailable", "an exact current frontier with ordinary transport is required")
+	var checked := validate_reading_entry(_requested_path, entry_label, ordered_lines)
+	if not checked.ok: return checked
+	var indices := _reading_seek_indices(entry_label, ordered_lines, destination_line_id)
+	if not indices.ok: return indices
+	var intent := {"source": source_frontier.duplicate(true), "entry_id": _caption_entry,
+		"destination_line_id": destination_line_id, "terminal": destination_line_id.is_empty()}
+	if not _prepared_reading_seek.is_empty():
+		var previous: Dictionary = _prepared_reading_seek.plan.duplicate(true)
+		previous.erase("seek_id")
+		if previous == intent and _reading_seek_source_matches(_prepared_reading_seek) \
+				and _prepared_reading_seek.lines == ordered_lines and _prepared_reading_seek.entry_label == entry_label:
+			return {"ok": true, "value": _prepared_reading_seek.plan.duplicate(true)}
+	_reading_seek_serial += 1
+	intent["seek_id"] = "reading-seek:%d:%d" % [get_instance_id(), _reading_seek_serial]
+	_prepared_reading_seek = {"plan": intent.duplicate(true), "lines": ordered_lines.duplicate(true),
+		"entry_label": entry_label, "indices": indices.value, "event": _caption_event,
+		"ledger": _caption_ledger, "snapshot": _caption_ledger.snapshot(),
+		"request_id": _request_id, "generation": _runtime_generation}
+	return {"ok": true, "value": intent.duplicate(true)}
+
+
+## Install the durable candidate into the existing live playback without running
+## any crossed caption. Completing and unwinding the source coroutine first is
+## essential: jumping straight to handle_event() would leave its await alive.
+func apply_reading_seek(plan: Dictionary, destination_ledger: NarrativeCaptionLedger,
+		destination_frontier: Dictionary = {}) -> Dictionary:
+	if _prepared_reading_seek.is_empty() or plan != _prepared_reading_seek.plan \
+			or not _reading_seek_source_matches(_prepared_reading_seek):
+		return _fail(&"reading_seek_stale", "the prepared native source is no longer current")
+	var prepared := _prepared_reading_seek
+	var native := _reading_seek_indices(prepared.entry_label, prepared.lines, plan.destination_line_id)
+	if not native.ok: return native
+	if native.value != prepared.indices:
+		return _fail(&"reading_seek_changed", "the admitted native programme changed")
+	var target := _check_reading_seek_target(prepared, destination_ledger, destination_frontier)
+	if not target.ok: return target
+	var completed := complete_reading_frontier()
+	if not completed.ok: return completed
+	if not _reading_seek_source_matches(prepared):
+		return _fail(&"reading_seek_stale", "source reveal replaced the prepared native source")
+	var after_reveal := _reading_seek_indices(prepared.entry_label, prepared.lines, plan.destination_line_id)
+	if not after_reveal.ok or after_reveal.value != prepared.indices:
+		return _fail(&"reading_seek_changed", "source reveal changed the admitted native programme")
+	target = _check_reading_seek_target(prepared, destination_ledger, destination_frontier)
+	if not target.ok: return target
+	# A same-caption Next completes an unseen partial line and stops. It does
+	# not end its coroutine, manufacture another occurrence, or restart speech.
+	if plan.destination_line_id == plan.source.line_id:
+		_caption_ledger = destination_ledger
+		_prepared_reading_seek = {}
+		var result := {"ok": true, "value": {"frontier": destination_frontier.duplicate(true), "terminal": false}}
+		reading_seek_finished.emit(result)
+		return result
+	var event: DialogicTextEvent = prepared.event
+	var continuation := Callable(_dialogic, "handle_next_event")
+	if not event.event_finished.is_connected(continuation):
+		return _fail(&"reading_seek_unavailable", "the native source continuation is missing")
+	var completion := {"finished": false}
+	var observe := func(_event: DialogicEvent) -> void: completion.finished = true
+	event.event_finished.connect(observe, CONNECT_ONE_SHOT)
+	event.event_finished.disconnect(continuation)
+	event.advance.emit()
+	if event.event_finished.is_connected(observe): event.event_finished.disconnect(observe)
+	# Restore the exact native connection even on refusal. handle_event's own
+	# cleanup retires it and the source's input signals on a successful seek.
+	if not event.event_finished.is_connected(continuation): event.event_finished.connect(continuation)
+	if not completion.finished or not _reading_seek_source_matches(prepared):
+		return _fail(&"reading_seek_changed", "the exact source coroutine did not finish at its held boundary")
+	var after_finish := _reading_seek_indices(prepared.entry_label, prepared.lines, plan.destination_line_id)
+	if not after_finish.ok or after_finish.value != prepared.indices:
+		return _fail(&"reading_seek_changed", "source completion changed the admitted native programme")
+	target = _check_reading_seek_target(prepared, destination_ledger, destination_frontier)
+	if not target.ok: return target
+	_caption_ledger = destination_ledger
+	_prepared_reading_seek = {}
+	_caption_seek_frontier = destination_frontier.duplicate(true)
+	_caption_seek_queued = false
+	_caption_seek_result = {"ok": true, "value": {"frontier": destination_frontier.duplicate(true),
+		"terminal": bool(plan.terminal)}}
+	_dialogic.handle_event(int(native.value.target_index))
+	return {"ok": true, "value": {"pending": true}}
+
+
+func _reading_seek_source_matches(prepared: Dictionary) -> bool:
+	var source := capture_reading_frontier()
+	return source.ok and source.value == prepared.plan.source and not _dialogic.paused \
+		and not _dialogic.Inputs.auto_skip.enabled and not _dialogic.Inputs.auto_advance.is_enabled() \
+		and _caption_seek_result.is_empty() and prepared.ledger == _caption_ledger \
+		and prepared.event == _current_skip_text() and prepared.request_id == _request_id \
+		and prepared.generation == _runtime_generation and prepared.snapshot == _caption_ledger.snapshot()
+
+
+func _check_reading_seek_target(prepared: Dictionary, candidate: NarrativeCaptionLedger,
+		frontier: Dictionary) -> Dictionary:
+	if candidate == null or not candidate.check_session(_caption_token, _caption_entry).ok:
+		return _fail(&"reading_seek_target_invalid", "the destination requires the same admitted session")
+	var snapshot := candidate.snapshot()
+	var old: Dictionary = prepared.snapshot
+	var original_headers := old.duplicate(true)
+	var target_headers := snapshot.duplicate(true)
+	original_headers.erase("captions")
+	target_headers.erase("captions")
+	if original_headers != target_headers:
+		return _fail(&"reading_seek_target_invalid", "the destination changed its immutable session frame")
+	var crossed: Array = prepared.indices.crossed_lines
+	if snapshot.captions.size() != old.captions.size() + crossed.size():
+		return _fail(&"reading_seek_target_invalid", "the candidate must retain the source and every crossed caption")
+	for index: int in old.captions.size():
+		if snapshot.captions[index] != old.captions[index]:
+			return _fail(&"reading_seek_target_invalid", "the candidate changed source History")
+	for index: int in crossed.size():
+		var row: Dictionary = snapshot.captions[old.captions.size() + index]
+		if row.beat.owning_entry_id != _caption_entry or row.beat.line_id != crossed[index]:
+			return _fail(&"reading_seek_target_invalid", "the candidate skipped or reordered a caption")
+	if prepared.plan.terminal:
+		if not frontier.is_empty(): return _fail(&"reading_seek_target_invalid", "terminal Return has no text frontier")
+	elif frontier.get("line_id") != prepared.plan.destination_line_id \
+			or not candidate.is_current_occurrence(_caption_token, _caption_entry, frontier):
+		return _fail(&"reading_seek_target_invalid", "the exact destination occurrence is required")
+	return {"ok": true}
+
+
+## Decode only detached future events. Inspect the live event list as well as the
+## resource preflight so a replaced/mutated runtime cannot inherit a locator.
+func _reading_seek_indices(entry_label: String, lines: Array, destination: String) -> Dictionary:
+	if _dialogic.current_timeline == null or not _dialogic.has_subsystem("Jump") \
+			or not _dialogic.Jump.is_jump_stack_empty():
+		return _fail(&"reading_seek_unavailable", "Return must be a proved natural completion")
+	var selected := false
+	var labels := 0
+	var ordinal := 0
+	var source_ordinal := -1
+	var target_ordinal := -1
+	var target_index := -1
+	var ended := false
+	for index: int in _dialogic.current_timeline_events.size():
+		var event: DialogicEvent = _dialogic.current_timeline_events[index]
+		if not event.event_node_ready:
+			var detached: DialogicEvent = event.get_script().new()
+			detached._load_from_string(event.event_node_as_text)
+			event = detached
+		if event is DialogicLabelEvent:
+			selected = event.name == entry_label
+			if selected: labels += 1
+			continue
+		if not selected or event is DialogicCommentEvent: continue
+		if ended: return _fail(&"reading_seek_changed", "the native entry continues after Return")
+		if event is DialogicReturnEvent:
+			if ordinal != lines.size(): return _fail(&"reading_seek_changed", "the native entry returns early")
+			ended = true
+			if destination.is_empty():
+				target_index = index
+				target_ordinal = ordinal
+			continue
+		if not event is DialogicTextEvent or ordinal >= lines.size() \
+				or _authored_line_id(event) != lines[ordinal].line_id or not _is_single_skip_line(event) \
+				or not _reading_text_matches(event, lines[ordinal].text):
+			return _fail(&"reading_seek_changed", "the native entry differs from the complete fixed catalogue")
+		if index == int(_dialogic.current_event_idx) and event == _caption_event: source_ordinal = ordinal
+		if _authored_line_id(event) == destination:
+			target_index = index
+			target_ordinal = ordinal
+		ordinal += 1
+	if labels != 1 or not ended or ordinal != lines.size() or source_ordinal < 0 \
+			or target_index < 0 or target_ordinal < source_ordinal:
+		return _fail(&"reading_seek_changed", "the target must be in the current fixed entry at or after its source")
+	var crossed: Array[String] = []
+	for index: int in range(source_ordinal + 1, mini(target_ordinal + 1, lines.size())):
+		crossed.append(lines[index].line_id)
+	return {"ok": true, "value": {"target_index": target_index, "crossed_lines": crossed}}
+
+
+func _finish_reading_seek(request_id: String, event: DialogicTextEvent) -> void:
+	if _caption_seek_result.is_empty() or request_id != _request_id: return
+	if not _caption_source_is_current() or event != _current_skip_text(true):
+		_fail_reading_seek(_fail(&"reading_seek_changed", "the visible destination was replaced"))
+		return
+	var result := _caption_seek_result.duplicate(true)
+	var captured := capture_reading_frontier()
+	if not captured.ok or captured.value != _caption_seek_frontier:
+		_fail_reading_seek(_fail(&"reading_seek_changed", "the committed destination occurrence changed"))
+		return
+	_caption_seek_frontier = {}
+	_caption_seek_result = {}
+	_caption_seek_queued = false
+	reading_seek_finished.emit(result)
+
+
+func _fail_reading_seek(result: Dictionary) -> void:
+	var seeking := not _caption_seek_result.is_empty()
+	halt_with_error(result)
+	if not seeking: reading_seek_finished.emit(result)
+	playback_start_failed.emit(result)
 
 
 func start_reading_frontier(path: String, frontier: Dictionary, entry_label: String = "") -> Dictionary:
@@ -552,6 +782,7 @@ func restore_captured_state(backup: Dictionary) -> Dictionary:
 
 
 func halt_with_error(result: Dictionary) -> Dictionary:
+	var seeking := not _caption_seek_result.is_empty()
 	_retire_caption_binding()
 	release_frozen_presentation()
 	_start_generation += 1
@@ -563,6 +794,10 @@ func halt_with_error(result: Dictionary) -> Dictionary:
 	if _bound and _dialogic.current_timeline != null:
 		_activity_phase = "stopping"
 		_dialogic.end_timeline(true)
+	if seeking:
+		var stopped := result.duplicate(true) if result.has("ok") and not result.ok else \
+			_fail(&"reading_seek_cancelled", "the admitted seek was halted before publication")
+		reading_seek_finished.emit(stopped)
 	return {"ok": false, "code": &"runtime_halted", "message": "timeline halted", "details": result.duplicate(true)}
 
 
@@ -701,6 +936,7 @@ func _on_timeline_started() -> void:
 
 
 func _on_timeline_ended() -> void:
+	var seek := _caption_seek_result.duplicate(true)
 	_retire_caption_binding()
 	release_frozen_presentation()
 	_activity_phase = ""
@@ -708,6 +944,9 @@ func _on_timeline_ended() -> void:
 	_pending_layout = null
 	_requested_path = ""
 	timeline_ended_signal.emit()
+	if not seek.is_empty():
+		reading_seek_finished.emit(seek if seek.value.terminal else \
+			_fail(&"reading_seek_changed", "the timeline ended before its destination publication"))
 
 
 func _on_qualified_timeline_started(generation: int, request_id: String) -> void:
@@ -715,6 +954,7 @@ func _on_qualified_timeline_started(generation: int, request_id: String) -> void
 		or request_id != _request_id or str(_dialogic.current_timeline.resource_path) != _requested_path)
 	_runtime_generation = generation
 	if replaced:
+		var seeking := not _caption_seek_result.is_empty()
 		_retire_caption_binding()
 		release_frozen_presentation()
 		_start_generation += 1
@@ -728,7 +968,9 @@ func _on_qualified_timeline_started(generation: int, request_id: String) -> void
 		_pending_layout = null
 		_pending_start = Callable()
 		_activity_phase = "live"
-		playback_start_failed.emit(_fail(&"runtime_playback_replaced", "native playback replaced the admitted timeline"))
+		var result := _fail(&"runtime_playback_replaced", "native playback replaced the admitted timeline")
+		playback_start_failed.emit(result)
+		if seeking: reading_seek_finished.emit(result)
 		return
 	if _caption_ledger != null and _caption_request == request_id:
 		_caption_generation = generation

@@ -164,3 +164,119 @@ func test_history_retires_old_assistive_close_and_background_input() -> void:
 	history._notification(Node.NOTIFICATION_APPLICATION_FOCUS_IN)
 	history.close_button._activate(null, int(history.close_button.generation))
 	assert_signal_emit_count(history, "close_requested", 1)
+
+func test_next_has_independent_admission_and_contextual_help_without_a_mode() -> void:
+	var rail := _rail()
+	assert_true(rail.bind_next_admission(_admission.is_admitted, _input_owner))
+	assert_true(rail.project(false, false, false, false, false, false, false, true))
+	var next: Button = rail.get_node("Next")
+	assert_false(next.disabled)
+	assert_eq(next.focus_mode, Control.FOCUS_ALL)
+	assert_eq(next.text, "Next", "Next is a one-shot command, never an On/Off mode")
+	assert_eq(next.tooltip_text, "Skip witnessed content to the next unseen beat or challenge.")
+	assert_eq(next.accessibility_description, next.tooltip_text)
+	for name: String in ["History", "Save", "Load", "Auto", "Skip"]:
+		assert_true(rail.get_node(name).disabled, "Next cannot authorize " + name)
+	watch_signals(rail)
+	next.pressed.emit()
+	assert_signal_not_emitted(rail, "next_requested", "programmatic pressed is not a physical activation")
+	next.emit_signal(&"activated")
+	assert_signal_emit_count(rail, "next_requested", 1)
+	_admission.allowed = false
+	next.emit_signal(&"activated")
+	assert_signal_emit_count(rail, "next_requested", 1, "the Next owner is checked at activation")
+
+func test_next_cannot_reuse_old_or_repeated_native_callbacks_after_exclusive_custody() -> void:
+	var rail := _rail()
+	assert_true(rail.bind_next_admission(_admission.is_admitted, _input_owner))
+	assert_true(rail.project(false, false, false, false, false, false, false, true))
+	await get_tree().process_frame
+	var next := rail.get_node("Next")
+	next.grab_focus()
+	var generation: int = next._generation
+	assert_true(rail.project(false, false, false, false, false, false, false, true))
+	assert_eq(next._generation, generation, "unchanged availability preserves a fresh physical candidate")
+	assert_true(rail.project(false, false, false, false, false, false, false, false))
+	assert_false(next.has_focus())
+	assert_true(rail.project(false, false, false, false, false, false, false, true))
+	await get_tree().process_frame
+	watch_signals(rail)
+	next._on_accessibility_click(null, generation)
+	assert_signal_not_emitted(rail, "next_requested", "an old action cannot cross traversal custody")
+	var current_generation: int = next._generation
+	next._on_accessibility_click(null, current_generation)
+	next._on_accessibility_click(null, current_generation)
+	assert_signal_emit_count(rail, "next_requested", 1, "one native generation cannot submit two seeks")
+
+class NextBridge extends RefCounted:
+	var trace: Array[String] = []
+	var result := {"ok": true, "value": {"action": "stopped"}}
+	var requested: Dictionary = {}
+	func can_next_current_line() -> bool: return true
+	func request_next(frontier: Dictionary) -> Dictionary:
+		trace.append("request")
+		requested = frontier.duplicate(true)
+		return result
+
+class NextHost extends "res://scripts/ui/witnessed/WitnessedCaptionLayer.gd":
+	var trace: Array[String] = []
+	var owner_current := true
+	var source_current := true
+	var revision := 8
+	func _reading_request_owner_matches(_request: Dictionary) -> bool: return owner_current
+	func _reading_request_matches(_request: Dictionary) -> bool: return source_current and owner_current
+	func _reading_profile_revision() -> int: return revision
+	func _sync_next_presentation() -> void: trace.append("custody")
+	func _sync_transport() -> void: pass
+	func _complete_next_presentation() -> void:
+		trace.append("release")
+		_next_pending = false
+
+class NextAuto extends Node:
+	var host: NextHost
+	var result := {"ok": true}
+	var replace_source := false
+	func set_auto_enabled(target: bool) -> Dictionary:
+		host.trace.append("auto_on" if target else "auto_off")
+		if result.get("ok", false): host.revision += 1
+		if replace_source: host.owner_current = false
+		return result
+
+func _next_command_fixture() -> Dictionary:
+	var host: NextHost = autofree(NextHost.new())
+	var auto: NextAuto = autofree(NextAuto.new())
+	auto.host = host
+	host.auto_controller = auto
+	var bridge := NextBridge.new()
+	bridge.trace = host.trace
+	host._transport_bridge = bridge
+	var request := {"kind": &"next", "frontier": {"ok": true, "line": "fixture.pre.a"},
+		"profile_revision": 8}
+	return {"host": host, "auto": auto, "bridge": bridge, "request": request}
+
+func test_next_preference_refusal_cannot_take_traversal_custody_or_call_bridge() -> void:
+	var fixture := _next_command_fixture()
+	fixture.auto.result = {"ok": false, "code": &"candidate_write_failed"}
+	var result: Dictionary = await fixture.host._execute_reading_command(fixture.request)
+	assert_eq(result.code, &"candidate_write_failed")
+	assert_eq(fixture.host.trace, ["auto_off"], "Auto Off must commit before any traversal side effect")
+	assert_false(fixture.host._next_pending)
+	assert_true(fixture.bridge.requested.is_empty())
+	assert_eq(fixture.request.stage, &"preference", "recovery must describe the failed preference, not traversal")
+
+func test_next_rechecks_source_after_auto_off_and_submits_only_its_exact_frontier() -> void:
+	var fixture := _next_command_fixture()
+	fixture.auto.replace_source = true
+	var retired: Dictionary = await fixture.host._execute_reading_command(fixture.request)
+	assert_false(retired.ok)
+	assert_eq(fixture.host.trace, ["auto_off"])
+	assert_true(fixture.bridge.requested.is_empty(), "a synchronous Profile listener cannot authorize stale Next")
+	fixture = _next_command_fixture()
+	var expected: Dictionary = fixture.request.frontier.duplicate(true)
+	var result: Dictionary = await fixture.host._execute_reading_command(fixture.request)
+	assert_true(result.ok)
+	assert_eq(fixture.host.trace, ["auto_off", "custody", "request", "release"])
+	assert_eq(fixture.bridge.requested, expected)
+	assert_eq(fixture.request.profile_revision, 9, "storage Retry retains the committed Auto revision")
+	assert_eq(fixture.request.stage, &"next")
+	assert_false(fixture.host._next_pending, "one shot releases local custody after the Bridge settles")

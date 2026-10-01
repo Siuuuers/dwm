@@ -1,6 +1,6 @@
 class_name WitnessedTransportRecovery
 extends Control
-## Presentation-only recovery for a refused Witnessed reading-setting change.
+## Presentation-only recovery for a refused Witnessed reading command.
 ## CaptionLayer retains the semantic request and decides whether Retry or Cancel is lawful.
 
 signal retry_requested
@@ -13,6 +13,8 @@ const COLOUR_PRESETS := ["standard", "protan", "deutan", "tritan"]
 const COPY_KEYS := {
 	"failure": "witnessed.recovery.preference_failed",
 	"uncertain": "witnessed.recovery.preference_uncertain",
+	"next_failure": "witnessed.recovery.next_failed",
+	"next_uncertain": "witnessed.recovery.next_uncertain",
 	"retry": "witnessed.recovery.retry",
 	"cancel": "witnessed.recovery.cancel",
 }
@@ -33,6 +35,7 @@ var _bound := false
 var _active := false
 var _can_retry := false
 var _can_cancel := false
+var _command_kind: StringName = &"preference"
 
 
 func _ready() -> void:
@@ -87,9 +90,11 @@ func configure_presentation(locale: String, percent: int, palette: String,
 	return true
 
 
-func present(can_retry: bool, can_cancel: bool) -> bool:
-	if not _configured or not _bound or (can_cancel and not can_retry):
+func present(can_retry: bool, can_cancel: bool, command_kind: StringName = &"preference") -> bool:
+	if not _configured or not _bound or (can_cancel and not can_retry) \
+			or command_kind not in [&"preference", &"next"]:
 		return false
+	_command_kind = command_kind
 	_can_retry = can_retry
 	_can_cancel = can_cancel
 	_active = true
@@ -149,7 +154,8 @@ func _style(percent: int, large_targets: bool) -> void:
 
 
 func _publish() -> void:
-	message_label.text = _copy["failure"] if _can_retry or _can_cancel else _copy["uncertain"]
+	var prefix := "next_" if _command_kind == &"next" else ""
+	message_label.text = _copy[prefix + "failure"] if _can_retry or _can_cancel else _copy[prefix + "uncertain"]
 	accessibility_name = message_label.text
 	retry_button.text = _copy["retry"]
 	cancel_button.text = _copy["cancel"]

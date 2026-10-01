@@ -19,6 +19,8 @@ var _witness_initial_profile: Dictionary = {}
 var _witness_failure: Dictionary = {}
 var _witness_fault: RefCounted
 var _replacement_confirmations := 0
+var _next_observations: Dictionary = {}
+var _next_observers_installed := false
 
 
 ## One candidate-specific filesystem refusal; all successful storage operations
@@ -52,11 +54,36 @@ class FailOneCaptionWitnessWrite extends RefCounted:
 	func sha256(bytes: PackedByteArray) -> String: return target.sha256(bytes)
 
 
+## The transport must durably turn Auto Off before it takes Next custody.
+## Reject only that real Profile candidate, once; every other operation is real.
+class FailOneAutoOffWrite extends RefCounted:
+	const JSON_READER := preload("res://scripts/validation/StrictJson.gd")
+	var target: RefCounted
+	var refusals := 0
+	var matching_writes := 0
+	func _init(real_ops: RefCounted) -> void: target = real_ops
+	func exists(path: String) -> bool: return target.exists(path)
+	func read_bytes(path: String) -> Dictionary: return target.read_bytes(path)
+	func write_bytes(path: String, bytes: PackedByteArray) -> Dictionary:
+		if path.replace("\\", "/").ends_with("/profile.json.next"):
+			var parsed: Dictionary = JSON_READER.parse_object(bytes.get_string_from_utf8())
+			if parsed.get("ok", false) and parsed.value.get("preferences", {}).get("reading", {}).get("auto_enabled") == false:
+				matching_writes += 1
+				if refusals == 0:
+					refusals += 1
+					return {"ok": false, "code": &"write_failed", "message": "isolated Next Auto Off candidate refusal"}
+		return target.write_bytes(path, bytes)
+	func flush_path(path: String) -> Dictionary: return target.flush_path(path)
+	func rename_path(source: String, destination: String) -> Dictionary: return target.rename_path(source, destination)
+	func remove_path(path: String) -> Dictionary: return target.remove_path(path)
+	func sha256(bytes: PackedByteArray) -> String: return target.sha256(bytes)
+
+
 func _run() -> void:
 	for argument: String in OS.get_cmdline_user_args():
 		if argument.begins_with("--reading-rail-mode="):
 			_reading_mode = argument.trim_prefix("--reading-rail-mode=")
-	if not _check(_reading_mode in ["write", "read", "repeat", "variant", "witness-read"], "explicit reading process mode"): return
+	if not _check(_reading_mode in ["write", "read", "repeat", "variant", "witness-read", "next-unseen", "next", "next-read"], "explicit reading process mode"): return
 	if not _check(not OS.get_environment("DWM_TEST_ROOT").strip_edges().is_empty(), "isolated test root required"): return
 	if not _check(DisplayServer.get_name() != "headless", "real cloud software rendering required"): return
 	await _frames()
@@ -67,6 +94,10 @@ func _run() -> void:
 	var catalogue_path: String = VARIANT_B_CATALOGUE if _reading_mode in ["variant", "witness-read"] else READING_CATALOGUE
 	var catalogue: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(catalogue_path))
 	if not _check(catalogue.get("ok", false), "strict noncanonical catalogue"): return
+	if _reading_mode == "next-unseen":
+		# Explicitly different fixed revision, with unchanged noncanonical prose.
+		# The original variant-B witnessing and Read Only proof remain independent.
+		catalogue.value.entries[0].lines[0].revision = "fixture-next-unseen-v1"
 	var configured: Dictionary = bridge.configure_reading_catalogue(catalogue.value)
 	if not _check(configured.get("ok", false), "real reading owner accepts fixture catalogue: " + str(configured)): return
 	var first_entry: Dictionary = catalogue.value.entries[0]
@@ -84,6 +115,9 @@ func _run() -> void:
 	if _reading_mode == "read":
 		await _read_process()
 		return
+	if _reading_mode == "next-read":
+		await _next_read_process()
+		return
 	var profile: Node = root.get_node("ProfileManager")
 	var preferences: Dictionary = profile.set_preferences({
 		&"preferences.reading.read_aloud_enabled": true,
@@ -95,7 +129,7 @@ func _run() -> void:
 		_trace("fixture_registered", {"catalogue": READING_CATALOGUE, "production_content": false})
 	else:
 		_witness_initial_profile = profile.get_profile_snapshot()
-		if not _check(profile.is_caption_variant_witnessed(_witness_beat) == (_reading_mode == "repeat"),
+		if not _check(profile.is_caption_variant_witnessed(_witness_beat) == (_reading_mode in ["repeat", "next"]),
 			"fresh process admits only the exact previously witnessed variant"): return
 		_confirm_replacement_new_account.call_deferred()
 	# Reuse real title/New Account/desktop/first board. This calls our Dating override.
@@ -139,6 +173,9 @@ func _dating_journey(game: Node, desktop: Node) -> void:
 	var dating: Node = current_scene
 	if _reading_mode in ["repeat", "variant"]:
 		await _witness_session(game, dating)
+		return
+	if _reading_mode in ["next-unseen", "next"]:
+		await _next_session(game, dating)
 		return
 	if not await _ordinary_reading_pause_save(game, dating): return
 	if not await _advance_line("fixture.solo.pre.a", "fixture.solo.pre.b"): return
@@ -781,4 +818,277 @@ func _witness_read_process() -> void:
 	if not _check(_write_text("witness-read.json", JSON.stringify(report, "\t")), "retain fresh B witness read report"): return
 	_trace("witness_restart_verified", report)
 	print("READING_RAIL_WITNESS_READ_PASS: fresh Profile loads exact B witness without publication or mutation")
+	quit(0)
+
+
+func _begin_next_observation() -> void:
+	_next_observations = {"observing": true, "text_started": 0, "about_to_show_text": 0,
+		"caption_publications": 0, "speech_before": _speech_admissions,
+		"exclusive_frames": 0, "exclusive_activations": 0, "intermediate_checkpoint_admissions": 0}
+	if _next_observers_installed: return
+	_next_observers_installed = true
+	var bridge: Node = root.get_node("DialogicBridge")
+	var dialogic: Node = root.get_node("Dialogic")
+	dialogic.Text.text_started.connect(func(_info: Dictionary) -> void:
+		if _next_observations.get("observing", false): _next_observations.text_started += 1)
+	dialogic.Text.about_to_show_text.connect(func(_info: Dictionary) -> void:
+		if _next_observations.get("observing", false): _next_observations.about_to_show_text += 1)
+	bridge.get("_runtime_adapter").caption_publication_recorded.connect(func(_result: Dictionary) -> void:
+		if _next_observations.get("observing", false): _next_observations.caption_publications += 1)
+	bridge.next_traversal_changed.connect(func() -> void:
+		if not _next_observations.get("observing", false) or not bridge.is_next_traversal_active(): return
+		_next_observations.exclusive_activations += 1
+		var exposed: Dictionary = bridge.capture_reading_checkpoint(false)
+		if bridge.can_capture_reading_checkpoint() or exposed.get("ok", false):
+			_next_observations.intermediate_checkpoint_admissions += 1)
+	process_frame.connect(func() -> void:
+		if not _next_observations.get("observing", false) or not bridge.is_next_traversal_active(): return
+		_next_observations.exclusive_frames += 1
+		if bridge.can_capture_reading_checkpoint(): _next_observations.intermediate_checkpoint_admissions += 1)
+
+
+func _end_next_observation() -> Dictionary:
+	_next_observations.observing = false
+	var result := _next_observations.duplicate(true)
+	result.erase("observing")
+	result["speech_after"] = _speech_admissions
+	return result
+
+
+func _activate_next(detail: String) -> bool:
+	var bridge: Node = root.get_node("DialogicBridge")
+	var layer: Node = _caption_layer()
+	if not _check(layer != null and bridge.can_next_current_line(), detail + " has a real admitted Next source"): return false
+	var button: Button = layer.transport_rail.get_node("Next")
+	current_scene.get_window().grab_focus()
+	button.grab_focus()
+	if not await _ordinary_accept_focused(button, detail): return false
+	return await _wait_next_settled(layer, detail)
+
+
+func _retry_next() -> bool:
+	var layer: Node = _caption_layer()
+	if not _check(layer != null and layer.is_reading_recovery_active()
+		and layer.recovery_overlay.is_presented(), "refused Next exposes its actual Retry owner"): return false
+	var retry: Button = layer.recovery_overlay.retry_button
+	retry.grab_focus()
+	if not await _ordinary_accept_focused(retry, "fresh physical Next recovery Retry"): return false
+	return await _wait_next_settled(layer, "Next recovery Retry")
+
+
+func _wait_next_settled(layer: Node, detail: String) -> bool:
+	var bridge: Node = root.get_node("DialogicBridge")
+	for frame: int in 600:
+		if not bridge.is_next_traversal_active() and (not is_instance_valid(layer) or not bool(layer.get("_next_pending"))):
+			await _frames()
+			return true
+		await process_frame
+	return _check(false, detail + " did not release its bounded traversal custody")
+
+
+func _next_session(game: Node, dating: Node) -> void:
+	var bridge: Node = root.get_node("DialogicBridge")
+	var profile: Node = root.get_node("ProfileManager")
+	var runtime: RefCounted = bridge.get("_runtime_adapter")
+	var source: Dictionary = bridge.capture_reading_checkpoint(false)
+	if not _check(source.get("ok", false) and runtime.current_line_id() == "fixture.solo.pre.a"
+		and not runtime.is_current_line_complete(), "Next starts on the real partial first caption"): return
+	var publication: Dictionary = bridge.capture_current_line_presentation_frontier()
+	var ack: Dictionary = bridge.acknowledge_current_line_presentation(publication)
+	if not _check(ack.get("ok", false)
+		and ack.receipt.was_visited_before_presentation == (_reading_mode == "next"),
+		"Next retains the exact seen baseline from before visible publication"): return
+	var report := {"mode": _reading_mode, "process_id": OS.get_process_id(),
+		"user_dir": ProjectSettings.globalize_path("user://"),
+		"source_checkpoint": source.value.duplicate(true), "beat": _witness_beat.duplicate(true),
+		"acknowledgement_receipt": ack.receipt.duplicate(true),
+		"replacement_confirmations": _replacement_confirmations}
+	if _reading_mode == "next-unseen":
+		await _next_unseen_session(game, dating, report)
+		return
+	var profile_before: Dictionary = profile.get_profile_snapshot()
+	_begin_next_observation()
+	if not await _activate_next("witnessed one-shot Next rail activation"): return
+	if not await _wait_for_dating_board(dating): return
+	var observations := _end_next_observation()
+	if not _check(_next_is_silent(observations) and observations.exclusive_activations == 1,
+		"one witnessed traversal holds exclusive custody and never executes intermediate text, presentation or speech"): return
+	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
+	var history: Dictionary = bridge.get_reading_history()
+	var physical: Dictionary = game.capture_dating_challenge_state()
+	if not _check(checkpoint.get("ok", false) and history.get("ok", false) and physical.get("ok", false)
+		and checkpoint.value.reading_session.boundary == "between_entries"
+		and checkpoint.value.reading_session.frontier.is_empty()
+		and physical.value.phase == "challenge" and not bridge.has_active_playback(),
+		"Next reaches the real challenge owner and exact between-entry semantic boundary"): return
+	var reading: Dictionary = checkpoint.value.reading_session
+	var operation: Dictionary = reading.get("next_operation", {})
+	if not _check(reading.schema_version == 2 and operation.get("schema_version") == 1
+		and operation.get("phase") == "destination" and operation.get("plan", {}).get("destination") == {"kind": "completion", "caption": null}
+		and operation.plan.source_ledger == report.source_checkpoint.reading_session.ledger
+		and operation.plan.source_frontier == report.source_checkpoint.reading_session.frontier
+		and operation.plan.traversed_captions.size() == 1
+		and operation.plan.traversed_captions[0].beat.line_id == "fixture.solo.pre.b"
+		and reading.ledger.captions == operation.plan.source_ledger.captions + operation.plan.traversed_captions,
+		"durable Next operation binds exact source and one ordered witnessed suffix to challenge completion"): return
+	if not _check(history.value.captions.size() == 2
+		and history.value.captions[0].line_id == "fixture.solo.pre.a"
+		and history.value.captions[1].line_id == "fixture.solo.pre.b"
+		and profile.get_profile_snapshot().witnessed_caption_variants == profile_before.witnessed_caption_variants,
+		"silently crossed witnessed caption enters canonical History without new Profile credit"): return
+	var disk: Dictionary = root.get_node("SaveManager").get("_storage").read_text("autosave.json")
+	if not _check(disk.get("ok", false), "Next challenge Autosave exists physically"): return
+	var parsed: Dictionary = STRICT.parse_object(disk.value)
+	if not _check(parsed.get("ok", false), "Next Autosave is strict JSON"): return
+	var snapshot: Dictionary = parsed.value.current_snapshot.snapshot
+	if not _check(snapshot.narrative_checkpoint == checkpoint.value
+		and snapshot.gameplay.route_context.active_dating_challenge == physical.value,
+		"actual challenge Autosave durably contains exact Next History and physical boundary"): return
+	if not await _capture_next_screen("02-next-board"): return
+	report.merge({"checkpoint": checkpoint.value.duplicate(true), "history": history.value.duplicate(true),
+		"physical_record": physical.value.duplicate(true), "observations": observations,
+		"autosave_sha256": str(disk.value).sha256_text(), "autosave_bytes": str(disk.value).to_utf8_buffer().size(),
+		"witnesses_before": profile_before.witnessed_caption_variants.duplicate(true),
+		"witnesses_after": profile.get_profile_snapshot().witnessed_caption_variants.duplicate(true)}, true)
+	if not _check(_write_text("next-autosave.json", disk.value)
+		and _write_text("next.json", JSON.stringify(report, "\t")), "retain Next board report and exact Autosave bytes"): return
+	_trace("next_challenge_verified", report)
+	print("READING_RAIL_NEXT_PASS: physical Next -> silent witnessed traversal -> real challenge -> durable Autosave and ordered History")
+	await _finish_next_board_proof()
+
+
+func _next_unseen_session(game: Node, dating: Node, report: Dictionary) -> void:
+	var bridge: Node = root.get_node("DialogicBridge")
+	var profile: Node = root.get_node("ProfileManager")
+	var runtime: RefCounted = bridge.get("_runtime_adapter")
+	if not _check(profile.set_preference(&"preferences.reading.auto_enabled", true).get("ok", false),
+		"enable real Auto before testing Next arbitration"): return
+	var storage: RefCounted = profile.get("_storage")
+	var real_ops: RefCounted = storage.get("_file_ops")
+	var fault := FailOneAutoOffWrite.new(real_ops)
+	storage.set("_file_ops", fault)
+	var before_profile: Dictionary = profile.get_profile_snapshot()
+	var before_disk := _witness_disk()
+	var before_game: Dictionary = game.to_save_dict().duplicate(true)
+	_begin_next_observation()
+	if not await _activate_next("Next with refused Auto Off"): return
+	var refusal_observations := _end_next_observation()
+	var refused_checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
+	if not _check(fault.refusals == 1 and fault.matching_writes == 1
+		and profile.get_profile_snapshot() == before_profile and _witness_disk() == before_disk
+		and game.to_save_dict() == before_game and current_scene == dating
+		and refused_checkpoint.get("ok", false) and refused_checkpoint.value == report.source_checkpoint
+		and not runtime.is_current_line_complete() and _next_is_silent(refusal_observations),
+		"Auto Off refusal starts no traversal and preserves exact durable Profile, game and partial source"): return
+	_trace("next_auto_off_refused", {"profile_sha256": before_disk.sha256, "observations": refusal_observations})
+	_begin_next_observation()
+	if not await _retry_next(): return
+	var observations := _end_next_observation()
+	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
+	if not _check(fault.refusals == 1 and fault.matching_writes == 2
+		and not profile.get_preference(&"preferences.reading.auto_enabled", true)
+		and runtime.current_line_id() == "fixture.solo.pre.a" and runtime.is_current_line_complete()
+		and checkpoint.get("ok", false)
+		and checkpoint.value.reading_session.ledger == report.source_checkpoint.reading_session.ledger
+		and checkpoint.value.reading_session.frontier == report.source_checkpoint.reading_session.frontier
+		and profile.get_profile_snapshot().witnessed_caption_variants == before_profile.witnessed_caption_variants
+		and _next_is_silent(observations),
+		"fresh one-shot Next durably turns Auto Off, completes only the unseen current line, and grants no extra witness"): return
+	storage.set("_file_ops", real_ops)
+	var layer: Node = _caption_layer()
+	if not _check(layer != null and layer.caption_text.has_focus(), "unseen Next stop returns caption Focus"): return
+	if not await _capture_next_screen("01-next-unseen"): return
+	if not await _inspect_history("next-unseen-history-not-captured", 1): return
+	report.merge({"checkpoint": checkpoint.value.duplicate(true), "observations": observations,
+		"refusal_observations": refusal_observations, "auto_off_refusals": fault.refusals,
+		"auto_off_matching_writes": fault.matching_writes, "auto_enabled_after": false,
+		"refused_profile_sha256": before_disk.sha256, "profile_after_sha256": _witness_disk().sha256,
+		"witnesses_before": before_profile.witnessed_caption_variants.duplicate(true),
+		"witnesses_after": profile.get_profile_snapshot().witnessed_caption_variants.duplicate(true),
+		"current_line_complete": true, "history_observations": _history_observations}, true)
+	if not _check(_write_text("next-unseen.json", JSON.stringify(report, "\t")), "retain unseen Next refusal/retry report"): return
+	_trace("next_unseen_verified", report)
+	print("READING_RAIL_NEXT_UNSEEN_PASS: real Auto Off refusal -> physical retry -> complete current unseen only -> caption Focus and neutral History")
+	await _finish_proof()
+
+
+func _next_is_silent(observations: Dictionary) -> bool:
+	return observations.text_started == 0 and observations.about_to_show_text == 0 \
+		and observations.caption_publications == 0 and observations.speech_before == observations.speech_after \
+		and observations.intermediate_checkpoint_admissions == 0
+
+
+func _next_read_process() -> void:
+	var prior: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(_evidence_path("next.json")))
+	if not _check(prior.get("ok", false) and int(prior.value.process_id) != OS.get_process_id(),
+		"Next board restoration has a distinct operating-system process"): return
+	var saves: Node = root.get_node("SaveManager")
+	var profile: Node = root.get_node("ProfileManager")
+	var before_profile: Dictionary = profile.get_profile_snapshot()
+	var before_disk: Dictionary = saves.get("_storage").read_text("autosave.json")
+	if not _check(before_disk.get("ok", false) and str(before_disk.value).sha256_text() == prior.value.autosave_sha256,
+		"fresh Next restore opens exactly the retained physical Autosave"): return
+	var prepared: Dictionary = saves.prepare_backup_action("load", "autosave")
+	if not _check(prepared.get("ok", false), "fresh Next Autosave Load prepares: " + str(prepared)): return
+	var restored: Dictionary = saves.commit_backup_action(prepared.value.token)
+	if not _check(restored.get("ok", false), "fresh Next Autosave Load commits: " + str(restored)): return
+	for frame: int in 600:
+		if current_scene != null and current_scene.get("worksheet") != null \
+			and current_scene.get("_physical_view").get("phase") == "challenge": break
+		await process_frame
+	if not _check(current_scene != null and current_scene.get("worksheet") != null, "fresh Next Load remounts real Dating"): return
+	if not await _wait_for_dating_board(current_scene): return
+	await _frames()
+	var bridge: Node = root.get_node("DialogicBridge")
+	var game: Node = root.get_node("GameState")
+	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
+	var history: Dictionary = bridge.get_reading_history()
+	var physical: Dictionary = game.capture_dating_challenge_state()
+	if not _check(checkpoint.get("ok", false) and checkpoint.value == prior.value.checkpoint
+		and history.get("ok", false) and history.value == prior.value.history
+		and physical.get("ok", false) and physical.value == prior.value.physical_record
+		and not bridge.has_active_playback() and not bridge.is_next_traversal_active()
+		and _speech_admissions == 0 and profile.get_profile_snapshot() == before_profile,
+		"fresh Next Load restores exact physical boundary, ordered History and operation without replay or new Profile credit"): return
+	var after_disk: Dictionary = saves.get("_storage").read_text("autosave.json")
+	if not _check(after_disk.get("ok", false) and after_disk.value == before_disk.value,
+		"fresh Next Load leaves exact physical Autosave bytes unchanged"): return
+	if not await _capture_next_screen("03-next-restored-board"): return
+	var report := {"mode": _reading_mode, "process_id": OS.get_process_id(),
+		"user_dir": ProjectSettings.globalize_path("user://"), "checkpoint": checkpoint.value.duplicate(true),
+		"history": history.value.duplicate(true), "physical_record": physical.value.duplicate(true),
+		"autosave_sha256": str(after_disk.value).sha256_text(), "autosave_bytes": str(after_disk.value).to_utf8_buffer().size(),
+		"speech_admissions": _speech_admissions, "profile_unchanged": true, "next_active": false}
+	if not _check(_write_text("next-read.json", JSON.stringify(report, "\t")), "retain fresh Next board restore report"): return
+	_trace("next_restart_verified", report)
+	print("READING_RAIL_NEXT_READ_PASS: fresh Autosave Load -> exact challenge and History -> inactive Next and no repeated speech")
+	await _finish_next_board_proof()
+
+
+func _capture_next_screen(label: String) -> bool:
+	await RenderingServer.frame_post_draw
+	var pixels: Image = root.get_texture().get_image()
+	if not _check(pixels != null and not pixels.is_empty(), "rendered Next screen available"): return false
+	var folder: String = _evidence_path("next")
+	if not _check(DirAccess.make_dir_recursive_absolute(folder) == OK, "create distinct Next screenshot folder"): return false
+	var path: String = folder.path_join(label + ".png")
+	if not _check(pixels.save_png(path) == OK, "write Next screenshot " + label): return false
+	print("READING_RAIL_NEXT_CAPTURE: " + path)
+	return true
+
+
+func _finish_next_board_proof() -> void:
+	var bridge: Node = root.get_node("DialogicBridge")
+	if not _check(not bridge.has_active_playback() and not bridge.is_next_traversal_active(),
+		"board proof exits without aborting or completing another narrative source"): return
+	var speech: Node = root.get_node("SystemTtsCoordinator")
+	speech.stop(&"reading_next_fixture_teardown")
+	await speech.wait_until_recovered()
+	var dialogic: Node = root.get_node("Dialogic")
+	for frame: int in 120:
+		if dialogic.current_timeline == null and not dialogic.is_ending_timeline(): break
+		await process_frame
+	if not _check(dialogic.current_timeline == null and not dialogic.is_ending_timeline(),
+		"Next source native coroutine is retired before board proof exit"): return
+	await _frames()
 	quit(0)

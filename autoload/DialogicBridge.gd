@@ -22,6 +22,8 @@ signal ending_playback_failed(playback_token: String, ending_id: String, result:
 signal ending_playback_retired(playback_token: String, ending_id: String)
 signal scene_art_changed
 signal reading_session_changed
+signal next_traversal_changed
+signal _next_runtime_settled
 
 const MISSING_DIALOGIC_MESSAGE := "Dialogic 2 addon file does not exist."
 const DIALOGIC_CLEAR_KEEP_VARIABLES := 1
@@ -103,6 +105,11 @@ var _reading_restore_adoption := false
 var _reading_adoption_checkpoint: Dictionary = {}
 var _reading_restore_token := ""
 var _reading_resume_frontier: Dictionary = {}
+const _READING_TRAVERSAL := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
+var _next_active := false
+var _next_command: Dictionary = {}
+var _next_runtime_result: Dictionary = {}
+var _next_generation := 0
 ## Acknowledge ledger keyed by receipt_id, with the SaveManagerNarrativeCheckpointPort
 ## duplicate/conflict semantics verbatim (R-JJ): an identical replay returns the STORED receipt,
 ## a conflicting reuse refuses and mutates nothing.
@@ -1198,7 +1205,153 @@ func set_skip_mode(mode: StringName) -> Dictionary:
 
 ## Read-only UI admission; never reveals, witnesses, or advances an event.
 func can_skip_current_line() -> bool:
-	return _line_presentation_context({}, false).get("ok", false)
+	return not _next_active and _line_presentation_context({}, false).get("ok", false)
+
+
+## Next is opt-in to the complete fixed Solo programme and existing durable
+## checkpoint owner. Capability queries do not allocate History or write Profile.
+func can_next_current_line() -> bool:
+	if _next_active or _line_ack_in_progress or _auto_step_in_progress or _skip_step_in_progress \
+			or not _has_exact_caption_source() or _mutation_gate == null \
+			or _runtime_adapter == null \
+			or _narrative_checkpoint_port == null \
+			or not _narrative_checkpoint_port.has_method("commit_reading_next") \
+			or not _runtime_adapter.has_method("prepare_reading_seek") \
+			or not _runtime_adapter.has_method("apply_reading_seek") \
+			or not _runtime_adapter.has_signal("reading_seek_finished"):
+		return false
+	return _line_presentation_context().get("ok", false)
+
+
+func is_next_traversal_active() -> bool:
+	return _next_active
+
+
+func request_next(expected_frontier: Dictionary) -> Dictionary:
+	if _next_active:
+		return {"ok": true, "code": &"coalesced", "value": {"active": true}} \
+			if expected_frontier == _next_command else _command_failure(&"reading_next_command_conflict")
+	if expected_frontier.is_empty() or not can_next_current_line():
+		return _command_failure(&"reading_next_unavailable")
+	var current := _line_presentation_context(expected_frontier)
+	if not current.ok: return current
+	if _skip_profile.get_preference(&"preferences.reading.auto_enabled", false):
+		return _command_failure(&"reading_next_auto_enabled")
+	_retain_line_presentation(current.value)
+	# A newly witnessed partial line cannot become traversable inside this same
+	# activation. Reveal is not a semantic seek and retains the ordinary frontier.
+	if not _runtime_adapter.is_current_line_complete() and not _line_presentation.was_visited \
+			and not _line_presentation.unseen_stop_delivered:
+		var completed: Dictionary = _runtime_adapter.reveal_current_line(true)
+		if not completed.get("ok", false): return completed
+		var partial_ack := acknowledge_current_line_presentation(expected_frontier)
+		if not partial_ack.get("ok", false): return partial_ack
+		_line_presentation.unseen_stop_delivered = true
+		return {"ok": true, "code": &"unseen_stop", "value": {"advance": false}}
+	var acknowledged := acknowledge_current_line_presentation(expected_frontier)
+	if not acknowledged.get("ok", false): return acknowledged
+	var source := capture_reading_checkpoint(false)
+	if not source.ok: return source
+	var revision: int = _skip_profile.get_profile_revision()
+	var planned: Dictionary = _reading_session.prepare_next(current.value.caption_publication,
+		Callable(_skip_profile, "is_caption_variant_witnessed"))
+	if not planned.ok: return planned
+	var plan: Dictionary = planned.value
+	var target_reading := _READING_TRAVERSAL.project(plan, "destination")
+	var source_reading := _READING_TRAVERSAL.project(plan, "source")
+	if not target_reading.ok: return target_reading
+	if not source_reading.ok: return source_reading
+	var candidate := _READING_SESSION.new()
+	var configured: Dictionary = candidate.configure(_reading_catalogue_document)
+	if not configured.ok: return configured
+	var restored: Dictionary = candidate.restore(target_reading.value, plan.entry_id)
+	if not restored.ok: return restored
+	var destination_line := "" if plan.destination.kind == "completion" else str(plan.destination.caption.beat.line_id)
+	var native: Dictionary = _runtime_adapter.prepare_reading_seek(current.value.caption_publication,
+		plan.entry_id, _reading_session.catalogue[plan.entry_id].lines, destination_line)
+	if not native.get("ok", false): return native
+	var before: Dictionary = _line_presentation_context(expected_frontier)
+	if not before.get("ok", false) or _skip_profile.get_profile_revision() != revision:
+		return _command_failure(&"presentation_frontier_changed")
+	var acquired: Dictionary = _mutation_gate.acquire(&"causal_transaction")
+	if not acquired.get("ok", false): return acquired
+	var lease: String = acquired.value.token
+	_next_active = true
+	_next_command = expected_frontier.duplicate(true)
+	_next_generation += 1
+	_next_runtime_result = {}
+	next_traversal_changed.emit()
+	var operation_id: String = source_reading.value.next_operation.operation_id
+	var source_checkpoint: Dictionary = source.value.duplicate(true)
+	source_checkpoint.reading_session = source_reading.value
+	var saved_source: Dictionary = _narrative_checkpoint_port.commit_reading_next(source_checkpoint, operation_id, "source")
+	if not saved_source.get("ok", false): return _finish_next(lease, saved_source)
+	if not _next_source_matches(expected_frontier, revision):
+		return _finish_next(lease, _next_fatal(&"reading_next_source_replaced", false))
+	# A refused destination retains both the exact live source and its now-durable
+	# source operation. A new deliberate retry freezes the same deterministic plan.
+	_reading_session.next_operation = source_reading.value.next_operation.duplicate(true)
+	var destination_checkpoint: Dictionary = source.value.duplicate(true)
+	destination_checkpoint.reading_session = target_reading.value
+	var saved_target: Dictionary = _narrative_checkpoint_port.commit_reading_next(destination_checkpoint, operation_id, "destination")
+	if not saved_target.get("ok", false): return _finish_next(lease, saved_target)
+	if not _next_source_matches(expected_frontier, revision):
+		return _finish_next(lease, _next_fatal(&"reading_next_source_replaced"))
+	var settled := Callable(self, "_on_next_runtime_finished").bind(_next_generation)
+	_runtime_adapter.connect("reading_seek_finished", settled)
+	_reading_session = candidate
+	var applied: Dictionary = _runtime_adapter.apply_reading_seek(native.value, candidate.ledger, target_reading.value.frontier)
+	if applied.get("ok", false) and applied.get("value", {}).get("pending", false) and _next_runtime_result.is_empty():
+		await _next_runtime_settled
+	if _runtime_adapter.is_connected("reading_seek_finished", settled):
+		_runtime_adapter.disconnect("reading_seek_finished", settled)
+	var result := applied
+	if applied.get("ok", false) and not _next_runtime_result.is_empty(): result = _next_runtime_result
+	if not result.get("ok", false):
+		return _finish_next(lease, _next_fatal(StringName(result.get("code", "reading_next_projection_failed"))))
+	return _finish_next(lease, {"ok": true, "code": &"next_complete", "value": {
+		"destination": plan.destination.kind, "operation_id": operation_id}, "receipt": saved_target.get("receipt", {})})
+
+
+func _next_source_matches(frontier: Dictionary, revision: int) -> bool:
+	return _line_presentation_context(frontier, false).get("ok", false) \
+		and _skip_profile.get_profile_revision() == revision
+
+
+func _on_next_runtime_finished(result: Dictionary, generation: int) -> void:
+	if not _next_active or generation != _next_generation or not _next_runtime_result.is_empty(): return
+	_next_runtime_result = result.duplicate(true)
+	_next_runtime_settled.emit()
+
+
+func _next_fatal(code: StringName, destination_durable: bool = true) -> Dictionary:
+	_mutation_gate.latch_fatal({"source": "DialogicBridge", "phase": "reading_next",
+		"code": str(code), "details": {"destination_durable": destination_durable}})
+	return {"ok": false, "code": code, "fatal": true}
+
+
+func _finish_next(lease: String, result: Dictionary) -> Dictionary:
+	var returned := result.duplicate(true)
+	if _mutation_gate.is_fatal_latched():
+		returned["fatal"] = true
+	else:
+		var released: Dictionary = _mutation_gate.release(&"causal_transaction", lease)
+		if not released.get("ok", false): returned = _next_fatal(&"reading_next_lease_lost")
+	_next_active = false
+	_next_command = {}
+	next_traversal_changed.emit()
+	reading_session_changed.emit()
+	return returned
+
+
+## Physical Dating saves retain a completed Next's semantic History. The next
+## admitted entry or final route retirement can then supersede this operation.
+func capture_next_physical_checkpoint() -> Dictionary:
+	if not has_reading_session() or _reading_session.next_operation.is_empty():
+		return {"ok": true, "value": {}}
+	if _reading_session.boundary != "between_entries":
+		return _command_failure(&"reading_next_physical_boundary_invalid")
+	return capture_reading_checkpoint(false)
 
 
 func is_rehearsal_playback() -> bool:
@@ -1229,13 +1382,13 @@ func capture_current_line_presentation_frontier() -> Dictionary:
 
 ## The host timer may advance only an acknowledged, fully revealed ordinary line.
 func can_auto_advance_current_line() -> bool:
-	return not _auto_step_in_progress and not _skip_step_in_progress \
+	return not _next_active and not _auto_step_in_progress and not _skip_step_in_progress \
 		and not _line_ack_in_progress and _auto_line_context().get("ok", false)
 
 
 func request_auto_step(expected_frontier: Dictionary) -> Dictionary:
 	if expected_frontier.is_empty(): return _command_failure(&"presentation_frontier_changed")
-	if _auto_step_in_progress or _skip_step_in_progress or _line_ack_in_progress:
+	if _next_active or _auto_step_in_progress or _skip_step_in_progress or _line_ack_in_progress:
 		return _command_failure(&"reading_command_in_progress")
 	_auto_step_in_progress = true
 	var admitted := _auto_line_context(expected_frontier)
@@ -1269,6 +1422,7 @@ func _auto_line_context(expected_frontier: Dictionary = {}) -> Dictionary:
 ## The write is the existing atomic Profile mutation, never a per-line run checkpoint.
 func acknowledge_current_line_presentation(expected_frontier: Dictionary) -> Dictionary:
 	if expected_frontier.is_empty(): return _command_failure(&"presentation_frontier_changed")
+	if _next_active: return _command_failure(&"reading_command_in_progress")
 	if _line_ack_in_progress: return _command_failure(&"presentation_acknowledgement_in_progress")
 	var current := _line_presentation_context(expected_frontier)
 	if not current.get("ok", false): return current
@@ -1381,6 +1535,7 @@ func _line_presentation_context(expected_frontier: Dictionary = {}, guard_mutati
 ## One held-skip step, in the exact frozen order: read the PRE-reveal visited state, reveal, mark
 ## visited, classify the next event WITHOUT consuming it, evaluate, advance only when allowed.
 func request_skip_step() -> Dictionary:
+	if _next_active: return _command_failure(&"reading_command_in_progress")
 	if _auto_step_in_progress:
 		return _command_failure(&"reading_command_in_progress")
 	if _line_ack_in_progress:
@@ -1651,7 +1806,7 @@ func has_reading_session() -> bool:
 
 ## Cheap UI projection; full catalogue/sequence capture belongs to activation.
 func can_capture_reading_checkpoint() -> bool:
-	if not has_reading_session() or _reading_session.latest_entry.is_empty() \
+	if _next_active or not has_reading_session() or _reading_session.latest_entry.is_empty() \
 			or not _reading_restore_pending.is_empty(): return false
 	if _reading_session.boundary == "between_entries": return not has_active_playback()
 	return not _active_entry.is_empty() and _active_entry.get("entry_id") == _reading_session.latest_entry \
@@ -1806,6 +1961,10 @@ func _on_reading_frontier_restored(result: Dictionary) -> void:
 func _on_reading_publication(result: Dictionary) -> void:
 	if has_reading_session() and not result.get("ok", false):
 		_on_playback_start_failed(result, true)
+	elif has_reading_session() and not _next_active and not result.get("value", {}).get("duplicate", false):
+		# Ordinary playback after a completed/refused Next starts a new frontier.
+		# Keep the prior operation in its already durable retained checkpoint.
+		_reading_session.next_operation = {}
 
 
 func start_entry(entry_id: String, context: Dictionary, execution_mode: StringName = &"canonical") -> Dictionary:

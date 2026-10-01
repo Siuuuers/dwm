@@ -7,6 +7,7 @@ signal auto_requested
 signal load_requested
 signal history_requested
 signal save_requested
+signal next_requested
 
 const TRANSPORT_BUTTON := preload("res://scripts/ui/witnessed/WitnessedTransportButton.gd")
 const SETTINGS_PALETTES := preload("res://scripts/settings/SettingsPaletteRegistry.gd")
@@ -20,7 +21,7 @@ const COMPACT_COPY := {
 	"ja": {&"skip": "早送り", &"auto": "オート", &"on": "入", &"off": "切"},
 	"ko": {&"skip": "스킵", &"auto": "자동", &"on": "켬", &"off": "끔"},
 }
-const COPY_IDS: Array[StringName] = [&"history", &"skip", &"auto", &"save", &"load", &"next", &"on", &"off"]
+const COPY_IDS: Array[StringName] = [&"history", &"skip", &"auto", &"save", &"load", &"next", &"on", &"off", &"next_help"]
 
 
 var _locale := "en"
@@ -32,11 +33,13 @@ var _auto_button: TRANSPORT_BUTTON
 var _load_button: TRANSPORT_BUTTON
 var _history_button: TRANSPORT_BUTTON
 var _save_button: TRANSPORT_BUTTON
+var _next_button: TRANSPORT_BUTTON
 var _admission: Callable
 var _auto_admission: Callable
 var _load_admission: Callable
 var _history_admission: Callable
 var _save_admission: Callable
+var _next_admission: Callable
 var _input_owner: Node
 var _auto_input_owner: Node
 var _load_input_owner: Node
@@ -45,6 +48,7 @@ var _can_auto := false
 var _can_load := false
 var _can_history := false
 var _can_save := false
+var _can_next := false
 var _skip_active := false
 var _auto_enabled := false
 var _projection_initialized := false
@@ -172,15 +176,23 @@ func bind_save_admission(admission: Callable, input_owner: Node) -> bool:
 	return true
 
 
+func bind_next_admission(admission: Callable, input_owner: Node) -> bool:
+	if not admission.is_valid() or not is_instance_valid(input_owner): return false
+	_ensure_controls()
+	if not _next_button.bind_admission(admission, input_owner): return false
+	_next_admission = admission
+	return true
+
+
 func project(can_skip: bool, skip_active: bool, auto_enabled: bool, can_auto: bool = false,
-		can_load: bool = false, can_history: bool = false, can_save: bool = false) -> bool:
+		can_load: bool = false, can_history: bool = false, can_save: bool = false, can_next: bool = false) -> bool:
 	if skip_active and auto_enabled:
 		return false
 	_ensure_controls()
 	if _projection_initialized and can_skip == _can_skip \
 			and skip_active == _skip_active and auto_enabled == _auto_enabled \
 			and can_auto == _can_auto and can_load == _can_load \
-			and can_history == _can_history and can_save == _can_save:
+			and can_history == _can_history and can_save == _can_save and can_next == _can_next:
 		return true
 	# Every semantic state change is an input-generation boundary. If disabling
 	# the focused command releases Focus, its focus_exited signal performs this
@@ -205,6 +217,11 @@ func project(can_skip: bool, skip_active: bool, auto_enabled: bool, can_auto: bo
 		_save_button.release_focus()
 	else:
 		_save_button.retire_input()
+	if not can_next and _next_button.has_focus():
+		_next_button.release_focus()
+	else:
+		_next_button.retire_input()
+	_can_next = can_next
 	_can_history = can_history
 	_can_save = can_save
 	_can_skip = can_skip
@@ -228,6 +245,8 @@ func retire_input() -> void:
 		_history_button.retire_input()
 	if is_instance_valid(_save_button):
 		_save_button.retire_input()
+	if is_instance_valid(_next_button):
+		_next_button.retire_input()
 
 
 func _draw() -> void:
@@ -267,11 +286,13 @@ func _ensure_controls() -> void:
 	_load_button = _buttons[&"load"] as TRANSPORT_BUTTON
 	_history_button = _buttons[&"history"] as TRANSPORT_BUTTON
 	_save_button = _buttons[&"save"] as TRANSPORT_BUTTON
+	_next_button = _buttons[&"next"] as TRANSPORT_BUTTON
 	_skip_button.activated.connect(_on_skip_activated)
 	_auto_button.activated.connect(_on_auto_activated)
 	_load_button.activated.connect(_on_load_activated)
 	_history_button.activated.connect(_on_history_activated)
 	_save_button.activated.connect(_on_save_activated)
+	_next_button.activated.connect(_on_next_activated)
 
 
 func _apply_projection() -> void:
@@ -284,9 +305,13 @@ func _apply_projection() -> void:
 		button.text = _label(id, enabled_mode)
 		button.accessibility_name = _full_label(id, enabled_mode)
 		button.tooltip_text = button.accessibility_name if button.text != button.accessibility_name else ""
+		if id == &"next":
+			button.accessibility_description = String(_copy.get(&"next_help", ""))
+			button.tooltip_text = button.accessibility_description
 		var command_available := (id == &"skip" and _can_skip) \
 			or (id == &"auto" and _can_auto) or (id == &"load" and _can_load) \
-			or (id == &"history" and _can_history) or (id == &"save" and _can_save)
+			or (id == &"history" and _can_history) or (id == &"save" and _can_save) \
+			or (id == &"next" and _can_next)
 		button.disabled = not command_available or _copy.is_empty() or not is_instance_valid(_localization)
 		button.focus_mode = Control.FOCUS_NONE if button.disabled else Control.FOCUS_ALL
 		button.theme_type_variation = &"WitnessedTransportMode" if enabled_mode else &"WitnessedTransportButton"
@@ -408,3 +433,9 @@ func _on_save_activated() -> void:
 	if not _can_save or not _save_admission.is_valid() or not bool(_save_admission.call()):
 		return
 	save_requested.emit()
+
+
+func _on_next_activated() -> void:
+	if not _can_next or not _next_admission.is_valid() or not bool(_next_admission.call()):
+		return
+	next_requested.emit()

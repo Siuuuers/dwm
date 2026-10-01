@@ -37,11 +37,13 @@ var _results: Array[Dictionary] = []
 var _completion_at_publication: Array[bool] = []
 var _restored: Array[Dictionary] = []
 var _profile_before: Dictionary = {}
+var _seek_results: Array[Dictionary] = []
 
 func before_each() -> void:
 	_results.clear()
 	_restored.clear()
 	_completion_at_publication.clear()
+	_seek_results.clear()
 	_profile_before = get_node("/root/ProfileManager").get_profile_snapshot().duplicate(true)
 	var parsed := STRICT_JSON.parse_object(FileAccess.get_file_as_string(REGISTRY))
 	assert_true(parsed.ok, str(parsed))
@@ -80,6 +82,8 @@ func before_each() -> void:
 		_completion_at_publication.append(_adapter.is_current_line_complete()))
 	_adapter.reading_frontier_restored.connect(func(result: Dictionary) -> void:
 		_restored.append(result.duplicate(true)))
+	_adapter.reading_seek_finished.connect(func(result: Dictionary) -> void:
+		_seek_results.append(result.duplicate(true)))
 
 func after_each() -> void:
 	assert_eq(get_node("/root/ProfileManager").get_profile_snapshot(), _profile_before,
@@ -317,3 +321,233 @@ func test_fixed_entry_preflight_rejects_extra_caption_and_early_return_despite_v
 		assert_eq(_adapter.validate_reading_entry(invalid, label, lines).code, &"reading_entry_mismatch")
 	assert_eq(_ledger.snapshot(), before)
 	assert_false(_adapter.has_active_playback(), "preflight never executes even the deliberately invalid programme")
+
+
+func _fixed_seek_lines() -> Array:
+	var prose := "NON-CANON TEST ONLY: an internal caption publication."
+	return [{"line_id": "fixture.caption.beta", "text": prose},
+		{"line_id": "fixture.caption.alpha", "text": prose}]
+
+
+func _seek_candidate(include_alpha: bool = true) -> NarrativeCaptionLedger:
+	var parsed := STRICT_JSON.parse_object(FileAccess.get_file_as_string(REGISTRY))
+	var candidate := LEDGER.new()
+	assert_true(candidate.restore_snapshot(TOKEN, parsed.value.frozen_context,
+		parsed.value.entry_manifest, parsed.value.registry, _ledger.snapshot()).ok)
+	if include_alpha:
+		assert_true(candidate.publish_line(TOKEN, "committed-next-alpha", ENTRY, "fixture.caption.alpha").ok)
+	return candidate
+
+
+func test_next_terminal_crosses_witnessed_tail_without_executing_or_publishing_it() -> void:
+	if not await _start(): return
+	var before := _ledger.snapshot()
+	var source := _adapter.capture_reading_frontier()
+	var event: DialogicTextEvent = _runtime.current_timeline_events[_runtime.current_event_idx]
+	var completed: Array[Resource] = []
+	event.event_finished.connect(func(resource: Resource) -> void: completed.append(resource))
+	var started: Array[String] = []
+	var shown: Array[String] = []
+	_runtime.Text.text_started.connect(func(info: Dictionary) -> void: started.append(info.text))
+	_runtime.Text.about_to_show_text.connect(func(info: Dictionary) -> void: shown.append(info.text))
+	var native_events: Array[Resource] = []
+	_runtime.event_handled.connect(func(resource: Resource) -> void: native_events.append(resource))
+	var prepared := _adapter.prepare_reading_seek(source.value, ENTRY, _fixed_seek_lines())
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	assert_eq(_adapter.prepare_reading_seek(source.value, ENTRY, _fixed_seek_lines()), prepared,
+		"identical preparation retains one source capability")
+	assert_eq(_ledger.snapshot(), before, "preparation has no History side effect")
+	var target := _seek_candidate()
+	var target_snapshot := target.snapshot()
+	var applied := _adapter.apply_reading_seek(prepared.value, target)
+	assert_true(applied.ok, str(applied))
+	if not applied.ok: return
+	assert_true(applied.value.pending)
+	await _settle()
+	assert_false(_adapter.has_active_playback(), "proved Return runs the ordinary natural end")
+	assert_eq(completed.size(), 1, "the original text coroutine finishes exactly once")
+	assert_false(event.event_finished.is_connected(Callable(_runtime, "handle_next_event")))
+	assert_false(_runtime.Inputs.dialogic_action.is_connected(Callable(event, "_on_dialogic_input_action")),
+		"native cleanup retires source input callbacks")
+	assert_eq(started, [], "crossed text cannot queue native speech or caption acknowledgement")
+	assert_eq(shown, [], "crossed text never reaches even the pre-presentation signal")
+	var returned := false
+	for native: Resource in native_events:
+		if native is DialogicReturnEvent: returned = true
+		assert_false(native is DialogicTextEvent, "only Return and native ending cleanup may execute")
+	assert_true(returned)
+	assert_eq(_results.size(), 1, "only the original visible source was published")
+	assert_eq(target.snapshot(), target_snapshot, "silent History comes only from the committed candidate")
+	assert_eq(_ledger.snapshot(), before, "the original ledger was not partially extended")
+	assert_eq(_seek_results, [{"ok": true, "value": {"frontier": {}, "terminal": true}}])
+	assert_eq(_restored, [], "Next does not impersonate Load")
+
+
+func test_next_unseen_destination_reuses_committed_occurrence_with_ordinary_partial_publication() -> void:
+	if not await _start(): return
+	var source := _adapter.capture_reading_frontier()
+	var source_event: DialogicTextEvent = _runtime.current_timeline_events[_runtime.current_event_idx]
+	var prepared := _adapter.prepare_reading_seek(source.value, ENTRY, _fixed_seek_lines(), "fixture.caption.alpha")
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	var target := _seek_candidate()
+	var before := target.snapshot()
+	var frontier := {"line_id": "fixture.caption.alpha", "publication_id": "committed-next-alpha"}
+	var started: Array[Dictionary] = []
+	_runtime.Text.text_started.connect(func(info: Dictionary) -> void:
+		started.append({"text": info.text, "restoring": _adapter.is_reading_frontier_restoring()}))
+	var applied := _adapter.apply_reading_seek(prepared.value, target, frontier)
+	assert_true(applied.ok, str(applied))
+	if not applied.ok: return
+	await _settle()
+	assert_eq(_adapter.capture_reading_frontier(), {"ok": true, "value": frontier})
+	assert_eq(started.size(), 1, "the destination is the only new visible text publication")
+	if started.size() == 1: assert_false(started[0].restoring, "first speech must not inherit Load suppression")
+	assert_false(_adapter.is_current_line_complete(), "Next materializes the unseen destination normally")
+	assert_false(_completion_at_publication.back())
+	assert_eq(_results.size(), 2)
+	assert_true(_results.back().value.get("duplicate", false), "the precommitted occurrence is never appended twice")
+	assert_eq(target.snapshot(), before)
+	assert_eq(_seek_results, [{"ok": true, "value": {"frontier": frontier, "terminal": false}}])
+	assert_eq(_restored, [])
+	assert_false(_runtime.Inputs.dialogic_action.is_connected(Callable(source_event, "_on_dialogic_input_action")))
+	assert_true(_adapter.complete_reading_frontier().ok)
+	assert_true(_adapter.advance_one_event().ok)
+	await _settle()
+	assert_false(_adapter.has_active_playback(), "the ordinary destination coroutine also remains continuable")
+
+
+func test_next_rejects_changed_plan_missing_history_and_stale_source_before_native_motion() -> void:
+	if not await _start(): return
+	var source := _adapter.capture_reading_frontier()
+	var before := _ledger.snapshot()
+	var prepared := _adapter.prepare_reading_seek(source.value, ENTRY, _fixed_seek_lines())
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	var changed: Dictionary = prepared.value.duplicate(true)
+	changed["terminal"] = false
+	assert_eq(_adapter.apply_reading_seek(changed, _seek_candidate()).code, &"reading_seek_stale")
+	assert_eq(_adapter.apply_reading_seek(prepared.value, _seek_candidate(false)).code, &"reading_seek_target_invalid")
+	assert_eq(_adapter.capture_reading_frontier(), source)
+	assert_eq(_ledger.snapshot(), before)
+	assert_false(_adapter.is_current_line_complete(), "failed candidate admission never finishes source reveal")
+	assert_eq(_seek_results, [])
+	assert_true(_adapter.complete_reading_frontier().ok)
+	assert_true(_adapter.advance_one_event().ok)
+	await _settle()
+	var after_advance := _adapter.capture_reading_frontier()
+	assert_eq(_adapter.apply_reading_seek(prepared.value, _seek_candidate(false)).code, &"reading_seek_stale")
+	assert_eq(_adapter.capture_reading_frontier(), after_advance)
+	assert_eq(_adapter.prepare_reading_seek(after_advance.value, ENTRY, _fixed_seek_lines(),
+		"fixture.caption.beta").code, &"reading_seek_changed", "Next cannot run backwards")
+
+
+func test_next_same_unseen_source_completes_once_without_restarting_its_publication() -> void:
+	if not await _start(): return
+	var source := _adapter.capture_reading_frontier()
+	var prepared := _adapter.prepare_reading_seek(source.value, ENTRY, _fixed_seek_lines(), "fixture.caption.beta")
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	var target := _seek_candidate(false)
+	var before := target.snapshot()
+	var applied := _adapter.apply_reading_seek(prepared.value, target, source.value)
+	assert_true(applied.ok, str(applied))
+	assert_true(_adapter.is_current_line_complete())
+	assert_eq(_adapter.capture_reading_frontier(), source)
+	assert_eq(target.snapshot(), before)
+	assert_eq(_results.size(), 1)
+	assert_eq(_seek_results.size(), 1)
+	assert_true(_adapter.advance_one_event().ok)
+	await _settle()
+	assert_eq(_adapter.current_line_id(), "fixture.caption.alpha")
+
+
+func test_next_rechecks_native_catalogue_and_source_finish_callbacks_before_installing_target() -> void:
+	if not await _start(): return
+	var source := _adapter.capture_reading_frontier()
+	var prepared := _adapter.prepare_reading_seek(source.value, ENTRY, _fixed_seek_lines())
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	var source_index := _runtime.current_event_idx
+	var event: DialogicTextEvent = _runtime.current_timeline_events[source_index]
+	var target := _seek_candidate()
+	var target_before := target.snapshot()
+	var next: DialogicTextEvent = _runtime.current_timeline_events[source_index + 1]
+	var original_text := next.text
+	# A ready event may change even while the resource's original source text
+	# still matches the catalogue. The retained live list must be revalidated.
+	next.text = "Changed native caption after preparation."
+	next.event_node_ready = true
+	assert_eq(_adapter.apply_reading_seek(prepared.value, target).code, &"reading_seek_changed")
+	assert_eq(_adapter.capture_reading_frontier(), source)
+	next.text = original_text
+	event.event_finished.connect(func(_event: DialogicEvent) -> void:
+		_runtime.current_event_idx = source_index + 1, CONNECT_ONE_SHOT)
+	assert_eq(_adapter.apply_reading_seek(prepared.value, target).code, &"reading_seek_changed")
+	assert_eq(target.snapshot(), target_before)
+	assert_eq(_results.size(), 1, "a replaced source cannot materialize the committed target")
+	assert_true(event.event_finished.is_connected(Callable(_runtime, "handle_next_event")),
+		"the exact native continuation is restored even after a finish callback refuses")
+	assert_eq(_seek_results, [])
+
+
+func test_next_rejects_future_caption_mutated_by_source_finish_callback() -> void:
+	if not await _start(): return
+	var source := _adapter.capture_reading_frontier()
+	var prepared := _adapter.prepare_reading_seek(source.value, ENTRY, _fixed_seek_lines(), "fixture.caption.alpha")
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	var source_index := _runtime.current_event_idx
+	var event: DialogicTextEvent = _runtime.current_timeline_events[source_index]
+	var next: DialogicTextEvent = _runtime.current_timeline_events[source_index + 1]
+	var original_text := next.text
+	var originally_ready := next.event_node_ready
+	var target := _seek_candidate()
+	var target_before := target.snapshot()
+	var frontier := {"line_id": "fixture.caption.alpha", "publication_id": "committed-next-alpha"}
+	var finished: Array[bool] = []
+	var shown: Array[String] = []
+	_runtime.Text.about_to_show_text.connect(func(info: Dictionary) -> void: shown.append(info.text))
+	event.event_finished.connect(func(_event: DialogicEvent) -> void:
+		finished.append(true)
+		# Preserve the source identity/index while changing only the programme
+		# that would execute after its coroutine has unwound.
+		next.text = "Changed destination from the source completion callback."
+		next.event_node_ready = true, CONNECT_ONE_SHOT)
+	var applied := _adapter.apply_reading_seek(prepared.value, target, frontier)
+	next.text = original_text
+	next.event_node_ready = originally_ready
+	assert_false(applied.ok, str(applied))
+	assert_eq(applied.get("code"), &"reading_seek_changed")
+	assert_eq(finished.size(), 1, "the mutation runs only after the source coroutine finishes")
+	assert_eq(_adapter.capture_reading_frontier(), source, "source identity alone cannot admit a changed future")
+	assert_eq(_runtime.current_event_idx, source_index, "no target event was entered")
+	assert_eq(target.snapshot(), target_before, "refusal leaves the committed candidate intact")
+	assert_true(event.event_finished.is_connected(Callable(_runtime, "handle_next_event")),
+		"refusal restores the native continuation before returning to its owner")
+	await _settle()
+	assert_eq(shown, [], "the invalid future never reaches presentation")
+	assert_eq(_results.size(), 1, "only the original source occurrence was published")
+	assert_eq(_seek_results, [], "a refused seek never reports a completed destination")
+
+
+func test_next_pending_publication_halt_reports_one_failure_instead_of_leaving_an_await() -> void:
+	if not await _start(): return
+	var source := _adapter.capture_reading_frontier()
+	var prepared := _adapter.prepare_reading_seek(source.value, ENTRY, _fixed_seek_lines(), "fixture.caption.alpha")
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	_adapter.caption_publication_recorded.connect(func(result: Dictionary) -> void:
+		if result.get("ok", false) and result.value.get("duplicate", false):
+			_adapter.halt_with_error({"ok": false, "code": &"fixture_next_publication_halted"}))
+	var frontier := {"line_id": "fixture.caption.alpha", "publication_id": "committed-next-alpha"}
+	var applied := _adapter.apply_reading_seek(prepared.value, _seek_candidate(), frontier)
+	assert_true(applied.ok, str(applied))
+	if not applied.ok: return
+	assert_true(applied.value.pending)
+	await _settle()
+	assert_eq(_seek_results, [{"ok": false, "code": &"fixture_next_publication_halted"}])
+	assert_false(_adapter.has_active_playback())
+	await _settle()
+	assert_eq(_seek_results.size(), 1, "native end and stale deferred completion cannot publish a second result")

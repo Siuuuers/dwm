@@ -4,6 +4,7 @@ extends RefCounted
 const LEDGER := preload("res://scripts/narrative/NarrativeCaptionLedger.gd")
 const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 const JSON_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+const TRAVERSAL := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
 
 var catalogue: Dictionary = {}
 var fingerprint := ""
@@ -15,6 +16,7 @@ var pre_entry_id := ""
 var latest_entry := ""
 var boundary := "between_entries"
 var _caption_variants_by_line: Dictionary = {}
+var next_operation: Dictionary = {}
 
 func configure(document: Dictionary) -> Dictionary:
 	if not catalogue.is_empty(): return _fail(&"reading_catalogue_already_configured")
@@ -88,12 +90,19 @@ func admit(entry_id: String, context: Dictionary) -> Dictionary:
 		return _fail(&"reading_context_invalid")
 	var admitted := ledger.admit_entry_context(command_id, entry_id, context)
 	if not admitted.ok: return admitted
+	# A successful physical handoff has already checkpointed the preceding
+	# operation. The next independently admitted frame starts a fresh frontier.
+	if latest_entry != entry_id: next_operation = {}
 	latest_entry = entry_id
 	boundary = "line"
 	return {"ok": true}
 
 func completed(entry_id: String) -> void:
-	if latest_entry == entry_id: boundary = "between_entries"
+	if latest_entry == entry_id:
+		if not next_operation.is_empty() and (next_operation.phase != "destination" \
+				or next_operation.plan.destination.kind != "completion"):
+			next_operation = {}
+		boundary = "between_entries"
 
 ## A registered descriptor is available only for the admitted, published tail.
 ## Hot acknowledgement checks never copy the retained History or scan prose.
@@ -110,11 +119,29 @@ func capture(frontier: Dictionary) -> Dictionary:
 	if ledger == null or latest_entry.is_empty(): return _fail(&"reading_session_unavailable")
 	var saved := {"schema_version": 1, "catalogue_fingerprint": fingerprint,
 		"boundary": boundary, "ledger": ledger.snapshot(), "frontier": frontier.duplicate(true)}
+	if not next_operation.is_empty():
+		saved.schema_version = 2
+		saved["next_operation"] = next_operation.duplicate(true)
 	var checked := validate_saved(saved, latest_entry)
 	return {"ok": true, "value": saved} if checked.ok else checked
 
 ## Validates the full fixed-prose sequence before a fresh candidate is installed.
 func validate_saved(saved: Dictionary, entry_id: String) -> Dictionary:
+	if saved.get("schema_version") == 2:
+		var operation := TRAVERSAL.validate(saved, entry_id)
+		if not operation.ok: return operation
+		# Admit both ends, including the source record's not-yet-traversed plan,
+		# against the actual complete registered programme. No valid prefix can
+		# hide a forged future variant or a missing intermediate caption.
+		for phase: String in ["source", "destination"]:
+			var projected := TRAVERSAL.project(operation.value.plan, phase)
+			if not projected.ok: return projected
+			var endpoint := _validate_base_saved(TRAVERSAL.without_operation(projected.value), entry_id)
+			if not endpoint.ok: return endpoint
+		return _validate_base_saved(TRAVERSAL.without_operation(saved), entry_id)
+	return _validate_base_saved(saved, entry_id)
+
+func _validate_base_saved(saved: Dictionary, entry_id: String) -> Dictionary:
 	if not FROZEN._exact(saved, ["schema_version", "catalogue_fingerprint", "boundary", "ledger", "frontier"]) \
 			or typeof(saved.get("schema_version")) != TYPE_INT or saved.schema_version != 1 \
 			or not saved.get("catalogue_fingerprint") is String \
@@ -174,7 +201,46 @@ func restore(saved: Dictionary, entry_id: String) -> Dictionary:
 	pre_entry_id = saved.ledger.frozen_context.pre_entry_id
 	latest_entry = entry_id
 	boundary = saved.boundary
+	next_operation = saved.get("next_operation", {}).duplicate(true)
 	return {"ok": true}
+
+## Build one detached, exact route suffix. The live ledger and Profile are never
+## changed by planning. Only the caller's validated exact-membership query may
+## authorize silent traversal; the first unseen caption becomes the destination.
+func prepare_next(frontier: Dictionary, is_witnessed: Callable) -> Dictionary:
+	if not is_witnessed.is_valid() or boundary != "line": return _fail(&"reading_next_unavailable")
+	var source := capture(frontier)
+	if not source.ok: return source
+	var lines: Array = catalogue[latest_entry].lines
+	var index := -1
+	for ordinal: int in lines.size():
+		if lines[ordinal].line_id == frontier.line_id: index = ordinal
+	if index < 0: return _fail(&"reading_frontier_invalid")
+	var retained: Dictionary = source.value.ledger
+	var candidate := LEDGER.new()
+	var copied := candidate.restore_snapshot(command_id, retained.frozen_context, manifest,
+		registry, retained, retained.entry_contexts, true)
+	if not copied.ok: return copied
+	var traversed: Array = []
+	var destination := {"kind": "completion", "caption": null}
+	for ordinal: int in range(index + 1, lines.size()):
+		var variant: Dictionary = _caption_variants_by_line[lines[ordinal].line_id]
+		var witnessed: Variant = is_witnessed.call(variant.duplicate(true))
+		if typeof(witnessed) != TYPE_BOOL: return _fail(&"reading_next_witness_invalid")
+		var allocation := candidate.allocate_publication(command_id, latest_entry)
+		if not allocation.ok: return allocation
+		var published := candidate.publish_caption(command_id, allocation.value, variant)
+		if not published.ok: return published
+		var row := {"publication_id": allocation.value, "beat": variant.duplicate(true)}
+		if not witnessed:
+			destination = {"kind": "line", "caption": row}
+			break
+		traversed.append(row)
+	var plan := {"entry_id": latest_entry, "catalogue_fingerprint": fingerprint,
+		"source_ledger": retained.duplicate(true), "source_frontier": frontier.duplicate(true),
+		"traversed_captions": traversed, "destination": destination}
+	var checked := TRAVERSAL.create(plan, "source")
+	return {"ok": true, "value": plan} if checked.ok else checked
 
 func project(frontier: Dictionary) -> Dictionary:
 	var captured := capture(frontier)

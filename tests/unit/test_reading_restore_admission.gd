@@ -4,6 +4,8 @@ const RUN := preload("res://scripts/narrative/FrozenRunContext.gd")
 const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 const PARTICIPANT := preload("res://scripts/application/restore/NarrativeRestoreParticipant.gd")
 const CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
+const NEXT := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
+const NEXT_FIXTURE := preload("res://tests/support/ReadingNextFixture.gd")
 const PRE := "dating.solo.priscilla.day2.pre_challenge"
 const POST := "dating.solo.priscilla.day2.post_challenge"
 
@@ -253,3 +255,67 @@ func test_active_playback_refusal_does_not_install_a_staged_helper() -> void:
 	assert_eq(_apply(participant, prepared).get("code"), &"narrative_playback_active")
 	assert_true(owner.staged.is_empty())
 	assert_true(owner.resumed.is_empty())
+
+func test_next_source_and_destination_validate_and_restore_their_exact_own_frontiers() -> void:
+	var snapshot := NEXT_FIXTURE.snapshot()
+	var base: Dictionary = snapshot.narrative_checkpoint.duplicate(true)
+	var plan := NEXT_FIXTURE.plan(base)
+	for phase: String in ["source", "destination"]:
+		var owner := ReadingOwner.new()
+		var participant := PARTICIPANT.new(owner)
+		snapshot.narrative_checkpoint = NEXT_FIXTURE.checkpoint_for(base, plan, phase)
+		var before := snapshot.duplicate(true)
+		var prepared := _prepare(participant, snapshot)
+		assert_true(prepared.ok, str(prepared))
+		assert_eq(snapshot, before, "validation is pure")
+		if not prepared.ok: continue
+		assert_true(_apply(participant, prepared).ok)
+		assert_true(participant.finalize().ok)
+		assert_eq(owner.resumed, [snapshot.narrative_checkpoint])
+		assert_eq(owner.resumed[0].reading_session.ledger.captions.size(), 1 if phase == "source" else 3)
+
+func test_next_checkpoint_rejects_changed_operation_and_sequence_without_staging() -> void:
+	var initial := NEXT_FIXTURE.snapshot()
+	var base: Dictionary = initial.narrative_checkpoint
+	var plan := NEXT_FIXTURE.plan(base)
+	for change: String in ["id", "source", "phase", "sequence", "missing", "downgrade"]:
+		var snapshot := initial.duplicate(true)
+		snapshot.narrative_checkpoint = NEXT_FIXTURE.checkpoint_for(base, plan, "destination")
+		var reading: Dictionary = snapshot.narrative_checkpoint.reading_session
+		match change:
+			"id": reading.next_operation.operation_id = "stale"
+			"source": reading.next_operation.plan.source_frontier.publication_id = "foreign"
+			"phase": reading.next_operation.phase = "source"
+			"sequence": reading.ledger.captions.remove_at(1)
+			"missing": reading.erase("next_operation")
+			"downgrade": reading.schema_version = 1
+		var owner := ReadingOwner.new()
+		assert_eq(_prepare(PARTICIPANT.new(owner), snapshot).get("code"), &"invalid_narrative_checkpoint", change)
+		assert_true(owner.validations.is_empty(), change)
+		assert_true(owner.staged.is_empty(), change)
+
+func test_next_plan_refuses_duplicate_source_and_foreign_entry_suffix() -> void:
+	var plan := NEXT_FIXTURE.plan(NEXT_FIXTURE.snapshot().narrative_checkpoint)
+	var duplicate := plan.duplicate(true)
+	duplicate.traversed_captions[0] = duplicate.source_ledger.captions[0].duplicate(true)
+	assert_eq(NEXT.create(duplicate, "source").get("code"), &"reading_next_sequence_invalid")
+	var foreign := plan.duplicate(true)
+	foreign.traversed_captions[0].beat.owning_entry_id = POST
+	assert_eq(NEXT.create(foreign, "source").get("code"), &"reading_next_sequence_invalid")
+	var changed := plan.duplicate(true)
+	changed.traversed_captions[0].beat.presentation_signature.content_revision = "fixture-v2"
+	assert_ne(NEXT.create(plan, "source").value.operation_id, NEXT.create(changed, "source").value.operation_id)
+
+func test_next_completion_record_survives_exact_physical_board_boundary() -> void:
+	var snapshot := NEXT_FIXTURE.snapshot()
+	var base: Dictionary = snapshot.narrative_checkpoint
+	var plan := NEXT_FIXTURE.plan(base, true)
+	snapshot.narrative_checkpoint = NEXT_FIXTURE.checkpoint_for(base, plan, "destination")
+	snapshot.gameplay.route_context.active_dating_challenge.phase = "challenge"
+	var admitted := RUN.validate_reading_checkpoint(snapshot.narrative_checkpoint, snapshot)
+	assert_true(admitted.ok, str(admitted))
+	assert_eq(snapshot.narrative_checkpoint.reading_session.boundary, "between_entries")
+	assert_eq(snapshot.narrative_checkpoint.reading_session.ledger.captions.size(), 2)
+	assert_true(snapshot.narrative_checkpoint.reading_session.frontier.is_empty())
+	snapshot.narrative_checkpoint.reading_session.frontier = plan.source_frontier.duplicate(true)
+	assert_eq(RUN.validate_reading_checkpoint(snapshot.narrative_checkpoint, snapshot).get("code"), &"reading_next_projection_mismatch")

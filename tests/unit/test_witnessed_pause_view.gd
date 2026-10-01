@@ -183,3 +183,37 @@ func test_no_source_focus_is_not_invented_and_empty_capture_is_refused() -> void
 	assert_false(caption.capture_pause_view({}).get("ok",true))
 	caption.caption_text.text = ""
 	assert_false(caption.capture_pause_view(_source()).get("ok",true))
+
+func test_next_matte_retains_native_composition_and_excludes_input_pause_and_rail_commands() -> void:
+	var before := _native_state()
+	var scroll: float = caption.get_scroll_bar().value
+	caption._next_pending = true
+	caption._sync_next_presentation()
+	caption._sync_transport()
+	assert_true(caption.is_next_transport_active())
+	assert_true(caption.get_node("RecoveryLayer/NextMatte").visible)
+	assert_true(caption.canvas.visible, "the last safe composition stays drawn under the matte")
+	assert_true(caption.canvas.accessibility_withdrawn, "covered text is absent from assistive traversal")
+	assert_eq(caption.caption_text.focus_mode, Control.FOCUS_NONE)
+	assert_false(caption.caption_text.is_processing())
+	assert_false(caption._reading_source_admitted())
+	assert_false(caption.capture_pause_view(_source()).get("ok", true), "Pause cannot capture an intermediate seek")
+	for name: String in ["History", "Skip", "Auto", "Save", "Load", "Next"]:
+		assert_true(caption.transport_rail.get_node(name).disabled, name + " cannot observe the intermediate source")
+	runtime.paused = false
+	for pressed: bool in [true, false]:
+		var key := InputEventKey.new()
+		key.keycode = KEY_ENTER
+		key.pressed = pressed
+		viewport.push_input(key, true)
+	for frame: int in 3: await get_tree().process_frame
+	assert_eq(_native_state(), before, "covered reveal and repeated Accept cannot change safe composition")
+	assert_almost_eq(caption.get_scroll_bar().value, scroll, 0.01)
+	assert_eq(_finished, 0)
+	runtime.paused = true
+	caption._complete_next_presentation()
+	assert_false(caption.is_next_transport_active())
+	assert_false(caption.get_node("RecoveryLayer/NextMatte").visible)
+	assert_false(caption.canvas.accessibility_withdrawn)
+	assert_true(caption.caption_text.has_focus(), "the settled caption regains meaningful Focus")
+	assert_eq(_native_state(), before)

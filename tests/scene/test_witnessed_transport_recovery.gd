@@ -301,3 +301,22 @@ func test_locale_mismatch_and_invalid_capability_tuple_change_nothing() -> void:
 	assert_eq(body.text, COPY.en[0])
 	assert_eq(retry.text, COPY.en[2])
 	assert_false(retry.disabled)
+
+func test_next_recovery_uses_command_truth_instead_of_preference_failure_copy() -> void:
+	var surface: Variant = _surface()
+	if surface == null: return
+	_bind(surface)
+	assert_true(surface.configure_presentation("en", 100, "AfterHours", false, "standard", false))
+	assert_true(surface.present(true, true, &"next"))
+	assert_eq(surface.message_label.text,
+		"Next could not complete. Retry, or cancel to keep the current reading position.")
+	assert_true(surface.retry_button.visible)
+	assert_true(surface.cancel_button.visible)
+	assert_true(surface.present(false, false, &"next"))
+	assert_eq(surface.message_label.text,
+		"Unable to confirm where Next stopped. Restart is required.")
+	assert_false(surface.retry_button.visible)
+	assert_false(surface.cancel_button.visible)
+	assert_false(surface.present(true, true, &"unknown"), "unrecognized recovery types refuse without changing truth")
+	assert_true(surface.present(true, true), "legacy setting callers keep their exact existing copy")
+	assert_eq(surface.message_label.text, COPY.en[0])

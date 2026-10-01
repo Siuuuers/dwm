@@ -56,6 +56,10 @@ var _backup_load_router: Node
 var _load_input_bound := false
 var _save_input_bound := false
 var _history_input_bound := false
+var _next_input_bound := false
+var _next_pending := false
+var _next_canvas_state: Dictionary = {}
+var _next_matte: ColorRect
 var _history_overlay: Control
 var _history_open := false
 var _history_pending := false
@@ -141,6 +145,15 @@ func _ready() -> void:
 	transport_rail.load_requested.connect(_on_load_requested)
 	transport_rail.save_requested.connect(_on_save_requested)
 	transport_rail.history_requested.connect(_on_history_requested)
+	transport_rail.next_requested.connect(_on_next_requested)
+	_next_matte = ColorRect.new()
+	_next_matte.name = "NextMatte"
+	_next_matte.size = Vector2(1280, 720)
+	_next_matte.mouse_filter = Control.MOUSE_FILTER_STOP
+	_next_matte.focus_mode = Control.FOCUS_NONE
+	_next_matte.hide()
+	recovery_layer.add_child(_next_matte)
+	recovery_layer.move_child(_next_matte, 0)
 	skip_controller.state_changed.connect(_sync_transport)
 	auto_controller.state_changed.connect(_on_auto_state_changed)
 	configure_reading_transport(_profile, get_node_or_null("/root/DialogicBridge"))
@@ -158,6 +171,7 @@ func _ready() -> void:
 	_load_input_bound = transport_rail.bind_load_admission(_load_admitted, input_owner)
 	_save_input_bound = transport_rail.bind_save_admission(_save_admitted, input_owner)
 	_history_input_bound = transport_rail.bind_history_admission(_history_admitted, input_owner)
+	_next_input_bound = transport_rail.bind_next_admission(_next_admitted, input_owner)
 	var history_layer := CanvasLayer.new()
 	history_layer.name = "HistoryLayer"
 	history_layer.layer = 101
@@ -277,7 +291,12 @@ func configure_reading_transport(profile: Object, bridge: Object) -> bool:
 	if is_instance_valid(_transport_bridge) and _transport_bridge.has_signal("reading_session_changed") \
 			and _transport_bridge.is_connected("reading_session_changed", _on_reading_session_changed):
 		_transport_bridge.disconnect("reading_session_changed", _on_reading_session_changed)
+	if is_instance_valid(_transport_bridge) and _transport_bridge.has_signal("next_traversal_changed") \
+			and _transport_bridge.is_connected("next_traversal_changed", _on_next_traversal_changed):
+		_transport_bridge.disconnect("next_traversal_changed", _on_next_traversal_changed)
 	_transport_bridge = bridge
+	if bridge.has_signal("next_traversal_changed"):
+		bridge.connect("next_traversal_changed", _on_next_traversal_changed)
 	if bridge.has_signal("reading_session_changed"):
 		bridge.connect("reading_session_changed", _on_reading_session_changed)
 	_transport_configured = true
@@ -296,7 +315,7 @@ func _before_normal_accept() -> bool:
 	return _acknowledge_visible_line()
 
 func _acknowledge_visible_line() -> bool:
-	if _review_offset > 0: return false
+	if _review_offset > 0 or is_next_transport_active(): return false
 	if _line_waiting_for_text: return false
 	var has_proof: bool = _presented_line.get("ok", false)
 	if not is_instance_valid(_transport_bridge) \
@@ -340,7 +359,73 @@ func _transport_admitted() -> bool:
 		and bool(_transport_bridge.call("can_skip_current_line"))
 
 func _reading_source_admitted() -> bool:
-	return _reading_recovery.is_empty() and not _load_pending and not _history_pending and not _history_open
+	return _reading_recovery.is_empty() and not _load_pending and not _history_pending and not _history_open \
+		and not is_next_transport_active()
+
+func is_next_transport_active() -> bool:
+	return _next_pending or (is_instance_valid(_transport_bridge) \
+		and _transport_bridge.has_method("is_next_traversal_active") \
+		and bool(_transport_bridge.call("is_next_traversal_active")))
+
+func _next_admitted() -> bool:
+	return _next_input_bound and _auto_configured and _review_offset == 0 and not _pause_covered \
+		and not _line_waiting_for_text and _reading_source_admitted() and _has_caption() \
+		and _presented_line.get("ok", false) and transport_rail.is_visible_in_tree() \
+		and accept_input.is_source_admitted() and is_instance_valid(_transport_bridge) \
+		and _transport_bridge.has_method("can_next_current_line") \
+		and _transport_bridge.has_method("request_next") \
+		and _presented_line == _transport_bridge.call("capture_current_line_presentation_frontier") \
+		and _transport_bridge.call("can_next_current_line") == true
+
+func _on_next_requested() -> void:
+	if _next_admitted():
+		_request_reading_command(&"next", true)
+
+func _on_next_traversal_changed() -> void:
+	_sync_next_presentation()
+	_sync_transport()
+
+func _sync_next_presentation() -> void:
+	var active := is_next_transport_active()
+	if active and _next_canvas_state.is_empty():
+		_next_canvas_state = {"focus": _reading_recovery.get("focus_behavior", canvas.focus_behavior_recursive),
+			"mouse": _reading_recovery.get("mouse_behavior", canvas.mouse_behavior_recursive)}
+		if not _reading_recovery.is_empty(): recovery_overlay.dismiss()
+		accept_input.retire_input()
+		_retire_transport()
+		canvas.focus_behavior_recursive = Control.FOCUS_BEHAVIOR_DISABLED
+		canvas.mouse_behavior_recursive = Control.MOUSE_BEHAVIOR_DISABLED
+		canvas.set("accessibility_withdrawn", true)
+	elif not active and not _next_canvas_state.is_empty():
+		canvas.focus_behavior_recursive = _next_canvas_state.focus
+		canvas.mouse_behavior_recursive = _next_canvas_state.mouse
+		canvas.set("accessibility_withdrawn", false)
+		_next_canvas_state.clear()
+		accept_input.retire_input()
+		transport_rail.retire_input()
+		_had_caption = false
+	if is_instance_valid(_next_matte):
+		_next_matte.color = Color(_caption_theme.get_color(&"deep", &"WitnessedCaption"), 0.58) \
+			if _caption_theme != null else Color(0, 0, 0, 0.58)
+		_next_matte.visible = active
+	_sync_native_processing()
+	_sync_focus()
+
+func _complete_next_presentation() -> void:
+	_next_pending = false
+	_sync_next_presentation()
+
+func _settle_next_publication() -> void:
+	if is_next_transport_active() or not _reading_recovery.is_empty(): return
+	_acknowledge_visible_line()
+	_sync_native_processing()
+	_sync_focus()
+	if _has_caption() and caption_text.focus_mode != Control.FOCUS_NONE \
+			and not _pause_covered and _reading_source_admitted():
+		caption_text.grab_focus()
+	if _speech_candidate:
+		_speech_pending = true
+		_speak_publication.call_deferred(_speech_generation)
 
 func _load_admitted() -> bool:
 	return _load_input_bound and not _load_pending and not _pause_covered \
@@ -492,7 +577,7 @@ func _skip_controller_admitted() -> bool:
 
 func _auto_controller_admitted() -> bool:
 	return _auto_timer_admitted() or (_reading_retry_in_progress \
-		and _reading_recovery.get("kind") == &"auto" and _recovery_action_admitted())
+		and _reading_recovery.get("kind") in [&"auto", &"next"] and _recovery_action_admitted())
 
 func _auto_button_admitted() -> bool:
 	return _review_offset == 0 and _auto_configured and _auto_input_bound and not _pause_covered \
@@ -539,7 +624,7 @@ func _sync_transport() -> void:
 		and bool(_transport_bridge.call("is_rehearsal_playback"))
 	transport_rail.visible = not rehearsal
 	transport_rail.project(_transport_admitted(), skip_controller.is_skip_active(),
-		skip_controller.is_auto_enabled(), _auto_button_admitted(), _load_admitted(), _history_admitted(), _save_admitted())
+		skip_controller.is_auto_enabled(), _auto_button_admitted(), _load_admitted(), _history_admitted(), _save_admitted(), _next_admitted())
 	var ring: Array[Control] = [review_current if _review_offset > 0 else caption_text]
 	var names: PackedStringArray = []
 	if is_instance_valid(_dating_split_surface) and is_dating_split_input_admitted():
@@ -547,7 +632,7 @@ func _sync_transport() -> void:
 		if is_instance_valid(handle) and handle.is_visible_in_tree() and handle.focus_mode != Control.FOCUS_NONE:
 			ring.append(handle)
 			names.append("Split:%d" % handle.get_instance_id())
-	for name: String in ["History", "Skip", "Auto", "Save", "Load"]:
+	for name: String in ["History", "Skip", "Auto", "Save", "Load", "Next"]:
 		var command: Control = transport_rail.get_node(name)
 		if command.focus_mode != Control.FOCUS_NONE:
 			ring.append(command)
@@ -565,25 +650,58 @@ func _on_skip_requested() -> void:
 
 func _request_reading_command(kind: StringName, target: bool) -> void:
 	if not _recovery_bound or not _reading_recovery.is_empty(): return
-	_cancel_speech()
+	if kind != &"next": _cancel_speech()
 	var focused := get_viewport().gui_get_focus_owner()
 	var request := {"kind": kind, "target": target, "frontier": _presented_line.duplicate(true),
 		"profile_id": _reading_profile.get_instance_id(), "bridge_id": _transport_bridge.get_instance_id(),
 		"profile_revision": _reading_profile_revision(), "owner_generation": _reading_owner_generation,
 		"runtime": _pause_runtime_identity(), "focus_id": focused.get_instance_id() if focused != null else 0,
 		"focus_behavior": canvas.focus_behavior_recursive, "mouse_behavior": canvas.mouse_behavior_recursive}
-	var result: Dictionary = _execute_reading_command(request)
-	if not result.get("ok", false) and _reading_request_matches(request):
+	var result: Dictionary = await _execute_reading_command(request)
+	if not result.get("ok", false) and (_reading_request_matches(request) \
+			or (result.get("fatal", false) and _reading_request_owner_matches(request))):
 		_reading_recovery = request
 		_show_reading_failure(result)
+	if kind == &"next" and result.get("ok", false) and _reading_request_owner_matches(request):
+		_settle_next_publication()
 	_sync_transport()
 
 func _execute_reading_command(request: Dictionary) -> Dictionary:
 	if request.kind == &"auto": return auto_controller.set_auto_enabled(request.target)
-	return skip_controller.set_skip_active(request.target)
+	if request.kind != &"next": return skip_controller.set_skip_active(request.target)
+	request["stage"] = &"preference"
+	var prior_revision: int = request.profile_revision
+	var disabled: Dictionary = auto_controller.set_auto_enabled(false)
+	if not disabled.get("ok", false): return disabled
+	if not _reading_request_owner_matches(request) \
+			or _reading_profile_revision() not in [prior_revision, prior_revision + 1]:
+		return {"ok": false, "code": &"next_source_retired"}
+	request.profile_revision = _reading_profile_revision()
+	if not _reading_request_matches(request) or _transport_bridge.call("can_next_current_line") != true:
+		return {"ok": false, "code": &"next_source_retired"}
+	request.stage = &"next"
+	_next_pending = true
+	_sync_next_presentation()
+	_sync_transport()
+	var result: Dictionary = await _transport_bridge.call("request_next", request.frontier.duplicate(true))
+	# The Bridge owns durable state across scene replacement. A retained layer
+	# releases its own presentation only after the operation has settled.
+	_complete_next_presentation()
+	return result
+
+func _reading_request_owner_matches(request: Dictionary) -> bool:
+	var current_runtime := _pause_runtime_identity()
+	var source_runtime: Dictionary = request.get("runtime", {})
+	return not request.is_empty() and source_runtime.get("instance_id") == current_runtime.get("instance_id") \
+		and source_runtime.get("generation") == current_runtime.get("generation") and is_inside_tree() and is_instance_valid(_reading_profile) \
+		and request.owner_generation == _reading_owner_generation and is_instance_valid(_transport_bridge) \
+		and request.profile_id == _reading_profile.get_instance_id() \
+		and request.bridge_id == _transport_bridge.get_instance_id()
 
 func _reading_request_matches(request: Dictionary) -> bool:
 	if request.is_empty(): return false
+	if request.get("kind") == &"next" and request.get("fatal", false):
+		return _reading_request_owner_matches(request)
 	var revision := _reading_profile_revision()
 	# The retry may commit exactly one Auto preference before Skip rechecks admission.
 	var revision_matches: bool = revision == request.profile_revision or (_reading_retry_in_progress \
@@ -611,24 +729,29 @@ func _show_reading_failure(result: Dictionary) -> void:
 	_sync_native_processing()
 	_sync_focus()
 	_configure_recovery_presentation()
-	recovery_overlay.present(not _reading_recovery.fatal, not _reading_recovery.fatal)
+	recovery_overlay.present(not _reading_recovery.fatal, not _reading_recovery.fatal, \
+		&"next" if _reading_recovery.get("stage") == &"next" else &"preference")
 
 func _retry_reading_command() -> void:
 	if _reading_retry_in_progress or not _recovery_action_admitted(): return
 	var retained := _reading_recovery.duplicate(true)
 	_reading_retry_in_progress = true
-	var result := _execute_reading_command(retained)
-	var still_current := _reading_request_matches(retained)
+	var result: Dictionary = await _execute_reading_command(retained)
+	var still_current := _reading_request_matches(retained) \
+		or (result.get("fatal", false) and _reading_request_owner_matches(retained))
 	_reading_retry_in_progress = false
 	# Profile publication can synchronously replace the whole scene/source.
 	if not still_current:
 		_dismiss_reading_recovery(false)
 	else:
+		_reading_recovery = retained
 		_reading_recovery.profile_revision = _reading_profile_revision()
 		if result.get("ok", false):
 			_dismiss_reading_recovery()
 		else:
 			_show_reading_failure(result)
+	if retained.kind == &"next" and result.get("ok", false) and _reading_request_owner_matches(retained):
+		_settle_next_publication()
 	_sync_transport()
 
 func _cancel_reading_recovery() -> void:
@@ -697,7 +820,7 @@ func is_reading_recovery_active() -> bool:
 ## Transient navigation anchor only. Canonical source admission belongs to the coordinator.
 func capture_pause_view(source: Dictionary) -> Dictionary:
 	if (source.is_empty() or not is_inside_tree() or not is_node_ready() or _pause_covered
-		or is_reading_recovery_active() or not canvas.is_visible_in_tree() or not _has_caption()):
+		or is_reading_recovery_active() or is_next_transport_active() or not canvas.is_visible_in_tree() or not _has_caption()):
 		return {"ok":false,"code":&"pause_view_unavailable","value":{}}
 	_pause_capture_id += 1
 	_pause_anchor = {"view_id":get_instance_id(),"capture_id":_pause_capture_id,"source":source.duplicate(true)}
@@ -751,7 +874,8 @@ func restore_pause_view(anchor: Dictionary) -> bool:
 	set_process(bool(_pause_view.layer_processing))
 	if not _reading_recovery.is_empty():
 		_sync_native_processing()
-		recovery_overlay.present(not _reading_recovery.fatal, not _reading_recovery.fatal)
+		recovery_overlay.present(not _reading_recovery.fatal, not _reading_recovery.fatal, \
+			&"next" if _reading_recovery.get("stage") == &"next" else &"preference")
 	return true
 
 ## Only an explicit admitted Backup/Save command may revise the held reveal.
@@ -980,7 +1104,7 @@ func _on_text_started(info: Dictionary) -> void:
 	_layout_stack(true)
 	_capture_presented_line()
 	_acknowledge_visible_line()
-	if _speech_candidate:
+	if _speech_candidate and not is_next_transport_active():
 		_speech_pending = true
 		_speak_publication.call_deferred(_speech_generation)
 
@@ -1001,7 +1125,7 @@ func _on_caption_visibility_changed() -> void:
 	_request_layout()
 
 func _sync_native_processing() -> void:
-	if _review_offset > 0 or _pause_covered or not _reading_recovery.is_empty():
+	if _review_offset > 0 or _pause_covered or not _reading_recovery.is_empty() or is_next_transport_active():
 		caption_text.set_process(false)
 		return
 	if caption_text.get_parsed_text().is_empty():
@@ -1166,7 +1290,7 @@ func _has_caption() -> bool:
 	return (caption_text.visible or _review_offset > 0) and not caption_text.get_parsed_text().is_empty()
 
 func _sync_focus() -> void:
-	if _pause_covered or not _reading_recovery.is_empty():
+	if _pause_covered or not _reading_recovery.is_empty() or is_next_transport_active():
 		background_input.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		caption_text.focus_mode = Control.FOCUS_NONE
 		review_current.focus_mode = Control.FOCUS_NONE
@@ -1200,7 +1324,7 @@ func _on_caption_input(event: InputEvent) -> void:
 	_handle_input(event, true)
 
 func _handle_input(event: InputEvent, current: bool, source_control: Control = null) -> void:
-	if _pause_covered or not _reading_recovery.is_empty(): return
+	if _pause_covered or not _reading_recovery.is_empty() or is_next_transport_active(): return
 	if _forward_split_input(event, caption_text if current else (source_control if source_control != null else scroll)): return
 	if event is InputEventMouse and event.device == InputEvent.DEVICE_ID_EMULATION:
 		scroll.accept_event()

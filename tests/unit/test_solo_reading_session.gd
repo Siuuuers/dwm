@@ -6,6 +6,80 @@ const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 const PRE := "dating.solo.priscilla.day1.pre_challenge"
 const POST := "dating.solo.priscilla.day1.post_challenge"
 const TOKEN := "fixture:reading-command"
+const NEXT := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
+
+func test_next_plan_is_pure_and_stops_before_first_exact_unseen_variant() -> void:
+	var session := _session()
+	assert_true(session.begin(TOKEN, PRE).ok)
+	assert_true(session.admit(PRE, _context(PRE)).ok)
+	var frontier := _publish(session, PRE, "fixture.solo.pre.a")
+	var before: Dictionary = session.capture(frontier).value
+	var queried: Array = []
+	var planned: Dictionary = session.prepare_next(frontier, func(variant: Dictionary) -> bool:
+		queried.append(variant.duplicate(true))
+		return false)
+	assert_true(planned.ok, str(planned))
+	assert_eq(planned.value.traversed_captions, [])
+	assert_eq(planned.value.destination.kind, "line")
+	assert_eq(planned.value.destination.caption.beat.line_id, "fixture.solo.pre.b")
+	assert_eq(queried, [planned.value.destination.caption.beat])
+	assert_eq(session.capture(frontier).value, before, "planning cannot allocate in the live ledger")
+	var projected: Dictionary = NEXT.project(planned.value, "destination")
+	var restored := _session()
+	assert_true(restored.restore(projected.value, PRE).ok)
+	assert_eq(restored.project(projected.value.frontier).value.captions.size(), 2)
+	assert_eq(restored.capture(projected.value.frontier).value, projected.value)
+
+func test_next_completion_retains_exact_source_and_destination_then_retires_at_new_frame() -> void:
+	var session := _session()
+	assert_true(session.begin(TOKEN, PRE).ok)
+	assert_true(session.admit(PRE, _context(PRE)).ok)
+	var frontier := _publish(session, PRE, "fixture.solo.pre.a")
+	var planned: Dictionary = session.prepare_next(frontier, func(_variant: Dictionary) -> bool: return true)
+	assert_true(planned.ok, str(planned))
+	assert_eq(planned.value.destination, {"kind": "completion", "caption": null})
+	assert_eq(planned.value.traversed_captions.size(), 1)
+	for phase: String in ["source", "destination"]:
+		var projected: Dictionary = NEXT.project(planned.value, phase)
+		var restored := _session()
+		assert_true(restored.restore(projected.value, PRE).ok, phase)
+		assert_eq(restored.capture(projected.value.frontier).value, projected.value)
+		assert_eq(restored.ledger.snapshot().captions.size(), 1 if phase == "source" else 2)
+	var destination: Dictionary = NEXT.project(planned.value, "destination").value
+	var completed := _session()
+	assert_true(completed.restore(destination, PRE).ok)
+	completed.completed(PRE)
+	assert_eq(completed.capture({}).value, destination, "physical boundary retains the operation")
+	assert_true(completed.admit(POST, _context(POST)).ok)
+	var post := _publish(completed, POST, "fixture.solo.post.a")
+	assert_eq(completed.capture(post).value.schema_version, 1)
+	assert_eq(completed.project(post).value.captions.size(), 3)
+
+func test_next_source_record_rejects_future_variant_tampering_even_with_recomputed_digest() -> void:
+	var session := _session()
+	assert_true(session.begin(TOKEN, PRE).ok)
+	assert_true(session.admit(PRE, _context(PRE)).ok)
+	var frontier := _publish(session, PRE, "fixture.solo.pre.a")
+	var planned: Dictionary = session.prepare_next(frontier, func(_variant: Dictionary) -> bool: return true)
+	var plan: Dictionary = planned.value.duplicate(true)
+	plan.traversed_captions[0].beat.presentation_signature.content_revision = "forged"
+	var changed: Dictionary = NEXT.project(plan, "source")
+	assert_true(changed.ok, "structural schema cannot substitute for actual authored registration")
+	var before: Dictionary = session.capture(frontier).value
+	assert_false(session.restore(changed.value, PRE).ok)
+	assert_eq(session.capture(frontier).value, before)
+
+func test_next_plan_requires_boolean_exact_membership_result_and_current_frontier() -> void:
+	var session := _session()
+	assert_true(session.begin(TOKEN, PRE).ok)
+	assert_true(session.admit(PRE, _context(PRE)).ok)
+	var frontier := _publish(session, PRE, "fixture.solo.pre.a")
+	var before: Dictionary = session.capture(frontier).value
+	assert_false(session.prepare_next(frontier, func(_variant: Dictionary) -> int: return 1).ok)
+	var stale := frontier.duplicate(true)
+	stale.publication_id = "caption:stale"
+	assert_false(session.prepare_next(stale, func(_variant: Dictionary) -> bool: return true).ok)
+	assert_eq(session.capture(frontier).value, before)
 
 class Runtime extends RefCounted:
 	var halted := 0

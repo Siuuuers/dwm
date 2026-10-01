@@ -6,6 +6,7 @@ extends RefCounted
 ## No cache is repaired and no value is sampled from a live Run or Profile.
 const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 const CAPTION_REGISTRY := preload("res://scripts/narrative/NarrativeCaptionRegistry.gd")
+const READING_NEXT := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
 const CONTACTS := preload("res://scripts/narrative/ContactsFrozenContext.gd")
 const CONTACT_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const HOSPITAL := preload("res://scripts/narrative/HospitalFrozenContext.gd")
@@ -63,6 +64,10 @@ static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictio
 			or not snapshot.get("contacts") is Dictionary or not snapshot.gameplay.get("route_context") is Dictionary:
 		return _fail(&"reading_saved_run_required")
 	var reading: Variant = checkpoint.get("reading_session")
+	if reading is Dictionary and reading.get("schema_version") == 2:
+		var operation := READING_NEXT.validate(reading, checkpoint.entry_id)
+		if not operation.ok: return operation
+		reading = READING_NEXT.without_operation(reading)
 	if not reading is Dictionary or not _exact(reading, ["schema_version", "catalogue_fingerprint", "boundary", "ledger", "frontier"]) \
 			or typeof(reading.schema_version) != TYPE_INT or reading.schema_version != 1 \
 			or not FROZEN._field(reading.catalogue_fingerprint, "id") \

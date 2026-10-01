@@ -35,6 +35,8 @@ PAUSE_STAGES = (
     "ordinary_pause_save_committed", "ordinary_pause_save_continued",
 )
 MODES = ("write", "read", "repeat", "variant", "witness-read")
+NEXT_MODES = ("next-unseen", "next", "next-read")
+NEXT_CAPTURES = ("01-next-unseen.png", "02-next-board.png", "03-next-restored-board.png")
 TRACE_KINDS = {
     "write": (
         "fixture_registered", *PAUSE_STAGES, "history_inspected", "pre_history",
@@ -48,6 +50,9 @@ TRACE_KINDS = {
         "history_inspected", "witness_unseen_stop_verified",
     ),
     "witness-read": ("witness_restart_verified",),
+    "next-unseen": ("next_auto_off_refused", "history_inspected", "next_unseen_verified"),
+    "next": ("next_challenge_verified",),
+    "next-read": ("next_restart_verified",),
 }
 
 
@@ -140,7 +145,10 @@ def validate_trace(reports: dict, evidence: Path, modes: tuple[str, ...]) -> Non
                 raise RuntimeError(f"TRACE_PROCESS_OR_SEQUENCE_MISMATCH: {mode}/{sequence}")
             if entry["kind"] in PAUSE_STAGES and entry["value"] != reports["write"]["ordinary_pause_save"][entry["kind"]]:
                 raise RuntimeError(f"PAUSE_TRACE_REPORT_MISMATCH: {entry['kind']}")
-            if entry["kind"] in ("witness_repeat_verified", "witness_unseen_stop_verified", "witness_restart_verified") and entry["value"] != reports[mode]:
+            if entry["kind"] in (
+                "witness_repeat_verified", "witness_unseen_stop_verified", "witness_restart_verified",
+                "next_unseen_verified", "next_challenge_verified", "next_restart_verified",
+            ) and entry["value"] != reports[mode]:
                 raise RuntimeError(f"WITNESS_TRACE_REPORT_MISMATCH: {mode}")
 
 
@@ -295,14 +303,79 @@ def validate_witnesses(reports: dict, evidence: Path, folder: Path) -> dict:
             "profile_write_faults": variant["write_faults"], "fresh_process_witnessed": True}
 
 
+def validate_next(reports: dict, evidence: Path, folder: Path) -> dict:
+    unseen, written, restored = (reports[mode] for mode in NEXT_MODES)
+    for report in (unseen, written):
+        if report["replacement_confirmations"] != 1 or report["witnesses_before"] != report["witnesses_after"]:
+            raise RuntimeError("NEXT_REQUIRES_REAL_NEW_ACCOUNT_AND_NO_TRAVERSAL_WITNESS_CREDIT")
+        for key in ("observations", "refusal_observations") if report is unseen else ("observations",):
+            observation = report[key]
+            if any(observation[field] != 0 for field in (
+                "text_started", "about_to_show_text", "caption_publications", "intermediate_checkpoint_admissions",
+            )) or observation["speech_before"] != observation["speech_after"]:
+                raise RuntimeError(f"NEXT_INTERMEDIATE_PRESENTATION_OR_FRONTIER_EXPOSURE: {report['mode']}/{key}")
+    source = unseen["source_checkpoint"]["reading_session"]
+    stopped = unseen["checkpoint"]["reading_session"]
+    if unseen["acknowledgement_receipt"]["was_visited_before_presentation"] is not False or (
+        unseen["beat"]["presentation_signature"]["content_revision"] != "fixture-next-unseen-v1"
+        or unseen["auto_off_refusals"] != 1 or unseen["auto_off_matching_writes"] != 2
+        or unseen["auto_enabled_after"] is not False or unseen["current_line_complete"] is not True
+        or unseen["history_observations"] != 1 or source["ledger"] != stopped["ledger"]
+        or source["frontier"] != stopped["frontier"] or stopped["frontier"]["line_id"] != "fixture.solo.pre.a"
+        or unseen["refused_profile_sha256"] == unseen["profile_after_sha256"]
+    ):
+        raise RuntimeError("NEXT_UNSEEN_REQUIRES_REFUSED_AUTO_OFF_AND_EXACT_CURRENT_LINE_RETRY")
+    session = written["checkpoint"]["reading_session"]
+    operation = session.get("next_operation", {})
+    plan = operation.get("plan", {})
+    if session["schema_version"] != 2 or operation.get("schema_version") != 1 or (
+        operation.get("phase") != "destination"
+        or re.fullmatch(r"[0-9a-f]{64}", operation.get("operation_id", "")) is None
+        or plan.get("destination") != {"kind": "completion", "caption": None}
+        or plan.get("source_ledger") != written["source_checkpoint"]["reading_session"]["ledger"]
+        or plan.get("source_frontier") != written["source_checkpoint"]["reading_session"]["frontier"]
+        or [row["beat"]["line_id"] for row in plan.get("traversed_captions", [])] != ["fixture.solo.pre.b"]
+        or session["ledger"]["captions"] != plan["source_ledger"]["captions"] + plan["traversed_captions"]
+        or written["observations"]["exclusive_activations"] != 1
+        or unseen["refusal_observations"]["exclusive_activations"] != 0
+    ):
+        raise RuntimeError("NEXT_REQUIRES_ONE_EXCLUSIVE_VERSIONED_OPERATION_WITH_EXACT_SOURCE_AND_SUFFIX")
+    if written["acknowledgement_receipt"]["was_visited_before_presentation"] is not True or (
+        session["boundary"] != "between_entries" or session["frontier"] != {}
+        or [caption["line_id"] for caption in written["history"]["captions"]]
+        != ["fixture.solo.pre.a", "fixture.solo.pre.b"]
+        or written["physical_record"]["phase"] != "challenge"
+        or len(session["ledger"]["entry_contexts"]) != 1
+    ):
+        raise RuntimeError("NEXT_MUST_REACH_EXACT_CHALLENGE_WITH_ONLY_CANONICAL_PRE_HISTORY")
+    for key in ("checkpoint", "history", "physical_record", "autosave_sha256", "autosave_bytes"):
+        if restored[key] != written[key]:
+            raise RuntimeError(f"NEXT_FRESH_RESTORE_MISMATCH: {key}")
+    if restored["speech_admissions"] != 0 or restored["profile_unchanged"] is not True or restored["next_active"] is not False:
+        raise RuntimeError("NEXT_FRESH_RESTORE_MUST_NOT_REPLAY_OR_RESTART_TRANSPORT")
+    autosave = cloud.contained_path(evidence, evidence / "next-autosave.json")
+    identity = file_identity(autosave)
+    if identity != {"bytes": written["autosave_bytes"], "sha256": written["autosave_sha256"]}:
+        raise RuntimeError("NEXT_RETAINED_AUTOSAVE_BYTES_MISMATCH")
+    snapshot = strict_json(autosave.read_text(encoding="utf-8"))["current_snapshot"]["snapshot"]
+    if snapshot["narrative_checkpoint"] != written["checkpoint"] or (
+        snapshot["gameplay"]["route_context"]["active_dating_challenge"] != written["physical_record"]
+    ):
+        raise RuntimeError("NEXT_PHYSICAL_AUTOSAVE_DOES_NOT_CONTAIN_PROVEN_BOUNDARY")
+    shutil.copyfile(autosave, folder / autosave.name)
+    return {**identity, "auto_off_refusals": unseen["auto_off_refusals"],
+            "unseen_current_completed_without_advance": True, "silent_witnessed_traversal": True,
+            "fresh_process_challenge_and_history": True}
+
+
 def run() -> int:
     repository = Path(__file__).resolve().parents[2]
     output = cloud.make_directory(repository, repository / ".godot/ci/reading-rail")
     folder = cloud.make_directory(repository, output / str(uuid4()))
     isolation = cloud.make_directory(repository, repository / ".godot/phase2r_tests" / str(uuid4()))
     result = {
-        "schema_version": 2,
-        "fixture_scope": "Noncanonical English Solo Priscilla Day 1 prose and exact-revision variant; real production owners, physical saves and Profile FileOps.",
+        "schema_version": 3,
+        "fixture_scope": "Noncanonical English Solo Priscilla Day 1 prose and explicit revision variants; real production owners, physical saves, Profile FileOps and one-shot Next.",
         "started_at_utc": cloud.utc_now(), "ok": False, "failures": [], "processes": {},
         "isolation_root": str(isolation), "artifact_root": str(folder),
     }
@@ -386,6 +459,17 @@ def run() -> int:
             read_report(mode, evidence, folder, reports, user_dir)
         validate_trace(reports, evidence, MODES)
         result["retained_witness_profile"] = validate_witnesses(reports, evidence, folder)
+        for mode in NEXT_MODES:
+            execute_mode(mode, godot, xvfb, repository, folder, env, result)
+            read_report(mode, evidence, folder, reports, user_dir)
+        validate_trace(reports, evidence, MODES + NEXT_MODES)
+        result["retained_next_autosave"] = validate_next(reports, evidence, folder)
+        next_folder = cloud.make_directory(repository, folder / "next")
+        captures, failures = cloud.collect_captures(repository, user_dir, next_folder, {
+            "evidence_folder": "reading-rail/next", "captures": NEXT_CAPTURES,
+        })
+        result["next_captures"] = captures
+        result["failures"].extend(failures)
     except Exception as error:
         result["failures"].append(f"{type(error).__name__}: {error}")
     finally:
@@ -405,10 +489,23 @@ def run() -> int:
                     result["failures"].extend(failures)
             except Exception as error:
                 result["failures"].append(f"EVIDENCE_COLLECTION_FAILED: {error}")
+            if any(mode in result["processes"] for mode in NEXT_MODES) and "next_captures" not in result:
+                try:
+                    next_folder = cloud.make_directory(repository, folder / "next")
+                    captures, failures = cloud.collect_captures(repository, user_dir, next_folder, {
+                        "evidence_folder": "reading-rail/next", "captures": NEXT_CAPTURES,
+                    })
+                    result["next_captures"] = captures
+                    result["failures"].extend(failures)
+                except Exception as error:
+                    result["failures"].append(f"NEXT_EVIDENCE_COLLECTION_FAILED: {error}")
             try:
                 # Retain partial failure evidence too, without overwriting sealed files.
                 source_root = cloud.contained_path(user_dir, user_dir / "evidence/reading-rail")
-                for name in ("transactions.jsonl", "witness-profile.json", *(f"{mode}.json" for mode in MODES)):
+                for name in (
+                    "transactions.jsonl", "witness-profile.json", "next-autosave.json",
+                    *(f"{mode}.json" for mode in MODES + NEXT_MODES),
+                ):
                     source = cloud.contained_path(source_root, source_root / name)
                     destination = cloud.contained_path(folder, folder / name)
                     if source.is_file() and not destination.exists():

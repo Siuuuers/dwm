@@ -2137,6 +2137,15 @@ func _commit_presentation_checkpoint(route_id: String) -> Dictionary:
 	# Dating's physical record and Ending's cursor own these resume boundaries. A
 	# completed Dialogic command from the preceding scene must not be replayed.
 	inputs["dialogic_checkpoint"] = {}
+	if route_id == "dating":
+		var bridge := _target(&"DialogicBridge")
+		if bridge != null and bridge.has_method("capture_next_physical_checkpoint"):
+			var reading: Dictionary = bridge.capture_next_physical_checkpoint()
+			if not reading.get("ok", false): return reading
+			# A completed Next retains its History and operation alongside the
+			# authoritative board. This is a between-entry semantic checkpoint;
+			# restore must not replay the completed pre/post prose.
+			inputs["dialogic_checkpoint"] = reading.value
 	var backup: Dictionary = _retained_checkpoint_port.capture()
 	if not backup.get("ok", false): return backup
 	var prepared: Dictionary = _retained_checkpoint_port.prepare(inputs, &"safe_marker",
