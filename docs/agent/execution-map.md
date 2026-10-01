@@ -6,12 +6,12 @@ execution_authority: false
 status_authority: false
 behavior_authority: false
 verification_authority: false
-inspected_source: "36d2fdca56c53c0d6b8571ded45e92fc6d3a9e91"
+inspected_source: "dc85cf9714d178e3cbb2bcf3e6c39c1d56484b3c"
 ---
 
 # DWM execution map
 
-Reviewed 1 October 2026 (Hong Kong). This is the single maintained navigation map
+Reviewed 2 October 2026 (Hong Kong). This is the single maintained navigation map
 for the unfinished work. Beads owns statuses and dependencies; approved design owns
 behavior. Update this map when the order or shared ownership changes, rather than
 creating another dated backlog. The [handoff](2026-09-23-next-session-handoff.md)
@@ -39,10 +39,10 @@ not create competing versions of GameState or SaveManager.
 
 | Lead / placement | Related records | Smallest useful outcome and proof |
 |---|---|---|
-| **Accepted bounded increment; reading remainder: `dwm-vky.14`** | `dwm-eei.10`, `dwm-eei.11`, Witnessed remainder of `dwm-eei.5` | The fixed opt-in Solo session connects real pre/board/post, History, Save/Quick and fresh Load. Ordinary Pause Backup entry now completes an admitted partial line without advancing; plain Pause/Cancel/preview remain literal and queries pure. Final Run98 passes 23/23 jobs, 2,154 GUT executions / 2,150 unique cases across 184 scripts, with all surrounding gates. The [shared proof](../../evidence/phase_2r/pause_reading_save_2026_10_01/README.md) retains failed fixtures and exact limits. Next: fixture-backed exact witnessing before one-shot Next. Production registration, Hospital/ending continuity, paused Settings F5 and native all-input acceptance remain open. |
+| **Accepted bounded increment; reading remainder: `dwm-vky.14`** | `dwm-eei.10`, `dwm-eei.11`, Witnessed remainder of `dwm-eei.5` | The fixed opt-in Solo session connects real pre/board/post, History, Save/Quick and fresh Load. Profile v10 records exact registered caption variants atomically with base-line visits and preserves the pre-publication Read Only baseline. Final Run102 passes all 23 jobs on attempt 1: 2,210 GUT executions / 2,206 unique cases / 189 scripts, plus the five-process witness/failure/retry journey and surrounding gates. The [shared receipt](../../evidence/phase_2r/exact_caption_witness_2026_10_02/receipt.json) retains focused Run100 and partial Run101 separately; the final source changes only the prior desktop installer allowance. The [implementation record](2026-10-02-exact-caption-witnessing.md) defines the finite fixture boundary. Next: one-shot Next using exact membership and the existing physical completion owners. Production registration, Hospital/ending continuity, paused Settings F5 and native all-input acceptance remain open. |
 | **Accepted increment; remaining latency: `dwm-634.3`** | `dwm-634` parent; touched `dwm-sx8` mappings only | Compact per-write validation witnesses and frozen-baseline correctness controls are implemented. Focused production Run81 and broad Run82 passed. Retain this issue for remaining terminal-settlement/checkpoint cost, matched complete-operation measurements and native responsiveness acceptance; one helper improvement does not close the lag task. |
 | **Independent CI change: accepted in Run82** | Existing performance and required-check gates | The retained-history producer now feeds four comparison jobs on separate runners/checkouts, with verified source/run/input manifests and an aggregate gate retaining the required-check name. Run82 verifies the actual fanout and all consumer evidence. Observed elapsed time is not a controlled causal speedup measurement. |
-| **Following reading batch: `dwm-n3h.2`** | `dwm-n3h`, exact Next/replay portion of `dwm-vky.14`, relevant `dwm-oyo.5` clauses | Finish the per-entry authored selector contract and successor reached signature, then exact-variant witnessing/Next/replay. Ordinary phase/reply/line and Alone cause are known gaps; request extra author input only where another independent fact changes presentation. |
+| **Following reading batch: `dwm-n3h.2`** | `dwm-n3h`, exact Next/replay portion of `dwm-vky.14`, relevant `dwm-oyo.5` clauses | Finish the per-entry authored selector contract and successor reached signature, then production exact-variant coverage and Next/replay. The fixed-fixture Profile witness prerequisite is implemented separately. Ordinary phase/reply/line and Alone cause are known gaps; request extra author input only where another independent fact changes presentation. |
 | **Independent candidate: `dwm-eei.2`** | Settings/Profile recovery; authored audio preview remains separate | Real indeterminate Profile write → Settings mutation refusal/custody → proven reconciliation. Reuse current Settings hosts and transactions. An audio sample catalogue is not a prerequisite for this recovery test. |
 | **Independent candidate: `dwm-7wj`** | Gallery clauses of `dwm-oyo.6` | Replace the dropdown with a visible plural-version register using existing newest-first chronology. Verify exact selection/Retry/focus and no writes during inspection. Authored record cues and native ScrollPattern retain their own acceptance. |
 | **Catalogue-dependent: `dwm-nqn`** | Feeds `dwm-oyo.5`; Settings audio-output clauses | Admit an immutable neutral-ID cue/Load-anchor plan, then compose it through current save/restore owners. Pause preserves the physical playhead; Load uses authored anchors. Use fixtures for engineering without inventing production audio. |
@@ -125,8 +125,8 @@ is not substituted for its presentation-port prepare/commit path. Production foc
 records exact source/merge, all controls and the bounded acceptance. A save-format cutover is unnecessary for this
 helper change.
 
-Use the next batch card for fixture-backed exact-variant witnessing, then one-shot
-Next under `dwm-n3h.2` and `dwm-vky.14`. The
+With fixed-fixture exact witnessing accepted in Run102, use the next batch card
+for one-shot Next under `dwm-n3h.2` and `dwm-vky.14`. The
 [reading record](2026-09-29-reading-rail-next-slice.md) preserves the accepted Solo
 foundation. Reuse admitted per-entry frames, one semantic sequence and Profile
 commit/recovery ownership; preserve the pre-publication witnessed baseline. Ownership, History boundaries,

@@ -1,9 +1,11 @@
-# Next-session handoff — 1 October 2026 (Hong Kong)
+# Next-session handoff — 2 October 2026 (Hong Kong)
+
+Updated 1 October 2026, 18:23 UTC (2 October, 02:23 Hong Kong).
 
 Continue public `Siuuuers/dwm` draft PR #1 on `codex/windows-cloud-ux`.
 Verify the live branch, actual master ref and Beads first. Keep the PR draft:
 do not merge, mark ready or change master. The last checked master was
-`2e8602d5f098eebbab18241f370b5f4d14adf99b`; normalized PR-base fields may be stale.
+`6a5ddf1564870b43aa9140cad7e0e5b12e43f399`; normalized PR-base fields may be stale.
 
 ## Latest owner decision: the game is unshipped
 
@@ -13,8 +15,9 @@ a constraint on the ongoing redesign. See the
 Obsolete Run/Profile formats can be retired without migration or a further
 compatibility interview. Use an explicit version/refusal boundary when a chosen
 implementation becomes incompatible; keep supported-format save, history and
-recovery correctness. The compact validation-witness implementation changes no
-save schema or supported-format admission boundary.
+recovery correctness. The current exact-caption increment uses Profile v10;
+its retained migrations initialize exact membership empty rather than inferring
+variants from old visited-line IDs.
 
 The legacy-History gap question below is retired. Earlier preservation wording
 in historical notes and proof records describes their prior scope; it is not a
@@ -22,7 +25,97 @@ new compatibility obligation. Routine ownership and implementation choices remai
 delegated. Ask about authored selectors only if an additional production fact
 would change wording/staging or the exact-variant projection contract.
 
-## Active reading increment — 1 October 2026
+## Active reading increment — exact caption witnessing
+
+Lead `dwm-vky.14`, with the exact-selector boundary of `dwm-n3h.2`: the fixed,
+noncanonical Solo fixture now records exact visible caption variants through the
+existing Profile atomic writer. Profile v10 keeps the complete registered
+descriptor under its canonical digest, together with the base-line visit. A bare
+visited-line ID never supplies exact credit. Run/attempt/publication identities
+prove current custody and do not invent prose variants. The visible acknowledgement
+retains the status from before publication, so writing a new witness does not let
+the same Read Only activation pass through an unseen line.
+
+**Accepted bounded source:** `dc85cf9714d178e3cbb2bcf3e6c39c1d56484b3c`.
+**Final broad gate:** [Run102](https://github.com/Siuuuers/dwm/actions/runs/36901983427)
+passes **23/23 jobs on attempt 1**, with **2,210 GUT executions / 2,206 unique
+cases across 189 scripts**, zero failures/errors/skips.
+
+The actual tested merge is `ea4d5aa5b78da49c00ee574b236517e9448bf3ef`, with exact
+parents master `6a5ddf1564870b43aa9140cad7e0e5b12e43f399` and this source.
+Its 45 source-to-merge changed paths are owner instructions, documentation, story
+content and story-maintenance files; runtime, tests and workflow bytes match the
+accepted source. All 22 checkout executions verify that exact merge; the
+retained-history aggregate has no checkout. Fresh rendered desktop/dialogue and
+literal audit, all five existing journeys and the five-process reading journey,
+Settings storage/fault checks, Windows export/startup and every required
+performance/history gate pass. Independent component and generic evidence audits
+also pass; no earlier run supplies a missing Run102 gate.
+
+This source's parent is `87cda1e9feacffd61ceda5acd3c2fca2713e2e94`.
+Its only change increases the canonical desktop job's environment-installation
+timeout from five to twelve minutes; runtime, tests and assertions are unchanged.
+This bounded CI repair followed an observed setup failure and needed no new game
+architecture decision. The parent adopted only the two cloud-generated public
+inventories after focused source `f3b5e8910e8a7d401d6ac6e7ca4392d58787a920`.
+
+[Run101](https://github.com/Siuuuers/dwm/actions/runs/36895796051) remains
+**22/23 logical jobs passed** after attempts 1 and 2: **2,210 GUT executions /
+2,206 unique cases across 189 scripts**, zero failures/errors/skips. Both desktop
+attempts timed out during Ubuntu package installation at the five-minute limit,
+before engine import or rendering. A fresh literal audit is consequently absent.
+The successful jobs are retained once; the failed-job retry is not a second
+execution of those suites. This is not full acceptance.
+
+Run101 tested merge `af3508faa04d7539826be2022d8b9d1ba798b361`, with exact parents
+master `6a5ddf1564870b43aa9140cad7e0e5b12e43f399` and source `87cda1e9`.
+Its 45 source-to-merge changed paths are owner instructions, documentation, story
+content and story-maintenance files; runtime, tests and workflow bytes match that
+source. Do not describe this boundary as the older seven-Markdown-file delta.
+Neither these partial results nor the focused or earlier Run98 acceptance is
+substituted for the independently complete Run102 gate.
+
+Focused [Run100](https://github.com/Siuuuers/dwm/actions/runs/36894093464) passes
+**seven logical jobs**, with **1,056 GUT executions / 1,052 unique cases across
+92 scripts**, zero failures/errors/skips. The six Windows suite successes are
+from attempt 1. The first rendered job timed out while installing its environment,
+before engine import or journey execution; attempt 2 retries only that job on the
+unchanged focused source. Preserve that failed setup log and do not count the six
+suite receipts twice.
+
+The connected journey, independently rerun in Run102, uses five fresh processes:
+**WRITE → READ → REPEAT →
+VARIANT → WITNESS-READ**. The original Save/Pause/fresh-Load receipts are sealed
+before the later sessions: all 14 sealed files remain unchanged. The nine
+original capture files plus their nine sealed copies have seven distinct PNG
+hashes. The copies are not additional independent captures. A new causal
+session recognizes variant A; changed revision B under the
+same stable line ID starts unseen. A candidate-specific simulated FileOps refusal
+preserves exact prior Profile bytes, then physical Accept retries successfully.
+The retained pre-publication baseline still stops Read Only at B. A final fresh
+process reads the exact durable Profile bytes and B membership without another
+write. History, capability queries and Pause inspection grant no extra witness.
+
+This is finite fixture evidence, not production authored-selector acceptance or
+a physical OS-crash injection. The original manual pre-line slot is physically
+admitted and retained, but is not separately fresh-loaded; the post-line Quick
+is the fresh-load subject. Next and production catalogue registration remain
+disabled. The [shared evidence record](../../evidence/phase_2r/exact_caption_witness_2026_10_02/README.md)
+and [receipt](../../evidence/phase_2r/exact_caption_witness_2026_10_02/receipt.json)
+retain exact source boundaries, successful and failed attempts, raw proof and
+scope limits. The later records-only descendant is not separately engine-tested.
+See the [bounded implementation record](2026-10-02-exact-caption-witnessing.md)
+and [next-slice record](2026-09-29-reading-rail-next-slice.md).
+
+All **23 unfinished Beads** remain. `dwm-vky.14` stays `in_progress` and
+`dwm-n3h.2` stays `open`; this increment closes neither. Follow the
+[execution map](execution-map.md). The next bounded
+increment is one-shot Next consuming exact witnessing and the retained
+pre-publication baseline through existing Solo transport/board owners. Routine
+engineering is delegated; ask only when a newly evidenced production selector
+changes the wording/staging projection contract.
+
+## Previous accepted reading increment — Run98
 
 Lead `dwm-vky.14`: ordinary Pause Backup Save now supports a partially revealing
 admitted Solo line. Plain Pause, Return confirmation Cancel and focus-only Backup
@@ -62,20 +155,18 @@ gates also pass. Their detailed counts and limits stay in the shared receipt.
 The prior [Run95 Solo reading proof](../../evidence/phase_2r/reading_rail_2026_10_01/README.md)
 remains historical evidence at source `29e5a161`; it is not resealed as current proof.
 Its one ledger, immutable pre/post frames, inspect-only History and semantic fresh
-Load remain in force. Production authored registration stays disabled. Exact-variant
-witnessing/Next, Hospital/ending continuity and full native all-input acceptance
-remain open. Paused Settings F5 and arbitrary production partial-reveal abort lifetime
+Load remain in force. Production authored registration stays disabled. Next,
+production exact-selector coverage, Hospital/ending continuity and full native
+all-input acceptance remain open. Paused Settings F5 and arbitrary production partial-reveal abort lifetime
 safety are outside this increment. Timing is observational; simulated restart/fault
 checks are not physical OS-crash injections.
 
-All **23 unfinished Beads** remain; only `dwm-vky.14` notes/timestamp change, with
+That records descendant retained all **23 unfinished Beads**; only `dwm-vky.14`
+notes/timestamp changed, with
 190 other records and all statuses/dependencies preserved exactly. No Dolt
 synchronization is claimed. Follow the [execution map](execution-map.md).
-Next: fixture-backed exact-variant Profile witnessing, preserving the pre-publication
-witnessed baseline, then bounded one-shot Next through the existing Solo board
-boundary. Bare visited-line IDs are insufficient. Existing behavior and unshipped-save
-policy permit that engineering without another architecture interview; ask only
-when a newly evidenced production selector changes wording/staging projection.
+The fixture-backed exact-variant prerequisite described above is the subsequent
+implementation; these older receipts are not resealed as its acceptance.
 
 ## Previous accepted implementation — Run82
 
