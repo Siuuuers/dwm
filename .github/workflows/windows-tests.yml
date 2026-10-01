@@ -804,7 +804,7 @@ jobs:
           git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
           git submodule foreach --recursive 'true'
       - name: Install Godot and software display
-        timeout-minutes: 5
+        timeout-minutes: 12
         run: |
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri pulseaudio pulseaudio-utils libspeechd2 speech-dispatcher speech-dispatcher-audio-plugins speech-dispatcher-espeak-ng
