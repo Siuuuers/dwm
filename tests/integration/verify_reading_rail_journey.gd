@@ -1077,8 +1077,14 @@ func _next_read_process() -> void:
 	var saves: Node = root.get_node("SaveManager")
 	var profile: Node = root.get_node("ProfileManager")
 	var before_profile: Dictionary = profile.get_profile_snapshot()
-	var before_disk: Dictionary = saves.get("_storage").read_text("autosave.json")
-	if not _check(before_disk.get("ok", false) and str(before_disk.value).sha256_text() == prior.value.autosave_sha256,
+	# Fresh storage has no process-local read lease until the real Load commits.
+	# Raw inspection proves the untouched physical bytes without reconciling them.
+	var before_disk: Dictionary = saves.get("_storage").inspect_revision("autosave.json")
+	if not _check(before_disk.get("ok", false) and before_disk.value.exists
+		and typeof(before_disk.value.text) == TYPE_STRING
+		and before_disk.value.revision == prior.value.autosave_sha256
+		and str(before_disk.value.text).sha256_text() == prior.value.autosave_sha256
+		and str(before_disk.value.text).to_utf8_buffer().size() == prior.value.autosave_bytes,
 		"fresh Next restore opens exactly the retained physical Autosave"): return
 	var prepared: Dictionary = saves.prepare_backup_action("load", "autosave")
 	if not _check(prepared.get("ok", false), "fresh Next Autosave Load prepares: " + str(prepared)): return
@@ -1103,7 +1109,7 @@ func _next_read_process() -> void:
 		and _speech_admissions == 0 and profile.get_profile_snapshot() == before_profile,
 		"fresh Next Load restores exact physical boundary, ordered History and operation without replay or new Profile credit"): return
 	var after_disk: Dictionary = saves.get("_storage").read_text("autosave.json")
-	if not _check(after_disk.get("ok", false) and after_disk.value == before_disk.value,
+	if not _check(after_disk.get("ok", false) and after_disk.value == before_disk.value.text,
 		"fresh Next Load leaves exact physical Autosave bytes unchanged"): return
 	if not await _capture_next_screen("03-next-restored-board"): return
 	var report := {"mode": _reading_mode, "process_id": OS.get_process_id(),

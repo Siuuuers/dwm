@@ -313,7 +313,7 @@ func test_next_failure_after_native_host_detachment_cannot_mount_old_recovery() 
 
 func test_next_can_finish_after_native_presenter_is_freed() -> void:
 	var bridge := _begin_settling_next()
-	var departed := weakref(caption)
+	var departed: WeakRef = weakref(caption)
 	viewport.remove_child(caption)
 	caption.queue_free()
 	caption = null
