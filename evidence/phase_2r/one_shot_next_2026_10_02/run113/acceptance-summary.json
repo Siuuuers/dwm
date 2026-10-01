@@ -1,0 +1,108 @@
+{
+  "actual_checkout_merge": "68fe712cebe5a7039b768d39155c820d677c2795",
+  "expected_job_count": 2,
+  "gut": {
+    "case_executions": 372,
+    "errors": 0,
+    "failures": 0,
+    "negative_xml_exclusions": [],
+    "script_executions": 29,
+    "skipped": 0,
+    "suites": [
+      {
+        "bytes": 2504,
+        "cases": 11,
+        "path": "artifacts/public-surfaces-36927783960-1/ci/public_surfaces.xml",
+        "run_attempt": 1,
+        "scripts": 1,
+        "sha256": "7bccac036cb00499c2453e960209a7f10dd6b81c7d1c22b836264f48478842f2"
+      },
+      {
+        "bytes": 83220,
+        "cases": 361,
+        "path": "artifacts/windows-reading_delivery-36927783960-1/ci/reading_delivery.xml",
+        "run_attempt": 1,
+        "scripts": 28,
+        "sha256": "bbdc57a7f65bd6deddcca496d0afba0b2d9bff17b6bdb2076a40f081ece0f95b"
+      }
+    ],
+    "unique_cases": 372,
+    "unique_identity": "testsuite.name + testcase.name",
+    "unique_scripts": 29,
+    "xml_count": 2
+  },
+  "jobs": [
+    {
+      "checkout_exemption": null,
+      "checkout_shas": [
+        "68fe712cebe5a7039b768d39155c820d677c2795"
+      ],
+      "completed_at": "2026-10-01T21:22:57Z",
+      "conclusion": "success",
+      "execution_attempt": 1,
+      "execution_job_id": 110589272195,
+      "id": 110589272195,
+      "log": "logs/110589272195.log",
+      "log_identity": {
+        "bytes": 797866,
+        "sha256": "585d742eddc93fa745b29ae5f78d9494d3c4e61f04c60d1a2a3aa3147dc63878"
+      },
+      "name": "Windows / public API surface contracts",
+      "run_attempt": 1,
+      "started_at": "2026-10-01T21:18:35Z",
+      "status": "completed"
+    },
+    {
+      "checkout_exemption": null,
+      "checkout_shas": [
+        "68fe712cebe5a7039b768d39155c820d677c2795"
+      ],
+      "completed_at": "2026-10-01T21:21:53Z",
+      "conclusion": "success",
+      "execution_attempt": 1,
+      "execution_job_id": 110589272559,
+      "id": 110589272559,
+      "log": "logs/110589272559.log",
+      "log_identity": {
+        "bytes": 449314,
+        "sha256": "068d1edf141d244450b4321014caa16e95f2c55afa420dc08b1769d4927fb44d"
+      },
+      "name": "Windows / reading_delivery",
+      "run_attempt": 1,
+      "started_at": "2026-10-01T21:18:36Z",
+      "status": "completed"
+    }
+  ],
+  "limits": [
+    "Only affected reading tests and public inventories run here; no rendered journey is attributed to this run.",
+    "The required broad gate supplies final integrated acceptance; prior Run112 journey remains separately identified."
+  ],
+  "master_parent": null,
+  "observed_job_count": 2,
+  "overall_acceptance_pass": true,
+  "overall_accepted": true,
+  "run_id": 36927783960,
+  "run_number": 113,
+  "run_url": "https://github.com/Siuuuers/dwm/actions/runs/36927783960",
+  "schema_version": 1,
+  "scope": "Audit the two-job fixture/public rerun; no rendered-journey acceptance here.",
+  "source_boundary": {
+    "all_unlisted_paths_byte_identical": true,
+    "checkout_parents": [
+      "79ca8f0d235ccdf3917f096bbd25da66690e90ad"
+    ],
+    "explicit_allowed_difference_patterns": [],
+    "master": null,
+    "source": "68fe712cebe5a7039b768d39155c820d677c2795",
+    "source_checkout_differences": [],
+    "tested_checkout": "68fe712cebe5a7039b768d39155c820d677c2795"
+  },
+  "source_commit": "68fe712cebe5a7039b768d39155c820d677c2795",
+  "workflow_run": {
+    "conclusion": "success",
+    "event": "push",
+    "head_sha": "a37a1a02f27bac84082da0f15562ca0a4d7a96b0",
+    "run_attempt": 1,
+    "status": "completed"
+  }
+}
