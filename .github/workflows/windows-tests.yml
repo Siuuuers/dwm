@@ -431,9 +431,9 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
-  seven-day-history:
-    needs: [public-surfaces, checkpoint-performance]
-    name: Windows / seven-day retained history
+  seven-day-history-producer:
+    needs: public-surfaces
+    name: Windows / seven-day retained history producer
     runs-on: windows-2022
     timeout-minutes: 55
     defaults:
@@ -494,26 +494,41 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Download current localized payloads
-        uses: actions/download-artifact@v4
-        with:
-          name: checkpoint-payloads-${{ github.run_id }}
-          path: .godot/ci/performance
       - name: Measure seven days and saturated retained history
         timeout-minutes: 30
         run: ./tools/testing/Invoke-SevenDayHistoryPerformance.ps1 -ComparePreparation
-      - name: Compare outgoing normalization on identical retained payloads
-        timeout-minutes: 12
-        run: ./tools/testing/Invoke-OutgoingNormalizationPerformance.ps1
-      - name: Compare lazy normalization with frozen eager helpers
-        timeout-minutes: 8
-        run: ./tools/testing/Invoke-LazyNormalizationPerformance.ps1
-      - name: Compare retained-history proof region searches
-        timeout-minutes: 20
-        run: ./tools/testing/Invoke-HistoryRegionSearchPerformance.ps1
-      - name: Compare warm outgoing proof composition
-        timeout-minutes: 20
-        run: ./tools/testing/Invoke-WarmOutgoingProofPerformance.ps1
+      - name: Record Day7 consumer input provenance
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = 'Stop'
+          $checkoutRef = (& git rev-parse HEAD)
+          if ($LASTEXITCODE -ne 0 -or $checkoutRef -cne $env:GITHUB_SHA) { throw 'Unexpected Day7 producer checkout.' }
+          $root = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/seven-day-history'
+          $files = [ordered]@{}
+          foreach ($name in @('results.json', 'day7-autosave.json')) {
+            $files[$name] = (Get-FileHash -LiteralPath (Join-Path $root $name) -Algorithm SHA256).Hash.ToLowerInvariant()
+          }
+          [ordered]@{
+            schema_version = 1
+            checkout_ref = $checkoutRef
+            producer_run_id = [string]$env:GITHUB_RUN_ID
+            producer_run_attempt = [int]$env:GITHUB_RUN_ATTEMPT
+            files = $files
+          } | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $root 'consumer-input-manifest.json') -Encoding utf8
+      - name: Share verified Day7 consumer inputs
+        uses: actions/upload-artifact@v4
+        with:
+          # Reuse a successful producer on failed-job retries in this same run.
+          # Consumers check source, attempt and both file hashes before measuring.
+          name: seven-day-inputs-${{ github.run_id }}
+          path: |
+            .godot/ci/seven-day-history/results.json
+            .godot/ci/seven-day-history/day7-autosave.json
+            .godot/ci/seven-day-history/consumer-input-manifest.json
+          overwrite: true
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
       - name: Upload seven-day history evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -522,18 +537,172 @@ jobs:
           path: |
             .godot/ci/import.log
             .godot/ci/seven-day-history/
-            .godot/ci/outgoing-normalization/
-            .godot/ci/lazy-normalization/
-            .godot/ci/history-region-search/
-            .godot/ci/warm-outgoing-proof/
             .godot/phase2r_logs/cloud-seven-day-history-*.log
-            .godot/phase2r_logs/cloud-outgoing-normalization-*.log
-            .godot/phase2r_logs/cloud-lazy-normalization-*.log
-            .godot/phase2r_logs/cloud-history-region-search-*.log
-            .godot/phase2r_logs/cloud-warm-outgoing-proof-*.log
           include-hidden-files: true
           if-no-files-found: warn
           retention-days: 7
+
+  history-comparisons:
+    needs: [seven-day-history-producer, checkpoint-performance]
+    name: Windows / ${{ matrix.comparison }} comparison
+    runs-on: windows-2022
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      # Each matrix entry gets its own VM/checkout: never overlap timing probes
+      # or the producer's temporary SaveManager substitutions on one runner.
+      matrix:
+        include:
+          - comparison: outgoing-normalization
+            driver: Invoke-OutgoingNormalizationPerformance.ps1
+            timeout: 12
+          - comparison: lazy-normalization
+            driver: Invoke-LazyNormalizationPerformance.ps1
+            timeout: 8
+          - comparison: history-region-search
+            driver: Invoke-HistoryRegionSearchPerformance.ps1
+            timeout: 20
+          - comparison: warm-outgoing-proof
+            driver: Invoke-WarmOutgoingProofPerformance.ps1
+            timeout: 20
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Verify the frozen region-search control against its historical source blob.
+          fetch-depth: 0
+          # Defer credential removal until the post-job cleanup, after the
+          # malformed gitlinks are removed from this disposable runner's index.
+          persist-credentials: true
+      - name: Prepare disposable checkout for credential cleanup
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
+          # submodule foreach reads the index even with sparse checkout.
+          # The source commit and working files remain unchanged.
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git submodule foreach --recursive 'true'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Install Godot 4.6.3 standard
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
+          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
+          # SHA256 published with the official 4.6.3-stable release asset.
+          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
+            throw 'Godot archive checksum mismatch.'
+          }
+          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
+          Expand-Archive -LiteralPath $archive -DestinationPath $editor
+          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
+          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          & $console --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Import project
+        timeout-minutes: 8
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
+          $env:APPDATA = Join-Path $output 'import-user/appdata'
+          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
+          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
+          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
+            throw 'Project import reported script errors; inspect import.log.'
+          }
+      - name: Restore committed project settings after editor import
+        run: |
+          # Dialogic's editor scan rewrites its timeline lookup during import.
+          # Execute the committed configuration with the freshly imported assets.
+          git restore -- project.godot
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Download exact Day7 producer inputs
+        uses: actions/download-artifact@v4
+        with:
+          name: seven-day-inputs-${{ github.run_id }}
+          path: .godot/ci/seven-day-history
+      - name: Verify Day7 checkout, run, attempt, hashes and recovered identity
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = 'Stop'
+          $checkoutRef = (& git rev-parse HEAD)
+          if ($LASTEXITCODE -ne 0 -or $checkoutRef -cne $env:GITHUB_SHA) { throw 'Unexpected Day7 consumer checkout.' }
+          $root = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/seven-day-history'
+          $manifest = Get-Content -LiteralPath (Join-Path $root 'consumer-input-manifest.json') -Raw | ConvertFrom-Json
+          if ($manifest.schema_version -ne 1 -or $manifest.checkout_ref -cne $checkoutRef -or
+              $manifest.producer_run_id -cne [string]$env:GITHUB_RUN_ID -or
+              $manifest.producer_run_attempt -lt 1 -or $manifest.producer_run_attempt -gt [int]$env:GITHUB_RUN_ATTEMPT -or
+              @($manifest.files.PSObject.Properties).Count -ne 2) {
+            throw 'Day7 inputs must come from this checkout and workflow run at an admitted producer attempt.'
+          }
+          foreach ($name in @('results.json', 'day7-autosave.json')) {
+            $expected = $manifest.files.PSObject.Properties[$name].Value
+            $actual = (Get-FileHash -LiteralPath (Join-Path $root $name) -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ($expected -cnotmatch '^[0-9a-f]{64}$' -or $expected -cne $actual) { throw "Day7 input hash mismatch: $name" }
+          }
+          $history = Get-Content -LiteralPath (Join-Path $root 'results.json') -Raw | ConvertFrom-Json
+          $payloadHash = $manifest.files.PSObject.Properties['day7-autosave.json'].Value
+          $saveManagerHash = (Get-FileHash -LiteralPath (Join-Path $env:GITHUB_WORKSPACE 'autoload/SaveManager.gd') -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($history.checkout_ref -cne $checkoutRef -or $history.payload_sha256 -cne $payloadHash -or
+              $history.write.autosave_sha256 -cne $payloadHash -or $history.cold_read.autosave_sha256 -cne $payloadHash -or
+              $history.cold_read.save_manager_sha256 -cne $saveManagerHash -or $history.cold_read.day -ne 7 -or
+              $history.cold_read.retained_checkpoint_count -ne 66 -or $history.write.retained.line -ne 32 -or
+              $history.write.retained.manual_save -ne 32 -or $history.write.retained.semantic -ne 2) {
+            throw 'Day7 inputs must retain the exact verified source, payload and 66-checkpoint recovery identity.'
+          }
+          Write-Host ('DAY7_CONSUMER_INPUTS_VERIFIED: ' + ($manifest | ConvertTo-Json -Depth 4 -Compress))
+      - name: Download current localized payloads for outgoing comparison
+        if: matrix.comparison == 'outgoing-normalization'
+        uses: actions/download-artifact@v4
+        with:
+          name: checkpoint-payloads-${{ github.run_id }}
+          path: .godot/ci/performance
+      - name: Run isolated retained-history comparison
+        timeout-minutes: ${{ matrix.timeout }}
+        env:
+          DWM_COMPARISON_DRIVER: ${{ matrix.driver }}
+        run: |
+          & (Join-Path $env:GITHUB_WORKSPACE "tools/testing/$env:DWM_COMPARISON_DRIVER")
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Upload comparison raw evidence and input provenance
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.comparison }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .godot/ci/import.log
+            .godot/ci/seven-day-history/consumer-input-manifest.json
+            .godot/ci/performance/payload-manifest.json
+            .godot/ci/${{ matrix.comparison }}/
+            .godot/phase2r_logs/cloud-${{ matrix.comparison }}-*.log
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7
+
+  seven-day-history:
+    # Keep the original required-check name green only after every comparison.
+    needs: [seven-day-history-producer, history-comparisons]
+    if: always()
+    name: Windows / seven-day retained history
+    runs-on: windows-2022
+    timeout-minutes: 5
+    steps:
+      - name: Require the Day7 producer and all four comparison jobs
+        shell: pwsh
+        env:
+          DWM_PRODUCER_RESULT: ${{ needs.seven-day-history-producer.result }}
+          DWM_COMPARISONS_RESULT: ${{ needs.history-comparisons.result }}
+        run: |
+          if ($env:DWM_PRODUCER_RESULT -cne 'success' -or $env:DWM_COMPARISONS_RESULT -cne 'success') {
+            throw 'The seven-day history gate requires its producer and all four isolated comparisons to pass.'
+          }
 
   rendered-journeys:
     needs: public-surfaces

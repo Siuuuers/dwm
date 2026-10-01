@@ -296,6 +296,25 @@ Write-Host ('CLOUD_GUT_RESULT ' + ([ordered]@{
 if ($Suite -eq 'settings') {
     # Expected fixture refusals are reported separately from passing GUT cases.
     & (Join-Path $PSScriptRoot 'Invoke-StorageRefusalChecks.ps1')
+
+    # The diagnostic uses the real revision protocol with deterministic FileOps
+    # faults. Its standalone assertions are not counted as GUT test cases.
+    $witnessLogName = 'cloud-manual-witness-revision-storage.log'
+    & (Join-Path $PSScriptRoot 'Invoke-IsolatedGodot.ps1') `
+        -SuiteId 'cloud-manual-witness-revision-storage' -LogName $witnessLogName `
+        -EvidenceLogPath '.godot/ci/manual-witness-revision-storage.jsonl' -TimeoutSeconds 180 `
+        -GodotArgs @('-s', 'res://tests/backup_storage/test_manual_witness_revision_storage.gd')
+    $witnessResult = $LASTEXITCODE
+    $witnessLog = Join-Path $repositoryRoot ".godot/phase2r_logs/$witnessLogName"
+    if ($witnessResult -ne 0) {
+        if (Test-Path -LiteralPath $witnessLog) { Get-Content -LiteralPath $witnessLog }
+        exit $witnessResult
+    }
+    $markers = @(Get-Content -LiteralPath $witnessLog | Where-Object { $_ -ceq 'MANUAL_WITNESS_REVISION_STORAGE_PASS' })
+    if ($markers.Count -ne 1 -or (Select-String -LiteralPath $witnessLog -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet)) {
+        throw 'Manual witness storage did not prove ordered fault/restart equivalence.'
+    }
+    Get-Content -LiteralPath $witnessLog
 }
 
 if ($Suite -eq 'persistence') {

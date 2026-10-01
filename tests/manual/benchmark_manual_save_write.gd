@@ -8,34 +8,13 @@ const STRICT := preload("res://scripts/validation/StrictJson.gd")
 const DOCUMENT := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 const CANONICAL := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
-class FixedClockSave extends "res://autoload/SaveManager.gd":
+class FixedClockSave extends "res://tests/support/ManualSaveWitnessPort.gd":
 	var validation_calls := 0
-	var write_variant := "baseline"
 	func _capture_saved_time() -> Dictionary:
 		return {"unix_seconds": 0, "utc_offset_minutes": 0, "hhmm": "00:00"}
 	func _document_text_validator(text: String) -> Dictionary:
 		validation_calls += 1
 		return super._document_text_validator(text)
-	func _write_document_text_validator(text: String, validated_texts: Dictionary) -> Dictionary:
-		if write_variant == "baseline":
-			# Keep the current production body exact. The legacy source-ablation runner
-			# removes that parent method entirely, so a super reference would not parse.
-			if validated_texts.has(text):
-				return (validated_texts[text] as Dictionary).duplicate(true)
-			var baseline_result := _document_text_validator(text)
-			if baseline_result.get("ok", false):
-				validated_texts[text] = baseline_result.duplicate(true)
-			return baseline_result
-		# Diagnostic-only ablation. Each write supplies its own exact-text memo; a
-		# new text still undergoes the unchanged strict parser and full schema admission.
-		if validated_texts.has(text):
-			return {"ok": true, "code": &"ok", "value": {}}
-		var result := _document_text_validator(text)
-		# Preserve every refusal, including a malformed success that storage rejects.
-		if not result.get("ok", false) or typeof(result.get("value")) != TYPE_DICTIONARY:
-			return result
-		validated_texts[text] = {"ok": true, "code": &"ok", "value": {}}
-		return {"ok": true, "code": &"ok", "value": {}}
 
 var _inputs: Dictionary = {}
 
@@ -198,6 +177,7 @@ func _run() -> void:
 		"parse_cache_after": _cache_state(manager._document_parse_cache),
 		"save_manager_sha256": FileAccess.get_sha256("res://autoload/SaveManager.gd"),
 		"storage_sha256": FileAccess.get_sha256("res://scripts/infrastructure/storage/JsonFileStorage.gd"),
+		"witness_port_sha256": FileAccess.get_sha256("res://tests/support/ManualSaveWitnessPort.gd"),
 		"harness_sha256": FileAccess.get_sha256("res://tests/manual/benchmark_manual_save_write.gd")}))
 	manager.free()
 	quit(0)

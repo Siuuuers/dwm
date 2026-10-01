@@ -25,6 +25,7 @@ $manualSourceHashes = [ordered]@{
     baseline = (Get-FileHash -LiteralPath $manualBaseline -Algorithm SHA256).Hash.ToLowerInvariant()
     storage = (Get-FileHash -LiteralPath (Join-Path $repositoryRoot 'scripts/infrastructure/storage/JsonFileStorage.gd') -Algorithm SHA256).Hash.ToLowerInvariant()
     harness = (Get-FileHash -LiteralPath (Join-Path $repositoryRoot 'tests/manual/benchmark_manual_save_write.gd') -Algorithm SHA256).Hash.ToLowerInvariant()
+    witness_port = (Get-FileHash -LiteralPath (Join-Path $repositoryRoot 'tests/support/ManualSaveWitnessPort.gd') -Algorithm SHA256).Hash.ToLowerInvariant()
 }
 $sourceCodeHashes = [ordered]@{
     candidate = (Get-FileHash -LiteralPath $saveManager -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -365,7 +366,10 @@ try {
             $records = @(Read-HistoryMarkers $probe.Lines 'MANUAL_SAVE_WRITE_PASS: ')
             if ($records.Count -ne 1 -or $records[0].commit_us -lt 0 -or $records[0].prepare_us -lt 0 -or
                 $records[0].retained_checkpoint_count -ne 66 -or -not $records[0].parse_cache_enabled -or
-                $records[0].save_manager_sha256 -cne $manualSourceHashes[$variant]) {
+                $records[0].save_manager_sha256 -cne $manualSourceHashes[$variant] -or
+                $records[0].storage_sha256 -cne $manualSourceHashes.storage -or
+                $records[0].harness_sha256 -cne $manualSourceHashes.harness -or
+                $records[0].witness_port_sha256 -cne $manualSourceHashes.witness_port) {
                 throw "Manual $manualMode sample must prove its exact source and retained output."
             }
             if ($null -eq $referenceManual) { $referenceManual = $records[0] }

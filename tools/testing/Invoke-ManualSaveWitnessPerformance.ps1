@@ -44,7 +44,8 @@ $sourcePaths = @('autoload/SaveManager.gd', 'scripts/infrastructure/storage/Json
     'scripts/infrastructure/storage/FileOps.gd', 'scripts/infrastructure/save/CheckpointJournal.gd',
     'scripts/infrastructure/save/SaveDocumentSchema.gd', 'scripts/domain/run/RunSnapshotSchema.gd',
     'scripts/validation/StrictJson.gd', 'scripts/validation/CanonicalJsonWriter.gd',
-    'tests/manual/benchmark_manual_save_write.gd', 'tests/manual/benchmark_seven_day_history.gd',
+    'tests/manual/benchmark_manual_save_write.gd', 'tests/support/ManualSaveWitnessPort.gd',
+    'tests/manual/benchmark_seven_day_history.gd',
     'tests/manual/benchmark_minesweeper_click_latency.gd', 'tools/testing/Invoke-IsolatedGodot.ps1',
     'tools/testing/Invoke-ManualSaveWitnessPerformance.ps1')
 $sourceHashes = [ordered]@{}
@@ -67,14 +68,16 @@ import hashlib,json,pathlib,re,sys
 root=pathlib.Path(sys.argv[1])
 source=(root/'autoload/SaveManager.gd').read_text()
 harness=(root/'tests/manual/benchmark_manual_save_write.gd').read_text()
+port=(root/'tests/support/ManualSaveWitnessPort.gd').read_text()
+assert 'class FixedClockSave extends "res://tests/support/ManualSaveWitnessPort.gd":' in harness, 'benchmark uses shared witness owner'
 name='func _write_document_text_validator(text: String, validated_texts: Dictionary) -> Dictionary:\n'
 assert source.count(name)==1, 'unique production validation helper'
 body=source.split(name)[1].split('\nfunc ',1)[0].strip('\n')
-start='\t\tif write_variant == "baseline":\n'
-stop='\t\t# Diagnostic-only ablation.'
-assert harness.count(start)==1 and harness.count(stop)==1, 'unique benchmark baseline branch'
-branch=harness.split(start)[1].split(stop,1)[0]
-lines=[line[2:] for line in branch.splitlines() if line.strip() and not line.lstrip().startswith('#')]
+start='\tif write_variant == "baseline":\n'
+stop='\t# Diagnostic-only ablation.'
+assert port.count(start)==1 and port.count(stop)==1, 'unique diagnostic baseline branch'
+branch=port.split(start)[1].split(stop,1)[0]
+lines=[line[1:] for line in branch.splitlines() if line.strip() and not line.lstrip().startswith('#')]
 control='\n'.join(lines).replace('baseline_result','result')
 assert control==body, 'benchmark control differs from current production helper'
 print(json.dumps({'baseline_body_sha256':hashlib.sha256(body.encode()).hexdigest(),'exact_body_match':True}))
@@ -200,6 +203,7 @@ try {
                     $sample.strict_validation_calls -ne 1 -or $sample.retained_checkpoint_count -ne 66 -or
                     $sample.save_manager_sha256 -cne $sourceHashes['autoload/SaveManager.gd'] -or
                     $sample.storage_sha256 -cne $sourceHashes['scripts/infrastructure/storage/JsonFileStorage.gd'] -or
+                    $sample.witness_port_sha256 -cne $sourceHashes['tests/support/ManualSaveWitnessPort.gd'] -or
                     $sample.harness_sha256 -cne $sourceHashes['tests/manual/benchmark_manual_save_write.gd']) {
                     throw 'Manual sample source, variant, cache mode or strict admission differs.'
                 }
