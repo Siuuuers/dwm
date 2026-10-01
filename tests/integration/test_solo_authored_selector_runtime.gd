@@ -334,6 +334,10 @@ func test_bridge_next_keeps_selected_label_and_fresh_resume_preserves_history_wi
 	assert_eq(_port.calls[1].checkpoint.reading_session.frontier.line_id, "fixture.selector.post.b")
 	assert_eq(_native_text.back(), "NONCANONICAL dark closing.")
 	assert_eq(_native_text.size(), 4, "Next cannot publish any other tone or board result")
+	# This test activates the coordinator directly. A real rail completion asks
+	# its presenter to acknowledge this visible destination after custody settles.
+	var destination_proof: Dictionary = _bridge.capture_current_line_presentation_frontier()
+	assert_true(_bridge.acknowledge_current_line_presentation(destination_proof).ok)
 	var spoken: Dictionary = _bridge.capture_current_speech_presentation()
 	assert_true(spoken.ok, str(spoken))
 	if spoken.ok: assert_false(spoken.value.suppress_replay, "new Next destination remains a fresh speech publication")
