@@ -123,7 +123,8 @@ as historical records. Their useful working principles continue here.
   changes architecture or authored meaning; do not repeat settled interviews.
 - Prefer the smallest change with one canonical owner. Use Occam's Razor and
   Karpathy-style clarity: think first, keep changes explainable, avoid speculative
-  abstractions, and remove superseded code only after checking real dependencies.
+  abstractions, and remove superseded code only after checking real dependencies. Preserve
+  pre-existing user edits and unrelated work.
 - Measure before optimizing. Use an ablation or frozen control when it answers a
   concrete causal question; retain exact source, bytes and failure diagnostics.
 - Reuse meaningful tests at the level of risk: unit for pure rules, integration for
