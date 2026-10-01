@@ -94,7 +94,8 @@ var _backup_port: RefCounted
 var _busy := false
 var _loading := false
 var _witnessed_load := false
-var _requested_load_caption: Node
+var _requested_caption: Node
+var _history_caption: Node
 var _quick_commands: Node
 
 func _init() -> void:
@@ -127,6 +128,7 @@ func configure(services: Dictionary, router: Object) -> Dictionary:
 ## Back actions retain priority. The same press cannot both open and close Pause.
 func _unhandled_input(event: InputEvent) -> void:
 	if not _handle.is_empty():
+		if is_instance_valid(_history_caption): return
 		if is_instance_valid(_quick_commands) and _quick_commands.handle_input(event):
 			get_viewport().set_input_as_handled()
 		return
@@ -143,7 +145,7 @@ func _input(event: InputEvent) -> void:
 	if is_instance_valid(_quick_commands): _quick_commands.observe_input(event)
 
 func _quick_input_admitted() -> bool:
-	return not _handle.is_empty() and not _busy and not _loading \
+	return not _handle.is_empty() and not _busy and not _loading and _history_caption == null \
 		and coordinator.get_state().value.state == &"Suspended"
 
 func _quick_source_snapshot() -> Dictionary:
@@ -178,16 +180,69 @@ func can_open_witnessed_backup_load(caption: Node) -> bool:
 func open_witnessed_backup_load(caption: Node) -> Dictionary:
 	if not can_open_witnessed_backup_load(caption): return _failure(&"pause_backup_unavailable")
 	if _find_caption(get_tree().root) != caption: return _failure(&"pause_source_changed")
-	_requested_load_caption = caption
+	_requested_caption = caption
 	var opened: Dictionary = await request_pause()
-	_requested_load_caption = null
+	_requested_caption = null
 	if not opened.get("ok", false): return opened
 	if not is_instance_valid(caption) or _caption != caption or not can_load_backup():
 		return _failure(&"pause_source_changed")
 	if not surface.open_backup_load(): return _failure(&"pause_backup_unavailable")
 	return {"ok": true, "value": {"opened": true}}
 
-func request_pause() -> Dictionary:
+func can_open_witnessed_backup_save(caption: Node) -> bool:
+	return can_open_witnessed_backup_load(caption) \
+		and _router.get_current_route_id() == "dating" \
+		and is_instance_valid(_services.get("dating_presentation")) \
+		and (_services.get("backup_capture", Callable()) as Callable).is_valid() \
+		and _services.bridge.has_method("can_capture_reading_checkpoint") \
+		and _services.bridge.can_capture_reading_checkpoint()
+
+func open_witnessed_backup_save(caption: Node) -> Dictionary:
+	if not can_open_witnessed_backup_save(caption): return _failure(&"pause_save_unavailable")
+	if _find_caption(get_tree().root) != caption: return _failure(&"pause_source_changed")
+	# Reveal belongs to this admitted Save command, before literal Pause custody.
+	# Once suspended, the native source must stay byte-for-byte resumable.
+	var checkpoint: Dictionary = _services.bridge.capture_reading_checkpoint(true)
+	if not checkpoint.get("ok", false): return checkpoint
+	if not can_open_witnessed_backup_save(caption): return _failure(&"pause_source_changed")
+	_requested_caption = caption
+	var opened: Dictionary = await request_pause()
+	_requested_caption = null
+	if not opened.get("ok", false): return opened
+	if not is_instance_valid(caption) or _caption != caption or not can_save_backup():
+		return _failure(&"pause_source_changed")
+	if not surface.open_backup_save(): return _failure(&"pause_backup_unavailable")
+	return {"ok": true, "value": {"opened": true}}
+
+func can_open_witnessed_history(caption: Node) -> bool:
+	return can_open_witnessed_backup_load(caption) \
+		and _services.bridge.has_method("can_capture_reading_checkpoint") \
+		and _services.bridge.can_capture_reading_checkpoint()
+
+func open_witnessed_history(caption: Node) -> Dictionary:
+	if not can_open_witnessed_history(caption): return _failure(&"pause_history_unavailable")
+	if _find_caption(get_tree().root) != caption: return _failure(&"pause_source_changed")
+	_requested_caption = caption
+	_history_caption = caption
+	var opened: Dictionary = await request_pause(false)
+	_requested_caption = null
+	if not opened.get("ok", false):
+		_history_caption = null
+		return opened
+	if not is_instance_valid(caption) or _caption != caption:
+		_history_caption = null
+		surface.open_surface()
+		return _failure(&"pause_source_changed")
+	return {"ok": true, "value": {"opened": true}}
+
+func is_witnessed_history_open(caption: Node) -> bool:
+	return is_instance_valid(caption) and _history_caption == caption and not _handle.is_empty()
+
+func close_witnessed_history(caption: Node) -> Dictionary:
+	if not is_witnessed_history_open(caption): return _failure(&"pause_history_unavailable")
+	return await request_continue()
+
+func request_pause(show_surface: bool = true) -> Dictionary:
 	if _busy or not _handle.is_empty(): return _failure(&"pause_busy")
 	var source := capture_pause_source()
 	if not source.get("ok", false): return source
@@ -214,7 +269,7 @@ func request_pause() -> Dictionary:
 		_handle = last_result.value.duplicate(true)
 	_ensure_hosts()
 	_refresh_presentation()
-	surface.open_surface()
+	if show_surface or not last_result.get("ok", false): surface.open_surface()
 	return last_result
 
 func request_continue() -> Dictionary:
@@ -227,6 +282,7 @@ func request_continue() -> Dictionary:
 		surface.close_surface()
 		_handle.clear()
 		_captured_source.clear()
+		_history_caption = null
 	surface.set_interactive(true)
 	return last_result
 
@@ -341,12 +397,12 @@ func capture_pause_view(source: Dictionary) -> Dictionary:
 		_caption = bridge.get_art_hold_view() if bridge != null and bridge.has_method("get_art_hold_view") else null
 		if _caption == null: _caption = _find_caption(get_tree().root)
 		if _caption == null: return _failure(&"pause_view_unavailable")
-		if _requested_load_caption != null and _caption != _requested_load_caption:
+		if _requested_caption != null and _caption != _requested_caption:
 			return _failure(&"pause_source_changed")
 		var captured: Dictionary = _caption.capture_pause_view(source)
 		if not captured.get("ok", false): return captured
 		_caption_anchor = captured.value.duplicate(true)
-	elif _requested_load_caption != null:
+	elif _requested_caption != null:
 		return _failure(&"pause_source_changed")
 	return {"ok": true, "value": _view_anchor.duplicate(true)}
 
@@ -405,6 +461,7 @@ func _ensure_hosts() -> void:
 		_quick_commands = null
 
 func _backup_admission() -> Dictionary:
+	if _history_caption != null: return _failure(&"pause_backup_unavailable")
 	if _loading:
 		var current := capture_pause_source()
 		return {"ok": true} if current.get("ok", false) and current.value == _captured_source else _failure(&"pause_source_changed")
@@ -414,6 +471,15 @@ func _backup_admission() -> Dictionary:
 func can_save_backup() -> bool:
 	var capture: Callable = _services.get("backup_capture", Callable())
 	var route: String = str(_captured_source.get("route_id", ""))
+	if not _captured_source.get("frontier", {}).is_empty():
+		# Ordinary Pause preserves partial reveal exactly. Its Save stays unavailable
+		# until the reader completes the line or uses the rail Save before suspending.
+		return capture.is_valid() and route == "dating" \
+			and is_instance_valid(_services.get("dating_presentation")) \
+			and is_instance_valid(_caption) and _caption.get_script() == CAPTION \
+			and is_instance_valid(_caption.caption_text) and not _caption.caption_text.revealing \
+			and _services.bridge.has_method("can_capture_reading_checkpoint") \
+			and _services.bridge.can_capture_reading_checkpoint() and _backup_admission().get("ok", false)
 	return capture.is_valid() and route in ["main", "dating"] \
 		and (route == "main" or is_instance_valid(_services.get("dating_presentation"))) \
 		and _captured_source.get("frontier", {}).is_empty() \
@@ -424,6 +490,7 @@ func can_save_backup() -> bool:
 ## owners; the retained Dating port proves that these bytes belong to this scene's command.
 func capture_backup_checkpoint_inputs() -> Dictionary:
 	if not can_save_backup(): return _failure(&"pause_save_unavailable")
+	if not _captured_source.get("frontier", {}).is_empty(): return _capture_reading_backup_inputs()
 	if _captured_source.route_id == "main":
 		var captured: Variant = (_services.backup_capture as Callable).call()
 		if not captured is Dictionary or not captured.get("ok", false):
@@ -456,6 +523,37 @@ func capture_backup_checkpoint_inputs() -> Dictionary:
 	if inputs.get("route_id") != "dating" or inputs.get("dialogic_checkpoint") != {} \
 			or snapshot.get("lifecycle", {}).get("run_id") != _captured_source.session.get("run_id") \
 			or saved_record != record or not current.get("ok", false) or current.value != record \
+			or not _backup_admission().get("ok", false):
+		return _failure(&"pause_source_changed")
+	return {"ok": true, "value": inputs.duplicate(true)}
+
+
+func _capture_reading_backup_inputs() -> Dictionary:
+	var command: Dictionary = _captured_source.command
+	var physical: Dictionary = _services.dating_presentation.pull_physical(command)
+	if not physical.get("ok", false): return physical
+	if physical.value.get("phase") not in ["pre_challenge", "post_challenge"]:
+		return _failure(&"pause_save_unavailable")
+	var prior: Dictionary = _services.game_state.capture_dating_challenge_state()
+	if not prior.get("ok", false): return prior
+	var record: Dictionary = prior.value
+	for key: String in ["physical_token", "command_sha256", "completion_transaction_id", "context"]:
+		if not command.has(key) or record.get(key) != command[key]:
+			return _failure(&"pause_source_changed")
+	var checkpoint: Dictionary = _services.bridge.capture_reading_checkpoint(false)
+	if not checkpoint.get("ok", false): return checkpoint
+	var captured: Variant = (_services.backup_capture as Callable).call()
+	if not captured is Dictionary or not captured.get("ok", false):
+		return captured if captured is Dictionary else _failure(&"invalid_backup_capture")
+	var inputs: Dictionary = captured.get("value", {})
+	var saved_record: Dictionary = inputs.get("snapshot_input", {}).get("gameplay", {}).get("route_context", {}).get("active_dating_challenge", {})
+	var current: Dictionary = _services.game_state.capture_dating_challenge_state()
+	var after: Dictionary = _services.bridge.capture_reading_checkpoint(false)
+	if inputs.get("route_id") != _captured_source.route_id \
+			or inputs.get("snapshot_input", {}).get("lifecycle", {}).get("run_id") != _captured_source.session.get("run_id") \
+			or inputs.get("dialogic_checkpoint") != checkpoint.value \
+			or saved_record != record or not current.get("ok", false) or current.value != record \
+			or not after.get("ok", false) or after.value != checkpoint.value \
 			or not _backup_admission().get("ok", false):
 		return _failure(&"pause_source_changed")
 	return {"ok": true, "value": inputs.duplicate(true)}

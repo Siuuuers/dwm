@@ -41,8 +41,18 @@ class Router extends Node:
 class Bridge extends Node:
 	var active := false
 	var timeline := ""
+	var reading_session := false
+	var reading_available := false
+	var checkpoint := {"entry_id": "fixture", "reading_session": {"frontier": {"line_id": "one"}}}
+	var reveal_requests := 0
 	func has_active_playback() -> bool: return active
 	func get_current_timeline_id() -> String: return timeline
+	func has_reading_session() -> bool: return reading_session
+	func can_capture_reading_checkpoint() -> bool: return reading_session and reading_available
+	func capture_reading_checkpoint(complete_reveal: bool = false) -> Dictionary:
+		if complete_reveal: reveal_requests += 1
+		return {"ok": true, "value": checkpoint.duplicate(true)} if can_capture_reading_checkpoint() \
+			else {"ok": false, "code": &"fixture_reading_unavailable"}
 
 class Physical extends RefCounted:
 	var phase := "challenge"
@@ -201,6 +211,33 @@ func test_live_narrative_or_retained_timeline_refuses_before_session_capture() -
 	_assert_unavailable()
 	assert_eq(game.session_captures, 0)
 	assert_eq(physical.pulls, 0)
+
+func test_qualified_reading_capture_keeps_the_same_semantic_checkpoint_without_reveal() -> void:
+	bridge.active = true
+	bridge.reading_session = true
+	bridge.reading_available = true
+	var expected := bridge.checkpoint.duplicate(true)
+	var captured := _capture()
+	assert_true(captured.get("ok", false), str(captured))
+	if not captured.get("ok", false): return
+	assert_eq(captured.value.dialogic_checkpoint, expected)
+	assert_eq(bridge.reveal_requests, 0, "capability/source inspection may not finish reveal")
+	captured.value.dialogic_checkpoint.reading_session.frontier.line_id = "caller mutation"
+	assert_eq(bridge.checkpoint, expected)
+
+func test_unavailable_retained_session_cannot_downgrade_to_empty_board_checkpoint() -> void:
+	bridge.reading_session = true
+	bridge.reading_available = false
+	assert_eq(_capture().get("code"), &"fixture_reading_unavailable")
+	assert_eq(day_capture.calls, 0)
+
+func test_reading_frontier_change_during_capture_refuses_the_whole_candidate() -> void:
+	bridge.active = true
+	bridge.reading_session = true
+	bridge.reading_available = true
+	day_capture.on_capture = func() -> void: bridge.checkpoint.reading_session.frontier.line_id = "two"
+	assert_eq(_capture().get("code"), &"backup_source_changed")
+	assert_eq(bridge.reveal_requests, 0)
 
 func test_mutation_gate_refuses_admission_and_capture_before_snapshot_work() -> void:
 	var held: Dictionary = gate.acquire(&"restore")

@@ -1,0 +1,13 @@
+# NON-CANON TEST FIXTURE ONLY. Never registered by production startup.
+# Actual semantic entry IDs are resolved only by the explicitly injected test catalogue.
+return
+
+label dating.solo.priscilla.day1.pre_challenge
+Before the board, a quiet moment. #id:fixture.solo.pre.a
+The challenge is ready. #id:fixture.solo.pre.b
+return
+
+label dating.solo.priscilla.day1.post_challenge
+The board has settled. This deliberately long noncanonical fixture line keeps a partial reveal available while Save records one stable semantic beat. #id:fixture.solo.post.a
+We can remember this moment. #id:fixture.solo.post.b
+return

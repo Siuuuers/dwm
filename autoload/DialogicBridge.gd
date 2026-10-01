@@ -21,6 +21,7 @@ signal ending_playback_finished(playback_token: String, ending_id: String, recei
 signal ending_playback_failed(playback_token: String, ending_id: String, result: Dictionary)
 signal ending_playback_retired(playback_token: String, ending_id: String)
 signal scene_art_changed
+signal reading_session_changed
 
 const MISSING_DIALOGIC_MESSAGE := "Dialogic 2 addon file does not exist."
 const DIALOGIC_CLEAR_KEEP_VARIABLES := 1
@@ -94,6 +95,14 @@ var _signal_command_port: Object = null
 var _playback_completion_port: Object = null
 ## The ONE active semantic-entry playback; one process-local token, staleness by exact equality.
 var _active_entry: Dictionary = {}
+const _READING_SESSION := preload("res://scripts/narrative/SoloReadingSession.gd")
+var _reading_catalogue_document: Dictionary = {}
+var _reading_session: RefCounted
+var _reading_restore_pending: Dictionary = {}
+var _reading_restore_adoption := false
+var _reading_adoption_checkpoint: Dictionary = {}
+var _reading_restore_token := ""
+var _reading_resume_frontier: Dictionary = {}
 ## Acknowledge ledger keyed by receipt_id, with the SaveManagerNarrativeCheckpointPort
 ## duplicate/conflict semantics verbatim (R-JJ): an identical replay returns the STORED receipt,
 ## a conflicting reuse refuses and mutates nothing.
@@ -475,6 +484,8 @@ func _ensure_runtime_adapter(dialogic: Node) -> Dictionary:
 func _connect_runtime_adapter(adapter: RefCounted) -> void:
 	_runtime_adapter = adapter
 	_connect_speech_runtime()
+	if adapter.has_signal("reading_frontier_restored") and not adapter.is_connected("reading_frontier_restored", _on_reading_frontier_restored):
+		adapter.connect("reading_frontier_restored", _on_reading_frontier_restored)
 	if adapter.has_signal("timeline_ended_signal") and not adapter.timeline_ended_signal.is_connected(_on_runtime_timeline_ended):
 		adapter.timeline_ended_signal.connect(_on_runtime_timeline_ended)
 	if adapter.has_signal("runtime_signal_event") and not adapter.runtime_signal_event.is_connected(_on_runtime_signal_event):
@@ -703,6 +714,10 @@ func get_current_timeline_context() -> Dictionary:
 ## Returns the cached semantic checkpoint, or {} when no timeline is active -- which
 ## RunSnapshotSchema accepts as an empty narrative_checkpoint.
 func get_current_narrative_checkpoint() -> Dictionary:
+	if has_reading_session():
+		var captured := capture_reading_checkpoint()
+		# A live unsupported frontier must not masquerade as an empty checkpoint.
+		return captured.value if captured.ok else {"entry_id": "", "reading_capture_failure": str(captured.get("code", "unavailable"))}
 	if _current_timeline_id.is_empty():
 		return {}
 	return _current_timeline_context.duplicate(true)
@@ -754,6 +769,10 @@ func capture_restore_state() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"backup": {
 		"timeline_id": _current_timeline_id,
 		"timeline_context": _current_timeline_context.duplicate(true),
+		"reading_owner": _reading_session, "reading_pending": _reading_restore_pending.duplicate(),
+		"reading_adoption": _reading_restore_adoption,
+		"reading_adoption_checkpoint": _reading_adoption_checkpoint.duplicate(true),
+		"reading_restore_token": _reading_restore_token,
 	}}}
 
 
@@ -812,6 +831,15 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 
 
 func rollback_restore_silent(backup: Dictionary) -> Dictionary:
+	var reading_backup: Variant = backup.get("backup", backup)
+	if reading_backup is Dictionary:
+		if not _reading_restore_token.is_empty() and _active_entry.get("token") == _reading_restore_token:
+			abort_current_entry(&"reading_restore_rolled_back")
+		_reading_session = reading_backup.get("reading_owner")
+		_reading_restore_pending = reading_backup.get("reading_pending", {}).duplicate()
+		_reading_restore_adoption = bool(reading_backup.get("reading_adoption", false))
+		_reading_adoption_checkpoint = reading_backup.get("reading_adoption_checkpoint", {}).duplicate(true)
+		_reading_restore_token = str(reading_backup.get("reading_restore_token", ""))
 	if is_pause_restore_pending():
 		if _pause_restore.get("cancelled", false): return _pause_failure(&"pause_restore_committed")
 		# This restore only staged target bytes. The source runtime and its coroutine
@@ -1509,6 +1537,195 @@ func configure_playback_completion_port(port: Object) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"port_instance_id": port.get_instance_id(), "already_configured": already}, "receipt": {}}
 
 
+## Explicit catalogue injection only. The shipped application leaves this absent
+## until authored identities and projection copy have been accepted.
+func configure_reading_catalogue(document: Dictionary) -> Dictionary:
+	if not _reading_catalogue_document.is_empty():
+		return {"ok": true} if _reading_catalogue_document == document else _command_failure(&"reading_catalogue_already_configured")
+	var checked := _READING_SESSION.new()
+	var admitted: Dictionary = checked.configure(document)
+	if not admitted.ok: return admitted
+	_reading_catalogue_document = document.duplicate(true)
+	return {"ok": true}
+
+
+func begin_reading_session(command: Dictionary) -> Dictionary:
+	var entry_id := str(command.get("timeline_id", ""))
+	if _reading_catalogue_document.is_empty(): return {"ok": true, "value": {"enabled": false}}
+	var candidate := _READING_SESSION.new()
+	var configured: Dictionary = candidate.configure(_reading_catalogue_document)
+	if not configured.ok: return configured
+	if not candidate.catalogue.has(entry_id) or command.get("context", {}).get("kind") != "solo":
+		retire_reading_session()
+		return {"ok": true, "value": {"enabled": false}}
+	if _reading_restore_adoption:
+		if _reading_session == null or _reading_session.pre_entry_id != entry_id:
+			return _command_failure(&"reading_restore_command_mismatch")
+		_reading_restore_adoption = false
+		var receipt := {}
+		if not _active_entry.is_empty():
+			receipt = {"entry_id": _active_entry.entry_id, "playback_token": _active_entry.token,
+				"context_fingerprint": _active_entry.context_fingerprint}
+		return {"ok": true, "value": {"enabled": true, "restored": true,
+			"checkpoint": _reading_adoption_checkpoint.duplicate(true), "receipt": receipt}}
+	if not _reading_restore_pending.is_empty():
+		return {"ok": true, "value": {"enabled": true, "restoring": true}}
+	if _reading_session != null and _reading_session.command_id == command.get("completion_transaction_id"):
+		return {"ok": true, "value": {"enabled": true}}
+	var begun: Dictionary = candidate.begin(str(command.get("completion_transaction_id", "")), entry_id)
+	if not begun.ok: return begun
+	_reading_session = candidate
+	reading_session_changed.emit()
+	return {"ok": true, "value": {"enabled": true}}
+
+
+func retire_reading_session() -> void:
+	_reading_session = null
+	_reading_restore_adoption = false
+	_reading_adoption_checkpoint = {}
+	reading_session_changed.emit()
+
+
+func has_reading_session() -> bool:
+	return _reading_session != null and _reading_session.ledger != null
+
+
+## Cheap UI projection; full catalogue/sequence capture belongs to activation.
+func can_capture_reading_checkpoint() -> bool:
+	if not has_reading_session() or _reading_session.latest_entry.is_empty() \
+			or not _reading_restore_pending.is_empty(): return false
+	if _reading_session.boundary == "between_entries": return not has_active_playback()
+	return not _active_entry.is_empty() and _active_entry.get("entry_id") == _reading_session.latest_entry \
+		and _runtime_adapter != null and _runtime_adapter.has_method("can_capture_reading_frontier") \
+		and _runtime_adapter.can_capture_reading_frontier()
+
+
+func capture_reading_checkpoint(complete_reveal: bool = false) -> Dictionary:
+	if not can_capture_reading_checkpoint(): return _command_failure(&"reading_frontier_unavailable")
+	var frontier := {}
+	if _reading_session.boundary == "line":
+		var captured: Dictionary = _runtime_adapter.complete_reading_frontier() if complete_reveal \
+			else _runtime_adapter.capture_reading_frontier()
+		if not captured.ok: return captured
+		frontier = captured.value
+	var captured: Dictionary = _reading_session.capture(frontier)
+	if not captured.ok: return captured
+	var entry_id: String = _reading_session.latest_entry
+	var context: Dictionary = captured.value.ledger.entry_contexts[entry_id]
+	var document := _ensure_entry_document()
+	if not document.ok: return document
+	return {"ok": true, "value": {"content_version": int(_reading_session.catalogue[entry_id].content_version),
+		"entry_id": entry_id, "frozen_context": context.duplicate(true),
+		"manifest_fingerprint": _ENTRY_MANIFEST.fingerprint(document.value),
+		"stage": str(context.expected_stage), "transaction_id": str(context.transaction_id),
+		"reading_session": captured.value}}
+
+
+func get_reading_history() -> Dictionary:
+	if not can_capture_reading_checkpoint(): return _command_failure(&"reading_frontier_unavailable")
+	var frontier := {}
+	if _reading_session.boundary == "line":
+		var captured: Dictionary = _runtime_adapter.capture_reading_frontier()
+		if not captured.ok: return captured
+		frontier = captured.value
+	return _reading_session.project(frontier)
+
+
+## Prepare is pure and validates every frame and occurrence, never a prefix.
+## The restore participant supplies independently admitted saved Run contexts.
+func validate_reading_checkpoint(checkpoint: Dictionary, entry_contexts: Dictionary = {}) -> Dictionary:
+	if _reading_catalogue_document.is_empty(): return _command_failure(&"reading_catalogue_unavailable")
+	var keys := _RESUME_CHECKPOINT_KEYS.duplicate()
+	keys.append("manifest_fingerprint")
+	keys.append("reading_session")
+	if not _exact_keys(checkpoint, keys) or not checkpoint.get("reading_session") is Dictionary \
+			or not checkpoint.get("entry_id") is String or not checkpoint.get("frozen_context") is Dictionary \
+			or typeof(checkpoint.get("content_version")) != TYPE_INT or checkpoint.content_version <= 0:
+		return _command_failure(&"reading_checkpoint_invalid")
+	var base := checkpoint.duplicate(true)
+	base.erase("manifest_fingerprint")
+	base.erase("reading_session")
+	var semantic := validate_resume_checkpoint(base)
+	if not semantic.ok: return semantic
+	var document := _ensure_entry_document()
+	if not document.ok: return document
+	if checkpoint.manifest_fingerprint != _ENTRY_MANIFEST.fingerprint(document.value):
+		return _command_failure(&"reading_catalogue_mismatch")
+	var candidate := _READING_SESSION.new()
+	var configured: Dictionary = candidate.configure(_reading_catalogue_document)
+	if not configured.ok: return configured
+	var reconstructed: Dictionary = candidate.restore(checkpoint.reading_session, checkpoint.entry_id)
+	if not reconstructed.ok: return reconstructed
+	var frames: Dictionary = checkpoint.reading_session.ledger.entry_contexts
+	if frames.get(checkpoint.entry_id) != checkpoint.frozen_context \
+			or (not entry_contexts.is_empty() and frames != entry_contexts):
+		return _command_failure(&"reading_context_invalid")
+	if candidate.catalogue[checkpoint.entry_id].content_version != checkpoint.content_version:
+		return _command_failure(&"reading_catalogue_mismatch")
+	for entry_id: String in frames:
+		var context: Dictionary = frames[entry_id]
+		if not _exact_context_keys(context): return _command_failure(&"reading_context_invalid")
+		var validated := _validate_reading_entry(candidate, entry_id)
+		if not validated.ok: return validated
+	return {"ok": true, "value": {"entry_contexts": frames.duplicate(true)}}
+
+
+func _validate_reading_entry(session: RefCounted, entry_id: String) -> Dictionary:
+	if _runtime_adapter == null or not _runtime_adapter.has_method("validate_reading_line"):
+		return _command_failure(&"reading_catalogue_unavailable")
+	var row: Dictionary = session.catalogue[entry_id]
+	var resolved := _resolve_entry_for_playback(entry_id, row.content_version)
+	if not resolved.ok: return resolved
+	for line: Dictionary in row.lines:
+		var checked: Dictionary = _runtime_adapter.validate_reading_line(resolved.value.path,
+			resolved.value.label, line.line_id, line.text)
+		if not checked.ok: return checked
+	return {"ok": true}
+
+
+func stage_reading_restore(checkpoint: Dictionary) -> Dictionary:
+	var checked := validate_reading_checkpoint(checkpoint)
+	if not checked.ok: return checked
+	_reading_restore_pending = checkpoint.duplicate(true)
+	_reading_restore_token = ""
+	return {"ok": true}
+
+
+func is_reading_restore_staged() -> bool:
+	return not _reading_restore_pending.is_empty()
+
+
+func _resume_reading_checkpoint(checkpoint: Dictionary, execution_mode: StringName) -> Dictionary:
+	if execution_mode != &"canonical": return _command_failure(&"rehearsal_commit_denied")
+	var checked := validate_reading_checkpoint(checkpoint)
+	if not checked.ok: return checked
+	if has_active_playback(): return _command_failure(&"narrative_playback_active")
+	var candidate := _READING_SESSION.new()
+	var configured: Dictionary = candidate.configure(_reading_catalogue_document)
+	if not configured.ok: return configured
+	var restored: Dictionary = candidate.restore(checkpoint.reading_session, checkpoint.entry_id)
+	if not restored.ok: return restored
+	_reading_session = candidate
+	_reading_restore_pending = {}
+	_reading_restore_adoption = true
+	_reading_adoption_checkpoint = checkpoint.duplicate(true)
+	if checkpoint.reading_session.boundary == "between_entries":
+		reading_session_changed.emit()
+		return {"ok": true, "value": {}, "receipt": {}}
+	_reading_resume_frontier = checkpoint.reading_session.frontier.duplicate(true)
+	var started := _begin_entry_playback(checkpoint.entry_id, checkpoint.frozen_context,
+		execution_mode, "resume", checkpoint.content_version)
+	if started.get("ok", false): _reading_restore_token = str(started.get("receipt", {}).get("playback_token", ""))
+	_reading_resume_frontier = {}
+	return started
+
+
+func _on_reading_frontier_restored(result: Dictionary) -> void:
+	if not result.get("ok", false):
+		_on_playback_start_failed(result, true)
+	reading_session_changed.emit()
+
+
 func start_entry(entry_id: String, context: Dictionary, execution_mode: StringName = &"canonical") -> Dictionary:
 	if not _initialized:
 		return _playback_failure(&"not_initialized", "initialize the bridge first")
@@ -1524,6 +1741,8 @@ func start_entry(entry_id: String, context: Dictionary, execution_mode: StringNa
 
 
 func resume_entry(checkpoint: Dictionary, execution_mode: StringName = &"canonical") -> Dictionary:
+	if checkpoint.has("reading_session"):
+		return _resume_reading_checkpoint(checkpoint, execution_mode)
 	var checked := _check_resume_checkpoint(checkpoint, execution_mode)
 	if not checked.get("ok", false):
 		return checked
@@ -1914,6 +2133,18 @@ func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode
 		return fingerprinted
 	var frozen: Dictionary = (fingerprinted["value"] as Dictionary)["frozen"]
 	var fingerprint := str((fingerprinted["value"] as Dictionary)["fingerprint"])
+	var reading := execution_mode == &"canonical" and has_reading_session() \
+		and _reading_session.catalogue.has(entry_id)
+	if reading:
+		var compatible := _validate_reading_entry(_reading_session, entry_id)
+		if not compatible.ok: return compatible
+		var frame: Dictionary = _reading_session.admit(entry_id, frozen)
+		if not frame.ok: return frame
+		var bound: Dictionary = _runtime_adapter.bind_caption_ledger(_reading_session.ledger,
+			_reading_session.command_id, entry_id)
+		if not bound.ok: return bound
+	elif has_reading_session():
+		retire_reading_session()
 	var has_frozen_variables := false
 	if frozen.has("presentation"):
 		if _runtime_adapter == null or not _runtime_adapter.has_method("install_frozen_presentation"):
@@ -1978,6 +2209,9 @@ func _start_semantic_playback(path: String, label: String) -> Dictionary:
 		# The adapter performs the physical clear inside start_timeline, so the boundary step is
 		# announced first; the reapply itself arrives via the runtime's own timeline_started.
 		preference_boundary_step.emit(&"clear")
+		if not _reading_resume_frontier.is_empty():
+			_prepare_scene_art()
+			return _runtime_adapter.start_reading_frontier(path, _reading_resume_frontier, label)
 		# Empty dating DTL returns naturally. It must never introduce an art-hold Continue.
 		var allow_art_hold := not str(_active_entry.get("entry_id", "")).begins_with("dating.")
 		var result: Variant = _start_with_scene_art(path, label, allow_art_hold)
@@ -2168,6 +2402,9 @@ func _on_runtime_timeline_ended() -> void:
 	if not _active_entry.is_empty():
 		var entry := _active_entry.duplicate(true)
 		_active_entry = {}
+		if has_reading_session() and _reading_session.latest_entry == entry.entry_id:
+			_reading_session.completed(entry.entry_id)
+			reading_session_changed.emit()
 		scene_art_changed.emit()
 		if not _reached_replay.is_empty() and entry.token == _reached_replay.token:
 			_finish_reached_replay("completed")

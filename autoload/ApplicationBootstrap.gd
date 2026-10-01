@@ -883,17 +883,32 @@ func _capture_paused_checkpoint_inputs() -> Dictionary:
 			or game == null or bridge == null or router == null:
 		return _failure(&"backup_capture_unavailable", "Paused gameplay owners are unavailable")
 	var route: String = router.get_current_route_id()
-	if route not in ["main", "dating"] or bridge.has_active_playback() \
-			or not bridge.get_current_timeline_id().is_empty():
+	if route not in ["main", "dating"]:
 		return _failure(&"backup_capture_unavailable", "The paused source is not at an idle gameplay boundary")
+	var narrative := _capture_dating_reading_checkpoint(bridge, route)
+	if not narrative.get("ok", false): return narrative
 	var inputs: Dictionary = _retained_day_resolution_state_port._checkpoint_inputs(game._run_lifecycle.to_dict())
 	var view: Dictionary = _retained_schedule_view_controller.snapshot()
 	if not view.get("ok", false): return view
 	if inputs.get("route_id") != route:
 		return _failure(&"backup_capture_unavailable", "Paused route changed during capture")
 	inputs.snapshot_input["schedule_view"] = view.value.view
-	inputs["dialogic_checkpoint"] = {}
+	inputs["dialogic_checkpoint"] = narrative.value
 	return {"ok": true, "value": inputs}
+
+
+## One qualified semantic capture for active Quick and suspended Backup. A
+## retained reading session can never silently fall back to an empty checkpoint.
+func _capture_dating_reading_checkpoint(bridge: Object, route: String) -> Dictionary:
+	if bridge == null:
+		return _failure(&"backup_capture_unavailable", "Narrative owner is unavailable")
+	if route == "dating" and bridge.has_method("has_reading_session") and bridge.has_reading_session():
+		# Capture is also used by capability/token checks and must stay pure.
+		# The activated rail/Quick Save command completes reveal beforehand.
+		return bridge.capture_reading_checkpoint(false)
+	if bridge.has_active_playback() or not bridge.get_current_timeline_id().is_empty():
+		return _failure(&"backup_capture_unavailable", "Narrative has no admitted reading checkpoint")
+	return {"ok": true, "value": {}}
 
 
 ## Active Quick uses the same canonical producers as Pause, with its own exact live
@@ -911,8 +926,10 @@ func _capture_active_dating_checkpoint_inputs() -> Dictionary:
 	var inputs: Dictionary = captured.value
 	var snapshot: Dictionary = inputs.get("snapshot_input", {})
 	var current := _admit_active_dating_quick(scene)
+	var narrative := _capture_dating_reading_checkpoint(_target(&"DialogicBridge"), "dating")
 	if not current.get("ok", false) or current.value != source \
-			or inputs.get("route_id") != "dating" or inputs.get("dialogic_checkpoint") != {} \
+			or not narrative.get("ok", false) or inputs.get("dialogic_checkpoint") != narrative.get("value") \
+			or inputs.get("route_id") != "dating" \
 			or snapshot.get("lifecycle", {}).get("run_id") != source.session.get("run_id") \
 			or snapshot.get("gameplay", {}).get("route_context", {}).get("active_dating_challenge") != source.record:
 		return _failure(&"backup_source_changed", "Dating source changed during capture")
@@ -928,9 +945,12 @@ func _admit_active_dating_quick(scene: Node) -> Dictionary:
 			or not scene.is_visible_in_tree() or not scene.can_process() \
 			or not scene.has_method("get_presentation_projection") \
 			or router == null or router.get_current_route_id() != "dating" \
-			or bridge == null or bridge.has_active_playback() or not bridge.get_current_timeline_id().is_empty() \
+			or bridge == null \
 			or game == null or _retained_dating_presentation_port == null:
 		return _failure(&"backup_capture_unavailable", "Active Dating source is unavailable")
+	if (bridge.has_active_playback() or not bridge.get_current_timeline_id().is_empty()) \
+			and (not bridge.has_method("can_capture_reading_checkpoint") or not bridge.can_capture_reading_checkpoint()):
+		return _failure(&"backup_capture_unavailable", "Active narrative has no admitted reading frontier")
 	var guarded: Dictionary = _application_gate.guard_external(&"backup_capture")
 	if not guarded.get("ok", false): return guarded
 	var session: Dictionary = game.capture_live_session()

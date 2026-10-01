@@ -272,6 +272,21 @@ func _paused_desktop_capture() -> Capture:
 		"audio_context": {}, "content_version": 1}}
 	return capture
 
+func test_reading_marker_alone_cannot_admit_an_unsupported_narrative_save() -> void:
+	var capture := _paused_desktop_capture()
+	capture.result.value.route_id = "dating"
+	capture.result.value.snapshot_input.gameplay.route_context["active_dating_challenge"] = {
+		"phase": "pre_challenge", "host": "canonical_solo"}
+	capture.result.value.dialogic_checkpoint = {"entry_id": "dating.solo.priscilla.day1.pre_challenge",
+		"reading_session": {}}
+	assert_true(_manager.configure_backup_capture_provider(capture.capture).ok)
+	var journal: Dictionary = _manager._journal.capture_state()
+	var persisted: Dictionary = files.snapshot_persisted()
+	assert_false(_manager.get_backup_save_capability().enabled)
+	assert_eq(_manager.prepare_backup_action("save", "quick").code, &"reading_session_invalid")
+	assert_eq(_manager._journal.capture_state(), journal)
+	assert_eq(files.snapshot_persisted(), persisted, "malformed semantic capture writes nothing")
+
 func test_main_minesweeper_without_paused_admission_refuses_before_save_candidate_or_write() -> void:
 	var capture := _paused_desktop_capture()
 	assert_true(_manager.configure_backup_capture_provider(capture.capture).ok)

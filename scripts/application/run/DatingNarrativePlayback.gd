@@ -30,8 +30,22 @@ func configure(bridge: Object) -> Dictionary:
 ## SceneRouter mounts a fresh scene only when its route publication succeeds. This
 ## invalidates completed transient prose even if Load reuses the same command/phase;
 ## an ordinary checkpoint Retry on the mounted scene keeps its completed playback.
-func begin_presentation(_command_to_present: Dictionary) -> Dictionary:
+func begin_presentation(command_to_present: Dictionary) -> Dictionary:
 	if _bridge == null: return _fail(&"dating_narrative_unavailable")
+	if _bridge.has_method("begin_reading_session"):
+		var reading: Dictionary = _bridge.begin_reading_session(command_to_present)
+		if not reading.get("ok", false): return reading
+		if reading.get("value", {}).get("restored", false):
+			_clear()
+			var checkpoint: Dictionary = reading.value.checkpoint
+			if checkpoint.reading_session.boundary == "line":
+				_command = command_to_present.duplicate(true)
+				_phase = checkpoint.stage
+				_entry_id = checkpoint.entry_id
+				_context = checkpoint.frozen_context.duplicate(true)
+				_receipt = reading.value.receipt.duplicate(true)
+				_status = "playing"
+			return _ok()
 	if not _command.is_empty() and _bridge.is_entry_playback_active(
 			str(_receipt.get("playback_token", "")), _entry_id):
 		if not _bridge.has_method("abort_current_entry"): return _fail(&"dating_narrative_command_conflict")
@@ -78,6 +92,9 @@ func begin_phase(command: Dictionary, phase: String, retry: bool = false, presen
 	_context = {"expected_stage": phase, "playback_id": str(command.physical_token) + ":" + phase,
 		"role": "dating_phase", "transaction_id": str(command.completion_transaction_id) + ":" + phase}
 	if not frozen.is_empty(): _context["presentation"] = frozen
+	if _bridge.has_method("is_reading_restore_staged") and _bridge.is_reading_restore_staged():
+		_status = "restoring"
+		return _ok()
 	_status = "playing"
 	_starting = true
 	var started: Dictionary = _bridge.start_entry(_entry_id, _context.duplicate(true), &"canonical")
@@ -121,6 +138,8 @@ func complete_entry(intent: Dictionary) -> Dictionary:
 func finish_phase(command: Dictionary, phase: String) -> Dictionary:
 	if _command != command or _phase != phase or _status != "completed":
 		return _fail(&"dating_narrative_completion_untrusted")
+	if phase == "post_challenge" and _bridge.has_method("retire_reading_session"):
+		_bridge.retire_reading_session()
 	_clear()
 	return _ok()
 
@@ -151,7 +170,7 @@ func _latch(failure: Dictionary) -> Dictionary:
 	return _failure.duplicate(true)
 
 func _ok() -> Dictionary:
-	return {"ok": true, "value": {"status": _status, "entry_id": _entry_id}}
+	return {"ok": true, "value": {"status": "playing" if _status == "restoring" else _status, "entry_id": _entry_id}}
 
 func _fail(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code, "message": "", "details": {}}

@@ -169,6 +169,19 @@ func publish_caption(session_token: String, publication_id: String, beat: Dictio
 	_published[publication_id] = {"beat": admitted, "ordinal": _sequence.size() - 1}
 	return {"ok": true, "value": {"duplicate": false, "ordinal": _sequence.size() - 1}}
 
+## A hot presentation admission check must not copy the retained History or
+## scan the catalogue. The published tail already proves registration ownership.
+func is_current_occurrence(session_token: String, entry_id: String, frontier: Dictionary) -> bool:
+	if _session_token.is_empty() or session_token != _session_token or _sequence.is_empty() \
+			or not _has_exact_fields(frontier, ["line_id", "publication_id"]) \
+			or not frontier.line_id is String or frontier.line_id.is_empty() \
+			or not frontier.publication_id is String or frontier.publication_id.is_empty() \
+			or (_entry_contexts_required and not _entry_contexts.has(entry_id)):
+		return false
+	var last: Dictionary = _sequence.back()
+	return last.publication_id == frontier.publication_id and last.beat.line_id == frontier.line_id \
+		and last.beat.owning_entry_id == entry_id
+
 func snapshot() -> Dictionary:
 	var result := {"session_token": _session_token, "frozen_context": _frozen_context.duplicate(true),
 		"captions": _sequence.duplicate(true)}

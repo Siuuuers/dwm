@@ -1,6 +1,7 @@
 extends "res://scripts/ui/desktop/DesktopQuickCommands.gd"
 ## Active Dating host for the existing Quick input/token protocol. Physical saves
-## and restores remain Backup-owned; live narrative capture is explicitly refused.
+## and restores remain Backup-owned; admitted reading uses the same semantic
+## checkpoint as Witnessed Save instead of a second Quick playhead.
 const CAPTION := preload("res://scripts/ui/witnessed/WitnessedCaptionLayer.gd")
 
 var _bridge: Object
@@ -84,6 +85,14 @@ func _find_caption(node: Node) -> Node:
 	return null
 
 func _request(action: String) -> void:
+	if action == "save" and _bridge.has_method("has_reading_session") and _bridge.has_reading_session():
+		# Only an activated Save may complete reveal. Background capability and
+		# token/source checks retain the literal live frontier without mutation.
+		var reading: Dictionary = _bridge.capture_reading_checkpoint(true)
+		if not reading.get("ok", false):
+			last_result = reading.duplicate(true)
+			_publish("unavailable", {}, _source_snapshot())
+			return
 	_source = _source_snapshot()
 	var focus := _desktop.get_viewport().gui_get_focus_owner()
 	_return_focus = weakref(focus) if focus != null else null
