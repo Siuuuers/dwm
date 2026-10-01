@@ -78,7 +78,7 @@ function Invoke-ActiveCodeGraphInstructionAudit {
         'evidence/phase_2r/tooling/codegraph_removal.json'
     )
     $authorityInputs = @()
-    foreach ($relativePath in @('Prompt.md','prompt_docs','autoload','scripts','scenes','tests','tools','project.godot','evidence/phase_2r/tooling/codegraph_prerequisites.json','evidence/phase_2r/tooling/codegraph_removal.json')) {
+    foreach ($relativePath in @('README.md','docs/agent/2026-09-23-next-session-handoff.md','docs/agent/execution-map.md','prompt_docs','autoload','scripts','scenes','tests','tools','project.godot','evidence/phase_2r/tooling/codegraph_prerequisites.json','evidence/phase_2r/tooling/codegraph_removal.json')) {
         $candidate = Join-Path $root $relativePath
         if (-not (Test-Path -LiteralPath $candidate)) { continue }
         $candidate = Assert-NonReparseChain $root $candidate -Strict

@@ -1,3 +1,15 @@
+---
+schema_version: 1
+document_id: dwm_current_handoff
+document_role: navigation_only
+execution_authority: false
+status_authority: false
+behavior_authority: false
+verification_authority: false
+execution_map: "docs/agent/execution-map.md"
+issue_authority: beads
+---
+
 # Next-session handoff — 2 October 2026 (Hong Kong)
 
 Continue `Siuuuers/dwm` draft PR #1 on `codex/windows-cloud-ux`.
@@ -39,9 +51,11 @@ render assertion. Do not describe this as expected focus behavior or accepted po
 
 ## Resume order and authority
 
-1. Read `Prompt.md`, `CLAUDE.md`, `docs/agent/AGENT_WORKFLOW.md`, then the
-   [execution map](execution-map.md) and the selected task's approved design.
-   Beads owns status/dependencies; the map is navigation. Do not treat historical
+1. Start here, then read the [execution map](execution-map.md), the selected Bead
+   and its current approved behavior/plan. Beads owns status/dependencies; these
+   documents are navigation. Use live `bd` when available; otherwise inspect the
+   retained `.beads/issues.jsonl` export and explicitly state that live Dolt status
+   was not queried or synchronized. Do not redo completed work or use historical
    source-era notes as current format declarations or a second queue.
 2. Continue the reading remainder under `dwm-vky.14` with authored selector work
    in `dwm-n3h.2`. Read the [reading record](2026-09-29-reading-rail-next-slice.md)
@@ -95,6 +109,30 @@ is `open`. A bounded proof does not close either parent or imply Dolt sync.
   complete-action recovery and unrelated slots/Profile history.
 
 ## Working method
+
+The owner retired `Prompt.md`, `CLAUDE.md` and `docs/agent/AGENT_WORKFLOW.md` on
+2 October 2026. Their obsolete startup/selection instructions are not current
+workflow authority. Exact originals remain retrievable at Git commit
+`96f95c67db6c7358b5f846651fef5c88babfbf92`; historical plans/evidence are retained
+as historical records. Their useful working principles continue here.
+
+- Define one observable outcome and its acceptance before polishing. Inspect real
+  source/callers and concrete failure modes first; state assumptions and limitations.
+- Continue routine implementation and reversible simplification autonomously within
+  the user's delegated scope. Ask only about a genuinely unresolved choice that
+  changes architecture or authored meaning; do not repeat settled interviews.
+- Prefer the smallest change with one canonical owner. Use Occam's Razor and
+  Karpathy-style clarity: think first, keep changes explainable, avoid speculative
+  abstractions, and remove superseded code only after checking real dependencies.
+- Measure before optimizing. Use an ablation or frozen control when it answers a
+  concrete causal question; retain exact source, bytes and failure diagnostics.
+- Reuse meaningful tests at the level of risk: unit for pure rules, integration for
+  ownership/transactions, rendered journeys for connected presentation. A passing
+  command is insufficient if the intended script never ran. Stop optional testing
+  after the selected acceptance and required gates pass.
+- Parallelize disjoint investigations, edits and independent reviews. One integrator
+  owns shared files, publication and Beads changes. Finish independent audits before
+  overlapping acceptance runs. Preserve broader unfinished clauses explicitly.
 
 Use one observable outcome, one lead Bead, one integrator for shared owners and one
 source-bound receipt. Delegate disjoint edits and independent audits. Prefer existing
