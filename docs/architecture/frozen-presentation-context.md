@@ -64,15 +64,22 @@ facts cannot be inferred from a later group state. A saved empty list remains an
 actual saved value; an absent selector remains absent. Old special-mine signature
 fields are retained as historical data and grant no gameplay capability.
 
-Current replay behavior is preserved. Future authored prose that needs a missing
-selector requires an explicit reached-signature successor and a compatibility
-policy consistent with the accepted owner decision below. Relabeling old records
-cannot recover those facts. A successor must record
-all prose-selecting fields when reached, preserve existing Profile chronology, and
-define the legacy presentation available for old signatures. This work does not
-invent a Profile migration or claim that the broader signature-design gap is closed.
+The current replay implementation described above remains in place. Future authored
+prose that needs a missing selector requires an explicit reached-signature
+successor recording every prose-selecting field when reached. Under the
+[29 September unshipped-save policy](../design/2026-09-29-unshipped-development-save-policy.md),
+obsolete development Profile/signature support and migration are optional. A clean
+successor can refuse those formats instead of supplying missing historical facts.
+Within supported formats, Profile chronology, exact replay identity and save/recovery
+guarantees remain required. This planning reconciliation does not implement a
+successor or claim that the authored-selector gap is closed.
 
-### Accepted legacy Gallery policy — 2026-09-23
+### Historical legacy Gallery decision — 2026-09-23
+
+The following records the decision at that date. The later unshipped-save policy
+supersedes its mandatory preservation of obsolete development formats. If a legacy
+reader is deliberately retained, its presentation must still be honest about the
+facts it actually has. The historical text is not a new migration prerequisite.
 
 The owner accepted a clearly identified limited replay for an old Gallery record
 when its saved facts support an honest limited presentation. That replay must use

@@ -1,4 +1,4 @@
-# Next-session handoff — 29 September 2026 (Hong Kong)
+# Next-session handoff — 1 October 2026 (Hong Kong)
 
 Continue public `Siuuuers/dwm` draft PR #1 on `codex/windows-cloud-ux`.
 Verify the live branch, actual master ref and Beads first. Keep the PR draft:
@@ -19,6 +19,31 @@ The legacy-History gap question below is retired. Earlier preservation wording
 in historical notes and proof records describes their prior scope; it is not a
 new compatibility obligation. Only `dwm-vky.14` receives an appended decision
 note; no task status changes or Dolt synchronization are claimed.
+
+## Current execution map — 1 October 2026
+
+Use the [single maintained execution map](execution-map.md) to select work and
+combine overlapping acceptance. Its next runtime batch is witness-specific
+correctness for `dwm-634.3`; the next connected player feature is one durable
+Solo Dating reading session under `dwm-vky.14`, sharing caption/Quick proof.
+Treat public-contract repair as a companion to changed owners. An independent
+CI candidate fans out four comparisons after their verified producer; its
+estimated saving is not yet measured.
+
+The map covers all 23 unfinished records and distinguishes blocking edges from
+parent/derived links. Eight stale Beads descriptions/titles are reconciled;
+statuses and dependency arrays are unchanged. No issue is closed from this audit.
+Historical caption, canonical-context, rebinding, tint and chronology work must
+not be rebuilt from stale task descriptions.
+
+[Run77](https://github.com/Siuuuers/dwm/actions/runs/36525478153) completed
+**18/18 jobs**, with 2,052 GUT executions / 2,048 unique cases, 175 unique scripts
+and zero skips. Actual tested merge `a376dc0090af98ae21d678692080f815c2f3056b`
+contains source `95e50051742fb6cce22d7be7ede44f6e8477be1e` and master
+`2e8602d5f098eebbab18241f370b5f4d14adf99b`; all 18 checkout logs match.
+The later policy and execution-map records change documentation/Beads only.
+Their heads are not separately engine-tested. Detailed source boundaries remain
+in the PR description and prior proof records.
 
 ## Working guidance for the next session
 
@@ -198,8 +223,10 @@ six deferred, one blocked). Root alone updates selected records and preserves
 unrelated JSONL bytes; this does not synchronize an inaccessible Dolt database.
 
 Read `Prompt.md`, `CLAUDE.md`, `docs/agent/AGENT_WORKFLOW.md` and selected issue
-authority before the next implementation. The wider backlog is mapped by the
-[navigation-only continuation audit](2026-09-29-continuation-audit.md).
+authority before the next implementation. The live work order is mapped by the
+[execution map](execution-map.md). The older
+[continuation audit](2026-09-29-continuation-audit.md) remains a source-bound
+historical audit; some of its risks and compatibility questions are now resolved.
 
 A measured workflow opportunity remains: Run70's retained-history lane spent about
 49 minutes serially generating the payload and running independent comparisons.
