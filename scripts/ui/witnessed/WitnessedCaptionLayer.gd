@@ -386,6 +386,7 @@ func _on_next_traversal_changed() -> void:
 	_sync_transport()
 
 func _sync_next_presentation() -> void:
+	if not is_inside_tree(): return
 	var active := is_next_transport_active()
 	if active and _next_canvas_state.is_empty():
 		_next_canvas_state = {"focus": _reading_recovery.get("focus_behavior", canvas.focus_behavior_recursive),
@@ -416,6 +417,7 @@ func _complete_next_presentation() -> void:
 	_sync_next_presentation()
 
 func _settle_next_publication() -> void:
+	if not is_inside_tree(): return
 	if is_next_transport_active() or not _reading_recovery.is_empty(): return
 	_acknowledge_visible_line()
 	_sync_native_processing()
@@ -541,6 +543,7 @@ func _on_reading_session_changed() -> void:
 	_refresh_reading_session.call_deferred()
 
 func _refresh_reading_session() -> void:
+	if not is_inside_tree(): return
 	if not is_instance_valid(_transport_bridge) or not _transport_bridge.has_method("capture_current_line_presentation_frontier"): return
 	if _presented_line == _transport_bridge.call("capture_current_line_presentation_frontier"): return
 	_capture_presented_line()
@@ -612,13 +615,14 @@ func _on_normal_accept_requested() -> void:
 	_try_arm_auto.call_deferred()
 
 func _on_playback_ended() -> void:
+	if not is_inside_tree(): return
 	reset_caption_stack()
 	_dismiss_reading_recovery(false)
 	auto_controller.retire_current()
 	_retire_transport()
 
 func _sync_transport() -> void:
-	if not is_instance_valid(transport_rail): return
+	if not is_inside_tree() or not is_instance_valid(transport_rail): return
 	var rehearsal := is_instance_valid(_transport_bridge) \
 		and _transport_bridge.has_method("is_rehearsal_playback") \
 		and bool(_transport_bridge.call("is_rehearsal_playback"))
@@ -658,6 +662,9 @@ func _request_reading_command(kind: StringName, target: bool) -> void:
 		"runtime": _pause_runtime_identity(), "focus_id": focused.get_instance_id() if focused != null else 0,
 		"focus_behavior": canvas.focus_behavior_recursive, "mouse_behavior": canvas.mouse_behavior_recursive}
 	var result: Dictionary = await _execute_reading_command(request)
+	# Natural Return removes the layout before the Bridge settles its command.
+	# The durable result belongs to the Bridge; departed presenters publish nothing.
+	if not is_inside_tree(): return
 	if not result.get("ok", false) and (_reading_request_matches(request) \
 			or (result.get("fatal", false) and _reading_request_owner_matches(request))):
 		_reading_recovery = request
@@ -690,10 +697,11 @@ func _execute_reading_command(request: Dictionary) -> Dictionary:
 	return result
 
 func _reading_request_owner_matches(request: Dictionary) -> bool:
+	if not is_inside_tree(): return false
 	var current_runtime := _pause_runtime_identity()
 	var source_runtime: Dictionary = request.get("runtime", {})
 	return not request.is_empty() and source_runtime.get("instance_id") == current_runtime.get("instance_id") \
-		and source_runtime.get("generation") == current_runtime.get("generation") and is_inside_tree() and is_instance_valid(_reading_profile) \
+		and source_runtime.get("generation") == current_runtime.get("generation") and is_instance_valid(_reading_profile) \
 		and request.owner_generation == _reading_owner_generation and is_instance_valid(_transport_bridge) \
 		and request.profile_id == _reading_profile.get_instance_id() \
 		and request.bridge_id == _transport_bridge.get_instance_id()
@@ -737,6 +745,9 @@ func _retry_reading_command() -> void:
 	var retained := _reading_recovery.duplicate(true)
 	_reading_retry_in_progress = true
 	var result: Dictionary = await _execute_reading_command(retained)
+	if not is_inside_tree():
+		_reading_retry_in_progress = false
+		return
 	var still_current: bool = _reading_request_matches(retained) \
 		or (result.get("fatal", false) and _reading_request_owner_matches(retained))
 	_reading_retry_in_progress = false
@@ -904,6 +915,7 @@ func _valid_pause_anchor(anchor: Dictionary) -> bool:
 		and _pause_view.runtime == _pause_runtime_identity())
 
 func _pause_runtime_identity() -> Dictionary:
+	if not is_inside_tree(): return {}
 	var runtime := get_node_or_null("/root/Dialogic")
 	if runtime == null: return {}
 	return {"instance_id":runtime.get_instance_id(),

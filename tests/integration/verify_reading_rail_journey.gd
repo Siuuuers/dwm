@@ -884,6 +884,7 @@ func _activate_next(detail: String) -> bool:
 	var bridge: Node = root.get_node("DialogicBridge")
 	var layer: Node = _caption_layer()
 	if not _check(layer != null and bridge.can_next_current_line(), detail + " has a real admitted Next source"): return false
+	var layer_reference: WeakRef = weakref(layer)
 	var button: Button = layer.transport_rail.get_node("Next")
 	current_scene.get_window().grab_focus()
 	button.grab_focus()
@@ -892,24 +893,28 @@ func _activate_next(detail: String) -> bool:
 	await _frames()
 	if not _check(button._admitted(), detail + " has settled fresh physical input admission"): return false
 	if not await _ordinary_accept_focused(button, detail): return false
-	return await _wait_next_settled(layer, detail)
+	return await _wait_next_settled(layer_reference, detail)
 
 
 func _retry_next() -> bool:
 	var layer: Node = _caption_layer()
 	if not _check(layer != null and layer.is_reading_recovery_active()
 		and layer.recovery_overlay.is_presented(), "refused Next exposes its actual Retry owner"): return false
+	var layer_reference: WeakRef = weakref(layer)
 	var retry: Button = layer.recovery_overlay.retry_button
 	retry.grab_focus()
 	await _frames()
 	if not _check(retry._admitted(), "Next Retry has settled fresh physical input admission"): return false
 	if not await _ordinary_accept_focused(retry, "fresh physical Next recovery Retry"): return false
-	return await _wait_next_settled(layer, "Next recovery Retry")
+	return await _wait_next_settled(layer_reference, "Next recovery Retry")
 
 
-func _wait_next_settled(layer: Node, detail: String) -> bool:
+func _wait_next_settled(layer_reference: WeakRef, detail: String) -> bool:
 	var bridge: Node = root.get_node("DialogicBridge")
 	for frame: int in 600:
+		# Natural completion removes the source caption layout before this physical
+		# input helper resumes. Never pass a freed Node through a typed parameter.
+		var layer: Node = layer_reference.get_ref()
 		if not bridge.is_next_traversal_active() and (not is_instance_valid(layer) or not bool(layer.get("_next_pending"))):
 			await _frames()
 			return true

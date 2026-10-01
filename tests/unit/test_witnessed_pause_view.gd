@@ -217,3 +217,76 @@ func test_next_matte_retains_native_composition_and_excludes_input_pause_and_rai
 	assert_false(caption.canvas.accessibility_withdrawn)
 	assert_true(caption.caption_text.has_focus(), "the settled caption regains meaningful Focus")
 	assert_eq(_native_state(), before)
+
+class SettlingNextProfile extends RefCounted:
+	func get_profile_revision() -> int: return 1
+
+class SettlingNextBridge extends RefCounted:
+	signal next_traversal_changed
+	signal settled(result: Dictionary)
+	var active := false
+	var requests := 0
+	var captures := 0
+	var acknowledgements := 0
+	var frontier := {"ok": true, "line": "retained-next-source"}
+	func can_next_current_line() -> bool: return true
+	func is_next_traversal_active() -> bool: return active
+	func capture_current_line_presentation_frontier() -> Dictionary:
+		captures += 1
+		return frontier.duplicate(true)
+	func requires_line_presentation_acknowledgement() -> bool: return true
+	func acknowledge_current_line_presentation(_frontier: Dictionary) -> Dictionary:
+		acknowledgements += 1
+		return {"ok": true}
+	func request_next(_frontier: Dictionary) -> Dictionary:
+		requests += 1
+		active = true
+		next_traversal_changed.emit()
+		var result: Dictionary = await settled
+		return result
+	func finish(result: Dictionary) -> void:
+		active = false
+		next_traversal_changed.emit()
+		settled.emit(result)
+
+func _assert_detached_next_settlement(result: Dictionary) -> void:
+	var bridge := SettlingNextBridge.new()
+	caption._transport_bridge = bridge
+	caption._reading_profile = SettlingNextProfile.new()
+	caption._line_waiting_for_text = false
+	caption._presented_line = bridge.frontier.duplicate(true)
+	caption.auto_controller._auto_enabled = false
+	bridge.next_traversal_changed.connect(caption._on_next_traversal_changed)
+	caption._request_reading_command(&"next", true)
+	assert_eq(bridge.requests, 1, "the real host is awaiting the admitted Bridge command")
+	assert_true(caption._next_pending)
+	assert_true(caption.canvas.accessibility_withdrawn)
+	viewport.remove_child(caption)
+	assert_false(caption.is_inside_tree(), "natural terminal completion removes the host before settlement")
+	var replacement := Button.new()
+	replacement.focus_mode = Control.FOCUS_ALL
+	viewport.add_child(replacement)
+	replacement.grab_focus()
+	assert_true(replacement.has_focus())
+	var captures: int = bridge.captures
+	var reveal_generation: int = caption.caption_text.get_reveal_generation()
+	var public_text: String = caption.caption_text.text
+	bridge.finish(result)
+	assert_false(caption._next_pending, "local in-flight bookkeeping is retired without reviving the departed view")
+	assert_true(replacement.has_focus(), "settlement cannot steal the successor's Focus")
+	assert_eq(bridge.captures, captures, "the departed host must not query or re-publish a frontier")
+	assert_eq(bridge.acknowledgements, 0)
+	assert_true(caption._reading_recovery.is_empty(), "the old presenter cannot attach recovery to a departed source")
+	assert_true(caption.canvas.accessibility_withdrawn, "settlement does not restore departed canvas interaction")
+	assert_eq(caption.caption_text.get_reveal_generation(), reveal_generation)
+	assert_eq(caption.caption_text.text, public_text)
+	assert_false(caption._speech_pending)
+	assert_false(caption._reading_request_owner_matches({}), "owner admission checks tree membership before absolute lookup")
+	assert_eq(caption._pause_runtime_identity(), {}, "detached identity queries never access absolute SceneTree paths")
+	replacement.free()
+
+func test_next_success_after_native_host_detachment_cannot_republish_or_refocus() -> void:
+	_assert_detached_next_settlement({"ok": true, "value": {"destination": "completion"}})
+
+func test_next_failure_after_native_host_detachment_cannot_mount_old_recovery() -> void:
+	_assert_detached_next_settlement({"ok": false, "code": &"reading_next_projection_failed", "fatal": true})
