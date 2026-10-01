@@ -166,10 +166,10 @@ func _read_process() -> void:
 	var profile: Node = root.get_node("ProfileManager")
 	if not _check(profile.get_preference(&"preferences.reading.read_aloud_enabled", false), "read-aloud control remains enabled after restart"): return
 	var profile_before: Dictionary = profile.get_profile_snapshot()
-	var prepared: Dictionary = saves.prepare_restore_quick()
+	var prepared: Dictionary = saves.prepare_backup_action("load", "quick")
 	if not _check(prepared.get("ok", false), "fresh-process physical Quick restore prepares: " + str(prepared)): return
 	_trace("fresh_restore_prepared", {"process_id": OS.get_process_id()})
-	var restored: Dictionary = saves.commit_prepared_restore(prepared.value.prepared)
+	var restored: Dictionary = saves.commit_backup_action(prepared.value.token)
 	if not _check(restored.get("ok", false), "fresh-process coordinated restore commits: " + str(restored)): return
 	if not await _wait_line("fixture.solo.post.a"): return
 	var game: Node = root.get_node("GameState")
