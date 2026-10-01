@@ -2,6 +2,7 @@ extends DialogicLayoutLayer
 ## Transient public caption copies, not canonical History, receipts, or restore ownership.
 
 const CAPTION_THEME := preload("res://scripts/ui/witnessed/WitnessedCaptionTheme.gd")
+const HISTORY := preload("res://scripts/ui/witnessed/WitnessedHistory.gd")
 const RUN_PRESENTATION := preload("res://scripts/ui/witnessed/WitnessedRunPresentation.gd")
 const FIELD_TOP := {100: 448, 125: 392, 150: 328}
 const FIELD_BOTTOM := 656
@@ -53,6 +54,12 @@ var _auto_input_bound := false
 var _auto_resume_pending := true
 var _backup_load_router: Node
 var _load_input_bound := false
+var _save_input_bound := false
+var _history_input_bound := false
+var _history_overlay: Control
+var _history_open := false
+var _history_pending := false
+var _history_source: Dictionary = {}
 var _load_pending := false
 var _load_focus_restore_id := 0
 var _load_activation_focus_id := 0
@@ -132,6 +139,8 @@ func _ready() -> void:
 	transport_rail.skip_requested.connect(_on_skip_requested)
 	transport_rail.auto_requested.connect(_on_auto_requested)
 	transport_rail.load_requested.connect(_on_load_requested)
+	transport_rail.save_requested.connect(_on_save_requested)
+	transport_rail.history_requested.connect(_on_history_requested)
 	skip_controller.state_changed.connect(_sync_transport)
 	auto_controller.state_changed.connect(_on_auto_state_changed)
 	configure_reading_transport(_profile, get_node_or_null("/root/DialogicBridge"))
@@ -147,6 +156,18 @@ func _ready() -> void:
 	_transport_input_bound = transport_rail.bind_admission(_transport_admitted, input_owner)
 	_auto_input_bound = transport_rail.bind_auto_admission(_auto_button_admitted, input_owner)
 	_load_input_bound = transport_rail.bind_load_admission(_load_admitted, input_owner)
+	_save_input_bound = transport_rail.bind_save_admission(_save_admitted, input_owner)
+	_history_input_bound = transport_rail.bind_history_admission(_history_admitted, input_owner)
+	var history_layer := CanvasLayer.new()
+	history_layer.name = "HistoryLayer"
+	history_layer.layer = 101
+	add_child(history_layer)
+	move_child(history_layer, canvas.get_index())
+	_history_overlay = HISTORY.new()
+	_history_overlay.name = "History"
+	history_layer.add_child(_history_overlay)
+	_history_overlay.close_requested.connect(_on_history_close_requested)
+	_configure_history_presentation()
 	if input_owner != null and input_owner.has_signal("source_input_custody_changed"):
 		input_owner.connect("source_input_custody_changed", _retire_transport)
 	if runtime != null and runtime.has_method("get_subsystem"):
@@ -253,7 +274,12 @@ func configure_reading_transport(profile: Object, bridge: Object) -> bool:
 	_reading_owner_generation += 1
 	if _reading_profile.has_signal("profile_restored"):
 		_reading_profile.connect("profile_restored", _on_reading_profile_restored)
+	if is_instance_valid(_transport_bridge) and _transport_bridge.has_signal("reading_session_changed") \
+			and _transport_bridge.is_connected("reading_session_changed", _on_reading_session_changed):
+		_transport_bridge.disconnect("reading_session_changed", _on_reading_session_changed)
 	_transport_bridge = bridge
+	if bridge.has_signal("reading_session_changed"):
+		bridge.connect("reading_session_changed", _on_reading_session_changed)
 	_transport_configured = true
 	_auto_configured = auto_controller.configure(profile, bridge, _auto_controller_admitted)
 	accept_input.bind_presentation_admission(_before_normal_accept, _automatic_line_admitted)
@@ -314,7 +340,7 @@ func _transport_admitted() -> bool:
 		and bool(_transport_bridge.call("can_skip_current_line"))
 
 func _reading_source_admitted() -> bool:
-	return _reading_recovery.is_empty() and not _load_pending
+	return _reading_recovery.is_empty() and not _load_pending and not _history_pending and not _history_open
 
 func _load_admitted() -> bool:
 	return _load_input_bound and not _load_pending and not _pause_covered \
@@ -339,6 +365,103 @@ func _on_load_requested() -> void:
 			and (focused == null or focused == transport_rail.get_node("Load")):
 		transport_rail.get_node("Load").grab_focus()
 
+func _save_admitted() -> bool:
+	return _save_input_bound and not _load_pending and not _history_pending and not _history_open \
+		and not _pause_covered and not _line_waiting_for_text and _reading_recovery.is_empty() \
+		and _has_caption() and transport_rail.is_visible_in_tree() and accept_input.is_source_admitted() \
+		and is_instance_valid(_transport_bridge) and _transport_bridge.has_method("can_capture_reading_checkpoint") \
+		and _transport_bridge.call("can_capture_reading_checkpoint") == true \
+		and is_instance_valid(_backup_load_router) and _backup_load_router.has_method("can_open_witnessed_backup_save") \
+		and _backup_load_router.call("can_open_witnessed_backup_save", self) == true
+
+func _on_save_requested() -> void:
+	if not _save_admitted(): return
+	var source_identity := _pause_runtime_identity()
+	_load_activation_focus_id = transport_rail.get_node("Save").get_instance_id()
+	_load_pending = true
+	_retire_transport()
+	accept_input.retire_input()
+	var opened: Dictionary = await _backup_load_router.call("open_witnessed_backup_save", self)
+	_load_pending = false
+	_load_activation_focus_id = 0
+	_sync_transport()
+	var focused := get_viewport().gui_get_focus_owner()
+	if not opened.get("ok", false) and source_identity == _pause_runtime_identity() and _save_admitted() \
+			and (focused == null or focused == transport_rail.get_node("Save")):
+		transport_rail.get_node("Save").grab_focus()
+
+func _history_admitted() -> bool:
+	if not _history_input_bound or _load_pending or _history_pending or _history_open or _pause_covered \
+			or _line_waiting_for_text or not _reading_recovery.is_empty() or not _has_caption() \
+			or not transport_rail.is_visible_in_tree() or not accept_input.is_source_admitted(): return false
+	return is_instance_valid(_transport_bridge) and _transport_bridge.has_method("get_reading_history") \
+		and is_instance_valid(_backup_load_router) and _backup_load_router.has_method("can_open_witnessed_history") \
+		and _backup_load_router.call("can_open_witnessed_history", self) == true
+
+func _on_history_requested() -> void:
+	if not _history_admitted() or not _configure_history_presentation(): return
+	var history: Dictionary = _transport_bridge.call("get_reading_history")
+	if not history.get("ok", false): return
+	var source: Dictionary = history.value
+	var captions: Array[String] = []
+	for row: Variant in source.get("captions", []):
+		if not row is Dictionary or typeof(row.get("text")) != TYPE_STRING or String(row.text).strip_edges().is_empty(): return
+		captions.append(row.text)
+	if captions.is_empty(): return
+	_history_source = {"session_id": source.session_id, "frontier": source.frontier.duplicate(true)}
+	var focused := get_viewport().gui_get_focus_owner()
+	_load_activation_focus_id = focused.get_instance_id() if focused != null and _owns_caption_focus(focused) else 0
+	_history_pending = true
+	_retire_transport()
+	accept_input.retire_input()
+	var opened: Dictionary = await _backup_load_router.call("open_witnessed_history", self)
+	_history_pending = false
+	_load_activation_focus_id = 0
+	if not opened.get("ok", false):
+		_history_source.clear()
+		_sync_transport()
+		return
+	_history_open = true
+	if not _history_overlay.present(captions):
+		await _on_history_close_requested()
+
+func _history_overlay_admitted() -> bool:
+	if not _history_open or _history_pending or _history_source.is_empty() \
+			or not is_instance_valid(_backup_load_router) \
+			or _backup_load_router.call("is_witnessed_history_open", self) != true: return false
+	var current: Dictionary = _transport_bridge.call("get_reading_history")
+	return current.get("ok", false) and current.value.get("session_id") == _history_source.session_id \
+		and current.value.get("frontier") == _history_source.frontier
+
+func _on_history_close_requested() -> void:
+	if not _history_open or _history_pending: return
+	_history_pending = true
+	_history_overlay.set_interactive(false)
+	var closed: Dictionary = await _backup_load_router.call("close_witnessed_history", self)
+	_history_pending = false
+	if not closed.get("ok", false):
+		_history_overlay.set_interactive(true)
+		return
+	_history_open = false
+	_history_source.clear()
+	_history_overlay.dismiss()
+	_sync_transport()
+	_restore_load_focus.call_deferred()
+
+func _configure_history_presentation() -> bool:
+	return is_instance_valid(_history_overlay) and _history_overlay.configure(
+		_caption_theme, _localization, _reading_input_owner, _history_overlay_admitted)
+
+func _on_reading_session_changed() -> void:
+	_refresh_reading_session.call_deferred()
+
+func _refresh_reading_session() -> void:
+	if not is_instance_valid(_transport_bridge) or not _transport_bridge.has_method("capture_current_line_presentation_frontier"): return
+	if _presented_line == _transport_bridge.call("capture_current_line_presentation_frontier"): return
+	_capture_presented_line()
+	_acknowledge_visible_line()
+	_sync_transport()
+
 func _restore_load_focus() -> void:
 	if _load_focus_restore_id == 0: return
 	if not _valid_pause_anchor(_pause_anchor) or not _reading_recovery.is_empty():
@@ -347,9 +470,12 @@ func _restore_load_focus() -> void:
 	if _pause_covered or not is_instance_valid(_reading_input_owner) \
 			or not _reading_input_owner.is_source_input_admitted(): return
 	var focused := get_viewport().gui_get_focus_owner()
-	var load_button: Control = transport_rail.get_node("Load")
-	if _load_admitted() and (focused == null or focused == load_button):
-		load_button.grab_focus()
+	var command := instance_from_id(_load_focus_restore_id) as Control
+	var admitted := (command == transport_rail.get_node("Load") and _load_admitted()) \
+		or (command == transport_rail.get_node("Save") and _save_admitted()) \
+		or (command == transport_rail.get_node("History") and _history_admitted())
+	if admitted and (focused == null or focused == command):
+		command.grab_focus()
 	_load_focus_restore_id = 0
 
 func _on_reading_profile_restored(_snapshot: Dictionary) -> void:
@@ -413,7 +539,7 @@ func _sync_transport() -> void:
 		and bool(_transport_bridge.call("is_rehearsal_playback"))
 	transport_rail.visible = not rehearsal
 	transport_rail.project(_transport_admitted(), skip_controller.is_skip_active(),
-		skip_controller.is_auto_enabled(), _auto_button_admitted(), _load_admitted())
+		skip_controller.is_auto_enabled(), _auto_button_admitted(), _load_admitted(), _history_admitted(), _save_admitted())
 	var ring: Array[Control] = [review_current if _review_offset > 0 else caption_text]
 	var names: PackedStringArray = []
 	if is_instance_valid(_dating_split_surface) and is_dating_split_input_admitted():
@@ -421,7 +547,7 @@ func _sync_transport() -> void:
 		if is_instance_valid(handle) and handle.is_visible_in_tree() and handle.focus_mode != Control.FOCUS_NONE:
 			ring.append(handle)
 			names.append("Split:%d" % handle.get_instance_id())
-	for name: String in ["Skip", "Auto", "Load"]:
+	for name: String in ["History", "Skip", "Auto", "Save", "Load"]:
 		var command: Control = transport_rail.get_node(name)
 		if command.focus_mode != Control.FOCUS_NONE:
 			ring.append(command)
@@ -577,7 +703,7 @@ func capture_pause_view(source: Dictionary) -> Dictionary:
 	_pause_anchor = {"view_id":get_instance_id(),"capture_id":_pause_capture_id,"source":source.duplicate(true)}
 	var focused := get_viewport().gui_get_focus_owner()
 	var focus_id := focused.get_instance_id() if focused != null and _owns_caption_focus(focused) else 0
-	if _load_pending: focus_id = _load_activation_focus_id
+	if _load_pending or _history_pending: focus_id = _load_activation_focus_id
 	_pause_view = {"caption_id":caption_text.get_instance_id(),"reveal_generation":caption_text.get_reveal_generation(),
 		"runtime":_pause_runtime_identity(),"focus_id":focus_id,"scroll":get_scroll_bar().value,
 		"canvas_visible":canvas.visible,"layer_processing":is_processing(),"caption_processing":caption_text.is_processing()}
@@ -611,7 +737,7 @@ func restore_pause_view(anchor: Dictionary) -> bool:
 	if (focused is Control and _owns_caption_focus(focused) and focused.is_visible_in_tree()
 		and focused.focus_mode != Control.FOCUS_NONE):
 		focused.grab_focus()
-	if focused == transport_rail.get_node("Load"):
+	if focused in [transport_rail.get_node("History"), transport_rail.get_node("Save"), transport_rail.get_node("Load")]:
 		_load_focus_restore_id = int(_pause_view.focus_id)
 	# Focus restoration and container settling must never replace the user's pan.
 	_layout_generation += 1
@@ -706,6 +832,7 @@ func configure_presentation(locale: String = "en", text_percent: int = 100, pale
 	_large_targets = large_targets
 	_caption_theme = next_theme
 	_configure_speech_status()
+	_configure_history_presentation()
 	if is_instance_valid(canvas):
 		var first_mount := canvas.theme == null
 		if metrics_changed:

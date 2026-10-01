@@ -5,6 +5,7 @@ extends RefCounted
 ## structural schemas, before any restore participant installs the candidate.
 ## No cache is repaired and no value is sampled from a live Run or Profile.
 const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
+const CAPTION_REGISTRY := preload("res://scripts/narrative/NarrativeCaptionRegistry.gd")
 const CONTACTS := preload("res://scripts/narrative/ContactsFrozenContext.gd")
 const CONTACT_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const HOSPITAL := preload("res://scripts/narrative/HospitalFrozenContext.gd")
@@ -36,7 +37,101 @@ static func validate(snapshot: Dictionary, require_complete: bool = false) -> Di
 		var contacts := CONTACTS.validate_cache(route.get(CONTACTS.CACHE_KEY, CONTACTS.empty_cache()),
 			snapshot.contacts, require_complete, missed, int(lifecycle.get("day", 0)))
 		if not contacts.ok: return contacts
-	return _narrative_checkpoint(snapshot.get("narrative_checkpoint", {}), route, lifecycle, require_complete)
+	var narrative := _narrative_checkpoint(snapshot.get("narrative_checkpoint", {}), route, lifecycle, require_complete)
+	if not narrative.ok: return narrative
+	var checkpoint: Variant = snapshot.get("narrative_checkpoint", {})
+	if checkpoint is Dictionary and checkpoint.has("reading_session"):
+		return validate_reading_checkpoint(checkpoint, snapshot)
+	return narrative
+
+## The framed History's source is the saved physical Dating owner and its already
+## admitted presentations. Checking the current line alone would let an attacker
+## replace an earlier entry's immutable frame while retaining a valid frontier.
+## Catalogue, exact signatures and stable-line availability remain bridge-owned.
+static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictionary) -> Dictionary:
+	# Save capture reaches this pure boundary before a Run is serialized, while
+	# restore also has the participant's exact envelope checks. Both paths must
+	# refuse bytes that would be unwritable by the versioned reading producer.
+	if not _exact(checkpoint, ["content_version", "entry_id", "frozen_context", "manifest_fingerprint",
+			"stage", "transaction_id", "reading_session"]) \
+			or typeof(checkpoint.get("content_version")) != TYPE_INT or checkpoint.content_version <= 0 \
+			or not checkpoint.get("frozen_context") is Dictionary:
+		return _fail(&"reading_session_invalid")
+	for key: String in ["entry_id", "manifest_fingerprint", "stage", "transaction_id"]:
+		if not FROZEN._field(checkpoint[key], "id"): return _fail(&"reading_session_invalid")
+	if snapshot.get("route_id") != "dating" or not snapshot.get("lifecycle") is Dictionary or not snapshot.get("gameplay") is Dictionary \
+			or not snapshot.get("contacts") is Dictionary or not snapshot.gameplay.get("route_context") is Dictionary:
+		return _fail(&"reading_saved_run_required")
+	var reading: Variant = checkpoint.get("reading_session")
+	if not reading is Dictionary or not _exact(reading, ["schema_version", "catalogue_fingerprint", "boundary", "ledger", "frontier"]) \
+			or typeof(reading.schema_version) != TYPE_INT or reading.schema_version != 1 \
+			or not FROZEN._field(reading.catalogue_fingerprint, "id") \
+			or reading.boundary not in ["line", "between_entries"] or not reading.frontier is Dictionary:
+		return _fail(&"reading_session_invalid")
+	var ledger: Variant = reading.ledger
+	if not ledger is Dictionary or not _exact(ledger, ["session_token", "frozen_context", "entry_contexts", "captions"]) \
+			or not FROZEN._field(ledger.session_token, "id") or not ledger.frozen_context is Dictionary \
+			or not ledger.entry_contexts is Dictionary or not ledger.captions is Array \
+			or not _exact(ledger.frozen_context, ["completion_transaction_id", "pre_entry_id"]):
+		return _fail(&"reading_session_invalid")
+	var route: Dictionary = snapshot.gameplay.route_context
+	var record: Variant = route.get("active_dating_challenge")
+	if not record is Dictionary or record.get("host") != "canonical_solo" \
+			or not FROZEN._field(record.get("completion_transaction_id"), "id") \
+			or not FROZEN._field(record.get("physical_token"), "id"):
+		return _fail(&"reading_physical_owner_mismatch")
+	var dating := _dating(route, snapshot.lifecycle, snapshot.contacts, true)
+	if not dating.ok: return dating
+	var pre_entry := _dating_entry(record.context, "pre_challenge")
+	var post_entry := _dating_entry(record.context, "post_challenge")
+	if ledger.session_token != record.completion_transaction_id \
+			or ledger.frozen_context != {"completion_transaction_id": record.completion_transaction_id, "pre_entry_id": pre_entry}:
+		return _fail(&"reading_physical_owner_mismatch")
+	var retained: Dictionary = route[DATING_KEY].entries
+	var admitted := {}
+	for entry: Variant in ledger.entry_contexts:
+		if entry not in [pre_entry, post_entry] or not ledger.entry_contexts[entry] is Dictionary \
+				or not retained.has(entry):
+			return _fail(&"reading_entry_context_mismatch")
+		var phase := "pre_challenge" if entry == pre_entry else "post_challenge"
+		var expected := {"expected_stage": phase, "playback_id": str(record.physical_token) + ":" + phase,
+			"role": "dating_phase", "transaction_id": str(record.completion_transaction_id) + ":" + phase,
+			"presentation": retained[entry]}
+		if ledger.entry_contexts[entry] != expected:
+			return _fail(&"reading_entry_context_mismatch")
+		admitted[entry] = expected.duplicate(true)
+	if not admitted.has(pre_entry) or not admitted.has(checkpoint.get("entry_id")) \
+			or checkpoint.get("frozen_context") != admitted.get(checkpoint.get("entry_id")) \
+			or checkpoint.get("stage") != admitted[checkpoint.entry_id].expected_stage \
+			or checkpoint.get("transaction_id") != admitted[checkpoint.entry_id].transaction_id \
+			or (admitted.has(post_entry) and checkpoint.entry_id != post_entry):
+		return _fail(&"reading_entry_context_mismatch")
+	# The physical result may already have admitted post facts while the bridge is
+	# still between entries. Such future facts do not fabricate a History frame.
+	if reading.boundary == "line":
+		if not _exact(reading.frontier, ["line_id", "publication_id"]) \
+				or not FROZEN._field(reading.frontier.line_id, "id") \
+				or not FROZEN._field(reading.frontier.publication_id, "id"):
+			return _fail(&"reading_session_invalid")
+		if record.phase != checkpoint.stage:
+			return _fail(&"reading_physical_boundary_mismatch")
+	elif not reading.frontier.is_empty() \
+			or (checkpoint.entry_id == post_entry and record.phase not in ["post_challenge", "completed"]) \
+			or (checkpoint.entry_id == pre_entry and record.phase == "completed"):
+		return _fail(&"reading_physical_boundary_mismatch")
+	var post_seen := false
+	var publications := {}
+	for row: Variant in ledger.captions:
+		if not row is Dictionary or not _exact(row, ["publication_id", "beat"]) \
+				or not FROZEN._field(row.publication_id, "id") or not CAPTION_REGISTRY.valid_beat(row.beat) \
+				or publications.has(row.publication_id):
+			return _fail(&"reading_caption_sequence_invalid")
+		publications[row.publication_id] = true
+		var entry: Variant = row.beat.get("owning_entry_id")
+		if not admitted.has(entry) or (post_seen and entry == pre_entry):
+			return _fail(&"reading_caption_sequence_invalid")
+		post_seen = post_seen or entry == post_entry
+	return {"ok": true, "value": {"entry_contexts": admitted}}
 
 static func _dating(route: Dictionary, lifecycle: Dictionary, contacts: Dictionary, required: bool) -> Dictionary:
 	var record: Variant = route.get("active_dating_challenge", {})

@@ -22,6 +22,7 @@ extends RefCounted
 
 const SCHEMA := preload("res://scripts/narrative/NarrativeCheckpointSchema.gd")
 const ENTRY_MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
+const FROZEN_RUN := preload("res://scripts/narrative/FrozenRunContext.gd")
 
 ## Schema failures that mean "this bundle's content no longer exists" (recoverable) rather than
 ## "these bytes are malformed" (fail-closed).
@@ -49,6 +50,10 @@ const _SEMANTIC_CONTENT_CODES := [
 	&"entry_resolution_failed", &"ENTRY_MANIFEST_UNKNOWN_ENTRY", &"ENTRY_MANIFEST_RETIRED_ENTRY",
 	&"entry_master_missing", &"entry_record_missing", &"entry_content_version_mismatch",
 ]
+const _READING_CONTENT_CODES := [
+	&"reading_catalogue_unavailable", &"reading_catalogue_mismatch", &"reading_line_unavailable",
+	&"reading_line_content_mismatch", &"reading_line_ambiguous", &"reading_entry_mismatch",
+]
 
 ## The shipped entry document's contract fingerprint, derived once per process. Neither
 ## load_default nor the canonical writer caches, and the document is 85 KB across 137 records, so a
@@ -71,6 +76,10 @@ func prepare(input: Dictionary) -> Dictionary:
 	if typeof(input.get("content_version")) != TYPE_INT:
 		return _fail(&"invalid_narrative_input", "narrative participant requires a content_version")
 	var checkpoint: Dictionary = input["narrative_checkpoint"]
+	# This discriminator must precede both older branches. Removing entry_id from
+	# a reading checkpoint must never downgrade it to an empty legacy playhead.
+	if checkpoint.has("reading_session"):
+		return _prepare_reading(checkpoint, input.get("snapshot"))
 	# Ruling 14-D. The discriminator is tested BEFORE the playhead, because a semantic checkpoint
 	# carries no timeline_id, line_id or marker_id and the empty-playhead passthrough would otherwise
 	# swallow it. Legacy stays the default: only a declared entry_id opts in.
@@ -104,7 +113,15 @@ func apply_silent(plan: Dictionary) -> Dictionary:
 	# Rejects a missing route-ready token and therefore cannot run early.
 	if typeof(plan.get("route_ready_token")) != TYPE_DICTIONARY:
 		return _fail(&"missing_route_ready_token", "narrative apply requires the route-ready token")
-	if _owner.has_method("is_pause_restore_pending") and _owner.is_pause_restore_pending():
+	var pause_pending: bool = _owner.has_method("is_pause_restore_pending") and _owner.is_pause_restore_pending()
+	if plan.has("reading_session"):
+		if not pause_pending and _owner.has_active_playback():
+			return _fail(&"narrative_playback_active", "a narrative playback is standing; the reading restore cannot be staged")
+		# Install only the prepared session helper before the route publishes. Native
+		# playback and static caption projection remain behind transaction finalize.
+		var staged: Dictionary = _owner.stage_reading_restore(_projected(plan))
+		if not staged.get("ok", false): return staged
+	if pause_pending:
 		return _owner.stage_pause_restore(_projected(plan) if plan.has("entry_id") else plan,
 			plan.has("entry_id"))
 	if plan.has("entry_id"):
@@ -193,10 +210,44 @@ func _prepare_semantic(checkpoint: Dictionary) -> Dictionary:
 	plan["frozen_context"] = (checkpoint["frozen_context"] as Dictionary).duplicate(true)
 	return {"ok": true, "code": &"ok", "value": {"narrative_plan": plan}}
 
+func _prepare_reading(checkpoint: Dictionary, snapshot: Variant) -> Dictionary:
+	var keys := _SEMANTIC_PLAN_KEYS.duplicate()
+	keys.append("reading_session")
+	if not _exact_keys(checkpoint, keys):
+		return _fail(&"invalid_narrative_checkpoint", "reading checkpoint requires its versioned semantic envelope")
+	if not snapshot is Dictionary or snapshot.get("narrative_checkpoint") != checkpoint:
+		return _fail(&"invalid_narrative_input", "reading restoration requires the complete matching saved Run")
+	# All retained frames are independently admitted against the saved physical
+	# owner, not against the checkpoint's own copy of those same frames. Invalid
+	# saved bytes stay fail-closed even when a content fingerprint is also stale.
+	var frozen := FROZEN_RUN.validate_reading_checkpoint(checkpoint, snapshot)
+	if not frozen.get("ok", false):
+		return _fail(&"invalid_narrative_checkpoint", str(frozen.get("code", "")))
+	# Reuse the existing entry compatibility law without widening the old exact
+	# reader. A six-field reader still refuses a seven-field reading checkpoint.
+	var semantic := checkpoint.duplicate(true)
+	semantic.erase("reading_session")
+	var base := _prepare_semantic(semantic)
+	if not base.get("ok", false): return base
+	if not _owner.has_method("validate_reading_checkpoint") or not _owner.has_method("stage_reading_restore"):
+		return _content_unavailable("the reading catalogue is unavailable")
+	var checked: Dictionary = _owner.validate_reading_checkpoint(checkpoint, frozen.value.entry_contexts)
+	if not checked.get("ok", false):
+		if checked.get("code") in _READING_CONTENT_CODES or checked.get("code") in _SEMANTIC_CONTENT_CODES:
+			return _content_unavailable("the saved reading catalogue is unavailable or incompatible")
+		return _fail(&"invalid_narrative_checkpoint", str(checked.get("code", "")))
+	return {"ok": true, "code": &"ok", "value": {"narrative_plan": checkpoint.duplicate(true)}}
+
 ## The six-field durable plan projected onto the bridge's shipped five-key checkpoint. get() rather
 ## than an indexed read, so a caller-authored plan missing a field is refused by the bridge's own
 ## exact-key law instead of crashing here.
 static func _projected(source: Dictionary) -> Dictionary:
+	if source.has("reading_session"):
+		var reading := {}
+		for key: String in _SEMANTIC_PLAN_KEYS:
+			reading[key] = source.get(key)
+		reading["reading_session"] = source.get("reading_session")
+		return reading.duplicate(true)
 	var projected := {}
 	for key: String in _RESUME_CHECKPOINT_KEYS:
 		projected[key] = source.get(key)

@@ -1650,8 +1650,19 @@ func _capture_backup_inputs() -> Dictionary:
 	var dating_record: Variant = route_context.get("active_dating_challenge") if route_context is Dictionary else null
 	var dating: bool = inputs["route_id"] == "dating" and dating_record is Dictionary \
 		and not dating_record.is_empty() and dating_record.get("phase") in ["pre_challenge", "preparing", "challenge", "cleared_awaiting_terminal_choice", "post_challenge"]
-	if not (desktop or dating) or not inputs["dialogic_checkpoint"].is_empty() or inputs["snapshot_input"]["lifecycle"].get("state") != "PLAYING":
+	var narrative: Dictionary = inputs["dialogic_checkpoint"]
+	if not (desktop or dating) or (not narrative.is_empty() and (not dating or not narrative.has("reading_session"))) \
+			or inputs["snapshot_input"]["lifecycle"].get("state") != "PLAYING":
 		return _fail(&"backup_capture_unavailable", "A qualified desktop or paused Dating capture is required")
+	if not narrative.is_empty():
+		# Full Run composition below performs the same cross-owner validation.
+		# This capture boundary also refuses malformed/foreign reading sessions
+		# before returning an apparently qualified source to Backup's token flow.
+		var snapshot: Dictionary = inputs["snapshot_input"].duplicate(true)
+		snapshot["route_id"] = inputs["route_id"]
+		snapshot["narrative_checkpoint"] = narrative
+		var reading: Dictionary = preload("res://scripts/narrative/FrozenRunContext.gd").validate_reading_checkpoint(narrative, snapshot)
+		if not reading.get("ok", false): return reading
 	return {"ok": true, "value": inputs}
 
 func _compose_live_checkpoint_input(snapshot_input: Dictionary) -> Dictionary:
@@ -2002,7 +2013,8 @@ func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output:
 	plans["route"] = route_prep["value"]["route_plan"]
 
 	var narr_prep: Dictionary = _restore_participants["narrative"].prepare(
-		{"narrative_checkpoint": snapshot["narrative_checkpoint"], "content_version": int(snapshot["content_version"])})
+		{"narrative_checkpoint": snapshot["narrative_checkpoint"], "content_version": int(snapshot["content_version"]),
+		"snapshot": snapshot})
 	if not narr_prep.get("ok", false):
 		return _content_incompatible_or_fail("narrative", sequence, narr_prep)
 	plans["narrative"] = narr_prep["value"]["narrative_plan"]

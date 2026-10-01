@@ -59,6 +59,39 @@ func open_witnessed_backup_load(caption: Node) -> Dictionary:
 		return {"ok": false, "code": &"pause_backup_unavailable"}
 	return await _production_pause.open_witnessed_backup_load(caption)
 
+func open_witnessed_quick_load(caption: Node) -> Dictionary:
+	if not is_instance_valid(_production_pause): return {"ok": false, "code": &"pause_load_unavailable"}
+	return await _production_pause.open_witnessed_quick_load(caption)
+
+
+func can_open_witnessed_backup_save(caption: Node) -> bool:
+	return is_instance_valid(_production_pause) \
+		and _production_pause.can_open_witnessed_backup_save(caption)
+
+
+func open_witnessed_backup_save(caption: Node) -> Dictionary:
+	if not is_instance_valid(_production_pause):
+		return {"ok": false, "code": &"pause_backup_unavailable"}
+	return await _production_pause.open_witnessed_backup_save(caption)
+
+
+func can_open_witnessed_history(caption: Node) -> bool:
+	return is_instance_valid(_production_pause) and _production_pause.can_open_witnessed_history(caption)
+
+
+func open_witnessed_history(caption: Node) -> Dictionary:
+	if not is_instance_valid(_production_pause): return {"ok": false, "code": &"pause_history_unavailable"}
+	return await _production_pause.open_witnessed_history(caption)
+
+
+func is_witnessed_history_open(caption: Node) -> bool:
+	return is_instance_valid(_production_pause) and _production_pause.is_witnessed_history_open(caption)
+
+
+func close_witnessed_history(caption: Node) -> Dictionary:
+	if not is_instance_valid(_production_pause): return {"ok": false, "code": &"pause_history_unavailable"}
+	return await _production_pause.close_witnessed_history(caption)
+
 
 func is_restore_publication_held() -> bool:
 	return not _restore_publication_handle.is_empty()

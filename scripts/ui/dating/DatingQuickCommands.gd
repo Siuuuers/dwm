@@ -1,12 +1,14 @@
 extends "res://scripts/ui/desktop/DesktopQuickCommands.gd"
 ## Active Dating host for the existing Quick input/token protocol. Physical saves
-## and restores remain Backup-owned; live narrative capture is explicitly refused.
+## and restores remain Backup-owned; admitted reading uses the same semantic
+## checkpoint as Witnessed Save instead of a second Quick playhead.
 const CAPTION := preload("res://scripts/ui/witnessed/WitnessedCaptionLayer.gd")
 
 var _bridge: Object
 var _session_owner: Object
 var _notice_caption: Node
 var _status_layer: CanvasLayer
+var _reading_router: Object
 
 func configure_dating(scene: Control, port: Object, input_owner: Object, bridge: Object, session_owner: Object) -> bool:
 	if not is_instance_valid(bridge) or not bridge.has_method("has_active_playback"): return false
@@ -16,6 +18,7 @@ func configure_dating(scene: Control, port: Object, input_owner: Object, bridge:
 	return configure(scene, port, input_owner, _source_is_current)
 
 func _ready() -> void:
+	_reading_router = get_node_or_null("/root/SceneRouter")
 	if not _desktop.is_node_ready(): _desktop.ready.connect(_mount_status, CONNECT_ONE_SHOT)
 	else: _mount_status()
 	_desktop.visibility_changed.connect(retain_contacts)
@@ -84,11 +87,42 @@ func _find_caption(node: Node) -> Node:
 	return null
 
 func _request(action: String) -> void:
+	if not _admitted(): return
+	_in_operation = true
+	if action == "load" and _bridge.has_active_playback():
+		# A live caption must keep native reveal, input and TTS suspended throughout
+		# consent and restore. The board's local confirmation cannot own that source.
+		if not is_instance_valid(_notice_caption): _notice_caption = _find_caption(get_tree().root)
+		var opened := {"ok": false, "code": &"backup_action_unavailable"}
+		if is_instance_valid(_notice_caption) and is_instance_valid(_reading_router) \
+				and _reading_router.has_method("open_witnessed_quick_load"):
+			opened = await _reading_router.open_witnessed_quick_load(_notice_caption)
+		_in_operation = false
+		last_result = opened.duplicate(true)
+		if opened.get("ok", false): edge.clear_status()
+		elif _base_admitted(): _publish("unavailable", {}, _source_snapshot())
+		return
+	if action == "save" and _bridge.has_method("has_reading_session") and _bridge.has_reading_session():
+		# Only an activated Save may complete reveal. Background capability and
+		# token/source checks retain the literal live frontier without mutation.
+		if _bridge.has_active_playback() and not is_instance_valid(_notice_caption):
+			_notice_caption = _find_caption(get_tree().root)
+		if _bridge.has_active_playback() and not is_instance_valid(_notice_caption):
+			_in_operation = false
+			last_result = {"ok": false, "code": &"backup_action_unavailable"}
+			_publish("unavailable", {}, _source_snapshot())
+			return
+		if is_instance_valid(_notice_caption): _notice_caption._retire_transport()
+		var reading: Dictionary = _bridge.capture_reading_checkpoint(true)
+		if not reading.get("ok", false):
+			_in_operation = false
+			last_result = reading.duplicate(true)
+			_publish("unavailable", {}, _source_snapshot())
+			return
 	_source = _source_snapshot()
 	var focus := _desktop.get_viewport().gui_get_focus_owner()
 	_return_focus = weakref(focus) if focus != null else null
 	_focus_restore_pending = false
-	_in_operation = true
 	var prepared: Dictionary = _port.prepare_quick_action(action)
 	_in_operation = false
 	last_result = prepared.duplicate(true)

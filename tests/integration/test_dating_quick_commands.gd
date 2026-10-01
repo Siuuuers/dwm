@@ -18,7 +18,42 @@ class Session extends FIXTURE.State:
 
 class Bridge extends RefCounted:
 	var active := false
+	var reading := false
+	var on_capture := Callable()
+	var captures: Array[bool] = []
 	func has_active_playback() -> bool: return active
+	func has_reading_session() -> bool: return reading
+	func capture_reading_checkpoint(complete_reveal: bool = false) -> Dictionary:
+		captures.append(complete_reveal)
+		if on_capture.is_valid(): on_capture.call()
+		return {"ok": true, "value": {"reading_session": {"fixture": true}}}
+
+class ReadingCaption extends Node:
+	var canvas: Control
+	var _speech_status: Label
+	var _text_percent := 100
+	var _speech_generation := 0
+	var retired := 0
+	func _ready() -> void:
+		canvas = Control.new()
+		add_child(canvas)
+		_speech_status = Label.new()
+		canvas.add_child(_speech_status)
+		_speech_status.hide()
+	func is_reading_recovery_active() -> bool: return false
+	func _retire_transport() -> void:
+		retired += 1
+		_speech_generation += 1
+
+class ReadingRouter extends RefCounted:
+	var caption: Node
+	var calls := 0
+	var on_open := Callable()
+	func open_witnessed_quick_load(source: Node) -> Dictionary:
+		caption = source
+		calls += 1
+		if on_open.is_valid(): on_open.call()
+		return {"ok": true, "value": {"opened": true}}
 
 class Physical extends FIXTURE.PORT:
 	var calls: Array[String] = []
@@ -81,10 +116,12 @@ var _generation: RefCounted
 var _dating_profile: RefCounted
 var _maps := {}
 var _destination: Control
+var _reading_caption: ReadingCaption
 
 func before_each() -> void:
 	_old_scene = get_tree().current_scene
 	_destination = null
+	_reading_caption = null
 	_maps.clear()
 	for action: StringName in InputMap.get_actions():
 		_maps[action] = {"deadzone": InputMap.action_get_deadzone(action), "events": InputMap.action_get_events(action).duplicate(true)}
@@ -137,6 +174,7 @@ func after_each() -> void:
 	get_tree().current_scene = _old_scene
 	if is_instance_valid(_scene): _scene.free()
 	if is_instance_valid(_destination): _destination.free()
+	if is_instance_valid(_reading_caption): _reading_caption.free()
 	if is_instance_valid(_input): _input.free()
 	if is_instance_valid(_profile): _profile.free()
 	for action: StringName in InputMap.get_actions():
@@ -169,7 +207,7 @@ func _request() -> Dictionary:
 	return request
 
 func _admission() -> Dictionary:
-	return {"ok": not _bridge.active and _session.handle.active}
+	return {"ok": (not _bridge.active or _bridge.reading) and _session.handle.active}
 
 func _key(code: Key, pressed: bool, echo: bool = false) -> void:
 	var event := InputEventKey.new()
@@ -313,6 +351,43 @@ func test_active_narrative_refuses_both_commands_without_empty_checkpoint_or_pau
 	assert_null(_scene._confirmation)
 	assert_false(get_tree().paused)
 	assert_eq(_quick().last_result.get("code"), &"backup_action_unavailable")
+
+func _mount_reading_caption() -> void:
+	_bridge.active = true
+	_bridge.reading = true
+	_reading_caption = ReadingCaption.new()
+	_viewport.add_child(_reading_caption)
+	_quick()._notice_caption = _reading_caption
+
+func test_reading_quick_save_owns_callbacks_and_retires_transport_before_reveal() -> void:
+	_mount_reading_caption()
+	var callback_observations: Array = []
+	_bridge.on_capture = func() -> void:
+		callback_observations.append({"blocked": _quick().blocks_gameplay(), "retired": _reading_caption.retired})
+		_quick()._request("save")
+	_tap(KEY_F5)
+	assert_eq(callback_observations, [{"blocked": true, "retired": 1}])
+	assert_eq(_bridge.captures, [true], "reentrant reveal callbacks cannot admit a second save")
+	assert_eq(_saves.saved, 1)
+	assert_false(get_tree().paused)
+	assert_null(_scene._confirmation)
+	assert_eq(_quick().edge.key, &"saved")
+
+func test_reading_quick_load_delegates_exact_caption_without_local_token_or_consent() -> void:
+	_mount_reading_caption()
+	var router := ReadingRouter.new()
+	_quick()._reading_router = router
+	var blocked: Array[bool] = []
+	router.on_open = func() -> void: blocked.append(_quick().blocks_gameplay())
+	_tap(KEY_F9)
+	assert_eq(router.calls, 1)
+	assert_same(router.caption, _reading_caption)
+	assert_eq(blocked, [true])
+	assert_eq(_bridge.captures, [], "F9 never completes reveal")
+	assert_true(_saves.pending.is_empty(), "only the retained Pause owner may prepare the quick token")
+	assert_eq(_saves.loaded, 0)
+	assert_null(_scene._confirmation, "the board confirmation never overlays live prose")
+	assert_true(_quick().last_result.get("ok", false))
 
 func test_rules_focus_and_reserved_status_band_do_not_overlap_the_gameplay_host() -> void:
 	_scene.worksheet.open_rules(_scene._rules_button)

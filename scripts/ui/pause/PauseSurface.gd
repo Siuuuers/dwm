@@ -218,6 +218,12 @@ func open_surface() -> void:
 ## Enters the already configured Pause Backup host in Load mode without synthesizing
 ## a Pause-row press. The host validates its own operation and mode state.
 func open_backup_load() -> bool:
+	return _open_backup_mode(&"load")
+
+func open_backup_save() -> bool:
+	return _open_backup_mode(&"save")
+
+func _open_backup_mode(mode: StringName) -> bool:
 	if not is_node_ready() or not _opened or not _interactive or _return_retry \
 			or entered_action != &"" or is_instance_valid(_host_confirmation):
 		return false
@@ -230,7 +236,7 @@ func open_backup_load() -> bool:
 	selected_action = &"backup"
 	entered_action = &"backup"
 	_sync_custody()
-	var opened: Variant = host.call("focus_entry", &"load")
+	var opened: Variant = host.call("focus_entry", mode)
 	if typeof(opened) == TYPE_BOOL and opened:
 		return true
 	entered_action = &""
