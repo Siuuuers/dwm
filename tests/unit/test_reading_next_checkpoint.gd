@@ -11,6 +11,13 @@ const FIXTURE := preload("res://tests/support/ReadingNextFixture.gd")
 const RUN_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 const DOCUMENT := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
+const BOOTSTRAP := preload("res://autoload/ApplicationBootstrap.gd")
+const DESKTOP_HOST := preload("res://scripts/domain/desktop/DesktopAppHostState.gd")
+
+class InvalidDesktopHost extends RefCounted:
+	var active: Variant
+	func capture_persistent_state() -> Dictionary:
+		return {"active_app_id": active}
 
 class CheckedPort extends "res://scripts/application/run/SaveManagerCheckpointPort.gd":
 	var refuse_after_commit := false
@@ -37,7 +44,7 @@ class PromotedReadFailure extends "res://tests/support/FakeFileOps.gd":
 		if blocked: return {"ok": false, "code": &"fixture_postpromotion_read_refusal"}
 		return super.read_bytes(path)
 
-func _fixture(files: RefCounted = null) -> Dictionary:
+func _fixture(files: RefCounted = null, active_app_provider: Callable = Callable()) -> Dictionary:
 	var made := TemporaryStorage.create("reading_next_checkpoint")
 	assert_true(made.ok, str(made))
 	if not made.ok: return {}
@@ -61,7 +68,9 @@ func _fixture(files: RefCounted = null) -> Dictionary:
 	context.content_version_value = snapshot.content_version
 	context.audio_context_value = snapshot.audio_context.duplicate(true)
 	var adapter := ADAPTER.new()
-	assert_true(adapter.configure(real, context.provider_callables()).ok)
+	var providers: Dictionary = context.provider_callables()
+	if active_app_provider.is_valid(): providers.active_app_id = active_app_provider
+	assert_true(adapter.configure(real, providers).ok)
 	var plan := FIXTURE.plan(snapshot.narrative_checkpoint)
 	var source := FIXTURE.checkpoint_for(snapshot.narrative_checkpoint, plan, "source")
 	var destination := FIXTURE.checkpoint_for(snapshot.narrative_checkpoint, plan, "destination")
@@ -90,6 +99,51 @@ func _cold_checkpoint(f: Dictionary) -> Dictionary:
 	var checked := _validate_text(read.value)
 	assert_true(checked.ok, str(checked))
 	return checked.value.current_snapshot.snapshot.narrative_checkpoint if checked.ok else {}
+
+func test_bootstrap_real_desktop_stringname_is_admitted_by_next_autosave_provider() -> void:
+	var bootstrap: Node = autofree(BOOTSTRAP.new())
+	assert_null(bootstrap._active_app_id_context(), "an absent host stays null")
+	var host := DESKTOP_HOST.new()
+	host.reset(1)
+	assert_true(host.open_app(&"schedule", 1).ok)
+	bootstrap._desktop_host_state = host
+	assert_eq(typeof(host.capture_persistent_state().active_app_id), TYPE_STRING_NAME,
+		"exercise the real retained Schedule owner that reached the failing Dating journey")
+	assert_eq(typeof(bootstrap._active_app_id_context()), TYPE_STRING)
+	var f := _fixture(null, Callable(bootstrap, "_active_app_id_context"))
+	if f.is_empty(): return
+	var source := _commit(f, "source")
+	assert_true(source.ok, str(source))
+	if not source.ok: return
+	var destination := _commit(f, "destination")
+	assert_true(destination.ok, str(destination))
+	if not destination.ok: return
+	var disk: Dictionary = f.storage.read_text("autosave.json")
+	assert_true(disk.ok, str(disk))
+	if not disk.ok: return
+	var checked := _validate_text(disk.value)
+	assert_true(checked.ok, str(checked))
+	if not checked.ok: return
+	assert_eq(checked.value.current_snapshot.snapshot.active_app_id, "schedule")
+	assert_eq(_cold_checkpoint(f), f.destination)
+	assert_eq(typeof(host.capture_persistent_state().active_app_id), TYPE_STRING_NAME,
+		"provider normalization never mutates the host's runtime vocabulary")
+	host.go_home(1, &"NONE")
+	assert_null(bootstrap._active_app_id_context(), "Home remains null, never an empty String")
+
+func test_bootstrap_provider_preserves_bad_host_values_for_strict_next_refusal() -> void:
+	var bootstrap: Node = autofree(BOOTSTRAP.new())
+	var host := InvalidDesktopHost.new()
+	bootstrap._desktop_host_state = host
+	var f := _fixture(null, Callable(bootstrap, "_active_app_id_context"))
+	if f.is_empty(): return
+	for invalid: Variant in [42, false, {}, [], ""]:
+		host.active = invalid
+		assert_eq(typeof(bootstrap._active_app_id_context()), typeof(invalid))
+		assert_eq(bootstrap._active_app_id_context(), invalid)
+		var result := _commit(f, "source")
+		assert_eq(result.get("code"), &"invalid_provider_result", str(result))
+	assert_eq(f.real.commit_count, 0, "malformed input cannot become an apparently valid app ID")
 
 func test_next_persists_source_then_destination_through_real_autosave_schema() -> void:
 	var f := _fixture()
