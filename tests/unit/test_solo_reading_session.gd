@@ -2,6 +2,7 @@ extends "res://addons/gut/test.gd"
 
 const SESSION := preload("res://scripts/narrative/SoloReadingSession.gd")
 const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
+const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 const PRE := "dating.solo.priscilla.day1.pre_challenge"
 const POST := "dating.solo.priscilla.day1.post_challenge"
 const TOKEN := "fixture:reading-command"
@@ -13,9 +14,14 @@ class Runtime extends RefCounted:
 
 func _session() -> RefCounted:
 	var session := SESSION.new()
-	var document: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
+	var parsed: Dictionary = STRICT_JSON.parse_object(FileAccess.get_file_as_string(
 		"res://tests/fixtures/dialogic/solo_reading_rail_catalogue.json"))
-	assert_true(session.configure(document).ok)
+	assert_true(parsed.ok, str(parsed))
+	if not parsed.ok: return session
+	assert_eq(typeof(parsed.value.schema_version), TYPE_INT)
+	assert_eq(typeof(parsed.value.entries[0].content_version), TYPE_INT)
+	var configured: Dictionary = session.configure(parsed.value)
+	assert_true(configured.ok, str(configured))
 	return session
 
 func _context(entry_id: String) -> Dictionary:

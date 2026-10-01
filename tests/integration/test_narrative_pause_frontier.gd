@@ -855,7 +855,13 @@ func test_direct_reading_quick_failed_load_keeps_original_suspension_and_continu
 	assert_true(_runtime.paused)
 	assert_eq(_load_controller._handle, held)
 	assert_eq(_reading_state(), before)
-	assert_eq(_load_controller._quick_commands.last_result.get("code"), &"mounted_load_failed")
+	# Quick deliberately normalizes underlying Backup failures to its existing
+	# public Unavailable result; the load count and retained native source prove
+	# this was the compensated commit path rather than a preparation refusal.
+	assert_eq(_load_controller._quick_commands.last_result.get("code"), &"backup_action_unavailable")
+	assert_eq(_load_controller._quick_commands.last_result.get("status_key"), "unavailable")
+	assert_eq(_load_controller._quick_commands.edge.key, &"unavailable")
+	assert_true(_load_saves.pending.is_empty())
 	assert_true((await _load_controller.request_continue()).get("ok", false))
 	assert_eq(_reading_state(), before)
 

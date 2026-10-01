@@ -74,7 +74,7 @@ func _snapshot(post: bool = true) -> Dictionary:
 		"manifest_fingerprint": PARTICIPANT._entry_document_fingerprint(), "stage": phase,
 		"transaction_id": "fixture:completion:" + phase,
 		"reading_session": {"schema_version": 1, "catalogue_fingerprint": "fixture:catalogue", "boundary": "line",
-			"ledger": {"session_token": "fixture:session", "frozen_context": {"completion_transaction_id": "fixture:completion", "pre_entry_id": PRE},
+			"ledger": {"session_token": "fixture:completion", "frozen_context": {"completion_transaction_id": "fixture:completion", "pre_entry_id": PRE},
 				"entry_contexts": frames, "captions": captions},
 			"frontier": {"line_id": captions[-1].beat.line_id, "publication_id": captions[-1].publication_id}}}
 	return {"route_id": "dating", "lifecycle": {"run_id": "fixture:run", "branch_id": "fixture:restored-branch", "day": 2,
@@ -122,10 +122,14 @@ func test_session_and_each_phase_identity_belong_to_the_saved_physical_command()
 	foreign_route.route_id = "main"
 	assert_eq(RUN.validate(foreign_route, true).get("code"), &"reading_saved_run_required",
 		"retained Dating facts cannot qualify a reading session on a different saved route")
+	var foreign_session := _snapshot()
+	foreign_session.narrative_checkpoint.reading_session.ledger.session_token = "foreign:session"
+	assert_eq(RUN.validate(foreign_session, true).get("code"), &"reading_physical_owner_mismatch")
 
 func test_board_boundary_retains_only_reached_frames_without_starting_future_prose() -> void:
 	var snapshot := _snapshot(false)
 	var checkpoint: Dictionary = snapshot.narrative_checkpoint
+	var line_frontier: Dictionary = checkpoint.reading_session.frontier.duplicate(true)
 	checkpoint.reading_session.boundary = "between_entries"
 	checkpoint.reading_session.frontier = {}
 	snapshot.gameplay.route_context.active_dating_challenge.phase = "challenge"
@@ -141,6 +145,9 @@ func test_board_boundary_retains_only_reached_frames_without_starting_future_pro
 		"a fully completed date cannot retain only its pre-challenge History")
 	snapshot.gameplay.route_context.active_dating_challenge.phase = "post_challenge"
 	checkpoint.reading_session.boundary = "line"
+	assert_eq(RUN.validate(snapshot, true).get("code"), &"reading_session_invalid",
+		"line boundary requires its semantic frontier before physical binding is checked")
+	checkpoint.reading_session.frontier = line_frontier
 	assert_eq(RUN.validate(snapshot, true).get("code"), &"reading_physical_boundary_mismatch")
 
 func test_causal_entry_order_and_unknown_history_owners_refuse() -> void:
@@ -177,6 +184,25 @@ func test_invalid_version_or_containers_stay_fail_closed_even_with_stale_content
 		assert_eq(_prepare(participant, snapshot).get("code"), &"invalid_narrative_checkpoint")
 	assert_true(owner.validations.is_empty())
 	assert_true(owner.staged.is_empty())
+
+func test_capture_boundary_refuses_stripped_or_expanded_semantic_envelopes() -> void:
+	var snapshot := _snapshot()
+	for key: String in snapshot.narrative_checkpoint:
+		var stripped: Dictionary = snapshot.narrative_checkpoint.duplicate(true)
+		stripped.erase(key)
+		assert_eq(RUN.validate_reading_checkpoint(stripped, snapshot).get("code"), &"reading_session_invalid", key)
+	for key: String in ["path", "event_index", "future_field"]:
+		var expanded: Dictionary = snapshot.narrative_checkpoint.duplicate(true)
+		expanded[key] = "untrusted"
+		assert_eq(RUN.validate_reading_checkpoint(expanded, snapshot).get("code"), &"reading_session_invalid", key)
+	for invalid: Variant in [0, -1, true, "1", 1.0, null]:
+		var malformed: Dictionary = snapshot.narrative_checkpoint.duplicate(true)
+		malformed.content_version = invalid
+		assert_eq(RUN.validate_reading_checkpoint(malformed, snapshot).get("code"), &"reading_session_invalid")
+	for key: String in ["entry_id", "manifest_fingerprint", "stage", "transaction_id"]:
+		var malformed: Dictionary = snapshot.narrative_checkpoint.duplicate(true)
+		malformed[key] = []
+		assert_eq(RUN.validate_reading_checkpoint(malformed, snapshot).get("code"), &"reading_session_invalid", key)
 
 func test_prepare_checks_complete_catalogue_before_staging_and_finalization_is_one_shot() -> void:
 	var owner := ReadingOwner.new()

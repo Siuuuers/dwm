@@ -210,6 +210,13 @@ func _finish_proof() -> void:
 	# Evidence is sealed before teardown. Abort prevents the live test text from
 	# fabricating natural completion while native coroutines and speech retire.
 	var bridge: Node = root.get_node("DialogicBridge")
+	# Retire the fixture's reveal await before aborting. This is cleanup after
+	# proof, not evidence that arbitrary partial-reveal cancellation is leak-free.
+	var before_cleanup: Dictionary = bridge.capture_reading_checkpoint(false)
+	if not _check(before_cleanup.get("ok", false), "capture cleanup frontier"): return
+	var completed: Dictionary = bridge.capture_reading_checkpoint(true)
+	if not _check(completed.get("ok", false) and completed.value == before_cleanup.value,
+		"fixture cleanup completes reveal without changing the ledger or frontier"): return
 	var retired: Dictionary = bridge.abort_current_entry(&"reading_fixture_teardown")
 	if not _check(retired.get("ok", false), "retire exact test playback without a completion receipt"): return
 	var speech: Node = root.get_node("SystemTtsCoordinator")

@@ -49,6 +49,16 @@ static func validate(snapshot: Dictionary, require_complete: bool = false) -> Di
 ## replace an earlier entry's immutable frame while retaining a valid frontier.
 ## Catalogue, exact signatures and stable-line availability remain bridge-owned.
 static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictionary) -> Dictionary:
+	# Save capture reaches this pure boundary before a Run is serialized, while
+	# restore also has the participant's exact envelope checks. Both paths must
+	# refuse bytes that would be unwritable by the versioned reading producer.
+	if not _exact(checkpoint, ["content_version", "entry_id", "frozen_context", "manifest_fingerprint",
+			"stage", "transaction_id", "reading_session"]) \
+			or typeof(checkpoint.get("content_version")) != TYPE_INT or checkpoint.content_version <= 0 \
+			or not checkpoint.get("frozen_context") is Dictionary:
+		return _fail(&"reading_session_invalid")
+	for key: String in ["entry_id", "manifest_fingerprint", "stage", "transaction_id"]:
+		if not FROZEN._field(checkpoint[key], "id"): return _fail(&"reading_session_invalid")
 	if snapshot.get("route_id") != "dating" or not snapshot.get("lifecycle") is Dictionary or not snapshot.get("gameplay") is Dictionary \
 			or not snapshot.get("contacts") is Dictionary or not snapshot.gameplay.get("route_context") is Dictionary:
 		return _fail(&"reading_saved_run_required")
@@ -74,7 +84,8 @@ static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictio
 	if not dating.ok: return dating
 	var pre_entry := _dating_entry(record.context, "pre_challenge")
 	var post_entry := _dating_entry(record.context, "post_challenge")
-	if ledger.frozen_context != {"completion_transaction_id": record.completion_transaction_id, "pre_entry_id": pre_entry}:
+	if ledger.session_token != record.completion_transaction_id \
+			or ledger.frozen_context != {"completion_transaction_id": record.completion_transaction_id, "pre_entry_id": pre_entry}:
 		return _fail(&"reading_physical_owner_mismatch")
 	var retained: Dictionary = route[DATING_KEY].entries
 	var admitted := {}

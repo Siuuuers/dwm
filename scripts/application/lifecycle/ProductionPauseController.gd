@@ -542,6 +542,8 @@ func capture_backup_checkpoint_inputs() -> Dictionary:
 	for key: String in ["physical_token", "command_sha256", "completion_transaction_id", "context"]:
 		if not command.has(key) or record.get(key) != command[key]:
 			return _failure(&"pause_source_changed")
+	var narrative := _capture_between_entry_reading_checkpoint()
+	if not narrative.get("ok", false): return narrative
 	var captured: Variant = (_services.backup_capture as Callable).call()
 	if not captured is Dictionary or not captured.get("ok", false):
 		return captured if captured is Dictionary else _failure(&"invalid_backup_capture")
@@ -549,12 +551,26 @@ func capture_backup_checkpoint_inputs() -> Dictionary:
 	var snapshot: Dictionary = inputs.get("snapshot_input", {})
 	var saved_record: Dictionary = snapshot.get("gameplay", {}).get("route_context", {}).get("active_dating_challenge", {})
 	var current: Dictionary = _services.game_state.capture_dating_challenge_state()
-	if inputs.get("route_id") != "dating" or inputs.get("dialogic_checkpoint") != {} \
+	var after := _capture_between_entry_reading_checkpoint()
+	if inputs.get("route_id") != "dating" or inputs.get("dialogic_checkpoint") != narrative.value \
 			or snapshot.get("lifecycle", {}).get("run_id") != _captured_source.session.get("run_id") \
 			or saved_record != record or not current.get("ok", false) or current.value != record \
+			or not after.get("ok", false) or after.value != narrative.value \
 			or not _backup_admission().get("ok", false):
 		return _failure(&"pause_source_changed")
 	return {"ok": true, "value": inputs.duplicate(true)}
+
+## The board owns the native surface, but its admitted reading session still owns
+## earlier History. An idle source may carry only that completed-entry boundary.
+func _capture_between_entry_reading_checkpoint() -> Dictionary:
+	var bridge: Object = _services.bridge
+	if not bridge.has_method("has_reading_session") or not bridge.has_reading_session():
+		return {"ok": true, "value": {}}
+	var captured: Dictionary = bridge.capture_reading_checkpoint(false)
+	if not captured.get("ok", false): return captured
+	if captured.value.get("reading_session", {}).get("boundary") != "between_entries":
+		return _failure(&"pause_source_changed")
+	return captured
 
 
 func _capture_reading_backup_inputs() -> Dictionary:

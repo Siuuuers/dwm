@@ -12,10 +12,12 @@ class Coordinator extends Node:
 
 class Bridge extends RefCounted:
 	var qualified := true
+	var retained := true
 	var captures: Array[bool] = []
 	var checkpoint := {"timeline_id": "qualified.pre", "line_id": "qualified.first",
 		"reading_session": {"version": 1, "session_id": "reading-session", "history": ["first"]}}
 	func can_capture_reading_checkpoint() -> bool: return qualified
+	func has_reading_session() -> bool: return retained
 	func capture_reading_checkpoint(complete_reveal: bool = false) -> Dictionary:
 		captures.append(complete_reveal)
 		return {"ok": true, "value": checkpoint.duplicate(true)} if qualified else {"ok": false}
@@ -150,6 +152,45 @@ func test_history_custody_blocks_backup_and_quick_without_discarding_pause_handl
 	assert_eq(_provider_calls, 0)
 	_controller._history_caption = null
 	assert_true(_controller.can_save_backup())
+
+func _use_paused_board() -> void:
+	_controller._captured_source.frontier = {}
+	_controller._caption = null
+	_dating.record.phase = "challenge"
+	_dating.record["board"] = {"revision": 9, "flags": [2, 7], "revealed": [0, 1]}
+	_bridge.checkpoint.reading_session["boundary"] = "between_entries"
+	_bridge.checkpoint.reading_session["frontier"] = {}
+	_inputs.dialogic_checkpoint = _bridge.checkpoint.duplicate(true)
+	_inputs.snapshot_input.gameplay.route_context.active_dating_challenge = _dating.record.duplicate(true)
+
+func test_paused_board_save_retains_earlier_reading_history_and_exact_board_without_reveal() -> void:
+	_use_paused_board()
+	var held: Dictionary = _controller._handle.duplicate(true)
+	var record: Dictionary = _dating.record.duplicate(true)
+	assert_true(_controller.can_save_backup())
+	var saved: Dictionary = _controller.capture_backup_checkpoint_inputs()
+	assert_true(saved.get("ok", false), str(saved))
+	if not saved.get("ok", false): return
+	assert_eq(saved.value.dialogic_checkpoint, _bridge.checkpoint)
+	assert_eq(saved.value.dialogic_checkpoint.reading_session.history, ["first"])
+	assert_eq(saved.value.snapshot_input.gameplay.route_context.active_dating_challenge, record)
+	assert_eq(_dating.record, record)
+	assert_eq(_controller._handle, held)
+	assert_eq(_bridge.captures, [false, false])
+
+func test_paused_board_refuses_reading_history_drift_or_a_live_line_boundary() -> void:
+	_use_paused_board()
+	var held: Dictionary = _controller._handle.duplicate(true)
+	_provider_effect = func() -> void: _bridge.checkpoint.reading_session.history.append("foreign")
+	var refused: Dictionary = _controller.capture_backup_checkpoint_inputs()
+	assert_eq(refused.get("code"), &"pause_source_changed")
+	assert_eq(_controller._handle, held)
+	_provider_calls = 0
+	_provider_effect = Callable()
+	_bridge.checkpoint.reading_session.boundary = "line"
+	refused = _controller.capture_backup_checkpoint_inputs()
+	assert_eq(refused.get("code"), &"pause_source_changed")
+	assert_eq(_provider_calls, 0, "a retained live line cannot masquerade as an idle board checkpoint")
 
 func test_router_reading_facades_refuse_without_a_production_owner() -> void:
 	var router: Node = preload("res://autoload/SceneRouter.gd").new()
