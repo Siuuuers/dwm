@@ -40,12 +40,12 @@ func test_real_registry_exposes_five_languages_with_two_selectable_drafts() -> v
 		assert_eq(manager.get_presentation_profile().font_profile, language + "_pixel")
 	assert_eq(manager.prepare_locale("xx-QA-unregistered").get("code"), &"unknown_locale")
 
-func test_both_catalogs_cover_all_300_source_ids_and_exact_placeholders() -> void:
+func test_both_catalogs_cover_all_303_source_ids_and_exact_placeholders() -> void:
 	var loaded: Dictionary = CATALOG.load_bundle("res://localization/manifest.json")
 	assert_true(loaded.get("ok", false), str(loaded))
 	if not loaded.get("ok", false): return
 	var source: Dictionary = SCHEMA._message_map(loaded.value.catalogs.en)
-	assert_eq(source.size(), 300)
+	assert_eq(source.size(), 303)
 	for language: String in ["ja", "ko"]:
 		var translated: Dictionary = SCHEMA._message_map(loaded.value.catalogs[language])
 		assert_eq(translated.size(), source.size())

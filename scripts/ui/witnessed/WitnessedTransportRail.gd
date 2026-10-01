@@ -306,7 +306,7 @@ func _apply_projection() -> void:
 		button.accessibility_name = _full_label(id, enabled_mode)
 		button.tooltip_text = button.accessibility_name if button.text != button.accessibility_name else ""
 		if id == &"next":
-			button.accessibility_description = String(_copy.get(&"next_help", ""))
+			button.accessibility_description = String(_copy.get("next_help", ""))
 			button.tooltip_text = button.accessibility_description
 		var command_available := (id == &"skip" and _can_skip) \
 			or (id == &"auto" and _can_auto) or (id == &"load" and _can_load) \

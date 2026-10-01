@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: 9ecf5c55884db74f660fa3f29d673bfb00be7c75
+          ref: b9389387d85d420b7fbd83b24b1b1a94e59da69a
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
@@ -162,7 +162,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: 9ecf5c55884db74f660fa3f29d673bfb00be7c75
+          ref: b9389387d85d420b7fbd83b24b1b1a94e59da69a
           # The schedule-gate contract inspects its immutable historical seals.
           fetch-depth: ${{ (matrix.suite == 'new_account' || matrix.suite == 'desktop') && '0' || '1' }}
           # Defer credential removal until the post-job cleanup, after the
@@ -248,7 +248,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: 9ecf5c55884db74f660fa3f29d673bfb00be7c75
+          ref: b9389387d85d420b7fbd83b24b1b1a94e59da69a
           # Same disposable-index workaround as the Windows jobs above.
           persist-credentials: true
       - name: Prepare disposable checkout for credential cleanup
@@ -256,7 +256,7 @@ jobs:
           git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
           git submodule foreach --recursive 'true'
       - name: Install Godot and software display
-        timeout-minutes: 5
+        timeout-minutes: 12
         run: |
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri pulseaudio pulseaudio-utils libspeechd2 speech-dispatcher speech-dispatcher-audio-plugins speech-dispatcher-espeak-ng
@@ -315,7 +315,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: 9ecf5c55884db74f660fa3f29d673bfb00be7c75
+          ref: b9389387d85d420b7fbd83b24b1b1a94e59da69a
           # Same disposable-index workaround as the Windows jobs above.
           persist-credentials: true
       - name: Prepare disposable checkout for credential cleanup
