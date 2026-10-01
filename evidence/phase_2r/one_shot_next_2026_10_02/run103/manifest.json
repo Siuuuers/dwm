@@ -1,0 +1,695 @@
+{
+  "artifacts": [
+    {
+      "created_at": "2026-10-01T19:32:11Z",
+      "digest": "sha256:373387a3144eda375c49f95b8258ef8f021781715422518c105cd771d2513b14",
+      "extracted_file_count": 11,
+      "id": 11189741932,
+      "local_zip_basename": "cloud-speech-reading-rail-journey-36914900751-1.zip",
+      "name": "cloud-speech-reading-rail-journey-36914900751-1",
+      "size_in_bytes": 386292,
+      "workflow_run_head_sha": "74ce1571cd3ed73bc874a469f7cf52b569995550",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "373387a3144eda375c49f95b8258ef8f021781715422518c105cd771d2513b14"
+    },
+    {
+      "created_at": "2026-10-01T19:32:56Z",
+      "digest": "sha256:30c29b6c2122b52c8a56801bcd4ad5ad337bcf4239edcd41d63eea21c2063edf",
+      "extracted_file_count": 11,
+      "id": 11189197155,
+      "local_zip_basename": "cloud-speech-rendered-desktop-36914900751-1.zip",
+      "name": "cloud-speech-rendered-desktop-36914900751-1",
+      "size_in_bytes": 383274,
+      "workflow_run_head_sha": "74ce1571cd3ed73bc874a469f7cf52b569995550",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "30c29b6c2122b52c8a56801bcd4ad5ad337bcf4239edcd41d63eea21c2063edf"
+    },
+    {
+      "created_at": "2026-10-01T19:33:30Z",
+      "digest": "sha256:df62f1d78d16dca0fcd00f8192d15c039f6442979581d15acc16e595e547ee66",
+      "extracted_file_count": 1,
+      "id": 11189187245,
+      "local_zip_basename": "desktop-scaling-render-36914900751-1.zip",
+      "name": "desktop-scaling-render-36914900751-1",
+      "size_in_bytes": 15526,
+      "workflow_run_head_sha": "74ce1571cd3ed73bc874a469f7cf52b569995550",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "df62f1d78d16dca0fcd00f8192d15c039f6442979581d15acc16e595e547ee66"
+    },
+    {
+      "created_at": "2026-10-01T19:32:49Z",
+      "digest": "sha256:581265766259753e6ca223f355bee558ac669b2e0e84893d12e2f508a3fd6ab0",
+      "extracted_file_count": 2,
+      "id": 11189871733,
+      "local_zip_basename": "public-surfaces-36914900751-1.zip",
+      "name": "public-surfaces-36914900751-1",
+      "size_in_bytes": 37291,
+      "workflow_run_head_sha": "74ce1571cd3ed73bc874a469f7cf52b569995550",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "581265766259753e6ca223f355bee558ac669b2e0e84893d12e2f508a3fd6ab0"
+    },
+    {
+      "created_at": "2026-10-01T19:32:39Z",
+      "digest": "sha256:e5d39e90bf4408697a59cd0bdf65e7f8b6c36c5d8dcedaa97fdeaac760aa8973",
+      "extracted_file_count": 1,
+      "id": 11190071525,
+      "local_zip_basename": "reading-rail-36914900751-1.zip",
+      "name": "reading-rail-36914900751-1",
+      "size_in_bytes": 15526,
+      "workflow_run_head_sha": "74ce1571cd3ed73bc874a469f7cf52b569995550",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "e5d39e90bf4408697a59cd0bdf65e7f8b6c36c5d8dcedaa97fdeaac760aa8973"
+    },
+    {
+      "created_at": "2026-10-01T19:33:41Z",
+      "digest": "sha256:70c9f4a342c6dc0e80a5b9fdc99829654601b9e16886299a08f9783f6e5fc009",
+      "extracted_file_count": 3,
+      "id": 11189302269,
+      "local_zip_basename": "ui-literal-audit-36914900751-1.zip",
+      "name": "ui-literal-audit-36914900751-1",
+      "size_in_bytes": 29987,
+      "workflow_run_head_sha": "74ce1571cd3ed73bc874a469f7cf52b569995550",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "70c9f4a342c6dc0e80a5b9fdc99829654601b9e16886299a08f9783f6e5fc009"
+    },
+    {
+      "created_at": "2026-10-01T19:32:37Z",
+      "digest": "sha256:9e6859fc358b70a0d999583fb11875d9a4a059be392aa2d8c19d8a19a073d1d2",
+      "extracted_file_count": 1,
+      "id": 11189971848,
+      "local_zip_basename": "windows-checkpoint_diagnostics-36914900751-1.zip",
+      "name": "windows-checkpoint_diagnostics-36914900751-1",
+      "size_in_bytes": 15529,
+      "workflow_run_head_sha": "74ce1571cd3ed73bc874a469f7cf52b569995550",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "9e6859fc358b70a0d999583fb11875d9a4a059be392aa2d8c19d8a19a073d1d2"
+    },
+    {
+      "created_at": "2026-10-01T19:32:34Z",
+      "digest": "sha256:a72a97d6ff4e45429e185d1dd4dded5296c92e12b3b805b6d459c94d0c16c2c2",
+      "extracted_file_count": 1,
+      "id": 11188503538,
+      "local_zip_basename": "windows-dating-36914900751-1.zip",
+      "name": "windows-dating-36914900751-1",
+      "size_in_bytes": 15531,
+      "workflow_run_head_sha": "74ce1571cd3ed73bc874a469f7cf52b569995550",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "a72a97d6ff4e45429e185d1dd4dded5296c92e12b3b805b6d459c94d0c16c2c2"
+    },
+    {
+      "created_at": "2026-10-01T19:32:29Z",
+      "digest": "sha256:b7b213209b76b9c07cd79f4d76f0b5d129a955757a4ae65974d717b9d11d18a9",
+      "extracted_file_count": 1,
+      "id": 11189407052,
+      "local_zip_basename": "windows-localization-36914900751-1.zip",
+      "name": "windows-localization-36914900751-1",
+      "size_in_bytes": 15530,
+      "workflow_run_head_sha": "74ce1571cd3ed73bc874a469f7cf52b569995550",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "b7b213209b76b9c07cd79f4d76f0b5d129a955757a4ae65974d717b9d11d18a9"
+    },
+    {
+      "created_at": "2026-10-01T19:33:08Z",
+      "digest": "sha256:80286300e16a740d362f22648fa230ef5ac40ef7a07bffac848063a95d900974",
+      "extracted_file_count": 1,
+      "id": 11188188689,
+      "local_zip_basename": "windows-persistence-36914900751-1.zip",
+      "name": "windows-persistence-36914900751-1",
+      "size_in_bytes": 15526,
+      "workflow_run_head_sha": "74ce1571cd3ed73bc874a469f7cf52b569995550",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "80286300e16a740d362f22648fa230ef5ac40ef7a07bffac848063a95d900974"
+    },
+    {
+      "created_at": "2026-10-01T19:32:38Z",
+      "digest": "sha256:4922a497e8ca2f2526688ab4a882fd587c0831dc65bd9ca5a5e2f2bfba233bff",
+      "extracted_file_count": 1,
+      "id": 11189901834,
+      "local_zip_basename": "run103-reading-import.zip",
+      "name": "windows-reading_delivery-36914900751-1",
+      "size_in_bytes": 15532,
+      "workflow_run_head_sha": "74ce1571cd3ed73bc874a469f7cf52b569995550",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "4922a497e8ca2f2526688ab4a882fd587c0831dc65bd9ca5a5e2f2bfba233bff"
+    },
+    {
+      "created_at": "2026-10-01T19:32:41Z",
+      "digest": "sha256:35220692346f7cd51b7cede5fb8d9ad9d0ea4d9ab90ca902a6dfad7e6f214a66",
+      "extracted_file_count": 1,
+      "id": 11189646900,
+      "local_zip_basename": "windows-settings-36914900751-1.zip",
+      "name": "windows-settings-36914900751-1",
+      "size_in_bytes": 15526,
+      "workflow_run_head_sha": "74ce1571cd3ed73bc874a469f7cf52b569995550",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "35220692346f7cd51b7cede5fb8d9ad9d0ea4d9ab90ca902a6dfad7e6f214a66"
+    }
+  ],
+  "bundle": "next-run103-diagnostics.tar.gz",
+  "counts": {
+    ".json": 7,
+    ".log": 29,
+    ".txt": 8
+  },
+  "evidence_kind": "failed-run-diagnostic-only",
+  "excluded_extracted_files": [
+    {
+      "bytes": 2467118,
+      "path": "run103/artifacts/cloud-speech-reading-rail-journey-36914900751-1/speech-dispatcher.log",
+      "provenance": {
+        "artifact_id": 11189741932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "speech-dispatcher.log",
+        "zip_sha256": "373387a3144eda375c49f95b8258ef8f021781715422518c105cd771d2513b14"
+      },
+      "reason": "Large native speech diagnostic omitted; job/capability receipts retain their bounded scope.",
+      "sha256": "d4df6ad11d92a55df2a8de2fc3fec27cbcdda28abee4ed431707e2cd8b96118b"
+    },
+    {
+      "bytes": 1032081,
+      "path": "run103/artifacts/cloud-speech-reading-rail-journey-36914900751-1/voices.txt",
+      "provenance": {
+        "artifact_id": 11189741932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "voices.txt",
+        "zip_sha256": "373387a3144eda375c49f95b8258ef8f021781715422518c105cd771d2513b14"
+      },
+      "reason": "Large native speech diagnostic omitted; job/capability receipts retain their bounded scope.",
+      "sha256": "a5a1e8f33fef802f2f4ff61cf5bc41930458df6168ef027817fa09fbcd8c6a5b"
+    },
+    {
+      "bytes": 2454344,
+      "path": "run103/artifacts/cloud-speech-rendered-desktop-36914900751-1/speech-dispatcher.log",
+      "provenance": {
+        "artifact_id": 11189197155,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "speech-dispatcher.log",
+        "zip_sha256": "30c29b6c2122b52c8a56801bcd4ad5ad337bcf4239edcd41d63eea21c2063edf"
+      },
+      "reason": "Large native speech diagnostic omitted; job/capability receipts retain their bounded scope.",
+      "sha256": "ea53e83fc5fd924377cfae009b56352de89462640d1e49c56e694fdbd0212163"
+    },
+    {
+      "bytes": 1032081,
+      "path": "run103/artifacts/cloud-speech-rendered-desktop-36914900751-1/voices.txt",
+      "provenance": {
+        "artifact_id": 11189197155,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "voices.txt",
+        "zip_sha256": "30c29b6c2122b52c8a56801bcd4ad5ad337bcf4239edcd41d63eea21c2063edf"
+      },
+      "reason": "Large native speech diagnostic omitted; job/capability receipts retain their bounded scope.",
+      "sha256": "a5a1e8f33fef802f2f4ff61cf5bc41930458df6168ef027817fa09fbcd8c6a5b"
+    }
+  ],
+  "excluded_metadata": "Transient download responses and artifact-manifest.json are omitted because they can contain signed URLs.",
+  "generic_audit_pass": false,
+  "limits": [
+    "DIAGNOSTIC/PARTIAL ONLY: this failed run does not establish full-gate acceptance. Independently audited passing components retain only their stated scope.",
+    "No XML results are required or manufactured by this packaging mode; all existing raw results retain their actual outcomes.",
+    "Workflow head and pinned attempted source/checkout are recorded separately; checkout success does not imply the engine loaded the project.",
+    "Artifact bytes and raw logs are preserved without executing Godot or PowerShell locally.",
+    "Most PNGs and binary payloads are omitted, with explicit hashes/limits; reading PNGs and savebytes are retained.",
+    "This archive preserves evidence; packaging creates no additional engine or visual acceptance."
+  ],
+  "normalization": "lexicographic POSIX PAX members; mode0644 uid/gid0 empty owner names, mtime0; gzip mtime0, empty filename, level9",
+  "not_downloaded_artifacts": [],
+  "payload_bytes": 6621865,
+  "payload_file_count": 44,
+  "payload_files": [
+    {
+      "bytes": 8528,
+      "path": "run103/artifacts-api.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "0a9c2d069dd4d8394a3d54883239fe703a53f9f49cad39bea57152f6273780da"
+    },
+    {
+      "bytes": 102,
+      "path": "run103/artifacts/cloud-speech-reading-rail-journey-36914900751-1/dummy.log",
+      "provenance": {
+        "artifact_id": 11189741932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "dummy.log",
+        "zip_sha256": "373387a3144eda375c49f95b8258ef8f021781715422518c105cd771d2513b14"
+      },
+      "sha256": "a85c5d8911aac6e6663e7d9c5fa4b21f49c28bc607f95038b9b057e564a84929"
+    },
+    {
+      "bytes": 0,
+      "path": "run103/artifacts/cloud-speech-reading-rail-journey-36914900751-1/espeak-ng-mbrola.log",
+      "provenance": {
+        "artifact_id": 11189741932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "espeak-ng-mbrola.log",
+        "zip_sha256": "373387a3144eda375c49f95b8258ef8f021781715422518c105cd771d2513b14"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "run103/artifacts/cloud-speech-reading-rail-journey-36914900751-1/espeak-ng.log",
+      "provenance": {
+        "artifact_id": 11189741932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "espeak-ng.log",
+        "zip_sha256": "373387a3144eda375c49f95b8258ef8f021781715422518c105cd771d2513b14"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 35,
+      "path": "run103/artifacts/cloud-speech-reading-rail-journey-36914900751-1/modules.txt",
+      "provenance": {
+        "artifact_id": 11189741932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "modules.txt",
+        "zip_sha256": "373387a3144eda375c49f95b8258ef8f021781715422518c105cd771d2513b14"
+      },
+      "sha256": "b86d382d34ae1c2f6c4e9aa4c3bb589ebd1796d93df2942f8ff79e7952480fde"
+    },
+    {
+      "bytes": 13,
+      "path": "run103/artifacts/cloud-speech-reading-rail-journey-36914900751-1/openjtalk.log",
+      "provenance": {
+        "artifact_id": 11189741932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "openjtalk.log",
+        "zip_sha256": "373387a3144eda375c49f95b8258ef8f021781715422518c105cd771d2513b14"
+      },
+      "sha256": "13da6708a2d9f8e382e8e2bc393abf852bcb30a763ea0f29c22bc162fd082ddb"
+    },
+    {
+      "bytes": 468,
+      "path": "run103/artifacts/cloud-speech-reading-rail-journey-36914900751-1/pulseaudio.log",
+      "provenance": {
+        "artifact_id": 11189741932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "pulseaudio.log",
+        "zip_sha256": "373387a3144eda375c49f95b8258ef8f021781715422518c105cd771d2513b14"
+      },
+      "sha256": "c63f15cc507374ff6c7e1db5f9f532488b0d4b6d4502e7c7c0b37ffe87ae00e6"
+    },
+    {
+      "bytes": 3,
+      "path": "run103/artifacts/cloud-speech-reading-rail-journey-36914900751-1/sink-module.txt",
+      "provenance": {
+        "artifact_id": 11189741932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "sink-module.txt",
+        "zip_sha256": "373387a3144eda375c49f95b8258ef8f021781715422518c105cd771d2513b14"
+      },
+      "sha256": "a9742eb8ee320e006666aef25ae9aeed948247f3125c9cafa7cf97b7e7467dd5"
+    },
+    {
+      "bytes": 51,
+      "path": "run103/artifacts/cloud-speech-reading-rail-journey-36914900751-1/sinks.txt",
+      "provenance": {
+        "artifact_id": 11189741932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "sinks.txt",
+        "zip_sha256": "373387a3144eda375c49f95b8258ef8f021781715422518c105cd771d2513b14"
+      },
+      "sha256": "25a5ed750656366bc54b565a5487a37e58d9bed55dcef226f10a3b5c4668f5dc"
+    },
+    {
+      "bytes": 0,
+      "path": "run103/artifacts/cloud-speech-reading-rail-journey-36914900751-1/voices-attempt-1.stderr.txt",
+      "provenance": {
+        "artifact_id": 11189741932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "voices-attempt-1.stderr.txt",
+        "zip_sha256": "373387a3144eda375c49f95b8258ef8f021781715422518c105cd771d2513b14"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 102,
+      "path": "run103/artifacts/cloud-speech-rendered-desktop-36914900751-1/dummy.log",
+      "provenance": {
+        "artifact_id": 11189197155,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "dummy.log",
+        "zip_sha256": "30c29b6c2122b52c8a56801bcd4ad5ad337bcf4239edcd41d63eea21c2063edf"
+      },
+      "sha256": "a85c5d8911aac6e6663e7d9c5fa4b21f49c28bc607f95038b9b057e564a84929"
+    },
+    {
+      "bytes": 0,
+      "path": "run103/artifacts/cloud-speech-rendered-desktop-36914900751-1/espeak-ng-mbrola.log",
+      "provenance": {
+        "artifact_id": 11189197155,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "espeak-ng-mbrola.log",
+        "zip_sha256": "30c29b6c2122b52c8a56801bcd4ad5ad337bcf4239edcd41d63eea21c2063edf"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "run103/artifacts/cloud-speech-rendered-desktop-36914900751-1/espeak-ng.log",
+      "provenance": {
+        "artifact_id": 11189197155,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "espeak-ng.log",
+        "zip_sha256": "30c29b6c2122b52c8a56801bcd4ad5ad337bcf4239edcd41d63eea21c2063edf"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 35,
+      "path": "run103/artifacts/cloud-speech-rendered-desktop-36914900751-1/modules.txt",
+      "provenance": {
+        "artifact_id": 11189197155,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "modules.txt",
+        "zip_sha256": "30c29b6c2122b52c8a56801bcd4ad5ad337bcf4239edcd41d63eea21c2063edf"
+      },
+      "sha256": "b86d382d34ae1c2f6c4e9aa4c3bb589ebd1796d93df2942f8ff79e7952480fde"
+    },
+    {
+      "bytes": 13,
+      "path": "run103/artifacts/cloud-speech-rendered-desktop-36914900751-1/openjtalk.log",
+      "provenance": {
+        "artifact_id": 11189197155,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "openjtalk.log",
+        "zip_sha256": "30c29b6c2122b52c8a56801bcd4ad5ad337bcf4239edcd41d63eea21c2063edf"
+      },
+      "sha256": "13da6708a2d9f8e382e8e2bc393abf852bcb30a763ea0f29c22bc162fd082ddb"
+    },
+    {
+      "bytes": 468,
+      "path": "run103/artifacts/cloud-speech-rendered-desktop-36914900751-1/pulseaudio.log",
+      "provenance": {
+        "artifact_id": 11189197155,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "pulseaudio.log",
+        "zip_sha256": "30c29b6c2122b52c8a56801bcd4ad5ad337bcf4239edcd41d63eea21c2063edf"
+      },
+      "sha256": "c63f15cc507374ff6c7e1db5f9f532488b0d4b6d4502e7c7c0b37ffe87ae00e6"
+    },
+    {
+      "bytes": 3,
+      "path": "run103/artifacts/cloud-speech-rendered-desktop-36914900751-1/sink-module.txt",
+      "provenance": {
+        "artifact_id": 11189197155,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "sink-module.txt",
+        "zip_sha256": "30c29b6c2122b52c8a56801bcd4ad5ad337bcf4239edcd41d63eea21c2063edf"
+      },
+      "sha256": "a9742eb8ee320e006666aef25ae9aeed948247f3125c9cafa7cf97b7e7467dd5"
+    },
+    {
+      "bytes": 51,
+      "path": "run103/artifacts/cloud-speech-rendered-desktop-36914900751-1/sinks.txt",
+      "provenance": {
+        "artifact_id": 11189197155,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "sinks.txt",
+        "zip_sha256": "30c29b6c2122b52c8a56801bcd4ad5ad337bcf4239edcd41d63eea21c2063edf"
+      },
+      "sha256": "25a5ed750656366bc54b565a5487a37e58d9bed55dcef226f10a3b5c4668f5dc"
+    },
+    {
+      "bytes": 0,
+      "path": "run103/artifacts/cloud-speech-rendered-desktop-36914900751-1/voices-attempt-1.stderr.txt",
+      "provenance": {
+        "artifact_id": 11189197155,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "voices-attempt-1.stderr.txt",
+        "zip_sha256": "30c29b6c2122b52c8a56801bcd4ad5ad337bcf4239edcd41d63eea21c2063edf"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 203957,
+      "path": "run103/artifacts/desktop-scaling-render-36914900751-1/import.log",
+      "provenance": {
+        "artifact_id": 11189187245,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "import.log",
+        "zip_sha256": "df62f1d78d16dca0fcd00f8192d15c039f6442979581d15acc16e595e547ee66"
+      },
+      "sha256": "6bb659f5b887bd5cb5431b0e0392eb9239faf2c8883712d41af83e35991581bf"
+    },
+    {
+      "bytes": 203957,
+      "path": "run103/artifacts/public-surfaces-36914900751-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11189871733,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "581265766259753e6ca223f355bee558ac669b2e0e84893d12e2f508a3fd6ab0"
+      },
+      "sha256": "83e8200def257c2dbb28e0e27bc55343039cf27c556bb66d20ae3609b8b4e0c2"
+    },
+    {
+      "bytes": 224877,
+      "path": "run103/artifacts/public-surfaces-36914900751-1/ci/public-surfaces/fixture-version-census.json",
+      "provenance": {
+        "artifact_id": 11189871733,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/fixture-version-census.json",
+        "zip_sha256": "581265766259753e6ca223f355bee558ac669b2e0e84893d12e2f508a3fd6ab0"
+      },
+      "sha256": "2d8ebf6ed710d56fb5baa70d8342c85fbf4955d62adb7818bc66ed39ce44fe6a"
+    },
+    {
+      "bytes": 203957,
+      "path": "run103/artifacts/reading-rail-36914900751-1/import.log",
+      "provenance": {
+        "artifact_id": 11190071525,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "import.log",
+        "zip_sha256": "e5d39e90bf4408697a59cd0bdf65e7f8b6c36c5d8dcedaa97fdeaac760aa8973"
+      },
+      "sha256": "36510177f157b07f00dcce7943040602f3286017a7cff78532c91c92ec2607c7"
+    },
+    {
+      "bytes": 1356,
+      "path": "run103/artifacts/ui-literal-audit-36914900751-1/audit.log",
+      "provenance": {
+        "artifact_id": 11189302269,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "audit.log",
+        "zip_sha256": "70c9f4a342c6dc0e80a5b9fdc99829654601b9e16886299a08f9783f6e5fc009"
+      },
+      "sha256": "5d454dccbb77d2554398df1d7c45b6ce003290b89c371dcfa6b9b4c127266283"
+    },
+    {
+      "bytes": 129558,
+      "path": "run103/artifacts/ui-literal-audit-36914900751-1/script_ui_disposition.json",
+      "provenance": {
+        "artifact_id": 11189302269,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "script_ui_disposition.json",
+        "zip_sha256": "70c9f4a342c6dc0e80a5b9fdc99829654601b9e16886299a08f9783f6e5fc009"
+      },
+      "sha256": "799999a5e3bf17362101c16d5be590882b22abfdf300c94b87713a957aee3c09"
+    },
+    {
+      "bytes": 17016,
+      "path": "run103/artifacts/ui-literal-audit-36914900751-1/ui_literal_disposition.json",
+      "provenance": {
+        "artifact_id": 11189302269,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ui_literal_disposition.json",
+        "zip_sha256": "70c9f4a342c6dc0e80a5b9fdc99829654601b9e16886299a08f9783f6e5fc009"
+      },
+      "sha256": "2bcc2d325c95cefae7ef35079ba12adb02b550d1762ec43fd9a1a932882a2d03"
+    },
+    {
+      "bytes": 203957,
+      "path": "run103/artifacts/windows-checkpoint_diagnostics-36914900751-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11189971848,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "9e6859fc358b70a0d999583fb11875d9a4a059be392aa2d8c19d8a19a073d1d2"
+      },
+      "sha256": "6a8aa1b860244c2adf85c39097abf6a4b05537a9e2d1e9af9a2ffafdd199ec6a"
+    },
+    {
+      "bytes": 203957,
+      "path": "run103/artifacts/windows-dating-36914900751-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11188503538,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "a72a97d6ff4e45429e185d1dd4dded5296c92e12b3b805b6d459c94d0c16c2c2"
+      },
+      "sha256": "46ddb20bce26cb5a609a2632476771b4788c1b0482bdcca92f19d70eac56b6b1"
+    },
+    {
+      "bytes": 203957,
+      "path": "run103/artifacts/windows-localization-36914900751-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11189407052,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "b7b213209b76b9c07cd79f4d76f0b5d129a955757a4ae65974d717b9d11d18a9"
+      },
+      "sha256": "fbe31c2427d1659061ca108e5673bdd777c64d120a115aa1e75acc74f799652a"
+    },
+    {
+      "bytes": 203957,
+      "path": "run103/artifacts/windows-persistence-36914900751-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11188188689,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "80286300e16a740d362f22648fa230ef5ac40ef7a07bffac848063a95d900974"
+      },
+      "sha256": "2f7562e9f56267e3517a54ffed0c8a20f5542932d760004bbf64db89ad55e2f5"
+    },
+    {
+      "bytes": 203957,
+      "path": "run103/artifacts/windows-reading_delivery-36914900751-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11189901834,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "4922a497e8ca2f2526688ab4a882fd587c0831dc65bd9ca5a5e2f2bfba233bff"
+      },
+      "sha256": "d57002ecdc9d85ac061400d753b7d0033de4b027882a1765b1fd2243bbbd1aeb"
+    },
+    {
+      "bytes": 203957,
+      "path": "run103/artifacts/windows-settings-36914900751-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11189646900,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "35220692346f7cd51b7cede5fb8d9ad9d0ea4d9ab90ca902a6dfad7e6f214a66"
+      },
+      "sha256": "c6c857e3e117d7b72a9347a985d3b0fbc4ad0681b572753383d657f150528a0e"
+    },
+    {
+      "bytes": 33383,
+      "path": "run103/audit/diagnostic-evidence.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "5b719200e3e7fd3ed15e5053ce0a966f87954e05275f9f5d9c5232ed4a8361f8"
+    },
+    {
+      "bytes": 26850,
+      "path": "run103/jobs.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "c166703680cb15f97b17e4e2e8228002172eb5131a5225e76866d8c0a89c8078"
+    },
+    {
+      "bytes": 488735,
+      "path": "run103/logs/110546350037.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "c46c146ffabb5b9ed5edbcaf27420513a4ed51672d3cbb459d16397387795ced"
+    },
+    {
+      "bytes": 443301,
+      "path": "run103/logs/110546350149.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "7ff0180bf4af660f1bff54936759c9b6cf4eade0fc5796147f857f8659cb9b6d"
+    },
+    {
+      "bytes": 444371,
+      "path": "run103/logs/110546350317.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "5ad3d84c92be9fe345494f64ae4f5271ae13629870fc0acf02641074123adf70"
+    },
+    {
+      "bytes": 673911,
+      "path": "run103/logs/110546350320.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "e054569ce39b4fcf84073a014ff6cc3700941d15b7b3db094823fce6cd7007ba"
+    },
+    {
+      "bytes": 504229,
+      "path": "run103/logs/110546350328.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "467a0b501ff0d8664c1d67940c521c954adabe859ad213af9ac274c18cbf98e6"
+    },
+    {
+      "bytes": 444348,
+      "path": "run103/logs/110546350354.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "2907929cdbc7927752b182f19d936d51fb624655c1c8b90b4a8594fd40de8d36"
+    },
+    {
+      "bytes": 444302,
+      "path": "run103/logs/110546350382.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "1e73a65f3f4ca998d716b3b36f7d106713f435f75d4ce55eee54584202e0018d"
+    },
+    {
+      "bytes": 444411,
+      "path": "run103/logs/110546350519.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "1f8faa4ddd66f475bfe2bf7b1eb99dcd993cae22b8631860db5521b8c1e5355f"
+    },
+    {
+      "bytes": 444290,
+      "path": "run103/logs/110546350833.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "db0f86fd972fd5e9c20799e20aa6315a5eeb334b670433e876bf54118503af0b"
+    },
+    {
+      "bytes": 11442,
+      "path": "run103/run.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "acd8c003fba6c67abb6a1d6dc7a279c6c2c85da8cfece87c91c16110b2cf498f"
+    }
+  ],
+  "run": {
+    "conclusion": "failure",
+    "event": "push",
+    "head_branch": "codex/next-cloud-20261002",
+    "head_sha": "74ce1571cd3ed73bc874a469f7cf52b569995550",
+    "html_url": "https://github.com/Siuuuers/dwm/actions/runs/36914900751",
+    "id": 36914900751,
+    "run_attempt": 1,
+    "run_number": 103,
+    "status": "completed"
+  },
+  "schema_version": 1,
+  "secret_scan_patterns": [
+    "github_token",
+    "signed_query",
+    "authorization_secret",
+    "private_key"
+  ],
+  "source_boundary": {
+    "all_unlisted_paths_byte_identical": true,
+    "checkout_parents": [
+      "5c2b7b90ed4cdc934c3e75835c68128b0000c99c"
+    ],
+    "explicit_allowed_difference_patterns": [],
+    "master": null,
+    "source": "e6bae0835f70d599c215c3b97dc877b2885ddb1d",
+    "source_checkout_differences": [],
+    "tested_checkout": "e6bae0835f70d599c215c3b97dc877b2885ddb1d"
+  }
+}

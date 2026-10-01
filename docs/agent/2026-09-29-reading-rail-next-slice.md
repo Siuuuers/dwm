@@ -9,21 +9,40 @@ verification_authority: false
 
 # Reading rail: next bounded slice
 
-Updated 1 October 2026, 18:23 UTC (2 October, 02:23 Hong Kong), after cloud acceptance of bounded exact-caption witnessing. Check the live handoff and its source-bound receipt for exact acceptance boundaries. This navigation record does not change specification authority, close Beads, or authorize production narrative content.
+Updated after final Run114 acceptance of bounded fixed-fixture Solo one-shot Next. Check the live handoff and its source-bound receipt for exact acceptance boundaries. This navigation record does not change specification authority, close Beads, or authorize production narrative content.
 
 ## Current boundary
 
-The opt-in fixed Solo catalogue connects the caption ledger to real Dating pre/board/post, inspect-only History, qualified Save/Quick and exact semantic fresh-process Load. Ordinary Pause Backup entry completes the current admitted partial line without advancing. Profile v10 now records exact registered caption variants at visible acknowledgement and retains their pre-publication witnessed baseline. Production content remains unconfigured and Next remains disabled.
+The opt-in fixed noncanonical Solo catalogue connects real Dating pre/board/post,
+inspect-only History, qualified Save/Quick and exact semantic fresh-process Load.
+Profile v10 records exact registered caption variants at visible acknowledgement
+and retains their pre-publication witnessed baseline. One-shot Next is accepted
+only for this fixture; production catalogue registration remains disabled.
 
-**Accepted bounded source:** `dc85cf9714d178e3cbb2bcf3e6c39c1d56484b3c`. **Final broad [Run102](https://github.com/Siuuuers/dwm/actions/runs/36901983427) passes 23/23 jobs on attempt 1**, with 2,210 GUT executions / 2,206 unique cases across 189 scripts, zero failures/errors/skips. Its parent is `87cda1e9feacffd61ceda5acd3c2fca2713e2e94`; the sole change extends the canonical desktop environment-installation timeout from five to twelve minutes after observed setup failures. Runtime, tests and assertions are unchanged. This CI repair required no new architecture decision.
+Next completes an unseen partial current caption and stops; otherwise it silently
+crosses witnessed variants to the first unseen caption or the existing physical
+completion boundary. Auto Off commits first. Source and destination commit through
+the existing autosave/journal owner before native motion, under exclusive
+application custody. Recoverable write refusals retain the exact source;
+indeterminate storage or post-commit runtime failure latches fatal recovery. The
+terminal operation and ordered History survive the actual challenge autosave and
+fresh Load. This proves challenge entry, not a generated board playthrough.
 
-Run102 tests merge `ea4d5aa5b78da49c00ee574b236517e9448bf3ef`, with exact parents master `6a5ddf1564870b43aa9140cad7e0e5b12e43f399` and the accepted source. All 22 checkout executions verify that merge; the retained-history aggregate has no checkout. The 45 source-to-merge changed paths are owner instructions, documentation, story content and story-maintenance files; runtime, tests and workflow bytes match the source. Fresh rendered UI/literal audit, all five existing journeys and the five-process reading journey, Settings storage/fault checks, Windows export/startup and required performance/history gates pass with independent evidence audits. The later records-only descendant is not separately engine-tested.
+The reading envelope is explicitly v2 while a Next operation is retained; ordinary
+v1 reading checkpoints remain supported. Profile v10 and Run document/snapshot v7
+remain current. No parallel transcript or save store was added.
 
-Focused [Run100](https://github.com/Siuuuers/dwm/actions/runs/36894093464) passes seven logical jobs at source `f3b5e8910e8a7d401d6ac6e7ca4392d58787a920`: 1,056 GUT executions / 1,052 unique cases across 92 scripts, zero failures/errors/skips. Source `87cda1e9` then adopted only the two generated public inventories. The six Windows jobs passed on attempt 1; the rendered job's environment-installation timeout precedes engine import/journey execution, and only that job is retried successfully in attempt 2. See the [exact witnessing record](2026-10-02-exact-caption-witnessing.md) and [live handoff](2026-09-23-next-session-handoff.md) for exact boundaries.
+**Accepted bounded source:** `900118a5dc16b89b82a4e5d946767c080083c750`. **Tested PR merge:** `2344b09f5f90cd6bc8fd86166d884316daa82645`.
+Final [Run114](https://github.com/Siuuuers/dwm/actions/runs/36928901183) acceptance and its exact
+results/limits belong to the [Next receipt](../../evidence/phase_2r/one_shot_next_2026_10_02/receipt.json).
+Later records-only descendants are not separately engine-tested.
 
-[Run101](https://github.com/Siuuuers/dwm/actions/runs/36895796051) remains 22/23 logical jobs passed after attempts 1 and 2, with 2,210 GUT executions / 2,206 unique cases across 189 scripts and zero failures/errors/skips. Both desktop attempts time out during Ubuntu package installation before import/rendering; a fresh literal audit is absent, so this is not full acceptance. Successful suite receipts are counted once. Run101 tested merge `af3508faa04d7539826be2022d8b9d1ba798b361` of source `87cda1e9` and master `6a5ddf1564870b43aa9140cad7e0e5b12e43f399`. Its 45 source-to-merge changed paths are owner instructions, documentation, story content and story-maintenance files; runtime, tests and workflow bytes match that source. The [shared evidence record](../../evidence/phase_2r/exact_caption_witness_2026_10_02/README.md) and [receipt](../../evidence/phase_2r/exact_caption_witness_2026_10_02/receipt.json) preserve failed attempts and the separate complete Run102 acceptance.
-
-Prior broad [Run98](https://github.com/Siuuuers/dwm/actions/runs/36877062304) remains accepted at source `36d2fdca56c53c0d6b8571ded45e92fc6d3a9e91`: 23/23 jobs, 2,154 GUT executions / 2,150 unique cases across 184 scripts, zero failures/errors/skips. Run96 fixture failures and Run97 corrections remain retained in the [shared proof](../../evidence/phase_2r/pause_reading_save_2026_10_01/README.md). These older receipts do not accept the new Profile/Bridge increment. All 23 unfinished Beads remain, including `dwm-vky.14` (`in_progress`) and `dwm-n3h.2` (`open`).
+Prior foundations: [ordinary Pause Save / Run98](../../evidence/phase_2r/pause_reading_save_2026_10_01/receipt.json)
+and [exact witnessing / Run100–102](../../evidence/phase_2r/exact_caption_witness_2026_10_02/receipt.json),
+including their retained failed attempts and separate acceptance boundaries.
+Those historical receipts are not resealed as current evidence. All 23 unfinished
+Beads remain, including `dwm-vky.14` (`in_progress`) and `dwm-n3h.2` (`open`);
+this bounded proof closes neither and does not imply Dolt synchronization.
 
 - Session History consumes one admitted ledger with immutable pre/post frames and survives the actual board handoff. Transient scrollback remains a separate presentation detail.
 - The 64 production DTL files inspected at `9ddc144` contain no `#id:` tags. Existing reply IDs are not a complete authored caption catalogue; production registration stays disabled.
@@ -31,7 +50,7 @@ Prior broad [Run98](https://github.com/Siuuuers/dwm/actions/runs/36877062304) re
 - Rail Save/F5, actual ordinary Pause Backup entry and explicit paused F5 finish only the current admitted line without advancing. Capture providers and capability queries remain pure. Plain Pause, Return confirmation Cancel and focus-only Backup preview preserve partial reveal; Continue after explicit completion retains that completed line.
 - F9 during admitted prose uses real Pause and the existing confirmation owner. Cancel resumes the literal source; fresh Load reconstructs the saved stable line fully visible without repeating speech.
 - The finite fixture's exact witnesses are Profile-owned, keyed by complete registered descriptor rather than line ID or causal run/attempt IDs. A changed revision remains unseen even when the base line is visited; registration, History and queries grant no credit.
-- One-shot Next, production catalogue registration and full authored selector coverage, Hospital/ending continuity and full native all-input acceptance remain unfinished.
+- Production catalogue/selector admission and exact Next/replay, Hospital/ending continuity, paused Settings F5, arbitrary production partial-reveal abort lifetime and full native all-input/accessibility acceptance remain separate unfinished work.
 
 Run69 exposed a fixture-host mistake: natural completion freed the explicitly mounted Witnessed layout, and the subsequent native start could select Dialogic's default style. The `9958` repair remounts and verifies the intended host while preserving publication assertions and existing waits. Run70 executes all nine ledger unit cases and nine mounted runtime cases successfully. Check the live handoff for full-run and subsequent-source acceptance.
 
@@ -50,7 +69,7 @@ Use already-authorized noncanonical dialogue for cloud verification. Production 
 | NarrativeCaptionLedger | One ordered sequence with exact entry/context/signature associations and transactional reconstruction. |
 | NarrativeRestoreParticipant, Run snapshot and SaveManager | Validate and prepare the complete session before whole-state replacement; project only after successful restoration. |
 | Witnessed presenter and existing input/Pause custody | Inspect-only History with contained focus; return without advancing prose or repeating speech. |
-| Profile and visible-line acknowledgement | Atomically commit exact registered witnesses with base-line visits; retain pre-publication membership for Read Only and future Next. |
+| Profile and visible-line acknowledgement | Atomically commit exact registered witnesses with base-line visits; retain pre-publication membership for Read Only and Next. |
 | Existing physical completion owners | Retain board, effect, Hospital and ending completion authority. |
 
 ## Required contracts
@@ -63,11 +82,15 @@ Use already-authorized noncanonical dialogue for cloud verification. Production 
 
 **Coordinated restoration.** Extend the exact narrative checkpoint/restore contract deliberately, coordinating any Run/document and narrative version successor with explicit admission for the formats it supports. The unshipped-save decision below allows obsolete Run7 readers to be retired. Validate catalogue compatibility, complete sequence, context bindings and frontier before installing any participant. Preserve journal, recovery and retained-checkpoint guarantees within supported formats.
 
-**Accepted prerequisite; next bounded engineering.** Exact-variant Profile witnessing is implemented and cloud-accepted for the fixed noncanonical fixture. Next, implement one-shot Next through the existing Solo transport/board boundary. Consume the exact witness predicate and preserved pre-publication baseline; a just-published unseen line must not become traversable merely because publication recorded it. A changed revision/variant of the same line remains unseen; causal run/attempt IDs do not invent variants. Reuse Profile commit/recovery and existing completion owners. The optional retained Profile migrations start exact membership empty; obsolete development formats need not be supported. Production author input is needed only for an additional wording/staging selector that changes the projection contract.
+**Accepted fixed-fixture foundation; next authored admission.** Exact-variant Profile witnessing and one-shot Next are cloud-accepted for the fixed noncanonical Solo fixture through the existing transport/board boundary. Next, complete per-entry authored selector/signature admission before production registration. Consume the exact witness predicate and preserved pre-publication baseline; a just-published unseen line must not become traversable merely because publication recorded it. A changed revision/variant of the same line remains unseen; causal run/attempt IDs do not invent variants. Reuse Profile commit/recovery and existing completion owners. The optional retained Profile migrations start exact membership empty; obsolete development formats need not be supported. Production author input is needed only for an additional wording/staging selector that changes the projection contract.
 
 Existing Solo Dating selectors include friend/day/phase, tier, tone, attitude and due echoes. Post-challenge adds board result, perfect reasons and relationship outcome. Current residue is explicitly null. Causal run, branch, attempt and receipt IDs bind ownership; they must not automatically create distinct prose variants. English implementation does not depend on the deferred translated-file adapter.
 
 ## One-shot Next readiness audit — 2 October 2026
+
+> Historical source review, preserved verbatim below. Its implementation gaps and
+> proposed sequence describe the inspected pre-Next source, not the current queue.
+> See [Current boundary](#current-boundary) and the [accepted Next receipt](../../evidence/phase_2r/one_shot_next_2026_10_02/receipt.json).
 
 Read-only source review at `803cd6bd0eb711ec29035aad654f4ebdb6c6fe66`, with
 independent runtime/ownership and cloud-test reviews. The live PR was draft,

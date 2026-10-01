@@ -1,0 +1,122 @@
+[
+  {
+    "run_number": 103,
+    "archive": "next-run103-diagnostics.tar.gz",
+    "archive_member_count": 46,
+    "bytes": 639541,
+    "evidence_kind": "failed-run-diagnostic-only",
+    "excluded_file_count": 4,
+    "manifest_sha256": "88736f89cc0d410a81819b7321339861c4086748d11a2aa322365f5ea61644b1",
+    "payload_file_count": 44,
+    "round_trip_verified": true,
+    "sha256": "f06fb87e752931f1baae0841f51469be6e06bb86e69ba4e830a0b63f5ac9b4c1"
+  },
+  {
+    "run_number": 104,
+    "archive": "next-run104-diagnostics.tar.gz",
+    "archive_member_count": 108,
+    "bytes": 5601173,
+    "evidence_kind": "failed-run-diagnostic-only",
+    "excluded_file_count": 141,
+    "manifest_sha256": "609e5eedc4305031efab6f3e1b1debf67ebaac7149c7c11de6c7d60436170d0a",
+    "payload_file_count": 106,
+    "round_trip_verified": true,
+    "sha256": "0ea861916e1679726b50af0707471f364f6e9c1843b437ae2debca524c15b539"
+  },
+  {
+    "run_number": 105,
+    "archive": "next-run105-diagnostics.tar.gz",
+    "archive_member_count": 165,
+    "bytes": 5246238,
+    "evidence_kind": "failed-run-diagnostic-only",
+    "excluded_file_count": 161,
+    "manifest_sha256": "6c69f807dff934e0d72ced7f1a3e55329093db9ea7fafb15355170f6cddd6dd6",
+    "payload_file_count": 163,
+    "round_trip_verified": true,
+    "sha256": "bb0ccd7925e6ccb11aa962ae7d8602917045f3aa03576a4b1267d3ce5282fedd"
+  },
+  {
+    "run_number": 106,
+    "archive": "next-run106-diagnostics.tar.gz",
+    "archive_member_count": 106,
+    "bytes": 597020,
+    "evidence_kind": "failed-run-diagnostic-only",
+    "excluded_file_count": 161,
+    "manifest_sha256": "1a0c2b961e0866fa31e950587a470b29e776c06b7c53621ef6b637c23329ede0",
+    "payload_file_count": 104,
+    "round_trip_verified": true,
+    "sha256": "43ec247e6b7b7c5442ddec35fa5c512f6e6665460cfdcd1df48db05b95f181d1"
+  },
+  {
+    "run_number": 107,
+    "archive": "next-run107-diagnostics.tar.gz",
+    "archive_member_count": 111,
+    "bytes": 605194,
+    "evidence_kind": "failed-run-diagnostic-only",
+    "excluded_file_count": 162,
+    "manifest_sha256": "cfbcbf5726fe8579e1730263f109b8ef87e73a63526fcbe4354aa6fc3466e209",
+    "payload_file_count": 109,
+    "round_trip_verified": true,
+    "sha256": "816ca967fa04735fae84e1328e2d41181f127fbb0d097d9e904bf4ca36c59d25"
+  },
+  {
+    "run_number": 108,
+    "archive": "next-run108-diagnostics.tar.gz",
+    "archive_member_count": 67,
+    "bytes": 258201,
+    "evidence_kind": "failed-run-diagnostic-only",
+    "excluded_file_count": 21,
+    "manifest_sha256": "28482af8ba9ef680445c15bf16629865d770cec6179b5c77bcc55ce30714fd86",
+    "payload_file_count": 65,
+    "round_trip_verified": true,
+    "sha256": "21460eef2ff6f7e95e1006191722fefa202b20012741035e2019b43aeec96266"
+  },
+  {
+    "run_number": 109,
+    "archive": "next-run109-diagnostics.tar.gz",
+    "archive_member_count": 92,
+    "bytes": 693295,
+    "evidence_kind": "failed-run-diagnostic-only",
+    "excluded_file_count": 23,
+    "manifest_sha256": "623009a15a2430becabc82fd755a9f43f1ddb57cd43720998d8d7b461e958ef4",
+    "payload_file_count": 90,
+    "round_trip_verified": true,
+    "sha256": "10777dc9b6180f8d1290f7e7fae3e1e02e73870b3c449c3701aa2580467d2a6e"
+  },
+  {
+    "run_number": 110,
+    "archive": "next-run110-diagnostics.tar.gz",
+    "archive_member_count": 118,
+    "bytes": 812082,
+    "evidence_kind": "failed-run-diagnostic-only",
+    "excluded_file_count": 163,
+    "manifest_sha256": "ceb04c1575ac005fc9b92161164eb7acba33e9235c92fa7132841e8bc200093e",
+    "payload_file_count": 116,
+    "round_trip_verified": true,
+    "sha256": "8177cfb82b9f2ccee4cddaaebb4ea38522b460d269b5480fbcdccb84fd06fa71"
+  },
+  {
+    "run_number": 111,
+    "archive": "next-run111-diagnostics.tar.gz",
+    "archive_member_count": 122,
+    "bytes": 977425,
+    "evidence_kind": "failed-run-diagnostic-only",
+    "excluded_file_count": 163,
+    "manifest_sha256": "8743a5557ee9f2de0315230b71dd19d6dfdf0a2009e0b31e4893da4ef6926c96",
+    "payload_file_count": 120,
+    "round_trip_verified": true,
+    "sha256": "5944fb29f29067ce645f47a80c2e4c69c742819ac93242acdf02370b5415b0ec"
+  },
+  {
+    "run_number": 112,
+    "archive": "next-run112-diagnostics.tar.gz",
+    "archive_member_count": 99,
+    "bytes": 849050,
+    "evidence_kind": "failed-run-diagnostic-only",
+    "excluded_file_count": 25,
+    "manifest_sha256": "0ac89995dab2fa2827c1ad808a48d1324e8b0920c4575504b0d390017ebb6506",
+    "payload_file_count": 97,
+    "round_trip_verified": true,
+    "sha256": "b91b6c2464a360d886e20d248227bc0d4027ea77146436aa3de0021f1495e977"
+  }
+]

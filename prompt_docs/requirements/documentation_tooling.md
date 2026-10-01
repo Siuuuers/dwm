@@ -28,7 +28,7 @@ Every archived legacy heading and zero-heading authority document MUST receive e
 
 ## Rule req.beads.execution
 
-Execution MUST resume the sole unblocked in-progress bounded Phase 2R child or claim the earliest ready child by the approved explicit execution rank, and MUST record requirement IDs and evidence links in Beads `metadata.phase2r`. Numeric issue display order MUST NOT override that rank, and blocked in-progress children MUST NOT be selected. `metadata.phase2r` is the sole Phase-2R execution namespace; the keys `scope`, `exclusions`, `evidence_links`, `requirement_ids`, and `verification_commands` MUST NOT also appear at metadata top level.
+Execution MUST use the current handoff and execution map to locate the authorized bounded Bead, verify its dependencies and blockers, and record requirement IDs and evidence links in Beads `metadata.phase2r`. The retired Prompt.md execution rank and numeric issue display order MUST NOT replace current Beads status or the owner's delegated scope; blocked work MUST NOT be represented as ready, and a bounded proof MUST NOT close unfinished parent scope. `metadata.phase2r` is the sole Phase-2R execution namespace; the keys `scope`, `exclusions`, `evidence_links`, `requirement_ids`, and `verification_commands` MUST NOT also appear at metadata top level.
 
 ## Rule req.codegraph.removal
 

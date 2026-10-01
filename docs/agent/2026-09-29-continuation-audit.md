@@ -17,7 +17,8 @@ requirement, accepted decision, ownership, or execution permission. The source
 binding identifies inspected code, not a new runtime acceptance result. No Godot
 or PowerShell execution was performed for this audit. Consult the
 [current handoff](2026-09-23-next-session-handoff.md) for executed cloud evidence
-and follow the [agent workflow](AGENT_WORKFLOW.md) before selecting work.
+and its current resume guidance before selecting work. The old workflow guide
+was retired on 2 October 2026; the source-bound findings below remain historical.
 
 The inspected [Beads snapshot](../../.beads/issues.jsonl) contains **23 unfinished
 records: 11 in progress, five open, six deferred, one blocked**. These include

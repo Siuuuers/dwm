@@ -6,7 +6,7 @@ execution_authority: false
 status_authority: false
 behavior_authority: false
 verification_authority: false
-inspected_source: "dc85cf9714d178e3cbb2bcf3e6c39c1d56484b3c"
+inspected_source: "900118a5dc16b89b82a4e5d946767c080083c750"
 ---
 
 # DWM execution map
@@ -39,7 +39,7 @@ not create competing versions of GameState or SaveManager.
 
 | Lead / placement | Related records | Smallest useful outcome and proof |
 |---|---|---|
-| **Accepted bounded increment; reading remainder: `dwm-vky.14`** | `dwm-eei.10`, `dwm-eei.11`, Witnessed remainder of `dwm-eei.5` | The fixed opt-in Solo session connects real pre/board/post, History, Save/Quick and fresh Load. Profile v10 records exact registered caption variants atomically with base-line visits and preserves the pre-publication Read Only baseline. Final Run102 passes all 23 jobs on attempt 1: 2,210 GUT executions / 2,206 unique cases / 189 scripts, plus the five-process witness/failure/retry journey and surrounding gates. The [shared receipt](../../evidence/phase_2r/exact_caption_witness_2026_10_02/receipt.json) retains focused Run100 and partial Run101 separately; the final source changes only the prior desktop installer allowance. The [implementation record](2026-10-02-exact-caption-witnessing.md) defines the finite fixture boundary. Next: one-shot Next using exact membership and the existing physical completion owners. Production registration, Hospital/ending continuity, paused Settings F5 and native all-input acceptance remain open. |
+| **Accepted bounded increment; reading remainder: `dwm-vky.14`** | `dwm-eei.10`, `dwm-eei.11`, Witnessed remainder of `dwm-eei.5` | The fixed noncanonical Solo session retains its real pre/board/post, History, Save/Quick and fresh Load foundation. One-shot Next now consumes exact Profile witnessing and the pre-publication baseline: it completes an unseen partial current caption and stops, or silently crosses witnessed variants to the first unseen caption or existing completion boundary. Auto Off commits first; source and destination commit through the existing autosave/journal owner before native motion. The terminal operation and ordered History survive the actual challenge autosave and fresh Load. Final Run114 acceptance, exact source/merge and evidence limits are in the [Next receipt](../../evidence/phase_2r/one_shot_next_2026_10_02/receipt.json) and [handoff](2026-09-23-next-session-handoff.md). Next work: per-entry authored selector/signature admission for production. Production registration/exact replay, Hospital/ending continuity, paused Settings F5 and native all-input/accessibility acceptance remain open. |
 | **Accepted increment; remaining latency: `dwm-634.3`** | `dwm-634` parent; touched `dwm-sx8` mappings only | Compact per-write validation witnesses and frozen-baseline correctness controls are implemented. Focused production Run81 and broad Run82 passed. Retain this issue for remaining terminal-settlement/checkpoint cost, matched complete-operation measurements and native responsiveness acceptance; one helper improvement does not close the lag task. |
 | **Independent CI change: accepted in Run82** | Existing performance and required-check gates | The retained-history producer now feeds four comparison jobs on separate runners/checkouts, with verified source/run/input manifests and an aggregate gate retaining the required-check name. Run82 verifies the actual fanout and all consumer evidence. Observed elapsed time is not a controlled causal speedup measurement. |
 | **Following reading batch: `dwm-n3h.2`** | `dwm-n3h`, exact Next/replay portion of `dwm-vky.14`, relevant `dwm-oyo.5` clauses | Finish the per-entry authored selector contract and successor reached signature, then production exact-variant coverage and Next/replay. The fixed-fixture Profile witness prerequisite is implemented separately. Ordinary phase/reply/line and Alone cause are known gaps; request extra author input only where another independent fact changes presentation. |
@@ -55,8 +55,8 @@ not create competing versions of GameState or SaveManager.
 All 23 unfinished IDs appear above. A placement in this queue is not a status change.
 The historical `.10/.11` records stay as linked acceptance checklists; closing
 them merely as duplicates would lose content, reprojection, ending or assistive
-requirements. Hospital/ending continuity and exact Next are explicit follow-on
-slices, not implicit claims of the first Solo journey.
+requirements. Fixed-fixture Solo Next has its own bounded receipt; Hospital/ending
+continuity and production exact Next/replay remain separate acceptance work.
 
 Solid arrows below are the recorded unfinished blocking chain. Dotted arrows are
 proposed shared-proof inputs, not newly added Beads dependencies. Parent-child
@@ -125,15 +125,20 @@ is not substituted for its presentation-port prepare/commit path. Production foc
 records exact source/merge, all controls and the bounded acceptance. A save-format cutover is unnecessary for this
 helper change.
 
-With fixed-fixture exact witnessing accepted in Run102, use the next batch card
-for one-shot Next under `dwm-n3h.2` and `dwm-vky.14`. The
-[reading record](2026-09-29-reading-rail-next-slice.md) preserves the accepted Solo
-foundation. Reuse admitted per-entry frames, one semantic sequence and Profile
-commit/recovery ownership; preserve the pre-publication witnessed baseline. Ownership, History boundaries,
-automatic board handoff, save/restore frontier behavior and the unshipped-save
-policy are settled. Ask only if a newly identified production wording/staging
-selector would change the authored projection contract; fixture-backed
-engineering can proceed without another architecture interview.
+With fixed-fixture Solo Next accepted in Run114, use the next batch card
+for per-entry authored selector/signature admission under `dwm-n3h.2`, with the
+reading remainder in `dwm-vky.14`. The
+[Next receipt](../../evidence/phase_2r/one_shot_next_2026_10_02/receipt.json) and
+[reading record](2026-09-29-reading-rail-next-slice.md) preserve the bounded
+engineering foundation. Reuse admitted per-entry frames, one semantic sequence,
+Profile commit/recovery and the pre-publication witnessed baseline. Freeze frames
+only when authoritative phase facts exist; never precompute post-board outcomes
+or derive wording variants from hidden mutable gameplay reads. Ownership, History
+boundaries, automatic board handoff, save/restore frontier behavior and the
+unshipped-save policy are settled. Ask only if a newly identified production
+wording/staging selector changes the authored projection contract. Routine
+implementation remains delegated; no Bead closes from this bounded proof.
+
 ## Cloud verification and implemented CI change
 
 Godot and PowerShell execution stays in GitHub cloud. The compact witness is
