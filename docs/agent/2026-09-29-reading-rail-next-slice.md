@@ -13,12 +13,12 @@ Updated 1 October 2026 after implementing the bounded fixture-backed slice. Chec
 
 ## Current boundary
 
-The opt-in fixed Solo catalogue now connects the existing caption ledger to real Dating pre/board/post ownership, inspect-only History, qualified Save/Quick and exact semantic fresh-process Load. It remains unconfigured for production content. Final broad PR Run95 passes 23/23 logical jobs across attempts 1 and 2 at runtime source `29e5a161`: 2,131 GUT executions / 2,127 unique cases, zero failures/errors/skips, with the connected journey, complete Settings order and UI audit passing. The five original HTTP504 setup failures and their successful retries remain explicitly recorded. See the [live handoff](2026-09-23-next-session-handoff.md) for the final source and gate status.
+The opt-in fixed Solo catalogue connects the caption ledger to real Dating pre/board/post, inspect-only History, qualified Save/Quick and exact semantic fresh-process Load. Ordinary Pause Backup entry now completes the current admitted partial line without advancing. Production content remains unconfigured. Final broad [Run98](https://github.com/Siuuuers/dwm/actions/runs/36877062304) passes 23/23 jobs at source `36d2fdca56c53c0d6b8571ded45e92fc6d3a9e91`: 2,154 GUT executions / 2,150 unique cases across 184 scripts, zero failures/errors/skips. Run96 fixture failures and Run97 corrections remain retained in the [shared proof](../../evidence/phase_2r/pause_reading_save_2026_10_01/README.md). See the [live handoff](2026-09-23-next-session-handoff.md) for exact current boundaries.
 
 - Session History consumes one admitted ledger with immutable pre/post frames and survives the actual board handoff. Transient scrollback remains a separate presentation detail.
 - The 64 production DTL files inspected at `9ddc144` contain no `#id:` tags. Existing reply IDs are not a complete authored caption catalogue; production registration stays disabled.
 - The seven-field reading checkpoint deliberately extends the six-field semantic checkpoint with a versioned `reading_session`. It admits an exact catalogue, complete sequence and stable publication frontier against independently saved physical state before installation. Runtime indices and UI-open state are absent.
-- Rail Save and F5 finish reveal without advancing before capturing. Capture providers remain pure. Ordinary Pause entered during partial reveal still refuses Save; it does not silently finish or downgrade the checkpoint.
+- Rail Save/F5, actual ordinary Pause Backup entry and explicit paused F5 finish only the current admitted line without advancing. Capture providers and capability queries remain pure. Plain Pause, Return confirmation Cancel and focus-only Backup preview preserve partial reveal; Continue after explicit completion retains that completed line.
 - F9 during admitted prose uses real Pause and the existing confirmation owner. Cancel resumes the literal source; fresh Load reconstructs the saved stable line fully visible without repeating speech.
 - Exact-variant Next, production catalogue registration, Hospital/ending continuity and full native all-input acceptance remain unfinished. Bare visited-line IDs do not prove an exact variant.
 
@@ -51,7 +51,7 @@ Use already-authorized noncanonical dialogue for cloud verification. Production 
 
 **Coordinated restoration.** Extend the exact narrative checkpoint/restore contract deliberately, coordinating any Run/document and narrative version successor with explicit admission for the formats it supports. The unshipped-save decision below allows obsolete Run7 readers to be retired. Validate catalogue compatibility, complete sequence, context bindings and frontier before installing any participant. Preserve journal, recovery and retained-checkpoint guarantees within supported formats.
 
-**Exact Next later.** Next also needs exact variant witnessing and a coherent Profile contract. Obsolete development Profile formats need not migrate. History need not wait for an unnecessary simultaneous rewrite of every replay family.
+**Next bounded engineering.** Prove exact-variant Profile witnessing with a finite noncanonical selector catalogue before enabling one-shot Next. Preserve the pre-publication witnessed baseline; a just-published unseen line must not become traversable merely because publication recorded it. A changed revision/variant of the same line remains unseen; causal run/attempt IDs do not invent variants. Reuse Profile commit/recovery and existing transport/board owners. Obsolete development Profile formats need not migrate. Production author input is needed only for an additional wording/staging selector that changes the projection contract.
 
 Existing Solo Dating selectors include friend/day/phase, tier, tone, attitude and due echoes. Post-challenge adds board result, perfect reasons and relationship outcome. Current residue is explicitly null. Causal run, branch, attempt and receipt IDs bind ownership; they must not automatically create distinct prose variants. English implementation does not depend on the deferred translated-file adapter.
 
@@ -66,8 +66,8 @@ The legacy-History gap versus unavailable-History question is retired. Supported
 - Dating owns session-local History; Hospital starts fresh; an ordered ending keeps one uninterrupted History across its steps.
 - Ordinary Next may add previously witnessed traversed beats in canonical order. Hospital and ending History contain only captions actually published in that session.
 - Dating board handoffs remain automatic, without extra Continue/Done controls or special mines.
-- Target policy: Save completes partial reveal without advancing; Load restores the semantic beat fully visible without repeating TTS. This slice implements the Save behavior for rail Save/F5. Ordinary Pause entered during partial reveal still leaves Save unavailable; its remaining implementation must preserve the same policy and literal Pause custody.
-- Pause preserves the literal live frontier, distinct from durable semantic reconstruction.
+- Save policy: rail Save/F5, actual ordinary Pause Backup entry and explicit paused F5 complete the current admitted line without advancing. Load restores the semantic beat fully visible without repeating TTS. Plain Pause/preview/Return cancellation remains literal; paused Settings F5 is outside this accepted increment.
+- Plain Pause preserves the literal live frontier. Explicit admitted Backup/Save completion changes only reveal completeness; durable semantic reconstruction remains distinct.
 - History is inspect-only and creates no gameplay, witnessing, completion or replay effects.
 - Ordered-ending recovery merges a completed step only from its exact durable ordered sequence, once in frozen plan order. Missing sequences stay missing; conflicts require recovery.
 - Runtime indices, node/resource identities and transient UI-open state do not enter durable saves.
