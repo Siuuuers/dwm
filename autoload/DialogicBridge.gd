@@ -1198,12 +1198,7 @@ func set_skip_mode(mode: StringName) -> Dictionary:
 
 ## Read-only UI admission; never reveals, witnesses, or advances an event.
 func can_skip_current_line() -> bool:
-	if is_rehearsal_playback() or _active_entry.is_empty() or not _pause_handle.is_empty() \
-			or not is_instance_valid(_skip_profile) or _runtime_adapter == null:
-		return false
-	var line_id: String = str(_runtime_adapter.current_line_id())
-	return _skip_line_owners.has(line_id) \
-		and _skip_line_owners[line_id] == _active_entry.get("entry_id")
+	return _line_presentation_context({}, false).get("ok", false)
 
 
 func is_rehearsal_playback() -> bool:
@@ -1214,8 +1209,9 @@ func is_rehearsal_playback() -> bool:
 ## Legacy/unregistered prose and rehearsal retain their existing presentation owners.
 func requires_line_presentation_acknowledgement() -> bool:
 	return not _active_entry.is_empty() and not is_rehearsal_playback() \
-		and str(_active_entry.get("stage", "")) in _line_witness_stages \
-		and _runtime_adapter != null and _skip_line_owners.has(str(_runtime_adapter.current_line_id()))
+		and _line_witness_stage_allowed() \
+		and _runtime_adapter != null and (_has_exact_caption_source() \
+			or _skip_line_owners.has(str(_runtime_adapter.current_line_id())))
 
 
 ## Pure final admission for automatic input; never retries a Profile write.
@@ -1223,7 +1219,7 @@ func is_current_line_presentation_acknowledged() -> bool:
 	var current := _line_presentation_context()
 	return current.get("ok", false) and _line_presentation.get("identity") == current.value \
 		and _line_presentation.get("acknowledged", false) \
-		and _skip_profile.is_line_visited(str(current.value.line_id))
+		and _is_presentation_witnessed(current.value)
 
 
 ## Opaque proof of the rendered source, even while a transaction temporarily owns writes.
@@ -1259,7 +1255,7 @@ func _auto_line_context(expected_frontier: Dictionary = {}) -> Dictionary:
 		return _command_failure(&"auto_off")
 	if _line_presentation.get("identity") != current.value \
 			or not _line_presentation.get("acknowledged", false) \
-			or not _skip_profile.is_line_visited(str(current.value.line_id)):
+			or not _is_presentation_witnessed(current.value):
 		return _command_failure(&"auto_line_unacknowledged")
 	if not _runtime_adapter.has_method("is_current_line_complete") \
 			or not _runtime_adapter.is_current_line_complete():
@@ -1277,14 +1273,12 @@ func acknowledge_current_line_presentation(expected_frontier: Dictionary) -> Dic
 	var current := _line_presentation_context(expected_frontier)
 	if not current.get("ok", false): return current
 	var identity: Dictionary = current.value
-	var visited: bool = _skip_profile.is_line_visited(str(identity.line_id))
-	if _line_presentation.get("identity") != identity \
-			or (_line_presentation.get("acknowledged", false) and not visited):
-		_line_presentation = {"identity": identity.duplicate(true),
-			"was_visited": visited, "acknowledged": false, "unseen_stop_delivered": false}
+	_retain_line_presentation(identity)
 	if not _line_presentation.acknowledged:
 		_line_ack_in_progress = true
-		var marked: Dictionary = _skip_profile.mark_line_visited(str(identity.line_id))
+		var marked: Dictionary = _skip_profile.mark_caption_variant_witnessed(
+			identity.caption_variant, _reading_session.registry) if identity.has("caption_variant") \
+			else _skip_profile.mark_line_visited(str(identity.line_id))
 		_line_ack_in_progress = false
 		if (marked.get("fatal", false) or marked.get("code") == &"indeterminate_commit") \
 				and is_instance_valid(_skip_profile) and _skip_profile.get_instance_id() == identity.profile_id:
@@ -1296,13 +1290,37 @@ func acknowledge_current_line_presentation(expected_frontier: Dictionary) -> Dic
 			return _command_failure(&"presentation_frontier_changed")
 		if not marked.get("ok", false):
 			return marked
-		if not _skip_profile.is_line_visited(str(identity.line_id)):
+		if not _is_presentation_witnessed(identity):
 			return _command_failure(&"presentation_frontier_changed")
 		_line_presentation.acknowledged = true
 	return {"ok": true, "code": &"acknowledged", "value": {}, "receipt": {
 		"line_id": identity.line_id, "entry_id": identity.entry_id,
 		"playback_token": identity.token, "frontier": identity.frontier.duplicate(true),
 		"was_visited_before_presentation": _line_presentation.was_visited}}
+
+
+func _has_exact_caption_source() -> bool:
+	return has_reading_session() and _reading_session.catalogue.has(_active_entry.get("entry_id", ""))
+
+
+func _line_witness_stage_allowed() -> bool:
+	var stage := str(_active_entry.get("stage", ""))
+	# Solo's admitted phase frames do not use the legacy current_entry signal stage.
+	return stage == str(_active_entry.get("entry_id", "")).get_slice(".", 4) \
+		if _has_exact_caption_source() else stage in _line_witness_stages
+
+
+func _is_presentation_witnessed(identity: Dictionary) -> bool:
+	return _skip_profile.is_caption_variant_witnessed(identity.caption_variant) \
+		if identity.has("caption_variant") else _skip_profile.is_line_visited(str(identity.line_id))
+
+
+func _retain_line_presentation(identity: Dictionary) -> void:
+	var visited := _is_presentation_witnessed(identity)
+	if _line_presentation.get("identity") != identity \
+			or (_line_presentation.get("acknowledged", false) and not visited):
+		_line_presentation = {"identity": identity.duplicate(true),
+			"was_visited": visited, "acknowledged": false, "unseen_stop_delivered": false}
 
 
 func _line_presentation_context(expected_frontier: Dictionary = {}, guard_mutation: bool = true) -> Dictionary:
@@ -1321,12 +1339,29 @@ func _line_presentation_context(expected_frontier: Dictionary = {}, guard_mutati
 	var token := str(_active_entry.get("token", ""))
 	if token.is_empty(): return _command_failure(&"stale_playback_token")
 	var stage := str(_active_entry.get("stage", ""))
-	if stage not in _line_witness_stages: return _command_failure(&"SIGNAL_STAGE_NOT_ALLOWED")
+	if not _line_witness_stage_allowed(): return _command_failure(&"SIGNAL_STAGE_NOT_ALLOWED")
 	var line_id: String = str(_runtime_adapter.current_line_id())
 	if line_id.is_empty(): return _command_failure(&"no_current_line")
-	if not _skip_line_owners.has(line_id): return _command_failure(&"unregistered_line_id")
-	if _skip_line_owners[line_id] != _active_entry.get("entry_id"):
-		return _command_failure(&"line_not_owned_by_current_entry")
+	var caption_variant := {}
+	var caption_publication := {}
+	if _has_exact_caption_source():
+		if not _skip_profile.has_method("is_caption_variant_witnessed") \
+				or not _skip_profile.has_method("mark_caption_variant_witnessed"):
+			return _command_failure(&"invalid_caption_witness_provider")
+		if not _runtime_adapter.has_method("capture_reading_frontier"):
+			return _command_failure(&"reading_frontier_unavailable")
+		var publication: Dictionary = _runtime_adapter.capture_reading_frontier()
+		if not publication.get("ok", false): return publication
+		if publication.value.get("line_id") != line_id:
+			return _command_failure(&"presentation_frontier_changed")
+		var registered: Dictionary = _reading_session.current_caption_variant(_active_entry.entry_id, publication.value)
+		if not registered.get("ok", false): return registered
+		caption_variant = registered.value
+		caption_publication = publication.value.duplicate(true)
+	else:
+		if not _skip_line_owners.has(line_id): return _command_failure(&"unregistered_line_id")
+		if _skip_line_owners[line_id] != _active_entry.get("entry_id"):
+			return _command_failure(&"line_not_owned_by_current_entry")
 	# Public Pause capture rejects synchronous startup; this renderer frontier is already live.
 	var frontier: Dictionary = _runtime_adapter.capture_pause_frontier()
 	if not frontier.get("ok", false): return frontier
@@ -1334,6 +1369,10 @@ func _line_presentation_context(expected_frontier: Dictionary = {}, guard_mutati
 	var captured := {"ok": true, "value": {"token": token, "stage": stage,
 		"entry_id": _active_entry.entry_id, "line_id": line_id, "frontier": frontier,
 		"profile_id": _skip_profile.get_instance_id()}}
+	if not caption_variant.is_empty():
+		captured.value["caption_variant"] = caption_variant
+		captured.value["caption_publication"] = caption_publication
+		captured.value["caption_session_id"] = _reading_session.command_id
 	if not expected_frontier.is_empty() and captured != expected_frontier:
 		return _command_failure(&"presentation_frontier_changed")
 	return captured
@@ -1363,15 +1402,15 @@ func _perform_skip_step() -> Dictionary:
 	var line_id: String = str(_runtime_adapter.current_line_id())
 	if line_id.is_empty():
 		return _command_failure(&"no_current_line")
-	if not _skip_line_owners.has(line_id):
-		return _command_failure(&"unregistered_line_id")
-	if _active_entry.is_empty() or _skip_line_owners[line_id] != _active_entry.get("entry_id"):
-		return _command_failure(&"line_not_owned_by_current_entry")
+	if _active_entry.is_empty(): return _command_failure(&"line_not_owned_by_current_entry")
 	var entry_token: String = str(_active_entry.get("token", ""))
 	var frontier: Dictionary = _runtime_adapter.capture_pause_frontier()
 	if not frontier.get("ok", false): return frontier
-	var presentation := capture_current_line_presentation_frontier()
+	var presentation := _line_presentation_context()
 	if not presentation.get("ok", false): return presentation
+	# Freeze the baseline before reveal callbacks or our Profile publication can
+	# make this occurrence look previously witnessed. Failed writes retain it.
+	_retain_line_presentation(presentation.value)
 	var revealed: Dictionary = _runtime_adapter.reveal_current_line(true)
 	if not revealed.get("ok", false):
 		return revealed

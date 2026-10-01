@@ -6,6 +6,8 @@ const SCHEMA := preload("res://scripts/profile/ProfileSchema.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const FILES := preload("res://tests/support/FakeFileOps.gd")
 const WINDOW_FIXTURE := preload("res://tests/unit/test_profile_window_restore.gd")
+const CAPTION := {"beat_id": "fixture.restore.beat", "line_id": "fixture.public.line.1",
+	"owning_entry_id": "fixture.restore.entry", "presentation_signature": {"revision": "fixture-r1"}}
 
 func _fixture() -> Dictionary:
 	var files := FILES.new()
@@ -31,6 +33,8 @@ func _fixture() -> Dictionary:
 	if not validated.get("ok", false): return {}
 	assert_true(profile.commit_prepared_profile(validated.value).get("ok", false))
 	assert_true(profile.unlock_ending(SCHEMA.ENDING_IDS[0], "fixture-gallery-transaction").get("ok", false))
+	assert_true(profile.mark_caption_variant_witnessed(CAPTION,
+		{"kind": "narrative_caption_registry", "schema_version": 1, "beats": [CAPTION]}).ok)
 	assert_false(profile.get_profile_snapshot().migration_receipts.legacy_game_state_profile_v1)
 	return {"profile": profile, "files": files, "participant": PARTICIPANT.new(profile)}
 

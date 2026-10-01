@@ -43,6 +43,7 @@ func _v8(signatures: Array) -> Dictionary:
 	var source := SCHEMA.make_defaults()
 	source.schema_version = 8
 	source.erase("reached_presentation_chronology")
+	source.erase("witnessed_caption_variants")
 	for signature: Dictionary in signatures:
 		source.reached_presentations[_id(signature)] = signature.duplicate(true)
 	return source
@@ -58,8 +59,9 @@ func test_v8_upgrade_preserves_signatures_and_explicitly_unknown_order() -> void
 	var migrated := MIGRATION.prepare_document(source)
 	assert_true(migrated.ok, str(migrated))
 	if not migrated.ok: return
-	assert_eq(migrated.value.schema_version, 9)
-	assert_eq(migrated.migration_id, &"profile_v8_to_v9")
+	assert_eq(migrated.value.schema_version, 10)
+	assert_eq(migrated.migration_id, &"profile_v8_to_v10")
+	assert_eq(migrated.value.witnessed_caption_variants, {}, "legacy membership does not invent exact captions")
 	assert_eq(migrated.value.reached_presentations, before.reached_presentations)
 	var membership: Array = before.reached_presentations.keys()
 	membership.sort()
@@ -100,7 +102,7 @@ func test_first_witness_order_is_durable_and_duplicate_completion_is_write_free(
 	var restarted := _manager(storage)
 	assert_eq(restarted.get_profile_snapshot(), before)
 	assert_eq(_record_ids(restarted.get_reached_presentations()), [newest, oldest])
-	assert_eq(storage.writes, writes, "v9 read/reload never rewrites chronology")
+	assert_eq(storage.writes, writes, "current read/reload never rewrites chronology")
 
 func test_v8_migration_write_failure_does_not_publish_or_change_older_profile_bytes() -> void:
 	var source := _v8([_alone()])

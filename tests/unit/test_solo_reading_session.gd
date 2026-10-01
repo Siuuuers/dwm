@@ -128,3 +128,24 @@ func test_route_finalize_failure_retires_only_the_started_restore_and_reinstates
 	assert_false(bridge._reading_restore_adoption)
 	assert_eq(bridge._reading_adoption_checkpoint, {"source": "retained"})
 	bridge.free()
+
+func test_current_variant_is_detached_and_requires_the_admitted_published_tail() -> void:
+	var session := _session()
+	assert_true(session.begin(TOKEN, PRE).ok)
+	assert_true(session.admit(PRE, _context(PRE)).ok)
+	assert_false(session.current_caption_variant(PRE, {"line_id": "fixture.solo.pre.a",
+		"publication_id": "caption:1"}).ok, "registration and allocation alone are not publication")
+	var first := _publish(session, PRE, "fixture.solo.pre.a")
+	var current: Dictionary = session.current_caption_variant(PRE, first)
+	assert_true(current.ok, str(current))
+	assert_eq(current.value, {"beat_id": "fixture.solo.pre.a", "line_id": "fixture.solo.pre.a",
+		"owning_entry_id": PRE, "presentation_signature": {
+			"content_revision": "fixture-v1", "variant_id": "fixture.solo.pre.a"}})
+	current.value.presentation_signature.content_revision = "caller-change"
+	assert_eq(session.current_caption_variant(PRE, first).value.presentation_signature.content_revision, "fixture-v1")
+	var second := _publish(session, PRE, "fixture.solo.pre.b")
+	assert_false(session.current_caption_variant(PRE, first).ok, "older History rows cannot witness the current line")
+	assert_false(session.current_caption_variant(POST, second).ok, "another entry cannot claim this occurrence")
+	assert_true(session.current_caption_variant(PRE, second).ok)
+	session.completed(PRE)
+	assert_false(session.current_caption_variant(PRE, second).ok, "completed prose is no longer the foreground")

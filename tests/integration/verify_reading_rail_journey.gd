@@ -1,10 +1,12 @@
 extends "res://tests/integration/verify_playable_startup.gd"
 ## Connected cloud proof, with test-only prose and real gameplay/persistence owners.
-## The Python driver starts WRITE and READ as separate processes in one proven root.
+## The driver seals WRITE/READ before separate repeat, changed-variant and Profile-read processes.
 
 const FIXTURE_CATALOG := preload("res://tests/support/SoloReadingRailTimelineCatalog.gd")
 const STRICT := preload("res://scripts/validation/StrictJson.gd")
 const READING_CATALOGUE := "res://tests/fixtures/dialogic/solo_reading_rail_catalogue.json"
+const VARIANT_B_CATALOGUE := "res://tests/fixtures/dialogic/solo_reading_rail_variant_b_catalogue.json"
+const WITNESSES := preload("res://scripts/profile/CaptionWitnessLedger.gd")
 const EXPECTED_LINES := ["fixture.solo.pre.a", "fixture.solo.pre.b", "fixture.solo.post.a"]
 
 var _reading_mode := ""
@@ -12,13 +14,49 @@ var _speech_admissions := 0
 var _history_observations := 0
 var _trace_sequence := 0
 var _pause_save_proof: Dictionary = {}
+var _witness_beat: Dictionary = {}
+var _witness_initial_profile: Dictionary = {}
+var _witness_failure: Dictionary = {}
+var _witness_fault: RefCounted
+var _replacement_confirmations := 0
+
+
+## One candidate-specific filesystem refusal; all successful storage operations
+## delegate to the real FileOps instance and use the actual Profile transaction.
+class FailOneCaptionWitnessWrite extends RefCounted:
+	const JSON_READER := preload("res://scripts/validation/StrictJson.gd")
+	var target: RefCounted
+	var witness_id: String
+	var refusals := 0
+	var matching_writes := 0
+	var previous_text := ""
+	func _init(real_ops: RefCounted, identity: String) -> void:
+		target = real_ops
+		witness_id = identity
+	func exists(path: String) -> bool: return target.exists(path)
+	func read_bytes(path: String) -> Dictionary: return target.read_bytes(path)
+	func write_bytes(path: String, bytes: PackedByteArray) -> Dictionary:
+		if path.ends_with("/profile.json.next") or path.ends_with("\\profile.json.next"):
+			var parsed: Dictionary = JSON_READER.parse_object(bytes.get_string_from_utf8())
+			if parsed.get("ok", false) and parsed.value.get("witnessed_caption_variants", {}).has(witness_id):
+				matching_writes += 1
+				if refusals == 0:
+					refusals += 1
+					var old: Dictionary = target.read_bytes(path.trim_suffix(".next"))
+					if old.get("ok", false): previous_text = old.value.get_string_from_utf8()
+					return {"ok": false, "code": &"write_failed", "message": "isolated exact-witness candidate refusal"}
+		return target.write_bytes(path, bytes)
+	func flush_path(path: String) -> Dictionary: return target.flush_path(path)
+	func rename_path(source: String, destination: String) -> Dictionary: return target.rename_path(source, destination)
+	func remove_path(path: String) -> Dictionary: return target.remove_path(path)
+	func sha256(bytes: PackedByteArray) -> String: return target.sha256(bytes)
 
 
 func _run() -> void:
 	for argument: String in OS.get_cmdline_user_args():
 		if argument.begins_with("--reading-rail-mode="):
 			_reading_mode = argument.trim_prefix("--reading-rail-mode=")
-	if not _check(_reading_mode in ["write", "read"], "explicit write/read process mode"): return
+	if not _check(_reading_mode in ["write", "read", "repeat", "variant", "witness-read"], "explicit reading process mode"): return
 	if not _check(not OS.get_environment("DWM_TEST_ROOT").strip_edges().is_empty(), "isolated test root required"): return
 	if not _check(DisplayServer.get_name() != "headless", "real cloud software rendering required"): return
 	await _frames()
@@ -26,10 +64,19 @@ func _run() -> void:
 	var bridge: Node = root.get_node("DialogicBridge")
 	var installed: Dictionary = bridge.initialize(FIXTURE_CATALOG)
 	if not _check(installed.get("ok", false), "test-only locator injection: " + str(installed)): return
-	var catalogue: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(READING_CATALOGUE))
+	var catalogue_path: String = VARIANT_B_CATALOGUE if _reading_mode in ["variant", "witness-read"] else READING_CATALOGUE
+	var catalogue: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(catalogue_path))
 	if not _check(catalogue.get("ok", false), "strict noncanonical catalogue"): return
 	var configured: Dictionary = bridge.configure_reading_catalogue(catalogue.value)
 	if not _check(configured.get("ok", false), "real reading owner accepts fixture catalogue: " + str(configured)): return
+	var first_entry: Dictionary = catalogue.value.entries[0]
+	var first_line: Dictionary = first_entry.lines[0]
+	_witness_beat = {"beat_id": first_line.beat_id, "line_id": first_line.line_id,
+		"owning_entry_id": first_entry.entry_id, "presentation_signature": {
+			"content_revision": first_line.revision, "variant_id": first_line.beat_id}}
+	if _reading_mode == "witness-read":
+		_witness_read_process()
+		return
 	var speech: Node = root.get_node("SystemTtsCoordinator")
 	speech.speech_admitted.connect(func(_token: int, _source: String) -> void: _speech_admissions += 1)
 	var capability: Dictionary = speech.refresh_capability("en")
@@ -44,7 +91,13 @@ func _run() -> void:
 		&"preferences.reading.auto_enabled": false,
 	})
 	if not _check(preferences.get("ok", false), "real reading preferences commit"): return
-	_trace("fixture_registered", {"catalogue": READING_CATALOGUE, "production_content": false})
+	if _reading_mode == "write":
+		_trace("fixture_registered", {"catalogue": READING_CATALOGUE, "production_content": false})
+	else:
+		_witness_initial_profile = profile.get_profile_snapshot()
+		if not _check(profile.is_caption_variant_witnessed(_witness_beat) == (_reading_mode == "repeat"),
+			"fresh process admits only the exact previously witnessed variant"): return
+		_confirm_replacement_new_account.call_deferred()
 	# Reuse real title/New Account/desktop/first board. This calls our Dating override.
 	await super._run()
 
@@ -66,6 +119,14 @@ func _dating_journey(game: Node, desktop: Node) -> void:
 	schedule.panel.source_requested.emit("solo:priscilla:day1")
 	if not _check(schedule.last_result.get("ok", false), "real invitation scheduled"): return
 	var ports: Dictionary = desktop.get_meta("gameplay_ports")
+	if _reading_mode == "variant":
+		var profile: Node = root.get_node("ProfileManager")
+		var storage: RefCounted = profile.get("_storage")
+		var identity: Dictionary = WITNESSES.describe(_witness_beat)
+		if not _check(identity.get("ok", false), "strict B witness identity"): return
+		_witness_fault = FailOneCaptionWitnessWrite.new(storage.get("_file_ops"), identity.value.witness_id)
+		storage.set("_file_ops", _witness_fault)
+		profile.profile_write_failed.connect(func(failure: Dictionary) -> void: _witness_failure = failure.duplicate(true))
 	for attempt: int in 5:
 		var done: Dictionary = ports.commands.dispatch_done()
 		if not _check(done.get("ok", false), "Schedule Done: " + str(done)): return
@@ -76,6 +137,9 @@ func _dating_journey(game: Node, desktop: Node) -> void:
 	if not await _wait_line("fixture.solo.pre.a"): return
 	if not _check(current_scene != null and current_scene.get("worksheet") != null, "real Dating scene mounted"): return
 	var dating: Node = current_scene
+	if _reading_mode in ["repeat", "variant"]:
+		await _witness_session(game, dating)
+		return
 	if not await _ordinary_reading_pause_save(game, dating): return
 	if not await _advance_line("fixture.solo.pre.a", "fixture.solo.pre.b"): return
 	if not await _inspect_history("04-pre-history", 2): return
@@ -478,6 +542,8 @@ func _advance_line(line_id: String, successor: String) -> bool:
 
 
 func _capture_screen(label: String) -> bool:
+	# The original WRITE/READ captures are sealed before supplemental New Accounts.
+	if _reading_mode not in ["write", "read"]: return true
 	await RenderingServer.frame_post_draw
 	var pixels: Image = root.get_texture().get_image()
 	if not _check(pixels != null and not pixels.is_empty(), "rendered screen available"): return false
@@ -519,3 +585,200 @@ func _check(value: bool, detail: String) -> bool:
 		printerr("READING_RAIL_FAIL: " + detail)
 		quit(1)
 	return value
+
+
+func _confirm_replacement_new_account() -> void:
+	# Only supplemental processes replace an occupied Autosave. Use the real
+	# title consent after its source-bound token exists; do not erase files.
+	for frame: int in 1800:
+		var menu: Node = current_scene
+		if menu != null and menu.has_node("%NewAccButton"):
+			var confirmation: Variant = menu.get("_confirmation")
+			if is_instance_valid(confirmation) and not bool(menu.get("_title_transition")):
+				if not _check(_replacement_confirmations == 0 and not str(menu.get("_new_acc_token")).is_empty(),
+					"one source-bound New Account replacement confirmation"): return
+				_replacement_confirmations += 1
+				confirmation.confirm_button.grab_focus()
+				await _ordinary_accept_focused(confirmation.confirm_button, "fresh causal run replacement")
+				return
+		await process_frame
+	_check(false, "supplemental New Account never requested its real replacement consent")
+
+
+func _witness_disk() -> Dictionary:
+	var profile: Node = root.get_node("ProfileManager")
+	var inspected: Dictionary = profile.get("_storage").inspect_revision("profile.json")
+	if not _check(inspected.get("ok", false) and inspected.value.get("exists", false)
+		and inspected.value.get("text") is String, "actual Profile bytes have no pending transaction"): return {}
+	var text: String = inspected.value.text
+	return {"text": text, "sha256": text.sha256_text(), "bytes": text.to_utf8_buffer().size()}
+
+
+func _witness_session(game: Node, dating: Node) -> void:
+	var profile: Node = root.get_node("ProfileManager")
+	var bridge: Node = root.get_node("DialogicBridge")
+	var runtime: RefCounted = bridge.get("_runtime_adapter")
+	if not _check(_replacement_confirmations == 1, "fresh causal session used actual replacement consent"): return
+	var prior: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(_evidence_path("write.json")))
+	if not _check(prior.get("ok", false), "sealed original WRITE report remains available"): return
+	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
+	if not _check(checkpoint.get("ok", false), "new causal session owns an admitted exact first line"): return
+	var current_id: String = checkpoint.value.reading_session.ledger.session_token
+	var prior_id: String = prior.value.saved_checkpoint.reading_session.ledger.session_token
+	if not _check(current_id != prior_id, "fresh New Account has a distinct causal semantic session"): return
+	var before_profile: Dictionary = profile.get_profile_snapshot()
+	var before_disk := _witness_disk()
+	if before_disk.is_empty(): return
+	var report := {"mode": _reading_mode, "process_id": OS.get_process_id(),
+		"user_dir": ProjectSettings.globalize_path("user://"),
+		"catalogue": VARIANT_B_CATALOGUE if _reading_mode == "variant" else READING_CATALOGUE,
+		"beat": _witness_beat.duplicate(true), "prior_session_id": prior_id, "current_session_id": current_id,
+		"first_line_id": "fixture.solo.pre.a", "profile_before_sha256": before_disk.sha256,
+		"witnesses_before": before_profile.witnessed_caption_variants.duplicate(true),
+		"seen_before": _reading_mode == "repeat", "replacement_confirmations": _replacement_confirmations}
+	if _reading_mode == "repeat":
+		if not _check(profile.is_caption_variant_witnessed(_witness_beat)
+			and before_profile.witnessed_caption_variants == _witness_initial_profile.witnessed_caption_variants,
+			"same exact A remains witnessed despite new run/branch/playback identities"): return
+		_trace("witness_repeat_entered", {"session_id": current_id, "beat": _witness_beat,
+			"witnesses": before_profile.witnessed_caption_variants})
+	else:
+		if not _check(_witness_fault != null and int(_witness_fault.get("refusals")) == 1
+			and int(_witness_fault.get("matching_writes")) == 1 and not _witness_failure.get("ok", true)
+			and not _witness_failure.get("fatal", false) and not profile.get("_mutation_blocked")
+			and not profile.is_caption_variant_witnessed(_witness_beat),
+			"one real recoverable Profile write refusal grants no B witness"): return
+		if not _check(before_disk.text == _witness_fault.get("previous_text")
+			and runtime.current_line_id() == "fixture.solo.pre.a"
+			and before_profile.witnessed_caption_variants == _witness_initial_profile.witnessed_caption_variants,
+			"failed B write rolls back exact Profile bytes and preserves the current publication"): return
+		report["write_faults"] = 1
+		report["write_failure"] = _witness_failure.duplicate(true)
+		report["failed_profile_sha256"] = before_disk.sha256
+		_trace("witness_variant_refused", {"failure": _witness_failure, "beat": _witness_beat,
+			"profile_sha256": before_disk.sha256, "frontier": checkpoint.value.reading_session.frontier})
+		if not await _witness_queries_and_pause_are_neutral(game, dating, before_profile, before_disk.text): return
+		report["neutrality_before_retry"] = true
+		_trace("witness_neutrality_verified", {"profile_sha256": before_disk.sha256,
+			"witnessed": profile.is_caption_variant_witnessed(_witness_beat), "refusals": _witness_fault.get("refusals")})
+		if not _check(not runtime.is_current_line_complete(), "fresh Accept retry begins before this long fixture line completes"): return
+		if not await _fresh_caption_accept(): return
+		if not _check(runtime.current_line_id() == "fixture.solo.pre.a" and runtime.is_current_line_complete()
+			and profile.is_caption_variant_witnessed(_witness_beat)
+			and int(_witness_fault.get("refusals")) == 1 and int(_witness_fault.get("matching_writes")) == 2,
+			"fresh physical Accept retries once, commits B and completes only its current reveal"): return
+	var frontier: Dictionary = bridge.capture_current_line_presentation_frontier()
+	var disk_before_ack := _witness_disk()
+	var acknowledged: Dictionary = bridge.acknowledge_current_line_presentation(frontier)
+	if not _check(acknowledged.get("ok", false)
+		and acknowledged.receipt.get("was_visited_before_presentation") == (_reading_mode == "repeat")
+		and _witness_disk() == disk_before_ack,
+		"idempotent actual acknowledgement retains the exact pre-publication seen baseline"): return
+	report["acknowledgement_receipt"] = acknowledged.receipt.duplicate(true)
+	if _reading_mode == "variant":
+		_trace("witness_retry_committed", {"receipt": acknowledged.receipt,
+			"profile_sha256": disk_before_ack.sha256, "refusals": _witness_fault.get("refusals")})
+		var witnessed_before_history: Dictionary = profile.get_profile_snapshot()
+		if not await _inspect_history("variant-history-not-captured", 1): return
+		if not _check(profile.get_profile_snapshot() == witnessed_before_history
+			and _witness_disk() == disk_before_ack, "History and return grant no extra exact witness or write"): return
+		report["history_after_retry_neutral"] = true
+	var skip: Dictionary = bridge.request_skip_step()
+	if not _check(skip.get("ok", false) and skip.value.get("advance") == (_reading_mode == "repeat"),
+		"Read Only uses the retained baseline instead of credit from its own current publication: " + str(skip)): return
+	if _reading_mode == "repeat":
+		if not await _wait_line("fixture.solo.pre.b"): return
+	else:
+		if not _check(runtime.current_line_id() == "fixture.solo.pre.a"
+			and bridge.capture_reading_checkpoint(false).value == checkpoint.value,
+			"first Read Only operation stops on newly witnessed B without semantic advance"): return
+	var final_disk := _witness_disk()
+	if final_disk.is_empty(): return
+	report["skip_result"] = skip.duplicate(true)
+	report["resulting_line_id"] = runtime.current_line_id()
+	report["seen_after"] = profile.is_caption_variant_witnessed(_witness_beat)
+	report["profile_after_sha256"] = final_disk.sha256
+	report["witnesses_after"] = profile.get_profile_snapshot().witnessed_caption_variants.duplicate(true)
+	if _reading_mode == "variant":
+		report["profile_sha256"] = final_disk.sha256
+		report["profile_bytes"] = final_disk.bytes
+		if not _check(_write_text("witness-profile.json", final_disk.text), "retain exact physical Profile with B witness"): return
+	if not _check(_write_text(_reading_mode + ".json", JSON.stringify(report, "\t")), "retain exact witness session report"): return
+	_trace("witness_repeat_verified" if _reading_mode == "repeat" else "witness_unseen_stop_verified", report)
+	print("READING_RAIL_" + _reading_mode.to_upper() + "_PASS: actual new causal session and exact-variant Profile/Read Only proof")
+	await _finish_proof()
+
+
+func _witness_queries_and_pause_are_neutral(game: Node, dating: Node, profile_before: Dictionary, disk_before: String) -> bool:
+	var profile: Node = root.get_node("ProfileManager")
+	var bridge: Node = root.get_node("DialogicBridge")
+	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
+	for query: int in 3:
+		bridge.can_skip_current_line()
+		bridge.is_current_line_presentation_acknowledged()
+		bridge.capture_current_line_presentation_frontier()
+		bridge.capture_reading_checkpoint(false)
+		bridge.get_reading_history()
+	if not _check(profile.get_profile_snapshot() == profile_before and _witness_disk().text == disk_before,
+		"capability/checkpoint/History queries never retry or witness B"): return false
+	await _pause_key()
+	var pause_owner: Node = root.get_node("SceneRouter").get("_production_pause")
+	if not _check(paused and pause_owner.surface.is_visible_in_tree(), "plain Pause retains failed-witness source"): return false
+	pause_owner.surface.rows[&"backup"].grab_focus()
+	await _frames()
+	if not _check(pause_owner.surface.entered_action == &"" and profile.get_profile_snapshot() == profile_before
+		and _witness_disk().text == disk_before and not profile.is_caption_variant_witnessed(_witness_beat),
+		"focus-only Backup preview creates no exact-witness credit"): return false
+	pause_owner.surface.rows[&"continue"].grab_focus()
+	if not await _ordinary_accept_focused(pause_owner.surface.rows[&"continue"], "failed-witness plain Pause Continue"): return false
+	return _check(not paused and current_scene == dating and profile.get_profile_snapshot() == profile_before
+		and _witness_disk().text == disk_before and bridge.capture_reading_checkpoint(false).value == checkpoint.value
+		and int(_witness_fault.get("matching_writes")) == 1,
+		"plain Pause and Continue preserve B's failure, exact source and physical Profile bytes")
+
+
+func _fresh_caption_accept() -> bool:
+	current_scene.get_window().grab_focus()
+	await _frames()
+	var layer: Node = _caption_layer()
+	if not _check(layer != null and layer.caption_text.is_visible_in_tree(), "visible caption owns witness retry"): return false
+	layer.caption_text.grab_focus()
+	await process_frame
+	if not _check(layer.caption_text.has_focus(), "retry begins with current caption Focus"): return false
+	for pressed: bool in [true, false]:
+		var event := InputEventKey.new()
+		event.keycode = KEY_ENTER
+		event.physical_keycode = KEY_ENTER
+		event.pressed = pressed
+		Input.parse_input_event(event)
+		Input.flush_buffered_events()
+		await process_frame
+	await _frames()
+	return true
+
+
+func _witness_read_process() -> void:
+	var prior: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(_evidence_path("variant.json")))
+	if not _check(prior.get("ok", false) and int(prior.value.process_id) != OS.get_process_id(),
+		"B witness verification uses a fresh operating-system process"): return
+	var profile: Node = root.get_node("ProfileManager")
+	var before: Dictionary = profile.get_profile_snapshot()
+	var disk := _witness_disk()
+	if not _check(not disk.is_empty() and disk.sha256 == prior.value.profile_sha256
+		and disk.bytes == prior.value.profile_bytes
+		and before.witnessed_caption_variants == prior.value.witnesses_after
+		and profile.is_caption_variant_witnessed(_witness_beat),
+		"fresh Profile startup independently restores exact durable B membership"): return
+	var bridge: Node = root.get_node("DialogicBridge")
+	bridge.can_skip_current_line()
+	bridge.is_current_line_presentation_acknowledged()
+	if not _check(profile.get_profile_snapshot() == before and _witness_disk() == disk,
+		"fresh witness inspection changes no Profile bytes"): return
+	var report := {"mode": _reading_mode, "process_id": OS.get_process_id(),
+		"user_dir": ProjectSettings.globalize_path("user://"), "beat": _witness_beat.duplicate(true),
+		"witnessed": true, "profile_bytes": disk.bytes, "profile_sha256": disk.sha256,
+		"witnesses": before.witnessed_caption_variants.duplicate(true), "profile_unchanged": true}
+	if not _check(_write_text("witness-read.json", JSON.stringify(report, "\t")), "retain fresh B witness read report"): return
+	_trace("witness_restart_verified", report)
+	print("READING_RAIL_WITNESS_READ_PASS: fresh Profile loads exact B witness without publication or mutation")
+	quit(0)

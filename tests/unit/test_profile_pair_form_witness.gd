@@ -19,6 +19,7 @@ func test_v4_profile_upgrade_preserves_facts_without_inventing_pair_witnesses() 
 	old.erase("pair_deck_draws")
 	old.erase("reached_presentations")
 	old.erase("reached_presentation_chronology")
+	old.erase("witnessed_caption_variants")
 	old.erase("pair_form_witness_receipts")
 	old.erase("dating_attempts")
 	old.gallery_unlocks = ["ending.priscilla_lavinia"]

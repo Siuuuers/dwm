@@ -14,6 +14,7 @@ var command_id := ""
 var pre_entry_id := ""
 var latest_entry := ""
 var boundary := "between_entries"
+var _caption_variants_by_line: Dictionary = {}
 
 func configure(document: Dictionary) -> Dictionary:
 	if not catalogue.is_empty(): return _fail(&"reading_catalogue_already_configured")
@@ -54,6 +55,11 @@ func configure(document: Dictionary) -> Dictionary:
 	if not encoded.ok: return encoded
 	catalogue = compiled
 	registry = registered
+	# This index carries authored identity only; causal entry frames and publication
+	# IDs establish ownership of an occurrence without making it another variant.
+	FROZEN._freeze(registry)
+	for beat: Dictionary in registry.beats:
+		_caption_variants_by_line[beat.line_id] = beat
 	manifest = entry_manifest
 	fingerprint = str(encoded.value).sha256_text()
 	return {"ok": true}
@@ -88,6 +94,17 @@ func admit(entry_id: String, context: Dictionary) -> Dictionary:
 
 func completed(entry_id: String) -> void:
 	if latest_entry == entry_id: boundary = "between_entries"
+
+## A registered descriptor is available only for the admitted, published tail.
+## Hot acknowledgement checks never copy the retained History or scan prose.
+func current_caption_variant(entry_id: String, frontier: Dictionary) -> Dictionary:
+	if ledger == null or boundary != "line" or latest_entry != entry_id \
+			or not ledger.is_current_occurrence(command_id, entry_id, frontier):
+		return _fail(&"reading_frontier_unavailable")
+	var beat: Dictionary = _caption_variants_by_line.get(frontier.line_id, {})
+	if beat.is_empty() or beat.owning_entry_id != entry_id:
+		return _fail(&"reading_frontier_unavailable")
+	return {"ok": true, "value": beat.duplicate(true)}
 
 func capture(frontier: Dictionary) -> Dictionary:
 	if ledger == null or latest_entry.is_empty(): return _fail(&"reading_session_unavailable")

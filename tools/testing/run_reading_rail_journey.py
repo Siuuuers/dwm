@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Prove one real Solo reading session across two isolated rendered processes.
+"""Prove real Solo reading and durable exact-beat witnesses across fresh processes.
 
 Only the authored prose/catalogue is a noncanonical fixture. Startup, invitation,
 Schedule, ordinary Pause/Backup Save, board outcome, History, Quick, storage and
 restoration use real owners.
+The original WRITE/READ proof is sealed before supplemental New Account sessions.
 The common cloud harness supplies containment, watchdog and strict log checks.
 """
 
@@ -33,6 +34,7 @@ PAUSE_STAGES = (
     "ordinary_pause_reentered", "ordinary_backup_previewed", "ordinary_backup_entered",
     "ordinary_pause_save_committed", "ordinary_pause_save_continued",
 )
+MODES = ("write", "read", "repeat", "variant", "witness-read")
 TRACE_KINDS = {
     "write": (
         "fixture_registered", *PAUSE_STAGES, "history_inspected", "pre_history",
@@ -40,6 +42,12 @@ TRACE_KINDS = {
         "history_inspected", "reading_quick_load_cancelled", "stale_candidate_refused",
     ),
     "read": ("fresh_restore_prepared", "history_inspected", "fresh_restore_verified"),
+    "repeat": ("witness_repeat_entered", "witness_repeat_verified"),
+    "variant": (
+        "witness_variant_refused", "witness_neutrality_verified", "witness_retry_committed",
+        "history_inspected", "witness_unseen_stop_verified",
+    ),
+    "witness-read": ("witness_restart_verified",),
 }
 
 
@@ -116,13 +124,14 @@ def validate_pause_save(written: dict, evidence: Path, folder: Path) -> dict:
     return {"bytes": len(raw), "sha256": digest, "slot_locator": proof["slot_locator"]}
 
 
-def validate_trace(reports: dict, evidence: Path) -> None:
+def validate_trace(reports: dict, evidence: Path, modes: tuple[str, ...]) -> None:
     path = cloud.contained_path(evidence, evidence / "transactions.jsonl")
     entries = [strict_json(line) for line in path.read_text(encoding="utf-8").splitlines()]
-    expected_modes = [mode for mode, kinds in TRACE_KINDS.items() for _ in kinds]
+    expected_modes = [mode for mode in modes for _ in TRACE_KINDS[mode]]
     if [entry["mode"] for entry in entries] != expected_modes:
-        raise RuntimeError("EXACT_WRITE_THEN_READ_TRACE_REQUIRED")
-    for mode, kinds in TRACE_KINDS.items():
+        raise RuntimeError("EXACT_PROCESS_MODE_TRACE_REQUIRED")
+    for mode in modes:
+        kinds = TRACE_KINDS[mode]
         observed = [entry for entry in entries if entry["mode"] == mode]
         if [entry["kind"] for entry in observed] != list(kinds):
             raise RuntimeError(f"EXACT_TRANSACTION_TRACE_REQUIRED: {mode}")
@@ -131,6 +140,159 @@ def validate_trace(reports: dict, evidence: Path) -> None:
                 raise RuntimeError(f"TRACE_PROCESS_OR_SEQUENCE_MISMATCH: {mode}/{sequence}")
             if entry["kind"] in PAUSE_STAGES and entry["value"] != reports["write"]["ordinary_pause_save"][entry["kind"]]:
                 raise RuntimeError(f"PAUSE_TRACE_REPORT_MISMATCH: {entry['kind']}")
+            if entry["kind"] in ("witness_repeat_verified", "witness_unseen_stop_verified", "witness_restart_verified") and entry["value"] != reports[mode]:
+                raise RuntimeError(f"WITNESS_TRACE_REPORT_MISMATCH: {mode}")
+
+
+def file_identity(path: Path) -> dict:
+    raw = path.read_bytes()
+    return {"bytes": len(raw), "sha256": hashlib.sha256(raw).hexdigest()}
+
+
+def seal_original_evidence(repository: Path, evidence: Path, folder: Path, captures: list[dict]) -> dict:
+    sealed = cloud.make_directory(repository, folder / "sealed-write-read")
+    names = ("write.json", "read.json", "saved-quick.json", "saved-pause-slot.json", "transactions.jsonl", *CAPTURES)
+    files = {}
+    for name in names:
+        source = cloud.contained_path(evidence, evidence / name)
+        destination = cloud.contained_path(sealed, sealed / name)
+        identity = file_identity(source)
+        shutil.copyfile(source, destination)
+        if file_identity(destination) != identity:
+            raise RuntimeError(f"WRITE_READ_SEAL_COPY_MISMATCH: {name}")
+        files[name] = identity
+    for capture in captures:
+        if files[Path(capture["file"]).name] != {key: capture[key] for key in ("bytes", "sha256")}:
+            raise RuntimeError("WRITE_READ_CAPTURE_SEAL_MISMATCH")
+    manifest = {"sealed_after_mode": "read", "before_mode": "repeat", "root": str(sealed), "files": files}
+    cloud.write_json(folder / "write-read-seal.json", manifest)
+    return manifest
+
+
+def validate_original_seal(seal: dict, evidence: Path, folder: Path) -> None:
+    sealed = cloud.contained_path(folder, Path(seal["root"]))
+    for name, identity in seal["files"].items():
+        retained = cloud.contained_path(sealed, sealed / name)
+        source = cloud.contained_path(evidence, evidence / name)
+        if file_identity(retained) != identity:
+            raise RuntimeError(f"SEALED_WRITE_READ_BYTES_CHANGED: {name}")
+        if name == "transactions.jsonl":
+            if not source.read_bytes().startswith(retained.read_bytes()):
+                raise RuntimeError("SUPPLEMENTAL_TRACE_CHANGED_WRITE_READ_PREFIX")
+        elif file_identity(source) != identity:
+            raise RuntimeError(f"SUPPLEMENTAL_MODE_CHANGED_WRITE_READ_EVIDENCE: {name}")
+        if name in CAPTURES:
+            if file_identity(cloud.contained_path(folder, folder / "captures" / name)) != identity:
+                raise RuntimeError(f"RETAINED_WRITE_READ_CAPTURE_CHANGED: {name}")
+        elif name != "transactions.jsonl" and file_identity(cloud.contained_path(folder, folder / name)) != identity:
+            raise RuntimeError(f"RETAINED_WRITE_READ_EVIDENCE_CHANGED: {name}")
+
+
+def execute_mode(mode: str, godot: str, xvfb: str, repository: Path, folder: Path, env: dict, result: dict) -> None:
+    log = folder / f"{mode}.log"
+    argv = [
+        xvfb, "-a", "-s", "-screen 0 1920x1080x24", godot,
+        "--path", str(repository), "--verbose", "--rendering-method", "gl_compatibility",
+        "--rendering-driver", "opengl3", "--audio-driver", "Dummy",
+        "--log-file", str(log), "--script", SCRIPT, "--",
+        "--phase2r-bootstrap-mode=final", "--render-evidence", "--probe-dating",
+        f"--reading-rail-mode={mode}",
+    ]
+    process = cloud.run_process(argv, env, repository, folder, mode)
+    result["processes"][mode] = process
+    failures = cloud.process_failures(process, log)
+    stdout = cloud.read_log(Path(process["stdout"]))
+    marker = f"READING_RAIL_{mode.upper().replace('-', '_')}_PASS"
+    if cloud.marker_count(stdout, marker) != 1:
+        failures.append(f"REQUIRED_MARKER_COUNT: {marker}")
+    if "READING_RAIL_FAIL:" in stdout or "READING_RAIL_FAIL:" in cloud.read_log(Path(process["stderr"])):
+        failures.append("READING_RAIL_ASSERTION_FAILED")
+    result["failures"].extend(failures)
+    if failures:
+        raise RuntimeError(f"MODE_FAILED: {mode}")
+
+
+def read_report(mode: str, evidence: Path, folder: Path, reports: dict, user_dir: Path) -> dict:
+    path = cloud.contained_path(evidence, evidence / f"{mode}.json")
+    report = strict_json(path.read_text(encoding="utf-8"))
+    if report["mode"] != mode or Path(report["user_dir"]).resolve() != user_dir:
+        raise RuntimeError(f"REPORT_MODE_OR_USER_DIR_MISMATCH: {mode}")
+    if not isinstance(report["process_id"], int) or report["process_id"] <= 0 or any(
+        prior["process_id"] == report["process_id"] for prior in reports.values()
+    ):
+        raise RuntimeError(f"EVERY_MODE_REQUIRES_A_FRESH_PROCESS: {mode}")
+    reports[mode] = report
+    shutil.copyfile(path, folder / path.name)
+    return report
+
+
+def validate_witnesses(reports: dict, evidence: Path, folder: Path) -> dict:
+    repeated, variant, restarted = (reports[mode] for mode in MODES[2:])
+    saved_ledger = reports["write"]["saved_checkpoint"]["reading_session"]["ledger"]
+    original_beat = saved_ledger["captions"][0]["beat"]
+    original_session = saved_ledger["frozen_context"]["completion_transaction_id"]
+    sessions = {original_session}
+    for report in (repeated, variant):
+        if report["prior_session_id"] != original_session or not report["current_session_id"] or report["current_session_id"] in sessions:
+            raise RuntimeError("WITNESS_REQUIRES_DISTINCT_CAUSAL_SESSIONS")
+        sessions.add(report["current_session_id"])
+        if report["first_line_id"] != "fixture.solo.pre.a" or report["beat"]["line_id"] != report["first_line_id"]:
+            raise RuntimeError("WITNESS_REQUIRES_SAME_STABLE_FIRST_LINE")
+        if report["seen_after"] is not True or report["skip_result"]["ok"] is not True:
+            raise RuntimeError("WITNESS_PUBLICATION_OR_SKIP_RESULT_NOT_ADMITTED")
+        for key in ("profile_before_sha256", "profile_after_sha256"):
+            if re.fullmatch(r"[0-9a-f]{64}", report[key]) is None:
+                raise RuntimeError(f"INVALID_PROFILE_DIGEST: {report['mode']}/{key}")
+        before, after = report["witnesses_before"], report["witnesses_after"]
+        if not isinstance(before, dict) or not isinstance(after, dict) or any(after.get(key) != value for key, value in before.items()):
+            raise RuntimeError("WITNESS_LEDGER_MUST_PRESERVE_PRIOR_CREDIT")
+        if report["beat"] not in after.values():
+            raise RuntimeError("EXACT_PUBLISHED_BEAT_ABSENT_FROM_WITNESS_LEDGER")
+    if repeated["beat"] != original_beat or repeated["seen_before"] is not True or (
+        repeated["acknowledgement_receipt"]["was_visited_before_presentation"] is not True
+        or repeated["skip_result"]["value"]["advance"] is not True
+        or repeated["resulting_line_id"] != "fixture.solo.pre.b"
+        or repeated["witnesses_before"] != repeated["witnesses_after"]
+        or original_beat not in repeated["witnesses_before"].values()
+    ):
+        raise RuntimeError("EXACT_REPEAT_MUST_REMAIN_SEEN_ACROSS_NEW_ACCOUNT")
+    beat = variant["beat"]
+    if set(beat) != set(original_beat) or any(beat[key] != original_beat[key] for key in ("beat_id", "line_id", "owning_entry_id")) or (
+        set(beat["presentation_signature"]) != set(original_beat["presentation_signature"])
+        or beat["presentation_signature"]["variant_id"] != original_beat["presentation_signature"]["variant_id"]
+        or beat["presentation_signature"]["content_revision"] == original_beat["presentation_signature"]["content_revision"]
+    ):
+        raise RuntimeError("VARIANT_MUST_CHANGE_EXACT_REVISION_OF_SAME_STABLE_BEAT")
+    added = {key: value for key, value in variant["witnesses_after"].items() if key not in variant["witnesses_before"]}
+    if variant["witnesses_before"] != repeated["witnesses_after"] or list(added.values()) != [beat] or (
+        beat in variant["witnesses_before"].values() or variant["seen_before"] is not False
+        or variant["acknowledgement_receipt"]["was_visited_before_presentation"] is not False
+        or variant["skip_result"]["value"]["advance"] is not False
+        or variant["resulting_line_id"] != variant["first_line_id"]
+    ):
+        raise RuntimeError("FIRST_VARIANT_PUBLICATION_MUST_PRESERVE_UNSEEN_SKIP_BASELINE")
+    failure = variant["write_failure"]
+    if variant["write_faults"] != 1 or failure["ok"] is not False or not failure["code"] or failure.get("fatal", False) is not False or (
+        variant["failed_profile_sha256"] != variant["profile_before_sha256"]
+        or variant["profile_after_sha256"] == variant["profile_before_sha256"]
+        or variant["neutrality_before_retry"] is not True
+        or variant["history_after_retry_neutral"] is not True
+    ):
+        raise RuntimeError("RECOVERABLE_PROFILE_WRITE_FAILURE_AND_NEUTRAL_RETRY_PROOF_REQUIRED")
+    profile = cloud.contained_path(evidence, evidence / "witness-profile.json")
+    identity = file_identity(profile)
+    if identity != {"bytes": variant["profile_bytes"], "sha256": variant["profile_sha256"]} or identity["sha256"] != variant["profile_after_sha256"]:
+        raise RuntimeError("RETAINED_WITNESS_PROFILE_BYTES_MISMATCH")
+    if strict_json(profile.read_text(encoding="utf-8"))["witnessed_caption_variants"] != variant["witnesses_after"]:
+        raise RuntimeError("PHYSICAL_PROFILE_WITNESS_LEDGER_MISMATCH")
+    if restarted["beat"] != beat or restarted["witnessed"] is not True or restarted["profile_unchanged"] is not True or (
+        restarted["witnesses"] != variant["witnesses_after"]
+        or {"bytes": restarted["profile_bytes"], "sha256": restarted["profile_sha256"]} != identity
+    ):
+        raise RuntimeError("FRESH_PROCESS_MUST_READ_EXACT_DURABLE_VARIANT_PROFILE")
+    shutil.copyfile(profile, folder / profile.name)
+    return {**identity, "repeat_seen": True, "same_line_new_revision_unseen": True,
+            "profile_write_faults": variant["write_faults"], "fresh_process_witnessed": True}
 
 
 def run() -> int:
@@ -139,12 +301,16 @@ def run() -> int:
     folder = cloud.make_directory(repository, output / str(uuid4()))
     isolation = cloud.make_directory(repository, repository / ".godot/phase2r_tests" / str(uuid4()))
     result = {
-        "schema_version": 1,
-        "fixture_scope": "Noncanonical English Solo Priscilla Day 1 prose only; real production owners and physical save files.",
+        "schema_version": 2,
+        "fixture_scope": "Noncanonical English Solo Priscilla Day 1 prose and exact-revision variant; real production owners, physical saves and Profile FileOps.",
         "started_at_utc": cloud.utc_now(), "ok": False, "failures": [], "processes": {},
         "isolation_root": str(isolation), "artifact_root": str(folder),
     }
     user_dir: Path | None = None
+    evidence: Path | None = None
+    seal: dict | None = None
+    reports: dict = {}
+    result["reports"] = reports
     try:
         if sys.platform != "linux":
             raise RuntimeError("This rendered proof requires Linux with xvfb-run")
@@ -182,38 +348,10 @@ def run() -> int:
         user_dir = cloud.contained_path(isolation, Path(markers[0].strip()))
         cloud.contained_path(Path(env["XDG_DATA_HOME"]), user_dir)
         result["user_dir"] = str(user_dir)
-        for mode in ("write", "read"):
-            log = folder / f"{mode}.log"
-            argv = [
-                xvfb, "-a", "-s", "-screen 0 1920x1080x24", godot,
-                "--path", str(repository), "--verbose", "--rendering-method", "gl_compatibility",
-                "--rendering-driver", "opengl3", "--audio-driver", "Dummy",
-                "--log-file", str(log), "--script", SCRIPT, "--",
-                "--phase2r-bootstrap-mode=final", "--render-evidence", "--probe-dating",
-                f"--reading-rail-mode={mode}",
-            ]
-            process = cloud.run_process(argv, env, repository, folder, mode)
-            result["processes"][mode] = process
-            failures = cloud.process_failures(process, log)
-            stdout = cloud.read_log(Path(process["stdout"]))
-            marker = f"READING_RAIL_{mode.upper()}_PASS"
-            if cloud.marker_count(stdout, marker) != 1:
-                failures.append(f"REQUIRED_MARKER_COUNT: {marker}")
-            if "READING_RAIL_FAIL:" in stdout or "READING_RAIL_FAIL:" in cloud.read_log(Path(process["stderr"])):
-                failures.append("READING_RAIL_ASSERTION_FAILED")
-            result["failures"].extend(failures)
-            if failures:
-                break
         evidence = cloud.contained_path(user_dir, user_dir / "evidence/reading-rail")
-        reports = {}
-        for mode in ("write", "read"):
-            path = cloud.contained_path(user_dir, evidence / f"{mode}.json")
-            if path.is_file():
-                reports[mode] = strict_json(path.read_text(encoding="utf-8"))
-                shutil.copyfile(path, folder / path.name)
-        result["reports"] = reports
-        if set(reports) != {"write", "read"}:
-            raise RuntimeError("BOTH_PROCESS_REPORTS_REQUIRED")
+        for mode in MODES[:2]:
+            execute_mode(mode, godot, xvfb, repository, folder, env, result)
+            read_report(mode, evidence, folder, reports, user_dir)
         written, restored = reports["write"], reports["read"]
         if written["process_id"] == restored["process_id"]:
             raise RuntimeError("RESTORE_MUST_USE_A_FRESH_PROCESS")
@@ -227,28 +365,56 @@ def run() -> int:
         if written["history_observations"] < 2 or restored["history_observations"] < 1:
             raise RuntimeError("PRE_POST_AND_RESTORED_HISTORY_PROOF_REQUIRED")
         result["retained_pause_slot"] = validate_pause_save(written, evidence, folder)
-        validate_trace(reports, evidence)
+        validate_trace(reports, evidence, MODES[:2])
         quick = cloud.contained_path(user_dir, evidence / "saved-quick.json")
         raw = quick.read_bytes()
         if len(raw) != written["quick_bytes"] or hashlib.sha256(raw).hexdigest() != written["quick_sha256"]:
             raise RuntimeError("RETAINED_QUICK_BYTES_MISMATCH")
         shutil.copyfile(quick, folder / quick.name)
         result["retained_quick"] = {"bytes": len(raw), "sha256": hashlib.sha256(raw).hexdigest()}
+        captures, failures = cloud.collect_captures(repository, user_dir, folder, {
+            "evidence_folder": "reading-rail", "captures": CAPTURES,
+        })
+        result["captures"] = captures
+        result["failures"].extend(failures)
+        if failures:
+            raise RuntimeError("WRITE_READ_CAPTURES_REQUIRED_BEFORE_SUPPLEMENTAL_MODES")
+        seal = seal_original_evidence(repository, evidence, folder, captures)
+        result["write_read_seal"] = seal
+        for mode in MODES[2:]:
+            execute_mode(mode, godot, xvfb, repository, folder, env, result)
+            read_report(mode, evidence, folder, reports, user_dir)
+        validate_trace(reports, evidence, MODES)
+        result["retained_witness_profile"] = validate_witnesses(reports, evidence, folder)
     except Exception as error:
         result["failures"].append(f"{type(error).__name__}: {error}")
     finally:
         if user_dir is not None:
             try:
-                captures, failures = cloud.collect_captures(repository, user_dir, folder, {
-                    "evidence_folder": "reading-rail", "captures": CAPTURES,
-                })
-                result["captures"] = captures
-                result["failures"].extend(failures)
-                trace = cloud.contained_path(user_dir, user_dir / "evidence/reading-rail/transactions.jsonl")
-                if trace.is_file():
-                    shutil.copyfile(trace, folder / trace.name)
+                if seal is not None:
+                    validate_original_seal(seal, evidence, folder)
+                    actual_captures = {path.name for path in evidence.glob("*.png")}
+                    if actual_captures != set(CAPTURES):
+                        raise RuntimeError("SUPPLEMENTAL_MODE_CHANGED_ORIGINAL_CAPTURE_SET")
+                    result["write_read_seal_verified"] = True
+                elif "captures" not in result:
+                    captures, failures = cloud.collect_captures(repository, user_dir, folder, {
+                        "evidence_folder": "reading-rail", "captures": CAPTURES,
+                    })
+                    result["captures"] = captures
+                    result["failures"].extend(failures)
             except Exception as error:
                 result["failures"].append(f"EVIDENCE_COLLECTION_FAILED: {error}")
+            try:
+                # Retain partial failure evidence too, without overwriting sealed files.
+                source_root = cloud.contained_path(user_dir, user_dir / "evidence/reading-rail")
+                for name in ("transactions.jsonl", "witness-profile.json", *(f"{mode}.json" for mode in MODES)):
+                    source = cloud.contained_path(source_root, source_root / name)
+                    destination = cloud.contained_path(folder, folder / name)
+                    if source.is_file() and not destination.exists():
+                        shutil.copyfile(source, destination)
+            except Exception as error:
+                result["failures"].append(f"REPORT_OR_TRACE_COLLECTION_FAILED: {error}")
         result["ended_at_utc"] = cloud.utc_now()
         result["ok"] = not result["failures"]
         cloud.write_json(folder / "result.json", result)

@@ -76,7 +76,7 @@ func test_v1_upgrade_maps_canonical_peers_and_archives_every_original_preference
 	actual_keys.sort()
 	expected_keys.sort()
 	assert_eq(actual_keys, expected_keys)
-	for added_field: String in ["pair_form_witness_receipts", "dating_attempts", "observer_evidence", "pair_deck_draws", "reached_presentations"]:
+	for added_field: String in ["pair_form_witness_receipts", "dating_attempts", "observer_evidence", "pair_deck_draws", "reached_presentations", "witnessed_caption_variants"]:
 		assert_eq(upgraded[added_field], {}, "legacy migration does not invent " + added_field)
 	assert_eq(upgraded.legacy_preferences_v1, before.preferences)
 	assert_eq(upgraded.preferences.language, {"primary_locale_id": "zh_HK",
@@ -136,6 +136,7 @@ func test_v3_upgrade_closes_legacy_replay_without_inventing_archived_values() ->
 	source.erase("pair_deck_draws")
 	source.erase("reached_presentations")
 	source.erase("reached_presentation_chronology")
+	source.erase("witnessed_caption_variants")
 	source.erase("pair_form_witness_receipts")
 	source.erase("dating_attempts")
 	source.erase("migration_receipts")

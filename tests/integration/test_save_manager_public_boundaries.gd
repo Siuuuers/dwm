@@ -255,7 +255,7 @@ func test_old_v6_load_refusal_preserves_run_files_and_profile_v9_history() -> vo
 	var before_revision: int = f.profile.get_profile_revision()
 	var before_calls: Array = f.calls.duplicate()
 	var before_trace_size: int = f.ops.operation_trace().size()
-	assert_eq(before_profile.schema_version, 9)
+	assert_eq(before_profile.schema_version, 10)
 	assert_eq(before_profile.reached_presentation_chronology.first_witnessed.size(), 2,
 		"the refusal proof retains actual nonempty first-witness order")
 	var prepared: Dictionary = f.manager.prepare_restore_slot(1)

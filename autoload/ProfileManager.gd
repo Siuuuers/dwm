@@ -4,6 +4,7 @@ signal profile_restored(profile: Dictionary)
 signal preference_changed(path: StringName, value: Variant)
 signal gallery_changed(ending_id: String, unlocked: bool)
 signal visited_history_changed(line_id: String, visited: bool)
+signal caption_variant_witness_changed(witness_id: String, witnessed: bool)
 signal input_mappings_changed(action_id: StringName)
 signal controls_bindings_changed()
 signal profile_reset(section: StringName)
@@ -14,6 +15,7 @@ const DATING_ATTEMPTS := preload("res://scripts/profile/DatingAttemptLedger.gd")
 const OBSERVER_EVIDENCE := preload("res://scripts/profile/ObserverEvidence.gd")
 const PAIR_DECK := preload("res://scripts/domain/relationship/PairDeckDraw.gd")
 const PRESENTATION_SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
+const CAPTION_WITNESSES := preload("res://scripts/profile/CaptionWitnessLedger.gd")
 const MIGRATION := preload("res://scripts/profile/ProfileMigration.gd")
 const PREFERENCE_REGISTRY := preload("res://scripts/settings/SettingsPreferenceRegistry.gd")
 const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
@@ -384,7 +386,7 @@ func commit_prepared_profile(candidate: Dictionary, defer_signals: bool = false,
 	return _commit_profile_candidate(candidate, defer_signals, expected_revision)
 
 
-func _commit_profile_candidate(candidate: Dictionary, defer_signals: bool = false, expected_revision: int = -1, allow_dating_reset: bool = false, allow_gallery_reset: bool = false) -> Dictionary:
+func _commit_profile_candidate(candidate: Dictionary, defer_signals: bool = false, expected_revision: int = -1, allow_dating_reset: bool = false, allow_gallery_reset: bool = false, allow_visited_reset: bool = false) -> Dictionary:
 	var revision_check := _check_profile_revision(expected_revision)
 	if not revision_check.get("ok", false):
 		return revision_check
@@ -396,6 +398,8 @@ func _commit_profile_candidate(candidate: Dictionary, defer_signals: bool = fals
 	if not validation.get("ok", false):
 		return validation
 	var detached: Dictionary = validation["value"]
+	if not allow_visited_reset and not CAPTION_WITNESSES.preserves(_profile.witnessed_caption_variants, detached.witnessed_caption_variants):
+		return _failure(&"caption_witness_rewind", "Only Clear Visited History or full Profile reset may remove exact caption witnesses")
 	if not allow_dating_reset and not DATING_ATTEMPTS.preserves(_profile.dating_attempts, detached.dating_attempts):
 		return _failure(&"dating_history_rewind", "Only full Profile reset may remove Dating commitments")
 	if not allow_dating_reset:
@@ -492,6 +496,29 @@ func mark_line_visited(line_id: String) -> Dictionary:
 	var candidate := _profile.duplicate(true)
 	candidate["visited_line_ids"].append(line_id)
 	return commit_prepared_profile(candidate)
+
+
+func is_caption_variant_witnessed(beat: Dictionary) -> bool:
+	return _initialized and CAPTION_WITNESSES.contains(_profile.witnessed_caption_variants, beat)
+
+
+## The visible presentation owner supplies its admitted registry row. Both exact
+## and base-line history become durable in one commit; registration alone writes nothing.
+func mark_caption_variant_witnessed(beat: Dictionary, registry: Dictionary) -> Dictionary:
+	var guarded := _guard(&"profile_commit")
+	if not guarded.ok: return guarded
+	if not _initialized: return _failure(&"not_initialized", "ProfileManager is not initialized")
+	if _mutation_blocked: return _failure(&"indeterminate_commit", "Profile mutation is blocked", true)
+	var admitted := CAPTION_WITNESSES.admit(beat, registry)
+	if not admitted.ok: return admitted
+	var witness_id: String = admitted.value.witness_id
+	if CAPTION_WITNESSES.contains(_profile.witnessed_caption_variants, admitted.value.beat):
+		return {"ok": true, "code": &"ok", "value": {"witness_id": witness_id}, "unchanged": true}
+	var candidate := _profile.duplicate(true)
+	candidate.witnessed_caption_variants[witness_id] = admitted.value.beat
+	if beat.line_id not in candidate.visited_line_ids:
+		candidate.visited_line_ids.append(beat.line_id)
+	return _commit_profile_candidate(candidate)
 
 
 ## Only physical presentation owners call this after a counted event or ending.
@@ -1042,6 +1069,7 @@ func reset_visited_history(expected_revision: int = -1) -> Dictionary:
 	if not checked.get("ok", false): return checked
 	var candidate := _profile.duplicate(true)
 	candidate["visited_line_ids"] = []
+	candidate["witnessed_caption_variants"] = {}
 	return _commit_reset(candidate, &"visited_history", expected_revision)
 
 
@@ -1094,6 +1122,8 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 	var validation := SCHEMA.validate(candidate)
 	if not validation.get("ok", false):
 		return validation
+	if not CAPTION_WITNESSES.preserves(_profile.witnessed_caption_variants, validation.value.witnessed_caption_variants):
+		return _failure(&"caption_witness_rewind", "Run restoration cannot rewind exact caption witnesses")
 	if not DATING_ATTEMPTS.preserves(_profile.dating_attempts, validation.value.dating_attempts):
 		return _failure(&"dating_history_rewind", "Run restoration cannot rewind Profile Dating commitments")
 	for key: String in ["observer_evidence", "pair_deck_draws", "reached_presentations"]:
@@ -1143,7 +1173,7 @@ func _commit_reset(candidate: Dictionary, section: StringName, expected_revision
 func _commit_prepared_reset(candidate: Dictionary, section: StringName, expected_revision: int = -1) -> Dictionary:
 	var guarded := _guard(&"profile_commit")
 	if not guarded.get("ok", false): return guarded
-	var result := _commit_profile_candidate(candidate, true, expected_revision, section == &"entire_profile", section == &"gallery")
+	var result := _commit_profile_candidate(candidate, true, expected_revision, section == &"entire_profile", section == &"gallery", section in [&"visited_history", &"entire_profile"])
 	if not result.get("ok", false):
 		return result
 	var publication_id: String = result["value"]["publication_id"]
@@ -1252,6 +1282,11 @@ func _build_publication(old: Dictionary, current: Dictionary) -> Dictionary:
 		var after: bool = line_id in current["visited_line_ids"]
 		if before != after:
 			changes.append({"kind": &"visited", "id": line_id, "value": after})
+	for witness_id in _union_sorted(old.witnessed_caption_variants.keys(), current.witnessed_caption_variants.keys()):
+		var before: bool = old.witnessed_caption_variants.has(witness_id)
+		var after: bool = current.witnessed_caption_variants.has(witness_id)
+		if before != after:
+			changes.append({"kind": &"caption_witness", "id": witness_id, "value": after})
 	return {"changes": changes}
 
 
@@ -1268,6 +1303,8 @@ func _publish(publication: Dictionary) -> void:
 				gallery_changed.emit(change["id"], change["value"])
 			&"visited":
 				visited_history_changed.emit(change["id"], change["value"])
+			&"caption_witness":
+				caption_variant_witness_changed.emit(change["id"], change["value"])
 	if publication.has("reset_section"):
 		profile_reset.emit(publication["reset_section"])
 

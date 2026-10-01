@@ -10,8 +10,9 @@ const DATING_ATTEMPTS := preload("res://scripts/profile/DatingAttemptLedger.gd")
 const OBSERVER_EVIDENCE := preload("res://scripts/profile/ObserverEvidence.gd")
 const PAIR_DECK := preload("res://scripts/domain/relationship/PairDeckDraw.gd")
 const PRESENTATION_SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
+const CAPTION_WITNESSES := preload("res://scripts/profile/CaptionWitnessLedger.gd")
 
-const SCHEMA_VERSION := 9
+const SCHEMA_VERSION := 10
 const V1_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "migration_receipts"]
 const V2_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings"]
 const V3_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending"]
@@ -19,7 +20,8 @@ const V4_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction
 const V5_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts"]
 const V7_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts", "dating_attempts"]
 const V8_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts", "dating_attempts", "observer_evidence", "pair_deck_draws", "reached_presentations"]
-const ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts", "dating_attempts", "observer_evidence", "pair_deck_draws", "reached_presentations", "reached_presentation_chronology"]
+const V9_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts", "dating_attempts", "observer_evidence", "pair_deck_draws", "reached_presentations", "reached_presentation_chronology"]
+const ROOT_KEYS := V9_ROOT_KEYS + ["witnessed_caption_variants"]
 const PAIR_FORMS := ["ambiguous_sweet", "ambiguous_dark", "love_sweet", "love_dark"]
 const MIGRATION_RECEIPT_KEYS := ["legacy_game_state_profile_v1", "legacy_input_bindings_v1", "invalid_persisted_skip_mode_v1"]
 const PREFERENCE_GROUPS := ["language", "reading", "audio", "display", "accessibility", "exceptional_replay", "dark_mode"]
@@ -109,6 +111,7 @@ static func make_defaults() -> Dictionary:
 		"observer_evidence": {}, "pair_deck_draws": {}, "reached_presentations": {},
 		"reached_presentation_chronology": {"first_witnessed": [], "legacy_unordered": []},
 		"visited_line_ids": [],
+		"witnessed_caption_variants": {},
 		"preferences": preferences,
 		"input_mappings": {},
 		"controls_bindings": CONTROLS_RULES.defaults(),
@@ -186,6 +189,16 @@ static func prepare_v3_upgrade(raw: Dictionary) -> Dictionary:
 	return validate(candidate)
 
 
+static func prepare_v9_upgrade(raw: Dictionary) -> Dictionary:
+	var checked := _validate_modern_document(raw, 9, V9_ROOT_KEYS, true)
+	if not checked.ok: return checked
+	var candidate: Dictionary = checked.value
+	candidate.schema_version = SCHEMA_VERSION
+	# Base-line visits and reached scene signatures never prove an exact caption.
+	candidate["witnessed_caption_variants"] = {}
+	return validate(candidate)
+
+
 static func prepare_v8_upgrade(raw: Dictionary) -> Dictionary:
 	var checked := _validate_modern_document(raw, 8, V8_ROOT_KEYS, true)
 	if not checked.get("ok", false): return checked
@@ -200,6 +213,7 @@ static func _add_presentation_chronology(candidate: Dictionary) -> void:
 	legacy.sort()
 	candidate["reached_presentation_chronology"] = {
 		"first_witnessed": [], "legacy_unordered": legacy}
+	candidate["witnessed_caption_variants"] = {}
 
 static func prepare_v7_upgrade(raw: Dictionary) -> Dictionary:
 	var checked := _validate_modern_document(raw, 7, V7_ROOT_KEYS, true)
@@ -324,6 +338,12 @@ static func _validate_modern_document(source: Dictionary, version: int, root_key
 	if version >= 9:
 		var chronology := _validate_presentation_chronology(profile)
 		if not chronology.ok: return chronology
+	if version >= 10:
+		var captions := CAPTION_WITNESSES.validate(profile["witnessed_caption_variants"])
+		if not captions.ok: return captions
+		for beat: Dictionary in profile.witnessed_caption_variants.values():
+			if beat.line_id not in profile.visited_line_ids:
+				return _invalid("witnessed_caption_variants", "An exact caption witness also retains its base-line visit")
 	var result := {"ok": true, "code": &"ok", "value": profile}
 	if admitted_view_defaults or admitted_steady_default or admitted_window_default or admitted_font_default or admitted_panel_widths:
 		result["migrated"] = true

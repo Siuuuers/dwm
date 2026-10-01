@@ -26,6 +26,8 @@ func _v2() -> Dictionary:
 	profile.erase("observer_evidence")
 	profile.erase("pair_deck_draws")
 	profile.erase("reached_presentations")
+	profile.erase("reached_presentation_chronology")
+	profile.erase("witnessed_caption_variants")
 	profile.input_mappings = SCHEMA._default_input_mappings()
 	profile.preferences.audio.music_volume = 0.37
 	profile.gallery_unlocks = ["ending.alone"]
@@ -34,10 +36,10 @@ func _v2() -> Dictionary:
 	return profile
 
 
-func test_fresh_profile_is_v6_without_manufactured_legacy_provenance() -> void:
+func test_fresh_profile_is_v10_without_manufactured_legacy_provenance() -> void:
 	var profile := SCHEMA.make_defaults()
-	assert_eq(profile.schema_version, 8)
-	assert_eq(profile.keys().size(), 12)
+	assert_eq(profile.schema_version, 10)
+	assert_eq(profile.keys().size(), 17)
 	assert_eq(profile.input_mappings, {})
 	assert_false(profile.controls_import_pending)
 	assert_eq(profile.controls_bindings, RULES.defaults())
@@ -53,10 +55,12 @@ func test_default_v2_keeps_n_and_every_original_field() -> void:
 	if not result.ok:
 		return
 	var expected := before.duplicate(true)
-	expected.schema_version = 8
+	expected.schema_version = 10
 	expected["observer_evidence"] = {}
 	expected["pair_deck_draws"] = {}
 	expected["reached_presentations"] = {}
+	expected["reached_presentation_chronology"] = {"first_witnessed": [], "legacy_unordered": []}
+	expected["witnessed_caption_variants"] = {}
 	expected.pair_form_witness_receipts = {}
 	expected["dating_attempts"] = {}
 	expected.migration_receipts = {"legacy_game_state_profile_v1":true,
@@ -68,7 +72,7 @@ func test_default_v2_keeps_n_and_every_original_field() -> void:
 	assert_eq(result.value, expected)
 	assert_eq(source, before)
 	assert_true(SCHEMA.validate(result.value).ok)
-	assert_false(SCHEMA.validate(source).ok, "Strict v5 validation never silently upgrades")
+	assert_false(SCHEMA.validate(source).ok, "Current validation never silently upgrades")
 	result.value.input_mappings.game_hint[0].physical_keycode = KEY_J
 	result.value.preferences.audio.music_volume = 0.2
 	assert_eq(source, before, "Prepared migration is fully detached from the source")

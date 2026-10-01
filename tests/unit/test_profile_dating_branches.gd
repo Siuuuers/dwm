@@ -76,6 +76,7 @@ func test_v6_migration_retains_original_attempt_progress_and_receipts() -> void:
 	old.erase("pair_deck_draws")
 	old.erase("reached_presentations")
 	old.erase("reached_presentation_chronology")
+	old.erase("witnessed_caption_variants")
 	old.dating_attempts = flat
 	var before := old.duplicate(true)
 	var migrated := MIGRATION.prepare_document(old)

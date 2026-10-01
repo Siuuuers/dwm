@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "DWM profile schema v9",
-  "description": "Profile v9: sixteen exact roots; preserved reached signatures with immutable first-witness sequence and explicitly unordered legacy membership, alongside existing Dating, evidence, settings and history. GDScript validates the complete disjoint chronology partition and monotonic writes.",
+  "title": "DWM profile schema v10",
+  "description": "Profile v10: seventeen exact roots; exact registered caption witnesses alongside preserved reached signatures, immutable first-witness chronology, Dating, evidence, settings and history. GDScript validates witness hashes, visited-line membership, the complete disjoint chronology partition and monotonic writes.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -9,6 +9,7 @@
     "gallery_unlocks",
     "gallery_transaction_receipts",
     "visited_line_ids",
+    "witnessed_caption_variants",
     "preferences",
     "input_mappings",
     "controls_bindings",
@@ -47,7 +48,7 @@
     },
     "schema_version": {
       "type": "integer",
-      "const": 9
+      "const": 10
     },
     "gallery_unlocks": {
       "type": "array",
@@ -65,6 +66,21 @@
       "items": {
         "type": "string",
         "minLength": 1
+      }
+    },
+    "witnessed_caption_variants": {
+      "type": "object",
+      "description": "Canonical SHA-256 keys map to exact registered caption beats. Runtime validates each key against the complete primitive-valued beat, requires its line in visited_line_ids, and preserves membership until an explicit visited-history or full Profile reset.",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["beat_id", "line_id", "owning_entry_id", "presentation_signature"],
+        "properties": {
+          "beat_id": {"type": "string", "minLength": 1},
+          "line_id": {"type": "string", "minLength": 1},
+          "owning_entry_id": {"type": "string", "minLength": 1},
+          "presentation_signature": {"type": "object", "minProperties": 1}
+        }
       }
     },
     "preferences": {
@@ -94,7 +110,9 @@
               "enum": [
                 "en",
                 "zh_CN",
-                "zh_HK"
+                "zh_HK",
+                "ja",
+                "ko"
               ]
             },
             "secondary_locale_id": {
@@ -102,7 +120,9 @@
               "enum": [
                 "en",
                 "zh_CN",
-                "zh_HK"
+                "zh_HK",
+                "ja",
+                "ko"
               ]
             },
             "dual_enabled": {
@@ -266,7 +286,39 @@
                 "windowed",
                 "borderless"
               ]
-            }
+            },
+            "minesweeper_app_beginner_cell_size": {
+              "type": "integer",
+              "minimum": 10,
+              "maximum": 60,
+              "multipleOf": 2,
+              "default": 36
+            },
+            "minesweeper_app_beginner_always_fit": {"type": "boolean", "default": false},
+            "minesweeper_app_intermediate_cell_size": {
+              "type": "integer",
+              "minimum": 10,
+              "maximum": 60,
+              "multipleOf": 2,
+              "default": 36
+            },
+            "minesweeper_app_intermediate_always_fit": {"type": "boolean", "default": false},
+            "minesweeper_app_expert_cell_size": {
+              "type": "integer",
+              "minimum": 10,
+              "maximum": 60,
+              "multipleOf": 2,
+              "default": 36
+            },
+            "minesweeper_app_expert_always_fit": {"type": "boolean", "default": false},
+            "minesweeper_challenge_cell_size": {
+              "type": "integer",
+              "minimum": 10,
+              "maximum": 60,
+              "multipleOf": 2,
+              "default": 36
+            },
+            "minesweeper_challenge_always_fit": {"type": "boolean", "default": false}
           }
         },
         "accessibility": {
@@ -308,6 +360,7 @@
             "reduced_motion": {
               "type": "boolean"
             },
+            "steady_interface": {"type": "boolean", "default": false},
             "screen_shake": {
               "type": "string",
               "enum": [
