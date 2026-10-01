@@ -754,6 +754,25 @@ func restore_pause_view(anchor: Dictionary) -> bool:
 		recovery_overlay.present(not _reading_recovery.fatal, not _reading_recovery.fatal)
 	return true
 
+## Only an explicit admitted Backup/Save command may revise the held reveal.
+## The opaque anchor, native node, source and publication stay owned by Pause.
+func complete_pause_reading_reveal(anchor: Dictionary, bridge: Object, handle: Dictionary) -> Dictionary:
+	if not _pause_covered or not _valid_pause_anchor(anchor) or not is_instance_valid(bridge) \
+			or not bridge.has_method("complete_paused_reading_reveal"):
+		return {"ok": false, "code": &"pause_view_unavailable"}
+	var generation: int = int(_pause_view.reveal_generation)
+	var result: Dictionary = bridge.complete_paused_reading_reveal(handle, caption_text)
+	if not result.get("ok", false): return result
+	if not _pause_covered or anchor != _pause_anchor or not is_instance_valid(caption_text) \
+			or int(_pause_view.caption_id) != caption_text.get_instance_id() \
+			or _pause_view.runtime != _pause_runtime_identity() \
+			or caption_text.get_reveal_generation() != generation + int(result.value.completed) \
+			or caption_text.get_reveal_generation() != int(result.value.reveal_generation):
+		return {"ok": false, "code": &"pause_source_changed"}
+	_pause_view.reveal_generation = caption_text.get_reveal_generation()
+	return {"ok": true}
+
+
 func _valid_pause_anchor(anchor: Dictionary) -> bool:
 	return (is_inside_tree() and is_node_ready() and not _pause_anchor.is_empty() and anchor == _pause_anchor
 		and is_instance_valid(caption_text) and int(_pause_view.caption_id) == caption_text.get_instance_id()

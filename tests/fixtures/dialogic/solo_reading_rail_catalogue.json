@@ -6,7 +6,7 @@
       "entry_id": "dating.solo.priscilla.day1.pre_challenge",
       "content_version": 1,
       "lines": [
-        {"beat_id": "fixture.solo.pre.a", "line_id": "fixture.solo.pre.a", "text": "Before the board, a quiet moment.", "revision": "fixture-v1"},
+        {"beat_id": "fixture.solo.pre.a", "line_id": "fixture.solo.pre.a", "text": "Before the board, a quiet moment. This deliberately long noncanonical fixture line leaves time to open Pause, cancel, continue, and request Backup while the original semantic beat is still revealing.", "revision": "fixture-v1"},
         {"beat_id": "fixture.solo.pre.b", "line_id": "fixture.solo.pre.b", "text": "The challenge is ready.", "revision": "fixture-v1"}
       ]
     },

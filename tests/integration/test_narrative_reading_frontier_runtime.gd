@@ -11,6 +11,15 @@ const STYLE := "res://dialogic/styles/witnessed_caption_style.tres"
 const ENTRY := "fixture.non_canon.caption_ledger"
 const TOKEN := "fixture:native-caption-session"
 
+class HeldRevealPort extends RefCounted:
+	# The connected journey exercises the real Bridge handle and Run transaction.
+	# Here the retained view crosses the real adapter/native coroutine boundary.
+	var adapter: RefCounted
+	func complete_paused_reading_reveal(handle: Dictionary, node: DialogicNode_DialogText) -> Dictionary:
+		if handle != {"handle_id": "native-reading-pause"}:
+			return {"ok": false, "code": &"invalid_suspension_handle"}
+		return adapter.complete_paused_reading_frontier(node)
+
 var _runtime: DialogicGameHandler
 var _adapter: DialogicRuntimeAdapter
 var _ledger: NarrativeCaptionLedger
@@ -141,6 +150,96 @@ func test_paused_save_completes_only_the_current_semantic_occurrence() -> void:
 	_runtime.paused = false
 	assert_true(_adapter.is_current_line_complete())
 	assert_eq(_adapter.current_line_id(), "fixture.caption.beta", "Save cannot advance")
+
+func _mounted_caption() -> Node:
+	for layer: Node in _runtime.Styles.get_layout_node().get_layers():
+		if layer.get_script() == preload("res://scripts/ui/witnessed/WitnessedCaptionLayer.gd"):
+			return layer
+	return null
+
+func test_hidden_pause_save_finishes_once_and_rebases_exact_view_for_continue() -> void:
+	if not await _start(): return
+	var caption := _mounted_caption()
+	assert_not_null(caption)
+	if caption == null: return
+	var native: DialogicNode_DialogText = caption.caption_text
+	native.active_speed = 10.0
+	assert_true(native.revealing)
+	var frontier := _adapter.capture_reading_frontier()
+	var ledger := _ledger.snapshot()
+	var history: Array = _runtime.History.full_event_history_content.duplicate(true)
+	var published := _results.duplicate(true)
+	var generation := native.get_reveal_generation()
+	var finished: Array[Dictionary] = []
+	_runtime.Text.text_finished.connect(func(info: Dictionary) -> void: finished.append(info))
+	var anchor: Dictionary = caption.capture_pause_view({"route_id": "dating", "frontier": frontier.value})
+	assert_true(anchor.get("ok", false), str(anchor))
+	if not anchor.get("ok", false): return
+	_runtime.paused = true
+	assert_true(caption.cover_pause_view(anchor.value))
+	var port := HeldRevealPort.new()
+	port.adapter = _adapter
+	var held := {"handle_id": "native-reading-pause"}
+	var refused: Dictionary = caption.complete_pause_reading_reveal(anchor.value, port, {"handle_id": "foreign"})
+	assert_false(refused.get("ok", true))
+	assert_true(native.revealing)
+	assert_eq(native.get_reveal_generation(), generation)
+	var completed: Dictionary = caption.complete_pause_reading_reveal(anchor.value, port, held)
+	assert_true(completed.get("ok", false), str(completed))
+	if not completed.get("ok", false): return
+	assert_false(native.is_visible_in_tree(), "explicit Save never uncovers the source")
+	assert_false(native.is_processing())
+	assert_false(native.revealing)
+	assert_eq(native.visible_ratio, 1.0)
+	assert_eq(native.get_reveal_generation(), generation + 1)
+	assert_true(_runtime.paused)
+	assert_eq(_adapter.capture_reading_frontier(), frontier)
+	assert_eq(_ledger.snapshot(), ledger)
+	assert_eq(_runtime.History.full_event_history_content, history)
+	assert_eq(_results, published, "finishing cannot publish another History occurrence")
+	assert_eq(finished.size(), 1, "the real text coroutine finishes once")
+	assert_true(caption.complete_pause_reading_reveal(anchor.value, port, held).get("ok", false))
+	assert_eq(finished.size(), 1, "repeated Backup/Save entry is idempotent")
+	assert_eq(native.get_reveal_generation(), generation + 1)
+	assert_true(caption.restore_pause_view(anchor.value), "Continue consumes the same retained view anchor")
+	_runtime.paused = false
+	await _settle()
+	assert_true(native.is_visible_in_tree())
+	assert_true(_adapter.is_current_line_complete())
+	assert_eq(_adapter.current_line_id(), "fixture.caption.beta")
+	assert_eq(_ledger.snapshot(), ledger)
+	assert_eq(_runtime.History.full_event_history_content, history)
+	assert_eq(finished.size(), 1)
+
+func test_hidden_save_rejects_foreign_node_and_replaced_reveal_without_rebinding_pause() -> void:
+	if not await _start(): return
+	var caption := _mounted_caption()
+	assert_not_null(caption)
+	if caption == null: return
+	var native: DialogicNode_DialogText = caption.caption_text
+	native.active_speed = 10.0
+	var frontier := _adapter.capture_reading_frontier()
+	var anchor: Dictionary = caption.capture_pause_view({"route_id": "dating", "frontier": frontier.value})
+	assert_true(anchor.get("ok", false))
+	if not anchor.get("ok", false): return
+	_runtime.paused = true
+	assert_true(caption.cover_pause_view(anchor.value))
+	var foreign := DialogicNode_DialogText.new()
+	assert_false(_adapter.complete_paused_reading_frontier(foreign).get("ok", true))
+	foreign.free()
+	assert_true(native.revealing)
+	var original_generation := native.get_reveal_generation()
+	_runtime.Text.text_finished.connect(func(_info: Dictionary) -> void:
+		native.reveal_text("Foreign replacement from a synchronous callback."), CONNECT_ONE_SHOT)
+	var port := HeldRevealPort.new()
+	port.adapter = _adapter
+	var refused: Dictionary = caption.complete_pause_reading_reveal(anchor.value, port,
+		{"handle_id": "native-reading-pause"})
+	assert_false(refused.get("ok", true), str(refused))
+	assert_gt(native.get_reveal_generation(), original_generation + 1)
+	assert_true(_runtime.paused)
+	assert_false(native.is_visible_in_tree())
+	assert_false(caption.restore_pause_view(anchor.value), "a replacement cannot inherit the old Pause anchor")
 
 func test_restore_resolves_the_second_authored_line_and_reuses_its_publication() -> void:
 	if not await _start(): return

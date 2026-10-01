@@ -206,6 +206,37 @@ func complete_reading_frontier() -> Dictionary:
 	return after
 
 
+## Pause hides the caption, so Text.skip_text_reveal() intentionally cannot find
+## it. Finish only the exact retained node of the current layout, without showing
+## it, stopping suspended audio or exposing a next event to the foreground.
+func complete_paused_reading_frontier(text_node: DialogicNode_DialogText) -> Dictionary:
+	var before := capture_reading_frontier()
+	if not before.get("ok", false): return before
+	var layout: Node = _dialogic.Styles.get_layout_node()
+	if not _dialogic.paused or not is_instance_valid(text_node) or not is_instance_valid(layout) \
+			or not layout.is_ancestor_of(text_node) or not text_node.is_inside_tree() \
+			or text_node.is_queued_for_deletion() or text_node.is_visible_in_tree() \
+			or not text_node.enabled or text_node.text != _dialogic.current_state_info.get("text"):
+		return _fail(&"reading_frontier_unavailable", "the exact hidden suspended caption is required")
+	var event := _caption_event
+	var native := capture_pause_frontier()
+	var generation := text_node.get_reveal_generation()
+	var needs_reveal := event.state != DialogicTextEvent.States.DONE
+	if needs_reveal:
+		_dialogic.set_meta(&"dwm_boundary_safe_skip_reveal", true)
+		text_node.finish_text()
+		_dialogic.remove_meta(&"dwm_boundary_safe_skip_reveal")
+	var after := capture_reading_frontier()
+	if not after.get("ok", false) or after.value != before.value or native != capture_pause_frontier() \
+			or event != _caption_event or event.state != DialogicTextEvent.States.DONE \
+			or not is_instance_valid(text_node) or text_node.is_visible_in_tree() or text_node.revealing \
+			or text_node.visible_ratio != 1.0 \
+			or text_node.get_reveal_generation() != generation + int(needs_reveal):
+		return _fail(&"reading_frontier_changed", "completion changed the held native publication")
+	return {"ok": true, "value": {"reveal_generation": text_node.get_reveal_generation(),
+		"completed": needs_reveal}}
+
+
 ## Pure authored lookup for the owner's pre-install compatibility check. Its
 ## locator is supplied by the admitted entry manifest, never by the checkpoint.
 func validate_reading_line(path: String, entry_label: String, line_id: String, expected_text: String = "") -> Dictionary:

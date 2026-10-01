@@ -2,7 +2,8 @@
 """Prove one real Solo reading session across two isolated rendered processes.
 
 Only the authored prose/catalogue is a noncanonical fixture. Startup, invitation,
-Schedule, board outcome, History, Quick, storage and restoration use real owners.
+Schedule, ordinary Pause/Backup Save, board outcome, History, Quick, storage and
+restoration use real owners.
 The common cloud harness supplies containment, watchdog and strict log checks.
 """
 
@@ -27,6 +28,109 @@ CAPTURES = (
     "04-pre-history.png", "05-dating-board.png", "06-post-history.png",
     "07-post-save.png", "08-restored-history.png", "09-restored-line.png",
 )
+PAUSE_STAGES = (
+    "ordinary_pause_entered", "ordinary_pause_cancelled", "ordinary_pause_continued",
+    "ordinary_pause_reentered", "ordinary_backup_previewed", "ordinary_backup_entered",
+    "ordinary_pause_save_committed", "ordinary_pause_save_continued",
+)
+TRACE_KINDS = {
+    "write": (
+        "fixture_registered", *PAUSE_STAGES, "history_inspected", "pre_history",
+        "automatic_board_handoff", "committed_result_then_post_prose", "quick_committed",
+        "history_inspected", "reading_quick_load_cancelled", "stale_candidate_refused",
+    ),
+    "read": ("fresh_restore_prepared", "history_inspected", "fresh_restore_verified"),
+}
+
+
+def strict_json(text: str) -> dict:
+    def object_pairs(pairs: list[tuple[str, object]]) -> dict:
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError(f"DUPLICATE_JSON_KEY: {key}")
+            result[key] = value
+        return result
+
+    def invalid_constant(value: str) -> None:
+        raise ValueError(f"NONFINITE_JSON_NUMBER: {value}")
+
+    value = json.loads(text, object_pairs_hook=object_pairs, parse_constant=invalid_constant)
+    if not isinstance(value, dict):
+        raise ValueError("JSON_OBJECT_REQUIRED")
+    return value
+
+
+def validate_pause_save(written: dict, evidence: Path, folder: Path) -> dict:
+    proof = written["ordinary_pause_save"]
+    first = proof[PAUSE_STAGES[0]]
+    source = first["source"]
+    native = first["native"]
+    if proof["foreign_handle_refused"] is not True:
+        raise RuntimeError("REAL_BRIDGE_FOREIGN_HANDLE_REFUSAL_REQUIRED")
+    if proof["slot_locator"] != "slot:3" or native["line_id"] != "fixture.solo.pre.a":
+        raise RuntimeError("ORDINARY_PAUSE_SAVE_WRONG_FRONTIER_OR_SLOT")
+    for stage in PAUSE_STAGES:
+        observation = proof[stage]
+        if observation["source"] != source:
+            raise RuntimeError(f"ORDINARY_PAUSE_MUTATED_SOURCE: {stage}")
+        for key in ("line_id", "caption_id", "text", "total_characters"):
+            if observation["native"][key] != native[key]:
+                raise RuntimeError(f"ORDINARY_PAUSE_CHANGED_NATIVE_IDENTITY: {stage}/{key}")
+    for stage in PAUSE_STAGES[:5]:
+        view = proof[stage]["native"]
+        if view["reveal_generation"] != native["reveal_generation"] or view["revealing"] is not True or not (
+            0 <= view["visible_characters"] < view["total_characters"]
+        ):
+            raise RuntimeError(f"LITERAL_PARTIAL_REVEAL_REQUIRED: {stage}")
+    if proof[PAUSE_STAGES[1]] != first or proof[PAUSE_STAGES[2]] != first:
+        raise RuntimeError("CANCEL_AND_CONTINUE_MUST_RETAIN_EXACT_PARTIAL_REVEAL")
+    if proof[PAUSE_STAGES[3]] != proof[PAUSE_STAGES[4]]:
+        raise RuntimeError("BACKUP_FOCUS_PREVIEW_MUTATED_PARTIAL_REVEAL")
+    full = proof["ordinary_backup_entered"]
+    for stage in PAUSE_STAGES[5:]:
+        view = proof[stage]["native"]
+        if proof[stage] != full or view["reveal_generation"] != native["reveal_generation"] + 1 or view["revealing"] is not False or not (
+            view["visible_characters"] == -1 or view["visible_characters"] >= view["total_characters"]
+        ):
+            raise RuntimeError(f"BACKUP_SAVE_AND_CONTINUE_MUST_RETAIN_FULL_SAME_LINE: {stage}")
+    checkpoint = proof["saved_checkpoint"]
+    session = checkpoint["reading_session"]
+    captions = session["ledger"]["captions"]
+    if checkpoint != source["checkpoint"] or session["frontier"]["line_id"] != native["line_id"] or (
+        len(captions) != 1 or captions[0]["line_id"] != native["line_id"]
+        or len(session["ledger"]["entry_contexts"]) != 1
+    ):
+        raise RuntimeError("ORDINARY_PAUSE_SAVE_CHECKPOINT_MISMATCH")
+    saved = cloud.contained_path(evidence, evidence / "saved-pause-slot.json")
+    raw = saved.read_bytes()
+    digest = hashlib.sha256(raw).hexdigest()
+    if len(raw) != proof["slot_bytes"] or digest != proof["slot_sha256"]:
+        raise RuntimeError("RETAINED_ORDINARY_PAUSE_SLOT_BYTES_MISMATCH")
+    snapshot = strict_json(raw.decode("utf-8"))["current_snapshot"]["snapshot"]
+    if snapshot["narrative_checkpoint"] != checkpoint or (
+        snapshot["gameplay"]["route_context"]["active_dating_challenge"] != source["physical_record"]
+    ):
+        raise RuntimeError("PHYSICAL_ORDINARY_PAUSE_SLOT_SOURCE_MISMATCH")
+    shutil.copyfile(saved, folder / saved.name)
+    return {"bytes": len(raw), "sha256": digest, "slot_locator": proof["slot_locator"]}
+
+
+def validate_trace(reports: dict, evidence: Path) -> None:
+    path = cloud.contained_path(evidence, evidence / "transactions.jsonl")
+    entries = [strict_json(line) for line in path.read_text(encoding="utf-8").splitlines()]
+    expected_modes = [mode for mode, kinds in TRACE_KINDS.items() for _ in kinds]
+    if [entry["mode"] for entry in entries] != expected_modes:
+        raise RuntimeError("EXACT_WRITE_THEN_READ_TRACE_REQUIRED")
+    for mode, kinds in TRACE_KINDS.items():
+        observed = [entry for entry in entries if entry["mode"] == mode]
+        if [entry["kind"] for entry in observed] != list(kinds):
+            raise RuntimeError(f"EXACT_TRANSACTION_TRACE_REQUIRED: {mode}")
+        for sequence, entry in enumerate(observed, 1):
+            if entry["sequence"] != sequence or entry["process_id"] != reports[mode]["process_id"]:
+                raise RuntimeError(f"TRACE_PROCESS_OR_SEQUENCE_MISMATCH: {mode}/{sequence}")
+            if entry["kind"] in PAUSE_STAGES and entry["value"] != reports["write"]["ordinary_pause_save"][entry["kind"]]:
+                raise RuntimeError(f"PAUSE_TRACE_REPORT_MISMATCH: {entry['kind']}")
 
 
 def run() -> int:
@@ -105,7 +209,7 @@ def run() -> int:
         for mode in ("write", "read"):
             path = cloud.contained_path(user_dir, evidence / f"{mode}.json")
             if path.is_file():
-                reports[mode] = json.loads(path.read_text(encoding="utf-8"))
+                reports[mode] = strict_json(path.read_text(encoding="utf-8"))
                 shutil.copyfile(path, folder / path.name)
         result["reports"] = reports
         if set(reports) != {"write", "read"}:
@@ -122,6 +226,8 @@ def run() -> int:
             raise RuntimeError("SPEECH_CONTROL_NEVER_ADMITTED_A_LIVE_LINE")
         if written["history_observations"] < 2 or restored["history_observations"] < 1:
             raise RuntimeError("PRE_POST_AND_RESTORED_HISTORY_PROOF_REQUIRED")
+        result["retained_pause_slot"] = validate_pause_save(written, evidence, folder)
+        validate_trace(reports, evidence)
         quick = cloud.contained_path(user_dir, evidence / "saved-quick.json")
         raw = quick.read_bytes()
         if len(raw) != written["quick_bytes"] or hashlib.sha256(raw).hexdigest() != written["quick_sha256"]:

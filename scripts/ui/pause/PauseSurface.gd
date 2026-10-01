@@ -30,6 +30,7 @@ var _suspended_inputs: Dictionary = {}
 var _opened := false
 var _return_retry := false
 var _interactive := true
+var entry_admission := Callable()
 var _suspended_focus: WeakRef
 var _pointer_contact := false
 var _high_contrast := false
@@ -359,6 +360,9 @@ func _activate(id: StringName) -> void:
 	if id == &"continue":
 		continue_requested.emit()
 		return
+	# Focus/hover only previews. The production owner prepares a stable reading
+	# boundary only for an explicit ordinary Backup entry.
+	if entry_admission.is_valid() and not bool(entry_admission.call(id)): return
 	enter_requested.emit(id)
 	if not _opened or not _interactive or entered_action != &"": return
 	if id != &"return" and not _hosts.has(id): return

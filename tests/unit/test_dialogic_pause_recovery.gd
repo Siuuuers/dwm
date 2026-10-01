@@ -82,6 +82,24 @@ func _retain_hospital_owner() -> void:
 		"cache_before": {"id": "", "context": {}},
 	})
 
+func test_only_retained_pause_handle_can_request_explicit_reading_completion() -> void:
+	_retain_hospital_owner()
+	assert_true(_bridge.begin_suspend(HANDLE).get("ok", false))
+	var frontier := _runtime.frontier.duplicate(true)
+	var native := DialogicNode_DialogText.new()
+	assert_eq(_bridge.complete_paused_reading_reveal({}, native).get("code"), &"invalid_suspension_handle")
+	var foreign := HANDLE.duplicate(true)
+	foreign.generation += 1
+	assert_eq(_bridge.complete_paused_reading_reveal(foreign, native).get("code"), &"invalid_suspension_handle")
+	assert_eq(_bridge.capture_reading_checkpoint(true).get("code"), &"narrative_suspended",
+		"generic reveal capture cannot bypass the retained view owner")
+	assert_eq(_bridge.complete_paused_reading_reveal(HANDLE, native).get("code"), &"reading_frontier_unavailable",
+		"an exact handle still cannot invent an admitted reading session")
+	assert_eq(_runtime.frontier, frontier)
+	assert_eq(_runtime.set_calls, [true])
+	assert_true(_bridge.resume(HANDLE).get("ok", false))
+	native.free()
+
 
 func _entry_context(role: String = "hospital") -> Dictionary:
 	return {

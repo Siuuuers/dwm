@@ -121,6 +121,7 @@ func configure(services: Dictionary, router: Object) -> Dictionary:
 	_layer.add_child(surface)
 	surface.continue_requested.connect(request_continue)
 	surface.return_confirmed.connect(request_return)
+	surface.entry_admission = _admit_surface_entry
 	_services.profile.preference_changed.connect(_preferences_changed)
 	_services.localization.locale_changed.connect(_locale_changed)
 	return {"ok": true}
@@ -501,18 +502,39 @@ func can_save_backup() -> bool:
 	var capture: Callable = _services.get("backup_capture", Callable())
 	var route: String = str(_captured_source.get("route_id", ""))
 	if not _captured_source.get("frontier", {}).is_empty():
-		# Ordinary Pause preserves partial reveal exactly. Its Save stays unavailable
-		# until the reader completes the line or uses the rail Save before suspending.
+		# Projection and capture remain read-only even for a partial reveal. Actual
+		# Backup entry or Quick Save prepares the retained caption separately.
 		return capture.is_valid() and route == "dating" \
 			and is_instance_valid(_services.get("dating_presentation")) \
 			and is_instance_valid(_caption) and _caption.get_script() == CAPTION \
-			and is_instance_valid(_caption.caption_text) and not _caption.caption_text.revealing \
+			and is_instance_valid(_caption.caption_text) \
 			and _services.bridge.has_method("can_capture_reading_checkpoint") \
 			and _services.bridge.can_capture_reading_checkpoint() and _backup_admission().get("ok", false)
 	return capture.is_valid() and route in ["main", "dating"] \
 		and (route == "main" or is_instance_valid(_services.get("dating_presentation"))) \
 		and _captured_source.get("frontier", {}).is_empty() \
 		and _backup_admission().get("ok", false)
+
+
+func _admit_surface_entry(action: StringName) -> bool:
+	if action != &"backup": return true
+	last_result = prepare_backup_save()
+	return last_result.get("ok", false)
+
+
+## Explicit command only: opening ordinary Backup or activating paused Quick Save
+## completes the admitted line under the existing suspension and view custody.
+## Load's direct entry and all background capture providers keep literal reveal.
+func prepare_backup_save() -> Dictionary:
+	var admitted := _backup_admission()
+	if not admitted.get("ok", false): return admitted
+	if _captured_source.get("frontier", {}).is_empty(): return {"ok": true}
+	# Unsupported reading still has Load/Delete. Never turn it into a reading save.
+	if not can_save_backup(): return {"ok": true}
+	var completed: Dictionary = _caption.complete_pause_reading_reveal(
+		_caption_anchor, _services.bridge, _handle)
+	if not completed.get("ok", false): return completed
+	return _backup_admission()
 
 
 ## Save keeps the exact source suspended. The configured provider captures live canonical

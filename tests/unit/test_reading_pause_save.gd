@@ -4,6 +4,27 @@ extends GutTest
 const CONTROLLER := preload("res://scripts/application/lifecycle/ProductionPauseController.gd")
 const CAPTION := preload("res://scripts/ui/witnessed/WitnessedCaptionLayer.gd")
 const SURFACE := preload("res://scenes/overlay/PauseSurface.tscn")
+const BACKUP_PORT := preload("res://scripts/application/lifecycle/PauseBackupPresentationPort.gd")
+
+class BackupCommitOwner extends RefCounted:
+	var calls: Array[String] = []
+	func commit_backup_action(token: String) -> Dictionary:
+		calls.append("commit:" + token)
+		return {"ok": true}
+	func cancel_backup_action(token: String) -> void: calls.append("cancel:" + token)
+
+class PausePreparation extends RefCounted:
+	var owner: BackupCommitOwner
+	var prepared := true
+	func prepare_backup_save() -> Dictionary:
+		owner.calls.append("prepare")
+		return {"ok": prepared, "code": &"pause_source_changed"}
+	func release_for_backup_load() -> Dictionary:
+		owner.calls.append("release-load")
+		return {"ok": true}
+	func finish_backup_load(result: Dictionary) -> Dictionary:
+		owner.calls.append("finish-load")
+		return result
 
 class Coordinator extends Node:
 	var admitted := true
@@ -105,14 +126,37 @@ func test_qualified_full_line_save_captures_same_semantics_without_revealing_or_
 	result.value.dialogic_checkpoint.reading_session.history.append("copy-only")
 	assert_eq(_inputs.dialogic_checkpoint.reading_session.history, ["first"])
 
-func test_partial_pause_and_unregistered_reading_remain_unavailable_without_capture() -> void:
+func test_partial_pause_capability_and_capture_are_available_without_finishing_literal_reveal() -> void:
 	_native.revealing = true
-	assert_false(_controller.can_save_backup())
-	assert_eq(_controller.capture_backup_checkpoint_inputs().get("code"), &"pause_save_unavailable")
-	_native.revealing = false
+	_native.visible_characters = 7
+	var generation := _native.get_reveal_generation()
+	var source: Dictionary = _controller._captured_source.duplicate(true)
+	var held: Dictionary = _controller._handle.duplicate(true)
+	for query in 100: assert_true(_controller.can_save_backup())
+	assert_eq(_bridge.captures, [], "capability never serializes or finishes the partial line")
+	assert_eq(_provider_calls, 0)
+	var captured: Dictionary = _controller.capture_backup_checkpoint_inputs()
+	assert_true(captured.get("ok", false), str(captured))
+	assert_eq(_bridge.captures, [false, false])
+	assert_eq(_provider_calls, 1)
+	assert_true(_native.revealing, "SaveManager also calls providers for background capability")
+	assert_eq(_native.visible_characters, 7)
+	assert_eq(_native.get_reveal_generation(), generation)
+	assert_eq(_controller._captured_source, source)
+	assert_eq(_controller._handle, held)
+
+func test_unregistered_reading_stays_unavailable_without_capture() -> void:
 	_bridge.qualified = false
 	assert_false(_controller.can_save_backup())
 	assert_eq(_controller.capture_backup_checkpoint_inputs().get("code"), &"pause_save_unavailable")
+	assert_eq(_bridge.captures, [])
+	assert_eq(_provider_calls, 0)
+
+func test_refused_explicit_preparation_cannot_capture_or_finish_partial_reading() -> void:
+	_native.revealing = true
+	_coordinator.admitted = false
+	assert_false(_controller.prepare_backup_save().get("ok", true))
+	assert_true(_native.revealing)
 	assert_eq(_bridge.captures, [])
 	assert_eq(_provider_calls, 0)
 
@@ -167,6 +211,8 @@ func test_paused_board_save_retains_earlier_reading_history_and_exact_board_with
 	_use_paused_board()
 	var held: Dictionary = _controller._handle.duplicate(true)
 	var record: Dictionary = _dating.record.duplicate(true)
+	assert_true(_controller.prepare_backup_save().get("ok", false))
+	assert_eq(_bridge.captures, [], "explicit Backup preparation leaves an exact board alone")
 	assert_true(_controller.can_save_backup())
 	var saved: Dictionary = _controller.capture_backup_checkpoint_inputs()
 	assert_true(saved.get("ok", false), str(saved))
@@ -222,3 +268,36 @@ func test_direct_backup_save_uses_save_mode_and_failed_entry_keeps_continue_focu
 	assert_true(host.entry.has_focus())
 	assert_false(surface.open_backup_save(), "duplicate activation cannot reenter Backup")
 	assert_false(surface.open_backup_load(), "another mode cannot displace the hosted Save")
+
+func test_paused_save_commit_prepares_reveal_once_before_owner_commit_and_consumes_token() -> void:
+	var owner := BackupCommitOwner.new()
+	var pause := PausePreparation.new()
+	pause.owner = owner
+	var port := BACKUP_PORT.new()
+	port._owner = owner
+	port._pause = pause
+	port._pending["quick-save"] = {"action": "save", "locator": "quick", "quick": true}
+	var result: Dictionary = await port.commit_action("quick-save")
+	assert_true(result.get("ok", false), str(result))
+	assert_eq(owner.calls, ["prepare", "commit:quick-save"])
+	assert_true(port._pending.is_empty())
+	assert_false((await port.commit_action("quick-save")).get("ok", true))
+	assert_eq(owner.calls, ["prepare", "commit:quick-save"], "stale activation cannot repeat reveal")
+
+func test_refused_paused_save_preparation_cancels_exact_token_before_commit_and_load_stays_literal() -> void:
+	var owner := BackupCommitOwner.new()
+	var pause := PausePreparation.new()
+	pause.owner = owner
+	pause.prepared = false
+	var port := BACKUP_PORT.new()
+	port._owner = owner
+	port._pause = pause
+	port._pending["manual-save"] = {"action": "save", "locator": "slot:1"}
+	var refused: Dictionary = await port.commit_action("manual-save")
+	assert_eq(refused.get("code"), &"pause_source_changed")
+	assert_eq(owner.calls, ["prepare", "cancel:manual-save"])
+	assert_true(port._pending.is_empty())
+	owner.calls.clear()
+	port._pending["load"] = {"action": "load", "locator": "slot:1"}
+	assert_true((await port.commit_action("load")).get("ok", false))
+	assert_eq(owner.calls, ["release-load", "commit:load", "finish-load"], "Load never prepares reveal")

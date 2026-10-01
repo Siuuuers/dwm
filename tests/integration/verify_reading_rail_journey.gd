@@ -11,6 +11,7 @@ var _reading_mode := ""
 var _speech_admissions := 0
 var _history_observations := 0
 var _trace_sequence := 0
+var _pause_save_proof: Dictionary = {}
 
 
 func _run() -> void:
@@ -75,6 +76,7 @@ func _dating_journey(game: Node, desktop: Node) -> void:
 	if not await _wait_line("fixture.solo.pre.a"): return
 	if not _check(current_scene != null and current_scene.get("worksheet") != null, "real Dating scene mounted"): return
 	var dating: Node = current_scene
+	if not await _ordinary_reading_pause_save(game, dating): return
 	if not await _advance_line("fixture.solo.pre.a", "fixture.solo.pre.b"): return
 	if not await _inspect_history("04-pre-history", 2): return
 	var bridge: Node = root.get_node("DialogicBridge")
@@ -136,6 +138,7 @@ func _dating_journey(game: Node, desktop: Node) -> void:
 		"manual Save and Quick preserve the same admitted semantic frontier"): return
 	await _capture_screen("07-post-save")
 	var report: Dictionary = _report(game, reading, disk.value)
+	report["ordinary_pause_save"] = _pause_save_proof.duplicate(true)
 	if not _check(_write_text("saved-quick.json", disk.value), "retain exact saved Quick bytes"): return
 	# A later real publication makes a prepared Save stale. Refusal must preserve
 	# the later live source and the accepted Quick file; READ must restore the old beat.
@@ -154,7 +157,7 @@ func _dating_journey(game: Node, desktop: Node) -> void:
 	report["speech_admissions"] = _speech_admissions
 	report["history_observations"] = _history_observations
 	if not _check(_write_text("write.json", JSON.stringify(report, "\t")), "retain WRITE report"): return
-	print("READING_RAIL_WRITE_PASS: real Solo pre-prose -> History -> board -> committed result -> post-prose -> F5 -> manual Save -> stale-candidate refusal")
+	print("READING_RAIL_WRITE_PASS: real partial Solo -> Pause/Cancel/Continue -> Backup entry -> UI Save -> History -> board -> committed result -> partial post-prose -> F5 -> manual Save -> stale-candidate refusal")
 	await _finish_proof()
 
 
@@ -230,6 +233,135 @@ func _finish_proof() -> void:
 		"native reading coroutine retired before process exit"): return
 	await _frames()
 	quit(0)
+
+
+func _ordinary_reading_pause_save(game: Node, dating: Node) -> bool:
+	var bridge: Node = root.get_node("DialogicBridge")
+	var runtime: RefCounted = bridge.get("_runtime_adapter")
+	var pause_owner: Node = root.get_node("SceneRouter").get("_production_pause")
+	var saves: Node = root.get_node("SaveManager")
+	if not _check(runtime.current_line_id() == "fixture.solo.pre.a" and not runtime.is_current_line_complete(),
+		"ordinary Pause begins on real partial pre-prose"): return false
+	await _pause_key()
+	if not _check(paused and pause_owner.surface.is_visible_in_tree(), "ordinary Back opens real reading Pause"): return false
+	var entered := _reading_pause_observation(game)
+	if not _check(entered.native.revealing and entered.native.visible_characters >= 0
+		and entered.native.visible_characters < entered.native.total_characters,
+		"ordinary Pause retains a literal partial native caption"): return false
+	_record_reading_pause("ordinary_pause_entered", entered)
+	var foreign: Dictionary = bridge.complete_paused_reading_reveal({"handle_id": "foreign"}, _caption_layer().caption_text)
+	if not _check(not foreign.get("ok", false) and foreign.get("code") == &"invalid_suspension_handle"
+		and _reading_pause_observation(game) == entered,
+		"real Bridge refuses foreign reveal custody without changing the retained partial source"): return false
+	_pause_save_proof["foreign_handle_refused"] = true
+	# Cancel an actual confirmation before any Backup request or accepted reveal completion.
+	pause_owner.surface.rows[&"return"].grab_focus()
+	if not await _ordinary_accept_focused(pause_owner.surface.rows[&"return"], "partial reading Return preview activation"): return false
+	if not _check(pause_owner.surface.entered_action == &"return" and pause_owner.surface.cancel_button.has_focus(),
+		"ordinary Return confirmation initially owns Cancel"): return false
+	if not await _ordinary_accept_focused(pause_owner.surface.cancel_button, "partial reading Return Cancel"): return false
+	var cancelled := _reading_pause_observation(game)
+	if not _check(paused and pause_owner.surface.entered_action == &"" and cancelled == entered,
+		"Cancel preserves literal partial reveal, speech, History, game and Profile"): return false
+	_record_reading_pause("ordinary_pause_cancelled", cancelled)
+	# Observe the release signal synchronously: later rendered frames may legitimately reveal more text.
+	var continued := {}
+	pause_owner.coordinator.pause_closed.connect(func() -> void:
+		continued.merge(_reading_pause_observation(game), true), CONNECT_ONE_SHOT)
+	pause_owner.surface.rows[&"continue"].grab_focus()
+	if not await _ordinary_accept_focused(pause_owner.surface.rows[&"continue"], "partial reading Continue"): return false
+	if not _check(not paused and current_scene == dating and not pause_owner.surface.visible
+		and continued == entered, "Continue restores the exact partial native frontier before its next reveal frame"): return false
+	_record_reading_pause("ordinary_pause_continued", continued)
+	await _pause_key()
+	var reentered := _reading_pause_observation(game)
+	if not _check(paused and pause_owner.surface.visible and reentered.native.revealing
+		and reentered.native.line_id == entered.native.line_id and reentered.source == entered.source,
+		"ordinary Pause reenters the same still-partial source"): return false
+	_record_reading_pause("ordinary_pause_reentered", reentered)
+	pause_owner.surface.rows[&"backup"].grab_focus()
+	await _frames()
+	var previewed := _reading_pause_observation(game)
+	if not _check(pause_owner.surface.entered_action == &"" and previewed == reentered,
+		"Backup focus-only preview does not complete or mutate the partial line"): return false
+	_record_reading_pause("ordinary_backup_previewed", previewed)
+	if not await _ordinary_accept_focused(pause_owner.surface.rows[&"backup"], "ordinary reading Backup entry"): return false
+	var backup: Control = pause_owner.surface.get("_hosts")[&"backup"]
+	var hosted := _reading_pause_observation(game)
+	if not _check(paused and pause_owner.surface.entered_action == &"backup" and backup.is_visible_in_tree()
+		and not hosted.native.revealing and runtime.is_current_line_complete()
+		and hosted.native.line_id == entered.native.line_id
+		and hosted.native.reveal_generation == reentered.native.reveal_generation + 1
+		and hosted.source == entered.source,
+		"explicit Backup entry completes only the same line while retaining suspended source custody"): return false
+	_record_reading_pause("ordinary_backup_entered", hosted)
+	if not _check(backup.active_mode == "save" and backup.get("_records")["slot:3"].state == "empty"
+		and not saves.get("_storage").exists("slot_3.json"),
+		"real empty manual slot is available before the explicit Save"): return false
+	backup.drawer_buttons["slot:3"].grab_focus()
+	if not await _ordinary_accept_focused(backup.drawer_buttons["slot:3"], "ordinary reading manual-slot selection"): return false
+	backup.action_buttons["save"].grab_focus()
+	if not await _ordinary_accept_focused(backup.action_buttons["save"], "ordinary reading hosted Save"): return false
+	if not _check(backup.last_result.get("ok", false) and backup.get("_status_key") == "saved"
+		and not is_instance_valid(backup.confirmation) and paused and pause_owner.surface.entered_action == &"backup",
+		"actual hosted Save commits and remains in Backup with truthful Saved status: " + str(backup.last_result)): return false
+	var disk: Dictionary = saves.get("_storage").read_text("slot_3.json")
+	if not _check(disk.get("ok", false), "ordinary Pause Save writes physical manual-slot bytes"): return false
+	var parsed: Dictionary = STRICT.parse_object(disk.value)
+	if not _check(parsed.get("ok", false), "ordinary Pause Save is strict JSON"): return false
+	var admitted: Dictionary = preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd").validate(parsed.value)
+	if not _check(admitted.get("ok", false), "ordinary Pause Save passes the actual document schema"): return false
+	var snapshot: Dictionary = admitted.value.candidate.current_snapshot.snapshot
+	var reading: Dictionary = snapshot.narrative_checkpoint
+	var saved := _reading_pause_observation(game)
+	if not _check(saved == hosted and reading == entered.source.checkpoint
+		and reading.reading_session.ledger.captions.size() == 1
+		and snapshot.gameplay.route_context.active_dating_challenge == entered.source.physical_record,
+		"physical manual Save retains the exact semantic line, ledger and unmodified Dating record"): return false
+	_record_reading_pause("ordinary_pause_save_committed", saved)
+	if not _check(_write_text("saved-pause-slot.json", disk.value), "retain exact ordinary Pause Save bytes"): return false
+	_pause_save_proof["saved_checkpoint"] = reading.duplicate(true)
+	_pause_save_proof["slot_locator"] = "slot:3"
+	_pause_save_proof["slot_sha256"] = str(disk.value).sha256_text()
+	_pause_save_proof["slot_bytes"] = str(disk.value).to_utf8_buffer().size()
+	await _pause_key()
+	if not _check(paused and pause_owner.surface.entered_action == &"" and pause_owner.surface.rows[&"backup"].has_focus(),
+		"Backup Back returns to its exact Pause row without resuming"): return false
+	var saved_continued := {}
+	pause_owner.coordinator.pause_closed.connect(func() -> void:
+		saved_continued.merge(_reading_pause_observation(game), true), CONNECT_ONE_SHOT)
+	pause_owner.surface.rows[&"continue"].grab_focus()
+	if not await _ordinary_accept_focused(pause_owner.surface.rows[&"continue"], "saved reading Continue"): return false
+	if not _check(not paused and current_scene == dating and not pause_owner.surface.visible
+		and saved_continued == hosted and _reading_pause_observation(game) == hosted
+		and saves.get("_storage").read_text("slot_3.json").value == disk.value,
+		"Continue after Save retains the same full line without speech, History, game, Profile or slot mutation"): return false
+	_record_reading_pause("ordinary_pause_save_continued", saved_continued)
+	return true
+
+
+func _reading_pause_observation(game: Node) -> Dictionary:
+	var bridge: Node = root.get_node("DialogicBridge")
+	var runtime: RefCounted = bridge.get("_runtime_adapter")
+	var layer: Node = _caption_layer()
+	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
+	var history: Dictionary = bridge.get_reading_history()
+	if not _check(layer != null and checkpoint.get("ok", false) and history.get("ok", false),
+		"pure reading Pause observation is admitted"): return {}
+	var text: DialogicNode_DialogText = layer.caption_text
+	return {"native": {"line_id": runtime.current_line_id(), "caption_id": text.get_instance_id(),
+		"reveal_generation": text.get_reveal_generation(), "text": text.get_parsed_text(),
+		"visible_characters": text.visible_characters, "total_characters": text.get_total_character_count(),
+		"revealing": text.revealing},
+		"source": {"checkpoint": checkpoint.value.duplicate(true), "history": history.value.duplicate(true),
+			"live_session": game.capture_live_session().value.duplicate(true), "gameplay": game.to_save_dict().duplicate(true),
+			"physical_record": game.capture_dating_challenge_state().value.duplicate(true),
+			"profile": root.get_node("ProfileManager").get_profile_snapshot(), "speech_admissions": _speech_admissions}}
+
+
+func _record_reading_pause(kind: String, observation: Dictionary) -> void:
+	_pause_save_proof[kind] = observation.duplicate(true)
+	_trace(kind, observation)
 
 
 func _cancel_reading_quick_load(game: Node, dating: Node, checkpoint: Dictionary, quick_text: String) -> bool:

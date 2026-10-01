@@ -184,6 +184,8 @@ $suites = @{
         'tests/integration/test_narrative_caption_ledger_runtime.gd'
         'tests/unit/test_witnessed_reading_rail.gd'
         'tests/unit/test_reading_pause_save.gd'
+        'tests/unit/test_dialogic_pause_recovery.gd'
+        'tests/unit/test_pause_surface.gd'
         'tests/integration/test_narrative_reading_frontier_runtime.gd'
         'tests/integration/test_narrative_pause_frontier.gd'
         'tests/integration/test_witnessed_caption_runtime.gd'

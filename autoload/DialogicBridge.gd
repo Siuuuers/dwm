@@ -1621,6 +1621,7 @@ func can_capture_reading_checkpoint() -> bool:
 
 
 func capture_reading_checkpoint(complete_reveal: bool = false) -> Dictionary:
+	if complete_reveal and not _pause_handle.is_empty(): return _command_failure(&"narrative_suspended")
 	if not can_capture_reading_checkpoint(): return _command_failure(&"reading_frontier_unavailable")
 	var frontier := {}
 	if _reading_session.boundary == "line":
@@ -1639,6 +1640,27 @@ func capture_reading_checkpoint(complete_reveal: bool = false) -> Dictionary:
 		"manifest_fingerprint": _ENTRY_MANIFEST.fingerprint(document.value),
 		"stage": str(context.expected_stage), "transaction_id": str(context.transaction_id),
 		"reading_session": session_snapshot.value}}
+
+
+## The retained Pause owner alone may finish its hidden admitted caption. The
+## semantic checkpoint and native event must remain identical while custody holds.
+func complete_paused_reading_reveal(handle: Dictionary, text_node: DialogicNode_DialogText) -> Dictionary:
+	if _pause_changing or handle.is_empty() or handle != _pause_handle:
+		return _pause_failure(&"invalid_suspension_handle")
+	var suspended := get_state()
+	if not suspended.get("ok", false): return suspended
+	var before := capture_reading_checkpoint(false)
+	if not before.get("ok", false): return before
+	if _runtime_adapter == null or not _runtime_adapter.has_method("complete_paused_reading_frontier"):
+		return _command_failure(&"reading_frontier_unavailable")
+	_pause_changing = true
+	var completed: Dictionary = _runtime_adapter.complete_paused_reading_frontier(text_node)
+	_pause_changing = false
+	if not completed.get("ok", false): return completed
+	var after := capture_reading_checkpoint(false)
+	if not after.get("ok", false) or after.value != before.value or not get_state().get("ok", false):
+		return _pause_failure(&"pause_source_changed")
+	return completed
 
 
 func get_reading_history() -> Dictionary:

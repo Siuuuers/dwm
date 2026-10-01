@@ -62,7 +62,7 @@ func test_real_phase_frames_are_causal_and_one_history_survives_board_boundary()
 	var history: Dictionary = restored.project(frontier)
 	assert_true(history.ok, str(history))
 	assert_eq(history.value.captions.size(), 3)
-	assert_eq(history.value.captions[0].text, "Before the board, a quiet moment.")
+	assert_eq(history.value.captions[0].text, "Before the board, a quiet moment. This deliberately long noncanonical fixture line leaves time to open Pause, cancel, continue, and request Backup while the original semantic beat is still revealing.")
 	assert_eq(history.value.captions[2].line_id, "fixture.solo.post.a")
 	assert_eq(restored.ledger.snapshot().entry_contexts[PRE], _context(PRE))
 
@@ -104,7 +104,7 @@ func test_projection_and_capture_are_detached_and_rebinding_an_entry_is_refused(
 	context.presentation.fields.tone = "dark"
 	assert_false(session.admit(PRE, context).ok)
 	assert_eq(session.ledger.snapshot(), before)
-	assert_eq(session.project(frontier).value.captions[0].text, "Before the board, a quiet moment.")
+	assert_eq(session.project(frontier).value.captions[0].text, "Before the board, a quiet moment. This deliberately long noncanonical fixture line leaves time to open Pause, cancel, continue, and request Backup while the original semantic beat is still revealing.")
 
 func test_route_finalize_failure_retires_only_the_started_restore_and_reinstates_session() -> void:
 	var bridge := preload("res://autoload/DialogicBridge.gd").new()

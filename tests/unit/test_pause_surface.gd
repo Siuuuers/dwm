@@ -148,6 +148,32 @@ func test_injected_host_enters_on_right_and_back_performs_one_retreat() -> void:
 	assert_signal_emit_count(surface,"continue_requested",1)
 	assert_true(surface.visible,"only the admitted owner may close the Pause surface")
 
+func test_backup_preview_never_prepares_and_refused_activation_keeps_root_custody() -> void:
+	var surface := _surface()
+	var host := ChildHost.new()
+	assert_true(surface.set_host(&"backup", host))
+	var requested: Array[StringName] = []
+	var admission := {"ok": false}
+	surface.entry_admission = func(action: StringName) -> bool:
+		requested.append(action)
+		return admission.ok
+	surface.open_surface()
+	watch_signals(surface)
+	_tap(surface, KEY_DOWN)
+	assert_eq(requested, [], "focusing Backup remains a pure preview")
+	_tap(surface, KEY_RIGHT)
+	assert_eq(requested, [&"backup"])
+	assert_eq(surface.entered_action, &"")
+	assert_true(surface.rows[&"backup"].has_focus())
+	assert_false(host.is_processing_input())
+	assert_signal_emit_count(surface, "enter_requested", 0)
+	admission.ok = true
+	_tap(surface, KEY_RIGHT)
+	assert_eq(requested, [&"backup", &"backup"])
+	assert_eq(surface.entered_action, &"backup")
+	assert_true(host.entry.has_focus())
+	assert_signal_emit_count(surface, "enter_requested", 1)
+
 func test_released_pointer_enters_once_and_return_cancel_restores_exact_row() -> void:
 	var surface := _surface()
 	surface.open_surface()
