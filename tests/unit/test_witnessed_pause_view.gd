@@ -220,9 +220,15 @@ func test_next_matte_retains_native_composition_and_excludes_input_pause_and_rai
 
 class SettlingNextProfile extends RefCounted:
 	func get_profile_revision() -> int: return 1
+	func get_preference(path: StringName, fallback: Variant = null) -> Variant:
+		if path == &"preferences.reading.auto_enabled": return false
+		if path == &"preferences.reading.auto_delay": return "normal"
+		return fallback
+	func set_preference(_path: StringName, _value: Variant) -> Dictionary: return {"ok": true}
 
 class SettlingNextBridge extends RefCounted:
 	signal next_traversal_changed
+	signal next_request_finished(expected_frontier: Dictionary, result: Dictionary)
 	signal settled(result: Dictionary)
 	var active := false
 	var requests := 0
@@ -230,6 +236,10 @@ class SettlingNextBridge extends RefCounted:
 	var acknowledgements := 0
 	var frontier := {"ok": true, "line": "retained-next-source"}
 	func can_next_current_line() -> bool: return true
+	func can_skip_current_line() -> bool: return false
+	func can_auto_advance_current_line() -> bool: return false
+	func request_skip_step() -> Dictionary: return {"ok": false}
+	func request_auto_step(_frontier: Dictionary) -> Dictionary: return {"ok": false}
 	func is_next_traversal_active() -> bool: return active
 	func capture_current_line_presentation_frontier() -> Dictionary:
 		captures += 1
@@ -238,18 +248,20 @@ class SettlingNextBridge extends RefCounted:
 	func acknowledge_current_line_presentation(_frontier: Dictionary) -> Dictionary:
 		acknowledgements += 1
 		return {"ok": true}
-	func request_next(_frontier: Dictionary) -> Dictionary:
+	func is_current_line_presentation_acknowledged() -> bool: return acknowledgements > 0
+	func request_next(expected_frontier: Dictionary) -> Dictionary:
 		requests += 1
 		active = true
 		next_traversal_changed.emit()
 		var result: Dictionary = await settled
+		next_request_finished.emit(expected_frontier, result)
 		return result
 	func finish(result: Dictionary) -> void:
 		active = false
 		next_traversal_changed.emit()
 		settled.emit(result)
 
-func _assert_detached_next_settlement(result: Dictionary) -> void:
+func _begin_settling_next() -> SettlingNextBridge:
 	var bridge := SettlingNextBridge.new()
 	caption._transport_bridge = bridge
 	caption._reading_profile = SettlingNextProfile.new()
@@ -258,11 +270,19 @@ func _assert_detached_next_settlement(result: Dictionary) -> void:
 	caption.auto_controller._auto_enabled = false
 	bridge.next_traversal_changed.connect(caption._on_next_traversal_changed)
 	caption._request_reading_command(&"next", true)
-	assert_eq(bridge.requests, 1, "the real host is awaiting the admitted Bridge command")
+	assert_eq(bridge.requests, 1, "the real host submitted the admitted Bridge command synchronously")
 	assert_true(caption._next_pending)
 	assert_true(caption.canvas.accessibility_withdrawn)
+	assert_eq(bridge.get_signal_connection_list("next_request_finished").size(), 1)
+	return bridge
+
+func _assert_detached_next_settlement(result: Dictionary) -> void:
+	var bridge := _begin_settling_next()
 	viewport.remove_child(caption)
 	assert_false(caption.is_inside_tree(), "natural terminal completion removes the host before settlement")
+	assert_false(caption._next_pending, "detachment retires local custody without awaiting durable settlement")
+	assert_true(caption._next_request.is_empty())
+	assert_eq(bridge.get_signal_connection_list("next_request_finished").size(), 0)
 	var replacement := Button.new()
 	replacement.focus_mode = Control.FOCUS_ALL
 	viewport.add_child(replacement)
@@ -290,3 +310,90 @@ func test_next_success_after_native_host_detachment_cannot_republish_or_refocus(
 
 func test_next_failure_after_native_host_detachment_cannot_mount_old_recovery() -> void:
 	_assert_detached_next_settlement({"ok": false, "code": &"reading_next_projection_failed", "fatal": true})
+
+func test_next_can_finish_after_native_presenter_is_freed() -> void:
+	var bridge := _begin_settling_next()
+	var departed := weakref(caption)
+	viewport.remove_child(caption)
+	caption.queue_free()
+	caption = null
+	await get_tree().process_frame
+	assert_null(departed.get_ref(), "the Bridge command does not retain its native presenter")
+	assert_eq(bridge.get_signal_connection_list("next_request_finished").size(), 0)
+	var captures: int = bridge.captures
+	bridge.finish({"ok": true, "value": {"destination": "completion"}})
+	assert_false(bridge.active)
+	assert_eq(bridge.captures, captures)
+	assert_eq(bridge.acknowledgements, 0)
+
+func test_next_storage_refusal_retries_through_signal_and_restores_current_caption_focus() -> void:
+	var bridge := _begin_settling_next()
+	bridge.finish({"ok": false, "code": &"candidate_write_failed"})
+	assert_false(caption._next_pending)
+	assert_true(caption.is_reading_recovery_active())
+	assert_true(caption.recovery_overlay.is_visible_in_tree())
+	assert_eq(caption._reading_recovery.frontier, bridge.frontier)
+	assert_true(caption._recovery_action_admitted())
+	caption._retry_reading_command()
+	assert_eq(bridge.requests, 2)
+	assert_true(caption._next_pending)
+	assert_true(caption._reading_retry_in_progress)
+	assert_false(caption.recovery_overlay.is_visible_in_tree(), "the retained retry has exclusive traversal custody")
+	caption._retry_reading_command()
+	assert_eq(bridge.requests, 2, "repeated Retry cannot submit another command")
+	bridge.finish({"ok": true, "value": {"destination": "unseen_stop"}})
+	assert_false(caption._next_pending)
+	assert_false(caption._reading_retry_in_progress)
+	assert_true(caption._next_request.is_empty())
+	assert_false(caption.is_reading_recovery_active())
+	assert_false(caption.canvas.accessibility_withdrawn)
+	assert_true(caption.caption_text.has_focus())
+	assert_eq(bridge.acknowledgements, 1, "only the settled retained owner acknowledges its current caption")
+	assert_eq(bridge.get_signal_connection_list("next_request_finished").size(), 0)
+
+func test_next_completion_from_retired_owner_generation_cannot_publish_or_attach_fatal_recovery() -> void:
+	var bridge := _begin_settling_next()
+	caption._reading_owner_generation += 1
+	var replacement := Button.new()
+	replacement.focus_mode = Control.FOCUS_ALL
+	viewport.add_child(replacement)
+	replacement.grab_focus()
+	bridge.finish({"ok": false, "code": &"reading_next_projection_failed", "fatal": true})
+	assert_false(caption._next_pending)
+	assert_true(caption._next_request.is_empty())
+	assert_false(caption.is_reading_recovery_active())
+	assert_eq(bridge.acknowledgements, 0)
+	assert_false(caption.canvas.accessibility_withdrawn, "a reused presenter must release obsolete traversal custody")
+	assert_false(caption.get_node("RecoveryLayer/NextMatte").visible)
+	assert_eq(caption.caption_text.focus_mode, Control.FOCUS_ALL)
+	assert_true(replacement.has_focus(), "old completion restores availability without claiming successor Focus")
+	assert_false(caption._speech_pending)
+	assert_eq(bridge.get_signal_connection_list("next_request_finished").size(), 0)
+	replacement.free()
+
+func test_reconfiguring_next_presenter_releases_old_matte_and_ignores_old_completion() -> void:
+	var old_bridge := _begin_settling_next()
+	var replacement_bridge := SettlingNextBridge.new()
+	replacement_bridge.frontier.line = "replacement-source"
+	var replacement := Button.new()
+	replacement.focus_mode = Control.FOCUS_ALL
+	viewport.add_child(replacement)
+	replacement.grab_focus()
+	assert_true(caption.configure_reading_transport(SettlingNextProfile.new(), replacement_bridge))
+	assert_false(caption._next_pending)
+	assert_true(caption._next_request.is_empty())
+	assert_true(caption._next_canvas_state.is_empty())
+	assert_false(caption.get_node("RecoveryLayer/NextMatte").visible)
+	assert_false(caption.canvas.accessibility_withdrawn)
+	assert_eq(caption.caption_text.focus_mode, Control.FOCUS_ALL)
+	assert_true(replacement.has_focus(), "configuration restores controls without reclaiming successor Focus")
+	assert_eq(old_bridge.get_signal_connection_list("next_request_finished").size(), 0)
+	assert_eq(replacement_bridge.acknowledgements, 1, "the explicit new configuration owns its publication")
+	var captures: int = replacement_bridge.captures
+	old_bridge.finish({"ok": false, "code": &"reading_next_projection_failed", "fatal": true})
+	assert_false(caption.is_reading_recovery_active())
+	assert_eq(replacement_bridge.captures, captures)
+	assert_eq(replacement_bridge.acknowledgements, 1)
+	assert_eq(old_bridge.acknowledgements, 0)
+	assert_true(replacement.has_focus())
+	replacement.free()

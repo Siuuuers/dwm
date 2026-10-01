@@ -209,13 +209,16 @@ func test_next_cannot_reuse_old_or_repeated_native_callbacks_after_exclusive_cus
 	assert_signal_emit_count(rail, "next_requested", 1, "one native generation cannot submit two seeks")
 
 class NextBridge extends RefCounted:
+	signal next_request_finished(expected_frontier: Dictionary, result: Dictionary)
 	var trace: Array[String] = []
 	var result := {"ok": true, "value": {"action": "stopped"}}
 	var requested: Dictionary = {}
+	var finish_immediately := true
 	func can_next_current_line() -> bool: return true
 	func request_next(frontier: Dictionary) -> Dictionary:
 		trace.append("request")
 		requested = frontier.duplicate(true)
+		if finish_immediately: next_request_finished.emit(requested.duplicate(true), result)
 		return result
 
 class NextHost extends "res://scripts/ui/witnessed/WitnessedCaptionLayer.gd":
@@ -223,14 +226,18 @@ class NextHost extends "res://scripts/ui/witnessed/WitnessedCaptionLayer.gd":
 	var owner_current := true
 	var source_current := true
 	var revision := 8
+	var completed: Array[Dictionary] = []
 	func _reading_request_owner_matches(_request: Dictionary) -> bool: return owner_current
 	func _reading_request_matches(_request: Dictionary) -> bool: return source_current and owner_current
 	func _reading_profile_revision() -> int: return revision
-	func _sync_next_presentation() -> void: trace.append("custody")
+	func _sync_next_presentation(_allow_focus_grab: bool = true) -> void: trace.append("custody")
 	func _sync_transport() -> void: pass
 	func _complete_next_presentation() -> void:
 		trace.append("release")
 		_next_pending = false
+	func _finish_reading_command(request: Dictionary, result: Dictionary, retry: bool) -> void:
+		completed.append({"request": request.duplicate(true), "result": result.duplicate(true), "retry": retry})
+		_reading_retry_in_progress = false
 
 class NextAuto extends Node:
 	var host: NextHost
@@ -257,7 +264,7 @@ func _next_command_fixture() -> Dictionary:
 func test_next_preference_refusal_cannot_take_traversal_custody_or_call_bridge() -> void:
 	var fixture := _next_command_fixture()
 	fixture.auto.result = {"ok": false, "code": &"candidate_write_failed"}
-	var result: Dictionary = await fixture.host._execute_reading_command(fixture.request)
+	var result: Dictionary = fixture.host._execute_reading_command(fixture.request)
 	assert_eq(result.code, &"candidate_write_failed")
 	assert_eq(fixture.host.trace, ["auto_off"], "Auto Off must commit before any traversal side effect")
 	assert_false(fixture.host._next_pending)
@@ -267,16 +274,41 @@ func test_next_preference_refusal_cannot_take_traversal_custody_or_call_bridge()
 func test_next_rechecks_source_after_auto_off_and_submits_only_its_exact_frontier() -> void:
 	var fixture := _next_command_fixture()
 	fixture.auto.replace_source = true
-	var retired: Dictionary = await fixture.host._execute_reading_command(fixture.request)
+	var retired: Dictionary = fixture.host._execute_reading_command(fixture.request)
 	assert_false(retired.ok)
 	assert_eq(fixture.host.trace, ["auto_off"])
 	assert_true(fixture.bridge.requested.is_empty(), "a synchronous Profile listener cannot authorize stale Next")
 	fixture = _next_command_fixture()
 	var expected: Dictionary = fixture.request.frontier.duplicate(true)
-	var result: Dictionary = await fixture.host._execute_reading_command(fixture.request)
-	assert_true(result.ok)
+	var result: Dictionary = fixture.host._execute_reading_command(fixture.request)
+	assert_true(result.pending, "the synchronous submitter never owns Bridge's suspended function state")
+	assert_eq(fixture.host.completed.size(), 1, "an immediate unseen stop settles before submission returns")
+	assert_eq(fixture.host.completed[0].result, fixture.bridge.result)
 	assert_eq(fixture.host.trace, ["auto_off", "custody", "request", "release"])
 	assert_eq(fixture.bridge.requested, expected)
 	assert_eq(fixture.request.profile_revision, 9, "storage Retry retains the committed Auto revision")
 	assert_eq(fixture.request.stage, &"next")
 	assert_false(fixture.host._next_pending, "one shot releases local custody after the Bridge settles")
+	assert_true(fixture.host._next_request.is_empty())
+	assert_eq(fixture.bridge.get_signal_connection_list("next_request_finished").size(), 0)
+
+func test_next_completion_requires_exact_source_and_current_callback_generation() -> void:
+	var fixture := _next_command_fixture()
+	fixture.bridge.finish_immediately = false
+	assert_true(fixture.host._execute_reading_command(fixture.request).pending)
+	var old_callback: Callable = fixture.host._next_completion_callback
+	fixture.bridge.next_request_finished.emit({"ok": true, "line": "other-source"}, fixture.bridge.result)
+	assert_true(fixture.host._next_pending, "another request's result cannot release this source's custody")
+	assert_true(fixture.host.completed.is_empty())
+	fixture.host._retire_next_request()
+	assert_eq(fixture.bridge.get_signal_connection_list("next_request_finished").size(), 0)
+	assert_true(fixture.host._execute_reading_command(fixture.request, true).pending)
+	old_callback.call(fixture.request.frontier, fixture.bridge.result)
+	assert_true(fixture.host._next_pending, "retired callback cannot settle a later retry of identical bytes")
+	assert_true(fixture.host.completed.is_empty())
+	fixture.bridge.next_request_finished.emit(fixture.request.frontier, fixture.bridge.result)
+	assert_false(fixture.host._next_pending)
+	assert_eq(fixture.host.completed.size(), 1)
+	assert_true(fixture.host.completed[0].retry)
+	fixture.bridge.next_request_finished.emit(fixture.request.frontier, fixture.bridge.result)
+	assert_eq(fixture.host.completed.size(), 1, "the terminal notification cannot be consumed twice")
