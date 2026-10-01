@@ -287,10 +287,22 @@ func test_ordinary_retirement_releases_only_matching_pending_owner_without_failu
 	var bridge := OrdinaryBridgeDouble.new()
 	var narrative := preload("res://scripts/application/narrative/DialogicPresentationOwnerAdapter.gd").new()
 	assert_true(narrative.configure(bridge).ok)
+	assert_true(narrative.configure_frozen_hospital_contexts().ok)
 	watch_signals(narrative)
+	# The retirement subject is an actual Hospital timeline. Ordinary fainting
+	# without Sylvia eligibility owns a notice, which correctly ignores DTL signals.
+	var frozen: Dictionary = preload("res://scripts/narrative/FrozenPresentationContext.gd").build(
+		"hospital.faint.day3", {"entry_id": "hospital.faint.day3", "entry_role": "hospital",
+			"day": 3, "qualifying_cause": "condition_hospital",
+			"accepted_record_ids": ["synthetic.accepted.3"], "unfulfilled_record_ids": ["synthetic.accepted.3"],
+			"sylvia_eligible": true, "sylvia_witness_receipt_id": "synthetic.witness.3"})
+	assert_true(frozen.get("ok", false), str(frozen))
+	if not frozen.get("ok", false): return
 	var command := {"resolution_id": "resolution.day3", "resolution_issuer_receipt": {},
 		"stage_id": "stage.hospital", "substage_id": "intent.hospital", "route_id": "hospital",
-		"timeline_id": TIMELINE_ID, "context": {"day": 3},
+		"timeline_id": TIMELINE_ID, "context": {"kind": "hospital", "day": 3,
+			"source_entry_ids": ["synthetic.accepted.3"], "miss_receipt_ids": ["synthetic.miss.3"],
+			"presentation": frozen.value},
 		"completion_transaction_id": "completion.hospital.day3", "completion_transaction_provenance": {},
 		"command_sha256": "c".repeat(64)}
 	var first: Dictionary = narrative.begin_physical(command)

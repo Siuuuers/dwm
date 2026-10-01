@@ -80,7 +80,7 @@ def validate_pause_save(written: dict, evidence: Path, folder: Path) -> dict:
     for stage in PAUSE_STAGES[:5]:
         view = proof[stage]["native"]
         if view["reveal_generation"] != native["reveal_generation"] or view["revealing"] is not True or not (
-            0 <= view["visible_characters"] < view["total_characters"]
+            0 <= view["visible_characters"] < view["total_characters"] and 0 <= view["visible_ratio"] < 1
         ):
             raise RuntimeError(f"LITERAL_PARTIAL_REVEAL_REQUIRED: {stage}")
     if proof[PAUSE_STAGES[1]] != first or proof[PAUSE_STAGES[2]] != first:
@@ -91,14 +91,14 @@ def validate_pause_save(written: dict, evidence: Path, folder: Path) -> dict:
     for stage in PAUSE_STAGES[5:]:
         view = proof[stage]["native"]
         if proof[stage] != full or view["reveal_generation"] != native["reveal_generation"] + 1 or view["revealing"] is not False or not (
-            view["visible_characters"] == -1 or view["visible_characters"] >= view["total_characters"]
+            view["visible_ratio"] == 1 and (view["visible_characters"] == -1 or view["visible_characters"] >= view["total_characters"])
         ):
             raise RuntimeError(f"BACKUP_SAVE_AND_CONTINUE_MUST_RETAIN_FULL_SAME_LINE: {stage}")
     checkpoint = proof["saved_checkpoint"]
     session = checkpoint["reading_session"]
     captions = session["ledger"]["captions"]
     if checkpoint != source["checkpoint"] or session["frontier"]["line_id"] != native["line_id"] or (
-        len(captions) != 1 or captions[0]["line_id"] != native["line_id"]
+        len(captions) != 1 or captions[0]["beat"]["line_id"] != native["line_id"]
         or len(session["ledger"]["entry_contexts"]) != 1
     ):
         raise RuntimeError("ORDINARY_PAUSE_SAVE_CHECKPOINT_MISMATCH")

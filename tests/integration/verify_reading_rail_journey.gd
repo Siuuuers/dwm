@@ -270,8 +270,15 @@ func _ordinary_reading_pause_save(game: Node, dating: Node) -> bool:
 		continued.merge(_reading_pause_observation(game), true), CONNECT_ONE_SHOT)
 	pause_owner.surface.rows[&"continue"].grab_focus()
 	if not await _ordinary_accept_focused(pause_owner.surface.rows[&"continue"], "partial reading Continue"): return false
-	if not _check(not paused and current_scene == dating and not pause_owner.surface.visible
-		and continued == entered, "Continue restores the exact partial native frontier before its next reveal frame"): return false
+	var continued_exactly: bool = not paused and current_scene == dating and not pause_owner.surface.visible \
+		and continued == entered and runtime.current_line_id() == entered.native.line_id
+	if not continued_exactly:
+		_trace("ordinary_pause_continue_failed", {"expected": entered, "release_observation": continued,
+			"current_observation": _reading_pause_observation(game), "tree_paused": paused,
+			"same_scene": current_scene == dating, "surface_visible": pause_owner.surface.visible,
+			"controller_result": pause_owner.last_result, "coordinator_state": pause_owner.coordinator.get_state(),
+			"foreground_line_id": runtime.current_line_id()})
+	if not _check(continued_exactly, "Continue restores the exact partial native frontier before its next reveal frame"): return false
 	_record_reading_pause("ordinary_pause_continued", continued)
 	await _pause_key()
 	var reentered := _reading_pause_observation(game)
@@ -289,7 +296,7 @@ func _ordinary_reading_pause_save(game: Node, dating: Node) -> bool:
 	var backup: Control = pause_owner.surface.get("_hosts")[&"backup"]
 	var hosted := _reading_pause_observation(game)
 	if not _check(paused and pause_owner.surface.entered_action == &"backup" and backup.is_visible_in_tree()
-		and not hosted.native.revealing and runtime.is_current_line_complete()
+		and not hosted.native.revealing and hosted.native.visible_ratio == 1.0
 		and hosted.native.line_id == entered.native.line_id
 		and hosted.native.reveal_generation == reentered.native.reveal_generation + 1
 		and hosted.source == entered.source,
@@ -334,6 +341,7 @@ func _ordinary_reading_pause_save(game: Node, dating: Node) -> bool:
 	if not await _ordinary_accept_focused(pause_owner.surface.rows[&"continue"], "saved reading Continue"): return false
 	if not _check(not paused and current_scene == dating and not pause_owner.surface.visible
 		and saved_continued == hosted and _reading_pause_observation(game) == hosted
+		and runtime.current_line_id() == hosted.native.line_id and runtime.is_current_line_complete()
 		and saves.get("_storage").read_text("slot_3.json").value == disk.value,
 		"Continue after Save retains the same full line without speech, History, game, Profile or slot mutation"): return false
 	_record_reading_pause("ordinary_pause_save_continued", saved_continued)
@@ -346,13 +354,17 @@ func _reading_pause_observation(game: Node) -> Dictionary:
 	var layer: Node = _caption_layer()
 	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
 	var history: Dictionary = bridge.get_reading_history()
-	if not _check(layer != null and checkpoint.get("ok", false) and history.get("ok", false),
+	var semantic: Dictionary = runtime.capture_reading_frontier()
+	if not _check(layer != null and checkpoint.get("ok", false) and history.get("ok", false)
+		and semantic.get("ok", false) and semantic.value == checkpoint.value.reading_session.frontier,
 		"pure reading Pause observation is admitted"): return {}
 	var text: DialogicNode_DialogText = layer.caption_text
-	return {"native": {"line_id": runtime.current_line_id(), "caption_id": text.get_instance_id(),
+	# Foreground Skip helpers deliberately return no line while paused. The admitted
+	# semantic capture still proves the exact hidden native publication and ledger.
+	return {"native": {"line_id": semantic.value.line_id, "caption_id": text.get_instance_id(),
 		"reveal_generation": text.get_reveal_generation(), "text": text.get_parsed_text(),
 		"visible_characters": text.visible_characters, "total_characters": text.get_total_character_count(),
-		"revealing": text.revealing},
+		"visible_ratio": text.visible_ratio, "revealing": text.revealing},
 		"source": {"checkpoint": checkpoint.value.duplicate(true), "history": history.value.duplicate(true),
 			"live_session": game.capture_live_session().value.duplicate(true), "gameplay": game.to_save_dict().duplicate(true),
 			"physical_record": game.capture_dating_challenge_state().value.duplicate(true),
