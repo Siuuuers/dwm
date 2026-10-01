@@ -2,9 +2,71 @@
 
 # Source migration — preservation before retirement
 
-**Phase:** additive local foundation plus bounded v2 transcript recovery. **Inspected commit:** `2e8602d5f098eebbab18241f370b5f4d14adf99b`. **Source directory tree:** `e4ea90fa356a5b9d3932bb77cc2c780064a693d5` (13 entries; API tree reported `truncated=false`). **Content audit:** incomplete. **Files moved, deleted, or pushed:** none.
+**Current phase:** full story consolidation in progress on PR #3; the additive foundation is an intermediate checkpoint, not the requested finish line. **Inspected commit:** `2e8602d5f098eebbab18241f370b5f4d14adf99b`. **Source directory tree:** `e4ea90fa356a5b9d3932bb77cc2c780064a693d5` (13 entries; API tree reported `truncated=false`). **Content audit:** incomplete. **Source files moved or deleted:** none as of this scope checkpoint.
 
 The [machine-readable manifest](source-migration.json) records exact tracked paths, blob IDs, sizes, proposed destinations, and holds. It is a temporary migration control, not a second creative memory database.
+
+## Current completion criteria — owner clarification, 2026-10-01
+
+The owner clarified: `Our_PL.md` includes all the supplied exchanges, and
+`docs/story-auditions/` should be consolidated into `story/`, then removed from
+the active tree. The goal is one narrative working home, not a permanent second
+index pointing back to the old workspace.
+
+**Availability is not migration progress.** All 50 numbered exchanges in the
+uploaded export are available and readable. The previous exact, chronological
+transfer covers E23–26 only. Other topics have working captures, but their full
+source-to-destination reconciliation has not been certified. This is unfinished
+migration work, not missing input from the owner. No replacement upload is
+required to continue that work. Later chat corrections remain additional sources;
+they must not be overwritten by the export's earlier endpoint.
+
+This clarification replaces the assistant's suggestion to merge the foundation
+first and finish relocation in later PRs. Keep PR #3 as the in-progress
+consolidation PR. It is ready for merge review only when the following documented
+checks pass; this section records the target, not a claim that any pending check
+has passed:
+
+- Account for every substantive item across all 50 exported exchanges and every
+  tracked file under `docs/story-auditions/`, including meaningful embedded
+  historical document payloads. Preserve questions, stated reasons, exact scenes,
+  alternative versions, objections, intended pleasures, conditional continuations,
+  local approval scope, and unresolved choices in the appropriate `story/` owners.
+  Mark exact duplicates by their retained destination rather than copying them.
+- Consolidate genuinely overlapping working material; move a distinct coherent
+  audition intact when merging its text would destroy its context. P–L work has
+  its pair home; Angela–Lavinia, Group, and whole-week work retain their own scope.
+  Relocation alone is not a claim that semantic consolidation is finished.
+- Verify retrievable retained Git snapshots for original sources before deleting
+  their active copies. Keep a small provenance map under `story/maintenance/`,
+  not another active transcript folder. Distinct uploaded and repository versions
+  keep separate identities; do not require them to become identical.
+- Update live links, document ownership/backpointers, and applicable authoring
+  routes. Current-owner navigation follows the current checkout; historical
+  evidence keeps version-specific references. Any pair-section extraction must
+  preserve wording/status and leave an ownership link in the Handbook. Technical
+  authorities outside this migration are not moved merely to empty this folder.
+- Remove every tracked path under `docs/story-auditions/` after its contents are
+  accounted for. Do not leave a README redirect or move an unchanged raw transcript
+  to `story/sources/` as a substitute for consolidation. Historical quotations and
+  immutable evidence links may still mention the old path; active work must not
+  depend on reading it from the current checkout.
+
+**Documentation completion is not story completion.** Unselected scenes, competing
+motives, and unresolved physical/causal questions can remain explicitly unresolved
+in their new owning documents. Migration does not require choosing a winner or
+finishing the seven-day plot. Existing requirements for promoting a bar/residue
+candidate remain narrative holds; they are not a reason to keep its old folder
+forever once its evidence and open questions have been fully preserved.
+
+The four-substantive-exchange cadence governs new conversational checkpoints,
+not a four-exchange limit on archive processing. Process coherent source topics
+in larger batches when useful, while reporting actual verified coverage. Do not
+restart already verified transfers merely to create progress reports.
+
+This checkpoint changes the completion criteria only. It does not perform source
+retirement, promote canon, modify runtime behavior or PR #1, or authorize an
+immediate merge. The inventory hashes and retirement flags below remain unchanged.
 
 ## v2 upload recovery — present status
 
@@ -50,15 +112,15 @@ Raw conversation files are intended to leave the active tree. They are not copie
 2. Identify an actually retained Git reference and full commit containing those bytes. Check that the original can be retrieved from it. A tag is a suggested retention mechanism, not something this package creates or claims exists. Preserve full commit and path references; refresh permissions before any remote write.
 3. Read the complete relevant chronology, including later corrections and reopenings. For each substantive section record its actual destination and status, or an explicit disposition with its reason. Preserve unique questions, alternatives, pleasures, explanations, scene versions, and unresolved next steps. Do not substitute approval summaries for source evidence.
 4. Check both directions: every substantive source item is accounted for; every attributed decision or reason in the destination is supported. Mark duplicate-only passages explicitly instead of retaining needless identical copies. Greetings and tooling chatter can remain only in the original archive, but uncertainty about creative significance is not grounds for deletion.
-5. Verify live links, old-path redirects, ownership references, and unchanged authority. Only then prepare the explicit source-retirement diff. Preserve the special bar/residue audit hold if its required chronological evidence is still missing.
+5. Verify live links, repaired old-path references, ownership references, and unchanged authority. Only then prepare the explicit source-retirement diff. Preserve the special bar/residue audit hold if its required chronological evidence is still missing.
 
 No current source passes this gate merely because its blob appears in the inventory. `source_retirement_allowed` is false for every item in the JSON manifest. There is no destructive migration command in this package.
 
 ## Staged application
 
-**This package:** add the new working home and guide; existing files stay intact. The additions patch touches only new paths under `story/`.
+**Completed initial stage:** the additive foundation was published on PR #3. Existing source files remain intact. That checkpoint is not the current completion criterion.
 
-**Relocation stage, pending:** retrieve complete existing files, preserve their bytes, perform the listed moves, repair relative links, and leave a small old-index redirect. Moving a file does not approve it.
+**Consolidation stage, pending:** retrieve complete existing files, reconcile their substantive content with the new owners, move distinct surviving records as needed, and repair relative links. The earlier proposal to retain an old-index redirect is superseded: the final active tree should contain no `docs/story-auditions/` directory. Moving a file does not approve it.
 
 **Ownership stage, pending:** move the designated Handbook pair section with an exact backpointer, integrate audited development into one owner per topic, and update live indexes/design routes. Do not reinterpret old conversation quotations to make their paths look current.
 
@@ -66,4 +128,4 @@ No current source passes this gate merely because its blob appears in the invent
 
 ## Known limits and next source dependency
 
-The uploaded transcript resolves the local readability blocker. The next source work is detailed extraction and reconciliation of the remaining exchanges, comparison of the distinct uploaded bytes with the recorded repository version, and review of embedded historical document payloads. The older archive must also be checked for unique/reconstructed material rather than assumed redundant. Full reread of the dated auditions and verified archival retention remain open. These holds do not prevent using the non-destructive local foundation now.
+The uploaded transcript resolves the local readability blocker. The next source work is detailed extraction and reconciliation of the remaining exchanges, comparison of the distinct uploaded bytes with the recorded repository version, and review of embedded historical document payloads. The older archive must also be checked for unique/reconstructed material rather than assumed redundant. Full reread of the dated auditions and verified archival retention remain open. The existing foundation remains usable on the PR branch during this work, but its availability is not completion of the requested folder consolidation.
