@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ef6cf8af6ce8071ba4d63757314960da65840ee5
+          ref: f28d2bdccd572894267317d04f7373d46430d83c
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
@@ -162,7 +162,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ef6cf8af6ce8071ba4d63757314960da65840ee5
+          ref: f28d2bdccd572894267317d04f7373d46430d83c
           # The schedule-gate contract inspects its immutable historical seals.
           fetch-depth: ${{ (matrix.suite == 'new_account' || matrix.suite == 'desktop') && '0' || '1' }}
           # Defer credential removal until the post-job cleanup, after the
@@ -246,7 +246,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ef6cf8af6ce8071ba4d63757314960da65840ee5
+          ref: f28d2bdccd572894267317d04f7373d46430d83c
           # Verify the frozen region-search control against its historical source blob.
           fetch-depth: 0
           # Defer credential removal until the post-job cleanup, after the
