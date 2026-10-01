@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: 8ae8a0ba7369546a1d9da02cbfcd371008ce3009
+          ref: f3b5e8910e8a7d401d6ac6e7ca4392d58787a920
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
@@ -162,7 +162,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: 8ae8a0ba7369546a1d9da02cbfcd371008ce3009
+          ref: f3b5e8910e8a7d401d6ac6e7ca4392d58787a920
           # The schedule-gate contract inspects its immutable historical seals.
           fetch-depth: ${{ (matrix.suite == 'new_account' || matrix.suite == 'desktop') && '0' || '1' }}
           # Defer credential removal until the post-job cleanup, after the
@@ -248,7 +248,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: 8ae8a0ba7369546a1d9da02cbfcd371008ce3009
+          ref: f3b5e8910e8a7d401d6ac6e7ca4392d58787a920
           # Same disposable-index workaround as the Windows jobs above.
           persist-credentials: true
       - name: Prepare disposable checkout for credential cleanup
