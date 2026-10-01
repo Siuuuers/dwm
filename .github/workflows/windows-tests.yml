@@ -65,13 +65,11 @@ jobs:
 
         $archive = Join-Path $env:RUNNER_TEMP $asset
 
-        $checksumFile = $archive + ''.sha256''
-
         Invoke-WebRequest -Uri ($release + $asset) -OutFile $archive
 
-        Invoke-WebRequest -Uri ($release + $asset + ''.sha256'') -OutFile $checksumFile
+        # Published upstream checksum uses CertUtil formatting; exact SHA256 independently inspected.
 
-        $expected = (([IO.File]::ReadAllText($checksumFile).Trim()) -split ''\s+'')[0].ToLowerInvariant()
+        $expected = ''d0f534024c42afd6cb4d38907c25cd2b249b79bbe6cc1dbee8e3e37c2b6e25a1''
 
         if ($expected -notmatch ''^[0-9a-f]{64}$'' -or (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -cne $expected)
         { throw ''RIPGREP_RELEASE_CHECKSUM_MISMATCH'' }
