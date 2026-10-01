@@ -13,28 +13,83 @@ a constraint on the ongoing redesign. See the
 Obsolete Run/Profile formats can be retired without migration or a further
 compatibility interview. Use an explicit version/refusal boundary when a chosen
 implementation becomes incompatible; keep supported-format save, history and
-recovery correctness. No runtime format or saved data changes in this records update.
+recovery correctness. The compact validation-witness implementation changes no
+save schema or supported-format admission boundary.
 
 The legacy-History gap question below is retired. Earlier preservation wording
 in historical notes and proof records describes their prior scope; it is not a
-new compatibility obligation. Only `dwm-vky.14` receives an appended decision
-note; no task status changes or Dolt synchronization are claimed.
+new compatibility obligation. Routine ownership and implementation choices remain
+delegated. Ask about authored selectors only if an additional production fact
+would change wording/staging or the exact-variant projection contract.
 
-## Current execution map — 1 October 2026
+## Current implementation and execution map — 1 October 2026
 
-Use the [single maintained execution map](execution-map.md) to select work and
-combine overlapping acceptance. Its next runtime batch is witness-specific
-correctness for `dwm-634.3`; the next connected player feature is one durable
-Solo Dating reading session under `dwm-vky.14`, sharing caption/Quick proof.
-Treat public-contract repair as a companion to changed owners. An independent
-CI candidate fans out four comparisons after their verified producer; its
-estimated saving is not yet measured.
+The compact per-write validation witness is implemented in production. It keeps
+the full document validator for each text missing from the per-write memo,
+and reuses successful admission only within one synchronous Backup write. Parsing
+may reuse the existing exact-text parse cache; schema validation still runs. The comparison fixture retains the frozen
+full-result baseline and calls the actual production helper for the candidate;
+there is no second candidate body. Correctness coverage includes refusal and
+malformed-success behavior, memo lifetime, ordered storage/restart cases, exact
+bytes/journal checks and modern presentation-port Quick/consent. The complete
+Quick suite is now registered in Settings.
 
-The map covers all 23 unfinished records and distinguishes blocking edges from
-parent/derived links. Eight stale Beads descriptions/titles are reconciled;
-statuses and dependency arrays are unchanged. No issue is closed from this audit.
-Historical caption, canonical-context, rebinding, tint and chronology work must
-not be rebuilt from stale task descriptions.
+**Accepted bounded source:** `724ff76fabafe358d6f445b404386baa65d20062`.
+[Run82](https://github.com/Siuuuers/dwm/actions/runs/36847732239) passes **23/23 jobs**:
+2,075 GUT executions / 2,071 unique cases, 176 unique scripts, zero skips; all five
+rendered journeys, rendered desktop/dialogue and exported Windows headless startup.
+All 22 checkout logs bind merge `d9c42820960ffd70b80b70977178c17ae9beef92`, with
+master `2e8602d5f098eebbab18241f370b5f4d14adf99b`; the aggregate job has no checkout.
+Both committed inventories reproduce without regeneration (236/74 contract rows
+unchanged). Source-to-merge differences remain seven owner Markdown files only.
+
+Focused [Run81](https://github.com/Siuuuers/dwm/actions/runs/36846965941) passes
+5/5 jobs and 737 GUT cases at `f28d2bdccd572894267317d04f7373d46430d83c`; final
+source changes only two inventories. Settings includes 18 parse-cache and 19 modern
+Quick cases. The fault/restart equivalence probe passes 61,180 assertions over
+simulated durable FileOps state; these are not physical OS-crash injections.
+Actual-production physical-I/O save comparisons improve all eight envelope pairs:
+median paired reductions 208.1125 ms enabled / 222.829 ms disabled, four pairs per
+parser-cache mode. Candidate medians remain about 3.1 seconds. Preserve the positive
+preparation sample and earlier Run78 envelope regression; no pooled-mode,
+statistical-significance or input-to-paint claim.
+
+The [single shared receipt](../../evidence/beads_cloud_review/save-witness-production-run78-82.json)
+records controls, exact inputs, raw artifacts, source boundaries, invalid Run80
+publication attempt, independent audits and limits. The records descendant changes
+documentation/evidence and one Beads note only; it is not separately engine-tested.
+`dwm-634.3` remains open for remaining checkpoint/terminal latency and native
+responsiveness acceptance. This helper improvement does not close that parent.
+
+Use the [single maintained execution map](execution-map.md). The next shared-owner
+feature is one durable Solo Dating reading
+session under `dwm-vky.14`: pre-prose → board → committed result → post-prose →
+History → Save → fresh Load, with Quick consuming the same admitted frontier.
+Reuse the accepted internal ledger and per-entry frames. Use authorized
+noncanonical dialogue for the connected cloud proof; production authored
+registration still requires its real identities and projection facts. Session
+ownership, History boundaries, automatic board handoff, Save/Load behavior and
+the unshipped-save policy are settled; no new architecture interview is needed.
+Only a previously unknown production selector that changes wording/staging needs
+owner input before its authored contract is frozen.
+
+The independent CI fanout is also implemented: one verified retained-history
+producer feeds four comparisons on separate runners/checkouts, with input/source
+provenance checks and an aggregate gate retaining the required-check name. Its
+actual execution passed Run82, including all producer/consumer input checks and
+the aggregate gate. The historical 11m32s estimate remains theoretical; observed
+wall time on different shared runners is not a controlled speedup measurement.
+
+The map still covers all 23 unfinished records. Only `dwm-634.3` notes/timestamp
+change in this records descendant; 190 other records retain exact bytes. Statuses
+and dependencies are unchanged; no issue closes or Dolt synchronization is claimed. Keep public-contract repair
+attached to the changed owners. Historical caption, canonical-context, rebinding,
+tint and chronology work must not be rebuilt from stale descriptions.
+
+The Run75/76 checkpoint and Run77 broad baseline below remain historical,
+source-bound evidence. Their statements about unchanged production or future
+witness adoption describe those earlier sources, not the current implementation.
+No historical receipt is resealed as proof of the current source.
 
 [Run77](https://github.com/Siuuuers/dwm/actions/runs/36525478153) completed
 **18/18 jobs**, with 2,052 GUT executions / 2,048 unique cases, 175 unique scripts
@@ -89,8 +144,8 @@ moving through review and proof before starting another implementation.
    or read-only questions to agents. Keep one integrator for shared owner files,
    publication and Beads records; use an independent reviewer for material risks.
    More agents are useful only while their work reduces uncertainty or elapsed
-   time. Future CI parallelization must preserve identical source/input admission
-   and isolated paired benchmarks; its speedup is not yet measured.
+   time. CI parallelization must preserve identical source/input admission and isolated
+   paired benchmarks; observed elapsed time alone is not a causal speedup proof.
 7. **Make continuity small and factual.** Verify the live head and selected issue,
    then read their relevant authority rather than reload all project history.
    Keep the accepted source, exact run, outcome, evidence limits, next bounded
@@ -106,7 +161,7 @@ moving through review and proof before starting another implementation.
    is met. Start a fresh session at a durable checkpoint when the next slice needs
    different context; preserve the reading-rail questions below.
 
-## Current checkpoint
+## Historical accepted checkpoint — 29 September 2026
 
 Latest bounded source: `d0831f1dfe420443803658c47c28ee95caa7be9f`
 (tree `363380fdf677665004d3f1edef11d2eabe5d6613`). [Run76](https://github.com/Siuuuers/dwm/actions/runs/36523397197)
@@ -137,9 +192,11 @@ operations still take roughly 4.5 seconds. All 48 raw timings / 24 deltas / 6 su
 were independently verified. Production persistence code is unchanged; do not
 claim production adoption, statistical significance or a gameplay speedup.
 
-Next checkpoint slice: witness-specific malformed-success/refusal, stale revision
-and consent, Quick Save, changed promoted bytes and ordered physical fault/restart
-equivalence before any production adoption. The full original manual-save fixture,
+At the Run75/76 checkpoint, the planned next slice was witness-specific refusal,
+stale revision/consent, Quick Save, changed promoted bytes and ordered storage
+fault/restart equivalence before production adoption. Runs78/79/81 and the current
+production increment above now cover that bounded work; do not repeat it from this
+historical instruction. The full original manual-save fixture,
 including slot_1 and all backups, is now retained with exact replay instructions;
 Run71's autosave-only limitation does not apply to this new artifact.
 
@@ -228,11 +285,11 @@ authority before the next implementation. The live work order is mapped by the
 [continuation audit](2026-09-29-continuation-audit.md) remains a source-bound
 historical audit; some of its risks and compatibility questions are now resolved.
 
-A measured workflow opportunity remains: Run70's retained-history lane spent about
-49 minutes serially generating the payload and running independent comparisons.
-After that producer, comparisons could run in parallel with the same source/payload
-hash admission. This is a proposal, not an implemented or measured CI speedup;
-preserve all gates and isolated matched pairs if taking that next increment.
+Run70's historical retained-history lane spent about 49 minutes serially generating
+the payload and running independent comparisons. That observation motivated the
+fanout implemented in the current increment above. Preserve its source/input
+admission, gates and isolated pairs. Historical elapsed time is not a controlled
+measurement of the new workflow's speedup.
 
 ## Checkpoint investigation
 
@@ -282,13 +339,14 @@ Exact values/types/bytes, proof text/documents, journal state, file manifests an
 ordered operations are required across variants.
 
 Run68's region-search and Run66's lazy-normalization increments remain accepted;
-do not redo them. Run75 now measures the manual-save storage-only success-witness hypothesis; see
-the current checkpoint above. It is a test-subclass ablation only. Production
-adoption still requires the listed refusal/fault/restart proof; no broad lag closure.
+do not redo them. Run75 measured the manual-save success-witness hypothesis as a
+test-subclass ablation. The refusal/fault/restart work required at that historical
+checkpoint is covered by the current production increment above; the broader lag
+task remains open.
 
 Read-only follow-up identified six executed full-result deep-copy operations
-across memoization and storage validation/promotion. Run75 now measures their
-bounded success-witness ablation without changing production code. The production
+across memoization and storage validation/promotion. Run75 measured their bounded
+success-witness ablation without changing its production source. The production
 `_write_document_text_validator` caller ignores its success value and separately
 verifies exact bytes/journal state; that alone does not authorize relaxing admission.
 Any future ablation must keep matched physical inputs, cache/preparation state,
@@ -403,9 +461,11 @@ Source/merge differed only in seven owner Markdown files; story archives are not
 approval of runtime narrative proposals.
 
 Godot **4.6.3 standard GDScript** is authoritative. Execute Godot and PowerShell
-only in GitHub cloud. Preserve full Git ancestry, coordinated Run/document v7 and
-Profile v9 chronology, strict revisions/bytes/hashes, consent, complete-action
-recovery and retained history. No unrelated slot or Profile-history deletion.
+only in GitHub cloud. Preserve full Git ancestry, coordinated supported-format
+chronology, strict revisions/bytes/hashes, consent, complete-action recovery and
+retained history. Run/document v7 and Profile v9 are the current formats; intentional
+successors may retire obsolete development formats under the unshipped-save policy
+with explicit admission boundaries. No unrelated slot or Profile-history deletion.
 
 The prior editor workspace went offline. A fresh clone was restored for this
 facade increment; static Python/source review works locally. Authenticated Git

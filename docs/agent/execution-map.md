@@ -6,7 +6,7 @@ execution_authority: false
 status_authority: false
 behavior_authority: false
 verification_authority: false
-inspected_source: "ff24411fed8ba6675251227b28db834c4135b8e7"
+inspected_source: "724ff76fabafe358d6f445b404386baa65d20062"
 ---
 
 # DWM execution map
@@ -18,9 +18,10 @@ creating another dated backlog. The [handoff](2026-09-23-next-session-handoff.md
 owns the latest tested source and links to detailed evidence.
 
 The inspected export has **23 unfinished records**, including parent aggregates,
-overlapping acceptance and deferred work. This records update does not close tasks,
-change dependencies or synchronize Dolt. Eight stale task descriptions/titles are
-reconciled; 183 other issue records retain their exact bytes.
+overlapping acceptance and deferred work. Queue placement does not close a task,
+change its dependencies or claim Dolt synchronization. Implementation status and
+cloud acceptance below are separate; the handoff and source-bound receipt own
+their exact source, run and count evidence.
 
 ## Execution rule
 
@@ -38,8 +39,9 @@ not create competing versions of GameState or SaveManager.
 
 | Lead / placement | Related records | Smallest useful outcome and proof |
 |---|---|---|
-| **Next runtime batch: `dwm-634.3`** | `dwm-634` parent; touched `dwm-sx8` mappings only | Decide whether the measured compact validation witness is safe. Compare baseline/witness failures, memo lifetime, ordered storage/restart behavior and modern F5/consent. Keep production unchanged until equivalence passes; retain unfavorable timings. |
-| **Next player feature: `dwm-vky.14`** | `dwm-eei.10`, `dwm-eei.11`, Witnessed remainder of `dwm-eei.5` | One Solo Dating session: pre-prose → board → committed result → post-prose → History → Save → fresh Load. Bind one semantic sequence to real owners and route Quick through the same admitted frontier. One connected cloud journey plus refusal/restore checks. |
+| **Next shared-owner feature: `dwm-vky.14`** | `dwm-eei.10`, `dwm-eei.11`, Witnessed remainder of `dwm-eei.5` | One durable Solo Dating session: pre-prose → board → committed result → post-prose → History → Save → fresh Load. Bind one semantic sequence to real owners and route Quick through the same admitted frontier. Use authorized noncanonical dialogue for one connected cloud journey plus refusal/restore checks; do not rebuild the accepted internal ledger. |
+| **Accepted increment; remaining latency: `dwm-634.3`** | `dwm-634` parent; touched `dwm-sx8` mappings only | Compact per-write validation witnesses and frozen-baseline correctness controls are implemented. Focused production Run81 and broad Run82 passed. Retain this issue for remaining terminal-settlement/checkpoint cost, matched complete-operation measurements and native responsiveness acceptance; one helper improvement does not close the lag task. |
+| **Independent CI change: accepted in Run82** | Existing performance and required-check gates | The retained-history producer now feeds four comparison jobs on separate runners/checkouts, with verified source/run/input manifests and an aggregate gate retaining the required-check name. Run82 verifies the actual fanout and all consumer evidence. Observed elapsed time is not a controlled causal speedup measurement. |
 | **Following reading batch: `dwm-n3h.2`** | `dwm-n3h`, exact Next/replay portion of `dwm-vky.14`, relevant `dwm-oyo.5` clauses | Finish the per-entry authored selector contract and successor reached signature, then exact-variant witnessing/Next/replay. Ordinary phase/reply/line and Alone cause are known gaps; request extra author input only where another independent fact changes presentation. |
 | **Independent candidate: `dwm-eei.2`** | Settings/Profile recovery; authored audio preview remains separate | Real indeterminate Profile write → Settings mutation refusal/custody → proven reconciliation. Reuse current Settings hosts and transactions. An audio sample catalogue is not a prerequisite for this recovery test. |
 | **Independent candidate: `dwm-7wj`** | Gallery clauses of `dwm-oyo.6` | Replace the dropdown with a visible plural-version register using existing newest-first chronology. Verify exact selection/Retry/focus and no writes during inspection. Authored record cues and native ScrollPattern retain their own acceptance. |
@@ -104,21 +106,39 @@ Receipt: tested source/merge + run + raw artifact links
 Stop: acceptance passes, or one concrete unresolved choice is identified
 ```
 
-For the next `dwm-634.3` card, reuse
+The current `dwm-634.3` candidate uses a compact successful admission witness
+inside one synchronous Backup write. Its frozen full-result control remains in
+[ManualSaveWitnessPort.gd](../../tests/support/ManualSaveWitnessPort.gd); the
+candidate delegates to the actual production helper, without another copied
+candidate implementation. Every text missing from the per-write memo reaches the full document validator.
+The existing exact-text parse cache may reuse parsing; schema validation still runs. The memo ends with that write; physical byte/revision checks,
+source binding, journal publication and consumed consent remain required.
+
+The reusable proof is in
 [test_save_manager_parse_cache.gd](../../tests/unit/test_save_manager_parse_cache.gd),
-[test_revision_storage.gd](../../tests/backup_storage/test_revision_storage.gd),
+[test_manual_witness_revision_storage.gd](../../tests/backup_storage/test_manual_witness_revision_storage.gd),
 [test_backup_quick_actions.gd](../../tests/unit/test_backup_quick_actions.gd)
 and the [manual witness runner](../../tools/testing/Invoke-ManualSaveWitnessPerformance.ps1).
-The old `quick_save_latest` path does not exercise the modern backup helper;
-include the presentation-port/F5 path. Keep the production test that expects the
-helper's full success document until an explicit adoption change; add distinct
-diagnostic witness assertions first. A format cutover is unnecessary for this
-helper experiment.
+The modern Quick suite is registered in Settings; old `quick_save_latest` coverage
+is not substituted for its presentation-port prepare/commit path. Production focused Run81 and broad Run82 pass; the
+[shared receipt](../../evidence/beads_cloud_review/save-witness-production-run78-82.json)
+records exact source/merge, all controls and the bounded acceptance. A save-format cutover is unnecessary for this
+helper change.
 
-## Cloud verification and CI opportunity
+Use the next batch card for the
+[durable Solo reading slice](2026-09-29-reading-rail-next-slice.md). Reuse admitted
+per-entry frames and one semantic sequence; extend the real Dating, narrative,
+Save/restore and presenter owners together. Ownership, History boundaries,
+automatic board handoff, save/restore frontier behavior and the unshipped-save
+policy are settled. Ask only if a newly identified production wording/staging
+selector would change the authored projection contract; fixture-backed
+engineering can proceed without another architecture interview.
+## Cloud verification and implemented CI change
 
-Godot and PowerShell execution stays in GitHub cloud. This planning update runs
-no engine tests and changes no runtime, test or workflow files.
+Godot and PowerShell execution stays in GitHub cloud. The compact witness is
+implemented in production and the CI fanout is implemented in the workflow.
+Focused production Run81 and broad Run82 passed. The shared receipt separates
+earlier diagnostic evidence from actual-production and merge acceptance.
 
 Run focused suites while changing the candidate. Add suites for the actual changed
 owners, not every related issue title. Run the required broad integration gate once
@@ -146,24 +166,27 @@ seven-day job took **35m28s**. The producer plus existing admission/preparation
 comparisons took **10m59s**, followed serially by outgoing **57s**, lazy **3m12s**,
 region **7m23s** and warm-proof **11m47s** comparisons.
 
-The first CI improvement should keep that combined producer and fan out its four
-independent consumers into separate jobs/checkouts. Their serial sum is 23m19s
-versus an 11m47s longest consumer: **11m32s is a theoretical saving before extra
-setup, transfer and scheduling overhead**, not an achieved speedup. This is an
-independent workflow candidate, not an extra blocker for the runtime queue.
+The workflow now keeps that combined producer and fans out its four independent
+consumers into separate jobs, runners and checkouts. The original required-check
+name is retained by an aggregate gate that requires the producer and every
+comparison to succeed. Run82 passed the producer, all four consumers and this
+aggregate; every checkout binds the same tested merge and admitted input hashes.
 
-Preserve the existing producer dependencies: outgoing also needs both localized
-payloads and their manifest from checkpoint performance; the other consumers
-need the exact Day7 results/payload. Retain same-workflow-run identity and the
-outgoing manifest's producer-attempt <= consumer-attempt check. Verify checkout
-and input hashes, recovered
-66-checkpoint identity and required Git history/provenance. Keep each experiment's
-baseline/candidate alternation, fresh process roots and cache modes separate.
-Do not run comparisons concurrently in one checkout or timing environment:
-the [seven-day driver](../../tools/testing/Invoke-SevenDayHistoryPerformance.ps1)
-temporarily substitutes SaveManager bytes, and shared CPU/disk/cache contention
-would compromise comparison.
+The historical serial sum is 23m19s versus an 11m47s longest consumer:
+**11m32s is a theoretical saving before extra setup, transfer and scheduling
+overhead**, not an achieved speedup. Record the actual producer, consumer and
+end-to-end timings before making a new performance claim.
 
+The consumers verify checkout identity, the same workflow run, an admitted
+producer attempt, exact input hashes and recovered 66-checkpoint identity.
+Outgoing also downloads both localized payloads and their manifest from checkpoint
+performance; the other comparisons consume the exact Day7 results/payload. Keep
+required Git history/provenance, each experiment's baseline/candidate alternation,
+fresh process roots and separate cache modes. The
+[seven-day driver](../../tools/testing/Invoke-SevenDayHistoryPerformance.ps1)
+performs temporary SaveManager substitutions; each comparison must continue to
+run in its own checkout and timing environment. Parallel jobs do not authorize
+concurrent timing probes inside one runner.
 Do not remove the four deliberate duplicate diagnostic executions: isolated and
 Settings interaction-order coverage serve different checks. More tests or fewer
 tests are not the objective; demonstrated behavior and a shorter feedback cycle are.
