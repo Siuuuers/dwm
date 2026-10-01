@@ -25,13 +25,17 @@ class ReadingScroll extends ScrollContainer:
 		DisplayServer.accessibility_update_set_scroll_y(element, scroll_vertical)
 		var bar := get_v_scroll_bar()
 		DisplayServer.accessibility_update_set_scroll_y_range(element, 0, maxf(0, bar.max_value - bar.page))
-		for pair: Array in [[DisplayServer.ACTION_SCROLL_UP, -1], [DisplayServer.ACTION_SCROLL_DOWN, 1],
-				[DisplayServer.ACTION_SCROLL_BACKWARD, -1], [DisplayServer.ACTION_SCROLL_FORWARD, 1]]:
+		for pair: Array in [[DisplayServer.ACTION_SCROLL_UP, -1], [DisplayServer.ACTION_SCROLL_DOWN, 1]]:
 			DisplayServer.accessibility_update_add_action(element, pair[0], _accessibility_scroll.bind(pair[1], generation))
+		for pair: Array in [[DisplayServer.ACTION_SCROLL_BACKWARD, -1], [DisplayServer.ACTION_SCROLL_FORWARD, 1]]:
+			DisplayServer.accessibility_update_add_action(element, pair[0], _accessibility_page.bind(pair[1], generation))
 		DisplayServer.accessibility_update_add_action(element, DisplayServer.ACTION_SET_SCROLL_OFFSET, _accessibility_offset.bind(generation))
 	func _accessibility_scroll(unit: Variant, direction: int, captured_generation: int) -> void:
 		if captured_generation == generation and admitted.is_valid() and admitted.call() == true:
 			scroll_vertical += direction * int(size.y if unit == DisplayServer.SCROLL_UNIT_PAGE else 64)
+	func _accessibility_page(_request: Variant, direction: int, captured_generation: int) -> void:
+		if captured_generation == generation and admitted.is_valid() and admitted.call() == true:
+			scroll_vertical += direction * int(size.y)
 	func _accessibility_offset(value: Variant, captured_generation: int) -> void:
 		if value is Vector2 and captured_generation == generation and admitted.is_valid() and admitted.call() == true:
 			scroll_vertical = int(value.y)
@@ -131,6 +135,11 @@ func configure(presentation: Theme, localization: Object, input_owner: Node, adm
 	reading_scroll.accessibility_name = _heading.text
 	reading_scroll.accessibility_description = ""
 	_heading.add_theme_color_override(&"font_color", _roles[&"text"])
+	for row: Node in _rows.get_children():
+		if row is RichTextLabel:
+			row.language = locale
+			row.add_theme_color_override(&"default_color", _roles[&"text"])
+	if _active: set_interactive(_interactive)
 	var plane := _plate(_roles[&"current"], Color.TRANSPARENT)
 	plane.set_content_margin_all(16)
 	reading_scroll.add_theme_stylebox_override(&"panel", plane)
@@ -234,7 +243,7 @@ func _input(event: InputEvent) -> void:
 		_close_touch.clear()
 		close_button.set_pressed_no_signal(false)
 	if event is InputEventScreenTouch:
-		var local := close_button.get_global_transform_with_canvas().affine_inverse() * event.position
+		var local: Vector2 = close_button.get_global_transform_with_canvas().affine_inverse() * event.position
 		var inside := Rect2(Vector2.ZERO, close_button.size).has_point(local)
 		if event.pressed and inside:
 			if contacts.size() == 1 and not event.canceled and not event.double_tap:
@@ -243,7 +252,7 @@ func _input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 			return
 		if not event.pressed and _close_touch.get("index", -1) == event.index:
-			var activate := inside and not event.canceled and event.position.distance_to(_close_touch.position) <= 8.0 \
+			var activate: bool = inside and not event.canceled and event.position.distance_to(_close_touch.position) <= 8.0 \
 				and Time.get_ticks_msec() - int(_close_touch.started) < 500
 			_close_touch.clear()
 			close_button.set_pressed_no_signal(false)

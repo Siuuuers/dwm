@@ -104,7 +104,9 @@ static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictio
 			return _fail(&"reading_session_invalid")
 		if record.phase != checkpoint.stage:
 			return _fail(&"reading_physical_boundary_mismatch")
-	elif not reading.frontier.is_empty() or (checkpoint.entry_id == post_entry and record.phase not in ["post_challenge", "completed"]):
+	elif not reading.frontier.is_empty() \
+			or (checkpoint.entry_id == post_entry and record.phase not in ["post_challenge", "completed"]) \
+			or (checkpoint.entry_id == pre_entry and record.phase == "completed"):
 		return _fail(&"reading_physical_boundary_mismatch")
 	var post_seen := false
 	var publications := {}

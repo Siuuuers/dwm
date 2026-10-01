@@ -203,3 +203,18 @@ func test_resume_rejects_nonfinal_occurrences_and_unowned_authored_lines_without
 	assert_false(_adapter.validate_reading_line(FIXTURE, ENTRY, "unregistered").ok)
 	assert_false(_adapter.validate_reading_line(FIXTURE, "fixture.non_canon.caption_split", "fixture.caption.alpha").ok)
 	assert_eq(_ledger.snapshot(), before, "pure authored compatibility checks mutate no ledger state")
+
+func test_fixed_entry_preflight_rejects_extra_caption_and_early_return_despite_valid_line_lookups() -> void:
+	var invalid := "res://tests/fixtures/dialogic/non_canon_reading_programme_invalid.dtl"
+	var prose := "NON-CANON TEST ONLY: an internal caption publication."
+	var lines := [{"line_id": "fixture.caption.beta", "text": prose},
+		{"line_id": "fixture.caption.alpha", "text": prose}]
+	var before := _ledger.snapshot()
+	assert_true(_adapter.validate_reading_entry(FIXTURE, ENTRY, lines).ok)
+	for label: String in ["fixture.reading.extra_caption", "fixture.reading.extra_return"]:
+		for line: Dictionary in lines:
+			assert_true(_adapter.validate_reading_line(invalid, label, line.line_id, line.text).ok,
+				"each registered line exists, so individual lookups cannot prove the programme")
+		assert_eq(_adapter.validate_reading_entry(invalid, label, lines).code, &"reading_entry_mismatch")
+	assert_eq(_ledger.snapshot(), before)
+	assert_false(_adapter.has_active_playback(), "preflight never executes even the deliberately invalid programme")

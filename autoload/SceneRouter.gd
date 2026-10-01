@@ -59,6 +59,10 @@ func open_witnessed_backup_load(caption: Node) -> Dictionary:
 		return {"ok": false, "code": &"pause_backup_unavailable"}
 	return await _production_pause.open_witnessed_backup_load(caption)
 
+func open_witnessed_quick_load(caption: Node) -> Dictionary:
+	if not is_instance_valid(_production_pause): return {"ok": false, "code": &"pause_load_unavailable"}
+	return await _production_pause.open_witnessed_quick_load(caption)
+
 
 func can_open_witnessed_backup_save(caption: Node) -> bool:
 	return is_instance_valid(_production_pause) \

@@ -1,4 +1,6 @@
 extends Node
+signal load_cancelled
+signal load_finished(result: Dictionary)
 ## Quick input for the retained Pause source. The existing Backup port owns all
 ## permissions, prepared tokens, durability and restore compensation.
 const EDGE := preload("res://scripts/ui/desktop/QuickStatusEdge.gd")
@@ -114,6 +116,16 @@ func handle_input(event: InputEvent) -> bool:
 	_request(action)
 	return true
 
+## The live-reading F9 owner has already consumed its one physical activation
+## and acquired literal Pause custody. Reuse the same token and consent flow.
+func request_load() -> Dictionary:
+	if not _admitted(): return {"ok": false, "code": &"pause_load_unavailable"}
+	_request("load")
+	if not _pending_token.is_empty() and is_instance_valid(_confirmation):
+		return {"ok": true, "value": {"opened": true}}
+	return last_result.duplicate(true) if not last_result.get("ok", false) \
+		else {"ok": false, "code": &"pause_load_unavailable"}
+
 func _request(action: String) -> void:
 	_source = _source_snapshot()
 	var focus := _surface.get_viewport().gui_get_focus_owner()
@@ -159,6 +171,7 @@ func _commit(action: String) -> void:
 	var result: Dictionary = await _port.commit_action(token)
 	_in_operation = false
 	last_result = result.duplicate(true)
+	if action == "load": load_finished.emit(result.duplicate(true))
 	# Successful Load owns the destination tree. A compensated failure may own a
 	# new suspension handle, so publish its refusal only on that current source.
 	if action == "load" and result.get("ok", false): return
@@ -180,6 +193,7 @@ func _cancel_load() -> void:
 	_confirmation = null
 	_cancel_pending()
 	_restore_focus()
+	load_cancelled.emit()
 
 func _restore_focus() -> void:
 	_focus_restore_pending = false

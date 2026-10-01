@@ -96,6 +96,7 @@ var _loading := false
 var _witnessed_load := false
 var _requested_caption: Node
 var _history_caption: Node
+var _direct_quick_load := false
 var _quick_commands: Node
 
 func _init() -> void:
@@ -188,6 +189,31 @@ func open_witnessed_backup_load(caption: Node) -> Dictionary:
 		return _failure(&"pause_source_changed")
 	if not surface.open_backup_load(): return _failure(&"pause_backup_unavailable")
 	return {"ok": true, "value": {"opened": true}}
+
+func open_witnessed_quick_load(caption: Node) -> Dictionary:
+	if not can_open_witnessed_backup_load(caption): return _failure(&"pause_load_unavailable")
+	if _find_caption(get_tree().root) != caption: return _failure(&"pause_source_changed")
+	_requested_caption = caption
+	var opened: Dictionary = await request_pause()
+	_requested_caption = null
+	if not opened.get("ok", false): return opened
+	if not is_instance_valid(caption) or _caption != caption or not can_load_backup() \
+			or not is_instance_valid(_quick_commands): return _failure(&"pause_source_changed")
+	var requested: Dictionary = _quick_commands.request_load()
+	if not requested.get("ok", false):
+		# No consent was exposed. Release only this proven unchanged source.
+		var resumed: Dictionary = await request_continue()
+		return requested if resumed.get("ok", false) else resumed
+	_direct_quick_load = true
+	return requested
+
+func _direct_quick_cancelled() -> void:
+	if not _direct_quick_load: return
+	_direct_quick_load = false
+	await request_continue()
+
+func _direct_quick_finished(_result: Dictionary) -> void:
+	_direct_quick_load = false
 
 func can_open_witnessed_backup_save(caption: Node) -> bool:
 	return can_open_witnessed_backup_load(caption) \
@@ -283,6 +309,7 @@ func request_continue() -> Dictionary:
 		_handle.clear()
 		_captured_source.clear()
 		_history_caption = null
+		_direct_quick_load = false
 	surface.set_interactive(true)
 	return last_result
 
@@ -456,6 +483,8 @@ func _ensure_hosts() -> void:
 	_quick_commands = QUICK.new()
 	if _quick_commands.configure(surface, _backup_port, _services.input, _quick_input_admitted, _quick_source_snapshot):
 		add_child(_quick_commands)
+		_quick_commands.load_cancelled.connect(_direct_quick_cancelled)
+		_quick_commands.load_finished.connect(_direct_quick_finished)
 	else:
 		_quick_commands.free()
 		_quick_commands = null

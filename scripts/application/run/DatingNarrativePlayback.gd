@@ -1,7 +1,7 @@
 extends RefCounted
-## One transient semantic DTL phase owned by the retained Dating presentation port.
-## Durable recovery remains the physical owner's pre/post phase boundary. Restarting prose
-## never repeats the already committed board or consequence. No empty entry grants evidence.
+## Retained Dating phase and optional semantic reading-session custody. Unregistered
+## prose retains the physical owner's pre/post recovery boundary; an admitted Solo
+## session restores its saved line without repeating board or consequence authority.
 const JSON_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
 var _bridge: Object
@@ -38,13 +38,12 @@ func begin_presentation(command_to_present: Dictionary) -> Dictionary:
 		if reading.get("value", {}).get("restored", false):
 			_clear()
 			var checkpoint: Dictionary = reading.value.checkpoint
-			if checkpoint.reading_session.boundary == "line":
-				_command = command_to_present.duplicate(true)
-				_phase = checkpoint.stage
-				_entry_id = checkpoint.entry_id
-				_context = checkpoint.frozen_context.duplicate(true)
-				_receipt = reading.value.receipt.duplicate(true)
-				_status = "playing"
+			_command = command_to_present.duplicate(true)
+			_phase = checkpoint.stage
+			_entry_id = checkpoint.entry_id
+			_context = checkpoint.frozen_context.duplicate(true)
+			_receipt = reading.value.receipt.duplicate(true)
+			_status = "playing" if checkpoint.reading_session.boundary == "line" else "completed"
 			return _ok()
 	if not _command.is_empty() and _bridge.is_entry_playback_active(
 			str(_receipt.get("playback_token", "")), _entry_id):
