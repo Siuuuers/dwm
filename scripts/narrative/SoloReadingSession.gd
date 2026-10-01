@@ -127,7 +127,7 @@ func capture(frontier: Dictionary) -> Dictionary:
 
 ## Validates the full fixed-prose sequence before a fresh candidate is installed.
 func validate_saved(saved: Dictionary, entry_id: String) -> Dictionary:
-	if saved.get("schema_version") == 2:
+	if typeof(saved.get("schema_version")) == TYPE_INT and saved.schema_version == 2:
 		var operation := TRAVERSAL.validate(saved, entry_id)
 		if not operation.ok: return operation
 		# Admit both ends, including the source record's not-yet-traversed plan,

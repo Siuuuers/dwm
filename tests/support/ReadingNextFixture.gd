@@ -4,6 +4,7 @@ const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 const RUN_CONTEXT := preload("res://scripts/narrative/FrozenRunContext.gd")
 const RESTORE := preload("res://scripts/application/restore/NarrativeRestoreParticipant.gd")
 const OPERATION := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
+const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 const ENTRY := "dating.solo.priscilla.day1.pre_challenge"
 
 static func caption(suffix: String, publication: int) -> Dictionary:
@@ -13,7 +14,8 @@ static func caption(suffix: String, publication: int) -> Dictionary:
 		"presentation_signature": {"content_revision": "fixture-v1", "variant_id": "fixture.next.beat." + suffix}}}
 
 static func snapshot() -> Dictionary:
-	var result: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/saves/v7_desktop_prepared.json"))
+	var result: Dictionary = STRICT_JSON.parse_object(FileAccess.get_file_as_string(
+		"res://tests/fixtures/saves/v7_desktop_prepared.json")).value
 	var fields := {"entry_id": ENTRY, "entry_role": "solo_pre_challenge", "day": 1,
 		"friend_id": "priscilla", "tier": "friend", "tone": "sweet", "attitude": "",
 		"run_id": result.run_id, "branch_id": result.lifecycle.branch_id,

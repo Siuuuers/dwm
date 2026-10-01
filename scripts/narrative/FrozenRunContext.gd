@@ -64,7 +64,8 @@ static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictio
 			or not snapshot.get("contacts") is Dictionary or not snapshot.gameplay.get("route_context") is Dictionary:
 		return _fail(&"reading_saved_run_required")
 	var reading: Variant = checkpoint.get("reading_session")
-	if reading is Dictionary and reading.get("schema_version") == 2:
+	if reading is Dictionary and typeof(reading.get("schema_version")) == TYPE_INT \
+			and reading.schema_version == 2:
 		var operation := READING_NEXT.validate(reading, checkpoint.entry_id)
 		if not operation.ok: return operation
 		reading = READING_NEXT.without_operation(reading)

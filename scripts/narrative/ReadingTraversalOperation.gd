@@ -51,7 +51,7 @@ static func validate(reading: Dictionary, entry_id: String) -> Dictionary:
 
 static func without_operation(reading: Dictionary) -> Dictionary:
 	var result := reading.duplicate(true)
-	if result.get("schema_version") == 2:
+	if typeof(result.get("schema_version")) == TYPE_INT and result.schema_version == 2:
 		result["schema_version"] = 1
 		result.erase("next_operation")
 	return result
