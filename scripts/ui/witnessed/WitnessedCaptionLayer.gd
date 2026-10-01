@@ -737,7 +737,7 @@ func _retry_reading_command() -> void:
 	var retained := _reading_recovery.duplicate(true)
 	_reading_retry_in_progress = true
 	var result: Dictionary = await _execute_reading_command(retained)
-	var still_current := _reading_request_matches(retained) \
+	var still_current: bool = _reading_request_matches(retained) \
 		or (result.get("fatal", false) and _reading_request_owner_matches(retained))
 	_reading_retry_in_progress = false
 	# Profile publication can synchronously replace the whole scene/source.
