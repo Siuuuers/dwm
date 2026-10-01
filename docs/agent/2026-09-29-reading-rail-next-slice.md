@@ -67,6 +67,81 @@ Use already-authorized noncanonical dialogue for cloud verification. Production 
 
 Existing Solo Dating selectors include friend/day/phase, tier, tone, attitude and due echoes. Post-challenge adds board result, perfect reasons and relationship outcome. Current residue is explicitly null. Causal run, branch, attempt and receipt IDs bind ownership; they must not automatically create distinct prose variants. English implementation does not depend on the deferred translated-file adapter.
 
+## One-shot Next readiness audit — 2 October 2026
+
+Read-only source review at `803cd6bd0eb711ec29035aad654f4ebdb6c6fe66`, with
+independent runtime/ownership and cloud-test reviews. The live PR was draft,
+open and unmerged; the actual master ref was
+`6a5ddf1564870b43aa9140cad7e0e5b12e43f399`. The committed Beads export contains
+23 unfinished records. No Beads executable or live Dolt query was available;
+this count is not a claim of Dolt synchronization. This audit executes no Godot
+or PowerShell and supplies no new runtime acceptance. Run102 remains the last
+accepted source-bound gate.
+
+The approved scene amendment sections 12.5 and 22.4 require one exclusive
+traversal with a durable destination or exact recovery state. Next therefore
+needs more than a button wired to repeated Skip steps. These are inspected
+implementation gaps, not contradictory player-design decisions:
+
+- `SaveManagerNarrativeCheckpointPort.commit_current_boundary()` passes
+  `STAGE_DISK_WRITE` (`kind: none`, `reason: stage`) to the real checkpoint port.
+  It updates the journal without persisting an autosave. Its existing success
+  receipt alone cannot prove the required cross-process Next recovery.
+- `SaveManagerCheckpointPort.prepare()` already admits an automatic autosave
+  through the current storage owner. Its `capture()` captures journal state;
+  the prepared candidate separately carries `storage_backup`. Existing
+  `ApplicationBootstrap._commit_presentation_checkpoint()` demonstrates the
+  combined journal/storage rollback envelope. A bare journal backup does not
+  restore disk after an attempted write.
+- That physical-presentation checkpoint deliberately clears
+  `dialogic_checkpoint`. A proposed Next operation stored only inside
+  `reading_session` would not, by itself, survive the board handoff. Trace and
+  integrate the source, destination, History and operation receipt through the
+  existing physical save/restore boundary before choosing its persisted shape.
+  Reuse current Run/save owners; do not create a second store.
+- `DialogicRuntimeAdapter.advance_one_event()` executes real native callbacks.
+  `text_started` publishes the ledger and the caption host can acknowledge a
+  visible witness and queue speech. A matte alone does not suppress these
+  effects. Traversed witnessed captions need an admitted silent path; the first
+  unseen destination needs ordinary visible publication. Reveal inside native
+  `text_started` is unsafe because the event has not yet installed its
+  `text_finished` await; preserve deferred, token-bound completion.
+- `classify_next_event()` groups Return, End and Jump as `scene_transition`.
+  That classification is not proof of lawful completion. The fixed-catalogue
+  `validate_reading_entry()` proves its complete ordered captions and Return;
+  use that specific admission and retain the ordinary natural-completion chain
+  through `DatingNarrativePlayback`, `DatingScene`, `DatingPresentationPort`
+  and `DatingPhysicalOwner`. Do not bypass the physical board/reward owner.
+- `SoloReadingSession.current_caption_variant()` admits only the current
+  published tail. Future-variant checks need pure lookup against the admitted
+  frozen catalogue/entry; do not manufacture a publication to query membership.
+  Keep the already-retained pre-publication witnessed baseline.
+
+**Next implementation order (engineering proposal, not new design authority):**
+first settle the exact frozen traversal plan and its admission/recovery through
+the existing durable checkpoint and physical boundary; then connect silent
+traversal, ordinary unseen publication and the existing completion owner; finally
+enable the rail using its current input, Auto-off, Skip and recovery custody.
+Use explicit version admission if the persisted contract changes. The unshipped
+policy already delegates obsolete development-format retirement; it does not
+remove supported-format History or recovery requirements.
+
+**Focused proof:** extend the registered `reading_delivery` owner tests for
+current-partial unseen stop, already-witnessed traversal, changed revision,
+Auto-off refusal, stale/replaced sources and exact retries. Add storage/restore
+tests for source/destination write refusal, combined rollback, indeterminate
+recovery and fresh-process source/target reconstruction, including the physical
+handoff. Extend the existing five-process Solo journey with a distinct Next
+process and retained receipt; keep the original WRITE/READ seal and all earlier
+scenario receipts intact. Inspect caption/speech publication events and ordered
+History as well as screenshots. Choose affected persistence, Settings, Dating,
+checkpoint and public-surface suites from the final diff; run the UI literal
+audit with rendered evidence, then the required broad gate on stable source.
+
+No new owner answer is required to begin this bounded fixture implementation.
+Additional production wording/staging selectors remain the separate authored
+catalogue question below. No task is closed by this readiness audit.
+
 ## Unshipped development-save policy
 
 The [owner decision of 29 September 2026](../design/2026-09-29-unshipped-development-save-policy.md) confirms that the game is unshipped and removes mandatory support for obsolete development Run/Profile formats. A successor can require a clean start, with an explicit version/refusal boundary; migration, old readers and legacy-gap UI are optional engineering choices. Do not synthesize missing captions, receipts or achievements.

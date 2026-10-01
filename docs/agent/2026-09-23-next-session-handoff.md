@@ -26,6 +26,10 @@ receipts retain their existing authority.
    Implement one-shot Next in the authorized noncanonical Solo fixture through
    existing transport, Profile and physical completion owners. Production
    registration and additional authored selectors remain separate work.
+   The [readiness audit](2026-09-29-reading-rail-next-slice.md#one-shot-next-readiness-audit--2-october-2026)
+   identifies the required durable checkpoint/physical-handoff integration and
+   silent-presentation risks. It is source review, not implemented Next or new
+   cloud acceptance; no additional owner decision was needed for this fixture.
 3. Reuse the accepted ledger, immutable frames, Pause/Save/Load and witness paths.
    In particular, preserve the pre-publication witnessed baseline: recording a
    newly visible variant must not let that same traversal treat it as previously
