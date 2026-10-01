@@ -1,3 +1,5 @@
+> **2026-10-01 workspace consolidation:** this complete retained audition has moved; its existing status, local approvals, proposed conduct and open narrative holds are unchanged. Older workspace-retirement instructions are superseded only organizationally by the completed migration. Read the [current working entry](README.md) before continuing a newer candidate. No scene is approved by relocation.
+
 # Room 2.17 Group Adaptation Audition Record
 
 **Date:** 2026-08-30 \
@@ -30,19 +32,19 @@ DTL, stable event identity, implementation requirement, or code authority.
 
 Current authority remains:
 
-1. the [August 7 Seven-Day Flow](../design/2026-08-07-seven-day-dialogic-flow-design.md)
+1. the [August 7 Seven-Day Flow](../../docs/design/2026-08-07-seven-day-dialogic-flow-design.md)
    for invitation, attendance, pair, Hospital, board, and ending mechanics;
-2. the [Core Story Bible](../../story/01-core-story-bible.md) for narrative
+2. the [Core Story Bible](../01-core-story-bible.md) for narrative
    canon, character truth, and audience-facing meaning;
-3. the [Causal Matrix](../../story/07-seven-day-causal-matrix.md) for approved
+3. the [Causal Matrix](../07-seven-day-causal-matrix.md) for approved
    placement and compact causal obligations;
-4. the [Scene Beatbook Room 2.17 core](../../story/06-seven-day-scene-beatbook.md#room-217--approved-causal-core)
+4. the [Scene Beatbook Room 2.17 core](../06-seven-day-scene-beatbook.md#room-217--approved-causal-core)
    for the sole approved-but-unplaced detailed exception;
-5. the [Dialogue-Led Perceptual reconciliation](../superpowers/specs/2026-08-29-dialogue-led-perceptual-canon-reconciliation-design.md)
+5. the [Dialogue-Led Perceptual reconciliation](../../docs/superpowers/specs/2026-08-29-dialogue-led-perceptual-canon-reconciliation-design.md)
    for anchor and lawful-knowledge boundaries; and
 6. this file only as noncanonical, owner-approved audition memory.
 
-The approved [Supportz Audience Priority and Three-Truth amendment](../design/2026-08-30-supportz-audience-priority-three-truth-mechanism-amendment.md)
+The approved [Supportz Audience Priority and Three-Truth amendment](../../docs/design/2026-08-30-supportz-audience-priority-three-truth-mechanism-amendment.md)
 owns the separately approved cross-day mechanism. It does not promote this
 audition's placement, Group adaptation, or dialogue.
 
@@ -232,7 +234,7 @@ Angela's result does not select the more beautiful, pedagogically preferable,
 or emotionally meaningful order.
 
 The physical and institutional basis for this bounded choice is recorded in the
-[noncanonical operator-pass research note](../research/2026-08-30-room-217-operator-run-sheet-and-cue-pass-plausibility.md).
+[noncanonical operator-pass research note](../../docs/research/2026-08-30-room-217-operator-run-sheet-and-cue-pass-plausibility.md).
 
 **REACTION TEST — owner-approved physical rhythm; illustrative prose and
 question, not final DTL. Only `Either` and Priscilla's reply remain the approved
@@ -619,3 +621,5 @@ asymmetric three-person geometry. It is to discover the distinct Perfect,
 Solved, and Exploded acts plus the ordinary/Hospital Missed adaptations without
 changing pair truth or mechanically copying the private chair/folder/`will`
 rhythm.
+
+<!-- END RELOCATED ORIGINAL 73dc72fd510930e84d1ba93474bb09b6afd147cf -->

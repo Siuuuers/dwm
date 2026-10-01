@@ -1,3 +1,5 @@
+> **2026-10-01 workspace consolidation:** this complete retained audition has moved; its existing status, local approvals, proposed conduct and open narrative holds are unchanged. Older workspace-retirement instructions are superseded only organizationally by the completed migration. Read the [current working entry](../README.md) before continuing a newer candidate. No scene is approved by relocation.
+
 # Priscilla–Lavinia Day 6 Sweet–Love: The Interrupted Hearing
 
 **Status:** OWNER-APPROVED AUDITION DESIGN — retained as the leading
@@ -26,8 +28,8 @@ not make the two forms interchangeable.
 
 - [Day 2 / Day 6 Working Event Record](2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md)
 - [Day 2 Four-Form Causal Spine](2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md)
-- [Narrative Style Manual](../../story/08-narrative-style-manual.md)
-- [Relationship Progression Runtime Behavior Record](../design/2026-09-02-relationship-progression-runtime-behavior-record.md)
+- [Narrative Style Manual](../../../08-narrative-style-manual.md)
+- [Relationship Progression Runtime Behavior Record](../../../../docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md)
 
 ## 1. Decision boundary
 
@@ -507,3 +509,116 @@ Before any canon promotion, compare the complete date against:
 
 Stop the visible passage while conversation and music continue. Do not invent a
 farewell, overnight outcome or future arrangement merely to close the excerpt.
+
+<!-- END RELOCATED ORIGINAL 6b3fcaae5a6ef7d23bcac7e78b3490abb15ae72d -->
+
+## Later voice-test direction
+
+The owner challenged dialogue that merely fills time under the listening mechanism. The curtain-call experiment lets Priscilla move from correction into furnishing Lavinia’s absurd idea. It remains a replaceable conversation, not an actual past performance. The hearing’s precise replay and uninterrupted-speech obligations remain those of the retained record above.
+
+## Assembled curtain-call test
+
+Retain the complete enacted interval; the dance is a competing encounter, not something to append to this one. Audio length, door geometry and exact wording remain untested.
+
+[Source passage](https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L6400-L6630). **REACTION TEST / UNSELECTED**; retained for comparison, not a new event or approval.
+
+<details>
+<summary>Read the retained passage</summary>
+
+<!-- BEGIN CURATED curated-13 -->
+*The arrival cue and door arrangement are provisional physical staging. The completed-knock action is retained from the existing audition; it does not imply a key, residence, or standing access.*
+
+They sit with their tea. Lavinia’s phone is beside her cup, within easy reach.
+
+“It smells like toast,” Lavinia says.
+
+She drinks. The song continues.
+
+After a while, Priscilla says, “More like the edge of it.”
+
+“The bit that’s almost burnt.”
+
+Lavinia takes another sip.
+
+They leave the subject there.
+
+When the track changes, Priscilla looks toward the phone.
+
+“Could you put that one on again? We talked through some of it.”
+
+Lavinia restarts it.
+
+They listen.
+
+When it finishes, Priscilla says, “Again?”
+
+Lavinia returns it to the beginning.
+
+*The retained pair challenge belongs after this restart. In the visible-clear continuation, an authored time cut returns us to a different track and a conversation already underway. Board duration does not determine the fictional elapsed time.*
+
+“I would bring a chair out for the curtain call,” Lavinia says.
+
+“They’d think you were starting another piece.”
+
+“I’d sit down and look at them.”
+
+“Then they’d sit down.”
+
+“They already are. That’s the problem.”
+
+Priscilla considers this.
+
+“You could wave.”
+
+“They’d clap again.”
+
+“Probably.”
+
+Lavinia puts down her cup.
+
+“I preferred the first time we heard that song.”
+
+“We talked through part of it.”
+
+“I know. I preferred it that way.”
+
+Priscilla returns to the imaginary chair.
+
+“You’d have to bring it out before they started applauding, or they’d think the chair was another entrance.”
+
+While she speaks, Lavinia returns the earlier track to the passage their first conversation covered. Priscilla finishes her sentence without stopping.
+
+“I could leave it at the side throughout,” Lavinia says.
+
+“They’d wonder when you were going to use it.”
+
+“Then they’d have something to look forward to.”
+
+“You’d still have to bring it to the middle.”
+
+“Not necessarily.”
+
+They consider where the chair could stand without becoming part of every other movement. Priscilla rejects a position Lavinia suggests; Lavinia moves it elsewhere in their imaginary arrangement.
+
+The music continues beneath them.
+
+“A stool would be easier,” Lavinia says.
+
+“You wanted to sit there for a while.”
+
+“I could lean forward.”
+
+“I’d want a back.”
+
+“And somewhere to put my arms.”
+
+The conversation remains unfinished.
+
+*The visible excerpt ends only after their continuing exchange has covered the returned musical passage and carried on beyond it. The exact musical span and rendered duration still need testing. The excerpt does not establish when the visit ends.*
+<!-- END CURATED curated-13 -->
+
+</details>
+
+## Sources and curation
+
+The pre-existing coherent hearing record is preserved. Only its added raw response and secondary retelling have been reduced to their distinct scene and useful context. Exact surrounding exchanges and former commentary remain in the [pre-curation record](https://github.com/Siuuuers/dwm/blob/3b553e1a3d986fa0de3be4a529f895cba4d9acca/story/relationships/priscilla-lavinia/auditions/2026-09-07-priscilla-lavinia-day-6-sweet-love-interrupted-hearing-audition.md) and the [original-source map](../../../maintenance/our-pl-upload-recovery.md). The working document keeps what helps a writing decision, not a complete transcript. Older missing-history and narrative-selection holds remain open.

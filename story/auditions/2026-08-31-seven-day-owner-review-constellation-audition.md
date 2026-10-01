@@ -1,3 +1,5 @@
+> **2026-10-01 workspace consolidation:** this complete retained audition has moved; its existing status, local approvals, proposed conduct and open narrative holds are unchanged. Older workspace-retirement instructions are superseded only organizationally by the completed migration. Read the [current working entry](README.md) before continuing a newer candidate. No scene is approved by relocation.
+
 # Seven-Day Owner-Review Constellation Audition
 
 **Date:** 2026-08-31  
@@ -24,15 +26,15 @@ dialogue. It keeps three kinds of material visibly separate:
    below for owner review. These remain noncanonical until explicit approval and
    promotion through the Causal Matrix.
 
-The governing authorities are the [Core Story Bible](../../story/01-core-story-bible.md),
-[Character & Relationship Handbook](../../story/02-character-relationship-handbook.md),
-[Public Project Profile](../../story/04-public-project-profile.md),
-[July Canon Amendments](../../story/05-canon-amendments-2026-07-19.md),
-[Seven-Day Scene Beatbook](../../story/06-seven-day-scene-beatbook.md),
-[Seven-Day Causal Matrix](../../story/07-seven-day-causal-matrix.md), the
-[August 7 Dialogic Flow](../design/2026-08-07-seven-day-dialogic-flow-design.md),
-and the [Supportz Three-Truth Amendment](../design/2026-08-30-supportz-audience-priority-three-truth-mechanism-amendment.md).
-The [physical and institutional plausibility audit](../research/2026-08-31-seven-day-candidate-physical-institutional-plausibility.md)
+The governing authorities are the [Core Story Bible](../01-core-story-bible.md),
+[Character & Relationship Handbook](../02-character-relationship-handbook.md),
+[Public Project Profile](../04-public-project-profile.md),
+[July Canon Amendments](../05-canon-amendments-2026-07-19.md),
+[Seven-Day Scene Beatbook](../06-seven-day-scene-beatbook.md),
+[Seven-Day Causal Matrix](../07-seven-day-causal-matrix.md), the
+[August 7 Dialogic Flow](../../docs/design/2026-08-07-seven-day-dialogic-flow-design.md),
+and the [Supportz Three-Truth Amendment](../../docs/design/2026-08-30-supportz-audience-priority-three-truth-mechanism-amendment.md).
+The [physical and institutional plausibility audit](../../docs/research/2026-08-31-seven-day-candidate-physical-institutional-plausibility.md)
 is noncanonical research support, not story authority.
 
 ## 2. Recommended Week at a Glance
@@ -1195,3 +1197,5 @@ transaction:
 
 Until that approval, this file remains a coherent noncanonical recommendation.
 It is evidence that the week can work, not authority that it already does.
+
+<!-- END RELOCATED ORIGINAL 22bf6ad866163e2ded66a6120d0a4fd494978e17 -->

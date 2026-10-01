@@ -63,7 +63,7 @@ superseded. All promised branches remain in scope with detailed dialogue deferre
 
 ## Noncanonical working material
 
-- [Story Auditions](../story-auditions/README.md) preserve owner-approved active
+- [Story Auditions](../../story/auditions/README.md) preserve owner-approved active
   candidates for later whole-constellation review. Their folder location and
   owner-approved status grant no canon, placement, mechanical, or implementation
   authority.

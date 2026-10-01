@@ -1,0 +1,386 @@
+{
+  "schema_version": 5,
+  "purpose": "Selective working-document curation, not a permanent transcript-replication contract",
+  "pre_curation_commit": "3b553e1a3d986fa0de3be4a529f895cba4d9acca",
+  "pre_curation_manifest": "https://github.com/Siuuuers/dwm/blob/3b553e1a3d986fa0de3be4a529f895cba4d9acca/story/maintenance/source-migration.json",
+  "raw_archive_commit": "62fd8bf3966e4df7e03bf52952c6905284845284",
+  "retained_archive_branch": "archive/pl-narrative-sources-2026-10-01",
+  "source_directory_retired": true,
+  "narrative_status_changed": false,
+  "runtime_changed": false,
+  "selected_excerpts": [
+    {
+      "id": "curated-01",
+      "source_unit": "upload-e03-assistant-1",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L583-L853",
+      "source_unit_sha256": "8ab0633854da5b7964fa545cb7c8d0305a866d86f20b555f268c796eda722edb",
+      "destination": "story/relationships/priscilla-lavinia/intimacy-and-ordinary-company.md",
+      "sha256": "de641f433918f4e70ae137e482c20d9e89a4ca3f3104bb3a88055d66b264d62d",
+      "selection_reason": "Keep their shared ridiculous patience, not a clue or a permanent film preference.",
+      "start_text": "### A. Ordinary company that does not need to prove anything",
+      "end_text": "The useful part is not a hidden symbol."
+    },
+    {
+      "id": "curated-02",
+      "source_unit": "upload-e03-assistant-1",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L583-L853",
+      "source_unit_sha256": "8ab0633854da5b7964fa545cb7c8d0305a866d86f20b555f268c796eda722edb",
+      "destination": "story/relationships/priscilla-lavinia/intimacy-and-ordinary-company.md",
+      "sha256": "fb6fcc39102466373ec842d72695265a152fa5d718378c81e50c0629f0b0d2c6",
+      "selection_reason": "This lets Lavinia initiate affection and continue the conversation instead of making contact its climax.",
+      "start_text": "### B. Lavinia gives affection without disguising it",
+      "end_text": "Here Lavinia is neither bait nor reward."
+    },
+    {
+      "id": "curated-03",
+      "source_unit": "upload-e04-assistant-1",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L867-L1102",
+      "source_unit_sha256": "87ae4212aac347245629b35ddc6d21043e042ed495d72f4317804285c4f5ba5c",
+      "destination": "story/relationships/priscilla-lavinia/intimacy-and-ordinary-company.md",
+      "sha256": "642a57542e94a2a7ee27a331615a4cb00ca035957194531230cbd496dce2084b",
+      "selection_reason": "Lavinia’s interest extends beyond a useful service or a perfect critique.",
+      "start_text": "> “I don’t know whether this is good anymore,”",
+      "end_text": "The point is not that Lavinia supplies"
+    },
+    {
+      "id": "curated-04",
+      "source_unit": "upload-e06-assistant-1",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L1372-L1669",
+      "source_unit_sha256": "901b0e9d6364604c63668ed19a4b2d070afda535d217d9272a52ed112f002820",
+      "destination": "story/relationships/priscilla-lavinia/intimacy-and-ordinary-company.md",
+      "sha256": "4618a2d945ea018a17784388c836834c1eb36b81ffafe3316bac8c39d16306c2",
+      "selection_reason": "This is the unselected pre-England proposal, retained because its ordinary continuation matters. It does not establish a first kiss.",
+      "start_text": "> Lavinia had asked about the book",
+      "end_text": "What I like here is"
+    },
+    {
+      "id": "curated-05",
+      "source_unit": "upload-e06-assistant-1",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L1372-L1669",
+      "source_unit_sha256": "901b0e9d6364604c63668ed19a4b2d070afda535d217d9272a52ed112f002820",
+      "destination": "story/relationships/priscilla-lavinia/intimacy-and-ordinary-company.md",
+      "sha256": "218f22e6bd7c33fbe286a342a355f61d41bebc780fe305a98fffb35e8549dd0c",
+      "selection_reason": "Retain the short reciprocal answer and pleasant awkwardness; the event and its timing remain unselected.",
+      "start_text": "> “I want us to be together,”",
+      "end_text": "The meaningful event is"
+    },
+    {
+      "id": "curated-06",
+      "source_unit": "upload-e14-assistant-1",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L3267-L3605",
+      "source_unit_sha256": "4c37879454f0bd55ed57d81ee5e82715d4a87cf3d2b6967b6a66c32d8c5ead2c",
+      "destination": "story/relationships/priscilla-lavinia/auditions/day-2-portrait-development.md",
+      "sha256": "ccc5896d6a3fa1637dc5feec53e95f5b3eff23a1d6c05874372c5ea4d4f381c0",
+      "selection_reason": "Its independent comic subject and the resumed telling test ordinary company after an explicit refusal. Retain the complete alternate action, not all of its repeated analysis.",
+      "start_text": "Priscilla is explaining the book she is reading.",
+      "end_text": "## 3. What this version is trying to accomplish"
+    },
+    {
+      "id": "curated-07",
+      "source_unit": "upload-e10-assistant-1",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L2424-L2679",
+      "source_unit_sha256": "01c3ac56f08761cdd8364a1e13fba7933f074a3debd386e91f59aa0ccbde1e20",
+      "destination": "story/relationships/priscilla-lavinia/auditions/day-2-portrait-development.md",
+      "sha256": "bcc8e88c3405b71f2acbe078bff9ff5501f70ce57e6be174092ba3bcd120ec75",
+      "selection_reason": "This tests lighter situated observation. It is not a replacement already approved for the current portrait.",
+      "start_text": "> Priscilla’s fingers are still around the stem",
+      "end_text": "That is enough for a first test."
+    },
+    {
+      "id": "curated-08",
+      "source_unit": "upload-e23-assistant-1",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L5314-L5661",
+      "source_unit_sha256": "41a8b968dab40d41b27ec697243813f7a33d4c8ace0975f8e70742eff3ccb2e0",
+      "destination": "story/relationships/priscilla-lavinia/auditions/day-2-sweet-love-portrait.md",
+      "sha256": "3e191462bcb2fc3bcae6201c9dd06be57a956f1a6e0297d123315bdefa3170f0",
+      "selection_reason": "Preserve the whole visit for comparison. The following coat and fictional-sitter revisions are later proposals, not silently applied edits to this passage.",
+      "start_text": "Priscilla is reading when Lavinia reaches the table.",
+      "end_text": "## Where the desire becomes more revealing"
+    },
+    {
+      "id": "curated-09",
+      "source_unit": "upload-e25-assistant-1",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L5974-L6184",
+      "source_unit_sha256": "ecb7670135737c3974323b307aa3405e1feee0368aabf1a26700a130964ab093",
+      "destination": "story/relationships/priscilla-lavinia/auditions/day-2-sweet-love-portrait.md",
+      "sha256": "63bd331102fbf0c6f6dc6fa6cafcc5330df2732e64c67a00624f8c5ba9dfc2d6",
+      "selection_reason": "Priscilla starts the subject. Lavinia’s questions become curiosity about what Priscilla wanted, while a disagreement in taste can remain small.",
+      "start_text": "> **Priscilla:** I nearly bought a coat.",
+      "end_text": "There is no necessary emotional revelation at the end."
+    },
+    {
+      "id": "curated-10",
+      "source_unit": "upload-e26-assistant-1",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L6206-L6362",
+      "source_unit_sha256": "bd925d9a96b6f8be9f0939dd1b4539c679a8337e87a172267fa1da72eee3984c",
+      "destination": "story/relationships/priscilla-lavinia/auditions/day-2-sweet-love-portrait.md",
+      "sha256": "6d7467622baa7481be6c6e61367953e410381df1e01c4e0a96ffd839224ee4c2",
+      "selection_reason": "This changes the invented novel, not P–L’s established history. It preserves the house joke without the duration explanation and leaves the concealed-completion discovery work to do.",
+      "start_text": "> **Priscilla:** She has a friend staying with her.",
+      "end_text": "The later reply still has its uncomfortable force."
+    },
+    {
+      "id": "curated-11",
+      "source_unit": "upload-e46-assistant-1",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L9550-L9738",
+      "source_unit_sha256": "0611bee3eb86ed1a4dc224604ba2c8b9601ed5489036d779b240f8e2ee6c9072",
+      "destination": "story/relationships/priscilla-lavinia/auditions/day-6-dark-notebook.md",
+      "sha256": "4c0b0b83283d7c482ba81bdb2d85d6e9e0fa66a896466f859de18d016af1f156",
+      "selection_reason": "The owner found this too short and clean beside Sweet. Keep its actual departure as a materially different possibility, not the current conclusion or an automatic moral punishment.",
+      "start_text": "Priscilla takes her bag from beside the chair.",
+      "end_text": "## 1. What Priscilla is trying to obtain"
+    },
+    {
+      "id": "curated-12",
+      "source_unit": "upload-e48-assistant-1",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L10066-L10330",
+      "source_unit_sha256": "1e5bebdfdb922c0d1b6d4072fc069dee45ed443ed164b57779946d4e0fbf073a",
+      "destination": "story/relationships/priscilla-lavinia/auditions/day-6-dark-notebook.md",
+      "sha256": "c2001b995fae9c4f1ff44d0abce097a52773bf65aaaeff6458225aefd03115e1",
+      "selection_reason": "The specific moral claim is knowingly false in this proposal, while the desire is genuine. The owner objected to the expository interrogation; preservation does not make the lie fixed conduct.",
+      "start_text": "*Writer-side distinction for this audition:",
+      "end_text": "## 5. What makes this darker than an ordinary reconciliation"
+    },
+    {
+      "id": "curated-13",
+      "source_unit": "upload-e27-assistant-1",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L6400-L6630",
+      "source_unit_sha256": "2252e656734ffc7e101b4a4ff25957762b595d9a968f3618e6b17f9d9d1e18a0",
+      "destination": "story/relationships/priscilla-lavinia/auditions/2026-09-07-priscilla-lavinia-day-6-sweet-love-interrupted-hearing-audition.md",
+      "sha256": "128f1f66685d26a5de03b2f4eccaf41dcc5fdfe5b8b2c926f41285257fa576b5",
+      "selection_reason": "Retain the complete enacted interval; the dance is a competing encounter, not something to append to this one. Audio length, door geometry and exact wording remain untested.",
+      "start_text": "*The arrival cue and door arrangement",
+      "end_text": "## 4. What I would preserve in this version"
+    }
+  ],
+  "source_file_dispositions": [
+    {
+      "path": "docs/story-auditions/2026-08-30-angela-lavinia-day-2-focus-audition-design.md",
+      "git_blob": "97ac51f336322c247e59af2db734b9e1983d5116",
+      "sha256": "701f9feac94f0b594673910a26d47a4eea8c3415d52f95236bb98d89d1b1e0b3",
+      "disposition": "Relocated whole; live links rebased",
+      "current_destination": "story/auditions/2026-08-30-angela-lavinia-day-2-focus-audition-design.md"
+    },
+    {
+      "path": "docs/story-auditions/2026-08-30-room-217-group-adaptation-audition-record.md",
+      "git_blob": "73dc72fd510930e84d1ba93474bb09b6afd147cf",
+      "sha256": "6f1b6e5cce55fad9370c3d6621963175aba608557eb067de2bcbb6fabe3235b4",
+      "disposition": "Relocated whole; live links rebased",
+      "current_destination": "story/auditions/2026-08-30-room-217-group-adaptation-audition-record.md"
+    },
+    {
+      "path": "docs/story-auditions/2026-08-31-seven-day-owner-review-constellation-audition.md",
+      "git_blob": "22bf6ad866163e2ded66a6120d0a4fd494978e17",
+      "sha256": "5b3a6e3eb8036e308fab315e072d81c86e18abac6e1774d48e2a4df595c9b945",
+      "disposition": "Relocated whole; live links rebased",
+      "current_destination": "story/auditions/2026-08-31-seven-day-owner-review-constellation-audition.md"
+    },
+    {
+      "path": "docs/story-auditions/2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md",
+      "git_blob": "9753c076331d4dc515c5d6f89b568fe1e4deea35",
+      "sha256": "fe6be6f65f470c38dc7eb501b61e83a2799165aee38c303b665d75d7035e35cc",
+      "disposition": "Relocated whole; live links rebased",
+      "current_destination": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md"
+    },
+    {
+      "path": "docs/story-auditions/2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md",
+      "git_blob": "2df1739d29fa0b6ebb4aa195d099e06c49fdcea9",
+      "sha256": "b19761cfb29dbaa1fecc8e0f7e7ea0549291733a5f05cbaa472697e07dff9080",
+      "disposition": "Relocated whole; live links rebased",
+      "current_destination": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md"
+    },
+    {
+      "path": "docs/story-auditions/2026-09-06-priscilla-lavinia-day-6-sweet-imagined-refusal-audition.md",
+      "git_blob": "8ba9e7c2ca99b9dfc0c4925c94397a34bf2102ba",
+      "sha256": "a4becfb8b51dddc14f6f115d9e8482310fba24f684e775628f2f18f15a7045da",
+      "disposition": "Relocated whole; live links rebased",
+      "current_destination": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-6-sweet-imagined-refusal-audition.md"
+    },
+    {
+      "path": "docs/story-auditions/2026-09-07-priscilla-lavinia-day-6-sweet-love-interrupted-hearing-audition.md",
+      "git_blob": "6b3fcaae5a6ef7d23bcac7e78b3490abb15ae72d",
+      "sha256": "218ec45345e75612ab85117c799a94187fecb75c5313870eb97d38cf8133c07e",
+      "disposition": "Relocated whole; live links rebased",
+      "current_destination": "story/relationships/priscilla-lavinia/auditions/2026-09-07-priscilla-lavinia-day-6-sweet-love-interrupted-hearing-audition.md"
+    },
+    {
+      "path": "docs/story-auditions/2026-09-12-day-1-priscilla-lavinia-retrospective-reflex-audition.md",
+      "git_blob": "023d7be0cdd18762c30070e4d5162760b57417d0",
+      "sha256": "fdf4a3e262665012948b1c5891fd5f49a391bbebc5a6ede36d4e8ab84ab3c963",
+      "disposition": "Relocated whole; live links rebased",
+      "current_destination": "story/relationships/priscilla-lavinia/auditions/2026-09-12-day-1-priscilla-lavinia-retrospective-reflex-audition.md"
+    },
+    {
+      "path": "docs/story-auditions/2026-09-26-priscilla-lavinia-day-2-portrait-dark-love-read-through.md",
+      "git_blob": "013ef7fc625652ff74d440035a231aa22ed24dfd",
+      "sha256": "c31f3053cddbd386986c1f3bd7ebcb2a3978cade011851a7d918dbca49caff64",
+      "disposition": "Relocated whole; live links rebased",
+      "current_destination": "story/relationships/priscilla-lavinia/auditions/2026-09-26-priscilla-lavinia-day-2-portrait-dark-love-read-through.md"
+    },
+    {
+      "path": "docs/story-auditions/2026-09-26-priscilla-lavinia-portrait-and-intimacy-working-record.md",
+      "git_blob": "2175108321c5a8aea02b86143ab1a7a15f4642b6",
+      "sha256": "9c2fd18a6d0e6cffac7e30b138244f760d526cc012eaa2d219720f4c24fe2ecf",
+      "disposition": "All thematic sections distributed",
+      "current_destination": "story/relationships/priscilla-lavinia/relationship.md#legacy-checkpoint-map"
+    },
+    {
+      "path": "docs/story-auditions/2026-09-27-priscilla-lavinia-session-conversation-archive.md",
+      "git_blob": "e56f3d4a025c32d8858746e39cfc4aa697b4de0c",
+      "sha256": "a27257d9b4e7d8367670e7ddf60dd78581f3ad0d3179f545663800fd9bb4768d",
+      "disposition": "All sections distributed; secondary labels retained",
+      "current_destination": "story/maintenance/source-migration.json"
+    },
+    {
+      "path": "docs/story-auditions/Our_PL.md",
+      "git_blob": "0b508f8f674a749ca9dbe7fce0d1885e635baf08",
+      "sha256": "df9a3151733d411a7949f0830d2b5cd28ee296b582ab419b3ba1be0b009ee22b",
+      "disposition": "All 50 prose exchanges and embedded content accounted for",
+      "current_destination": "story/maintenance/our-pl-upload-recovery.md"
+    },
+    {
+      "path": "docs/story-auditions/README.md",
+      "git_blob": "110550d1ed4524e5cea8a2e14cd1d3e39c664453",
+      "sha256": "c8a584297e16658b8bb3205c7a46a593dda3e6617ea786e8c7147a69e0f09f39",
+      "disposition": "Contract and index consolidated; original contract retained",
+      "current_destination": "story/auditions/README.md"
+    }
+  ],
+  "source_snapshot_identities": {
+    "repository": {
+      "path": "docs/story-auditions/Our_PL.md",
+      "bytes": 1113085,
+      "git_blob": "0b508f8f674a749ca9dbe7fce0d1885e635baf08",
+      "sha256": "df9a3151733d411a7949f0830d2b5cd28ee296b582ab419b3ba1be0b009ee22b"
+    },
+    "upload": {
+      "path": "docs/story-auditions/Our_PL.md",
+      "bytes": 1115494,
+      "git_blob": "9e20a006afc8cb094284f510766d8db78b122b75",
+      "sha256": "9dd985c686b5a2b9c3f01184f738eef05d7db49d63afa3999213390e5406b8a6"
+    }
+  },
+  "archived_only_categories": [
+    "greetings/general praise",
+    "repeated explanatory responses and superseded near-identical assemblies",
+    "secondary reconstructions duplicating primary-source topics",
+    "historical tool calls and PR operations",
+    "former verification/navigation/status reporting",
+    "historical embedded Bible differences"
+  ],
+  "protected_blocks": [
+    {
+      "path": "story/relationships/priscilla-lavinia/auditions/day-6-sweet-love-dance.md",
+      "kind": "current_scene",
+      "sha256": "2cfea3240d234fda994ee4b86ffc5ffa106b6704e989bc6a3934fef3d8fb4c32"
+    },
+    {
+      "path": "story/relationships/priscilla-lavinia/auditions/day-6-sweet-ambiguous-refusal.md",
+      "kind": "current_scene",
+      "sha256": "54c6198d00c740346b491134bbf9963bf3d3049cc187af5452d6bf3d3248763c"
+    },
+    {
+      "path": "story/relationships/priscilla-lavinia/auditions/day-6-dark-notebook.md",
+      "kind": "current_scene",
+      "sha256": "a057cb63e08b61beb97c31e5df6821f6987b886366b4c0ffa5344f46c031f421"
+    },
+    {
+      "path": "story/relationships/priscilla-lavinia/relationship.md",
+      "kind": "handbook_pair",
+      "sha256": "c4beda01ad5fcf01bc22565c459cf0f339b54e5711fcd92fccb5cb83b5040894"
+    },
+    {
+      "path": "story/relationships/priscilla-lavinia/auditions/2026-09-07-priscilla-lavinia-day-6-sweet-love-interrupted-hearing-audition.md",
+      "kind": "hearing_original",
+      "sha256": "0849c18baa255244891286966d48d9083f8d35d0000e257b7b3228ceea0fc7bb",
+      "end_marker": "<!-- END RELOCATED ORIGINAL 6b3fcaae5a6ef7d23bcac7e78b3490abb15ae72d -->"
+    }
+  ],
+  "limits": [
+    "Earlier missing bar/residue/kiss evidence remains open",
+    "No newly selected intimate history, physical residue, placement or mechanics",
+    "No independent literary, audio, medical or runtime test"
+  ],
+  "retained_auditions": [
+    {
+      "path": "story/auditions/2026-08-30-angela-lavinia-day-2-focus-audition-design.md",
+      "sha256": "e4a7103a1f9b8c7a7a8ceea7a9855ae671f067dca2fae250d9c101fa885c4014"
+    },
+    {
+      "path": "story/auditions/2026-08-30-room-217-group-adaptation-audition-record.md",
+      "sha256": "c06cbe73f3a54200cd978e5a167561e95212d4b150752df10f84f11e0dcefeca"
+    },
+    {
+      "path": "story/auditions/2026-08-31-seven-day-owner-review-constellation-audition.md",
+      "sha256": "5ddf13f4212c0113c82edb0b2c11fd2157766b8d43eb3a9d0eb785dc937efd9f"
+    },
+    {
+      "path": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md",
+      "sha256": "67a5dfd4fd4a05481c67d7fba75c3fecbeb879c73d5d0165501cc9a203b6cbb5"
+    },
+    {
+      "path": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md",
+      "sha256": "d09f0aff5db6423d0fed27d755f8a4c82b3b133a069fcda988baac3346ca69e4"
+    },
+    {
+      "path": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-6-sweet-imagined-refusal-audition.md",
+      "sha256": "85b34f2ecae31f6486eb35de74238a44b24e0ef48e73f62ddf2d101066982f9e"
+    },
+    {
+      "path": "story/relationships/priscilla-lavinia/auditions/2026-09-12-day-1-priscilla-lavinia-retrospective-reflex-audition.md",
+      "sha256": "b1f60439054fff9bdf6e00cb9bac6a8a09c795c946820f5b8291d1a726866f0a"
+    },
+    {
+      "path": "story/relationships/priscilla-lavinia/auditions/2026-09-26-priscilla-lavinia-day-2-portrait-dark-love-read-through.md",
+      "sha256": "b15ee243342eb54b77677c0acb537e41d06a927bec416ccd75fe758cc05e1db5"
+    }
+  ],
+  "curated_paths": [
+    "story/01-core-story-bible.md",
+    "story/AGENTS.md",
+    "story/README.md",
+    "story/auditions/README.md",
+    "story/maintenance/our-pl-upload-recovery.md",
+    "story/maintenance/source-migration.md",
+    "story/relationships/priscilla-lavinia/AGENTS.md",
+    "story/relationships/priscilla-lavinia/README.md",
+    "story/relationships/priscilla-lavinia/auditions/2026-09-07-priscilla-lavinia-day-6-sweet-love-interrupted-hearing-audition.md",
+    "story/relationships/priscilla-lavinia/auditions/day-2-portrait-development.md",
+    "story/relationships/priscilla-lavinia/auditions/day-2-sweet-love-portrait.md",
+    "story/relationships/priscilla-lavinia/auditions/day-6-dark-notebook.md",
+    "story/relationships/priscilla-lavinia/auditions/day-6-sweet-ambiguous-refusal.md",
+    "story/relationships/priscilla-lavinia/auditions/day-6-sweet-love-dance.md",
+    "story/relationships/priscilla-lavinia/intimacy-and-ordinary-company.md",
+    "story/relationships/priscilla-lavinia/relationship.md",
+    "story/relationships/priscilla-lavinia/seven-day-options.md"
+  ],
+  "reviewed_markdown_paths": [
+    "AGENTS.md",
+    "story/01-core-story-bible.md",
+    "story/02-character-relationship-handbook.md",
+    "story/AGENTS.md",
+    "story/README.md",
+    "story/auditions/2026-08-30-angela-lavinia-day-2-focus-audition-design.md",
+    "story/auditions/2026-08-30-room-217-group-adaptation-audition-record.md",
+    "story/auditions/2026-08-31-seven-day-owner-review-constellation-audition.md",
+    "story/auditions/README.md",
+    "story/maintenance/our-pl-upload-recovery.md",
+    "story/maintenance/source-migration.md",
+    "story/relationships/priscilla-lavinia/AGENTS.md",
+    "story/relationships/priscilla-lavinia/README.md",
+    "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md",
+    "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md",
+    "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-6-sweet-imagined-refusal-audition.md",
+    "story/relationships/priscilla-lavinia/auditions/2026-09-07-priscilla-lavinia-day-6-sweet-love-interrupted-hearing-audition.md",
+    "story/relationships/priscilla-lavinia/auditions/2026-09-12-day-1-priscilla-lavinia-retrospective-reflex-audition.md",
+    "story/relationships/priscilla-lavinia/auditions/2026-09-26-priscilla-lavinia-day-2-portrait-dark-love-read-through.md",
+    "story/relationships/priscilla-lavinia/auditions/day-2-portrait-development.md",
+    "story/relationships/priscilla-lavinia/auditions/day-2-sweet-love-portrait.md",
+    "story/relationships/priscilla-lavinia/auditions/day-6-dark-notebook.md",
+    "story/relationships/priscilla-lavinia/auditions/day-6-sweet-ambiguous-refusal.md",
+    "story/relationships/priscilla-lavinia/auditions/day-6-sweet-love-dance.md",
+    "story/relationships/priscilla-lavinia/intimacy-and-ordinary-company.md",
+    "story/relationships/priscilla-lavinia/relationship.md",
+    "story/relationships/priscilla-lavinia/seven-day-options.md"
+  ]
+}

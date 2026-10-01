@@ -542,7 +542,7 @@ The owner asked to preserve this possible change in the separate story PR.
 This is not a verified recovery of the older one-meeting rule they remembered,
 a completed mechanical approval, an `APPROVED` Matrix row, or release of 2.3.1.
 The underlying discussion and narrative alternatives are captured in the
-[portrait and intimacy working record](../story-auditions/2026-09-26-priscilla-lavinia-portrait-and-intimacy-working-record.md).
+[portrait and intimacy working record](../../story/relationships/priscilla-lavinia/relationship.md).
 
 ### Proposed dispatch and eligibility scope
 

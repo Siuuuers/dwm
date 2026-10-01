@@ -1,8 +1,10 @@
+> **2026-10-01 workspace consolidation:** this complete retained audition has moved; its existing status, local approvals, proposed conduct and open narrative holds are unchanged. Older workspace-retirement instructions are superseded only organizationally by the completed migration. Read the [current working entry](../README.md) before continuing a newer candidate. No scene is approved by relocation.
+
 # Day 2 Portrait: Dark-Love Read-Through
 
 **Recorded:** 2026-09-26.  
 **Status:** NONCANONICAL REACTION TEST. Complete bounded read-through, not an approved event, final dialogue, complete four-form family, or runtime requirement.  
-**Source:** The last assembled Dark-Love passage in the visible conversation before the owner's request for a separate story PR. The scene below preserves that wording; commentary is consolidated in the [working record](2026-09-26-priscilla-lavinia-portrait-and-intimacy-working-record.md).  
+**Source:** The last assembled Dark-Love passage in the visible conversation before the owner's request for a separate story PR. The scene below preserves that wording; commentary is consolidated in the [working record](../relationship.md).  
 **Baseline:** Adapted from the [existing Day 2 four-form audition](2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md), whose local approvals and historical hold remain visible. The portrait novel and expanded pressure exchange are new.  
 **Mode:** Provisionally Private-visible, consistently Lavinia-bound. Angela is absent. This is not an approved Group adaptation or a silent change to its anchor.
 
@@ -207,3 +209,5 @@ Both women experience the actual request, limited acceptance, and departure. Lav
 7. What are the final board position, outcome map, visual field, and Group/private differences? None is fixed by this prose capture.
 
 **Review status:** bounded single-assistant drafting only. Missing historical raw-conversation audit, full-family comparison, calendar/physical staging, performance/audio, and runtime tests are **NOT RUN**. No improvement score or independent review is claimed.
+
+<!-- END RELOCATED ORIGINAL 013ef7fc625652ff74d440035a231aa22ed24dfd -->

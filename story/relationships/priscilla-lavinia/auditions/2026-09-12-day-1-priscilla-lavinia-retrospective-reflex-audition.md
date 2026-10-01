@@ -1,3 +1,5 @@
+> **2026-10-01 workspace consolidation:** this complete retained audition has moved; its existing status, local approvals, proposed conduct and open narrative holds are unchanged. Older workspace-retirement instructions are superseded only organizationally by the completed migration. Read the [current working entry](../README.md) before continuing a newer candidate. No scene is approved by relocation.
+
 # Day 1 Priscilla–Lavinia Retrospective Reflex — Evidence Audition
 
 **Date:** 2026-09-12\
@@ -46,6 +48,8 @@ The visitor-route test and shared-dish midpoint were rejected in conversation as
 
 ## Authority and next review
 
-The [Core Story Bible](../../story/01-core-story-bible.md) fixes the pre-England near-romantic history, substantive report violation, Day 2 return, and character knowledge limits. The [Seven-Day Causal Matrix](../../story/07-seven-day-causal-matrix.md) keeps the Day 1 Priscilla solo and all exact Day 1–7 premises reopened or unselected. The [Character & Relationship Handbook](../../story/02-character-relationship-handbook.md) protects Angela's independent relationship and Lavinia's agency. The [Narrative Style Manual](../../story/08-narrative-style-manual.md) governs anchor, inference, functional recurrence, and the Day 6-only unmarked focal authorization. The [P–L Day 2/Day 6 working event record](2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md) remains a separate noncanonical cohort, not automatic evidence for this Day 1 candidate.
+The [Core Story Bible](../../../01-core-story-bible.md) fixes the pre-England near-romantic history, substantive report violation, Day 2 return, and character knowledge limits. The [Seven-Day Causal Matrix](../../../07-seven-day-causal-matrix.md) keeps the Day 1 Priscilla solo and all exact Day 1–7 premises reopened or unselected. The [Character & Relationship Handbook](../../../02-character-relationship-handbook.md) protects Angela's independent relationship and Lavinia's agency. The [Narrative Style Manual](../../../08-narrative-style-manual.md) governs anchor, inference, functional recurrence, and the Day 6-only unmarked focal authorization. The [P–L Day 2/Day 6 working event record](2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md) remains a separate noncanonical cohort, not automatic evidence for this Day 1 candidate.
 
 Next: audition Lavinia's later action for its own scene first; then test whether the Day 1 reflex arises naturally in a self-sufficient Angela–Priscilla encounter. Only a complete-day and whole-week reconciliation plus explicit owner approval can select the premise and promote it to the Matrix.
+
+<!-- END RELOCATED ORIGINAL 023d7be0cdd18762c30070e4d5162760b57417d0 -->
