@@ -10,7 +10,7 @@
 
 ## 1. Scope and evidence
 
-The owner requested review against the [Day 2 / Day 6 working event record](../story-auditions/2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md) and authorized subagent auditing. The initial event-record snapshot had SHA-256 `D0F194043206531CBD610D41FEDA58E81CE40B3FE37944F5E7E1A728A44A8321`; the bounded additions recorded below intentionally change that snapshot.
+The owner requested review against the [Day 2 / Day 6 working event record](../../story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md) and authorized subagent auditing. The initial event-record snapshot had SHA-256 `D0F194043206531CBD610D41FEDA58E81CE40B3FE37944F5E7E1A728A44A8321`; the bounded additions recorded below intentionally change that snapshot.
 
 Sources inspected included the event record in full, relevant character dossiers and relationship rules in the [Handbook](../../story/02-character-relationship-handbook.md), the [Core Bible](../../story/01-core-story-bible.md), [Style Manual](../../story/08-narrative-style-manual.md), [runtime behavior record](2026-09-02-relationship-progression-runtime-behavior-record.md), [post-manual reconciliation](2026-09-06-post-manual-canon-reconciliation.md), named ledger passages, and relevant attendance rules in the [August flow design](2026-08-07-seven-day-dialogic-flow-design.md).
 

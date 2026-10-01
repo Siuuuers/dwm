@@ -55,9 +55,9 @@ Witnessed-combination credit was not reopened by this bounded correction.
   now treats this cutoff as the narrow exception to an ordinarily visible
   authored continuation. It preserves the rule that `Exploded` is not globally
   early, irrational, Dark, or punitive.
-- The [working event record](../story-auditions/2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md#72-naturalness-reopening-and-angela-absent-explosion-boundary)
+- The [working event record](../../story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md#72-naturalness-reopening-and-angela-absent-explosion-boundary)
   records the owner correction and selected challenge placement.
-- The [imagined-refusal audition](../story-auditions/2026-09-06-priscilla-lavinia-day-6-sweet-imagined-refusal-audition.md#10-current-revision--a-brief-post-clear-local-burst)
+- The [imagined-refusal audition](../../story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-6-sweet-imagined-refusal-audition.md#10-superseded-short-burst-proposal)
   preserves its over-arranged passage as superseded provenance and puts the
   current shorter burst entirely after the board.
 

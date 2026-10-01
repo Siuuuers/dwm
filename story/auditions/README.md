@@ -1,27 +1,37 @@
-# Auditions — shared entry point
+# Auditions — shared and whole-week work
 
-**Noncanonical workspace; additive navigation only.** Existing files stay at their current paths until the [migration plan](../maintenance/source-migration.md) is completed. Links below point to the exact inspected revision. A path change will not promote a design.
+**Status:** noncanonical working material with each record's existing qualifications.
+The workspace moved; its designs did not become canon by changing paths.
 
-## Shared and other-pair material
+| Scope | Retained record |
+|---|---|
+| Angela–Lavinia Day 2 | [Focus audition](2026-08-30-angela-lavinia-day-2-focus-audition-design.md) |
+| Room 2.17, including Group participation | [Adaptation record](2026-08-30-room-217-group-adaptation-audition-record.md) |
+| Full seven-day comparison | [Owner-review constellation](2026-08-31-seven-day-owner-review-constellation-audition.md) |
+| Priscilla–Lavinia current and retained candidates | [Pair working home](../relationships/priscilla-lavinia/README.md) |
 
-| Retained file | Why it stays outside a private P–L dossier | Planned destination |
-|---|---|---|
-| [Angela–Lavinia Day 2 focus](https://github.com/Siuuuers/dwm/blob/2e8602d5f098eebbab18241f370b5f4d14adf99b/docs/story-auditions/2026-08-30-angela-lavinia-day-2-focus-audition-design.md) | Angela and Lavinia have their own encounter; this is not a delivery mechanism for P–L | Same filename here |
-| [Room 2.17 Group adaptation](https://github.com/Siuuuers/dwm/blob/2e8602d5f098eebbab18241f370b5f4d14adf99b/docs/story-auditions/2026-08-30-room-217-group-adaptation-audition-record.md) | Attendance, observation, and the unplaced core have cross-scene obligations | Same filename here |
-| [Whole-week owner-review constellation](https://github.com/Siuuuers/dwm/blob/2e8602d5f098eebbab18241f370b5f4d14adf99b/docs/story-auditions/2026-08-31-seven-day-owner-review-constellation-audition.md) | Week-wide comparison does not belong to one pair | Same filename here |
+## Authority and disposition
 
-Their contents have not all been reread in this build. The existing file's own status and the current owning sources govern. The table assigns a document home, not a verdict.
+An owner-approved audition design is retained for comparison; it is not selected
+placement, canon, final DTL or implementation authorization. A coherent recommended
+candidate is not an owner decision. Reaction tests remain writer-facing until
+explicitly promoted under the existing process.
 
-## Pair work
+Whole-day or whole-constellation review tests coexistence, absence, knowledge,
+mechanics, physical law and cross-day residue. Ordinary promotion requires explicit
+owner approval and an `APPROVED` [Matrix](../07-seven-day-causal-matrix.md) row before
+[Beatbook](../06-seven-day-scene-beatbook.md) expansion. Room 2.17's existing approved-
+but-unplaced core is the bounded exception, not permission to place or expand it.
+The [Bible](../01-core-story-bible.md) remains narrative authority for durable truth.
 
-Start from the [Priscilla–Lavinia workspace](../relationships/priscilla-lavinia/README.md). Its current conversation candidates are different alternatives, not sequential events to concatenate.
+Preserve the reasons for a revision or rejection in the record that owns it.
+A shared record must not become private material plus an Angela bonus. Keep
+actual occurrence distinct from access, and changed narrative hypotheses distinct
+from implemented behavior. A missing scene cannot be recreated merely to deliver
+an expected clue.
 
-## Preserve the established promotion contract
-
-The [current audition README](https://github.com/Siuuuers/dwm/blob/2e8602d5f098eebbab18241f370b5f4d14adf99b/docs/story-auditions/README.md) distinguishes owner-approved audition designs from canon and placement, retains reaction tests as writer-facing material, and requires whole-day or whole-constellation reconciliation before promotion. It also keeps surviving constraints and provenance during disposition.
-
-The proposed organizational change is to move the workspace under `story/` before promotion without changing those authority boundaries. During this additive stage the old index remains in place; it is not yet replaced with a redirect. No raw archive or active candidate is removed by this file.
-
-## Recovered Day 2 conversation (v2)
-
-[Portrait and coat development](../relationships/priscilla-lavinia/auditions/day-2-sweet-love-portrait.md) now owns the uploaded E23–26 discussion. It retains the complete earlier scene and separate later changes, not a newly approved composite. Existing dated audition files still await source-by-source reconciliation; adding this recovery does not dispose of them.
+The former temporary-workspace policy is organizationally superseded by the
+owner-requested consolidation. Its exact contract and all source dispositions
+remain in [migration provenance](../maintenance/source-migration.md). No new code,
+assets, localization, stable line IDs or scene selection are authorized by this
+index. Unresolved narrative questions stay unresolved in their new documents.

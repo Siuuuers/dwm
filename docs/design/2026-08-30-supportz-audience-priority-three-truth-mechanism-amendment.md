@@ -78,7 +78,7 @@ sources retain authority elsewhere:
    owns perceptual-anchor and lawful-knowledge boundaries.
 6. The [Two-Pass Constellation specification](../superpowers/specs/2026-08-28-seven-day-two-pass-constellation-design.md),
    [Causal Matrix](../../story/07-seven-day-causal-matrix.md), and
-   [Story Auditions](../story-auditions/README.md) continue to own narrative
+   [Story Auditions](../../story/auditions/README.md) continue to own narrative
    selection workflow and status.
 7. Runtime and tests remain physical implementation evidence. They never
    silently override intended design.
@@ -452,7 +452,7 @@ It does not:
 - authorize runtime or test changes.
 
 The Room 2.17 discussion remains in the separate
-[Group Adaptation Audition Record](../story-auditions/2026-08-30-room-217-group-adaptation-audition-record.md).
+[Group Adaptation Audition Record](../../story/auditions/2026-08-30-room-217-group-adaptation-audition-record.md).
 
 A later bounded documentation reconciliation should:
 

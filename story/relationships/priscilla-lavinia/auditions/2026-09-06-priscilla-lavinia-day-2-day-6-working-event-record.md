@@ -1,3 +1,5 @@
+> **2026-10-01 workspace consolidation:** this complete retained audition has moved; its existing status, local approvals, proposed conduct and open narrative holds are unchanged. Older workspace-retirement instructions are superseded only organizationally by the completed migration. Read the [current working entry](../README.md) before continuing a newer candidate. No scene is approved by relocation.
+
 # Priscilla–Lavinia: Day 2 / Day 6 Working Event Record
 
 **Status:** TEMPORARY NONCANONICAL WORKING RECORD — connected candidates, not an approved event.  
@@ -19,13 +21,13 @@ into the `Completed Knock`.
 The 2026-09-07 Dark bodily-exposure and bounded-departure refinement and leading
 noncanonical Day 6 Sweet–Love `Interrupted Hearing` audition remain retained
 with their recorded limits.  
-**Audit status:** Source consolidation plus a [bounded documentary and craft audit](../design/2026-09-06-priscilla-lavinia-working-event-documentary-audit.md). The complete raw-conversation audit has not been performed.
+**Audit status:** Source consolidation plus a [bounded documentary and craft audit](../../../../docs/design/2026-09-06-priscilla-lavinia-working-event-documentary-audit.md). The complete raw-conversation audit has not been performed.
 
 ## 1. Reading and evidence rules
 
 This is the working map for this event cluster. Detailed auditions remain in
 their own files; this record links them and tracks how they fit together.
-Nothing here releases the [runtime plot-dependent hold in Section 2.3.1](../design/2026-09-02-relationship-progression-runtime-behavior-record.md),
+Nothing here releases the [runtime plot-dependent hold in Section 2.3.1](../../../../docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md),
 selects a Causal Matrix row, promotes dialogue to final DTL or canon, or
 authorizes code.
 
@@ -55,18 +57,18 @@ This working record can be extended in the meantime.
 
 ### Governing references
 
-- [Core Story Bible](../../story/01-core-story-bible.md) and
-  [Character & Relationship Handbook](../../story/02-character-relationship-handbook.md):
+- [Core Story Bible](../../../01-core-story-bible.md) and
+  [Character & Relationship Handbook](../../../02-character-relationship-handbook.md):
   character, world, relational and knowledge boundaries.
-- [Narrative Style Manual](../../story/08-narrative-style-manual.md): especially
+- [Narrative Style Manual](../../../08-narrative-style-manual.md): especially
   Sections 4, 8, 11, 12.2 and 13.4 for perception, variants, scene cards,
   evidence and review cadence.
-- [Working decision ledger](../design/2026-09-02-narrative-constitution-working-decision-ledger.md):
+- [Working decision ledger](../../../../docs/design/2026-09-02-narrative-constitution-working-decision-ledger.md):
   search the named candidate entries quoted below for the earlier documentary
   sequence. Its Section 3.4 records the approved unmarked-perception method.
-- [Post-manual reconciliation](../design/2026-09-06-post-manual-canon-reconciliation.md):
+- [Post-manual reconciliation](../../../../docs/design/2026-09-06-post-manual-canon-reconciliation.md):
   explains why exact bar, injury, residence and recognition proposals remain held.
-- [Runtime behavior record](../design/2026-09-02-relationship-progression-runtime-behavior-record.md):
+- [Runtime behavior record](../../../../docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md):
   independently retained mechanics and the dormant status of event-specific proposals.
 
 ## 2. Current event map
@@ -595,7 +597,7 @@ open. It does not fill the Day-2-prevented continuation. The invented refusal
 must not become a historical fact, and possible pleasure in being privately
 rehearsed remains an interpretation rather than narrated knowledge.
 
-The [bounded audit, Section 4](../design/2026-09-06-priscilla-lavinia-working-event-documentary-audit.md#4-fresh-sweet-audition-retained-by-the-owner)
+The [bounded audit, Section 4](../../../../docs/design/2026-09-06-priscilla-lavinia-working-event-documentary-audit.md#4-fresh-sweet-audition-retained-by-the-owner)
 preserves the current sequence, optional sample lines, two writing repairs,
 and outstanding dependencies. This new review does not reinstate the withdrawn
 audit's conclusions.
@@ -923,7 +925,7 @@ transcript.
 
 ## 10. Next work and review status
 
-The [2026-09-06 bounded documentary audit](../design/2026-09-06-priscilla-lavinia-working-event-documentary-audit.md)
+The [2026-09-06 bounded documentary audit](../../../../docs/design/2026-09-06-priscilla-lavinia-working-event-documentary-audit.md)
 uses three separate-context reviewers and primary-agent verification. It
 records retained strengths, source limitations, Group/private anchor allocation,
 calendar dependencies, and the fresh Sweet audition's local repairs. It does
@@ -962,7 +964,7 @@ explicit owner authorization.
    proposal with the protected, placement-unselected Room 2.17 causal core
    before selecting both windows.
 7. Review variants, scene families, completed days and the complete event at
-   the scopes in [Manual 13.4](../../story/08-narrative-style-manual.md#134-plot-audits-at-successive-levels).
+   the scopes in [Manual 13.4](../../../08-narrative-style-manual.md#134-plot-audits-at-successive-levels).
    Carry findings forward; reopen only changed dependencies.
 8. Before the complete P–L historical audit or promotion, obtain the missing
    raw chronological conversation and trace proposals, corrections, approvals
@@ -988,3 +990,5 @@ Temporary means a working consolidation with an eventual disposition. After
 review, migrate approved facts to their owning documents and mark this record
 promoted in part, revised, superseded or retained. Deletion requires a separate
 explicit disposition; no cleanup or code change is authorized by this capture.
+
+<!-- END RELOCATED ORIGINAL 9753c076331d4dc515c5d6f89b568fe1e4deea35 -->

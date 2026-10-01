@@ -1,3 +1,5 @@
+> **2026-10-01 workspace consolidation:** this complete retained audition has moved; its existing status, local approvals, proposed conduct and open narrative holds are unchanged. Older workspace-retirement instructions are superseded only organizationally by the completed migration. Read the [current working entry](README.md) before continuing a newer candidate. No scene is approved by relocation.
+
 # Angela–Lavinia Day 2 Focus Audition Design
 
 **Date:** 2026-08-30 \
@@ -458,13 +460,13 @@ The following alternatives do not survive this audition:
 
 Local authority used for this audition:
 
-- [Core Story Bible](../../story/01-core-story-bible.md)
-- [Character & Relationship Handbook](../../story/02-character-relationship-handbook.md)
-- [Seven-Day Scene Beatbook](../../story/06-seven-day-scene-beatbook.md)
-- [Seven-Day Causal Matrix](../../story/07-seven-day-causal-matrix.md)
-- [August 7 Seven-Day Dialogic Flow Design](../design/2026-08-07-seven-day-dialogic-flow-design.md)
-- [August 12 Contacts Amendment](../design/2026-08-12-contacts-messaging-ui-ux-and-canon-amendment.md)
-- [August 13 Minesweeper Board Amendment](../design/2026-08-13-minesweeper-board-session-and-challenge-ui-ux-amendment.md)
+- [Core Story Bible](../01-core-story-bible.md)
+- [Character & Relationship Handbook](../02-character-relationship-handbook.md)
+- [Seven-Day Scene Beatbook](../06-seven-day-scene-beatbook.md)
+- [Seven-Day Causal Matrix](../07-seven-day-causal-matrix.md)
+- [August 7 Seven-Day Dialogic Flow Design](../../docs/design/2026-08-07-seven-day-dialogic-flow-design.md)
+- [August 12 Contacts Amendment](../../docs/design/2026-08-12-contacts-messaging-ui-ux-and-canon-amendment.md)
+- [August 13 Minesweeper Board Amendment](../../docs/design/2026-08-13-minesweeper-board-session-and-challenge-ui-ux-amendment.md)
 
 Physical-world checks:
 
@@ -502,3 +504,5 @@ Before later promotion, the complete Day 2 constellation must freshly prove:
 
 Only explicit owner approval of that whole-day reconciliation may change the
 Matrix row to `APPROVED` and authorize Beatbook expansion.
+
+<!-- END RELOCATED ORIGINAL 97ac51f336322c247e59af2db734b9e1983d5116 -->

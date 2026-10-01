@@ -246,21 +246,10 @@ Angela may recognize that her attention is being used without proving every priv
 
 ## Priscilla–Lavinia
 
-**RESIDENCE MIGRATION HOLD:** Do not use the former shared-flat, bedroom,
-cohabitation, family-cover, or duplicate-key details as forward performance
-facts. The current working boundary makes Lavinia the sole resident and treats
-Priscilla's domestic fluency as repeated, separately admitted crossings. Exact
-access and residue facts await the required raw chronological audit.
-
-- **Baseline:** Before England, their conduct became openly flirtatious and near-romantic without an agreed label. Fixed shared history therefore gives them immediate fluency, resentment, and practical familiarity without making them confirmed lovers resuming a relationship. They begin every playthrough at ambiguous or love, but residence, access, or domestic fluency supplies no confirmed relationship label. Across every continuation, they remain each other's dominant historical and romantic gravity; even a Totally Dark Angela fixation complicates rather than replaces or outranks this bond.
-- **Attraction or tension:** Each values the other's force: Lavinia recognizes Priscilla's precise intervention; Priscilla recognizes Lavinia's selective devotion. Because Lavinia learned that being believed can feel like being unseen, Priscilla's refusal to accept “I'm fine” feels intensely attentive even while her action violates Lavinia's bodily and professional autonomy. Their conflict asks whether being uniquely understood authorizes management or provocation.
-- **Asymmetry:** Priscilla controlled institutional language and the consequences of disclosure; Lavinia controlled how much distress and need she revealed. Priscilla genuinely feared lasting injury and also welcomed any consequence that might delay departure. Lavinia knows the pain and the meaning of her requests, and can recognize both motives without being able to prove their proportion.
-- **Mutual blind spot:** They can treat manipulation as proof of irreplaceability because each recognizes the other's method and responds anyway. Desire may survive an unforgiven violation; it never turns desire into pardon or retroactive permission.
-- **Sweet-side example:** Priscilla admits what she arranged. Lavinia admits needing the help and directly asks Priscilla to come. Confession does not cure the history or assign a label.
-- **Dark-side example—complicity form:** Lavinia admits prolonging distress to provoke intervention; Priscilla reveals prearranged control. Both knowingly receive the manipulation as evidence that no one else could occupy the same place. This is one eligible Dark expression, not the definition of Dark.
-- **Ordinary dialogue rhythm:** Priscilla names the usable fact and corrects its framing. Lavinia attacks the authority behind the correction, often with exact English under anger. Familiar domestic or logistical shorthand can interrupt the argument without resolving it.
-- **Physical-distance rules:** Familiarity permits efficient proximity but not presumed touch. Priscilla may take, place, or prepare an object before permission; the staging must retain the controlling edge. Lavinia may use stillness or difficulty to solicit intervention; the writing must preserve her agency and the possibility of direct refusal.
-- **Information each woman possesses:** Both know their near-romantic conduct before England, disclosure-form conflict, estrangement, and only the residence/access facts later preserved by the completed migration audit. Priscilla knows the wording she changed, the arrangements she made, and her mixed motives. Lavinia knows her pain and what she withheld. Until the migration closes, no scene may assume shared residency, separate bedrooms, family cover, a retained or duplicate key, or either woman's knowledge of those discarded details.
+The pair-specific guidance has moved unchanged to the
+[Priscilla–Lavinia relationship owner](relationships/priscilla-lavinia/relationship.md#established-pair-guidance).
+Its examples and unresolved residence/history hold retain their original scope.
+Individual character dossiers and the other relationships remain in this Handbook.
 
 ## Priscilla–Sylvia
 

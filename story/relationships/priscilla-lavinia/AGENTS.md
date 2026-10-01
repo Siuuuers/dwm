@@ -1,21 +1,22 @@
 # Priscilla–Lavinia working route
 
-Read the general [story authoring guide](../../AGENTS.md), then this folder's
-[entry point](README.md) and the requested owning passage. This local guide narrows
-navigation; it adds no new canon or permanent personality rule.
+Read the [general narrative guide](../../AGENTS.md), this folder's
+[entry point](README.md), and the requested owning passage. This local guide
+narrows navigation; it does not add a new personality rule or select an event.
 
-Before continuing a scene, recover its day, incoming occurrence, variant, viewpoint,
-and current candidate. The dance, imagined refusal, and notebook are alternatives,
-not successive events. Read their development sections when changing an existing
-choice. Consult the archived conversation only for an unresolved source question;
-do not load every source before every local revision.
+Recover the day, actual incoming occurrence, variant, viewpoint and current
+candidate before continuing a scene. Dance, imagined refusal and notebook are
+alternatives, not consecutive parts of one date. Use their development sections
+to recover a local choice. The relationship owner holds the exact transferred
+Handbook pair section; the Bible and individual dossiers keep their authority.
 
-Use the four-substantive-exchange checkpoint in the general guide. The compact
-capture status lives in README.md; scene-specific reasons live with their scene,
-and unplaced relationship exploration lives in relationship.md. Do not create a
-separate per-turn journal or permanent counter file.
+Use the normal four-substantive-exchange checkpoint. Current scene text comes
+before historical development; preserve questions, stated reasons and meaningful
+alternatives without creating a file or journal entry per turn. The compact
+capture status is in README.md. Saving a proposal is not approval of it.
 
-Existing Bible, Handbook, Matrix, and dated audition ownership remains unchanged
-until the documented migration is actually performed. Do not treat this new folder
-as having silently extracted the Handbook pair section. No source retirement,
-commit, push, merge, or runtime work follows merely from a local capture.
+Exact originals live at the retained Git revisions in the provenance map. Read
+them when the current topic leaves an evidence question unresolved, not before
+every small revision. The completed document migration does not close older
+missing-history or narrative-selection holds. No push or merge permission is
+inferred from the existence of these instructions.

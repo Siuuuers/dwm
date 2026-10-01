@@ -1,3 +1,5 @@
+> **2026-10-01 workspace consolidation:** this complete retained audition has moved; its existing status, local approvals, proposed conduct and open narrative holds are unchanged. Older workspace-retirement instructions are superseded only organizationally by the completed migration. Read the [current working entry](../README.md) before continuing a newer candidate. No scene is approved by relocation.
+
 # Priscilla–Lavinia Day 2: Four-Form Causal Spine Audition
 
 **Status:** CURRENT NONCANONICAL CAUSAL AUDITION — not an approved event,
@@ -100,13 +102,13 @@ The following remain proposals here:
 - Angela-absent visibility, board placement, and the final anchor; and
 - every Day 6 echo derived from these facts.
 
-Governing authorities and provenance are the [Core Bible](../../story/01-core-story-bible.md#event-architecture),
-[Character Handbook](../../story/02-character-relationship-handbook.md),
-[Narrative Style Manual](../../story/08-narrative-style-manual.md),
-[Causal Matrix](../../story/07-seven-day-causal-matrix.md#approved-causal-cores-awaiting-placement),
+Governing authorities and provenance are the [Core Bible](../../../01-core-story-bible.md#event-architecture),
+[Character Handbook](../../../02-character-relationship-handbook.md),
+[Narrative Style Manual](../../../08-narrative-style-manual.md),
+[Causal Matrix](../../../07-seven-day-causal-matrix.md#approved-causal-cores-awaiting-placement),
 [working event record](2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md),
-[working decision ledger](../design/2026-09-02-narrative-constitution-working-decision-ledger.md#78-core-ending-closure-and-interpretive-openness),
-[runtime plot hold](../design/2026-09-02-relationship-progression-runtime-behavior-record.md#231-priscillalavinia-scene-dispatch--plot-dependent-hold),
+[working decision ledger](../../../../docs/design/2026-09-02-narrative-constitution-working-decision-ledger.md#78-core-ending-closure-and-interpretive-openness),
+[runtime plot hold](../../../../docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md#231-priscillalavinia-scene-dispatch--plot-dependent-hold),
 and the current [Day 6 audition](2026-09-06-priscilla-lavinia-day-6-sweet-imagined-refusal-audition.md).
 
 The approved, placement-unselected Room 2.17 causal core still competes for
@@ -119,7 +121,7 @@ owner approval and an `APPROVED` Causal Matrix row before production.
 
 Preserve these two inherited candidates as provenance. Their earlier status is
 recorded in the [working record, Section 4](2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md#4-day-2-bar-return-candidate)
-and [working decision ledger, Section 7.8](../design/2026-09-02-narrative-constitution-working-decision-ledger.md#78-core-ending-closure-and-interpretive-openness):
+and [working decision ledger, Section 7.8](../../../../docs/design/2026-09-02-narrative-constitution-working-decision-ledger.md#78-core-ending-closure-and-interpretive-openness):
 
 > **Priscilla:** Why?
 >
@@ -1121,3 +1123,5 @@ Keep this order synchronized with the [working event record, Section 10](2026-09
 
 Promotion remains forbidden until the raw chronological audit and the
 successive scene/form/day/event reviews are complete.
+
+<!-- END RELOCATED ORIGINAL 2df1739d29fa0b6ebb4aa195d099e06c49fdcea9 -->

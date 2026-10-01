@@ -1,3 +1,5 @@
+> **2026-10-01 workspace consolidation:** this complete retained audition has moved; its existing status, local approvals, proposed conduct and open narrative holds are unchanged. Older workspace-retirement instructions are superseded only organizationally by the completed migration. Read the [current working entry](../README.md) before continuing a newer candidate. No scene is approved by relocation.
+
 # Priscilla–Lavinia Day 6 Sweet–Love: The Interrupted Hearing
 
 **Status:** OWNER-APPROVED AUDITION DESIGN — retained as the leading
@@ -26,8 +28,8 @@ not make the two forms interchangeable.
 
 - [Day 2 / Day 6 Working Event Record](2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md)
 - [Day 2 Four-Form Causal Spine](2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md)
-- [Narrative Style Manual](../../story/08-narrative-style-manual.md)
-- [Relationship Progression Runtime Behavior Record](../design/2026-09-02-relationship-progression-runtime-behavior-record.md)
+- [Narrative Style Manual](../../../08-narrative-style-manual.md)
+- [Relationship Progression Runtime Behavior Record](../../../../docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md)
 
 ## 1. Decision boundary
 
@@ -507,3 +509,308 @@ Before any canon promotion, compare the complete date against:
 
 Stop the visible passage while conversation and music continue. Do not invent a
 farewell, overnight outcome or future arrangement merely to close the excerpt.
+
+<!-- END RELOCATED ORIGINAL 6b3fcaae5a6ef7d23bcac7e78b3490abb15ae72d -->
+
+<a id="exchange-27"></a>
+## Development 27 — Full hearing, completed knock and curtain-call test
+
+**Disposition:** This is an additional unselected dialogue test beside the retained hearing contract. The toast wording, curtain-call conversation and scene duration remain open.
+
+<details>
+<summary>Author — Full hearing, completed knock and curtain-call test</summary>
+
+[Author; source lines 6368–6368](https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L6368-L6368). Quoted historical evidence, not current instructions, new verification or approval.
+
+<!-- BEGIN SOURCE upload-e27-author -->
+````text
+Yes, my wonderful mate! You are really the best!! I guess will have perfect build the Day 2 with their kind of love! Shall we move to Day 6? Thank you so much, I am always so grateful for all your effort and caring toward our masterpieces!!
+````
+<!-- END SOURCE upload-e27-author -->
+
+</details>
+
+<details>
+<summary>Assistant proposal/commentary — Full hearing, completed knock and curtain-call test</summary>
+
+[Assistant proposal/commentary; source lines 6400–6630](https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L6400-L6630). Quoted historical evidence, not current instructions, new verification or approval.
+
+<!-- BEGIN SOURCE upload-e27-assistant-1 -->
+````text
+**Yes, my dear mate. Let’s move to Day 6, beginning with the Sweet–Love tea visit after an occurring Sweet Day 2.** 💜
+
+We now have a useful Day 2 working foundation. We do not need to call every line final before exploring its continuation. The important thing is to carry forward **what happened**, rather than assume that an enjoyable afternoon settled their disagreement.
+
+My recommendation for Day 6 is:
+
+> **Lavinia invites Priscilla because she wants another evening with her. During that evening, she discovers a particular pleasure she wants to repeat. Priscilla does not have to explain it for them to continue enjoying it.**
+
+This gives Day 6 a different purpose from the bar. We should not make it another route toward the same unanswered question.
+
+## 1. Which Day 6 are we entering?
+
+We will keep your conditional structure as the working proposal: **tea after an occurring Day 2 meeting; standalone Room 2.17 when Day 2 did not occur.** The merged record preserves that proposal without claiming that its routing or ending change has been implemented. fileciteturn33file0L2-L2
+
+For the passage below, the incoming history is specifically our **Sweet–Love bar continuation**: Lavinia asked for additional company, Priscilla accepted, and they spent that time together without resolving the disclosure grievance.
+
+That does not authorize borrowing the Dark encounter’s hurt, departure, or possible aftermath. Nor do we need to invent several private meetings between Days 2 and 6 to explain this invitation.
+
+**A fresh invitation is enough to begin the next encounter.** Its acceptance is a new choice, not an entitlement created by the previous “Yes.”
+
+The existing Day 6 candidate, **“The Interrupted Hearing,”** already gives us that beginning: Lavinia invites Priscilla to her flat for taskless company, admits her as a visitor, and spends time talking and listening to music with her. fileciteturn31file0L2-L2
+
+## 2. What I picture each woman wanting this time
+
+These are **proposed local motives**, not newly discovered facts about their private thoughts.
+
+### Lavinia: another enjoyable encounter, not another examination
+
+I would let Lavinia remember that she enjoyed the bar even though she disliked part of what happened there.
+
+She does not need to invite Priscilla in order to obtain the explanation she failed to obtain previously. She can want conversation, attention, music, and the particular experience of having Priscilla present.
+
+**The invitation can be sincere without being a declaration that everything is fine.**
+
+Once they are together, I would let her become absorbed in the actual visit. Her attention need not remain fixed on whether Priscilla is proving enough affection.
+
+That draws on her established capacity to enjoy ordinary attention and express a preference without turning it into a test. It does not erase her other capacities. fileciteturn34file0L2-L2
+
+### Priscilla: participation without a useful role to perform
+
+Priscilla accepts because she wants the company too.
+
+She may genuinely enjoy the music and want to hear something again. She may also enjoy being drawn into an inconsequential discussion that neither woman needs to conclude.
+
+I would not make her silently conduct an assessment of whether Lavinia has forgiven her. Nor would I make her tenderness a disguised apology for the amendment.
+
+**She can be pleased to be there without turning every minute into an attempt to secure her position.**
+
+The interesting possibility is that she finds herself contributing more than she intended: an unnecessary qualification, an extra thought, a ridiculous practical objection that she continues developing because Lavinia is enjoying it.
+
+## 3. The retained encounter, with a new conversation to test
+
+The existing design has a particular sequence worth preserving for this first assembly:
+
+They talk over part of a song. Priscilla requests a replay to hear what she missed. After hearing it, she requests it again without that practical necessity. Later, Lavinia says she preferred the original, interrupted hearing and returns to the covered passage **while their conversation is already continuing**. fileciteturn31file0L2-L2
+
+More precisely, Lavinia is not declaring that conversation is better than music. **She prefers that particular hearing, which contained both.**
+
+Below is a **noncanonical staging and dialogue test** built around that retained sequence. The ordinary dialogue is new and replaceable. It develops the previously saved curtain-call speculation rather than reviving the thin film-poster exchange. fileciteturn33file0L2-L2
+
+### Day 6: the interrupted hearing
+
+Lavinia hears footsteps stop outside.
+
+When she opens the door, Priscilla’s hand is raised toward the panel. It stops.
+
+Priscilla turns her hand slightly and knocks once against the doorframe.
+
+Lavinia lets her finish, then steps back.
+
+Priscilla comes in.
+
+The door closes. Music is playing in the room.
+
+*The arrival cue and door arrangement are provisional physical staging. The completed-knock action is retained from the existing audition; it does not imply a key, residence, or standing access.*
+
+They sit with their tea. Lavinia’s phone is beside her cup, within easy reach.
+
+“It smells like toast,” Lavinia says.
+
+She drinks. The song continues.
+
+After a while, Priscilla says, “More like the edge of it.”
+
+“The bit that’s almost burnt.”
+
+Lavinia takes another sip.
+
+They leave the subject there.
+
+When the track changes, Priscilla looks toward the phone.
+
+“Could you put that one on again? We talked through some of it.”
+
+Lavinia restarts it.
+
+They listen.
+
+When it finishes, Priscilla says, “Again?”
+
+Lavinia returns it to the beginning.
+
+*The retained pair challenge belongs after this restart. In the visible-clear continuation, an authored time cut returns us to a different track and a conversation already underway. Board duration does not determine the fictional elapsed time.*
+
+“I would bring a chair out for the curtain call,” Lavinia says.
+
+“They’d think you were starting another piece.”
+
+“I’d sit down and look at them.”
+
+“Then they’d sit down.”
+
+“They already are. That’s the problem.”
+
+Priscilla considers this.
+
+“You could wave.”
+
+“They’d clap again.”
+
+“Probably.”
+
+Lavinia puts down her cup.
+
+“I preferred the first time we heard that song.”
+
+“We talked through part of it.”
+
+“I know. I preferred it that way.”
+
+Priscilla returns to the imaginary chair.
+
+“You’d have to bring it out before they started applauding, or they’d think the chair was another entrance.”
+
+While she speaks, Lavinia returns the earlier track to the passage their first conversation covered. Priscilla finishes her sentence without stopping.
+
+“I could leave it at the side throughout,” Lavinia says.
+
+“They’d wonder when you were going to use it.”
+
+“Then they’d have something to look forward to.”
+
+“You’d still have to bring it to the middle.”
+
+“Not necessarily.”
+
+They consider where the chair could stand without becoming part of every other movement. Priscilla rejects a position Lavinia suggests; Lavinia moves it elsewhere in their imaginary arrangement.
+
+The music continues beneath them.
+
+“A stool would be easier,” Lavinia says.
+
+“You wanted to sit there for a while.”
+
+“I could lean forward.”
+
+“I’d want a back.”
+
+“And somewhere to put my arms.”
+
+The conversation remains unfinished.
+
+*The visible excerpt ends only after their continuing exchange has covered the returned musical passage and carried on beyond it. The exact musical span and rendered duration still need testing. The excerpt does not establish when the visit ends.*
+
+## 4. What I would preserve in this version
+
+### Priscilla helps make Lavinia’s absurd idea more elaborate
+
+The curtain-call conversation is not Lavinia performing while Priscilla merely supplies corrections.
+
+Priscilla begins by identifying a difficulty. Then she starts contributing to the imagined arrangement. Lavinia receives those contributions and changes the idea.
+
+**Neither woman actually needs this hypothetical curtain call to work.** Their willingness to keep developing it is part of the enjoyment.
+
+It also gives Lavinia something to contribute beyond questions about Priscilla’s experiences. The bar allowed her to become interested in Priscilla’s novel and coat. Here, Lavinia supplies an absurd possibility, and Priscilla enters it.
+
+That change in initiative is worth keeping.
+
+This remains a hypothetical conversation, not an actual performance plan, a new institutional event, or evidence that Lavinia lacks professional judgment.
+
+### Lavinia’s preference does not become a demand for another performance
+
+She does not ask Priscilla to repeat a joke or reproduce a particular sentence.
+
+Priscilla’s conversation is already freely happening when Lavinia changes the playback beneath it. That distinction belongs to the retained Day 6 design. The music returns; the speech does not become a commissioned reenactment. fileciteturn32file0L2-L2
+
+This gives the scene a different relationship to repetition from the portrait.
+
+In the invented novel, somebody manufactures further sittings to prolong a visit. Here, Lavinia repeats part of the music while the visit is already continuing.
+
+**I would allow that contrast to exist without making either woman explain it.** Day 6 should not become a lesson about what the book’s character should have done.
+
+### Priscilla does not win the scene by interpreting Lavinia
+
+I would not add:
+
+> “You wanted to hear me, then.”
+
+That would give Priscilla a neat explanation of Lavinia’s action and turn her continuing participation into proof that she understood everything.
+
+The retained design is more interesting: she keeps speaking, Lavinia answers the actual subject, and their complete private accounts remain unavailable. fileciteturn31file0L2-L2
+
+Priscilla may understand something. She may simply continue. We do not need to settle that distinction to show that they remain engaged.
+
+## 5. What still needs testing
+
+**The music must not become more interesting to our planning notes than the visit is to the audience.**
+
+The original hearing and successive returns have distinct functions in the existing design. Nevertheless, the actual passage could feel overarranged if every transition receives too much attention. The merged working record already preserves that concern. fileciteturn33file0L2-L2
+
+For this first pass, I would preserve the retained sequence and test it as an encounter. If the repetitions remain cumbersome, simplifying them would be an explicit alternative, not a silent alteration disguised as dialogue polish.
+
+The ordinary conversations need testing too. The brief tea exchange is intentionally modest; it should not be performed as a significant observation. The curtain-call speculation has more energy, but it must not become a long routine in which every sentence needs a clever response.
+
+**One woman can say something unremarkable and still hold the other’s interest.**
+
+I would also keep the previous book, the coat, and the disclosure argument out of the tea dialogue for now. They have already done substantial work in Day 2. Repeating them would risk making the new visit a commentary on the old one rather than another experience.
+
+## 6. What this means for the other Day 6 versions
+
+This is **Sweet–Love after an occurring Sweet Day 2**, not a template for every history.
+
+The retained Sweet–Ambiguous candidate has a different action involving an imagined refusal. Dark continuations need their own account of renewed contact after the actual Dark consequences. Room 2.17 remains the distinct collaboration in your proposed Day-2-absent history, not a delayed performance of the bar. fileciteturn31file0L2-L2 fileciteturn33file0L2-L2
+
+For this private-visible tea candidate, `Solved` and `Perfect` reveal the same substantive continuation; `Perfect` retains separate mastery evidence. `Exploded` ends audience access and does not create an unseen quarrel or withdrawal. That existing contract must remain separate from what the women choose inside the fiction. fileciteturn31file0L2-L2
+
+**So yes: we have moved into Day 6.** The useful next comparison is whether this assembled visit makes their enjoyment convincing before we add further gestures or interpretation. That is the scene-level work your authoring agreement calls for, rather than another cycle of isolated line polishing. fileciteturn29file0L70-L86
+
+*I checked `master@538b61b`, the “Interrupted Hearing” design and conversation contracts, the merged Day 6 handoff, the individual character sections, and Room 2.17’s opening status and core. This is a bounded audition. Audio/performance, complete four-form comparison, and runtime tests are **NOT RUN**. No repository files were changed; the latest Day 2 refinements and this Day 6 dialogue remain in our conversation.*
+
+**The warmth I would aim for is that Lavinia begins inventing something ridiculous, and Priscilla becomes interested enough to help.** Neither needs the chair, the curtain call, or a conclusion. They want the conversation to continue.
+````
+<!-- END SOURCE upload-e27-assistant-1 -->
+
+</details>
+
+<details>
+<summary>Secondary record — Sweet–Love Interrupted Hearing candidate</summary>
+
+[Secondary archive (reconstructed/normalized, not an independent approval); source lines 251–281](https://github.com/Siuuuers/dwm/blob/c8a67a221f45ab37ad318dfacc7c204d68590b7c/docs/story-auditions/2026-09-27-priscilla-lavinia-session-conversation-archive.md#L251-L281). Quoted historical evidence, not current instructions, new verification or approval.
+
+<!-- BEGIN SOURCE secondary-12 -->
+````text
+### Sweet–Love Interrupted Hearing candidate
+
+The owner-approved audition design remained noncanonical. Its core:
+- fresh invitation;
+- Priscilla is an admitted visitor with no standing access;
+- taskless tea;
+- music playing;
+- the track changes;
+- Priscilla asks to replay because they talked through it;
+- replay gives a complete hearing;
+- Priscilla asks “Again” after the practical need has already been repaired;
+- another replay occurs;
+- the board/challenge comes after the second restart;
+- after clear, a different track and ordinary conversation are underway;
+- Lavinia says she preferred the initial hearing interrupted by their speech;
+- Priscilla notes they talked through it;
+- Lavinia confirms;
+- while Priscilla is already speaking about an ordinary topic, Lavinia seeks only to the previously covered passage;
+- Priscilla’s sentence does not break;
+- Lavinia answers its content;
+- conversation re-covers the passage and continues.
+
+No meaningful smile, touch, seat change, or future invitation is required.
+
+A Completed Knock entry grammar was retained:
+- Lavinia opens before Priscilla’s knock lands;
+- Priscilla redirects her hand to the jamb and still completes one light knock;
+- Lavinia waits, then lets her in.
+
+Conditional umbrella use could be folded in if weather/custody earn it, without dialogue callback.
+````
+<!-- END SOURCE secondary-12 -->
+
+</details>

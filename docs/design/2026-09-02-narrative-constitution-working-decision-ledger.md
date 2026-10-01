@@ -1442,7 +1442,7 @@ hold.
 
 **OWNER-CONFIRMED SUPERSESSION — 2026-09-07; bounded forward-use guard.** The
 entries below preserve the chronological discussion, but the current
-[noncanonical Day 2 causal audition](../story-auditions/2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md)
+[noncanonical Day 2 causal audition](../../story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md)
 clarifies that `Why?`, the exact grievance or reply, and the exact stay-request
 wording remain provisional, and supersedes three active assumptions: `Then or
 now?` / `Then` is no longer the

@@ -16,14 +16,19 @@ not every document on every task.
 | Question | Source or entry point |
 |---|---|
 | Fictional truth, history, protected facts, unresolved causes | `story/01-core-story-bible.md` |
-| Individual voices, wants, conduct, language, knowledge | `story/02-character-relationship-handbook.md` |
-| P–L working entry, current scene candidates, and capture status | `story/relationships/priscilla-lavinia/README.md`; existing canon and audition owners remain authoritative pending migration |
+| Individual voices, wants, conduct, language, knowledge | `story/02-character-relationship-handbook.md`; P–L pair guidance in `story/relationships/priscilla-lavinia/relationship.md` |
+| P–L working entry, current scene candidates, and capture status | `story/relationships/priscilla-lavinia/README.md`; pair guidance is delegated explicitly; canon and selection status remain distinct |
 | Presentation, lenses, dialogue, scene cards, review | `story/08-narrative-style-manual.md`, especially applicable craft sections and Sections 11-13 |
 | Fixed windows, placement and selection status | `story/07-seven-day-causal-matrix.md` |
 | New day or premise auditions | `docs/superpowers/specs/2026-08-28-seven-day-two-pass-constellation-design.md`, subject to later approved resets |
 | Intended mechanics and Dialogic flow | `docs/design/2026-08-07-seven-day-dialogic-flow-design.md` and approved amendments |
 | Future response, progression, persistence and replay behavior | `docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md` |
-| Decision evidence and current auditions | `docs/design/2026-09-02-narrative-constitution-working-decision-ledger.md`, `docs/story-auditions/README.md`, and the linked active record |
+| Decision evidence and current auditions | `docs/design/2026-09-02-narrative-constitution-working-decision-ledger.md`, `story/auditions/README.md`, and the linked active record |
+Current auditions live under `story/`; raw originals are retained at the exact Git
+revisions in `story/maintenance/source-migration.md`. Relocation and extraction do
+not change approval scope. Current owners use checkout-relative links; historical
+evidence uses version-specific links.
+
 The Production Map is derived; the Beatbook expands approved material; old
 amendments and the Plot Material Library preserve provenance. Their attractive
 examples do not override current status. Search existing decisions before

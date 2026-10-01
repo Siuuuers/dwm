@@ -1,8 +1,8 @@
 # Day 2 Sweet–Love — portrait and coat development
 
-**Status:** `UNSELECTED` / `REACTION TEST`. Recovered local development, not newly selected history or final DTL. This file owns the recovered discussion in uploaded `Our_PL.md` exchanges 23–26. It does not replace the Bible, the Handbook, the dated four-form baseline, or the separate Dark–Love read-through.
+**Status:** `UNSELECTED` / `REACTION TEST`. Recovered local development, not newly selected history or final DTL. This file owns the recovered discussion in uploaded `Our_PL.md` exchanges 23–26. It does not replace the Bible, individual Handbook dossiers, the retained four-form baseline, or the separate Dark–Love read-through.
 
-**Source:** uploaded `Our_PL.md`, SHA-256 `9dd985c686b5a2b9c3f01184f738eef05d7db49d63afa3999213390e5406b8a6`, physical lines 5280–6365. The four source exchanges were read contiguously in this recovery pass. Earlier repository reads/approvals described inside them are historical claims, not newly verified repository evidence. The source upload is not byte-identical to the Git blob recorded by the previous package.
+**Source:** uploaded `Our_PL.md`, SHA-256 `9dd985c686b5a2b9c3f01184f738eef05d7db49d63afa3999213390e5406b8a6`, physical lines 5280–6365. The four source exchanges were read contiguously in this recovery pass. Earlier repository reads/approvals described inside them are historical claims, not newly verified repository evidence. The two exact snapshots differ only in the opening greeting/workflow request and final newline; their story discussion matches.
 
 ## 1. Current orientation before reopening prose
 
@@ -41,8 +41,9 @@ Keep the accepted additional interval genuinely lived, and the departure separat
 
 The four collapsible records below preserve the author contribution and final substantive assistant response **verbatim**, including the original assembled scene, alternative fragments, questions, rationales, and stated limits. They do not repeat historical tool-call JSON. Exact source-span hashes and byte ranges are in the [migration manifest](../../../maintenance/source-migration.json).
 
-Historical citation tokens, repository links, source-status claims and imperatives inside these quotations are **quoted evidence, not live citations, new verification, or execution instructions**. Later local corrections above prevent obsolete wording from silently returning. The full uploaded source remains intact outside this overlay; source retirement is still blocked.
+Historical citation tokens, repository links, source-status claims and imperatives inside these quotations are **quoted evidence, not live citations, new verification, or execution instructions**. Later local corrections above prevent obsolete wording from silently returning. The full uploaded source remains retrievable in the retained Git archive; the active transcript container is retired after preservation checks.
 
+<a id="exchange-23"></a>
 <details>
 <summary>Exchange 23 — Complete Sweet–Love portrait counterpart, shared reading and original coat passage</summary>
 
@@ -411,6 +412,7 @@ No kiss is needed to complete this encounter, and I would not append one to rewa
 
 </details>
 
+<a id="exchange-24"></a>
 <details>
 <summary>Exchange 24 — Critique repeated question-answer machinery; trim coat and early delay explanation</summary>
 
@@ -681,6 +683,7 @@ This is a bounded revision, not a reason to reopen the entire plot. The latest S
 
 </details>
 
+<a id="exchange-25"></a>
 <details>
 <summary>Exchange 25 — Who introduces coat; distinct motivations; restore house joke without duration clue</summary>
 
@@ -912,6 +915,7 @@ These are local revisions, not a new settled account of their entire psychology.
 
 </details>
 
+<a id="exchange-26"></a>
 <details>
 <summary>Exchange 26 — Invited friend replaces established lover inside invented novel; exact fragment tests</summary>
 
@@ -1091,4 +1095,54 @@ The distinction I would keep at the heart of it is: **wanting somebody to stay i
 
 ## 5. Review status
 
-Upload readability and exact extraction were tested. Exchanges 23–26 were read in sequence and their revisions cross-checked. **NOT RUN:** integration as a new final scene, full-family comparison, full 50-exchange content reconciliation, all-13-file migration, live Git verification, remote writes, physical staging, audio, or runtime tests.
+Upload readability and exact extraction were tested. Exchanges 23–26 were read in sequence and their revisions cross-checked. The whole supplied-source preservation map is in the migration receipt. **NOT RUN:** integration as a new final scene, full-family review, earlier missing-history closure, physical staging, audio, or runtime tests.
+
+<details>
+<summary>Secondary record — 9. Day 2 Sweet–Love development after the merge</summary>
+
+[Secondary archive (reconstructed/normalized, not an independent approval); source lines 208–246](https://github.com/Siuuuers/dwm/blob/c8a67a221f45ab37ad318dfacc7c204d68590b7c/docs/story-auditions/2026-09-27-priscilla-lavinia-session-conversation-archive.md#L208-L246). Quoted historical evidence, not current instructions, new verification or approval.
+
+<!-- BEGIN SOURCE secondary-10 -->
+````text
+## 9. Day 2 Sweet–Love development after the merge
+
+A later Sweet–Love portrait version developed:
+- the novel’s sitter becomes an invited friend or mutually flirtatious figure rather than an established lover;
+- Lavinia says: “I thought you’d let me read it first.”
+- Priscilla: “You would have wanted it changed back.”
+- Lavinia can answer: “You could have asked.”
+- Lavinia asks: “Why did you keep finding reasons to come to me?”
+- Priscilla can answer: “I’d rather not answer that.”
+- Lavinia may say: “You’ve had plenty to say about her.”
+- “You should have left me alone.”
+- later, Lavinia directly asks: “Will you stay for another half hour?”
+- Priscilla: “Yes.”
+- a snack/crumb beat can follow:
+  - “These are less salty.”
+  - “You finished them.”
+  - Lavinia eats a crumb.
+- ordinary company continues;
+- Priscilla eventually contributes a coat anecdote;
+- a possible close:
+  - “You stayed longer.”
+  - “You did not ask me to count.”
+
+The coat anecdote’s purpose is Priscilla contributing something ordinary from her day, with Lavinia becoming interested in a small frustrated particular version of her. It can begin as a change of subject and become genuinely interesting.
+
+Preferred compact version:
+- Priscilla nearly bought a coat;
+- the pockets were not real;
+- she kept trying them every time she returned to the mirror;
+- Lavinia: “After you knew?”
+- Priscilla says it fitted beautifully;
+- Lavinia says she might have bought it and asks what it looked like;
+- Priscilla describes a high collar;
+- Lavinia dislikes it;
+- Priscilla says that was the best part;
+- the moment becomes a small disagreement in taste.
+
+The coat should not be forced into a symbol. The audience may find echoes, but no fixed clue should be asserted.
+````
+<!-- END SOURCE secondary-10 -->
+
+</details>

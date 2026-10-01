@@ -274,7 +274,7 @@ For both cards, the per-playthrough state/tone draw is already complete and stab
 
 ### Event 13: Three Versions of the Sky
 
-Detailed writer-facing development for the approved private counterpart lives in [`06-seven-day-scene-beatbook.md`](./06-seven-day-scene-beatbook.md). The beatbook does not create a new encounter window or released narration, and it does not author the existing Angela-attended variation.
+Detailed writer-facing development for the approved private counterpart lives in [`06-seven-day-scene-beatbook.md`](../06-seven-day-scene-beatbook.md). The beatbook does not create a new encounter window or released narration, and it does not author the existing Angela-attended variation.
 
 1. **Ordinary activity and setting:** In Room 2.17, an ordinary bookable multipurpose preparation room, programme language, urban-observation material, and conservatory performance presentation must be reconciled for a public Open Week run-through.
 2. **Characters present and absence version:** **Group:** Angela attends while Priscilla and Lavinia collaborate. **Missed:** Angela accepted but is absent; the audience observes the pair with the code-owned guilt or Hospital flavor. **Private-visible:** the audience observes Priscilla and Lavinia without making Angela playable or present. **Private-offscreen:** the pair still meets and counts, but no scene or board is shown. **Prevented:** if Angela separately occupies either woman during this code-owned window, Priscilla and Lavinia do not meet.

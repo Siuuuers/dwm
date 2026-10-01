@@ -1,3 +1,5 @@
+> **2026-10-01 workspace consolidation:** this complete retained audition has moved; its existing status, local approvals, proposed conduct and open narrative holds are unchanged. Older workspace-retirement instructions are superseded only organizationally by the completed migration. Read the [current working entry](../README.md) before continuing a newer candidate. No scene is approved by relocation.
+
 # Day 6 Sweet: The Imagined Refusal
 
 **Status:** OWNER-RETAINED NONCANONICAL AUDITION — consolidated for scene discussion.
@@ -122,11 +124,11 @@ There is no code change or production instruction in this file.
 
 The [working event record, Section 7.1](2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md#71-fresh-retained-sweet-audition--imagined-refusal) records the owner's explicit clarification: the imagined-refusal scene is retained as a fresh, noncanonical audition. The older Sweet rollback remains in force.
 
-The [bounded documentary audit, Section 4](../design/2026-09-06-priscilla-lavinia-working-event-documentary-audit.md#4-fresh-sweet-audition-retained-by-the-owner) identified two local writing repairs: earn the irritation through a particular objection, and let Priscilla answer an observable change without perfect psychological insight. Subsequent conversation supplied `another evening`, emphasized that Priscilla has already arrived, developed her curiosity and voluntary participation, and retained the unflattering imitation detail. This consolidation preserves those directly available developments; it does not rewrite the earlier audit as if it had reviewed these later additions.
+The [bounded documentary audit, Section 4](../../../../docs/design/2026-09-06-priscilla-lavinia-working-event-documentary-audit.md#4-fresh-sweet-audition-retained-by-the-owner) identified two local writing repairs: earn the irritation through a particular objection, and let Priscilla answer an observable change without perfect psychological insight. Subsequent conversation supplied `another evening`, emphasized that Priscilla has already arrived, developed her curiosity and voluntary participation, and retained the unflattering imitation detail. This consolidation preserves those directly available developments; it does not rewrite the earlier audit as if it had reviewed these later additions.
 
 The owner's current request is to gather these developments into one scene document. Exact dialogue remains provisional. Neither this consolidation nor the earlier small-beat review completes the historical, variant, family, day, or cross-day audit.
 
-Governing references: [Core Bible](../../story/01-core-story-bible.md), [Character Handbook](../../story/02-character-relationship-handbook.md) (Lavinia's private-retrial habit and Priscilla's voice), [Style Manual](../../story/08-narrative-style-manual.md) Sections 4, 6–8, 11 and 13.4, and the [working event record](2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md).
+Governing references: [Core Bible](../../../01-core-story-bible.md), [Character Handbook](../../../02-character-relationship-handbook.md) (Lavinia's private-retrial habit and Priscilla's voice), [Style Manual](../../../08-narrative-style-manual.md) Sections 4, 6–8, 11 and 13.4, and the [working event record](2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md).
 
 ## 9. Sweet–Ambiguous passage audition
 
@@ -673,3 +675,5 @@ or Lavinia conduct and creates no hidden quarrel, withdrawal, residue, or
 relationship deterioration. This does not certify that the fictional visit
 ends or that nothing could happen beyond audience access; it means the current
 scene authors no result-specific offscreen event and permits none by inference.
+
+<!-- END RELOCATED ORIGINAL 8ba9e7c2ca99b9dfc0c4925c94397a34bf2102ba -->
