@@ -275,8 +275,8 @@ func _paused_desktop_capture() -> Capture:
 func test_reading_marker_alone_cannot_admit_an_unsupported_narrative_save() -> void:
 	var capture := _paused_desktop_capture()
 	capture.result.value.route_id = "dating"
-	capture.result.value.snapshot_input.gameplay.route_context["active_dating_challenge"] = {
-		"phase": "pre_challenge", "host": "canonical_solo"}
+	capture.result.value.snapshot_input.gameplay["route_context"] = {
+		"active_dating_challenge": {"phase": "pre_challenge", "host": "canonical_solo"}}
 	capture.result.value.dialogic_checkpoint = {"entry_id": "dating.solo.priscilla.day1.pre_challenge",
 		"reading_session": {}}
 	assert_true(_manager.configure_backup_capture_provider(capture.capture).ok)
