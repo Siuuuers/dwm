@@ -945,6 +945,10 @@ func _next_session(game: Node, dating: Node) -> void:
 	bridge.set("_narrative_checkpoint_port", real_checkpoint_port)
 	if not await _wait_for_dating_board(dating): return
 	var observations := _end_next_observation()
+	if not _check(_next_checkpoint_results.size() == 2
+		and _next_checkpoint_results[0].phase == "source" and _next_checkpoint_results[0].result.get("ok", false)
+		and _next_checkpoint_results[1].phase == "destination" and _next_checkpoint_results[1].result.get("ok", false),
+		"real checkpoint owner commits exactly source then destination before physical completion"): return
 	if not _check(_next_is_silent(observations) and observations.exclusive_activations == 1,
 		"one witnessed traversal holds exclusive custody and never executes intermediate text, presentation or speech"): return
 	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
@@ -980,6 +984,7 @@ func _next_session(game: Node, dating: Node) -> void:
 		"actual challenge Autosave durably contains exact Next History and physical boundary"): return
 	if not await _capture_next_screen("02-next-board"): return
 	report.merge({"checkpoint": checkpoint.value.duplicate(true), "history": history.value.duplicate(true),
+		"checkpoint_results": _next_checkpoint_results.duplicate(true),
 		"physical_record": physical.value.duplicate(true), "observations": observations,
 		"autosave_sha256": str(disk.value).sha256_text(), "autosave_bytes": str(disk.value).to_utf8_buffer().size(),
 		"witnesses_before": profile_before.witnessed_caption_variants.duplicate(true),

@@ -824,7 +824,10 @@ func _configure_day_resolution_providers(state_port: Object) -> Dictionary:
 func _active_app_id_context() -> Variant:
 	if _desktop_host_state == null:
 		return null
-	return _desktop_host_state.capture_persistent_state().get("active_app_id", null)
+	var active: Variant = _desktop_host_state.capture_persistent_state().get("active_app_id", null)
+	# The host owns StringName IDs; the narrative provider owns primitive Strings.
+	# Preserve null and malformed values so the strict consumer can still refuse.
+	return String(active) if typeof(active) == TYPE_STRING_NAME else active
 
 ## One pure desktop capture. Physical route readiness and narrative inactivity are
 ## required; a semantic route token or an old journal entry cannot stand in for them.

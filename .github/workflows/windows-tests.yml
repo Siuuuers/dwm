@@ -1,4 +1,4 @@
-name: Next rendered integration diagnostics
+name: One-shot Next focused cloud proof
 
 on:
   push:
@@ -12,6 +12,230 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  public-surfaces:
+    name: Windows / public API surface contracts
+    runs-on: windows-2022
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: 77598db7975c201f4f3ff0b174f7f9e2883eaed9
+          # Defer credential removal until the post-job cleanup, after the
+          # malformed gitlinks are removed from this disposable runner's index.
+          persist-credentials: true
+      - name: Prepare disposable checkout for credential cleanup
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
+          # submodule foreach reads the index even with sparse checkout.
+          # The source commit and working files remain unchanged.
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git submodule foreach --recursive 'true'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Record fixture and schema version census
+        run: |
+          @'
+          import json, pathlib, re, subprocess
+          root = pathlib.Path.cwd()
+          paths = subprocess.check_output([
+              "git", "ls-files", "-z", "--", "autoload/", "scripts/", "tests/",
+              "tools/testing/", ".github/workflows/"
+          ]).decode("utf-8").split("\0")
+          patterns = {
+              "legacy_prepared_fixture": r"\bv[1-6]_desktop_prepared\.json\b",
+              "historical_day3_seed": r"valid_day3\.json",
+              "backup_fixture_helper": r"BackupSnapshotFixture",
+              "run_document_version": r"\b(?:schema_version|SCHEMA_VERSION|DOCUMENT_VERSION)\b",
+              "empty_contacts_literal": r"\bcontacts\b[\"']?\s*[:=]\s*\{\s*\}",
+          }
+          compiled = {key: re.compile(value) for key, value in patterns.items()}
+          records = []
+          scanned = 0
+          for name in sorted(paths):
+              path = root / name
+              if path.suffix not in {".gd", ".ps1", ".py", ".yml", ".yaml"} or not path.is_file():
+                  continue
+              scanned += 1
+              for number, line in enumerate(path.read_text(encoding="utf-8-sig").splitlines(), 1):
+                  families = [key for key, pattern in compiled.items() if pattern.search(line)]
+                  if families:
+                      records.append({"path": name, "line": number, "families": families, "text": line})
+          report = {
+              "checkout_ref": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+              "policy": "Observational census only; historical, refusal and Profile references require review, not automatic failure.",
+              "scanned_files": scanned, "patterns": patterns, "matches": records,
+          }
+          output = root / ".godot/ci/public-surfaces/fixture-version-census.json"
+          output.parent.mkdir(parents=True, exist_ok=True)
+          output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+          for record in records:
+              print("FIXTURE_VERSION_CENSUS_MATCH: " + json.dumps(record))
+          print("FIXTURE_VERSION_CENSUS_SUMMARY: " + json.dumps({
+              "checkout_ref": report["checkout_ref"], "scanned_files": scanned,
+              "matching_lines": len(records), "logged_lines": len(records),
+              "complete_artifact": ".godot/ci/public-surfaces/fixture-version-census.json",
+              "policy": report["policy"],
+          }))
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Install Godot 4.6.3 standard
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
+          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
+          # SHA256 published with the official 4.6.3-stable release asset.
+          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
+            throw 'Godot archive checksum mismatch.'
+          }
+          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
+          Expand-Archive -LiteralPath $archive -DestinationPath $editor
+          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
+          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          & $console --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Import project
+        timeout-minutes: 8
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
+          $env:APPDATA = Join-Path $output 'import-user/appdata'
+          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
+          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
+          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
+            throw 'Project import reported script errors; inspect import.log.'
+          }
+      - name: Restore committed project settings after editor import
+        run: |
+          # Dialogic's editor scan rewrites its timeline lookup during import.
+          # Execute the committed configuration with the freshly imported assets.
+          git restore -- project.godot
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify isolated runner contracts and timeout diagnostics
+        timeout-minutes: 4
+        run: |
+          $ErrorActionPreference = 'Stop'
+          ./tests/tooling/Test-InvokeIsolatedGodot.ps1
+      - name: Generate affected public inventories for review
+        timeout-minutes: 10
+        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
+      - name: Verify public inventory drift and read-only contracts
+        timeout-minutes: 10
+        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite public_surfaces
+      - name: Upload canonical inventories and retirement evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-surfaces-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .godot/ci/import.log
+            .godot/ci/public-surfaces/
+            .godot/ci/public_surfaces.xml
+            .godot/ci/public_surfaces.jsonl
+            .godot/ci/isolation-timeout.jsonl
+            .godot/phase2r_logs/cloud-isolation-timeout.log*
+            .godot/phase2r_logs/cloud-public-surface-*.log
+            .godot/phase2r_logs/cloud-public_surfaces.log*
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7
+
+  focused-tests:
+    name: Windows / ${{ matrix.suite }}
+    runs-on: windows-2022
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [persistence]
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: 77598db7975c201f4f3ff0b174f7f9e2883eaed9
+          # The schedule-gate contract inspects its immutable historical seals.
+          fetch-depth: ${{ (matrix.suite == 'new_account' || matrix.suite == 'desktop') && '0' || '1' }}
+          # Defer credential removal until the post-job cleanup, after the
+          # malformed gitlinks are removed from this disposable runner's index.
+          persist-credentials: true
+      - name: Prepare disposable checkout for credential cleanup
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
+          # submodule foreach reads the index even with sparse checkout.
+          # The source commit and working files remain unchanged.
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git submodule foreach --recursive 'true'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Install Godot 4.6.3 standard
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
+          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
+          # SHA256 published with the official 4.6.3-stable release asset.
+          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
+            throw 'Godot archive checksum mismatch.'
+          }
+          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
+          Expand-Archive -LiteralPath $archive -DestinationPath $editor
+          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
+          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          & $console --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Import project
+        timeout-minutes: 8
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
+          $env:APPDATA = Join-Path $output 'import-user/appdata'
+          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
+          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
+          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
+            throw 'Project import reported script errors; inspect import.log.'
+          }
+      - name: Restore committed project settings after editor import
+        run: |
+          # Dialogic's editor scan rewrites its timeline lookup during import.
+          # Execute the committed configuration with the freshly imported assets.
+          git restore -- project.godot
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Run focused regression suite
+        timeout-minutes: 10
+        env:
+          DWM_CI_SUITE: ${{ matrix.suite }}
+        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite $env:DWM_CI_SUITE
+      - name: Upload logs and test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-${{ matrix.suite }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .godot/ci/*.log
+            .godot/ci/*.jsonl
+            .godot/ci/*.json
+            .godot/ci/*.xml
+            .godot/ci/storage-refusal/
+            .godot/phase2r_logs/cloud-*.log
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7
+
   reading-rail-journey:
     name: Rendered eight-process Solo reading and Next proof
     runs-on: ubuntu-24.04
@@ -24,7 +248,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: c7e60079dd0365dc39d59a013dff7669efb22554
+          ref: 77598db7975c201f4f3ff0b174f7f9e2883eaed9
           # Same disposable-index workaround as the Windows jobs above.
           persist-credentials: true
       - name: Prepare disposable checkout for credential cleanup
