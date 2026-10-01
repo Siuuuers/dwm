@@ -116,6 +116,18 @@ workflow authority. Exact originals remain retrievable at Git commit
 `96f95c67db6c7358b5f846651fef5c88babfbf92`; historical plans/evidence are retained
 as historical records. Their useful working principles continue here.
 
+Guidance cleanup checkpoint: [Run118](https://github.com/Siuuuers/dwm/actions/runs/36937492913)
+passes 56 cases across eight scripts, both documentation CLIs and the PowerShell
+instruction fixture on `e18f832deca10f7d000a45e470ce5c48c9b68b56`.
+[Retirement receipt](../../evidence/phase_2r/guidance_retirement_2026_10_02/receipt.json)
+preserves the setup diagnostics and proves all 191 Beads records unchanged.
+Runtime acceptance remains Run114 above; subsequent handoff/evidence edits are records-only.
+
+Integration follow-up: master's newer root `AGENTS.md` (absent from this PR source)
+still links to `CLAUDE.md`. When merge/integration is separately requested, repoint
+that technical route to README/current handoff while preserving its story routes.
+Do not merge or edit master/story as part of this completed PR-branch cleanup.
+
 - Define one observable outcome and its acceptance before polishing. Inspect real
   source/callers and concrete failure modes first; state assumptions and limitations.
 - Continue routine implementation and reversible simplification autonomously within
@@ -135,10 +147,8 @@ as historical records. Their useful working principles continue here.
   owns shared files, publication and Beads changes. Finish independent audits before
   overlapping acceptance runs. Preserve broader unfinished clauses explicitly.
 
-Use one observable outcome, one lead Bead, one integrator for shared owners and one
-source-bound receipt. Delegate disjoint edits and independent audits. Prefer existing
-owners to new state bags. Review real callers before retiring code. Run **Godot
-4.6.3 standard GDScript and PowerShell only in GitHub Actions**.
+Use one lead Bead and one source-bound receipt. Run **Godot 4.6.3 standard
+GDScript and PowerShell only in GitHub Actions**.
 
 Check fixture meaning before changing runtime. Physical transport controls retire
 input on semantic/foreground changes; allow neutral frames, then prove fresh

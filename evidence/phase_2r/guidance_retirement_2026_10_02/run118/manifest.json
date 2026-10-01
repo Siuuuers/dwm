@@ -1,0 +1,271 @@
+{
+  "artifacts": [
+    {
+      "created_at": "2026-10-01T22:53:14Z",
+      "digest": "sha256:a8045668a3ab96b1607093e8ec711856c19ca88159e86bbf51d7ab7c3428ee50",
+      "extracted_file_count": 10,
+      "id": 11198663057,
+      "local_zip_basename": "guidance-retirement-36937492913-1.zip",
+      "name": "guidance-retirement-36937492913-1",
+      "size_in_bytes": 704743,
+      "workflow_run_head_sha": "b510129b2721e40b74490336b0ff3963866cd4f6",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "a8045668a3ab96b1607093e8ec711856c19ca88159e86bbf51d7ab7c3428ee50"
+    }
+  ],
+  "bundle": "cloud-guidance-accepted-run118.tar.gz",
+  "counts": {
+    ".json": 10,
+    ".jsonl": 3,
+    ".log": 5,
+    ".py": 2,
+    ".xml": 1
+  },
+  "evidence_kind": "bounded-successful-run-audit",
+  "excluded_extracted_files": [],
+  "excluded_metadata": "Transient download responses and artifact-manifest.json are omitted because they can contain signed URLs.",
+  "generic_audit_pass": true,
+  "limits": [
+    "This one-job acceptance covers guidance retirement, documentation/authority tooling and preserved task records only.",
+    "Runtime acceptance remains source 900118a5dc16b89b82a4e5d946767c080083c750 / Run114; no gameplay, render, export or broad runtime suite ran in this guidance job.",
+    "All 191 retained Beads records and 23 unfinished tasks are byte-preserved; the retained snapshot does not claim live Dolt query or synchronization.",
+    "The temporary CLI snapshot may contain only the specifically audited lossless trailing-zero timestamp normalization; its raw bytes are retained, and it is not claimed byte-identical to the physical Beads export.",
+    "Workflow head and actual tested source are distinct; every retained job log and cloud receipt binds the exact source checkout.",
+    "No engines or PowerShell run during this local evidence audit or packaging.",
+    "Most PNGs and binary payloads are omitted, with explicit hashes/limits; reading PNGs and savebytes are retained.",
+    "This archive preserves evidence; packaging creates no additional engine or visual acceptance."
+  ],
+  "normalization": "lexicographic POSIX PAX members; mode0644 uid/gid0 empty owner names, mtime0; gzip mtime0, empty filename, level9",
+  "not_downloaded_artifacts": [],
+  "payload_bytes": 3331735,
+  "payload_file_count": 21,
+  "payload_files": [
+    {
+      "bytes": 27534,
+      "path": "run118/acceptance-summary.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "ca4ed9464281f3902c32c37e9e4790189e35a638d22b3bc33a22c03b9c713022"
+    },
+    {
+      "bytes": 914,
+      "path": "run118/artifacts-api.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "09a8e74d1b4150dc59aa40cd92eedb0893799766cdf38022725bee4d8fc6503d"
+    },
+    {
+      "bytes": 2079247,
+      "path": "run118/artifacts/guidance-retirement-36937492913-1/ci/guidance-beads-snapshot.json",
+      "provenance": {
+        "artifact_id": 11198663057,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/guidance-beads-snapshot.json",
+        "zip_sha256": "a8045668a3ab96b1607093e8ec711856c19ca88159e86bbf51d7ab7c3428ee50"
+      },
+      "sha256": "082bbc538474445dcab0d1bc6a693c8ccad90418a2d0707b718c8d8279ee9928"
+    },
+    {
+      "bytes": 976,
+      "path": "run118/artifacts/guidance-retirement-36937492913-1/ci/guidance-retirement.json",
+      "provenance": {
+        "artifact_id": 11198663057,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/guidance-retirement.json",
+        "zip_sha256": "a8045668a3ab96b1607093e8ec711856c19ca88159e86bbf51d7ab7c3428ee50"
+      },
+      "sha256": "c54381f87bb6c9723177a4ffc531e0038609291c77363e4940d72a1bf98b5e2d"
+    },
+    {
+      "bytes": 1150,
+      "path": "run118/artifacts/guidance-retirement-36937492913-1/ci/guidance-retirement.jsonl",
+      "provenance": {
+        "artifact_id": 11198663057,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/guidance-retirement.jsonl",
+        "zip_sha256": "a8045668a3ab96b1607093e8ec711856c19ca88159e86bbf51d7ab7c3428ee50"
+      },
+      "sha256": "2094a14a1b9cac4304cfb9cca1325ef2de43f7ef869d09cc327b3186aac34f2a"
+    },
+    {
+      "bytes": 13666,
+      "path": "run118/artifacts/guidance-retirement-36937492913-1/ci/guidance-retirement.xml",
+      "provenance": {
+        "artifact_id": 11198663057,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/guidance-retirement.xml",
+        "zip_sha256": "a8045668a3ab96b1607093e8ec711856c19ca88159e86bbf51d7ab7c3428ee50"
+      },
+      "sha256": "1fbff2a121eec17fb957df3059eb9c3f4f462a7b638f35e1dfdb81b55193a616"
+    },
+    {
+      "bytes": 203338,
+      "path": "run118/artifacts/guidance-retirement-36937492913-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11198663057,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "a8045668a3ab96b1607093e8ec711856c19ca88159e86bbf51d7ab7c3428ee50"
+      },
+      "sha256": "10cf7b4747f9ae614bde135aa80a432304352a426d665e38a622088987b59ca3"
+    },
+    {
+      "bytes": 637,
+      "path": "run118/artifacts/guidance-retirement-36937492913-1/ci/validate_agent_workflow.jsonl",
+      "provenance": {
+        "artifact_id": 11198663057,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/validate_agent_workflow.jsonl",
+        "zip_sha256": "a8045668a3ab96b1607093e8ec711856c19ca88159e86bbf51d7ab7c3428ee50"
+      },
+      "sha256": "539536131620e25df82d0be448dcba69938f1b594f001142d24542167dbbe617"
+    },
+    {
+      "bytes": 679,
+      "path": "run118/artifacts/guidance-retirement-36937492913-1/ci/validate_docs.jsonl",
+      "provenance": {
+        "artifact_id": 11198663057,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/validate_docs.jsonl",
+        "zip_sha256": "a8045668a3ab96b1607093e8ec711856c19ca88159e86bbf51d7ab7c3428ee50"
+      },
+      "sha256": "84c1280dbbe8371942f2be6cee91eaccc3626cf51433a6141c9a37bcca1cd811"
+    },
+    {
+      "bytes": 406906,
+      "path": "run118/artifacts/guidance-retirement-36937492913-1/phase2r_logs/cloud-guidance-retirement.log",
+      "provenance": {
+        "artifact_id": 11198663057,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-guidance-retirement.log",
+        "zip_sha256": "a8045668a3ab96b1607093e8ec711856c19ca88159e86bbf51d7ab7c3428ee50"
+      },
+      "sha256": "e94c5d78c5228b0d74f8bd3d08ec9c71f4668ea47c0fb9c982a3b40704c40abf"
+    },
+    {
+      "bytes": 105,
+      "path": "run118/artifacts/guidance-retirement-36937492913-1/phase2r_logs/cloud-validate_agent_workflow.log",
+      "provenance": {
+        "artifact_id": 11198663057,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-validate_agent_workflow.log",
+        "zip_sha256": "a8045668a3ab96b1607093e8ec711856c19ca88159e86bbf51d7ab7c3428ee50"
+      },
+      "sha256": "e69fb76cfcbff48b95d12202ab5b63e815b91693df74d350369fb4c659a40958"
+    },
+    {
+      "bytes": 143,
+      "path": "run118/artifacts/guidance-retirement-36937492913-1/phase2r_logs/cloud-validate_docs.log",
+      "provenance": {
+        "artifact_id": 11198663057,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-validate_docs.log",
+        "zip_sha256": "a8045668a3ab96b1607093e8ec711856c19ca88159e86bbf51d7ab7c3428ee50"
+      },
+      "sha256": "24e595cafabaa2352436ebf57b0030b84be81c6e614adf0622aa011e86c594d5"
+    },
+    {
+      "bytes": 22709,
+      "path": "run118/audit/audit_guidance_retirement.py",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "d755301c8add22accfab7de3d2e2e0e28db12bbdeeea19c548cb90aefec49a52"
+    },
+    {
+      "bytes": 38100,
+      "path": "run118/audit/cloud_evidence.py",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "1cb2478797d9373630f9ab5b9424bacd44b4c721cdf72df7a93ae2f40b1c94d9"
+    },
+    {
+      "bytes": 33774,
+      "path": "run118/audit/generic-evidence-audit.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "8e8dbf5ac5b42074f91c5ea2c46adb6543d99e319fccc7b5e6016cd5e06afde9"
+    },
+    {
+      "bytes": 23128,
+      "path": "run118/audit/guidance-retirement-audit.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "61aaf8105de245775f18662f6402a7b31fe8d6e4af363b980c53d2e3ae1bb0ee"
+    },
+    {
+      "bytes": 931,
+      "path": "run118/audit/guidance-retirement-inputs.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "a8c8207ef01fec3d49b2e0554ad289c394631a84239f2cbcc914607584ccff28"
+    },
+    {
+      "bytes": 346,
+      "path": "run118/audit/source-provenance.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "a9d5f43c8ec369cfd1d779a9c8771134d2c9186b134fdacd20e0cf180b248de6"
+    },
+    {
+      "bytes": 4046,
+      "path": "run118/jobs.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "46751f891d70a4b7f77a71a204966534c6f339e1b0c961777264a5142c3c0739"
+    },
+    {
+      "bytes": 460603,
+      "path": "run118/logs/110621069755.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "154677057950f767d2ee01fd7a7771891b513b01582d6ecbf48346e6f4c2bcc3"
+    },
+    {
+      "bytes": 12803,
+      "path": "run118/run.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "14f6d079c975ee7e4b0b530a7266ab879107f89da05732d6e97a24d00978e8d3"
+    }
+  ],
+  "run": {
+    "conclusion": "success",
+    "event": "push",
+    "head_branch": "codex/next-cloud-20261002",
+    "head_sha": "b510129b2721e40b74490336b0ff3963866cd4f6",
+    "html_url": "https://github.com/Siuuuers/dwm/actions/runs/36937492913",
+    "id": 36937492913,
+    "run_attempt": 1,
+    "run_number": 118,
+    "status": "completed"
+  },
+  "schema_version": 1,
+  "secret_scan_patterns": [
+    "github_token",
+    "signed_query",
+    "authorization_secret",
+    "private_key"
+  ],
+  "source_boundary": {
+    "all_unlisted_paths_byte_identical": true,
+    "checkout_parents": [
+      "c8aacf5540ec85cc64eaebd9870b768165ec537a"
+    ],
+    "explicit_allowed_difference_patterns": [],
+    "master": null,
+    "source": "e18f832deca10f7d000a45e470ce5c48c9b68b56",
+    "source_checkout_differences": [],
+    "tested_checkout": "e18f832deca10f7d000a45e470ce5c48c9b68b56"
+  }
+}
