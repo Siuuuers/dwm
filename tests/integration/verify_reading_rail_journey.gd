@@ -974,12 +974,20 @@ func _next_unseen_session(game: Node, dating: Node, report: Dictionary) -> void:
 	if not await _activate_next("Next with refused Auto Off"): return
 	var refusal_observations := _end_next_observation()
 	var refused_checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
+	var refusal_state := {"refusals": fault.refusals, "matching_writes": fault.matching_writes,
+		"profile_unchanged": profile.get_profile_snapshot() == before_profile,
+		"disk_unchanged": _witness_disk() == before_disk, "game_unchanged": game.to_save_dict() == before_game,
+		"scene_unchanged": current_scene == dating, "checkpoint": refused_checkpoint,
+		"checkpoint_unchanged": refused_checkpoint.get("value", {}) == report.source_checkpoint,
+		"line_complete": runtime.is_current_line_complete(), "observations": refusal_observations,
+		"recovery": _caption_layer().get("_reading_recovery")}
 	if not _check(fault.refusals == 1 and fault.matching_writes == 1
 		and profile.get_profile_snapshot() == before_profile and _witness_disk() == before_disk
 		and game.to_save_dict() == before_game and current_scene == dating
 		and refused_checkpoint.get("ok", false) and refused_checkpoint.value == report.source_checkpoint
 		and not runtime.is_current_line_complete() and _next_is_silent(refusal_observations),
-		"Auto Off refusal starts no traversal and preserves exact durable Profile, game and partial source"): return
+		"Auto Off refusal starts no traversal and preserves exact durable Profile, game and partial source: "
+		+ JSON.stringify(refusal_state)): return
 	_trace("next_auto_off_refused", {"profile_sha256": before_disk.sha256, "observations": refusal_observations})
 	_begin_next_observation()
 	if not await _retry_next(): return

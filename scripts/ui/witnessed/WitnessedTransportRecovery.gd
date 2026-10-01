@@ -154,10 +154,11 @@ func _style(percent: int, large_targets: bool) -> void:
 
 
 func _publish() -> void:
+	var next_command := _command_kind == &"next"
 	if _can_retry or _can_cancel:
-		message_label.text = _copy["next_failure"] if _command_kind == &"next" else _copy["failure"]
+		message_label.text = _copy["next_failure"] if next_command else _copy["failure"]
 	else:
-		message_label.text = _copy["next_uncertain"] if _command_kind == &"next" else _copy["uncertain"]
+		message_label.text = _copy["next_uncertain"] if next_command else _copy["uncertain"]
 	accessibility_name = message_label.text
 	retry_button.text = _copy["retry"]
 	cancel_button.text = _copy["cancel"]
