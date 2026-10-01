@@ -127,8 +127,8 @@ func configure(presentation: Theme, localization: Object, input_owner: Node, adm
 	_input_owner = input_owner
 	_admission = admission
 	theme = presentation.duplicate()
-	_heading.text = String(localization.call("t", "witnessed.transport.history"))
-	close_button.text = String(localization.call("t", "button.close"))
+	_heading.text = String(localization.t("witnessed.transport.history"))
+	close_button.text = String(localization.t("button.close"))
 	var locale := String(localization.call("get_locale")).replace("_", "-")
 	_heading.language = locale
 	close_button.language = locale
