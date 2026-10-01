@@ -1,12 +1,15 @@
 extends RefCounted
-## Opt-in fixed authored Solo catalogue and one semantic ledger. No production
+## Opt-in authored Solo catalogue and one semantic ledger. No production
 ## catalogue is loaded implicitly, and the catalogue never executes story code.
 const LEDGER := preload("res://scripts/narrative/NarrativeCaptionLedger.gd")
 const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 const JSON_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+const AUTHORED := preload("res://scripts/narrative/SoloReadingCatalogue.gd")
 const TRAVERSAL := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
 
 var catalogue: Dictionary = {}
+var catalogue_schema_version := 1
+var _selected_entries: Dictionary = {}
 var fingerprint := ""
 var registry: Dictionary = {}
 var manifest: Dictionary = {}
@@ -20,6 +23,19 @@ var next_operation: Dictionary = {}
 
 func configure(document: Dictionary) -> Dictionary:
 	if not catalogue.is_empty(): return _fail(&"reading_catalogue_already_configured")
+	if typeof(document.get("schema_version")) == TYPE_INT and document.schema_version == 2:
+		var authored := AUTHORED.compile(document)
+		if not authored.ok: return authored
+		var encoded := JSON_WRITER.stringify(document)
+		if not encoded.ok: return encoded
+		catalogue = authored.value.entries
+		catalogue_schema_version = 2
+		manifest = {"entries": []}
+		for entry: Dictionary in document.entries:
+			manifest.entries.append({"entry_id": entry.entry_id})
+		FROZEN._freeze(catalogue)
+		fingerprint = str(encoded.value).sha256_text()
+		return {"ok": true}
 	if not FROZEN._exact(document, ["kind", "schema_version", "entries"]) \
 			or document.get("kind") != "solo_reading_catalogue" \
 			or typeof(document.get("schema_version")) != TYPE_INT or document.schema_version != 1 \
@@ -73,8 +89,11 @@ func begin(completion_transaction_id: String, pre_entry: String) -> Dictionary:
 		return _fail(&"reading_session_invalid")
 	var candidate := LEDGER.new()
 	var context := {"completion_transaction_id": completion_transaction_id, "pre_entry_id": pre_entry}
-	var initialized := candidate.initialize(completion_transaction_id, context, manifest, registry, true)
-	if not initialized.ok: return initialized
+	# A selector catalogue has no chosen caption registration until its real
+	# phase frame exists. The retained ledger object is initialized on admission.
+	if catalogue_schema_version == 1:
+		var initialized := candidate.initialize(completion_transaction_id, context, manifest, registry, true)
+		if not initialized.ok: return initialized
 	command_id = completion_transaction_id
 	pre_entry_id = pre_entry
 	ledger = candidate
@@ -88,8 +107,12 @@ func admit(entry_id: String, context: Dictionary) -> Dictionary:
 	if context.get("expected_stage") != entry_id.get_slice(".", 4) \
 			or context.get("transaction_id") != command_id + ":" + str(context.get("expected_stage")):
 		return _fail(&"reading_context_invalid")
-	var admitted := ledger.admit_entry_context(command_id, entry_id, context)
-	if not admitted.ok: return admitted
+	if catalogue_schema_version == 2:
+		var selected := _admit_authored(entry_id, context)
+		if not selected.ok: return selected
+	else:
+		var admitted := ledger.admit_entry_context(command_id, entry_id, context)
+		if not admitted.ok: return admitted
 	# A successful physical handoff has already checkpointed the preceding
 	# operation. The next independently admitted frame starts a fresh frontier.
 	if latest_entry != entry_id: next_operation = {}
@@ -159,22 +182,21 @@ func _validate_base_saved(saved: Dictionary, entry_id: String) -> Dictionary:
 			or not source.frozen_context.pre_entry_id.ends_with(".pre_challenge") \
 			or not source.get("entry_contexts") is Dictionary or not catalogue.has(entry_id):
 		return _fail(&"reading_checkpoint_invalid")
+	var programs := _programs_for_frames(source.entry_contexts, source.frozen_context.completion_transaction_id)
+	if not programs.ok: return programs
+	if not source.entry_contexts.has(entry_id): return _fail(&"reading_context_invalid")
+	if catalogue_schema_version == 2:
+		var expected_frames := [pre_entry_for(entry_id)]
+		if entry_id.ends_with(".post_challenge"): expected_frames.append(entry_id)
+		if not FROZEN._exact(source.entry_contexts, expected_frames): return _fail(&"reading_context_invalid")
 	var candidate := LEDGER.new()
 	var restored := candidate.restore_snapshot(source.frozen_context.completion_transaction_id,
-		source.frozen_context, manifest, registry, source, source.entry_contexts, true)
+		source.frozen_context, manifest, programs.value.registry, source, source.entry_contexts, true)
 	if not restored.ok: return restored
-	if not source.entry_contexts.has(entry_id): return _fail(&"reading_context_invalid")
-	for key: Variant in source.entry_contexts:
-		var context: Dictionary = source.entry_contexts[key]
-		if not _context_shape(context): return _fail(&"reading_context_invalid")
-		var checked := FROZEN.validate(key, context.presentation)
-		if not checked.ok: return checked
-		if context.get("expected_stage") != str(key).get_slice(".", 4) \
-				or context.get("transaction_id") != str(source.frozen_context.completion_transaction_id) + ":" + str(context.get("expected_stage")):
-			return _fail(&"reading_context_invalid")
 	var expected: Array = []
 	for entry: Dictionary in manifest.entries:
-		for line: Dictionary in catalogue[entry.entry_id].lines:
+		if not programs.value.entries.has(entry.entry_id): continue
+		for line: Dictionary in programs.value.entries[entry.entry_id].lines:
 			expected.append({"entry_id": entry.entry_id, "line_id": line.line_id})
 	if source.captions.is_empty() or source.captions.size() > expected.size(): return _fail(&"reading_sequence_invalid")
 	for index: int in source.captions.size():
@@ -189,14 +211,15 @@ func _validate_base_saved(saved: Dictionary, entry_id: String) -> Dictionary:
 				or saved.frontier.get("publication_id") != tail.publication_id:
 			return _fail(&"reading_frontier_invalid")
 	else:
-		if not saved.frontier.is_empty() or tail.beat.line_id != catalogue[entry_id].lines.back().line_id:
+		if not saved.frontier.is_empty() or tail.beat.line_id != programs.value.entries[entry_id].lines.back().line_id:
 			return _fail(&"reading_frontier_invalid")
-	return {"ok": true, "value": candidate}
+	return {"ok": true, "value": candidate, "programs": programs.value.entries, "registry": programs.value.registry}
 
 func restore(saved: Dictionary, entry_id: String) -> Dictionary:
 	var checked := validate_saved(saved, entry_id)
 	if not checked.ok: return checked
 	ledger = checked.value
+	if catalogue_schema_version == 2: _install_programs(checked.programs, checked.registry)
 	command_id = saved.ledger.frozen_context.completion_transaction_id
 	pre_entry_id = saved.ledger.frozen_context.pre_entry_id
 	latest_entry = entry_id
@@ -211,7 +234,7 @@ func prepare_next(frontier: Dictionary, is_witnessed: Callable) -> Dictionary:
 	if not is_witnessed.is_valid() or boundary != "line": return _fail(&"reading_next_unavailable")
 	var source := capture(frontier)
 	if not source.ok: return source
-	var lines: Array = catalogue[latest_entry].lines
+	var lines: Array = entry_program(latest_entry).value.lines
 	var index := -1
 	for ordinal: int in lines.size():
 		if lines[ordinal].line_id == frontier.line_id: index = ordinal
@@ -247,11 +270,93 @@ func project(frontier: Dictionary) -> Dictionary:
 	if not captured.ok: return captured
 	var rows: Array[Dictionary] = []
 	for row: Dictionary in captured.value.ledger.captions:
-		for line: Dictionary in catalogue[row.beat.owning_entry_id].lines:
+		for line: Dictionary in entry_program(row.beat.owning_entry_id).value.lines:
 			if line.line_id == row.beat.line_id:
 				rows.append({"publication_id": row.publication_id, "beat_id": row.beat.beat_id,
 					"line_id": line.line_id, "entry_id": row.beat.owning_entry_id, "text": line.text})
 	return {"ok": true, "value": {"captions": rows, "frontier": frontier.duplicate(true), "session_id": command_id}}
+
+## Resolve from a supplied canonical frame before native playback, or return the
+## already admitted programme. No mutable gameplay reads or future defaults.
+func entry_program(entry_id: String, context: Dictionary = {}) -> Dictionary:
+	if not catalogue.has(entry_id): return _fail(&"reading_entry_unavailable")
+	if catalogue_schema_version == 1:
+		var row: Dictionary = catalogue[entry_id].duplicate(true)
+		row["label"] = entry_id
+		return {"ok": true, "value": row}
+	if not context.is_empty():
+		if not _context_shape(context): return _fail(&"reading_context_invalid")
+		return AUTHORED.select(catalogue[entry_id], context.presentation)
+	if not _selected_entries.has(entry_id): return _fail(&"reading_context_unavailable")
+	return {"ok": true, "value": _selected_entries[entry_id].duplicate(true)}
+
+func _programs_for_frames(frames: Dictionary, transaction_id: String) -> Dictionary:
+	var selected := {}
+	var beats: Array = []
+	for key: Variant in frames:
+		if not key is String or not catalogue.has(key) or not frames[key] is Dictionary:
+			return _fail(&"reading_context_invalid")
+		var context: Dictionary = frames[key]
+		if not _context_shape(context): return _fail(&"reading_context_invalid")
+		var checked := FROZEN.validate(key, context.presentation)
+		if not checked.ok: return checked
+		if context.get("expected_stage") != str(key).get_slice(".", 4) \
+				or context.get("transaction_id") != transaction_id + ":" + str(context.get("expected_stage")):
+			return _fail(&"reading_context_invalid")
+		var programme := entry_program(key, context)
+		if not programme.ok: return programme
+		selected[key] = programme.value
+	if catalogue_schema_version == 1:
+		for key: String in catalogue: selected[key] = entry_program(key).value
+		return {"ok": true, "value": {"entries": selected, "registry": registry}}
+	for entry: Dictionary in manifest.entries:
+		if selected.has(entry.entry_id): beats.append_array(selected[entry.entry_id].beats)
+	var registered := {"kind": "narrative_caption_registry", "schema_version": 1, "beats": beats}
+	var checked := preload("res://scripts/narrative/DialogicEntryManifest.gd").validate_caption_registry(manifest, registered)
+	if not checked.ok: return checked
+	return {"ok": true, "value": {"entries": selected, "registry": registered}}
+
+func _admit_authored(entry_id: String, context: Dictionary) -> Dictionary:
+	var source: Dictionary = ledger.snapshot()
+	if _selected_entries.is_empty():
+		if entry_id != pre_entry_id: return _fail(&"reading_context_invalid")
+		source = {"session_token": command_id, "frozen_context": {
+			"completion_transaction_id": command_id, "pre_entry_id": pre_entry_id},
+			"entry_contexts": {}, "captions": []}
+	elif source.entry_contexts.has(entry_id):
+		if latest_entry != entry_id: return _fail(&"reading_context_invalid")
+		return {"ok": true} if source.entry_contexts[entry_id] == context else _fail(&"caption_entry_context_conflict")
+	elif entry_id != pre_entry_id.trim_suffix(".pre_challenge") + ".post_challenge" \
+			or latest_entry != pre_entry_id or boundary != "between_entries":
+		return _fail(&"reading_context_invalid")
+	else:
+		var completed_source := capture({})
+		if not completed_source.ok: return completed_source
+	var frames: Dictionary = source.entry_contexts.duplicate(true)
+	frames[entry_id] = context.duplicate(true)
+	var programs := _programs_for_frames(frames, command_id)
+	if not programs.ok: return programs
+	source.entry_contexts = frames
+	var candidate := LEDGER.new()
+	var copied := candidate.restore_snapshot(command_id, source.frozen_context, manifest,
+		programs.value.registry, source, frames, true)
+	if not copied.ok: return copied
+	# Install the whole candidate only after existing History and the new phase
+	# are both admitted. The departing phase has no active native publication.
+	ledger = candidate
+	_install_programs(programs.value.entries, programs.value.registry)
+	return {"ok": true}
+
+func _install_programs(entries: Dictionary, registered: Dictionary) -> void:
+	_selected_entries = entries.duplicate(true)
+	registry = registered.duplicate(true)
+	FROZEN._freeze(_selected_entries)
+	FROZEN._freeze(registry)
+	_caption_variants_by_line = {}
+	for beat: Dictionary in registry.beats: _caption_variants_by_line[beat.line_id] = beat
+
+static func pre_entry_for(entry_id: String) -> String:
+	return entry_id.trim_suffix(".post_challenge") + ".pre_challenge" if entry_id.ends_with(".post_challenge") else entry_id
 
 static func _context_shape(context: Dictionary) -> bool:
 	return FROZEN._exact(context, ["expected_stage", "playback_id", "role", "transaction_id", "presentation"]) \

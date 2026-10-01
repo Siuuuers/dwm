@@ -1278,8 +1278,10 @@ func _perform_next(expected_frontier: Dictionary) -> Dictionary:
 	var restored: Dictionary = candidate.restore(target_reading.value, plan.entry_id)
 	if not restored.ok: return restored
 	var destination_line := "" if plan.destination.kind == "completion" else str(plan.destination.caption.beat.line_id)
+	var programme: Dictionary = _reading_session.entry_program(plan.entry_id)
+	if not programme.ok: return programme
 	var native: Dictionary = _runtime_adapter.prepare_reading_seek(current.value.caption_publication,
-		plan.entry_id, _reading_session.catalogue[plan.entry_id].lines, destination_line)
+		str(_active_entry.get("label", programme.value.label)), programme.value.lines, destination_line)
 	if not native.get("ok", false): return native
 	var before: Dictionary = _line_presentation_context(expected_frontier)
 	if not before.get("ok", false) or _skip_profile.get_profile_revision() != revision:
@@ -1917,13 +1919,16 @@ func validate_reading_checkpoint(checkpoint: Dictionary, entry_contexts: Diction
 	return {"ok": true, "value": {"entry_contexts": frames.duplicate(true)}}
 
 
-func _validate_reading_entry(session: RefCounted, entry_id: String) -> Dictionary:
+func _validate_reading_entry(session: RefCounted, entry_id: String, context: Dictionary = {}) -> Dictionary:
 	if _runtime_adapter == null or not _runtime_adapter.has_method("validate_reading_entry"):
 		return _command_failure(&"reading_catalogue_unavailable")
-	var row: Dictionary = session.catalogue[entry_id]
+	var programme: Dictionary = session.entry_program(entry_id, context)
+	if not programme.ok: return programme
+	var row: Dictionary = programme.value
 	var resolved := _resolve_entry_for_playback(entry_id, row.content_version)
 	if not resolved.ok: return resolved
-	return _runtime_adapter.validate_reading_entry(resolved.value.path, resolved.value.label, row.lines)
+	return _runtime_adapter.validate_reading_entry(resolved.value.path,
+		row.label if session.catalogue_schema_version == 2 else resolved.value.label, row.lines)
 
 
 func stage_reading_restore(checkpoint: Dictionary) -> Dictionary:
@@ -2389,8 +2394,11 @@ func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode
 		and (token_kind != "resume" or not _reading_resume_frontier.is_empty()) \
 		and _reading_session.catalogue.has(entry_id)
 	if reading:
-		var compatible := _validate_reading_entry(_reading_session, entry_id)
+		var compatible := _validate_reading_entry(_reading_session, entry_id, frozen)
 		if not compatible.ok: return compatible
+		var programme: Dictionary = _reading_session.entry_program(entry_id, frozen)
+		if not programme.ok: return programme
+		if _reading_session.catalogue_schema_version == 2: label = programme.value.label
 		var frame: Dictionary = _reading_session.admit(entry_id, frozen)
 		if not frame.ok: return frame
 		var bound: Dictionary = _runtime_adapter.bind_caption_ledger(_reading_session.ledger,

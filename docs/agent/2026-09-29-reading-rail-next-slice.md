@@ -165,6 +165,38 @@ No new owner answer is required to begin this bounded fixture implementation.
 Additional production wording/staging selectors remain the separate authored
 catalogue question below. No task is closed by this readiness audit.
 
+## Authored selector admission candidate — 2 October 2026
+
+Implementation candidate; cloud acceptance is pending. Lead `dwm-vky.14`, with
+bounded authored-admission clauses of `dwm-n3h.2`. Neither issue closes here.
+
+- **Outcome:** the same stable caption/beat selects its exact authored wording
+  from the admitted Priscilla Day-1 Solo pre/post frame. Publication, History,
+  Next and restore consume the same selection.
+- **Contract:** opt-in catalogue v2 lists finite exact per-entry semantic selector
+  rows, explicit native labels and per-caption selector subsets. Complete entry
+  selectors remain separate from caption variants. Unknown rows, causal-ID
+  selectors, ambiguous rows and one exact descriptor aliasing different text
+  refuse. Canonical presentation validation remains the prerequisite.
+- **Ownership:** `SoloReadingCatalogue` is a pure compiler/selector;
+  `SoloReadingSession` retains the existing ledger and transactionally rebuilds
+  its selected registrations only when each authoritative phase frame exists.
+  Post-board facts are never predicted. The Bridge resolves the chosen flat
+  native programme through its existing playback, Next and restore paths.
+- **Simplification:** no dynamic ledger-registration API, extra History store,
+  generic DTL branch interpreter, parallel save owner or global reached-signature
+  migration. Catalogue v1 and existing reading envelopes remain supported; v2
+  declares its own fingerprint and cannot silently reinterpret a v1 catalogue.
+- **Proof:** new pure-contract, actual Profile/semantic-owner and mounted native
+  Bridge cases; affected cloud suites and existing physical Save/Load journey;
+  reviewed cloud-generated inventories and the required stable broad PR gate.
+- **Limits:** all text is authorized noncanonical test text. The finite rows are
+  an engineering proof, not a complete production catalogue. Production remains
+  unregistered. The global reached-signature successor, Gallery exact replay,
+  Hospital/ending continuity and native platform acceptance remain open. The
+  original physical journey remains the fixed-catalogue regression; do not call
+  mounted adapter reconstruction a fresh-process physical v2 Save/Load proof.
+
 ## Unshipped development-save policy
 
 The [owner decision of 29 September 2026](../design/2026-09-29-unshipped-development-save-policy.md) confirms that the game is unshipped and removes mandatory support for obsolete development Run/Profile formats. A successor can require a clean start, with an explicit version/refusal boundary; migration, old readers and legacy-gap UI are optional engineering choices. Do not synthesize missing captions, receipts or achievements.
