@@ -1,0 +1,49 @@
+name: P-L source export (temporary PR 3 helper)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - '.github/workflows/pl-source-export.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    if: github.repository == 'Siuuuers/dwm' && github.event.pull_request.number == 3 && github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'story/pl-workspace-foundation-2026-10-01'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          ref: c8a67a221f45ab37ad318dfacc7c204d68590b7c
+          persist-credentials: false
+      - name: Export tracked narrative sources only
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = c8a67a221f45ab37ad318dfacc7c204d68590b7c
+          mkdir snapshot
+          git archive HEAD story docs CLAUDE.md README.md | tar -x -C snapshot
+          git ls-tree -r HEAD > snapshot/TRACKED-TREE.txt
+          git rev-parse HEAD > snapshot/SOURCE-COMMIT.txt
+          python3 - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root = Path('snapshot')
+          rows = []
+          for p in sorted(root.rglob('*')):
+              if p.is_file():
+                  data = p.read_bytes()
+                  rows.append({'path': p.relative_to(root).as_posix(), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})
+          (root / 'EXPORT-HASHES.json').write_text(json.dumps(rows, indent=2) + '\n', encoding='utf-8')
+          print('Exported', len(rows), 'files; no repository writes or source deletions.')
+          PY
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: pl-narrative-sources-c8a67a2
+          path: snapshot/
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 9
