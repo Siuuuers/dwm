@@ -1,0 +1,622 @@
+{
+  "started_at_utc": "2026-10-01T13:08:59.402808+00:00",
+  "run_output": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7",
+  "ok": true,
+  "cases": [
+    {
+      "case_id": "seven-days-ending-gallery",
+      "fixture_scope": "No prior ending or reached-presentation fixture.",
+      "ok": true,
+      "failures": [],
+      "isolation_root": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/f9b863d2-2851-4bb3-a8e4-640e6de72f56",
+      "environment": {
+        "XDG_DATA_HOME": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/f9b863d2-2851-4bb3-a8e4-640e6de72f56/data",
+        "DWM_TEST_ROOT": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/f9b863d2-2851-4bb3-a8e4-640e6de72f56/test-root",
+        "XDG_CONFIG_HOME": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/f9b863d2-2851-4bb3-a8e4-640e6de72f56/config",
+        "XDG_CACHE_HOME": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/f9b863d2-2851-4bb3-a8e4-640e6de72f56/cache",
+        "LIBGL_ALWAYS_SOFTWARE": "1",
+        "GALLIUM_DRIVER": "llvmpipe"
+      },
+      "user_dir_proof": {
+        "argv": [
+          "/home/runner/work/_temp/godot-4.6.3-linux/Godot_v4.6.3-stable_linux.x86_64",
+          "--headless",
+          "--path",
+          "/home/runner/work/dwm/dwm",
+          "--log-file",
+          "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/seven-days-ending-gallery/user-dir-proof.log",
+          "--script",
+          "res://tools/evidence/print_user_dir.gd"
+        ],
+        "started_at_utc": "2026-10-01T13:08:59.404269+00:00",
+        "timeout_seconds": 600,
+        "stdout": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/seven-days-ending-gallery/user-dir-proof.stdout.txt",
+        "stderr": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/seven-days-ending-gallery/user-dir-proof.stderr.txt",
+        "timed_out": false,
+        "exit_code": 0,
+        "ended_at_utc": "2026-10-01T13:09:02.725016+00:00",
+        "elapsed_seconds": 3.321
+      },
+      "user_dir": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/f9b863d2-2851-4bb3-a8e4-640e6de72f56/data/godot/app_userdata/DWM",
+      "user_dir_strictly_contained": true,
+      "journey": {
+        "argv": [
+          "/usr/bin/xvfb-run",
+          "-a",
+          "-s",
+          "-screen 0 1920x1080x24",
+          "/home/runner/work/_temp/godot-4.6.3-linux/Godot_v4.6.3-stable_linux.x86_64",
+          "--path",
+          "/home/runner/work/dwm/dwm",
+          "--verbose",
+          "--rendering-method",
+          "gl_compatibility",
+          "--rendering-driver",
+          "opengl3",
+          "--audio-driver",
+          "Dummy",
+          "--log-file",
+          "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/seven-days-ending-gallery/journey.log",
+          "--script",
+          "res://tests/integration/verify_playable_startup.gd",
+          "--",
+          "--phase2r-bootstrap-mode=final",
+          "--render-evidence",
+          "--probe-seven-days",
+          "--probe-ending",
+          "--probe-gallery"
+        ],
+        "started_at_utc": "2026-10-01T13:09:02.726032+00:00",
+        "timeout_seconds": 600,
+        "stdout": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/seven-days-ending-gallery/journey.stdout.txt",
+        "stderr": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/seven-days-ending-gallery/journey.stderr.txt",
+        "timed_out": false,
+        "exit_code": 0,
+        "ended_at_utc": "2026-10-01T13:09:17.888173+00:00",
+        "elapsed_seconds": 15.162
+      },
+      "markers": {
+        "PLAYABLE_STARTUP_PASS": 1,
+        "PLAYABLE_DAY_PASS": 1,
+        "PLAYABLE_SEVEN_DAY_PASS": 1,
+        "PLAYABLE_ENDING_PASS": 1,
+        "PLAYABLE_GALLERY_PASS": 1
+      },
+      "captures": [
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/seven-days-ending-gallery/captures/01-title.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/f9b863d2-2851-4bb3-a8e4-640e6de72f56/data/godot/app_userdata/DWM/evidence/playable/01-title.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 6635,
+          "sha256": "0fa19909017d5220c72ee5070d9c6880be519675b9edb5dc638cb1c8d23be50a"
+        },
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/seven-days-ending-gallery/captures/02-desktop.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/f9b863d2-2851-4bb3-a8e4-640e6de72f56/data/godot/app_userdata/DWM/evidence/playable/02-desktop.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 353679,
+          "sha256": "44a9ddb074a6d71629fbe4a6eedaf86a807cc36504a9c36db49e7ed2099336b6"
+        },
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/seven-days-ending-gallery/captures/03-minesweeper.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/f9b863d2-2851-4bb3-a8e4-640e6de72f56/data/godot/app_userdata/DWM/evidence/playable/03-minesweeper.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 356323,
+          "sha256": "15613f147fe711f6a544f1e4d1035793cd0b5ca666b038d6bec07bc431575de4"
+        },
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/seven-days-ending-gallery/captures/09-gallery.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/f9b863d2-2851-4bb3-a8e4-640e6de72f56/data/godot/app_userdata/DWM/evidence/playable/09-gallery.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 8097,
+          "sha256": "4a7e5a9dab0686b10af27d2bc9583653263d4d3a034fcc7984cf0db0cb941816"
+        }
+      ]
+    },
+    {
+      "case_id": "seven-days-condition-ending",
+      "fixture_scope": "No prior ending or reached-presentation fixture.",
+      "ok": true,
+      "failures": [],
+      "isolation_root": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/0c9cb958-ba10-4249-8515-10e60687679b",
+      "environment": {
+        "XDG_DATA_HOME": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/0c9cb958-ba10-4249-8515-10e60687679b/data",
+        "DWM_TEST_ROOT": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/0c9cb958-ba10-4249-8515-10e60687679b/test-root",
+        "XDG_CONFIG_HOME": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/0c9cb958-ba10-4249-8515-10e60687679b/config",
+        "XDG_CACHE_HOME": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/0c9cb958-ba10-4249-8515-10e60687679b/cache",
+        "LIBGL_ALWAYS_SOFTWARE": "1",
+        "GALLIUM_DRIVER": "llvmpipe"
+      },
+      "user_dir_proof": {
+        "argv": [
+          "/home/runner/work/_temp/godot-4.6.3-linux/Godot_v4.6.3-stable_linux.x86_64",
+          "--headless",
+          "--path",
+          "/home/runner/work/dwm/dwm",
+          "--log-file",
+          "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/seven-days-condition-ending/user-dir-proof.log",
+          "--script",
+          "res://tools/evidence/print_user_dir.gd"
+        ],
+        "started_at_utc": "2026-10-01T13:09:17.897611+00:00",
+        "timeout_seconds": 600,
+        "stdout": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/seven-days-condition-ending/user-dir-proof.stdout.txt",
+        "stderr": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/seven-days-condition-ending/user-dir-proof.stderr.txt",
+        "timed_out": false,
+        "exit_code": 0,
+        "ended_at_utc": "2026-10-01T13:09:21.218525+00:00",
+        "elapsed_seconds": 3.321
+      },
+      "user_dir": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/0c9cb958-ba10-4249-8515-10e60687679b/data/godot/app_userdata/DWM",
+      "user_dir_strictly_contained": true,
+      "journey": {
+        "argv": [
+          "/usr/bin/xvfb-run",
+          "-a",
+          "-s",
+          "-screen 0 1920x1080x24",
+          "/home/runner/work/_temp/godot-4.6.3-linux/Godot_v4.6.3-stable_linux.x86_64",
+          "--path",
+          "/home/runner/work/dwm/dwm",
+          "--verbose",
+          "--rendering-method",
+          "gl_compatibility",
+          "--rendering-driver",
+          "opengl3",
+          "--audio-driver",
+          "Dummy",
+          "--log-file",
+          "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/seven-days-condition-ending/journey.log",
+          "--script",
+          "res://tests/integration/verify_playable_startup.gd",
+          "--",
+          "--phase2r-bootstrap-mode=final",
+          "--render-evidence",
+          "--probe-seven-days",
+          "--probe-day7-condition"
+        ],
+        "started_at_utc": "2026-10-01T13:09:21.219350+00:00",
+        "timeout_seconds": 600,
+        "stdout": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/seven-days-condition-ending/journey.stdout.txt",
+        "stderr": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/seven-days-condition-ending/journey.stderr.txt",
+        "timed_out": false,
+        "exit_code": 0,
+        "ended_at_utc": "2026-10-01T13:09:33.169207+00:00",
+        "elapsed_seconds": 11.95
+      },
+      "markers": {
+        "PLAYABLE_STARTUP_PASS": 1,
+        "PLAYABLE_DAY_PASS": 1,
+        "PLAYABLE_SEVEN_DAY_PASS": 1,
+        "PLAYABLE_DAY7_CONDITION_PASS": 1
+      },
+      "captures": [
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/seven-days-condition-ending/captures/01-title.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/0c9cb958-ba10-4249-8515-10e60687679b/data/godot/app_userdata/DWM/evidence/playable/01-title.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 6635,
+          "sha256": "0fa19909017d5220c72ee5070d9c6880be519675b9edb5dc638cb1c8d23be50a"
+        },
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/seven-days-condition-ending/captures/02-desktop.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/0c9cb958-ba10-4249-8515-10e60687679b/data/godot/app_userdata/DWM/evidence/playable/02-desktop.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 353679,
+          "sha256": "44a9ddb074a6d71629fbe4a6eedaf86a807cc36504a9c36db49e7ed2099336b6"
+        },
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/seven-days-condition-ending/captures/03-minesweeper.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/0c9cb958-ba10-4249-8515-10e60687679b/data/godot/app_userdata/DWM/evidence/playable/03-minesweeper.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 355355,
+          "sha256": "adee2b5e14f26f0b59452597a801baccebfc4c7add1a313ce7cb9c07d9635584"
+        }
+      ]
+    },
+    {
+      "case_id": "dating-reload",
+      "fixture_scope": "No prior ending or reached-presentation fixture; empty DTL earns no signature.",
+      "ok": true,
+      "failures": [],
+      "isolation_root": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/a110f5e9-9466-43ab-ac20-041d72b15fbd",
+      "environment": {
+        "XDG_DATA_HOME": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/a110f5e9-9466-43ab-ac20-041d72b15fbd/data",
+        "DWM_TEST_ROOT": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/a110f5e9-9466-43ab-ac20-041d72b15fbd/test-root",
+        "XDG_CONFIG_HOME": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/a110f5e9-9466-43ab-ac20-041d72b15fbd/config",
+        "XDG_CACHE_HOME": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/a110f5e9-9466-43ab-ac20-041d72b15fbd/cache",
+        "LIBGL_ALWAYS_SOFTWARE": "1",
+        "GALLIUM_DRIVER": "llvmpipe"
+      },
+      "user_dir_proof": {
+        "argv": [
+          "/home/runner/work/_temp/godot-4.6.3-linux/Godot_v4.6.3-stable_linux.x86_64",
+          "--headless",
+          "--path",
+          "/home/runner/work/dwm/dwm",
+          "--log-file",
+          "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/dating-reload/user-dir-proof.log",
+          "--script",
+          "res://tools/evidence/print_user_dir.gd"
+        ],
+        "started_at_utc": "2026-10-01T13:09:33.177086+00:00",
+        "timeout_seconds": 600,
+        "stdout": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/dating-reload/user-dir-proof.stdout.txt",
+        "stderr": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/dating-reload/user-dir-proof.stderr.txt",
+        "timed_out": false,
+        "exit_code": 0,
+        "ended_at_utc": "2026-10-01T13:09:36.497956+00:00",
+        "elapsed_seconds": 3.321
+      },
+      "user_dir": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/a110f5e9-9466-43ab-ac20-041d72b15fbd/data/godot/app_userdata/DWM",
+      "user_dir_strictly_contained": true,
+      "journey": {
+        "argv": [
+          "/usr/bin/xvfb-run",
+          "-a",
+          "-s",
+          "-screen 0 1920x1080x24",
+          "/home/runner/work/_temp/godot-4.6.3-linux/Godot_v4.6.3-stable_linux.x86_64",
+          "--path",
+          "/home/runner/work/dwm/dwm",
+          "--verbose",
+          "--rendering-method",
+          "gl_compatibility",
+          "--rendering-driver",
+          "opengl3",
+          "--audio-driver",
+          "Dummy",
+          "--log-file",
+          "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/dating-reload/journey.log",
+          "--script",
+          "res://tests/integration/verify_playable_startup.gd",
+          "--",
+          "--phase2r-bootstrap-mode=final",
+          "--render-evidence",
+          "--probe-dating",
+          "--probe-dating-reload"
+        ],
+        "started_at_utc": "2026-10-01T13:09:36.498719+00:00",
+        "timeout_seconds": 600,
+        "stdout": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/dating-reload/journey.stdout.txt",
+        "stderr": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/dating-reload/journey.stderr.txt",
+        "timed_out": false,
+        "exit_code": 0,
+        "ended_at_utc": "2026-10-01T13:09:50.815047+00:00",
+        "elapsed_seconds": 14.316
+      },
+      "markers": {
+        "PLAYABLE_STARTUP_PASS": 1,
+        "PLAYABLE_DATING_RELOAD_PASS": 1,
+        "PLAYABLE_DATING_QUICK_PASS": 1,
+        "PLAYABLE_DATING_PASS": 1
+      },
+      "captures": [
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/dating-reload/captures/01-title.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/a110f5e9-9466-43ab-ac20-041d72b15fbd/data/godot/app_userdata/DWM/evidence/playable/01-title.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 6635,
+          "sha256": "0fa19909017d5220c72ee5070d9c6880be519675b9edb5dc638cb1c8d23be50a"
+        },
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/dating-reload/captures/02-desktop.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/a110f5e9-9466-43ab-ac20-041d72b15fbd/data/godot/app_userdata/DWM/evidence/playable/02-desktop.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 353679,
+          "sha256": "44a9ddb074a6d71629fbe4a6eedaf86a807cc36504a9c36db49e7ed2099336b6"
+        },
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/dating-reload/captures/03-minesweeper.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/a110f5e9-9466-43ab-ac20-041d72b15fbd/data/godot/app_userdata/DWM/evidence/playable/03-minesweeper.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 356752,
+          "sha256": "d22dfd90ff2a2590ee91969fa8391522cf7c8e1af13c8a038044d3882fd30355"
+        },
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/dating-reload/captures/04-dating-entry.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/a110f5e9-9466-43ab-ac20-041d72b15fbd/data/godot/app_userdata/DWM/evidence/playable/04-dating-entry.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 673448,
+          "sha256": "5c836f06869380aa2cd0674ae0c0c03483d8f21ee5ff3db50a9e131629829552"
+        },
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/dating-reload/captures/05-dating-board.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/a110f5e9-9466-43ab-ac20-041d72b15fbd/data/godot/app_userdata/DWM/evidence/playable/05-dating-board.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 674335,
+          "sha256": "f552ca8e44a470b27aba8ec4ed507877cc0fb62f02725819c15ef0e4f6e51681"
+        },
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/dating-reload/captures/06-dating-quick-consent.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/a110f5e9-9466-43ab-ac20-041d72b15fbd/data/godot/app_userdata/DWM/evidence/playable/06-dating-quick-consent.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 398608,
+          "sha256": "b75b588497d22de01cb565bd892c476f96311f05789b0fa7adf096b41f302a67"
+        },
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/dating-reload/captures/07-dating-quick-restored.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/a110f5e9-9466-43ab-ac20-041d72b15fbd/data/godot/app_userdata/DWM/evidence/playable/07-dating-quick-restored.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 674335,
+          "sha256": "f552ca8e44a470b27aba8ec4ed507877cc0fb62f02725819c15ef0e4f6e51681"
+        }
+      ]
+    },
+    {
+      "case_id": "practice-empty-dtl",
+      "fixture_scope": "Prior-ending milestone only. Canonical empty DTL must leave Practice empty.",
+      "ok": true,
+      "failures": [],
+      "isolation_root": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/1662fcb9-69eb-4826-8770-b6f64d2d2b36",
+      "environment": {
+        "XDG_DATA_HOME": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/1662fcb9-69eb-4826-8770-b6f64d2d2b36/data",
+        "DWM_TEST_ROOT": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/1662fcb9-69eb-4826-8770-b6f64d2d2b36/test-root",
+        "XDG_CONFIG_HOME": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/1662fcb9-69eb-4826-8770-b6f64d2d2b36/config",
+        "XDG_CACHE_HOME": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/1662fcb9-69eb-4826-8770-b6f64d2d2b36/cache",
+        "LIBGL_ALWAYS_SOFTWARE": "1",
+        "GALLIUM_DRIVER": "llvmpipe"
+      },
+      "user_dir_proof": {
+        "argv": [
+          "/home/runner/work/_temp/godot-4.6.3-linux/Godot_v4.6.3-stable_linux.x86_64",
+          "--headless",
+          "--path",
+          "/home/runner/work/dwm/dwm",
+          "--log-file",
+          "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/practice-empty-dtl/user-dir-proof.log",
+          "--script",
+          "res://tools/evidence/print_user_dir.gd"
+        ],
+        "started_at_utc": "2026-10-01T13:09:50.827097+00:00",
+        "timeout_seconds": 600,
+        "stdout": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/practice-empty-dtl/user-dir-proof.stdout.txt",
+        "stderr": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/practice-empty-dtl/user-dir-proof.stderr.txt",
+        "timed_out": false,
+        "exit_code": 0,
+        "ended_at_utc": "2026-10-01T13:09:54.147976+00:00",
+        "elapsed_seconds": 3.321
+      },
+      "user_dir": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/1662fcb9-69eb-4826-8770-b6f64d2d2b36/data/godot/app_userdata/DWM",
+      "user_dir_strictly_contained": true,
+      "journey": {
+        "argv": [
+          "/usr/bin/xvfb-run",
+          "-a",
+          "-s",
+          "-screen 0 1920x1080x24",
+          "/home/runner/work/_temp/godot-4.6.3-linux/Godot_v4.6.3-stable_linux.x86_64",
+          "--path",
+          "/home/runner/work/dwm/dwm",
+          "--verbose",
+          "--rendering-method",
+          "gl_compatibility",
+          "--rendering-driver",
+          "opengl3",
+          "--audio-driver",
+          "Dummy",
+          "--log-file",
+          "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/practice-empty-dtl/journey.log",
+          "--script",
+          "res://tests/integration/verify_playable_rehearsal.gd",
+          "--",
+          "--phase2r-bootstrap-mode=final",
+          "--render-evidence",
+          "--prior-ending-fixture"
+        ],
+        "started_at_utc": "2026-10-01T13:09:54.148767+00:00",
+        "timeout_seconds": 600,
+        "stdout": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/practice-empty-dtl/journey.stdout.txt",
+        "stderr": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/practice-empty-dtl/journey.stderr.txt",
+        "timed_out": false,
+        "exit_code": 0,
+        "ended_at_utc": "2026-10-01T13:10:02.883077+00:00",
+        "elapsed_seconds": 8.734
+      },
+      "markers": {
+        "PRACTICE_FIXTURE": 1,
+        "PLAYABLE_EMPTY_DTL_PRACTICE_PASS": 1
+      },
+      "captures": [
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/practice-empty-dtl/captures/01-title-with-explicit-milestone-fixture.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/1662fcb9-69eb-4826-8770-b6f64d2d2b36/data/godot/app_userdata/DWM/evidence/practice/01-title-with-explicit-milestone-fixture.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 6635,
+          "sha256": "0fa19909017d5220c72ee5070d9c6880be519675b9edb5dc638cb1c8d23be50a"
+        },
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/practice-empty-dtl/captures/02-canonical-empty-date-board.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/1662fcb9-69eb-4826-8770-b6f64d2d2b36/data/godot/app_userdata/DWM/evidence/practice/02-canonical-empty-date-board.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 673448,
+          "sha256": "5c836f06869380aa2cd0674ae0c0c03483d8f21ee5ff3db50a9e131629829552"
+        },
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/practice-empty-dtl/captures/03-canonical-board-before-pause.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/1662fcb9-69eb-4826-8770-b6f64d2d2b36/data/godot/app_userdata/DWM/evidence/practice/03-canonical-board-before-pause.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 673665,
+          "sha256": "e0e5b98560bb2a01eb4a19a3906aaf45dac34926d10c97ea1ff8eb9cd5fb75e6"
+        },
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/practice-empty-dtl/captures/04-confirm-return-from-canonical-date.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/1662fcb9-69eb-4826-8770-b6f64d2d2b36/data/godot/app_userdata/DWM/evidence/practice/04-confirm-return-from-canonical-date.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 7580,
+          "sha256": "c2261bd1ac56d4c01ce396909920a56afcdd286c47117e5ff56953132c87b948"
+        },
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/practice-empty-dtl/captures/05-empty-practice-picker.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/1662fcb9-69eb-4826-8770-b6f64d2d2b36/data/godot/app_userdata/DWM/evidence/practice/05-empty-practice-picker.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 6841,
+          "sha256": "6cc86fad100fa7f4bf0939978c1ec4c7d69a0af4d173d70077c2012ec4ea1c98"
+        }
+      ]
+    },
+    {
+      "case_id": "practice-legacy-compatibility",
+      "fixture_scope": "Explicit prior-ending and historical reached-signature fixtures. Private-board compatibility evidence only; never evidence that empty canonical DTL was witnessed.",
+      "ok": true,
+      "failures": [],
+      "isolation_root": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/d3c32e33-79d6-4c63-b6ae-574fa63f92b7",
+      "environment": {
+        "XDG_DATA_HOME": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/d3c32e33-79d6-4c63-b6ae-574fa63f92b7/data",
+        "DWM_TEST_ROOT": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/d3c32e33-79d6-4c63-b6ae-574fa63f92b7/test-root",
+        "XDG_CONFIG_HOME": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/d3c32e33-79d6-4c63-b6ae-574fa63f92b7/config",
+        "XDG_CACHE_HOME": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/d3c32e33-79d6-4c63-b6ae-574fa63f92b7/cache",
+        "LIBGL_ALWAYS_SOFTWARE": "1",
+        "GALLIUM_DRIVER": "llvmpipe"
+      },
+      "user_dir_proof": {
+        "argv": [
+          "/home/runner/work/_temp/godot-4.6.3-linux/Godot_v4.6.3-stable_linux.x86_64",
+          "--headless",
+          "--path",
+          "/home/runner/work/dwm/dwm",
+          "--log-file",
+          "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/practice-legacy-compatibility/user-dir-proof.log",
+          "--script",
+          "res://tools/evidence/print_user_dir.gd"
+        ],
+        "started_at_utc": "2026-10-01T13:10:02.891179+00:00",
+        "timeout_seconds": 600,
+        "stdout": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/practice-legacy-compatibility/user-dir-proof.stdout.txt",
+        "stderr": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/practice-legacy-compatibility/user-dir-proof.stderr.txt",
+        "timed_out": false,
+        "exit_code": 0,
+        "ended_at_utc": "2026-10-01T13:10:06.212100+00:00",
+        "elapsed_seconds": 3.321
+      },
+      "user_dir": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/d3c32e33-79d6-4c63-b6ae-574fa63f92b7/data/godot/app_userdata/DWM",
+      "user_dir_strictly_contained": true,
+      "journey": {
+        "argv": [
+          "/usr/bin/xvfb-run",
+          "-a",
+          "-s",
+          "-screen 0 1920x1080x24",
+          "/home/runner/work/_temp/godot-4.6.3-linux/Godot_v4.6.3-stable_linux.x86_64",
+          "--path",
+          "/home/runner/work/dwm/dwm",
+          "--verbose",
+          "--rendering-method",
+          "gl_compatibility",
+          "--rendering-driver",
+          "opengl3",
+          "--audio-driver",
+          "Dummy",
+          "--log-file",
+          "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/practice-legacy-compatibility/journey.log",
+          "--script",
+          "res://tests/integration/verify_playable_rehearsal.gd",
+          "--",
+          "--phase2r-bootstrap-mode=final",
+          "--render-evidence",
+          "--prior-ending-fixture",
+          "--legacy-reached-fixture"
+        ],
+        "started_at_utc": "2026-10-01T13:10:06.212891+00:00",
+        "timeout_seconds": 600,
+        "stdout": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/practice-legacy-compatibility/journey.stdout.txt",
+        "stderr": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/practice-legacy-compatibility/journey.stderr.txt",
+        "timed_out": false,
+        "exit_code": 0,
+        "ended_at_utc": "2026-10-01T13:10:15.498028+00:00",
+        "elapsed_seconds": 9.285
+      },
+      "markers": {
+        "PRACTICE_FIXTURE": 1,
+        "PRACTICE_LEGACY_FIXTURE": 1,
+        "PLAYABLE_REHEARSAL_LEGACY_PASS": 1
+      },
+      "captures": [
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/practice-legacy-compatibility/captures/01-title-with-explicit-milestone-fixture.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/d3c32e33-79d6-4c63-b6ae-574fa63f92b7/data/godot/app_userdata/DWM/evidence/practice/01-title-with-explicit-milestone-fixture.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 6628,
+          "sha256": "10540ea64bb1373c5197d5f543382d08047ecd604cc68943cf980ae62312d509"
+        },
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/practice-legacy-compatibility/captures/02-canonical-empty-date-board.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/d3c32e33-79d6-4c63-b6ae-574fa63f92b7/data/godot/app_userdata/DWM/evidence/practice/02-canonical-empty-date-board.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 673448,
+          "sha256": "5c836f06869380aa2cd0674ae0c0c03483d8f21ee5ff3db50a9e131629829552"
+        },
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/practice-legacy-compatibility/captures/03-canonical-board-before-pause.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/d3c32e33-79d6-4c63-b6ae-574fa63f92b7/data/godot/app_userdata/DWM/evidence/practice/03-canonical-board-before-pause.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 675143,
+          "sha256": "288132f3712f21a7ba87302175b391e4ec4a3baf72d48fea195387bd36be9b16"
+        },
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/practice-legacy-compatibility/captures/04-confirm-return-from-canonical-date.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/d3c32e33-79d6-4c63-b6ae-574fa63f92b7/data/godot/app_userdata/DWM/evidence/practice/04-confirm-return-from-canonical-date.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 7580,
+          "sha256": "c2261bd1ac56d4c01ce396909920a56afcdd286c47117e5ff56953132c87b948"
+        },
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/practice-legacy-compatibility/captures/05-practice-exact-reached-picker.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/d3c32e33-79d6-4c63-b6ae-574fa63f92b7/data/godot/app_userdata/DWM/evidence/practice/05-practice-exact-reached-picker.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 6929,
+          "sha256": "15e6f5d40bbcb3a6dbc0a7f1c8abf75adf925efd67757f7a461d31b568f3f340"
+        },
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/practice-legacy-compatibility/captures/06-practice-board.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/d3c32e33-79d6-4c63-b6ae-574fa63f92b7/data/godot/app_userdata/DWM/evidence/practice/06-practice-board.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 532049,
+          "sha256": "05726ae771e30aacaf85b7e762d0306d94e8c0287befeb52f6686b6604ed0134"
+        },
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/practice-legacy-compatibility/captures/07-return-to-picker.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/d3c32e33-79d6-4c63-b6ae-574fa63f92b7/data/godot/app_userdata/DWM/evidence/practice/07-return-to-picker.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 6929,
+          "sha256": "15e6f5d40bbcb3a6dbc0a7f1c8abf75adf925efd67757f7a461d31b568f3f340"
+        },
+        {
+          "file": "/home/runner/work/dwm/dwm/.godot/ci/playable-journeys/1d8b5713-93f1-4b88-a624-e36ea3241fd7/practice-legacy-compatibility/captures/08-return-gallery.png",
+          "source": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/d3c32e33-79d6-4c63-b6ae-574fa63f92b7/data/godot/app_userdata/DWM/evidence/practice/08-return-gallery.png",
+          "width": 1280,
+          "height": 720,
+          "bytes": 8218,
+          "sha256": "0461f04a703d4d1323f8f0648a828c55e3388fd207e4a211a137f6265ce1ec7d"
+        }
+      ]
+    }
+  ],
+  "ended_at_utc": "2026-10-01T13:10:15.506915+00:00"
+}

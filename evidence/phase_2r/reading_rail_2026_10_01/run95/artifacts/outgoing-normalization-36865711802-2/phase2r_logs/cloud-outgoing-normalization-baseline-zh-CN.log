@@ -1,0 +1,3 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+OUTGOING_NORMALIZATION_BENCHMARK: {"bytes":150645,"input_sha256":"58a965dae5f9b32526bb98dd99497c52d1e9e178310d4285d9e6b16efe47272f","journal_bundles":2,"median_us":20852,"output_sha256":"58a965dae5f9b32526bb98dd99497c52d1e9e178310d4285d9e6b16efe47272f","proof_source":"strict current validation of every fixed-payload bundle; seam measurement, not evidence that gameplay had a complete splice proof set","samples_us":[21894,20749,20764,20852,20865],"schema_version":7,"snapshot_schema_version":7,"validated_journal_bundles":2,"variant":"baseline"}

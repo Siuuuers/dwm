@@ -6,7 +6,7 @@ execution_authority: false
 status_authority: false
 behavior_authority: false
 verification_authority: false
-inspected_source: "724ff76fabafe358d6f445b404386baa65d20062"
+inspected_source: "29e5a161b3b41bd4f92263cd8799d0b9cfce066d"
 ---
 
 # DWM execution map
@@ -39,7 +39,7 @@ not create competing versions of GameState or SaveManager.
 
 | Lead / placement | Related records | Smallest useful outcome and proof |
 |---|---|---|
-| **Next shared-owner feature: `dwm-vky.14`** | `dwm-eei.10`, `dwm-eei.11`, Witnessed remainder of `dwm-eei.5` | One durable Solo Dating session: pre-prose → board → committed result → post-prose → History → Save → fresh Load. Bind one semantic sequence to real owners and route Quick through the same admitted frontier. Use authorized noncanonical dialogue for one connected cloud journey plus refusal/restore checks; do not rebuild the accepted internal ledger. |
+| **Accepted bounded increment; reading remainder: `dwm-vky.14`** | `dwm-eei.10`, `dwm-eei.11`, Witnessed remainder of `dwm-eei.5` | The opt-in fixed Solo session connects pre-prose → board → committed result → post-prose → History → Save → fresh Load through real owners. Quick shares the admitted frontier; one ledger and immutable entry frames survive the board. Final broad Run95 passes 23/23 logical jobs across attempts 1 and 2, with 2,131 GUT executions / 2,127 unique cases, fresh-process History/Save/Load, Settings, rendered UI/audit and the remaining broad gates. Retained failures and retry provenance are in the shared proof. Ordinary Pause Save during partial reveal, production catalogue registration, exact Next, Hospital/ending continuity and native all-input acceptance remain open. |
 | **Accepted increment; remaining latency: `dwm-634.3`** | `dwm-634` parent; touched `dwm-sx8` mappings only | Compact per-write validation witnesses and frozen-baseline correctness controls are implemented. Focused production Run81 and broad Run82 passed. Retain this issue for remaining terminal-settlement/checkpoint cost, matched complete-operation measurements and native responsiveness acceptance; one helper improvement does not close the lag task. |
 | **Independent CI change: accepted in Run82** | Existing performance and required-check gates | The retained-history producer now feeds four comparison jobs on separate runners/checkouts, with verified source/run/input manifests and an aggregate gate retaining the required-check name. Run82 verifies the actual fanout and all consumer evidence. Observed elapsed time is not a controlled causal speedup measurement. |
 | **Following reading batch: `dwm-n3h.2`** | `dwm-n3h`, exact Next/replay portion of `dwm-vky.14`, relevant `dwm-oyo.5` clauses | Finish the per-entry authored selector contract and successor reached signature, then exact-variant witnessing/Next/replay. Ordinary phase/reply/line and Alone cause are known gaps; request extra author input only where another independent fact changes presentation. |

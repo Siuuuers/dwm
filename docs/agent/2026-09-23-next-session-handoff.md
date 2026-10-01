@@ -22,7 +22,87 @@ new compatibility obligation. Routine ownership and implementation choices remai
 delegated. Ask about authored selectors only if an additional production fact
 would change wording/staging or the exact-variant projection contract.
 
-## Current implementation and execution map — 1 October 2026
+## Active reading increment — 1 October 2026
+
+Lead `dwm-vky.14`: the opt-in fixed noncanonical Solo catalogue connects the real
+Dating pre/board/post lifecycle, one caption ledger, immutable entry frames,
+inspect-only History, qualified rail Save/F5 and real Pause-backed F9. The complete
+reading checkpoint is independently admitted against saved physical state before
+installation. Capture providers stay pure; rail Save/F5 finish reveal without
+advancing. Fresh Load restores the saved semantic line fully visible without
+repeated speech.
+
+**Accepted runtime source:** `29e5a161b3b41bd4f92263cd8799d0b9cfce066d`.
+**Final broad gate:** [Run95](https://github.com/Siuuuers/dwm/actions/runs/36865711802)
+passes **23/23 logical jobs** across attempts 1 and 2: 2,131 GUT executions /
+2,127 unique cases across 182 scripts, zero failures/errors/skips. All 22 actual
+checkout logs bind merge `ab25c9ef25474f2a1357b4257d613a90df33e113` with master
+`2e8602d5f098eebbab18241f370b5f4d14adf99b`; the aggregate has no checkout.
+Five original Godot-download HTTP504 failures occurred before project testing and
+remain retained. Failed-job retry passed on unchanged source, reusing original
+successful executions exactly once. Independent Git comparison verifies identical
+runtime/tests/workflow between source and merge; only seven owner Markdown files
+differ. The subsequent records-only descendant is not separately engine-tested.
+Keep the PR draft/unmerged.
+
+The [shared proof bundle](../../evidence/phase_2r/reading_rail_2026_10_01/README.md)
+and its `receipt.json` own detailed source boundaries, original raw files and
+failed attempts. Earlier focused evidence:
+
+- Run85: 665 owning/public GUT executions, zero failures/errors/skips.
+- Run86: real New Account → invitation → Schedule → pre History → board loss →
+  post Save/Quick → separate-process Load. Three History captions, immutable
+  pre/post frames, exact saved `fixture.solo.post.a`, zero restored speech
+  admissions, nine captures and clean process exits. Its exact retained Quick
+  is 132,067 bytes, SHA-256
+  `9af5c03c85a2b2b0274a1b7d53d6c4cc17c43cc5b377ac80615d4cb12848959d`.
+- Run90: complete ordinary Settings order passes 312/312 cases across 26 scripts,
+  storage refusal preserves both 11,575-entry repository inventories, and
+  61,180 simulated storage/restart equivalence assertions pass.
+- Run92: final Quick-fixture inventory regeneration passes. Its sole GameState
+  change moves the line-278 fixture reference from static to dynamic;
+  SaveManager inventory bytes and all public classifications remain unchanged.
+- Run93: all 2,131 GUT executions / 2,127 unique cases across 182 scripts pass,
+  as do the connected journeys. UI literal audit refuses two reflective
+  localization calls it cannot classify; this is not evidence of untranslated
+  copy. It is not full acceptance. Remaining comparisons are intentionally
+  superseded by the final source gate.
+- Run94: final source uses direct `t(key)` for those two History labels. Both
+  exact keys are classified as `localized_call`; all six rendered result groups
+  and the UI audit pass, with 137 matching PNG captures. No audit policy changes.
+
+Final Run95 also passes the new connected reading journey, all five existing
+playable journeys, rendered UI/literal audit, Windows export/startup, paired
+checkpoint performance, retained-history producer, all four isolated comparisons
+and aggregate. WRITE PID 4334 → READ PID 4408 restores `fixture.solo.post.a`,
+three captions and both entry frames with zero repeated speech. Its Quick is
+132,928 bytes, SHA-256
+`15c340331b1722417be2d9fc7708f1ad2161c2661945264fad764b503664ce04`.
+Settings retains 312/312, equal 11,579-entry before/after storage inventories and
+61,180 simulated storage/restart assertions. Timing evidence remains observational;
+no universal latency, physical crash or native all-input claim follows.
+
+Production authored registration remains disabled. Exact-variant Next,
+Hospital/ending continuity, production dialogue coverage and full native
+all-input acceptance remain open. Ordinary Pause Save during partial reveal is
+unavailable; fully shown reading Pause Save is supported. Run84 exposed a native
+partial-reveal abort lifetime issue; the successful fixture finishes reveal at
+an unchanged checkpoint before aborting. That cleanup does not establish
+arbitrary production partial-reveal abort safety. Run83 import errors, the
+Run84/85 fixture failures, Run89 missing fixture dictionary, Run91 stale inventory
+and Run93 UI audit failure are retained with their source limits. Earlier
+Settings cancellation/stall mechanisms are not inferred from those later fixes.
+
+This bounded engineering slice is accepted and recorded without closing broader
+parents. The Beads export still has 23 unfinished records; only `dwm-vky.14` notes
+and timestamp change in this records descendant, with 190 other records preserved
+exactly. No Dolt synchronization is claimed. Use the [execution map](execution-map.md).
+The next reading work must preserve the target Save policy when ordinary Pause
+interrupts partial reveal; that remaining engineering does not need an architecture
+interview. Ask about authored selectors only when a new production wording/staging
+fact changes the exact projection contract. Do not redo accepted internal work.
+
+## Previous accepted implementation — Run82
 
 The compact per-write validation witness is implemented in production. It keeps
 the full document validator for each text missing from the per-write memo,
@@ -127,6 +207,9 @@ moving through review and proof before starting another implementation.
    regenerate affected inventories once and run read-only acceptance against the
    exact source. Early diagnostic runs are useful when they answer a concrete
    uncertainty; avoid overlapping acceptance runs for a still-expanding batch.
+   For UI edits, include the existing UI literal audit in the focused cloud
+   batch. Regenerate inventories after the final scanner-visible fixture edit:
+   a reference can move from static to dynamic even when line counts stay equal.
    This session's three-label run was superseded by the larger coherent slice.
 4. **Choose tests by the failure they expose.** Reuse meaningful existing checks.
    Use focused unit tests for isolated rules, integration tests for real owner,

@@ -1,0 +1,310 @@
+{
+	"captures": 30,
+	"failures": [],
+	"fixture": "Real Settings selector, Profile/Localization and production desktop, Gallery and witnessed captions. Synthetic public board and English dialogue; no player commands.",
+	"ok": true,
+	"renderer": "X11",
+	"samples": 30,
+	"states": [
+		{
+			"file": "pixel-en-settings-accessibility-150.png",
+			"font_resource": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-latin.otf.woff2",
+			"font_style": "pixel",
+			"large_targets": true,
+			"locale": "en",
+			"percent": 150,
+			"surface": "settings-accessibility",
+			"visible_text_nodes": 30
+		},
+		{
+			"file": "pixel-en-minesweeper-150.png",
+			"font_resource": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-latin.otf.woff2",
+			"font_style": "pixel",
+			"large_targets": true,
+			"locale": "en",
+			"percent": 150,
+			"surface": "minesweeper",
+			"visible_text_nodes": 17
+		},
+		{
+			"file": "readable-en-settings-accessibility-150.png",
+			"font_resource": "res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2",
+			"font_style": "readable",
+			"large_targets": true,
+			"locale": "en",
+			"percent": 150,
+			"surface": "settings-accessibility",
+			"visible_text_nodes": 30
+		},
+		{
+			"file": "readable-en-minesweeper-150.png",
+			"font_resource": "res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2",
+			"font_style": "readable",
+			"large_targets": true,
+			"locale": "en",
+			"percent": 150,
+			"surface": "minesweeper",
+			"visible_text_nodes": 20
+		},
+		{
+			"file": "readable-en-gallery-150.png",
+			"font_resource": "res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2",
+			"font_style": "readable",
+			"large_targets": true,
+			"locale": "en",
+			"percent": 150,
+			"surface": "gallery",
+			"visible_text_nodes": 3
+		},
+		{
+			"file": "readable-en-witnessed-150.png",
+			"font_resource": "res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2",
+			"font_style": "readable",
+			"large_targets": true,
+			"locale": "en",
+			"percent": 150,
+			"surface": "witnessed",
+			"visible_text_nodes": 9
+		},
+		{
+			"file": "pixel-zh-CN-settings-accessibility-150.png",
+			"font_resource": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+			"font_style": "pixel",
+			"large_targets": true,
+			"locale": "zh_CN",
+			"percent": 150,
+			"surface": "settings-accessibility",
+			"visible_text_nodes": 30
+		},
+		{
+			"file": "pixel-zh-CN-minesweeper-150.png",
+			"font_resource": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+			"font_style": "pixel",
+			"large_targets": true,
+			"locale": "zh_CN",
+			"percent": 150,
+			"surface": "minesweeper",
+			"visible_text_nodes": 20
+		},
+		{
+			"file": "readable-zh-CN-settings-accessibility-150.png",
+			"font_resource": "res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf",
+			"font_style": "readable",
+			"large_targets": true,
+			"locale": "zh_CN",
+			"percent": 150,
+			"surface": "settings-accessibility",
+			"visible_text_nodes": 30
+		},
+		{
+			"file": "readable-zh-CN-minesweeper-150.png",
+			"font_resource": "res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf",
+			"font_style": "readable",
+			"large_targets": true,
+			"locale": "zh_CN",
+			"percent": 150,
+			"surface": "minesweeper",
+			"visible_text_nodes": 20
+		},
+		{
+			"file": "readable-zh-CN-gallery-150.png",
+			"font_resource": "res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf",
+			"font_style": "readable",
+			"large_targets": true,
+			"locale": "zh_CN",
+			"percent": 150,
+			"surface": "gallery",
+			"visible_text_nodes": 3
+		},
+		{
+			"file": "readable-zh-CN-witnessed-150.png",
+			"font_resource": "res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf",
+			"font_style": "readable",
+			"large_targets": true,
+			"locale": "zh_CN",
+			"percent": 150,
+			"surface": "witnessed",
+			"visible_text_nodes": 9
+		},
+		{
+			"file": "pixel-zh-HK-settings-accessibility-150.png",
+			"font_resource": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+			"font_style": "pixel",
+			"large_targets": true,
+			"locale": "zh_HK",
+			"percent": 150,
+			"surface": "settings-accessibility",
+			"visible_text_nodes": 30
+		},
+		{
+			"file": "pixel-zh-HK-minesweeper-150.png",
+			"font_resource": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+			"font_style": "pixel",
+			"large_targets": true,
+			"locale": "zh_HK",
+			"percent": 150,
+			"surface": "minesweeper",
+			"visible_text_nodes": 20
+		},
+		{
+			"file": "readable-zh-HK-settings-accessibility-150.png",
+			"font_resource": "res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf",
+			"font_style": "readable",
+			"large_targets": true,
+			"locale": "zh_HK",
+			"percent": 150,
+			"surface": "settings-accessibility",
+			"visible_text_nodes": 30
+		},
+		{
+			"file": "readable-zh-HK-minesweeper-150.png",
+			"font_resource": "res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf",
+			"font_style": "readable",
+			"large_targets": true,
+			"locale": "zh_HK",
+			"percent": 150,
+			"surface": "minesweeper",
+			"visible_text_nodes": 20
+		},
+		{
+			"file": "readable-zh-HK-gallery-150.png",
+			"font_resource": "res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf",
+			"font_style": "readable",
+			"large_targets": true,
+			"locale": "zh_HK",
+			"percent": 150,
+			"surface": "gallery",
+			"visible_text_nodes": 3
+		},
+		{
+			"file": "readable-zh-HK-witnessed-150.png",
+			"font_resource": "res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf",
+			"font_style": "readable",
+			"large_targets": true,
+			"locale": "zh_HK",
+			"percent": 150,
+			"surface": "witnessed",
+			"visible_text_nodes": 9
+		},
+		{
+			"file": "pixel-ja-settings-accessibility-150.png",
+			"font_resource": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-ja.otf.woff2",
+			"font_style": "pixel",
+			"large_targets": true,
+			"locale": "ja",
+			"percent": 150,
+			"surface": "settings-accessibility",
+			"visible_text_nodes": 30
+		},
+		{
+			"file": "pixel-ja-minesweeper-150.png",
+			"font_resource": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-ja.otf.woff2",
+			"font_style": "pixel",
+			"large_targets": true,
+			"locale": "ja",
+			"percent": 150,
+			"surface": "minesweeper",
+			"visible_text_nodes": 20
+		},
+		{
+			"file": "readable-ja-settings-accessibility-150.png",
+			"font_resource": "res://assets/ui/contacts/fonts/source-han-sans-jp-regular.otf",
+			"font_style": "readable",
+			"large_targets": true,
+			"locale": "ja",
+			"percent": 150,
+			"surface": "settings-accessibility",
+			"visible_text_nodes": 30
+		},
+		{
+			"file": "readable-ja-minesweeper-150.png",
+			"font_resource": "res://assets/ui/contacts/fonts/source-han-sans-jp-regular.otf",
+			"font_style": "readable",
+			"large_targets": true,
+			"locale": "ja",
+			"percent": 150,
+			"surface": "minesweeper",
+			"visible_text_nodes": 20
+		},
+		{
+			"file": "readable-ja-gallery-150.png",
+			"font_resource": "res://assets/ui/contacts/fonts/source-han-sans-jp-regular.otf",
+			"font_style": "readable",
+			"large_targets": true,
+			"locale": "ja",
+			"percent": 150,
+			"surface": "gallery",
+			"visible_text_nodes": 3
+		},
+		{
+			"file": "readable-ja-witnessed-150.png",
+			"font_resource": "res://assets/ui/contacts/fonts/source-han-sans-jp-regular.otf",
+			"font_style": "readable",
+			"large_targets": true,
+			"locale": "ja",
+			"percent": 150,
+			"surface": "witnessed",
+			"visible_text_nodes": 9
+		},
+		{
+			"file": "pixel-ko-settings-accessibility-150.png",
+			"font_resource": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-ko.otf.woff2",
+			"font_style": "pixel",
+			"large_targets": true,
+			"locale": "ko",
+			"percent": 150,
+			"surface": "settings-accessibility",
+			"visible_text_nodes": 30
+		},
+		{
+			"file": "pixel-ko-minesweeper-150.png",
+			"font_resource": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-ko.otf.woff2",
+			"font_style": "pixel",
+			"large_targets": true,
+			"locale": "ko",
+			"percent": 150,
+			"surface": "minesweeper",
+			"visible_text_nodes": 17
+		},
+		{
+			"file": "readable-ko-settings-accessibility-150.png",
+			"font_resource": "res://assets/ui/contacts/fonts/source-han-sans-kr-regular.otf",
+			"font_style": "readable",
+			"large_targets": true,
+			"locale": "ko",
+			"percent": 150,
+			"surface": "settings-accessibility",
+			"visible_text_nodes": 30
+		},
+		{
+			"file": "readable-ko-minesweeper-150.png",
+			"font_resource": "res://assets/ui/contacts/fonts/source-han-sans-kr-regular.otf",
+			"font_style": "readable",
+			"large_targets": true,
+			"locale": "ko",
+			"percent": 150,
+			"surface": "minesweeper",
+			"visible_text_nodes": 17
+		},
+		{
+			"file": "readable-ko-gallery-150.png",
+			"font_resource": "res://assets/ui/contacts/fonts/source-han-sans-kr-regular.otf",
+			"font_style": "readable",
+			"large_targets": true,
+			"locale": "ko",
+			"percent": 150,
+			"surface": "gallery",
+			"visible_text_nodes": 3
+		},
+		{
+			"file": "readable-ko-witnessed-150.png",
+			"font_resource": "res://assets/ui/contacts/fonts/source-han-sans-kr-regular.otf",
+			"font_style": "readable",
+			"large_targets": true,
+			"locale": "ko",
+			"percent": 150,
+			"surface": "witnessed",
+			"visible_text_nodes": 9
+		}
+	]
+}
