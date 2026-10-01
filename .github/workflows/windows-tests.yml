@@ -56,6 +56,43 @@ jobs:
         \ --headless --path $env:GITHUB_WORKSPACE --import --log-file \"$output/import.log\"\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\n\
         if (Select-String -Path \"$output/import.log\" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character'\
         \ -Quiet) {\n  throw 'Project import reported script errors; inspect import.log.'\n}\n"
+    - name: Install ripgrep 14.1.1 for documentation scanner
+      run: '$ErrorActionPreference = ''Stop''
+
+        $asset = ''ripgrep-14.1.1-x86_64-pc-windows-msvc.zip''
+
+        $release = ''https://github.com/BurntSushi/ripgrep/releases/download/14.1.1/''
+
+        $archive = Join-Path $env:RUNNER_TEMP $asset
+
+        $checksumFile = $archive + ''.sha256''
+
+        Invoke-WebRequest -Uri ($release + $asset) -OutFile $archive
+
+        Invoke-WebRequest -Uri ($release + $asset + ''.sha256'') -OutFile $checksumFile
+
+        $expected = (([IO.File]::ReadAllText($checksumFile).Trim()) -split ''\s+'')[0].ToLowerInvariant()
+
+        if ($expected -notmatch ''^[0-9a-f]{64}$'' -or (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -cne $expected)
+        { throw ''RIPGREP_RELEASE_CHECKSUM_MISMATCH'' }
+
+        $directory = Join-Path $env:RUNNER_TEMP ''guidance-ripgrep''
+
+        Expand-Archive -LiteralPath $archive -DestinationPath $directory
+
+        $binaryDirectory = Join-Path $directory ''ripgrep-14.1.1-x86_64-pc-windows-msvc''
+
+        $binary = Join-Path $binaryDirectory ''rg.exe''
+
+        $version = (& $binary --version | Select-Object -First 1)
+
+        if ($LASTEXITCODE -ne 0 -or $version -notmatch ''^ripgrep 14[.]1[.]1(?: |$)'') { throw (''RIPGREP_VERSION_MISMATCH: '' + $version) }
+
+        $binaryDirectory | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+
+        Write-Host (''RIPGREP_RELEASE_VERIFIED version=14.1.1 sha256='' + $expected)
+
+        '
     - name: Restore committed project settings after import
       run: 'git restore -- project.godot
 
