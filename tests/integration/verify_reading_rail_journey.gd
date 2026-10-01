@@ -862,6 +862,10 @@ func _activate_next(detail: String) -> bool:
 	var button: Button = layer.transport_rail.get_node("Next")
 	current_scene.get_window().grab_focus()
 	button.grab_focus()
+	# Preference and foreground changes retire held input in their own frame.
+	# Let that generation boundary settle before supplying a fresh physical press.
+	await _frames()
+	if not _check(button._admitted(), detail + " has settled fresh physical input admission"): return false
 	if not await _ordinary_accept_focused(button, detail): return false
 	return await _wait_next_settled(layer, detail)
 
@@ -872,6 +876,8 @@ func _retry_next() -> bool:
 		and layer.recovery_overlay.is_presented(), "refused Next exposes its actual Retry owner"): return false
 	var retry: Button = layer.recovery_overlay.retry_button
 	retry.grab_focus()
+	await _frames()
+	if not _check(retry._admitted(), "Next Retry has settled fresh physical input admission"): return false
 	if not await _ordinary_accept_focused(retry, "fresh physical Next recovery Retry"): return false
 	return await _wait_next_settled(layer, "Next recovery Retry")
 
