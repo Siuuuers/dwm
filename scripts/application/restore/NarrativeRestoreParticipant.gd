@@ -50,6 +50,10 @@ const _SEMANTIC_CONTENT_CODES := [
 	&"entry_resolution_failed", &"ENTRY_MANIFEST_UNKNOWN_ENTRY", &"ENTRY_MANIFEST_RETIRED_ENTRY",
 	&"entry_master_missing", &"entry_record_missing", &"entry_content_version_mismatch",
 ]
+const _READING_CONTENT_CODES := [
+	&"reading_catalogue_unavailable", &"reading_catalogue_mismatch", &"reading_line_unavailable",
+	&"reading_line_content_mismatch", &"reading_line_ambiguous", &"reading_entry_mismatch",
+]
 
 ## The shipped entry document's contract fingerprint, derived once per process. Neither
 ## load_default nor the canonical writer caches, and the document is 85 KB across 137 records, so a
@@ -229,7 +233,7 @@ func _prepare_reading(checkpoint: Dictionary, snapshot: Variant) -> Dictionary:
 		return _content_unavailable("the reading catalogue is unavailable")
 	var checked: Dictionary = _owner.validate_reading_checkpoint(checkpoint, frozen.value.entry_contexts)
 	if not checked.get("ok", false):
-		if checked.get("code") in [&"reading_catalogue_unavailable", &"reading_catalogue_mismatch"]:
+		if checked.get("code") in _READING_CONTENT_CODES or checked.get("code") in _SEMANTIC_CONTENT_CODES:
 			return _content_unavailable("the saved reading catalogue is unavailable or incompatible")
 		return _fail(&"invalid_narrative_checkpoint", str(checked.get("code", "")))
 	return {"ok": true, "code": &"ok", "value": {"narrative_plan": checkpoint.duplicate(true)}}

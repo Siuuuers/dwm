@@ -486,6 +486,8 @@ func _connect_runtime_adapter(adapter: RefCounted) -> void:
 	_connect_speech_runtime()
 	if adapter.has_signal("reading_frontier_restored") and not adapter.is_connected("reading_frontier_restored", _on_reading_frontier_restored):
 		adapter.connect("reading_frontier_restored", _on_reading_frontier_restored)
+	if adapter.has_signal("caption_publication_recorded") and not adapter.is_connected("caption_publication_recorded", _on_reading_publication):
+		adapter.connect("caption_publication_recorded", _on_reading_publication)
 	if adapter.has_signal("timeline_ended_signal") and not adapter.timeline_ended_signal.is_connected(_on_runtime_timeline_ended):
 		adapter.timeline_ended_signal.connect(_on_runtime_timeline_ended)
 	if adapter.has_signal("runtime_signal_event") and not adapter.runtime_signal_event.is_connected(_on_runtime_signal_event):
@@ -781,6 +783,8 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 		return {"ok": false, "code": &"missing_route_ready_token", "message": "narrative apply requires the route-ready token"}
 	if has_active_playback():
 		return _playback_failure(&"narrative_playback_active", "restore cannot replace standing playback")
+	if has_reading_session(): retire_reading_session()
+	_reading_restore_pending = {}
 	var checkpoint: Dictionary = plan.get("narrative_checkpoint", {}) if typeof(plan.get("narrative_checkpoint")) == TYPE_DICTIONARY else {}
 	_narrative_restore_backup = {
 		"timeline_id": _current_timeline_id,
@@ -1556,10 +1560,14 @@ func begin_reading_session(command: Dictionary) -> Dictionary:
 	var configured: Dictionary = candidate.configure(_reading_catalogue_document)
 	if not configured.ok: return configured
 	if not candidate.catalogue.has(entry_id) or command.get("context", {}).get("kind") != "solo":
+		if not _reading_restore_pending.is_empty() or _reading_restore_adoption:
+			return _command_failure(&"reading_restore_command_mismatch")
 		retire_reading_session()
 		return {"ok": true, "value": {"enabled": false}}
 	if _reading_restore_adoption:
-		if _reading_session == null or _reading_session.pre_entry_id != entry_id:
+		if _reading_session == null or _reading_session.pre_entry_id != entry_id \
+				or _reading_session.command_id != command.get("completion_transaction_id") \
+				or not _reading_command_matches(command, _reading_adoption_checkpoint):
 			return _command_failure(&"reading_restore_command_mismatch")
 		_reading_restore_adoption = false
 		var receipt := {}
@@ -1569,14 +1577,26 @@ func begin_reading_session(command: Dictionary) -> Dictionary:
 		return {"ok": true, "value": {"enabled": true, "restored": true,
 			"checkpoint": _reading_adoption_checkpoint.duplicate(true), "receipt": receipt}}
 	if not _reading_restore_pending.is_empty():
+		if not _reading_command_matches(command, _reading_restore_pending):
+			return _command_failure(&"reading_restore_command_mismatch")
 		return {"ok": true, "value": {"enabled": true, "restoring": true}}
-	if _reading_session != null and _reading_session.command_id == command.get("completion_transaction_id"):
-		return {"ok": true, "value": {"enabled": true}}
 	var begun: Dictionary = candidate.begin(str(command.get("completion_transaction_id", "")), entry_id)
 	if not begun.ok: return begun
 	_reading_session = candidate
 	reading_session_changed.emit()
 	return {"ok": true, "value": {"enabled": true}}
+
+
+func _reading_command_matches(command: Dictionary, checkpoint: Dictionary) -> bool:
+	var saved: Dictionary = checkpoint.get("reading_session", {}).get("ledger", {})
+	var context: Dictionary = saved.get("frozen_context", {})
+	if context.get("pre_entry_id") != command.get("timeline_id") \
+			or context.get("completion_transaction_id") != command.get("completion_transaction_id"):
+		return false
+	for frame: Dictionary in saved.get("entry_contexts", {}).values():
+		if frame.get("playback_id") != str(command.get("physical_token", "")) + ":" + str(frame.get("expected_stage", "")):
+			return false
+	return true
 
 
 func retire_reading_session() -> void:
@@ -1604,21 +1624,21 @@ func capture_reading_checkpoint(complete_reveal: bool = false) -> Dictionary:
 	if not can_capture_reading_checkpoint(): return _command_failure(&"reading_frontier_unavailable")
 	var frontier := {}
 	if _reading_session.boundary == "line":
-		var captured: Dictionary = _runtime_adapter.complete_reading_frontier() if complete_reveal \
+		var native_frontier: Dictionary = _runtime_adapter.complete_reading_frontier() if complete_reveal \
 			else _runtime_adapter.capture_reading_frontier()
-		if not captured.ok: return captured
-		frontier = captured.value
-	var captured: Dictionary = _reading_session.capture(frontier)
-	if not captured.ok: return captured
+		if not native_frontier.ok: return native_frontier
+		frontier = native_frontier.value
+	var session_snapshot: Dictionary = _reading_session.capture(frontier)
+	if not session_snapshot.ok: return session_snapshot
 	var entry_id: String = _reading_session.latest_entry
-	var context: Dictionary = captured.value.ledger.entry_contexts[entry_id]
+	var context: Dictionary = session_snapshot.value.ledger.entry_contexts[entry_id]
 	var document := _ensure_entry_document()
 	if not document.ok: return document
 	return {"ok": true, "value": {"content_version": int(_reading_session.catalogue[entry_id].content_version),
 		"entry_id": entry_id, "frozen_context": context.duplicate(true),
 		"manifest_fingerprint": _ENTRY_MANIFEST.fingerprint(document.value),
 		"stage": str(context.expected_stage), "transaction_id": str(context.transaction_id),
-		"reading_session": captured.value}}
+		"reading_session": session_snapshot.value}}
 
 
 func get_reading_history() -> Dictionary:
@@ -1671,16 +1691,12 @@ func validate_reading_checkpoint(checkpoint: Dictionary, entry_contexts: Diction
 
 
 func _validate_reading_entry(session: RefCounted, entry_id: String) -> Dictionary:
-	if _runtime_adapter == null or not _runtime_adapter.has_method("validate_reading_line"):
+	if _runtime_adapter == null or not _runtime_adapter.has_method("validate_reading_entry"):
 		return _command_failure(&"reading_catalogue_unavailable")
 	var row: Dictionary = session.catalogue[entry_id]
 	var resolved := _resolve_entry_for_playback(entry_id, row.content_version)
 	if not resolved.ok: return resolved
-	for line: Dictionary in row.lines:
-		var checked: Dictionary = _runtime_adapter.validate_reading_line(resolved.value.path,
-			resolved.value.label, line.line_id, line.text)
-		if not checked.ok: return checked
-	return {"ok": true}
+	return _runtime_adapter.validate_reading_entry(resolved.value.path, resolved.value.label, row.lines)
 
 
 func stage_reading_restore(checkpoint: Dictionary) -> Dictionary:
@@ -1724,6 +1740,11 @@ func _on_reading_frontier_restored(result: Dictionary) -> void:
 	if not result.get("ok", false):
 		_on_playback_start_failed(result, true)
 	reading_session_changed.emit()
+
+
+func _on_reading_publication(result: Dictionary) -> void:
+	if has_reading_session() and not result.get("ok", false):
+		_on_playback_start_failed(result, true)
 
 
 func start_entry(entry_id: String, context: Dictionary, execution_mode: StringName = &"canonical") -> Dictionary:
@@ -2133,7 +2154,8 @@ func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode
 		return fingerprinted
 	var frozen: Dictionary = (fingerprinted["value"] as Dictionary)["frozen"]
 	var fingerprint := str((fingerprinted["value"] as Dictionary)["fingerprint"])
-	var reading := execution_mode == &"canonical" and has_reading_session() \
+	var reading: bool = execution_mode == &"canonical" and has_reading_session() \
+		and (token_kind != "resume" or not _reading_resume_frontier.is_empty()) \
 		and _reading_session.catalogue.has(entry_id)
 	if reading:
 		var compatible := _validate_reading_entry(_reading_session, entry_id)

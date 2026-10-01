@@ -74,7 +74,7 @@ func begin(completion_transaction_id: String, pre_entry: String) -> Dictionary:
 
 func admit(entry_id: String, context: Dictionary) -> Dictionary:
 	if ledger == null or not catalogue.has(entry_id): return _fail(&"reading_session_unavailable")
-	if not context.get("presentation") is Dictionary: return _fail(&"reading_context_invalid")
+	if not _context_shape(context): return _fail(&"reading_context_invalid")
 	var checked := FROZEN.validate(entry_id, context.presentation)
 	if not checked.ok: return checked
 	if context.get("expected_stage") != entry_id.get_slice(".", 4) \
@@ -122,7 +122,7 @@ func validate_saved(saved: Dictionary, entry_id: String) -> Dictionary:
 	if not source.entry_contexts.has(entry_id): return _fail(&"reading_context_invalid")
 	for key: Variant in source.entry_contexts:
 		var context: Dictionary = source.entry_contexts[key]
-		if not context.get("presentation") is Dictionary: return _fail(&"reading_context_invalid")
+		if not _context_shape(context): return _fail(&"reading_context_invalid")
 		var checked := FROZEN.validate(key, context.presentation)
 		if not checked.ok: return checked
 		if context.get("expected_stage") != str(key).get_slice(".", 4) \
@@ -169,6 +169,11 @@ func project(frontier: Dictionary) -> Dictionary:
 				rows.append({"publication_id": row.publication_id, "beat_id": row.beat.beat_id,
 					"line_id": line.line_id, "entry_id": row.beat.owning_entry_id, "text": line.text})
 	return {"ok": true, "value": {"captions": rows, "frontier": frontier.duplicate(true), "session_id": command_id}}
+
+static func _context_shape(context: Dictionary) -> bool:
+	return FROZEN._exact(context, ["expected_stage", "playback_id", "role", "transaction_id", "presentation"]) \
+		and context.get("role") == "dating_phase" and context.get("playback_id") is String \
+		and not str(context.playback_id).is_empty() and context.get("presentation") is Dictionary
 
 static func _fail(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code, "message": ""}

@@ -62,6 +62,15 @@ class MountedSaves extends RefCounted:
 	var fail_load := true
 	var on_load := Callable()
 	var loads := 0
+	func get_backup_quick_capability(action: String) -> Dictionary:
+		return {"ok": true, "value": {"enabled": action == "load", "status_key": "",
+			"condition": {"action": action, "revision": "mounted-slot"}}}
+	func is_quick_condition_current(condition: Dictionary) -> bool:
+		return condition == {"action": "load", "revision": "mounted-slot"}
+	func prepare_quick_backup_action(action: String) -> Dictionary:
+		var prepared := prepare_backup_action(action, "quick")
+		if prepared.get("ok", false): prepared.value.condition = {"action": action, "revision": "mounted-slot"}
+		return prepared
 	func get_backup_save_capability() -> Dictionary:
 		return {"enabled": false, "reason": "mounted_load_only"}
 	func inspect_backup(locator: String) -> Dictionary:
@@ -804,6 +813,51 @@ func test_mounted_witnessed_successful_changed_session_never_restores_old_reveal
 	assert_false(duplicate.get("ok", false))
 	assert_eq(_load_route.publications, 1)
 	assert_eq(_load_saves.loads, 1)
+
+func test_direct_reading_quick_load_cancel_restores_exact_partial_source_and_focus() -> void:
+	if not await _mount_production_reading_load(): return
+	_caption.caption_text.grab_focus()
+	var before := _reading_state()
+	var opened: Dictionary = await _global_router.open_witnessed_quick_load(_caption)
+	assert_true(opened.get("ok", false), str(opened))
+	if not opened.get("ok", false): return
+	assert_true(get_tree().paused)
+	assert_true(_runtime.paused)
+	assert_false(_caption.canvas.is_visible_in_tree())
+	assert_eq(_reading_state(), before)
+	var sheet: Control = _load_controller.surface._host_confirmation
+	assert_not_null(sheet)
+	if sheet == null: return
+	sheet._finish(false)
+	for frame in 6: await get_tree().process_frame
+	assert_false(get_tree().paused)
+	assert_false(_runtime.paused)
+	assert_true(_caption.canvas.is_visible_in_tree())
+	assert_true(_caption.caption_text.has_focus())
+	assert_eq(_reading_state(), before, "Cancel does not reveal, replay, acknowledge or advance")
+	assert_true(_load_saves.pending.is_empty())
+	assert_eq(_load_saves.loads, 0)
+
+func test_direct_reading_quick_failed_load_keeps_original_suspension_and_continue() -> void:
+	if not await _mount_production_reading_load(): return
+	var before := _reading_state()
+	var opened: Dictionary = await _global_router.open_witnessed_quick_load(_caption)
+	assert_true(opened.get("ok", false), str(opened))
+	if not opened.get("ok", false): return
+	var held: Dictionary = _load_controller._handle.duplicate(true)
+	var sheet: Control = _load_controller.surface._host_confirmation
+	assert_not_null(sheet)
+	if sheet == null: return
+	sheet._finish(true)
+	for frame in 6: await get_tree().process_frame
+	assert_eq(_load_saves.loads, 1)
+	assert_true(get_tree().paused)
+	assert_true(_runtime.paused)
+	assert_eq(_load_controller._handle, held)
+	assert_eq(_reading_state(), before)
+	assert_eq(_load_controller._quick_commands.last_result.get("code"), &"mounted_load_failed")
+	assert_true((await _load_controller.request_continue()).get("ok", false))
+	assert_eq(_reading_state(), before)
 
 func test_combined_native_pause_restores_caption_owner_and_quarantines_closing_contact() -> void:
 	if not await _start_combined_pause_fixture(): return

@@ -136,6 +136,10 @@ func test_board_boundary_retains_only_reached_frames_without_starting_future_pro
 	snapshot.gameplay.route_context = later.gameplay.route_context.duplicate(true)
 	assert_true(RUN.validate(snapshot, true).ok)
 	assert_false(checkpoint.reading_session.ledger.entry_contexts.has(POST))
+	snapshot.gameplay.route_context.active_dating_challenge.phase = "completed"
+	assert_eq(RUN.validate(snapshot, true).get("code"), &"reading_physical_boundary_mismatch",
+		"a fully completed date cannot retain only its pre-challenge History")
+	snapshot.gameplay.route_context.active_dating_challenge.phase = "post_challenge"
 	checkpoint.reading_session.boundary = "line"
 	assert_eq(RUN.validate(snapshot, true).get("code"), &"reading_physical_boundary_mismatch")
 
@@ -198,8 +202,10 @@ func test_catalogue_refusal_and_rollback_cannot_leave_a_future_resume() -> void:
 	owner.refusal = &"caption_registration_mismatch"
 	assert_eq(_prepare(participant, snapshot).get("code"), &"invalid_narrative_checkpoint")
 	assert_true(owner.staged.is_empty())
-	owner.refusal = &"reading_catalogue_mismatch"
-	assert_eq(_prepare(participant, snapshot).get("code"), &"NARRATIVE_CONTENT_UNAVAILABLE")
+	for code: StringName in [&"reading_catalogue_mismatch", &"reading_line_unavailable", &"reading_line_content_mismatch",
+			&"reading_line_ambiguous", &"reading_entry_mismatch", &"entry_master_missing"]:
+		owner.refusal = code
+		assert_eq(_prepare(participant, snapshot).get("code"), &"NARRATIVE_CONTENT_UNAVAILABLE", str(code))
 	owner.refusal = &""
 	var prepared := _prepare(participant, snapshot)
 	assert_true(prepared.ok, str(prepared))

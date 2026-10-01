@@ -146,3 +146,21 @@ func test_history_localizes_existing_operational_copy_and_refuses_revoked_custod
 	assert_signal_not_emitted(history, "close_requested")
 	assert_false(history.present(["Refused replacement."]))
 	assert_eq(history.get_captions(), ["One public caption."])
+
+func test_history_retires_old_assistive_close_and_background_input() -> void:
+	var history := HISTORY.new()
+	add_child_autofree(history)
+	assert_true(history.configure(THEME.build("en", 100, "AfterHours"), _localization, _input_owner, _admission.is_admitted))
+	assert_true(history.present(["A public caption."]))
+	var old_generation: int = history.close_button.generation
+	history.dismiss()
+	assert_true(history.present(["A later public caption."]))
+	watch_signals(history)
+	history.close_button._activate(null, old_generation)
+	assert_signal_not_emitted(history, "close_requested")
+	history._notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
+	history.close_button.pressed.emit()
+	assert_signal_not_emitted(history, "close_requested", "background History cannot close or submit another owner command")
+	history._notification(Node.NOTIFICATION_APPLICATION_FOCUS_IN)
+	history.close_button._activate(null, int(history.close_button.generation))
+	assert_signal_emit_count(history, "close_requested", 1)

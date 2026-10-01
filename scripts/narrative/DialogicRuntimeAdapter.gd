@@ -213,6 +213,53 @@ func validate_reading_line(path: String, entry_label: String, line_id: String, e
 	return {"ok": true} if checked.ok else checked
 
 
+## This fixed-prose increment admits the whole native programme, not just its
+## registered subset. A saved line may not skip an unregistered caption/effect.
+func validate_reading_entry(path: String, entry_label: String, lines: Array) -> Dictionary:
+	if path.is_empty() or entry_label.is_empty() or lines.is_empty() or not ResourceLoader.exists(path):
+		return _fail(&"reading_entry_invalid", "an authored entry and ordered captions are required")
+	var identifiers := {}
+	for line: Variant in lines:
+		if not line is Dictionary or not line.get("line_id") is String or line.line_id.is_empty() \
+				or not line.get("text") is String or line.text.is_empty() or identifiers.has(line.line_id):
+			return _fail(&"reading_entry_invalid", "the catalogue requires unique ordered captions")
+		identifiers[line.line_id] = true
+	var resource := load(path)
+	if not resource is DialogicTimeline:
+		return _fail(&"reading_entry_invalid", "the entry locator is not a timeline")
+	var detached := DialogicTimeline.new()
+	detached.from_text((resource as DialogicTimeline).as_text())
+	detached.process()
+	var selected := false
+	var labels := 0
+	var ordinal := 0
+	var ended := false
+	for event: DialogicEvent in detached.events:
+		if event is DialogicLabelEvent:
+			selected = event.name == entry_label
+			if selected:
+				labels += 1
+				if labels > 1: return _fail(&"reading_entry_mismatch", "the entry label is ambiguous")
+			continue
+		if not selected or event is DialogicCommentEvent: continue
+		if ended:
+			return _fail(&"reading_entry_mismatch", "the entry contains events after its return")
+		if event is DialogicReturnEvent:
+			if ordinal != lines.size():
+				return _fail(&"reading_entry_mismatch", "the entry returns before its registered captions")
+			ended = true
+			continue
+		if not event is DialogicTextEvent or ordinal >= lines.size() \
+				or _authored_line_id(event) != lines[ordinal].line_id or not _is_single_skip_line(event):
+			return _fail(&"reading_entry_mismatch", "the native programme differs from its ordered catalogue")
+		if not _reading_text_matches(event, lines[ordinal].text):
+			return _fail(&"reading_line_content_mismatch", "the authored plain caption differs from its catalogue")
+		ordinal += 1
+	if labels != 1 or not ended or ordinal != lines.size():
+		return _fail(&"reading_entry_mismatch", "the complete fixed entry must end with return")
+	return {"ok": true}
+
+
 func start_reading_frontier(path: String, frontier: Dictionary, entry_label: String = "") -> Dictionary:
 	if not _bound or not _qualified_runtime or has_active_playback() or _caption_ledger == null:
 		return _fail(&"reading_frontier_unavailable", "an idle bound caption session is required")
@@ -263,18 +310,20 @@ func _resolve_reading_line(path: String, entry_label: String, line_id: String, e
 		elif selected and event is DialogicTextEvent and _authored_line_id(event) == line_id:
 			if found >= 0 or not _is_single_skip_line(event):
 				return _fail(&"reading_line_ambiguous", "the authored line must name one single-beat event")
-			if not expected_text.is_empty():
-				# Fixed-prose catalogues admit literal narrator captions only. Do not
-				# execute Dialogic's mutable variable/effect parser during validation.
-				var prose := event.get_property_translated("text")
-				if prose != expected_text or event.character != null or not event.character_identifier.is_empty() \
-						or "[" in prose or "{" in prose or "<" in prose \
-						or not str(ProjectSettings.get_setting("dialogic/text/dialog_text_prefix", "")).is_empty():
-					return _fail(&"reading_line_content_mismatch", "the authored plain caption differs from its catalogue")
+			if not expected_text.is_empty() and not _reading_text_matches(event, expected_text):
+				return _fail(&"reading_line_content_mismatch", "the authored plain caption differs from its catalogue")
 			found = index
 	if labels != 1 or found < 0:
 		return _fail(&"reading_line_unavailable", "the line is absent from its unique entry label")
 	return {"ok": true, "value": found}
+
+
+func _reading_text_matches(event: DialogicTextEvent, expected_text: String) -> bool:
+	# Do not execute the mutable variable/effect parser during pure validation.
+	var prose := event.get_property_translated("text")
+	return prose == expected_text and event.character == null and event.character_identifier.is_empty() \
+		and not "[" in prose and not "{" in prose and not "<" in prose \
+		and str(ProjectSettings.get_setting("dialogic/text/dialog_text_prefix", "")).is_empty()
 
 
 func _finish_reading_restore(request_id: String, event: DialogicTextEvent) -> void:
