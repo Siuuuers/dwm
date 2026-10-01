@@ -13,6 +13,10 @@ var _styles: Dictionary
 var _persistent: Variant
 var _had_persistent := false
 var _finished := 0
+var _original_localization: Node
+var _localization_index := 0
+var _fixture_localization: Node
+var _localization_profile: Node
 
 func before_each() -> void:
 	await get_tree().process_frame
@@ -40,6 +44,19 @@ func before_each() -> void:
 	viewport = SubViewport.new()
 	viewport.size = Vector2i(1280,720)
 	add_child(viewport)
+	# Cloud GUT leaves Bootstrap in test_manual; its root localization owner has
+	# no catalog. Mount the real recovery view against an initialized local owner.
+	_localization_profile = preload("res://autoload/ProfileManager.gd").new()
+	var storage: RefCounted = preload("res://scripts/infrastructure/storage/JsonFileStorage.gd").new(
+		"pause-view-localization", preload("res://tests/support/FakeFileOps.gd").new())
+	assert_true(_localization_profile.initialize(storage).get("ok", false))
+	_fixture_localization = preload("res://autoload/LocalizationManager.gd").new()
+	assert_true(_fixture_localization.initialize(_localization_profile).get("ok", false))
+	_original_localization = get_node("/root/LocalizationManager")
+	_localization_index = _original_localization.get_index()
+	get_tree().root.remove_child(_original_localization)
+	_fixture_localization.name = "LocalizationManager"
+	get_tree().root.add_child(_fixture_localization)
 	caption = SCENE.instantiate()
 	viewport.add_child(caption)
 	assert_true(caption.configure_presentation("en",100))
@@ -61,6 +78,10 @@ func after_each() -> void:
 	if is_instance_valid(runtime):
 		await runtime.clear()
 		runtime.free()
+	if is_instance_valid(_fixture_localization): _fixture_localization.free()
+	if is_instance_valid(_localization_profile): _localization_profile.free()
+	get_tree().root.add_child(_original_localization)
+	get_tree().root.move_child(_original_localization,_localization_index)
 	get_tree().remove_meta("dialogic_layout_node")
 	get_tree().root.add_child(_original_runtime)
 	get_tree().root.move_child(_original_runtime,_runtime_index)
@@ -327,11 +348,15 @@ func test_next_can_finish_after_native_presenter_is_freed() -> void:
 	assert_eq(bridge.acknowledgements, 0)
 
 func test_next_storage_refusal_retries_through_signal_and_restores_current_caption_focus() -> void:
+	assert_true(caption._recovery_bound, "the real recovery view has its input and localization owners")
+	assert_true(caption.recovery_overlay._configured, "the recovery view loaded its localized catalog before Next")
 	var bridge := _begin_settling_next()
 	bridge.finish({"ok": false, "code": &"candidate_write_failed"})
 	assert_false(caption._next_pending)
 	assert_true(caption.is_reading_recovery_active())
 	assert_true(caption.recovery_overlay.is_visible_in_tree())
+	assert_eq(caption.recovery_overlay.message_label.text,
+		_fixture_localization.t("witnessed.recovery.next_failed"))
 	assert_eq(caption._reading_recovery.frontier, bridge.frontier)
 	assert_true(caption._recovery_action_admitted())
 	caption._retry_reading_command()
