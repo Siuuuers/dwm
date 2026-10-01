@@ -1,11 +1,70 @@
 # Next-session handoff — 2 October 2026 (Hong Kong)
 
-Updated 1 October 2026, 18:23 UTC (2 October, 02:23 Hong Kong).
+Acceptance checkpoint updated 1 October 2026, 18:23 UTC (2 October, 02:23 Hong Kong).
+Restart guidance added 2 October 2026 (Hong Kong).
 
 Continue public `Siuuuers/dwm` draft PR #1 on `codex/windows-cloud-ux`.
 Verify the live branch, actual master ref and Beads first. Keep the PR draft:
 do not merge, mark ready or change master. The last checked master was
 `6a5ddf1564870b43aa9140cad7e0e5b12e43f399`; normalized PR-base fields may be stale.
+
+## Restart here — next bounded task
+
+This is a useful fresh-session boundary: Run102 has accepted exact-caption
+witnessing, and the next outcome is one-shot Next. This section is navigation and
+working guidance only; the approved scene contract, Beads and source-bound
+receipts retain their existing authority.
+
+1. Verify the live PR branch/head, actual master and relevant Beads records.
+   Read `Prompt.md`, `CLAUDE.md` and `docs/agent/AGENT_WORKFLOW.md`, then
+   the [execution map](execution-map.md) and only the selected task's authority.
+   Use the current sections above/below first; older checkpoint sections retain
+   source-era facts and are not a fresh queue or current schema declaration.
+2. Resume `dwm-vky.14` with the selector boundary tracked by `dwm-n3h.2`.
+   Read the [next-slice record](2026-09-29-reading-rail-next-slice.md) and
+   [exact-witness record](2026-10-02-exact-caption-witnessing.md).
+   Implement one-shot Next in the authorized noncanonical Solo fixture through
+   existing transport, Profile and physical completion owners. Production
+   registration and additional authored selectors remain separate work.
+3. Reuse the accepted ledger, immutable frames, Pause/Save/Load and witness paths.
+   In particular, preserve the pre-publication witnessed baseline: recording a
+   newly visible variant must not let that same traversal treat it as previously
+   read. A refused Profile write grants no durable credit; stale/replaced-source
+   callbacks must retain their existing custody checks.
+4. Keep one integrator for shared save/narrative files. Delegate independent
+   caller, fixture and evidence audits. Inspect the candidate diff before
+   choosing focused suites; verify every changed/new test script is actually
+   registered and executed. Stabilize source and generated inventories before
+   the required broad gate. Stop optional testing after the selected acceptance
+   and required gates are satisfied.
+5. Preserve the distinction between accepted runtime source, tested PR merge
+   and later documentation commits. Run102 is the accepted checkpoint below,
+   not a reason to rerun completed witnessing or to claim that future edits were
+   tested. Read the live diff before classifying a descendant as records-only.
+
+### Concrete lessons from the last two increments
+
+- **Check fixture meaning before changing runtime.** A foreground-only dialogue
+  query intentionally returned no line while paused; the saved semantic frontier
+  was correct. The Hospital fixture needed a context that actually selected
+  dialogue. Verify the owning contract and the fixture's real state before
+  treating a failing expectation as a production defect.
+- **Follow reveal ownership through Pause.** Plain Pause preserves partial reveal;
+  explicit admitted Backup entry completes only that line. Completion must
+  refresh the retained Pause state through its owner so Continue remains valid.
+  Inspect source identity and callback lifetime around that transition.
+- **A green suite must include the intended scripts.** Earlier suites omitted
+  existing migration/Skip checks. Audit the explicit cloud list alongside test
+  changes, and regenerate public inventories after the last scanner-visible edit.
+- **Classify CI failures by the last executed stage.** An installer timeout before
+  import supplies no game-test result. Retain its log, retry the failed job on
+  unchanged source when appropriate, and count earlier successful executions
+  once. Repeated setup failure justified the bounded installer allowance repair;
+  it did not justify changing game behavior or relaxing assertions.
+
+The general [working guidance](#working-guidance-for-the-next-session) below
+still applies. This handoff-only update changes no runtime, task status,
+dependency or acceptance claim; structural review is sufficient for this edit.
 
 ## Latest owner decision: the game is unshipped
 
