@@ -11,8 +11,8 @@ to recover a local choice. The relationship owner holds the exact transferred
 Handbook pair section; the Bible and individual dossiers keep their authority.
 
 Use the normal four-substantive-exchange checkpoint. Current scene text comes
-before historical development; preserve questions, stated reasons and meaningful
-alternatives without creating a file or journal entry per turn. The compact
+before focused development; preserve useful questions, stated reasons and meaningful
+alternatives without reproducing full exchanges or creating a file per turn. The compact
 capture status is in README.md. Saving a proposal is not approval of it.
 
 Exact originals live at the retained Git revisions in the provenance map. Read

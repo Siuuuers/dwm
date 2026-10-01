@@ -25,7 +25,7 @@ bounded approved-but-unplaced core; its adaptations and placement remain distinc
 ## How to work without rereading the entire archive
 
 Open the requested current passage, then its development notes when a decision
-needs review. Exact historical excerpts are folded below the topic they explain;
+needs review. Selected passages and focused development notes sit beside the topic they explain;
 questions, stated reasons, alternative versions and unresolved continuations have
 not been discarded. They are evidence to interpret, not live instructions.
 
@@ -36,7 +36,7 @@ with a backpointer at the old heading. Technical behavior records remain under
 
 ## Consolidation checkpoint — 2026-10-01
 
-All 50 exchanges of the supplied export have attributed prose destinations.
+The supplied conversation has been reviewed for preservation and then selectively curated; not all 50 exchanges need active reproduction.
 Nine distinct auditions are relocated, the thematic checkpoint and secondary
 archive are distributed by topic, and the old source directory is absent from
 this working tree. Both exact transcript snapshots remain retrievable in retained

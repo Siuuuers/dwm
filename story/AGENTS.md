@@ -206,6 +206,16 @@ not every duplicate copy. Attribute author reasons and assistant interpretations
 separately. An assistant proposal or an unanswered question is not owner approval;
 do not invent missing rationales, source locations, or private motives.
 
+Capture useful development, not the exchanges themselves. Keep exact current
+passages and distinctive alternatives where their wording matters; condense
+repeated reasoning into its actual question, reason, scope and remaining choice.
+Leave greetings, operational history, duplicate responses and obsolete reporting
+in the retained archive. Useful includes ordinary pleasure, humor and character
+specificity, not only plot mechanics. Complete transcripts belong in working
+documents only when their exact surrounding context is genuinely needed. A
+historical preservation check is not a permanent requirement to keep every copied
+paragraph; intentional curation records its scope without promoting proposals.
+
 Read the current owning section, combine overlapping edits, and make the smallest
 complete update. Put current material before retained development history; link
 rather than duplicate it. No substantive change means no edit. Do not create a

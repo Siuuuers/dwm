@@ -15,7 +15,7 @@ when it matters to the task. Scene candidates remain `UNSELECTED` / `REACTION TE
 | Day 6 Sweet–Love dance | [Another way to listen](auditions/day-6-sweet-love-dance.md) | Indirect invitation, familiar teasing, continued company |
 | Day 6 Sweet–Ambiguous | [Imagined refusal and tea](auditions/day-6-sweet-ambiguous-refusal.md) | Reciprocal imitation; Sweet keeps the “much” exchange |
 | Day 6 Dark–Love | [The kept page](auditions/day-6-dark-notebook.md) | Current notebook proposal, selective sharing, intrusion and open aftermath |
-| Source coverage and originals | [Exchange map](../../maintenance/our-pl-upload-recovery.md) | 50 supplied exchanges accounted for; earlier absent sources not invented |
+| Source coverage and originals | [Exchange map](../../maintenance/our-pl-upload-recovery.md) | useful topic selection from the supplied source; earlier absent sources not invented |
 
 ## Retained alternatives and baseline functions
 
@@ -29,7 +29,7 @@ experiments are preserved in the notebook's development history, not appended to
 its current encounter. The [Day 1 retrospective reflex](auditions/2026-09-12-day-1-priscilla-lavinia-retrospective-reflex-audition.md)
 remains available independently of Day 6.
 
-The former portrait/intimacy checkpoint is [mapped into its topic owners](relationship.md#legacy-checkpoint-map).
+The useful portrait/intimacy checkpoint material is [mapped into its topic owners](relationship.md#legacy-checkpoint-map).
 The [shared audition index](../../auditions/README.md) owns Angela–Lavinia, Room 2.17
 Group and whole-week material. Angela is not absorbed into this private bond.
 
@@ -48,10 +48,10 @@ nor invitation suppression changes merely because the proposal is preserved.
 
 ## Capture checkpoint — 2026-10-01
 
-**Coverage:** all 50 exported exchanges' substantive author/assistant prose,
-including E23–26's previously verified exact capture; all 13 legacy-directory
-files; meaningful historical write payloads; and the later chat decisions already
-in the current Day 6 passages. **Destination:** PR #3's documentation branch,
+**Coverage:** useful ideas from the supplied export, selected exact scenes, local reasons
+and alternatives; the nine distinct retained auditions; the unchanged pair guidance;
+and later chat corrections. Full responses and administrative copies remain in Git,
+not in the working documents. **Destination:** PR #3's documentation branch,
 subject to the publication receipt. Count subsequent substantive exchanges from
 the verified checkpoint; four is a normal capture cadence, not a processing cap.
 

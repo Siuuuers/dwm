@@ -31,7 +31,7 @@ from implemented behavior. A missing scene cannot be recreated merely to deliver
 an expected clue.
 
 The former temporary-workspace policy is organizationally superseded by the
-owner-requested consolidation. Its exact contract and all source dispositions
-remain in [migration provenance](../maintenance/source-migration.md). No new code,
+owner-requested consolidation. Its exact former contract remains in retained Git history linked from
+[migration provenance](../maintenance/source-migration.md). No new code,
 assets, localization, stable line IDs or scene selection are authorized by this
 index. Unresolved narrative questions stay unresolved in their new documents.
