@@ -51,13 +51,13 @@ nor invitation suppression changes merely because the proposal is preserved.
 **Coverage:** useful ideas from the supplied export, selected exact scenes, local reasons
 and alternatives; the nine distinct retained auditions; the unchanged pair guidance;
 and later chat corrections. Full responses and administrative copies remain in Git,
-not in the working documents. **Destination:** PR #3's documentation branch,
-subject to the publication receipt. Count subsequent substantive exchanges from
+not in the working documents. **Publication:** PR #3 records the branch and merge state; the current checkout
+is the working destination. Count subsequent substantive exchanges from
 the verified checkpoint; four is a normal capture cadence, not a processing cap.
 
-**Not settled:** original-source gaps predating this export, scene selection,
+**Not settled by this editorial pass:** original-source gaps predating this export, scene selection,
 physical/medical staging, audio/performance, full-family or whole-week approval,
-runtime behavior, and merge into master. Current narrative prose is preserved;
+and runtime behavior. Current narrative prose is preserved;
 this migration does not supply new kisses, remorse, residence rights or injuries.
 
 **Archive:** the exact originals are linked in [migration provenance](../../maintenance/source-migration.md).

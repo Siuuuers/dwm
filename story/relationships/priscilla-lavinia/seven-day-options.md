@@ -29,7 +29,7 @@ The owner’s E08 correction distinguishes established pre-week history, events 
 | Day 6 solos | Bounded facets of the disclosure grievance | Present purpose in each encounter; not two perfectly complementary explanatory files |
 | Day 7 | A choice about continued contact, refusal, or commitment | A definite action and consequence compatible with the history actually experienced |
 
-**Minimal carrier test, not a runtime rule:** with Day 3 as the only way to create a trace and Day 4 as the only way to deliver it, both are required for trace-triggered jealousy. Day 3 alone creates but does not deliver it; Day 4 alone cannot deliver what was never created; neither supplies no such thread. An independent carrier is another proposal to author, not compensation for a missed solo. Angela is not a transferable token.
+**Minimal carrier test, not a runtime rule:** with Day 3 as the only way to create a trace and Day 4 as the only way to deliver it, both are required for trace-triggered jealousy. Day 3 alone creates but does not deliver it; Day 4 alone cannot deliver what was never created. If neither encounter occurs, this trace thread does not occur. An independent carrier is another proposal to author, not compensation for a missed solo. Angela is not a transferable token.
 
 ## Why Room 2.17 remains a different opportunity
 
