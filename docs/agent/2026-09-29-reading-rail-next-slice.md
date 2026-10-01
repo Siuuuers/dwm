@@ -167,7 +167,9 @@ catalogue question below. No task is closed by this readiness audit.
 
 ## Authored selector admission candidate — 2 October 2026
 
-Implementation candidate; cloud acceptance is pending. Lead `dwm-vky.14`, with
+Focused Run119 passes all 382 reading cases (including 21 new selector cases)
+and 11 public-contract cases on source `7a545490acc65a3332e766c243dee5f8938c7b4a`.
+The required broad PR gate is still pending. Lead `dwm-vky.14`, with
 bounded authored-admission clauses of `dwm-n3h.2`. Neither issue closes here.
 
 - **Outcome:** the same stable caption/beat selects its exact authored wording
