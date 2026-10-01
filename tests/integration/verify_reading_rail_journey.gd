@@ -21,6 +21,20 @@ var _witness_fault: RefCounted
 var _replacement_confirmations := 0
 var _next_observations: Dictionary = {}
 var _next_observers_installed := false
+var _next_checkpoint_results: Array[Dictionary] = []
+
+
+## Observe the real source/destination writes without substituting their results.
+class NextCheckpointObserver extends RefCounted:
+	var target: RefCounted
+	var results: Array[Dictionary]
+	func _init(port: RefCounted, observed: Array[Dictionary]) -> void:
+		target = port
+		results = observed
+	func commit_reading_next(checkpoint: Dictionary, operation_id: String, phase: String) -> Dictionary:
+		var result: Dictionary = target.commit_reading_next(checkpoint, operation_id, phase)
+		results.append({"phase": phase, "result": result.duplicate(true)})
+		return result
 
 
 ## One candidate-specific filesystem refusal; all successful storage operations
@@ -619,6 +633,17 @@ func _trace(kind: String, value: Dictionary) -> void:
 
 func _check(value: bool, detail: String) -> bool:
 	if not value:
+		if _reading_mode == "next":
+			var bridge: Node = root.get_node("DialogicBridge")
+			var layer: Node = _caption_layer()
+			printerr("READING_RAIL_NEXT_STATE: " + JSON.stringify({
+				"checkpoint_results": _next_checkpoint_results,
+				"checkpoint": bridge.capture_reading_checkpoint(false),
+				"runtime_result": bridge.get("_next_runtime_result"),
+				"gate": bridge.get("_mutation_gate").guard_external(&"reading_fixture_observation"),
+				"recovery": layer.get("_reading_recovery") if is_instance_valid(layer) else {},
+				"physical": root.get_node("GameState").capture_dating_challenge_state(),
+				"observations": _next_observations}))
 		printerr("READING_RAIL_FAIL: " + detail)
 		quit(1)
 	return value
@@ -913,8 +938,11 @@ func _next_session(game: Node, dating: Node) -> void:
 		await _next_unseen_session(game, dating, report)
 		return
 	var profile_before: Dictionary = profile.get_profile_snapshot()
+	var real_checkpoint_port: RefCounted = bridge.get("_narrative_checkpoint_port")
+	bridge.set("_narrative_checkpoint_port", NextCheckpointObserver.new(real_checkpoint_port, _next_checkpoint_results))
 	_begin_next_observation()
 	if not await _activate_next("witnessed one-shot Next rail activation"): return
+	bridge.set("_narrative_checkpoint_port", real_checkpoint_port)
 	if not await _wait_for_dating_board(dating): return
 	var observations := _end_next_observation()
 	if not _check(_next_is_silent(observations) and observations.exclusive_activations == 1,
