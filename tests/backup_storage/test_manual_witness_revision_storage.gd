@@ -1,10 +1,10 @@
 extends SceneTree
-## Diagnostic hypothesis only: the production helper returns the admitted document,
-## while the shared measured witness returns a compact Dictionary. The real strict
-## parser/schema, ordered storage protocol and revision custody remain unchanged.
+## Compare the frozen full-result baseline with the actual production compact
+## witness helper. The real strict parser/schema, ordered storage protocol and
+## revision custody remain unchanged.
 
 const SAVE := preload("res://autoload/SaveManager.gd")
-const WITNESS := preload("res://tests/support/ManualSaveWitnessPort.gd")
+const BASELINE := preload("res://tests/support/ManualSaveWitnessPort.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const OPS := preload("res://tests/backup_storage/CrashFileOps.gd")
 const STRICT := preload("res://scripts/validation/StrictJson.gd")
@@ -79,13 +79,13 @@ func _revision(seed: Dictionary) -> String:
 
 ## Every observation owns a new SaveManager, storage, FileOps and exact-text memo.
 ## In particular, restart never inherits a live memo, parse cache or playable lease.
-func _observe(seed: Dictionary, witness: bool, restarting: bool, outgoing: String,
+func _observe(seed: Dictionary, production: bool, restarting: bool, outgoing: String,
 		revision: String, fault: int = 0) -> Dictionary:
 	var ops := OPS.new(seed)
 	var storage := STORAGE.new("manual-witness", ops)
-	var manager: Node = WITNESS.new() if witness else SAVE.new()
-	if witness:
-		manager.write_variant = "witness"
+	var manager: Node = SAVE.new() if production else BASELINE.new()
+	if not production:
+		manager.write_variant = "baseline"
 	_check(manager.initialize(storage).get("ok", false), "fresh owner initializes")
 	_check(manager._document_parse_cache.is_empty() and storage._leases.is_empty(),
 		"fresh owner starts without parse cache or lease")
@@ -108,27 +108,27 @@ func _observe(seed: Dictionary, witness: bool, restarting: bool, outgoing: Strin
 func _pair(seed: Dictionary, restarting: bool, outgoing: String, revision: String,
 		label: String, fault: int = 0) -> Dictionary:
 	var baseline := _observe(seed, false, restarting, outgoing, revision, fault)
-	var witness := _observe(seed, true, restarting, outgoing, revision, fault)
-	_check(baseline.trace == witness.trace, label + ": exact ordered operations")
-	_check(baseline.operations == witness.operations, label + ": same fallible operation count")
-	_check(baseline.injected == witness.injected, label + ": same injection reachability")
+	var candidate := _observe(seed, true, restarting, outgoing, revision, fault)
+	_check(baseline.trace == candidate.trace, label + ": exact ordered operations")
+	_check(baseline.operations == candidate.operations, label + ": same fallible operation count")
+	_check(baseline.injected == candidate.injected, label + ": same injection reachability")
 	if fault > 0:
 		_check(baseline.injected, label + ": selected operation actually failed")
-	_check(baseline.persisted == witness.persisted, label + ": exact durable bytes")
-	_check(baseline.snapshots == witness.snapshots, label + ": every durable interruption snapshot")
-	_check(baseline.leases == witness.leases, label + ": exact playable lease disposition")
-	_check(baseline.memo_texts == witness.memo_texts, label + ": identical admitted exact texts")
+	_check(baseline.persisted == candidate.persisted, label + ": exact durable bytes")
+	_check(baseline.snapshots == candidate.snapshots, label + ": every durable interruption snapshot")
+	_check(baseline.leases == candidate.leases, label + ": exact playable lease disposition")
+	_check(baseline.memo_texts == candidate.memo_texts, label + ": identical admitted exact texts")
 	var baseline_result: Dictionary = baseline.result.duplicate(true)
-	var witness_result: Dictionary = witness.result.duplicate(true)
-	# This is the sole intentional diagnostic API difference. Do not normalize
+	var candidate_result: Dictionary = candidate.result.duplicate(true)
+	# This is the sole intentional helper API difference. Do not normalize
 	# refusals or other success metadata, and independently assert both value shapes.
 	if baseline_result.get("ok", false) and baseline_result.has("value"):
 		_check(CANONICAL._deep_same(baseline_result.value, _document),
-			label + ": production returns the complete independently admitted document")
-		_check(witness_result.get("value") == {}, label + ": witness returns only its compact Dictionary")
+			label + ": frozen baseline returns the complete independently admitted document")
+		_check(candidate_result.get("value") == {}, label + ": production returns only its compact Dictionary")
 		baseline_result.erase("value")
-		witness_result.erase("value")
-	_check(baseline_result == witness_result, label + ": exact outcome and refusal details")
+		candidate_result.erase("value")
+	_check(baseline_result == candidate_result, label + ": exact outcome and refusal details")
 	return baseline
 
 func _collect_snapshots(snapshots: Array[Dictionary], observation: Dictionary) -> void:

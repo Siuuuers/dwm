@@ -2380,254 +2380,52 @@ func _resume_restore(operation: Dictionary, gate_token: String) -> Dictionary:
 ## candidate" search `_prepare_restore()` runs for a caller with no fixed locator -- the locator here
 ## already names the exact bundle that was originally selected). `existing_run_id`/`source_desktop_
 ## timeline_generation`/`remap_source_transaction_ids` are re-derived from the reloaded document,
-## byte-for-byte the same way `_prepare_bundle_with_all_participants()` derives them live; calling
-## `_identity_allocation_participant.prepare()` again is safe and mutation-free (its own doc comment:
-## "Mutation-free"), and its own fingerprint check against `allocation_candidate_fingerprint` is
-## exactly "recompute[ing] the deterministic allocation candidate" the frozen law requires.
-func _reconstruct_restore_materials(operation: Dictionary) -> Dictionary:
-	var locator: Dictionary = operation["source_locator"]
-	var resolved := _resolve_locator_from_slot_id(str(locator.get("slot_id", "")))
-	if resolved.is_empty():
-		return _fail(&"invalid_source_locator", "unrecognized slot_id: " + str(locator.get("slot_id", "")))
-	var relative_path := str(resolved["relative_path"])
-	if not _storage.exists(relative_path):
-		return _fail(&"save_absent", relative_path)
-	var read: Dictionary = _storage.read_text(relative_path)
-	if not read.get("ok", false):
-		return read
-	var parsed: Dictionary = STRICT_JSON.parse_object(str(read["value"]))
-	if not parsed.get("ok", false):
-		return _fail(&"corrupt_save_document", relative_path)
-	var migrated: Dictionary = SAVE_MIGRATIONS.migrate_document(parsed["value"],
-		{"kind": str(resolved["kind"]), "slot_id": resolved["slot_id"]})
-	if not migrated.get("ok", false):
-		return migrated
-	var document: Dictionary = migrated["value"]["document"]
-	# Admission already returned the validated, detached document.
-
-	var bundle := _find_bundle_by_checkpoint_id(document, str(locator.get("checkpoint_id", "")))
-	if bundle.is_empty():
-		return _fail(&"source_bundle_not_found", str(locator.get("checkpoint_id", "")))
-	var prepared_bundle := _prepare_bundle_with_all_participants(bundle, migrated["value"], document, resolved)
-	if not prepared_bundle.get("ok", false):
-		return prepared_bundle
-	var prepared: Dictionary = prepared_bundle["value"]
-	if prepared.get("source_locator") != locator:
-		return _fail(&"continuation_source_drifted",
-			"the reloaded bundle no longer reproduces the retained source_locator")
-
-	var identity_input := {
-		"restore_transaction_id": str(operation["transaction_id"]),
-		"transaction_issuer_receipt": operation["transaction_issuer_receipt"],
-		"source_locator": locator,
-		"existing_run_id": str(prepared["existing_run_id"]),
-		"source_desktop_timeline_generation": int(prepared["source_desktop_timeline_generation"]),
-		"remap_source_transaction_ids": prepared["remap_source_transaction_ids"],
-		"allocation_candidate_fingerprint": str(operation["allocation_candidate_fingerprint"]),
-	}
-	var identity_prepared: Dictionary = _identity_allocation_participant.prepare(identity_input)
-	if not identity_prepared.get("ok", false):
-		return identity_prepared
-	var identity_candidate: Dictionary = (identity_prepared["value"] as Dictionary)["candidate"]
-	var remapped_snapshot: Dictionary = identity_candidate["remapped_snapshot"]
-
-	var plans: Dictionary = (prepared["participant_plans"] as Dictionary).duplicate(true)
-	var run_plan: Dictionary = (plans.get("run", {}) as Dictionary).duplicate(true)
-	run_plan["snapshot"] = remapped_snapshot
-	plans["run"] = run_plan
-	var remapped_desktop: Dictionary = remapped_snapshot["desktop"]
-	var consequence_prep: Dictionary = _restore_participants["desktop_consequence"].prepare(
-		{"state": remapped_desktop["consequence"]})
-	if not consequence_prep.get("ok", false):
-		return consequence_prep
-	plans["desktop_consequence"] = (consequence_prep["value"] as Dictionary)["consequence_plan"]
-	var board_prep: Dictionary = _restore_participants["desktop_board"].prepare(
-		{"state": remapped_desktop["board"]})
-	if not board_prep.get("ok", false):
-		return board_prep
-	plans["desktop_board"] = (board_prep["value"] as Dictionary)["board_plan"]
-	var view_prep: Dictionary = _restore_participants["schedule_view"].prepare(_schedule_view_input(remapped_snapshot))
-	if not view_prep.get("ok", false):
-		return view_prep
-	plans["schedule_view"] = view_prep["value"]["schedule_view_plan"]
-
-	return {"ok": true, "code": &"ok", "value": {
-		"plans": plans,
-		"identity_candidate": identity_candidate,
-		"journal_candidate": prepared.get("journal_seed"),
-		"route_id": str(prepared.get("route_id", "")),
-		"checkpoint_id": str(prepared.get("checkpoint_id", "")),
-		"continuation": {
-			"transaction_id": str(operation["transaction_id"]),
-			"request_fingerprint": str(operation["request_fingerprint"]),
-			"remap": {"restore_transaction_id": str(operation["transaction_id"]),
-				"identity_allocation_bundle": identity_candidate["identity_allocation_bundle"],
-				"source_identity": _source_identity_from_lifecycle(prepared["bundle"]["snapshot"]["lifecycle"])},
-		},
-	}}
-
-## FIX (dwm-p2r.35.4 remediation, findings B-C2/B-C4): the frozen continuation law requires that once
-## `identity_allocation_committed`, a startup that cannot prove forward progress "persists the typed
-## failure diagnostic without changing that forward stage, latches a fatal recovery failure, and
-## leaves the retained operation/issuer high-water untouched." This is the one place that happens:
-## every resume failure past `intent_committed` funnels through here rather than being silently
-## swallowed (the old `reconcile_incomplete_continuations()` behavior finding B-C2 describes) or
-## left to strand the journal record with no trace and no blocked input. `code` is always
-## `source_unprovable` regardless of the underlying reason: the journal's own `_apply_recovery_
-## diagnostic()` requires exactly that code for a first-time diagnostic at `identity_allocation_
-## committed`, and using it uniformly keeps every stage's diagnostic replay-safe (byte-identical on
-## a retry of the same still-unrecoverable operation) without depending on the failing step's own
-## code staying stable. The real reason is preserved in `details.reason_code` for diagnosis. Always
-## returns `ok:true`: the reconciliation pass itself succeeded at doing its job (recording the
-## diagnostic and blocking further mutation) even though the underlying operation could not complete.
-func _latch_recovery_diagnostic(operation: Dictionary, owner: StringName, raw_failure_context: Dictionary) -> Dictionary:
-	var transaction_id := str(operation["transaction_id"])
-	var stage := str(operation.get("stage", ""))
-	var journal_failure := {
-		"code": "source_unprovable",
-		"message": "continuation recovery could not prove forward progress at startup",
-		"details": {
-			"transaction_id": transaction_id, "kind": String(owner), "stage": stage,
-			"reason_code": str(raw_failure_context.get("code", "")),
-		},
-	}
-	var diagnostic_advance: Dictionary = _continuation_journal.advance({
-		"transaction_id": transaction_id, "request_fingerprint": str(operation["request_fingerprint"]),
-		"expected_stage": stage, "next_stage": stage,
-		"expected_next_participant_index": int(operation.get("next_participant_index", 0)),
-		"allocation_receipt": null, "participant_name": null, "participant_receipt": null,
-		"failure": journal_failure,
-	})
-	var gate_failure := {
-		"source": "continuation_reconciliation", "phase": "resume_" + String(owner),
-		"code": "source_unprovable",
-		"details": {"transaction_id": transaction_id, "stage": stage,
-			"reason_code": str(raw_failure_context.get("code", ""))},
-	}
-	var latched: Dictionary = {"ok": true}
-	if _mutation_gate != null:
-		latched = _mutation_gate.latch_fatal(gate_failure)
-	return {"ok": true, "code": &"ok", "value": {
-		"transaction_id": transaction_id, "outcome": "fatal_latched",
-		"diagnostic": diagnostic_advance, "gate_latch": latched,
-	}}
-
-func _delete(locator: Dictionary) -> Dictionary:
-	if locator.is_empty():
-		return _fail(&"INVALID_SAVE_REFERENCE", "")
-	if _storage == null:
-		return _fail(&"not_initialized", "")
-	var relative_path := str(locator["relative_path"])
-	var removed: Dictionary = _storage.remove(relative_path)
-	if not removed.get("ok", false):
-		return removed
-	var reconciled: Dictionary = _storage.reconcile(relative_path, _document_text_validator)
-	if not reconciled.get("ok", false):
-		return reconciled
-	if _storage.exists(relative_path):
-		return _fail(&"delete_incomplete", relative_path)
-	slot_metadata_changed.emit()
-	return {"ok": true, "code": &"ok", "value": {"deleted": true, "relative_path": relative_path}}
-
-## One synchronous Backup write may validate the same outgoing text before and after promotion.
-## Reuse only a successful validation of that exact String within this call. Storage still reads
-## and proves the physical revision/bytes itself; another write receives a fresh empty memo.
-## Both the first result and later results are detached from the retained validation.
-func _write_document_text_validator(text: String, validated_texts: Dictionary) -> Dictionary:
-	if validated_texts.has(text):
-		return (validated_texts[text] as Dictionary).duplicate(true)
-	var result := _document_text_validator(text)
-	if result.get("ok", false):
-		validated_texts[text] = result.duplicate(true)
+## by…6173 tokens truncated…start yields exact old or exact new family")
+	if snapshot.has(FINAL + ".txn.json"):
+		_check(result.result.get("ok", false) or result.result.get("code") == &"write_not_committed",
+			label + ": owned revision settles after fresh restart")
+	if not result.result.get("ok", false):
+		_check(result.leases.is_empty(), label + ": refused or opaque rollback grants no lease")
+	if result.result.get("ok", false) and result.result.get("exists", false):
+		_check(result.leases.get(PATH, {}).get("hash") == _hash(result.persisted[FINAL]),
+			label + ": playable lease binds the exact physical winner")
 	return result
 
-func _document_text_validator(text: String) -> Dictionary:
-	var parsed: Dictionary = _parse_document_text(text)
-	if not parsed.get("ok", false):
-		return {"ok": false, "code": &"invalid_json", "message": "strict parse failed"}
-	var validated: Dictionary = SAVE_DOCUMENT_SCHEMA.validate(parsed["value"])
-	if not validated.get("ok", false):
-		return validated
-	return {"ok": true, "code": &"ok", "value": validated["value"]["candidate"]}
+func _refused(seed: Dictionary, restarting: bool, outgoing: String, revision: String,
+		label: String, code: StringName = &"") -> void:
+	var result := _pair(seed, restarting, outgoing, revision, label)
+	refusal_pairs += 1
+	_check(not result.result.get("ok", true), label + ": refused")
+	if not code.is_empty():
+		_check(result.result.get("code") == code, label + ": exact expected refusal")
+	_check(result.persisted == seed and result.snapshots.is_empty(), label + ": custody preserves every byte")
+	_check(result.leases.is_empty(), label + ": refusal grants no lease")
 
-## A cache entry proves only strict JSON parsing of this exact String. In particular,
-## it never proves current schema, locator, content compatibility, or disk durability.
-func _parse_document_text(text: String) -> Dictionary:
-	var disabled := OS.get_environment("DWM_SAVE_PARSE_CACHE_DISABLED") == "1"
-	var profile := _save_load_profile_begin("document_parse")
-	if not profile.is_empty():
-		profile["cache_enabled"] = not disabled
-		profile["cache_hit"] = false
-	if disabled:
-		return _save_load_profile_finish(profile, STRICT_JSON.parse_object(text))
-	for index: int in _document_parse_cache.size():
-		var entry: Dictionary = _document_parse_cache[index]
-		if entry["text"] == text:
-			_document_parse_cache.remove_at(index)
-			_document_parse_cache.append(entry)
-			if not profile.is_empty(): profile["cache_hit"] = true
-			return _save_load_profile_finish(profile, (entry["parsed"] as Dictionary).duplicate(true))
-	var parsed := STRICT_JSON.parse_object(text)
-	if not parsed.get("ok", false):
-		return _save_load_profile_finish(profile, parsed)
-	# Count real UTF-8 bytes only for admission, after the unchanged strict parser.
-	# Oversized valid inputs keep their normal result without displacing useful entries.
-	var text_bytes := text.to_utf8_buffer().size()
-	if text_bytes > _PARSE_CACHE_MAX_TEXT_BYTES:
-		return _save_load_profile_finish(profile, parsed)
-	while not _document_parse_cache.is_empty() and (
-		_document_parse_cache.size() >= _PARSE_CACHE_MAX_ENTRIES
-		or _document_parse_cache_text_bytes + text_bytes > _PARSE_CACHE_MAX_TEXT_BYTES):
-		var oldest: Dictionary = _document_parse_cache.pop_front()
-		_document_parse_cache_text_bytes -= int(oldest["text_bytes"])
-	# The miss result belongs to this caller. Retain a separate tree even on first use.
-	_document_parse_cache.append({"text": text, "text_bytes": text_bytes,
-		"parsed": parsed.duplicate(true)})
-	_document_parse_cache_text_bytes += text_bytes
-	return _save_load_profile_finish(profile, parsed)
-
-func _validate_checkpoint_inputs(checkpoint_inputs: Dictionary) -> String:
-	var keys: Array = checkpoint_inputs.keys()
-	keys.sort()
-	var expected := _CHECKPOINT_INPUT_KEYS.duplicate()
-	expected.sort()
-	if keys != Array(expected):
-		return "unexpected checkpoint input keys: " + str(keys)
-	if typeof(checkpoint_inputs["snapshot_input"]) != TYPE_DICTIONARY \
-			or typeof(checkpoint_inputs["snapshot_input"].get("lifecycle")) != TYPE_DICTIONARY:
-		return "snapshot_input.lifecycle is required"
-	return ""
-
-static func _fail(code: StringName, message: String) -> Dictionary:
-	return {"ok": false, "code": code, "message": message, "details": {}}
-
-## Keep source identity explicit: live run state already contains the remapped destination.
-static func _source_identity_from_lifecycle(lifecycle: Dictionary) -> Dictionary:
-	var receipt: Variant = lifecycle.get("causal_day_instance_issuer_receipt")
-	return {"branch_id": lifecycle.get("branch_id"),
-		"desktop_timeline_generation": lifecycle.get("desktop_timeline_generation"),
-		"causal_day_instance": lifecycle.get("causal_day_instance"),
-		"causal_day_instance_issuer_receipt": receipt.duplicate(true) if typeof(receipt) == TYPE_DICTIONARY else receipt}
-
-static func _schedule_view_input(snapshot: Dictionary) -> Dictionary:
-	return {"schedule_view": snapshot["schedule_view"],
-		"registry_fingerprint": snapshot["committed_schedule"]["registry_fingerprint"]}
-
-## Freeze the current lifetime before any candidate apply. Pure participant
-## orchestration without a run snapshot has no live session to replace.
-func _prepare_live_session_activation(plans: Dictionary, operation_id: String) -> Dictionary:
-	var plan: Dictionary = plans.get("run", {})
-	if not plan.has("snapshot"):
-		return {"ok": true, "value": {}}
-	if _session_activation_tickets.has(operation_id):
-		return {"ok": true, "value": _session_activation_tickets[operation_id].duplicate(true)}
-	var run: Object = _restore_participants["run"]
-	if not run.has_method("capture_live_session"):
-		return _fail(&"session_owner_unconfigured", "run participant requires live-session ownership")
-	var captured: Dictionary = run.capture_live_session()
-	if not captured.get("ok", false): return captured
-	var session: Dictionary = captured["value"]
-	var ticket := {"operation_id": operation_id, "expected_generation": session["generation"],
-		"owner_id": session["owner_id"], "run_id": plan["snapshot"]["run_id"]}
-	_session_activation_tickets[operation_id] = ticket.duplicate(true)
-	return {"ok": true, "value": ticket}
+func _test_refusals(label: String) -> void:
+	var prior := (" " + _outgoing).to_utf8_buffer()
+	var seed := {FINAL: prior, FINAL + ".bak": "opaque backup".to_utf8_buffer()}
+	for invalid: String in ["{", '{"duplicate":1,"duplicate":2}', '{"schema_version":999}']:
+		_refused(seed, false, invalid, _revision(seed), label + "/invalid-outgoing-" + invalid,
+			&"outgoing_validation_failed")
+	_refused(seed, false, _outgoing, "0".repeat(64), label + "/stale-revision", &"revision_changed")
+	for suffix: String in [".next", ".txn.json", ".revision-prior"]:
+		var pending := seed.duplicate(true)
+		pending[FINAL + suffix] = "unowned".to_utf8_buffer()
+		_refused(pending, false, _outgoing, _revision(seed), label + "/pending" + suffix, &"reconcile_required")
+	_refused({FINAL + ".bak": prior}, false, _outgoing, "absent", label + "/orphan-backup", &"reconcile_required")
+	var marker := {"schema_version": 2, "relative_path": PATH, "operation": "write_revision",
+		"stage": "prepared", "previous_hash": _hash(prior), "backup_hash": null,
+		"outgoing_hash": _hash(_outgoing.to_utf8_buffer())}
+	for suffix: String in ["", ".next", ".revision-prior", ".bak"]:
+		var foreign := {FINAL: prior, FINAL + ".next": _outgoing.to_utf8_buffer(),
+			FINAL + ".txn.json": JSON.stringify(marker).to_utf8_buffer()}
+		foreign[FINAL + suffix] = "foreign bytes".to_utf8_buffer()
+		_refused(foreign, true, "", "", label + "/foreign" + suffix, &"indeterminate_commit")
+	for invalid: String in ['{"schema_version":999}', '{"duplicate":1,"duplicate":2}']:
+		var invalid_marker := marker.duplicate(true)
+		invalid_marker.outgoing_hash = _hash(invalid.to_utf8_buffer())
+		_refused({FINAL: prior, FINAL + ".next": invalid.to_utf8_buffer(),
+			FINAL + ".txn.json": JSON.stringify(invalid_marker).to_utf8_buffer()},
+			true, "", "", label + "/hash-bound-invalid-" + invalid, &"indeterminate_commit")
+	_refused({FINAL: prior, FINAL + ".txn.json": '{"schema_version":'.to_utf8_buffer()},
+		true, "", "", label + "/torn-marker", &"indeterminate_transaction")

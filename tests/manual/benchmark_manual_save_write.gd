@@ -86,7 +86,7 @@ func _measure_write(manager: FixedClockSave, explicit_variant: bool) -> Dictiona
 
 func _run() -> void:
 	var source := ""
-	var write_variant := "baseline"
+	var write_variant := "production"
 	var explicit_variant := false
 	for argument: String in OS.get_cmdline_user_args():
 		if argument.begins_with("--write-source="):
@@ -96,7 +96,7 @@ func _run() -> void:
 			if not _check(not explicit_variant, "one write variant"): return
 			explicit_variant = true
 			write_variant = argument.trim_prefix("--write-variant=")
-			if not _check(write_variant in ["baseline", "witness"], "known write variant"): return
+			if not _check(write_variant in ["baseline", "production"], "known write variant"): return
 	var allowed := ProjectSettings.globalize_path("res://.godot/phase2r_tests").replace("\\", "/").to_lower() + "/"
 	var isolated := OS.get_environment("DWM_TEST_ROOT").replace("\\", "/").simplify_path()
 	var user_root := ProjectSettings.globalize_path("user://").replace("\\", "/").simplify_path()
