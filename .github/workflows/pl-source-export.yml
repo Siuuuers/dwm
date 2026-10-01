@@ -24,7 +24,7 @@ jobs:
           git -C source-git fetch --no-tags --depth=1 origin c8a67a221f45ab37ad318dfacc7c204d68590b7c
           test "$(git -C source-git rev-parse FETCH_HEAD)" = c8a67a221f45ab37ad318dfacc7c204d68590b7c
           mkdir snapshot
-          git -C source-git archive FETCH_HEAD story docs CLAUDE.md README.md | tar -x -C snapshot
+          git -C source-git archive FETCH_HEAD story docs CLAUDE.md | tar -x -C snapshot
           git -C source-git ls-tree -r FETCH_HEAD > snapshot/TRACKED-TREE.txt
           git -C source-git rev-parse FETCH_HEAD > snapshot/SOURCE-COMMIT.txt
           python3 - <<'PY'
