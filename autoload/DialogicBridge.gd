@@ -23,6 +23,7 @@ signal ending_playback_retired(playback_token: String, ending_id: String)
 signal scene_art_changed
 signal reading_session_changed
 signal next_traversal_changed
+signal next_request_finished(expected_frontier: Dictionary, result: Dictionary)
 signal _next_runtime_settled
 
 const MISSING_DIALOGIC_MESSAGE := "Dialogic 2 addon file does not exist."
@@ -1228,6 +1229,16 @@ func is_next_traversal_active() -> bool:
 
 
 func request_next(expected_frontier: Dictionary) -> Dictionary:
+	# This owner survives native layout removal. Presenters subscribe to completion
+	# instead of retaining Node-owned await chains across their own destruction.
+	var retained_frontier := expected_frontier.duplicate(true)
+	var result: Dictionary = await _perform_next(retained_frontier)
+	if result.get("code") != &"coalesced":
+		next_request_finished.emit(retained_frontier, result.duplicate(true))
+	return result
+
+
+func _perform_next(expected_frontier: Dictionary) -> Dictionary:
 	if _next_active:
 		return {"ok": true, "code": &"coalesced", "value": {"active": true}} \
 			if expected_frontier == _next_command else _command_failure(&"reading_next_command_conflict")

@@ -207,8 +207,15 @@ func test_exact_witnessed_tail_goes_to_natural_completion_with_once_only_history
 	_seed([FIRST, SECOND])
 	_activate()
 	var profile_before: Dictionary = _profile.get_profile_snapshot()
-	var result: Dictionary = await _bridge.request_next(_proof())
+	var proof := _proof()
+	var notifications: Array[Dictionary] = []
+	_bridge.next_request_finished.connect(func(frontier: Dictionary, result: Dictionary) -> void:
+		notifications.append({"frontier": frontier, "result": result})
+		assert_false(_bridge.is_next_traversal_active(), "completion belongs to the surviving Bridge after custody settles")
+		assert_false(_gate.is_active()))
+	var result: Dictionary = await _bridge.request_next(proof)
 	assert_true(result.ok, str(result))
+	assert_eq(notifications, [{"frontier": proof, "result": result}])
 	assert_eq(result.value.destination, "completion")
 	assert_eq(_native.applies, 1)
 	assert_eq(_port.completions.size(), 1)
@@ -276,12 +283,16 @@ func test_exclusive_next_coalesces_identical_activation_and_blocks_every_interme
 	_activate()
 	var proof := _proof()
 	var observations: Array[Dictionary] = []
+	var notifications: Array[Dictionary] = []
+	_bridge.next_request_finished.connect(func(frontier: Dictionary, result: Dictionary) -> void:
+		notifications.append({"frontier": frontier, "result": result}))
 	_port.callback = func(phase: String) -> void:
 		if phase != "source": return
 		assert_true(_bridge.is_next_traversal_active())
 		assert_eq(_gate.get_active_owner(), &"causal_transaction")
 		var identical: Dictionary = await _bridge.request_next(proof)
 		observations.append(identical)
+		assert_true(notifications.is_empty(), "coalescing cannot announce completion of the still-active original request")
 		var changed := proof.duplicate(true)
 		changed.value.token = "stale-next-command"
 		var conflict: Dictionary = await _bridge.request_next(changed)
@@ -300,6 +311,10 @@ func test_exclusive_next_coalesces_identical_activation_and_blocks_every_interme
 	assert_eq(observations.size(), 2)
 	assert_eq(observations[0].code, &"coalesced")
 	assert_eq(observations[1].code, &"reading_next_command_conflict")
+	assert_eq(notifications.size(), 2)
+	assert_eq(notifications[0].result.code, &"reading_next_command_conflict")
+	assert_ne(notifications[0].frontier, proof)
+	assert_eq(notifications[1], {"frontier": proof, "result": result})
 	assert_eq(_native.applies, 1)
 	assert_false(_gate.is_active())
 
