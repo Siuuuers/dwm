@@ -2,6 +2,8 @@
 
 **Status:** additive documentation-branch foundation; not a new Bible, canon selection, or completed seven-day plot. **Inspected repository:** `2e8602d5f098eebbab18241f370b5f4d14adf99b`. **Capture basis:** the visible conversation, v1 source references, and the uploaded transcript recovery described below. The upload is readable; full source-to-destination reconciliation is not complete.
 
+**Current structural task:** complete consolidation into `story/` and remove `docs/story-auditions/` after preservation checks. PR #3 is not ready to merge merely because this foundation exists. See the [current completion criteria](../../maintenance/source-migration.md#current-completion-criteria--owner-clarification-2026-10-01). All 50 numbered exchanges are available; E23–26 describes completed detailed transfer, not the extent of the uploaded source.
+
 ## Open the work you need
 
 | Subject | Working document | Current boundary |
@@ -31,7 +33,9 @@ Every narrative excerpt here is `UNSELECTED` / `REACTION TEST`. Words such as �
 
 ## Capture checkpoint
 
-**Publication checkpoint — 2026-10-01:** publish the prepared v2 foundation on a separate documentation branch, after the author explicitly permitted a PR. No source retirement, canonical extraction, runtime change, PR #1 write, or merge is included. Publication changes navigation and status only; the scene text and its existing qualifications remain unchanged.
+**Scope-correction checkpoint — 2026-10-01:** the owner reiterated that the upload contains all the supplied exchanges and wants the old audition directory consolidated and deleted, with `story/` as the narrative working home. The [migration record](../../maintenance/source-migration.md#current-completion-criteria--owner-clarification-2026-10-01) now distinguishes source availability from completed processing and replaces the foundation-first merge recommendation. This checkpoint is saved on PR #3's documentation branch; it changes the task criteria, not source coverage, scene text, canon, or runtime. Source deletion and merge have not occurred. The four-exchange cadence is not a limit on how much archive material may be processed in one batch.
+
+**Earlier publication checkpoint — 2026-10-01:** published the prepared v2 foundation on a separate documentation branch, after the author explicitly permitted a PR. No source retirement, canonical extraction, runtime change, PR #1 write, or merge was included. That publication changed navigation and status only; the scene text and its existing qualifications remained unchanged.
 
 ### Inherited recovery coverage
 
