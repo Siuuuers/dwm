@@ -32,10 +32,10 @@ class RestoreFixture extends "res://autoload/SaveManager.gd":
 			result["value"]["record"]["fallback"] = true
 		return result
 
-# Opt-in diagnostic only. The original production fixture above stays unchanged.
+# Compare the frozen full-result baseline with the actual production write helper.
 # As above, restore execution is doubled; presentation, consent, capture, journal,
 # exact-text validation and atomic storage use their real owners.
-class WitnessQuickFixture extends "res://tests/support/ManualSaveWitnessPort.gd":
+class QuickWriteProbe extends "res://tests/support/ManualSaveWitnessPort.gd":
 	var helper_calls := 0
 	var compact_successes := 0
 	var validation_texts: Array[String] = []
@@ -380,12 +380,12 @@ func test_legacy_slot_is_replaceable_only_after_explicit_overwrite_confirmation(
 	assert_eq(port.get_projection().value.records[2].state, "occupied")
 
 
-func _diagnostic_quick_setup(write_variant: String) -> Capture:
+func _quick_equivalence_setup(write_variant: String) -> Capture:
 	_manager.free()
 	files = FILES.new()
 	storage = STORAGE.new("memory/quick-actions", files)
 	gate = GATE.new()
-	_manager = WitnessQuickFixture.new()
+	_manager = QuickWriteProbe.new()
 	_manager.write_variant = write_variant
 	assert_true(_manager.initialize(storage).get("ok", false))
 	assert_true(_manager.configure_mutation_gate(gate).get("ok", false))
@@ -399,7 +399,7 @@ func _diagnostic_quick_setup(write_variant: String) -> Capture:
 	assert_true(_manager.configure_backup_capture_provider(capture.capture).get("ok", false))
 	return capture
 
-func _diagnostic_quick_commit(prepared: Dictionary) -> Dictionary:
+func _commit_quick_with_proof(prepared: Dictionary) -> Dictionary:
 	assert_true(prepared.get("ok", false), str(prepared))
 	if not prepared.get("ok", false): return {}
 	var token: String = prepared.value.token
@@ -419,8 +419,8 @@ func _diagnostic_quick_commit(prepared: Dictionary) -> Dictionary:
 	assert_eq(strict_delta, 1, "one fresh write memo must strictly admit its exact outgoing text")
 	assert_eq(_manager.validation_texts[strict_before], expected_text)
 	assert_eq(_manager.compact_successes,
-		_manager.helper_calls if _manager.write_variant == "witness" else 0,
-		"the selected diagnostic variant actually executed")
+		_manager.helper_calls if _manager.write_variant == "production" else 0,
+		"production executes its compact helper; the frozen baseline returns the full document")
 	var persisted: Dictionary = files.snapshot_persisted()
 	assert_eq(persisted["memory/quick-actions/quicksave.json"], expected_text.to_utf8_buffer())
 	assert_eq(persisted.size(), 1, "successful Quick leaves only the complete final document")
@@ -439,10 +439,10 @@ func _diagnostic_quick_commit(prepared: Dictionary) -> Dictionary:
 		"files": persisted, "journal": journal, "helper_calls": helper_delta,
 		"strict_calls": strict_delta}
 
-func test_diagnostic_witness_modern_f5_fresh_and_replacement_match_baseline_bytes_and_journal() -> void:
+func test_production_modern_f5_fresh_and_replacement_match_frozen_baseline_bytes_and_journal() -> void:
 	var baseline: Array = []
-	for write_variant: String in ["baseline", "witness"]:
-		var capture := _diagnostic_quick_setup(write_variant)
+	for write_variant: String in ["baseline", "production"]:
+		var capture := _quick_equivalence_setup(write_variant)
 		var outcomes: Array = []
 		for replacement: bool in [false, true]:
 			if replacement: capture.result["value"]["snapshot_input"]["gameplay"]["money"] += 1
@@ -457,15 +457,15 @@ func test_diagnostic_witness_modern_f5_fresh_and_replacement_match_baseline_byte
 			assert_eq(prepared.value.record.state, "occupied" if replacement else "empty")
 			assert_eq(files.snapshot_persisted(), persisted, "F5 preparation cannot write")
 			assert_eq(_manager._journal.capture_state(), journal, "F5 preparation cannot publish a checkpoint")
-			outcomes.append(_diagnostic_quick_commit(prepared))
+			outcomes.append(_commit_quick_with_proof(prepared))
 			assert_eq(capture.result, inputs, "live capture inputs stay detached")
 		if write_variant == "baseline": baseline = outcomes
 		else: assert_eq(outcomes, baseline, "both modern F5 writes preserve exact public results, bytes and journal")
 
-func test_diagnostic_witness_modern_quick_cancel_and_load_consent_stay_single_use() -> void:
+func test_production_modern_quick_cancel_and_load_consent_stay_single_use() -> void:
 	var baseline: Dictionary = {}
-	for write_variant: String in ["baseline", "witness"]:
-		var capture := _diagnostic_quick_setup(write_variant)
+	for write_variant: String in ["baseline", "production"]:
+		var capture := _quick_equivalence_setup(write_variant)
 		var persisted: Dictionary = files.snapshot_persisted()
 		var journal: Dictionary = _manager._journal.capture_state()
 		var canceled: Dictionary = port.prepare_quick_action("save")
@@ -477,7 +477,7 @@ func test_diagnostic_witness_modern_quick_cancel_and_load_consent_stay_single_us
 		assert_eq(_manager.helper_calls, 0, "canceling a prepared F5 never calls the writer")
 		assert_eq(files.snapshot_persisted(), persisted)
 		assert_eq(_manager._journal.capture_state(), journal)
-		var saved := _diagnostic_quick_commit(port.prepare_quick_action("save"))
+		var saved := _commit_quick_with_proof(port.prepare_quick_action("save"))
 		if saved.is_empty(): return
 		var helper_before: int = _manager.helper_calls
 		var load_results: Array = []
@@ -495,7 +495,7 @@ func test_diagnostic_witness_modern_quick_cancel_and_load_consent_stay_single_us
 			assert_eq(port.commit_action(prepared.value.token).code, &"stale_backup_action")
 			assert_eq(_manager.commit_backup_action(prepared.value.token).code, &"stale_backup_action")
 		assert_eq(_manager.restore_commits, 1)
-		assert_eq(_manager.helper_calls, helper_before, "Quick Load never invokes the write-only witness")
+		assert_eq(_manager.helper_calls, helper_before, "Quick Load never invokes the write-only helper")
 		assert_eq(files.snapshot_persisted(), saved.files)
 		assert_eq(_manager._journal.capture_state().value.backup, saved.journal)
 		assert_true(_manager._backup_actions.is_empty())
@@ -505,8 +505,8 @@ func test_diagnostic_witness_modern_quick_cancel_and_load_consent_stay_single_us
 		if write_variant == "baseline": baseline = result
 		else: assert_eq(result, baseline)
 
-func _diagnostic_quick_stale_receipt(write_variant: String, changed: String) -> Dictionary:
-	var capture := _diagnostic_quick_setup(write_variant)
+func _quick_stale_receipt(write_variant: String, changed: String) -> Dictionary:
+	var capture := _quick_equivalence_setup(write_variant)
 	var prepared: Dictionary = port.prepare_quick_action("save")
 	assert_true(prepared.get("ok", false), str(prepared))
 	if not prepared.get("ok", false): return {}
@@ -520,7 +520,7 @@ func _diagnostic_quick_stale_receipt(write_variant: String, changed: String) -> 
 	var committed: Dictionary = port.commit_action(prepared.value.token)
 	assert_false(committed.get("ok", false), changed)
 	assert_eq(committed.status_key, "unavailable")
-	assert_eq(_manager.helper_calls, 0, "stale " + changed + " refuses before entering the witness")
+	assert_eq(_manager.helper_calls, 0, "stale " + changed + " refuses before entering the write helper")
 	assert_true(_manager.validation_texts.is_empty())
 	assert_true(_manager._backup_actions.is_empty())
 	assert_true(port._pending.is_empty())
@@ -534,14 +534,14 @@ func _diagnostic_quick_stale_receipt(write_variant: String, changed: String) -> 
 	return {"code": committed.code, "status_key": committed.status_key,
 		"files": persisted, "journal": journal}
 
-func test_diagnostic_witness_modern_f5_stale_checkpoint_refusal_matches_baseline() -> void:
-	var baseline := _diagnostic_quick_stale_receipt("baseline", "stable")
-	assert_eq(_diagnostic_quick_stale_receipt("witness", "stable"), baseline)
+func test_production_modern_f5_stale_checkpoint_refusal_matches_frozen_baseline() -> void:
+	var baseline := _quick_stale_receipt("baseline", "stable")
+	assert_eq(_quick_stale_receipt("production", "stable"), baseline)
 
-func test_diagnostic_witness_modern_f5_stale_capture_refusal_matches_baseline() -> void:
-	var baseline := _diagnostic_quick_stale_receipt("baseline", "capture")
-	assert_eq(_diagnostic_quick_stale_receipt("witness", "capture"), baseline)
+func test_production_modern_f5_stale_capture_refusal_matches_frozen_baseline() -> void:
+	var baseline := _quick_stale_receipt("baseline", "capture")
+	assert_eq(_quick_stale_receipt("production", "capture"), baseline)
 
-func test_diagnostic_witness_modern_f5_stale_target_refusal_matches_baseline() -> void:
-	var baseline := _diagnostic_quick_stale_receipt("baseline", "target")
-	assert_eq(_diagnostic_quick_stale_receipt("witness", "target"), baseline)
+func test_production_modern_f5_stale_target_refusal_matches_frozen_baseline() -> void:
+	var baseline := _quick_stale_receipt("baseline", "target")
+	assert_eq(_quick_stale_receipt("production", "target"), baseline)

@@ -1,4 +1,9 @@
-"""Reverse only the per-write validation memo, retaining every current save rule."""
+"""Bypass the current per-write witness/memo, retaining every other save rule.
+
+The unused helper stays available so the shared benchmark owner's production
+forwarder still parses. Both writes call the full validator directly in this
+historical no-memo control; preparation comparisons use the current helper.
+"""
 
 import hashlib
 import json
@@ -18,19 +23,21 @@ def derive_baseline(source: bytes) -> bytes:
     helper = '''## One synchronous Backup write may validate the same outgoing text before and after promotion.
 ## Reuse only a successful validation of that exact String within this call. Storage still reads
 ## and proves the physical revision/bytes itself; another write receives a fresh empty memo.
-## Both the first result and later results are detached from the retained validation.
+## The caller consumes a storage witness, not the admitted document; each success is detached.
 func _write_document_text_validator(text: String, validated_texts: Dictionary) -> Dictionary:
 	if validated_texts.has(text):
-		return (validated_texts[text] as Dictionary).duplicate(true)
+		return {"ok": true, "code": &"ok", "value": {}}
 	var result := _document_text_validator(text)
-	if result.get("ok", false):
-		validated_texts[text] = result.duplicate(true)
-	return result
+	# Preserve every refusal, including a malformed success that storage rejects.
+	if not result.get("ok", false) or typeof(result.get("value")) != TYPE_DICTIONARY:
+		return result
+	validated_texts[text] = {"ok": true, "code": &"ok", "value": {}}
+	return {"ok": true, "code": &"ok", "value": {}}
 
 '''.encode()
     if result.count(after) != 1 or result.count(helper) != 1:
         raise ValueError("Expected exactly one current write caller and memo helper")
-    return result.replace(after, before).replace(helper, b"").replace(b"\n", newline)
+    return result.replace(after, before).replace(b"\n", newline)
 
 
 if __name__ == "__main__":

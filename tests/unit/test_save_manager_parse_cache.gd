@@ -36,10 +36,10 @@ class ValidationProbe extends "res://autoload/SaveManager.gd":
 		# Equal saves across separate calls must not miss reuse merely because the clock advanced.
 		return {"unix_seconds": 0, "utc_offset_minutes": 0, "hhmm": "00:00"}
 
-class WitnessValidationProbe extends "res://tests/support/ManualSaveWitnessPort.gd":
+class BaselineValidationProbe extends "res://tests/support/ManualSaveWitnessPort.gd":
 	var validation_texts: Array[String] = []
 	var validation_override := {}
-	func _init() -> void: write_variant = "witness"
+	func _init() -> void: write_variant = "baseline"
 	func _document_text_validator(text: String) -> Dictionary:
 		validation_texts.append(text)
 		if not validation_override.is_empty(): return validation_override.duplicate(true)
@@ -82,7 +82,7 @@ func after_each() -> void:
 func _manager() -> Node:
 	return autofree(SAVE.new())
 
-func _fixture(validation_probe: bool = false, witness: bool = false) -> Dictionary:
+func _fixture(validation_probe: bool = false, baseline: bool = false) -> Dictionary:
 	var snapshot := STRICT.parse_object(FileAccess.get_file_as_string(
 		"res://tests/fixtures/saves/v7_desktop_prepared.json"))
 	assert_true(snapshot.get("ok", false), str(snapshot))
@@ -98,15 +98,15 @@ func _fixture(validation_probe: bool = false, witness: bool = false) -> Dictiona
 	var ops := ReadFaultOps.new({"parse-cache/slot_1.json": text})
 	var storage := STORAGE.new("parse-cache", ops)
 	var manager: Node
-	if witness:
-		manager = autofree(WitnessValidationProbe.new())
+	if baseline:
+		manager = autofree(BaselineValidationProbe.new())
 	else:
 		manager = autofree(ValidationProbe.new()) if validation_probe else _manager()
 	assert_true(manager.initialize(storage).get("ok", false))
 	return {"manager": manager, "ops": ops, "storage": storage, "text": text}
 
-func _write_fixture(witness: bool = false) -> Dictionary:
-	var f := _fixture(true, witness)
+func _write_fixture(baseline: bool = false) -> Dictionary:
+	var f := _fixture(true, baseline)
 	if f.is_empty(): return {}
 	var parsed := STRICT.parse_object(f.text)
 	var snapshot: Dictionary = parsed.value.current_snapshot.snapshot
@@ -343,9 +343,9 @@ func test_warm_inspection_reprepares_participants_and_current_guard() -> void:
 	assert_true(f.manager.release_save_lock(&"restore").get("ok", false))
 
 func test_backup_write_validates_exact_text_once_but_separate_writes_start_fresh() -> void:
-	for witness: bool in [false, true]:
+	for baseline: bool in [false, true]:
 		for locator: String in ["slot:1", "quick"]:
-			var f := _write_fixture(witness)
+			var f := _write_fixture(baseline)
 			if f.is_empty(): return
 			var path := "slot_1.json" if locator == "slot:1" else "quicksave.json"
 			var first_text := ""
@@ -368,8 +368,25 @@ func test_backup_write_validates_exact_text_once_but_separate_writes_start_fresh
 				assert_false(f.manager.commit_backup_action(prepared.value.token).get("ok", true),
 					"reuse never keeps consumed consent alive")
 
-func test_backup_write_validation_results_are_detached_and_refusals_are_not_memoized() -> void:
+func test_document_text_validator_returns_complete_detached_document() -> void:
 	var f := _fixture(true)
+	if f.is_empty(): return
+	var expected := SCHEMA.validate(STRICT.parse_object(f.text).value)
+	assert_true(expected.get("ok", false), str(expected))
+	if not expected.get("ok", false): return
+	var first: Dictionary = f.manager._document_text_validator(f.text)
+	assert_true(first.get("ok", false), str(first))
+	if not first.get("ok", false): return
+	assert_true(CANONICAL._deep_same(first.value, expected.value.candidate))
+	first.value.current_snapshot.snapshot.lifecycle.day = 99
+	var second: Dictionary = f.manager._document_text_validator(f.text)
+	assert_true(CANONICAL._deep_same(second.value, expected.value.candidate))
+	second.value.recovery_journal.append({"caller": "edit"})
+	assert_true(CANONICAL._deep_same(
+		f.manager._document_text_validator(f.text).value, expected.value.candidate))
+
+func test_frozen_backup_write_validation_results_are_detached_and_refusals_are_not_memoized() -> void:
+	var f := _fixture(true, true)
 	if f.is_empty(): return
 	var memo := {}
 	var first: Dictionary = f.manager._write_document_text_validator(f.text, memo)
@@ -394,9 +411,9 @@ func test_backup_write_validation_results_are_detached_and_refusals_are_not_memo
 		assert_false(memo.has(invalid))
 
 func test_backup_write_revalidates_changed_or_corrupt_promoted_bytes_and_preserves_custody() -> void:
-	for witness: bool in [false, true]:
+	for baseline: bool in [false, true]:
 		for corrupt: bool in [false, true]:
-			var f := _write_fixture(witness)
+			var f := _write_fixture(baseline)
 			if f.is_empty(): return
 			var before_journal: Dictionary = f.manager._journal.capture_state()
 			var prepared: Dictionary = f.manager.prepare_backup_action("save", "slot:1")
@@ -426,8 +443,8 @@ func test_backup_write_revalidates_changed_or_corrupt_promoted_bytes_and_preserv
 			assert_false(f.manager._backup_actions.has(prepared.value.token))
 
 func test_backup_write_invalid_outgoing_document_keeps_prior_bytes_without_starting_transaction() -> void:
-	for witness: bool in [false, true]:
-		var f := _write_fixture(witness)
+	for baseline: bool in [false, true]:
+		var f := _write_fixture(baseline)
 		if f.is_empty(): return
 		var prepared: Dictionary = f.manager.prepare_backup_action("save", "slot:1")
 		assert_true(prepared.get("ok", false), str(prepared))
@@ -442,8 +459,8 @@ func test_backup_write_invalid_outgoing_document_keeps_prior_bytes_without_start
 		assert_eq(f.ops.snapshot_persisted(), before)
 		assert_false(f.manager._backup_actions.has(prepared.value.token))
 
-func test_diagnostic_witness_is_detached_and_requires_each_new_exact_text_admission() -> void:
-	var f := _fixture(true, true)
+func test_backup_write_witness_is_detached_and_requires_each_new_exact_text_admission() -> void:
+	var f := _fixture(true)
 	if f.is_empty(): return
 	var memo := {}
 	var expected := {"ok": true, "code": &"ok", "value": {}}
@@ -468,14 +485,14 @@ func test_diagnostic_witness_is_detached_and_requires_each_new_exact_text_admiss
 		assert_eq(f.manager.validation_texts.size(), count + 2)
 		assert_false(memo.has(invalid), "refused text never earns a witness")
 
-func test_diagnostic_witness_preserves_malformed_success_and_storage_refuses_before_mutation() -> void:
+func test_backup_write_preserves_malformed_success_and_storage_refuses_before_mutation() -> void:
 	var results: Array[Dictionary] = [
 		{"ok": false, "code": &"fixture_refusal", "message": "unchanged reason"},
 		{"ok": true}, {"ok": true, "value": null},
 		{"ok": true, "value": []}, {"ok": true, "value": "not a document"}]
-	for witness: bool in [false, true]:
+	for baseline: bool in [false, true]:
 		for forced: Dictionary in results:
-			var f := _write_fixture(witness)
+			var f := _write_fixture(baseline)
 			if f.is_empty(): return
 			var prepared: Dictionary = f.manager.prepare_backup_action("save", "slot:1")
 			assert_true(prepared.get("ok", false), str(prepared))
@@ -484,7 +501,7 @@ func test_diagnostic_witness_preserves_malformed_success_and_storage_refuses_bef
 			var memo := {}
 			assert_eq(f.manager._write_document_text_validator(f.text, memo), forced,
 				"neither helper can turn malformed success or refusal into valid admission")
-			if witness: assert_true(memo.is_empty(), "malformed success never earns a witness")
+			if not baseline: assert_true(memo.is_empty(), "malformed success never earns a witness")
 			var before: Dictionary = f.ops.snapshot_persisted()
 			var journal: Dictionary = f.manager._journal.capture_state()
 			var validation_count: int = f.manager.validation_texts.size()
@@ -499,8 +516,8 @@ func test_diagnostic_witness_preserves_malformed_success_and_storage_refuses_bef
 			assert_false(f.manager._backup_actions.has(prepared.value.token))
 
 func test_backup_write_rechecks_exact_revision_after_validation_and_retry_starts_fresh() -> void:
-	for witness: bool in [false, true]:
-		var f := _write_fixture(witness)
+	for baseline: bool in [false, true]:
+		var f := _write_fixture(baseline)
 		if f.is_empty(): return
 		var prepared: Dictionary = f.manager.prepare_backup_action("save", "slot:1")
 		assert_true(prepared.get("ok", false), str(prepared))

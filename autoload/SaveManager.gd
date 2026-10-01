@@ -2532,14 +2532,16 @@ func _delete(locator: Dictionary) -> Dictionary:
 ## One synchronous Backup write may validate the same outgoing text before and after promotion.
 ## Reuse only a successful validation of that exact String within this call. Storage still reads
 ## and proves the physical revision/bytes itself; another write receives a fresh empty memo.
-## Both the first result and later results are detached from the retained validation.
+## The caller consumes a storage witness, not the admitted document; each success is detached.
 func _write_document_text_validator(text: String, validated_texts: Dictionary) -> Dictionary:
 	if validated_texts.has(text):
-		return (validated_texts[text] as Dictionary).duplicate(true)
+		return {"ok": true, "code": &"ok", "value": {}}
 	var result := _document_text_validator(text)
-	if result.get("ok", false):
-		validated_texts[text] = result.duplicate(true)
-	return result
+	# Preserve every refusal, including a malformed success that storage rejects.
+	if not result.get("ok", false) or typeof(result.get("value")) != TYPE_DICTIONARY:
+		return result
+	validated_texts[text] = {"ok": true, "code": &"ok", "value": {}}
+	return {"ok": true, "code": &"ok", "value": {}}
 
 func _document_text_validator(text: String) -> Dictionary:
 	var parsed: Dictionary = _parse_document_text(text)

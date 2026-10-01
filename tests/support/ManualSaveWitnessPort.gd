@@ -1,26 +1,20 @@
 extends "res://autoload/SaveManager.gd"
-## Diagnostic-only save owner shared by the witness benchmark and correctness tests.
-## Production continues to return the full admitted document. Opt in explicitly.
+## Frozen full-result control for the compact production witness comparison.
+## The candidate always calls the actual production helper; it is not copied here.
 
-var write_variant := "baseline"
+const BASELINE_SOURCE_REF := "9a4c63f05d13bc2960aae4fa6c58db9911916f86"
+const BASELINE_HELPER_SHA256 := "316ff83a7f767daefb05e9afd63c5d1557e05526a2282306b0728c36b2a68946"
+
+var write_variant := "production"
 
 func _write_document_text_validator(text: String, validated_texts: Dictionary) -> Dictionary:
 	if write_variant == "baseline":
-		# Keep the current production body exact. The legacy source-ablation runner
-		# removes that parent method entirely, so a super reference would not parse.
+		# Keep the full-result body exact to BASELINE_SOURCE_REF. The performance
+		# driver verifies both its Git provenance and the sole production change.
 		if validated_texts.has(text):
 			return (validated_texts[text] as Dictionary).duplicate(true)
 		var baseline_result := _document_text_validator(text)
 		if baseline_result.get("ok", false):
 			validated_texts[text] = baseline_result.duplicate(true)
 		return baseline_result
-	# Diagnostic-only ablation. Each write supplies its own exact-text memo; a
-	# new text still undergoes the unchanged strict parser and full schema admission.
-	if validated_texts.has(text):
-		return {"ok": true, "code": &"ok", "value": {}}
-	var result := _document_text_validator(text)
-	# Preserve every refusal, including a malformed success that storage rejects.
-	if not result.get("ok", false) or typeof(result.get("value")) != TYPE_DICTIONARY:
-		return result
-	validated_texts[text] = {"ok": true, "code": &"ok", "value": {}}
-	return {"ok": true, "code": &"ok", "value": {}}
+	return super._write_document_text_validator(text, validated_texts)

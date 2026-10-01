@@ -331,7 +331,7 @@ try {
     $manualControl = if ($ComparePreparation) {
         'Public prepare_backup_action and commit_backup_action with real storage, the same seeded Day7 journal, immutable capture fixture and a test-subclass fixed clock. Only the discarded eager journal copy in configured capture differs; parse cache and write validation memo are enabled in both.'
     } else {
-        'Public prepare_backup_action and commit_backup_action with real storage, the same seeded Day7 journal, immutable capture fixture and a test-subclass fixed clock. Only the write validation memo differs; parse cache enabled in both.'
+        'Public prepare_backup_action and commit_backup_action with real storage, the same seeded Day7 journal, immutable capture fixture and a test-subclass fixed clock. The historical control bypasses both the write validation memo and compact success witness; parse cache enabled in both.'
     }
     $manualSampling = if ($ComparePreparation) {
         'Eight alternating pairs / sixteen fresh isolated processes; identical prepared candidate, physical source files, target revision and pre-commit parser cache. Preparation timing covers only the public prepare_backup_action call, including immutable fixture copying, and excludes source cloning, journal seeding, proof generation, commit, live UI callbacks, issuer-flush callbacks and rendering. OS filesystem caches are not flushed.'
@@ -365,6 +365,7 @@ try {
             $probe = Invoke-HistoryProbe -Phase 'write-commit' -Source $write.Record.user_dir -Name "$manualMode-pair-$pair-$variant"
             $records = @(Read-HistoryMarkers $probe.Lines 'MANUAL_SAVE_WRITE_PASS: ')
             if ($records.Count -ne 1 -or $records[0].commit_us -lt 0 -or $records[0].prepare_us -lt 0 -or
+                $records[0].write_variant -cne 'production' -or $records[0].timing_mode -cne 'legacy-phase-context' -or
                 $records[0].retained_checkpoint_count -ne 66 -or -not $records[0].parse_cache_enabled -or
                 $records[0].save_manager_sha256 -cne $manualSourceHashes[$variant] -or
                 $records[0].storage_sha256 -cne $manualSourceHashes.storage -or

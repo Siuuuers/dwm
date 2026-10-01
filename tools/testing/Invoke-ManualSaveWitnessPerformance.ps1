@@ -61,35 +61,65 @@ $checkout = (& git -C $repositoryRoot rev-parse HEAD)
 if ($LASTEXITCODE -ne 0) { throw 'Cannot bind checkout.' }
 $tree = (& git -C $repositoryRoot rev-parse 'HEAD^{tree}')
 if ($LASTEXITCODE -ne 0) { throw 'Cannot bind checkout tree.' }
-# The diagnostic carries the current body because the separate legacy ablation removes it.
-# Fail on drift instead of measuring a silently stale control.
+# Freeze the full-result control to its accepted Git source. The candidate calls
+# the production helper, and only this documented helper block may differ.
 $baselineGuard = @'
-import hashlib,json,pathlib,re,sys
+import hashlib,json,pathlib,re,subprocess,sys
 root=pathlib.Path(sys.argv[1])
-source=(root/'autoload/SaveManager.gd').read_text()
-harness=(root/'tests/manual/benchmark_manual_save_write.gd').read_text()
-port=(root/'tests/support/ManualSaveWitnessPort.gd').read_text()
-assert 'class FixedClockSave extends "res://tests/support/ManualSaveWitnessPort.gd":' in harness, 'benchmark uses shared witness owner'
+reference='9a4c63f05d13bc2960aae4fa6c58db9911916f86'
+expected_body_hash='316ff83a7f767daefb05e9afd63c5d1557e05526a2282306b0728c36b2a68946'
+def git_text(path):
+    raw=subprocess.check_output(['git','-C',str(root),'show',reference+':'+path])
+    return raw.decode('utf-8').replace('\r\n','\n'),hashlib.sha256(raw).hexdigest()
+source=(root/'autoload/SaveManager.gd').read_text(encoding='utf-8')
+harness=(root/'tests/manual/benchmark_manual_save_write.gd').read_text(encoding='utf-8')
+port=(root/'tests/support/ManualSaveWitnessPort.gd').read_text(encoding='utf-8')
+historical,historical_hash=git_text('autoload/SaveManager.gd')
+old_port,old_port_hash=git_text('tests/support/ManualSaveWitnessPort.gd')
+assert 'class FixedClockSave extends "res://tests/support/ManualSaveWitnessPort.gd":' in harness, 'benchmark uses shared comparison owner'
+assert 'func _write_document_text_validator' not in harness, 'benchmark cannot override the compared helper'
+assert 'var write_variant := "production"' in harness and 'var write_variant := "production"' in port, 'default preparation uses production'
+assert 'const BASELINE_SOURCE_REF := "'+reference+'"' in port, 'control source reference'
+assert 'const BASELINE_HELPER_SHA256 := "'+expected_body_hash+'"' in port, 'control body reference'
 name='func _write_document_text_validator(text: String, validated_texts: Dictionary) -> Dictionary:\n'
-assert source.count(name)==1, 'unique production validation helper'
-body=source.split(name)[1].split('\nfunc ',1)[0].strip('\n')
+def method_body(text):
+    assert text.count(name)==1, 'unique validation helper'
+    return text.split(name)[1].split('\nfunc ',1)[0].strip('\n')
+body=method_body(historical)
+assert hashlib.sha256(body.encode()).hexdigest()==expected_body_hash, 'immutable full-result body'
 start='\tif write_variant == "baseline":\n'
-stop='\t# Diagnostic-only ablation.'
-assert port.count(start)==1 and port.count(stop)==1, 'unique diagnostic baseline branch'
-branch=port.split(start)[1].split(stop,1)[0]
+forward='\treturn super._write_document_text_validator(text, validated_texts)'
+assert port.count(start)==1 and port.count(forward)==1, 'one baseline and actual production forwarder'
+branch=port.split(start)[1].split(forward,1)[0]
 lines=[line[1:] for line in branch.splitlines() if line.strip() and not line.lstrip().startswith('#')]
 control='\n'.join(lines).replace('baseline_result','result')
-assert control==body, 'benchmark control differs from current production helper'
-print(json.dumps({'baseline_body_sha256':hashlib.sha256(body.encode()).hexdigest(),'exact_body_match':True}))
+assert control==body, 'control differs from frozen Git helper'
+assert port.split(forward,1)[1].strip()=='', 'candidate contains no duplicate helper implementation'
+# The adopted body must be the exact diagnostic witness that Run78/79 exercised.
+old_candidate=old_port.split('\t# Diagnostic-only ablation.',1)[1].split('\n',2)[2].strip('\n')
+assert method_body(source)==old_candidate, 'production differs from proven compact witness'
+block_start='## One synchronous Backup write may validate the same outgoing text before and after promotion.\n'
+block_end='func _document_text_validator(text: String) -> Dictionary:\n'
+def helper_block(text):
+    assert text.count(block_start)==1 and text.count(block_end)==1, 'unique helper block anchors'
+    return text.split(block_start)[1].split(block_end)[0]
+old_block=helper_block(historical)
+new_block=helper_block(source)
+assert source.replace(block_start+new_block,block_start+old_block,1)==historical, 'SaveManager has another runtime change'
+print(json.dumps({'baseline_source_ref':reference,'baseline_source_sha256':historical_hash,
+    'baseline_body_sha256':expected_body_hash,'diagnostic_port_sha256':old_port_hash,
+    'production_body_sha256':hashlib.sha256(method_body(source).encode()).hexdigest(),
+    'exact_frozen_body_match':True,'exact_proven_witness_match':True,
+    'whole_source_single_helper_difference':True,'candidate_calls_production':True}))
 '@
 $baselineProof = python -c $baselineGuard $repositoryRoot
-if ($LASTEXITCODE -ne 0) { throw 'Diagnostic baseline is not the exact production helper.' }
+if ($LASTEXITCODE -ne 0) { throw 'Frozen baseline or production witness provenance failed.' }
 $report = [ordered]@{
     checkout_ref = $checkout; checkout_tree = $tree; run_id = [string]$env:GITHUB_RUN_ID
     run_attempt = [string]$env:GITHUB_RUN_ATTEMPT; source_sha256 = $sourceHashes; status = 'incomplete'
-    ablation = 'Test-subclass-only compact successful validation witness versus unchanged parent helper. Production sources, strict admission and storage protocol are identical.'
+    ablation = 'Actual production compact validation witness versus the exact full-result helper frozen to source 9a4c63f. Whole SaveManager reconstruction proves this helper is the sole runtime change; strict admission and storage protocol are identical.'
     sampling = 'Four alternating pairs in each parser-cache mode; sixteen fresh isolated processes, each cloning the same full saves directory. Modes are separate experiments; do not pool them.'
-    limits = 'Shared Windows runner; process-fresh, not OS-cache-cold. Immutable capture and fixed clock; real public preparation/commit and disk I/O, no live UI, issuer-flush callback, rendering or physical input-to-paint. No speed threshold or production adoption.'
+    limits = 'Shared Windows runner; process-fresh, not OS-cache-cold. Immutable capture and fixed clock; real public preparation/commit and disk I/O, no live UI, issuer-flush callback, rendering or physical input-to-paint. No speed threshold or complete gameplay responsiveness claim.'
     timing_boundaries = 'prepare_us and commit_us time the individual public calls. envelope_us continuously surrounds both, including only token/reference and shallow cache bookkeeping between them. These nested timers must not be summed. All expensive oracles are outside the envelope.'
     baseline_body_proof = ($baselineProof | ConvertFrom-Json); processes = @(); modes = [ordered]@{}
 }
@@ -190,7 +220,7 @@ try {
         $report.modes[$mode] = [ordered]@{ pairs = @(); summary = [ordered]@{} }
         $modeReference = $null
         for ($pair = 1; $pair -le 4; $pair++) {
-            $order = if ($pair % 2) { @('baseline', 'witness') } else { @('witness', 'baseline') }
+            $order = if ($pair % 2) { @('baseline', 'production') } else { @('production', 'baseline') }
             $samples = [ordered]@{}
             foreach ($variant in $order) {
                 $probe = Invoke-Probe "$mode-pair-$pair-$variant" @('-s', 'res://tests/manual/benchmark_manual_save_write.gd', '--',
@@ -221,24 +251,24 @@ try {
                 $samples[$variant] = $sample
             }
             $deltas = [ordered]@{}
-            foreach ($metric in $metrics) { $deltas[$metric] = [long]$samples.witness.$metric - [long]$samples.baseline.$metric }
+            foreach ($metric in $metrics) { $deltas[$metric] = [long]$samples.production.$metric - [long]$samples.baseline.$metric }
             $report.modes[$mode].pairs += [ordered]@{ pair = $pair; order = $order
-                baseline = $samples.baseline; witness = $samples.witness; witness_minus_baseline_us = $deltas }
+                baseline = $samples.baseline; production = $samples.production; production_minus_baseline_us = $deltas }
             Save-Json $report 'results.json'
         }
         foreach ($metric in $metrics) {
             $pairs = $report.modes[$mode].pairs
             $report.modes[$mode].summary[$metric] = [ordered]@{
                 baseline_median_us = Get-Median @($pairs | ForEach-Object { $_.baseline.$metric })
-                witness_median_us = Get-Median @($pairs | ForEach-Object { $_.witness.$metric })
-                median_paired_witness_minus_baseline_us = Get-Median @($pairs | ForEach-Object { $_.witness_minus_baseline_us[$metric] }) }
+                production_median_us = Get-Median @($pairs | ForEach-Object { $_.production.$metric })
+                median_paired_production_minus_baseline_us = Get-Median @($pairs | ForEach-Object { $_.production_minus_baseline_us[$metric] }) }
         }
         Write-Host ('MANUAL_SAVE_WITNESS_COMPARISON: ' + ([ordered]@{ mode = $mode; pair_count = 4
             summary = $report.modes[$mode].summary; checkout_ref = $checkout; limits = $report.limits } | ConvertTo-Json -Depth 8 -Compress))
     }
     if ($report.processes.Count -ne 18) { throw 'Expected one producer, one fresh Login and sixteen manual probes.' }
     $report.status = 'passed'
-    Write-Host 'MANUAL_SAVE_WITNESS_VERIFIED: exact retained fixture, fresh 66-checkpoint Login, eight matched pairs; production unchanged.'
+    Write-Host 'MANUAL_SAVE_WITNESS_VERIFIED: exact retained fixture, fresh 66-checkpoint Login, eight matched pairs; actual production versus frozen full-result control.'
 } finally {
     foreach ($name in $environment.Keys) { [Environment]::SetEnvironmentVariable($name, $environment[$name]) }
     Save-Json $report 'results.json'
