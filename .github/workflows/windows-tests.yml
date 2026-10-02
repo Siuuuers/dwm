@@ -22,7 +22,7 @@ jobs:
     - uses: actions/checkout@v7
       with:
         persist-credentials: true
-        ref: 965e262a2c74a25e1fea756635788ba23a755eca
+        ref: 638f2aab3cbceaa13729793760dfc85dc8842e93
         fetch-depth: 0
     - name: Prepare disposable checkout for credential cleanup
       run: 'git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
