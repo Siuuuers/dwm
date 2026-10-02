@@ -43,17 +43,25 @@ var split_regex := RegEx.create_from_string(r"((\[n\]|\[n\+\])?((?!(\[n\]|\[n\+\
 enum States {REVEALING, IDLE, DONE}
 var state := States.IDLE
 signal advance
+# A text event owns its reveal wait. Retirement settles this local signal without
+# publishing a synthetic Text.text_finished or completing the retired event.
+signal _reveal_settled
+var _execution_generation := 0
+var _reveal_complete := false
 
 
 #region EXECUTION
 ################################################################################
 
 func _clear_state() -> void:
+	_execution_generation += 1
 	dialogic.current_state_info.erase('text_sub_idx')
 	_disconnect_signals()
+	_reveal_settled.emit()
 
 
 func _execute() -> void:
+	var execution_generation := _execution_generation
 	if text.is_empty():
 		finish()
 		return
@@ -100,11 +108,13 @@ func _execute() -> void:
 		if (not character or character_style.is_empty()) and (current_base_style != current_style):
 			dialogic.Styles.change_style(dialogic.current_state_info.get("base_style", "Default"))
 			await dialogic.get_tree().process_frame
+			if execution_generation != _execution_generation: return
 
 		## Change to the characters style if this character has one
 		elif character and not character_style.is_empty():
 			dialogic.Styles.change_style(character_style, false)
 			await dialogic.get_tree().process_frame
+			if execution_generation != _execution_generation: return
 
 	_connect_signals()
 
@@ -157,21 +167,26 @@ func _execute() -> void:
 			dialogic.Text.about_to_show_text.emit({"text":final_text, "character":character, "portrait":portrait, "append": is_append})
 
 			await dialogic.Text.update_textbox(final_text, false)
+			if execution_generation != _execution_generation: return
 
 			state = States.REVEALING
+			_reveal_complete = false
 			_try_play_current_line_voice()
 			final_text = dialogic.Text.update_dialog_text(final_text, false, is_append)
 
 			dialogic.Text.text_started.emit({"text":final_text, "character":character, "portrait":portrait, "append": is_append})
+			if execution_generation != _execution_generation: return
 
 			_mark_as_read(character_name_text, final_text)
+			if execution_generation != _execution_generation: return
 
 			# We must skip text animation before we potentially return when there
 			# is a Choice event.
 			if dialogic.Inputs.auto_skip.enabled:
 				dialogic.Text.skip_text_reveal()
-			else:
-				await dialogic.Text.text_finished
+			elif not _reveal_complete:
+				await _reveal_settled
+			if execution_generation != _execution_generation: return
 
 			state = States.IDLE
 		else:
@@ -222,6 +237,10 @@ func _mark_as_read(character_name_text: String, final_text: String) -> void:
 
 
 func _connect_signals() -> void:
+	# Connect before native publication: a synchronous completion observer must
+	# not get lost before _execute reaches its await.
+	if not dialogic.Text.text_finished.is_connected(_on_text_reveal_finished):
+		dialogic.Text.text_finished.connect(_on_text_reveal_finished)
 	if not dialogic.Inputs.dialogic_action.is_connected(_on_dialogic_input_action):
 		dialogic.Inputs.dialogic_action.connect(_on_dialogic_input_action)
 
@@ -233,12 +252,19 @@ func _connect_signals() -> void:
 
 ## If the event is done, this method can clean-up signal connections.
 func _disconnect_signals() -> void:
+	if dialogic.Text.text_finished.is_connected(_on_text_reveal_finished):
+		dialogic.Text.text_finished.disconnect(_on_text_reveal_finished)
 	if dialogic.Inputs.dialogic_action.is_connected(_on_dialogic_input_action):
 		dialogic.Inputs.dialogic_action.disconnect(_on_dialogic_input_action)
 	if dialogic.Inputs.auto_advance.autoadvance.is_connected(_on_dialogic_input_autoadvance):
 		dialogic.Inputs.auto_advance.autoadvance.disconnect(_on_dialogic_input_autoadvance)
 	if dialogic.Inputs.auto_skip.toggled.is_connected(_on_auto_skip_enable):
 		dialogic.Inputs.auto_skip.toggled.disconnect(_on_auto_skip_enable)
+
+
+func _on_text_reveal_finished(_info: Dictionary) -> void:
+	_reveal_complete = true
+	_reveal_settled.emit()
 
 
 ## Tries to play the voice clip for the current line.
