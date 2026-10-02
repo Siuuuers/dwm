@@ -19,25 +19,39 @@ actual master ref and Beads before editing. The last checked master was
 
 ## Current acceptance
 
-**Accepted bounded paused Settings F5.** Source: `16484fe4eaecf3c49fe2fbb0f46a543a493b57bf`.
-Tested PR merge: `885daae62be2ecdfd8f601cd1c6028eeb12c5243`.
-[Run128](https://github.com/Siuuuers/dwm/actions/runs/36967371973) passes 23/23 jobs, 2,286 GUT executions / 2,282 unique
-cases / 194 scripts, zero failures/errors/skips. The connected noncanonical
-Solo proof preserves partial reveal through Pause and Settings, then a fresh
-F5 completes only the current reveal and commits one Quick transaction while
-retaining the exact canonical source, Settings host, focus and suspension.
-A fresh process loads that exact semantic point without repeated speech.
-The retained Quick bytes are directly audited; Autosave/Profile neutrality
-uses source-bound identity receipts and write observations. The original
-eight-mode v1 and bounded physical v2 proofs retain their prior scopes.
-Public port signatures and supported save formats are unchanged. Exact
-evidence and limitations belong in the [paused Settings F5 receipt](../../evidence/phase_2r/paused_settings_quick_2026_10_02/receipt.json).
-Production catalogue registration remains disabled. This does not accept
-Settings F9, Hospital/ending continuity, production replay, native all-input
-or accessibility behavior, pixel-identical scrollback, or final visual polish.
-All 23 unfinished Beads remain; no status/dependency change, closure or live
-Dolt synchronization is implied. Later records-only commits are not
-separately engine-tested.
+**Accepted bounded paused Settings F9.** Source `41cc51992b74ec9472f7912e0eb8e1c39679af44`; tested PR merge
+`705ea660b4d6ee9f3376ae4660a3d50e65fe5502`; master `6a5ddf1564870b43aa9140cad7e0e5b12e43f399`.
+[Run130](https://github.com/Siuuuers/dwm/actions/runs/36980559297) passes
+23/23 jobs, 2,313 GUT executions / 2,309 unique
+cases / 195 scripts, zero failures/errors/skips. The independent
+noncanonical Solo `settings-load` process loads the retained F5 Quick, advances
+to a different partially revealed line, enters Pause → Settings, and proves
+Cancel-first F9 preserves that exact source and Settings origin. A fresh F9
+Confirm restores the earlier saved point with old Pause/Settings closed and no
+repeated speech. Quick, Autosave and player-profile bytes remain unchanged;
+required issuer/continuation bookkeeping performs 16 atomic commits / 224
+FileOps. Four raw recovery endpoints preserve prior history and bind one new
+completed restore, including nine participant receipts, to the exact Quick.
+Named Windows fixtures cover blocked admission/no queue, preview cleanup,
+physical-contact retirement, source/record/focus invalidation, compensation,
+keyboard/controller mappings and truthful Quick absence/compatibility feedback.
+Native partial-text cleanup now releases its own reveal wait without synthetic
+completion, History credit or destination interference; two real native tests
+and strict rendered shutdown cover this bounded repair. See the
+[shared F9 receipt](../../evidence/phase_2r/paused_settings_load_2026_10_02/receipt.json) for exact bytes, discovery, failed diagnostics and limits.
+
+Original eight-mode/14-file reading, separate F5 writer/reader and physical
+catalogue-v2 proofs retain their scopes. Production catalogue registration stays
+disabled. Hospital/ending continuity, production replay, other native-event
+cancellation paths, native all-input/accessibility, pixel-identical scrollback,
+OS-crash resilience and final polish remain separate. All 23 unfinished Beads
+retain statuses/dependencies; no closure or live Dolt synchronization. Later
+records-only descendants are not separately engine-tested.
+
+Historical [Run128 paused Settings F5](../../evidence/phase_2r/paused_settings_quick_2026_10_02/receipt.json)
+retains its original source `16484fe4eaecf3c49fe2fbb0f46a543a493b57bf`, tested merge
+`885daae62be2ecdfd8f601cd1c6028eeb12c5243`, bytes and acceptance scope. That
+F5-only source did not admit Settings F9; the current receipt above is separate.
 
 **Accepted test-only title-geometry guard and diagnostic correction.** Source:
 `79b36d90e3ea41d36a81a4c5ba0f87b0ae4a7bfa`. Tested PR merge:
@@ -78,7 +92,7 @@ Next identity and witnesses survive; Profile/Quick bytes remain unchanged and
 Read Aloud does not replay. A coherently altered earlier frame is rejected
 against independent physical Run authority.
 
-This increment changes fixtures, verification and records, not production runtime.
+That earlier physical-fixture increment changed fixtures, verification and records; it did not change production runtime.
 Its physical coverage is the observed sweet/exploded outcome; three finite
 explosion rows have pure selector coverage with actual terminal attitudes. Other
 physical dispositions and production prose remain outside this acceptance.
@@ -117,13 +131,22 @@ made, and these diagnostics do not replace the broad acceptance above.
 The new geometry guard checks finite, nonempty visible title rectangles inside
 their clipping bounds. It does not inspect glyph pixels. The complete title in the
 retained PNGs is separate visual evidence; neither establishes whole-UI polish.
-Next bounded work is guarded F9 Quick Load from admissible nonmodal Settings
-under `dwm-vky.14`, using the existing confirmation and restore owners.
-Settings F9 remains unavailable in this accepted F5 increment; its admission,
-Cancel/source preservation, confirmed canonical Load with Pause closed, and
-blocked-input/no-queue proof remain separate pending acceptance. The
-[ordered-ending amendment](../design/2026-08-13-ordered-ending-host-universal-pause-ui-ux-amendment.md) §§13.4 and 24.5 already require
-this parity; no new architecture decision is needed.
+Next bounded work under `dwm-vky.14` is Hospital semantic-session/capture/restore
+integration through existing owners. The [completed source audit](../../evidence/phase_2r/paused_settings_load_2026_10_02/next-slice-source-review/hospital-next-slice-source-audit.md) identifies the missing seam: current admission/capture/reading validation is
+Solo/Dating-only, while Hospital starts ordinary playback. Use one canonical
+Hospital ingress and a receipt-proven Sylvia-present noncanonical two-caption
+fixture. Prove fresh History, current-line-only Save, fresh-process exact restore
+against independent saved Hospital authority, forged-frame rejection, and actual
+completion followed by fresh next-scene History. Widening route strings alone
+is insufficient. The no-Sylvia Continue conflicts with approved presentation;
+keep that conformance gap and missing authored holds explicit. Register any
+touched Hospital fixtures that the canonical cloud suite currently omits.
+Production prose/selectors, no-Sylvia timing and ordered-ending recovery remain
+separate; routine implementation needs no new architecture decision.
+Follow the [independently reviewed Hospital implementation proposal](../../evidence/phase_2r/paused_settings_load_2026_10_02/next-slice-source-review/hospital-next-slice-implementation-plan.md).
+It is source-only next-work planning, separate from F9 acceptance: Schedule-Done
+ingress retains real physical completion and independent saved authority; the
+prior Solo retires lawfully, and exact new test registrations are explicit.
 
 ## Resume order and authority
 
@@ -137,12 +160,11 @@ this parity; no new architecture decision is needed.
    in `dwm-n3h.2`. Read the [reading record](2026-09-29-reading-rail-next-slice.md)
    and approved scene amendment §§12.3–12.8 and 22.4. The bounded connected
    physical v2 Save/Load proof is accepted; preserve both it and the original
-   catalogue-v1 journey and the accepted paused Settings F5 proof. Next, cover
-   guarded F9 Quick Load from admissible nonmodal Settings through existing
-   confirmation/restore custody, with Cancel preserving the source and confirmed
-   Load reconstructing the canonical destination with Pause closed. Blocking
-   owners admit no shortcut and queue nothing. This remains separate pending
-   acceptance under ordered-ending amendment §§13.4 and 24.5.
+   catalogue-v1 journey and the accepted paused Settings F5/F9 proofs. Next,
+   implement the bounded Hospital seam described above, using independent saved
+   Hospital authority and the existing completion owner. Carry the no-Sylvia
+   Continue mismatch and missing test registrations forward; do not invent
+   production text or timing to hide them.
    Production registration stays disabled until its authored catalogue exists.
 3. Ask only if a newly evidenced wording/staging selector changes the authored
    projection contract. Known Solo inputs include friend/day/phase/tier/tone/
@@ -204,7 +226,7 @@ passes 56 cases across eight scripts, both documentation CLIs and the PowerShell
 instruction fixture on `e18f832deca10f7d000a45e470ce5c48c9b68b56`.
 [Retirement receipt](../../evidence/phase_2r/guidance_retirement_2026_10_02/receipt.json)
 preserves the setup diagnostics and proves all 191 Beads records unchanged.
-Run128 is the current bounded broad cloud acceptance for paused Settings F5.
+Run130 is the current bounded broad cloud acceptance for paused Settings F9; Run128 retains its historical F5 scope.
 Run127 title geometry/correction, Run122 physical proof, Run120 selector admission
 and Run114 Next remain historical foundations; subsequent handoff/evidence edits
 are records-only. Historical receipts remain unchanged.

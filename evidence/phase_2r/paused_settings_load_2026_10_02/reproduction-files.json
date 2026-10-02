@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "current_helpers": "audit-tools/settings-f9-audit-helper-dependencies.json",
+  "current_helper_supplement": "audit-tools/settings-f9-audit-helper-dependencies-run130.json",
+  "accepted_run": "run130/acceptance-summary.json",
+  "source": "41cc51992b74ec9472f7912e0eb8e1c39679af44",
+  "tested_checkout": "705ea660b4d6ee9f3376ae4660a3d50e65fe5502",
+  "master": "6a5ddf1564870b43aa9140cad7e0e5b12e43f399",
+  "workflow": ".github/workflows/windows-tests.yml",
+  "procedure": [
+    "For multipart packages, use audit-tools/reassemble_settings_f9_archive.py PACKAGE/archive-parts.json --output OUTPUT.tar.gz. It verifies every ordered part and the exact original archive bytes/hash; this is transport splitting only.",
+    "Check each package SHA256SUMS and manifest, then unpack into a separate run root.",
+    "Obtain exact Git objects for baseline 2254d6956de778cc54aa42fe610bcdf94f5301a5, accepted source, checkout and master; runtime source and tests are read from these objects.",
+    "Reobtain original artifact ZIPs by the retained API IDs/digests where required. Package exclusions are explicit: these bundles do not contain every original ZIP or every extracted binary/diagnostic member.",
+    "Run cloud_evidence.py audit for 23 jobs and 13 XML, allowing only AGENTS.md, docs/* and story/* source-to-merge differences; copy its exact source_boundary to audit/source-provenance.json.",
+    "Run audit_settings_load_inventory.py discovery and public without suite narrowing; run audit_settings_load_journey_v3.py and audit_physical_selector_journey.py against the same source/checkout/run.",
+    "Run join_settings_f9_acceptance_v2.py only after all component audits pass. This successor adapts the retained F5 job_id field without changing the audited execution. The join rehashes actual artifact members, so excluded members must be restored from verified original ZIPs for a fresh join."
+  ],
+  "limits": [
+    "Retained helper code is not a promise of complete offline replay from compressed records alone.",
+    "All engine and PowerShell execution occurred in GitHub Actions; Python audits inspect source and recorded evidence only."
+  ]
+}

@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "review_kind": "final_source_supplemental_review_and_inventory_correction",
+  "reviewer": "f9_contract_review",
+  "reviewed_at_utc": "2026-10-02T06:50:47.475936+00:00",
+  "source": "78cb263f8e0d82ad1f1274c0e84915397cd071b0",
+  "focus1_tested_source": "4b951a555202be25d231448797e8eb8b7bc99019",
+  "broad_run": {
+    "id": 36974974319,
+    "number": 129,
+    "pr_merge": "c65a0f55d555aa41761223623664ef1cd4f7c98a",
+    "status_from_parent": "public gate failed SURFACE_OUTPUT_STALE game_state",
+    "runtime_result_reviewed": false
+  },
+  "source_checkout_verified": true,
+  "worktree_clean": true,
+  "changed_paths_from_focus1": [
+    "evidence/phase_2r/runtime/game_state_surface.json",
+    "evidence/phase_2r/runtime/save_manager_surface.json",
+    "tests/integration/verify_reading_rail_journey.gd",
+    "tools/testing/run_reading_rail_journey.py"
+  ],
+  "production_runtime_unchanged_from_focus1": true,
+  "reviewed_final_files": [
+    {
+      "path": "tests/integration/verify_reading_rail_journey.gd",
+      "bytes": 110050,
+      "sha256": "973b2efe4b51b1017ff45761b02c420487b25aea58b91a7fd801adbdecfb7097"
+    },
+    {
+      "path": "tools/testing/run_reading_rail_journey.py",
+      "bytes": 60878,
+      "sha256": "21dc758fd293b063fac0b46688a2e1f7055c9787bbe8f38d091217b81776c4a1"
+    },
+    {
+      "path": "tools/runtime/PublicSurfaceInventory.gd",
+      "bytes": 11182,
+      "sha256": "9dcf035d10009180e6c2d1dcbe0df1d5f680cae0a66e1c9714312d377e423dc1"
+    },
+    {
+      "path": "autoload/GameState.gd",
+      "bytes": 191856,
+      "sha256": "02ed11392633e9ded43609d93977adb0805870880add55b67c483d5d305694bc"
+    },
+    {
+      "path": "autoload/SaveManager.gd",
+      "bytes": 145022,
+      "sha256": "7572f6657d4e1cafbc04c19c44798ca69a872521b638f8075c51ff6c3c498a6b"
+    },
+    {
+      "path": "scripts/ui/pause/PauseSurface.gd",
+      "bytes": 20799,
+      "sha256": "bdfb7a08014aa4f88918a9a1bf06cea8feb481b7aa7554be98f458397b1aefcd"
+    },
+    {
+      "path": "scripts/ui/pause/PauseQuickCommands.gd",
+      "bytes": 14208,
+      "sha256": "c0ed31fb76ed67c5b83b97be74064eecd6be111a6fa3b26d2cb5da469a0c9b91"
+    },
+    {
+      "path": "scripts/ui/SettingsContent.gd",
+      "bytes": 32527,
+      "sha256": "d4345b84da62154ca091db77877404562351e3fbaad17272fc8a727e4621070a"
+    },
+    {
+      "path": "scripts/ui/SettingsPanelController.gd",
+      "bytes": 26167,
+      "sha256": "110d1ecacf8cd0e2dc14119f4b7ef535dd39fed33e062953fbc689d0efc23d5d"
+    },
+    {
+      "path": "scripts/ui/desktop/QuickStatusEdge.gd",
+      "bytes": 5484,
+      "sha256": "4bda2d5770325d24c9a9d15c10d72ee8c8a49c407f1554d1d09c2250f178dd36"
+    },
+    {
+      "path": "scripts/application/backup/BackupPresentationPort.gd",
+      "bytes": 9876,
+      "sha256": "2d4d1970dd1edee6178a5364504e071751967da32661257d969f4ffc167f2924"
+    },
+    {
+      "path": "scripts/ui/BackupApp.gd",
+      "bytes": 39568,
+      "sha256": "40ef72dc013dc84c187a57e68318227d44dde340502efede40136d2f84a511df"
+    }
+  ],
+  "inventory_adoption": [
+    {
+      "repository_path": "evidence/phase_2r/runtime/game_state_surface.json",
+      "final_identity": {
+        "bytes": 561431,
+        "sha256": "53a0a6a11a88cc8008b0ac0e98d3772096f6326eca8f3ae5e927e42f1f46a1e6"
+      },
+      "artifact_path": "/workspace/scratch/e169b180163f/settings-f9-focus1/artifacts/public-surfaces-36973252334-1/ci/public-surfaces/game_state_surface.json",
+      "artifact_identity": {
+        "bytes": 561431,
+        "sha256": "53a0a6a11a88cc8008b0ac0e98d3772096f6326eca8f3ae5e927e42f1f46a1e6"
+      },
+      "matches_focus1_artifact_bytes": true,
+      "matches_audited_adoption_identity": true,
+      "record_count": 236,
+      "top_level_fields": [
+        "dynamic_references",
+        "errors",
+        "ok",
+        "records",
+        "required",
+        "script"
+      ],
+      "changed_lexical_reference_lines": {
+        "contacts": {
+          "focus1": {
+            "static": [
+              203,
+              204,
+              205
+            ],
+            "dynamic": [
+              199,
+              202
+            ]
+          },
+          "final": {
+            "static": [
+              203,
+              204,
+              205
+            ],
+            "dynamic": [
+              199,
+              202,
+              1644,
+              1670
+            ]
+          }
+        }
+      },
+      "new_lexical_references": [
+        {
+          "symbol": "contacts",
+          "classification": "dynamic",
+          "path": "tests/integration/verify_reading_rail_journey.gd",
+          "line": 1644,
+          "text": "\t\t\t\t\"frame\": Engine.get_process_frames(), \"contacts\": input_owner.get_physical_contacts()})"
+        },
+        {
+          "symbol": "contacts",
+          "classification": "dynamic",
+          "path": "tests/integration/verify_reading_rail_journey.gd",
+          "line": 1670,
+          "text": "\t\t\t\t\"frame\": Engine.get_process_frames(), \"contacts\": input_owner.get_physical_contacts()})"
+        }
+      ],
+      "final_source_requires_regeneration": true
+    },
+    {
+      "repository_path": "evidence/phase_2r/runtime/save_manager_surface.json",
+      "final_identity": {
+        "bytes": 149957,
+        "sha256": "1e41d762df99bcd3aa6a036445f21411b45b9b1e169258b8ba41848d85252440"
+      },
+      "artifact_path": "/workspace/scratch/e169b180163f/settings-f9-focus1/artifacts/public-surfaces-36973252334-1/ci/public-surfaces/save_manager_surface.json",
+      "artifact_identity": {
+        "bytes": 149957,
+        "sha256": "1e41d762df99bcd3aa6a036445f21411b45b9b1e169258b8ba41848d85252440"
+      },
+      "matches_focus1_artifact_bytes": true,
+      "matches_audited_adoption_identity": true,
+      "record_count": 74,
+      "top_level_fields": [
+        "dynamic_references",
+        "errors",
+        "ok",
+        "records",
+        "required",
+        "script"
+      ],
+      "changed_lexical_reference_lines": {},
+      "new_lexical_references": [],
+      "final_source_requires_regeneration": false
+    }
+  ],
+  "lexical_scanner_method": {
+    "authority": "tools/runtime/PublicSurfaceInventory.gd:_scan_references",
+    "method": "Python reproduces each inventory symbol word-boundary match and double-quoted-symbol dynamic classification over complete prior/final changed .gd file; only scanner-visible source delta since Focus1.",
+    "scanner_unchanged_from_focus1": true,
+    "original_gd_function_count": 44,
+    "all_original_function_start_lines_unchanged": true,
+    "added_private_helpers": {
+      "_settings_load_advance_and_pause": 1615
+    }
+  },
+  "corrected_prior_statement": {
+    "prior_report": "/workspace/scratch/e169b180163f/settings-f9-prompt-input-repair-review.json",
+    "prior_finding": "inventory_reuse_scope",
+    "statement_corrected": "The helper adds no public GameState/SaveManager lexical references.",
+    "correction": "The helper adds two JSON keys named contacts; the deliberately lexical scanner treats those quoted public GameState.contacts matches as dynamic references, despite no semantic GameState contacts use. Existing function lines and runtime are unchanged, but these new dynamic records make the Focus1 GameState inventory stale. SaveManager inventory references are unchanged.",
+    "cause": "Reviewer inferred absence of new public references from calls and unchanged line numbers before running the full declared-symbol lexical scan. This inference was incorrect.",
+    "prior_file_left_unchanged": true,
+    "not_a_metadata_hash_mismatch": true
+  },
+  "blocking_findings": [
+    {
+      "id": "game_state_inventory_stale",
+      "severity": "required_gate",
+      "path": "evidence/phase_2r/runtime/game_state_surface.json",
+      "details": "Missing two scanner-required dynamic contacts references at tests/integration/verify_reading_rail_journey.gd:1644 and :1670.",
+      "required_resolution": "Regenerate using the authoritative Godot scanner in GitHub Actions at final source; review/adopt generated bytes; then run the read-only broad gate. Do not hand-edit inventory or rename innocent JSON keys solely to suppress scanner output."
+    }
+  ],
+  "runtime_or_design_blockers": [],
+  "remaining_blind_spots": [
+    "Rendered F9 Cancel/confirm acceptance and repaired short-line setup remain pending cloud completion.",
+    "Exact semantic restore does not imply identical transient scrollback or arbitrary nonzero Settings scroll offsets.",
+    "Godot InputEventKey dispatch is not hardware/OS keyboard or all-input accessibility proof.",
+    "Opposite Dark values have controller restore-double coverage, not a rendered persisted-save comparison.",
+    "Status text/lifetime proof does not establish native glyph pixels or screen-reader delivery.",
+    "Hospital/ending continuity, production exact catalogue/replay/prose, broader unfinished Beads and full release acceptance remain separate."
+  ],
+  "conclusion": "Runtime owner reuse and repaired input protocol remain source-consistent. Adopted inventory bytes exactly match Focus1, but the final helper introduces two new lexical GameState.contacts matches; final GameState regeneration is required. Prior no-new-references review statement is explicitly corrected.",
+  "local_godot_or_powershell_executed": false,
+  "repo_mutated": false
+}

@@ -1,0 +1,242 @@
+{
+  "schema_version": 2,
+  "core_helpers": [
+    {
+      "source": "/workspace/scratch/e169b180163f/cloud_evidence.py",
+      "portable_relative_path": "cloud_evidence.py",
+      "bytes": 38539,
+      "sha256": "7d0f4139bdb86ad760871713580277e9d8ea5440a6c269a7c6100362545aaa90",
+      "role": "Generic source/job/archive/XML/original-v1 audit and packaging; standard library only."
+    },
+    {
+      "source": "/workspace/scratch/e169b180163f/audit_settings_load_inventory.py",
+      "portable_relative_path": "audit_settings_load_inventory.py",
+      "bytes": 13000,
+      "sha256": "7b6e62ddcef5b0633a7b3c6fc8db5c6edd6be6bf6749d99ae6a7d28576043f5b",
+      "role": "Dynamic discovery and final committed public inventory audit; imports the frozen accepted discovery parser."
+    },
+    {
+      "source": "/workspace/scratch/e169b180163f/settings_f5_review_adapters_v2/audit_coverage_test_discovery.py",
+      "portable_relative_path": "settings_f5_review_adapters_v2/audit_coverage_test_discovery.py",
+      "bytes": 18005,
+      "sha256": "fe8d3c2b60d669c85c76e69ae712650f0eb474b79e13681691830ed4dee84798",
+      "role": "Accepted Source/selected_xml utilities loaded by path; preserve this relative subdirectory or pass --parser."
+    },
+    {
+      "source": "/workspace/scratch/e169b180163f/review_settings_load_inventories.py",
+      "portable_relative_path": "review_settings_load_inventories.py",
+      "bytes": 16149,
+      "sha256": "6347d93dbf836b1af19780c2fdb677a0f8ae6eeed6e10c46563d338fc0a99d3c",
+      "role": "Historical first-adoption inventory reviewer retained unchanged. Use v2 when source already contains an intermediate inventory adoption."
+    },
+    {
+      "source": "/workspace/scratch/e169b180163f/audit_settings_load_journey.py",
+      "portable_relative_path": "audit_settings_load_journey.py",
+      "bytes": 22169,
+      "sha256": "9ed27f51a1936eabf03112ddb8adf101f10e89475e865197059071521e75251f",
+      "role": "Historical predecessor retained unchanged. Its final zero-all-mutations assumption is invalid for existing restore durability; use v2 for corrected final audit."
+    },
+    {
+      "source": "/workspace/scratch/e169b180163f/audit_settings_quick_journey.py",
+      "portable_relative_path": "audit_settings_quick_journey.py",
+      "bytes": 34153,
+      "sha256": "3086cc010cc0c42551d6813755f6de299b79b607c1761158cba3404560693c1b",
+      "role": "Accepted original-v1/F5 auditor reused unmodified; standard library only."
+    },
+    {
+      "source": "/workspace/scratch/e169b180163f/audit_physical_selector_journey.py",
+      "portable_relative_path": "audit_physical_selector_journey.py",
+      "bytes": 35924,
+      "sha256": "df20b8cc91daedb3fbc909b376539369e04174e196e2f8496818593016af1d1c",
+      "role": "Accepted bounded physical-v2 auditor; separate component, no Python helper dependency."
+    },
+    {
+      "source": "/workspace/scratch/e169b180163f/review_settings_load_inventories_v2.py",
+      "portable_relative_path": "review_settings_load_inventories_v2.py",
+      "bytes": 17823,
+      "sha256": "b0bdd0ba372ddcf1527af02698340b35eb4e686ea9102975b3918ea8d6a19462",
+      "role": "Successor inventory review supports intermediate committed adoption while retaining exact baseline/current full source-reference rescans; imports audit_settings_load_inventory."
+    },
+    {
+      "source": "/workspace/scratch/e169b180163f/audit_settings_load_journey_v2.py",
+      "portable_relative_path": "audit_settings_load_journey_v2.py",
+      "bytes": 36285,
+      "sha256": "3d93bc8d80e2e8b561d9cb65ab0d00db37d7ddc47dc95334590560679dbceba2",
+      "role": "Frozen recovery-correction predecessor used for Focus3 diagnostics; exact 224 recovery observations, 64 marker payload identities and raw endpoints. Current source bindings live in v3."
+    },
+    {
+      "source": "/workspace/scratch/e169b180163f/cloud_skipped_diagnostic.py",
+      "portable_relative_path": "cloud_skipped_diagnostic.py",
+      "bytes": 5828,
+      "sha256": "1534254d34d975ce84b0d91b5e5cd4f8920658e8a1f0cc8cb9713857cc3a0238",
+      "role": "Failed-run diagnostic-only adapter for executed versus truly skipped jobs with absent logs; imports unchanged cloud_evidence. Never a passing gate."
+    },
+    {
+      "source": "/workspace/scratch/e169b180163f/audit_settings_load_journey_v3.py",
+      "portable_relative_path": "audit_settings_load_journey_v3.py",
+      "bytes": 36830,
+      "sha256": "efbb297dc1ece082d3c637add08f60dd57db392f5070f004be0eb038414b269a",
+      "role": "Current F9 auditor; same recovery semantics as frozen v2 plus explicit native Text-event retirement owner, cleanup chain and regression source bindings."
+    },
+    {
+      "source": "/workspace/scratch/e169b180163f/join_settings_f9_acceptance.py",
+      "portable_relative_path": "join_settings_f9_acceptance.py",
+      "bytes": 14633,
+      "sha256": "93a3272f8ce1ba9960bd682008b50298b5c8fb2a16338a355145691d7d6e72e7",
+      "role": "Compact final same-run canonical 23-job acceptance join; imports sibling cloud_evidence and hash-binds discovery/public/current F9/embedded accepted F5-original/physical-v2 reports."
+    }
+  ],
+  "layout_optional_helpers": [
+    {
+      "source": "/workspace/scratch/e169b180163f/audit_layout_observations.py",
+      "portable_relative_path": "audit_layout_observations.py",
+      "external_dependency": "Pillow",
+      "role": "Only if retaining the separate independent historical title-geometry comparison audit.",
+      "bytes": 11352,
+      "sha256": "56b8c75445691920f0b676bf01cff00b18f40ad3c257ed59ea2ee54f6b5087ec"
+    },
+    {
+      "source": "/workspace/scratch/e169b180163f/layout_evidence.py",
+      "portable_relative_path": "layout_evidence.py",
+      "external_dependency": null,
+      "role": "Only if using its generic evidence adapter; imports cloud_evidence.",
+      "bytes": 938,
+      "sha256": "9ba6cf641e79572657bf0e10f614276a16f749a7fa4f254095867fd10220f339"
+    }
+  ],
+  "non_file_inputs": [
+    "Exact Git objects for baseline, source and actual checkout (and master parent for broad source provenance).",
+    "Raw retained run/jobs/artifact metadata, job logs, extracted artifacts and original artifact ZIPs.",
+    "For component audits, a passing generic-evidence-audit.json and source-provenance.json from the same run.",
+    "For workflow derivation, preserve exact baseline/source Git objects and canonical workflow file from that frozen source; builders use Git and must not run against an unrelated checkout.",
+    "For verification without connector replay, original artifact ZIPs and all API metadata/logs are sufficient; capture helpers are optional."
+  ],
+  "limits": [
+    "All historical helper identities remain frozen; successor filenames make contract corrections explicit.",
+    "No prior full non-GUT auditor forest is required by these core helpers.",
+    "Any later helper revision or additional acceptance join must be hash-recorded before packaging.",
+    "Focus1, Run129 and Focus2 diagnostic archives remain unchanged and nonaccepted.",
+    "This dependency manifest is a packaging inventory, not successful audit evidence."
+  ],
+  "workflow_derivation_helpers": [
+    {
+      "source": "/workspace/scratch/e169b180163f/build_paused_settings_f9_render_workflow.py",
+      "portable_relative_path": "build_paused_settings_f9_render_workflow.py",
+      "bytes": 7855,
+      "sha256": "ce5a69fe61a2cf0113c8cd5e54ca27dcec15360b5459f60260bc52a92a18f7d3",
+      "role": "Derives the two-job focused public/rendered successor; imports sibling build_paused_settings_f9_workflow.",
+      "external_dependencies": [
+        "PyYAML"
+      ]
+    },
+    {
+      "source": "/workspace/scratch/e169b180163f/build_paused_settings_f9_workflow.py",
+      "portable_relative_path": "build_paused_settings_f9_workflow.py",
+      "bytes": 18484,
+      "sha256": "173bec04a4c007f7fb5037a25362e30d4ea27f0e593cc5a46db02fba51da4a6e",
+      "role": "Derives focused affected Windows/public/rendered source-bound workflow and suite identities; imports sibling build_layout_workflow.",
+      "external_dependencies": [
+        "PyYAML"
+      ]
+    },
+    {
+      "source": "/workspace/scratch/e169b180163f/build_layout_workflow.py",
+      "portable_relative_path": "build_layout_workflow.py",
+      "bytes": 6652,
+      "sha256": "343415c04234cf7dbcafc1c38bf7b96f02777ea779227f3bb2aded6971121b78",
+      "role": "Canonical rendered job derivation utility reused by focused Settings workflow builders.",
+      "external_dependencies": [
+        "PyYAML"
+      ]
+    },
+    {
+      "source": "/workspace/scratch/e169b180163f/build_settings_f9_focus4.py",
+      "portable_relative_path": "build_settings_f9_focus4.py",
+      "bytes": 5339,
+      "sha256": "b8c5d5ac3463c22844e8c526f8d32f5f655ae9c51e69adb564fbf158f98fa829",
+      "role": "Frozen Focus4 five-job derivative with native retirement source/test bindings; imports sibling build_paused_settings_f9_workflow. Source-pinned script, not a parameterized final workflow builder.",
+      "external_dependencies": [
+        "PyYAML"
+      ]
+    }
+  ],
+  "capture_optional_helpers": [
+    {
+      "source": "/workspace/scratch/e169b180163f/capture_cloud_evidence.js",
+      "portable_relative_path": "capture_cloud_evidence.js",
+      "bytes": 7728,
+      "sha256": "b8b81c70373fdfc9c03a2c77a8358bf5f6cc1aa03af79ce92f4f98990668eab7",
+      "role": "Connector orchestration for raw API metadata/log/archive capture. Requires functions.exec tools and explicit configuration; configure Python helper path when relocating.",
+      "external_dependencies": [
+        "GitHub connector tools",
+        "functions.exec tools"
+      ]
+    },
+    {
+      "source": "/workspace/scratch/e169b180163f/capture_cloud_evidence.py",
+      "portable_relative_path": "capture_cloud_evidence.py",
+      "bytes": 5469,
+      "sha256": "1fbf3ee0711434f9c7bdeab7398c9e707228aa07f7015a4c2f632ff822c8c01e",
+      "role": "Byte/digest/archive verification and safe extraction for capture; standard library only."
+    }
+  ],
+  "import_edges": [
+    [
+      "audit_settings_load_inventory.py",
+      "settings_f5_review_adapters_v2/audit_coverage_test_discovery.py"
+    ],
+    [
+      "review_settings_load_inventories.py",
+      "audit_settings_load_inventory.py"
+    ],
+    [
+      "review_settings_load_inventories_v2.py",
+      "audit_settings_load_inventory.py"
+    ],
+    [
+      "audit_settings_load_journey.py",
+      "audit_settings_quick_journey.py"
+    ],
+    [
+      "audit_settings_load_journey_v2.py",
+      "audit_settings_quick_journey.py"
+    ],
+    [
+      "cloud_skipped_diagnostic.py",
+      "cloud_evidence.py"
+    ],
+    [
+      "build_paused_settings_f9_render_workflow.py",
+      "build_paused_settings_f9_workflow.py"
+    ],
+    [
+      "build_paused_settings_f9_workflow.py",
+      "build_layout_workflow.py"
+    ],
+    [
+      "capture_cloud_evidence.js",
+      "capture_cloud_evidence.py"
+    ],
+    [
+      "layout_evidence.py",
+      "cloud_evidence.py"
+    ],
+    [
+      "audit_settings_load_journey_v3.py",
+      "audit_settings_quick_journey.py"
+    ],
+    [
+      "join_settings_f9_acceptance.py",
+      "cloud_evidence.py"
+    ],
+    [
+      "build_settings_f9_focus4.py",
+      "build_paused_settings_f9_workflow.py"
+    ]
+  ],
+  "current_acceptance_helpers": {
+    "settings_load_journey": "audit_settings_load_journey_v3.py",
+    "public_inventory_review": "review_settings_load_inventories_v2.py",
+    "final_join": "join_settings_f9_acceptance.py"
+  }
+}

@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "accepted_at": "2026-10-02T08:37:54.639713+00:00",
+  "lead_bead": "dwm-vky.14",
+  "overall_accepted": true,
+  "accepted_scope": "Guarded F9 Quick Load from admissible nonmodal paused Settings, plus bounded native partial-text retirement repair; noncanonical English Solo proof.",
+  "source": "41cc51992b74ec9472f7912e0eb8e1c39679af44",
+  "tested_checkout": "705ea660b4d6ee9f3376ae4660a3d50e65fe5502",
+  "master": "6a5ddf1564870b43aa9140cad7e0e5b12e43f399",
+  "baseline": "2254d6956de778cc54aa42fe610bcdf94f5301a5",
+  "broad_run": {
+    "id": 36980559297,
+    "number": 130,
+    "attempt": 1,
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/36980559297",
+    "successful_jobs": 23,
+    "case_executions": 2313,
+    "script_executions": 196,
+    "unique_cases": 2309,
+    "unique_scripts": 195,
+    "xml_count": 13
+  },
+  "acceptance_summary": {
+    "path": "run130/acceptance-summary.json",
+    "bytes": 14378,
+    "sha256": "b73bc395b632e8e66b5c58ba4feddd58187bb8c95fcbfb3f3f0b8e9a19915373"
+  },
+  "packages": [
+    {
+      "archive": "settings-f9-focus1-diagnostic.tar.gz",
+      "archive_member_count": 199,
+      "bytes": 14934403,
+      "evidence_kind": "failed-run-diagnostic-only",
+      "excluded_file_count": 4,
+      "manifest_sha256": "35cc59495b5e517624967cff371ebfadb2e57bc70fd612d79518e3e3f32fe9c7",
+      "payload_file_count": 197,
+      "round_trip_verified": true,
+      "sha256": "3830f571f50e67ba3285e39d65faeb133a0450253fa68b2a8ea46bd9c02790b0",
+      "label": "focus1",
+      "scope": "failed-diagnostic",
+      "archive_parts": "focus1/archive-parts.json",
+      "reassembled_identity_verified": true
+    },
+    {
+      "archive": "settings-f9-run129-diagnostic.tar.gz",
+      "archive_member_count": 19,
+      "bytes": 139708,
+      "evidence_kind": "failed-run-diagnostic-only",
+      "excluded_file_count": 0,
+      "manifest_sha256": "8f690f914b72c50aff13c3f3e2ad61292e30f37134554c741e2765d0699dd56c",
+      "payload_file_count": 17,
+      "round_trip_verified": true,
+      "sha256": "773076644c85982a473616e5587f88eaaadc5ba6e6b503e9599d8cf7e02b0036",
+      "label": "run129",
+      "scope": "failed-diagnostic",
+      "archive_file": "run129/settings-f9-run129-diagnostic.tar.gz"
+    },
+    {
+      "archive": "settings-f9-focus2-diagnostic.tar.gz",
+      "archive_member_count": 166,
+      "bytes": 11625455,
+      "evidence_kind": "failed-run-diagnostic-only",
+      "excluded_file_count": 4,
+      "manifest_sha256": "8344339d639673e3f10958ed0aa6de6504b283cbd8bf8d3335fe0541e11336b3",
+      "payload_file_count": 164,
+      "round_trip_verified": true,
+      "sha256": "8c46ab905ebac16f0585298ba5acad779f66417f0b0b82ca85f8d5e51761009a",
+      "label": "focus2",
+      "scope": "failed-diagnostic",
+      "archive_parts": "focus2/archive-parts.json",
+      "reassembled_identity_verified": true
+    },
+    {
+      "archive": "settings-f9-focus3-diagnostic.tar.gz",
+      "archive_member_count": 180,
+      "bytes": 11745395,
+      "evidence_kind": "failed-run-diagnostic-only",
+      "excluded_file_count": 4,
+      "manifest_sha256": "0a987bcc6c0cc5d672c3b53c6644bdeaa4285ab4909820dbb271d7b768205fd4",
+      "payload_file_count": 178,
+      "round_trip_verified": true,
+      "sha256": "27435ef05c3511a0629a1826c3f07190fb4140718364c30aba14266684561dfd",
+      "label": "focus3",
+      "scope": "failed-diagnostic",
+      "archive_parts": "focus3/archive-parts.json",
+      "reassembled_identity_verified": true
+    },
+    {
+      "archive": "settings-f9-focus4-passing.tar.gz",
+      "archive_member_count": 235,
+      "bytes": 15389538,
+      "evidence_kind": "bounded-successful-run-audit",
+      "excluded_file_count": 4,
+      "manifest_sha256": "952560636f55b3c0d25bf8d7ea8dd66a3383a1ca4efb3ffc7b81beb57570863a",
+      "payload_file_count": 233,
+      "round_trip_verified": true,
+      "sha256": "83b25d70736d91eccccafaff2876b03abf4602d6ef46669a719d4f03cab4dd74",
+      "label": "focus4",
+      "scope": "bounded-focused-pass",
+      "archive_parts": "focus4/archive-parts.json",
+      "reassembled_identity_verified": true
+    },
+    {
+      "archive": "settings-f9-run130.tar.gz",
+      "archive_member_count": 648,
+      "bytes": 26633840,
+      "evidence_kind": "bounded-successful-run-audit",
+      "excluded_file_count": 170,
+      "manifest_sha256": "3e052c6eeadde8c4615f9c56fd7557541173f9476f3952eb98e5feafafee6c63",
+      "payload_file_count": 646,
+      "round_trip_verified": true,
+      "sha256": "e571c842fed73bd7640db0e294a5800842b9ac2d0bc3c46044a53a326e8a99be",
+      "label": "run130",
+      "scope": "canonical-broad-acceptance",
+      "archive_parts": "run130/archive-parts.json",
+      "reassembled_identity_verified": true
+    }
+  ],
+  "settings_f9": {
+    "cancel": "Exact partial source, History, Settings origin and Pause suspension retained.",
+    "confirm": "Exact canonical saved destination; old Pause/Settings closed; no repeated speech.",
+    "blocked_custody": "No prepared or queued shortcut; fresh released contact required.",
+    "primary_files": [
+      "Quick",
+      "Autosave",
+      "player_profile"
+    ],
+    "raw_primary_baseline_final_bytes_unchanged": true,
+    "primary_file_mutation_attempts": 0,
+    "required_recovery_atomic_commits": 16,
+    "required_recovery_file_operations": 224,
+    "reconstructed_marker_identities": 64,
+    "raw_recovery_endpoints": 4,
+    "new_completed_restore_operations": 1,
+    "restore_participants": 9
+  },
+  "native_retirement": "Owned partial-reveal wait is released without fabricated global completion, History credit, advancement or interference with the destination; two registered real native regressions and strict rendered shutdown pass.",
+  "preserved_proof": {
+    "original_reading": "Eight catalogue-v1 processes and independent 14-file seal.",
+    "settings_f5": "Separate writer/reader and three-file seal.",
+    "physical_v2": "Separate bounded sweet/exploded connected proof, actual Next autosaves and final Quick fresh Load.",
+    "historical_layout": "Existing 480-observation title guard and prior correction remain unchanged; no new production layout repair claimed."
+  },
+  "supported_format_changes": false,
+  "public_port_signature_changes": false,
+  "save_or_profile_owner_changes": false,
+  "production_catalogue_registered": false,
+  "source_reviews": "Historical source-only and broad-pending fields remain immutable; actual acceptance is recorded here and in the same-run final summary.",
+  "beads_audit": {
+    "path": "beads-record-audit.json",
+    "bytes": 753,
+    "sha256": "fceccf106ed2e50b38dbcf0564290d5e08299a812e47979d9506b031adfa0348"
+  },
+  "reproduction_index": {
+    "path": "reproduction-files.json",
+    "bytes": 2175,
+    "sha256": "c64fc28a7a06a9951ce067b5b1da925c952989091733be4280498637d6c17c72"
+  },
+  "payload_index": {
+    "path": "payload-index.json",
+    "bytes": 18065,
+    "sha256": "7a866cc587dda025cfc69d04a12522fd664d8ef7e9d1b28e9f3177b0b985d85c"
+  },
+  "next_work": "Bounded Hospital semantic-session/capture/restore integration; see next-slice-source-review. Existing no-Sylvia Continue conflicts with approved presentation.",
+  "limits": [
+    "Bounded Settings F9 increment only. Every required component belongs to this exact successful canonical run; earlier focused/failed runs confer no final acceptance.",
+    "Original eight-mode catalogue-v1, F5 writer/reader and bounded physical catalogue-v2 remain separately scoped; this join does not widen their literal or history guarantees.",
+    "Recovery proof includes exact primary-file neutrality, existing internal bookkeeping and raw endpoints; it does not establish arbitrary-filesystem or actual OS-crash behavior.",
+    "Other canonical jobs are linked at observed command/step-success scope. This join does not repeat their historical independent auditor forest.",
+    "Linux software rendering and Windows automated tests do not establish all native input/accessibility, production replay, final visual polish, or completion of every Beads task.",
+    "No save format, public port, production story or master change. PR remains draft and unmerged.",
+    "All 23 unfinished Beads retain statuses/dependencies; no live Dolt synchronization or task closure.",
+    "Later evidence/documentation/lead-note descendants are not separately engine-tested.",
+    "Failed Focus1, Run129, Focus2 and Focus3 retain their exact failures; none contribute a substituted final passing component.",
+    "Package exclusions and the undownloaded oversized Windows export remain explicit in run130 metadata and manifests."
+  ]
+}

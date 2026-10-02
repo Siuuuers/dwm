@@ -1,0 +1,78 @@
+{
+  "actual_selected_counts": {
+    "case_executions": 916,
+    "script_executions": 80,
+    "unique_cases": 916,
+    "unique_scripts": 80,
+    "xml_count": 4
+  },
+  "broad_acceptance": false,
+  "complete_broad_suite_set": false,
+  "component_bindings": {
+    "generic-evidence-audit.json": {
+      "bytes": 136099,
+      "file": "audit/generic-evidence-audit.json",
+      "sha256": "70a2de0e9f46b2bfee72cf2ffbc8ec1780bb090556e58acf19f92718b8800d19"
+    },
+    "settings-load-discovery-audit.json": {
+      "bytes": 504432,
+      "file": "audit/settings-load-discovery-audit.json",
+      "sha256": "98b7b9d310afb7d44cc6c5be5b52c548f8f85bf98771a6566e92b3e07bdb2196"
+    },
+    "settings-load-inventory-adoption-review.json": {
+      "bytes": 1163355,
+      "file": "audit/settings-load-inventory-adoption-review.json",
+      "sha256": "26fb3b17995480092b6c428e369c4b12f764102333cce1c13e2a9367ebf53171"
+    },
+    "settings-load-journey-v3-audit.json": {
+      "bytes": 32345,
+      "file": "audit/settings-load-journey-v3-audit.json",
+      "sha256": "aadb528f0b1e38b5e227d569d1df0f6a9ca0f563ed5521bf8a04539cef347481"
+    },
+    "source-provenance.json": {
+      "bytes": 346,
+      "file": "audit/source-provenance.json",
+      "sha256": "15dda44aabd8f763fdab9d0988c6f5824ea3f46a25c0a4a6b8a15f1aeffe71f7"
+    }
+  },
+  "focused_acceptance": true,
+  "limits": [
+    "Five selected jobs establish focused acceptance only; the final unchanged canonical 23-job workflow remains required.",
+    "Public inventories were regenerated and separately verified byte-identical to source4; final canonical read-only checks remain required.",
+    "Original eight modes and F5 pair pass with the full additional Settings F9 process. Physical catalogue-v2 and all unselected ordinary suites remain separately required in the broad run.",
+    "Existing recovery bookkeeping and primary-file neutrality do not establish arbitrary-filesystem or actual OS-crash behavior."
+  ],
+  "public_inventory_adoption": {
+    "game_state_surface.json": {
+      "artifact_file": "artifacts/public-surfaces-36979202948-1/ci/public-surfaces/game_state_surface.json",
+      "bytes": 561543,
+      "generated_equals_committed_source_and_checkout": true,
+      "sha256": "ba26f2341c39ff3d6b679f711e0936226386142c63791f9020e70b0301793cf2"
+    },
+    "save_manager_surface.json": {
+      "artifact_file": "artifacts/public-surfaces-36979202948-1/ci/public-surfaces/save_manager_surface.json",
+      "bytes": 149957,
+      "generated_equals_committed_source_and_checkout": true,
+      "sha256": "1e41d762df99bcd3aa6a036445f21411b45b9b1e169258b8ba41848d85252440"
+    }
+  },
+  "recovery_component": {
+    "all_prior_operations_and_issuer_receipts_preserved": true,
+    "atomic_transactions": 16,
+    "fileops_observations": 224,
+    "reconstructed_marker_writes": 64,
+    "terminal_stage": "completed"
+  },
+  "run_id": 36979202948,
+  "schema_version": 1,
+  "selected_suites": [
+    "localization",
+    "public_surfaces",
+    "reading_delivery",
+    "settings"
+  ],
+  "source": "5e43e68afa04a31a53bc25cf5fe8893ff39d82af",
+  "successful_jobs": 5,
+  "tested_checkout": "5e43e68afa04a31a53bc25cf5fe8893ff39d82af",
+  "workflow_head": "dea19b45ac72608f38ccaeeef2e373fd2aff06cd"
+}
