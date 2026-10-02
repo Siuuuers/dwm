@@ -708,7 +708,7 @@ jobs:
     needs: public-surfaces
     name: Rendered seven-day, ending, Gallery and Dating journeys
     runs-on: ubuntu-24.04
-    timeout-minutes: 90
+    timeout-minutes: 110
     env:
       LIBGL_ALWAYS_SOFTWARE: '1'
       XDG_DATA_HOME: ${{ github.workspace }}/.godot/phase2r_tests/cloud-journey-import/data
@@ -780,6 +780,19 @@ jobs:
         with:
           name: reading-rail-${{ github.run_id }}-${{ github.run_attempt }}
           path: .godot/ci/reading-rail/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Exercise authored Solo selectors through physical Save and fresh-process Load
+        timeout-minutes: 10
+        run: python3 tools/testing/run_solo_authored_selector_journey.py
+      - name: Upload authored Solo selector reports, exact save bytes and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: solo-authored-selector-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/solo-authored-selector/
           include-hidden-files: true
           if-no-files-found: warn
           retention-days: 7

@@ -2,6 +2,8 @@ extends "res://addons/gut/test.gd"
 
 const CATALOGUE := preload("res://scripts/narrative/SoloReadingCatalogue.gd")
 const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
+const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
+const PROGRESSION := preload("res://scripts/domain/relationship/ProvisionalProgressionRules.gd")
 const PRE := CATALOGUE.PRE_ENTRY
 const POST := CATALOGUE.POST_ENTRY
 
@@ -154,3 +156,38 @@ func test_unrelated_entry_and_unknown_document_fields_refuse() -> void:
 	var extra := _document()
 	extra["production_enabled"] = true
 	assert_false(CATALOGUE.compile(extra).ok)
+
+func test_physical_explosion_rows_use_committed_attitude_and_share_sweet_closing() -> void:
+	var parsed := STRICT_JSON.parse_object(FileAccess.get_file_as_string(
+		"res://tests/fixtures/dialogic/solo_authored_selector_catalogue.json"))
+	assert_true(parsed.ok, str(parsed))
+	if not parsed.ok: return
+	var compiled := CATALOGUE.compile(parsed.value)
+	assert_true(compiled.ok, str(compiled))
+	if not compiled.ok: return
+	var entry: Dictionary = compiled.value.entries[POST]
+	var ordinary := CATALOGUE.select(entry, _presentation(POST))
+	assert_true(ordinary.ok, str(ordinary))
+	if not ordinary.ok: return
+	for outcome: String in ["hatred", "upset", "amused"]:
+		var response: Dictionary = PROGRESSION.new().resolve_scene_response(
+			"dating.solo.priscilla.day1", "exploded", outcome, [])
+		assert_true(response.ok, str(response))
+		if not response.ok: continue
+		var frame := _presentation(POST)
+		frame.fields.merge({"board_result": "exploded", "relationship_outcome": outcome,
+			"attitude": response.value.attitude}, true)
+		var selected := CATALOGUE.select(entry, frame)
+		assert_true(selected.ok, str(selected))
+		if not selected.ok: continue
+		assert_eq(selected.value.label, "fixture.selector.post.sweet.exploded." + outcome)
+		assert_eq(selected.value.beats[0].line_id, ordinary.value.beats[0].line_id)
+		assert_eq(selected.value.beats[0].beat_id, ordinary.value.beats[0].beat_id)
+		assert_eq(selected.value.beats[0].presentation_signature.selectors,
+			{"board_result": "exploded", "perfect_reasons": [], "relationship_outcome": outcome})
+		assert_eq(selected.value.beats[1], ordinary.value.beats[1],
+			"the unchanged sweet closing does not invent a new witnessed variant")
+		assert_eq(selected.value.lines[1], ordinary.value.lines[1])
+		frame.fields.attitude = ""
+		assert_eq(CATALOGUE.select(entry, frame).code, &"reading_selector_unavailable",
+			"physical terminal rows require the committed attitude, with no synthetic fallback")
