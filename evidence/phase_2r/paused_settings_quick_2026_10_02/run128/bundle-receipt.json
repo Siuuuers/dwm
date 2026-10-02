@@ -1,0 +1,11 @@
+{
+  "archive": "settings-f5-run128.tar.gz",
+  "archive_member_count": 628,
+  "bytes": 10050384,
+  "evidence_kind": "bounded-successful-run-audit",
+  "excluded_file_count": 205,
+  "manifest_sha256": "c1987e4c87a468fce879c3bcdde4ce457dfd1f879651847b96ccbc580a8e797d",
+  "payload_file_count": 626,
+  "round_trip_verified": true,
+  "sha256": "8ecbc4b52de4600621c893602574c1b95eda5ee0d1e60a2e2f39cca764b54c87"
+}

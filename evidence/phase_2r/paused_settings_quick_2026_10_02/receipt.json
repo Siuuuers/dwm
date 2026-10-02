@@ -1,0 +1,931 @@
+{
+  "schema_version": 1,
+  "accepted_at": "2026-10-02T05:47:06.503987Z",
+  "lead_bead": "dwm-vky.14",
+  "accepted_scope": "Bounded paused nonmodal Settings F5 Quick Save and fresh-process semantic restore",
+  "source": "16484fe4eaecf3c49fe2fbb0f46a543a493b57bf",
+  "tested_checkout": "885daae62be2ecdfd8f601cd1c6028eeb12c5243",
+  "baseline": "5a581fc89121864aead5202e01d6a82423b1b52d",
+  "broad_run": {
+    "number": 128,
+    "id": 36967371973,
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/36967371973",
+    "jobs": 23,
+    "case_executions": 2286,
+    "unique_cases": 2282,
+    "unique_scripts": 194,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "acceptance_summary": "run128/acceptance-summary.json"
+  },
+  "overall_accepted": true,
+  "acceptance_summary_identity": {
+    "bytes": 383299,
+    "sha256": "a07e36eb69497c8d59d65364a6f461d9aa4c59be0ea6d3f5267571e2e783c8b5"
+  },
+  "source_review_scope": "Historical source-only review retains broad-pending-at-review; this receipt records actual later acceptance.",
+  "final_source_review": "source-review/settings_f5_final_source/final-source-review.json",
+  "packages": {
+    "focus1": {
+      "run": {
+        "conclusion": "failure",
+        "event": "push",
+        "head_branch": "codex/paused-settings-f5-cloud-20261002",
+        "head_sha": "093a123c05633b91509fa88d4a296fa8ee1af08b",
+        "html_url": "https://github.com/Siuuuers/dwm/actions/runs/36964699167",
+        "id": 36964699167,
+        "run_attempt": 1,
+        "run_number": 1,
+        "status": "completed"
+      },
+      "source_boundary": {
+        "all_unlisted_paths_byte_identical": true,
+        "checkout_parents": [
+          "5a581fc89121864aead5202e01d6a82423b1b52d"
+        ],
+        "explicit_allowed_difference_patterns": [],
+        "master": null,
+        "source": "e6d445343c292342310359faa898aabd2959f4db",
+        "source_checkout_differences": [],
+        "tested_checkout": "e6d445343c292342310359faa898aabd2959f4db"
+      },
+      "evidence_kind": "failed-run-diagnostic-only",
+      "archive": "focus1/settings-f5-focus1-diagnostic.tar.gz",
+      "archive_identity": {
+        "bytes": 5134201,
+        "sha256": "63c7a20a4cacdf9219489af33c9eb131d6de06bdfc86de3d7a7498a6fb5b8aa8"
+      },
+      "manifest": "focus1/manifest.json",
+      "receipt": "focus1/bundle-receipt.json"
+    },
+    "focus2": {
+      "run": {
+        "conclusion": "failure",
+        "event": "push",
+        "head_branch": "codex/paused-settings-f5-cloud-20261002",
+        "head_sha": "90d850f8b41e98dd934e125a00ad221c32a1da0c",
+        "html_url": "https://github.com/Siuuuers/dwm/actions/runs/36965784091",
+        "id": 36965784091,
+        "run_attempt": 1,
+        "run_number": 2,
+        "status": "completed"
+      },
+      "source_boundary": {
+        "all_unlisted_paths_byte_identical": true,
+        "checkout_parents": [
+          "ce8a3c9cab5c9625c7a49b6d1b3d71dd5d36b2e8"
+        ],
+        "explicit_allowed_difference_patterns": [],
+        "master": null,
+        "source": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b",
+        "source_checkout_differences": [],
+        "tested_checkout": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+      },
+      "evidence_kind": "failed-run-diagnostic-only",
+      "archive": "focus2/settings-f5-focus2-diagnostic.tar.gz",
+      "archive_identity": {
+        "bytes": 5136159,
+        "sha256": "6f309da51b7ada3a1a96c9f8acfd7a7f68beeacc7e307b11044517b0e53679ce"
+      },
+      "manifest": "focus2/manifest.json",
+      "receipt": "focus2/bundle-receipt.json"
+    },
+    "focus3": {
+      "run": {
+        "conclusion": "success",
+        "event": "push",
+        "head_branch": "codex/paused-settings-f5-cloud-20261002",
+        "head_sha": "5f932e45957e737b04cd4a7ae1ed3928da9b397d",
+        "html_url": "https://github.com/Siuuuers/dwm/actions/runs/36966651051",
+        "id": 36966651051,
+        "run_attempt": 1,
+        "run_number": 3,
+        "status": "completed"
+      },
+      "source_boundary": {
+        "all_unlisted_paths_byte_identical": true,
+        "checkout_parents": [
+          "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+        ],
+        "explicit_allowed_difference_patterns": [],
+        "master": null,
+        "source": "8c4218cc880f16e69854115e7b5263a00982d1bb",
+        "source_checkout_differences": [],
+        "tested_checkout": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+      },
+      "evidence_kind": "bounded-successful-run-audit",
+      "archive": "focus3/settings-f5-focus3.tar.gz",
+      "archive_identity": {
+        "bytes": 439843,
+        "sha256": "dbe13840640ba8e7d26b58b2bbdddbe1093d2e89ecd28aa1b7fea8a624011420"
+      },
+      "manifest": "focus3/manifest.json",
+      "receipt": "focus3/bundle-receipt.json"
+    },
+    "run128": {
+      "run": {
+        "conclusion": "success",
+        "event": "pull_request",
+        "head_branch": "codex/windows-cloud-ux",
+        "head_sha": "16484fe4eaecf3c49fe2fbb0f46a543a493b57bf",
+        "html_url": "https://github.com/Siuuuers/dwm/actions/runs/36967371973",
+        "id": 36967371973,
+        "run_attempt": 1,
+        "run_number": 128,
+        "status": "completed"
+      },
+      "source_boundary": {
+        "all_unlisted_paths_byte_identical": true,
+        "checkout_parents": [
+          "6a5ddf1564870b43aa9140cad7e0e5b12e43f399",
+          "16484fe4eaecf3c49fe2fbb0f46a543a493b57bf"
+        ],
+        "explicit_allowed_difference_patterns": [
+          "AGENTS.md",
+          "docs/*",
+          "story/*"
+        ],
+        "master": "6a5ddf1564870b43aa9140cad7e0e5b12e43f399",
+        "source": "16484fe4eaecf3c49fe2fbb0f46a543a493b57bf",
+        "source_checkout_differences": [
+          {
+            "checkout_blob": "9da0aa3bde65484361d88f04346a3dca749ec49e",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "AGENTS.md",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          },
+          {
+            "checkout_blob": "9c4d88ce68a3086e3dbd1b20b0d3b4167b26e4be",
+            "new_mode": "100644",
+            "old_mode": "100644",
+            "path": "docs/design/2026-08-30-supportz-audience-priority-three-truth-mechanism-amendment.md",
+            "source_blob": "130a657200e94da2dbd28a93383f0218b895f690",
+            "status": "M"
+          },
+          {
+            "checkout_blob": "c7018cbc945c2c624435a31a8f7584e334b794ec",
+            "new_mode": "100644",
+            "old_mode": "100644",
+            "path": "docs/design/2026-09-02-narrative-constitution-working-decision-ledger.md",
+            "source_blob": "2726549b0400419dc9597ad133877e7a877d6810",
+            "status": "M"
+          },
+          {
+            "checkout_blob": "05f99daf57689d9d37a1bbf9c05840e0608d2065",
+            "new_mode": "100644",
+            "old_mode": "100644",
+            "path": "docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md",
+            "source_blob": "83bfa0ace708aabf821469c67e1f17e85e70527d",
+            "status": "M"
+          },
+          {
+            "checkout_blob": "79dafcf6e2f0ad5868beeac018b6cc53ba09c8db",
+            "new_mode": "100644",
+            "old_mode": "100644",
+            "path": "docs/design/2026-09-06-angela-absent-pair-explosion-visibility-reconciliation.md",
+            "source_blob": "0584fae5a22338b4b9c635e3827f53b26807313c",
+            "status": "M"
+          },
+          {
+            "checkout_blob": "9da29d1a49b21a3c33c0fe010e1c1b78aaca3dda",
+            "new_mode": "100644",
+            "old_mode": "100644",
+            "path": "docs/design/2026-09-06-priscilla-lavinia-working-event-documentary-audit.md",
+            "source_blob": "dc85bd98601eeda6a38b270b28202acdb154ebdd",
+            "status": "M"
+          },
+          {
+            "checkout_blob": "a06116cfa59acf49febc6e505ed21e77038218e3",
+            "new_mode": "100644",
+            "old_mode": "100644",
+            "path": "docs/design/README.md",
+            "source_blob": "e8b4a646a79e0a1522d440eaa1021bdee54cce50",
+            "status": "M"
+          },
+          {
+            "checkout_blob": "0000000000000000000000000000000000000000",
+            "new_mode": "000000",
+            "old_mode": "100644",
+            "path": "docs/story-auditions/2026-08-30-angela-lavinia-day-2-focus-audition-design.md",
+            "source_blob": "97ac51f336322c247e59af2db734b9e1983d5116",
+            "status": "D"
+          },
+          {
+            "checkout_blob": "0000000000000000000000000000000000000000",
+            "new_mode": "000000",
+            "old_mode": "100644",
+            "path": "docs/story-auditions/2026-08-30-room-217-group-adaptation-audition-record.md",
+            "source_blob": "73dc72fd510930e84d1ba93474bb09b6afd147cf",
+            "status": "D"
+          },
+          {
+            "checkout_blob": "0000000000000000000000000000000000000000",
+            "new_mode": "000000",
+            "old_mode": "100644",
+            "path": "docs/story-auditions/2026-08-31-seven-day-owner-review-constellation-audition.md",
+            "source_blob": "22bf6ad866163e2ded66a6120d0a4fd494978e17",
+            "status": "D"
+          },
+          {
+            "checkout_blob": "0000000000000000000000000000000000000000",
+            "new_mode": "000000",
+            "old_mode": "100644",
+            "path": "docs/story-auditions/2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md",
+            "source_blob": "9753c076331d4dc515c5d6f89b568fe1e4deea35",
+            "status": "D"
+          },
+          {
+            "checkout_blob": "0000000000000000000000000000000000000000",
+            "new_mode": "000000",
+            "old_mode": "100644",
+            "path": "docs/story-auditions/2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md",
+            "source_blob": "2df1739d29fa0b6ebb4aa195d099e06c49fdcea9",
+            "status": "D"
+          },
+          {
+            "checkout_blob": "0000000000000000000000000000000000000000",
+            "new_mode": "000000",
+            "old_mode": "100644",
+            "path": "docs/story-auditions/2026-09-06-priscilla-lavinia-day-6-sweet-imagined-refusal-audition.md",
+            "source_blob": "8ba9e7c2ca99b9dfc0c4925c94397a34bf2102ba",
+            "status": "D"
+          },
+          {
+            "checkout_blob": "0000000000000000000000000000000000000000",
+            "new_mode": "000000",
+            "old_mode": "100644",
+            "path": "docs/story-auditions/2026-09-07-priscilla-lavinia-day-6-sweet-love-interrupted-hearing-audition.md",
+            "source_blob": "6b3fcaae5a6ef7d23bcac7e78b3490abb15ae72d",
+            "status": "D"
+          },
+          {
+            "checkout_blob": "0000000000000000000000000000000000000000",
+            "new_mode": "000000",
+            "old_mode": "100644",
+            "path": "docs/story-auditions/2026-09-12-day-1-priscilla-lavinia-retrospective-reflex-audition.md",
+            "source_blob": "023d7be0cdd18762c30070e4d5162760b57417d0",
+            "status": "D"
+          },
+          {
+            "checkout_blob": "0000000000000000000000000000000000000000",
+            "new_mode": "000000",
+            "old_mode": "100644",
+            "path": "docs/story-auditions/README.md",
+            "source_blob": "96cab07be3dc4964e7c81a49c866663e5049c19a",
+            "status": "D"
+          },
+          {
+            "checkout_blob": "a0f741bd3d1044ff77178a3b7383e7986082d677",
+            "new_mode": "100644",
+            "old_mode": "100644",
+            "path": "story/01-core-story-bible.md",
+            "source_blob": "3776536d195e4aae9c616bd2840f1fc45b72d608",
+            "status": "M"
+          },
+          {
+            "checkout_blob": "06e63c6d0f4e5b6773f3b0d5b78e32480d4eece2",
+            "new_mode": "100644",
+            "old_mode": "100644",
+            "path": "story/02-character-relationship-handbook.md",
+            "source_blob": "e2d738d1049f997dc3e68e82dae87fc16f051524",
+            "status": "M"
+          },
+          {
+            "checkout_blob": "322b173a08813d1590cfb7c9c0d586d5e58840db",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "story/AGENTS.md",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          },
+          {
+            "checkout_blob": "cba8cac69862dffd6f8c1642063f554ccef4e6ed",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "story/README.md",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          },
+          {
+            "checkout_blob": "08f9a4fbb80cbcbf6abbca65f194c3cd98c33c8e",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "story/auditions/2026-08-30-angela-lavinia-day-2-focus-audition-design.md",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          },
+          {
+            "checkout_blob": "1fd85692c724cfb348a8d81851af7e7a002369cd",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "story/auditions/2026-08-30-room-217-group-adaptation-audition-record.md",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          },
+          {
+            "checkout_blob": "6bbdc51cb9f4d892ae4ce5c5afa54b30f3e799b9",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "story/auditions/2026-08-31-seven-day-owner-review-constellation-audition.md",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          },
+          {
+            "checkout_blob": "d85d8a67e0b91146cefb24d82ee3ea01e3450953",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "story/auditions/README.md",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          },
+          {
+            "checkout_blob": "7097eeecf7e046ca9460024199ff4a8ff8c102ab",
+            "new_mode": "100644",
+            "old_mode": "100644",
+            "path": "story/library/03-seven-day-plot-material-library.md",
+            "source_blob": "2dd68369fa945c8297ba36c53a141b48a33b256a",
+            "status": "M"
+          },
+          {
+            "checkout_blob": "dd65a4d70a9faa494db46085739fd190338bad69",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "story/maintenance/our-pl-upload-recovery.md",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          },
+          {
+            "checkout_blob": "a90e838f42b83694b573debb787132c433d6ab68",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "story/maintenance/source-migration.json",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          },
+          {
+            "checkout_blob": "16c89cdbe313636c165171e7d4ee0f9934275071",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "story/maintenance/source-migration.md",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          },
+          {
+            "checkout_blob": "efee2a95216355bf180a319b5542766a99718e6f",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "story/maintenance/verify_consolidation.py",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          },
+          {
+            "checkout_blob": "fd591bf02a7f2aab1b7c504dceba119eea768108",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "story/relationships/priscilla-lavinia/AGENTS.md",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          },
+          {
+            "checkout_blob": "85d012ccfe82e61c95c71f46070f67f8517b7c15",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "story/relationships/priscilla-lavinia/README.md",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          },
+          {
+            "checkout_blob": "228385dcd953064885964edf9e3493061bcd2462",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          },
+          {
+            "checkout_blob": "43a70fdc7435085d3bf30103b814c66f808a0dc0",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          },
+          {
+            "checkout_blob": "691c98ce2fa0221c3b86031751dfd30ff168ade8",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-6-sweet-imagined-refusal-audition.md",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          },
+          {
+            "checkout_blob": "fe90bc68df5bb578519838372faab54cf7e21720",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "story/relationships/priscilla-lavinia/auditions/2026-09-07-priscilla-lavinia-day-6-sweet-love-interrupted-hearing-audition.md",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          },
+          {
+            "checkout_blob": "f3792a9b34cb2cebf38c32b910acb33dcc39df2d",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "story/relationships/priscilla-lavinia/auditions/2026-09-12-day-1-priscilla-lavinia-retrospective-reflex-audition.md",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          },
+          {
+            "checkout_blob": "8bc169fa41355384c01cf36ee1e65537e76d696c",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "story/relationships/priscilla-lavinia/auditions/2026-09-26-priscilla-lavinia-day-2-portrait-dark-love-read-through.md",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          },
+          {
+            "checkout_blob": "7b9ecbcb38c6be19ab973a17f754b37199ad3c03",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "story/relationships/priscilla-lavinia/auditions/day-2-portrait-development.md",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          },
+          {
+            "checkout_blob": "5a7b0800e55e16cae3ee10c68077a503f0b61f16",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "story/relationships/priscilla-lavinia/auditions/day-2-sweet-love-portrait.md",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          },
+          {
+            "checkout_blob": "ae89186de0ac280e8cf724656803b6f7bc157c27",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "story/relationships/priscilla-lavinia/auditions/day-6-dark-notebook.md",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          },
+          {
+            "checkout_blob": "51d9a33311fcdaaf49910b28cc4e3bc5761aa702",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "story/relationships/priscilla-lavinia/auditions/day-6-sweet-ambiguous-refusal.md",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          },
+          {
+            "checkout_blob": "592fe48396a216bf9e2aad7202af7c577fd8d6ab",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "story/relationships/priscilla-lavinia/auditions/day-6-sweet-love-dance.md",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          },
+          {
+            "checkout_blob": "ab36739aa955a859405b30ee9e12d19d44773d36",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "story/relationships/priscilla-lavinia/intimacy-and-ordinary-company.md",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          },
+          {
+            "checkout_blob": "ebb7057a582f3239886d2cbb4f5d4fa520d0aef7",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "story/relationships/priscilla-lavinia/relationship.md",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          },
+          {
+            "checkout_blob": "43b27c7f278699f00bbd4bf2f7526213376b02c0",
+            "new_mode": "100644",
+            "old_mode": "000000",
+            "path": "story/relationships/priscilla-lavinia/seven-day-options.md",
+            "source_blob": "0000000000000000000000000000000000000000",
+            "status": "A"
+          }
+        ],
+        "tested_checkout": "885daae62be2ecdfd8f601cd1c6028eeb12c5243"
+      },
+      "evidence_kind": "bounded-successful-run-audit",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "archive_identity": {
+        "bytes": 10050384,
+        "sha256": "8ecbc4b52de4600621c893602574c1b95eda5ee0d1e60a2e2f39cca764b54c87"
+      },
+      "manifest": "run128/manifest.json",
+      "receipt": "run128/bundle-receipt.json"
+    }
+  },
+  "supported_format_changes": false,
+  "public_port_signature_changes": false,
+  "save_or_profile_owner_changes": false,
+  "production_catalogue_registered": false,
+  "original_reading": {
+    "processes": 8,
+    "seal_files": 14
+  },
+  "supplemental_settings": {
+    "processes": 2,
+    "seal_files": 3,
+    "raw_quick_archived": true,
+    "raw_profile_autosave_archived": false,
+    "neutrality_evidence": "Hash-and-size receipts and writer FileOps observations"
+  },
+  "physical_selector_proof_retained": true,
+  "visible_title_geometry_observations": 480,
+  "settings_f9": "unavailable; separate pending guarded-Load acceptance",
+  "beads_audit": "beads-record-audit.json",
+  "reproduction_index": "reproduction-files.json",
+  "limits": [
+    "Bounded noncanonical English Solo first-line paused Settings F5 and silent fresh Quick Load only; production catalogue registration remains disabled.",
+    "Original eight reading modes and their 14-file seal are retained. The supplemental Settings writer/reader uses two distinct OS processes and a separate three-file writer seal.",
+    "Raw Quick bytes are archived and directly audited. Unchanged Profile and Autosave are proved by hash-and-size receipts and writer FileOps observations, not by newly archived raw Profile/Autosave copies.",
+    "The physical catalogue-v2 proof retains only its observed sweet/exploded disposition, independent frame checks, actual Next Autosave endpoints and final-Quick fresh Load; other production variants are not accepted.",
+    "The retained title guard covers 480 visible geometry observations. Historical original PNGs already showed the complete title; no title-layout runtime repair or glyph-pixel/all-locale acceptance is claimed.",
+    "Settings F9 remains unavailable in this F5 increment. Guarded Settings Quick Load is separate pending work under ordered-ending amendment sections 13.4 and 24.5.",
+    "Supported save formats, public port signatures, Save/Profile ownership and production catalogue registration are unchanged.",
+    "No whole-game, native all-input/accessibility, OS-crash, pixel-identical transient scrollback or final visual-polish acceptance is claimed.",
+    "Source reviews retain their original source-only and broad-pending-at-review fields. Final broad acceptance is recorded separately here and in the exact Run128 summary.",
+    "Compressed packages preserve their explicit exclusions. Original local_zip manifests and binary downloads are not all embedded; reproducing an auditor may require reobtaining its identity-bound upstream artifact. Preserving helpers is not a claim of fully offline replay.",
+    "All 23 unfinished Beads remain; only the lead note/timestamp changes. No live Dolt query, synchronization, task closure, PR publication or merge occurs here.",
+    "Documentation/evidence descendants are not separately engine-tested."
+  ],
+  "retained_files_excluding_this_receipt": [
+    {
+      "file": "focus1/settings-f5-focus1-diagnostic.tar.gz",
+      "bytes": 5134201,
+      "sha256": "63c7a20a4cacdf9219489af33c9eb131d6de06bdfc86de3d7a7498a6fb5b8aa8"
+    },
+    {
+      "file": "focus1/manifest.json",
+      "bytes": 103199,
+      "sha256": "2947dbd2c52ce38f27a57a24155f9235ab9b0231b404768324e60a50781ac4cf"
+    },
+    {
+      "file": "focus1/bundle-receipt.json",
+      "bytes": 414,
+      "sha256": "f5f255abbec09e365f19ea89a24984f17f7a9c80bce5928323ba906141ea6095"
+    },
+    {
+      "file": "focus1/SHA256SUMS.txt",
+      "bytes": 183,
+      "sha256": "a63c3fb3220f2419e0e7fce6bb28598f33b918e274b47d1476d329bce2383433"
+    },
+    {
+      "file": "focus2/settings-f5-focus2-diagnostic.tar.gz",
+      "bytes": 5136159,
+      "sha256": "6f309da51b7ada3a1a96c9f8acfd7a7f68beeacc7e307b11044517b0e53679ce"
+    },
+    {
+      "file": "focus2/manifest.json",
+      "bytes": 104346,
+      "sha256": "19eac27f975b97d476d2d02308a46c7181d0eaed69b991bbba39a6707d0af324"
+    },
+    {
+      "file": "focus2/bundle-receipt.json",
+      "bytes": 414,
+      "sha256": "7eecdd1bb8e5bb535140a2d0ca7fbe706220446f6aaa1274c8aef4750900b488"
+    },
+    {
+      "file": "focus2/SHA256SUMS.txt",
+      "bytes": 183,
+      "sha256": "34ed9224646c0b3cf2bf4320c104490148e70d62451141cc0b3b82e86f9a145f"
+    },
+    {
+      "file": "focus3/settings-f5-focus3.tar.gz",
+      "bytes": 439843,
+      "sha256": "dbe13840640ba8e7d26b58b2bbdddbe1093d2e89ecd28aa1b7fea8a624011420"
+    },
+    {
+      "file": "focus3/manifest.json",
+      "bytes": 17405,
+      "sha256": "f8a5e04c048b98289a6aef7d5c4bf18f9f658c47128433c641da346c286cc83f"
+    },
+    {
+      "file": "focus3/bundle-receipt.json",
+      "bytes": 401,
+      "sha256": "6843752285254bd308f6c7fbf3398bf9232919f3fb254a18bd97b1d1ae2967e9"
+    },
+    {
+      "file": "focus3/SHA256SUMS.txt",
+      "bytes": 172,
+      "sha256": "22c1c179f4f19637d41084a7b7b7f023acd251b3736e90b3d554d7bf3bacc8af"
+    },
+    {
+      "file": "run128/settings-f5-run128.tar.gz",
+      "bytes": 10050384,
+      "sha256": "8ecbc4b52de4600621c893602574c1b95eda5ee0d1e60a2e2f39cca764b54c87"
+    },
+    {
+      "file": "run128/manifest.json",
+      "bytes": 468925,
+      "sha256": "c1987e4c87a468fce879c3bcdde4ce457dfd1f879651847b96ccbc580a8e797d"
+    },
+    {
+      "file": "run128/bundle-receipt.json",
+      "bytes": 407,
+      "sha256": "74e8657ae1b3af4d1374ad3507443abfbb2758ddceee44d4d3f243b73dd8b2e9"
+    },
+    {
+      "file": "run128/SHA256SUMS.txt",
+      "bytes": 172,
+      "sha256": "5fc18c12c111160aa3517218acc88b677e9fe6f81113cf3e3a5b13a2cf69a9d1"
+    },
+    {
+      "file": "run128/acceptance-summary.json",
+      "bytes": 383299,
+      "sha256": "a07e36eb69497c8d59d65364a6f461d9aa4c59be0ea6d3f5267571e2e783c8b5"
+    },
+    {
+      "file": "source-review/settings-desktop-type-mismatch-review.json",
+      "bytes": 6720,
+      "sha256": "ba836624150eddf55f2bdc786403d7c449e01225c7c10ec53b1d01f923a41d2e"
+    },
+    {
+      "file": "source-review/settings-focus1-public-inventory-review.json",
+      "bytes": 29093,
+      "sha256": "72eb5a2a3ae05fa91ec8c7906fc93730045d82172c90e00360dbb3781b8c5b6f"
+    },
+    {
+      "file": "source-review/settings-focus2-public-inventory-review.json",
+      "bytes": 99516,
+      "sha256": "ff47c3363c4dfdf4a6992cde2a6c71fc0f7310bd9b63d35f3a6ce7791940768c"
+    },
+    {
+      "file": "source-review/settings-focus3-public-inventory-review.json",
+      "bytes": 78629,
+      "sha256": "b9fac319e2ff7f104f5311368171e332130cdf91cb5b9ae60d0261de3e263e5f"
+    },
+    {
+      "file": "source-review/settings_f5_final_source/final-source-review.json",
+      "bytes": 2719,
+      "sha256": "670f4c6bf2a59a43b01e8219f10028ad5d00527ee01db3a90672bf54dd716ee0"
+    },
+    {
+      "file": "source-review/settings_f5_final_source/preliminary-merge-boundary.json",
+      "bytes": 14275,
+      "sha256": "bb682302aca1460095eba703146749a9a5e428cf552878ab81fe6e9cac0d872e"
+    },
+    {
+      "file": "source-review/settings-window-source-review/production.diff",
+      "bytes": 6757,
+      "sha256": "73bd8a20c6de91dda26ba1b04e9b66276f636999aef47a6e89b5cbc13d88218a"
+    },
+    {
+      "file": "source-review/settings-window-source-review/source-review.json",
+      "bytes": 14175,
+      "sha256": "2afb27ae9634fbaefa4a1e83a9b889dbf532b117c75391344fd40c33fadaf45b"
+    },
+    {
+      "file": "source-review/settings-window-source-review/upstream/dialogs.cpp",
+      "bytes": 18600,
+      "sha256": "212ad0929d5bacd3f6bfd10684f0641c65642b90c8150015bff4ce9cb308d62e"
+    },
+    {
+      "file": "source-review/settings-window-source-review/upstream/option_button.cpp",
+      "bytes": 22239,
+      "sha256": "1333370dfc1aa5aa43ed1abc724d6c2a9568728ff37313f699c644523f8e1f8b"
+    },
+    {
+      "file": "source-review/settings-window-source-review/upstream/popup.cpp",
+      "bytes": 14441,
+      "sha256": "6565152130c587a13b42924ca1d7fa1df28f164221bf5981f1f7650316b58c83"
+    },
+    {
+      "file": "source-review/settings-window-source-review/upstream/popup_menu.cpp",
+      "bytes": 128659,
+      "sha256": "941c566e047eafe1a0ff2a5ce9766c1588f7233752ab384d2f3ff2cad7fb101a"
+    },
+    {
+      "file": "source-review/settings-window-source-review/upstream/viewport.cpp",
+      "bytes": 191767,
+      "sha256": "8499322e9bba800abbd4e930a5dd578c549a950c7f993ce5c2dd207f58b93cf2"
+    },
+    {
+      "file": "source-review/settings-window-source-review/upstream/window.cpp",
+      "bytes": 129959,
+      "sha256": "51b253a12011693f897026be8b391c9f73ea71018d730ee0dbfba3abaf7b5a76"
+    },
+    {
+      "file": "source-review/settings_f5_candidate_1/manifest.json",
+      "bytes": 1546,
+      "sha256": "d441b71fe566606ae5c8d90fead80cecd3b0cb269e3d9e8a52d7993d8075849d"
+    },
+    {
+      "file": "source-review/settings_f5_candidate_1/commit.json",
+      "bytes": 1155,
+      "sha256": "4e866f6730048e03acf95f1afc35bdbf22b38590e0e76ebb9b40c73ebb55161d"
+    },
+    {
+      "file": "source-review/settings_f5_candidate_1/published-blobs.json",
+      "bytes": 702,
+      "sha256": "267b6141b2663dfe975762340f1d6d9624a74094ff930861fec674c126fe9fc4"
+    },
+    {
+      "file": "source-review/settings_f5_candidate_2/manifest.json",
+      "bytes": 1771,
+      "sha256": "54c0c8c4317a44464e9fddcb00ad13c2e5c8b2ee225eb4301fe428a11c1353ab"
+    },
+    {
+      "file": "source-review/settings_f5_candidate_2/commit.json",
+      "bytes": 1184,
+      "sha256": "b253679b8cb6982958fee78c04686973513f38a16a4c33261f8e1fca387986e7"
+    },
+    {
+      "file": "source-review/settings_f5_candidate_2/published-blobs.json",
+      "bytes": 831,
+      "sha256": "b4f75216089970d4623e460b3a2b1257550ca8324653482593506cb9e289e313"
+    },
+    {
+      "file": "source-review/settings_f5_final_source/manifest.json",
+      "bytes": 601,
+      "sha256": "9c0502e29b9864c381200304a48cc199161ba676abfd5addfe4e32d16fe3ab33"
+    },
+    {
+      "file": "source-review/settings_f5_final_source/commit.json",
+      "bytes": 1172,
+      "sha256": "96e456f3e1a56c177f37d6473fab8c0bb79a811c1db6b56e8bbcf134d5ba619f"
+    },
+    {
+      "file": "source-review/settings_f5_final_source/published-blobs.json",
+      "bytes": 224,
+      "sha256": "63e445c71ad93e7d4b0d9e73ead28638e08fa4c0e3075a322a2a0540bba90f52"
+    },
+    {
+      "file": "audit-tools/capture_cloud_evidence.py",
+      "bytes": 5469,
+      "sha256": "1fbf3ee0711434f9c7bdeab7398c9e707228aa07f7015a4c2f632ff822c8c01e"
+    },
+    {
+      "file": "audit-tools/layout_evidence.py",
+      "bytes": 938,
+      "sha256": "9ba6cf641e79572657bf0e10f614276a16f749a7fa4f254095867fd10220f339"
+    },
+    {
+      "file": "audit-tools/audit_layout_observations.py",
+      "bytes": 11352,
+      "sha256": "56b8c75445691920f0b676bf01cff00b18f40ad3c257ed59ea2ee54f6b5087ec"
+    },
+    {
+      "file": "audit-tools/audit_settings_quick_journey.py",
+      "bytes": 34153,
+      "sha256": "3086cc010cc0c42551d6813755f6de299b79b607c1761158cba3404560693c1b"
+    },
+    {
+      "file": "audit-tools/audit_settings_reset_focus.py",
+      "bytes": 15231,
+      "sha256": "e8088d498c060c372c80afeaaeb6aa6c7f02cebac2d03f871223155839ae067a"
+    },
+    {
+      "file": "audit-tools/join_settings_acceptance.py",
+      "bytes": 37623,
+      "sha256": "5e4aa0e38baebdfa81e955e93b4f6cd046b5dba950e4337fc646d8baddd159a1"
+    },
+    {
+      "file": "audit-tools/settings_focus1_inventory_review.py",
+      "bytes": 4123,
+      "sha256": "b3989d2bd62b026638656c1001639cc5002b5e4ca945dff7a7541525e829dcf8"
+    },
+    {
+      "file": "audit-tools/settings_focus2_inventory_review.py",
+      "bytes": 5530,
+      "sha256": "9c97873314e1fbc83636b822681f774bcc9ae06c0740fed611c0e4f7843d1361"
+    },
+    {
+      "file": "audit-tools/settings_focus3_inventory_review.py",
+      "bytes": 6100,
+      "sha256": "cbbd52af9a8eebc8a1699e1f88bedd968408012790be7981e6947fc2156045fe"
+    },
+    {
+      "file": "audit-tools/prepare_settings_window_source_review.py",
+      "bytes": 8063,
+      "sha256": "6fce3b3baa0778007365bed1ceadcba45e501ac5e2d8bb8f4eccef9501e2c18d"
+    },
+    {
+      "file": "audit-tools/build_settings_reset_workflow.py",
+      "bytes": 2678,
+      "sha256": "48ef938f96e212e51a33e4864b3caceb91fa725ca4331d28eeaed28827117642"
+    },
+    {
+      "file": "audit-tools/build_paused_settings_workflow.py",
+      "bytes": 9871,
+      "sha256": "ca70437147bd94eb3b6275b02e4ae06cbbfc846a5a20d3645fe8690a9720f911"
+    },
+    {
+      "file": "audit-tools/build_layout_workflow.py",
+      "bytes": 6652,
+      "sha256": "343415c04234cf7dbcafc1c38bf7b96f02777ea779227f3bb2aded6971121b78"
+    },
+    {
+      "file": "audit-tools/check_settings_quick_validator.py",
+      "bytes": 7256,
+      "sha256": "bbcb529870e6dd74f3a62cf11af586ade57f33fead2fd8f4908cb63e3c204d57"
+    },
+    {
+      "file": "audit-tools/settings-quick-validator-review.json",
+      "bytes": 2947,
+      "sha256": "2b500892494f7737fee8f8d8c48d668b7d42207f8ca194b1974a7ba9f37f65f7"
+    },
+    {
+      "file": "audit-tools/settings_acceptance_adapter_sources.json",
+      "bytes": 1557,
+      "sha256": "2a6caf6decdd22419600524c4b747047ba782588e0641ee0fe137394e8d829a8"
+    },
+    {
+      "file": "audit-tools/paused-settings-cloud/verify_auditor_controls.py",
+      "bytes": 8168,
+      "sha256": "04ae6a2332ea3243993a8664c94fccef6743954666ebfc15d8765394114b8813"
+    },
+    {
+      "file": "audit-tools/paused-settings-cloud/auditor-control-results.json",
+      "bytes": 2459,
+      "sha256": "4cab504b8bf313d40271851c1357314490c718df1813249d6e95100ec8483b17"
+    },
+    {
+      "file": "audit-tools/paused-settings-cloud/e6d4453.yml",
+      "bytes": 16640,
+      "sha256": "2741c0c988a311e5b333b3f196154e2e48f9c5779a279ce5feff1e5c73e24f76"
+    },
+    {
+      "file": "audit-tools/paused-settings-cloud/e6d4453.yml.manifest.json",
+      "bytes": 18090,
+      "sha256": "82a940b27bdb0ea1a7ff2061b3f52faef7ae18a21d7c4127ab722da0ddcbc5f4"
+    },
+    {
+      "file": "audit-tools/paused-settings-cloud/focus2.yml",
+      "bytes": 16640,
+      "sha256": "8111b04d72f44d8bab3a936bdf4458c8a2b9a7183b30f102a876873a00b028e3"
+    },
+    {
+      "file": "audit-tools/paused-settings-cloud/focus2.yml.manifest.json",
+      "bytes": 18090,
+      "sha256": "76b1413dc93f13695cdb48bc0c37100fc14078051ca5090f7a5decebd8aa6c63"
+    },
+    {
+      "file": "audit-tools/paused-settings-cloud/focus3-reviewed.yml",
+      "bytes": 11434,
+      "sha256": "ae56356528db6c83e6d3452e67ead1c87107ba858150d9bc256ba11ef884082e"
+    },
+    {
+      "file": "audit-tools/paused-settings-cloud/focus3-reviewed.yml.manifest.json",
+      "bytes": 17740,
+      "sha256": "f173f27251f2bd8b8cc820cd37ed4c79f4eb00ccd3acb0ed64196245f093544f"
+    },
+    {
+      "file": "audit-tools/settings_f5_review_adapters_v2/adapter-provenance.json",
+      "bytes": 2234,
+      "sha256": "2cb87beca0ae8f2c19a0f4d3c21972c018da0c69a2468779418474e06edd80ed"
+    },
+    {
+      "file": "audit-tools/settings_f5_review_adapters_v2/audit_coverage_public_surfaces.py",
+      "bytes": 8042,
+      "sha256": "acbf7e6b2f3b44854d151e2e67e48bae69162f57a545fd5f843f4eefbbd360bf"
+    },
+    {
+      "file": "audit-tools/settings_f5_review_adapters_v2/audit_coverage_test_discovery.py",
+      "bytes": 18005,
+      "sha256": "fe8d3c2b60d669c85c76e69ae712650f0eb474b79e13681691830ed4dee84798"
+    },
+    {
+      "file": "audit-tools/settings-performance-tools/README.md",
+      "bytes": 2260,
+      "sha256": "cb5a666d5723dde82a2d8b185053b81168f8dabd4a48501a1f53b5a45f090140"
+    },
+    {
+      "file": "audit-tools/settings-performance-tools/preparation-verification.json",
+      "bytes": 924,
+      "sha256": "a4304f4c6b8a9badceee4ec6a28d4c28366383a0e2516e2ee994105860badcd9"
+    },
+    {
+      "file": "audit-tools/prepare_settings_navigation.py",
+      "bytes": 22828,
+      "sha256": "c7b504286cacf4f5aa6a0698ed57a12599506d419dca45a0457fabd68f8afd36"
+    },
+    {
+      "file": "audit-tools/finalize_settings_evidence.py",
+      "bytes": 35182,
+      "sha256": "400e8f9588e15b46adaaaaadaaea8e4a5da94836d2a4ecbc8f3108d22a255a43"
+    },
+    {
+      "file": "reproduction-files.json",
+      "bytes": 18828,
+      "sha256": "97a9e10f8de8314daecc5aaa74aa659aa6bc87c0d37a953f6354e5cbdf10e8fb"
+    },
+    {
+      "file": "beads-record-audit.json",
+      "bytes": 753,
+      "sha256": "6a4c4b80bbcbc62ca5c394f40f8e0d428335cc1b4c1b130a93e4f4650358cc10"
+    },
+    {
+      "file": "README.md",
+      "bytes": 4332,
+      "sha256": "ab9ab059f98902f3a9a74a3a6527bcd70d212c1bf0c6ec2f463ee7e19ff6fac4"
+    }
+  ]
+}

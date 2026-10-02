@@ -19,6 +19,26 @@ actual master ref and Beads before editing. The last checked master was
 
 ## Current acceptance
 
+**Accepted bounded paused Settings F5.** Source: `16484fe4eaecf3c49fe2fbb0f46a543a493b57bf`.
+Tested PR merge: `885daae62be2ecdfd8f601cd1c6028eeb12c5243`.
+[Run128](https://github.com/Siuuuers/dwm/actions/runs/36967371973) passes 23/23 jobs, 2,286 GUT executions / 2,282 unique
+cases / 194 scripts, zero failures/errors/skips. The connected noncanonical
+Solo proof preserves partial reveal through Pause and Settings, then a fresh
+F5 completes only the current reveal and commits one Quick transaction while
+retaining the exact canonical source, Settings host, focus and suspension.
+A fresh process loads that exact semantic point without repeated speech.
+The retained Quick bytes are directly audited; Autosave/Profile neutrality
+uses source-bound identity receipts and write observations. The original
+eight-mode v1 and bounded physical v2 proofs retain their prior scopes.
+Public port signatures and supported save formats are unchanged. Exact
+evidence and limitations belong in the [paused Settings F5 receipt](../../evidence/phase_2r/paused_settings_quick_2026_10_02/receipt.json).
+Production catalogue registration remains disabled. This does not accept
+Settings F9, Hospital/ending continuity, production replay, native all-input
+or accessibility behavior, pixel-identical scrollback, or final visual polish.
+All 23 unfinished Beads remain; no status/dependency change, closure or live
+Dolt synchronization is implied. Later records-only commits are not
+separately engine-tested.
+
 **Accepted test-only title-geometry guard and diagnostic correction.** Source:
 `79b36d90e3ea41d36a81a4c5ba0f87b0ae4a7bfa`. Tested PR merge:
 `d1c3205392205ab85306f1e2afed15d58b517bd1`.
@@ -97,9 +117,13 @@ made, and these diagnostics do not replace the broad acceptance above.
 The new geometry guard checks finite, nonempty visible title rectangles inside
 their clipping bounds. It does not inspect glyph pixels. The complete title in the
 retained PNGs is separate visual evidence; neither establishes whole-UI polish.
-Next bounded work is paused Settings F5 under `dwm-vky.14`: complete only the
-current reveal, preserve the exact semantic point, and retain existing Save
-admission and command custody.
+Next bounded work is guarded F9 Quick Load from admissible nonmodal Settings
+under `dwm-vky.14`, using the existing confirmation and restore owners.
+Settings F9 remains unavailable in this accepted F5 increment; its admission,
+Cancel/source preservation, confirmed canonical Load with Pause closed, and
+blocked-input/no-queue proof remain separate pending acceptance. The
+[ordered-ending amendment](../design/2026-08-13-ordered-ending-host-universal-pause-ui-ux-amendment.md) §§13.4 and 24.5 already require
+this parity; no new architecture decision is needed.
 
 ## Resume order and authority
 
@@ -113,9 +137,12 @@ admission and command custody.
    in `dwm-n3h.2`. Read the [reading record](2026-09-29-reading-rail-next-slice.md)
    and approved scene amendment §§12.3–12.8 and 22.4. The bounded connected
    physical v2 Save/Load proof is accepted; preserve both it and the original
-   catalogue-v1 journey. Next, cover paused Settings F5 using the current
-   Pause/Settings and reading owners: finish only the current reveal, preserve
-   exact semantic position, and prove Save admission and command custody.
+   catalogue-v1 journey and the accepted paused Settings F5 proof. Next, cover
+   guarded F9 Quick Load from admissible nonmodal Settings through existing
+   confirmation/restore custody, with Cancel preserving the source and confirmed
+   Load reconstructing the canonical destination with Pause closed. Blocking
+   owners admit no shortcut and queue nothing. This remains separate pending
+   acceptance under ordered-ending amendment §§13.4 and 24.5.
    Production registration stays disabled until its authored catalogue exists.
 3. Ask only if a newly evidenced wording/staging selector changes the authored
    projection contract. Known Solo inputs include friend/day/phase/tier/tone/
@@ -177,9 +204,10 @@ passes 56 cases across eight scripts, both documentation CLIs and the PowerShell
 instruction fixture on `e18f832deca10f7d000a45e470ce5c48c9b68b56`.
 [Retirement receipt](../../evidence/phase_2r/guidance_retirement_2026_10_02/receipt.json)
 preserves the setup diagnostics and proves all 191 Beads records unchanged.
-Run127 is the current bounded broad cloud acceptance. Run122 physical proof,
-Run120 selector admission and Run114 Next remain historical foundations; subsequent
-handoff/evidence edits are records-only. Historical receipts remain unchanged.
+Run128 is the current bounded broad cloud acceptance for paused Settings F5.
+Run127 title geometry/correction, Run122 physical proof, Run120 selector admission
+and Run114 Next remain historical foundations; subsequent handoff/evidence edits
+are records-only. Historical receipts remain unchanged.
 
 Integration follow-up: master's newer root `AGENTS.md` (absent from this PR source)
 still links to `CLAUDE.md`. When merge/integration is separately requested, repoint

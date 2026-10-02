@@ -9,9 +9,29 @@ verification_authority: false
 
 # Reading rail: next bounded slice
 
-Updated after the cold-Load layout diagnostic corrected the earlier clipping claim, retaining Run122 acceptance of the bounded physical catalogue-v2 Save/Load proof, Run120 selector admission and the Run114 one-shot Next foundation. Check the live handoff and its source-bound receipts for exact acceptance boundaries. This navigation record does not change specification authority, close Beads, or authorize production narrative content.
+Updated after Run128 accepted bounded paused Settings F5, preserving the cold-Load layout correction, Run127 title-geometry guard, Run122 bounded physical catalogue-v2 Save/Load proof, Run120 selector admission and Run114 one-shot Next foundation. Check the live handoff and source-bound receipts for exact acceptance boundaries. This navigation record does not change specification authority, close Beads, or authorize production narrative content.
 
 ## Current boundary
+
+**Accepted bounded paused Settings F5.** Source: `16484fe4eaecf3c49fe2fbb0f46a543a493b57bf`.
+Tested PR merge: `885daae62be2ecdfd8f601cd1c6028eeb12c5243`.
+[Run128](https://github.com/Siuuuers/dwm/actions/runs/36967371973) passes 23/23 jobs, 2,286 GUT executions / 2,282 unique
+cases / 194 scripts, zero failures/errors/skips. The connected noncanonical
+Solo proof preserves partial reveal through Pause and Settings, then a fresh
+F5 completes only the current reveal and commits one Quick transaction while
+retaining the exact canonical source, Settings host, focus and suspension.
+A fresh process loads that exact semantic point without repeated speech.
+The retained Quick bytes are directly audited; Autosave/Profile neutrality
+uses source-bound identity receipts and write observations. The original
+eight-mode v1 and bounded physical v2 proofs retain their prior scopes.
+Public port signatures and supported save formats are unchanged. Exact
+evidence and limitations belong in the [paused Settings F5 receipt](../../evidence/phase_2r/paused_settings_quick_2026_10_02/receipt.json).
+Production catalogue registration remains disabled. This does not accept
+Settings F9, Hospital/ending continuity, production replay, native all-input
+or accessibility behavior, pixel-identical scrollback, or final visual polish.
+All 23 unfinished Beads remain; no status/dependency change, closure or live
+Dolt synchronization is implied. Later records-only commits are not
+separately engine-tested.
 
 The opt-in fixed noncanonical Solo catalogue connects real Dating pre/board/post,
 inspect-only History, qualified Save/Quick and exact semantic fresh-process Load.
@@ -41,8 +61,8 @@ The reading envelope is explicitly v2 while a Next operation is retained; ordina
 v1 reading checkpoints remain supported. Profile v10 and Run document/snapshot v7
 remain current. No parallel transcript or save store was added.
 
-**Accepted bounded source:** `cfb7616bfd498979bef520e1522cbbb712298aea`. **Tested PR merge:** `f527957009017993a4987174aeb76a26e8793075`.
-Final [Run122](https://github.com/Siuuuers/dwm/actions/runs/36950541601) passes 23/23 jobs,
+**Historical physical-v2 accepted source:** `cfb7616bfd498979bef520e1522cbbb712298aea`. **Tested PR merge:** `f527957009017993a4987174aeb76a26e8793075`.
+Historical [Run122](https://github.com/Siuuuers/dwm/actions/runs/36950541601) passes 23/23 jobs,
 2,280 GUT executions / 2,276 unique cases / 194 scripts with zero failures/errors/skips.
 Exact results and limits belong to the
 [physical selector receipt](../../evidence/phase_2r/physical_authored_selector_2026_10_02/receipt.json).
@@ -64,11 +84,16 @@ this bounded proof closes neither and does not imply Dolt synchronization.
 - Rail Save/F5, actual ordinary Pause Backup entry and explicit paused F5 finish only the current admitted line without advancing. Capture providers and capability queries remain pure. Plain Pause, Return confirmation Cancel and focus-only Backup preview preserve partial reveal; Continue after explicit completion retains that completed line.
 - F9 during admitted prose uses real Pause and the existing confirmation owner. Cancel resumes the literal source; fresh Load reconstructs the saved stable line fully visible without repeating speech.
 - The finite fixture's exact witnesses are Profile-owned, keyed by complete registered descriptor rather than line ID or causal run/attempt IDs. A changed revision remains unseen even when the base line is visited; registration, History and queries grant no credit.
-- Production catalogue/selector admission and exact Next/replay, Hospital/ending continuity, paused Settings F5, arbitrary production partial-reveal abort lifetime and full native all-input/accessibility acceptance remain separate unfinished work.
+- Production catalogue/selector admission and exact Next/replay, Hospital/ending continuity, guarded Settings F9, arbitrary production partial-reveal abort lifetime and full native all-input/accessibility acceptance remain separate unfinished work.
 
-The next bounded `dwm-vky.14` clause is paused Settings F5: complete only the
-current reveal, preserve the exact semantic point, and retain existing Save
-admission and command custody. The [layout diagnostic](../../evidence/phase_2r/challenge_layout_2026_10_02/receipt.json)
+Next bounded work is guarded F9 Quick Load from admissible nonmodal Settings
+under `dwm-vky.14`, using the existing confirmation and restore owners.
+Settings F9 remains unavailable in this accepted F5 increment; its admission,
+Cancel/source preservation, confirmed canonical Load with Pause closed, and
+blocked-input/no-queue proof remain separate pending acceptance. The
+[ordered-ending amendment](../design/2026-08-13-ordered-ending-host-universal-pause-ui-ux-amendment.md) §§13.4 and 24.5 already require
+this parity; no new architecture decision is needed.
+The [layout diagnostic](../../evidence/phase_2r/challenge_layout_2026_10_02/receipt.json)
 corrects the earlier clipping claim without a production layout change.
 
 Run69 exposed a fixture-host mistake: natural completion freed the explicitly mounted Witnessed layout, and the subsequent native start could select Dialogic's default style. The `9958` repair remounts and verifies the intended host while preserving publication assertions and existing waits. Run70 executes all nine ledger unit cases and nine mounted runtime cases successfully. Check the live handoff for full-run and subsequent-source acceptance.
@@ -285,10 +310,11 @@ binds the original bytes and new observations. Historical Run120/122 receipts
 keep their original contents and acceptance scope. This correction establishes
 neither whole-UI acceptance nor a new broad gate.
 
-Next, cover paused Settings F5 under `dwm-vky.14`: finish only the current reveal,
-preserve the semantic point, and use the existing Save and custody owners.
-Production catalogue admission, Hospital/ending continuity and native acceptance
-remain separate work.
+The later [paused Settings F5 receipt](../../evidence/phase_2r/paused_settings_quick_2026_10_02/receipt.json)
+accepts the current-reveal-only Quick Save clause at its identified source.
+Next is guarded Settings F9 under `dwm-vky.14`; it remains separate pending
+acceptance under ordered-ending amendment §§13.4 and 24.5. Production catalogue
+admission, Hospital/ending continuity and native acceptance remain separate work.
 
 ## Unshipped development-save policy
 
@@ -301,7 +327,7 @@ The legacy-History gap versus unavailable-History question is retired. Supported
 - Dating owns session-local History; Hospital starts fresh; an ordered ending keeps one uninterrupted History across its steps.
 - Ordinary Next may add previously witnessed traversed beats in canonical order. Hospital and ending History contain only captions actually published in that session.
 - Dating board handoffs remain automatic, without extra Continue/Done controls or special mines.
-- Save policy: rail Save/F5, actual ordinary Pause Backup entry and explicit paused F5 complete the current admitted line without advancing. Load restores the semantic beat fully visible without repeating TTS. Plain Pause/preview/Return cancellation remains literal; paused Settings F5 is outside this accepted increment.
+- Save policy: rail Save/F5, actual ordinary Pause Backup entry and explicit paused F5 complete the current admitted line without advancing. Load restores the semantic beat fully visible without repeating TTS. Plain Pause/preview/Return cancellation remains literal; bounded paused Settings F5 is accepted in its own source-bound receipt, while Settings F9 remains separate pending acceptance.
 - Plain Pause preserves the literal live frontier. Explicit admitted Backup/Save completion changes only reveal completeness; durable semantic reconstruction remains distinct.
 - History is inspect-only and creates no gameplay, witnessing, completion or replay effects.
 - Ordered-ending recovery merges a completed step only from its exact durable ordered sequence, once in frozen plan order. Missing sequences stay missing; conflicts require recovery.
@@ -319,7 +345,8 @@ Retain source SHA, tested merge/run/job identities, machine-readable ordered tra
 
 ## Later authored input boundary
 
-Paused Settings F5 needs no new architecture decision. Before production catalogue
+Guarded Settings F9 needs no new architecture decision; its admission and
+recovery follow ordered-ending amendment §§13.4 and 24.5. Before production catalogue
 registration, ask only if a selected entry introduces an independently varying
 wording or staging selector beyond the recorded fields. The accepted fixture
 catalogue does not approve production prose; hidden reads of mutable gameplay

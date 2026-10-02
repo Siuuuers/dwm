@@ -1,0 +1,618 @@
+{
+  "audit_pass": true,
+  "scope": "Byte/declaration/reference review of generated focused inventories only; not completed whole-gate acceptance",
+  "run_id": 36964699167,
+  "source": "e6d445343c292342310359faa898aabd2959f4db",
+  "baseline": "5a581fc89121864aead5202e01d6a82423b1b52d",
+  "archive": {
+    "id": 11209625527,
+    "bytes": 143094,
+    "sha256": "7e76f51b30afe691a36d8abd8f9c9412323398fa46d688c4cc4d992d9fc83b45"
+  },
+  "scanner_scope": "Lexical source references include comments; declarations and required contract maps are checked independently.",
+  "inventories": {
+    "game_state": {
+      "record_count": 236,
+      "declarations_unchanged": true,
+      "required_maps_unchanged": true,
+      "baseline": {
+        "bytes": 560994,
+        "sha256": "885ee737ccee60198daa4ca1212f9750112ad35afc6dc997cc3d86d6aa62626a"
+      },
+      "generated": {
+        "bytes": 561313,
+        "sha256": "194f619e80fb0ebd518783c602e93b46f0e9fbddcc31001f334bb53e3e3139b0"
+      },
+      "reference_deltas": [
+        {
+          "kind": "call_sites",
+          "symbol": "capture_dating_challenge_state",
+          "added": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:246",
+              "source_line": "\t_trace(\"automatic_board_handoff\", {\"record\": game.capture_dating_challenge_state().value})"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:248",
+              "source_line": "\tvar physical: Dictionary = game.capture_dating_challenge_state().value"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:256",
+              "source_line": "\tphysical = game.capture_dating_challenge_state().value"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:346",
+              "source_line": "\tif not _check(game.capture_dating_challenge_state().value == expected.value.physical_record,"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:366",
+              "source_line": "\t\t\"physical_record\": game.capture_dating_challenge_state().value.duplicate(true),"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:556",
+              "source_line": "\t\tand game.capture_dating_challenge_state().value == prior.value.physical_record"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:565",
+              "source_line": "\t\t\"physical_record\": game.capture_dating_challenge_state().value,"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:709",
+              "source_line": "\t\t\t\"physical_record\": game.capture_dating_challenge_state().value.duplicate(true),"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:869",
+              "source_line": "\t\t\t\t\"physical\": root.get_node(\"GameState\").capture_dating_challenge_state(),"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1187",
+              "source_line": "\tvar physical: Dictionary = game.capture_dating_challenge_state()"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1337",
+              "source_line": "\tvar physical: Dictionary = game.capture_dating_challenge_state()"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:203",
+              "source_line": "\t_trace(\"automatic_board_handoff\", {\"record\": game.capture_dating_challenge_state().value})"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:205",
+              "source_line": "\tvar physical: Dictionary = game.capture_dating_challenge_state().value"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:213",
+              "source_line": "\tphysical = game.capture_dating_challenge_state().value"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:303",
+              "source_line": "\tif not _check(game.capture_dating_challenge_state().value == expected.value.physical_record,"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:323",
+              "source_line": "\t\t\"physical_record\": game.capture_dating_challenge_state().value.duplicate(true),"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:486",
+              "source_line": "\t\t\t\"physical_record\": game.capture_dating_challenge_state().value.duplicate(true),"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:646",
+              "source_line": "\t\t\t\t\"physical\": root.get_node(\"GameState\").capture_dating_challenge_state(),"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:964",
+              "source_line": "\tvar physical: Dictionary = game.capture_dating_challenge_state()"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1114",
+              "source_line": "\tvar physical: Dictionary = game.capture_dating_challenge_state()"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "capture_live_session",
+          "added": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:342",
+              "source_line": "\t\tand game.capture_live_session().value.active, \"fresh Load remounts real active Dating\"): return"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:552",
+              "source_line": "\t\tand game.capture_live_session().value.active and checkpoint.get(\"ok\", false)"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:708",
+              "source_line": "\t\t\t\"live_session\": game.capture_live_session().value.duplicate(true), \"gameplay\": game.to_save_dict().duplicate(true),"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:719",
+              "source_line": "\tvar source: Dictionary = game.capture_live_session().value.duplicate(true)"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:727",
+              "source_line": "\tif not _check(game.capture_live_session().value == source and game.to_save_dict() == gameplay,"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:736",
+              "source_line": "\t\tand current.value == checkpoint and game.capture_live_session().value == source"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:299",
+              "source_line": "\t\tand game.capture_live_session().value.active, \"fresh Load remounts real active Dating\"): return"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:485",
+              "source_line": "\t\t\t\"live_session\": game.capture_live_session().value.duplicate(true), \"gameplay\": game.to_save_dict().duplicate(true),"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:496",
+              "source_line": "\tvar source: Dictionary = game.capture_live_session().value.duplicate(true)"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:504",
+              "source_line": "\tif not _check(game.capture_live_session().value == source and game.to_save_dict() == gameplay,"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:513",
+              "source_line": "\t\tand current.value == checkpoint and game.capture_live_session().value == source"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "contacts",
+          "added": [
+            {
+              "site": "scripts/ui/pause/PauseQuickCommands.gd:59",
+              "source_line": "\t# their observed contacts at the boundary, including internal option popups."
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:200",
+              "source_line": "\tcontacts.contacts_panel.open_requested.emit(\"priscilla\")"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:201",
+              "source_line": "\tif not _check(contacts.last_result.get(\"ok\", false)"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:202",
+              "source_line": "\t\tand game.contacts.solo_actions.get(\"solo:priscilla:day1\", {}).get(\"state\") == \"ACCEPTED\","
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:869",
+              "source_line": "\tassert_true(controller._quick_commands.last_result.is_empty(), \"Held and echoed contacts never call the owner again\")"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:160",
+              "source_line": "\tcontacts.contacts_panel.open_requested.emit(\"priscilla\")"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:161",
+              "source_line": "\tif not _check(contacts.last_result.get(\"ok\", false)"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:162",
+              "source_line": "\t\tand game.contacts.solo_actions.get(\"solo:priscilla:day1\", {}).get(\"state\") == \"ACCEPTED\","
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:861",
+              "source_line": "\tassert_true(controller._quick_commands.last_result.is_empty(), \"Held and echoed contacts never call the owner again\")"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "day",
+          "added": [
+            {
+              "site": "scripts/ui/pause/PauseQuickCommands.gd:276",
+              "source_line": "\tvar stamp: String = copy.day.replace(\"{day}\", str(day)).replace(\"{time}\", str(time) if time != null else \"--:--\")"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:195",
+              "source_line": "\tif not _check(game.day == 1, \"fresh Day 1 production run\"): return"
+            }
+          ],
+          "removed": [
+            {
+              "site": "scripts/ui/pause/PauseQuickCommands.gd:264",
+              "source_line": "\tvar stamp: String = copy.day.replace(\"{day}\", str(day)).replace(\"{time}\", str(time) if time != null else \"--:--\")"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:155",
+              "source_line": "\tif not _check(game.day == 1, \"fresh Day 1 production run\"): return"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "route_context",
+          "added": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:500",
+              "source_line": "\t\tand snapshot.gameplay.route_context.active_dating_challenge == entered.source.physical_record,"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:665",
+              "source_line": "\t\tand snapshot.gameplay.route_context.active_dating_challenge == entered.source.physical_record,"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1214",
+              "source_line": "\t\tand snapshot.gameplay.route_context.active_dating_challenge == physical.value,"
+            },
+            {
+              "site": "tests/unit/test_production_pause_controller.gd:984",
+              "source_line": "\tassert_eq(saved.gameplay.route_context.active_dating_challenge, exact)"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:442",
+              "source_line": "\t\tand snapshot.gameplay.route_context.active_dating_challenge == entered.source.physical_record,"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:991",
+              "source_line": "\t\tand snapshot.gameplay.route_context.active_dating_challenge == physical.value,"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "to_save_dict",
+          "added": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:708",
+              "source_line": "\t\t\t\"live_session\": game.capture_live_session().value.duplicate(true), \"gameplay\": game.to_save_dict().duplicate(true),"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:720",
+              "source_line": "\tvar gameplay: Dictionary = game.to_save_dict().duplicate(true)"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:727",
+              "source_line": "\tif not _check(game.capture_live_session().value == source and game.to_save_dict() == gameplay,"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:737",
+              "source_line": "\t\tand game.to_save_dict() == gameplay and _speech_admissions == speech_before"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:757",
+              "source_line": "\tvar gameplay: Dictionary = game.to_save_dict().duplicate(true)"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:771",
+              "source_line": "\tif not _check(game.to_save_dict() == gameplay and profile.get_profile_snapshot() == profile_before"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:782",
+              "source_line": "\tif not _check(game.to_save_dict() == gameplay and profile.get_profile_snapshot() == profile_before"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1245",
+              "source_line": "\tvar before_game: Dictionary = game.to_save_dict().duplicate(true)"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1252",
+              "source_line": "\t\t\"disk_unchanged\": _witness_disk() == before_disk, \"game_unchanged\": game.to_save_dict() == before_game,"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1259",
+              "source_line": "\t\tand game.to_save_dict() == before_game and current_scene == dating"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:485",
+              "source_line": "\t\t\t\"live_session\": game.capture_live_session().value.duplicate(true), \"gameplay\": game.to_save_dict().duplicate(true),"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:497",
+              "source_line": "\tvar gameplay: Dictionary = game.to_save_dict().duplicate(true)"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:504",
+              "source_line": "\tif not _check(game.capture_live_session().value == source and game.to_save_dict() == gameplay,"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:514",
+              "source_line": "\t\tand game.to_save_dict() == gameplay and _speech_admissions == speech_before"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:534",
+              "source_line": "\tvar gameplay: Dictionary = game.to_save_dict().duplicate(true)"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:548",
+              "source_line": "\tif not _check(game.to_save_dict() == gameplay and profile.get_profile_snapshot() == profile_before"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:559",
+              "source_line": "\tif not _check(game.to_save_dict() == gameplay and profile.get_profile_snapshot() == profile_before"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1022",
+              "source_line": "\tvar before_game: Dictionary = game.to_save_dict().duplicate(true)"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1029",
+              "source_line": "\t\t\"disk_unchanged\": _witness_disk() == before_disk, \"game_unchanged\": game.to_save_dict() == before_game,"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1036",
+              "source_line": "\t\tand game.to_save_dict() == before_game and current_scene == dating"
+            }
+          ]
+        },
+        {
+          "kind": "dynamic_references",
+          "symbol": "contacts",
+          "added": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:196",
+              "source_line": "\tvar opened: Dictionary = desktop.open_app(&\"contacts\")"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:199",
+              "source_line": "\tvar contacts: Node = desktop.get(\"_cached_app_windows\")[&\"contacts\"]"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:156",
+              "source_line": "\tvar opened: Dictionary = desktop.open_app(&\"contacts\")"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:159",
+              "source_line": "\tvar contacts: Node = desktop.get(\"_cached_app_windows\")[&\"contacts\"]"
+            }
+          ]
+        },
+        {
+          "kind": "dynamic_references",
+          "symbol": "day",
+          "added": [
+            {
+              "site": "scripts/ui/pause/PauseQuickCommands.gd:274",
+              "source_line": "\tvar day: Variant = record.get(\"load_day\" if fallback else \"day\")"
+            }
+          ],
+          "removed": [
+            {
+              "site": "scripts/ui/pause/PauseQuickCommands.gd:262",
+              "source_line": "\tvar day: Variant = record.get(\"load_day\" if fallback else \"day\")"
+            }
+          ]
+        }
+      ]
+    },
+    "save_manager": {
+      "record_count": 74,
+      "declarations_unchanged": true,
+      "required_maps_unchanged": true,
+      "baseline": {
+        "bytes": 149295,
+        "sha256": "e9c1ead377edea92f280a5f62974f12a585f33a15769a103ce05c59f590c85ef"
+      },
+      "generated": {
+        "bytes": 149516,
+        "sha256": "7367797a00f709f81715b0cd01b9e0434fa54acfbb7b6d391beb6b733cb18790"
+      },
+      "reference_deltas": [
+        {
+          "kind": "call_sites",
+          "symbol": "autosave",
+          "added": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:480",
+              "source_line": "\t\tand after_disk.profile == before_disk.profile and after_disk.autosave == before_disk.autosave"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1208",
+              "source_line": "\tvar disk: Dictionary = root.get_node(\"SaveManager\").get(\"_storage\").read_text(\"autosave.json\")"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1226",
+              "source_line": "\tif not _check(_write_text(\"next-autosave.json\", disk.value)"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1311",
+              "source_line": "\tvar before_disk: Dictionary = saves.get(\"_storage\").inspect_revision(\"autosave.json\")"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1345",
+              "source_line": "\tvar after_disk: Dictionary = saves.get(\"_storage\").read_text(\"autosave.json\")"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:985",
+              "source_line": "\tvar disk: Dictionary = root.get_node(\"SaveManager\").get(\"_storage\").read_text(\"autosave.json\")"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1003",
+              "source_line": "\tif not _check(_write_text(\"next-autosave.json\", disk.value)"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1088",
+              "source_line": "\tvar before_disk: Dictionary = saves.get(\"_storage\").inspect_revision(\"autosave.json\")"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1122",
+              "source_line": "\tvar after_disk: Dictionary = saves.get(\"_storage\").read_text(\"autosave.json\")"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "commit_backup_action",
+          "added": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:294",
+              "source_line": "\tvar committed: Dictionary = saves.commit_backup_action(manual.value.token)"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:309",
+              "source_line": "\tvar refused: Dictionary = saves.commit_backup_action(stale.value.token)"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:334",
+              "source_line": "\tvar restored: Dictionary = saves.commit_backup_action(prepared.value.token)"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:544",
+              "source_line": "\tvar restored: Dictionary = saves.commit_backup_action(prepared.value.token)"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1323",
+              "source_line": "\tvar restored: Dictionary = saves.commit_backup_action(prepared.value.token)"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:251",
+              "source_line": "\tvar committed: Dictionary = saves.commit_backup_action(manual.value.token)"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:266",
+              "source_line": "\tvar refused: Dictionary = saves.commit_backup_action(stale.value.token)"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:291",
+              "source_line": "\tvar restored: Dictionary = saves.commit_backup_action(prepared.value.token)"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1100",
+              "source_line": "\tvar restored: Dictionary = saves.commit_backup_action(prepared.value.token)"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "initialize",
+          "added": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:144",
+              "source_line": "\tvar installed: Dictionary = bridge.initialize(FIXTURE_CATALOG)"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:107",
+              "source_line": "\tvar installed: Dictionary = bridge.initialize(FIXTURE_CATALOG)"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "is_quick_condition_current",
+          "added": [
+            {
+              "site": "scripts/ui/pause/PauseQuickCommands.gd:173",
+              "source_line": "\tif not _base_admitted() or _source_snapshot() != _source or not _port.is_quick_condition_current(_condition):"
+            },
+            {
+              "site": "scripts/ui/pause/PauseQuickCommands.gd:241",
+              "source_line": "\t\t\tand (captured.is_empty() or _port.is_quick_condition_current(captured)))"
+            },
+            {
+              "site": "scripts/ui/pause/PauseQuickCommands.gd:260",
+              "source_line": "\t\t\tstale = stale or not _port.is_quick_condition_current(_condition)"
+            }
+          ],
+          "removed": [
+            {
+              "site": "scripts/ui/pause/PauseQuickCommands.gd:161",
+              "source_line": "\tif not _base_admitted() or _source_snapshot() != _source or not _port.is_quick_condition_current(_condition):"
+            },
+            {
+              "site": "scripts/ui/pause/PauseQuickCommands.gd:229",
+              "source_line": "\t\t\tand (captured.is_empty() or _port.is_quick_condition_current(captured)))"
+            },
+            {
+              "site": "scripts/ui/pause/PauseQuickCommands.gd:248",
+              "source_line": "\t\t\tstale = stale or not _port.is_quick_condition_current(_condition)"
+            }
+          ]
+        },
+        {
+          "kind": "call_sites",
+          "symbol": "prepare_backup_action",
+          "added": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:292",
+              "source_line": "\tvar manual: Dictionary = saves.prepare_backup_action(\"save\", \"slot:1\")"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:304",
+              "source_line": "\tvar stale: Dictionary = saves.prepare_backup_action(\"save\", \"slot:2\")"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:331",
+              "source_line": "\tvar prepared: Dictionary = saves.prepare_backup_action(\"load\", \"quick\")"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:541",
+              "source_line": "\tvar prepared: Dictionary = saves.prepare_backup_action(\"load\", \"quick\")"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1321",
+              "source_line": "\tvar prepared: Dictionary = saves.prepare_backup_action(\"load\", \"autosave\")"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:249",
+              "source_line": "\tvar manual: Dictionary = saves.prepare_backup_action(\"save\", \"slot:1\")"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:261",
+              "source_line": "\tvar stale: Dictionary = saves.prepare_backup_action(\"save\", \"slot:2\")"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:288",
+              "source_line": "\tvar prepared: Dictionary = saves.prepare_backup_action(\"load\", \"quick\")"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1098",
+              "source_line": "\tvar prepared: Dictionary = saves.prepare_backup_action(\"load\", \"autosave\")"
+            }
+          ]
+        },
+        {
+          "kind": "dynamic_references",
+          "symbol": "autosave",
+          "added": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:401",
+              "source_line": "\tfor key: String in [\"quick\", \"autosave\", \"profile\"]:"
+            },
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1321",
+              "source_line": "\tvar prepared: Dictionary = saves.prepare_backup_action(\"load\", \"autosave\")"
+            }
+          ],
+          "removed": [
+            {
+              "site": "tests/integration/verify_reading_rail_journey.gd:1098",
+              "source_line": "\tvar prepared: Dictionary = saves.prepare_backup_action(\"load\", \"autosave\")"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "adopted_paths": [
+    "evidence/phase_2r/runtime/game_state_surface.json",
+    "evidence/phase_2r/runtime/save_manager_surface.json"
+  ],
+  "owner_scanner_required_maps_unchanged": true
+}
