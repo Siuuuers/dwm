@@ -1,6 +1,8 @@
 extends RefCounted
-## Test-only passive observer. Start before Next/Load; never change layout or Focus.
+## Test-only passive geometry observer. Start before Next/Load; never change layout or Focus.
 ## Both streams retain mount transients and finish after 120 visible challenge samples.
+## Do not query engine minimum-size getters during observation: lazy shaping may
+## change the defect being measured. measure_minimums() is a separate stopped probe.
 const SAMPLE_COUNT := 120
 const EVENT_LIMIT := 1800
 const ROLES := ["ChallengeContent", "ChallengeTitle", "DatingWorksheet", "ContentWell",
@@ -50,10 +52,26 @@ func stop() -> void:
 
 
 func report() -> Dictionary:
-	return {"complete": is_complete(), "required_visible_samples": SAMPLE_COUNT,
+	return {"complete": is_complete(), "measurement_mode": "geometry_only",
+		"required_visible_samples": SAMPLE_COUNT,
 		"visible_samples": _visible_counts.duplicate(), "total_samples": _sample_counts.duplicate(),
 		"events_dropped": _dropped_events, "events": _events.duplicate(true),
 		"samples": _samples.duplicate(true)}
+
+
+func measure_minimums() -> Dictionary:
+	assert(not _running, "Minimum-size queries belong after the raw observation has stopped.")
+	var result := _stamp("explicit_minimum_query_after_stop")
+	var controls: Dictionary = {}
+	for role: String in _controls:
+		var control: Control = _get_control(_controls[role])
+		if control == null: continue
+		controls[role] = {"before": _control_state(control),
+			"minimum": _vector(control.get_minimum_size()),
+			"combined_minimum": _vector(control.get_combined_minimum_size()),
+			"after": _control_state(control)}
+	result["controls"] = controls
+	return result
 
 
 func _connect(object: Object, signal_name: StringName, callback: Callable) -> void:
@@ -181,7 +199,6 @@ func _control_state(control: Control) -> Dictionary:
 		if ancestor.clip_contents: clip = clip.intersection(ancestor.get_global_rect())
 		ancestor = ancestor.get_parent()
 	return {"path": str(control.get_path()), "rect": _rect(rect), "size": _vector(control.size),
-		"minimum": _vector(control.get_minimum_size()), "combined_minimum": _vector(control.get_combined_minimum_size()),
 		"custom_minimum": _vector(control.custom_minimum_size), "visible": control.visible,
 		"visible_in_tree": control.is_visible_in_tree(), "clip": _rect(clip),
 		"fully_inside_clip": clip.encloses(rect), "focus": control.has_focus(), "focus_mode": control.focus_mode}
