@@ -1085,3 +1085,63 @@ func test_witnessed_load_publishes_only_after_new_session_and_never_completes_ol
 	get_tree().current_scene = _pause_scene
 	if is_instance_valid(route.target): route.target.free()
 	route.free()
+
+
+func test_retiring_partial_native_text_releases_reveal_wait_without_completing_or_touching_fresh_caption() -> void:
+	# Retain the same owner on both sides: a stranded reveal await used to retain
+	# an extra AutoSkip evaluation reference even after its timeline was cleaned.
+	var skip: RefCounted = _runtime.Inputs.auto_skip
+	var references_before := skip.get_reference_count()
+	if not await _start("Synthetic partial caption retired without completing it. ".repeat(24)): return
+	_caption.caption_text.active_speed = 10.0
+	assert_true(_caption.caption_text.revealing)
+	var retired: DialogicTextEvent = _runtime.get_meta("previous_event")
+	var old_state: int = retired.state
+	var before := _reading_state()
+	var completions: Array = []
+	retired.event_finished.connect(func(_event: Resource): completions.append(true))
+	_adapter.halt_with_error({"ok": false, "code": &"fixture_partial_text_retired"})
+	await _settle()
+	assert_false(_adapter.has_active_playback())
+	assert_false(_runtime.Text.text_finished.is_connected(Callable(retired, "_on_text_reveal_finished")))
+	assert_eq(retired.get_signal_connection_list("_reveal_settled").size(), 0,
+		"retirement unwinds the event-owned waiter before timeline.clean disconnects it")
+	assert_eq(skip.get_reference_count(), references_before,
+		"retired partial text releases its retained AutoSkip evaluation reference")
+	assert_eq(_finished, before.finished, "retirement never emits global text completion")
+	assert_eq(completions, [], "retirement never completes its Dialogic event")
+	assert_eq(_receipts, before.receipts, "retirement never publishes a physical completion")
+	assert_eq(_runtime.History.simple_history_content, before.simple)
+	assert_eq(_runtime.History.visited_event_history_content, before.visited)
+	assert_eq(retired.state, old_state)
+	if not await _start("Synthetic independent destination caption. ".repeat(24)): return
+	_caption.caption_text.active_speed = 10.0
+	assert_true(_caption.caption_text.revealing)
+	var destination: DialogicTextEvent = _runtime.get_meta("previous_event")
+	assert_ne(destination, retired)
+	_caption.caption_text.finish_text()
+	await _settle()
+	assert_eq(_finished, before.finished + 1, "fresh destination still receives exactly its own native completion")
+	assert_eq(destination.state, DialogicTextEvent.States.DONE)
+	assert_eq(retired.state, old_state, "destination completion cannot resume the retired source coroutine")
+	assert_eq(_receipts, before.receipts)
+
+
+func test_synchronous_text_started_retirement_never_installs_a_late_reveal_wait() -> void:
+	var skip: RefCounted = _runtime.Inputs.auto_skip
+	var references_before := skip.get_reference_count()
+	var published: Array = []
+	_runtime.Text.text_started.connect(func(_info: Dictionary):
+		published.append(true)
+		_adapter.halt_with_error({"ok": false, "code": &"fixture_retired_during_publication"}), CONNECT_ONE_SHOT)
+	_fixture("Synthetic text retired synchronously as its publication begins. ".repeat(24))
+	var started: Dictionary = _bridge.start_timeline_id(TIMELINE_ID)
+	assert_true(started.ok, str(started))
+	await _settle()
+	assert_eq(published.size(), 1)
+	assert_false(_adapter.has_active_playback())
+	assert_eq(_finished, 0, "publication-time retirement cannot fabricate text completion")
+	assert_eq(_receipts, [])
+	assert_eq(skip.get_reference_count(), references_before,
+		"a synchronously retired publication never starts a late native reveal wait")
+	assert_eq(_runtime.History.simple_history_content, [], "retired publication cannot run subsequent native History credit")
