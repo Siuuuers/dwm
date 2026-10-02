@@ -694,7 +694,7 @@ func _settings_quick_load_process() -> void:
 	origin.grab_focus()
 	await _frames()
 	var before := {"reading": _reading_pause_observation(game), "host": _settings_load_host_observation(pause_owner, settings),
-		"disk": _settings_disk_state(), "scene_id": source_scene_id, "desktop_context": desktop.capture_persistent_state()}
+		"disk": _settings_disk_state(), "recovery": _settings_load_recovery_state("before"), "scene_id": source_scene_id, "desktop_context": desktop.capture_persistent_state()}
 	if not _settings_load_retain_baseline(): return
 	var mutations: Array[Dictionary] = []
 	var save_storage: RefCounted = saves.get("_storage")
@@ -752,7 +752,7 @@ func _settings_quick_load_process() -> void:
 	await _frames()
 	var after := {"checkpoint": bridge.capture_reading_checkpoint(false), "history": bridge.get_reading_history(),
 		"physical_record": game.capture_dating_challenge_state(), "live_session": game.capture_live_session(),
-		"desktop_context": desktop.capture_persistent_state(), "disk": _settings_disk_state(),
+		"desktop_context": desktop.capture_persistent_state(), "disk": _settings_disk_state(), "recovery": _settings_load_recovery_state("after"),
 		"profile": profile.get_profile_snapshot(), "speech_admissions": _speech_admissions,
 		"current_line_complete": bridge.get("_runtime_adapter").is_current_line_complete(),
 		"current_line_id": str(bridge.get("_runtime_adapter").current_line_id()), "tree_paused": paused,
@@ -771,12 +771,12 @@ func _settings_quick_load_process() -> void:
 		"restored_scene_mounted": current_scene.get("worksheet") != null and after.scene_id != source_scene_id,
 		"no_restored_speech": after.speech_admissions == before.reading.source.speech_admissions,
 		"profile_unchanged": after.profile == before.reading.source.profile,
-		"disk_unchanged": after.disk == before.disk, "zero_mutations": mutations.is_empty()}): return
+		"disk_unchanged": after.disk == before.disk, "recovery_bookkeeping_only": _settings_load_recovery_only(mutations)}): return
 	report["after"] = after
 	save_storage.set("_file_ops", save_ops)
 	profile_storage.set("_file_ops", profile_ops)
 	if not _check(_write_text("settings-load.json", JSON.stringify(report, "\t")), "retain independent Settings F9 report"): return
-	print("READING_RAIL_SETTINGS_LOAD_PASS: retained Quick -> physical advance -> partial Pause Settings -> physical F9 Cancel exact source -> fresh F9 Confirm saved earlier line -> no Load speech or disk mutation")
+	print("READING_RAIL_SETTINGS_LOAD_PASS: retained Quick -> physical advance -> partial Pause Settings -> physical F9 Cancel exact source -> fresh F9 Confirm saved earlier line -> no Load speech or primary-file mutation; durable restore bookkeeping retained")
 	await _finish_proof()
 
 
@@ -1678,3 +1678,50 @@ func _settings_load_advance_and_pause() -> Dictionary:
 	# Retain the protocol even if the following semantic observation cannot admit.
 	_check(_write_text("settings-load-input.json", JSON.stringify(observation, "\t")), "retain prompt physical Accept/Back observations")
 	return observation
+
+
+## These external records are deliberately outside Profile and selectable saves.
+## Retain their raw endpoints so the runner can bind the one completed restoration.
+func _settings_load_recovery_state(stage: String) -> Dictionary:
+	var state := {}
+	for key: String in ["issuer", "continuation"]:
+		var storage: RefCounted = root.get_node("ProfileManager" if key == "issuer" else "SaveManager").get("_storage")
+		var filename := "desktop-issuer-root.json" if key == "issuer" else "desktop-continuation-operations.json"
+		var inspected: Dictionary = storage.inspect_revision(filename)
+		if not _check(inspected.get("ok", false) and inspected.value.exists and inspected.value.text is String,
+			"Settings F9 recovery endpoint has no pending file transaction: " + key): return {}
+		var raw := FileAccess.get_file_as_bytes(ProjectSettings.globalize_path(storage.describe_root().path_join(filename)))
+		if not _check(not raw.is_empty() and raw.get_string_from_utf8() == inspected.value.text
+			and raw.get_string_from_utf8().sha256_text() == inspected.value.revision, "bind exact raw recovery endpoint: " + key): return {}
+		var file := FileAccess.open(_evidence_path("settings-load-recovery-" + stage + "-" + key + ".json"), FileAccess.WRITE)
+		if not _check(file != null, "open retained recovery endpoint: " + key): return {}
+		file.store_buffer(raw)
+		file.close()
+		state[key] = {"bytes": raw.size(), "sha256": inspected.value.revision}
+	return state
+
+
+## The seeded fixture performs one durable restore: transaction issue, intent,
+## allocation, then thirteen journal advances (allocated/applying, nine owners,
+## applied/completed). Each uses the unchanged fourteen-step atomic writer.
+func _settings_load_recovery_only(receipts: Array[Dictionary]) -> bool:
+	var steps := [["write", ".txn.json"], ["flush", ".txn.json"], ["write", ".next"], ["flush", ".next"],
+		["write", ".txn.json"], ["flush", ".txn.json"], ["remove", ".bak"], ["rename", "", ".bak"],
+		["write", ".txn.json"], ["flush", ".txn.json"], ["rename", ".next", ""],
+		["write", ".txn.json"], ["flush", ".txn.json"], ["remove", ".txn.json"]]
+	if receipts.size() != 16 * steps.size(): return false
+	var digest := RegEx.create_from_string("^[0-9a-f]{64}$")
+	for block: int in 16:
+		var issuer := block in [0, 2]
+		var owner := "profile" if issuer else "saves"
+		var base := "desktop-issuer-root.json" if issuer else "desktop-continuation-operations.json"
+		for step: int in steps.size():
+			var index := block * steps.size() + step
+			var receipt: Dictionary = receipts[index]
+			var expected: Array = steps[step]
+			if receipt.get("sequence") != index + 1 or receipt.get("owner") != owner or receipt.get("ok") != true \
+					or receipt.get("operation") != expected[0] or receipt.get("path") != base + expected[1]: return false
+			if expected[0] == "rename" and receipt.get("destination") != base + expected[2]: return false
+			if expected[0] == "write" and (typeof(receipt.get("bytes")) != TYPE_INT or receipt.bytes <= 0 \
+					or digest.search(str(receipt.get("sha256", ""))) == null): return false
+	return true
