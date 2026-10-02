@@ -38,6 +38,9 @@ PAUSE_STAGES = (
 MODES = ("write", "read", "repeat", "variant", "witness-read")
 NEXT_MODES = ("next-unseen", "next", "next-read")
 SETTINGS_MODES = ("settings-write", "settings-read")
+SETTINGS_LOAD_MODE = "settings-load"
+SETTINGS_LOAD_STAGES = ("initial", "advanced", "entered", "prepared", "cancelled", "reprepared", "confirmed")
+SETTINGS_DISK_PATHS = {"quick": "saves/quicksave.json", "autosave": "saves/autosave.json", "profile": "profile.json"}
 NEXT_CAPTURES = ("01-next-unseen.png", "02-next-board.png", "03-next-restored-board.png")
 TRACE_KINDS = {
     "write": (
@@ -509,6 +512,169 @@ def validate_settings_quick(reports: dict, evidence: Path, folder: Path) -> dict
             "profile_and_autosave_unchanged": True}
 
 
+
+def validate_settings_load(report: dict, prior: dict, evidence: Path, folder: Path, inputs: dict, final: dict) -> dict:
+    """Audit F9 independently against raw input/source/final files and observations."""
+    before, after = report["before"], report["after"]
+    stages = (report["initial"], report["advanced"], before, report["prepared"], report["cancelled"], report["reprepared"], after)
+    expected_checks = (
+        {"retained_f5_input", "saved_checkpoint_exact", "saved_history_exact", "saved_line_complete", "initial_load_silent", "initial_load_disk_neutral"},
+        {"ordinary_pause_open", "different_partial_line"},
+        {"partial_source_preserved", "different_saved_line", "two_history_occurrences", "settings_interactive", "reading_category", "exact_enabled_origin", "suspension_present", "new_line_speech_control"},
+        {"cancel_first_confirmation", "bound_quick_candidate", "no_early_restore", "source_scene_retained", "suspension_retained", "exclusive_modal", "disk_unchanged", "zero_mutations"},
+        {"exact_partial_source", "exact_host_focus_scroll_suspension", "source_scene_retained", "consent_retired", "disk_unchanged", "zero_mutations"},
+        {"cancel_first_confirmation", "bound_quick_candidate", "no_early_restore", "source_scene_retained", "suspension_retained", "exclusive_modal", "disk_unchanged", "zero_mutations"},
+        {"load_committed", "saved_checkpoint_exact", "saved_history_exact", "saved_physical_exact", "saved_app_exact", "saved_earlier_line_complete", "restored_live_session", "old_pause_settings_closed", "restored_scene_mounted", "no_restored_speech", "profile_unchanged", "disk_unchanged", "zero_mutations"},
+    )
+    trace_path = cloud.contained_path(evidence, evidence / "settings-load-transactions.jsonl")
+    entries = [strict_json(line) for line in trace_path.read_text(encoding="utf-8").splitlines()]
+    if len(entries) != len(SETTINGS_LOAD_STAGES):
+        raise RuntimeError("SETTINGS_LOAD_EXACT_STAGE_TRACE_REQUIRED")
+    for index, (name, observation, checks, entry) in enumerate(zip(SETTINGS_LOAD_STAGES, stages, expected_checks, entries), 1):
+        if set(observation["checks"]) != checks or observation["failed_checks"] != [] or any(
+            value is not True for value in observation["checks"].values()
+        ):
+            raise RuntimeError(f"SETTINGS_LOAD_COMPONENT_CHECK_FAILED: {name}")
+        source = cloud.contained_path(evidence, evidence / f"settings-load-{name}.json")
+        if strict_json(source.read_text(encoding="utf-8")) != observation or entry != {
+            "mode": SETTINGS_LOAD_MODE, "process_id": report["process_id"], "sequence": index,
+            "kind": "settings_load_" + name, "value": observation,
+        }:
+            raise RuntimeError(f"SETTINGS_LOAD_OBSERVATION_TRACE_BINDING_MISMATCH: {name}")
+    identities = {key: {"exists": True, **identity} for key, identity in inputs.items()}
+    if report["input_disk"] != identities or identities != prior["disk_after"] or (
+        report["initial"]["disk"] != identities or report["initial"]["speech_admissions"] != 0
+        or report["initial"]["current_line_complete"] is not True
+        or report["initial"]["reading"]["source"]["checkpoint"] != prior["saved_checkpoint"]
+        or report["initial"]["reading"]["source"]["history"] != prior["entered"]["source"]["history"]
+    ):
+        raise RuntimeError("SETTINGS_LOAD_REQUIRES_EXACT_RETAINED_F5_INPUT")
+    advanced = report["advanced"]
+    if advanced["reading"] != before["reading"] or advanced["scene_id"] != before["scene_id"] or (
+        advanced["tree_paused"] is not True or advanced["pause_visible"] is not True
+    ):
+        raise RuntimeError("SETTINGS_LOAD_SETTINGS_ENTRY_MUST_RETAIN_ADVANCED_PARTIAL_SOURCE")
+    native = before["reading"]["native"]
+    host = before["host"]
+    history = before["reading"]["source"]["history"]
+    if not (native["line_id"] == "fixture.solo.pre.b" and native["revealing"] is True
+            and 0 <= native["visible_characters"] < native["total_characters"] and 0 <= native["visible_ratio"] < 1
+            and [row["line_id"] for row in history["captions"]] == ["fixture.solo.pre.a", "fixture.solo.pre.b"]
+            and before["reading"]["source"]["speech_admissions"] > 0
+            and host["visible"] is True and host["tree_paused"] is True and host["entered_action"] == "settings"
+            and host["selected_category"] == "reading" and host["focus_id"] > 0 and host["focus_path"]
+            and not host["focus_path"].startswith("..") and host["suspension"]
+            and all(len(host[key]) == 2 and all(type(value) is int and value >= 0 for value in host[key])
+                    for key in ("rail_scroll", "sheet_scroll"))):
+        raise RuntimeError("SETTINGS_LOAD_REQUIRES_DIFFERENT_PARTIAL_SOURCE_AND_REAL_SETTINGS_ORIGIN")
+    for name in ("prepared", "reprepared"):
+        stage = report[name]
+        if stage["reading"] != before["reading"] or stage["disk"] != before["disk"] or (
+            stage["scene_id"] != before["scene_id"] or stage["suspension"] != host["suspension"]
+            or stage["confirmation_open"] is not True or stage["cancel_focused"] is not True
+            or stage["settings_covered"] is not True or stage["tree_paused"] is not True
+            or not stage["pending_token"] or stage["mutations"] != []
+        ):
+            raise RuntimeError(f"SETTINGS_LOAD_PREPARATION_CHANGED_SOURCE: {name}")
+    cancelled = report["cancelled"]
+    if cancelled["reading"] != before["reading"] or cancelled["host"] != host or (
+        cancelled["disk"] != before["disk"] or cancelled["scene_id"] != before["scene_id"]
+        or cancelled["pending_token"] != "" or cancelled["confirmation_open"] is not False or cancelled["mutations"] != []
+        or report["prepared"]["pending_token"] == report["reprepared"]["pending_token"]
+    ):
+        raise RuntimeError("SETTINGS_LOAD_CANCEL_MUST_RETAIN_EXACT_REVEAL_HOST_FOCUS_SCROLL_SOURCE")
+    if after["checkpoint"].get("ok") is not True or after["checkpoint"].get("value") != prior["saved_checkpoint"] or (
+        after["history"].get("ok") is not True or after["history"].get("value") != prior["entered"]["source"]["history"]
+        or after["physical_record"].get("ok") is not True or after["physical_record"].get("value") != prior["physical_record"]
+        or after["desktop_context"] != prior["desktop_context"] or after["current_line_id"] != "fixture.solo.pre.a"
+        or after["current_line_complete"] is not True or after["load_result"].get("ok") is not True
+        or after["live_session"].get("ok") is not True or after["live_session"].get("value", {}).get("active") is not True
+        or after["scene_id"] == before["scene_id"] or after["tree_paused"] is not False
+        or after["pause_visible"] is not False or after["settings_visible"] is not False or after["suspension"] != {}
+        or after["speech_admissions"] != before["reading"]["source"]["speech_admissions"]
+        or after["profile"] != before["reading"]["source"]["profile"]
+        or after["disk"] != before["disk"] or after["mutations"] != []
+    ):
+        raise RuntimeError("SETTINGS_LOAD_CONFIRM_MUST_RESTORE_SAVED_EARLIER_SOURCE_WITHOUT_SPEECH_OR_WRITES")
+    baselines = {}
+    for key in SETTINGS_DISK_PATHS:
+        source = cloud.contained_path(evidence, evidence / f"settings-load-baseline-{key}.json")
+        raw = source.read_bytes()
+        identity = file_identity(source)
+        if {"exists": True, **identity} != before["disk"][key] or identity != final[key] or (
+            raw != (folder / f"final-{key}.json").read_bytes()
+        ):
+            raise RuntimeError(f"SETTINGS_LOAD_RAW_SOURCE_FINAL_MISMATCH: {key}")
+        baselines[key] = identity
+    if (evidence / "settings-load-baseline-quick.json").read_bytes() != (folder / "input-quick.json").read_bytes():
+        raise RuntimeError("SETTINGS_LOAD_MUST_CONFIRM_THE_RETAINED_F5_QUICK")
+    return {"raw_input": inputs, "raw_paused_source": baselines, "raw_final": final,
+            "cancel_exact_partial_source_focus_scroll": True, "fresh_confirm_saved_earlier_line": True,
+            "saved_history_physical_app_restored": True, "old_pause_settings_closed": True,
+            "load_mutations": 0, "restored_speech_admissions": 0, "stage_observations": len(stages)}
+
+
+def run_settings_load(repository: Path, parent_folder: Path, godot: str, xvfb: str, env: dict,
+                      user_dir: Path, evidence: Path, original: dict) -> dict:
+    folder = cloud.make_directory(repository, parent_folder / "settings-load")
+    result = {"schema_version": 1, "ok": False, "failures": [], "processes": {}, "reports": {},
+              "checkout_sha": original["checkout_sha"], "workflow": original["workflow"],
+              "isolation_root": original["isolation_root"], "user_dir": str(user_dir),
+              "artifact_root": str(folder), "started_at_utc": cloud.utc_now()}
+    try:
+        inputs = {}
+        for key, relative in SETTINGS_DISK_PATHS.items():
+            source = cloud.contained_path(user_dir, user_dir / relative)
+            retained = cloud.contained_path(folder, folder / f"input-{key}.json")
+            inputs[key] = file_identity(source)
+            shutil.copyfile(source, retained)
+            if file_identity(retained) != inputs[key]:
+                raise RuntimeError(f"SETTINGS_LOAD_RAW_INPUT_COPY_MISMATCH: {key}")
+        result["input_files"] = inputs
+        result["raw_files"] = {
+            key: {"source": str(cloud.contained_path(user_dir, user_dir / relative)),
+                  "input": str(folder / f"input-{key}.json"),
+                  "paused_baseline": str(folder / f"settings-load-baseline-{key}.json"),
+                  "final": str(folder / f"final-{key}.json")}
+            for key, relative in SETTINGS_DISK_PATHS.items()
+        }
+        result["follows_process"] = {"mode": "settings-read", "process_id": original["reports"]["settings-read"]["process_id"],
+                                     "receipt": original["processes"]["settings-read"]}
+        # This independent disk baseline is sealed before the F9 process starts.
+        cloud.write_json(folder / "input-files.json", inputs)
+        execute_mode(SETTINGS_LOAD_MODE, godot, xvfb, repository, folder, env, result)
+        report = read_report(SETTINGS_LOAD_MODE, evidence, folder, result["reports"], user_dir)
+        if report["process_id"] in {old["process_id"] for old in original["reports"].values()}:
+            raise RuntimeError("SETTINGS_LOAD_REQUIRES_INDEPENDENT_PROCESS")
+        final = {}
+        for key, relative in SETTINGS_DISK_PATHS.items():
+            source = cloud.contained_path(user_dir, user_dir / relative)
+            retained = cloud.contained_path(folder, folder / f"final-{key}.json")
+            final[key] = file_identity(source)
+            shutil.copyfile(source, retained)
+            if file_identity(retained) != final[key]:
+                raise RuntimeError(f"SETTINGS_LOAD_RAW_FINAL_COPY_MISMATCH: {key}")
+        result["validation"] = validate_settings_load(report, original["reports"]["settings-write"], evidence, folder, inputs, final)
+    except Exception as error:
+        result["failures"].append(f"{type(error).__name__}: {error}")
+    finally:
+        try:
+            names = ("settings-load.json", "settings-load-transactions.jsonl",
+                     *(f"settings-load-{stage}.json" for stage in SETTINGS_LOAD_STAGES),
+                     *(f"settings-load-baseline-{key}.json" for key in SETTINGS_DISK_PATHS))
+            for name in names:
+                source = cloud.contained_path(evidence, evidence / name)
+                destination = cloud.contained_path(folder, folder / name)
+                if source.is_file() and not destination.exists():
+                    shutil.copyfile(source, destination)
+        except Exception as error:
+            result["failures"].append(f"SETTINGS_LOAD_EVIDENCE_COLLECTION_FAILED: {error}")
+        result["ended_at_utc"] = cloud.utc_now()
+        result["ok"] = not result["failures"] and "validation" in result
+        cloud.write_json(folder / "result.json", result)
+    return result
+
+
 def run_settings_quick(repository: Path, parent_folder: Path, godot: str, xvfb: str, original: dict) -> dict:
     folder = cloud.make_directory(repository, parent_folder / "settings-quick")
     isolation = cloud.make_directory(repository, repository / ".godot/phase2r_tests" / str(uuid4()))
@@ -560,6 +726,9 @@ def run_settings_quick(repository: Path, parent_folder: Path, godot: str, xvfb: 
         execute_mode("settings-read", godot, xvfb, repository, folder, env, result)
         read_report("settings-read", evidence, folder, result["reports"], user_dir)
         result["validation"] = validate_settings_quick(result["reports"], evidence, folder)
+        result["settings_load"] = run_settings_load(repository, parent_folder, godot, xvfb, env, user_dir, evidence, result)
+        if not result["settings_load"]["ok"]:
+            result["failures"].append("PAUSED_SETTINGS_LOAD_PROOF_FAILED: " + "; ".join(result["settings_load"]["failures"]))
     except Exception as error:
         result["failures"].append(f"{type(error).__name__}: {error}")
     finally:

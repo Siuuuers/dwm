@@ -438,6 +438,7 @@ func _detach_test() -> Dictionary:
 func _stop_detached_test(test: Dictionary) -> Dictionary:
 	var stopped := {"ok": true, "value": {"stopped": false}}
 	if test["kind"] == "TTS" and _tts != null:
+		var operation := _begin_preview_operation()
 		var source := String(test.get("tts_source", ""))
 		var stop_result: Variant
 		if not source.is_empty() and _tts.has_method("stop_source"):
@@ -450,6 +451,7 @@ func _stop_detached_test(test: Dictionary) -> Dictionary:
 			if recovery is Dictionary and not recovery.get("ok", false):
 				stopped["ok"] = false
 				stopped["code"] = recovery.get("code", &"speech_recovery_failed")
+		_finish_preview_operation(operation)
 	elif test["handle"] != null and _audio != null:
 		var operation := _begin_preview_operation()
 		await _audio.stop_settings_preview(test["handle"])

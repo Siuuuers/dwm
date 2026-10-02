@@ -123,6 +123,23 @@ class IdleBridge extends RefCounted:
 	func has_active_playback() -> bool: return foreign_live
 	func capture_pause_frontier(_timeline_id: String = "") -> Dictionary: return {"ok": false, "code": &"pause_frontier_unavailable"}
 
+class DeferredSettingsPreview extends RefCounted:
+	signal completed()
+	func start_settings_preview(_holder: StringName, _kind: StringName) -> Dictionary:
+		return {"ok": true, "value": {"handle": {"preview": 1}}}
+	func stop_settings_preview(_handle: Variant) -> Dictionary:
+		await completed
+		return {"ok": true}
+	func refresh_capability(_locale: String) -> Dictionary:
+		return {"ok": true, "value": {"available": true}}
+	func request_speech(_text: String, _locale: String, _rate: StringName, _source: String) -> Dictionary:
+		return {"ok": true, "value": {"token": 1}}
+	func stop_source(_source: String, _reason: StringName) -> Dictionary:
+		return {"ok": true, "value": {"stopped": true}}
+	func wait_until_recovered() -> Dictionary:
+		await completed
+		return {"ok": true}
+
 class DeferredWindowBoundary extends RefCounted:
 	signal completed(frame: int)
 	func complete(frame: int) -> void:
@@ -1008,28 +1025,72 @@ func test_paused_settings_quick_save_keeps_host_focus_and_exact_canonical_source
 	assert_true(controller._quick_commands.edge.visible)
 	assert_true(controller._backup_port._pending.is_empty())
 
-func test_paused_settings_quick_load_remains_unavailable_and_cannot_wake_on_exit() -> void:
+func test_paused_settings_quick_load_cancel_retains_exact_focus_after_deferred_visibility() -> void:
+	saves.populated = true
+	run_owner.dark_mode = true
+	if not await _open_pause(): return
+	controller.surface._activate(&"settings")
+	var settings: Control = controller.surface._hosts[&"settings"]
+	var content: Control = settings.get_content_host()
+	content.select_category("reading")
+	for frame in 4: await get_tree().process_frame
+	var origin: Control = content.control_for(&"preferences.reading.reveal_speed")
+	origin.grab_focus()
+	var scroll_before := Vector2i(content.rail_scroll.scroll_vertical, content.sheet_scroll.scroll_vertical)
+	var source_before: Dictionary = controller._quick_source_snapshot()
+	var profile_before: Dictionary = profile.get_profile_snapshot()
+	_quick_native_tap(KEY_F9)
+	var sheet: Control = controller.surface._host_confirmation
+	assert_not_null(sheet)
+	if sheet == null: return
+	assert_true(sheet.cancel_button.has_focus(), "Replacement consent starts at Cancel")
+	assert_false(settings.visible)
+	assert_eq(controller.surface.entered_action, &"settings")
+	assert_eq(controller.surface.selected_action, &"settings")
+	assert_eq(controller.surface.get("_palette"), "Midnight", "Consent retains the current run palette")
+	assert_eq(saves.loaded, 0)
+	assert_eq(saves.pending.size(), 1)
+	_quick_native_tap(KEY_ESCAPE)
+	for frame in 4: await get_tree().process_frame
+	assert_null(controller.surface._host_confirmation)
+	assert_true(saves.pending.is_empty())
+	assert_same(get_viewport().gui_get_focus_owner(), origin, "Settings deferred visibility must not steal restored focus")
+	assert_eq(content.get("_selected"), "reading")
+	assert_eq(Vector2i(content.rail_scroll.scroll_vertical, content.sheet_scroll.scroll_vertical), scroll_before)
+	assert_eq(controller._quick_source_snapshot(), source_before)
+	assert_eq(profile.get_profile_snapshot(), profile_before)
+	assert_eq(saves.loaded, 0)
+	assert_eq(saves.writes, 0)
+	assert_true(get_tree().paused)
+	assert_true(settings.visible)
+	assert_eq(input_owner.get_state().value.state, &"Suspended")
+
+func test_paused_settings_quick_load_modal_contacts_do_not_wake_after_cancel() -> void:
 	saves.populated = true
 	if not await _open_pause(): return
 	controller.surface._activate(&"settings")
-	assert_eq(controller.surface.entered_action, &"settings")
-	assert_eq(controller._quick_commands.request_load().get("code"), &"pause_load_unavailable")
+	_quick_native_tap(KEY_F9)
+	assert_not_null(controller.surface._host_confirmation)
 	var inspections := saves.inspections
+	_quick_native_key(KEY_F5, true)
 	_quick_native_key(KEY_F9, true)
-	assert_true(controller._quick_commands.last_result.is_empty())
+	_quick_native_tap(KEY_ESCAPE)
+	for frame in 4: await get_tree().process_frame
+	assert_null(controller.surface._host_confirmation)
 	assert_true(saves.pending.is_empty())
 	assert_eq(saves.inspections, inspections)
-	assert_null(controller.surface._host_confirmation)
-	controller.surface.leave_host()
+	controller._quick_commands.last_result = {}
 	_quick_native_key(KEY_F9, true)
-	assert_true(controller._quick_commands.last_result.is_empty(), "Held Settings F9 cannot become a root Load")
+	assert_true(controller._quick_commands.last_result.is_empty())
+	assert_null(controller.surface._host_confirmation)
+	_quick_native_key(KEY_F5, false)
 	_quick_native_key(KEY_F9, false)
 	_quick_native_tap(KEY_F9)
 	assert_not_null(controller.surface._host_confirmation)
 	assert_eq(saves.loaded, 0)
-	assert_eq(saves.pending.size(), 1)
-	controller.surface._host_confirmation._finish(false)
-	assert_true(saves.pending.is_empty())
+	assert_eq(saves.writes, 0)
+	_quick_native_tap(KEY_ESCAPE)
+
 
 func test_paused_quick_refusal_is_visible_and_settings_custody_blocks_shortcuts() -> void:
 	if not await _open_pause(): return
@@ -1310,3 +1371,272 @@ func test_failed_quick_load_while_backgrounded_restores_origin_on_focus_return()
 	assert_same(get_viewport().gui_get_focus_owner(), origin)
 	assert_eq(controller._quick_commands.edge.key, &"unavailable")
 	assert_eq(input_owner.get_state().value.state, &"Suspended")
+
+
+func test_paused_settings_load_failure_retains_source_palette_profile_and_focus() -> void:
+	saves.populated = true
+	saves.fail_load = true
+	run_owner.dark_mode = true
+	if not await _open_pause(): return
+	controller.surface._activate(&"settings")
+	var settings: Control = controller.surface._hosts[&"settings"]
+	var content: Control = settings.get_content_host()
+	content.select_category("reading")
+	for frame in 4: await get_tree().process_frame
+	var origin: Control = content.control_for(&"preferences.reading.reveal_speed")
+	origin.grab_focus()
+	var old_handle: Dictionary = controller._handle.duplicate(true)
+	var old_source: Dictionary = controller._captured_source.duplicate(true)
+	var profile_before: Dictionary = profile.get_profile_snapshot()
+	_quick_native_tap(KEY_F9)
+	var sheet: Control = controller.surface._host_confirmation
+	assert_not_null(sheet)
+	if sheet == null: return
+	sheet._finish(true)
+	for frame in 4: await get_tree().process_frame
+	assert_eq(saves.loaded, 1)
+	assert_eq(saves.writes, 0)
+	assert_true(saves.pending.is_empty())
+	assert_ne(controller._handle, old_handle, "Compensation reacquires the suspension through its owner")
+	assert_eq(controller._captured_source, old_source)
+	assert_same(get_tree().current_scene, source)
+	assert_true(get_tree().paused)
+	assert_eq(input_owner.get_state().value.state, &"Suspended")
+	assert_eq(controller.surface.entered_action, &"settings")
+	assert_eq(content.get("_selected"), "reading")
+	assert_same(get_viewport().gui_get_focus_owner(), origin)
+	assert_eq(content.get_palette_id(), &"midnight")
+	assert_eq(profile.get_profile_snapshot(), profile_before)
+	assert_eq(controller._quick_commands.edge.key, &"unavailable")
+
+func test_paused_settings_load_success_uses_destination_palette_without_changing_pending_choice() -> void:
+	saves.populated = true
+	run_owner.dark_mode = true
+	assert_false(profile.get_preference(&"preferences.dark_mode.next_run_enabled", true))
+	var profile_before: Dictionary = profile.get_profile_snapshot()
+	saves.on_load = func() -> void:
+		run_owner.handle.generation += 1
+		run_owner.dark_mode = false
+		router.title = Control.new()
+		router.title.scene_file_path = "res://scenes/main/MainGameScene.tscn"
+		get_tree().root.add_child(router.title)
+		get_tree().current_scene = router.title
+		source.hide()
+	if not await _open_pause(): return
+	controller.surface._activate(&"settings")
+	var settings: Control = controller.surface._hosts[&"settings"]
+	assert_eq(settings.get_content_host().get_palette_id(), &"midnight")
+	_quick_native_tap(KEY_F9)
+	var sheet: Control = controller.surface._host_confirmation
+	assert_not_null(sheet)
+	if sheet == null: return
+	assert_eq(controller.surface.get("_palette"), "Midnight")
+	assert_eq(saves.loaded, 0)
+	sheet._finish(true)
+	for frame in 4: await get_tree().process_frame
+	assert_eq(saves.loaded, 1)
+	assert_eq(saves.writes, 0)
+	assert_true(saves.pending.is_empty())
+	assert_false(get_tree().paused)
+	assert_false(controller.surface.visible)
+	assert_false(settings.visible)
+	assert_true(controller._handle.is_empty())
+	assert_same(get_tree().current_scene, router.title)
+	assert_false(run_owner.dark_mode)
+	assert_eq(input_owner.get_state().value.state, &"Active")
+	assert_eq(profile.get_profile_snapshot(), profile_before)
+	# Reopen at the new canonical session to prove projection reads its Dark fact,
+	# while the pending menu choice and persistent Profile remain unchanged.
+	router.source = router.title
+	if not await _open_pause(): return
+	controller.surface._activate(&"settings")
+	assert_eq(settings.get_content_host().get_palette_id(), &"after_hours")
+	assert_eq(profile.get_profile_snapshot(), profile_before)
+
+func test_paused_settings_load_stale_record_or_source_never_reaches_restore() -> void:
+	saves.populated = true
+	if not await _open_pause(): return
+	controller.surface._activate(&"settings")
+	_quick_native_tap(KEY_F9)
+	var sheet: Control = controller.surface._host_confirmation
+	assert_not_null(sheet)
+	if sheet == null: return
+	saves.populated = false
+	sheet._finish(true)
+	for frame in 4: await get_tree().process_frame
+	assert_eq(saves.loaded, 0)
+	assert_true(saves.pending.is_empty())
+	assert_true(get_tree().paused)
+	saves.populated = true
+	_quick_native_tap(KEY_F9)
+	sheet = controller.surface._host_confirmation
+	assert_not_null(sheet)
+	if sheet == null: return
+	run_owner.handle.generation += 1
+	sheet._finish(true)
+	for frame in 4: await get_tree().process_frame
+	assert_eq(saves.loaded, 0, "A changed canonical source cannot release the retained suspension")
+	assert_eq(saves.writes, 0)
+	assert_true(saves.pending.is_empty())
+	assert_true(get_tree().paused)
+
+func test_paused_settings_load_focus_loss_cancels_and_restores_exact_origin_after_frames() -> void:
+	saves.populated = true
+	if not await _open_pause(): return
+	controller.surface._activate(&"settings")
+	var content: Control = controller.surface._hosts[&"settings"].get_content_host()
+	content.select_category("reading")
+	for frame in 4: await get_tree().process_frame
+	var origin: Control = content.control_for(&"preferences.reading.reveal_speed")
+	origin.grab_focus()
+	_quick_native_tap(KEY_F9)
+	assert_not_null(controller.surface._host_confirmation)
+	controller._quick_commands._notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
+	assert_null(controller.surface._host_confirmation)
+	assert_true(saves.pending.is_empty())
+	controller._quick_commands._notification(NOTIFICATION_APPLICATION_FOCUS_IN)
+	for frame in 4: await get_tree().process_frame
+	assert_same(get_viewport().gui_get_focus_owner(), origin)
+	assert_eq(saves.loaded, 0)
+	assert_true(get_tree().paused)
+
+func test_paused_settings_cancel_uses_category_rail_when_origin_is_no_longer_actionable() -> void:
+	saves.populated = true
+	if not await _open_pause(): return
+	controller.surface._activate(&"settings")
+	var content: Control = controller.surface._hosts[&"settings"].get_content_host()
+	content.select_category("reading")
+	for frame in 4: await get_tree().process_frame
+	for mode: String in ["disabled", "noneditable", "freed"]:
+		var origin: Control = HSlider.new() if mode == "noneditable" else Button.new()
+		content._sheets["reading"].add_child(origin)
+		origin.grab_focus()
+		_quick_native_tap(KEY_F9)
+		assert_not_null(controller.surface._host_confirmation)
+		if controller.surface._host_confirmation == null: return
+		if mode == "disabled": (origin as BaseButton).disabled = true
+		elif mode == "noneditable": (origin as Slider).editable = false
+		else: origin.free()
+		_quick_native_tap(KEY_ESCAPE)
+		for frame in 4: await get_tree().process_frame
+		assert_same(get_viewport().gui_get_focus_owner(), content._rails["reading"], mode)
+		if is_instance_valid(origin): origin.free()
+	assert_eq(saves.loaded, 0)
+	assert_true(saves.pending.is_empty())
+
+func test_paused_settings_load_option_popup_retains_same_frame_contact_until_release() -> void:
+	get_viewport().gui_embed_subwindows = true
+	saves.populated = true
+	if not await _open_pause(): return
+	controller.surface._activate(&"settings")
+	var content: Control = controller.surface._hosts[&"settings"].get_content_host()
+	var option: OptionButton = content.control_for(&"preferences.language.primary_locale_id")
+	var popup: PopupMenu = option.get_popup()
+	option.show_popup()
+	assert_true(popup.visible and popup.is_embedded())
+	var inspections := saves.inspections
+	_quick_native_key(KEY_F9, true)
+	assert_false(input_owner.get_physical_contacts().is_empty())
+	assert_null(controller.surface._host_confirmation)
+	popup.hide()
+	_quick_native_key(KEY_F9, true)
+	assert_null(controller.surface._host_confirmation)
+	assert_eq(saves.inspections, inspections)
+	assert_true(saves.pending.is_empty())
+	_quick_native_key(KEY_F9, false)
+	_quick_native_tap(KEY_F9)
+	assert_not_null(controller.surface._host_confirmation)
+	assert_eq(saves.loaded, 0)
+	_quick_native_tap(KEY_ESCAPE)
+
+func test_paused_settings_binding_capture_never_loads_or_replays_the_captured_contact() -> void:
+	saves.populated = true
+	if not await _open_pause(): return
+	controller.surface._activate(&"settings")
+	var content: Control = controller.surface._hosts[&"settings"].get_content_host()
+	content.select_category("controls")
+	var sheet: Control = content._controls_sheet
+	await sheet.begin_capture("game_quick_load", "keyboard")
+	assert_true(sheet.capture_dialog.visible)
+	var event := InputEventKey.new()
+	event.keycode = KEY_F9
+	event.physical_keycode = KEY_F9
+	event.pressed = true
+	sheet.capture_dialog.push_input(event, true)
+	for frame in 4: await get_tree().process_frame
+	assert_null(controller.surface._host_confirmation)
+	assert_true(saves.pending.is_empty())
+	sheet.capture_dialog.canceled.emit()
+	for frame in 4: await get_tree().process_frame
+	_quick_native_key(KEY_F9, true)
+	assert_null(controller.surface._host_confirmation)
+	assert_eq(saves.loaded, 0)
+	_quick_native_key(KEY_F9, false)
+	_quick_native_tap(KEY_F9)
+	assert_not_null(controller.surface._host_confirmation)
+	_quick_native_tap(KEY_ESCAPE)
+
+func test_paused_settings_rebound_controller_load_requires_neutrality_and_survives_disconnect() -> void:
+	saves.populated = true
+	if not await _open_pause(): return
+	controller.surface._activate(&"settings")
+	_quick_native_pad(JOY_BUTTON_PADDLE1, true)
+	var replacement := InputEventJoypadButton.new()
+	replacement.button_index = JOY_BUTTON_PADDLE1
+	assert_true(input_owner.rebind_action("game_quick_load", replacement).ok)
+	_quick_native_pad(JOY_BUTTON_PADDLE1, true)
+	assert_null(controller.surface._host_confirmation)
+	_quick_native_pad(JOY_BUTTON_PADDLE1, false)
+	_quick_native_pad(JOY_BUTTON_RIGHT_STICK, true)
+	_quick_native_pad(JOY_BUTTON_RIGHT_STICK, false)
+	assert_null(controller.surface._host_confirmation)
+	_quick_native_pad(JOY_BUTTON_PADDLE1, true)
+	assert_not_null(controller.surface._host_confirmation)
+	input_owner._on_joy_connection_changed(42, false)
+	assert_true(input_owner.get_physical_contacts().is_empty())
+	_quick_native_tap(KEY_ESCAPE)
+	for frame in 4: await get_tree().process_frame
+	assert_null(controller.surface._host_confirmation)
+	input_owner._on_joy_connection_changed(42, true)
+	_quick_native_pad(JOY_BUTTON_PADDLE1, true)
+	_quick_native_pad(JOY_BUTTON_PADDLE1, false)
+	assert_not_null(controller.surface._host_confirmation)
+	assert_eq(saves.loaded, 0)
+	_quick_native_tap(KEY_ESCAPE)
+
+func test_paused_settings_load_waits_for_detached_audio_and_tts_cleanup_then_fresh_input() -> void:
+	saves.populated = true
+	if not await _open_pause(): return
+	controller.surface._activate(&"settings")
+	var content: Control = controller.surface._hosts[&"settings"].get_content_host()
+	var panel: RefCounted = content.get_controller()
+	var deferred := DeferredSettingsPreview.new()
+	var original_audio: Object = panel.get("_audio")
+	panel.set("_audio", deferred)
+	panel.set("_tts", deferred)
+	panel.set("_tts_available", true)
+	for kind: String in ["Music", "TTS"]:
+		await panel.toggle_test(kind)
+		assert_eq(panel.get("_test_kind"), kind)
+		panel.stop_test()
+		assert_eq(panel.get("_test_kind"), "", "Visible test ownership is already detached")
+		assert_false(panel.get("_preview_operations").is_empty(), "Actual asynchronous cleanup still owns the source")
+		var inspections := saves.inspections
+		_quick_native_key(KEY_F9, true)
+		assert_null(controller.surface._host_confirmation)
+		assert_true(saves.pending.is_empty())
+		assert_eq(saves.inspections, inspections)
+		deferred.completed.emit()
+		for frame in 4: await get_tree().process_frame
+		assert_true(panel.get("_preview_operations").is_empty())
+		_quick_native_key(KEY_F9, true)
+		assert_null(controller.surface._host_confirmation)
+		_quick_native_key(KEY_F9, false)
+		_quick_native_tap(KEY_F9)
+		assert_not_null(controller.surface._host_confirmation)
+		_quick_native_tap(KEY_ESCAPE)
+		for frame in 4: await get_tree().process_frame
+	panel.set("_audio", original_audio)
+	panel.set("_tts", null)
+	assert_eq(saves.loaded, 0)
+	assert_eq(saves.writes, 0)

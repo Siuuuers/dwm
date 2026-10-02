@@ -105,7 +105,8 @@ func is_interaction_enabled() -> bool:
 
 func is_departure_blocked() -> bool:
 	if _reset_busy or (_controller != null and (_controller.is_commit_pending() \
-		or not _controller.get("_drag").is_empty() or not String(_controller.get("_test_kind")).is_empty())):
+		or not _controller.get("_drag").is_empty() or not String(_controller.get("_test_kind")).is_empty() \
+		or not _controller.get("_preview_operations").is_empty())):
 		return true
 	if _controls_sheet != null and (_controls_sheet.get("_opening_capture") \
 		or _controls_sheet._modal_visible() or _controls_sheet.is_reviewing_import()): return true

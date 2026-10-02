@@ -25,12 +25,14 @@ class FakePort extends RefCounted:
 	var commits := 0
 	var cancellations := 0
 	var token := ""
+	var quick_record: Dictionary = {}
 	func get_projection() -> Dictionary:
 		projections += 1
 		var records := []
 		for locator: String in LOCATORS:
 			records.append({"locator": locator, "state": "occupied", "day": 1,
 				"saved_time": "09:00", "actions": {"save": true, "load": true, "delete": true}})
+		records[1].merge(quick_record,true)
 		return {"ok": true, "value": {"records": records}}
 	func prepare_action(_action: String, _locator: String) -> Dictionary:
 		preparations += 1
@@ -64,6 +66,33 @@ class FakeConfirmationHost extends Control:
 		sheet.cancelled = cancelled
 		add_child(sheet)
 		return {"ok": true, "value": {"confirmation": sheet}}
+
+func test_unavailable_inspector_never_offers_a_nonexistent_compatible_fallback() -> void:
+	var app: BackupApp = load("res://scenes/apps/BackupApp.tscn").instantiate()
+	add_child_autofree(app)
+	var port := FakePort.new()
+	assert_true(app.configure_backup(port).get("ok", false))
+	app._set_mode("load")
+	app._select_drawer("quick")
+	for locale: String in ["en", "zh-CN", "zh-HK", "ja", "ko"]:
+		app._locale = locale
+		for reason: String in ["no_compatible_checkpoint", "restore_unavailable"]:
+			port.quick_record = {"state": "unavailable", "reason": reason, "fallback": false,
+				"actions": {"save": true, "load": false, "delete": true}}
+			assert_true(app.refresh_view().get("ok", false))
+			var copy_key := "no_compatible" if reason == "no_compatible_checkpoint" else "load_unavailable"
+			assert_true(app._info_text.text.contains(BackupApp.COPY[locale][copy_key]))
+			assert_false(app._info_text.text.contains(BackupApp.COPY[locale]["fallback"]))
+			assert_false(app._info_text.text.contains(BackupApp.COPY[locale]["unreadable"]), "readable metadata with failed restore is not unreadable bytes")
+			assert_true(app.action_buttons["load"].disabled)
+		port.quick_record = {"state": "occupied", "reason": "", "fallback": true,
+			"load_day": 1, "load_saved_time": null,
+			"actions": {"save": true, "load": true, "delete": true}}
+		assert_true(app.refresh_view().get("ok", false))
+		assert_true(app._info_text.text.contains(BackupApp.COPY[locale]["fallback"]))
+		assert_false(app.action_buttons["load"].disabled)
+	assert_eq(port.preparations,0,"inspection neither prepares consent nor mutates a save")
+	assert_eq(port.commits,0)
 
 func test_all_authored_tuples_and_days_keep_contrast_and_protected_roles() -> void:
 	var roles := ["habitat", "face", "paper", "paper_ink", "ink", "structure",

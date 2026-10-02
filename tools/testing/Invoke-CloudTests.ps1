@@ -134,6 +134,7 @@ $suites = @{
     settings = @(
         'tests/unit/test_save_manager_parse_cache.gd'
         'tests/unit/test_backup_quick_actions.gd'
+        'tests/unit/test_quick_status_edge.gd'
         'tests/unit/test_settings_panel_resize.gd'
         'tests/unit/test_settings_preference_registry.gd'
         'tests/unit/test_shared_week_tint.gd'

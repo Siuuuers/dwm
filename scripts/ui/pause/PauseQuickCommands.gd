@@ -123,8 +123,8 @@ func _source_snapshot() -> Dictionary:
 
 func observe_input(event: InputEvent) -> void:
 	_input_owner.observe_physical_contact(event)
-	# Save is available in every currently supported Quick source; Load has the
-	# narrower Settings boundary and is checked separately at dispatch.
+	# Both commands share presentation custody; their canonical capabilities are
+	# checked separately by the Backup owner at dispatch.
 	if not _admitted("save"): retain_contacts()
 
 func handle_input(event: InputEvent) -> bool:
@@ -162,6 +162,11 @@ func _request(action: String) -> void:
 	_return_host = _surface.entered_action
 	_return_semantic = ""
 	_focus_restore_pending = false
+	var settings: Control = _surface._hosts.get(&"settings")
+	if action == "load" and _return_host == &"settings" and is_instance_valid(settings):
+		# Showing consent hides Settings. Retain the same origin for its deferred
+		# visibility-focus callback so it cannot overwrite Cancel's exact focus.
+		settings.remember_focus()
 	var backup: Control = _surface._hosts.get(&"backup")
 	if _return_host == &"backup" and is_instance_valid(backup) and focus != null and backup.is_ancestor_of(focus):
 		_return_semantic = backup._saved_focus
@@ -232,8 +237,14 @@ func _restore_focus() -> void:
 	if not _base_admitted() or _source_snapshot() != _source: return
 	var focus: Control = _return_focus.get_ref() as Control if _return_focus != null else null
 	if is_instance_valid(focus) and not focus.is_queued_for_deletion() and focus.is_visible_in_tree() and focus.can_process() \
-			and focus.get_focus_mode_with_override() != Control.FOCUS_NONE:
+			and focus.get_focus_mode_with_override() != Control.FOCUS_NONE \
+			and not (focus is BaseButton and focus.disabled) and not (focus is Slider and not focus.editable):
 		focus.grab_focus()
+		return
+	var settings: Control = _surface._hosts.get(&"settings")
+	if _return_host == &"settings" and _surface.entered_action == &"settings" \
+			and is_instance_valid(settings) and settings.can_return_home():
+		settings.focus_entry()
 		return
 	var backup: Control = _surface._hosts.get(&"backup")
 	if _return_host != &"backup" or _surface.entered_action != &"backup" \

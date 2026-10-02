@@ -2,12 +2,18 @@ extends Label
 ## One shell-owned, noninteractive Quick voice. Placement/collision belongs to the host.
 signal status_announced(text: String)
 const PRESENTATION := preload("res://scripts/ui/desktop/DesktopTheme.gd")
+const BACKUP := preload("res://scripts/ui/BackupApp.gd")
+# Reuse the inspector's factual copy; a failed compatibility check is never a fallback offer.
+const REASON_COPY_KEYS := {
+	&"older_version": "older_details", &"newer_version": "newer", &"unreadable": "unreadable",
+	&"no_compatible_checkpoint": "no_compatible", &"restore_unavailable": "load_unavailable",
+}
 const COPY := {
-	"en": {&"saving":"Saving…",&"saved":"Saved",&"unavailable":"Unavailable",&"please_wait":"Please wait"},
-	"zh-CN": {&"saving":"正在保存…",&"saved":"已保存",&"unavailable":"不可用",&"please_wait":"请稍候"},
-	"zh-HK": {&"saving":"正在儲存…",&"saved":"已儲存",&"unavailable":"不可用",&"please_wait":"請稍候"},
-	"ja": {"saving": "保存中…", "saved": "保存しました", "unavailable": "利用できません", "please_wait": "お待ちください"},
-	"ko": {"saving": "저장 중…", "saved": "저장했어요", "unavailable": "이용할 수 없어요", "please_wait": "잠시 기다려 주세요"},
+	"en": {&"saving":"Saving…",&"saved":"Saved",&"unavailable":"Unavailable",&"please_wait":"Please wait",&"no_quick_save":"No Quick Save"},
+	"zh-CN": {&"saving":"正在保存…",&"saved":"已保存",&"unavailable":"不可用",&"please_wait":"请稍候",&"no_quick_save":"没有快速存档"},
+	"zh-HK": {&"saving":"正在儲存…",&"saved":"已儲存",&"unavailable":"不可用",&"please_wait":"請稍候",&"no_quick_save":"沒有快速存檔"},
+	"ja": {"saving": "保存中…", "saved": "保存しました", "unavailable": "利用できません", "please_wait": "お待ちください", "no_quick_save": "クイックセーブがありません"},
+	"ko": {"saving": "저장 중…", "saved": "저장했어요", "unavailable": "이용할 수 없어요", "please_wait": "잠시 기다려 주세요", "no_quick_save": "빠른 저장이 없습니다"},
 }
 const VALIDATION_INTERVAL := 0.25
 var key: StringName = &""
@@ -36,7 +42,7 @@ func _ready() -> void:
 	if _eligible: _show_current()
 
 func publish_status(next_key: StringName, binding: Dictionary, validator: Callable) -> void:
-	if not COPY.en.has(next_key) or not validator.is_valid() or validator.get_argument_count() != 0:
+	if (not COPY.en.has(next_key) and not REASON_COPY_KEYS.has(next_key)) or not validator.is_valid() or validator.get_argument_count() != 0:
 		clear_status()
 		return
 	if key == next_key and _binding == binding:
@@ -79,7 +85,7 @@ func set_presentation(locale: String, percent: int, font_style: String = "pixel"
 	accessibility_live = DisplayServer.LIVE_OFF
 	theme = PRESENTATION.build(_locale,percent,&"after_hours",0.0,false,"standard",font_style)
 	if not key.is_empty() and _announced:
-		text = COPY[_locale][key]
+		text = _status_text()
 		accessibility_name = text
 
 func _process(delta: float) -> void:
@@ -124,6 +130,9 @@ func _show_current() -> void:
 	text = ""
 	# Godot 4.6 Control.accessibility_live / DisplayServer.LIVE_POLITE.
 	accessibility_live = DisplayServer.LIVE_POLITE
-	text = COPY[_locale][key]
+	text = _status_text()
 	accessibility_name = text
 	status_announced.emit(text)
+
+func _status_text() -> String:
+	return BACKUP.COPY[_locale][REASON_COPY_KEYS[key]] if REASON_COPY_KEYS.has(key) else COPY[_locale][key]

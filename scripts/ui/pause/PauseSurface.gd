@@ -310,10 +310,10 @@ func quick_input_admitted(action: String) -> bool:
 			or entered_action not in [&"", &"backup", &"settings"]:
 		return false
 	if entered_action == &"settings":
-		# Only explicit Save is admitted by this bounded Settings increment. Its
-		# existing departure guard retains modal, capture and preference custody.
+		# Both commands retain Settings' modal, capture and preference custody.
+		# Load still requires the existing prepared-token confirmation below.
 		var settings: Control = _hosts.get(&"settings")
-		return action == "save" and is_instance_valid(settings) and settings.is_visible_in_tree() \
+		return is_instance_valid(settings) and settings.is_visible_in_tree() \
 			and settings.can_process() and settings.has_method("can_return_home") and settings.can_return_home()
 	var host: Control = _hosts.get(&"backup")
 	return not is_instance_valid(host) or not host.has_method("can_return_home") or host.can_return_home()

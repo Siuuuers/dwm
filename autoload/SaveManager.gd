@@ -1336,10 +1336,14 @@ func get_backup_quick_capability(action: String) -> Dictionary:
 			var record: Dictionary = inspected["value"]
 			if action == "load":
 				enabled = record.get("loadable", false)
+				if not enabled:
+					status = _quick_load_record_status(record)
 			else:
 				enabled = get_backup_save_capability().get("enabled", false) and _quick_save_record_allowed(record)
-		if not enabled or not is_quick_condition_current(condition):
+		if not is_quick_condition_current(condition):
 			enabled = false
+			status = "unavailable"
+		elif not enabled and status == "":
 			status = "unavailable"
 	return {"ok": true, "value": {"enabled": enabled, "status_key": status, "condition": condition}}
 
@@ -1400,6 +1404,12 @@ func _quick_failure(action: String, status: String = "") -> Dictionary:
 
 static func _quick_save_record_allowed(record: Dictionary) -> bool:
 	return record.get("state") in ["empty", "occupied"] and not record.get("fallback", false) and record.get("reason", "") == ""
+
+static func _quick_load_record_status(record: Dictionary) -> String:
+	if record.get("state") == "empty":
+		return "no_quick_save"
+	var reason: String = str(record.get("reason", ""))
+	return reason if reason in ["older_version", "newer_version", "unreadable", "no_compatible_checkpoint", "restore_unavailable"] else "unavailable"
 
 func _on_backup_gate_capability_changed(_capability: Dictionary) -> void:
 	save_capability_changed.emit(get_backup_save_capability())

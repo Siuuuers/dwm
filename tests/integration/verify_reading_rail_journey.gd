@@ -135,7 +135,7 @@ func _run() -> void:
 	for argument: String in OS.get_cmdline_user_args():
 		if argument.begins_with("--reading-rail-mode="):
 			_reading_mode = argument.trim_prefix("--reading-rail-mode=")
-	if not _check(_reading_mode in ["write", "read", "repeat", "variant", "witness-read", "next-unseen", "next", "next-read", "settings-write", "settings-read"], "explicit reading process mode"): return
+	if not _check(_reading_mode in ["write", "read", "repeat", "variant", "witness-read", "next-unseen", "next", "next-read", "settings-write", "settings-read", "settings-load"], "explicit reading process mode"): return
 	if not _check(not OS.get_environment("DWM_TEST_ROOT").strip_edges().is_empty(), "isolated test root required"): return
 	if not _check(DisplayServer.get_name() != "headless", "real cloud software rendering required"): return
 	await _frames()
@@ -169,6 +169,9 @@ func _run() -> void:
 		return
 	if _reading_mode == "next-read":
 		await _next_read_process()
+		return
+	if _reading_mode == "settings-load":
+		await _settings_quick_load_process()
 		return
 	if _reading_mode == "settings-read":
 		await _settings_quick_read_process()
@@ -603,6 +606,180 @@ func _settings_quick_read_process() -> void:
 	await _finish_proof()
 
 
+
+## F9 is a separate process and report: the accepted F5 write/read trace remains sealed.
+func _settings_load_host_observation(pause_owner: Node, settings: Control) -> Dictionary:
+	var observation := _settings_host_observation(pause_owner, settings)
+	var content: Control = settings.get_content_host()
+	observation["rail_scroll"] = [content.rail_scroll.scroll_horizontal, content.rail_scroll.scroll_vertical]
+	observation["sheet_scroll"] = [content.sheet_scroll.scroll_horizontal, content.sheet_scroll.scroll_vertical]
+	return observation
+
+
+func _settings_load_stage(stage: String, observation: Dictionary, checks: Dictionary) -> bool:
+	var failed: Array[String] = []
+	for key: String in checks:
+		if checks[key] != true: failed.append(key)
+	observation["checks"] = checks
+	observation["failed_checks"] = failed
+	# Persist every component before failing, including modal/focus and disk state.
+	if not _check(_write_text("settings-load-" + stage + ".json", JSON.stringify(observation, "\t")),
+		"retain Settings F9 " + stage + " observation before assertions"): return false
+	_trace("settings_load_" + stage, observation)
+	return _check(failed.is_empty(), "Settings F9 " + stage + ": " + ", ".join(failed))
+
+
+func _settings_load_retain_baseline() -> bool:
+	for key: String in ["quick", "autosave", "profile"]:
+		var storage: RefCounted = root.get_node("ProfileManager" if key == "profile" else "SaveManager").get("_storage")
+		var filename := "quicksave.json" if key == "quick" else key + ".json"
+		var source: String = ProjectSettings.globalize_path(storage.describe_root().path_join(filename))
+		var bytes := FileAccess.get_file_as_bytes(source)
+		if not _check(not bytes.is_empty(), "retain real paused-source bytes for " + key): return false
+		var file := FileAccess.open(_evidence_path("settings-load-baseline-" + key + ".json"), FileAccess.WRITE)
+		if not _check(file != null, "open retained paused-source file for " + key): return false
+		file.store_buffer(bytes)
+		file.close()
+	return true
+
+
+func _settings_quick_load_process() -> void:
+	var prior: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(_evidence_path("settings-write.json")))
+	var read_prior: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(_evidence_path("settings-read.json")))
+	if not _check(prior.get("ok", false) and read_prior.get("ok", false)
+		and int(prior.value.process_id) != OS.get_process_id() and int(read_prior.value.process_id) != OS.get_process_id(),
+		"Settings F9 follows the retained F5 pair in an independent process"): return
+	var saves: Node = root.get_node("SaveManager")
+	var profile: Node = root.get_node("ProfileManager")
+	var game: Node = root.get_node("GameState")
+	var bridge: Node = root.get_node("DialogicBridge")
+	var desktop: RefCounted = root.get_node("ApplicationBootstrap").get("_desktop_host_state")
+	var input_disk := _settings_disk_state()
+	var prepared: Dictionary = saves.prepare_backup_action("load", "quick")
+	if not _check(prepared.get("ok", false), "Settings F9 starts with real retained Quick Load"): return
+	var restored: Dictionary = saves.commit_backup_action(prepared.value.token)
+	if not _check(restored.get("ok", false), "Settings F9 initial Quick Load commits"): return
+	if not await _wait_line("fixture.solo.pre.a"): return
+	var initial := {"reading": _reading_pause_observation(game), "disk": _settings_disk_state(),
+		"speech_admissions": _speech_admissions, "current_line_complete": bridge.get("_runtime_adapter").is_current_line_complete()}
+	if not _settings_load_stage("initial", initial, {
+		"retained_f5_input": input_disk == prior.value.disk_after,
+		"saved_checkpoint_exact": initial.reading.source.checkpoint == prior.value.saved_checkpoint,
+		"saved_history_exact": initial.reading.source.history == prior.value.entered.source.history,
+		"saved_line_complete": initial.current_line_complete,
+		"initial_load_silent": _speech_admissions == 0, "initial_load_disk_neutral": initial.disk == input_disk}): return
+	# The saved line is fully visible. A fresh physical Accept uses the actual
+	# caption transport to publish the different, partly revealed second line.
+	if not await _fresh_caption_accept(): return
+	await _pause_key()
+	var dating: Node = current_scene
+	var source_scene_id := dating.get_instance_id()
+	var pause_owner: Node = root.get_node("SceneRouter").get("_production_pause")
+	var entered := _reading_pause_observation(game)
+	var advanced := {"reading": entered, "scene_id": source_scene_id, "tree_paused": paused,
+		"pause_visible": pause_owner.surface.is_visible_in_tree()}
+	if not _settings_load_stage("advanced", advanced, {"ordinary_pause_open": advanced.tree_paused and advanced.pause_visible,
+		"different_partial_line": entered.native.line_id == "fixture.solo.pre.b" and entered.native.revealing
+			and entered.native.visible_characters >= 0 and entered.native.visible_characters < entered.native.total_characters}): return
+	pause_owner.surface.rows[&"settings"].grab_focus()
+	if not await _ordinary_accept_focused(pause_owner.surface.rows[&"settings"], "F9 ordinary Settings entry"): return
+	var settings: Control = pause_owner.surface.get("_hosts")[&"settings"]
+	var content: Control = settings.get_content_host()
+	var reading_row: Button = content.get("_rails")["reading"]
+	reading_row.grab_focus()
+	if not await _ordinary_accept_focused(reading_row, "F9 Reading category"): return
+	# Focus a real enabled sheet control without changing its value. Follow-focus
+	# supplies its ordinary sheet scroll; preserve both actual scroll positions.
+	var origin: OptionButton = content.controls[&"preferences.reading.read_aloud_rate"]
+	origin.grab_focus()
+	await _frames()
+	var before := {"reading": _reading_pause_observation(game), "host": _settings_load_host_observation(pause_owner, settings),
+		"disk": _settings_disk_state(), "scene_id": source_scene_id, "desktop_context": desktop.capture_persistent_state()}
+	if not _settings_load_retain_baseline(): return
+	var mutations: Array[Dictionary] = []
+	var save_storage: RefCounted = saves.get("_storage")
+	var profile_storage: RefCounted = profile.get("_storage")
+	var save_ops: RefCounted = save_storage.get("_file_ops")
+	var profile_ops: RefCounted = profile_storage.get("_file_ops")
+	save_storage.set("_file_ops", SettingsQuickFileObserver.new(save_ops, "saves", mutations))
+	profile_storage.set("_file_ops", SettingsQuickFileObserver.new(profile_ops, "profile", mutations))
+	if not _settings_load_stage("entered", before, {"partial_source_preserved": before.reading == entered,
+		"different_saved_line": before.reading.source.checkpoint != prior.value.saved_checkpoint,
+		"two_history_occurrences": before.reading.source.history.captions.size() == 2,
+		"settings_interactive": before.host.visible and before.host.tree_paused and before.host.entered_action == "settings",
+		"reading_category": before.host.selected_category == "reading", "exact_enabled_origin": origin.has_focus() and not origin.disabled,
+		"suspension_present": not before.host.suspension.is_empty(), "new_line_speech_control": _speech_admissions > 0}): return
+	var quick: Node = pause_owner.get("_quick_commands")
+	var report := {"mode": _reading_mode, "process_id": OS.get_process_id(),
+		"user_dir": ProjectSettings.globalize_path("user://"), "input_disk": input_disk, "initial": initial, "advanced": advanced, "before": before}
+	for attempt: int in 2:
+		dating.get_window().grab_focus()
+		await _dating_quick_key(KEY_F9)
+		var sheet: Control = quick.get("_confirmation")
+		var consent := {"reading": _reading_pause_observation(game), "disk": _settings_disk_state(),
+			"scene_id": current_scene.get_instance_id(), "suspension": pause_owner.get("_handle").duplicate(true),
+			"cancel_focused": is_instance_valid(sheet) and sheet.cancel_button.has_focus(),
+			"confirmation_open": is_instance_valid(sheet) and sheet.is_visible_in_tree(),
+			"settings_covered": not settings.is_visible_in_tree(), "tree_paused": paused,
+			"pending_token": str(quick.get("_pending_token")), "mutations": mutations.duplicate(true)}
+		var stage := "prepared" if attempt == 0 else "reprepared"
+		if not _settings_load_stage(stage, consent, {"cancel_first_confirmation": consent.confirmation_open and consent.cancel_focused,
+			"bound_quick_candidate": not consent.pending_token.is_empty(), "no_early_restore": consent.reading == before.reading,
+			"source_scene_retained": consent.scene_id == source_scene_id,
+			"suspension_retained": consent.suspension == before.host.suspension,
+			"exclusive_modal": consent.settings_covered and consent.tree_paused,
+			"disk_unchanged": consent.disk == before.disk, "zero_mutations": mutations.is_empty()}): return
+		report[stage] = consent
+		if attempt == 0:
+			if not await _ordinary_accept_focused(sheet.cancel_button, "Settings F9 ordinary Cancel"): return
+			# Observe after deferred focus/visibility handlers have actually settled.
+			await _frames()
+			var cancelled := {"reading": _reading_pause_observation(game), "host": _settings_load_host_observation(pause_owner, settings),
+				"disk": _settings_disk_state(), "scene_id": current_scene.get_instance_id(),
+				"pending_token": str(quick.get("_pending_token")), "confirmation_open": is_instance_valid(quick.get("_confirmation")),
+				"mutations": mutations.duplicate(true)}
+			if not _settings_load_stage("cancelled", cancelled, {"exact_partial_source": cancelled.reading == before.reading,
+				"exact_host_focus_scroll_suspension": cancelled.host == before.host,
+				"source_scene_retained": cancelled.scene_id == source_scene_id,
+				"consent_retired": cancelled.pending_token.is_empty() and not cancelled.confirmation_open,
+				"disk_unchanged": cancelled.disk == before.disk, "zero_mutations": mutations.is_empty()}): return
+			report["cancelled"] = cancelled
+		else:
+			if not _check(consent.pending_token != report.prepared.pending_token, "fresh F9 binds a new one-use consent token"): return
+			sheet.confirm_button.grab_focus()
+			if not await _ordinary_accept_focused(sheet.confirm_button, "Settings F9 ordinary Confirm Load"): return
+	if not await _wait_line("fixture.solo.pre.a"): return
+	await _frames()
+	var after := {"checkpoint": bridge.capture_reading_checkpoint(false), "history": bridge.get_reading_history(),
+		"physical_record": game.capture_dating_challenge_state(), "live_session": game.capture_live_session(),
+		"desktop_context": desktop.capture_persistent_state(), "disk": _settings_disk_state(),
+		"profile": profile.get_profile_snapshot(), "speech_admissions": _speech_admissions,
+		"current_line_complete": bridge.get("_runtime_adapter").is_current_line_complete(),
+		"current_line_id": str(bridge.get("_runtime_adapter").current_line_id()), "tree_paused": paused,
+		"pause_visible": pause_owner.surface.is_visible_in_tree(),
+		"settings_visible": is_instance_valid(settings) and settings.is_visible_in_tree(),
+		"suspension": pause_owner.get("_handle").duplicate(true), "scene_id": current_scene.get_instance_id(),
+		"load_result": quick.last_result.duplicate(true), "mutations": mutations.duplicate(true)}
+	if not _settings_load_stage("confirmed", after, {"load_committed": after.load_result.get("ok", false),
+		"saved_checkpoint_exact": after.checkpoint.get("value", {}) == prior.value.saved_checkpoint,
+		"saved_history_exact": after.history.get("value", {}) == prior.value.entered.source.history,
+		"saved_physical_exact": after.physical_record.get("value", {}) == prior.value.physical_record,
+		"saved_app_exact": after.desktop_context.keys() == ["active_app_id"] and str(after.desktop_context.active_app_id) == prior.value.desktop_context.active_app_id,
+		"saved_earlier_line_complete": after.current_line_id == "fixture.solo.pre.a" and after.current_line_complete,
+		"restored_live_session": after.live_session.get("value", {}).get("active", false),
+		"old_pause_settings_closed": not after.tree_paused and not after.pause_visible and not after.settings_visible and after.suspension.is_empty(),
+		"restored_scene_mounted": current_scene.get("worksheet") != null and after.scene_id != source_scene_id,
+		"no_restored_speech": after.speech_admissions == before.reading.source.speech_admissions,
+		"profile_unchanged": after.profile == before.reading.source.profile,
+		"disk_unchanged": after.disk == before.disk, "zero_mutations": mutations.is_empty()}): return
+	report["after"] = after
+	save_storage.set("_file_ops", save_ops)
+	profile_storage.set("_file_ops", profile_ops)
+	if not _check(_write_text("settings-load.json", JSON.stringify(report, "\t")), "retain independent Settings F9 report"): return
+	print("READING_RAIL_SETTINGS_LOAD_PASS: retained Quick -> physical advance -> partial Pause Settings -> physical F9 Cancel exact source -> fresh F9 Confirm saved earlier line -> no Load speech or disk mutation")
+	await _finish_proof()
+
+
 func _ordinary_reading_pause_save(game: Node, dating: Node) -> bool:
 	var bridge: Node = root.get_node("DialogicBridge")
 	var runtime: RefCounted = bridge.get("_runtime_adapter")
@@ -873,7 +1050,7 @@ func _write_text(name: String, text: String) -> bool:
 
 func _trace(kind: String, value: Dictionary) -> void:
 	_trace_sequence += 1
-	var path: String = _evidence_path("transactions.jsonl")
+	var path: String = _evidence_path("settings-load-transactions.jsonl" if _reading_mode == "settings-load" else "transactions.jsonl")
 	var file: FileAccess = FileAccess.open(path, FileAccess.READ_WRITE if FileAccess.file_exists(path) else FileAccess.WRITE)
 	if file == null:
 		_check(false, "transaction evidence cannot be opened")
