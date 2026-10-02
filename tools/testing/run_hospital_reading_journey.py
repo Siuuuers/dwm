@@ -504,6 +504,8 @@ def validate_connected_proof(result: dict, evidence: Path, folder: Path) -> dict
     require(forged["genuine_admission"] == {"ok": True} and set(forged["cases"]) == {"frame", "caption"},
             "FORGERY_PROOF_REQUIRES_GENUINE_CONTROL_AND_BOTH_NEGATIVES")
     for kind, case in forged["cases"].items():
+        require(case == {key: value for key, value in forged["stages"]["forge-" + kind].items() if key != "ui"},
+                f"FORGERY_CASE_MUST_MATCH_TRACE_BOUND_STAGE: {kind}")
         candidate = strict_json((evidence / f"forge-{kind}-candidate.json").read_text(encoding="utf-8"))
         expected = json.loads(json.dumps(snapshot))
         forged_checkpoint = expected["narrative_checkpoint"]
