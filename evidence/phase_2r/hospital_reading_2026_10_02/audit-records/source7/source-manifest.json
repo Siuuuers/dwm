@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "parent": "28dbdd345abfce3915dcefdc514530c40a299f27",
+  "base_tree": "ec444a7d4015ad02c93613c40ed493bf0c24058e",
+  "tree": "55c167fa5d47e2ef5bd76c821a2ce5cb7f13963c",
+  "files": [
+    {
+      "path": "scripts/application/run/SaveManagerCheckpointPort.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "eec3ec1c4818a0ede49def28de75d15b6483d769",
+      "bytes": 59395,
+      "sha256": "ab8824ecb5617b48c5feb581133e4286facae70d42714add825fbea88e60272f"
+    },
+    {
+      "path": "scripts/infrastructure/storage/JsonFileStorage.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "df3f1bd3d612e5125dd9c91953946da8386b6d97",
+      "bytes": 47109,
+      "sha256": "c54adb2ab4e0208a783bc98f7784aa4246eb294f5176aa8a3ff1e76f3affe2cc"
+    },
+    {
+      "path": "tests/integration/test_application_bootstrap.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "4a2713bd8035ac3b81c4ef1292b5f2fab17ba5b8",
+      "bytes": 28774,
+      "sha256": "a91d98e5ef3081e739dcc76890048450b5495dffdbdb1434f6a8e9763cc728e2"
+    },
+    {
+      "path": "tests/unit/test_checkpoint_preparation_retry.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "fcbb1553c17fce0b96a3c884f8a4ee79527ce80d",
+      "bytes": 8643,
+      "sha256": "bd62bf707b89e92415963c47d60b99615965c379ae285efd011e8200dd35ed8c"
+    },
+    {
+      "path": "tests/unit/test_dialogic_presentation_owner_adapter.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "8da83fac05aab7b28d30b09e12e39543e2b68cd9",
+      "bytes": 27253,
+      "sha256": "1e7c0473cb644644e74c1748737d1718fb4f03cab3cebca75d5a2ba31b0b2e74"
+    },
+    {
+      "path": "tests/unit/test_json_file_storage.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f9eff5d53a2544843c25741e79b653c12dcb47b0",
+      "bytes": 23359,
+      "sha256": "1e9d934f8bbd72f9c6bbbc786d878bf11dc1c7400bb64e7d697a68db6c555b57"
+    },
+    {
+      "path": "tools/testing/Invoke-CloudTests.ps1",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ef064268c87167e13969501446f583ee246da2c3",
+      "bytes": 20582,
+      "sha256": "368f8de6392aa5e174ff7aa9ce77f1a0b6f5496185d64931889390b2a0ed8704"
+    }
+  ],
+  "refs_or_real_index_or_worktree_changed": false
+}

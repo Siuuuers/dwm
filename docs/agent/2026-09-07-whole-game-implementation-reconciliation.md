@@ -1,5 +1,62 @@
 # Whole-game implementation reconciliation — 2026-09-07
 
+## Current bounded checkpoint — 2 October 2026
+
+This is navigation to executed evidence, not a whole-game completion or Beads
+status declaration. Historical dated sections below retain their original
+claims, failures and limits; they do not replace the current handoff.
+
+**Accepted bounded Hospital reading / Source9.** Source
+`a24f71766a624b57601814dda487b53c66518c39`; actual auxiliary workflow checkout
+`c9c013397f2e309b48fc1548490b401e54938c6c`;
+[Broad2 run 37048318182](https://github.com/Siuuuers/dwm/actions/runs/37048318182)
+passes 24/24 jobs. Its 13 ordinary GUT XML reports contain 2,437 case executions
+and 204 script executions (2,433 unique script/case pairs and 203 unique scripts),
+with zero failures, errors or skips. The [Hospital receipt](../../evidence/phase_2r/hospital_reading_2026_10_02/receipt.json)
+owns the exact source, raw artifacts, controls and acceptance limits.
+
+The noncanonical Sylvia-present Day-3 Schedule-Done fixture passes 15 audited
+groups: Hospital starts fresh History; Save completes only the current caption;
+fresh Load restores B alone and silently; ordinary Enter completes the real
+Hospital presentation. The durable completion Autosave is Day 4, Hospital
+`between_entries`, with `unlock_day` pending; the live scene then becomes the
+Day-4 desktop, followed by a fresh next Solo History. These are distinct durable
+and live boundaries. Forged-frame refusal preserves primary save/profile bytes.
+The original Solo, authored-selector and paused Settings F5/F9 controls remain.
+
+Focused attempts retain their own source and diagnostic scope. Broad1 remains
+20 successful / 4 failed jobs and is not accepted. Broad2's source-bound verifier
+repair preserves the historical ablation hashes and proves the exact shared
+cold-Autosave evolution inherited by both controls. The unsigned Windows package
+and headless startup pass with the same ObjectDB cleanup warning retained in
+Broad1 and Broad2; this is no warning-free, leak-free or lifetime acceptance.
+Performance observations establish no universal speedup.
+
+Production catalogue registration remains disabled; master is untouched and
+PR #1 stays draft and unmerged. All 23 unfinished Beads remain, with no live
+Dolt synchronization claim. A records-only descendant is not independently
+engine-tested; the tested source and actual checkout above remain the evidence
+boundary.
+
+Next bounded work under `dwm-vky.14` is the
+[captionless native timed-hold Pause/cancellation fixture](../../evidence/phase_2r/hospital_reading_2026_10_02/next-slice-source-review/next-work-proposal.md),
+before no-Sylvia Hospital integration. The proposal remains the immutable
+pre-acceptance source review; its Broad2-acceptance prerequisite is now met.
+Use one noncanonical hold followed by a real caption through existing
+runtime/Bridge custody. Prove remaining-time
+preservation during Pause, no publication/witness/speech/focus/completion while
+suspended, exactly one continuation after resume, and no stale mutation or
+completion after cancellation/replacement past the old deadline. Keep this first
+proof ephemeral; it does not add arbitrary mid-hold Save/Load.
+
+The no-Sylvia notice/Continue path conflicts with approved presentation. Native
+Wait cancellation is a source-evidenced risk to test, not an observed runtime
+failure. Production prose/timing/selectors and ordered-ending History/restore
+remain separate work. Routine fixture implementation needs no new architecture
+interview; ask only when new authored facts change the projection contract.
+
+## Historical reconciliation record
+
 ## Main checkout consolidation - 2026-09-09
 
 The owner authorized committing the main-folder work, reconciling it with the

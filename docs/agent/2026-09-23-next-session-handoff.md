@@ -15,9 +15,44 @@ issue_authority: beads
 Continue `Siuuuers/dwm` draft PR #1 on `codex/windows-cloud-ux`.
 Keep the PR draft and unmerged; do not change master. Verify the live branch,
 actual master ref and Beads before editing. The last checked master was
-`6a5ddf1564870b43aa9140cad7e0e5b12e43f399`; normalized PR-base fields can be stale.
+`9e43b52c9884ccd59e82245d2168c3113ee4d037` (separate Beads-only activity);
+this work did not change master. Normalized PR-base fields can be stale.
 
 ## Current acceptance
+
+**Accepted bounded Hospital reading / Source9.** Source
+`a24f71766a624b57601814dda487b53c66518c39`; actual auxiliary workflow checkout
+`c9c013397f2e309b48fc1548490b401e54938c6c`;
+[Broad2 run 37048318182](https://github.com/Siuuuers/dwm/actions/runs/37048318182)
+passes 24/24 jobs. Its 13 ordinary GUT XML reports contain 2,437 case executions
+and 204 script executions (2,433 unique script/case pairs and 203 unique scripts),
+with zero failures, errors or skips. The [Hospital receipt](../../evidence/phase_2r/hospital_reading_2026_10_02/receipt.json)
+owns the exact source, raw artifacts, controls and acceptance limits.
+
+The noncanonical Sylvia-present Day-3 Schedule-Done fixture passes 15 audited
+groups: Hospital starts fresh History; Save completes only the current caption;
+fresh Load restores B alone and silently; ordinary Enter completes the real
+Hospital presentation. The durable completion Autosave is Day 4, Hospital
+`between_entries`, with `unlock_day` pending; the live scene then becomes the
+Day-4 desktop, followed by a fresh next Solo History. These are distinct durable
+and live boundaries. Forged-frame refusal preserves primary save/profile bytes.
+The original Solo, authored-selector and paused Settings F5/F9 controls remain.
+
+Focused attempts retain their own source and diagnostic scope. Broad1 remains
+20 successful / 4 failed jobs and is not accepted. Broad2's source-bound verifier
+repair preserves the historical ablation hashes and proves the exact shared
+cold-Autosave evolution inherited by both controls. The unsigned Windows package
+and headless startup pass with the same ObjectDB cleanup warning retained in
+Broad1 and Broad2; this is no warning-free, leak-free or lifetime acceptance.
+Performance observations establish no universal speedup.
+
+Production catalogue registration remains disabled; master is untouched and
+PR #1 stays draft and unmerged. All 23 unfinished Beads remain, with no live
+Dolt synchronization claim. A records-only descendant is not independently
+engine-tested; the tested source and actual checkout above remain the evidence
+boundary.
+
+## Preserved historical acceptance
 
 **Accepted bounded paused Settings F9.** Source `41cc51992b74ec9472f7912e0eb8e1c39679af44`; tested PR merge
 `705ea660b4d6ee9f3376ae4660a3d50e65fe5502`; master `6a5ddf1564870b43aa9140cad7e0e5b12e43f399`.
@@ -42,7 +77,7 @@ and strict rendered shutdown cover this bounded repair. See the
 
 Original eight-mode/14-file reading, separate F5 writer/reader and physical
 catalogue-v2 proofs retain their scopes. Production catalogue registration stays
-disabled. Hospital/ending continuity, production replay, other native-event
+disabled. Remaining Hospital/ordered-ending continuity, production replay, other native-event
 cancellation paths, native all-input/accessibility, pixel-identical scrollback,
 OS-crash resilience and final polish remain separate. All 23 unfinished Beads
 retain statuses/dependencies; no closure or live Dolt synchronization. Later
@@ -51,7 +86,7 @@ records-only descendants are not separately engine-tested.
 Historical [Run128 paused Settings F5](../../evidence/phase_2r/paused_settings_quick_2026_10_02/receipt.json)
 retains its original source `16484fe4eaecf3c49fe2fbb0f46a543a493b57bf`, tested merge
 `885daae62be2ecdfd8f601cd1c6028eeb12c5243`, bytes and acceptance scope. That
-F5-only source did not admit Settings F9; the current receipt above is separate.
+F5-only source did not admit Settings F9; the historical F9 receipt above is separate.
 
 **Accepted test-only title-geometry guard and diagnostic correction.** Source:
 `79b36d90e3ea41d36a81a4c5ba0f87b0ae4a7bfa`. Tested PR merge:
@@ -131,22 +166,25 @@ made, and these diagnostics do not replace the broad acceptance above.
 The new geometry guard checks finite, nonempty visible title rectangles inside
 their clipping bounds. It does not inspect glyph pixels. The complete title in the
 retained PNGs is separate visual evidence; neither establishes whole-UI polish.
-Next bounded work under `dwm-vky.14` is Hospital semantic-session/capture/restore
-integration through existing owners. The [completed source audit](../../evidence/phase_2r/paused_settings_load_2026_10_02/next-slice-source-review/hospital-next-slice-source-audit.md) identifies the missing seam: current admission/capture/reading validation is
-Solo/Dating-only, while Hospital starts ordinary playback. Use one canonical
-Hospital ingress and a receipt-proven Sylvia-present noncanonical two-caption
-fixture. Prove fresh History, current-line-only Save, fresh-process exact restore
-against independent saved Hospital authority, forged-frame rejection, and actual
-completion followed by fresh next-scene History. Widening route strings alone
-is insufficient. The no-Sylvia Continue conflicts with approved presentation;
-keep that conformance gap and missing authored holds explicit. Register any
-touched Hospital fixtures that the canonical cloud suite currently omits.
-Production prose/selectors, no-Sylvia timing and ordered-ending recovery remain
-separate; routine implementation needs no new architecture decision.
-Follow the [independently reviewed Hospital implementation proposal](../../evidence/phase_2r/paused_settings_load_2026_10_02/next-slice-source-review/hospital-next-slice-implementation-plan.md).
-It is source-only next-work planning, separate from F9 acceptance: Schedule-Done
-ingress retains real physical completion and independent saved authority; the
-prior Solo retires lawfully, and exact new test registrations are explicit.
+
+## Next bounded work
+
+Next bounded work under `dwm-vky.14` is the
+[captionless native timed-hold Pause/cancellation fixture](../../evidence/phase_2r/hospital_reading_2026_10_02/next-slice-source-review/next-work-proposal.md),
+before no-Sylvia Hospital integration. The proposal remains the immutable
+pre-acceptance source review; its Broad2-acceptance prerequisite is now met.
+Use one noncanonical hold followed by a real caption through existing
+runtime/Bridge custody. Prove remaining-time
+preservation during Pause, no publication/witness/speech/focus/completion while
+suspended, exactly one continuation after resume, and no stale mutation or
+completion after cancellation/replacement past the old deadline. Keep this first
+proof ephemeral; it does not add arbitrary mid-hold Save/Load.
+
+The no-Sylvia notice/Continue path conflicts with approved presentation. Native
+Wait cancellation is a source-evidenced risk to test, not an observed runtime
+failure. Production prose/timing/selectors and ordered-ending History/restore
+remain separate work. Routine fixture implementation needs no new architecture
+interview; ask only when new authored facts change the projection contract.
 
 ## Resume order and authority
 
@@ -160,11 +198,11 @@ prior Solo retires lawfully, and exact new test registrations are explicit.
    in `dwm-n3h.2`. Read the [reading record](2026-09-29-reading-rail-next-slice.md)
    and approved scene amendment §§12.3–12.8 and 22.4. The bounded connected
    physical v2 Save/Load proof is accepted; preserve both it and the original
-   catalogue-v1 journey and the accepted paused Settings F5/F9 proofs. Next,
-   implement the bounded Hospital seam described above, using independent saved
-   Hospital authority and the existing completion owner. Carry the no-Sylvia
-   Continue mismatch and missing test registrations forward; do not invent
-   production text or timing to hide them.
+   catalogue-v1 journey, paused Settings F5/F9 and accepted Sylvia-present
+   Hospital proofs. Next, prove the captionless native hold's Pause and
+   cancellation lifecycle before integrating no-Sylvia Hospital. Register every
+   new or touched mounted fixture in the cloud runner; file existence is not
+   execution. Keep the notice/Continue conflict and unproved Wait risk explicit.
    Production registration stays disabled until its authored catalogue exists.
 3. Ask only if a newly evidenced wording/staging selector changes the authored
    projection contract. Known Solo inputs include friend/day/phase/tier/tone/
@@ -173,7 +211,7 @@ prior Solo retires lawfully, and exact new test registrations are explicit.
    not invented production prose. Freeze entry frames only when authoritative
    phase facts exist; never precompute post-board outcomes or derive wording
    variants from hidden mutable gameplay reads. Routine implementation is delegated.
-4. Hospital/ending continuity, production exact replay, native all-input and
+4. Remaining Hospital/ordered-ending continuity, production exact replay, native all-input and
    accessibility acceptance, and arbitrary production
    partial-reveal abort lifetime remain distinct acceptance work. The map also
    tracks independent Settings recovery, Gallery register and latency work.

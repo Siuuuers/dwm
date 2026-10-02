@@ -1,0 +1,33 @@
+{
+  "game_state": {
+    "api_contract_unchanged": true,
+    "record_count": 236,
+    "changed_record_call_sites": 45,
+    "changed_top_level_keys": [
+      "dynamic_references",
+      "records"
+    ],
+    "bytes": 568948,
+    "sha256": "804ca7f1bbe1b929b8c6ce59de390ab15c00f521ddc6290df1fed0a175157631"
+  },
+  "save_manager": {
+    "api_contract_unchanged": true,
+    "record_count": 74,
+    "changed_record_call_sites": 14,
+    "changed_top_level_keys": [
+      "dynamic_references",
+      "records"
+    ],
+    "bytes": 151143,
+    "sha256": "ccb1a6e576801c4f62cd4c159e89a9e4d9c814cbcf364140c61fc2338365c4d0"
+  },
+  "public_xml": [
+    {
+      "name": "tests/unit/tooling/test_public_surface_inventory.gd",
+      "tests": "11",
+      "failures": "0",
+      "skipped": "0",
+      "time": "37.728344"
+    }
+  ]
+}

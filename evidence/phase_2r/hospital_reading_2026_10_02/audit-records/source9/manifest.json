@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "parent": "856520f09440d9b47cc272de3363009924ffedca",
+  "base_tree": "be2b825fae934697d988bc3106bc18a100601cba",
+  "tree": "173218aacfb79c580f2a593d864fb625a84aa076",
+  "files": [
+    {
+      "path": "tools/testing/Assert-WarmOutgoingProofBaseline.ps1",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e7b9ba8fce7ee9b49473f67d64e68acc72a2102a",
+      "bytes": 10663,
+      "sha256": "32f9936715f6fcce5ef39364865c7ef854ba4f15605efcef1afe0e5119dc5adb"
+    },
+    {
+      "path": "tools/testing/Invoke-HistoryRegionSearchPerformance.ps1",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a26690453fdb98c984c208f34c50f6fa0ee8c4da",
+      "bytes": 14576,
+      "sha256": "5c37e672aff64fde0d37e5fe836173092e600209c9021d5c463ca6fb0d51f326"
+    },
+    {
+      "path": "tools/testing/Invoke-WarmOutgoingProofPerformance.ps1",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c7ac740159f1ebfb5ca38ccb4e9ccd7b0d9e5792",
+      "bytes": 13886,
+      "sha256": "835b92523bd3c9caf6a2c3195de47980dfd9bc2e481c1a4f9c6a6ebc9d3c7e21"
+    }
+  ],
+  "refs_or_real_index_or_worktree_changed": false
+}
