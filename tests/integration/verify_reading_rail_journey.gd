@@ -992,6 +992,8 @@ func _next_session(game: Node, dating: Node) -> void:
 		"actual challenge Autosave durably contains exact Next History and physical boundary"): return
 	if not await _retain_layout_probe(layout_probe, "next"): return
 	if not await _capture_next_screen("02-next-board"): return
+	if not _check(_write_text("layout-next-minimums.json", JSON.stringify(layout_probe.measure_minimums(), "\t")),
+		"retain minimum-size queries after passive observation and screenshot"): return
 	report.merge({"checkpoint": checkpoint.value.duplicate(true), "history": history.value.duplicate(true),
 		"checkpoint_results": _next_checkpoint_results.duplicate(true),
 		"physical_record": physical.value.duplicate(true), "observations": observations,
@@ -1121,6 +1123,8 @@ func _next_read_process() -> void:
 	if not _check(after_disk.get("ok", false) and after_disk.value == before_disk.value.text,
 		"fresh Next Load leaves exact physical Autosave bytes unchanged"): return
 	if not await _capture_next_screen("03-next-restored-board"): return
+	if not _check(_write_text("layout-next-read-minimums.json", JSON.stringify(layout_probe.measure_minimums(), "\t")),
+		"retain cold minimum-size queries after passive observation and screenshot"): return
 	var report := {"mode": _reading_mode, "process_id": OS.get_process_id(),
 		"user_dir": ProjectSettings.globalize_path("user://"), "checkpoint": checkpoint.value.duplicate(true),
 		"history": history.value.duplicate(true), "physical_record": physical.value.duplicate(true),
