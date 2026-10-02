@@ -137,10 +137,12 @@ var source: SourceScene
 var focus: Button
 var original: Node
 var input_backup: Dictionary = {}
+var _embed_subwindows_backup := false
 
 func before_each() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	original = get_tree().current_scene
+	_embed_subwindows_backup = get_viewport().gui_embed_subwindows
 	for action: StringName in InputMap.get_actions():
 		input_backup[action] = {"deadzone": InputMap.action_get_deadzone(action), "events": InputMap.action_get_events(action).duplicate(true)}
 	gate = GATE.new()
@@ -184,6 +186,7 @@ func after_each() -> void:
 	if is_instance_valid(controller): controller.free()
 	if is_instance_valid(source): source.free()
 	if is_instance_valid(router.title): router.title.free()
+	get_viewport().gui_embed_subwindows = _embed_subwindows_backup
 	for port: Node in [audio_owner, input_owner, localization, profile]:
 		if is_instance_valid(port): port.free()
 	for action: StringName in InputMap.get_actions():
@@ -818,11 +821,14 @@ func _quick_native_tap(code: Key) -> void:
 	_quick_native_key(code, false)
 
 func _quick_window_key(window: Window, code: Key, pressed: bool, frames: int = 4) -> void:
+	assert_true(window.visible and window.is_embedded())
 	var event := InputEventKey.new()
 	event.keycode = code
 	event.physical_keycode = code
 	event.pressed = pressed
-	window.push_input(event, true)
+	# Enter through the parent so Godot runs Window::_input_from_window too;
+	# direct Window.push_input bypasses native Escape cancellation.
+	get_viewport().push_input(event, true)
 	for frame in frames: await get_tree().process_frame
 
 func _quick_native_pad(button: JoyButton, pressed: bool) -> void:
@@ -1053,6 +1059,7 @@ func test_paused_quick_refusal_is_visible_and_settings_custody_blocks_shortcuts(
 	assert_eq(saves.writes, 0)
 
 func test_paused_settings_reset_window_forwards_contacts_without_saving_or_queued_replay() -> void:
+	get_viewport().gui_embed_subwindows = true
 	var fixture := _dating_save_fixture()
 	if fixture.is_empty() or not await _open_pause(): return
 	controller.surface._activate(&"settings")
@@ -1075,14 +1082,53 @@ func test_paused_settings_reset_window_forwards_contacts_without_saving_or_queue
 	await _quick_window_key(dialog, KEY_ESCAPE, true)
 	_quick_native_key(KEY_ESCAPE, false)
 	assert_false(dialog.visible)
-	# Open, receive a held Save contact and cancel without a process-frame poll.
-	# Visibility custody must retire the contact synchronously, not on a timer.
+	# Native Cancel hides the Window deferred. Resume at that exact visibility
+	# boundary and retry the held packet without a process-frame poll afterward.
 	await content._open_reset_confirmation("preferences")
-	var input_frame := Engine.get_process_frames()
 	_quick_window_key(dialog, KEY_F5, true, 0)
 	_quick_window_key(dialog, KEY_ESCAPE, true, 0)
+	if dialog.visible: await dialog.visibility_changed
+	var input_frame := Engine.get_process_frames()
 	assert_false(dialog.visible)
 	_quick_native_key(KEY_ESCAPE, false)
+	_quick_native_key(KEY_F5, true)
+	assert_eq(Engine.get_process_frames(), input_frame)
+	assert_true(controller._quick_commands.last_result.is_empty())
+	assert_false(fixture.storage.exists("quicksave.json"))
+	assert_eq(profile.get_profile_snapshot(), profile_before)
+	_quick_native_key(KEY_F5, false)
+	assert_true(input_owner.get_physical_contacts().is_empty())
+	_quick_native_tap(KEY_F5)
+	assert_true(controller._quick_commands.last_result.get("ok", false), str(controller._quick_commands.last_result))
+	assert_true(fixture.storage.exists("quicksave.json"))
+	assert_eq(controller.surface.entered_action, &"settings")
+	assert_true(get_tree().paused)
+
+func test_paused_settings_option_popup_forwards_release_and_retires_same_frame_save() -> void:
+	get_viewport().gui_embed_subwindows = true
+	var fixture := _dating_save_fixture()
+	if fixture.is_empty() or not await _open_pause(): return
+	controller.surface._activate(&"settings")
+	var content: Control = controller.surface._hosts[&"settings"].get_content_host()
+	var option: OptionButton = content.control_for(&"preferences.language.primary_locale_id")
+	var popup: PopupMenu = option.get_popup()
+	var profile_before: Dictionary = profile.get_profile_snapshot()
+	_quick_native_key(KEY_F6, true)
+	assert_false(input_owner.get_physical_contacts().is_empty())
+	option.show_popup()
+	assert_true(popup.visible and popup.is_embedded())
+	# Parent Viewport.push_input routes these packets into the actual embedded
+	# PopupMenu, including its native menu handling before the Window input group.
+	_quick_native_key(KEY_F6, false)
+	assert_true(input_owner.get_physical_contacts().is_empty(), "The popup retires a parent-started contact")
+	var input_frame := Engine.get_process_frames()
+	_quick_native_key(KEY_F5, true)
+	assert_false(input_owner.get_physical_contacts().is_empty(), "The popup forwards its own held contact")
+	assert_true(controller._quick_commands.last_result.is_empty())
+	assert_false(fixture.storage.exists("quicksave.json"))
+	assert_true(controller._backup_port._pending.is_empty())
+	# A synchronous popup departure must not let the held packet wake as Save.
+	popup.hide()
 	_quick_native_key(KEY_F5, true)
 	assert_eq(Engine.get_process_frames(), input_frame)
 	assert_true(controller._quick_commands.last_result.is_empty())

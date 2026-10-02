@@ -8,6 +8,20 @@ const COPY := preload("res://scripts/ui/BackupApp.gd").COPY
 const BACKUP_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
 const ACTIONS := {&"game_quick_save": "save", &"game_quick_load": "load"}
 
+class WindowContacts extends Node:
+	var _owner: Object
+	var _retire: Callable
+	func _init(owner: Object, retire: Callable) -> void:
+		_owner = owner
+		_retire = retire
+		process_mode = Node.PROCESS_MODE_ALWAYS
+	func _input(event: InputEvent) -> void:
+		# Window packets bypass the parent input group. Native popup handling may
+		# already have hidden the Window, so forward its final release as well.
+		if not is_instance_valid(_owner): return
+		_owner.observe_physical_contact(event)
+		if _retire.is_valid(): _retire.call()
+
 var edge: Label
 var last_result: Dictionary = {}
 var _surface: Control
@@ -59,6 +73,9 @@ func _retain_on_window_custody(node: Node) -> void:
 	# their observed contacts at the boundary, including internal option popups.
 	if node is Window:
 		node.visibility_changed.connect(retain_contacts)
+		var observer := WindowContacts.new(_input_owner, retain_contacts)
+		observer.name = "PauseQuickWindowContacts"
+		node.add_child(observer)
 	for child: Node in node.get_children(true):
 		_retain_on_window_custody(child)
 
