@@ -22,6 +22,8 @@ signal ending_playback_failed(playback_token: String, ending_id: String, result:
 signal ending_playback_retired(playback_token: String, ending_id: String)
 signal scene_art_changed
 signal reading_session_changed
+## Exact command retained by the Hospital physical owner; emitted only by its native end.
+signal hospital_reading_finished(command: Dictionary, result: Dictionary)
 signal next_traversal_changed
 signal next_request_finished(expected_frontier: Dictionary, result: Dictionary)
 signal _next_runtime_settled
@@ -100,6 +102,10 @@ var _playback_completion_port: Object = null
 var _active_entry: Dictionary = {}
 const _READING_SESSION := preload("res://scripts/narrative/SoloReadingSession.gd")
 var _reading_catalogue_document: Dictionary = {}
+var _hospital_reading_catalogue_document: Dictionary = {}
+var _hospital_reading_command: Dictionary = {}
+var _hospital_reading_token := ""
+var _hospital_reading_completed := false
 var _reading_session: RefCounted
 var _reading_restore_pending: Dictionary = {}
 var _reading_restore_adoption := false
@@ -303,7 +309,10 @@ func get_current_scene_art() -> Dictionary:
 		entry_id += ".day%d" % int(context.day)
 	if entry_id == "hospital.faint" or entry_id.begins_with("hospital.faint."):
 		show_portraits = false
-		if context.has("presentation"):
+		if not _active_entry.is_empty() and context.has("presentation"):
+			var frozen := preload("res://scripts/narrative/FrozenPresentationContext.gd").validate(entry_id, context.presentation)
+			show_portraits = frozen.get("ok", false) and bool(frozen.value.fields.sylvia_eligible)
+		elif context.has("presentation"):
 			show_portraits = _HOSPITAL_ART.art_participants({}, context) == ["sylvia"]
 		else:
 			var game := get_node_or_null("/root/GameState") if is_inside_tree() else null
@@ -698,6 +707,9 @@ func _on_playback_start_failed(failure: Dictionary, halt_runtime: bool = false) 
 	if not ordinary_id.is_empty():
 		ordinary_playback_failed.emit(ordinary_id, failure.duplicate(true))
 	if not entry.is_empty():
+		if not _hospital_reading_command.is_empty() and entry.get("token") == _hospital_reading_token:
+			retire_reading_session()
+			ordinary_playback_failed.emit("hospital.faint", failure.duplicate(true))
 		entry_playback_failed.emit(str(entry.token), str(entry.entry_id), failure.duplicate(true))
 	if not ending.is_empty():
 		ending_playback_failed.emit(str(ending.token), str(ending.ending_id), failure.duplicate(true))
@@ -783,6 +795,8 @@ func capture_restore_state() -> Dictionary:
 		"reading_adoption": _reading_restore_adoption,
 		"reading_adoption_checkpoint": _reading_adoption_checkpoint.duplicate(true),
 		"reading_restore_token": _reading_restore_token,
+		"hospital_command": _hospital_reading_command.duplicate(true),
+		"hospital_token": _hospital_reading_token, "hospital_completed": _hospital_reading_completed,
 	}}}
 
 
@@ -852,6 +866,9 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 		_reading_restore_adoption = bool(reading_backup.get("reading_adoption", false))
 		_reading_adoption_checkpoint = reading_backup.get("reading_adoption_checkpoint", {}).duplicate(true)
 		_reading_restore_token = str(reading_backup.get("reading_restore_token", ""))
+		_hospital_reading_command = reading_backup.get("hospital_command", {}).duplicate(true)
+		_hospital_reading_token = str(reading_backup.get("hospital_token", ""))
+		_hospital_reading_completed = bool(reading_backup.get("hospital_completed", false))
 	if is_pause_restore_pending():
 		if _pause_restore.get("cancelled", false): return _pause_failure(&"pause_restore_committed")
 		# This restore only staged target bytes. The source runtime and its coroutine
@@ -1206,6 +1223,7 @@ func set_skip_mode(mode: StringName) -> Dictionary:
 
 ## Read-only UI admission; never reveals, witnesses, or advances an event.
 func can_skip_current_line() -> bool:
+	if has_reading_session() and _reading_session.family == "hospital": return false
 	return not _next_active and _line_presentation_context({}, false).get("ok", false)
 
 
@@ -1214,6 +1232,7 @@ func can_skip_current_line() -> bool:
 func can_next_current_line() -> bool:
 	if _next_active or _line_ack_in_progress or _auto_step_in_progress or _skip_step_in_progress \
 			or not _has_exact_caption_source() or _mutation_gate == null \
+			or _reading_session.family != "solo" \
 			or _runtime_adapter == null \
 			or _narrative_checkpoint_port == null \
 			or not _narrative_checkpoint_port.has_method("commit_reading_next") \
@@ -1472,6 +1491,8 @@ func _has_exact_caption_source() -> bool:
 
 func _line_witness_stage_allowed() -> bool:
 	var stage := str(_active_entry.get("stage", ""))
+	if _has_exact_caption_source() and _reading_session.family == "hospital":
+		return stage == "hospital" and can_capture_hospital_reading_checkpoint(_hospital_reading_command)
 	# Solo's admitted phase frames do not use the legacy current_entry signal stage.
 	return stage == str(_active_entry.get("entry_id", "")).get_slice(".", 4) \
 		if _has_exact_caption_source() else stage in _line_witness_stages
@@ -1562,6 +1583,8 @@ func request_skip_step() -> Dictionary:
 
 
 func _perform_skip_step() -> Dictionary:
+	if has_reading_session() and _reading_session.family == "hospital":
+		return _command_failure(&"reading_skip_unavailable")
 	if is_rehearsal_playback(): return _command_failure(&"rehearsal_commit_denied")
 	if not _pause_handle.is_empty():
 		return _command_failure(&"narrative_suspended")
@@ -1751,22 +1774,98 @@ func configure_playback_completion_port(port: Object) -> Dictionary:
 ## Explicit catalogue injection only. The shipped application leaves this absent
 ## until authored identities and projection copy have been accepted.
 func configure_reading_catalogue(document: Dictionary) -> Dictionary:
-	if not _reading_catalogue_document.is_empty():
-		return {"ok": true} if _reading_catalogue_document == document else _command_failure(&"reading_catalogue_already_configured")
+	var hospital: bool = document.get("kind") == "hospital_reading_catalogue"
+	var current := _hospital_reading_catalogue_document if hospital else _reading_catalogue_document
+	if not current.is_empty():
+		return {"ok": true} if current == document else _command_failure(&"reading_catalogue_already_configured")
 	var checked := _READING_SESSION.new()
 	var admitted: Dictionary = checked.configure(document)
 	if not admitted.ok: return admitted
-	_reading_catalogue_document = document.duplicate(true)
+	if hospital:
+		_hospital_reading_catalogue_document = document.duplicate(true)
+	else:
+		_reading_catalogue_document = document.duplicate(true)
 	return {"ok": true}
 
 
-func begin_reading_session(command: Dictionary) -> Dictionary:
-	var entry_id := str(command.get("timeline_id", ""))
-	if _reading_catalogue_document.is_empty(): return {"ok": true, "value": {"enabled": false}}
+func _reading_catalogue_for_entry(entry_id: String) -> Dictionary:
+	return _hospital_reading_catalogue_document if entry_id.begins_with("hospital.faint.day") else _reading_catalogue_document
+
+
+func _reading_command_entry(command: Dictionary) -> String:
+	if command.get("timeline_id") == "hospital.faint":
+		return str(command.get("context", {}).get("presentation", {}).get("fields", {}).get("entry_id", ""))
+	return str(command.get("timeline_id", ""))
+
+
+## The retained physical adapter supplies the canonical command. A staged restore
+## adopts that identity without ordinary playback of the first Hospital caption.
+func begin_hospital_reading(command: Dictionary) -> Dictionary:
+	var entry_id := _reading_command_entry(command)
+	if _hospital_reading_catalogue_document.is_empty():
+		return {"ok": true, "value": {"enabled": false}}
 	var candidate := _READING_SESSION.new()
-	var configured: Dictionary = candidate.configure(_reading_catalogue_document)
+	var configured: Dictionary = candidate.configure(_hospital_reading_catalogue_document)
 	if not configured.ok: return configured
-	if not candidate.catalogue.has(entry_id) or command.get("context", {}).get("kind") != "solo":
+	if not candidate.catalogue.has(entry_id): return {"ok": true, "value": {"enabled": false}}
+	if has_active_playback() and not is_hospital_reading_restore_for(command):
+		return _command_failure(&"narrative_playback_active")
+	var request := command.duplicate(true)
+	request.erase("physical_token")
+	request.erase("command_sha256")
+	var frozen := preload("res://scripts/narrative/HospitalFrozenContext.gd").validate_request(request)
+	if not frozen.ok: return frozen
+	var hashed := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd").canonical_sha256(request)
+	if not hashed.get("ok", false) or command.get("command_sha256") != hashed.value.sha256 \
+			or command.get("physical_token") != preload("res://scripts/application/narrative/DialogicPresentationOwnerAdapter.gd").derive_token(
+				str(command.completion_transaction_id), str(command.command_sha256)):
+		return _command_failure(&"reading_context_invalid")
+	var context := {"expected_stage": "hospital", "role": "hospital",
+		"transaction_id": str(command.completion_transaction_id) + ":hospital",
+		"playback_id": str(command.physical_token) + ":hospital",
+		"presentation": command.context.presentation.duplicate(true)}
+	# Refuse unsupported cause/eligibility before replacing an existing session.
+	var begun: Dictionary = candidate.begin(str(command.completion_transaction_id), entry_id)
+	if not begun.ok: return begun
+	var admitted: Dictionary = candidate.admit(entry_id, context)
+	if not admitted.ok: return admitted
+	var reading := begin_reading_session(command)
+	if not reading.get("ok", false) or not reading.get("value", {}).get("enabled", false): return reading
+	_hospital_reading_command = command.duplicate(true)
+	_hospital_reading_token = ""
+	_hospital_reading_completed = false
+	if reading.value.get("restoring", false): return reading
+	if reading.value.get("restored", false):
+		_hospital_reading_token = str(reading.value.receipt.get("playback_token", ""))
+		reading_session_changed.emit()
+		return reading
+	var started := start_entry(entry_id, context)
+	if not started.get("ok", false):
+		_hospital_reading_command.clear()
+		_hospital_reading_token = ""
+		retire_reading_session()
+		return started
+	return {"ok": true, "value": {"enabled": true}, "receipt": started.receipt}
+
+
+## Capability reads do not serialize a ledger, complete a reveal, or mutate an owner.
+func can_capture_hospital_reading_checkpoint(command: Dictionary) -> bool:
+	return not _hospital_reading_command.is_empty() and command == _hospital_reading_command \
+		and has_reading_session() and _reading_session.family == "hospital" \
+		and _reading_session.command_id == command.get("completion_transaction_id") \
+		and _reading_session.latest_entry == _reading_command_entry(command) \
+		and _active_entry.get("token", "") == _hospital_reading_token \
+		and not _hospital_reading_token.is_empty() and can_capture_reading_checkpoint()
+
+
+func begin_reading_session(command: Dictionary) -> Dictionary:
+	var entry_id := _reading_command_entry(command)
+	var document := _reading_catalogue_for_entry(entry_id)
+	if document.is_empty(): return {"ok": true, "value": {"enabled": false}}
+	var candidate := _READING_SESSION.new()
+	var configured: Dictionary = candidate.configure(document)
+	if not configured.ok: return configured
+	if not candidate.catalogue.has(entry_id) or command.get("context", {}).get("kind") != candidate.family:
 		if not _reading_restore_pending.is_empty() or _reading_restore_adoption:
 			return _command_failure(&"reading_restore_command_mismatch")
 		retire_reading_session()
@@ -1789,6 +1888,9 @@ func begin_reading_session(command: Dictionary) -> Dictionary:
 		return {"ok": true, "value": {"enabled": true, "restoring": true}}
 	var begun: Dictionary = candidate.begin(str(command.get("completion_transaction_id", "")), entry_id)
 	if not begun.ok: return begun
+	_hospital_reading_command.clear()
+	_hospital_reading_token = ""
+	_hospital_reading_completed = false
 	_reading_session = candidate
 	reading_session_changed.emit()
 	return {"ok": true, "value": {"enabled": true}}
@@ -1797,7 +1899,7 @@ func begin_reading_session(command: Dictionary) -> Dictionary:
 func _reading_command_matches(command: Dictionary, checkpoint: Dictionary) -> bool:
 	var saved: Dictionary = checkpoint.get("reading_session", {}).get("ledger", {})
 	var context: Dictionary = saved.get("frozen_context", {})
-	if context.get("pre_entry_id") != command.get("timeline_id") \
+	if context.get("entry_id", context.get("pre_entry_id")) != _reading_command_entry(command) \
 			or context.get("completion_transaction_id") != command.get("completion_transaction_id"):
 		return false
 	for frame: Dictionary in saved.get("entry_contexts", {}).values():
@@ -1806,7 +1908,34 @@ func _reading_command_matches(command: Dictionary, checkpoint: Dictionary) -> bo
 	return true
 
 
+## Bootstrap calls this only after the destination scene has actually published.
+## The final caption anchor remains available throughout durable Hospital settlement.
+func retire_completed_hospital_reading(command: Dictionary) -> Dictionary:
+	if _hospital_reading_command.is_empty():
+		if not has_reading_session() or _reading_session.family != "hospital":
+			return {"ok": true, "value": {"retired": false}}
+		# A completed saved stage has no physical presentation to reconstruct. Its
+		# independently admitted anchor is staged silently and consumed only when
+		# Bootstrap observes the lawful destination in this restored live session.
+		if _reading_restore_adoption and _hospital_reading_completed \
+				and _reading_session.boundary == "between_entries" and not has_active_playback() \
+				and (command.is_empty() or _reading_command_matches(command, _reading_adoption_checkpoint)):
+			retire_reading_session()
+			return {"ok": true, "value": {"retired": true}}
+		return _command_failure(&"hospital_reading_retirement_unavailable")
+	if command.is_empty() or command != _hospital_reading_command or not _hospital_reading_completed \
+			or not has_reading_session() or _reading_session.family != "hospital" \
+			or _reading_session.command_id != command.get("completion_transaction_id") \
+			or _reading_session.boundary != "between_entries" or has_active_playback():
+		return _command_failure(&"hospital_reading_retirement_unavailable")
+	retire_reading_session()
+	return {"ok": true}
+
+
 func retire_reading_session() -> void:
+	_hospital_reading_command.clear()
+	_hospital_reading_token = ""
+	_hospital_reading_completed = false
 	_reading_session = null
 	_reading_restore_adoption = false
 	_reading_adoption_checkpoint = {}
@@ -1883,7 +2012,7 @@ func get_reading_history() -> Dictionary:
 ## Prepare is pure and validates every frame and occurrence, never a prefix.
 ## The restore participant supplies independently admitted saved Run contexts.
 func validate_reading_checkpoint(checkpoint: Dictionary, entry_contexts: Dictionary = {}) -> Dictionary:
-	if _reading_catalogue_document.is_empty(): return _command_failure(&"reading_catalogue_unavailable")
+	if _reading_catalogue_for_entry(str(checkpoint.get("entry_id", ""))).is_empty(): return _command_failure(&"reading_catalogue_unavailable")
 	var keys := _RESUME_CHECKPOINT_KEYS.duplicate()
 	keys.append("manifest_fingerprint")
 	keys.append("reading_session")
@@ -1901,7 +2030,7 @@ func validate_reading_checkpoint(checkpoint: Dictionary, entry_contexts: Diction
 	if checkpoint.manifest_fingerprint != _ENTRY_MANIFEST.fingerprint(document.value):
 		return _command_failure(&"reading_catalogue_mismatch")
 	var candidate := _READING_SESSION.new()
-	var configured: Dictionary = candidate.configure(_reading_catalogue_document)
+	var configured: Dictionary = candidate.configure(_reading_catalogue_for_entry(checkpoint.entry_id))
 	if not configured.ok: return configured
 	var reconstructed: Dictionary = candidate.restore(checkpoint.reading_session, checkpoint.entry_id)
 	if not reconstructed.ok: return reconstructed
@@ -1943,21 +2072,44 @@ func is_reading_restore_staged() -> bool:
 	return not _reading_restore_pending.is_empty()
 
 
+## Only an admitted restore can replace an old process-local Hospital receipt.
+## A duplicate ordinary begin has no such certificate and remains idempotent.
+func is_hospital_reading_restore_for(command: Dictionary) -> bool:
+	var checkpoint := _reading_restore_pending if not _reading_restore_pending.is_empty() else _reading_adoption_checkpoint
+	if _reading_restore_pending.is_empty() and not _reading_restore_adoption: return false
+	if not _pause_handle.is_empty(): return false
+	if not _reading_restore_pending.is_empty():
+		if has_active_playback(): return false
+	elif _reading_restore_token.is_empty() or _active_entry.get("token", "") != _reading_restore_token:
+		return false
+	var reading: Dictionary = checkpoint.get("reading_session", {})
+	return reading.get("schema_version") == 3 and reading.get("family") == "hospital" \
+		and reading.get("boundary") == "line" and _reading_command_matches(command, checkpoint)
+
+
 func _resume_reading_checkpoint(checkpoint: Dictionary, execution_mode: StringName) -> Dictionary:
 	if execution_mode != &"canonical": return _command_failure(&"rehearsal_commit_denied")
 	var checked := validate_reading_checkpoint(checkpoint)
 	if not checked.ok: return checked
 	if has_active_playback(): return _command_failure(&"narrative_playback_active")
 	var candidate := _READING_SESSION.new()
-	var configured: Dictionary = candidate.configure(_reading_catalogue_document)
+	var configured: Dictionary = candidate.configure(_reading_catalogue_for_entry(checkpoint.entry_id))
 	if not configured.ok: return configured
 	var restored: Dictionary = candidate.restore(checkpoint.reading_session, checkpoint.entry_id)
 	if not restored.ok: return restored
+	if candidate.family == "hospital" and not _hospital_reading_command.is_empty() \
+			and not _reading_command_matches(_hospital_reading_command, checkpoint):
+		return _command_failure(&"reading_restore_command_mismatch")
 	_reading_session = candidate
 	_reading_restore_pending = {}
 	_reading_restore_adoption = true
 	_reading_adoption_checkpoint = checkpoint.duplicate(true)
+	if candidate.family == "hospital" and not _hospital_reading_command.is_empty():
+		# Route reconstruction may have joined while the narrative plan was staged.
+		# That adapter already owns the command; no later adoption call is owed.
+		_reading_restore_adoption = false
 	if checkpoint.reading_session.boundary == "between_entries":
+		if candidate.family == "hospital": _hospital_reading_completed = true
 		reading_session_changed.emit()
 		return {"ok": true, "value": {}, "receipt": {}}
 	_reading_resume_frontier = checkpoint.reading_session.frontier.duplicate(true)
@@ -2073,6 +2225,9 @@ func capture_pause_frontier(timeline_id: String = "") -> Dictionary:
 		or not _runtime_adapter.has_method("capture_pause_frontier"):
 		return _command_failure(&"pause_frontier_unavailable")
 	var owned_id: String = str(_ordinary_playback.get("timeline_id", _active_entry.get("entry_id", _active_playback.get("timeline_id", ""))))
+	if timeline_id == "hospital.faint" and not _hospital_reading_command.is_empty() \
+			and _active_entry.get("token", "") == _hospital_reading_token:
+		timeline_id = _reading_command_entry(_hospital_reading_command)
 	if not timeline_id.is_empty() and owned_id != timeline_id:
 		return _command_failure(&"pause_source_mismatch")
 	if _mutation_gate != null:
@@ -2163,6 +2318,7 @@ func _retire_suspended_playback(handle: Dictionary) -> Dictionary:
 		expected["paused"] = true
 		if not physical.get("ok", false) or physical.value != expected:
 			return _pause_failure(&"pause_source_changed")
+		var hospital := _hospital_reading_command.duplicate(true)
 		var ordinary := _ordinary_playback.duplicate(true)
 		var ending := _active_playback.duplicate(true)
 		_ordinary_playback.clear()
@@ -2176,6 +2332,9 @@ func _retire_suspended_playback(handle: Dictionary) -> Dictionary:
 		_runtime_adapter.halt_with_error({"code": &"session_abandoned"})
 		# Cancellation is separate from failure: a retired session must not run the
 		# scene/coordinator failure handlers or manufacture a physical completion.
+		if not hospital.is_empty():
+			retire_reading_session()
+			ordinary_playback_retired.emit("hospital.faint")
 		if not ordinary.is_empty():
 			ordinary_playback_retired.emit(str(ordinary["timeline_id"]))
 		if not ending.is_empty():
@@ -2443,6 +2602,10 @@ func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode
 		"suppress_first_speech": token_kind == "resume",
 		"frozen_context": frozen,
 	}
+	if not _hospital_reading_command.is_empty() and entry_id == _reading_command_entry(_hospital_reading_command) \
+			and frozen.playback_id == str(_hospital_reading_command.physical_token) + ":hospital" \
+			and frozen.transaction_id == str(_hospital_reading_command.completion_transaction_id) + ":hospital":
+		_hospital_reading_token = token
 	_start_in_progress = true
 	var started := _start_semantic_playback(path, label)
 	_start_in_progress = false
@@ -2474,7 +2637,8 @@ func _start_semantic_playback(path: String, label: String) -> Dictionary:
 			_prepare_scene_art()
 			return _runtime_adapter.start_reading_frontier(path, _reading_resume_frontier, label)
 		# Empty dating DTL returns naturally. It must never introduce an art-hold Continue.
-		var allow_art_hold := not str(_active_entry.get("entry_id", "")).begins_with("dating.")
+		var semantic_id := str(_active_entry.get("entry_id", ""))
+		var allow_art_hold := not semantic_id.begins_with("dating.") and not semantic_id.begins_with("hospital.faint.")
 		var result: Variant = _start_with_scene_art(path, label, allow_art_hold)
 		if typeof(result) != TYPE_DICTIONARY or not (result as Dictionary).get("ok", false):
 			return _playback_failure(&"runtime_start_failed", label)
@@ -2559,6 +2723,9 @@ func abort_current_entry(code: StringName) -> Dictionary:
 	# Clear BEFORE halting: the physical end signal the halt provokes must find no active entry,
 	# so an aborted playback can never reach the completion port (the stale-completion law).
 	_active_entry = {}
+	if not _hospital_reading_command.is_empty() and entry.get("token") == _hospital_reading_token:
+		retire_reading_session()
+		ordinary_playback_retired.emit("hospital.faint")
 	_close_art_hold()
 	scene_art_changed.emit()
 	if _runtime_adapter != null and _runtime_adapter.has_method("halt_with_error"):
@@ -2679,7 +2846,16 @@ func _on_runtime_timeline_ended() -> void:
 			"execution_mode": StringName(entry["execution_mode"]),
 			"completion_kind": &"natural_end",
 		}
-		if _playback_completion_port != null:
+		if str(entry.entry_id).begins_with("hospital.faint.day") and entry.execution_mode == &"canonical":
+			if _hospital_reading_command.is_empty() or str(entry.token) != _hospital_reading_token \
+					or entry.entry_id != _reading_command_entry(_hospital_reading_command):
+				narrative_validation_failed.emit(_command_failure(&"hospital_reading_completion_untrusted"))
+				return
+			var command := _hospital_reading_command.duplicate(true)
+			_hospital_reading_token = ""
+			_hospital_reading_completed = true
+			hospital_reading_finished.emit(command, {"timeline_id": "hospital.faint", "context": command.context.duplicate(true)})
+		elif _playback_completion_port != null:
 			_playback_completion_port.call(&"complete_entry", intent)
 		else:
 			narrative_validation_failed.emit({"ok": false,

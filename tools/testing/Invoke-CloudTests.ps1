@@ -182,6 +182,10 @@ $suites = @{
     )
     reading_delivery = @(
         'tests/unit/test_hospital_frozen_context.gd'
+        'tests/unit/test_hospital_presentation_port.gd'
+        'tests/unit/test_dialogic_presentation_owner_adapter.gd'
+        'tests/integration/test_hospital_dating_adapter_negative_contract.gd'
+        'tests/integration/test_hospital_reading_session_runtime.gd'
         'tests/unit/test_frozen_replay_context.gd'
         'tests/unit/test_minesweeper_delivery_notice.gd'
         'tests/unit/test_narrative_caption_ledger.gd'

@@ -10,7 +10,8 @@ extends RefCounted
 ## WHY IT IS THE ONLY SOURCE OF PHYSICAL TRUTH. Before Task 8 the bridge exposed a public
 ## `finish_current_timeline()`, so any caller could announce a completion that never happened. That
 ## method is gone. The only path to a completion now is the runtime's own `timeline_ended`, which
-## this adapter observes through the bridge's `timeline_finished`. A scene cannot author a result, a
+## this adapter observes through the bridge's ordinary or command-bound Hospital signal.
+## A scene cannot author a result, a
 ## caller cannot forge one, and a second emission for the same command replays the first record
 ## rather than minting a new one.
 ##
@@ -88,6 +89,8 @@ func configure(bridge: Object) -> Dictionary:
 		return _ok({"configured": true, "already_configured": true,
 			"bridge_instance_id": bridge.get_instance_id()})
 	_bridge = bridge
+	if bridge.has_signal("hospital_reading_finished"):
+		bridge.connect("hospital_reading_finished", _on_hospital_reading_finished)
 	if not bridge.is_connected("timeline_finished", _on_timeline_finished):
 		bridge.connect("timeline_finished", _on_timeline_finished)
 	if bridge.has_signal("ordinary_playback_failed") and not bridge.is_connected("ordinary_playback_failed", _on_playback_failed):
@@ -100,6 +103,35 @@ func configure(bridge: Object) -> Dictionary:
 
 func owner_kind() -> String:
 	return OWNER_KIND
+
+
+## A same-process Load can revisit a command this adapter already completed.
+## Only the Bridge's exact staged/restored line authorizes replacing that ephemeral
+## receipt; an ordinary duplicate begin never restarts or clears completion.
+func adopt_reading_restore(command: Dictionary) -> Dictionary:
+	if _bridge == null or not _bridge.has_method("is_hospital_reading_restore_for") \
+			or not _bridge.is_hospital_reading_restore_for(command):
+		return _ok({"restored": false})
+	var shaped := _exact_keys(command, CANONICAL_COMMAND_KEYS, &"invalid_presentation_command")
+	if not shaped.is_empty(): return shaped
+	var completion_id := str(command.completion_transaction_id)
+	var prior_completed: Dictionary = _completed.get(completion_id, {}).duplicate(true)
+	var prior_pending: Dictionary = _in_flight.get(completion_id, {}).duplicate(true)
+	for prior: Dictionary in [prior_completed, prior_pending]:
+		if not prior.is_empty() and (prior.get("command_sha256") != command.command_sha256 \
+				or prior.get("physical_token") != command.physical_token):
+			return _fail(&"presentation_command_conflict", "restored command binding changed", {})
+	_completed.erase(completion_id)
+	_in_flight.erase(completion_id)
+	var physical := command.duplicate(true)
+	physical.erase("physical_token")
+	var resumed := begin_physical(physical)
+	if not resumed.get("ok", false):
+		if not prior_completed.is_empty(): _completed[completion_id] = prior_completed
+		if not prior_pending.is_empty(): _in_flight[completion_id] = prior_pending
+		return resumed
+	resumed.value["restored"] = true
+	return resumed
 
 
 ## Starts the physical timeline for one canonical command and returns its derived token.
@@ -153,6 +185,18 @@ func begin_physical(command: Dictionary) -> Dictionary:
 	if timeline_id == "hospital.faint" and not bool(sylvia_hospital):
 		_in_flight[completion_id]["notice_only"] = true
 		return _ok({"physical_token": token, "command_sha256": command_sha256})
+	if timeline_id == "hospital.faint" and _bridge.has_method("begin_hospital_reading"):
+		var canonical := command.duplicate(true)
+		canonical["physical_token"] = token
+		# Retain before starting: native completion may be synchronous in a test runtime.
+		_in_flight[completion_id]["semantic_command"] = canonical.duplicate(true)
+		var reading: Dictionary = _bridge.begin_hospital_reading(canonical)
+		if not reading.get("ok", false):
+			_in_flight.erase(completion_id)
+			return reading
+		if reading.get("value", {}).get("enabled", false):
+			return _ok({"physical_token": token, "command_sha256": command_sha256})
+		_in_flight[completion_id].erase("semantic_command")
 	var started: Variant = _bridge.call(&"start_timeline_id", timeline_id,
 		(command["context"] as Dictionary).duplicate(true))
 	if typeof(started) != TYPE_DICTIONARY or not (started as Dictionary).get("ok", false):
@@ -285,19 +329,33 @@ static func derive_token(completion_transaction_id: String, command_sha256: Stri
 	return TOKEN_PREFIX + str((hashed["value"] as Dictionary)["sha256"])
 
 
-## The ONLY entry point for a physical completion. Reached exclusively from the bridge's trusted
+## Ordinary physical completion. Reached exclusively from the bridge's trusted
 ## `timeline_finished`, which since Task 8 only the Dialogic runtime's own `timeline_ended` can
 ## raise. A timeline this adapter did not start is ignored: other systems legitimately run timelines.
 func _on_timeline_finished(timeline_id: String, result: Dictionary) -> void:
 	var completion_id := ""
 	for candidate: Variant in _in_flight:
 		var candidate_pending: Dictionary = _in_flight[candidate]
-		if bool(candidate_pending.get("notice_only", false)): continue
+		if bool(candidate_pending.get("notice_only", false)) or candidate_pending.has("semantic_command"): continue
 		if str(candidate_pending["timeline_id"]) == timeline_id:
 			completion_id = str(candidate)
 			break
 	if completion_id.is_empty():
 		return
+	_complete_owned(completion_id, result)
+
+
+## Semantic Hospital completion is bound to the complete retained command, never
+## to the public timeline ID alone. Ordinary and stale emissions cannot settle it.
+func _on_hospital_reading_finished(command: Dictionary, result: Dictionary) -> void:
+	var completion_id := str(command.get("completion_transaction_id", ""))
+	if not _in_flight.has(completion_id) \
+			or _in_flight[completion_id].get("semantic_command") != command:
+		return
+	_complete_owned(completion_id, result)
+
+
+func _complete_owned(completion_id: String, result: Dictionary) -> void:
 	var pending: Dictionary = _in_flight[completion_id]
 	_in_flight.erase(completion_id)
 	var receipt := {

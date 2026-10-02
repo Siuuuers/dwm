@@ -7,6 +7,9 @@ extends RefCounted
 const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 const CAPTION_REGISTRY := preload("res://scripts/narrative/NarrativeCaptionRegistry.gd")
 const READING_NEXT := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
+const SCHEDULE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
+const DAY_PLAN := preload("res://scripts/domain/run/DayResolutionPlan.gd")
+const NARRATIVE_OWNER := preload("res://scripts/application/narrative/DialogicPresentationOwnerAdapter.gd")
 const CONTACTS := preload("res://scripts/narrative/ContactsFrozenContext.gd")
 const CONTACT_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const HOSPITAL := preload("res://scripts/narrative/HospitalFrozenContext.gd")
@@ -60,10 +63,13 @@ static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictio
 		return _fail(&"reading_session_invalid")
 	for key: String in ["entry_id", "manifest_fingerprint", "stage", "transaction_id"]:
 		if not FROZEN._field(checkpoint[key], "id"): return _fail(&"reading_session_invalid")
-	if snapshot.get("route_id") != "dating" or not snapshot.get("lifecycle") is Dictionary or not snapshot.get("gameplay") is Dictionary \
+	if not snapshot.get("lifecycle") is Dictionary or not snapshot.get("gameplay") is Dictionary \
 			or not snapshot.get("contacts") is Dictionary or not snapshot.gameplay.get("route_context") is Dictionary:
 		return _fail(&"reading_saved_run_required")
 	var reading: Variant = checkpoint.get("reading_session")
+	if reading is Dictionary and typeof(reading.get("schema_version")) == TYPE_INT and reading.schema_version == 3:
+		return _hospital_reading(checkpoint, snapshot, reading)
+	if snapshot.get("route_id") != "dating": return _fail(&"reading_saved_run_required")
 	if reading is Dictionary and typeof(reading.get("schema_version")) == TYPE_INT \
 			and reading.schema_version == 2:
 		var operation := READING_NEXT.validate(reading, checkpoint.entry_id)
@@ -138,6 +144,104 @@ static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictio
 			return _fail(&"reading_caption_sequence_invalid")
 		post_seen = post_seen or entry == post_entry
 	return {"ok": true, "value": {"entry_contexts": admitted}}
+
+## Hospital has one frame, independently bound to the retained Schedule-Done
+## request and Contacts sources. The checkpoint's own frame never supplies its
+## command identity. A completed anchor is needed by the coordinator's produced
+## checkpoints, including those after increment_day; it is not a playable line.
+static func _hospital_reading(checkpoint: Dictionary, snapshot: Dictionary, reading: Dictionary) -> Dictionary:
+	if snapshot.get("route_id") != "hospital": return _fail(&"reading_saved_run_required")
+	if not _exact(reading, ["schema_version", "family", "catalogue_fingerprint", "boundary", "ledger", "frontier"]) \
+			or reading.family != "hospital" or not FROZEN._field(reading.catalogue_fingerprint, "id") \
+			or reading.boundary not in ["line", "between_entries"] or not reading.frontier is Dictionary:
+		return _fail(&"reading_session_invalid")
+	var ledger: Variant = reading.ledger
+	if not ledger is Dictionary or not _exact(ledger, ["session_token", "frozen_context", "entry_contexts", "captions"]) \
+			or not FROZEN._field(ledger.session_token, "id") or not ledger.frozen_context is Dictionary \
+			or not ledger.entry_contexts is Dictionary or not ledger.captions is Array:
+		return _fail(&"reading_session_invalid")
+	var lifecycle: Dictionary = snapshot.lifecycle
+	var plan: Variant = lifecycle.get("active_resolution_plan")
+	if not plan is Dictionary or not plan.get("stages") is Array \
+			or not plan.get("committed_schedule") is Dictionary or not plan.committed_schedule.get("entries") is Array \
+			or not FROZEN._field(plan.get("resolution_id"), "id") or not plan.get("resolution_issuer_receipt") is Dictionary \
+			or typeof(plan.get("source_day")) != TYPE_INT or plan.source_day not in range(1, 8) \
+			or typeof(lifecycle.get("day")) != TYPE_INT or lifecycle.day not in range(1, 8) \
+			or lifecycle.get("state") != "PLAYING" or lifecycle.get("active_condition_hospital_plan") != null \
+			or typeof(snapshot.gameplay.get("pending_hospital")) != TYPE_BOOL \
+			or not DAY_PLAN.stage_allowlist(plan.source_day).has("hospital_if_triggered") \
+			or not DAY_PLAN.is_active_source_day_legal(plan.source_day, lifecycle.day, plan):
+		return _fail(&"reading_physical_owner_mismatch")
+	var stage := {}
+	for row: Variant in plan.stages:
+		if not row is Dictionary: return _fail(&"reading_physical_owner_mismatch")
+		if row.get("stage_id") == "hospital_if_triggered":
+			if not stage.is_empty(): return _fail(&"reading_physical_owner_mismatch")
+			stage = row
+	for entry: Variant in plan.committed_schedule.entries:
+		if not entry is Dictionary: return _fail(&"reading_physical_owner_mismatch")
+	var sources := _contact_sources(snapshot.contacts, true)
+	if not sources.ok: return sources
+	var route: Dictionary = snapshot.gameplay.route_context
+	# This authority concerns the retained Schedule-Done plan. Other historical
+	# condition plans are validated by the outer Run owner, not replayed here.
+	var hospital := _hospital(route, {"active_resolution_plan": plan}, snapshot.contacts, snapshot.gameplay, true)
+	if not hospital.ok: return hospital
+	var request: Variant = route.get(HOSPITAL_KEY, {}).get("requests", {}).get(plan.get("resolution_id"))
+	if not request is Dictionary or request.context.presentation.fields.qualifying_cause != "schedule_done" \
+			or not request.context.presentation.fields.sylvia_eligible:
+		return _fail(&"reading_physical_owner_mismatch")
+	var hashed := SCHEDULE_SCHEMA.canonical_sha256(request)
+	if not hashed.ok: return _fail(&"reading_physical_owner_mismatch")
+	var command_hash: String = hashed.value.sha256
+	var token := NARRATIVE_OWNER.derive_token(request.completion_transaction_id, command_hash)
+	if token.is_empty(): return _fail(&"reading_physical_owner_mismatch")
+	var entry: String = request.context.presentation.fields.entry_id
+	var frame := {"expected_stage": "hospital", "playback_id": token + ":hospital", "role": "hospital",
+		"transaction_id": request.completion_transaction_id + ":hospital", "presentation": request.context.presentation}
+	var admitted := {entry: frame}
+	if ledger.session_token != request.completion_transaction_id \
+			or ledger.frozen_context != {"family": "hospital", "completion_transaction_id": request.completion_transaction_id, "entry_id": entry}:
+		return _fail(&"reading_physical_owner_mismatch")
+	if ledger.entry_contexts != admitted or checkpoint.entry_id != entry or checkpoint.frozen_context != frame \
+			or checkpoint.stage != "hospital" or checkpoint.transaction_id != frame.transaction_id:
+		return _fail(&"reading_entry_context_mismatch")
+	if reading.boundary == "line":
+		if not _exact(reading.frontier, ["line_id", "publication_id"]) \
+				or not FROZEN._field(reading.frontier.line_id, "id") or not FROZEN._field(reading.frontier.publication_id, "id"):
+			return _fail(&"reading_session_invalid")
+		if stage.get("state") != "active" or not snapshot.gameplay.pending_hospital:
+			return _fail(&"reading_physical_boundary_mismatch")
+	elif not reading.frontier.is_empty() or stage.get("state") != "completed" or snapshot.gameplay.pending_hospital \
+			or not _hospital_reading_completed(stage, request, command_hash, token):
+		return _fail(&"reading_physical_boundary_mismatch")
+	var publications := {}
+	for row: Variant in ledger.captions:
+		if not row is Dictionary or not _exact(row, ["publication_id", "beat"]) \
+				or not FROZEN._field(row.publication_id, "id") or not CAPTION_REGISTRY.valid_beat(row.beat) \
+				or row.beat.owning_entry_id != entry or publications.has(row.publication_id):
+			return _fail(&"reading_caption_sequence_invalid")
+		publications[row.publication_id] = true
+	if ledger.captions.is_empty(): return _fail(&"reading_caption_sequence_invalid")
+	if reading.boundary == "line" and (reading.frontier.line_id != ledger.captions.back().beat.line_id \
+			or reading.frontier.publication_id != ledger.captions.back().publication_id):
+		return _fail(&"reading_physical_boundary_mismatch")
+	return {"ok": true, "value": {"entry_contexts": admitted.duplicate(true)}}
+
+static func _hospital_reading_completed(stage: Dictionary, request: Dictionary, command_hash: String, token: String) -> bool:
+	var facts := _dictionary(_dictionary(stage.get("receipt")).get("value"))
+	var completion: Variant = facts.get("presentation_completion_receipt")
+	if typeof(facts.get("required")) != TYPE_BOOL or not facts.required or not completion is Dictionary: return false
+	var physical: Variant = completion.get("physical_completion_receipt")
+	if not physical is Dictionary or not physical.get("result") is Dictionary or not FROZEN._primitive(physical.result): return false
+	var expected_physical := {"owner_kind": "narrative", "physical_token": token, "command_sha256": command_hash,
+		"completion_transaction_id": request.completion_transaction_id, "status": "completed", "result": physical.result}
+	var expected := {"receipt_id": request.completion_transaction_id,
+		"receipt_provenance": request.completion_transaction_provenance, "resolution_id": request.resolution_id,
+		"stage_id": request.stage_id, "substage_id": request.substage_id, "route_id": request.route_id,
+		"timeline_id": request.timeline_id, "command_sha256": command_hash, "physical_owner_kind": "narrative",
+		"physical_token": token, "physical_completion_receipt": expected_physical}
+	return physical == expected_physical and completion == expected
 
 static func _dating(route: Dictionary, lifecycle: Dictionary, contacts: Dictionary, required: bool) -> Dictionary:
 	var record: Variant = route.get("active_dating_challenge", {})

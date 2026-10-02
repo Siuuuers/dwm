@@ -1661,9 +1661,12 @@ func _capture_backup_inputs() -> Dictionary:
 	var dating: bool = inputs["route_id"] == "dating" and dating_record is Dictionary \
 		and not dating_record.is_empty() and dating_record.get("phase") in ["pre_challenge", "preparing", "challenge", "cleared_awaiting_terminal_choice", "post_challenge"]
 	var narrative: Dictionary = inputs["dialogic_checkpoint"]
-	if not (desktop or dating) or (not narrative.is_empty() and (not dating or not narrative.has("reading_session"))) \
+	var hospital: bool = inputs["route_id"] == "hospital" and narrative.get("reading_session") is Dictionary \
+		and narrative.reading_session.get("schema_version") == 3 and narrative.reading_session.get("family") == "hospital" \
+		and narrative.reading_session.get("boundary") == "line"
+	if not (desktop or dating or hospital) or (not narrative.is_empty() and (not (dating or hospital) or not narrative.has("reading_session"))) \
 			or inputs["snapshot_input"]["lifecycle"].get("state") != "PLAYING":
-		return _fail(&"backup_capture_unavailable", "A qualified desktop or paused Dating capture is required")
+		return _fail(&"backup_capture_unavailable", "A qualified desktop or admitted reading capture is required")
 	if not narrative.is_empty():
 		# Full Run composition below performs the same cross-owner validation.
 		# This capture boundary also refuses malformed/foreign reading sessions

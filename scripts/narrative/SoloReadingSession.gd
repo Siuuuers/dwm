@@ -1,5 +1,5 @@
 extends RefCounted
-## Opt-in authored Solo catalogue and one semantic ledger. No production
+## Opt-in authored Solo or fixed Hospital catalogue and one semantic ledger. No production
 ## catalogue is loaded implicitly, and the catalogue never executes story code.
 const LEDGER := preload("res://scripts/narrative/NarrativeCaptionLedger.gd")
 const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
@@ -9,6 +9,7 @@ const TRAVERSAL := preload("res://scripts/narrative/ReadingTraversalOperation.gd
 
 var catalogue: Dictionary = {}
 var catalogue_schema_version := 1
+var family := "solo"
 var _selected_entries: Dictionary = {}
 var fingerprint := ""
 var registry: Dictionary = {}
@@ -36,17 +37,19 @@ func configure(document: Dictionary) -> Dictionary:
 		FROZEN._freeze(catalogue)
 		fingerprint = str(encoded.value).sha256_text()
 		return {"ok": true}
+	var hospital: bool = document.get("kind") == "hospital_reading_catalogue"
 	if not FROZEN._exact(document, ["kind", "schema_version", "entries"]) \
-			or document.get("kind") != "solo_reading_catalogue" \
+			or document.get("kind") not in ["solo_reading_catalogue", "hospital_reading_catalogue"] \
 			or typeof(document.get("schema_version")) != TYPE_INT or document.schema_version != 1 \
-			or not document.get("entries") is Array or document.entries.size() != 2:
+			or not document.get("entries") is Array or document.entries.size() != (1 if hospital else 2):
 		return _fail(&"reading_catalogue_invalid")
 	var compiled := {}
 	var beats: Array = []
 	var entries: Array = []
 	for row: Variant in document.entries:
 		if not row is Dictionary or not FROZEN._exact(row, ["entry_id", "content_version", "lines"]) \
-				or not row.get("entry_id") is String or not row.entry_id.begins_with("dating.solo.") \
+				or not row.get("entry_id") is String \
+				or (not _hospital_entry(row.entry_id) if hospital else not row.entry_id.begins_with("dating.solo.")) \
 				or typeof(row.get("content_version")) != TYPE_INT or row.content_version <= 0 \
 				or not row.get("lines") is Array or row.lines.is_empty() or compiled.has(row.entry_id):
 			return _fail(&"reading_catalogue_invalid")
@@ -62,8 +65,8 @@ func configure(document: Dictionary) -> Dictionary:
 		compiled[row.entry_id] = row.duplicate(true)
 		entries.append({"entry_id": row.entry_id})
 	var first: String = document.entries[0].entry_id
-	if not first.ends_with(".pre_challenge") \
-			or document.entries[1].entry_id != first.trim_suffix(".pre_challenge") + ".post_challenge":
+	if not hospital and (not first.ends_with(".pre_challenge") \
+			or document.entries[1].entry_id != first.trim_suffix(".pre_challenge") + ".post_challenge"):
 		return _fail(&"reading_catalogue_invalid")
 	var registered := {"kind": "narrative_caption_registry", "schema_version": 1, "beats": beats}
 	var entry_manifest := {"entries": entries}
@@ -72,6 +75,7 @@ func configure(document: Dictionary) -> Dictionary:
 	var encoded := JSON_WRITER.stringify(document)
 	if not encoded.ok: return encoded
 	catalogue = compiled
+	family = "hospital" if hospital else "solo"
 	registry = registered
 	# This index carries authored identity only; causal entry frames and publication
 	# IDs establish ownership of an occurrence without making it another variant.
@@ -85,10 +89,10 @@ func configure(document: Dictionary) -> Dictionary:
 func begin(completion_transaction_id: String, pre_entry: String) -> Dictionary:
 	if ledger != null: return _fail(&"reading_session_already_initialized")
 	if completion_transaction_id.is_empty() or not catalogue.has(pre_entry) \
-			or not pre_entry.ends_with(".pre_challenge"):
+			or (not _hospital_entry(pre_entry) if family == "hospital" else not pre_entry.ends_with(".pre_challenge")):
 		return _fail(&"reading_session_invalid")
 	var candidate := LEDGER.new()
-	var context := {"completion_transaction_id": completion_transaction_id, "pre_entry_id": pre_entry}
+	var context := _session_context(completion_transaction_id, pre_entry)
 	# A selector catalogue has no chosen caption registration until its real
 	# phase frame exists. The retained ledger object is initialized on admission.
 	if catalogue_schema_version == 1:
@@ -101,12 +105,8 @@ func begin(completion_transaction_id: String, pre_entry: String) -> Dictionary:
 
 func admit(entry_id: String, context: Dictionary) -> Dictionary:
 	if ledger == null or not catalogue.has(entry_id): return _fail(&"reading_session_unavailable")
-	if not _context_shape(context): return _fail(&"reading_context_invalid")
-	var checked := FROZEN.validate(entry_id, context.presentation)
+	var checked := _validate_frame(entry_id, context, command_id)
 	if not checked.ok: return checked
-	if context.get("expected_stage") != entry_id.get_slice(".", 4) \
-			or context.get("transaction_id") != command_id + ":" + str(context.get("expected_stage")):
-		return _fail(&"reading_context_invalid")
 	if catalogue_schema_version == 2:
 		var selected := _admit_authored(entry_id, context)
 		if not selected.ok: return selected
@@ -142,7 +142,11 @@ func capture(frontier: Dictionary) -> Dictionary:
 	if ledger == null or latest_entry.is_empty(): return _fail(&"reading_session_unavailable")
 	var saved := {"schema_version": 1, "catalogue_fingerprint": fingerprint,
 		"boundary": boundary, "ledger": ledger.snapshot(), "frontier": frontier.duplicate(true)}
-	if not next_operation.is_empty():
+	if family == "hospital":
+		if not next_operation.is_empty(): return _fail(&"reading_next_unavailable")
+		saved.schema_version = 3
+		saved["family"] = "hospital"
+	elif not next_operation.is_empty():
 		saved.schema_version = 2
 		saved["next_operation"] = next_operation.duplicate(true)
 	var checked := validate_saved(saved, latest_entry)
@@ -150,6 +154,7 @@ func capture(frontier: Dictionary) -> Dictionary:
 
 ## Validates the full fixed-prose sequence before a fresh candidate is installed.
 func validate_saved(saved: Dictionary, entry_id: String) -> Dictionary:
+	if family == "hospital": return _validate_base_saved(saved, entry_id)
 	if typeof(saved.get("schema_version")) == TYPE_INT and saved.schema_version == 2:
 		var operation := TRAVERSAL.validate(saved, entry_id)
 		if not operation.ok: return operation
@@ -165,8 +170,11 @@ func validate_saved(saved: Dictionary, entry_id: String) -> Dictionary:
 	return _validate_base_saved(saved, entry_id)
 
 func _validate_base_saved(saved: Dictionary, entry_id: String) -> Dictionary:
-	if not FROZEN._exact(saved, ["schema_version", "catalogue_fingerprint", "boundary", "ledger", "frontier"]) \
-			or typeof(saved.get("schema_version")) != TYPE_INT or saved.schema_version != 1 \
+	var fields := ["schema_version", "catalogue_fingerprint", "boundary", "ledger", "frontier"]
+	if family == "hospital": fields.append("family")
+	if not FROZEN._exact(saved, fields) \
+			or typeof(saved.get("schema_version")) != TYPE_INT or saved.schema_version != (3 if family == "hospital" else 1) \
+			or (family == "hospital" and saved.get("family") != "hospital") \
 			or not saved.get("catalogue_fingerprint") is String \
 			or not saved.get("boundary") is String or saved.boundary not in ["line", "between_entries"] \
 			or not saved.get("ledger") is Dictionary or not saved.get("frontier") is Dictionary:
@@ -174,14 +182,17 @@ func _validate_base_saved(saved: Dictionary, entry_id: String) -> Dictionary:
 	if saved.catalogue_fingerprint != fingerprint: return _fail(&"reading_catalogue_mismatch")
 	var source: Dictionary = saved.ledger
 	if not source.get("frozen_context") is Dictionary \
-			or not FROZEN._exact(source.frozen_context, ["completion_transaction_id", "pre_entry_id"]) \
 			or not source.frozen_context.get("completion_transaction_id") is String \
 			or source.frozen_context.completion_transaction_id.is_empty() \
-			or not source.frozen_context.get("pre_entry_id") is String \
-			or not catalogue.has(source.frozen_context.pre_entry_id) \
-			or not source.frozen_context.pre_entry_id.ends_with(".pre_challenge") \
 			or not source.get("entry_contexts") is Dictionary or not catalogue.has(entry_id):
 		return _fail(&"reading_checkpoint_invalid")
+	var first: Variant = source.frozen_context.get("entry_id" if family == "hospital" else "pre_entry_id")
+	if not first is String or not catalogue.has(first) \
+			or (not _hospital_entry(first) if family == "hospital" else not first.ends_with(".pre_challenge")) \
+			or source.frozen_context != _session_context(source.frozen_context.completion_transaction_id, first):
+		return _fail(&"reading_checkpoint_invalid")
+	if family == "hospital" and (first != entry_id or not FROZEN._exact(source.entry_contexts, [entry_id])):
+		return _fail(&"reading_context_invalid")
 	var programs := _programs_for_frames(source.entry_contexts, source.frozen_context.completion_transaction_id)
 	if not programs.ok: return programs
 	if not source.entry_contexts.has(entry_id): return _fail(&"reading_context_invalid")
@@ -221,7 +232,7 @@ func restore(saved: Dictionary, entry_id: String) -> Dictionary:
 	ledger = checked.value
 	if catalogue_schema_version == 2: _install_programs(checked.programs, checked.registry)
 	command_id = saved.ledger.frozen_context.completion_transaction_id
-	pre_entry_id = saved.ledger.frozen_context.pre_entry_id
+	pre_entry_id = saved.ledger.frozen_context.get("entry_id" if family == "hospital" else "pre_entry_id")
 	latest_entry = entry_id
 	boundary = saved.boundary
 	next_operation = saved.get("next_operation", {}).duplicate(true)
@@ -231,7 +242,7 @@ func restore(saved: Dictionary, entry_id: String) -> Dictionary:
 ## changed by planning. Only the caller's validated exact-membership query may
 ## authorize silent traversal; the first unseen caption becomes the destination.
 func prepare_next(frontier: Dictionary, is_witnessed: Callable) -> Dictionary:
-	if not is_witnessed.is_valid() or boundary != "line": return _fail(&"reading_next_unavailable")
+	if family == "hospital" or not is_witnessed.is_valid() or boundary != "line": return _fail(&"reading_next_unavailable")
 	var source := capture(frontier)
 	if not source.ok: return source
 	var lines: Array = entry_program(latest_entry).value.lines
@@ -297,12 +308,8 @@ func _programs_for_frames(frames: Dictionary, transaction_id: String) -> Diction
 		if not key is String or not catalogue.has(key) or not frames[key] is Dictionary:
 			return _fail(&"reading_context_invalid")
 		var context: Dictionary = frames[key]
-		if not _context_shape(context): return _fail(&"reading_context_invalid")
-		var checked := FROZEN.validate(key, context.presentation)
+		var checked := _validate_frame(key, context, transaction_id)
 		if not checked.ok: return checked
-		if context.get("expected_stage") != str(key).get_slice(".", 4) \
-				or context.get("transaction_id") != transaction_id + ":" + str(context.get("expected_stage")):
-			return _fail(&"reading_context_invalid")
 		var programme := entry_program(key, context)
 		if not programme.ok: return programme
 		selected[key] = programme.value
@@ -362,6 +369,36 @@ static func _context_shape(context: Dictionary) -> bool:
 	return FROZEN._exact(context, ["expected_stage", "playback_id", "role", "transaction_id", "presentation"]) \
 		and context.get("role") == "dating_phase" and context.get("playback_id") is String \
 		and not str(context.playback_id).is_empty() and context.get("presentation") is Dictionary
+
+func _session_context(completion_transaction_id: String, first_entry: String) -> Dictionary:
+	if family == "hospital":
+		return {"family": "hospital", "completion_transaction_id": completion_transaction_id, "entry_id": first_entry}
+	return {"completion_transaction_id": completion_transaction_id, "pre_entry_id": first_entry}
+
+func _validate_frame(entry_id: String, context: Dictionary, completion_transaction_id: String) -> Dictionary:
+	if family == "hospital":
+		if not FROZEN._exact(context, ["expected_stage", "playback_id", "role", "transaction_id", "presentation"]) \
+				or context.get("role") != "hospital" or not context.get("playback_id") is String \
+				or not str(context.playback_id).ends_with(":hospital") \
+				or str(context.playback_id).trim_suffix(":hospital").strip_edges().is_empty() \
+				or not context.get("presentation") is Dictionary:
+			return _fail(&"reading_context_invalid")
+	elif not _context_shape(context):
+		return _fail(&"reading_context_invalid")
+	var checked := FROZEN.validate(entry_id, context.presentation)
+	if not checked.ok: return checked
+	var stage := "hospital" if family == "hospital" else entry_id.get_slice(".", 4)
+	if context.get("expected_stage") != stage or context.get("transaction_id") != completion_transaction_id + ":" + stage:
+		return _fail(&"reading_context_invalid")
+	if family == "hospital" and (checked.value.fields.qualifying_cause != "schedule_done" \
+			or not checked.value.fields.sylvia_eligible):
+		return _fail(&"reading_context_invalid")
+	return {"ok": true}
+
+static func _hospital_entry(entry_id: String) -> bool:
+	for day: int in range(1, 8):
+		if entry_id == "hospital.faint.day%d" % day: return true
+	return false
 
 static func _fail(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code, "message": ""}

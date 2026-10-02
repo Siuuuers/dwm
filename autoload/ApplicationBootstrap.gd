@@ -554,7 +554,8 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 				"audio": _target(&"AudioManager"), "gate": _application_gate,
 				"profile": _target(&"ProfileManager"), "localization": _target(&"LocalizationManager"),
 				"backup_capture": Callable(self, "_capture_paused_checkpoint_inputs"),
-				"dating_presentation": _retained_dating_presentation_port})
+				"dating_presentation": _retained_dating_presentation_port,
+				"hospital_physical": _retained_presentation_owner_adapter})
 		&"configure_restore_participants":
 			return _configure_restore_participants()
 		&"configure_day_resolution":
@@ -886,8 +887,8 @@ func _capture_paused_checkpoint_inputs() -> Dictionary:
 			or game == null or bridge == null or router == null:
 		return _failure(&"backup_capture_unavailable", "Paused gameplay owners are unavailable")
 	var route: String = router.get_current_route_id()
-	if route not in ["main", "dating"]:
-		return _failure(&"backup_capture_unavailable", "The paused source is not at an idle gameplay boundary")
+	if route not in ["main", "dating", "hospital"]:
+		return _failure(&"backup_capture_unavailable", "The paused source has no qualified gameplay capture")
 	var narrative := _capture_dating_reading_checkpoint(bridge, route)
 	if not narrative.get("ok", false): return narrative
 	var inputs: Dictionary = _retained_day_resolution_state_port._checkpoint_inputs(game._run_lifecycle.to_dict())
@@ -905,6 +906,15 @@ func _capture_paused_checkpoint_inputs() -> Dictionary:
 func _capture_dating_reading_checkpoint(bridge: Object, route: String) -> Dictionary:
 	if bridge == null:
 		return _failure(&"backup_capture_unavailable", "Narrative owner is unavailable")
+	if route == "hospital":
+		var scene := get_tree().current_scene
+		if not get_tree().paused or scene == null \
+				or scene.scene_file_path != "res://scenes/hospital/HospitalScene.tscn" \
+				or not scene.has_method("get_presentation_projection") \
+				or not bridge.has_method("can_capture_hospital_reading_checkpoint") \
+				or not bridge.can_capture_hospital_reading_checkpoint(scene.get_presentation_projection()):
+			return _failure(&"backup_capture_unavailable", "Hospital has no qualified retained reading source")
+		return bridge.capture_reading_checkpoint(false)
 	if route == "dating" and bridge.has_method("has_reading_session") and bridge.has_reading_session():
 		# Capture is also used by capability/token checks and must stay pure.
 		# The activated rail/Quick Save command completes reveal beforehand.
@@ -2353,12 +2363,44 @@ func _resume_live_continuation() -> void:
 		if int(plan.source_day) == 7:
 			_finish_day_resolution_route()
 		elif str(router.get_current_route_id()) in ["dating", "hospital"]:
+			var hospital_command := {}
+			var source_scene := get_tree().current_scene
+			if str(router.get_current_route_id()) == "hospital" and source_scene != null \
+					and source_scene.scene_file_path == "res://scenes/hospital/HospitalScene.tscn" \
+					and source_scene.has_method("get_presentation_projection"):
+				hospital_command = source_scene.get_presentation_projection()
 			router.goto_main()
+			if str(router.get_current_route_id()) == "main":
+				_retire_completed_hospital_after_main(hospital_command, session.value)
+		elif str(router.get_current_route_id()) == "main":
+			# A cold completed-stage Load may already publish Main with only its
+			# independently validated completed Hospital anchor retained by Bridge.
+			_retire_completed_hospital_after_main({}, session.value)
 	elif _retained_schedule_done_dispatcher != null:
 		# Replaying the saved command rehydrates the retained coordinator without
 		# issuing another root or committing another Schedule.
 		var resumed: Dictionary = _retained_schedule_done_dispatcher.dispatch_done(str(plan.command_id))
 		if not resumed.get("ok", false): push_error("Day resolution could not resume: " + str(resumed.get("code", "")))
+
+## Settlement checkpoints retain Hospital's final semantic anchor. Retire it only
+## after the completed Schedule-Done owner has actually published its Main scene.
+func _retire_completed_hospital_after_main(command: Dictionary, expected_session: Dictionary) -> void:
+	var tree := get_tree()
+	if tree.current_scene == null or tree.current_scene.scene_file_path != "res://scenes/main/MainGameScene.tscn":
+		await tree.scene_changed
+	var scene := tree.current_scene
+	var game := _target(&"GameState")
+	var router := _target(&"SceneRouter")
+	var bridge := _target(&"DialogicBridge")
+	if scene == null or scene.scene_file_path != "res://scenes/main/MainGameScene.tscn" \
+			or router == null or router.get_current_route_id() != "main" \
+			or game == null or bridge == null or not bridge.has_method("retire_completed_hospital_reading"):
+		return
+	var current: Dictionary = game.capture_live_session()
+	if not current.get("ok", false) or current.value != expected_session \
+			or not expected_session.get("active", false): return
+	var retired: Dictionary = bridge.retire_completed_hospital_reading(command)
+	if not retired.get("ok", false): push_error("Completed Hospital reading could not retire: " + str(retired.get("code", "")))
 
 
 func _present_pending_day7_prelude(game_state: Object, router: Object) -> bool:

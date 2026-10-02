@@ -7,6 +7,8 @@ const PRE := "dating.solo.priscilla.day1.pre_challenge"
 const POST := "dating.solo.priscilla.day1.post_challenge"
 const TOKEN := "fixture:reading-command"
 const NEXT := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
+const HOSPITAL_FIXTURE := preload("res://tests/support/HospitalReadingFixture.gd")
+const HOSPITAL_ENTRY := "hospital.faint.day3"
 
 func test_next_plan_is_pure_and_stops_before_first_exact_unseen_variant() -> void:
 	var session := _session()
@@ -223,3 +225,144 @@ func test_current_variant_is_detached_and_requires_the_admitted_published_tail()
 	assert_true(session.current_caption_variant(PRE, second).ok)
 	session.completed(PRE)
 	assert_false(session.current_caption_variant(PRE, second).ok, "completed prose is no longer the foreground")
+
+func _hospital_session() -> RefCounted:
+	var session := SESSION.new()
+	assert_true(session.configure(HOSPITAL_FIXTURE.catalogue()).ok)
+	return session
+
+func _hospital_context() -> Dictionary:
+	var presentation := FROZEN.build(HOSPITAL_ENTRY, {"entry_id": HOSPITAL_ENTRY, "entry_role": "hospital",
+		"day": 3, "qualifying_cause": "schedule_done", "accepted_record_ids": ["fixture:sylvia-source"],
+		"unfulfilled_record_ids": ["fixture:sylvia-source"], "sylvia_eligible": true,
+		"sylvia_witness_receipt_id": null})
+	assert_true(presentation.ok, str(presentation))
+	return {"expected_stage": "hospital", "role": "hospital", "transaction_id": TOKEN + ":hospital",
+		"playback_id": "fixture:physical:hospital", "presentation": presentation.value}
+
+func test_hospital_catalogue_is_one_closed_day_entry_with_exact_fixed_line_registration() -> void:
+	for day: int in range(1, 8):
+		var session := SESSION.new()
+		assert_true(session.configure(HOSPITAL_FIXTURE.catalogue(day)).ok)
+		assert_eq(session.family, "hospital")
+		assert_eq(session.catalogue_schema_version, 1)
+	for entry: String in [PRE, "hospital.faint", "hospital.faint.day0", "hospital.faint.day8", "hospital.faint.day03"]:
+		var document := HOSPITAL_FIXTURE.catalogue()
+		document.entries[0].entry_id = entry
+		var session := SESSION.new()
+		assert_false(session.configure(document).ok, entry)
+		assert_true(session.catalogue.is_empty(), "failed admission installs no partial catalogue")
+		assert_true(session.configure(HOSPITAL_FIXTURE.catalogue()).ok)
+	for mutation: String in ["version", "extra_entry", "empty_lines", "extra_field", "duplicate_line"]:
+		var document := HOSPITAL_FIXTURE.catalogue()
+		match mutation:
+			"version": document.schema_version = 2
+			"extra_entry": document.entries.append(document.entries[0].duplicate(true))
+			"empty_lines": document.entries[0].lines = []
+			"extra_field": document.entries[0]["selector_fields"] = []
+			"duplicate_line": document.entries[0].lines[1].line_id = document.entries[0].lines[0].line_id
+		assert_false(SESSION.new().configure(document).ok, mutation)
+
+func test_hospital_registration_and_frame_admission_never_prefill_history() -> void:
+	var session := _hospital_session()
+	assert_true(session.begin(TOKEN, HOSPITAL_ENTRY).ok)
+	assert_eq(session.ledger.snapshot().captions, [])
+	assert_eq(session.ledger.snapshot().entry_contexts, {})
+	assert_eq(session.ledger.snapshot().frozen_context,
+		{"family": "hospital", "completion_transaction_id": TOKEN, "entry_id": HOSPITAL_ENTRY})
+	assert_true(session.admit(HOSPITAL_ENTRY, _hospital_context()).ok)
+	assert_eq(session.ledger.snapshot().captions, [], "a causal frame is not a publication")
+	var allocated: Dictionary = session.ledger.allocate_publication(TOKEN, HOSPITAL_ENTRY)
+	assert_true(allocated.ok)
+	assert_eq(session.ledger.snapshot().captions, [], "allocation is not a publication")
+	assert_false(session.capture({"line_id": "fixture.hospital.a", "publication_id": allocated.value}).ok)
+	assert_true(session.ledger.publish_line(TOKEN, allocated.value, HOSPITAL_ENTRY, "fixture.hospital.a").ok)
+	var frontier := {"line_id": "fixture.hospital.a", "publication_id": allocated.value}
+	assert_eq(session.project(frontier).value.captions.size(), 1, "unreached B stays out of History")
+	var before: Dictionary = session.capture(frontier).value
+	var queried: Array = []
+	assert_eq(session.prepare_next(frontier, func(beat: Dictionary) -> bool:
+		queried.append(beat)
+		return true).get("code"), &"reading_next_unavailable")
+	assert_eq(queried, [], "Hospital traversal is outside this admitted slice")
+	assert_eq(session.capture(frontier).value, before)
+
+func test_hospital_frame_refuses_other_causes_absence_and_foreign_phase_without_rebinding() -> void:
+	var session := _hospital_session()
+	assert_true(session.begin(TOKEN, HOSPITAL_ENTRY).ok)
+	assert_true(session.admit(HOSPITAL_ENTRY, _hospital_context()).ok)
+	var frontier := _publish(session, HOSPITAL_ENTRY, "fixture.hospital.a")
+	var before: Dictionary = session.capture(frontier).value
+	for mutation: String in ["condition", "absent", "stage", "role", "transaction", "playback", "playback_suffix", "rebind_source", "day", "extra"]:
+		var frame := _hospital_context()
+		match mutation:
+			"condition": frame.presentation.fields.qualifying_cause = "condition_hospital"
+			"absent": frame.presentation.fields.sylvia_eligible = false
+			"stage": frame.expected_stage = "pre_challenge"
+			"role": frame.role = "dating_phase"
+			"transaction": frame.transaction_id = "other:completion:hospital"
+			"playback": frame.playback_id = ""
+			"playback_suffix": frame.playback_id = "fixture:physical:pre_challenge"
+			"rebind_source":
+				frame.presentation.fields.accepted_record_ids = ["other:sylvia-source"]
+				frame.presentation.fields.unfulfilled_record_ids = ["other:sylvia-source"]
+			"day": frame.presentation.fields.day = 4
+			"extra": frame["source"] = "unregistered"
+		assert_false(session.admit(HOSPITAL_ENTRY, frame).ok, mutation)
+		assert_eq(session.capture(frontier).value, before, mutation)
+	assert_false(session.admit(PRE, _context(PRE)).ok)
+	assert_false(session.begin(TOKEN, HOSPITAL_ENTRY).ok, "one instance cannot adopt a second session")
+
+func test_hospital_v3_restores_exact_published_prefix_and_refuses_downgrade_or_foreign_rows() -> void:
+	var source := _hospital_session()
+	assert_true(source.begin(TOKEN, HOSPITAL_ENTRY).ok)
+	assert_true(source.admit(HOSPITAL_ENTRY, _hospital_context()).ok)
+	_publish(source, HOSPITAL_ENTRY, "fixture.hospital.a")
+	var frontier := _publish(source, HOSPITAL_ENTRY, "fixture.hospital.b")
+	var saved: Dictionary = source.capture(frontier).value
+	assert_eq(saved.schema_version, 3)
+	assert_eq(saved.family, "hospital")
+	var target := _hospital_session()
+	assert_true(target.restore(saved, HOSPITAL_ENTRY).ok)
+	assert_eq(target.capture(frontier).value, saved)
+	assert_eq(target.project(frontier).value.captions.size(), 2)
+	assert_eq(target.pre_entry_id, HOSPITAL_ENTRY, "internal entry custody does not fabricate a Solo ID")
+	assert_false(_session().restore(saved, HOSPITAL_ENTRY).ok, "a Solo catalogue cannot admit Hospital data")
+	for mutation: String in ["version1", "version2", "float_version", "missing_family", "wrong_family",
+			"old_context", "foreign_row", "wrong_frontier", "duplicate_publication", "extra_frame"]:
+		var changed := saved.duplicate(true)
+		match mutation:
+			"version1": changed.schema_version = 1
+			"version2": changed.schema_version = 2
+			"float_version": changed.schema_version = 3.0
+			"missing_family": changed.erase("family")
+			"wrong_family": changed.family = "solo"
+			"old_context": changed.ledger.frozen_context = {"completion_transaction_id": TOKEN, "pre_entry_id": HOSPITAL_ENTRY}
+			"foreign_row": changed.ledger.captions[0].beat.owning_entry_id = PRE
+			"wrong_frontier": changed.frontier.publication_id = changed.ledger.captions[0].publication_id
+			"duplicate_publication": changed.ledger.captions[1].publication_id = changed.ledger.captions[0].publication_id
+			"extra_frame": changed.ledger.entry_contexts[PRE] = _context(PRE)
+		assert_false(target.restore(changed, HOSPITAL_ENTRY).ok, mutation)
+		assert_eq(target.capture(frontier).value, saved, "refusal preserves the standing Hospital session: " + mutation)
+	var detached: Dictionary = target.project(frontier).value
+	detached.captions[0].text = "caller replacement"
+	assert_eq(target.capture(frontier).value, saved)
+
+func test_hospital_completed_anchor_requires_full_prefix_without_a_new_publication() -> void:
+	var session := _hospital_session()
+	assert_true(session.begin(TOKEN, HOSPITAL_ENTRY).ok)
+	assert_true(session.admit(HOSPITAL_ENTRY, _hospital_context()).ok)
+	_publish(session, HOSPITAL_ENTRY, "fixture.hospital.a")
+	var frontier := _publish(session, HOSPITAL_ENTRY, "fixture.hospital.b")
+	var before: Dictionary = session.ledger.snapshot()
+	session.completed(HOSPITAL_ENTRY)
+	assert_eq(session.ledger.snapshot(), before)
+	assert_false(session.current_caption_variant(HOSPITAL_ENTRY, frontier).ok)
+	var completed: Dictionary = session.capture({})
+	assert_true(completed.ok, str(completed))
+	assert_eq(completed.value.boundary, "between_entries")
+	assert_eq(session.project({}).value.captions.size(), 2, "pending settlement retains the final anchor")
+	var changed: Dictionary = completed.value.duplicate(true)
+	changed.ledger.captions.pop_back()
+	assert_false(session.validate_saved(changed, HOSPITAL_ENTRY).ok, "an early prefix cannot claim physical completion")
+	assert_eq(session.capture({}).value, completed.value)

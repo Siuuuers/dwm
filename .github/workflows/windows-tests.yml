@@ -797,6 +797,73 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
+  rendered-hospital-reading:
+    needs: public-surfaces
+    name: Rendered Hospital reading / Schedule-Done Save and fresh-process Load
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
+      XDG_DATA_HOME: ${{ github.workspace }}/.godot/phase2r_tests/cloud-hospital-reading-import/data
+      DWM_TEST_ROOT: ${{ github.workspace }}/.godot/phase2r_tests/cloud-hospital-reading-import/test-root
+      DWM_RENDER_OUTPUT: ${{ github.workspace }}/.godot/ci/hospital-reading
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Same disposable-index workaround as the Windows jobs above.
+          persist-credentials: true
+      - name: Prepare disposable checkout for credential cleanup
+        run: |
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          git submodule foreach --recursive 'true'
+      - name: Install Godot and software display
+        timeout-minutes: 12
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri pulseaudio pulseaudio-utils libspeechd2 speech-dispatcher speech-dispatcher-audio-plugins speech-dispatcher-espeak-ng
+          archive="$RUNNER_TEMP/godot-4.6.3-linux.zip"
+          curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip' --output "$archive"
+          printf '%s  %s\n' 'd0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3' "$archive" | sha256sum --check
+          unzip -q "$archive" -d "$RUNNER_TEMP/godot-4.6.3-linux"
+          editor="$RUNNER_TEMP/godot-4.6.3-linux/Godot_v4.6.3-stable_linux.x86_64"
+          chmod +x "$editor"
+          echo "GODOT_CONSOLE_PATH=$editor" >> "$GITHUB_ENV"
+          "$editor" --version
+      - name: Start and verify native Linux speech service
+        timeout-minutes: 2
+        run: bash tools/testing/start_cloud_speech.sh
+      - name: Upload native speech environment evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloud-speech-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/cloud-speech/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Import project
+        timeout-minutes: 8
+        run: |
+          mkdir -p "$DWM_RENDER_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
+          "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --import --log-file "$DWM_RENDER_OUTPUT/import.log"
+          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_RENDER_OUTPUT/import.log"; then
+            exit 1
+          fi
+          # Dialogic's editor scan rewrites its timeline lookup during import.
+          git restore -- project.godot
+      - name: Exercise Hospital reading through Schedule-Done Save and fresh-process Load
+        timeout-minutes: 25
+        run: python3 tools/testing/run_hospital_reading_journey.py
+      - name: Upload Hospital reading reports, exact save bytes and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hospital-reading-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/hospital-reading/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7
+
   rendered-desktop:
     needs: public-surfaces
     name: Rendered desktop and dialogue / Linux software OpenGL

@@ -5,6 +5,7 @@ const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 const ENDING := preload("res://scripts/narrative/EndingFrozenContext.gd")
 const CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const DECK := preload("res://scripts/domain/relationship/PairDeckDraw.gd")
+const READING_FIXTURE := preload("res://tests/unit/test_reading_restore_admission.gd")
 
 func _snapshot() -> Dictionary:
 	return {"lifecycle": {"run_id": "fixture:run", "branch_id": "restored:branch", "day": 2,
@@ -135,6 +136,29 @@ func test_schedule_hospital_uses_saved_plan_and_allows_lawful_pending_first_capt
 	assert_true(RUN.validate(snapshot, true).ok)
 	snapshot.lifecycle.active_resolution_plan.resolution_issuer_receipt = {"receipt_id": "unrelated:root"}
 	assert_eq(RUN.validate(snapshot).get("code"), &"hospital_frozen_request_mismatch")
+
+func test_full_saved_run_boundary_rejects_hospital_checkpoint_frame_forgery() -> void:
+	var fixture: Node = autofree(READING_FIXTURE.new())
+	fixture.gut = gut
+	var snapshot: Dictionary = fixture._hospital_snapshot()
+	var before := snapshot.duplicate(true)
+	assert_true(RUN.validate(snapshot, true).ok)
+	assert_eq(snapshot, before)
+	var checkpoint: Dictionary = snapshot.narrative_checkpoint
+	checkpoint.frozen_context.playback_id = "foreign:physical:hospital"
+	checkpoint.reading_session.ledger.entry_contexts[checkpoint.entry_id] = checkpoint.frozen_context.duplicate(true)
+	assert_eq(RUN.validate(snapshot, true).get("code"), &"reading_entry_context_mismatch",
+		"matching attacker-controlled copies cannot supply the independent physical owner")
+
+func test_full_saved_run_boundary_preserves_completed_hospital_anchor_until_destination() -> void:
+	var fixture: Node = autofree(READING_FIXTURE.new())
+	fixture.gut = gut
+	var snapshot: Dictionary = fixture._hospital_snapshot(true)
+	var before := snapshot.duplicate(true)
+	assert_true(RUN.validate(snapshot, true).ok)
+	assert_eq(snapshot, before)
+	snapshot.lifecycle.active_resolution_plan.stages[0].receipt.value.presentation_completion_receipt.physical_token = "foreign:physical"
+	assert_eq(RUN.validate(snapshot, true).get("code"), &"reading_physical_boundary_mismatch")
 
 func test_condition_hospital_binds_historical_prepared_request_after_identity_remap() -> void:
 	var snapshot := _snapshot()

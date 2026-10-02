@@ -132,6 +132,18 @@ func begin(request: Dictionary) -> Dictionary:
 		if str(existing["command_sha256"]) != command_sha256:
 			return _fail(&"presentation_command_conflict",
 				"this completion transaction already carries different command bytes", {})
+		if _physical_owner.has_method("adopt_reading_restore"):
+			var resumed: Variant = _physical_owner.adopt_reading_restore(existing.duplicate(true))
+			if not resumed is Dictionary or not resumed.get("ok", false):
+				return resumed if resumed is Dictionary else _fail(
+					&"physical_presentation_unavailable", "the owner returned no restore result", {})
+			if resumed.get("value", {}).get("restored", false):
+				if resumed.value.get("physical_token") != existing.physical_token \
+						or resumed.value.get("command_sha256") != command_sha256:
+					return _fail(&"physical_presentation_unavailable", "restored command binding changed", {})
+				# Restore replaced the live occurrence, not the durable command. Its
+				# next actual native completion must reach the restored coordinator.
+				_settled.erase(completion_id)
 		return _ok({"presentation_command": existing.duplicate(true)})
 
 	var command := request.duplicate(true)

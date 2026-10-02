@@ -1,4 +1,5 @@
 extends Node
+const FROZEN_RUN := preload("res://scripts/narrative/FrozenRunContext.gd")
 ## Transient production composition of the existing Pause, suspension and session-exit owners.
 ## No Pause token is saved; exact live scene/session and native reading frontier own admission.
 const COORDINATOR := preload("res://scripts/application/lifecycle/ApplicationLifecycleCoordinator.gd")
@@ -218,11 +219,19 @@ func _direct_quick_finished(_result: Dictionary) -> void:
 
 func can_open_witnessed_backup_save(caption: Node) -> bool:
 	return can_open_witnessed_backup_load(caption) \
-		and _router.get_current_route_id() == "dating" \
-		and is_instance_valid(_services.get("dating_presentation")) \
+		and _reading_save_owner_available(_router.get_current_route_id(), \
+			capture_scene_projection(get_tree().current_scene).get("command", {})) \
 		and (_services.get("backup_capture", Callable()) as Callable).is_valid() \
 		and _services.bridge.has_method("can_capture_reading_checkpoint") \
 		and _services.bridge.can_capture_reading_checkpoint()
+
+## Family admission is a pure retained-owner query; it never serializes or reveals a caption.
+func _reading_save_owner_available(route: String, command: Dictionary) -> bool:
+	if route == "dating": return is_instance_valid(_services.get("dating_presentation"))
+	return route == "hospital" and is_instance_valid(_services.get("hospital_physical")) \
+		and _services.hospital_physical.has_method("capture_pause_source") \
+		and _services.bridge.has_method("can_capture_hospital_reading_checkpoint") \
+		and _services.bridge.can_capture_hospital_reading_checkpoint(command)
 
 func open_witnessed_backup_save(caption: Node) -> Dictionary:
 	if not can_open_witnessed_backup_save(caption): return _failure(&"pause_save_unavailable")
@@ -504,8 +513,7 @@ func can_save_backup() -> bool:
 	if not _captured_source.get("frontier", {}).is_empty():
 		# Projection and capture remain read-only even for a partial reveal. Actual
 		# Backup entry or Quick Save prepares the retained caption separately.
-		return capture.is_valid() and route == "dating" \
-			and is_instance_valid(_services.get("dating_presentation")) \
+		return capture.is_valid() and _reading_save_owner_available(route, _captured_source.get("command", {})) \
 			and is_instance_valid(_caption) and _caption.get_script() == CAPTION \
 			and is_instance_valid(_caption.caption_text) \
 			and _services.bridge.has_method("can_capture_reading_checkpoint") \
@@ -538,7 +546,7 @@ func prepare_backup_save() -> Dictionary:
 
 
 ## Save keeps the exact source suspended. The configured provider captures live canonical
-## owners; the retained Dating port proves that these bytes belong to this scene's command.
+## owners; the retained physical owner proves these bytes belong to this scene's command.
 func capture_backup_checkpoint_inputs() -> Dictionary:
 	if not can_save_backup(): return _failure(&"pause_save_unavailable")
 	if not _captured_source.get("frontier", {}).is_empty(): return _capture_reading_backup_inputs()
@@ -596,6 +604,7 @@ func _capture_between_entry_reading_checkpoint() -> Dictionary:
 
 
 func _capture_reading_backup_inputs() -> Dictionary:
+	if _captured_source.route_id == "hospital": return _capture_hospital_reading_backup_inputs()
 	var command: Dictionary = _captured_source.command
 	var physical: Dictionary = _services.dating_presentation.pull_physical(command)
 	if not physical.get("ok", false): return physical
@@ -623,6 +632,49 @@ func _capture_reading_backup_inputs() -> Dictionary:
 			or not after.get("ok", false) or after.value != checkpoint.value \
 			or not _backup_admission().get("ok", false):
 		return _failure(&"pause_source_changed")
+	return {"ok": true, "value": inputs.duplicate(true)}
+
+func _capture_hospital_reading_source(command: Dictionary) -> Dictionary:
+	if not _reading_save_owner_available("hospital", command): return _failure(&"pause_source_changed")
+	var physical: Dictionary = _services.hospital_physical.capture_pause_source()
+	if not physical.get("ok", false): return physical
+	for key: String in ["physical_token", "command_sha256", "completion_transaction_id", "timeline_id", "route_id"]:
+		if not command.has(key) or physical.value.get(key) != command[key]: return _failure(&"pause_source_changed")
+	if physical.value.get("frontier") != _captured_source.get("frontier"): return _failure(&"pause_source_changed")
+	var session: Dictionary = _services.game_state.capture_live_session()
+	if not session.get("ok", false) or session.value != _captured_source.get("session") \
+			or not _services.game_state.validate_live_session(session.value).get("ok", false):
+		return _failure(&"pause_source_changed")
+	var snapshot: Dictionary = _services.game_state.capture_run_snapshot_input()
+	var authority := {"route_id": "hospital"}
+	for key: String in ["lifecycle", "gameplay", "contacts"]:
+		if not snapshot.get(key) is Dictionary: return _failure(&"pause_source_changed")
+		authority[key] = snapshot[key].duplicate(true)
+	if authority.lifecycle.get("run_id") != session.value.get("run_id"): return _failure(&"pause_source_changed")
+	return {"ok": true, "value": {"physical": physical.value.duplicate(true), "authority": authority}}
+
+## Hospital's command/frame is checked against the independent saved Schedule-Done
+## request and Contacts facts, not against another copy of the checkpoint itself.
+func _capture_hospital_reading_backup_inputs() -> Dictionary:
+	var command: Dictionary = _captured_source.command
+	var before := _capture_hospital_reading_source(command)
+	if not before.get("ok", false): return before
+	var checkpoint: Dictionary = _services.bridge.capture_reading_checkpoint(false)
+	if not checkpoint.get("ok", false): return checkpoint
+	var proven := FROZEN_RUN.validate_reading_checkpoint(checkpoint.value, before.value.authority)
+	if not proven.get("ok", false): return proven
+	var captured: Variant = (_services.backup_capture as Callable).call()
+	if not captured is Dictionary or not captured.get("ok", false):
+		return captured if captured is Dictionary else _failure(&"invalid_backup_capture")
+	var inputs: Dictionary = captured.get("value", {})
+	var after := _capture_hospital_reading_source(command)
+	var current: Dictionary = _services.bridge.capture_reading_checkpoint(false)
+	if not after.get("ok", false) or after.value != before.value \
+			or inputs.get("route_id") != "hospital" or inputs.get("dialogic_checkpoint") != checkpoint.value \
+			or not current.get("ok", false) or current.value != checkpoint.value \
+			or not _backup_admission().get("ok", false): return _failure(&"pause_source_changed")
+	for key: String in ["lifecycle", "gameplay", "contacts"]:
+		if inputs.get("snapshot_input", {}).get(key) != before.value.authority[key]: return _failure(&"pause_source_changed")
 	return {"ok": true, "value": inputs.duplicate(true)}
 
 
