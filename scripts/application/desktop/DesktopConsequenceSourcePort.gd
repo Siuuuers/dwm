@@ -172,6 +172,34 @@ func resolve_condition_receipt(request: Dictionary) -> Dictionary:
 	# request from another day nor a foreign plan can borrow the restored gameplay outcome.
 	if int(lifecycle.get("day", -1)) != day:
 		return _condition_unavailable("the request names another live day")
+	var live_causal_day := str(lifecycle.get("causal_day_instance", ""))
+	if live_causal_day != causal_day:
+		var restore_provenance: Variant = lifecycle.get("restore_provenance")
+		var proof: Dictionary = {}
+		if restore_provenance is Dictionary:
+			proof = (restore_provenance as Dictionary)
+		# On a repeated Load the latest proof names the immediately preceding continuation,
+		# while the retained plan start still names the original source. Require a real remap
+		# boundary here; the verified plan/start below remains the original-request authority.
+		if proof.is_empty() \
+				or str(proof.get("source_branch_id", "")).is_empty() \
+				or str(proof.get("source_causal_day_instance", "")).is_empty() \
+				or str(proof.get("source_causal_day_instance", "")) == live_causal_day \
+				or str(proof.get("restore_transaction_id", "")).is_empty() \
+				or str(proof.get("identity_allocation_receipt_id", "")).is_empty() \
+				or str(proof.get("transaction_remap_sha256", "")).is_empty() \
+				or str(proof.get("remap_receipt_id", "")).is_empty() \
+				or not proof.get("remap_receipt_provenance") is Dictionary \
+				or (proof.get("remap_receipt_provenance") as Dictionary).is_empty():
+			return _condition_unavailable("the request names another live continuation")
+		var remap_provenance: Dictionary = proof["remap_receipt_provenance"]
+		var remap_valid: Dictionary = _identity_issuer.call(
+			&"validate_child", remap_provenance, &"continuation_operation")
+		if not remap_valid.get("ok", false) \
+				or str(remap_provenance.get("parent_receipt_id", "")) \
+					!= str(proof.get("identity_allocation_receipt_id", "")) \
+				or str(remap_provenance.get("child_id", "")) != str(proof.get("remap_receipt_id", "")):
+			return _condition_unavailable("the live continuation has no verified restore remap")
 	var plan: Dictionary = lifecycle.get("active_resolution_plan", {}) \
 		if lifecycle.get("active_resolution_plan") is Dictionary else {}
 	var root: Dictionary = plan.get("resolution_issuer_receipt", {}) \
