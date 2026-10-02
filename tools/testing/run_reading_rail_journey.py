@@ -550,6 +550,22 @@ def validate_settings_load(report: dict, prior: dict, evidence: Path, folder: Pa
     ):
         raise RuntimeError("SETTINGS_LOAD_REQUIRES_EXACT_RETAINED_F5_INPUT")
     advanced = report["advanced"]
+    transport = advanced["transport"]
+    input_observation = cloud.contained_path(evidence, evidence / "settings-load-input.json")
+    packets = transport["events"]
+    if strict_json(input_observation.read_text(encoding="utf-8")) != transport or not (
+        transport["packet_type"] == "InputEventKey" and transport["accept_admitted"] is True
+        and transport["source_line"] == "fixture.solo.pre.a" and transport["back_admitted"] is True
+        and transport["pause_source_admission"]["ok"] is True
+        and transport["admitted_frontier"] == before["reading"]["source"]["checkpoint"]["reading_session"]["frontier"]
+        and transport["tree_paused"] is True and transport["contacts_after"] == {}
+        and [(packet["key"], packet["pressed"]) for packet in packets]
+        == [("Enter", True), ("Enter", False), ("Escape", True), ("Escape", False)]
+        and all(type(packet["frame"]) is int for packet in packets)
+        and all(left["frame"] < right["frame"] for left, right in zip(packets, packets[1:]))
+        and all(len(packet["contacts"]) == (1 if packet["pressed"] else 0) for packet in packets)
+    ):
+        raise RuntimeError("SETTINGS_LOAD_REQUIRES_FRESH_RELEASED_ACCEPT_THEN_ADMITTED_PHYSICAL_BACK")
     if advanced["reading"] != before["reading"] or advanced["scene_id"] != before["scene_id"] or (
         advanced["tree_paused"] is not True or advanced["pause_visible"] is not True
     ):
@@ -659,7 +675,7 @@ def run_settings_load(repository: Path, parent_folder: Path, godot: str, xvfb: s
         result["failures"].append(f"{type(error).__name__}: {error}")
     finally:
         try:
-            names = ("settings-load.json", "settings-load-transactions.jsonl",
+            names = ("settings-load.json", "settings-load-transactions.jsonl", "settings-load-input.json",
                      *(f"settings-load-{stage}.json" for stage in SETTINGS_LOAD_STAGES),
                      *(f"settings-load-baseline-{key}.json" for key in SETTINGS_DISK_PATHS))
             for name in names:
