@@ -524,7 +524,7 @@ def validate_settings_load(report: dict, prior: dict, evidence: Path, folder: Pa
         {"cancel_first_confirmation", "bound_quick_candidate", "no_early_restore", "source_scene_retained", "suspension_retained", "exclusive_modal", "disk_unchanged", "zero_mutations"},
         {"exact_partial_source", "exact_host_focus_scroll_suspension", "source_scene_retained", "consent_retired", "disk_unchanged", "zero_mutations"},
         {"cancel_first_confirmation", "bound_quick_candidate", "no_early_restore", "source_scene_retained", "suspension_retained", "exclusive_modal", "disk_unchanged", "zero_mutations"},
-        {"load_committed", "saved_checkpoint_exact", "saved_history_exact", "saved_physical_exact", "saved_app_exact", "saved_earlier_line_complete", "restored_live_session", "old_pause_settings_closed", "restored_scene_mounted", "no_restored_speech", "profile_unchanged", "disk_unchanged", "zero_mutations"},
+        {"load_committed", "saved_checkpoint_exact", "saved_history_exact", "saved_physical_exact", "saved_app_exact", "saved_earlier_line_complete", "restored_live_session", "old_pause_settings_closed", "restored_scene_mounted", "no_restored_speech", "profile_unchanged", "disk_unchanged", "recovery_bookkeeping_only"},
     )
     trace_path = cloud.contained_path(evidence, evidence / "settings-load-transactions.jsonl")
     entries = [strict_json(line) for line in trace_path.read_text(encoding="utf-8").splitlines()]
@@ -609,9 +609,9 @@ def validate_settings_load(report: dict, prior: dict, evidence: Path, folder: Pa
         or after["pause_visible"] is not False or after["settings_visible"] is not False or after["suspension"] != {}
         or after["speech_admissions"] != before["reading"]["source"]["speech_admissions"]
         or after["profile"] != before["reading"]["source"]["profile"]
-        or after["disk"] != before["disk"] or after["mutations"] != []
+        or after["disk"] != before["disk"]
     ):
-        raise RuntimeError("SETTINGS_LOAD_CONFIRM_MUST_RESTORE_SAVED_EARLIER_SOURCE_WITHOUT_SPEECH_OR_WRITES")
+        raise RuntimeError("SETTINGS_LOAD_CONFIRM_MUST_RESTORE_SAVED_EARLIER_SOURCE_WITHOUT_SPEECH_OR_PRIMARY_WRITES")
     baselines = {}
     for key in SETTINGS_DISK_PATHS:
         source = cloud.contained_path(evidence, evidence / f"settings-load-baseline-{key}.json")
@@ -624,10 +624,11 @@ def validate_settings_load(report: dict, prior: dict, evidence: Path, folder: Pa
         baselines[key] = identity
     if (evidence / "settings-load-baseline-quick.json").read_bytes() != (folder / "input-quick.json").read_bytes():
         raise RuntimeError("SETTINGS_LOAD_MUST_CONFIRM_THE_RETAINED_F5_QUICK")
-    return {"raw_input": inputs, "raw_paused_source": baselines, "raw_final": final,
+    recovery = validate_settings_load_recovery(report, evidence, folder)
+    return {"raw_input": inputs, "raw_paused_source": baselines, "raw_final": final, "recovery_bookkeeping": recovery,
             "cancel_exact_partial_source_focus_scroll": True, "fresh_confirm_saved_earlier_line": True,
             "saved_history_physical_app_restored": True, "old_pause_settings_closed": True,
-            "load_mutations": 0, "restored_speech_admissions": 0, "stage_observations": len(stages)}
+            "primary_file_mutations": 0, "recovery_bookkeeping_mutations": len(after["mutations"]), "restored_speech_admissions": 0, "stage_observations": len(stages)}
 
 
 def run_settings_load(repository: Path, parent_folder: Path, godot: str, xvfb: str, env: dict,
@@ -677,7 +678,8 @@ def run_settings_load(repository: Path, parent_folder: Path, godot: str, xvfb: s
         try:
             names = ("settings-load.json", "settings-load-transactions.jsonl", "settings-load-input.json",
                      *(f"settings-load-{stage}.json" for stage in SETTINGS_LOAD_STAGES),
-                     *(f"settings-load-baseline-{key}.json" for key in SETTINGS_DISK_PATHS))
+                     *(f"settings-load-baseline-{key}.json" for key in SETTINGS_DISK_PATHS),
+                     *(f"settings-load-recovery-{stage}-{key}.json" for stage in ("before", "after") for key in ("issuer", "continuation")))
             for name in names:
                 source = cloud.contained_path(evidence, evidence / name)
                 destination = cloud.contained_path(folder, folder / name)
@@ -935,6 +937,114 @@ def run() -> int:
         "checkout_sha": result.get("checkout_sha"), "failures": result["failures"],
     }), flush=True)
     return 0 if result["ok"] else 1
+
+
+def validate_settings_load_recovery(report: dict, evidence: Path, folder: Path) -> dict:
+    """Bind the existing durable restore protocol, distinct from primary saves/Profile."""
+    steps = (("write", ".txn.json"), ("flush", ".txn.json"), ("write", ".next"), ("flush", ".next"),
+             ("write", ".txn.json"), ("flush", ".txn.json"), ("remove", ".bak"), ("rename", "", ".bak"),
+             ("write", ".txn.json"), ("flush", ".txn.json"), ("rename", ".next", ""),
+             ("write", ".txn.json"), ("flush", ".txn.json"), ("remove", ".txn.json"))
+    receipts = report["after"]["mutations"]
+    if len(receipts) != 16 * len(steps):
+        raise RuntimeError("SETTINGS_LOAD_REQUIRES_EXACT_DURABLE_RESTORE_PROTOCOL")
+    final_candidates = {}
+    for block in range(16):
+        key = "issuer" if block in (0, 2) else "continuation"
+        owner, base = ("profile", "desktop-issuer-root.json") if key == "issuer" else ("saves", "desktop-continuation-operations.json")
+        for index, step in enumerate(steps):
+            sequence = block * len(steps) + index + 1
+            receipt = receipts[sequence - 1]
+            expected = {"sequence": sequence, "owner": owner, "operation": step[0], "path": base + step[1], "ok": True}
+            if step[0] == "rename":
+                expected["destination"] = base + step[2]
+            if step[0] == "write":
+                if type(receipt.get("bytes")) is not int or receipt["bytes"] <= 0 or re.fullmatch(r"[0-9a-f]{64}", receipt.get("sha256", "")) is None:
+                    raise RuntimeError("SETTINGS_LOAD_RECOVERY_WRITE_IDENTITY_INVALID")
+                expected.update({name: receipt[name] for name in ("bytes", "sha256")})
+                if step[1] == ".next":
+                    final_candidates[key] = {name: receipt[name] for name in ("bytes", "sha256")}
+            if receipt != expected:
+                raise RuntimeError(f"SETTINGS_LOAD_UNEXPECTED_FILE_OPERATION: {sequence}")
+    documents, identities = {}, {}
+    for stage in ("before", "after"):
+        documents[stage], identities[stage] = {}, {}
+        if set(report[stage]["recovery"]) != {"issuer", "continuation"}:
+            raise RuntimeError("SETTINGS_LOAD_EXACT_RECOVERY_ENDPOINTS_REQUIRED")
+        for key in ("issuer", "continuation"):
+            path = cloud.contained_path(evidence, evidence / f"settings-load-recovery-{stage}-{key}.json")
+            identities[stage][key] = file_identity(path)
+            if identities[stage][key] != report[stage]["recovery"][key] or (stage == "after" and identities[stage][key] != final_candidates[key]):
+                raise RuntimeError(f"SETTINGS_LOAD_RAW_RECOVERY_ENDPOINT_MISMATCH: {stage}/{key}")
+            documents[stage][key] = strict_json(path.read_text(encoding="utf-8"))
+    old_journal, journal = (documents[stage]["continuation"] for stage in ("before", "after"))
+    if set(old_journal) != {"schema_version", "operations"} or set(journal) != set(old_journal) or (
+        old_journal["schema_version"] != 4 or journal["schema_version"] != 4
+        or any(journal["operations"].get(key) != value for key, value in old_journal["operations"].items())
+    ):
+        raise RuntimeError("SETTINGS_LOAD_MUST_PRESERVE_PRIOR_CONTINUATION_OPERATIONS")
+    added = {key: value for key, value in journal["operations"].items() if key not in old_journal["operations"]}
+    if len(added) != 1:
+        raise RuntimeError("SETTINGS_LOAD_REQUIRES_ONE_NEW_CONTINUATION")
+    transaction, operation = next(iter(added.items()))
+    participants = {"run", "desktop_consequence", "desktop_board", "schedule_view", "profile", "localization", "audio", "route", "narrative"}
+    if not (operation["transaction_id"] == transaction and operation["kind"] == "restore" and operation["stage"] == "completed"
+            and operation["failure"] is None and operation["next_participant_index"] == 9
+            and set(operation["participant_receipts"]) == participants
+            and all(isinstance(value, dict) for value in operation["participant_receipts"].values())
+            and operation["initial_context"] is None and operation["initial_context_sha256"] is None):
+        raise RuntimeError("SETTINGS_LOAD_REQUIRES_COMPLETED_RESTORE_WITH_ALL_PARTICIPANT_RECEIPTS")
+    # This fixture's exact canonical encoding must round-trip byte-for-byte before
+    # using Python to recompute hashes of its selected bundle and snapshot.
+    raw_quick = (folder / "input-quick.json").read_bytes()
+    quick = strict_json(raw_quick.decode("utf-8"))
+    def canonical(value: object) -> bytes:
+        return json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":"), allow_nan=False).encode("utf-8")
+    if raw_quick.rstrip(b"\n") != canonical(quick):
+        raise RuntimeError("SETTINGS_LOAD_FIXTURE_CANONICAL_HASH_DOMAIN_MISMATCH")
+    bundle = quick["current_snapshot"]
+    snapshot = bundle["snapshot"]
+    locator = {"slot_id": "quick", "checkpoint_id": snapshot["checkpoint_id"],
+               "bundle_id": hashlib.sha256(canonical(bundle)).hexdigest(),
+               "document_sha256": hashlib.sha256(canonical(snapshot)).hexdigest()}
+    if operation["source_locator"] != locator or report["after"]["load_result"]["value"]["checkpoint_id"] != locator["checkpoint_id"] or (
+        operation["request_fingerprint"] != hashlib.sha256(canonical({"kind": "restore", "transaction_id": transaction, "source_locator": locator})).hexdigest()
+    ):
+        raise RuntimeError("SETTINGS_LOAD_CONTINUATION_MUST_BIND_EXACT_RETAINED_QUICK_BUNDLE")
+    old_root, root = (documents[stage]["issuer"] for stage in ("before", "after"))
+    if set(root) != set(old_root) or any(root[key] != old_root[key] for key in ("schema_version", "namespace", "day_advance_allocation_receipts")) or (
+        any(root["receipts"].get(key) != value for key, value in old_root["receipts"].items())
+        or any(root["allocation_receipts"].get(key) != value for key, value in old_root["allocation_receipts"].items())
+        or set(root["allocation_receipts"]) - set(old_root["allocation_receipts"]) != {transaction}
+    ):
+        raise RuntimeError("SETTINGS_LOAD_ISSUER_MUST_PRESERVE_HISTORY_AND_ADD_ONE_ALLOCATION")
+    allocation = root["allocation_receipts"][transaction]
+    issued = operation["transaction_issuer_receipt"]
+    request = allocation["request"]
+    if operation["allocation_receipt"] != allocation or not (
+        allocation["kind"] == "restore" and allocation["run_id"] == snapshot["run_id"]
+        and allocation["root_namespace"] == root["namespace"] and allocation["root_next_counter"] == old_root["next_counter"] + 1
+        and allocation["run_id_issuer_receipt"] is None
+        and request["transaction_id"] == transaction and request["transaction_issuer_receipt"] == issued
+        and request["existing_run_id"] == snapshot["run_id"]
+        and request["source_desktop_timeline_generation"] == snapshot["lifecycle"]["desktop_timeline_generation"]
+        and allocation["desktop_timeline_generation"] == snapshot["lifecycle"]["desktop_timeline_generation"] + 1
+        and issued["purpose"] == "transaction_id" and issued["token"] == transaction and issued["counter"] == old_root["next_counter"]
+        and operation["allocation_candidate_fingerprint"] == hashlib.sha256(canonical(allocation)).hexdigest()
+        and report["after"]["live_session"]["value"]["run_id"] == snapshot["run_id"]
+    ):
+        raise RuntimeError("SETTINGS_LOAD_ISSUER_ALLOCATION_MUST_BIND_ONE_SAVED_RUN_CONTINUATION")
+    expected_receipts = [issued, *(allocation[key] for key in ("branch_id_issuer_receipt", "desktop_timeline_generation_issuer_receipt", "causal_day_instance_issuer_receipt")),
+                         *allocation["remap_transaction_issuer_receipts"].values()]
+    new_receipts = {key: value for key, value in root["receipts"].items() if key not in old_root["receipts"]}
+    if new_receipts != {value["receipt_id"]: value for value in expected_receipts} or root["next_counter"] != old_root["next_counter"] + len(new_receipts) or (
+        sorted(value["counter"] for value in new_receipts.values()) != list(range(old_root["next_counter"], root["next_counter"]))
+    ):
+        raise RuntimeError("SETTINGS_LOAD_ISSUER_MUST_APPEND_ONLY_EXACT_RESTORE_RECEIPTS")
+    return {"raw_endpoints": identities, "operation_count": len(receipts), "atomic_commits": 16,
+            "transaction_id": transaction, "source_locator": locator, "completed_participants": sorted(participants),
+            "primary_file_operation_attempts": 0, "prior_recovery_records_preserved": True,
+            "intermediate_journal_semantics": "source-bound operation sequence; raw endpoints retained"}
 
 
 if __name__ == "__main__":

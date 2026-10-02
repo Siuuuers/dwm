@@ -20,7 +20,7 @@ jobs:
     - uses: actions/checkout@v7
       with:
         persist-credentials: true
-        ref: 78cb263f8e0d82ad1f1274c0e84915397cd071b0
+        ref: d702c456177f76fe90cb73993af93949d7335b7e
         fetch-depth: 0
     - name: Prepare disposable checkout for credential cleanup
       run: '$ErrorActionPreference = ''Stop''
@@ -140,7 +140,7 @@ jobs:
     - uses: actions/checkout@v7
       with:
         persist-credentials: true
-        ref: 78cb263f8e0d82ad1f1274c0e84915397cd071b0
+        ref: d702c456177f76fe90cb73993af93949d7335b7e
         fetch-depth: 0
     - name: Prepare disposable checkout for credential cleanup
       run: 'git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
@@ -232,4 +232,3 @@ jobs:
         include-hidden-files: true
         if-no-files-found: warn
         retention-days: 7
-    needs: public-surfaces
