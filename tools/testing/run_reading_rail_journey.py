@@ -37,6 +37,7 @@ PAUSE_STAGES = (
 )
 MODES = ("write", "read", "repeat", "variant", "witness-read")
 NEXT_MODES = ("next-unseen", "next", "next-read")
+SETTINGS_MODES = ("settings-write", "settings-read")
 NEXT_CAPTURES = ("01-next-unseen.png", "02-next-board.png", "03-next-restored-board.png")
 TRACE_KINDS = {
     "write": (
@@ -54,6 +55,10 @@ TRACE_KINDS = {
     "next-unseen": ("next_auto_off_refused", "history_inspected", "next_unseen_verified"),
     "next": ("next_challenge_verified",),
     "next-read": ("next_restart_verified",),
+    "settings-write": (
+        "settings_pause_entered", "settings_host_entered", "settings_quick_committed", "settings_continue_verified",
+    ),
+    "settings-read": ("settings_restore_prepared", "history_inspected", "settings_restore_verified"),
 }
 
 
@@ -409,6 +414,180 @@ def validate_challenge_layout(reports: dict, evidence: Path, folder: Path) -> di
     return result
 
 
+def validate_settings_quick(reports: dict, evidence: Path, folder: Path) -> dict:
+    written, restored = (reports[mode] for mode in SETTINGS_MODES)
+    entered, hosted, saved, continued = (written[key] for key in ("entered", "hosted", "saved", "continued"))
+    native = entered["native"]
+    if hosted != entered or not (
+        native["line_id"] == "fixture.solo.pre.a" and native["revealing"] is True
+        and 0 <= native["visible_characters"] < native["total_characters"]
+        and written["speech_admissions"] == entered["source"]["speech_admissions"] > 0
+    ):
+        raise RuntimeError("SETTINGS_ENTRY_MUST_RETAIN_LITERAL_PARTIAL_READING")
+    full = saved["native"]
+    if saved["source"] != entered["source"] or continued != saved or any(
+        full[key] != native[key] for key in ("line_id", "caption_id", "text", "total_characters")
+    ) or not (
+        full["reveal_generation"] == native["reveal_generation"] + 1
+        and full["revealing"] is False and full["visible_ratio"] == 1
+        and (full["visible_characters"] == -1 or full["visible_characters"] >= full["total_characters"])
+    ):
+        raise RuntimeError("SETTINGS_F5_MUST_COMPLETE_ONLY_CURRENT_REVEAL")
+    host = written["host_before"]
+    if host != written["host_after"] or not (
+        host["tree_paused"] is True and host["visible"] is True and host["entered_action"] == "settings"
+        and host["selected_category"] == "reading" and host["host_id"] > 0 and host["focus_id"] > 0
+        and host["focus_path"] and not host["focus_path"].startswith("..") and host["suspension"]
+    ):
+        raise RuntimeError("SETTINGS_F5_MUST_RETAIN_EXACT_HOST_FOCUS_AND_SUSPENSION")
+    before, after = written["disk_before"], written["disk_after"]
+    for state in (before, after, restored["disk_before"], restored["disk_after"]):
+        if set(state) != {"quick", "autosave", "profile"}:
+            raise RuntimeError("SETTINGS_EXACT_DISK_FAMILIES_REQUIRED")
+        for key, identity in state.items():
+            if identity["exists"] is True:
+                if not isinstance(identity["bytes"], int) or identity["bytes"] <= 0 or not re.fullmatch(r"[0-9a-f]{64}", identity["sha256"]):
+                    raise RuntimeError(f"SETTINGS_EXACT_DISK_IDENTITY_REQUIRED: {key}")
+            elif key != "quick" or identity != {"exists": False, "sha256": "", "bytes": 0}:
+                raise RuntimeError(f"SETTINGS_REQUIRED_DISK_FILE_MISSING: {key}")
+    if before["quick"]["exists"] is not False or after["quick"]["exists"] is not True or any(
+        before[key] != after[key] for key in ("autosave", "profile")
+    ) or restored["disk_before"] != after or restored["disk_after"] != after:
+        raise RuntimeError("SETTINGS_QUICK_ONLY_DISK_CHANGE_REQUIRED")
+    family = {"quicksave.json", "quicksave.json.next", "quicksave.json.txn.json", "quicksave.json.bak", "quicksave.json.revision-prior"}
+    candidates = []
+    for sequence, receipt in enumerate(written["mutations"], 1):
+        if receipt["sequence"] != sequence or receipt["owner"] != "saves" or receipt["ok"] is not True or (
+            receipt["operation"] not in ("write", "flush", "rename", "remove") or receipt["path"] not in family
+            or (receipt["operation"] == "rename" and receipt.get("destination") not in family)
+        ):
+            raise RuntimeError("SETTINGS_NON_QUICK_FILE_MUTATION")
+        if receipt["operation"] == "write" and receipt["path"] == "quicksave.json.next":
+            candidates.append({key: receipt[key] for key in ("bytes", "sha256")})
+    quick_identity = {key: after["quick"][key] for key in ("bytes", "sha256")}
+    if candidates != [quick_identity]:
+        raise RuntimeError("SETTINGS_ONE_EXACT_QUICK_CANDIDATE_REQUIRED")
+    checkpoint = written["saved_checkpoint"]
+    session = checkpoint["reading_session"]
+    if checkpoint != entered["source"]["checkpoint"] or not (
+        session["frontier"]["line_id"] == native["line_id"]
+        and len(session["ledger"]["captions"]) == 1 and len(session["ledger"]["entry_contexts"]) == 1
+        and written["canonical_transcript"] == entered["source"]["history"]["captions"]
+        and written["physical_record"] == entered["source"]["physical_record"]
+    ):
+        raise RuntimeError("SETTINGS_CANONICAL_SOURCE_MISMATCH")
+    if any(written[key] != restored[key] for key in ("saved_checkpoint", "physical_record", "canonical_transcript", "desktop_context")) or not (
+        restored["history"] == entered["source"]["history"] and restored["current_line_complete"] is True
+        and restored["speech_admissions"] == 0 and restored["history_observations"] == 1
+        and restored["profile_unchanged"] is True
+    ):
+        raise RuntimeError("SETTINGS_FRESH_EXACT_RESTORE_WITHOUT_SPEECH_REQUIRED")
+    quick = cloud.contained_path(evidence, evidence / "saved-settings-quick.json")
+    if file_identity(quick) != quick_identity:
+        raise RuntimeError("SETTINGS_RETAINED_QUICK_BYTES_MISMATCH")
+    snapshot = strict_json(quick.read_text(encoding="utf-8"))["current_snapshot"]["snapshot"]
+    if snapshot["narrative_checkpoint"] != checkpoint or snapshot["route_id"] != "dating" or (
+        snapshot["active_app_id"] != written["desktop_context"]["active_app_id"]
+        or written["desktop_context"]["active_app_id"] != "schedule"
+        or snapshot["gameplay"]["route_context"]["active_dating_challenge"] != written["physical_record"]
+    ):
+        raise RuntimeError("SETTINGS_TRANSIENT_HOST_ENTERED_CANONICAL_SAVE")
+    validate_trace(reports, evidence, SETTINGS_MODES)
+    trace = [strict_json(line) for line in (evidence / "transactions.jsonl").read_text(encoding="utf-8").splitlines()]
+    expected_values = (
+        entered, {"reading": hosted, "host": host},
+        {"reading": saved, "host": host, "disk": after, "mutations": written["mutations"]}, written,
+        {"disk": after, "speech_admissions": 0},
+        {"label": "settings-restored-history", "history": restored["history"]}, restored,
+    )
+    if [entry["value"] for entry in trace] != list(expected_values):
+        raise RuntimeError("SETTINGS_TRACE_REPORT_BINDING_MISMATCH")
+    shutil.copyfile(quick, folder / quick.name)
+    return {"retained_quick": quick_identity, "physical_quick_candidates": 1,
+            "partial_reveal_retained_until_f5": True, "settings_and_focus_retained": True,
+            "only_quick_family_mutated": True, "fresh_restore_speech_admissions": 0,
+            "profile_and_autosave_unchanged": True}
+
+
+def run_settings_quick(repository: Path, parent_folder: Path, godot: str, xvfb: str, original: dict) -> dict:
+    folder = cloud.make_directory(repository, parent_folder / "settings-quick")
+    isolation = cloud.make_directory(repository, repository / ".godot/phase2r_tests" / str(uuid4()))
+    result = {"schema_version": 1, "ok": False, "failures": [], "processes": {}, "reports": {},
+              "checkout_sha": original["checkout_sha"], "workflow": original["workflow"],
+              "isolation_root": str(isolation), "artifact_root": str(folder), "started_at_utc": cloud.utc_now()}
+    evidence: Path | None = None
+    seal: dict | None = None
+    try:
+        env = os.environ.copy()
+        for key, suffix in (("XDG_DATA_HOME", "data"), ("XDG_CONFIG_HOME", "config"),
+                            ("XDG_CACHE_HOME", "cache"), ("DWM_TEST_ROOT", "test-root")):
+            env[key] = str(cloud.make_directory(repository, isolation / suffix))
+        env.update({"LIBGL_ALWAYS_SOFTWARE": "1", "GALLIUM_DRIVER": "llvmpipe"})
+        result["isolated_environment"] = {key: env[key] for key in (
+            "XDG_DATA_HOME", "XDG_CONFIG_HOME", "XDG_CACHE_HOME", "DWM_TEST_ROOT")}
+        proof_log = folder / "user-dir-proof.log"
+        proof = cloud.run_process([godot, "--headless", "--path", str(repository), "--log-file", str(proof_log),
+                                   "--script", "res://tools/evidence/print_user_dir.gd"],
+                                  env, repository, folder, "user-dir-proof")
+        result["processes"]["user-dir-proof"] = proof
+        failures = cloud.process_failures(proof, proof_log)
+        if failures:
+            raise RuntimeError("SETTINGS_USER_DIR_PROOF_FAILED: " + "; ".join(failures))
+        markers = re.findall(r"^PHASE2R_USER_DIR=(.+)$", cloud.read_log(Path(proof["stdout"])), re.MULTILINE)
+        if len(markers) != 1 or not Path(markers[0].strip()).is_absolute():
+            raise RuntimeError("SETTINGS_EXACT_USER_DIR_PROOF_REQUIRED")
+        user_dir = cloud.contained_path(isolation, Path(markers[0].strip()))
+        cloud.contained_path(Path(env["XDG_DATA_HOME"]), user_dir)
+        if user_dir == Path(original["user_dir"]).resolve() or str(isolation) == original["isolation_root"]:
+            raise RuntimeError("SETTINGS_REQUIRES_SEPARATE_ISOLATED_PROFILE")
+        result["user_dir"] = str(user_dir)
+        evidence = cloud.contained_path(user_dir, user_dir / "evidence/reading-rail")
+        execute_mode("settings-write", godot, xvfb, repository, folder, env, result)
+        read_report("settings-write", evidence, folder, result["reports"], user_dir)
+        sealed = cloud.make_directory(repository, folder / "sealed-settings-write")
+        names = ("settings-write.json", "saved-settings-quick.json", "transactions.jsonl")
+        seal = {"sealed_after_mode": "settings-write", "before_mode": "settings-read", "root": str(sealed), "files": {}}
+        for name in names:
+            source = cloud.contained_path(evidence, evidence / name)
+            destination = cloud.contained_path(sealed, sealed / name)
+            identity = file_identity(source)
+            shutil.copyfile(source, destination)
+            if file_identity(destination) != identity:
+                raise RuntimeError(f"SETTINGS_WRITE_SEAL_COPY_MISMATCH: {name}")
+            seal["files"][name] = identity
+        result["write_seal"] = seal
+        cloud.write_json(folder / "settings-write-seal.json", seal)
+        execute_mode("settings-read", godot, xvfb, repository, folder, env, result)
+        read_report("settings-read", evidence, folder, result["reports"], user_dir)
+        result["validation"] = validate_settings_quick(result["reports"], evidence, folder)
+    except Exception as error:
+        result["failures"].append(f"{type(error).__name__}: {error}")
+    finally:
+        if evidence is not None:
+            try:
+                if seal is not None:
+                    for name, identity in seal["files"].items():
+                        retained = cloud.contained_path(folder, Path(seal["root"]) / name)
+                        source = cloud.contained_path(evidence, evidence / name)
+                        if file_identity(retained) != identity or (
+                            not source.read_bytes().startswith(retained.read_bytes()) if name == "transactions.jsonl"
+                            else file_identity(source) != identity
+                        ):
+                            raise RuntimeError(f"SETTINGS_SEALED_WRITE_BYTES_CHANGED: {name}")
+                    result["write_seal_verified"] = True
+                for name in ("settings-write.json", "settings-read.json", "saved-settings-quick.json", "transactions.jsonl"):
+                    source = cloud.contained_path(evidence, evidence / name)
+                    destination = cloud.contained_path(folder, folder / name)
+                    if source.is_file() and not destination.exists():
+                        shutil.copyfile(source, destination)
+            except Exception as error:
+                result["failures"].append(f"SETTINGS_EVIDENCE_COLLECTION_FAILED: {error}")
+        result["ended_at_utc"] = cloud.utc_now()
+        result["ok"] = not result["failures"] and "validation" in result and result.get("write_seal_verified", False)
+        cloud.write_json(folder / "result.json", result)
+    return result
+
+
 def run() -> int:
     repository = Path(__file__).resolve().parents[2]
     output = cloud.make_directory(repository, repository / ".godot/ci/reading-rail")
@@ -512,6 +691,10 @@ def run() -> int:
         })
         result["next_captures"] = captures
         result["failures"].extend(failures)
+        if not result["failures"]:
+            result["settings_quick_save"] = run_settings_quick(repository, folder, godot, xvfb, result)
+            if not result["settings_quick_save"]["ok"]:
+                result["failures"].append("PAUSED_SETTINGS_QUICK_PROOF_FAILED: " + "; ".join(result["settings_quick_save"]["failures"]))
     except Exception as error:
         result["failures"].append(f"{type(error).__name__}: {error}")
     finally:

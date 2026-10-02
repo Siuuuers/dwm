@@ -49,8 +49,18 @@ func configure(surface: Control, port: Object, input_owner: Object,
 	_input_owner.input_bindings_changed.connect(retain_contacts)
 	_input_owner.source_input_custody_changed.connect(retain_contacts)
 	_surface.visibility_changed.connect(retain_contacts)
+	var settings: Node = _surface._hosts.get(&"settings")
+	if is_instance_valid(settings): _retain_on_window_custody(settings)
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	return true
+
+func _retain_on_window_custody(node: Node) -> void:
+	# Mounted Settings windows can open and close between process frames. Retire
+	# their observed contacts at the boundary, including internal option popups.
+	if node is Window:
+		node.visibility_changed.connect(retain_contacts)
+	for child: Node in node.get_children(true):
+		_retain_on_window_custody(child)
 
 func _ready() -> void:
 	edge = EDGE.new()
@@ -87,16 +97,18 @@ func _source_owned() -> bool:
 		and _surface.can_process() and _admission.is_valid() and bool(_admission.call()) \
 		and not _source_snapshot().is_empty()
 
-func _admitted() -> bool:
+func _admitted(action: String) -> bool:
 	return _base_admitted() and not _in_operation and _pending_token.is_empty() \
-		and _surface.quick_input_admitted()
+		and _surface.quick_input_admitted(action)
 
 func _source_snapshot() -> Dictionary:
 	return _source_reader.call() if _source_reader.is_valid() else {}
 
 func observe_input(event: InputEvent) -> void:
 	_input_owner.observe_physical_contact(event)
-	if not _admitted(): retain_contacts()
+	# Save is available in every currently supported Quick source; Load has the
+	# narrower Settings boundary and is checked separately at dispatch.
+	if not _admitted("save"): retain_contacts()
 
 func handle_input(event: InputEvent) -> bool:
 	if not (event is InputEventKey or event is InputEventJoypadButton): return false
@@ -111,7 +123,7 @@ func handle_input(event: InputEvent) -> bool:
 	if id.is_empty() or not current.has(id): return true
 	var fresh := _contacts.is_empty() and current.size() == 1
 	_contacts[id] = current[id]
-	if not fresh or not _admitted(): return true
+	if not fresh or not _admitted(action): return true
 	_surface.get_viewport().set_input_as_handled()
 	_request(action)
 	return true
@@ -119,7 +131,7 @@ func handle_input(event: InputEvent) -> bool:
 ## The live-reading F9 owner has already consumed its one physical activation
 ## and acquired literal Pause custody. Reuse the same token and consent flow.
 func request_load() -> Dictionary:
-	if not _admitted(): return {"ok": false, "code": &"pause_load_unavailable"}
+	if not _admitted("load"): return {"ok": false, "code": &"pause_load_unavailable"}
 	_request("load")
 	if not _pending_token.is_empty() and is_instance_valid(_confirmation):
 		return {"ok": true, "value": {"opened": true}}
@@ -140,7 +152,7 @@ func _request(action: String) -> void:
 	var prepared: Dictionary = _port.prepare_quick_action(action)
 	_in_operation = false
 	last_result = prepared.duplicate(true)
-	if not _admitted() or _source_snapshot() != _source:
+	if not _admitted(action) or _source_snapshot() != _source:
 		if prepared.get("ok", false): _port.cancel_action(str(prepared.value.token))
 		return
 	if not prepared.get("ok", false):
@@ -236,7 +248,7 @@ func _process(delta: float) -> void:
 		_observed_source = source
 		retain_contacts()
 		if edge.current_binding.get("source", {}) != source: edge.clear_status()
-	var admitted := _admitted()
+	var admitted := _admitted("save")
 	if admitted != _was_admitted:
 		_was_admitted = admitted
 		retain_contacts()

@@ -817,6 +817,14 @@ func _quick_native_tap(code: Key) -> void:
 	_quick_native_key(code, true)
 	_quick_native_key(code, false)
 
+func _quick_window_key(window: Window, code: Key, pressed: bool, frames: int = 4) -> void:
+	var event := InputEventKey.new()
+	event.keycode = code
+	event.physical_keycode = code
+	event.pressed = pressed
+	window.push_input(event, true)
+	for frame in frames: await get_tree().process_frame
+
 func _quick_native_pad(button: JoyButton, pressed: bool) -> void:
 	var event := InputEventJoypadButton.new()
 	event.device = 42
@@ -945,6 +953,73 @@ func test_paused_controller_quick_load_uses_saved_binding_and_compensates_failur
 	assert_eq(controller._quick_commands.edge.key, &"unavailable")
 	assert_true(saves.pending.is_empty())
 
+func test_paused_settings_quick_save_keeps_host_focus_and_exact_canonical_source() -> void:
+	var fixture := _dating_save_fixture()
+	if fixture.is_empty() or not await _open_pause(): return
+	controller.surface._activate(&"settings")
+	for frame in 4: await get_tree().process_frame
+	var settings: Control = controller.surface._hosts[&"settings"]
+	var content: Control = settings.get_content_host()
+	content.select_category("reading")
+	content.focus_sheet()
+	var focused := get_viewport().gui_get_focus_owner()
+	assert_true(is_instance_valid(focused) and settings.is_ancestor_of(focused))
+	var held: Dictionary = controller._handle.duplicate(true)
+	var exact: Dictionary = fixture.state.saved.duplicate(true)
+	var profile_before: Dictionary = profile.get_profile_snapshot()
+	var backup: Control = controller.surface._hosts[&"backup"]
+	var selected: String = backup.selected_locator
+	var mode: String = backup.active_mode
+	_quick_native_tap(KEY_F5)
+	assert_true(controller._quick_commands.last_result.get("ok", false), str(controller._quick_commands.last_result))
+	var stored: Dictionary = fixture.storage.read_text("quicksave.json")
+	assert_true(stored.get("ok", false), str(stored))
+	if not stored.get("ok", false): return
+	var document: Dictionary = preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd").validate(JSON.parse_string(stored.value))
+	assert_true(document.get("ok", false), str(document))
+	if not document.get("ok", false): return
+	var saved: Dictionary = document.value.candidate.current_snapshot.snapshot
+	assert_eq(saved.route_id, "dating")
+	assert_null(saved.active_app_id, "Settings and Pause do not become canonical desktop apps")
+	assert_eq(saved.gameplay.route_context.active_dating_challenge, exact)
+	assert_eq(fixture.state.saved, exact)
+	assert_eq(profile.get_profile_snapshot(), profile_before)
+	assert_eq(controller._handle, held)
+	assert_true(get_tree().paused)
+	assert_eq(input_owner.get_state().value.state, &"Suspended")
+	assert_eq(controller.surface.entered_action, &"settings")
+	assert_eq(content._selected, "reading")
+	assert_same(get_viewport().gui_get_focus_owner(), focused)
+	assert_eq(backup.selected_locator, selected)
+	assert_eq(backup.active_mode, mode)
+	assert_eq(controller._quick_commands.edge.key, &"saved")
+	controller._quick_commands._process(0.0)
+	assert_true(controller._quick_commands.edge.visible)
+	assert_true(controller._backup_port._pending.is_empty())
+
+func test_paused_settings_quick_load_remains_unavailable_and_cannot_wake_on_exit() -> void:
+	saves.populated = true
+	if not await _open_pause(): return
+	controller.surface._activate(&"settings")
+	assert_eq(controller.surface.entered_action, &"settings")
+	assert_eq(controller._quick_commands.request_load().get("code"), &"pause_load_unavailable")
+	var inspections := saves.inspections
+	_quick_native_key(KEY_F9, true)
+	assert_true(controller._quick_commands.last_result.is_empty())
+	assert_true(saves.pending.is_empty())
+	assert_eq(saves.inspections, inspections)
+	assert_null(controller.surface._host_confirmation)
+	controller.surface.leave_host()
+	_quick_native_key(KEY_F9, true)
+	assert_true(controller._quick_commands.last_result.is_empty(), "Held Settings F9 cannot become a root Load")
+	_quick_native_key(KEY_F9, false)
+	_quick_native_tap(KEY_F9)
+	assert_not_null(controller.surface._host_confirmation)
+	assert_eq(saves.loaded, 0)
+	assert_eq(saves.pending.size(), 1)
+	controller.surface._host_confirmation._finish(false)
+	assert_true(saves.pending.is_empty())
+
 func test_paused_quick_refusal_is_visible_and_settings_custody_blocks_shortcuts() -> void:
 	if not await _open_pause(): return
 	_quick_native_tap(KEY_F5)
@@ -955,16 +1030,126 @@ func test_paused_quick_refusal_is_visible_and_settings_custody_blocks_shortcuts(
 	assert_eq(saves.writes, 0)
 	controller.surface._activate(&"settings")
 	assert_eq(controller.surface.entered_action, &"settings")
+	var content: Control = controller.surface._hosts[&"settings"].get_content_host()
+	await content._open_reset_confirmation("preferences")
+	var dialog: Window = content.confirmations["preferences"]
+	assert_true(dialog.visible)
 	controller._quick_commands.last_result = {}
+	var inspections := saves.inspections
+	# Even a packet delivered to the parent viewport must respect this modal.
+	# Native child-Window contact forwarding is a separate custody boundary.
 	_quick_native_key(KEY_F5, true)
 	assert_true(controller._quick_commands.last_result.is_empty())
-	controller.surface.leave_host()
+	assert_eq(saves.inspections, inspections)
+	assert_true(saves.pending.is_empty())
+	dialog.hide()
 	_quick_native_key(KEY_F5, true)
-	assert_true(controller._quick_commands.last_result.is_empty(), "Held Settings contact cannot turn into a Quick command")
+	assert_true(controller._quick_commands.last_result.is_empty(), "Held confirmation contact cannot turn into Settings Save")
 	_quick_native_key(KEY_F5, false)
 	_quick_native_tap(KEY_F5)
 	assert_eq(controller._quick_commands.edge.key, &"unavailable")
 	assert_false(controller._quick_commands.last_result.is_empty())
+	assert_eq(controller.surface.entered_action, &"settings")
+	assert_eq(saves.writes, 0)
+
+func test_paused_settings_reset_window_forwards_contacts_without_saving_or_queued_replay() -> void:
+	var fixture := _dating_save_fixture()
+	if fixture.is_empty() or not await _open_pause(): return
+	controller.surface._activate(&"settings")
+	var content: Control = controller.surface._hosts[&"settings"].get_content_host()
+	var profile_before: Dictionary = profile.get_profile_snapshot()
+	# A contact may start in the host and finish in its trusted child Window.
+	_quick_native_key(KEY_F6, true)
+	assert_false(input_owner.get_physical_contacts().is_empty())
+	await content._open_reset_confirmation("preferences")
+	var dialog: Window = content.confirmations["preferences"]
+	assert_true(dialog.visible)
+	await _quick_window_key(dialog, KEY_F6, false)
+	assert_true(input_owner.get_physical_contacts().is_empty(), "The Window forwards releases to the same input owner")
+	await _quick_window_key(dialog, KEY_F5, true)
+	await _quick_window_key(dialog, KEY_F5, false)
+	assert_true(input_owner.get_physical_contacts().is_empty())
+	assert_true(controller._quick_commands.last_result.is_empty())
+	assert_false(fixture.storage.exists("quicksave.json"))
+	assert_true(controller._backup_port._pending.is_empty())
+	await _quick_window_key(dialog, KEY_ESCAPE, true)
+	_quick_native_key(KEY_ESCAPE, false)
+	assert_false(dialog.visible)
+	# Open, receive a held Save contact and cancel without a process-frame poll.
+	# Visibility custody must retire the contact synchronously, not on a timer.
+	await content._open_reset_confirmation("preferences")
+	var input_frame := Engine.get_process_frames()
+	_quick_window_key(dialog, KEY_F5, true, 0)
+	_quick_window_key(dialog, KEY_ESCAPE, true, 0)
+	assert_false(dialog.visible)
+	_quick_native_key(KEY_ESCAPE, false)
+	_quick_native_key(KEY_F5, true)
+	assert_eq(Engine.get_process_frames(), input_frame)
+	assert_true(controller._quick_commands.last_result.is_empty())
+	assert_false(fixture.storage.exists("quicksave.json"))
+	assert_eq(profile.get_profile_snapshot(), profile_before)
+	_quick_native_key(KEY_F5, false)
+	assert_true(input_owner.get_physical_contacts().is_empty())
+	_quick_native_tap(KEY_F5)
+	assert_true(controller._quick_commands.last_result.get("ok", false), str(controller._quick_commands.last_result))
+	assert_true(fixture.storage.exists("quicksave.json"))
+	assert_eq(controller.surface.entered_action, &"settings")
+	assert_true(get_tree().paused)
+
+func test_paused_settings_binding_capture_never_saves_and_requires_fresh_release() -> void:
+	var fixture := _dating_save_fixture()
+	if fixture.is_empty() or not await _open_pause(): return
+	controller.surface._activate(&"settings")
+	var content: Control = controller.surface._hosts[&"settings"].get_content_host()
+	content.select_category("controls")
+	var sheet: Control = content._controls_sheet
+	await sheet.begin_capture("game_quick_save", "keyboard")
+	assert_true(sheet.capture_dialog.visible)
+	var profile_before: Dictionary = profile.get_profile_snapshot()
+	var event := InputEventKey.new()
+	event.keycode = KEY_F5
+	event.physical_keycode = KEY_F5
+	event.pressed = true
+	sheet.capture_dialog.push_input(event, true)
+	for frame in 4: await get_tree().process_frame
+	assert_true(sheet.capture_dialog.visible)
+	assert_true(controller._quick_commands.last_result.is_empty())
+	assert_false(fixture.storage.exists("quicksave.json"))
+	assert_true(controller._backup_port._pending.is_empty())
+	sheet.capture_dialog.canceled.emit()
+	for frame in 4: await get_tree().process_frame
+	assert_false(sheet.capture_dialog.visible)
+	assert_eq(profile.get_profile_snapshot(), profile_before)
+	_quick_native_key(KEY_F5, true)
+	assert_true(controller._quick_commands.last_result.is_empty(), "Captured contact remains consumed after Cancel")
+	assert_false(fixture.storage.exists("quicksave.json"))
+	_quick_native_key(KEY_F5, false)
+	_quick_native_tap(KEY_F5)
+	assert_true(controller._quick_commands.last_result.get("ok", false), str(controller._quick_commands.last_result))
+	assert_true(fixture.storage.exists("quicksave.json"))
+	assert_eq(controller.surface.entered_action, &"settings")
+	assert_true(get_tree().paused)
+
+func test_paused_settings_pending_preference_commit_retires_save_until_release() -> void:
+	var fixture := _dating_save_fixture()
+	if fixture.is_empty() or not await _open_pause(): return
+	controller.surface._activate(&"settings")
+	var content: Control = controller.surface._hosts[&"settings"].get_content_host()
+	# Retain a preference transaction at its asynchronous owner boundary. The
+	# Quick command must remain inert until that owner and physical contact end.
+	content.get_controller().set("_busy", true)
+	_quick_native_key(KEY_F5, true)
+	assert_true(controller._quick_commands.last_result.is_empty())
+	assert_false(fixture.storage.exists("quicksave.json"))
+	content.get_controller().set("_busy", false)
+	_quick_native_key(KEY_F5, true)
+	assert_true(controller._quick_commands.last_result.is_empty())
+	assert_false(fixture.storage.exists("quicksave.json"))
+	_quick_native_key(KEY_F5, false)
+	_quick_native_tap(KEY_F5)
+	assert_true(controller._quick_commands.last_result.get("ok", false), str(controller._quick_commands.last_result))
+	assert_true(fixture.storage.exists("quicksave.json"))
+	assert_eq(controller.surface.entered_action, &"settings")
 
 func test_paused_quick_load_success_releases_only_through_the_existing_restore_owner() -> void:
 	saves.populated = true

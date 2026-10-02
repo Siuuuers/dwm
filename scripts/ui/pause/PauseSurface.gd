@@ -304,16 +304,22 @@ func present_confirmation(request: Dictionary, accept: Callable, cancel: Callabl
 
 ## Quick commands retain the current row, Backup drawer and mode. Their consent
 ## temporarily owns the same workfield without entering the Backup application.
-func quick_input_admitted() -> bool:
-	if not _opened or not _interactive or _return_retry or not is_visible_in_tree() \
+func quick_input_admitted(action: String) -> bool:
+	if action not in ["save", "load"] or not _opened or not _interactive or _return_retry or not is_visible_in_tree() \
 			or not can_process() or is_instance_valid(_host_confirmation) \
-			or entered_action not in [&"", &"backup"]:
+			or entered_action not in [&"", &"backup", &"settings"]:
 		return false
+	if entered_action == &"settings":
+		# Only explicit Save is admitted by this bounded Settings increment. Its
+		# existing departure guard retains modal, capture and preference custody.
+		var settings: Control = _hosts.get(&"settings")
+		return action == "save" and is_instance_valid(settings) and settings.is_visible_in_tree() \
+			and settings.can_process() and settings.has_method("can_return_home") and settings.can_return_home()
 	var host: Control = _hosts.get(&"backup")
 	return not is_instance_valid(host) or not host.has_method("can_return_home") or host.can_return_home()
 
 func present_quick_confirmation(request: Dictionary, accept: Callable, cancel: Callable) -> Dictionary:
-	if not quick_input_admitted() or not accept.is_valid() or not cancel.is_valid():
+	if not quick_input_admitted("load") or not accept.is_valid() or not cancel.is_valid():
 		return {"ok": false, "code": &"pause_confirmation_unavailable"}
 	var sheet := HOST_CONFIRMATION.new()
 	sheet.request = request.duplicate(true)

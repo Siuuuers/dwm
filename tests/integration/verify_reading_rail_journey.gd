@@ -94,11 +94,48 @@ class FailOneAutoOffWrite extends RefCounted:
 	func sha256(bytes: PackedByteArray) -> String: return target.sha256(bytes)
 
 
+## Passive mutation receipt: each operation still executes on the real FileOps.
+## Shared receipts prove that Settings Save writes only the Quick transaction family.
+class SettingsQuickFileObserver extends RefCounted:
+	var target: RefCounted
+	var owner: String
+	var receipts: Array[Dictionary]
+	func _init(real_ops: RefCounted, storage_owner: String, observed: Array[Dictionary]) -> void:
+		target = real_ops
+		owner = storage_owner
+		receipts = observed
+	func exists(path: String) -> bool: return target.exists(path)
+	func read_bytes(path: String) -> Dictionary: return target.read_bytes(path)
+	func write_bytes(path: String, bytes: PackedByteArray) -> Dictionary:
+		var result: Dictionary = target.write_bytes(path, bytes)
+		_record("write", path, result, {"bytes": bytes.size(), "sha256": sha256(bytes)})
+		return result
+	func flush_path(path: String) -> Dictionary:
+		var result: Dictionary = target.flush_path(path)
+		_record("flush", path, result)
+		return result
+	func rename_path(source: String, destination: String) -> Dictionary:
+		var result: Dictionary = target.rename_path(source, destination)
+		_record("rename", source, result, {"destination": destination.replace("\\", "/").get_file()})
+		return result
+	func remove_path(path: String) -> Dictionary:
+		var result: Dictionary = target.remove_path(path)
+		_record("remove", path, result)
+		return result
+	func sha256(bytes: PackedByteArray) -> String:
+		return target.sha256(bytes)
+	func _record(operation: String, path: String, result: Dictionary, extra: Dictionary = {}) -> void:
+		var receipt := {"sequence": receipts.size() + 1, "owner": owner, "operation": operation,
+			"path": path.replace("\\", "/").get_file(), "ok": bool(result.get("ok", false))}
+		receipt.merge(extra)
+		receipts.append(receipt)
+
+
 func _run() -> void:
 	for argument: String in OS.get_cmdline_user_args():
 		if argument.begins_with("--reading-rail-mode="):
 			_reading_mode = argument.trim_prefix("--reading-rail-mode=")
-	if not _check(_reading_mode in ["write", "read", "repeat", "variant", "witness-read", "next-unseen", "next", "next-read"], "explicit reading process mode"): return
+	if not _check(_reading_mode in ["write", "read", "repeat", "variant", "witness-read", "next-unseen", "next", "next-read", "settings-write", "settings-read"], "explicit reading process mode"): return
 	if not _check(not OS.get_environment("DWM_TEST_ROOT").strip_edges().is_empty(), "isolated test root required"): return
 	if not _check(DisplayServer.get_name() != "headless", "real cloud software rendering required"): return
 	await _frames()
@@ -133,6 +170,9 @@ func _run() -> void:
 	if _reading_mode == "next-read":
 		await _next_read_process()
 		return
+	if _reading_mode == "settings-read":
+		await _settings_quick_read_process()
+		return
 	var profile: Node = root.get_node("ProfileManager")
 	var preferences: Dictionary = profile.set_preferences({
 		&"preferences.reading.read_aloud_enabled": true,
@@ -142,7 +182,7 @@ func _run() -> void:
 	if not _check(preferences.get("ok", false), "real reading preferences commit"): return
 	if _reading_mode == "write":
 		_trace("fixture_registered", {"catalogue": READING_CATALOGUE, "production_content": false})
-	else:
+	elif _reading_mode != "settings-write":
 		_witness_initial_profile = profile.get_profile_snapshot()
 		if not _check(profile.is_caption_variant_witnessed(_witness_beat) == (_reading_mode in ["repeat", "next"]),
 			"fresh process admits only the exact previously witnessed variant"): return
@@ -186,6 +226,9 @@ func _dating_journey(game: Node, desktop: Node) -> void:
 	if not await _wait_line("fixture.solo.pre.a"): return
 	if not _check(current_scene != null and current_scene.get("worksheet") != null, "real Dating scene mounted"): return
 	var dating: Node = current_scene
+	if _reading_mode == "settings-write":
+		await _settings_quick_write_process(game, dating)
+		return
 	if _reading_mode in ["repeat", "variant"]:
 		await _witness_session(game, dating)
 		return
@@ -349,6 +392,186 @@ func _finish_proof() -> void:
 		"native reading coroutine retired before process exit"): return
 	await _frames()
 	quit(0)
+
+
+func _settings_disk_state() -> Dictionary:
+	var saves: RefCounted = root.get_node("SaveManager").get("_storage")
+	var profile: RefCounted = root.get_node("ProfileManager").get("_storage")
+	var state := {}
+	for key: String in ["quick", "autosave", "profile"]:
+		var storage: RefCounted = profile if key == "profile" else saves
+		var filename := "quicksave.json" if key == "quick" else key + ".json"
+		var inspected: Dictionary = storage.inspect_revision(filename)
+		if not _check(inspected.get("ok", false), "Settings proof raw revision has no pending transaction: " + key): return {}
+		var exists: bool = inspected.value.exists
+		if not _check((exists and inspected.value.text is String) or key == "quick" and not exists,
+			"Settings proof has actual Profile/Autosave bytes"): return {}
+		var text: String = inspected.value.text if exists else ""
+		if not _check(not exists or inspected.value.revision == text.sha256_text(), "raw revision binds exact UTF-8 bytes"): return {}
+		state[key] = {"exists": exists, "sha256": text.sha256_text() if exists else "",
+			"bytes": text.to_utf8_buffer().size() if exists else 0}
+	return state
+
+
+func _settings_host_observation(pause_owner: Node, settings: Control) -> Dictionary:
+	var focus: Control = root.gui_get_focus_owner()
+	return {"tree_paused": paused, "host_id": settings.get_instance_id(),
+		"visible": settings.is_visible_in_tree(), "entered_action": str(pause_owner.surface.entered_action),
+		"selected_category": str(settings.get_content_host().get("_selected")),
+		"focus_id": focus.get_instance_id() if focus != null else 0,
+		"focus_path": str(settings.get_path_to(focus)) if focus != null and settings.is_ancestor_of(focus) else "",
+		"suspension": pause_owner.get("_handle").duplicate(true),
+		"backup_mode": str(pause_owner.surface.get("_hosts")[&"backup"].active_mode),
+		"backup_locator": str(pause_owner.surface.get("_hosts")[&"backup"].selected_locator)}
+
+
+func _settings_quick_write_process(game: Node, dating: Node) -> void:
+	var bridge: Node = root.get_node("DialogicBridge")
+	var runtime: RefCounted = bridge.get("_runtime_adapter")
+	var pause_owner: Node = root.get_node("SceneRouter").get("_production_pause")
+	var saves: RefCounted = root.get_node("SaveManager").get("_storage")
+	var profile: RefCounted = root.get_node("ProfileManager").get("_storage")
+	if not _check(runtime.current_line_id() == "fixture.solo.pre.a" and not runtime.is_current_line_complete()
+		and _speech_admissions > 0, "Settings proof starts at an actual partly revealed spoken line"): return
+	var desktop_host: RefCounted = root.get_node("ApplicationBootstrap").get("_desktop_host_state")
+	var desktop_context: Dictionary = desktop_host.capture_persistent_state().duplicate(true)
+	if not _check(desktop_context.active_app_id == &"schedule", "real Dating retains its canonical Schedule context"): return
+	var before_disk := _settings_disk_state()
+	if not _check(not before_disk.is_empty() and not before_disk.quick.exists, "separate Settings profile begins without Quick"): return
+	var mutations: Array[Dictionary] = []
+	var save_ops: RefCounted = saves.get("_file_ops")
+	var profile_ops: RefCounted = profile.get("_file_ops")
+	saves.set("_file_ops", SettingsQuickFileObserver.new(save_ops, "saves", mutations))
+	profile.set("_file_ops", SettingsQuickFileObserver.new(profile_ops, "profile", mutations))
+	await _pause_key()
+	var entered := _reading_pause_observation(game)
+	if not _check(paused and pause_owner.surface.is_visible_in_tree() and entered.native.revealing
+		and entered.native.visible_characters >= 0 and entered.native.visible_characters < entered.native.total_characters,
+		"ordinary Pause retains literal partial reading for Settings"): return
+	_trace("settings_pause_entered", entered)
+	pause_owner.surface.rows[&"settings"].grab_focus()
+	if not await _ordinary_accept_focused(pause_owner.surface.rows[&"settings"], "ordinary Settings entry"): return
+	var settings: Control = pause_owner.surface.get("_hosts")[&"settings"]
+	var reading_row: Button = settings.get_content_host().get("_rails")["reading"]
+	reading_row.grab_focus()
+	if not await _ordinary_accept_focused(reading_row, "Settings Reading category"): return
+	var hosted := _reading_pause_observation(game)
+	var host_before := _settings_host_observation(pause_owner, settings)
+	if not _check(hosted == entered and host_before.tree_paused and host_before.visible
+		and host_before.entered_action == "settings" and host_before.selected_category == "reading"
+		and not host_before.focus_path.is_empty() and mutations.is_empty()
+		and _settings_disk_state() == before_disk,
+		"Settings entry and focus preserve partial reveal, semantic source and every save/Profile byte"): return
+	_trace("settings_host_entered", {"reading": hosted, "host": host_before})
+	var quick: Node = pause_owner.get("_quick_commands")
+	if not _check(quick.last_result.is_empty(), "Settings physical Quick command has no earlier result"): return
+	dating.get_window().grab_focus()
+	await _dating_quick_key(KEY_F5)
+	var saved := _reading_pause_observation(game)
+	var host_after := _settings_host_observation(pause_owner, settings)
+	var after_disk := _settings_disk_state()
+	if not _check(quick.last_result.get("ok", false) and quick.edge.key == &"saved" and quick.edge.visible
+		and saved.source == entered.source and host_after == host_before
+		and saved.native.line_id == entered.native.line_id and saved.native.caption_id == entered.native.caption_id
+		and saved.native.text == entered.native.text and saved.native.total_characters == entered.native.total_characters
+		and saved.native.reveal_generation == entered.native.reveal_generation + 1
+		and not saved.native.revealing and saved.native.visible_ratio == 1.0
+		and (saved.native.visible_characters == -1 or saved.native.visible_characters >= saved.native.total_characters)
+		and after_disk.profile == before_disk.profile and after_disk.autosave == before_disk.autosave
+		and after_disk.quick.exists, "physical Settings F5 completes only current reveal, retains exact host/focus/source and commits only Quick"): return
+	var candidate_writes := 0
+	var family := ["quicksave.json", "quicksave.json.next", "quicksave.json.txn.json", "quicksave.json.bak", "quicksave.json.revision-prior"]
+	for receipt: Dictionary in mutations:
+		if not _check(receipt.owner == "saves" and receipt.ok and receipt.path in family
+			and (not receipt.has("destination") or receipt.destination in family), "only real Quick family mutations are admitted"): return
+		if receipt.operation == "write" and receipt.path == "quicksave.json.next":
+			candidate_writes += 1
+			if not _check(receipt.sha256 == after_disk.quick.sha256 and receipt.bytes == after_disk.quick.bytes,
+				"observed physical Quick candidate is the exact committed file"): return
+	if not _check(candidate_writes == 1, "one physical F5 commits exactly one Quick candidate"): return
+	var disk: Dictionary = saves.inspect_revision("quicksave.json")
+	var parsed: Dictionary = STRICT.parse_object(disk.value.text)
+	if not _check(parsed.get("ok", false), "Settings Quick is strict exact-number JSON"): return
+	var admitted: Dictionary = preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd").validate(parsed.value)
+	if not _check(admitted.get("ok", false), "Settings Quick passes the actual Save schema"): return
+	var snapshot: Dictionary = admitted.value.candidate.current_snapshot.snapshot
+	if not _check(snapshot.narrative_checkpoint == entered.source.checkpoint and snapshot.route_id == "dating"
+		and snapshot.active_app_id == desktop_context.active_app_id and desktop_host.capture_persistent_state() == desktop_context
+		and snapshot.gameplay.route_context.active_dating_challenge == entered.source.physical_record,
+		"Settings Quick stores exact canonical reading and Dating; transient Settings owns no saved route"): return
+	var committed_mutations: Array[Dictionary] = mutations.duplicate(true)
+	_trace("settings_quick_committed", {"reading": saved, "host": host_after, "disk": after_disk,
+		"mutations": committed_mutations})
+	await _pause_key()
+	if not _check(paused and pause_owner.surface.entered_action == &"" and pause_owner.surface.rows[&"settings"].has_focus(),
+		"Settings Back returns to its retained Pause row"): return
+	var continued := {}
+	pause_owner.coordinator.pause_closed.connect(func() -> void:
+		continued.merge(_reading_pause_observation(game), true), CONNECT_ONE_SHOT)
+	pause_owner.surface.rows[&"continue"].grab_focus()
+	if not await _ordinary_accept_focused(pause_owner.surface.rows[&"continue"], "Settings saved reading Continue"): return
+	if not _check(not paused and current_scene == dating and continued == saved and _reading_pause_observation(game) == saved
+		and _settings_disk_state() == after_disk and mutations == committed_mutations,
+		"Continue retains the full same line and exact persisted files without additional writes"): return
+	saves.set("_file_ops", save_ops)
+	profile.set("_file_ops", profile_ops)
+	var report := {"mode": _reading_mode, "process_id": OS.get_process_id(),
+		"user_dir": ProjectSettings.globalize_path("user://"), "entered": entered, "hosted": hosted, "saved": saved,
+		"continued": continued, "host_before": host_before, "host_after": host_after,
+		"disk_before": before_disk, "disk_after": after_disk, "mutations": mutations,
+		"saved_checkpoint": snapshot.narrative_checkpoint, "physical_record": entered.source.physical_record,
+		"canonical_transcript": entered.source.history.captions, "speech_admissions": _speech_admissions,
+		"desktop_context": desktop_context}
+	if not _check(_write_text("saved-settings-quick.json", disk.value.text)
+		and _write_text("settings-write.json", JSON.stringify(report, "\t")), "retain exact Settings Quick bytes and WRITE proof"): return
+	_trace("settings_continue_verified", report)
+	print("READING_RAIL_SETTINGS_WRITE_PASS: partial reading -> Pause -> Settings -> physical F5 -> same line, host and focus -> Quick-only mutation -> Continue")
+	await _finish_proof()
+
+
+func _settings_quick_read_process() -> void:
+	var prior: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(_evidence_path("settings-write.json")))
+	if not _check(prior.get("ok", false) and int(prior.value.process_id) != OS.get_process_id(), "Settings restore uses a fresh operating-system process"): return
+	var saves: Node = root.get_node("SaveManager")
+	var profile: Node = root.get_node("ProfileManager")
+	var before_disk := _settings_disk_state()
+	var profile_before: Dictionary = profile.get_profile_snapshot()
+	if not _check(before_disk == prior.value.disk_after and profile.get_preference(&"preferences.reading.read_aloud_enabled", false),
+		"fresh Settings restore has exact Quick/Autosave/Profile bytes and read-aloud enabled"): return
+	var prepared: Dictionary = saves.prepare_backup_action("load", "quick")
+	if not _check(prepared.get("ok", false), "fresh Settings Quick Load prepares"): return
+	_trace("settings_restore_prepared", {"disk": before_disk, "speech_admissions": _speech_admissions})
+	var restored: Dictionary = saves.commit_backup_action(prepared.value.token)
+	if not _check(restored.get("ok", false), "fresh Settings Quick Load commits"): return
+	if not await _wait_line("fixture.solo.pre.a"): return
+	var game: Node = root.get_node("GameState")
+	var bridge: Node = root.get_node("DialogicBridge")
+	var desktop_host: RefCounted = root.get_node("ApplicationBootstrap").get("_desktop_host_state")
+	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
+	if not _check(current_scene != null and current_scene.get("worksheet") != null and not paused
+		and game.capture_live_session().value.active and checkpoint.get("ok", false)
+		and checkpoint.value == prior.value.saved_checkpoint
+		and bridge.get_reading_history().value == prior.value.entered.source.history
+		and desktop_host.capture_persistent_state() == prior.value.desktop_context
+		and game.capture_dating_challenge_state().value == prior.value.physical_record
+		and bridge.get("_runtime_adapter").is_current_line_complete() and _speech_admissions == 0
+		and profile.get_profile_snapshot() == profile_before and _settings_disk_state() == before_disk,
+		"fresh Settings Quick restores exact full line, History and Dating without speech or changed save/Profile bytes"): return
+	if not await _inspect_history("settings-restored-history", 1): return
+	var after_disk := _settings_disk_state()
+	if not _check(after_disk == before_disk and _speech_admissions == 0, "restored History is disk- and speech-neutral"): return
+	var report := {"mode": _reading_mode, "process_id": OS.get_process_id(),
+		"user_dir": ProjectSettings.globalize_path("user://"), "saved_checkpoint": checkpoint.value,
+		"physical_record": game.capture_dating_challenge_state().value,
+		"history": bridge.get_reading_history().value, "canonical_transcript": bridge.get_reading_history().value.captions,
+		"desktop_context": desktop_host.capture_persistent_state(),
+		"disk_before": before_disk, "disk_after": after_disk, "profile_unchanged": profile.get_profile_snapshot() == profile_before,
+		"speech_admissions": _speech_admissions, "history_observations": _history_observations,
+		"current_line_complete": bridge.get("_runtime_adapter").is_current_line_complete()}
+	if not _check(_write_text("settings-read.json", JSON.stringify(report, "\t")), "retain fresh Settings Quick READ proof"): return
+	_trace("settings_restore_verified", report)
+	print("READING_RAIL_SETTINGS_READ_PASS: fresh exact Settings Quick Load -> same complete line and History -> zero repeated speech -> unchanged Quick/Autosave/Profile")
+	await _finish_proof()
 
 
 func _ordinary_reading_pause_save(game: Node, dating: Node) -> bool:

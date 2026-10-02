@@ -314,7 +314,7 @@ func _add_resets(sheet: VBoxContainer, ids: Array[String]) -> void:
 		_reset_buttons[id] = button
 		var dialog := RESET_CONFIRMATION.new()
 		dialog.name = id.to_pascal_case() + "ResetConfirmation"
-		dialog.configure(id)
+		dialog.configure(id, _services.get("input"))
 		add_child(dialog)
 		confirmations[id] = dialog
 		dialog.dialog_hide_on_ok = false
