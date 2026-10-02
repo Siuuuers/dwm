@@ -83,8 +83,15 @@ var _physical_failures: Array[Dictionary] = []
 var _native_starts := 0
 var _native_ends := 0
 var _fixture_layouts: Array[Node] = []
+var _fixture_text_nodes: Array[Node] = []
+var _baseline_text_nodes: Array[Node] = []
+var _baseline_text_ids: Array[int] = []
 
 func before_each() -> void:
+	_fixture_layouts.clear()
+	_fixture_text_nodes.clear()
+	_baseline_text_nodes.assign(get_tree().get_nodes_in_group("dialogic_dialog_text"))
+	_baseline_text_ids = _node_identities(_baseline_text_nodes)
 	_publications.clear()
 	_restored.clear()
 	_native_text.clear()
@@ -92,7 +99,6 @@ func before_each() -> void:
 	_physical_failures.clear()
 	_native_starts = 0
 	_native_ends = 0
-	_fixture_layouts.clear()
 	_settings.clear()
 	_profile_before = get_node("/root/ProfileManager").get_profile_snapshot().duplicate(true)
 	var parsed := STRICT_JSON.parse_object(FileAccess.get_file_as_string(SOLO_DOCUMENT))
@@ -174,19 +180,26 @@ func after_each() -> void:
 		"native family tests never mutate the real Profile")
 	if is_instance_valid(_bridge): _bridge.free()
 	_owner = null
-	for text_node: Node in get_tree().get_nodes_in_group("dialogic_dialog_text"):
-		text_node.set_process(false)
+	# Only nodes mounted by this fixture are stopped. The detached production
+	# layout and any pre-existing owner remain outside this cleanup boundary.
+	for text_node: Node in _fixture_text_nodes:
+		if is_instance_valid(text_node): text_node.set_process(false)
 	if is_instance_valid(_runtime):
 		_runtime.paused = false
 		await _runtime.clear()
-	# Natural timeline endings detach their layout before queueing it. The
-	# viewport therefore cannot own every layout created by this fixture, and a
-	# later mount can replace the tree metadata before the detached node retires.
-	# Free each layout we actually mounted, including detached/queued layouts,
-	# while the production layout remains detached and untracked below.
+		# abort_current_entry can already own clear()'s one-frame timeline drain.
+		# Let that exact native end continuation retire before restoring production.
+		await get_tree().process_frame
+	# Natural endings detach layouts before queueing them, so the viewport and
+	# global Styles metadata cannot prove ownership at teardown.
 	for layout: Node in _fixture_layouts:
 		if is_instance_valid(layout): layout.free()
+	for text_node: Node in _fixture_text_nodes:
+		var survived := is_instance_valid(text_node)
+		assert_false(survived, "fixture caption survived its exact layout: " + _node_diagnostic(text_node))
+		if survived: text_node.free()
 	_fixture_layouts.clear()
+	_fixture_text_nodes.clear()
 	if is_instance_valid(_viewport): _viewport.free()
 	if is_instance_valid(_runtime): _runtime.free()
 	_adapter = null
@@ -199,12 +212,39 @@ func after_each() -> void:
 		_original_layout_parent.add_child(_original_layout)
 		_original_layout_parent.move_child(_original_layout, _original_layout_index)
 		get_tree().set_meta("dialogic_layout_node", _original_layout)
+	var restored_text_nodes: Array[Node] = []
+	restored_text_nodes.assign(get_tree().get_nodes_in_group("dialogic_dialog_text"))
+	assert_eq(_node_identities(restored_text_nodes), _baseline_text_ids,
+		"caption group must return to its exact pre-fixture owners; actual=" + _nodes_diagnostic(restored_text_nodes)
+		+ " baseline=" + _nodes_diagnostic(_baseline_text_nodes))
+	_baseline_text_nodes.clear()
+	_baseline_text_ids.clear()
 	for key: String in _settings:
 		ProjectSettings.set_setting(key, _settings[key].value if _settings[key].exists else null)
 	if _had_persistent: Engine.set_meta("dialogic_persistent_style_info", _persistent)
 	else: Engine.remove_meta("dialogic_persistent_style_info")
 	DialogicStylesUtil.style_directory = _style_directory
 	_original_layout_parent = null
+
+func _node_diagnostic(node: Variant) -> String:
+	if not is_instance_valid(node): return "<freed>"
+	var parent: Node = node.get_parent()
+	return JSON.stringify({"id": node.get_instance_id(), "name": str(node.name),
+		"path": str(node.get_path()) if node.is_inside_tree() else "<detached>",
+		"parent": str(parent.get_path()) if is_instance_valid(parent) and parent.is_inside_tree() else "<detached>",
+		"text": str(node.get_parsed_text()).left(120) if node.has_method("get_parsed_text") else ""})
+
+func _nodes_diagnostic(nodes: Array[Node]) -> String:
+	var rows: Array[String] = []
+	for node: Node in nodes: rows.append(_node_diagnostic(node))
+	return "[" + ", ".join(rows) + "]"
+
+func _node_identities(nodes: Array[Node]) -> Array[int]:
+	var ids: Array[int] = []
+	for node: Node in nodes:
+		if is_instance_valid(node): ids.append(node.get_instance_id())
+	ids.sort()
+	return ids
 
 func _settle() -> void:
 	for frame: int in 6: await get_tree().process_frame
@@ -227,6 +267,9 @@ func _mount() -> bool:
 	var caption := _caption()
 	assert_not_null(caption)
 	if caption == null: return false
+	var text_node: Node = caption.caption_text
+	assert_true(layout.is_ancestor_of(text_node), "recorded fixture caption belongs to its mounted layout")
+	if not _fixture_text_nodes.has(text_node): _fixture_text_nodes.append(text_node)
 	assert_true(caption.configure_reading_transport(_profile, _bridge))
 	assert_true(caption.configure_speech(_profile, _bridge, _speech))
 	return true

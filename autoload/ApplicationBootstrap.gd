@@ -570,6 +570,11 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 				var ctx: Dictionary = _retained_checkpoint_port.configure_desktop_context_provider(_desktop_host_state)
 				if not ctx.get("ok", false):
 					return ctx
+			# The route-independent adapter must exist before this signal is connected: a fresh
+			# Load can enter and finish Hospital without ever mounting MainGameScene's desktop.
+			var eviction_ready: Dictionary = _ensure_desktop_eviction_port()
+			if not eviction_ready.get("ok", false):
+				return eviction_ready
 			_connect_desktop_day_change(resolution_game_state)
 			return resolution_result
 		&"configure_minesweeper_rounds":
@@ -996,9 +1001,7 @@ func configure_contacts_desktop(desktop: Node) -> Dictionary:
 		if not configured.get("ok", false):
 			_contacts_presentation_port = null
 			return configured
-	if _contacts_desktop_eviction_port == null:
-		_contacts_desktop_eviction_port = ContactsDesktopEvictionPort.new()
-	var registered := register_desktop_eviction_port(_contacts_desktop_eviction_port)
+	var registered := _ensure_desktop_eviction_port()
 	if not registered.get("ok", false):
 		return registered
 	# Restored Backup can query live capture synchronously while being mounted.
@@ -1867,6 +1870,15 @@ func _connect_desktop_day_change(game_state: Object) -> void:
 		return
 	if not game_state.day_changed.is_connected(_on_day_changed):
 		game_state.day_changed.connect(_on_day_changed)
+
+
+## Constructs and registers the one route-independent desktop eviction adapter. It can safely
+## receive a day change before a desktop scene mounts; configure_contacts_desktop later binds its
+## weak presentation view without replacing either retained port identity.
+func _ensure_desktop_eviction_port() -> Dictionary:
+	if _contacts_desktop_eviction_port == null:
+		_contacts_desktop_eviction_port = ContactsDesktopEvictionPort.new()
+	return register_desktop_eviction_port(_contacts_desktop_eviction_port)
 
 
 ## Registers the one Phase-3-owned desktop eviction port. The same object is idempotent; a

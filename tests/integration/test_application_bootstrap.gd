@@ -95,6 +95,23 @@ class UnavailableWindowOutput:
 		return {"ok": false, "code": &"window_output_unavailable", "details": {}, "receipt": {}}
 
 
+class FakeContactsDesktop:
+	extends Node
+	var configured := false
+	var configured_day := 0
+	var evictions: Array[Dictionary] = []
+
+	func configure_contacts(_presentation: RefCounted, _localization: Object, _profile: Object,
+			_desktop_host: RefCounted, day: int) -> Dictionary:
+		configured = true
+		configured_day = day
+		return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
+
+	func dispatch_desktop_eviction(command: Dictionary) -> Dictionary:
+		evictions.append(command.duplicate(true))
+		return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
+
+
 func _isolated_root(label: String) -> String:
 	_root_counter += 1
 	var result: Dictionary = TEMPORARY_STORAGE.create("%s-%d" % [label, _root_counter])
@@ -260,6 +277,70 @@ func test_the_retained_checkpoint_port_and_gate_are_shared_by_both_coordinators(
 		made["checkpoint_port"])
 	assert_same(game_state.get("_minesweeper_round_coordinator"), round_coordinator)
 	assert_not_same(round_coordinator, day_coordinator, "two distinct coordinators, one gate")
+
+
+func test_day_resolution_installs_route_independent_eviction_before_desktop_mount() -> void:
+	var made := _make_graph("route-independent-eviction")
+	if made.is_empty():
+		return
+	var bootstrap: Node = made["bootstrap"]
+	var game_state: Node = made["targets"][&"GameState"]
+	assert_true(bootstrap.call(&"_configure_restore_participants").get("ok", false))
+	assert_null(bootstrap.get("_contacts_desktop_eviction_port"))
+	assert_null(bootstrap.get("_desktop_eviction_port"))
+
+	var resolved: Dictionary = bootstrap.call(&"_run_stage", &"configure_day_resolution", &"final")
+	assert_true(resolved.get("ok", false), str(resolved))
+	var route_port: RefCounted = bootstrap.get("_contacts_desktop_eviction_port")
+	assert_not_null(route_port, "the adapter exists before any desktop scene")
+	assert_same(bootstrap.get("_desktop_eviction_port"), route_port)
+	assert_null(route_port.get("view"), "the route-independent adapter starts unbound")
+	assert_eq(game_state.day_changed.get_connections().size(), 1,
+		"the adapter is registered before the sole day-change connection")
+	var host: RefCounted = bootstrap.get("_desktop_host_state")
+	assert_true(host.open_app(&"contacts", 1).get("ok", false))
+
+	_publish_fixture_day_change(bootstrap, game_state, 2)
+	assert_false(bootstrap.get("_application_gate").is_fatal_latched(),
+		"a direct Hospital completion can change day before the desktop mounts")
+	assert_eq(int(host.get_state()["current_day"]), 2)
+	assert_true(host.get_state()["cached_app_ids"].is_empty(),
+		"the retained host clears its cache even before a physical desktop exists")
+	assert_null(route_port.get("view"), "headless eviction remains a successful no-op")
+
+	var startup_state: Dictionary = bootstrap.get("_state")
+	startup_state["ready"] = true
+	bootstrap.set("_state", startup_state)
+	var desktop: Node = autofree(FakeContactsDesktop.new())
+	var mounted: Dictionary = bootstrap.call(&"configure_contacts_desktop", desktop)
+	assert_true(mounted.get("ok", false), str(mounted))
+	assert_true(desktop.get("configured"))
+	assert_eq(desktop.get("configured_day"), 2)
+	assert_same(bootstrap.get("_contacts_desktop_eviction_port"), route_port,
+		"desktop mount reuses the adapter that protected direct Hospital Load")
+	assert_same((route_port.get("view") as WeakRef).get_ref(), desktop)
+	assert_true(host.open_app(&"contacts", 2).get("ok", false))
+	_publish_fixture_day_change(bootstrap, game_state, 3)
+	assert_eq(desktop.get("evictions").size(), 1,
+		"the later mounted view receives exactly one dispatch through the same adapter")
+	if desktop.get("evictions").size() == 1:
+		assert_eq(desktop.get("evictions")[0]["app_ids"], [&"contacts"])
+		assert_eq(desktop.get("evictions")[0]["day"], 3)
+	assert_true(host.get_state()["cached_app_ids"].is_empty())
+	assert_false(bootstrap.get("_application_gate").is_fatal_latched())
+
+
+func _publish_fixture_day_change(bootstrap: Node, game_state: Node, day: int) -> void:
+	# This fixture supplies the committed day/identity boundary; the connected Hospital
+	# journey owns the actual day-resolution transaction that precedes publication.
+	var issued: Dictionary = bootstrap.get("_desktop_identity_nonce_issuer").issue(&"causal_day_instance")
+	assert_true(issued.get("ok", false), str(issued))
+	if not issued.get("ok", false): return
+	var lifecycle: RefCounted = game_state.get("_run_lifecycle")
+	lifecycle.set("_day", day)
+	lifecycle.set("_causal_day_instance", issued["value"]["token"])
+	lifecycle.set("_causal_day_instance_issuer_receipt", issued["value"]["issuer_receipt"])
+	game_state.emit_signal("day_changed", day)
 
 
 func test_exactly_one_day_changed_connection_dispatches_one_eviction_command() -> void:
