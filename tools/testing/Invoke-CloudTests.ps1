@@ -112,6 +112,8 @@ $suites = @{
     )
     desktop = @(
         'tests/unit/test_application_runtime_lifetime.gd'
+        'tests/integration/test_application_bootstrap.gd'
+        'tests/integration/test_desktop_day_change_fatal.gd'
         'tests/unit/test_contacts_frozen_context.gd'
         'tests/unit/test_desktop_panel_split.gd'
         'tests/desktop_shell/test_desktop_split_touch.gd'
