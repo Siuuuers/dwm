@@ -17,13 +17,13 @@ jobs:
     defaults:
       run:
         shell: bash
-    env:
-      DWM_EXPORT_TRANSPORT_ROOT: ${{ runner.temp }}/hospital-export-evidence
     steps:
     - name: Download original artifact ZIP with read-only workflow token
       env:
         GH_TOKEN: ${{ github.token }}
       run: 'set -euo pipefail
+
+        export DWM_EXPORT_TRANSPORT_ROOT="$RUNNER_TEMP/hospital-export-evidence"
 
         mkdir -p "$DWM_EXPORT_TRANSPORT_ROOT"
 
@@ -34,11 +34,12 @@ jobs:
 
         '
     - name: Verify original identity and CRC, split raw bytes, and verify reassembly
-      run: "set -euo pipefail\npython3 - <<'PY'\nimport hashlib\nimport json\nimport os\nfrom pathlib import Path\nimport\
-        \ zipfile\n\n\ndef require(condition, detail):\n    if not condition:\n        raise ValueError(detail)\n\n\ndef strict_json(text):\n\
-        \    def pairs(values):\n        result = {}\n        for key, value in values:\n            require(key not in result,\
-        \ 'DUPLICATE_JSON_KEY')\n            result[key] = value\n        return result\n    return json.loads(text, object_pairs_hook=pairs)\n\
-        \n\ndef sha256(path):\n    with path.open('rb') as stream:\n        return hashlib.file_digest(stream, 'sha256').hexdigest()\n\
+      run: "set -euo pipefail\nexport DWM_EXPORT_TRANSPORT_ROOT=\"$RUNNER_TEMP/hospital-export-evidence\"\npython3 - <<'PY'\n\
+        import hashlib\nimport json\nimport os\nfrom pathlib import Path\nimport zipfile\n\n\ndef require(condition, detail):\n\
+        \    if not condition:\n        raise ValueError(detail)\n\n\ndef strict_json(text):\n    def pairs(values):\n   \
+        \     result = {}\n        for key, value in values:\n            require(key not in result, 'DUPLICATE_JSON_KEY')\n\
+        \            result[key] = value\n        return result\n    return json.loads(text, object_pairs_hook=pairs)\n\n\n\
+        def sha256(path):\n    with path.open('rb') as stream:\n        return hashlib.file_digest(stream, 'sha256').hexdigest()\n\
         \n\ndef verify_split(archive, metadata, destination, expected, chunk_bytes, transport):\n    require(metadata.get('id')\
         \ == expected['artifact_id'], 'SOURCE_ARTIFACT_ID_MISMATCH')\n    require(metadata.get('expired') is False, 'SOURCE_ARTIFACT_EXPIRED')\n\
         \    require(metadata.get('size_in_bytes') == expected['size_in_bytes'], 'SOURCE_API_SIZE_MISMATCH')\n    require(metadata.get('digest')\
