@@ -309,7 +309,11 @@ func read_text(relative_path: String) -> Dictionary:
 	if not path_result.get("ok", false):
 		return path_result
 	if not _leases.has(relative_path):
-		return _failure(&"reconcile_required", "A fresh reconciliation lease is required")
+		var missing := _failure(&"reconcile_required", "A fresh reconciliation lease is required")
+		# No physical read was attempted. Callers may establish this path's initial
+		# lease, while a read that detects changed bytes must still refuse its attempt.
+		missing["reason"] = &"lease_missing"
+		return missing
 	var lease: Dictionary = _leases[relative_path]
 	var final_path := _path(relative_path)
 	if lease.get("absent", false):
