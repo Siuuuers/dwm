@@ -20,14 +20,26 @@ actual master ref and Beads before editing. The last checked master was
 ## Current acceptance
 
 **Accepted bounded fixture increment — not whole-game or visual-polish acceptance.**
-Source: `900118a5dc16b89b82a4e5d946767c080083c750`. Tested PR merge: `2344b09f5f90cd6bc8fd86166d884316daa82645`.
-[Run114](https://github.com/Siuuuers/dwm/actions/runs/36928901183): 23/23 jobs,
-2,258 GUT executions / 2,254 unique cases / 191 scripts, zero failures/errors/skips.
+Source: `1459af29ad467ca1375ed12fe9e2f31671ce8171`. Tested PR merge: `e84131335d7e49a4d7ae151f99df6f8f2ce93eec`.
+[Run120](https://github.com/Siuuuers/dwm/actions/runs/36941566670): 23/23 jobs,
+2,279 GUT executions / 2,275 unique cases / 194 scripts, zero failures/errors/skips.
 Exact results and limitations belong in the shared
-[Next receipt](../../evidence/phase_2r/one_shot_next_2026_10_02/receipt.json).
+[selector receipt](../../evidence/phase_2r/authored_selector_2026_10_02/receipt.json).
 Later records-only commits are not separately engine-tested.
 
-One-shot Next uses the fixed, noncanonical Solo catalogue, exact Profile witnesses
+Finite catalogue-v2 admission now selects authored Priscilla Day-1 Solo pre/post
+programmes from authoritative entry frames. Per-caption selector subsets preserve
+common-caption identity while changed wording remains unseen. Causal IDs bind
+custody without inventing variants. Publication, History, Next and restore share
+the existing ledger. Unknown/ambiguous rows and forged frames refuse; post-board
+facts are never predicted. All text remains authorized noncanonical fixture text.
+The mounted native tests use schema-valid synthetic post frames and reconstruct
+a recorded in-memory checkpoint; live terminal-effect attitudes and exploded-row
+coverage remain a fixture extension. The eight physical processes separately
+rerun the original catalogue-v1 journey. A v2 fresh-process physical Save/Load
+proof remains the next bounded increment.
+
+One-shot Next uses exact Profile witnesses
 and the existing reading ledger. It completes an unseen partial current caption
 and stops; otherwise it silently crosses previously witnessed variants, stopping
 at the first unseen caption or the existing physical completion boundary.
@@ -60,10 +72,10 @@ render assertion. Do not describe this as expected focus behavior or accepted po
 2. Continue the reading remainder under `dwm-vky.14` with authored selector work
    in `dwm-n3h.2`. Read the [reading record](2026-09-29-reading-rail-next-slice.md)
    and approved scene amendment §§12.3–12.8 and 22.4. Next bounded choice:
-   prove per-entry authored selector/signature admission for the existing Priscilla
-   Day-1 Solo pre/post pair using authorized noncanonical text. Join variant
-   selection across publication, restore, History and Next; changed semantic
-   selectors are unseen, while changed causal IDs preserve variant identity.
+   extend the connected physical Save/Load fixture to catalogue-v2 selected
+   Priscilla Day-1 Solo frames. Preserve the original journey and its receipt;
+   prove selected wording, exact History/Next and witnesses after a real disk
+   checkpoint and fresh process. Reuse actual phase owners and installed Dialogic.
    Production registration stays disabled until its authored catalogue exists.
 3. Ask only if a newly evidenced wording/staging selector changes the authored
    projection contract. Known Solo inputs include friend/day/phase/tier/tone/
@@ -84,6 +96,8 @@ individual caption variants are separate contracts. Keep `attempt_residue_id` nu
 do not promote legacy `special_mine_phase` or `promotion_result` into canonical
 selector authority. The bounded admission proof cannot close `dwm-n3h.2`.
 
+The selector increment adds only evidence notes/timestamps to `dwm-vky.14` and
+`dwm-n3h.2`; all statuses/dependencies and the other 189 records are unchanged.
 All **23 unfinished Beads** remain. `dwm-vky.14` is `in_progress`; `dwm-n3h.2`
 is `open`. A bounded proof does not close either parent or imply Dolt sync.
 
@@ -121,7 +135,8 @@ passes 56 cases across eight scripts, both documentation CLIs and the PowerShell
 instruction fixture on `e18f832deca10f7d000a45e470ce5c48c9b68b56`.
 [Retirement receipt](../../evidence/phase_2r/guidance_retirement_2026_10_02/receipt.json)
 preserves the setup diagnostics and proves all 191 Beads records unchanged.
-Runtime acceptance remains Run114 above; subsequent handoff/evidence edits are records-only.
+Run120 above supersedes Run114 as current bounded runtime acceptance; subsequent
+handoff/evidence edits are records-only. Historical receipts remain unchanged.
 
 Integration follow-up: master's newer root `AGENTS.md` (absent from this PR source)
 still links to `CLAUDE.md`. When merge/integration is separately requested, repoint

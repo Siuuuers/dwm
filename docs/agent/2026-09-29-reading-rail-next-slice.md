@@ -9,15 +9,17 @@ verification_authority: false
 
 # Reading rail: next bounded slice
 
-Updated after final Run114 acceptance of bounded fixed-fixture Solo one-shot Next. Check the live handoff and its source-bound receipt for exact acceptance boundaries. This navigation record does not change specification authority, close Beads, or authorize production narrative content.
+Updated after Run120 acceptance of finite noncanonical Solo authored selector admission, retaining the Run114 one-shot Next foundation. Check the live handoff and its source-bound receipt for exact acceptance boundaries. This navigation record does not change specification authority, close Beads, or authorize production narrative content.
 
 ## Current boundary
 
 The opt-in fixed noncanonical Solo catalogue connects real Dating pre/board/post,
 inspect-only History, qualified Save/Quick and exact semantic fresh-process Load.
 Profile v10 records exact registered caption variants at visible acknowledgement
-and retains their pre-publication witnessed baseline. One-shot Next is accepted
-only for this fixture; production catalogue registration remains disabled.
+and retains their pre-publication witnessed baseline. One-shot Next retains this
+physical fixture foundation. Finite catalogue-v2 selector admission now has pure, Profile/semantic-owner and mounted native proof;
+its recorded in-memory restore is distinct from the original physical journey.
+Production catalogue registration remains disabled.
 
 Next completes an unseen partial current caption and stops; otherwise it silently
 crosses witnessed variants to the first unseen caption or the existing physical
@@ -32,9 +34,10 @@ The reading envelope is explicitly v2 while a Next operation is retained; ordina
 v1 reading checkpoints remain supported. Profile v10 and Run document/snapshot v7
 remain current. No parallel transcript or save store was added.
 
-**Accepted bounded source:** `900118a5dc16b89b82a4e5d946767c080083c750`. **Tested PR merge:** `2344b09f5f90cd6bc8fd86166d884316daa82645`.
-Final [Run114](https://github.com/Siuuuers/dwm/actions/runs/36928901183) acceptance and its exact
-results/limits belong to the [Next receipt](../../evidence/phase_2r/one_shot_next_2026_10_02/receipt.json).
+**Accepted bounded source:** `1459af29ad467ca1375ed12fe9e2f31671ce8171`. **Tested PR merge:** `e84131335d7e49a4d7ae151f99df6f8f2ce93eec`.
+Final [Run120](https://github.com/Siuuuers/dwm/actions/runs/36941566670) acceptance and its exact
+results/limits belong to the [selector receipt](../../evidence/phase_2r/authored_selector_2026_10_02/receipt.json).
+The historical [Next / Run114 receipt](../../evidence/phase_2r/one_shot_next_2026_10_02/receipt.json) remains unchanged.
 Later records-only descendants are not separately engine-tested.
 
 Prior foundations: [ordinary Pause Save / Run98](../../evidence/phase_2r/pause_reading_save_2026_10_01/receipt.json)
@@ -82,7 +85,7 @@ Use already-authorized noncanonical dialogue for cloud verification. Production 
 
 **Coordinated restoration.** Extend the exact narrative checkpoint/restore contract deliberately, coordinating any Run/document and narrative version successor with explicit admission for the formats it supports. The unshipped-save decision below allows obsolete Run7 readers to be retired. Validate catalogue compatibility, complete sequence, context bindings and frontier before installing any participant. Preserve journal, recovery and retained-checkpoint guarantees within supported formats.
 
-**Accepted fixed-fixture foundation; next authored admission.** Exact-variant Profile witnessing and one-shot Next are cloud-accepted for the fixed noncanonical Solo fixture through the existing transport/board boundary. Next, complete per-entry authored selector/signature admission before production registration. Consume the exact witness predicate and preserved pre-publication baseline; a just-published unseen line must not become traversable merely because publication recorded it. A changed revision/variant of the same line remains unseen; causal run/attempt IDs do not invent variants. Reuse Profile commit/recovery and existing completion owners. The optional retained Profile migrations start exact membership empty; obsolete development formats need not be supported. Production author input is needed only for an additional wording/staging selector that changes the projection contract.
+**Accepted finite authored admission; next physical v2 proof.** Exact-variant Profile witnessing and one-shot Next retain their physical fixed-fixture foundation. Finite catalogue-v2 admission selects programmes and per-caption signatures from authoritative phase frames. Next, extend the connected physical Save/Load fixture to these v2 selections before production registration. Consume the exact witness predicate and preserved pre-publication baseline; a just-published unseen line must not become traversable merely because publication recorded it. A changed revision/variant of the same line remains unseen; causal run/attempt IDs do not invent variants. Reuse Profile commit/recovery and existing completion owners. The optional retained Profile migrations start exact membership empty; obsolete development formats need not be supported. Production author input is needed only for an additional wording/staging selector that changes the projection contract.
 
 Existing Solo Dating selectors include friend/day/phase, tier, tone, attitude and due echoes. Post-challenge adds board result, perfect reasons and relationship outcome. Current residue is explicitly null. Causal run, branch, attempt and receipt IDs bind ownership; they must not automatically create distinct prose variants. English implementation does not depend on the deferred translated-file adapter.
 
@@ -165,11 +168,14 @@ No new owner answer is required to begin this bounded fixture implementation.
 Additional production wording/staging selectors remain the separate authored
 catalogue question below. No task is closed by this readiness audit.
 
-## Authored selector admission candidate — 2 October 2026
+## Accepted bounded authored selector admission — 2 October 2026
 
 Focused Run119 passes all 382 reading cases (including 21 new selector cases)
 and 11 public-contract cases on source `7a545490acc65a3332e766c243dee5f8938c7b4a`.
-The required broad PR gate is still pending. Lead `dwm-vky.14`, with
+Broad Run120 passes 23/23 jobs, 2,279 executions / 2,275 unique cases / 194 scripts,
+with zero failures/errors/skips. Exact source and limits are in the
+[selector receipt](../../evidence/phase_2r/authored_selector_2026_10_02/receipt.json).
+Lead `dwm-vky.14`, with
 bounded authored-admission clauses of `dwm-n3h.2`. Neither issue closes here.
 
 - **Outcome:** the same stable caption/beat selects its exact authored wording
@@ -198,6 +204,25 @@ bounded authored-admission clauses of `dwm-n3h.2`. Neither issue closes here.
   Hospital/ending continuity and native platform acceptance remain open. The
   original physical journey remains the fixed-catalogue regression; do not call
   mounted adapter reconstruction a fresh-process physical v2 Save/Load proof.
+
+### Next physical fixture boundary
+
+Current v2 post rows use schema-valid synthetic `attitude: ""`. Actual terminal
+effects change attitude before `DatingPhysicalOwner` freezes the post frame:
+`loved` becomes `affectionate`, `foresight` becomes `seen`, and the original
+physical journey's `exploded` / `hatred` result becomes `hostile`. The existing
+v2 catalogue has no exploded row. Extend authorized fixture rows from these real
+frames; do not weaken selection or invent a runtime fallback. Preserve the
+original eight-mode catalogue-v1 journey and historical receipts. Use isolated
+v2 writer/reader processes to join actual disk bytes, selected native wording,
+exact History/witnesses and independent physical frame validation on fresh Load.
+Use the first Next activation on partial unseen post A to prove `unseen_stop`,
+unchanged frontier and no source/destination checkpoint writes. A separate second
+activation on that now-full occurrence may commit the move to unseen post B;
+retain the source's false pre-publication baseline and require no silently
+traversed captions. Quick-save the four-caption ledger and selected post-B
+frontier, then fresh-load with exact restored authority and no repeated speech.
+This is a fixture/integration extension, not an unresolved architecture choice.
 
 ## Unshipped development-save policy
 
