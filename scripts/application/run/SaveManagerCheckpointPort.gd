@@ -944,16 +944,22 @@ func _capture_storage_backup(relative_path: String, validated_texts: Dictionary)
 	if existed:
 		var read: Dictionary = _storage().read_text(relative_path)
 		if not read.get("ok", false):
-			if str(read.get("code", "")) == "reconcile_required":
-				# A failed read invalidates the storage lease before any checkpoint is committed.
-				# Revalidate durable evidence so an explicit retry can read it again.
-				# This attempt still fails; corrupt or ambiguous artifacts remain refused.
-				# Only its refusal is read, so the witness answers it (dwm-634.3).
-				var reconciled: Dictionary = _storage().reconcile(
-					relative_path, _witness_document_text_validator.bind(validated_texts))
-				if not reconciled.get("ok", false):
-					return reconciled
-			return read
+			if str(read.get("code", "")) != "reconcile_required":
+				return read
+			# A cold manual-slot Load has not read the unrelated Autosave yet. Its
+			# missing lease may be established here, followed by a real leased reread.
+			# A read that detected changed bytes still fails this preparation: real
+			# reconciliation only enables an explicit later retry in that case.
+			var lease_missing := str(read.get("reason", "")) == "lease_missing"
+			var reconciled: Dictionary = _storage().reconcile(
+				relative_path, _witness_document_text_validator.bind(validated_texts))
+			if not reconciled.get("ok", false):
+				return reconciled
+			if not lease_missing:
+				return read
+			read = _storage().read_text(relative_path)
+			if not read.get("ok", false):
+				return read
 		var text := str(read["value"])
 		var validation := _cached_document_text_proof(text, validated_texts)
 		if not validation.get("ok", false):

@@ -78,13 +78,17 @@ func test_absent_reconcile_write_read_replace_and_restart() -> void:
 func test_read_and_remove_require_a_fresh_unchanged_lease() -> void:
 	var fake: RefCounted = _fake_ops_script.new(_seed({FINAL_PATH: OLD_TEXT}))
 	var storage: RefCounted = _storage_script.new(ROOT, fake)
-	assert_eq(storage.call(&"read_text", RELATIVE_PATH).get("code"), &"reconcile_required")
+	var missing: Dictionary = storage.call(&"read_text", RELATIVE_PATH)
+	assert_eq(missing.get("code"), &"reconcile_required")
+	assert_eq(missing.get("reason"), &"lease_missing", "no physical read was attempted before reconciliation")
 	assert_eq(storage.call(&"remove", RELATIVE_PATH).get("code"), &"reconcile_required")
 	assert_true(storage.call(&"reconcile", RELATIVE_PATH, _generation_validator).get("ok", false))
 	assert_eq(storage.call(&"read_text", RELATIVE_PATH).get("value"), OLD_TEXT)
 	assert_true(fake.call(&"write_bytes", FINAL_PATH, NEW_TEXT.to_utf8_buffer()).get("ok", false))
 	assert_true(fake.call(&"flush_path", FINAL_PATH).get("ok", false))
-	assert_eq(storage.call(&"read_text", RELATIVE_PATH).get("code"), &"reconcile_required")
+	var changed: Dictionary = storage.call(&"read_text", RELATIVE_PATH)
+	assert_eq(changed.get("code"), &"reconcile_required")
+	assert_ne(changed.get("reason", ""), &"lease_missing", "changed bytes must never be classified as an initial missing lease")
 
 func test_remove_uses_durable_tombstone_and_cannot_resurrect_backup() -> void:
 	var fake: RefCounted = _fake_ops_script.new(_seed({FINAL_PATH: NEW_TEXT, BACKUP_PATH: OLD_TEXT}))

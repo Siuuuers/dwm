@@ -163,6 +163,7 @@ $suites = @{
         'tests/integration/test_minesweeper_first_reveal_transaction.gd'
         'tests/unit/test_save_manager_checkpoint_port.gd'
         'tests/unit/test_checkpoint_validation_reuse.gd'
+        'tests/unit/test_checkpoint_preparation_retry.gd'
         'tests/unit/test_checkpoint_phase_diagnostics.gd'
         'tests/unit/test_checkpoint_journal.gd'
     )
