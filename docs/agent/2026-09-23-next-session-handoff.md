@@ -19,7 +19,21 @@ actual master ref and Beads before editing. The last checked master was
 
 ## Current acceptance
 
-**Accepted bounded physical fixture increment — not whole-game or visual-polish acceptance.**
+**Accepted test-only title-geometry guard and diagnostic correction.** Source:
+`79b36d90e3ea41d36a81a4c5ba0f87b0ae4a7bfa`. Tested PR merge:
+`d1c3205392205ab85306f1e2afed15d58b517bd1`.
+[Run127](https://github.com/Siuuuers/dwm/actions/runs/36960182145) passes 23/23 jobs,
+2,280 GUT executions / 2,276 unique cases / 194 scripts, zero failures/errors/skips.
+Both existing reading journeys remain accepted within their prior fixture scope.
+The original title-clipping assessment was wrong: archived PNG bytes already show
+the complete title. The new guard checks 480 visible process/post-draw geometry
+samples across live and restored scenes; it does not substitute for glyph-pixel
+or all-locale/native-window acceptance. No production runtime or supported format
+changed. Exact source, controls, image identities and limits belong in the
+[layout receipt](../../evidence/phase_2r/challenge_layout_2026_10_02/receipt.json).
+Later records-only descendants are not separately engine-tested.
+
+**Preserved physical fixture foundation — not whole-game or visual-polish acceptance.**
 Source: `cfb7616bfd498979bef520e1522cbbb712298aea`. Tested PR merge: `f527957009017993a4987174aeb76a26e8793075`.
 [Run122](https://github.com/Siuuuers/dwm/actions/runs/36950541601): 23/23 jobs,
 2,280 GUT executions / 2,276 unique cases / 194 scripts, zero failures/errors/skips.
@@ -72,14 +86,20 @@ v1 reading checkpoints remain supported. Profile v10 exact witnessing and Run
 document/snapshot v7 remain current. No parallel transcript or save store was added.
 Production catalogue registration is still separate from this fixture.
 
-Next immediate diagnostic: cold Load of a `board == null` challenge clips its title.
-No runtime layout fix is accepted. Observe the first 120 frames/draws from before
-mount/Load: ChallengeContent and worksheet rectangles, minimum sizes, scroll and
-focus, while checking unchanged save bytes. Distinguish immediate minimum-size
-measurement after width changes from `follow_focus` scrolling before choosing a
-fix. The existing reader already waits 12 frames; a blind delay is not evidence
-of the cause. Then add a cloud render assertion for the demonstrated fix. Do not
-describe clipping as expected focus behavior or accepted polish.
+The [challenge layout diagnostic](../../evidence/phase_2r/challenge_layout_2026_10_02/receipt.json)
+corrects the earlier cold `board == null` Load clipping claim. The original
+Run122 artifact ZIP and Run124/125 contain byte-identical restored PNGs with the
+complete title; the historical visual description was incorrect. The cold reader's
+first 120 process/draw observations retain intact title geometry, zero outer scroll
+and no focused control, with unchanged save bytes. No production layout fix was
+made, and these diagnostics do not replace the broad acceptance above.
+
+The new geometry guard checks finite, nonempty visible title rectangles inside
+their clipping bounds. It does not inspect glyph pixels. The complete title in the
+retained PNGs is separate visual evidence; neither establishes whole-UI polish.
+Next bounded work is paused Settings F5 under `dwm-vky.14`: complete only the
+current reveal, preserve the exact semantic point, and retain existing Save
+admission and command custody.
 
 ## Resume order and authority
 
@@ -93,9 +113,10 @@ describe clipping as expected focus behavior or accepted polish.
    in `dwm-n3h.2`. Read the [reading record](2026-09-29-reading-rail-next-slice.md)
    and approved scene amendment §§12.3–12.8 and 22.4. The bounded connected
    physical v2 Save/Load proof is accepted; preserve both it and the original
-   catalogue-v1 journey. Next, diagnose the cold board-null Load layout using
-   measured frame/draw geometry, minimum sizes, scroll and focus before editing
-   runtime. Production registration stays disabled until its authored catalogue exists.
+   catalogue-v1 journey. Next, cover paused Settings F5 using the current
+   Pause/Settings and reading owners: finish only the current reveal, preserve
+   exact semantic position, and prove Save admission and command custody.
+   Production registration stays disabled until its authored catalogue exists.
 3. Ask only if a newly evidenced wording/staging selector changes the authored
    projection contract. Known Solo inputs include friend/day/phase/tier/tone/
    attitude/due echoes and committed post-board outcome/perfect reasons/
@@ -104,7 +125,7 @@ describe clipping as expected focus behavior or accepted polish.
    phase facts exist; never precompute post-board outcomes or derive wording
    variants from hidden mutable gameplay reads. Routine implementation is delegated.
 4. Hospital/ending continuity, production exact replay, native all-input and
-   accessibility acceptance, paused Settings F5, and arbitrary production
+   accessibility acceptance, and arbitrary production
    partial-reveal abort lifetime remain distinct acceptance work. The map also
    tracks independent Settings recovery, Gallery register and latency work.
 
@@ -117,6 +138,8 @@ selector authority. The bounded admission proof cannot close `dwm-n3h.2`.
 
 The physical selector increment adds only evidence notes/timestamps to `dwm-vky.14` and
 `dwm-n3h.2`; all statuses/dependencies and the other 189 records are unchanged.
+The layout increment appends only the `dwm-vky.14` evidence note/timestamp; all
+other 190 records are byte-identical and every status/dependency is unchanged.
 All **23 unfinished Beads** remain. `dwm-vky.14` is `in_progress`; `dwm-n3h.2`
 is `open`. A bounded proof does not close either parent or imply Dolt sync.
 
@@ -154,8 +177,8 @@ passes 56 cases across eight scripts, both documentation CLIs and the PowerShell
 instruction fixture on `e18f832deca10f7d000a45e470ce5c48c9b68b56`.
 [Retirement receipt](../../evidence/phase_2r/guidance_retirement_2026_10_02/receipt.json)
 preserves the setup diagnostics and proves all 191 Beads records unchanged.
-Run122 above supersedes Run120 as current bounded cloud acceptance. Run120
-selector admission and Run114 Next remain historical foundations; subsequent
+Run127 is the current bounded broad cloud acceptance. Run122 physical proof,
+Run120 selector admission and Run114 Next remain historical foundations; subsequent
 handoff/evidence edits are records-only. Historical receipts remain unchanged.
 
 Integration follow-up: master's newer root `AGENTS.md` (absent from this PR source)
@@ -174,6 +197,12 @@ Do not merge or edit master/story as part of this completed PR-branch cleanup.
   pre-existing user edits and unrelated work.
 - Measure before optimizing. Use an ablation or frozen control when it answers a
   concrete causal question; retain exact source, bytes and failure diagnostics.
+- Before diagnosing a visual defect from a handoff, inspect the original retained
+  PNG and verify its identity against the artifact ZIP and receipt. Compare the
+  actual images before assuming a probe or delay changed them. Geometry containment
+  and readable glyph pixels are different evidence. Minimum-size getters can shape
+  text; keep those queries separate from raw geometry observations and do not
+  infer a runtime repair from unchanged screenshots.
 - Reuse meaningful tests at the level of risk: unit for pure rules, integration for
   ownership/transactions, rendered journeys for connected presentation. A passing
   command is insufficient if the intended script never ran. Stop optional testing

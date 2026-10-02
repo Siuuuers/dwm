@@ -9,7 +9,7 @@ verification_authority: false
 
 # Reading rail: next bounded slice
 
-Updated after Run122 acceptance of the bounded physical catalogue-v2 Save/Load proof, retaining Run120 selector admission and the Run114 one-shot Next foundation. Check the live handoff and its source-bound receipt for exact acceptance boundaries. This navigation record does not change specification authority, close Beads, or authorize production narrative content.
+Updated after the cold-Load layout diagnostic corrected the earlier clipping claim, retaining Run122 acceptance of the bounded physical catalogue-v2 Save/Load proof, Run120 selector admission and the Run114 one-shot Next foundation. Check the live handoff and its source-bound receipts for exact acceptance boundaries. This navigation record does not change specification authority, close Beads, or authorize production narrative content.
 
 ## Current boundary
 
@@ -65,6 +65,11 @@ this bounded proof closes neither and does not imply Dolt synchronization.
 - F9 during admitted prose uses real Pause and the existing confirmation owner. Cancel resumes the literal source; fresh Load reconstructs the saved stable line fully visible without repeating speech.
 - The finite fixture's exact witnesses are Profile-owned, keyed by complete registered descriptor rather than line ID or causal run/attempt IDs. A changed revision remains unseen even when the base line is visited; registration, History and queries grant no credit.
 - Production catalogue/selector admission and exact Next/replay, Hospital/ending continuity, paused Settings F5, arbitrary production partial-reveal abort lifetime and full native all-input/accessibility acceptance remain separate unfinished work.
+
+The next bounded `dwm-vky.14` clause is paused Settings F5: complete only the
+current reveal, preserve the exact semantic point, and retain existing Save
+admission and command custody. The [layout diagnostic](../../evidence/phase_2r/challenge_layout_2026_10_02/receipt.json)
+corrects the earlier clipping claim without a production layout change.
 
 Run69 exposed a fixture-host mistake: natural completion freed the explicitly mounted Witnessed layout, and the subsequent native start could select Dialogic's default style. The `9958` repair remounts and verifies the intended host while preserving publication assertions and existing waits. Run70 executes all nine ledger unit cases and nine mounted runtime cases successfully. Check the live handoff for full-run and subsequent-source acceptance.
 
@@ -268,13 +273,22 @@ All 23 unfinished Beads retain their statuses. Global reached signatures,
 production registration/exact replay, Hospital/ending continuity and native
 all-input/accessibility acceptance remain outside this bounded proof.
 
-Next immediate diagnostic: observe the first 120 frames/draws from before a cold
-board-null mount/Load, including content/worksheet geometry, minimum sizes, scroll
-and focus, while verifying unchanged save bytes. Distinguish immediate minimum-size
-measurement after width changes from `follow_focus` scrolling. The reader already
-waits 12 frames; do not substitute a blind delay for measured cause. No runtime
-layout fix or polish acceptance is implied before that diagnostic and a cloud
-render assertion for the resulting fix.
+## Cold-Load layout diagnostic correction — 2 October 2026
+
+The original Run122 artifact ZIP and Run124/125 contain byte-identical restored
+board-null PNGs with the complete title. The earlier visual clipping description
+was incorrect. In the cold reader, the first 120 process/draw observations retain
+intact title geometry, zero outer scroll and no focused control. No production
+layout fix was made; the probe is diagnostic evidence rather than a timing repair.
+The [challenge layout receipt](../../evidence/phase_2r/challenge_layout_2026_10_02/receipt.json)
+binds the original bytes and new observations. Historical Run120/122 receipts
+keep their original contents and acceptance scope. This correction establishes
+neither whole-UI acceptance nor a new broad gate.
+
+Next, cover paused Settings F5 under `dwm-vky.14`: finish only the current reveal,
+preserve the semantic point, and use the existing Save and custody owners.
+Production catalogue admission, Hospital/ending continuity and native acceptance
+remain separate work.
 
 ## Unshipped development-save policy
 
@@ -303,8 +317,13 @@ The exact-witness journey, independently rerun in Run102, preserves WRITE/READ a
 
 Retain source SHA, tested merge/run/job identities, machine-readable ordered transcript, saved-file hashes, transaction trace and screenshots. Preserve failed attempts and distinguish fixture evidence from production content acceptance.
 
-## Remaining owner decision for the next cut
+## Later authored input boundary
 
-Before freezing the first authored Solo Dating catalogue, identify wording or staging selectors beyond the fields above. Final prose can arrive later; hidden reads of mutable gameplay cannot define exact variants. Old-development-save compatibility no longer requires an owner decision.
+Paused Settings F5 needs no new architecture decision. Before production catalogue
+registration, ask only if a selected entry introduces an independently varying
+wording or staging selector beyond the recorded fields. The accepted fixture
+catalogue does not approve production prose; hidden reads of mutable gameplay
+cannot define exact variants. Old-development-save compatibility no longer
+requires an owner decision.
 
 Routine ownership, implementation and testing choices remain engineering work.

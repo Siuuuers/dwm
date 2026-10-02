@@ -6,7 +6,7 @@ execution_authority: false
 status_authority: false
 behavior_authority: false
 verification_authority: false
-inspected_source: "cfb7616bfd498979bef520e1522cbbb712298aea"
+inspected_source: "79b36d90e3ea41d36a81a4c5ba0f87b0ae4a7bfa"
 ---
 
 # DWM execution map
@@ -39,7 +39,7 @@ not create competing versions of GameState or SaveManager.
 
 | Lead / placement | Related records | Smallest useful outcome and proof |
 |---|---|---|
-| **Accepted bounded increment; reading remainder: `dwm-vky.14`** | `dwm-eei.10`, `dwm-eei.11`, Witnessed remainder of `dwm-eei.5` | The fixed noncanonical Solo session retains its real pre/board/post, History, Save/Quick and fresh Load foundation. One-shot Next now consumes exact Profile witnessing and the pre-publication baseline: it completes an unseen partial current caption and stops, or silently crosses witnessed variants to the first unseen caption or existing completion boundary. Auto Off commits first; source and destination commit through the existing autosave/journal owner before native motion. The terminal operation and ordered History survive the actual challenge autosave and fresh Load. Finite catalogue-v2 selector admission now joins publication, History, Next and reconstruction through the same ledger, with stable common-caption identity and no causal-ID variants. The separate v2 physical writer/reader now proves the observed sweet/exploded result, actual terminal attitude, exact frames/History/Next/witnesses and unchanged Quick/Profile bytes after fresh Load without speech replay. Both Next Autosave endpoints are retained; the final Quick is the cold-load subject. Run122 acceptance and limits are in the [physical selector receipt](../../evidence/phase_2r/physical_authored_selector_2026_10_02/receipt.json) and [handoff](2026-09-23-next-session-handoff.md). The original eight-mode v1 journey and historical Run120 scope remain preserved. Next work: measure the cold board-null Load title clipping before choosing a runtime layout fix. Exact current text and History do not imply pixel-identical transient scrollback or final polish. Production registration/exact replay, Hospital/ending continuity, paused Settings F5 and native all-input/accessibility acceptance remain open. |
+| **Accepted bounded increment; reading remainder: `dwm-vky.14`** | `dwm-eei.10`, `dwm-eei.11`, Witnessed remainder of `dwm-eei.5` | The fixed noncanonical Solo session retains its real pre/board/post, History, Save/Quick and fresh Load foundation. One-shot Next now consumes exact Profile witnessing and the pre-publication baseline: it completes an unseen partial current caption and stops, or silently crosses witnessed variants to the first unseen caption or existing completion boundary. Auto Off commits first; source and destination commit through the existing autosave/journal owner before native motion. The terminal operation and ordered History survive the actual challenge autosave and fresh Load. Finite catalogue-v2 selector admission now joins publication, History, Next and reconstruction through the same ledger, with stable common-caption identity and no causal-ID variants. The separate v2 physical writer/reader now proves the observed sweet/exploded result, actual terminal attitude, exact frames/History/Next/witnesses and unchanged Quick/Profile bytes after fresh Load without speech replay. Both Next Autosave endpoints are retained; the final Quick is the cold-load subject. Run122 acceptance and limits are in the [physical selector receipt](../../evidence/phase_2r/physical_authored_selector_2026_10_02/receipt.json) and [handoff](2026-09-23-next-session-handoff.md). The original eight-mode v1 journey and historical Run120 scope remain preserved. The [layout diagnostic](../../evidence/phase_2r/challenge_layout_2026_10_02/receipt.json) corrects the earlier clipping claim: original Run122 and Run124/125 restored PNGs are byte-identical and show the complete title; no production layout fix was made. Next bounded work: paused Settings F5, completing only the current reveal while preserving exact semantic position and Save custody. Exact current text and History do not imply pixel-identical transient scrollback or final polish. Production registration/exact replay, Hospital/ending continuity and native all-input/accessibility acceptance remain separate. |
 | **Accepted increment; remaining latency: `dwm-634.3`** | `dwm-634` parent; touched `dwm-sx8` mappings only | Compact per-write validation witnesses and frozen-baseline correctness controls are implemented. Focused production Run81 and broad Run82 passed. Retain this issue for remaining terminal-settlement/checkpoint cost, matched complete-operation measurements and native responsiveness acceptance; one helper improvement does not close the lag task. |
 | **Independent CI change: accepted in Run82** | Existing performance and required-check gates | The retained-history producer now feeds four comparison jobs on separate runners/checkouts, with verified source/run/input manifests and an aggregate gate retaining the required-check name. Run82 verifies the actual fanout and all consumer evidence. Observed elapsed time is not a controlled causal speedup measurement. |
 | **Following reading batch: `dwm-n3h.2`** | `dwm-n3h`, exact Next/replay portion of `dwm-vky.14`, relevant `dwm-oyo.5` clauses | Finite per-entry authored selector admission and the bounded physical v2 Save/Load proof are accepted for noncanonical Solo pre/post fixtures; physical coverage is one observed sweet/exploded outcome. The global reached-signature successor and production exact-variant coverage/Next/replay remain open. The fixed-fixture Profile witness prerequisite is implemented separately. Ordinary phase/reply/line and Alone cause are known gaps; request extra author input only where another independent fact changes presentation. |
@@ -135,12 +135,18 @@ Profile witnesses. The original eight-mode catalogue-v1 journey and historical
 keep their original meaning. Three real-attitude explosion rows have pure selector
 coverage; the physical proof covers only the observed sweet/exploded disposition.
 
-Use the next batch card to diagnose cold board-null Load title clipping. Record
-the first 120 frames/draws from before mount/Load, including content/worksheet
-geometry, minimum sizes, scroll and focus, while preserving save bytes. Separate
-immediate minimum-size measurement after width changes from `follow_focus`
-scrolling; the existing reader's 12-frame wait rules out treating a blind delay
-as a demonstrated fix. Choose a runtime change only after this observation.
+The [challenge layout diagnostic](../../evidence/phase_2r/challenge_layout_2026_10_02/receipt.json)
+corrects the earlier cold board-null Load clipping claim. The original Run122
+artifact ZIP and Run124/125 contain byte-identical restored PNGs with the complete
+title. The cold reader's first 120 process/draw observations retain intact title
+geometry, zero outer scroll and no focused control. No production layout fix was
+made. Historical receipts remain unchanged; this correction does not establish
+whole-UI acceptance or a new broad gate.
+
+Continue the next bounded `dwm-vky.14` clause: paused Settings F5 must complete
+only the current reveal, preserve the exact semantic point, and use existing
+Save admission and command custody. Reuse the current Pause/Settings and reading
+owners; production catalogue work and Hospital/ending continuity remain separate.
 Transient scrollback remains separate from the exact semantic current caption
 and History; no final visual-polish acceptance is claimed.
 
