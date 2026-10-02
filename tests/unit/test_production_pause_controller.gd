@@ -123,6 +123,11 @@ class IdleBridge extends RefCounted:
 	func has_active_playback() -> bool: return foreign_live
 	func capture_pause_frontier(_timeline_id: String = "") -> Dictionary: return {"ok": false, "code": &"pause_frontier_unavailable"}
 
+class DeferredWindowBoundary extends RefCounted:
+	signal completed(frame: int)
+	func complete(frame: int) -> void:
+		completed.emit(frame)
+
 var controller: Node
 var profile: Node
 var localization: Node
@@ -1082,14 +1087,18 @@ func test_paused_settings_reset_window_forwards_contacts_without_saving_or_queue
 	await _quick_window_key(dialog, KEY_ESCAPE, true)
 	_quick_native_key(KEY_ESCAPE, false)
 	assert_false(dialog.visible)
-	# Native Cancel hides the Window deferred. Resume at that exact visibility
-	# boundary and retry the held packet without a process-frame poll afterward.
+	# Native Cancel hides deferred and emits visibility before hide unwinds.
+	# Queue completion from that signal so input resumes after the native hide,
+	# still in its process frame, rather than reentering a partly hidden Window.
 	await content._open_reset_confirmation("preferences")
+	var boundary := DeferredWindowBoundary.new()
+	dialog.visibility_changed.connect(func() -> void:
+		boundary.complete.call_deferred(Engine.get_process_frames()), CONNECT_ONE_SHOT)
 	_quick_window_key(dialog, KEY_F5, true, 0)
 	_quick_window_key(dialog, KEY_ESCAPE, true, 0)
-	if dialog.visible: await dialog.visibility_changed
-	var input_frame := Engine.get_process_frames()
+	var input_frame: int = await boundary.completed
 	assert_false(dialog.visible)
+	assert_eq(Engine.get_process_frames(), input_frame, "Deferred completion remains in the native hide frame")
 	_quick_native_key(KEY_ESCAPE, false)
 	_quick_native_key(KEY_F5, true)
 	assert_eq(Engine.get_process_frames(), input_frame)
@@ -1103,6 +1112,8 @@ func test_paused_settings_reset_window_forwards_contacts_without_saving_or_queue
 	assert_true(fixture.storage.exists("quicksave.json"))
 	assert_eq(controller.surface.entered_action, &"settings")
 	assert_true(get_tree().paused)
+	# Do not tear down the fixture inside the deferred completion's signal stack.
+	await get_tree().process_frame
 
 func test_paused_settings_option_popup_forwards_release_and_retires_same_frame_save() -> void:
 	get_viewport().gui_embed_subwindows = true
