@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -368,6 +369,46 @@ def validate_next(reports: dict, evidence: Path, folder: Path) -> dict:
             "fresh_process_challenge_and_history": True}
 
 
+def validate_challenge_layout(reports: dict, evidence: Path, folder: Path) -> dict:
+    """Check painted title containment without asking Godot to remeasure text."""
+    result = {}
+    for mode in ("next", "next-read"):
+        path = cloud.contained_path(evidence, evidence / f"layout-{mode}.json")
+        observation = strict_json(path.read_text(encoding="utf-8"))
+        if observation["mode"] != mode or observation["process_id"] != reports[mode]["process_id"] or (
+            observation["complete"] is not True or observation["measurement_mode"] != "geometry_only"
+            or observation["events_dropped"] != 0 or observation["required_visible_samples"] != 120
+            or observation["visible_samples"] != {"process": 120, "post_draw": 120}
+        ):
+            raise RuntimeError(f"COMPLETE_PASSIVE_CHALLENGE_OBSERVATION_REQUIRED: {mode}")
+        checked = {}
+        for stream in ("process", "post_draw"):
+            samples = [sample for sample in observation["samples"]
+                       if sample["kind"] == stream and sample["challenge_visible"]]
+            frame_key = "process_frame" if stream == "process" else "drawn_frame"
+            frames = [sample[frame_key] for sample in samples]
+            if len(samples) != 120 or frames != sorted(set(frames)):
+                raise RuntimeError(f"DISTINCT_CHALLENGE_FRAME_SEQUENCE_REQUIRED: {mode}/{stream}")
+            for sample in samples:
+                title = sample["controls"]["ChallengeTitle"]
+                rect, clip = title["rect"], title["clip"]
+                if any(len(box) != 4 or any(type(v) not in (int, float) or not math.isfinite(v) for v in box)
+                       or box[2] <= 0 or box[3] <= 0 for box in (rect, clip)):
+                    raise RuntimeError(f"FINITE_NONEMPTY_CHALLENGE_GEOMETRY_REQUIRED: {mode}")
+                contained = all(rect[axis] >= clip[axis] - 0.01
+                                and rect[axis] + rect[axis + 2] <= clip[axis] + clip[axis + 2] + 0.01
+                                for axis in (0, 1))
+                if sample["phase"] != "challenge" or title["visible_in_tree"] is not True or not contained:
+                    raise RuntimeError(f"CHALLENGE_TITLE_CLIPPED: {mode}/{stream}/{sample[frame_key]}")
+            checked[stream] = {"frames": len(samples), "first_frame": frames[0], "last_frame": frames[-1],
+                               "first_title_rect": samples[0]["controls"]["ChallengeTitle"]["rect"],
+                               "last_title_rect": samples[-1]["controls"]["ChallengeTitle"]["rect"]}
+        shutil.copyfile(path, folder / path.name)
+        result[mode] = {"observation": file_identity(path), "checked": checked,
+                        "title_fully_inside_clip": True}
+    return result
+
+
 def run() -> int:
     repository = Path(__file__).resolve().parents[2]
     output = cloud.make_directory(repository, repository / ".godot/ci/reading-rail")
@@ -464,6 +505,7 @@ def run() -> int:
             read_report(mode, evidence, folder, reports, user_dir)
         validate_trace(reports, evidence, MODES + NEXT_MODES)
         result["retained_next_autosave"] = validate_next(reports, evidence, folder)
+        result["challenge_layout"] = validate_challenge_layout(reports, evidence, folder)
         next_folder = cloud.make_directory(repository, folder / "next")
         captures, failures = cloud.collect_captures(repository, user_dir, next_folder, {
             "evidence_folder": "reading-rail/next", "captures": NEXT_CAPTURES,
