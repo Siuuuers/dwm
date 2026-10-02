@@ -11,6 +11,7 @@ var _hospital_completions: Array = []
 var _physical_completions: Array = []
 var _text_starts: Array = []
 var _catalogue_documents: Dictionary = {}
+var _hospital_owner_events: Array = []
 
 func _run() -> void:
 	for argument: String in OS.get_cmdline_user_args():
@@ -34,10 +35,30 @@ func _run() -> void:
 	_catalogue_documents = {"solo": solo.value, "hospital": hospital, "production_content": false}
 	if not _check(_write_text(_reading_mode + "-catalogues.json", JSON.stringify(_catalogue_documents, "\t")), "retain exact process catalogue documents"): return
 	bridge.hospital_reading_finished.connect(func(command: Dictionary, result: Dictionary) -> void:
-		_hospital_completions.append({"command": command.duplicate(true), "result": result.duplicate(true)}))
+		_hospital_completions.append({"command": command.duplicate(true), "result": result.duplicate(true)})
+		_owner_event("hospital_reading_finished", {"command": command, "result": result}))
+	bridge.narrative_validation_failed.connect(func(failure: Dictionary) -> void:
+		_owner_event("narrative_validation_failed", failure))
+	bridge.entry_playback_failed.connect(func(token: String, entry_id: String, failure: Dictionary) -> void:
+		_owner_event("entry_playback_failed", {"token": token, "entry_id": entry_id, "failure": failure}))
 	var physical: Object = bootstrap.get("_retained_presentation_owner_adapter")
 	physical.physical_completion_ready.connect(func(receipt: Dictionary) -> void:
-		_physical_completions.append(receipt.duplicate(true)))
+		_physical_completions.append(receipt.duplicate(true))
+		_owner_event("physical_completion_ready", receipt))
+	physical.physical_completion_failed.connect(func(failure: Dictionary) -> void:
+		_owner_event("physical_completion_failed", failure))
+	var hospital_port: Object = bootstrap.get("_retained_hospital_presentation_port")
+	hospital_port.completion_ready.connect(func(result: Dictionary) -> void:
+		_owner_event("hospital_port_completion_ready", result))
+	hospital_port.completion_failed.connect(func(failure: Dictionary) -> void:
+		_owner_event("hospital_port_completion_failed", failure))
+	var coordinator: Object = bootstrap.get("_retained_day_resolution_coordinator")
+	coordinator.resolution_completed.connect(func(result: Dictionary) -> void:
+		_owner_event("resolution_completed", result))
+	root.get_node("Dialogic").timeline_ended_with_generation.connect(func(generation: int) -> void:
+		_owner_event("native_timeline_ended", {"generation": generation}))
+	root.get_node("Dialogic").timeline_started_with_generation.connect(func(generation: int, request_id: String) -> void:
+		_owner_event("native_timeline_started", {"generation": generation, "request_id": request_id}))
 	root.get_node("Dialogic").Text.text_started.connect(func(info: Dictionary) -> void:
 		_text_starts.append({"text": str(info.get("text", "")), "frame": Engine.get_process_frames()}))
 	var speech: Node = root.get_node("SystemTtsCoordinator")
@@ -132,7 +153,98 @@ func _wait_desktop(day: int) -> bool:
 			await _frames()
 			return true
 		await process_frame
+	var diagnostic := _desktop_timeout_diagnostic(day)
+	_check(_write_text(_reading_mode + "-desktop-timeout.json", JSON.stringify(diagnostic, "\t")), "retain exact failed desktop wait state")
+	_owner_event("desktop_timeout", diagnostic)
 	return _check(false, "canonical desktop day did not arrive: " + str(day))
+
+## Failure-only state capture never resumes an owner or retries a command. The
+## original wait budget/assertion stays unchanged; raw bytes survive early exit.
+func _desktop_timeout_diagnostic(expected_day: int) -> Dictionary:
+	var game: Node = root.get_node("GameState")
+	var bootstrap: Node = root.get_node("ApplicationBootstrap")
+	var bridge: Node = root.get_node("DialogicBridge")
+	var router: Node = root.get_node("SceneRouter")
+	var dialogic: Node = root.get_node("Dialogic")
+	var coordinator: Object = bootstrap.get("_retained_day_resolution_coordinator")
+	var physical: Object = bootstrap.get("_retained_presentation_owner_adapter")
+	var hospital_port: Object = bootstrap.get("_retained_hospital_presentation_port")
+	var dispatcher: Object = bootstrap.get("_retained_schedule_done_dispatcher")
+	var gate: Object = bootstrap.get("_application_gate")
+	var reading: Variant = bridge.get("_reading_session")
+	var runtime: Variant = bridge.get("_runtime_adapter")
+	var reading_state := {}
+	if reading != null:
+		for key: String in ["family", "command_id", "pre_entry_id", "latest_entry", "boundary"]:
+			reading_state[key] = reading.get(key)
+		if reading.ledger != null: reading_state["ledger"] = reading.ledger.snapshot()
+	var bindings := {}
+	for key: String in ["_active_entry", "_active_playback", "_ordinary_playback", "_current_timeline_id",
+		"_current_timeline_context", "_hospital_reading_command", "_hospital_reading_token", "_hospital_reading_completed",
+		"_reading_restore_pending", "_reading_restore_adoption", "_reading_restore_token", "_pause_handle"]:
+		bindings[key] = bridge.get(key)
+	var diagnostic := {"mode": _reading_mode, "process_id": OS.get_process_id(), "frame": Engine.get_process_frames(),
+		"expected_day": expected_day, "actual_day": game.day, "route_id": str(router.get_current_route_id()),
+		"scene": {"path": current_scene.scene_file_path if is_instance_valid(current_scene) else "",
+			"node_path": str(current_scene.get_path()) if is_instance_valid(current_scene) else "",
+			"has_desktop": is_instance_valid(current_scene) and current_scene.find_child("ComputerDesktop", true, false) != null},
+		"tree_paused": paused, "lifecycle": game._run_lifecycle.to_dict(), "gameplay": game.to_save_dict(),
+		"contacts": game.contacts.duplicate(true), "live_session": game.capture_live_session(),
+		"bridge": {"has_active_playback": bridge.has_active_playback(), "bindings": bindings, "reading_state": reading_state,
+			"checkpoint": bridge.capture_reading_checkpoint(false), "history": bridge.get_reading_history(), "suspension": bridge.get_state()},
+		"native": {"timeline": dialogic.current_timeline, "ending": dialogic.is_ending_timeline(),
+			"generation": dialogic.get_timeline_generation(),
+			"event_index": dialogic.current_event_idx, "event_count": dialogic.current_timeline_events.size(),
+			"state": dialogic.current_state, "state_info": dialogic.current_state_info,
+			"runtime_frontier": runtime.capture_reading_frontier() if runtime != null else {},
+			"adapter": {"activity_phase": runtime.get("_activity_phase"), "runtime_generation": runtime.get("_runtime_generation"),
+				"request_id": runtime.get("_request_id"), "requested_path": runtime.get("_requested_path")} if runtime != null else {}},
+		"hospital_completions": _hospital_completions.duplicate(true), "physical_completions": _physical_completions.duplicate(true),
+		"text_starts": _text_starts.duplicate(true), "speech_admissions": _speech_admissions,
+		"coordinator": {"last_completion": coordinator.get_last_presentation_completion(),
+			"last_failure": coordinator.get_last_presentation_failure(), "awaiting": coordinator.get("_awaiting"),
+			"launched_transaction": coordinator.get("_launched_transaction"), "run_id": coordinator.get("_run_id")},
+		"physical_owner": {"in_flight": physical.get("_in_flight"), "completed": physical.get("_completed")},
+		"hospital_port": {"commands": hospital_port.get("_commands"), "settled": hospital_port.get("_settled")},
+		"dispatcher_last_result": dispatcher.get_last_dispatch_result() if dispatcher != null else {},
+		"bootstrap_continuation": {"pending": bootstrap.get("_pending_live_continuation"),
+			"queued": bootstrap.get("_live_continuation_queued"), "last_condition_result": bootstrap.get("_last_condition_hospital_result")},
+		"route_restore_publication_held": router.is_restore_publication_held(),
+		"gate": {"active": gate.is_active(), "owner": str(gate.get_active_owner()), "fatal": gate.is_fatal_latched(),
+			"fatal_failure": gate.get("_fatal_failure")},
+		"save_manager": {"new_run_busy": root.get_node("SaveManager").get("_new_run_busy")},
+		"owner_events": _hospital_owner_events.duplicate(true)}
+	return _diagnostic_value(diagnostic)
+
+## Separate passive trace: canonical acceptance stages keep their original exact
+## order. This stream also retains failures that prevent a final mode report.
+func _owner_event(kind: String, value: Dictionary) -> void:
+	var event := {"mode": _reading_mode, "process_id": OS.get_process_id(), "sequence": _hospital_owner_events.size() + 1,
+		"frame": Engine.get_process_frames(), "kind": kind, "value": _diagnostic_value(value)}
+	_hospital_owner_events.append(event)
+	var path := _evidence_path(_reading_mode + "-owner-events.jsonl")
+	var file := FileAccess.open(path, FileAccess.READ_WRITE if FileAccess.file_exists(path) else FileAccess.WRITE)
+	if not _check(file != null, "retain passive owner event trace"): return
+	file.seek_end()
+	file.store_line(JSON.stringify(event))
+	file.close()
+
+func _diagnostic_value(value: Variant) -> Variant:
+	if value is Dictionary:
+		var copy := {}
+		for key: Variant in value: copy[str(key)] = _diagnostic_value(value[key])
+		return copy
+	if value is Array:
+		var copy: Array = []
+		for item: Variant in value: copy.append(_diagnostic_value(item))
+		return copy
+	if value is Object:
+		if not is_instance_valid(value): return null
+		var identity := {"class": value.get_class(), "instance_id": value.get_instance_id()}
+		if value is Resource: identity["resource_path"] = value.resource_path
+		if value is Node and value.is_inside_tree(): identity["node_path"] = str(value.get_path())
+		return identity
+	return value
 
 func _desktop() -> Node:
 	return current_scene.find_child("ComputerDesktop", true, false)
@@ -356,6 +468,11 @@ func _hospital_read() -> void:
 		if not _check(started.text != HOSPITAL_FIXTURE.catalogue(3).entries[0].lines[0].text, "Load never starts A before seeking B"): return
 	if not await _hospital_history("hospital-restored-history", ["fixture.hospital.a", "fixture.hospital.b"]): return
 	await _capture_screen("hospital-restored")
+	var restored_layer: Node = _caption_layer()
+	restored_layer.accept_input.normal_accept_requested.connect(func() -> void:
+		_owner_event("witnessed_normal_accept_requested", {"line_id": str(loaded.native.line_id)}))
+	root.get_node("Dialogic").Inputs.dialogic_action.connect(func() -> void:
+		_owner_event("native_dialogic_action", {"line_id": str(loaded.native.line_id)}))
 	# Only this ordinary caption key completes the native Hospital coroutine.
 	var completion_input := await _hospital_complete_input()
 	_stage("completion_input", completion_input)

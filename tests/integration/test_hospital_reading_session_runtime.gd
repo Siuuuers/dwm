@@ -436,8 +436,19 @@ func test_staged_restore_adopts_retained_command_and_publishes_only_saved_b_with
 	assert_eq(saved.value.reading_session.schema_version, 3)
 	assert_eq(saved.value.reading_session.family, "hospital")
 	assert_eq(saved.value.reading_session.frontier.line_id, "fixture.hospital.b")
+	# _advance() bypasses the caption renderer's ordinary Accept admission. The
+	# reveal-only capture above does not grant Profile credit; arrange the same
+	# exact-source acknowledgement before measuring whether restore writes again.
+	var presented: Dictionary = _bridge.capture_current_line_presentation_frontier()
+	var acknowledged: Dictionary = _bridge.acknowledge_current_line_presentation(presented)
+	assert_true(acknowledged.ok, str(acknowledged))
+	if not acknowledged.ok: return
+	assert_eq(acknowledged.receipt.line_id, "fixture.hospital.b")
+	assert_true(_bridge.is_current_line_presentation_acknowledged())
 	var history: Dictionary = _bridge.get_reading_history()
 	var profile_before: Dictionary = _profile.get_profile_snapshot()
+	var profile_files: FakeFileOps = _profile.get("_storage").get("_file_ops")
+	var profile_trace_offset := profile_files.operation_trace().size()
 	assert_eq(_native_ends, 0, "explicit Save completion finishes B without advancing Hospital")
 	assert_eq(_physical_receipts, [])
 	assert_true(_bridge.abort_current_entry(&"fixture_process_retired").ok)
@@ -474,7 +485,10 @@ func test_staged_restore_adopts_retained_command_and_publishes_only_saved_b_with
 	assert_eq(_line_ids(), ["fixture.hospital.a", "fixture.hospital.b"])
 	assert_eq(_bridge.get_reading_history(), history)
 	assert_eq(_bridge.capture_reading_checkpoint(false), saved)
-	assert_eq(_profile.get_profile_snapshot(), profile_before)
+	assert_eq_deep(_profile.get_profile_snapshot(), profile_before)
+	for operation: Dictionary in profile_files.operation_trace().slice(profile_trace_offset):
+		assert_false(operation.operation in [&"write_bytes", &"flush_path", &"rename_path", &"remove_path"],
+			"restored B must not attempt another Profile mutation: " + str(operation))
 	assert_eq(_speech.requests, [], "restored B is visible without speaking it again")
 	assert_eq(_physical_receipts, [])
 	assert_eq(_publications.size(), 1)

@@ -119,8 +119,12 @@ var _dating: DatingOwner
 var _inputs: Dictionary
 var _provider_calls := 0
 var _provider_effect := Callable()
+var _prior_scene: Node
+var _prior_tree_paused := false
 
 func before_each() -> void:
+	_prior_scene = get_tree().current_scene
+	_prior_tree_paused = get_tree().paused
 	_provider_calls = 0
 	_provider_effect = Callable()
 	_controller = CONTROLLER.new()
@@ -146,6 +150,8 @@ func before_each() -> void:
 		"route_id": "dating", "dialogic_checkpoint": _bridge.checkpoint.duplicate(true)}
 
 func after_each() -> void:
+	get_tree().paused = _prior_tree_paused
+	get_tree().current_scene = _prior_scene if is_instance_valid(_prior_scene) else null
 	_controller.free()
 	_caption.free()
 	_native.free()
@@ -303,7 +309,7 @@ func test_bootstrap_hospital_provider_requires_paused_exact_registered_scene() -
 	var prior := get_tree().current_scene
 	var was_paused := get_tree().paused
 	var scene := HospitalSceneProbe.new()
-	add_child_autofree(scene)
+	get_tree().root.add_child(autofree(scene))
 	scene.scene_file_path = "res://scenes/hospital/HospitalScene.tscn"
 	scene.command = _bridge.hospital_command.duplicate(true)
 	get_tree().current_scene = scene
@@ -311,7 +317,9 @@ func test_bootstrap_hospital_provider_requires_paused_exact_registered_scene() -
 	assert_false(bootstrap._capture_dating_reading_checkpoint(_bridge, "hospital").get("ok", true))
 	assert_eq(_bridge.captures, [])
 	get_tree().paused = true
-	assert_eq(bootstrap._capture_dating_reading_checkpoint(_bridge, "hospital").value, _bridge.checkpoint)
+	var captured: Dictionary = bootstrap._capture_dating_reading_checkpoint(_bridge, "hospital")
+	assert_true(captured.get("ok", false), str(captured))
+	assert_eq(captured.get("value"), _bridge.checkpoint)
 	assert_eq(_bridge.captures, [false])
 	scene.command.physical_token = "foreign-source"
 	assert_false(bootstrap._capture_dating_reading_checkpoint(_bridge, "hospital").get("ok", true))
@@ -329,14 +337,14 @@ func test_hospital_completed_anchor_retires_only_after_actual_main_publication()
 	bootstrap.targets = {&"GameState": game, &"DialogicBridge": bridge, &"SceneRouter": router}
 	var prior := get_tree().current_scene
 	var hospital := Control.new()
-	add_child_autofree(hospital)
+	get_tree().root.add_child(autofree(hospital))
 	hospital.scene_file_path = "res://scenes/hospital/HospitalScene.tscn"
 	get_tree().current_scene = hospital
 	var command := {"completion_transaction_id": "completed-hospital"}
 	bootstrap._retire_completed_hospital_after_main(command, game.session.duplicate(true))
 	assert_eq(bridge.retired, [], "a route flag does not prove destination publication")
 	var destination := Control.new()
-	add_child_autofree(destination)
+	get_tree().root.add_child(autofree(destination))
 	destination.scene_file_path = "res://scenes/main/MainGameScene.tscn"
 	get_tree().current_scene = destination
 	get_tree().scene_changed.emit()
@@ -355,7 +363,7 @@ func test_hospital_anchor_retirement_refuses_replaced_live_session_after_publica
 	bootstrap.targets = {&"GameState": game, &"DialogicBridge": bridge, &"SceneRouter": router}
 	var prior := get_tree().current_scene
 	var destination := Control.new()
-	add_child_autofree(destination)
+	get_tree().root.add_child(autofree(destination))
 	destination.scene_file_path = "res://scenes/main/MainGameScene.tscn"
 	get_tree().current_scene = destination
 	var session: Dictionary = game.session.duplicate(true)
