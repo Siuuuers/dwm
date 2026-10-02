@@ -82,6 +82,7 @@ var _physical_receipts: Array[Dictionary] = []
 var _physical_failures: Array[Dictionary] = []
 var _native_starts := 0
 var _native_ends := 0
+var _fixture_layouts: Array[Node] = []
 
 func before_each() -> void:
 	_publications.clear()
@@ -91,6 +92,7 @@ func before_each() -> void:
 	_physical_failures.clear()
 	_native_starts = 0
 	_native_ends = 0
+	_fixture_layouts.clear()
 	_settings.clear()
 	_profile_before = get_node("/root/ProfileManager").get_profile_snapshot().duplicate(true)
 	var parsed := STRICT_JSON.parse_object(FileAccess.get_file_as_string(SOLO_DOCUMENT))
@@ -177,10 +179,15 @@ func after_each() -> void:
 	if is_instance_valid(_runtime):
 		_runtime.paused = false
 		await _runtime.clear()
-		var remaining: Node = _runtime.Styles.get_layout_node()
-		if is_instance_valid(remaining) and not _viewport.is_ancestor_of(remaining): remaining.queue_free()
-	_viewport.queue_free()
-	await get_tree().process_frame
+	# Natural timeline endings detach their layout before queueing it. The
+	# viewport therefore cannot own every layout created by this fixture, and a
+	# later mount can replace the tree metadata before the detached node retires.
+	# Free each layout we actually mounted, including detached/queued layouts,
+	# while the production layout remains detached and untracked below.
+	for layout: Node in _fixture_layouts:
+		if is_instance_valid(layout): layout.free()
+	_fixture_layouts.clear()
+	if is_instance_valid(_viewport): _viewport.free()
 	if is_instance_valid(_runtime): _runtime.free()
 	_adapter = null
 	_profile.free()
@@ -214,6 +221,7 @@ func _mount() -> bool:
 	if layout == null: layout = _runtime.Styles.load_style(STYLE, _viewport)
 	assert_not_null(layout)
 	if layout == null: return false
+	if not _fixture_layouts.has(layout): _fixture_layouts.append(layout)
 	await _settle()
 	assert_same(layout.get_parent(), _viewport)
 	var caption := _caption()

@@ -36,6 +36,7 @@ $suites = @{
         'tests/integration/test_save_manager_journal.gd'
         'tests/integration/test_restore_transaction.gd'
         'tests/unit/test_reading_restore_admission.gd'
+        'tests/unit/test_desktop_consequence_source_port.gd'
         'tests/unit/test_reading_next_checkpoint.gd'
         'tests/integration/test_unified_restore_contract.gd'
         'tests/integration/test_run_restore_isolation.gd'
