@@ -548,15 +548,40 @@ func _settings_quick_read_process() -> void:
 	var bridge: Node = root.get_node("DialogicBridge")
 	var desktop_host: RefCounted = root.get_node("ApplicationBootstrap").get("_desktop_host_state")
 	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
-	if not _check(current_scene != null and current_scene.get("worksheet") != null and not paused
-		and game.capture_live_session().value.active and checkpoint.get("ok", false)
-		and checkpoint.value == prior.value.saved_checkpoint
-		and bridge.get_reading_history().value == prior.value.entered.source.history
-		and desktop_host.capture_persistent_state() == prior.value.desktop_context
-		and game.capture_dating_challenge_state().value == prior.value.physical_record
-		and bridge.get("_runtime_adapter").is_current_line_complete() and _speech_admissions == 0
-		and profile.get_profile_snapshot() == profile_before and _settings_disk_state() == before_disk,
-		"fresh Settings Quick restores exact full line, History and Dating without speech or changed save/Profile bytes"): return
+	var observed_history: Dictionary = bridge.get_reading_history()
+	var observed_physical: Dictionary = game.capture_dating_challenge_state()
+	var observed_session: Dictionary = game.capture_live_session()
+	var observed_desktop: Dictionary = desktop_host.capture_persistent_state()
+	var observed_profile: Dictionary = profile.get_profile_snapshot()
+	var observed_disk := _settings_disk_state()
+	var observed_complete: bool = bridge.get("_runtime_adapter").is_current_line_complete()
+	var checks := {"dating_scene_mounted": current_scene != null and current_scene.get("worksheet") != null,
+		"tree_unpaused": not paused, "live_session_active": observed_session.get("value", {}).get("active", false),
+		"checkpoint_admitted": checkpoint.get("ok", false),
+		"checkpoint_exact": checkpoint.get("value", {}) == prior.value.saved_checkpoint,
+		"reading_session_exact": checkpoint.get("value", {}).get("reading_session", {}) == prior.value.saved_checkpoint.reading_session,
+		"history_exact": observed_history.get("value", {}) == prior.value.entered.source.history,
+		"desktop_context_exact": observed_desktop == prior.value.desktop_context,
+		"physical_record_exact": observed_physical.get("value", {}) == prior.value.physical_record,
+		"current_line_complete": observed_complete, "zero_speech_admissions": _speech_admissions == 0,
+		"profile_unchanged": observed_profile == profile_before, "disk_unchanged": observed_disk == before_disk}
+	var failed: Array[String] = []
+	for key: String in checks:
+		if checks[key] != true: failed.append(key)
+	var observation := {"mode": _reading_mode, "process_id": OS.get_process_id(), "checks": checks,
+		"failed_checks": failed, "checkpoint": checkpoint, "history": observed_history,
+		"physical_record": observed_physical, "live_session": observed_session, "desktop_context": observed_desktop,
+		"profile_before": profile_before, "profile_after": observed_profile, "disk_before": before_disk,
+		"disk_after": observed_disk, "speech_admissions": _speech_admissions,
+		"current_line_id": str(bridge.get("_runtime_adapter").current_line_id()), "current_line_complete": observed_complete,
+		"expected_checkpoint": prior.value.saved_checkpoint, "expected_history": prior.value.entered.source.history,
+		"expected_physical_record": prior.value.physical_record, "expected_desktop_context": prior.value.desktop_context,
+		"desktop_app_type": typeof(observed_desktop.get("active_app_id")),
+		"expected_desktop_app_type": typeof(prior.value.desktop_context.get("active_app_id")),
+		"desktop_app_scalar_equal": observed_desktop.get("active_app_id") == prior.value.desktop_context.get("active_app_id")}
+	if not _check(_write_text("settings-read-observation.json", JSON.stringify(observation, "\t")),
+		"retain per-component Settings restoration observations before acceptance"): return
+	if not _check(failed.is_empty(), "fresh Settings Quick restoration invariants: " + ", ".join(failed)): return
 	if not await _inspect_history("settings-restored-history", 1): return
 	var after_disk := _settings_disk_state()
 	if not _check(after_disk == before_disk and _speech_admissions == 0, "restored History is disk- and speech-neutral"): return

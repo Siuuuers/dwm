@@ -575,7 +575,7 @@ def run_settings_quick(repository: Path, parent_folder: Path, godot: str, xvfb: 
                         ):
                             raise RuntimeError(f"SETTINGS_SEALED_WRITE_BYTES_CHANGED: {name}")
                     result["write_seal_verified"] = True
-                for name in ("settings-write.json", "settings-read.json", "saved-settings-quick.json", "transactions.jsonl"):
+                for name in ("settings-write.json", "settings-read.json", "settings-read-observation.json", "saved-settings-quick.json", "transactions.jsonl"):
                     source = cloud.contained_path(evidence, evidence / name)
                     destination = cloud.contained_path(folder, folder / name)
                     if source.is_file() and not destination.exists():

@@ -5,7 +5,6 @@ const CONTENT_WIDTH := 720
 var reset_id: String = ""
 var risk_class: String = "destructive"
 var _wired: bool = false
-var _input_owner: Object
 
 
 func _init() -> void:
@@ -18,9 +17,8 @@ func _init() -> void:
 	visibility_changed.connect(_focus_cancel_when_open)
 
 
-func configure(id: String, input_owner: Object = null) -> void:
+func configure(id: String) -> void:
 	reset_id = id
-	_input_owner = input_owner
 	risk_class = "danger" if id in ["preferences", "controls"] else "destructive"
 	if not _wired:
 		PRESENTATION.attach_state(get_cancel_button(), true)
@@ -28,13 +26,6 @@ func configure(id: String, input_owner: Object = null) -> void:
 		get_ok_button().draw.connect(_draw_final_risk)
 		_wired = true
 	get_ok_button().queue_redraw()
-
-
-func _input(event: InputEvent) -> void:
-	# This Window owns its packets before parent Pause input can see them.
-	# Keep the shared contact ledger exact without admitting a Quick command.
-	if visible and is_instance_valid(_input_owner) and _input_owner.has_method("observe_physical_contact"):
-		_input_owner.observe_physical_contact(event)
 
 
 func set_presentation(source_theme: Theme, font_size: int, large_targets: bool) -> void:
