@@ -79,8 +79,34 @@ $portComment = "## ``proven_documents`` collects the normalized document proofs 
     "## an empty entry preserves the raw-proof fallback. Neither output is trusted on a failed splice.`n"
 if (-not $bridgedPort.Contains($portComment)) { throw 'Missing reviewed warm-proof splice comment.' }
 $bridgedPort = $bridgedPort.Replace($portComment, '')
+# The Hospital cold-Autosave repair is shared by the current port and both benchmark controls;
+# it is not part of either measured ablation. Bind that one separately reviewed evolution to
+# its actual immutable Git source before reversing it ONLY in this provenance reconstruction.
+# Neither the production port nor a frozen control is rewritten or allowed an older fallback.
+$sharedCommit = 'dca8b35b40e4ba9d80f204c77064357d16f07319'
+$sharedPortHash = 'ab8824ecb5617b48c5feb581133e4286facae70d42714add825fbea88e60272f'
+$sharedMethod = '_capture_storage_backup'
+$sharedMethodHash = '803bbae0ca2bfc1b8944ddca1952d8743b10ea579b92946dcf5cf438e0d16e7b'
+$historicalSharedMethodHash = '8a5c4fce433ef77722d0bab6fa503aec51a1c70257d129a8a714aeca9de006a2'
+$reviewedSharedPort = Get-WarmProofGitText $sharedCommit $portPath
+$reviewedSharedMethod = Get-WarmProofMethod $reviewedSharedPort $sharedMethod
+$currentSharedMethod = Get-WarmProofMethod $currentPort $sharedMethod
+$historicalSharedMethod = Get-WarmProofMethod $historicalPort $sharedMethod
+if ((Get-WarmProofTextHash $reviewedSharedPort) -cne $sharedPortHash -or
+    (Get-WarmProofTextHash $reviewedSharedMethod) -cne $sharedMethodHash -or
+    (Get-WarmProofTextHash $historicalSharedMethod) -cne $historicalSharedMethodHash -or
+    $currentSharedMethod -cne $reviewedSharedMethod) {
+    throw 'Shared cold-Autosave preparation no longer matches its exact reviewed historical/current source.'
+}
+$sharedBase = 'extends "res://' + $portPath + '"' + "`n"
+$sharedOverride = '(?m)^[ \t]*(?:static[ \t]+)?func[ \t]+' + [regex]::Escape($sharedMethod) + '[ \t]*\('
+if (-not $frozen.StartsWith($sharedBase, [StringComparison]::Ordinal) -or
+    [regex]::IsMatch($frozen, $sharedOverride)) {
+    throw 'Warm-proof control must inherit the same current cold-Autosave preparation method.'
+}
+$bridgedPort = $bridgedPort.Replace($currentSharedMethod, $historicalSharedMethod)
 if ((Get-WarmProofTextHash $bridgedPort) -cne $portHash) {
-    throw 'Reversing only reviewed warm-proof commit/splice changes does not reproduce the accepted whole port.'
+    throw 'Reversing only reviewed warm-proof commit/splice and shared cold-Autosave evolution does not reproduce the accepted whole port.'
 }
 $originalValidator = Get-WarmProofMethod $historicalSchema '_validate_document'
 if ((Get-WarmProofTextHash $originalValidator) -cne $methodHashes._validate_document) {
@@ -110,9 +136,17 @@ if ((Get-WarmProofTextHash $bridgedSchema) -cne $schemaHash) {
 }
 # Return the actual immutable historical source for the region benchmark's second, original
 # 5c3368d bridge. That driver must still prove its frozen search method and original whole-port hash.
+$sharedEvolution = [ordered]@{
+    reviewed_commit = $sharedCommit; source_path = $portPath; reviewed_port_sha256 = $sharedPortHash
+    method = $sharedMethod; current_method_sha256 = $sharedMethodHash
+    historical_method_sha256 = $historicalSharedMethodHash
+    reversal_is_provenance_text_only = $true; warm_control_inherits_current_method = $true
+}
+Write-Host ('WARM_PROOF_SHARED_EVOLUTION_VERIFIED: ' + ($sharedEvolution | ConvertTo-Json -Depth 4 -Compress))
 [pscustomobject]@{
     reference_commit = $referenceCommit; reference_port_source_sha256 = $portHash
     reference_schema_source_sha256 = $schemaHash; reference_method_sha256 = $methodHashes
     reference_journal_source_sha256 = $journalHash
+    shared_port_evolution = $sharedEvolution
     accepted_port_source = $historicalPort
 }
