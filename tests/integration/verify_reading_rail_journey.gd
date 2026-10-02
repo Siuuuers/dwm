@@ -561,7 +561,11 @@ func _settings_quick_read_process() -> void:
 		"checkpoint_exact": checkpoint.get("value", {}) == prior.value.saved_checkpoint,
 		"reading_session_exact": checkpoint.get("value", {}).get("reading_session", {}) == prior.value.saved_checkpoint.reading_session,
 		"history_exact": observed_history.get("value", {}) == prior.value.entered.source.history,
-		"desktop_context_exact": observed_desktop == prior.value.desktop_context,
+		# The owner returns StringName; retained JSON necessarily contains String.
+		# Dictionary equality compares Variant types, so compare this exact semantic field.
+		"desktop_context_exact": observed_desktop.keys() == ["active_app_id"]
+			and prior.value.desktop_context.keys() == ["active_app_id"]
+			and str(observed_desktop.active_app_id) == prior.value.desktop_context.active_app_id,
 		"physical_record_exact": observed_physical.get("value", {}) == prior.value.physical_record,
 		"current_line_complete": observed_complete, "zero_speech_admissions": _speech_admissions == 0,
 		"profile_unchanged": observed_profile == profile_before, "disk_unchanged": observed_disk == before_disk}
