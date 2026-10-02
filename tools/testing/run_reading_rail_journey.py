@@ -504,6 +504,7 @@ def run() -> int:
                 source_root = cloud.contained_path(user_dir, user_dir / "evidence/reading-rail")
                 for name in (
                     "transactions.jsonl", "witness-profile.json", "next-autosave.json",
+                    "layout-next.json", "layout-next-read.json",
                     *(f"{mode}.json" for mode in MODES + NEXT_MODES),
                 ):
                     source = cloud.contained_path(source_root, source_root / name)

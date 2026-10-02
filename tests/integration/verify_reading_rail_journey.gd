@@ -7,6 +7,7 @@ const STRICT := preload("res://scripts/validation/StrictJson.gd")
 const READING_CATALOGUE := "res://tests/fixtures/dialogic/solo_reading_rail_catalogue.json"
 const VARIANT_B_CATALOGUE := "res://tests/fixtures/dialogic/solo_reading_rail_variant_b_catalogue.json"
 const WITNESSES := preload("res://scripts/profile/CaptionWitnessLedger.gd")
+const LAYOUT_PROBE := preload("res://tests/support/ColdChallengeLayoutProbe.gd")
 const EXPECTED_LINES := ["fixture.solo.pre.a", "fixture.solo.pre.b", "fixture.solo.post.a"]
 
 var _reading_mode := ""
@@ -945,6 +946,8 @@ func _next_session(game: Node, dating: Node) -> void:
 	var profile_before: Dictionary = profile.get_profile_snapshot()
 	var real_checkpoint_port: RefCounted = bridge.get("_narrative_checkpoint_port")
 	bridge.set("_narrative_checkpoint_port", NextCheckpointObserver.new(real_checkpoint_port, _next_checkpoint_results))
+	var layout_probe := LAYOUT_PROBE.new()
+	layout_probe.start(self)
 	_begin_next_observation()
 	if not await _activate_next("witnessed one-shot Next rail activation"): return
 	bridge.set("_narrative_checkpoint_port", real_checkpoint_port)
@@ -987,6 +990,7 @@ func _next_session(game: Node, dating: Node) -> void:
 	if not _check(snapshot.narrative_checkpoint == checkpoint.value
 		and snapshot.gameplay.route_context.active_dating_challenge == physical.value,
 		"actual challenge Autosave durably contains exact Next History and physical boundary"): return
+	if not await _retain_layout_probe(layout_probe, "next"): return
 	if not await _capture_next_screen("02-next-board"): return
 	report.merge({"checkpoint": checkpoint.value.duplicate(true), "history": history.value.duplicate(true),
 		"checkpoint_results": _next_checkpoint_results.duplicate(true),
@@ -1086,6 +1090,9 @@ func _next_read_process() -> void:
 		and str(before_disk.value.text).sha256_text() == prior.value.autosave_sha256
 		and str(before_disk.value.text).to_utf8_buffer().size() == prior.value.autosave_bytes,
 		"fresh Next restore opens exactly the retained physical Autosave"): return
+	var before_profile_disk := _witness_disk()
+	var layout_probe := LAYOUT_PROBE.new()
+	layout_probe.start(self)
 	var prepared: Dictionary = saves.prepare_backup_action("load", "autosave")
 	if not _check(prepared.get("ok", false), "fresh Next Autosave Load prepares: " + str(prepared)): return
 	var restored: Dictionary = saves.commit_backup_action(prepared.value.token)
@@ -1097,6 +1104,7 @@ func _next_read_process() -> void:
 	if not _check(current_scene != null and current_scene.get("worksheet") != null, "fresh Next Load remounts real Dating"): return
 	if not await _wait_for_dating_board(current_scene): return
 	await _frames()
+	if not await _retain_layout_probe(layout_probe, "next-read"): return
 	var bridge: Node = root.get_node("DialogicBridge")
 	var game: Node = root.get_node("GameState")
 	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
@@ -1106,7 +1114,8 @@ func _next_read_process() -> void:
 		and history.get("ok", false) and history.value == prior.value.history
 		and physical.get("ok", false) and physical.value == prior.value.physical_record
 		and not bridge.has_active_playback() and not bridge.is_next_traversal_active()
-		and _speech_admissions == 0 and profile.get_profile_snapshot() == before_profile,
+		and _speech_admissions == 0 and profile.get_profile_snapshot() == before_profile
+		and _witness_disk() == before_profile_disk,
 		"fresh Next Load restores exact physical boundary, ordered History and operation without replay or new Profile credit"): return
 	var after_disk: Dictionary = saves.get("_storage").read_text("autosave.json")
 	if not _check(after_disk.get("ok", false) and after_disk.value == before_disk.value.text,
@@ -1116,11 +1125,26 @@ func _next_read_process() -> void:
 		"user_dir": ProjectSettings.globalize_path("user://"), "checkpoint": checkpoint.value.duplicate(true),
 		"history": history.value.duplicate(true), "physical_record": physical.value.duplicate(true),
 		"autosave_sha256": str(after_disk.value).sha256_text(), "autosave_bytes": str(after_disk.value).to_utf8_buffer().size(),
+		"profile_sha256": before_profile_disk.sha256, "profile_bytes": before_profile_disk.bytes,
 		"speech_admissions": _speech_admissions, "profile_unchanged": true, "next_active": false}
 	if not _check(_write_text("next-read.json", JSON.stringify(report, "\t")), "retain fresh Next board restore report"): return
 	_trace("next_restart_verified", report)
 	print("READING_RAIL_NEXT_READ_PASS: fresh Autosave Load -> exact challenge and History -> inactive Next and no repeated speech")
 	await _finish_next_board_proof()
+
+
+func _retain_layout_probe(probe: RefCounted, label: String) -> bool:
+	for frame: int in 600:
+		if probe.is_complete(): break
+		await process_frame
+	var complete: bool = probe.is_complete()
+	probe.stop()
+	var report: Dictionary = probe.report()
+	report["mode"] = label
+	report["process_id"] = OS.get_process_id()
+	if not _check(_write_text("layout-" + label + ".json", JSON.stringify(report, "\t")),
+		"retain passive challenge layout observations"): return false
+	return _check(complete, "observe 120 process frames and draws of the visible challenge")
 
 
 func _capture_next_screen(label: String) -> bool:
