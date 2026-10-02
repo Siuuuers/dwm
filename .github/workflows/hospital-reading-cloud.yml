@@ -20,7 +20,7 @@ jobs:
     - uses: actions/checkout@v7
       with:
         persist-credentials: true
-        ref: 48b0b91f202be0dd1d7bbb9db34156720d7ca8f1
+        ref: 1c9d210e26c80b8972a328303a94a0ca6362cfc5
         fetch-depth: 0
     - name: Prepare disposable checkout for credential cleanup
       run: '$ErrorActionPreference = ''Stop''
@@ -146,7 +146,7 @@ jobs:
       with:
         fetch-depth: 0
         persist-credentials: true
-        ref: 48b0b91f202be0dd1d7bbb9db34156720d7ca8f1
+        ref: 1c9d210e26c80b8972a328303a94a0ca6362cfc5
     - name: Prepare disposable checkout for credential cleanup
       run: '$ErrorActionPreference = ''Stop''
 
@@ -234,7 +234,7 @@ jobs:
     - uses: actions/checkout@v7
       with:
         persist-credentials: true
-        ref: 48b0b91f202be0dd1d7bbb9db34156720d7ca8f1
+        ref: 1c9d210e26c80b8972a328303a94a0ca6362cfc5
         fetch-depth: 0
     - name: Prepare disposable checkout for credential cleanup
       run: 'git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
