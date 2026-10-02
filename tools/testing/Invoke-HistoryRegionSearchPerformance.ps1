@@ -65,9 +65,17 @@ if ((Get-TextHash $historicalSource) -cne $referencePortHash -or
 }
 # Deliberate provenance update: warm document proofs changed commit/splice after this search
 # experiment was accepted. Both region variants inherit those identical current methods. First
-# prove that only those reviewed warm methods/schema adapter differ from accepted226, then prove
+# prove that only those reviewed warm methods/schema adapter and the separately pinned shared
+# cold-Autosave preparation evolution differ from accepted226, then prove
 # that reversing the search method still reconstructs the exact original 5c3368d whole port.
 $warmProvenance = & (Join-Path $PSScriptRoot 'Assert-WarmOutgoingProofBaseline.ps1') -RepositoryRoot $repositoryRoot
+$sharedBase = 'extends "res://scripts/application/run/SaveManagerCheckpointPort.gd"' + "`n"
+$sharedOverride = '(?m)^[ \t]*(?:static[ \t]+)?func[ \t]+' + [regex]::Escape($warmProvenance.shared_port_evolution.method) + '[ \t]*\('
+if (-not $referenceSource.StartsWith($sharedBase, [StringComparison]::Ordinal) -or
+    [regex]::IsMatch($referenceSource, $sharedOverride)) {
+    throw 'Region-search control must inherit the same current cold-Autosave preparation method.'
+}
+$warmProvenance.shared_port_evolution['region_control_inherits_current_method'] = $true
 $acceptedPort = $warmProvenance.accepted_port_source
 if ((Get-ReferenceMethod $acceptedPort) -cne $candidateMethod -or
     (Get-TextHash $acceptedPort.Replace($candidateMethod, $historicalMethod)) -cne $referencePortHash) {
@@ -188,6 +196,7 @@ foreach ($mode in @('cold', 'mixed')) {
 }
 $report = [ordered]@{
     checkout_ref = $checkoutRef; run_id = [string]$env:GITHUB_RUN_ID; source_sha256 = $sourceHashes
+    shared_port_evolution = $warmProvenance.shared_port_evolution
     input_sha256 = $inputHash; retained_checkpoint_count = 66; pairs = $pairs; summaries = $summaries
     sampling = 'Four alternating pairs per cold/mixed mode; sixteen fresh isolated processes. Each independent metric keeps five fresh-state samples after two warmups. No pooled/nested timing sum or timing threshold; OS caches are not flushed.'
     scope = 'Frozen original method versus current ordered cursor; both variants inherit the same current warm document-proof path, checked through the accepted226 provenance bridge. Exact Day7 bytes and 66 history bundles; mixed has the same first 51 proofs and 15 misses. Direct learning plus complete port commit use real journal and storage protocol with FakeFileOps, not physical disk, public port preparation, gameplay or input-to-paint timing.'
@@ -195,6 +204,7 @@ $report = [ordered]@{
 $report | ConvertTo-Json -Depth 24 | Set-Content -LiteralPath (Join-Path $output 'results.json') -Encoding utf8
 Write-Host ('HISTORY_REGION_SEARCH_COMPARISON: ' + ([ordered]@{
     checkout_ref = $checkoutRef; source_sha256 = $sourceHashes; input_sha256 = $inputHash
+    shared_port_evolution = $report.shared_port_evolution
     sampling = $report.sampling; scope = $report.scope; summaries = $summaries
 } | ConvertTo-Json -Depth 8 -Compress))
 Write-Host 'HISTORY_REGION_SEARCH_VERIFIED: sixteen matched processes preserved exact proof strings/documents, journal, physical bytes/traces and 66 retained checkpoints.'

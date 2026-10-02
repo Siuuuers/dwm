@@ -173,6 +173,7 @@ foreach ($mode in @('cold', 'mixed', 'warm')) {
 }
 $report = [ordered]@{
     checkout_ref = $checkoutRef; run_id = [string]$env:GITHUB_RUN_ID; source_sha256 = $sourceHashes
+    shared_port_evolution = $provenance.shared_port_evolution
     input_sha256 = $inputHash; retained_checkpoint_count = 66; pairs = $pairs; summaries = $summaries
     sampling = 'Four alternating pairs per cold/mixed/warm mode; twenty-four fresh isolated processes. Each independent metric keeps five fresh-state samples after two warmups. No pooled/nested timing sum or timing threshold; OS caches are not flushed.'
     scope = 'Accepted226 commit/splice and journal proof learning versus current warm document-proof path; remaining port/journal methods and public raw-proof validator are shared and source-guarded. Each variant seeds its own journal implementation outside timing. Direct schema composition always has 66 trusted raw bundles with 0/51/66 normalized proofs. Complete commit uses the same real journal proof count, causing full fallback for cold/mixed and splice for warm. Exact Day7 bytes, types, proofs, journal and physical files/ordered traces with FakeFileOps; no physical disk, public preparation, gameplay or input-to-paint claim.'
@@ -180,6 +181,7 @@ $report = [ordered]@{
 $report | ConvertTo-Json -Depth 24 | Set-Content -LiteralPath (Join-Path $output 'results.json') -Encoding utf8
 Write-Host ('WARM_OUTGOING_PROOF_COMPARISON: ' + ([ordered]@{
     checkout_ref = $checkoutRef; source_sha256 = $sourceHashes; input_sha256 = $inputHash
+    shared_port_evolution = $report.shared_port_evolution
     sampling = $report.sampling; scope = $report.scope; summaries = $summaries
 } | ConvertTo-Json -Depth 8 -Compress))
 Write-Host 'WARM_OUTGOING_PROOF_VERIFIED: twenty-four matched processes preserved exact composed values/types/bytes, proof strings/documents, journal, physical bytes/traces and 66 retained checkpoints.'
