@@ -297,6 +297,31 @@ func test_condition_receipt_reconstructs_from_restored_gameplay_and_resolution_w
 	assert_eq(restored.to_save_dict(), before)
 
 
+func test_condition_receipt_uses_retained_plan_after_live_continuation_identity_is_remapped() -> void:
+	var owner := _condition_owner()
+	var port := _bind_condition_owner(owner)
+	var request := _condition_request(owner)
+	var first: Dictionary = port.resolve_condition_receipt(request)
+	assert_true(first.get("ok", false), str(first))
+	if not first.get("ok", false): return
+	var retained_plan: Dictionary = owner._run_lifecycle.to_dict()["active_resolution_plan"].duplicate(true)
+	var replacement: Dictionary = _root_store.mint(&"causal_day_instance")
+	owner._run_lifecycle._causal_day_instance = str(replacement["token"])
+	owner._run_lifecycle._causal_day_instance_issuer_receipt = replacement.duplicate(true)
+	assert_eq(owner._run_lifecycle.to_dict()["day"], request["source_day"])
+	assert_ne(owner._run_lifecycle.to_dict()["causal_day_instance"], request["causal_day_instance"])
+	assert_eq(owner._run_lifecycle.to_dict()["active_resolution_plan"], retained_plan,
+		"fresh-load continuation remapping retains the unfinished source plan")
+	var reconstructed: Dictionary = port.resolve_condition_receipt(request)
+	assert_true(reconstructed.get("ok", false), str(reconstructed))
+	assert_eq(reconstructed.get("value"), first.get("value"),
+		"the retained plan start and root reproduce the exact condition receipt")
+	var foreign := request.duplicate(true)
+	foreign["causal_day_instance"] = str(replacement["token"])
+	assert_false(port.resolve_condition_receipt(foreign).get("ok", true),
+		"the remapped live identity cannot replace the retained plan's source request")
+
+
 func test_condition_receipt_refuses_stale_continuation_and_an_unresolved_current_day() -> void:
 	var owner := _condition_owner()
 	var port := _bind_condition_owner(owner)
