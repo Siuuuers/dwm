@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "archive": "dwm-run122-physical-selector-cloud-evidence.tar.gz",
+  "bytes": 26248384,
+  "sha256": "f2e0734c6e5ff0d63b6768fccdc20b50c17d2481fcec0a2d0c955c1427534559",
+  "parts": [
+    {
+      "file": "dwm-run122-physical-selector-cloud-evidence.tar.gz.part01",
+      "bytes": 8388608,
+      "sha256": "22e7e207fa98aca5414b9c432ceaef5c5431cf94c05e3022fa3035dbf19d532e"
+    },
+    {
+      "file": "dwm-run122-physical-selector-cloud-evidence.tar.gz.part02",
+      "bytes": 8388608,
+      "sha256": "fb51ba42a378454e20b9146b685b73f85a897f71c4c880f3af26cd7f82c71299"
+    },
+    {
+      "file": "dwm-run122-physical-selector-cloud-evidence.tar.gz.part03",
+      "bytes": 8388608,
+      "sha256": "e7a0103cac99553808ea74a76b6e4ef81431c80503fae2ebd7e7fba8e4e970fb"
+    },
+    {
+      "file": "dwm-run122-physical-selector-cloud-evidence.tar.gz.part04",
+      "bytes": 1082560,
+      "sha256": "c174335ed94de4afec1398414004f3f7d36b1bcd81f32245b2a335bb4892db67"
+    }
+  ],
+  "concatenate_parts_in_list_order": true,
+  "reassembly_byte_verified": true
+}

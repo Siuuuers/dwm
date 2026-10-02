@@ -19,25 +19,42 @@ actual master ref and Beads before editing. The last checked master was
 
 ## Current acceptance
 
-**Accepted bounded fixture increment — not whole-game or visual-polish acceptance.**
-Source: `1459af29ad467ca1375ed12fe9e2f31671ce8171`. Tested PR merge: `e84131335d7e49a4d7ae151f99df6f8f2ce93eec`.
-[Run120](https://github.com/Siuuuers/dwm/actions/runs/36941566670): 23/23 jobs,
-2,279 GUT executions / 2,275 unique cases / 194 scripts, zero failures/errors/skips.
+**Accepted bounded physical fixture increment — not whole-game or visual-polish acceptance.**
+Source: `cfb7616bfd498979bef520e1522cbbb712298aea`. Tested PR merge: `f527957009017993a4987174aeb76a26e8793075`.
+[Run122](https://github.com/Siuuuers/dwm/actions/runs/36950541601): 23/23 jobs,
+2,280 GUT executions / 2,276 unique cases / 194 scripts, zero failures/errors/skips.
 Exact results and limitations belong in the shared
-[selector receipt](../../evidence/phase_2r/authored_selector_2026_10_02/receipt.json).
+[physical selector receipt](../../evidence/phase_2r/physical_authored_selector_2026_10_02/receipt.json).
 Later records-only commits are not separately engine-tested.
 
-Finite catalogue-v2 admission now selects authored Priscilla Day-1 Solo pre/post
+Finite catalogue-v2 admission selects authored Priscilla Day-1 Solo pre/post
 programmes from authoritative entry frames. Per-caption selector subsets preserve
 common-caption identity while changed wording remains unseen. Causal IDs bind
 custody without inventing variants. Publication, History, Next and restore share
 the existing ledger. Unknown/ambiguous rows and forged frames refuse; post-board
 facts are never predicted. All text remains authorized noncanonical fixture text.
-The mounted native tests use schema-valid synthetic post frames and reconstruct
-a recorded in-memory checkpoint; live terminal-effect attitudes and exploded-row
-coverage remain a fixture extension. The eight physical processes separately
-rerun the original catalogue-v1 journey. A v2 fresh-process physical Save/Load
-proof remains the next bounded increment.
+
+The connected v2 proof now uses two actual OS processes and production gameplay,
+SaveManager and Profile owners. A real exploded board commits its terminal effect
+and attitude before post-prose. First Next finishes partial unseen post A and
+stops without checkpoint writes; a separate activation commits source then
+first-unseen post B. Both Autosave endpoint files are retained, and the final
+Quick is loaded in a fresh process. Exact selected frames, four-caption History,
+Next identity and witnesses survive; Profile/Quick bytes remain unchanged and
+Read Aloud does not replay. A coherently altered earlier frame is rejected
+against independent physical Run authority.
+
+This increment changes fixtures, verification and records, not production runtime.
+Its physical coverage is the observed sweet/exploded outcome; three finite
+explosion rows have pure selector coverage with actual terminal attitudes. Other
+physical dispositions and production prose remain outside this acceptance.
+The original eight-mode catalogue-v1 journey is separately preserved and rerun.
+[Run120 selector admission](../../evidence/phase_2r/authored_selector_2026_10_02/receipt.json)
+remains an unchanged historical foundation with its original in-memory-v2 scope.
+
+Exact current text and semantic History do not promise identical transient
+scrollback: the writer retains post A above B, while the fresh reader shows B
+alone. That visible stack distinction is recorded, not accepted as final polish.
 
 One-shot Next uses exact Profile witnesses
 and the existing reading ledger. It completes an unseen partial current caption
@@ -55,11 +72,14 @@ v1 reading checkpoints remain supported. Profile v10 exact witnessing and Run
 document/snapshot v7 remain current. No parallel transcript or save store was added.
 Production catalogue registration is still separate from this fixture.
 
-Known visual follow-up: cold Load of a `board == null` challenge clips its title.
-DatingScene and worksheet owners are unchanged from Run102; existing materialized
-board restore captures keep the title. Inspect dynamic `ChallengeContent` and
-`_layout_challenge` frame rectangles/scroll before choosing a fix, then add a cloud
-render assertion. Do not describe this as expected focus behavior or accepted polish.
+Next immediate diagnostic: cold Load of a `board == null` challenge clips its title.
+No runtime layout fix is accepted. Observe the first 120 frames/draws from before
+mount/Load: ChallengeContent and worksheet rectangles, minimum sizes, scroll and
+focus, while checking unchanged save bytes. Distinguish immediate minimum-size
+measurement after width changes from `follow_focus` scrolling before choosing a
+fix. The existing reader already waits 12 frames; a blind delay is not evidence
+of the cause. Then add a cloud render assertion for the demonstrated fix. Do not
+describe clipping as expected focus behavior or accepted polish.
 
 ## Resume order and authority
 
@@ -71,12 +91,11 @@ render assertion. Do not describe this as expected focus behavior or accepted po
    source-era notes as current format declarations or a second queue.
 2. Continue the reading remainder under `dwm-vky.14` with authored selector work
    in `dwm-n3h.2`. Read the [reading record](2026-09-29-reading-rail-next-slice.md)
-   and approved scene amendment §§12.3–12.8 and 22.4. Next bounded choice:
-   extend the connected physical Save/Load fixture to catalogue-v2 selected
-   Priscilla Day-1 Solo frames. Preserve the original journey and its receipt;
-   prove selected wording, exact History/Next and witnesses after a real disk
-   checkpoint and fresh process. Reuse actual phase owners and installed Dialogic.
-   Production registration stays disabled until its authored catalogue exists.
+   and approved scene amendment §§12.3–12.8 and 22.4. The bounded connected
+   physical v2 Save/Load proof is accepted; preserve both it and the original
+   catalogue-v1 journey. Next, diagnose the cold board-null Load layout using
+   measured frame/draw geometry, minimum sizes, scroll and focus before editing
+   runtime. Production registration stays disabled until its authored catalogue exists.
 3. Ask only if a newly evidenced wording/staging selector changes the authored
    projection contract. Known Solo inputs include friend/day/phase/tier/tone/
    attitude/due echoes and committed post-board outcome/perfect reasons/
@@ -96,7 +115,7 @@ individual caption variants are separate contracts. Keep `attempt_residue_id` nu
 do not promote legacy `special_mine_phase` or `promotion_result` into canonical
 selector authority. The bounded admission proof cannot close `dwm-n3h.2`.
 
-The selector increment adds only evidence notes/timestamps to `dwm-vky.14` and
+The physical selector increment adds only evidence notes/timestamps to `dwm-vky.14` and
 `dwm-n3h.2`; all statuses/dependencies and the other 189 records are unchanged.
 All **23 unfinished Beads** remain. `dwm-vky.14` is `in_progress`; `dwm-n3h.2`
 is `open`. A bounded proof does not close either parent or imply Dolt sync.
@@ -135,7 +154,8 @@ passes 56 cases across eight scripts, both documentation CLIs and the PowerShell
 instruction fixture on `e18f832deca10f7d000a45e470ce5c48c9b68b56`.
 [Retirement receipt](../../evidence/phase_2r/guidance_retirement_2026_10_02/receipt.json)
 preserves the setup diagnostics and proves all 191 Beads records unchanged.
-Run120 above supersedes Run114 as current bounded runtime acceptance; subsequent
+Run122 above supersedes Run120 as current bounded cloud acceptance. Run120
+selector admission and Run114 Next remain historical foundations; subsequent
 handoff/evidence edits are records-only. Historical receipts remain unchanged.
 
 Integration follow-up: master's newer root `AGENTS.md` (absent from this PR source)
