@@ -670,15 +670,15 @@ func _settings_quick_load_process() -> void:
 		"initial_load_silent": _speech_admissions == 0, "initial_load_disk_neutral": initial.disk == input_disk}): return
 	# The saved line is fully visible. A fresh physical Accept uses the actual
 	# caption transport to publish the different, partly revealed second line.
-	if not await _fresh_caption_accept(): return
-	await _pause_key()
+	var transport: Dictionary = await _settings_load_advance_and_pause()
+	# Pause promptly at the admitted successor, after a released neutral Enter frame.
 	var dating: Node = current_scene
 	var source_scene_id := dating.get_instance_id()
 	var pause_owner: Node = root.get_node("SceneRouter").get("_production_pause")
 	var entered := _reading_pause_observation(game)
-	var advanced := {"reading": entered, "scene_id": source_scene_id, "tree_paused": paused,
+	var advanced := {"reading": entered, "transport": transport, "scene_id": source_scene_id, "tree_paused": paused,
 		"pause_visible": pause_owner.surface.is_visible_in_tree()}
-	if not _settings_load_stage("advanced", advanced, {"ordinary_pause_open": advanced.tree_paused and advanced.pause_visible,
+	if not _settings_load_stage("advanced", advanced, {"ordinary_pause_open": advanced.tree_paused and advanced.pause_visible and transport.get("back_admitted", false),
 		"different_partial_line": entered.native.line_id == "fixture.solo.pre.b" and entered.native.revealing
 			and entered.native.visible_characters >= 0 and entered.native.visible_characters < entered.native.total_characters}): return
 	pause_owner.surface.rows[&"settings"].grab_focus()
@@ -1607,3 +1607,74 @@ func _finish_next_board_proof() -> void:
 		"Next source native coroutine is retired before board proof exit"): return
 	await _frames()
 	quit(0)
+
+
+## The short second fixture line must be paused while it is actually revealing.
+## Observe admission; inject one Enter and one Escape, each with a real release.
+## Never stretch the fixture, finish/restart its reveal, or call a transport command.
+func _settings_load_advance_and_pause() -> Dictionary:
+	var bridge: Node = root.get_node("DialogicBridge")
+	var input_owner: Node = root.get_node("InputManager")
+	var pause_owner: Node = root.get_node("SceneRouter").get("_production_pause")
+	var runtime: RefCounted = bridge.get("_runtime_adapter")
+	var layer: Node = _caption_layer()
+	var observation := {"packet_type": "InputEventKey", "events": [], "back_admitted": false}
+	current_scene.get_window().grab_focus()
+	layer.caption_text.grab_focus()
+	# Focus and input custody may settle on a deferred frame. The saved A line is
+	# already complete, so waiting here cannot consume B's short reveal interval.
+	await process_frame
+	for frame: int in 120:
+		if layer.caption_text.has_focus() and layer.accept_input.is_source_admitted() \
+				and input_owner.get_physical_contacts().is_empty() \
+				and not Input.is_action_pressed(&"ui_accept"): break
+		await process_frame
+	observation["accept_admitted"] = layer.caption_text.has_focus() and layer.accept_input.is_source_admitted() \
+		and input_owner.get_physical_contacts().is_empty() and not Input.is_action_pressed(&"ui_accept")
+	observation["source_line"] = str(runtime.current_line_id())
+	if observation.accept_admitted and observation.source_line == "fixture.solo.pre.a":
+		for pressed: bool in [true, false]:
+			var event := InputEventKey.new()
+			event.keycode = KEY_ENTER
+			event.physical_keycode = KEY_ENTER
+			event.pressed = pressed
+			Input.parse_input_event(event)
+			Input.flush_buffered_events()
+			observation.events.append({"key": "Enter", "pressed": pressed,
+				"frame": Engine.get_process_frames(), "contacts": input_owner.get_physical_contacts()})
+			# In particular, the release is followed by a neutral process frame
+			# before Escape is eligible. No generic twelve-frame delay follows it.
+			await process_frame
+		for frame: int in 120:
+			var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
+			var frontier: Dictionary = checkpoint.get("value", {}).get("reading_session", {}).get("frontier", {})
+			if str(frontier.get("line_id", "")) == "fixture.solo.pre.b" \
+					and input_owner.is_source_input_admitted() and input_owner.get_physical_contacts().is_empty() \
+					and not Input.is_action_pressed(&"ui_accept"):
+				var source: Dictionary = pause_owner.capture_pause_source()
+				observation["pause_source_admission"] = {"ok": source.get("ok", false), "code": str(source.get("code", ""))}
+				if source.get("ok", false):
+					observation["admitted_frontier"] = frontier.duplicate(true)
+					observation["back_admitted"] = true
+					break
+			await process_frame
+	if observation.back_admitted:
+		for pressed: bool in [true, false]:
+			var event := InputEventKey.new()
+			event.keycode = KEY_ESCAPE
+			event.physical_keycode = KEY_ESCAPE
+			event.pressed = pressed
+			Input.parse_input_event(event)
+			Input.flush_buffered_events()
+			observation.events.append({"key": "Escape", "pressed": pressed,
+				"frame": Engine.get_process_frames(), "contacts": input_owner.get_physical_contacts()})
+			await process_frame
+		# These frames occur only after physical Back requested literal Pause.
+		for frame: int in 120:
+			if paused and pause_owner.surface.is_visible_in_tree(): break
+			await process_frame
+	observation["contacts_after"] = input_owner.get_physical_contacts()
+	observation["tree_paused"] = paused
+	# Retain the protocol even if the following semantic observation cannot admit.
+	_check(_write_text("settings-load-input.json", JSON.stringify(observation, "\t")), "retain prompt physical Accept/Back observations")
+	return observation
