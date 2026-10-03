@@ -424,9 +424,15 @@ func test_no_playback_deferred_start_and_native_cleanup_have_no_frontier() -> vo
 	assert_false(_bridge.capture_pause_frontier().ok)
 	assert_eq(_bridge.get_state().value.state, &"Active")
 
-func test_native_nontext_wait_refuses_pause_without_changing_playback() -> void:
-	if not await _start('[wait time="0.5" hide_text="true"]\nSynthetic later caption.'): return
+func test_native_visible_wait_refuses_pause_without_changing_playback() -> void:
+	# Only a hidden, non-skippable Wait is an admitted silent-hold frontier.
+	# Preserve the refusal control with the real native visible Wait flavor.
+	if not await _start('[wait time="0.5" hide_text="false" skippable="false"]\nSynthetic later caption.'): return
 	assert_true(_runtime.current_timeline_events[_runtime.current_event_idx] is DialogicWaitEvent)
+	var wait_event := _runtime.current_timeline_events[_runtime.current_event_idx] as DialogicWaitEvent
+	assert_false(wait_event.hide_text, "this control actually executes a visible Wait")
+	assert_false(wait_event.skippable, "visibility alone makes this Wait ineligible for silent-hold Pause")
+	assert_almost_eq(wait_event.time, 0.5, 0.001)
 	assert_eq(_runtime.current_state, DialogicGameHandler.States.WAITING)
 	var generation := _runtime.get_timeline_generation()
 	var index := _runtime.current_event_idx
@@ -436,7 +442,7 @@ func test_native_nontext_wait_refuses_pause_without_changing_playback() -> void:
 	assert_eq(_runtime.get_timeline_generation(), generation)
 	assert_eq(_runtime.current_event_idx, index)
 	assert_eq(_bridge.get_state().value.state, &"Active")
-	# Let the real Wait's unbound native tween finish before fixture teardown.
+	# Let the actual visible Wait finish before fixture teardown.
 	await get_tree().create_timer(0.6).timeout
 
 func test_retained_physical_owner_publishes_same_source_without_a_completion() -> void:
