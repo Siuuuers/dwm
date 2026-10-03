@@ -155,6 +155,7 @@ func _ending_write() -> void:
 	if not _check(_transition_frames.size() >= 2 and _transition_successor_captured, "transition sampled before and after native successor"): return
 	for sample: Dictionary in _transition_frames:
 		if not _check(sample.valid, "no missing, duplicated or reordered visible boundary leaf: " + JSON.stringify(sample)): return
+	if not _check(root.gui_get_focus_owner() == _caption_layer().caption_text, "successor current caption owns fresh focus"): return
 	_ending_stages["second"] = _ending_observe()
 	if not _check(_ending_completions.size() == 1 and _ending_stages.second.lifecycle.ending_plan.next_step_index == 1
 		and _ending_stages.second.history.session_id == _ending_stages.first.history.session_id
