@@ -10,15 +10,43 @@ execution_map: "docs/agent/execution-map.md"
 issue_authority: beads
 ---
 
-# Next-session handoff — 2 October 2026 (Hong Kong)
+# Next-session handoff — 3 October 2026 (Hong Kong)
 
 Continue `Siuuuers/dwm` draft PR #1 on `codex/windows-cloud-ux`.
 Keep the PR draft and unmerged; do not change master. Verify the live branch,
-actual master ref and Beads before editing. The last checked master was
-`9e43b52c9884ccd59e82245d2168c3113ee4d037` (separate Beads-only activity);
+actual master ref and Beads before editing. The live master checked in this continuation was
+`6a5ddf1564870b43aa9140cad7e0e5b12e43f399`;
 this work did not change master. Normalized PR-base fields can be stale.
 
 ## Current acceptance
+
+**Accepted bounded captionless timed hold.** Source
+`2937bc569094186dbd1bbefe75efeaa58deccbcc`; actual auxiliary checkout
+`bee762330520dcf2835df5f725535004a355e015`;
+[Broad1 run 37094251984](https://github.com/Siuuuers/dwm/actions/runs/37094251984)
+passes 25/25 jobs. The 13 ordinary/public XML reports contain 2,472 test
+executions with zero failures, errors or skips. Intentional negative-control
+XML remains separate. The [timed-hold receipt](../../evidence/phase_2r/timed_hold_2026_10_03/receipt.json)
+owns source identity, retained evidence, audits and limits. Auxiliary jobs are
+byte-identical to the canonical workflow; this was not a PR/master test-merge.
+
+The native Wait owns its timer and cancellation callbacks. The silent hold has
+no caption, History row, witness, speech or caption focus; its stationary rail
+is disabled. Real Pause freezes elapsed time, Continue resumes the remaining
+interval, and the next real caption requires fresh input. Native tests cover
+cancel/replacement past the old deadline, pending start and stale/duplicate
+callbacks. No durable mid-hold cursor or new save/recovery owner was added.
+
+Prior Solo, Settings F5/F9, physical selector and Sylvia-present Hospital
+regressions pass within their existing scopes. Editor-import/version-check
+and Windows-export cleanup warnings remain qualified in the receipt; no global
+warning-free, leak-free or native Windows graphics acceptance is claimed.
+Production registration remains disabled. All 23 unfinished Beads retain their
+statuses/dependencies; live Dolt was unavailable and was not synchronized.
+PR #1 remains draft/unmerged; master is unchanged. Records-only descendants
+are not independently engine-tested.
+
+## Preserved historical acceptance
 
 **Accepted bounded Hospital reading / Source9.** Source
 `a24f71766a624b57601814dda487b53c66518c39`; actual auxiliary workflow checkout
@@ -51,8 +79,6 @@ PR #1 stays draft and unmerged. All 23 unfinished Beads remain, with no live
 Dolt synchronization claim. A records-only descendant is not independently
 engine-tested; the tested source and actual checkout above remain the evidence
 boundary.
-
-## Preserved historical acceptance
 
 **Accepted bounded paused Settings F9.** Source `41cc51992b74ec9472f7912e0eb8e1c39679af44`; tested PR merge
 `705ea660b4d6ee9f3376ae4660a3d50e65fe5502`; master `6a5ddf1564870b43aa9140cad7e0e5b12e43f399`.
@@ -169,22 +195,20 @@ retained PNGs is separate visual evidence; neither establishes whole-UI polish.
 
 ## Next bounded work
 
-Next bounded work under `dwm-vky.14` is the
-[captionless native timed-hold Pause/cancellation fixture](../../evidence/phase_2r/hospital_reading_2026_10_02/next-slice-source-review/next-work-proposal.md),
-before no-Sylvia Hospital integration. The proposal remains the immutable
-pre-acceptance source review; its Broad2-acceptance prerequisite is now met.
-Use one noncanonical hold followed by a real caption through existing
-runtime/Bridge custody. Prove remaining-time
-preservation during Pause, no publication/witness/speech/focus/completion while
-suspended, exactly one continuation after resume, and no stale mutation or
-completion after cancellation/replacement past the old deadline. Keep this first
-proof ephemeral; it does not add arbitrary mid-hold Save/Load.
+Next under `dwm-vky.14`: one noncanonical no-Sylvia Schedule-Done Hospital
+presentation through the existing Hospital command/receipt owner. The native
+hold prerequisite is now accepted; do not repeat its focused or broad tests
+without a changed candidate or concrete unresolved risk.
 
-The no-Sylvia notice/Continue path conflicts with approved presentation. Native
-Wait cancellation is a source-evidenced risk to test, not an observed runtime
-failure. Production prose/timing/selectors and ordered-ending History/restore
-remain separate work. Routine fixture implementation needs no new architecture
-interview; ask only when new authored facts change the projection contract.
+Replace the obsolete no-Sylvia notice/Continue contract together with its
+adapter and tests. Preserve physical completion and fresh Hospital History;
+prove Pause/resume and cancellation through this actual owner. Reuse the
+accepted native timer and Bridge custody. Fixture duration is explicitly
+noncanonical; do not invent production shot timing, prose or selectors.
+Arbitrary mid-hold Save/Load and ordered-ending History/restore remain separate.
+The [original source review](../../evidence/phase_2r/hospital_reading_2026_10_02/next-slice-source-review/next-work-proposal.md)
+remains historical planning, not current acceptance. Routine engineering needs
+no architecture interview; ask only when authored facts change the contract.
 
 ## Resume order and authority
 
@@ -199,10 +223,11 @@ interview; ask only when new authored facts change the projection contract.
    and approved scene amendment §§12.3–12.8 and 22.4. The bounded connected
    physical v2 Save/Load proof is accepted; preserve both it and the original
    catalogue-v1 journey, paused Settings F5/F9 and accepted Sylvia-present
-   Hospital proofs. Next, prove the captionless native hold's Pause and
-   cancellation lifecycle before integrating no-Sylvia Hospital. Register every
+   Hospital proofs. Next, integrate the accepted captionless native hold through the real
+   no-Sylvia Hospital owner. Register every
    new or touched mounted fixture in the cloud runner; file existence is not
-   execution. Keep the notice/Continue conflict and unproved Wait risk explicit.
+   execution. Keep the remaining notice/Continue conflict explicit; native Wait lifecycle
+   is accepted within the timed-hold receipt scope.
    Production registration stays disabled until its authored catalogue exists.
 3. Ask only if a newly evidenced wording/staging selector changes the authored
    projection contract. Known Solo inputs include friend/day/phase/tier/tone/
