@@ -799,7 +799,7 @@ jobs:
 
   rendered-hospital-reading:
     needs: public-surfaces
-    name: Rendered Hospital reading / Schedule-Done Save and fresh-process Load
+    name: Rendered Hospital / manual command refusal and saved-fixture restore
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
@@ -851,7 +851,7 @@ jobs:
           fi
           # Dialogic's editor scan rewrites its timeline lookup during import.
           git restore -- project.godot
-      - name: Exercise Hospital reading through Schedule-Done Save and fresh-process Load
+      - name: Exercise Hospital manual refusal and test-only saved-fixture restore
         timeout-minutes: 25
         run: python3 tools/testing/run_hospital_reading_journey.py
       - name: Upload Hospital reading reports, exact save bytes and screenshots
