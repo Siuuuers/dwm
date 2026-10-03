@@ -39,14 +39,31 @@ Label scaffolding alone does not make production exact-caption saves available.
 The shared-fainting candidate is accepted below. Historical timed-hold receipts
 retain their original scope; do not implement automatic no-Sylvia completion.
 
-## Current Hospital policy change
-
-The owner has superseded Hospital manual Save/Load support with disabled commands.
-Implementation and cloud acceptance for this new restriction are pending in the
-current continuation. The receipts below retain their original historical scope;
-their Hospital manual-save claims do not describe the new player-facing policy.
-
 ## Current acceptance
+
+**Accepted Hospital manual Save/Load restriction.** Source
+`82dc881e77f21c34f152d940d55cf317ba5bd784`; actual PR test merge
+`0ba41f19f9fed4c2a608d6c329ad3cc07b4d378e`. [Cloud run 37117747147](https://github.com/Siuuuers/dwm/actions/runs/37117747147)
+passes 25/25 jobs, with 2,575 primary cases across 13 ordinary/public XML reports
+and zero failures, errors or skips. Focused run 37117263065 separately passed
+4/4 jobs and 858 primary cases. The [Hospital policy receipt](../../evidence/phase_2r/hospital_manual_policy_2026_10_03/receipt.json)
+retains exact sources, diagnostics, artifact hashes and acceptance limits.
+
+The existing Pause command owner disables Hospital rail/Backup Save and Load,
+including F5/F9 under Pause and Settings. Both rendered Sylvia variants preserve
+the partial caption and save bytes when commands are refused; History remains
+independent. Test-only saved fixtures retain restore and forgery coverage without
+a player Hospital save path. Existing global autosave timing, save integrity and
+internal completion/recovery remain unchanged. No new persistence framework.
+
+The prior Hospital manual-save registration milestone is superseded. Production
+History/catalogue and broader reading/ordered-ending work remain separate;
+Hospital Next stays disabled. All 23 unfinished Beads retain status/dependencies;
+no live Dolt query or synchronization. PR #1 remains draft/unmerged and master
+`6a5ddf1564870b43aa9140cad7e0e5b12e43f399` is unchanged. The records-only
+descendant is not separately engine-tested.
+
+## Prior shared-fainting acceptance
 
 **Accepted shared fainting and minimal result routing.** Source `3710d3a20cfd53f9aebf23524fd6f28b6d69e3dd`;
 actual PR test merge `50088e6b54ba43f08012e887922d4a912fd11e89`, with master
@@ -249,22 +266,21 @@ retained PNGs is separate visual evidence; neither establishes whole-UI polish.
 
 **Owner correction, 3 October 2026:** Hospital manual Save/Load and Quick
 shortcuts are now disabled, including Pause/Settings routes. The earlier next
-step to register Hospital captions for player saves is superseded. Implement
-this through the existing Pause/Backup command owners; preserve independent
+step to register Hospital captions for player saves is superseded. The accepted
+implementation uses the existing Pause/Backup command owners; preserve independent
 History, ordinary progression, committed-save integrity and existing internal
 completion/recovery. Global autosave timing has not been changed by this choice.
 The scoped rule is recorded in the
 [Hospital disposition](../design/2026-08-22-hospital-ordered-ending-current-v1-ui-disposition.md#owner-correction--3-october-2026-hospital-manual-saveload).
 
-Current implementation/acceptance work remains under `dwm-vky.14`. Verify refused
-rail commands and Pause/Settings shortcuts preserve the literal partial caption,
-History and physical save bytes. Use the existing rendered Hospital journeys for
-both Sylvia variants; retain explicitly test-only saved-fixture restore/forgery
-coverage without advertising player Hospital saving. Keep the actual condition
-fainting/completion-failure journey. No production semantic catalogue activation
-is needed to disable these commands. Hospital Next remains disabled.
+The restriction is accepted under `dwm-vky.14`; do not redo it. The shared
+receipt above covers refused rail commands, physical Pause/Settings shortcuts,
+literal partial captions, History and save bytes for both Sylvia variants.
+Explicitly test-only saved fixtures retain restore/forgery coverage. The actual
+condition-fainting/completion-failure journey remains in the cloud gate.
+No production semantic catalogue activation was needed. Hospital Next stays disabled.
 
-Following this restriction, resume the wider reading/ordered-ending remainder.
+Resume the wider reading/ordered-ending remainder.
 Production registration/History and authored variants retain their separate
 scope. No architecture interview is needed for known inputs. Ask only if a new
 wording/staging selector changes the projection contract.

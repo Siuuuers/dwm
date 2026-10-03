@@ -1,0 +1,115 @@
+{
+  "run_id": 37117263065,
+  "source_sha": "cd9020c6a326b800a74966e9ad04dc38ad56bff0",
+  "primary_total": 858,
+  "xml": [
+    {
+      "path": "reading_delivery.xml",
+      "cases": 617,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "persistence.xml",
+      "cases": 230,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "entry": "ci/public_surfaces.xml",
+      "cases": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "artifacts": [
+    {
+      "archive": "focus2-11271723494.zip",
+      "bytes": 305683,
+      "sha256": "9aa802ea4b1e5db534a85701c8724279c647e12eda3363e1b6ec9c8127e75ce7"
+    },
+    {
+      "archive": "focus2-11271713425.zip",
+      "bytes": 198648,
+      "sha256": "b290f5c561ee14d0beeff6ba317c3a408c6102bd8421a4d9fcc8048814cf388e"
+    },
+    {
+      "archive": "focus2-11271663651.zip",
+      "bytes": 8847267,
+      "sha256": "ce841867cb42e9a0a3cedad06d7b8d87adb27a1748fc1ad7a0601e0046c8a726"
+    },
+    {
+      "archive": "hospital-policy-public2.zip",
+      "bytes": 146851,
+      "sha256": "0f59c4abeb509bbdec5b6e1ba2fe70e87ad16b7802ecabdaec235d874d880cee"
+    }
+  ],
+  "retained": [
+    {
+      "artifact_archive": "focus2-11271723494.zip",
+      "artifact_path": "ci/reading_delivery.xml",
+      "retained_file": "focused/focus2-11271723494/ci/reading_delivery.xml.gz",
+      "raw_bytes": 141699,
+      "raw_sha256": "3ce82b773aa13704dd0d80f1b221a2a3fc190b537179924905b9f01ec57a9c5e"
+    },
+    {
+      "artifact_archive": "focus2-11271713425.zip",
+      "artifact_path": "ci/persistence.xml",
+      "retained_file": "focused/focus2-11271713425/ci/persistence.xml.gz",
+      "raw_bytes": 51933,
+      "raw_sha256": "0c4827cead3a0319ec3d4a6496cae5c122839e36fe681a3a6543052bcddb83dc"
+    },
+    {
+      "artifact_archive": "focus2-11271663651.zip",
+      "artifact_path": "449c9ccf-eceb-4ed7-a119-e9ac3b65bad5/sealed-write/hospital-partial-history.png",
+      "retained_file": "focused/focus2-11271663651/449c9ccf-eceb-4ed7-a119-e9ac3b65bad5/sealed-write/hospital-partial-history.png",
+      "raw_bytes": 8138,
+      "raw_sha256": "a7d0339d1377eb9ee6e7310575844ef2faba72d08a9674af78266ed739d0c29b"
+    },
+    {
+      "artifact_archive": "focus2-11271663651.zip",
+      "artifact_path": "449c9ccf-eceb-4ed7-a119-e9ac3b65bad5/sealed-write/hospital-save-load-disabled.png",
+      "retained_file": "focused/focus2-11271663651/449c9ccf-eceb-4ed7-a119-e9ac3b65bad5/sealed-write/hospital-save-load-disabled.png",
+      "raw_bytes": 9486,
+      "raw_sha256": "8611346efbbc22d592be11735f09eadc8428bb9333c8d147adf3f186924343df"
+    },
+    {
+      "artifact_archive": "focus2-11271663651.zip",
+      "artifact_path": "845ec73a-9420-4e92-bdac-fdf643b5b336/sealed-write/hospital-partial-history.png",
+      "retained_file": "focused/focus2-11271663651/845ec73a-9420-4e92-bdac-fdf643b5b336/sealed-write/hospital-partial-history.png",
+      "raw_bytes": 8138,
+      "raw_sha256": "a7d0339d1377eb9ee6e7310575844ef2faba72d08a9674af78266ed739d0c29b"
+    },
+    {
+      "artifact_archive": "focus2-11271663651.zip",
+      "artifact_path": "845ec73a-9420-4e92-bdac-fdf643b5b336/sealed-write/hospital-save-load-disabled.png",
+      "retained_file": "focused/focus2-11271663651/845ec73a-9420-4e92-bdac-fdf643b5b336/sealed-write/hospital-save-load-disabled.png",
+      "raw_bytes": 9496,
+      "raw_sha256": "82d1ade206b5902588828971c5d4283f2cf94aecc9051e4f91e06ddfae2114f4"
+    },
+    {
+      "artifact_archive": "focus2-11271663651.zip",
+      "artifact_path": "result.json",
+      "retained_file": "focused/focus2-11271663651/result.json.gz",
+      "raw_bytes": 5603460,
+      "raw_sha256": "c2f6b15bd7929302f99c4e35c1b6bcb37c0dd04509ef99c2371533911dcebbda"
+    },
+    {
+      "artifact_archive": "hospital-policy-public2.zip",
+      "artifact_path": "ci/public-surfaces/retirement-audit.json",
+      "retained_file": "focused/hospital-policy-public2/ci/public-surfaces/retirement-audit.json.gz",
+      "raw_bytes": 563,
+      "raw_sha256": "8cf702265403d3175730244b168cea738567a1be3235857572d151bfc133c11d"
+    },
+    {
+      "artifact_archive": "hospital-policy-public2.zip",
+      "artifact_path": "ci/public_surfaces.xml",
+      "retained_file": "focused/hospital-policy-public2/ci/public_surfaces.xml.gz",
+      "raw_bytes": 2506,
+      "raw_sha256": "e19f6f915e50ebf00c394777bba1dbab17105ee48d426f887a2bb0a7e850f82b"
+    }
+  ]
+}
