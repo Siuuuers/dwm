@@ -72,10 +72,8 @@ func test_current_dormant_scene_copy_has_literal_specific_demonstrated_owners() 
 	if not hospital.get("ok", false): return
 	var message := _record(hospital.value, "text", "\"You fainted.\"")
 	var continue_button := _record(hospital.value, "text", "\"Continue\"")
-	assert_eq(message.get("disposition"), "runtime_data")
-	assert_true(str(message.get("reason", "")).contains("HospitalScene"))
-	assert_eq(continue_button.get("disposition"), "runtime_data")
-	assert_true(str(continue_button.get("reason", "")).contains("HospitalScene"))
+	assert_true(message.is_empty(), "Hospital copy now belongs to its DTL, not a notice widget")
+	assert_true(continue_button.is_empty(), "normal Hospital progression has no separate Continue copy")
 
 
 func test_scene_owner_is_location_and_literal_specific() -> void:
