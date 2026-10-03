@@ -120,6 +120,29 @@ class RetirementGame extends Node:
 	var session := {"active": true, "run_id": "hospital-run", "generation": 1}
 	func capture_live_session() -> Dictionary: return {"ok": true, "value": session.duplicate(true)}
 
+class EndingRetirementLifecycle extends RefCounted:
+	var state := "ENDING"
+	func to_dict() -> Dictionary: return {"state": state, "run_id": "ending-run"}
+
+class EndingRetirementGame extends RetirementGame:
+	var _run_lifecycle := EndingRetirementLifecycle.new()
+
+class EndingRetirementRouter extends HospitalRouter:
+	var held := false
+	func is_restore_publication_held() -> bool: return held
+
+class EndingRetirementBridge extends Node:
+	var retained := true
+	var active := false
+	var retirements := 0
+	var anchor := {"reading_session": {"ledger": {"session_token": "ending-run:ending"}}}
+	func has_active_playback() -> bool: return active
+	func has_reading_session() -> bool: return retained
+	func capture_ending_physical_checkpoint() -> Dictionary: return {"ok": true, "value": anchor.duplicate(true)}
+	func retire_reading_session() -> void:
+		retirements += 1
+		retained = false
+
 class RetirementBootstrap extends "res://autoload/ApplicationBootstrap.gd":
 	var targets: Dictionary = {}
 	func _ready() -> void: pass
@@ -567,3 +590,42 @@ func test_refused_paused_save_preparation_cancels_exact_token_before_commit_and_
 	port._pending["load"] = {"action": "load", "locator": "slot:1"}
 	assert_true((await port.commit_action("load")).get("ok", false))
 	assert_eq(owner.calls, ["release-load", "commit:load", "finish-load"], "Load never prepares reveal")
+
+func test_ending_terminal_anchor_retires_only_for_completed_current_run_after_menu_publication() -> void:
+	var bootstrap: Node = RetirementBootstrap.new()
+	add_child_autofree(bootstrap)
+	var game: Node = autofree(EndingRetirementGame.new())
+	var bridge: Node = autofree(EndingRetirementBridge.new())
+	var router: Node = autofree(EndingRetirementRouter.new())
+	router.route = "menu"
+	game.session = {"active": false, "run_id": "ending-run", "generation": 2}
+	bootstrap.targets = {&"GameState": game, &"DialogicBridge": bridge, &"SceneRouter": router}
+	var scene := Control.new()
+	get_tree().root.add_child(autofree(scene))
+	scene.scene_file_path = "res://scenes/ending/EndingScene.tscn"
+	get_tree().current_scene = scene
+	game._run_lifecycle.state = "COMPLETED"
+	bootstrap._retire_completed_ending_after_menu()
+	assert_eq(bridge.retirements, 0, "route intent alone cannot retire the terminal anchor")
+	scene.scene_file_path = "res://scenes/menu/MenuScene.tscn"
+	game._run_lifecycle.state = "ENDING"
+	bootstrap._retire_completed_ending_after_menu()
+	assert_eq(bridge.retirements, 0, "unfinished ending History stays available")
+	game._run_lifecycle.state = "COMPLETED"
+	game.session.active = true
+	bootstrap._retire_completed_ending_after_menu()
+	assert_eq(bridge.retirements, 0, "the committed owner must retire its live session first")
+	game.session.active = false
+	router.held = true
+	bootstrap._retire_completed_ending_after_menu()
+	assert_eq(bridge.retirements, 0, "restore publication custody is preserved")
+	router.held = false
+	bridge.anchor.reading_session.ledger.session_token = "other-run:ending"
+	bootstrap._retire_completed_ending_after_menu()
+	assert_eq(bridge.retirements, 0, "an old callback cannot retire another run's History")
+	bridge.anchor.reading_session.ledger.session_token = "ending-run:ending"
+	var anchor: Dictionary = bridge.anchor.duplicate(true)
+	bootstrap._retire_completed_ending_after_menu()
+	bootstrap._retire_completed_ending_after_menu()
+	assert_eq(bridge.retirements, 1)
+	assert_eq(bridge.anchor, anchor, "retirement clears live custody without modifying saved anchor bytes")

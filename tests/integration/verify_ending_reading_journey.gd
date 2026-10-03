@@ -218,9 +218,15 @@ func _ending_read() -> void:
 		if game._run_lifecycle.get_state() == &"COMPLETED": break
 		await process_frame
 	await _frames()
-	if not _check(game._run_lifecycle.get_state() == &"COMPLETED" and _ending_completions.size() == 1
-		and not root.get_node("DialogicBridge").get_reading_history().get("ok", false), "one remaining native completion finishes chain and retires History"): return
-	_ending_stages["completed"] = {"lifecycle": game._run_lifecycle.to_dict(), "profile": root.get_node("ProfileManager").get_profile_snapshot()}
+	var terminal := {"lifecycle": game._run_lifecycle.to_dict(), "profile": root.get_node("ProfileManager").get_profile_snapshot(),
+		"completion_count": _ending_completions.size(), "completions": _ending_completions.duplicate(true),
+		"history": root.get_node("DialogicBridge").get_reading_history(),
+		"route_id": str(root.get_node("SceneRouter").get_current_route_id()),
+		"scene_path": current_scene.scene_file_path if current_scene != null else ""}
+	_ending_stages["completed"] = terminal
+	_write_text("read-terminal.json", JSON.stringify(terminal, "\t"))
+	if not _check(terminal.lifecycle.state == "COMPLETED" and terminal.completion_count == 1
+		and not terminal.history.get("ok", false), "one remaining completion and History retirement: " + JSON.stringify(terminal)): return
 	var report := _ending_report()
 	if not _check(_write_text("read.json", JSON.stringify(report, "\t")), "retain ending reader report"): return
 	print("ENDING_READING_READ_PASS: fresh exact second Load -> silent ordered History -> duplicate first refusal to repeat -> one remaining completion")

@@ -548,6 +548,8 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 			var scene_tree := get_tree()
 			if scene_tree != null and not scene_tree.scene_changed.is_connected(_queue_live_continuation):
 				scene_tree.scene_changed.connect(_queue_live_continuation)
+			if scene_tree != null and not scene_tree.scene_changed.is_connected(_retire_completed_ending_after_menu):
+				scene_tree.scene_changed.connect(_retire_completed_ending_after_menu)
 			return pause_router.configure_pause_services({
 				"game_state": _target(&"GameState"), "saves": _target(&"SaveManager"),
 				"bridge": _target(&"DialogicBridge"), "input": _target(&"InputManager"),
@@ -2477,6 +2479,27 @@ func _resume_live_continuation() -> void:
 		# issuing another root or committing another Schedule.
 		var resumed: Dictionary = _retained_schedule_done_dispatcher.dispatch_done(str(plan.command_id))
 		if not resumed.get("ok", false): push_error("Day resolution could not resume: " + str(resumed.get("code", "")))
+
+## The terminal checkpoint retains the final ending anchor. Its live History
+## retires only once the completed Run has actually published the Menu scene.
+func _retire_completed_ending_after_menu() -> void:
+	var scene := get_tree().current_scene
+	var router := _target(&"SceneRouter")
+	var game := _target(&"GameState")
+	var bridge := _target(&"DialogicBridge")
+	if scene == null or scene.scene_file_path != "res://scenes/menu/MenuScene.tscn" \
+			or router == null or router.get_current_route_id() != "menu" \
+			or router.is_restore_publication_held() or game == null or bridge == null \
+			or bridge.has_active_playback() or not bridge.has_reading_session(): return
+	var lifecycle: Dictionary = game._run_lifecycle.to_dict()
+	var session: Dictionary = game.capture_live_session()
+	if lifecycle.get("state") != "COMPLETED" or not session.get("ok", false) \
+			or session.value.get("active", true): return
+	var captured: Dictionary = bridge.capture_ending_physical_checkpoint()
+	if not captured.get("ok", false) or captured.value.is_empty(): return
+	if captured.value.reading_session.ledger.session_token != str(lifecycle.run_id) + ":ending": return
+	bridge.retire_reading_session()
+
 
 ## Settlement checkpoints retain Hospital's final semantic anchor. Retire it only
 ## after the completed Schedule-Done owner has actually published its Main scene.
