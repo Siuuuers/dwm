@@ -15,7 +15,7 @@ issue_authority: beads
 Continue `Siuuuers/dwm` draft PR #1 on `codex/windows-cloud-ux`.
 Keep the PR draft and unmerged; do not change master. Verify the live branch,
 actual master ref and Beads before editing. The live master checked in this continuation was
-`6a5ddf1564870b43aa9140cad7e0e5b12e43f399`;
+`dded76aee2e85aeea94f65218de043b1f4fdce7b`;
 this work did not change master. Normalized PR-base fields can be stale.
 
 ## Owner scope correction — 3 October 2026
@@ -41,6 +41,34 @@ retain their original scope; do not implement automatic no-Sylvia completion.
 
 ## Current acceptance
 
+**Accepted bounded ordered-ending Auto continuity.**
+Source `a0497631fbde1bdb5b19324d98ec47a167cac59a`; actual PR test merge
+`7a579bc87460d8da1fb4f2f088816e3c535f2276`.
+[Cloud run 37143512488](https://github.com/Siuuuers/dwm/actions/runs/37143512488)
+passes 26/26 jobs and 2,596 primary cases across 13 XML reports with zero
+failures, errors or skips.
+The [Auto receipt](../../evidence/phase_2r/ending_auto_2026_10_03/receipt.json)
+owns the exact artifacts and limits.
+
+No runtime changes were needed: the existing Profile, controller, caption layer
+and Bridge already preserve Auto On across the manually crossed nonfinal ending
+seam. The rendered proof records 678 frames, an inactive handoff, a native
+successor reveal followed by 4,081 ms before advancement, stale-frontier refusal
+and a stationary terminal boundary. Actual PNGs were inspected. Speech is Off
+to isolate timing; this is bounded fixture acceptance, not automatic ending
+completion, full Auto or all-input/accessibility closure. Save, recovery and
+History owners remain unchanged.
+
+Next: the wider reading remainder in the [execution map](execution-map.md), using
+the recorded owners and approved minimal-playable scope. Production registration
+and exhaustive authored variants remain deferred; native input/accessibility
+has separate acceptance. No architecture interview is required for routine work.
+The retained Beads export still has 23 unfinished records with unchanged
+statuses/dependencies; no live Dolt synchronization. PR remains draft/unmerged,
+master unchanged. A records-only descendant is not separately engine-tested.
+
+## Prior ordered-ending visible caption acceptance
+
 **Accepted bounded ordered-ending visible caption continuity.** Source
 `cdee58fc9fe7a218df9a6b1dbd64f7fa44f5ea49`; actual PR test merge
 `1afa1bea1eef66c4132157c377f70a52b25767a7`. [Cloud run 37134912094](https://github.com/Siuuuers/dwm/actions/runs/37134912094)
@@ -60,8 +88,7 @@ Both accepted rendered runs observe 40 post-draw frames, including 26 successor
 frames. Actual boundary/restored PNGs were inspected. This proves the bounded
 short-caption fixture, not all authored routes or long-caption geometry.
 
-Next: observe and prove Auto-On continuity across a nonfinal ending seam using
-the existing preference/controller, with fresh successor reveal and full delay.
+The subsequent bounded Auto proof is recorded above.
 The [read-only next-slice review](../../evidence/phase_2r/ending_caption_continuity_2026_10_03/next-slice-review.md)
 separates mode retention from Auto triggering terminal Return; do not broaden
 generic scene-transition admission. No new architecture choice was identified.
@@ -89,11 +116,10 @@ publication, while the durable terminal anchor remains intact. Retired native
 textbox listeners no longer block a successor caption's animation wait.
 
 Production registration remains disabled and prose/exhaustive variants remain
-deferred. Next: retain up to two prior visible caption leaves continuously across
-ending timeline boundaries, using the existing layer and ledger and observing
-the actual handoff frames. Auto continuity and full native input/accessibility
-acceptance retain their separate scope. History continuity does not imply retained visible caption
-leaves. Hospital manual Save/Load remains disabled. All 23 unfinished Beads keep
+deferred. Subsequent visible-caption and bounded Auto proofs are recorded above;
+full native input/accessibility retains separate scope. This historical History
+proof alone does not imply retained visible leaves. Hospital manual Save/Load
+remains disabled. All 23 unfinished Beads keep
 their statuses/dependencies; no live Dolt synchronization. PR remains draft and
 unmerged, master unchanged. The final records-only descendant is not separately
 engine-tested.

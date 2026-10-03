@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "status": "accepted_bounded",
+  "scope": "Bounded Auto mode continuity across a manually crossed nonfinal ending seam",
+  "lead_bead": "dwm-vky.14",
+  "source_sha": "a0497631fbde1bdb5b19324d98ec47a167cac59a",
+  "tested_merge_sha": "7a579bc87460d8da1fb4f2f088816e3c535f2276",
+  "master_observed": "dded76aee2e85aeea94f65218de043b1f4fdce7b",
+  "runtime_changes": false,
+  "save_format_changes": false,
+  "cloud": {
+    "run_id": 37143512488,
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/37143512488",
+    "primary_xml_reports": 13,
+    "primary_cases": {
+      "tests": 2596,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    },
+    "negative_controls": [
+      {
+        "artifact": "windows-settings-37143512488-1",
+        "artifact_id": 11281062951,
+        "zip_sha256": "224253e6c51e9cf900438564221f08841c5f553e674a1c2b52ddd9965ab5807b",
+        "path": "ci/storage-refusal/empty/tests.xml",
+        "tests": 83,
+        "failure": 80,
+        "error": 0,
+        "skipped": 0,
+        "sha256": "e2e4807ac1b40a89d5cf5aee0c559fa2a95d8b7f8525e4d6359b479f63701fb5"
+      },
+      {
+        "artifact": "windows-settings-37143512488-1",
+        "artifact_id": 11281062951,
+        "zip_sha256": "224253e6c51e9cf900438564221f08841c5f553e674a1c2b52ddd9965ab5807b",
+        "path": "ci/storage-refusal/whitespace/tests.xml",
+        "tests": 83,
+        "failure": 80,
+        "error": 0,
+        "skipped": 0,
+        "sha256": "0beeb9719bae76c62a08e2261d3688058926a4f68bdbb8984c5708bc80fb04f1"
+      }
+    ],
+    "engine": "Godot 4.6.3 standard GDScript",
+    "engine_and_powershell_execution": "GitHub Actions only",
+    "jobs_passed": 26,
+    "jobs_total": 26,
+    "conclusion": "success",
+    "completed_at": "2026-10-03T18:49:49Z",
+    "job_manifest": "cloud-jobs.json",
+    "artifact_manifest": "cloud-artifacts.json"
+  },
+  "auto_proof": {
+    "process_id": 4166,
+    "frames": 678,
+    "handoff_frames": 1,
+    "successor_reveal_frames": 50,
+    "configured_delay_seconds": 4,
+    "observed_reveal_to_next_ms": 4081,
+    "departing_timer_remaining_seconds": 3.59047866666667,
+    "stale_frontier_refusal": {
+      "code": "presentation_frontier_changed",
+      "details": {},
+      "ok": false,
+      "receipt": {}
+    },
+    "completions": 1,
+    "screenshots_inspected": {
+      "ending-auto-before.png": {
+        "bytes": 1125749,
+        "sha256": "c68d538b32d0685aaca0e209540fdd257736a2a2c93ae7c8b5c571078396d0ec"
+      },
+      "ending-auto-successor.png": {
+        "bytes": 1125408,
+        "sha256": "8ebb5367a45dd0d72acb3ff9830f200d7921d56ed8445c7d825dbe512ec3fe2a"
+      },
+      "ending-auto-terminal.png": {
+        "bytes": 1125670,
+        "sha256": "0ec3fcca1a80eeeb6093c9c73bb2236580292b3e268a08a83a752dca9dbc290b"
+      }
+    }
+  },
+  "archives": {
+    "accepted-evidence.tar.gz": {
+      "bytes": 3637780,
+      "base64_bytes": 4850376,
+      "sha256": "63a503284b20c7cd5a4f6e24982a1869514201324fac6430bc552088ba89234e",
+      "git_blob": "6159686b57bf4bf2ab36f7be47f9763d87e69c03"
+    },
+    "diagnostic-evidence.tar.gz": {
+      "bytes": 291557,
+      "sha256": "6bdbf8f34bf322ea393b75036a2d6fb4bcc1934dccd1243886c65b526101eac9",
+      "git_blob": "589ea0aa5e15ef02119440a4531ae110d51a18d1"
+    }
+  },
+  "diagnostics": [
+    {
+      "run_id": 37142672397,
+      "source": "b26902aa7e1bd275d21d3e740875776feb648eef",
+      "outcome": "Public gate failed on stale SaveManager caller inventory; rendered job did not run."
+    },
+    {
+      "run_id": 37143040849,
+      "checkout": "c3475bf2b1a3d6c238b7505b8debeccb9601a78e",
+      "outcome": "Both diagnostic jobs passed; cloud regenerated inventories and ran existing ending Save/Load plus Auto journey. The auxiliary commit differs from b26902aa only in workflow wiring; its generated inventory was adopted at a0497631.",
+      "auto_frames": 863,
+      "reveal_to_next_ms": 4056
+    }
+  ],
+  "inventory_change": "One lexical initialize call site added for tests/integration/verify_ending_auto_journey.gd:27. No public API or required contract changed.",
+  "limits": [
+    "Noncanonical short-caption fixture and seeded two-step ending eligibility.",
+    "Ending seam and terminal Return remain manual; generic Auto scene-transition restrictions unchanged.",
+    "Read-aloud disabled in the new timing fixture; speech and recovery retain separate regression scopes.",
+    "Software-rendered Linux proof and Windows automated suites do not establish full native Windows graphics/input/accessibility.",
+    "Production catalogue registration remains disabled; no wider Bead closed.",
+    "Primary reports exclude intentional storage-refusal failures.",
+    "Archives retain exact Auto PNGs, reports/logs, existing ending non-PNG evidence and primary XML. Existing ending PNGs and diagnostic PNGs remain linked to original cloud artifacts; manifests state omissions.",
+    "Final records-only descendant is not separately engine-tested.",
+    "Keyboard input is injected through mounted controls, not external hardware."
+  ],
+  "beads": {
+    "unfinished": 23,
+    "statuses_changed": false,
+    "dependencies_changed": false,
+    "live_dolt_queried": false,
+    "live_dolt_synchronized": false
+  }
+}
