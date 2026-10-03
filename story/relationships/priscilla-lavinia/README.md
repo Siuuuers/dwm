@@ -7,6 +7,7 @@ when it matters to the task. Scene candidates remain `UNSELECTED` / `REACTION TE
 | Work | Owner | Boundary |
 |---|---|---|
 | Established pair guidance and attraction | [Relationship](relationship.md) | Handbook pair section transferred unchanged; Bible still owns history |
+| Return-driven pursuit and intended intensity | [Current guidance](relationship.md#5-return-driven-pursuit-and-lawful-intensity) | Owner direction; specific preparations, scenes and outcomes remain unselected |
 | Ordinary company, intimacy and possible partnership | [Intimacy and ordinary company](intimacy-and-ordinary-company.md) | Unplaced exploration, not a newly selected sexual history |
 | Early contact, jealousy carriers, Day 6 and ending options | [Seven-day options](seven-day-options.md) | Proposals are distinct from current Matrix and runtime rules |
 | Day 2 bar-to-portrait development | [Development](auditions/day-2-portrait-development.md) | Whole alternatives, local revisions and unresolved transitions |
@@ -46,7 +47,24 @@ Read the [Matrix](../../07-seven-day-causal-matrix.md) for current placement and
 for the conditional tea/Room 2.17 and Day-6-only ending proposal. Neither mechanics
 nor invitation suppression changes merely because the proposal is preserved.
 
-## Capture checkpoint — 2026-10-01
+## Capture checkpoint — 2026-10-04
+
+**Coverage:** the latest return-driven-urgency and intensity clarification, the
+preceding challenge to “simply” wanting company, and the attributed working
+interpretations needed to apply them. [Relationship Section 5](relationship.md#5-return-driven-pursuit-and-lawful-intensity)
+owns the guidance; this entry links rather than duplicates it.
+**Destination:** direct documentation update to repository `master`, explicitly
+requested by the owner. This is a narrow guidance checkpoint, not capture of every
+intervening film/diary/VHS/bedtime audition or a claim that all local drafts have
+been imported.
+**Still open:** the particular separation preparations, full scene and ending
+selection, physical/language/performance review, older historical-audit gaps,
+whole-week comparison and runtime behavior. The Bible, transferred Handbook text,
+scene prose, and mechanical rules are unchanged. Validation here concerns the
+documentation diff, exact retained content, and new local links; creative
+performance and gameplay tests are **NOT RUN**.
+
+## Previous capture checkpoint — 2026-10-01
 
 **Coverage:** useful ideas from the supplied export, selected exact scenes, local reasons
 and alternatives; the nine distinct retained auditions; the unchanged pair guidance;
