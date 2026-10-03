@@ -921,6 +921,9 @@ jobs:
       - name: Exercise two-step ending History, Save and fresh Load
         timeout-minutes: 25
         run: python3 tools/testing/run_ending_reading_journey.py
+      - name: Verify Auto continuity across the manual nonfinal ending seam
+        timeout-minutes: 10
+        run: python3 tools/testing/run_ending_auto_journey.py
       - name: Upload ending reading reports, exact save bytes and screenshots
         if: always()
         uses: actions/upload-artifact@v4
