@@ -181,3 +181,20 @@ func test_playable_outcome_routing_only_reads_declared_frozen_result() -> void:
 			source.replace("Frozen.board_result", field), expected).ok, field)
 	assert_false(VALIDATOR.validate_text("res://dialogic/timelines/en/core/other.dtl",
 		source, expected).ok, "playable admission does not silently widen unrelated entry files")
+
+
+func test_every_registered_post_challenge_file_has_all_three_result_routes() -> void:
+	var partition: Dictionary = VALIDATOR.partition_by_master(_document())
+	var count := 0
+	for path: String in partition:
+		var expected: Array = partition[path]
+		if expected.size() != 1 or expected[0].role not in ["solo_post_challenge", "pair_post_challenge_scene"]: continue
+		count += 1
+		var source := FileAccess.get_file_as_string(path)
+		assert_true(VALIDATOR.validate_text(path, source, expected).ok, path)
+		for outcome: String in ["exploded", "perfect", "cleared"]:
+			var label: String = expected[0].label + "." + outcome
+			assert_true(source.contains("jump " + label + "\n"), path + ": " + outcome)
+			var missing := source.replace("label " + label + "\n", "")
+			assert_true(_has_code(VALIDATOR.validate_text(path, missing, expected), VALIDATOR.DTL_INVALID_JUMP), path)
+	assert_eq(count, 16, "all twelve Solo and four pair post-challenge entries are routed")

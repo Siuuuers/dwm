@@ -25,12 +25,6 @@ const PLAYABLE := {
 	"res://dialogic/timelines/en/core/hospital_faint.dtl": {
 		"labels": ["hospital.faint.shared", "hospital.faint.sylvia", "hospital.faint.ordinary"],
 		"conditions": ["if {Frozen.sylvia_eligible}:", "else:"]},
-	"res://dialogic/timelines/en/dating/solo/priscilla_day1_post_challenge.dtl": {
-		"labels": ["dating.solo.priscilla.day1.post_challenge.exploded",
-			"dating.solo.priscilla.day1.post_challenge.perfect",
-			"dating.solo.priscilla.day1.post_challenge.cleared"],
-		"conditions": ['if {Frozen.board_result} == "exploded":',
-			'elif {Frozen.board_result} == "perfect":', 'elif {Frozen.board_result} == "cleared":']},
 }
 
 
@@ -40,7 +34,7 @@ static func validate_text(path: String, text: String, expected: Array,
 	if text.is_empty():
 		return _result([_failure(DTL_EMPTY, 0, path + ": scene is empty")])
 	var blocks := {}
-	var playable: Dictionary = PLAYABLE.get(path, {})
+	var playable := _playable_policy(path, expected)
 	var jumps: Array[Dictionary] = []
 	var current := ""
 	var first_event := ""
@@ -107,6 +101,20 @@ static func validate_text(path: String, text: String, expected: Array,
 		if not blocks.has(label):
 			failures.append(_failure(DTL_MISSING_LABEL, 0, path + ": legacy " + str(label)))
 	return _result(failures)
+
+
+static func _playable_policy(path: String, expected: Array) -> Dictionary:
+	if PLAYABLE.has(path): return PLAYABLE[path]
+	if not path.begins_with("res://dialogic/timelines/en/dating/") or expected.size() != 1:
+		return {}
+	var entry: Dictionary = expected[0]
+	if entry.get("role") not in ["solo_post_challenge", "pair_post_challenge_scene"] \
+			or not str(entry.get("label", "")).ends_with(".post_challenge"):
+		return {}
+	var label: String = entry.label
+	return {"labels": [label + ".exploded", label + ".perfect", label + ".cleared"],
+		"conditions": ['if {Frozen.board_result} == "exploded":',
+			'elif {Frozen.board_result} == "perfect":', 'elif {Frozen.board_result} == "cleared":']}
 
 
 ## The first playable slice uses narrator text only. Reject Dialogic shortcodes,

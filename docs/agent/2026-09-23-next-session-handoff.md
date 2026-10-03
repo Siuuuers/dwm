@@ -36,8 +36,8 @@ challenge result. This does not authorize predicting results, changing gameplay
 consequences, or weakening supported Save/Load, recovery and History validation.
 Label scaffolding alone does not make production exact-caption saves available.
 
-The older next-work paragraphs below are historical navigation pending this
-candidate's cloud acceptance. Do not implement automatic no-Sylvia completion.
+The candidate below is pending cloud acceptance. Historical timed-hold receipts
+retain their original scope; do not implement automatic no-Sylvia completion.
 
 ## Current acceptance
 
@@ -216,17 +216,19 @@ retained PNGs is separate visual evidence; neither establishes whole-UI polish.
 
 ## Next bounded work
 
-Next under `dwm-vky.14`: one noncanonical no-Sylvia Schedule-Done Hospital
-presentation through the existing Hospital command/receipt owner. The native
-hold prerequisite is now accepted; do not repeat its focused or broad tests
-without a changed candidate or concrete unresolved risk.
+Current slice under `dwm-vky.14`: all fainting uses the shared Hospital DTL
+through the existing physical command/receipt owner, like ordinary Dating
+without a challenge. The owner explicitly superseded the no-Sylvia timed-hold
+proposal on 2026-10-03: no separate Continue and no automatic fade. Sylvia's
+accepted-appointment eligibility remains unchanged. Preserve physical completion,
+History and existing supported saves; failed settlement retries the retained
+coordinator without replaying dialogue or consequences. Cloud acceptance of
+this candidate is pending. The accepted native timed-hold infrastructure remains
+available for its separate approved uses.
 
-Replace the obsolete no-Sylvia notice/Continue contract together with its
-adapter and tests. Preserve physical completion and fresh Hospital History;
-prove Pause/resume and cancellation through this actual owner. Reuse the
-accepted native timer and Bridge custody. Fixture duration is explicitly
-noncanonical; do not invent production shot timing, prose or selectors.
-Arbitrary mid-hold Save/Load and ordered-ending History/restore remain separate.
+Minimal result-label routing is in scope; production prose and exhaustive authored
+variants are deferred. Arbitrary mid-hold Save/Load, condition-triggered exact-caption
+save support and ordered-ending History/restore remain separate.
 The [original source review](../../evidence/phase_2r/hospital_reading_2026_10_02/next-slice-source-review/next-work-proposal.md)
 remains historical planning, not current acceptance. Routine engineering needs
 no architecture interview; ask only when authored facts change the contract.
@@ -244,11 +246,10 @@ no architecture interview; ask only when authored facts change the contract.
    and approved scene amendment §§12.3–12.8 and 22.4. The bounded connected
    physical v2 Save/Load proof is accepted; preserve both it and the original
    catalogue-v1 journey, paused Settings F5/F9 and accepted Sylvia-present
-   Hospital proofs. Next, integrate the accepted captionless native hold through the real
-   no-Sylvia Hospital owner. Register every
-   new or touched mounted fixture in the cloud runner; file existence is not
-   execution. Keep the remaining notice/Continue conflict explicit; native Wait lifecycle
-   is accepted within the timed-hold receipt scope.
+   Hospital proofs. Validate the shared fainting dialogue for both Sylvia variants,
+   including technical completion Retry and the ordinary next-day boundary.
+   Register every new or touched mounted fixture in the cloud runner; file existence
+   is not execution. Native Wait lifecycle retains its separate timed-hold scope.
    Production registration stays disabled until its authored catalogue exists.
 3. Ask only if a newly evidenced wording/staging selector changes the authored
    projection contract. Known Solo inputs include friend/day/phase/tier/tone/

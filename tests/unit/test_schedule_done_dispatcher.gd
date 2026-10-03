@@ -25,6 +25,10 @@ const PRESENTATION_PORT := preload("res://tests/support/FakePresentationPort.gd"
 class FakeDayResolutionCoordinator:
 	var request_calls: Array[String] = []
 	var complete_calls := 0
+	var resume_calls := 0
+	var retained_receipt: Dictionary = {}
+	var consume_before_failure := false
+	var resume_result: Dictionary = {"ok": true, "code": &"plan_complete"}
 	var complete_depth := 0
 	var max_complete_depth := 0
 	var request_result: Dictionary = {"ok": true, "code": &"await_registered_command",
@@ -40,8 +44,16 @@ class FakeDayResolutionCoordinator:
 		request_calls.append(command_id)
 		return request_result.duplicate(true)
 
+	func get_last_presentation_completion() -> Dictionary:
+		return retained_receipt.duplicate(true)
+
+	func resume() -> Dictionary:
+		resume_calls += 1
+		return resume_result.duplicate(true)
+
 	func complete_presentation_stage() -> Dictionary:
 		complete_calls += 1
+		if complete_result.get("ok", false) or consume_before_failure: retained_receipt = {}
 		complete_depth += 1
 		max_complete_depth = maxi(max_complete_depth, complete_depth)
 		if nested_publish_port != null:
@@ -65,6 +77,8 @@ func before_each() -> void:
 	_coordinator = FakeDayResolutionCoordinator.new()
 	_hospital_port = PRESENTATION_PORT.new()
 	_dating_port = PRESENTATION_PORT.new()
+	for port: Object in [_hospital_port, _dating_port]:
+		port.completion_ready.connect(func(result: Dictionary): _coordinator.retained_receipt = result.receipt.duplicate(true))
 	if _dispatcher_script != null:
 		_dispatcher = _dispatcher_script.new()
 		var configured: Dictionary = _dispatcher.configure(
@@ -193,3 +207,45 @@ func test_failed_completion_retries_only_exact_retained_receipt_once() -> void:
 	assert_false(_dispatcher.retry_completion(completion).ok)
 	assert_eq(_coordinator.complete_calls, 2)
 	assert_eq(_hospital_port.get_requests(), [], "Retry never begins another presentation")
+
+
+func test_settled_completion_retries_forward_walk_without_recompleting_hospital() -> void:
+	if not _require_dispatcher(): return
+	var notices: Array[Dictionary] = []
+	_dispatcher.completion_dispatch_finished.connect(func(_result: Dictionary, completion: Dictionary):
+		notices.append(completion))
+	_coordinator.consume_before_failure = true
+	_coordinator.complete_result = {"ok": false, "code": &"later_checkpoint_failed"}
+	_hospital_port.publish_completion({"receipt_id": "settled-hospital"})
+	var completion: Dictionary = notices[0]
+	assert_true(_dispatcher.can_retry_completion(completion))
+	_coordinator.resume_result = {"ok": false, "code": &"later_checkpoint_failed_again"}
+	assert_false(_dispatcher.retry_completion(completion).ok)
+	assert_eq(_coordinator.complete_calls, 1, "settled Hospital is never completed twice")
+	assert_eq(_coordinator.resume_calls, 1)
+	assert_true(_dispatcher.can_retry_completion(completion), "forward refusal stays retryable")
+	_coordinator.resume_result = {"ok": true, "code": &"plan_complete"}
+	assert_true(_dispatcher.retry_completion(completion).ok)
+	assert_eq(_coordinator.resume_calls, 2)
+	assert_eq(_coordinator.complete_calls, 1)
+	assert_false(_dispatcher.can_retry_completion(completion))
+
+
+func test_retry_rejects_a_replaced_coordinator_receipt_in_both_modes() -> void:
+	if not _require_dispatcher(): return
+	var notices: Array[Dictionary] = []
+	_dispatcher.completion_dispatch_finished.connect(func(_result: Dictionary, completion: Dictionary):
+		notices.append(completion))
+	for consumed: bool in [false, true]:
+		_coordinator.consume_before_failure = consumed
+		_coordinator.complete_result = {"ok": false, "code": &"checkpoint_failed"}
+		_hospital_port.publish_completion({"receipt_id": "hospital-original"})
+		var completion: Dictionary = notices.back()
+		assert_true(_dispatcher.can_retry_completion(completion))
+		_coordinator.retained_receipt = {"receipt_id": "replacement"}
+		var complete_before: int = _coordinator.complete_calls
+		var resume_before: int = _coordinator.resume_calls
+		assert_false(_dispatcher.can_retry_completion(completion))
+		assert_false(_dispatcher.retry_completion(completion).ok)
+		assert_eq(_coordinator.complete_calls, complete_before)
+		assert_eq(_coordinator.resume_calls, resume_before)

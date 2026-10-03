@@ -2323,8 +2323,7 @@ func _admit_schedule_hospital_retry(scene: Node, command: Dictionary, session: D
 	if _retained_schedule_done_dispatcher == null \
 			or not _retained_schedule_done_dispatcher.can_retry_completion(completion): return false
 	var receipt: Dictionary = completion.get("receipt", {})
-	if receipt.get("receipt_id") != command.get("completion_transaction_id") \
-			or _retained_day_resolution_coordinator.get_last_presentation_completion() != receipt: return false
+	if receipt.get("receipt_id") != command.get("completion_transaction_id"): return false
 	var current: Dictionary = _target(&"GameState").capture_live_session()
 	return current.get("ok", false) and bool(current.value.get("active", false)) and current.value == session
 

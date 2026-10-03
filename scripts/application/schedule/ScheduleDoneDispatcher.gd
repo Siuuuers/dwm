@@ -31,7 +31,7 @@ extends RefCounted
 ## queued and dispatched immediately after the running call returns.
 
 const _COORDINATOR_METHODS: Array[String] = [
-	"request_schedule_done", "complete_presentation_stage",
+	"request_schedule_done", "complete_presentation_stage", "get_last_presentation_completion", "resume",
 ]
 const _PORT_METHODS: Array[String] = ["begin", "complete", "is_ready"]
 
@@ -45,6 +45,7 @@ var _dispatching := false
 signal completion_dispatch_finished(result: Dictionary, completion: Dictionary)
 var _queued_completions: Array[Dictionary] = []
 var _failed_completion: Dictionary = {}
+var _failed_continuation := &""
 
 
 func configure(day_resolution_coordinator: Object, hospital_port: Object,
@@ -112,25 +113,40 @@ func _on_completion_ready(completion_result: Dictionary, port: Object) -> void:
 ## Retry the exact failed dispatch using the coordinator's retained physical receipt.
 ## No port is re-emitted and no narrative playback is restarted.
 func retry_completion(completion: Dictionary) -> Dictionary:
-	if _dispatching or completion.is_empty() or completion != _failed_completion:
+	if not can_retry_completion(completion):
 		return {"ok": false, "code": &"stale_completion_retry"}
 	_queued_completions.append(completion.duplicate(true))
-	_drain_completions()
+	_drain_completions(_failed_continuation == &"resume")
 	return get_last_dispatch_result()
 
 
 func can_retry_completion(completion: Dictionary) -> bool:
-	return not _dispatching and not completion.is_empty() and completion == _failed_completion
+	if _dispatching or completion.is_empty() or completion != _failed_completion: return false
+	var retained: Dictionary = _coordinator.get_last_presentation_completion()
+	return (_failed_continuation == &"complete" and retained == completion.get("receipt", {})) \
+		or (_failed_continuation == &"resume" and retained.is_empty())
 
 
-func _drain_completions() -> void:
+func _drain_completions(resume_first: bool = false) -> void:
 	if _dispatching: return
 	_dispatching = true
 	var completed := {}
 	while not _queued_completions.is_empty():
 		completed = _queued_completions.pop_front()
-		_last_dispatch_result = _coordinator.call(&"complete_presentation_stage")
-		_failed_completion = {} if _last_dispatch_result.get("ok", false) else completed.duplicate(true)
+		var before: Dictionary = _coordinator.get_last_presentation_completion()
+		_last_dispatch_result = _coordinator.call(&"resume" if resume_first else &"complete_presentation_stage")
+		var after: Dictionary = _coordinator.get_last_presentation_completion()
+		_failed_completion = {}
+		_failed_continuation = &""
+		if not _last_dispatch_result.get("ok", false):
+			var receipt: Dictionary = completed.get("receipt", {})
+			# Only an observed exact receipt consumption authorizes forward recovery.
+			# A foreign replacement or an initially missing receipt grants no retry.
+			if not receipt.is_empty() and (resume_first or before == receipt):
+				if after.is_empty(): _failed_continuation = &"resume"
+				elif not resume_first and after == receipt: _failed_continuation = &"complete"
+			if _failed_continuation != &"": _failed_completion = completed.duplicate(true)
+		resume_first = false
 	_dispatching = false
 	completion_dispatch_finished.emit(_last_dispatch_result.duplicate(true), completed.duplicate(true))
 

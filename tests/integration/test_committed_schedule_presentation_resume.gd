@@ -28,9 +28,9 @@ const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 # SUBSTRATE. Real throughout: a GUID-isolated root, a real DesktopIssuerRootStore over real
 # JsonFileStorage, the real DesktopIdentityNonceIssuer, the production ScheduleActionRegistry, the
 # real GameStateScheduleCommitPort, a real GameState in the tree, and the real
-# DialogicPresentationOwnerAdapter over a real DialogicBridge. The ONLY fixture is the Plan-02
-# desktop-consequence source, which has no production implementation to use (DEVIATION-2/5) and
-# which plan line 532 explicitly authorises as a schema-exact test fixture.
+# DialogicPresentationOwnerAdapter over an explicit playback-boundary bridge double. The
+# Plan-02 desktop-consequence source is also a schema-exact fixture. Native Dialogic admission,
+# rendering and natural completion belong to the dedicated runtime and rendered journey suites.
 
 const COMMIT_PORT := preload("res://scripts/application/schedule/GameStateScheduleCommitPort.gd")
 const STATE_PORT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
@@ -66,7 +66,6 @@ var _state_port: RefCounted
 var _dating_port: RefCounted
 var _dating_owner: RefCounted
 var _hospital_port: RefCounted
-var _hospital_runtime: Node
 var _schedule_view: RefCounted
 ## Retained only so the Cut-9 crash can carry the Plan-02 consequence records across it; every
 ## other cut ignores it. See `_crash_from_document`.
@@ -131,13 +130,9 @@ func _boot() -> void:
 		_completions.append((result["receipt"] as Dictionary).duplicate(true)))
 
 	# A TRIGGERED Hospital presents as well, so a walk that passes through one needs the real
-	# narrative owner over a real bridge and explicit fake runtime to carry shared playback.
-	_bridge = load("res://autoload/DialogicBridge.gd").new()
+	# narrative owner over an explicit playback-boundary double. Native playback is proven separately.
+	_bridge = preload("res://tests/support/FakeHospitalTimelineBridge.gd").new()
 	add_child_autofree(_bridge)
-	_hospital_runtime = autofree(preload("res://tests/support/FakeDialogicRuntime.gd").new())
-	var runtime_adapter := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd").new()
-	assert_true(runtime_adapter.bind_runtime(_hospital_runtime).get("ok", false))
-	assert_true(_bridge.initialize(null, runtime_adapter).get("ok", false))
 	var narrative_owner: RefCounted = PRESENTATION_OWNER.new()
 	assert_true(narrative_owner.configure(_bridge).get("ok", false))
 	_hospital_port = HOSPITAL_PORT.new()
@@ -735,7 +730,7 @@ func _settle_hospital_presentation(begun_value: Dictionary) -> bool:
 		return false
 	_completions = []
 	assert_true(_bridge.has_active_playback(), "every faint starts shared Hospital playback")
-	_hospital_runtime.end_timeline()
+	_bridge.publish_fixture_completion()
 	if _completions.size() != 1:
 		assert_true(false, "the Hospital port published exactly one completion")
 		return false
@@ -840,6 +835,12 @@ func _seed_solo_source(friend_id: String, day: int, action_id: String) -> String
 	assert_true(offered.get("ok", false), str(offered))
 	if not offered.get("ok", false):
 		return ""
+	# Capture immutable offer facts at generation, before installing the accepted
+	# Contacts source. A persisted offer may not reconstruct them during restore.
+	var frozen := preload("res://scripts/narrative/ContactsFrozenContext.gd").capture_candidate(
+		_game_state.contacts, offered.value.candidate, _game_state.to_save_dict(), day)
+	assert_true(frozen.get("ok", false), str(frozen))
+	if not frozen.get("ok", false): return ""
 	var command: Dictionary = _command("open.%s.day%d" % [friend_id, day])
 	var found: Dictionary = _registry.find_record(action_id)
 	assert_true(found.get("ok", false), str(found))
@@ -852,6 +853,7 @@ func _seed_solo_source(friend_id: String, day: int, action_id: String) -> String
 	if not opened.get("ok", false):
 		return ""
 	_game_state.contacts = opened["value"]["candidate"]
+	_game_state.route_context = frozen.value.route_context
 	return str(opened["receipt"]["receipt_id"])
 
 

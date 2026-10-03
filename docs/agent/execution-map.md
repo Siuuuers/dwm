@@ -197,17 +197,19 @@ retains its original source `16484fe4eaecf3c49fe2fbb0f46a543a493b57bf`, tested m
 `885daae62be2ecdfd8f601cd1c6028eeb12c5243`, bytes and acceptance scope. That
 F5-only source did not admit Settings F9; the historical F9 receipt above is separate.
 
-Next under `dwm-vky.14`: one noncanonical no-Sylvia Schedule-Done Hospital
-presentation through the existing Hospital command/receipt owner. The native
-hold prerequisite is now accepted; do not repeat its focused or broad tests
-without a changed candidate or concrete unresolved risk.
+Current slice under `dwm-vky.14`: all fainting uses the shared Hospital DTL
+through the existing physical command/receipt owner, like ordinary Dating
+without a challenge. The owner explicitly superseded the no-Sylvia timed-hold
+proposal on 2026-10-03: no separate Continue and no automatic fade. Sylvia's
+accepted-appointment eligibility remains unchanged. Preserve physical completion,
+History and existing supported saves; failed settlement retries the retained
+coordinator without replaying dialogue or consequences. Cloud acceptance of
+this candidate is pending. The accepted native timed-hold infrastructure remains
+available for its separate approved uses.
 
-Replace the obsolete no-Sylvia notice/Continue contract together with its
-adapter and tests. Preserve physical completion and fresh Hospital History;
-prove Pause/resume and cancellation through this actual owner. Reuse the
-accepted native timer and Bridge custody. Fixture duration is explicitly
-noncanonical; do not invent production shot timing, prose or selectors.
-Arbitrary mid-hold Save/Load and ordered-ending History/restore remain separate.
+Minimal result-label routing is in scope; production prose and exhaustive authored
+variants are deferred. Arbitrary mid-hold Save/Load, condition-triggered exact-caption
+save support and ordered-ending History/restore remain separate.
 The [original source review](../../evidence/phase_2r/hospital_reading_2026_10_02/next-slice-source-review/next-work-proposal.md)
 remains historical planning, not current acceptance. Routine engineering needs
 no architecture interview; ask only when authored facts change the contract.

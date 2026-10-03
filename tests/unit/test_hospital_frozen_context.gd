@@ -167,26 +167,27 @@ func _command(context: Dictionary, suffix: String) -> Dictionary:
 	request["command_sha256"] = CANON.canonical_sha256(request).value.sha256
 	return request
 
-func test_owner_selects_native_notice_or_sylvia_timeline_using_only_frozen_context() -> void:
+func test_owner_uses_shared_timeline_for_both_frozen_sylvia_variants() -> void:
 	var bridge: Node = autofree(Bridge.new())
 	var owner := OWNER.new()
 	assert_true(owner.configure(bridge).ok)
 	assert_true(owner.configure_frozen_hospital_contexts().ok)
 	var ordinary := _context(false)
 	if ordinary.is_empty(): return
-	var notice := _command(ordinary, "notice")
-	var started := owner.begin_physical(notice)
+	var ordinary_command := _command(ordinary, "ordinary")
+	var started := owner.begin_physical(ordinary_command)
 	assert_true(started.ok, str(started))
-	assert_eq(bridge.starts, [], "ordinary fainting stays a native notice")
+	assert_eq(bridge.starts.size(), 1, "ordinary fainting starts the same native timeline")
+	assert_eq(bridge.starts[0].context, ordinary)
 	var sylvia := _context(true)
 	if sylvia.is_empty(): return
 	assert_true(owner.begin_physical(_command(sylvia, "sylvia")).ok)
-	assert_eq(bridge.starts.size(), 1)
-	assert_eq(bridge.starts[0].context, sylvia)
+	assert_eq(bridge.starts.size(), 2)
+	assert_eq(bridge.starts[1].context, sylvia)
 	var malformed := sylvia.duplicate(true)
 	malformed.presentation.fields.erase("sylvia_eligible")
 	assert_false(owner.begin_physical(_command(malformed, "malformed")).ok)
-	assert_eq(bridge.starts.size(), 1)
+	assert_eq(bridge.starts.size(), 2)
 
 func test_context_requires_exact_schema_source_set_and_matching_day() -> void:
 	var context := _context(false)
