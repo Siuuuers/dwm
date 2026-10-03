@@ -1128,6 +1128,7 @@ func begin_ending_caption_handoff(session_token: String) -> bool:
 			or not _has_caption() or caption_text.revealing or _review_offset != 0:
 		return false
 	_ending_caption_handoff = true
+	_had_caption = false
 	_line_waiting_for_text = true
 	_presented_line.clear()
 	_cancel_speech()

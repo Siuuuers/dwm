@@ -8,5 +8,5 @@ The third test leaf crosses the physical ending boundary. #id:fixture.ending.bou
 return
 
 label ending.sylvia.dark
-This second-step test caption enters while two prior leaves remain visible across the ending boundary. #id:fixture.ending.second
+The next ending begins with both prior captions retained. #id:fixture.ending.second
 return

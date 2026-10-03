@@ -348,10 +348,10 @@ func _ending_boundary_fixture() -> Dictionary:
 		signatures.append(built.signature)
 		var entry_id: String = built.signature.entry_id
 		assert_true(session.admit(entry_id, frame).ok)
-		var allocated: Dictionary = session.ledger.allocate_publication("fixture:ending", entry_id)
-		var line_id: String = session.catalogue[entry_id].lines[0].line_id
-		assert_true(session.ledger.publish_line("fixture:ending", allocated.value, entry_id, line_id).ok)
-		frontier = {"line_id": line_id, "publication_id": allocated.value}
+		for line: Dictionary in session.catalogue[entry_id].lines:
+			var allocated: Dictionary = session.ledger.allocate_publication("fixture:ending", entry_id)
+			assert_true(session.ledger.publish_line("fixture:ending", allocated.value, entry_id, line.line_id).ok)
+			frontier = {"line_id": line.line_id, "publication_id": allocated.value}
 		if index == 0:
 			session.completed(entry_id)
 			plan.playback_receipts["step:0"] = {"value": {"outcome": "completed", "timeline_completion_receipt_id": id + ":complete"}}
@@ -426,7 +426,7 @@ func test_ending_boundary_restore_rollback_retires_started_successor() -> void:
 	saved.reading_session.boundary = "between_entries"
 	saved.reading_session.frontier = {}
 	saved.reading_session.ledger.entry_contexts.erase("ending.sylvia.dark")
-	saved.reading_session.ledger.captions.resize(1)
+	saved.reading_session.ledger.captions.resize(preload("res://tests/support/EndingReadingFixture.gd").catalogue().entries[0].lines.size())
 	var subject := ReadingBoundaryBridge.new()
 	assert_true(subject.configure_reading_catalogue(preload("res://tests/support/EndingReadingFixture.gd").catalogue()).ok)
 	var backup: Dictionary = subject.capture_restore_state().value.backup
@@ -454,7 +454,7 @@ func test_ending_start_refusal_retry_preserves_preceding_history() -> void:
 	saved.boundary = "between_entries"
 	saved.frontier = {}
 	saved.ledger.entry_contexts.erase("ending.sylvia.dark")
-	saved.ledger.captions.resize(1)
+	saved.ledger.captions.resize(preload("res://tests/support/EndingReadingFixture.gd").catalogue().entries[0].lines.size())
 	var subject := ReadingBoundaryBridge.new()
 	assert_true(subject.configure_reading_catalogue(preload("res://tests/support/EndingReadingFixture.gd").catalogue()).ok)
 	var session := preload("res://scripts/narrative/SoloReadingSession.gd").new()
