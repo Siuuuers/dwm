@@ -1,0 +1,119 @@
+name: Timed hold red candidate
+'on':
+  push:
+    branches:
+    - codex/timed-hold-cloud-20261003
+permissions:
+  contents: read
+concurrency:
+  group: timed-hold-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  timed-hold-fixture:
+    name: Windows / timed hold isolated fixture
+    runs-on: windows-2022
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+        persist-credentials: true
+        ref: cdd08426e5d7f43aa2ad43caa508ab0d353018f6
+    - name: Prepare disposable checkout for credential cleanup
+      run: '$ErrorActionPreference = ''Stop''
+
+        # These legacy tooling gitlinks have no .gitmodules URLs. Git''s
+
+        # submodule foreach reads the index even with sparse checkout.
+
+        # The source commit and working files remain unchanged.
+
+        git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        git submodule foreach --recursive ''true''
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        '
+    - name: Install Godot 4.6.3 standard
+      run: "$ErrorActionPreference = 'Stop'\n$archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'\nInvoke-WebRequest -Uri\
+        \ 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile\
+        \ $archive\n# SHA256 published with the official 4.6.3-stable release asset.\n$expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'\n\
+        if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {\n  throw 'Godot\
+        \ archive checksum mismatch.'\n}\n$editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'\nExpand-Archive -LiteralPath\
+        \ $archive -DestinationPath $editor\n$console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'\nif (-not\
+        \ (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }\n\"GODOT_CONSOLE_PATH=$console\"\
+        \ | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8\n& $console --version\nif ($LASTEXITCODE -ne 0) { exit\
+        \ $LASTEXITCODE }\n"
+    - name: Import project
+      timeout-minutes: 8
+      run: "$ErrorActionPreference = 'Stop'\n$output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'\n$env:APPDATA = Join-Path\
+        \ $output 'import-user/appdata'\n$env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'\n$env:DWM_TEST_ROOT\
+        \ = Join-Path $output 'import-user/test-root'\nNew-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA,\
+        \ $env:DWM_TEST_ROOT | Out-Null\n& $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file\
+        \ \"$output/import.log\"\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\nif (Select-String -Path \"$output/import.log\"\
+        \ -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {\n  throw\
+        \ 'Project import reported script errors; inspect import.log.'\n}\n"
+    - name: Restore committed project settings after editor import
+      run: '# Dialogic''s editor scan rewrites its timeline lookup during import.
+
+        # Execute the committed configuration with the freshly imported assets.
+
+        git restore -- project.godot
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        '
+    - name: Run native timed hold fixture with strict named census
+      timeout-minutes: 10
+      run: "$ErrorActionPreference = 'Stop'\n$fixture = 'tests/integration/test_dialogic_timed_hold_runtime.gd'\n$expectedNames\
+        \ = @('test_normal_native_hold_waits_then_completes_once_without_caption_or_history', 'test_cancel_then_same_path_replacement_outlives_old_wait_deadline_without_stale_effects',\
+        \ 'test_native_pause_freezes_hold_and_resume_preserves_remaining_time', 'test_cancel_after_native_dispatch_retires_deferred_execute_before_same_path_restart')\n\
+        $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'\n$log = Join-Path $env:GITHUB_WORKSPACE '.godot/phase2r_logs/cloud-timed-hold-fixture.log'\n\
+        $report = Join-Path $output 'timed-hold-fixture.xml'\n& ./tools/testing/Invoke-IsolatedGodot.ps1 `\n    -SuiteId 'cloud-timed-hold-fixture'\
+        \ `\n    -LogName 'cloud-timed-hold-fixture.log' `\n    -EvidenceLogPath '.godot/ci/timed-hold-fixture.jsonl' `\n\
+        \    -TimeoutSeconds 240 `\n    -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=',\n        \"-gtest=res://$fixture\"\
+        , '-gexit', '-glog=2',\n        '-gjunit_xml_file=res://.godot/ci/timed-hold-fixture.xml')\n$engineResult = $LASTEXITCODE\n\
+        if (Test-Path -LiteralPath $log) { Get-Content -LiteralPath $log }\nif (-not (Test-Path -LiteralPath $report -PathType\
+        \ Leaf)) { throw 'TIMED_HOLD_JUNIT_MISSING' }\n[xml]$xml = Get-Content -LiteralPath $report -Raw\n$suites = @($xml.SelectNodes('//testsuite'))\n\
+        if ($suites.Count -ne 1 -or $suites[0].GetAttribute('name') -cne $fixture) {\n    throw 'TIMED_HOLD_EXACT_SCRIPT_REQUIRED'\n\
+        }\n$cases = @($suites[0].SelectNodes('./testcase'))\n$actualNames = @($cases | ForEach-Object { $_.GetAttribute('name')\
+        \ })\n$actualNameKey = ($actualNames | Sort-Object) -join \"`n\"\n$expectedNameKey = ($expectedNames | Sort-Object)\
+        \ -join \"`n\"\nif ($actualNameKey -cne $expectedNameKey) {\n    throw 'TIMED_HOLD_EXACT_NAMED_CASE_MULTISET_REQUIRED'\n\
+        }\nforeach ($case in $cases) {\n    if ($case.GetAttribute('classname') -cne $fixture) { throw 'TIMED_HOLD_CASE_CLASS_MISMATCH'\
+        \ }\n}\nif ($xml.SelectNodes('//skipped').Count -ne 0 -or\n    @($cases | Where-Object { $_.GetAttribute('status')\
+        \ -in @('skip','skipped','disabled') }).Count -ne 0) {\n    throw 'TIMED_HOLD_SKIPPED_CASE_FORBIDDEN'\n}\n$summary\
+        \ = [ordered]@{fixture=$fixture; expected_cases=$expectedNames.Count; actual_cases=$cases.Count;\n    failures=$xml.SelectNodes('//failure').Count;\
+        \ errors=$xml.SelectNodes('//error').Count;\n    engine_exit=$engineResult; names=$actualNames}\n$summary | ConvertTo-Json\
+        \ -Depth 4 | Set-Content -LiteralPath (Join-Path $output 'timed-hold-fixture-result.json') -Encoding utf8\nWrite-Host\
+        \ ('TIMED_HOLD_FIXTURE_RESULT ' + ($summary | ConvertTo-Json -Depth 4 -Compress))\nif (Select-String -LiteralPath\
+        \ $log -Pattern 'SCRIPT ERROR:|(?:^|\\s)ERROR:|Unicode parsing error|Unexpected NUL character|Parse Error:|ObjectDB\
+        \ instances leaked|Resources still in use' -Quiet) {\n    throw 'TIMED_HOLD_UNEXPECTED_RUNTIME_DIAGNOSTIC'\n}\nif\
+        \ ($engineResult -ne 0) { exit $engineResult }\nif ($xml.SelectNodes('//failure | //error').Count -ne 0) { throw 'TIMED_HOLD_GUT_FAILURE'\
+        \ }\n"
+    - name: Upload logs and test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: timed-hold-fixture-${{ github.run_id }}-${{ github.run_attempt }}
+        path: '.godot/ci/*.log
+
+          .godot/ci/*.jsonl
+
+          .godot/ci/*.json
+
+          .godot/ci/*.xml
+
+          .godot/ci/storage-refusal/
+
+          .godot/phase2r_logs/cloud-*.log
+
+          '
+        include-hidden-files: true
+        if-no-files-found: warn
+        retention-days: 7
