@@ -30,6 +30,16 @@ func _run() -> void:
 	if _reading_mode == "write": await _ending_write()
 	else: await _ending_read()
 
+func _wait_desktop(day: int) -> bool:
+	var game: Node = root.get_node("GameState")
+	for frame: int in 1800:
+		if game.day == day and current_scene != null and current_scene.find_child("ComputerDesktop", true, false) != null \
+			and not bool(root.get_node("SaveManager").get("_new_run_busy")):
+			await _frames()
+			return true
+		await process_frame
+	return _check(false, "canonical desktop day did not arrive: " + str(day))
+
 func _seed_ordered_plan() -> bool:
 	# Arrangement only: no timeline completion, Profile discovery or prior-step receipt is invented.
 	var game: Node = root.get_node("GameState")
