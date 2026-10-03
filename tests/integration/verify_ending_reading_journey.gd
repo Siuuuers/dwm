@@ -9,6 +9,7 @@ var _ending_completions: Array = []
 var _ending_texts: Array = []
 var _ending_stages: Dictionary = {}
 var _ending_failures: Array = []
+var _ending_native_events: Array = []
 
 func _run() -> void:
 	for argument: String in OS.get_cmdline_user_args():
@@ -29,6 +30,11 @@ func _run() -> void:
 		_ending_failures.append(failure.duplicate(true)))
 	bootstrap.get("_ending_playback_port").playback_completed.connect(func(completion: Dictionary) -> void:
 		_ending_completions.append(completion.duplicate(true)))
+	root.get_node("Dialogic").event_handled.connect(func(event: DialogicEvent) -> void:
+		if _ending_native_events.size() < 20:
+			var native: Node = root.get_node("Dialogic")
+			_ending_native_events.append({"index": native.current_event_idx, "generation": native.get_timeline_generation(),
+				"script": event.get_script().resource_path, "frame": Engine.get_process_frames()}))
 	root.get_node("Dialogic").Text.text_started.connect(func(info: Dictionary) -> void: _ending_texts.append(str(info.get("text", ""))))
 	var speech: Node = root.get_node("SystemTtsCoordinator")
 	speech.speech_admitted.connect(func(_token: int, _source: String) -> void: _speech_admissions += 1)
@@ -53,8 +59,30 @@ func _wait_line(line_id: String) -> bool:
 		"bridge_state": bridge.get_state(), "active_entry": bridge.get("_active_entry"),
 		"runtime_phase": diagnostic_runtime.get("_activity_phase"), "failures": _ending_failures,
 		"lifecycle": root.get_node("GameState")._run_lifecycle.to_dict(),
-		"completions": _ending_completions, "text_starts": _ending_texts}
+		"completions": _ending_completions, "text_starts": _ending_texts, "native_events": _ending_native_events}
+	var native: Node = root.get_node("Dialogic")
+	var index: int = native.current_event_idx
+	var event: Variant = native.current_timeline_events[index] if index >= 0 and index < native.current_timeline_events.size() else null
+	var event_detail := {}
+	if event != null:
+		event_detail = {"script": event.get_script().resource_path, "native_ready": event.event_node_ready,
+			"event_text": event.event_node_as_text, "finish_connected": event.event_finished.is_connected(native.handle_next_event),
+			"finish_connections": event.event_finished.get_connections().size()}
+		if event is DialogicTextEvent:
+			event_detail.merge({"text": event.text, "state": event.state, "execution_generation": event.get("_execution_generation")})
+	var caption_binding := {}
+	for key: String in ["_request_id", "_requested_path", "_runtime_generation", "_start_generation", "_caption_request", "_caption_generation", "_caption_token", "_caption_entry", "_caption_line", "_caption_publication"]:
+		caption_binding[key] = diagnostic_runtime.get(key)
+	var layer: Node = _caption_layer()
+	diagnostic["native"] = {"event_index": index, "event": event_detail, "event_count": native.current_timeline_events.size(),
+		"timeline_path": native.current_timeline.resource_path if native.current_timeline != null else "",
+		"generation": native.get_timeline_generation(), "ending": native.is_ending_timeline(), "paused": native.paused,
+		"tree_paused": paused, "text_sub_idx": native.current_state_info.get("text_sub_idx"),
+		"caption_binding": caption_binding, "layout_exists": layer != null,
+		"caption_visible": layer.caption_text.is_visible_in_tree() if layer != null else false,
+		"caption_text": layer.caption_text.get_parsed_text() if layer != null else ""}
 	_write_text(_reading_mode + "-line-timeout.json", JSON.stringify(diagnostic, "\t"))
+	await _capture_screen("ending-line-timeout")
 	return _check(false, "ending caption timeout: " + JSON.stringify(diagnostic))
 
 func _wait_desktop(day: int) -> bool:
