@@ -85,7 +85,13 @@ func push_to_jump_stack() -> void:
 func resume_from_last_jump() -> void:
 	var sub_timeline: DialogicTimeline = dialogic.current_timeline
 	var stack_info: Dictionary = dialogic.current_state_info['jump_stack'].pop_back()
-	dialogic.start_timeline(stack_info.timeline, stack_info.index+1)
+	if stack_info.timeline == sub_timeline:
+		# Returning from an internal label continues this admitted playback. Starting
+		# it again would publish a foreign generation and discard its frozen context
+		# and physical completion owner. handle_event retires the Return event normally.
+		dialogic.handle_event(stack_info.index+1)
+	else:
+		dialogic.start_timeline(stack_info.timeline, stack_info.index+1)
 	returned_from_jump.emit({'sub_timeline':sub_timeline, 'label':stack_info.label})
 
 

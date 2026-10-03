@@ -541,6 +541,11 @@ func test_artless_solo_group_and_twofriends_pre_and_post_select_nameless_style()
 func test_production_post_challenge_routes_each_frozen_result_to_only_its_own_label() -> void:
 	var entry_id := "dating.solo.priscilla.day1.post_challenge"
 	var visited: Array[String] = []
+	var starts: Array[bool] = []
+	var failures: Array[Dictionary] = []
+	runtime.timeline_started.connect(func(): starts.append(true))
+	bridge.entry_playback_failed.connect(func(_token: String, _entry: String, failure: Dictionary): failures.append(failure))
+	bridge.timeline_failed.connect(func(failure: Dictionary): failures.append(failure))
 	runtime.Jump.jumped_to_label.connect(func(info: Dictionary): visited.append(str(info.label)))
 	var count := 0
 	for result: String in ["exploded", "perfect", "cleared"]:
@@ -551,6 +556,10 @@ func test_production_post_challenge_routes_each_frozen_result_to_only_its_own_la
 		count += 1
 		await _wait_for_completion(count)
 		assert_eq(visited, [entry_id, entry_id + "." + result], "native DTL follows only the supplied committed result")
+		assert_eq(starts.size(), count, "same-timeline branch returns retain the one native playback generation")
+		assert_true(failures.is_empty(), "local jump/return never interrupts the ordinary playback owner")
+		assert_eq(completion.calls.size(), count, "each routed entry completes exactly once")
+		if completion.calls.size() != count: return
 		assert_eq(completion.calls[-1].completion_kind, &"natural_end")
 	assert_true(_text_events.is_empty(), "routing labels defer production prose")
 
