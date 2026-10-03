@@ -26,6 +26,7 @@ var _before_accept: Callable
 var _automatic_admission: Callable
 var _local_admission: Callable
 var _submitting := false
+var _accessibility_generation := 0
 
 func _enter_tree() -> void:
 	add_to_group("dialogic_input_policy")
@@ -46,6 +47,8 @@ func bind(caption: DialogicNode_DialogText, viewport_control: ScrollContainer, r
 	_viewport_control.get_v_scroll_bar().value_changed.connect(cancel_pending_accept)
 	if _runtime != null and _runtime.has_signal("dialogic_paused"):
 		_runtime.connect("dialogic_paused", _cancel_candidate)
+	if _runtime != null and _runtime.has_signal("dialogic_resumed"):
+		_runtime.connect("dialogic_resumed", _cancel_candidate)
 
 func bind_scene_input(control: Control) -> void:
 	_scene_input = control
@@ -54,6 +57,8 @@ func set_review_caption(control: Control) -> void:
 	_review_caption = control
 	if is_instance_valid(control) and not control.focus_exited.is_connected(_cancel_candidate):
 		control.focus_exited.connect(_cancel_candidate)
+	if is_instance_valid(control) and not control.visibility_changed.is_connected(_cancel_candidate):
+		control.visibility_changed.connect(_cancel_candidate)
 	retire_input()
 
 func _focus_caption() -> Control:
@@ -104,10 +109,33 @@ func retire_input() -> void:
 func _cancel_candidate() -> void:
 	_candidate.clear()
 	_fresh_page_source = ""
+	_retire_accessibility_accept()
 
 func cancel_pending_accept(_scroll_value: float = 0.0) -> void:
 	# Real scrollbar movement (including its native gutter) also cancels contact.
 	_candidate.clear()
+
+func _retire_accessibility_accept() -> void:
+	_accessibility_generation += 1
+	if is_instance_valid(_caption): _caption.queue_accessibility_update()
+	if is_instance_valid(_review_caption): _review_caption.queue_accessibility_update()
+
+## Capture both custody lifetime and native reveal identity; equal text is not identity.
+func capture_accessibility_accept(target: Control) -> Callable:
+	return _accessibility_accept.bind(target, _accessibility_generation, _caption.get_reveal_generation())
+
+func _accessibility_accept(_request: Variant, target: Control, generation: int, reveal_generation: int) -> void:
+	if generation != _accessibility_generation or not _admissible() \
+			or target != _focus_caption() or reveal_generation != _caption.get_reveal_generation() \
+			or not _contacts.is_empty() or not _page_contacts.is_empty() or _await_initial_neutral \
+			or Input.is_action_pressed(_action()) or _page_is_held(): return
+	if is_instance_valid(_input_custody) and _input_custody.has_method("get_physical_contacts") \
+			and not _input_custody.call("get_physical_contacts").is_empty(): return
+	target.grab_focus()
+	if generation != _accessibility_generation or target != _focus_caption(): return
+	_retire_accessibility_accept()
+	_candidate = {"generation": reveal_generation}
+	_submit(false)
 
 func _action() -> StringName:
 	return StringName(ProjectSettings.get_setting(ACTION_SETTING, "dialogic_default_action"))
@@ -127,12 +155,15 @@ func _process(_delta: float) -> void:
 		_candidate.clear()
 
 func _notification(what: int) -> void:
+	if what in [NOTIFICATION_PAUSED, NOTIFICATION_UNPAUSED, NOTIFICATION_DISABLED, NOTIFICATION_ENABLED]:
+		_retire_accessibility_accept()
 	if what in [NOTIFICATION_WM_WINDOW_FOCUS_OUT, NOTIFICATION_APPLICATION_FOCUS_OUT]:
 		_foreground = false
 		_cancel_candidate()
 		_fresh_key_event = 0
 	elif what in [NOTIFICATION_WM_WINDOW_FOCUS_IN, NOTIFICATION_APPLICATION_FOCUS_IN]:
 		_foreground = true
+		_retire_accessibility_accept()
 
 func _input(event: InputEvent) -> void:
 	if event.device == InputEvent.DEVICE_ID_EMULATION:

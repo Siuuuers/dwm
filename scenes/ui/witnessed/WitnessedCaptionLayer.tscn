@@ -1,13 +1,15 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/witnessed/WitnessedCaptionLayer.gd" id="1_layer"]
-[ext_resource type="Script" path="res://addons/dialogic/Modules/Text/node_dialog_text.gd" id="2_text"]
+[ext_resource type="Script" path="res://scripts/ui/witnessed/WitnessedAccessibleCaption.gd" id="2_text"]
 [ext_resource type="Script" path="res://scripts/ui/witnessed/WitnessedAcceptInput.gd" id="3_input"]
 [ext_resource type="Script" path="res://scripts/ui/witnessed/WitnessedSkipController.gd" id="4_skip"]
 [ext_resource type="Script" path="res://scripts/ui/witnessed/WitnessedTransportRail.gd" id="5_rail"]
 [ext_resource type="Script" path="res://scripts/ui/witnessed/WitnessedAutoController.gd" id="6_auto"]
 [ext_resource type="Script" path="res://scripts/ui/witnessed/WitnessedSourceCanvas.gd" id="7_canvas"]
 [ext_resource type="PackedScene" path="res://scenes/ui/witnessed/WitnessedTransportRecovery.tscn" id="8_recovery"]
+
+[ext_resource type="Script" path="res://scripts/ui/witnessed/WitnessedAccessibleReviewCaption.gd" id="9_review"]
 
 [node name="WitnessedCaptionLayer" type="Node"]
 script = ExtResource("1_layer")
@@ -90,6 +92,7 @@ fit_content = true
 scroll_active = false
 
 [node name="ReviewCurrent" type="RichTextLabel" parent="Canvas/Scroll/Stack"]
+script = ExtResource("9_review")
 visible = false
 layout_mode = 0
 mouse_filter = 2

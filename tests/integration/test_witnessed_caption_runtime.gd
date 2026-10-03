@@ -389,7 +389,7 @@ func _assert_single_text() -> void:
 	if nodes.size() != 1: return
 	assert_eq(nodes[0],caption.caption_text)
 	assert_true(caption.caption_text is DialogicNode_DialogText)
-	assert_eq(caption.caption_text.get_script().resource_path,"res://addons/dialogic/Modules/Text/node_dialog_text.gd","installed DialogText owns reveal")
+	assert_eq(caption.caption_text.get_script().get_base_script().resource_path,"res://addons/dialogic/Modules/Text/node_dialog_text.gd","installed DialogText still owns reveal beneath the accessibility adapter")
 	assert_true(get_tree().get_nodes_in_group("dialogic_name_label").is_empty(),"no separate speaker plate")
 	assert_true(layout.find_children("*NameLabel*","",true,false).is_empty())
 
@@ -1946,3 +1946,111 @@ func test_background_mixed_control_edges_and_review_pause_do_not_accept() -> voi
 	assert_eq(caption.get_caption_projection().review_offset, 1)
 	assert_eq(_stack_invariants(), before, "runtime pause denies underlying review and background gestures")
 	runtime.paused = false
+
+
+func _caption_accessibility_action(target: Control = null) -> Callable:
+	var mounted_target: Control = caption.caption_text if target == null else target
+	var provider: Callable = mounted_target.get("accept_action_provider")
+	return provider.call(mounted_target)
+
+func test_assistive_caption_accept_completes_then_advances_without_reusing_callback() -> void:
+	if not await _mount_root_accept_fixture("Current.\nFollowing."): return
+	var action := _caption_accessibility_action()
+	action.call(null)
+	action.call(null)
+	await _settle()
+	assert_eq(_finished, 1, "assistive activation finishes exactly the current reveal")
+	assert_eq(runtime.current_event_idx, 0, "the same activation cannot also advance")
+	runtime.Inputs.input_block_timer.stop()
+	action.call(null)
+	await _settle()
+	assert_eq(runtime.current_event_idx, 0, "the consumed callback stays retired in later frames")
+	_caption_accessibility_action().call(null)
+	await _settle()
+	assert_eq(runtime.current_event_idx, 1, "a fresh assistive action advances one native beat")
+	assert_true(caption.caption_text.revealing, "the successor retains its own reveal")
+
+func test_assistive_caption_callbacks_retire_on_hide_pause_and_same_text_replacement() -> void:
+	if not await _mount_root_accept_fixture("Current.\nFollowing."): return
+	var hidden_action := _caption_accessibility_action()
+	caption.caption_text.hide()
+	caption.caption_text.show()
+	await _settle()
+	hidden_action.call(null)
+	assert_eq(_finished, 0, "hide/show cannot resurrect a retained action")
+	var paused_action := _caption_accessibility_action()
+	runtime.paused = true
+	paused_action.call(null)
+	runtime.paused = false
+	await _settle()
+	paused_action.call(null)
+	assert_eq(_finished, 0, "Pause/resume cannot resurrect the source action")
+	var replaced_action := _caption_accessibility_action()
+	runtime.start_timeline(_timeline("Current.\nFollowing."))
+	await _settle()
+	runtime.Inputs.input_block_timer.stop()
+	replaced_action.call(null)
+	assert_true(caption.caption_text.revealing, "identical replacement text does not reuse reveal identity")
+	_caption_accessibility_action().call(null)
+	await _settle()
+	assert_false(caption.caption_text.revealing, "the replacement gets a fresh admitted action")
+	assert_eq(runtime.current_event_idx, 0)
+
+func test_assistive_caption_accept_rejects_held_contacts_and_passive_leaves() -> void:
+	if not await _mount_root_accept_fixture("Current.\nFollowing."): return
+	assert_true(caption.reproject_retained_captions(["Older.", "Previous."]))
+	await _settle()
+	caption.accept_input.capture_accessibility_accept(caption.previous).call(null)
+	assert_eq(_finished, 0, "a prior inspect-only leaf is not a Normal Accept target")
+	# A held non-Accept contact is tracked by the shared input owner too.
+	_parse_accept_key(true, false, KEY_A)
+	await _settle()
+	_caption_accessibility_action().call(null)
+	assert_eq(_finished, 0, "assistive input cannot overlap a physical contact")
+	_parse_accept_key(false, false, KEY_A)
+	await _settle()
+	_caption_accessibility_action().call(null)
+	await _settle()
+	assert_eq(_finished, 1, "neutral physical input permits a fresh assistive action")
+	assert_eq(runtime.current_event_idx, 0)
+
+func test_assistive_review_current_returns_to_live_caption_without_advancing() -> void:
+	if not await _mount_root_accept_fixture("One.\nTwo.\nThree.\nCurrent."): return
+	for step: int in 3: await _next_caption()
+	var finished_before := _finished
+	var event_before: int = runtime.current_event_idx
+	caption.call("_set_review_offset", 1)
+	await _settle()
+	assert_true(caption.review_current.visible)
+	var action := _caption_accessibility_action(caption.review_current)
+	action.call(null)
+	await _settle()
+	assert_false(caption.review_current.visible, "Normal Accept exits transient review first")
+	assert_true(caption.caption_text.visible)
+	assert_eq(_finished, finished_before, "returning to the live caption leaves its reveal unchanged")
+	assert_eq(runtime.current_event_idx, event_before)
+	action.call(null)
+	await _settle()
+	assert_eq(_finished, finished_before, "the former review target cannot accept the live caption")
+
+
+func test_assistive_caption_action_retired_by_real_input_custody_roundtrip() -> void:
+	if not await _mount_root_accept_fixture("Current.\nFollowing."): return
+	var input_owner := get_node("/root/InputManager")
+	var handle := {"generation": 1, "handle_id": "caption-assistive-custody",
+		"holder": &"canonical-pause", "reason": &"universal_pause"}
+	var before_suspend := _caption_accessibility_action()
+	assert_true(input_owner.begin_suspend(handle).ok)
+	var during_suspend := _caption_accessibility_action()
+	before_suspend.call(null)
+	during_suspend.call(null)
+	assert_eq(_finished, 0, "foreign custody refuses both retained and current source callbacks")
+	assert_true(input_owner.resume(handle).ok)
+	await _settle()
+	before_suspend.call(null)
+	during_suspend.call(null)
+	assert_eq(_finished, 0, "resuming custody does not resurrect either callback")
+	_caption_accessibility_action().call(null)
+	await _settle()
+	assert_eq(_finished, 1)
+	assert_eq(runtime.current_event_idx, 0)

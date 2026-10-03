@@ -143,6 +143,8 @@ func _ready() -> void:
 	_refresh_dating_overlay()
 	var runtime := get_node_or_null("/root/Dialogic")
 	accept_input.bind(caption_text, scroll, runtime)
+	caption_text.set("accept_action_provider", accept_input.capture_accessibility_accept)
+	review_current.set("accept_action_provider", accept_input.capture_accessibility_accept)
 	accept_input.bind_scene_input(background_input)
 	accept_input.bind_presentation_admission(_before_normal_accept, _automatic_line_admitted)
 	accept_input.bind_local_admission(_reading_source_admitted)
