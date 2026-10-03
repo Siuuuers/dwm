@@ -23,6 +23,17 @@ change its dependencies or claim Dolt synchronization. Implementation status and
 cloud acceptance below are separate; the handoff and source-bound receipt own
 their exact source, run and count evidence.
 
+## Minimal playable priority — owner correction, 3 October 2026
+
+All fainting uses one Hospital DTL with ordinary dialogue progression, no board
+and no separate Continue. Sylvia eligibility remains unchanged. Replace the
+no-Sylvia notice path with native playback; the accepted silent timer is not a
+required route. Production prose and comprehensive exact authored variants are
+deferred; result-based DTL labels use already committed frozen board facts.
+Preserve the promised save, recovery, History and physical-completion owners.
+Older queue rows below retain historical acceptance and will be reconciled with
+this candidate's cloud result; no Bead is closed by this priority correction.
+
 ## Current bounded checkpoint
 
 **Accepted bounded captionless timed hold.** Source

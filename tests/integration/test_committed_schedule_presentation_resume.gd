@@ -66,6 +66,7 @@ var _state_port: RefCounted
 var _dating_port: RefCounted
 var _dating_owner: RefCounted
 var _hospital_port: RefCounted
+var _hospital_runtime: Node
 var _schedule_view: RefCounted
 ## Retained only so the Cut-9 crash can carry the Plan-02 consequence records across it; every
 ## other cut ignores it. See `_crash_from_document`.
@@ -130,9 +131,13 @@ func _boot() -> void:
 		_completions.append((result["receipt"] as Dictionary).duplicate(true)))
 
 	# A TRIGGERED Hospital presents as well, so a walk that passes through one needs the real
-	# narrative owner over a real bridge to carry its notice or receipt-proven playback.
+	# narrative owner over a real bridge and explicit fake runtime to carry shared playback.
 	_bridge = load("res://autoload/DialogicBridge.gd").new()
 	add_child_autofree(_bridge)
+	_hospital_runtime = autofree(preload("res://tests/support/FakeDialogicRuntime.gd").new())
+	var runtime_adapter := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd").new()
+	assert_true(runtime_adapter.bind_runtime(_hospital_runtime).get("ok", false))
+	assert_true(_bridge.initialize(null, runtime_adapter).get("ok", false))
 	var narrative_owner: RefCounted = PRESENTATION_OWNER.new()
 	assert_true(narrative_owner.configure(_bridge).get("ok", false))
 	_hospital_port = HOSPITAL_PORT.new()
@@ -719,7 +724,7 @@ func _complete_begun(begun_value: Dictionary) -> bool:
 	return completed.get("ok", false)
 
 
-## Carries an awaiting ordinary HOSPITAL notice to a completed stage through the real owner.
+## Carries shared Hospital playback to a completed stage through the real owner.
 func _settle_hospital_presentation(begun_value: Dictionary) -> bool:
 	var command: Dictionary = begun_value["command"]
 	assert_eq(str(command["route_id"]), "hospital",
@@ -729,13 +734,8 @@ func _settle_hospital_presentation(begun_value: Dictionary) -> bool:
 	if not started.get("ok", false):
 		return false
 	_completions = []
-	assert_false(_bridge.has_active_playback(),
-		"an ordinary Hospital notice starts no Dialogic playback")
-	var acknowledged: Dictionary = _hospital_port.acknowledge_notice(
-		(started["value"] as Dictionary)["presentation_command"])
-	assert_true(acknowledged.get("ok", false), JSON.stringify(acknowledged))
-	if not acknowledged.get("ok", false):
-		return false
+	assert_true(_bridge.has_active_playback(), "every faint starts shared Hospital playback")
+	_hospital_runtime.end_timeline()
 	if _completions.size() != 1:
 		assert_true(false, "the Hospital port published exactly one completion")
 		return false

@@ -19,9 +19,6 @@ const RUNTIME_ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter
 const TIMELINE_ID := "hospital.faint"
 const OTHER_TIMELINE_ID := "contact.ordinary.lavinia.day1"
 
-class SylviaTimelineAdapter extends ADAPTER:
-	func _has_sylvia_hospital_witness(_context: Dictionary) -> bool: return true
-
 var _bridge: Node
 var _adapter: RefCounted
 var _runtime: DialogicGameHandler
@@ -100,7 +97,7 @@ func before_each() -> void:
 	assert_true(_bridge.initialize(null, _runtime_adapter).get("ok", false))
 	_bridge.timeline_started.connect(func(timeline_id: String, _path: String) -> void:
 		_started_timelines.append(timeline_id))
-	_adapter = SylviaTimelineAdapter.new()
+	_adapter = ADAPTER.new()
 	assert_true(_adapter.configure(_bridge).get("ok", false))
 	_adapter.physical_completion_ready.connect(func(receipt: Dictionary) -> void:
 		_ready_receipts.append(receipt.duplicate(true)))
@@ -555,29 +552,25 @@ func test_failure_observer_can_immediately_retry_without_reusing_the_retired_lay
 	assert_false(_bridge.has_active_playback())
 
 
-func test_ordinary_notice_ignores_stale_playback_and_replays_one_exact_receipt() -> void:
-	var owner: RefCounted = ADAPTER.new()
-	assert_true(owner.configure(_bridge).ok)
-	var receipts: Array[Dictionary] = []
-	owner.physical_completion_ready.connect(func(receipt: Dictionary): receipts.append(receipt))
+func test_ordinary_faint_uses_native_playback_and_one_exact_completion() -> void:
 	var command := _command()
-	var begun: Dictionary = owner.begin_physical(command)
+	var begun: Dictionary = _adapter.begin_physical(command)
 	assert_true(begun.ok, str(begun))
 	if not begun.ok: return
-	assert_true(_started_timelines.is_empty(), "ordinary fainting starts no DTL")
-	command.physical_token = begun.value.physical_token
-	owner._on_timeline_finished(TIMELINE_ID, {"ok": true})
-	owner._on_playback_failed(TIMELINE_ID, {"ok": false})
-	owner._on_playback_retired(TIMELINE_ID)
-	assert_true(receipts.is_empty(), "retired playback cannot acknowledge the notice")
-	var forged := command.duplicate(true)
+	assert_true(_bridge.has_active_playback(), "ordinary fainting owns shared DTL playback")
+	assert_true(_ready_receipts.is_empty(), "admission alone cannot complete Hospital")
+	await _end_runtime_timeline()
+	assert_eq(_ready_receipts.size(), 1)
+	if _ready_receipts.size() != 1: return
+	var receipt: Dictionary = _ready_receipts[0]
+	assert_false(receipt.result.has("notice_acknowledged"))
+	assert_true(_adapter.validate_physical_completion({"presentation_command": _canonical(command),
+		"physical_completion_receipt": receipt}).ok)
+	var forged := _canonical(command)
 	forged.physical_token += ".foreign"
-	assert_false(owner.complete_notice(forged).ok)
-	assert_true(owner.complete_notice(command).ok)
-	assert_eq(receipts.size(), 1)
-	assert_eq(receipts[0].result, {"notice_acknowledged": true})
-	assert_true(owner.complete_notice(command).ok, "durable completion may retry this receipt")
-	assert_eq(receipts.size(), 2)
-	assert_eq(receipts[0], receipts[1], "retry carries the identical physical result")
-	assert_false(owner.complete_notice(forged).ok, "settled notice still rejects changed identity")
-	assert_true(_started_timelines.is_empty())
+	assert_false(_adapter.validate_physical_completion({"presentation_command": forged,
+		"physical_completion_receipt": receipt}).ok)
+	assert_true(_adapter.begin_physical(command).ok, "settled admission reuses its exact command")
+	_runtime.timeline_ended.emit()
+	assert_eq(_native_starts, 1)
+	assert_eq(_ready_receipts.size(), 1, "duplicate native end cannot repeat completion")

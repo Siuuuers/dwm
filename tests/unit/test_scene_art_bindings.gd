@@ -27,12 +27,8 @@ class ViewProfile extends RefCounted:
 var _profile: ViewProfile
 
 class PhysicalPort extends RefCounted:
-	var notice_acks := 0
 	func begin(_request: Dictionary) -> Dictionary: return {"ok": true}
 	func complete(_request: Dictionary) -> Dictionary: return {"ok": true}
-	func acknowledge_notice(_command: Dictionary) -> Dictionary:
-		notice_acks += 1
-		return {"ok": true}
 	func pull_physical(_command: Dictionary) -> Dictionary:
 		var cells: Array = []
 		for index: int in range(324):
@@ -325,19 +321,18 @@ func test_actual_dating_host_keeps_art_left_and_fits_board_in_right_panel() -> v
 	assert_eq(Rect2(scene._challenge_content.position, scene._challenge_content.size), Rect2(0, 0, 1280, 720),
 		"a portrait-free challenge uses the whole stage")
 
-func test_ordinary_hospital_scene_shows_readable_notice_and_acknowledges_once() -> void:
+func test_ordinary_hospital_host_preserves_command_without_a_notice_button() -> void:
 	var port := PhysicalPort.new()
 	var scene: Control = load("res://scenes/hospital/HospitalScene.tscn").instantiate()
 	var command := {"context": {"kind": "hospital", "day": 2, "source_entry_ids": [], "miss_receipt_ids": []}}
 	assert_true(scene.configure_presentation(port, command).ok)
 	add_child_autofree(scene)
 	await get_tree().process_frame
-	assert_true(scene._notice_panel.visible)
-	assert_false(scene._message_label.text.strip_edges().is_empty())
-	assert_gte(scene._continue_button.custom_minimum_size.y, 48.0)
-	scene._continue_button.pressed.emit()
-	assert_eq(port.notice_acks, 1)
-	assert_true(scene._continue_button.disabled)
+	assert_true(scene.is_presentation_configured())
+	assert_eq(scene.get_presentation_projection(), command)
+	assert_eq(HOSPITAL.art_participants({}, command.context), [])
+	assert_true(scene.find_children("*", "Button", true, false).is_empty(),
+		"shared Dialogic playback owns advance; Hospital adds no separate dismissal")
 
 
 func test_hospital_requires_this_days_exact_saved_witness_sources() -> void:

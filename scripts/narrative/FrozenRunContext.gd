@@ -188,8 +188,7 @@ static func _hospital_reading(checkpoint: Dictionary, snapshot: Dictionary, read
 	var hospital := _hospital(route, {"active_resolution_plan": plan}, snapshot.contacts, snapshot.gameplay, true)
 	if not hospital.ok: return hospital
 	var request: Variant = route.get(HOSPITAL_KEY, {}).get("requests", {}).get(plan.get("resolution_id"))
-	if not request is Dictionary or request.context.presentation.fields.qualifying_cause != "schedule_done" \
-			or not request.context.presentation.fields.sylvia_eligible:
+	if not request is Dictionary or request.context.presentation.fields.qualifying_cause != "schedule_done":
 		return _fail(&"reading_physical_owner_mismatch")
 	var hashed := SCHEDULE_SCHEMA.canonical_sha256(request)
 	if not hashed.ok: return _fail(&"reading_physical_owner_mismatch")

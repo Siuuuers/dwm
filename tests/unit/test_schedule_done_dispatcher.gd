@@ -168,3 +168,28 @@ func test_a_completion_published_mid_dispatch_is_queued_never_nested() -> void:
 		"the mid-dispatch completion still gets dispatched afterward")
 	assert_eq(_coordinator.max_complete_depth, 1,
 		"the dispatcher never re-enters complete_presentation_stage")
+
+
+func test_failed_completion_retries_only_exact_retained_receipt_once() -> void:
+	if not _require_dispatcher(): return
+	var notices: Array[Dictionary] = []
+	_dispatcher.completion_dispatch_finished.connect(func(result: Dictionary, completion: Dictionary):
+		notices.append({"result": result, "completion": completion}))
+	_coordinator.complete_result = {"ok": false, "code": &"checkpoint_commit_failed"}
+	_hospital_port.publish_completion({"receipt_id": "completion-retry"})
+	assert_eq(_coordinator.complete_calls, 1)
+	assert_eq(notices.size(), 1)
+	if notices.size() != 1: return
+	var completion: Dictionary = notices[0].completion
+	assert_true(_dispatcher.can_retry_completion(completion))
+	var foreign := completion.duplicate(true)
+	foreign.receipt.receipt_id = "foreign"
+	assert_false(_dispatcher.retry_completion(foreign).ok)
+	assert_eq(_coordinator.complete_calls, 1)
+	_coordinator.complete_result = {"ok": true, "code": &"plan_complete", "value": {}}
+	assert_true(_dispatcher.retry_completion(completion).ok)
+	assert_eq(_coordinator.complete_calls, 2)
+	assert_false(_dispatcher.can_retry_completion(completion))
+	assert_false(_dispatcher.retry_completion(completion).ok)
+	assert_eq(_coordinator.complete_calls, 2)
+	assert_eq(_hospital_port.get_requests(), [], "Retry never begins another presentation")

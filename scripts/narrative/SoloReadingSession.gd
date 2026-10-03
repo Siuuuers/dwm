@@ -390,8 +390,7 @@ func _validate_frame(entry_id: String, context: Dictionary, completion_transacti
 	var stage := "hospital" if family == "hospital" else entry_id.get_slice(".", 4)
 	if context.get("expected_stage") != stage or context.get("transaction_id") != completion_transaction_id + ":" + stage:
 		return _fail(&"reading_context_invalid")
-	if family == "hospital" and (checked.value.fields.qualifying_cause != "schedule_done" \
-			or not checked.value.fields.sylvia_eligible):
+	if family == "hospital" and checked.value.fields.qualifying_cause != "schedule_done":
 		return _fail(&"reading_context_invalid")
 	return {"ok": true}
 

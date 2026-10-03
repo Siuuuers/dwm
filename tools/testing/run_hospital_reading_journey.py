@@ -80,7 +80,7 @@ def canonical(value: object) -> bytes:
     return json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":"), allow_nan=False).encode("utf-8")
 
 
-def validate_saved_authority(document: dict) -> dict:
+def validate_saved_authority(document: dict, *, with_sylvia: bool = True) -> dict:
     """Derive Hospital authority from the raw saved Run, independently of reports."""
     snapshot = document["current_snapshot"]["snapshot"]
     checkpoint = snapshot["narrative_checkpoint"]
@@ -114,12 +114,12 @@ def validate_saved_authority(document: dict) -> dict:
     fields = presentation["fields"]
     if fields["entry_id"] != HOSPITAL_ENTRY or fields["entry_role"] != "hospital" or (
         fields["day"] != 3 or fields["qualifying_cause"] != "schedule_done"
-        or fields["sylvia_eligible"] is not True or fields["sylvia_witness_receipt_id"] is not None
+        or fields["sylvia_eligible"] is not with_sylvia or fields["sylvia_witness_receipt_id"] is not None
         or fields["unfulfilled_record_ids"] != fields["accepted_record_ids"]
     ):
         raise RuntimeError("RECEIPT_PROVEN_SYLVIA_ELIGIBILITY_WITHOUT_EARLY_WITNESS_REQUIRED")
     schedule = [entry for entry in plan["committed_schedule"]["entries"] if entry["action_kind"] in ("solo", "group")]
-    if not schedule or request["context"]["source_entry_ids"] != sorted(entry["schedule_entry_id"] for entry in schedule) or (
+    if (with_sylvia and not schedule) or request["context"]["source_entry_ids"] != sorted(entry["schedule_entry_id"] for entry in schedule) or (
         fields["accepted_record_ids"] != sorted({entry["source_receipt_id"] for entry in schedule})
     ):
         raise RuntimeError("SAVED_HOSPITAL_MUST_BIND_COMMITTED_SCHEDULE_SOURCES")
@@ -131,8 +131,8 @@ def validate_saved_authority(document: dict) -> dict:
             raise RuntimeError("SAVED_HOSPITAL_MUST_BIND_ACCEPTED_CONTACTS_RECEIPTS")
         if source["participants"] == ["sylvia"]:
             sylvia.append(source)
-    if not sylvia:
-        raise RuntimeError("SAVED_HOSPITAL_REQUIRES_REAL_SYLVIA_SCHEDULE_SOURCE")
+    if bool(sylvia) is not with_sylvia:
+        raise RuntimeError("SAVED_HOSPITAL_ELIGIBILITY_MUST_MATCH_REAL_SYLVIA_SCHEDULE_SOURCE")
     command_hash = hashlib.sha256(canonical(request)).hexdigest()
     completion_id = request["completion_transaction_id"]
     token = "narrative_presentation." + hashlib.sha256(canonical(completion_id + "|" + command_hash)).hexdigest()
@@ -370,6 +370,7 @@ def validate_trace(reports: dict, evidence: Path) -> None:
 
 def validate_connected_proof(result: dict, evidence: Path, folder: Path) -> dict:
     reports = result["reports"]
+    with_sylvia = result["sylvia_eligible"]
     written, restored, forged = (reports[mode] for mode in MODES)
     validate_trace(reports, evidence)
     w, r = written["stages"], restored["stages"]
@@ -380,7 +381,8 @@ def validate_connected_proof(result: dict, evidence: Path, folder: Path) -> dict
             "EXPLICIT_NONCANONICAL_DAY3_HOSPITAL_AB_CATALOGUE_REQUIRED")
     for report in reports.values():
         require(report["catalogues"]["production_content"] is False and report["fixture"]["production_content"] is False
-                and report["catalogues"]["hospital"] == catalogue and report["fixture"] == written["fixture"],
+                and report["catalogues"]["hospital"] == catalogue and report["fixture"] == written["fixture"]
+                and report["fixture"]["sylvia_eligible"] is with_sylvia,
                 "EXACT_NONCANONICAL_FIXTURE_SCOPE_REQUIRED")
     require(written["fixture"]["days"] == {"prior_solo": 1, "empty_schedule": 2, "hospital": 3, "next_solo": 4}
             and written["fixture"]["condition"] == {"health": 0, "pressure": 10, "condition_effects_today": ["sequela"]},
@@ -389,7 +391,7 @@ def validate_connected_proof(result: dict, evidence: Path, folder: Path) -> dict
     saved_identity = file_identity(saved_path)
     require(saved_identity == {"bytes": written["slot_bytes"], "sha256": written["slot_sha256"]}, "RAW_SAVED_SLOT_REPORT_MISMATCH")
     raw = strict_json(saved_path.read_text(encoding="utf-8"))
-    authority = validate_saved_authority(raw)
+    authority = validate_saved_authority(raw, with_sylvia=with_sylvia)
     snapshot, checkpoint, command = (authority[key] for key in ("snapshot", "checkpoint", "command"))
     require(written["saved_checkpoint"] == checkpoint == w["saved"]["source"]["checkpoint"]
             and written["hospital_command"] == command == w["saved"]["source"]["command"],
@@ -413,6 +415,12 @@ def validate_connected_proof(result: dict, evidence: Path, folder: Path) -> dict
             and w["hospital_a"]["deferred_pair_preview"]["ok"] is True
             and w["hospital_a"]["deferred_pair_preview"]["value"]["required"] is False,
             "FRESH_HOSPITAL_A_AND_ACTUAL_ABSENT_DEFERRED_PAIR_REQUIRED")
+    for observation in (w["hospital_a"], w["saved"], r["loaded"]):
+        require(observation["ui"]["hospital_art_participants"] == (["sylvia"] if with_sylvia else [])
+                and observation["ui"]["scene_art"] == {"entry_id": HOSPITAL_ENTRY, "show_portraits": with_sylvia}
+                and observation["ui"]["faint_notice_visible"] is False
+                and observation["source"]["contacts"]["sylvia_hospital_witness_receipts"] == {},
+                "SHARED_CAPTION_SCENE_REQUIRES_RECEIPT_PROVEN_ART_WITHOUT_NOTICE_OR_EARLY_WITNESS")
     partial = w["paused_b"]
     transport = partial["transport"]
     validate_input(transport, ("Enter", "Escape"), HOSPITAL_LINES[0])
@@ -472,7 +480,7 @@ def validate_connected_proof(result: dict, evidence: Path, folder: Path) -> dict
             and durable == settled["durable_snapshot"] and settled["day"] == 4 and durable["lifecycle"]["day"] == 4
             and durable["contacts"] == settled["contacts"] and settled["history"]["ok"] is False
             and settled["gameplay"]["pending_hospital"] is False
-            and settled["contacts"]["solo_actions"]["solo:sylvia:day3"]["state"] == "RESOLVED_MISSED",
+            and (not with_sylvia or settled["contacts"]["solo_actions"]["solo:sylvia:day3"]["state"] == "RESOLVED_MISSED"),
             "ACTUAL_COMPLETION_REQUIRES_DURABLE_DAY4_SETTLEMENT_AND_RETIRED_HISTORY")
     require(len(settled["hospital_completions"]) == len(settled["physical_completions"]) == 1
             and restored["hospital_completions"] == settled["hospital_completions"]
@@ -491,7 +499,7 @@ def validate_connected_proof(result: dict, evidence: Path, folder: Path) -> dict
             and completion["physical_token"] == command["physical_token"] and completion["command_sha256"] == command["command_sha256"],
             "DURABLE_SETTLEMENT_MUST_RETAIN_EXACT_PHYSICAL_RECEIPT")
     witnesses = durable["contacts"]["sylvia_hospital_witness_receipts"]
-    require(len(witnesses) == 1 and all(witness["resolution_kind"] == "schedule_done" and witness["care_followup_day"] == 4
+    require(len(witnesses) == (1 if with_sylvia else 0) and all(witness["resolution_kind"] == "schedule_done" and witness["care_followup_day"] == 4
             and witness["source_receipt_id"] in command["context"]["presentation"]["fields"]["accepted_record_ids"]
             for witness in witnesses.values()), "ACTUAL_HOSPITAL_COMPLETION_MUST_EARN_SYLVIA_WITNESS")
     next_source = r["next_solo"]["source"]
@@ -510,7 +518,7 @@ def validate_connected_proof(result: dict, evidence: Path, folder: Path) -> dict
         expected = json.loads(json.dumps(snapshot))
         forged_checkpoint = expected["narrative_checkpoint"]
         if kind == "frame":
-            forged_checkpoint["frozen_context"]["presentation"]["fields"]["sylvia_eligible"] = False
+            forged_checkpoint["frozen_context"]["presentation"]["fields"]["sylvia_eligible"] = not with_sylvia
             forged_checkpoint["reading_session"]["ledger"]["entry_contexts"][HOSPITAL_ENTRY] = json.loads(json.dumps(forged_checkpoint["frozen_context"]))
         else:
             forged_checkpoint["reading_session"]["ledger"]["captions"][0]["beat"]["owning_entry_id"] = "hospital.faint.day4"
@@ -534,13 +542,13 @@ def validate_connected_proof(result: dict, evidence: Path, folder: Path) -> dict
             "independent_saved_run_forgeries_refused": ["frame", "caption"], "next_solo_day": 4}
 
 
-def run() -> int:
+def run_variant(with_sylvia: bool) -> dict:
     repository = Path(__file__).resolve().parents[2]
     output = cloud.make_directory(repository, repository / ".godot/ci/hospital-reading")
     folder = cloud.make_directory(repository, output / str(uuid4()))
     isolation = cloud.make_directory(repository, repository / ".godot/phase2r_tests" / str(uuid4()))
     result = {
-        "schema_version": 1,
+        "schema_version": 1, "sylvia_eligible": with_sylvia,
         "fixture_scope": (
             "Explicit noncanonical Hospital A/B and Solo prose; real Schedule-Done ingress, "
             "Pause Save, fresh restore, saved-Run forgery refusal, physical completion and next-day owners."
@@ -577,10 +585,11 @@ def run() -> int:
             ("XDG_CACHE_HOME", "cache"), ("DWM_TEST_ROOT", "test-root"),
         ):
             env[key] = str(cloud.make_directory(repository, isolation / suffix))
-        env.update({"LIBGL_ALWAYS_SOFTWARE": "1", "GALLIUM_DRIVER": "llvmpipe"})
+        env.update({"LIBGL_ALWAYS_SOFTWARE": "1", "GALLIUM_DRIVER": "llvmpipe",
+                    "DWM_HOSPITAL_SYLVIA": "yes" if with_sylvia else "no"})
         result["isolated_environment"] = {key: env[key] for key in (
             "XDG_DATA_HOME", "XDG_CONFIG_HOME", "XDG_CACHE_HOME", "DWM_TEST_ROOT",
-            "LIBGL_ALWAYS_SOFTWARE", "GALLIUM_DRIVER",
+            "LIBGL_ALWAYS_SOFTWARE", "GALLIUM_DRIVER", "DWM_HOSPITAL_SYLVIA",
         )}
         proof_log = folder / "user-dir-proof.log"
         proof = cloud.run_process([
@@ -631,13 +640,32 @@ def run() -> int:
         result["ended_at_utc"] = cloud.utc_now()
         result["ok"] = not result["failures"] and "validation" in result and result.get("write_seal_verified", False)
         cloud.write_json(folder / "result.json", result)
-        cloud.write_json(output / "result.json", result)
     for failure in result["failures"]:
         print(f"HOSPITAL_READING_CLOUD_FAIL: {failure}", flush=True)
     print("HOSPITAL_READING_CLOUD_RESULT: " + json.dumps({
         "ok": result["ok"], "artifact_root": str(folder),
         "checkout_sha": result.get("checkout_sha"), "failures": result["failures"],
     }), flush=True)
+    return result
+
+
+def run() -> int:
+    # Each eligibility variant owns a fresh profile; all three processes within
+    # that variant share only its explicitly retained writer evidence.
+    variants = {"with_sylvia": run_variant(True), "without_sylvia": run_variant(False)}
+    result = {"schema_version": 2, "ok": all(item["ok"] for item in variants.values()),
+              "variants": variants}
+    if result["ok"]:
+        require(variants["with_sylvia"]["user_dir"] != variants["without_sylvia"]["user_dir"],
+                "ELIGIBILITY_VARIANTS_REQUIRE_DISTINCT_PROFILES")
+        require(variants["with_sylvia"]["reports"]["write"]["catalogues"]["hospital"]
+                == variants["without_sylvia"]["reports"]["write"]["catalogues"]["hospital"],
+                "ELIGIBILITY_VARIANTS_MUST_REUSE_EXACT_SAME_HOSPITAL_DTL_CATALOGUE")
+    output = Path(__file__).resolve().parents[2] / ".godot/ci/hospital-reading"
+    cloud.write_json(output / "result.json", result)
+    print("HOSPITAL_READING_VARIANTS_RESULT: " + json.dumps({"ok": result["ok"],
+          "variants": {name: {"ok": item["ok"], "artifact_root": item["artifact_root"]}
+                       for name, item in variants.items()}}), flush=True)
     return 0 if result["ok"] else 1
 
 

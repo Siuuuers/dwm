@@ -25,7 +25,6 @@ extends RefCounted
 ## bytes reconstructs the SAME token instead of stranding the old one.
 
 const _STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
-const _HOSPITAL_ART := preload("res://scripts/ui/HospitalScene.gd")
 const _FROZEN_CONTEXT := preload("res://scripts/narrative/HospitalFrozenContext.gd")
 
 ## The owner kind this adapter declares. `HospitalPresentationPort` accepts only this value; the
@@ -179,12 +178,7 @@ func begin_physical(command: Dictionary) -> Dictionary:
 		"route_id": str(command["route_id"]),
 		"revision": _presentation_revision,
 	}
-	# Ordinary faints use the Hospital scene short notice. Only the receipt-proven
-	# Sylvia-present branch retains the authored Hospital timeline and its artwork.
-	var sylvia_hospital: Variant = _has_sylvia_hospital_witness(command["context"])
-	if timeline_id == "hospital.faint" and not bool(sylvia_hospital):
-		_in_flight[completion_id]["notice_only"] = true
-		return _ok({"physical_token": token, "command_sha256": command_sha256})
+	# Every faint uses the same native Hospital timeline and completion owner.
 	if timeline_id == "hospital.faint" and _bridge.has_method("begin_hospital_reading"):
 		var canonical := command.duplicate(true)
 		canonical["physical_token"] = token
@@ -207,49 +201,13 @@ func begin_physical(command: Dictionary) -> Dictionary:
 	return _ok({"physical_token": token, "command_sha256": command_sha256})
 
 
-## Completes the visible ordinary-faint notice without claiming Dialogic playback.
-func complete_notice(presentation_command: Dictionary) -> Dictionary:
-	var completion_id := str(presentation_command.get("completion_transaction_id", ""))
-	if not _in_flight.has(completion_id):
-		if _completed.has(completion_id):
-			var settled: Dictionary = _completed[completion_id]
-			if settled.get("result", {}).get("notice_acknowledged", false) and str(settled.get("command_sha256", "")) == str(presentation_command.get("command_sha256", "")) and str(settled.get("physical_token", "")) == str(presentation_command.get("physical_token", "")):
-				physical_completion_ready.emit(settled.duplicate(true))
-				return _ok({"completed": true, "replayed": true})
-		return _fail(&"physical_completion_untrusted", "no notice command is in flight", {})
-	var pending: Dictionary = _in_flight[completion_id]
-	if not bool(pending.get("notice_only", false)) \
-			or str(pending.get("command_sha256", "")) != str(presentation_command.get("command_sha256", "")) \
-			or str(pending.get("physical_token", "")) != str(presentation_command.get("physical_token", "")):
-		return _fail(&"physical_completion_untrusted", "the notice does not match the retained command", {})
-	_in_flight.erase(completion_id)
-	var receipt := {"owner_kind": OWNER_KIND, "physical_token": str(pending["physical_token"]),
-		"command_sha256": str(pending["command_sha256"]), "completion_transaction_id": completion_id,
-		"status": STATUS_COMPLETED, "result": {"notice_acknowledged": true}}
-	_completed[completion_id] = receipt.duplicate(true)
-	physical_completion_ready.emit(receipt.duplicate(true))
-	return _ok({"completed": true})
-
-
-func _has_sylvia_hospital_witness(context: Dictionary) -> bool:
-	if context.has("presentation"):
-		var checked := _FROZEN_CONTEXT.validate(context)
-		return checked.get("ok", false) and bool(checked.value.presentation.fields.sylvia_eligible)
-	var game: Node = _bridge.get_node_or_null("/root/GameState") if _bridge is Node and _bridge.is_inside_tree() else null
-	if game == null: return false
-	var contacts: Variant = game.get("contacts")
-	if not contacts is Dictionary: return false
-	var schedule: Dictionary = game._canonical_committed_schedule() if game.has_method("_canonical_committed_schedule") else {}
-	return _HOSPITAL_ART.art_participants(contacts, context, schedule) == ["sylvia"]
-
-
 ## Pause queries the retained owner, never a scene-authored readiness flag or cached timeline ID.
 func capture_pause_source() -> Dictionary:
 	if _bridge == null or not _bridge.has_method("capture_pause_frontier") or _in_flight.size() != 1:
 		return _fail(&"pause_source_unavailable", "no unique owned presentation", {})
 	var completion_id: String = str(_in_flight.keys()[0])
 	var pending: Dictionary = _in_flight[completion_id]
-	if bool(pending.get("notice_only", false)) or pending.route_id != "hospital":
+	if pending.route_id != "hospital":
 		return _fail(&"pause_source_unavailable", "this owner has no canonical Pause source", {})
 	var frontier: Dictionary = _bridge.capture_pause_frontier(str(pending.timeline_id))
 	if not frontier.get("ok", false): return frontier
@@ -264,7 +222,6 @@ func capture_pause_source() -> Dictionary:
 func _on_playback_retired(timeline_id: String) -> void:
 	for completion_id: Variant in _in_flight.keys():
 		var pending: Dictionary = _in_flight[completion_id]
-		if bool(pending.get("notice_only", false)): continue
 		if str(pending.timeline_id) == timeline_id:
 			_in_flight.erase(completion_id)
 
@@ -272,7 +229,6 @@ func _on_playback_retired(timeline_id: String) -> void:
 func _on_playback_failed(timeline_id: String, result: Dictionary) -> void:
 	for completion_id: Variant in _in_flight.keys():
 		var pending: Dictionary = _in_flight[completion_id]
-		if bool(pending.get("notice_only", false)): continue
 		if str(pending.timeline_id) == timeline_id:
 			_in_flight.erase(completion_id)
 			physical_completion_failed.emit(_fail(&"narrative_presentation_unavailable",
@@ -336,7 +292,7 @@ func _on_timeline_finished(timeline_id: String, result: Dictionary) -> void:
 	var completion_id := ""
 	for candidate: Variant in _in_flight:
 		var candidate_pending: Dictionary = _in_flight[candidate]
-		if bool(candidate_pending.get("notice_only", false)) or candidate_pending.has("semantic_command"): continue
+		if candidate_pending.has("semantic_command"): continue
 		if str(candidate_pending["timeline_id"]) == timeline_id:
 			completion_id = str(candidate)
 			break

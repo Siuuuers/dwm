@@ -185,6 +185,12 @@ $suites = @{
         'tests/unit/tooling/test_phase2r_schedule_gate.gd'
     )
     reading_delivery = @(
+        'tests/unit/test_dtl_master_structure.gd'
+        'tests/unit/test_schedule_done_dispatcher.gd'
+        'tests/unit/test_day_resolution_coordinator.gd'
+        'tests/unit/test_startup_route_publication.gd'
+        'tests/integration/test_committed_schedule_effect_order.gd'
+        'tests/integration/test_committed_schedule_presentation_resume.gd'
         'tests/unit/test_hospital_frozen_context.gd'
         'tests/unit/test_hospital_presentation_port.gd'
         'tests/unit/test_dialogic_presentation_owner_adapter.gd'

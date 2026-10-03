@@ -18,6 +18,27 @@ actual master ref and Beads before editing. The live master checked in this cont
 `6a5ddf1564870b43aa9140cad7e0e5b12e43f399`;
 this work did not change master. Normalized PR-base fields can be stale.
 
+## Owner scope correction — 3 October 2026
+
+The owner confirmed that **every fainting presentation uses the shared Hospital
+DTL and ordinary Dating-style caption progression, without a challenge or a
+Hospital-specific Continue button**. The final ordinary advance completes the
+presentation. The earlier suggestion of a timed “Recovered” toast was withdrawn;
+the captionless native hold is retained as tested infrastructure, not a required
+no-Sylvia route. Sylvia eligibility is unchanged: fainting prevents an accepted
+Sylvia solo appointment for that day. Her absence changes art/content, not the
+playback owner.
+
+Prioritize a minimal playable build with promised functions. Production prose
+and the comprehensive authored exact-variant catalogue are deferred. DTL labels
+may select placeholder result branches using the existing frozen, committed
+challenge result. This does not authorize predicting results, changing gameplay
+consequences, or weakening supported Save/Load, recovery and History validation.
+Label scaffolding alone does not make production exact-caption saves available.
+
+The older next-work paragraphs below are historical navigation pending this
+candidate's cloud acceptance. Do not implement automatic no-Sylvia completion.
+
 ## Current acceptance
 
 **Accepted bounded captionless timed hold.** Source

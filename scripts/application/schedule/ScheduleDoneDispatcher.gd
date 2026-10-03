@@ -42,7 +42,9 @@ var _dating_port: Object = null
 ## handler has nobody to return to.
 var _last_dispatch_result: Dictionary = {}
 var _dispatching := false
-var _queued_completions := 0
+signal completion_dispatch_finished(result: Dictionary, completion: Dictionary)
+var _queued_completions: Array[Dictionary] = []
+var _failed_completion: Dictionary = {}
 
 
 func configure(day_resolution_coordinator: Object, hospital_port: Object,
@@ -101,17 +103,36 @@ func get_last_dispatch_result() -> Dictionary:
 ## than recording, because a foreign publisher has no completion for THIS object to settle.
 ## `completion_failed` is required at `configure` but deliberately NOT connected: the coordinator
 ## owns the failure path, and a second listener would double-report it.
-func _on_completion_ready(_completion_result: Dictionary, port: Object) -> void:
-	if port != _hospital_port and port != _dating_port:
-		return
-	_queued_completions += 1
-	if _dispatching:
-		return
+func _on_completion_ready(completion_result: Dictionary, port: Object) -> void:
+	if port != _hospital_port and port != _dating_port: return
+	_queued_completions.append(completion_result.duplicate(true))
+	_drain_completions()
+
+
+## Retry the exact failed dispatch using the coordinator's retained physical receipt.
+## No port is re-emitted and no narrative playback is restarted.
+func retry_completion(completion: Dictionary) -> Dictionary:
+	if _dispatching or completion.is_empty() or completion != _failed_completion:
+		return {"ok": false, "code": &"stale_completion_retry"}
+	_queued_completions.append(completion.duplicate(true))
+	_drain_completions()
+	return get_last_dispatch_result()
+
+
+func can_retry_completion(completion: Dictionary) -> bool:
+	return not _dispatching and not completion.is_empty() and completion == _failed_completion
+
+
+func _drain_completions() -> void:
+	if _dispatching: return
 	_dispatching = true
-	while _queued_completions > 0:
-		_queued_completions -= 1
+	var completed := {}
+	while not _queued_completions.is_empty():
+		completed = _queued_completions.pop_front()
 		_last_dispatch_result = _coordinator.call(&"complete_presentation_stage")
+		_failed_completion = {} if _last_dispatch_result.get("ok", false) else completed.duplicate(true)
 	_dispatching = false
+	completion_dispatch_finished.emit(_last_dispatch_result.duplicate(true), completed.duplicate(true))
 
 
 static func _has_methods(target: Object, methods: Array[String]) -> bool:

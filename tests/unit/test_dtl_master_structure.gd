@@ -154,3 +154,30 @@ func test_comments_with_hazard_text_remain_inert() -> void:
 	var comments := "# res://asset\n# user://asset\n# load(asset)\n# GameState.change()\n"
 	var result := VALIDATOR.validate_text("fixture", comments + _scene() + comments, _entry(), ["history"])
 	assert_true(result["ok"], str(result["failures"]))
+
+
+func test_playable_scene_rejects_foreign_jumps_and_untrusted_expression_events() -> void:
+	var path := ROOT + "core/hospital_faint.dtl"
+	var source := FileAccess.get_file_as_string(path)
+	var expected: Array = VALIDATOR.partition_by_master(_document())[path]
+	assert_true(VALIDATOR.validate_text(path, source, expected).ok)
+	var missing := source.replace("label hospital.faint.shared", "label hospital.faint.missing")
+	assert_true(_has_code(VALIDATOR.validate_text(path, missing, expected), VALIDATOR.DTL_INVALID_JUMP))
+	for event: String in ["jump res://foreign.dtl/entry", "jump hospital.faint.day1",
+			"if {GameState.day}:", "if {Frozen.sylvia_eligible} or true:",
+			'[signal arg="history.line.witness"]', '[wait time="2"]',
+			"GameState.advance_day()", "{GameState.advance_day()}", "- Continue"]:
+		var altered := source.replace("You wake in the treatment room.", event)
+		assert_false(VALIDATOR.validate_text(path, altered, expected).ok, event)
+
+
+func test_playable_outcome_routing_only_reads_declared_frozen_result() -> void:
+	var path := ROOT + "dating/solo/priscilla_day1_post_challenge.dtl"
+	var source := FileAccess.get_file_as_string(path)
+	var expected: Array = VALIDATOR.partition_by_master(_document())[path]
+	assert_true(VALIDATOR.validate_text(path, source, expected).ok)
+	for field: String in ["Frozen.tone", "GameState.board_result", "Frozen.relationship_outcome"]:
+		assert_false(VALIDATOR.validate_text(path,
+			source.replace("Frozen.board_result", field), expected).ok, field)
+	assert_false(VALIDATOR.validate_text("res://dialogic/timelines/en/core/other.dtl",
+		source, expected).ok, "playable admission does not silently widen unrelated entry files")

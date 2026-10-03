@@ -6,6 +6,7 @@ const HOSPITAL_FIXTURE := preload("res://tests/support/HospitalReadingFixture.gd
 const FROZEN_RUN := preload("res://scripts/narrative/FrozenRunContext.gd")
 const HOSPITAL_ENTRY := "hospital.faint.day3"
 const NEXT_CATALOGUE := "res://tests/fixtures/dialogic/hospital_next_solo_catalogue.json"
+var _with_sylvia := true
 var _hospital_stages: Dictionary = {}
 var _hospital_completions: Array = []
 var _physical_completions: Array = []
@@ -14,6 +15,9 @@ var _catalogue_documents: Dictionary = {}
 var _hospital_owner_events: Array = []
 
 func _run() -> void:
+	var variant := OS.get_environment("DWM_HOSPITAL_SYLVIA").strip_edges()
+	if not _check(variant in ["", "yes", "no"], "explicit Hospital Sylvia variant"): return
+	_with_sylvia = variant != "no"
 	for argument: String in OS.get_cmdline_user_args():
 		if argument.begins_with("--hospital-reading-mode="):
 			_reading_mode = argument.trim_prefix("--hospital-reading-mode=")
@@ -111,8 +115,12 @@ func _hospital_write() -> void:
 	# opened or suppressed; the coordinator owns any canonical required work.
 	if not await _schedule_done(): return
 	if not await _wait_desktop(3): return
-	if not await _unlock_invitation("sylvia", 3): return
-	if not await _schedule_friend("sylvia", 3): return
+	if _with_sylvia:
+		if not await _unlock_invitation("sylvia", 3): return
+		if not await _schedule_friend("sylvia", 3): return
+	else:
+		_inject_faint_condition()
+		if not await _schedule_done(): return
 	if not await _wait_line("fixture.hospital.a"): return
 	var first := _observe()
 	var state_port: Object = root.get_node("ApplicationBootstrap").get("_retained_day_resolution_state_port")
@@ -121,11 +129,11 @@ func _hospital_write() -> void:
 	if not _check(first.source.history.captions.size() == 1
 		and first.source.history.captions[0].line_id == "fixture.hospital.a"
 		and first.source.history.session_id != prior.source.history.session_id
-		and first.source.command.context.presentation.fields.sylvia_eligible
+		and first.source.command.context.presentation.fields.sylvia_eligible == _with_sylvia
 		and first.source.command.context.presentation.fields.sylvia_witness_receipt_id == null
 		and first.deferred_pair_preview.get("ok", false)
 		and first.deferred_pair_preview.value.required == false,
-		"new Hospital session publishes only A with receipt-proven Sylvia and no deferred pair"): return
+		"new Hospital session publishes only A with receipt-proven eligibility and no deferred pair"): return
 	if not _check(bridge.get("_runtime_adapter").reveal_current_line(true).get("ok", false), "arrange completed Hospital A"): return
 	var transport := await _hospital_advance_and_pause()
 	var entered := _observe()
@@ -142,7 +150,7 @@ func _hospital_write() -> void:
 	report["slot_sha256"] = str(disk.value).sha256_text()
 	report["slot_bytes"] = str(disk.value).to_utf8_buffer().size()
 	if not _check(_write_text("write.json", JSON.stringify(report, "\t")), "retain Hospital writer report"): return
-	print("HOSPITAL_READING_WRITE_PASS: real prior Solo -> lawful retirement -> Schedule-Done Sylvia Hospital -> partial B -> Pause/History/Cancel -> explicit Save")
+	print("HOSPITAL_READING_WRITE_PASS: real prior Solo -> lawful retirement -> Schedule-Done Hospital -> partial B -> Pause/History/Cancel -> explicit Save")
 	await _finish_proof()
 
 func _wait_desktop(day: int) -> bool:
@@ -286,10 +294,14 @@ func _schedule_friend(friend: String, day: int) -> bool:
 	if friend == "sylvia" and day == 3:
 		# Explicit condition fixture immediately before Schedule Done, matching the
 		# existing rendered ingress. Contacts and Schedule already own their receipts.
-		game.set_stat("health", 0)
-		game.set_stat("pressure", 10)
-		game.condition_effects_today.assign(["sequela"])
+		_inject_faint_condition()
 	return await _schedule_done()
+
+func _inject_faint_condition() -> void:
+	var game: Node = root.get_node("GameState")
+	game.set_stat("health", 0)
+	game.set_stat("pressure", 10)
+	game.condition_effects_today.assign(["sequela"])
 
 func _schedule_done() -> bool:
 	var desktop := _desktop()
@@ -338,7 +350,15 @@ func _ui_observation() -> Dictionary:
 	var focus: Control = root.gui_get_focus_owner()
 	var overlay: Variant = layer.get("_history_overlay") if layer != null else null
 	var button: Node = layer.transport_rail.get_node("History") if layer != null else null
-	return {"tree_paused": paused, "focus_owner": str(focus.get_path()) if is_instance_valid(focus) else "",
+	var command := {}
+	if current_scene != null and current_scene.has_method("get_presentation_projection"):
+		command = current_scene.get_presentation_projection()
+	var art: Array = []
+	if not command.is_empty():
+		art = preload("res://scripts/ui/HospitalScene.gd").art_participants({}, command.context)
+	var notice := current_scene.find_child("FaintNotice", true, false) if current_scene != null else null
+	return {"hospital_art_participants": art, "scene_art": bridge.get_current_scene_art(), "faint_notice_visible": is_instance_valid(notice) and notice.is_visible_in_tree(),
+		"tree_paused": paused, "focus_owner": str(focus.get_path()) if is_instance_valid(focus) else "",
 		"pause_visible": pause.surface.is_visible_in_tree(), "pause_entered_action": str(pause.surface.entered_action),
 		"history_open": bool(layer.get("_history_open")) if layer != null else false,
 		"history_focus": is_instance_valid(overlay) and is_instance_valid(focus) and overlay.is_ancestor_of(focus),
@@ -348,8 +368,8 @@ func _ui_observation() -> Dictionary:
 func _base_report() -> Dictionary:
 	return {"schema_version": 1, "mode": _reading_mode, "process_id": OS.get_process_id(),
 		"user_dir": ProjectSettings.globalize_path("user://"), "catalogues": _catalogue_documents.duplicate(true),
-		"fixture": {"production_content": false, "condition": {"health": 0, "pressure": 10, "condition_effects_today": ["sequela"]},
-			"condition_injection": "after real day3 Sylvia Contacts acceptance and Schedule placement, immediately before Done",
+		"fixture": {"production_content": false, "sylvia_eligible": _with_sylvia, "condition": {"health": 0, "pressure": 10, "condition_effects_today": ["sequela"]},
+			"condition_injection": "after real day3 Sylvia Contacts acceptance and Schedule placement, immediately before Done" if _with_sylvia else "empty day3 Schedule, immediately before Done",
 			"days": {"prior_solo": 1, "empty_schedule": 2, "hospital": 3, "next_solo": 4},
 			"forgery_scope": "one shared Hospital frame: coherent current/ledger forgery and foreign earlier caption; not an earlier-only-frame forgery"},
 		"stages": _hospital_stages.duplicate(true), "text_starts": _text_starts.duplicate(true),
@@ -496,8 +516,8 @@ func _hospital_read() -> void:
 	if not _check(_hospital_completions.size() == 1 and _physical_completions.size() == 1
 		and not settled.history.get("ok", false) and game.get_stat("health") == 6
 		and game.get_stat("pressure") == 3 and not game.pending_hospital
-		and game.contacts.solo_actions["solo:sylvia:day3"].state == "RESOLVED_MISSED"
-		and game.contacts.sylvia_hospital_witness_receipts.size() == 1
+		and (not _with_sylvia or game.contacts.solo_actions["solo:sylvia:day3"].state == "RESOLVED_MISSED")
+		and game.contacts.sylvia_hospital_witness_receipts.size() == (1 if _with_sylvia else 0)
 		and durable.lifecycle.day == 4 and durable.contacts == game.contacts,
 		"one native Hospital completion settles durably and retires its session on next-day desktop"): return
 	if not await _unlock_invitation("priscilla", 4): return
@@ -534,7 +554,7 @@ func _hospital_forge() -> void:
 		if kind == "frame":
 			# Coherent current+ledger-frame forgery. The one Hospital frame is shared
 			# by A and B; this is NOT an earlier-only-frame claim.
-			checkpoint.frozen_context.presentation.fields.sylvia_eligible = false
+			checkpoint.frozen_context.presentation.fields.sylvia_eligible = not _with_sylvia
 			checkpoint.reading_session.ledger.entry_contexts[HOSPITAL_ENTRY] = checkpoint.frozen_context.duplicate(true)
 		else:
 			checkpoint.reading_session.ledger.captions[0].beat.owning_entry_id = "hospital.faint.day4"
