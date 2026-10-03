@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="106" >
+  <testsuite name="tests/unit/test_ending_frozen_context.gd" tests="6" failures="0" skipped="0" time="0.095002" >
+      <testcase name="test_ending_seed_detaches_facts_and_has_no_future_step_identity" assertions="5" status="pass" classname="tests/unit/test_ending_frozen_context.gd" time="0.0013" >
+      </testcase>
+      <testcase name="test_later_step_requires_actual_preceding_completion_and_keeps_frozen_variant" assertions="8" status="pass" classname="tests/unit/test_ending_frozen_context.gd" time="0.018888" >
+      </testcase>
+      <testcase name="test_special_forced_dark_retains_stored_tone_and_alone_pair_omit_solo_fields" assertions="12" status="pass" classname="tests/unit/test_ending_frozen_context.gd" time="0.00361" >
+      </testcase>
+      <testcase name="test_cache_rejects_missing_reached_step_and_changed_seed_or_context" assertions="4" status="pass" classname="tests/unit/test_ending_frozen_context.gd" time="0.0033" >
+      </testcase>
+      <testcase name="test_game_owner_admits_ending_with_real_nullable_day_closures_and_retains_only_counted_pair_receipts" assertions="26" status="pass" classname="tests/unit/test_ending_frozen_context.gd" time="0.041795" >
+      </testcase>
+      <testcase name="test_game_owner_freezes_admission_then_checkpoints_exact_current_step_and_refuses_missing_seed" assertions="16" status="pass" classname="tests/unit/test_ending_frozen_context.gd" time="0.026109" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_day7_condition_ending.gd" tests="8" failures="0" skipped="0" time="1.165028" >
+      <testcase name="test_real_policy_captured_dark_mode_wins_and_raw_friend_tone_is_not_dark_mode" assertions="56" status="pass" classname="tests/unit/test_day7_condition_ending.gd" time="0.023736" >
+      </testcase>
+      <testcase name="test_source_refuses_changed_identity_sequence_prerequisites_and_condition" assertions="28" status="pass" classname="tests/unit/test_day7_condition_ending.gd" time="0.016647" >
+      </testcase>
+      <testcase name="test_later_sylvia_read_does_not_rewrite_the_frozen_hospital_cause" assertions="24" status="pass" classname="tests/unit/test_day7_condition_ending.gd" time="0.012421" >
+      </testcase>
+      <testcase name="test_failed_admission_rolls_back_outbox_contacts_and_run_then_saves_one_ordered_plan" assertions="48" status="pass" classname="tests/unit/test_day7_condition_ending.gd" time="0.995194" >
+      </testcase>
+      <testcase name="test_fresh_owner_resumes_saved_pending_source_and_published_ending_without_rechoosing" assertions="68" status="pass" classname="tests/unit/test_day7_condition_ending.gd" time="0.032227" >
+      </testcase>
+      <testcase name="test_condition_admission_refuses_done_and_keeps_raw_unknown_terminal_packet_refused" assertions="19" status="pass" classname="tests/unit/test_day7_condition_ending.gd" time="0.012805" >
+      </testcase>
+      <testcase name="test_boardless_shop_pending_load_rebuilds_all_live_children_and_can_load_twice_then_enter_ending" assertions="50" status="pass" classname="tests/unit/test_day7_condition_ending.gd" time="0.043052" >
+      </testcase>
+      <testcase name="test_pending_load_refuses_altered_source_and_candidate_but_leaves_published_ending_evidence_historical" assertions="35" status="pass" classname="tests/unit/test_day7_condition_ending.gd" time="0.028946" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_ending_completion_durability.gd" tests="3" failures="0" skipped="0" time="1.345475" >
+      <testcase name="test_causal_completion_commits_gallery_and_pair_witness_atomically_and_keeps_general_guard" assertions="33" status="pass" classname="tests/unit/test_ending_completion_durability.gd" time="0.124343" >
+      </testcase>
+      <testcase name="test_legacy_gallery_only_discovery_keeps_its_milestone_when_gallery_is_cleared" assertions="11" status="pass" classname="tests/unit/test_ending_completion_durability.gd" time="0.086026" >
+      </testcase>
+      <testcase name="test_terminal_admission_requires_source_then_rolls_back_failed_save_and_retries_same_design" assertions="27" status="pass" classname="tests/unit/test_ending_completion_durability.gd" time="1.135106" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_ending_presentation_signature.gd" tests="5" failures="0" skipped="0" time="0.104599" >
+      <testcase name="test_signature_uses_frozen_role_facts_and_refuses_changed_command" assertions="11" status="pass" classname="tests/unit/test_ending_presentation_signature.gd" time="0.003395" >
+      </testcase>
+      <testcase name="test_alone_and_pair_signatures_have_only_their_real_role_fields" assertions="9" status="pass" classname="tests/unit/test_ending_presentation_signature.gd" time="0.002938" >
+      </testcase>
+      <testcase name="test_special_maps_exact_full_entry_then_forced_dark_without_rewriting_stored_tone" assertions="11" status="pass" classname="tests/unit/test_ending_presentation_signature.gd" time="0.002269" >
+      </testcase>
+      <testcase name="test_compatible_plan_records_only_its_current_saved_presentation" assertions="4" status="pass" classname="tests/unit/test_ending_presentation_signature.gd" time="0.003868" >
+      </testcase>
+      <testcase name="test_predicted_fourth_pair_form_cannot_start_observer_until_actual_sweet_completion_is_durable" assertions="14" status="pass" classname="tests/unit/test_ending_presentation_signature.gd" time="0.092129" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_dialogic_ending_playback_port.gd" tests="12" failures="0" skipped="0" time="0.009072" >
+      <testcase name="test_port_script_exists" assertions="1" status="pass" classname="tests/unit/test_dialogic_ending_playback_port.gd" time="0.000354" >
+      </testcase>
+      <testcase name="test_initialize_accepts_bridge_and_rejects_replacement" assertions="4" status="pass" classname="tests/unit/test_dialogic_ending_playback_port.gd" time="0.000814" >
+      </testcase>
+      <testcase name="test_initialize_rejects_bad_bridge" assertions="1" status="pass" classname="tests/unit/test_dialogic_ending_playback_port.gd" time="0.000375" >
+      </testcase>
+      <testcase name="test_start_primary_returns_immediate_start_receipt" assertions="9" status="pass" classname="tests/unit/test_dialogic_ending_playback_port.gd" time="0.002659" >
+      </testcase>
+      <testcase name="test_start_epilogue_ok" assertions="1" status="pass" classname="tests/unit/test_dialogic_ending_playback_port.gd" time="0.000399" >
+      </testcase>
+      <testcase name="test_start_rejects_illegal_triples" assertions="4" status="pass" classname="tests/unit/test_dialogic_ending_playback_port.gd" time="0.000796" >
+      </testcase>
+      <testcase name="test_synchronous_bridge_failure_creates_no_binding" assertions="3" status="pass" classname="tests/unit/test_dialogic_ending_playback_port.gd" time="0.000686" >
+      </testcase>
+      <testcase name="test_completion_emits_playback_completed" assertions="4" status="pass" classname="tests/unit/test_dialogic_ending_playback_port.gd" time="0.000754" >
+      </testcase>
+      <testcase name="test_mismatched_token_does_not_complete" assertions="1" status="pass" classname="tests/unit/test_dialogic_ending_playback_port.gd" time="0.00034" >
+      </testcase>
+      <testcase name="test_async_failure_clears_binding_and_allows_restart" assertions="4" status="pass" classname="tests/unit/test_dialogic_ending_playback_port.gd" time="0.000788" >
+      </testcase>
+      <testcase name="test_concurrent_identical_start_returns_cached_result" assertions="3" status="pass" classname="tests/unit/test_dialogic_ending_playback_port.gd" time="0.00062" >
+      </testcase>
+      <testcase name="test_different_in_flight_returns_playback_in_progress" assertions="2" status="pass" classname="tests/unit/test_dialogic_ending_playback_port.gd" time="0.000487" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_run_lifecycle.gd" tests="14" failures="0" skipped="0" time="0.033849" >
+      <testcase name="test_day7_enters_ending_without_day8_or_rollover_stage" assertions="20" status="pass" classname="tests/unit/test_run_lifecycle.gd" time="0.005643" >
+      </testcase>
+      <testcase name="test_day3_full_resolution_increments_exactly_once" assertions="22" status="pass" classname="tests/unit/test_run_lifecycle.gd" time="0.003828" >
+      </testcase>
+      <testcase name="test_repeated_done_reuses_plan_and_conflict_rejects" assertions="7" status="pass" classname="tests/unit/test_run_lifecycle.gd" time="0.001261" >
+      </testcase>
+      <testcase name="test_restore_rejects_invalid_shapes" assertions="10" status="pass" classname="tests/unit/test_run_lifecycle.gd" time="0.001642" >
+      </testcase>
+      <testcase name="test_rollover_receipt_must_target_next_day" assertions="12" status="pass" classname="tests/unit/test_run_lifecycle.gd" time="0.002195" >
+      </testcase>
+      <testcase name="test_ending_playback_edges_and_terminal_completed" assertions="16" status="pass" classname="tests/unit/test_run_lifecycle.gd" time="0.002346" >
+      </testcase>
+      <testcase name="test_to_dict_shape_is_exact" assertions="16" status="pass" classname="tests/unit/test_run_lifecycle.gd" time="0.003119" >
+      </testcase>
+      <testcase name="test_dark_terminal_pending_lifecycle_round_trips" assertions="3" status="pass" classname="tests/unit/test_run_lifecycle.gd" time="0.002372" >
+      </testcase>
+      <testcase name="test_reset_rejects_id_only_or_mismatched_provenance_downstream" assertions="2" status="pass" classname="tests/unit/test_run_lifecycle.gd" time="0.000418" >
+      </testcase>
+      <testcase name="test_get_desktop_identity_context_shape" assertions="7" status="pass" classname="tests/unit/test_run_lifecycle.gd" time="0.001572" >
+      </testcase>
+      <testcase name="test_continuation_remap_installs_the_new_identity_and_provenance" assertions="23" status="pass" classname="tests/unit/test_run_lifecycle.gd" time="0.004254" >
+      </testcase>
+      <testcase name="test_continuation_remap_rejects_a_bundle_for_a_different_run" assertions="6" status="pass" classname="tests/unit/test_run_lifecycle.gd" time="0.00109" >
+      </testcase>
+      <testcase name="test_continuation_remap_rejects_a_blank_restore_transaction_id" assertions="5" status="pass" classname="tests/unit/test_run_lifecycle.gd" time="0.000913" >
+      </testcase>
+      <testcase name="test_continuation_remap_rejects_an_incomplete_bundle" assertions="21" status="pass" classname="tests/unit/test_run_lifecycle.gd" time="0.003196" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_dating_ending_rules.gd" tests="18" failures="0" skipped="0" time="0.011469" >
+      <testcase name="test_sylvia_special_precedes_a_valid_completed_candidate" assertions="4" status="pass" classname="tests/unit/test_dating_ending_rules.gd" time="0.000744" >
+      </testcase>
+      <testcase name="test_completed_candidate_resolves_dark" assertions="2" status="pass" classname="tests/unit/test_dating_ending_rules.gd" time="0.000504" >
+      </testcase>
+      <testcase name="test_completed_candidate_resolves_sweet" assertions="2" status="pass" classname="tests/unit/test_dating_ending_rules.gd" time="0.000468" >
+      </testcase>
+      <testcase name="test_no_candidate_resolves_alone" assertions="2" status="pass" classname="tests/unit/test_dating_ending_rules.gd" time="0.000448" >
+      </testcase>
+      <testcase name="test_non_attended_completion_is_not_a_candidate" assertions="2" status="pass" classname="tests/unit/test_dating_ending_rules.gd" time="0.000476" >
+      </testcase>
+      <testcase name="test_broken_chain_link_rejects" assertions="1" status="pass" classname="tests/unit/test_dating_ending_rules.gd" time="0.000313" >
+      </testcase>
+      <testcase name="test_candidate_friend_must_be_a_dateable_friend" assertions="1" status="pass" classname="tests/unit/test_dating_ending_rules.gd" time="0.000281" >
+      </testcase>
+      <testcase name="test_epilogue_plays_only_when_both_pl_windows_counted" assertions="2" status="pass" classname="tests/unit/test_dating_ending_rules.gd" time="0.000426" >
+      </testcase>
+      <testcase name="test_epilogue_is_absent_below_two" assertions="2" status="pass" classname="tests/unit/test_dating_ending_rules.gd" time="0.000387" >
+      </testcase>
+      <testcase name="test_epilogue_rejects_malformed_input" assertions="2" status="pass" classname="tests/unit/test_dating_ending_rules.gd" time="0.000381" >
+      </testcase>
+      <testcase name="test_build_ending_plan_composes_primary_and_epilogue" assertions="4" status="pass" classname="tests/unit/test_dating_ending_rules.gd" time="0.000786" >
+      </testcase>
+      <testcase name="test_build_ending_plan_without_epilogue_is_null" assertions="3" status="pass" classname="tests/unit/test_dating_ending_rules.gd" time="0.000567" >
+      </testcase>
+      <testcase name="test_validate_ending_plan_rejects_a_retired_true_primary" assertions="2" status="pass" classname="tests/unit/test_dating_ending_rules.gd" time="0.000382" >
+      </testcase>
+      <testcase name="test_next_playback_command_walks_the_stages" assertions="4" status="pass" classname="tests/unit/test_dating_ending_rules.gd" time="0.002036" >
+      </testcase>
+      <testcase name="test_next_playback_command_records_gallery_when_no_epilogue" assertions="1" status="pass" classname="tests/unit/test_dating_ending_rules.gd" time="0.000588" >
+      </testcase>
+      <testcase name="test_postscript_ids_are_canonical_but_not_primary" assertions="8" status="pass" classname="tests/unit/test_dating_ending_rules.gd" time="0.000982" >
+      </testcase>
+      <testcase name="test_resolve_postscript_requires_both_halves" assertions="3" status="pass" classname="tests/unit/test_dating_ending_rules.gd" time="0.001309" >
+      </testcase>
+      <testcase name="test_resolve_postscript_rejects_malformed_input" assertions="2" status="pass" classname="tests/unit/test_dating_ending_rules.gd" time="0.000391" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_dating_ending_rules_migration.gd" tests="5" failures="0" skipped="0" time="0.003634" >
+      <testcase name="test_dating_ending_rules_exists" assertions="1" status="pass" classname="tests/unit/test_dating_ending_rules_migration.gd" time="0.000267" >
+      </testcase>
+      <testcase name="test_primary_selection_precedence" assertions="6" status="pass" classname="tests/unit/test_dating_ending_rules_migration.gd" time="0.001094" >
+      </testcase>
+      <testcase name="test_friend_ending_tiers" assertions="4" status="pass" classname="tests/unit/test_dating_ending_rules_migration.gd" time="0.000805" >
+      </testcase>
+      <testcase name="test_recompute_synchronized_primary_demotes_pair_to_epilogue" assertions="4" status="pass" classname="tests/unit/test_dating_ending_rules_migration.gd" time="0.000758" >
+      </testcase>
+      <testcase name="test_invalid_inputs_reject" assertions="5" status="pass" classname="tests/unit/test_dating_ending_rules_migration.gd" time="0.00071" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_ordered_ending_playback.gd" tests="3" failures="0" skipped="0" time="0.006556" >
+      <testcase name="test_lifecycle_accepts_strict_ordered_plan_and_advances_each_index" assertions="21" status="pass" classname="tests/integration/test_ordered_ending_playback.gd" time="0.003625" >
+      </testcase>
+      <testcase name="test_ordered_plan_restore_refuses_tampered_cursor_and_role_order" assertions="5" status="pass" classname="tests/integration/test_ordered_ending_playback.gd" time="0.000968" >
+      </testcase>
+      <testcase name="test_ending_scene_chains_all_steps_then_drains_gallery_and_completion" assertions="8" status="pass" classname="tests/integration/test_ordered_ending_playback.gd" time="0.001963" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_ending_dialogic_wiring.gd" tests="11" failures="0" skipped="0" time="0.049869" >
+      <testcase name="test_initialize_loads_ending_manifest" assertions="4" status="pass" classname="tests/integration/test_ending_dialogic_wiring.gd" time="0.002605" >
+      </testcase>
+      <testcase name="test_start_primary_returns_six_field_receipt" assertions="13" status="pass" classname="tests/integration/test_ending_dialogic_wiring.gd" time="0.023884" >
+      </testcase>
+      <testcase name="test_start_epilogue_resolves_manifest" assertions="3" status="pass" classname="tests/integration/test_ending_dialogic_wiring.gd" time="0.002575" >
+      </testcase>
+      <testcase name="test_unknown_and_retired_ids_reject" assertions="10" status="pass" classname="tests/integration/test_ending_dialogic_wiring.gd" time="0.003118" >
+      </testcase>
+      <testcase name="test_role_mismatch_rejects" assertions="3" status="pass" classname="tests/integration/test_ending_dialogic_wiring.gd" time="0.002175" >
+      </testcase>
+      <testcase name="test_invalid_context_keys_reject" assertions="2" status="pass" classname="tests/integration/test_ending_dialogic_wiring.gd" time="0.002041" >
+      </testcase>
+      <testcase name="test_completion_emits_tokenized_finish" assertions="5" status="pass" classname="tests/integration/test_ending_dialogic_wiring.gd" time="0.002752" >
+      </testcase>
+      <testcase name="test_invalid_runtime_event_halts_and_fails_playback" assertions="5" status="pass" classname="tests/integration/test_ending_dialogic_wiring.gd" time="0.002829" >
+      </testcase>
+      <testcase name="test_postscript_start_accepts_only_postscript_role" assertions="8" status="pass" classname="tests/integration/test_ending_dialogic_wiring.gd" time="0.003016" >
+      </testcase>
+      <testcase name="test_postscript_finishes_with_its_own_token" assertions="3" status="pass" classname="tests/integration/test_ending_dialogic_wiring.gd" time="0.002397" >
+      </testcase>
+      <testcase name="test_configure_narrative_checkpoint_port_identity" assertions="5" status="pass" classname="tests/integration/test_ending_dialogic_wiring.gd" time="0.002477" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/scenario/test_day7_endings.gd" tests="6" failures="0" skipped="0" time="1.091799" >
+      <testcase name="test_stage_does_not_advance_until_matching_playback_completed" assertions="8" status="pass" classname="tests/scenario/test_day7_endings.gd" time="0.001797" >
+      </testcase>
+      <testcase name="test_mismatched_completion_does_not_advance" assertions="1" status="pass" classname="tests/scenario/test_day7_endings.gd" time="0.000422" >
+      </testcase>
+      <testcase name="test_duplicate_completion_advances_only_once" assertions="1" status="pass" classname="tests/scenario/test_day7_endings.gd" time="0.000463" >
+      </testcase>
+      <testcase name="test_configure_rejects_replacement_while_a_command_is_pending" assertions="1" status="pass" classname="tests/scenario/test_day7_endings.gd" time="0.000372" >
+      </testcase>
+      <testcase name="test_every_primary_and_epilogue_variant_completes_to_the_menu" assertions="120" status="pass" classname="tests/scenario/test_day7_endings.gd" time="0.998984" >
+      </testcase>
+      <testcase name="test_resume_at_every_stage_reproduces_the_same_next_command" assertions="16" status="pass" classname="tests/scenario/test_day7_endings.gd" time="0.089761" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/scenario/test_day7_schedule_provenance.gd" tests="15" failures="0" skipped="0" time="0.268636" >
+      <testcase name="test_receipt_backed_empty_done_checkpoints_the_exact_empty_done_provenance" assertions="31" status="pass" classname="tests/scenario/test_day7_schedule_provenance.gd" time="0.023135" >
+      </testcase>
+      <testcase name="test_one_eligible_committed_solo_checkpoints_the_exact_scheduled_solo_provenance" assertions="33" status="pass" classname="tests/scenario/test_day7_schedule_provenance.gd" time="0.021638" >
+      </testcase>
+      <testcase name="test_the_checkpointed_child_revalidates_through_the_issuer_that_derived_it" assertions="28" status="pass" classname="tests/scenario/test_day7_schedule_provenance.gd" time="0.020526" >
+      </testcase>
+      <testcase name="test_the_two_causes_derive_distinct_children_from_distinct_source_projections" assertions="51" status="pass" classname="tests/scenario/test_day7_schedule_provenance.gd" time="0.035522" >
+      </testcase>
+      <testcase name="test_an_unconfigured_service_fails_closed_before_the_day7_stage_mutates" assertions="16" status="pass" classname="tests/scenario/test_day7_schedule_provenance.gd" time="0.012635" >
+      </testcase>
+      <testcase name="test_a_group_destination_is_not_an_accepted_day7_cause" assertions="18" status="pass" classname="tests/scenario/test_day7_schedule_provenance.gd" time="0.017071" >
+      </testcase>
+      <testcase name="test_more_than_one_committed_entry_is_not_an_accepted_day7_cause" assertions="22" status="pass" classname="tests/scenario/test_day7_schedule_provenance.gd" time="0.021171" >
+      </testcase>
+      <testcase name="test_a_source_receipt_missing_from_the_contacts_index_is_refused" assertions="19" status="pass" classname="tests/scenario/test_day7_schedule_provenance.gd" time="0.017555" >
+      </testcase>
+      <testcase name="test_a_registry_that_moved_on_since_the_commit_is_refused" assertions="17" status="pass" classname="tests/scenario/test_day7_schedule_provenance.gd" time="0.013146" >
+      </testcase>
+      <testcase name="test_no_day8_aggregate_can_reach_the_handoff" assertions="10" status="pass" classname="tests/scenario/test_day7_schedule_provenance.gd" time="0.006415" >
+      </testcase>
+      <testcase name="test_a_receiptless_aggregate_is_not_an_accepted_cause" assertions="10" status="pass" classname="tests/scenario/test_day7_schedule_provenance.gd" time="0.006321" >
+      </testcase>
+      <testcase name="test_caller_authored_ending_or_relationship_fields_are_refused_as_extra_inputs" assertions="20" status="pass" classname="tests/scenario/test_day7_schedule_provenance.gd" time="0.01198" >
+      </testcase>
+      <testcase name="test_a_rewritten_cause_projection_cannot_reach_the_same_child" assertions="23" status="pass" classname="tests/scenario/test_day7_schedule_provenance.gd" time="0.022283" >
+      </testcase>
+      <testcase name="test_day7_stops_after_the_provenance_checkpoint_with_no_ending_and_no_board" assertions="33" status="pass" classname="tests/scenario/test_day7_schedule_provenance.gd" time="0.017141" >
+      </testcase>
+      <testcase name="test_no_day7_stage_carries_an_ending_plan_or_a_board_receipt" assertions="42" status="pass" classname="tests/scenario/test_day7_schedule_provenance.gd" time="0.022097" >
+      </testcase>
+  </testsuite>
+</testsuites>

@@ -10,7 +10,7 @@ execution_map: "docs/agent/execution-map.md"
 issue_authority: beads
 ---
 
-# Next-session handoff — 3 October 2026 (Hong Kong)
+# Next-session handoff — 3 October 2026 (UTC)
 
 Continue `Siuuuers/dwm` draft PR #1 on `codex/windows-cloud-ux`.
 Keep the PR draft and unmerged; do not change master. Verify the live branch,
@@ -40,6 +40,38 @@ The shared-fainting candidate is accepted below. Historical timed-hold receipts
 retain their original scope; do not implement automatic no-Sylvia completion.
 
 ## Current acceptance
+
+**Accepted bounded ordered-ending visible caption continuity.** Source
+`cdee58fc9fe7a218df9a6b1dbd64f7fa44f5ea49`; actual PR test merge
+`1afa1bea1eef66c4132157c377f70a52b25767a7`. [Cloud run 37134912094](https://github.com/Siuuuers/dwm/actions/runs/37134912094)
+passes 26/26 jobs and 2,596 primary cases across 13 XML reports, with zero
+failures, errors or skips. Focused run 37134358433 passes 5/5 jobs and 1,047
+primary cases on runtime source `2f236aa7099ca2aec51401bc936e3cb0179e5526`.
+The [caption continuity receipt](../../evidence/phase_2r/ending_caption_continuity_2026_10_03/receipt.json)
+retains exact artifacts, diagnostics, source reviews, hashes and limits.
+
+The existing native layout and caption layer retain up to two previous witnessed
+leaves across the qualified physical ending handoff. The existing ledger owns
+their identity and chronology; there is no second durable history or save schema.
+Fresh Load silently restores the same three-caption window and History without
+repeating earlier consequences. Cancellation, foreign replacement, explicit
+retirement and early revocation release the view; successor focus is reacquired.
+Both accepted rendered runs observe 40 post-draw frames, including 26 successor
+frames. Actual boundary/restored PNGs were inspected. This proves the bounded
+short-caption fixture, not all authored routes or long-caption geometry.
+
+Next: observe and prove Auto-On continuity across a nonfinal ending seam using
+the existing preference/controller, with fresh successor reveal and full delay.
+The [read-only next-slice review](../../evidence/phase_2r/ending_caption_continuity_2026_10_03/next-slice-review.md)
+separates mode retention from Auto triggering terminal Return; do not broaden
+generic scene-transition admission. No new architecture choice was identified.
+Production registration remains disabled; prose/exhaustive variants and full
+native input/accessibility remain deferred or separately unfinished. Hospital
+manual Save/Load remains disabled. All 23 unfinished Beads keep their statuses
+and dependencies; no live Dolt synchronization. PR stays draft/unmerged, master
+unchanged. The final records-only descendant is not separately engine-tested.
+
+## Prior ordered-ending History and exact Save/Load acceptance
 
 **Accepted bounded ordered-ending History and exact Save/Load.** Source
 `76f3ed115da83e51526efe65b1529ff5a9d086cb`; actual PR test merge

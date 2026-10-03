@@ -1,0 +1,715 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="334" >
+  <testsuite name="tests/unit/test_application_runtime_lifetime.gd" tests="3" failures="0" skipped="0" time="0.013087" >
+      <testcase name="test_off_tree_bootstrap_free_breaks_all_three_real_cycles" assertions="23" status="pass" classname="tests/unit/test_application_runtime_lifetime.gd" time="0.004955" >
+      </testcase>
+      <testcase name="test_tree_exit_then_delete_is_idempotent_and_releases_owned_graph" assertions="31" status="pass" classname="tests/unit/test_application_runtime_lifetime.gd" time="0.005524" >
+      </testcase>
+      <testcase name="test_repeated_explicit_release_and_partial_startup_free_are_safe" assertions="15" status="pass" classname="tests/unit/test_application_runtime_lifetime.gd" time="0.002608" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_application_bootstrap.gd" tests="11" failures="0" skipped="0" time="2.603004" >
+      <testcase name="test_project_autoload_order_is_the_exact_final_literal_sequence" assertions="1" status="pass" classname="tests/integration/test_application_bootstrap.gd" time="0.001849" >
+      </testcase>
+      <testcase name="test_master_stage_order_is_frozen" assertions="2" status="pass" classname="tests/integration/test_application_bootstrap.gd" time="0.00184" >
+      </testcase>
+      <testcase name="test_exactly_nine_targets_retain_one_shared_gate_identity" assertions="24" status="pass" classname="tests/integration/test_application_bootstrap.gd" time="0.23185" >
+      </testcase>
+      <testcase name="test_one_desktop_host_is_shared_by_route_restore_and_the_direct_checkpoint_provider" assertions="15" status="pass" classname="tests/integration/test_application_bootstrap.gd" time="0.20148" >
+      </testcase>
+      <testcase name="test_the_stable_active_app_callable_keeps_its_identity_and_returns_raw_json_values" assertions="16" status="pass" classname="tests/integration/test_application_bootstrap.gd" time="0.192651" >
+      </testcase>
+      <testcase name="test_the_retained_checkpoint_port_and_gate_are_shared_by_both_coordinators" assertions="21" status="pass" classname="tests/integration/test_application_bootstrap.gd" time="0.195651" >
+      </testcase>
+      <testcase name="test_day_resolution_installs_route_independent_eviction_before_desktop_mount" assertions="50" status="pass" classname="tests/integration/test_application_bootstrap.gd" time="0.234781" >
+      </testcase>
+      <testcase name="test_exactly_one_day_changed_connection_dispatches_one_eviction_command" assertions="22" status="pass" classname="tests/integration/test_application_bootstrap.gd" time="0.1994" >
+      </testcase>
+      <testcase name="test_a_missing_eviction_port_latches_one_primitive_validated_fatal" assertions="19" status="pass" classname="tests/integration/test_application_bootstrap.gd" time="0.196556" >
+      </testcase>
+      <testcase name="test_each_stage_failure_returns_one_fatal_result_and_never_reaches_readiness" assertions="70" status="pass" classname="tests/integration/test_application_bootstrap.gd" time="0.967422" >
+      </testcase>
+      <testcase name="test_new_acc_storage_settles_before_profile_and_failure_stops_all_consumers" assertions="15" status="pass" classname="tests/integration/test_application_bootstrap.gd" time="0.179524" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_desktop_day_change_fatal.gd" tests="4" failures="0" skipped="0" time="0.006545" >
+      <testcase name="test_host_change_day_eviction_command_shape" assertions="5" status="pass" classname="tests/integration/test_desktop_day_change_fatal.gd" time="0.001282" >
+      </testcase>
+      <testcase name="test_missing_eviction_port_latches_application_fatal" assertions="2" status="pass" classname="tests/integration/test_desktop_day_change_fatal.gd" time="0.000617" >
+      </testcase>
+      <testcase name="test_successful_dispatch_does_not_latch" assertions="2" status="pass" classname="tests/integration/test_desktop_day_change_fatal.gd" time="0.000514" >
+      </testcase>
+      <testcase name="test_nonprimitive_dispatch_failures_project_then_latch_application_fatal" assertions="20" status="pass" classname="tests/integration/test_desktop_day_change_fatal.gd" time="0.004132" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_contacts_frozen_context.gd" tests="8" failures="0" skipped="0" time="0.16093" >
+      <testcase name="test_offer_freezes_generation_facts_and_missing_history_is_not_recreated" assertions="14" status="pass" classname="tests/unit/test_contacts_frozen_context.gd" time="0.014081" >
+      </testcase>
+      <testcase name="test_ordinary_after_selection_and_echo_use_exact_saved_reply_and_original_tier" assertions="18" status="pass" classname="tests/unit/test_contacts_frozen_context.gd" time="0.094728" >
+      </testcase>
+      <testcase name="test_group_history_keeps_generation_phase_after_resolution_and_next_group" assertions="27" status="pass" classname="tests/unit/test_contacts_frozen_context.gd" time="0.028452" >
+      </testcase>
+      <testcase name="test_current_ordinary_freeze_is_durable_before_native_projection_and_failed_write_rolls_back" assertions="16" status="pass" classname="tests/unit/test_contacts_frozen_context.gd" time="0.005927" >
+      </testcase>
+      <testcase name="test_care_snapshot_names_real_witness_source_before_native_read_and_refuses_forgery" assertions="15" status="pass" classname="tests/unit/test_contacts_frozen_context.gd" time="0.007424" >
+      </testcase>
+      <testcase name="test_desktop_board_detached_candidate_carries_generated_offer_before_checkpoint" assertions="9" status="pass" classname="tests/unit/test_contacts_frozen_context.gd" time="0.003904" >
+      </testcase>
+      <testcase name="test_failed_generation_freeze_leaves_live_unlock_and_contacts_untouched" assertions="6" status="pass" classname="tests/unit/test_contacts_frozen_context.gd" time="0.003183" >
+      </testcase>
+      <testcase name="test_current_sparse_relationship_defaults_do_not_coerce_present_invalid_fields" assertions="22" status="pass" classname="tests/unit/test_contacts_frozen_context.gd" time="0.003231" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_desktop_panel_split.gd" tests="12" failures="0" skipped="0" time="1.212648" >
+      <testcase name="test_default_and_programmatic_widths_lay_out_two_panes_without_a_stolen_gutter" assertions="12" status="pass" classname="tests/unit/test_desktop_panel_split.gd" time="0.114852" >
+      </testcase>
+      <testcase name="test_central_pointer_drag_clamps_and_preserves_existing_focus_and_children" assertions="20" status="pass" classname="tests/unit/test_desktop_panel_split.gd" time="0.04356" >
+      </testcase>
+      <testcase name="test_programmatic_widths_snap_to_two_pixels_and_publish_only_changed_steps" assertions="31" status="pass" classname="tests/unit/test_desktop_panel_split.gd" time="0.226904" >
+      </testcase>
+      <testcase name="test_pointer_preview_and_release_share_the_two_pixel_grid" assertions="20" status="pass" classname="tests/unit/test_desktop_panel_split.gd" time="0.062983" >
+      </testcase>
+      <testcase name="test_touch_preview_and_release_share_the_same_steps_without_jitter_commits" assertions="15" status="pass" classname="tests/unit/test_desktop_panel_split.gd" time="0.083129" >
+      </testcase>
+      <testcase name="test_app_control_near_the_seam_remains_clickable" assertions="3" status="pass" classname="tests/unit/test_desktop_panel_split.gd" time="0.042049" >
+      </testcase>
+      <testcase name="test_focused_affordance_supports_bounded_keyboard_adjustment" assertions="16" status="pass" classname="tests/unit/test_desktop_panel_split.gd" time="0.419227" >
+      </testcase>
+      <testcase name="test_shared_accessibility_retranslates_on_locale_changes_without_resizing" assertions="17" status="pass" classname="tests/unit/test_desktop_panel_split.gd" time="0.02353" >
+      </testcase>
+      <testcase name="test_explicit_owner_accessibility_is_not_replaced_by_shared_locale_copy" assertions="3" status="pass" classname="tests/unit/test_desktop_panel_split.gd" time="0.092333" >
+      </testcase>
+      <testcase name="test_touch_drag_commits_on_release_and_cancellation_discards_preview" assertions="13" status="pass" classname="tests/unit/test_desktop_panel_split.gd" time="0.042227" >
+      </testcase>
+      <testcase name="test_focus_loss_and_missing_release_retire_mouse_drag_ownership" assertions="8" status="pass" classname="tests/unit/test_desktop_panel_split.gd" time="0.021392" >
+      </testcase>
+      <testcase name="test_escape_cancels_pointer_preview_without_a_commit" assertions="6" status="pass" classname="tests/unit/test_desktop_panel_split.gd" time="0.040462" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/desktop_shell/test_desktop_split_touch.gd" tests="13" failures="0" skipped="0" time="30.820517" >
+      <testcase name="test_desktop_resize_saves_only_user_commits_and_rolls_back_failed_saves" assertions="18" status="pass" classname="tests/desktop_shell/test_desktop_split_touch.gd" time="0.279847" >
+      </testcase>
+      <testcase name="test_resizing_keeps_current_app_and_focus_and_hud_inside_the_shell" assertions="125" status="pass" classname="tests/desktop_shell/test_desktop_split_touch.gd" time="3.66868" >
+      </testcase>
+      <testcase name="test_three_button_footer_leaves_full_app_height_and_navigation_never_launches" assertions="41" status="pass" classname="tests/desktop_shell/test_desktop_split_touch.gd" time="0.212946" >
+      </testcase>
+      <testcase name="test_contacts_expands_the_same_thread_and_retains_its_reading_position" assertions="37" status="pass" classname="tests/desktop_shell/test_desktop_split_touch.gd" time="0.832066" >
+      </testcase>
+      <testcase name="test_footer_home_keeps_hardware_navigation_into_current_app" assertions="5" status="pass" classname="tests/desktop_shell/test_desktop_split_touch.gd" time="0.179812" >
+      </testcase>
+      <testcase name="test_footer_navigates_real_confirmation_without_activating_background" assertions="12" status="pass" classname="tests/desktop_shell/test_desktop_split_touch.gd" time="0.274117" >
+      </testcase>
+      <testcase name="test_footer_confirm_reaches_real_grid_without_changing_its_input_contract" assertions="6" status="pass" classname="tests/desktop_shell/test_desktop_split_touch.gd" time="0.143699" >
+      </testcase>
+      <testcase name="test_launcher_enlarges_after_resize_without_remounting_or_losing_focus" assertions="18104" status="pass" classname="tests/desktop_shell/test_desktop_split_touch.gd" time="8.439228" >
+      </testcase>
+      <testcase name="test_real_desktop_content_enlarges_only_after_divider_release" assertions="9" status="pass" classname="tests/desktop_shell/test_desktop_split_touch.gd" time="0.132199" >
+      </testcase>
+      <testcase name="test_backup_enlargement_preserves_pending_action_and_reaches_bottom_drawer" assertions="14" status="pass" classname="tests/desktop_shell/test_desktop_split_touch.gd" time="0.185588" >
+      </testcase>
+      <testcase name="test_settings_enlargement_preserves_preview_and_reaches_deep_controls" assertions="16" status="pass" classname="tests/desktop_shell/test_desktop_split_touch.gd" time="0.679313" >
+      </testcase>
+      <testcase name="test_app_footer_controls_fit_with_large_navigation_and_release_space_when_hidden" assertions="27" status="pass" classname="tests/desktop_shell/test_desktop_split_touch.gd" time="0.131076" >
+      </testcase>
+      <testcase name="test_real_minesweeper_footer_mounts_fits_and_tracks_cached_app_visibility" assertions="2801" status="pass" classname="tests/desktop_shell/test_desktop_split_touch.gd" time="15.661946" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_desktop_touch_navigation.gd" tests="10" failures="0" skipped="0" time="0.200854" >
+      <testcase name="test_exposes_three_non_focusable_compact_controls_with_independent_labels" assertions="16" status="pass" classname="tests/unit/test_desktop_touch_navigation.gd" time="0.008453" >
+      </testcase>
+      <testcase name="test_next_and_previous_follow_tab_order_and_skip_unusable_controls" assertions="6" status="pass" classname="tests/unit/test_desktop_touch_navigation.gd" time="0.026315" >
+      </testcase>
+      <testcase name="test_next_rejects_an_explicit_target_owned_by_an_embedded_viewport" assertions="3" status="pass" classname="tests/unit/test_desktop_touch_navigation.gd" time="0.013547" >
+      </testcase>
+      <testcase name="test_confirm_without_valid_focus_only_restores_focus_then_accepts_exactly_once" assertions="5" status="pass" classname="tests/unit/test_desktop_touch_navigation.gd" time="0.020534" >
+      </testcase>
+      <testcase name="test_scope_and_admission_prevent_background_or_suspended_navigation" assertions="4" status="pass" classname="tests/unit/test_desktop_touch_navigation.gd" time="0.027695" >
+      </testcase>
+      <testcase name="test_pointer_cancellation_and_release_outside_do_not_activate_but_mouse_release_does" assertions="4" status="pass" classname="tests/unit/test_desktop_touch_navigation.gd" time="0.028595" >
+      </testcase>
+      <testcase name="test_confirm_delivers_an_enter_press_and_release_to_a_key_only_focused_control" assertions="4" status="pass" classname="tests/unit/test_desktop_touch_navigation.gd" time="0.014231" >
+      </testcase>
+      <testcase name="test_deferred_confirm_refuses_changed_focus_or_scope" assertions="3" status="pass" classname="tests/unit/test_desktop_touch_navigation.gd" time="0.01995" >
+      </testcase>
+      <testcase name="test_pointer_press_custody_must_remain_admitted_with_the_same_focus_and_scope" assertions="4" status="pass" classname="tests/unit/test_desktop_touch_navigation.gd" time="0.027708" >
+      </testcase>
+      <testcase name="test_focus_out_retires_a_queued_confirm_even_when_focus_and_scope_return" assertions="2" status="pass" classname="tests/unit/test_desktop_touch_navigation.gd" time="0.013826" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_desktop_app_host_state.gd" tests="12" failures="0" skipped="0" time="0.018919" >
+      <testcase name="test_reset_clears_active_and_cache" assertions="3" status="pass" classname="tests/unit/test_desktop_app_host_state.gd" time="0.00062" >
+      </testcase>
+      <testcase name="test_open_app_first_instantiate_true_and_focus" assertions="5" status="pass" classname="tests/unit/test_desktop_app_host_state.gd" time="0.001017" >
+      </testcase>
+      <testcase name="test_open_app_switch_returns_previous_and_reopen_not_instantiate" assertions="5" status="pass" classname="tests/unit/test_desktop_app_host_state.gd" time="0.001001" >
+      </testcase>
+      <testcase name="test_open_app_unknown_rejects" assertions="2" status="pass" classname="tests/unit/test_desktop_app_host_state.gd" time="0.000535" >
+      </testcase>
+      <testcase name="test_close_app_returns_focus_icon_and_clears_active" assertions="3" status="pass" classname="tests/unit/test_desktop_app_host_state.gd" time="0.000717" >
+      </testcase>
+      <testcase name="test_change_day_rejects_nonpositive_and_backward" assertions="3" status="pass" classname="tests/unit/test_desktop_app_host_state.gd" time="0.000561" >
+      </testcase>
+      <testcase name="test_change_day_returns_exact_eviction_command_in_registry_order" assertions="7" status="pass" classname="tests/unit/test_desktop_app_host_state.gd" time="0.001619" >
+      </testcase>
+      <testcase name="test_capture_persistent_state_returns_registered_id_or_null" assertions="2" status="pass" classname="tests/unit/test_desktop_app_host_state.gd" time="0.000595" >
+      </testcase>
+      <testcase name="test_prepare_restore_round_trips_null_and_registered_id" assertions="10" status="pass" classname="tests/unit/test_desktop_app_host_state.gd" time="0.001624" >
+      </testcase>
+      <testcase name="test_registry_focus_targets_resolve_for_all_seven" assertions="7" status="pass" classname="tests/unit/test_desktop_app_host_state.gd" time="0.000949" >
+      </testcase>
+      <testcase name="test_logout_action_never_enters_workspace_cache_or_restore" assertions="10" status="pass" classname="tests/unit/test_desktop_app_host_state.gd" time="0.003048" >
+      </testcase>
+      <testcase name="test_all_six_content_workspaces_still_capture_and_restore" assertions="30" status="pass" classname="tests/unit/test_desktop_app_host_state.gd" time="0.006633" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_desktop_accessibility_contract.gd" tests="6" failures="0" skipped="0" time="0.053471" >
+      <testcase name="test_debug_exposes_exactly_one_forced_cell_and_rejects_every_other_cell" assertions="13" status="pass" classname="tests/unit/test_desktop_accessibility_contract.gd" time="0.016784" >
+      </testcase>
+      <testcase name="test_debug_rejects_every_other_cell_before_any_live_mutation" assertions="44" status="pass" classname="tests/unit/test_desktop_accessibility_contract.gd" time="0.02312" >
+      </testcase>
+      <testcase name="test_supportz_exposes_one_neutral_accessible_name_and_no_effect_description" assertions="14" status="pass" classname="tests/unit/test_desktop_accessibility_contract.gd" time="0.00345" >
+      </testcase>
+      <testcase name="test_every_non_secret_shop_row_carries_no_secret_accessibility_label" assertions="17" status="pass" classname="tests/unit/test_desktop_accessibility_contract.gd" time="0.003476" >
+      </testcase>
+      <testcase name="test_the_purchase_request_shape_has_no_device_or_input_method_field" assertions="42" status="pass" classname="tests/unit/test_desktop_accessibility_contract.gd" time="0.004247" >
+      </testcase>
+      <testcase name="test_pointer_touch_keyboard_and_gamepad_confirm_produce_the_identical_request_shape" assertions="3" status="pass" classname="tests/unit/test_desktop_accessibility_contract.gd" time="0.002394" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_desktop_quick_commands.gd" tests="17" failures="0" skipped="0" time="8.46857" >
+      <testcase name="test_f5_commits_current_quick_through_real_owner_without_displacing_backup_state" assertions="31" status="pass" classname="tests/integration/test_desktop_quick_commands.gd" time="0.561831" >
+      </testcase>
+      <testcase name="test_f9_uses_shared_confirmation_and_escape_consumes_the_real_token" assertions="30" status="pass" classname="tests/integration/test_desktop_quick_commands.gd" time="0.601738" >
+      </testcase>
+      <testcase name="test_confirmed_f9_load_runs_the_real_eight_participant_restore_graph" assertions="20" status="pass" classname="tests/integration/test_desktop_quick_commands.gd" time="0.574185" >
+      </testcase>
+      <testcase name="test_changed_capture_after_f9_prepare_cancels_without_restore_or_replay" assertions="20" status="pass" classname="tests/integration/test_desktop_quick_commands.gd" time="0.484229" >
+      </testcase>
+      <testcase name="test_source_admission_lost_inside_prepare_cancels_the_real_owner_token" assertions="18" status="pass" classname="tests/integration/test_desktop_quick_commands.gd" time="0.368994" >
+      </testcase>
+      <testcase name="test_profile_rebound_keyboard_and_controller_drive_the_same_real_commands" assertions="21" status="pass" classname="tests/integration/test_desktop_quick_commands.gd" time="0.538197" >
+      </testcase>
+      <testcase name="test_duplicate_echo_and_pause_held_contact_do_not_repeat_quick_save" assertions="19" status="pass" classname="tests/integration/test_desktop_quick_commands.gd" time="0.616861" >
+      </testcase>
+      <testcase name="test_existing_backup_confirmation_and_token_are_not_displaced_by_f5" assertions="21" status="pass" classname="tests/integration/test_desktop_quick_commands.gd" time="0.429347" >
+      </testcase>
+      <testcase name="test_f5_status_survives_same_frame_entry_when_bound_to_the_new_backup_source" assertions="18" status="pass" classname="tests/integration/test_desktop_quick_commands.gd" time="0.560092" >
+      </testcase>
+      <testcase name="test_backup_recovery_entered_inside_prepare_cancels_the_new_quick_token" assertions="16" status="pass" classname="tests/integration/test_desktop_quick_commands.gd" time="0.391427" >
+      </testcase>
+      <testcase name="test_inherited_focus_custody_blocks_quick_input_and_explicit_desktop_override_admits_it" assertions="15" status="pass" classname="tests/integration/test_desktop_quick_commands.gd" time="0.454334" >
+      </testcase>
+      <testcase name="test_contacts_refusal_and_real_load_consent_preserve_live_app_and_focus" assertions="29" status="pass" classname="tests/integration/test_desktop_quick_commands.gd" time="0.591751" >
+      </testcase>
+      <testcase name="test_live_app_custody_precedes_quick_and_reserved_status_stays_outside_content" assertions="50" status="pass" classname="tests/integration/test_desktop_quick_commands.gd" time="0.363427" >
+      </testcase>
+      <testcase name="test_contacts_notification_suppresses_status_until_eligible_without_repeating_it" assertions="24" status="pass" classname="tests/integration/test_desktop_quick_commands.gd" time="0.38788" >
+      </testcase>
+      <testcase name="test_quick_rejects_unsupported_modifier_binding_and_preserves_default" assertions="18" status="pass" classname="tests/integration/test_desktop_quick_commands.gd" time="0.457604" >
+      </testcase>
+      <testcase name="test_focus_out_and_in_before_a_frame_consumes_quick_load_consent" assertions="20" status="pass" classname="tests/integration/test_desktop_quick_commands.gd" time="0.503226" >
+      </testcase>
+      <testcase name="test_focused_live_minesweeper_gets_owner_refusal_and_load_consent_without_board_actions" assertions="35" status="pass" classname="tests/integration/test_desktop_quick_commands.gd" time="0.583447" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_desktop_bootstrap_wiring.gd" tests="27" failures="0" skipped="0" time="8.903454" >
+      <testcase name="test_the_probe_exists_and_returns_only_integers_and_booleans" assertions="8" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="0.007921" >
+      </testcase>
+      <testcase name="test_the_probe_names_every_foundation_identity_step_8_1_requires" assertions="28" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="0.00923" >
+      </testcase>
+      <testcase name="test_reading_the_probe_twice_is_stable_and_mutates_nothing" assertions="7" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="0.009596" >
+      </testcase>
+      <testcase name="test_presentation_configuration_reconstructs_no_foundation_instance" assertions="8" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="0.008021" >
+      </testcase>
+      <testcase name="test_identical_startup_replay_reuses_every_instance" assertions="11" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="0.009895" >
+      </testcase>
+      <testcase name="test_a_swapped_issuer_is_visible_in_the_probe" assertions="10" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="0.010275" >
+      </testcase>
+      <testcase name="test_the_probe_reports_hospital_ready_and_dating_deliberately_not_ready" assertions="10" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="0.008052" >
+      </testcase>
+      <testcase name="test_the_producer_is_not_ready_before_the_desktop_graph_stage" assertions="11" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="0.00785" >
+      </testcase>
+      <testcase name="test_an_unbuilt_foundation_reports_zero_rather_than_guessing" assertions="11" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="0.00466" >
+      </testcase>
+      <testcase name="test_the_production_graph_wires_every_object_identity_and_readiness" assertions="32" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="0.29997" >
+      </testcase>
+      <testcase name="test_the_desktop_publication_ledger_is_shared_by_causal_round_shop_and_board_fate" assertions="23" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="0.294604" >
+      </testcase>
+      <testcase name="test_the_round_coordinator_and_board_fate_port_drive_the_exact_same_shared_board_state" assertions="20" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="0.306485" >
+      </testcase>
+      <testcase name="test_the_consequence_coordinator_retains_the_exact_round_and_shop_source_objects" assertions="24" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="0.31012" >
+      </testcase>
+      <testcase name="test_the_consequence_coordinator_holds_the_real_condition_departure_pair" assertions="22" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="0.372529" >
+      </testcase>
+      <testcase name="test_snapshot_provider_instance_id_equals_game_state" assertions="20" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="0.604475" >
+      </testcase>
+      <testcase name="test_the_probe_names_identity_allocation_plus_the_nine_participant_keys" assertions="30" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="0.36882" >
+      </testcase>
+      <testcase name="test_identical_replay_of_the_production_graph_reuses_every_instance" assertions="25" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="0.295854" >
+      </testcase>
+      <testcase name="test_the_production_graph_never_touches_the_retained_simulator_install_seam" assertions="19" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="0.294332" >
+      </testcase>
+      <testcase name="test_the_desktop_graph_composes_the_condition_pair_and_flips_the_producer_ready" assertions="33" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="0.295785" >
+      </testcase>
+      <testcase name="test_replaying_the_desktop_graph_reuses_the_condition_pair_and_dispatcher" assertions="24" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="0.293892" >
+      </testcase>
+      <testcase name="test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge" assertions="116" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="1.069558" >
+      </testcase>
+      <testcase name="test_fresh_graph_keeps_prior_day_two_autosave_after_failed_completion" assertions="83" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="0.786458" >
+      </testcase>
+      <testcase name="test_fresh_graph_keeps_prior_autosave_after_failed_condition_departure" assertions="83" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="0.978288" >
+      </testcase>
+      <testcase name="test_shop_purchase_saves_authored_effects_and_retries_without_a_second_charge" assertions="47" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="0.401007" >
+      </testcase>
+      <testcase name="test_fresh_graph_keeps_prior_autosave_after_failed_ordinary_purchase" assertions="76" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="0.701699" >
+      </testcase>
+      <testcase name="test_fresh_graph_keeps_prior_autosave_after_failed_special_purchase" assertions="76" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="0.673612" >
+      </testcase>
+      <testcase name="test_shop_batch_and_public_gift_alias_commit_authored_values_and_inventory" assertions="46" status="pass" classname="tests/integration/test_desktop_bootstrap_wiring.gd" time="0.480466" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_desktop_cold_recovery_preparation.gd" tests="7" failures="0" skipped="0" time="0.415554" >
+      <testcase name="test_cold_day_two_installs_exact_owners_and_journal_without_activating_or_routing" assertions="42" status="pass" classname="tests/unit/test_desktop_cold_recovery_preparation.gd" time="0.080398" >
+      </testcase>
+      <testcase name="test_a_different_current_autosave_never_receives_an_older_sidecar" assertions="24" status="pass" classname="tests/unit/test_desktop_cold_recovery_preparation.gd" time="0.071626" >
+      </testcase>
+      <testcase name="test_source_changes_after_preparation_refuse_before_any_owner_apply" assertions="25" status="pass" classname="tests/unit/test_desktop_cold_recovery_preparation.gd" time="0.080736" >
+      </testcase>
+      <testcase name="test_snapshot_hash_match_cannot_override_a_conflicting_action_identity" assertions="3" status="pass" classname="tests/unit/test_desktop_cold_recovery_preparation.gd" time="0.01674" >
+      </testcase>
+      <testcase name="test_active_session_with_no_pending_action_requires_no_cold_recovery" assertions="23" status="pass" classname="tests/unit/test_desktop_cold_recovery_preparation.gd" time="0.034471" >
+      </testcase>
+      <testcase name="test_active_session_still_refuses_a_pending_desktop_action" assertions="28" status="pass" classname="tests/unit/test_desktop_cold_recovery_preparation.gd" time="0.041137" >
+      </testcase>
+      <testcase name="test_active_session_still_refuses_a_retained_prepared_source" assertions="31" status="pass" classname="tests/unit/test_desktop_cold_recovery_preparation.gd" time="0.090446" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_schedule_desktop_host.gd" tests="15" failures="0" skipped="0" time="5.331531" >
+      <testcase name="test_installed_day_reaches_the_mounted_schedule_theme" assertions="27" status="pass" classname="tests/integration/test_schedule_desktop_host.gd" time="0.323962" >
+      </testcase>
+      <testcase name="test_day_eviction_reopens_schedule_with_the_new_installed_day" assertions="24" status="pass" classname="tests/integration/test_schedule_desktop_host.gd" time="0.339494" >
+      </testcase>
+      <testcase name="test_pre_ready_restored_schedule_uses_installed_day_and_captured_dark_palette" assertions="27" status="pass" classname="tests/integration/test_schedule_desktop_host.gd" time="0.317541" >
+      </testcase>
+      <testcase name="test_absent_schedule_port_keeps_the_registered_launcher_unavailable_without_host_mutation" assertions="15" status="pass" classname="tests/integration/test_schedule_desktop_host.gd" time="0.296987" >
+      </testcase>
+      <testcase name="test_real_owner_edits_and_cached_home_reopen_preserve_draft_selection_focus_and_preferences" assertions="36" status="pass" classname="tests/integration/test_schedule_desktop_host.gd" time="0.488392" >
+      </testcase>
+      <testcase name="test_desktop_enlargement_preserves_schedule_draft_focus_and_controls" assertions="31" status="pass" classname="tests/integration/test_schedule_desktop_host.gd" time="0.461218" >
+      </testcase>
+      <testcase name="test_pre_ready_configuration_reconciles_a_restored_active_schedule_route" assertions="17" status="pass" classname="tests/integration/test_schedule_desktop_host.gd" time="0.31489" >
+      </testcase>
+      <testcase name="test_failed_pre_ready_restored_projection_stays_masked_as_the_saved_route" assertions="18" status="pass" classname="tests/integration/test_schedule_desktop_host.gd" time="0.303668" >
+      </testcase>
+      <testcase name="test_schedule_configuration_is_immutable_and_rejects_mismatched_or_partial_owners" assertions="36" status="pass" classname="tests/integration/test_schedule_desktop_host.gd" time="0.331248" >
+      </testcase>
+      <testcase name="test_native_drag_custody_blocks_home_and_other_apps_without_editing_the_draft" assertions="23" status="pass" classname="tests/integration/test_schedule_desktop_host.gd" time="0.354034" >
+      </testcase>
+      <testcase name="test_delayed_refused_done_holds_host_custody_without_fabricating_completion" assertions="27" status="pass" classname="tests/integration/test_schedule_desktop_host.gd" time="0.351108" >
+      </testcase>
+      <testcase name="test_real_pending_warning_owns_modal_custody_without_background_commands" assertions="30" status="pass" classname="tests/integration/test_schedule_desktop_host.gd" time="0.359392" >
+      </testcase>
+      <testcase name="test_warning_navigation_preflight_refuses_an_unconfigured_real_target_without_mutation" assertions="26" status="pass" classname="tests/integration/test_schedule_desktop_host.gd" time="0.343947" >
+      </testcase>
+      <testcase name="test_prepared_warning_navigation_moves_the_real_scene_without_consuming_domain_warning" assertions="33" status="pass" classname="tests/integration/test_schedule_desktop_host.gd" time="0.359499" >
+      </testcase>
+      <testcase name="test_real_warning_go_opens_contacts_before_consuming_the_warning" assertions="29" status="pass" classname="tests/integration/test_schedule_desktop_host.gd" time="0.386151" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_phase2r_schedule_desktop_handoff.gd" tests="111" failures="0" skipped="0" time="23.800719" >
+      <testcase name="test_the_probe_is_read_from_the_real_public_seam_and_carries_only_primitives" assertions="91" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.009533" >
+      </testcase>
+      <testcase name="test_the_snapshot_provider_role_is_the_live_game_state_in_this_same_boot" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.001299" >
+      </testcase>
+      <testcase name="test_the_coordinator_holds_exactly_the_advance_port_the_probe_reports" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.00082" >
+      </testcase>
+      <testcase name="test_every_declared_predecessor_role_is_a_nonzero_same_boot_integer" assertions="24" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.003961" >
+      </testcase>
+      <testcase name="test_the_current_ten_restore_roles_are_ten_distinct_retained_participants" assertions="32" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.004443" >
+      </testcase>
+      <testcase name="test_the_retained_schedule_view_survives_restore_configuration_replay_and_matches_the_run" assertions="9" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.001305" >
+      </testcase>
+      <testcase name="test_the_round_and_shop_action_sources_are_two_different_owners" assertions="1" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.000415" >
+      </testcase>
+      <testcase name="test_the_two_publication_ledgers_are_two_different_live_owners" assertions="1" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.000425" >
+      </testcase>
+      <testcase name="test_the_guard_accepts_the_real_sealed_evidence_and_the_real_live_probe" assertions="6" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="1.62316" >
+      </testcase>
+      <testcase name="test_the_success_envelope_serializes_no_numeric_instance_id" assertions="23" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.251766" >
+      </testcase>
+      <testcase name="test_the_guard_mutates_neither_seal_nor_probe" assertions="3" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.256844" >
+      </testcase>
+      <testcase name="test_the_verdict_pins_the_sealed_bytes_of_the_suite_this_task_may_only_run" assertions="1" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.251543" >
+      </testcase>
+      <testcase name="test_the_verdict_reports_the_two_requirements_no_seal_attests" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.245361" >
+      </testcase>
+      <testcase name="test_the_verdict_separates_historical_handoff_from_current_successor_composition" assertions="7" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.250185" >
+      </testcase>
+      <testcase name="test_the_verdict_records_the_one_lawful_forward_readiness_divergence" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.243402" >
+      </testcase>
+      <testcase name="test_a_non_dictionary_input_is_refused" assertions="4" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.00171" >
+      </testcase>
+      <testcase name="test_a_relabelled_seal_subject_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.001921" >
+      </testcase>
+      <testcase name="test_a_seal_pointing_at_another_commit_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.117175" >
+      </testcase>
+      <testcase name="test_a_seal_pointing_at_an_off_history_commit_is_refused" assertions="3" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.125291" >
+      </testcase>
+      <testcase name="test_a_reachable_ancestor_carrying_the_wrong_subject_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.161524" >
+      </testcase>
+      <testcase name="test_a_malformed_declared_surface_digest_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.081815" >
+      </testcase>
+      <testcase name="test_a_role_relation_set_that_is_not_the_frozen_six_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.243367" >
+      </testcase>
+      <testcase name="test_two_ledgers_claiming_one_fixed_path_are_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.241827" >
+      </testcase>
+      <testcase name="test_a_drifted_allocation_key_format_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.244715" >
+      </testcase>
+      <testcase name="test_an_allocator_receipt_missing_its_disposition_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.249848" >
+      </testcase>
+      <testcase name="test_a_dropped_recipe_exclusion_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.245058" >
+      </testcase>
+      <testcase name="test_a_gate_that_stops_attesting_preserved_schedule_keys_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.255329" >
+      </testcase>
+      <testcase name="test_a_gate_whose_frozen_readiness_was_regenerated_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.246081" >
+      </testcase>
+      <testcase name="test_a_seal_that_drops_a_consumed_binding_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.164689" >
+      </testcase>
+      <testcase name="test_a_repointed_binding_digest_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.084688" >
+      </testcase>
+      <testcase name="test_a_fourth_allocator_seam_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.083481" >
+      </testcase>
+      <testcase name="test_a_seal_without_command_records_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.24404" >
+      </testcase>
+      <testcase name="test_a_repointed_test_log_digest_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.084693" >
+      </testcase>
+      <testcase name="test_a_probe_missing_a_predecessor_member_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.243648" >
+      </testcase>
+      <testcase name="test_an_unnamed_probe_key_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.24658" >
+      </testcase>
+      <testcase name="test_a_non_integer_predecessor_role_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.246929" >
+      </testcase>
+      <testcase name="test_an_unretained_predecessor_role_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.246224" >
+      </testcase>
+      <testcase name="test_a_reordered_restore_order_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.246572" >
+      </testcase>
+      <testcase name="test_the_schedule_view_restore_role_cannot_move_out_of_its_current_slot" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.252039" >
+      </testcase>
+      <testcase name="test_a_missing_restore_role_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.247795" >
+      </testcase>
+      <testcase name="test_a_missing_schedule_view_restore_role_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.246406" >
+      </testcase>
+      <testcase name="test_an_unretained_restore_role_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.24637" >
+      </testcase>
+      <testcase name="test_one_object_serving_two_restore_roles_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.247896" >
+      </testcase>
+      <testcase name="test_the_schedule_view_restore_role_cannot_alias_an_older_participant" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.249838" >
+      </testcase>
+      <testcase name="test_one_object_serving_both_action_sources_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.243261" >
+      </testcase>
+      <testcase name="test_a_flipped_sealed_role_verdict_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.248687" >
+      </testcase>
+      <testcase name="test_a_ledger_attestation_that_contradicts_the_probe_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.246617" >
+      </testcase>
+      <testcase name="test_one_live_object_serving_both_ledger_roles_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.246128" >
+      </testcase>
+      <testcase name="test_an_allocator_that_is_not_the_dot16_owner_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.244999" >
+      </testcase>
+      <testcase name="test_a_raw_causal_day_issue_path_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.24339" >
+      </testcase>
+      <testcase name="test_a_third_resolution_kind_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.253003" >
+      </testcase>
+      <testcase name="test_a_caller_supplied_target_day_identity_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.243781" >
+      </testcase>
+      <testcase name="test_a_publication_delivered_twice_across_a_restart_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.244635" >
+      </testcase>
+      <testcase name="test_an_undeclared_conflict_code_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.244393" >
+      </testcase>
+      <testcase name="test_a_schedule_done_recipe_carrying_a_checkpoint_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.249213" >
+      </testcase>
+      <testcase name="test_a_changed_snapshot_input_shape_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.245031" >
+      </testcase>
+      <testcase name="test_an_undeclared_desktop_snapshot_member_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.245123" >
+      </testcase>
+      <testcase name="test_a_regressed_schema_version_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.244185" >
+      </testcase>
+      <testcase name="test_a_live_snapshot_version_that_disagrees_with_its_owner_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.243363" >
+      </testcase>
+      <testcase name="test_schema_versions_require_strict_integers_at_live_and_sealed_boundaries" assertions="12" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="1.464133" >
+      </testcase>
+      <testcase name="test_a_readiness_fact_that_stopped_matching_its_seal_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.244299" >
+      </testcase>
+      <testcase name="test_a_producer_regression_below_finished_deviation_5_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.243981" >
+      </testcase>
+      <testcase name="test_sealed_readiness_requires_strict_booleans" assertions="6" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.738003" >
+      </testcase>
+      <testcase name="test_a_requirement_split_that_overstates_its_evidence_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.246661" >
+      </testcase>
+      <testcase name="test_a_later_owner_that_has_already_taken_the_composition_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.246602" >
+      </testcase>
+      <testcase name="test_a_destination_composition_declared_ready_inside_phase_2r_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.243016" >
+      </testcase>
+      <testcase name="test_a_seal_that_stops_recording_dating_as_deferred_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.245401" >
+      </testcase>
+      <testcase name="test_a_current_dating_presentation_regression_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.242986" >
+      </testcase>
+      <testcase name="test_successor_readiness_requires_strict_booleans" assertions="6" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.738531" >
+      </testcase>
+      <testcase name="test_a_ready_successor_requires_a_retained_integer_dating_port" assertions="6" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.730912" >
+      </testcase>
+      <testcase name="test_a_seal_without_an_array_of_source_bindings_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.083206" >
+      </testcase>
+      <testcase name="test_an_allocator_binding_without_a_declared_surface_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.083466" >
+      </testcase>
+      <testcase name="test_a_command_record_that_is_not_an_object_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.084943" >
+      </testcase>
+      <testcase name="test_a_command_record_naming_no_log_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.084643" >
+      </testcase>
+      <testcase name="test_a_recorded_log_absent_at_head_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.126609" >
+      </testcase>
+      <testcase name="test_a_restore_order_that_is_not_an_array_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.25088" >
+      </testcase>
+      <testcase name="test_restore_roles_that_are_not_a_dictionary_are_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.245281" >
+      </testcase>
+      <testcase name="test_a_desktop_seal_without_a_bootstrap_probe_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.241826" >
+      </testcase>
+      <testcase name="test_a_desktop_seal_without_external_stores_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.243218" >
+      </testcase>
+      <testcase name="test_an_unrecorded_desktop_ledger_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.253751" >
+      </testcase>
+      <testcase name="test_a_gate_without_a_day_advance_identity_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.248354" >
+      </testcase>
+      <testcase name="test_a_gate_recording_no_observed_publications_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.246627" >
+      </testcase>
+      <testcase name="test_a_gate_recording_no_conflict_codes_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.244586" >
+      </testcase>
+      <testcase name="test_an_observed_publication_that_is_not_an_object_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.248325" >
+      </testcase>
+      <testcase name="test_a_minesweeper_seal_without_recipes_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.249732" >
+      </testcase>
+      <testcase name="test_a_snapshot_desktop_member_that_is_not_an_object_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.244982" >
+      </testcase>
+      <testcase name="test_a_desktop_seal_without_v4_facts_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.244536" >
+      </testcase>
+      <testcase name="test_a_gate_without_current_versions_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.254809" >
+      </testcase>
+      <testcase name="test_a_gate_without_a_bootstrap_probe_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.245835" >
+      </testcase>
+      <testcase name="test_a_gate_probe_without_readiness_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.24821" >
+      </testcase>
+      <testcase name="test_a_seal_recording_no_requirement_ids_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.243988" >
+      </testcase>
+      <testcase name="test_the_three_seal_documents_match_their_committed_bytes" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.172335" >
+      </testcase>
+      <testcase name="test_a_hand_edited_seal_that_stays_internally_consistent_is_refused" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.073652" >
+      </testcase>
+      <testcase name="test_the_document_seam_refuses_a_non_dictionary_seal" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.00114" >
+      </testcase>
+      <testcase name="test_the_real_schedule_commit_port_prepares_a_detached_aggregate_without_mutating" assertions="14" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.016123" >
+      </testcase>
+      <testcase name="test_the_real_day_start_port_prepares_from_a_real_commit_without_starting_anything" assertions="14" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.016258" >
+      </testcase>
+      <testcase name="test_the_real_shared_allocator_prepares_both_variants_without_committing_the_root" assertions="22" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.024524" >
+      </testcase>
+      <testcase name="test_the_real_allocator_refuses_an_id_only_source_causal_day_receipt" assertions="13" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.012465" >
+      </testcase>
+      <testcase name="test_the_real_provenance_owner_refuses_a_malformed_handoff" assertions="10" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.006988" >
+      </testcase>
+      <testcase name="test_the_real_causal_sequence_port_stays_mutation_free_before_configuration" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.000672" >
+      </testcase>
+      <testcase name="test_the_real_causal_sequence_port_refuses_a_malformed_reservation" assertions="17" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.010222" >
+      </testcase>
+      <testcase name="test_the_real_board_fate_port_refuses_a_projected_departure_before_configuration" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.000593" >
+      </testcase>
+      <testcase name="test_the_real_minesweeper_save_port_refuses_an_incapable_checkpoint_owner" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.000547" >
+      </testcase>
+      <testcase name="test_the_real_minesweeper_save_port_binds_the_real_checkpoint_owner" assertions="6" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.001461" >
+      </testcase>
+      <testcase name="test_the_ten_real_restore_participant_classes_share_one_interface" assertions="60" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.00689" >
+      </testcase>
+      <testcase name="test_the_current_snapshot_input_round_trips_through_the_real_v7_schema" assertions="6" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.004557" >
+      </testcase>
+      <testcase name="test_the_real_v7_builder_refuses_a_snapshot_input_missing_a_declared_member" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.00065" >
+      </testcase>
+      <testcase name="test_the_real_v7_builder_refuses_a_snapshot_input_missing_schedule_view" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.000609" >
+      </testcase>
+      <testcase name="test_the_real_schedule_state_schema_rejects_the_aggregate_the_seal_forbids" assertions="1" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.000461" >
+      </testcase>
+      <testcase name="test_pre_cutover_or_future_live_schema_claims_are_refused" assertions="8" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.977567" >
+      </testcase>
+      <testcase name="test_sealed_hospital_readiness_requires_a_strict_boolean" assertions="2" status="pass" classname="tests/integration/test_phase2r_schedule_desktop_handoff.gd" time="0.242853" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_schedule_app.gd" tests="40" failures="0" skipped="0" time="2.292394" >
+      <testcase name="test_real_mounted_source_append_inspect_reorder_remove_and_focus_repair" assertions="14" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.070662" >
+      </testcase>
+      <testcase name="test_expected_stale_refusal_preserves_visible_inspection_without_mutation" assertions="10" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.044289" >
+      </testcase>
+      <testcase name="test_done_needs_a_real_handler_and_home_preserves_draft" assertions="9" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.028241" >
+      </testcase>
+      <testcase name="test_refused_edit_status_survives_refresh_and_clears_on_success_or_departure" assertions="15" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.069293" >
+      </testcase>
+      <testcase name="test_stale_refusal_publishes_status_and_new_done_clears_it_before_await" assertions="9" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.035757" >
+      </testcase>
+      <testcase name="test_pending_done_awaits_its_owner_and_refuses_edits_or_home" assertions="15" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.030451" >
+      </testcase>
+      <testcase name="test_pointer_release_after_projection_replacement_cannot_activate_new_source" assertions="9" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.044005" >
+      </testcase>
+      <testcase name="test_native_grip_drag_reorders_once_and_home_is_inert_during_drag" assertions="13" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.070458" >
+      </testcase>
+      <testcase name="test_native_drag_cancels_on_refresh_and_outside_release_without_edit" assertions="21" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.085144" >
+      </testcase>
+      <testcase name="test_non_grip_pointer_drag_cannot_reorder_and_arrow_stays_in_its_region" assertions="7" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.031537" >
+      </testcase>
+      <testcase name="test_page_keys_scroll_only_the_focused_paper_without_changing_the_draft" assertions="15" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.120805" >
+      </testcase>
+      <testcase name="test_cached_return_restores_semantic_focus_without_changing_the_draft" assertions="9" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.035694" >
+      </testcase>
+      <testcase name="test_cached_return_reprojects_and_clears_inspection_for_external_view_replacement" assertions="10" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.032559" >
+      </testcase>
+      <testcase name="test_host_cache_clear_supports_load_even_when_view_fingerprint_is_unchanged" assertions="9" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.033082" >
+      </testcase>
+      <testcase name="test_cached_return_cancels_a_held_pointer_contact" assertions="7" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.020357" >
+      </testcase>
+      <testcase name="test_keyboard_scroll_is_inert_while_done_owns_custody" assertions="7" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.125854" >
+      </testcase>
+      <testcase name="test_failed_configuration_retains_valid_locale_for_recovery_refresh" assertions="9" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.019718" >
+      </testcase>
+      <testcase name="test_cached_return_keeps_a_manually_scrolled_position_with_focus_elsewhere" assertions="8" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.136224" >
+      </testcase>
+      <testcase name="test_locale_reflow_retains_semantic_docket_top_even_with_focus_elsewhere" assertions="12" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.13953" >
+      </testcase>
+      <testcase name="test_pending_warning_mounts_real_retained_desk_and_blocks_background_input" assertions="31" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.168887" >
+      </testcase>
+      <testcase name="test_failed_warning_go_keeps_activation_and_projects_only_the_operational_error" assertions="20" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.045443" >
+      </testcase>
+      <testcase name="test_warning_command_failure_requests_recovery_without_fabricating_a_navigation_attempt" assertions="18" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.040519" >
+      </testcase>
+      <testcase name="test_accepted_date_warning_go_is_dismissal_without_navigation" assertions="13" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.05003" >
+      </testcase>
+      <testcase name="test_base_warning_emits_only_minesweeper_intent_and_projection_is_detached" assertions="12" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.036444" >
+      </testcase>
+      <testcase name="test_done_activation_opens_warning_once_without_replacing_the_draft" assertions="13" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.058545" >
+      </testcase>
+      <testcase name="test_native_back_and_page_cannot_queue_another_warning_command_during_await" assertions="16" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.039947" >
+      </testcase>
+      <testcase name="test_installed_day_and_live_accessibility_retheme_without_changing_schedule_evidence" assertions="14" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.040213" >
+      </testcase>
+      <testcase name="test_shared_preferences_reflow_preserves_occurrences_selection_focus_and_semantic_anchor" assertions="12" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.135374" >
+      </testcase>
+      <testcase name="test_hidden_shared_refresh_keeps_foreground_focus_then_reflows_on_return" assertions="12" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.038663" >
+      </testcase>
+      <testcase name="test_shared_reflow_cancels_armed_native_input_but_duplicate_and_invalid_tuple_do_not_rebuild" assertions="14" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.035484" >
+      </testcase>
+      <testcase name="test_shared_modal_custody_defers_reconstruction_and_reflow_until_source_focus_returns" assertions="11" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.033352" >
+      </testcase>
+      <testcase name="test_warning_shared_reflow_uses_retained_owner_copy_and_preserves_modal_focus" assertions="16" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.043933" >
+      </testcase>
+      <testcase name="test_live_accessibility_rethemes_installed_day_warning_and_panel_together" assertions="37" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.066391" >
+      </testcase>
+      <testcase name="test_initial_pending_warning_pair_is_bound_before_hidden_projection_and_cannot_be_replaced" assertions="17" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.051877" >
+      </testcase>
+      <testcase name="test_done_custody_publishes_both_transitions_and_defers_shared_reflow" assertions="11" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.033227" >
+      </testcase>
+      <testcase name="test_optional_shared_owners_preserve_explicit_configuration_and_bind_independently" assertions="15" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.037667" >
+      </testcase>
+      <testcase name="test_done_scene_replacement_rejects_outgoing_ui_continuation_before_deletion" assertions="12" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.02654" >
+      </testcase>
+      <testcase name="test_done_queued_source_ancestor_rejects_outgoing_ui_continuation" assertions="12" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.02523" >
+      </testcase>
+      <testcase name="test_unaffordable_done_keeps_docket_editable_and_restores_done_focus" assertions="15" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.042438" >
+      </testcase>
+      <testcase name="test_font_style_reflow_preserves_schedule_occurrences_and_selected_control" assertions="16" status="pass" classname="tests/unit/test_schedule_app.gd" time="0.06853" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_contacts_run_presentation.gd" tests="8" failures="0" skipped="0" time="7.413447" >
+      <testcase name="test_captured_palette_and_day_reach_contacts_without_following_next_run_preference" assertions="48" status="pass" classname="tests/integration/test_contacts_run_presentation.gd" time="1.012457" >
+      </testcase>
+      <testcase name="test_live_accessibility_recolours_existing_transcript_without_owner_or_focus_mutation" assertions="47" status="pass" classname="tests/integration/test_contacts_run_presentation.gd" time="1.27463" >
+      </testcase>
+      <testcase name="test_installed_reply_focus_uses_paper_ink_while_header_stays_bone" assertions="18" status="pass" classname="tests/integration/test_contacts_run_presentation.gd" time="0.818744" >
+      </testcase>
+      <testcase name="test_colour_change_preserves_pending_retry_failure_and_exact_command" assertions="32" status="pass" classname="tests/integration/test_contacts_run_presentation.gd" time="1.106806" >
+      </testcase>
+      <testcase name="test_colour_change_during_awaited_ack_does_not_recreate_or_cancel_pending_reply" assertions="22" status="pass" classname="tests/integration/test_contacts_run_presentation.gd" time="1.046568" >
+      </testcase>
+      <testcase name="test_invalid_palette_or_day_cannot_replace_mounted_contacts_presentation" assertions="69" status="pass" classname="tests/integration/test_contacts_run_presentation.gd" time="0.767699" >
+      </testcase>
+      <testcase name="test_desktop_rejects_invalid_or_foreign_day_before_binding_contacts_owners" assertions="42" status="pass" classname="tests/integration/test_contacts_run_presentation.gd" time="0.320422" >
+      </testcase>
+      <testcase name="test_font_style_switch_reflows_retained_thread_without_opening_or_replying_again" assertions="25" status="pass" classname="tests/integration/test_contacts_run_presentation.gd" time="1.066121" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/scene/test_controls_input_contact_release.gd" tests="1" failures="0" skipped="0" time="1.110247" >
+      <testcase name="test_release_inside_real_controls_capture_clears_parent_contact_before_first_returned_grid_press" assertions="24" status="pass" classname="tests/scene/test_controls_input_contact_release.gd" time="1.110247" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_angela_stat_overlay.gd" tests="7" failures="0" skipped="0" time="7.962112" >
+      <testcase name="test_portrait_fills_the_panel_behind_an_inset_translucent_stat_card" assertions="25" status="pass" classname="tests/unit/test_angela_stat_overlay.gd" time="0.120683" >
+      </testcase>
+      <testcase name="test_all_public_facts_stay_readable_at_both_widths_and_all_supported_text_sizes" assertions="1354" status="pass" classname="tests/unit/test_angela_stat_overlay.gd" time="6.751325" >
+      </testcase>
+      <testcase name="test_conditional_rows_withdraw_and_invalid_facts_do_not_leak_identifiers" assertions="20" status="pass" classname="tests/unit/test_angela_stat_overlay.gd" time="0.16853" >
+      </testcase>
+      <testcase name="test_high_contrast_replaces_glass_with_the_exact_opaque_accessible_surface" assertions="5" status="pass" classname="tests/unit/test_angela_stat_overlay.gd" time="0.125986" >
+      </testcase>
+      <testcase name="test_dense_facts_are_reachable_with_wheel_native_keyboard_and_touch" assertions="12" status="pass" classname="tests/unit/test_angela_stat_overlay.gd" time="0.250613" >
+      </testcase>
+      <testcase name="test_hidden_ranges_remain_indistinguishable_on_the_complete_public_surface" assertions="15" status="pass" classname="tests/unit/test_angela_stat_overlay.gd" time="0.29742" >
+      </testcase>
+      <testcase name="test_mouse_and_touch_divider_keep_focus_and_commit_once_after_release" assertions="13" status="pass" classname="tests/unit/test_angela_stat_overlay.gd" time="0.247555" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_stat_hud_week_tint.gd" tests="8" failures="0" skipped="0" time="0.102423" >
+      <testcase name="test_day_one_hud_theme_is_the_shipped_face" assertions="1" status="pass" classname="tests/unit/test_stat_hud_week_tint.gd" time="0.003055" >
+      </testcase>
+      <testcase name="test_day_changed_rebuilds_the_hud_theme_with_the_tint" assertions="3" status="pass" classname="tests/unit/test_stat_hud_week_tint.gd" time="0.004134" >
+      </testcase>
+      <testcase name="test_same_day_refresh_keeps_the_cached_theme_instance" assertions="1" status="pass" classname="tests/unit/test_stat_hud_week_tint.gd" time="0.003763" >
+      </testcase>
+      <testcase name="test_installed_run_selects_palette_and_next_run_preference_cannot_change_it" assertions="6" status="pass" classname="tests/unit/test_stat_hud_week_tint.gd" time="0.008376" >
+      </testcase>
+      <testcase name="test_installation_refreshes_same_day_cached_fallback" assertions="2" status="pass" classname="tests/unit/test_stat_hud_week_tint.gd" time="0.004123" >
+      </testcase>
+      <testcase name="test_silent_installation_boundaries_refresh_without_owner_stat_signals" assertions="4" status="pass" classname="tests/unit/test_stat_hud_week_tint.gd" time="0.012824" >
+      </testcase>
+      <testcase name="test_live_accessibility_changes_rebuild_hud_and_high_contrast_has_no_week_tint" assertions="27" status="pass" classname="tests/unit/test_stat_hud_week_tint.gd" time="0.013349" >
+      </testcase>
+      <testcase name="test_font_style_alone_rebuilds_cached_hud_and_pixel_day_heading_uses_whole_pixels" assertions="27" status="pass" classname="tests/unit/test_stat_hud_week_tint.gd" time="0.052799" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_ui_art_placements.gd" tests="5" failures="0" skipped="0" time="0.117336" >
+      <testcase name="test_title_desktop_launcher_and_contact_attach_valid_optional_art" assertions="10" status="pass" classname="tests/integration/test_ui_art_placements.gd" time="0.046996" >
+      </testcase>
+      <testcase name="test_missing_and_wrong_sized_art_keep_existing_fallbacks" assertions="3" status="pass" classname="tests/integration/test_ui_art_placements.gd" time="0.023379" >
+      </testcase>
+      <testcase name="test_shell_layers_share_the_full_art_host_and_preserve_order" assertions="21" status="pass" classname="tests/integration/test_ui_art_placements.gd" time="0.031991" >
+      </testcase>
+      <testcase name="test_shop_art_uses_valid_exact_sizes_and_wrong_size_keeps_procedural_tile" assertions="4" status="pass" classname="tests/integration/test_ui_art_placements.gd" time="0.006921" >
+      </testcase>
+      <testcase name="test_schedule_optional_pair_resolves_or_falls_back_without_weakening_action_admission" assertions="9" status="pass" classname="tests/integration/test_ui_art_placements.gd" time="0.008049" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_desktop_logout_consent.gd" tests="4" failures="0" skipped="0" time="0.173903" >
+      <testcase name="test_launcher_logout_keeps_workspace_and_cache_then_cancel_restores_exact_focus" assertions="22" status="pass" classname="tests/integration/test_desktop_logout_consent.gd" time="0.057884" >
+      </testcase>
+      <testcase name="test_back_cancels_without_saving_and_restores_launcher_focus" assertions="4" status="pass" classname="tests/integration/test_desktop_logout_consent.gd" time="0.023381" >
+      </testcase>
+      <testcase name="test_failed_save_keeps_retry_cancel_and_retry_captures_launcher_only" assertions="12" status="pass" classname="tests/integration/test_desktop_logout_consent.gd" time="0.042075" >
+      </testcase>
+      <testcase name="test_retired_route_failure_only_allows_same_exit_retry" assertions="9" status="pass" classname="tests/integration/test_desktop_logout_consent.gd" time="0.050563" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_session_exit_coordinator.gd" tests="5" failures="0" skipped="0" time="0.008202" >
+      <testcase name="test_return_retires_without_saving_and_logout_saves_before_retirement" assertions="14" status="pass" classname="tests/unit/test_session_exit_coordinator.gd" time="0.002092" >
+      </testcase>
+      <testcase name="test_failed_save_keeps_the_live_run_and_route_then_retry_is_safe" assertions="8" status="pass" classname="tests/unit/test_session_exit_coordinator.gd" time="0.001366" >
+      </testcase>
+      <testcase name="test_post_retirement_route_failure_keeps_custody_and_retry_does_not_repeat_save" assertions="9" status="pass" classname="tests/unit/test_session_exit_coordinator.gd" time="0.001321" >
+      </testcase>
+      <testcase name="test_stale_exit_view_and_foreign_custody_do_not_prepare_or_save" assertions="8" status="pass" classname="tests/unit/test_session_exit_coordinator.gd" time="0.001393" >
+      </testcase>
+      <testcase name="test_paused_custody_cleanup_failure_stays_forward_only_before_title_publication" assertions="14" status="pass" classname="tests/unit/test_session_exit_coordinator.gd" time="0.00203" >
+      </testcase>
+  </testsuite>
+</testsuites>

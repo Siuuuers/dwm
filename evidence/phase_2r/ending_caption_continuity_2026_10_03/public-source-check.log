@@ -1,0 +1,8 @@
+2026-10-03T15:55:01.5172339Z HEAD is now at 1afa1be Merge cdee58fc9fe7a218df9a6b1dbd64f7fa44f5ea49 into 6a5ddf1564870b43aa9140cad7e0e5b12e43f399
+2026-10-03T15:55:01.6204644Z 1afa1bea1eef66c4132157c377f70a52b25767a7
+2026-10-03T15:55:53.0813847Z WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+2026-10-03T15:57:35.8046624Z DWM_PUBLIC_SURFACE_PAYLOAD_BEGIN {"path":"evidence/phase_2r/runtime/game_state_surface.json","encoding":"gzip+base64","sha256":"e683664cdeb8f4a3320477a5782b48223d71a574b415a3c23d1d44e7338f7674","bytes":570032,"compressed_bytes":64928,"parts":43}
+2026-10-03T15:57:35.9305376Z DWM_PUBLIC_SURFACE_PAYLOAD_END {"path":"evidence/phase_2r/runtime/game_state_surface.json","encoding":"gzip+base64","sha256":"e683664cdeb8f4a3320477a5782b48223d71a574b415a3c23d1d44e7338f7674","bytes":570032,"compressed_bytes":64928,"parts":43}
+2026-10-03T15:57:51.1943519Z DWM_PUBLIC_SURFACE_PAYLOAD_BEGIN {"path":"evidence/phase_2r/runtime/save_manager_surface.json","encoding":"gzip+base64","sha256":"2d6531b2dfc424d4d310ba1a78ad8a7b39248841762b65e5a7cf9f912c96fce5","bytes":152275,"compressed_bytes":18038,"parts":12}
+2026-10-03T15:57:51.2227919Z DWM_PUBLIC_SURFACE_PAYLOAD_END {"path":"evidence/phase_2r/runtime/save_manager_surface.json","encoding":"gzip+base64","sha256":"2d6531b2dfc424d4d310ba1a78ad8a7b39248841762b65e5a7cf9f912c96fce5","bytes":152275,"compressed_bytes":18038,"parts":12}
+2026-10-03T15:58:44.3191032Z CLOUD_GUT_RESULT {"suite":"public_surfaces","test_cases":11,"passed":11,"skipped":0,"requested_scripts":1,"reported_scripts":1,"scripts":[{"script":"tests/unit/tooling/test_public_surface_inventory.gd","test_cases":11,"passed":11,"skipped":0}]}

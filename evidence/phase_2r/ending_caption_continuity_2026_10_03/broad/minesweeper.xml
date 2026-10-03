@@ -1,0 +1,467 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="210" >
+  <testsuite name="tests/unit/test_minesweeper_theme.gd" tests="5" failures="0" skipped="0" time="0.836402" >
+      <testcase name="test_original_standard_roles_remain_exact" assertions="46" status="pass" classname="tests/unit/test_minesweeper_theme.gd" time="0.026635" >
+      </testcase>
+      <testcase name="test_all_tuples_have_identical_role_closure_and_independent_theme_instances" assertions="433" status="pass" classname="tests/unit/test_minesweeper_theme.gd" time="0.105695" >
+      </testcase>
+      <testcase name="test_unknown_tuple_locale_or_scale_has_no_fallback" assertions="5" status="pass" classname="tests/unit/test_minesweeper_theme.gd" time="0.001213" >
+      </testcase>
+      <testcase name="test_authored_text_and_state_ink_meet_project_contrast_thresholds" assertions="1680" status="pass" classname="tests/unit/test_minesweeper_theme.gd" time="0.237417" >
+      </testcase>
+      <testcase name="test_week_tint_preserves_day1_high_contrast_and_all_semantic_inks" assertions="2566" status="pass" classname="tests/unit/test_minesweeper_theme.gd" time="0.465442" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_minesweeper_palette_components.gd" tests="5" failures="0" skipped="0" time="1.973434" >
+      <testcase name="test_accessibility_tuple_reaches_existing_new_and_ephemeral_components" assertions="651" status="pass" classname="tests/unit/test_minesweeper_palette_components.gd" time="0.600233" >
+      </testcase>
+      <testcase name="test_palette_only_change_preserves_grid_contact_and_manual_pan" assertions="11" status="pass" classname="tests/unit/test_minesweeper_palette_components.gd" time="0.306407" >
+      </testcase>
+      <testcase name="test_open_sheet_reconfigures_without_losing_semantic_focus_scroll_or_public_truth" assertions="20" status="pass" classname="tests/unit/test_minesweeper_palette_components.gd" time="0.439927" >
+      </testcase>
+      <testcase name="test_invalid_component_tuple_leaves_valid_themes_and_cell_identity_intact" assertions="12" status="pass" classname="tests/unit/test_minesweeper_palette_components.gd" time="0.072159" >
+      </testcase>
+      <testcase name="test_installed_day_reaches_retained_grid_rules_and_new_cells_without_changing_board" assertions="64" status="pass" classname="tests/unit/test_minesweeper_palette_components.gd" time="0.554708" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_minesweeper_app.gd" tests="22" failures="0" skipped="0" time="5.384718" >
+      <testcase name="test_scene_contains_real_panel_without_local_topbar_or_simulation_controls" assertions="15" status="pass" classname="tests/unit/test_minesweeper_app.gd" time="0.092239" >
+      </testcase>
+      <testcase name="test_prepared_lifecycle_commits_before_visibility_changes" assertions="14" status="pass" classname="tests/unit/test_minesweeper_app.gd" time="0.136271" >
+      </testcase>
+      <testcase name="test_owner_refusal_keeps_visible_window_and_information_overlay_without_hidden_signal" assertions="12" status="pass" classname="tests/unit/test_minesweeper_app.gd" time="0.139425" >
+      </testcase>
+      <testcase name="test_failed_resume_never_shows_a_hidden_window" assertions="6" status="pass" classname="tests/unit/test_minesweeper_app.gd" time="0.117007" >
+      </testcase>
+      <testcase name="test_missing_foreground_publication_blocks_old_facts_until_a_valid_refresh" assertions="17" status="pass" classname="tests/unit/test_minesweeper_app.gd" time="0.28875" >
+      </testcase>
+      <testcase name="test_rules_and_assignments_allow_home_and_escape_closes_only_the_sheet" assertions="31" status="pass" classname="tests/unit/test_minesweeper_app.gd" time="0.183633" >
+      </testcase>
+      <testcase name="test_reopening_retains_mode_semantic_cell_manual_pan_and_focus" assertions="14" status="pass" classname="tests/unit/test_minesweeper_app.gd" time="0.168579" >
+      </testcase>
+      <testcase name="test_hide_cancels_pending_touch_without_a_delayed_flag_or_release_action" assertions="9" status="pass" classname="tests/unit/test_minesweeper_app.gd" time="0.146259" >
+      </testcase>
+      <testcase name="test_locale_and_profile_signals_apply_real_font_preferences_without_resetting_view_state" assertions="19" status="pass" classname="tests/unit/test_minesweeper_app.gd" time="0.820846" >
+      </testcase>
+      <testcase name="test_configured_dependencies_are_idempotent_and_cannot_be_rebound" assertions="9" status="pass" classname="tests/unit/test_minesweeper_app.gd" time="0.16824" >
+      </testcase>
+      <testcase name="test_accessibility_preferences_retheme_without_owner_commands_or_navigation_changes" assertions="13" status="pass" classname="tests/unit/test_minesweeper_app.gd" time="0.339302" >
+      </testcase>
+      <testcase name="test_legacy_colour_preference_is_read_only_compatibility_with_canonical_precedence" assertions="11" status="pass" classname="tests/unit/test_minesweeper_app.gd" time="0.28347" >
+      </testcase>
+      <testcase name="test_invalid_accessibility_preference_keeps_last_valid_theme_and_public_facts" assertions="12" status="pass" classname="tests/unit/test_minesweeper_app.gd" time="0.305404" >
+      </testcase>
+      <testcase name="test_palette_change_with_open_sheet_retains_sheet_focus_scroll_and_home_access" assertions="13" status="pass" classname="tests/unit/test_minesweeper_app.gd" time="0.470316" >
+      </testcase>
+      <testcase name="test_palette_publication_preserves_pending_touch_without_issuing_an_action" assertions="8" status="pass" classname="tests/unit/test_minesweeper_app.gd" time="0.181116" >
+      </testcase>
+      <testcase name="test_first_open_focuses_and_reveals_the_only_legal_prepared_cell" assertions="15" status="pass" classname="tests/unit/test_minesweeper_app.gd" time="0.125109" >
+      </testcase>
+      <testcase name="test_reopen_discards_illegal_cached_cell_and_pan_for_current_prepared_target" assertions="14" status="pass" classname="tests/unit/test_minesweeper_app.gd" time="0.174816" >
+      </testcase>
+      <testcase name="test_focus_loss_clears_held_keyboard_confirmation_and_pending_touch" assertions="11" status="pass" classname="tests/unit/test_minesweeper_app.gd" time="0.141291" >
+      </testcase>
+      <testcase name="test_preparation_pump_is_foreground_one_step_and_stops_for_sheet_pause_or_failure" assertions="15" status="pass" classname="tests/unit/test_minesweeper_app.gd" time="0.241232" >
+      </testcase>
+      <testcase name="test_preparation_home_parks_only_published_stable_frontier_and_hidden_app_does_no_work" assertions="15" status="pass" classname="tests/unit/test_minesweeper_app.gd" time="0.341778" >
+      </testcase>
+      <testcase name="test_unfocused_window_parks_preparation_and_retains_explicit_retry" assertions="15" status="pass" classname="tests/unit/test_minesweeper_app.gd" time="0.38731" >
+      </testcase>
+      <testcase name="test_host_resize_keeps_complete_app_inside_available_display_area" assertions="10" status="pass" classname="tests/unit/test_minesweeper_app.gd" time="0.132325" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_minesweeper_cell.gd" tests="7" failures="0" skipped="0" time="0.032662" >
+      <testcase name="test_fixed_geometry_and_inert_grid_owned_input" assertions="11" status="pass" classname="tests/unit/test_minesweeper_cell.gd" time="0.002277" >
+      </testcase>
+      <testcase name="test_exact_public_shape_and_contradictions_refuse_atomically" assertions="16" status="pass" classname="tests/unit/test_minesweeper_cell.gd" time="0.005859" >
+      </testcase>
+      <testcase name="test_closed_visible_alphabet_accepts_lawful_forms" assertions="16" status="pass" classname="tests/unit/test_minesweeper_cell.gd" time="0.002805" >
+      </testcase>
+      <testcase name="test_contact_gates_and_press_supersedes_hover" assertions="9" status="pass" classname="tests/unit/test_minesweeper_cell.gd" time="0.001262" >
+      </testcase>
+      <testcase name="test_palette_roles_and_invalid_configuration_are_atomic" assertions="9" status="pass" classname="tests/unit/test_minesweeper_cell.gd" time="0.001745" >
+      </testcase>
+      <testcase name="test_accessibility_exposes_only_current_public_mark_and_number" assertions="8" status="pass" classname="tests/unit/test_minesweeper_cell.gd" time="0.016126" >
+      </testcase>
+      <testcase name="test_provisional_glyph_geometry_uses_whole_native_pixels_inside_aperture" assertions="15" status="pass" classname="tests/unit/test_minesweeper_cell.gd" time="0.002588" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_gallery_rehearsal_host.gd" tests="4" failures="0" skipped="0" time="1.155603" >
+      <testcase name="test_practice_requires_milestone_and_start_rechecks_exact_reached_record" assertions="13" status="pass" classname="tests/unit/test_gallery_rehearsal_host.gd" time="0.185084" >
+      </testcase>
+      <testcase name="test_public_start_automatic_board_and_return_keep_selected_presentation_board_and_variables_private" assertions="29" status="pass" classname="tests/unit/test_gallery_rehearsal_host.gd" time="0.442639" >
+      </testcase>
+      <testcase name="test_old_deferred_finish_cannot_close_replacement_practice_and_variable_refusal_keeps_picker" assertions="10" status="pass" classname="tests/unit/test_gallery_rehearsal_host.gd" time="0.357132" >
+      </testcase>
+      <testcase name="test_practice_return_keeps_dating_visible_when_view_preference_write_fails" assertions="16" status="pass" classname="tests/unit/test_gallery_rehearsal_host.gd" time="0.170748" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_minesweeper_dock.gd" tests="6" failures="0" skipped="0" time="0.977768" >
+      <testcase name="test_desktop_actions_fit_without_board_or_separate_reveal_buttons" assertions="19" status="pass" classname="tests/unit/test_minesweeper_dock.gd" time="0.003732" >
+      </testcase>
+      <testcase name="test_mode_selection_waits_for_owner_and_disabled_new_board_is_inert" assertions="17" status="pass" classname="tests/unit/test_minesweeper_dock.gd" time="0.004829" >
+      </testcase>
+      <testcase name="test_all_languages_keep_dock_centered_evenly_spaced_and_readable_at_full_font_size" assertions="3421" status="pass" classname="tests/unit/test_minesweeper_dock.gd" time="0.833865" >
+      </testcase>
+      <testcase name="test_locale_relayout_retains_focused_action_owner_selection_and_custody" assertions="482" status="pass" classname="tests/unit/test_minesweeper_dock.gd" time="0.12092" >
+      </testcase>
+      <testcase name="test_custody_and_invalid_updates_preserve_selection_without_command" assertions="12" status="pass" classname="tests/unit/test_minesweeper_dock.gd" time="0.004007" >
+      </testcase>
+      <testcase name="test_flag_icon_height_is_independent_of_its_hidden_localized_label" assertions="54" status="pass" classname="tests/unit/test_minesweeper_dock.gd" time="0.010415" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_minesweeper_register.gd" tests="9" failures="0" skipped="0" time="0.385195" >
+      <testcase name="test_header_gives_difficulties_room_and_only_displays_rounds_and_mines" assertions="16" status="pass" classname="tests/unit/test_minesweeper_register.gd" time="0.004757" >
+      </testcase>
+      <testcase name="test_difficulty_requests_include_current_tier_but_commitment_stays_owner_controlled" assertions="16" status="pass" classname="tests/unit/test_minesweeper_register.gd" time="0.005361" >
+      </testcase>
+      <testcase name="test_unknown_mines_use_dash_and_hidden_metrics_retain_authoritative_values" assertions="6" status="pass" classname="tests/unit/test_minesweeper_register.gd" time="0.003207" >
+      </testcase>
+      <testcase name="test_all_font_scales_preserve_bay_order_and_do_not_shrink_copy" assertions="1202" status="pass" classname="tests/unit/test_minesweeper_register.gd" time="0.250471" >
+      </testcase>
+      <testcase name="test_canonical_blank_capacity_has_no_placeholder_control_or_difficulty" assertions="546" status="pass" classname="tests/unit/test_minesweeper_register.gd" time="0.104417" >
+      </testcase>
+      <testcase name="test_large_text_does_not_reintroduce_hidden_challenge_metrics" assertions="7" status="pass" classname="tests/unit/test_minesweeper_register.gd" time="0.005464" >
+      </testcase>
+      <testcase name="test_invalid_or_private_input_preserves_existing_facts" assertions="7" status="pass" classname="tests/unit/test_minesweeper_register.gd" time="0.003411" >
+      </testcase>
+      <testcase name="test_repeated_present_retains_every_difficulty_button_and_metric_control" assertions="16" status="pass" classname="tests/unit/test_minesweeper_register.gd" time="0.004532" >
+      </testcase>
+      <testcase name="test_retained_difficulty_button_keeps_its_focus_and_commitment_signal" assertions="6" status="pass" classname="tests/unit/test_minesweeper_register.gd" time="0.003575" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_minesweeper_panel.gd" tests="23" failures="0" skipped="0" time="5.601529" >
+      <testcase name="test_dock_mode_and_real_f_shortcut_share_selection_without_board_commands" assertions="13" status="pass" classname="tests/unit/test_minesweeper_panel.gd" time="0.041005" >
+      </testcase>
+      <testcase name="test_switchable_information_preserves_board_mode_cell_scroll_and_facts" assertions="57" status="pass" classname="tests/unit/test_minesweeper_panel.gd" time="0.5937" >
+      </testcase>
+      <testcase name="test_invalid_composite_preserves_facts_blocks_input_and_refresh_recovers" assertions="20" status="pass" classname="tests/unit/test_minesweeper_panel.gd" time="0.091309" >
+      </testcase>
+      <testcase name="test_same_size_dispatch_refreshes_public_facts_without_replacing_cells" assertions="71" status="pass" classname="tests/unit/test_minesweeper_panel.gd" time="0.050499" >
+      </testcase>
+      <testcase name="test_all_locale_scale_and_target_tuples_close_fixed_body_without_shrinking_fonts" assertions="310" status="pass" classname="tests/unit/test_minesweeper_panel.gd" time="0.466966" >
+      </testcase>
+      <testcase name="test_replacement_and_difficulty_remain_disabled_and_unpublished_actions_are_rejected" assertions="17" status="pass" classname="tests/unit/test_minesweeper_panel.gd" time="0.065739" >
+      </testcase>
+      <testcase name="test_settled_terminal_enables_real_new_board_and_returns_to_unpaid_view" assertions="11" status="pass" classname="tests/unit/test_minesweeper_panel.gd" time="0.052502" >
+      </testcase>
+      <testcase name="test_binding_is_idempotent_and_cannot_redirect_to_a_replacement_port" assertions="12" status="pass" classname="tests/unit/test_minesweeper_panel.gd" time="0.041989" >
+      </testcase>
+      <testcase name="test_real_tab_visits_manual_grid_rails_zoom_and_dock_then_exits_to_the_host" assertions="20" status="pass" classname="tests/unit/test_minesweeper_panel.gd" time="0.106244" >
+      </testcase>
+      <testcase name="test_synchronous_long_press_publication_retains_touch_gate_and_all_cell_nodes" assertions="77" status="pass" classname="tests/unit/test_minesweeper_panel.gd" time="0.056128" >
+      </testcase>
+      <testcase name="test_locale_configuration_during_sheet_restores_rebuilt_semantic_source_and_pan" assertions="14" status="pass" classname="tests/unit/test_minesweeper_panel.gd" time="0.139813" >
+      </testcase>
+      <testcase name="test_unchanged_assignment_refresh_preserves_scrolled_rail_identity_and_focus" assertions="13" status="pass" classname="tests/unit/test_minesweeper_panel.gd" time="0.045081" >
+      </testcase>
+      <testcase name="test_real_difficulty_buttons_dispatch_frozen_revision_and_reset_mode_only_on_success" assertions="16" status="pass" classname="tests/unit/test_minesweeper_panel.gd" time="0.108806" >
+      </testcase>
+      <testcase name="test_difficulty_change_waits_for_pending_view_preference_write" assertions="10" status="pass" classname="tests/unit/test_minesweeper_panel.gd" time="0.091929" >
+      </testcase>
+      <testcase name="test_touched_space_and_new_board_share_dispatch_while_untouched_space_is_inert" assertions="10" status="pass" classname="tests/unit/test_minesweeper_panel.gd" time="0.043883" >
+      </testcase>
+      <testcase name="test_settled_space_uses_new_board_even_when_grid_has_no_focus" assertions="6" status="pass" classname="tests/unit/test_minesweeper_panel.gd" time="0.045151" >
+      </testcase>
+      <testcase name="test_settled_difficulty_uses_only_authoritative_capability" assertions="8" status="pass" classname="tests/unit/test_minesweeper_panel.gd" time="0.093351" >
+      </testcase>
+      <testcase name="test_measure_retains_one_result_per_configuration_and_every_input_invalidates_it" assertions="20" status="pass" classname="tests/unit/test_minesweeper_panel.gd" time="0.089573" >
+      </testcase>
+      <testcase name="test_publication_keeps_one_detached_copy_shared_by_grid_and_cells" assertions="11" status="pass" classname="tests/unit/test_minesweeper_panel.gd" time="0.041369" >
+      </testcase>
+      <testcase name="test_information_new_board_closes_only_after_an_admitted_owner_result" assertions="16" status="pass" classname="tests/unit/test_minesweeper_panel.gd" time="0.090356" >
+      </testcase>
+      <testcase name="test_information_difficulty_refusal_preserves_overlay_and_same_tier_dismisses_without_dispatch" assertions="25" status="pass" classname="tests/unit/test_minesweeper_panel.gd" time="0.289922" >
+      </testcase>
+      <testcase name="test_open_information_does_not_bypass_new_custody_or_unpublished_actions" assertions="16" status="pass" classname="tests/unit/test_minesweeper_panel.gd" time="0.066616" >
+      </testcase>
+      <testcase name="test_both_font_styles_keep_full_size_labels_and_board_reachable_across_120_presentations" assertions="2166" status="pass" classname="tests/unit/test_minesweeper_panel.gd" time="2.889598" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_minesweeper_worksheet.gd" tests="19" failures="0" skipped="0" time="5.66788" >
+      <testcase name="test_every_host_tier_text_and_target_size_fits_the_complete_board" assertions="975" status="pass" classname="tests/unit/test_minesweeper_worksheet.gd" time="3.744013" >
+      </testcase>
+      <testcase name="test_rules_overlay_retains_visible_board_and_return_restores_mode_cell_scroll_and_source" assertions="22" status="pass" classname="tests/unit/test_minesweeper_worksheet.gd" time="0.238555" >
+      </testcase>
+      <testcase name="test_sheet_tab_traps_focus_and_escape_restores_grid_without_command" assertions="9" status="pass" classname="tests/unit/test_minesweeper_worksheet.gd" time="0.04894" >
+      </testcase>
+      <testcase name="test_missing_assignment_truth_does_not_open_or_disturb_grid" assertions="9" status="pass" classname="tests/unit/test_minesweeper_worksheet.gd" time="0.018317" >
+      </testcase>
+      <testcase name="test_sheet_return_preserves_fitted_board_and_semantic_focus" assertions="8" status="pass" classname="tests/unit/test_minesweeper_worksheet.gd" time="0.070147" >
+      </testcase>
+      <testcase name="test_pan_and_scroll_cannot_hide_any_part_of_the_fitted_board" assertions="6" status="pass" classname="tests/unit/test_minesweeper_worksheet.gd" time="0.228254" >
+      </testcase>
+      <testcase name="test_focus_navigation_and_return_reveal_the_complete_semantic_cell" assertions="7" status="pass" classname="tests/unit/test_minesweeper_worksheet.gd" time="0.102879" >
+      </testcase>
+      <testcase name="test_real_wheel_route_keeps_the_complete_board_in_view" assertions="5" status="pass" classname="tests/unit/test_minesweeper_worksheet.gd" time="0.071579" >
+      </testcase>
+      <testcase name="test_fractional_pointer_motion_cannot_shift_the_fitted_board" assertions="8" status="pass" classname="tests/unit/test_minesweeper_worksheet.gd" time="0.057106" >
+      </testcase>
+      <testcase name="test_actual_drag_route_keeps_full_fit_without_issuing_a_cell_command" assertions="8" status="pass" classname="tests/unit/test_minesweeper_worksheet.gd" time="0.07572" >
+      </testcase>
+      <testcase name="test_touch_drag_uses_real_gui_routing_and_never_activates_on_release" assertions="9" status="pass" classname="tests/unit/test_minesweeper_worksheet.gd" time="0.06263" >
+      </testcase>
+      <testcase name="test_fitted_pointer_release_uses_original_cell_coordinates" assertions="5" status="pass" classname="tests/unit/test_minesweeper_worksheet.gd" time="0.073432" >
+      </testcase>
+      <testcase name="test_custody_keeps_truth_and_scroll_but_removes_all_input" assertions="11" status="pass" classname="tests/unit/test_minesweeper_worksheet.gd" time="0.201688" >
+      </testcase>
+      <testcase name="test_configuration_and_invalid_projection_preserve_the_current_view_atomically" assertions="8" status="pass" classname="tests/unit/test_minesweeper_worksheet.gd" time="0.059955" >
+      </testcase>
+      <testcase name="test_changing_difficulty_refits_without_stale_pan_or_rails" assertions="8" status="pass" classname="tests/unit/test_minesweeper_worksheet.gd" time="0.060943" >
+      </testcase>
+      <testcase name="test_configure_and_present_before_tree_mount_keep_focus_and_geometry" assertions="4" status="pass" classname="tests/unit/test_minesweeper_worksheet.gd" time="0.009574" >
+      </testcase>
+      <testcase name="test_information_closing_reenables_external_source_before_exact_focus_restoration" assertions="13" status="pass" classname="tests/unit/test_minesweeper_worksheet.gd" time="0.065703" >
+      </testcase>
+      <testcase name="test_interaction_block_preserves_public_facts_scroll_and_open_sheet_return" assertions="26" status="pass" classname="tests/unit/test_minesweeper_worksheet.gd" time="0.392688" >
+      </testcase>
+      <testcase name="test_information_overlay_blocks_native_pointer_touch_and_held_release_without_hiding_cells" assertions="149" status="pass" classname="tests/unit/test_minesweeper_worksheet.gd" time="0.085757" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_minesweeper_worksheet_layout.gd" tests="4" failures="0" skipped="0" time="0.009479" >
+      <testcase name="test_accepted_baseline_mounts_origins_and_conditional_axes" assertions="40" status="pass" classname="tests/unit/test_minesweeper_worksheet_layout.gd" time="0.005915" >
+      </testcase>
+      <testcase name="test_scroll_clamps_before_thumb_derivation_and_corner_is_separate" assertions="7" status="pass" classname="tests/unit/test_minesweeper_worksheet_layout.gd" time="0.001343" >
+      </testcase>
+      <testcase name="test_focus_correction_reveals_full_cell_without_fractional_motion" assertions="3" status="pass" classname="tests/unit/test_minesweeper_worksheet_layout.gd" time="0.001537" >
+      </testcase>
+      <testcase name="test_invalid_geometry_never_creates_a_partial_layout" assertions="3" status="pass" classname="tests/unit/test_minesweeper_worksheet_layout.gd" time="0.000684" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_minesweeper_worksheet_view_layout.gd" tests="5" failures="0" skipped="0" time="0.657504" >
+      <testcase name="test_all_manual_cell_sizes_preserve_scaled_grid_and_bounded_pan" assertions="2912" status="pass" classname="tests/unit/test_minesweeper_worksheet_view_layout.gd" time="0.358648" >
+      </testcase>
+      <testcase name="test_manual_focus_reveals_entire_cell_at_pan_extremes" assertions="832" status="pass" classname="tests/unit/test_minesweeper_worksheet_view_layout.gd" time="0.264067" >
+      </testcase>
+      <testcase name="test_fit_shows_whole_board_without_rails_and_caps_cell_at_sixty_logical" assertions="290" status="pass" classname="tests/unit/test_minesweeper_worksheet_view_layout.gd" time="0.032129" >
+      </testcase>
+      <testcase name="test_zoom_anchor_preserves_board_point_except_where_clamped" assertions="5" status="pass" classname="tests/unit/test_minesweeper_worksheet_view_layout.gd" time="0.001232" >
+      </testcase>
+      <testcase name="test_invalid_manual_sizes_and_cells_do_not_create_view" assertions="8" status="pass" classname="tests/unit/test_minesweeper_worksheet_view_layout.gd" time="0.001428" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_minesweeper_view_controls.gd" tests="10" failures="0" skipped="0" time="19.221757" >
+      <testcase name="test_default_manual_size_and_fit_restore_do_not_change_the_board" assertions="13" status="pass" classname="tests/unit/test_minesweeper_view_controls.gd" time="0.217978" >
+      </testcase>
+      <testcase name="test_scope_switch_and_reopening_restore_permanent_preferences" assertions="18" status="pass" classname="tests/unit/test_minesweeper_view_controls.gd" time="0.120601" >
+      </testcase>
+      <testcase name="test_manual_step_from_fit_starts_at_displayed_size_and_preserves_anchor" assertions="11" status="pass" classname="tests/unit/test_minesweeper_view_controls.gd" time="0.062035" >
+      </testcase>
+      <testcase name="test_rapid_wheel_updates_are_immediate_and_flush_as_one_preference_transaction" assertions="13" status="pass" classname="tests/unit/test_minesweeper_view_controls.gd" time="0.219547" >
+      </testcase>
+      <testcase name="test_preference_write_refusal_restores_last_saved_view" assertions="17" status="pass" classname="tests/unit/test_minesweeper_view_controls.gd" time="0.082651" >
+      </testcase>
+      <testcase name="test_large_targets_and_text_size_do_not_change_selected_cell_size" assertions="6843" status="pass" classname="tests/unit/test_minesweeper_view_controls.gd" time="17.859152" >
+      </testcase>
+      <testcase name="test_sheet_and_held_cell_block_zoom_without_writing_preferences" assertions="8" status="pass" classname="tests/unit/test_minesweeper_view_controls.gd" time="0.070301" >
+      </testcase>
+      <testcase name="test_size_picklist_and_fit_share_controls_without_changing_board_or_mode" assertions="500" status="pass" classname="tests/unit/test_minesweeper_view_controls.gd" time="0.28927" >
+      </testcase>
+      <testcase name="test_explicit_size_rejects_invalid_values_and_rolls_back_failed_persistence" assertions="12" status="pass" classname="tests/unit/test_minesweeper_view_controls.gd" time="0.2228" >
+      </testcase>
+      <testcase name="test_external_footer_mount_removes_local_control_row_and_keeps_one_control_set" assertions="7" status="pass" classname="tests/unit/test_minesweeper_view_controls.gd" time="0.077422" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_minesweeper_view_preferences.gd" tests="6" failures="0" skipped="0" time="0.306905" >
+      <testcase name="test_registry_has_four_hidden_independent_scopes_and_all_manual_sizes" assertions="179" status="pass" classname="tests/unit/test_minesweeper_view_preferences.gd" time="0.023396" >
+      </testcase>
+      <testcase name="test_old_profile_admits_only_the_complete_absent_set_and_preserves_other_preferences" assertions="14" status="pass" classname="tests/unit/test_minesweeper_view_preferences.gd" time="0.01175" >
+      </testcase>
+      <testcase name="test_old_profile_defaults_persist_and_four_scopes_survive_restart" assertions="19" status="pass" classname="tests/unit/test_minesweeper_view_preferences.gd" time="0.139472" >
+      </testcase>
+      <testcase name="test_failed_preference_write_keeps_memory_and_profile_bytes_unchanged" assertions="5" status="pass" classname="tests/unit/test_minesweeper_view_preferences.gd" time="0.03044" >
+      </testcase>
+      <testcase name="test_new_account_preparation_preserves_all_four_permanent_view_scopes" assertions="8" status="pass" classname="tests/unit/test_minesweeper_view_preferences.gd" time="0.051725" >
+      </testcase>
+      <testcase name="test_older_save_restore_plan_keeps_current_view_scopes_without_legacy_patch" assertions="7" status="pass" classname="tests/unit/test_minesweeper_view_preferences.gd" time="0.050122" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_minesweeper_zoom_input.gd" tests="17" failures="0" skipped="0" time="0.071918" >
+      <testcase name="test_ctrl_wheel_emits_signed_steps_at_pointer_and_plain_wheel_still_pans" assertions="9" status="pass" classname="tests/unit/test_minesweeper_zoom_input.gd" time="0.004836" >
+      </testcase>
+      <testcase name="test_zoom_rejects_held_cell_action_without_canceling_its_release" assertions="7" status="pass" classname="tests/unit/test_minesweeper_zoom_input.gd" time="0.003273" >
+      </testcase>
+      <testcase name="test_second_touch_cancels_tap_and_longpress_and_both_releases_stay_inert" assertions="9" status="pass" classname="tests/unit/test_minesweeper_zoom_input.gd" time="0.004648" >
+      </testcase>
+      <testcase name="test_pinch_ratio_uses_stable_positions_when_grid_scale_and_origin_change" assertions="5" status="pass" classname="tests/unit/test_minesweeper_zoom_input.gd" time="0.00373" >
+      </testcase>
+      <testcase name="test_third_touch_cancels_pinch_until_every_contact_is_up" assertions="6" status="pass" classname="tests/unit/test_minesweeper_zoom_input.gd" time="0.003709" >
+      </testcase>
+      <testcase name="test_focus_and_custody_cancel_pinch_without_releasing_a_cell_action" assertions="15" status="pass" classname="tests/unit/test_minesweeper_zoom_input.gd" time="0.00838" >
+      </testcase>
+      <testcase name="test_trigger_step_is_deferred_and_requires_release_threshold_before_repeating" assertions="8" status="pass" classname="tests/unit/test_minesweeper_zoom_input.gd" time="0.004746" >
+      </testcase>
+      <testcase name="test_simultaneous_triggers_are_coalesced_and_releasing_one_does_not_zoom" assertions="6" status="pass" classname="tests/unit/test_minesweeper_zoom_input.gd" time="0.003897" >
+      </testcase>
+      <testcase name="test_restore_requires_both_axes_observed_neutral_and_no_device_is_not_neutral" assertions="5" status="pass" classname="tests/unit/test_minesweeper_zoom_input.gd" time="0.003599" >
+      </testcase>
+      <testcase name="test_connected_axis_poll_can_rearm_after_missed_release_without_inventing_a_step" assertions="5" status="pass" classname="tests/unit/test_minesweeper_zoom_input.gd" time="0.003483" >
+      </testcase>
+      <testcase name="test_zoom_is_suppressed_by_modal_focus_loss_and_projection_custody" assertions="6" status="pass" classname="tests/unit/test_minesweeper_zoom_input.gd" time="0.004121" >
+      </testcase>
+      <testcase name="test_right_stick_pan_has_the_same_direction_as_scroll_wheel" assertions="5" status="pass" classname="tests/unit/test_minesweeper_zoom_input.gd" time="0.003835" >
+      </testcase>
+      <testcase name="test_vertical_grid_edge_can_focus_authored_toolbar_neighbor_without_wrapping" assertions="11" status="pass" classname="tests/unit/test_minesweeper_zoom_input.gd" time="0.004154" >
+      </testcase>
+      <testcase name="test_shared_view_admission_observes_quarantine_foreground_and_process_custody" assertions="13" status="pass" classname="tests/unit/test_minesweeper_zoom_input.gd" time="0.00463" >
+      </testcase>
+      <testcase name="test_view_input_signal_changes_once_per_hold_and_not_per_motion_or_refresh" assertions="9" status="pass" classname="tests/unit/test_minesweeper_zoom_input.gd" time="0.004312" >
+      </testcase>
+      <testcase name="test_controller_confirm_hold_notifies_view_controls_on_press_and_release" assertions="7" status="pass" classname="tests/unit/test_minesweeper_zoom_input.gd" time="0.003384" >
+      </testcase>
+      <testcase name="test_show_restores_view_admission_without_requiring_grid_focus" assertions="8" status="pass" classname="tests/unit/test_minesweeper_zoom_input.gd" time="0.003181" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_minesweeper_scroll_rail.gd" tests="9" failures="0" skipped="0" time="0.028437" >
+      <testcase name="test_layout_rail_places_native_geometry_at_double_logical_scale" assertions="6" status="pass" classname="tests/unit/test_minesweeper_scroll_rail.gd" time="0.001417" >
+      </testcase>
+      <testcase name="test_invalid_or_zero_extent_geometry_is_atomic" assertions="7" status="pass" classname="tests/unit/test_minesweeper_scroll_rail.gd" time="0.001547" >
+      </testcase>
+      <testcase name="test_thumb_drag_maps_native_integer_range_and_track_click_pages" assertions="5" status="pass" classname="tests/unit/test_minesweeper_scroll_rail.gd" time="0.001833" >
+      </testcase>
+      <testcase name="test_synchronous_thumb_refresh_preserves_original_drag_binding" assertions="9" status="pass" classname="tests/unit/test_minesweeper_scroll_rail.gd" time="0.001691" >
+      </testcase>
+      <testcase name="test_orientation_change_cancels_drag_and_ready_preserves_presented_focus_mode" assertions="6" status="pass" classname="tests/unit/test_minesweeper_scroll_rail.gd" time="0.011962" >
+      </testcase>
+      <testcase name="test_keys_wheel_and_clamps_use_public_native_values" assertions="7" status="pass" classname="tests/unit/test_minesweeper_scroll_rail.gd" time="0.003252" >
+      </testcase>
+      <testcase name="test_horizontal_wheel_uses_horizontal_buttons_only" assertions="4" status="pass" classname="tests/unit/test_minesweeper_scroll_rail.gd" time="0.001923" >
+      </testcase>
+      <testcase name="test_large_targets_keep_scroll_step_while_visual_rail_gets_thinner" assertions="6" status="pass" classname="tests/unit/test_minesweeper_scroll_rail.gd" time="0.002371" >
+      </testcase>
+      <testcase name="test_inert_rail_has_no_focus_contacts_or_owner_metadata" assertions="7" status="pass" classname="tests/unit/test_minesweeper_scroll_rail.gd" time="0.002441" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_minesweeper_sheet_controls.gd" tests="10" failures="0" skipped="0" time="0.060076" >
+      <testcase name="test_row_is_real_focusable_fact_without_activation_api" assertions="9" status="pass" classname="tests/unit/test_minesweeper_sheet_controls.gd" time="0.001929" >
+      </testcase>
+      <testcase name="test_pointer_and_touch_transfer_inspection_focus" assertions="4" status="pass" classname="tests/unit/test_minesweeper_sheet_controls.gd" time="0.001483" >
+      </testcase>
+      <testcase name="test_multiline_copy_preserves_full_locale_font_and_measured_bounds" assertions="227" status="pass" classname="tests/unit/test_minesweeper_sheet_controls.gd" time="0.032446" >
+      </testcase>
+      <testcase name="test_invalid_row_configuration_retains_every_public_state" assertions="12" status="pass" classname="tests/unit/test_minesweeper_sheet_controls.gd" time="0.002514" >
+      </testcase>
+      <testcase name="test_discretionary_hyphens_are_invisible_when_whole_words_fit" assertions="39" status="pass" classname="tests/unit/test_minesweeper_sheet_controls.gd" time="0.008456" >
+      </testcase>
+      <testcase name="test_exact_label_typesetting_does_not_insert_break_hints_into_sentences_or_chinese" assertions="8" status="pass" classname="tests/unit/test_minesweeper_sheet_controls.gd" time="0.002292" >
+      </testcase>
+      <testcase name="test_return_has_fixed_width_native_release_activation_and_growing_height" assertions="16" status="pass" classname="tests/unit/test_minesweeper_sheet_controls.gd" time="0.003349" >
+      </testcase>
+      <testcase name="test_invalid_return_configuration_is_atomic" assertions="9" status="pass" classname="tests/unit/test_minesweeper_sheet_controls.gd" time="0.001867" >
+      </testcase>
+      <testcase name="test_native_return_input_activates_on_release_and_ignores_repeat" assertions="5" status="pass" classname="tests/unit/test_minesweeper_sheet_controls.gd" time="0.002489" >
+      </testcase>
+      <testcase name="test_reconfigured_controls_shrink_to_measured_bounds_on_mount_and_in_tree" assertions="14" status="pass" classname="tests/unit/test_minesweeper_sheet_controls.gd" time="0.003251" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_minesweeper_information_sheet.gd" tests="9" failures="0" skipped="0" time="0.325591" >
+      <testcase name="test_baseline_rules_fit_exact_bands_with_four_readonly_rows" assertions="12" status="pass" classname="tests/unit/test_minesweeper_information_sheet.gd" time="0.003701" >
+      </testcase>
+      <testcase name="test_assignment_status_is_required_and_all_nine_rows_scroll_without_claim_actions" assertions="20" status="pass" classname="tests/unit/test_minesweeper_information_sheet.gd" time="0.004877" >
+      </testcase>
+      <testcase name="test_locale_scale_large_and_both_palettes_preserve_full_font_and_row_capacity" assertions="685" status="pass" classname="tests/unit/test_minesweeper_information_sheet.gd" time="0.277613" >
+      </testcase>
+      <testcase name="test_invalid_configure_or_status_keeps_current_sheet_focus_and_scroll" assertions="8" status="pass" classname="tests/unit/test_minesweeper_information_sheet.gd" time="0.007193" >
+      </testcase>
+      <testcase name="test_back_and_return_are_only_dismissals_and_repeat_is_ignored" assertions="6" status="pass" classname="tests/unit/test_minesweeper_information_sheet.gd" time="0.004034" >
+      </testcase>
+      <testcase name="test_canonical_rules_have_wide_band_but_no_assignment_surface" assertions="5" status="pass" classname="tests/unit/test_minesweeper_information_sheet.gd" time="0.004197" >
+      </testcase>
+      <testcase name="test_real_run_receipts_reach_sheet_without_claiming_or_changing_save_state" assertions="5" status="pass" classname="tests/unit/test_minesweeper_information_sheet.gd" time="0.007087" >
+      </testcase>
+      <testcase name="test_rail_focus_and_clamped_scroll_survive_locale_scale_and_claims_rebuilds" assertions="13" status="pass" classname="tests/unit/test_minesweeper_information_sheet.gd" time="0.010934" >
+      </testcase>
+      <testcase name="test_rebuilding_focused_row_retains_manual_scroll_until_new_navigation" assertions="8" status="pass" classname="tests/unit/test_minesweeper_information_sheet.gd" time="0.005955" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/scene/test_minesweeper_toggle_bindings.gd" tests="12" failures="0" skipped="0" time="0.297836" >
+      <testcase name="test_default_keyboard_and_controller_toggle_preserve_projection_focus_cells_and_pan" assertions="20" status="pass" classname="tests/scene/test_minesweeper_toggle_bindings.gd" time="0.021712" >
+      </testcase>
+      <testcase name="test_saved_keyboard_and_controller_bindings_replace_defaults_with_exact_modifiers" assertions="15" status="pass" classname="tests/scene/test_minesweeper_toggle_bindings.gd" time="0.072057" >
+      </testcase>
+      <testcase name="test_duplicate_echo_and_simultaneous_sources_toggle_once_until_all_release" assertions="10" status="pass" classname="tests/scene/test_minesweeper_toggle_bindings.gd" time="0.016557" >
+      </testcase>
+      <testcase name="test_held_contact_rebound_to_toggle_requires_its_own_release" assertions="12" status="pass" classname="tests/scene/test_minesweeper_toggle_bindings.gd" time="0.034271" >
+      </testcase>
+      <testcase name="test_focus_departure_and_application_focus_cycle_quarantine_held_contacts" assertions="12" status="pass" classname="tests/scene/test_minesweeper_toggle_bindings.gd" time="0.016723" >
+      </testcase>
+      <testcase name="test_sheet_disabled_processing_cannot_replay_contact_on_return" assertions="12" status="pass" classname="tests/scene/test_minesweeper_toggle_bindings.gd" time="0.016469" >
+      </testcase>
+      <testcase name="test_contact_begun_during_application_focus_loss_is_inert_until_release_after_return" assertions="11" status="pass" classname="tests/scene/test_minesweeper_toggle_bindings.gd" time="0.015743" >
+      </testcase>
+      <testcase name="test_actual_worksheet_rules_sheet_return_preserves_focus_and_quarantines_sheet_contact" assertions="20" status="pass" classname="tests/scene/test_minesweeper_toggle_bindings.gd" time="0.032584" >
+      </testcase>
+      <testcase name="test_interaction_and_projection_custody_preserve_release_frontier" assertions="15" status="pass" classname="tests/scene/test_minesweeper_toggle_bindings.gd" time="0.018001" >
+      </testcase>
+      <testcase name="test_pause_resume_requires_closing_contact_release_and_later_fresh_press" assertions="15" status="pass" classname="tests/scene/test_minesweeper_toggle_bindings.gd" time="0.022255" >
+      </testcase>
+      <testcase name="test_toggle_during_existing_pointer_contact_is_inert_and_keeps_original_gesture" assertions="10" status="pass" classname="tests/scene/test_minesweeper_toggle_bindings.gd" time="0.0156" >
+      </testcase>
+      <testcase name="test_no_owner_is_inert_and_bound_owner_cannot_be_replaced" assertions="11" status="pass" classname="tests/scene/test_minesweeper_toggle_bindings.gd" time="0.015864" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/scene/test_minesweeper_new_board_bindings.gd" tests="5" failures="0" skipped="0" time="0.38415" >
+      <testcase name="test_default_and_saved_bindings_dispatch_only_published_active_new_board" assertions="20" status="pass" classname="tests/scene/test_minesweeper_new_board_bindings.gd" time="0.090379" >
+      </testcase>
+      <testcase name="test_settled_board_accepts_keyboard_and_controller_without_grid_focus" assertions="16" status="pass" classname="tests/scene/test_minesweeper_new_board_bindings.gd" time="0.110501" >
+      </testcase>
+      <testcase name="test_held_key_cannot_become_new_board_after_rebind_focus_sheet_or_pause" assertions="23" status="pass" classname="tests/scene/test_minesweeper_new_board_bindings.gd" time="0.073125" >
+      </testcase>
+      <testcase name="test_settled_board_does_not_replay_held_key_across_focus_or_pause" assertions="14" status="pass" classname="tests/scene/test_minesweeper_new_board_bindings.gd" time="0.077563" >
+      </testcase>
+      <testcase name="test_canonical_challenge_hosts_do_not_offer_new_board_even_with_a_saved_binding" assertions="11" status="pass" classname="tests/scene/test_minesweeper_new_board_bindings.gd" time="0.032582" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/scene/test_minesweeper_view_gestures.gd" tests="4" failures="0" skipped="0" time="0.182306" >
+      <testcase name="test_second_touch_in_blank_well_cancels_cell_action_and_finishes_one_pinch_write" assertions="13" status="pass" classname="tests/scene/test_minesweeper_view_gestures.gd" time="0.028004" >
+      </testcase>
+      <testcase name="test_ctrl_wheel_over_grid_and_blank_well_each_zoom_once_with_vertical_anchor" assertions="13" status="pass" classname="tests/scene/test_minesweeper_view_gestures.gd" time="0.032576" >
+      </testcase>
+      <testcase name="test_forced_cell_publication_reveals_it_without_stealing_external_focus" assertions="14" status="pass" classname="tests/scene/test_minesweeper_view_gestures.gd" time="0.031199" >
+      </testcase>
+      <testcase name="test_fit_toggle_rebuilds_rail_tab_order_and_exits_to_host" assertions="28" status="pass" classname="tests/scene/test_minesweeper_view_gestures.gd" time="0.090527" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/scene/test_minesweeper_challenge_controls.gd" tests="8" failures="0" skipped="0" time="18.048294" >
+      <testcase name="test_day2_scene_does_not_mount_retired_observer_interactions" assertions="18" status="pass" classname="tests/scene/test_minesweeper_challenge_controls.gd" time="0.452899" >
+      </testcase>
+      <testcase name="test_flag_toggle_drag_and_rules_preserve_challenge_board_and_navigation" assertions="510" status="pass" classname="tests/scene/test_minesweeper_challenge_controls.gd" time="0.468887" >
+      </testcase>
+      <testcase name="test_challenge_size_and_fit_controls_live_in_footer_and_preserve_progress" assertions="11" status="pass" classname="tests/scene/test_minesweeper_challenge_controls.gd" time="0.38434" >
+      </testcase>
+      <testcase name="test_challenge_locale_changes_retranslate_live_controls_status_and_accessibility" assertions="48" status="pass" classname="tests/scene/test_minesweeper_challenge_controls.gd" time="1.336685" >
+      </testcase>
+      <testcase name="test_challenge_rules_overlay_blocks_native_cell_contacts_and_return_restores_play" assertions="11" status="pass" classname="tests/scene/test_minesweeper_challenge_controls.gd" time="0.416024" >
+      </testcase>
+      <testcase name="test_resized_challenge_keeps_board_rules_and_full_size_copy_inside_right_pane" assertions="706" status="pass" classname="tests/scene/test_minesweeper_challenge_controls.gd" time="14.079575" >
+      </testcase>
+      <testcase name="test_divider_drag_keeps_pending_contacts_out_of_challenge_and_preserves_document_gate" assertions="18" status="pass" classname="tests/scene/test_minesweeper_challenge_controls.gd" time="0.482597" >
+      </testcase>
+      <testcase name="test_challenge_uses_command_day_for_board_and_rules_after_presentation_changes" assertions="8" status="pass" classname="tests/scene/test_minesweeper_challenge_controls.gd" time="0.427287" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_minesweeper_desktop_host.gd" tests="11" failures="0" skipped="0" time="1.311459" >
+      <testcase name="test_launcher_reveal_home_reopen_retains_real_session_and_cached_grid" assertions="32" status="pass" classname="tests/integration/test_minesweeper_desktop_host.gd" time="0.159185" >
+      </testcase>
+      <testcase name="test_app_back_suspends_once_before_host_hides_and_reopens_same_instance" assertions="25" status="pass" classname="tests/integration/test_minesweeper_desktop_host.gd" time="0.127386" >
+      </testcase>
+      <testcase name="test_home_from_information_suspends_once_and_reopening_preserves_board" assertions="43" status="pass" classname="tests/integration/test_minesweeper_desktop_host.gd" time="0.197457" >
+      </testcase>
+      <testcase name="test_stale_home_keeps_app_visible_and_host_active_without_allocating_or_spending" assertions="29" status="pass" classname="tests/integration/test_minesweeper_desktop_host.gd" time="0.131717" >
+      </testcase>
+      <testcase name="test_unsettled_terminal_cannot_hide_the_host_or_spend_another_round" assertions="20" status="pass" classname="tests/integration/test_minesweeper_desktop_host.gd" time="0.103072" >
+      </testcase>
+      <testcase name="test_unconfigured_production_route_remains_unavailable_without_an_injected_ready_port" assertions="12" status="pass" classname="tests/integration/test_minesweeper_desktop_host.gd" time="0.027984" >
+      </testcase>
+      <testcase name="test_desktop_rejects_port_and_host_rebinding_without_replacing_working_owners" assertions="20" status="pass" classname="tests/integration/test_minesweeper_desktop_host.gd" time="0.091513" >
+      </testcase>
+      <testcase name="test_real_profile_input_owner_is_forwarded_to_the_cached_app_and_rebound_keyboard_route" assertions="26" status="pass" classname="tests/integration/test_minesweeper_desktop_host.gd" time="0.128513" >
+      </testcase>
+      <testcase name="test_hidden_cached_app_quarantines_a_held_rebound_toggle_until_release" assertions="23" status="pass" classname="tests/integration/test_minesweeper_desktop_host.gd" time="0.15283" >
+      </testcase>
+      <testcase name="test_input_owner_replacement_is_refused_without_rebinding_the_cached_grid" assertions="17" status="pass" classname="tests/integration/test_minesweeper_desktop_host.gd" time="0.078598" >
+      </testcase>
+      <testcase name="test_desktop_forwards_installed_day_and_keeps_it_after_preference_refresh" assertions="11" status="pass" classname="tests/integration/test_minesweeper_desktop_host.gd" time="0.113204" >
+      </testcase>
+  </testsuite>
+</testsuites>

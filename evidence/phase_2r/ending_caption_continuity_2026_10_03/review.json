@@ -1,0 +1,23 @@
+{
+  "source": "2f236aa7099ca2aec51401bc936e3cb0179e5526",
+  "reviews": [
+    {
+      "reviewer": "caption_review",
+      "scope": "Native retention and adapter lifetime, real-runtime regressions",
+      "finding": "No remaining blocker. Permission reset and conditional startup release are consistent. Early retirement regression confirms Return does not reacquire retention after permission was revoked.",
+      "execution": "Source review only; cloud execution separately recorded."
+    },
+    {
+      "reviewer": "cloud_review",
+      "scope": "Rendered journey, independent Python evidence validation, fixture callers and focus",
+      "finding": "No remaining blocker. Full first-entry catalogue is published before completion; checkpoint truncations retain its full prefix; successor focus uses existing acquisition after _had_caption reset. Initial review missed direct preload fixture consumers; root corrected them after diagnostic dating failures.",
+      "execution": "Source review only; cloud execution separately recorded."
+    }
+  ],
+  "coordinator_checks": [
+    "Generated public inventory changes are exclusively line-reference refreshes (20 GameState and 6 SaveManager leaves); no symbol or port signature changes.",
+    "All five new native lifetime regressions appear in the passing focused primary XML.",
+    "Focused screenshot review inspected actual boundary successor and restored mounted caption window.",
+    "git diff --check passed."
+  ]
+}

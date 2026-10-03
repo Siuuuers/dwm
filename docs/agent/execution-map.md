@@ -6,12 +6,12 @@ execution_authority: false
 status_authority: false
 behavior_authority: false
 verification_authority: false
-inspected_source: "82dc881e77f21c34f152d940d55cf317ba5bd784"
+inspected_source: "cdee58fc9fe7a218df9a6b1dbd64f7fa44f5ea49"
 ---
 
 # DWM execution map
 
-Reviewed 3 October 2026 (Hong Kong). This is the single maintained navigation map
+Reviewed 3 October 2026 (UTC). This is the single maintained navigation map
 for the unfinished work. Beads owns statuses and dependencies; approved design owns
 behavior. Update this map when the order or shared ownership changes, rather than
 creating another dated backlog. The [handoff](2026-09-23-next-session-handoff.md)
@@ -46,6 +46,24 @@ below remain historical; test-only Hospital saved fixtures may retain restore an
 forgery regression coverage without implying a player Save/Load capability.
 
 ## Current bounded checkpoint
+
+**Accepted bounded ordered-ending visible caption continuity.** The existing
+layer retains the two prior witnessed leaves across a qualified physical ending
+handoff and reprojects the same window on fresh Load from the existing ledger.
+Cancellation/replacement/retirement and successor focus have real-runtime coverage.
+The [current handoff](2026-09-23-next-session-handoff.md#current-acceptance) and
+[caption continuity receipt](../../evidence/phase_2r/ending_caption_continuity_2026_10_03/receipt.json)
+own the exact 26-job cloud acceptance, diagnostics and bounded fixture limits.
+
+Next: Auto-On continuity with retired old timer and full successor reveal/delay;
+see the [read-only review](../../evidence/phase_2r/ending_caption_continuity_2026_10_03/next-slice-review.md).
+Mode continuity and automatic terminal Return are distinct acceptance claims;
+generic Auto scene-transition restrictions remain. Production catalogue stays
+disabled; prose/variants and broader native input/accessibility remain unfinished.
+Hospital manual Save/Load remains disabled. All 23 unfinished statuses/dependencies
+stay unchanged; no live Dolt synchronization. PR stays draft/unmerged.
+
+## Prior ordered-ending History checkpoint
 
 **Accepted bounded ordered-ending History and exact Save/Load.** The existing
 ledger spans two physical fixture steps; second-caption Save/fresh Load restores
