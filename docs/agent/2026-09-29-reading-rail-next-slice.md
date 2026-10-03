@@ -9,12 +9,21 @@ verification_authority: false
 
 # Reading rail: next bounded slice
 
-Updated after bounded ordered-ending History and exact Save/Load acceptance. Prior paused Settings
-F9/F5, geometry, physical-selector and one-shot Next receipts keep their original
-source and scope. This navigation record changes no design authority, Beads
-status or production-content authorization.
+Use the [current handoff](2026-09-23-next-session-handoff.md#current-acceptance)
+and [execution map](execution-map.md) for source-bound acceptance and work order.
+Earlier sections below retain historical scope and are not instructions to redo
+accepted work. This navigation record changes no design or Beads authority.
 
 ## Current boundary
+
+Caption assistive Normal Accept callback integration is accepted in the
+[shared receipt](../../evidence/phase_2r/caption_assistive_2026_10_04/receipt.json). Native OS accessibility discovery/invocation
+remains separate. Ordered-ending visible-caption and bounded Auto continuity
+are already accepted; do not repeat the historical next step below.
+Production catalogue registration stays disabled, authored variants remain
+deferred, and Hospital manual Save/Load and Next remain disabled.
+
+## Historical ordered-ending History boundary
 
 **Accepted bounded ordered-ending History and exact Save/Load.** The existing
 ledger spans two physical fixture steps; second-caption Save/fresh Load restores

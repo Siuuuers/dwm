@@ -10,7 +10,7 @@ execution_map: "docs/agent/execution-map.md"
 issue_authority: beads
 ---
 
-# Next-session handoff — 3 October 2026 (UTC)
+# Next-session handoff — 4 October 2026 (Hong Kong)
 
 Continue `Siuuuers/dwm` draft PR #1 on `codex/windows-cloud-ux`.
 Keep the PR draft and unmerged; do not change master. Verify the live branch,
@@ -40,6 +40,32 @@ The shared-fainting candidate is accepted below. Historical timed-hold receipts
 retain their original scope; do not implement automatic no-Sylvia completion.
 
 ## Current acceptance
+
+**Accepted bounded caption assistive Normal Accept integration.** Source
+`96c8942ec8293b90891b3ba5780dcc759fda4283`; actual PR test merge
+`01a366d59020fa0a828276da9ce789e601955e6a`. [Cloud run 37147995237](https://github.com/Siuuuers/dwm/actions/runs/37147995237)
+passes 26/26 jobs and 2,601 primary cases across 13 XML reports with zero
+failures, errors or skips. The [caption assistive receipt](../../evidence/phase_2r/caption_assistive_2026_10_04/receipt.json) owns
+exact raw reports, source review, job/artifact identities and scope limits.
+
+The mounted live and review-current caption adapters delegate accessibility
+callbacks to `WitnessedAcceptInput` and existing Dialogic Inputs. Five new
+integration cases prove reveal-only versus fresh later advancement, consumed
+and stale callback refusal, held contacts, inspect-only prior leaves,
+review-to-live return and real input-custody suspension/resumption. Native
+DialogText retains reveal ownership; no save format, History or recovery owner
+changed. All existing rendered journeys and required performance gates pass.
+
+Next: native accessibility discovery/invocation of the mounted caption, within
+the wider reading remainder. These callback tests do not prove OS UIA or
+screen-reader reachability. Preserve the accepted ending caption/Auto work;
+production registration and exhaustive authored variants remain deferred.
+All 23 unfinished Beads keep statuses/dependencies; the retained lead export
+note links this receipt, without live Dolt synchronization. PR stays draft and
+unmerged; master remains `dded76aee2e85aeea94f65218de043b1f4fdce7b`.
+The final records-only descendant is not independently engine-tested.
+
+## Prior ordered-ending Auto acceptance
 
 **Accepted bounded ordered-ending Auto continuity.**
 Source `a0497631fbde1bdb5b19324d98ec47a167cac59a`; actual PR test merge
