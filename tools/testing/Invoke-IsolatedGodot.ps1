@@ -200,6 +200,9 @@ function Get-SuiteExecutionFailure {
     }
     foreach ($line in $lines) {
         if ($line.Contains('ERROR: Failed to load script')) { $failures += ('SCRIPT_LOAD_FAILED: ' + $line.Trim()) }
+        # GUT ends per-test error tracking before after_each; an invalid Tween
+        # can therefore be logged during teardown while the child still exits 0.
+        if ($line.Contains('ERROR: Tween invalid.')) { $failures += ('TWEEN_INVALID: ' + $line.Trim()) }
     }
     return @($failures | Sort-Object -Unique)
 }
@@ -293,7 +296,7 @@ try {
     $endedAt = [DateTime]::UtcNow.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
     $resultCode = [int]$requested.ExitCode
     # GUT exits 0 while silently downgrading an unloadable suite to a warning, so a requested
-    # suite that never ran, or any failed script load, must fail this runner instead.
+    # suite that never ran, a failed script load, or an invalid Tween must fail this runner instead.
     $requestedSuites = @(Get-RequestedSuitePath -Arguments @($GodotArgs))
     if ($requestedSuites.Count -ne 0) {
         $suiteFailures = @(Get-SuiteExecutionFailure -LogPath $logPath -RequestedPaths $requestedSuites)

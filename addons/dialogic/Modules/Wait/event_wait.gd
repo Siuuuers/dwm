@@ -122,12 +122,12 @@ func _owns_execution(token: int) -> bool:
 
 
 func _on_pause(token: int) -> void:
-	if _owns_execution(token) and _active and not _finishing and is_instance_valid(_tween):
+	if _owns_execution(token) and _active and not _finishing and is_instance_valid(_tween) and _tween.is_valid():
 		_tween.pause()
 
 
 func _on_resume(token: int) -> void:
-	if _owns_execution(token) and _active and not _finishing and is_instance_valid(_tween):
+	if _owns_execution(token) and _active and not _finishing and is_instance_valid(_tween) and _tween.is_valid():
 		_tween.play()
 
 

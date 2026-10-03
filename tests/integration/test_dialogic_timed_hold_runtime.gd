@@ -97,20 +97,21 @@ func before_each() -> void:
 	assert_true(_bridge.configure_playback_completion_port(_completions).ok)
 
 func after_each() -> void:
-	# Only exact fixture timers/layouts are retired. Killing any still-live timer
-	# occurs after every assertion, so an intentionally red test cannot leak its
-	# abandoned callback into the next test or the restored production runtime.
-	for tween: Tween in _fixture_tweens:
-		if is_instance_valid(tween): tween.kill()
+	# Native cancellation owns its current event, including a foreign playback
+	# the Bridge has already retired. Clear that event before emitting Resume or
+	# collecting any residual fixture timer; an invalid Tween is still instanced.
 	if is_instance_valid(_bridge) and not _bridge._active_entry.is_empty():
 		_bridge.abort_current_entry(&"timed_hold_fixture_teardown")
 	if is_instance_valid(_bridge): _bridge.free()
 	for text_node: Node in _fixture_text_nodes:
 		if is_instance_valid(text_node): text_node.set_process(false)
 	if is_instance_valid(_runtime):
-		_runtime.paused = false
 		await _runtime.clear()
 		await get_tree().process_frame
+		_runtime.paused = false
+	# Only exact timers recorded by this fixture can remain after native clear.
+	for tween: Tween in _fixture_tweens:
+		if is_instance_valid(tween) and tween.is_valid(): tween.kill()
 	for layout: Node in _fixture_layouts:
 		if is_instance_valid(layout): layout.free()
 	for text_node: Node in _fixture_text_nodes:
@@ -578,3 +579,32 @@ func test_foreign_native_same_path_replacement_cannot_inherit_adapter_or_bridge_
 	assert_false(_bridge.capture_pause_frontier().get("ok", true))
 	assert_true(_completions.intents.is_empty(), "foreign native replacement does not naturally complete the retired entry")
 	_assert_no_durable_hold_frontier()
+	# GUT ends its per-test error tracking before after_each. Exercise the
+	# killed-but-still-instanced timer here, while native errors fail the test.
+	assert_engine_error_count(0, "foreign replacement starts without native engine errors")
+	var index: int = _runtime.current_event_idx
+	assert_true(index >= 0 and index < _runtime.current_timeline_events.size())
+	if index < 0 or index >= _runtime.current_timeline_events.size(): return
+	var foreign_wait := _runtime.current_timeline_events[index] as DialogicWaitEvent
+	assert_not_null(foreign_wait)
+	if foreign_wait == null: return
+	var killed_tween: Tween = foreign_wait._tween
+	assert_true(is_instance_valid(killed_tween))
+	if not is_instance_valid(killed_tween): return
+	assert_true(killed_tween.is_valid(), "challenge begins with the actual current native timer")
+	if not _fixture_tweens.has(killed_tween): _fixture_tweens.append(killed_tween)
+	assert_false(foreign_wait.get_wait_execution_state().is_empty())
+	killed_tween.kill()
+	assert_true(is_instance_valid(killed_tween), "killed Tween remains a valid Object instance")
+	assert_false(killed_tween.is_valid(), "the same instance no longer belongs to the SceneTree timer processor")
+	assert_true(foreign_wait.get_wait_execution_state().is_empty(), "invalid timer exposes no live hold identity")
+	var before := _native_hold_state()
+	_runtime.paused = true
+	_runtime.paused = false
+	await get_tree().process_frame
+	assert_engine_error_count(0, "native Pause and Resume must not operate an invalid Tween")
+	assert_same(foreign_wait._tween, killed_tween, "Pause/Resume cannot recreate the retired timer")
+	assert_false(killed_tween.is_valid())
+	assert_true(foreign_wait.get_wait_execution_state().is_empty())
+	assert_eq(_native_hold_state(), before, "invalid timer signals neither advance nor complete foreign playback")
+	assert_true(_completions.intents.is_empty())
