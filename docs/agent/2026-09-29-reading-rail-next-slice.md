@@ -9,12 +9,42 @@ verification_authority: false
 
 # Reading rail: next bounded slice
 
-Updated after shared-fainting and minimal result-routing acceptance. Prior paused Settings
+Updated after Hospital manual Save/Load restriction acceptance. Prior paused Settings
 F9/F5, geometry, physical-selector and one-shot Next receipts keep their original
 source and scope. This navigation record changes no design authority, Beads
 status or production-content authorization.
 
 ## Current boundary
+
+**Accepted Hospital manual Save/Load restriction — 3 October 2026.** Source
+`82dc881e77f21c34f152d940d55cf317ba5bd784`; actual PR test merge
+`0ba41f19f9fed4c2a608d6c329ad3cc07b4d378e`.
+[Cloud run 37117747147](https://github.com/Siuuuers/dwm/actions/runs/37117747147)
+passed 25/25 jobs and 2,575 primary cases across 13 reports, with zero failures,
+errors or skips. The [Hospital policy receipt](../../evidence/phase_2r/hospital_manual_policy_2026_10_03/receipt.json)
+owns the exact evidence and limits; later navigation-only edits are not
+separately engine-tested.
+
+Hospital manual Save/Load, including rail, Backup and F5/F9 through Pause and
+Settings, is disabled through the existing command owners. Preserve ordinary
+caption progression, independent History, committed-save integrity and existing
+internal completion/recovery. Global autosave timing is unchanged. Hospital Next
+remains disabled. Historical saved fixtures are explicitly test-only regression
+coverage, not a player Hospital save path.
+
+The former next milestone of production Hospital caption registration for manual
+saving is superseded. Resume the wider reading/ordered-ending remainder under
+`dwm-vky.14`; production registration/History and authored variants retain their
+separate scope. No production catalogue activation is authorized by this record.
+All 23 unfinished Beads retain their statuses and dependencies; no live Dolt
+query or synchronization is claimed. See the [handoff](2026-09-23-next-session-handoff.md)
+and [execution map](execution-map.md) for current navigation.
+
+## Prior shared-fainting acceptance
+
+The following source-bound result predates the Hospital manual Save/Load
+restriction. Its exact-caption saving remainder is historical, not a current
+player-save milestone.
 
 **Accepted shared fainting and minimal result routing.** Source `3710d3a20cfd53f9aebf23524fd6f28b6d69e3dd`;
 actual PR test merge `50088e6b54ba43f08012e887922d4a912fd11e89`, with master
@@ -413,13 +443,16 @@ Retain source SHA, tested merge/run/job identities, machine-readable ordered tra
 
 ## Later authored input boundary
 
-The historical source audit identified the no-Sylvia gap now addressed by shared
-fainting. Next register existing placeholder identities, frozen Sylvia selection
-and exact Schedule-Done or condition-plan authority. Keep Hospital Next disabled
-and History limited to published captions; no new architecture question is needed. Before production catalogue registration, ask only if a selected entry introduces an independently varying
-wording or staging selector beyond the recorded fields. The accepted fixture
-catalogue does not approve production prose; hidden reads of mutable gameplay
-cannot define exact variants. Old-development-save compatibility no longer
-requires an owner decision.
+The historical no-Sylvia gap is addressed by shared fainting. The former next
+step to register Hospital captions for player manual saves is superseded by the
+accepted restriction above. Keep Hospital Next disabled and History limited to
+published captions; preserve the existing internal completion/recovery owners.
+
+Production catalogue/History registration remains separate from the ordered-ending
+continuity remainder. Before a selected production entry is registered, ask only
+if it introduces an independently varying wording or staging selector beyond the
+recorded fields. The accepted fixture catalogue does not approve production prose;
+hidden reads of mutable gameplay cannot define exact variants. Old-development-save
+compatibility no longer requires an owner decision.
 
 Routine ownership, implementation and testing choices remain engineering work.
