@@ -2056,6 +2056,8 @@ func retire_completed_hospital_reading(command: Dictionary) -> Dictionary:
 
 
 func retire_reading_session() -> void:
+	if _runtime_adapter != null and _runtime_adapter.has_method("release_retained_caption_layout"):
+		_runtime_adapter.release_retained_caption_layout()
 	_ending_reading.clear()
 	_hospital_reading_command.clear()
 	_hospital_reading_token = ""
@@ -2121,6 +2123,19 @@ func complete_paused_reading_reveal(handle: Dictionary, text_node: DialogicNode_
 	if not after.get("ok", false) or after.value != before.value or not get_state().get("ok", false):
 		return _pause_failure(&"pause_source_changed")
 	return completed
+
+
+## Display-only projection of already admitted publications. During native Return
+## or silent reconstruction there need not be an operable input frontier yet.
+func get_ending_caption_memory() -> Dictionary:
+	if not has_reading_session() or _reading_session.family != "ending":
+		return _command_failure(&"reading_frontier_unavailable")
+	var rows: Array = _reading_session.ledger.snapshot().captions
+	if rows.is_empty(): return _command_failure(&"reading_frontier_unavailable")
+	var frontier := {}
+	if _reading_session.boundary == "line":
+		frontier = {"line_id": rows.back().beat.line_id, "publication_id": rows.back().publication_id}
+	return _reading_session.project(frontier)
 
 
 func get_reading_history() -> Dictionary:
@@ -2269,6 +2284,8 @@ func _on_reading_publication(result: Dictionary) -> void:
 		# Ordinary playback after a completed/refused Next starts a new frontier.
 		# Keep the prior operation in its already durable retained checkpoint.
 		_reading_session.next_operation = {}
+	if has_reading_session() and _reading_session.family == "ending" and result.get("ok", false):
+		reading_session_changed.emit()
 
 
 func start_entry(entry_id: String, context: Dictionary, execution_mode: StringName = &"canonical") -> Dictionary:
@@ -2699,7 +2716,7 @@ func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode
 		var frame: Dictionary = _reading_session.admit(entry_id, frozen)
 		if not frame.ok: return frame
 		var bound: Dictionary = _runtime_adapter.bind_caption_ledger(_reading_session.ledger,
-			_reading_session.command_id, entry_id)
+			_reading_session.command_id, entry_id, _reading_session.family == "ending")
 		if not bound.ok: return bound
 	elif has_reading_session():
 		retire_reading_session()

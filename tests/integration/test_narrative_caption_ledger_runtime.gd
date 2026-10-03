@@ -99,7 +99,7 @@ func after_each() -> void:
 func _settle() -> void:
 	for frame: int in 6: await get_tree().process_frame
 
-func _start(label: String = ENTRY, entry_id: String = ENTRY) -> bool:
+func _start(label: String = ENTRY, entry_id: String = ENTRY, retain_layout: bool = false) -> bool:
 	# end_behaviour=0 frees the preceding layout. Every new entry must remount
 	# the real Witnessed host instead of silently taking Dialogic's default style.
 	var layout: Node = _runtime.Styles.get_layout_node()
@@ -110,7 +110,7 @@ func _start(label: String = ENTRY, entry_id: String = ENTRY) -> bool:
 	assert_not_null(style)
 	if style == null: return false
 	assert_eq(style.resource_path, STYLE)
-	var bound := _adapter.bind_caption_ledger(_ledger, TOKEN, entry_id)
+	var bound := _adapter.bind_caption_ledger(_ledger, TOKEN, entry_id, retain_layout)
 	assert_true(bound.ok, str(bound))
 	if not bound.ok: return false
 	var started := _adapter.start_timeline(FIXTURE, label)
@@ -326,3 +326,98 @@ func test_native_entries_share_one_sequence_across_retirement_reconstruction_and
 	assert_eq(retired.snapshot(), expected, "fresh native playback cannot mutate the departed ledger")
 	_runtime.Text.text_started.emit({})
 	assert_eq(_ledger.snapshot(), continued)
+
+
+func _caption_layer() -> Node:
+	var layout: Node = _runtime.Styles.get_layout_node()
+	if not is_instance_valid(layout): return null
+	for layer: Node in layout.get_layers():
+		if layer.has_method("begin_ending_caption_handoff"): return layer
+	return null
+
+
+func _finish_retained_fixture() -> void:
+	# This suite isolates native lifetime from the Bridge's ending programme.
+	# Supply the view's already-validated session identity; real publication and
+	# registered occurrence proof still come from the native adapter and ledger.
+	for line: int in 2:
+		assert_true(_adapter.reveal_current_line(true).ok)
+		await _settle()
+		if line == 1: _caption_layer().set("_ending_caption_session", TOKEN)
+		assert_true(_adapter.advance_one_event().ok)
+		await _settle()
+
+
+func test_opted_in_natural_completion_keeps_settled_view_until_explicit_retirement() -> void:
+	if not await _start(ENTRY, ENTRY, true): return
+	var layout: WeakRef = weakref(_runtime.Styles.get_layout_node())
+	await _finish_retained_fixture()
+	assert_false(_adapter.has_active_playback(), "visual retention cannot retain native playback custody")
+	assert_not_null(layout.get_ref(), "natural Return keeps the admitted mounted caption host")
+	if layout.get_ref() == null: return
+	var layer := _caption_layer()
+	assert_true(layer.get("_ending_caption_handoff"))
+	assert_false(str(layer.get_caption_projection().text).is_empty(), "default ending clear cannot erase the settled caption")
+	var completed := _ledger.snapshot()
+	_runtime.Text.about_to_show_text.emit({})
+	_runtime.Text.text_started.emit({})
+	assert_eq(_ledger.snapshot(), completed, "settlement has no active publication owner")
+	_adapter.release_retained_caption_layout()
+	await _settle()
+	assert_null(layout.get_ref(), "authoritative session retirement releases the host")
+	assert_eq(_ledger.snapshot(), completed, "view retirement cannot erase History")
+
+
+func test_cancel_during_retained_completion_releases_view_without_publication() -> void:
+	if not await _start(ENTRY, ENTRY, true): return
+	var layout: WeakRef = weakref(_runtime.Styles.get_layout_node())
+	await _finish_retained_fixture()
+	assert_not_null(layout.get_ref())
+	var completed := _ledger.snapshot()
+	_adapter.halt_with_error({"code": &"fixture_cancel_at_completion"})
+	await _settle()
+	assert_null(layout.get_ref(), "cancellation cannot leave an orphaned ending display")
+	assert_false(_adapter.has_active_playback())
+	assert_eq(_ledger.snapshot(), completed)
+
+
+func test_foreign_native_replacement_reuses_host_but_retires_ending_memory() -> void:
+	if not await _start(ENTRY, ENTRY, true): return
+	var layout: Node = _runtime.Styles.get_layout_node()
+	await _finish_retained_fixture()
+	assert_true(is_instance_valid(layout))
+	if not is_instance_valid(layout): return
+	var completed := _ledger.snapshot()
+	_runtime.start_timeline(FIXTURE, ENTRY, "foreign:after-ending-hold")
+	await _settle()
+	assert_same(_runtime.Styles.get_layout_node(), layout, "foreign native playback owns the reused host")
+	var layer := _caption_layer()
+	assert_false(layer.get("_ending_caption_handoff"))
+	assert_eq(layer.get("_ending_caption_session"), "")
+	assert_eq(layer.get_caption_projection().retained_captions, [], "old ending leaves cannot leak into foreign playback")
+	assert_eq(_ledger.snapshot(), completed, "foreign playback cannot borrow the retired ledger binding")
+
+
+func test_cancel_active_opted_in_caption_does_not_enter_completion_hold() -> void:
+	if not await _start(ENTRY, ENTRY, true): return
+	var layout: WeakRef = weakref(_runtime.Styles.get_layout_node())
+	assert_true(_adapter.reveal_current_line(true).ok)
+	await _settle()
+	_caption_layer().set("_ending_caption_session", TOKEN)
+	var before := _ledger.snapshot()
+	_adapter.halt_with_error({"code": &"fixture_cancel_active"})
+	await _settle()
+	assert_null(layout.get_ref(), "skip-ending cancellation bypasses natural retention")
+	assert_eq(_ledger.snapshot(), before)
+
+
+func test_retirement_before_first_return_revokes_future_caption_hold() -> void:
+	if not await _start(ENTRY, ENTRY, true): return
+	var layout: WeakRef = weakref(_runtime.Styles.get_layout_node())
+	_adapter.release_retained_caption_layout()
+	assert_not_null(layout.get_ref(), "retiring hold permission does not destroy an active unretained view")
+	assert_true(_adapter.has_active_playback(), "view retention policy cannot synthesize native completion")
+	await _finish_retained_fixture()
+	assert_false(_adapter.has_active_playback())
+	assert_null(layout.get_ref(), "the later natural Return cannot reacquire retired hold permission")
+	assert_eq(_ledger.snapshot().captions.size(), 2, "retiring the view policy preserves actual publications")

@@ -4,7 +4,10 @@ const ENDING_FIXTURE := preload("res://tests/support/EndingReadingFixture.gd")
 const ENDING_LOCATOR := preload("res://tests/support/EndingReadingTimelineCatalog.gd")
 const ENDING_FROZEN := preload("res://scripts/narrative/EndingFrozenContext.gd")
 const ENDING_SCHEMA := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
-const ENDING_LINES := ["fixture.ending.first", "fixture.ending.second"]
+const ENDING_LINES := ["fixture.ending.first", "fixture.ending.prior", "fixture.ending.boundary", "fixture.ending.second"]
+var _transition_frames: Array = []
+var _transition_observing := false
+var _transition_successor_captured := false
 var _ending_completions: Array = []
 var _ending_texts: Array = []
 var _ending_stages: Dictionary = {}
@@ -132,16 +135,30 @@ func _ending_write() -> void:
 	if not await _wait_line(ENDING_LINES[0]): return
 	_ending_stages["first"] = _ending_observe()
 	if not _check(_ending_stages.first.history.captions.size() == 1 and _ending_completions.is_empty(), "fresh chain has first caption only and no completion"): return
-	# First Enter completes a partial reveal; a separate fresh Enter completes the native step.
-	if not await _fresh_caption_accept(): return
-	await _frames()
-	if not _check(root.get_node("DialogicBridge").get("_runtime_adapter").is_current_line_complete(), "first real input finishes first reveal"): return
-	if not await _fresh_caption_accept(): return
-	if not await _wait_line(ENDING_LINES[1]): return
+	# Publish all three first-step leaves using fresh physical inputs.
+	for index: int in 3:
+		if not await _wait_line(ENDING_LINES[index]): return
+		var runtime: RefCounted = root.get_node("DialogicBridge").get("_runtime_adapter")
+		if not runtime.is_current_line_complete():
+			if not await _fresh_caption_accept(): return
+		if not _check(runtime.is_current_line_complete(), "fresh input completes first-step reveal"): return
+		if index == 2:
+			_transition_observing = true
+			RenderingServer.frame_post_draw.connect(_observe_ending_transition)
+			await RenderingServer.frame_post_draw
+		if not await _fresh_caption_accept(): return
+	if not await _wait_line(ENDING_LINES[3]): return
+	await RenderingServer.frame_post_draw
+	_transition_observing = false
+	RenderingServer.frame_post_draw.disconnect(_observe_ending_transition)
+	if not _check(_write_text("ending-transition-frames.json", JSON.stringify(_transition_frames, "\t")), "retain every rendered boundary frame"): return
+	if not _check(_transition_frames.size() >= 2 and _transition_successor_captured, "transition sampled before and after native successor"): return
+	for sample: Dictionary in _transition_frames:
+		if not _check(sample.valid, "no missing, duplicated or reordered visible boundary leaf: " + JSON.stringify(sample)): return
 	_ending_stages["second"] = _ending_observe()
 	if not _check(_ending_completions.size() == 1 and _ending_stages.second.lifecycle.ending_plan.next_step_index == 1
 		and _ending_stages.second.history.session_id == _ending_stages.first.history.session_id
-		and _ending_stages.second.history.captions.size() == 2, "physical first completion crosses boundary without splitting History"): return
+		and _ending_stages.second.history.captions.size() == 4, "physical first completion crosses boundary without splitting History"): return
 	if not await _ending_pause_save(): return
 	if not await _ending_history("ending-saved-history"): return
 	var report := _ending_report()
@@ -197,14 +214,17 @@ func _ending_read() -> void:
 	if not _check(prepared.get("ok", false), "ending real Load prepares: " + str(prepared)): return
 	var loaded: Dictionary = saves.commit_backup_action(prepared.value.token)
 	if not _check(loaded.get("ok", false), "ending real Load commits: " + str(loaded)): return
-	if not await _wait_line(ENDING_LINES[1]): return
+	if not await _wait_line(ENDING_LINES[3]): return
 	var restored := _ending_observe()
 	_ending_stages["restored"] = restored
 	if not _check(restored.checkpoint == prior.value.saved.checkpoint and restored.history == prior.value.saved.history
 		and _ending_restore_identity_matches(restored.lifecycle, prior.value.saved.lifecycle) and restored.profile == profile
 		and not restored.native.revealing and restored.native.visible_ratio == 1.0
+		and restored.visible_leaves == prior.value.saved.visible_leaves
+		and restored.visible_leaves == _ending_text_window()
 		and _speech_admissions == 0 and _ending_completions.is_empty(), "fresh Load restores exact second caption/History silently without repeated effects"): return
-	if not _check(ENDING_FIXTURE.catalogue().entries[0].lines[0].text not in _ending_texts, "Load never starts first caption before seeking second"): return
+	for line: Dictionary in ENDING_FIXTURE.catalogue().entries[0].lines:
+		if not _check(line.text not in _ending_texts, "Load never replays an earlier caption before seeking second step"): return
 	await _capture_screen("ending-restored")
 	if not await _ending_history("ending-restored-history"): return
 	var game: Node = root.get_node("GameState")
@@ -253,6 +273,58 @@ func _ending_history(label: String) -> bool:
 	if not await _ordinary_accept_focused(overlay.close_button, "ending History Close"): return false
 	return _check(_ending_observe() == before and root.gui_get_focus_owner() == button, "History closes without source mutation or repeated effects")
 
+func _ending_text_window() -> Array:
+	var entries: Array = ENDING_FIXTURE.catalogue().entries
+	return [entries[0].lines[1].text, entries[0].lines[2].text, entries[1].lines[0].text]
+
+func _ending_visible_leaves() -> Dictionary:
+	var texts: Array = []
+	var leaves: Array = []
+	# Discover actual live projections, including any outgoing handoff layer.
+	for layer: Node in root.find_children("WitnessedCaptionLayer", "", true, false):
+		for key: String in ["older", "previous", "caption_text"]:
+			var leaf: RichTextLabel = layer.get(key)
+			if not is_instance_valid(leaf) or not leaf.is_visible_in_tree() or leaf.get_parsed_text().is_empty(): continue
+			var alpha := leaf.self_modulate.a
+			var ancestor: Node = leaf
+			while ancestor != null:
+				if ancestor is CanvasItem: alpha *= ancestor.modulate.a
+				ancestor = ancestor.get_parent()
+			if alpha <= 0.0: continue
+			var rect: Rect2 = leaf.get_global_rect()
+			var clip: Rect2 = layer.scroll.get_global_rect()
+			var contained := clip.encloses(rect)
+			texts.append(leaf.get_parsed_text())
+			leaves.append({"text": leaf.get_parsed_text(), "path": str(leaf.get_path()), "alpha": alpha,
+				"rect": [rect.position.x, rect.position.y, rect.size.x, rect.size.y],
+				"contained": contained, "visible_ratio": leaf.visible_ratio})
+	return {"texts": texts, "leaves": leaves}
+
+func _observe_ending_transition() -> void:
+	if not _transition_observing: return
+	var observation := _ending_visible_leaves()
+	var entries: Array = ENDING_FIXTURE.catalogue().entries
+	var before := [entries[0].lines[0].text, entries[0].lines[1].text, entries[0].lines[2].text]
+	var after := _ending_text_window()
+	var texts: Array = observation.texts
+	# The old current becomes Previous atomically; no reconstruction from eligibility.
+	observation["valid"] = texts == before or texts == after
+	for leaf: Dictionary in observation.leaves:
+		if leaf.text in [before[1], before[2]]:
+			observation.valid = observation.valid and leaf.contained and leaf.visible_ratio == 1.0
+	observation["frame"] = Engine.get_process_frames()
+	observation["successor"] = texts == after
+	_transition_frames.append(observation)
+	var name := ""
+	if _transition_frames.size() == 1: name = "ending-boundary-before"
+	elif texts == after and not _transition_successor_captured:
+		name = "ending-boundary-successor"
+		_transition_successor_captured = true
+	if not name.is_empty():
+		var pixels: Image = root.get_texture().get_image()
+		if not _check(pixels != null and not pixels.is_empty() and pixels.save_png(_evidence_path(name + ".png")) == OK,
+			"retain exact sampled boundary pixels"): return
+
 func _ending_observe() -> Dictionary:
 	var bridge: Node = root.get_node("DialogicBridge")
 	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
@@ -260,6 +332,7 @@ func _ending_observe() -> Dictionary:
 	if not _check(checkpoint.get("ok", false) and history.get("ok", false), "ending observation has admitted checkpoint/History"): return {}
 	var text: DialogicNode_DialogText = _caption_layer().caption_text
 	return {"checkpoint": checkpoint.value, "history": history.value,
+		"visible_leaves": _ending_visible_leaves().texts,
 		"native": {"text": text.get_parsed_text(), "revealing": text.revealing, "visible_ratio": text.visible_ratio},
 		"lifecycle": root.get_node("GameState")._run_lifecycle.to_dict(),
 		"profile": root.get_node("ProfileManager").get_profile_snapshot(), "speech_admissions": _speech_admissions}
@@ -290,7 +363,7 @@ func _ending_report() -> Dictionary:
 	return {"schema_version": 1, "mode": _reading_mode, "process_id": OS.get_process_id(), "user_dir": ProjectSettings.globalize_path("user://"),
 		"fixture_scope": "Noncanonical prose and seeded Day7 eligibility; real physical completions, Save and Load.",
 		"catalogue": ENDING_FIXTURE.catalogue(), "stages": _ending_stages, "completions": _ending_completions,
-		"text_starts": _ending_texts, "speech_admissions": _speech_admissions}
+		"text_starts": _ending_texts, "speech_admissions": _speech_admissions, "transition_frames": _transition_frames}
 
 func _evidence_path(name: String) -> String:
 	var folder := ProjectSettings.globalize_path("user://evidence/ending-reading")

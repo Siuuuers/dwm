@@ -33,6 +33,8 @@ var _scrollback: Array[String] = []
 var _review_offset := 0
 var _live_scroll := 0.0
 var _current_copy := ""
+var _ending_caption_session := ""
+var _ending_caption_handoff := false
 var _layout_generation := 0
 var _layout_pending := false
 var _publication_pending := false
@@ -368,7 +370,7 @@ func _transport_admitted() -> bool:
 		and bool(_transport_bridge.call("can_skip_current_line"))
 
 func _reading_source_admitted() -> bool:
-	return _timed_hold_frontier.is_empty() and _reading_recovery.is_empty() and not _load_pending and not _history_pending and not _history_open \
+	return not _ending_caption_handoff and _timed_hold_frontier.is_empty() and _reading_recovery.is_empty() and not _load_pending and not _history_pending and not _history_open \
 		and not is_next_transport_active()
 
 func is_next_transport_active() -> bool:
@@ -554,6 +556,7 @@ func _on_reading_session_changed() -> void:
 
 func _refresh_reading_session() -> void:
 	if not is_inside_tree(): return
+	if not _ending_caption_handoff and _project_ending_caption_memory(): _layout_stack()
 	if not is_instance_valid(_transport_bridge) or not _transport_bridge.has_method("capture_current_line_presentation_frontier"): return
 	if _presented_line == _transport_bridge.call("capture_current_line_presentation_frontier"): return
 	_capture_presented_line()
@@ -626,7 +629,7 @@ func _on_normal_accept_requested() -> void:
 
 func _on_playback_ended() -> void:
 	if not is_inside_tree(): return
-	reset_caption_stack()
+	if not _ending_caption_handoff: reset_caption_stack()
 	_dismiss_reading_recovery(false)
 	auto_controller.retire_current()
 	_retire_transport()
@@ -637,13 +640,13 @@ func _sync_transport() -> void:
 		and _transport_bridge.has_method("is_rehearsal_playback") \
 		and bool(_transport_bridge.call("is_rehearsal_playback"))
 	transport_rail.visible = not rehearsal
-	if not _timed_hold_frontier.is_empty():
+	if _ending_caption_handoff or not _timed_hold_frontier.is_empty():
 		transport_rail.project(false, false, skip_controller.is_auto_enabled(), false, false, false, false, false)
 	else:
 		transport_rail.project(_transport_admitted(), skip_controller.is_skip_active(),
 			skip_controller.is_auto_enabled(), _auto_button_admitted(), _load_admitted(), _history_admitted(), _save_admitted(), _next_admitted())
 	var ring: Array[Control] = []
-	if _timed_hold_frontier.is_empty(): ring.append(review_current if _review_offset > 0 else caption_text)
+	if not _ending_caption_handoff and _timed_hold_frontier.is_empty(): ring.append(review_current if _review_offset > 0 else caption_text)
 	var names: PackedStringArray = []
 	if is_instance_valid(_dating_split_surface) and is_dating_split_input_admitted():
 		var handle: Control = _dating_split_surface.get_split_handle()
@@ -869,7 +872,7 @@ func _on_timeline_started() -> void:
 	# A reused layout observes the installed run at this boundary, never during reveal.
 	var owner: Object = _run_owner if is_instance_valid(_run_owner) else get_node_or_null("/root/GameState")
 	configure_run_presentation(owner)
-	reset_caption_stack()
+	if not _ending_caption_handoff: reset_caption_stack()
 
 func is_reading_recovery_active() -> bool:
 	return not _reading_recovery.is_empty()
@@ -1100,6 +1103,8 @@ func configure_presentation(locale: String = "en", text_percent: int = 100, pale
 	return true
 
 func reset_caption_stack() -> void:
+	_ending_caption_session = ""
+	_ending_caption_handoff = false
 	var was_reviewing := _review_offset > 0
 	_cancel_speech()
 	if is_instance_valid(auto_controller): auto_controller.retire_current()
@@ -1115,6 +1120,45 @@ func reset_caption_stack() -> void:
 	_publication_pending = false
 	if is_instance_valid(stack):
 		_layout_stack()
+
+## The adapter admits only the natural end of this registered ending session.
+## Keep the existing display while its completion owner settles; it accepts no input.
+func begin_ending_caption_handoff(session_token: String) -> bool:
+	if not is_inside_tree() or session_token.is_empty() or session_token != _ending_caption_session \
+			or not _has_caption() or caption_text.revealing or _review_offset != 0:
+		return false
+	_ending_caption_handoff = true
+	_line_waiting_for_text = true
+	_presented_line.clear()
+	_cancel_speech()
+	auto_controller.retire_current()
+	accept_input.retire_input()
+	_retire_transport()
+	_sync_native_processing()
+	_sync_focus()
+	_sync_transport()
+	return true
+
+func end_ending_caption_handoff() -> void:
+	_ending_caption_handoff = false
+	_ending_caption_session = ""
+
+func _project_ending_caption_memory() -> bool:
+	if not is_instance_valid(_transport_bridge) or not _transport_bridge.has_method("get_ending_caption_memory"):
+		return false
+	var projected: Dictionary = _transport_bridge.call("get_ending_caption_memory")
+	if not projected.get("ok", false): return false
+	var rows: Array = projected.value.captions
+	if rows.is_empty() or rows.back().text != caption_text.get_parsed_text(): return false
+	_ending_caption_session = projected.value.session_id
+	_ending_caption_handoff = false
+	_retained.clear()
+	for index: int in range(maxi(0, rows.size() - 3), rows.size() - 1):
+		_retained.append(rows[index].text)
+	_scrollback.clear()
+	for index: int in range(rows.size() - 1):
+		_scrollback.append(rows[index].text)
+	return true
 
 func reproject_retained_captions(captions: Array) -> bool:
 	if captions.size() > 2:
@@ -1175,6 +1219,7 @@ func get_caption_projection() -> Dictionary:
 	}
 
 func _on_about_to_show_text(_info: Dictionary) -> void:
+	if _ending_caption_handoff and get_node("/root/Dialogic").current_timeline == null: return
 	# Restore the native caption subtree before arming this publication's speech.
 	# Visibility callbacks during hold exit must not consume its fresh candidate.
 	_sync_timed_hold_projection()
@@ -1198,10 +1243,11 @@ func _on_about_to_show_text(_info: Dictionary) -> void:
 	_speech_candidate = true
 
 func _on_text_started(info: Dictionary) -> void:
+	if _ending_caption_handoff and get_node("/root/Dialogic").current_timeline == null: return
 	_sync_timed_hold_projection()
 	if not _has_caption():
 		return
-	if not bool(info.get("append", false)) and not _current_copy.is_empty():
+	if not _project_ending_caption_memory() and not bool(info.get("append", false)) and not _current_copy.is_empty():
 		_scrollback.append(_current_copy)
 		_retained.append(_current_copy)
 		if _retained.size() > 2:
@@ -1235,6 +1281,9 @@ func _on_caption_visibility_changed() -> void:
 	_request_layout()
 
 func _sync_native_processing() -> void:
+	if _ending_caption_handoff:
+		caption_text.set_process(false)
+		return
 	if not _timed_hold_frontier.is_empty():
 		# Native instant empty clears can retain a stale revealing flag. Retire it
 		# without inventing a text publication or emitting reveal completion.
@@ -1409,7 +1458,7 @@ func _has_caption() -> bool:
 	return _timed_hold_frontier.is_empty() and (caption_text.visible or _review_offset > 0) and not caption_text.get_parsed_text().is_empty()
 
 func _sync_focus(allow_focus_grab: bool = true) -> void:
-	if not _timed_hold_frontier.is_empty() or _pause_covered or not _reading_recovery.is_empty() or is_next_transport_active():
+	if _ending_caption_handoff or not _timed_hold_frontier.is_empty() or _pause_covered or not _reading_recovery.is_empty() or is_next_transport_active():
 		background_input.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		caption_text.focus_mode = Control.FOCUS_NONE
 		review_current.focus_mode = Control.FOCUS_NONE

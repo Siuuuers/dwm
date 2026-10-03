@@ -12,7 +12,7 @@ import run_cloud_journeys as cloud
 from run_hospital_reading_journey import strict_json, file_identity, snapshot_primary, copy_bytes, validate_writer_seal, retain_partial_evidence
 
 SCRIPT = "res://tests/integration/verify_ending_reading_journey.gd"
-CAPTURES = ("ending-partial-pause.png", "ending-saved.png", "ending-saved-history.png", "ending-restored.png", "ending-restored-history.png")
+CAPTURES = ("ending-boundary-before.png", "ending-boundary-successor.png", "ending-partial-pause.png", "ending-saved.png", "ending-saved-history.png", "ending-restored.png", "ending-restored-history.png")
 
 def require(value: bool, detail: str) -> None:
     if not value:
@@ -57,22 +57,32 @@ def validate(result: dict, folder: Path) -> dict:
     require(snapshot["route_id"] == "ending" and snapshot["lifecycle"]["state"] == "ENDING"
             and snapshot["lifecycle"]["ending_plan"]["next_step_index"] == 1, "SLOT_REQUIRES_ACTIVE_SECOND_ENDING_STEP")
     require(reading["schema_version"] == 3 and reading["family"] == "ending" and reading["boundary"] == "line", "ENDING_V3_LINE_REQUIRED")
-    require([row["beat"]["line_id"] for row in rows] == ["fixture.ending.first", "fixture.ending.second"]
-            and len({row["publication_id"] for row in rows}) == 2, "ORDERED_DISTINCT_REAL_PUBLICATIONS_REQUIRED")
+    require([row["beat"]["line_id"] for row in rows] == ["fixture.ending.first", "fixture.ending.prior", "fixture.ending.boundary", "fixture.ending.second"]
+            and len({row["publication_id"] for row in rows}) == 4, "ORDERED_DISTINCT_REAL_PUBLICATIONS_REQUIRED")
     require(checkpoint == saved["checkpoint"] == restored["checkpoint"] and saved["history"] == restored["history"]
             and saved["lifecycle"] == snapshot["lifecycle"], "FRESH_RESTORE_MUST_PRESERVE_EXACT_AUTHORITY_AND_HISTORY")
+    frames = writer["transition_frames"]
+    entries = writer["catalogue"]["entries"]
+    before = [line["text"] for line in entries[0]["lines"]]
+    after = before[-2:] + [entries[1]["lines"][0]["text"]]
+    require(len(frames) >= 2 and frames[0]["texts"] == before and frames[-1]["texts"] == after
+            and all(frame["valid"] and frame["texts"] in (before, after)
+                    and all(leaf["contained"] and leaf["visible_ratio"] == 1.0
+                            for leaf in frame["leaves"] if leaf["text"] in before[-2:]) for frame in frames), "CONTINUOUS_ORDERED_NATIVE_LEAVES_REQUIRED")
+    require(all(a["frame"] < b["frame"] for a, b in zip(frames, frames[1:])), "STRICTLY_ORDERED_RENDER_FRAMES_REQUIRED")
+    require(saved["visible_leaves"] == restored["visible_leaves"] == after, "EXACT_RESTORED_VISIBLE_WINDOW_REQUIRED")
     validate_restore_identity(restored["lifecycle"], saved["lifecycle"])
     require(writer["stages"]["first"]["history"]["session_id"] == saved["history"]["session_id"], "CROSS_STEP_SESSION_MUST_REMAIN_SINGLE")
     require(writer["stages"]["partial_pause"]["native"]["revealing"] is True
             and restored["native"]["revealing"] is False and restored["native"]["visible_ratio"] == 1.0, "PARTIAL_SAVE_AND_FULL_RESTORE_REQUIRED")
     require(restored["speech_admissions"] == 0 and len(writer["completions"]) == len(reader["completions"]) == 1,
             "EXACT_ONE_PHYSICAL_COMPLETION_PER_PROCESS_REQUIRED")
-    require(writer["catalogue"]["entries"][0]["lines"][0]["text"] not in reader["text_starts"], "FIRST_CAPTION_MUST_NOT_REPLAY")
+    require(all(line["text"] not in reader["text_starts"] for line in entries[0]["lines"]), "PRIOR_CAPTIONS_MUST_NOT_REPLAY")
     require(reader["stages"]["duplicate"] == {"ok": True, "unchanged": True}
             and reader["stages"]["forgery"]["unchanged"] is True
             and reader["stages"]["forgery"]["refusal"]["ok"] is False, "DUPLICATE_NEUTRALITY_AND_FORGERY_REFUSAL_REQUIRED")
     require(reader["stages"]["completed"]["lifecycle"]["state"] == "COMPLETED", "CHAIN_TERMINAL_SETTLEMENT_REQUIRED")
-    return {"exact_saved_restore": True, "physical_boundary": True, "ordered_history": True, "silent_restore": True,
+    return {"visible_boundary_continuity": True, "exact_saved_restore": True, "physical_boundary": True, "ordered_history": True, "silent_restore": True,
             "duplicate_neutral": True, "forgery_refused": True, "remaining_completion_once": True}
 
 def run() -> int:

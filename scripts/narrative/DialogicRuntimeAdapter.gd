@@ -19,6 +19,7 @@ signal reading_frontier_restored(result: Dictionary)
 signal reading_seek_finished(result: Dictionary)
 
 const CLEAR_KEEP_VARIABLES := 1
+const CLEAR_KEEP_TEXT := 4
 const REQUIRED_METHODS := ["start", "start_timeline", "end_timeline", "handle_next_event", "handle_event", "clear", "has_subsystem", "get_subsystem"]
 const REQUIRED_SIGNALS := ["timeline_started", "timeline_ended", "event_handled", "signal_event"]
 const REQUIRED_SUBSYSTEMS := {
@@ -36,6 +37,11 @@ var _requested_path := ""
 var _runtime_generation := 0
 var _qualified_runtime := false
 var _request_id := ""
+var _retain_caption_layout := false
+var _retained_caption_layout: Node
+var _retained_caption_layer: Node
+var _retained_caption_ledger: NarrativeCaptionLedger
+var _retained_caption_token := ""
 var _caption_ledger: NarrativeCaptionLedger
 var _caption_token := ""
 var _caption_entry := ""
@@ -84,6 +90,8 @@ func bind_runtime(dialogic: Node) -> Dictionary:
 			return _fail(&"invalid_runtime", "qualified lifecycle requires both signals and generation queries")
 		_qualified_runtime = true
 	_dialogic = dialogic
+	if _qualified_runtime and dialogic.has_method("set_caption_handoff_guard"):
+		dialogic.set_caption_handoff_guard(_begin_caption_handoff)
 	_activity_phase = "live" if _dialogic.get("current_timeline") != null else ""
 	if _qualified_runtime:
 		_runtime_generation = int(dialogic.get_timeline_generation())
@@ -102,7 +110,7 @@ func bind_runtime(dialogic: Node) -> Dictionary:
 ## Opt-in internal publication capture only. This is not visible-witness admission,
 ## Profile history, durable History, or a save participant. Bind before start():
 ## the installed runtime may publish its first caption synchronously.
-func bind_caption_ledger(ledger: NarrativeCaptionLedger, token: String, entry_id: String) -> Dictionary:
+func bind_caption_ledger(ledger: NarrativeCaptionLedger, token: String, entry_id: String, retain_layout: bool = false) -> Dictionary:
 	if not _bound or not _qualified_runtime or has_active_playback() or _caption_ledger != null:
 		return _fail(&"caption_binding_unavailable", "no idle qualified publication slot")
 	if ledger == null: return _fail(&"caption_ledger_missing", "ledger is required")
@@ -111,6 +119,9 @@ func bind_caption_ledger(ledger: NarrativeCaptionLedger, token: String, entry_id
 	var text: Object = _dialogic.get_subsystem("Text")
 	if not text.has_signal("about_to_show_text"):
 		return _fail(&"caption_publication_signal_missing", "publication start signal is required")
+	if is_instance_valid(_retained_caption_layout) and (not retain_layout or ledger != _retained_caption_ledger or token != _retained_caption_token):
+		release_retained_caption_layout()
+	_retain_caption_layout = retain_layout
 	_caption_ledger = ledger
 	_caption_token = token
 	_caption_entry = entry_id
@@ -178,7 +189,42 @@ func _on_caption_text_started(_info: Dictionary) -> void:
 			_finish_reading_restore.call_deferred(_request_id, _caption_event)
 
 
+## Only the current admitted ending occurrence may keep its mounted view after Return.
+func _begin_caption_handoff() -> bool:
+	if not _retain_caption_layout or not _caption_source_is_current() or _caption_event == null \
+			or _caption_event.state != DialogicTextEvent.States.DONE \
+			or not _caption_ledger.is_current_occurrence(_caption_token, _caption_entry,
+				{"line_id": _caption_line, "publication_id": _caption_publication}): return false
+	var layout: Node = _dialogic.Styles.get_layout_node()
+	if not is_instance_valid(layout) or not layout.is_inside_tree(): return false
+	for layer: Node in layout.get_layers():
+		if layer.has_method("begin_ending_caption_handoff") and layer.call("begin_ending_caption_handoff", _caption_token) == true:
+			_retained_caption_layout = layout
+			_retained_caption_layer = layer
+			_retained_caption_ledger = _caption_ledger
+			_retained_caption_token = _caption_token
+			return true
+	return false
+
+
+func release_retained_caption_layout(dispose: bool = true) -> void:
+	_retain_caption_layout = false
+	var layout := _retained_caption_layout
+	var layer := _retained_caption_layer
+	_retained_caption_layout = null
+	_retained_caption_layer = null
+	_retained_caption_ledger = null
+	_retained_caption_token = ""
+	if is_instance_valid(layer):
+		if layer.has_method("end_ending_caption_handoff"): layer.call("end_ending_caption_handoff")
+		layer.call("reset_caption_stack")
+	if dispose and is_instance_valid(layout):
+		if layout.get_parent() != null: layout.get_parent().remove_child(layout)
+		layout.queue_free()
+
+
 func _retire_caption_binding() -> void:
+	_retain_caption_layout = false
 	_caption_ledger = null
 	_caption_token = ""
 	_caption_entry = ""
@@ -629,7 +675,10 @@ func start_timeline(path: String, label_or_index: Variant = 0) -> Dictionary:
 	_activity_phase = "starting"
 	_requested_path = path
 	_runtime_generation = 0
-	_dialogic.clear(CLEAR_KEEP_VARIABLES)
+	var keep_text := is_instance_valid(_retained_caption_layout) and _retain_caption_layout \
+		and _caption_ledger == _retained_caption_ledger and _caption_token == _retained_caption_token
+	if not keep_text and is_instance_valid(_retained_caption_layout): release_retained_caption_layout()
+	_dialogic.clear(CLEAR_KEEP_VARIABLES | (CLEAR_KEEP_TEXT if keep_text else 0))
 	preference_reapply_requested.emit()
 	if generation != _start_generation:
 		return _fail(&"runtime_start_cancelled", "playback was cancelled during startup")
@@ -801,6 +850,7 @@ func restore_captured_state(backup: Dictionary) -> Dictionary:
 
 
 func halt_with_error(result: Dictionary) -> Dictionary:
+	release_retained_caption_layout()
 	var seeking := not _caption_seek_result.is_empty()
 	_retire_caption_binding()
 	release_frozen_presentation()
@@ -969,6 +1019,8 @@ func _on_timeline_ended() -> void:
 
 
 func _on_qualified_timeline_started(generation: int, request_id: String) -> void:
+	if is_instance_valid(_retained_caption_layout) and request_id != _request_id:
+		release_retained_caption_layout(false)
 	var replaced := not _requested_path.is_empty() and (_activity_phase != "starting" \
 		or request_id != _request_id or str(_dialogic.current_timeline.resource_path) != _requested_path)
 	_runtime_generation = generation
