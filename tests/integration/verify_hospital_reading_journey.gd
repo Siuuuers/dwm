@@ -116,9 +116,10 @@ func _hospital_write() -> void:
 	# opened or suppressed; the coordinator owns any canonical required work.
 	if not await _schedule_done(): return
 	if not await _wait_desktop(3): return
-	await _dating_quick_key(KEY_F5)
-	if not _check(root.get_node("SaveManager").save_exists(&"quick"),
-		"pre-Hospital desktop Quick makes later F9 refusal nonvacuous"): return
+	# Seed only the prerequisite record; the Hospital checks below inject real F5/F9.
+	var quick_fixture: Dictionary = root.get_node("SaveManager").quick_save_latest()
+	if not _check(quick_fixture.get("ok", false) and root.get_node("SaveManager").save_exists(&"quick"),
+		"test-only pre-Hospital Quick fixture makes F9 refusal nonvacuous: " + str(quick_fixture)): return
 	if _with_sylvia:
 		if not await _unlock_invitation("sylvia", 3): return
 		if not await _schedule_friend("sylvia", 3): return
