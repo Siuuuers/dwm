@@ -69,6 +69,112 @@ The proposed contradiction remains useful backstage: Priscilla wants free choice
 
 The [intimacy and ordinary-company owner](intimacy-and-ordinary-company.md) holds the useful questions, proposed private meanings, and selected voice tests. They remain unplaced; no intimate history is selected by collecting them.
 
+## 5. Return-driven pursuit and lawful intensity
+
+**Status and scope:** explicit owner clarification and artistic direction, captured
+2026-10-04 for the returning-Lavinia arc and the developing Day 6 Dark–Love
+encounter. This supplements Sections 2–3; it does not alter the transferred
+Handbook section, supply a dated separation plan, select a scene, or change
+mechanics.
+
+**Source:** the owner challenged “simply want Lavinia beside her” as an inadequate
+account of Priscilla's pursuit across the reunion, then clarified that her urgency
+is “because it is the time Lavinia back” and she may want to act “as soon as
+possible.” The owner also specified that “the crazy insanity with intensity is
+the core would like to present in those 7 days,” endorsed the response, and
+explicitly requested recording this guidance directly on `master`.
+
+### Urgency belongs to their reunion
+
+Lavinia's return makes renewed contact possible and activates Priscilla's urgency.
+The author was not giving Priscilla knowledge of seven playable days. Do not answer
+that clarification with another warning about a fictional countdown. No new
+deadline, rival, imminent second departure, or knowledge of the final game day is
+needed to make her wish to act promptly credible.
+
+The developing pursuit is broader than enjoying the current seat beside Lavinia:
+Priscilla wants to regain a personally chosen place in Lavinia's ongoing life.
+Surviving desire, willingness to spend time together, trust in her decisions, and
+forgiveness remain different things. Seeking renewed closeness does not require
+moral repentance for the disclosure intervention; the scoped clarification in
+Section 2 remains unchanged.
+
+### A direction, not a flawless campaign
+
+**Retained assistant formulation, not selected backstory:** a sustained aim, some
+deliberate preparation, and responses Priscilla has not successfully rehearsed in
+advance. An entirely passive reunion is a poor default for this developing
+pursuit, but months apart do not prove a detailed plan. Select particular
+preparations only when an encounter needs them and their means are established.
+Do not invent surveillance, private updates through Angela, or an entire schedule
+of arranged meetings.
+
+Genuine enjoyment and strategic intent can coexist. “She wants Lavinia beside her”
+can be true of a moment without explaining the whole pursuit. Conversely, an aim
+does not make every laugh, interest, or affectionate gesture counterfeit. Let the
+actual Lavinia surprise Priscilla, alter her approach, and become more absorbing
+than the outcome she expected to obtain. Her wish for greater understanding can
+produce overconfident interpretation rather than omniscience.
+
+Lavinia is not merely the objective of a campaign. She can offer something,
+recognize Priscilla's pleasure, enjoy affecting her, initiate closeness, or withhold
+a further revelation. Enjoying Priscilla's curiosity does not authorize an
+intrusion. Her participation and refusal must remain causally active, not
+responses guaranteed by Priscilla's choice of words.
+
+### Intensity is part of the intended experience
+
+**Owner-directed artistic aim:** heightened, surprising, character-specific
+romance and psychological horror with lawful absurdity and sufficient dramatic
+duration. Quieter, gentler, or less explicit is not automatically better.
+Preserve earned startling action, humor, obsession, pleasure, and disturbing
+successes as well as their costs. Ordinary warmth is part of the attraction, not a
+mandatory ceiling on the encounter's intensity.
+
+“Lawful” calls for intelligible action and credible consequences, not the most
+ordinary or restrained possible behavior. Distinguish what each woman wants,
+chooses, obtains, misreads, and loses. A troubling method can obtain real attention
+without being justified or resolving the harm. Neither gentleness nor escalating
+force is a quality score; judge the changed stakes and experience of the complete
+encounter rather than counting violations or imposing a moral ending.
+
+Keep these causes backstage. The women need not explain the analysis, display a
+trait on every line, or perform a sequence solely because it symbolizes the bond.
+Do not polish away the appetite driving the scene and then rely on commentary to
+supply its excitement.
+
+### Application and limits
+
+**Illustrative, unselected application:** a kept note may genuinely surprise
+Priscilla during a prepared pursuit; wanting more knowledge can lead to an
+unnecessary intrusion; a discovered declaration can be sincere yet difficult for
+Lavinia to receive. These are separate choices and consequences, not proof that
+the notebook or Lavinia's response was planned in advance. Competing diary and
+bodily-contact constructions remain in the [notebook owner](auditions/day-6-dark-notebook.md);
+this guidance neither combines nor selects them.
+
+“Sit with me first” and “Watch the film” remain local wording candidates. The
+former may leave a further bedtime hope imaginable; the latter may echo their
+proposed earlier viewing while responding to present attention. Neither supplies
+an unspoken overnight agreement. A possible hope, an actual request, and an
+accepted activity remain distinct. Exact film history, intimacy, duration, and
+departure require their own scene decisions.
+
+**Supersedes in scope:** assistant readings that make spontaneous company the
+complete reunion motive, treat the owner's urgency as a seven-day meta-clock, or
+automatically improve intensity by making conduct milder. It does not supersede
+ordinary pleasure, genuine care, interpretive uncertainty, or prior scene
+alternatives.
+
+**Small comparison checks, not new plot obligations:**
+- A revision retains some intelligible pursuit without inventing a complete
+  campaign or making every affectionate response a tactic.
+- A heightened action is judged by its cause, audience experience, and actual
+  consequence, not rejected merely for being extreme or approved merely for being
+  Dark.
+- The diary/bedtime reading can distinguish Priscilla's hope from Lavinia's choice;
+  a suggestive phrase does not create history, permission, or a runtime outcome.
+
 ## 6. Different variations reveal different facets
 
 The [dance](auditions/day-6-sweet-love-dance.md) shares a present physical activity. The [imagined refusal](auditions/day-6-sweet-ambiguous-refusal.md) makes a private rehearsal jointly playable. The [notebook](auditions/day-6-dark-notebook.md) distinguishes voluntarily shown intimacy from information taken beyond its limit. This is an organizing interpretation, not a rule that every variant must repeat the same symbol or teach a boundary lesson.
