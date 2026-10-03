@@ -206,6 +206,9 @@ func test_cancel_then_same_path_replacement_outlives_old_wait_deadline_without_s
 	var old_event := await _start_wait("cancelled")
 	if old_event == null: return
 	var first_started := _observed_wait_start_msec
+	var first_locator := {"path": str(_runtime.current_timeline.resource_path),
+		"label": str(_bridge._active_entry.get("label", ""))}
+	var first_generation := _runtime.get_timeline_generation()
 	await _wait_seconds(0.80)
 	assert_true(_bridge.abort_current_entry(&"fixture_same_path_replacement").ok)
 	for frame: int in 4: await get_tree().process_frame
@@ -214,7 +217,12 @@ func test_cancel_then_same_path_replacement_outlives_old_wait_deadline_without_s
 	var replacement := await _start_wait("replacement")
 	if replacement == null: return
 	var replacement_started := _observed_wait_start_msec
-	assert_same(replacement, old_event, "same path and label exercise the cached native Wait resource")
+	assert_eq({"path": str(_runtime.current_timeline.resource_path),
+		"label": str(_bridge._active_entry.get("label", ""))}, first_locator,
+		"replacement uses the exact same physical path and label")
+	assert_gt(_runtime.get_timeline_generation(), first_generation)
+	# Once the old Timeline is released, ResourceLoader may rebuild its events.
+	# Both retained and regenerated resources must reject the old callback.
 	replacement.event_finished.connect(func(_event: DialogicEvent) -> void: _wait_finishes += 1, CONNECT_ONE_SHOT)
 	var generation := _runtime.get_timeline_generation()
 	var event_index := _runtime.current_event_idx
@@ -228,10 +236,11 @@ func test_cancel_then_same_path_replacement_outlives_old_wait_deadline_without_s
 	print("TIMED_HOLD_REPLACEMENT_OBSERVATION " + JSON.stringify({
 		"first_started_msec": first_started, "replacement_started_msec": replacement_started,
 		"observed_msec": observed, "hold_msec": int(HOLD_SECONDS * 1000.0),
+		"old_event_instance_id": old_event.get_instance_id(), "replacement_event_instance_id": replacement.get_instance_id(),
 		"event_finishes": _wait_finishes, "semantic_completions": _completions.intents.size()}))
 	assert_gt(observed - first_started, int(HOLD_SECONDS * 1000.0), "observation must cross the old physical deadline")
 	assert_lt(observed - replacement_started, int(HOLD_SECONDS * 1000.0), "observation must precede the replacement deadline")
-	assert_eq(_wait_finishes, 0, "retired Wait callback must not finish the reused replacement event")
+	assert_eq(_wait_finishes, 0, "retired Wait callback must not finish the replacement event")
 	assert_eq(_completions.intents.size(), 0, "old deadline cannot complete replacement playback")
 	assert_eq(_native_ends, ends_before, "old deadline cannot stop the replacement native timeline")
 	assert_eq(_runtime.get_timeline_generation(), generation)

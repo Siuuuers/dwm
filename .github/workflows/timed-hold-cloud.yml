@@ -21,7 +21,7 @@ jobs:
       with:
         fetch-depth: 0
         persist-credentials: true
-        ref: cdd08426e5d7f43aa2ad43caa508ab0d353018f6
+        ref: 95a514919ddd4abf44dbb26362e9d91e1ec0cdc0
     - name: Prepare disposable checkout for credential cleanup
       run: '$ErrorActionPreference = ''Stop''
 
