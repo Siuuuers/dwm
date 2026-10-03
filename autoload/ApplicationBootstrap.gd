@@ -892,7 +892,7 @@ func _capture_paused_checkpoint_inputs() -> Dictionary:
 			or game == null or bridge == null or router == null:
 		return _failure(&"backup_capture_unavailable", "Paused gameplay owners are unavailable")
 	var route: String = router.get_current_route_id()
-	if route not in ["main", "dating", "hospital"]:
+	if route not in ["main", "dating", "hospital", "ending"]:
 		return _failure(&"backup_capture_unavailable", "The paused source has no qualified gameplay capture")
 	var narrative := _capture_dating_reading_checkpoint(bridge, route)
 	if not narrative.get("ok", false): return narrative
@@ -911,6 +911,15 @@ func _capture_paused_checkpoint_inputs() -> Dictionary:
 func _capture_dating_reading_checkpoint(bridge: Object, route: String) -> Dictionary:
 	if bridge == null:
 		return _failure(&"backup_capture_unavailable", "Narrative owner is unavailable")
+	if route == "ending":
+		var scene := get_tree().current_scene
+		if not get_tree().paused or scene == null \
+				or scene.scene_file_path != "res://scenes/ending/EndingScene.tscn" \
+				or not scene.has_method("get_presentation_projection") \
+				or not bridge.has_method("can_capture_ending_reading_checkpoint") \
+				or not bridge.can_capture_ending_reading_checkpoint(scene.get_presentation_projection()):
+			return _failure(&"backup_capture_unavailable", "Ending has no qualified retained reading source")
+		return bridge.capture_reading_checkpoint(false)
 	if route == "hospital":
 		var scene := get_tree().current_scene
 		if not get_tree().paused or scene == null \
@@ -2160,8 +2169,8 @@ func _commit_presentation_checkpoint(route_id: String) -> Dictionary:
 	var inputs: Dictionary = _retained_day_resolution_state_port._checkpoint_inputs(
 		game_state._run_lifecycle.to_dict())
 	inputs["route_id"] = route_id
-	# Dating's physical record and Ending's cursor own these resume boundaries. A
-	# completed Dialogic command from the preceding scene must not be replayed.
+	# Physical records own these resume boundaries. Only an admitted reading
+	# anchor may accompany them; an unrelated preceding scene is never replayed.
 	inputs["dialogic_checkpoint"] = {}
 	if route_id == "dating":
 		var bridge := _target(&"DialogicBridge")
@@ -2171,6 +2180,14 @@ func _commit_presentation_checkpoint(route_id: String) -> Dictionary:
 			# A completed Next retains its History and operation alongside the
 			# authoritative board. This is a between-entry semantic checkpoint;
 			# restore must not replay the completed pre/post prose.
+			inputs["dialogic_checkpoint"] = reading.value
+	elif route_id == "ending":
+		var bridge := _target(&"DialogicBridge")
+		if bridge != null and bridge.has_method("capture_ending_physical_checkpoint"):
+			var reading: Dictionary = bridge.capture_ending_physical_checkpoint()
+			if not reading.get("ok", false): return reading
+			# Keep only the admitted ending History. The saved plan owns the
+			# next step; its preceding completed prose is never restarted.
 			inputs["dialogic_checkpoint"] = reading.value
 	var backup: Dictionary = _retained_checkpoint_port.capture()
 	if not backup.get("ok", false): return backup

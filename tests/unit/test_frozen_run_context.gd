@@ -348,3 +348,92 @@ func test_strict_semantic_checkpoint_requires_both_discriminators_and_preserves_
 		var before := snapshot.duplicate(true)
 		assert_true(RUN.validate(snapshot, true).ok, "generic restart transport has no semantic producer discriminator")
 		assert_eq(snapshot, before)
+
+## The saved plan, not History's copies, supplies each ordered ending frame.
+func _ending_reading_snapshot(tail: int = 1, boundary: String = "line") -> Dictionary:
+	var snapshot := _ending()
+	snapshot["route_id"] = "ending"
+	var plan: Dictionary = snapshot.lifecycle.ending_plan
+	plan.steps = [{"ending_id": "ending.priscilla.sweet", "role": "core"},
+		{"ending_id": "ending.priscilla.observation", "role": "observer_coda", "presentation_variant": "residue"}]
+	plan.next_step_index = tail
+	if tail > 0:
+		plan.playback_receipts["step:0"] = {"value": {"outcome": "completed", "timeline_completion_receipt_id": "actual:step:0:complete"}}
+	var cache: Dictionary = snapshot.gameplay.route_context[RUN.ENDING_KEY]
+	var frames := {}
+	var captions := []
+	var entry := ""
+	var first_entry := ""
+	var frame := {}
+	for index: int in range(tail + 1):
+		var playback_id := "fixture:run:ending:%d" % index
+		var frozen := ENDING.build(plan, index, cache.seed, playback_id)
+		assert_true(frozen.ok, str(frozen))
+		cache.presentations[playback_id] = frozen.value
+		entry = frozen.value.signature.entry_id
+		if index == 0: first_entry = entry
+		frame = {"expected_stage": "PRIMARY_PENDING", "playback_id": playback_id,
+			"role": plan.steps[index].role, "transaction_id": playback_id + ":complete", "presentation": frozen.value.presentation}
+		frames[entry] = frame
+		captions.append({"publication_id": "publication:%d" % index, "beat": {
+			"beat_id": "beat:%d" % index, "line_id": "line:%d" % index,
+			"owning_entry_id": entry, "presentation_signature": frozen.value.signature}})
+	var reading := {"schema_version": 3, "family": "ending", "catalogue_fingerprint": "fixture:catalogue",
+		"boundary": boundary, "frontier": {"line_id": "line:%d" % tail, "publication_id": "publication:%d" % tail} if boundary == "line" else {},
+		"ledger": {"session_token": "fixture:run:ending", "frozen_context": {
+			"family": "ending", "completion_transaction_id": "fixture:run:ending", "entry_id": first_entry},
+			"entry_contexts": frames, "captions": captions}}
+	snapshot["narrative_checkpoint"] = {"content_version": 1, "entry_id": entry, "frozen_context": frame,
+		"manifest_fingerprint": "fixture:manifest", "stage": frame.expected_stage,
+		"transaction_id": frame.transaction_id, "reading_session": reading}
+	return snapshot
+
+func test_ending_reading_restore_binds_old_and_current_frames_to_saved_plan() -> void:
+	var snapshot := _ending_reading_snapshot()
+	var before := snapshot.duplicate(true)
+	assert_true(RUN.validate(snapshot, true).ok)
+	assert_eq(snapshot, before, "validation is pure")
+	var checkpoint: Dictionary = snapshot.narrative_checkpoint
+	checkpoint.reading_session.ledger.entry_contexts["ending.priscilla.sweet"].transaction_id = "foreign:completed"
+	assert_eq(RUN.validate(snapshot, true).get("code"), &"reading_entry_context_mismatch",
+		"an older History frame must also match the saved physical plan")
+
+func test_ending_reading_between_steps_accepts_future_cache_without_fabricating_frame() -> void:
+	var snapshot := _ending_reading_snapshot(0, "between_entries")
+	var plan: Dictionary = snapshot.lifecycle.ending_plan
+	plan.next_step_index = 1
+	plan.playback_receipts["step:0"] = {"value": {"outcome": "completed", "timeline_completion_receipt_id": "actual:step:0:complete"}}
+	var cache: Dictionary = snapshot.gameplay.route_context[RUN.ENDING_KEY]
+	cache.presentations["fixture:run:ending:1"] = ENDING.build(plan, 1, cache.seed, "fixture:run:ending:1").value
+	var before := snapshot.duplicate(true)
+	assert_true(RUN.validate(snapshot, true).ok,
+		"completion advances durable cursor before the next semantic publication")
+	assert_eq(snapshot, before)
+	assert_eq(snapshot.narrative_checkpoint.reading_session.ledger.entry_contexts.size(), 1)
+	snapshot.narrative_checkpoint.reading_session.boundary = "line"
+	snapshot.narrative_checkpoint.reading_session.frontier = {"line_id": "line:0", "publication_id": "publication:0"}
+	assert_eq(RUN.validate(snapshot, true).get("code"), &"reading_physical_boundary_mismatch",
+		"the completed step cannot masquerade as an active line")
+
+func test_ending_reading_refuses_reordered_history_foreign_session_and_missing_prerequisite() -> void:
+	var snapshot := _ending_reading_snapshot()
+	snapshot.narrative_checkpoint.reading_session.ledger.captions.reverse()
+	assert_eq(RUN.validate(snapshot, true).get("code"), &"reading_caption_sequence_invalid")
+	snapshot = _ending_reading_snapshot()
+	snapshot.narrative_checkpoint.reading_session.ledger.session_token = "another:run:ending"
+	assert_eq(RUN.validate(snapshot, true).get("code"), &"reading_physical_owner_mismatch")
+	snapshot = _ending_reading_snapshot()
+	snapshot.lifecycle.ending_plan.playback_receipts.clear()
+	assert_eq(RUN.validate(snapshot, true).get("code"), &"ending_frozen_prerequisite_missing")
+
+func test_ending_reading_completed_tail_remains_an_inert_history_anchor() -> void:
+	var snapshot := _ending_reading_snapshot(1, "between_entries")
+	assert_true(RUN.validate(snapshot, true).ok,
+		"a just-completed physical tail remains valid if its cursor save failed")
+	snapshot.lifecycle.ending_plan.next_step_index = 2
+	snapshot.lifecycle.ending_plan.playback_receipts["step:1"] = {"value": {
+		"outcome": "completed", "timeline_completion_receipt_id": "actual:step:1:complete"}}
+	snapshot.lifecycle.state = "COMPLETED"
+	assert_true(RUN.validate(snapshot, true).ok, "completed Run preserves chronological History without playable text")
+	snapshot.lifecycle.ending_plan.next_step_index = 1
+	assert_eq(RUN.validate(snapshot, true).get("code"), &"reading_physical_owner_mismatch")

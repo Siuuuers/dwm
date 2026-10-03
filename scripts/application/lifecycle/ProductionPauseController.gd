@@ -229,6 +229,12 @@ func can_open_witnessed_backup_save(caption: Node) -> bool:
 
 ## Family admission is a pure retained-owner query; it never serializes or reveals a caption.
 func _reading_save_owner_available(route: String) -> bool:
+	if route == "ending":
+		var scene := get_tree().current_scene
+		return scene != null and scene.scene_file_path == "res://scenes/ending/EndingScene.tscn" \
+			and scene.has_method("get_presentation_projection") \
+			and _services.bridge.has_method("can_capture_ending_reading_checkpoint") \
+			and _services.bridge.can_capture_ending_reading_checkpoint(scene.get_presentation_projection())
 	return route == "dating" and is_instance_valid(_services.get("dating_presentation"))
 
 func open_witnessed_backup_save(caption: Node) -> Dictionary:
@@ -602,6 +608,7 @@ func _capture_between_entry_reading_checkpoint() -> Dictionary:
 
 
 func _capture_reading_backup_inputs() -> Dictionary:
+	if _captured_source.route_id == "ending": return _capture_ending_reading_backup_inputs()
 	var command: Dictionary = _captured_source.command
 	var physical: Dictionary = _services.dating_presentation.pull_physical(command)
 	if not physical.get("ok", false): return physical
@@ -630,6 +637,30 @@ func _capture_reading_backup_inputs() -> Dictionary:
 			or not _backup_admission().get("ok", false):
 		return _failure(&"pause_source_changed")
 	return {"ok": true, "value": inputs.duplicate(true)}
+
+## Ending reuses the same live Run producer and immutable reading checkpoint.
+## Scene command, session custody and saved authority must all stay unchanged.
+func _capture_ending_reading_backup_inputs() -> Dictionary:
+	if not _reading_save_owner_available("ending"): return _failure(&"pause_save_unavailable")
+	var checkpoint: Dictionary = _services.bridge.capture_reading_checkpoint(false)
+	if not checkpoint.get("ok", false): return checkpoint
+	var captured: Variant = (_services.backup_capture as Callable).call()
+	if not captured is Dictionary or not captured.get("ok", false):
+		return captured if captured is Dictionary else _failure(&"invalid_backup_capture")
+	var inputs: Dictionary = captured.get("value", {})
+	var after: Dictionary = _services.bridge.capture_reading_checkpoint(false)
+	if inputs.get("route_id") != "ending" \
+			or inputs.get("snapshot_input", {}).get("lifecycle", {}).get("run_id") != _captured_source.session.get("run_id") \
+			or inputs.get("dialogic_checkpoint") != checkpoint.value \
+			or not after.get("ok", false) or after.value != checkpoint.value \
+			or not _backup_admission().get("ok", false):
+		return _failure(&"pause_source_changed")
+	var snapshot: Dictionary = inputs.snapshot_input.duplicate(true)
+	snapshot["route_id"] = "ending"
+	var authority := preload("res://scripts/narrative/FrozenRunContext.gd").validate_reading_checkpoint(checkpoint.value, snapshot)
+	if not authority.get("ok", false): return authority
+	return {"ok": true, "value": inputs.duplicate(true)}
+
 
 func can_load_backup() -> bool:
 	return not _captured_source.is_empty() and _captured_source.get("route_id") != "hospital" \

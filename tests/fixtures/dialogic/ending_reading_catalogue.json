@@ -1,0 +1,30 @@
+{
+  "kind": "ending_reading_catalogue",
+  "schema_version": 1,
+  "entries": [
+    {
+      "entry_id": "ending.sylvia.special.full",
+      "content_version": 1,
+      "lines": [
+        {
+          "beat_id": "fixture.ending.first",
+          "line_id": "fixture.ending.first",
+          "revision": "fixture-ending-v1",
+          "text": "This explicitly noncanonical ending caption belongs to the first ordered step."
+        }
+      ]
+    },
+    {
+      "entry_id": "ending.sylvia.dark",
+      "content_version": 1,
+      "lines": [
+        {
+          "beat_id": "fixture.ending.second",
+          "line_id": "fixture.ending.second",
+          "revision": "fixture-ending-v1",
+          "text": "This explicitly noncanonical second ending caption preserves our earlier History across the ordered boundary. Its long text leaves time to pause the actual reveal and save the same stable caption. Its long text leaves time to pause the actual reveal and save the same stable caption. Its long text leaves time to pause the actual reveal and save the same stable caption. Its long text leaves time to pause the actual reveal and save the same stable caption. Its long text leaves time to pause the actual reveal and save the same stable caption. Its long text leaves time to pause the actual reveal and save the same stable caption. Its long text leaves time to pause the actual reveal and save the same stable caption. Its long text leaves time to pause the actual reveal and save the same stable caption. Its long text leaves time to pause the actual reveal and save the same stable caption. Its long text leaves time to pause the actual reveal and save the same stable caption. Its long text leaves time to pause the actual reveal and save the same stable caption. Its long text leaves time to pause the actual reveal and save the same stable caption. "
+        }
+      ]
+    }
+  ]
+}

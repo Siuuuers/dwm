@@ -1664,8 +1664,11 @@ func _capture_backup_inputs() -> Dictionary:
 	var hospital: bool = inputs["route_id"] == "hospital" and narrative.get("reading_session") is Dictionary \
 		and narrative.reading_session.get("schema_version") == 3 and narrative.reading_session.get("family") == "hospital" \
 		and narrative.reading_session.get("boundary") == "line"
-	if not (desktop or dating or hospital) or (not narrative.is_empty() and (not (dating or hospital) or not narrative.has("reading_session"))) \
-			or inputs["snapshot_input"]["lifecycle"].get("state") != "PLAYING":
+	var ending: bool = inputs["route_id"] == "ending" and narrative.get("reading_session") is Dictionary \
+		and narrative.reading_session.get("schema_version") == 3 and narrative.reading_session.get("family") == "ending" \
+		and narrative.reading_session.get("boundary") == "line"
+	if not (desktop or dating or hospital or ending) or (not narrative.is_empty() and (not (dating or hospital or ending) or not narrative.has("reading_session"))) \
+			or inputs["snapshot_input"]["lifecycle"].get("state") != ("ENDING" if ending else "PLAYING"):
 		return _fail(&"backup_capture_unavailable", "A qualified desktop or admitted reading capture is required")
 	if not narrative.is_empty():
 		# Full Run composition below performs the same cross-owner validation.

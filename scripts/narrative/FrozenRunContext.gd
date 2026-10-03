@@ -68,6 +68,7 @@ static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictio
 		return _fail(&"reading_saved_run_required")
 	var reading: Variant = checkpoint.get("reading_session")
 	if reading is Dictionary and typeof(reading.get("schema_version")) == TYPE_INT and reading.schema_version == 3:
+		if reading.get("family") == "ending": return _ending_reading(checkpoint, snapshot, reading)
 		return _hospital_reading(checkpoint, snapshot, reading)
 	if snapshot.get("route_id") != "dating": return _fail(&"reading_saved_run_required")
 	if reading is Dictionary and typeof(reading.get("schema_version")) == TYPE_INT \
@@ -144,6 +145,91 @@ static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictio
 			return _fail(&"reading_caption_sequence_invalid")
 		post_seen = post_seen or entry == post_entry
 	return {"ok": true, "value": {"entry_contexts": admitted}}
+
+## The ordered plan owns step identity and completion. History may retain the
+## just-completed tail while the durable cursor (and frozen cache) move forward.
+## A future cached presentation is not an admitted History frame.
+static func _ending_reading(checkpoint: Dictionary, snapshot: Dictionary, reading: Dictionary) -> Dictionary:
+	if snapshot.get("route_id") != "ending": return _fail(&"reading_saved_run_required")
+	if not _exact(reading, ["schema_version", "family", "catalogue_fingerprint", "boundary", "ledger", "frontier"]) \
+			or reading.family != "ending" or not FROZEN._field(reading.catalogue_fingerprint, "id") \
+			or reading.boundary not in ["line", "between_entries"] or not reading.frontier is Dictionary:
+		return _fail(&"reading_session_invalid")
+	var ledger: Variant = reading.ledger
+	if not ledger is Dictionary or not _exact(ledger, ["session_token", "frozen_context", "entry_contexts", "captions"]) \
+			or not FROZEN._field(ledger.session_token, "id") or not ledger.frozen_context is Dictionary \
+			or not ledger.entry_contexts is Dictionary or not ledger.captions is Array:
+		return _fail(&"reading_session_invalid")
+	var lifecycle: Dictionary = snapshot.lifecycle
+	var plan: Variant = lifecycle.get("ending_plan")
+	if not FROZEN._field(lifecycle.get("run_id"), "id") or lifecycle.get("state") not in ["ENDING", "COMPLETED"] \
+			or not plan is Dictionary or not plan.get("steps") is Array or plan.steps.is_empty() \
+			or typeof(plan.get("next_step_index")) != TYPE_INT or plan.next_step_index < 0 \
+			or plan.next_step_index > plan.steps.size() or not plan.get("playback_receipts") is Dictionary \
+			or (lifecycle.state == "COMPLETED" and plan.next_step_index != plan.steps.size()):
+		return _fail(&"reading_physical_owner_mismatch")
+	for step: Variant in plan.steps:
+		if not step is Dictionary: return _fail(&"reading_physical_owner_mismatch")
+	var route: Dictionary = snapshot.gameplay.route_context
+	var checked := _ending(route, lifecycle, true)
+	if not checked.ok: return checked
+	var cache: Dictionary = route[ENDING_KEY]
+	var admitted := {}
+	var indices := {}
+	var first_entry := ""
+	var tail := -1
+	for index: int in range(plan.steps.size()):
+		var signature := ENDING.signature_for_step(plan, index, cache.seed)
+		if not signature.ok: return signature
+		var entry: String = signature.value.entry_id
+		if indices.has(entry): return _fail(&"reading_entry_context_mismatch")
+		indices[entry] = index
+		if index == 0: first_entry = entry
+		if not ledger.entry_contexts.has(entry): continue
+		if index != admitted.size(): return _fail(&"reading_entry_context_mismatch")
+		var playback_id := "%s:ending:%d" % [lifecycle.run_id, index]
+		var retained: Variant = cache.presentations.get(playback_id)
+		if not retained is Dictionary: return _fail(&"reading_entry_context_mismatch")
+		var frame := {"expected_stage": "PRIMARY_PENDING", "playback_id": playback_id,
+			"role": plan.steps[index].role, "transaction_id": playback_id + ":complete",
+			"presentation": retained.presentation}
+		if ledger.entry_contexts[entry] != frame: return _fail(&"reading_entry_context_mismatch")
+		admitted[entry] = frame
+		if entry == checkpoint.entry_id: tail = index
+	if ledger.session_token != lifecycle.run_id + ":ending" \
+			or ledger.frozen_context != {"family": "ending", "completion_transaction_id": lifecycle.run_id + ":ending", "entry_id": first_entry}:
+		return _fail(&"reading_physical_owner_mismatch")
+	if tail < 0 or tail != admitted.size() - 1 or admitted != ledger.entry_contexts \
+			or checkpoint.frozen_context != admitted[checkpoint.entry_id] \
+			or checkpoint.stage != "PRIMARY_PENDING" or checkpoint.transaction_id != admitted[checkpoint.entry_id].transaction_id:
+		return _fail(&"reading_entry_context_mismatch")
+	if reading.boundary == "line":
+		if not _exact(reading.frontier, ["line_id", "publication_id"]) \
+				or not FROZEN._field(reading.frontier.line_id, "id") or not FROZEN._field(reading.frontier.publication_id, "id"):
+			return _fail(&"reading_session_invalid")
+		if lifecycle.state != "ENDING" or plan.next_step_index != tail:
+			return _fail(&"reading_physical_boundary_mismatch")
+	elif not reading.frontier.is_empty() or plan.next_step_index not in [tail, tail + 1]:
+		return _fail(&"reading_physical_boundary_mismatch")
+	var publications := {}
+	var seen := {}
+	var last_index := 0
+	for row: Variant in ledger.captions:
+		if not row is Dictionary or not _exact(row, ["publication_id", "beat"]) \
+				or not FROZEN._field(row.publication_id, "id") or not CAPTION_REGISTRY.valid_beat(row.beat) \
+				or publications.has(row.publication_id):
+			return _fail(&"reading_caption_sequence_invalid")
+		var entry: String = row.beat.owning_entry_id
+		if not admitted.has(entry) or indices[entry] < last_index or indices[entry] > last_index + 1:
+			return _fail(&"reading_caption_sequence_invalid")
+		last_index = indices[entry]
+		seen[entry] = true
+		publications[row.publication_id] = true
+	if seen.size() != admitted.size() or ledger.captions.is_empty(): return _fail(&"reading_caption_sequence_invalid")
+	if reading.boundary == "line" and (reading.frontier.line_id != ledger.captions.back().beat.line_id \
+			or reading.frontier.publication_id != ledger.captions.back().publication_id):
+		return _fail(&"reading_physical_boundary_mismatch")
+	return {"ok": true, "value": {"entry_contexts": admitted.duplicate(true)}}
 
 ## Hospital has one frame, independently bound to the retained Schedule-Done
 ## request and Contacts sources. The checkpoint's own frame never supplies its

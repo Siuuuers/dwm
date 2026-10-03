@@ -392,3 +392,182 @@ func test_hospital_completed_anchor_requires_full_prefix_without_a_new_publicati
 	changed.ledger.captions.pop_back()
 	assert_false(session.validate_saved(changed, HOSPITAL_ENTRY).ok, "an early prefix cannot claim physical completion")
 	assert_eq(session.capture({}).value, completed.value)
+
+const ENDING_FROZEN := preload("res://scripts/narrative/EndingFrozenContext.gd")
+const ENDING_CHAIN := "fixture:run:ending"
+const ENDING_FIRST := "ending.priscilla.sweet"
+const ENDING_SECOND := "ending.priscilla_lavinia.sweet"
+const ENDING_THIRD := "ending.priscilla.observer.residue"
+
+func _ending_catalogue() -> Dictionary:
+	var entries: Array = []
+	for index: int in range(3):
+		var lines: Array = []
+		for suffix: String in ["a", "b"]:
+			var line_id := "fixture.ending.%d.%s" % [index, suffix]
+			lines.append({"beat_id": line_id, "line_id": line_id,
+				"text": "Ending step %d, caption %s." % [index, suffix], "revision": "fixture-v1"})
+		entries.append({"entry_id": [ENDING_FIRST, ENDING_SECOND, ENDING_THIRD][index],
+			"content_version": 1, "lines": lines})
+	return {"kind": "ending_reading_catalogue", "schema_version": 1, "entries": entries}
+
+func _ending_session() -> RefCounted:
+	var session := SESSION.new()
+	assert_true(session.configure(_ending_catalogue()).ok)
+	return session
+
+func _ending_context(index: int) -> Dictionary:
+	var inputs := {"dark_mode": false, "pair_form": "love_sweet", "special_variant": "full"}
+	for friend: String in ENDING_FROZEN.FRIENDS:
+		inputs[friend] = {"tier": "love", "tone": "sweet", "attitude": "affectionate", "echo_ids": [], "miss_reasons": []}
+	var seed := ENDING_FROZEN.make_seed(inputs,
+		{"priscilla": [], "lavinia": [], "sylvia": [], "priscilla_lavinia": []}, [], "empty_done")
+	assert_true(seed.ok, str(seed))
+	var plan := {"steps": [{"ending_id": ENDING_FIRST, "role": "core"},
+		{"ending_id": ENDING_SECOND, "role": "pair_coda"},
+		{"ending_id": "ending.priscilla.observation", "role": "observer_coda", "presentation_variant": "residue"}],
+		"playback_receipts": {}}
+	for previous: int in range(index):
+		plan.playback_receipts["step:%d" % previous] = {"value": {"outcome": "completed",
+			"timeline_completion_receipt_id": "%s:%d:complete" % [ENDING_CHAIN, previous]}}
+	var playback_id := "%s:%d" % [ENDING_CHAIN, index]
+	var frozen := ENDING_FROZEN.build(plan, index, seed.value, playback_id)
+	assert_true(frozen.ok, str(frozen))
+	return {"expected_stage": "PRIMARY_PENDING", "role": plan.steps[index].role,
+		"playback_id": playback_id, "transaction_id": playback_id + ":complete",
+		"presentation": frozen.value.presentation}
+
+func _ending_publish(session: RefCounted, index: int, suffix: String) -> Dictionary:
+	var entry_id: String = [ENDING_FIRST, ENDING_SECOND, ENDING_THIRD][index]
+	var line_id := "fixture.ending.%d.%s" % [index, suffix]
+	var allocated: Dictionary = session.ledger.allocate_publication(ENDING_CHAIN, entry_id)
+	assert_true(allocated.ok, str(allocated))
+	assert_true(session.ledger.publish_line(ENDING_CHAIN, allocated.value, entry_id, line_id).ok)
+	return {"line_id": line_id, "publication_id": allocated.value}
+
+func _ending_at_second_step() -> Dictionary:
+	var session := _ending_session()
+	assert_true(session.begin(ENDING_CHAIN, ENDING_FIRST).ok)
+	assert_true(session.admit(ENDING_FIRST, _ending_context(0)).ok)
+	_ending_publish(session, 0, "a")
+	_ending_publish(session, 0, "b")
+	session.completed(ENDING_FIRST)
+	assert_true(session.admit(ENDING_SECOND, _ending_context(1)).ok)
+	var frontier := _ending_publish(session, 1, "a")
+	return {"session": session, "frontier": frontier}
+
+func test_ending_frames_advance_only_after_complete_preceding_caption_prefix() -> void:
+	var session := _ending_session()
+	assert_false(session.begin(ENDING_CHAIN, ENDING_SECOND).ok)
+	assert_true(session.begin(ENDING_CHAIN, ENDING_FIRST).ok)
+	assert_false(session.admit(ENDING_SECOND, _ending_context(1)).ok)
+	assert_true(session.admit(ENDING_FIRST, _ending_context(0)).ok)
+	assert_eq(session.ledger.snapshot().captions, [], "admission cannot invent History")
+	_ending_publish(session, 0, "a")
+	var before: Dictionary = session.ledger.snapshot()
+	assert_false(session.admit(ENDING_SECOND, _ending_context(1)).ok)
+	session.completed(ENDING_FIRST)
+	assert_false(session.admit(ENDING_SECOND, _ending_context(1)).ok, "completion cannot disguise an omitted caption")
+	assert_eq(session.ledger.snapshot(), before)
+	_ending_publish(session, 0, "b")
+	assert_false(session.admit(ENDING_FIRST, _ending_context(0)).ok, "completed prose cannot reopen its foreground")
+	assert_eq(session.boundary, "between_entries")
+	assert_false(session.admit(ENDING_THIRD, _ending_context(2)).ok, "ordered admission cannot skip a step")
+	assert_true(session.admit(ENDING_SECOND, _ending_context(1)).ok)
+	assert_false(session.admit(ENDING_FIRST, _ending_context(0)).ok, "an old frame cannot become foreground again")
+	assert_eq(session.ledger.snapshot().captions.size(), 2)
+
+func test_ending_fresh_restore_keeps_exact_cross_step_history_and_published_frontier() -> void:
+	var source := _ending_at_second_step()
+	var saved: Dictionary = source.session.capture(source.frontier).value
+	assert_eq(saved.schema_version, 3)
+	assert_eq(saved.family, "ending")
+	assert_eq(saved.ledger.frozen_context,
+		{"family": "ending", "completion_transaction_id": ENDING_CHAIN, "entry_id": ENDING_FIRST})
+	assert_false(saved.ledger.entry_contexts.has(ENDING_THIRD), "future step facts are not admitted early")
+	var target := _ending_session()
+	assert_true(target.restore(saved, ENDING_SECOND).ok)
+	assert_eq(target.capture(source.frontier).value, saved, "restore allocates no new occurrence")
+	var history: Dictionary = target.project(source.frontier).value
+	assert_eq(history.captions.size(), 3)
+	assert_eq(history.captions[0].text, "Ending step 0, caption a.")
+	assert_eq(history.captions[1].text, "Ending step 0, caption b.")
+	assert_eq(history.captions[2].text, "Ending step 1, caption a.")
+	assert_eq(history.frontier, source.frontier)
+	assert_eq(target.current_caption_variant(ENDING_SECOND, source.frontier).value.line_id, "fixture.ending.1.a")
+	history.captions[0].text = "caller mutation"
+	assert_eq(target.capture(source.frontier).value, saved)
+	assert_false(_session().restore(saved, ENDING_SECOND).ok)
+	assert_false(_hospital_session().restore(saved, ENDING_SECOND).ok)
+
+func test_ending_rejects_corrupt_cross_step_saves_without_replacing_standing_history() -> void:
+	var source := _ending_at_second_step()
+	var saved: Dictionary = source.session.capture(source.frontier).value
+	var target := _ending_session()
+	assert_true(target.restore(saved, ENDING_SECOND).ok)
+	for mutation: String in ["omitted_caption", "duplicate_caption", "foreign_caption", "reordered_captions",
+			"missing_frame", "future_frame", "reordered_frame_tokens", "missing_family", "wrong_family",
+			"malformed_family", "version1", "version2", "float_version", "wrong_frontier", "wrong_first"]:
+		var changed := saved.duplicate(true)
+		match mutation:
+			"omitted_caption": changed.ledger.captions.remove_at(1)
+			"duplicate_caption": changed.ledger.captions.insert(1, changed.ledger.captions[0].duplicate(true))
+			"foreign_caption": changed.ledger.captions[0].beat.owning_entry_id = PRE
+			"reordered_captions": changed.ledger.captions.reverse()
+			"missing_frame": changed.ledger.entry_contexts.erase(ENDING_FIRST)
+			"future_frame": changed.ledger.entry_contexts[ENDING_THIRD] = _ending_context(2)
+			"reordered_frame_tokens":
+				changed.ledger.entry_contexts[ENDING_FIRST].playback_id = ENDING_CHAIN + ":1"
+				changed.ledger.entry_contexts[ENDING_SECOND].playback_id = ENDING_CHAIN + ":0"
+			"missing_family": changed.erase("family")
+			"wrong_family": changed.family = "hospital"
+			"malformed_family": changed.family = ["ending"]
+			"version1": changed.schema_version = 1
+			"version2": changed.schema_version = 2
+			"float_version": changed.schema_version = 3.0
+			"wrong_frontier": changed.frontier.publication_id = changed.ledger.captions[0].publication_id
+			"wrong_first": changed.ledger.frozen_context.entry_id = ENDING_SECOND
+		assert_false(target.restore(changed, ENDING_SECOND).ok, mutation)
+		assert_eq(target.capture(source.frontier).value, saved, mutation)
+
+func test_ending_frame_rebinding_and_next_cannot_mutate_the_retained_session() -> void:
+	var source := _ending_at_second_step()
+	var session: RefCounted = source.session
+	var before: Dictionary = session.capture(source.frontier).value
+	assert_true(session.admit(ENDING_SECOND, _ending_context(1)).ok, "identical frame admission is idempotent")
+	for mutation: String in ["stage", "role", "playback", "transaction", "step_token", "facts", "extra"]:
+		var frame := _ending_context(1)
+		match mutation:
+			"stage": frame.expected_stage = "pre_challenge"
+			"role": frame.role = "core"
+			"playback": frame.playback_id = ENDING_CHAIN + ":0"
+			"transaction": frame.transaction_id = ENDING_CHAIN + ":0:complete"
+			"step_token": frame.presentation.fields.step_token = "foreign:ending:1"
+			"facts": frame.presentation.fields.pair_count_receipt_ids = ["foreign:pair-receipt"]
+			"extra": frame["unexpected"] = true
+		assert_false(session.admit(ENDING_SECOND, frame).ok, mutation)
+		assert_eq(session.capture(source.frontier).value, before, mutation)
+	var queries: Array = []
+	assert_eq(session.prepare_next(source.frontier, func(beat: Dictionary) -> bool:
+		queries.append(beat)
+		return true).get("code"), &"reading_next_unavailable")
+	assert_eq(queries, [], "ending Next cannot consult or spend profile knowledge")
+	assert_eq(session.capture(source.frontier).value, before)
+
+func test_ending_catalogue_order_is_bound_to_the_saved_history() -> void:
+	var source := _ending_at_second_step()
+	var saved: Dictionary = source.session.capture(source.frontier).value
+	var reordered := _ending_catalogue()
+	reordered.entries.reverse()
+	var target := SESSION.new()
+	assert_true(target.configure(reordered).ok)
+	assert_false(target.restore(saved, ENDING_SECOND).ok, "a reordered programme requires its own fingerprint")
+	for mutation: String in ["empty", "foreign_entry", "duplicate_entry", "empty_lines", "duplicate_line"]:
+		var document := _ending_catalogue()
+		match mutation:
+			"empty": document.entries = []
+			"foreign_entry": document.entries[0].entry_id = PRE
+			"duplicate_entry": document.entries[1].entry_id = ENDING_FIRST
+			"empty_lines": document.entries[0].lines = []
+			"duplicate_line": document.entries[1].lines[0].line_id = document.entries[0].lines[0].line_id
+		assert_false(SESSION.new().configure(document).ok, mutation)

@@ -300,3 +300,218 @@ func test_exact_canonical_labels_record_then_native_gallery_replay_preserves_run
 	assert_eq(state.capture_restore_state().value.backup,run_before)
 	assert_eq(runtime.current_state_info.get("variables",{}),variables_before)
 	assert_eq(navigation.returns,1,"Gallery never advances the completed ending or returns its run again")
+
+
+## Boundary-order tests isolate physical startup; the existing tests above and
+## rendered ending journey own native playback, pixels and durable Run admission.
+class ReadingBoundaryBridge extends BRIDGE:
+	var starts: Array[Dictionary] = []
+	var fail_start := false
+	func start_ending_presentation(ending_id: String, context: Dictionary, signature: Dictionary, presentation: Dictionary = {}) -> Dictionary:
+		return _start_ending_reading(ending_id, context, signature, presentation)
+	func validate_reading_checkpoint(_checkpoint: Dictionary, _frames: Dictionary = {}) -> Dictionary:
+		return {"ok": true}
+	func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode: StringName,
+			token_kind: String, _expected_version: int = -1) -> Dictionary:
+		var admitted: Dictionary = _reading_session.admit(entry_id, context)
+		if not admitted.ok: return admitted
+		if fail_start:
+			fail_start = false
+			return {"ok": false, "code": &"fixture_native_start_failed"}
+		starts.append({"entry_id": entry_id, "kind": token_kind,
+			"frontier": _reading_resume_frontier.duplicate(true)})
+		_active_entry = {"entry_id": entry_id, "token": "native-%d" % starts.size(),
+			"frozen_context": context.duplicate(true), "execution_mode": execution_mode}
+		return {"ok": true, "receipt": {"playback_token": _active_entry.token}}
+
+func _ending_boundary_fixture() -> Dictionary:
+	var frozen := preload("res://scripts/narrative/EndingFrozenContext.gd")
+	var inputs := {"dark_mode": false, "pair_form": "love_sweet", "special_variant": "full"}
+	for friend: String in frozen.FRIENDS:
+		inputs[friend] = {"tier": "love", "tone": "sweet", "attitude": "affectionate", "echo_ids": [], "miss_reasons": []}
+	var seed: Dictionary = frozen.make_seed(inputs,
+		{"priscilla": [], "lavinia": [], "sylvia": [], "priscilla_lavinia": []}, [], "empty_done").value
+	var plan := _ordered_plan()
+	plan.steps = plan.steps.slice(0, 2)
+	var session := preload("res://scripts/narrative/SoloReadingSession.gd").new()
+	assert_true(session.configure(preload("res://tests/support/EndingReadingFixture.gd").catalogue()).ok)
+	assert_true(session.begin("fixture:ending", "ending.sylvia.special.full").ok)
+	var frames: Array[Dictionary] = []
+	var signatures: Array[Dictionary] = []
+	var frontier := {}
+	for index: int in range(2):
+		var id := "fixture:ending:%d" % index
+		var built: Dictionary = frozen.build(plan, index, seed, id).value
+		var frame := {"playback_id": id, "transaction_id": id + ":complete",
+			"expected_stage": "PRIMARY_PENDING", "role": str(plan.steps[index].role), "presentation": built.presentation}
+		frames.append(frame)
+		signatures.append(built.signature)
+		var entry_id: String = built.signature.entry_id
+		assert_true(session.admit(entry_id, frame).ok)
+		var allocated: Dictionary = session.ledger.allocate_publication("fixture:ending", entry_id)
+		var line_id: String = session.catalogue[entry_id].lines[0].line_id
+		assert_true(session.ledger.publish_line("fixture:ending", allocated.value, entry_id, line_id).ok)
+		frontier = {"line_id": line_id, "publication_id": allocated.value}
+		if index == 0:
+			session.completed(entry_id)
+			plan.playback_receipts["step:0"] = {"value": {"outcome": "completed", "timeline_completion_receipt_id": id + ":complete"}}
+	var saved: Dictionary = session.capture(frontier).value
+	return {"first_frame": frames[0], "signature": signatures[1], "frame": frames[1], "checkpoint": {
+		"content_version": 1, "entry_id": "ending.sylvia.dark", "frozen_context": frames[1],
+		"stage": "PRIMARY_PENDING", "transaction_id": frames[1].transaction_id,
+		"manifest_fingerprint": "fixture-admission-is-tested-separately", "reading_session": saved}}
+
+func test_ending_reading_restore_adopts_same_caption_in_both_route_orders() -> void:
+	ending_scene.free()
+	ending_scene = null
+	var fixture := _ending_boundary_fixture()
+	for route_first: bool in [true, false]:
+		var subject := ReadingBoundaryBridge.new()
+		assert_true(subject.configure_reading_catalogue(preload("res://tests/support/EndingReadingFixture.gd").catalogue()).ok)
+		assert_true(subject.stage_reading_restore(fixture.checkpoint).ok)
+		var command: Dictionary = fixture.frame.duplicate(true)
+		command.erase("presentation")
+		var joined := {}
+		if route_first:
+			joined = subject._start_ending_reading("ending.sylvia.dark", command, fixture.signature, fixture.frame.presentation)
+			assert_true(joined.ok, str(joined))
+			assert_eq(subject.starts.size(), 0, "route publication cannot start before finalize")
+		assert_true(subject._resume_reading_checkpoint(fixture.checkpoint, &"canonical").ok)
+		if not route_first:
+			joined = subject._start_ending_reading("ending.sylvia.dark", command, fixture.signature, fixture.frame.presentation)
+			assert_true(joined.ok, str(joined))
+		assert_eq(subject.starts.size(), 1)
+		assert_eq(subject.starts[0].frontier, fixture.checkpoint.reading_session.frontier)
+		assert_eq(subject._reading_session.ledger.snapshot(), fixture.checkpoint.reading_session.ledger)
+		assert_false(subject._reading_restore_adoption)
+		var completions: Array[Dictionary] = []
+		subject.ending_playback_finished.connect(func(token: String, id: String, receipt: Dictionary):
+			completions.append({"token": token, "id": id, "receipt": receipt}))
+		subject._on_runtime_timeline_ended()
+		subject._on_runtime_timeline_ended()
+		assert_eq(completions.size(), 1)
+		assert_eq(completions[0].token, joined.receipt.playback_token)
+		assert_eq(completions[0].receipt.receipt_id, "fixture:ending:1:complete")
+		assert_eq(subject._reading_session.boundary, "between_entries")
+		subject.free()
+
+func test_ending_reading_abort_retires_port_without_completion() -> void:
+	ending_scene.free()
+	ending_scene = null
+	var fixture := _ending_boundary_fixture()
+	var subject := ReadingBoundaryBridge.new()
+	assert_true(subject.configure_reading_catalogue(preload("res://tests/support/EndingReadingFixture.gd").catalogue()).ok)
+	assert_true(subject._resume_reading_checkpoint(fixture.checkpoint, &"canonical").ok)
+	var retired: Array[String] = []
+	var completed: Array[String] = []
+	subject.ending_playback_retired.connect(func(token: String, _id: String): retired.append(token))
+	subject.ending_playback_finished.connect(func(token: String, _id: String, _receipt: Dictionary): completed.append(token))
+	var expected: String = subject._ending_reading.token
+	assert_true(subject.abort_current_entry(&"fixture_retirement").ok)
+	subject._on_runtime_timeline_ended()
+	assert_eq(retired, [expected])
+	assert_eq(completed, [])
+	assert_true(subject._ending_reading.is_empty())
+	subject.free()
+
+
+func test_ending_boundary_restore_rollback_retires_started_successor() -> void:
+	ending_scene.free()
+	ending_scene = null
+	var fixture := _ending_boundary_fixture()
+	var saved: Dictionary = fixture.checkpoint.duplicate(true)
+	saved.entry_id = "ending.sylvia.special.full"
+	saved.frozen_context = fixture.first_frame
+	saved.transaction_id = fixture.first_frame.transaction_id
+	saved.reading_session.boundary = "between_entries"
+	saved.reading_session.frontier = {}
+	saved.reading_session.ledger.entry_contexts.erase("ending.sylvia.dark")
+	saved.reading_session.ledger.captions.resize(1)
+	var subject := ReadingBoundaryBridge.new()
+	assert_true(subject.configure_reading_catalogue(preload("res://tests/support/EndingReadingFixture.gd").catalogue()).ok)
+	var backup: Dictionary = subject.capture_restore_state().value.backup
+	assert_true(subject.stage_reading_restore(saved).ok)
+	var command: Dictionary = fixture.frame.duplicate(true)
+	command.erase("presentation")
+	assert_true(subject._start_ending_reading("ending.sylvia.dark", command, fixture.signature, fixture.frame.presentation).ok)
+	assert_eq(subject.starts.size(), 0)
+	assert_true(subject._resume_reading_checkpoint(saved, &"canonical").ok)
+	assert_eq(subject.starts.size(), 1)
+	assert_eq(subject._reading_restore_token, subject._active_entry.token)
+	var retired: Array[String] = []
+	subject.ending_playback_retired.connect(func(token: String, _id: String): retired.append(token))
+	assert_true(subject.rollback_restore_silent(backup).ok)
+	assert_eq(retired.size(), 1)
+	assert_true(subject._active_entry.is_empty(), "failed finalize retires the started successor")
+	assert_false(subject.has_reading_session())
+	subject.free()
+
+func test_ending_start_refusal_retry_preserves_preceding_history() -> void:
+	ending_scene.free()
+	ending_scene = null
+	var fixture := _ending_boundary_fixture()
+	var saved: Dictionary = fixture.checkpoint.reading_session.duplicate(true)
+	saved.boundary = "between_entries"
+	saved.frontier = {}
+	saved.ledger.entry_contexts.erase("ending.sylvia.dark")
+	saved.ledger.captions.resize(1)
+	var subject := ReadingBoundaryBridge.new()
+	assert_true(subject.configure_reading_catalogue(preload("res://tests/support/EndingReadingFixture.gd").catalogue()).ok)
+	var session := preload("res://scripts/narrative/SoloReadingSession.gd").new()
+	assert_true(session.configure(preload("res://tests/support/EndingReadingFixture.gd").catalogue()).ok)
+	assert_true(session.restore(saved, "ending.sylvia.special.full").ok)
+	subject._reading_session = session
+	var command: Dictionary = fixture.frame.duplicate(true)
+	command.erase("presentation")
+	subject.fail_start = true
+	var refused: Dictionary = subject._start_ending_reading("ending.sylvia.dark", command, fixture.signature, fixture.frame.presentation)
+	assert_false(refused.ok)
+	assert_eq(subject._reading_session.ledger.snapshot().captions, saved.ledger.captions)
+	assert_true(subject._ending_reading.is_empty())
+	var retried: Dictionary = subject._start_ending_reading("ending.sylvia.dark", command, fixture.signature, fixture.frame.presentation)
+	assert_true(retried.ok, str(retried))
+	assert_eq(subject.starts.size(), 1, "refused native startup does not create a physical occurrence")
+	assert_eq(subject._reading_session.ledger.snapshot().captions, saved.ledger.captions)
+	subject.free()
+
+
+class RefusingReachedProfile extends RefCounted:
+	var writes := 0
+	func record_reached_presentation(_signature: Dictionary) -> Dictionary:
+		writes += 1
+		return {"ok": writes > 1, "code": &"fixture_profile_write_failed"}
+
+func test_reached_write_failure_retries_completed_ending_without_native_replay() -> void:
+	ending_scene.free()
+	ending_scene = null
+	var fixture := _ending_boundary_fixture()
+	var subject := ReadingBoundaryBridge.new()
+	assert_true(subject.configure_reading_catalogue(preload("res://tests/support/EndingReadingFixture.gd").catalogue()).ok)
+	assert_true(subject._resume_reading_checkpoint(fixture.checkpoint, &"canonical").ok)
+	var recorder := RefusingReachedProfile.new()
+	var port := preload("res://scripts/application/ending/DialogicEndingPlaybackPort.gd").new()
+	assert_true(port.initialize(subject).ok)
+	assert_true(port.configure_reached_presentations(recorder,
+		func(_id: String, _context: Dictionary) -> Dictionary: return {"ok": true, "value": fixture.signature},
+		func(_id: String, _context: Dictionary) -> Dictionary:
+			return {"ok": true, "value": {"signature": fixture.signature, "presentation": fixture.frame.presentation}}).ok)
+	var failures: Array[Dictionary] = []
+	var completions: Array[Dictionary] = []
+	port.playback_failed.connect(func(failure: Dictionary): failures.append(failure))
+	port.playback_completed.connect(func(completion: Dictionary): completions.append(completion))
+	var command: Dictionary = fixture.frame.duplicate(true)
+	command.erase("presentation")
+	assert_true(port.start_ending_id("ending.sylvia.dark", command).ok)
+	subject._on_runtime_timeline_ended()
+	assert_eq(failures.size(), 1)
+	assert_eq(completions.size(), 0)
+	assert_eq(subject._reading_session.boundary, "between_entries")
+	var history: Dictionary = subject._reading_session.ledger.snapshot()
+	assert_true(port.start_ending_id("ending.sylvia.dark", command).ok)
+	await get_tree().process_frame
+	assert_eq(recorder.writes, 2)
+	assert_eq(completions.size(), 1)
+	assert_eq(completions[0].timeline_completion_receipt_id, "fixture:ending:1:complete")
+	assert_eq(subject.starts.size(), 1, "retry only persists the completed physical occurrence")
+	assert_eq(subject._reading_session.ledger.snapshot(), history)
+	subject.free()

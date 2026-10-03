@@ -261,6 +261,11 @@ func on_ending_playback_failed(failure: Dictionary) -> void:
 	_set_playback_status(true)
 
 
+## Read-only source witness for Pause/Backup; the scene retains the exact command.
+func get_presentation_projection() -> Dictionary:
+	return _pending_ending_command.duplicate(true)
+
+
 func _completion_matches_pending(completion: Dictionary) -> bool:
 	if _pending_ending_command.is_empty():
 		return false
