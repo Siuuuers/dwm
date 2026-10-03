@@ -9,12 +9,36 @@ verification_authority: false
 
 # Reading rail: next bounded slice
 
-Updated after bounded Hospital Source9/Broad2 acceptance. Prior paused Settings
+Updated after shared-fainting and minimal result-routing acceptance. Prior paused Settings
 F9/F5, geometry, physical-selector and one-shot Next receipts keep their original
 source and scope. This navigation record changes no design authority, Beads
 status or production-content authorization.
 
 ## Current boundary
+
+**Accepted shared fainting and minimal result routing.** Source `3710d3a20cfd53f9aebf23524fd6f28b6d69e3dd`;
+actual PR test merge `50088e6b54ba43f08012e887922d4a912fd11e89`, with master
+`6a5ddf1564870b43aa9140cad7e0e5b12e43f399` unchanged.
+[Cloud run 37111087986](https://github.com/Siuuuers/dwm/actions/runs/37111087986)
+passes 25/25 jobs. The 13 primary ordinary/public XML reports contain 2,575
+executions with zero failures, errors or skips; intentional storage-refusal
+controls are counted separately. The [shared-fainting receipt](../../evidence/phase_2r/fainting_minimal_2026_10_03/receipt.json)
+owns exact artifacts, diagnostic attempts and limits.
+
+All fainting uses the shared Hospital DTL and ordinary caption input. Both Sylvia
+variants pass saved-reading fixture journeys; the actual condition-faint route
+passes captions, injected completion failure, physical Retry and one next-day
+recovery. All 16 post-challenge DTLs dispatch committed frozen result labels;
+Practice retains private empty-branch handling. Same-timeline native Return no
+longer replaces the admitted playback generation.
+
+Production semantic registration remains disabled; condition-triggered
+exact-caption saving and ordered-ending continuity remain unfinished. Hospital
+Next remains disabled. All 23 unfinished Beads retain statuses/dependencies;
+no live Dolt synchronization is claimed. PR #1 stays draft/unmerged. This
+records-only descendant is not separately engine-tested.
+
+## Earlier bounded Hospital acceptance
 
 **Accepted bounded Hospital reading / Source9.** Source
 `a24f71766a624b57601814dda487b53c66518c39`; actual auxiliary workflow checkout
@@ -121,15 +145,15 @@ Current owner correction (3 October 2026): every faint uses the shared Hospital
 DTL with ordinary Dating-style progression, without a challenge or separate
 Continue. Sylvia eligibility is unchanged. The native captionless hold is
 already accepted infrastructure; it is not the no-Sylvia presentation contract.
-The candidate replaces notice-only completion with the existing narrative owner
+The accepted candidate replaces notice-only completion with the existing narrative owner
 and preserves completion-write Retry through that owner’s coordinator. The
 shared rendered Hospital proof now covers Sylvia present and absent.
 
 The owner prioritizes minimal playable functions. Production prose and the full
 exact authored variant catalogue are deferred; labels may route from frozen,
 committed challenge results. Keep supported caption-save/History guarantees and
-state explicit limits for unregistered placeholder content. Cloud acceptance of
-this candidate is still pending; no parent Bead closes on label scaffolding.
+state explicit limits for unregistered placeholder content. Cloud acceptance is bound by the shared-fainting receipt above; no parent Bead
+closes on label scaffolding.
 
 The earlier [Hospital source audit](../../evidence/phase_2r/paused_settings_load_2026_10_02/next-slice-source-review/hospital-next-slice-source-audit.md)
 and [implementation proposal](../../evidence/phase_2r/paused_settings_load_2026_10_02/next-slice-source-review/hospital-next-slice-implementation-plan.md)
@@ -355,8 +379,8 @@ The later [paused Settings F5 receipt](../../evidence/phase_2r/paused_settings_q
 accepts the current-reveal-only Quick Save clause at its identified source.
 The later [Settings F9 receipt](../../evidence/phase_2r/paused_settings_load_2026_10_02/receipt.json) accepts bounded nonmodal Settings parity and native partial-text retirement
 at its own source. Source9/Broad2 separately accepts the bounded Sylvia-present
-Hospital seam. Next is the captionless native timed-hold Pause/cancellation
-fixture before no-Sylvia integration, as described in Current boundary;
+Hospital seam. Later timed-hold acceptance retains its infrastructure scope.
+Shared fainting supersedes the proposed no-Sylvia timed route;
 production catalogue admission, ordered endings and wider native acceptance
 remain separate work.
 
@@ -389,9 +413,10 @@ Retain source SHA, tested merge/run/job identities, machine-readable ordered tra
 
 ## Later authored input boundary
 
-The completed Hospital source audit identifies engineering seams and the known
-no-Sylvia conformance gap, with no new architecture question for the bounded
-fixture. Before production catalogue registration, ask only if a selected entry introduces an independently varying
+The historical source audit identified the no-Sylvia gap now addressed by shared
+fainting. Next register existing placeholder identities, frozen Sylvia selection
+and exact Schedule-Done or condition-plan authority. Keep Hospital Next disabled
+and History limited to published captions; no new architecture question is needed. Before production catalogue registration, ask only if a selected entry introduces an independently varying
 wording or staging selector beyond the recorded fields. The accepted fixture
 catalogue does not approve production prose; hidden reads of mutable gameplay
 cannot define exact variants. Old-development-save compatibility no longer

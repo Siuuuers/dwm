@@ -36,10 +36,34 @@ challenge result. This does not authorize predicting results, changing gameplay
 consequences, or weakening supported Save/Load, recovery and History validation.
 Label scaffolding alone does not make production exact-caption saves available.
 
-The candidate below is pending cloud acceptance. Historical timed-hold receipts
+The shared-fainting candidate is accepted below. Historical timed-hold receipts
 retain their original scope; do not implement automatic no-Sylvia completion.
 
 ## Current acceptance
+
+**Accepted shared fainting and minimal result routing.** Source `3710d3a20cfd53f9aebf23524fd6f28b6d69e3dd`;
+actual PR test merge `50088e6b54ba43f08012e887922d4a912fd11e89`, with master
+`6a5ddf1564870b43aa9140cad7e0e5b12e43f399` unchanged.
+[Cloud run 37111087986](https://github.com/Siuuuers/dwm/actions/runs/37111087986)
+passes 25/25 jobs. The 13 primary ordinary/public XML reports contain 2,575
+executions with zero failures, errors or skips; intentional storage-refusal
+controls are counted separately. The [shared-fainting receipt](../../evidence/phase_2r/fainting_minimal_2026_10_03/receipt.json)
+owns exact artifacts, diagnostic attempts and limits.
+
+All fainting uses the shared Hospital DTL and ordinary caption input. Both Sylvia
+variants pass saved-reading fixture journeys; the actual condition-faint route
+passes captions, injected completion failure, physical Retry and one next-day
+recovery. All 16 post-challenge DTLs dispatch committed frozen result labels;
+Practice retains private empty-branch handling. Same-timeline native Return no
+longer replaces the admitted playback generation.
+
+Production semantic registration remains disabled; condition-triggered
+exact-caption saving and ordered-ending continuity remain unfinished. Hospital
+Next remains disabled. All 23 unfinished Beads retain statuses/dependencies;
+no live Dolt synchronization is claimed. PR #1 stays draft/unmerged. This
+records-only descendant is not separately engine-tested.
+
+## Earlier timed-hold acceptance
 
 **Accepted bounded captionless timed hold.** Source
 `2937bc569094186dbd1bbefe75efeaa58deccbcc`; actual auxiliary checkout
@@ -216,22 +240,27 @@ retained PNGs is separate visual evidence; neither establishes whole-UI polish.
 
 ## Next bounded work
 
-Current slice under `dwm-vky.14`: all fainting uses the shared Hospital DTL
-through the existing physical command/receipt owner, like ordinary Dating
-without a challenge. The owner explicitly superseded the no-Sylvia timed-hold
-proposal on 2026-10-03: no separate Continue and no automatic fade. Sylvia's
-accepted-appointment eligibility remains unchanged. Preserve physical completion,
-History and existing supported saves; failed settlement retries the retained
-coordinator without replaying dialogue or consequences. Cloud acceptance of
-this candidate is pending. The accepted native timed-hold infrastructure remains
-available for its separate approved uses.
+Continue `dwm-vky.14` with the smallest production Save/History seam: register
+the three existing Hospital placeholder captions with stable semantic identities.
+Keep one shared DTL, seven day entry identities and two programmes selected only
+by frozen Sylvia eligibility. This does not require finished prose.
 
-Minimal result-label routing is in scope; production prose and exhaustive authored
-variants are deferred. Arbitrary mid-hold Save/Load, condition-triggered exact-caption
-save support and ordered-ending History/restore remain separate.
-The [original source review](../../evidence/phase_2r/hospital_reading_2026_10_02/next-slice-source-review/next-work-proposal.md)
-remains historical planning, not current acceptance. Routine engineering needs
-no architecture interview; ask only when authored facts change the contract.
+Reuse the existing catalogue/session and native linear-program admission. V1
+Hospital currently admits one fixed entry; v2 selectors admit only the bounded
+Priscilla Day-1 Solo fixture. Extend those owners narrowly before Bootstrap
+registration. Preserve Hospital's actually-published-only History and disabled
+one-shot Next. Empty Dating result leaves remain empty; do not invent captions
+merely to create a save frontier.
+
+Registration must preserve both causes: Schedule-Done already has saved-frame
+authority, while condition-triggered saves need validation against the retained
+condition plan/request. Do not activate globally while condition frames still
+reject. Reuse Hospital runtime and rendered writer/fresh-reader/forgery checks
+for both Sylvia variants and both causes, with production locators.
+Ordered-ending History/restore remains the following seam. No architecture
+interview is needed for these known facts. Ask only if a new wording/staging
+selector changes the projection contract. Native timed-hold infrastructure
+retains its separate scope and is not the no-Sylvia route.
 
 ## Resume order and authority
 
@@ -246,11 +275,12 @@ no architecture interview; ask only when authored facts change the contract.
    and approved scene amendment §§12.3–12.8 and 22.4. The bounded connected
    physical v2 Save/Load proof is accepted; preserve both it and the original
    catalogue-v1 journey, paused Settings F5/F9 and accepted Sylvia-present
-   Hospital proofs. Validate the shared fainting dialogue for both Sylvia variants,
-   including technical completion Retry and the ordinary next-day boundary.
+   Hospital proofs. Preserve shared fainting dialogue for both Sylvia variants,
+   technical completion Retry and the ordinary next-day boundary.
    Register every new or touched mounted fixture in the cloud runner; file existence
    is not execution. Native Wait lifecycle retains its separate timed-hold scope.
-   Production registration stays disabled until its authored catalogue exists.
+   Production registration stays disabled until its validated placeholder catalogue
+   and both-cause restore authority exist.
 3. Ask only if a newly evidenced wording/staging selector changes the authored
    projection contract. Known Solo inputs include friend/day/phase/tier/tone/
    attitude/due echoes and committed post-board outcome/perfect reasons/
@@ -263,8 +293,9 @@ no architecture interview; ask only when authored facts change the contract.
    partial-reveal abort lifetime remain distinct acceptance work. The map also
    tracks independent Settings recovery, Gallery register and latency work.
 
-All 64 production DTLs currently contain comments, labels and returns, with no
-production prose or executable selectors. Known canonical contexts are already
+The shared Hospital DTL now contains three placeholder captions and frozen
+Sylvia selection; all 16 post-challenge DTLs contain frozen result-label dispatch.
+The other production files retain their earlier stubs. Known canonical contexts are already
 settled; do not repeat that design interview. Whole-entry reached signatures and
 individual caption variants are separate contracts. Keep `attempt_residue_id` null;
 do not promote legacy `special_mine_phase` or `promotion_result` into canonical
