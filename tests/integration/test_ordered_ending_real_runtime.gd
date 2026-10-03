@@ -515,3 +515,26 @@ func test_reached_write_failure_retries_completed_ending_without_native_replay()
 	assert_eq(subject.starts.size(), 1, "retry only persists the completed physical occurrence")
 	assert_eq(subject._reading_session.ledger.snapshot(), history)
 	subject.free()
+
+
+func test_retired_textbox_listener_cannot_block_successor_caption_animation() -> void:
+	# Native end removes its layout before queue_free; the retained signal
+	# subscriber must not start an animation which can no longer process.
+	ending_scene.free()
+	ending_scene = null
+	var animation := preload("res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Textbox/animations.gd").new()
+	animation.animation_in = animation.AnimationsIn.POP_IN
+	animation.animation_out = animation.AnimationsOut.POP_OUT
+	animation.animation_new_text = animation.AnimationsNewText.WIGGLE
+	add_child(animation)
+	remove_child(animation)
+	animation.queue_free()
+	assert_false(animation.is_inside_tree())
+	runtime.Animations.stop_animation()
+	runtime.Text.animation_textbox_show.emit()
+	assert_false(runtime.Animations.is_animating(), "removed show listener cannot strand the new caption")
+	runtime.Text.animation_textbox_hide.emit()
+	assert_false(runtime.Animations.is_animating())
+	runtime.Text.animation_textbox_new_text.emit()
+	assert_false(runtime.Animations.is_animating())
+	await get_tree().process_frame
