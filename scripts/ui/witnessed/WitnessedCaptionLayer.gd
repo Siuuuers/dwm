@@ -43,6 +43,7 @@ var _pause_capture_id := 0
 var _pause_anchor: Dictionary = {}
 var _pause_view: Dictionary = {}
 var _pause_covered := false
+var _timed_hold_frontier: Dictionary = {}
 var _transport_bridge: Object
 var _transport_configured := false
 var _transport_input_bound := false
@@ -367,7 +368,7 @@ func _transport_admitted() -> bool:
 		and bool(_transport_bridge.call("can_skip_current_line"))
 
 func _reading_source_admitted() -> bool:
-	return _reading_recovery.is_empty() and not _load_pending and not _history_pending and not _history_open \
+	return _timed_hold_frontier.is_empty() and _reading_recovery.is_empty() and not _load_pending and not _history_pending and not _history_open \
 		and not is_next_transport_active()
 
 func is_next_transport_active() -> bool:
@@ -636,9 +637,13 @@ func _sync_transport() -> void:
 		and _transport_bridge.has_method("is_rehearsal_playback") \
 		and bool(_transport_bridge.call("is_rehearsal_playback"))
 	transport_rail.visible = not rehearsal
-	transport_rail.project(_transport_admitted(), skip_controller.is_skip_active(),
-		skip_controller.is_auto_enabled(), _auto_button_admitted(), _load_admitted(), _history_admitted(), _save_admitted(), _next_admitted())
-	var ring: Array[Control] = [review_current if _review_offset > 0 else caption_text]
+	if not _timed_hold_frontier.is_empty():
+		transport_rail.project(false, false, skip_controller.is_auto_enabled(), false, false, false, false, false)
+	else:
+		transport_rail.project(_transport_admitted(), skip_controller.is_skip_active(),
+			skip_controller.is_auto_enabled(), _auto_button_admitted(), _load_admitted(), _history_admitted(), _save_admitted(), _next_admitted())
+	var ring: Array[Control] = []
+	if _timed_hold_frontier.is_empty(): ring.append(review_current if _review_offset > 0 else caption_text)
 	var names: PackedStringArray = []
 	if is_instance_valid(_dating_split_surface) and is_dating_split_input_admitted():
 		var handle: Control = _dating_split_surface.get_split_handle()
@@ -650,7 +655,7 @@ func _sync_transport() -> void:
 		if command.focus_mode != Control.FOCUS_NONE:
 			ring.append(command)
 			names.append(name)
-	var focus_key := ("review:" if _review_offset > 0 else "live:") + ",".join(names)
+	var focus_key := ("hold:" if not _timed_hold_frontier.is_empty() else ("review:" if _review_offset > 0 else "live:")) + ",".join(names)
 	if focus_key == _rail_focus_key: return
 	_rail_focus_key = focus_key
 	for index: int in ring.size():
@@ -871,16 +876,22 @@ func is_reading_recovery_active() -> bool:
 
 ## Transient navigation anchor only. Canonical source admission belongs to the coordinator.
 func capture_pause_view(source: Dictionary) -> Dictionary:
+	_sync_timed_hold_projection()
+	var timed_hold := not _timed_hold_frontier.is_empty()
 	if (source.is_empty() or not is_inside_tree() or not is_node_ready() or _pause_covered
-		or is_reading_recovery_active() or is_next_transport_active() or not canvas.is_visible_in_tree() or not _has_caption()):
+		or is_reading_recovery_active() or is_next_transport_active() or not canvas.is_visible_in_tree()
+		or (not _has_caption() and not timed_hold)
+		or (timed_hold and source.get("frontier", {}) != _timed_hold_frontier)):
 		return {"ok":false,"code":&"pause_view_unavailable","value":{}}
 	_pause_capture_id += 1
 	_pause_anchor = {"view_id":get_instance_id(),"capture_id":_pause_capture_id,"source":source.duplicate(true)}
 	var focused := get_viewport().gui_get_focus_owner()
 	var focus_id := focused.get_instance_id() if focused != null and _owns_caption_focus(focused) else 0
 	if _load_pending or _history_pending: focus_id = _load_activation_focus_id
+	if timed_hold: focus_id = 0
 	_pause_view = {"caption_id":caption_text.get_instance_id(),"reveal_generation":caption_text.get_reveal_generation(),
 		"runtime":_pause_runtime_identity(),"focus_id":focus_id,"scroll":get_scroll_bar().value,
+		"timed_hold_frontier":_timed_hold_frontier.duplicate(true),
 		"canvas_visible":canvas.visible,"layer_processing":is_processing(),"caption_processing":caption_text.is_processing()}
 	return {"ok":true,"code":&"ok","value":_pause_anchor.duplicate(true)}
 
@@ -934,6 +945,7 @@ func restore_pause_view(anchor: Dictionary) -> bool:
 ## The opaque anchor, native node, source and publication stay owned by Pause.
 func complete_pause_reading_reveal(anchor: Dictionary, bridge: Object, handle: Dictionary) -> Dictionary:
 	if not _pause_covered or not _valid_pause_anchor(anchor) or not is_instance_valid(bridge) \
+			or not _pause_view.get("timed_hold_frontier", {}).is_empty() \
 			or not bridge.has_method("complete_paused_reading_reveal"):
 		return {"ok": false, "code": &"pause_view_unavailable"}
 	var generation: int = int(_pause_view.reveal_generation)
@@ -953,7 +965,45 @@ func _valid_pause_anchor(anchor: Dictionary) -> bool:
 	return (is_inside_tree() and is_node_ready() and not _pause_anchor.is_empty() and anchor == _pause_anchor
 		and is_instance_valid(caption_text) and int(_pause_view.caption_id) == caption_text.get_instance_id()
 		and int(_pause_view.reveal_generation) == caption_text.get_reveal_generation()
-		and _pause_view.runtime == _pause_runtime_identity())
+		and _pause_view.runtime == _pause_runtime_identity()
+		and (_pause_view.get("timed_hold_frontier", {}).is_empty()
+			or _pause_view.timed_hold_frontier == _capture_timed_hold_frontier()))
+
+## Pure Bridge admission identifies a live native non-skippable hide-text Wait.
+## This view never owns its timer, completion, or durable narrative state.
+func _capture_timed_hold_frontier() -> Dictionary:
+	if not is_inside_tree() or not is_node_ready() or not is_instance_valid(_transport_bridge) \
+			or not _transport_bridge.has_method("capture_pause_frontier"): return {}
+	var captured: Dictionary = _transport_bridge.capture_pause_frontier()
+	if not captured.get("ok", false) or not captured.get("value") is Dictionary \
+			or captured.value.get("kind", "") != "timed_hold": return {}
+	return captured.value.duplicate(true)
+
+func _sync_timed_hold_projection() -> void:
+	if _pause_covered: return
+	var frontier := _capture_timed_hold_frontier()
+	if frontier == _timed_hold_frontier: return
+	_timed_hold_frontier = frontier
+	var holding := not frontier.is_empty()
+	if holding:
+		_retire_transport()
+		accept_input.retire_input()
+		_line_waiting_for_text = true
+		_presented_line.clear()
+		_had_caption = false
+		caption_text.focus_next = NodePath()
+		caption_text.focus_previous = NodePath()
+		review_current.focus_next = NodePath()
+		review_current.focus_previous = NodePath()
+	# Hide the entire caption subtree, including retained copies and scrollbar,
+	# while the stationary rail remains visible in the existing canvas.
+	scroll.visible = not holding
+	overlay.visible = not holding
+	canvas.queue_redraw()
+	overlay.queue_redraw()
+	_sync_native_processing()
+	_sync_focus()
+	_sync_transport()
 
 func _pause_runtime_identity() -> Dictionary:
 	if not is_inside_tree(): return {}
@@ -1091,7 +1141,8 @@ func get_caption_projection() -> Dictionary:
 	var bar := get_scroll_bar()
 	var leaves: Array[Rect2] = []
 	var visible_leaves: Array[Rect2] = []
-	if mounted:
+	var timed_hold := not _timed_hold_frontier.is_empty()
+	if mounted and not timed_hold:
 		for leaf: RichTextLabel in [older, previous, review_current, caption_text]:
 			if not leaf.visible or leaf.get_parsed_text().is_empty():
 				continue
@@ -1100,12 +1151,13 @@ func get_caption_projection() -> Dictionary:
 			var visible_rect := rect.intersection(_field_rect())
 			if visible_rect.has_area():
 				visible_leaves.append(visible_rect)
-	var current_rect := _leaf_rect(caption_text) if mounted else Rect2()
+	var current_rect := _leaf_rect(caption_text) if mounted and not timed_hold else Rect2()
 	return {
 		"locale": _locale, "text_percent": _text_percent, "palette": _palette, "day": _day,
 		"high_contrast": _high_contrast, "colour_preset": _colour_preset,
 		"large_targets": _large_targets,
 		"dating_overlay": _dating_overlay,
+		"timed_hold": timed_hold,
 		"font_style": _font_style,
 		"font_size": _caption_theme.default_font_size if _caption_theme != null else 0,
 		"text": caption_text.get_parsed_text() if mounted else "",
@@ -1123,6 +1175,9 @@ func get_caption_projection() -> Dictionary:
 	}
 
 func _on_about_to_show_text(_info: Dictionary) -> void:
+	# Restore the native caption subtree before arming this publication's speech.
+	# Visibility callbacks during hold exit must not consume its fresh candidate.
+	_sync_timed_hold_projection()
 	if not _current_copy.is_empty():
 		_current_copy = caption_text.get_parsed_text()
 		if caption_text.visible_characters >= 0:
@@ -1143,6 +1198,7 @@ func _on_about_to_show_text(_info: Dictionary) -> void:
 	_speech_candidate = true
 
 func _on_text_started(info: Dictionary) -> void:
+	_sync_timed_hold_projection()
 	if not _has_caption():
 		return
 	if not bool(info.get("append", false)) and not _current_copy.is_empty():
@@ -1162,6 +1218,7 @@ func _on_text_started(info: Dictionary) -> void:
 		_speak_publication.call_deferred(_speech_generation)
 
 func _on_caption_visibility_changed() -> void:
+	_sync_timed_hold_projection()
 	if not caption_text.is_visible_in_tree(): _cancel_speech()
 	if is_instance_valid(transport_rail): transport_rail.retire_input()
 	_sync_native_processing()
@@ -1178,6 +1235,14 @@ func _on_caption_visibility_changed() -> void:
 	_request_layout()
 
 func _sync_native_processing() -> void:
+	if not _timed_hold_frontier.is_empty():
+		# Native instant empty clears can retain a stale revealing flag. Retire it
+		# without inventing a text publication or emitting reveal completion.
+		if caption_text.get_parsed_text().is_empty():
+			caption_text.revealing = false
+			caption_text.visible_characters = -1
+		caption_text.set_process(false)
+		return
 	if _review_offset > 0 or _pause_covered or not _reading_recovery.is_empty() or is_next_transport_active():
 		caption_text.set_process(false)
 		return
@@ -1234,6 +1299,7 @@ func _on_preference_changed(path: StringName, _value: Variant) -> void:
 		_configure_recovery_presentation()
 
 func _process(_delta: float) -> void:
+	_sync_timed_hold_projection()
 	if (_speech_pending or not _speech_source.is_empty()) and not _speech_admitted(): _cancel_speech()
 	if not _reading_recovery.is_empty() and not _reading_request_matches(_reading_recovery):
 		_dismiss_reading_recovery(false)
@@ -1340,10 +1406,10 @@ func _restore_scroll(generation: int, value: float, publication: bool) -> void:
 	_publication_pending = false
 
 func _has_caption() -> bool:
-	return (caption_text.visible or _review_offset > 0) and not caption_text.get_parsed_text().is_empty()
+	return _timed_hold_frontier.is_empty() and (caption_text.visible or _review_offset > 0) and not caption_text.get_parsed_text().is_empty()
 
 func _sync_focus(allow_focus_grab: bool = true) -> void:
-	if _pause_covered or not _reading_recovery.is_empty() or is_next_transport_active():
+	if not _timed_hold_frontier.is_empty() or _pause_covered or not _reading_recovery.is_empty() or is_next_transport_active():
 		background_input.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		caption_text.focus_mode = Control.FOCUS_NONE
 		review_current.focus_mode = Control.FOCUS_NONE
@@ -1377,7 +1443,7 @@ func _on_caption_input(event: InputEvent) -> void:
 	_handle_input(event, true)
 
 func _handle_input(event: InputEvent, current: bool, source_control: Control = null) -> void:
-	if _pause_covered or not _reading_recovery.is_empty() or is_next_transport_active(): return
+	if not _timed_hold_frontier.is_empty() or _pause_covered or not _reading_recovery.is_empty() or is_next_transport_active(): return
 	if _forward_split_input(event, caption_text if current else (source_control if source_control != null else scroll)): return
 	if event is InputEventMouse and event.device == InputEvent.DEVICE_ID_EMULATION:
 		scroll.accept_event()
@@ -1440,12 +1506,12 @@ func _leaf_rect(leaf: RichTextLabel) -> Rect2:
 func _draw_canvas() -> void:
 	if _caption_theme == null:
 		return
-	if not _dating_overlay:
+	if not _dating_overlay and _timed_hold_frontier.is_empty():
 		canvas.draw_rect(_field_rect(), _color(&"field"))
 	canvas.draw_rect(Rect2(0, FIELD_BOTTOM, 1280, 64), _color(&"deep"))
 
 func _draw_seam() -> void:
-	if _caption_theme != null and not _dating_overlay:
+	if _caption_theme != null and not _dating_overlay and _timed_hold_frontier.is_empty():
 		overlay.draw_rect(Rect2(0, FIELD_TOP[_text_percent], 1280, 2), _color(&"rule"))
 
 func _draw_current_frame() -> void:

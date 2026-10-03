@@ -702,21 +702,40 @@ func is_bound_to_runtime(runtime: Node) -> bool:
 	return _bound and runtime == _dialogic
 
 
-## Ephemeral reading frontier only. Startup, cleanup and non-text events cannot open Pause.
+## Ephemeral text or authored silent-hold frontier. This is never a save cursor.
+## Startup, cleanup and other native events remain unavailable to Pause.
 func capture_pause_frontier() -> Dictionary:
 	if not _bound or not _qualified_runtime or _activity_phase != "live" \
 		or _request_id.is_empty() or _requested_path.is_empty() or _dialogic.current_timeline == null \
 		or _dialogic.is_ending_timeline():
 		return _fail(&"pause_frontier_unavailable", "no admitted live reading frontier")
 	var index := int(_dialogic.current_event_idx)
-	if index < 0 or index >= _dialogic.current_timeline_events.size() \
-		or not _dialogic.current_timeline_events[index] is DialogicTextEvent \
-		or _dialogic.current_state not in [DialogicGameHandler.States.IDLE, DialogicGameHandler.States.REVEALING_TEXT]:
+	if index < 0 or index >= _dialogic.current_timeline_events.size():
 		return _fail(&"pause_frontier_unavailable", "the current event has no reading frontier")
-	return {"ok": true, "code": &"ok", "value": {
+	var event: Variant = _dialogic.current_timeline_events[index]
+	var frontier := {
 		"generation": _runtime_generation, "event_index": index,
 		"request_id": _request_id, "paused": bool(_dialogic.paused),
-	}}
+	}
+	if event is DialogicTextEvent and _dialogic.current_state in [DialogicGameHandler.States.IDLE, DialogicGameHandler.States.REVEALING_TEXT]:
+		return {"ok": true, "code": &"ok", "value": frontier}
+	if not event is DialogicWaitEvent or _dialogic.current_state != DialogicGameHandler.States.WAITING:
+		return _fail(&"pause_frontier_unavailable", "the current event has no admitted silent hold")
+	var wait_event := event as DialogicWaitEvent
+	if not wait_event.hide_text or wait_event.skippable or not is_finite(wait_event.time) or wait_event.time <= 0.0 \
+			or not wait_event.has_method("get_wait_execution_state"):
+		return _fail(&"pause_frontier_unavailable", "silent hold requires a finite authored non-skippable duration")
+	var hold: Dictionary = wait_event.call("get_wait_execution_state")
+	if typeof(hold.get("execution_token")) != TYPE_INT or int(hold.get("execution_token", 0)) <= 0 \
+			or hold.get("timeline_generation") != _runtime_generation \
+			or hold.get("event_index") != index or hold.get("paused") != bool(_dialogic.paused) \
+			or hold.get("hide_text") != true or hold.get("skippable") != false:
+		return _fail(&"pause_frontier_unavailable", "silent hold no longer owns the native timer")
+	# Stable invocation identity survives Pause; continuously changing remaining
+	# time must never enter the Bridge's exact suspension/source comparisons.
+	frontier["kind"] = "timed_hold"
+	frontier["execution_token"] = hold.execution_token
+	return {"ok": true, "code": &"ok", "value": frontier}
 
 
 func _verify_pending_start(generation: int) -> void:
