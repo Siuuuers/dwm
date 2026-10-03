@@ -298,7 +298,7 @@ func set_caption_handoff_guard(guard: Callable) -> void:
 ## Clears and stops the current timeline.
 ## If [param skip_ending] is `true`, the dialog_ending_timeline is not getting played
 func end_timeline(skip_ending := false) -> void:
-	var retain_caption_layout := not skip_ending and _caption_handoff_guard.is_valid() \
+	var retain_caption_layout: bool = not skip_ending and _caption_handoff_guard.is_valid() \
 		and _caption_handoff_guard.call() == true
 	if not retain_caption_layout and not skip_ending and dialog_ending_timeline and current_timeline != dialog_ending_timeline:
 		start(dialog_ending_timeline)
