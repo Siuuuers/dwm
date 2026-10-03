@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "status": "FAILED_DIAGNOSTIC_EVIDENCE_ONLY",
+  "run_id": 37093072813,
+  "source": "058f817e587e0fc333ae66b769702d5cf0a68ebc",
+  "actual_checkout": "058f817e587e0fc333ae66b769702d5cf0a68ebc",
+  "workflow_head": "f22f187d77190be74d60c2ad491407f3f6daef84",
+  "actual_checkout_by_job": {
+    "111117336547": "058f817e587e0fc333ae66b769702d5cf0a68ebc"
+  },
+  "archive": {
+    "file": "timed-hold-focus2-failed-diagnostic-evidence.tar.gz",
+    "bytes": 1371000,
+    "sha256": "64a504a99d1594db56e42d084eeeaf9d4db9912d2a8b99dd32b6c9a65bbc676f"
+  },
+  "archive_members": 71,
+  "original_zip_count": 1,
+  "original_zip_bytes": 41049,
+  "reproducible_extracted_files": 8,
+  "reproducible_extracted_bytes": 444700,
+  "extraction_inventory": {
+    "bytes": 8559,
+    "sha256": "186571e5aaad39b8aad9bdc9beabbe84b329619871966eaa4c65898993d53b95"
+  },
+  "archive_inventory": {
+    "bytes": 22500,
+    "sha256": "6bb6ca78a7cc00b7e88ba07d5dae65b943173acb18f1b19e46fc5139ba97f02a"
+  },
+  "every_archive_member_roundtrip_verified": true,
+  "split_required": false,
+  "part_size_limit": 8388608,
+  "parts": [],
+  "ordered_reassembly_verified": true,
+  "adopt_archive_files": [
+    "timed-hold-focus2-failed-diagnostic-evidence.tar.gz"
+  ],
+  "do_not_adopt_unsplit_archive_when_parts_are_used": false,
+  "excluded_raw_extraction_copies_have_lossless_original_zip_representation": true
+}

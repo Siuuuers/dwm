@@ -1,0 +1,18 @@
+{
+  "status": "ARCHIVE_DELIVERY_AND_LOSSLESS_EXTRACTION_VERIFIED",
+  "run_id": 37092368181,
+  "original_zip_count": 13,
+  "reproducible_extracted_files": 490,
+  "archive_members_verified": 98,
+  "archive": {
+    "file": "timed-hold-focus1-failed-diagnostic-evidence.tar.gz",
+    "bytes": 39763629,
+    "sha256": "84979244569ad99856d606ec1f784951a8da07c927c20b35b75262e8e807b51c"
+  },
+  "raw_part_count": 5,
+  "archive_reassembled_from_delivery_files": true,
+  "verified_without_original_capture_or_attachment_paths": true,
+  "engine_or_powershell_executed": false,
+  "failed_run_status_unchanged": true,
+  "current_acceptance": false
+}

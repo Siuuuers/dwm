@@ -1,0 +1,31 @@
+{
+  "status": "FAILED_DIAGNOSTIC_ONLY_NOT_ACCEPTANCE",
+  "run_id": 37093072813,
+  "source": "058f817e587e0fc333ae66b769702d5cf0a68ebc",
+  "actual_checkout": "058f817e587e0fc333ae66b769702d5cf0a68ebc",
+  "workflow_head": "f22f187d77190be74d60c2ad491407f3f6daef84",
+  "actual_checkout_by_job": {
+    "111117336547": "058f817e587e0fc333ae66b769702d5cf0a68ebc"
+  },
+  "job_count": 5,
+  "executed_jobs": 1,
+  "skipped_job_records": 4,
+  "original_artifacts": 1,
+  "extracted_files_reproducible": 8,
+  "diagnosis": [
+    "Failed run: the public API inventory check failed; four dependent job records were skipped without runner logs. The skipped matrix record did not execute its underlying suites.",
+    "Source-backed diagnosis is stale checked-in call-site line inventories after a six-line fixture edit; unchanged public method contracts are not evidence that stale inventory bytes passed.",
+    "Only one public-surface artifact exists. No native, ordinary suite, rendered-hold, Hospital or rendered-journey execution is inferred for skipped records.",
+    "Independent Focus2 files are source diagnosis and audit expectations, not a completed successful runtime audit. No current acceptance."
+  ],
+  "all_capture_records_archived": true,
+  "capture_omissions": {},
+  "intentional_representation": [
+    "Extracted member bytes are stored inside their original ZIP once and fully inventoried, not silently omitted.",
+    "Partial duplicate captures hold-focus1-public, hold-focus1-reading and hold-focus1-render are not included; their complete original ZIPs and extraction members are already retained. The root visual review is retained separately.",
+    "Source-stage changed-file copies are replaced by exact Git source-context snapshots; their original publication/manifests are retained.",
+    "Mutable future-run auditors are excluded; frozen Focus1 v1/v2 auditor copies and dated correction receipts are used."
+  ],
+  "no_new_runtime_acceptance": true,
+  "no_local_engine_or_powershell": true
+}

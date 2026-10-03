@@ -1,0 +1,148 @@
+{
+  "status": "AUDITED_SUCCESSFUL_CAPTURE_PACKAGED_NOT_NEW_ACCEPTANCE",
+  "source": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7",
+  "workflow_head": "d5652c4c8b9391cc57d5f5a7b1c1fc950a4db465",
+  "actual_checkout": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7",
+  "run_id": 37093670324,
+  "run_attempt": 1,
+  "job_count": 3,
+  "artifact_count": 4,
+  "original_zips_retained": 4,
+  "parent_audit_bindings": [
+    {
+      "path": "hold-contract-review/focus3-evidence-review.json",
+      "assertions": [
+        {
+          "pointer": "/status",
+          "equals": "pass_focused_gut_and_source_boundary_rendered_semantics_separate"
+        },
+        {
+          "pointer": "/source",
+          "equals": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7"
+        },
+        {
+          "pointer": "/actual_checkout",
+          "equals": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7"
+        },
+        {
+          "pointer": "/workflow_head",
+          "equals": "d5652c4c8b9391cc57d5f5a7b1c1fc950a4db465"
+        },
+        {
+          "pointer": "/failures",
+          "equals": []
+        }
+      ],
+      "bytes": 29768,
+      "sha256": "2de6d8a829dc2aa09c4e994922a25ab230414d05959ad0eef34c8cbfe69ca75f"
+    },
+    {
+      "path": "hold-rendered-semantic-audit/focus3-semantic-audit.json",
+      "assertions": [
+        {
+          "pointer": "/status",
+          "equals": "pass_bounded_ephemeral_hold"
+        },
+        {
+          "pointer": "/pipeline_verdict",
+          "equals": "passed"
+        },
+        {
+          "pointer": "/run_id",
+          "equals": 37093670324
+        },
+        {
+          "pointer": "/source_commit",
+          "equals": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7"
+        },
+        {
+          "pointer": "/actual_checkout",
+          "equals": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7"
+        },
+        {
+          "pointer": "/run_head",
+          "equals": "d5652c4c8b9391cc57d5f5a7b1c1fc950a4db465"
+        }
+      ],
+      "bytes": 24888,
+      "sha256": "c2281d08f0314300a13059146b230527e8b742e4143e1a995d6a568bbc8e8466"
+    },
+    {
+      "path": "hold-rendered-semantic-audit/focus3-complete-envelope.json",
+      "assertions": [
+        {
+          "pointer": "/status",
+          "equals": "pass_bounded_native_hold_semantics_and_selected_visuals"
+        },
+        {
+          "pointer": "/all_three_jobs_successful",
+          "equals": true
+        },
+        {
+          "pointer": "/source_commit",
+          "equals": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7"
+        },
+        {
+          "pointer": "/actual_checkout",
+          "equals": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7"
+        },
+        {
+          "pointer": "/run/id",
+          "equals": 37093670324
+        }
+      ],
+      "bytes": 4117,
+      "sha256": "208efc97bf123e866c3d940175cdd2aa3c23c1a93d20f02f9a77d9cb4c9602a3"
+    },
+    {
+      "path": "hold-rendered-semantic-audit/focus3-visual-review.json",
+      "assertions": [
+        {
+          "pointer": "/status",
+          "equals": "pass_three_selected_cloud_views"
+        },
+        {
+          "pointer": "/run_id",
+          "equals": 37093670324
+        },
+        {
+          "pointer": "/actual_checkout",
+          "equals": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7"
+        }
+      ],
+      "bytes": 3337,
+      "sha256": "8c3b862474bf015a2a51fc4d7f1ef61da837e2208e3fd7f7d3617b857c66a46b"
+    },
+    {
+      "path": "hold-focus3-render/root-visual-review.json",
+      "assertions": [
+        {
+          "pointer": "/status",
+          "equals": "bounded_direct_visual_review"
+        },
+        {
+          "pointer": "/run_id",
+          "equals": 37093670324
+        },
+        {
+          "pointer": "/actual_checkout",
+          "equals": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7"
+        }
+      ],
+      "bytes": 1805,
+      "sha256": "021fb3f84f44ff247f27d9e24dca3937a3a17a4675d800e93f52ab9b104dcc44"
+    }
+  ],
+  "exclusions": [],
+  "capture_omissions": {},
+  "runtime_acceptance_inferred": false,
+  "limits": [
+    "Packaging does not create runtime, whole-game, release or PR test-merge acceptance.",
+    "Captionless hold evidence uses an authorized noncanonical fixture duration; no production-authored duration is established.",
+    "No durable mid-hold save/restore cursor, canonical no-Sylvia Hospital completion or production timeline registration is established.",
+    "No native hardware-input, OS accessibility-tree, screen-reader or audible speech-quality acceptance.",
+    "Windows export scope is unsigned cloud export, packaged data and isolated headless startup; known ObjectDB exporter warning remains an explicit unresolved lifetime exclusion.",
+    "No fixed performance threshold, universal speedup, physical-disk or input-to-paint guarantee.",
+    "Original Windows export binaries and transport wrapper/chunk bytes remain outside repository storage; exact identities are not permanent binary archival."
+  ]
+}
