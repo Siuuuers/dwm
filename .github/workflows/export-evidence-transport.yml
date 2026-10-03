@@ -1,0 +1,139 @@
+name: Exact original export artifact transport
+'on':
+  push:
+    branches:
+    - codex/timed-hold-export-20261003
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: export-evidence-transport-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  transport-original-export:
+    name: Transport exact original export evidence
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - name: Download exact original artifact ZIP with read-only workflow token
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: 'set -euo pipefail
+
+        export DWM_EXPORT_TRANSPORT_ROOT="$RUNNER_TEMP/export-evidence-transport"
+
+        mkdir -p "$DWM_EXPORT_TRANSPORT_ROOT"
+
+        gh api repos/Siuuuers/dwm/actions/artifacts/11264005033 --jq ''{id,name,size_in_bytes,digest,expired,workflow_run:{id:.workflow_run.id,head_sha:.workflow_run.head_sha}}''
+        > "$DWM_EXPORT_TRANSPORT_ROOT/source-metadata.json"
+
+        gh api repos/Siuuuers/dwm/actions/artifacts/11264005033/zip > "$DWM_EXPORT_TRANSPORT_ROOT/original.zip"
+
+        '
+    - name: Verify source identity and CRC, split raw bytes, and verify reassembly
+      run: "set -euo pipefail\nexport DWM_EXPORT_TRANSPORT_ROOT=\"$RUNNER_TEMP/export-evidence-transport\"\npython3 - <<'PY'\n\
+        import hashlib\nimport json\nimport os\nfrom pathlib import Path\nimport zipfile\n\n\ndef require(condition, detail):\n\
+        \    if not condition:\n        raise ValueError(detail)\n\n\ndef strict_json(text):\n    def pairs(values):\n   \
+        \     result = {}\n        for key, value in values:\n            require(key not in result, 'DUPLICATE_JSON_KEY')\n\
+        \            result[key] = value\n        return result\n    def constant(value):\n        raise ValueError('NONFINITE_JSON_NUMBER:\
+        \ ' + value)\n    return json.loads(text, object_pairs_hook=pairs, parse_constant=constant)\n\n\ndef sha256(path):\n\
+        \    with path.open('rb') as stream:\n        return hashlib.file_digest(stream, 'sha256').hexdigest()\n\n\ndef verify_split(archive,\
+        \ api_metadata, destination, expected, chunk_bytes, transport):\n    require(set(api_metadata) == {'id', 'name', 'size_in_bytes',\
+        \ 'digest', 'expired', 'workflow_run'},\n            'EXACT_API_METADATA_KEYS_REQUIRED')\n    require(api_metadata.get('id')\
+        \ == expected['id'], 'SOURCE_ARTIFACT_ID_MISMATCH')\n    require(api_metadata.get('name') == expected['name'], 'SOURCE_ARTIFACT_NAME_MISMATCH')\n\
+        \    require(api_metadata.get('expired') is False, 'SOURCE_ARTIFACT_EXPIRED')\n    require(api_metadata.get('size_in_bytes')\
+        \ == expected['size_in_bytes'], 'SOURCE_API_SIZE_MISMATCH')\n    require(api_metadata.get('digest') == expected['digest'],\
+        \ 'SOURCE_API_DIGEST_MISMATCH')\n    source_run = api_metadata.get('workflow_run')\n    require(isinstance(source_run,\
+        \ dict) and set(source_run) == {'id', 'head_sha'},\n            'EXACT_WORKFLOW_RUN_KEYS_REQUIRED')\n    require(source_run.get('id')\
+        \ == expected['run_id'], 'SOURCE_RUN_MISMATCH')\n    require(source_run.get('head_sha') == expected['workflow_head'],\
+        \ 'SOURCE_WORKFLOW_HEAD_MISMATCH')\n    require(transport.get('GITHUB_REPOSITORY') == expected['repository'], 'TRANSPORT_REPOSITORY_MISMATCH')\n\
+        \    require(archive.is_file() and not archive.is_symlink(), 'ORIGINAL_ZIP_REQUIRED')\n    require(archive.stat().st_size\
+        \ == expected['size_in_bytes'], 'ORIGINAL_ZIP_SIZE_MISMATCH')\n    require(sha256(archive) == expected['digest'][7:],\
+        \ 'ORIGINAL_ZIP_SHA256_MISMATCH')\n    require(type(chunk_bytes) is int and 0 < chunk_bytes <= 25 * 1024 * 1024,\n\
+        \            'BOUNDED_CHUNK_SIZE_REQUIRED')\n    with zipfile.ZipFile(archive) as opened:\n        members = opened.infolist()\n\
+        \        require(bool(members), 'EMPTY_ORIGINAL_ZIP')\n        require(opened.testzip() is None, 'ORIGINAL_ZIP_CRC_MISMATCH')\n\
+        \        member_count = len(members)\n    # No output directory or chunk exists until metadata, original identity\
+        \ and every member CRC pass.\n    require(not destination.exists(), 'REFUSE_EXISTING_TRANSPORT_OUTPUT')\n    destination.mkdir(parents=True)\n\
+        \    chunks = []\n    with archive.open('rb') as stream:\n        offset = 0\n        index = 1\n        while data\
+        \ := stream.read(chunk_bytes):\n            require(len(data) <= chunk_bytes, 'CHUNK_SIZE_LIMIT_EXCEEDED')\n     \
+        \       name = f'original.zip.part{index:03d}'\n            path = destination / name\n            with path.open('xb')\
+        \ as output:\n                output.write(data)\n            chunks.append({'index': index, 'file': name, 'offset':\
+        \ offset,\n                           'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})\n         \
+        \   offset += len(data)\n            index += 1\n        require(offset == expected['size_in_bytes'], 'SPLIT_BYTE_COUNT_MISMATCH')\n\
+        \    require(bool(chunks), 'NO_CHUNKS_WRITTEN')\n    combined = hashlib.sha256()\n    combined_bytes = 0\n    for\
+        \ expected_index, chunk in enumerate(chunks, 1):\n        require(chunk['index'] == expected_index and chunk['offset']\
+        \ == combined_bytes,\n                'NONCONTIGUOUS_CHUNK_ORDER')\n        path = destination / chunk['file']\n \
+        \       require(path.stat().st_size == chunk['bytes'] and chunk['bytes'] <= chunk_bytes\n                and sha256(path)\
+        \ == chunk['sha256'], 'WRITTEN_CHUNK_MISMATCH')\n        with path.open('rb') as stream:\n            while data :=\
+        \ stream.read(1024 * 1024):\n                combined.update(data)\n                combined_bytes += len(data)\n\
+        \    require(combined_bytes == expected['size_in_bytes'] and combined.hexdigest() == expected['digest'][7:],\n   \
+        \         'REASSEMBLED_ORIGINAL_IDENTITY_MISMATCH')\n    manifest = {\n        'schema_version': 2,\n        'purpose':\
+        \ 'Exact original GitHub artifact ZIP transport; no engine execution or evidence reinterpretation.',\n        'source_artifact':\
+        \ dict(expected),\n        'original_zip': {'bytes': expected['size_in_bytes'], 'sha256': expected['digest'][7:],\n\
+        \                         'crc_verified': True, 'member_count': member_count},\n        'chunk_size_limit': chunk_bytes,\n\
+        \        'chunk_count': len(chunks),\n        'chunks': chunks,\n        'ordered_chunk_reassembly_matches_original':\
+        \ True,\n        'transport_execution': {key: transport.get(key, '') for key in\n                                ('GITHUB_REPOSITORY',\
+        \ 'GITHUB_RUN_ID', 'GITHUB_RUN_ATTEMPT',\n                                 'GITHUB_SHA', 'GITHUB_JOB')},\n       \
+        \ 'reassembly': 'Concatenate raw chunk contents in ascending index, verify each chunk and final original size/SHA256,\
+        \ then verify original ZIP CRC before normal extraction/audit.',\n        'limits': ['Transport success is not original\
+        \ workflow or exported-build acceptance.',\n                   'Uploaded artifacts are wrappers; reconstruct from\
+        \ their extracted raw part files.'],\n    }\n    forbidden_keys = {'url', 'archive_download_url', 'token', 'authorization',\
+        \ 'local_path', 'signed_url'}\n    def check_sanitized(value):\n        if isinstance(value, dict):\n            require(not\
+        \ (set(value) & forbidden_keys), 'UNSANITIZED_MANIFEST_KEY')\n            for nested in value.values():\n        \
+        \        check_sanitized(nested)\n        elif isinstance(value, list):\n            for nested in value:\n      \
+        \          check_sanitized(nested)\n    check_sanitized(manifest)\n    manifest_path = destination / 'transport-manifest.json'\n\
+        \    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + '\\n', encoding='utf-8')\n    require(strict_json(manifest_path.read_text(encoding='utf-8'))\
+        \ == manifest,\n            'MANIFEST_JSON_ROUNDTRIP_MISMATCH')\n    return manifest\n\n\nif __name__ == '__main__':\n\
+        \    expected = {'digest': 'sha256:e80cd7e674a19a13ddd8110c67c39703d2113d80afa98f0fe5d7ef38f2e4fbbc', 'id': 11264005033,\
+        \ 'name': 'windows-export-37094251984-1', 'repository': 'Siuuuers/dwm', 'run_id': 37094251984, 'size_in_bytes': 98859886,\
+        \ 'workflow_head': 'bee762330520dcf2835df5f725535004a355e015'}\n    root = Path(os.environ['DWM_EXPORT_TRANSPORT_ROOT'])\n\
+        \    api_metadata = strict_json((root / 'source-metadata.json').read_text(encoding='utf-8'))\n    transport = {key:\
+        \ os.environ.get(key, '') for key in\n                 ('GITHUB_REPOSITORY', 'GITHUB_RUN_ID', 'GITHUB_RUN_ATTEMPT',\
+        \ 'GITHUB_SHA', 'GITHUB_JOB')}\n    manifest = verify_split(root / 'original.zip', api_metadata, root / 'parts', expected,\n\
+        \                            26214400, transport)\n    require(manifest['chunk_count'] == 4, 'UNEXPECTED_CHUNK_COUNT')\n\
+        \    print(json.dumps({'original_sha256': manifest['original_zip']['sha256'],\n                      'original_bytes':\
+        \ manifest['original_zip']['bytes'],\n                      'chunk_count': manifest['chunk_count'], 'crc_verified':\
+        \ True,\n                      'reassembly_verified': True}))\nPY\n"
+    - name: Upload original ZIP raw chunk 001
+      uses: actions/upload-artifact@v4
+      with:
+        name: export-artifact-11264005033-part001-${{ github.run_id }}-${{ github.run_attempt }}
+        path: ${{ runner.temp }}/export-evidence-transport/parts/original.zip.part001
+        compression-level: 0
+        if-no-files-found: error
+        retention-days: 7
+    - name: Upload original ZIP raw chunk 002
+      uses: actions/upload-artifact@v4
+      with:
+        name: export-artifact-11264005033-part002-${{ github.run_id }}-${{ github.run_attempt }}
+        path: ${{ runner.temp }}/export-evidence-transport/parts/original.zip.part002
+        compression-level: 0
+        if-no-files-found: error
+        retention-days: 7
+    - name: Upload original ZIP raw chunk 003
+      uses: actions/upload-artifact@v4
+      with:
+        name: export-artifact-11264005033-part003-${{ github.run_id }}-${{ github.run_attempt }}
+        path: ${{ runner.temp }}/export-evidence-transport/parts/original.zip.part003
+        compression-level: 0
+        if-no-files-found: error
+        retention-days: 7
+    - name: Upload original ZIP raw chunk 004
+      uses: actions/upload-artifact@v4
+      with:
+        name: export-artifact-11264005033-part004-${{ github.run_id }}-${{ github.run_attempt }}
+        path: ${{ runner.temp }}/export-evidence-transport/parts/original.zip.part004
+        compression-level: 0
+        if-no-files-found: error
+        retention-days: 7
+    - name: Upload sanitized original and chunk identity manifest
+      uses: actions/upload-artifact@v4
+      with:
+        name: export-artifact-11264005033-transport-manifest-${{ github.run_id }}-${{ github.run_attempt }}
+        path: ${{ runner.temp }}/export-evidence-transport/parts/transport-manifest.json
+        compression-level: 0
+        if-no-files-found: error
+        retention-days: 7
