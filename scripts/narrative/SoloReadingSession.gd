@@ -187,7 +187,7 @@ func _validate_base_saved(saved: Dictionary, entry_id: String) -> Dictionary:
 	if family in ["hospital", "ending"]: fields.append("family")
 	if not FROZEN._exact(saved, fields) \
 			or typeof(saved.get("schema_version")) != TYPE_INT or saved.schema_version != (3 if family in ["hospital", "ending"] else 1) \
-			or (family in ["hospital", "ending"] and saved.get("family") != family) \
+			or (family in ["hospital", "ending"] and (not saved.get("family") is String or saved.family != family)) \
 			or not saved.get("catalogue_fingerprint") is String \
 			or not saved.get("boundary") is String or saved.boundary not in ["line", "between_entries"] \
 			or not saved.get("ledger") is Dictionary or not saved.get("frontier") is Dictionary:

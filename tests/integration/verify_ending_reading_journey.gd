@@ -8,6 +8,7 @@ const ENDING_LINES := ["fixture.ending.first", "fixture.ending.second"]
 var _ending_completions: Array = []
 var _ending_texts: Array = []
 var _ending_stages: Dictionary = {}
+var _ending_failures: Array = []
 
 func _run() -> void:
 	for argument: String in OS.get_cmdline_user_args():
@@ -20,6 +21,12 @@ func _run() -> void:
 	var bridge: Node = root.get_node("DialogicBridge")
 	if not _check(bootstrap.get_startup_state().get("ready", false) and bridge.initialize(ENDING_LOCATOR).get("ok", false)
 		and bridge.configure_reading_catalogue(ENDING_FIXTURE.catalogue()).get("ok", false), "production startup and explicit ending fixture injection"): return
+	bridge.entry_playback_failed.connect(func(_token: String, _entry_id: String, failure: Dictionary) -> void:
+		_ending_failures.append(failure.duplicate(true)))
+	bridge.narrative_validation_failed.connect(func(failure: Dictionary) -> void:
+		_ending_failures.append(failure.duplicate(true)))
+	bootstrap.get("_ending_playback_port").playback_failed.connect(func(failure: Dictionary) -> void:
+		_ending_failures.append(failure.duplicate(true)))
 	bootstrap.get("_ending_playback_port").playback_completed.connect(func(completion: Dictionary) -> void:
 		_ending_completions.append(completion.duplicate(true)))
 	root.get_node("Dialogic").Text.text_started.connect(func(info: Dictionary) -> void: _ending_texts.append(str(info.get("text", ""))))
@@ -29,6 +36,26 @@ func _run() -> void:
 	if not _check(capability.get("ok", false) and capability.value.get("available", false), "native speech capability proves restore silence nonvacuously"): return
 	if _reading_mode == "write": await _ending_write()
 	else: await _ending_read()
+
+func _wait_line(line_id: String) -> bool:
+	var bridge: Node = root.get_node("DialogicBridge")
+	for frame: int in 360:
+		var runtime: Variant = bridge.get("_runtime_adapter")
+		if runtime != null and runtime.current_line_id() == line_id:
+			await _frames()
+			return true
+		await process_frame
+	var diagnostic_runtime: RefCounted = bridge.get("_runtime_adapter")
+	var diagnostic := {"expected_line": line_id, "actual_line": diagnostic_runtime.current_line_id(),
+		"retry_available": current_scene.get("_retry_available"),
+		"pending_command": current_scene.get("_pending_ending_command"),
+		"pending_completion": current_scene.get("_pending_completion"),
+		"bridge_state": bridge.get_state(), "active_entry": bridge.get("_active_entry"),
+		"runtime_phase": diagnostic_runtime.get("_activity_phase"), "failures": _ending_failures,
+		"lifecycle": root.get_node("GameState")._run_lifecycle.to_dict(),
+		"completions": _ending_completions, "text_starts": _ending_texts}
+	_write_text(_reading_mode + "-line-timeout.json", JSON.stringify(diagnostic, "\t"))
+	return _check(false, "ending caption timeout: " + JSON.stringify(diagnostic))
 
 func _wait_desktop(day: int) -> bool:
 	var game: Node = root.get_node("GameState")
