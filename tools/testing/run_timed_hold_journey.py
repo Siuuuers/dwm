@@ -94,7 +94,11 @@ def audit_report(report: dict, folder: Path, user_dir: Path, process_identity: d
     require(report["baseline_native_history"] == [] and report["baseline_native_visits"] == {},
             "FRESH_EMPTY_NATIVE_HISTORY_REQUIRED")
     owner = report["baseline_completion_owner"]
-    require(owner["instance_id"] == owner["bridge_owner_id"] and owner["instance_id"] > 0
+    # Godot exposes ObjectIDs through signed 64-bit GDScript integers; a live
+    # RefCounted ID can carry the high bit and therefore serialize as negative.
+    require(all(type(owner[key]) is int and -(1 << 63) <= owner[key] < (1 << 63)
+                and owner[key] != 0 for key in ("instance_id", "bridge_owner_id"))
+            and owner["instance_id"] == owner["bridge_owner_id"]
             and owner["_status"] == "idle", "UNCHANGED_INSTALLED_COMPLETION_OWNER_REQUIRED")
     frontier = stages["hold"]["frontier"]
     require(frontier["kind"] == "timed_hold" and bool(frontier["execution_token"]), "OWNED_TIMED_HOLD_TOKEN")
