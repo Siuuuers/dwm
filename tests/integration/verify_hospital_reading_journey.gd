@@ -13,6 +13,7 @@ var _physical_completions: Array = []
 var _text_starts: Array = []
 var _catalogue_documents: Dictionary = {}
 var _hospital_owner_events: Array = []
+var _manual_restriction: Dictionary = {}
 
 func _run() -> void:
 	var variant := OS.get_environment("DWM_HOSPITAL_SYLVIA").strip_edges()
@@ -115,6 +116,9 @@ func _hospital_write() -> void:
 	# opened or suppressed; the coordinator owns any canonical required work.
 	if not await _schedule_done(): return
 	if not await _wait_desktop(3): return
+	await _dating_quick_key(KEY_F5)
+	if not _check(root.get_node("SaveManager").save_exists(&"quick"),
+		"pre-Hospital desktop Quick makes later F9 refusal nonvacuous"): return
 	if _with_sylvia:
 		if not await _unlock_invitation("sylvia", 3): return
 		if not await _schedule_friend("sylvia", 3): return
@@ -122,6 +126,20 @@ func _hospital_write() -> void:
 		_inject_faint_condition()
 		if not await _schedule_done(): return
 	if not await _wait_line("fixture.hospital.a"): return
+	var rail: Node = _caption_layer().transport_rail
+	var router: Node = root.get_node("SceneRouter")
+	_manual_restriction["active_rail"] = {"save_disabled": rail.get_node("Save").disabled,
+		"load_disabled": rail.get_node("Load").disabled,
+		"save_available": router.can_open_witnessed_backup_save(_caption_layer()),
+		"load_available": router.can_open_witnessed_backup_load(_caption_layer())}
+	if not _check(_manual_restriction.active_rail.save_disabled and _manual_restriction.active_rail.load_disabled
+		and not _manual_restriction.active_rail.save_available and not _manual_restriction.active_rail.load_available,
+		"active Hospital rail disables manual Save and Load"): return
+	var refused_save: Dictionary = await router.open_witnessed_backup_save(_caption_layer())
+	var refused_load: Dictionary = await router.open_witnessed_backup_load(_caption_layer())
+	_manual_restriction["rail_activation"] = {"save": refused_save, "load": refused_load}
+	if not _check(not refused_save.get("ok", true) and not refused_load.get("ok", true) and not paused,
+		"direct Hospital rail activations cannot open Backup"): return
 	var first := _observe()
 	var state_port: Object = root.get_node("ApplicationBootstrap").get("_retained_day_resolution_state_port")
 	first["deferred_pair_preview"] = state_port._deferred_pair_preview()
@@ -150,7 +168,7 @@ func _hospital_write() -> void:
 	report["slot_sha256"] = str(disk.value).sha256_text()
 	report["slot_bytes"] = str(disk.value).to_utf8_buffer().size()
 	if not _check(_write_text("write.json", JSON.stringify(report, "\t")), "retain Hospital writer report"): return
-	print("HOSPITAL_READING_WRITE_PASS: real prior Solo -> lawful retirement -> Schedule-Done Hospital -> partial B -> Pause/History/Cancel -> explicit Save")
+	print("HOSPITAL_READING_WRITE_PASS: real prior Solo -> lawful retirement -> Schedule-Done Hospital -> partial B -> manual Save/Load refused -> test-only internal fixture checkpoint")
 	await _finish_proof()
 
 func _wait_desktop(day: int) -> bool:
@@ -368,7 +386,8 @@ func _ui_observation() -> Dictionary:
 func _base_report() -> Dictionary:
 	return {"schema_version": 1, "mode": _reading_mode, "process_id": OS.get_process_id(),
 		"user_dir": ProjectSettings.globalize_path("user://"), "catalogues": _catalogue_documents.duplicate(true),
-		"fixture": {"production_content": false, "sylvia_eligible": _with_sylvia, "condition": {"health": 0, "pressure": 10, "condition_effects_today": ["sequela"]},
+		"manual_restriction": _manual_restriction.duplicate(true),
+		"fixture": {"save_scope": "test-only internal checkpoint and compatibility restore; Hospital manual Save/Load disabled", "production_content": false, "sylvia_eligible": _with_sylvia, "condition": {"health": 0, "pressure": 10, "condition_effects_today": ["sequela"]},
 			"condition_injection": "after real day3 Sylvia Contacts acceptance and Schedule placement, immediately before Done" if _with_sylvia else "empty day3 Schedule, immediately before Done",
 			"days": {"prior_solo": 1, "empty_schedule": 2, "hospital": 3, "next_solo": 4},
 			"forgery_scope": "one shared Hospital frame: coherent current/ledger forgery and foreign earlier caption; not an earlier-only-frame forgery"},
@@ -401,36 +420,84 @@ func _hospital_pause_save() -> bool:
 	var reentered := _observe()
 	_stage("pause_reentered", reentered)
 	if not _check(paused and reentered.native.revealing and reentered.source == initial.source, "Hospital B stays partial before explicit Backup"): return false
+	var disk_before := _hospital_save_disk_state()
+	if not _check(not disk_before.is_empty() and disk_before.quick.exists and not pause.can_save_backup() and not pause.can_load_backup(),
+		"Hospital Pause refuses both manual capabilities"): return false
+	for host: String in ["root", "settings"]:
+		if host == "settings":
+			pause.surface.rows[&"settings"].grab_focus()
+			if not await _ordinary_accept_focused(pause.surface.rows[&"settings"], "Hospital Settings entry"): return false
+		for code: Key in [KEY_F5, KEY_F9]:
+			await _dating_quick_key(code)
+			var observation := _observe()
+			var disk_after := _hospital_save_disk_state()
+			var key := host + ("_f5" if code == KEY_F5 else "_f9")
+			_manual_restriction[key] = {"unchanged_reading": observation == reentered,
+				"before_disk": disk_before, "after_disk": disk_after,
+				"host": str(pause.surface.entered_action)}
+			if not _check(observation == reentered and disk_after == disk_before and paused
+				and pause.surface.entered_action == (&"settings" if host == "settings" else &""),
+				"Hospital " + key + " refuses without reveal, write or restore"): return false
+		if host == "settings": await _pause_key()
 	pause.surface.rows[&"backup"].grab_focus()
 	await _frames()
 	if not _check(_observe() == reentered, "Backup focus preview remains pure"): return false
-	if not await _ordinary_accept_focused(pause.surface.rows[&"backup"], "Hospital explicit Backup entry"): return false
+	if not await _ordinary_accept_focused(pause.surface.rows[&"backup"], "Hospital read-only Backup entry"): return false
 	var backup: Control = pause.surface.get("_hosts")[&"backup"]
 	var hosted := _observe()
 	_stage("backup_entered", hosted)
-	if not _check(not hosted.native.revealing and hosted.native.visible_ratio == 1.0
-		and hosted.native.line_id == "fixture.hospital.b" and hosted.source == initial.source,
-		"explicit Backup completes B only without publication/completion/witness/route changes"): return false
 	backup.drawer_buttons["slot:3"].grab_focus()
-	if not await _ordinary_accept_focused(backup.drawer_buttons["slot:3"], "Hospital manual slot selection"): return false
-	backup.action_buttons["save"].grab_focus()
-	if not await _ordinary_accept_focused(backup.action_buttons["save"], "Hospital manual Save"): return false
-	if not _check(backup.last_result.get("ok", false) and backup.get("_status_key") == "saved", "Hospital manual Save committed"): return false
+	if not await _ordinary_accept_focused(backup.drawer_buttons["slot:3"], "Hospital slot inspection"): return false
+	var manual_slot_save_disabled: bool = backup.action_buttons["save"].disabled
+	backup.mode_buttons["load"].grab_focus()
+	if not await _ordinary_accept_focused(backup.mode_buttons["load"], "Hospital Load mode inspection"): return false
+	backup.drawer_buttons["autosave"].grab_focus()
+	if not await _ordinary_accept_focused(backup.drawer_buttons["autosave"], "Hospital existing Autosave inspection"): return false
+	_manual_restriction["backup"] = {"save_disabled": manual_slot_save_disabled,
+		"load_disabled": backup.action_buttons["load"].disabled,
+		"unchanged_reading": _observe() == reentered, "before_disk": disk_before,
+		"after_disk": _hospital_save_disk_state()}
+	if not _check(hosted == reentered and _observe() == reentered
+		and manual_slot_save_disabled and disk_before.autosave.exists and backup.action_buttons["load"].disabled
+		and _hospital_save_disk_state() == disk_before,
+		"Hospital Backup inspection disables Save/Load and preserves partial reveal and files"): return false
+	await _capture_screen("hospital-save-load-disabled")
+	await _pause_key()
+	# Explicit test-only compatibility fixture. No player entry point admits this save.
+	# Keep the existing shared owners responsible for capture, validation and disk writing.
+	var bridge: Node = root.get_node("DialogicBridge")
+	var completed: Dictionary = _caption_layer().complete_pause_reading_reveal(
+		pause.get("_caption_anchor"), bridge, pause.get("_handle"))
+	if not _check(completed.get("ok", false), "test-only fixture stabilizes retained B"): return false
+	var capture: Dictionary = root.get_node("ApplicationBootstrap")._capture_paused_checkpoint_inputs()
+	if not _check(capture.get("ok", false), "test-only shared owner capture"): return false
+	var recorded: Dictionary = saves.record_stable_checkpoint(capture.value, &"safe_marker")
+	if not _check(recorded.get("ok", false), "test-only internal Hospital checkpoint"): return false
+	var written: Dictionary = saves.save_latest_to_slot(3)
+	if not _check(written.get("ok", false), "test-only compatibility fixture written by shared save owner"): return false
 	var disk: Dictionary = saves.get("_storage").read_text("slot_3.json")
-	if not _check(disk.get("ok", false) and _write_text("saved-hospital-slot.json", disk.value), "retain original physical Hospital Save bytes"): return false
+	if not _check(disk.get("ok", false) and _write_text("saved-hospital-slot.json", disk.value), "retain test-only physical Hospital fixture bytes"): return false
 	var document: Dictionary = STRICT.parse_object(disk.value)
 	var admitted: Dictionary = preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd").validate(document.value)
 	if not _check(admitted.get("ok", false), "actual Save schema admits Hospital bytes"): return false
 	var snapshot: Dictionary = admitted.value.candidate.current_snapshot.snapshot
 	var saved := _observe()
 	_stage("saved", saved)
-	if not _check(saved == hosted and snapshot.narrative_checkpoint == saved.source.checkpoint
+	if not _check(saved.source == hosted.source and not saved.native.revealing and snapshot.narrative_checkpoint == saved.source.checkpoint
 		and snapshot.narrative_checkpoint.reading_session.ledger.captions.size() == 2,
-		"manual Save records exact Hospital A/B ledger and stable B"): return false
+		"test-only checkpoint records exact Hospital A/B ledger and stable B"): return false
 	await _capture_screen("hospital-saved")
-	await _pause_key()
 	pause.surface.rows[&"continue"].grab_focus()
 	return await _ordinary_accept_focused(pause.surface.rows[&"continue"], "Hospital saved Continue")
+
+func _hospital_save_disk_state() -> Dictionary:
+	var state := _settings_disk_state()
+	var slot: Dictionary = root.get_node("SaveManager").get("_storage").inspect_revision("slot_3.json")
+	if not _check(slot.get("ok", false), "Hospital slot inspection has no pending write"): return {}
+	var text: String = slot.value.text if slot.value.exists else ""
+	state["slot"] = {"exists": slot.value.exists, "sha256": text.sha256_text() if slot.value.exists else "",
+		"bytes": text.to_utf8_buffer().size()}
+	return state
 
 func _hospital_history(label: String, expected_ids: Array) -> bool:
 	var layer: Node = _caption_layer()
@@ -472,9 +539,9 @@ func _hospital_read() -> void:
 		"fresh process retains enabled read-aloud control"): return
 	var initial_texts := _text_starts.size()
 	var prepared: Dictionary = saves.prepare_backup_action("load", "slot:3")
-	if not _check(prepared.get("ok", false), "real Hospital manual Load prepares: " + str(prepared)): return
+	if not _check(prepared.get("ok", false), "compatibility Hospital fixture Load prepares from title: " + str(prepared)): return
 	var restored: Dictionary = saves.commit_backup_action(prepared.value.token)
-	if not _check(restored.get("ok", false), "real Hospital coordinated Load commits: " + str(restored)): return
+	if not _check(restored.get("ok", false), "compatibility Hospital fixture coordinated Load commits: " + str(restored)): return
 	if not await _wait_line("fixture.hospital.b"): return
 	var loaded := _observe()
 	loaded["text_starts_during_restore"] = _text_starts.slice(initial_texts)

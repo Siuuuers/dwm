@@ -39,6 +39,13 @@ Label scaffolding alone does not make production exact-caption saves available.
 The shared-fainting candidate is accepted below. Historical timed-hold receipts
 retain their original scope; do not implement automatic no-Sylvia completion.
 
+## Current Hospital policy change
+
+The owner has superseded Hospital manual Save/Load support with disabled commands.
+Implementation and cloud acceptance for this new restriction are pending in the
+current continuation. The receipts below retain their original historical scope;
+their Hospital manual-save claims do not describe the new player-facing policy.
+
 ## Current acceptance
 
 **Accepted shared fainting and minimal result routing.** Source `3710d3a20cfd53f9aebf23524fd6f28b6d69e3dd`;
@@ -240,27 +247,27 @@ retained PNGs is separate visual evidence; neither establishes whole-UI polish.
 
 ## Next bounded work
 
-Continue `dwm-vky.14` with the smallest production Save/History seam: register
-the three existing Hospital placeholder captions with stable semantic identities.
-Keep one shared DTL, seven day entry identities and two programmes selected only
-by frozen Sylvia eligibility. This does not require finished prose.
+**Owner correction, 3 October 2026:** Hospital manual Save/Load and Quick
+shortcuts are now disabled, including Pause/Settings routes. The earlier next
+step to register Hospital captions for player saves is superseded. Implement
+this through the existing Pause/Backup command owners; preserve independent
+History, ordinary progression, committed-save integrity and existing internal
+completion/recovery. Global autosave timing has not been changed by this choice.
+The scoped rule is recorded in the
+[Hospital disposition](../design/2026-08-22-hospital-ordered-ending-current-v1-ui-disposition.md#owner-correction--3-october-2026-hospital-manual-saveload).
 
-Reuse the existing catalogue/session and native linear-program admission. V1
-Hospital currently admits one fixed entry; v2 selectors admit only the bounded
-Priscilla Day-1 Solo fixture. Extend those owners narrowly before Bootstrap
-registration. Preserve Hospital's actually-published-only History and disabled
-one-shot Next. Empty Dating result leaves remain empty; do not invent captions
-merely to create a save frontier.
+Current implementation/acceptance work remains under `dwm-vky.14`. Verify refused
+rail commands and Pause/Settings shortcuts preserve the literal partial caption,
+History and physical save bytes. Use the existing rendered Hospital journeys for
+both Sylvia variants; retain explicitly test-only saved-fixture restore/forgery
+coverage without advertising player Hospital saving. Keep the actual condition
+fainting/completion-failure journey. No production semantic catalogue activation
+is needed to disable these commands. Hospital Next remains disabled.
 
-Registration must preserve both causes: Schedule-Done already has saved-frame
-authority, while condition-triggered saves need validation against the retained
-condition plan/request. Do not activate globally while condition frames still
-reject. Reuse Hospital runtime and rendered writer/fresh-reader/forgery checks
-for both Sylvia variants and both causes, with production locators.
-Ordered-ending History/restore remains the following seam. No architecture
-interview is needed for these known facts. Ask only if a new wording/staging
-selector changes the projection contract. Native timed-hold infrastructure
-retains its separate scope and is not the no-Sylvia route.
+Following this restriction, resume the wider reading/ordered-ending remainder.
+Production registration/History and authored variants retain their separate
+scope. No architecture interview is needed for known inputs. Ask only if a new
+wording/staging selector changes the projection contract.
 
 ## Resume order and authority
 
@@ -279,8 +286,8 @@ retains its separate scope and is not the no-Sylvia route.
    technical completion Retry and the ordinary next-day boundary.
    Register every new or touched mounted fixture in the cloud runner; file existence
    is not execution. Native Wait lifecycle retains its separate timed-hold scope.
-   Production registration stays disabled until its validated placeholder catalogue
-   and both-cause restore authority exist.
+   Production registration stays disabled; the superseded Hospital manual-save
+   milestone is not a prerequisite for the new restriction.
 3. Ask only if a newly evidenced wording/staging selector changes the authored
    projection contract. Known Solo inputs include friend/day/phase/tier/tone/
    attitude/due echoes and committed post-board outcome/perfect reasons/

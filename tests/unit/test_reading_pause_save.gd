@@ -1,6 +1,6 @@
 extends GutTest
-## Checkpoint composition only: the native suspension/resume contract remains covered
-## by test_narrative_pause_frontier. This fixture never writes a player record.
+## Manual checkpoint admission/composition: the native suspension/resume contract remains
+## covered by test_narrative_pause_frontier. This fixture never writes a player record.
 const CONTROLLER := preload("res://scripts/application/lifecycle/ProductionPauseController.gd")
 const CAPTION := preload("res://scripts/ui/witnessed/WitnessedCaptionLayer.gd")
 const SURFACE := preload("res://scenes/overlay/PauseSurface.tscn")
@@ -15,6 +15,23 @@ class BackupCommitOwner extends RefCounted:
 		calls.append("commit:" + token)
 		return {"ok": true}
 	func cancel_backup_action(token: String) -> void: calls.append("cancel:" + token)
+
+# Capability double only; the real Pause/Backup port owns route admission and tokens.
+class QuickCapabilityOwner extends BackupCommitOwner:
+	var prepares := 0
+	func inspect_backup(_locator: String) -> Dictionary: return {"ok": true, "value": _record()}
+	func get_backup_save_capability() -> Dictionary: return {"enabled": true}
+	func prepare_backup_action(_action: String, _locator: String) -> Dictionary: return {"ok": true}
+	func get_backup_quick_capability(action: String) -> Dictionary:
+		return {"ok": true, "value": {"enabled": true, "condition": {"action": action}}}
+	func is_quick_condition_current(_condition: Dictionary) -> bool: return true
+	func prepare_quick_backup_action(action: String) -> Dictionary:
+		prepares += 1
+		return {"ok": true, "value": {"token": "quick:" + action, "record": _record(), "condition": {"action": action}}}
+	func _record() -> Dictionary:
+		return {"locator": "quick", "state": "valid", "day": 1, "saved_time": "fixture",
+			"fallback": false, "load_day": 1, "load_saved_time": "fixture", "reason": "",
+			"revision": "fixture-revision", "operation_allowed": true, "loadable": true}
 
 class PausePreparation extends RefCounted:
 	var owner: BackupCommitOwner
@@ -83,9 +100,7 @@ class HospitalOwner extends RefCounted:
 	func validate_live_session(expected: Dictionary) -> Dictionary: return {"ok": expected == session}
 
 class RailController extends "res://scripts/application/lifecycle/ProductionPauseController.gd":
-	var command: Dictionary = {}
-	func can_open_witnessed_backup_load(_caption: Node) -> bool: return true
-	func capture_scene_projection(_scene: Object) -> Dictionary: return {"command": command.duplicate(true)}
+	func _can_open_witnessed_surface(_caption: Node) -> bool: return true
 
 class HospitalRouter extends Node:
 	var route := "hospital"
@@ -186,87 +201,75 @@ func _use_hospital() -> HospitalOwner:
 		"snapshot_input": snapshot.duplicate(true), "active_app_id": null, "audio_context": {}, "content_version": 1}
 	return owner
 
-func test_hospital_save_capability_and_capture_preserve_partial_reveal_and_exact_authority() -> void:
+func test_hospital_manual_save_and_load_refuse_without_capture_or_reveal() -> void:
 	var owner := _use_hospital()
 	_native.revealing = true
 	_native.visible_characters = 3
 	var before: Dictionary = _inputs.duplicate(true)
 	var source: Dictionary = _controller._captured_source.duplicate(true)
-	for query in 100: assert_true(_controller.can_save_backup())
+	assert_false(_controller.can_save_backup())
+	assert_false(_controller.can_load_backup())
+	assert_eq(_controller.capture_backup_checkpoint_inputs().get("code"), &"pause_save_unavailable")
+	var load_result: Dictionary = await _controller.release_for_backup_load()
+	assert_eq(load_result.get("code"), &"pause_load_unavailable")
+	assert_true(_controller.prepare_backup_save().get("ok", false), "inspection-only Backup remains available")
 	assert_eq(_provider_calls, 0)
-	assert_eq(owner.queries, 0, "rail/Pause availability does not capture a native frontier or saved Run")
+	assert_eq(owner.queries, 0)
 	assert_eq(_bridge.captures, [])
-	var saved: Dictionary = _controller.capture_backup_checkpoint_inputs()
-	assert_true(saved.get("ok", false), str(saved))
-	if not saved.get("ok", false): return
-	assert_eq(saved.value, before)
-	assert_eq(_bridge.captures, [false, false])
-	assert_eq(_provider_calls, 1)
-	assert_eq(owner.queries, 2)
 	assert_true(_native.revealing)
 	assert_eq(_native.visible_characters, 3)
 	assert_eq(_controller._captured_source, source)
-	saved.value.dialogic_checkpoint.reading_session.ledger.captions.clear()
-	assert_eq(_inputs, before, "returned capture is detached from owner data")
+	assert_eq(_inputs, before)
 
-func test_hospital_witnessed_rail_and_pause_require_the_same_exact_registered_family() -> void:
+func test_hospital_live_rail_disables_save_load_but_preserves_history() -> void:
 	_use_hospital()
 	var rail: Node = autofree(RailController.new())
 	add_child(rail)
 	var router: Node = autofree(HospitalRouter.new())
 	rail._router = router
 	rail._services = _controller._services
-	rail.command = _bridge.hospital_command.duplicate(true)
-	assert_true(rail.can_open_witnessed_backup_save(_caption))
-	assert_true(_controller.can_save_backup())
-	rail.command.command_sha256 = "foreign-command"
 	assert_false(rail.can_open_witnessed_backup_save(_caption))
-	_controller._captured_source.command.command_sha256 = "foreign-command"
+	assert_false(rail.can_open_witnessed_backup_load(_caption))
+	assert_true(rail.can_open_witnessed_history(_caption))
+	assert_eq(_bridge.captures, [])
+	assert_eq(_provider_calls, 0)
+	# The restriction belongs to Hospital, not the shared rail or History.
+	router.route = "dating"
+	assert_true(rail.can_open_witnessed_backup_save(_caption))
+	assert_true(rail.can_open_witnessed_backup_load(_caption))
+	assert_true(rail.can_open_witnessed_history(_caption))
+
+func test_hospital_pause_quick_commands_share_manual_restriction() -> void:
+	var dating_source: Dictionary = _controller._captured_source.duplicate(true)
+	_use_hospital()
+	var owner := QuickCapabilityOwner.new()
+	var port := BACKUP_PORT.new()
+	assert_true(port.configure_pause(owner, _controller).get("ok", false))
+	for action: String in ["save", "load"]:
+		assert_false(port._quick_available(action), action)
+		assert_false(port.get_quick_capability(action).get("value", {}).get("enabled", true), action)
+		assert_false(port.prepare_quick_action(action).get("ok", true), action)
+	assert_eq(owner.prepares, 0, "Hospital refuses before reaching the enabled SaveManager double")
+	assert_eq(_bridge.captures, [])
+	assert_eq(_provider_calls, 0)
+	# The same configured port and dependencies admit both commands for ordinary Dating.
+	_controller._captured_source = dating_source
+	for action: String in ["save", "load"]:
+		assert_true(port._quick_available(action), action)
+		assert_true(port.get_quick_capability(action).get("value", {}).get("enabled", false), action)
+		var prepared: Dictionary = port.prepare_quick_action(action)
+		assert_true(prepared.get("ok", false), action)
+		if prepared.get("ok", false): port.cancel_action(prepared.value.token)
+	assert_eq(owner.prepares, 2)
+
+func test_hospital_restriction_also_applies_without_a_reading_frontier() -> void:
+	_use_hospital()
+	_controller._captured_source.frontier = {}
 	assert_false(_controller.can_save_backup())
-	assert_eq(_bridge.captures, [])
-	assert_eq(_provider_calls, 0)
-
-func test_hospital_unregistered_or_missing_physical_owner_cannot_fall_back_to_empty_save() -> void:
-	_use_hospital()
-	_bridge.qualified = false
-	assert_eq(_controller.capture_backup_checkpoint_inputs().get("code"), &"pause_save_unavailable")
-	_bridge.qualified = true
-	_controller._services.erase("hospital_physical")
+	assert_false(_controller.can_load_backup())
 	assert_eq(_controller.capture_backup_checkpoint_inputs().get("code"), &"pause_save_unavailable")
 	assert_eq(_bridge.captures, [])
 	assert_eq(_provider_calls, 0)
-
-func test_hospital_capture_rejects_live_physical_snapshot_and_semantic_drift_without_reveal() -> void:
-	for field: String in ["saved_route", "saved_lifecycle", "saved_gameplay", "saved_contacts", "saved_checkpoint",
-			"live_physical", "live_session", "live_snapshot", "live_checkpoint", "admission"]:
-		var owner := _use_hospital()
-		_coordinator.admitted = true
-		_provider_effect = Callable()
-		_native.revealing = true
-		if field == "saved_route": _inputs.route_id = "dating"
-		elif field == "saved_lifecycle": _inputs.snapshot_input.lifecycle.run_id = "foreign-run"
-		elif field == "saved_gameplay": _inputs.snapshot_input.gameplay.pending_hospital = false
-		elif field == "saved_contacts": _inputs.snapshot_input.contacts.clear()
-		elif field == "saved_checkpoint": _inputs.dialogic_checkpoint.transaction_id = "foreign-checkpoint"
-		elif field == "live_physical": _provider_effect = func(): owner.physical.physical_token = "foreign-token"
-		elif field == "live_session": _provider_effect = func(): owner.session.generation += 1
-		elif field == "live_snapshot": _provider_effect = func(): owner.snapshot.gameplay.pending_hospital = false
-		elif field == "live_checkpoint": _provider_effect = func(): _bridge.checkpoint.transaction_id = "foreign-checkpoint"
-		else: _provider_effect = func(): _coordinator.admitted = false
-		assert_eq(_controller.capture_backup_checkpoint_inputs().get("code"), &"pause_source_changed", field)
-		assert_true(_native.revealing, field)
-		assert_eq(_controller._handle, {"handle_id": "retained-reading-handle"})
-
-func test_hospital_capture_independently_rejects_coherent_frame_forgery_before_provider() -> void:
-	_use_hospital()
-	var checkpoint: Dictionary = _bridge.checkpoint
-	checkpoint.frozen_context.presentation.fields.sylvia_witness_receipt_id = "invented-future-witness"
-	checkpoint.reading_session.ledger.entry_contexts[checkpoint.entry_id] = checkpoint.frozen_context.duplicate(true)
-	_inputs.dialogic_checkpoint = checkpoint.duplicate(true)
-	var refused: Dictionary = _controller.capture_backup_checkpoint_inputs()
-	assert_false(refused.get("ok", true))
-	assert_eq(_provider_calls, 0, "coherent checkpoint copies cannot replace saved Contacts/request authority")
-	assert_eq(_bridge.captures, [false])
 
 func test_hospital_save_manager_capture_accepts_only_qualified_line_without_mutation() -> void:
 	_use_hospital()

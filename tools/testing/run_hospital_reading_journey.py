@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Run the isolated, explicitly noncanonical Hospital reading cloud proof.
 
-The production startup, Schedule-Done ingress, Pause Save, restore transaction,
+The production startup, Schedule-Done ingress, manual Save/Load refusal, internal fixture restore transaction,
 physical completion and next-day route owners execute in fresh Godot processes.
 This runner retains their raw evidence and independently checks the connected
-observations; it never manufactures a save, gameplay receipt or caption fixture.
+observations. The Godot driver explicitly seeds one test-only compatibility save
+through shared owners after proving player commands are disabled.
 """
 
 from __future__ import annotations
@@ -28,7 +29,7 @@ MODES = ("write", "read", "forge")
 EVIDENCE_DIRECTORY = "evidence/hospital-reading"
 HOSPITAL_ENTRY = "hospital.faint.day3"
 HOSPITAL_LINES = ("fixture.hospital.a", "fixture.hospital.b")
-CAPTURES = ("hospital-partial-history.png", "hospital-saved.png", "hospital-restored-history.png",
+CAPTURES = ("hospital-save-load-disabled.png", "hospital-partial-history.png", "hospital-saved.png", "hospital-restored-history.png",
             "hospital-restored.png", "next-solo-history.png")
 STAGES = {
     "write": ("prior_solo", "prior_retired", "hospital_a", "paused_b", "pause_cancelled", "availability",
@@ -436,15 +437,15 @@ def validate_connected_proof(result: dict, evidence: Path, folder: Path) -> dict
         require(stage["source"] == source, f"PAUSE_HISTORY_OR_SAVE_CHANGED_CANONICAL_SOURCE: {name}")
         require(all(stage["native"][key] == partial["native"][key] for key in ("line_id", "caption_id", "text", "total_characters")),
                 f"PAUSE_HISTORY_OR_SAVE_CHANGED_NATIVE_IDENTITY: {name}")
-        validate_native(stage["native"], partial=name not in ("backup_entered", "saved"))
+        validate_native(stage["native"], partial=name != "saved")
     require(core(w["pause_cancelled"]) == core(partial) == core(w["pause_continued"])
             and w["availability"]["observation"] == core(partial)
             and w["availability"]["pause_source"]["ok"] is True,
             "CANCEL_CONTINUE_AND_AVAILABILITY_MUST_BE_PURE")
-    require(core(w["saved"]) == core(w["backup_entered"])
+    require(w["saved"]["source"] == w["backup_entered"]["source"]
             and w["saved"]["native"]["reveal_generation"] == w["pause_reentered"]["native"]["reveal_generation"] + 1
             and written["hospital_completions"] == [] and written["physical_completions"] == []
-            and written["speech_admissions"] > 0, "SAVE_MUST_COMPLETE_ONLY_CURRENT_B_WITHOUT_HOSPITAL_COMPLETION")
+            and written["speech_admissions"] > 0, "TEST_FIXTURE_COMPLETES_ONLY_CURRENT_B_WITHOUT_HOSPITAL_COMPLETION")
     for name in ("paused_b", "pause_cancelled", "availability", "pause_reentered", "backup_entered", "saved"):
         ui = w[name]["ui"]
         require(ui["tree_paused"] is True and ui["pause_visible"] is True and bool(ui["bridge_pause_handle"])
@@ -453,6 +454,26 @@ def validate_connected_proof(result: dict, evidence: Path, folder: Path) -> dict
     require(w["pause_cancelled"]["ui"]["bridge_pause_handle"] == partial["ui"]["bridge_pause_handle"],
             "CANCEL_MUST_KEEP_EXACT_SUSPENSION_HANDLE")
     validate_history_pair(w, "hospital-partial-history", list(HOSPITAL_LINES))
+    restriction = written["manual_restriction"]
+    require(written["fixture"]["save_scope"] == "test-only internal checkpoint and compatibility restore; Hospital manual Save/Load disabled",
+            "EXPLICIT_TEST_ONLY_SAVE_SCOPE_REQUIRED")
+    require(restriction["active_rail"] == {"save_disabled": True, "load_disabled": True,
+                                         "save_available": False, "load_available": False}
+            and restriction["rail_activation"]["save"]["ok"] is False
+            and restriction["rail_activation"]["load"]["ok"] is False,
+            "ACTIVE_HOSPITAL_RAIL_SAVE_LOAD_MUST_BE_DISABLED")
+    for key in ("root_f5", "root_f9", "settings_f5", "settings_f9", "backup"):
+        refused = restriction[key]
+        require(refused["unchanged_reading"] is True and refused["before_disk"] == refused["after_disk"],
+                "HOSPITAL_REFUSAL_MUST_PRESERVE_PARTIAL_READING_AND_FILES: " + key)
+        require(set(refused["before_disk"]) == {"quick", "autosave", "profile", "slot"}
+                and refused["before_disk"]["quick"]["exists"] is True
+                and refused["before_disk"]["autosave"]["exists"] is True,
+                "HOSPITAL_REFUSAL_MUST_BIND_ALL_SAVE_FILES")
+    require(restriction["backup"]["save_disabled"] is True and restriction["backup"]["load_disabled"] is True,
+            "HOSPITAL_BACKUP_SAVE_LOAD_MUST_BE_DISABLED")
+    require(core(w["backup_entered"]) == core(w["pause_reentered"]),
+            "HOSPITAL_BACKUP_INSPECTION_MUST_NOT_COMPLETE_REVEAL")
     loaded = r["loaded"]
     validate_native(loaded["native"], partial=False)
     input_profile = result["primary_files"]["read"]["input"]["profile"]
@@ -551,7 +572,8 @@ def run_variant(with_sylvia: bool) -> dict:
         "schema_version": 1, "sylvia_eligible": with_sylvia,
         "fixture_scope": (
             "Explicit noncanonical Hospital A/B and Solo prose; real Schedule-Done ingress, "
-            "Pause Save, fresh restore, saved-Run forgery refusal, physical completion and next-day owners."
+            "manual Save/Load refusal, test-only internal checkpoint, fresh compatibility restore, "
+            "saved-Run forgery refusal, physical completion and next-day owners."
         ),
         "started_at_utc": cloud.utc_now(), "ok": False, "failures": [], "processes": {}, "reports": {},
         "primary_files": {}, "isolation_root": str(isolation), "artifact_root": str(folder),

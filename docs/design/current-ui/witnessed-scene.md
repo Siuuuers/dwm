@@ -1316,6 +1316,12 @@ authorities.
 
 ### 13.2 Save and Quick Save
 
+**Hospital exception (owner correction, 3 October 2026):** manual Save/Load and
+Quick Save/Load are Disabled throughout Hospital, including Pause and Settings.
+History and ordinary caption progression remain independent. See the
+[scoped correction](../2026-08-22-hospital-ordered-ending-current-v1-ui-disposition.md#owner-correction--3-october-2026-hospital-manual-saveload).
+The generic manual-save behavior below applies only where those commands are admitted.
+
 Save during partial reveal first completes that reveal without advancing,
 entering a board, acknowledging a boundary, or creating another presentation
 receipt. The snapshot records the stable semantic line. Restore shows it fully
