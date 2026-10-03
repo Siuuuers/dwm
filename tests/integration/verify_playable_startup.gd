@@ -245,6 +245,16 @@ func _hospital_journey(bootstrap: Node, game: Node) -> void:
 	if not _check(captions == ["You wake in the treatment room.", "The treatment room is quiet."], "shared DTL ordinary branch captions: " + str(captions)): return
 	if not _check(not bridge.has_active_playback(), "normal caption input completes the actual DTL"): return
 	if retry_probe:
+		if injected.failures != 1:
+			print("HOSPITAL_COMPLETION_DIAGNOSTIC: " + JSON.stringify({
+				"condition_result": bootstrap.get("_last_condition_hospital_result"),
+				"condition_completions": bootstrap.get("_retained_condition_hospital_adapter").get("_completions"),
+				"hospital_settled": bootstrap.get("_retained_hospital_presentation_port").get("_settled"),
+				"schedule_result": bootstrap.get("_retained_schedule_done_dispatcher").get_last_dispatch_result(),
+				"gate_active": bootstrap.get("_application_gate").is_active(),
+				"gate_fatal": bootstrap.get("_application_gate").is_fatal_latched(),
+				"condition_plan": game._run_lifecycle.to_dict().get("active_condition_hospital_plan"),
+				"day": game.day}))
 		if not _check(injected.failures == 1, "actual Hospital completion encountered one injected save failure"): return
 		if not _check(current_scene == hospital and game.day == 2, "failed completion retains source scene and day"): return
 		if not _check(game.capture_run_snapshot_input() == before, "failed completion applies no gameplay effects"): return
