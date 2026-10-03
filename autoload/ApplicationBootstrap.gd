@@ -1782,6 +1782,7 @@ func _configure_desktop_production_graph() -> Dictionary:
 			if not dispatcher_configured.get("ok", false):
 				return dispatcher_configured
 			_retained_schedule_done_dispatcher = dispatcher
+			dispatcher.completion_dispatch_finished.connect(_on_schedule_completion_dispatch_finished)
 		dispatcher_composed = true
 
 	return {"ok": true, "code": &"ok", "value": {
@@ -2273,7 +2274,9 @@ func _pump_condition_hospital() -> void:
 	if _condition_hospital_pump_running or _retained_condition_hospital_coordinator == null: return
 	var game_state := _target(&"GameState")
 	if not bool(game_state.capture_live_session().value.active): return
-	if _application_gate.is_fatal_latched(): return
+	if _application_gate.is_fatal_latched():
+		_refresh_condition_hospital_recovery()
+		return
 	if _application_gate.is_active() and str(_retained_condition_hospital_coordinator.get("_gate_token")).is_empty(): return
 	var lifecycle: Dictionary = game_state._run_lifecycle.to_dict()
 	var consequence: Dictionary = _desktop_consequence_state.capture().value.state
@@ -2295,6 +2298,70 @@ func _pump_condition_hospital() -> void:
 			_target(&"SceneRouter").goto_main()
 			break
 	_condition_hospital_pump_running = false
+	_refresh_condition_hospital_recovery()
+
+
+func _on_schedule_completion_dispatch_finished(result: Dictionary, completion: Dictionary) -> void:
+	var scene := get_tree().current_scene
+	if scene == null or scene.scene_file_path != "res://scenes/hospital/HospitalScene.tscn": return
+	var command: Dictionary = scene.get_presentation_projection()
+	if command.get("context", {}).get("presentation", {}).get("fields", {}).get("qualifying_cause") != "schedule_done": return
+	if result.get("ok", false) or _application_gate.is_fatal_latched():
+		scene.dismiss_completion_recovery()
+		return
+	var session: Dictionary = _target(&"GameState").capture_live_session()
+	if not session.get("ok", false): return
+	scene.show_completion_recovery(_retry_schedule_hospital.bind(scene, command, session.value, completion),
+		_admit_schedule_hospital_retry.bind(scene, command, session.value, completion))
+
+
+func _admit_schedule_hospital_retry(scene: Node, command: Dictionary, session: Dictionary, completion: Dictionary) -> bool:
+	if not is_instance_valid(scene) or get_tree().current_scene != scene \
+			or _application_gate.is_fatal_latched() or _application_gate.is_active() \
+			or scene.get_presentation_projection() != command:
+		return false
+	if _retained_schedule_done_dispatcher == null \
+			or not _retained_schedule_done_dispatcher.can_retry_completion(completion): return false
+	var receipt: Dictionary = completion.get("receipt", {})
+	if receipt.get("receipt_id") != command.get("completion_transaction_id"): return false
+	var current: Dictionary = _target(&"GameState").capture_live_session()
+	return current.get("ok", false) and bool(current.value.get("active", false)) and current.value == session
+
+
+func _retry_schedule_hospital(scene: Node, command: Dictionary, session: Dictionary, completion: Dictionary) -> void:
+	if _admit_schedule_hospital_retry(scene, command, session, completion):
+		_retained_schedule_done_dispatcher.retry_completion(completion)
+
+
+func _refresh_condition_hospital_recovery() -> void:
+	var scene := get_tree().current_scene
+	if scene == null or scene.scene_file_path != "res://scenes/hospital/HospitalScene.tscn": return
+	if _last_condition_hospital_result.get("ok", false) or _application_gate.is_fatal_latched():
+		scene.dismiss_completion_recovery()
+		return
+	var session: Dictionary = _target(&"GameState").capture_live_session()
+	if not session.get("ok", false): return
+	var command: Dictionary = scene.get_presentation_projection()
+	scene.show_completion_recovery(_retry_condition_hospital.bind(scene, command, session.value),
+		_admit_condition_hospital_retry.bind(scene, command, session.value))
+
+
+func _admit_condition_hospital_retry(scene: Node, command: Dictionary, session: Dictionary) -> bool:
+	if not is_instance_valid(scene) or get_tree().current_scene != scene \
+			or _condition_hospital_pump_running or _last_condition_hospital_result.get("ok", false) \
+			or _application_gate.is_fatal_latched() or scene.get_presentation_projection() != command:
+		return false
+	if _retained_condition_hospital_coordinator == null: return false
+	if _application_gate.is_active() and not _application_gate.is_lease_active(&"causal_transaction",
+		str(_retained_condition_hospital_coordinator.get("_gate_token"))): return false
+	# This is the retained transaction's continuation, so an external-session guard
+	# would incorrectly refuse the coordinator's own still-held checkpoint lease.
+	var current: Dictionary = _target(&"GameState").capture_live_session()
+	return current.get("ok", false) and bool(current.value.get("active", false)) and current.value == session
+
+
+func _retry_condition_hospital(scene: Node, command: Dictionary, session: Dictionary) -> void:
+	if _admit_condition_hospital_retry(scene, command, session): _pump_condition_hospital()
 
 
 ## Navigation follows the completed owner's durable boundary, after its caller unwinds.

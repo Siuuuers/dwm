@@ -36,6 +36,15 @@ PRACTICE_CAPTURES = (
 )
 CASES = (
     {
+        "id": "condition-hospital-dialogue-retry",
+        "script": STARTUP_SCRIPT,
+        "flags": ("--probe-hospital", "--probe-hospital-completion-retry"),
+        "markers": ("PLAYABLE_STARTUP_PASS", "PLAYABLE_DAY_PASS", "PLAYABLE_HOSPITAL_PASS", "PLAYABLE_HOSPITAL_RETRY_PASS"),
+        "evidence_folder": "playable",
+        "captures": BASE_CAPTURES + ("ordinary-hospital-dialogue.png", "hospital-completion-retry.png"),
+        "fixture_scope": "Actual Shop condition faint; shared production placeholder DTL; injected single completion write refusal followed by technical Retry.",
+    },
+    {
         "id": "seven-days-ending-gallery",
         "script": STARTUP_SCRIPT,
         "flags": ("--probe-seven-days", "--probe-ending", "--probe-gallery"),

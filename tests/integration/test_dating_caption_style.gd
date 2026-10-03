@@ -154,6 +154,29 @@ func _frozen_pre_presentation() -> Dictionary:
 		"challenge_slot": "dating.solo.priscilla.day1", "phase": "pre_challenge",
 		"due_echoes": [], "attempt_residue_id": null}).value
 
+func _frozen_post_context(result: String = "cleared", entry_id: String = "dating.solo.priscilla.day1.post_challenge") -> Dictionary:
+	var fields: Dictionary = _frozen_pre_presentation().fields.duplicate(true)
+	fields.merge({"entry_id": entry_id, "entry_role": "solo_post_challenge", "phase": "post_challenge",
+		"attempt_id": "fixture:attempt", "board_result": result,
+		"perfect_reasons": ["no_flag"] if result == "perfect" else [],
+		"relationship_outcome": "hatred" if result == "exploded" else ("foresight" if result == "perfect" else "loved"),
+		"effect_receipt_id": "fixture:committed-effect"}, true)
+	if not entry_id.begins_with("dating.solo."):
+		fields = {"entry_id": entry_id, "entry_role": "pair_post_challenge_scene", "day": 2,
+			"run_id": "fixture:run", "branch_id": "fixture:branch", "attempt_id": "fixture:attempt",
+			"pair_id": "priscilla_lavinia", "window_day": 2, "phase": "post_challenge",
+			"encounter_presentation": "group" if entry_id.begins_with("dating.group.") else "twofriends_if_deferred",
+			"group_variation": null, "pair_count_receipt": null, "pair_count_status": "pending_rollover",
+			"stable_deck_state": preload("res://scripts/domain/relationship/PairDeckDraw.gd").build_draw([], 0).value,
+			"attempt_residue_id": null, "board_result": result,
+			"perfect_reasons": ["no_flag"] if result == "perfect" else [],
+			"observation_form": "truncated" if result == "exploded" else "full",
+			"combination_witness_capability": result != "exploded"}
+	var frozen := preload("res://scripts/narrative/FrozenPresentationContext.gd").build(entry_id, fields)
+	assert_true(frozen.ok, str(frozen))
+	return {"expected_stage": "post_challenge", "playback_id": "caption-fixture:post",
+		"role": "dating_phase", "transaction_id": "caption-fixture:post", "presentation": frozen.value}
+
 func _inject_frozen_context_prose(entry_id: String = DATING, prose: String = "Tier {Frozen.tier}; tone {Frozen.tone}.") -> void:
 	_inject_frozen_context_body(entry_id, "Narrator: " + prose)
 
@@ -502,7 +525,10 @@ func test_artless_solo_group_and_twofriends_pre_and_post_select_nameless_style()
 		for phase: String in ["pre_challenge", "post_challenge"]:
 			var entry_id := "dating." + route + "." + phase
 			_selected.clear()
-			var started: Dictionary = bridge.start_entry(entry_id, _context())
+			# This entry now reads the actual frozen result; a legacy four-key
+			# style fixture cannot execute its outcome predicates without that frame.
+			var context := _frozen_post_context("cleared", entry_id) if phase == "post_challenge" else _context()
+			var started: Dictionary = bridge.start_entry(entry_id, context)
 			assert_true(started.get("ok", false), str(started))
 			assert_true(STYLE in _selected, entry_id + " owns captions even without optional art")
 			assert_null(bridge.get_art_hold_view(), "unavailable art cannot substitute a hold card")
@@ -511,6 +537,31 @@ func test_artless_solo_group_and_twofriends_pre_and_post_select_nameless_style()
 			assert_eq(completion.calls[-1].entry_id, entry_id)
 			assert_eq(completion.calls[-1].completion_kind, &"natural_end")
 	assert_true(_text_events.is_empty(), "current authored dating stubs contain no prose")
+
+func test_production_post_challenge_routes_each_frozen_result_to_only_its_own_label() -> void:
+	var entry_id := "dating.solo.priscilla.day1.post_challenge"
+	var visited: Array[String] = []
+	var starts: Array[bool] = []
+	var failures: Array[Dictionary] = []
+	runtime.timeline_started.connect(func(): starts.append(true))
+	bridge.entry_playback_failed.connect(func(_token: String, _entry: String, failure: Dictionary): failures.append(failure))
+	bridge.timeline_failed.connect(func(failure: Dictionary): failures.append(failure))
+	runtime.Jump.jumped_to_label.connect(func(info: Dictionary): visited.append(str(info.label)))
+	var count := 0
+	for result: String in ["exploded", "perfect", "cleared"]:
+		visited.clear()
+		var started: Dictionary = bridge.start_entry(entry_id, _frozen_post_context(result))
+		assert_true(started.get("ok", false), str(started))
+		if not started.get("ok", false): return
+		count += 1
+		await _wait_for_completion(count)
+		assert_eq(visited, [entry_id, entry_id + "." + result], "native DTL follows only the supplied committed result")
+		assert_eq(starts.size(), count, "same-timeline branch returns retain the one native playback generation")
+		assert_true(failures.is_empty(), "local jump/return never interrupts the ordinary playback owner")
+		assert_eq(completion.calls.size(), count, "each routed entry completes exactly once")
+		if completion.calls.size() != count: return
+		assert_eq(completion.calls[-1].completion_kind, &"natural_end")
+	assert_true(_text_events.is_empty(), "routing labels defer production prose")
 
 func test_resumed_dating_entry_selects_same_style_without_optional_art() -> void:
 	var context := _context()

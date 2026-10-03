@@ -112,6 +112,10 @@ func test_real_perfect_settles_automatically_in_private_state_and_no_progression
 	_clear(f)
 	assert_eq(_board(f).phase, "post_challenge")
 	assert_eq(_board(f).outcome, "perfect")
+	var empty_post: Dictionary = f.owner.begin_narrative_phase(f.command)
+	assert_true(empty_post.ok, str(empty_post))
+	if empty_post.ok:
+		assert_eq(empty_post.value.result_label, "dating.solo.priscilla.day1.post_challenge.perfect")
 	assert_false(_action(f, "activate", int(_board(f).envelope.special_cell)).ok)
 	assert_eq(_board(f).relationship_outcome, "foresight")
 	assert_eq(_board(f).outcome, "perfect")
@@ -139,6 +143,9 @@ func test_both_pair_modes_finish_real_board_without_any_pair_witness_or_relation
 		_clear(f)
 		assert_eq(_board(f).phase, "post_challenge")
 		assert_eq(_board(f).applied_result, {"board_only": true})
+		var empty_post: Dictionary = f.owner.begin_narrative_phase(f.command)
+		assert_true(empty_post.ok, str(empty_post))
+		if empty_post.ok: assert_true(str(empty_post.value.result_label).ends_with(".perfect"))
 		var post: Dictionary = f.owner.capture_presentation(f.command)
 		assert_true(post.ok, str(post))
 		if post.ok:
@@ -158,6 +165,9 @@ func test_solved_and_exploded_remain_real_distinct_outcomes_and_reject_debug_set
 	assert_eq(_board(f).outcome, "cleared")
 	assert_eq(_board(f).phase, "post_challenge")
 	assert_eq(_board(f).relationship_outcome, "loved")
+	var empty_post: Dictionary = f.owner.begin_narrative_phase(f.command)
+	assert_true(empty_post.ok, str(empty_post))
+	if empty_post.ok: assert_true(str(empty_post.value.result_label).ends_with(".cleared"))
 	var settled: Dictionary = _board(f).duplicate(true)
 	assert_false(_action(f, "activate", int(settled.envelope.special_cell)).ok)
 	assert_false(_action(f, "special_mine").ok)
@@ -173,6 +183,9 @@ func test_solved_and_exploded_remain_real_distinct_outcomes_and_reject_debug_set
 	else:
 		assert_true(_action(f, "reveal", int(record.board.mine_indices[0])).ok)
 		assert_eq(_board(f).outcome, "exploded")
+		var exploded_post: Dictionary = f.owner.begin_narrative_phase(f.command)
+		assert_true(exploded_post.ok, str(exploded_post))
+		if exploded_post.ok: assert_true(str(exploded_post.value.result_label).ends_with(".exploded"))
 		assert_eq(_board(f).relationship_outcome, record.mine_dispositions[0])
 	assert_true(f.owner.close().ok)
 
@@ -214,3 +227,21 @@ func test_only_current_rendered_line_witness_can_persist_and_variables_remain_de
 	assert_false(f.owner.pull_physical(stale).ok)
 	assert_true(f.owner.close().ok)
 
+
+
+func test_empty_result_route_proof_rejects_source_prose_and_nonempty_selected_leaf() -> void:
+	var label := "dating.solo.priscilla.day1.post_challenge"
+	var located: Dictionary = preload("res://scripts/data/DialogicTimelineCatalog.gd").get_entry(label, "en")
+	assert_true(located.ok, str(located))
+	if not located.ok: return
+	var source := FileAccess.get_file_as_string(str(located.value.path)).replace("\r\n", "\n")
+	for outcome: String in ["exploded", "perfect", "cleared"]:
+		assert_true(OWNER._is_empty_result_route(source, label, outcome))
+	var source_prose := source.replace("label " + label + "\n", "label " + label + "\nVisible source prose.\n")
+	assert_false(OWNER._is_empty_result_route(source_prose, label, "perfect"),
+		"an empty selected leaf never authorizes bypassing visible source prose")
+	var leaf_prose := source.replace("label " + label + ".perfect\n", "label " + label + ".perfect\nVisible leaf prose.\n")
+	assert_false(OWNER._is_empty_result_route(leaf_prose, label, "perfect"))
+	assert_false(OWNER._is_empty_result_route(source.replace('if {Frozen.board_result}', 'if {Other.result}'), label, "perfect"))
+	assert_false(OWNER._is_empty_result_route(source, label, "unknown"))
+	assert_false(OWNER._is_empty_result_route(source + "\nlabel " + label + ".perfect\nreturn\n", label, "perfect"))

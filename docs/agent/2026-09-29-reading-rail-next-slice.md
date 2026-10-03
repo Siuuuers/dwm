@@ -117,22 +117,19 @@ this bounded proof closes neither and does not imply Dolt synchronization.
 - The finite fixture's exact witnesses are Profile-owned, keyed by complete registered descriptor rather than line ID or causal run/attempt IDs. A changed revision remains unseen even when the base line is visited; registration, History and queries grant no credit.
 - Production catalogue/selector admission and exact Next/replay, remaining Hospital/ordered-ending continuity, other native-event cancellation paths and full native all-input/accessibility acceptance remain separate unfinished work.
 
-Next bounded work under `dwm-vky.14` is the
-[captionless native timed-hold Pause/cancellation fixture](../../evidence/phase_2r/hospital_reading_2026_10_02/next-slice-source-review/next-work-proposal.md),
-before no-Sylvia Hospital integration. The proposal remains the immutable
-pre-acceptance source review; its Broad2-acceptance prerequisite is now met.
-Use one noncanonical hold followed by a real caption through existing
-runtime/Bridge custody. Prove remaining-time
-preservation during Pause, no publication/witness/speech/focus/completion while
-suspended, exactly one continuation after resume, and no stale mutation or
-completion after cancellation/replacement past the old deadline. Keep this first
-proof ephemeral; it does not add arbitrary mid-hold Save/Load.
+Current owner correction (3 October 2026): every faint uses the shared Hospital
+DTL with ordinary Dating-style progression, without a challenge or separate
+Continue. Sylvia eligibility is unchanged. The native captionless hold is
+already accepted infrastructure; it is not the no-Sylvia presentation contract.
+The candidate replaces notice-only completion with the existing narrative owner
+and preserves completion-write Retry through that owner’s coordinator. The
+shared rendered Hospital proof now covers Sylvia present and absent.
 
-The no-Sylvia notice/Continue path conflicts with approved presentation. Native
-Wait cancellation is a source-evidenced risk to test, not an observed runtime
-failure. Production prose/timing/selectors and ordered-ending History/restore
-remain separate work. Routine fixture implementation needs no new architecture
-interview; ask only when new authored facts change the projection contract.
+The owner prioritizes minimal playable functions. Production prose and the full
+exact authored variant catalogue are deferred; labels may route from frozen,
+committed challenge results. Keep supported caption-save/History guarantees and
+state explicit limits for unregistered placeholder content. Cloud acceptance of
+this candidate is still pending; no parent Bead closes on label scaffolding.
 
 The earlier [Hospital source audit](../../evidence/phase_2r/paused_settings_load_2026_10_02/next-slice-source-review/hospital-next-slice-source-audit.md)
 and [implementation proposal](../../evidence/phase_2r/paused_settings_load_2026_10_02/next-slice-source-review/hospital-next-slice-implementation-plan.md)

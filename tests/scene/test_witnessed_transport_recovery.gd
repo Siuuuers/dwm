@@ -320,3 +320,27 @@ func test_next_recovery_uses_command_truth_instead_of_preference_failure_copy() 
 	assert_false(surface.present(true, true, &"unknown"), "unrecognized recovery types refuse without changing truth")
 	assert_true(surface.present(true, true), "legacy setting callers keep their exact existing copy")
 	assert_eq(surface.message_label.text, COPY.en[0])
+
+
+func test_hospital_failure_offers_only_admitted_retry_and_shared_step_copy() -> void:
+	var surface: Variant = _surface()
+	if surface == null: return
+	var owners := _bind(surface)
+	assert_true(surface.configure_presentation("en", 100, "AfterHours", false, "standard", false))
+	assert_false(surface.present(true, true, &"hospital"), "Hospital cannot cancel durable completion")
+	assert_false(surface.present(false, false, &"hospital"), "fatal failures cannot advertise Retry")
+	assert_true(surface.present(true, false, &"hospital"))
+	assert_eq(surface.message_label.text, _localization.t("witnessed.recovery.step_failed"))
+	assert_true(surface.retry_button.visible)
+	assert_false(surface.cancel_button.visible)
+	var retries: Array[bool] = []
+	surface.retry_requested.connect(func(): retries.append(true))
+	surface.retry_button.activated.emit()
+	assert_eq(retries.size(), 1)
+	owners.admission.allowed = false
+	surface.retry_button.activated.emit()
+	assert_eq(retries.size(), 1, "retired owner cannot retry even through a stale activation")
+	surface.dismiss()
+	owners.admission.allowed = true
+	surface.retry_button.activated.emit()
+	assert_eq(retries.size(), 1, "dismissed recovery cannot repeat completion")

@@ -15,6 +15,7 @@ const COPY_KEYS := {
 	"uncertain": "witnessed.recovery.preference_uncertain",
 	"next_failure": "witnessed.recovery.next_failed",
 	"next_uncertain": "witnessed.recovery.next_uncertain",
+	"step_failure": "witnessed.recovery.step_failed",
 	"retry": "witnessed.recovery.retry",
 	"cancel": "witnessed.recovery.cancel",
 }
@@ -92,7 +93,8 @@ func configure_presentation(locale: String, percent: int, palette: String,
 
 func present(can_retry: bool, can_cancel: bool, command_kind: StringName = &"preference") -> bool:
 	if not _configured or not _bound or (can_cancel and not can_retry) \
-			or command_kind not in [&"preference", &"next"]:
+			or command_kind not in [&"preference", &"next", &"hospital"] \
+			or (command_kind == &"hospital" and (not can_retry or can_cancel)):
 		return false
 	_command_kind = command_kind
 	_can_retry = can_retry
@@ -156,7 +158,8 @@ func _style(percent: int, large_targets: bool) -> void:
 func _publish() -> void:
 	var next_command := _command_kind == &"next"
 	if _can_retry or _can_cancel:
-		message_label.text = _copy["next_failure"] if next_command else _copy["failure"]
+		message_label.text = _copy["step_failure"] if _command_kind == &"hospital" else (
+			_copy["next_failure"] if next_command else _copy["failure"])
 	else:
 		message_label.text = _copy["next_uncertain"] if next_command else _copy["uncertain"]
 	accessibility_name = message_label.text

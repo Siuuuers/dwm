@@ -287,17 +287,43 @@ func test_hospital_registration_and_frame_admission_never_prefill_history() -> v
 	assert_eq(queried, [], "Hospital traversal is outside this admitted slice")
 	assert_eq(session.capture(frontier).value, before)
 
-func test_hospital_frame_refuses_other_causes_absence_and_foreign_phase_without_rebinding() -> void:
+func test_ordinary_hospital_frame_admits_and_restores_without_fabricating_sylvia_or_history() -> void:
+	var frame := _hospital_context()
+	frame.presentation.fields.accepted_record_ids = []
+	frame.presentation.fields.unfulfilled_record_ids = []
+	frame.presentation.fields.sylvia_eligible = false
+	var session := _hospital_session()
+	assert_true(session.begin(TOKEN, HOSPITAL_ENTRY).ok)
+	assert_true(session.admit(HOSPITAL_ENTRY, frame).ok)
+	assert_true(session.ledger.snapshot().captions.is_empty(), "admission does not invent a witnessed caption")
+	var frontier := _publish(session, HOSPITAL_ENTRY, "fixture.hospital.a")
+	var saved: Dictionary = session.capture(frontier).value
+	var target := _hospital_session()
+	assert_true(target.restore(saved, HOSPITAL_ENTRY).ok)
+	assert_eq(target.capture(frontier).value, saved, "ordinary recovery retains the exact admitted frame")
+	assert_false(saved.ledger.entry_contexts[HOSPITAL_ENTRY].presentation.fields.sylvia_eligible)
+	assert_null(saved.ledger.entry_contexts[HOSPITAL_ENTRY].presentation.fields.sylvia_witness_receipt_id)
+	for mutation: String in ["condition", "foreign_day", "forged_stage"]:
+		var invalid := frame.duplicate(true)
+		match mutation:
+			"condition": invalid.presentation.fields.qualifying_cause = "condition_hospital"
+			"foreign_day": invalid.presentation.fields.day = 4
+			"forged_stage": invalid.expected_stage = "post_challenge"
+		var candidate := _hospital_session()
+		assert_true(candidate.begin(TOKEN, HOSPITAL_ENTRY).ok)
+		assert_false(candidate.admit(HOSPITAL_ENTRY, invalid).ok, mutation)
+
+func test_hospital_frame_refuses_other_causes_foreign_phase_and_changed_eligibility_without_rebinding() -> void:
 	var session := _hospital_session()
 	assert_true(session.begin(TOKEN, HOSPITAL_ENTRY).ok)
 	assert_true(session.admit(HOSPITAL_ENTRY, _hospital_context()).ok)
 	var frontier := _publish(session, HOSPITAL_ENTRY, "fixture.hospital.a")
 	var before: Dictionary = session.capture(frontier).value
-	for mutation: String in ["condition", "absent", "stage", "role", "transaction", "playback", "playback_suffix", "rebind_source", "day", "extra"]:
+	for mutation: String in ["condition", "changed_eligibility", "stage", "role", "transaction", "playback", "playback_suffix", "rebind_source", "day", "extra"]:
 		var frame := _hospital_context()
 		match mutation:
 			"condition": frame.presentation.fields.qualifying_cause = "condition_hospital"
-			"absent": frame.presentation.fields.sylvia_eligible = false
+			"changed_eligibility": frame.presentation.fields.sylvia_eligible = false
 			"stage": frame.expected_stage = "pre_challenge"
 			"role": frame.role = "dating_phase"
 			"transaction": frame.transaction_id = "other:completion:hospital"

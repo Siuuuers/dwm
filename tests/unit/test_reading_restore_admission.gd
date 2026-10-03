@@ -491,9 +491,9 @@ func test_hospital_line_requires_active_retained_schedule_and_real_sylvia_source
 			"malformed_entries": plan.committed_schedule.entries[0] = false
 		assert_false(RUN.validate_reading_checkpoint(changed.narrative_checkpoint, changed).ok, mutation)
 
-func test_hospital_saved_authority_refuses_other_cause_and_coherent_no_sylvia_notice() -> void:
+func test_hospital_saved_authority_refuses_other_cause_but_admits_coherent_ordinary_recovery() -> void:
 	var source := _hospital_snapshot()
-	for mutation: String in ["condition", "notice"]:
+	for mutation: String in ["condition", "ordinary"]:
 		var changed := source.duplicate(true)
 		var plan: Dictionary = changed.lifecycle.active_resolution_plan
 		var request: Dictionary = changed.gameplay.route_context[RUN.HOSPITAL_KEY].requests[plan.resolution_id]
@@ -511,7 +511,14 @@ func test_hospital_saved_authority_refuses_other_cause_and_coherent_no_sylvia_no
 		checkpoint.frozen_context.playback_id = NARRATIVE_OWNER.derive_token(request.completion_transaction_id,
 			CANON.canonical_sha256(request).value.sha256) + ":hospital"
 		checkpoint.reading_session.ledger.entry_contexts[checkpoint.entry_id] = checkpoint.frozen_context.duplicate(true)
-		assert_false(RUN.validate_reading_checkpoint(checkpoint, changed).ok, mutation)
+		var before := changed.duplicate(true)
+		var validated := RUN.validate_reading_checkpoint(checkpoint, changed)
+		if mutation == "condition":
+			assert_false(validated.ok, "condition-Hospital still has a distinct recovery authority")
+		else:
+			assert_true(validated.ok, "ordinary recovery follows the shared Hospital narrative owner: " + str(validated))
+			assert_true(_prepare(PARTICIPANT.new(ReadingOwner.new()), changed).ok)
+		assert_eq(changed, before, "admission neither invents Sylvia nor mutates the saved frame")
 
 func test_hospital_internal_completed_anchor_survives_lawful_following_day_capture() -> void:
 	var snapshot := _hospital_snapshot(true)

@@ -220,27 +220,48 @@ func _hospital_journey(bootstrap: Node, game: Node) -> void:
 	buy.pressed.emit()
 	if not _check(shop.get("_purchase_result").get("ok", false), "Shop purchase: " + JSON.stringify(shop.get("_purchase_result"))): return
 	await _frames()
-	if not _check(current_scene != null and current_scene.has_node("%FaintNotice"), "ordinary Hospital notice mounted"): return
+	if not _check(current_scene != null and current_scene.scene_file_path == "res://scenes/hospital/HospitalScene.tscn", "ordinary Hospital host mounted"): return
 	var hospital: Node = current_scene
-	var notice_port: Object = hospital.get("_presentation_port")
-	var notice_command: Dictionary = hospital.get_presentation_projection()
-	if not _check(hospital.get_node("%FaintNotice").visible, "ordinary Hospital uses the short notice"): return
-	if not _check(not root.get_node("DialogicBridge").has_active_playback(), "ordinary Hospital starts no DTL or art"): return
-	await _capture_screen("ordinary-hospital-notice")
+	var bridge: Node = root.get_node("DialogicBridge")
+	if not _check(not hospital.has_node("%FaintNotice") and not hospital.has_node("%ContinueButton"), "Hospital has no separate notice or Continue"): return
+	if not _check(bridge.has_active_playback() and not bridge.get_current_scene_art().show_portraits, "ordinary Hospital plays shared DTL without Sylvia"): return
+	await _capture_screen("ordinary-hospital-dialogue")
 	var coordinator: Object = bootstrap.get("_retained_condition_hospital_coordinator")
 	var original: Object = coordinator.get("_checkpoint")
 	var injected := FailOneHospitalCheckpoint.new(original)
-	var retry_probe := "--probe-hospital-notice-retry" in OS.get_cmdline_user_args()
+	var retry_probe := "--probe-hospital-completion-retry" in OS.get_cmdline_user_args()
 	var before: Dictionary = game.capture_run_snapshot_input().duplicate(true)
 	if retry_probe: coordinator.set("_checkpoint", injected)
-	hospital.get_node("%ContinueButton").pressed.emit()
-	await _frames()
+	var captions: Array[String] = []
+	for activation: int in 8:
+		if not bridge.has_active_playback(): break
+		var layout: Node = root.get_node("Dialogic").Styles.get_layout_node()
+		var layer: Node = layout.find_child("WitnessedCaptionLayer", true, false) if is_instance_valid(layout) else null
+		if not _check(layer != null, "ordinary faint uses the shared caption layer"): return
+		var text: String = layer.caption_text.get_parsed_text()
+		if text not in captions: captions.append(text)
+		if not await _hospital_accept(layer.caption_text): return
+		await _frames()
+	if not _check(captions == ["You wake in the treatment room.", "The treatment room is quiet."], "shared DTL ordinary branch captions: " + str(captions)): return
+	if not _check(not bridge.has_active_playback(), "normal caption input completes the actual DTL"): return
 	if retry_probe:
+		if injected.failures != 1:
+			print("HOSPITAL_COMPLETION_DIAGNOSTIC: " + JSON.stringify({
+				"condition_result": bootstrap.get("_last_condition_hospital_result"),
+				"condition_completions": bootstrap.get("_retained_condition_hospital_adapter").get("_completions"),
+				"hospital_settled": bootstrap.get("_retained_hospital_presentation_port").get("_settled"),
+				"schedule_result": bootstrap.get("_retained_schedule_done_dispatcher").get_last_dispatch_result(),
+				"gate_active": bootstrap.get("_application_gate").is_active(),
+				"gate_fatal": bootstrap.get("_application_gate").is_fatal_latched(),
+				"condition_plan": game._run_lifecycle.to_dict().get("active_condition_hospital_plan"),
+				"day": game.day}))
 		if not _check(injected.failures == 1, "actual Hospital completion encountered one injected save failure"): return
-		if not _check(current_scene == hospital and game.day == 2, "failed completion stays on the notice and source day"): return
+		if not _check(current_scene == hospital and game.day == 2, "failed completion retains source scene and day"): return
 		if not _check(game.capture_run_snapshot_input() == before, "failed completion applies no gameplay effects"): return
-		if not _check(not hospital.get_node("%ContinueButton").disabled, "the visible Continue button becomes retryable"): return
-		hospital.get_node("%ContinueButton").pressed.emit()
+		var recovery: Node = hospital.get("_completion_recovery")
+		if not _check(is_instance_valid(recovery) and recovery.is_presented(), "technical recovery exposes Retry after completion failure"): return
+		await _capture_screen("hospital-completion-retry")
+		if not await _hospital_accept(recovery.retry_button): return
 		await _frames()
 		coordinator.set("_checkpoint", original)
 	for frame: int in 100:
@@ -258,12 +279,34 @@ func _hospital_journey(bootstrap: Node, game: Node) -> void:
 	if not _check(current_scene.find_child("ComputerDesktop", true, false) != null, "Hospital returns to desktop"): return
 	if retry_probe:
 		var settled: Dictionary = game.capture_run_snapshot_input().duplicate(true)
-		if not _check(notice_port.acknowledge_notice(notice_command).get("ok", false), "exact repeated acknowledgment remains harmless"): return
+		# A stale native finish cannot replay a presentation or its durable effects.
+		bridge.timeline_finished.emit("hospital.faint", {})
 		await _frames()
-		if not _check(game.capture_run_snapshot_input() == settled, "repeated completion applies no second recovery, charge, or day advance"): return
-		print("PLAYABLE_HOSPITAL_NOTICE_RETRY_PASS: actual Continue -> failed durable completion -> same notice retry -> one recovery/day advance")
+		if not _check(game.capture_run_snapshot_input() == settled, "stale completion applies no second recovery, charge, or day advance"): return
+		print("PLAYABLE_HOSPITAL_RETRY_PASS: native dialogue completion -> failed durable completion -> technical Retry -> one recovery/day advance")
 	print("PLAYABLE_HOSPITAL_PASS: actual wine purchase -> Hospital presentation -> recovered Day 3 desktop")
 	quit(0)
+
+
+func _hospital_accept(control: Control) -> bool:
+	current_scene.get_window().grab_focus()
+	control.grab_focus()
+	var input_owner: Node = root.get_node("InputManager")
+	for frame: int in 120:
+		if control.has_focus() and input_owner.get_physical_contacts().is_empty(): break
+		await process_frame
+	# Neutral frames retire the prior semantic input contact before this activation.
+	await _frames()
+	if not _check(control.has_focus(), "Hospital input focus admitted"): return false
+	for pressed: bool in [true, false]:
+		var event := InputEventKey.new()
+		event.keycode = KEY_ENTER
+		event.physical_keycode = KEY_ENTER
+		event.pressed = pressed
+		Input.parse_input_event(event)
+		Input.flush_buffered_events()
+		await process_frame
+	return true
 
 
 func _seven_day_journey(game: Node) -> void:

@@ -31,16 +31,6 @@ const SCENE_LITERAL_OWNERS := {
 		"disposition": "localized_call", "key": "gallery.replay", "reason": "Gallery refreshes the Replay or Retry caption from the catalog before its first draw",
 		"owner_path": "res://scripts/ui/GalleryScene.gd",
 		"markers": ['_replay_button.text = _localized("gallery.retry" if not _retry_signature_id.is_empty() else "gallery.replay")', "_refresh_replay_caption()"]},
-	"res://scenes/hospital/HospitalScene.tscn|FaintNotice/Margin/Content/Message|text|You fainted.": {
-		"disposition": "runtime_data", "key": "",
-		"reason": "HospitalScene replaces the dormant hidden notice from its five-locale presentation table",
-		"owner_path": "res://scripts/ui/HospitalScene.gd",
-		"markers": ['_message_label.text = {"en": "You fainted.", "zh-CN": "你晕倒了。", "zh-HK": "你暈倒了。", "ja": "気を失いました。", "ko": "정신을 잃었습니다."}[locale]', "_notice_panel.visible = not sylvia_present"]},
-	"res://scenes/hospital/HospitalScene.tscn|FaintNotice/Margin/Content/ContinueButton|text|Continue": {
-		"disposition": "runtime_data", "key": "",
-		"reason": "HospitalScene replaces the dormant hidden control from its five-locale presentation table",
-		"owner_path": "res://scripts/ui/HospitalScene.gd",
-		"markers": ['_continue_button.text = {"en": "Continue", "zh-CN": "继续", "zh-HK": "繼續", "ja": "続ける", "ko": "계속"}[locale]', "_notice_panel.visible = not sylvia_present"]},
 	"res://scenes/shared/AppWindowBase.tscn|VBoxContainer/TopBar/TopBarHBox/TitleLabel|text|App": {
 		"disposition": "localized_call", "key": "dynamic", "reason": "AppWindowBase catalogs the configured app title",
 		"owner_path": "res://scripts/ui/AppWindowBase.gd", "markers": ["_title_label.text = get_node(\"/root/LocalizationManager\").t(title_key)"]},
@@ -89,10 +79,6 @@ const SCRIPT_LITERAL_OWNERS := {
 		"marker": 'notification_body.text = _localization.t("desktop.notification.new_message_from_friend"'},
 	"res://scripts/ui/desktop/TitleWelcome.gd|text|\"DWM\"": {"disposition": "decorative", "key": "", "reason": "product mark"},
 	"res://scripts/ui/desktop/TitleWelcome.gd|text|\"Welcome! :)\"": {"disposition": "runtime_data", "key": "", "reason": "initial label replaced by the five-locale presentation before first draw", "marker": "set_presentation(_locale, 100)"},
-	"res://scripts/ui/HospitalScene.gd|text|{\"en\": \"You fainted.\", \"zh-CN\": \"你晕倒了。\", \"zh-HK\": \"你暈倒了。\", \"ja\": \"気を失いました。\", \"ko\": \"정신을 잃었습니다.\"}[locale]": {
-		"disposition": "localized_call", "key": "HospitalScene.message.inline", "reason": "exact five-locale Hospital projection"},
-	"res://scripts/ui/HospitalScene.gd|text|{\"en\": \"Continue\", \"zh-CN\": \"继续\", \"zh-HK\": \"繼續\", \"ja\": \"続ける\", \"ko\": \"계속\"}[locale]": {
-		"disposition": "localized_call", "key": "HospitalScene.continue.inline", "reason": "exact five-locale Hospital projection"},
 	"res://scripts/ui/desktop/DesktopLauncherButton.gd|text|\"Mine\\nsweeper\"": {"disposition": "runtime_data", "key": "", "reason": "English-only line wrapping of the supplied localized caption; accessibility keeps its unbroken value", "marker": "if value == \"Minesweeper\" and caption.get_theme_font(\"font\").get_string_size(value,\n\t\t\tHORIZONTAL_ALIGNMENT_LEFT, -1, caption.get_theme_font_size(\"font_size\")).x > caption.size.x:"},
 	"res://scripts/ui/minesweeper/MinesweeperWorksheet.gd|add_item|str(pixels) + \" px\", pixels)": {"disposition": "runtime_data", "key": "", "reason": "numeric cell size with the invariant pixel unit; the menu has a separate localized accessible label", "marker": "cell_size_menu.accessibility_name = VIEW_COPY[_locale][1]"},
 }
