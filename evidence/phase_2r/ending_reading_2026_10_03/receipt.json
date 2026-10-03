@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "status": "accepted",
+  "date": "2026-10-03",
+  "scope": "Bounded ordered-ending caption History and exact second-step Save/Load",
+  "observable_outcome": "Two physical ending steps share chronological History; saving the second caption and loading in a fresh process restores it silently without repeating the first consequence; one remaining completion retires live History after Menu publication.",
+  "baseline": "dd00c5a74484b3938cf2fa8fc59a1823f3c45cb4",
+  "source": "76f3ed115da83e51526efe65b1529ff5a9d086cb",
+  "master_unchanged": "6a5ddf1564870b43aa9140cad7e0e5b12e43f399",
+  "pr": "https://github.com/Siuuuers/dwm/pull/1",
+  "pr_state": "draft, unmerged",
+  "implementation": [
+    "The existing SoloReadingSession and caption ledger admit a fixed ordered ending programme with immutable prior/current frames and exact caption prefix validation.",
+    "DialogicBridge translates native completion into the existing ending playback port; failed reached recording retries the stable physical receipt without replay.",
+    "FrozenRunContext independently binds retained History frames to the saved ending plan and frozen cache, including causal prerequisites and cursor boundaries.",
+    "Existing Pause, Bootstrap and SaveManager owners admit qualified ending caption saves and silent reconstruction. Terminal durable anchors remain intact while live History retires after committed Menu publication.",
+    "Detached native textbox animation listeners ignore show/hide/new-text signals, preventing an old removed layout from stranding the successor caption.",
+    "Malformed saved family types refuse without an engine comparison exception. Existing save/recovery owners and Hospital manual-save restriction remain in place."
+  ],
+  "broad": {
+    "run_id": 37129223870,
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/37129223870",
+    "source": "76f3ed115da83e51526efe65b1529ff5a9d086cb",
+    "actual_checkout": "5df681a5d8f6477f571af9256157ac514642a061",
+    "jobs_passed": 26,
+    "jobs_total": 26,
+    "primary_xml_reports": 13,
+    "primary_cases": 2591,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "manifest": "broad-manifest.json",
+    "test_execution_audit": "audits/test-execution.json",
+    "retained_history_gates": "gates-manifest.json"
+  },
+  "focused": {
+    "run_id": 37125341304,
+    "source": "57e47bafc32c602a03d9e0a153e6eed09e1434a2",
+    "auxiliary_workflow_head": "445a968dd539ce382fd8d3016886d6d74d910c12",
+    "jobs_passed": 5,
+    "jobs_total": 5,
+    "primary_cases": 1042,
+    "manifest": "focused-manifest.json",
+    "workflow": "audits/ending-reading-focused.yml"
+  },
+  "rendered_proof": {
+    "two_distinct_processes": true,
+    "writer_byte_seal_verified": true,
+    "exact_second_caption_and_history": true,
+    "silent_restore": true,
+    "first_step_not_replayed": true,
+    "duplicate_first_receipt_neutral": true,
+    "earlier_frame_forgery_refused": true,
+    "one_remaining_completion": true,
+    "live_history_retired_after_menu": true,
+    "manual_slot_bytes_preserved": true,
+    "visual_review": "Focused saved History and broad restored caption/History PNGs inspected; fixed long test text is noncanonical."
+  },
+  "diagnostics": [
+    {
+      "run_id": 37123344977,
+      "accepted": false,
+      "manifest": "diagnostic1-manifest.json",
+      "finding": "Malformed saved family caused an engine Array/String comparison error; renderer lacked inherited _wait_desktop helper. Corrected the validator type guard and fixture helper."
+    },
+    {
+      "run_id": 37123570675,
+      "accepted": false,
+      "manifest": "diagnostic2-manifest.json",
+      "finding": "Native second caption did not arrive. Also normalized fixture trailing whitespace to match Dialogic parsing."
+    },
+    {
+      "run_id": 37124135668,
+      "accepted": false,
+      "manifest": "diagnostic3-manifest.json",
+      "finding": "Reading and public suites passed; added diagnostics confirmed admitted second entry stalled before publication."
+    },
+    {
+      "run_id": 37124458652,
+      "accepted": false,
+      "manifest": "diagnostic4-manifest.json",
+      "finding": "Native second Text event had intact continuation and caption binding but waited before text_started. Retired default-layout animation listener was identified and guarded."
+    },
+    {
+      "run_id": 37124721615,
+      "accepted": false,
+      "manifest": "diagnostic5-manifest.json",
+      "finding": "Animation regression passed and second caption arrived. Real Save rejected stale Day1 retained Schedule view in Day7 fixture; fixture aligned through canonical controller. Public regeneration was cancelled when superseded."
+    },
+    {
+      "run_id": 37124953852,
+      "accepted": false,
+      "manifest": "diagnostic6-manifest.json",
+      "finding": "Writer and fresh exact silent restore passed, then terminal check exposed retained live ending History. Added guarded post-Menu retirement without changing the durable anchor."
+    }
+  ],
+  "acceptance_limits": [
+    "Explicitly injected noncanonical two-step Sylvia special-prefix/dark-core fixture and seeded eligibility; not authored production route coverage.",
+    "Production caption catalogue registration remains disabled; comprehensive authored variants and prose are deferred.",
+    "Chronological History continuity does not establish retention of the previous visible caption leaves across timeline changes. Auto continuity and complete native all-input/accessibility acceptance remain separate.",
+    "No local Godot or PowerShell execution; all engine and PowerShell tests ran in cloud. No performance improvement is claimed.",
+    "Intentional storage-refusal XML controls are excluded from primary passing-case totals and separately retained in the audit.",
+    "All 23 unfinished Beads retain statuses/dependencies. Only the retained lead export note is updated; no live Dolt query or synchronization.",
+    "Final evidence/navigation-only descendant is not separately engine-tested. PR stays draft/unmerged; master unchanged."
+  ]
+}

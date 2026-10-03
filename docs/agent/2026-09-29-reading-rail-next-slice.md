@@ -9,12 +9,29 @@ verification_authority: false
 
 # Reading rail: next bounded slice
 
-Updated after Hospital manual Save/Load restriction acceptance. Prior paused Settings
+Updated after bounded ordered-ending History and exact Save/Load acceptance. Prior paused Settings
 F9/F5, geometry, physical-selector and one-shot Next receipts keep their original
 source and scope. This navigation record changes no design authority, Beads
 status or production-content authorization.
 
 ## Current boundary
+
+**Accepted bounded ordered-ending History and exact Save/Load.** The existing
+ledger spans two physical fixture steps; second-caption Save/fresh Load restores
+exact History silently without repeating the first consequence. Live History
+retires after committed Menu publication; its durable anchor remains intact.
+The [current handoff](2026-09-23-next-session-handoff.md#current-acceptance) and
+[ending reading receipt](../../evidence/phase_2r/ending_reading_2026_10_03/receipt.json)
+own exact source, cloud results and limits.
+
+Next: retain up to two prior visible caption leaves continuously through actual
+ending handoff frames, using the existing layer and ledger. Auto continuity and
+full native input/accessibility acceptance remain separate. Production catalogue
+registration remains disabled; authored prose/variants remain deferred. Hospital
+manual Save/Load remains disabled. All 23 unfinished statuses/dependencies stay
+unchanged; no live Dolt synchronization. PR stays draft/unmerged.
+
+## Prior Hospital manual policy boundary
 
 **Accepted Hospital manual Save/Load restriction — 3 October 2026.** Source
 `82dc881e77f21c34f152d940d55cf317ba5bd784`; actual PR test merge

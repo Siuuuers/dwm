@@ -41,6 +41,33 @@ retain their original scope; do not implement automatic no-Sylvia completion.
 
 ## Current acceptance
 
+**Accepted bounded ordered-ending History and exact Save/Load.** Source
+`76f3ed115da83e51526efe65b1529ff5a9d086cb`; actual PR test merge
+`5df681a5d8f6477f571af9256157ac514642a061`. [Cloud run 37129223870](https://github.com/Siuuuers/dwm/actions/runs/37129223870)
+passes 26/26 jobs and 2,591 primary cases across 13 XML reports, with zero
+failures, errors or skips. Focused run 37125341304 passes 5/5 jobs and 1,042
+primary cases. The [ending reading receipt](../../evidence/phase_2r/ending_reading_2026_10_03/receipt.json)
+binds exact sources, diagnostics, raw save/report evidence and acceptance limits.
+
+Two fixture ending steps share the existing chronological caption ledger. Actual
+manual Save on step two and fresh-process Load restore the exact caption and
+History silently, without repeating step one's consequence. One remaining native
+completion finishes the chain; live History retires only after committed Menu
+publication, while the durable terminal anchor remains intact. Retired native
+textbox listeners no longer block a successor caption's animation wait.
+
+Production registration remains disabled and prose/exhaustive variants remain
+deferred. Next: retain up to two prior visible caption leaves continuously across
+ending timeline boundaries, using the existing layer and ledger and observing
+the actual handoff frames. Auto continuity and full native input/accessibility
+acceptance retain their separate scope. History continuity does not imply retained visible caption
+leaves. Hospital manual Save/Load remains disabled. All 23 unfinished Beads keep
+their statuses/dependencies; no live Dolt synchronization. PR remains draft and
+unmerged, master unchanged. The final records-only descendant is not separately
+engine-tested.
+
+## Prior Hospital manual policy acceptance
+
 **Accepted Hospital manual Save/Load restriction.** Source
 `82dc881e77f21c34f152d940d55cf317ba5bd784`; actual PR test merge
 `0ba41f19f9fed4c2a608d6c329ad3cc07b4d378e`. [Cloud run 37117747147](https://github.com/Siuuuers/dwm/actions/runs/37117747147)
