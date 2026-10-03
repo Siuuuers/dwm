@@ -99,6 +99,13 @@ func _seed_ordered_plan() -> bool:
 	# Arrangement only: no timeline completion, Profile discovery or prior-step receipt is invented.
 	var game: Node = root.get_node("GameState")
 	game._lifecycle_set_playing_day(7)
+	# The bounded fixture skips earlier days, so align the retained live view through
+	# its actual owner. Save captures this live view, unlike automatic ending anchors.
+	var lifecycle: Dictionary = game._run_lifecycle.to_dict()
+	var view: Dictionary = preload("res://scripts/domain/schedule/ScheduleViewState.gd").make_empty(7, str(lifecycle.causal_day_instance))
+	var controller: Object = root.get_node("ApplicationBootstrap").get("_retained_schedule_view_controller")
+	if not _check(view.get("ok", false) and controller.install_restored_view(view.value.view).get("ok", false),
+		"fixture Day7 retained Schedule view uses the same authoritative day and causal identity"): return false
 	var plan := {"ending_id": "ending.sylvia.special", "epilogue_ending_id": "", "source_day": 7,
 		"playback_stage": "PRIMARY_PENDING", "playback_receipts": {}, "next_step_index": 0,
 		"steps": [{"ending_id": "ending.sylvia.special", "role": "special_prefix"}, {"ending_id": "ending.sylvia.dark", "role": "core"}]}
