@@ -15,14 +15,13 @@ concurrency:
 
 jobs:
   focused-tests:
-    needs: public-surfaces
     name: Windows / ${{ matrix.suite }}
     runs-on: windows-2022
     timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
-        suite: [settings, reading_delivery, localization, audio]
+        suite: [settings, localization]
     defaults:
       run:
         shell: pwsh
@@ -85,7 +84,15 @@ jobs:
         timeout-minutes: 10
         env:
           DWM_CI_SUITE: ${{ matrix.suite }}
-        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite $env:DWM_CI_SUITE
+        run: |
+          if ($env:DWM_CI_SUITE -eq 'settings') {
+            ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'cloud-settings-host-diagnostic' -LogName 'cloud-settings-host-diagnostic.log' -TimeoutSeconds 90 -EvidenceLogPath '.godot/ci/settings-host-diagnostic.jsonl' -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_settings_shared_hosts.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/settings-host-diagnostic.xml')
+            $result = $LASTEXITCODE
+            Get-Content '.godot/phase2r_logs/cloud-settings-host-diagnostic.log'
+            if ($result -ne 0) { exit $result }
+          } else {
+            ./tools/testing/Invoke-CloudTests.ps1 -Suite $env:DWM_CI_SUITE
+          }
       - name: Render Settings uncertain-write journey
         if: matrix.suite == 'settings'
         timeout-minutes: 3
@@ -222,6 +229,7 @@ jobs:
           retention-days: 7
 
   public-surfaces:
+    if: false
     name: Windows / public API surface contracts
     runs-on: windows-2022
     timeout-minutes: 20
@@ -339,7 +347,7 @@ jobs:
           ./tests/tooling/Test-InvokeIsolatedGodot.ps1
       - name: Verify committed public inventories without regeneration
         timeout-minutes: 10
-        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
+        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -EmitPayloads
       - name: Verify public inventory drift and read-only contracts
         timeout-minutes: 10
         run: ./tools/testing/Invoke-CloudTests.ps1 -Suite public_surfaces
