@@ -45,6 +45,9 @@ $suites = @{
         'tests/integration/test_save_capability.gd'
     )
     endings = @(
+        'tests/unit/test_gallery_record_catalog.gd'
+        'tests/integration/test_gallery_record_metadata.gd'
+        'tests/integration/test_gallery_art_placements.gd'
         'tests/unit/test_ending_frozen_context.gd'
         'tests/unit/test_day7_condition_ending.gd'
         'tests/unit/test_ending_completion_durability.gd'
