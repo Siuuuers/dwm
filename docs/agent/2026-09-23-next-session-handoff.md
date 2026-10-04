@@ -17,7 +17,34 @@ unmerged; do not change master. Read this handoff, the [execution map](execution
 the selected Bead and its current approved design before editing. Beads owns
 status and dependencies; these documents are navigation, not a second backlog.
 
-## Latest bounded Gallery catalogue checkpoint
+## Latest bounded Gallery register checkpoint
+
+Fixture-backed visible version selection is accepted at source
+`097fc17cc0d48889f076f63921e55997a41b8e07`, tested merge
+`a74cb4520b3b6e6848e98c3ac89da54cb95b009a`. [Run 166](https://github.com/Siuuuers/dwm/actions/runs/37231841772)
+passes 169 ending tests, 154 localization tests and 11 public-contract tests, all
+without failures/errors/skips, plus 390 rendered-register checks across 18 tuples.
+The UI literal audit passes; final images match the reviewed captures exactly.
+The [receipt](../../evidence/phase_2r/gallery_version_register_2026_10_05/receipt.json)
+and [review](../../evidence/phase_2r/gallery_version_register_2026_10_05/review.md)
+own scope, hashes, diagnostic corrections and limits. Run 166 completed successfully: all 26 jobs passed, including the retained-history producer, four comparisons and aggregate. This supports the bounded register checkpoint; no new performance-improvement or whole Gallery completion claim is made.
+
+GalleryScene remains selection/Retry owner; Paper alone owns record scrolling.
+The register reuses existing row input/paint and exact catalogue cues. Selection,
+focus, locale refresh and inspection do not write Profile or start playback.
+Production cue sets remain absent, so existing picker/Replay access stays intact
+for incomplete sets. This is not production cutover, native UIA/ScrollPattern or
+whole Gallery acceptance. `dwm-7wj` and all 23 unfinished Beads remain open.
+
+Next bounded outcome: collect actually presented, valid session-bound replay lines
+and merge only allowed History fields through Profile's existing atomic commit.
+Registry membership alone is not presentation proof. A success notice requires
+newly durable additions; duplicate replay stays silent, refusal adds nothing, and
+uncertainty retains custody. Reuse Bridge, Profile and GalleryReplayOwner; no new
+History store, recovery framework or external-system repair. Production exact
+replay admission and authored content remain separate from fixture engineering.
+
+## Previous bounded Gallery catalogue checkpoint
 
 Exact authored version-cue lookup is accepted at source
 `ed2161cc3d4e74143c1b8a24840c7b5d2a1ff0e6`, tested merge
@@ -33,10 +60,8 @@ still running at this checkpoint; do not infer an all-job or performance seal.
 `GalleryRecordCatalog.version_cue()` accepts only exact authored metadata and
 keeps missing cues absent. General record projection and production replay are
 unchanged. Clearly marked TEST cues prove the lookup contract; production overrides
-remain empty. The dropdown is still present: **the visible register is not yet
-implemented**. Continue its fixture-backed engineering through the existing
-catalogue, paper and replay owners. Do not add another metadata store or silently
-turn missing cues into disabled production replays. `dwm-7wj` stays in progress.
+remain empty. This catalogue-only checkpoint preceded the visible register accepted above.
+Production cue authoring remains separate; `dwm-7wj` stays in progress.
 
 ## Latest accepted Settings visible-keyboard checkpoint
 

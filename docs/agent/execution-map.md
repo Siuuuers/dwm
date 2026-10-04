@@ -6,7 +6,7 @@ execution_authority: false
 status_authority: false
 behavior_authority: false
 verification_authority: false
-inspected_source: "5959cb7abf30c1cf546e1b0dfa0de372aa7d0b36"
+inspected_source: "097fc17cc0d48889f076f63921e55997a41b8e07"
 ---
 
 # DWM execution map
@@ -17,6 +17,31 @@ behavior. The [current handoff](2026-09-23-next-session-handoff.md) owns restart
 guidance and points to source-bound acceptance. Do not create a second backlog.
 
 ## Current checkpoint and next outcome
+
+Fixture-backed visible version selection is accepted at source
+`097fc17cc0d48889f076f63921e55997a41b8e07`, tested merge
+`a74cb4520b3b6e6848e98c3ac89da54cb95b009a`. [Run 166](https://github.com/Siuuuers/dwm/actions/runs/37231841772)
+passes 169 ending tests, 154 localization tests and 11 public-contract tests, all
+without failures/errors/skips, plus 390 rendered-register checks across 18 tuples.
+The UI literal audit passes; final images match the reviewed captures exactly.
+The [receipt](../../evidence/phase_2r/gallery_version_register_2026_10_05/receipt.json)
+and [review](../../evidence/phase_2r/gallery_version_register_2026_10_05/review.md)
+own scope, hashes, diagnostic corrections and limits. Run 166 completed successfully: all 26 jobs passed, including the retained-history producer, four comparisons and aggregate. This supports the bounded register checkpoint; no new performance-improvement or whole Gallery completion claim is made.
+
+GalleryScene remains selection/Retry owner; Paper alone owns record scrolling.
+The register reuses existing row input/paint and exact catalogue cues. Selection,
+focus, locale refresh and inspection do not write Profile or start playback.
+Production cue sets remain absent, so existing picker/Replay access stays intact
+for incomplete sets. This is not production cutover, native UIA/ScrollPattern or
+whole Gallery acceptance. `dwm-7wj` and all 23 unfinished Beads remain open.
+
+Next bounded outcome: collect actually presented, valid session-bound replay lines
+and merge only allowed History fields through Profile's existing atomic commit.
+Registry membership alone is not presentation proof. A success notice requires
+newly durable additions; duplicate replay stays silent, refusal adds nothing, and
+uncertainty retains custody. Reuse Bridge, Profile and GalleryReplayOwner; no new
+History store, recovery framework or external-system repair. Production exact
+replay admission and authored content remain separate from fixture engineering.
 
 The bounded Pause Settings visible-keyboard route is accepted at source
 `5959cb7abf30c1cf546e1b0dfa0de372aa7d0b36`, tested merge
@@ -30,11 +55,9 @@ now proves the focused High Contrast target is visible before action and perform
 no Profile/storage mutation. This is English 100% AfterHours Standard, not native
 OS/UIA or whole Settings acceptance. Reuse this proof rather than repeating it.
 
-Recommended next bounded outcome: `dwm-7wj` visible plural-version register using
-existing chronology and replay ownership. Its layout is already approved by the
-active August 24 Standard; the newer current-ui Gallery dossier has not cut over.
-Keep exact production cues as a separate authored-input gate; noncanonical fixture
-cues can establish the engineering behavior without claiming production completion.
+The active August 24 Gallery Standard remains the layout authority; the newer
+current-ui dossier has not cut over. Reuse Run 166 register proof and the existing
+chronology, including explicitly unordered legacy provenance.
 
 The bounded native Windows review-current return is accepted at source
 `845ec12c83cecfab1bfe3b5b4a194537c783aa7e`, tested PR merge
@@ -74,7 +97,7 @@ Historical plans, counts and session exclusions are not a new implementation que
 | Remaining latency: `dwm-634.3` | `dwm-634`; touched `dwm-sx8` mappings | Per-write validation witness and frozen-baseline controls are accepted in Runs81/82. Remaining terminal/checkpoint cost and native responsiveness need matched complete-operation measurements, not shorter code alone. |
 | Deferred authored contract: `dwm-n3h.2` | `dwm-n3h`, exact Next/replay of `dwm-vky.14`, relevant `dwm-oyo.5` | Finite per-entry catalogue-v2 selector admission and bounded physical sweet/exploded Solo Save/Load are accepted. Global reached signatures and production exact-variant Next/replay remain open; production registration is disabled and prose/exhaustive variants deferred. Ordinary phase/reply/line and Alone cause are known gaps; ask only about an additional independent authored fact. |
 | Remaining Settings: `dwm-eei.2` | Settings/Profile recovery and preview clauses | Bounded truthful write-failure presentation/custody is accepted in Run 157. Preserve it; remaining authored samples, native speech/display and broader preview obligations are separate. No external repair, forced restart or new live Retry architecture. |
-| Independent: `dwm-7wj` | Gallery clauses of `dwm-oyo.6` | Exact-cue catalogue lookup is accepted in Run162 (bounded ending/public jobs); production labels remain absent and dropdown remains. Implement the fixture-backed visible register using this catalogue seam and existing chronology, preserving unordered legacy provenance. Prove exact selection, Retry, focus and write-free inspection. Authored cues and native ScrollPattern remain separate. |
+| Independent: `dwm-7wj` | Gallery clauses of `dwm-oyo.6` | Fixture-backed visible register accepted in Run 166 (169 ending/154 localization/11 public cases and 390 rendered checks). Production exact cues remain absent; incomplete sets retain existing picker/Replay. Next prove actually-presented replay collection and one atomic allowlisted History merge before its notice. Authored cutover, native ScrollPattern and broader release gates remain separate. |
 | Catalogue-dependent: `dwm-nqn` | `dwm-oyo.5`; Settings audio-output clauses | Admit immutable neutral-ID cue/Load-anchor plan through current save/restore owners. Pause preserves physical playhead; Load uses authored anchors. Fixtures may prove engineering without inventing production audio. |
 | Remaining UI amendment: `dwm-vky` | Drift and all-input clauses | Only fully specified Drift cards through one deterministic plan/receipt and safe-boundary projection. Tint and Steady Interface have accepted children. Coordinate schema edits without blocking unrelated UI on Drift. |
 | Rolling companion: `dwm-sx8` | Every changed public boundary | Inspect real callers/current authority, retire only truly unused superseded APIs, otherwise link meaningful behavior proof. Repair nearby mappings and regenerate inventories once, not a parallel whole-facade rewrite. |
