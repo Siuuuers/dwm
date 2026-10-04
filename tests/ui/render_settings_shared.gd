@@ -190,7 +190,7 @@ func _capture(locale: String, percent: int, state: String) -> bool:
 	if not _check(_app.get_global_rect() == expected and _content.get_global_rect() == expected, "Settings escaped exact 800x656 workfield"): return false
 	if not _check(_content.theme.default_font_size == int(24 * percent / 100.0), "canonical full text size changed"): return false
 	if not _check(_content.current_locale() == locale, "rendered locale differs from canonical owner"): return false
-	var primary: Font = {"en": PRESENTATION.ENGLISH, "zh_CN": PRESENTATION.SIMPLIFIED, "zh_HK": PRESENTATION.TRADITIONAL}[locale]
+	var primary: Font = PRESENTATION.TYPOGRAPHY.font(locale, percent, String(_profile.get_preference(&"preferences.accessibility.font_style", "pixel")))
 	var rendered_font := _content.theme.default_font as FontVariation
 	if not _check(rendered_font != null and rendered_font.base_font == primary, "locale lost its authored primary font"): return false
 	var focused: Control = _viewport.gui_get_focus_owner()
@@ -312,4 +312,3 @@ func _finish(ok: bool) -> void:
 		for event: InputEvent in _input_backup[action].events: InputMap.action_add_event(action, event)
 	print("SETTINGS_SHARED_RENDER_", "VERIFIED" if ok else "FAILED", " captures=", _records.size(), " evidence=", _folder)
 	quit(0 if ok else 1)
-
