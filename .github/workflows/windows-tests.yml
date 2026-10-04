@@ -101,7 +101,8 @@ jobs:
           if (Select-String -Path "$output/render.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Settings journey reported script errors.' }
           if (-not (Select-String -Path "$output/render.log" -Pattern 'SETTINGS_SHARED_RENDER_VERIFIED captures=3' -Quiet)) { throw 'Settings failure journey did not complete.' }
       - name: Upload logs and test results
-            uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: windows-${{ matrix.suite }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
@@ -209,7 +210,8 @@ jobs:
         timeout-minutes: 12
         run: ./tools/testing/Invoke-WindowsExportValidation.ps1
       - name: Upload Windows validation build and evidence
-            uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: windows-export-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
@@ -342,7 +344,8 @@ jobs:
         timeout-minutes: 10
         run: ./tools/testing/Invoke-CloudTests.ps1 -Suite public_surfaces
       - name: Upload canonical inventories and retirement evidence
-            uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: public-surfaces-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
@@ -439,7 +442,8 @@ jobs:
           if-no-files-found: error
           retention-days: 7
       - name: Upload paired performance evidence
-            uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: checkpoint-performance-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
@@ -550,7 +554,8 @@ jobs:
           if-no-files-found: error
           retention-days: 7
       - name: Upload seven-day history evidence
-            uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: seven-day-history-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
@@ -692,7 +697,8 @@ jobs:
           & (Join-Path $env:GITHUB_WORKSPACE "tools/testing/$env:DWM_COMPARISON_DRIVER")
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Upload comparison raw evidence and input provenance
-            uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.comparison }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
@@ -760,7 +766,8 @@ jobs:
         timeout-minutes: 2
         run: bash tools/testing/start_cloud_speech.sh
       - name: Upload native speech environment evidence
-            uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: cloud-speech-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: .godot/ci/cloud-speech/
@@ -781,7 +788,8 @@ jobs:
         timeout-minutes: 55
         run: python3 tools/testing/run_cloud_journeys.py
       - name: Upload journey reports, logs and screenshots
-            uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: playable-journeys-${{ github.run_id }}-${{ github.run_attempt }}
           path: .godot/ci/playable-journeys/
@@ -793,7 +801,8 @@ jobs:
         timeout-minutes: 25
         run: python3 tools/testing/run_reading_rail_journey.py
       - name: Upload Solo reading reports, exact save bytes and screenshots
-            uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: reading-rail-${{ github.run_id }}-${{ github.run_attempt }}
           path: .godot/ci/reading-rail/
@@ -805,7 +814,8 @@ jobs:
         timeout-minutes: 10
         run: python3 tools/testing/run_solo_authored_selector_journey.py
       - name: Upload authored Solo selector reports, exact save bytes and screenshots
-            uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: solo-authored-selector-${{ github.run_id }}-${{ github.run_attempt }}
           path: .godot/ci/solo-authored-selector/
@@ -850,7 +860,8 @@ jobs:
         timeout-minutes: 2
         run: bash tools/testing/start_cloud_speech.sh
       - name: Upload native speech environment evidence
-            uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: cloud-speech-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: .godot/ci/cloud-speech/
@@ -871,7 +882,8 @@ jobs:
         timeout-minutes: 25
         run: python3 tools/testing/run_hospital_reading_journey.py
       - name: Upload Hospital reading reports, exact save bytes and screenshots
-            uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: hospital-reading-${{ github.run_id }}-${{ github.run_attempt }}
           path: .godot/ci/hospital-reading/
@@ -916,7 +928,8 @@ jobs:
         timeout-minutes: 2
         run: bash tools/testing/start_cloud_speech.sh
       - name: Upload native speech environment evidence
-            uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: cloud-speech-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: .godot/ci/cloud-speech/
@@ -940,7 +953,8 @@ jobs:
         timeout-minutes: 10
         run: python3 tools/testing/run_ending_auto_journey.py
       - name: Upload ending reading reports, exact save bytes and screenshots
-            uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: ending-reading-${{ github.run_id }}-${{ github.run_attempt }}
           path: .godot/ci/ending-reading/
@@ -985,7 +999,8 @@ jobs:
         timeout-minutes: 2
         run: bash tools/testing/start_cloud_speech.sh
       - name: Upload native speech environment evidence
-            uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: cloud-speech-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: .godot/ci/cloud-speech/
@@ -1006,7 +1021,8 @@ jobs:
         timeout-minutes: 25
         run: python3 tools/testing/run_timed_hold_journey.py
       - name: Upload timed hold raw traces, process logs, reports and captures
-            uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: timed-hold-${{ github.run_id }}-${{ github.run_attempt }}
           path: .godot/ci/timed-hold/
@@ -1051,7 +1067,8 @@ jobs:
         timeout-minutes: 2
         run: bash tools/testing/start_cloud_speech.sh
       - name: Upload native speech environment evidence
-            uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: cloud-speech-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: .godot/ci/cloud-speech/
@@ -1092,7 +1109,8 @@ jobs:
           assert len(captures) == 38 and all(path.stat().st_size > 0 for path in captures)
           PY
       - name: Upload rendered evidence
-            uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: desktop-scaling-render-${{ github.run_id }}-${{ github.run_attempt }}
           path: .godot/ci/desktop-scaling/
@@ -1128,7 +1146,8 @@ jobs:
           assert len(captures) == 25 and all(path.stat().st_size > 0 for path in captures)
           PY
       - name: Upload delivery and dialogue evidence
-            uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: delivery-dialogue-render-${{ github.run_id }}-${{ github.run_attempt }}
           path: .godot/ci/delivery-dialogue/
@@ -1164,7 +1183,8 @@ jobs:
           assert len(captures) == 10 and all(path.stat().st_size > 0 for path in captures)
           PY
       - name: Upload Angela stat overlay evidence
-            uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: angela-overlay-render-${{ github.run_id }}-${{ github.run_attempt }}
           path: .godot/ci/angela-overlay/
@@ -1202,7 +1222,8 @@ jobs:
           assert len(captures) == 30 and all(path.stat().st_size > 0 for path in captures)
           PY
       - name: Upload Japanese and Korean UI evidence
-            uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: japanese-korean-ui-render-${{ github.run_id }}-${{ github.run_attempt }}
           path: .godot/ci/japanese-korean-ui/
@@ -1238,7 +1259,8 @@ jobs:
           assert len(captures) == 30 and all(path.stat().st_size > 0 for path in captures)
           PY
       - name: Upload font-choice evidence
-            uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: font-choices-render-${{ github.run_id }}-${{ github.run_attempt }}
           path: .godot/ci/font-choices/
@@ -1280,7 +1302,8 @@ jobs:
           print('PLAYABLE_STARTUP_RENDER_VERIFIED: 4 captures')
           PYCODE
       - name: Upload rendered startup and Logout evidence
-            uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: playable-startup-render-${{ github.run_id }}-${{ github.run_attempt }}
           path: .godot/ci/playable-startup/
@@ -1312,7 +1335,8 @@ jobs:
           print('UI_LITERAL_AUDIT_VERIFIED')
           PY
       - name: Upload UI literal audit evidence
-            uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: ui-literal-audit-${{ github.run_id }}-${{ github.run_attempt }}
           path: .godot/ci/ui-literal-audit/
