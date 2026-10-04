@@ -1,0 +1,337 @@
+{
+  "schema_version": 1,
+  "decision": "accepted_bounded_native_review_current_return",
+  "source_commit": "845ec12c83cecfab1bfe3b5b4a194537c783aa7e",
+  "tested_pr_merge": "bd4a3806769954663c46aed1064a076a0276865e",
+  "tested_master_parent": "dded76aee2e85aeea94f65218de043b1f4fdce7b",
+  "run": {
+    "id": 37190011572,
+    "number": 152,
+    "attempt": 1,
+    "status": "completed",
+    "conclusion": "success",
+    "jobs_successful": 26,
+    "jobs_total": 26,
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/37190011572"
+  },
+  "primary": {
+    "reports": 13,
+    "executions": 2602,
+    "unique_classname_name_pairs": 2598,
+    "deliberate_duplicate_executions": 4,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "negative_controls": {
+    "separate_from_primary": true,
+    "cases": [
+      "empty",
+      "whitespace"
+    ],
+    "per_case_tests": 83,
+    "per_case_expected_refusals": 80,
+    "per_case_storage_free_passes": 3
+  },
+  "native": {
+    "invocations": 9,
+    "before_returned_snapshots_equal": true,
+    "event_index_before_and_after": 3,
+    "visible_characters_before_and_after": 0,
+    "reveal_generation_before_and_after": 7,
+    "text_finished_before_and_after": 3,
+    "timeline_ended_before_and_after": 0,
+    "simple_and_full_history_equal": true,
+    "fresh_final_event_index": 4,
+    "fresh_final_text_finished": 4,
+    "fresh_successor_revealing": true,
+    "review_action_has_distinct_native_runtime_id": true,
+    "all_nine_actionable_targets_unique": true
+  },
+  "limits": [
+    "English synthetic mounted fixture; not authored production-route acceptance.",
+    "Elapsed-time reveal processing was disabled; observed partial position was zero visible characters, not a mid-sentence position.",
+    "Review entry used the existing presentation owner as fixture setup; only exit and subsequent actions were native UIA.",
+    "No full screen-reader navigation or spoken-output acceptance.",
+    "Native finished counts are Text.text_finished; ended counts are timeline_ended. They are not gameplay consequence counters.",
+    "Broad rendered and retained-history jobs were checked through completed job/step metadata; only native screenshots were visually reviewed in this continuation."
+  ],
+  "source_review": {
+    "changed_paths": [
+      "tests/manual/verify_caption_native_accept.gd",
+      "tools/testing/Invoke-CaptionNativeAccept.ps1"
+    ],
+    "runtime_changes": false,
+    "independent_subagent_review": false
+  },
+  "beads": {
+    "status_changes": false,
+    "dependency_changes": false,
+    "live_dolt_queried": false,
+    "last_recorded_unfinished": 23,
+    "fresh_export_recount": false,
+    "export_blob": "021be603688a39b6a3980f3e963682ec78a04c7e",
+    "read_limitation": "GitHub fetch_file returned empty content for the known 2,032,918-byte export; this was not treated as an empty task list."
+  },
+  "primary_reports": [
+    {
+      "suite": "public_surfaces",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "path": "raw/primary/public_surfaces.xml",
+      "sha256": "93f58e684d4d0fe663f218f5106db5cc07d1c86dfa31fc4035efb4aeb10229b8",
+      "artifact_id": 11297419897,
+      "artifact_member": "ci/public_surfaces.xml"
+    },
+    {
+      "suite": "audio",
+      "tests": 44,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "path": "raw/primary/audio.xml",
+      "sha256": "47ebbbafef7352a15d7aba44e5e57c026a7c4b6703edcddcbedeba37d02952cf",
+      "artifact_id": 11299100229,
+      "artifact_member": "ci/audio.xml"
+    },
+    {
+      "suite": "checkpoint_diagnostics",
+      "tests": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "path": "raw/primary/checkpoint_diagnostics.xml",
+      "sha256": "50c5e677e09c073d47f478a0575888ffd36f45cf836941d3628965e4cacbcd9e",
+      "artifact_id": 11299225186,
+      "artifact_member": "ci/checkpoint_diagnostics.xml"
+    },
+    {
+      "suite": "dating",
+      "tests": 174,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "path": "raw/primary/dating.xml",
+      "sha256": "c4ce93e88a1700f2e52c4b7f0e28f3594b0bf270f39955df39aee01950c159a2",
+      "artifact_id": 11298856323,
+      "artifact_member": "ci/dating.xml"
+    },
+    {
+      "suite": "desktop",
+      "tests": 334,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "path": "raw/primary/desktop.xml",
+      "sha256": "052c8e409e95d8b1fc5fb6c6444f70576933b2dc8cd110e5336792ab1b2c4c78",
+      "artifact_id": 11299230762,
+      "artifact_member": "ci/desktop.xml"
+    },
+    {
+      "suite": "endings",
+      "tests": 106,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "path": "raw/primary/endings.xml",
+      "sha256": "c3b48a0a95ee8a1d986d0e4277f972e0298004b6040ec4155ab853aab3283db0",
+      "artifact_id": 11298731490,
+      "artifact_member": "ci/endings.xml"
+    },
+    {
+      "suite": "localization",
+      "tests": 154,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "path": "raw/primary/localization.xml",
+      "sha256": "da3bd19043e9cfcd32776c071a92af17ed5f083f584c1cb03a5e3f8aeb4353cc",
+      "artifact_id": 11298841288,
+      "artifact_member": "ci/localization.xml"
+    },
+    {
+      "suite": "minesweeper",
+      "tests": 210,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "path": "raw/primary/minesweeper.xml",
+      "sha256": "3ec9d88baf99f773471a0c1ae28944619e24e919387ae6e2cbb6355ba9b43d38",
+      "artifact_id": 11297594915,
+      "artifact_member": "ci/minesweeper.xml"
+    },
+    {
+      "suite": "new_account",
+      "tests": 179,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "path": "raw/primary/new_account.xml",
+      "sha256": "8f4acaecaf67a0608a90555334227d651076964e68a7a244f51dd49824d56706",
+      "artifact_id": 11299515073,
+      "artifact_member": "ci/new_account.xml"
+    },
+    {
+      "suite": "persistence",
+      "tests": 234,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "path": "raw/primary/persistence.xml",
+      "sha256": "a409c295f727716323201733b0f487f6bba8404f79ae14bdcc21efee61be6a88",
+      "artifact_id": 11299280109,
+      "artifact_member": "ci/persistence.xml"
+    },
+    {
+      "suite": "reading_delivery",
+      "tests": 633,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "path": "raw/primary/reading_delivery.xml",
+      "sha256": "4d0b8bbe167a14c4825966d6f64c75e4d686abf3a061f355e5015c7bc8e885e7",
+      "artifact_id": 11297664739,
+      "artifact_member": "ci/reading_delivery.xml"
+    },
+    {
+      "suite": "settings",
+      "tests": 357,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "path": "raw/primary/settings.xml",
+      "sha256": "6576b16255bd2fd82b78242f4d4bffbb01ad4f846c761961812076a59275a362",
+      "artifact_id": 11298891577,
+      "artifact_member": "ci/settings.xml"
+    },
+    {
+      "suite": "shop",
+      "tests": 144,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "path": "raw/primary/shop.xml",
+      "sha256": "b99227fb9a1bdcec85d4dfeb3770ef97cf15f60376a7c53214882582900b97ac",
+      "artifact_id": 11297619813,
+      "artifact_member": "ci/shop.xml"
+    }
+  ],
+  "downloaded_artifacts": [
+    {
+      "name": "public-surfaces-37190011572-1",
+      "id": 11297419897,
+      "sha256": "8bc85104bb39fd16ac8fc85737a725b5db406e744fd7c756ad9800bd319f7322",
+      "bytes": 190046
+    },
+    {
+      "name": "windows-audio-37190011572-1",
+      "id": 11299100229,
+      "sha256": "42092718924e11c87148ecc70b54ee616264aeb5cec36e6e7c6aa786222d7bee",
+      "bytes": 22432
+    },
+    {
+      "name": "windows-checkpoint_diagnostics-37190011572-1",
+      "id": 11299225186,
+      "sha256": "de9c22ff0630a925722d2acec9e6c4c7e8b02abff107a77cae441749f2fa1a0b",
+      "bytes": 603275
+    },
+    {
+      "name": "windows-dating-37190011572-1",
+      "id": 11298856323,
+      "sha256": "6413aa48cbd90a7f7b359444fec9130b350b2ed5a4959a4ce266f624cee77193",
+      "bytes": 634645
+    },
+    {
+      "name": "windows-desktop-37190011572-1",
+      "id": 11299230762,
+      "sha256": "0507654bd03614c0cbb6be2443c832f87e2b88bc4f99b79d8d8131fa53a0cea5",
+      "bytes": 292850
+    },
+    {
+      "name": "windows-endings-37190011572-1",
+      "id": 11298731490,
+      "sha256": "816adaf58bf3bbe2d0e762b3308e1677e517c311428fcceab3ccd66f10283488",
+      "bytes": 75230
+    },
+    {
+      "name": "windows-localization-37190011572-1",
+      "id": 11298841288,
+      "sha256": "fb63e3758aac1e1ed686194c497ee721b178a246667ae36d8421c0679dcf1b04",
+      "bytes": 375193
+    },
+    {
+      "name": "windows-minesweeper-37190011572-1",
+      "id": 11297594915,
+      "sha256": "b487783ce5c96614fffcc5b08dac5c5d48bf50fc42a9c99235615485ecded975",
+      "bytes": 166679
+    },
+    {
+      "name": "windows-new_account-37190011572-1",
+      "id": 11299515073,
+      "sha256": "5a04ce7e1b978d0c6aeead5ef5adba0060e994e4eab5216a2121700721c5ec76",
+      "bytes": 238909
+    },
+    {
+      "name": "windows-persistence-37190011572-1",
+      "id": 11299280109,
+      "sha256": "99237429d4287e93a8eda34c1e9383d8ba5df13d340994e9998978314055fc9e",
+      "bytes": 199700
+    },
+    {
+      "name": "windows-reading_delivery-37190011572-1",
+      "id": 11297664739,
+      "sha256": "a781c9d0c1fad8bbeeb599683e7fc7add49abc21f5644189ea4439c4e5399a52",
+      "bytes": 310345
+    },
+    {
+      "name": "windows-settings-37190011572-1",
+      "id": 11298891577,
+      "sha256": "3d86c86ebb71e2cb85508cd7423e5bbac2569ca89e14e92d87ed101dc696cacd",
+      "bytes": 2842433
+    },
+    {
+      "name": "windows-shop-37190011572-1",
+      "id": 11297619813,
+      "sha256": "7f47667f4fd235fbf4d135a9fa98a7f14547a41621eafe6f6e2cec00235018cf",
+      "bytes": 65672
+    }
+  ],
+  "inspected_native_images": [
+    {
+      "path": "raw/native/review-return.png",
+      "sha256": "3b7ee68e9f3c46baba2a311866db8b494d4c667176ed6619e122c8a79718759b",
+      "visually_inspected": true
+    },
+    {
+      "path": "raw/native/returned-live.png",
+      "sha256": "4f968841e595a80c66243f2f8a282daad2d4c2b841dede23dbd90d19504e76e6",
+      "visually_inspected": true
+    },
+    {
+      "path": "raw/native/fresh-advance.png",
+      "sha256": "b3a31baa5fb4b294a2b8d2ed90c2b8879b5cb0a096090b2ed82226ca763a12ae",
+      "visually_inspected": true
+    },
+    {
+      "path": "raw/native/fresh-successor.png",
+      "sha256": "6eb391d03176e908109da3999efc3a09292ee302d3b21c6d3e72004427eedfa0",
+      "visually_inspected": true
+    }
+  ],
+  "retention": {
+    "raw_bundle": "dwm-run152-acceptance.zip",
+    "bundle_surface": "conversation attachment",
+    "repository_scope": "Receipt, review and compact navigation; raw artifact retention is the separate attached bundle, not a claim of repository mirroring.",
+    "github_artifact_expiry_date": "2026-10-11",
+    "raw_paths_are_relative_to": "dwm-run152-acceptance.zip, not the repository",
+    "normalized_state_repository_path": "evidence/phase_2r/caption_native_review_2026_10_04/review-state.json"
+  },
+  "record_publication": {
+    "runtime_changes": false,
+    "beads_changes": false,
+    "historical_receipts_changed": false,
+    "engine_tested_independently": false
+  }
+}
