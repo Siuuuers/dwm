@@ -1,0 +1,247 @@
+{
+  "source_commit": "1cce6ff5424c3438e45b311407216a24fb144d59",
+  "source_tree": "f12a8aadb2737f33d13d385b837f518316d77705",
+  "tested_merge": "7936c4be314e2b2e1b5d95df86a1cb4ca4902409",
+  "master_parent": "dded76aee2e85aeea94f65218de043b1f4fdce7b",
+  "run_id": 37236784020,
+  "run_number": 168,
+  "run_attempt": 1,
+  "url": "https://github.com/Siuuuers/dwm/actions/runs/37236784020",
+  "status": "completed",
+  "conclusion": "success",
+  "engine": "Godot 4.6.3 standard GDScript",
+  "execution": "GitHub Actions only",
+  "strict_workflow_sha256": "bc1692cb8599e18e1bcaefaf3a80bb426e3fcaa584139de1485f99040bc3eac2",
+  "artifacts": [
+    {
+      "id": 11316156556,
+      "name": "public-surfaces-37236784020-1",
+      "size_in_bytes": 190344,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11316156556",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11316156556/zip",
+      "expired": false,
+      "created_at": "2026-10-04T21:41:41Z",
+      "expires_at": "2026-10-11T21:41:40Z",
+      "updated_at": "2026-10-04T21:41:41Z",
+      "digest": "sha256:f739054a1fda22e396d5f1197ff8125507ba7426e7ee7e51364d9a459ef77cd4",
+      "workflow_run": {
+        "id": 37236784020,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/windows-cloud-ux",
+        "head_sha": "1cce6ff5424c3438e45b311407216a24fb144d59"
+      }
+    },
+    {
+      "id": 11315862471,
+      "name": "windows-settings-37236784020-1",
+      "size_in_bytes": 3111632,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11315862471",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11315862471/zip",
+      "expired": false,
+      "created_at": "2026-10-04T21:47:58Z",
+      "expires_at": "2026-10-11T21:47:56Z",
+      "updated_at": "2026-10-04T21:47:58Z",
+      "digest": "sha256:d9ec8571533f9a991b1505472c06453b107094c45f9e16104452808fd6a3daca",
+      "workflow_run": {
+        "id": 37236784020,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/windows-cloud-ux",
+        "head_sha": "1cce6ff5424c3438e45b311407216a24fb144d59"
+      }
+    }
+  ],
+  "jobs": [
+    {
+      "id": 111537439766,
+      "name": "Windows / public API surface contracts",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111538388907,
+      "name": "Windows / seven-day retained history producer",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111538388911,
+      "name": "Windows / paired checkpoint performance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111538388926,
+      "name": "Rendered ordered ending / physical boundary and exact fresh Load",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111538388929,
+      "name": "Rendered Hospital / manual command refusal and saved-fixture restore",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111538388943,
+      "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111538388955,
+      "name": "Windows / exported release startup",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111538388957,
+      "name": "Rendered desktop and dialogue / Linux software OpenGL",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111538389053,
+      "name": "Rendered captionless timed hold / Pause and fresh-input continuation",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111538389075,
+      "name": "Windows / shop",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111538389081,
+      "name": "Windows / dating",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111538389112,
+      "name": "Windows / settings",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111538389113,
+      "name": "Windows / checkpoint_diagnostics",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111538389121,
+      "name": "Windows / desktop",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111538389129,
+      "name": "Windows / localization",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111538389133,
+      "name": "Windows / persistence",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111538389134,
+      "name": "Windows / reading_delivery",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111538389135,
+      "name": "Windows / minesweeper",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111538389142,
+      "name": "Windows / new_account",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111538389169,
+      "name": "Windows / audio",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111538389174,
+      "name": "Windows / endings",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111541448276,
+      "name": "Windows / lazy-normalization comparison",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111541448280,
+      "name": "Windows / history-region-search comparison",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111541448332,
+      "name": "Windows / outgoing-normalization comparison",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111541448385,
+      "name": "Windows / warm-outgoing-proof comparison",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111544775111,
+      "name": "Windows / seven-day retained history",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "recorded_at": "2026-10-04T22:17:16.676395+00:00",
+  "accepted_scope": "Atomic Profile caption-History union storage prerequisite; replay admission, collection and notice remain unimplemented",
+  "results": {
+    "settings": {
+      "testcase": 368,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0,
+      "caption_witness_cases": 17,
+      "new_atomic_union_cases": 7
+    },
+    "public": {
+      "testcase": 11,
+      "failure": 0,
+      "error": 0,
+      "skipped": 0
+    }
+  },
+  "limitations": [
+    "Registry membership is not proof of actual presentation; Bridge must validate session-bound accepted occurrences.",
+    "No replay caller or player-facing History notice is added in this increment.",
+    "No save/Profile schema or migration change, new journal, live recovery or external-system repair.",
+    "All Godot 4.6.3 standard GDScript/PowerShell execution occurred in GitHub Actions.",
+    "No new performance-improvement, production-content, native-accessibility or whole Gallery completion claim.",
+    "No Bead closed or live Dolt synchronization; records-only descendant not independently engine-tested."
+  ],
+  "retained_sha256": {
+    "inventory-delta.json": "330d8a1693bf0242cdb5b23572f92df46ba8cbf6c432ea3e9fe6ad2ac9bce807",
+    "preparation.json": "ef4dd0c9dfe56f1d040d93fb1249a32017fa82a7609a49605c80709764090f8c",
+    "public_surfaces.xml": "9d4c769f5a0dd068d1db7a6b2873357bc0d3264202cc3f35f3dffce8c443f65a",
+    "review.md": "bc8e083d623c8cb4f971caa6a5c2d4dfc897cb1655ed557de4e15c952cc7dfe9",
+    "settings.xml": "84c61cbf2b9ba5e527a64713400ef8add38c119cf777ee2da9d0562d96934b92",
+    "source-hashes.json": "a3112d5258de6d33ab8260f8a885982fa58b92ee517a64ec40e5a3472f975dca"
+  }
+}

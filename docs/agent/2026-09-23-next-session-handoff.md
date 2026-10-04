@@ -17,6 +17,33 @@ unmerged; do not change master. Read this handoff, the [execution map](execution
 the selected Bead and its current approved design before editing. Beads owns
 status and dependencies; these documents are navigation, not a second backlog.
 
+## Latest atomic History storage prerequisite
+
+The atomic Profile caption-History union prerequisite is accepted at source
+`1cce6ff5424c3438e45b311407216a24fb144d59`, tested merge
+`7936c4be314e2b2e1b5d95df86a1cb4ca4902409`. [Run 168](https://github.com/Siuuuers/dwm/actions/runs/37236784020)
+passed all 26 jobs. Settings XML verifies 368 cases, including 17 caption-witness
+cases with seven new atomic-union tests; public XML verifies 11 cases. All have
+zero failures/errors/skips. The [receipt](../../evidence/phase_2r/profile_caption_history_union_2026_10_05/receipt.json)
+and [review](../../evidence/phase_2r/profile_caption_history_union_2026_10_05/review.md)
+own the exact evidence and limits. Reuse `ProfileManager.merge_caption_history()`;
+do not rebuild its transaction or introduce another History persistence owner.
+
+The method validates the complete batch before one existing atomic Profile commit,
+changes only exact-caption witnesses/base visited-line IDs, and fences even empty
+or duplicate calls under stale revision, mutation custody or uncertainty. Its
+`history_added` result means a newly durable base-line visit; a new exact variant
+of an already visited line does not claim a new-History notice.
+
+Replay does not call this method yet. Next bind an explicitly admitted TEST exact
+replay signature and collectable lines to the existing NarrativeCaptionLedger and
+visible-caption acknowledgement under Bridge's reached-replay session. Do not
+fabricate canonical causal fields or treat publication/registry membership as
+actual presentation. Retain session custody through merge failure/uncertainty and
+revalidate after synchronous Profile publication before a truthful notice. The
+existing strict workflow is restored unchanged. No Bead is closed; all 23
+unfinished records remain open, including `dwm-7wj`.
+
 ## Latest bounded Gallery register checkpoint
 
 Fixture-backed visible version selection is accepted at source
@@ -36,8 +63,8 @@ Production cue sets remain absent, so existing picker/Replay access stays intact
 for incomplete sets. This is not production cutover, native UIA/ScrollPattern or
 whole Gallery acceptance. `dwm-7wj` and all 23 unfinished Beads remain open.
 
-Next bounded outcome: collect actually presented, valid session-bound replay lines
-and merge only allowed History fields through Profile's existing atomic commit.
+Next integration: collect actually presented, valid session-bound replay lines
+and reuse the accepted ProfileManager.merge_caption_history atomic union.
 Registry membership alone is not presentation proof. A success notice requires
 newly durable additions; duplicate replay stays silent, refusal adds nothing, and
 uncertainty retains custody. Reuse Bridge, Profile and GalleryReplayOwner; no new
