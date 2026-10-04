@@ -27,6 +27,7 @@ var _body: Control
 var _pointer: Control
 var _selector: Control
 var _practice: Control
+var _register: Control
 var _repeat: Timer
 var _stick_direction := 0
 var _visual_focus := false
@@ -106,10 +107,11 @@ func set_interactive(value: bool) -> void:
 	queue_accessibility_update()
 	presentation_changed.emit()
 
-func set_actions(selector: Control, practice: Control) -> void:
+func set_actions(selector: Control, practice: Control, version_register: Control = null) -> void:
 	_selector = selector
 	_practice = practice
-	for action: Control in [_selector, _practice]:
+	_register = version_register
+	for action: Control in [_selector, _practice, _register]:
 		if not is_instance_valid(action): continue
 		if action.get_parent() != _body:
 			if action.get_parent() != null: action.get_parent().remove_child(action)
@@ -118,6 +120,8 @@ func set_actions(selector: Control, practice: Control) -> void:
 			action.gui_input.connect(_forward_action_drag)
 		if not action.visibility_changed.is_connected(refresh_layout):
 			action.visibility_changed.connect(refresh_layout)
+	if is_instance_valid(_register) and not _register.layout_changed.is_connected(refresh_layout):
+		_register.layout_changed.connect(refresh_layout)
 	refresh_layout()
 
 func _forward_action_drag(event: InputEvent) -> void:
@@ -138,8 +142,13 @@ func refresh_layout(reset_scroll: bool = false) -> void:
 	sentence_label.position = Vector2(0, text_bottom + 16)
 	sentence_label.size = Vector2(504, sentence_height)
 	if sentence_label.visible: text_bottom = sentence_label.position.y + sentence_height
-	var actions_visible := _visible(_selector) or _visible(_practice)
-	if actions_visible:
+	if _visible(_register):
+		_register.position = Vector2(0, sentence_label.position.y + sentence_height + 32)
+		content_extent = _even(_register.position.y + _register.size.y)
+		if _visible(_practice):
+			_place_action(_practice, Vector2(328, content_extent + 24), Vector2(160, 64))
+			content_extent = _even(_practice.position.y + 72)
+	elif _visible(_selector) or _visible(_practice):
 		var row_y := text_bottom + 32
 		_place_action(_selector, Vector2(16, row_y), Vector2(288, 64))
 		_place_action(_practice, Vector2(328, row_y), Vector2(160, 64))
@@ -148,9 +157,12 @@ func refresh_layout(reset_scroll: bool = false) -> void:
 	scroll_offset = 0.0 if reset_scroll else _clamped_even(scroll_offset)
 	_apply_offset()
 	_sync_focus_mode()
-	if content_extent != old.x and is_inside_tree():
+	if is_inside_tree():
 		var focused := get_viewport().gui_get_focus_owner()
-		if focused in [_selector, _practice] and focused != null: reveal_control(focused)
+		# Localized row wrapping can move the focused row while total height stays equal.
+		var version_focus := focused != null and is_instance_valid(_register) and _register.is_ancestor_of(focused)
+		if focused != null and _body.is_ancestor_of(focused) and (content_extent != old.x or version_focus):
+			reveal_control(focused)
 	queue_accessibility_update()
 	if old != Vector2(content_extent, scroll_offset): presentation_changed.emit()
 
@@ -175,7 +187,13 @@ func has_overflow() -> bool:
 
 func reveal_control(control: Control) -> void:
 	if not _visible(control) or not _body.is_ancestor_of(control): return
-	var rect := Rect2(control.position, control.size).grow(8)
+	var local_transform := _body.get_global_transform().affine_inverse() * control.get_global_transform()
+	var rect: Rect2 = (local_transform * Rect2(Vector2.ZERO, control.size)).grow(8)
+	if rect.size.y > VIEW_SIZE.y:
+		# A long wrapped cue cannot fit at once. Keep the visible interior stable
+		# instead of alternating between its two edges on repeated layout/reveal.
+		scroll_to(clampf(scroll_offset, rect.position.y, rect.end.y - VIEW_SIZE.y))
+		return
 	if rect.position.y < scroll_offset: scroll_to(rect.position.y)
 	elif rect.end.y > scroll_offset + VIEW_SIZE.y: scroll_to(rect.end.y - VIEW_SIZE.y)
 

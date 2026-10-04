@@ -7,6 +7,7 @@ const PROFILE_SCHEMA := preload("res://scripts/profile/ProfileSchema.gd")
 const PRESENTATION := preload("res://scripts/ui/gallery/GalleryTheme.gd")
 const RECORD := preload("res://scripts/ui/gallery/GalleryRecordButton.gd")
 const RECORD_PAPER := preload("res://scripts/ui/gallery/GalleryRecordPaper.gd")
+const VERSION_REGISTER := preload("res://scripts/ui/gallery/GalleryVersionRegister.gd")
 const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
 const REPLAY_OWNER := preload("res://scripts/application/ending/GalleryReplayOwner.gd")
 const PRACTICE_HOST := preload("res://scripts/ui/gallery/GalleryRehearsalHost.gd")
@@ -46,6 +47,7 @@ var _host_return: Button
 var _replay_owner: RefCounted
 var _versions: Array[Dictionary] = []
 var _version_selector: OptionButton
+var _version_register: Control
 var _selected_version := 0
 var _replay_bridge: Object
 var _practice_game: Object
@@ -122,7 +124,7 @@ func _sync_practice_button() -> void:
 	_practice_button.disabled = _replay_owner != null and _replay_owner.is_playing()
 	_practice_button.focus_mode = Control.FOCUS_ALL if _practice_button.visible and not _practice_button.disabled else Control.FOCUS_NONE
 	_ensure_record_paper()
-	_record_paper.set_actions(_version_selector, _practice_button)
+	_record_paper.set_actions(_version_selector, _practice_button, _version_register)
 	_record_paper.set_interactive(not _practice_button.disabled and _status_key != "gallery.record.unavailable")
 	refresh_return_navigation()
 
@@ -162,6 +164,12 @@ func _ensure_version_selector() -> void:
 	_version_selector.focus_entered.connect(_reveal_paper_action.bind(_version_selector))
 	_canvas.add_child(_version_selector)
 	_version_selector.hide()
+	_version_register = VERSION_REGISTER.new()
+	_version_register.name = "WitnessedVersions"
+	_version_register.item_selected.connect(_on_version_selected)
+	_version_register.row_focused.connect(_reveal_paper_action)
+	_version_register.focused_row_removed.connect(_on_paper_focus_removed)
+	_canvas.add_child(_version_register)
 
 func _ensure_record_paper() -> void:
 	if _record_paper != null: return
@@ -259,6 +267,7 @@ func _refresh_tiles() -> void:
 	var previous_offset := _index_offset
 	var previous_paper_offset: float = _record_paper.scroll_offset if _record_paper != null else 0.0
 	var previous_focus := get_viewport().gui_get_focus_owner()
+	var previous_version_focus: String = _version_register.focused_signature_id() if _version_register != null else ""
 	var hide_focus := previous_focus != null and not previous_focus.has_focus(true)
 	var restore_focus := previous_focus != null and previous_focus.get_parent() == _ending_tile_grid
 	var retained_row: Button = null
@@ -321,8 +330,14 @@ func _refresh_tiles() -> void:
 		_clear_replay_versions()
 		_update_scroll()
 		_focus_return()
-	if retained_row == null and previous_focus in [_record_paper, _version_selector, _replay_button]:
+	if retained_row == null and (not previous_version_focus.is_empty() or previous_focus in [_record_paper, _version_selector, _replay_button]):
 		_on_paper_focus_removed(hide_focus)
+	elif not previous_version_focus.is_empty():
+		var version_row: Control = _version_register.row_for_signature(previous_version_focus)
+		if is_instance_valid(version_row) and version_row.focus_mode != Control.FOCUS_NONE:
+			version_row.grab_focus(hide_focus)
+			_record_paper.reveal_control(version_row)
+		else: _on_paper_focus_removed(hide_focus)
 	elif previous_focus == _record_paper and _record_paper.focus_mode != Control.FOCUS_NONE:
 		_record_paper.grab_focus(hide_focus)
 	elif previous_focus == _practice_button and _practice_button.visible and not _practice_button.disabled:
@@ -407,7 +422,7 @@ func _refresh_replay_selection() -> void:
 		_version_selector.get_popup().set_item_language(index, locale.replace("_", "-"))
 		if str(_versions[index].signature_id) == previous: _selected_version = index
 	if not _versions.is_empty(): _version_selector.select(_selected_version)
-	_version_selector.visible = _versions.size() > 1
+	_refresh_version_register()
 	_sync_replay_controls()
 	if unavailable:
 		_retry_signature_id = ""
@@ -427,6 +442,7 @@ func _clear_replay_versions() -> void:
 	_ensure_version_selector()
 	_version_selector.clear()
 	_version_selector.hide()
+	_version_register.set_versions([], "", "en")
 	_refresh_record_copy()
 	_sync_replay_controls()
 
@@ -436,6 +452,7 @@ func _sync_replay_controls() -> void:
 	_replay_button.focus_mode = Control.FOCUS_NONE if _replay_button.disabled else Control.FOCUS_ALL
 	_version_selector.disabled = playing
 	_version_selector.focus_mode = Control.FOCUS_ALL if _version_selector.visible and not playing else Control.FOCUS_NONE
+	if _version_register != null: _version_register.set_interactive(not playing)
 	for row: Button in _ending_tile_grid.get_children(): row.disabled = playing
 	_sync_practice_button()
 
@@ -445,7 +462,25 @@ func _on_version_selected(index: int) -> void:
 		return
 	_retry_signature_id = ""
 	_selected_version = index
+	_version_selector.select(index)
+	_version_register.set_selected(_selected_signature_id())
 	_set_replay_status("")
+	refresh_return_navigation()
+
+func _refresh_version_register() -> void:
+	var locale := str(_localization.get_locale()) if _localization != null else "en"
+	var entries: Array[Dictionary] = []
+	# Authored-cue engineering path. Preserve current production access until the
+	# complete exact-version cue set is authored; absence never disables Replay.
+	if _versions.size() > 1:
+		for version: Dictionary in _versions:
+			var cue: String = _record_catalog.version_cue(_selected_id, str(version.signature_id), locale)
+			if cue.is_empty():
+				entries.clear()
+				break
+			entries.append({"signature_id": str(version.signature_id), "cue": cue})
+	_version_register.set_versions(entries, _selected_signature_id(), locale)
+	_version_selector.visible = _versions.size() > 1 and entries.is_empty()
 
 func _selected_signature_id() -> String:
 	return str(_versions[_selected_version].signature_id) if _selected_version >= 0 and _selected_version < _versions.size() else ""
@@ -634,10 +669,23 @@ func refresh_return_navigation() -> void:
 		if str(row.get_meta(&"gallery_record_id")) == _selected_id: selected_row = row
 		if not row.disabled: sequence.append(row)
 	var deeper: Array[Control] = []
-	for control: Control in [_record_paper, _version_selector, _replay_button]:
-		if is_instance_valid(control) and control.is_visible_in_tree() and control.focus_mode != Control.FOCUS_NONE:
+	# Sequential traversal visits every row. Spatial Right visits only the
+	# selected version between optional Record details and Replay.
+	for control: Control in [_record_paper, _version_selector]:
+		if _focusable(control):
 			deeper.append(control)
-	sequence.append_array(deeper)
+			sequence.append(control)
+	if is_instance_valid(_version_register) and _version_register.visible:
+		for row: Control in _version_register.get_rows():
+			if not _focusable(row): continue
+			sequence.append(row)
+			row.focus_neighbor_left = selected_row.get_path() if selected_row != null else row.get_path()
+			row.focus_neighbor_right = _replay_button.get_path() if _focusable(_replay_button) else row.get_path()
+		var selected_version_row: Control = _version_register.row_for_signature(_selected_signature_id())
+		if _focusable(selected_version_row): deeper.append(selected_version_row)
+	if _focusable(_replay_button):
+		deeper.append(_replay_button)
+		sequence.append(_replay_button)
 	if is_instance_valid(_practice_button) and _practice_button.visible and not _practice_button.disabled:
 		sequence.append(_practice_button)
 	sequence.append(_return_button)
@@ -649,6 +697,9 @@ func refresh_return_navigation() -> void:
 	for index: int in range(deeper.size()):
 		deeper[index].focus_neighbor_left = selected_row.get_path() if selected_row != null else deeper[index].get_path()
 		deeper[index].focus_neighbor_right = deeper[mini(index + 1, deeper.size() - 1)].get_path()
+
+func _focusable(control: Control) -> bool:
+	return is_instance_valid(control) and control.is_visible_in_tree() and control.focus_mode != Control.FOCUS_NONE
 
 func _reveal_focused_row() -> void:
 	var focus := get_viewport().gui_get_focus_owner()

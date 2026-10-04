@@ -46,6 +46,11 @@ $suites = @{
     )
     endings = @(
         'tests/unit/test_gallery_record_catalog.gd'
+        'tests/unit/test_gallery_version_register.gd'
+        'tests/unit/test_gallery_record_paper.gd'
+        'tests/integration/test_gallery_version_register.gd'
+        'tests/integration/test_gallery_navigation.gd'
+        'tests/integration/test_gallery_replay_status.gd'
         'tests/integration/test_gallery_record_metadata.gd'
         'tests/integration/test_gallery_art_placements.gd'
         'tests/unit/test_ending_frozen_context.gd'
