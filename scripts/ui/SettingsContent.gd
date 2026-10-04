@@ -6,6 +6,7 @@ signal close_requested()
 @export_enum("desktop", "title", "pause") var host_context: String = "desktop"
 @export var interaction_enabled: bool = true
 
+const WRITE_RECOVERY := preload("res://scenes/ui/witnessed/WitnessedTransportRecovery.tscn")
 const CONTROLLER := preload("res://scripts/ui/SettingsPanelController.gd")
 const REGISTRY := preload("res://scripts/settings/SettingsPreferenceRegistry.gd")
 const COMFORT := preload("res://scripts/audio/accessibility/ListeningComfortNoticeCoordinator.gd")
@@ -62,6 +63,9 @@ var _selected_extension: Control
 var _reset_consent: Dictionary = {}
 var _confirmation_generation: int = 0
 var _reset_busy := false
+# Presentation of ProfileManager's retained mutation fence; never an unlock owner.
+var _profile_write_uncertain := false
+var _write_recovery: Control
 
 
 func configure_services(services: Dictionary) -> void:
@@ -82,6 +86,7 @@ func configure_run_presentation(palette: StringName, day: int) -> Dictionary:
 
 
 func set_interaction_enabled(enabled: bool) -> void:
+	enabled = enabled and not _profile_write_uncertain
 	interaction_enabled = enabled
 	mouse_behavior_recursive = Control.MOUSE_BEHAVIOR_INHERITED if enabled else Control.MOUSE_BEHAVIOR_DISABLED
 	focus_behavior_recursive = Control.FOCUS_BEHAVIOR_INHERITED if enabled else Control.FOCUS_BEHAVIOR_DISABLED
@@ -104,6 +109,7 @@ func is_interaction_enabled() -> bool:
 	return interaction_enabled
 
 func is_departure_blocked() -> bool:
+	if _profile_write_uncertain: return true
 	if _reset_busy or (_controller != null and (_controller.is_commit_pending() \
 		or not _controller.get("_drag").is_empty() or not String(_controller.get("_test_kind")).is_empty() \
 		or not _controller.get("_preview_operations").is_empty())):
@@ -130,6 +136,9 @@ func _ready() -> void:
 	_build_content()
 	_controller = CONTROLLER.new()
 	_controller.bind(self, _services)
+	var profile: Variant = _services.get("profile")
+	if is_instance_valid(profile) and profile.has_signal("profile_write_failed"):
+		profile.profile_write_failed.connect(_on_profile_write_failed)
 	refresh_labels()
 	select_category("language")
 	visibility_changed.connect(_on_visibility_changed)
@@ -137,6 +146,10 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	var profile: Variant = _services.get("profile")
+	if is_instance_valid(profile) and profile.has_signal("profile_write_failed") \
+			and profile.profile_write_failed.is_connected(_on_profile_write_failed):
+		profile.profile_write_failed.disconnect(_on_profile_write_failed)
 	if _controller != null:
 		_controller.unbind()
 
@@ -627,8 +640,44 @@ func test_status(kind: String) -> String:
 
 
 func set_general_status(key: String) -> void:
+	if _profile_write_uncertain: key = "settings.status.uncertain"
 	_general_status.text = "" if key.is_empty() else text(key)
 	_general_status.visible = not key.is_empty()
+
+
+func is_profile_write_uncertain() -> bool:
+	return _profile_write_uncertain
+
+
+func _on_profile_write_failed(result: Dictionary) -> void:
+	if _profile_write_uncertain or not (result.get("fatal", false) or result.get("code") == &"indeterminate_commit"):
+		return
+	# Fence immediately. The output transaction still owns its synchronous failure
+	# compensation; presentation cleanup must wait until its stack has unwound.
+	_profile_write_uncertain = true
+	interaction_enabled = false
+	call_deferred("_present_profile_write_uncertainty")
+
+
+func _present_profile_write_uncertainty() -> void:
+	if not is_inside_tree(): return
+	set_interaction_enabled(false)
+	set_general_status("settings.status.uncertain")
+	_controller.depart()
+	if is_instance_valid(_write_recovery): return
+	_write_recovery = WRITE_RECOVERY.instantiate()
+	_write_recovery.name = "SettingsWriteRecovery"
+	add_child(_write_recovery)
+	_write_recovery.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var profile: Variant = _services.get("profile")
+	if not _write_recovery.bind_owners(_services.get("localization"), _services.get("input"), func() -> bool: return false): return
+	if not _write_recovery.configure_presentation(current_locale(),
+		int(profile.get_preference(&"preferences.accessibility.text_size", 100)), String(get_palette_id()),
+		bool(profile.get_preference(&"preferences.accessibility.high_contrast", false)),
+		String(profile.get_preference(&"preferences.accessibility.colour_differentiation", "standard")),
+		bool(profile.get_preference(&"preferences.accessibility.large_targets", false)),
+		String(profile.get_preference(&"preferences.accessibility.font_style", "pixel"))): return
+	_write_recovery.present(false, false, &"settings")
 
 
 func select_category(category: String) -> void:
@@ -765,3 +814,4 @@ func _unhandled_input(event: InputEvent) -> void:
 		var delta := -1 if event.keycode == KEY_PAGEUP else 1
 		sheet_scroll.scroll_vertical += roundi(sheet_scroll.size.y * 0.85) * delta
 		get_viewport().set_input_as_handled()
+

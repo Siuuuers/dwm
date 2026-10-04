@@ -92,7 +92,7 @@ func show_window() -> void:
 
 
 func hide_window() -> void:
-	if _closing or not is_visible_in_tree() or settings_content.get_controller().is_commit_pending():
+	if _closing or not is_visible_in_tree() or settings_content.is_profile_write_uncertain() or settings_content.get_controller().is_commit_pending():
 		return
 	remember_focus()
 	_closing = true
@@ -133,3 +133,4 @@ func _unhandled_input(event: InputEvent) -> void:
 	if is_visible_in_tree() and not _closing and event.is_action_pressed("ui_cancel"):
 		get_viewport().set_input_as_handled()
 		await settings_content.handle_back()
+

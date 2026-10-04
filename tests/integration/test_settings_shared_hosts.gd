@@ -8,29 +8,46 @@ const INPUT := preload("res://autoload/InputManager.gd")
 const AUDIO := preload("res://autoload/AudioManager.gd")
 const PLAYBACK := preload("res://tests/support/FakeAudioPlaybackPort.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
-const FILES := preload("res://tests/support/FakeFileOps.gd")
 const SETTINGS := preload("res://scenes/apps/SettingsApp.tscn")
 const PAUSE := preload("res://scenes/overlay/PauseSurface.tscn")
 const TITLE := preload("res://scenes/menu/MenuScene.tscn")
 const SETTINGS_THEME := preload("res://scripts/ui/SettingsTheme.gd")
 const PAUSE_THEME := preload("res://scripts/ui/pause/PauseTheme.gd")
 
+## Refuse real storage operations, not the Profile result. Persistent marker
+## cleanup failure proves why live rollback cannot be advertised as durable.
+class SettingsFaultFiles extends "res://tests/support/FakeFileOps.gd":
+	var refuse_writes := false
+	var refuse_marker_cleanup := false
+	func write_bytes(path: String, bytes: PackedByteArray) -> Dictionary:
+		if refuse_writes and "/profile.json" in path:
+			_record(&"write_bytes", path)
+			return _injected_failure()
+		return super.write_bytes(path, bytes)
+	func remove_path(path: String) -> Dictionary:
+		if refuse_marker_cleanup and path.ends_with("/profile.json.txn.json"):
+			_record(&"remove_path", path)
+			return _injected_failure()
+		return super.remove_path(path)
+
 var _surface: SubViewport
 var _profile: Node
 var _localization: Node
 var _input: Node
 var _audio: Node
+var _playback: RefCounted
 var _files: RefCounted
 var _input_backup: Dictionary = {}
 
 func before_each() -> void:
 	for action: StringName in InputMap.get_actions():
 		_input_backup[action] = {"deadzone": InputMap.action_get_deadzone(action), "events": InputMap.action_get_events(action).duplicate(true)}
-	_files = FILES.new()
+	_files = SettingsFaultFiles.new()
 	_profile = PROFILE.new()
 	_localization = LOCALIZATION.new()
 	_input = INPUT.new()
-	_audio = AUDIO.new(PLAYBACK.new())
+	_playback = PLAYBACK.new()
+	_audio = AUDIO.new(_playback)
 	for owner: Node in [_profile, _localization, _input, _audio]: add_child(owner)
 	assert_true(_profile.initialize(STORAGE.new("settings-shared-hosts.memory", _files)).get("ok", false))
 	assert_true(_localization.initialize(_profile).get("ok", false))
@@ -348,3 +365,191 @@ func test_title_caches_settings_and_shared_return_preserves_capture_then_restore
 	await _click(row)
 	assert_eq(menu.get("_setting_instance").get_instance_id(), identity)
 	assert_true(app.is_visible_in_tree())
+
+
+func test_settings_determinate_storage_failure_restores_control_and_allows_fresh_change() -> void:
+	var fixture := _pause()
+	await _enter_settings(fixture)
+	var content: Control = fixture.content
+	content.select_category("accessibility")
+	await _settle()
+	var toggle: CheckBox = content.control_for(&"preferences.accessibility.high_contrast")
+	var before: Dictionary = _profile.get_profile_snapshot()
+	var persisted: Dictionary = _files.snapshot_persisted()
+	var revision: int = _profile.get_profile_revision()
+	_files.refuse_writes = true
+	await _click(toggle)
+	assert_eq(_profile.get_profile_snapshot(), before)
+	assert_eq(_profile.get_profile_revision(), revision)
+	assert_eq(_files.snapshot_persisted(), persisted, "the previous durable profile remains exact")
+	assert_false(toggle.button_pressed, "the failed user toggle restores the canonical value")
+	assert_false(content.is_profile_write_uncertain())
+	assert_true(content.is_interaction_enabled())
+	assert_true(fixture.app.can_return_home())
+	var status: Label = content.find_child("SettingsStatus", true, false)
+	assert_true(status.visible)
+	assert_eq(status.text, _localization.t("settings.status.failed"))
+	_files.refuse_writes = false
+	await _click(toggle)
+	assert_true(_profile.get_preference(&"preferences.accessibility.high_contrast"))
+	assert_eq(_profile.get_profile_revision(), revision + 1)
+	assert_true(toggle.button_pressed)
+	assert_false(status.visible, "a proven successful fresh action clears the error")
+	var durable: Dictionary = _durable_profile()
+	assert_true(durable.preferences.accessibility.high_contrast)
+	assert_false(content.is_profile_write_uncertain())
+
+
+func test_paused_settings_uncertain_storage_keeps_custody_and_blocks_repeated_input() -> void:
+	var fixture := _pause()
+	await _enter_settings(fixture)
+	var content: Control = fixture.content
+	content.select_category("accessibility")
+	await _settle()
+	var toggle: CheckBox = content.control_for(&"preferences.accessibility.high_contrast")
+	var before: Dictionary = _profile.get_profile_snapshot()
+	var revision: int = _profile.get_profile_revision()
+	watch_signals(fixture.pause)
+	watch_signals(fixture.app)
+	_files.refuse_marker_cleanup = true
+	await _click(toggle)
+	_assert_uncertain_profile(content, before, revision)
+	var persisted: Dictionary = _files.snapshot_persisted()
+	var operations: int = _files.operation_count()
+	assert_false(fixture.app.can_return_home())
+	assert_false(fixture.pause.quick_input_admitted("save"), "F5 admission respects Settings custody")
+	assert_false(fixture.pause.quick_input_admitted("load"), "F9 admission respects Settings custody")
+	fixture.pause.set_interactive(false)
+	fixture.pause.set_interactive(true)
+	assert_false(content.is_interaction_enabled(), "parent custody restoration cannot clear uncertainty")
+	await _tap(KEY_ESCAPE)
+	await _tap(KEY_F5)
+	await _tap(KEY_F9)
+	await _click(toggle)
+	fixture.pause.leave_host()
+	await fixture.app.hide_window()
+	var repeated: Dictionary = await content.get_controller().commit_preference(&"preferences.accessibility.high_contrast", true)
+	assert_false(repeated.get("ok", false))
+	var fenced: Dictionary = _profile.set_preference(&"preferences.accessibility.high_contrast", true)
+	assert_false(fenced.get("ok", false), "the canonical owner independently refuses further mutation")
+	assert_eq(fenced.get("code"), &"indeterminate_commit")
+	assert_eq(fixture.pause.entered_action, &"settings")
+	assert_true(fixture.app.is_visible_in_tree())
+	assert_signal_emit_count(fixture.pause, "continue_requested", 0)
+	assert_signal_emit_count(fixture.app, "window_hidden", 0)
+	assert_eq(_profile.get_profile_snapshot(), before)
+	assert_eq(_profile.get_profile_revision(), revision)
+	assert_eq(_files.operation_count(), operations, "no retry, Back, or fresh input performs another file operation")
+	assert_eq(_files.snapshot_persisted(), persisted, "uncertain artifacts remain available to canonical recovery")
+	_assert_uncertainty_presentation(content)
+
+
+func test_title_settings_uncertain_storage_refuses_home_and_cached_host_reactivation() -> void:
+	var menu: Control = TITLE.instantiate()
+	menu.configure_settings_services(_services())
+	for child: Node in menu.get_children():
+		if child.get_script() != null and child.get_script().resource_path in ["res://scripts/ui/LocalePresentationRoot.gd", "res://scripts/ui/LocalizedBinding.gd"]:
+			child.set("_localization", _localization)
+	_surface.add_child(menu)
+	await _settle()
+	await _click(menu.get_node("%SettingButton"))
+	var app: Control = menu.get("_setting_instance")
+	assert_not_null(app)
+	if app == null: return
+	var content: Control = app.settings_content
+	content.select_category("accessibility")
+	await _settle()
+	var before: Dictionary = _profile.get_profile_snapshot()
+	var revision: int = _profile.get_profile_revision()
+	_files.refuse_marker_cleanup = true
+	await _click(content.control_for(&"preferences.accessibility.high_contrast"))
+	_assert_uncertain_profile(content, before, revision)
+	var operations: int = _files.operation_count()
+	var persisted: Dictionary = _files.snapshot_persisted()
+	menu._return_from_title_host()
+	assert_false(menu._source_departure_admitted())
+	await _click(menu.get("_title_home"))
+	await _tap(KEY_ESCAPE)
+	await app.hide_window()
+	app.set_interaction_enabled(false)
+	app.set_interaction_enabled(true)
+	app.show_window()
+	await _settle()
+	assert_true(app.is_visible_in_tree())
+	assert_false(content.is_interaction_enabled())
+	assert_true(content.is_departure_blocked())
+	assert_eq(menu.get("_setting_instance"), app)
+	assert_eq(_profile.get_profile_snapshot(), before)
+	assert_eq(_files.operation_count(), operations)
+	assert_eq(_files.snapshot_persisted(), persisted)
+	_assert_uncertainty_presentation(content)
+
+
+func test_settings_audio_uncertainty_preserves_physical_compensation_before_deferred_custody_cleanup() -> void:
+	var fixture := _pause()
+	await _enter_settings(fixture)
+	var content: Control = fixture.content
+	content.select_category("audio")
+	await _settle()
+	var before: Dictionary = _profile.get_profile_snapshot()
+	var revision: int = _profile.get_profile_revision()
+	var output_before: Dictionary = _playback.capture_runtime().value
+	var settings_before: Dictionary = _audio.get("_settings").duplicate(true)
+	_files.refuse_marker_cleanup = true
+	var result: Dictionary = await content.get_controller().commit_preference(&"preferences.audio.music_volume", 0.35)
+	assert_false(result.get("ok", false))
+	assert_eq(result.get("code"), &"indeterminate_commit")
+	assert_true(content.is_profile_write_uncertain(), "the write signal fences input before the controller returns")
+	assert_false(content.is_interaction_enabled())
+	assert_eq(_profile.get_profile_snapshot(), before)
+	assert_eq(_profile.get_profile_revision(), revision)
+	assert_eq(_playback.capture_runtime().value, output_before, "the existing transaction compensates physical output")
+	assert_eq(_audio.get("_settings"), settings_before)
+	assert_false(_audio.get("_fatal"), "presentation must not interrupt compensation and spuriously poison output")
+	assert_false(_audio.get("_settings_transactions").is_busy())
+	var durable: Dictionary = _durable_profile()
+	assert_almost_eq(durable.preferences.audio.music_volume, 0.35, 0.0001,
+		"physical rollback cannot prove that the previous Profile bytes remain durable")
+	var persisted: Dictionary = _files.snapshot_persisted()
+	assert_true(persisted.has("settings-shared-hosts.memory/profile.json.txn.json"))
+	var operations: int = _files.operation_count()
+	await _settle()
+	_assert_uncertainty_presentation(content)
+	assert_eq(_playback.capture_runtime().value, output_before, "deferred presentation cleanup leaves the compensated output intact")
+	assert_false(fixture.app.can_return_home())
+	result = await content.get_controller().commit_preference(&"preferences.audio.music_volume", 0.6)
+	assert_false(result.get("ok", false))
+	await _settle()
+	assert_eq(_files.operation_count(), operations)
+	assert_eq(_files.snapshot_persisted(), persisted)
+	assert_eq(_profile.get_profile_snapshot(), before)
+	assert_eq(_playback.capture_runtime().value, output_before)
+
+
+func _durable_profile() -> Dictionary:
+	var persisted: Dictionary = _files.snapshot_persisted()
+	var bytes: PackedByteArray = persisted["settings-shared-hosts.memory/profile.json"]
+	return JSON.parse_string(bytes.get_string_from_utf8())
+
+
+func _assert_uncertain_profile(content: Control, before: Dictionary, revision: int) -> void:
+	assert_true(content.is_profile_write_uncertain())
+	assert_false(content.is_interaction_enabled())
+	assert_true(content.is_departure_blocked())
+	assert_eq(_profile.get_profile_snapshot(), before, "the live prior value is retained, not published as a successful commit")
+	assert_eq(_profile.get_profile_revision(), revision)
+	var durable: Dictionary = _durable_profile()
+	assert_true(durable.preferences.accessibility.high_contrast, "candidate bytes actually won despite the unsuccessful result")
+	assert_true(_files.snapshot_persisted().has("settings-shared-hosts.memory/profile.json.txn.json"), "unresolved transaction evidence is preserved")
+	_assert_uncertainty_presentation(content)
+
+
+func _assert_uncertainty_presentation(content: Control) -> void:
+	var recovery: Control = content.get_node_or_null("SettingsWriteRecovery")
+	assert_not_null(recovery, "uncertainty is visible rather than only a retained internal fence")
+	if recovery == null: return
+	assert_true(recovery.is_visible_in_tree())
+	assert_true(recovery.is_presented())
+	assert_eq(recovery.message_label.text, _localization.t("settings.status.uncertain"))
+	assert_false(recovery.retry_button.visible, "no unproven live retry is offered")
+	assert_false(recovery.cancel_button.visible, "Back cannot claim a proven rollback")

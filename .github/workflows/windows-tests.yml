@@ -86,6 +86,20 @@ jobs:
         env:
           DWM_CI_SUITE: ${{ matrix.suite }}
         run: ./tools/testing/Invoke-CloudTests.ps1 -Suite $env:DWM_CI_SUITE
+      - name: Render Settings uncertain-write journey
+        if: matrix.suite == 'settings'
+        timeout-minutes: 3
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/settings-failure-render'
+          $env:APPDATA = Join-Path $output 'appdata'
+          $env:LOCALAPPDATA = Join-Path $output 'localappdata'
+          $env:DWM_TEST_ROOT = Join-Path $output 'test-root'
+          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+          & $env:GODOT_CONSOLE_PATH --path $env:GITHUB_WORKSPACE --rendering-method gl_compatibility --audio-driver Dummy --log-file "$output/render.log" --script res://tests/ui/render_settings_shared.gd -- --settings-write-failure
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (Select-String -Path "$output/render.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Settings journey reported script errors.' }
+          if (-not (Select-String -Path "$output/render.log" -Pattern 'SETTINGS_SHARED_RENDER_VERIFIED captures=3' -Quiet)) { throw 'Settings failure journey did not complete.' }
       - name: Upload logs and test results
         if: always()
         uses: actions/upload-artifact@v4
@@ -97,6 +111,7 @@ jobs:
             .godot/ci/*.json
             .godot/ci/*.xml
             .godot/ci/storage-refusal/
+            .godot/ci/settings-failure-render/
             .godot/phase2r_logs/cloud-*.log
           include-hidden-files: true
           if-no-files-found: warn
@@ -1319,4 +1334,5 @@ jobs:
           include-hidden-files: true
           if-no-files-found: warn
           retention-days: 7
+
 

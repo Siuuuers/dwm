@@ -93,8 +93,9 @@ func configure_presentation(locale: String, percent: int, palette: String,
 
 func present(can_retry: bool, can_cancel: bool, command_kind: StringName = &"preference") -> bool:
 	if not _configured or not _bound or (can_cancel and not can_retry) \
-			or command_kind not in [&"preference", &"next", &"hospital"] \
-			or (command_kind == &"hospital" and (not can_retry or can_cancel)):
+			or command_kind not in [&"preference", &"next", &"hospital", &"settings"] \
+			or (command_kind == &"hospital" and (not can_retry or can_cancel)) \
+			or (command_kind == &"settings" and (can_retry or can_cancel or not _localization.has_key("settings.status.uncertain"))):
 		return false
 	_command_kind = command_kind
 	_can_retry = can_retry
@@ -157,7 +158,9 @@ func _style(percent: int, large_targets: bool) -> void:
 
 func _publish() -> void:
 	var next_command := _command_kind == &"next"
-	if _command_kind == &"hospital":
+	if _command_kind == &"settings":
+		message_label.text = _localization.t("settings.status.uncertain")
+	elif _command_kind == &"hospital":
 		message_label.text = _copy["step_failure"]
 	elif _can_retry or _can_cancel:
 		message_label.text = _copy["next_failure"] if next_command else _copy["failure"]
@@ -221,3 +224,4 @@ func _notification(what: int) -> void:
 	if element.is_valid():
 		DisplayServer.accessibility_update_set_role(element, DisplayServer.ROLE_DIALOG)
 		DisplayServer.accessibility_update_set_flag(element, DisplayServer.FLAG_MODAL, true)
+
