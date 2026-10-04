@@ -86,6 +86,12 @@ jobs:
         env:
           DWM_CI_SUITE: ${{ matrix.suite }}
         run: ./tools/testing/Invoke-CloudTests.ps1 -Suite $env:DWM_CI_SUITE
+      - name: Verify native caption discovery and Normal Accept
+        if: matrix.suite == 'reading_delivery'
+        timeout-minutes: 3
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File ./tools/testing/Invoke-CaptionNativeAccept.ps1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Upload logs and test results
         if: always()
         uses: actions/upload-artifact@v4
@@ -97,6 +103,7 @@ jobs:
             .godot/ci/*.json
             .godot/ci/*.xml
             .godot/ci/storage-refusal/
+            .godot/ci/caption-native/
             .godot/phase2r_logs/cloud-*.log
           include-hidden-files: true
           if-no-files-found: warn
@@ -1313,3 +1320,4 @@ jobs:
           include-hidden-files: true
           if-no-files-found: warn
           retention-days: 7
+
