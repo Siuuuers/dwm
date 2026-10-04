@@ -53,27 +53,53 @@ Master was checked through its actual ref, not normalized PR-base metadata.
 
 ## Next work and task accounting
 
-Do not repeat the accepted native review-current implementation/proof. Resume
-clause-level reading remainder under `dwm-vky.14`, with relevant `dwm-eei.10`,
-`dwm-eei.11` and `dwm-eei.5` acceptance linked. Obtain current Bead requirements,
-compare them against existing scoped receipts, and choose one genuinely unmet,
-fully specified player outcome before changing code. Broader native navigation,
-production replay and arbitrary partial-reveal lifetime are not silently closed
-by the bounded proof. The map retains independent Settings, Gallery and latency
-work; do not make those wait for deferred prose.
+**Next fresh-session field: Settings recovery acceptance under `dwm-eei.2`.**
+Observable outcome: when a real Profile write becomes indeterminate while
+Settings is open, the foreground host presents trusted recovery, refuses further
+mutations and unsafe departure, and resumes only after the canonical owner proves
+reconciliation. Retry/re-entry must not duplicate a write or leave audio/window
+output diverged from durable Profile.
 
-The last committed accounting reports **23 unfinished records**. This review
-could not recount the export: the connector returned empty content for the known
-2,032,918-byte `.beads/issues.jsonl` blob
-`021be603688a39b6a3980f3e963682ec78a04c7e`. That is a read limitation, not an empty
-task list. No live Dolt query/synchronization, Bead status or dependency change
-is claimed. Use live `bd` when available, otherwise the complete retained export.
-Close a Bead only when its actual remaining requirements and dependencies are
-fulfilled; do not close historical .10/.11 merely as duplicates.
+Static review found that ProfileManager already owns `profile_write_failed` and
+mutation blocking, while SettingsPanelController has no corresponding failure
+subscription/block projection and falls back to generic failure status. Inspect
+the full existing shared recovery composition and approved design before selecting
+adapter changes; this is not evidence that all recovery machinery is absent.
+Preserve SettingsOutputTransactions, ProfileManager and existing host custody.
+Cover indeterminate writes before/after durable change, repeated input, host
+departure/re-entry, failed reconciliation and output rollback. Use owner
+integration plus a rendered/native foreground journey in cloud Godot/PowerShell.
+Reuse accepted paused Settings F5/F9 evidence; no authored sample catalogue is a
+prerequisite. Finishing this bounded field does not close all Settings preview,
+native speech/display or authored sample obligations.
 
-A fresh session can start from this recorded checkpoint without replaying this
-acceptance review. There is no unresolved architecture question identified for
-routine continuation. Ask only if a genuinely new choice changes the contract.
+The [records reconciliation](../../evidence/beads_reconciliation_2026_10_04/review.json)
+covers all **23 unfinished records** in the complete **191-record committed
+export**. The Git blob route recovered the 2,032,918-byte source export after the
+contents route returned empty; that earlier limitation is resolved. Historical
+notes, closed records and all dependency edges are preserved. No Bead is closed
+or retired as complete: obsolete current wording/requirements are reconciled with
+later approved decisions instead. `dwm-eei.2` moves deferred -> open for the next
+session; `dwm-n3h.2`, `dwm-hsi` and `dwm-eei.17` become deferred with explicit
+authored-input or recurrence resume conditions. They remain unfinished.
+
+The `bd` CLI is unavailable in this environment. These are retained-export
+updates, not live Dolt queries or synchronization. Before a later live import,
+compare live records against this revision; do not overwrite newer work. The
+Beads records own scope/status; the execution map and this handoff remain navigation.
+
+Reading remainder stays under `dwm-vky.14` with linked `dwm-eei.10/.11/.5`
+clauses. Do not redo accepted native review-current, History, Save/Load, paused
+Settings Quick, ending continuity or geometry work. Broader native navigation,
+speech, arbitrary partial reveal and production replay retain separate evidence
+gates. Settings is selected next because its recovery field is independent of
+deferred production content; Gallery/latency remain available later.
+
+This session changes records only and performs structural validation, not a new
+engine acceptance run. Two independent read-only audits informed the reconciliation.
+No unresolved architecture choice is identified before inspecting the existing
+Settings recovery composition. Ask only if that inspection exposes a real contract
+choice.
 
 ## Current owner decisions
 
