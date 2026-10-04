@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [localization]
+        suite: [public_surfaces]
     defaults:
       run:
         shell: pwsh
@@ -20,6 +20,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           # The schedule-gate contract inspects its immutable historical seals.
+          ref: 69138a20a6923b808f60da393fdaae4647221aa3
           fetch-depth: ${{ (matrix.suite == 'new_account' || matrix.suite == 'desktop') && '0' || '1' }}
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
@@ -75,13 +76,14 @@ jobs:
         timeout-minutes: 10
         env:
           DWM_CI_SUITE: ${{ matrix.suite }}
-        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite $env:DWM_CI_SUITE
+        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
       - name: Upload logs and test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: windows-${{ matrix.suite }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
+            .godot/ci/public-surfaces/
             .godot/ci/*.log
             .godot/ci/*.jsonl
             .godot/ci/*.json
