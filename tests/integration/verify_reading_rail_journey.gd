@@ -981,10 +981,10 @@ func _inspect_history(label: String, expected_count: int) -> bool:
 	close.grab_focus()
 	if not await _ordinary_accept_focused(close, "actual History close"): return false
 	for frame: int in 120:
-		if not bool(layer.get("_history_open")) and not bool(layer.get("_history_pending")): break
+		if not bool(layer.get("_history_open")) and not bool(layer.get("_history_pending")) and root.gui_get_focus_owner() == history_button: break
 		await process_frame
-	if not _check(not bool(layer.get("_history_open")) and root.gui_get_focus_owner() == history_button,
-		"closing History restores exact rail focus"): return false
+	if not _check(not bool(layer.get("_history_open")) and not bool(layer.get("_history_pending")) and root.gui_get_focus_owner() == history_button,
+		"closing History restores exact rail focus; actual=%s restore_id=%s" % [root.gui_get_focus_owner(), layer.get("_load_focus_restore_id")]): return false
 	if not _check(game.to_save_dict() == gameplay and profile.get_profile_snapshot() == profile_before
 		and bridge.get_reading_history().value == history.value and _speech_admissions == speech_before,
 		"History return preserves exact source without advancement"): return false
