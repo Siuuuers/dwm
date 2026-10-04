@@ -1137,6 +1137,126 @@ var _reached_replay: Dictionary = {}
 const _REPLAY_CARD := preload("res://scripts/ui/Day7PreludeSurface.gd")
 const _DATING_PRESENTATION := preload("res://scripts/ui/DatingScene.gd")
 var _replay_counter := 0
+var _reached_caption_catalogue: RefCounted
+var _reached_caption_admissions: Dictionary = {}
+var _reached_caption_variants: Dictionary = {}
+
+## Explicit fixture admission only. This compiles authored identity, not canonical
+## progress or presentation proof. No production catalogue is enabled implicitly.
+func configure_reached_caption_collection(document: Dictionary, admissions: Array[Dictionary]) -> Dictionary:
+	if _reached_caption_catalogue != null: return _command_failure(&"replay_caption_already_configured")
+	if has_active_playback() or not _reached_replay.is_empty(): return _command_failure(&"narrative_playback_active")
+	if document.get("schema_version") != 1 or admissions.is_empty():
+		return _command_failure(&"replay_caption_admission_invalid")
+	var candidate := _READING_SESSION.new()
+	var compiled: Dictionary = candidate.configure(document)
+	if not compiled.ok: return compiled
+	var admitted := {}
+	for row: Dictionary in admissions:
+		if row.size() != 2 or not row.get("signature") is Dictionary or not row.get("collectable_line_ids") is Array:
+			return _command_failure(&"replay_caption_admission_invalid")
+		var checked: Dictionary = _PRESENTATION_SIGNATURE.validate(row.signature)
+		if not checked.ok: return checked
+		var signature_id: String = checked.value.signature_id
+		var entry_id: String = row.signature.entry_id
+		var entry: Dictionary = _PRESENTATION_SIGNATURE.entry_record(entry_id).value
+		if admitted.has(signature_id) or not candidate.catalogue.has(entry_id) \
+				or entry.role in ["solo_pre_challenge", "solo_post_challenge", "pair_pre_challenge_scene", "pair_post_challenge_scene"] \
+				or entry_id.ends_with(".residue"):
+			return _command_failure(&"replay_caption_admission_invalid")
+		var owned := {}
+		for line: Dictionary in candidate.catalogue[entry_id].lines: owned[line.line_id] = true
+		var collectable := {}
+		for line_id: Variant in row.collectable_line_ids:
+			if not line_id is String or not owned.has(line_id) or collectable.has(line_id):
+				return _command_failure(&"replay_caption_admission_invalid")
+			collectable[line_id] = true
+		admitted[signature_id] = {"signature": row.signature.duplicate(true), "collectable_line_ids": collectable}
+	preload("res://scripts/narrative/FrozenPresentationContext.gd")._freeze(admitted)
+	var variants := {}
+	for beat: Dictionary in candidate.registry.beats: variants[beat.line_id] = beat.duplicate(true)
+	preload("res://scripts/narrative/FrozenPresentationContext.gd")._freeze(variants)
+	_reached_caption_variants = variants
+	_reached_caption_catalogue = candidate
+	_reached_caption_admissions = admitted
+	return {"ok": true}
+
+## Detached session inspection; closing or failing replay discards this subset.
+## Publication alone never enters it, and it is never merged into Profile here.
+func capture_reached_caption_collection() -> Dictionary:
+	if not _reached_replay.has("caption_ledger"): return _command_failure(&"replay_caption_unavailable")
+	return {"ok": true, "value": {"signature_id": _reached_replay.signature_id,
+		"playback_token": _reached_replay.token, "captions": _reached_replay.collected_captions.duplicate(true)}}
+
+func _prepare_reached_caption_collection(entry_id: String) -> Dictionary:
+	var signature_id: String = _reached_replay.get("signature_id", "")
+	if not _reached_caption_admissions.has(signature_id): return {"ok": true}
+	var compatible := _validate_reading_entry(_reached_caption_catalogue, entry_id)
+	if not compatible.ok: return compatible
+	if not _runtime_adapter.has_method("bind_caption_ledger") or not _runtime_adapter.has_method("_retire_caption_binding"):
+		return _command_failure(&"replay_caption_runtime_unavailable")
+	var ledger := preload("res://scripts/narrative/NarrativeCaptionLedger.gd").new()
+	var frame := preload("res://scripts/narrative/FrozenReplayContext.gd").build(_reached_replay.signature)
+	if not frame.ok: return frame
+	var initialized: Dictionary = ledger.initialize(_reached_replay.token, frame.value,
+		_reached_caption_catalogue.manifest, _reached_caption_catalogue.registry, true)
+	if not initialized.ok: return initialized
+	var admitted: Dictionary = ledger.admit_entry_context(_reached_replay.token, entry_id, frame.value)
+	if not admitted.ok: return admitted
+	var bound: Dictionary = _runtime_adapter.bind_caption_ledger(ledger, _reached_replay.token, entry_id)
+	if not bound.ok: return bound
+	_reached_replay.merge({"caption_ledger": ledger,
+		"caption_registry": _reached_caption_catalogue.registry.duplicate(true),
+		"collectable_line_ids": _reached_caption_admissions[signature_id].collectable_line_ids.duplicate(true),
+		"collected_captions": [], "acknowledged_publications": {}})
+	return {"ok": true}
+
+func _reached_caption_frontier(expected: Dictionary = {}, guard_mutation: bool = true) -> Dictionary:
+	if not _reached_replay.has("caption_ledger") or _active_entry.is_empty() \
+			or _active_entry.get("token") != _reached_replay.token \
+			or _active_entry.get("entry_id") != _reached_replay.signature.entry_id \
+			or _active_entry.get("execution_mode") != &"rehearsal" or _active_entry.get("stage") != "gallery_replay":
+		return _command_failure(&"replay_caption_unavailable")
+	if not _pause_handle.is_empty() or _pause_changing or (is_inside_tree() and get_tree().paused):
+		return _command_failure(&"narrative_suspended")
+	if not _active_transaction.is_empty() or is_pause_restore_pending(): return _command_failure(&"presentation_transaction_active")
+	if guard_mutation and _mutation_gate != null:
+		var guarded: Dictionary = _mutation_gate.guard_external(&"line_presentation")
+		if not guarded.get("ok", false): return guarded
+	if _runtime_adapter == null or not _runtime_adapter.has_method("capture_reading_frontier"):
+		return _command_failure(&"reading_frontier_unavailable")
+	var publication: Dictionary = _runtime_adapter.capture_reading_frontier()
+	if not publication.get("ok", false): return publication
+	var line_id: String = str(_runtime_adapter.current_line_id())
+	var ledger: NarrativeCaptionLedger = _reached_replay.caption_ledger
+	if publication.value.get("line_id") != line_id or not ledger.is_current_occurrence(
+			_reached_replay.token, _active_entry.entry_id, publication.value):
+		return _command_failure(&"presentation_frontier_changed")
+	var frontier: Dictionary = _runtime_adapter.capture_pause_frontier()
+	if not frontier.get("ok", false): return frontier
+	if frontier.value.get("paused", false): return _command_failure(&"narrative_suspended")
+	var beat: Dictionary = _reached_caption_variants[line_id]
+	var captured := {"ok": true, "value": {"token": _reached_replay.token,
+		"signature_id": _reached_replay.signature_id, "entry_id": _active_entry.entry_id,
+		"line_id": line_id, "frontier": frontier.duplicate(true),
+		"caption_publication": publication.value.duplicate(true), "caption_variant": beat.duplicate(true)}}
+	if not expected.is_empty() and captured != expected: return _command_failure(&"presentation_frontier_changed")
+	return captured
+
+func _acknowledge_reached_caption(expected: Dictionary) -> Dictionary:
+	var current := _reached_caption_frontier(expected)
+	if not current.get("ok", false): return current
+	var identity: Dictionary = current.value
+	var publication_id: String = identity.caption_publication.publication_id
+	if not _reached_replay.acknowledged_publications.has(publication_id):
+		_reached_replay.acknowledged_publications[publication_id] = identity.duplicate(true)
+		if _reached_replay.collectable_line_ids.has(identity.line_id) \
+				and not _reached_replay.collected_captions.has(identity.caption_variant):
+			_reached_replay.collected_captions.append(identity.caption_variant.duplicate(true))
+	return {"ok": true, "code": &"acknowledged", "value": {}, "receipt": {
+		"line_id": identity.line_id, "entry_id": identity.entry_id, "playback_token": identity.token,
+		"frontier": identity.frontier.duplicate(true)}}
+
 
 func configure_reached_replay(profile: Object) -> Dictionary:
 	if profile == null or not profile.has_method("get_reached_presentations") \
@@ -1277,6 +1397,9 @@ func _finish_reached_replay(outcome: String, code: String = "", restore_variable
 	if _reached_replay.is_empty(): return
 	var replay := _reached_replay.duplicate(true)
 	_reached_replay.clear()
+	if replay.has("caption_ledger") and _runtime_adapter != null \
+			and _runtime_adapter.get("_caption_ledger") == replay.caption_ledger:
+		_runtime_adapter._retire_caption_binding()
 	if replay.has("surface") and is_instance_valid(replay.surface):
 		replay.surface.hide()
 		replay.surface.queue_free()
@@ -1507,9 +1630,10 @@ func is_rehearsal_playback() -> bool:
 	return not _reached_replay.is_empty() or _active_entry.get("execution_mode", &"canonical") == &"rehearsal"
 
 
-## Only registered, single-line canonical sources participate in this acknowledgement.
-## Legacy/unregistered prose and rehearsal retain their existing presentation owners.
+## Registered canonical sources and explicitly admitted replay fixtures use this
+## renderer acknowledgement. Other replay retains its existing presentation owner.
 func requires_line_presentation_acknowledgement() -> bool:
+	if _reached_replay.has("caption_ledger"): return true
 	return not _active_entry.is_empty() and not is_rehearsal_playback() \
 		and _line_witness_stage_allowed() \
 		and _runtime_adapter != null and (_has_exact_caption_source() \
@@ -1518,6 +1642,10 @@ func requires_line_presentation_acknowledgement() -> bool:
 
 ## Pure final admission for automatic input; never retries a Profile write.
 func is_current_line_presentation_acknowledged() -> bool:
+	if _reached_replay.has("caption_ledger"):
+		var replay_current := _reached_caption_frontier()
+		return replay_current.get("ok", false) and _reached_replay.acknowledged_publications.get(
+			replay_current.value.caption_publication.publication_id) == replay_current.value
 	var current := _line_presentation_context()
 	return current.get("ok", false) and _line_presentation.get("identity") == current.value \
 		and _line_presentation.get("acknowledged", false) \
@@ -1526,6 +1654,7 @@ func is_current_line_presentation_acknowledged() -> bool:
 
 ## Opaque proof of the rendered source, even while a transaction temporarily owns writes.
 func capture_current_line_presentation_frontier() -> Dictionary:
+	if _reached_replay.has("caption_ledger"): return _reached_caption_frontier({}, false)
 	return _line_presentation_context({}, false)
 
 
@@ -1573,6 +1702,7 @@ func acknowledge_current_line_presentation(expected_frontier: Dictionary) -> Dic
 	if expected_frontier.is_empty(): return _command_failure(&"presentation_frontier_changed")
 	if _next_active: return _command_failure(&"reading_command_in_progress")
 	if _line_ack_in_progress: return _command_failure(&"presentation_acknowledgement_in_progress")
+	if _reached_replay.has("caption_ledger"): return _acknowledge_reached_caption(expected_frontier)
 	var current := _line_presentation_context(expected_frontier)
 	if not current.get("ok", false): return current
 	var identity: Dictionary = current.value
@@ -2278,6 +2408,9 @@ func _on_reading_frontier_restored(result: Dictionary) -> void:
 
 
 func _on_reading_publication(result: Dictionary) -> void:
+	if _reached_replay.has("caption_ledger") and not result.get("ok", false):
+		_on_playback_start_failed(result, true)
+		return
 	if has_reading_session() and not result.get("ok", false):
 		_on_playback_start_failed(result, true)
 	elif has_reading_session() and not _next_active and not result.get("value", {}).get("duplicate", false):
@@ -2761,6 +2894,12 @@ func _begin_entry_playback(entry_id: String, context: Dictionary, execution_mode
 			and frozen.playback_id == str(_hospital_reading_command.physical_token) + ":hospital" \
 			and frozen.transaction_id == str(_hospital_reading_command.completion_transaction_id) + ":hospital":
 		_hospital_reading_token = token
+	if token_kind == "gallery" and _reached_caption_admissions.has(str(_reached_replay.get("signature_id", ""))):
+		var collection := _prepare_reached_caption_collection(entry_id)
+		if not collection.get("ok", false):
+			if has_frozen_variables: _runtime_adapter.release_frozen_presentation()
+			_active_entry = {}
+			return collection
 	_start_in_progress = true
 	var started := _start_semantic_playback(path, label)
 	_start_in_progress = false

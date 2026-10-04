@@ -212,6 +212,7 @@ $suites = @{
         'tests/integration/test_solo_authored_selector_witness.gd'
         'tests/integration/test_solo_authored_selector_runtime.gd'
         'tests/integration/test_dialogic_caption_variant_witness.gd'
+        'tests/integration/test_gallery_caption_collection.gd'
         'tests/integration/test_dialogic_next_traversal.gd'
         'tests/integration/test_dialogic_skip.gd'
         'tests/integration/test_dialogic_live_admission.gd'

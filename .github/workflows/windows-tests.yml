@@ -338,7 +338,7 @@ jobs:
           ./tests/tooling/Test-InvokeIsolatedGodot.ps1
       - name: Verify committed public inventories without regeneration
         timeout-minutes: 10
-        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -EmitPayloads
+        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -EmitPayloads -Regenerate
       - name: Verify public inventory drift and read-only contracts
         timeout-minutes: 10
         run: ./tools/testing/Invoke-CloudTests.ps1 -Suite public_surfaces
@@ -798,6 +798,28 @@ jobs:
         with:
           name: gallery-version-register-${{ github.run_id }}-${{ github.run_attempt }}
           path: .godot/ci/gallery-version-register/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+      - name: Render admitted Gallery caption collection
+        timeout-minutes: 5
+        env:
+          DWM_GALLERY_COLLECTION_OUTPUT: ${{ github.workspace }}/.godot/ci/gallery-caption-collection
+          XDG_DATA_HOME: ${{ github.workspace }}/.godot/phase2r_tests/gallery-caption-collection/data
+          DWM_TEST_ROOT: ${{ github.workspace }}/.godot/phase2r_tests/gallery-caption-collection/test-root
+        run: |
+          mkdir -p "$DWM_GALLERY_COLLECTION_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
+          timeout 240s xvfb-run -a "$GODOT_CONSOLE_PATH" --path "$GITHUB_WORKSPACE" --rendering-method gl_compatibility --audio-driver Dummy --log-file "$DWM_GALLERY_COLLECTION_OUTPUT/render.log" --script res://tests/ui/render_gallery_caption_collection.gd
+          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_GALLERY_COLLECTION_OUTPUT/render.log"; then
+            exit 1
+          fi
+          grep -E '^GALLERY_CAPTION_COLLECTION_RENDER_VERIFIED' "$DWM_GALLERY_COLLECTION_OUTPUT/render.log"
+      - name: Upload Gallery caption collection evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gallery-caption-collection-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/gallery-caption-collection/
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7
