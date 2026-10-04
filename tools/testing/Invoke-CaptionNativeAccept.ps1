@@ -17,6 +17,20 @@ if (-not (Test-Path -LiteralPath $env:GODOT_CONSOLE_PATH -PathType Leaf)) { thro
 Add-Type -AssemblyName UIAutomationClient
 Add-Type -AssemblyName UIAutomationTypes
 $observations = New-Object Collections.Generic.List[object]
+$captions = @('Native caption activation fixture.', 'The successor keeps its own reveal.',
+    'Third witnessed caption.', 'The live fourth caption stays partial.', 'Guard caption.')
+# Independent expectations for each pre-invocation runtime state.
+$steps = @(
+    @{ stage = 'reveal'; event_index = 0; revealing = $true; finished = 0; review_offset = 0; target_index = 0 },
+    @{ stage = 'advance'; event_index = 0; revealing = $false; finished = 1; review_offset = 0; target_index = 0 },
+    @{ stage = 'second-reveal'; event_index = 1; revealing = $true; finished = 1; review_offset = 0; target_index = 1 },
+    @{ stage = 'second-advance'; event_index = 1; revealing = $false; finished = 2; review_offset = 0; target_index = 1 },
+    @{ stage = 'third-reveal'; event_index = 2; revealing = $true; finished = 2; review_offset = 0; target_index = 2 },
+    @{ stage = 'third-advance'; event_index = 2; revealing = $false; finished = 3; review_offset = 0; target_index = 2 },
+    @{ stage = 'review-return'; event_index = 3; revealing = $true; finished = 3; review_offset = 1; target_index = 2 },
+    @{ stage = 'fresh-reveal'; event_index = 3; revealing = $true; finished = 3; review_offset = 0; target_index = 3 },
+    @{ stage = 'fresh-advance'; event_index = 3; revealing = $false; finished = 4; review_offset = 0; target_index = 3 }
+)
 
 function Read-Stage([string]$Stage) {
     $deadline = [Diagnostics.Stopwatch]::StartNew()
@@ -37,14 +51,20 @@ function Read-Stage([string]$Stage) {
     throw "CAPTION_STAGE_TIMEOUT: $Stage"
 }
 
-function Invoke-Caption([object]$Ready) {
+function Invoke-Caption([object]$Ready, [object]$Expected) {
     $targetPid = [int]$Ready.pid
     $title = "DWM Native Caption Accept $targetPid"
+    $isReview = $Expected.review_offset -eq 1
     if ($Ready.window_title -cne $title -or $targetPid -le 0 -or $Ready.physical_contacts -ne 0 -or
-        $Ready.text -cne 'Native caption activation fixture.' -or $Ready.event_index -ne 0 -or
-        ($Ready.stage -ceq 'reveal' -and (-not $Ready.revealing -or $Ready.finished -ne 0)) -or
-        ($Ready.stage -ceq 'advance' -and ($Ready.revealing -or $Ready.finished -ne 1))) {
-        throw 'CAPTION_READY_CONTRACT_INVALID'
+        $Ready.stage -cne $Expected.stage -or $Ready.ended -ne 0 -or
+        $Ready.text -cne $captions[$Expected.event_index] -or $Ready.event_index -ne $Expected.event_index -or
+        $Ready.target_text -cne $captions[$Expected.target_index] -or $Ready.review_offset -ne $Expected.review_offset -or
+        $Ready.revealing -ne $Expected.revealing -or $Ready.finished -ne $Expected.finished -or
+        $Ready.live_visible -eq $isReview -or $Ready.review_visible -ne $isReview -or
+        ($isReview -and -not $Ready.review_focused) -or
+        (-not $isReview -and -not $Ready.live_focused) -or
+        ($Ready.revealing -and ($Ready.visible_characters -lt 0 -or $Ready.visible_characters -ge $Ready.total_characters))) {
+        throw "CAPTION_READY_CONTRACT_INVALID: $($Expected.stage)"
     }
     $process = Get-CimInstance Win32_Process -Filter "ProcessId = $targetPid"
     if ($null -eq $process -or [string]$process.CommandLine -notlike "*$repositoryRoot*" -or
@@ -68,9 +88,9 @@ function Invoke-Caption([object]$Ready) {
             })
             [IO.File]::WriteAllText((Join-Path $output ($Ready.stage + '-tree.json')),
                 (ConvertTo-Json -InputObject $snapshot -Depth 8), $utf8)
-            # RichTextLabel retains its real role; a Button-only search would be false evidence.
+            # Match the visible action's text, which differs from live text in review.
             $matches = @($elements | Where-Object {
-                $_.Current.Name.TrimEnd() -ceq $Ready.text -and -not $_.Current.IsOffscreen
+                $_.Current.Name.TrimEnd() -ceq $Ready.target_text -and -not $_.Current.IsOffscreen
             })
             $actionable = @($matches | Where-Object {
                 $candidatePattern = $null
@@ -88,15 +108,20 @@ function Invoke-Caption([object]$Ready) {
         -not $target.TryGetCurrentPattern([Windows.Automation.InvokePattern]::Pattern, [ref]$pattern)) {
         throw 'CAPTION_INVOKE_PATTERN_MISSING'
     }
+    $runtimeId = @($target.GetRuntimeId())
+    if ($isReview -and $observations.Count -gt 0 -and
+        ($runtimeId -join ',') -ceq ($observations[$observations.Count - 1].runtime_id -join ',')) {
+        throw 'CAPTION_REVIEW_REUSED_LIVE_TARGET'
+    }
     $observation = [ordered]@{ stage = $Ready.stage; pid = $targetPid; window = $window.Current.Name;
         name = $target.Current.Name; type = $target.Current.ControlType.ProgrammaticName;
-        runtime_id = @($target.GetRuntimeId()); command_line = $process.CommandLine;
+        runtime_id = $runtimeId; command_line = $process.CommandLine;
         method = 'Windows.UIAutomation.InvokePattern.Invoke'; invocations = 1; ready = $Ready }
     # No SetFocus or callback substitution. Never retry an invocation on timeout.
     ([Windows.Automation.InvokePattern]$pattern).Invoke()
     $observations.Add($observation)
     [IO.File]::WriteAllText((Join-Path $output 'invocations.json'),
-        (ConvertTo-Json -InputObject @($observations.ToArray()) -Depth 10), $utf8)
+        (ConvertTo-Json -InputObject @($observations.ToArray()) -Depth 20), $utf8)
 }
 
 $start = New-Object Diagnostics.ProcessStartInfo
@@ -114,14 +139,32 @@ $started = $false
 try {
     $started = $child.Start()
     if (-not $started) { throw 'CAPTION_START_FAILED' }
-    Invoke-Caption (Read-Stage 'reveal')
-    Invoke-Caption (Read-Stage 'advance')
+    foreach ($step in $steps) { Invoke-Caption (Read-Stage $step.stage) $step }
     if (-not $child.WaitForExit(15000)) { throw 'CAPTION_EXIT_TIMEOUT' }
     if ($child.ExitCode -ne 0) { throw "CAPTION_EXIT_CODE: $($child.ExitCode)" }
     $result = Get-Content -Raw -LiteralPath (Join-Path $output 'runtime.json') | ConvertFrom-Json
-    if (-not $result.ok -or $observations.Count -ne 2 -or $result.event_index -ne 1 -or
-        -not $result.revealing -or $result.finished -ne 1 -or $result.physical_contacts -ne 0) {
+    if (-not $result.ok -or $observations.Count -ne 9 -or $result.event_index -ne 4 -or
+        $result.text -cne $captions[4] -or -not $result.revealing -or $result.finished -ne 4 -or
+        $result.ended -ne 0 -or $result.physical_contacts -ne 0 -or $result.review_offset -ne 0) {
         throw 'CAPTION_NATIVE_RESULT_INVALID'
+    }
+    $review = $result.review_return
+    $before = $review.before
+    $returned = $review.returned
+    if (-not $review.invariants_unchanged -or -not $review.native_history_unchanged -or
+        $before.event_index -ne 3 -or $before.finished -ne 3 -or -not $before.revealing -or
+        $review.reviewing.review_offset -ne 1 -or $review.reviewing.target_text -cne $captions[2] -or
+        $returned.review_offset -ne 0 -or -not $returned.live_visible -or $returned.review_visible -or
+        -not $returned.live_focused -or -not $returned.revealing -or $returned.physical_contacts -ne 0 -or
+        $returned.event_index -ne $before.event_index -or $returned.finished -ne $before.finished -or
+        $returned.ended -ne $before.ended -or $returned.text -cne $before.text -or
+        $returned.visible_characters -ne $before.visible_characters -or
+        $returned.reveal_generation -ne $before.reveal_generation -or
+        (ConvertTo-Json -InputObject $returned.simple_history -Depth 20 -Compress) -cne
+            (ConvertTo-Json -InputObject $before.simple_history -Depth 20 -Compress) -or
+        (ConvertTo-Json -InputObject $returned.full_history -Depth 20 -Compress) -cne
+            (ConvertTo-Json -InputObject $before.full_history -Depth 20 -Compress)) {
+        throw 'CAPTION_NATIVE_REVIEW_RETURN_INVALID'
     }
     if (Select-String -LiteralPath $log -Pattern 'SCRIPT ERROR:|ERROR: Failed to load' -Quiet) {
         throw 'CAPTION_NATIVE_SCRIPT_ERROR'
@@ -129,9 +172,10 @@ try {
     $source = (& git -C $repositoryRoot rev-parse HEAD).Trim()
     if ($LASTEXITCODE -ne 0) { throw 'CAPTION_SOURCE_UNKNOWN' }
     $receipt = [ordered]@{ ok = $true; checkout = $source; run_id = $env:GITHUB_RUN_ID;
-        run_attempt = $env:GITHUB_RUN_ATTEMPT; native_invocations = 2; runtime = $result;
-        scope = 'Mounted fixture, native Windows UIA Invoke. No screen-reader navigation or production route claim.' }
-    [IO.File]::WriteAllText((Join-Path $output 'receipt.json'), (ConvertTo-Json $receipt -Depth 8), $utf8)
+        run_attempt = $env:GITHUB_RUN_ATTEMPT; native_invocations = 9; runtime = $result;
+        review_return_verified = $true;
+        scope = 'Mounted fixture, native Windows UIA Invoke. Review entry is fixture setup, not native navigation. No screen-reader speech or production route claim.' }
+    [IO.File]::WriteAllText((Join-Path $output 'receipt.json'), (ConvertTo-Json $receipt -Depth 25), $utf8)
     Write-Output 'CAPTION_NATIVE_ACCEPT_VERIFIED'
 } finally {
     if ($started -and -not $child.HasExited) { & taskkill.exe /PID $child.Id /T /F | Out-Null }
