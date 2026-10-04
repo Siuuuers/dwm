@@ -53,25 +53,36 @@ Master was checked through its actual ref, not normalized PR-base metadata.
 
 ## Next work and task accounting
 
-**Next fresh-session field: Settings recovery acceptance under `dwm-eei.2`.**
-Observable outcome: when a real Profile write becomes indeterminate while
-Settings is open, the foreground host presents trusted recovery, refuses further
-mutations and unsafe departure, and resumes only after the canonical owner proves
-reconciliation. Retry/re-entry must not duplicate a write or leave audio/window
-output diverged from durable Profile.
+**Next field: minimal truthful Settings failure handling under `dwm-eei.2`.**
+Apply the [owner-approved software responsibility boundary](../design/2026-10-04-software-responsibility-boundary.md).
+We own correct software behavior and truthful failure reporting, not hardware
+diagnosis, external-system repair or guaranteed recovery from every external fault.
+Do not force an automatic restart or add live recovery as a new requirement.
+Preserve existing save/recovery/History guarantees and canonical mutation fences.
 
-Static review found that ProfileManager already owns `profile_write_failed` and
-mutation blocking, while SettingsPanelController has no corresponding failure
-subscription/block projection and falls back to generic failure status. Inspect
-the full existing shared recovery composition and approved design before selecting
-adapter changes; this is not evidence that all recovery machinery is absent.
-Preserve SettingsOutputTransactions, ProfileManager and existing host custody.
-Cover indeterminate writes before/after durable change, repeated input, host
-departure/re-entry, failed reconciliation and output rollback. Use owner
-integration plus a rendered/native foreground journey in cloud Godot/PowerShell.
-Reuse accepted paused Settings F5/F9 evidence; no authored sample catalogue is a
-prerequisite. Finishing this bounded field does not close all Settings preview,
-native speech/display or authored sample obligations.
+Observable outcome: an ordinary supported Settings change applies and saves
+correctly. A proven uncommitted change retains/restores the previous value and
+reports failure. An uncertain write reports uncertainty and refuses conflicting
+actions rather than assuming a winner. A message alone does not prove settlement.
+Reuse existing reconciliation; do not create a new live Retry/unlatch architecture.
+
+The read-only source/host audit at `fb4d10f` found a reachable storage result:
+new Profile bytes can win while transaction-marker cleanup still fails.
+ProfileManager blocks its own mutations and emits `profile_write_failed`;
+Title/Desktop/Pause Settings lack a corresponding failure subscription.
+Profile has no general live reconciliation API; initialize is single-use and the
+application fatal gate is intentionally irreversible. The existing witnessed
+recovery widget provides a presentation-only no-Retry mode, not reconciliation.
+These are static findings, not executed acceptance or a chosen implementation.
+
+Next inspect the smallest shared presentation/custody connection needed to fulfill
+the narrowed promise. Preserve ProfileManager and SettingsOutputTransactions
+ownership. Verify reachable determinate/uncertain result handling and relevant
+repeated input/departure/output behavior; do not expand into external repair or
+a new broad fault-injection campaign. Use affected owner tests and a foreground
+journey in cloud Godot/PowerShell. Reuse accepted paused F5/F9 evidence.
+This bounded field does not close all Settings preview, native speech/display
+or authored sample obligations.
 
 The [records reconciliation](../../evidence/beads_reconciliation_2026_10_04/review.json)
 covers all **23 unfinished records** in the complete **191-record committed
@@ -97,11 +108,16 @@ deferred production content; Gallery/latency remain available later.
 
 This session changes records only and performs structural validation, not a new
 engine acceptance run. Two independent read-only audits informed the reconciliation.
-No unresolved architecture choice is identified before inspecting the existing
-Settings recovery composition. Ask only if that inspection exposes a real contract
-choice.
+The later source audit exposed the absence of general live Profile recovery.
+The owner's subsequent scope clarification above excludes adding elaborate live
+recovery or forcing an automatic restart. Ask only if a remaining implementation
+choice would change that narrowed player-facing promise.
 
 ## Current owner decisions
+
+- The [software responsibility boundary](../design/2026-10-04-software-responsibility-boundary.md)
+  applies to future work: fulfill promised software behavior, report failures
+  truthfully, retain existing data protections, and exclude external repair.
 
 - All fainting uses the shared Hospital DTL and ordinary Dating-style captions,
   without a challenge, special Continue button or automatic no-Sylvia completion.
