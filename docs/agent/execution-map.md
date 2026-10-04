@@ -6,7 +6,7 @@ execution_authority: false
 status_authority: false
 behavior_authority: false
 verification_authority: false
-inspected_source: "96c8942ec8293b90891b3ba5780dcc759fda4283"
+inspected_source: "761e2e42a2266e51eb396e3ae0916598fba20eff"
 ---
 
 # DWM execution map
@@ -47,16 +47,21 @@ forgery regression coverage without implying a player Save/Load capability.
 
 ## Current bounded checkpoint
 
-**Accepted bounded caption assistive Normal Accept integration.** The mounted
-caption adapters delegate to the existing input/reveal owners. Five new real
-runtime integration cases cover reveal/advance separation, stale and consumed
-callbacks, physical contacts, passive leaves, review return and input custody.
-The [handoff](2026-09-23-next-session-handoff.md#current-acceptance) and
-[receipt](../../evidence/phase_2r/caption_assistive_2026_10_04/receipt.json) bind the 26-job cloud pass and 2,601 primary cases.
-No save format or durable owner changed. Native OS UIA discovery/invocation
-remains the next bounded acceptance question; callback proof is not screen-reader
-reachability. Production registration/exhaustive variants remain deferred.
-All 23 Beads statuses/dependencies remain unchanged; no live Dolt synchronization.
+**Accepted bounded native Windows caption Normal Accept.** The mounted live and
+review-current adapters expose named actionable roots, preserving native rich-text
+children and existing guarded input/reveal owners. Two actual Windows UIA Invoke
+calls prove reveal-only followed by one later advancement and a successor with its
+own reveal. The [handoff](2026-09-23-next-session-handoff.md#current-acceptance) and
+[native receipt](../../evidence/phase_2r/caption_native_2026_10_04/receipt.json) bind the 26-job cloud pass, 2,601 primary cases,
+diagnostic failures, raw trees, invocation records and inspected screenshots.
+The probe now runs before the wider jobs; no durable owner or save format changed.
+
+The prior [callback integration receipt](../../evidence/phase_2r/caption_assistive_2026_10_04/receipt.json)
+retains its stale/consumed-action, physical-contact and custody refusal scope.
+Next bounded native check: review-current activation returns live without reveal
+or advancement. Full screen-reader navigation and production routes remain separate;
+production registration/exhaustive variants stay deferred. All 23 Beads retain
+statuses/dependencies; no live Dolt synchronization. PR stays draft/unmerged.
 
 ## Prior ordered-ending Auto checkpoint
 

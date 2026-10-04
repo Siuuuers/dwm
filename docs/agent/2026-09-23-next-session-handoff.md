@@ -41,6 +41,36 @@ retain their original scope; do not implement automatic no-Sylvia completion.
 
 ## Current acceptance
 
+**Accepted bounded native Windows caption Normal Accept.** Source
+`761e2e42a2266e51eb396e3ae0916598fba20eff`; actual PR test merge
+`e21892b49107cd13c6be77f1afe87bb568135118`. [Cloud run 37173880983](https://github.com/Siuuuers/dwm/actions/runs/37173880983)
+passes 26/26 jobs and 2,601 primary cases across 13 XML reports with zero
+failures, errors or skips. The [native caption receipt](../../evidence/phase_2r/caption_native_2026_10_04/receipt.json)
+owns source review, diagnostic attempts, raw UIA trees, both OS invocations,
+runtime states, screenshots, primary reports and artifact hashes.
+
+The native probe exposed a gap hidden by callback tests: Windows discovered
+the RichTextLabel text child but omitted its generic container action.
+The two mounted caption adapters now identify their activatable roots as
+buttons named with parsed current text, retaining native rich-text descendants
+and the existing guarded Normal Accept callback. Two Windows UIA Invoke calls
+prove reveal-only at event zero, then exactly one advancement with the successor
+still revealing. The native proof runs in the initial gate before wider jobs.
+No save format, History, recovery, consequence or completion owner changed.
+
+This is a synthetic mounted fixture and OS InvokePattern proof, not full
+screen-reader navigation or authored production-route acceptance. Review-current
+uses the same root correction; its OS invocation remains a separate next bounded
+check (return to live without reveal or advancement). Preserve prior callback
+refusal tests, ending caption/Auto acceptance, Hospital manual Save/Load/Next
+restrictions, and deferred production catalogue/prose/variants.
+All 23 unfinished Beads retain statuses/dependencies; the retained lead note
+links the receipt, without live Dolt synchronization. PR remains draft/unmerged;
+master observed unchanged at `dded76aee2e85aeea94f65218de043b1f4fdce7b`.
+The final records-only descendant is not separately engine-tested.
+
+## Prior caption assistive callback acceptance
+
 **Accepted bounded caption assistive Normal Accept integration.** Source
 `96c8942ec8293b90891b3ba5780dcc759fda4283`; actual PR test merge
 `01a366d59020fa0a828276da9ce789e601955e6a`. [Cloud run 37147995237](https://github.com/Siuuuers/dwm/actions/runs/37147995237)

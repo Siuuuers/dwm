@@ -16,12 +16,16 @@ accepted work. This navigation record changes no design or Beads authority.
 
 ## Current boundary
 
-Caption assistive Normal Accept callback integration is accepted in the
-[shared receipt](../../evidence/phase_2r/caption_assistive_2026_10_04/receipt.json). Native OS accessibility discovery/invocation
-remains separate. Ordered-ending visible-caption and bounded Auto continuity
-are already accepted; do not repeat the historical next step below.
-Production catalogue registration stays disabled, authored variants remain
-deferred, and Hospital manual Save/Load and Next remain disabled.
+Native Windows current-caption discovery and Normal Accept invocation are accepted
+in the [native receipt](../../evidence/phase_2r/caption_native_2026_10_04/receipt.json). The probe found and fixed the omitted
+generic container action; named actionable roots retain native rich-text children.
+One OS invocation reveals only, and a later one advances once with its own successor
+reveal. Prior [callback integration](../../evidence/phase_2r/caption_assistive_2026_10_04/receipt.json)
+retains guarded stale-action/custody proofs. Native review-current return-to-live,
+full screen-reader navigation and production routes remain separate.
+Ordered-ending visible-caption and bounded Auto continuity are already accepted;
+do not repeat the historical next step below. Production catalogue stays disabled,
+authored variants remain deferred, and Hospital manual Save/Load/Next remain disabled.
 
 ## Historical ordered-ending History boundary
 
