@@ -300,9 +300,27 @@ func _caption_capture(name: String, language: String, percent: int, offset: int,
 		check(leaf.horizontal_alignment == HORIZONTAL_ALIGNMENT_CENTER, name + ": text centered")
 		check(leaf.get_theme_stylebox("normal") is StyleBoxEmpty and leaf.get_theme_stylebox("focus") is StyleBoxEmpty, name + ": no card fill or focus box")
 		check(leaf.get_theme_constant("outline_size") == 2, name + ": dark outline remains visible")
+	var rail: Control = caption.transport_rail
+	var rail_geometry: Array[Dictionary] = []
+	for index: int in rail.get_child_count():
+		var button := rail.get_child(index) as Button
+		var left := floori(640.0 * index / 6.0) * 2
+		var right := floori(640.0 * (index + 1) / 6.0) * 2
+		var expected_bay := Rect2(left, 0, right - left, 64)
+		check(button.get_rect() == expected_bay, name + ": fixed unclipped rail bay " + button.name)
+		var font := button.get_theme_font("font")
+		var font_size := button.get_theme_font_size("font_size")
+		var plate := button.get_theme_stylebox("normal")
+		var available := button.size.x - plate.get_content_margin(SIDE_LEFT) - plate.get_content_margin(SIDE_RIGHT)
+		var width := font.get_string_size(button.text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+		check(font == rail.theme.default_font and font_size == rail.theme.default_font_size, name + ": requested rail typography")
+		check(width <= available, name + ": complete rail label fits " + button.name)
+		check(button.get_minimum_size().y <= 64, name + ": rail label height fits " + button.name)
+		rail_geometry.append({"name": button.name, "text": button.text, "font": font.resource_path,
+			"font_size": font_size, "width": width, "available": available, "rect": str(button.get_rect())})
 	await capture(name, {"kind": "caption", "locale": language, "text_percent": percent, "review_offset": offset,
 		"caption_window": projection.get("caption_window", []), "visible_leaf_rects": str(projection.visible_leaf_rects),
-		"dating_overlay": projection.get("dating_overlay", false)})
+		"dating_overlay": projection.get("dating_overlay", false), "rail_geometry": rail_geometry})
 
 func _dating_samples() -> void:
 	await runtime.clear()

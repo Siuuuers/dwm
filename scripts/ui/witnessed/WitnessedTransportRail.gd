@@ -317,6 +317,9 @@ func _apply_projection() -> void:
 		button.theme_type_variation = &"WitnessedTransportMode" if enabled_mode else &"WitnessedTransportButton"
 		if not _roles.is_empty():
 			_apply_button_material(button, enabled_mode)
+		# Native minimum-size updates can grow a mounted button during a theme
+		# transition. Reapply its fixed bay after publishing the final material.
+		button.size = button.custom_minimum_size
 		button.queue_redraw()
 
 
@@ -364,7 +367,9 @@ func _plate(fill: Color, edge: Color, edge_width: int) -> StyleBoxFlat:
 	result.set_border_width_all(edge_width)
 	for side: int in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
 		result.set_expand_margin(side, -PLATE_INSET)
-		result.set_content_margin(side, 10.0)
+		# The 150% pixel face has a 48px line box: 8px above/below fits the
+		# 64px rail without shrinking the requested text or clipping the plate.
+		result.set_content_margin(side, 8.0 if side in [SIDE_TOP, SIDE_BOTTOM] else 10.0)
 	return result
 
 
