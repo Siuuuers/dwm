@@ -809,7 +809,7 @@ jobs:
           DWM_TEST_ROOT: ${{ github.workspace }}/.godot/phase2r_tests/gallery-caption-collection/test-root
         run: |
           mkdir -p "$DWM_GALLERY_COLLECTION_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
-          timeout 240s xvfb-run -a "$GODOT_CONSOLE_PATH" --path "$GITHUB_WORKSPACE" --rendering-method gl_compatibility --audio-driver Dummy --log-file "$DWM_GALLERY_COLLECTION_OUTPUT/render.log" --script res://tests/ui/render_gallery_caption_collection.gd
+          timeout 240s xvfb-run -a "$GODOT_CONSOLE_PATH" --path "$GITHUB_WORKSPACE" --rendering-method gl_compatibility --audio-driver Dummy --log-file "$DWM_GALLERY_COLLECTION_OUTPUT/render.log" --script res://tests/ui/render_gallery_caption_collection.gd -- --phase2r-bootstrap-mode=final
           if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_GALLERY_COLLECTION_OUTPUT/render.log"; then
             exit 1
           fi
