@@ -306,8 +306,8 @@ func _caption_capture(name: String, language: String, percent: int, offset: int,
 		var button := rail.get_child(index) as Button
 		var left := floori(640.0 * index / 6.0) * 2
 		var right := floori(640.0 * (index + 1) / 6.0) * 2
-		var expected := Rect2(left, 0, right - left, 64)
-		check(button.get_rect() == expected, name + ": fixed unclipped rail bay " + button.name)
+		var expected_bay := Rect2(left, 0, right - left, 64)
+		check(button.get_rect() == expected_bay, name + ": fixed unclipped rail bay " + button.name)
 		var font := button.get_theme_font("font")
 		var font_size := button.get_theme_font_size("font_size")
 		var plate := button.get_theme_stylebox("normal")

@@ -70,7 +70,7 @@ jobs:
             --path "$GITHUB_WORKSPACE" --rendering-method gl_compatibility \
             --rendering-driver opengl3 --audio-driver Dummy \
             --log-file "$DWM_RENDER_OUTPUT/render.log" \
-            --script res://tests/ui/diagnose_reading_rail.gd
+            --script res://tests/ui/render_delivery_dialogue.gd
           grep 'DELIVERY_DIALOGUE_RENDER_VERIFIED' "$DWM_RENDER_OUTPUT/render.log"
           if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_RENDER_OUTPUT/render.log"; then
             exit 1
