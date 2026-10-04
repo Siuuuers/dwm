@@ -6,7 +6,7 @@ execution_authority: false
 status_authority: false
 behavior_authority: false
 verification_authority: false
-inspected_source: "425e575cd357af031fbeea5a56ca8e0d099c71ac"
+inspected_source: "07492163071a6dbe24d881b7c7fe17f7a3236be7"
 ---
 
 # DWM execution map
@@ -27,19 +27,23 @@ It does not close whole-screen-reader navigation, authored production replay or
 all partial-reveal lifetime acceptance. Current owner constraints in the handoff
 supersede historical opaque-caption, timed no-Sylvia and Hospital manual-save plans.
 
-Next selected field is **minimal truthful Settings failure handling** under
-`dwm-eei.2`; the current handoff and the lead Bead specify the observable outcome,
-existing owners, failure cases and proof. Apply the [software responsibility boundary](../design/2026-10-04-software-responsibility-boundary.md):
-external repair and new elaborate live recovery are excluded; existing data
-protections and truthful error handling remain required. Do not force an automatic
-restart. Finish this field before selecting
-another; it is not a promise to close all Settings preview/content obligations.
-Reading acceptance remains a linked later field and its accepted proofs are reused.
+The bounded **truthful Settings write-failure field** under `dwm-eei.2` is
+accepted at source `07492163071a6dbe24d881b7c7fe17f7a3236be7`, tested merge
+`635e833cb345fa12089f0a3b795ef0d49dd5e6aa`, Run 157.
+The [receipt](../../evidence/phase_2r/settings_write_failure_2026_10_04/receipt.json)
+and [review](../../evidence/phase_2r/settings_write_failure_2026_10_04/review.md)
+own counts, artifacts and limits. Do not redo this field. The full Settings Bead
+remains open for separate preview/authored sample/native speech/display clauses.
+Select a demonstrated remaining outcome before the next implementation.
+
+The [software responsibility boundary](../design/2026-10-04-software-responsibility-boundary.md)
+still excludes external repair, forced automatic restart and new elaborate live
+recovery. Existing data protections and truthful error handling remain required.
+Reading acceptance remains a linked later field; accepted proofs are reused.
 
 The complete committed export contains **191 records, 23 unfinished**. All 23
 were reconciled against current decisions and source-bound evidence. No whole
-Bead was closed/retired and no dependency changed. `dwm-eei.2` is open for the
-next session; `dwm-n3h.2`, `dwm-hsi` and `dwm-eei.17` are deferred with explicit
+Bead was closed/retired and no dependency changed. `dwm-eei.2` remains open for its separate remaining clauses; `dwm-n3h.2`, `dwm-hsi` and `dwm-eei.17` are deferred with explicit
 resume conditions. This is a retained-export update, not live Dolt synchronization.
 See [the reconciliation receipt](../../evidence/beads_reconciliation_2026_10_04/review.json).
 Historical plans, counts and session exclusions are not a new implementation queue.
@@ -51,7 +55,7 @@ Historical plans, counts and session exclusions are not a new implementation que
 | Reading remainder: `dwm-vky.14` | `dwm-eei.10`, `dwm-eei.11`, Witnessed portion of `dwm-eei.5` | Preserve accepted fixed-fixture Solo pre/board/post, exact witnessing/Next, Save/Quick/fresh Load, paused Settings F5/F9, shared Hospital, manual-command refusal, ordered-ending History/visible continuity/Auto, panel-free captions and native live/review-current Invoke. Map the actual remaining native navigation, production exact replay and lifetime clauses without reopening those owners. One bounded receipt is not umbrella completion. |
 | Remaining latency: `dwm-634.3` | `dwm-634`; touched `dwm-sx8` mappings | Per-write validation witness and frozen-baseline controls are accepted in Runs81/82. Remaining terminal/checkpoint cost and native responsiveness need matched complete-operation measurements, not shorter code alone. |
 | Deferred authored contract: `dwm-n3h.2` | `dwm-n3h`, exact Next/replay of `dwm-vky.14`, relevant `dwm-oyo.5` | Finite per-entry catalogue-v2 selector admission and bounded physical sweet/exploded Solo Save/Load are accepted. Global reached signatures and production exact-variant Next/replay remain open; production registration is disabled and prose/exhaustive variants deferred. Ordinary phase/reply/line and Alone cause are known gaps; ask only about an additional independent authored fact. |
-| **Next selected field: `dwm-eei.2`** | Settings/Profile recovery | Prove supported changes and truthful determinate/uncertain failure handling through existing owners; preserve mutation/custody fences. No external repair, forced automatic restart or new live Retry architecture. An authored audio-preview catalogue is not a prerequisite. |
+| Remaining Settings: `dwm-eei.2` | Settings/Profile recovery and preview clauses | Bounded truthful write-failure presentation/custody is accepted in Run 157. Preserve it; remaining authored samples, native speech/display and broader preview obligations are separate. No external repair, forced restart or new live Retry architecture. |
 | Independent: `dwm-7wj` | Gallery clauses of `dwm-oyo.6` | Visible plural-version register replaces dropdown using existing newest-first chronology. Prove exact selection, Retry, focus and no writes during inspection. Authored cues and native ScrollPattern remain separate. |
 | Catalogue-dependent: `dwm-nqn` | `dwm-oyo.5`; Settings audio-output clauses | Admit immutable neutral-ID cue/Load-anchor plan through current save/restore owners. Pause preserves physical playhead; Load uses authored anchors. Fixtures may prove engineering without inventing production audio. |
 | Remaining UI amendment: `dwm-vky` | Drift and all-input clauses | Only fully specified Drift cards through one deterministic plan/receipt and safe-boundary projection. Tint and Steady Interface have accepted children. Coordinate schema edits without blocking unrelated UI on Drift. |

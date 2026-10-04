@@ -17,7 +17,38 @@ unmerged; do not change master. Read this handoff, the [execution map](execution
 the selected Bead and its current approved design before editing. Beads owns
 status and dependencies; these documents are navigation, not a second backlog.
 
-## Accepted checkpoint and evidence
+## Accepted Settings write-failure checkpoint
+
+The bounded field under `dwm-eei.2` is complete at source
+`07492163071a6dbe24d881b7c7fe17f7a3236be7`, tested merge
+`635e833cb345fa12089f0a3b795ef0d49dd5e6aa`.
+[Run 157](https://github.com/Siuuuers/dwm/actions/runs/37215097884) supplies the
+cloud evidence; all 26 jobs passed. The [receipt](../../evidence/phase_2r/settings_write_failure_2026_10_04/receipt.json) and
+[review](../../evidence/phase_2r/settings_write_failure_2026_10_04/review.md) own exact results and limits.
+Thirteen downloaded primary XML reports verify 2,606 executions, 2,602 unique
+cases, and zero failures, errors or skipped cases; four deliberate duplicates
+remain. Negative storage-refusal controls are counted separately.
+
+Shared Settings now reports Profile write uncertainty and retains custody;
+both Title and Desktop/Pause wrappers refuse closing. Proven uncommitted failure
+retains/restores the prior value and admits a fresh action. Immediate admission
+blocking precedes deferred presentation cleanup, preserving existing output
+compensation. Profile/storage/output transaction owners and save/History formats
+are unchanged. There is no new live Retry/unlatch, external repair or forced restart.
+
+Three rendered English 100% AfterHours captures were visually inspected. The
+uncertainty and repeated-refusal images are byte-identical, readable and contain
+no Retry/Cancel. FileOps remain at 64 after repeated keys/departure requests.
+The pre-action image does not show its offscreen focused checkbox; this is
+bounded foreground-failure evidence, not visible-target navigation or OS UIA
+acceptance. Broader rendered jobs retain their existing gates, without a new
+visual review of all captures.
+
+This publication updates evidence/navigation and the selected retained Bead only.
+It is not an independent engine pass for the records-only descendant. The complete
+strict workflow is restored, with no diagnostic exclusions.
+
+## Prior accepted native reading checkpoint
 
 **Accepted bounded native Windows review-current return-to-live proof.**
 Source `845ec12c83cecfab1bfe3b5b4a194537c783aa7e`; actual tested PR merge
@@ -53,36 +84,16 @@ Master was checked through its actual ref, not normalized PR-base metadata.
 
 ## Next work and task accounting
 
-**Next field: minimal truthful Settings failure handling under `dwm-eei.2`.**
+**Do not redo the accepted bounded Settings write-failure field.**
+`dwm-eei.2` stays open: remaining authored sample, native speech/display and
+broader preview clauses are separate. Select one demonstrated remaining outcome
+from the Bead and accepted evidence before another implementation; no new
+architecture choice is implied by this checkpoint.
+
 Apply the [owner-approved software responsibility boundary](../design/2026-10-04-software-responsibility-boundary.md).
-We own correct software behavior and truthful failure reporting, not hardware
-diagnosis, external-system repair or guaranteed recovery from every external fault.
-Do not force an automatic restart or add live recovery as a new requirement.
-Preserve existing save/recovery/History guarantees and canonical mutation fences.
-
-Observable outcome: an ordinary supported Settings change applies and saves
-correctly. A proven uncommitted change retains/restores the previous value and
-reports failure. An uncertain write reports uncertainty and refuses conflicting
-actions rather than assuming a winner. A message alone does not prove settlement.
-Reuse existing reconciliation; do not create a new live Retry/unlatch architecture.
-
-The read-only source/host audit at `fb4d10f` found a reachable storage result:
-new Profile bytes can win while transaction-marker cleanup still fails.
-ProfileManager blocks its own mutations and emits `profile_write_failed`;
-Title/Desktop/Pause Settings lack a corresponding failure subscription.
-Profile has no general live reconciliation API; initialize is single-use and the
-application fatal gate is intentionally irreversible. The existing witnessed
-recovery widget provides a presentation-only no-Retry mode, not reconciliation.
-These are static findings, not executed acceptance or a chosen implementation.
-
-Next inspect the smallest shared presentation/custody connection needed to fulfill
-the narrowed promise. Preserve ProfileManager and SettingsOutputTransactions
-ownership. Verify reachable determinate/uncertain result handling and relevant
-repeated input/departure/output behavior; do not expand into external repair or
-a new broad fault-injection campaign. Use affected owner tests and a foreground
-journey in cloud Godot/PowerShell. Reuse accepted paused F5/F9 evidence.
-This bounded field does not close all Settings preview, native speech/display
-or authored sample obligations.
+Preserve canonical mutation/recovery fences and truthful save reporting. Reuse
+accepted paused F5/F9, Save/Load, History and reading evidence. Do not add live
+reconciliation or force restarts to satisfy superseded recovery wording.
 
 The [records reconciliation](../../evidence/beads_reconciliation_2026_10_04/review.json)
 covers all **23 unfinished records** in the complete **191-record committed
@@ -90,9 +101,9 @@ export**. The Git blob route recovered the 2,032,918-byte source export after th
 contents route returned empty; that earlier limitation is resolved. Historical
 notes, closed records and all dependency edges are preserved. No Bead is closed
 or retired as complete: obsolete current wording/requirements are reconciled with
-later approved decisions instead. `dwm-eei.2` moves deferred -> open for the next
-session; `dwm-n3h.2`, `dwm-hsi` and `dwm-eei.17` become deferred with explicit
-authored-input or recurrence resume conditions. They remain unfinished.
+later approved decisions instead. That reconciliation moved `dwm-eei.2` from
+deferred to open; it remains open after this bounded field. `dwm-n3h.2`, `dwm-hsi`
+and `dwm-eei.17` became deferred with explicit authored-input or recurrence resume conditions. They remain unfinished.
 
 The `bd` CLI is unavailable in this environment. These are retained-export
 updates, not live Dolt queries or synchronization. Before a later live import,
@@ -103,11 +114,11 @@ Reading remainder stays under `dwm-vky.14` with linked `dwm-eei.10/.11/.5`
 clauses. Do not redo accepted native review-current, History, Save/Load, paused
 Settings Quick, ending continuity or geometry work. Broader native navigation,
 speech, arbitrary partial reveal and production replay retain separate evidence
-gates. Settings is selected next because its recovery field is independent of
-deferred production content; Gallery/latency remain available later.
+gates. The bounded Settings write-failure field is now accepted. Gallery/latency and
+other existing remaining clauses stay available for a separately selected outcome.
 
-This session changes records only and performs structural validation, not a new
-engine acceptance run. Two independent read-only audits informed the reconciliation.
+The earlier reconciliation session changed records only and performed structural
+validation, not a new engine acceptance run. Two independent read-only audits informed the reconciliation.
 The later source audit exposed the absence of general live Profile recovery.
 The owner's subsequent scope clarification above excludes adding elaborate live
 recovery or forcing an automatic restart. Ask only if a remaining implementation
@@ -173,8 +184,10 @@ and rendered E2E for connected presentation. A script's existence is not executi
 Measure a reproducible complete operation before performance surgery. Use matched
 baselines, separate cache modes and an ablation only to answer a specific causal
 question. Parallelize disjoint work when available; keep one integrator for shared
-owners, publication and Beads. No independent subagent review occurred in this
-acceptance continuation. Finish compatible audits before the final stable gate.
+owners, publication and Beads. This Settings continuation received independent
+source/caller/test/inventory review, plus independent XML, capture and
+record-consistency review. Finish compatible source audits before
+the final stable gate.
 
 Run **Godot 4.6.3 standard GDScript and PowerShell only in GitHub Actions**. Start
 with affected suites, register new fixtures, include the UI literal audit for UI
