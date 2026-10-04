@@ -92,17 +92,45 @@ func _render_failure() -> void:
 		return
 	_pause.rows[&"settings"].grab_focus()
 	await _frames()
+	var navigation_before: Dictionary = _profile.get_profile_snapshot()
+	var navigation_revision: int = _profile.get_profile_revision()
+	var navigation_persisted: Dictionary = _files.snapshot_persisted()
+	var navigation_operations: int = _files.operation_count()
 	await _key(KEY_RIGHT)
-	_content.select_category("accessibility")
+	if not _check(_content.find_child("LanguageCategory", true, false).has_focus(), "Pause Right did not enter the Language rail"):
+		await _finish(false)
+		return
+	# Use separate settled inputs, as a player does. Selecting a hidden sheet and
+	# grabbing its fourth control in the same frame can read pre-layout geometry.
+	for category: String in ["reading", "audio", "display", "controls", "accessibility"]:
+		await _key(KEY_DOWN)
+		var rail: Control = _content.find_child(category.to_pascal_case() + "Category", true, false)
+		if not _check(rail.has_focus(), "keyboard category route diverged at " + category):
+			await _finish(false)
+			return
+	await _key(KEY_RIGHT)
+	for field: String in ["font_style", "text_size", "large_targets", "high_contrast"]:
+		if field != "font_style": await _key(KEY_TAB)
+		var target: Control = _content.control_for(StringName("preferences.accessibility." + field))
+		if not _check(target.has_focus() and _content.sheet_scroll.get_global_rect().encloses(target.get_global_rect().grow(8)),
+			"keyboard target or its focus perimeter is offscreen: " + field):
+			await _finish(false)
+			return
 	var toggle: CheckBox = _content.control_for(&"preferences.accessibility.high_contrast")
-	toggle.grab_focus()
-	await _frames()
-	if not _check(_pause.entered_action == &"settings" and toggle.has_focus(), "failure journey did not enter actual Settings"):
+	if not _check(_pause.entered_action == &"settings" and toggle.has_focus()
+		and _profile.get_profile_snapshot() == navigation_before and _files.snapshot_persisted() == navigation_persisted
+		and _profile.get_profile_revision() == navigation_revision
+		and _files.operation_count() == navigation_operations, "Settings navigation changed custody or Profile/storage"):
 		await _finish(false)
 		return
 	if not await _capture("en", 100, "failure-before"):
 		await _finish(false)
 		return
+	_records[-1]["navigation"] = {"transport": "Viewport key events", "category_keys": 5, "sheet_tabs": 3,
+		"target": "preferences.accessibility.high_contrast", "focus_perimeter_visible": true,
+		"profile_unchanged": true, "persisted_unchanged": true, "file_operations": navigation_operations,
+		"profile_revision": navigation_revision,
+		"target_rect": [toggle.global_position.x, toggle.global_position.y, toggle.size.x, toggle.size.y]}
 	var before: Dictionary = _profile.get_profile_snapshot()
 	_files.refuse_cleanup = true
 	await _key(KEY_SPACE)
