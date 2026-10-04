@@ -1,0 +1,97 @@
+name: Reading rail diagnostic
+on:
+  push:
+    branches: [codex/rail-layout-diagnostic-20261004]
+permissions:
+  contents: read
+jobs:
+  rendered-desktop:
+    name: Rendered desktop and dialogue / Linux software OpenGL
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
+      XDG_DATA_HOME: ${{ github.workspace }}/.godot/ci/render-user/data
+      DWM_TEST_ROOT: ${{ github.workspace }}/.godot/ci/render-user/test-root
+      DWM_RENDER_OUTPUT: ${{ github.workspace }}/.godot/ci/desktop-scaling
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Same disposable-index workaround as the Windows jobs above.
+          persist-credentials: true
+      - name: Prepare disposable checkout for credential cleanup
+        run: |
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          git submodule foreach --recursive 'true'
+      - name: Install Godot and software display
+        timeout-minutes: 12
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri pulseaudio pulseaudio-utils libspeechd2 speech-dispatcher speech-dispatcher-audio-plugins speech-dispatcher-espeak-ng
+          archive="$RUNNER_TEMP/godot-4.6.3-linux.zip"
+          curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip' --output "$archive"
+          printf '%s  %s\n' 'd0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3' "$archive" | sha256sum --check
+          unzip -q "$archive" -d "$RUNNER_TEMP/godot-4.6.3-linux"
+          editor="$RUNNER_TEMP/godot-4.6.3-linux/Godot_v4.6.3-stable_linux.x86_64"
+          chmod +x "$editor"
+          echo "GODOT_CONSOLE_PATH=$editor" >> "$GITHUB_ENV"
+          "$editor" --version
+      - name: Start and verify native Linux speech service
+        timeout-minutes: 2
+        run: bash tools/testing/start_cloud_speech.sh
+      - name: Upload native speech environment evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloud-speech-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/cloud-speech/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Import project
+        timeout-minutes: 8
+        run: |
+          mkdir -p "$DWM_RENDER_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
+          "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --import --log-file "$DWM_RENDER_OUTPUT/import.log"
+          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_RENDER_OUTPUT/import.log"; then
+            exit 1
+          fi
+          # Dialogic's editor scan rewrites its timeline lookup during import.
+          git restore -- project.godot
+      - name: Render and verify delivery and dialogue
+        timeout-minutes: 5
+        env:
+          XDG_DATA_HOME: ${{ github.workspace }}/.godot/ci/delivery-dialogue-user/data
+          DWM_TEST_ROOT: ${{ github.workspace }}/.godot/ci/delivery-dialogue-user/test-root
+          DWM_RENDER_OUTPUT: ${{ github.workspace }}/.godot/ci/delivery-dialogue
+        run: |
+          mkdir -p "$DWM_RENDER_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
+          xvfb-run -a -s '-screen 0 1920x1080x24' "$GODOT_CONSOLE_PATH" \
+            --path "$GITHUB_WORKSPACE" --rendering-method gl_compatibility \
+            --rendering-driver opengl3 --audio-driver Dummy \
+            --log-file "$DWM_RENDER_OUTPUT/render.log" \
+            --script res://tests/ui/diagnose_reading_rail.gd
+          grep 'DELIVERY_DIALOGUE_RENDER_VERIFIED' "$DWM_RENDER_OUTPUT/render.log"
+          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_RENDER_OUTPUT/render.log"; then
+            exit 1
+          fi
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          output = Path(os.environ['DWM_RENDER_OUTPUT'])
+          report = json.loads((output / 'results.json').read_text())
+          assert report['ok'] is True and not report['failures'], report
+          assert report['renderer'] != 'headless', report
+          assert report['samples'] == report['captures'] == 25, report
+          captures = list(output.glob('*.png'))
+          assert len(captures) == 25 and all(path.stat().st_size > 0 for path in captures)
+          PY
+      - name: Upload delivery and dialogue evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: delivery-dialogue-render-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/delivery-dialogue/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7
