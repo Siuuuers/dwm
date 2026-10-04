@@ -61,7 +61,8 @@ func test_plural_geometry_and_single_version_absence() -> void:
 	assert_eq(_register.custom_minimum_size, Vector2.ZERO)
 	assert_eq(_register.get_rows().size(), 0)
 	assert_null(_register.get_node_or_null("VersionHeading"))
-	_register.set_versions([], "", "en")
+	var no_versions: Array[Dictionary] = []
+	_register.set_versions(no_versions, "", "en")
 	assert_eq(_register.size, Vector2.ZERO)
 	assert_null(_register.row_for_signature("fixture-first"))
 
@@ -120,10 +121,11 @@ func test_removed_focused_row_notifies_owner_once_and_does_not_choose_another() 
 	_register.row_for_signature("fixture-second").grab_focus(true)
 	var removed: Array = []
 	_register.focused_row_removed.connect(func(hidden: bool): removed.append(hidden))
-	_register.set_versions([], "", "en")
+	var no_versions: Array[Dictionary] = []
+	_register.set_versions(no_versions, "", "en")
 	assert_eq(removed, [true])
 	assert_eq(_register.focused_signature_id(), "")
-	_register.set_versions([], "", "en")
+	_register.set_versions(no_versions, "", "en")
 	assert_eq(removed.size(), 1)
 
 func test_wrapped_theme_relayout_preserves_rows_and_guards_reentrant_layout() -> void:

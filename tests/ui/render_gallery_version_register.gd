@@ -111,7 +111,7 @@ func _alone(dark: bool) -> Dictionary:
 func _id(dark: bool) -> String:
 	return str(SIGNATURE.validate(_alone(dark)).value.signature_id)
 
-func _catalog(long_copy: bool = false) -> RefCounted:
+func _catalog(long_copy: bool = false, wrapped_cues: bool = false) -> RefCounted:
 	# Repeated noncanonical text deliberately produces a real overflowing paper.
 	var repeat_count := 12 if long_copy else 1
 	var base := ["TEST paper layout sentence. ".repeat(repeat_count),
@@ -121,7 +121,9 @@ func _catalog(long_copy: bool = false) -> RefCounted:
 		var mark := "B" if dark else "A"
 		entries.append({"signature": _alone(dark),
 			"sentence": [base[0] + mark, base[1] + mark, base[2] + mark],
-			"version_cue": ["TEST paper specimen " + mark, "TEST 纸面样本 " + mark, "TEST 紙面樣本 " + mark]})
+			"version_cue": ["TEST paper specimen ".repeat(7 if wrapped_cues else 1) + mark,
+				"TEST 纸面样本 ".repeat(7 if wrapped_cues else 1) + mark,
+				"TEST 紙面樣本 ".repeat(7 if wrapped_cues else 1) + mark]})
 	return CATALOG.new({}, entries)
 
 func _collapse(count: int) -> bool:
@@ -135,7 +137,7 @@ func _collapse(count: int) -> bool:
 	return ok
 
 func _sample(locale: String, percent: int, palette: String) -> bool:
-	_gallery.set("_record_catalog", _catalog(percent == 150))
+	_gallery.set("_record_catalog", _catalog(percent == 150, percent == 125))
 	_gallery.call("_refresh_replay_selection")
 	if not _check(_localization.set_locale(locale).get("ok", false), "locale rejected") \
 			or not _check(_profile.set_preferences({
@@ -156,7 +158,11 @@ func _sample(locale: String, percent: int, palette: String) -> bool:
 			or not _check(not (_gallery.get("_version_selector") as Control).visible, "legacy selector remained visible") \
 			or not _check(rows[0] == register.row_for_signature(_id(true)) and rows[1] == register.row_for_signature(_id(false)), "witness chronology changed"):
 		return false
+	var cue_line_counts: Array[int] = []
 	for row: Button in rows:
+		cue_line_counts.append(row.caption.get_line_count())
+		if percent == 125 and not _check(row.caption.get_line_count() > 1, "wrapped cue fixture did not wrap"):
+			return false
 		if not _check(row.text.begins_with("TEST ") and not row.text.contains("ending.") and not row.text.contains(_id(false))
 				and not row.text.contains(_id(true)), "internal identity leaked into cue"):
 			return false
@@ -201,6 +207,7 @@ func _sample(locale: String, percent: int, palette: String) -> bool:
 		return false
 	_samples.append({"locale": locale, "percent": percent, "palette": palette, "file": filename,
 		"selected_signature_id": _id(false), "selected_cue": selected.text,
+		"cue_line_counts": cue_line_counts,
 		"row_rect": [rect.position.x, rect.position.y, rect.size.x, rect.size.y],
 		"paper_scroll_offset": paper.scroll_offset, "paper_content_extent": paper.content_extent,
 		"long_fixture_copy": percent == 150, "profile_revision": revision,

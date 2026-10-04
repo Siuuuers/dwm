@@ -442,7 +442,8 @@ func _clear_replay_versions() -> void:
 	_ensure_version_selector()
 	_version_selector.clear()
 	_version_selector.hide()
-	_version_register.set_versions([], "", "en")
+	var no_versions: Array[Dictionary] = []
+	_version_register.set_versions(no_versions, "", "en")
 	_refresh_record_copy()
 	_sync_replay_controls()
 

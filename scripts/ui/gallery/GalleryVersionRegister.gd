@@ -8,7 +8,6 @@ signal focused_row_removed(hide_focus: bool)
 const ROW := preload("res://scripts/ui/gallery/GalleryRecordButton.gd")
 var _rows: Array[Control] = []
 var _heading: Label
-var _selected_id := ""
 var _interactive := true
 var _laying_out := false
 var _layout_queued := false
@@ -65,14 +64,12 @@ func set_versions(entries: Array[Dictionary], selected_id: String, locale: Strin
 	_heading.language = language_code
 	_heading.text = "其他见证版本" if language_code.begins_with("zh") else "Other witnessed versions"
 	if language_code == "zh-HK": _heading.text = "其他見證版本"
-	_selected_id = selected_id
 	set_selected(selected_id)
 	set_interactive(_interactive)
 	refresh_layout()
 	if removed_focus: focused_row_removed.emit(hide_focus)
 
 func set_selected(signature_id: String) -> void:
-	_selected_id = signature_id
 	for row: Control in _rows:
 		row.selected = str(row.get_meta("gallery_signature_id")) == signature_id
 

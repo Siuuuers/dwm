@@ -144,7 +144,10 @@ func _assert_error_dock() -> void:
 	assert_eq(_status().size, Vector2(360, 64))
 	assert_eq(_replay_button().position, Vector2(776, 568))
 	assert_eq(_replay_button().size, Vector2(160, 64))
-	assert_eq(_selector().position, Vector2(16, _gallery._record_title_label.size.y + 32))
+	# The retained production sentence precedes the selector; it is not title-only paper.
+	var sentence: Label = _gallery._record_paper.sentence_label
+	assert_true(sentence.visible)
+	assert_eq(_selector().position, Vector2(16, sentence.get_rect().end.y + 32))
 	assert_eq(_selector().size, Vector2(288, 64))
 	assert_false(_selector().get_global_rect().intersects(_status().get_global_rect()))
 	assert_false(_selector().get_global_rect().intersects(_replay_button().get_global_rect()))
