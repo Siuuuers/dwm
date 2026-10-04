@@ -378,7 +378,7 @@ func test_settings_determinate_storage_failure_restores_control_and_allows_fresh
 	var persisted: Dictionary = _files.snapshot_persisted()
 	var revision: int = _profile.get_profile_revision()
 	_files.refuse_writes = true
-	await _click(toggle)
+	await _click_settings_toggle(content, toggle)
 	assert_eq(_profile.get_profile_snapshot(), before)
 	assert_eq(_profile.get_profile_revision(), revision)
 	assert_eq(_files.snapshot_persisted(), persisted, "the previous durable profile remains exact")
@@ -390,7 +390,7 @@ func test_settings_determinate_storage_failure_restores_control_and_allows_fresh
 	assert_true(status.visible)
 	assert_eq(status.text, _localization.t("settings.status.failed"))
 	_files.refuse_writes = false
-	await _click(toggle)
+	await _click_settings_toggle(content, toggle)
 	assert_true(_profile.get_preference(&"preferences.accessibility.high_contrast"))
 	assert_eq(_profile.get_profile_revision(), revision + 1)
 	assert_true(toggle.button_pressed)
@@ -412,7 +412,7 @@ func test_paused_settings_uncertain_storage_keeps_custody_and_blocks_repeated_in
 	watch_signals(fixture.pause)
 	watch_signals(fixture.app)
 	_files.refuse_marker_cleanup = true
-	await _click(toggle)
+	await _click_settings_toggle(content, toggle)
 	_assert_uncertain_profile(content, before, revision)
 	var persisted: Dictionary = _files.snapshot_persisted()
 	var operations: int = _files.operation_count()
@@ -462,7 +462,7 @@ func test_title_settings_uncertain_storage_refuses_home_and_cached_host_reactiva
 	var before: Dictionary = _profile.get_profile_snapshot()
 	var revision: int = _profile.get_profile_revision()
 	_files.refuse_marker_cleanup = true
-	await _click(content.control_for(&"preferences.accessibility.high_contrast"))
+	await _click_settings_toggle(content, content.control_for(&"preferences.accessibility.high_contrast"))
 	_assert_uncertain_profile(content, before, revision)
 	var operations: int = _files.operation_count()
 	var persisted: Dictionary = _files.snapshot_persisted()
@@ -471,8 +471,8 @@ func test_title_settings_uncertain_storage_refuses_home_and_cached_host_reactiva
 	await _click(menu.get("_title_home"))
 	await _tap(KEY_ESCAPE)
 	await app.hide_window()
-	app.set_interaction_enabled(false)
-	app.set_interaction_enabled(true)
+	content.set_interaction_enabled(false)
+	content.set_interaction_enabled(true)
 	app.show_window()
 	await _settle()
 	assert_true(app.is_visible_in_tree())
@@ -553,3 +553,15 @@ func _assert_uncertainty_presentation(content: Control) -> void:
 	assert_eq(recovery.message_label.text, _localization.t("settings.status.uncertain"))
 	assert_false(recovery.retry_button.visible, "no unproven live retry is offered")
 	assert_false(recovery.cancel_button.visible, "Back cannot claim a proven rollback")
+
+
+func _click_settings_toggle(content: Control, toggle: CheckBox) -> void:
+	# Accessibility overflows: real focus invokes the existing scroll owner before
+	# native pointer coordinates are captured. A hidden row cannot receive a click.
+	toggle.grab_focus()
+	await _settle()
+	assert_true(toggle.has_focus(), "the intended setting owns native focus")
+	assert_true(content.sheet_scroll.get_global_rect().encloses(toggle.get_global_rect()),
+		"the intended setting is inside the scrolling viewport before native input")
+	assert_false(toggle.disabled)
+	await _click(toggle)
