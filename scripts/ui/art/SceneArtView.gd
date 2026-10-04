@@ -66,7 +66,7 @@ func _on_split_width_committed(width: float) -> void:
 	if not saved.get("ok", false): _sync_split_preferences()
 
 func configure_entry(entry_id: String, text_percent: int = 100,
-		challenge: bool = false, show_portraits: bool = true) -> void:
+		challenge: bool = false, show_portraits: bool = true, caption_overlay: bool = false) -> void:
 	_entry_id = entry_id
 	var placement: Dictionary = ART.get_scene_art(entry_id)
 	var portraits: Array[Texture2D] = []
@@ -75,16 +75,16 @@ func configure_entry(entry_id: String, text_percent: int = 100,
 			portraits.append(ART.get_texture(asset_id))
 	configure_textures(ART.get_texture(str(placement.get("background", ""))), portraits,
 		ART.get_texture(str(placement.get("cg", ""))), text_percent, challenge, entry_id.begins_with("dating."),
-		&"solo" if entry_id.begins_with("dating.solo.") else &"group")
+		&"solo" if entry_id.begins_with("dating.solo.") else &"group", caption_overlay)
 
 func configure_textures(background: Texture2D, portraits: Array[Texture2D], cg: Texture2D = null,
 		text_percent: int = 100, challenge: bool = false, dating_overlay: bool = false,
-		preference_scope: StringName = &"") -> void:
+		preference_scope: StringName = &"", caption_overlay: bool = false) -> void:
 	_build()
 	var previous_count := _portrait_count
 	var previous_split := _dating_split
 	var previous_scope := _preference_scope
-	var height := 720 if challenge else (656 if dating_overlay else int(APERTURE_HEIGHT.get(text_percent, 448)))
+	var height := 720 if challenge else (656 if dating_overlay or caption_overlay else int(APERTURE_HEIGHT.get(text_percent, 448)))
 	size = Vector2(1280, height)
 	_portrait_count = mini(portraits.size(), 2)
 	_preference_scope = preference_scope if not preference_scope.is_empty() else (&"group" if _portrait_count > 1 else &"solo")

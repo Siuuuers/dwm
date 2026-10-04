@@ -66,7 +66,8 @@ func capture(name: String, detail: Dictionary) -> void:
 		for frame in 3: await RenderingServer.frame_post_draw
 		var pixels: Image = viewport.get_texture().get_image()
 		check(not pixels.is_empty() and pixels.get_size() == Vector2i(1280, 720), name + ": full viewport pixels")
-		if name.begins_with("dating-"): await _check_dating_art_pixels(pixels, name)
+		if name.begins_with("dating-") or name.begins_with("dialogue-"):
+			await _check_dating_art_pixels(pixels, name)
 		if name.begins_with("challenge-"): await _check_challenge_art_pixels(pixels, name)
 		check(pixels.save_png(folder.path_join(name + ".png")) == OK, name + ": saved screenshot")
 		captures += 1
@@ -197,9 +198,16 @@ func _mount_dialogue() -> void:
 	runtime.History.full_event_history_enabled = true
 	runtime.Text.text_finished.connect(func(_info): finished += 1)
 	runtime.timeline_ended.connect(func(): ended += 1)
-	var background := ColorRect.new()
+	var background := TextureRect.new()
 	background.size = Vector2(1280, 720)
-	background.color = Color("30343d")
+	var gradient := Gradient.new()
+	gradient.colors = PackedColorArray([Color("274e72"), Color("b78455")])
+	var texture := GradientTexture2D.new()
+	texture.gradient = gradient
+	texture.width = 1280
+	texture.height = 720
+	texture.fill_to = Vector2(0, 1)
+	background.texture = texture
 	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	viewport.add_child(background)
 	var label := Label.new()
@@ -285,12 +293,13 @@ func _caption_capture(name: String, language: String, percent: int, offset: int,
 		check(dating_art.size == Vector2(1280, 656), name + ": artwork extends behind every caption")
 		check(dating_art._background.texture != null, name + ": actual dating painting loaded")
 		check(projection.visible_leaf_rects.back().end.y == 656, name + ": captions meet bottom control strip")
-		for leaf: RichTextLabel in [caption.older, caption.previous, caption.review_current, caption.caption_text]:
-			check(leaf.horizontal_alignment == HORIZONTAL_ALIGNMENT_CENTER, name + ": text centered")
-			check(leaf.get_theme_stylebox("normal") is StyleBoxEmpty and leaf.get_theme_stylebox("focus") is StyleBoxEmpty, name + ": no card fill or focus box")
-			check(leaf.get_theme_constant("outline_size") == 2, name + ": dark outline remains visible")
+
 	else:
-		check(not projection.get("dating_overlay", false), name + ": non-dating caption presentation unchanged")
+		check(not projection.get("dating_overlay", false), name + ": ordinary caption retains ordinary input admission")
+	for leaf: RichTextLabel in [caption.older, caption.previous, caption.review_current, caption.caption_text]:
+		check(leaf.horizontal_alignment == HORIZONTAL_ALIGNMENT_CENTER, name + ": text centered")
+		check(leaf.get_theme_stylebox("normal") is StyleBoxEmpty and leaf.get_theme_stylebox("focus") is StyleBoxEmpty, name + ": no card fill or focus box")
+		check(leaf.get_theme_constant("outline_size") == 2, name + ": dark outline remains visible")
 	await capture(name, {"kind": "caption", "locale": language, "text_percent": percent, "review_offset": offset,
 		"caption_window": projection.get("caption_window", []), "visible_leaf_rects": str(projection.visible_leaf_rects),
 		"dating_overlay": projection.get("dating_overlay", false)})

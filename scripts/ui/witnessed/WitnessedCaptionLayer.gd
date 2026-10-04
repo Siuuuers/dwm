@@ -116,13 +116,13 @@ func _ready() -> void:
 	caption_text.started_revealing_text.connect(_sync_native_processing)
 	caption_text.focus_entered.connect(caption_text.queue_redraw)
 	caption_text.focus_exited.connect(caption_text.queue_redraw)
-	caption_text.draw.connect(_draw_current_frame)
 	background_input.gui_input.connect(_on_background_input)
 	scroll.gui_input.connect(_on_passive_input.bind(scroll))
 	stack.gui_input.connect(_on_passive_input.bind(stack))
 	canvas.draw.connect(_draw_canvas)
-	overlay.draw.connect(_draw_seam)
 	get_scroll_bar().focus_mode = Control.FOCUS_NONE
+	for leaf: RichTextLabel in [older, previous, review_current, caption_text]:
+		leaf.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	configure_presentation(_locale, _text_percent, _palette, _high_contrast, _colour_preset, _large_targets, _day, _font_style)
 	_profile = get_node_or_null("/root/ProfileManager")
 	_localization = get_node_or_null("/root/LocalizationManager")
@@ -1028,8 +1028,6 @@ func configure_dating_overlay(enabled: bool) -> void:
 	if _dating_overlay == enabled: return
 	_dating_overlay = enabled
 	if not is_instance_valid(canvas): return
-	for leaf: RichTextLabel in [older, previous, review_current, caption_text]:
-		leaf.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if enabled else HORIZONTAL_ALIGNMENT_LEFT
 	configure_presentation(_locale, _text_percent, _palette, _high_contrast, _colour_preset, _large_targets, _day, _font_style)
 	_layout_stack()
 
@@ -1558,27 +1556,7 @@ func _leaf_rect(leaf: RichTextLabel) -> Rect2:
 func _draw_canvas() -> void:
 	if _caption_theme == null:
 		return
-	if not _dating_overlay and _timed_hold_frontier.is_empty():
-		canvas.draw_rect(_field_rect(), _color(&"field"))
 	canvas.draw_rect(Rect2(0, FIELD_BOTTOM, 1280, 64), _color(&"deep"))
-
-func _draw_seam() -> void:
-	if _caption_theme != null and not _dating_overlay and _timed_hold_frontier.is_empty():
-		overlay.draw_rect(Rect2(0, FIELD_TOP[_text_percent], 1280, 2), _color(&"rule"))
-
-func _draw_current_frame() -> void:
-	if _caption_theme == null or _dating_overlay:
-		return
-	var frame_size := caption_text.size
-	# These rails and protected padding belong to the full leaf and scroll with it.
-	caption_text.draw_rect(Rect2(0, 2, frame_size.x, 14), _color(&"current"))
-	caption_text.draw_rect(Rect2(0, frame_size.y - 16, frame_size.x, 16), _color(&"current"))
-	caption_text.draw_rect(Rect2(0, 2, 16, frame_size.y - 2), _color(&"current"))
-	caption_text.draw_rect(Rect2(frame_size.x - 16, 2, 16, frame_size.y - 2), _color(&"current"))
-	caption_text.draw_rect(Rect2(0, 0, frame_size.x, 2), _color(&"rule"))
-	if caption_text.has_focus():
-		caption_text.draw_rect(Rect2(Vector2(3, 3), frame_size - Vector2(6, 6)), _color(&"focus_outer"), false, 2)
-		caption_text.draw_rect(Rect2(Vector2(7, 7), frame_size - Vector2(14, 14)), _color(&"focus_inner"), false, 2)
 
 func _color(role: StringName) -> Color:
 	return _caption_theme.get_color(role, &"WitnessedCaption")
