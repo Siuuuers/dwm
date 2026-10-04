@@ -84,7 +84,7 @@ func _render() -> void:
 	_set_preferences("zh-CN",125,false)
 	_app.panel.dock.buttons.rules.grab_focus()
 	_app.panel.dock.buttons.rules.pressed.emit()
-	if not _check(_app.panel.worksheet.information_sheet != null and _desktop.home_button.disabled,"Rules did not own local input and disable shared Home"):
+	if not _check(_app.panel.worksheet.information_sheet != null and not _desktop.home_button.disabled,"Rules must leave shared Home available"):
 		quit(1)
 		return
 	if not await _capture("rules-cn125",true):
@@ -173,7 +173,7 @@ func _capture(name: String, sheet_open: bool) -> bool:
 	var home_origin := Vector2i(_desktop.home_button.global_position)
 	var home_ink: Color = _desktop.home_button.get_theme_color("ink","Desktop")
 	if not _check(pixels.get_pixelv(home_origin+Vector2i(22,34)).is_equal_approx(home_ink),"shared Home pictogram must render with its inherited theme"): return false
-	if sheet_open and not _check(pixels.get_pixelv(home_origin+Vector2i(20,50)).is_equal_approx(home_ink),"inactive shared Home must retain a visible blocked action edge"): return false
+	if sheet_open and not _check(pixels.get_pixelv(home_origin+Vector2i(20,50)).is_equal_approx(_desktop.home_button.get_theme_color("face","Desktop")),"available shared Home must not show a blocked action edge"): return false
 	var file := _folder.path_join(name+".png")
 	if not _check(pixels.save_png(file) == OK,"assembled screenshot could not be written"): return false
 	var public: Dictionary = _app.panel.public_view
@@ -187,16 +187,19 @@ func _verify_mount(sheet_open: bool) -> bool:
 	if not _check(_app.is_visible_in_tree() and _app.panel.is_visible_in_tree() and not _desktop.icon_grid.visible,"App is not the visible desktop body"): return false
 	if not _check(_host.get_state().active_app_id == &"minesweeper","host no longer owns Minesweeper"): return false
 	if not _check(_app.get_global_rect() == Rect2(0,64,800,656) and _app.panel.get_global_rect() == Rect2(0,64,800,656),"App body does not close at the delegated mount"): return false
-	var strip: Control = _desktop.get_node("AppStrip")
+	var strip: Control = _desktop.get_node("DesktopCanvas/AppStrip")
 	if not _check(strip.is_visible_in_tree() and strip.get_global_rect() == Rect2(0,0,800,64),"shared AppStrip mount changed"): return false
-	if not _check(_desktop.home_button.is_visible_in_tree() and _desktop.home_button.disabled == sheet_open,"shared Home does not match local input ownership"): return false
+	if not _check(_desktop.home_button.is_visible_in_tree() and not _desktop.home_button.disabled,"shared Home must remain available over information sheets"): return false
 	if not _check(not _app.get_node("VBoxContainer/TopBar").visible,"local TopBar duplicates shared chrome"): return false
 	for name: String in ["DifficultyTabs","SimulationButtons","ExplodedButton","ClearButton","PerfectButton","NoFlagButton","ForesightButton"]:
 		if not _check(_app.find_child(name,true,false) == null,"placeholder simulation control remains"): return false
-	if not _check(_app.panel.worksheet.well.is_visible_in_tree() != sheet_open,"worksheet/sheet visibility is inconsistent"): return false
+	if not _check(_app.panel.worksheet.well.is_visible_in_tree(),"information sheet hid the retained board"): return false
+	if not _check(not _app.panel.dock.buttons.has("board"),"redundant Board control remains"): return false
 	if sheet_open:
-		for button: Button in _app.panel.dock.buttons.values():
-			if not _check(button.disabled,"sheet leaves a dock action enabled"): return false
+		if not _check(_app.panel.worksheet.grid.process_mode == Node.PROCESS_MODE_DISABLED,"information sheet left covered board input enabled"): return false
+		for key: String in _app.panel.dock.buttons:
+			var disabled: bool = key not in ["rules","assignments","new_board"] or key not in _app.panel.public_view.actions
+			if not _check(_app.panel.dock.buttons[key].disabled == disabled,"sheet changed permitted dock actions"): return false
 	return true
 
 func _check(condition: bool, message: String) -> bool:

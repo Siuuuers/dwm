@@ -1,0 +1,21 @@
+{
+  "parent": "d702c456177f76fe90cb73993af93949d7335b7e",
+  "base_tree": "fe939a63efc6c4ddfc3c71d83a21ebe4860c346c",
+  "tree": "ffb743578e071a1996e6e1d3d3c383ba5882e250",
+  "files": [
+    {
+      "path": "addons/dialogic/Modules/Text/event_text.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "67db93558f91b561bf61385ba92ffab1d7ba9404",
+      "bytes": 23498
+    },
+    {
+      "path": "tests/integration/test_narrative_pause_frontier.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "41732538cee1ec784d1c47ac0a1600c34efbfc51",
+      "bytes": 57849
+    }
+  ]
+}

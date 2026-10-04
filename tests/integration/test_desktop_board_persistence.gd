@@ -9,8 +9,8 @@ const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 ## identity through the real issuer, corruption fails closed before any live mutation, and a
 ## completed restore leaves the external continuation journal reconcilable at startup.
 ##
-## Base fixture: tests/fixtures/saves/v6_desktop_prepared.json (Phase B), a complete, schema-valid
-## v4 RunSnapshot with a PREPARED_UNSTARTED board (real identity + two command receipts) and an
+## Base fixture: tests/fixtures/saves/v7_desktop_prepared.json, a complete, schema-valid
+## v7 RunSnapshot with a PREPARED_UNSTARTED board (real identity + two command receipts) and an
 ## empty-pending consequence -- reused here rather than hand-built, since it already round-trips
 ## through RunSnapshotSchema.validate() (proven by test_run_snapshot_schema.gd).
 
@@ -36,7 +36,7 @@ const ISSUER_PATH := "res://scripts/application/desktop/DesktopIdentityNonceIssu
 const ROOT_STORE_PATH := "res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd"
 const FAKE_NAMESPACE_SOURCE_PATH := "res://tests/support/FakeDesktopNamespaceSource.gd"
 
-const FIXTURE_PATH := "res://tests/fixtures/saves/v6_desktop_prepared.json"
+const FIXTURE_PATH := "res://tests/fixtures/saves/v7_desktop_prepared.json"
 
 
 ## A failure-injectable Owner mirroring test_restore_production_adapters.gd's own, for the five
@@ -48,7 +48,7 @@ class Owner extends RefCounted:
 		return preload("res://scripts/profile/ProfileSchema.gd").validate(candidate)
 	func prepare_legacy_profile_patch(_l: Dictionary, _m: Dictionary = {}) -> Dictionary:
 		return {"ok": true, "value": preload("res://scripts/profile/ProfileSchema.gd").make_defaults()}
-	func prepare_locale(locale_id: String) -> Dictionary:
+	func prepare_locale(locale_id: String, _font_style: String = "pixel", _text_size: int = 100) -> Dictionary:
 		return {"ok": true, "value": {"canonical_locale_id": locale_id}}
 	func prepare_semantic_restore(ctx: Dictionary, _p: Dictionary) -> Dictionary:
 		return {"ok": true, "value": {"snapshot": ctx.duplicate(true)}}

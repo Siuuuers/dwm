@@ -28,17 +28,20 @@ class PhysicalWindow extends RefCounted:
 	func capture_output() -> Dictionary:
 		if not available: return {"ok": false, "code": &"window_output_unavailable"}
 		return {"ok": true, "value": state.duplicate(true)}
-	func apply_mode(mode: String) -> Dictionary:
+	func apply_mode(mode: String, _window_size: String = "1280x720") -> Dictionary:
 		operations.append(["apply", mode])
 		if not lie_apply:
 			state.mode = mode
 			state.position = Vector2i.ZERO
-			state.size = Vector2i(1600, 860) if mode == "borderless" else Vector2i(1280, 720)
+			state.size = Vector2i(1600, 860) if mode == "borderless" else preload("res://scripts/display/WindowModePort.gd").WINDOW_SIZES[_window_size]
 		if fail_apply:
 			fail_apply = false
 			return {"ok": false, "code": &"injected_window_apply"}
 		return {"ok": true}
-	func output_matches(mode: String) -> bool: return available and state.mode == mode
+	func output_matches(mode: String, _window_size: String = "1280x720") -> bool:
+		return available and state.mode == mode and (mode == "borderless" or state.size == preload("res://scripts/display/WindowModePort.gd").WINDOW_SIZES[_window_size])
+	func get_available_window_sizes() -> Array[String]:
+		return ["1280x720", "1600x900", "1920x1080"]
 	func restore_output(snapshot: Dictionary) -> Dictionary:
 		operations.append(["restore", snapshot.duplicate(true)])
 		if fail_restore: return {"ok": false, "code": &"injected_window_restore"}
@@ -228,3 +231,50 @@ func test_get_preference_only_profile_is_cleanly_refused_before_binding_or_outpu
 	assert_eq(f.port.state, original)
 	assert_false(f.owner.get_settings_window_capability().value.available)
 	assert_true(f.owner.initialize(f.profile, helper).ok, "refused incomplete owner leaves valid first binding available")
+
+func test_window_size_commits_once_and_survives_borderless_round_trip_and_reload() -> void:
+	var f := _fixture()
+	var revision: int = f.profile.get_profile_revision()
+	var publications: Array = []
+	f.profile.preference_changed.connect(func(path, value): publications.append([path, value]))
+	assert_true(f.owner.commit_settings_window_size("settings-size", "1600x900").ok)
+	assert_eq(f.profile.get_profile_revision(), revision + 1)
+	assert_eq(publications, [[&"preferences.display.window_size", "1600x900"]])
+	assert_eq(f.owner.get_applied_size(), "1600x900")
+	assert_eq(f.port.state.size, Vector2i(1600, 900))
+	assert_true(f.owner.commit_settings_window_preference("settings-size", "borderless").ok)
+	assert_true(f.owner.commit_settings_window_preference("settings-size", "windowed").ok)
+	assert_eq(f.port.state.size, Vector2i(1600, 900))
+	var reloaded := PROFILE.new()
+	add_child_autofree(reloaded)
+	assert_true(reloaded.initialize(STORAGE.new("window-manager.memory", f.files)).ok)
+	assert_eq(reloaded.get_preference(&"preferences.display.window_size"), "1600x900")
+
+func test_failed_window_size_persistence_restores_exact_geometry_and_selected_size() -> void:
+	var f := _fixture()
+	f.port.state.position = Vector2i(71, 83)
+	f.port.state.size = Vector2i(1030, 670)
+	var physical: Dictionary = f.port.state.duplicate(true)
+	var profile: Dictionary = f.profile.get_profile_snapshot()
+	var persisted: Dictionary = f.files.snapshot_persisted()
+	f.files.reject_write = true
+	assert_false(f.owner.commit_settings_window_size("settings-size", "1600x900").ok)
+	assert_eq(f.port.state, physical)
+	assert_eq(f.owner.get_applied_size(), "1280x720")
+	assert_eq(f.profile.get_profile_snapshot(), profile)
+	assert_eq(f.files.snapshot_persisted(), persisted)
+	assert_false(f.gate.is_fatal_latched())
+
+func test_legacy_profile_admits_only_missing_window_size_and_rejects_invalid_values() -> void:
+	var schema := preload("res://scripts/profile/ProfileSchema.gd")
+	var source: Dictionary = schema.make_defaults()
+	source.preferences.display.erase("window_size")
+	var checked: Dictionary = schema.validate(source)
+	assert_true(checked.ok)
+	assert_true(checked.migrated)
+	assert_eq(checked.value.preferences.display.window_size, "1280x720")
+	assert_false(source.preferences.display.has("window_size"), "migration must remain detached")
+	for value: Variant in ["4096x2160", 1280, null]:
+		var malformed: Dictionary = checked.value.duplicate(true)
+		malformed.preferences.display.window_size = value
+		assert_false(schema.validate(malformed).ok)

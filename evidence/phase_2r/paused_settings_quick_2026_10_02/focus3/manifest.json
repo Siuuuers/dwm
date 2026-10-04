@@ -1,0 +1,396 @@
+{
+  "artifacts": [
+    {
+      "created_at": "2026-10-02T04:59:59Z",
+      "digest": "sha256:d5022ec8abdc7cf028d2b9050709ec00ca1d24dbbd4bd2d9a617d85fdc537c3f",
+      "extracted_file_count": 19,
+      "id": 11209993052,
+      "local_zip_basename": "public-surfaces-36966651051-1.zip",
+      "name": "public-surfaces-36966651051-1",
+      "size_in_bytes": 143126,
+      "workflow_run_head_sha": "5f932e45957e737b04cd4a7ae1ed3928da9b397d",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "d5022ec8abdc7cf028d2b9050709ec00ca1d24dbbd4bd2d9a617d85fdc537c3f"
+    },
+    {
+      "created_at": "2026-10-02T05:03:37Z",
+      "digest": "sha256:bc310a59cfbad6c97931d2de1952c6b5f342c83978914c5667da0a9f828f1791",
+      "extracted_file_count": 4,
+      "id": 11209564647,
+      "local_zip_basename": "windows-reading_delivery-36966651051-1.zip",
+      "name": "windows-reading_delivery-36966651051-1",
+      "size_in_bytes": 163947,
+      "workflow_run_head_sha": "5f932e45957e737b04cd4a7ae1ed3928da9b397d",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "bc310a59cfbad6c97931d2de1952c6b5f342c83978914c5667da0a9f828f1791"
+    }
+  ],
+  "bundle": "settings-f5-focus3.tar.gz",
+  "counts": {
+    ".json": 7,
+    ".jsonl": 7,
+    ".log": 12,
+    ".xml": 2
+  },
+  "evidence_kind": "bounded-successful-run-audit",
+  "excluded_extracted_files": [
+    {
+      "bytes": 561313,
+      "path": "settings-focus3/artifacts/public-surfaces-36966651051-1/ci/public-surfaces/game_state_surface.json",
+      "provenance": {
+        "artifact_id": 11209993052,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/game_state_surface.json",
+        "zip_sha256": "d5022ec8abdc7cf028d2b9050709ec00ca1d24dbbd4bd2d9a617d85fdc537c3f"
+      },
+      "reason": "Duplicate public inventory; retain canonical source-bound copies separately.",
+      "sha256": "8150aab178f554331fe916c344b10134d7755748465174bba815121d506a92d4"
+    },
+    {
+      "bytes": 149516,
+      "path": "settings-focus3/artifacts/public-surfaces-36966651051-1/ci/public-surfaces/save_manager_surface.json",
+      "provenance": {
+        "artifact_id": 11209993052,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/save_manager_surface.json",
+        "zip_sha256": "d5022ec8abdc7cf028d2b9050709ec00ca1d24dbbd4bd2d9a617d85fdc537c3f"
+      },
+      "reason": "Duplicate public inventory; retain canonical source-bound copies separately.",
+      "sha256": "6d8dcda3b416bf9fc9814477733f4394ce1c41a6b59677ba43073173b9f38267"
+    }
+  ],
+  "excluded_metadata": "Transient download responses and artifact-manifest.json are omitted because they can contain signed URLs.",
+  "generic_audit_pass": true,
+  "limits": [
+    "Only this fully successful two-job run is admitted; earlier failed focused runs supply no partial acceptance.",
+    "No rendered reading or Settings writer/reader process ran in this focused gate; reading is intentionally empty.",
+    "Exactly six new named cases and all historical registry/case identities are retained; whole-registry retention is static evidence only.",
+    "Generated inventories require independent review and adoption before final committed-inventory validation.",
+    "The final canonical broad gate must rerun all runtime, rendered, storage, performance and export coverage before broad acceptance.",
+    "No local Godot, PowerShell or native-input acceptance occurs in this audit.",
+    "Only selected PNGs are embedded; each omitted image or binary has an explicit reason and identity. Semantic reports and save bytes are retained.",
+    "This archive preserves evidence; packaging creates no additional engine or visual acceptance."
+  ],
+  "normalization": "lexicographic POSIX PAX members; mode0644 uid/gid0 empty owner names, mtime0; gzip mtime0, empty filename, level9",
+  "not_downloaded_artifacts": [],
+  "payload_bytes": 5032572,
+  "payload_file_count": 28,
+  "payload_files": [
+    {
+      "bytes": 1813,
+      "path": "settings-focus3/artifacts-api.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "21caf98d561e7608be5065001bbab58d967f324765e1bcb690852ac4c708678b"
+    },
+    {
+      "bytes": 203583,
+      "path": "settings-focus3/artifacts/public-surfaces-36966651051-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11209993052,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "d5022ec8abdc7cf028d2b9050709ec00ca1d24dbbd4bd2d9a617d85fdc537c3f"
+      },
+      "sha256": "d2e828f704d0a082f38f7aed7558249d36404c31208ed983188f3caf3bf8efeb"
+    },
+    {
+      "bytes": 658,
+      "path": "settings-focus3/artifacts/public-surfaces-36966651051-1/ci/isolation-timeout.jsonl",
+      "provenance": {
+        "artifact_id": 11209993052,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/isolation-timeout.jsonl",
+        "zip_sha256": "d5022ec8abdc7cf028d2b9050709ec00ca1d24dbbd4bd2d9a617d85fdc537c3f"
+      },
+      "sha256": "770c8990d2bfa70b1a3fa528c88c810aae5b37b77113e8d4662a0b141f49ea5e"
+    },
+    {
+      "bytes": 229541,
+      "path": "settings-focus3/artifacts/public-surfaces-36966651051-1/ci/public-surfaces/fixture-version-census.json",
+      "provenance": {
+        "artifact_id": 11209993052,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/fixture-version-census.json",
+        "zip_sha256": "d5022ec8abdc7cf028d2b9050709ec00ca1d24dbbd4bd2d9a617d85fdc537c3f"
+      },
+      "sha256": "f0c67de0269676eee48c8f3379fa78ceffa339df7c67f856f3e976817f8bee7a"
+    },
+    {
+      "bytes": 997,
+      "path": "settings-focus3/artifacts/public-surfaces-36966651051-1/ci/public-surfaces/game_state-check.jsonl",
+      "provenance": {
+        "artifact_id": 11209993052,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/game_state-check.jsonl",
+        "zip_sha256": "d5022ec8abdc7cf028d2b9050709ec00ca1d24dbbd4bd2d9a617d85fdc537c3f"
+      },
+      "sha256": "e676ded65695132a55691578c15082f37b43a66f6a168a46197bca8177b12817"
+    },
+    {
+      "bytes": 996,
+      "path": "settings-focus3/artifacts/public-surfaces-36966651051-1/ci/public-surfaces/game_state-generate.jsonl",
+      "provenance": {
+        "artifact_id": 11209993052,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/game_state-generate.jsonl",
+        "zip_sha256": "d5022ec8abdc7cf028d2b9050709ec00ca1d24dbbd4bd2d9a617d85fdc537c3f"
+      },
+      "sha256": "a0eb03ad89a2612204ff6dbe618b93bb9a995f0690964aaebbad01adf0bcd495"
+    },
+    {
+      "bytes": 563,
+      "path": "settings-focus3/artifacts/public-surfaces-36966651051-1/ci/public-surfaces/retirement-audit.json",
+      "provenance": {
+        "artifact_id": 11209993052,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/retirement-audit.json",
+        "zip_sha256": "d5022ec8abdc7cf028d2b9050709ec00ca1d24dbbd4bd2d9a617d85fdc537c3f"
+      },
+      "sha256": "ebbb554a03d4d739c26e0e094f66379d8f12597c110ee4e6f7fb79f7413a4d19"
+    },
+    {
+      "bytes": 1009,
+      "path": "settings-focus3/artifacts/public-surfaces-36966651051-1/ci/public-surfaces/save_manager-check.jsonl",
+      "provenance": {
+        "artifact_id": 11209993052,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/save_manager-check.jsonl",
+        "zip_sha256": "d5022ec8abdc7cf028d2b9050709ec00ca1d24dbbd4bd2d9a617d85fdc537c3f"
+      },
+      "sha256": "6268d8c1761fc6ab93a15df59aa4706f6669ad2b3141d97092fab5742bf51050"
+    },
+    {
+      "bytes": 1008,
+      "path": "settings-focus3/artifacts/public-surfaces-36966651051-1/ci/public-surfaces/save_manager-generate.jsonl",
+      "provenance": {
+        "artifact_id": 11209993052,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/save_manager-generate.jsonl",
+        "zip_sha256": "d5022ec8abdc7cf028d2b9050709ec00ca1d24dbbd4bd2d9a617d85fdc537c3f"
+      },
+      "sha256": "9c4cfab1dd042e523034f68b82171067070bb2cb64cf78f5e6d3a47123d1ba3c"
+    },
+    {
+      "bytes": 758,
+      "path": "settings-focus3/artifacts/public-surfaces-36966651051-1/ci/public_surfaces.jsonl",
+      "provenance": {
+        "artifact_id": 11209993052,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public_surfaces.jsonl",
+        "zip_sha256": "d5022ec8abdc7cf028d2b9050709ec00ca1d24dbbd4bd2d9a617d85fdc537c3f"
+      },
+      "sha256": "9fa111741a0432238f019d321d1ce31d52b9b3bbe03d2a0724a288be90e8a229"
+    },
+    {
+      "bytes": 2504,
+      "path": "settings-focus3/artifacts/public-surfaces-36966651051-1/ci/public_surfaces.xml",
+      "provenance": {
+        "artifact_id": 11209993052,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public_surfaces.xml",
+        "zip_sha256": "d5022ec8abdc7cf028d2b9050709ec00ca1d24dbbd4bd2d9a617d85fdc537c3f"
+      },
+      "sha256": "cc60d42e27c04b74aa5bcdac30ec5288acaece907b743bf14de31a44e642afe7"
+    },
+    {
+      "bytes": 105,
+      "path": "settings-focus3/artifacts/public-surfaces-36966651051-1/phase2r_logs/cloud-isolation-timeout.log",
+      "provenance": {
+        "artifact_id": 11209993052,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-isolation-timeout.log",
+        "zip_sha256": "d5022ec8abdc7cf028d2b9050709ec00ca1d24dbbd4bd2d9a617d85fdc537c3f"
+      },
+      "sha256": "024608dce65ad25e4cf6cf14cda110234e45b506858606453dbab71388889192"
+    },
+    {
+      "bytes": 151,
+      "path": "settings-focus3/artifacts/public-surfaces-36966651051-1/phase2r_logs/cloud-isolation-timeout.log.timeout.log",
+      "provenance": {
+        "artifact_id": 11209993052,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-isolation-timeout.log.timeout.log",
+        "zip_sha256": "d5022ec8abdc7cf028d2b9050709ec00ca1d24dbbd4bd2d9a617d85fdc537c3f"
+      },
+      "sha256": "bbfe0f114cd95fdd646d6bed89814dc35f6124e3bf360f0552964a251831cc41"
+    },
+    {
+      "bytes": 97,
+      "path": "settings-focus3/artifacts/public-surfaces-36966651051-1/phase2r_logs/cloud-public-surface-game_state-check.log",
+      "provenance": {
+        "artifact_id": 11209993052,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public-surface-game_state-check.log",
+        "zip_sha256": "d5022ec8abdc7cf028d2b9050709ec00ca1d24dbbd4bd2d9a617d85fdc537c3f"
+      },
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "bytes": 97,
+      "path": "settings-focus3/artifacts/public-surfaces-36966651051-1/phase2r_logs/cloud-public-surface-game_state-generate.log",
+      "provenance": {
+        "artifact_id": 11209993052,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public-surface-game_state-generate.log",
+        "zip_sha256": "d5022ec8abdc7cf028d2b9050709ec00ca1d24dbbd4bd2d9a617d85fdc537c3f"
+      },
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "bytes": 97,
+      "path": "settings-focus3/artifacts/public-surfaces-36966651051-1/phase2r_logs/cloud-public-surface-save_manager-check.log",
+      "provenance": {
+        "artifact_id": 11209993052,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public-surface-save_manager-check.log",
+        "zip_sha256": "d5022ec8abdc7cf028d2b9050709ec00ca1d24dbbd4bd2d9a617d85fdc537c3f"
+      },
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "bytes": 97,
+      "path": "settings-focus3/artifacts/public-surfaces-36966651051-1/phase2r_logs/cloud-public-surface-save_manager-generate.log",
+      "provenance": {
+        "artifact_id": 11209993052,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public-surface-save_manager-generate.log",
+        "zip_sha256": "d5022ec8abdc7cf028d2b9050709ec00ca1d24dbbd4bd2d9a617d85fdc537c3f"
+      },
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "bytes": 201904,
+      "path": "settings-focus3/artifacts/public-surfaces-36966651051-1/phase2r_logs/cloud-public_surfaces.log",
+      "provenance": {
+        "artifact_id": 11209993052,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public_surfaces.log",
+        "zip_sha256": "d5022ec8abdc7cf028d2b9050709ec00ca1d24dbbd4bd2d9a617d85fdc537c3f"
+      },
+      "sha256": "281dc26b492cee56cab089d2579d0744f195a2aea80348aab3c047653a95ed30"
+    },
+    {
+      "bytes": 203583,
+      "path": "settings-focus3/artifacts/windows-reading_delivery-36966651051-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11209564647,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "bc310a59cfbad6c97931d2de1952c6b5f342c83978914c5667da0a9f828f1791"
+      },
+      "sha256": "a0182107bf3f5e6f4ac5ed2c69a7a553ae7710d181109ee8bcad4727b552c1f7"
+    },
+    {
+      "bytes": 2304,
+      "path": "settings-focus3/artifacts/windows-reading_delivery-36966651051-1/ci/reading_delivery.jsonl",
+      "provenance": {
+        "artifact_id": 11209564647,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/reading_delivery.jsonl",
+        "zip_sha256": "bc310a59cfbad6c97931d2de1952c6b5f342c83978914c5667da0a9f828f1791"
+      },
+      "sha256": "ba01e1b01214fe7f69f9166d6d0a3032d5e249b5ce4c63f09768521984c08dbc"
+    },
+    {
+      "bytes": 89986,
+      "path": "settings-focus3/artifacts/windows-reading_delivery-36966651051-1/ci/reading_delivery.xml",
+      "provenance": {
+        "artifact_id": 11209564647,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/reading_delivery.xml",
+        "zip_sha256": "bc310a59cfbad6c97931d2de1952c6b5f342c83978914c5667da0a9f828f1791"
+      },
+      "sha256": "b39923a25ad440fe54fb0598e7971844dcd60879e45d3ceeb537705f94c8e6e8"
+    },
+    {
+      "bytes": 2743733,
+      "path": "settings-focus3/artifacts/windows-reading_delivery-36966651051-1/phase2r_logs/cloud-reading_delivery.log",
+      "provenance": {
+        "artifact_id": 11209564647,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-reading_delivery.log",
+        "zip_sha256": "bc310a59cfbad6c97931d2de1952c6b5f342c83978914c5667da0a9f828f1791"
+      },
+      "sha256": "7e489ad743c911ac794c3d658cff641d6ba363d8287c317bc06a2bf6e46b43bf"
+    },
+    {
+      "bytes": 57458,
+      "path": "settings-focus3/audit/generic-evidence-audit.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "3d773288de96efdeaede8005fae55417b187faab2488131fa7810b52bfb172b3"
+    },
+    {
+      "bytes": 346,
+      "path": "settings-focus3/audit/source-provenance.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "55b00682d6f8bf2395fee533b814f7ef20e217396d3ee265f26be52fe92eab09"
+    },
+    {
+      "bytes": 8414,
+      "path": "settings-focus3/jobs.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "a02cd6fafe6826babd2d356f0e9a6116f67e3179920e342c62dea75e1b7486ff"
+    },
+    {
+      "bytes": 810601,
+      "path": "settings-focus3/logs/110711754438.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "1e8d6772bd4ed2d26e9f6c8dfbe1e8c6839c7446bfc33b94f0f4d690d91c6a29"
+    },
+    {
+      "bytes": 457340,
+      "path": "settings-focus3/logs/110712765197.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "a23669c6f0be736f6fdb8f803bd26218515a367eda5c70f0efc9b2ba3f78c98e"
+    },
+    {
+      "bytes": 12829,
+      "path": "settings-focus3/run.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "d11b68bd9d7a4f6c47eef8872936a5d0a958eb3f7de0e3cb212baa976420d0a2"
+    }
+  ],
+  "run": {
+    "conclusion": "success",
+    "event": "push",
+    "head_branch": "codex/paused-settings-f5-cloud-20261002",
+    "head_sha": "5f932e45957e737b04cd4a7ae1ed3928da9b397d",
+    "html_url": "https://github.com/Siuuuers/dwm/actions/runs/36966651051",
+    "id": 36966651051,
+    "run_attempt": 1,
+    "run_number": 3,
+    "status": "completed"
+  },
+  "schema_version": 1,
+  "secret_scan_patterns": [
+    "github_token",
+    "signed_query",
+    "authorization_secret",
+    "private_key"
+  ],
+  "source_boundary": {
+    "all_unlisted_paths_byte_identical": true,
+    "checkout_parents": [
+      "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b"
+    ],
+    "explicit_allowed_difference_patterns": [],
+    "master": null,
+    "source": "8c4218cc880f16e69854115e7b5263a00982d1bb",
+    "source_checkout_differences": [],
+    "tested_checkout": "8c4218cc880f16e69854115e7b5263a00982d1bb"
+  }
+}

@@ -1,0 +1,453 @@
+{
+  "files": [
+    {
+      "archive_path": "capture/artifact-manifest.json",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-focus3/artifact-manifest.json",
+      "kind": "complete_capture_record",
+      "bytes": 2350,
+      "sha256": "610836b809cf1beb6b29913ab7f31798c15a7caae3aa7e221cacd9ab3a98a748"
+    },
+    {
+      "archive_path": "capture/artifacts-api.json",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-focus3/artifacts-api.json",
+      "kind": "complete_capture_record",
+      "bytes": 3558,
+      "sha256": "862b1627a192982fcb83a6dc419e442ee7362d1d49abf577dc78ffe433bb00ff"
+    },
+    {
+      "archive_path": "capture/jobs.json",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-focus3/jobs.json",
+      "kind": "complete_capture_record",
+      "bytes": 12531,
+      "sha256": "7b420c865d94ab0797d5b528d135d956c325e7a8a845fc40cfcfce1bdee26d47"
+    },
+    {
+      "archive_path": "capture/logs/111119106860.log",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-focus3/logs/111119106860.log",
+      "kind": "complete_capture_record",
+      "bytes": 821861,
+      "sha256": "647513debe1d62b792602876ce561d6e31a896f1642453e497fa5d03c6c4c68d"
+    },
+    {
+      "archive_path": "capture/logs/111119863574.log",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-focus3/logs/111119863574.log",
+      "kind": "complete_capture_record",
+      "bytes": 498558,
+      "sha256": "884fb4037f7ca7c5c649c65edd33a1cf5976552cbd5988ea582ad213351f7146"
+    },
+    {
+      "archive_path": "capture/logs/111119863623.log",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-focus3/logs/111119863623.log",
+      "kind": "complete_capture_record",
+      "bytes": 459159,
+      "sha256": "5202faf9e63889d37399626d8ebcf6eaca9c020e67eb3d7b1a8229e5a9186e4a"
+    },
+    {
+      "archive_path": "capture/omissions.json",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-focus3/omissions.json",
+      "kind": "complete_capture_record",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "archive_path": "capture/run.json",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-focus3/run.json",
+      "kind": "complete_capture_record",
+      "bytes": 12826,
+      "sha256": "fafcefa95df9a06f0904960203468f94ea34ecd71605a9a124c8660addeba8d5"
+    },
+    {
+      "archive_path": "original-artifacts/11263314231-windows-reading_delivery-37093670324-1.zip",
+      "source": "/workspace/scratch/e58f796fe7a3/attachments/52d4c540-e407-47ff-be9c-a19680b8e0e0/windows-reading_delivery-37093670324-1.zip",
+      "kind": "original_artifact_zip_once",
+      "bytes": 212283,
+      "sha256": "c7b9c63ccf106c8264224c6d9021e2eefc105c121b91b8d6b27edd21861435c9"
+    },
+    {
+      "archive_path": "original-artifacts/11263398929-public-surfaces-37093670324-1.zip",
+      "source": "/workspace/scratch/e58f796fe7a3/attachments/aabd2cef-bf02-4ade-af38-c7415636573e/public-surfaces-37093670324-1.zip",
+      "kind": "original_artifact_zip_once",
+      "bytes": 146637,
+      "sha256": "01d0525c7b29b8d6d347cc6544aa68da371006d99162bb7fe42158d0e964a631"
+    },
+    {
+      "archive_path": "original-artifacts/11263462576-timed-hold-37093670324-1.zip",
+      "source": "/workspace/scratch/e58f796fe7a3/attachments/c12e067b-7bf6-4167-b8db-4089044b46c7/timed-hold-37093670324-1.zip",
+      "kind": "original_artifact_zip_once",
+      "bytes": 4844184,
+      "sha256": "d48a89b1ad5190ba0b8f97158821c3f074fa2f6bb34dcda3eaecd3f013a9e857"
+    },
+    {
+      "archive_path": "original-artifacts/11263688526-cloud-speech-rendered-timed-hold-37093670324-1.zip",
+      "source": "/workspace/scratch/e58f796fe7a3/attachments/8987b4c9-0925-4dca-9452-0d39c5870b21/cloud-speech-rendered-timed-hold-37093670324-1.zip",
+      "kind": "original_artifact_zip_once",
+      "bytes": 383227,
+      "sha256": "79eee332a12d13a57d8786870536866a2661abf52f8d54dd2d33b560b1f02ee3"
+    },
+    {
+      "archive_path": "source-context/.github/workflows/windows-tests.yml",
+      "source": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7:.github/workflows/windows-tests.yml",
+      "kind": "frozen_source",
+      "bytes": 65945,
+      "sha256": "c994415aab3dac81f146b979586363ce10cf53d5116f30c6809e43714b1b0bd0"
+    },
+    {
+      "archive_path": "source-context/addons/dialogic/Core/DialogicGameHandler.gd",
+      "source": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7:addons/dialogic/Core/DialogicGameHandler.gd",
+      "kind": "frozen_source",
+      "bytes": 18668,
+      "sha256": "c05cd2e152b66133f5d1dae647d37b448f92bd9352ad73e73433892c4451a7b7"
+    },
+    {
+      "archive_path": "source-context/addons/dialogic/Modules/Wait/event_wait.gd",
+      "source": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7:addons/dialogic/Modules/Wait/event_wait.gd",
+      "kind": "frozen_source",
+      "bytes": 7119,
+      "sha256": "b405642da674f7746f368d342140c420941ec1f6c15b9595d00db224f99f1bee"
+    },
+    {
+      "archive_path": "source-context/addons/dialogic/Resources/event.gd",
+      "source": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7:addons/dialogic/Resources/event.gd",
+      "kind": "frozen_source",
+      "bytes": 19648,
+      "sha256": "3d6c655cd7ae6d338d75c2f1503aa6d8511ea81c315b813e54174fabbec8222d"
+    },
+    {
+      "archive_path": "source-context/autoload/DialogicBridge.gd",
+      "source": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7:autoload/DialogicBridge.gd",
+      "kind": "frozen_source",
+      "bytes": 154132,
+      "sha256": "31448820a4ec9b22979445dc99a419bbf7c7ce4f892ca53bf63d701fcb9905d2"
+    },
+    {
+      "archive_path": "source-context/evidence/phase_2r/runtime/game_state_surface.json",
+      "source": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7:evidence/phase_2r/runtime/game_state_surface.json",
+      "kind": "frozen_source",
+      "bytes": 569000,
+      "sha256": "1c41b2493fc60863886bd3e0f66817196483e1b99bcf63301f2b0f63a2164d91"
+    },
+    {
+      "archive_path": "source-context/evidence/phase_2r/runtime/save_manager_surface.json",
+      "source": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7:evidence/phase_2r/runtime/save_manager_surface.json",
+      "kind": "frozen_source",
+      "bytes": 151372,
+      "sha256": "0fbcfb504cbda802600e3a7317f92c7365ca61642506f719be519d1ed48e54d6"
+    },
+    {
+      "archive_path": "source-context/scripts/narrative/DialogicRuntimeAdapter.gd",
+      "source": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7:scripts/narrative/DialogicRuntimeAdapter.gd",
+      "kind": "frozen_source",
+      "bytes": 50513,
+      "sha256": "139eb946288b23b94e33d135ee0be729e1164c36480316038290f57eb3333445"
+    },
+    {
+      "archive_path": "source-context/scripts/ui/witnessed/WitnessedCaptionLayer.gd",
+      "source": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7:scripts/ui/witnessed/WitnessedCaptionLayer.gd",
+      "kind": "frozen_source",
+      "bytes": 73748,
+      "sha256": "d9c5d13474b0d6a93225002559f92524e37845ff093c64a093f49d21af58d84f"
+    },
+    {
+      "archive_path": "source-context/tests/fixtures/dialogic/timed_hold_journey.dtl",
+      "source": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7:tests/fixtures/dialogic/timed_hold_journey.dtl",
+      "kind": "frozen_source",
+      "bytes": 399,
+      "sha256": "c512e181733d21cf08acf0b9a60d623f356115f2b70dc45ab497ed6b18e6d1a3"
+    },
+    {
+      "archive_path": "source-context/tests/fixtures/dialogic/timed_hold_legacy_controls.dtl",
+      "source": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7:tests/fixtures/dialogic/timed_hold_legacy_controls.dtl",
+      "kind": "frozen_source",
+      "bytes": 318,
+      "sha256": "824c31fde671cdb3234e399965a6e0757bb1b7c3f50769a109e64a9258c52d62"
+    },
+    {
+      "archive_path": "source-context/tests/fixtures/dialogic/timed_hold_runtime.dtl",
+      "source": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7:tests/fixtures/dialogic/timed_hold_runtime.dtl",
+      "kind": "frozen_source",
+      "bytes": 244,
+      "sha256": "6a4950a484c29c3a27b2c4f14fdab0d8b00abc68488b3a2060f30ac8ff68633f"
+    },
+    {
+      "archive_path": "source-context/tests/integration/test_dialogic_timed_hold_runtime.gd",
+      "source": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7:tests/integration/test_dialogic_timed_hold_runtime.gd",
+      "kind": "frozen_source",
+      "bytes": 34213,
+      "sha256": "528298883ce823695bff9a2c1de114490cbce52d3f7f33b255c6d2ad1a71bebe"
+    },
+    {
+      "archive_path": "source-context/tests/integration/test_narrative_pause_frontier.gd",
+      "source": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7:tests/integration/test_narrative_pause_frontier.gd",
+      "kind": "frozen_source",
+      "bytes": 58341,
+      "sha256": "640ba3a9680e109071a3fc5b0ac4f1a4a5bda1df3db0aee36cf17993d3df4e82"
+    },
+    {
+      "archive_path": "source-context/tests/integration/verify_timed_hold_journey.gd",
+      "source": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7:tests/integration/verify_timed_hold_journey.gd",
+      "kind": "frozen_source",
+      "bytes": 20055,
+      "sha256": "ec69c2abfa55779ae62ebd46420c771fc6bcf7dc5464393b6bd83a94db067a5b"
+    },
+    {
+      "archive_path": "source-context/tests/tooling/Test-InvokeIsolatedGodot.ps1",
+      "source": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7:tests/tooling/Test-InvokeIsolatedGodot.ps1",
+      "kind": "frozen_source",
+      "bytes": 17320,
+      "sha256": "edcddc092243730a2e1a4ae297425fcc012e10ea8d60a36655b81b4db6db8448"
+    },
+    {
+      "archive_path": "source-context/tests/unit/test_witnessed_timed_hold.gd",
+      "source": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7:tests/unit/test_witnessed_timed_hold.gd",
+      "kind": "frozen_source",
+      "bytes": 8058,
+      "sha256": "8e66e68a9092e29f44bcecf2040b56250467ad5daa71c64c539432dcb5509a26"
+    },
+    {
+      "archive_path": "source-context/tools/testing/Invoke-CloudTests.ps1",
+      "source": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7:tools/testing/Invoke-CloudTests.ps1",
+      "kind": "frozen_source",
+      "bytes": 20756,
+      "sha256": "472db5593da4de1980ed9b699a2aac2f687fc159b1ddb834d29a62f6e1111c80"
+    },
+    {
+      "archive_path": "source-context/tools/testing/Invoke-IsolatedGodot.ps1",
+      "source": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7:tools/testing/Invoke-IsolatedGodot.ps1",
+      "kind": "frozen_source",
+      "bytes": 17008,
+      "sha256": "baefabe8938f665859dcec4055d8bd86cea4096f0d94b7e8b13dc5d302780031"
+    },
+    {
+      "archive_path": "source-context/tools/testing/run_timed_hold_journey.py",
+      "source": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7:tools/testing/run_timed_hold_journey.py",
+      "kind": "frozen_source",
+      "bytes": 18456,
+      "sha256": "fcf96b638817a1aaf987deaf84be43d3dc5c759c900afbce7a1cd243bfe2fe9b"
+    },
+    {
+      "archive_path": "workflow/published.yml",
+      "source": "d5652c4c8b9391cc57d5f5a7b1c1fc950a4db465:.github/workflows/timed-hold-cloud.yml",
+      "kind": "published_workflow",
+      "bytes": 14820,
+      "sha256": "12957889042bbbbab47ef270fef58e12bdcebcd507fea8a9ae6564b9828ad320"
+    },
+    {
+      "archive_path": "provenance/source.commit.txt",
+      "source": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7",
+      "kind": "git_commit",
+      "bytes": 332,
+      "sha256": "919152cbc6e77db73529681df3385681d2b058edf5c575ed993a3b08212fbf4d"
+    },
+    {
+      "archive_path": "provenance/source.tree.txt",
+      "source": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7",
+      "kind": "complete_git_tree_identity_inventory",
+      "bytes": 1366282,
+      "sha256": "01d3e115a9af7523c9b3dc144909413073f9a377f36842528242d115b8dadd55"
+    },
+    {
+      "archive_path": "provenance/workflow-head.commit.txt",
+      "source": "d5652c4c8b9391cc57d5f5a7b1c1fc950a4db465",
+      "kind": "git_commit",
+      "bytes": 375,
+      "sha256": "27e571ebac58bd8381e28e6f4c6a4cb599e3f8b583930ef885b5b2f1f40b12c7"
+    },
+    {
+      "archive_path": "provenance/workflow-head.tree.txt",
+      "source": "d5652c4c8b9391cc57d5f5a7b1c1fc950a4db465",
+      "kind": "complete_git_tree_identity_inventory",
+      "bytes": 1366374,
+      "sha256": "61a866a363c6e35f9b4e13ee65c6d1e1f4fb7b1405f19e108c99b5b1618b4769"
+    },
+    {
+      "archive_path": "provenance/source-workflow-checkout.json",
+      "source": "exact Git objects and actual checkout logs",
+      "kind": "source_provenance",
+      "bytes": 1849,
+      "sha256": "4d97bf9b2873e3e2fa3c0e465bf893de568283531190beb2542c770d07e703c7"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/audit_focus3_repair_source.py",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-cloud-plan/audit_focus3_repair_source.py",
+      "kind": "independent_audit_or_provenance",
+      "bytes": 9633,
+      "sha256": "24654d768fe83eaec9faa1549e3faa3a9f6244298ba0242ddeb073c564622750"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/build_timed_hold_repair_workflow.py",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-cloud-plan/build_timed_hold_repair_workflow.py",
+      "kind": "independent_audit_or_provenance",
+      "bytes": 10561,
+      "sha256": "63f364288a5ba06bf63438e0cfe1a2793e6e654a334229ca171cd8f111e9246b"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/focus3-api-commit.json",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-cloud-plan/focus3-api-commit.json",
+      "kind": "independent_audit_or_provenance",
+      "bytes": 1614,
+      "sha256": "c307c01d448ee3d9c0e820a5b3fe538fc272bb5c559e5c28e36f7b526e34de3c"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/focus3-frozen-repair-source-audit.json",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-cloud-plan/focus3-frozen-repair-source-audit.json",
+      "kind": "independent_audit_or_provenance",
+      "bytes": 331562,
+      "sha256": "eed7b6ed8ebe443bc081a62851536d9680af5e1f572ac426a19ece90e0b5b9ec"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/focus3-public-inventory-adoption-review.json",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-cloud-plan/focus3-public-inventory-adoption-review.json",
+      "kind": "independent_audit_or_provenance",
+      "bytes": 14866,
+      "sha256": "a53ce33a723c8407cc712c07c711d06b49bba21866d5c2418093b99ca890bf81"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/focus3-public-inventory-adoption.json",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-cloud-plan/focus3-public-inventory-adoption.json",
+      "kind": "independent_audit_or_provenance",
+      "bytes": 2408,
+      "sha256": "a2baa912e3cc6266eee8e63f0c0a7c64cab58630c6c19779ed6e1ec52a6feff3"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/focus3-publication.json",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-cloud-plan/focus3-publication.json",
+      "kind": "independent_audit_or_provenance",
+      "bytes": 335,
+      "sha256": "1dc741561465607c67ef940a1418e1caf18954c239a0a86c70499c316c3c9d02"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/focus3-tree-review.json",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-cloud-plan/focus3-tree-review.json",
+      "kind": "independent_audit_or_provenance",
+      "bytes": 449,
+      "sha256": "8807f172b8ec89cc8e067e77464fb38e021bb73c9558f478900dd86a5967d4d2"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/repair-helper-static-review.json",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-cloud-plan/repair-helper-static-review.json",
+      "kind": "independent_audit_or_provenance",
+      "bytes": 883,
+      "sha256": "6f179ffee5c43af5c2d91194d79b42b96dee7a0ed519c60872ad5cfda7614d8d"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/timed-hold-focus3-repair.yml.manifest.json",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-cloud-plan/timed-hold-focus3-repair.yml.manifest.json",
+      "kind": "independent_audit_or_provenance",
+      "bytes": 1811700,
+      "sha256": "c56e95468ef9b7d29c2fb4165faa7d4813c46870599a754e1f88e492fa7c69d5"
+    },
+    {
+      "archive_path": "support/hold-contract-review/audit_focus.py",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-contract-review/audit_focus.py",
+      "kind": "independent_audit_or_provenance",
+      "bytes": 28239,
+      "sha256": "a0ddc53bbc581232fa10af7ba78b08e9813f7bbaba2727cf5cac427a9809a0e2"
+    },
+    {
+      "archive_path": "support/hold-contract-review/focus3-audit-expectations.json",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-contract-review/focus3-audit-expectations.json",
+      "kind": "independent_audit_or_provenance",
+      "bytes": 9633,
+      "sha256": "90d3f23cfdfc4bdfa7d8ef4ac65273c7836e89918b09b07b843de412e1293c62"
+    },
+    {
+      "archive_path": "support/hold-contract-review/focus3-evidence-review.json",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-contract-review/focus3-evidence-review.json",
+      "kind": "independent_audit_or_provenance",
+      "bytes": 29768,
+      "sha256": "2de6d8a829dc2aa09c4e994922a25ab230414d05959ad0eef34c8cbfe69ca75f"
+    },
+    {
+      "archive_path": "support/hold-focus3-render/root-visual-review.json",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-focus3-render/root-visual-review.json",
+      "kind": "independent_audit_or_provenance",
+      "bytes": 1805,
+      "sha256": "021fb3f84f44ff247f27d9e24dca3937a3a17a4675d800e93f52ab9b104dcc44"
+    },
+    {
+      "archive_path": "support/hold-green4-source/api-commit.json",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-green4-source/api-commit.json",
+      "kind": "independent_audit_or_provenance",
+      "bytes": 1338,
+      "sha256": "33c034010396466e85282c86849add09387bcadb54bd0bc6973f5cabcd1dece7"
+    },
+    {
+      "archive_path": "support/hold-green4-source/manifest.json",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-green4-source/manifest.json",
+      "kind": "independent_audit_or_provenance",
+      "bytes": 1393,
+      "sha256": "2d65bfb3702fa03cd8497b664ee29ea2deb029d67040253ce6b465d88df9b1ea"
+    },
+    {
+      "archive_path": "support/hold-green4-source/publication.json",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-green4-source/publication.json",
+      "kind": "independent_audit_or_provenance",
+      "bytes": 200,
+      "sha256": "f4c185aed8fad2654e84016244ec39314cd5990775fe1cb319a04b825c22eac1"
+    },
+    {
+      "archive_path": "support/hold-green4-source/published-blobs.json",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-green4-source/published-blobs.json",
+      "kind": "independent_audit_or_provenance",
+      "bytes": 421,
+      "sha256": "1b2e8f1458259f630300fd131c6ad94705ac1893de2a43e863ef281553cf7318"
+    },
+    {
+      "archive_path": "support/hold-rendered-semantic-audit/audit_hold.py",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-rendered-semantic-audit/audit_hold.py",
+      "kind": "independent_audit_or_provenance",
+      "bytes": 26152,
+      "sha256": "a2f8d1091c147d00cfd8a10b41ac52c7ac83290c046780a51f3261ef8095dac4"
+    },
+    {
+      "archive_path": "support/hold-rendered-semantic-audit/focus3-complete-envelope.json",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-rendered-semantic-audit/focus3-complete-envelope.json",
+      "kind": "independent_audit_or_provenance",
+      "bytes": 4117,
+      "sha256": "208efc97bf123e866c3d940175cdd2aa3c23c1a93d20f02f9a77d9cb4c9602a3"
+    },
+    {
+      "archive_path": "support/hold-rendered-semantic-audit/focus3-semantic-audit.json",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-rendered-semantic-audit/focus3-semantic-audit.json",
+      "kind": "independent_audit_or_provenance",
+      "bytes": 24888,
+      "sha256": "c2281d08f0314300a13059146b230527e8b742e4143e1a995d6a568bbc8e8466"
+    },
+    {
+      "archive_path": "support/hold-rendered-semantic-audit/focus3-visual-review.json",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-rendered-semantic-audit/focus3-visual-review.json",
+      "kind": "independent_audit_or_provenance",
+      "bytes": 3337,
+      "sha256": "8c3b862474bf015a2a51fc4d7f1ef61da837e2208e3fd7f7d3617b857c66a46b"
+    },
+    {
+      "archive_path": "packaging-config.json",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-accepted-evidence-plan/focus3.config.json",
+      "kind": "exact_packaging_configuration",
+      "bytes": 7390,
+      "sha256": "f4d42d4953edbce35e9a8546cbf5877772635b5ac6502513ee75beed4c7e19e9"
+    },
+    {
+      "archive_path": "stage_audited_capture.py",
+      "source": "/workspace/scratch/e58f796fe7a3/hold-accepted-evidence-plan/stage_audited_capture.py",
+      "kind": "packaging_helper",
+      "bytes": 17971,
+      "sha256": "8d5310191615b592789b265032cbbbc09ff6ded725507afb8f0599b124c824f8"
+    },
+    {
+      "archive_path": "extraction-inventory.json",
+      "source": "all original ZIP members",
+      "kind": "complete_extraction_inventory",
+      "bytes": 71097,
+      "sha256": "156148a0e066ddc0da9f8ab60b368207ba4eb18ef336fdfdad433753ef5a047b"
+    },
+    {
+      "archive_path": "bounded-packaging-receipt.json",
+      "source": "verified capture plus explicit parent audit assertions",
+      "kind": "bounded_packaging_receipt",
+      "bytes": 4930,
+      "sha256": "7b910d5a0051b8f219ac7a2faada6ebfbdbd1abd70da3611712cd9c9d21e0778"
+    }
+  ],
+  "self_identity_recorded_in_external_manifest": true
+}

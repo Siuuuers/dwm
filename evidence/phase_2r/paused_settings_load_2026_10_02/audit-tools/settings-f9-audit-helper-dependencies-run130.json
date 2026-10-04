@@ -1,0 +1,28 @@
+{
+  "additional_helpers": [
+    {
+      "bytes": 14937,
+      "portable_relative_path": "join_settings_f9_acceptance_v2.py",
+      "role": "Current same-run final join; exact accepted F5 job_id schema adaptation only, with unchanged actual generic/API job identity, log, checkout, source and artifact checks.",
+      "sha256": "fbc0c3e271071df494376c9fcb5aa187d97e979ccbe67944916ecb6ac65374fc",
+      "source": "/workspace/scratch/e169b180163f/join_settings_f9_acceptance_v2.py"
+    }
+  ],
+  "current_acceptance_helpers": {
+    "final_join": "join_settings_f9_acceptance_v2.py"
+  },
+  "import_edges": [
+    [
+      "join_settings_f9_acceptance_v2.py",
+      "cloud_evidence.py"
+    ]
+  ],
+  "schema_version": 1,
+  "scope": "New successor dependency supplement; all previously staged base files remain byte-identical.",
+  "supplement_to": {
+    "bytes": 11485,
+    "file": "settings-f9-audit-helper-dependencies.json",
+    "sha256": "6428cd45590fa8c42aa599a4a47f11664de59f1984fb184d550b2f7460ac7c4d"
+  },
+  "unchanged_base_manifest_and_helpers": true
+}

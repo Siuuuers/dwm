@@ -15,6 +15,8 @@ const ROUTINE_CLOCK := preload("res://scripts/ui/desktop/RoutineClock.gd")
 const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
 const TITLE_WELCOME := preload("res://scripts/ui/desktop/TitleWelcome.gd")
 const SHUTDOWN_COPY := {
+	"ja": ["終了しますか？","ゲームを終了します。","キャンセル","終了"],
+	"ko": ["종료할까요?","게임을 종료합니다.","취소","종료"],
 	"en": ["Shut down?", "Close the game.", "Cancel", "Shut down"],
 	"zh-CN": ["关闭游戏？", "退出游戏。", "取消", "关闭游戏"],
 	"zh-HK": ["關閉遊戲？", "退出遊戲。", "取消", "關閉遊戲"],
@@ -23,6 +25,8 @@ const SHUTDOWN_COPY := {
 # Operational copy follows the accepted New Acc sheet; live-only replacement
 # must not claim an Autosave exists. These facts come only from the owner.
 const NEW_ACC_COPY := {
+	"ja": ["新しいアカウントを始めますか？","オートセーブを置き換えます。他のセーブは残ります。","現在の進行状況を置き換えます。他のセーブは残ります。","キャンセル","開始","新規作成できません","アカウントを準備できませんでした。再試行してください。","状態が変わりました。開始前に新規作成の内容を確認してください。","新規アカウントの復旧が必要です","開始処理が完了していません。再試行して同じ処理を完了してください。","再試行"],
+	"ko": ["새 계정을 시작할까요?","자동 저장을 덮어씁니다. 다른 저장은 유지됩니다.","현재 진행 상황을 덮어씁니다. 다른 저장은 유지됩니다.","취소","시작","새 계정을 만들 수 없음","계정을 준비하지 못했습니다. 다시 시도하세요.","상태가 변경되었습니다. 시작하기 전에 새 계정 내용을 다시 확인하세요.","새 계정 복구 필요","계정 시작이 완료되지 않았습니다. 다시 시도하여 같은 작업을 완료하세요.","다시 시도"],
 	"en": ["Start a new account?", "Autosave will be replaced. Other saves will remain.",
 		"Current progress will be replaced. Other saves will remain.", "Cancel", "Start",
 		"New Acc unavailable", "The account could not be prepared. Try again.",
@@ -41,6 +45,8 @@ const NEW_ACC_COPY := {
 }
 
 const STARTUP_UNAVAILABLE_COPY := {
+	"ja": ["起動を完了できません","起動が完了しませんでした。ゲームを閉じて開き直してください。"],
+	"ko": ["시작을 완료할 수 없음","시작이 완료되지 않았습니다. 게임을 닫고 다시 여세요."],
 	"en": ["Unable to finish starting", "Startup could not finish. Close and reopen the game to try again."],
 	"zh-CN": ["无法完成启动", "启动未能完成。请关闭并重新打开游戏以重试。"],
 	"zh-HK": ["無法完成啟動", "啟動未能完成。請關閉並重新開啟遊戲以重試。"],
@@ -68,6 +74,7 @@ var _title_strip: Control
 var _clock_label: Label
 var _locale := "en"
 var _percent := 100
+var _font_style := "pixel"
 var _settings_services: Dictionary = {}
 var _gallery_host: Control
 var _gallery_instance: Control
@@ -209,7 +216,7 @@ func _show_startup_unavailable() -> void:
 	var copy: Array = STARTUP_UNAVAILABLE_COPY[_locale]
 	present_confirmation({"title": copy[0], "body": copy[1], "confirm": SHUTDOWN_COPY[_locale][3],
 		"cancelable": false, "risk": "neutral", "warning": false,
-		"theme": BACKUP_THEME.build(_locale, _percent)}, _on_startup_shutdown, Callable())
+		"theme": BACKUP_THEME.build(_locale, _percent, &"after_hours", 1, false, "standard", _font_style)}, _on_startup_shutdown, Callable())
 
 func _on_startup_shutdown() -> void:
 	if _new_acc_source_is_current(): _on_shut_down_confirmed()
@@ -300,7 +307,7 @@ func _on_new_acc_pressed() -> void:
 	present_confirmation({"title": copy[0],
 		"body": copy[1] if prepared.value.replaces_autosave else copy[2],
 		"cancel": copy[3], "confirm": copy[4], "risk": "danger", "warning": true,
-		"theme": BACKUP_THEME.build(_locale, _percent)}, _commit_new_acc, _cancel_new_acc)
+		"theme": BACKUP_THEME.build(_locale, _percent, &"after_hours", 1, false, "standard", _font_style)}, _commit_new_acc, _cancel_new_acc)
 
 func _cancel_new_acc() -> void:
 	var owner := _new_acc_owner
@@ -347,13 +354,13 @@ func _show_new_acc_unavailable(stale: bool) -> void:
 	var copy: Array = NEW_ACC_COPY[_locale]
 	present_confirmation({"title": copy[5], "body": copy[7] if stale else copy[6],
 		"cancel": copy[3], "confirm": copy[10], "risk": "neutral", "warning": false,
-		"theme": BACKUP_THEME.build(_locale, _percent)}, _on_new_acc_pressed, _focus_new_acc)
+		"theme": BACKUP_THEME.build(_locale, _percent, &"after_hours", 1, false, "standard", _font_style)}, _on_new_acc_pressed, _focus_new_acc)
 
 func _show_new_acc_recovery() -> void:
 	var copy: Array = NEW_ACC_COPY[_locale]
 	present_confirmation({"title": copy[8], "body": copy[9], "confirm": copy[10],
 		"cancelable": false, "risk": "neutral", "warning": false,
-		"theme": BACKUP_THEME.build(_locale, _percent)}, _retry_new_acc, Callable())
+		"theme": BACKUP_THEME.build(_locale, _percent, &"after_hours", 1, false, "standard", _font_style)}, _retry_new_acc, Callable())
 
 func _retry_new_acc() -> void:
 	if _new_acc_transaction.is_empty() or _title_transition or not _new_acc_source_is_current(): return
@@ -501,7 +508,7 @@ func _on_shut_down_pressed() -> void:
 	var copy: Array = SHUTDOWN_COPY.get(_locale, SHUTDOWN_COPY.en)
 	present_confirmation({"title": copy[0], "body": copy[1], "cancel": copy[2],
 		"confirm": copy[3], "risk": "neutral", "warning": false,
-		"theme": BACKUP_THEME.build(_locale, _percent)},
+		"theme": BACKUP_THEME.build(_locale, _percent, &"after_hours", 1, false, "standard", _font_style)},
 		_on_shut_down_confirmed, func(): _shut_down_button.grab_focus())
 
 func _on_shut_down_confirmed() -> void:
@@ -636,14 +643,15 @@ func _refresh_login_shell(_value: String = "") -> void:
 	_locale = locale if SHUTDOWN_COPY.has(locale) else "en"
 	var profile := _menu_profile()
 	_percent = int(profile.get_preference("preferences.accessibility.text_size", 100)) if profile != null else 100
-	theme = DESKTOP_THEME.build(_locale, _percent)
+	_font_style = str(profile.get_preference("preferences.accessibility.font_style", "pixel")) if profile != null else "pixel"
+	theme = DESKTOP_THEME.build(_locale, _percent, &"after_hours", 0.0, false, "standard", _font_style)
 	_title_home.theme = theme
-	_title_home.accessibility_name = {"en": "Return", "zh-CN": "返回", "zh-HK": "返回"}.get(locale, "Return")
+	_title_home.accessibility_name = {"en": "Return", "zh-CN": "返回", "zh-HK": "返回", "ja": "戻る", "ko": "돌아가기"}.get(locale, "Return")
 	for button in [_new_acc_button, _log_in_button, _gallery_button, _setting_button, _shut_down_button]:
 		button.custom_minimum_size.y = 64
-	_title_status.text = {"en": "Unavailable", "zh-CN": "不可用", "zh-HK": "不可用"}.get(locale, "Unavailable")
-	_clock_label.set_presentation(_locale, _percent)
-	_title_welcome.set_presentation(_locale, _percent)
+	_title_status.text = {"en": "Unavailable", "zh-CN": "不可用", "zh-HK": "不可用", "ja": "利用不可", "ko": "사용 불가"}.get(locale, "Unavailable")
+	_clock_label.set_presentation(_locale, _percent, _font_style)
+	_title_welcome.set_presentation(_locale, _percent, _font_style)
 	_title_strip.queue_redraw()
 	_update_title_destination()
 	queue_redraw()

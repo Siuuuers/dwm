@@ -1,0 +1,133 @@
+{
+  "repository": "Siuuuers/dwm",
+  "run_number": 48,
+  "run_id": 35648249324,
+  "head_sha": "eccf563e5cf5fbe287b4e55a6ea6d81578f8baae",
+  "tested_merge_sha": "9ea410cb292bff0fbf23e0125fd68f5c5af1ae0e",
+  "status": "completed",
+  "success_jobs": 16,
+  "failed_jobs": 1,
+  "jobs": [
+    {
+      "id": 106493936856,
+      "name": "Windows / public API surface contracts",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106494778972,
+      "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106494779124,
+      "name": "Windows / exported release startup",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106494779273,
+      "name": "Windows / paired checkpoint performance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106494779328,
+      "name": "Rendered desktop and dialogue / Linux software OpenGL",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106494779352,
+      "name": "Windows / seven-day retained history",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106494779624,
+      "name": "Windows / minesweeper",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106494779636,
+      "name": "Windows / dating",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106494779639,
+      "name": "Windows / localization",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106494779642,
+      "name": "Windows / shop",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106494779645,
+      "name": "Windows / reading_delivery",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106494779659,
+      "name": "Windows / persistence",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106494779686,
+      "name": "Windows / endings",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 106494779692,
+      "name": "Windows / new_account",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106494779834,
+      "name": "Windows / settings",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106494779838,
+      "name": "Windows / desktop",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 106494779845,
+      "name": "Windows / audio",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "focused_passing_scopes": {
+    "tests": 1641,
+    "scripts": 144,
+    "scopes": 10
+  },
+  "endings": {
+    "passed": 105,
+    "total": 106,
+    "scripts": 12,
+    "code": "invalid_pair_form",
+    "cause": "New seven-closure fixture omitted actual first-counted-encounter Profile-owned pair draw; real rendered ending paths pass."
+  },
+  "reading_and_journeys": "run48-reading-journey-ending.json",
+  "native_release": "run48-native-export.json",
+  "public_inventory_receipt": "run48-public-inventory-receipt.json",
+  "pending_source_fix": "tests/unit/test_ending_frozen_context.gd uses PairDeckDrawPort before installing first counted Day2 closure, keeps all receipt/checkpoint assertions",
+  "pending_source_fix_runtime_verified": false,
+  "strict_v7": "staged separately; not part of this source checkpoint",
+  "performance_evidence": "performance/retained-history-run48.json"
+}

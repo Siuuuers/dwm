@@ -1,0 +1,131 @@
+{
+  "head_sha": "e1d3428fbfc9de27a0f350f3a858478cd06c0978",
+  "run_id": 35577704852,
+  "workflow_url": "https://github.com/Siuuuers/dwm/actions/runs/35577704852",
+  "source_artifacts": [
+    {
+      "name": "angela-overlay-render-35577704852-1",
+      "id": 10628808758,
+      "head_sha": "e1d3428fbfc9de27a0f350f3a858478cd06c0978",
+      "run_id": 35577704852,
+      "archive_sha256": "0f80167738a034b24da0276ce6bd80a20ed2059639fd0f2cf31030fbe4cbe913",
+      "github_digest_matches": true,
+      "extracted_files_match_archive": true,
+      "created_at": "2026-09-21T08:27:36Z",
+      "artifact_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/10628808758",
+      "archived_file_count": 12
+    },
+    {
+      "name": "delivery-dialogue-render-35577704852-1",
+      "id": 10629120491,
+      "head_sha": "e1d3428fbfc9de27a0f350f3a858478cd06c0978",
+      "run_id": 35577704852,
+      "archive_sha256": "c76c80eedc8fe01524898e25e72bae56f5cc15722299495833d356dc77511381",
+      "github_digest_matches": true,
+      "extracted_files_match_archive": true,
+      "created_at": "2026-09-21T08:27:18Z",
+      "artifact_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/10629120491",
+      "archived_file_count": 27
+    },
+    {
+      "name": "desktop-scaling-render-35577704852-1",
+      "id": 10627894098,
+      "head_sha": "e1d3428fbfc9de27a0f350f3a858478cd06c0978",
+      "run_id": 35577704852,
+      "archive_sha256": "1a2da767f503508207f20dde38778a80106ff2330d76cbd3078e87d17f0eaf40",
+      "github_digest_matches": true,
+      "extracted_files_match_archive": true,
+      "created_at": "2026-09-21T08:26:18Z",
+      "artifact_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/10627894098",
+      "archived_file_count": 41
+    },
+    {
+      "name": "font-choices-render-35577704852-1",
+      "id": 10629335444,
+      "head_sha": "e1d3428fbfc9de27a0f350f3a858478cd06c0978",
+      "run_id": 35577704852,
+      "archive_sha256": "9f3598de31323f7d5fe7ad413b44063005719561d8d63de2a7858a17d66fcea7",
+      "github_digest_matches": true,
+      "extracted_files_match_archive": true,
+      "created_at": "2026-09-21T08:29:08Z",
+      "artifact_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/10629335444",
+      "archived_file_count": 32
+    },
+    {
+      "name": "japanese-korean-ui-render-35577704852-1",
+      "id": 10628747990,
+      "head_sha": "e1d3428fbfc9de27a0f350f3a858478cd06c0978",
+      "run_id": 35577704852,
+      "archive_sha256": "930f74a587b880d792fe7ec4eb172ab15cbea4ae47c50ad9a4d37f08401d149f",
+      "github_digest_matches": true,
+      "extracted_files_match_archive": true,
+      "created_at": "2026-09-21T08:28:14Z",
+      "artifact_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/10628747990",
+      "archived_file_count": 32
+    },
+    {
+      "name": "playable-startup-render-35577704852-1",
+      "id": 10629006122,
+      "head_sha": "e1d3428fbfc9de27a0f350f3a858478cd06c0978",
+      "run_id": 35577704852,
+      "archive_sha256": "0824c0bd9af047b07eac161cc7e9a10c0b97caf4ad9bc350306b72a0d6e4cf1e",
+      "github_digest_matches": true,
+      "extracted_files_match_archive": true,
+      "created_at": "2026-09-21T08:29:22Z",
+      "artifact_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/10629006122",
+      "archived_file_count": 6
+    }
+  ],
+  "retained_files": [
+    {
+      "path": "evidence/beads_cloud_review/native/angela-overlay-results.json",
+      "bytes": 3370,
+      "sha256": "bb41ba4fbef35351120e5b346b136682d309f6008af5db8dd1911130d8949e83"
+    },
+    {
+      "path": "evidence/beads_cloud_review/native/capture-manifest.json",
+      "bytes": 42894,
+      "sha256": "9b939aa03ac7532ba3ceb53d70f7b9e076db88321a4b07fb001f75851b7a0cd5"
+    },
+    {
+      "path": "evidence/beads_cloud_review/native/delivery-dialogue-results.json",
+      "bytes": 9488,
+      "sha256": "300ba8be3e4431d712a41b1b932a9f9350d25145cfcd0f14e2f65898bfd693d5"
+    },
+    {
+      "path": "evidence/beads_cloud_review/native/desktop-scaling-results.json",
+      "bytes": 1775,
+      "sha256": "7a55d9c94001f28a9b9209be4269649c6955fe61d8673c05486b05781e0a761b"
+    },
+    {
+      "path": "evidence/beads_cloud_review/native/font-choices-results.json",
+      "bytes": 9294,
+      "sha256": "fa6f5c1608921fc92f86928d3b202b058e14d6fb3a2a77c05812d4c86d2fe48d"
+    },
+    {
+      "path": "evidence/beads_cloud_review/native/japanese-korean-ui-results.json",
+      "bytes": 4301,
+      "sha256": "1c43065761ffa203c12d8524cea5a26f54f40331d7b58c52ff833b1f7ab6373c"
+    },
+    {
+      "path": "evidence/beads_cloud_review/native/logout-consent.png",
+      "bytes": 354164,
+      "sha256": "050cf3956607e3300d55fcbb4f55da6aba76331f910652fb69704f2ed91a7727"
+    },
+    {
+      "path": "evidence/beads_cloud_review/native/playable-startup-render.log",
+      "bytes": 1248,
+      "sha256": "e4c30f1dbe5ee9b06c83c8d8d900c2fd4ce8de5bb4dcb7c529e9b9f3020503f9"
+    },
+    {
+      "path": "evidence/beads_cloud_review/native/playable-startup-results.json",
+      "bytes": 120,
+      "sha256": "4410f903bb6fe959412ebf74077c82d684bf5a333aa28f5e5ae43fa449f6c2af"
+    },
+    {
+      "path": "evidence/beads_cloud_review/native/summary.json",
+      "bytes": 6789,
+      "sha256": "0b0b1a76c1160bac9f0f3a06a20d2746a8638a63d342e9fd57ace7f099d286fd"
+    }
+  ]
+}

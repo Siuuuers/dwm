@@ -42,11 +42,12 @@ const DAY_RESOLUTION_STATE_PORT := preload("res://scripts/application/run/GameSt
 const MINESWEEPER_COORDINATOR := preload("res://scripts/domain/minesweeper/MinesweeperRoundCoordinator.gd")
 const FAKE_GATE := preload("res://tests/support/FakeApplicationMutationGate.gd")
 const FAKE_EVICTION := preload("res://tests/support/FakeDesktopEvictionPort.gd")
+const DAY_IDENTITY_PORT := preload("res://scripts/application/run/CausalDayAdvanceIdentityPort.gd")
 
 ## The exact literal autoload order project.godot must reach in this task.
 const EXPECTED_AUTOLOAD_ORDER: Array[String] = [
 	"ProfileManager", "GameState", "SaveManager", "LocalizationManager", "AudioManager",
-	"WindowModeManager", "EffectResolver", "SceneRouter", "InputManager", "AccessibilityManager", "Dialogic",
+	"SystemTtsCoordinator", "WindowModeManager", "EffectResolver", "SceneRouter", "InputManager", "AccessibilityManager", "Dialogic",
 	"DialogicBridge", "ApplicationBootstrap",
 ]
 
@@ -93,6 +94,23 @@ class UnavailableWindowOutput:
 
 	func restore_output(_snapshot: Dictionary) -> Dictionary:
 		return {"ok": false, "code": &"window_output_unavailable", "details": {}, "receipt": {}}
+
+
+class FakeContactsDesktop:
+	extends Node
+	var configured := false
+	var configured_day := 0
+	var evictions: Array[Dictionary] = []
+
+	func configure_contacts(_presentation: RefCounted, _localization: Object, _profile: Object,
+			_desktop_host: RefCounted, day: int) -> Dictionary:
+		configured = true
+		configured_day = day
+		return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
+
+	func dispatch_desktop_eviction(command: Dictionary) -> Dictionary:
+		evictions.append(command.duplicate(true))
+		return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
 
 
 func _isolated_root(label: String) -> String:
@@ -260,6 +278,124 @@ func test_the_retained_checkpoint_port_and_gate_are_shared_by_both_coordinators(
 		made["checkpoint_port"])
 	assert_same(game_state.get("_minesweeper_round_coordinator"), round_coordinator)
 	assert_not_same(round_coordinator, day_coordinator, "two distinct coordinators, one gate")
+
+
+func test_day_resolution_installs_route_independent_eviction_before_desktop_mount() -> void:
+	var made := _make_graph("route-independent-eviction")
+	if made.is_empty():
+		return
+	var bootstrap: Node = made["bootstrap"]
+	var game_state: Node = made["targets"][&"GameState"]
+	if not _allocate_fixture_run_identity(bootstrap, game_state): return
+	assert_true(bootstrap.call(&"_configure_restore_participants").get("ok", false))
+	assert_null(bootstrap.get("_contacts_desktop_eviction_port"))
+	assert_null(bootstrap.get("_desktop_eviction_port"))
+
+	var resolved: Dictionary = bootstrap.call(&"_run_stage", &"configure_day_resolution", &"final")
+	assert_true(resolved.get("ok", false), str(resolved))
+	var route_port: RefCounted = bootstrap.get("_contacts_desktop_eviction_port")
+	assert_not_null(route_port, "the adapter exists before any desktop scene")
+	assert_same(bootstrap.get("_desktop_eviction_port"), route_port)
+	assert_null(route_port.get("view"), "the route-independent adapter starts unbound")
+	assert_eq(game_state.day_changed.get_connections().size(), 1,
+		"the adapter is registered before the sole day-change connection")
+	var host: RefCounted = bootstrap.get("_desktop_host_state")
+	assert_true(host.open_app(&"contacts", 1).get("ok", false))
+
+	if not _publish_fixture_day_change(bootstrap, game_state, 2): return
+	assert_false(bootstrap.get("_application_gate").is_fatal_latched(),
+		"a direct Hospital completion can change day before the desktop mounts")
+	assert_eq(int(host.get_state()["current_day"]), 2)
+	assert_true(host.get_state()["cached_app_ids"].is_empty(),
+		"the retained host clears its cache even before a physical desktop exists")
+	assert_null(route_port.get("view"), "headless eviction remains a successful no-op")
+
+	var startup_state: Dictionary = bootstrap.get("_state")
+	startup_state["ready"] = true
+	bootstrap.set("_state", startup_state)
+	var desktop: Node = autofree(FakeContactsDesktop.new())
+	var mounted: Dictionary = bootstrap.call(&"configure_contacts_desktop", desktop)
+	assert_true(mounted.get("ok", false), str(mounted))
+	assert_true(desktop.get("configured"))
+	assert_eq(desktop.get("configured_day"), 2)
+	assert_same(bootstrap.get("_contacts_desktop_eviction_port"), route_port,
+		"desktop mount reuses the adapter that protected direct Hospital Load")
+	assert_same((route_port.get("view") as WeakRef).get_ref(), desktop)
+	assert_true(host.open_app(&"contacts", 2).get("ok", false))
+	if not _publish_fixture_day_change(bootstrap, game_state, 3): return
+	assert_eq(desktop.get("evictions").size(), 1,
+		"the later mounted view receives exactly one dispatch through the same adapter")
+	if desktop.get("evictions").size() == 1:
+		assert_eq(desktop.get("evictions")[0]["app_ids"], [&"contacts"])
+		assert_eq(desktop.get("evictions")[0]["day"], 3)
+	assert_true(host.get_state()["cached_app_ids"].is_empty())
+	assert_false(bootstrap.get("_application_gate").is_fatal_latched())
+
+
+func _allocate_fixture_run_identity(bootstrap: Node, game_state: Node) -> bool:
+	var issuer: RefCounted = bootstrap.get("_desktop_identity_nonce_issuer")
+	var transaction: Dictionary = issuer.issue(&"transaction_id")
+	assert_true(transaction.get("ok", false), str(transaction))
+	if not transaction.get("ok", false): return false
+	var prepared: Dictionary = issuer.prepare_continuation_allocation({
+		"kind": "new_run", "transaction_id": transaction.value.token,
+		"transaction_issuer_receipt": transaction.value.issuer_receipt,
+		"existing_run_id": null, "source_desktop_timeline_generation": null,
+		"remap_source_transaction_ids": [],
+	})
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return false
+	var committed: Dictionary = issuer.commit_continuation_allocation(prepared.value)
+	assert_true(committed.get("ok", false), str(committed))
+	if not committed.get("ok", false): return false
+	var identity: Dictionary = committed.value
+	game_state.get("_run_lifecycle").reset(identity.run_id, identity.branch_id,
+		identity.desktop_timeline_generation, identity.causal_day_instance, identity, false)
+	return true
+
+
+func _publish_fixture_day_change(bootstrap: Node, game_state: Node, day: int) -> bool:
+	# This fixture supplies the committed day/identity boundary; the connected Hospital
+	# journey owns the actual day-resolution transaction that precedes publication. Use
+	# the real allocator: causal-day identities cannot be minted by issuer.issue().
+	var issuer: RefCounted = bootstrap.get("_desktop_identity_nonce_issuer")
+	var lifecycle: RefCounted = game_state.get("_run_lifecycle")
+	var identity: Dictionary = lifecycle.get_desktop_identity_context()
+	assert_eq(day, int(game_state.get("day")) + 1)
+	var transaction: Dictionary = issuer.issue(&"transaction_id")
+	assert_true(transaction.get("ok", false), str(transaction))
+	if not transaction.get("ok", false): return false
+	var child: Dictionary = issuer.derive_child({
+		"parent_receipt_id": transaction.value.issuer_receipt.receipt_id,
+		"child_kind": "day_resolution_stage", "ordinal": 0, "source_ids": [],
+	})
+	assert_true(child.get("ok", false), str(child))
+	if not child.get("ok", false): return false
+	var allocator: RefCounted = DAY_IDENTITY_PORT.new()
+	var configured: Dictionary = allocator.configure(issuer)
+	assert_true(configured.get("ok", false), str(configured))
+	if not configured.get("ok", false): return false
+	var prepared: Dictionary = allocator.prepare_advance({
+		"resolution_kind": "schedule_done",
+		"source_resolution_receipt": {"receipt_id": child.value.child_id,
+			"provenance": child.value.provenance},
+		"run_id": identity.run_id, "branch_id": identity.branch_id,
+		"desktop_timeline_generation": identity.desktop_timeline_generation,
+		"source_day": day - 1, "source_causal_day_instance": identity.causal_day_instance,
+		"source_causal_day_instance_issuer_receipt": identity.causal_day_instance_issuer_receipt,
+	})
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return false
+	var committed: Dictionary = allocator.commit_advance(prepared.value.day_advance_identity_candidate)
+	assert_true(committed.get("ok", false), str(committed))
+	if not committed.get("ok", false): return false
+	var receipt: Dictionary = committed.value.day_advance_identity_receipt
+	assert_eq(int(receipt.target_day), day)
+	lifecycle.set("_day", day)
+	lifecycle.set("_causal_day_instance", receipt.target_causal_day_instance)
+	lifecycle.set("_causal_day_instance_issuer_receipt", receipt.target_causal_day_instance_issuer_receipt)
+	game_state.emit_signal("day_changed", day)
+	return true
 
 
 func test_exactly_one_day_changed_connection_dispatches_one_eviction_command() -> void:

@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "review_kind": "read_only_source_diagnosis",
+  "finding": "The fresh reader compared a live Dictionary containing a StringName value with retained JSON containing a String value; Godot 4.6.3 Dictionary equality rejects the differing Variant types.",
+  "finding_proven_from_source": true,
+  "cloud_acceptance_pass": false,
+  "engine_or_powershell_executed_for_review": false,
+  "repository_files_edited_by_reviewer": false,
+  "engine_sources": [
+    {
+      "engine_tag": "4.6.3-stable",
+      "repository": "godotengine/godot",
+      "path": "core/variant/dictionary.cpp",
+      "git_blob_sha": "b9ab03249a768ac07dcd7d3c1f92253c1d620784",
+      "url": "https://github.com/godotengine/godot/blob/4.6.3-stable/core/variant/dictionary.cpp#L259",
+      "retrieval": "GitHub fetch_file at the exact 4.6.3-stable tag; returned blob identity applies to the entire file.",
+      "excerpts": [
+        {
+          "start_line": 259,
+          "lines": [
+            "bool Dictionary::operator==(const Dictionary &p_dictionary) const {",
+            "\treturn recursive_equal(p_dictionary, 0);",
+            "}"
+          ]
+        },
+        {
+          "start_line": 282,
+          "lines": [
+            "\tfor (const KeyValue<Variant, Variant> &this_E : _p->variant_map) {",
+            "\t\tHashMap<Variant, Variant, HashMapHasherDefault, StringLikeVariantComparator>::ConstIterator other_E(p_dictionary._p->variant_map.find(this_E.key));",
+            "\t\tif (!other_E || !this_E.value.hash_compare(other_E->value, recursion_count, false)) {",
+            "\t\t\treturn false;",
+            "\t\t}"
+          ]
+        }
+      ]
+    },
+    {
+      "engine_tag": "4.6.3-stable",
+      "repository": "godotengine/godot",
+      "path": "core/variant/variant.cpp",
+      "git_blob_sha": "2b05c84cd8bd2e818a1d23ac85b537fa5c497c53",
+      "url": "https://github.com/godotengine/godot/blob/4.6.3-stable/core/variant/variant.cpp#L3172",
+      "retrieval": "GitHub fetch_file at the exact 4.6.3-stable tag; returned blob identity applies to the entire file.",
+      "excerpts": [
+        {
+          "start_line": 3172,
+          "lines": [
+            "bool Variant::hash_compare(const Variant &p_variant, int recursion_count, bool semantic_comparison) const {",
+            "\tif (type != p_variant.type) {",
+            "\t\treturn false;",
+            "\t}"
+          ]
+        }
+      ]
+    }
+  ],
+  "project_source_boundary": {
+    "focused_tested_checkout": "e6d445343c292342310359faa898aabd2959f4db",
+    "working_repository_head_at_review": "5a581fc89121864aead5202e01d6a82423b1b52d",
+    "focused_git_blobs": {
+      "scripts/domain/desktop/DesktopAppHostState.gd": "c70e58777dd826cf7637af0fa00e07a24aa5501a",
+      "scripts/validation/StrictJson.gd": "4eaabe2e5fa9d6fd19220d4ddf785155ee9a7c4b",
+      "tests/integration/verify_reading_rail_journey.gd": "3aab5246a2c46b4b2bd1ef2f60cbe9438f21c28f"
+    }
+  },
+  "project_evidence": [
+    {
+      "path": "scripts/domain/desktop/DesktopAppHostState.gd",
+      "excerpts": [
+        {
+          "line": 26,
+          "text": "var _active_app_id: StringName = &\"\""
+        },
+        {
+          "line": 120,
+          "text": "func capture_persistent_state() -> Dictionary:"
+        },
+        {
+          "line": 121,
+          "text": "\treturn {\"active_app_id\": _active_app_id if _active_app_id != &\"\" else null}"
+        },
+        {
+          "line": 178,
+          "text": "\t_active_app_id = StringName(active) if active != null else &\"\""
+        }
+      ],
+      "conclusion": "A nonempty live or restored active_app_id remains a StringName in this returned Dictionary."
+    },
+    {
+      "path": "scripts/validation/StrictJson.gd",
+      "excerpts": [
+        {
+          "line": 126,
+          "text": "\t\t\tvar value: Variant = JSON.parse_string(token) if \"\\\\\" in token else token.substr(1, token.length() - 2)"
+        },
+        {
+          "line": 127,
+          "text": "\t\t\tif value is String:"
+        },
+        {
+          "line": 130,
+          "text": "\t\t\t\treturn {\"ok\": true, \"value\": value}"
+        }
+      ],
+      "conclusion": "The ordinary ASCII JSON token \"schedule\" is decoded as a primitive String, without conversion to StringName."
+    },
+    {
+      "path": "tests/integration/verify_reading_rail_journey.gd",
+      "focused_comparison": "desktop_host.capture_persistent_state() == prior.value.desktop_context",
+      "conclusion": "The two Dictionary values have the same semantic app ID but distinct Variant types, so this conjunct must be false."
+    }
+  ],
+  "retained_focused_writer": {
+    "file": "/workspace/scratch/e169b180163f/settings-focus1-reading/db98a4a5-397c-4788-8009-6b8b1f5bdecf/settings-quick/settings-write.json",
+    "bytes": 83621,
+    "sha256": "fb890b41cb17986e5669cd7da9a5a591a3440be3920236ce4331b9501895409c",
+    "desktop_context": {
+      "active_app_id": "schedule"
+    }
+  },
+  "narrow_correction_review": {
+    "path": "tests/integration/verify_reading_rail_journey.gd",
+    "working_file_identity": {
+      "bytes": 93127,
+      "sha256": "fc3ba8bea91dcc9ab78e4512f2851e775e3746ef841f1f93bd9fd52a08621057"
+    },
+    "lines": [
+      566,
+      567,
+      568
+    ],
+    "comparison": "observed_desktop.keys() == [\"active_app_id\"] and prior.value.desktop_context.keys() == [\"active_app_id\"] and str(observed_desktop.active_app_id) == prior.value.desktop_context.active_app_id",
+    "rationale": "Retain the exact one-field context shape and exact Schedule identity while comparing its serialized semantic String. Do not alter the production owner, save bytes, or restoration behavior. Keep whole checkpoint, History, physical record, Profile, speech, and disk checks independent and unchanged.",
+    "writer_guard_note": "If instead normalizing the initial writer context, also normalize the writer live-context comparison; converting only one Dictionary would introduce the same mismatch there.",
+    "normalization_scope": "Only this known StringName app ID; no generic JSON round-trip or broad equality relaxation."
+  },
+  "limitations": [
+    "Source diagnosis proves this false test assertion. It does not establish that it was the only failed restore invariant.",
+    "The focused cloud settings-write passed; settings-read failed its combined restore assertion and did not emit its final report. The corrected fixture still requires cloud verification.",
+    "The focused failure logs also retain process/lifetime diagnostics. This review makes no claim that all runtime, teardown, broad, or acceptance checks passed.",
+    "Only engine excerpts were retrieved and retained in this record; no complete C++ source snapshot was downloaded."
+  ]
+}

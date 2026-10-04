@@ -1,0 +1,1525 @@
+{
+  "artifacts": [
+    {
+      "created_at": "2026-10-02T16:20:02Z",
+      "digest": "sha256:6aa32ce24d4f2e74ac7fee813672cd7768d7c9d20e6309b49ac56ca257cf12cf",
+      "extracted_file_count": 11,
+      "id": 11237848026,
+      "local_zip_basename": "cloud-speech-rendered-hospital-reading-37032330393-1.zip",
+      "name": "cloud-speech-rendered-hospital-reading-37032330393-1",
+      "size_in_bytes": 387976,
+      "workflow_run_head_sha": "b5e7ede0f1053c44aecf2ae54d07c3675e85a594",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "6aa32ce24d4f2e74ac7fee813672cd7768d7c9d20e6309b49ac56ca257cf12cf"
+    },
+    {
+      "created_at": "2026-10-02T16:21:29Z",
+      "digest": "sha256:1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac",
+      "extracted_file_count": 81,
+      "id": 11238691555,
+      "local_zip_basename": "hospital-reading-focus3.zip",
+      "name": "hospital-reading-37032330393-1",
+      "size_in_bytes": 2612517,
+      "workflow_run_head_sha": "b5e7ede0f1053c44aecf2ae54d07c3675e85a594",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+    },
+    {
+      "created_at": "2026-10-02T16:18:41Z",
+      "digest": "sha256:46d76c074c0ba3751622c771ddd61674643edf4333bfe02571d7177ce616c816",
+      "extracted_file_count": 19,
+      "id": 11238576126,
+      "local_zip_basename": "public-surfaces-37032330393-1.zip",
+      "name": "public-surfaces-37032330393-1",
+      "size_in_bytes": 144886,
+      "workflow_run_head_sha": "b5e7ede0f1053c44aecf2ae54d07c3675e85a594",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "46d76c074c0ba3751622c771ddd61674643edf4333bfe02571d7177ce616c816"
+    },
+    {
+      "created_at": "2026-10-02T16:20:49Z",
+      "digest": "sha256:589157a24eb2f51e0aeb7fb746881523b1992280d4a5af0bc88de5facd16eecf",
+      "extracted_file_count": 6,
+      "id": 11238751361,
+      "local_zip_basename": "windows-persistence-37032330393-1.zip",
+      "name": "windows-persistence-37032330393-1",
+      "size_in_bytes": 198349,
+      "workflow_run_head_sha": "b5e7ede0f1053c44aecf2ae54d07c3675e85a594",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "589157a24eb2f51e0aeb7fb746881523b1992280d4a5af0bc88de5facd16eecf"
+    },
+    {
+      "created_at": "2026-10-02T16:22:25Z",
+      "digest": "sha256:5f55e91139f7a5908139b49df30d6ee3b3cc5e4a5ce00043337fe59b636f10cf",
+      "extracted_file_count": 4,
+      "id": 11238347091,
+      "local_zip_basename": "windows-reading-focus3.zip",
+      "name": "windows-reading_delivery-37032330393-1",
+      "size_in_bytes": 202851,
+      "workflow_run_head_sha": "b5e7ede0f1053c44aecf2ae54d07c3675e85a594",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "5f55e91139f7a5908139b49df30d6ee3b3cc5e4a5ce00043337fe59b636f10cf"
+    }
+  ],
+  "bundle": "hospital-focus3-diagnostic-corrected.tar.gz",
+  "counts": {
+    ".json": 66,
+    ".jsonl": 14,
+    ".log": 26,
+    ".txt": 10,
+    ".xml": 3
+  },
+  "evidence_kind": "failed-run-diagnostic-only",
+  "excluded_extracted_files": [
+    {
+      "bytes": 2455129,
+      "path": "hospital-focus3/artifacts/cloud-speech-rendered-hospital-reading-37032330393-1/speech-dispatcher.log",
+      "provenance": {
+        "artifact_id": 11237848026,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "speech-dispatcher.log",
+        "zip_sha256": "6aa32ce24d4f2e74ac7fee813672cd7768d7c9d20e6309b49ac56ca257cf12cf"
+      },
+      "reason": "Large native speech diagnostic omitted; job/capability receipts retain their bounded scope.",
+      "sha256": "57c6c9e3ffc4311dc24ef639221e64860d95031d14a302f1669ee4ae3b8c2e88"
+    },
+    {
+      "bytes": 1032081,
+      "path": "hospital-focus3/artifacts/cloud-speech-rendered-hospital-reading-37032330393-1/voices.txt",
+      "provenance": {
+        "artifact_id": 11237848026,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "voices.txt",
+        "zip_sha256": "6aa32ce24d4f2e74ac7fee813672cd7768d7c9d20e6309b49ac56ca257cf12cf"
+      },
+      "reason": "Large native speech diagnostic omitted; job/capability receipts retain their bounded scope.",
+      "sha256": "a5a1e8f33fef802f2f4ff61cf5bc41930458df6168ef027817fa09fbcd8c6a5b"
+    },
+    {
+      "bytes": 8138,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/hospital-partial-history.png",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/hospital-partial-history.png",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "reason": "Non-reading PNG omitted; verified original ZIP member, byte length and SHA-256 retained.",
+      "sha256": "a7d0339d1377eb9ee6e7310575844ef2faba72d08a9674af78266ed739d0c29b"
+    },
+    {
+      "bytes": 8138,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/hospital-restored-history.png",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/hospital-restored-history.png",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "reason": "Non-reading PNG omitted; verified original ZIP member, byte length and SHA-256 retained.",
+      "sha256": "a7d0339d1377eb9ee6e7310575844ef2faba72d08a9674af78266ed739d0c29b"
+    },
+    {
+      "bytes": 1125632,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/hospital-restored.png",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/hospital-restored.png",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "reason": "Non-reading PNG omitted; verified original ZIP member, byte length and SHA-256 retained.",
+      "sha256": "ff5ea3036add7b37fe0fe224f81360871ff57e815172d20035f4c6b428b629b6"
+    },
+    {
+      "bytes": 9151,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/hospital-saved.png",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/hospital-saved.png",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "reason": "Non-reading PNG omitted; verified original ZIP member, byte length and SHA-256 retained.",
+      "sha256": "f74bace39b675ebe15e385d2ce36943f33d28dd51eb4b333f11ba23d336b6dff"
+    },
+    {
+      "bytes": 8138,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/hospital-partial-history.png",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/hospital-partial-history.png",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "reason": "Non-reading PNG omitted; verified original ZIP member, byte length and SHA-256 retained.",
+      "sha256": "a7d0339d1377eb9ee6e7310575844ef2faba72d08a9674af78266ed739d0c29b"
+    },
+    {
+      "bytes": 9151,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/hospital-saved.png",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/hospital-saved.png",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "reason": "Non-reading PNG omitted; verified original ZIP member, byte length and SHA-256 retained.",
+      "sha256": "f74bace39b675ebe15e385d2ce36943f33d28dd51eb4b333f11ba23d336b6dff"
+    },
+    {
+      "bytes": 567882,
+      "path": "hospital-focus3/artifacts/public-surfaces-37032330393-1/ci/public-surfaces/game_state_surface.json",
+      "provenance": {
+        "artifact_id": 11238576126,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/game_state_surface.json",
+        "zip_sha256": "46d76c074c0ba3751622c771ddd61674643edf4333bfe02571d7177ce616c816"
+      },
+      "reason": "Duplicate public inventory; retain canonical source-bound copies separately.",
+      "sha256": "ca59bdd0530885284fc3cd518e56d3fc8747df2e4657c74384eac458e0d0aae7"
+    },
+    {
+      "bytes": 151034,
+      "path": "hospital-focus3/artifacts/public-surfaces-37032330393-1/ci/public-surfaces/save_manager_surface.json",
+      "provenance": {
+        "artifact_id": 11238576126,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/save_manager_surface.json",
+        "zip_sha256": "46d76c074c0ba3751622c771ddd61674643edf4333bfe02571d7177ce616c816"
+      },
+      "reason": "Duplicate public inventory; retain canonical source-bound copies separately.",
+      "sha256": "5c5d1daf08dfb3d7e276837681b30ff260d982ff63d04cea0da78b6108e2be75"
+    }
+  ],
+  "excluded_metadata": "Transient download responses and artifact-manifest.json are omitted because they can contain signed URLs.",
+  "generic_audit_pass": false,
+  "limits": [
+    "DIAGNOSTIC/PARTIAL ONLY: this failed run does not establish full-gate acceptance. Independently audited passing components retain only their stated scope.",
+    "No XML results are required or manufactured by this packaging mode; all existing raw results retain their actual outcomes.",
+    "Workflow head and pinned attempted source/checkout are recorded separately; checkout success does not imply the engine loaded the project.",
+    "Artifact bytes and raw logs are preserved without executing Godot or PowerShell locally.",
+    "Only selected PNGs are embedded; each omitted image or binary has an explicit reason and identity. Semantic reports and save bytes are retained.",
+    "This archive preserves evidence; packaging creates no additional engine or visual acceptance."
+  ],
+  "normalization": "lexicographic POSIX PAX members; mode0644 uid/gid0 empty owner names, mtime0; gzip mtime0, empty filename, level9",
+  "not_downloaded_artifacts": [],
+  "payload_bytes": 24684817,
+  "payload_file_count": 119,
+  "payload_files": [
+    {
+      "bytes": 4472,
+      "path": "hospital-focus3/artifacts-api.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "b428ae40955bf3148741d1c63f0f389301413af1d357b358fd29dab8a4ffd386"
+    },
+    {
+      "bytes": 102,
+      "path": "hospital-focus3/artifacts/cloud-speech-rendered-hospital-reading-37032330393-1/dummy.log",
+      "provenance": {
+        "artifact_id": 11237848026,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "dummy.log",
+        "zip_sha256": "6aa32ce24d4f2e74ac7fee813672cd7768d7c9d20e6309b49ac56ca257cf12cf"
+      },
+      "sha256": "a85c5d8911aac6e6663e7d9c5fa4b21f49c28bc607f95038b9b057e564a84929"
+    },
+    {
+      "bytes": 0,
+      "path": "hospital-focus3/artifacts/cloud-speech-rendered-hospital-reading-37032330393-1/espeak-ng-mbrola.log",
+      "provenance": {
+        "artifact_id": 11237848026,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "espeak-ng-mbrola.log",
+        "zip_sha256": "6aa32ce24d4f2e74ac7fee813672cd7768d7c9d20e6309b49ac56ca257cf12cf"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "hospital-focus3/artifacts/cloud-speech-rendered-hospital-reading-37032330393-1/espeak-ng.log",
+      "provenance": {
+        "artifact_id": 11237848026,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "espeak-ng.log",
+        "zip_sha256": "6aa32ce24d4f2e74ac7fee813672cd7768d7c9d20e6309b49ac56ca257cf12cf"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 35,
+      "path": "hospital-focus3/artifacts/cloud-speech-rendered-hospital-reading-37032330393-1/modules.txt",
+      "provenance": {
+        "artifact_id": 11237848026,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "modules.txt",
+        "zip_sha256": "6aa32ce24d4f2e74ac7fee813672cd7768d7c9d20e6309b49ac56ca257cf12cf"
+      },
+      "sha256": "b86d382d34ae1c2f6c4e9aa4c3bb589ebd1796d93df2942f8ff79e7952480fde"
+    },
+    {
+      "bytes": 13,
+      "path": "hospital-focus3/artifacts/cloud-speech-rendered-hospital-reading-37032330393-1/openjtalk.log",
+      "provenance": {
+        "artifact_id": 11237848026,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "openjtalk.log",
+        "zip_sha256": "6aa32ce24d4f2e74ac7fee813672cd7768d7c9d20e6309b49ac56ca257cf12cf"
+      },
+      "sha256": "13da6708a2d9f8e382e8e2bc393abf852bcb30a763ea0f29c22bc162fd082ddb"
+    },
+    {
+      "bytes": 468,
+      "path": "hospital-focus3/artifacts/cloud-speech-rendered-hospital-reading-37032330393-1/pulseaudio.log",
+      "provenance": {
+        "artifact_id": 11237848026,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "pulseaudio.log",
+        "zip_sha256": "6aa32ce24d4f2e74ac7fee813672cd7768d7c9d20e6309b49ac56ca257cf12cf"
+      },
+      "sha256": "c63f15cc507374ff6c7e1db5f9f532488b0d4b6d4502e7c7c0b37ffe87ae00e6"
+    },
+    {
+      "bytes": 3,
+      "path": "hospital-focus3/artifacts/cloud-speech-rendered-hospital-reading-37032330393-1/sink-module.txt",
+      "provenance": {
+        "artifact_id": 11237848026,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "sink-module.txt",
+        "zip_sha256": "6aa32ce24d4f2e74ac7fee813672cd7768d7c9d20e6309b49ac56ca257cf12cf"
+      },
+      "sha256": "a9742eb8ee320e006666aef25ae9aeed948247f3125c9cafa7cf97b7e7467dd5"
+    },
+    {
+      "bytes": 51,
+      "path": "hospital-focus3/artifacts/cloud-speech-rendered-hospital-reading-37032330393-1/sinks.txt",
+      "provenance": {
+        "artifact_id": 11237848026,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "sinks.txt",
+        "zip_sha256": "6aa32ce24d4f2e74ac7fee813672cd7768d7c9d20e6309b49ac56ca257cf12cf"
+      },
+      "sha256": "25a5ed750656366bc54b565a5487a37e58d9bed55dcef226f10a3b5c4668f5dc"
+    },
+    {
+      "bytes": 0,
+      "path": "hospital-focus3/artifacts/cloud-speech-rendered-hospital-reading-37032330393-1/voices-attempt-1.stderr.txt",
+      "provenance": {
+        "artifact_id": 11237848026,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "voices-attempt-1.stderr.txt",
+        "zip_sha256": "6aa32ce24d4f2e74ac7fee813672cd7768d7c9d20e6309b49ac56ca257cf12cf"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 13914,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence-manifest.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence-manifest.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "5d528213d49fa3eed068c792f184ee9c5c2162c240675c52dd2b15b3c5cddb06"
+    },
+    {
+      "bytes": 331,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/hospital-completion-input.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/hospital-completion-input.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "9d0388ba3a461c7d6317fb458a501b3bad27e8794fe14366c0fc11b68b81a3f5"
+    },
+    {
+      "bytes": 742,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/hospital-input.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/hospital-input.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "b1bd7a3dabf0836b4864e9699afd78f78947c5ea9625fad9816c78b6199b1ea7"
+    },
+    {
+      "bytes": 2149,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/read-catalogues.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/read-catalogues.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "e68686304f74e20b007434a897d19c407ba619c6a9420727fb0e5225c29472e8"
+    },
+    {
+      "bytes": 664,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/read-completion_input.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/read-completion_input.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "6e1bf33b15100c270f15a4261463f6f949101f6aeaf3c86f01fab666a1debe88"
+    },
+    {
+      "bytes": 108288,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/read-desktop-timeout.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/read-desktop-timeout.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "934bf691644187c41e92ae17dd84ca47bf514b979b32941efe5b117b29364c16"
+    },
+    {
+      "bytes": 90082,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/read-hospital-restored-history-closed.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/read-hospital-restored-history-closed.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "b932ed32871a4e645b366b28eb5ffe2f671fa68fa28e6b2634f69bc871478da9"
+    },
+    {
+      "bytes": 90213,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/read-hospital-restored-history-entered.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/read-hospital-restored-history-entered.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "6f261957850b59b516579b4a0bd39829b9f733f5c247355f384d211d620cf42b"
+    },
+    {
+      "bytes": 90359,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/read-loaded.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/read-loaded.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "ec6c8d15a35aae2abe90fd1570899e5832ca02a6a51f797fbc39c4f10c2fd3c5"
+    },
+    {
+      "bytes": 96902,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/read-owner-events.jsonl",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/read-owner-events.jsonl",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "980a8e8d9bca8f37b4514f955df1733302e98047e102472e46f9bdb973f089e9"
+    },
+    {
+      "bytes": 168372,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/saved-hospital-slot.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/saved-hospital-slot.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "cbe2033d40463709cc45c1eef124acd71fb5e9c04f867aed0ef87136d709d94c"
+    },
+    {
+      "bytes": 758142,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/transactions.jsonl",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/transactions.jsonl",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "6a96c5425c0268aeb3dbe8bc750973e6eb90c427360e1eb45b685ee9aafc2162"
+    },
+    {
+      "bytes": 80609,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-availability.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-availability.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "1cb080f239598f38b15e33c9801fd27bce33f06c72ab41ff4c967a7a475a9b16"
+    },
+    {
+      "bytes": 74258,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-backup_entered.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-backup_entered.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "c766a9c26752468a2a4b175e725a341aa1d0c562528d6a2c857b1c0a57755d2a"
+    },
+    {
+      "bytes": 2109,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-catalogues.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-catalogues.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "dffd935b4ff568c4ed529cb6ca9c5ceab321b44c850b25d2d9b5db118d8e7d4e"
+    },
+    {
+      "bytes": 74095,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-hospital-partial-history-closed.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-hospital-partial-history-closed.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "db7d836005b6bf4d0d9626f25019adf2bfe9d12e23d1ddf376ed74ee59e02994"
+    },
+    {
+      "bytes": 74225,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-hospital-partial-history-entered.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-hospital-partial-history-entered.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "f391cd8d3e803b7e7eac7188f4877c3d5a703027567a00e51117722b8942d8ec"
+    },
+    {
+      "bytes": 72957,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-hospital_a.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-hospital_a.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "5f4d72c1e187238825da00db55d4ef87780d4db8ecbce7a2b29e77d684562767"
+    },
+    {
+      "bytes": 1290,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-owner-events.jsonl",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-owner-events.jsonl",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "f2ba836dc1b17cb8a9128322e3f5453eec3b6731881d7da77ff4970776ac37b2"
+    },
+    {
+      "bytes": 74201,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-pause_cancelled.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-pause_cancelled.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "86b0260fb3e40db01afdf36530291632c989a0fc9cfba24b339af0f97f153046"
+    },
+    {
+      "bytes": 74095,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-pause_continued.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-pause_continued.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "f68547f664a8ee3f1e49aef98abce83270bf5e320914ed0a333339d2c2110141"
+    },
+    {
+      "bytes": 74203,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-pause_reentered.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-pause_reentered.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "47513d743a90db0eebb5e74dd4dd423e922e003a804d17401eec99461efc4bb0"
+    },
+    {
+      "bytes": 75009,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-paused_b.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-paused_b.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "9e4ba021f6c5cec9a3a1e36d4779570907d7d0522da29f8ed37157495bb44102"
+    },
+    {
+      "bytes": 26097,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-prior_retired.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-prior_retired.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "ef3bdf5751a2adef6ae25797db89c5654cb9a715893c2e7dcee08c7a62fac564"
+    },
+    {
+      "bytes": 35186,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-prior_solo.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-prior_solo.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "5e00cc4e95f9f9f5bf73536b6d6ea9606bcc7c32349d40b0b180d83100a4c206"
+    },
+    {
+      "bytes": 74275,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-saved.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write-saved.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "33d78c89d22dcb731d6c6d4c0ef654eaf5ada49b2a8d47a32d378f61e85e9bac"
+    },
+    {
+      "bytes": 874601,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/raw-evidence/write.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "90c179b203287e55b589b8a629291dce8411c62bd888221ba03cd602cf4644da"
+    },
+    {
+      "bytes": 162654,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/read-input-autosave.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/read-input-autosave.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "9e7a6e639933d9f790a4aa5a5457f835e58c844d44cfd66659905b9bde82b654"
+    },
+    {
+      "bytes": 1437,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/read-input-primary-files.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/read-input-primary-files.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "6acd3ec868370fdbdd0ca7829d64b97a197a0f6cc19972a2384f076ee16b4208"
+    },
+    {
+      "bytes": 12683,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/read-input-profile.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/read-input-profile.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "ce60ccbe0bbcaf59c52aceb7920099485952be51e225b4ad614639307b492c53"
+    },
+    {
+      "bytes": 168372,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/read-input-slot.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/read-input-slot.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "cbe2033d40463709cc45c1eef124acd71fb5e9c04f867aed0ef87136d709d94c"
+    },
+    {
+      "bytes": 162654,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/read-output-autosave.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/read-output-autosave.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "9e7a6e639933d9f790a4aa5a5457f835e58c844d44cfd66659905b9bde82b654"
+    },
+    {
+      "bytes": 1440,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/read-output-primary-files.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/read-output-primary-files.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "ff7550a63149a9b3184e91629c965be39f0f16fea94966622c47bd4a50589213"
+    },
+    {
+      "bytes": 12683,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/read-output-profile.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/read-output-profile.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "ce60ccbe0bbcaf59c52aceb7920099485952be51e225b4ad614639307b492c53"
+    },
+    {
+      "bytes": 168372,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/read-output-slot.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/read-output-slot.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "cbe2033d40463709cc45c1eef124acd71fb5e9c04f867aed0ef87136d709d94c"
+    },
+    {
+      "bytes": 24043,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/read.log",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/read.log",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "b2b10b96253da8f24148a3962f25e9c649bb96f8c24fe57a9bc9a9436756b46c"
+    },
+    {
+      "bytes": 1150,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/read.process.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/read.process.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "6f625f9eb05a1ca638f4671c599fd8c3d09cc6d4d859aee10c6f750856453555"
+    },
+    {
+      "bytes": 0,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/read.stderr.txt",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/read.stderr.txt",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 24237,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/read.stdout.txt",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/read.stdout.txt",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "bd26868defa59a971877dd876f606a9b71d215e39e0a39c2c06bc21dea6d1883"
+    },
+    {
+      "bytes": 1275889,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/result.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/result.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "549f74c7749f075fb4445e619180ec2433ee7cbd21824917646ae7edb5b27fe3"
+    },
+    {
+      "bytes": 742,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/hospital-input.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/hospital-input.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "b1bd7a3dabf0836b4864e9699afd78f78947c5ea9625fad9816c78b6199b1ea7"
+    },
+    {
+      "bytes": 168372,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/saved-hospital-slot.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/saved-hospital-slot.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "cbe2033d40463709cc45c1eef124acd71fb5e9c04f867aed0ef87136d709d94c"
+    },
+    {
+      "bytes": 565781,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/transactions.jsonl",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/transactions.jsonl",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "08d8002bc0ff7fa5b7f2bd002f1dfd39113e8053a8bd1ffd6dd0e4461cb3a958"
+    },
+    {
+      "bytes": 80609,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-availability.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-availability.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "1cb080f239598f38b15e33c9801fd27bce33f06c72ab41ff4c967a7a475a9b16"
+    },
+    {
+      "bytes": 74258,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-backup_entered.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-backup_entered.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "c766a9c26752468a2a4b175e725a341aa1d0c562528d6a2c857b1c0a57755d2a"
+    },
+    {
+      "bytes": 2109,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-catalogues.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-catalogues.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "dffd935b4ff568c4ed529cb6ca9c5ceab321b44c850b25d2d9b5db118d8e7d4e"
+    },
+    {
+      "bytes": 74095,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-hospital-partial-history-closed.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-hospital-partial-history-closed.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "db7d836005b6bf4d0d9626f25019adf2bfe9d12e23d1ddf376ed74ee59e02994"
+    },
+    {
+      "bytes": 74225,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-hospital-partial-history-entered.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-hospital-partial-history-entered.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "f391cd8d3e803b7e7eac7188f4877c3d5a703027567a00e51117722b8942d8ec"
+    },
+    {
+      "bytes": 72957,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-hospital_a.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-hospital_a.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "5f4d72c1e187238825da00db55d4ef87780d4db8ecbce7a2b29e77d684562767"
+    },
+    {
+      "bytes": 1290,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-owner-events.jsonl",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-owner-events.jsonl",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "f2ba836dc1b17cb8a9128322e3f5453eec3b6731881d7da77ff4970776ac37b2"
+    },
+    {
+      "bytes": 74201,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-pause_cancelled.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-pause_cancelled.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "86b0260fb3e40db01afdf36530291632c989a0fc9cfba24b339af0f97f153046"
+    },
+    {
+      "bytes": 74095,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-pause_continued.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-pause_continued.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "f68547f664a8ee3f1e49aef98abce83270bf5e320914ed0a333339d2c2110141"
+    },
+    {
+      "bytes": 74203,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-pause_reentered.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-pause_reentered.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "47513d743a90db0eebb5e74dd4dd423e922e003a804d17401eec99461efc4bb0"
+    },
+    {
+      "bytes": 75009,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-paused_b.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-paused_b.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "9e4ba021f6c5cec9a3a1e36d4779570907d7d0522da29f8ed37157495bb44102"
+    },
+    {
+      "bytes": 26097,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-prior_retired.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-prior_retired.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "ef3bdf5751a2adef6ae25797db89c5654cb9a715893c2e7dcee08c7a62fac564"
+    },
+    {
+      "bytes": 35186,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-prior_solo.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-prior_solo.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "5e00cc4e95f9f9f5bf73536b6d6ea9606bcc7c32349d40b0b180d83100a4c206"
+    },
+    {
+      "bytes": 74275,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-saved.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write-saved.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "33d78c89d22dcb731d6c6d4c0ef654eaf5ada49b2a8d47a32d378f61e85e9bac"
+    },
+    {
+      "bytes": 874601,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/sealed-write/write.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "90c179b203287e55b589b8a629291dce8411c62bd888221ba03cd602cf4644da"
+    },
+    {
+      "bytes": 203,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/user-dir-proof.log",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/user-dir-proof.log",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "66c5e9ff63dca542a7a81d4d789c5c9606318fa7e2c7c8129a7a70773102f021"
+    },
+    {
+      "bytes": 828,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/user-dir-proof.process.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/user-dir-proof.process.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "6fc03074f3dd97fd0142cb843658191d4c82fcd1e348f14c8f42ea094f300de0"
+    },
+    {
+      "bytes": 0,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/user-dir-proof.stderr.txt",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/user-dir-proof.stderr.txt",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 203,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/user-dir-proof.stdout.txt",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/user-dir-proof.stdout.txt",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "66c5e9ff63dca542a7a81d4d789c5c9606318fa7e2c7c8129a7a70773102f021"
+    },
+    {
+      "bytes": 747,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/write-input-primary-files.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/write-input-primary-files.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "bebc67a91f6fa0a2fb04397a68e3cfd3cbe6a3c3e4808585f1f13f0c9eba0635"
+    },
+    {
+      "bytes": 162654,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/write-output-autosave.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/write-output-autosave.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "9e7a6e639933d9f790a4aa5a5457f835e58c844d44cfd66659905b9bde82b654"
+    },
+    {
+      "bytes": 1443,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/write-output-primary-files.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/write-output-primary-files.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "2f650bcf5ca8d7df6c6ed4d5f1d90ec2983de1b7fb64a713ee871ef9b7844f7d"
+    },
+    {
+      "bytes": 12683,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/write-output-profile.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/write-output-profile.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "ce60ccbe0bbcaf59c52aceb7920099485952be51e225b4ad614639307b492c53"
+    },
+    {
+      "bytes": 168372,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/write-output-slot.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/write-output-slot.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "cbe2033d40463709cc45c1eef124acd71fb5e9c04f867aed0ef87136d709d94c"
+    },
+    {
+      "bytes": 9632,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/write-seal.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/write-seal.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "2b7f3a90ae3bc64e6cca5201e1136a23b43ecf8989f62234970312d160024c23"
+    },
+    {
+      "bytes": 874601,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/write.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/write.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "90c179b203287e55b589b8a629291dce8411c62bd888221ba03cd602cf4644da"
+    },
+    {
+      "bytes": 39690,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/write.log",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/write.log",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "75cb157f39f843b6db9e8b4b1615905b1913c56aa5d02fba45e8bc3528057a75"
+    },
+    {
+      "bytes": 1154,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/write.process.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/write.process.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "f8024738d2eb249f4c90e4c36f583d7018036f6993df82e8e4ef6bb17948f6e3"
+    },
+    {
+      "bytes": 0,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/write.stderr.txt",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/write.stderr.txt",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 39884,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/0aadc71a-30cf-4e98-9255-683f08308871/write.stdout.txt",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "0aadc71a-30cf-4e98-9255-683f08308871/write.stdout.txt",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "ee70643d8e38a21326924f580468b137e8aabd0a924da8de772f01bacb97949b"
+    },
+    {
+      "bytes": 203723,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/import.log",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "import.log",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "4c84e4c56f9e7f3ed9ae371767249ae88ca624e1d1da79d841a47c8ae918c3fb"
+    },
+    {
+      "bytes": 1275889,
+      "path": "hospital-focus3/artifacts/hospital-reading-37032330393-1/result.json",
+      "provenance": {
+        "artifact_id": 11238691555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "result.json",
+        "zip_sha256": "1d9c0b5a4da2c877a79ca3f7e2277597f69586dd3a22d69d8a7d814b0a47eeac"
+      },
+      "sha256": "549f74c7749f075fb4445e619180ec2433ee7cbd21824917646ae7edb5b27fe3"
+    },
+    {
+      "bytes": 203723,
+      "path": "hospital-focus3/artifacts/public-surfaces-37032330393-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11238576126,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "46d76c074c0ba3751622c771ddd61674643edf4333bfe02571d7177ce616c816"
+      },
+      "sha256": "156d68bf7dc3eca00c51428dcec64dd2bb30fd21d05b686224ec26ae8b280383"
+    },
+    {
+      "bytes": 658,
+      "path": "hospital-focus3/artifacts/public-surfaces-37032330393-1/ci/isolation-timeout.jsonl",
+      "provenance": {
+        "artifact_id": 11238576126,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/isolation-timeout.jsonl",
+        "zip_sha256": "46d76c074c0ba3751622c771ddd61674643edf4333bfe02571d7177ce616c816"
+      },
+      "sha256": "a8417cb20131c5826cd5e0cbbe8340c2e9e270cfed1ab68f1c8b5e942b63451b"
+    },
+    {
+      "bytes": 237374,
+      "path": "hospital-focus3/artifacts/public-surfaces-37032330393-1/ci/public-surfaces/fixture-version-census.json",
+      "provenance": {
+        "artifact_id": 11238576126,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/fixture-version-census.json",
+        "zip_sha256": "46d76c074c0ba3751622c771ddd61674643edf4333bfe02571d7177ce616c816"
+      },
+      "sha256": "41f125fc09964a891249505fd8242187ff07ff145a195ab43c6c88fff44cd355"
+    },
+    {
+      "bytes": 997,
+      "path": "hospital-focus3/artifacts/public-surfaces-37032330393-1/ci/public-surfaces/game_state-check.jsonl",
+      "provenance": {
+        "artifact_id": 11238576126,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/game_state-check.jsonl",
+        "zip_sha256": "46d76c074c0ba3751622c771ddd61674643edf4333bfe02571d7177ce616c816"
+      },
+      "sha256": "a755134da663257a277ca3d17fdb70f5818e4915f5371c9f72550c7f8eceee2b"
+    },
+    {
+      "bytes": 996,
+      "path": "hospital-focus3/artifacts/public-surfaces-37032330393-1/ci/public-surfaces/game_state-generate.jsonl",
+      "provenance": {
+        "artifact_id": 11238576126,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/game_state-generate.jsonl",
+        "zip_sha256": "46d76c074c0ba3751622c771ddd61674643edf4333bfe02571d7177ce616c816"
+      },
+      "sha256": "db19b8c0209ed767f896e462e6373f0abdce80e64969edf1e754e5327cfc59de"
+    },
+    {
+      "bytes": 563,
+      "path": "hospital-focus3/artifacts/public-surfaces-37032330393-1/ci/public-surfaces/retirement-audit.json",
+      "provenance": {
+        "artifact_id": 11238576126,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/retirement-audit.json",
+        "zip_sha256": "46d76c074c0ba3751622c771ddd61674643edf4333bfe02571d7177ce616c816"
+      },
+      "sha256": "45a56908b2a59d6f55c73dd40e44bc9c05587f577c44012ece6ae6e6d128f27e"
+    },
+    {
+      "bytes": 1009,
+      "path": "hospital-focus3/artifacts/public-surfaces-37032330393-1/ci/public-surfaces/save_manager-check.jsonl",
+      "provenance": {
+        "artifact_id": 11238576126,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/save_manager-check.jsonl",
+        "zip_sha256": "46d76c074c0ba3751622c771ddd61674643edf4333bfe02571d7177ce616c816"
+      },
+      "sha256": "ba7286e20a3f4fc1c420940882a8660492375a24cfe73d6a84b041bc8cfe4797"
+    },
+    {
+      "bytes": 1008,
+      "path": "hospital-focus3/artifacts/public-surfaces-37032330393-1/ci/public-surfaces/save_manager-generate.jsonl",
+      "provenance": {
+        "artifact_id": 11238576126,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/save_manager-generate.jsonl",
+        "zip_sha256": "46d76c074c0ba3751622c771ddd61674643edf4333bfe02571d7177ce616c816"
+      },
+      "sha256": "93c563f9103ae08b510644d52a4310d3a9d13fa73a913e9b942f7f3897fefb74"
+    },
+    {
+      "bytes": 758,
+      "path": "hospital-focus3/artifacts/public-surfaces-37032330393-1/ci/public_surfaces.jsonl",
+      "provenance": {
+        "artifact_id": 11238576126,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public_surfaces.jsonl",
+        "zip_sha256": "46d76c074c0ba3751622c771ddd61674643edf4333bfe02571d7177ce616c816"
+      },
+      "sha256": "39e21998fddbefa13ec540a68fdfdd4799f1de2fe9c13f2a370c90a92adb7c68"
+    },
+    {
+      "bytes": 2505,
+      "path": "hospital-focus3/artifacts/public-surfaces-37032330393-1/ci/public_surfaces.xml",
+      "provenance": {
+        "artifact_id": 11238576126,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public_surfaces.xml",
+        "zip_sha256": "46d76c074c0ba3751622c771ddd61674643edf4333bfe02571d7177ce616c816"
+      },
+      "sha256": "1df6b1521e414b6696aed4741601bef40bf23f9b62b31459ffddc90a5051eb11"
+    },
+    {
+      "bytes": 105,
+      "path": "hospital-focus3/artifacts/public-surfaces-37032330393-1/phase2r_logs/cloud-isolation-timeout.log",
+      "provenance": {
+        "artifact_id": 11238576126,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-isolation-timeout.log",
+        "zip_sha256": "46d76c074c0ba3751622c771ddd61674643edf4333bfe02571d7177ce616c816"
+      },
+      "sha256": "024608dce65ad25e4cf6cf14cda110234e45b506858606453dbab71388889192"
+    },
+    {
+      "bytes": 151,
+      "path": "hospital-focus3/artifacts/public-surfaces-37032330393-1/phase2r_logs/cloud-isolation-timeout.log.timeout.log",
+      "provenance": {
+        "artifact_id": 11238576126,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-isolation-timeout.log.timeout.log",
+        "zip_sha256": "46d76c074c0ba3751622c771ddd61674643edf4333bfe02571d7177ce616c816"
+      },
+      "sha256": "bbfe0f114cd95fdd646d6bed89814dc35f6124e3bf360f0552964a251831cc41"
+    },
+    {
+      "bytes": 97,
+      "path": "hospital-focus3/artifacts/public-surfaces-37032330393-1/phase2r_logs/cloud-public-surface-game_state-check.log",
+      "provenance": {
+        "artifact_id": 11238576126,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public-surface-game_state-check.log",
+        "zip_sha256": "46d76c074c0ba3751622c771ddd61674643edf4333bfe02571d7177ce616c816"
+      },
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "bytes": 97,
+      "path": "hospital-focus3/artifacts/public-surfaces-37032330393-1/phase2r_logs/cloud-public-surface-game_state-generate.log",
+      "provenance": {
+        "artifact_id": 11238576126,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public-surface-game_state-generate.log",
+        "zip_sha256": "46d76c074c0ba3751622c771ddd61674643edf4333bfe02571d7177ce616c816"
+      },
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "bytes": 97,
+      "path": "hospital-focus3/artifacts/public-surfaces-37032330393-1/phase2r_logs/cloud-public-surface-save_manager-check.log",
+      "provenance": {
+        "artifact_id": 11238576126,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public-surface-save_manager-check.log",
+        "zip_sha256": "46d76c074c0ba3751622c771ddd61674643edf4333bfe02571d7177ce616c816"
+      },
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "bytes": 97,
+      "path": "hospital-focus3/artifacts/public-surfaces-37032330393-1/phase2r_logs/cloud-public-surface-save_manager-generate.log",
+      "provenance": {
+        "artifact_id": 11238576126,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public-surface-save_manager-generate.log",
+        "zip_sha256": "46d76c074c0ba3751622c771ddd61674643edf4333bfe02571d7177ce616c816"
+      },
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "bytes": 201898,
+      "path": "hospital-focus3/artifacts/public-surfaces-37032330393-1/phase2r_logs/cloud-public_surfaces.log",
+      "provenance": {
+        "artifact_id": 11238576126,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public_surfaces.log",
+        "zip_sha256": "46d76c074c0ba3751622c771ddd61674643edf4333bfe02571d7177ce616c816"
+      },
+      "sha256": "414ddc951953e307838eb1a63c902dc123f6f75ac069dc06089a337147c416ba"
+    },
+    {
+      "bytes": 203723,
+      "path": "hospital-focus3/artifacts/windows-persistence-37032330393-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11238751361,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "589157a24eb2f51e0aeb7fb746881523b1992280d4a5af0bc88de5facd16eecf"
+      },
+      "sha256": "754d78379afce34c037c89c2fb654702bf1da693df12fc85d07ac4744ad64706"
+    },
+    {
+      "bytes": 1795,
+      "path": "hospital-focus3/artifacts/windows-persistence-37032330393-1/ci/persistence.jsonl",
+      "provenance": {
+        "artifact_id": 11238751361,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/persistence.jsonl",
+        "zip_sha256": "589157a24eb2f51e0aeb7fb746881523b1992280d4a5af0bc88de5facd16eecf"
+      },
+      "sha256": "69e6e9499c6bbaa0ad12ea22b3b45314be13c909317ae7b7f634fca2389cec50"
+    },
+    {
+      "bytes": 51922,
+      "path": "hospital-focus3/artifacts/windows-persistence-37032330393-1/ci/persistence.xml",
+      "provenance": {
+        "artifact_id": 11238751361,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/persistence.xml",
+        "zip_sha256": "589157a24eb2f51e0aeb7fb746881523b1992280d4a5af0bc88de5facd16eecf"
+      },
+      "sha256": "cf85a73378bb15a84e1e758f7d6a6726edfb1773eb56f9c2f14e6fc5a021e9d4"
+    },
+    {
+      "bytes": 627,
+      "path": "hospital-focus3/artifacts/windows-persistence-37032330393-1/ci/save-load-capture.jsonl",
+      "provenance": {
+        "artifact_id": 11238751361,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/save-load-capture.jsonl",
+        "zip_sha256": "589157a24eb2f51e0aeb7fb746881523b1992280d4a5af0bc88de5facd16eecf"
+      },
+      "sha256": "5a735f9d339649e70e2e1b7f6b0fdae668e390fa84ef9a6a090312f0a05d8d2e"
+    },
+    {
+      "bytes": 3673147,
+      "path": "hospital-focus3/artifacts/windows-persistence-37032330393-1/phase2r_logs/cloud-persistence.log",
+      "provenance": {
+        "artifact_id": 11238751361,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-persistence.log",
+        "zip_sha256": "589157a24eb2f51e0aeb7fb746881523b1992280d4a5af0bc88de5facd16eecf"
+      },
+      "sha256": "7176d57934b2c1db38c1bf94166539b37f0f5df5e195b7015e32d524105dce9e"
+    },
+    {
+      "bytes": 119,
+      "path": "hospital-focus3/artifacts/windows-persistence-37032330393-1/phase2r_logs/cloud-save-load-capture.log",
+      "provenance": {
+        "artifact_id": 11238751361,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-save-load-capture.log",
+        "zip_sha256": "589157a24eb2f51e0aeb7fb746881523b1992280d4a5af0bc88de5facd16eecf"
+      },
+      "sha256": "97474b69beb760ef490fc919a3f8a604c62c701bb876cc39344839106819d290"
+    },
+    {
+      "bytes": 203723,
+      "path": "hospital-focus3/artifacts/windows-reading_delivery-37032330393-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11238347091,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "5f55e91139f7a5908139b49df30d6ee3b3cc5e4a5ce00043337fe59b636f10cf"
+      },
+      "sha256": "16286b4a69f32e7452c718080472b1693bbdfe95a3668f6c925e89d9faa55e0d"
+    },
+    {
+      "bytes": 2556,
+      "path": "hospital-focus3/artifacts/windows-reading_delivery-37032330393-1/ci/reading_delivery.jsonl",
+      "provenance": {
+        "artifact_id": 11238347091,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/reading_delivery.jsonl",
+        "zip_sha256": "5f55e91139f7a5908139b49df30d6ee3b3cc5e4a5ce00043337fe59b636f10cf"
+      },
+      "sha256": "15f57e943d8526b630631ec8561e3b81a87d0f9d3be011737e489bab0c674906"
+    },
+    {
+      "bytes": 115128,
+      "path": "hospital-focus3/artifacts/windows-reading_delivery-37032330393-1/ci/reading_delivery.xml",
+      "provenance": {
+        "artifact_id": 11238347091,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/reading_delivery.xml",
+        "zip_sha256": "5f55e91139f7a5908139b49df30d6ee3b3cc5e4a5ce00043337fe59b636f10cf"
+      },
+      "sha256": "35a90284e3b1222ba7ba7a2414fc2aab3e0aeb87444e2eaae3759aead9be44a8"
+    },
+    {
+      "bytes": 3310413,
+      "path": "hospital-focus3/artifacts/windows-reading_delivery-37032330393-1/phase2r_logs/cloud-reading_delivery.log",
+      "provenance": {
+        "artifact_id": 11238347091,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-reading_delivery.log",
+        "zip_sha256": "5f55e91139f7a5908139b49df30d6ee3b3cc5e4a5ce00043337fe59b636f10cf"
+      },
+      "sha256": "93a0067d25233e28f130ff223d6ef88127385bfac6931b56dc241c8b574b4af8"
+    },
+    {
+      "bytes": 79307,
+      "path": "hospital-focus3/audit/diagnostic-evidence.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "77129f574cce646c395436f32f4406fbe09008ffe8f9ef676fffcb2eefa5fca3"
+    },
+    {
+      "bytes": 16273,
+      "path": "hospital-focus3/jobs.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "9eeb3251f2aa98bd85a29b13a8672180c74e66de0f63dd80f57484c81e3a24bc"
+    },
+    {
+      "bytes": 820476,
+      "path": "hospital-focus3/logs/110921976270.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "f39f8a77bde2f85472c4e6878004f426562f8e01279a669861add92362669186"
+    },
+    {
+      "bytes": 498973,
+      "path": "hospital-focus3/logs/110924430323.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "41b68411889723bad1de99b37ce80f82cb813d48cafbdc00d465ab710d85ba95"
+    },
+    {
+      "bytes": 4242927,
+      "path": "hospital-focus3/logs/110924430428.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "893d55e2af6933659a9bc49e296fead1227bcaef603ced02a39e58cf1435f006"
+    },
+    {
+      "bytes": 456907,
+      "path": "hospital-focus3/logs/110924430446.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "6b7523460ca00452fc977fbf1bd2ddb8fcfd1f16061481d8606597ecc2414599"
+    },
+    {
+      "bytes": 12731,
+      "path": "hospital-focus3/run.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "064afead2aa1c2da6153f10e45944bdc212c0717dc86de6ae9a3e99a6277a169"
+    }
+  ],
+  "run": {
+    "conclusion": "failure",
+    "event": "push",
+    "head_branch": "codex/hospital-reading-cloud-20261002",
+    "head_sha": "b5e7ede0f1053c44aecf2ae54d07c3675e85a594",
+    "html_url": "https://github.com/Siuuuers/dwm/actions/runs/37032330393",
+    "id": 37032330393,
+    "run_attempt": 1,
+    "run_number": 3,
+    "status": "completed"
+  },
+  "schema_version": 1,
+  "secret_scan_patterns": [
+    "github_token",
+    "signed_query",
+    "authorization_secret",
+    "private_key"
+  ],
+  "source_boundary": {
+    "all_unlisted_paths_byte_identical": true,
+    "checkout_parents": [
+      "823940a2c8dcea8ba88004f7eb21786c01d901df"
+    ],
+    "explicit_allowed_difference_patterns": [],
+    "master": null,
+    "source": "df9ad2802fe95651a553550a7702283d61bae4be",
+    "source_checkout_differences": [],
+    "tested_checkout": "df9ad2802fe95651a553550a7702283d61bae4be"
+  }
+}

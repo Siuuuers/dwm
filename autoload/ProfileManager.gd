@@ -4,6 +4,7 @@ signal profile_restored(profile: Dictionary)
 signal preference_changed(path: StringName, value: Variant)
 signal gallery_changed(ending_id: String, unlocked: bool)
 signal visited_history_changed(line_id: String, visited: bool)
+signal caption_variant_witness_changed(witness_id: String, witnessed: bool)
 signal input_mappings_changed(action_id: StringName)
 signal controls_bindings_changed()
 signal profile_reset(section: StringName)
@@ -14,6 +15,7 @@ const DATING_ATTEMPTS := preload("res://scripts/profile/DatingAttemptLedger.gd")
 const OBSERVER_EVIDENCE := preload("res://scripts/profile/ObserverEvidence.gd")
 const PAIR_DECK := preload("res://scripts/domain/relationship/PairDeckDraw.gd")
 const PRESENTATION_SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
+const CAPTION_WITNESSES := preload("res://scripts/profile/CaptionWitnessLedger.gd")
 const MIGRATION := preload("res://scripts/profile/ProfileMigration.gd")
 const PREFERENCE_REGISTRY := preload("res://scripts/settings/SettingsPreferenceRegistry.gd")
 const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
@@ -25,6 +27,7 @@ const NEW_RUN_MATERIAL_KEYS := ["before", "candidate", "captured_dark", "profile
 	"source_revision", "outgoing_text", "outgoing_hash"]
 
 const PRIMARY_LOCALE_PATH := &"preferences.language.primary_locale_id"
+const FONT_STYLE_PATH := &"preferences.accessibility.font_style"
 const _AUDIO_MEMORY_SURFACES := [&"META_POST_ENDING_TITLE", &"META_BACKUP_LOAD", &"META_GALLERY_REPLAY"]
 
 var _new_run_storage_bound := false
@@ -332,8 +335,8 @@ func prepare_preferences(changes: Dictionary) -> Dictionary:
 		var validated := SCHEMA.validate_preference(path, changes[path_value])
 		if not validated.get("ok", false):
 			return validated
-		if path == PRIMARY_LOCALE_PATH:
-			return _failure(&"managed_preference", "Primary language is managed by locale preparation")
+		if path in [PRIMARY_LOCALE_PATH, FONT_STYLE_PATH]:
+			return _failure(&"managed_preference", "Language and font style are managed by presentation preparation")
 		if not PREFERENCE_REGISTRY.is_player_writable(path):
 			return _failure(&"managed_preference", "Preference is capability-owned")
 		normalized[path] = validated["value"]
@@ -366,6 +369,16 @@ func prepare_locale_preference(locale_id: String) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": document_validation["value"], "changed_paths": [PRIMARY_LOCALE_PATH]}
 
 
+func prepare_font_style_preference(font_style: String) -> Dictionary:
+	if not _initialized:
+		return _failure(&"not_initialized", "ProfileManager is not initialized")
+	var validated := SCHEMA.validate_preference(FONT_STYLE_PATH, font_style)
+	if not validated.get("ok", false): return validated
+	var candidate := _profile.duplicate(true)
+	_set_profile_path(candidate, FONT_STYLE_PATH, font_style)
+	return SCHEMA.validate(candidate)
+
+
 func commit_prepared_profile(candidate: Dictionary, defer_signals: bool = false, expected_revision: int = -1) -> Dictionary:
 	var guarded := _guard(&"profile_commit")
 	if not guarded.get("ok", false):
@@ -373,7 +386,7 @@ func commit_prepared_profile(candidate: Dictionary, defer_signals: bool = false,
 	return _commit_profile_candidate(candidate, defer_signals, expected_revision)
 
 
-func _commit_profile_candidate(candidate: Dictionary, defer_signals: bool = false, expected_revision: int = -1, allow_dating_reset: bool = false, allow_gallery_reset: bool = false) -> Dictionary:
+func _commit_profile_candidate(candidate: Dictionary, defer_signals: bool = false, expected_revision: int = -1, allow_dating_reset: bool = false, allow_gallery_reset: bool = false, allow_visited_reset: bool = false) -> Dictionary:
 	var revision_check := _check_profile_revision(expected_revision)
 	if not revision_check.get("ok", false):
 		return revision_check
@@ -385,14 +398,19 @@ func _commit_profile_candidate(candidate: Dictionary, defer_signals: bool = fals
 	if not validation.get("ok", false):
 		return validation
 	var detached: Dictionary = validation["value"]
+	if not allow_visited_reset and not CAPTION_WITNESSES.preserves(_profile.witnessed_caption_variants, detached.witnessed_caption_variants):
+		return _failure(&"caption_witness_rewind", "Only Clear Visited History or full Profile reset may remove exact caption witnesses")
 	if not allow_dating_reset and not DATING_ATTEMPTS.preserves(_profile.dating_attempts, detached.dating_attempts):
 		return _failure(&"dating_history_rewind", "Only full Profile reset may remove Dating commitments")
 	if not allow_dating_reset:
 		for key: String in ["observer_evidence", "pair_deck_draws"]:
 			if not _preserves_receipts(_profile[key], detached[key]):
 				return _failure(&"profile_evidence_rewind", "Only full Profile reset may remove durable evidence")
-		if not allow_gallery_reset and not _preserves_receipts(_profile.reached_presentations, detached.reached_presentations):
-			return _failure(&"presentation_history_rewind", "Only Clear Gallery or full reset may remove reached presentations")
+		if not allow_gallery_reset:
+			if not _preserves_receipts(_profile.reached_presentations, detached.reached_presentations):
+				return _failure(&"presentation_history_rewind", "Only Clear Gallery or full reset may remove reached presentations")
+			if not _preserves_presentation_chronology(_profile, detached):
+				return _failure(&"presentation_chronology_rewrite", "First-witness order and unknown legacy provenance cannot be rewritten")
 	var old := _profile.duplicate(true)
 	var persisted := _persist_candidate(detached)
 	if not persisted.get("ok", false):
@@ -478,6 +496,29 @@ func mark_line_visited(line_id: String) -> Dictionary:
 	var candidate := _profile.duplicate(true)
 	candidate["visited_line_ids"].append(line_id)
 	return commit_prepared_profile(candidate)
+
+
+func is_caption_variant_witnessed(beat: Dictionary) -> bool:
+	return _initialized and CAPTION_WITNESSES.contains(_profile.witnessed_caption_variants, beat)
+
+
+## The visible presentation owner supplies its admitted registry row. Both exact
+## and base-line history become durable in one commit; registration alone writes nothing.
+func mark_caption_variant_witnessed(beat: Dictionary, registry: Dictionary) -> Dictionary:
+	var guarded := _guard(&"profile_commit")
+	if not guarded.ok: return guarded
+	if not _initialized: return _failure(&"not_initialized", "ProfileManager is not initialized")
+	if _mutation_blocked: return _failure(&"indeterminate_commit", "Profile mutation is blocked", true)
+	var admitted := CAPTION_WITNESSES.admit(beat, registry)
+	if not admitted.ok: return admitted
+	var witness_id: String = admitted.value.witness_id
+	if CAPTION_WITNESSES.contains(_profile.witnessed_caption_variants, admitted.value.beat):
+		return {"ok": true, "code": &"ok", "value": {"witness_id": witness_id}, "unchanged": true}
+	var candidate := _profile.duplicate(true)
+	candidate.witnessed_caption_variants[witness_id] = admitted.value.beat
+	if beat.line_id not in candidate.visited_line_ids:
+		candidate.visited_line_ids.append(beat.line_id)
+	return _commit_profile_candidate(candidate)
 
 
 ## Only physical presentation owners call this after a counted event or ending.
@@ -646,6 +687,7 @@ func record_reached_presentation(signature: Dictionary) -> Dictionary:
 		return {"ok": true, "value": {"signature_id": id, "already_reached": true}}
 	var candidate := _profile.duplicate(true)
 	candidate["reached_presentations"][id] = signature.duplicate(true)
+	candidate.reached_presentation_chronology.first_witnessed.append(id)
 	# Canonical physical completion may retain its causal lease; standalone canonical owners
 	# use the ordinary Profile admission gate. Rehearsal owns neither path.
 	var committed: Dictionary
@@ -657,14 +699,28 @@ func record_reached_presentation(signature: Dictionary) -> Dictionary:
 
 func get_reached_presentations(entry_id: String = "") -> Dictionary:
 	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
-	var ids: Array = _profile.reached_presentations.keys()
-	ids.sort()
+	var chronology: Dictionary = _profile.reached_presentation_chronology
+	var ids: Array = chronology.first_witnessed.duplicate()
+	ids.reverse()
+	ids.append_array(chronology.legacy_unordered)
 	var records: Array = []
-	for id: String in ids:
+	var projected := {"first_witnessed": [], "legacy_unordered": []}
+	for index: int in range(ids.size()):
+		var id: String = ids[index]
 		var signature: Dictionary = _profile.reached_presentations[id]
 		if entry_id.is_empty() or signature.entry_id == entry_id:
 			records.append({"signature_id": id, "signature": signature.duplicate(true)})
-	return {"ok": true, "value": {"records": records}}
+			projected["first_witnessed" if index < chronology.first_witnessed.size() else "legacy_unordered"].append(id)
+	# The durable sequence is oldest-first; only the visible record query is newest-first.
+	projected.first_witnessed.reverse()
+	return {"ok": true, "value": {"records": records, "chronology": projected}}
+
+static func _preserves_presentation_chronology(before: Dictionary, after: Dictionary) -> bool:
+	var prior: Dictionary = before.reached_presentation_chronology
+	var next: Dictionary = after.reached_presentation_chronology
+	return next.legacy_unordered == prior.legacy_unordered \
+		and next.first_witnessed.size() >= prior.first_witnessed.size() \
+		and next.first_witnessed.slice(0, prior.first_witnessed.size()) == prior.first_witnessed
 
 func _evidence_custody() -> Dictionary:
 	if _mutation_gate != null and not _mutation_gate.is_internal_owner_active(&"causal_transaction"):
@@ -1013,6 +1069,7 @@ func reset_visited_history(expected_revision: int = -1) -> Dictionary:
 	if not checked.get("ok", false): return checked
 	var candidate := _profile.duplicate(true)
 	candidate["visited_line_ids"] = []
+	candidate["witnessed_caption_variants"] = {}
 	return _commit_reset(candidate, &"visited_history", expected_revision)
 
 
@@ -1025,6 +1082,7 @@ func reset_gallery(expected_revision: int = -1) -> Dictionary:
 	_preserve_legacy_ending_milestone(candidate)
 	candidate["gallery_unlocks"] = []
 	candidate["reached_presentations"] = {}
+	candidate["reached_presentation_chronology"] = {"first_witnessed": [], "legacy_unordered": []}
 	candidate["preferences"]["exceptional_replay"]["available"] = false
 	candidate["preferences"]["exceptional_replay"]["replay_full"] = false
 	return _commit_reset(candidate, &"gallery", expected_revision)
@@ -1064,11 +1122,15 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 	var validation := SCHEMA.validate(candidate)
 	if not validation.get("ok", false):
 		return validation
+	if not CAPTION_WITNESSES.preserves(_profile.witnessed_caption_variants, validation.value.witnessed_caption_variants):
+		return _failure(&"caption_witness_rewind", "Run restoration cannot rewind exact caption witnesses")
 	if not DATING_ATTEMPTS.preserves(_profile.dating_attempts, validation.value.dating_attempts):
 		return _failure(&"dating_history_rewind", "Run restoration cannot rewind Profile Dating commitments")
 	for key: String in ["observer_evidence", "pair_deck_draws", "reached_presentations"]:
 		if not _preserves_receipts(_profile[key], validation.value[key]):
 			return _failure(&"profile_evidence_rewind", "Run restoration cannot rewind durable Profile evidence")
+	if not _preserves_presentation_chronology(_profile, validation.value):
+		return _failure(&"presentation_chronology_rewrite", "Run restoration cannot rewrite reached-presentation chronology")
 	_restore_backup = _profile.duplicate(true)
 	_profile = (validation["value"] as Dictionary).duplicate(true)
 	_profile_revision += 1
@@ -1111,7 +1173,7 @@ func _commit_reset(candidate: Dictionary, section: StringName, expected_revision
 func _commit_prepared_reset(candidate: Dictionary, section: StringName, expected_revision: int = -1) -> Dictionary:
 	var guarded := _guard(&"profile_commit")
 	if not guarded.get("ok", false): return guarded
-	var result := _commit_profile_candidate(candidate, true, expected_revision, section == &"entire_profile", section == &"gallery")
+	var result := _commit_profile_candidate(candidate, true, expected_revision, section == &"entire_profile", section == &"gallery", section in [&"visited_history", &"entire_profile"])
 	if not result.get("ok", false):
 		return result
 	var publication_id: String = result["value"]["publication_id"]
@@ -1220,6 +1282,11 @@ func _build_publication(old: Dictionary, current: Dictionary) -> Dictionary:
 		var after: bool = line_id in current["visited_line_ids"]
 		if before != after:
 			changes.append({"kind": &"visited", "id": line_id, "value": after})
+	for witness_id in _union_sorted(old.witnessed_caption_variants.keys(), current.witnessed_caption_variants.keys()):
+		var before: bool = old.witnessed_caption_variants.has(witness_id)
+		var after: bool = current.witnessed_caption_variants.has(witness_id)
+		if before != after:
+			changes.append({"kind": &"caption_witness", "id": witness_id, "value": after})
 	return {"changes": changes}
 
 
@@ -1236,6 +1303,8 @@ func _publish(publication: Dictionary) -> void:
 				gallery_changed.emit(change["id"], change["value"])
 			&"visited":
 				visited_history_changed.emit(change["id"], change["value"])
+			&"caption_witness":
+				caption_variant_witness_changed.emit(change["id"], change["value"])
 	if publication.has("reset_section"):
 		profile_reset.emit(publication["reset_section"])
 

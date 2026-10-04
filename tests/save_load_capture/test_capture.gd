@@ -5,7 +5,7 @@ const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.g
 const FILES := preload("res://tests/support/FakeFileOps.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 const SCHEMA := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
-const FIXTURE := "res://tests/fixtures/saves/v5_desktop_prepared.json"
+const FIXTURE := "res://tests/fixtures/saves/v7_desktop_prepared.json"
 
 class CaptureSource extends Node:
 	var inputs: Dictionary = {}
@@ -37,7 +37,7 @@ func _run() -> void:
 	manager._journal.commit_prepared(seeded["value"]["candidate"])
 	var source := CaptureSource.new()
 	var raw_input := {}
-	for key: String in ["lifecycle", "gameplay", "contacts", "committed_schedule", "desktop", "dating", "applied_effect_transaction_ids", "applied_variable_transaction_ids", "command_receipts"]:
+	for key: String in ["lifecycle", "gameplay", "contacts", "committed_schedule", "desktop", "schedule_view", "dating", "applied_effect_transaction_ids", "applied_variable_transaction_ids", "command_receipts"]:
 		raw_input[key] = snapshot[key].duplicate(true) if snapshot[key] is Dictionary or snapshot[key] is Array else snapshot[key]
 	raw_input["gameplay"]["money"] = 200
 	source.inputs = {"snapshot_input": raw_input, "route_id": "main", "active_app_id": &"backup", "dialogic_checkpoint": {}, "audio_context": {}, "content_version": 1}

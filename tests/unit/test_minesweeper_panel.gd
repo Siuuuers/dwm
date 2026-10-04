@@ -13,6 +13,7 @@ class PublicPort extends RefCounted:
 	var next_view: Dictionary = {}
 	var calls: Array[Dictionary] = []
 	var pull_count := 0
+	var refused := false
 	func pull() -> Dictionary:
 		pull_count += 1
 		return {"ok":true,"value":view.duplicate(true)}
@@ -22,13 +23,13 @@ class PublicPort extends RefCounted:
 		if not next_view.is_empty():
 			view = next_view.duplicate(true)
 			next_view = {}
-		return {"ok":true,"value":view.duplicate(true)}
+		return {"ok":not refused,"value":view.duplicate(true)}
 	func dispatch(action: String, index: int, revision: int) -> Dictionary:
 		calls.append({"action":action,"index":index,"revision":revision})
 		if not next_view.is_empty():
 			view = next_view.duplicate(true)
 			next_view = {}
-		return {"ok":true,"value":view.duplicate(true)}
+		return {"ok":not refused,"value":view.duplicate(true)}
 
 class ViewProfile extends RefCounted:
 	signal preference_changed(path: StringName, value: Variant)
@@ -93,12 +94,11 @@ func test_dock_mode_and_real_f_shortcut_share_selection_without_board_commands()
 	_key(panel,KEY_ENTER,false)
 	assert_eq(panel.worksheet.grid.mode,&"flag")
 	assert_true(panel.dock.buttons.flag.selected)
-	assert_false(panel.dock.buttons.reveal.selected)
+	assert_false(panel.dock.buttons.has("reveal"))
 	panel.worksheet.grid.grab_focus()
 	_key(panel,KEY_F)
 	_key(panel,KEY_F,false)
 	assert_eq(panel.worksheet.grid.mode,&"reveal")
-	assert_true(panel.dock.buttons.reveal.selected)
 	assert_false(panel.dock.buttons.flag.selected)
 	panel.dock.buttons.drag.pressed.emit()
 	assert_eq(panel.worksheet.grid.mode,&"drag")
@@ -108,7 +108,7 @@ func test_dock_mode_and_real_f_shortcut_share_selection_without_board_commands()
 	assert_true(panel.dock.buttons.flag.selected)
 	assert_true(port.calls.is_empty())
 
-func test_sheet_restores_source_mode_cell_and_scroll_while_dock_stays_inert() -> void:
+func test_switchable_information_preserves_board_mode_cell_scroll_and_facts() -> void:
 	var port := _port("expert")
 	var panel := _panel(port)
 	panel.dock.buttons.flag.pressed.emit()
@@ -126,10 +126,14 @@ func test_sheet_restores_source_mode_cell_and_scroll_while_dock_stays_inert() ->
 		assert_true(sheet.rows[0].has_focus())
 		assert_true(panel.register.visible)
 		assert_true(panel.dock.visible)
-		assert_false(panel.worksheet.well.visible)
-		for button: Button in panel.dock.buttons.values():
-			assert_true(button.disabled)
-			assert_eq(button.focus_mode,Control.FOCUS_NONE)
+		assert_true(panel.worksheet.well.visible)
+		assert_true(panel.worksheet.grid.is_visible_in_tree())
+		assert_false(panel.dock.buttons.has("board"))
+		for action_name: String in ["flag","drag","new_board"]:
+			assert_true(panel.dock.buttons[action_name].disabled)
+		for action_name: String in ["rules","assignments"]:
+			assert_false(panel.dock.buttons[action_name].disabled)
+			assert_eq(panel.dock.buttons[action_name].focus_mode,Control.FOCUS_ALL)
 		panel.dock.buttons.drag.pressed.emit()
 		_key(panel,KEY_F)
 		_key(panel,KEY_F,false)
@@ -143,6 +147,19 @@ func test_sheet_restores_source_mode_cell_and_scroll_while_dock_stays_inert() ->
 		assert_eq(panel.worksheet.grid.focused_index,200)
 		assert_eq(panel.worksheet.get_scroll(),retained_scroll)
 		assert_eq(panel.public_view,before)
+	panel.dock.buttons.rules.pressed.emit()
+	panel.dock.buttons.assignments.pressed.emit()
+	assert_eq(panel.worksheet.information_sheet.kind,"assignments")
+	panel.dock.buttons.rules.pressed.emit()
+	assert_eq(panel.worksheet.information_sheet.kind,"rules")
+	panel.worksheet.information_sheet.return_button.pressed.emit()
+	assert_null(panel.worksheet.information_sheet)
+	assert_true(panel.dock.buttons.rules.has_focus(), "Return restores the last document source.")
+	assert_eq(panel.worksheet.grid.mode,&"flag")
+	assert_eq(panel.worksheet.grid.focused_index,200)
+	assert_eq(panel.worksheet.get_scroll(),retained_scroll)
+	assert_eq(panel.public_view,before)
+	assert_true(port.calls.is_empty(),"Switching views never dispatches a board command.")
 
 func test_invalid_composite_preserves_facts_blocks_input_and_refresh_recovers() -> void:
 	var port := _port()
@@ -203,7 +220,7 @@ func test_all_locale_scale_and_target_tuples_close_fixed_body_without_shrinking_
 				assert_gte(panel.worksheet.size.y,128.0 if large else 96.0)
 				assert_eq(fmod(panel.worksheet.size.y,2.0),0.0)
 				for button: Button in panel.dock.buttons.values():
-					assert_eq(button.theme.default_font_size,20*percent/100)
+					assert_eq(button.theme.default_font_size,24*percent/100)
 					assert_gte(button.size.y,64.0 if large else 48.0)
 
 func test_replacement_and_difficulty_remain_disabled_and_unpublished_actions_are_rejected() -> void:
@@ -275,8 +292,8 @@ func test_real_tab_visits_manual_grid_rails_zoom_and_dock_then_exits_to_the_host
 	assert_not_null(panel.worksheet.horizontal_rail)
 	panel.worksheet.grid.grab_focus()
 	var order: Array[Control] = [panel.worksheet.vertical_rail,panel.worksheet.horizontal_rail,
-		panel.worksheet.zoom_controls[0],panel.worksheet.zoom_controls[1],panel.worksheet.zoom_controls[2],
-		panel.dock.buttons.reveal,panel.dock.buttons.flag,panel.dock.buttons.drag,
+		panel.worksheet.zoom_controls[0],panel.worksheet.zoom_controls[1],
+		panel.dock.buttons.flag,panel.dock.buttons.drag,
 		panel.dock.buttons.assignments,panel.dock.buttons.rules,after]
 	for target: Control in order:
 		_key(panel,KEY_TAB)
@@ -396,9 +413,13 @@ func test_real_difficulty_buttons_dispatch_frozen_revision_and_reset_mode_only_o
 	assert_eq(panel.public_view.board.width,22)
 	assert_eq(panel.worksheet.grid.mode,&"reveal")
 	panel.dock.buttons.rules.pressed.emit()
-	assert_true(panel.register.difficulties.beginner.disabled)
+	assert_false(panel.register.difficulties.beginner.disabled)
+	port.next_view = _view("beginner")
+	port.next_view.register.difficulty_enabled = ["beginner", "intermediate", "expert"]
 	panel.register.difficulties.beginner.pressed.emit()
-	assert_eq(port.calls.size(),1,"A sheet cannot dispatch a tier change.")
+	assert_eq(port.calls.size(), 2, "A published difficulty remains available over information.")
+	assert_null(panel.worksheet.information_sheet)
+	assert_eq(panel.public_view.register.difficulty, "beginner")
 
 
 func test_difficulty_change_waits_for_pending_view_preference_write() -> void:
@@ -503,3 +524,139 @@ func test_publication_keeps_one_detached_copy_shared_by_grid_and_cells() -> void
 	assert_same(panel.worksheet.grid.projection.cells[0],panel.worksheet.grid.cell_nodes[0].public_cell,
 		"each cell reads its own slice of that copy")
 	assert_eq(panel.worksheet.grid.cell_nodes[0].public_cell.index,0)
+
+
+func test_information_new_board_closes_only_after_an_admitted_owner_result() -> void:
+	var port := _port()
+	port.view.board.cells[0].face = "revealed"
+	port.view.board.cells[0].actions = []
+	port.view.board.cells[0].pressable = false
+	port.view.actions.append("new_board")
+	var panel := _panel(port)
+	panel.dock.buttons.flag.pressed.emit()
+	panel.dock.buttons.rules.pressed.emit()
+	var sheet: Control = panel.worksheet.information_sheet
+	assert_not_null(sheet)
+	assert_false(panel.dock.buttons.new_board.disabled)
+	var original: Dictionary = panel.public_view.duplicate(true)
+	port.refused = true
+	panel.dock.buttons.new_board.pressed.emit()
+	assert_eq(port.calls, [{"action":"new_board", "index":-1, "revision":0}])
+	assert_same(panel.worksheet.information_sheet, sheet)
+	assert_eq(panel.public_view, original)
+	assert_eq(panel.worksheet.grid.mode, &"flag")
+	port.refused = false
+	port.next_view = _view()
+	panel.dock.buttons.new_board.pressed.emit()
+	assert_eq(port.calls.size(), 2)
+	assert_null(panel.worksheet.information_sheet)
+	assert_null(sheet.get_parent(), "The successful action detaches information immediately.")
+	assert_true(panel.dock.buttons.new_board.disabled)
+	assert_eq(panel.worksheet.grid.mode, &"reveal")
+	assert_eq(panel.public_view, port.view)
+
+
+func test_information_difficulty_refusal_preserves_overlay_and_same_tier_dismisses_without_dispatch() -> void:
+	var port := _port("expert")
+	port.view.register.difficulty_enabled = ["beginner", "intermediate", "expert"]
+	var panel := _panel(port)
+	assert_true(panel.worksheet.set_always_fit(false))
+	panel.dock.buttons.flag.pressed.emit()
+	panel.worksheet.grid._set_focused(200)
+	panel.worksheet.set_scroll(Vector2i(80, 140))
+	var pan: Vector2i = panel.worksheet.get_scroll()
+	assert_gt(pan.y, 0)
+	panel.dock.buttons.assignments.pressed.emit()
+	var sheet: Control = panel.worksheet.information_sheet
+	panel.register.difficulties.expert.pressed.emit()
+	assert_true(port.calls.is_empty(), "The enabled current difficulty dismisses without resetting the board.")
+	assert_null(panel.worksheet.information_sheet)
+	assert_null(sheet.get_parent())
+	assert_true(panel.worksheet.grid.has_focus())
+	assert_eq(panel.worksheet.grid.mode, &"flag")
+	assert_eq(panel.worksheet.grid.focused_index, 200)
+	assert_eq(panel.worksheet.get_scroll(), pan)
+	assert_eq(panel.public_view, port.view)
+	panel.dock.buttons.assignments.pressed.emit()
+	sheet = panel.worksheet.information_sheet
+	assert_not_null(sheet)
+	port.refused = true
+	panel.register.difficulties.beginner.pressed.emit()
+	assert_eq(port.calls, [{"difficulty":"beginner", "revision":0}])
+	assert_same(panel.worksheet.information_sheet, sheet)
+	assert_eq(panel.worksheet.grid.mode, &"flag")
+	assert_eq(panel.worksheet.grid.focused_index, 200)
+	assert_eq(panel.worksheet.get_scroll(), pan)
+	port.refused = false
+	port.next_view = _view("beginner")
+	port.next_view.register.difficulty_enabled = ["beginner", "intermediate", "expert"]
+	panel.register.difficulties.beginner.pressed.emit()
+	assert_eq(port.calls.size(), 2)
+	assert_null(panel.worksheet.information_sheet)
+	assert_null(sheet.get_parent())
+	assert_eq(panel.public_view.register.difficulty, "beginner")
+	assert_eq(panel.worksheet.grid.mode, &"reveal")
+
+
+func test_open_information_does_not_bypass_new_custody_or_unpublished_actions() -> void:
+	var port := _port()
+	var panel := _panel(port)
+	panel.dock.buttons.rules.pressed.emit()
+	var sheet: Control = panel.worksheet.information_sheet
+	panel.dock.buttons.new_board.pressed.emit()
+	panel.register.difficulties.expert.pressed.emit()
+	assert_true(port.calls.is_empty())
+	assert_same(panel.worksheet.information_sheet, sheet)
+	var custody := port.view.duplicate(true)
+	custody.board.custody = true
+	custody.register.custody = true
+	custody.actions = []
+	for cell: Dictionary in custody.board.cells:
+		cell.actions = []
+		cell.inspectable = false
+		cell.pressable = false
+	assert_true(panel.present(custody))
+	assert_same(panel.worksheet.information_sheet, sheet)
+	assert_true(panel.dock.buttons.new_board.disabled)
+	for button: Button in panel.register.difficulties.values():
+		assert_true(button.disabled)
+		button.pressed.emit()
+	panel.dock.buttons.new_board.pressed.emit()
+	assert_true(port.calls.is_empty())
+	sheet.return_button.pressed.emit()
+	assert_null(panel.worksheet.information_sheet)
+	assert_eq(panel.public_view, custody)
+	assert_eq(panel.worksheet.grid.focus_mode, Control.FOCUS_NONE)
+
+func test_both_font_styles_keep_full_size_labels_and_board_reachable_across_120_presentations() -> void:
+	var port := _port()
+	var panel := _panel(port)
+	var footer := Control.new()
+	panel.get_parent().add_child(footer)
+	var typography := preload("res://scripts/ui/UiTypography.gd")
+	var original: Dictionary = port.view.duplicate(true)
+	for external_footer: bool in [false,true]:
+		panel.worksheet.set_footer_host(footer if external_footer else null)
+		for font_style: String in ["pixel","readable"]:
+			for locale: String in ["en","zh-CN","zh-HK","ja","ko"]:
+				for percent: int in [100,125,150]:
+					for large: bool in [false,true]:
+						var context := "%s %s %d%% large=%s external=%s" % [font_style,locale,percent,large,external_footer]
+						assert_true(panel.configure(locale,percent,large,&"after_hours",false,"standard",font_style),context)
+						assert_true(panel.refresh(),context)
+						var expected: Font = typography.font(locale,percent,font_style)
+						assert_same(panel.register.theme.default_font,expected,context)
+						assert_same(panel.dock.theme.default_font,expected,context)
+						assert_same(panel.worksheet.grid.theme.default_font,expected,context)
+						for button: Button in panel.register.difficulties.values():
+							assert_eq(button._paragraph.get_line_count(),1,context)
+							assert_true(Rect2(Vector2.ZERO,panel.register.size).encloses(Rect2(button.position,button.size)),context)
+						for metric: Control in panel.register.metrics.values():
+							assert_eq(metric.label_shape.paragraph.get_line_count(),1,context)
+							assert_true(Rect2(Vector2.ZERO,panel.register.size).encloses(Rect2(metric.position,metric.size)),context)
+						assert_gte(panel.worksheet.position.y,panel.register.size.y,context)
+						assert_gt(panel.worksheet.size.y,0.0,context)
+						assert_lte(panel.dock.position.y+panel.dock.size.y,float(panel.layout_height),context)
+						await get_tree().process_frame
+	assert_eq(port.view,original,"Changing reading presentation never changes the round.")
+	assert_true(port.calls.is_empty())

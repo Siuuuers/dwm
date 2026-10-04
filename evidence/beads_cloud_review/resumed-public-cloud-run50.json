@@ -1,0 +1,522 @@
+{
+  "repository": "Siuuuers/dwm",
+  "pull_request": 1,
+  "head_sha": "ad9c1801d89c1eee37655ce3684b5d6a18b69a46",
+  "merge_checkout_sha": "f0ca0b97bdbdd24e5dd37d3e78e2aa1f0fe37890",
+  "workflow_run_id": 35686788394,
+  "workflow_run_number": 50,
+  "url": "https://github.com/Siuuuers/dwm/actions/runs/35686788394",
+  "conclusion": "failure",
+  "counts": {
+    "jobs": 17,
+    "success": 13,
+    "failure": 3,
+    "cancelled": 1,
+    "failed_test_cases": 10
+  },
+  "jobs": [
+    {
+      "id": 106615220917,
+      "name": "Windows / public API surface contracts",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": []
+    },
+    {
+      "id": 106615664532,
+      "name": "Windows / paired checkpoint performance",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": []
+    },
+    {
+      "id": 106615664549,
+      "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": []
+    },
+    {
+      "id": 106615664583,
+      "name": "Windows / exported release startup",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": []
+    },
+    {
+      "id": 106615664608,
+      "name": "Rendered desktop and dialogue / Linux software OpenGL",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": []
+    },
+    {
+      "id": 106615664668,
+      "name": "Windows / reading_delivery",
+      "status": "completed",
+      "conclusion": "failure",
+      "steps": [
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 7
+        }
+      ]
+    },
+    {
+      "id": 106615664687,
+      "name": "Windows / desktop",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": []
+    },
+    {
+      "id": 106615664697,
+      "name": "Windows / audio",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": []
+    },
+    {
+      "id": 106615664703,
+      "name": "Windows / shop",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": []
+    },
+    {
+      "id": 106615664705,
+      "name": "Windows / new_account",
+      "status": "completed",
+      "conclusion": "failure",
+      "steps": [
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 7
+        }
+      ]
+    },
+    {
+      "id": 106615664714,
+      "name": "Windows / persistence",
+      "status": "completed",
+      "conclusion": "failure",
+      "steps": [
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 7
+        }
+      ]
+    },
+    {
+      "id": 106615664724,
+      "name": "Windows / minesweeper",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": []
+    },
+    {
+      "id": 106615664730,
+      "name": "Windows / localization",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": []
+    },
+    {
+      "id": 106615664747,
+      "name": "Windows / settings",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "steps": [
+        {
+          "name": "Run focused regression suite",
+          "status": "in_progress",
+          "conclusion": null,
+          "number": 7
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "pending",
+          "conclusion": null,
+          "number": 8
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "pending",
+          "conclusion": null,
+          "number": 16
+        }
+      ]
+    },
+    {
+      "id": 106615664762,
+      "name": "Windows / dating",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": []
+    },
+    {
+      "id": 106615664795,
+      "name": "Windows / endings",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": []
+    },
+    {
+      "id": 106616433076,
+      "name": "Windows / seven-day retained history",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": []
+    }
+  ],
+  "failure_summaries": [
+    {
+      "job_id": 106615664668,
+      "summary": "= Run Summary\n2026-09-22T04:29:06.9553207Z ==============================================\n2026-09-22T04:29:06.9864689Z \n2026-09-22T04:29:06.9866905Z res://tests/unit/test_production_pause_controller.gd\n2026-09-22T04:29:06.9898781Z - test_paused_dating_manual_and_quick_save_restore_exact_board_and_command\n2026-09-22T04:29:06.9899181Z     [Failed]:  { \"ok\": false, \"code\": &\"frozen_context_snapshot_required\", \"message\": \"frozen_context_snapshot_required\", \"details\": {  } }\n2026-09-22T04:29:06.9899250Z           at line 642\n2026-09-22T04:29:06.9899413Z - test_paused_dating_save_cancellation_and_board_drift_preserve_suspension_and_disk\n2026-09-22T04:29:06.9899656Z     [Failed]:  { \"ok\": false, \"code\": &\"frozen_context_snapshot_required\", \"message\": \"frozen_context_snapshot_required\", \"details\": {  } }\n2026-09-22T04:29:06.9899705Z           at line 703\n2026-09-22T04:29:06.9899859Z - test_paused_debug_preparation_save_preserves_exact_frontier_without_entering_attempt\n2026-09-22T04:29:06.9900242Z     [Failed]:  { \"ok\": false, \"code\": &\"backup_action_unavailable\", \"status_key\": \"unavailable\", \"condition\": { \"action\": \"save\", \"signature\": \"3626d07786b5030ff96cd0e4b27b7f30aa53d545199c8c9c16aec8e54b0fe90d\" } }\n2026-09-22T04:29:06.9900292Z           at line 773\n2026-09-22T04:29:06.9900455Z - test_paused_quick_save_uses_real_dating_capture_without_changing_focus_or_backup_selection\n2026-09-22T04:29:06.9900815Z     [Failed]:  { \"ok\": false, \"code\": &\"backup_action_unavailable\", \"status_key\": \"unavailable\", \"condition\": { \"action\": \"save\", \"signature\": \"19e5e950b0815857c05e5267d6c9fc5fff884c6f28f45925ea8435fb14994fa5\" } }\n2026-09-22T04:29:06.9900863Z           at line 828\n2026-09-22T04:29:06.9900912Z     [Failed]:  \n2026-09-22T04:29:06.9900964Z           at line 829\n2026-09-22T04:29:06.9901097Z     [Failed]:  [STRING_NAME(unavailable)] expected to equal [STRING_NAME(saved)]:  \n2026-09-22T04:29:06.9901147Z           at line 836\n2026-09-22T04:29:06.9901276Z - test_paused_quick_rebinding_quarantines_the_held_new_key_until_release\n2026-09-22T04:29:06.9901652Z     [Failed]:  { \"ok\": false, \"code\": &\"backup_action_unavailable\", \"status_key\": \"unavailable\", \"condition\": { \"action\": \"save\", \"signature\": \"e974a796ad2349fdd31b3b1580db2cc1919f8cfce0267cae8858c152624c2606\" } }\n2026-09-22T04:29:06.9901691Z           at line 864\n2026-09-22T04:29:06.9901811Z - test_paused_quick_rejects_unsupported_modifier_binding_and_preserves_default\n2026-09-22T04:29:06.9902148Z     [Failed]:  { \"ok\": false, \"code\": &\"backup_action_unavailable\", \"status_key\": \"unavailable\", \"condition\": { \"action\": \"save\", \"signature\": \"39735a8b8cc91563a6b9016ec202af4a8a047f08b5c9bd02c721b1816e674bcb\" } }\n2026-09-22T04:29:06.9902192Z           at line 884\n2026-09-22T04:29:06.9902197Z \n2026-09-22T04:29:06.9902242Z Totals\n2026-09-22T04:29:06.9902284Z ------\n2026-09-22T04:29:06.9902330Z Scripts              16\n2026-09-22T04:29:06.9902379Z Tests               210\n2026-09-22T04:29:06.9902429Z Passing Tests       204\n2026-09-22T04:29:06.9902476Z Failing Tests         6\n2026-09-22T04:29:06.9902527Z Asserts           6988/6996\n2026-09-22T04:29:06.9902573Z Time              54.811s\n2026-09-22T04:29:06.9902576Z \n2026-09-22T04:29:06.9902780Z \n2026-09-22T04:29:06.9902837Z ---- 6 failing tests ----\n2026-09-22T04:29:06.9902840Z \n2026-09-22T04:29:06.9902934Z "
+    },
+    {
+      "job_id": 106615664705,
+      "summary": "= Run Summary\n2026-09-22T04:28:49.3070923Z ==============================================\n2026-09-22T04:28:49.3070932Z \n2026-09-22T04:28:49.3071063Z res://tests/integration/test_new_run_pair_durability.gd\n2026-09-22T04:28:49.3071258Z - test_pair_is_durable_before_live_effects_and_only_pending_dark_is_consumed\n2026-09-22T04:28:49.3071343Z     [Failed]:  [7] expected to equal [6]:  \n2026-09-22T04:28:49.3071414Z           at line 136\n2026-09-22T04:28:49.3071418Z \n2026-09-22T04:28:49.3071475Z Totals\n2026-09-22T04:28:49.3071536Z ------\n2026-09-22T04:28:49.3071605Z Scripts              13\n2026-09-22T04:28:49.3071675Z Tests               138\n2026-09-22T04:28:49.3071751Z Passing Tests       137\n2026-09-22T04:28:49.3071817Z Failing Tests         1\n2026-09-22T04:28:49.3071956Z Asserts           2730/2731\n2026-09-22T04:28:49.3072025Z Time              18.78s\n2026-09-22T04:28:49.3072028Z \n2026-09-22T04:28:49.3072031Z \n2026-09-22T04:28:49.3072112Z ---- 1 failing tests ----\n2026-09-22T04:28:49.3072116Z \n2026-09-22T04:28:49.3072238Z "
+    },
+    {
+      "job_id": 106615664714,
+      "summary": "= Run Summary\n2026-09-22T04:28:43.1659632Z ==============================================\n2026-09-22T04:28:43.1659635Z \n2026-09-22T04:28:43.1659775Z res://tests/integration/test_save_manager_journal.gd\n2026-09-22T04:28:43.1659926Z - test_record_checkpoint_advances_journal_and_persists_disk\n2026-09-22T04:28:43.1660260Z     [Failed]:  {\"code\":\"invalid_state\",\"details\":{},\"message\":\"Contacts must have the exact canonical member set\",\"ok\":false}\n2026-09-22T04:28:43.1660372Z           at line 103\n2026-09-22T04:28:43.1660461Z     [Failed]:  Unexpected Errors:\n2026-09-22T04:28:43.1660717Z     [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.\n2026-09-22T04:28:43.1660801Z           at line -1\n2026-09-22T04:28:43.1660920Z - test_real_port_preview_is_pure_and_matches_prepare\n2026-09-22T04:28:43.1660989Z     [Failed]:  \n2026-09-22T04:28:43.1661056Z           at line 123\n2026-09-22T04:28:43.1661291Z     [Failed]:  [\"run-1:1\"] expected to equal [\"run-1:2\"]:  next sequence after the seeded day_start\n2026-09-22T04:28:43.1661360Z           at line 130\n2026-09-22T04:28:43.1661684Z     [Failed]:  {\"code\":\"invalid_state\",\"details\":{},\"message\":\"Contacts must have the exact canonical member set\",\"ok\":false}\n2026-09-22T04:28:43.1661753Z           at line 135\n2026-09-22T04:28:43.1661828Z     [Failed]:  Unexpected Errors:\n2026-09-22T04:28:43.1662078Z     [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.\n2026-09-22T04:28:43.1662142Z           at line -1\n2026-09-22T04:28:43.1662253Z - test_real_port_commit_and_autosave_round_trip\n2026-09-22T04:28:43.1662621Z     [Failed]:  {\"code\":\"invalid_state\",\"details\":{},\"message\":\"Contacts must have the exact canonical member set\",\"ok\":false}\n2026-09-22T04:28:43.1662687Z           at line 154\n2026-09-22T04:28:43.1662770Z     [Failed]:  Unexpected Errors:\n2026-09-22T04:28:43.1663018Z     [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.\n2026-09-22T04:28:43.1663087Z           at line -1\n2026-09-22T04:28:43.1663091Z \n2026-09-22T04:28:43.1663149Z Totals\n2026-09-22T04:28:43.1663210Z ------\n2026-09-22T04:28:43.1663283Z Scripts              16\n2026-09-22T04:28:43.1663346Z Tests               171\n2026-09-22T04:28:43.1663420Z Passing Tests       168\n2026-09-22T04:28:43.1663554Z Failing Tests         3\n2026-09-22T04:28:43.1663632Z Asserts           3292/3300\n2026-09-22T04:28:43.1663700Z Time              12.228s\n2026-09-22T04:28:43.1663704Z \n2026-09-22T04:28:43.1663707Z \n2026-09-22T04:28:43.1663782Z ---- 3 failing tests ----\n2026-09-22T04:28:43.1663785Z \n2026-09-22T04:28:43.1663911Z "
+    }
+  ],
+  "settings": {
+    "job_id": 106615664747,
+    "conclusion": "cancelled",
+    "test_step_status": "in_progress",
+    "log_error": "BlobNotFound 404",
+    "artifact_present": false,
+    "cause": "Unknown; no retained job log or test artifact. Do not infer a specific failing Settings test.",
+    "runner_observation": "Unbounded child WaitForExit and buffered console output; command evidence emitted only on completion."
+  },
+  "rendered_journeys": [
+    "seven-days-ending-gallery",
+    "seven-days-condition-ending",
+    "dating-reload",
+    "practice-empty-dtl",
+    "practice-legacy-compatibility"
+  ],
+  "artifacts": [
+    {
+      "id": 10677305046,
+      "name": "windows-endings-35686788394-1",
+      "size_in_bytes": 74671,
+      "digest": "sha256:560031f5f8b80964c691dfbaa35a03cfac9390dd65f21b922721bdc871e458f6"
+    },
+    {
+      "id": 10677276450,
+      "name": "desktop-scaling-render-35686788394-1",
+      "size_in_bytes": 11253152,
+      "digest": "sha256:ceafc23f2523b57ed7c4106bc05a2782e6aecc0a830602aa16e1528cf58109ee"
+    },
+    {
+      "id": 10677258162,
+      "name": "seven-day-history-35686788394-1",
+      "size_in_bytes": 126962,
+      "digest": "sha256:80c4fb42912b7dc6465f90a41b33cc204fbdd554d88de04edcb059030fd4b5dd"
+    },
+    {
+      "id": 10677252617,
+      "name": "playable-startup-render-35686788394-1",
+      "size_in_bytes": 1050031,
+      "digest": "sha256:6db4df2b8513aff7f69b6e9ac675d8009d9cedbf0532e3436a1a067dc81f5a60"
+    },
+    {
+      "id": 10677098018,
+      "name": "japanese-korean-ui-render-35686788394-1",
+      "size_in_bytes": 7058458,
+      "digest": "sha256:418fd4f36f8bc6bae2983f4ae489ae9eb63113b9da8faa131c11cceb60b1f83f"
+    },
+    {
+      "id": 10677052988,
+      "name": "windows-persistence-35686788394-1",
+      "size_in_bytes": 115607,
+      "digest": "sha256:fd1e7df0cbefd985da615cbeb847816834caaad575c53b502b925a424a8ed5df"
+    },
+    {
+      "id": 10677028034,
+      "name": "angela-overlay-render-35686788394-1",
+      "size_in_bytes": 2836655,
+      "digest": "sha256:1d933e8af363420f9ab7a22293cc1cc9c37b7a913aced3b08b721ddb2763648e"
+    },
+    {
+      "id": 10676863508,
+      "name": "playable-journeys-35686788394-1",
+      "size_in_bytes": 6348699,
+      "digest": "sha256:769bca0d0025688716a526d57fdc32fcf7c4f9ca4c49bb54bee05de554306107"
+    },
+    {
+      "id": 10676823239,
+      "name": "font-choices-render-35686788394-1",
+      "size_in_bytes": 6320001,
+      "digest": "sha256:724ba56a4a46a9b040c9673e8b85e2a1380e7057db801d29e714c2e4b351c8ab"
+    },
+    {
+      "id": 10676803324,
+      "name": "windows-reading_delivery-35686788394-1",
+      "size_in_bytes": 83217,
+      "digest": "sha256:28ccc0c2b6364715cc39f7d88f31d3bf585b9b7d498ba129c6a46960dc9714f8"
+    },
+    {
+      "id": 10676798442,
+      "name": "ui-literal-audit-35686788394-1",
+      "size_in_bytes": 28722,
+      "digest": "sha256:43af15303420d457c1ed6896c88445d4c1f0c46827f9809e321f461fe93f46ac"
+    },
+    {
+      "id": 10676798366,
+      "name": "windows-dating-35686788394-1",
+      "size_in_bytes": 562949,
+      "digest": "sha256:ebca81867b5437e4d48e16ce38726f387890611f76667f53cf9964a9d6039e70"
+    },
+    {
+      "id": 10676753334,
+      "name": "windows-audio-35686788394-1",
+      "size_in_bytes": 21872,
+      "digest": "sha256:604cea1ebc8ef82746c9eca8760b40a277767a686361c8659500e6338e9ae8df"
+    },
+    {
+      "id": 10676748392,
+      "name": "windows-localization-35686788394-1",
+      "size_in_bytes": 329177,
+      "digest": "sha256:3e7555857a9b507cec54e6072042c57cd3372a78c9e708bb805ee842004fde4e"
+    },
+    {
+      "id": 10676723345,
+      "name": "cloud-speech-rendered-journeys-35686788394-1",
+      "size_in_bytes": 382519,
+      "digest": "sha256:97c9d7bab677ab4539c3f5692c2931d887d331f89aa93186909a00a472cd9e26"
+    },
+    {
+      "id": 10676653588,
+      "name": "delivery-dialogue-render-35686788394-1",
+      "size_in_bytes": 15181651,
+      "digest": "sha256:cdb44d7c028d8866ebe742ff64b91fd0753821d75d64f5a2e9888e9c1e41a8ea"
+    },
+    {
+      "id": 10676633688,
+      "name": "windows-export-35686788394-1",
+      "size_in_bytes": 98705420,
+      "digest": "sha256:f556f7d7f2ce47b76af682122da51edcfa3a7a4506fd73b40b52991f9168fffa"
+    },
+    {
+      "id": 10676603500,
+      "name": "public-surfaces-35686788394-1",
+      "size_in_bytes": 119149,
+      "digest": "sha256:01604e897bc1e62421854cf80ef0156802d1f2208fed3356d90da7fbb0ff7ad6"
+    },
+    {
+      "id": 10676459522,
+      "name": "checkpoint-payloads-35686788394",
+      "size_in_bytes": 49086,
+      "digest": "sha256:a5a4e5f5312ecc3ef3d8ade574d213583eb53d025d7893e9dfcb422c6646f894"
+    },
+    {
+      "id": 10676339571,
+      "name": "windows-desktop-35686788394-1",
+      "size_in_bytes": 170266,
+      "digest": "sha256:48beccefd7163da3b85535070aefabcc1bf4f0c28ef329a45cdee3888f8ca73f"
+    },
+    {
+      "id": 10676284774,
+      "name": "windows-shop-35686788394-1",
+      "size_in_bytes": 65129,
+      "digest": "sha256:0b533f0149d4448624f959c8f759e6d98c88ecc69221c51f306f1b3fccd93943"
+    },
+    {
+      "id": 10676269613,
+      "name": "cloud-speech-rendered-desktop-35686788394-1",
+      "size_in_bytes": 385511,
+      "digest": "sha256:4019bdc7df3e21cb84c6b360029d1f874632a4537a963d237ba5323019ca434c"
+    },
+    {
+      "id": 10676209978,
+      "name": "checkpoint-performance-35686788394-1",
+      "size_in_bytes": 131179,
+      "digest": "sha256:5f0e261b5615ffc14c3cd8a59ba53edf03ee0c95136b0ef72ae35ce31e3c8e53"
+    },
+    {
+      "id": 10676209861,
+      "name": "windows-minesweeper-35686788394-1",
+      "size_in_bytes": 166122,
+      "digest": "sha256:39e8ae84b7c171d0d54e3f5d45d536da53c9c08009a5490d269c2516a5b4f8f2"
+    },
+    {
+      "id": 10676194918,
+      "name": "windows-new_account-35686788394-1",
+      "size_in_bytes": 95011,
+      "digest": "sha256:75e83331003d96b8925aac90b1aa7b39529dedf6203027e0f6b3b9016cccb845"
+    }
+  ],
+  "outgoing_normalization_measurements": [
+    {
+      "variant": "baseline",
+      "label": "zh-CN",
+      "measurement": {
+        "bytes": 136932,
+        "input_sha256": "92124fbd365468d2702ec2493d2319ca6c10f18b2a85d458a327b6069d1669d5",
+        "journal_bundles": 2,
+        "median_us": 13786,
+        "output_sha256": "92124fbd365468d2702ec2493d2319ca6c10f18b2a85d458a327b6069d1669d5",
+        "proof_source": "strict current validation of every fixed-payload bundle; seam measurement, not evidence that gameplay had a complete splice proof set",
+        "samples_us": [
+          14418,
+          14006,
+          13786,
+          13747,
+          13782
+        ],
+        "schema_version": 7,
+        "snapshot_schema_version": 7,
+        "validated_journal_bundles": 2,
+        "variant": "baseline"
+      }
+    },
+    {
+      "variant": "baseline",
+      "label": "zh-HK",
+      "measurement": {
+        "bytes": 119529,
+        "input_sha256": "8a28385c76624db0fb9e32146d209f2c2a432996ad67d55eb683b89495579996",
+        "journal_bundles": 2,
+        "median_us": 11472,
+        "output_sha256": "8a28385c76624db0fb9e32146d209f2c2a432996ad67d55eb683b89495579996",
+        "proof_source": "strict current validation of every fixed-payload bundle; seam measurement, not evidence that gameplay had a complete splice proof set",
+        "samples_us": [
+          11313,
+          11472,
+          11512,
+          11200,
+          12067
+        ],
+        "schema_version": 7,
+        "snapshot_schema_version": 7,
+        "validated_journal_bundles": 2,
+        "variant": "baseline"
+      }
+    },
+    {
+      "variant": "baseline",
+      "label": "day7",
+      "measurement": {
+        "bytes": 1910667,
+        "input_sha256": "16575746fc10a40d00c86ee3f20b0ac6f2a39c2b43431d4f1ba7b955ff518549",
+        "journal_bundles": 66,
+        "median_us": 129348,
+        "output_sha256": "16575746fc10a40d00c86ee3f20b0ac6f2a39c2b43431d4f1ba7b955ff518549",
+        "proof_source": "strict current validation of every fixed-payload bundle; seam measurement, not evidence that gameplay had a complete splice proof set",
+        "samples_us": [
+          144494,
+          126886,
+          129348,
+          134398,
+          124704
+        ],
+        "schema_version": 7,
+        "snapshot_schema_version": 7,
+        "validated_journal_bundles": 66,
+        "variant": "baseline"
+      }
+    },
+    {
+      "variant": "candidate",
+      "label": "zh-CN",
+      "measurement": {
+        "bytes": 136932,
+        "input_sha256": "92124fbd365468d2702ec2493d2319ca6c10f18b2a85d458a327b6069d1669d5",
+        "journal_bundles": 2,
+        "median_us": 10706,
+        "output_sha256": "92124fbd365468d2702ec2493d2319ca6c10f18b2a85d458a327b6069d1669d5",
+        "proof_source": "strict current validation of every fixed-payload bundle; seam measurement, not evidence that gameplay had a complete splice proof set",
+        "samples_us": [
+          10706,
+          10739,
+          10798,
+          10453,
+          10505
+        ],
+        "schema_version": 7,
+        "snapshot_schema_version": 7,
+        "validated_journal_bundles": 2,
+        "variant": "candidate"
+      }
+    },
+    {
+      "variant": "candidate",
+      "label": "zh-HK",
+      "measurement": {
+        "bytes": 119529,
+        "input_sha256": "8a28385c76624db0fb9e32146d209f2c2a432996ad67d55eb683b89495579996",
+        "journal_bundles": 2,
+        "median_us": 9233,
+        "output_sha256": "8a28385c76624db0fb9e32146d209f2c2a432996ad67d55eb683b89495579996",
+        "proof_source": "strict current validation of every fixed-payload bundle; seam measurement, not evidence that gameplay had a complete splice proof set",
+        "samples_us": [
+          9189,
+          9071,
+          9233,
+          9382,
+          9259
+        ],
+        "schema_version": 7,
+        "snapshot_schema_version": 7,
+        "validated_journal_bundles": 2,
+        "variant": "candidate"
+      }
+    },
+    {
+      "variant": "candidate",
+      "label": "day7",
+      "measurement": {
+        "bytes": 1910667,
+        "input_sha256": "16575746fc10a40d00c86ee3f20b0ac6f2a39c2b43431d4f1ba7b955ff518549",
+        "journal_bundles": 66,
+        "median_us": 65514,
+        "output_sha256": "16575746fc10a40d00c86ee3f20b0ac6f2a39c2b43431d4f1ba7b955ff518549",
+        "proof_source": "strict current validation of every fixed-payload bundle; seam measurement, not evidence that gameplay had a complete splice proof set",
+        "samples_us": [
+          65255,
+          65281,
+          67560,
+          66947,
+          65514
+        ],
+        "schema_version": 7,
+        "snapshot_schema_version": 7,
+        "validated_journal_bundles": 66,
+        "variant": "candidate"
+      }
+    }
+  ],
+  "performance_limits": [
+    "Run 50 did not measure the proposed duplicate-validation removal.",
+    "Outgoing normalization numbers are a seam microbenchmark with unchanged bytes, not evidence all live gameplay had complete splice proof sets.",
+    "Day7 manual-save prepare 1.308427 seconds, commit 1.860023 seconds; day7 Login prepare 0.710853 seconds, commit 2.677296 seconds in retained-history profile. Do not sum overlapping nested scope timings or call lag solved."
+  ],
+  "patch": {
+    "files": [
+      "tools/testing/Invoke-IsolatedGodot.ps1",
+      "tools/testing/Invoke-CloudTests.ps1",
+      "tests/tooling/Test-InvokeIsolatedGodot.ps1"
+    ],
+    "details": [
+      "Optional TimeoutSeconds defaults 0 to preserve long existing caller watchdogs; focused GUT call opts into 480 seconds.",
+      "User directory proof always limited to 60 seconds; process-tree termination and stream drain bounded to ten seconds each.",
+      "Timed-out child exit code124; full engine log and timeout console transcript retained outside temporary user directory. Existing successful JSON keys and stdout contract unchanged.",
+      "Real forced-timeout process regression added to existing tooling contract test.",
+      "Cloud groups add actual integration SaveCapability + phase2r schedule handoff, unit run dark configuration.",
+      "Added desktop bootstrap wiring and actual unit cold recovery preparation to desktop group; historical Phase2R schedule gate to new_account. That gate requires full Git history to preserve git-show and ancestry assertions."
+    ],
+    "cloud_validation_required": "Run ./tests/tooling/Test-InvokeIsolatedGodot.ps1 after import in a separate four-minute step. No local PowerShell or Godot executed.",
+    "static_verification": "git diff --check passes; all 162 listed GUT paths exist."
+  }
+}

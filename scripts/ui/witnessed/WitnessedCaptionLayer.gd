@@ -2,6 +2,7 @@ extends DialogicLayoutLayer
 ## Transient public caption copies, not canonical History, receipts, or restore ownership.
 
 const CAPTION_THEME := preload("res://scripts/ui/witnessed/WitnessedCaptionTheme.gd")
+const HISTORY := preload("res://scripts/ui/witnessed/WitnessedHistory.gd")
 const RUN_PRESENTATION := preload("res://scripts/ui/witnessed/WitnessedRunPresentation.gd")
 const FIELD_TOP := {100: 448, 125: 392, 150: 328}
 const FIELD_BOTTOM := 656
@@ -11,6 +12,7 @@ const PROFILE_COLOUR_PRESETS := {
 
 var _locale := "en"
 var _text_percent := 100
+var _font_style := "pixel"
 var _palette := "AfterHours"
 var _day := 1
 var _run_owner: Object
@@ -18,13 +20,21 @@ var _high_contrast := false
 var _colour_preset := "standard"
 var _large_targets := false
 var _caption_theme: Theme
+var _dating_overlay := false
+var _scene_art_bridge: Node
+var _dating_split_surface: Control
 var _last_text := ""
 var _last_content_height := -1
 var _had_caption := false
 var _profile: Node
 var _localization: Node
 var _retained: Array[String] = []
+var _scrollback: Array[String] = []
+var _review_offset := 0
+var _live_scroll := 0.0
 var _current_copy := ""
+var _ending_caption_session := ""
+var _ending_caption_handoff := false
 var _layout_generation := 0
 var _layout_pending := false
 var _publication_pending := false
@@ -35,6 +45,7 @@ var _pause_capture_id := 0
 var _pause_anchor: Dictionary = {}
 var _pause_view: Dictionary = {}
 var _pause_covered := false
+var _timed_hold_frontier: Dictionary = {}
 var _transport_bridge: Object
 var _transport_configured := false
 var _transport_input_bound := false
@@ -46,6 +57,20 @@ var _auto_input_bound := false
 var _auto_resume_pending := true
 var _backup_load_router: Node
 var _load_input_bound := false
+var _save_input_bound := false
+var _history_input_bound := false
+var _next_input_bound := false
+var _next_pending := false
+var _next_request: Dictionary = {}
+var _next_request_retry := false
+var _next_request_generation := 0
+var _next_completion_callback: Callable
+var _next_canvas_state: Dictionary = {}
+var _next_matte: ColorRect
+var _history_overlay: Control
+var _history_open := false
+var _history_pending := false
+var _history_source: Dictionary = {}
 var _load_pending := false
 var _load_focus_restore_id := 0
 var _load_activation_focus_id := 0
@@ -72,6 +97,8 @@ var _speech_status: Label
 @onready var caption_text: DialogicNode_DialogText = $Canvas/Scroll/Stack/Caption
 @onready var older: RichTextLabel = $Canvas/Scroll/Stack/Older
 @onready var previous: RichTextLabel = $Canvas/Scroll/Stack/Previous
+@onready var review_current: RichTextLabel = $Canvas/Scroll/Stack/ReviewCurrent
+@onready var background_input: Control = $Canvas/BackgroundInput
 @onready var overlay: Control = $Canvas/Overlay
 @onready var accept_input: Node = $AcceptInput
 @onready var skip_controller: Node = $SkipController
@@ -89,13 +116,14 @@ func _ready() -> void:
 	caption_text.started_revealing_text.connect(_sync_native_processing)
 	caption_text.focus_entered.connect(caption_text.queue_redraw)
 	caption_text.focus_exited.connect(caption_text.queue_redraw)
-	caption_text.draw.connect(_draw_current_frame)
-	scroll.gui_input.connect(_on_passive_input)
-	stack.gui_input.connect(_on_passive_input)
+	background_input.gui_input.connect(_on_background_input)
+	scroll.gui_input.connect(_on_passive_input.bind(scroll))
+	stack.gui_input.connect(_on_passive_input.bind(stack))
 	canvas.draw.connect(_draw_canvas)
-	overlay.draw.connect(_draw_seam)
 	get_scroll_bar().focus_mode = Control.FOCUS_NONE
-	configure_presentation(_locale, _text_percent, _palette, _high_contrast, _colour_preset, _large_targets, _day)
+	for leaf: RichTextLabel in [older, previous, review_current, caption_text]:
+		leaf.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	configure_presentation(_locale, _text_percent, _palette, _high_contrast, _colour_preset, _large_targets, _day, _font_style)
 	_profile = get_node_or_null("/root/ProfileManager")
 	_localization = get_node_or_null("/root/LocalizationManager")
 	_speech_status = load("res://scripts/ui/witnessed/WitnessedSpeechStatus.gd").new()
@@ -109,13 +137,32 @@ func _ready() -> void:
 	var run_owner: Object = _run_owner if is_instance_valid(_run_owner) else get_node_or_null("/root/GameState")
 	_apply_preferences()
 	configure_run_presentation(run_owner)
+	_scene_art_bridge = get_node_or_null("/root/DialogicBridge")
+	if _scene_art_bridge != null and _scene_art_bridge.has_signal("scene_art_changed"):
+		_scene_art_bridge.connect("scene_art_changed", _refresh_dating_overlay)
+	_refresh_dating_overlay()
 	var runtime := get_node_or_null("/root/Dialogic")
 	accept_input.bind(caption_text, scroll, runtime)
+	caption_text.set("accept_action_provider", accept_input.capture_accessibility_accept)
+	review_current.set("accept_action_provider", accept_input.capture_accessibility_accept)
+	accept_input.bind_scene_input(background_input)
+	accept_input.bind_presentation_admission(_before_normal_accept, _automatic_line_admitted)
 	accept_input.bind_local_admission(_reading_source_admitted)
 	accept_input.normal_accept_requested.connect(_on_normal_accept_requested)
 	transport_rail.skip_requested.connect(_on_skip_requested)
 	transport_rail.auto_requested.connect(_on_auto_requested)
 	transport_rail.load_requested.connect(_on_load_requested)
+	transport_rail.save_requested.connect(_on_save_requested)
+	transport_rail.history_requested.connect(_on_history_requested)
+	transport_rail.next_requested.connect(_on_next_requested)
+	_next_matte = ColorRect.new()
+	_next_matte.name = "NextMatte"
+	_next_matte.size = Vector2(1280, 720)
+	_next_matte.mouse_filter = Control.MOUSE_FILTER_STOP
+	_next_matte.focus_mode = Control.FOCUS_NONE
+	_next_matte.hide()
+	recovery_layer.add_child(_next_matte)
+	recovery_layer.move_child(_next_matte, 0)
 	skip_controller.state_changed.connect(_sync_transport)
 	auto_controller.state_changed.connect(_on_auto_state_changed)
 	configure_reading_transport(_profile, get_node_or_null("/root/DialogicBridge"))
@@ -131,6 +178,19 @@ func _ready() -> void:
 	_transport_input_bound = transport_rail.bind_admission(_transport_admitted, input_owner)
 	_auto_input_bound = transport_rail.bind_auto_admission(_auto_button_admitted, input_owner)
 	_load_input_bound = transport_rail.bind_load_admission(_load_admitted, input_owner)
+	_save_input_bound = transport_rail.bind_save_admission(_save_admitted, input_owner)
+	_history_input_bound = transport_rail.bind_history_admission(_history_admitted, input_owner)
+	_next_input_bound = transport_rail.bind_next_admission(_next_admitted, input_owner)
+	var history_layer := CanvasLayer.new()
+	history_layer.name = "HistoryLayer"
+	history_layer.layer = 101
+	add_child(history_layer)
+	move_child(history_layer, canvas.get_index())
+	_history_overlay = HISTORY.new()
+	_history_overlay.name = "History"
+	history_layer.add_child(_history_overlay)
+	_history_overlay.close_requested.connect(_on_history_close_requested)
+	_configure_history_presentation()
 	if input_owner != null and input_owner.has_signal("source_input_custody_changed"):
 		input_owner.connect("source_input_custody_changed", _retire_transport)
 	if runtime != null and runtime.has_method("get_subsystem"):
@@ -173,7 +233,7 @@ func _cancel_speech() -> void:
 		_speech_owner.stop_source(retired_source, &"source_retired")
 
 func _speech_admitted() -> bool:
-	return not _pause_covered and _reading_source_admitted() and _has_caption() \
+	return _review_offset == 0 and not _pause_covered and _reading_source_admitted() and _has_caption() \
 		and accept_input.is_source_admitted() and not skip_controller.is_skip_active()
 
 func _speech_allows_auto(expected_frontier: Dictionary) -> bool:
@@ -221,14 +281,18 @@ func _configure_speech_status() -> void:
 	_speech_status.size = Vector2(1232, 64)
 
 func _exit_tree() -> void:
+	_retire_next_request()
 	_cancel_speech()
+	if is_instance_valid(_dating_split_surface): _dating_split_surface.cancel_split_input()
 
 func configure_reading_transport(profile: Object, bridge: Object) -> bool:
 	if not is_node_ready() or not is_instance_valid(bridge) \
 			or not bridge.has_method("can_skip_current_line"):
 		return false
 	if not skip_controller.configure(profile, bridge, _skip_controller_admitted): return false
-	_dismiss_reading_recovery(false)
+	var retiring_next := not _next_canvas_state.is_empty()
+	_retire_next_request()
+	_dismiss_reading_recovery(false, not retiring_next)
 	if is_instance_valid(_reading_profile) and _reading_profile.has_signal("profile_restored") \
 			and _reading_profile.is_connected("profile_restored", _on_reading_profile_restored):
 		_reading_profile.disconnect("profile_restored", _on_reading_profile_restored)
@@ -236,17 +300,35 @@ func configure_reading_transport(profile: Object, bridge: Object) -> bool:
 	_reading_owner_generation += 1
 	if _reading_profile.has_signal("profile_restored"):
 		_reading_profile.connect("profile_restored", _on_reading_profile_restored)
+	if is_instance_valid(_transport_bridge) and _transport_bridge.has_signal("reading_session_changed") \
+			and _transport_bridge.is_connected("reading_session_changed", _on_reading_session_changed):
+		_transport_bridge.disconnect("reading_session_changed", _on_reading_session_changed)
+	if is_instance_valid(_transport_bridge) and _transport_bridge.has_signal("next_traversal_changed") \
+			and _transport_bridge.is_connected("next_traversal_changed", _on_next_traversal_changed):
+		_transport_bridge.disconnect("next_traversal_changed", _on_next_traversal_changed)
 	_transport_bridge = bridge
+	if bridge.has_signal("next_traversal_changed"):
+		bridge.connect("next_traversal_changed", _on_next_traversal_changed)
+	if bridge.has_signal("reading_session_changed"):
+		bridge.connect("reading_session_changed", _on_reading_session_changed)
 	_transport_configured = true
 	_auto_configured = auto_controller.configure(profile, bridge, _auto_controller_admitted)
-	accept_input.bind_presentation_admission(_acknowledge_visible_line, _automatic_line_admitted)
+	accept_input.bind_presentation_admission(_before_normal_accept, _automatic_line_admitted)
 	_capture_presented_line()
+	if retiring_next: _sync_next_presentation(false)
 	_acknowledge_visible_line()
 	_sync_transport()
 	return _transport_configured
 
 
+func _before_normal_accept() -> bool:
+	if _review_offset > 0:
+		_set_review_offset(0)
+		return false
+	return _acknowledge_visible_line()
+
 func _acknowledge_visible_line() -> bool:
+	if _review_offset > 0 or is_next_transport_active(): return false
 	if _line_waiting_for_text: return false
 	var has_proof: bool = _presented_line.get("ok", false)
 	if not is_instance_valid(_transport_bridge) \
@@ -270,6 +352,7 @@ func _capture_presented_line() -> void:
 
 
 func _automatic_line_admitted() -> bool:
+	if _review_offset > 0: return false
 	if _line_waiting_for_text: return false
 	var has_proof: bool = _presented_line.get("ok", false)
 	if not is_instance_valid(_transport_bridge) \
@@ -281,6 +364,7 @@ func _automatic_line_admitted() -> bool:
 		and bool(_transport_bridge.call("is_current_line_presentation_acknowledged"))
 
 func _transport_admitted() -> bool:
+	if _review_offset > 0: return false
 	return _transport_configured and _transport_input_bound and not _pause_covered \
 		and not _line_waiting_for_text and is_instance_valid(transport_rail) \
 		and transport_rail.is_visible_in_tree() and accept_input.is_source_admitted() \
@@ -288,7 +372,76 @@ func _transport_admitted() -> bool:
 		and bool(_transport_bridge.call("can_skip_current_line"))
 
 func _reading_source_admitted() -> bool:
-	return _reading_recovery.is_empty() and not _load_pending
+	return not _ending_caption_handoff and _timed_hold_frontier.is_empty() and _reading_recovery.is_empty() and not _load_pending and not _history_pending and not _history_open \
+		and not is_next_transport_active()
+
+func is_next_transport_active() -> bool:
+	return _next_pending or (is_instance_valid(_transport_bridge) \
+		and _transport_bridge.has_method("is_next_traversal_active") \
+		and bool(_transport_bridge.call("is_next_traversal_active")))
+
+func _next_admitted() -> bool:
+	return _next_input_bound and _auto_configured and _review_offset == 0 and not _pause_covered \
+		and not _line_waiting_for_text and _reading_source_admitted() and _has_caption() \
+		and _presented_line.get("ok", false) and transport_rail.is_visible_in_tree() \
+		and accept_input.is_source_admitted() and is_instance_valid(_transport_bridge) \
+		and _transport_bridge.has_method("can_next_current_line") \
+		and _transport_bridge.has_method("request_next") \
+		and _transport_bridge.has_signal("next_request_finished") \
+		and _presented_line == _transport_bridge.call("capture_current_line_presentation_frontier") \
+		and _transport_bridge.call("can_next_current_line") == true
+
+func _on_next_requested() -> void:
+	if _next_admitted():
+		_request_reading_command(&"next", true)
+
+func _on_next_traversal_changed() -> void:
+	_sync_next_presentation()
+	_sync_transport()
+
+func _sync_next_presentation(allow_focus_grab: bool = true) -> void:
+	if not is_inside_tree(): return
+	var active := is_next_transport_active()
+	if active and _next_canvas_state.is_empty():
+		_next_canvas_state = {"focus": _reading_recovery.get("focus_behavior", canvas.focus_behavior_recursive),
+			"mouse": _reading_recovery.get("mouse_behavior", canvas.mouse_behavior_recursive)}
+		if not _reading_recovery.is_empty(): recovery_overlay.dismiss()
+		accept_input.retire_input()
+		_retire_transport()
+		canvas.focus_behavior_recursive = Control.FOCUS_BEHAVIOR_DISABLED
+		canvas.mouse_behavior_recursive = Control.MOUSE_BEHAVIOR_DISABLED
+		canvas.set("accessibility_withdrawn", true)
+	elif not active and not _next_canvas_state.is_empty():
+		canvas.focus_behavior_recursive = _next_canvas_state.focus
+		canvas.mouse_behavior_recursive = _next_canvas_state.mouse
+		canvas.set("accessibility_withdrawn", false)
+		_next_canvas_state.clear()
+		accept_input.retire_input()
+		transport_rail.retire_input()
+		_had_caption = false
+	if is_instance_valid(_next_matte):
+		_next_matte.color = Color(_caption_theme.get_color(&"deep", &"WitnessedCaption"), 0.58) \
+			if _caption_theme != null else Color(0, 0, 0, 0.58)
+		_next_matte.visible = active
+	_sync_native_processing()
+	_sync_focus(allow_focus_grab)
+
+func _complete_next_presentation() -> void:
+	_next_pending = false
+	_sync_next_presentation()
+
+func _settle_next_publication() -> void:
+	if not is_inside_tree(): return
+	if is_next_transport_active() or not _reading_recovery.is_empty(): return
+	_acknowledge_visible_line()
+	_sync_native_processing()
+	_sync_focus()
+	if _has_caption() and caption_text.focus_mode != Control.FOCUS_NONE \
+			and not _pause_covered and _reading_source_admitted():
+		caption_text.grab_focus()
+	if _speech_candidate:
+		_speech_pending = true
+		_speak_publication.call_deferred(_speech_generation)
 
 func _load_admitted() -> bool:
 	return _load_input_bound and not _load_pending and not _pause_covered \
@@ -313,6 +466,105 @@ func _on_load_requested() -> void:
 			and (focused == null or focused == transport_rail.get_node("Load")):
 		transport_rail.get_node("Load").grab_focus()
 
+func _save_admitted() -> bool:
+	return _save_input_bound and not _load_pending and not _history_pending and not _history_open \
+		and not _pause_covered and not _line_waiting_for_text and _reading_recovery.is_empty() \
+		and _has_caption() and transport_rail.is_visible_in_tree() and accept_input.is_source_admitted() \
+		and is_instance_valid(_transport_bridge) and _transport_bridge.has_method("can_capture_reading_checkpoint") \
+		and _transport_bridge.call("can_capture_reading_checkpoint") == true \
+		and is_instance_valid(_backup_load_router) and _backup_load_router.has_method("can_open_witnessed_backup_save") \
+		and _backup_load_router.call("can_open_witnessed_backup_save", self) == true
+
+func _on_save_requested() -> void:
+	if not _save_admitted(): return
+	var source_identity := _pause_runtime_identity()
+	_load_activation_focus_id = transport_rail.get_node("Save").get_instance_id()
+	_load_pending = true
+	_retire_transport()
+	accept_input.retire_input()
+	var opened: Dictionary = await _backup_load_router.call("open_witnessed_backup_save", self)
+	_load_pending = false
+	_load_activation_focus_id = 0
+	_sync_transport()
+	var focused := get_viewport().gui_get_focus_owner()
+	if not opened.get("ok", false) and source_identity == _pause_runtime_identity() and _save_admitted() \
+			and (focused == null or focused == transport_rail.get_node("Save")):
+		transport_rail.get_node("Save").grab_focus()
+
+func _history_admitted() -> bool:
+	if not _history_input_bound or _load_pending or _history_pending or _history_open or _pause_covered \
+			or _line_waiting_for_text or not _reading_recovery.is_empty() or not _has_caption() \
+			or not transport_rail.is_visible_in_tree() or not accept_input.is_source_admitted(): return false
+	return is_instance_valid(_transport_bridge) and _transport_bridge.has_method("get_reading_history") \
+		and is_instance_valid(_backup_load_router) and _backup_load_router.has_method("can_open_witnessed_history") \
+		and _backup_load_router.call("can_open_witnessed_history", self) == true
+
+func _on_history_requested() -> void:
+	if not _history_admitted() or not _configure_history_presentation(): return
+	var history: Dictionary = _transport_bridge.call("get_reading_history")
+	if not history.get("ok", false): return
+	var source: Dictionary = history.value
+	var captions: Array[String] = []
+	for row: Variant in source.get("captions", []):
+		if not row is Dictionary or typeof(row.get("text")) != TYPE_STRING or String(row.text).strip_edges().is_empty(): return
+		captions.append(row.text)
+	if captions.is_empty(): return
+	_history_source = {"session_id": source.session_id, "frontier": source.frontier.duplicate(true)}
+	var focused := get_viewport().gui_get_focus_owner()
+	_load_activation_focus_id = focused.get_instance_id() if focused != null and _owns_caption_focus(focused) else 0
+	_history_pending = true
+	_retire_transport()
+	accept_input.retire_input()
+	var opened: Dictionary = await _backup_load_router.call("open_witnessed_history", self)
+	_history_pending = false
+	_load_activation_focus_id = 0
+	if not opened.get("ok", false):
+		_history_source.clear()
+		_sync_transport()
+		return
+	_history_open = true
+	if not _history_overlay.present(captions):
+		await _on_history_close_requested()
+
+func _history_overlay_admitted() -> bool:
+	if not _history_open or _history_pending or _history_source.is_empty() \
+			or not is_instance_valid(_backup_load_router) \
+			or _backup_load_router.call("is_witnessed_history_open", self) != true: return false
+	var current: Dictionary = _transport_bridge.call("get_reading_history")
+	return current.get("ok", false) and current.value.get("session_id") == _history_source.session_id \
+		and current.value.get("frontier") == _history_source.frontier
+
+func _on_history_close_requested() -> void:
+	if not _history_open or _history_pending: return
+	_history_pending = true
+	_history_overlay.set_interactive(false)
+	var closed: Dictionary = await _backup_load_router.call("close_witnessed_history", self)
+	_history_pending = false
+	if not closed.get("ok", false):
+		_history_overlay.set_interactive(true)
+		return
+	_history_open = false
+	_history_source.clear()
+	_history_overlay.dismiss()
+	_sync_transport()
+	_restore_load_focus.call_deferred()
+
+func _configure_history_presentation() -> bool:
+	return is_instance_valid(_history_overlay) and _history_overlay.configure(
+		_caption_theme, _localization, _reading_input_owner, _history_overlay_admitted)
+
+func _on_reading_session_changed() -> void:
+	_refresh_reading_session.call_deferred()
+
+func _refresh_reading_session() -> void:
+	if not is_inside_tree(): return
+	if not _ending_caption_handoff and _project_ending_caption_memory(): _layout_stack()
+	if not is_instance_valid(_transport_bridge) or not _transport_bridge.has_method("capture_current_line_presentation_frontier"): return
+	if _presented_line == _transport_bridge.call("capture_current_line_presentation_frontier"): return
+	_capture_presented_line()
+	_acknowledge_visible_line()
+	_sync_transport()
+
 func _restore_load_focus() -> void:
 	if _load_focus_restore_id == 0: return
 	if not _valid_pause_anchor(_pause_anchor) or not _reading_recovery.is_empty():
@@ -321,9 +573,12 @@ func _restore_load_focus() -> void:
 	if _pause_covered or not is_instance_valid(_reading_input_owner) \
 			or not _reading_input_owner.is_source_input_admitted(): return
 	var focused := get_viewport().gui_get_focus_owner()
-	var load_button: Control = transport_rail.get_node("Load")
-	if _load_admitted() and (focused == null or focused == load_button):
-		load_button.grab_focus()
+	var command := instance_from_id(_load_focus_restore_id) as Control
+	var admitted := (command == transport_rail.get_node("Load") and _load_admitted()) \
+		or (command == transport_rail.get_node("Save") and _save_admitted()) \
+		or (command == transport_rail.get_node("History") and _history_admitted())
+	if admitted and (focused == null or focused == command):
+		command.grab_focus()
 	_load_focus_restore_id = 0
 
 func _on_reading_profile_restored(_snapshot: Dictionary) -> void:
@@ -340,10 +595,10 @@ func _skip_controller_admitted() -> bool:
 
 func _auto_controller_admitted() -> bool:
 	return _auto_timer_admitted() or (_reading_retry_in_progress \
-		and _reading_recovery.get("kind") == &"auto" and _recovery_action_admitted())
+		and _reading_recovery.get("kind") in [&"auto", &"next"] and _recovery_action_admitted())
 
 func _auto_button_admitted() -> bool:
-	return _auto_configured and _auto_input_bound and not _pause_covered \
+	return _review_offset == 0 and _auto_configured and _auto_input_bound and not _pause_covered \
 		and not _line_waiting_for_text and _presented_line.get("ok", false) \
 		and transport_rail.is_visible_in_tree() and accept_input.is_source_admitted() \
 		and is_instance_valid(_transport_bridge) \
@@ -375,26 +630,37 @@ func _on_normal_accept_requested() -> void:
 	_try_arm_auto.call_deferred()
 
 func _on_playback_ended() -> void:
+	if not is_inside_tree(): return
+	if not _ending_caption_handoff: reset_caption_stack()
 	_dismiss_reading_recovery(false)
 	auto_controller.retire_current()
 	_retire_transport()
 
 func _sync_transport() -> void:
-	if not is_instance_valid(transport_rail): return
+	if not is_inside_tree() or not is_instance_valid(transport_rail): return
 	var rehearsal := is_instance_valid(_transport_bridge) \
 		and _transport_bridge.has_method("is_rehearsal_playback") \
 		and bool(_transport_bridge.call("is_rehearsal_playback"))
 	transport_rail.visible = not rehearsal
-	transport_rail.project(_transport_admitted(), skip_controller.is_skip_active(),
-		skip_controller.is_auto_enabled(), _auto_button_admitted(), _load_admitted())
-	var ring: Array[Control] = [caption_text]
+	if _ending_caption_handoff or not _timed_hold_frontier.is_empty():
+		transport_rail.project(false, false, skip_controller.is_auto_enabled(), false, false, false, false, false)
+	else:
+		transport_rail.project(_transport_admitted(), skip_controller.is_skip_active(),
+			skip_controller.is_auto_enabled(), _auto_button_admitted(), _load_admitted(), _history_admitted(), _save_admitted(), _next_admitted())
+	var ring: Array[Control] = []
+	if not _ending_caption_handoff and _timed_hold_frontier.is_empty(): ring.append(review_current if _review_offset > 0 else caption_text)
 	var names: PackedStringArray = []
-	for name: String in ["Skip", "Auto", "Load"]:
+	if is_instance_valid(_dating_split_surface) and is_dating_split_input_admitted():
+		var handle: Control = _dating_split_surface.get_split_handle()
+		if is_instance_valid(handle) and handle.is_visible_in_tree() and handle.focus_mode != Control.FOCUS_NONE:
+			ring.append(handle)
+			names.append("Split:%d" % handle.get_instance_id())
+	for name: String in ["History", "Skip", "Auto", "Save", "Load", "Next"]:
 		var command: Control = transport_rail.get_node(name)
 		if command.focus_mode != Control.FOCUS_NONE:
 			ring.append(command)
 			names.append(name)
-	var focus_key := ",".join(names)
+	var focus_key := ("hold:" if not _timed_hold_frontier.is_empty() else ("review:" if _review_offset > 0 else "live:")) + ",".join(names)
 	if focus_key == _rail_focus_key: return
 	_rail_focus_key = focus_key
 	for index: int in ring.size():
@@ -406,26 +672,113 @@ func _on_skip_requested() -> void:
 		_request_reading_command(&"skip", not skip_controller.is_skip_active())
 
 func _request_reading_command(kind: StringName, target: bool) -> void:
-	if not _recovery_bound or not _reading_recovery.is_empty(): return
-	_cancel_speech()
+	if not _recovery_bound or not _reading_recovery.is_empty() or _next_pending: return
+	if kind != &"next": _cancel_speech()
 	var focused := get_viewport().gui_get_focus_owner()
 	var request := {"kind": kind, "target": target, "frontier": _presented_line.duplicate(true),
 		"profile_id": _reading_profile.get_instance_id(), "bridge_id": _transport_bridge.get_instance_id(),
 		"profile_revision": _reading_profile_revision(), "owner_generation": _reading_owner_generation,
 		"runtime": _pause_runtime_identity(), "focus_id": focused.get_instance_id() if focused != null else 0,
 		"focus_behavior": canvas.focus_behavior_recursive, "mouse_behavior": canvas.mouse_behavior_recursive}
-	var result: Dictionary = _execute_reading_command(request)
-	if not result.get("ok", false) and _reading_request_matches(request):
+	var result := _execute_reading_command(request)
+	if not result.get("pending", false): _finish_reading_command(request, result, false)
+
+func _execute_reading_command(request: Dictionary, retry: bool = false) -> Dictionary:
+	if request.kind == &"auto": return auto_controller.set_auto_enabled(request.target)
+	if request.kind != &"next": return skip_controller.set_skip_active(request.target)
+	request["stage"] = &"preference"
+	var prior_revision: int = request.profile_revision
+	var disabled: Dictionary = auto_controller.set_auto_enabled(false)
+	if not disabled.get("ok", false): return disabled
+	if not _reading_request_owner_matches(request) \
+			or _reading_profile_revision() not in [prior_revision, prior_revision + 1]:
+		return {"ok": false, "code": &"next_source_retired"}
+	request.profile_revision = _reading_profile_revision()
+	if not _reading_request_matches(request) or _transport_bridge.call("can_next_current_line") != true \
+			or not _transport_bridge.has_signal("next_request_finished"):
+		return {"ok": false, "code": &"next_source_retired"}
+	request.stage = &"next"
+	_next_request = request
+	_next_request_retry = retry
+	_next_request_generation += 1
+	_next_completion_callback = _on_next_request_finished.bind(_next_request_generation)
+	_transport_bridge.connect("next_request_finished", _next_completion_callback)
+	_next_pending = true
+	_sync_next_presentation()
+	_sync_transport()
+	# Bridge lifetime spans native Return. No presenter-owned coroutine may await
+	# it: the native layout can be removed and freed before durable settlement.
+	_transport_bridge.call("request_next", request.frontier.duplicate(true))
+	return {"pending": true}
+
+func _retire_next_request() -> void:
+	_next_request_generation += 1
+	if is_instance_valid(_transport_bridge) and _next_completion_callback.is_valid() \
+			and _transport_bridge.is_connected("next_request_finished", _next_completion_callback):
+		_transport_bridge.disconnect("next_request_finished", _next_completion_callback)
+	_next_completion_callback = Callable()
+	_next_request = {}
+	_next_request_retry = false
+	_next_pending = false
+	_reading_retry_in_progress = false
+
+func _on_next_request_finished(expected_frontier: Dictionary, result: Dictionary, generation: int) -> void:
+	if generation != _next_request_generation or _next_request.is_empty() \
+			or expected_frontier != _next_request.frontier: return
+	var request := _next_request
+	var retry := _next_request_retry
+	var owner_current := _reading_request_owner_matches(request)
+	_retire_next_request()
+	if not owner_current:
+		if is_inside_tree():
+			# A reused presenter releases only its obsolete visual custody. Its new
+			# owner supplies acknowledgement, speech and destination Focus.
+			if retry: _dismiss_reading_recovery(false, false)
+			_sync_next_presentation(false)
+			_sync_transport()
+		return
+	_complete_next_presentation()
+	# Retry admission remains live until its result has been classified.
+	_reading_retry_in_progress = retry
+	_finish_reading_command(request, result, retry)
+
+func _finish_reading_command(request: Dictionary, result: Dictionary, retry: bool) -> void:
+	if not is_inside_tree():
+		_reading_retry_in_progress = false
+		return
+	var still_current: bool = _reading_request_matches(request) \
+		or (result.get("fatal", false) and _reading_request_owner_matches(request))
+	_reading_retry_in_progress = false
+	if retry:
+		# Profile publication can synchronously replace the whole scene/source.
+		if not still_current:
+			_dismiss_reading_recovery(false)
+		else:
+			_reading_recovery = request
+			_reading_recovery.profile_revision = _reading_profile_revision()
+			if result.get("ok", false): _dismiss_reading_recovery()
+			else: _show_reading_failure(result)
+	elif not result.get("ok", false) and still_current:
 		_reading_recovery = request
 		_show_reading_failure(result)
+	if request.kind == &"next" and result.get("ok", false) and _reading_request_owner_matches(request):
+		_settle_next_publication()
 	_sync_transport()
 
-func _execute_reading_command(request: Dictionary) -> Dictionary:
-	if request.kind == &"auto": return auto_controller.set_auto_enabled(request.target)
-	return skip_controller.set_skip_active(request.target)
+func _reading_request_owner_matches(request: Dictionary) -> bool:
+	if not is_inside_tree(): return false
+	var current_runtime := _pause_runtime_identity()
+	var source_runtime: Dictionary = request.get("runtime", {})
+	return not request.is_empty() and source_runtime.get("instance_id") == current_runtime.get("instance_id") \
+		and source_runtime.get("generation") == current_runtime.get("generation") and is_instance_valid(_reading_profile) \
+		and request.owner_generation == _reading_owner_generation and is_instance_valid(_transport_bridge) \
+		and request.profile_id == _reading_profile.get_instance_id() \
+		and request.bridge_id == _transport_bridge.get_instance_id()
 
 func _reading_request_matches(request: Dictionary) -> bool:
 	if request.is_empty(): return false
+	if request.get("kind") == &"next" and request.get("fatal", false):
+		return _reading_request_owner_matches(request)
 	var revision := _reading_profile_revision()
 	# The retry may commit exactly one Auto preference before Skip rechecks admission.
 	var revision_matches: bool = revision == request.profile_revision or (_reading_retry_in_progress \
@@ -453,31 +806,21 @@ func _show_reading_failure(result: Dictionary) -> void:
 	_sync_native_processing()
 	_sync_focus()
 	_configure_recovery_presentation()
-	recovery_overlay.present(not _reading_recovery.fatal, not _reading_recovery.fatal)
+	recovery_overlay.present(not _reading_recovery.fatal, not _reading_recovery.fatal, \
+		&"next" if _reading_recovery.get("stage") == &"next" else &"preference")
 
 func _retry_reading_command() -> void:
 	if _reading_retry_in_progress or not _recovery_action_admitted(): return
 	var retained := _reading_recovery.duplicate(true)
 	_reading_retry_in_progress = true
-	var result := _execute_reading_command(retained)
-	var still_current := _reading_request_matches(retained)
-	_reading_retry_in_progress = false
-	# Profile publication can synchronously replace the whole scene/source.
-	if not still_current:
-		_dismiss_reading_recovery(false)
-	else:
-		_reading_recovery.profile_revision = _reading_profile_revision()
-		if result.get("ok", false):
-			_dismiss_reading_recovery()
-		else:
-			_show_reading_failure(result)
-	_sync_transport()
+	var result := _execute_reading_command(retained, true)
+	if not result.get("pending", false): _finish_reading_command(retained, result, true)
 
 func _cancel_reading_recovery() -> void:
 	if _reading_retry_in_progress or not _recovery_action_admitted(): return
 	_dismiss_reading_recovery()
 
-func _dismiss_reading_recovery(restore_focus: bool = true) -> void:
+func _dismiss_reading_recovery(restore_focus: bool = true, allow_caption_focus: bool = true) -> void:
 	if _reading_recovery.is_empty(): return
 	var retained := _reading_recovery
 	_reading_recovery = {}
@@ -489,12 +832,14 @@ func _dismiss_reading_recovery(restore_focus: bool = true) -> void:
 	transport_rail.retire_input()
 	if not restore_focus: _had_caption = false
 	_sync_native_processing()
-	_sync_focus()
+	_sync_focus(allow_caption_focus)
 	_sync_transport()
 	_auto_resume_pending = true
+	if is_instance_valid(_dating_split_surface):
+		_dating_split_surface.set_split_input_admission(is_dating_split_input_admitted)
 	if restore_focus and _reading_request_matches(retained):
 		var focused: Object = instance_from_id(int(retained.focus_id)) if int(retained.focus_id) != 0 else null
-		if focused is Control and canvas.is_ancestor_of(focused) and focused.is_visible_in_tree() \
+		if focused is Control and _owns_caption_focus(focused) and focused.is_visible_in_tree() \
 				and focused.focus_mode != Control.FOCUS_NONE:
 			focused.grab_focus()
 		elif caption_text.focus_mode != Control.FOCUS_NONE: caption_text.grab_focus()
@@ -502,7 +847,7 @@ func _dismiss_reading_recovery(restore_focus: bool = true) -> void:
 func _configure_recovery_presentation() -> void:
 	if is_instance_valid(recovery_overlay) and _recovery_bound:
 		recovery_overlay.configure_presentation(_locale, _text_percent, _palette,
-			_high_contrast, _colour_preset, _large_targets)
+			_high_contrast, _colour_preset, _large_targets, _font_style)
 
 func _retire_transport() -> void:
 	_cancel_speech()
@@ -519,7 +864,7 @@ func configure_run_presentation(owner: Object) -> bool:
 	var context := RUN_PRESENTATION.read(owner)
 	if context.is_empty(): return false
 	if not configure_presentation(_locale, _text_percent, context.palette,
-			_high_contrast, _colour_preset, _large_targets, context.day): return false
+			_high_contrast, _colour_preset, _large_targets, context.day, _font_style): return false
 	_run_owner = owner
 	return true
 
@@ -529,23 +874,29 @@ func _on_timeline_started() -> void:
 	# A reused layout observes the installed run at this boundary, never during reveal.
 	var owner: Object = _run_owner if is_instance_valid(_run_owner) else get_node_or_null("/root/GameState")
 	configure_run_presentation(owner)
-	reset_caption_stack()
+	if not _ending_caption_handoff: reset_caption_stack()
 
 func is_reading_recovery_active() -> bool:
 	return not _reading_recovery.is_empty()
 
 ## Transient navigation anchor only. Canonical source admission belongs to the coordinator.
 func capture_pause_view(source: Dictionary) -> Dictionary:
+	_sync_timed_hold_projection()
+	var timed_hold := not _timed_hold_frontier.is_empty()
 	if (source.is_empty() or not is_inside_tree() or not is_node_ready() or _pause_covered
-		or is_reading_recovery_active() or not canvas.is_visible_in_tree() or not _has_caption()):
+		or is_reading_recovery_active() or is_next_transport_active() or not canvas.is_visible_in_tree()
+		or (not _has_caption() and not timed_hold)
+		or (timed_hold and source.get("frontier", {}) != _timed_hold_frontier)):
 		return {"ok":false,"code":&"pause_view_unavailable","value":{}}
 	_pause_capture_id += 1
 	_pause_anchor = {"view_id":get_instance_id(),"capture_id":_pause_capture_id,"source":source.duplicate(true)}
 	var focused := get_viewport().gui_get_focus_owner()
-	var focus_id := focused.get_instance_id() if focused != null and canvas.is_ancestor_of(focused) else 0
-	if _load_pending: focus_id = _load_activation_focus_id
+	var focus_id := focused.get_instance_id() if focused != null and _owns_caption_focus(focused) else 0
+	if _load_pending or _history_pending: focus_id = _load_activation_focus_id
+	if timed_hold: focus_id = 0
 	_pause_view = {"caption_id":caption_text.get_instance_id(),"reveal_generation":caption_text.get_reveal_generation(),
 		"runtime":_pause_runtime_identity(),"focus_id":focus_id,"scroll":get_scroll_bar().value,
+		"timed_hold_frontier":_timed_hold_frontier.duplicate(true),
 		"canvas_visible":canvas.visible,"layer_processing":is_processing(),"caption_processing":caption_text.is_processing()}
 	return {"ok":true,"code":&"ok","value":_pause_anchor.duplicate(true)}
 
@@ -571,11 +922,13 @@ func restore_pause_view(anchor: Dictionary) -> bool:
 	recovery_layer.show()
 	canvas.visible = bool(_pause_view.canvas_visible)
 	_sync_focus()
+	if is_instance_valid(_dating_split_surface):
+		_dating_split_surface.set_split_input_admission(is_dating_split_input_admitted)
 	var focused: Object = instance_from_id(int(_pause_view.focus_id)) if int(_pause_view.focus_id) != 0 else null
-	if (focused is Control and canvas.is_ancestor_of(focused) and focused.is_visible_in_tree()
+	if (focused is Control and _owns_caption_focus(focused) and focused.is_visible_in_tree()
 		and focused.focus_mode != Control.FOCUS_NONE):
 		focused.grab_focus()
-	if focused == transport_rail.get_node("Load"):
+	if focused in [transport_rail.get_node("History"), transport_rail.get_node("Save"), transport_rail.get_node("Load")]:
 		_load_focus_restore_id = int(_pause_view.focus_id)
 	# Focus restoration and container settling must never replace the user's pan.
 	_layout_generation += 1
@@ -589,32 +942,138 @@ func restore_pause_view(anchor: Dictionary) -> bool:
 	set_process(bool(_pause_view.layer_processing))
 	if not _reading_recovery.is_empty():
 		_sync_native_processing()
-		recovery_overlay.present(not _reading_recovery.fatal, not _reading_recovery.fatal)
+		recovery_overlay.present(not _reading_recovery.fatal, not _reading_recovery.fatal, \
+			&"next" if _reading_recovery.get("stage") == &"next" else &"preference")
 	return true
+
+## Only an explicit admitted Backup/Save command may revise the held reveal.
+## The opaque anchor, native node, source and publication stay owned by Pause.
+func complete_pause_reading_reveal(anchor: Dictionary, bridge: Object, handle: Dictionary) -> Dictionary:
+	if not _pause_covered or not _valid_pause_anchor(anchor) or not is_instance_valid(bridge) \
+			or not _pause_view.get("timed_hold_frontier", {}).is_empty() \
+			or not bridge.has_method("complete_paused_reading_reveal"):
+		return {"ok": false, "code": &"pause_view_unavailable"}
+	var generation: int = int(_pause_view.reveal_generation)
+	var result: Dictionary = bridge.complete_paused_reading_reveal(handle, caption_text)
+	if not result.get("ok", false): return result
+	if not _pause_covered or anchor != _pause_anchor or not is_instance_valid(caption_text) \
+			or int(_pause_view.caption_id) != caption_text.get_instance_id() \
+			or _pause_view.runtime != _pause_runtime_identity() \
+			or caption_text.get_reveal_generation() != generation + int(result.value.completed) \
+			or caption_text.get_reveal_generation() != int(result.value.reveal_generation):
+		return {"ok": false, "code": &"pause_source_changed"}
+	_pause_view.reveal_generation = caption_text.get_reveal_generation()
+	return {"ok": true}
+
 
 func _valid_pause_anchor(anchor: Dictionary) -> bool:
 	return (is_inside_tree() and is_node_ready() and not _pause_anchor.is_empty() and anchor == _pause_anchor
 		and is_instance_valid(caption_text) and int(_pause_view.caption_id) == caption_text.get_instance_id()
 		and int(_pause_view.reveal_generation) == caption_text.get_reveal_generation()
-		and _pause_view.runtime == _pause_runtime_identity())
+		and _pause_view.runtime == _pause_runtime_identity()
+		and (_pause_view.get("timed_hold_frontier", {}).is_empty()
+			or _pause_view.timed_hold_frontier == _capture_timed_hold_frontier()))
+
+## Pure Bridge admission identifies a live native non-skippable hide-text Wait.
+## This view never owns its timer, completion, or durable narrative state.
+func _capture_timed_hold_frontier() -> Dictionary:
+	if not is_inside_tree() or not is_node_ready() or not is_instance_valid(_transport_bridge) \
+			or not _transport_bridge.has_method("capture_pause_frontier"): return {}
+	var captured: Dictionary = _transport_bridge.capture_pause_frontier()
+	if not captured.get("ok", false) or not captured.get("value") is Dictionary \
+			or captured.value.get("kind", "") != "timed_hold": return {}
+	return captured.value.duplicate(true)
+
+func _sync_timed_hold_projection() -> void:
+	if _pause_covered: return
+	var frontier := _capture_timed_hold_frontier()
+	if frontier == _timed_hold_frontier: return
+	_timed_hold_frontier = frontier
+	var holding := not frontier.is_empty()
+	if holding:
+		_retire_transport()
+		accept_input.retire_input()
+		_line_waiting_for_text = true
+		_presented_line.clear()
+		_had_caption = false
+		caption_text.focus_next = NodePath()
+		caption_text.focus_previous = NodePath()
+		review_current.focus_next = NodePath()
+		review_current.focus_previous = NodePath()
+	# Hide the entire caption subtree, including retained copies and scrollbar,
+	# while the stationary rail remains visible in the existing canvas.
+	scroll.visible = not holding
+	overlay.visible = not holding
+	canvas.queue_redraw()
+	overlay.queue_redraw()
+	_sync_native_processing()
+	_sync_focus()
+	_sync_transport()
 
 func _pause_runtime_identity() -> Dictionary:
+	if not is_inside_tree(): return {}
 	var runtime := get_node_or_null("/root/Dialogic")
 	if runtime == null: return {}
 	return {"instance_id":runtime.get_instance_id(),
 		"generation":int(runtime.call("get_timeline_generation")) if runtime.has_method("get_timeline_generation") else 0,
 		"event_index":runtime.get("current_event_idx")}
 
-func configure_presentation(locale: String = "en", text_percent: int = 100, palette: String = "AfterHours", high_contrast: bool = false, colour_preset: String = "standard", large_targets: bool = false, day: int = 1) -> bool:
-	var next_theme := CAPTION_THEME.build(locale, text_percent, palette, high_contrast, colour_preset, large_targets, day)
+func _refresh_dating_overlay() -> void:
+	var source: Dictionary = _scene_art_bridge.get_current_scene_art() if is_instance_valid(_scene_art_bridge) \
+		and _scene_art_bridge.has_method("get_current_scene_art") else {}
+	configure_dating_overlay(str(source.get("entry_id", "")).begins_with("dating."))
+
+func configure_dating_overlay(enabled: bool) -> void:
+	_bind_dating_split_surface()
+	if _dating_overlay == enabled: return
+	_dating_overlay = enabled
+	if not is_instance_valid(canvas): return
+	configure_presentation(_locale, _text_percent, _palette, _high_contrast, _colour_preset, _large_targets, _day, _font_style)
+	_layout_stack()
+
+func _bind_dating_split_surface() -> void:
+	if not is_inside_tree(): return
+	# Only the sibling Dialogic art layer belongs to this caption owner. A retained
+	# physical challenge or art-only hold must keep its own input admission.
+	for surface: Node in get_tree().get_nodes_in_group("dating_split_surface"):
+		var layer := surface.get_parent()
+		if layer == null or layer.get_parent() != get_parent() or layer.get_script() == null \
+				or layer.get_script().resource_path != "res://scripts/ui/witnessed/WitnessedArtLayer.gd": continue
+		_dating_split_surface = surface as Control
+		_dating_split_surface.set_split_input_admission(is_dating_split_input_admitted)
+		return
+
+func is_dating_split_input_admitted() -> bool:
+	return _dating_overlay and not _pause_covered and _reading_source_admitted() \
+		and is_instance_valid(canvas) and canvas.is_visible_in_tree() \
+		and is_instance_valid(accept_input) and accept_input.is_source_admitted()
+
+func _owns_caption_focus(control: Control) -> bool:
+	return canvas.is_ancestor_of(control) or (is_instance_valid(_dating_split_surface) \
+		and control == _dating_split_surface.get_split_handle())
+
+func _forward_split_input(event: InputEvent, source_control: Control) -> bool:
+	if not is_instance_valid(_dating_split_surface): return false
+	if not is_dating_split_input_admitted():
+		_dating_split_surface.cancel_split_input()
+		return false
+	if not _dating_split_surface.handle_split_input(event, source_control): return false
+	accept_input.cancel_pending_accept()
+	_retire_transport()
+	source_control.accept_event()
+	return true
+
+func configure_presentation(locale: String = "en", text_percent: int = 100, palette: String = "AfterHours", high_contrast: bool = false, colour_preset: String = "standard", large_targets: bool = false, day: int = 1, font_style: String = "pixel") -> bool:
+	var next_theme := CAPTION_THEME.build(locale, text_percent, palette, high_contrast, colour_preset, large_targets, day, _dating_overlay, font_style)
 	if next_theme == null:
 		return false
 	# Caption and rail publish one locale tuple. Refusal leaves both unchanged.
 	if is_instance_valid(transport_rail) and not transport_rail.configure_presentation(next_theme, locale):
 		return false
-	var metrics_changed := _caption_theme == null or _locale != locale.replace("_", "-") or _text_percent != text_percent or _large_targets != large_targets
+	var metrics_changed := _caption_theme == null or _locale != locale.replace("_", "-") or _text_percent != text_percent or _large_targets != large_targets or _font_style != font_style
 	_locale = locale.replace("_", "-")
 	_text_percent = text_percent
+	_font_style = font_style
 	_palette = palette
 	_day = day
 	_high_contrast = high_contrast
@@ -622,6 +1081,7 @@ func configure_presentation(locale: String = "en", text_percent: int = 100, pale
 	_large_targets = large_targets
 	_caption_theme = next_theme
 	_configure_speech_status()
+	_configure_history_presentation()
 	if is_instance_valid(canvas):
 		var first_mount := canvas.theme == null
 		if metrics_changed:
@@ -643,15 +1103,63 @@ func configure_presentation(locale: String = "en", text_percent: int = 100, pale
 	return true
 
 func reset_caption_stack() -> void:
+	_ending_caption_session = ""
+	_ending_caption_handoff = false
+	var was_reviewing := _review_offset > 0
 	_cancel_speech()
 	if is_instance_valid(auto_controller): auto_controller.retire_current()
 	_line_waiting_for_text = true
 	_presented_line.clear()
 	_retained.clear()
+	_scrollback.clear()
+	_review_offset = 0
+	if is_instance_valid(accept_input): accept_input.set_review_caption(null)
+	if was_reviewing and is_instance_valid(caption_text) and not caption_text.get_parsed_text().is_empty():
+		caption_text.show()
 	_current_copy = ""
 	_publication_pending = false
 	if is_instance_valid(stack):
 		_layout_stack()
+
+## The adapter admits only the natural end of this registered ending session.
+## Keep the existing display while its completion owner settles; it accepts no input.
+func begin_ending_caption_handoff(session_token: String) -> bool:
+	if not is_inside_tree() or session_token.is_empty() or session_token != _ending_caption_session \
+			or not _has_caption() or caption_text.revealing or _review_offset != 0:
+		return false
+	_ending_caption_handoff = true
+	_had_caption = false
+	_line_waiting_for_text = true
+	_presented_line.clear()
+	_cancel_speech()
+	auto_controller.retire_current()
+	accept_input.retire_input()
+	_retire_transport()
+	_sync_native_processing()
+	_sync_focus()
+	_sync_transport()
+	return true
+
+func end_ending_caption_handoff() -> void:
+	_ending_caption_handoff = false
+	_ending_caption_session = ""
+
+func _project_ending_caption_memory() -> bool:
+	if not is_instance_valid(_transport_bridge) or not _transport_bridge.has_method("get_ending_caption_memory"):
+		return false
+	var projected: Dictionary = _transport_bridge.call("get_ending_caption_memory")
+	if not projected.get("ok", false): return false
+	var rows: Array = projected.value.captions
+	if rows.is_empty() or rows.back().text != caption_text.get_parsed_text(): return false
+	_ending_caption_session = projected.value.session_id
+	_ending_caption_handoff = false
+	_retained.clear()
+	for index: int in range(maxi(0, rows.size() - 3), rows.size() - 1):
+		_retained.append(rows[index].text)
+	_scrollback.clear()
+	for index: int in range(rows.size() - 1):
+		_scrollback.append(rows[index].text)
+	return true
 
 func reproject_retained_captions(captions: Array) -> bool:
 	if captions.size() > 2:
@@ -659,8 +1167,12 @@ func reproject_retained_captions(captions: Array) -> bool:
 	for copy: Variant in captions:
 		if typeof(copy) != TYPE_STRING or String(copy).strip_edges().is_empty():
 			return false
+	if _review_offset > 0: _set_review_offset(0)
 	_cancel_speech()
 	_retained.assign(captions)
+	_scrollback.assign(captions)
+	_review_offset = 0
+	accept_input.set_review_caption(null)
 	if is_instance_valid(stack):
 		_current_copy = caption_text.get_parsed_text()
 		_layout_stack()
@@ -674,8 +1186,9 @@ func get_caption_projection() -> Dictionary:
 	var bar := get_scroll_bar()
 	var leaves: Array[Rect2] = []
 	var visible_leaves: Array[Rect2] = []
-	if mounted:
-		for leaf: RichTextLabel in [older, previous, caption_text]:
+	var timed_hold := not _timed_hold_frontier.is_empty()
+	if mounted and not timed_hold:
+		for leaf: RichTextLabel in [older, previous, review_current, caption_text]:
 			if not leaf.visible or leaf.get_parsed_text().is_empty():
 				continue
 			var rect := _leaf_rect(leaf)
@@ -683,12 +1196,15 @@ func get_caption_projection() -> Dictionary:
 			var visible_rect := rect.intersection(_field_rect())
 			if visible_rect.has_area():
 				visible_leaves.append(visible_rect)
-	var current_rect := _leaf_rect(caption_text) if mounted else Rect2()
+	var current_rect := _leaf_rect(caption_text) if mounted and not timed_hold else Rect2()
 	return {
 		"locale": _locale, "text_percent": _text_percent, "palette": _palette, "day": _day,
 		"high_contrast": _high_contrast, "colour_preset": _colour_preset,
 		"large_targets": _large_targets,
-		"font_size": int(20 * _text_percent / 100.0),
+		"dating_overlay": _dating_overlay,
+		"timed_hold": timed_hold,
+		"font_style": _font_style,
+		"font_size": _caption_theme.default_font_size if _caption_theme != null else 0,
 		"text": caption_text.get_parsed_text() if mounted else "",
 		"visible_characters": caption_text.visible_characters if mounted else 0,
 		"total_characters": caption_text.get_total_character_count() if mounted else 0,
@@ -697,12 +1213,21 @@ func get_caption_projection() -> Dictionary:
 		"field_rect": _field_rect(), "caption_rect": current_rect,
 		"caption_visible_rect": current_rect.intersection(_field_rect()) if mounted and _has_caption() else Rect2(),
 		"retained_captions": _retained.duplicate(), "leaf_rects": leaves,
+		"caption_window": _caption_window(), "review_offset": _review_offset,
 		"visible_leaf_rects": visible_leaves,
 		"scroll_offset": bar.value if bar != null else 0.0,
 		"scroll_extent": maxf(0.0, bar.max_value - bar.page) if bar != null else 0.0,
 	}
 
 func _on_about_to_show_text(_info: Dictionary) -> void:
+	if _ending_caption_handoff and get_node("/root/Dialogic").current_timeline == null: return
+	# Restore the native caption subtree before arming this publication's speech.
+	# Visibility callbacks during hold exit must not consume its fresh candidate.
+	_sync_timed_hold_projection()
+	if not _current_copy.is_empty():
+		_current_copy = caption_text.get_parsed_text()
+		if caption_text.visible_characters >= 0:
+			_current_copy = _current_copy.left(caption_text.visible_characters)
 	_cancel_speech()
 	_dismiss_reading_recovery(false)
 	auto_controller.retire_current()
@@ -719,27 +1244,36 @@ func _on_about_to_show_text(_info: Dictionary) -> void:
 	_speech_candidate = true
 
 func _on_text_started(info: Dictionary) -> void:
+	if _ending_caption_handoff and get_node("/root/Dialogic").current_timeline == null: return
+	_sync_timed_hold_projection()
 	if not _has_caption():
 		return
-	if not bool(info.get("append", false)) and not _current_copy.is_empty():
+	if not _project_ending_caption_memory() and not bool(info.get("append", false)) and not _current_copy.is_empty():
+		_scrollback.append(_current_copy)
 		_retained.append(_current_copy)
 		if _retained.size() > 2:
 			_retained.pop_front()
 	# Only already-parsed display text crosses this seam; never character/portrait data.
 	_current_copy = caption_text.get_parsed_text()
+	_review_offset = 0
+	accept_input.set_review_caption(null)
 	_layout_stack(true)
 	_capture_presented_line()
 	_acknowledge_visible_line()
-	if _speech_candidate:
+	if _speech_candidate and not is_next_transport_active():
 		_speech_pending = true
 		_speak_publication.call_deferred(_speech_generation)
 
 func _on_caption_visibility_changed() -> void:
+	_sync_timed_hold_projection()
 	if not caption_text.is_visible_in_tree(): _cancel_speech()
 	if is_instance_valid(transport_rail): transport_rail.retire_input()
 	_sync_native_processing()
 	if caption_text.get_parsed_text().is_empty():
 		_retained.clear()
+		_scrollback.clear()
+		_review_offset = 0
+		accept_input.set_review_caption(null)
 		_current_copy = ""
 		_publication_pending = false
 		older.hide()
@@ -748,7 +1282,18 @@ func _on_caption_visibility_changed() -> void:
 	_request_layout()
 
 func _sync_native_processing() -> void:
-	if _pause_covered or not _reading_recovery.is_empty():
+	if _ending_caption_handoff:
+		caption_text.set_process(false)
+		return
+	if not _timed_hold_frontier.is_empty():
+		# Native instant empty clears can retain a stale revealing flag. Retire it
+		# without inventing a text publication or emitting reveal completion.
+		if caption_text.get_parsed_text().is_empty():
+			caption_text.revealing = false
+			caption_text.visible_characters = -1
+		caption_text.set_process(false)
+		return
+	if _review_offset > 0 or _pause_covered or not _reading_recovery.is_empty() or is_next_transport_active():
 		caption_text.set_process(false)
 		return
 	if caption_text.get_parsed_text().is_empty():
@@ -758,6 +1303,9 @@ func _sync_native_processing() -> void:
 		caption_text.set_process(false)
 		if not _retained.is_empty() or not _current_copy.is_empty():
 			_retained.clear()
+			_scrollback.clear()
+			_review_offset = 0
+			accept_input.set_review_caption(null)
 			_current_copy = ""
 			_publication_pending = false
 			older.hide()
@@ -775,16 +1323,18 @@ func _apply_preferences() -> void:
 	var high_contrast: Variant = _high_contrast
 	var large_targets: Variant = _large_targets
 	var colour_preset := _colour_preset
+	var font_style: Variant = _font_style
 	if _profile != null and _profile.has_method("get_preference"):
 		high_contrast = _profile.call("get_preference", &"preferences.accessibility.high_contrast", false)
 		large_targets = _profile.call("get_preference", &"preferences.accessibility.large_targets", false)
+		font_style = _profile.call("get_preference", &"preferences.accessibility.font_style", "pixel")
 		var colour_mode: Variant = _profile.call("get_preference", &"preferences.accessibility.colour_differentiation", "standard")
 		if typeof(colour_mode) != TYPE_STRING or not PROFILE_COLOUR_PRESETS.has(colour_mode):
 			return
 		colour_preset = PROFILE_COLOUR_PRESETS[colour_mode]
-	if typeof(high_contrast) != TYPE_BOOL or typeof(large_targets) != TYPE_BOOL:
+	if typeof(high_contrast) != TYPE_BOOL or typeof(large_targets) != TYPE_BOOL or typeof(font_style) != TYPE_STRING:
 		return
-	configure_presentation(locale, int(text_size), _palette, high_contrast, colour_preset, large_targets, _day)
+	configure_presentation(locale, int(text_size), _palette, high_contrast, colour_preset, large_targets, _day, font_style)
 
 func _on_locale_changed(_locale_id: String) -> void:
 	_cancel_speech()
@@ -794,11 +1344,12 @@ func _on_locale_changed(_locale_id: String) -> void:
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
 	if path in [&"preferences.reading.read_aloud_enabled", &"preferences.reading.read_aloud_rate"]:
 		_cancel_speech()
-	if path in [&"preferences.accessibility.text_size", &"preferences.accessibility.high_contrast", &"preferences.accessibility.colour_differentiation", &"preferences.accessibility.large_targets"]:
+	if path in [&"preferences.accessibility.text_size", &"preferences.accessibility.font_style", &"preferences.accessibility.high_contrast", &"preferences.accessibility.colour_differentiation", &"preferences.accessibility.large_targets"]:
 		_apply_preferences()
 		_configure_recovery_presentation()
 
 func _process(_delta: float) -> void:
+	_sync_timed_hold_projection()
 	if (_speech_pending or not _speech_source.is_empty()) and not _speech_admitted(): _cancel_speech()
 	if not _reading_recovery.is_empty() and not _reading_request_matches(_reading_recovery):
 		_dismiss_reading_recovery(false)
@@ -829,33 +1380,39 @@ func _settle_layout() -> void:
 	_layout_pending = false
 	_layout_stack()
 
-func _layout_stack(publication: bool = false) -> void:
+func _layout_stack(publication: bool = false, desired_scroll: float = -1.0) -> void:
 	if not is_instance_valid(stack) or _caption_theme == null:
 		return
 	_publication_pending = _publication_pending or publication
-	var retained_scroll := get_scroll_bar().value
+	var retained_scroll := get_scroll_bar().value if desired_scroll < 0 else desired_scroll
 	scroll.position = Vector2(16, FIELD_TOP[_text_percent])
 	scroll.size = Vector2(1248, FIELD_BOTTOM - FIELD_TOP[_text_percent])
-	older.text = _retained[0] if _retained.size() == 2 else ""
-	previous.text = _retained.back() if not _retained.is_empty() else ""
-	older.visible = _has_caption() and _retained.size() == 2
-	previous.visible = _has_caption() and not _retained.is_empty()
+	var window := _caption_window()
+	older.text = window[0] if window.size() == 3 else ""
+	previous.text = window[window.size() - 2] if window.size() >= 2 else ""
+	review_current.text = window.back() if _review_offset > 0 and not window.is_empty() else ""
+	older.visible = _has_caption() and window.size() == 3
+	previous.visible = _has_caption() and window.size() >= 2
+	review_current.visible = _has_caption() and _review_offset > 0
 	var leaves: Array[RichTextLabel] = []
-	for leaf: RichTextLabel in [older, previous, caption_text]:
+	for leaf: RichTextLabel in [older, previous, review_current, caption_text]:
 		if leaf.visible and not leaf.get_parsed_text().is_empty():
 			leaves.append(leaf)
 	var width := 1248.0
+	var left_inset := 0.0
 	var total := _measure_leaves(leaves, width)
 	if total > scroll.size.y:
-		width -= get_scroll_bar().get_combined_minimum_size().x
+		var gutter := get_scroll_bar().get_combined_minimum_size().x
+		left_inset = gutter if _dating_overlay else 0.0
+		width -= gutter + left_inset
 		total = _measure_leaves(leaves, width)
 	var cursor := maxf(0, scroll.size.y - total)
 	for leaf: RichTextLabel in leaves:
-		leaf.position = Vector2(0, cursor)
+		leaf.position = Vector2(left_inset, cursor)
 		cursor += leaf.size.y
 	stack.custom_minimum_size = Vector2(0, maxf(scroll.size.y, total))
 	stack.update_minimum_size()
-	stack.size = Vector2(width, maxf(scroll.size.y, total))
+	stack.size = Vector2(width + left_inset, maxf(scroll.size.y, total))
 	_last_text = caption_text.text
 	_last_content_height = caption_text.get_content_height()
 	_sync_focus()
@@ -899,31 +1456,45 @@ func _restore_scroll(generation: int, value: float, publication: bool) -> void:
 	_publication_pending = false
 
 func _has_caption() -> bool:
-	return caption_text.visible and not caption_text.get_parsed_text().is_empty()
+	return _timed_hold_frontier.is_empty() and (caption_text.visible or _review_offset > 0) and not caption_text.get_parsed_text().is_empty()
 
-func _sync_focus() -> void:
-	if _pause_covered or not _reading_recovery.is_empty():
+func _sync_focus(allow_focus_grab: bool = true) -> void:
+	if _ending_caption_handoff or not _timed_hold_frontier.is_empty() or _pause_covered or not _reading_recovery.is_empty() or is_next_transport_active():
+		background_input.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		caption_text.focus_mode = Control.FOCUS_NONE
+		review_current.focus_mode = Control.FOCUS_NONE
+		if review_current.has_focus(): review_current.release_focus()
 		caption_text.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		if caption_text.has_focus(): caption_text.release_focus()
 		return
 	var has_caption := _has_caption()
-	caption_text.focus_mode = Control.FOCUS_ALL if has_caption else Control.FOCUS_NONE
-	caption_text.mouse_filter = Control.MOUSE_FILTER_STOP if has_caption else Control.MOUSE_FILTER_IGNORE
-	if has_caption and not _had_caption:
-		caption_text.grab_focus()
+	background_input.mouse_filter = Control.MOUSE_FILTER_STOP if has_caption else Control.MOUSE_FILTER_IGNORE
+	var focused_caption: RichTextLabel = review_current if _review_offset > 0 else caption_text
+	caption_text.focus_mode = Control.FOCUS_ALL if has_caption and _review_offset == 0 else Control.FOCUS_NONE
+	review_current.focus_mode = Control.FOCUS_ALL if has_caption and _review_offset > 0 else Control.FOCUS_NONE
+	caption_text.mouse_filter = Control.MOUSE_FILTER_STOP if has_caption and _review_offset == 0 else Control.MOUSE_FILTER_IGNORE
+	if has_caption and not _had_caption and allow_focus_grab:
+		focused_caption.grab_focus()
 	_had_caption = has_caption
 	if not has_caption and caption_text.has_focus():
 		caption_text.release_focus()
 
-func _on_passive_input(event: InputEvent) -> void:
-	_handle_input(event, false)
+func _on_background_input(event: InputEvent) -> void:
+	if _forward_split_input(event, background_input): return
+	if event is InputEventMouseButton and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+		_handle_input(event, false)
+	else:
+		accept_input.handle_background_gui_input(event, background_input)
+
+func _on_passive_input(event: InputEvent, source_control: Control) -> void:
+	_handle_input(event, false, source_control)
 
 func _on_caption_input(event: InputEvent) -> void:
 	_handle_input(event, true)
 
-func _handle_input(event: InputEvent, current: bool) -> void:
-	if _pause_covered or not _reading_recovery.is_empty(): return
+func _handle_input(event: InputEvent, current: bool, source_control: Control = null) -> void:
+	if not _timed_hold_frontier.is_empty() or _pause_covered or not _reading_recovery.is_empty() or is_next_transport_active(): return
+	if _forward_split_input(event, caption_text if current else (source_control if source_control != null else scroll)): return
 	if event is InputEventMouse and event.device == InputEvent.DEVICE_ID_EMULATION:
 		scroll.accept_event()
 		return
@@ -934,16 +1505,17 @@ func _handle_input(event: InputEvent, current: bool) -> void:
 	elif event is InputEventMouseButton:
 		if event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
 			accept_input.cancel_pending_accept()
-			var direction := -1.0 if event.button_index == MOUSE_BUTTON_WHEEL_UP else 1.0
-			bar.value += direction * _caption_theme.default_font_size * 3.0 * event.factor
-		elif current and event.button_index == MOUSE_BUTTON_LEFT:
-			accept_input.handle_caption_gui_input(event)
+			if accept_input.is_source_admitted():
+				_set_review_offset(_review_offset + (1 if event.button_index == MOUSE_BUTTON_WHEEL_DOWN else -1))
+		elif event.button_index == MOUSE_BUTTON_LEFT:
+			if current: accept_input.handle_caption_gui_input(event)
+			else: accept_input.handle_background_gui_input(event, source_control if source_control != null else scroll)
 	elif event is InputEventPanGesture:
 		accept_input.cancel_pending_accept()
 		bar.value += event.delta.y * 20
 	elif event is InputEventScreenTouch:
-		if current:
-			accept_input.handle_caption_gui_input(event)
+		if current: accept_input.handle_caption_gui_input(event)
+		else: accept_input.handle_background_gui_input(event, source_control if source_control != null else scroll)
 	elif event is InputEventScreenDrag:
 		if event.device != InputEvent.DEVICE_ID_EMULATION:
 			accept_input.cancel_pending_accept()
@@ -951,6 +1523,29 @@ func _handle_input(event: InputEvent, current: bool) -> void:
 	else:
 		return
 	scroll.accept_event()
+
+func _caption_window() -> Array[String]:
+	if _review_offset == 0:
+		var result := _retained.duplicate()
+		if is_instance_valid(caption_text) and not caption_text.get_parsed_text().is_empty():
+			result.append(caption_text.get_parsed_text())
+		return result
+	var end := _scrollback.size() - _review_offset
+	return _scrollback.slice(maxi(0, end - 2), end + 1)
+
+func _set_review_offset(value: int) -> void:
+	var next := clampi(value, 0, maxi(0, _scrollback.size() - 2))
+	if next == _review_offset: return
+	if _review_offset == 0: _live_scroll = get_scroll_bar().value
+	_review_offset = next
+	_retire_transport()
+	accept_input.cancel_pending_accept()
+	review_current.visible = next > 0
+	accept_input.set_review_caption(review_current if next > 0 else null)
+	caption_text.visible = next == 0
+	_layout_stack(false, 0.0 if next > 0 else _live_scroll)
+	_sync_native_processing()
+	(review_current if next > 0 else caption_text).grab_focus()
 
 func _field_rect() -> Rect2:
 	return Rect2(0, FIELD_TOP[_text_percent], 1280, FIELD_BOTTOM - FIELD_TOP[_text_percent])
@@ -961,26 +1556,7 @@ func _leaf_rect(leaf: RichTextLabel) -> Rect2:
 func _draw_canvas() -> void:
 	if _caption_theme == null:
 		return
-	canvas.draw_rect(_field_rect(), _color(&"field"))
 	canvas.draw_rect(Rect2(0, FIELD_BOTTOM, 1280, 64), _color(&"deep"))
-
-func _draw_seam() -> void:
-	if _caption_theme != null:
-		overlay.draw_rect(Rect2(0, FIELD_TOP[_text_percent], 1280, 2), _color(&"rule"))
-
-func _draw_current_frame() -> void:
-	if _caption_theme == null:
-		return
-	var frame_size := caption_text.size
-	# These rails and protected padding belong to the full leaf and scroll with it.
-	caption_text.draw_rect(Rect2(0, 2, frame_size.x, 14), _color(&"current"))
-	caption_text.draw_rect(Rect2(0, frame_size.y - 16, frame_size.x, 16), _color(&"current"))
-	caption_text.draw_rect(Rect2(0, 2, 16, frame_size.y - 2), _color(&"current"))
-	caption_text.draw_rect(Rect2(frame_size.x - 16, 2, 16, frame_size.y - 2), _color(&"current"))
-	caption_text.draw_rect(Rect2(0, 0, frame_size.x, 2), _color(&"rule"))
-	if caption_text.has_focus():
-		caption_text.draw_rect(Rect2(Vector2(3, 3), frame_size - Vector2(6, 6)), _color(&"focus_outer"), false, 2)
-		caption_text.draw_rect(Rect2(Vector2(7, 7), frame_size - Vector2(14, 14)), _color(&"focus_inner"), false, 2)
 
 func _color(role: StringName) -> Color:
 	return _caption_theme.get_color(role, &"WitnessedCaption")

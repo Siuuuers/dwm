@@ -1,0 +1,97 @@
+{
+  "actual_checkout": "bee762330520dcf2835df5f725535004a355e015",
+  "archive": {
+    "bytes": 88782016,
+    "sha256": "4d8a17b52dad29891dd81640daf94a30558a3ea7feed7bbe120eaa18c41daca9"
+  },
+  "archive_members": 86,
+  "export_binary_exclusion": "Original Windows export ZIP and nested executable/package binaries are excluded. Their exact identities and verified transport/member records are retained; binary reconstruction requires the original GitHub artifacts.",
+  "job_logs": "Decoded connector logs retained with LF normalization; original artifact ZIP bytes are exact.",
+  "original_artifacts_retained": 37,
+  "parts": [
+    {
+      "bytes": 8388608,
+      "file": "broad1-evidence.tar.gz.part001",
+      "index": 1,
+      "offset": 0,
+      "sha256": "d7800acd2cc1afa2c9a7c07b0461363d35da49ee25da0d718818d722e7123232"
+    },
+    {
+      "bytes": 8388608,
+      "file": "broad1-evidence.tar.gz.part002",
+      "index": 2,
+      "offset": 8388608,
+      "sha256": "7f1f654c9c281203d4014b145b320c99e02e05bf50e4f7b0f412f391b8a26b59"
+    },
+    {
+      "bytes": 8388608,
+      "file": "broad1-evidence.tar.gz.part003",
+      "index": 3,
+      "offset": 16777216,
+      "sha256": "79a11698919c48de0d07a96bf159d9f06cf4c085f02e87cb452c674156985edf"
+    },
+    {
+      "bytes": 8388608,
+      "file": "broad1-evidence.tar.gz.part004",
+      "index": 4,
+      "offset": 25165824,
+      "sha256": "903be50b42907b2c0f14703c671a49bd2216180f65013d5f2c7e7cf4786e6a6e"
+    },
+    {
+      "bytes": 8388608,
+      "file": "broad1-evidence.tar.gz.part005",
+      "index": 5,
+      "offset": 33554432,
+      "sha256": "101fc1dfff62e2146976c3218485772a1de736f871ed04e6dbff11a9a72af52c"
+    },
+    {
+      "bytes": 8388608,
+      "file": "broad1-evidence.tar.gz.part006",
+      "index": 6,
+      "offset": 41943040,
+      "sha256": "7860d4337c091df4009e5903b8c0a7cf19b0d3add4f0584182247eab5849e2f6"
+    },
+    {
+      "bytes": 8388608,
+      "file": "broad1-evidence.tar.gz.part007",
+      "index": 7,
+      "offset": 50331648,
+      "sha256": "0253cb5f51f11f714051c52479ab352816eb0ecb83812d4ce26fe3cbfaed473a"
+    },
+    {
+      "bytes": 8388608,
+      "file": "broad1-evidence.tar.gz.part008",
+      "index": 8,
+      "offset": 58720256,
+      "sha256": "62394493f0124060896268aeefd85963df89f68c5943971db724735a3887bfe1"
+    },
+    {
+      "bytes": 8388608,
+      "file": "broad1-evidence.tar.gz.part009",
+      "index": 9,
+      "offset": 67108864,
+      "sha256": "5372f0649270375fca5c636de5e9d42e7c49ac5a01d342d82bc7ccb6ea3d52f4"
+    },
+    {
+      "bytes": 8388608,
+      "file": "broad1-evidence.tar.gz.part010",
+      "index": 10,
+      "offset": 75497472,
+      "sha256": "95d9dc2920a8d13b1d9c5fef1e6652fe51d458a16a8ef89d07d5a48c20949c2f"
+    },
+    {
+      "bytes": 4895936,
+      "file": "broad1-evidence.tar.gz.part011",
+      "index": 11,
+      "offset": 83886080,
+      "sha256": "33e12a49904179fb5619d10accd3d50de3248c7e5f83d3c691940fbcca7e2a0d"
+    }
+  ],
+  "payload_inventory": {
+    "bytes": 14537,
+    "sha256": "ac09218647418b9eb5bf372dadc6293f48dd5e14c1f84cc81c37eeac5ec55dd6"
+  },
+  "run_id": 37094251984,
+  "schema_version": 1,
+  "source": "2937bc569094186dbd1bbefe75efeaa58deccbcc"
+}

@@ -59,10 +59,11 @@ func test_palette_only_change_preserves_grid_contact_and_manual_pan() -> void:
 	touch.pressed = true
 	grid._gui_input(touch)
 	assert_true(grid.has_held_touch())
+	var retained_pan: Vector2i = worksheet.get_scroll()
 	assert_true(panel.configure("en",100,false,&"after_hours",true,"deutan"))
 	assert_true(grid.has_held_touch())
 	assert_true(grid.has_focus())
-	assert_eq(worksheet.get_scroll(),Vector2i.ZERO)
+	assert_eq(worksheet.get_scroll(),retained_pan)
 	assert_eq(grid.projection,before)
 	touch.pressed = false
 	touch.canceled = true
@@ -116,3 +117,34 @@ func test_invalid_component_tuple_leaves_valid_themes_and_cell_identity_intact()
 	assert_same(panel.register.theme,register_theme)
 	assert_same(panel.dock.theme,dock_theme)
 	assert_same(panel.worksheet.grid.cell_nodes[0],cell)
+
+func test_installed_day_reaches_retained_grid_rules_and_new_cells_without_changing_board() -> void:
+	var panel := _panel()
+	var grid: Control = panel.worksheet.grid
+	var cell: Control = grid.cell_nodes[0]
+	var before: Dictionary = panel.public_view.duplicate(true)
+	grid.grab_focus()
+	grid._set_focused(200)
+	assert_true(panel.configure("en",100,false,&"midnight",false,"deutan","pixel",7))
+	var expected: Theme = MS_THEME.build("en",100,&"midnight",false,"deutan","pixel",7)
+	for control: Control in [panel.register,panel.dock,panel.worksheet,grid,cell]:
+		_assert_roles(control,expected)
+	assert_same(grid.cell_nodes[0],cell)
+	assert_true(grid.has_focus())
+	assert_eq(grid.focused_index,200)
+	assert_eq(panel.public_view,before)
+	assert_true(panel.worksheet.open_rules())
+	var sheet: Control = panel.worksheet.information_sheet
+	sheet.set_scroll(17)
+	var retained_scroll: int = sheet.get_scroll()
+	sheet.return_button.grab_focus()
+	assert_true(panel.configure("en",100,false,&"midnight",false,"standard","pixel",6))
+	_assert_roles(sheet,MS_THEME.build("en",100,&"midnight",false,"standard","pixel",6))
+	assert_same(panel.worksheet.information_sheet,sheet)
+	assert_eq(sheet.get_scroll(),retained_scroll)
+	assert_true(sheet.return_button.has_focus())
+	assert_eq(panel.public_view,before)
+	panel.worksheet.close_information()
+	assert_true(panel.present(_view("beginner")))
+	assert_true(panel.present(_view()))
+	_assert_roles(grid.cell_nodes[400],MS_THEME.build("en",100,&"midnight",false,"standard","pixel",6))

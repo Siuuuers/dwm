@@ -28,6 +28,7 @@ extends RefCounted
 
 const _STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
 const _NARRATIVE_OWNER := preload("res://scripts/application/narrative/DialogicPresentationOwnerAdapter.gd")
+const _FROZEN_CONTEXT := preload("res://scripts/narrative/HospitalFrozenContext.gd")
 
 const ROUTE_ID := "hospital"
 const CONTEXT_KIND := "hospital"
@@ -75,6 +76,11 @@ var _physical_owner: Object = null
 var _commands: Dictionary = {}
 ## completion_transaction_id -> the exact settled completion receipt. Replay returns these bytes.
 var _settled: Dictionary = {}
+var _frozen_contexts_required := false
+
+func configure_frozen_hospital_contexts() -> Dictionary:
+	_frozen_contexts_required = true
+	return _ok({})
 
 
 ## Retains the exact `.16` issuer and the ONE physical owner, and connects that exact owner's two
@@ -126,6 +132,18 @@ func begin(request: Dictionary) -> Dictionary:
 		if str(existing["command_sha256"]) != command_sha256:
 			return _fail(&"presentation_command_conflict",
 				"this completion transaction already carries different command bytes", {})
+		if _physical_owner.has_method("adopt_reading_restore"):
+			var resumed: Variant = _physical_owner.adopt_reading_restore(existing.duplicate(true))
+			if not resumed is Dictionary or not resumed.get("ok", false):
+				return resumed if resumed is Dictionary else _fail(
+					&"physical_presentation_unavailable", "the owner returned no restore result", {})
+			if resumed.get("value", {}).get("restored", false):
+				if resumed.value.get("physical_token") != existing.physical_token \
+						or resumed.value.get("command_sha256") != command_sha256:
+					return _fail(&"physical_presentation_unavailable", "restored command binding changed", {})
+				# Restore replaced the live occurrence, not the durable command. Its
+				# next actual native completion must reach the restored coordinator.
+				_settled.erase(completion_id)
 		return _ok({"presentation_command": existing.duplicate(true)})
 
 	var command := request.duplicate(true)
@@ -222,17 +240,6 @@ func complete(request: Dictionary) -> Dictionary:
 ## deliberately-unconfigured route is visible rather than silently dead.
 func is_ready() -> bool:
 	return _identity_issuer != null and _physical_owner != null
-
-
-## Acknowledges the short ordinary-faint notice through the retained physical owner.
-func acknowledge_notice(presentation_command: Dictionary) -> Dictionary:
-	if _physical_owner == null or not _physical_owner.has_method("complete_notice"):
-		return _fail(&"physical_presentation_unavailable", "the notice owner is unavailable", {})
-	var completion_id := str(presentation_command.get("completion_transaction_id", ""))
-	if not _commands.has(completion_id) or presentation_command != (_commands[completion_id] as Dictionary):
-		return _fail(&"presentation_command_conflict", "the notice command was not issued by this port", {})
-	var completed: Variant = _physical_owner.call(&"complete_notice", presentation_command.duplicate(true))
-	return completed if completed is Dictionary else _fail(&"physical_presentation_unavailable", "the notice owner returned no result", {})
 
 
 # -------------------------------------------------------------------------------------------------
@@ -333,6 +340,9 @@ func _completion_sources(request: Dictionary) -> Array:
 func _context_error(context: Variant) -> String:
 	if typeof(context) != TYPE_DICTIONARY:
 		return "context must be a dictionary"
+	if _frozen_contexts_required or context.has("presentation"):
+		var checked := _FROZEN_CONTEXT.validate(context)
+		return "" if checked.get("ok", false) else str(checked.get("code", &"hospital_frozen_context_invalid"))
 	var keys: Array = (context as Dictionary).keys()
 	keys.sort()
 	if keys != CONTEXT_KEYS:
@@ -386,11 +396,7 @@ func _on_physical_completion_ready(receipt: Dictionary) -> void:
 	if not result.get("ok", false):
 		completion_failed.emit(result)
 		return
-	if already_settled:
-		# Explicit notice acknowledgment may retry the existing durable settle; generic owner
-		# duplicates remain suppressed.
-		if receipt.get("result", {}).get("notice_acknowledged", false): completion_ready.emit(result)
-		return
+	if already_settled: return
 	completion_ready.emit(result)
 
 

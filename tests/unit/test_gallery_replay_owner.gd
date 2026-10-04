@@ -13,6 +13,14 @@ class Runtime extends RefCounted:
 	signal playback_start_failed(failure: Dictionary)
 	var starts: Array[Dictionary] = []
 	var active := false
+	var frozen_fields: Dictionary = {}
+	func install_frozen_replay(signature: Dictionary, mode: String) -> Dictionary:
+		var built := preload("res://scripts/narrative/FrozenReplayContext.gd").immutable_fields(signature, mode)
+		if not built.ok: return built
+		frozen_fields = built.value
+		return {"ok": true}
+	func release_frozen_presentation() -> void:
+		frozen_fields = {}
 	func start_timeline(path: String, label: Variant = 0) -> Dictionary:
 		starts.append({"path":path,"label":label})
 		active = true
@@ -20,9 +28,11 @@ class Runtime extends RefCounted:
 	func has_active_playback() -> bool: return active
 	func halt_with_error(_result: Dictionary) -> Dictionary:
 		active = false
+		release_frozen_presentation()
 		return {"ok":true}
 	func finish() -> void:
 		active = false
+		release_frozen_presentation()
 		timeline_ended_signal.emit()
 
 class Reader extends RefCounted:
@@ -80,9 +90,14 @@ func test_canonical_completion_records_the_exact_label_then_gallery_has_no_canon
 	var old_counter: int = bridge._playback_counter
 	assert_true(replay.begin(rows[0].signature_id).ok)
 	assert_eq(runtime.starts.back().label,"ending.alone.dark_mode")
+	assert_true(runtime.frozen_fields.is_read_only())
+	assert_eq(runtime.frozen_fields.execution_mode, "gallery_replay")
+	assert_false(runtime.frozen_fields.has("step_token"))
+	assert_false(runtime.frozen_fields.has("alone_cause"), "legacy signatures never guess the missing cause")
 	runtime.runtime_signal_event.emit({"kind":"effect_transaction","transaction_id":"forbidden"})
 	runtime.finish()
 	assert_false(replay.is_playing())
+	assert_true(runtime.frozen_fields.is_empty())
 	assert_eq(profile.get_profile_snapshot(),before)
 	assert_eq(bridge._playback_counter,old_counter,"Gallery has its own process-local token sequence")
 	assert_signal_emit_count(port,"playback_completed",1,"Gallery never enters canonical ending completion")
@@ -201,10 +216,64 @@ func _date(post: bool = false, pair: bool = false) -> Dictionary:
 	return {"entry_id": ("dating.group.priscilla_lavinia.day2." if pair else "dating.solo.lavinia.day2.") + ("post_challenge" if post else "pre_challenge"),
 		"schema_version":1, "fields":fields}
 
+func test_ending_versions_keep_first_witness_order_and_replay_does_not_reorder() -> void:
+	var oldest := _record(_alone())
+	var newest := _record(_alone("alone_dark_mode"))
+	assert_true(profile.unlock_ending("ending.alone", "fixture:discovery").ok)
+	var variants: Dictionary = replay.get_variants("ending.alone")
+	assert_eq(variants.value.records[0].signature_id, newest)
+	assert_eq(variants.value.records[1].signature_id, oldest)
+	assert_eq(variants.value.chronology, {"first_witnessed": [oldest, newest], "legacy_unordered": []})
+	var before: Dictionary = profile.get_profile_snapshot()
+	assert_true(replay.begin(oldest).ok)
+	runtime.finish()
+	assert_eq(profile.get_profile_snapshot(), before)
+	assert_eq(replay.get_variants("ending.alone"), variants)
+
+func test_date_versions_preserve_owner_order_and_filter_chronology_by_exact_entry() -> void:
+	var first := _date()
+	var second := first.duplicate(true)
+	second.fields.tone = "dark"
+	var signatures: Array[Dictionary] = [first, second]
+	signatures.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return str(SIGNATURE.validate(a).value.signature_id) < str(SIGNATURE.validate(b).value.signature_id))
+	var oldest := _record(signatures[0])
+	_record(_date(true, true))
+	var newest := _record(signatures[1])
+	assert_true(profile.unlock_ending("ending.alone", "fixture:discovery").ok)
+	var variants: Dictionary = replay.get_reached_entry_variants(first.entry_id)
+	assert_eq(variants.value.records.size(), 2)
+	assert_eq(variants.value.records[0].signature_id, newest, "Gallery cannot re-sort authoritative chronology by hash")
+	assert_eq(variants.value.records[1].signature_id, oldest)
+	assert_eq(variants.value.chronology, {"first_witnessed": [oldest, newest], "legacy_unordered": []})
+	variants.value.chronology.first_witnessed.clear()
+	assert_eq(replay.get_reached_entry_variants(first.entry_id).value.chronology.first_witnessed, [oldest, newest])
+
+func test_gallery_refresh_retains_selected_identity_when_a_newest_version_is_added() -> void:
+	var selected := _record(_alone())
+	assert_true(profile.unlock_ending("ending.alone", "fixture:discovery").ok)
+	var home := Button.new()
+	add_child_autofree(home)
+	var gallery: Control = preload("res://scenes/menu/GalleryScene.tscn").instantiate()
+	assert_true(gallery.configure_title_host(home, null, profile).ok)
+	assert_true(gallery.configure_replay(bridge).ok)
+	add_child_autofree(gallery)
+	gallery.open_in_title_host()
+	assert_eq(gallery._selected_signature_id(), selected)
+	var newest := _record(_alone("alone_dark_mode"))
+	var before: Dictionary = profile.get_profile_snapshot()
+	gallery._refresh_replay_selection()
+	assert_eq(gallery._versions[0].signature_id, newest)
+	assert_eq(gallery._selected_signature_id(), selected, "reprojection follows signature identity, not prior row index")
+	assert_eq(gallery._selected_version, 1)
+	assert_eq(runtime.starts, [], "selection and refresh never start replay")
+	assert_eq(profile.get_profile_snapshot(), before)
+
 func test_nonending_replay_requires_milestone_and_exact_reached_signature() -> void:
 	var signature := _date()
 	var identity := _record(signature)
-	assert_eq(replay.get_reached_entry_variants().value.records, [])
+	assert_eq(replay.get_reached_entry_variants().value, {"records": [], "entry_ids": [],
+		"chronology": {"first_witnessed": [], "legacy_unordered": []}})
 	assert_eq(replay.begin(identity).get("code"), &"reached_replay_locked")
 	assert_true(profile.unlock_ending("ending.alone", "fixture:discovery").ok)
 	var variants: Dictionary = replay.get_reached_entry_variants(signature.entry_id)
@@ -287,3 +356,33 @@ func test_public_gallery_includes_reached_date_stages_without_new_ending_discove
 	assert_true(gallery.close_for_title_host())
 	assert_false(bridge.has_active_playback())
 	assert_eq(profile.get_gallery_discovery_snapshot().value.ending_ids, ["ending.alone"])
+
+func test_reached_date_card_uses_its_bound_profile_fonts_without_changing_replay() -> void:
+	var localization: Node = preload("res://autoload/LocalizationManager.gd").new()
+	add_child_autofree(localization)
+	assert_true(localization.initialize(profile).ok)
+	assert_true(localization.set_font_style("readable").ok)
+	assert_true(profile.set_preference(&"preferences.accessibility.text_size", 125).ok)
+	var identity := _record(_date())
+	assert_true(profile.unlock_ending("ending.alone", "fixture:discovery").ok)
+	assert_true(replay.begin(identity).ok)
+	var surface: Node = bridge._reached_replay.surface
+	var card: Dictionary = bridge._reached_replay.card.duplicate(true)
+	var typography := preload("res://scripts/ui/gallery/GalleryTypography.gd")
+	assert_same(surface._typography_profile, profile)
+	assert_same(surface._current_body.get_theme_font("font"), typography.font("en", 125, "readable"))
+	assert_eq(surface._current_body.get_theme_font_size("font_size"), 20)
+	assert_null(surface._reading_profile)
+	assert_false(surface._presentation_receipts)
+	surface._current_body.draw.emit()
+	var history: Array[Dictionary] = surface.get_presentation_history()
+	assert_true(localization.set_font_style("pixel").ok)
+	assert_same(bridge._reached_replay.surface, surface)
+	assert_eq(bridge._reached_replay.card, card)
+	assert_eq(surface.get_presentation_history(), history)
+	assert_same(surface._current_body.get_theme_font("font"), typography.font("en", 125, "pixel"))
+	assert_true(replay.is_playing())
+	var before: Dictionary = profile.get_profile_snapshot()
+	surface._next.pressed.emit()
+	assert_false(replay.is_playing(), "The witnessed Next action still completes this exact replay")
+	assert_eq(profile.get_profile_snapshot(), before)

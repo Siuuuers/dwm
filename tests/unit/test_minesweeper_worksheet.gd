@@ -33,29 +33,35 @@ func test_every_host_tier_text_and_target_size_fits_the_complete_board() -> void
 						assert_null(worksheet.vertical_rail)
 						assert_eq(worksheet.get_scroll(),Vector2i.ZERO)
 
-func test_rules_replace_only_worksheet_and_return_restores_mode_cell_scroll_and_source() -> void:
+func test_rules_overlay_retains_visible_board_and_return_restores_mode_cell_scroll_and_source() -> void:
 	var worksheet := _worksheet("expert")
+	assert_true(worksheet.set_always_fit(false))
 	assert_true(worksheet.set_mode(&"flag"))
 	worksheet.grid._set_focused(200)
 	worksheet.set_scroll(Vector2i(80,140))
 	worksheet.grid.grab_focus()
 	var source: Control = worksheet.grid
 	var before: Dictionary = worksheet.grid.projection.duplicate(true)
+	var retained_scroll: Vector2i = worksheet.get_scroll()
+	var board_rect := Rect2(worksheet.grid.position, worksheet.grid.size * worksheet.grid.scale)
+	assert_gt(retained_scroll.y, 0)
 	assert_true(worksheet.open_rules())
-	assert_false(worksheet.well.visible)
-	assert_false(source.is_visible_in_tree())
+	assert_true(worksheet.well.visible)
+	assert_true(source.is_visible_in_tree())
+	assert_eq(Rect2(worksheet.grid.position, worksheet.grid.size * worksheet.grid.scale), board_rect)
 	assert_eq(worksheet.grid.process_mode,Node.PROCESS_MODE_DISABLED)
 	assert_true(worksheet.information_sheet.rows[0].has_focus())
 	assert_false(worksheet.set_mode(&"drag"))
 	worksheet.set_scroll(Vector2i.ZERO)
-	assert_eq(worksheet.get_scroll(),Vector2i.ZERO)
+	assert_eq(worksheet.get_scroll(),retained_scroll, "Information cannot pan the retained board.")
 	worksheet.information_sheet.return_button.pressed.emit()
 	assert_null(worksheet.information_sheet)
 	assert_true(worksheet.well.visible)
 	assert_true(source.has_focus())
 	assert_eq(worksheet.grid.mode,&"flag")
 	assert_eq(worksheet.grid.focused_index,200)
-	assert_eq(worksheet.get_scroll(),Vector2i.ZERO)
+	assert_eq(worksheet.get_scroll(),retained_scroll)
+	assert_eq(Rect2(worksheet.grid.position, worksheet.grid.size * worksheet.grid.scale), board_rect)
 	assert_eq(worksheet.grid.projection,before)
 
 func test_sheet_tab_traps_focus_and_escape_restores_grid_without_command() -> void:
@@ -246,7 +252,7 @@ func test_configuration_and_invalid_projection_preserve_the_current_view_atomica
 	worksheet.set_scroll(Vector2i(4,9))
 	var retained: Dictionary = worksheet.geometry.duplicate(true)
 	assert_false(worksheet.configure("unknown"))
-	assert_false(worksheet.configure("desktop_app","en",100,false,&"after_hours",Vector2i(25,25)))
+	assert_false(worksheet.configure("desktop_app","en",100,false,&"after_hours",Vector2i(23,23)))
 	assert_false(worksheet.present({"private_board":true}))
 	assert_eq(worksheet.geometry,retained)
 	assert_eq(worksheet.get_scroll(),Vector2i.ZERO)
@@ -266,7 +272,7 @@ func test_configure_and_present_before_tree_mount_keep_focus_and_geometry() -> v
 	assert_true(worksheet.present(_projection()))
 	add_child_autofree(worksheet)
 	assert_eq(worksheet.grid.focus_mode,Control.FOCUS_ALL)
-	assert_eq(worksheet.grid.position,Vector2(230.5,76.5))
+	assert_true(Rect2(Vector2.ZERO,worksheet.well.size).encloses(Rect2(worksheet.grid.position,worksheet.grid.size*worksheet.grid.scale)))
 
 func test_information_closing_reenables_external_source_before_exact_focus_restoration() -> void:
 	var worksheet := _worksheet("expert")
@@ -338,3 +344,56 @@ func test_interaction_block_preserves_public_facts_scroll_and_open_sheet_return(
 	assert_eq(worksheet.grid.projection,retained)
 	assert_eq(worksheet.get_scroll(),retained_scroll)
 	assert_true(worksheet.open_rules())
+
+
+func test_information_overlay_blocks_native_pointer_touch_and_held_release_without_hiding_cells() -> void:
+	var worksheet := _worksheet()
+	var projection := _projection()
+	for cell: Dictionary in projection.cells: cell.actions = ["reveal", "flag"]
+	assert_true(worksheet.present(projection))
+	var viewport: SubViewport = worksheet.get_viewport()
+	var grid: Control = worksheet.grid
+	var cells: Array = grid.cell_nodes.duplicate()
+	var cell: Control = cells[0]
+	var point: Vector2 = cell.get_global_transform_with_canvas() * (cell.size / 2.0)
+	watch_signals(worksheet)
+	var touch := InputEventScreenTouch.new()
+	touch.index = 7
+	touch.position = point
+	touch.pressed = true
+	viewport.push_input(touch, true)
+	assert_true(grid.has_held_touch(), "The real board owns the initial touch before the overlay.")
+	assert_true(worksheet.open_rules())
+	assert_false(grid.has_held_touch(), "Opening information cancels the old cell contact.")
+	touch.pressed = false
+	viewport.push_input(touch, true)
+	for kind: String in ["rules", "assignments"]:
+		if kind == "assignments": assert_true(worksheet.open_assignments([false,false,false,false,false,false,false,false,false]))
+		assert_true(worksheet.well.is_visible_in_tree())
+		assert_true(grid.is_visible_in_tree())
+		var click := InputEventMouseButton.new()
+		click.button_index = MOUSE_BUTTON_LEFT
+		click.position = point
+		click.pressed = true
+		viewport.push_input(click, true)
+		click.pressed = false
+		viewport.push_input(click, true)
+		touch.pressed = true
+		viewport.push_input(touch, true)
+		touch.pressed = false
+		viewport.push_input(touch, true)
+		assert_false(grid.has_held_touch())
+		assert_signal_emit_count(worksheet, "cell_action_requested", 0)
+		assert_eq(grid.projection, projection)
+		for index: int in cells.size(): assert_same(grid.cell_nodes[index], cells[index])
+	worksheet.information_sheet.return_button.pressed.emit()
+	assert_null(worksheet.information_sheet)
+	assert_true(grid.can_process())
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.position = point
+	click.pressed = true
+	viewport.push_input(click, true)
+	click.pressed = false
+	viewport.push_input(click, true)
+	assert_signal_emitted_with_parameters(worksheet, "cell_action_requested", [&"reveal", 0, projection.revision])

@@ -1,0 +1,11 @@
+{
+  "archive": "dwm-run99-failed-diagnostic-evidence.tar.gz",
+  "archive_member_count": 33,
+  "bytes": 490876,
+  "evidence_kind": "failed-run-diagnostic-only",
+  "excluded_file_count": 2,
+  "manifest_sha256": "c7bb3dc8baecc13da03b523198632ada292b5f4c6755bbb91845b46d92d6ff67",
+  "payload_file_count": 31,
+  "round_trip_verified": true,
+  "sha256": "c761e817fa6bb6e1e4acd39e95a7d2760257c881291b1c5feec66d6d62b6edc9"
+}

@@ -124,7 +124,7 @@ func test_pair_is_durable_before_live_effects_and_only_pending_dark_is_consumed(
 		assert_true(disk.get("ok", false))
 		var save: Dictionary = READER.parse_object(disk.value.text).value
 		assert_true(save.current_snapshot.snapshot.lifecycle.dark_mode)
-		assert_eq(save.schema_version, 6)
+		assert_eq(save.schema_version, 7)
 		assert_eq(save.current_snapshot.snapshot.schedule_view.day, 1)
 		assert_eq(f.schedule_view.capture().value.backup.causal_day_instance,
 			save.current_snapshot.snapshot.lifecycle.causal_day_instance)

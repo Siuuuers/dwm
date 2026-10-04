@@ -1,0 +1,61 @@
+* test_numeric_values_keep_exact_types_and_signed_zero
+    [Passed]:  [8] expected to equal [8]:
+    [Passed]:  [2] expected to equal [2]:  numeric type is unchanged
+    [Passed]:  numeric bits are unchanged
+    [Passed]:  [2] expected to equal [2]:  numeric type is unchanged
+    [Passed]:  numeric bits are unchanged
+    [Passed]:  [2] expected to equal [2]:  numeric type is unchanged
+    [Passed]:  numeric bits are unchanged
+    [Passed]:  [3] expected to equal [3]:  numeric type is unchanged
+    [Passed]:  numeric bits are unchanged
+    [Passed]:  [3] expected to equal [3]:  numeric type is unchanged
+    [Passed]:  numeric bits are unchanged
+    [Passed]:  [3] expected to equal [3]:  numeric type is unchanged
+    [Passed]:  numeric bits are unchanged
+    [Passed]:  [3] expected to equal [3]:  numeric type is unchanged
+    [Passed]:  numeric bits are unchanged
+    [Failed]:  negative zero retains its sign
+      at line 106
+    [Passed]:  [4] expected to equal [4]:
+    [Passed]
+    [Passed]:  [8] expected to equal [8]:
+    [Passed]:  [2] expected to equal [2]:  numeric type is unchanged
+    [Passed]:  numeric bits are unchanged
+    [Passed]:  [2] expected to equal [2]:  numeric type is unchanged
+    [Passed]:  numeric bits are unchanged
+    [Passed]:  [2] expected to equal [2]:  numeric type is unchanged
+    [Passed]:  numeric bits are unchanged
+    [Passed]:  [3] expected to equal [3]:  numeric type is unchanged
+    [Passed]:  numeric bits are unchanged
+    [Passed]:  [3] expected to equal [3]:  numeric type is unchanged
+    [Passed]:  numeric bits are unchanged
+    [Passed]:  [3] expected to equal [3]:  numeric type is unchanged
+    [Passed]:  numeric bits are unchanged
+    [Passed]:  [3] expected to equal [3]:  numeric type is unchanged
+    [Passed]:  numeric bits are unchanged
+    [Failed]:  negative zero retains its sign
+      at line 106
+    [Passed]:  [4] expected to equal [4]:
+    [Passed]
+
+= Run Summary
+==============================================
+
+res://tests/unit/test_normalization_identity.gd
+- test_numeric_values_keep_exact_types_and_signed_zero
+    [Failed]:  negative zero retains its sign
+          at line 106
+    [Failed]:  negative zero retains its sign
+          at line 106
+
+Totals
+------
+Scripts               2
+Tests                10
+Passing Tests         9
+Failing Tests         1
+Asserts           506/508
+Time              0.655s
+
+
+---- 1 failing tests ----

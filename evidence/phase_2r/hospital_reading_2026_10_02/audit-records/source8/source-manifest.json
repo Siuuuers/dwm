@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "parent": "dca8b35b40e4ba9d80f204c77064357d16f07319",
+  "base_tree": "55c167fa5d47e2ef5bd76c821a2ce5cb7f13963c",
+  "tree": "be2b825fae934697d988bc3106bc18a100601cba",
+  "files": [
+    {
+      "path": "evidence/phase_2r/runtime/game_state_surface.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c180d5ceaa49d9d546dc50d5675cd6a6b991794a",
+      "bytes": 568948,
+      "sha256": "804ca7f1bbe1b929b8c6ce59de390ab15c00f521ddc6290df1fed0a175157631"
+    },
+    {
+      "path": "evidence/phase_2r/runtime/save_manager_surface.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ad097267d7746e594039544db3d9935573f3c824",
+      "bytes": 151143,
+      "sha256": "ccb1a6e576801c4f62cd4c159e89a9e4d9c814cbcf364140c61fc2338365c4d0"
+    }
+  ],
+  "refs_or_real_index_or_worktree_changed": false
+}

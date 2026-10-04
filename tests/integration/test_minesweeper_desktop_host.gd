@@ -185,7 +185,7 @@ func test_app_back_suspends_once_before_host_hides_and_reopens_same_instance() -
 	assert_eq(state.minesweeper_rounds_left, 1)
 
 
-func test_information_sheets_block_host_home_and_app_back_without_commands() -> void:
+func test_home_from_information_suspends_once_and_reopening_preserves_board() -> void:
 	var desktop := _desktop()
 	var app := _open_from_launcher(desktop)
 	if app == null: return
@@ -195,17 +195,22 @@ func test_information_sheets_block_host_home_and_app_back_without_commands() -> 
 		assert_not_null(app.panel.worksheet.information_sheet)
 		if app.panel.worksheet.information_sheet == null: continue
 		var counter_before: int = root_store.next_counter
-		var board_before: Dictionary = coordinator.get_state().value
-		assert_true(desktop.home_button.disabled)
-		assert_false(desktop.return_home().ok)
-		app.hide_window()
-		assert_true(app.visible)
-		assert_false(desktop.icon_grid.visible)
-		assert_eq(host.get_state().active_app_id, &"minesweeper")
-		assert_eq(root_store.next_counter, counter_before)
-		assert_eq(coordinator.get_state().value, board_before)
-		app.panel.worksheet.information_sheet.return_requested.emit()
+		var board_before: Dictionary = coordinator.get_state().value.board.duplicate(true)
 		assert_false(desktop.home_button.disabled)
+		assert_true(desktop.return_home().ok)
+		assert_false(app.visible)
+		assert_true(desktop.icon_grid.visible)
+		assert_null(host.get_state().active_app_id)
+		assert_eq(root_store.next_counter, counter_before+1)
+		assert_eq(coordinator.get_state().value.phase,"ACTIVE_SUSPENDED")
+		assert_eq(coordinator.get_state().value.board, board_before)
+		var reopened: Dictionary = desktop.open_app(&"minesweeper")
+		assert_true(reopened.ok)
+		if not reopened.ok: return
+		assert_same(reopened.value.app,app)
+		assert_null(app.panel.worksheet.information_sheet)
+		assert_eq(coordinator.get_state().value.phase,"ACTIVE_VISIBLE")
+		assert_eq(coordinator.get_state().value.board,board_before)
 	assert_true(desktop.return_home().ok)
 
 
@@ -214,6 +219,9 @@ func test_stale_home_keeps_app_visible_and_host_active_without_allocating_or_spe
 	var app := _open_from_launcher(desktop)
 	if app == null: return
 	_reveal_first(app)
+	app.panel.dock.buttons.rules.pressed.emit()
+	var sheet: Control = app.panel.worksheet.information_sheet
+	assert_not_null(sheet)
 	var snapshot: Dictionary = coordinator.get_state().value
 	var issued: Dictionary = issuer.issue(&"transaction_id")
 	assert_true(coordinator.set_flag({
@@ -231,7 +239,11 @@ func test_stale_home_keeps_app_visible_and_host_active_without_allocating_or_spe
 	assert_eq(root_store.next_counter, counter_before)
 	assert_eq(state.to_save_dict(), state_before)
 	assert_eq(app.panel.worksheet.grid.projection.cells[2].mark, "flag", "Refusal refreshes safe current facts.")
+	assert_same(app.panel.worksheet.information_sheet, sheet)
+	assert_true(sheet.is_visible_in_tree())
 	assert_true(desktop.return_home().ok, "A fresh explicit retry may suspend the current board.")
+	assert_null(app.panel.worksheet.information_sheet)
+	assert_null(sheet.get_parent())
 
 
 func test_unsettled_terminal_cannot_hide_the_host_or_spend_another_round() -> void:
@@ -354,3 +366,21 @@ func test_input_owner_replacement_is_refused_without_rebinding_the_cached_grid()
 	assert_same(desktop._minesweeper_input, input)
 	assert_same(app._input_owner, input)
 	assert_same(grid._input_owner, input)
+
+
+func test_desktop_forwards_installed_day_and_keeps_it_after_preference_refresh() -> void:
+	# The host owns the installed presentation day; this test never mutates game facts.
+	host.reset(7)
+	var desktop := _desktop(false)
+	assert_true(desktop.configure_minesweeper(panel_port, null, profile, host, 7, input).ok)
+	var opened: Dictionary = desktop.open_app(&"minesweeper")
+	assert_true(opened.ok)
+	if not opened.ok: return
+	var app: Control = desktop._cached_app_windows[&"minesweeper"]
+	var theme_builder := preload("res://scripts/ui/minesweeper/MinesweeperTheme.gd")
+	var expected: Theme = theme_builder.build("en",100,&"after_hours",false,"standard","pixel",7)
+	assert_eq(app.panel.worksheet.theme.get_color("paper","Minesweeper"),expected.get_color("paper","Minesweeper"))
+	var before: Dictionary = app.panel.public_view.duplicate(true)
+	app._on_locale_changed("en")
+	assert_eq(app.panel.worksheet.theme.get_color("paper","Minesweeper"),expected.get_color("paper","Minesweeper"))
+	assert_eq(app.panel.public_view,before)

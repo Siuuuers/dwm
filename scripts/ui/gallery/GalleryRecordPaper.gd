@@ -6,7 +6,7 @@ signal presentation_changed
 signal focus_target_removed(hide_focus: bool)
 
 const VIEW_SIZE := Vector2(520, 512)
-const COPY := {"en": "Record details", "zh-CN": "记录详情", "zh-HK": "記錄詳情"}
+const COPY := {"en": "Record details", "zh-CN": "记录详情", "zh-HK": "記錄詳情", "ja": "記録の詳細", "ko": "기록 상세"}
 
 class RecordMedia extends Node2D:
 	# Paint only: no hit area, focus, image control, or assistive target.

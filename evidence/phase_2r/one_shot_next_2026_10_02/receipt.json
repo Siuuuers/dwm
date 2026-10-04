@@ -1,0 +1,777 @@
+{
+  "schema_version": 1,
+  "accepted": true,
+  "outcome": "Fixed noncanonical Solo one-shot Next",
+  "candidate_source": "900118a5dc16b89b82a4e5d946767c080083c750",
+  "tested_merge": "2344b09f5f90cd6bc8fd86166d884316daa82645",
+  "master_parent": "6a5ddf1564870b43aa9140cad7e0e5b12e43f399",
+  "final_run": {
+    "number": 114,
+    "id": 36928901183,
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/36928901183",
+    "attempt": 1,
+    "logical_jobs": 23,
+    "checkout_executions": 22,
+    "gut_executions": 2258,
+    "gut_unique_cases": 2254,
+    "gut_unique_scripts": 191,
+    "acceptance_summary": "run114/acceptance-summary.json"
+  },
+  "focused_run": {
+    "number": 113,
+    "id": 36927783960,
+    "source": "68fe712cebe5a7039b768d39155c820d677c2795",
+    "acceptance_summary": "run113/acceptance-summary.json"
+  },
+  "failed_diagnostic_runs": [
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109,
+    110,
+    111,
+    112
+  ],
+  "bundles": {
+    "run103": {
+      "archive": "next-run103-diagnostics.tar.gz",
+      "archive_member_count": 46,
+      "bytes": 639541,
+      "evidence_kind": "failed-run-diagnostic-only",
+      "excluded_file_count": 4,
+      "manifest_sha256": "88736f89cc0d410a81819b7321339861c4086748d11a2aa322365f5ea61644b1",
+      "payload_file_count": 44,
+      "round_trip_verified": true,
+      "sha256": "f06fb87e752931f1baae0841f51469be6e06bb86e69ba4e830a0b63f5ac9b4c1"
+    },
+    "run104": {
+      "archive": "next-run104-diagnostics.tar.gz",
+      "archive_member_count": 108,
+      "bytes": 5601173,
+      "evidence_kind": "failed-run-diagnostic-only",
+      "excluded_file_count": 141,
+      "manifest_sha256": "609e5eedc4305031efab6f3e1b1debf67ebaac7149c7c11de6c7d60436170d0a",
+      "payload_file_count": 106,
+      "round_trip_verified": true,
+      "sha256": "0ea861916e1679726b50af0707471f364f6e9c1843b437ae2debca524c15b539"
+    },
+    "run105": {
+      "archive": "next-run105-diagnostics.tar.gz",
+      "archive_member_count": 165,
+      "bytes": 5246238,
+      "evidence_kind": "failed-run-diagnostic-only",
+      "excluded_file_count": 161,
+      "manifest_sha256": "6c69f807dff934e0d72ced7f1a3e55329093db9ea7fafb15355170f6cddd6dd6",
+      "payload_file_count": 163,
+      "round_trip_verified": true,
+      "sha256": "bb0ccd7925e6ccb11aa962ae7d8602917045f3aa03576a4b1267d3ce5282fedd"
+    },
+    "run106": {
+      "archive": "next-run106-diagnostics.tar.gz",
+      "archive_member_count": 106,
+      "bytes": 597020,
+      "evidence_kind": "failed-run-diagnostic-only",
+      "excluded_file_count": 161,
+      "manifest_sha256": "1a0c2b961e0866fa31e950587a470b29e776c06b7c53621ef6b637c23329ede0",
+      "payload_file_count": 104,
+      "round_trip_verified": true,
+      "sha256": "43ec247e6b7b7c5442ddec35fa5c512f6e6665460cfdcd1df48db05b95f181d1"
+    },
+    "run107": {
+      "archive": "next-run107-diagnostics.tar.gz",
+      "archive_member_count": 111,
+      "bytes": 605194,
+      "evidence_kind": "failed-run-diagnostic-only",
+      "excluded_file_count": 162,
+      "manifest_sha256": "cfbcbf5726fe8579e1730263f109b8ef87e73a63526fcbe4354aa6fc3466e209",
+      "payload_file_count": 109,
+      "round_trip_verified": true,
+      "sha256": "816ca967fa04735fae84e1328e2d41181f127fbb0d097d9e904bf4ca36c59d25"
+    },
+    "run108": {
+      "archive": "next-run108-diagnostics.tar.gz",
+      "archive_member_count": 67,
+      "bytes": 258201,
+      "evidence_kind": "failed-run-diagnostic-only",
+      "excluded_file_count": 21,
+      "manifest_sha256": "28482af8ba9ef680445c15bf16629865d770cec6179b5c77bcc55ce30714fd86",
+      "payload_file_count": 65,
+      "round_trip_verified": true,
+      "sha256": "21460eef2ff6f7e95e1006191722fefa202b20012741035e2019b43aeec96266"
+    },
+    "run109": {
+      "archive": "next-run109-diagnostics.tar.gz",
+      "archive_member_count": 92,
+      "bytes": 693295,
+      "evidence_kind": "failed-run-diagnostic-only",
+      "excluded_file_count": 23,
+      "manifest_sha256": "623009a15a2430becabc82fd755a9f43f1ddb57cd43720998d8d7b461e958ef4",
+      "payload_file_count": 90,
+      "round_trip_verified": true,
+      "sha256": "10777dc9b6180f8d1290f7e7fae3e1e02e73870b3c449c3701aa2580467d2a6e"
+    },
+    "run110": {
+      "archive": "next-run110-diagnostics.tar.gz",
+      "archive_member_count": 118,
+      "bytes": 812082,
+      "evidence_kind": "failed-run-diagnostic-only",
+      "excluded_file_count": 163,
+      "manifest_sha256": "ceb04c1575ac005fc9b92161164eb7acba33e9235c92fa7132841e8bc200093e",
+      "payload_file_count": 116,
+      "round_trip_verified": true,
+      "sha256": "8177cfb82b9f2ccee4cddaaebb4ea38522b460d269b5480fbcdccb84fd06fa71"
+    },
+    "run111": {
+      "archive": "next-run111-diagnostics.tar.gz",
+      "archive_member_count": 122,
+      "bytes": 977425,
+      "evidence_kind": "failed-run-diagnostic-only",
+      "excluded_file_count": 163,
+      "manifest_sha256": "8743a5557ee9f2de0315230b71dd19d6dfdf0a2009e0b31e4893da4ef6926c96",
+      "payload_file_count": 120,
+      "round_trip_verified": true,
+      "sha256": "5944fb29f29067ce645f47a80c2e4c69c742819ac93242acdf02370b5415b0ec"
+    },
+    "run112": {
+      "archive": "next-run112-diagnostics.tar.gz",
+      "archive_member_count": 99,
+      "bytes": 849050,
+      "evidence_kind": "failed-run-diagnostic-only",
+      "excluded_file_count": 25,
+      "manifest_sha256": "0ac89995dab2fa2827c1ad808a48d1324e8b0920c4575504b0d390017ebb6506",
+      "payload_file_count": 97,
+      "round_trip_verified": true,
+      "sha256": "b91b6c2464a360d886e20d248227bc0d4027ea77146436aa3de0021f1495e977"
+    },
+    "run113": {
+      "archive": "next-run113-cloud-evidence.tar.gz",
+      "archive_member_count": 34,
+      "bytes": 407773,
+      "evidence_kind": "bounded-successful-run-audit",
+      "excluded_file_count": 2,
+      "manifest_sha256": "c05abc8d3b1e6306731b81855ae5223860f78b2a0d254ffc901be4be24508f05",
+      "payload_file_count": 32,
+      "round_trip_verified": true,
+      "sha256": "fbb343ce47ed5ec4956667070a67a1d136560802df12efb5461677f7061a294d"
+    },
+    "run114": {
+      "archive": "next-run114-cloud-evidence.tar.gz",
+      "archive_member_count": 560,
+      "bytes": 18984433,
+      "evidence_kind": "bounded-successful-run-audit",
+      "excluded_file_count": 170,
+      "manifest_sha256": "95989387a5d48b34fd76986322e9213a77a7dd7f153d834de2bc83ef845b739f",
+      "payload_file_count": 558,
+      "round_trip_verified": true,
+      "sha256": "c583ba6c95ee7c76db6b34999499196adc3aa4a8598bef6d6b5a7f25fe922f17"
+    }
+  },
+  "reading": {
+    "all_process_exits_zero": true,
+    "captures": [
+      {
+        "bytes": 6635,
+        "height": 720,
+        "path": "artifacts/reading-rail-36928901183-1/bb229704-9fc8-450a-bc9f-aaa4187f032e/captures/01-title.png",
+        "sha256": "b4eaab97137ebb4a2b9d97fee7ba1c3a46bc108230dafd9e6cb9e536f74d09d2",
+        "width": 1280
+      },
+      {
+        "bytes": 353678,
+        "height": 720,
+        "path": "artifacts/reading-rail-36928901183-1/bb229704-9fc8-450a-bc9f-aaa4187f032e/captures/02-desktop.png",
+        "sha256": "302caacdbd2f60e021563b7ecfccf19ada51cd121b6b60840cd2faac2a0d68a2",
+        "width": 1280
+      },
+      {
+        "bytes": 355941,
+        "height": 720,
+        "path": "artifacts/reading-rail-36928901183-1/bb229704-9fc8-450a-bc9f-aaa4187f032e/captures/03-minesweeper.png",
+        "sha256": "9e2c8540d79cc3017611dbf5723301cf25c6450ea46f5451141e7fad298f19c6",
+        "width": 1280
+      },
+      {
+        "bytes": 7815,
+        "height": 720,
+        "path": "artifacts/reading-rail-36928901183-1/bb229704-9fc8-450a-bc9f-aaa4187f032e/captures/04-pre-history.png",
+        "sha256": "f8283c61d2186f7c16ada71669f84a604f5a96e028efc9e753475b9999100031",
+        "width": 1280
+      },
+      {
+        "bytes": 674152,
+        "height": 720,
+        "path": "artifacts/reading-rail-36928901183-1/bb229704-9fc8-450a-bc9f-aaa4187f032e/captures/05-dating-board.png",
+        "sha256": "aadb45430f3b3a0538d6b025abdb2bb373c8a17edbed1d55829297065ef39a6b",
+        "width": 1280
+      },
+      {
+        "bytes": 9019,
+        "height": 720,
+        "path": "artifacts/reading-rail-36928901183-1/bb229704-9fc8-450a-bc9f-aaa4187f032e/captures/06-post-history.png",
+        "sha256": "02aa35027dc32d55523f24fb3bdd5940904566e37926153c40c457ecde2a7bf6",
+        "width": 1280
+      },
+      {
+        "bytes": 1329047,
+        "height": 720,
+        "path": "artifacts/reading-rail-36928901183-1/bb229704-9fc8-450a-bc9f-aaa4187f032e/captures/07-post-save.png",
+        "sha256": "c205f90984cc75ab53dffe67ece9b1cddcd5f0313b0875eb2f5e317acc389613",
+        "width": 1280
+      },
+      {
+        "bytes": 9019,
+        "height": 720,
+        "path": "artifacts/reading-rail-36928901183-1/bb229704-9fc8-450a-bc9f-aaa4187f032e/captures/08-restored-history.png",
+        "sha256": "02aa35027dc32d55523f24fb3bdd5940904566e37926153c40c457ecde2a7bf6",
+        "width": 1280
+      },
+      {
+        "bytes": 1329047,
+        "height": 720,
+        "path": "artifacts/reading-rail-36928901183-1/bb229704-9fc8-450a-bc9f-aaa4187f032e/captures/09-restored-line.png",
+        "sha256": "c205f90984cc75ab53dffe67ece9b1cddcd5f0313b0875eb2f5e317acc389613",
+        "width": 1280
+      }
+    ],
+    "exact_witnesses": {
+      "durable_witness_count": 5,
+      "exact_repeat_seen": true,
+      "fresh_process_physical_profile_match": true,
+      "profile": {
+        "bytes": 12002,
+        "sha256": "72dbb33bf974be88d82504ea6b3ad99d394423f7207a8209a007811de1253f80"
+      },
+      "recoverable_write_failures": 1,
+      "same_stable_line_new_revision_unseen": true
+    },
+    "limits": [
+      "Generic audit binds retained bytes, fresh processes and baseline restore receipts; independently review witness semantics and exact trace kinds.",
+      "Pause slot is retained and hashed; generic audit does not claim it was independently fresh-loaded."
+    ],
+    "modes": [
+      "write",
+      "read",
+      "repeat",
+      "variant",
+      "witness-read",
+      "next-unseen",
+      "next",
+      "next-read"
+    ],
+    "original_capture_distinct_sha256_count": 7,
+    "original_capture_file_count": 9,
+    "pause_slot": {
+      "bytes": 116806,
+      "sha256": "4d97199c5579ac0dbd1b7918b2328a8cc1d92d95d72d77609bfe87124fb776ac"
+    },
+    "process_ids": {
+      "next": 4629,
+      "next-read": 4697,
+      "next-unseen": 4562,
+      "read": 4298,
+      "repeat": 4363,
+      "variant": 4431,
+      "witness-read": 4496,
+      "write": 4222
+    },
+    "quick": {
+      "bytes": 173838,
+      "sha256": "c501f22307176a1b2802044d1fb4048233ea425536c820a1b014a58f2aeea13a"
+    },
+    "report": "artifacts/reading-rail-36928901183-1/result.json",
+    "report_identity": {
+      "bytes": 330544,
+      "sha256": "d42f7bb29018726934e9b5ada8b82058c38d64b0f56c146f7e1a7fa29e043eaf"
+    },
+    "trace_entries": 33,
+    "trace_identity": {
+      "bytes": 193928,
+      "sha256": "2d7bce5773f84329df5e1f0c9cf9e371b9b73a16c0cb9ca803fd1028bd8de330"
+    },
+    "write_read_seal": {
+      "before_mode": "repeat",
+      "file_count": 14,
+      "identity": {
+        "bytes": 2143,
+        "sha256": "34eb314e15c898561b170c39acb66c1eca783c53399b5043425b6fcb4ae496e0"
+      },
+      "sealed_after_mode": "read"
+    }
+  },
+  "next": {
+    "auto_off_refusal_then_exact_retry": true,
+    "autosave": {
+      "bytes": 133032,
+      "sha256": "b56a05ffaf49480914f3b9f2a1ed030068768e0e736c022ba7333e85715fe47f"
+    },
+    "captures": [
+      {
+        "bytes": 1329731,
+        "path": "artifacts/reading-rail-36928901183-1/bb229704-9fc8-450a-bc9f-aaa4187f032e/next/captures/01-next-unseen.png",
+        "sha256": "246058a1d848fa23f96fe7d55c6d3afc5cdf3a81a33dc1a7b57c7a7564a2cddf"
+      },
+      {
+        "bytes": 673448,
+        "path": "artifacts/reading-rail-36928901183-1/bb229704-9fc8-450a-bc9f-aaa4187f032e/next/captures/02-next-board.png",
+        "sha256": "5c836f06869380aa2cd0674ae0c0c03483d8f21ee5ff3db50a9e131629829552"
+      },
+      {
+        "bytes": 673430,
+        "path": "artifacts/reading-rail-36928901183-1/bb229704-9fc8-450a-bc9f-aaa4187f032e/next/captures/03-next-restored-board.png",
+        "sha256": "aed01f2418e238d0695ca0b9997d5528122c8c1f8af22dd1956f9e67ed2ac1b7"
+      }
+    ],
+    "checkout": "2344b09f5f90cd6bc8fd86166d884316daa82645",
+    "execution_attempt": 1,
+    "fresh_challenge_and_history_restore": true,
+    "limits": [
+      "Fixed noncanonical Solo catalogue; production authored selectors remain outside this proof.",
+      "Challenge entry is recovered; this does not claim a generated board was played or restored.",
+      "FileOps fault tests do not establish physical OS-crash recovery.",
+      "Rendered Linux evidence does not establish exhaustive native Windows input or accessibility acceptance."
+    ],
+    "next_component_audit_pass": true,
+    "operation_id": "15d88ba5e3caa818d7224ff49efb3cdf49a49571bbc0ce23d32e5261deb948db",
+    "process_ids": {
+      "next": 4629,
+      "next-read": 4697,
+      "next-unseen": 4562
+    },
+    "report": {
+      "bytes": 330544,
+      "sha256": "d42f7bb29018726934e9b5ada8b82058c38d64b0f56c146f7e1a7fa29e043eaf"
+    },
+    "run_id": 36928901183,
+    "run_metadata_identity": {
+      "bytes": 13431,
+      "sha256": "452eacda75b7e72483d8d5956bcd37542aa74e2cf613e06657c0191693e84a0a"
+    },
+    "schema_version": 1,
+    "silent_traversal": true,
+    "source_and_destination_exact": true,
+    "workflow_head": "900118a5dc16b89b82a4e5d946767c080083c750"
+  },
+  "source_boundary": {
+    "all_unlisted_paths_byte_identical": true,
+    "checkout_parents": [
+      "6a5ddf1564870b43aa9140cad7e0e5b12e43f399",
+      "900118a5dc16b89b82a4e5d946767c080083c750"
+    ],
+    "explicit_allowed_difference_patterns": [
+      "AGENTS.md",
+      "docs/*",
+      "story/*"
+    ],
+    "master": "6a5ddf1564870b43aa9140cad7e0e5b12e43f399",
+    "source": "900118a5dc16b89b82a4e5d946767c080083c750",
+    "source_checkout_differences": [
+      {
+        "checkout_blob": "9da0aa3bde65484361d88f04346a3dca749ec49e",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "AGENTS.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "9c4d88ce68a3086e3dbd1b20b0d3b4167b26e4be",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "docs/design/2026-08-30-supportz-audience-priority-three-truth-mechanism-amendment.md",
+        "source_blob": "130a657200e94da2dbd28a93383f0218b895f690",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "c7018cbc945c2c624435a31a8f7584e334b794ec",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "docs/design/2026-09-02-narrative-constitution-working-decision-ledger.md",
+        "source_blob": "2726549b0400419dc9597ad133877e7a877d6810",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "05f99daf57689d9d37a1bbf9c05840e0608d2065",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md",
+        "source_blob": "83bfa0ace708aabf821469c67e1f17e85e70527d",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "79dafcf6e2f0ad5868beeac018b6cc53ba09c8db",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "docs/design/2026-09-06-angela-absent-pair-explosion-visibility-reconciliation.md",
+        "source_blob": "0584fae5a22338b4b9c635e3827f53b26807313c",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "9da29d1a49b21a3c33c0fe010e1c1b78aaca3dda",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "docs/design/2026-09-06-priscilla-lavinia-working-event-documentary-audit.md",
+        "source_blob": "dc85bd98601eeda6a38b270b28202acdb154ebdd",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "a06116cfa59acf49febc6e505ed21e77038218e3",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "docs/design/README.md",
+        "source_blob": "e8b4a646a79e0a1522d440eaa1021bdee54cce50",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/2026-08-30-angela-lavinia-day-2-focus-audition-design.md",
+        "source_blob": "97ac51f336322c247e59af2db734b9e1983d5116",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/2026-08-30-room-217-group-adaptation-audition-record.md",
+        "source_blob": "73dc72fd510930e84d1ba93474bb09b6afd147cf",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/2026-08-31-seven-day-owner-review-constellation-audition.md",
+        "source_blob": "22bf6ad866163e2ded66a6120d0a4fd494978e17",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md",
+        "source_blob": "9753c076331d4dc515c5d6f89b568fe1e4deea35",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md",
+        "source_blob": "2df1739d29fa0b6ebb4aa195d099e06c49fdcea9",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/2026-09-06-priscilla-lavinia-day-6-sweet-imagined-refusal-audition.md",
+        "source_blob": "8ba9e7c2ca99b9dfc0c4925c94397a34bf2102ba",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/2026-09-07-priscilla-lavinia-day-6-sweet-love-interrupted-hearing-audition.md",
+        "source_blob": "6b3fcaae5a6ef7d23bcac7e78b3490abb15ae72d",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/2026-09-12-day-1-priscilla-lavinia-retrospective-reflex-audition.md",
+        "source_blob": "023d7be0cdd18762c30070e4d5162760b57417d0",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/README.md",
+        "source_blob": "96cab07be3dc4964e7c81a49c866663e5049c19a",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "a0f741bd3d1044ff77178a3b7383e7986082d677",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "story/01-core-story-bible.md",
+        "source_blob": "3776536d195e4aae9c616bd2840f1fc45b72d608",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "06e63c6d0f4e5b6773f3b0d5b78e32480d4eece2",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "story/02-character-relationship-handbook.md",
+        "source_blob": "e2d738d1049f997dc3e68e82dae87fc16f051524",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "322b173a08813d1590cfb7c9c0d586d5e58840db",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/AGENTS.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "cba8cac69862dffd6f8c1642063f554ccef4e6ed",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/README.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "08f9a4fbb80cbcbf6abbca65f194c3cd98c33c8e",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/auditions/2026-08-30-angela-lavinia-day-2-focus-audition-design.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "1fd85692c724cfb348a8d81851af7e7a002369cd",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/auditions/2026-08-30-room-217-group-adaptation-audition-record.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "6bbdc51cb9f4d892ae4ce5c5afa54b30f3e799b9",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/auditions/2026-08-31-seven-day-owner-review-constellation-audition.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "d85d8a67e0b91146cefb24d82ee3ea01e3450953",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/auditions/README.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "7097eeecf7e046ca9460024199ff4a8ff8c102ab",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "story/library/03-seven-day-plot-material-library.md",
+        "source_blob": "2dd68369fa945c8297ba36c53a141b48a33b256a",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "dd65a4d70a9faa494db46085739fd190338bad69",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/maintenance/our-pl-upload-recovery.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "a90e838f42b83694b573debb787132c433d6ab68",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/maintenance/source-migration.json",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "16c89cdbe313636c165171e7d4ee0f9934275071",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/maintenance/source-migration.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "efee2a95216355bf180a319b5542766a99718e6f",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/maintenance/verify_consolidation.py",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "fd591bf02a7f2aab1b7c504dceba119eea768108",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/AGENTS.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "85d012ccfe82e61c95c71f46070f67f8517b7c15",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/README.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "228385dcd953064885964edf9e3493061bcd2462",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "43a70fdc7435085d3bf30103b814c66f808a0dc0",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "691c98ce2fa0221c3b86031751dfd30ff168ade8",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-6-sweet-imagined-refusal-audition.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "fe90bc68df5bb578519838372faab54cf7e21720",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/2026-09-07-priscilla-lavinia-day-6-sweet-love-interrupted-hearing-audition.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "f3792a9b34cb2cebf38c32b910acb33dcc39df2d",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/2026-09-12-day-1-priscilla-lavinia-retrospective-reflex-audition.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "8bc169fa41355384c01cf36ee1e65537e76d696c",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/2026-09-26-priscilla-lavinia-day-2-portrait-dark-love-read-through.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "7b9ecbcb38c6be19ab973a17f754b37199ad3c03",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/day-2-portrait-development.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "5a7b0800e55e16cae3ee10c68077a503f0b61f16",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/day-2-sweet-love-portrait.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "ae89186de0ac280e8cf724656803b6f7bc157c27",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/day-6-dark-notebook.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "51d9a33311fcdaaf49910b28cc4e3bc5761aa702",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/day-6-sweet-ambiguous-refusal.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "592fe48396a216bf9e2aad7202af7c577fd8d6ab",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/day-6-sweet-love-dance.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "ab36739aa955a859405b30ee9e12d19d44773d36",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/intimacy-and-ordinary-company.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "ebb7057a582f3239886d2cbb4f5d4fa520d0aef7",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/relationship.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "43b27c7f278699f00bbd4bf2f7526213376b02c0",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/seven-day-options.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      }
+    ],
+    "tested_checkout": "2344b09f5f90cd6bc8fd86166d884316daa82645"
+  },
+  "supported_formats": {
+    "profile": 10,
+    "run_document_and_snapshot": 7,
+    "ordinary_reading": 1,
+    "retained_next_reading": 2,
+    "next_operation": 1
+  },
+  "beads": {
+    "schema_version": 1,
+    "before_sha256": "e0a2ea315b41c75eb437202a17c46dcc967b1668c2a7dd341050eaba3c278916",
+    "after_sha256": "27097bbef59b4abfd9b2c0ed20c7bc5efc700f7c00ebcded55c04c7e700c1b20",
+    "records": 191,
+    "other_records_byte_identical": 190,
+    "unfinished_count": 23,
+    "changed_record": "dwm-vky.14",
+    "changed_fields": [
+      "notes",
+      "updated_at"
+    ],
+    "all_statuses_and_dependencies_unchanged": true,
+    "dolt_synchronization_claimed": false
+  },
+  "next_step": "Production per-entry authored selector/signature admission under dwm-n3h.2 and dwm-vky.14.",
+  "records_scope": "Documentation, evidence and one Beads note/timestamp; later records-only descendants are not separately engine-tested.",
+  "limits": [
+    "Fixed noncanonical Solo catalogue; production authored selectors remain outside this proof.",
+    "Challenge entry is recovered; this does not claim a generated board was played or restored.",
+    "FileOps fault tests do not establish physical OS-crash recovery.",
+    "Rendered Linux evidence does not establish exhaustive native Windows input or accessibility acceptance.",
+    "Cold challenge-entry Load visibly clips its title; semantic Next/save/history acceptance does not certify visual polish of that state.",
+    "Three screenshots do not establish exhaustive native Windows input, accessibility or layout acceptance.",
+    "A bounded Solo fixture proof does not close unfinished Beads or accept production selectors.",
+    "Later documentation/evidence-only commits are not separately engine-tested.",
+    "Full GUT totals, all-job checkout identities and final workflow conclusion are joined by the separate broad acceptance audit.",
+    "Reading and Next proof uses fixed noncanonical English Solo fixtures; production authored catalogue registration remains separate.",
+    "Nine original capture files include identical restored-image pairs; nine sealed copies add no scenarios.",
+    "The manual pre-line slot is physically retained and admitted, but only the post-line Quick is independently fresh-loaded in the original proof.",
+    "Next fresh Load recovers challenge entry and exact History; no generated board playthrough is claimed.",
+    "Fault/restart probes simulate FileOps failures; they do not inject physical OS crashes.",
+    "Performance observations establish no universal speedup or input-to-paint guarantee.",
+    "The large Windows export archive is not locally inspected; export scope comes from source-bound cloud validator and receipt.",
+    "Capture hashes and machine predicates do not imply manual inspection of every image or native all-input/accessibility acceptance."
+  ]
+}

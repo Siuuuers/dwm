@@ -1,0 +1,521 @@
+{
+  "run_id": 35627369190,
+  "pr_head": "86e511f5c05e902d2ab7e625fcd91581d510a470",
+  "checkout_merge": "583f3d98e92290c504b7eb04a95a3c660ee3becc",
+  "history": {
+    "job_id": 106424926588,
+    "conclusion": "success",
+    "proof": {
+      "checkout_ref": "583f3d98e92290c504b7eb04a95a3c660ee3becc",
+      "payload_bytes": 1671028,
+      "payload_sha256": "7ebffe8e2e1ecbc2233e8b678e09ae851eace5e336e5b4372ad29a159515f1c9",
+      "write": {
+        "autosave_sha256": "7ebffe8e2e1ecbc2233e8b678e09ae851eace5e336e5b4372ad29a159515f1c9",
+        "days": 7,
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "synthetic_checkpoints": 98
+      },
+      "cold_read": {
+        "autosave_sha256": "7ebffe8e2e1ecbc2233e8b678e09ae851eace5e336e5b4372ad29a159515f1c9",
+        "day": 7,
+        "login_us": 12188362,
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        }
+      },
+      "fixture": "7 synthetic line and 7 synthetic manual checkpoint records/day, plus one real Slot 1 save and App loss/day. Public Schedule Done advances to Day 7. This is not an authored-dialogue playthrough.",
+      "timing_policy": "Observations on one shared Windows runner; no speed threshold or physical input-to-paint guarantee."
+    },
+    "days": [
+      {
+        "day": 1,
+        "retained": {
+          "line": 7,
+          "manual_save": 8,
+          "semantic": 2
+        },
+        "autosave_bytes": 110953,
+        "first_reveal_sync_us": 84983,
+        "terminal_reveal_sync_us": 10917,
+        "terminal_settlement_us": 292992,
+        "manual_slot_save_us": 218386,
+        "autosave_sha256": "212d347d3ccf7251ec241727769b3bf0f3ef808101e8265f2e5b72c700075d29"
+      },
+      {
+        "day": 2,
+        "retained": {
+          "line": 14,
+          "manual_save": 16,
+          "semantic": 2
+        },
+        "autosave_bytes": 424492,
+        "first_reveal_sync_us": 238255,
+        "terminal_reveal_sync_us": 11463,
+        "terminal_settlement_us": 609701,
+        "manual_slot_save_us": 982811,
+        "autosave_sha256": "ddc6dcab1ac0254f50f4d930852003ec033c1d890b72dd601f87d17ff0e7da1b"
+      },
+      {
+        "day": 3,
+        "retained": {
+          "line": 21,
+          "manual_save": 24,
+          "semantic": 2
+        },
+        "autosave_bytes": 736360,
+        "first_reveal_sync_us": 401305,
+        "terminal_reveal_sync_us": 10477,
+        "terminal_settlement_us": 917038,
+        "manual_slot_save_us": 1967342,
+        "autosave_sha256": "fabe9db27a5206e9e089b0c63a7277b541596bab15b9505f3991805bf2f39b65"
+      },
+      {
+        "day": 4,
+        "retained": {
+          "line": 28,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "autosave_bytes": 1072330,
+        "first_reveal_sync_us": 582819,
+        "terminal_reveal_sync_us": 10529,
+        "terminal_settlement_us": 1268477,
+        "manual_slot_save_us": 2942371,
+        "autosave_sha256": "76e162863cd67e65a6c1d49c94a8151b9affd63d05501528d5c929a331ede90a"
+      },
+      {
+        "day": 5,
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "autosave_bytes": 1384365,
+        "first_reveal_sync_us": 771439,
+        "terminal_reveal_sync_us": 10563,
+        "terminal_settlement_us": 1629763,
+        "manual_slot_save_us": 3955154,
+        "autosave_sha256": "d2bd7bbc14e2c77b6ebaaa55c89b11b0991f67d1c29dfb2e6820c0e4e47ee50a"
+      },
+      {
+        "day": 6,
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "autosave_bytes": 1553327,
+        "first_reveal_sync_us": 852327,
+        "terminal_reveal_sync_us": 10254,
+        "terminal_settlement_us": 1803197,
+        "manual_slot_save_us": 4676529,
+        "autosave_sha256": "6549b6eaaa5df361ee549007459f12af290ffd66f97d9ca62a95238e368a7167"
+      },
+      {
+        "day": 7,
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "autosave_bytes": 1671028,
+        "first_reveal_sync_us": 925962,
+        "terminal_reveal_sync_us": 10386,
+        "terminal_settlement_us": 1988443,
+        "manual_slot_save_us": 5163638,
+        "autosave_sha256": "7ebffe8e2e1ecbc2233e8b678e09ae851eace5e336e5b4372ad29a159515f1c9"
+      }
+    ],
+    "checkpoint_phase_summaries": [
+      {
+        "family": "checkpoint",
+        "group": "save_checkpoint_prepare||day_resolution_stage",
+        "count": 66,
+        "phases": {
+          "elapsed_us": {
+            "sum": 1616111,
+            "median": 13250,
+            "max": 279428
+          },
+          "run_snapshot_build_us": {
+            "sum": 220298,
+            "median": 3287,
+            "max": 4718
+          },
+          "journal_prepare_us": {
+            "sum": 488333,
+            "median": 8835,
+            "max": 14380
+          },
+          "document_build_us": {
+            "sum": 821782,
+            "median": 161775,
+            "max": 239814
+          },
+          "backup_us": {
+            "sum": 69542,
+            "median": 13745,
+            "max": 20244
+          }
+        }
+      },
+      {
+        "family": "checkpoint",
+        "group": "save_checkpoint_prepare||day_start",
+        "count": 6,
+        "phases": {
+          "elapsed_us": {
+            "sum": 911301,
+            "median": 185954,
+            "max": 269036
+          },
+          "run_snapshot_build_us": {
+            "sum": 14999,
+            "median": 2657,
+            "max": 3176
+          },
+          "journal_prepare_us": {
+            "sum": 43125,
+            "median": 9735,
+            "max": 13311
+          },
+          "document_build_us": {
+            "sum": 780515,
+            "median": 159051,
+            "max": 231676
+          },
+          "backup_us": {
+            "sum": 71631,
+            "median": 14303,
+            "max": 20670
+          }
+        }
+      },
+      {
+        "family": "checkpoint",
+        "group": "save_checkpoint_prepare||post_result",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 1230721,
+            "median": 184848,
+            "max": 298895
+          },
+          "run_snapshot_build_us": {
+            "sum": 22788,
+            "median": 3332,
+            "max": 3964
+          },
+          "journal_prepare_us": {
+            "sum": 59482,
+            "median": 9150,
+            "max": 15266
+          },
+          "document_build_us": {
+            "sum": 1054879,
+            "median": 158758,
+            "max": 257237
+          },
+          "backup_us": {
+            "sum": 93177,
+            "median": 13557,
+            "max": 22371
+          }
+        }
+      },
+      {
+        "family": "checkpoint",
+        "group": "save_checkpoint_prepare||pre_board",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 1174867,
+            "median": 178354,
+            "max": 285542
+          },
+          "run_snapshot_build_us": {
+            "sum": 19793,
+            "median": 2957,
+            "max": 3573
+          },
+          "journal_prepare_us": {
+            "sum": 56159,
+            "median": 8641,
+            "max": 13110
+          },
+          "document_build_us": {
+            "sum": 1023937,
+            "median": 157422,
+            "max": 249594
+          },
+          "backup_us": {
+            "sum": 73015,
+            "median": 9067,
+            "max": 19682
+          }
+        }
+      },
+      {
+        "family": "checkpoint",
+        "group": "save_checkpoint_prepare||safe_marker",
+        "count": 8,
+        "phases": {
+          "elapsed_us": {
+            "sum": 1460118,
+            "median": 239722,
+            "max": 289604
+          },
+          "run_snapshot_build_us": {
+            "sum": 21241,
+            "median": 2987,
+            "max": 3386
+          },
+          "journal_prepare_us": {
+            "sum": 70876,
+            "median": 11818,
+            "max": 14828
+          },
+          "document_build_us": {
+            "sum": 1260483,
+            "median": 206499,
+            "max": 250475
+          },
+          "backup_us": {
+            "sum": 106885,
+            "median": 17788,
+            "max": 20864
+          }
+        }
+      },
+      {
+        "family": "checkpoint",
+        "group": "save_checkpoint||",
+        "count": 94,
+        "phases": {
+          "elapsed_us": {
+            "sum": 12402043,
+            "median": 19377,
+            "max": 602627
+          },
+          "outgoing_schema_us": {
+            "sum": 4964442,
+            "median": 158013,
+            "max": 256094
+          },
+          "stringify_us": {
+            "sum": 128056,
+            "median": 3787,
+            "max": 5442
+          },
+          "splice_us": {
+            "sum": 4060564,
+            "median": 130578,
+            "max": 211112
+          },
+          "write_atomic_us": {
+            "sum": 1170515,
+            "median": 39400,
+            "max": 59312
+          },
+          "reread_us": {
+            "sum": 223999,
+            "median": 7039,
+            "max": 15351
+          },
+          "journal_us": {
+            "sum": 1239652,
+            "median": 14546,
+            "max": 29210
+          }
+        },
+        "spliced": 0,
+        "full_document": 34
+      }
+    ],
+    "consequence_phase_summaries": [
+      {
+        "family": "consequence",
+        "group": "accept|prepare_and_forward_inclusive|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 4430041,
+            "median": 656578,
+            "max": 1019155
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "completion_save|capture|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 6268,
+            "median": 914,
+            "max": 981
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "completion_save|commit_inclusive|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 2543583,
+            "median": 381651,
+            "max": 609243
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "completion_save|prepare|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 1232059,
+            "median": 185013,
+            "max": 299091
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "first_reveal_durable||",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 3699311,
+            "median": 560094,
+            "max": 896444
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "minesweeper_round_complete||",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 8255844,
+            "median": 1232174,
+            "max": 1942226
+          }
+        }
+      }
+    ]
+  },
+  "outgoing_normalization": {
+    "conclusion": "success",
+    "proof": {
+      "checkout_ref": "583f3d98e92290c504b7eb04a95a3c660ee3becc",
+      "baseline_ref": "4c4f9c987c96b65293554b1ce0f083f9263aa791",
+      "source_sha256": {
+        "baseline": "a28943d509641afea33ee851bfefa2e3d54bbcdcd1acaab4748207e8a83df72b",
+        "candidate": "ff44e5dad989307e7bce5866e29f2871a1e72bb25acadf256cbeb303e6359e5a"
+      },
+      "ablation": "Only SaveManagerCheckpointPort.gd is replaced; five timed samples after two warmups reuse each identical document. No timing threshold."
+    },
+    "measurements": [
+      {
+        "label": "zh-CN",
+        "bytes": 376091,
+        "journal_bundles": 2,
+        "input_sha256": "60915f103ffbbe72cbae500f7c0597185d787468e1fa03f4b09e7390d082c570",
+        "unchanged_output_sha256": true,
+        "baseline_samples_us": [
+          45770,
+          44523,
+          43659,
+          45575,
+          45783
+        ],
+        "candidate_samples_us": [
+          33299,
+          33747,
+          33895,
+          33871,
+          33049
+        ],
+        "baseline_median_us": 45575,
+        "candidate_median_us": 33747,
+        "observed_median_reduction_percent": 26
+      },
+      {
+        "label": "zh-HK",
+        "bytes": 362808,
+        "journal_bundles": 2,
+        "input_sha256": "314ef70a4ba5c696e7587eb0499722e704dbe66407f324a5bed7473d677b0692",
+        "unchanged_output_sha256": true,
+        "baseline_samples_us": [
+          48841,
+          51986,
+          54035,
+          53966,
+          57014
+        ],
+        "candidate_samples_us": [
+          30002,
+          30525,
+          32240,
+          30907,
+          30525
+        ],
+        "baseline_median_us": 53966,
+        "candidate_median_us": 30525,
+        "observed_median_reduction_percent": 43.4
+      },
+      {
+        "label": "day7",
+        "bytes": 1671028,
+        "journal_bundles": 66,
+        "input_sha256": "7ebffe8e2e1ecbc2233e8b678e09ae851eace5e336e5b4372ad29a159515f1c9",
+        "unchanged_output_sha256": true,
+        "baseline_samples_us": [
+          161618,
+          160333,
+          157812,
+          160144,
+          157294
+        ],
+        "candidate_samples_us": [
+          81871,
+          81717,
+          81925,
+          81942,
+          81853
+        ],
+        "baseline_median_us": 160144,
+        "candidate_median_us": 81871,
+        "observed_median_reduction_percent": 48.9
+      }
+    ],
+    "limitation": "Seam-only measurement with a complete proof set furnished by strict validation of fixed bytes. Production history had zero spliced Autosaves, so these reductions do not demonstrate improved production latency."
+  },
+  "paired": {
+    "job_id": 106424926244,
+    "conclusion": "success",
+    "verified": "Four localized journeys and four matched-payload probes.",
+    "artifact_id": 10652418989,
+    "artifact_zip_sha256": "7a66dd015d472753c7f21c882052979ae247a94c51d10b6b8f04f69dc7be13db",
+    "latency_metrics": null,
+    "limitation": "Successful driver logs do not emit internal metrics; fresh artifact download returned HTTP 403."
+  },
+  "proposed_followup": {
+    "evidence": "All 34 durable Autosaves fell back to complete serialization/validation: 0 spliced. Full fallback stringify sum 4060564 us and outgoing schema sum 4964442 us, versus atomic write sum 1170515 us.",
+    "boundary": "After successful full-document write, exact reread, and successful journal commit only, learn proofs for actually-written earlier bundles still deeply equal to journal-owned values. Preserve cold validation, equality gates, retention and refusal semantics."
+  },
+  "limitations": [
+    "One shared Windows runner; no speed threshold, physical input-to-paint guarantee, or baseline-to-candidate production delta is established.",
+    "Fixture uses 98 synthetic line/manual checkpoints plus real per-day Slot 1 save, App loss and Schedule Done. It is not an authored dialogue playthrough.",
+    "Consequence parent and child phases overlap and must not be summed as disjoint work."
+  ]
+}

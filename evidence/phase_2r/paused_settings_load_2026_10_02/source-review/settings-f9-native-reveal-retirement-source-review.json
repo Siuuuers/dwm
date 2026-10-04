@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "review_kind": "source_only_native_partial_reveal_cancellation_fix",
+  "reviewer": "f9_contract_review",
+  "reviewed_at_utc": "2026-10-02T07:29:02.510692+00:00",
+  "worktree_base": "78cb263f8e0d82ad1f1274c0e84915397cd071b0",
+  "failed_cloud_source": "d702c456177f76fe90cb73993af93949d7335b7e",
+  "failed_cloud_run": 36977523352,
+  "reviewed_files": [
+    {
+      "path": "addons/dialogic/Modules/Text/event_text.gd",
+      "bytes": 23498,
+      "sha256": "c70ec90ac26988a46102857f392499106bcd741cd97e02b14a854dd812835882"
+    },
+    {
+      "path": "tests/integration/test_narrative_pause_frontier.gd",
+      "bytes": 57849,
+      "sha256": "1125410d82fb90e7f892137ec9becde64a8f43119de8745220eedf64cb12e8ae"
+    },
+    {
+      "path": "addons/dialogic/Core/DialogicGameHandler.gd",
+      "bytes": 18668,
+      "sha256": "c05cd2e152b66133f5d1dae647d37b448f92bd9352ad73e73433892c4451a7b7"
+    },
+    {
+      "path": "addons/dialogic/Resources/timeline.gd",
+      "bytes": 5971,
+      "sha256": "b5557e0e8295c98707d0d5d125d0e48e20f60cff8df48330ba61586d5393d225"
+    },
+    {
+      "path": "scripts/narrative/DialogicRuntimeAdapter.gd",
+      "bytes": 49105,
+      "sha256": "afe719d2762955a3e28523f9cbb08a6df38a98e21ad68dbc65b816b8d52f07b2"
+    },
+    {
+      "path": "autoload/DialogicBridge.gd",
+      "bytes": 143426,
+      "sha256": "e8be928a4e6e2b4ea480ed542c7540c2491b214a6180f0c2ca593fda23c38100"
+    },
+    {
+      "path": "tools/testing/Invoke-CloudTests.ps1",
+      "bytes": 20076,
+      "sha256": "3f57e035bbdec6e736cf41316b3c981596b50e06f3fa8df58415213cf6a6075f"
+    },
+    {
+      "path": "tests/integration/verify_reading_rail_journey.gd",
+      "bytes": 113307,
+      "sha256": "60f3e520a25b887cb38d9c8022d61b10bc17d688beae68220d604a71e6bab966"
+    },
+    {
+      "path": "tools/testing/run_reading_rail_journey.py",
+      "bytes": 69867,
+      "sha256": "df0e318b8f01e7a66c576f93b0841b964379e4747e8ca94f54aa8cc423884c6b"
+    }
+  ],
+  "decision": "Approve frozen runtime/test bytes for pinned cloud validation; no code blocker found. No runtime pass claimed.",
+  "observed_failure": {
+    "file": "/workspace/scratch/e169b180163f/settings-f9-focus3/artifacts/reading-rail-36977523352-1/78646de5-d39c-4dcd-b6c8-9223880a98aa/settings-load/settings-load.stdout.txt",
+    "sha256": "e9cc3e3ff928ca853bcdca9f64ba463a3edb6d1f170842c7ada81948d420e99d",
+    "finding": "After Settings Load semantic PASS, strict lifetime checker reported one RefCounted, one GDScript, one GDScriptNativeClass, one auto_skip.gd resource and fourteen orphan StringNames including text_finished. Entire run remains failed.",
+    "causal_confidence": "Source identifies abandoned reveal-await ownership. Retained AutoSkip evaluation temporary is consistent with observed instance/resource names, not proven by runtime debugger."
+  },
+  "source_trace": [
+    {
+      "path": "autoload/DialogicBridge.gd:2154\u20132185",
+      "finding": "Retire suspended source clears semantic ownership and calls runtime halt; no natural completion should be published."
+    },
+    {
+      "path": "scripts/narrative/DialogicRuntimeAdapter.gd:784\u2013802",
+      "finding": "halt_with_error clears caption binding then requests native end_timeline."
+    },
+    {
+      "path": "addons/dialogic/Core/DialogicGameHandler.gd:293\u2013315,383\u2013410",
+      "finding": "end_timeline clears current event; clear invalidates native generation and calls event cleanup before timeline.clean."
+    },
+    {
+      "path": "addons/dialogic/Resources/timeline.gd:185\u2013201",
+      "finding": "clean waits a frame then disconnects all event incoming/outgoing connections, previously leaving the reveal coroutine un-unwound."
+    }
+  ],
+  "repair_review": [
+    {
+      "path": "addons/dialogic/Modules/Text/event_text.gd:46\u201364",
+      "finding": "Event-local reveal settlement signal replaces waiting directly on global Text.text_finished. Cleanup increments execution generation, disconnects native relay/input connections, then settles only local wait."
+    },
+    {
+      "path": "addons/dialogic/Modules/Text/event_text.gd:169\u2013192",
+      "finding": "Generation checked after textbox await, text_started publication, History marking and reveal settlement. Cancellation returns before state IDLE, choice completion, auto-advance or finish. No synthetic global Text.text_finished or advance is emitted."
+    },
+    {
+      "path": "addons/dialogic/Modules/Text/event_text.gd:240\u2013268",
+      "finding": "Native completion relay connects before publication; _reveal_complete preserves synchronous completion before await. Cleanup disconnects relay so restored destination cannot wake retired source."
+    }
+  ],
+  "regressions": {
+    "suite": "tests/integration/test_narrative_pause_frontier.gd",
+    "before_test_count": 19,
+    "after_test_count": 21,
+    "new_tests": [
+      "test_retiring_partial_native_text_releases_reveal_wait_without_completing_or_touching_fresh_caption",
+      "test_synchronous_text_started_retirement_never_installs_a_late_reveal_wait"
+    ],
+    "meaningful_observations": [
+      "Same real AutoSkip owner reference count returns to pre-start baseline after retirement.",
+      "Real partial event loses native completion relay and event-local waiter; no global text completion, event completion, History credit or physical completion is manufactured.",
+      "A fresh independent caption completes normally and cannot change the retired event state.",
+      "Synchronous retirement during text_started avoids late await installation and subsequent History credit."
+    ],
+    "limitations": "Reference-count behavior and engine parsing await the cloud run; no local Godot or PowerShell run. Existing test settles four process frames without adding new sleep or widening lifetime allowance."
+  },
+  "fixture_lexical_delta": [
+    {
+      "owner": "game_state",
+      "symbols_checked": 236,
+      "added": [],
+      "removed": []
+    },
+    {
+      "owner": "save_manager",
+      "symbols_checked": 74,
+      "added": [],
+      "removed": []
+    }
+  ],
+  "inventory_policy": "All 310 symbols independently scanned on changed native test fixture; no additions/removals. Pinned cloud regeneration/check remains required and authoritative.",
+  "strict_acceptance_unchanged": {
+    "f9_driver_sha256": "60f3e520a25b887cb38d9c8022d61b10bc17d688beae68220d604a71e6bab966",
+    "f9_runner_sha256": "df0e318b8f01e7a66c576f93b0841b964379e4747e8ca94f54aa8cc423884c6b",
+    "meaning": "Seven semantic stages, exact recovery bookkeeping, primary byte neutrality and strict lifetime rejection remain unchanged."
+  },
+  "limits": [
+    "Fix specifically owns partial text reveal cancellation; does not establish cancellation behavior of every unrelated Dialogic event/await.",
+    "Queued deferred execution before _execute starts and autoskip timer/advance waits are preexisting broader concerns, not observed F9 failure or claims of this fix.",
+    "Focus3 historical semantic success remains separate from its failed whole-process lifetime result."
+  ],
+  "open_architecture_questions": []
+}

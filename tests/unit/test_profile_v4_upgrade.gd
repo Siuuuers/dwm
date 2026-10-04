@@ -70,13 +70,13 @@ func test_v1_upgrade_maps_canonical_peers_and_archives_every_original_preference
 	assert_true(result.get("ok", false), str(result))
 	if not result.get("ok", false): return
 	var upgraded: Dictionary = result.value
-	assert_eq(upgraded.schema_version, 8)
+	assert_eq(upgraded.schema_version, SCHEMA.SCHEMA_VERSION)
 	var actual_keys: Array = upgraded.keys()
 	var expected_keys: Array = SCHEMA.ROOT_KEYS.duplicate()
 	actual_keys.sort()
 	expected_keys.sort()
 	assert_eq(actual_keys, expected_keys)
-	for added_field: String in ["pair_form_witness_receipts", "dating_attempts", "observer_evidence", "pair_deck_draws", "reached_presentations"]:
+	for added_field: String in ["pair_form_witness_receipts", "dating_attempts", "observer_evidence", "pair_deck_draws", "reached_presentations", "witnessed_caption_variants"]:
 		assert_eq(upgraded[added_field], {}, "legacy migration does not invent " + added_field)
 	assert_eq(upgraded.legacy_preferences_v1, before.preferences)
 	assert_eq(upgraded.preferences.language, {"primary_locale_id": "zh_HK",
@@ -135,6 +135,8 @@ func test_v3_upgrade_closes_legacy_replay_without_inventing_archived_values() ->
 	source.erase("observer_evidence")
 	source.erase("pair_deck_draws")
 	source.erase("reached_presentations")
+	source.erase("reached_presentation_chronology")
+	source.erase("witnessed_caption_variants")
 	source.erase("pair_form_witness_receipts")
 	source.erase("dating_attempts")
 	source.erase("migration_receipts")
@@ -163,7 +165,7 @@ func test_initialize_persists_v4_before_publish_and_resets_clear_only_archive() 
 	assert_true(initialized.get("ok", false), str(initialized))
 	if not initialized.get("ok", false): return
 	assert_eq(restored.size(), 1)
-	assert_eq(restored[0].schema_version, 8)
+	assert_eq(restored[0].schema_version, SCHEMA.SCHEMA_VERSION)
 	assert_eq(restored[0].legacy_preferences_v1.language, "zh_hk")
 	var persisted: PackedByteArray = ops.snapshot_persisted()[ROOT + "/profile.json"]
 	var parsed := STRICT_JSON.parse_object(persisted.get_string_from_utf8())

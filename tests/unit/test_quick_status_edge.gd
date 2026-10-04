@@ -1,4 +1,5 @@
 ﻿extends "res://addons/gut/test.gd"
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const EDGE := preload("res://scripts/ui/desktop/QuickStatusEdge.gd")
 
 func _edge() -> Label:
@@ -15,7 +16,8 @@ func _edge() -> Label:
 func test_saved_and_refusal_expire_on_exact_eligible_lifetime() -> void:
 	var edge := _edge()
 	edge.set_eligible(true)
-	for status: StringName in [&"saved",&"unavailable",&"please_wait"]:
+	for status: StringName in [&"saved",&"unavailable",&"please_wait",&"no_quick_save",
+			&"older_version",&"newer_version",&"unreadable",&"no_compatible_checkpoint",&"restore_unavailable"]:
 		edge.publish_status(status,{"revision":1},func(): return true)
 		var duration := 2.0 if status == &"saved" else 4.0
 		assert_eq(edge.remaining_seconds,duration)
@@ -102,16 +104,53 @@ func test_full_localized_font_reflow_does_not_reannounce_or_reset() -> void:
 	edge.set_eligible(true)
 	edge.publish_status(&"please_wait",{},func(): return true)
 	edge.advance_eligible_time(1)
-	for locale: String in ["en","zh_CN","zh_HK"]:
-		for percent: int in [100,125,150]:
-			edge.set_presentation(locale,percent)
-			assert_eq(edge.get_theme_default_font_size(),int(24*percent/100.0))
-			assert_eq(edge.text,EDGE.COPY[locale.replace("_","-")][&"please_wait"])
-			assert_eq(edge.accessibility_name,edge.text)
-			assert_eq(edge.remaining_seconds,3.0)
-			assert_eq(edge.max_lines_visible,-1)
-			assert_false(edge.clip_text)
+	for font_style: String in ["pixel","readable"]:
+		for locale: String in ["en","zh_CN","zh_HK","ja","ko"]:
+			for percent: int in [100,125,150]:
+				edge.set_presentation(locale,percent,font_style)
+				assert_eq(edge.get_theme_default_font_size(),int(24*percent/100.0))
+				assert_same(edge.theme.default_font,TYPOGRAPHY.font(locale,percent,font_style))
+				assert_eq(edge.text,EDGE.COPY[locale.replace("_","-")][&"please_wait"])
+				assert_eq(edge.accessibility_name,edge.text)
+				assert_eq(edge.remaining_seconds,3.0)
+				assert_eq(edge.max_lines_visible,-1)
+				assert_false(edge.clip_text)
 	assert_signal_emit_count(edge,"status_announced",1)
+
+func test_quick_absence_and_inspected_reasons_localize_once_and_retire_when_stale() -> void:
+	var edge := _edge()
+	edge.set_eligible(true)
+	var expected := {
+		&"no_quick_save": "No Quick Save",
+		&"older_version": "This save is from an older build and cannot be loaded.",
+		&"newer_version": "Newer game version required.",
+		&"unreadable": "Can't read this save.",
+		&"no_compatible_checkpoint": "No compatible checkpoint is available.",
+		&"restore_unavailable": "This save cannot currently be loaded.",
+	}
+	var announcements := 0
+	for status: StringName in expected:
+		var current := [true]
+		edge.set_presentation("en",100)
+		edge.publish_status(status,{"record":str(status)},func(): return current[0])
+		announcements += 1
+		assert_eq(edge.text,expected[status])
+		assert_eq(edge.accessibility_name,edge.text)
+		edge.advance_eligible_time(1.0)
+		for locale: String in ["en","zh_CN","zh_HK","ja","ko"]:
+			edge.set_presentation(locale,150,"readable")
+			var normalized := locale.replace("_","-")
+			var localized: String = EDGE.COPY[normalized][status] if status == &"no_quick_save" else EDGE.BACKUP.COPY[normalized][EDGE.REASON_COPY_KEYS[status]]
+			assert_eq(edge.text,localized)
+			assert_eq(edge.accessibility_name,localized)
+			assert_eq(edge.remaining_seconds,3.0)
+			assert_eq(edge.accessibility_live,DisplayServer.LIVE_OFF)
+		assert_signal_emit_count(edge,"status_announced",announcements)
+		current[0] = false
+		edge.advance_eligible_time(0.25)
+		assert_eq(edge.key,&"")
+		assert_false(edge.visible)
+		assert_signal_emit_count(edge,"status_announced",announcements)
 
 func test_edge_is_one_inert_label_and_does_not_capture_native_pointer_focus() -> void:
 	var edge := _edge()

@@ -455,17 +455,6 @@ func change_affection(friend_id: String, delta: int) -> bool:
 	return true
 
 
-func get_affection_tier(friend_id: String) -> String:
-	var a: int = int(affection.get(friend_id, 0))
-	if a < 0:
-		return "hatred"
-	if a <= 3:
-		return "just_friend"
-	if a <= 6:
-		return "ambiguous"
-	return "love"
-
-
 func set_friend_attitude(friend_id: String, attitude: String) -> bool:
 	friend_attitude[friend_id] = attitude
 	emit_signal("friends_changed")
@@ -509,14 +498,6 @@ func change_minesweeper_round_floor(delta: int) -> bool:
 	emit_signal("minesweeper_rounds_changed", get_minesweeper_display_rounds_left(), get_minesweeper_display_rounds_max())
 	emit_signal("save_relevant_state_changed")
 	return true
-
-
-func get_minesweeper_safety_level() -> int:
-	if inventory.has("debug_key"):
-		return 3
-	if inventory.has("lucky_charm"):
-		return 2
-	return 1
 
 
 func can_start_minesweeper_app_round() -> bool:
@@ -693,6 +674,9 @@ func preview_ordinary_reply(friend_id: String, reply_id: String, locale: String,
 	if not definition.get("ok", false): return definition
 	if definition.value.friend_id != friend_id or int(definition.value.day) != day:
 		return _transaction_failure(&"ordinary_reply_source_mismatch", "")
+	if _frozen_contacts_contexts_enabled:
+		var frozen := ensure_contact_presentation_contexts(friend_id)
+		if not frozen.ok: return frozen
 	var line := {"view_token": command_id, "line_id": definition.value.line_id, "text": definition.value.text}
 	var prepared: Dictionary = _ORDINARY_CORRESPONDENCE.prepare_reply(contacts, day, reply_id,
 		locale, command_id, command_issuer_receipt, line)
@@ -770,7 +754,12 @@ func _commit_ordinary_candidate(prepared: Dictionary, friend_id: String, command
 	if not captured.get("ok", false):
 		_mutation_gate.release(&"causal_transaction", str(lease.value.token))
 		return captured
+	var frozen := _prepare_contact_presentation_candidate(prepared.value.candidate)
+	if not frozen.ok:
+		_mutation_gate.release(&"causal_transaction", str(lease.value.token))
+		return frozen
 	contacts = prepared.value.candidate.duplicate(true)
+	if _frozen_contacts_contexts_enabled: route_context = frozen.value.route_context.duplicate(true)
 	var saved: Dictionary = _contact_checkpoint_writer.call()
 	if not saved.get("ok", false):
 		var rolled: Dictionary = rollback_restore_silent(captured.value.backup)
@@ -847,24 +836,28 @@ func open_contact(friend_id: String, command_id: String, command_issuer_receipt:
 	if not opened.get("ok", false): return opened
 	var operation: Dictionary = opened.value.candidate.transaction_receipts[command_id]
 	var has_care: bool = not replayed and operation.has("hospital_care")
+	var needs_checkpoint := has_care or (_frozen_contacts_contexts_enabled and not replayed)
+	var frozen := _prepare_contact_presentation_candidate(opened.value.candidate)
+	if not frozen.ok: return frozen
 	var lease := {}
 	var backup := {}
 	var care_route: Dictionary = dating_route_state.get("sylvia", {}).duplicate(true)
 	var care_affection := int(affection.get("sylvia", 0))
-	if has_care:
+	if needs_checkpoint:
 		if _run_lifecycle.get_state() != &"PLAYING" or _mutation_gate == null:
-			return _transaction_failure(&"care_read_unavailable", "care requires a playable day and mutation gate")
+			return _transaction_failure(&"care_read_unavailable" if has_care else &"contact_read_unavailable", "Contacts requires a playable day and mutation gate")
 		if not _contact_checkpoint_writer.is_valid():
-			return _transaction_failure(&"contact_checkpoint_writer_unconfigured", "care must be saved before publication")
-		var tier: String = str(care_route.get("relationship_state", "friend"))
-		if tier not in ["friend", "ambiguous", "love"]:
-			return _transaction_failure(&"invalid_care_relationship_state", tier)
-		for witness_id: String in operation.hospital_care.witness_ids:
-			var witness: Dictionary = operation.hospital_care.witnesses[witness_id]
-			care_affection = clampi(care_affection + int(witness.affection_delta), AFFECTION_MIN, AFFECTION_MAX)
-			care_route["dark_points"] = clampi(int(care_route.get("dark_points", 0)) + int(witness.dark_delta), 0, 4)
-			tier = "ambiguous" if tier == "friend" else "love"
-		care_route["relationship_state"] = tier
+			return _transaction_failure(&"contact_checkpoint_writer_unconfigured", "Contacts must be saved before publication")
+		if has_care:
+			var tier: String = str(care_route.get("relationship_state", "friend"))
+			if tier not in ["friend", "ambiguous", "love"]:
+				return _transaction_failure(&"invalid_care_relationship_state", tier)
+			for witness_id: String in operation.hospital_care.witness_ids:
+				var witness: Dictionary = operation.hospital_care.witnesses[witness_id]
+				care_affection = clampi(care_affection + int(witness.affection_delta), AFFECTION_MIN, AFFECTION_MAX)
+				care_route["dark_points"] = clampi(int(care_route.get("dark_points", 0)) + int(witness.dark_delta), 0, 4)
+				tier = "ambiguous" if tier == "friend" else "love"
+			care_route["relationship_state"] = tier
 		lease = _mutation_gate.acquire(&"causal_transaction")
 		if not lease.get("ok", false): return lease
 		var captured: Dictionary = capture_restore_state()
@@ -873,6 +866,7 @@ func open_contact(friend_id: String, command_id: String, command_issuer_receipt:
 			return captured
 		backup = captured.value.backup
 	contacts = opened.value.candidate
+	if _frozen_contacts_contexts_enabled: route_context = frozen.value.route_context.duplicate(true)
 	if not replayed:
 		# Reading care cannot manufacture a Day-7 invitation acceptance or a date witness.
 		if operation.kind != "open_sylvia_care":
@@ -881,6 +875,7 @@ func open_contact(friend_id: String, command_id: String, command_issuer_receipt:
 			affection["sylvia"] = care_affection
 			dating_route_state["sylvia"] = care_route
 			friend_attitude["sylvia"] = "fixated"
+		if needs_checkpoint:
 			var saved: Dictionary = _contact_checkpoint_writer.call()
 			if not saved.get("ok", false):
 				var rolled: Dictionary = rollback_restore_silent(backup)
@@ -928,13 +923,19 @@ func unlock_contact_message_after_minesweeper_finished(result: Dictionary) -> Di
 	if day == 7 and not _has_day7_relationship_tier(friend):
 		return {}
 	var key: String = "day:%d:friend:%s" % [day, friend]
-	contact_message_unlocks[key] = true
+	if not _frozen_contacts_contexts_enabled: contact_message_unlocks[key] = true
 	# Migration bridge (dwm-p2r.6, G1): mirror the daily-message unlock into a module solo offer
 	# so pair solos exist in the bag by round 3 for group activation. Idempotent per friend/day.
 	var offered: Dictionary = _CONTACT_INVITATION_STATE.prepare_offer_solo(
 		contacts, friend, day, "solo:%s:day%d" % [friend, day], "offer:%s:day%d" % [friend, day])
 	if offered.get("ok", false):
+		var frozen := _prepare_contact_presentation_candidate(offered.value.candidate)
+		if not frozen.ok: return frozen
 		contacts = offered["value"]["candidate"]
+		if _frozen_contacts_contexts_enabled: route_context = frozen.value.route_context.duplicate(true)
+	elif _frozen_contacts_contexts_enabled:
+		return offered
+	if _frozen_contacts_contexts_enabled: contact_message_unlocks[key] = true
 	emit_signal("contact_message_unlocked", {"friend_id": friend, "day": day})
 	emit_signal("save_relevant_state_changed")
 	return {"friend_id": friend, "day": day}
@@ -948,17 +949,6 @@ func _has_day7_relationship_tier(friend_id: String) -> bool:
 func is_contact_message_unlocked(friend_id: String, target_day: int = -1) -> bool:
 	var d: int = target_day if target_day >= 0 else day
 	return bool(contact_message_unlocks.get("day:%d:friend:%s" % [d, friend_id], false))
-
-
-func is_contact_choice_selected(friend_id: String, target_day: int = -1) -> bool:
-	var d: int = target_day if target_day >= 0 else day
-	return bool(contact_choice_state.get("day:%d:friend:%s" % [d, friend_id], false))
-
-
-func get_contact_choices(friend_id: String, target_day: int = -1) -> Array:
-	var selected_day: int = day if target_day < 0 else target_day
-	var available: Dictionary = _ORDINARY_CORRESPONDENCE.available(contacts, selected_day, friend_id)
-	return available.value.get("choices", []).duplicate(true) if available.get("ok", false) else []
 
 
 func get_contact_view(friend_id: String, target_day: int = -1) -> Dictionary:
@@ -999,7 +989,10 @@ func _bridge_maybe_activate_group() -> void:
 		_CONTACT_INVITATION_STATE.GROUP_ACTIVATION_ROUND,
 		"gactivate:day%d" % day)
 	if activated.get("ok", false):
+		var frozen := _prepare_contact_presentation_candidate(activated.value.candidate)
+		if not frozen.ok: return
 		contacts = activated["value"]["candidate"]
+		if _frozen_contacts_contexts_enabled: route_context = frozen.value.route_context.duplicate(true)
 
 
 func reply_invitation(friend_id: String, command_id: String, command_issuer_receipt: Dictionary) -> Dictionary:
@@ -1079,7 +1072,10 @@ func resolve_invitations_for_day(attendance: Dictionary, command_id: String) -> 
 	var result: Dictionary = _CONTACT_INVITATION_STATE.prepare_resolve_day_end(contacts, day, attendance, command_id)
 	if not result.get("ok", false):
 		return result
+	var frozen := _prepare_contact_presentation_candidate(result.value.candidate)
+	if not frozen.ok: return frozen
 	contacts = result["value"]["candidate"]
+	if _frozen_contacts_contexts_enabled: route_context = frozen.value.route_context.duplicate(true)
 	emit_signal("save_relevant_state_changed")
 	return {"ok": true, "code": &"ok", "value": {"receipt": result["receipt"], "replayed": false}}
 
@@ -1194,8 +1190,9 @@ func _prepare_day7_ending_plan(condition_source: Dictionary, attempt_reader: Cal
 			if found is Dictionary and found.get("ok", false) and found.get("value") is Dictionary:
 				selected_attempts[slot] = found.value
 	var mastery: Dictionary = MASTERY.evaluate(run_id, heads, selected_attempts)
-	# Profile behavior evidence and actual prior postscript completion are separate from
-	# current canonical board mastery. Caller-supplied variant flags carry no authority.
+	# Observer interactions are deferred; solo postscripts require current board mastery
+	# and Sweet tone. Profile receipts still own replay form and pair Persistence.
+	# Caller-supplied variant flags carry no authority.
 	var evidence_profile: Dictionary = {}
 	if not profile_reader.is_valid() and is_inside_tree():
 		var profile_owner: Node = get_node_or_null("/root/ProfileManager")
@@ -1204,10 +1201,6 @@ func _prepare_day7_ending_plan(condition_source: Dictionary, attempt_reader: Cal
 	if profile_reader.is_valid():
 		var read_profile: Variant = profile_reader.call()
 		if read_profile is Dictionary: evidence_profile = read_profile.duplicate(true)
-	const OBSERVER := preload("res://scripts/profile/ObserverEvidence.gd")
-	var proof: Variant = evidence_profile.get("observer_evidence", {})
-	var valid_proof: Dictionary = OBSERVER.validate(proof)
-	var behavior: Dictionary = OBSERVER.evidence(valid_proof.value) if valid_proof.ok else {"priscilla": false, "lavinia": false}
 	var completed_posts := {}
 	var gallery_receipts: Variant = evidence_profile.get("gallery_transaction_receipts", {})
 	if gallery_receipts is Dictionary:
@@ -1218,7 +1211,7 @@ func _prepare_day7_ending_plan(condition_source: Dictionary, attempt_reader: Cal
 				completed_posts[receipt.ending_id] = true
 	var observer_variants := {}
 	for friend_id: String in ["priscilla", "lavinia"]:
-		if mastery[friend_id] and behavior[friend_id] \
+		if mastery[friend_id] \
 				and int((dating_route_state.get(friend_id, {}) as Dictionary).get("dark_points", 0)) \
 				< _PROVISIONAL_RELATIONSHIP_RULES.DARK_TONE_THRESHOLD:
 			observer_variants[friend_id] = "residue" if completed_posts.has("ending.%s.observation" % friend_id) else "full"
@@ -1293,6 +1286,78 @@ func _capture_ending_presentation_inputs() -> Dictionary:
 				result["special_variant"] = "residue"
 	return result
 
+const _ENDING_FROZEN_CONTEXT := preload("res://scripts/narrative/EndingFrozenContext.gd")
+var _frozen_ending_contexts_enabled := false
+
+func configure_frozen_ending_contexts() -> Dictionary:
+	_frozen_ending_contexts_enabled = true
+	return {"ok": true}
+
+func _capture_ending_frozen_seed(provisional: Dictionary) -> Dictionary:
+	var snapshot: Variant = provisional.get("eligibility_snapshot")
+	if not snapshot is Dictionary or not snapshot.get("presentation_by_scope") is Dictionary \
+			or typeof(snapshot.get("hospital_required")) != TYPE_BOOL:
+		return _transaction_failure(&"ending_frozen_seed_required", "")
+	var evidence := {"priscilla": [], "lavinia": [], "sylvia": [], "priscilla_lavinia": []}
+	var profile: Node = get_node_or_null("/root/ProfileManager") if is_inside_tree() else null
+	if profile != null and profile.has_method("get_dating_attempt"):
+		var run_id := str(_run_lifecycle.to_dict().run_id)
+		for slot: String in route_context.get("dating_canonical_heads", {}):
+			var head: Dictionary = route_context.dating_canonical_heads[slot]
+			var found: Dictionary = profile.get_dating_attempt(run_id, slot, str(head.attempt_id), str(head.branch_id))
+			if not found.ok: return found
+			var attempt: Dictionary = found.value
+			var scope: String = str(attempt.record.context.participants[0]) if attempt.record.host == "canonical_solo" else "priscilla_lavinia"
+			for key: String in ["effect_receipt", "completion_receipt"]:
+				var receipt: Variant = attempt.get(key)
+				if receipt is Dictionary and receipt.get("receipt_id") is String and receipt.receipt_id not in evidence[scope]:
+					evidence[scope].append(receipt.receipt_id)
+	for values: Array in evidence.values(): values.sort()
+	var pair_counts: Array = []
+	for transaction_id: String in contacts.get("transaction_receipts", {}):
+		var receipt: Dictionary = contacts.transaction_receipts[transaction_id]
+		var window: Variant = receipt.get("pl_window")
+		if receipt.get("kind") == "resolve_day_end" and window is Dictionary and window.get("counts") == true:
+			pair_counts.append(transaction_id)
+	pair_counts.sort()
+	return _ENDING_FROZEN_CONTEXT.make_seed(snapshot.presentation_by_scope, evidence, pair_counts,
+		"hospital_faint" if snapshot.hospital_required else "empty_done")
+
+## The current step is checkpointed before playback. Later steps have no tokens or
+## prerequisite receipts in this cache until their preceding steps really complete.
+func capture_ending_frozen_presentation(ending_id: String, context: Dictionary) -> Dictionary:
+	if not _frozen_ending_contexts_enabled: return _transaction_failure(&"ending_frozen_contexts_unconfigured", "")
+	var command := request_next_ending_command()
+	if not command.get("ok", false) or command.get("value", {}).get("kind") != "play_ending" \
+			or command.value.ending_id != ending_id or command.value.playback_context != context:
+		return _transaction_failure(&"ending_presentation_command_mismatch", ending_id)
+	var lifecycle: Dictionary = _run_lifecycle.to_dict()
+	var cached: Variant = route_context.get("ending_frozen_contexts_v1")
+	var checked := _ENDING_FROZEN_CONTEXT.validate_cache(cached, lifecycle)
+	if not checked.ok: return checked
+	var key := str(context.playback_id)
+	if cached.presentations.has(key): return {"ok": true, "value": cached.presentations[key].duplicate(true)}
+	var projected := _ENDING_FROZEN_CONTEXT.build(lifecycle.ending_plan, int(lifecycle.ending_plan.next_step_index), cached.seed, key)
+	if not projected.ok: return projected
+	if not _ending_checkpoint_writer.is_valid(): return _transaction_failure(&"ending_checkpoint_writer_unconfigured", "")
+	var lease := _acquire_ending_lease()
+	if not lease.ok: return lease
+	var captured := capture_restore_state()
+	if not captured.ok:
+		_release_ending_lease(lease)
+		return captured
+	var candidate: Dictionary = cached.duplicate(true)
+	candidate.presentations[key] = projected.value.duplicate(true)
+	route_context["ending_frozen_contexts_v1"] = candidate
+	var saved: Dictionary = _ending_checkpoint_writer.call()
+	if not saved.ok:
+		var rolled := rollback_restore_silent(captured.value.backup)
+		var released := _release_ending_lease(lease)
+		if not rolled.ok: return rolled
+		return saved if released.ok else released
+	var released := _release_ending_lease(lease)
+	return projected if released.ok else released
+
 
 ## Accept only the command at this saved cursor. The returned signature names the exact
 ## registered entry the ending adapter must physically play, including exceptional forms.
@@ -1301,6 +1366,12 @@ func capture_ending_presentation_signature(ending_id: String, context: Dictionar
 	if not command.get("ok", false) or command.get("value", {}).get("kind") != "play_ending" \
 			or command.value.get("ending_id") != ending_id or command.value.get("playback_context") != context:
 		return _transaction_failure(&"ending_presentation_command_mismatch", ending_id)
+	if _frozen_ending_contexts_enabled:
+		var lifecycle: Dictionary = _run_lifecycle.to_dict()
+		var cache: Variant = route_context.get("ending_frozen_contexts_v1")
+		var checked := _ENDING_FROZEN_CONTEXT.validate_cache(cache, lifecycle)
+		if not checked.ok: return checked
+		return _ENDING_FROZEN_CONTEXT.signature_for_step(lifecycle.ending_plan, int(lifecycle.ending_plan.next_step_index), cache.seed)
 	var frozen: Dictionary = route_context.get("provisional_ending_plan", {}).get("eligibility_snapshot", {})
 	# A compatible older save has no captured presentation map. Its current saved facts are
 	# captured at this first actual start; this does not invent an earlier reached variant.
@@ -1426,28 +1497,6 @@ func should_route_sylvia_special_ending() -> bool:
 	var steps: Variant = (plan as Dictionary).get("steps")
 	return typeof(steps) == TYPE_ARRAY and not (steps as Array).is_empty() and str(((steps as Array)[0] as Dictionary).get("ending_id", "")) == "ending.sylvia.special"
 
-func can_respond_to_invitation(friend_id: String) -> bool:
-	if is_invitation_day(friend_id) and not is_contact_choice_selected(friend_id):
-		return true
-	if is_group_invitation_day() and _group_pair_contains(friend_id) and not _group_is_active():
-		return true
-	return false
-
-
-func can_buy_supportz() -> bool:
-	return minesweeper_app_rounds_finished_today >= 2 and minesweeper_round_floor > MINESWEEPER_ROUND_FLOOR_MIN
-
-
-func has_unread_friend_messages() -> Dictionary:
-	var out: Dictionary = {}
-	for fid in FRIEND_IDS:
-		var unread: bool = is_contact_message_unlocked(fid) and not is_contact_choice_selected(fid)
-		out[fid] = unread
-		if unread:
-			emit_signal("unread_friend", {"friend_id": fid, "day": day})
-	return out
-
-
 # ---- Schedule ----
 # The canonical committed aggregate is the ONLY Schedule source of truth (Plan 01 Task 5,
 # dwm-p2r.13). The legacy per-day draft array, its add-time spend/refund, its direct
@@ -1465,8 +1514,8 @@ func _committed_entries() -> Array:
 ## `create_missed_group_twofriends_entry`.
 ##
 ## SCOPE NOTE, deliberately not glossed over: the DATE TRANSPORT is behaviour-preserving, but the
-## pre-Done QUERY surface is not. `should_warn_minesweeper_before_schedule_done`,
-## `get_scheduled_date_count` and `get_max_scheduled_dates_for_current_day` were written to inspect
+## pre-Done QUERY surface is not. `get_scheduled_date_count` and
+## `get_max_scheduled_dates_for_current_day` were written to inspect
 ## the draft the player had built BEFORE pressing Done. There is no draft in GameState any more --
 ## the aggregate is empty until the Done commit transaction lands -- so those queries now answer
 ## from post-commit state and their draft-time branches are unreachable. That is the amendment's
@@ -1503,46 +1552,6 @@ func _reset_committed_schedule_for_day_end() -> void:
 	_committed_schedule = {}
 	emit_signal("schedule_changed")
 	emit_signal("save_relevant_state_changed")
-
-
-func should_warn_minesweeper_before_schedule_done() -> Dictionary:
-	var has_unfinished: bool = not unfinished_minesweeper_result.is_empty()
-	var has_playable: bool = has_minesweeper_app_round_available()
-	var motivation: int = get_stat(STAT_MOTIVATION)
-	var has_date_entry: bool = false
-	var has_non_date_entry: bool = false
-	for entry in _committed_entries():
-		if _is_committed_date_entry(entry):
-			has_date_entry = true
-		else:
-			has_non_date_entry = true
-
-	var should_warn: bool = false
-	var reason: String = ""
-	if not has_date_entry:
-		var cond1: bool = motivation > 0 and has_unfinished
-		var cond2: bool = motivation > 0 and has_playable
-		var cond3: bool = motivation == 0 and has_non_date_entry and has_playable
-		should_warn = cond1 or cond2 or cond3
-		if cond1:
-			reason = "unfinished_round_and_motivation"
-		elif cond2:
-			reason = "playable_round_and_motivation"
-		elif cond3:
-			reason = "playable_round_zero_motivation_with_non_date"
-		else:
-			reason = "no_warn"
-	else:
-		reason = "date_present"
-
-	return {
-		"should_warn": should_warn,
-		"reason": reason,
-		"has_unfinished_round": has_unfinished,
-		"has_playable_round": has_playable,
-		"motivation": motivation,
-		"has_non_date_entry": has_non_date_entry,
-	}
 
 
 func get_scheduled_date_friend_ids() -> Array[String]:
@@ -2731,6 +2740,11 @@ func _admit_terminal_ending() -> Dictionary:
 	route_context["ending_id"] = str(plan.ending_id)
 	route_context["epilogue_ending_id"] = str(plan.epilogue_ending_id)
 	if not condition_source.is_empty():
+		if _frozen_ending_contexts_enabled:
+			var frozen_contacts := preload("res://scripts/narrative/ContactsFrozenContext.gd").capture_candidate(
+				contacts, closure.value.candidate, capture_run_snapshot_input().gameplay, 7)
+			if not frozen_contacts.ok: return _rollback_ending_admission(backup, consequence_backup, frozen_contacts)
+			_apply_gameplay_silent(frozen_contacts.value)
 		contacts = closure.value.candidate.duplicate(true)
 		var cause := str(condition_source.terminal_cause)
 		route_context["day7_condition_ending"] = {
@@ -2743,6 +2757,10 @@ func _admit_terminal_ending() -> Dictionary:
 			"ending_form": "special_forced_dark" if cause == "sylvia_special" else ("dark_mode" if cause == "dark_mode_alone" else "normal")}
 		var published: Dictionary = _ending_condition_source.commit(publication.value.candidate)
 		if not published.get("ok", false): return _rollback_ending_admission(backup, consequence_backup, published)
+	if _frozen_ending_contexts_enabled:
+		var seed := _capture_ending_frozen_seed(provisional.value)
+		if not seed.ok: return _rollback_ending_admission(backup, consequence_backup, seed)
+		route_context["ending_frozen_contexts_v1"] = {"schema_version": 1, "seed": seed.value, "presentations": {}}
 	var saved: Dictionary = _ending_checkpoint_writer.call()
 	if not saved.get("ok", false): return _rollback_ending_admission(backup, consequence_backup, saved)
 	return {"ok": true, "code": &"ok", "value": {"route": "ending"}}
@@ -2985,7 +3003,7 @@ func capture_restore_state() -> Dictionary:
 		var captured: Dictionary = _dating_restore_owner.capture_reconciliation_state()
 		if not captured.get("ok", false): return captured
 		dating_backup = captured.value.duplicate(true)
-	var gameplay := to_save_dict()
+	var gameplay := to_save_dict().duplicate(true)
 	gameplay["narrative_variables"] = _narrative_variables.duplicate(true)
 	return {"ok": true, "code": &"ok", "value": {"backup": {
 		"gameplay": gameplay,
@@ -3104,17 +3122,9 @@ static func _transaction_failure(code: StringName, message: String) -> Dictionar
 	return {"ok": false, "code": code, "message": message, "details": {}}
 
 
-# ---- Detached run candidate seam (Plan-05 Task 3 Step 3.2) ----
-
-func prepare_run_candidate(snapshot: Dictionary) -> Dictionary:
-	if typeof(snapshot) != TYPE_DICTIONARY or snapshot.is_empty():
-		return _transaction_failure(&"invalid_run_candidate", "a snapshot input is required")
-	return {"ok": true, "code": &"ok", "value": {"candidate": snapshot.duplicate(true)}, "receipt": {}}
-
-
 func capture_live_run_state() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"backup": {
-		"gameplay": to_save_dict(),
+		"gameplay": to_save_dict().duplicate(true),
 		"contacts": contacts.duplicate(true),
 		"command_receipts": _command_receipts.duplicate(true),
 		"applied_effect_transaction_ids": _applied_effect_transaction_ids.duplicate(true),
@@ -3123,19 +3133,13 @@ func capture_live_run_state() -> Dictionary:
 	}}}
 
 
-func commit_run_candidate(candidate: Dictionary) -> Dictionary:
-	if typeof(candidate) != TYPE_DICTIONARY or candidate.is_empty():
-		return _transaction_failure(&"invalid_run_candidate", "candidate was not issued by this seam")
-	return {"ok": true, "code": &"ok", "value": {"committed": true}, "receipt": {}}
-
-
 func restore_live_run_state(backup: Dictionary) -> Dictionary:
 	var source: Variant = backup.get("backup", backup)
 	if typeof(source) != TYPE_DICTIONARY or not (source as Dictionary).has("command_receipts"):
 		return _transaction_failure(&"invalid_run_backup", "backup was not issued by capture_live_run_state")
 	var detached: Dictionary = source as Dictionary
 	if typeof(detached.get("gameplay")) == TYPE_DICTIONARY:
-		apply_save_dict(detached["gameplay"])
+		apply_save_dict(detached["gameplay"].duplicate(true))
 	if typeof(detached.get("contacts")) == TYPE_DICTIONARY:
 		contacts = (detached["contacts"] as Dictionary).duplicate(true)
 	_command_receipts = (detached["command_receipts"] as Dictionary).duplicate(true)
@@ -3791,8 +3795,129 @@ func _apply_gameplay_silent(gameplay: Dictionary) -> void:
 					typed.append(str(item))
 			self.set(key, typed)
 		elif v is Dictionary:
-			self.set(key, v.duplicate())
+			self.set(key, v.duplicate(true))
 		elif v is Array:
-			self.set(key, v.duplicate())
+			self.set(key, v.duplicate(true))
 		else:
 			self.set(key, v)
+
+
+
+# Root integration: append these methods to GameState.gd. No new gameplay owner or
+# receipt is created; this is a saved presentation cache in the existing Run bag.
+func read_hospital_presentation_request(resolution_id: String) -> Dictionary:
+	const HOSPITAL_FROZEN := preload("res://scripts/narrative/HospitalFrozenContext.gd")
+	var cache: Variant = route_context.get("hospital_frozen_contexts_v1")
+	if cache == null: return {"ok": true, "value": {}}
+	if not cache is Dictionary or cache.size() != 2 or cache.get("schema_version") != 1 \
+			or not cache.get("requests") is Dictionary:
+		return _transaction_failure(&"hospital_frozen_context_invalid", "")
+	for key: Variant in cache.requests:
+		if not key is String: return _transaction_failure(&"hospital_frozen_context_invalid", "")
+		var checked: Dictionary = HOSPITAL_FROZEN.validate_request(cache.requests[key])
+		if not checked.get("ok", false): return checked
+		if checked.value.resolution_id != key:
+			return _transaction_failure(&"hospital_frozen_request_mismatch", key)
+	var saved: Dictionary = cache.requests.get(resolution_id, {})
+	if saved.is_empty(): return {"ok": true, "value": {}}
+	var plan: Variant = _run_lifecycle.to_dict().get("active_resolution_plan")
+	if not plan is Dictionary or plan.get("resolution_id") != resolution_id \
+			or saved.context.day != plan.get("source_day") \
+			or saved.resolution_issuer_receipt != plan.get("resolution_issuer_receipt"):
+		return _transaction_failure(&"hospital_frozen_request_mismatch", resolution_id)
+	var stage_id := ""
+	for stage: Dictionary in plan.get("stages", []):
+		if stage.get("stage_id") == "hospital_if_triggered": stage_id = str(stage.transaction_id)
+	if saved.stage_id != stage_id:
+		return _transaction_failure(&"hospital_frozen_request_mismatch", resolution_id)
+	return {"ok": true, "value": saved.duplicate(true)}
+
+func retain_hospital_presentation_request(request: Dictionary) -> Dictionary:
+	const HOSPITAL_FROZEN := preload("res://scripts/narrative/HospitalFrozenContext.gd")
+	var checked: Dictionary = HOSPITAL_FROZEN.validate_request(request)
+	if not checked.get("ok", false): return checked
+	var prior := read_hospital_presentation_request(str(request.resolution_id))
+	if not prior.get("ok", false): return prior
+	if not prior.value.is_empty():
+		return prior if prior.value == request else _transaction_failure(&"hospital_frozen_request_conflict", request.resolution_id)
+	if not _contact_checkpoint_writer.is_valid() or _mutation_gate == null:
+		return _transaction_failure(&"hospital_frozen_store_unavailable", "")
+	var lease := {}
+	if _mutation_gate.is_active():
+		if _mutation_gate.get_active_owner() != &"causal_transaction":
+			return _transaction_failure(&"hospital_frozen_store_busy", "")
+	else:
+		lease = _mutation_gate.acquire(&"causal_transaction")
+		if not lease.get("ok", false): return lease
+	var backup: Dictionary = capture_restore_state()
+	if not backup.get("ok", false):
+		if not lease.is_empty(): _mutation_gate.release(&"causal_transaction", str(lease.value.token))
+		return backup
+	var cache: Dictionary = route_context.get("hospital_frozen_contexts_v1", {"schema_version": 1, "requests": {}}).duplicate(true)
+	cache.requests[request.resolution_id] = checked.value
+	route_context["hospital_frozen_contexts_v1"] = cache
+	# Bind to this exact persisted resolution before any snapshot is written.
+	var bound := read_hospital_presentation_request(str(request.resolution_id))
+	var saved: Dictionary = _contact_checkpoint_writer.call() if bound.get("ok", false) else bound
+	if not saved.get("ok", false):
+		var rolled := rollback_restore_silent(backup.value.backup)
+		if not lease.is_empty():
+			var released: Dictionary = _mutation_gate.release(&"causal_transaction", str(lease.value.token))
+			if not released.get("ok", false): return released
+		return saved if rolled.get("ok", false) else rolled
+	if not lease.is_empty():
+		var released: Dictionary = _mutation_gate.release(&"causal_transaction", str(lease.value.token))
+		if not released.get("ok", false): return released
+	return {"ok": true, "value": checked.value.duplicate(true)}
+
+
+# Add these declarations and methods to GameState. Root serializes the accompanying
+# exact-anchor replacements; this fragment is not an independent runnable script.
+const _CONTACTS_FROZEN := preload("res://scripts/narrative/ContactsFrozenContext.gd")
+var _frozen_contacts_contexts_enabled := false
+
+func configure_frozen_contacts_contexts() -> Dictionary:
+	_frozen_contacts_contexts_enabled = true
+	return {"ok": true}
+
+func frozen_contacts_contexts_enabled() -> bool:
+	return _frozen_contacts_contexts_enabled
+
+func _prepare_contact_presentation_candidate(candidate: Dictionary) -> Dictionary:
+	if not _frozen_contacts_contexts_enabled: return {"ok": true, "value": to_save_dict()}
+	return _CONTACTS_FROZEN.capture_candidate(contacts, candidate, to_save_dict(), day)
+
+## First admission may freeze only a current ordinary card or the Day 7 echo batch.
+## All historical facts must already accompany their causal source generation.
+func ensure_contact_presentation_contexts(friend_id: String = "") -> Dictionary:
+	if not _frozen_contacts_contexts_enabled: return {"ok": true, "value": {}}
+	if friend_id != "" and friend_id not in _CONTACT_INVITATION_STATE.FRIEND_IDS:
+		return _transaction_failure(&"unknown_friend", "")
+	var prepared := _CONTACTS_FROZEN.prepare_projection(contacts, to_save_dict(), day, friend_id)
+	if not prepared.ok: return prepared
+	var candidate: Dictionary = prepared.value.route_context
+	if candidate == route_context:
+		return {"ok": true, "value": candidate[_CONTACTS_FROZEN.CACHE_KEY].duplicate(true)}
+	if _run_lifecycle.get_state() != &"PLAYING" or _mutation_gate == null:
+		return _transaction_failure(&"contact_presentation_unavailable", "")
+	if not _contact_checkpoint_writer.is_valid():
+		return _transaction_failure(&"contact_checkpoint_writer_unconfigured", "")
+	var lease: Dictionary = _mutation_gate.acquire(&"causal_transaction")
+	if not lease.ok: return lease
+	var captured: Dictionary = capture_restore_state()
+	if not captured.ok:
+		_mutation_gate.release(&"causal_transaction", str(lease.value.token))
+		return captured
+	route_context = candidate.duplicate(true)
+	var saved: Dictionary = _contact_checkpoint_writer.call()
+	if not saved.get("ok", false):
+		var rolled: Dictionary = rollback_restore_silent(captured.value.backup)
+		if not rolled.ok:
+			_mutation_gate.latch_fatal({"source": "contact_presentation", "phase": "rollback",
+				"code": "CONTACT_PRESENTATION_ROLLBACK_FAILED", "details": {"cause": str(rolled.get("code", ""))}})
+			return rolled
+		var released: Dictionary = _mutation_gate.release(&"causal_transaction", str(lease.value.token))
+		return saved if released.ok else released
+	var released: Dictionary = _mutation_gate.release(&"causal_transaction", str(lease.value.token))
+	if not released.ok: return released
+	return {"ok": true, "value": route_context[_CONTACTS_FROZEN.CACHE_KEY].duplicate(true)}

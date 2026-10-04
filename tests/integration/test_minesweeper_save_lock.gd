@@ -78,6 +78,7 @@ func _empty_desktop() -> Dictionary:
 
 func _bundle(run_id: String) -> Dictionary:
 	var fixture: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(VALID_FIXTURE))
+	fixture["contacts"] = preload("res://scripts/domain/contact/ContactInvitationState.gd").make_defaults()
 	fixture["gameplay"].erase("opening_seen")
 	fixture["gameplay"].erase("tutorial_seen")
 	var lifecycle: Dictionary = fixture["lifecycle"]

@@ -1,0 +1,12 @@
+# NONCANONICAL CLOUD TEST FIXTURE ONLY. Explicit locator injection required.
+return
+
+label ending.sylvia.special.full
+This explicitly noncanonical ending caption belongs to the first ordered step. #id:fixture.ending.first
+The second test leaf remains in the visible ending stack. #id:fixture.ending.prior
+The third test leaf crosses the physical ending boundary. #id:fixture.ending.boundary
+return
+
+label ending.sylvia.dark
+The next ending begins with both prior captions retained. #id:fixture.ending.second
+return

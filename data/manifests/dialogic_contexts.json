@@ -1,0 +1,3828 @@
+{
+  "kind": "dialogic_frozen_context_registry",
+  "schema_version": 1,
+  "schemas": [
+    {
+      "schema_id": "context.ordinary_message.contact.ordinary.lavinia.day1.v1",
+      "schema_version": 1,
+      "entry_id": "contact.ordinary.lavinia.day1",
+      "fields": {
+        "entry_id": {
+          "const": "contact.ordinary.lavinia.day1"
+        },
+        "entry_role": {
+          "const": "ordinary_message"
+        },
+        "day": {
+          "const": 1
+        },
+        "friend_id": {
+          "const": "lavinia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "phase": "ordinary_phase",
+        "due_echoes": "echoes",
+        "selected_reply_id": "nullable_id",
+        "witnessed_line_id": "nullable_id"
+      }
+    },
+    {
+      "schema_id": "context.solo_invitation_offer.contact.invitation.solo.priscilla.day1.offer.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.priscilla.day1.offer",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.priscilla.day1.offer"
+        },
+        "entry_role": {
+          "const": "solo_invitation_offer"
+        },
+        "day": {
+          "const": 1
+        },
+        "friend_id": {
+          "const": "priscilla"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "source_day": {
+          "const": 1
+        }
+      }
+    },
+    {
+      "schema_id": "context.solo_invitation_offer.contact.invitation.solo.sylvia.day1.offer.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.sylvia.day1.offer",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.sylvia.day1.offer"
+        },
+        "entry_role": {
+          "const": "solo_invitation_offer"
+        },
+        "day": {
+          "const": 1
+        },
+        "friend_id": {
+          "const": "sylvia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "source_day": {
+          "const": 1
+        }
+      }
+    },
+    {
+      "schema_id": "context.solo_pre_challenge.dating.solo.priscilla.day1.pre_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.solo.priscilla.day1.pre_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.solo.priscilla.day1.pre_challenge"
+        },
+        "entry_role": {
+          "const": "solo_pre_challenge"
+        },
+        "day": {
+          "const": 1
+        },
+        "friend_id": {
+          "const": "priscilla"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "run_id": "id",
+        "branch_id": "id",
+        "challenge_slot": {
+          "const": "dating.solo.priscilla.day1"
+        },
+        "phase": {
+          "const": "pre_challenge"
+        },
+        "due_echoes": "echoes",
+        "attempt_residue_id": "no_residue"
+      }
+    },
+    {
+      "schema_id": "context.solo_post_challenge.dating.solo.priscilla.day1.post_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.solo.priscilla.day1.post_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.solo.priscilla.day1.post_challenge"
+        },
+        "entry_role": {
+          "const": "solo_post_challenge"
+        },
+        "day": {
+          "const": 1
+        },
+        "friend_id": {
+          "const": "priscilla"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "run_id": "id",
+        "branch_id": "id",
+        "attempt_id": "id",
+        "challenge_slot": {
+          "const": "dating.solo.priscilla.day1"
+        },
+        "phase": {
+          "const": "post_challenge"
+        },
+        "due_echoes": "echoes",
+        "attempt_residue_id": "no_residue",
+        "board_result": "board_result",
+        "perfect_reasons": "perfect_reasons",
+        "relationship_outcome": "relationship_outcome",
+        "effect_receipt_id": "id"
+      }
+    },
+    {
+      "schema_id": "context.solo_pre_challenge.dating.solo.sylvia.day1.pre_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.solo.sylvia.day1.pre_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.solo.sylvia.day1.pre_challenge"
+        },
+        "entry_role": {
+          "const": "solo_pre_challenge"
+        },
+        "day": {
+          "const": 1
+        },
+        "friend_id": {
+          "const": "sylvia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "run_id": "id",
+        "branch_id": "id",
+        "challenge_slot": {
+          "const": "dating.solo.sylvia.day1"
+        },
+        "phase": {
+          "const": "pre_challenge"
+        },
+        "due_echoes": "echoes",
+        "attempt_residue_id": "no_residue"
+      }
+    },
+    {
+      "schema_id": "context.solo_post_challenge.dating.solo.sylvia.day1.post_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.solo.sylvia.day1.post_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.solo.sylvia.day1.post_challenge"
+        },
+        "entry_role": {
+          "const": "solo_post_challenge"
+        },
+        "day": {
+          "const": 1
+        },
+        "friend_id": {
+          "const": "sylvia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "run_id": "id",
+        "branch_id": "id",
+        "attempt_id": "id",
+        "challenge_slot": {
+          "const": "dating.solo.sylvia.day1"
+        },
+        "phase": {
+          "const": "post_challenge"
+        },
+        "due_echoes": "echoes",
+        "attempt_residue_id": "no_residue",
+        "board_result": "board_result",
+        "perfect_reasons": "perfect_reasons",
+        "relationship_outcome": "relationship_outcome",
+        "effect_receipt_id": "id"
+      }
+    },
+    {
+      "schema_id": "context.hospital.hospital.faint.day1.v1",
+      "schema_version": 1,
+      "entry_id": "hospital.faint.day1",
+      "fields": {
+        "entry_id": {
+          "const": "hospital.faint.day1"
+        },
+        "entry_role": {
+          "const": "hospital"
+        },
+        "day": {
+          "const": 1
+        },
+        "qualifying_cause": "hospital_cause",
+        "accepted_record_ids": "ids",
+        "unfulfilled_record_ids": "ids",
+        "sylvia_witness_receipt_id": "nullable_id",
+        "sylvia_eligible": "bool"
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.solo.priscilla.day1.nevermind.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.priscilla.day1.nevermind",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.priscilla.day1.nevermind"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 2
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "priscilla"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.solo.priscilla.day1.missed_question.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.priscilla.day1.missed_question",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.priscilla.day1.missed_question"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 2
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "priscilla"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.solo.sylvia.day1.nevermind.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.sylvia.day1.nevermind",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.sylvia.day1.nevermind"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 2
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "sylvia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.solo.sylvia.day1.missed_question.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.sylvia.day1.missed_question",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.sylvia.day1.missed_question"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 2
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "sylvia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.hospital_care.sylvia.day2.v1",
+      "schema_version": 1,
+      "entry_id": "contact.hospital_care.sylvia.day2",
+      "fields": {
+        "entry_id": {
+          "const": "contact.hospital_care.sylvia.day2"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 2
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "sylvia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.ordinary_message.contact.ordinary.sylvia.day2.v1",
+      "schema_version": 1,
+      "entry_id": "contact.ordinary.sylvia.day2",
+      "fields": {
+        "entry_id": {
+          "const": "contact.ordinary.sylvia.day2"
+        },
+        "entry_role": {
+          "const": "ordinary_message"
+        },
+        "day": {
+          "const": 2
+        },
+        "friend_id": {
+          "const": "sylvia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "phase": "ordinary_phase",
+        "due_echoes": "echoes",
+        "selected_reply_id": "nullable_id",
+        "witnessed_line_id": "nullable_id"
+      }
+    },
+    {
+      "schema_id": "context.solo_invitation_offer.contact.invitation.solo.priscilla.day2.offer.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.priscilla.day2.offer",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.priscilla.day2.offer"
+        },
+        "entry_role": {
+          "const": "solo_invitation_offer"
+        },
+        "day": {
+          "const": 2
+        },
+        "friend_id": {
+          "const": "priscilla"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "source_day": {
+          "const": 2
+        }
+      }
+    },
+    {
+      "schema_id": "context.solo_invitation_offer.contact.invitation.solo.lavinia.day2.offer.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.lavinia.day2.offer",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.lavinia.day2.offer"
+        },
+        "entry_role": {
+          "const": "solo_invitation_offer"
+        },
+        "day": {
+          "const": 2
+        },
+        "friend_id": {
+          "const": "lavinia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "source_day": {
+          "const": 2
+        }
+      }
+    },
+    {
+      "schema_id": "context.group_contact_offer.contact.invitation.group.priscilla_lavinia.day2.first_open_priscilla.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day2.first_open_priscilla",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day2.first_open_priscilla"
+        },
+        "entry_role": {
+          "const": "group_contact_offer"
+        },
+        "day": {
+          "const": 2
+        },
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        },
+        "source_day": {
+          "const": 2
+        },
+        "group_action_state": "group_state",
+        "inviter_id": "nullable_pair_friend",
+        "target_participant_id": "nullable_pair_friend",
+        "opened_ids": "participants",
+        "replied_ids": "participants",
+        "contact_variation": "contact_variation"
+      }
+    },
+    {
+      "schema_id": "context.group_contact_offer.contact.invitation.group.priscilla_lavinia.day2.first_open_lavinia.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day2.first_open_lavinia",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day2.first_open_lavinia"
+        },
+        "entry_role": {
+          "const": "group_contact_offer"
+        },
+        "day": {
+          "const": 2
+        },
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        },
+        "source_day": {
+          "const": 2
+        },
+        "group_action_state": "group_state",
+        "inviter_id": "nullable_pair_friend",
+        "target_participant_id": "nullable_pair_friend",
+        "opened_ids": "participants",
+        "replied_ids": "participants",
+        "contact_variation": "contact_variation"
+      }
+    },
+    {
+      "schema_id": "context.group_contact_offer.contact.invitation.group.priscilla_lavinia.day2.second_open_priscilla.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day2.second_open_priscilla",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day2.second_open_priscilla"
+        },
+        "entry_role": {
+          "const": "group_contact_offer"
+        },
+        "day": {
+          "const": 2
+        },
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        },
+        "source_day": {
+          "const": 2
+        },
+        "group_action_state": "group_state",
+        "inviter_id": "nullable_pair_friend",
+        "target_participant_id": "nullable_pair_friend",
+        "opened_ids": "participants",
+        "replied_ids": "participants",
+        "contact_variation": "contact_variation"
+      }
+    },
+    {
+      "schema_id": "context.group_contact_offer.contact.invitation.group.priscilla_lavinia.day2.second_open_lavinia.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day2.second_open_lavinia",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day2.second_open_lavinia"
+        },
+        "entry_role": {
+          "const": "group_contact_offer"
+        },
+        "day": {
+          "const": 2
+        },
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        },
+        "source_day": {
+          "const": 2
+        },
+        "group_action_state": "group_state",
+        "inviter_id": "nullable_pair_friend",
+        "target_participant_id": "nullable_pair_friend",
+        "opened_ids": "participants",
+        "replied_ids": "participants",
+        "contact_variation": "contact_variation"
+      }
+    },
+    {
+      "schema_id": "context.group_contact_offer.contact.invitation.group.priscilla_lavinia.day2.need_reply_priscilla_first.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day2.need_reply_priscilla_first",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day2.need_reply_priscilla_first"
+        },
+        "entry_role": {
+          "const": "group_contact_offer"
+        },
+        "day": {
+          "const": 2
+        },
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        },
+        "source_day": {
+          "const": 2
+        },
+        "group_action_state": "group_state",
+        "inviter_id": "nullable_pair_friend",
+        "target_participant_id": "nullable_pair_friend",
+        "opened_ids": "participants",
+        "replied_ids": "participants",
+        "contact_variation": "contact_variation"
+      }
+    },
+    {
+      "schema_id": "context.group_contact_offer.contact.invitation.group.priscilla_lavinia.day2.need_reply_lavinia_first.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day2.need_reply_lavinia_first",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day2.need_reply_lavinia_first"
+        },
+        "entry_role": {
+          "const": "group_contact_offer"
+        },
+        "day": {
+          "const": 2
+        },
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        },
+        "source_day": {
+          "const": 2
+        },
+        "group_action_state": "group_state",
+        "inviter_id": "nullable_pair_friend",
+        "target_participant_id": "nullable_pair_friend",
+        "opened_ids": "participants",
+        "replied_ids": "participants",
+        "contact_variation": "contact_variation"
+      }
+    },
+    {
+      "schema_id": "context.group_contact_offer.contact.invitation.group.priscilla_lavinia.day2.offer.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day2.offer",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day2.offer"
+        },
+        "entry_role": {
+          "const": "group_contact_offer"
+        },
+        "day": {
+          "const": 2
+        },
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        },
+        "source_day": {
+          "const": 2
+        },
+        "group_action_state": "group_state",
+        "inviter_id": "nullable_pair_friend",
+        "target_participant_id": "nullable_pair_friend",
+        "opened_ids": "participants",
+        "replied_ids": "participants",
+        "contact_variation": "contact_variation"
+      }
+    },
+    {
+      "schema_id": "context.solo_pre_challenge.dating.solo.priscilla.day2.pre_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.solo.priscilla.day2.pre_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.solo.priscilla.day2.pre_challenge"
+        },
+        "entry_role": {
+          "const": "solo_pre_challenge"
+        },
+        "day": {
+          "const": 2
+        },
+        "friend_id": {
+          "const": "priscilla"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "run_id": "id",
+        "branch_id": "id",
+        "challenge_slot": {
+          "const": "dating.solo.priscilla.day2"
+        },
+        "phase": {
+          "const": "pre_challenge"
+        },
+        "due_echoes": "echoes",
+        "attempt_residue_id": "no_residue"
+      }
+    },
+    {
+      "schema_id": "context.solo_post_challenge.dating.solo.priscilla.day2.post_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.solo.priscilla.day2.post_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.solo.priscilla.day2.post_challenge"
+        },
+        "entry_role": {
+          "const": "solo_post_challenge"
+        },
+        "day": {
+          "const": 2
+        },
+        "friend_id": {
+          "const": "priscilla"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "run_id": "id",
+        "branch_id": "id",
+        "attempt_id": "id",
+        "challenge_slot": {
+          "const": "dating.solo.priscilla.day2"
+        },
+        "phase": {
+          "const": "post_challenge"
+        },
+        "due_echoes": "echoes",
+        "attempt_residue_id": "no_residue",
+        "board_result": "board_result",
+        "perfect_reasons": "perfect_reasons",
+        "relationship_outcome": "relationship_outcome",
+        "effect_receipt_id": "id"
+      }
+    },
+    {
+      "schema_id": "context.solo_pre_challenge.dating.solo.lavinia.day2.pre_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.solo.lavinia.day2.pre_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.solo.lavinia.day2.pre_challenge"
+        },
+        "entry_role": {
+          "const": "solo_pre_challenge"
+        },
+        "day": {
+          "const": 2
+        },
+        "friend_id": {
+          "const": "lavinia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "run_id": "id",
+        "branch_id": "id",
+        "challenge_slot": {
+          "const": "dating.solo.lavinia.day2"
+        },
+        "phase": {
+          "const": "pre_challenge"
+        },
+        "due_echoes": "echoes",
+        "attempt_residue_id": "no_residue"
+      }
+    },
+    {
+      "schema_id": "context.solo_post_challenge.dating.solo.lavinia.day2.post_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.solo.lavinia.day2.post_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.solo.lavinia.day2.post_challenge"
+        },
+        "entry_role": {
+          "const": "solo_post_challenge"
+        },
+        "day": {
+          "const": 2
+        },
+        "friend_id": {
+          "const": "lavinia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "run_id": "id",
+        "branch_id": "id",
+        "attempt_id": "id",
+        "challenge_slot": {
+          "const": "dating.solo.lavinia.day2"
+        },
+        "phase": {
+          "const": "post_challenge"
+        },
+        "due_echoes": "echoes",
+        "attempt_residue_id": "no_residue",
+        "board_result": "board_result",
+        "perfect_reasons": "perfect_reasons",
+        "relationship_outcome": "relationship_outcome",
+        "effect_receipt_id": "id"
+      }
+    },
+    {
+      "schema_id": "context.pair_pre_challenge_scene.dating.group.priscilla_lavinia.day2.pre_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.group.priscilla_lavinia.day2.pre_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.group.priscilla_lavinia.day2.pre_challenge"
+        },
+        "entry_role": {
+          "const": "pair_pre_challenge_scene"
+        },
+        "day": {
+          "const": 2
+        },
+        "run_id": "id",
+        "branch_id": "id",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        },
+        "window_day": {
+          "const": 2
+        },
+        "phase": {
+          "const": "pre_challenge"
+        },
+        "encounter_presentation": {
+          "const": "group"
+        },
+        "group_variation": "nullable_group_variation",
+        "pair_count_receipt": "nullable_pair_count",
+        "stable_deck_state": "deck",
+        "attempt_residue_id": "no_residue",
+        "pair_count_status": "pair_count_status"
+      }
+    },
+    {
+      "schema_id": "context.pair_post_challenge_scene.dating.group.priscilla_lavinia.day2.post_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.group.priscilla_lavinia.day2.post_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.group.priscilla_lavinia.day2.post_challenge"
+        },
+        "entry_role": {
+          "const": "pair_post_challenge_scene"
+        },
+        "day": {
+          "const": 2
+        },
+        "run_id": "id",
+        "branch_id": "id",
+        "attempt_id": "id",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        },
+        "window_day": {
+          "const": 2
+        },
+        "phase": {
+          "const": "post_challenge"
+        },
+        "encounter_presentation": {
+          "const": "group"
+        },
+        "group_variation": "nullable_group_variation",
+        "pair_count_receipt": "nullable_pair_count",
+        "stable_deck_state": "deck",
+        "attempt_residue_id": "no_residue",
+        "board_result": "board_result",
+        "perfect_reasons": "perfect_reasons",
+        "observation_form": "observation_form",
+        "combination_witness_capability": "bool",
+        "pair_count_status": "pair_count_status"
+      }
+    },
+    {
+      "schema_id": "context.pair_pre_challenge_scene.dating.twofriends.priscilla_lavinia.day2.pre_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.twofriends.priscilla_lavinia.day2.pre_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.twofriends.priscilla_lavinia.day2.pre_challenge"
+        },
+        "entry_role": {
+          "const": "pair_pre_challenge_scene"
+        },
+        "day": {
+          "const": 2
+        },
+        "run_id": "id",
+        "branch_id": "id",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        },
+        "window_day": {
+          "const": 2
+        },
+        "phase": {
+          "const": "pre_challenge"
+        },
+        "encounter_presentation": {
+          "const": "twofriends_if_deferred"
+        },
+        "group_variation": "nullable_group_variation",
+        "pair_count_receipt": "nullable_pair_count",
+        "stable_deck_state": "deck",
+        "attempt_residue_id": "no_residue",
+        "pair_count_status": "pair_count_status"
+      }
+    },
+    {
+      "schema_id": "context.pair_post_challenge_scene.dating.twofriends.priscilla_lavinia.day2.post_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.twofriends.priscilla_lavinia.day2.post_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.twofriends.priscilla_lavinia.day2.post_challenge"
+        },
+        "entry_role": {
+          "const": "pair_post_challenge_scene"
+        },
+        "day": {
+          "const": 2
+        },
+        "run_id": "id",
+        "branch_id": "id",
+        "attempt_id": "id",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        },
+        "window_day": {
+          "const": 2
+        },
+        "phase": {
+          "const": "post_challenge"
+        },
+        "encounter_presentation": {
+          "const": "twofriends_if_deferred"
+        },
+        "group_variation": "nullable_group_variation",
+        "pair_count_receipt": "nullable_pair_count",
+        "stable_deck_state": "deck",
+        "attempt_residue_id": "no_residue",
+        "board_result": "board_result",
+        "perfect_reasons": "perfect_reasons",
+        "observation_form": "observation_form",
+        "combination_witness_capability": "bool",
+        "pair_count_status": "pair_count_status"
+      }
+    },
+    {
+      "schema_id": "context.hospital.hospital.faint.day2.v1",
+      "schema_version": 1,
+      "entry_id": "hospital.faint.day2",
+      "fields": {
+        "entry_id": {
+          "const": "hospital.faint.day2"
+        },
+        "entry_role": {
+          "const": "hospital"
+        },
+        "day": {
+          "const": 2
+        },
+        "qualifying_cause": "hospital_cause",
+        "accepted_record_ids": "ids",
+        "unfulfilled_record_ids": "ids",
+        "sylvia_witness_receipt_id": "nullable_id",
+        "sylvia_eligible": "bool"
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.solo.priscilla.day2.nevermind.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.priscilla.day2.nevermind",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.priscilla.day2.nevermind"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 3
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "priscilla"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.solo.priscilla.day2.missed_question.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.priscilla.day2.missed_question",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.priscilla.day2.missed_question"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 3
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "priscilla"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.solo.lavinia.day2.nevermind.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.lavinia.day2.nevermind",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.lavinia.day2.nevermind"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 3
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "lavinia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.solo.lavinia.day2.missed_question.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.lavinia.day2.missed_question",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.lavinia.day2.missed_question"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 3
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "lavinia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.group.priscilla_lavinia.day2.busy_priscilla.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day2.busy_priscilla",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day2.busy_priscilla"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 3
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.group.priscilla_lavinia.day2.busy_lavinia.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day2.busy_lavinia",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day2.busy_lavinia"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 3
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.group.priscilla_lavinia.day2.nevermind_priscilla.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day2.nevermind_priscilla",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day2.nevermind_priscilla"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 3
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.group.priscilla_lavinia.day2.nevermind_lavinia.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day2.nevermind_lavinia",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day2.nevermind_lavinia"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 3
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.group.priscilla_lavinia.day2.judge_priscilla.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day2.judge_priscilla",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day2.judge_priscilla"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 3
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.group.priscilla_lavinia.day2.judge_lavinia.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day2.judge_lavinia",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day2.judge_lavinia"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 3
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.group.priscilla_lavinia.day2.missed_question_priscilla.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day2.missed_question_priscilla",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day2.missed_question_priscilla"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 3
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.group.priscilla_lavinia.day2.missed_question_lavinia.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day2.missed_question_lavinia",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day2.missed_question_lavinia"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 3
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.ordinary_message.contact.ordinary.priscilla.day3.v1",
+      "schema_version": 1,
+      "entry_id": "contact.ordinary.priscilla.day3",
+      "fields": {
+        "entry_id": {
+          "const": "contact.ordinary.priscilla.day3"
+        },
+        "entry_role": {
+          "const": "ordinary_message"
+        },
+        "day": {
+          "const": 3
+        },
+        "friend_id": {
+          "const": "priscilla"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "phase": "ordinary_phase",
+        "due_echoes": "echoes",
+        "selected_reply_id": "nullable_id",
+        "witnessed_line_id": "nullable_id"
+      }
+    },
+    {
+      "schema_id": "context.solo_invitation_offer.contact.invitation.solo.lavinia.day3.offer.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.lavinia.day3.offer",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.lavinia.day3.offer"
+        },
+        "entry_role": {
+          "const": "solo_invitation_offer"
+        },
+        "day": {
+          "const": 3
+        },
+        "friend_id": {
+          "const": "lavinia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "source_day": {
+          "const": 3
+        }
+      }
+    },
+    {
+      "schema_id": "context.solo_invitation_offer.contact.invitation.solo.sylvia.day3.offer.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.sylvia.day3.offer",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.sylvia.day3.offer"
+        },
+        "entry_role": {
+          "const": "solo_invitation_offer"
+        },
+        "day": {
+          "const": 3
+        },
+        "friend_id": {
+          "const": "sylvia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "source_day": {
+          "const": 3
+        }
+      }
+    },
+    {
+      "schema_id": "context.solo_pre_challenge.dating.solo.lavinia.day3.pre_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.solo.lavinia.day3.pre_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.solo.lavinia.day3.pre_challenge"
+        },
+        "entry_role": {
+          "const": "solo_pre_challenge"
+        },
+        "day": {
+          "const": 3
+        },
+        "friend_id": {
+          "const": "lavinia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "run_id": "id",
+        "branch_id": "id",
+        "challenge_slot": {
+          "const": "dating.solo.lavinia.day3"
+        },
+        "phase": {
+          "const": "pre_challenge"
+        },
+        "due_echoes": "echoes",
+        "attempt_residue_id": "no_residue"
+      }
+    },
+    {
+      "schema_id": "context.solo_post_challenge.dating.solo.lavinia.day3.post_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.solo.lavinia.day3.post_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.solo.lavinia.day3.post_challenge"
+        },
+        "entry_role": {
+          "const": "solo_post_challenge"
+        },
+        "day": {
+          "const": 3
+        },
+        "friend_id": {
+          "const": "lavinia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "run_id": "id",
+        "branch_id": "id",
+        "attempt_id": "id",
+        "challenge_slot": {
+          "const": "dating.solo.lavinia.day3"
+        },
+        "phase": {
+          "const": "post_challenge"
+        },
+        "due_echoes": "echoes",
+        "attempt_residue_id": "no_residue",
+        "board_result": "board_result",
+        "perfect_reasons": "perfect_reasons",
+        "relationship_outcome": "relationship_outcome",
+        "effect_receipt_id": "id"
+      }
+    },
+    {
+      "schema_id": "context.solo_pre_challenge.dating.solo.sylvia.day3.pre_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.solo.sylvia.day3.pre_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.solo.sylvia.day3.pre_challenge"
+        },
+        "entry_role": {
+          "const": "solo_pre_challenge"
+        },
+        "day": {
+          "const": 3
+        },
+        "friend_id": {
+          "const": "sylvia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "run_id": "id",
+        "branch_id": "id",
+        "challenge_slot": {
+          "const": "dating.solo.sylvia.day3"
+        },
+        "phase": {
+          "const": "pre_challenge"
+        },
+        "due_echoes": "echoes",
+        "attempt_residue_id": "no_residue"
+      }
+    },
+    {
+      "schema_id": "context.solo_post_challenge.dating.solo.sylvia.day3.post_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.solo.sylvia.day3.post_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.solo.sylvia.day3.post_challenge"
+        },
+        "entry_role": {
+          "const": "solo_post_challenge"
+        },
+        "day": {
+          "const": 3
+        },
+        "friend_id": {
+          "const": "sylvia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "run_id": "id",
+        "branch_id": "id",
+        "attempt_id": "id",
+        "challenge_slot": {
+          "const": "dating.solo.sylvia.day3"
+        },
+        "phase": {
+          "const": "post_challenge"
+        },
+        "due_echoes": "echoes",
+        "attempt_residue_id": "no_residue",
+        "board_result": "board_result",
+        "perfect_reasons": "perfect_reasons",
+        "relationship_outcome": "relationship_outcome",
+        "effect_receipt_id": "id"
+      }
+    },
+    {
+      "schema_id": "context.hospital.hospital.faint.day3.v1",
+      "schema_version": 1,
+      "entry_id": "hospital.faint.day3",
+      "fields": {
+        "entry_id": {
+          "const": "hospital.faint.day3"
+        },
+        "entry_role": {
+          "const": "hospital"
+        },
+        "day": {
+          "const": 3
+        },
+        "qualifying_cause": "hospital_cause",
+        "accepted_record_ids": "ids",
+        "unfulfilled_record_ids": "ids",
+        "sylvia_witness_receipt_id": "nullable_id",
+        "sylvia_eligible": "bool"
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.solo.lavinia.day3.nevermind.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.lavinia.day3.nevermind",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.lavinia.day3.nevermind"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 4
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "lavinia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.solo.lavinia.day3.missed_question.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.lavinia.day3.missed_question",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.lavinia.day3.missed_question"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 4
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "lavinia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.solo.sylvia.day3.nevermind.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.sylvia.day3.nevermind",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.sylvia.day3.nevermind"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 4
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "sylvia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.solo.sylvia.day3.missed_question.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.sylvia.day3.missed_question",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.sylvia.day3.missed_question"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 4
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "sylvia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.hospital_care.sylvia.day4.v1",
+      "schema_version": 1,
+      "entry_id": "contact.hospital_care.sylvia.day4",
+      "fields": {
+        "entry_id": {
+          "const": "contact.hospital_care.sylvia.day4"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 4
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "sylvia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.ordinary_message.contact.ordinary.lavinia.day4.v1",
+      "schema_version": 1,
+      "entry_id": "contact.ordinary.lavinia.day4",
+      "fields": {
+        "entry_id": {
+          "const": "contact.ordinary.lavinia.day4"
+        },
+        "entry_role": {
+          "const": "ordinary_message"
+        },
+        "day": {
+          "const": 4
+        },
+        "friend_id": {
+          "const": "lavinia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "phase": "ordinary_phase",
+        "due_echoes": "echoes",
+        "selected_reply_id": "nullable_id",
+        "witnessed_line_id": "nullable_id"
+      }
+    },
+    {
+      "schema_id": "context.solo_invitation_offer.contact.invitation.solo.priscilla.day4.offer.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.priscilla.day4.offer",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.priscilla.day4.offer"
+        },
+        "entry_role": {
+          "const": "solo_invitation_offer"
+        },
+        "day": {
+          "const": 4
+        },
+        "friend_id": {
+          "const": "priscilla"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "source_day": {
+          "const": 4
+        }
+      }
+    },
+    {
+      "schema_id": "context.solo_invitation_offer.contact.invitation.solo.sylvia.day4.offer.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.sylvia.day4.offer",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.sylvia.day4.offer"
+        },
+        "entry_role": {
+          "const": "solo_invitation_offer"
+        },
+        "day": {
+          "const": 4
+        },
+        "friend_id": {
+          "const": "sylvia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "source_day": {
+          "const": 4
+        }
+      }
+    },
+    {
+      "schema_id": "context.solo_pre_challenge.dating.solo.priscilla.day4.pre_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.solo.priscilla.day4.pre_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.solo.priscilla.day4.pre_challenge"
+        },
+        "entry_role": {
+          "const": "solo_pre_challenge"
+        },
+        "day": {
+          "const": 4
+        },
+        "friend_id": {
+          "const": "priscilla"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "run_id": "id",
+        "branch_id": "id",
+        "challenge_slot": {
+          "const": "dating.solo.priscilla.day4"
+        },
+        "phase": {
+          "const": "pre_challenge"
+        },
+        "due_echoes": "echoes",
+        "attempt_residue_id": "no_residue"
+      }
+    },
+    {
+      "schema_id": "context.solo_post_challenge.dating.solo.priscilla.day4.post_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.solo.priscilla.day4.post_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.solo.priscilla.day4.post_challenge"
+        },
+        "entry_role": {
+          "const": "solo_post_challenge"
+        },
+        "day": {
+          "const": 4
+        },
+        "friend_id": {
+          "const": "priscilla"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "run_id": "id",
+        "branch_id": "id",
+        "attempt_id": "id",
+        "challenge_slot": {
+          "const": "dating.solo.priscilla.day4"
+        },
+        "phase": {
+          "const": "post_challenge"
+        },
+        "due_echoes": "echoes",
+        "attempt_residue_id": "no_residue",
+        "board_result": "board_result",
+        "perfect_reasons": "perfect_reasons",
+        "relationship_outcome": "relationship_outcome",
+        "effect_receipt_id": "id",
+        "progression_window_result": "progression"
+      }
+    },
+    {
+      "schema_id": "context.solo_pre_challenge.dating.solo.sylvia.day4.pre_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.solo.sylvia.day4.pre_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.solo.sylvia.day4.pre_challenge"
+        },
+        "entry_role": {
+          "const": "solo_pre_challenge"
+        },
+        "day": {
+          "const": 4
+        },
+        "friend_id": {
+          "const": "sylvia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "run_id": "id",
+        "branch_id": "id",
+        "challenge_slot": {
+          "const": "dating.solo.sylvia.day4"
+        },
+        "phase": {
+          "const": "pre_challenge"
+        },
+        "due_echoes": "echoes",
+        "attempt_residue_id": "no_residue"
+      }
+    },
+    {
+      "schema_id": "context.solo_post_challenge.dating.solo.sylvia.day4.post_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.solo.sylvia.day4.post_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.solo.sylvia.day4.post_challenge"
+        },
+        "entry_role": {
+          "const": "solo_post_challenge"
+        },
+        "day": {
+          "const": 4
+        },
+        "friend_id": {
+          "const": "sylvia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "run_id": "id",
+        "branch_id": "id",
+        "attempt_id": "id",
+        "challenge_slot": {
+          "const": "dating.solo.sylvia.day4"
+        },
+        "phase": {
+          "const": "post_challenge"
+        },
+        "due_echoes": "echoes",
+        "attempt_residue_id": "no_residue",
+        "board_result": "board_result",
+        "perfect_reasons": "perfect_reasons",
+        "relationship_outcome": "relationship_outcome",
+        "effect_receipt_id": "id",
+        "progression_window_result": "progression"
+      }
+    },
+    {
+      "schema_id": "context.hospital.hospital.faint.day4.v1",
+      "schema_version": 1,
+      "entry_id": "hospital.faint.day4",
+      "fields": {
+        "entry_id": {
+          "const": "hospital.faint.day4"
+        },
+        "entry_role": {
+          "const": "hospital"
+        },
+        "day": {
+          "const": 4
+        },
+        "qualifying_cause": "hospital_cause",
+        "accepted_record_ids": "ids",
+        "unfulfilled_record_ids": "ids",
+        "sylvia_witness_receipt_id": "nullable_id",
+        "sylvia_eligible": "bool"
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.solo.priscilla.day4.nevermind.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.priscilla.day4.nevermind",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.priscilla.day4.nevermind"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 5
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "priscilla"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.solo.priscilla.day4.missed_question.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.priscilla.day4.missed_question",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.priscilla.day4.missed_question"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 5
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "priscilla"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.solo.sylvia.day4.nevermind.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.sylvia.day4.nevermind",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.sylvia.day4.nevermind"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 5
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "sylvia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.solo.sylvia.day4.missed_question.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.sylvia.day4.missed_question",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.sylvia.day4.missed_question"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 5
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "sylvia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.hospital_care.sylvia.day5.v1",
+      "schema_version": 1,
+      "entry_id": "contact.hospital_care.sylvia.day5",
+      "fields": {
+        "entry_id": {
+          "const": "contact.hospital_care.sylvia.day5"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 5
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "sylvia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.ordinary_message.contact.ordinary.priscilla.day5.v1",
+      "schema_version": 1,
+      "entry_id": "contact.ordinary.priscilla.day5",
+      "fields": {
+        "entry_id": {
+          "const": "contact.ordinary.priscilla.day5"
+        },
+        "entry_role": {
+          "const": "ordinary_message"
+        },
+        "day": {
+          "const": 5
+        },
+        "friend_id": {
+          "const": "priscilla"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "phase": "ordinary_phase",
+        "due_echoes": "echoes",
+        "selected_reply_id": "nullable_id",
+        "witnessed_line_id": "nullable_id"
+      }
+    },
+    {
+      "schema_id": "context.solo_invitation_offer.contact.invitation.solo.lavinia.day5.offer.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.lavinia.day5.offer",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.lavinia.day5.offer"
+        },
+        "entry_role": {
+          "const": "solo_invitation_offer"
+        },
+        "day": {
+          "const": 5
+        },
+        "friend_id": {
+          "const": "lavinia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "source_day": {
+          "const": 5
+        }
+      }
+    },
+    {
+      "schema_id": "context.solo_invitation_offer.contact.invitation.solo.sylvia.day5.offer.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.sylvia.day5.offer",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.sylvia.day5.offer"
+        },
+        "entry_role": {
+          "const": "solo_invitation_offer"
+        },
+        "day": {
+          "const": 5
+        },
+        "friend_id": {
+          "const": "sylvia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "source_day": {
+          "const": 5
+        }
+      }
+    },
+    {
+      "schema_id": "context.solo_pre_challenge.dating.solo.lavinia.day5.pre_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.solo.lavinia.day5.pre_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.solo.lavinia.day5.pre_challenge"
+        },
+        "entry_role": {
+          "const": "solo_pre_challenge"
+        },
+        "day": {
+          "const": 5
+        },
+        "friend_id": {
+          "const": "lavinia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "run_id": "id",
+        "branch_id": "id",
+        "challenge_slot": {
+          "const": "dating.solo.lavinia.day5"
+        },
+        "phase": {
+          "const": "pre_challenge"
+        },
+        "due_echoes": "echoes",
+        "attempt_residue_id": "no_residue"
+      }
+    },
+    {
+      "schema_id": "context.solo_post_challenge.dating.solo.lavinia.day5.post_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.solo.lavinia.day5.post_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.solo.lavinia.day5.post_challenge"
+        },
+        "entry_role": {
+          "const": "solo_post_challenge"
+        },
+        "day": {
+          "const": 5
+        },
+        "friend_id": {
+          "const": "lavinia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "run_id": "id",
+        "branch_id": "id",
+        "attempt_id": "id",
+        "challenge_slot": {
+          "const": "dating.solo.lavinia.day5"
+        },
+        "phase": {
+          "const": "post_challenge"
+        },
+        "due_echoes": "echoes",
+        "attempt_residue_id": "no_residue",
+        "board_result": "board_result",
+        "perfect_reasons": "perfect_reasons",
+        "relationship_outcome": "relationship_outcome",
+        "effect_receipt_id": "id",
+        "progression_window_result": "progression"
+      }
+    },
+    {
+      "schema_id": "context.solo_pre_challenge.dating.solo.sylvia.day5.pre_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.solo.sylvia.day5.pre_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.solo.sylvia.day5.pre_challenge"
+        },
+        "entry_role": {
+          "const": "solo_pre_challenge"
+        },
+        "day": {
+          "const": 5
+        },
+        "friend_id": {
+          "const": "sylvia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "run_id": "id",
+        "branch_id": "id",
+        "challenge_slot": {
+          "const": "dating.solo.sylvia.day5"
+        },
+        "phase": {
+          "const": "pre_challenge"
+        },
+        "due_echoes": "echoes",
+        "attempt_residue_id": "no_residue"
+      }
+    },
+    {
+      "schema_id": "context.solo_post_challenge.dating.solo.sylvia.day5.post_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.solo.sylvia.day5.post_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.solo.sylvia.day5.post_challenge"
+        },
+        "entry_role": {
+          "const": "solo_post_challenge"
+        },
+        "day": {
+          "const": 5
+        },
+        "friend_id": {
+          "const": "sylvia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "run_id": "id",
+        "branch_id": "id",
+        "attempt_id": "id",
+        "challenge_slot": {
+          "const": "dating.solo.sylvia.day5"
+        },
+        "phase": {
+          "const": "post_challenge"
+        },
+        "due_echoes": "echoes",
+        "attempt_residue_id": "no_residue",
+        "board_result": "board_result",
+        "perfect_reasons": "perfect_reasons",
+        "relationship_outcome": "relationship_outcome",
+        "effect_receipt_id": "id",
+        "progression_window_result": "progression"
+      }
+    },
+    {
+      "schema_id": "context.hospital.hospital.faint.day5.v1",
+      "schema_version": 1,
+      "entry_id": "hospital.faint.day5",
+      "fields": {
+        "entry_id": {
+          "const": "hospital.faint.day5"
+        },
+        "entry_role": {
+          "const": "hospital"
+        },
+        "day": {
+          "const": 5
+        },
+        "qualifying_cause": "hospital_cause",
+        "accepted_record_ids": "ids",
+        "unfulfilled_record_ids": "ids",
+        "sylvia_witness_receipt_id": "nullable_id",
+        "sylvia_eligible": "bool"
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.solo.lavinia.day5.nevermind.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.lavinia.day5.nevermind",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.lavinia.day5.nevermind"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 6
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "lavinia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.solo.lavinia.day5.missed_question.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.lavinia.day5.missed_question",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.lavinia.day5.missed_question"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 6
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "lavinia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.solo.sylvia.day5.nevermind.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.sylvia.day5.nevermind",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.sylvia.day5.nevermind"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 6
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "sylvia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.solo.sylvia.day5.missed_question.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.sylvia.day5.missed_question",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.sylvia.day5.missed_question"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 6
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "sylvia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.hospital_care.sylvia.day6.v1",
+      "schema_version": 1,
+      "entry_id": "contact.hospital_care.sylvia.day6",
+      "fields": {
+        "entry_id": {
+          "const": "contact.hospital_care.sylvia.day6"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 6
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "sylvia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.ordinary_message.contact.ordinary.sylvia.day6.v1",
+      "schema_version": 1,
+      "entry_id": "contact.ordinary.sylvia.day6",
+      "fields": {
+        "entry_id": {
+          "const": "contact.ordinary.sylvia.day6"
+        },
+        "entry_role": {
+          "const": "ordinary_message"
+        },
+        "day": {
+          "const": 6
+        },
+        "friend_id": {
+          "const": "sylvia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "phase": "ordinary_phase",
+        "due_echoes": "echoes",
+        "selected_reply_id": "nullable_id",
+        "witnessed_line_id": "nullable_id"
+      }
+    },
+    {
+      "schema_id": "context.solo_invitation_offer.contact.invitation.solo.priscilla.day6.offer.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.priscilla.day6.offer",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.priscilla.day6.offer"
+        },
+        "entry_role": {
+          "const": "solo_invitation_offer"
+        },
+        "day": {
+          "const": 6
+        },
+        "friend_id": {
+          "const": "priscilla"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "source_day": {
+          "const": 6
+        }
+      }
+    },
+    {
+      "schema_id": "context.solo_invitation_offer.contact.invitation.solo.lavinia.day6.offer.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.lavinia.day6.offer",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.lavinia.day6.offer"
+        },
+        "entry_role": {
+          "const": "solo_invitation_offer"
+        },
+        "day": {
+          "const": 6
+        },
+        "friend_id": {
+          "const": "lavinia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "source_day": {
+          "const": 6
+        }
+      }
+    },
+    {
+      "schema_id": "context.group_contact_offer.contact.invitation.group.priscilla_lavinia.day6.first_open_priscilla.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day6.first_open_priscilla",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day6.first_open_priscilla"
+        },
+        "entry_role": {
+          "const": "group_contact_offer"
+        },
+        "day": {
+          "const": 6
+        },
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        },
+        "source_day": {
+          "const": 6
+        },
+        "group_action_state": "group_state",
+        "inviter_id": "nullable_pair_friend",
+        "target_participant_id": "nullable_pair_friend",
+        "opened_ids": "participants",
+        "replied_ids": "participants",
+        "contact_variation": "contact_variation"
+      }
+    },
+    {
+      "schema_id": "context.group_contact_offer.contact.invitation.group.priscilla_lavinia.day6.first_open_lavinia.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day6.first_open_lavinia",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day6.first_open_lavinia"
+        },
+        "entry_role": {
+          "const": "group_contact_offer"
+        },
+        "day": {
+          "const": 6
+        },
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        },
+        "source_day": {
+          "const": 6
+        },
+        "group_action_state": "group_state",
+        "inviter_id": "nullable_pair_friend",
+        "target_participant_id": "nullable_pair_friend",
+        "opened_ids": "participants",
+        "replied_ids": "participants",
+        "contact_variation": "contact_variation"
+      }
+    },
+    {
+      "schema_id": "context.group_contact_offer.contact.invitation.group.priscilla_lavinia.day6.second_open_priscilla.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day6.second_open_priscilla",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day6.second_open_priscilla"
+        },
+        "entry_role": {
+          "const": "group_contact_offer"
+        },
+        "day": {
+          "const": 6
+        },
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        },
+        "source_day": {
+          "const": 6
+        },
+        "group_action_state": "group_state",
+        "inviter_id": "nullable_pair_friend",
+        "target_participant_id": "nullable_pair_friend",
+        "opened_ids": "participants",
+        "replied_ids": "participants",
+        "contact_variation": "contact_variation"
+      }
+    },
+    {
+      "schema_id": "context.group_contact_offer.contact.invitation.group.priscilla_lavinia.day6.second_open_lavinia.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day6.second_open_lavinia",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day6.second_open_lavinia"
+        },
+        "entry_role": {
+          "const": "group_contact_offer"
+        },
+        "day": {
+          "const": 6
+        },
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        },
+        "source_day": {
+          "const": 6
+        },
+        "group_action_state": "group_state",
+        "inviter_id": "nullable_pair_friend",
+        "target_participant_id": "nullable_pair_friend",
+        "opened_ids": "participants",
+        "replied_ids": "participants",
+        "contact_variation": "contact_variation"
+      }
+    },
+    {
+      "schema_id": "context.group_contact_offer.contact.invitation.group.priscilla_lavinia.day6.need_reply_priscilla_first.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day6.need_reply_priscilla_first",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day6.need_reply_priscilla_first"
+        },
+        "entry_role": {
+          "const": "group_contact_offer"
+        },
+        "day": {
+          "const": 6
+        },
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        },
+        "source_day": {
+          "const": 6
+        },
+        "group_action_state": "group_state",
+        "inviter_id": "nullable_pair_friend",
+        "target_participant_id": "nullable_pair_friend",
+        "opened_ids": "participants",
+        "replied_ids": "participants",
+        "contact_variation": "contact_variation"
+      }
+    },
+    {
+      "schema_id": "context.group_contact_offer.contact.invitation.group.priscilla_lavinia.day6.need_reply_lavinia_first.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day6.need_reply_lavinia_first",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day6.need_reply_lavinia_first"
+        },
+        "entry_role": {
+          "const": "group_contact_offer"
+        },
+        "day": {
+          "const": 6
+        },
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        },
+        "source_day": {
+          "const": 6
+        },
+        "group_action_state": "group_state",
+        "inviter_id": "nullable_pair_friend",
+        "target_participant_id": "nullable_pair_friend",
+        "opened_ids": "participants",
+        "replied_ids": "participants",
+        "contact_variation": "contact_variation"
+      }
+    },
+    {
+      "schema_id": "context.group_contact_offer.contact.invitation.group.priscilla_lavinia.day6.offer.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day6.offer",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day6.offer"
+        },
+        "entry_role": {
+          "const": "group_contact_offer"
+        },
+        "day": {
+          "const": 6
+        },
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        },
+        "source_day": {
+          "const": 6
+        },
+        "group_action_state": "group_state",
+        "inviter_id": "nullable_pair_friend",
+        "target_participant_id": "nullable_pair_friend",
+        "opened_ids": "participants",
+        "replied_ids": "participants",
+        "contact_variation": "contact_variation"
+      }
+    },
+    {
+      "schema_id": "context.solo_pre_challenge.dating.solo.priscilla.day6.pre_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.solo.priscilla.day6.pre_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.solo.priscilla.day6.pre_challenge"
+        },
+        "entry_role": {
+          "const": "solo_pre_challenge"
+        },
+        "day": {
+          "const": 6
+        },
+        "friend_id": {
+          "const": "priscilla"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "run_id": "id",
+        "branch_id": "id",
+        "challenge_slot": {
+          "const": "dating.solo.priscilla.day6"
+        },
+        "phase": {
+          "const": "pre_challenge"
+        },
+        "due_echoes": "echoes",
+        "attempt_residue_id": "no_residue"
+      }
+    },
+    {
+      "schema_id": "context.solo_post_challenge.dating.solo.priscilla.day6.post_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.solo.priscilla.day6.post_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.solo.priscilla.day6.post_challenge"
+        },
+        "entry_role": {
+          "const": "solo_post_challenge"
+        },
+        "day": {
+          "const": 6
+        },
+        "friend_id": {
+          "const": "priscilla"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "run_id": "id",
+        "branch_id": "id",
+        "attempt_id": "id",
+        "challenge_slot": {
+          "const": "dating.solo.priscilla.day6"
+        },
+        "phase": {
+          "const": "post_challenge"
+        },
+        "due_echoes": "echoes",
+        "attempt_residue_id": "no_residue",
+        "board_result": "board_result",
+        "perfect_reasons": "perfect_reasons",
+        "relationship_outcome": "relationship_outcome",
+        "effect_receipt_id": "id",
+        "progression_window_result": "progression"
+      }
+    },
+    {
+      "schema_id": "context.solo_pre_challenge.dating.solo.lavinia.day6.pre_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.solo.lavinia.day6.pre_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.solo.lavinia.day6.pre_challenge"
+        },
+        "entry_role": {
+          "const": "solo_pre_challenge"
+        },
+        "day": {
+          "const": 6
+        },
+        "friend_id": {
+          "const": "lavinia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "run_id": "id",
+        "branch_id": "id",
+        "challenge_slot": {
+          "const": "dating.solo.lavinia.day6"
+        },
+        "phase": {
+          "const": "pre_challenge"
+        },
+        "due_echoes": "echoes",
+        "attempt_residue_id": "no_residue"
+      }
+    },
+    {
+      "schema_id": "context.solo_post_challenge.dating.solo.lavinia.day6.post_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.solo.lavinia.day6.post_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.solo.lavinia.day6.post_challenge"
+        },
+        "entry_role": {
+          "const": "solo_post_challenge"
+        },
+        "day": {
+          "const": 6
+        },
+        "friend_id": {
+          "const": "lavinia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "run_id": "id",
+        "branch_id": "id",
+        "attempt_id": "id",
+        "challenge_slot": {
+          "const": "dating.solo.lavinia.day6"
+        },
+        "phase": {
+          "const": "post_challenge"
+        },
+        "due_echoes": "echoes",
+        "attempt_residue_id": "no_residue",
+        "board_result": "board_result",
+        "perfect_reasons": "perfect_reasons",
+        "relationship_outcome": "relationship_outcome",
+        "effect_receipt_id": "id",
+        "progression_window_result": "progression"
+      }
+    },
+    {
+      "schema_id": "context.pair_pre_challenge_scene.dating.group.priscilla_lavinia.day6.pre_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.group.priscilla_lavinia.day6.pre_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.group.priscilla_lavinia.day6.pre_challenge"
+        },
+        "entry_role": {
+          "const": "pair_pre_challenge_scene"
+        },
+        "day": {
+          "const": 6
+        },
+        "run_id": "id",
+        "branch_id": "id",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        },
+        "window_day": {
+          "const": 6
+        },
+        "phase": {
+          "const": "pre_challenge"
+        },
+        "encounter_presentation": {
+          "const": "group"
+        },
+        "group_variation": "nullable_group_variation",
+        "pair_count_receipt": "nullable_pair_count",
+        "stable_deck_state": "deck",
+        "attempt_residue_id": "no_residue",
+        "pair_count_status": "pair_count_status"
+      }
+    },
+    {
+      "schema_id": "context.pair_post_challenge_scene.dating.group.priscilla_lavinia.day6.post_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.group.priscilla_lavinia.day6.post_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.group.priscilla_lavinia.day6.post_challenge"
+        },
+        "entry_role": {
+          "const": "pair_post_challenge_scene"
+        },
+        "day": {
+          "const": 6
+        },
+        "run_id": "id",
+        "branch_id": "id",
+        "attempt_id": "id",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        },
+        "window_day": {
+          "const": 6
+        },
+        "phase": {
+          "const": "post_challenge"
+        },
+        "encounter_presentation": {
+          "const": "group"
+        },
+        "group_variation": "nullable_group_variation",
+        "pair_count_receipt": "nullable_pair_count",
+        "stable_deck_state": "deck",
+        "attempt_residue_id": "no_residue",
+        "board_result": "board_result",
+        "perfect_reasons": "perfect_reasons",
+        "observation_form": "observation_form",
+        "combination_witness_capability": "bool",
+        "pair_count_status": "pair_count_status"
+      }
+    },
+    {
+      "schema_id": "context.pair_pre_challenge_scene.dating.twofriends.priscilla_lavinia.day6.pre_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.twofriends.priscilla_lavinia.day6.pre_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.twofriends.priscilla_lavinia.day6.pre_challenge"
+        },
+        "entry_role": {
+          "const": "pair_pre_challenge_scene"
+        },
+        "day": {
+          "const": 6
+        },
+        "run_id": "id",
+        "branch_id": "id",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        },
+        "window_day": {
+          "const": 6
+        },
+        "phase": {
+          "const": "pre_challenge"
+        },
+        "encounter_presentation": {
+          "const": "twofriends_if_deferred"
+        },
+        "group_variation": "nullable_group_variation",
+        "pair_count_receipt": "nullable_pair_count",
+        "stable_deck_state": "deck",
+        "attempt_residue_id": "no_residue",
+        "pair_count_status": "pair_count_status"
+      }
+    },
+    {
+      "schema_id": "context.pair_post_challenge_scene.dating.twofriends.priscilla_lavinia.day6.post_challenge.v1",
+      "schema_version": 1,
+      "entry_id": "dating.twofriends.priscilla_lavinia.day6.post_challenge",
+      "fields": {
+        "entry_id": {
+          "const": "dating.twofriends.priscilla_lavinia.day6.post_challenge"
+        },
+        "entry_role": {
+          "const": "pair_post_challenge_scene"
+        },
+        "day": {
+          "const": 6
+        },
+        "run_id": "id",
+        "branch_id": "id",
+        "attempt_id": "id",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        },
+        "window_day": {
+          "const": 6
+        },
+        "phase": {
+          "const": "post_challenge"
+        },
+        "encounter_presentation": {
+          "const": "twofriends_if_deferred"
+        },
+        "group_variation": "nullable_group_variation",
+        "pair_count_receipt": "nullable_pair_count",
+        "stable_deck_state": "deck",
+        "attempt_residue_id": "no_residue",
+        "board_result": "board_result",
+        "perfect_reasons": "perfect_reasons",
+        "observation_form": "observation_form",
+        "combination_witness_capability": "bool",
+        "pair_count_status": "pair_count_status"
+      }
+    },
+    {
+      "schema_id": "context.hospital.hospital.faint.day6.v1",
+      "schema_version": 1,
+      "entry_id": "hospital.faint.day6",
+      "fields": {
+        "entry_id": {
+          "const": "hospital.faint.day6"
+        },
+        "entry_role": {
+          "const": "hospital"
+        },
+        "day": {
+          "const": 6
+        },
+        "qualifying_cause": "hospital_cause",
+        "accepted_record_ids": "ids",
+        "unfulfilled_record_ids": "ids",
+        "sylvia_witness_receipt_id": "nullable_id",
+        "sylvia_eligible": "bool"
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.solo.priscilla.day6.nevermind.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.priscilla.day6.nevermind",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.priscilla.day6.nevermind"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 7
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "priscilla"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.solo.priscilla.day6.missed_question.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.priscilla.day6.missed_question",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.priscilla.day6.missed_question"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 7
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "priscilla"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.solo.lavinia.day6.nevermind.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.lavinia.day6.nevermind",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.lavinia.day6.nevermind"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 7
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "lavinia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.solo.lavinia.day6.missed_question.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.solo.lavinia.day6.missed_question",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.solo.lavinia.day6.missed_question"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 7
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "friend_id": {
+          "const": "lavinia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.group.priscilla_lavinia.day6.busy_priscilla.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day6.busy_priscilla",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day6.busy_priscilla"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 7
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.group.priscilla_lavinia.day6.busy_lavinia.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day6.busy_lavinia",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day6.busy_lavinia"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 7
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.group.priscilla_lavinia.day6.nevermind_priscilla.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day6.nevermind_priscilla",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day6.nevermind_priscilla"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 7
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.group.priscilla_lavinia.day6.nevermind_lavinia.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day6.nevermind_lavinia",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day6.nevermind_lavinia"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 7
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.group.priscilla_lavinia.day6.judge_priscilla.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day6.judge_priscilla",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day6.judge_priscilla"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 7
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.group.priscilla_lavinia.day6.judge_lavinia.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day6.judge_lavinia",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day6.judge_lavinia"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 7
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.group.priscilla_lavinia.day6.missed_question_priscilla.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day6.missed_question_priscilla",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day6.missed_question_priscilla"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 7
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.consequence_followup.contact.invitation.group.priscilla_lavinia.day6.missed_question_lavinia.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.group.priscilla_lavinia.day6.missed_question_lavinia",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.group.priscilla_lavinia.day6.missed_question_lavinia"
+        },
+        "entry_role": {
+          "const": "consequence_followup"
+        },
+        "day": {
+          "const": 7
+        },
+        "source_invitation_id": "id",
+        "closure_state": "closure_state",
+        "miss_reason": "miss_reason",
+        "witnessed_hospital": "bool",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        }
+      }
+    },
+    {
+      "schema_id": "context.ending_invitation_offer.contact.invitation.ending.priscilla.day7.offer.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.ending.priscilla.day7.offer",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.ending.priscilla.day7.offer"
+        },
+        "entry_role": {
+          "const": "ending_invitation_offer"
+        },
+        "day": {
+          "const": 7
+        },
+        "friend_id": {
+          "const": "priscilla"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "source_day": {
+          "const": 7
+        }
+      }
+    },
+    {
+      "schema_id": "context.ending_invitation_offer.contact.invitation.ending.lavinia.day7.offer.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.ending.lavinia.day7.offer",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.ending.lavinia.day7.offer"
+        },
+        "entry_role": {
+          "const": "ending_invitation_offer"
+        },
+        "day": {
+          "const": 7
+        },
+        "friend_id": {
+          "const": "lavinia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "source_day": {
+          "const": 7
+        }
+      }
+    },
+    {
+      "schema_id": "context.ending_invitation_offer.contact.invitation.ending.sylvia.day7.offer.v1",
+      "schema_version": 1,
+      "entry_id": "contact.invitation.ending.sylvia.day7.offer",
+      "fields": {
+        "entry_id": {
+          "const": "contact.invitation.ending.sylvia.day7.offer"
+        },
+        "entry_role": {
+          "const": "ending_invitation_offer"
+        },
+        "day": {
+          "const": 7
+        },
+        "friend_id": {
+          "const": "sylvia"
+        },
+        "tier": "tier",
+        "tone": "tone",
+        "attitude": "attitude",
+        "source_day": {
+          "const": 7
+        }
+      }
+    },
+    {
+      "schema_id": "context.echo_fallback.echo.fallback.day7.v1",
+      "schema_version": 1,
+      "entry_id": "echo.fallback.day7",
+      "fields": {
+        "entry_id": {
+          "const": "echo.fallback.day7"
+        },
+        "entry_role": {
+          "const": "echo_fallback"
+        },
+        "day": {
+          "const": 7
+        },
+        "due_echoes": "echoes"
+      }
+    },
+    {
+      "schema_id": "context.hospital.hospital.faint.day7.v1",
+      "schema_version": 1,
+      "entry_id": "hospital.faint.day7",
+      "fields": {
+        "entry_id": {
+          "const": "hospital.faint.day7"
+        },
+        "entry_role": {
+          "const": "hospital"
+        },
+        "day": {
+          "const": 7
+        },
+        "qualifying_cause": "hospital_cause",
+        "accepted_record_ids": "ids",
+        "unfulfilled_record_ids": "ids",
+        "sylvia_witness_receipt_id": "nullable_id",
+        "sylvia_eligible": "bool"
+      }
+    },
+    {
+      "schema_id": "context.solo_ending_step.ending.priscilla.sweet.v1",
+      "schema_version": 1,
+      "entry_id": "ending.priscilla.sweet",
+      "fields": {
+        "entry_id": {
+          "const": "ending.priscilla.sweet"
+        },
+        "entry_role": {
+          "const": "solo_ending_step"
+        },
+        "ending_id": {
+          "const": "ending.priscilla.sweet"
+        },
+        "ending_role": "ending_role",
+        "ending_form": {
+          "enum": [
+            "derived_sweet"
+          ]
+        },
+        "playback_mode": "playback_mode",
+        "prerequisite_receipt_ids": "ids",
+        "step_token": "id",
+        "friend_id": {
+          "const": "priscilla"
+        },
+        "tier": "tier",
+        "stored_tone": "tone",
+        "attitude": "attitude",
+        "evidence_receipt_ids": "ids",
+        "due_echoes": "echoes",
+        "residue_variant": "residue_variant"
+      }
+    },
+    {
+      "schema_id": "context.solo_ending_step.ending.priscilla.dark.v1",
+      "schema_version": 1,
+      "entry_id": "ending.priscilla.dark",
+      "fields": {
+        "entry_id": {
+          "const": "ending.priscilla.dark"
+        },
+        "entry_role": {
+          "const": "solo_ending_step"
+        },
+        "ending_id": {
+          "const": "ending.priscilla.dark"
+        },
+        "ending_role": "ending_role",
+        "ending_form": {
+          "enum": [
+            "derived_dark"
+          ]
+        },
+        "playback_mode": "playback_mode",
+        "prerequisite_receipt_ids": "ids",
+        "step_token": "id",
+        "friend_id": {
+          "const": "priscilla"
+        },
+        "tier": "tier",
+        "stored_tone": "tone",
+        "attitude": "attitude",
+        "evidence_receipt_ids": "ids",
+        "due_echoes": "echoes",
+        "residue_variant": "residue_variant"
+      }
+    },
+    {
+      "schema_id": "context.solo_ending_step.ending.priscilla.observer.full.v1",
+      "schema_version": 1,
+      "entry_id": "ending.priscilla.observer.full",
+      "fields": {
+        "entry_id": {
+          "const": "ending.priscilla.observer.full"
+        },
+        "entry_role": {
+          "const": "solo_ending_step"
+        },
+        "ending_id": {
+          "const": "ending.priscilla.observer"
+        },
+        "ending_role": "ending_role",
+        "ending_form": {
+          "enum": [
+            "observer_full"
+          ]
+        },
+        "playback_mode": "playback_mode",
+        "prerequisite_receipt_ids": "ids",
+        "step_token": "id",
+        "friend_id": {
+          "const": "priscilla"
+        },
+        "tier": "tier",
+        "stored_tone": "tone",
+        "attitude": "attitude",
+        "evidence_receipt_ids": "ids",
+        "due_echoes": "echoes",
+        "residue_variant": "residue_variant"
+      }
+    },
+    {
+      "schema_id": "context.solo_ending_step.ending.priscilla.observer.residue.v1",
+      "schema_version": 1,
+      "entry_id": "ending.priscilla.observer.residue",
+      "fields": {
+        "entry_id": {
+          "const": "ending.priscilla.observer.residue"
+        },
+        "entry_role": {
+          "const": "solo_ending_step"
+        },
+        "ending_id": {
+          "const": "ending.priscilla.observer"
+        },
+        "ending_role": "ending_role",
+        "ending_form": {
+          "enum": [
+            "observer_residue"
+          ]
+        },
+        "playback_mode": "playback_mode",
+        "prerequisite_receipt_ids": "ids",
+        "step_token": "id",
+        "friend_id": {
+          "const": "priscilla"
+        },
+        "tier": "tier",
+        "stored_tone": "tone",
+        "attitude": "attitude",
+        "evidence_receipt_ids": "ids",
+        "due_echoes": "echoes",
+        "residue_variant": "residue_variant"
+      }
+    },
+    {
+      "schema_id": "context.solo_ending_step.ending.lavinia.sweet.v1",
+      "schema_version": 1,
+      "entry_id": "ending.lavinia.sweet",
+      "fields": {
+        "entry_id": {
+          "const": "ending.lavinia.sweet"
+        },
+        "entry_role": {
+          "const": "solo_ending_step"
+        },
+        "ending_id": {
+          "const": "ending.lavinia.sweet"
+        },
+        "ending_role": "ending_role",
+        "ending_form": {
+          "enum": [
+            "derived_sweet"
+          ]
+        },
+        "playback_mode": "playback_mode",
+        "prerequisite_receipt_ids": "ids",
+        "step_token": "id",
+        "friend_id": {
+          "const": "lavinia"
+        },
+        "tier": "tier",
+        "stored_tone": "tone",
+        "attitude": "attitude",
+        "evidence_receipt_ids": "ids",
+        "due_echoes": "echoes",
+        "residue_variant": "residue_variant"
+      }
+    },
+    {
+      "schema_id": "context.solo_ending_step.ending.lavinia.dark.v1",
+      "schema_version": 1,
+      "entry_id": "ending.lavinia.dark",
+      "fields": {
+        "entry_id": {
+          "const": "ending.lavinia.dark"
+        },
+        "entry_role": {
+          "const": "solo_ending_step"
+        },
+        "ending_id": {
+          "const": "ending.lavinia.dark"
+        },
+        "ending_role": "ending_role",
+        "ending_form": {
+          "enum": [
+            "derived_dark"
+          ]
+        },
+        "playback_mode": "playback_mode",
+        "prerequisite_receipt_ids": "ids",
+        "step_token": "id",
+        "friend_id": {
+          "const": "lavinia"
+        },
+        "tier": "tier",
+        "stored_tone": "tone",
+        "attitude": "attitude",
+        "evidence_receipt_ids": "ids",
+        "due_echoes": "echoes",
+        "residue_variant": "residue_variant"
+      }
+    },
+    {
+      "schema_id": "context.solo_ending_step.ending.lavinia.observer.full.v1",
+      "schema_version": 1,
+      "entry_id": "ending.lavinia.observer.full",
+      "fields": {
+        "entry_id": {
+          "const": "ending.lavinia.observer.full"
+        },
+        "entry_role": {
+          "const": "solo_ending_step"
+        },
+        "ending_id": {
+          "const": "ending.lavinia.observer"
+        },
+        "ending_role": "ending_role",
+        "ending_form": {
+          "enum": [
+            "observer_full"
+          ]
+        },
+        "playback_mode": "playback_mode",
+        "prerequisite_receipt_ids": "ids",
+        "step_token": "id",
+        "friend_id": {
+          "const": "lavinia"
+        },
+        "tier": "tier",
+        "stored_tone": "tone",
+        "attitude": "attitude",
+        "evidence_receipt_ids": "ids",
+        "due_echoes": "echoes",
+        "residue_variant": "residue_variant"
+      }
+    },
+    {
+      "schema_id": "context.solo_ending_step.ending.lavinia.observer.residue.v1",
+      "schema_version": 1,
+      "entry_id": "ending.lavinia.observer.residue",
+      "fields": {
+        "entry_id": {
+          "const": "ending.lavinia.observer.residue"
+        },
+        "entry_role": {
+          "const": "solo_ending_step"
+        },
+        "ending_id": {
+          "const": "ending.lavinia.observer"
+        },
+        "ending_role": "ending_role",
+        "ending_form": {
+          "enum": [
+            "observer_residue"
+          ]
+        },
+        "playback_mode": "playback_mode",
+        "prerequisite_receipt_ids": "ids",
+        "step_token": "id",
+        "friend_id": {
+          "const": "lavinia"
+        },
+        "tier": "tier",
+        "stored_tone": "tone",
+        "attitude": "attitude",
+        "evidence_receipt_ids": "ids",
+        "due_echoes": "echoes",
+        "residue_variant": "residue_variant"
+      }
+    },
+    {
+      "schema_id": "context.solo_ending_step.ending.sylvia.sweet.v1",
+      "schema_version": 1,
+      "entry_id": "ending.sylvia.sweet",
+      "fields": {
+        "entry_id": {
+          "const": "ending.sylvia.sweet"
+        },
+        "entry_role": {
+          "const": "solo_ending_step"
+        },
+        "ending_id": {
+          "const": "ending.sylvia.sweet"
+        },
+        "ending_role": "ending_role",
+        "ending_form": {
+          "enum": [
+            "derived_sweet"
+          ]
+        },
+        "playback_mode": "playback_mode",
+        "prerequisite_receipt_ids": "ids",
+        "step_token": "id",
+        "friend_id": {
+          "const": "sylvia"
+        },
+        "tier": "tier",
+        "stored_tone": "tone",
+        "attitude": "attitude",
+        "evidence_receipt_ids": "ids",
+        "due_echoes": "echoes",
+        "residue_variant": "residue_variant"
+      }
+    },
+    {
+      "schema_id": "context.solo_ending_step.ending.sylvia.dark.v1",
+      "schema_version": 1,
+      "entry_id": "ending.sylvia.dark",
+      "fields": {
+        "entry_id": {
+          "const": "ending.sylvia.dark"
+        },
+        "entry_role": {
+          "const": "solo_ending_step"
+        },
+        "ending_id": {
+          "const": "ending.sylvia.dark"
+        },
+        "ending_role": "ending_role",
+        "ending_form": {
+          "enum": [
+            "derived_dark",
+            "special_forced_dark"
+          ]
+        },
+        "playback_mode": "playback_mode",
+        "prerequisite_receipt_ids": "ids",
+        "step_token": "id",
+        "friend_id": {
+          "const": "sylvia"
+        },
+        "tier": "tier",
+        "stored_tone": "tone",
+        "attitude": "attitude",
+        "evidence_receipt_ids": "ids",
+        "due_echoes": "echoes",
+        "residue_variant": "residue_variant"
+      }
+    },
+    {
+      "schema_id": "context.solo_ending_step.ending.sylvia.special.full.v1",
+      "schema_version": 1,
+      "entry_id": "ending.sylvia.special.full",
+      "fields": {
+        "entry_id": {
+          "const": "ending.sylvia.special.full"
+        },
+        "entry_role": {
+          "const": "solo_ending_step"
+        },
+        "ending_id": {
+          "const": "ending.sylvia.special"
+        },
+        "ending_role": "ending_role",
+        "ending_form": {
+          "enum": [
+            "special_full"
+          ]
+        },
+        "playback_mode": "playback_mode",
+        "prerequisite_receipt_ids": "ids",
+        "step_token": "id",
+        "friend_id": {
+          "const": "sylvia"
+        },
+        "tier": "tier",
+        "stored_tone": "tone",
+        "attitude": "attitude",
+        "evidence_receipt_ids": "ids",
+        "due_echoes": "echoes",
+        "residue_variant": "residue_variant"
+      }
+    },
+    {
+      "schema_id": "context.solo_ending_step.ending.sylvia.special.residue.v1",
+      "schema_version": 1,
+      "entry_id": "ending.sylvia.special.residue",
+      "fields": {
+        "entry_id": {
+          "const": "ending.sylvia.special.residue"
+        },
+        "entry_role": {
+          "const": "solo_ending_step"
+        },
+        "ending_id": {
+          "const": "ending.sylvia.special"
+        },
+        "ending_role": "ending_role",
+        "ending_form": {
+          "enum": [
+            "special_residue"
+          ]
+        },
+        "playback_mode": "playback_mode",
+        "prerequisite_receipt_ids": "ids",
+        "step_token": "id",
+        "friend_id": {
+          "const": "sylvia"
+        },
+        "tier": "tier",
+        "stored_tone": "tone",
+        "attitude": "attitude",
+        "evidence_receipt_ids": "ids",
+        "due_echoes": "echoes",
+        "residue_variant": "residue_variant"
+      }
+    },
+    {
+      "schema_id": "context.pair_ending_step.ending.priscilla_lavinia.sweet.v1",
+      "schema_version": 1,
+      "entry_id": "ending.priscilla_lavinia.sweet",
+      "fields": {
+        "entry_id": {
+          "const": "ending.priscilla_lavinia.sweet"
+        },
+        "entry_role": {
+          "const": "pair_ending_step"
+        },
+        "ending_id": {
+          "const": "ending.priscilla_lavinia.sweet"
+        },
+        "ending_role": "ending_role",
+        "ending_form": {
+          "enum": [
+            "deck_sweet"
+          ]
+        },
+        "playback_mode": "playback_mode",
+        "prerequisite_receipt_ids": "ids",
+        "step_token": "id",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        },
+        "pair_count_receipt_ids": "ids",
+        "deck_tone": "tone",
+        "stable_combination": "pair_form",
+        "residue_variant": "residue_variant"
+      }
+    },
+    {
+      "schema_id": "context.pair_ending_step.ending.priscilla_lavinia.dark.v1",
+      "schema_version": 1,
+      "entry_id": "ending.priscilla_lavinia.dark",
+      "fields": {
+        "entry_id": {
+          "const": "ending.priscilla_lavinia.dark"
+        },
+        "entry_role": {
+          "const": "pair_ending_step"
+        },
+        "ending_id": {
+          "const": "ending.priscilla_lavinia.dark"
+        },
+        "ending_role": "ending_role",
+        "ending_form": {
+          "enum": [
+            "deck_dark"
+          ]
+        },
+        "playback_mode": "playback_mode",
+        "prerequisite_receipt_ids": "ids",
+        "step_token": "id",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        },
+        "pair_count_receipt_ids": "ids",
+        "deck_tone": "tone",
+        "stable_combination": "pair_form",
+        "residue_variant": "residue_variant"
+      }
+    },
+    {
+      "schema_id": "context.pair_ending_step.ending.priscilla_lavinia.observer.full.v1",
+      "schema_version": 1,
+      "entry_id": "ending.priscilla_lavinia.observer.full",
+      "fields": {
+        "entry_id": {
+          "const": "ending.priscilla_lavinia.observer.full"
+        },
+        "entry_role": {
+          "const": "pair_ending_step"
+        },
+        "ending_id": {
+          "const": "ending.priscilla_lavinia.observer"
+        },
+        "ending_role": "ending_role",
+        "ending_form": {
+          "enum": [
+            "observer_full"
+          ]
+        },
+        "playback_mode": "playback_mode",
+        "prerequisite_receipt_ids": "ids",
+        "step_token": "id",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        },
+        "pair_count_receipt_ids": "ids",
+        "deck_tone": "tone",
+        "stable_combination": "pair_form",
+        "residue_variant": "residue_variant"
+      }
+    },
+    {
+      "schema_id": "context.pair_ending_step.ending.priscilla_lavinia.observer.residue.v1",
+      "schema_version": 1,
+      "entry_id": "ending.priscilla_lavinia.observer.residue",
+      "fields": {
+        "entry_id": {
+          "const": "ending.priscilla_lavinia.observer.residue"
+        },
+        "entry_role": {
+          "const": "pair_ending_step"
+        },
+        "ending_id": {
+          "const": "ending.priscilla_lavinia.observer"
+        },
+        "ending_role": "ending_role",
+        "ending_form": {
+          "enum": [
+            "observer_residue"
+          ]
+        },
+        "playback_mode": "playback_mode",
+        "prerequisite_receipt_ids": "ids",
+        "step_token": "id",
+        "pair_id": {
+          "const": "priscilla_lavinia"
+        },
+        "pair_count_receipt_ids": "ids",
+        "deck_tone": "tone",
+        "stable_combination": "pair_form",
+        "residue_variant": "residue_variant"
+      }
+    },
+    {
+      "schema_id": "context.alone_step.ending.alone.normal.v1",
+      "schema_version": 1,
+      "entry_id": "ending.alone.normal",
+      "fields": {
+        "entry_id": {
+          "const": "ending.alone.normal"
+        },
+        "entry_role": {
+          "const": "alone_step"
+        },
+        "ending_id": {
+          "const": "ending.alone"
+        },
+        "ending_role": "ending_role",
+        "ending_form": {
+          "enum": [
+            "alone_normal"
+          ]
+        },
+        "playback_mode": "playback_mode",
+        "prerequisite_receipt_ids": "ids",
+        "step_token": "id",
+        "alone_cause": "alone_cause"
+      }
+    },
+    {
+      "schema_id": "context.alone_step.ending.alone.dark_mode.v1",
+      "schema_version": 1,
+      "entry_id": "ending.alone.dark_mode",
+      "fields": {
+        "entry_id": {
+          "const": "ending.alone.dark_mode"
+        },
+        "entry_role": {
+          "const": "alone_step"
+        },
+        "ending_id": {
+          "const": "ending.alone"
+        },
+        "ending_role": "ending_role",
+        "ending_form": {
+          "enum": [
+            "alone_dark_mode"
+          ]
+        },
+        "playback_mode": "playback_mode",
+        "prerequisite_receipt_ids": "ids",
+        "step_token": "id",
+        "alone_cause": "alone_cause"
+      }
+    }
+  ]
+}

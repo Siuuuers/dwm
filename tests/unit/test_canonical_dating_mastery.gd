@@ -3,6 +3,26 @@ const MASTERY := preload("res://scripts/domain/ending/CanonicalDatingMastery.gd"
 const FIXTURE := preload("res://tests/support/CanonicalDatingMasteryFixture.gd")
 const LEDGER := preload("res://scripts/profile/DatingAttemptLedger.gd")
 
+# Isolate ending eligibility from Schedule's separately tested commitment transaction.
+# Board attempts and their exact Profile lookups still use the real mastery fixture.
+class SoloGame extends FIXTURE.Game:
+	var committed_entries: Array = []
+	func _committed_entries() -> Array:
+		return committed_entries.duplicate(true)
+
+func _solo(scope: String) -> Node:
+	var game: Node = autofree(SoloGame.new())
+	game.reset_game()
+	game._lifecycle_set_playing_day(7)
+	game.committed_entries = [{"action_kind": "solo", "participants": [scope]}]
+	game.dating_route_state[scope] = {"relationship_state": "ambiguous", "dark_points": 0}
+	game.daily_opened_contacts["day:7:friend:" + scope] = true
+	var installed: Dictionary = FIXTURE.profile_for_scope(game, scope)
+	assert_true(installed.ok, str(installed))
+	if not installed.ok: return null
+	autofree(installed.value.profile)
+	return game
+
 func _scope(scope: String) -> Dictionary:
 	var made: Dictionary = FIXTURE.for_scope("mastery-run", scope)
 	assert_true(made.ok, str(made))
@@ -141,3 +161,67 @@ func test_pair_observer_predicts_only_sole_missing_sweet_form_with_explicit_prec
 	assert_eq(planned.value.eligibility_snapshot.pair_observer_witness_precondition,
 		{"required_forms": ["ambiguous_sweet", "ambiguous_dark", "love_sweet", "love_dark"],
 		"supplied_by_ending": "ending.priscilla_lavinia.sweet", "form": "love_sweet"})
+
+func test_solo_observers_qualify_without_retired_interactions_and_preserve_replay_receipts() -> void:
+	for scope: String in ["priscilla", "lavinia"]:
+		var game := _solo(scope)
+		if game == null: return
+		var profile: Node = game.mastery_profile
+		var before: Dictionary = profile.get_profile_snapshot()
+		assert_eq(before.observer_evidence, {})
+		game.route_context.observer_variant_by_scope = {scope: "residue"}
+		var planned: Dictionary = game.prepare_provisional_day7_ending_plan()
+		assert_true(planned.ok, str(planned))
+		if not planned.ok: return
+		assert_true(planned.value.eligibility_snapshot.board_mastery_by_scope[scope])
+		assert_eq(planned.value.steps.map(func(step: Dictionary) -> String: return step.ending_id),
+			["ending.%s.sweet" % scope, "ending.%s.observation" % scope])
+		assert_eq(planned.value.steps.back().presentation_variant, "full",
+			"caller flags cannot replace actual prior postscript completion")
+		assert_eq(profile.get_profile_snapshot(), before,
+			"qualification cannot invent Capture, Compare, restraint, or Gallery receipts")
+		var ending_id := "ending.%s.observation" % scope
+		assert_true(profile.unlock_ending(ending_id, "ending:earlier:gallery:" + ending_id).ok)
+		var replay: Dictionary = game.prepare_provisional_day7_ending_plan()
+		assert_true(replay.ok, str(replay))
+		if not replay.ok: return
+		assert_eq(replay.value.steps.back().presentation_variant, "residue")
+		assert_eq(profile.get_profile_snapshot().observer_evidence, {})
+
+func test_retiring_solo_interactions_preserves_tone_mastery_and_destination_gates() -> void:
+	for scope: String in ["priscilla", "lavinia"]:
+		var game := _solo(scope)
+		if game == null: return
+		game.dating_route_state[scope].dark_points = 2
+		var dark: Dictionary = game.prepare_provisional_day7_ending_plan()
+		assert_true(dark.ok, str(dark))
+		if not dark.ok: return
+		assert_eq(dark.value.steps, [{"ending_id": "ending.%s.dark" % scope, "role": "core"}])
+		game.dating_route_state[scope].dark_points = 0
+		var heads: Dictionary = game.route_context.dating_canonical_heads.duplicate(true)
+		game.route_context.dating_canonical_heads.erase(MASTERY.slots_for(scope)[0])
+		var incomplete: Dictionary = game.prepare_provisional_day7_ending_plan()
+		assert_true(incomplete.ok, str(incomplete))
+		if not incomplete.ok: return
+		assert_eq(incomplete.value.steps.size(), 1, "retired interactions do not waive a missing board")
+		game.route_context.dating_canonical_heads = heads
+		game.committed_entries = []
+		var alone: Dictionary = game.prepare_provisional_day7_ending_plan()
+		assert_true(alone.ok, str(alone))
+		if not alone.ok: return
+		assert_eq(alone.value.steps, [{"ending_id": "ending.alone", "role": "core"}])
+		var other := "lavinia" if scope == "priscilla" else "priscilla"
+		game.dating_route_state[other] = {"relationship_state": "ambiguous", "dark_points": 0}
+		game.daily_opened_contacts["day:7:friend:" + other] = true
+		game.committed_entries = [{"action_kind": "solo", "participants": [other]}]
+		var selected_other: Dictionary = game.prepare_provisional_day7_ending_plan()
+		assert_true(selected_other.ok, str(selected_other))
+		if not selected_other.ok: return
+		assert_eq(selected_other.value.steps, [{"ending_id": "ending.%s.sweet" % other, "role": "core"}],
+			"another friend's mastery cannot append to the selected destination")
+		game.committed_entries = [{"action_kind": "solo", "participants": [scope]}]
+		game.daily_opened_contacts["day:7:friend:" + scope] = false
+		assert_false(game.prepare_provisional_day7_ending_plan().ok, "unread invitation remains ineligible")
+		game.daily_opened_contacts["day:7:friend:" + scope] = true
+		game.dating_route_state[scope].relationship_state = "friend"
+		assert_false(game.prepare_provisional_day7_ending_plan().ok, "mastery does not grant relationship tier")

@@ -1,0 +1,30 @@
+{
+  "original_artifact": {
+    "repository": "Siuuuers/dwm",
+    "id": 11244640103,
+    "name": "windows-export-37044894986-1",
+    "size_in_bytes": 98850774,
+    "digest": "sha256:e2739823bc11ab4a336072c1a437af8711f54c3dee248a6e388b42c6947d8cc9",
+    "run_id": 37044894986,
+    "workflow_head": "1bc4f6afd759e969f82b9c2134eb178479c19d13"
+  },
+  "original_zip": {
+    "bytes": 98850774,
+    "sha256": "e2739823bc11ab4a336072c1a437af8711f54c3dee248a6e388b42c6947d8cc9",
+    "crc_verified": true,
+    "member_count": 11
+  },
+  "transport_execution": {
+    "GITHUB_REPOSITORY": "Siuuuers/dwm",
+    "GITHUB_RUN_ID": "37047435988",
+    "GITHUB_RUN_ATTEMPT": "1",
+    "GITHUB_SHA": "35da7aad3d95253fa0530cdb664f1ef8773d78e9",
+    "GITHUB_JOB": "transport-original-export"
+  },
+  "chunk_count": 4,
+  "all_chunks_verified": true,
+  "ordered_reassembly_verified": true,
+  "zip_crc_verified": true,
+  "local_zip": "/workspace/scratch/e58f796fe7a3/attachments/broad1-export/windows-export-37044894986-1.zip",
+  "scope": "Original archive byte delivery only; exported build semantics separately audited."
+}

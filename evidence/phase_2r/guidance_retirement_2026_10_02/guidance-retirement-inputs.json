@@ -1,0 +1,29 @@
+{
+  "base": "96f95c67db6c7358b5f846651fef5c88babfbf92",
+  "files": [
+    {
+      "path": "Prompt.md",
+      "git_blob": "8dd36608663c88d96e68fb517a0946ca80e211f0",
+      "bytes": 6635,
+      "sha256": "4c81e4b2c4c027379882296c5902591e1008d7d8bc40ab04c7837f46c9c9b9e8"
+    },
+    {
+      "path": "CLAUDE.md",
+      "git_blob": "daced9bd64f25908ebedeb4701fb406985dc8366",
+      "bytes": 2357,
+      "sha256": "694a2d721e41c385f3db492838c23299826df5ba9809e3b0721aac70021e196a"
+    },
+    {
+      "path": "docs/agent/AGENT_WORKFLOW.md",
+      "git_blob": "9ece781c8daa61f958864eff05b4ae52915f4b57",
+      "bytes": 10932,
+      "sha256": "0c30d1e246dbe5201fbd796abaf07de816927c53c5222393c7a4a0f7ae6bae20"
+    },
+    {
+      "path": ".beads/issues.jsonl",
+      "git_blob": "d1395ebef278f958a6a9224db4591bd1f53401cc",
+      "bytes": 2006508,
+      "sha256": "27097bbef59b4abfd9b2c0ed20c7bc5efc700f7c00ebcded55c04c7e700c1b20"
+    }
+  ]
+}

@@ -1,0 +1,424 @@
+{
+  "kind": "solo_reading_catalogue",
+  "schema_version": 2,
+  "entries": [
+    {
+      "entry_id": "dating.solo.priscilla.day1.pre_challenge",
+      "content_version": 1,
+      "selector_fields": [
+        "entry_id",
+        "entry_role",
+        "day",
+        "friend_id",
+        "challenge_slot",
+        "phase",
+        "tier",
+        "tone",
+        "attitude",
+        "due_echoes",
+        "attempt_residue_id"
+      ],
+      "variants": [
+        {
+          "selector_values": {
+            "entry_id": "dating.solo.priscilla.day1.pre_challenge",
+            "entry_role": "solo_pre_challenge",
+            "day": 1,
+            "friend_id": "priscilla",
+            "challenge_slot": "dating.solo.priscilla.day1",
+            "phase": "pre_challenge",
+            "tier": "friend",
+            "tone": "sweet",
+            "attitude": "",
+            "due_echoes": [],
+            "attempt_residue_id": null
+          },
+          "label": "fixture.selector.pre.sweet",
+          "lines": [
+            {
+              "beat_id": "fixture.selector.pre.a",
+              "line_id": "fixture.selector.pre.a",
+              "text": "NONCANONICAL sweet opening. This authored selector fixture keeps the opening stable while the admitted tone determines this caption.",
+              "revision": "selector-fixture-v1",
+              "variant_id": "opening.sweet",
+              "selector_fields": [
+                "tone"
+              ]
+            },
+            {
+              "beat_id": "fixture.selector.pre.b",
+              "line_id": "fixture.selector.pre.b",
+              "text": "NONCANONICAL shared board invitation.",
+              "revision": "selector-fixture-v1",
+              "variant_id": "board.invitation",
+              "selector_fields": []
+            }
+          ]
+        },
+        {
+          "selector_values": {
+            "entry_id": "dating.solo.priscilla.day1.pre_challenge",
+            "entry_role": "solo_pre_challenge",
+            "day": 1,
+            "friend_id": "priscilla",
+            "challenge_slot": "dating.solo.priscilla.day1",
+            "phase": "pre_challenge",
+            "tier": "friend",
+            "tone": "dark",
+            "attitude": "",
+            "due_echoes": [],
+            "attempt_residue_id": null
+          },
+          "label": "fixture.selector.pre.dark",
+          "lines": [
+            {
+              "beat_id": "fixture.selector.pre.a",
+              "line_id": "fixture.selector.pre.a",
+              "text": "NONCANONICAL dark opening. This authored selector fixture keeps the opening stable while the admitted tone determines this caption.",
+              "revision": "selector-fixture-v1",
+              "variant_id": "opening.dark",
+              "selector_fields": [
+                "tone"
+              ]
+            },
+            {
+              "beat_id": "fixture.selector.pre.b",
+              "line_id": "fixture.selector.pre.b",
+              "text": "NONCANONICAL shared board invitation.",
+              "revision": "selector-fixture-v1",
+              "variant_id": "board.invitation",
+              "selector_fields": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "entry_id": "dating.solo.priscilla.day1.post_challenge",
+      "content_version": 1,
+      "selector_fields": [
+        "entry_id",
+        "entry_role",
+        "day",
+        "friend_id",
+        "challenge_slot",
+        "phase",
+        "tier",
+        "tone",
+        "attitude",
+        "due_echoes",
+        "attempt_residue_id",
+        "board_result",
+        "perfect_reasons",
+        "relationship_outcome"
+      ],
+      "variants": [
+        {
+          "selector_values": {
+            "entry_id": "dating.solo.priscilla.day1.post_challenge",
+            "entry_role": "solo_post_challenge",
+            "day": 1,
+            "friend_id": "priscilla",
+            "challenge_slot": "dating.solo.priscilla.day1",
+            "phase": "post_challenge",
+            "tier": "friend",
+            "tone": "sweet",
+            "attitude": "",
+            "due_echoes": [],
+            "attempt_residue_id": null,
+            "board_result": "cleared",
+            "perfect_reasons": [],
+            "relationship_outcome": "loved"
+          },
+          "label": "fixture.selector.post.sweet.cleared",
+          "lines": [
+            {
+              "beat_id": "fixture.selector.post.a",
+              "line_id": "fixture.selector.post.a",
+              "text": "NONCANONICAL cleared board reflection. Only the committed board result determines this fixture caption.",
+              "revision": "selector-fixture-v1",
+              "variant_id": "reflection.cleared",
+              "selector_fields": [
+                "board_result",
+                "perfect_reasons",
+                "relationship_outcome"
+              ]
+            },
+            {
+              "beat_id": "fixture.selector.post.b",
+              "line_id": "fixture.selector.post.b",
+              "text": "NONCANONICAL sweet closing.",
+              "revision": "selector-fixture-v1",
+              "variant_id": "closing.sweet",
+              "selector_fields": [
+                "tone"
+              ]
+            }
+          ]
+        },
+        {
+          "selector_values": {
+            "entry_id": "dating.solo.priscilla.day1.post_challenge",
+            "entry_role": "solo_post_challenge",
+            "day": 1,
+            "friend_id": "priscilla",
+            "challenge_slot": "dating.solo.priscilla.day1",
+            "phase": "post_challenge",
+            "tier": "friend",
+            "tone": "sweet",
+            "attitude": "",
+            "due_echoes": [],
+            "attempt_residue_id": null,
+            "board_result": "perfect",
+            "perfect_reasons": [
+              "no_flag"
+            ],
+            "relationship_outcome": "foresight"
+          },
+          "label": "fixture.selector.post.sweet.perfect",
+          "lines": [
+            {
+              "beat_id": "fixture.selector.post.a",
+              "line_id": "fixture.selector.post.a",
+              "text": "NONCANONICAL perfect board reflection. Only the committed board result determines this fixture caption.",
+              "revision": "selector-fixture-v1",
+              "variant_id": "reflection.perfect",
+              "selector_fields": [
+                "board_result",
+                "perfect_reasons",
+                "relationship_outcome"
+              ]
+            },
+            {
+              "beat_id": "fixture.selector.post.b",
+              "line_id": "fixture.selector.post.b",
+              "text": "NONCANONICAL sweet closing.",
+              "revision": "selector-fixture-v1",
+              "variant_id": "closing.sweet",
+              "selector_fields": [
+                "tone"
+              ]
+            }
+          ]
+        },
+        {
+          "selector_values": {
+            "entry_id": "dating.solo.priscilla.day1.post_challenge",
+            "entry_role": "solo_post_challenge",
+            "day": 1,
+            "friend_id": "priscilla",
+            "challenge_slot": "dating.solo.priscilla.day1",
+            "phase": "post_challenge",
+            "tier": "friend",
+            "tone": "dark",
+            "attitude": "",
+            "due_echoes": [],
+            "attempt_residue_id": null,
+            "board_result": "cleared",
+            "perfect_reasons": [],
+            "relationship_outcome": "loved"
+          },
+          "label": "fixture.selector.post.dark.cleared",
+          "lines": [
+            {
+              "beat_id": "fixture.selector.post.a",
+              "line_id": "fixture.selector.post.a",
+              "text": "NONCANONICAL cleared board reflection. Only the committed board result determines this fixture caption.",
+              "revision": "selector-fixture-v1",
+              "variant_id": "reflection.cleared",
+              "selector_fields": [
+                "board_result",
+                "perfect_reasons",
+                "relationship_outcome"
+              ]
+            },
+            {
+              "beat_id": "fixture.selector.post.b",
+              "line_id": "fixture.selector.post.b",
+              "text": "NONCANONICAL dark closing.",
+              "revision": "selector-fixture-v1",
+              "variant_id": "closing.dark",
+              "selector_fields": [
+                "tone"
+              ]
+            }
+          ]
+        },
+        {
+          "selector_values": {
+            "entry_id": "dating.solo.priscilla.day1.post_challenge",
+            "entry_role": "solo_post_challenge",
+            "day": 1,
+            "friend_id": "priscilla",
+            "challenge_slot": "dating.solo.priscilla.day1",
+            "phase": "post_challenge",
+            "tier": "friend",
+            "tone": "dark",
+            "attitude": "",
+            "due_echoes": [],
+            "attempt_residue_id": null,
+            "board_result": "perfect",
+            "perfect_reasons": [
+              "no_flag"
+            ],
+            "relationship_outcome": "foresight"
+          },
+          "label": "fixture.selector.post.dark.perfect",
+          "lines": [
+            {
+              "beat_id": "fixture.selector.post.a",
+              "line_id": "fixture.selector.post.a",
+              "text": "NONCANONICAL perfect board reflection. Only the committed board result determines this fixture caption.",
+              "revision": "selector-fixture-v1",
+              "variant_id": "reflection.perfect",
+              "selector_fields": [
+                "board_result",
+                "perfect_reasons",
+                "relationship_outcome"
+              ]
+            },
+            {
+              "beat_id": "fixture.selector.post.b",
+              "line_id": "fixture.selector.post.b",
+              "text": "NONCANONICAL dark closing.",
+              "revision": "selector-fixture-v1",
+              "variant_id": "closing.dark",
+              "selector_fields": [
+                "tone"
+              ]
+            }
+          ]
+        },
+        {
+          "selector_values": {
+            "entry_id": "dating.solo.priscilla.day1.post_challenge",
+            "entry_role": "solo_post_challenge",
+            "day": 1,
+            "friend_id": "priscilla",
+            "challenge_slot": "dating.solo.priscilla.day1",
+            "phase": "post_challenge",
+            "tier": "friend",
+            "tone": "sweet",
+            "attitude": "hostile",
+            "due_echoes": [],
+            "attempt_residue_id": null,
+            "board_result": "exploded",
+            "perfect_reasons": [],
+            "relationship_outcome": "hatred"
+          },
+          "label": "fixture.selector.post.sweet.exploded.hatred",
+          "lines": [
+            {
+              "beat_id": "fixture.selector.post.a",
+              "line_id": "fixture.selector.post.a",
+              "text": "NONCANONICAL exploded board reflection with hatred. This caption follows the committed physical outcome while retaining a stable line identity for the reading fixture.",
+              "revision": "selector-fixture-v1",
+              "variant_id": "reflection.exploded.hatred",
+              "selector_fields": [
+                "board_result",
+                "perfect_reasons",
+                "relationship_outcome"
+              ]
+            },
+            {
+              "beat_id": "fixture.selector.post.b",
+              "line_id": "fixture.selector.post.b",
+              "text": "NONCANONICAL sweet closing.",
+              "revision": "selector-fixture-v1",
+              "variant_id": "closing.sweet",
+              "selector_fields": [
+                "tone"
+              ]
+            }
+          ]
+        },
+        {
+          "selector_values": {
+            "entry_id": "dating.solo.priscilla.day1.post_challenge",
+            "entry_role": "solo_post_challenge",
+            "day": 1,
+            "friend_id": "priscilla",
+            "challenge_slot": "dating.solo.priscilla.day1",
+            "phase": "post_challenge",
+            "tier": "friend",
+            "tone": "sweet",
+            "attitude": "upset",
+            "due_echoes": [],
+            "attempt_residue_id": null,
+            "board_result": "exploded",
+            "perfect_reasons": [],
+            "relationship_outcome": "upset"
+          },
+          "label": "fixture.selector.post.sweet.exploded.upset",
+          "lines": [
+            {
+              "beat_id": "fixture.selector.post.a",
+              "line_id": "fixture.selector.post.a",
+              "text": "NONCANONICAL exploded board reflection with upset. This caption follows the committed physical outcome while retaining a stable line identity for the reading fixture.",
+              "revision": "selector-fixture-v1",
+              "variant_id": "reflection.exploded.upset",
+              "selector_fields": [
+                "board_result",
+                "perfect_reasons",
+                "relationship_outcome"
+              ]
+            },
+            {
+              "beat_id": "fixture.selector.post.b",
+              "line_id": "fixture.selector.post.b",
+              "text": "NONCANONICAL sweet closing.",
+              "revision": "selector-fixture-v1",
+              "variant_id": "closing.sweet",
+              "selector_fields": [
+                "tone"
+              ]
+            }
+          ]
+        },
+        {
+          "selector_values": {
+            "entry_id": "dating.solo.priscilla.day1.post_challenge",
+            "entry_role": "solo_post_challenge",
+            "day": 1,
+            "friend_id": "priscilla",
+            "challenge_slot": "dating.solo.priscilla.day1",
+            "phase": "post_challenge",
+            "tier": "friend",
+            "tone": "sweet",
+            "attitude": "amused",
+            "due_echoes": [],
+            "attempt_residue_id": null,
+            "board_result": "exploded",
+            "perfect_reasons": [],
+            "relationship_outcome": "amused"
+          },
+          "label": "fixture.selector.post.sweet.exploded.amused",
+          "lines": [
+            {
+              "beat_id": "fixture.selector.post.a",
+              "line_id": "fixture.selector.post.a",
+              "text": "NONCANONICAL exploded board reflection with amused. This caption follows the committed physical outcome while retaining a stable line identity for the reading fixture.",
+              "revision": "selector-fixture-v1",
+              "variant_id": "reflection.exploded.amused",
+              "selector_fields": [
+                "board_result",
+                "perfect_reasons",
+                "relationship_outcome"
+              ]
+            },
+            {
+              "beat_id": "fixture.selector.post.b",
+              "line_id": "fixture.selector.post.b",
+              "text": "NONCANONICAL sweet closing.",
+              "revision": "selector-fixture-v1",
+              "variant_id": "closing.sweet",
+              "selector_fields": [
+                "tone"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

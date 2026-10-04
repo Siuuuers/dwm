@@ -69,6 +69,7 @@ func test_debug_exposes_exactly_one_forced_cell_and_rejects_every_other_cell() -
 		return
 	var state_port: Object = load(FAKE_STATE_PORT_PATH).new()
 	state_port.identity_issuer = issuer
+	state_port.generation_capabilities = ["first_cell_safe", "forced_no_guess"]
 	var coordinator: Object = load(ROUND_COORDINATOR_PATH).new()
 	assert_true(coordinator.configure(state_port, load(FAKE_CHECKPOINT_PATH).new(),
 		load(FAKE_GENERATION_PATH).new(), issuer).get("ok", false))
@@ -114,6 +115,7 @@ func test_debug_rejects_every_other_cell_before_any_live_mutation() -> void:
 		return
 	var state_port: Object = load(FAKE_STATE_PORT_PATH).new()
 	state_port.identity_issuer = issuer
+	state_port.generation_capabilities = ["first_cell_safe", "forced_no_guess"]
 	var coordinator: Object = load(ROUND_COORDINATOR_PATH).new()
 	assert_true(coordinator.configure(state_port, load(FAKE_CHECKPOINT_PATH).new(),
 		load(FAKE_GENERATION_PATH).new(), issuer).get("ok", false))

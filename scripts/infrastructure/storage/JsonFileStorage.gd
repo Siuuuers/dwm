@@ -309,7 +309,11 @@ func read_text(relative_path: String) -> Dictionary:
 	if not path_result.get("ok", false):
 		return path_result
 	if not _leases.has(relative_path):
-		return _failure(&"reconcile_required", "A fresh reconciliation lease is required")
+		var missing := _failure(&"reconcile_required", "A fresh reconciliation lease is required")
+		# No physical read was attempted. Callers may establish this path's initial
+		# lease, while a read that detects changed bytes must still refuse its attempt.
+		missing["reason"] = &"lease_missing"
+		return missing
 	var lease: Dictionary = _leases[relative_path]
 	var final_path := _path(relative_path)
 	if lease.get("absent", false):
@@ -755,8 +759,12 @@ func _validate_request(relative_path: String, validator: Callable) -> Dictionary
 	return {"ok": true}
 
 func _validate_relative_path(relative_path: String) -> Dictionary:
-	if relative_path.is_empty() or relative_path.is_absolute_path() or ":" in relative_path or "\\" in relative_path or "\u0000" in relative_path:
+	if relative_path.is_empty() or relative_path.is_absolute_path() or ":" in relative_path or "\\" in relative_path:
 		return _failure(&"invalid_relative_path", "Storage path must be a safe relative path")
+	for index: int in relative_path.length():
+		var codepoint := relative_path.unicode_at(index)
+		if codepoint == 0 or codepoint == 0xFFFD:
+			return _failure(&"invalid_relative_path", "Storage path must be a safe relative path")
 	var parts := relative_path.split("/", true)
 	if parts.is_empty() or "" in parts or "." in parts or ".." in parts or relative_path.simplify_path() != relative_path:
 		return _failure(&"invalid_relative_path", "Storage path contains an unsafe segment")

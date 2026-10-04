@@ -1,0 +1,677 @@
+{
+  "run_id": 37117747147,
+  "artifacts": [
+    {
+      "id": 11272571579,
+      "name": "windows-desktop-37117747147-1",
+      "size_in_bytes": 293715,
+      "digest": "sha256:8a40ff78e6935a1d0971f9fc4f816da52d1eb5dd08bc9fef81836723cc3f3dac",
+      "download_verified": true
+    },
+    {
+      "id": 11272431849,
+      "name": "cloud-speech-rendered-timed-hold-37117747147-1",
+      "size_in_bytes": 385063,
+      "digest": "sha256:2f70ce8a2e40cedeb8d89c678ad5041c0ac9c0915d83c39585866fc485f26cd6"
+    },
+    {
+      "id": 11272418059,
+      "name": "angela-overlay-render-37117747147-1",
+      "size_in_bytes": 2834870,
+      "digest": "sha256:d5c4fdcbbfd447ee0b5c6b7f51476c60b8b328fe1f5b88215897d7bb341f90ba"
+    },
+    {
+      "id": 11272292079,
+      "name": "desktop-scaling-render-37117747147-1",
+      "size_in_bytes": 11247553,
+      "digest": "sha256:408570fd891d3cb841ee70abaa0629ce6bd40f3778b27f2f65fc72818b8e6c9c"
+    },
+    {
+      "id": 11272278476,
+      "name": "ui-literal-audit-37117747147-1",
+      "size_in_bytes": 28988,
+      "digest": "sha256:09a3d508ae5ccbe2983b66eb5d241daffbd05241e39d0875a15506fa9133de88"
+    },
+    {
+      "id": 11272158505,
+      "name": "font-choices-render-37117747147-1",
+      "size_in_bytes": 6319862,
+      "digest": "sha256:e88f0ae69322db8b58bf7bb25c3c5e2f96450c95c5ab6c0d8b3cbeeb22c7ba7a"
+    },
+    {
+      "id": 11272153529,
+      "name": "hospital-reading-37117747147-1",
+      "size_in_bytes": 8830093,
+      "digest": "sha256:e25bded7507b801134bff4fbc5cd1c7138c58a849af3e9b08eb849e0c88ce51b",
+      "download_verified": true
+    },
+    {
+      "id": 11272138553,
+      "name": "windows-dating-37117747147-1",
+      "size_in_bytes": 535281,
+      "digest": "sha256:24d1542e650c4815efb13e3cf76e5dbf1ed5703365be77d63012472c2f4a8f90",
+      "download_verified": true
+    },
+    {
+      "id": 11272108463,
+      "name": "windows-persistence-37117747147-1",
+      "size_in_bytes": 198630,
+      "digest": "sha256:06fa2179c34cd93d2ce1f35eee7f6ff7da78cf9a6af0ca2ffa65e24c76fc3dae",
+      "download_verified": true
+    },
+    {
+      "id": 11272098399,
+      "name": "cloud-speech-rendered-journeys-37117747147-1",
+      "size_in_bytes": 384490,
+      "digest": "sha256:a6e7fd3b1f79b4d65c9597ba57c4aa5187ef88ffbea119eceb7ec63870dcb68e"
+    },
+    {
+      "id": 11272082294,
+      "name": "windows-checkpoint_diagnostics-37117747147-1",
+      "size_in_bytes": 602626,
+      "digest": "sha256:da2cd7671f2d7c52336e43c1deb7770552235a12c23e4d343082c69eee8ad2fe",
+      "download_verified": true
+    },
+    {
+      "id": 11272038594,
+      "name": "windows-endings-37117747147-1",
+      "size_in_bytes": 74985,
+      "digest": "sha256:f6711dbc196ce47848c16967f10c2e8e88f9cfbe631649617334bfbd1ac2118e",
+      "download_verified": true
+    },
+    {
+      "id": 11272013518,
+      "name": "timed-hold-37117747147-1",
+      "size_in_bytes": 4844198,
+      "digest": "sha256:f112956e6c6e164e6fbe5c5ccaeccb72baff99ee6b0556a91971e6e1a0fbaec5"
+    },
+    {
+      "id": 11271928913,
+      "name": "playable-startup-render-37117747147-1",
+      "size_in_bytes": 1050179,
+      "digest": "sha256:9e159c2cdd6fbae0e5c964f1b61453e31787a1494d6e8c760154fb9bdf16a5c3"
+    },
+    {
+      "id": 11271898996,
+      "name": "checkpoint-performance-37117747147-1",
+      "size_in_bytes": 149916,
+      "digest": "sha256:910d39d60fd551146f73ce897aefdbb46d1a42379f8a026408adc466695e9743"
+    },
+    {
+      "id": 11271829055,
+      "name": "windows-reading_delivery-37117747147-1",
+      "size_in_bytes": 305809,
+      "digest": "sha256:4549fdb96fc823e412b875b2191079e06948706846d5419524f0e7752cb93f3d",
+      "download_verified": true
+    },
+    {
+      "id": 11271813869,
+      "name": "windows-shop-37117747147-1",
+      "size_in_bytes": 65397,
+      "digest": "sha256:49f08aff35564d0ff55ec7fb716caa28163b5e91df7e62ab7914313c49aa0d6d",
+      "download_verified": true
+    },
+    {
+      "id": 11271768919,
+      "name": "public-surfaces-37117747147-1",
+      "size_in_bytes": 145094,
+      "digest": "sha256:6df5528aba8e210879981782b0e90345b99c65e91161e489b1acaef953b17ba3",
+      "download_verified": true
+    },
+    {
+      "id": 11271753947,
+      "name": "windows-new_account-37117747147-1",
+      "size_in_bytes": 238856,
+      "digest": "sha256:ad9d8c4b9973b8ff8a8d00a84f6007e85b2206b457dd903ce056b652a5b32f83",
+      "download_verified": true
+    },
+    {
+      "id": 11271738959,
+      "name": "cloud-speech-rendered-desktop-37117747147-1",
+      "size_in_bytes": 387093,
+      "digest": "sha256:023bfa87c6693215b1c5b6ce56b583ccb801dff790cd4bb4efafdf5227a28c03"
+    },
+    {
+      "id": 11271704084,
+      "name": "windows-localization-37117747147-1",
+      "size_in_bytes": 341261,
+      "digest": "sha256:48a17e51d853504eb2eb833b935f9686750d7451dcf552f55222d255b56581d2",
+      "download_verified": true
+    },
+    {
+      "id": 11271669014,
+      "name": "cloud-speech-rendered-hospital-reading-37117747147-1",
+      "size_in_bytes": 386199,
+      "digest": "sha256:166fb8d2d2f1f835fd97b6328dafb832e23c944fbbff82ed779fefb3d3cc5350"
+    },
+    {
+      "id": 11271629367,
+      "name": "checkpoint-payloads-37117747147",
+      "size_in_bytes": 47539,
+      "digest": "sha256:69da36243cf3bec6d504409e47efb0fdd76acdaebc33eb2191a711bccb0235a4"
+    },
+    {
+      "id": 11271619303,
+      "name": "playable-journeys-37117747147-1",
+      "size_in_bytes": 9634149,
+      "digest": "sha256:bcc282d979e76a9b2d471415f8ccc1096690f167177475df7d591a0163608010",
+      "download_verified": true
+    },
+    {
+      "id": 11271554503,
+      "name": "japanese-korean-ui-render-37117747147-1",
+      "size_in_bytes": 7058341,
+      "digest": "sha256:8f0a6afce957eafe8ba6c8530827f0b961b979819c885489b0645faf46c45b46"
+    },
+    {
+      "id": 11271539590,
+      "name": "reading-rail-37117747147-1",
+      "size_in_bytes": 11542860,
+      "digest": "sha256:dbe6f896929ff2779013d547c31072fc411542e744fce6f0fd07a52687eb9f7f"
+    },
+    {
+      "id": 11271539334,
+      "name": "windows-audio-37117747147-1",
+      "size_in_bytes": 22169,
+      "digest": "sha256:7ecad3367ffa04db8f376a4a0e720bc70e3ec94eaf29970e898232193f8a24cb",
+      "download_verified": true
+    },
+    {
+      "id": 11271484598,
+      "name": "delivery-dialogue-render-37117747147-1",
+      "size_in_bytes": 15180400,
+      "digest": "sha256:78675d3fd7d1e02310623c93eebb41c66e2382577e3c6415d04fd47538e6bfaf"
+    },
+    {
+      "id": 11271484584,
+      "name": "windows-export-37117747147-1",
+      "size_in_bytes": 98864378,
+      "digest": "sha256:f33a543495c56e60707d54d1a401f2f6ea5ecf6dba3e8e8a1a5dddbcf846ee03"
+    },
+    {
+      "id": 11271474650,
+      "name": "windows-settings-37117747147-1",
+      "size_in_bytes": 2752488,
+      "digest": "sha256:dc7cefddbb0026bed394a9de1b0ed7992cc6fee808ae29acf8d9bafa75e7d1df",
+      "download_verified": true
+    },
+    {
+      "id": 11271474505,
+      "name": "windows-minesweeper-37117747147-1",
+      "size_in_bytes": 166399,
+      "digest": "sha256:c2011b7370d50e6d7a34a9f521472fea3ac3e830811c28a9b4f149f172dda5d4",
+      "download_verified": true
+    },
+    {
+      "id": 11271469949,
+      "name": "solo-authored-selector-37117747147-1",
+      "size_in_bytes": 7034744,
+      "digest": "sha256:9772e56ee5284585cbfb41094fd2c3e7b2acebf464f4433e7394898c3298a1fb"
+    },
+    {
+      "id": 11272512608,
+      "name": "seven-day-inputs-37117747147",
+      "size_in_bytes": 80646,
+      "digest": "sha256:d85b29fb9d9ee95d202f2ca5b62f0d27733be9fbb7fe875aa610b232e41ca44d"
+    },
+    {
+      "id": 11272313007,
+      "name": "seven-day-history-37117747147-1",
+      "size_in_bytes": 314587,
+      "digest": "sha256:a64a9fc9774ccef4929306a7865cfebd9d3e87b03f91b6d7fe165c7eae03cbdc"
+    },
+    {
+      "id": 11273220164,
+      "name": "lazy-normalization-37117747147-1",
+      "size_in_bytes": 49154,
+      "digest": "sha256:ccc9358e84c0f86fe1127fc24173574e3e726a7a7832918dad895d8279f3b002"
+    },
+    {
+      "id": 11273200900,
+      "name": "warm-outgoing-proof-37117747147-1",
+      "size_in_bytes": 463532,
+      "digest": "sha256:729c574c8ad5bbb9c71d000e1df57fec49b48a134c6cef0ec62ccdfe6bc72bf4"
+    },
+    {
+      "id": 11272756676,
+      "name": "history-region-search-37117747147-1",
+      "size_in_bytes": 125832,
+      "digest": "sha256:7887182c622de6ae44776dbde89050b265ac88901c5f2343f603e4c90b84d0a8"
+    },
+    {
+      "id": 11272133320,
+      "name": "outgoing-normalization-37117747147-1",
+      "size_in_bytes": 24654,
+      "digest": "sha256:d962254c3c796ce753033252932af53bc2299bd751a14db7986cd80d278d1be2"
+    }
+  ],
+  "jobs": [
+    {
+      "id": 111187724645,
+      "name": "Windows / public API surface contracts",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111188333871,
+      "name": "Windows / seven-day retained history producer",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111188333876,
+      "name": "Windows / exported release startup",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111188333888,
+      "name": "Rendered Hospital / manual command refusal and saved-fixture restore",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111188333930,
+      "name": "Rendered desktop and dialogue / Linux software OpenGL",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111188333947,
+      "name": "Windows / paired checkpoint performance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111188333956,
+      "name": "Rendered captionless timed hold / Pause and fresh-input continuation",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111188333983,
+      "name": "Windows / shop",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111188333989,
+      "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111188334008,
+      "name": "Windows / new_account",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111188334018,
+      "name": "Windows / desktop",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111188334022,
+      "name": "Windows / checkpoint_diagnostics",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111188334052,
+      "name": "Windows / settings",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111188334073,
+      "name": "Windows / audio",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111188334075,
+      "name": "Windows / endings",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111188334082,
+      "name": "Windows / minesweeper",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111188334084,
+      "name": "Windows / reading_delivery",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111188334091,
+      "name": "Windows / dating",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111188334092,
+      "name": "Windows / localization",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111188334121,
+      "name": "Windows / persistence",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111190909254,
+      "name": "Windows / outgoing-normalization comparison",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111190909290,
+      "name": "Windows / warm-outgoing-proof comparison",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111190909303,
+      "name": "Windows / history-region-search comparison",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111190909333,
+      "name": "Windows / lazy-normalization comparison",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 111192698619,
+      "name": "Windows / seven-day retained history",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "retained": [
+    {
+      "artifact_id": 11272571579,
+      "artifact_path": "ci/desktop.xml",
+      "retained_file": "broad/windows-desktop-37117747147-1/ci/desktop.xml.gz",
+      "raw_bytes": 75225,
+      "raw_sha256": "d34781c1591c5e307ff1c0508b5dc001d9ba1b06dbc89e50081e349d8e15d0ab"
+    },
+    {
+      "artifact_id": 11272153529,
+      "artifact_path": "8a296ffd-badc-4a34-a9b9-c03c228631c9/sealed-write/hospital-partial-history.png",
+      "retained_file": "broad/hospital-reading-37117747147-1/8a296ffd-badc-4a34-a9b9-c03c228631c9/sealed-write/hospital-partial-history.png",
+      "raw_bytes": 8138,
+      "raw_sha256": "a7d0339d1377eb9ee6e7310575844ef2faba72d08a9674af78266ed739d0c29b"
+    },
+    {
+      "artifact_id": 11272153529,
+      "artifact_path": "8a296ffd-badc-4a34-a9b9-c03c228631c9/sealed-write/hospital-save-load-disabled.png",
+      "retained_file": "broad/hospital-reading-37117747147-1/8a296ffd-badc-4a34-a9b9-c03c228631c9/sealed-write/hospital-save-load-disabled.png",
+      "raw_bytes": 9499,
+      "raw_sha256": "f54d5e422cdb619d21fb2b32308f2cb86088a0615cd6fc9c87792b87a81f2783"
+    },
+    {
+      "artifact_id": 11272153529,
+      "artifact_path": "cb2b5f42-8cad-4f99-b5e1-5a44bd03222b/sealed-write/hospital-partial-history.png",
+      "retained_file": "broad/hospital-reading-37117747147-1/cb2b5f42-8cad-4f99-b5e1-5a44bd03222b/sealed-write/hospital-partial-history.png",
+      "raw_bytes": 8138,
+      "raw_sha256": "a7d0339d1377eb9ee6e7310575844ef2faba72d08a9674af78266ed739d0c29b"
+    },
+    {
+      "artifact_id": 11272153529,
+      "artifact_path": "cb2b5f42-8cad-4f99-b5e1-5a44bd03222b/sealed-write/hospital-save-load-disabled.png",
+      "retained_file": "broad/hospital-reading-37117747147-1/cb2b5f42-8cad-4f99-b5e1-5a44bd03222b/sealed-write/hospital-save-load-disabled.png",
+      "raw_bytes": 9501,
+      "raw_sha256": "897eb596af5c4080462035ce2e250c760d043341e6a3801d51469b044eb19a77"
+    },
+    {
+      "artifact_id": 11272153529,
+      "artifact_path": "result.json",
+      "retained_file": "broad/hospital-reading-37117747147-1/result.json.gz",
+      "raw_bytes": 5589852,
+      "raw_sha256": "0806630302da9183c1f3af54ae5ed67b6ed8473769b1131bbbc12304dd6c1bf4"
+    },
+    {
+      "artifact_id": 11272138553,
+      "artifact_path": "ci/dating.xml",
+      "retained_file": "broad/windows-dating-37117747147-1/ci/dating.xml.gz",
+      "raw_bytes": 38015,
+      "raw_sha256": "2a1f3aa2f8d332e45a5cc2411b7bfefd0fa70a13518d107e41d2c2054e6e4848"
+    },
+    {
+      "artifact_id": 11272108463,
+      "artifact_path": "ci/persistence.xml",
+      "retained_file": "broad/windows-persistence-37117747147-1/ci/persistence.xml.gz",
+      "raw_bytes": 51926,
+      "raw_sha256": "1dcb9fa8f3d1c2ecff945828f90809eb3a130a43da0c17cbedb0f1d54320bda7"
+    },
+    {
+      "artifact_id": 11272082294,
+      "artifact_path": "ci/checkpoint_diagnostics.xml",
+      "retained_file": "broad/windows-checkpoint_diagnostics-37117747147-1/ci/checkpoint_diagnostics.xml.gz",
+      "raw_bytes": 5443,
+      "raw_sha256": "e2d7e2f4ff2b6e72c2f445ae61a8f36e00eef417b88714549742fbd71391ec20"
+    },
+    {
+      "artifact_id": 11272038594,
+      "artifact_path": "ci/endings.xml",
+      "retained_file": "broad/windows-endings-37117747147-1/ci/endings.xml.gz",
+      "raw_bytes": 22930,
+      "raw_sha256": "57249e091c1347f802139d8b4580d48eb5fbcf8e82d4c7eec3210c1d837745c5"
+    },
+    {
+      "artifact_id": 11271829055,
+      "artifact_path": "ci/reading_delivery.xml",
+      "retained_file": "broad/windows-reading_delivery-37117747147-1/ci/reading_delivery.xml.gz",
+      "raw_bytes": 141717,
+      "raw_sha256": "93c2543578fa14eda028370ca219e83588e1c6bdcc572fc7b76a754942f51e62"
+    },
+    {
+      "artifact_id": 11271813869,
+      "artifact_path": "ci/shop.xml",
+      "retained_file": "broad/windows-shop-37117747147-1/ci/shop.xml.gz",
+      "raw_bytes": 31566,
+      "raw_sha256": "94d7029941f9e6c9460642a10b2a9c58630eefd991dfc2cc2ed307342794c0d1"
+    },
+    {
+      "artifact_id": 11271768919,
+      "artifact_path": "ci/public-surfaces/fixture-version-census.json",
+      "retained_file": "broad/public-surfaces-37117747147-1/ci/public-surfaces/fixture-version-census.json.gz",
+      "raw_bytes": 238539,
+      "raw_sha256": "70b4af6bb06d46e844d22c2c0671e3cc17837f8caf80b6af94f51a56b66fab3f"
+    },
+    {
+      "artifact_id": 11271768919,
+      "artifact_path": "ci/public-surfaces/retirement-audit.json",
+      "retained_file": "broad/public-surfaces-37117747147-1/ci/public-surfaces/retirement-audit.json.gz",
+      "raw_bytes": 563,
+      "raw_sha256": "62f12c6f318d3d140c6c80360966779a15f19bbb03e37832b85badfec836fa09"
+    },
+    {
+      "artifact_id": 11271768919,
+      "artifact_path": "ci/public_surfaces.xml",
+      "retained_file": "broad/public-surfaces-37117747147-1/ci/public_surfaces.xml.gz",
+      "raw_bytes": 2506,
+      "raw_sha256": "07bfb4d53b5d700916e20c7de3e28af2d273e3f7d9dc59373892d984b0b4e948"
+    },
+    {
+      "artifact_id": 11271753947,
+      "artifact_path": "ci/new_account.xml",
+      "retained_file": "broad/windows-new_account-37117747147-1/ci/new_account.xml.gz",
+      "raw_bytes": 39869,
+      "raw_sha256": "807fc883db68b8efe45948ccdbf7084c50b6250d9a2100aa773925585b009ccf"
+    },
+    {
+      "artifact_id": 11271704084,
+      "artifact_path": "ci/localization.xml",
+      "retained_file": "broad/windows-localization-37117747147-1/ci/localization.xml.gz",
+      "raw_bytes": 34696,
+      "raw_sha256": "30ff2c511f247fd0a4d48a16996c6aac7a4c4460d023d6fba07116ae271cac92"
+    },
+    {
+      "artifact_id": 11271619303,
+      "artifact_path": "9174b042-ac82-41d2-b154-ac91e394b1d8/condition-hospital-dialogue-retry/journey.log",
+      "retained_file": "broad/playable-journeys-37117747147-1/9174b042-ac82-41d2-b154-ac91e394b1d8/condition-hospital-dialogue-retry/journey.log.gz",
+      "raw_bytes": 25951,
+      "raw_sha256": "ef6469b57128cb6445c0e2b2b5fc6ac0f0a64a47a95bdaf53600d30450f291d4"
+    },
+    {
+      "artifact_id": 11271619303,
+      "artifact_path": "9174b042-ac82-41d2-b154-ac91e394b1d8/condition-hospital-dialogue-retry/result.json",
+      "retained_file": "broad/playable-journeys-37117747147-1/9174b042-ac82-41d2-b154-ac91e394b1d8/condition-hospital-dialogue-retry/result.json.gz",
+      "raw_bytes": 6096,
+      "raw_sha256": "3af6346ea8a16a9dbeebeb3ee2cf179c1ad5fda1932d63a4da5cd286c071199d"
+    },
+    {
+      "artifact_id": 11271539334,
+      "artifact_path": "ci/audio.xml",
+      "retained_file": "broad/windows-audio-37117747147-1/ci/audio.xml.gz",
+      "raw_bytes": 9432,
+      "raw_sha256": "660c3d9c87d202af14d99c5c8b0313bb861ee473bf2f6eb643ddddb293148c09"
+    },
+    {
+      "artifact_id": 11271474650,
+      "artifact_path": "ci/settings.xml",
+      "retained_file": "broad/windows-settings-37117747147-1/ci/settings.xml.gz",
+      "raw_bytes": 81093,
+      "raw_sha256": "92dba0cb0b0248d4f777b78dfb62fb76d3755f7f225639552d49a36fa158def2"
+    },
+    {
+      "artifact_id": 11271474650,
+      "artifact_path": "ci/storage-refusal/empty/tests.xml",
+      "retained_file": "broad/windows-settings-37117747147-1/ci/storage-refusal/empty/tests.xml.gz",
+      "raw_bytes": 31410,
+      "raw_sha256": "aeecc51b0d8e71ec7e2f439fd9e753d0539f6f1967297fac5dcb73a6805ce774"
+    },
+    {
+      "artifact_id": 11271474650,
+      "artifact_path": "ci/storage-refusal/whitespace/tests.xml",
+      "retained_file": "broad/windows-settings-37117747147-1/ci/storage-refusal/whitespace/tests.xml.gz",
+      "raw_bytes": 31407,
+      "raw_sha256": "a3744e9da5fcca7f8e1148f823e6c65d9d8fa3a6fe13cc5960b5927d93a62491"
+    },
+    {
+      "artifact_id": 11271474505,
+      "artifact_path": "ci/minesweeper.xml",
+      "retained_file": "broad/windows-minesweeper-37117747147-1/ci/minesweeper.xml.gz",
+      "raw_bytes": 47959,
+      "raw_sha256": "574e5215cea284ceba9785c14c5b20c37645438d44c334b0db8074911f91b027"
+    }
+  ],
+  "xml": [
+    {
+      "suite": "desktop",
+      "cases": 334,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_id": 11272571579
+    },
+    {
+      "suite": "dating",
+      "cases": 168,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_id": 11272138553
+    },
+    {
+      "suite": "persistence",
+      "cases": 230,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_id": 11272108463
+    },
+    {
+      "suite": "checkpoint_diagnostics",
+      "cases": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_id": 11272082294
+    },
+    {
+      "suite": "endings",
+      "cases": 106,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_id": 11272038594
+    },
+    {
+      "suite": "reading_delivery",
+      "cases": 617,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_id": 11271829055
+    },
+    {
+      "suite": "shop",
+      "cases": 144,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_id": 11271813869
+    },
+    {
+      "suite": "public_surfaces",
+      "cases": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_id": 11271768919
+    },
+    {
+      "suite": "new_account",
+      "cases": 179,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_id": 11271753947
+    },
+    {
+      "suite": "localization",
+      "cases": 153,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_id": 11271704084
+    },
+    {
+      "suite": "audio",
+      "cases": 44,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_id": 11271539334
+    },
+    {
+      "suite": "settings",
+      "cases": 357,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_id": 11271474650
+    },
+    {
+      "suite": "minesweeper",
+      "cases": 210,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "artifact_id": 11271474505
+    }
+  ],
+  "primary_cases": 2575
+}

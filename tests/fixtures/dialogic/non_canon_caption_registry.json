@@ -1,0 +1,49 @@
+{
+  "notice": "NON-CANON TEST FIXTURE ONLY. This is not a production narrative catalog or Profile visited registry.",
+  "entry_manifest": {
+    "entries": [
+      {"entry_id": "fixture.non_canon.caption_ledger"},
+      {"entry_id": "fixture.non_canon.foreign_entry"}
+    ]
+  },
+  "frozen_context": {
+    "fixture_only": true,
+    "selectors": {"variant": "synthetic", "inputs": ["fixed"]}
+  },
+  "entry_contexts": {
+    "fixture.non_canon.caption_ledger": {
+      "fixture_only": true,
+      "phase": "before_fixture_boundary",
+      "selectors": {"inputs": ["before"]}
+    },
+    "fixture.non_canon.foreign_entry": {
+      "fixture_only": true,
+      "phase": "after_fixture_boundary",
+      "selectors": {"inputs": ["after"], "result": "fixture_committed_result"}
+    }
+  },
+  "registry": {
+    "kind": "narrative_caption_registry",
+    "schema_version": 1,
+    "beats": [
+      {
+        "beat_id": "fixture.beat.alpha",
+        "line_id": "fixture.caption.alpha",
+        "owning_entry_id": "fixture.non_canon.caption_ledger",
+        "presentation_signature": {"fixture_only": true, "text_revision": "alpha-v1", "projection_variant_id": "fixture.alpha", "selectors": ["fixed"]}
+      },
+      {
+        "beat_id": "fixture.beat.beta",
+        "line_id": "fixture.caption.beta",
+        "owning_entry_id": "fixture.non_canon.caption_ledger",
+        "presentation_signature": {"fixture_only": true, "text_revision": "beta-v1", "projection_variant_id": "fixture.beta", "selectors": ["fixed"]}
+      },
+      {
+        "beat_id": "fixture.beat.gamma",
+        "line_id": "fixture.caption.gamma",
+        "owning_entry_id": "fixture.non_canon.foreign_entry",
+        "presentation_signature": {"fixture_only": true, "text_revision": "gamma-v1", "projection_variant_id": "fixture.gamma", "selectors": ["fixed"]}
+      }
+    ]
+  }
+}

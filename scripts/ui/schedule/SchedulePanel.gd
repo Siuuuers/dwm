@@ -13,20 +13,20 @@ const WELL := preload("res://scripts/ui/schedule/ScheduleScrollWell.gd")
 const DOCKET_LANE := preload("res://scripts/ui/schedule/ScheduleDocketLane.gd")
 const PALETTE := preload("res://scripts/ui/schedule/ScheduleTheme.gd")
 const FOCUS_RAIL := preload("res://scripts/ui/schedule/ScheduleFocusRail.gd")
-const FONTS := {
-	"en": preload("res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2"),
-	"zh-CN": preload("res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf"),
-	"zh-HK": preload("res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf"),
-}
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const COPY := {
 	"en": ["Available", "Earlier", "Later", "Remove", "Done", "Unavailable"],
 	"zh-CN": ["可选", "提前", "延后", "移除", "完成", "不可用"],
 	"zh-HK": ["可選", "提前", "延後", "移除", "完成", "不可用"],
+	"ja": ["選択可能", "前へ", "後ろへ", "削除", "完了", "利用不可"],
+	"ko": ["선택 가능", "앞으로", "뒤로", "제거", "완료", "이용 불가"],
 }
 const MOTIVATION_REFUSAL := {
 	"en": "Not enough Motivation.",
 	"zh-CN": "动力不足。",
 	"zh-HK": "動力不足。",
+	"ja": "意欲が足りません。",
+	"ko": "의욕이 부족해요.",
 }
 const BREAKS := TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE
 
@@ -85,16 +85,16 @@ func _input(event: InputEvent) -> void:
 
 func configure(locale: String = "en", percent: int = 100, large_targets: bool = false,
 		palette: StringName = &"after_hours", day: int = 1,
-		high_contrast: bool = false, colour_preset: String = "standard") -> bool:
+		high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> bool:
 	locale = locale.replace("_","-")
-	if locale not in FONTS or percent not in [100,125,150]: return false
+	if font_style not in ["pixel","readable"] or not TYPOGRAPHY.supports(locale) or percent not in [100,125,150]: return false
 	var next_theme: Theme = PALETTE.build(palette, day, high_contrast, colour_preset)
 	if next_theme == null: return false
 	_locale = locale
-	_font_size = 20 * percent / 100
+	_font_size = TYPOGRAPHY.font_size(locale, percent, 20, font_style)
 	_large = large_targets
 	theme = next_theme
-	theme.default_font = FONTS[locale]
+	theme.default_font = TYPOGRAPHY.font(locale, percent, font_style)
 	theme.default_font_size = _font_size
 	if not _refusal_id.is_empty() and is_instance_valid(done_button): _rebuild_status()
 	return true
@@ -326,21 +326,24 @@ func _build() -> void:
 			y += empty_h+8
 			continue
 		var entry: Dictionary = _projection.entries[index]
-		var name_width := 160 if _projection.day_seven else (72 if _large else 88)
+		var entry_width := 176 if _projection.day_seven else 196
+		var grip_size := 64 if _large else 48
+		# Use the spare space before the folio without overlapping its command targets.
+		var name_width := 160 if _projection.day_seven else entry_width-32-grip_size
 		var label_h := _height(entry.name,name_width)
 		var height := 16 + maxf(64 if _large else 48,label_h)
 		_docket_rows.append({"key":"entry:"+entry.id,"y":y,"span":height+8})
-		var key := _key(_docket_body,Rect2(8,y,176,height),"day7" if _projection.day_seven else "entry")
+		var key := _key(_docket_body,Rect2(8,y,entry_width,height),"day7" if _projection.day_seven else "entry")
 		key.selected = entry.id == selected_id and not _projection.day_seven
 		key.accessibility_name = entry.name if _projection.day_seven else "%s, %d / 7" % [entry.name,index+1]
 		_label(key,entry.name,Rect2(8 if _projection.day_seven else 32,8,name_width,label_h))
 		if not _projection.day_seven:
 			_label(key,str(index+1),Rect2(0,0,24,height))
-			var gx := 136 if _large else 144
+			var gx := entry_width-grip_size+(grip_size-16)/2
 			var gy := 34 if _large else 26
 			_paper(key,Rect2(gx,gy,16,2),"paper_ink")
 			_paper(key,Rect2(gx,gy+8,16,2),"paper_ink")
-			key.drag_grip = Rect2(112 if _large else 128,8,64 if _large else 48,64 if _large else 48)
+			key.drag_grip = Rect2(entry_width-grip_size,8,grip_size,grip_size)
 			key.drag_started = func(): return _begin_docket_drag(entry.id)
 			key.drag_ended = _finish_docket_drag
 			filled_geometry.append(Vector2(y,height))
@@ -528,7 +531,7 @@ func _height(text_value: String, width: float) -> float:
 	var paragraph := TextParagraph.new()
 	paragraph.width = width
 	paragraph.break_flags = BREAKS
-	paragraph.add_string(text_value,FONTS[_locale],_font_size)
+	paragraph.add_string(text_value,theme.default_font,_font_size)
 	return ceilf(paragraph.get_size().y)
 
 func _valid_name(value: Dictionary) -> bool:

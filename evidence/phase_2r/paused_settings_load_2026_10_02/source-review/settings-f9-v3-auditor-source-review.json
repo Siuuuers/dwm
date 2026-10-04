@@ -1,0 +1,44 @@
+{
+  "acceptance": false,
+  "changed_paths": [
+    "addons/dialogic/Modules/Text/event_text.gd",
+    "tests/integration/test_narrative_pause_frontier.gd"
+  ],
+  "current_auditor": {
+    "bytes": 36791,
+    "path": "audit_settings_load_journey_v3.py",
+    "sha256": "69b0590d57193f90cf6f60031256fc2323f05deb40bc3c4fa77f44c7d0569ec0"
+  },
+  "prior_source": "d702c456177f76fe90cb73993af93949d7335b7e",
+  "schema_version": 1,
+  "scope": [
+    "v3 preserves every v2 semantic check and adds explicit Text-event retirement owner, existing native clear/timeline cleanup chain, and two-case regression fixture byte bindings.",
+    "The earlier v2 audit and Focus3 diagnostic archive remain unchanged.",
+    "Runtime behavior and both added native cases still require actual successful cloud execution; this source review establishes no run acceptance."
+  ],
+  "source": "5e43e68afa04a31a53bc25cf5fe8893ff39d82af",
+  "source_binding_predecessor": {
+    "bytes": 36285,
+    "path": "audit_settings_load_journey_v2.py",
+    "sha256": "3d93bc8d80e2e8b561d9cb65ab0d00db37d7ddc47dc95334590560679dbceba2"
+  },
+  "source_file_identities": {
+    "addons/dialogic/Core/DialogicGameHandler.gd": {
+      "bytes": 18668,
+      "sha256": "c05cd2e152b66133f5d1dae647d37b448f92bd9352ad73e73433892c4451a7b7"
+    },
+    "addons/dialogic/Modules/Text/event_text.gd": {
+      "bytes": 23498,
+      "sha256": "c70ec90ac26988a46102857f392499106bcd741cd97e02b14a854dd812835882"
+    },
+    "addons/dialogic/Resources/timeline.gd": {
+      "bytes": 5971,
+      "sha256": "b5557e0e8295c98707d0d5d125d0e48e20f60cff8df48330ba61586d5393d225"
+    },
+    "tests/integration/test_narrative_pause_frontier.gd": {
+      "bytes": 57849,
+      "sha256": "1125410d82fb90e7f892137ec9becde64a8f43119de8745220eedf64cb12e8ae"
+    }
+  },
+  "source_review_only": true
+}

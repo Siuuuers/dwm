@@ -222,6 +222,13 @@ func prepare_complete(active_round: Dictionary, result: Dictionary, transaction_
 		"gameplay": clone.call(&"to_save_dict"),
 		"contacts": (clone.get("contacts") as Dictionary).duplicate(true),
 	}
+	if _game_state.has_method("frozen_contacts_contexts_enabled") and _game_state.frozen_contacts_contexts_enabled():
+		var frozen := preload("res://scripts/narrative/ContactsFrozenContext.gd").capture_candidate(
+			_game_state.contacts, candidate.contacts, candidate.gameplay, int(_game_state.day))
+		if not frozen.ok:
+			clone.free()
+			return frozen
+		candidate.gameplay = frozen.value
 	var claimed: Array = []
 	for tid: Variant in task_ids:
 		if (clone.get("minesweeper_task_rewards_claimed") as Dictionary).has(str(tid)):

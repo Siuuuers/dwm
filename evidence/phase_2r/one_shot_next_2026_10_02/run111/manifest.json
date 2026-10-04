@@ -1,0 +1,3456 @@
+{
+  "artifacts": [
+    {
+      "created_at": "2026-10-01T20:54:29Z",
+      "digest": "sha256:670b61fb4bfd686319574858630e975c49954b377c12ef796b311638b8c06827",
+      "extracted_file_count": 12,
+      "id": 11193880570,
+      "local_zip_basename": "angela-overlay-render-36924676783-1.zip",
+      "name": "angela-overlay-render-36924676783-1",
+      "size_in_bytes": 2835884,
+      "workflow_run_head_sha": "1455ecca234561cc113b7346f1f78e4982c28703",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "670b61fb4bfd686319574858630e975c49954b377c12ef796b311638b8c06827"
+    },
+    {
+      "created_at": "2026-10-01T20:56:16Z",
+      "digest": "sha256:e6694a63746e521aa78d05c52939bb5a4d69bf2c4ddca59d6da6f7fe757e6d58",
+      "extracted_file_count": 11,
+      "id": 11193761008,
+      "local_zip_basename": "cloud-speech-reading-rail-journey-36924676783-1.zip",
+      "name": "cloud-speech-reading-rail-journey-36924676783-1",
+      "size_in_bytes": 386577,
+      "workflow_run_head_sha": "1455ecca234561cc113b7346f1f78e4982c28703",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "e6694a63746e521aa78d05c52939bb5a4d69bf2c4ddca59d6da6f7fe757e6d58"
+    },
+    {
+      "created_at": "2026-10-01T20:52:28Z",
+      "digest": "sha256:d0ba9e5340f3cd4b38144a187c01d924fb7ecaca97f47bf40d4ed6d9176e056e",
+      "extracted_file_count": 11,
+      "id": 11193930213,
+      "local_zip_basename": "cloud-speech-rendered-desktop-36924676783-1.zip",
+      "name": "cloud-speech-rendered-desktop-36924676783-1",
+      "size_in_bytes": 386527,
+      "workflow_run_head_sha": "1455ecca234561cc113b7346f1f78e4982c28703",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "d0ba9e5340f3cd4b38144a187c01d924fb7ecaca97f47bf40d4ed6d9176e056e"
+    },
+    {
+      "created_at": "2026-10-01T20:54:16Z",
+      "digest": "sha256:d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62",
+      "extracted_file_count": 27,
+      "id": 11193900579,
+      "local_zip_basename": "delivery-dialogue-render-36924676783-1.zip",
+      "name": "delivery-dialogue-render-36924676783-1",
+      "size_in_bytes": 15181279,
+      "workflow_run_head_sha": "1455ecca234561cc113b7346f1f78e4982c28703",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+    },
+    {
+      "created_at": "2026-10-01T20:53:38Z",
+      "digest": "sha256:ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8",
+      "extracted_file_count": 41,
+      "id": 11192639932,
+      "local_zip_basename": "desktop-scaling-render-36924676783-1.zip",
+      "name": "desktop-scaling-render-36924676783-1",
+      "size_in_bytes": 11253373,
+      "workflow_run_head_sha": "1455ecca234561cc113b7346f1f78e4982c28703",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+    },
+    {
+      "created_at": "2026-10-01T20:55:35Z",
+      "digest": "sha256:1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc",
+      "extracted_file_count": 32,
+      "id": 11194175211,
+      "local_zip_basename": "font-choices-render-36924676783-1.zip",
+      "name": "font-choices-render-36924676783-1",
+      "size_in_bytes": 6314391,
+      "workflow_run_head_sha": "1455ecca234561cc113b7346f1f78e4982c28703",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+    },
+    {
+      "created_at": "2026-10-01T20:54:58Z",
+      "digest": "sha256:993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b",
+      "extracted_file_count": 32,
+      "id": 11193825697,
+      "local_zip_basename": "japanese-korean-ui-render-36924676783-1.zip",
+      "name": "japanese-korean-ui-render-36924676783-1",
+      "size_in_bytes": 7058509,
+      "workflow_run_head_sha": "1455ecca234561cc113b7346f1f78e4982c28703",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+    },
+    {
+      "created_at": "2026-10-01T20:55:46Z",
+      "digest": "sha256:ca46cbe6969e39ba0180ba073bc21ecc5719610207960b059f25e63ead5624a1",
+      "extracted_file_count": 6,
+      "id": 11193069218,
+      "local_zip_basename": "playable-startup-render-36924676783-1.zip",
+      "name": "playable-startup-render-36924676783-1",
+      "size_in_bytes": 1049975,
+      "workflow_run_head_sha": "1455ecca234561cc113b7346f1f78e4982c28703",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "ca46cbe6969e39ba0180ba073bc21ecc5719610207960b059f25e63ead5624a1"
+    },
+    {
+      "created_at": "2026-10-01T20:56:37Z",
+      "digest": "sha256:3605de0f1ed3f0ecbe1a710da01b1d9c0d24df43813127822efe5bd1cbc4a108",
+      "extracted_file_count": 19,
+      "id": 11192854974,
+      "local_zip_basename": "public-surfaces-36924676783-1.zip",
+      "name": "public-surfaces-36924676783-1",
+      "size_in_bytes": 141961,
+      "workflow_run_head_sha": "1455ecca234561cc113b7346f1f78e4982c28703",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "3605de0f1ed3f0ecbe1a710da01b1d9c0d24df43813127822efe5bd1cbc4a108"
+    },
+    {
+      "created_at": "2026-10-01T20:59:03Z",
+      "digest": "sha256:6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1",
+      "extracted_file_count": 77,
+      "id": 11193646737,
+      "local_zip_basename": "reading-rail-36924676783-1.zip",
+      "name": "reading-rail-36924676783-1",
+      "size_in_bytes": 10361971,
+      "workflow_run_head_sha": "1455ecca234561cc113b7346f1f78e4982c28703",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+    },
+    {
+      "created_at": "2026-10-01T20:55:56Z",
+      "digest": "sha256:7927184fe8202d301e3942a06fc29cc3ed1804d1a9356748c21dfb4a9ec2151c",
+      "extracted_file_count": 3,
+      "id": 11192959403,
+      "local_zip_basename": "ui-literal-audit-36924676783-1.zip",
+      "name": "ui-literal-audit-36924676783-1",
+      "size_in_bytes": 29335,
+      "workflow_run_head_sha": "1455ecca234561cc113b7346f1f78e4982c28703",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "7927184fe8202d301e3942a06fc29cc3ed1804d1a9356748c21dfb4a9ec2151c"
+    },
+    {
+      "created_at": "2026-10-01T20:55:07Z",
+      "digest": "sha256:3d431da316759c075dcb3a7fd8f2b1bcfbb2c2fb0484a79f0ff5a0b87dd5a4dd",
+      "extracted_file_count": 4,
+      "id": 11194055555,
+      "local_zip_basename": "windows-reading_delivery-36924676783-1.zip",
+      "name": "windows-reading_delivery-36924676783-1",
+      "size_in_bytes": 131804,
+      "workflow_run_head_sha": "1455ecca234561cc113b7346f1f78e4982c28703",
+      "zip_and_extraction_verified": true,
+      "zip_sha256": "3d431da316759c075dcb3a7fd8f2b1bcfbb2c2fb0484a79f0ff5a0b87dd5a4dd"
+    }
+  ],
+  "bundle": "next-run111-diagnostics.tar.gz",
+  "counts": {
+    ".json": 41,
+    ".jsonl": 9,
+    ".log": 42,
+    ".txt": 26,
+    ".xml": 2
+  },
+  "evidence_kind": "failed-run-diagnostic-only",
+  "excluded_extracted_files": [
+    {
+      "bytes": 262883,
+      "path": "run111/artifacts/angela-overlay-render-36924676783-1/narrow-en100.png",
+      "provenance": {
+        "artifact_id": 11193880570,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "narrow-en100.png",
+        "zip_sha256": "670b61fb4bfd686319574858630e975c49954b377c12ef796b311638b8c06827"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "e1a6a3dd38fc94b62c65c753b5805cfe82a25ad889a00fe7a6e2ed4cac64f7e4"
+    },
+    {
+      "bytes": 264899,
+      "path": "run111/artifacts/angela-overlay-render-36924676783-1/narrow-en150-conditions.png",
+      "provenance": {
+        "artifact_id": 11193880570,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "narrow-en150-conditions.png",
+        "zip_sha256": "670b61fb4bfd686319574858630e975c49954b377c12ef796b311638b8c06827"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "50a7564da21b73a75a44c5f1a31cbf690b42570e52f63f90927a8c3775827bf5"
+    },
+    {
+      "bytes": 212599,
+      "path": "run111/artifacts/angela-overlay-render-36924676783-1/narrow-en150-high-contrast.png",
+      "provenance": {
+        "artifact_id": 11193880570,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "narrow-en150-high-contrast.png",
+        "zip_sha256": "670b61fb4bfd686319574858630e975c49954b377c12ef796b311638b8c06827"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "ec225190a7071f1d1187155009fdaf106e608eef20dd3c988573cbc68f629d7d"
+    },
+    {
+      "bytes": 265039,
+      "path": "run111/artifacts/angela-overlay-render-36924676783-1/narrow-en150-last-row.png",
+      "provenance": {
+        "artifact_id": 11193880570,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "narrow-en150-last-row.png",
+        "zip_sha256": "670b61fb4bfd686319574858630e975c49954b377c12ef796b311638b8c06827"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "06514e886399dea06ca6e8e5d0ffd24f9dee5743ed15cc2f2cb7e4347515f0ab"
+    },
+    {
+      "bytes": 264912,
+      "path": "run111/artifacts/angela-overlay-render-36924676783-1/narrow-zh-CN150-conditions.png",
+      "provenance": {
+        "artifact_id": 11193880570,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "narrow-zh-CN150-conditions.png",
+        "zip_sha256": "670b61fb4bfd686319574858630e975c49954b377c12ef796b311638b8c06827"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "1617bcc0e9bc2a2a60182d2bf547f2f1e10ecca80ee880f04db4557d7a86bcbe"
+    },
+    {
+      "bytes": 212625,
+      "path": "run111/artifacts/angela-overlay-render-36924676783-1/narrow-zh-HK150-high-contrast.png",
+      "provenance": {
+        "artifact_id": 11193880570,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "narrow-zh-HK150-high-contrast.png",
+        "zip_sha256": "670b61fb4bfd686319574858630e975c49954b377c12ef796b311638b8c06827"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "6e7f89271aed56061c58915b83e2f04dbf51bcb34c57e3bbf0fa34b3257bd902"
+    },
+    {
+      "bytes": 351198,
+      "path": "run111/artifacts/angela-overlay-render-36924676783-1/wide-en100-day7-conditions.png",
+      "provenance": {
+        "artifact_id": 11193880570,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "wide-en100-day7-conditions.png",
+        "zip_sha256": "670b61fb4bfd686319574858630e975c49954b377c12ef796b311638b8c06827"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "62c3191d836ca89629c7b66959a835988f5ce1f0b977ea99f7351be545de00ea"
+    },
+    {
+      "bytes": 353578,
+      "path": "run111/artifacts/angela-overlay-render-36924676783-1/wide-en100.png",
+      "provenance": {
+        "artifact_id": 11193880570,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "wide-en100.png",
+        "zip_sha256": "670b61fb4bfd686319574858630e975c49954b377c12ef796b311638b8c06827"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "7c92d724f5bf04fac42ec2c5172d4805820f095b3a92cf8f7900cc6ab6b85552"
+    },
+    {
+      "bytes": 351637,
+      "path": "run111/artifacts/angela-overlay-render-36924676783-1/wide-en150-conditions.png",
+      "provenance": {
+        "artifact_id": 11193880570,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "wide-en150-conditions.png",
+        "zip_sha256": "670b61fb4bfd686319574858630e975c49954b377c12ef796b311638b8c06827"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "5b2bc67b9948b2561d0b83c97844389e9a8e9f3a1cf7bc35744afd4326010e22"
+    },
+    {
+      "bytes": 350853,
+      "path": "run111/artifacts/angela-overlay-render-36924676783-1/wide-zh-HK150-conditions.png",
+      "provenance": {
+        "artifact_id": 11193880570,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "wide-zh-HK150-conditions.png",
+        "zip_sha256": "670b61fb4bfd686319574858630e975c49954b377c12ef796b311638b8c06827"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "e422c34cfcfb1204e30ceff4aa1eb636a310d557bd38c59f2d474abfb6a942b8"
+    },
+    {
+      "bytes": 2467131,
+      "path": "run111/artifacts/cloud-speech-reading-rail-journey-36924676783-1/speech-dispatcher.log",
+      "provenance": {
+        "artifact_id": 11193761008,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "speech-dispatcher.log",
+        "zip_sha256": "e6694a63746e521aa78d05c52939bb5a4d69bf2c4ddca59d6da6f7fe757e6d58"
+      },
+      "reason": "Large native speech diagnostic omitted; job/capability receipts retain their bounded scope.",
+      "sha256": "0e2cf8f05ce2fb9f1995f7c513d945c581f9684c551179c4efdc6ec78ddd4bbb"
+    },
+    {
+      "bytes": 1032081,
+      "path": "run111/artifacts/cloud-speech-reading-rail-journey-36924676783-1/voices.txt",
+      "provenance": {
+        "artifact_id": 11193761008,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "voices.txt",
+        "zip_sha256": "e6694a63746e521aa78d05c52939bb5a4d69bf2c4ddca59d6da6f7fe757e6d58"
+      },
+      "reason": "Large native speech diagnostic omitted; job/capability receipts retain their bounded scope.",
+      "sha256": "a5a1e8f33fef802f2f4ff61cf5bc41930458df6168ef027817fa09fbcd8c6a5b"
+    },
+    {
+      "bytes": 2467112,
+      "path": "run111/artifacts/cloud-speech-rendered-desktop-36924676783-1/speech-dispatcher.log",
+      "provenance": {
+        "artifact_id": 11193930213,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "speech-dispatcher.log",
+        "zip_sha256": "d0ba9e5340f3cd4b38144a187c01d924fb7ecaca97f47bf40d4ed6d9176e056e"
+      },
+      "reason": "Large native speech diagnostic omitted; job/capability receipts retain their bounded scope.",
+      "sha256": "1da972381b5714db705a0f976c23e27e8f9e31498cc4eacf078047e5c7d48ec3"
+    },
+    {
+      "bytes": 1032081,
+      "path": "run111/artifacts/cloud-speech-rendered-desktop-36924676783-1/voices.txt",
+      "provenance": {
+        "artifact_id": 11193930213,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "voices.txt",
+        "zip_sha256": "d0ba9e5340f3cd4b38144a187c01d924fb7ecaca97f47bf40d4ed6d9176e056e"
+      },
+      "reason": "Large native speech diagnostic omitted; job/capability receipts retain their bounded scope.",
+      "sha256": "a5a1e8f33fef802f2f4ff61cf5bc41930458df6168ef027817fa09fbcd8c6a5b"
+    },
+    {
+      "bytes": 768846,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/challenge-group-en100-640.png",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "challenge-group-en100-640.png",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "d56cddc9f7c855df0aa4cd9bd8fc183ddafca95c51bf07f6afc55252a88d695b"
+    },
+    {
+      "bytes": 768879,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/challenge-group-ja150-640-rules.png",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "challenge-group-ja150-640-rules.png",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "47e076fca42b32d7f56e3278d77220def2f2ee74c69caf9d1b2a6c231b8c4807"
+    },
+    {
+      "bytes": 769532,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/challenge-group-ko150-640-rules.png",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "challenge-group-ko150-640-rules.png",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "5dbf4356fc45133fcf861ba955d9d66d62c99e551586b2aa794edcc7e32133ef"
+    },
+    {
+      "bytes": 603678,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/challenge-solo-en100-480.png",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "challenge-solo-en100-480.png",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "24a199076a62f578acfed8a1696812826a1288697a582ebe15d4a9b69ba83fdd"
+    },
+    {
+      "bytes": 1332320,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/dating-overlay-live-en100.png",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "dating-overlay-live-en100.png",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "6a25c3cc4c5849c7d0e2bf14a4b349965c4f7b09249a79693aafdfedcdb19fe9"
+    },
+    {
+      "bytes": 1328528,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/dating-overlay-live-zh-CN150.png",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "dating-overlay-live-zh-CN150.png",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "61166dd3893419e8bbf0ac9435cdbfe70a05cdd706fddf5428c7aa3e1029d268"
+    },
+    {
+      "bytes": 1326837,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/dating-overlay-live-zh-HK150.png",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "dating-overlay-live-zh-HK150.png",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "a668580b713200c7dacbf88ad51971a27c7ea99b9c680cb50b9592ad06c9d7ef"
+    },
+    {
+      "bytes": 1332222,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/dating-overlay-review-en100.png",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "dating-overlay-review-en100.png",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "adcf2c5064650e7e634e185f772bbe8b06a3d6a40b0b43326f00fe88eef7585c"
+    },
+    {
+      "bytes": 1325714,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/dating-overlay-review-zh-CN150.png",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "dating-overlay-review-zh-CN150.png",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "8ccb4e1a1b6d27c914e98008db883988775ad25a3750004ab6080e089bcc08b9"
+    },
+    {
+      "bytes": 1324729,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/dating-overlay-review-zh-HK150.png",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "dating-overlay-review-zh-HK150.png",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "ca9a8e850f62152068c2ab4a316641b9913e91451941c3f9862611f63a4835be"
+    },
+    {
+      "bytes": 1219186,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/dating-pair-480.png",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "dating-pair-480.png",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "cfd25f9c6ed619e46976026aea1da393ff752d376e95f668eb55d9ba56fa90be"
+    },
+    {
+      "bytes": 1242219,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/dating-pair-640.png",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "dating-pair-640.png",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "6bdcf2c6cbf663ac15f8f82b29d9b404758fde3f0fdff835ed1a1d46bc9dbf26"
+    },
+    {
+      "bytes": 357792,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/delivered-800-100.png",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "delivered-800-100.png",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "66b6d54f91c2d7eb94849fc865d744d2b087e228bc3bf4ca6e67a8a21295c337"
+    },
+    {
+      "bytes": 279924,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/delivered-960-100.png",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "delivered-960-100.png",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "eae96d7fd5cb57fad47cf8e0cbb5ab82d8c563fbcb91a3fb3c5b442d15d9c747"
+    },
+    {
+      "bytes": 281531,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/delivered-960-150.png",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "delivered-960-150.png",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "6edf278ed90d398da34a0e8526d71723e17ed47c9ac2429f1cbf279fd20476fe"
+    },
+    {
+      "bytes": 357352,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/delivering-800-100.png",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "delivering-800-100.png",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "796d1d090e09303509a925d42aa004afa48ca40e1f445b879e8c5da2d1856d65"
+    },
+    {
+      "bytes": 273923,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/delivering-960-100.png",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "delivering-960-100.png",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "c5b108fb797a384d28cd8a6763254eb8b49775b53c131d0261b78db101fb0750"
+    },
+    {
+      "bytes": 271527,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/delivering-960-150.png",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "delivering-960-150.png",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "3c13677bd55906d63edf2d30cdfb32bfd6aa97962469ba760d42f917a2e56519"
+    },
+    {
+      "bytes": 13613,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/dialogue-live-en100.png",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "dialogue-live-en100.png",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "c965880c112922d7eb8e547d4592df1afa6d01ea04143258ce9b140571418026"
+    },
+    {
+      "bytes": 13517,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/dialogue-newer-en100.png",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "dialogue-newer-en100.png",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "d3ce98a449b44e7a43925cb9cb48606f2c1c5801d71f381ff37d87d53e30a99a"
+    },
+    {
+      "bytes": 13517,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/dialogue-older-en100.png",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "dialogue-older-en100.png",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "d3ce98a449b44e7a43925cb9cb48606f2c1c5801d71f381ff37d87d53e30a99a"
+    },
+    {
+      "bytes": 14499,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/dialogue-older-zh-CN150.png",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "dialogue-older-zh-CN150.png",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "b858f6bed7495d27a15eb9357410d46ec2b625dd7eb8acef8e187ca97292dc3d"
+    },
+    {
+      "bytes": 14667,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/dialogue-older-zh-HK150.png",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "dialogue-older-zh-HK150.png",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "fdf1e63b4ba15ea72f43234559e105476e8a1089e3c719ebfce0216f0a475a63"
+    },
+    {
+      "bytes": 13491,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/dialogue-oldest-en100.png",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "dialogue-oldest-en100.png",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "7681787cccd747b1a10cfcc0541e499043564be743ed7ce1d17cf9c91917bf3d"
+    },
+    {
+      "bytes": 13613,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/dialogue-return-live-en100.png",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "dialogue-return-live-en100.png",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "c965880c112922d7eb8e547d4592df1afa6d01ea04143258ce9b140571418026"
+    },
+    {
+      "bytes": 355299,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/backup-800.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "backup-800.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "a34398963eeeb89157f7ba618eebcef735289f7f110c794b6b8ded626b957a5a"
+    },
+    {
+      "bytes": 279092,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/backup-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "backup-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "f97b86ed92f5e330558eb3825ac47892b1d23e99fdaa22933d5b8ce602e4bcf4"
+    },
+    {
+      "bytes": 282387,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/backup-bottom-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "backup-bottom-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "929f74832500cba3cbced6dbd53830ccbec40634e7e6611a6685ac78bfe260dc"
+    },
+    {
+      "bytes": 354540,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/confirmation-800.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "confirmation-800.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "473c79a8f28a3a1eebf72b71805a600a1eee1afbd7cec830abb6feebc27260c2"
+    },
+    {
+      "bytes": 268974,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/confirmation-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "confirmation-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "aac319161add896a65cee6b112f2d5e98d6f962443b256121d30dba09d4f89bd"
+    },
+    {
+      "bytes": 382951,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/contacts-800.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "contacts-800.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "9fb17870917aa89ad8912ca93ca7cd604d535f68b7e87340d535999bbbddf947"
+    },
+    {
+      "bytes": 320513,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/contacts-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "contacts-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "a44e26b17bef7d0a41f1a56c53b4b0d52c54feafb7f41b1458689ee0bb234a7a"
+    },
+    {
+      "bytes": 309019,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/contacts-bottom-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "contacts-bottom-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "f877bfe30515367ddd50e4983b526b0c0b552292ff61ec4c1241832aa76b8fb6"
+    },
+    {
+      "bytes": 353638,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/launcher-800.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "launcher-800.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "5751accc95894a5678b632ffca127ea859f568cc785eb2ab27f4b206c25a516a"
+    },
+    {
+      "bytes": 262963,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/launcher-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "launcher-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "fa6f2141ce9ba9334b9066ef9bba00c91b0ccdb036eff57e52789c3e0f79c585"
+    },
+    {
+      "bytes": 264977,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/launcher-en-pixel-large-unread-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "launcher-en-pixel-large-unread-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "4b1ec54c27caf40ebda70bf3989ae7a1712ef624f2db7fa796f2986b308f23a6"
+    },
+    {
+      "bytes": 321831,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/launcher-en-readable-large-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "launcher-en-readable-large-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "177c5c4f8e274e6fff49e94739e1f91fdf847a3ceacaea611c4f7c7d642f3059"
+    },
+    {
+      "bytes": 321269,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/launcher-ja-readable-large-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "launcher-ja-readable-large-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "aab2d642c4f9c84b89981a69044da003bf0f84bf8475ed36cfbda1a2c0cf160d"
+    },
+    {
+      "bytes": 273336,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/launcher-ja-readable-large-contrast-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "launcher-ja-readable-large-contrast-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "3d305e5b670a4b08f703a924b8e00ae94d832e0fc48983532e6cd2754969822b"
+    },
+    {
+      "bytes": 357274,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/minesweeper-800.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "minesweeper-800.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "2770bcd6a9d93d6c41fbf5a5e10d4074e8d3782fc3f47519f51442df6bb350dc"
+    },
+    {
+      "bytes": 271398,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/minesweeper-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "minesweeper-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "a9071f3dd0f75280b716c5eab2656b7c75f2476f580d715dc6dbe77e92e238d0"
+    },
+    {
+      "bytes": 283710,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/minesweeper-assignments-en-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "minesweeper-assignments-en-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "5ca92f5d52bbd749b80a8f581d3ddbbdd185812e1a65468b73f9f56a528fb0e5"
+    },
+    {
+      "bytes": 236098,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/minesweeper-assignments-ja-large-contrast-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "minesweeper-assignments-ja-large-contrast-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "7b061ddd516d7ad418864be00bfb397feaab87843f08d199641862a7e8cb97e3"
+    },
+    {
+      "bytes": 267935,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/minesweeper-large-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "minesweeper-large-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "59ce0dcbb21a0bec57bc51a6b388c6c64a468e29627800e5ae7d61a20b8810e5"
+    },
+    {
+      "bytes": 289501,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/minesweeper-popup-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "minesweeper-popup-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "1dcb06673d3c910f2e0d5771e195b1135b611060672dd68e61a45c72b6c2c2b8"
+    },
+    {
+      "bytes": 357921,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/minesweeper-rules-en-800.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "minesweeper-rules-en-800.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "17d2cefe76b90ab0f9281613ced17e0927b48c3b2101b2a5237a85874c1c0f2a"
+    },
+    {
+      "bytes": 239000,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/minesweeper-rules-ja-large-contrast-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "minesweeper-rules-ja-large-contrast-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "fb9e99d72f51ceb5e74d345a6820ef584093aaced8d19cc1a0de8c783d681ce0"
+    },
+    {
+      "bytes": 353647,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/schedule-800.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "schedule-800.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "455daf4ac041a86cd4e8cd606c3a78ce286ea1dd5d4ceba4b8a5c6ee6788dec3"
+    },
+    {
+      "bytes": 266401,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/schedule-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "schedule-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "ba2bf2343dc3cce8bbe2459858f0ccbab032ecf03304be60430be7190e7f1498"
+    },
+    {
+      "bytes": 356668,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/settings-accessibility-800.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "settings-accessibility-800.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "de67d85eb991acc81718f7b4190e013438a69be45f8e60624527b74723d34498"
+    },
+    {
+      "bytes": 283301,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/settings-accessibility-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "settings-accessibility-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "dce99b36794e7bcf07a701659d943fa1519a48e0eca9e83cb2f17f9ebb881754"
+    },
+    {
+      "bytes": 285172,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/settings-bottom-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "settings-bottom-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "9ffb3cca27be521feb1852d2f17dbdefa89affb37cd25c1f702a38da476e6b20"
+    },
+    {
+      "bytes": 355327,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/settings-display-800.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "settings-display-800.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "7e4adb06326d4905c26e4c72b2b52a7825b74d31b5ff0528b2e6b77053387844"
+    },
+    {
+      "bytes": 279312,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/settings-display-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "settings-display-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "a972a4f0d1b6353dd57f05053b6bf3a70506de088601cd0408a772f851ef4cd3"
+    },
+    {
+      "bytes": 283142,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/settings-popup-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "settings-popup-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "7a2fa9fe99b2e415d41f6d620d028b1136ba22205652f4237ceb069def93aa57"
+    },
+    {
+      "bytes": 237413,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/settings-reset-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "settings-reset-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "6836948679076e0902e158b11627c2ec3b4eaa875e0a79801cce5829c06bbfcf"
+    },
+    {
+      "bytes": 358276,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/shop-800.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "shop-800.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "7c347df0e314be98b5044791ca972e1c6a68081eca8ea8adf353841240af3b2a"
+    },
+    {
+      "bytes": 266371,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/shop-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "shop-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "ea5d9975831f29b6dbbdc3459318d76bb00ad1306621cba02cbfcddcafe6f0cc"
+    },
+    {
+      "bytes": 270390,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/shop-bottom-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "shop-bottom-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "33e57c1bcaa3cb066e2abc3cb14afc5fd85f6ee07ef2d1d1794c75ad98c89dd9"
+    },
+    {
+      "bytes": 359218,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/shop-page-two-800.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "shop-page-two-800.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "cc86439a14d449f55155668c869a7420249d6d72036ecc60918b3b00680279a9"
+    },
+    {
+      "bytes": 267953,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/shop-page-two-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "shop-page-two-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "b227e07dc1a945be4ce35a74e95fddb29c29dcd2690cc5963481094f35fa7e9f"
+    },
+    {
+      "bytes": 298059,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/shop-page-two-readable-large-contrast-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "shop-page-two-readable-large-contrast-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "eb65e56c52c17af96f3b9b2edbb015cfb99226bfd9ed5ce5ab6791e43085f548"
+    },
+    {
+      "bytes": 265859,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/shop-page-two-sold-out-960.png",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "shop-page-two-sold-out-960.png",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "eb4296c4cb1333ef47ae88e37d980622a76e9d161aa03624210ee2142d4b0597"
+    },
+    {
+      "bytes": 267862,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/pixel-en-minesweeper-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "pixel-en-minesweeper-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "80608635cfb1e9a925d74d594786a5b224cb2950a74b76c7780e5d08d99c7e41"
+    },
+    {
+      "bytes": 286052,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/pixel-en-settings-accessibility-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "pixel-en-settings-accessibility-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "093fc707efd44e74f91370c5b56446c65d0c6791744835646ae5ac17af1a88ee"
+    },
+    {
+      "bytes": 275114,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/pixel-ja-minesweeper-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "pixel-ja-minesweeper-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "a604b7080dab16cb811a45b74f27f706261a53ab46fafa896c71f9f3e2edd8da"
+    },
+    {
+      "bytes": 285944,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/pixel-ja-settings-accessibility-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "pixel-ja-settings-accessibility-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "90321d4f5537256a9a373c0d537da6e5caa5373228add79bffe2c8ed13ff78c0"
+    },
+    {
+      "bytes": 264316,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/pixel-ko-minesweeper-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "pixel-ko-minesweeper-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "ee4f78d14f0eebdac1868c159dfeed6919df847a4ce5f05c37f93fa39f814b36"
+    },
+    {
+      "bytes": 282402,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/pixel-ko-settings-accessibility-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "pixel-ko-settings-accessibility-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "d6fd063618317a071fc97adada2ff750e4f45289927951f6025d4f444c313447"
+    },
+    {
+      "bytes": 274018,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/pixel-zh-CN-minesweeper-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "pixel-zh-CN-minesweeper-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "6603c3f487b99b5f38f93121f702b5cf08d17529f30702ec249535519ddd783e"
+    },
+    {
+      "bytes": 286016,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/pixel-zh-CN-settings-accessibility-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "pixel-zh-CN-settings-accessibility-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "2fbc6d18c9fb58a78b2fda4ed003d578f1ae48db88cba357c3dd0ed859fcecc1"
+    },
+    {
+      "bytes": 275267,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/pixel-zh-HK-minesweeper-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "pixel-zh-HK-minesweeper-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "0c34829394df50a59ca300115005183cf390b92ef04c8319f664fffbaafc78b0"
+    },
+    {
+      "bytes": 289874,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/pixel-zh-HK-settings-accessibility-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "pixel-zh-HK-settings-accessibility-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "2a72a6656dc541658fc006e01cef745a09cc65e310a0bbdafa34b242d7de1fd4"
+    },
+    {
+      "bytes": 12765,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/readable-en-gallery-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "readable-en-gallery-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "d59c61ef8703131877a72d3862d9d6d85308244002fcc3979ebc894f4c3d0b74"
+    },
+    {
+      "bytes": 335081,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/readable-en-minesweeper-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "readable-en-minesweeper-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "02984586e1a79cbc2c1af37be874b5344e4bd0232b080319798acd38fc272106"
+    },
+    {
+      "bytes": 382268,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/readable-en-settings-accessibility-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "readable-en-settings-accessibility-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "5222aec7d902f88e74ba4b95bc2f24ba9008dbf5ff2d08357f0313693e6fe38b"
+    },
+    {
+      "bytes": 31070,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/readable-en-witnessed-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "readable-en-witnessed-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "07e72694d7a8483dbbd79dd0accff84b8dca5baec6aea550a97e7ceaa2c6fdbb"
+    },
+    {
+      "bytes": 17257,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/readable-ja-gallery-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "readable-ja-gallery-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "d271df98f0b3cea72c43da3c1cb007ee1ed81c1742855bbde1d04b33dca0d180"
+    },
+    {
+      "bytes": 326834,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/readable-ja-minesweeper-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "readable-ja-minesweeper-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "5866dae7d26b11b8c4187b1bf2ac527e203f35893c06a148cc4a7860f3bdbd36"
+    },
+    {
+      "bytes": 367148,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/readable-ja-settings-accessibility-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "readable-ja-settings-accessibility-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "c47f045b4fd722c38865a816d0b52d7f5ee9649d2b4ffdea0bb7d77c50425c90"
+    },
+    {
+      "bytes": 36642,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/readable-ja-witnessed-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "readable-ja-witnessed-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "f102a5685ee132a01f5b32431193d0bce8aa29445c25143261e6bd4cf49f5923"
+    },
+    {
+      "bytes": 13880,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/readable-ko-gallery-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "readable-ko-gallery-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "0f6968cfff308a1f8af4f1c3c6d87209b0e7f53a3d225c4ca456c58c3b372a57"
+    },
+    {
+      "bytes": 293326,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/readable-ko-minesweeper-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "readable-ko-minesweeper-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "82f1dbebfd714057ca591325141cb96c8ec901cce7aec4ae998587325957cdc8"
+    },
+    {
+      "bytes": 343144,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/readable-ko-settings-accessibility-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "readable-ko-settings-accessibility-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "1998d82b64d2235b5b20e1f3da21dcc6058ff6fcadb9cd2df19f27a0a3fe7671"
+    },
+    {
+      "bytes": 33479,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/readable-ko-witnessed-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "readable-ko-witnessed-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "1c590e905de4fe6a70a13f4640a6e0e22336ad4fe9071fa05f9e9bd683c0fec5"
+    },
+    {
+      "bytes": 15093,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/readable-zh-CN-gallery-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "readable-zh-CN-gallery-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "62f93ce5bc49d8e08155b0d40ada6a3fc5cc7f1626ad7efd78732b733e626e36"
+    },
+    {
+      "bytes": 328169,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/readable-zh-CN-minesweeper-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "readable-zh-CN-minesweeper-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "5f969532debf638cbb5e0c95a9f4f0d78eb5213286f42c9036cb8037a15d5056"
+    },
+    {
+      "bytes": 355941,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/readable-zh-CN-settings-accessibility-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "readable-zh-CN-settings-accessibility-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "629d8cfc850d3ca7786bada035f64dec01304e734d99c3076f06706e0cdf98ab"
+    },
+    {
+      "bytes": 36238,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/readable-zh-CN-witnessed-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "readable-zh-CN-witnessed-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "571e38b55caeb072c7ebfccff53ce7d516d5a609bc24c93c0d27f3269587b2dd"
+    },
+    {
+      "bytes": 15886,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/readable-zh-HK-gallery-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "readable-zh-HK-gallery-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "05bfd7229587b6a76d8635602ec3db4e10ea1aef29aec173637518a5a0ee90ab"
+    },
+    {
+      "bytes": 333799,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/readable-zh-HK-minesweeper-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "readable-zh-HK-minesweeper-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "ae4ac4cf4c84b8a6869bdd790141d979beaa8baeef6c7ce1c29ad25f9639788c"
+    },
+    {
+      "bytes": 364656,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/readable-zh-HK-settings-accessibility-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "readable-zh-HK-settings-accessibility-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "639f98a749e316d45274b58074bac2fd6e6ef725f9cd7de2a22d94043ac791c6"
+    },
+    {
+      "bytes": 37167,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/readable-zh-HK-witnessed-150.png",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "readable-zh-HK-witnessed-150.png",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "2fb04b5f40c410799d369e6756044e0b9c4516530fd523b0be50ccd9da7721b4"
+    },
+    {
+      "bytes": 355046,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ja-backup-100.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ja-backup-100.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "464de94808eb7ff95ecf0439fbe31d3825488669fe83f3d72de55a6f91a89256"
+    },
+    {
+      "bytes": 353280,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ja-backup-150.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ja-backup-150.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "04ad1af9ccafaf0d1c12b2482860ee87a40627b283fd4ef4d31527168aa1348c"
+    },
+    {
+      "bytes": 382903,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ja-contacts-100.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ja-contacts-100.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "f3859a703c503ad1aa382b46c58c2a178c4cb6a84e0b136e7d9670d0556f997a"
+    },
+    {
+      "bytes": 6054,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ja-gallery-100.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ja-gallery-100.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "8fa362bc109851b1305339f2644b1ff40566f65aa2522c8c555598f1a609d84e"
+    },
+    {
+      "bytes": 6354,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ja-gallery-150.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ja-gallery-150.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "3b66d5a77502ac3fbf00f8775f76810d311d23531e924ad58989c8abdae6a45f"
+    },
+    {
+      "bytes": 353567,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ja-launcher-100.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ja-launcher-100.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "4af384cff2637f057ead6690aa5b9dac1dbcb6294e05dc1513dace36eefaa4ba"
+    },
+    {
+      "bytes": 356926,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ja-minesweeper-100.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ja-minesweeper-100.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "7ad61ec8c4147a7839bb887fbe71b4f584670da1f12b30e73f8f20d205bc969a"
+    },
+    {
+      "bytes": 354712,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ja-minesweeper-150.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ja-minesweeper-150.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "aca430ec2ec678f805c15dbd3f1f7d41e01d2c559b18830f006c5716f960bc9d"
+    },
+    {
+      "bytes": 353426,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ja-schedule-100.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ja-schedule-100.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "e545982f3b8f4aa9e94b1c90d50d5d06436f004a9cffb5830f3f3afbda6a57d6"
+    },
+    {
+      "bytes": 353901,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ja-settings-100.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ja-settings-100.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "4ed5bec95061e5918657c075bc51766b88bc8d851f91a5377beddea5ddbd054c"
+    },
+    {
+      "bytes": 352108,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ja-settings-150.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ja-settings-150.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "557fd4a9f1290e294f1aef9d5ef71ee54334d42979b957d7a854e5d374b28ce5"
+    },
+    {
+      "bytes": 356417,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ja-shop-100.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ja-shop-100.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "6311d7ed37454ce211b9d1f085b3f85dee6297ea5dd60e075ae5b8ed62405a8c"
+    },
+    {
+      "bytes": 6796,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ja-title-100.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ja-title-100.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "369f748370f34136e255ffda93755bb62c039738ef7c80f5c7d7799ff346a1fd"
+    },
+    {
+      "bytes": 7281,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ja-witnessed-100.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ja-witnessed-100.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "32b60170170139d28056183f1d89d6e7cffb0a6bd7225aeac4a1ce0e5319f15b"
+    },
+    {
+      "bytes": 7899,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ja-witnessed-150.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ja-witnessed-150.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "8a036ad113fa5c3636d5fbc195a5c9457c465d1a297f8f6bb3a379878854e88c"
+    },
+    {
+      "bytes": 354959,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ko-backup-100.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ko-backup-100.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "67430672aafd1f09d0419df2b1dd842974262281e2418e02040f4da390cc5783"
+    },
+    {
+      "bytes": 352921,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ko-backup-150.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ko-backup-150.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "194c1ce4464a114571bce8fdcad575765b23c7f1daf7f64c4526479534f3ce08"
+    },
+    {
+      "bytes": 382924,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ko-contacts-100.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ko-contacts-100.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "19b8ac027c36129e1168553965afe39b4b19d8441708ca94d56a72bac0680fbb"
+    },
+    {
+      "bytes": 6029,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ko-gallery-100.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ko-gallery-100.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "969304f34d7ff76089ace97dbccf6a132a107c9caad60ed8493339306269bb4c"
+    },
+    {
+      "bytes": 6253,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ko-gallery-150.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ko-gallery-150.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "e17f5438b7da1d798edf92ba6ed02c238ef5e7da08a5f124d2948ece29ebcc84"
+    },
+    {
+      "bytes": 353098,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ko-launcher-100.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ko-launcher-100.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "9b92c5c5fc4ef1896951b08261483b2822e5c11ae49dc77c6c7c3af6d48f8932"
+    },
+    {
+      "bytes": 356806,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ko-minesweeper-100.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ko-minesweeper-100.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "f1ed8fa1bcb669f38911651e832647219ee35365730d3023869e885e238d8771"
+    },
+    {
+      "bytes": 354009,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ko-minesweeper-150.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ko-minesweeper-150.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "e20a79c232b684f817f7422c31ef91fbeaa6615e80a286384517536988f35317"
+    },
+    {
+      "bytes": 353349,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ko-schedule-100.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ko-schedule-100.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "048f3de2c151cd269244603f735097520e68f6b82689ad23052c77e41ae6f202"
+    },
+    {
+      "bytes": 353441,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ko-settings-100.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ko-settings-100.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "98ae56bb58b939bb55d5b87e1787e6cbc7e967915484ff92751933863df75d4d"
+    },
+    {
+      "bytes": 351069,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ko-settings-150.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ko-settings-150.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "4eb671036229c1ebcebaf4aab673d61ab239e4c1f02f8c404cdaa05d6d2b77dc"
+    },
+    {
+      "bytes": 356217,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ko-shop-100.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ko-shop-100.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "9a6e3165b3356f483b42d3812eb1527ab62cd1cd8ff016c508edd977026b3f6b"
+    },
+    {
+      "bytes": 6687,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ko-title-100.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ko-title-100.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "173850d8df126ec76918a0a658c1fc2fbbf745d7aeb3297f7568c25a49556ed1"
+    },
+    {
+      "bytes": 7313,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ko-witnessed-100.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ko-witnessed-100.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "9f4557ef06e76232310e84ccf62857cfad118e6e00abbfa3d2e176451463f40e"
+    },
+    {
+      "bytes": 7827,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/ko-witnessed-150.png",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ko-witnessed-150.png",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "becb5d033ba73af5e0d85a673dc282092fa470cb44b062467752ba2f644b8f24"
+    },
+    {
+      "bytes": 6635,
+      "path": "run111/artifacts/playable-startup-render-36924676783-1/01-title.png",
+      "provenance": {
+        "artifact_id": 11193069218,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "01-title.png",
+        "zip_sha256": "ca46cbe6969e39ba0180ba073bc21ecc5719610207960b059f25e63ead5624a1"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "f15f50e05b0cd71140d0013e4c604e14ec9df7ea31efea8f4fcac1f1443bba12"
+    },
+    {
+      "bytes": 353675,
+      "path": "run111/artifacts/playable-startup-render-36924676783-1/02-desktop.png",
+      "provenance": {
+        "artifact_id": 11193069218,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "02-desktop.png",
+        "zip_sha256": "ca46cbe6969e39ba0180ba073bc21ecc5719610207960b059f25e63ead5624a1"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "107622c1b5b2ecbd015249510485a880e94b3292b88a18a1489703971de8659d"
+    },
+    {
+      "bytes": 355367,
+      "path": "run111/artifacts/playable-startup-render-36924676783-1/03-minesweeper.png",
+      "provenance": {
+        "artifact_id": 11193069218,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "03-minesweeper.png",
+        "zip_sha256": "ca46cbe6969e39ba0180ba073bc21ecc5719610207960b059f25e63ead5624a1"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "d1ec26bbaa977aaec89ae3ca51e08123b8bf9425dafafd8e85ed75ab5fa2acf0"
+    },
+    {
+      "bytes": 354160,
+      "path": "run111/artifacts/playable-startup-render-36924676783-1/logout-01-consent.png",
+      "provenance": {
+        "artifact_id": 11193069218,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "logout-01-consent.png",
+        "zip_sha256": "ca46cbe6969e39ba0180ba073bc21ecc5719610207960b059f25e63ead5624a1"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "c6e2a5d33dd7d9f523bc29e591aa10027288fd8f5c3eb3325444b12f680ebbf9"
+    },
+    {
+      "bytes": 559125,
+      "path": "run111/artifacts/public-surfaces-36924676783-1/ci/public-surfaces/game_state_surface.json",
+      "provenance": {
+        "artifact_id": 11192854974,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/game_state_surface.json",
+        "zip_sha256": "3605de0f1ed3f0ecbe1a710da01b1d9c0d24df43813127822efe5bd1cbc4a108"
+      },
+      "reason": "Duplicate public inventory; retain canonical source-bound copies separately.",
+      "sha256": "06ab39fd2fd12ff0312f0d40952e141cdd690bc094c017e6ce6a693ea323e090"
+    },
+    {
+      "bytes": 147845,
+      "path": "run111/artifacts/public-surfaces-36924676783-1/ci/public-surfaces/save_manager_surface.json",
+      "provenance": {
+        "artifact_id": 11192854974,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/save_manager_surface.json",
+        "zip_sha256": "3605de0f1ed3f0ecbe1a710da01b1d9c0d24df43813127822efe5bd1cbc4a108"
+      },
+      "reason": "Duplicate public inventory; retain canonical source-bound copies separately.",
+      "sha256": "4c184f13203c2eee0aa0c1b68380481b7bd0d41f6075a378ec78195d1510fb2e"
+    },
+    {
+      "bytes": 6634,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/captures/01-title.png",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/captures/01-title.png",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "232daeecf5e1beba3511f7a7a9bd728ea714a511af48ad4a9810388a214a984c"
+    },
+    {
+      "bytes": 353672,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/captures/02-desktop.png",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/captures/02-desktop.png",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "d34bdd6d7520c4c863f84427a8ec42ace52107cd5b53739ccafb7e74b195e531"
+    },
+    {
+      "bytes": 355367,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/captures/03-minesweeper.png",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/captures/03-minesweeper.png",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "68e80580eff118a249c5a542b52269d20c5e4be39346e5105d1724824609b644"
+    },
+    {
+      "bytes": 7815,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/captures/04-pre-history.png",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/captures/04-pre-history.png",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "f8283c61d2186f7c16ada71669f84a604f5a96e028efc9e753475b9999100031"
+    },
+    {
+      "bytes": 676825,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/captures/05-dating-board.png",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/captures/05-dating-board.png",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "8fa584cb352256efd7c2812542d630bca653b44fda354edc907c3628b2cc2794"
+    },
+    {
+      "bytes": 9019,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/captures/06-post-history.png",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/captures/06-post-history.png",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "02aa35027dc32d55523f24fb3bdd5940904566e37926153c40c457ecde2a7bf6"
+    },
+    {
+      "bytes": 1329047,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/captures/07-post-save.png",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/captures/07-post-save.png",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "c205f90984cc75ab53dffe67ece9b1cddcd5f0313b0875eb2f5e317acc389613"
+    },
+    {
+      "bytes": 9019,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/captures/08-restored-history.png",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/captures/08-restored-history.png",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "02aa35027dc32d55523f24fb3bdd5940904566e37926153c40c457ecde2a7bf6"
+    },
+    {
+      "bytes": 1329047,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/captures/09-restored-line.png",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/captures/09-restored-line.png",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "c205f90984cc75ab53dffe67ece9b1cddcd5f0313b0875eb2f5e317acc389613"
+    },
+    {
+      "bytes": 1329731,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/next/captures/01-next-unseen.png",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/next/captures/01-next-unseen.png",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "246058a1d848fa23f96fe7d55c6d3afc5cdf3a81a33dc1a7b57c7a7564a2cddf"
+    },
+    {
+      "bytes": 673448,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/next/captures/02-next-board.png",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/next/captures/02-next-board.png",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "5c836f06869380aa2cd0674ae0c0c03483d8f21ee5ff3db50a9e131629829552"
+    },
+    {
+      "bytes": 6634,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/01-title.png",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/01-title.png",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "232daeecf5e1beba3511f7a7a9bd728ea714a511af48ad4a9810388a214a984c"
+    },
+    {
+      "bytes": 353672,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/02-desktop.png",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/02-desktop.png",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "d34bdd6d7520c4c863f84427a8ec42ace52107cd5b53739ccafb7e74b195e531"
+    },
+    {
+      "bytes": 355367,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/03-minesweeper.png",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/03-minesweeper.png",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "68e80580eff118a249c5a542b52269d20c5e4be39346e5105d1724824609b644"
+    },
+    {
+      "bytes": 7815,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/04-pre-history.png",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/04-pre-history.png",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "f8283c61d2186f7c16ada71669f84a604f5a96e028efc9e753475b9999100031"
+    },
+    {
+      "bytes": 676825,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/05-dating-board.png",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/05-dating-board.png",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "8fa584cb352256efd7c2812542d630bca653b44fda354edc907c3628b2cc2794"
+    },
+    {
+      "bytes": 9019,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/06-post-history.png",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/06-post-history.png",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "02aa35027dc32d55523f24fb3bdd5940904566e37926153c40c457ecde2a7bf6"
+    },
+    {
+      "bytes": 1329047,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/07-post-save.png",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/07-post-save.png",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "c205f90984cc75ab53dffe67ece9b1cddcd5f0313b0875eb2f5e317acc389613"
+    },
+    {
+      "bytes": 9019,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/08-restored-history.png",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/08-restored-history.png",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "02aa35027dc32d55523f24fb3bdd5940904566e37926153c40c457ecde2a7bf6"
+    },
+    {
+      "bytes": 1329047,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/09-restored-line.png",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/09-restored-line.png",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "reason": "Failed-run diagnostic PNG omitted after original ZIP/extracted-byte verification; exact size, SHA-256 and artifact identity retained. No complete visual acceptance claimed.",
+      "sha256": "c205f90984cc75ab53dffe67ece9b1cddcd5f0313b0875eb2f5e317acc389613"
+    }
+  ],
+  "excluded_metadata": "Transient download responses and artifact-manifest.json are omitted because they can contain signed URLs.",
+  "generic_audit_pass": false,
+  "limits": [
+    "DIAGNOSTIC/PARTIAL ONLY: this failed run does not establish full-gate acceptance. Independently audited passing components retain only their stated scope.",
+    "No XML results are required or manufactured by this packaging mode; all existing raw results retain their actual outcomes.",
+    "Workflow head and pinned attempted source/checkout are recorded separately; checkout success does not imply the engine loaded the project.",
+    "Artifact bytes and raw logs are preserved without executing Godot or PowerShell locally.",
+    "Most PNGs and binary payloads are omitted, with explicit hashes/limits; reading PNGs and savebytes are retained.",
+    "This archive preserves evidence; packaging creates no additional engine or visual acceptance."
+  ],
+  "normalization": "lexicographic POSIX PAX members; mode0644 uid/gid0 empty owner names, mtime0; gzip mtime0, empty filename, level9",
+  "not_downloaded_artifacts": [],
+  "payload_bytes": 11053023,
+  "payload_file_count": 120,
+  "payload_files": [
+    {
+      "bytes": 10529,
+      "path": "run111/artifacts-api.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "4baeb980132347cc3270a9995e1558ff5e77f40d8801556b460688bbff733a8c"
+    },
+    {
+      "bytes": 5952,
+      "path": "run111/artifacts/angela-overlay-render-36924676783-1/render.log",
+      "provenance": {
+        "artifact_id": 11193880570,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "render.log",
+        "zip_sha256": "670b61fb4bfd686319574858630e975c49954b377c12ef796b311638b8c06827"
+      },
+      "sha256": "c1cd2ba3f064e7b4fe916be41afcbdd7933d1fd6b30d5f2841b2644e83da98db"
+    },
+    {
+      "bytes": 3370,
+      "path": "run111/artifacts/angela-overlay-render-36924676783-1/results.json",
+      "provenance": {
+        "artifact_id": 11193880570,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "results.json",
+        "zip_sha256": "670b61fb4bfd686319574858630e975c49954b377c12ef796b311638b8c06827"
+      },
+      "sha256": "bb41ba4fbef35351120e5b346b136682d309f6008af5db8dd1911130d8949e83"
+    },
+    {
+      "bytes": 102,
+      "path": "run111/artifacts/cloud-speech-reading-rail-journey-36924676783-1/dummy.log",
+      "provenance": {
+        "artifact_id": 11193761008,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "dummy.log",
+        "zip_sha256": "e6694a63746e521aa78d05c52939bb5a4d69bf2c4ddca59d6da6f7fe757e6d58"
+      },
+      "sha256": "a85c5d8911aac6e6663e7d9c5fa4b21f49c28bc607f95038b9b057e564a84929"
+    },
+    {
+      "bytes": 0,
+      "path": "run111/artifacts/cloud-speech-reading-rail-journey-36924676783-1/espeak-ng-mbrola.log",
+      "provenance": {
+        "artifact_id": 11193761008,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "espeak-ng-mbrola.log",
+        "zip_sha256": "e6694a63746e521aa78d05c52939bb5a4d69bf2c4ddca59d6da6f7fe757e6d58"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "run111/artifacts/cloud-speech-reading-rail-journey-36924676783-1/espeak-ng.log",
+      "provenance": {
+        "artifact_id": 11193761008,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "espeak-ng.log",
+        "zip_sha256": "e6694a63746e521aa78d05c52939bb5a4d69bf2c4ddca59d6da6f7fe757e6d58"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 35,
+      "path": "run111/artifacts/cloud-speech-reading-rail-journey-36924676783-1/modules.txt",
+      "provenance": {
+        "artifact_id": 11193761008,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "modules.txt",
+        "zip_sha256": "e6694a63746e521aa78d05c52939bb5a4d69bf2c4ddca59d6da6f7fe757e6d58"
+      },
+      "sha256": "b86d382d34ae1c2f6c4e9aa4c3bb589ebd1796d93df2942f8ff79e7952480fde"
+    },
+    {
+      "bytes": 13,
+      "path": "run111/artifacts/cloud-speech-reading-rail-journey-36924676783-1/openjtalk.log",
+      "provenance": {
+        "artifact_id": 11193761008,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "openjtalk.log",
+        "zip_sha256": "e6694a63746e521aa78d05c52939bb5a4d69bf2c4ddca59d6da6f7fe757e6d58"
+      },
+      "sha256": "13da6708a2d9f8e382e8e2bc393abf852bcb30a763ea0f29c22bc162fd082ddb"
+    },
+    {
+      "bytes": 468,
+      "path": "run111/artifacts/cloud-speech-reading-rail-journey-36924676783-1/pulseaudio.log",
+      "provenance": {
+        "artifact_id": 11193761008,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "pulseaudio.log",
+        "zip_sha256": "e6694a63746e521aa78d05c52939bb5a4d69bf2c4ddca59d6da6f7fe757e6d58"
+      },
+      "sha256": "c63f15cc507374ff6c7e1db5f9f532488b0d4b6d4502e7c7c0b37ffe87ae00e6"
+    },
+    {
+      "bytes": 3,
+      "path": "run111/artifacts/cloud-speech-reading-rail-journey-36924676783-1/sink-module.txt",
+      "provenance": {
+        "artifact_id": 11193761008,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "sink-module.txt",
+        "zip_sha256": "e6694a63746e521aa78d05c52939bb5a4d69bf2c4ddca59d6da6f7fe757e6d58"
+      },
+      "sha256": "a9742eb8ee320e006666aef25ae9aeed948247f3125c9cafa7cf97b7e7467dd5"
+    },
+    {
+      "bytes": 51,
+      "path": "run111/artifacts/cloud-speech-reading-rail-journey-36924676783-1/sinks.txt",
+      "provenance": {
+        "artifact_id": 11193761008,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "sinks.txt",
+        "zip_sha256": "e6694a63746e521aa78d05c52939bb5a4d69bf2c4ddca59d6da6f7fe757e6d58"
+      },
+      "sha256": "25a5ed750656366bc54b565a5487a37e58d9bed55dcef226f10a3b5c4668f5dc"
+    },
+    {
+      "bytes": 0,
+      "path": "run111/artifacts/cloud-speech-reading-rail-journey-36924676783-1/voices-attempt-1.stderr.txt",
+      "provenance": {
+        "artifact_id": 11193761008,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "voices-attempt-1.stderr.txt",
+        "zip_sha256": "e6694a63746e521aa78d05c52939bb5a4d69bf2c4ddca59d6da6f7fe757e6d58"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 102,
+      "path": "run111/artifacts/cloud-speech-rendered-desktop-36924676783-1/dummy.log",
+      "provenance": {
+        "artifact_id": 11193930213,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "dummy.log",
+        "zip_sha256": "d0ba9e5340f3cd4b38144a187c01d924fb7ecaca97f47bf40d4ed6d9176e056e"
+      },
+      "sha256": "a85c5d8911aac6e6663e7d9c5fa4b21f49c28bc607f95038b9b057e564a84929"
+    },
+    {
+      "bytes": 0,
+      "path": "run111/artifacts/cloud-speech-rendered-desktop-36924676783-1/espeak-ng-mbrola.log",
+      "provenance": {
+        "artifact_id": 11193930213,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "espeak-ng-mbrola.log",
+        "zip_sha256": "d0ba9e5340f3cd4b38144a187c01d924fb7ecaca97f47bf40d4ed6d9176e056e"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "run111/artifacts/cloud-speech-rendered-desktop-36924676783-1/espeak-ng.log",
+      "provenance": {
+        "artifact_id": 11193930213,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "espeak-ng.log",
+        "zip_sha256": "d0ba9e5340f3cd4b38144a187c01d924fb7ecaca97f47bf40d4ed6d9176e056e"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 35,
+      "path": "run111/artifacts/cloud-speech-rendered-desktop-36924676783-1/modules.txt",
+      "provenance": {
+        "artifact_id": 11193930213,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "modules.txt",
+        "zip_sha256": "d0ba9e5340f3cd4b38144a187c01d924fb7ecaca97f47bf40d4ed6d9176e056e"
+      },
+      "sha256": "b86d382d34ae1c2f6c4e9aa4c3bb589ebd1796d93df2942f8ff79e7952480fde"
+    },
+    {
+      "bytes": 13,
+      "path": "run111/artifacts/cloud-speech-rendered-desktop-36924676783-1/openjtalk.log",
+      "provenance": {
+        "artifact_id": 11193930213,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "openjtalk.log",
+        "zip_sha256": "d0ba9e5340f3cd4b38144a187c01d924fb7ecaca97f47bf40d4ed6d9176e056e"
+      },
+      "sha256": "13da6708a2d9f8e382e8e2bc393abf852bcb30a763ea0f29c22bc162fd082ddb"
+    },
+    {
+      "bytes": 468,
+      "path": "run111/artifacts/cloud-speech-rendered-desktop-36924676783-1/pulseaudio.log",
+      "provenance": {
+        "artifact_id": 11193930213,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "pulseaudio.log",
+        "zip_sha256": "d0ba9e5340f3cd4b38144a187c01d924fb7ecaca97f47bf40d4ed6d9176e056e"
+      },
+      "sha256": "c63f15cc507374ff6c7e1db5f9f532488b0d4b6d4502e7c7c0b37ffe87ae00e6"
+    },
+    {
+      "bytes": 3,
+      "path": "run111/artifacts/cloud-speech-rendered-desktop-36924676783-1/sink-module.txt",
+      "provenance": {
+        "artifact_id": 11193930213,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "sink-module.txt",
+        "zip_sha256": "d0ba9e5340f3cd4b38144a187c01d924fb7ecaca97f47bf40d4ed6d9176e056e"
+      },
+      "sha256": "a9742eb8ee320e006666aef25ae9aeed948247f3125c9cafa7cf97b7e7467dd5"
+    },
+    {
+      "bytes": 51,
+      "path": "run111/artifacts/cloud-speech-rendered-desktop-36924676783-1/sinks.txt",
+      "provenance": {
+        "artifact_id": 11193930213,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "sinks.txt",
+        "zip_sha256": "d0ba9e5340f3cd4b38144a187c01d924fb7ecaca97f47bf40d4ed6d9176e056e"
+      },
+      "sha256": "25a5ed750656366bc54b565a5487a37e58d9bed55dcef226f10a3b5c4668f5dc"
+    },
+    {
+      "bytes": 0,
+      "path": "run111/artifacts/cloud-speech-rendered-desktop-36924676783-1/voices-attempt-1.stderr.txt",
+      "provenance": {
+        "artifact_id": 11193930213,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "voices-attempt-1.stderr.txt",
+        "zip_sha256": "d0ba9e5340f3cd4b38144a187c01d924fb7ecaca97f47bf40d4ed6d9176e056e"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 17582,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/render.log",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "render.log",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "sha256": "f7bee548ab0697aa6ea87340d918cdf367797979882463f65a849e4125c4979b"
+    },
+    {
+      "bytes": 9488,
+      "path": "run111/artifacts/delivery-dialogue-render-36924676783-1/results.json",
+      "provenance": {
+        "artifact_id": 11193900579,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "results.json",
+        "zip_sha256": "d1ed7f45c28ba8c03fdf811a3bded3c0a2857726b7957af422cf5587aa635b62"
+      },
+      "sha256": "300ba8be3e4431d712a41b1b932a9f9350d25145cfcd0f14e2f65898bfd693d5"
+    },
+    {
+      "bytes": 203338,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/import.log",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "import.log",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "sha256": "8b1ab31fc1c6efc5adf1ac7edddc54af93011240a5401e48b64b958b6a3865ef"
+    },
+    {
+      "bytes": 4393,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/render.log",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "render.log",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "sha256": "c0cccc9a7530144a3c9bd2e68fe26a5938b4e2a4b1406e8e0b60376e20119930"
+    },
+    {
+      "bytes": 1775,
+      "path": "run111/artifacts/desktop-scaling-render-36924676783-1/results.json",
+      "provenance": {
+        "artifact_id": 11192639932,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "results.json",
+        "zip_sha256": "ab85ab1de216754438097524059ab2320ba54c32d5003f48441f1b9a934ce2a8"
+      },
+      "sha256": "7a55d9c94001f28a9b9209be4269649c6955fe61d8673c05486b05781e0a761b"
+    },
+    {
+      "bytes": 9699,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/render.log",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "render.log",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "sha256": "8c48f223da6b2cdb9ff06ec8f2236154636fe5e3226059b470313e08924b759d"
+    },
+    {
+      "bytes": 9294,
+      "path": "run111/artifacts/font-choices-render-36924676783-1/results.json",
+      "provenance": {
+        "artifact_id": 11194175211,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "results.json",
+        "zip_sha256": "1250b12875aff4d3aca9f6aa0268d002b48a1317c584ed603c1554d09eca54bc"
+      },
+      "sha256": "fa6f5c1608921fc92f86928d3b202b058e14d6fb3a2a77c05812d4c86d2fe48d"
+    },
+    {
+      "bytes": 5006,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/render.log",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "render.log",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "sha256": "528b7981b895383853cdeb8e5152fc0e4d6c39dcba6f79f643375f649576a694"
+    },
+    {
+      "bytes": 4301,
+      "path": "run111/artifacts/japanese-korean-ui-render-36924676783-1/results.json",
+      "provenance": {
+        "artifact_id": 11193825697,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "results.json",
+        "zip_sha256": "993d2b80015a995f1c90bdd12f58b6c308a0ed92853a41515dee90eff0ef580b"
+      },
+      "sha256": "1c43065761ffa203c12d8524cea5a26f54f40331d7b58c52ff833b1f7ab6373c"
+    },
+    {
+      "bytes": 1248,
+      "path": "run111/artifacts/playable-startup-render-36924676783-1/render.log",
+      "provenance": {
+        "artifact_id": 11193069218,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "render.log",
+        "zip_sha256": "ca46cbe6969e39ba0180ba073bc21ecc5719610207960b059f25e63ead5624a1"
+      },
+      "sha256": "1fea6f9833abb39af07082119090ac01cea9b5ed96805e63fd16da62965d41cd"
+    },
+    {
+      "bytes": 120,
+      "path": "run111/artifacts/playable-startup-render-36924676783-1/results.json",
+      "provenance": {
+        "artifact_id": 11193069218,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "results.json",
+        "zip_sha256": "ca46cbe6969e39ba0180ba073bc21ecc5719610207960b059f25e63ead5624a1"
+      },
+      "sha256": "4410f903bb6fe959412ebf74077c82d684bf5a333aa28f5e5ae43fa449f6c2af"
+    },
+    {
+      "bytes": 203338,
+      "path": "run111/artifacts/public-surfaces-36924676783-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11192854974,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "3605de0f1ed3f0ecbe1a710da01b1d9c0d24df43813127822efe5bd1cbc4a108"
+      },
+      "sha256": "340e65880e52de4e68649f710d933b080befd18016f924692283a071452c6bf4"
+    },
+    {
+      "bytes": 658,
+      "path": "run111/artifacts/public-surfaces-36924676783-1/ci/isolation-timeout.jsonl",
+      "provenance": {
+        "artifact_id": 11192854974,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/isolation-timeout.jsonl",
+        "zip_sha256": "3605de0f1ed3f0ecbe1a710da01b1d9c0d24df43813127822efe5bd1cbc4a108"
+      },
+      "sha256": "ab6aadb0fc1ddea9e40e4829856a29c2b4a415397a8f01ab108ebce6a33229f0"
+    },
+    {
+      "bytes": 225194,
+      "path": "run111/artifacts/public-surfaces-36924676783-1/ci/public-surfaces/fixture-version-census.json",
+      "provenance": {
+        "artifact_id": 11192854974,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/fixture-version-census.json",
+        "zip_sha256": "3605de0f1ed3f0ecbe1a710da01b1d9c0d24df43813127822efe5bd1cbc4a108"
+      },
+      "sha256": "c88ddc031a606105b5dd5ac0359311cfbaf2e5a8e27f12c2c6589fac82b11a94"
+    },
+    {
+      "bytes": 997,
+      "path": "run111/artifacts/public-surfaces-36924676783-1/ci/public-surfaces/game_state-check.jsonl",
+      "provenance": {
+        "artifact_id": 11192854974,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/game_state-check.jsonl",
+        "zip_sha256": "3605de0f1ed3f0ecbe1a710da01b1d9c0d24df43813127822efe5bd1cbc4a108"
+      },
+      "sha256": "a19eb33697046839b50bf8508c9c78f84db9d39825a34749c92435eee2382dde"
+    },
+    {
+      "bytes": 996,
+      "path": "run111/artifacts/public-surfaces-36924676783-1/ci/public-surfaces/game_state-generate.jsonl",
+      "provenance": {
+        "artifact_id": 11192854974,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/game_state-generate.jsonl",
+        "zip_sha256": "3605de0f1ed3f0ecbe1a710da01b1d9c0d24df43813127822efe5bd1cbc4a108"
+      },
+      "sha256": "0e6c256d807d64b36602df27aa6de83ca5267e814e8fa670c39ec9384a7f4252"
+    },
+    {
+      "bytes": 563,
+      "path": "run111/artifacts/public-surfaces-36924676783-1/ci/public-surfaces/retirement-audit.json",
+      "provenance": {
+        "artifact_id": 11192854974,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/retirement-audit.json",
+        "zip_sha256": "3605de0f1ed3f0ecbe1a710da01b1d9c0d24df43813127822efe5bd1cbc4a108"
+      },
+      "sha256": "3f2df56a93437c74ec6bd60974c9a5e02018301402e9adac8a0f03a7f2cfc410"
+    },
+    {
+      "bytes": 1009,
+      "path": "run111/artifacts/public-surfaces-36924676783-1/ci/public-surfaces/save_manager-check.jsonl",
+      "provenance": {
+        "artifact_id": 11192854974,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/save_manager-check.jsonl",
+        "zip_sha256": "3605de0f1ed3f0ecbe1a710da01b1d9c0d24df43813127822efe5bd1cbc4a108"
+      },
+      "sha256": "ed4dcb47c50901b61e02bfcaeeefdf1e75bf8ce02392471575105dbf389a2db5"
+    },
+    {
+      "bytes": 1008,
+      "path": "run111/artifacts/public-surfaces-36924676783-1/ci/public-surfaces/save_manager-generate.jsonl",
+      "provenance": {
+        "artifact_id": 11192854974,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/save_manager-generate.jsonl",
+        "zip_sha256": "3605de0f1ed3f0ecbe1a710da01b1d9c0d24df43813127822efe5bd1cbc4a108"
+      },
+      "sha256": "9b88555fb1c79df2137eca10d4762391716d48062e4d76863536a2ebe1c1cb81"
+    },
+    {
+      "bytes": 758,
+      "path": "run111/artifacts/public-surfaces-36924676783-1/ci/public_surfaces.jsonl",
+      "provenance": {
+        "artifact_id": 11192854974,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public_surfaces.jsonl",
+        "zip_sha256": "3605de0f1ed3f0ecbe1a710da01b1d9c0d24df43813127822efe5bd1cbc4a108"
+      },
+      "sha256": "5f29549c6a0a39115279555f2b72fabf208d9e5a5b61a587c3b46470793d8d25"
+    },
+    {
+      "bytes": 2504,
+      "path": "run111/artifacts/public-surfaces-36924676783-1/ci/public_surfaces.xml",
+      "provenance": {
+        "artifact_id": 11192854974,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public_surfaces.xml",
+        "zip_sha256": "3605de0f1ed3f0ecbe1a710da01b1d9c0d24df43813127822efe5bd1cbc4a108"
+      },
+      "sha256": "2bc2038e0cfd38c24a91b234d0230a64729109b731cc3b1eb7fef6696c9a3972"
+    },
+    {
+      "bytes": 105,
+      "path": "run111/artifacts/public-surfaces-36924676783-1/phase2r_logs/cloud-isolation-timeout.log",
+      "provenance": {
+        "artifact_id": 11192854974,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-isolation-timeout.log",
+        "zip_sha256": "3605de0f1ed3f0ecbe1a710da01b1d9c0d24df43813127822efe5bd1cbc4a108"
+      },
+      "sha256": "024608dce65ad25e4cf6cf14cda110234e45b506858606453dbab71388889192"
+    },
+    {
+      "bytes": 151,
+      "path": "run111/artifacts/public-surfaces-36924676783-1/phase2r_logs/cloud-isolation-timeout.log.timeout.log",
+      "provenance": {
+        "artifact_id": 11192854974,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-isolation-timeout.log.timeout.log",
+        "zip_sha256": "3605de0f1ed3f0ecbe1a710da01b1d9c0d24df43813127822efe5bd1cbc4a108"
+      },
+      "sha256": "bbfe0f114cd95fdd646d6bed89814dc35f6124e3bf360f0552964a251831cc41"
+    },
+    {
+      "bytes": 97,
+      "path": "run111/artifacts/public-surfaces-36924676783-1/phase2r_logs/cloud-public-surface-game_state-check.log",
+      "provenance": {
+        "artifact_id": 11192854974,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public-surface-game_state-check.log",
+        "zip_sha256": "3605de0f1ed3f0ecbe1a710da01b1d9c0d24df43813127822efe5bd1cbc4a108"
+      },
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "bytes": 97,
+      "path": "run111/artifacts/public-surfaces-36924676783-1/phase2r_logs/cloud-public-surface-game_state-generate.log",
+      "provenance": {
+        "artifact_id": 11192854974,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public-surface-game_state-generate.log",
+        "zip_sha256": "3605de0f1ed3f0ecbe1a710da01b1d9c0d24df43813127822efe5bd1cbc4a108"
+      },
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "bytes": 97,
+      "path": "run111/artifacts/public-surfaces-36924676783-1/phase2r_logs/cloud-public-surface-save_manager-check.log",
+      "provenance": {
+        "artifact_id": 11192854974,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public-surface-save_manager-check.log",
+        "zip_sha256": "3605de0f1ed3f0ecbe1a710da01b1d9c0d24df43813127822efe5bd1cbc4a108"
+      },
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "bytes": 97,
+      "path": "run111/artifacts/public-surfaces-36924676783-1/phase2r_logs/cloud-public-surface-save_manager-generate.log",
+      "provenance": {
+        "artifact_id": 11192854974,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public-surface-save_manager-generate.log",
+        "zip_sha256": "3605de0f1ed3f0ecbe1a710da01b1d9c0d24df43813127822efe5bd1cbc4a108"
+      },
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "bytes": 201909,
+      "path": "run111/artifacts/public-surfaces-36924676783-1/phase2r_logs/cloud-public_surfaces.log",
+      "provenance": {
+        "artifact_id": 11192854974,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public_surfaces.log",
+        "zip_sha256": "3605de0f1ed3f0ecbe1a710da01b1d9c0d24df43813127822efe5bd1cbc4a108"
+      },
+      "sha256": "d33ec03b6755e8512a08144bb7636cdd99b41b6cc007215ab92c76090afe08c1"
+    },
+    {
+      "bytes": 133107,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/next-autosave.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/next-autosave.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "a07138ae3167c7c1dc11ae219073570f1a8e1b53959f1ba90d161f1612cee521"
+    },
+    {
+      "bytes": 9765,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/next-read.log",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/next-read.log",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "2f0c286e6d78f8f2a4c4cffb6f135912fc8820bd754d96b07298dec6692bc883"
+    },
+    {
+      "bytes": 1149,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/next-read.process.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/next-read.process.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "e44b491bfe00a2fe0b245af789fc494a97686fa2511cf1d144948e715c7c169c"
+    },
+    {
+      "bytes": 0,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/next-read.stderr.txt",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/next-read.stderr.txt",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 9959,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/next-read.stdout.txt",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/next-read.stdout.txt",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "74ba251eb3badcb194c8939e9b9204bbe808b5e4dd51d14d051ed83adb6b799b"
+    },
+    {
+      "bytes": 12840,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/next-unseen.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/next-unseen.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "6fbbbb88b9cd36ce0dfe314cc40f99e30a2bc74eb14becfdaf21584f4e276388"
+    },
+    {
+      "bytes": 19463,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/next-unseen.log",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/next-unseen.log",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "5c355366a5ecd379ff1e54414f911dc7f98df3fc45fce18dd7e6951394b387ef"
+    },
+    {
+      "bytes": 1158,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/next-unseen.process.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/next-unseen.process.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "f7d48377357aba3a6d4e7c729a9f9c8c22bd08c28d503710aa3fc63bdccead66"
+    },
+    {
+      "bytes": 0,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/next-unseen.stderr.txt",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/next-unseen.stderr.txt",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 19657,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/next-unseen.stdout.txt",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/next-unseen.stdout.txt",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "0f76056db3ddd7c13379d3d4adde1387162a566443ce3249826fb629e464909c"
+    },
+    {
+      "bytes": 19899,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/next.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/next.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "563ad5c7b2c6ec181920a36b283b4ab8be05427ab3458ac4ddb2153a518736e8"
+    },
+    {
+      "bytes": 25256,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/next.log",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/next.log",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "433356834e60cead9ffe0cc7a4687a5fbc6e383cff0835cb45bfe4acee2b8fdc"
+    },
+    {
+      "bytes": 1130,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/next.process.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/next.process.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "5e011265abec4d6ea07f15db61dc9b1d91ea35dc37eb557080e80c17f98b00ae"
+    },
+    {
+      "bytes": 0,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/next.stderr.txt",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/next.stderr.txt",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 25450,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/next.stdout.txt",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/next.stdout.txt",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "b9da97d294c4a5dc63a1aa0da8c98f330eed1a34a481cfdc0772e93c50699868"
+    },
+    {
+      "bytes": 14485,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/read.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/read.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "e8413eb919540abdb01c8a9017305e9b1704c806e4a6a5229061efbd79f44bcd"
+    },
+    {
+      "bytes": 18319,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/read.log",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/read.log",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "c60521f21f78f5d8795dd15791ddd287883d5af6f215b7baff54eef6c8c549bc"
+    },
+    {
+      "bytes": 1129,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/read.process.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/read.process.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "62da11370fa8f449548f4718b28cae29377d176d9dfa7265eae8bb7ea513eb9c"
+    },
+    {
+      "bytes": 0,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/read.stderr.txt",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/read.stderr.txt",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 18513,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/read.stdout.txt",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/read.stdout.txt",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "344154168da9b14678bd88c6f708ab144875cb0dbf3d2dd30ee0413949d88d38"
+    },
+    {
+      "bytes": 4479,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/repeat.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/repeat.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "75404f28751aaf5b560e16444d58fa86581c0ff098be60ff8c500424cf3e87ab"
+    },
+    {
+      "bytes": 19232,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/repeat.log",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/repeat.log",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "83600ba56326b00f3645c1d06c69bff4e42a7dc6fef370739bcbbfd9ce0bee35"
+    },
+    {
+      "bytes": 1138,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/repeat.process.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/repeat.process.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "683b8bec3d1e4bdbf142e1aae77ddf5f62c906c69dff05b1c148f0a7c5fa1bed"
+    },
+    {
+      "bytes": 0,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/repeat.stderr.txt",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/repeat.stderr.txt",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 19426,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/repeat.stdout.txt",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/repeat.stdout.txt",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "0bfb167c5aba66ad36f255032cde59078eaf0a15629f58eb5697fc1e06391853"
+    },
+    {
+      "bytes": 318737,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/result.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/result.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "e39fcd630f23932bf32b567cf6d3a1662d442c9012ee5ad97085033fcd12fb81"
+    },
+    {
+      "bytes": 116791,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/saved-pause-slot.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/saved-pause-slot.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "b723dcca54251891e52261055ddb3f95507fc6b7444bc3bcd39e59bb76198237"
+    },
+    {
+      "bytes": 174238,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/saved-quick.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/saved-quick.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "994ab869a5102e770d3cc0846b21e70da30fac99543316091bc8374d8e99f55e"
+    },
+    {
+      "bytes": 14485,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/read.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/read.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "e8413eb919540abdb01c8a9017305e9b1704c806e4a6a5229061efbd79f44bcd"
+    },
+    {
+      "bytes": 116791,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/saved-pause-slot.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/saved-pause-slot.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "b723dcca54251891e52261055ddb3f95507fc6b7444bc3bcd39e59bb76198237"
+    },
+    {
+      "bytes": 174238,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/saved-quick.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/saved-quick.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "994ab869a5102e770d3cc0846b21e70da30fac99543316091bc8374d8e99f55e"
+    },
+    {
+      "bytes": 142367,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/transactions.jsonl",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/transactions.jsonl",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "cee3725b74e6308e37057e22cebd118029aa31c86add1b1254d8fd187b3df5a2"
+    },
+    {
+      "bytes": 171079,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/write.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/sealed-write-read/write.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "87359abc8048755570bfea0851554964a5788ef38b6115f7cb0c3822449fdbed"
+    },
+    {
+      "bytes": 185475,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/transactions.jsonl",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/transactions.jsonl",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "91f414c705b64d728972dad553814413982bafd5c1aeae77259d14e6b44c1788"
+    },
+    {
+      "bytes": 203,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/user-dir-proof.log",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/user-dir-proof.log",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "f76bd321e41f8881e6ebf835f4fc4fe13bfe6256cc637e40d4cf176ef250d23e"
+    },
+    {
+      "bytes": 816,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/user-dir-proof.process.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/user-dir-proof.process.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "62e64dfe20bc5d63c04039c9532727b1fda3548642557147353e94ec63cc7822"
+    },
+    {
+      "bytes": 0,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/user-dir-proof.stderr.txt",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/user-dir-proof.stderr.txt",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 203,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/user-dir-proof.stdout.txt",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/user-dir-proof.stdout.txt",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "f76bd321e41f8881e6ebf835f4fc4fe13bfe6256cc637e40d4cf176ef250d23e"
+    },
+    {
+      "bytes": 5258,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/variant.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/variant.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "b51ded6ffd03c3e6b1b0554f7903df077786ded7691ccd1ca311a2fa807ed7d5"
+    },
+    {
+      "bytes": 19233,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/variant.log",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/variant.log",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "460c39180d201713986f86e8fd8448184d0c02f846c6ac8d32924865f03d36f7"
+    },
+    {
+      "bytes": 1142,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/variant.process.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/variant.process.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "9bb0ad67cb28e373ed805715cbf0e39ceabef64a214375af8f4005115734cfcf"
+    },
+    {
+      "bytes": 0,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/variant.stderr.txt",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/variant.stderr.txt",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 19427,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/variant.stdout.txt",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/variant.stdout.txt",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "d1f9449eb7f88b58b729197cc9af455716abded8940aaf52eb85c785478580ef"
+    },
+    {
+      "bytes": 12146,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/witness-profile.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/witness-profile.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "0c00626b7dd472942f6f35467642a9f4d0353e47ff5b356ed40caf573a0b9634"
+    },
+    {
+      "bytes": 2263,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/witness-read.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/witness-read.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "bb37270157306e0af27b72f1de25faf39599d8e3334a72bf75705bbf3b29b904"
+    },
+    {
+      "bytes": 9782,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/witness-read.log",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/witness-read.log",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "c0936427ebe6b3376e6f6ed418c677138654ab7334f85abbdaa06ea3b6d867e0"
+    },
+    {
+      "bytes": 1161,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/witness-read.process.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/witness-read.process.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "f3727dd6910f782f04e62231d9e7ac38c45e1f2118b62ae859d7e3ab696bd699"
+    },
+    {
+      "bytes": 0,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/witness-read.stderr.txt",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/witness-read.stderr.txt",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 9976,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/witness-read.stdout.txt",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/witness-read.stdout.txt",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "b66ed743a7579dfff410edd5bce726616570917af1f8af5cc904334bf8576ad5"
+    },
+    {
+      "bytes": 2143,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/write-read-seal.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/write-read-seal.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "2c152e6f431d82303034a1e09c3313131f4d43bc0a877a44c98b6da47e3fc5aa"
+    },
+    {
+      "bytes": 171079,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/write.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/write.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "87359abc8048755570bfea0851554964a5788ef38b6115f7cb0c3822449fdbed"
+    },
+    {
+      "bytes": 30387,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/write.log",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/write.log",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "f4bc78eb8dcfa1091b1d12eb74fa7057c61eb609259cdfb3addbf8e339f84d6b"
+    },
+    {
+      "bytes": 1134,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/write.process.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/write.process.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "1de0f02674f3a0e968cbdf80f27ffa98df4f2f89158d1e415b87cadd0e2fb6c7"
+    },
+    {
+      "bytes": 0,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/write.stderr.txt",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/write.stderr.txt",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 30581,
+      "path": "run111/artifacts/reading-rail-36924676783-1/00767885-fe03-4105-8180-4718b73bc217/write.stdout.txt",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "00767885-fe03-4105-8180-4718b73bc217/write.stdout.txt",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "cafb44b1257d8d1f149abb59e735ce1b9716091bd308f8e1af8e7e5f4b98589d"
+    },
+    {
+      "bytes": 203338,
+      "path": "run111/artifacts/reading-rail-36924676783-1/import.log",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "import.log",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "b5d9dfb87a084ed80ba99cf6e896fb8483025c716a830f0d8f5ec3d99683d911"
+    },
+    {
+      "bytes": 318737,
+      "path": "run111/artifacts/reading-rail-36924676783-1/result.json",
+      "provenance": {
+        "artifact_id": 11193646737,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "result.json",
+        "zip_sha256": "6d4eaeec75136aafd63480957cd1538989ab92fb43d6b49c2294d88b223421f1"
+      },
+      "sha256": "e39fcd630f23932bf32b567cf6d3a1662d442c9012ee5ad97085033fcd12fb81"
+    },
+    {
+      "bytes": 73,
+      "path": "run111/artifacts/ui-literal-audit-36924676783-1/audit.log",
+      "provenance": {
+        "artifact_id": 11192959403,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "audit.log",
+        "zip_sha256": "7927184fe8202d301e3942a06fc29cc3ed1804d1a9356748c21dfb4a9ec2151c"
+      },
+      "sha256": "a9912b85473f126d3f4f63ec824170c828df3473a292f866dde86cafda5b66da"
+    },
+    {
+      "bytes": 129534,
+      "path": "run111/artifacts/ui-literal-audit-36924676783-1/script_ui_disposition.json",
+      "provenance": {
+        "artifact_id": 11192959403,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "script_ui_disposition.json",
+        "zip_sha256": "7927184fe8202d301e3942a06fc29cc3ed1804d1a9356748c21dfb4a9ec2151c"
+      },
+      "sha256": "91d6a66b26d09252ee4ca1d67f6520055d195c12f176e4d26e485499eca1bd63"
+    },
+    {
+      "bytes": 17016,
+      "path": "run111/artifacts/ui-literal-audit-36924676783-1/ui_literal_disposition.json",
+      "provenance": {
+        "artifact_id": 11192959403,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ui_literal_disposition.json",
+        "zip_sha256": "7927184fe8202d301e3942a06fc29cc3ed1804d1a9356748c21dfb4a9ec2151c"
+      },
+      "sha256": "2bcc2d325c95cefae7ef35079ba12adb02b550d1762ec43fd9a1a932882a2d03"
+    },
+    {
+      "bytes": 203338,
+      "path": "run111/artifacts/windows-reading_delivery-36924676783-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11194055555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "3d431da316759c075dcb3a7fd8f2b1bcfbb2c2fb0484a79f0ff5a0b87dd5a4dd"
+      },
+      "sha256": "e798841c60e2d5fd659d31f74a7070f9b9255c0d1b710422f741d54c29f144f1"
+    },
+    {
+      "bytes": 2132,
+      "path": "run111/artifacts/windows-reading_delivery-36924676783-1/ci/reading_delivery.jsonl",
+      "provenance": {
+        "artifact_id": 11194055555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/reading_delivery.jsonl",
+        "zip_sha256": "3d431da316759c075dcb3a7fd8f2b1bcfbb2c2fb0484a79f0ff5a0b87dd5a4dd"
+      },
+      "sha256": "3c58cd137435e90dd399c05cc8f4f7b55f256020192aae950fa8662f8151ccd0"
+    },
+    {
+      "bytes": 80668,
+      "path": "run111/artifacts/windows-reading_delivery-36924676783-1/ci/reading_delivery.xml",
+      "provenance": {
+        "artifact_id": 11194055555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/reading_delivery.xml",
+        "zip_sha256": "3d431da316759c075dcb3a7fd8f2b1bcfbb2c2fb0484a79f0ff5a0b87dd5a4dd"
+      },
+      "sha256": "6a60995abf0abdd73c02984657bdfb40565d7bfef0cdf5e85202bd3e0dfbf56d"
+    },
+    {
+      "bytes": 2072854,
+      "path": "run111/artifacts/windows-reading_delivery-36924676783-1/phase2r_logs/cloud-reading_delivery.log",
+      "provenance": {
+        "artifact_id": 11194055555,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-reading_delivery.log",
+        "zip_sha256": "3d431da316759c075dcb3a7fd8f2b1bcfbb2c2fb0484a79f0ff5a0b87dd5a4dd"
+      },
+      "sha256": "a53ed76312f721ee11bd10c56d56e0cb3db05a825721835d40ace4d755da7e6f"
+    },
+    {
+      "bytes": 187556,
+      "path": "run111/audit/diagnostic-evidence.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "2fa6cdd2cc27c5aa95c3f76f6ae15b474a875a424ed28f667fe21de1f9af65a3"
+    },
+    {
+      "bytes": 19952,
+      "path": "run111/jobs.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "60707ae64a9d42ade5aec58a2672d08b0f2fbcc6902afdc4d0023c57b3669644"
+    },
+    {
+      "bytes": 490601,
+      "path": "run111/logs/110578952578.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "30dac65b836d4f161ceb3e5e0ed0815c215712461d766215833a4c426ecded40"
+    },
+    {
+      "bytes": 797910,
+      "path": "run111/logs/110578952907.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "7993fe04428db7691958afb45dcc039dc2f76f99c9f9587506cea67e251f829c"
+    },
+    {
+      "bytes": 2884171,
+      "path": "run111/logs/110578952982.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "2788463e7def0ef73863eb2ebe9b4f12d8d8d358ad22edf97897588d0fbb9fac"
+    },
+    {
+      "bytes": 598630,
+      "path": "run111/logs/110578952992.log",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "e9677efb5221ca563813c63f380c58f5359f181c18c55b0d9f13647a0a7797fb"
+    },
+    {
+      "bytes": 12807,
+      "path": "run111/run.json",
+      "provenance": {
+        "source": "downloaded raw API/job log or independent local audit; see path"
+      },
+      "sha256": "cae79bb77184128bf87190c9c34e7b46c8f7f68f936a6b20ad212a736e5e3e04"
+    }
+  ],
+  "run": {
+    "conclusion": "failure",
+    "event": "push",
+    "head_branch": "codex/next-cloud-20261002",
+    "head_sha": "1455ecca234561cc113b7346f1f78e4982c28703",
+    "html_url": "https://github.com/Siuuuers/dwm/actions/runs/36924676783",
+    "id": 36924676783,
+    "run_attempt": 1,
+    "run_number": 111,
+    "status": "completed"
+  },
+  "schema_version": 1,
+  "secret_scan_patterns": [
+    "github_token",
+    "signed_query",
+    "authorization_secret",
+    "private_key"
+  ],
+  "source_boundary": {
+    "all_unlisted_paths_byte_identical": true,
+    "checkout_parents": [
+      "85087ec49259516bd3b61be6bb2751dd134a79db"
+    ],
+    "explicit_allowed_difference_patterns": [],
+    "master": null,
+    "source": "f65c3090c830c3254aa95670e3d2c9645e1f9f21",
+    "source_checkout_differences": [],
+    "tested_checkout": "f65c3090c830c3254aa95670e3d2c9645e1f9f21"
+  }
+}

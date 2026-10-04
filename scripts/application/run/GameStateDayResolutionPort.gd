@@ -26,6 +26,7 @@ const CONTACT_STATE := preload("res://scripts/domain/contact/ContactInvitationSt
 ## whose frozen stage arrays own `stage_index` (dwm-p2r.18).
 const SCHEDULE_STATE_SCHEMA := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
 const DAY_RESOLUTION_PLAN := preload("res://scripts/domain/run/DayResolutionPlan.gd")
+const HOSPITAL_CONTEXT := preload("res://scripts/narrative/HospitalFrozenContext.gd")
 
 const CHECKPOINT_PROVIDER_KEYS: Array[String] = [
 	"active_app_id", "audio_context", "content_version", "dialogic_checkpoint", "route_id",
@@ -44,6 +45,14 @@ var _game_state: Object = null
 var _checkpoint_providers: Dictionary = {}
 var _provider_identity: Dictionary = {}
 var _pair_deck: Object = null
+var _frozen_hospital_contexts_enabled := false
+
+func configure_frozen_hospital_contexts() -> Dictionary:
+	if _game_state == null or not _game_state.has_method("read_hospital_presentation_request") \
+			or not _game_state.has_method("retain_hospital_presentation_request"):
+		return {"ok": false, "code": &"hospital_frozen_store_unavailable"}
+	_frozen_hospital_contexts_enabled = true
+	return {"ok": true}
 
 ## The one configured Day-7 provenance service, injected by Bootstrap; never constructed here.
 var _day7_provenance: Object = null
@@ -360,9 +369,18 @@ func begin_next_stage() -> Dictionary:
 		# Same fail-before-mutation law as the Day-7 guard above: the presentation children are
 		# derived while the stage is still PENDING, so an undeliverable presentation leaves the run
 		# exactly where it was rather than stranding an active stage with no command behind it.
-		var site := _presentation_site(pending)
+		var retained := {}
+		if _frozen_hospital_contexts_enabled and pending_id == HOSPITAL_STAGE:
+			var read: Dictionary = _game_state.read_hospital_presentation_request(str(_active_plan().resolution_id))
+			if not read.get("ok", false): return read
+			retained = read.value
+			if retained.is_empty() and pending.get("state") == "active":
+				return {"ok": false, "code": &"hospital_frozen_context_required"}
+		var site := {"kind": "hospital", "stage_name": HOSPITAL_STAGE, "route_id": "hospital",
+			"schedule_entry_id": null} if not retained.is_empty() else _presentation_site(pending)
 		if not site.is_empty():
-			var command := _presentation_command(pending, site)
+			var command := {"ok": true, "value": {"presentation_request": retained}} \
+				if not retained.is_empty() else _presentation_command(pending, site)
 			if not command.get("ok", false):
 				return command
 			presentation_request = (command["value"] as Dictionary)["presentation_request"]
@@ -538,6 +556,20 @@ func prepare_completion(transaction_id: String, receipt: Dictionary) -> Dictiona
 		gameplay["condition_effects_today"] = []
 		gameplay["condition_streak_days"] = 0
 		gameplay["condition_resolved_day"] = 0
+		if _frozen_hospital_contexts_enabled:
+			var plan := _active_plan()
+			var retained: Dictionary = _game_state.read_hospital_presentation_request(str(plan.resolution_id))
+			if not retained.get("ok", false): return retained
+			if retained.value.is_empty(): return {"ok": false, "code": &"hospital_frozen_context_required"}
+			var projected := _derive_hospital_rows(plan, plan.resolution_issuer_receipt, plan.day_resolution_start_receipt)
+			if not projected.ok: return projected
+			var planned: Dictionary = HOSPITAL_RULES.plan_resolution({"required": true,
+				"source_day": _active_source_day(), "committed_entries": _active_committed_entries()})
+			if not planned.ok: return planned
+			var captured := _capture_schedule_hospital_misses(gameplay, _game_state.contacts, retained.value,
+				planned.value.misses, projected.value.hospital_miss_receipt_ids)
+			if not captured.ok: return captured
+			gameplay = captured.value
 		prepared.value.run_candidate["gameplay"] = gameplay
 		prepared.value.snapshot_input.snapshot_input["gameplay"] = gameplay.duplicate(true)
 	if stage_id == "increment_day" and receipt.value.has("day_advance_identity_receipt"):
@@ -554,7 +586,48 @@ func prepare_completion(transaction_id: String, receipt: Dictionary) -> Dictiona
 		value.snapshot_input.snapshot_input["gameplay"] = gameplay.duplicate(true)
 		value.publication.signals.append("daily_state_reset")
 		value.publication.signals.append("schedule_changed")
+	if _frozen_hospital_contexts_enabled and not contacts_candidate.is_empty():
+		var gameplay: Dictionary = prepared.value.run_candidate.get("gameplay", _game_state.capture_run_snapshot_input().gameplay)
+		var captured := preload("res://scripts/narrative/ContactsFrozenContext.gd").capture_candidate(
+			_game_state.contacts, contacts_candidate, gameplay, _active_source_day())
+		if not captured.ok: return captured
+		prepared.value.run_candidate["gameplay"] = captured.value
+		prepared.value.snapshot_input.snapshot_input["gameplay"] = captured.value.duplicate(true)
 	return prepared
+
+## The existing Hospital projector has already issued these source-specific miss
+## IDs. Retain them only when its physical completion is being checkpointed, so
+## later Contacts prose can distinguish prevention from an ordinary missed date.
+static func _capture_schedule_hospital_misses(gameplay: Dictionary, contacts: Dictionary, request: Dictionary,
+		misses: Array, miss_ids: Array) -> Dictionary:
+	var checked := HOSPITAL_CONTEXT.validate_request(request)
+	if not checked.ok: return checked
+	var sorted_ids := miss_ids.duplicate()
+	sorted_ids.sort()
+	if misses.size() != miss_ids.size() or sorted_ids != request.context.miss_receipt_ids:
+		return {"ok": false, "code": &"hospital_frozen_source_mismatch"}
+	var candidate := gameplay.duplicate(true)
+	var retained: Array = candidate.get("missed_invitations", []).duplicate(true)
+	for index: int in range(misses.size()):
+		var miss: Dictionary = misses[index]
+		if miss.get("source_receipt_id") not in request.context.presentation.fields.accepted_record_ids:
+			return {"ok": false, "code": &"hospital_frozen_source_mismatch"}
+		var source := CONTACT_STATE.get_schedule_source_receipt(contacts, str(miss.source_receipt_id))
+		if not source.get("ok", false): return source
+		if source.value.receipt.day != request.context.day or source.value.receipt.action_id != miss.get("action_id"):
+			return {"ok": false, "code": &"hospital_frozen_source_mismatch"}
+		var participants: Array = source.value.receipt.participants
+		for friend: String in participants:
+			var annotation := {"friend_id": friend, "source": "group" if participants.size() > 1 else "solo",
+				"day": request.context.day, "missed_reason": "hospital", "source_receipt_id": miss.source_receipt_id,
+				"hospital_miss_receipt_id": miss_ids[index], "schedule_hospital_resolution_id": request.resolution_id}
+			for prior: Variant in retained:
+				if prior is Dictionary and prior.get("friend_id") == friend and prior.get("source_receipt_id") == miss.source_receipt_id \
+						and prior.get("missed_reason") == "hospital" and prior != annotation:
+					return {"ok": false, "code": &"hospital_frozen_miss_conflict"}
+			if annotation not in retained: retained.append(annotation)
+	candidate["missed_invitations"] = retained
+	return {"ok": true, "value": candidate}
 
 
 ## Attendance comes from completed date substages, including their recorded Hospital supersession.
@@ -1280,6 +1353,10 @@ func _presentation_command(stage: Dictionary, site: Dictionary) -> Dictionary:
 	if context.is_empty():
 		return {"ok": false, "code": &"invalid_presentation_context",
 			"message": "the frozen presentation context is not derivable", "details": {}}
+	if str(site.kind) == "hospital" and _frozen_hospital_contexts_enabled:
+		var frozen := HOSPITAL_CONTEXT.from_schedule(context, _game_state.contacts, _active_committed_entries())
+		if not frozen.get("ok", false): return frozen
+		context = frozen.value
 	var timeline_id := _presentation_timeline_id(context)
 	if timeline_id.is_empty():
 		return {"ok": false, "code": &"unregistered_presentation_timeline",
@@ -1341,7 +1418,7 @@ func _presentation_command(stage: Dictionary, site: Dictionary) -> Dictionary:
 	if not completion.get("ok", false):
 		return completion
 
-	return {"ok": true, "code": &"ok", "value": {"presentation_request": {
+	var request := {
 		"resolution_id": str(plan["resolution_id"]),
 		"resolution_issuer_receipt": root_receipt.duplicate(true),
 		"stage_id": stage_child_id,
@@ -1352,7 +1429,12 @@ func _presentation_command(stage: Dictionary, site: Dictionary) -> Dictionary:
 		"completion_transaction_id": str((completion["value"] as Dictionary)["child_id"]),
 		"completion_transaction_provenance":
 			((completion["value"] as Dictionary)["provenance"] as Dictionary).duplicate(true),
-	}}}
+	}
+	if str(site.kind) == "hospital" and _frozen_hospital_contexts_enabled:
+		var retained: Dictionary = _game_state.retain_hospital_presentation_request(request)
+		if not retained.get("ok", false): return retained
+		request = retained.value
+	return {"ok": true, "code": &"ok", "value": {"presentation_request": request}}
 
 
 ## The exact frozen context each port validates, and nothing that could carry an outcome.

@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "status": "accepted_bounded",
+  "scope": "Movie-style transparent live and retained captions",
+  "lead_bead": "dwm-vky.14",
+  "source_sha": "bbe024b4f2c55747d0886ab6c999648a9de54270",
+  "tested_merge_sha": "b5cc8885a9432f9388531e1ceab8367f63af7c0e",
+  "master_observed": "dded76aee2e85aeea94f65218de043b1f4fdce7b",
+  "cloud": {
+    "run_id": 37177243270,
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/37177243270",
+    "jobs_passed": 26,
+    "jobs_total": 26,
+    "primary_reports": 13,
+    "primary_cases": {
+      "tests": 2601,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "reading_cases": 633,
+    "rendered_delivery_dialogue_samples": 25,
+    "native_windows_invocations": 2,
+    "engine": "Godot 4.6.3 standard GDScript",
+    "engine_and_powershell_execution": "GitHub Actions only"
+  },
+  "proof": {
+    "presentation": "Centered white text with dark outline, empty live/retained/focus styleboxes; no caption field, seam or focus rectangle. Separate bottom reading strip retained.",
+    "artwork": "Witnessed ordinary art uses explicit caption_overlay height 656; Dating split admission remains independent.",
+    "reading": "Requested font selection/size, bottom-up three-caption window, review/reveal and Normal Accept retain existing owners.",
+    "history_test": "Two rendered journeys now wait for exact expected History-button focus plus closed/nonpending History within the same 120-frame bound; runtime unchanged.",
+    "native": "Two actual Windows UIA Invoke calls retain reveal-only followed by exactly one advancement with successor still revealing.",
+    "visual_inspection": [
+      "dialogue-live-en100.png",
+      "dialogue-older-zh-CN150.png",
+      "dialogue-older-zh-HK150.png",
+      "dating-overlay-live-en100.png",
+      "dating-overlay-review-zh-HK150.png"
+    ]
+  },
+  "evidence": {
+    "archive": "test-evidence.tar.gz",
+    "manifest": "archive-manifest.json",
+    "test_summary": "test-summary.json",
+    "verified_artifacts": "verified-artifacts.json",
+    "jobs": "cloud-jobs.json",
+    "artifacts": "cloud-artifacts.json",
+    "run": "cloud-run.json"
+  },
+  "diagnostics": [
+    {
+      "run_id": 37176781675,
+      "source_sha": "a14bb179dc68275c9770508f2e450d6cfe4ba68d",
+      "finding": "Earlier candidate superseded after History focus wait race; final run rechecks complete coherent candidate."
+    }
+  ],
+  "limits": [
+    "25 samples include delivery and challenge fixtures as well as captions; not 25 independent production caption routes.",
+    "Synthetic ordinary backdrop and Dating art fixtures, not arbitrary artwork contrast certification.",
+    "Simplified Chinese rail labels appear crowded at 150% in dialogue-older-zh-CN150.png; diagnose fixture synchronization versus production layout under existing reading remainder.",
+    "Native review-current return-to-live, whole screen-reader navigation and production semantic registration remain separate.",
+    "Two deliberate storage-refusal negative controls excluded from primary success totals; retained in archive.",
+    "No save format, recovery, History, consequence or completion owner changed.",
+    "Production catalogue remains disabled; prose/exhaustive variants deferred; Hospital manual Save/Load/Next disabled.",
+    "Records-only descendant not independently engine-tested."
+  ],
+  "beads": {
+    "unfinished": 23,
+    "statuses_changed": false,
+    "dependencies_changed": false,
+    "live_dolt_queried": false,
+    "live_dolt_synchronized": false
+  }
+}

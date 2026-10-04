@@ -25,16 +25,19 @@ var _warning: Label
 var _left: Control
 var _hosts: Dictionary = {}
 var _host_confirmation: Control
+var _quick_confirmation := false
 var _suspended_inputs: Dictionary = {}
 var _opened := false
 var _return_retry := false
 var _interactive := true
+var entry_admission := Callable()
 var _suspended_focus: WeakRef
 var _pointer_contact := false
 var _high_contrast := false
 var _large_targets := false
 var _locale := "en"
 var _percent := 100
+var _font_style := "pixel"
 var _palette := "AfterHours"
 var _colour_preset := "standard"
 var _day := 1
@@ -130,11 +133,12 @@ func _build_confirmation() -> void:
 	return_button.focus_neighbor_left = return_button.get_path()
 	return_button.focus_neighbor_right = return_button.get_path_to(cancel_button)
 
-func configure_presentation(locale: String, percent: int, palette: String = "AfterHours", high_contrast: bool = false, colour_preset: String = "standard", large_targets: bool = false, day: int = 1) -> bool:
-	var candidate := PRESENTATION.build(locale,percent,palette,high_contrast,colour_preset,day)
+func configure_presentation(locale: String, percent: int, palette: String = "AfterHours", high_contrast: bool = false, colour_preset: String = "standard", large_targets: bool = false, day: int = 1, font_style: String = "pixel") -> bool:
+	var candidate := PRESENTATION.build(locale,percent,palette,high_contrast,colour_preset,day,font_style)
 	if candidate == null or not _can_measure(_copy,candidate): return false
 	_locale = locale
 	_percent = percent
+	_font_style = font_style
 	_palette = palette
 	_high_contrast = high_contrast
 	_colour_preset = colour_preset
@@ -215,6 +219,12 @@ func open_surface() -> void:
 ## Enters the already configured Pause Backup host in Load mode without synthesizing
 ## a Pause-row press. The host validates its own operation and mode state.
 func open_backup_load() -> bool:
+	return _open_backup_mode(&"load")
+
+func open_backup_save() -> bool:
+	return _open_backup_mode(&"save")
+
+func _open_backup_mode(mode: StringName) -> bool:
 	if not is_node_ready() or not _opened or not _interactive or _return_retry \
 			or entered_action != &"" or is_instance_valid(_host_confirmation):
 		return false
@@ -227,7 +237,7 @@ func open_backup_load() -> bool:
 	selected_action = &"backup"
 	entered_action = &"backup"
 	_sync_custody()
-	var opened: Variant = host.call("focus_entry", &"load")
+	var opened: Variant = host.call("focus_entry", mode)
 	if typeof(opened) == TYPE_BOOL and opened:
 		return true
 	entered_action = &""
@@ -292,6 +302,41 @@ func present_confirmation(request: Dictionary, accept: Callable, cancel: Callabl
 	workfield.add_child(sheet)
 	return {"ok": true, "value": {"confirmation": sheet}}
 
+## Quick commands retain the current row, Backup drawer and mode. Their consent
+## temporarily owns the same workfield without entering the Backup application.
+func quick_input_admitted(action: String) -> bool:
+	if action not in ["save", "load"] or not _opened or not _interactive or _return_retry or not is_visible_in_tree() \
+			or not can_process() or is_instance_valid(_host_confirmation) \
+			or entered_action not in [&"", &"backup", &"settings"]:
+		return false
+	if entered_action == &"settings":
+		# Both commands retain Settings' modal, capture and preference custody.
+		# Load still requires the existing prepared-token confirmation below.
+		var settings: Control = _hosts.get(&"settings")
+		return is_instance_valid(settings) and settings.is_visible_in_tree() \
+			and settings.can_process() and settings.has_method("can_return_home") and settings.can_return_home()
+	var host: Control = _hosts.get(&"backup")
+	return not is_instance_valid(host) or not host.has_method("can_return_home") or host.can_return_home()
+
+func present_quick_confirmation(request: Dictionary, accept: Callable, cancel: Callable) -> Dictionary:
+	if not quick_input_admitted("load") or not accept.is_valid() or not cancel.is_valid():
+		return {"ok": false, "code": &"pause_confirmation_unavailable"}
+	var sheet := HOST_CONFIRMATION.new()
+	sheet.request = request.duplicate(true)
+	sheet.theme = request.get("theme", theme)
+	_host_confirmation = sheet
+	_quick_confirmation = true
+	_sync_custody()
+	sheet.finished.connect(func(accepted: bool):
+		if _host_confirmation != sheet: return
+		_host_confirmation = null
+		_quick_confirmation = false
+		_sync_custody()
+		var callback := accept if accepted else cancel
+		if callback.is_valid(): callback.call())
+	workfield.add_child(sheet)
+	return {"ok": true, "value": {"confirmation": sheet}}
+
 func _wire_rows() -> void:
 	for index: int in ACTIONS.size():
 		var row: Control = rows[ACTIONS[index]]
@@ -321,6 +366,9 @@ func _activate(id: StringName) -> void:
 	if id == &"continue":
 		continue_requested.emit()
 		return
+	# Focus/hover only previews. The production owner prepares a stable reading
+	# boundary only for an explicit ordinary Backup entry.
+	if entry_admission.is_valid() and not bool(entry_admission.call(id)): return
 	enter_requested.emit(id)
 	if not _opened or not _interactive or entered_action != &"": return
 	if id != &"return" and not _hosts.has(id): return
@@ -385,7 +433,7 @@ func _sync_custody() -> void:
 		if not is_instance_valid(_hosts[id]):
 			_hosts.erase(id)
 			if entered_action == id: entered_action = &""
-	var root_active := _opened and _interactive and entered_action == &""
+	var root_active := _opened and _interactive and entered_action == &"" and not is_instance_valid(_host_confirmation)
 	_set_custody(_left,root_active)
 	for id: StringName in ACTIONS:
 		rows[id].selected = id == selected_action
@@ -401,11 +449,11 @@ func _sync_custody() -> void:
 	if is_instance_valid(_host_confirmation):
 		_set_custody(_host_confirmation,_opened and _interactive)
 		_host_script_input(_host_confirmation,_opened and _interactive)
-	confirmation.visible = _opened and selected_action == &"return"
+	confirmation.visible = _opened and selected_action == &"return" and not is_instance_valid(_host_confirmation)
 	_set_custody(confirmation,_opened and _interactive and entered_action == &"return")
-	context_strip.visible = _opened and selected_action != &"continue"
+	context_strip.visible = _opened and (selected_action != &"continue" or _quick_confirmation)
 	workfield.visible = context_strip.visible
-	_title.text = _copy[selected_action]
+	_title.text = _copy.backup if _quick_confirmation else _copy[selected_action]
 	queue_redraw()
 
 func _set_custody(control: Control, active: bool) -> void:

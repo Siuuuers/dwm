@@ -1,0 +1,224 @@
+{
+  "run_id": 37123344977,
+  "source": "86ce6ff8e39895263cc04971ac010d0d07c40de9",
+  "jobs": [],
+  "artifacts": [
+    {
+      "id": 11274032974,
+      "name": "ending-reading-diagnostic1",
+      "sha256": "6c990e5f664c322c75a74f6949205b18c7ffd3326d3fcd5baa5e581ddfe38cb4",
+      "bytes": 25865,
+      "retained": [
+        {
+          "member": "37b06409-c490-4aa2-8294-d94d4664d212/result.json",
+          "path": "diagnostic1/ending-reading-diagnostic1/37b06409-c490-4aa2-8294-d94d4664d212/result.json.gz",
+          "raw_bytes": 4457,
+          "raw_sha256": "d126fb5b41907f21492eb9cd6cdd2ff7b7b8bd8f151f92e2f9b655b5d9cb4447"
+        },
+        {
+          "member": "37b06409-c490-4aa2-8294-d94d4664d212/user-dir-proof.log",
+          "path": "diagnostic1/ending-reading-diagnostic1/37b06409-c490-4aa2-8294-d94d4664d212/user-dir-proof.log.gz",
+          "raw_bytes": 203,
+          "raw_sha256": "c8c9faa694c7b923178bd4d97b8ac49f45e06a16195c41100a411b06685968d9"
+        },
+        {
+          "member": "37b06409-c490-4aa2-8294-d94d4664d212/user-dir-proof.process.json",
+          "path": "diagnostic1/ending-reading-diagnostic1/37b06409-c490-4aa2-8294-d94d4664d212/user-dir-proof.process.json.gz",
+          "raw_bytes": 822,
+          "raw_sha256": "8c0a93188e7ad60e3f938d46a2a0161644fe93701ed2f12f141ac2fb82255d3f"
+        },
+        {
+          "member": "37b06409-c490-4aa2-8294-d94d4664d212/user-dir-proof.stderr.txt",
+          "path": "diagnostic1/ending-reading-diagnostic1/37b06409-c490-4aa2-8294-d94d4664d212/user-dir-proof.stderr.txt.gz",
+          "raw_bytes": 0,
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "member": "37b06409-c490-4aa2-8294-d94d4664d212/write-input-primary-files.json",
+          "path": "diagnostic1/ending-reading-diagnostic1/37b06409-c490-4aa2-8294-d94d4664d212/write-input-primary-files.json.gz",
+          "raw_bytes": 747,
+          "raw_sha256": "3bbb11822a73b0d1786c41a44760a97630075070f3c1f5623af143361a2c10e4"
+        },
+        {
+          "member": "37b06409-c490-4aa2-8294-d94d4664d212/write-output-primary-files.json",
+          "path": "diagnostic1/ending-reading-diagnostic1/37b06409-c490-4aa2-8294-d94d4664d212/write-output-primary-files.json.gz",
+          "raw_bytes": 747,
+          "raw_sha256": "3bbb11822a73b0d1786c41a44760a97630075070f3c1f5623af143361a2c10e4"
+        },
+        {
+          "member": "37b06409-c490-4aa2-8294-d94d4664d212/user-dir-proof.stdout.txt",
+          "path": "diagnostic1/ending-reading-diagnostic1/37b06409-c490-4aa2-8294-d94d4664d212/user-dir-proof.stdout.txt.gz",
+          "raw_bytes": 203,
+          "raw_sha256": "c8c9faa694c7b923178bd4d97b8ac49f45e06a16195c41100a411b06685968d9"
+        },
+        {
+          "member": "37b06409-c490-4aa2-8294-d94d4664d212/write.log",
+          "path": "diagnostic1/ending-reading-diagnostic1/37b06409-c490-4aa2-8294-d94d4664d212/write.log.gz",
+          "raw_bytes": 4435,
+          "raw_sha256": "ffa22ebd6a16c55dc6e01e583e5d3b7a92ca974227d0b6c37cfc1750bdf504b3"
+        },
+        {
+          "member": "37b06409-c490-4aa2-8294-d94d4664d212/write.process.json",
+          "path": "diagnostic1/ending-reading-diagnostic1/37b06409-c490-4aa2-8294-d94d4664d212/write.process.json.gz",
+          "raw_bytes": 1143,
+          "raw_sha256": "cbde68306ff0526b4dd220d7154afbe35422feeaa918601352e88dd066cae928"
+        },
+        {
+          "member": "37b06409-c490-4aa2-8294-d94d4664d212/write.stderr.txt",
+          "path": "diagnostic1/ending-reading-diagnostic1/37b06409-c490-4aa2-8294-d94d4664d212/write.stderr.txt.gz",
+          "raw_bytes": 0,
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "member": "37b06409-c490-4aa2-8294-d94d4664d212/write.stdout.txt",
+          "path": "diagnostic1/ending-reading-diagnostic1/37b06409-c490-4aa2-8294-d94d4664d212/write.stdout.txt.gz",
+          "raw_bytes": 4636,
+          "raw_sha256": "a7a69a05bca3d268f94860158a6a4cb587594a8fe56978a4f083a3e1eebc8073"
+        },
+        {
+          "member": "import.log",
+          "path": "diagnostic1/ending-reading-diagnostic1/import.log.gz",
+          "raw_bytes": 206101,
+          "raw_sha256": "5371507c7f182f0f3cedea65f18156e64a0ec158717f739410f8d97350f0e056"
+        },
+        {
+          "member": "result.json",
+          "path": "diagnostic1/ending-reading-diagnostic1/result.json.gz",
+          "raw_bytes": 4457,
+          "raw_sha256": "d126fb5b41907f21492eb9cd6cdd2ff7b7b8bd8f151f92e2f9b655b5d9cb4447"
+        }
+      ]
+    },
+    {
+      "id": 11274337628,
+      "name": "windows-reading_delivery",
+      "sha256": "b7ce2ac80570c071cb3877ac3700e8df4444a5d8ba1855faad20d3787f053e04",
+      "bytes": 308684,
+      "retained": [
+        {
+          "member": "ci/import.log",
+          "path": "diagnostic1/windows-reading_delivery/ci/import.log.gz",
+          "raw_bytes": 206101,
+          "raw_sha256": "76d007b1bb086b0d57e4052870440417883aec2ada30d1dccefa7993afbd39f6"
+        },
+        {
+          "member": "ci/reading_delivery.xml",
+          "path": "diagnostic1/windows-reading_delivery/ci/reading_delivery.xml.gz",
+          "raw_bytes": 143167,
+          "raw_sha256": "b74a44a5fd4dba12c4c2e5bde8781a9c3ad09973964bda46d5604e031228c250"
+        },
+        {
+          "member": "phase2r_logs/cloud-reading_delivery.log",
+          "path": "diagnostic1/windows-reading_delivery/phase2r_logs/cloud-reading_delivery.log.gz",
+          "raw_bytes": 4629428,
+          "raw_sha256": "827885b4495af7606a0f613d868bbeeaa88bf45505dd93d21d0aca17205ad7b8"
+        }
+      ]
+    },
+    {
+      "id": 11274422176,
+      "name": "11274422176",
+      "sha256": "9ed47d8415908dd223353e564885e2f9042774ea6b7b1403499795e09e30d5f6",
+      "bytes": 199461,
+      "retained": [
+        {
+          "member": "ci/persistence.xml",
+          "path": "diagnostic1/11274422176/ci/persistence.xml.gz",
+          "raw_bytes": 52774,
+          "raw_sha256": "23bfa646ff82bb47e34dc485d497cf9322cc87a0dc2b4e9da5dd2db825327a47"
+        }
+      ]
+    },
+    {
+      "id": 11274322369,
+      "name": "11274322369",
+      "sha256": "65f633a7b49e47612be4f79f8057ab6b7ae835a98f8c276132edfeee1d26124f",
+      "bytes": 75066,
+      "retained": [
+        {
+          "member": "ci/endings.xml",
+          "path": "diagnostic1/11274322369/ci/endings.xml.gz",
+          "raw_bytes": 22934,
+          "raw_sha256": "5a939aad38ffd1db162f8b677cfee80d1ae072d042e31453ee3fa70f90e5f864"
+        }
+      ]
+    },
+    {
+      "id": 11274282849,
+      "name": "11274282849",
+      "sha256": "48ddc615f64ca789bc6a3dba05e3762cc09695b8525e06be4b6c05a3c1210009",
+      "bytes": 2763882,
+      "retained": [
+        {
+          "member": "ci/settings.xml",
+          "path": "diagnostic1/11274282849/ci/settings.xml.gz",
+          "raw_bytes": 81086,
+          "raw_sha256": "a5637f69229e7813ef2e67b0e41a0835e33a9318f569f202d10b1a18c1579c88"
+        },
+        {
+          "member": "ci/storage-refusal/empty/tests.xml",
+          "path": "diagnostic1/11274282849/ci/storage-refusal/empty/tests.xml.gz",
+          "raw_bytes": 31410,
+          "raw_sha256": "f8e836848131df0e173656adf990e3509a01adf7d8f4d1932dc33713b55ff83a"
+        },
+        {
+          "member": "ci/storage-refusal/whitespace/tests.xml",
+          "path": "diagnostic1/11274282849/ci/storage-refusal/whitespace/tests.xml.gz",
+          "raw_bytes": 31416,
+          "raw_sha256": "4395556d31d88be840be822dfcdd2acc2ecec05aa8c62fa92883acb6cbc352dc"
+        }
+      ]
+    },
+    {
+      "id": 11274042917,
+      "name": "11274042917",
+      "sha256": "c15c3fa6084d2537a4f291a55a299262744f5c2ea0d76705cee84030e297ef54",
+      "bytes": 509834,
+      "retained": [
+        {
+          "member": "ci/dating.xml",
+          "path": "diagnostic1/11274042917/ci/dating.xml.gz",
+          "raw_bytes": 39108,
+          "raw_sha256": "9a43b8d2a04981c62638aa8f512861ae5e82c9eb1a611592fda05c39b6deedb0"
+        }
+      ]
+    }
+  ],
+  "xml": [
+    {
+      "suite": "reading_delivery",
+      "cases": 622,
+      "failures": 1,
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "suite": "persistence",
+      "cases": 234,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "suite": "endings",
+      "cases": 106,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "suite": "settings",
+      "cases": 357,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "suite": "dating",
+      "cases": 173,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0
+    }
+  ]
+}

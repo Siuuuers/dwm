@@ -1,0 +1,70 @@
+{
+  "scope": "Existing synthetic retained-history regressions and source-bound comparisons; no new performance improvement claim.",
+  "shared_consumer_input_manifest": {
+    "schema_version": 1,
+    "checkout_ref": "1afa1bea1eef66c4132157c377f70a52b25767a7",
+    "producer_run_id": "37134912094",
+    "producer_run_attempt": 1,
+    "files": {
+      "results.json": "f110f47e35fd93b06ddce206dc320c0cbfb3ed24a9e65fc18ff58446616eb228",
+      "day7-autosave.json": "d966056f6fccc7217dd38921d9ea732413cf46f9706420066430d79d756e56db"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact": "seven-day-history-37134912094-1",
+      "sha256": "sha256:fdc7d2a57f4507b05be5d5580abd4f8d13463e0970a2a8fcf90c026745cb2b25",
+      "results": [
+        {
+          "member": "ci/seven-day-history/results.json",
+          "sha256": "f110f47e35fd93b06ddce206dc320c0cbfb3ed24a9e65fc18ff58446616eb228",
+          "checkout_ref": "1afa1bea1eef66c4132157c377f70a52b25767a7"
+        }
+      ]
+    },
+    {
+      "artifact": "outgoing-normalization-37134912094-1",
+      "sha256": "sha256:31abdc7ba20df856046b6a1ae842719307bcc85663fc0a090d6566ae0952480c",
+      "results": [
+        {
+          "member": "ci/outgoing-normalization/results.json",
+          "sha256": "c8cd1e780265526d2bdc098d3c4ae8793f4639b3f728fe4524a13a1b38f63c94",
+          "checkout_ref": "1afa1bea1eef66c4132157c377f70a52b25767a7"
+        }
+      ]
+    },
+    {
+      "artifact": "lazy-normalization-37134912094-1",
+      "sha256": "sha256:2b8cad6df64fb953e6f8e31827d3bf80a65889f7284e8e85593cf11af812462c",
+      "results": [
+        {
+          "member": "ci/lazy-normalization/results.json",
+          "sha256": "3d788092ec0acc73d07b6bb7bc2caa162b8520b850119d13b448a033eda1d87b",
+          "checkout_ref": "1afa1bea1eef66c4132157c377f70a52b25767a7"
+        }
+      ]
+    },
+    {
+      "artifact": "history-region-search-37134912094-1",
+      "sha256": "sha256:3402dcafa39b263e4f5994abb0a6f719d9c561564d0e972ad5a161f3638fe4eb",
+      "results": [
+        {
+          "member": "ci/history-region-search/results.json",
+          "sha256": "69657496990038664373be38385e0eeda97eaad9d64f31943f9a89757af8dd28",
+          "checkout_ref": "1afa1bea1eef66c4132157c377f70a52b25767a7"
+        }
+      ]
+    },
+    {
+      "artifact": "warm-outgoing-proof-37134912094-1",
+      "sha256": "sha256:09ad22cd5f8792e73303162ee3d07dc3a15bf970ed0d117a77358dd18ef8a97b",
+      "results": [
+        {
+          "member": "ci/warm-outgoing-proof/results.json",
+          "sha256": "387436a57f62aa4ee02a6a9c7d2054954ab48eefdd966fb3004fff035e30f7b5",
+          "checkout_ref": "1afa1bea1eef66c4132157c377f70a52b25767a7"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "reviewer": "f9_contract_review",
+  "review_kind": "independent_read_only_source_review",
+  "reviewed_at_utc": "2026-10-02T06:21:55.927302+00:00",
+  "repository": "/workspace/scratch/e169b180163f/dwm",
+  "base_head": "2254d6956de778cc54aa42fe610bcdf94f5301a5",
+  "reviewed_files": [
+    {
+      "path": "autoload/SaveManager.gd",
+      "sha256": "7572f6657d4e1cafbc04c19c44798ca69a872521b638f8075c51ff6c3c498a6b",
+      "bytes": 145022
+    },
+    {
+      "path": "scripts/application/backup/BackupPresentationPort.gd",
+      "sha256": "2d4d1970dd1edee6178a5364504e071751967da32661257d969f4ffc167f2924",
+      "bytes": 9876
+    },
+    {
+      "path": "scripts/ui/desktop/QuickStatusEdge.gd",
+      "sha256": "4bda2d5770325d24c9a9d15c10d72ee8c8a49c407f1554d1d09c2250f178dd36",
+      "bytes": 5484
+    },
+    {
+      "path": "scripts/ui/BackupApp.gd",
+      "sha256": "40ef72dc013dc84c187a57e68318227d44dde340502efede40136d2f84a511df",
+      "bytes": 39568
+    },
+    {
+      "path": "tests/unit/test_backup_quick_actions.gd",
+      "sha256": "804373ddf72400b2752b98740f88c52dcf14cd41a1000a07d7f7935b6cca42a6",
+      "bytes": 35638
+    },
+    {
+      "path": "tests/unit/test_quick_status_edge.gd",
+      "sha256": "0d49d7557e56191bf54444c0ad6d003a29c0608dbdb84ce78cd0172b7b44776e",
+      "bytes": 7935
+    },
+    {
+      "path": "tests/unit/test_backup_presentation.gd",
+      "sha256": "113e8d7bb5d9d18db89b9a9e5bfbc411c354723fdf0241b6c31cceaf9d60124a",
+      "bytes": 11941
+    },
+    {
+      "path": "tools/testing/Invoke-CloudTests.ps1",
+      "sha256": "3f57e035bbdec6e736cf41316b3c981596b50e06f3fa8df58415213cf6a6075f",
+      "bytes": 20076
+    },
+    {
+      "path": "tests/integration/verify_reading_rail_journey.gd",
+      "sha256": "bd3f6e99a38b0a690fff1afa7e8b85f6b3edd7f30eccec55490700243c0267b5",
+      "bytes": 106063
+    },
+    {
+      "path": "tools/testing/run_reading_rail_journey.py",
+      "sha256": "051683116b50dd099c522164c68fc1b3dd2bf2baab5bea8ed5508eb04d614a5f",
+      "bytes": 59615
+    },
+    {
+      "path": "tests/integration/verify_playable_startup.gd",
+      "sha256": "5b15d92a0e14ff0c4bb8db37757b039fa81289c59fcf9576415613fa27d1fbc8",
+      "bytes": 107858
+    },
+    {
+      "path": "tests/fixtures/dialogic/solo_reading_rail.dtl",
+      "sha256": "170447df6b823149e871705d0f983e6294407a662826a6418b0dec4df3ccec8b",
+      "bytes": 775
+    },
+    {
+      "path": "tests/fixtures/dialogic/solo_reading_rail_catalogue.json",
+      "sha256": "ea0b92575aaa8807da5834415b383d471f07d3646278dfca8d6f21044343f664",
+      "bytes": 1195
+    }
+  ],
+  "conclusion": "No blocking source defect found in the reviewed feedback changes or seven-stage F9 journey model. Runtime acceptance remains pending GitHub Actions.",
+  "blocking_findings": [],
+  "findings": [
+    {
+      "id": "feedback_guard_priority",
+      "result": "supported_by_source",
+      "references": [
+        "autoload/SaveManager.gd:get_backup_quick_capability",
+        "autoload/SaveManager.gd:_quick_load_record_status",
+        "scripts/application/backup/BackupPresentationPort.gd:get_quick_capability",
+        "scripts/application/backup/BackupPresentationPort.gd:_quick_refusal"
+      ],
+      "detail": "Nonfatal temporary guard and fatal/source refusal remain ahead of record-specific feedback. Only admitted, condition-current Load projects empty/older/newer/unreadable/no-compatible/restore-unavailable facts. F5 overwrite eligibility and existing fallback consent are unchanged."
+    },
+    {
+      "id": "feedback_mutation_boundary",
+      "result": "meaningful_pending_tests",
+      "references": [
+        "tests/unit/test_backup_quick_actions.gd:test_empty_quick_load_reports_absence_without_token_write_or_queued_work",
+        "tests/unit/test_backup_quick_actions.gd:test_quick_load_preserves_actual_document_compatibility_and_read_failure_reasons",
+        "tests/unit/test_backup_quick_actions.gd:test_quick_load_distinguishes_no_compatible_target_from_technical_restore_refusal"
+      ],
+      "detail": "Tests inspect real storage bytes and journal around refusal, check token sequence/pending/deferred work and zero restore commits, then prove absence evidence retires after a later save without replay."
+    },
+    {
+      "id": "truthful_reason_and_status_lifetime",
+      "result": "supported_by_source_and_pending_tests",
+      "references": [
+        "scripts/ui/BackupApp.gd:_reason_text",
+        "scripts/ui/desktop/QuickStatusEdge.gd:_status_text",
+        "tests/unit/test_backup_presentation.gd:test_unavailable_inspector_never_offers_a_nonexistent_compatible_fallback",
+        "tests/unit/test_quick_status_edge.gd:test_quick_absence_and_inspected_reasons_localize_once_and_retire_when_stale"
+      ],
+      "detail": "Quick and inspector share factual localized reason copy; technical/no-compatible refusal does not advertise unreadable bytes or available fallback. Edge uses existing eligible-time expiry, stale validation and nonrepeating announcements."
+    },
+    {
+      "id": "journey_real_restore_discrimination",
+      "result": "supported_by_source",
+      "references": [
+        "tests/integration/verify_reading_rail_journey.gd:_settings_quick_load_process",
+        "tools/testing/run_reading_rail_journey.py:validate_settings_load"
+      ],
+      "detail": "Independent third process loads retained F5 line A, advances via caption input to partially revealed B, enters Settings, physically keyed F9 prepares Cancel-first consent, Cancel preserves exact source, fresh F9 obtains a distinct token, confirmation restores earlier A/History/physical record/app in a new mounted scene with Pause closed and no new speech."
+    },
+    {
+      "id": "raw_files_and_component_evidence",
+      "result": "supported_by_source",
+      "references": [
+        "tests/integration/verify_reading_rail_journey.gd:_settings_load_stage",
+        "tests/integration/verify_reading_rail_journey.gd:_settings_load_retain_baseline",
+        "tests/integration/verify_reading_rail_journey.gd:SettingsQuickFileObserver",
+        "tools/testing/run_reading_rail_journey.py:run_settings_load",
+        "tools/testing/run_reading_rail_journey.py:validate_settings_load"
+      ],
+      "detail": "Seven named observations are written before aggregate checks and bound to ordered independent trace. Runner retains input files before startup and final files after process completion. It compares actual baseline/final bytes plus report hashes and verifies Quick remains the prior F5 file. Passive owner FileOps observer covers F9 prepare/Cancel/confirm writes, flushes, renames and removals."
+    }
+  ],
+  "nonblocking_risks": [
+    {
+      "id": "partial_reveal_timing",
+      "detail": "Inherited physical caption Accept helper waits 12 process frames after release before Pause. The short second fixture line must remain partially revealed under cloud timing; slow reveal preference is inherited from accepted F5 profile. The advanced stage is persisted to diagnose timing failure. No runtime pass is claimed."
+    }
+  ],
+  "limitations": [
+    "No local Godot or PowerShell execution, no GitHub Actions result evaluated in this source review.",
+    "InputEventKey is injected through Godot native dispatch; inherited Pause helper uses InputEventAction. This is not proof of operating-system keyboard injection, hardware controller behavior or all-input accessibility.",
+    "Exact scroll retention covers the offsets observed by this journey; arbitrary nonzero rail/sheet scroll states and native pixels are outside this proof.",
+    "The rendered journey does not prove opposite current/saved Dark values from real saved bytes; the separate controller unit test proves the projection boundary with a restore double.",
+    "Zero mutation observation begins at the paused Settings source baseline. Initial startup/load disk neutrality uses endpoint identities, not a transient-operation observer. Advancing to line B may lawfully add a Profile witness before that baseline.",
+    "No production prose catalogue registration, Hospital/ending continuity, broad Gallery replay or full release acceptance is inferred.",
+    "The reviewer authored the PauseSurface/PauseQuickCommands/Settings cleanup changes and production Pause tests, so those files are intentionally not labeled independently reviewed by this report. Root supplied separate review of that work."
+  ],
+  "runtime_execution_performed": false,
+  "source_mutations_performed_in_this_review": false
+}

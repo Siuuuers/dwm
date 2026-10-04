@@ -87,6 +87,28 @@ func test_replacement_retires_one_utterance_and_late_completion_cannot_finish_su
 	port.utterance_finished.emit(second.value.token, &"completed")
 	assert_false(owner.is_speaking("line.2"))
 
+func test_japanese_and_korean_select_matching_regional_voices_only() -> void:
+	var port := SpeechPort.new()
+	port.voices.append_array([
+		{"id": "japanese", "language": "ja-JP", "name": "Japanese"},
+		{"id": "korean", "language": "ko_KR", "name": "Korean"},
+	])
+	var owner := _owner(port)
+	if owner == null: return
+	for sample: Array in [["ja", "読み上げテストです。", "japanese"], ["ko", "음성 읽기 테스트입니다.", "korean"]]:
+		assert_true(owner.refresh_capability(sample[0]).value.available)
+		assert_true(owner.request_speech(sample[1], sample[0], &"normal", "settings.test.locale").ok)
+		await wait_process_frames(2)
+		assert_eq(port.requests.back().voice, sample[2])
+		assert_eq(port.requests.back().text, sample[1])
+		owner.stop()
+	port.voices = [{"id": "english", "language": "en-US", "name": "English"}]
+	var request_count := port.requests.size()
+	for locale: String in ["ja", "ko"]:
+		assert_false(owner.refresh_capability(locale).value.available)
+		assert_false(owner.request_speech("Unavailable", locale, &"normal", "settings.test.locale").ok)
+	assert_eq(port.requests.size(), request_count, "missing locale voices never substitute English")
+
 func test_stale_source_stop_cannot_cancel_a_settings_sample() -> void:
 	var port := SpeechPort.new()
 	var owner := _owner(port)

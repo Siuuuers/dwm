@@ -19,6 +19,8 @@ var _return_focus: WeakRef
 var _return_semantic := ""
 var _observed_source: Dictionary = {}
 var _in_operation := false
+var _foreground := true
+var _focus_restore_pending := false
 var _was_admitted := false
 var _presentation := {}
 var _pending_poll := 0.0
@@ -42,7 +44,8 @@ func configure(desktop: Control, port: Object, input_owner: Object, admission: C
 func _ready() -> void:
 	edge = EDGE.new()
 	edge.name = "QuickStatus"
-	_desktop.add_child.call_deferred(edge)
+	edge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_desktop.desktop_canvas.add_child.call_deferred(edge)
 	_desktop.visibility_changed.connect(retain_contacts)
 	retain_contacts()
 
@@ -54,6 +57,14 @@ func retain_contacts() -> void:
 	if is_instance_valid(_input_owner): _contacts = _input_owner.get_physical_contacts()
 
 func _notification(what: int) -> void:
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+		_foreground = false
+		if is_instance_valid(edge): edge.set_eligible(false)
+		# An out/in pair before the next frame still consumes its old consent.
+		if not _pending_token.is_empty():
+			_cancel_pending()
+			if is_instance_valid(_desktop._confirmation): _desktop._confirmation._finish(false)
+	elif what == NOTIFICATION_APPLICATION_FOCUS_IN: _foreground = true
 	if what in [NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_APPLICATION_FOCUS_IN,
 			NOTIFICATION_DISABLED, NOTIFICATION_ENABLED, NOTIFICATION_PAUSED, NOTIFICATION_UNPAUSED]:
 		retain_contacts()
@@ -73,11 +84,9 @@ func handle_input(event: InputEvent) -> bool:
 		if current.get(contact) != _contacts[contact]: _contacts.erase(contact)
 	var id: String = _input_owner.get_physical_contact_id(event)
 	if id.is_empty() or not current.has(id): return true
-	var fresh := _contacts.is_empty()
+	var fresh := _contacts.is_empty() and current.size() == 1
 	_contacts[id] = current[id]
 	if not fresh or not _admitted(): return true
-	for held: String in current:
-		if held.begins_with("mouse:") or held.begins_with("touch:"): return true
 	if Input.is_action_pressed(&"ui_accept"): return true
 	_desktop.get_viewport().set_input_as_handled()
 	_request(action)
@@ -102,15 +111,12 @@ static func _focus_custody_enabled(control: Control) -> bool:
 	return true
 
 func _base_admitted() -> bool:
-	return (is_instance_valid(_desktop) and _desktop.is_inside_tree() and _desktop.is_visible_in_tree()
+	return (_foreground and is_instance_valid(_desktop) and _desktop.is_inside_tree() and _desktop.is_visible_in_tree()
 		and _desktop.can_process() and _focus_custody_enabled(_desktop) and _desktop._foreground_eligible and not _desktop._restoration_failed
 		and is_instance_valid(_input_owner) and _input_owner.is_source_input_admitted()
 		and _admission.is_valid() and _admission.call() == true and not _source_snapshot().is_empty())
 
 func _admitted() -> bool:
-	# These are the desktop contexts with an accepted capture/status placement.
-	# Other app families need their protected-region and source-admission seams.
-	if _desktop._active_id not in [&"", &"backup"]: return false
 	if not _base_admitted() or _in_operation or not _pending_token.is_empty() or is_instance_valid(_desktop._confirmation): return false
 	var app: Node = _desktop._cached_app_windows.get(_desktop._active_id)
 	return not is_instance_valid(app) or not app.has_method("can_return_home") or app.can_return_home()
@@ -121,6 +127,7 @@ func _request(action: String) -> void:
 	var focus := _desktop.get_viewport().gui_get_focus_owner()
 	_return_focus = weakref(focus) if focus != null else null
 	_return_semantic = ""
+	_focus_restore_pending = false
 	var app: Node = _desktop._cached_app_windows.get(&"backup")
 	if _desktop._active_id == &"backup" and is_instance_valid(app) and focus != null and app.is_ancestor_of(focus):
 		_return_semantic = app._saved_focus
@@ -179,9 +186,13 @@ func _cancel_load() -> void:
 	_restore_focus()
 
 func _restore_focus() -> void:
+	_focus_restore_pending = false
+	if not _foreground:
+		_focus_restore_pending = is_instance_valid(_desktop) and _source_snapshot() == _source
+		return
 	if not _base_admitted() or _source_snapshot() != _source: return
 	var focus: Control = _return_focus.get_ref() as Control if _return_focus != null else null
-	if (is_instance_valid(focus) and focus.is_visible_in_tree() and focus.can_process()
+	if (is_instance_valid(focus) and not focus.is_queued_for_deletion() and focus.is_visible_in_tree() and focus.can_process()
 		and focus.get_focus_mode_with_override() != Control.FOCUS_NONE):
 		focus.grab_focus()
 		return
@@ -199,6 +210,7 @@ func _restore_focus() -> void:
 
 func _publish(key: String, condition: Dictionary, source: Dictionary) -> void:
 	if condition.is_empty() or not is_instance_valid(edge): return
+	_refresh_edge()
 	var captured := condition.duplicate(true)
 	var context := source.duplicate(true)
 	edge.publish_status(StringName(key), {"condition": captured, "source": context}, func() -> bool:
@@ -206,6 +218,7 @@ func _publish(key: String, condition: Dictionary, source: Dictionary) -> void:
 
 func _process(delta: float) -> void:
 	if not is_instance_valid(edge) or not edge.is_inside_tree(): return
+	if _focus_restore_pending and _foreground: _restore_focus()
 	var current_source := _source_snapshot()
 	if current_source != _observed_source:
 		_observed_source = current_source
@@ -224,14 +237,18 @@ func _process(delta: float) -> void:
 		if stale:
 			_cancel_pending()
 			if is_instance_valid(_desktop._confirmation): _desktop._confirmation._finish(false)
+	_refresh_edge()
+
+func _refresh_edge() -> void:
 	var rect: Rect2 = _desktop.quick_status_safe_rect()
 	edge.position = rect.position
 	edge.size = rect.size
-	var presentation := {"locale": _desktop._locale, "percent": int(_desktop.theme.default_font_size * 100 / 24)}
+	var presentation := {"locale": _desktop._locale, "percent": _desktop._percent, "font_style": _desktop._font_style, "theme": _desktop.theme}
 	if _presentation != presentation:
 		_presentation = presentation
-		edge.set_presentation(presentation.locale, presentation.percent)
-	edge.set_eligible(admitted and rect.has_area())
+		edge.set_presentation(presentation.locale, presentation.percent, presentation.font_style)
+		edge.theme = _desktop.theme
+	edge.set_eligible(_admitted() and rect.has_area())
 
 func _load_copy(record: Dictionary) -> Dictionary:
 	var copy: Dictionary = BACKUP_COPY.get(_desktop._locale, BACKUP_COPY.en)
@@ -243,4 +260,4 @@ func _load_copy(record: Dictionary) -> Dictionary:
 	body += "\n\n" + copy.replace_progress
 	return {"title": copy.fallback_title if fallback else copy.load_title.replace("{record}", copy.quick),
 		"body": body, "cancel": copy.cancel, "confirm": copy.load, "risk": "danger",
-		"theme": BACKUP_THEME.build(_desktop._locale, int(_desktop.theme.default_font_size * 100 / 24))}
+		"theme": BACKUP_THEME.build(_desktop._locale, _desktop._percent, &"after_hours", 1, false, "standard", _desktop._font_style)}

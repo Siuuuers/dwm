@@ -1,0 +1,22 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "Action completed."
+    }
+  ],
+  "structuredContent": {
+    "content": "{\"sha\":\"d702c456177f76fe90cb73993af93949d7335b7e\",\"node_id\":\"C_kwDOTaMFrdoAKGQ3MDJjNDU2MTc3Zjc2ZmU5MGNiNzM5OTNhZjkzOTQ5ZDczMzViN2U\",\"url\":\"https://api.github.com/repos/Siuuuers/dwm/git/commits/d702c456177f76fe90cb73993af93949d7335b7e\",\"html_url\":\"https://github.com/Siuuuers/dwm/commit/d702c456177f76fe90cb73993af93949d7335b7e\",\"author\":{\"name\":\"Siuuuers\",\"email\":\"119431590+Siuuuers@users.noreply.github.com\",\"date\":\"2026-10-02T07:13:50Z\"},\"committer\":{\"name\":\"Siuuuers\",\"email\":\"119431590+Siuuuers@users.noreply.github.com\",\"date\":\"2026-10-02T07:13:50Z\"},\"tree\":{\"sha\":\"fe939a63efc6c4ddfc3c71d83a21ebe4860c346c\",\"url\":\"https://api.github.com/repos/Siuuuers/dwm/git/trees/fe939a63efc6c4ddfc3c71d83a21ebe4860c346c\"},\"message\":\"Bind Settings F9 proof to required durable restore bookkeeping [skip ci]\",\"parents\":[{\"sha\":\"78cb263f8e0d82ad1f1274c0e84915397cd071b0\",\"url\":\"https://api.github.com/repos/Siuuuers/dwm/git/commits/78cb263f8e0d82ad1f1274c0e84915397cd071b0\",\"html_url\":\"https://github.com/Siuuuers/dwm/commit/78cb263f8e0d82ad1f1274c0e84915397cd071b0\"}],\"verification\":{\"verified\":false,\"reason\":\"unsigned\",\"signature\":null,\"payload\":null,\"verified_at\":null}}",
+    "title": "d702c456177f76fe90cb73993af93949d7335b7e",
+    "modified_date": null,
+    "url": "https://api.github.com/repos/Siuuuers/dwm/git/commits/d702c456177f76fe90cb73993af93949d7335b7e",
+    "display_url": "https://api.github.com/repos/Siuuuers/dwm/git/commits/d702c456177f76fe90cb73993af93949d7335b7e",
+    "display_title": "d702c456177f76fe90cb73993af93949d7335b7e",
+    "structuredContent": {
+      "title": "d702c456177f76fe90cb73993af93949d7335b7e",
+      "content": "{\"sha\":\"d702c456177f76fe90cb73993af93949d7335b7e\",\"node_id\":\"C_kwDOTaMFrdoAKGQ3MDJjNDU2MTc3Zjc2ZmU5MGNiNzM5OTNhZjkzOTQ5ZDczMzViN2U\",\"url\":\"https://api.github.com/repos/Siuuuers/dwm/git/commits/d702c456177f76fe90cb73993af93949d7335b7e\",\"html_url\":\"https://github.com/Siuuuers/dwm/commit/d702c456177f76fe90cb73993af93949d7335b7e\",\"author\":{\"name\":\"Siuuuers\",\"email\":\"119431590+Siuuuers@users.noreply.github.com\",\"date\":\"2026-10-02T07:13:50Z\"},\"committer\":{\"name\":\"Siuuuers\",\"email\":\"119431590+Siuuuers@users.noreply.github.com\",\"date\":\"2026-10-02T07:13:50Z\"},\"tree\":{\"sha\":\"fe939a63efc6c4ddfc3c71d83a21ebe4860c346c\",\"url\":\"https://api.github.com/repos/Siuuuers/dwm/git/trees/fe939a63efc6c4ddfc3c71d83a21ebe4860c346c\"},\"message\":\"Bind Settings F9 proof to required durable restore bookkeeping [skip ci]\",\"parents\":[{\"sha\":\"78cb263f8e0d82ad1f1274c0e84915397cd071b0\",\"url\":\"https://api.github.com/repos/Siuuuers/dwm/git/commits/78cb263f8e0d82ad1f1274c0e84915397cd071b0\",\"html_url\":\"https://github.com/Siuuuers/dwm/commit/78cb263f8e0d82ad1f1274c0e84915397cd071b0\"}],\"verification\":{\"verified\":false,\"reason\":\"unsigned\",\"signature\":null,\"payload\":null,\"verified_at\":null}}",
+      "display_url": "https://api.github.com/repos/Siuuuers/dwm/git/commits/d702c456177f76fe90cb73993af93949d7335b7e"
+    }
+  },
+  "isError": false
+}

@@ -113,8 +113,11 @@ func _quick_available(action: String) -> bool:
 
 static func _quick_refusal(capability: Dictionary) -> Dictionary:
 	var value: Dictionary = capability.get("value", {})
+	var status := str(value.get("status_key", "unavailable"))
+	if status not in ["please_wait", "no_quick_save", "older_version", "newer_version", "unreadable", "no_compatible_checkpoint", "restore_unavailable"]:
+		status = "unavailable"
 	return {"ok": false, "code": &"backup_action_unavailable",
-		"status_key": "please_wait" if value.get("status_key") == "please_wait" else "unavailable",
+		"status_key": status,
 		"condition": value.get("condition", {}).duplicate(true)}
 
 func prepare_action(action: String, locator: String) -> Dictionary:

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="22" >
+  <testsuite name="tests/unit/test_checkpoint_phase_diagnostics.gd" tests="4" failures="0" skipped="0" time="0.215041" >
+      <testcase name="test_profile_on_and_off_preserve_documents_journal_and_every_physical_operation" assertions="141" status="pass" classname="tests/unit/test_checkpoint_phase_diagnostics.gd" time="0.101447" >
+      </testcase>
+      <testcase name="test_cold_history_learning_is_distinct_from_next_prepares_proof_hits" assertions="33" status="pass" classname="tests/unit/test_checkpoint_phase_diagnostics.gd" time="0.044331" >
+      </testcase>
+      <testcase name="test_schema_valid_history_edit_counts_a_learning_attempt_without_a_success" assertions="13" status="pass" classname="tests/unit/test_checkpoint_phase_diagnostics.gd" time="0.024031" >
+      </testcase>
+      <testcase name="test_refused_journal_commit_never_reports_or_creates_successful_learning" assertions="23" status="pass" classname="tests/unit/test_checkpoint_phase_diagnostics.gd" time="0.045232" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_normalization_identity.gd" tests="6" failures="0" skipped="0" time="0.03386" >
+      <testcase name="test_clean_typed_and_nested_containers_preserve_identity" assertions="12" status="pass" classname="tests/unit/test_normalization_identity.gd" time="0.001382" >
+      </testcase>
+      <testcase name="test_array_conversion_at_each_position_rebuilds_only_changed_path" assertions="48" status="pass" classname="tests/unit/test_normalization_identity.gd" time="0.005158" >
+      </testcase>
+      <testcase name="test_dictionary_key_or_member_conversion_keeps_order_and_clean_siblings" assertions="120" status="pass" classname="tests/unit/test_normalization_identity.gd" time="0.012921" >
+      </testcase>
+      <testcase name="test_changed_typed_nodes_become_untyped_without_mutating_sources" assertions="48" status="pass" classname="tests/unit/test_normalization_identity.gd" time="0.005939" >
+      </testcase>
+      <testcase name="test_numeric_values_keep_exact_types_and_signed_zero" assertions="39" status="pass" classname="tests/unit/test_normalization_identity.gd" time="0.004507" >
+      </testcase>
+      <testcase name="test_unsupported_leaves_remain_for_existing_validation" assertions="34" status="pass" classname="tests/unit/test_normalization_identity.gd" time="0.003953" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_checkpoint_history_region_search.gd" tests="7" failures="0" skipped="0" time="0.533711" >
+      <testcase name="test_ordered_regions_with_unicode_prefix_preserve_every_proof" assertions="51" status="pass" classname="tests/unit/test_checkpoint_history_region_search.gd" time="0.065741" >
+      </testcase>
+      <testcase name="test_reordered_regions_still_learn_from_any_exact_occurrence" assertions="50" status="pass" classname="tests/unit/test_checkpoint_history_region_search.gd" time="0.065495" >
+      </testcase>
+      <testcase name="test_duplicate_bundle_is_idempotent_after_successful_learning" assertions="51" status="pass" classname="tests/unit/test_checkpoint_history_region_search.gd" time="0.088136" >
+      </testcase>
+      <testcase name="test_missing_first_or_middle_region_does_not_hide_later_proofs" assertions="98" status="pass" classname="tests/unit/test_checkpoint_history_region_search.gd" time="0.118222" >
+      </testcase>
+      <testcase name="test_existing_proof_is_preserved_even_when_its_region_is_absent" assertions="55" status="pass" classname="tests/unit/test_checkpoint_history_region_search.gd" time="0.066292" >
+      </testcase>
+      <testcase name="test_repeated_mismatched_bundle_cannot_gain_a_proof_from_region_presence" assertions="49" status="pass" classname="tests/unit/test_checkpoint_history_region_search.gd" time="0.063095" >
+      </testcase>
+      <testcase name="test_nested_exact_occurrence_keeps_original_region_semantics" assertions="50" status="pass" classname="tests/unit/test_checkpoint_history_region_search.gd" time="0.06673" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_warm_outgoing_proof_commits.gd" tests="5" failures="0" skipped="0" time="3.684432" >
+      <testcase name="test_warm_commit_uses_exact_ordered_proofs_and_preserves_profile_and_caller_custody" assertions="249" status="pass" classname="tests/integration/test_warm_outgoing_proof_commits.gd" time="0.358935" >
+      </testcase>
+      <testcase name="test_text_only_and_partial_document_proofs_keep_complete_commit_equivalence" assertions="434" status="pass" classname="tests/integration/test_warm_outgoing_proof_commits.gd" time="0.569499" >
+      </testcase>
+      <testcase name="test_reset_restore_and_seed_drop_proofs_before_the_next_complete_write" assertions="1355" status="pass" classname="tests/integration/test_warm_outgoing_proof_commits.gd" time="1.639318" >
+      </testcase>
+      <testcase name="test_a_partial_failed_splice_cannot_seed_the_full_writer_with_stale_proofs" assertions="193" status="pass" classname="tests/integration/test_warm_outgoing_proof_commits.gd" time="0.263298" >
+      </testcase>
+      <testcase name="test_warm_proofs_preserve_schema_refusals_and_physical_failure_custody" assertions="456" status="pass" classname="tests/integration/test_warm_outgoing_proof_commits.gd" time="0.853382" >
+      </testcase>
+  </testsuite>
+</testsuites>

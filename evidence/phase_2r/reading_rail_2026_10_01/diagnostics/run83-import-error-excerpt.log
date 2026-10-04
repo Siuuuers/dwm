@@ -1,0 +1,16 @@
+2026-10-01T11:24:04.0750213Z SCRIPT ERROR: Parse Error: Cannot infer the type of "local" variable because the value doesn't have a set type.
+2026-10-01T11:24:04.0756438Z    at: GDScript::reload (res://scripts/ui/witnessed/WitnessedHistory.gd:237)
+2026-10-01T11:24:04.0757635Z SCRIPT ERROR: Parse Error: Cannot infer the type of "activate" variable because the value doesn't have a set type.
+2026-10-01T11:24:04.0758788Z    at: GDScript::reload (res://scripts/ui/witnessed/WitnessedHistory.gd:246)
+2026-10-01T11:24:04.4769446Z SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+2026-10-01T11:24:04.4770622Z    at: GDScript::reload (res://scripts/ui/witnessed/WitnessedCaptionLayer.gd:0)
+2026-10-01T11:24:04.5670619Z SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+2026-10-01T11:24:04.5672113Z    at: GDScript::reload (res://scripts/application/lifecycle/ProductionPauseController.gd:0)
+2026-10-01T11:24:04.5715589Z SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+2026-10-01T11:24:04.5716435Z    at: GDScript::reload (res://autoload/SceneRouter.gd:0)
+2026-10-01T11:24:04.5740293Z ERROR: Failed to load script "res://autoload/SceneRouter.gd" with error "Parse error".
+2026-10-01T11:24:04.5740981Z    at: load (modules/gdscript/gdscript.cpp:2907)
+2026-10-01T11:24:04.7243328Z SCRIPT ERROR: Parse Error: Cannot infer the type of "reading" variable because the value doesn't have a set type.
+2026-10-01T11:24:04.7244384Z    at: GDScript::reload (res://autoload/DialogicBridge.gd:2136)
+2026-10-01T11:24:04.7326188Z ERROR: Failed to load script "res://autoload/DialogicBridge.gd" with error "Parse error".
+2026-10-01T11:24:04.7326772Z    at: load (modules/gdscript/gdscript.cpp:2907)

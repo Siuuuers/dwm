@@ -1,6 +1,7 @@
 class_name ShopPresentationPort
 extends RefCounted
 const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
+const ITEM_ART := preload("res://scripts/ui/shop/ShopItemArt.gd")
 
 ## Production Shop query/command boundary. The UI receives only presentation rows and item/quantity
 ## commands. Every purchase uses the retained durable participant: one debit and its authored
@@ -104,7 +105,7 @@ func get_catalog(locale: String) -> Dictionary:
 	if not admitted.get("ok", false):
 		return admitted
 	var locale_id := locale.replace("-", "_")
-	if locale_id not in ["en", "zh_CN", "zh_HK"]:
+	if locale_id not in ["en", "zh_CN", "zh_HK", "ja", "ko"]:
 		return _fail(&"invalid_shop_locale")
 	var source_items: Variant = _data_catalog.call(&"get_shop_items")
 	if typeof(source_items) != TYPE_ARRAY or (source_items as Array).size() != 18:
@@ -362,16 +363,7 @@ func _texture(item_id: String, size: int) -> Texture2D:
 	if placed != null:
 		_art[key] = placed
 		return placed
-	var image := Image.create(size, size, false, Image.FORMAT_RGBA8)
-	var hue := float(abs(item_id.hash()) % 360) / 360.0
-	image.fill(Color.from_hsv(hue, 0.28, 0.78, 1.0))
-	var edge := Color.from_hsv(hue, 0.5, 0.34, 1.0)
-	for coordinate: int in size:
-		image.set_pixel(coordinate, 0, edge)
-		image.set_pixel(coordinate, size - 1, edge)
-		image.set_pixel(0, coordinate, edge)
-		image.set_pixel(size - 1, coordinate, edge)
-	var texture := ImageTexture.create_from_image(image)
+	var texture := ITEM_ART.texture(item_id, size)
 	_art[key] = texture
 	return texture
 

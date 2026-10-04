@@ -28,9 +28,9 @@ const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 # SUBSTRATE. Real throughout: a GUID-isolated root, a real DesktopIssuerRootStore over real
 # JsonFileStorage, the real DesktopIdentityNonceIssuer, the production ScheduleActionRegistry, the
 # real GameStateScheduleCommitPort, a real GameState in the tree, and the real
-# DialogicPresentationOwnerAdapter over a real DialogicBridge. The ONLY fixture is the Plan-02
-# desktop-consequence source, which has no production implementation to use (DEVIATION-2/5) and
-# which plan line 532 explicitly authorises as a schema-exact test fixture.
+# DialogicPresentationOwnerAdapter over an explicit playback-boundary bridge double. The
+# Plan-02 desktop-consequence source is also a schema-exact fixture. Native Dialogic admission,
+# rendering and natural completion belong to the dedicated runtime and rendered journey suites.
 
 const COMMIT_PORT := preload("res://scripts/application/schedule/GameStateScheduleCommitPort.gd")
 const STATE_PORT := preload("res://scripts/application/run/GameStateDayResolutionPort.gd")
@@ -130,8 +130,8 @@ func _boot() -> void:
 		_completions.append((result["receipt"] as Dictionary).duplicate(true)))
 
 	# A TRIGGERED Hospital presents as well, so a walk that passes through one needs the real
-	# narrative owner over a real bridge to carry its notice or receipt-proven playback.
-	_bridge = load("res://autoload/DialogicBridge.gd").new()
+	# narrative owner over an explicit playback-boundary double. Native playback is proven separately.
+	_bridge = preload("res://tests/support/FakeHospitalTimelineBridge.gd").new()
 	add_child_autofree(_bridge)
 	var narrative_owner: RefCounted = PRESENTATION_OWNER.new()
 	assert_true(narrative_owner.configure(_bridge).get("ok", false))
@@ -719,7 +719,7 @@ func _complete_begun(begun_value: Dictionary) -> bool:
 	return completed.get("ok", false)
 
 
-## Carries an awaiting ordinary HOSPITAL notice to a completed stage through the real owner.
+## Carries shared Hospital playback to a completed stage through the real owner.
 func _settle_hospital_presentation(begun_value: Dictionary) -> bool:
 	var command: Dictionary = begun_value["command"]
 	assert_eq(str(command["route_id"]), "hospital",
@@ -729,13 +729,8 @@ func _settle_hospital_presentation(begun_value: Dictionary) -> bool:
 	if not started.get("ok", false):
 		return false
 	_completions = []
-	assert_false(_bridge.has_active_playback(),
-		"an ordinary Hospital notice starts no Dialogic playback")
-	var acknowledged: Dictionary = _hospital_port.acknowledge_notice(
-		(started["value"] as Dictionary)["presentation_command"])
-	assert_true(acknowledged.get("ok", false), JSON.stringify(acknowledged))
-	if not acknowledged.get("ok", false):
-		return false
+	assert_true(_bridge.has_active_playback(), "every faint starts shared Hospital playback")
+	_bridge.publish_fixture_completion()
 	if _completions.size() != 1:
 		assert_true(false, "the Hospital port published exactly one completion")
 		return false
@@ -840,6 +835,12 @@ func _seed_solo_source(friend_id: String, day: int, action_id: String) -> String
 	assert_true(offered.get("ok", false), str(offered))
 	if not offered.get("ok", false):
 		return ""
+	# Capture immutable offer facts at generation, before installing the accepted
+	# Contacts source. A persisted offer may not reconstruct them during restore.
+	var frozen := preload("res://scripts/narrative/ContactsFrozenContext.gd").capture_candidate(
+		_game_state.contacts, offered.value.candidate, _game_state.to_save_dict(), day)
+	assert_true(frozen.get("ok", false), str(frozen))
+	if not frozen.get("ok", false): return ""
 	var command: Dictionary = _command("open.%s.day%d" % [friend_id, day])
 	var found: Dictionary = _registry.find_record(action_id)
 	assert_true(found.get("ok", false), str(found))
@@ -852,6 +853,7 @@ func _seed_solo_source(friend_id: String, day: int, action_id: String) -> String
 	if not opened.get("ok", false):
 		return ""
 	_game_state.contacts = opened["value"]["candidate"]
+	_game_state.route_context = frozen.value.route_context
 	return str(opened["receipt"]["receipt_id"])
 
 

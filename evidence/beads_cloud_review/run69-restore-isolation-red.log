@@ -1,0 +1,43 @@
+2026-09-28T19:26:39.9153229Z   GODOT_CONSOLE_PATH: D:\a\_temp\godot-4.6.3\Godot_v4.6.3-stable_win64_console.exe
+2026-09-28T19:26:39.9153612Z ##[endgroup]
+2026-09-28T19:26:40.4349021Z ##[group]Run ./tools/testing/Invoke-CloudTests.ps1 -Suite $env:DWM_CI_SUITE
+2026-09-28T19:26:40.4349622Z [36;1m./tools/testing/Invoke-CloudTests.ps1 -Suite $env:DWM_CI_SUITE[0m
+2026-09-28T19:26:40.4387586Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-09-28T19:26:40.4387924Z env:
+2026-09-28T19:26:40.4388235Z   GODOT_CONSOLE_PATH: D:\a\_temp\godot-4.6.3\Godot_v4.6.3-stable_win64_console.exe
+2026-09-28T19:26:40.4388638Z   DWM_CI_SUITE: persistence
+2026-09-28T19:26:40.4388850Z ##[endgroup]
+2026-09-28T19:27:07.1462030Z SCRIPT_LOAD_FAILED: ERROR: Failed to load script "res://tests/integration/test_run_restore_isolation.gd" with error "Parse error".
+2026-09-28T19:27:07.1464246Z SUITE_NOT_EXECUTED: res://tests/integration/test_run_restore_isolation.gd
+2026-09-28T19:27:07.2169703Z {"suite_id":"cloud-persistence","argv":["--headless","--path","D:\\a\\dwm\\dwm","--log-file","D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-persistence.log","-s","res://addons/gut/gut_cmdln.gd","-gconfig=","-gtest=res://tests/unit/test_frozen_run_context.gd,res://tests/unit/test_profile_presentation_chronology.gd,res://tests/unit/test_profile_dating_attempts.gd,res://tests/unit/test_profile_dating_branches.gd,res://tests/unit/test_profile_pair_form_witness.gd,res://tests/unit/test_contact_invitation_state.gd,res://tests/unit/test_seven_day_calendar.gd,res://tests/unit/test_pair_deck_draw.gd,res://tests/unit/test_pair_deck_draw_port.gd,res://tests/unit/test_profile_v4_upgrade.gd,res://tests/unit/test_profile_new_run_consumption.gd,res://tests/unit/test_save_migrations.gd,res://tests/integration/test_save_manager_journal.gd,res://tests/integration/test_restore_transaction.gd,res://tests/integration/test_unified_restore_contract.gd,res://tests/integration/test_run_restore_isolation.gd,res://tests/integration/test_save_manager_public_boundaries.gd,res://tests/integration/test_save_capability.gd","-gexit","-glog=2","-gjunit_xml_file=res://.godot/ci/persistence.xml"],"exit_code":126,"log_path":"D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-persistence.log","test_root":"D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\c41aebfb-527d-419b-bc5d-f53ec70d27ee","user_dir":"D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\c41aebfb-527d-419b-bc5d-f53ec70d27ee\\appdata\\Godot\\app_userdata\\DWM","started_at_utc":"2026-09-28T19:26:46.3619969Z","ended_at_utc":"2026-09-28T19:27:06.0903693Z"}
+2026-09-28T19:27:07.2210862Z Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+2026-09-28T19:27:07.2212458Z 
+2026-09-28T19:27:07.2214030Z ---  GUT  ---
+2026-09-28T19:27:07.2216024Z [INFO]:  using [D:/a/dwm/dwm/.godot/phase2r_tests/c41aebfb-527d-419b-bc5d-f53ec70d27ee/appdata/Godot/app_userdata/DWM] for temporary output.
+2026-09-28T19:27:07.2217142Z Godot version:  4.6.3
+2026-09-28T19:27:07.2218434Z GUT version:  9.6.1
+2026-09-28T19:27:07.2220321Z SCRIPT ERROR: Parse Error: Cannot call non-static function "get_script_signal_list()" on the class "res://autoload/GameState.gd" directly. Make an instance instead.
+2026-09-28T19:27:07.2226834Z    at: GDScript::reload (res://tests/integration/test_run_restore_isolation.gd:36)
+2026-09-28T19:27:07.2227346Z    GDScript backtrace (most recent call first):
+2026-09-28T19:27:07.2227777Z        [0] load_script_using_custom_warnings (res://addons/gut/warnings_manager.gd:173)
+2026-09-28T19:27:07.2228528Z        [1] _parse_script (res://addons/gut/test_collector.gd:76)
+2026-09-28T19:27:07.2229176Z        [2] add_script (res://addons/gut/test_collector.gd:128)
+2026-09-28T19:27:07.2229782Z        [3] add_script (res://addons/gut/gut.gd:1070)
+2026-09-28T19:27:07.2230136Z        [4] _apply_options (res://addons/gut/gut_config.gd:139)
+2026-09-28T19:27:07.2230483Z        [5] apply_options (res://addons/gut/gut_config.gd:207)
+2026-09-28T19:27:07.2231068Z        [6] run_tests (res://addons/gut/gui/GutRunner.gd:192)
+2026-09-28T19:27:07.2232936Z        [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+2026-09-28T19:27:07.2236693Z        [8] main (res://addons/gut/cli/gut_cli.gd:297)
+2026-09-28T19:27:07.2237360Z        [9] _init (res://addons/gut/gut_cmdln.gd:39)
+2026-09-28T19:27:07.2237955Z ERROR: Failed to load script "res://tests/integration/test_run_restore_isolation.gd" with error "Parse error".
+2026-09-28T19:27:07.2238858Z    at: load (modules/gdscript/gdscript.cpp:2907)
+2026-09-28T19:27:07.2240286Z    GDScript backtrace (most recent call first):
+2026-09-28T19:27:07.2241727Z        [0] load_script_using_custom_warnings (res://addons/gut/warnings_manager.gd:173)
+2026-09-28T19:27:07.2243142Z        [1] _parse_script (res://addons/gut/test_collector.gd:76)
+2026-09-28T19:27:07.2243818Z        [2] add_script (res://addons/gut/test_collector.gd:128)
+2026-09-28T19:27:07.2245709Z        [3] add_script (res://addons/gut/gut.gd:1070)
+2026-09-28T19:27:07.2247106Z        [4] _apply_options (res://addons/gut/gut_config.gd:139)
+2026-09-28T19:27:07.2248412Z        [5] apply_options (res://addons/gut/gut_config.gd:207)
+2026-09-28T19:27:07.2249703Z        [6] run_tests (res://addons/gut/gui/GutRunner.gd:192)
+2026-09-28T19:27:07.2251132Z        [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+2026-09-28T19:27:07.2252545Z        [8] main (res://addons/gut/cli/gut_cli.gd:297)

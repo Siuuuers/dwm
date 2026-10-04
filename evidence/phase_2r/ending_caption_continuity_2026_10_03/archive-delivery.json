@@ -1,0 +1,267 @@
+{
+  "schema_version": 1,
+  "archives": [
+    {
+      "path": "broad/ending-reading.zip",
+      "bytes": 6807191,
+      "sha256": "984974ae51050c643b9c89ad01f4540afe65c34f350c0f4d2e3625d33a5347e0",
+      "encoding": "xz",
+      "encoded_sha256": "6f85d4035a72a954aa3e17c1e492c4c77405914c82a8d1a23967fc488d8b20f9",
+      "parts": [
+        {
+          "path": "archive-parts/broad/ending-reading.zip.xz.part000",
+          "bytes": 300000,
+          "sha256": "3a7445575a030592e6d6851ab573d71e970db2b2142f4619dd5a7daf7dcc19f5"
+        },
+        {
+          "path": "archive-parts/broad/ending-reading.zip.xz.part001",
+          "bytes": 300000,
+          "sha256": "c98a3dc3784cab41aeb2567e46e3e17b3f1a0cc2a8c0bcfba7ff5eb7cb0c1da5"
+        },
+        {
+          "path": "archive-parts/broad/ending-reading.zip.xz.part002",
+          "bytes": 300000,
+          "sha256": "9955bfe8494d48c7a2ac6cfef7705b31650d474775f39668d735a397aae794e6"
+        },
+        {
+          "path": "archive-parts/broad/ending-reading.zip.xz.part003",
+          "bytes": 300000,
+          "sha256": "50615237c4c8cce91ef2c8a48defc874eb0c2844c8121c6edf71e082c3d2c5a4"
+        },
+        {
+          "path": "archive-parts/broad/ending-reading.zip.xz.part004",
+          "bytes": 300000,
+          "sha256": "4b54d9f62b2033b22fcf06944fc7ba8edff8ade0695fc75047b6e9afa495e189"
+        },
+        {
+          "path": "archive-parts/broad/ending-reading.zip.xz.part005",
+          "bytes": 255668,
+          "sha256": "f2e9e8aeb4b16968455bea4fa79ddd743296a804b9b2a99a7c4f1fea3c094d7c"
+        }
+      ]
+    },
+    {
+      "path": "broad/history-gates.zip",
+      "bytes": 978368,
+      "sha256": "c048336fa9e9b4b713a2daba1284ad55289fe2b82d4f705280b11e993e72f969",
+      "encoding": "xz",
+      "encoded_sha256": "7b345ed5ecc2148aa4212ed3a7a0980c51438954a9baf1e2029f9df2001da919",
+      "parts": [
+        {
+          "path": "archive-parts/broad/history-gates.zip.xz.part000",
+          "bytes": 300000,
+          "sha256": "ef63d9c3381c710a8bc2b98ccc5f5b9749069b9c1938f6b3938e5435991178cd"
+        },
+        {
+          "path": "archive-parts/broad/history-gates.zip.xz.part001",
+          "bytes": 300000,
+          "sha256": "2eecf81ce5baf73a6f7f7d21beb8d244d102b39fb8e3a1d3d9f38667abfca242"
+        },
+        {
+          "path": "archive-parts/broad/history-gates.zip.xz.part002",
+          "bytes": 92860,
+          "sha256": "6bd72ac7236280022f2ee0dd888bc7e43cfad686cd8a54227757642dd202bca1"
+        }
+      ]
+    },
+    {
+      "path": "broad/regression-artifacts.zip",
+      "bytes": 5940726,
+      "sha256": "889e9d3d1edf6c65c3e6278386d4acb978ab66259275a78e87c8e49315b8a1b0",
+      "encoding": "xz",
+      "encoded_sha256": "88c5af7792ba785ad2191c1144015d3bdc1500be39a293ea1d11d93511e1667a",
+      "parts": [
+        {
+          "path": "archive-parts/broad/regression-artifacts.zip.xz.part000",
+          "bytes": 300000,
+          "sha256": "4760f0938d1f0f061a4a880c6a558528157180b8719b00a34a6e6afd4b6239a6"
+        },
+        {
+          "path": "archive-parts/broad/regression-artifacts.zip.xz.part001",
+          "bytes": 300000,
+          "sha256": "d162dd398550cb23c036c50e5f390962906faf95df4ae16841b55efcfecfcd00"
+        },
+        {
+          "path": "archive-parts/broad/regression-artifacts.zip.xz.part002",
+          "bytes": 300000,
+          "sha256": "b312a1d81061b288590dd2047180f6d0acb0cbe3b130fac143acfe310f311754"
+        },
+        {
+          "path": "archive-parts/broad/regression-artifacts.zip.xz.part003",
+          "bytes": 300000,
+          "sha256": "db5b22a25567402d0bc8bf59489e775ca72c88573059f688189cc4756248dbb4"
+        },
+        {
+          "path": "archive-parts/broad/regression-artifacts.zip.xz.part004",
+          "bytes": 300000,
+          "sha256": "cf1e5ddded011e60ff31fe497a222069c487d687d2b8fe97c94045f90e9dd320"
+        },
+        {
+          "path": "archive-parts/broad/regression-artifacts.zip.xz.part005",
+          "bytes": 300000,
+          "sha256": "fcc449635714463c0b33b60375445f31ba48c802aa7b5f55d9295f5158fc2d47"
+        },
+        {
+          "path": "archive-parts/broad/regression-artifacts.zip.xz.part006",
+          "bytes": 300000,
+          "sha256": "2bd75c6f584d52898c1310a1a6c3ef019c0058d2e64227d4431d3286154df8a8"
+        },
+        {
+          "path": "archive-parts/broad/regression-artifacts.zip.xz.part007",
+          "bytes": 300000,
+          "sha256": "72527a00620f3b01f45ffa48e4757fd4e5610953146ec3a3db78d2f9d2337dd0"
+        },
+        {
+          "path": "archive-parts/broad/regression-artifacts.zip.xz.part008",
+          "bytes": 300000,
+          "sha256": "4178e223d8ec4b861df02e0c08a65c18204c9c6e895805ef0f218205b5ec1dac"
+        },
+        {
+          "path": "archive-parts/broad/regression-artifacts.zip.xz.part009",
+          "bytes": 300000,
+          "sha256": "eb1b26db816ec122d5eecb0558d34d720644de25e4bffb4b75ab0c985437fbbc"
+        },
+        {
+          "path": "archive-parts/broad/regression-artifacts.zip.xz.part010",
+          "bytes": 300000,
+          "sha256": "0169c3f48aead8060cc24acd5b6278310be1e8a03701b0ce085396caf1206245"
+        },
+        {
+          "path": "archive-parts/broad/regression-artifacts.zip.xz.part011",
+          "bytes": 132964,
+          "sha256": "0390ee70e80f7fa9d3d05022280bc9232de4cad626742a5787416a871bd0305f"
+        }
+      ]
+    },
+    {
+      "path": "diagnostic1/import.zip",
+      "bytes": 16177,
+      "sha256": "bd5a595b2ae160d3cda24da263962c7dc4887db080a663f94103b93c781b48f2",
+      "encoding": "xz",
+      "encoded_sha256": "80efbd6fd0096b5bd100c4db41d93ba5474e190fc625fd9da4759075fcb3abd9",
+      "parts": [
+        {
+          "path": "archive-parts/diagnostic1/import.zip.xz.part000",
+          "bytes": 15764,
+          "sha256": "80efbd6fd0096b5bd100c4db41d93ba5474e190fc625fd9da4759075fcb3abd9"
+        }
+      ]
+    },
+    {
+      "path": "diagnostic2/dating.zip",
+      "bytes": 582925,
+      "sha256": "cae42eb89065e54ee7add72f97b775cc5f0a13b30a92b49e9c3006d79e76a524",
+      "encoding": "xz",
+      "encoded_sha256": "84ec0730efd2f2bc596eaa6099c02f7f3872e5d46f8282cfebd527c7fc8cf0c6",
+      "parts": [
+        {
+          "path": "archive-parts/diagnostic2/dating.zip.xz.part000",
+          "bytes": 300000,
+          "sha256": "4a9f661628aa502ffbb5eb69d3d0fd45b7fce286c90748e1472d8cdccf8d0fcc"
+        },
+        {
+          "path": "archive-parts/diagnostic2/dating.zip.xz.part001",
+          "bytes": 35548,
+          "sha256": "39eeb8445ebc3afbe1c5deea5b7b25eaf577dbc3fbb77c366d0ab0be2cf90364"
+        }
+      ]
+    },
+    {
+      "path": "diagnostic2/ending-reading.zip",
+      "bytes": 2286690,
+      "sha256": "627ef017bfb236c32e153652354af55ff65801e052730ca3e3d513417b0b7109",
+      "encoding": "xz",
+      "encoded_sha256": "8999599960a568d0595c62db07b2b743e8fd2d66ba215324cefa8a948a3efd26",
+      "parts": [
+        {
+          "path": "archive-parts/diagnostic2/ending-reading.zip.xz.part000",
+          "bytes": 300000,
+          "sha256": "b28562655c08bb15e4ed272cf560365b4f1e1791878972858fd389ab9cddad52"
+        },
+        {
+          "path": "archive-parts/diagnostic2/ending-reading.zip.xz.part001",
+          "bytes": 300000,
+          "sha256": "b70f5427c07f1ef33b7da865d2d8dd22d1b0c64ba87598fb7051cf7ad7203f16"
+        },
+        {
+          "path": "archive-parts/diagnostic2/ending-reading.zip.xz.part002",
+          "bytes": 300000,
+          "sha256": "bc09b2413b3f9541bc20b28c80caee913b153e681f3029fef906250c287bed29"
+        },
+        {
+          "path": "archive-parts/diagnostic2/ending-reading.zip.xz.part003",
+          "bytes": 273436,
+          "sha256": "a69969ff201fa6ee894be0bf8f87c094c732eb3c1b314702d090f388fd727c50"
+        }
+      ]
+    },
+    {
+      "path": "focused/ending-reading.zip",
+      "bytes": 6807166,
+      "sha256": "1b05174d94f5135548b907bb546c982d640f398ec38a209a3f247347fc371ab5",
+      "encoding": "xz",
+      "encoded_sha256": "d16e1103719b4b1f23a1baab36fde4596379e7b7676cc920891a2f531f2ff303",
+      "parts": [
+        {
+          "path": "archive-parts/focused/ending-reading.zip.xz.part000",
+          "bytes": 300000,
+          "sha256": "e4cebeddf1539fc4256e92da3e00dfff01a238e3cde411ad26be06d3ad6a795f"
+        },
+        {
+          "path": "archive-parts/focused/ending-reading.zip.xz.part001",
+          "bytes": 300000,
+          "sha256": "84f65d90bb8b00891b9769a18fd8678861ae7cb31fb59bfb8da332c161a754f5"
+        },
+        {
+          "path": "archive-parts/focused/ending-reading.zip.xz.part002",
+          "bytes": 300000,
+          "sha256": "6dd3634c67fb632f13bec602355d2dbbf0b841cfd428951586d9463a3f81f19a"
+        },
+        {
+          "path": "archive-parts/focused/ending-reading.zip.xz.part003",
+          "bytes": 300000,
+          "sha256": "569073ba9a645e5b91a261492f978e9291d9c65ae613dabe3eff55b5e82edd53"
+        },
+        {
+          "path": "archive-parts/focused/ending-reading.zip.xz.part004",
+          "bytes": 300000,
+          "sha256": "b784eabb937a2db3d33ac0840b747b89ea86ddc839b4e8163276d9841f0a02c4"
+        },
+        {
+          "path": "archive-parts/focused/ending-reading.zip.xz.part005",
+          "bytes": 255620,
+          "sha256": "a65273c79e588bd89069466f58db7b324e8914bda1353a9dae92134877c6c5c3"
+        }
+      ]
+    },
+    {
+      "path": "focused/regression-artifacts.zip",
+      "bytes": 1288012,
+      "sha256": "0187460fc79a8e80a58d009e7c74388e88723e347a2a1a3ec2872f9d89ae564e",
+      "encoding": "xz",
+      "encoded_sha256": "2023e5c2ad7a4deeed1b156e4d1630ad69720806ade78ecca1c21722d45d3cac",
+      "parts": [
+        {
+          "path": "archive-parts/focused/regression-artifacts.zip.xz.part000",
+          "bytes": 300000,
+          "sha256": "a779095a05e4ab784c8410a046f70583e5191eb110d4b4ceb19ded6e1f8e87fb"
+        },
+        {
+          "path": "archive-parts/focused/regression-artifacts.zip.xz.part001",
+          "bytes": 300000,
+          "sha256": "2cf1af877b94f7b686a256204dfac08dfe85bfa7fbaee3131582497b0d9adc03"
+        },
+        {
+          "path": "archive-parts/focused/regression-artifacts.zip.xz.part002",
+          "bytes": 300000,
+          "sha256": "116d6747a4ff3678491843ba758ba67d1a62de3e2e350158c18320b2917a723b"
+        },
+        {
+          "path": "archive-parts/focused/regression-artifacts.zip.xz.part003",
+          "bytes": 59708,
+          "sha256": "1d9ae0fef7e2a0c8d7ce315182f34335cee60ff6d6e2af284ecbf0324a3957bd"
+        }
+      ]
+    }
+  ]
+}

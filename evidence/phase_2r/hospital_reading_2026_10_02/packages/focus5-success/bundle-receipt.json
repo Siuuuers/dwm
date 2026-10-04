@@ -1,0 +1,11 @@
+{
+  "archive": "hospital-focus5-evidence.tar.gz",
+  "archive_member_count": 201,
+  "bytes": 6548516,
+  "evidence_kind": "bounded-successful-run-audit",
+  "excluded_file_count": 16,
+  "manifest_sha256": "3bbe7b089ead37cfbdf99f11bfab56d1f440415d46f0d16e9275c9f17a70198c",
+  "payload_file_count": 199,
+  "round_trip_verified": true,
+  "sha256": "58881f5fc4996e26911864d701f838ef5dde87319c4ba6955a2e8456dfd167eb"
+}

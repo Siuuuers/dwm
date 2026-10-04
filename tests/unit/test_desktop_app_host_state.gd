@@ -103,3 +103,33 @@ func test_registry_focus_targets_resolve_for_all_seven() -> void:
 	for id in REGISTRY.new().get_ids():
 		var rec: Dictionary = REGISTRY.new().get_record(id)
 		assert_true(rec["focus_target"] is NodePath, "%s focus target is a NodePath" % id)
+
+func test_logout_action_never_enters_workspace_cache_or_restore() -> void:
+	var h := _host()
+	h.reset(2)
+	h.open_app(&"contacts", 2)
+	var before: Dictionary = h.get_state()
+	assert_false(h.open_app(&"logout", 3).get("ok", true))
+	assert_eq(h.get_state(), before, "rejected action does not advance day or mutate cache")
+	assert_eq(h.capture_persistent_state(), {"active_app_id": &"contacts"})
+	for id: Variant in ["logout", &"logout"]:
+		assert_false(h.prepare_restore(id, 4).get("ok", true))
+		assert_eq(h.get_state(), before, "invalid saved action never falls back to launcher")
+	var invalid_active := before.duplicate(true)
+	invalid_active.active_app_id = &"logout"
+	assert_false(h.commit_restore(invalid_active).get("ok", true))
+	var invalid_cache := before.duplicate(true)
+	invalid_cache.cached_app_ids.append(&"logout")
+	assert_false(h.commit_restore(invalid_cache).get("ok", true))
+	assert_eq(h.get_state(), before)
+
+func test_all_six_content_workspaces_still_capture_and_restore() -> void:
+	var h := _host()
+	for id: StringName in [&"minesweeper", &"contacts", &"schedule", &"shop", &"backup", &"settings"]:
+		h.reset(1)
+		assert_true(h.open_app(id, 1).get("ok", false))
+		assert_eq(h.capture_persistent_state(), {"active_app_id": id})
+		var prepared: Dictionary = h.prepare_restore(id, 1)
+		assert_true(prepared.get("ok", false))
+		assert_true(h.commit_restore(prepared.value.candidate_state).get("ok", false))
+		assert_eq(h.capture_persistent_state(), {"active_app_id": id})

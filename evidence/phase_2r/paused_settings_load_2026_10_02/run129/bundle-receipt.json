@@ -1,0 +1,11 @@
+{
+  "archive": "settings-f9-run129-diagnostic.tar.gz",
+  "archive_member_count": 19,
+  "bytes": 139708,
+  "evidence_kind": "failed-run-diagnostic-only",
+  "excluded_file_count": 0,
+  "manifest_sha256": "8f690f914b72c50aff13c3f3e2ad61292e30f37134554c741e2765d0699dd56c",
+  "payload_file_count": 17,
+  "round_trip_verified": true,
+  "sha256": "773076644c85982a473616e5587f88eaaadc5ba6e6b503e9599d8cf7e02b0036"
+}

@@ -5,11 +5,16 @@ const SANDBOX := preload("res://scripts/application/run/DatingRehearsalOwner.gd"
 const SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
 const ADMISSION := preload("res://scripts/domain/narrative/DatingRehearsalAdmission.gd")
 const DATING := preload("res://scenes/dating/DatingScene.tscn")
+const TYPOGRAPHY := preload("res://scripts/ui/gallery/GalleryTypography.gd")
 const COPY := {
+	"ja": ["練習","練習の結果は仮のものです。現在のゲームには影響しません。","開始","戻る","練習できるデートの記録はまだありません。","練習を開始できませんでした。再試行してください。","練習が完了しました。","%d日目","バージョン %d","練習 / 仮の結果"],
+	"ko": ["연습","연습 결과는 가상 결과입니다. 현재 게임에는 영향을 주지 않습니다.","시작","돌아가기","아직 연습할 수 있는 데이트 기록이 없습니다.","연습을 시작하지 못했습니다. 다시 시도하세요.","연습 완료.","%d일째","버전 %d","연습 / 가상 결과"],
 	"zh-HK": ["\u7df4\u7fd2", "\u7df4\u7fd2\u7684\u7d50\u679c\u662f\u5047\u8a2d\u6027\u7684\uff0c\u4e0d\u6703\u6539\u8b8a\u76ee\u524d\u904a\u6232\u9032\u5ea6\u3002", "\u958b\u59cb", "\u8fd4\u56de", "\u9084\u6c92\u6709\u53ef\u7df4\u7fd2\u7684\u7d04\u6703\u8a18\u9304\u3002", "\u66ab\u6642\u7121\u6cd5\u958b\u59cb\u7df4\u7fd2\uff0c\u8acb\u91cd\u8a66\u3002", "\u7df4\u7fd2\u5b8c\u6210\u3002", "\u7b2c %d \u5929", "\u7248\u672c %d", "\u7df4\u7fd2 / \u5047\u8a2d\u6027\u7d50\u679c"],
 	"en": ["Practice", "Practice uses hypothetical outcomes. Your current run is unchanged.", "Start", "Return", "No reached dates are available yet.", "Practice could not start. Please try again.", "Practice complete.", "Day %d", "Version %d", "Practice / hypothetical outcomes"],
 	"zh": ["\u7ec3\u4e60", "\u7ec3\u4e60\u7684\u7ed3\u679c\u662f\u5047\u8bbe\u6027\u7684\uff0c\u4e0d\u4f1a\u6539\u53d8\u5f53\u524d\u6e38\u620f\u8fdb\u5ea6\u3002", "\u5f00\u59cb", "\u8fd4\u56de", "\u8fd8\u6ca1\u6709\u53ef\u7ec3\u4e60\u7684\u7ea6\u4f1a\u8bb0\u5f55\u3002", "\u6682\u65f6\u65e0\u6cd5\u5f00\u59cb\u7ec3\u4e60\uff0c\u8bf7\u91cd\u8bd5\u3002", "\u7ec3\u4e60\u5b8c\u6210\u3002", "\u7b2c %d \u5929", "\u7248\u672c %d", "\u7ec3\u4e60 / \u5047\u8bbe\u6027\u7ed3\u679c"]}
 const VIEW_SAVE_COPY := {
+	"ja": "盤面の表示を保存できませんでした。再試行してください。",
+	"ko": "보드 보기를 저장하지 못했습니다. 다시 시도하세요.",
 	"en": "Could not save the board view. Please try again.",
 	"zh": "\u65e0\u6cd5\u4fdd\u5b58\u68cb\u76d8\u89c6\u56fe\uff0c\u8bf7\u91cd\u8bd5\u3002",
 	"zh-HK": "\u7121\u6cd5\u5132\u5b58\u68cb\u76e4\u6aa2\u8996\uff0c\u8acb\u91cd\u8a66\u3002",
@@ -44,6 +49,8 @@ func configure(profile: Object, game: Object, bridge: Object, input_owner: Objec
 	var result: Dictionary = sandbox.configure(profile, game)
 	if not result.get("ok", false): return result
 	_profile = profile
+	if _profile.has_signal("preference_changed"):
+		_profile.connect("preference_changed", _on_font_style_changed)
 	_game = game
 	_bridge = bridge
 	_input = input_owner
@@ -122,7 +129,7 @@ func _ready() -> void:
 	_refresh_records()
 
 func _copy(index: int) -> String:
-	return COPY["zh-HK" if _locale.replace("_", "-") == "zh-HK" else ("zh" if _locale.begins_with("zh") else "en")][index]
+	return COPY["zh-HK" if _locale.replace("_", "-") == "zh-HK" else ("zh" if _locale.begins_with("zh") else (_locale if _locale in ["ja", "ko"] else "en"))][index]
 
 func _refresh_records() -> void:
 	_records.clear()
@@ -140,6 +147,8 @@ func _refresh_records() -> void:
 			var variation: String = ""
 			if context.kind != "solo":
 				variation = (" / Group" if context.kind == "group" else " / Encounter") if not _locale.begins_with("zh") else (" / \u5171\u540c\u7ea6\u4f1a" if context.kind == "group" else " / \u76f8\u9047")
+				if _locale == "ja": variation = " / グループ" if context.kind == "group" else " / 出会い"
+				elif _locale == "ko": variation = " / 그룹" if context.kind == "group" else " / 만남"
 			_dates.add_item("%s / %s%s / %s" % [who, _copy(7) % context.day, variation, _copy(8) % versions[entry_id]])
 			_records.append(record.duplicate(true))
 	_start.disabled = _records.is_empty()
@@ -207,7 +216,7 @@ func _finish_current(token: String) -> void:
 func _return_to_selection(completed: bool) -> void:
 	if not is_inside_tree() or not is_instance_valid(_dating): return
 	if not _dating.worksheet.flush_view_preferences():
-		_status.text = VIEW_SAVE_COPY["zh-HK" if _locale.replace("_", "-") == "zh-HK" else ("zh" if _locale.begins_with("zh") else "en")]
+		_status.text = VIEW_SAVE_COPY["zh-HK" if _locale.replace("_", "-") == "zh-HK" else ("zh" if _locale.begins_with("zh") else (_locale if _locale in ["ja", "ko"] else "en"))]
 		return
 	_root.remove_child(_dating)
 	_dating.queue_free()
@@ -220,3 +229,8 @@ func _return_to_selection(completed: bool) -> void:
 
 func _exit_tree() -> void:
 	if _sandbox != null: _sandbox.close()
+
+func _on_font_style_changed(path: StringName, _value: Variant) -> void:
+	if path != &"preferences.accessibility.font_style" or not is_instance_valid(_root): return
+	_root.theme.default_font = TYPOGRAPHY.font(_locale, _percent,
+		str(_profile.get_preference("preferences.accessibility.font_style", "pixel")))

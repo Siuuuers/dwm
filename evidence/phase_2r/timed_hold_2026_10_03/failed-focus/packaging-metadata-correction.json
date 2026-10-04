@@ -1,0 +1,24 @@
+{
+  "status": "generated_metadata_corrected_original_cloud_evidence_unchanged",
+  "supersedes_unadopted_scratch_packages": {
+    "focus1": "9b012a397fdd1521960b5cd65e713149cf61c4e9740bdadb259d63b7ff22f825",
+    "focus2": "d06f671c3420ddd7e7b17ba7bc65cefbe4d97eb03c6c75615eb447db2bd8c009"
+  },
+  "corrections": [
+    "workflow_head is now separate from actual_checkout; every executed job actual checkout is verified to the pinned source via raw checkout logs.",
+    "Focus1 1266 cases means all five ordinary suites; reading_delivery itself contains 515 cases,514pass1fail."
+  ],
+  "current_archives": {
+    "focus1": {
+      "file": "timed-hold-focus1-failed-diagnostic-evidence.tar.gz",
+      "bytes": 39763629,
+      "sha256": "84979244569ad99856d606ec1f784951a8da07c927c20b35b75262e8e807b51c"
+    },
+    "focus2": {
+      "file": "timed-hold-focus2-failed-diagnostic-evidence.tar.gz",
+      "bytes": 1371000,
+      "sha256": "64a504a99d1594db56e42d084eeeaf9d4db9912d2a8b99dd32b6c9a65bbc676f"
+    }
+  },
+  "no_runtime_claim_changed": true
+}

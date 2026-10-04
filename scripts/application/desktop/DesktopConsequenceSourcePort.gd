@@ -165,15 +165,49 @@ func resolve_condition_receipt(request: Dictionary) -> Dictionary:
 	var gameplay: Dictionary = snapshot.get("gameplay", {})
 	var day := int(request["source_day"])
 	var causal_day := str(request["causal_day_instance"])
-	if int(lifecycle.get("day", -1)) != day or str(lifecycle.get("causal_day_instance", "")) != causal_day:
-		return _condition_unavailable("the request names another live day or continuation")
+	# A fresh Load may remap the live desktop continuation while retaining an unfinished
+	# resolution from this same source day. The active plan below remains the authority for
+	# that in-flight request: its persisted start must name this exact causal day and its
+	# verified root. The live lifecycle still has to be on the same numeric day, so neither a
+	# request from another day nor a foreign plan can borrow the restored gameplay outcome.
+	if int(lifecycle.get("day", -1)) != day:
+		return _condition_unavailable("the request names another live day")
+	var live_causal_day := str(lifecycle.get("causal_day_instance", ""))
+	if live_causal_day != causal_day:
+		var restore_provenance: Variant = lifecycle.get("restore_provenance")
+		var proof: Dictionary = {}
+		if restore_provenance is Dictionary:
+			proof = (restore_provenance as Dictionary)
+		# On a repeated Load the latest proof names the immediately preceding continuation,
+		# while the retained plan start still names the original source. Require a real remap
+		# boundary here; the verified plan/start below remains the original-request authority.
+		if proof.is_empty() \
+				or str(proof.get("source_branch_id", "")).is_empty() \
+				or str(proof.get("source_causal_day_instance", "")).is_empty() \
+				or str(proof.get("source_causal_day_instance", "")) == live_causal_day \
+				or str(proof.get("restore_transaction_id", "")).is_empty() \
+				or str(proof.get("identity_allocation_receipt_id", "")).is_empty() \
+				or str(proof.get("transaction_remap_sha256", "")).is_empty() \
+				or str(proof.get("remap_receipt_id", "")).is_empty() \
+				or not proof.get("remap_receipt_provenance") is Dictionary \
+				or (proof.get("remap_receipt_provenance") as Dictionary).is_empty():
+			return _condition_unavailable("the request names another live continuation")
+		var remap_provenance: Dictionary = proof["remap_receipt_provenance"]
+		var remap_valid: Dictionary = _identity_issuer.call(
+			&"validate_child", remap_provenance, &"continuation_operation")
+		if not remap_valid.get("ok", false) \
+				or str(remap_provenance.get("parent_receipt_id", "")) \
+					!= str(proof.get("identity_allocation_receipt_id", "")) \
+				or str(remap_provenance.get("child_id", "")) != str(proof.get("remap_receipt_id", "")):
+			return _condition_unavailable("the live continuation has no verified restore remap")
 	var plan: Dictionary = lifecycle.get("active_resolution_plan", {}) \
 		if lifecycle.get("active_resolution_plan") is Dictionary else {}
 	var root: Dictionary = plan.get("resolution_issuer_receipt", {}) \
 		if plan.get("resolution_issuer_receipt") is Dictionary else {}
 	var start: Dictionary = plan.get("day_resolution_start_receipt", {}) \
 		if plan.get("day_resolution_start_receipt") is Dictionary else {}
-	if int(plan.get("source_day", -1)) != day or str(start.get("causal_day_instance", "")) != causal_day \
+	if int(plan.get("source_day", -1)) != day or int(start.get("source_day", -1)) != day \
+			or str(start.get("causal_day_instance", "")) != causal_day \
 			or str(plan.get("resolution_id", "")).is_empty() \
 			or str(root.get("token", "")) != str(plan.get("resolution_id", "")) \
 			or str(start.get("resolution_id", "")) != str(plan.get("resolution_id", "")):

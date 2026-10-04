@@ -108,8 +108,7 @@ func test_native_preflight_exclusions_retain_original_values_and_refusals() -> v
     var valid_fallbacks: Array = [
         1.0, -0.0, 0.1,
         {"nested": [1.0, &"plain"]},
-        "line\n", String.chr(0x0b),
-        {StringName("line\t"): "value"},
+        String.chr(0x0b),
     ]
     for value: Variant in valid_fallbacks:
         assert_false(WRITER._can_use_native_encoder(value), str(value))
@@ -194,18 +193,77 @@ func test_native_unicode_documents_escape_quotes_and_backslashes_without_strippi
     assert_eq(WRITER.stringify(value), WRITER._emit(value))
     assert_eq(String(names[0]), text)
 
-func test_unicode_preflight_still_excludes_all_constructible_c0_controls_in_keys_and_values() -> void:
+func test_c0_controls_keep_exact_bytes_and_only_json_short_escapes_use_native_encoding() -> void:
     # String.chr(0), surrogates and out-of-range codepoints are replaced by Godot;
     # they cannot honestly serve as raw malformed-string fixtures here.
     var unicode := String.chr(0x4e2d)
+    var short_escapes := {0x08: "\\b", 0x09: "\\t", 0x0a: "\\n", 0x0c: "\\f", 0x0d: "\\r"}
     for codepoint: int in range(1, 0x20):
         var control := String.chr(codepoint)
+        var escaped: String = short_escapes.get(codepoint, "\\u%04x" % codepoint)
+        assert_eq(WRITER.stringify(unicode + control),
+            {"ok": true, "value": '"' + unicode + escaped + '"'}, "C0 U+%04X" % codepoint)
         for value: Variant in [
             {"nested": [StringName(unicode), unicode + control]},
             {StringName(unicode + control): unicode},
         ]:
-            assert_false(WRITER._can_use_native_encoder(value), "C0 U+%04X" % codepoint)
+            assert_eq(WRITER._can_use_native_encoder(value), short_escapes.has(codepoint),
+                "Only the five JSON short escapes are safe: C0 U+%04X" % codepoint)
             var original := WRITER._emit(value)
             assert_true(original.get("ok", false), str(original))
             assert_eq(WRITER.stringify(value), original,
-                "Even a trailing newline must fall through to the original control escaping.")
+                "Encoder selection cannot change persisted bytes.")
+
+func test_short_controls_and_unicode_keep_exact_bytes_with_quotes_backslashes_and_string_names() -> void:
+    var text := "中😽\"\\\b\t\n\f\r"
+    var expected_string := '"中😽\\"\\\\\\b\\t\\n\\f\\r"'
+    assert_eq(WRITER.stringify(text), {"ok": true, "value": expected_string})
+    var value := {StringName(text): [StringName(text), "\n"]}
+    var expected := '{' + expected_string + ':[' + expected_string + ',"\\n"]}'
+    assert_true(WRITER._can_use_native_encoder(value))
+    assert_eq(WRITER.stringify(value), {"ok": true, "value": expected})
+    var parsed := STRICT.parse_object(expected)
+    assert_true(parsed.get("ok", false))
+    if parsed.get("ok", false):
+        assert_true(WRITER._deep_same(value, parsed.value))
+
+func test_multiline_autosave_payload_retains_exact_bytes_inside_float_profile_materials() -> void:
+    # New Acc journals retain a complete JSON file, including its required final
+    # newline, beside Profile preferences whose floats require the checked writer.
+    var outgoing := '{"name":"中😽","preferences":{"font_scale":1.25},"quote":"\\\"\\\\"}\n'
+    var outgoing_encoded := '"{\\"name\\":\\"中😽\\",\\"preferences\\":{\\"font_scale\\":1.25},\\"quote\\":\\"\\\\\\"\\\\\\\\\\"}\\n"'
+    var value := {"new_run_materials": {
+        "profile": {"candidate": {"preferences": {"volume": 0.5, "font_scale": 1.25}}},
+        "autosave": {"outgoing_text": outgoing},
+    }}
+    var expected := '{"new_run_materials":{"autosave":{"outgoing_text":' + outgoing_encoded \
+        + '},"profile":{"candidate":{"preferences":{"font_scale":1.25,"volume":0.5}}}}}'
+    assert_true(WRITER._can_use_native_encoder(outgoing), "The complete retained JSON string is eligible.")
+    assert_false(WRITER._can_use_native_encoder(value), "Float preferences preserve canonical float encoding.")
+    assert_eq(WRITER.stringify(value), {"ok": true, "value": expected})
+    var parsed := STRICT.parse_object(expected)
+    assert_true(parsed.get("ok", false))
+    if parsed.get("ok", false):
+        assert_eq(parsed.value.new_run_materials.autosave.outgoing_text.to_utf8_buffer(), outgoing.to_utf8_buffer())
+        assert_eq(typeof(parsed.value.new_run_materials.profile.candidate.preferences.font_scale), TYPE_FLOAT)
+        var autosave := STRICT.parse_object(parsed.value.new_run_materials.autosave.outgoing_text)
+        assert_true(autosave.get("ok", false), "Escaping the retained file cannot corrupt its inner JSON.")
+        if autosave.get("ok", false):
+            assert_eq(autosave.value.name, "中😽")
+            assert_eq(autosave.value.quote, '"\\')
+
+func test_control_string_optimization_keeps_structural_error_precedence() -> void:
+    assert_eq(WRITER.stringify({"a\n": Vector2.ZERO, "z": NAN}).get("code"), &"unsupported_type")
+    assert_eq(WRITER.stringify({"a\t": NAN, "z": Vector2.ZERO}).get("code"), &"non_finite_number")
+    assert_eq(WRITER.stringify({"a": "中\n", 1: "bad key"}).get("code"), &"invalid_key_type")
+
+func test_native_short_control_keys_retain_canonical_order_after_normalization() -> void:
+    var keys := ["\b", "\t", "\n", "\f", "\r", " ", "A"]
+    var value := {}
+    for index: int in range(keys.size() - 1, -1, -1):
+        value[StringName(keys[index]) if index % 2 else keys[index]] = index
+    var expected := '{"\\b":0,"\\t":1,"\\n":2,"\\f":3,"\\r":4," ":5,"A":6}'
+    assert_true(WRITER._can_use_native_encoder(value))
+    assert_eq(WRITER.stringify(value), {"ok": true, "value": expected})
+    assert_eq(WRITER.stringify(value), WRITER._emit(value),
+        "Native raw key ordering must match the canonical UTF-8 order before escaping.")

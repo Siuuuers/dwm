@@ -1,6 +1,6 @@
 class_name WitnessedTransportRecovery
 extends Control
-## Presentation-only recovery for a refused Witnessed reading-setting change.
+## Presentation-only recovery for a refused Witnessed reading command.
 ## CaptionLayer retains the semantic request and decides whether Retry or Cancel is lawful.
 
 signal retry_requested
@@ -8,11 +8,14 @@ signal cancel_requested
 
 const TRANSPORT_BUTTON := preload("res://scripts/ui/witnessed/WitnessedTransportButton.gd")
 const PRESENTATION := preload("res://scripts/ui/SettingsTheme.gd")
-const LOCALES := ["en", "zh-CN", "zh-HK"]
+const LOCALES := ["en", "zh-CN", "zh-HK", "ja", "ko"]
 const COLOUR_PRESETS := ["standard", "protan", "deutan", "tritan"]
 const COPY_KEYS := {
 	"failure": "witnessed.recovery.preference_failed",
 	"uncertain": "witnessed.recovery.preference_uncertain",
+	"next_failure": "witnessed.recovery.next_failed",
+	"next_uncertain": "witnessed.recovery.next_uncertain",
+	"step_failure": "witnessed.recovery.step_failed",
 	"retry": "witnessed.recovery.retry",
 	"cancel": "witnessed.recovery.cancel",
 }
@@ -33,6 +36,7 @@ var _bound := false
 var _active := false
 var _can_retry := false
 var _can_cancel := false
+var _command_kind: StringName = &"preference"
 
 
 func _ready() -> void:
@@ -63,7 +67,7 @@ func bind_owners(localization: Object, input_owner: Node, admission: Callable) -
 
 
 func configure_presentation(locale: String, percent: int, palette: String,
-		high_contrast: bool, colour: String, large_targets: bool) -> bool:
+		high_contrast: bool, colour: String, large_targets: bool, font_style: String = "pixel") -> bool:
 	var normalized := locale.replace("_", "-")
 	if normalized not in LOCALES or percent not in [100, 125, 150] \
 			or colour not in COLOUR_PRESETS or not _bound:
@@ -75,7 +79,7 @@ func configure_presentation(locale: String, percent: int, palette: String,
 	var palette_id := _palette_id(palette)
 	if palette_id == &"": return false
 	var next_theme: Theme = PRESENTATION.build(
-		normalized, percent, palette_id, high_contrast, colour)
+		normalized, percent, palette_id, high_contrast, colour, 1, font_style)
 	if next_theme == null: return false
 	_retire_buttons()
 	_locale = normalized
@@ -87,9 +91,12 @@ func configure_presentation(locale: String, percent: int, palette: String,
 	return true
 
 
-func present(can_retry: bool, can_cancel: bool) -> bool:
-	if not _configured or not _bound or (can_cancel and not can_retry):
+func present(can_retry: bool, can_cancel: bool, command_kind: StringName = &"preference") -> bool:
+	if not _configured or not _bound or (can_cancel and not can_retry) \
+			or command_kind not in [&"preference", &"next", &"hospital"] \
+			or (command_kind == &"hospital" and (not can_retry or can_cancel)):
 		return false
+	_command_kind = command_kind
 	_can_retry = can_retry
 	_can_cancel = can_cancel
 	_active = true
@@ -149,7 +156,13 @@ func _style(percent: int, large_targets: bool) -> void:
 
 
 func _publish() -> void:
-	message_label.text = _copy["failure"] if _can_retry or _can_cancel else _copy["uncertain"]
+	var next_command := _command_kind == &"next"
+	if _command_kind == &"hospital":
+		message_label.text = _copy["step_failure"]
+	elif _can_retry or _can_cancel:
+		message_label.text = _copy["next_failure"] if next_command else _copy["failure"]
+	else:
+		message_label.text = _copy["next_uncertain"] if next_command else _copy["uncertain"]
 	accessibility_name = message_label.text
 	retry_button.text = _copy["retry"]
 	cancel_button.text = _copy["cancel"]

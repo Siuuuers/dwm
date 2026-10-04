@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "status": "qualified_bounded_export_startup_pass_with_unresolved_exporter_cleanup_warning",
+  "scope": "Static cross-run review of one retained ObjectDB cleanup warning. No engine, executable, test, workflow or repository mutation.",
+  "diagnostic": {
+    "exact_text": "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+    "location_text": "at: cleanup (core/object/object.cpp:2663)",
+    "occurrences_per_export_console": 1,
+    "line": 2086,
+    "location_line": 2087,
+    "byte_order_context": "The warning follows the savepack DONE marker in the combined console file. Invoke-CheckedProcess concatenates complete stdout, then a newline, then complete stderr, so file order alone does not prove temporal ordering or source stream.",
+    "cause": "unknown",
+    "culprit_attribution": false
+  },
+  "runs": [
+    {
+      "label": "Broad1",
+      "run_id": 37044894986,
+      "source": "856520f09440d9b47cc272de3363009924ffedca",
+      "workflow_head": "1bc4f6afd759e969f82b9c2134eb178479c19d13",
+      "job_id": 110965239936,
+      "job_conclusion": "success",
+      "artifact_id": 11244640103,
+      "artifact_digest": "sha256:e2739823bc11ab4a336072c1a437af8711f54c3dee248a6e388b42c6947d8cc9",
+      "export_console": {
+        "bytes": 256839,
+        "sha256": "7a9860f517010cc0292a04e9124a5d7ecf4522e165d231317c7a6357820433f3",
+        "objectdb_warning_count": 1
+      },
+      "validation_json_sha256": "cc922302120019b0d12c6c792f50960dfe53b52fb47b832870bd09c31ddad3bc"
+    },
+    {
+      "label": "Broad2",
+      "run_id": 37048318182,
+      "source": "a24f71766a624b57601814dda487b53c66518c39",
+      "workflow_head": "c9c013397f2e309b48fc1548490b401e54938c6c",
+      "job_id": 110976704690,
+      "job_conclusion": "success",
+      "artifact_id": 11245855941,
+      "artifact_digest": "sha256:2184a604d785c5f8fa09049c7f8cfa7f3a91ad4944db6af05bf401143c6e0090",
+      "export_console": {
+        "bytes": 256839,
+        "sha256": "7a9860f517010cc0292a04e9124a5d7ecf4522e165d231317c7a6357820433f3",
+        "objectdb_warning_count": 1
+      },
+      "validation_json_sha256": "6666da8dc2756011721aab9781c6c7d3cc9b4ca0eb58164b4dfd5c291e80a54b"
+    }
+  ],
+  "cross_run_findings": {
+    "export_console_byte_identical": true,
+    "export_engine_log_byte_identical": true,
+    "export_engine_log_sha256": "704cfddd743b7a2f4a489bfc66d5a2333d1b4c7ff8aa93a4e7a3a0647da2e235",
+    "warning_present_only_in_export_console_within_each_export_artifact": true,
+    "warning_absent_from": [
+      "import.log",
+      "export.log",
+      "smoke.console.log",
+      "smoke.log",
+      "pack-audit.console.log",
+      "pack-audit.log",
+      "version.console.log"
+    ],
+    "smoke_and_pack_logs_have_same_warning": false,
+    "source9_changed_export_validator": false,
+    "source8_and_source9_validator_sha256": "a2bb7215f6ea2f2a5d2fa3962108a6dd0ba481a50ceb9b80cdf0f5098445caf9"
+  },
+  "canonical_validator_contract": {
+    "error_pattern": "SCRIPT ERROR:|^\\s*ERROR:|STARTUP_FAILED|Unicode parsing error|Unexpected NUL character",
+    "objectdb_warning_gated": false,
+    "resource_still_in_use_gated_directly": false,
+    "process_exit_or_timeout_gated": true,
+    "broad1_contract_satisfied": true,
+    "broad2_contract_satisfied": true,
+    "reason": "Both export jobs completed successfully and produced ok validation, export receipt, packaged-data audit and isolated 240-iteration headless-startup evidence. The warning does not match the committed validator's failure expression."
+  },
+  "independent_checklist_boundary": {
+    "checklist_requirement": "Reject resource-lifetime errors outside exact intentional controls and verify export, smoke and pack-audit console and engine logs.",
+    "resource_lifetime_clean_claim_satisfied": false,
+    "warning_free_export_claim_satisfied": false,
+    "strict_broad2_export_auditor_result": "stopped_on_objectdb_warning",
+    "strict_auditor_sha256": "ccdcbe99563e53d52d58a19dce891c981132643a06300a0e4fcdebaf0f128cd7",
+    "whole_gate_acceptance": false,
+    "interpretation": "The stricter auditor is correctly refusing an unqualified clean-diagnostic claim. That refusal is a policy/checklist boundary, not evidence that the exported bytes, pack audit or isolated startup failed."
+  },
+  "acceptance_boundary": {
+    "bounded_unsigned_export_created": true,
+    "packaged_runtime_data_audit_passed": true,
+    "isolated_headless_startup_passed": true,
+    "leak_free_exporter_shutdown_established": false,
+    "graphical_windows_acceptance": false,
+    "uia_or_screen_reader_acceptance": false,
+    "release_readiness": false,
+    "whole_gate_acceptance": false,
+    "recommended_label": "bounded export/package/headless-startup pass, qualified by unresolved ObjectDB cleanup warning"
+  },
+  "blocker_assessment": {
+    "concrete_export_or_startup_failure_beyond_warning_observed": false,
+    "independent_clean_resource_lifetime_criterion_blocked_by_warning": true,
+    "requires_cause_attribution_before_bounded_component_claim": false,
+    "requires_disposition_before_unqualified_or_whole_gate_claim": true,
+    "next_evidence_if_investigated": "Run the same editor export with verbose diagnostics under an explicitly reviewed workflow and retain separated stdout/stderr if possible. Do not infer the leaked object type or owner from the current two-line warning."
+  },
+  "inputs": {
+    "validator": {
+      "path": "dwm/tools/testing/Invoke-WindowsExportValidation.ps1",
+      "sha256": "a2bb7215f6ea2f2a5d2fa3962108a6dd0ba481a50ceb9b80cdf0f5098445caf9"
+    },
+    "broad1_prior_audit": {
+      "json_sha256": "c12e0dbfe59b14d373f65c5785a726fe517098fe0ed77688dace10e1a46f6382",
+      "readme_sha256": "ca899cd3997a50662aae3caccb7e8c8a2f9d87c44aaf6d2ba4e2736de21add3e"
+    },
+    "broad1_checklist_sha256": "ef114d5f6a3d71adb6872f9bd4563d8829c9951901c71839ec01a3e9242e5e85",
+    "broad2_checklist_sha256": "207efb5b3479938730f397bec342d04b4b7edd21a9d84279d601664364f8bbec"
+  },
+  "limits": [
+    "Static bytes and captured cloud results only; no executable or engine ran locally.",
+    "The combined console file does not retain separate stdout/stderr provenance.",
+    "No leaked instance count, type, owner or behavioral consequence is present in the retained logs.",
+    "Repetition across two runs demonstrates reproducibility for these exact runs, not a universal engine or project diagnosis."
+  ]
+}

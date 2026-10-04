@@ -1,0 +1,188 @@
+{
+  "bytes": 18164556,
+  "file_count": 36,
+  "files": [
+    {
+      "bytes": 1352,
+      "path": "audit-records/focus5/exact-suite-census-audit.json",
+      "sha256": "ef99f33720849147f1b4a08daf3d9763aded142c53dff9bd4157ad7f795a1c27"
+    },
+    {
+      "bytes": 130647,
+      "path": "audit-records/focus5/focused-infrastructure-audit.json",
+      "sha256": "4dbe86b05b374feeb3610310326e708121796895c2b1b0f629ebaa5d5c4b2ebe"
+    },
+    {
+      "bytes": 68331,
+      "path": "audit-records/focus5/hospital-focus5-semantic-audit.json",
+      "sha256": "e610fa453c2a5bb71cbe7505ae8b727911895a737f65e55e40ab353eadaf950f"
+    },
+    {
+      "bytes": 8499,
+      "path": "audit-records/focus5/hospital-focus5-semantic-audit.md",
+      "sha256": "77ed8713a805744cd2088b68120fc08c7f9128060f1ee72e8623971b6603f875"
+    },
+    {
+      "bytes": 28557,
+      "path": "audit-records/source7/hospital-static-acceptance-review.json",
+      "sha256": "093a35d4ccb6f65adc4f600e7def78e0d026ff15e41c2d129c623efdcf6fc256"
+    },
+    {
+      "bytes": 19854,
+      "path": "audit-records/source7/hospital-static-acceptance-review.md",
+      "sha256": "7d4fb9d00ed08a66c1bc043f026df1305a434d554c8bdbbee86362e411b5c647"
+    },
+    {
+      "bytes": 812,
+      "path": "audit-records/source7/public-inventory-review.json",
+      "sha256": "34c21ce54d5b43a3b64064564f6fc52eaa6cdf5d505dfaba8590916c462653fa"
+    },
+    {
+      "bytes": 762,
+      "path": "audit-records/source7/publication.json",
+      "sha256": "2e4230d3efcea1aa23da6baf02ace5601adedf8c5708654e2ca870d37d85ee7d"
+    },
+    {
+      "bytes": 2255,
+      "path": "audit-records/source7/source-manifest.json",
+      "sha256": "244738c663a1230271f72c82434845679f1bdc71c38412f3cf746ac339f6702b"
+    },
+    {
+      "bytes": 887,
+      "path": "audit-records/source8/publication.json",
+      "sha256": "1c582066cae40e4ba494a3d660c797ecff1122c6b773f73f49bdf28dc7b42fd1"
+    },
+    {
+      "bytes": 843,
+      "path": "audit-records/source8/source-manifest.json",
+      "sha256": "b22a6c8599ef0cd8188944b44c97c2513267e49ccf3e76061d2107ccda1374a4"
+    },
+    {
+      "bytes": 1405,
+      "path": "audit-records/source8/workflow-commit.json",
+      "sha256": "c8bb72c46896efb4b66246cf4147daa00b84231a239b3be7dda72efdff38cecc"
+    },
+    {
+      "bytes": 361309,
+      "path": "audit-records/workflow-derivations/broad1-workflow-manifest.json",
+      "sha256": "51d8461601dec60a1c9312adfbf5dd36f6f2a2ae1298ad058649836b1dae40a1"
+    },
+    {
+      "bytes": 16348,
+      "path": "audit-records/workflow-derivations/build-hospital-broad-workflow.py",
+      "sha256": "402e84567fe0e5ce461321446466a90fa9361885274bc4bf149e0803fff07fd6"
+    },
+    {
+      "bytes": 10164,
+      "path": "audit-records/workflow-derivations/build-hospital-focused-workflow.py",
+      "sha256": "b1415dc0caa4749ae663471b093b282491eaa558ae15c4b4f0f099c0c7023457"
+    },
+    {
+      "bytes": 205021,
+      "path": "audit-records/workflow-derivations/focus5-workflow-manifest.json",
+      "sha256": "008a863be1aac89a0d9b40122f05ead90ba64e17fab770408e5ef110866ba5d1"
+    },
+    {
+      "bytes": 180,
+      "path": "packages/focus1-diagnostic/SHA256SUMS.txt",
+      "sha256": "433d8851c6d262ad7ca1f925e4f5483838d267af86eb48705340b1cfe315e685"
+    },
+    {
+      "bytes": 411,
+      "path": "packages/focus1-diagnostic/bundle-receipt.json",
+      "sha256": "47a1c67a5b5c888fcbb1a3377307c71e5f4590340019a5a0293d069fa783ac1b"
+    },
+    {
+      "bytes": 2343000,
+      "path": "packages/focus1-diagnostic/hospital-focus1-diagnostic.tar.gz",
+      "sha256": "8a960ed8128d8456f5f7e07a70e9dc7e8d9c8c5b9e8e7559700223b3c4a5fc9c"
+    },
+    {
+      "bytes": 71301,
+      "path": "packages/focus1-diagnostic/manifest.json",
+      "sha256": "2f8ef0586ea2f3eaa6cceec9ada0aff3606178c24c5a576787643b69f6dbc311"
+    },
+    {
+      "bytes": 180,
+      "path": "packages/focus2-diagnostic/SHA256SUMS.txt",
+      "sha256": "8ace82e0b5d5a309d963e0212330d50484adbc9022c5bea14ee3fed943d93aae"
+    },
+    {
+      "bytes": 411,
+      "path": "packages/focus2-diagnostic/bundle-receipt.json",
+      "sha256": "96d54e182a4b943733a864383560607b9109005d591c342555856e35505ba055"
+    },
+    {
+      "bytes": 2411044,
+      "path": "packages/focus2-diagnostic/hospital-focus2-diagnostic.tar.gz",
+      "sha256": "3c8fa0d9976ebdd7a8583cc368c8613d9a5b906003da4cc2c209a5c9edabc1c3"
+    },
+    {
+      "bytes": 73539,
+      "path": "packages/focus2-diagnostic/manifest.json",
+      "sha256": "1cc67a0d0cd9efd60cff37639173ac707163db31aab5e1ebc22cfead42ef27dd"
+    },
+    {
+      "bytes": 190,
+      "path": "packages/focus3-corrected-diagnostic/SHA256SUMS.txt",
+      "sha256": "5140c7a902a5203233250d3f371bca2fba441fe1e6747025c1114f3370fb2519"
+    },
+    {
+      "bytes": 421,
+      "path": "packages/focus3-corrected-diagnostic/bundle-receipt.json",
+      "sha256": "d7e65be0302ce20cb618a1fd38417ca75971937dcebfdfec811770153a4fe145"
+    },
+    {
+      "bytes": 2418572,
+      "path": "packages/focus3-corrected-diagnostic/hospital-focus3-diagnostic-corrected.tar.gz",
+      "sha256": "386098fdf5d97059bc03e386df2160dc4a3d77ba4fb39a7d36731ddbbc638116"
+    },
+    {
+      "bytes": 73533,
+      "path": "packages/focus3-corrected-diagnostic/manifest.json",
+      "sha256": "6b3230defe271fa0c6c0ad01a568b2adb93e273953d9e34006f0f8bfc3deb05e"
+    },
+    {
+      "bytes": 180,
+      "path": "packages/focus4-diagnostic/SHA256SUMS.txt",
+      "sha256": "84426e3c3a908f8747eea94a6aaef5143da69a0f852894c7ad6b43538632c918"
+    },
+    {
+      "bytes": 411,
+      "path": "packages/focus4-diagnostic/bundle-receipt.json",
+      "sha256": "8cd64f13d7b8e54c9f38f11bb7d2cce8235c01ae0e889139d7650ab47172dd5b"
+    },
+    {
+      "bytes": 3170039,
+      "path": "packages/focus4-diagnostic/hospital-focus4-diagnostic.tar.gz",
+      "sha256": "cbb6476a72c2ef2927770260cb31ec334afd6334bd08b58030956fd2414d213c"
+    },
+    {
+      "bytes": 76225,
+      "path": "packages/focus4-diagnostic/manifest.json",
+      "sha256": "f965df391a0121cbd34ce239f4cec3ed5adb96cd3104d29a973efa3c37bfa540"
+    },
+    {
+      "bytes": 178,
+      "path": "packages/focus5-success/SHA256SUMS.txt",
+      "sha256": "05f7b42fae52b75f88a98f0e7aa94ac2b92767a979d5384b00951fba122410ae"
+    },
+    {
+      "bytes": 411,
+      "path": "packages/focus5-success/bundle-receipt.json",
+      "sha256": "831549449e584a7c67b016ae7cf344e155851ceb5e1e319edbebcd7097ff686c"
+    },
+    {
+      "bytes": 6548516,
+      "path": "packages/focus5-success/hospital-focus5-evidence.tar.gz",
+      "sha256": "58881f5fc4996e26911864d701f838ef5dde87319c4ba6955a2e8456dfd167eb"
+    },
+    {
+      "bytes": 118768,
+      "path": "packages/focus5-success/manifest.json",
+      "sha256": "3bbe7b089ead37cfbdf99f11bfab56d1f440415d46f0d16e9275c9f17a70198c"
+    }
+  ],
+  "schema_version": 1,
+  "scope": "Copied immutable package files and audit records; excludes this inventory, focused-receipt.json and README.md."
+}

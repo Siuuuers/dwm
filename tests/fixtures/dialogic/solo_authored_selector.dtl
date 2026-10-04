@@ -1,0 +1,47 @@
+# NONCANONICAL SELECTOR FIXTURE. No production startup registration.
+return
+
+label fixture.selector.pre.sweet
+NONCANONICAL sweet opening. This authored selector fixture keeps the opening stable while the admitted tone determines this caption. #id:fixture.selector.pre.a
+NONCANONICAL shared board invitation. #id:fixture.selector.pre.b
+return
+
+label fixture.selector.pre.dark
+NONCANONICAL dark opening. This authored selector fixture keeps the opening stable while the admitted tone determines this caption. #id:fixture.selector.pre.a
+NONCANONICAL shared board invitation. #id:fixture.selector.pre.b
+return
+
+label fixture.selector.post.sweet.cleared
+NONCANONICAL cleared board reflection. Only the committed board result determines this fixture caption. #id:fixture.selector.post.a
+NONCANONICAL sweet closing. #id:fixture.selector.post.b
+return
+
+label fixture.selector.post.sweet.perfect
+NONCANONICAL perfect board reflection. Only the committed board result determines this fixture caption. #id:fixture.selector.post.a
+NONCANONICAL sweet closing. #id:fixture.selector.post.b
+return
+
+label fixture.selector.post.dark.cleared
+NONCANONICAL cleared board reflection. Only the committed board result determines this fixture caption. #id:fixture.selector.post.a
+NONCANONICAL dark closing. #id:fixture.selector.post.b
+return
+
+label fixture.selector.post.dark.perfect
+NONCANONICAL perfect board reflection. Only the committed board result determines this fixture caption. #id:fixture.selector.post.a
+NONCANONICAL dark closing. #id:fixture.selector.post.b
+return
+
+label fixture.selector.post.sweet.exploded.hatred
+NONCANONICAL exploded board reflection with hatred. This caption follows the committed physical outcome while retaining a stable line identity for the reading fixture. #id:fixture.selector.post.a
+NONCANONICAL sweet closing. #id:fixture.selector.post.b
+return
+
+label fixture.selector.post.sweet.exploded.upset
+NONCANONICAL exploded board reflection with upset. This caption follows the committed physical outcome while retaining a stable line identity for the reading fixture. #id:fixture.selector.post.a
+NONCANONICAL sweet closing. #id:fixture.selector.post.b
+return
+
+label fixture.selector.post.sweet.exploded.amused
+NONCANONICAL exploded board reflection with amused. This caption follows the committed physical outcome while retaining a stable line identity for the reading fixture. #id:fixture.selector.post.a
+NONCANONICAL sweet closing. #id:fixture.selector.post.b
+return

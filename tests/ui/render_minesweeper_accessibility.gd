@@ -11,6 +11,7 @@ const TUPLE_LOCALES := [["en",100,false],["zh-CN",125,false],["zh-HK",150,true]]
 
 var _folder := ""
 var _captures := 0
+var _board_pixels: Image
 
 func _initialize() -> void:
 	_render.call_deferred()
@@ -105,6 +106,7 @@ func _capture(viewport: SubViewport, panel: Control, expected: Theme, public: Di
 	for x in range(register_origin.x,register_origin.x+int(panel.register.size.x)):
 		if not _check(_same_color(pixels.get_pixel(x,register_origin.y+int(panel.register.size.y)-1),_role(expected,&"dark_registration")),"tuple interrupted register separator"): return false
 	if sheet_kind.is_empty():
+		_board_pixels = pixels
 		var grid: Control = panel.worksheet.grid
 		if not _check(grid.projection.cells[0].number > 0 and grid.projection.cells[1].mark == "flag" and grid.projection.cells[2].face == "covered","public cell morphology fixture was lost"): return false
 		if not _pixel(pixels,grid.cell_nodes[0],Vector2(10,10),_role(expected,&"paper"),"revealed cell substrate"): return false
@@ -116,11 +118,19 @@ func _capture(viewport: SubViewport, panel: Control, expected: Theme, public: Di
 		if not _rail_pixels(pixels,panel.worksheet.vertical_rail,expected,false): return false
 	else:
 		var sheet: Control = panel.worksheet.information_sheet
-		if not _check(sheet != null and not panel.worksheet.well.visible,"sheet did not replace the worksheet"): return false
-		if not _pixel(pixels,sheet,Vector2(4,4),_role(expected,&"paper"),"information sheet substrate"): return false
+		if not _check(sheet != null and panel.worksheet.well.visible and panel.worksheet.grid.process_mode == Node.PROCESS_MODE_DISABLED,"sheet must retain the visible board with input disabled"): return false
+		if not _check(_board_pixels != null and _board_pixels.get_size() == pixels.get_size(),"retained-board pixel reference is missing"): return false
+		var point := Vector2i(sheet.get_global_transform_with_canvas()*Vector2(4,4))
+		var paper := _role(expected,&"paper")
+		paper.a = 1.0 if panel._high_contrast else 0.82
+		var substrate := _board_pixels.get_pixelv(point).blend(paper)
+		if not _pixel(pixels,sheet,Vector2(4,4),substrate,"information sheet backdrop over retained board"): return false
 		if not _pixel(pixels,sheet.return_button,Vector2.ONE*(sheet.return_button._inset+3),_role(expected,&"controlled_face"),"sheet Return face"): return false
-		for button: Button in panel.dock.buttons.values():
-			if not _check(button.disabled and button.focus_mode == Control.FOCUS_NONE,"sheet left dock input enabled"): return false
+		if not _check(not panel.dock.buttons.has("board"),"redundant Board control remains"): return false
+		for key: String in panel.dock.buttons:
+			var button: Button = panel.dock.buttons[key]
+			var should_disable: bool = key not in ["rules","assignments","new_board"] or key not in panel.public_view.actions
+			if not _check(button.disabled == should_disable and button.focus_mode == (Control.FOCUS_NONE if should_disable else Control.FOCUS_ALL),"sheet changed permitted dock input"): return false
 		if sheet.rail != null and not _rail_pixels(pixels,sheet.rail,expected,true): return false
 	_captures += 1
 	print("ACCESSIBILITY_CAPTURE ",file," revision=",public.board.revision," mode=flag sheet=",sheet_kind if not sheet_kind.is_empty() else "none"," native_body=400x328 pixel_propagation=verified")

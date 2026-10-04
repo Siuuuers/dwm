@@ -12,6 +12,13 @@ var _owned_mono_present := false
 var _owned_mono_created := false
 var _fail_ordinal := -1
 var _fail_ordinals: Array[int] = []
+var _fail_operation: StringName = &""
+var _fail_player: StringName = &""
+
+
+func fail_next(operation: StringName, player_id: StringName = &"") -> void:
+	_fail_operation = operation
+	_fail_player = player_id
 
 
 func fail_after(ordinal: int) -> void:
@@ -27,7 +34,8 @@ func ensure_bus(bus_name: StringName) -> Dictionary:
 
 
 func ensure_player(player_id: StringName, bus_name: StringName) -> Dictionary:
-	players[player_id] = {"bus": bus_name, "stream": null, "db": 0.0, "playing": false}
+	players[player_id] = {"bus": bus_name, "stream": null, "db": 0.0, "playing": false,
+		"playback_position": 0.0, "stream_paused": false}
 	return _record(&"ensure_player", {"player_id": player_id, "bus_name": bus_name}, {})
 
 
@@ -52,6 +60,7 @@ func set_player_db(player_id: StringName, value_db: float) -> Dictionary:
 func play(player_id: StringName) -> Dictionary:
 	if players.has(player_id):
 		players[player_id]["playing"] = true
+		players[player_id]["playback_position"] = 0.0
 	return _record(&"play", {"player_id": player_id}, {})
 
 
@@ -175,18 +184,29 @@ func _output_failure(code: StringName = &"invalid_audio_runtime") -> Dictionary:
 
 
 func capture_runtime() -> Dictionary:
-	return _record(&"capture_runtime", {}, {"players": players.duplicate(true), "bus_states": bus_states.duplicate(true), "transitions": active_tweens.duplicate(true)})
+	return _record(&"capture_runtime", {}, {"players": players.duplicate(true), "bus_states": bus_states.duplicate(true),
+		"transitions": active_tweens.duplicate(true), "output_mode": output_mode,
+		"owned_mono_present": _owned_mono_present, "owned_mono_created": _owned_mono_created})
 
 
 func restore_runtime(backup: Dictionary) -> Dictionary:
+	var result := _record(&"restore_runtime", {"backup": backup.duplicate(true)}, {})
+	if not result.get("ok", false): return result
 	players = backup.get("players", {}).duplicate(true)
 	bus_states = backup.get("bus_states", {}).duplicate(true)
 	active_tweens = backup.get("transitions", {}).duplicate(true)
-	return _record(&"restore_runtime", {"backup": backup.duplicate(true)}, {})
+	output_mode = backup.get("output_mode", output_mode)
+	_owned_mono_present = backup.get("owned_mono_present", _owned_mono_present)
+	_owned_mono_created = backup.get("owned_mono_created", _owned_mono_created)
+	return result
 
 
 func _record(operation: StringName, arguments: Dictionary, value: Variant) -> Dictionary:
 	operations.append({"operation": operation, "arguments": arguments.duplicate(true)})
+	if operation == _fail_operation and (_fail_player.is_empty() or arguments.get("player_id") == _fail_player):
+		_fail_operation = &""
+		_fail_player = &""
+		return {"ok": false, "code": &"injected_audio_failure", "details": {}, "receipt": {}}
 	if (_fail_ordinal > 0 and operations.size() == _fail_ordinal) or operations.size() in _fail_ordinals:
 		return {"ok": false, "code": &"injected_audio_failure", "details": {}, "receipt": {}}
 	return {"ok": true, "code": &"ok", "value": value, "receipt": {}}

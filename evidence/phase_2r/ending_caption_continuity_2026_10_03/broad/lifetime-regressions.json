@@ -1,0 +1,27 @@
+[
+  {
+    "name": "test_opted_in_natural_completion_keeps_settled_view_until_explicit_retirement",
+    "classname": "tests/integration/test_narrative_caption_ledger_runtime.gd",
+    "passed": true
+  },
+  {
+    "name": "test_cancel_during_retained_completion_releases_view_without_publication",
+    "classname": "tests/integration/test_narrative_caption_ledger_runtime.gd",
+    "passed": true
+  },
+  {
+    "name": "test_foreign_native_replacement_reuses_host_but_retires_ending_memory",
+    "classname": "tests/integration/test_narrative_caption_ledger_runtime.gd",
+    "passed": true
+  },
+  {
+    "name": "test_cancel_active_opted_in_caption_does_not_enter_completion_hold",
+    "classname": "tests/integration/test_narrative_caption_ledger_runtime.gd",
+    "passed": true
+  },
+  {
+    "name": "test_retirement_before_first_return_revokes_future_caption_hold",
+    "classname": "tests/integration/test_narrative_caption_ledger_runtime.gd",
+    "passed": true
+  }
+]

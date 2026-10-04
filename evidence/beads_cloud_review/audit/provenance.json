@@ -1,0 +1,281 @@
+{
+  "head_sha": "e1d3428fbfc9de27a0f350f3a858478cd06c0978",
+  "run_id": 35577704852,
+  "workflow_url": "https://github.com/Siuuuers/dwm/actions/runs/35577704852",
+  "artifact": {
+    "name": "ui-literal-audit-35577704852-1",
+    "id": 10629075962,
+    "head_sha": "e1d3428fbfc9de27a0f350f3a858478cd06c0978",
+    "run_id": 35577704852,
+    "archive_sha256": "d1a50880da078f0b4591d4db72b1865775d9a73712c547c25c939e478c2b330f",
+    "github_digest_matches": true,
+    "extracted_files_match_archive": true,
+    "created_at": "2026-09-21T08:29:32Z",
+    "artifact_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/10629075962",
+    "archived_file_count": 3
+  },
+  "reports": [
+    {
+      "file": "ui_literal_disposition.json",
+      "source_count": 31,
+      "record_count": 53,
+      "failures": [],
+      "dispositions": {
+        "decorative": 1,
+        "localized_binding": 24,
+        "localized_call": 6,
+        "narrative_owned_by_dialogic": 1,
+        "runtime_data": 21
+      },
+      "sha256": "2bcc2d325c95cefae7ef35079ba12adb02b550d1762ec43fd9a1a932882a2d03"
+    },
+    {
+      "file": "script_ui_disposition.json",
+      "source_count": 301,
+      "record_count": 324,
+      "failures": [],
+      "dispositions": {
+        "decorative": 3,
+        "localized_call": 144,
+        "runtime_data": 177
+      },
+      "sha256": "c2975440921054a4583686279beb4ce56ad16b6e702608579acbd1f7af19a579"
+    }
+  ],
+  "unexpected_diagnostics": [],
+  "source": "Fresh full-tree UiLiteralAudit execution in the final native CI job; original artifact bytes retained without edits.",
+  "independent_inventory_review": {
+    "exact_head_tree_inventory_paths": 332,
+    "inventory_complete": true,
+    "record_fields_valid": true,
+    "duplicate_records": 0,
+    "unclassified_records": 0,
+    "source_line_hashes_spot_checked": 105,
+    "source_line_hash_mismatches": 0,
+    "checked_source_paths": [
+      "scenes/desktop/ComputerDesktop.tscn",
+      "scenes/menu/GalleryScene.tscn",
+      "scripts/ui/ComputerDesktop.gd",
+      "scripts/ui/GalleryScene.gd",
+      "scripts/ui/desktop/DesktopLauncherButton.gd",
+      "scripts/ui/desktop/TitleWelcome.gd",
+      "scripts/ui/minesweeper/MinesweeperWorksheet.gd",
+      "scripts/ui/desktop/DesktopPanelSplit.gd",
+      "scripts/ui/minesweeper/MinesweeperScrollRail.gd",
+      "scripts/ui/DatingScene.gd"
+    ],
+    "limit": "Inventory completeness and source-line proof spot checks do not re-prove all semantic ownership classifications."
+  },
+  "legacy_subset": {
+    "path": "evidence/phase_2r/localization/legacy_subset_fingerprint.json",
+    "baseline_head": "681251dc832262c08826ce74d6a4480291eac4a8",
+    "final_head": "e1d3428fbfc9de27a0f350f3a858478cd06c0978",
+    "identical_git_blob": "b34a15b1a334629cb764cd6988408a87da2a0a26",
+    "combined_sha256": "b3b81f0149cab68e35625008356ab1e4107c929cda6665d75ca1c6a0c2155843",
+    "record_counts": {
+      "en": 50,
+      "zh_CN": 25,
+      "zh_HK": 25
+    },
+    "verification": "Exact Git blob equality plus passing final-head runtime tests checking every frozen text and recomputing the fingerprint."
+  },
+  "focused_gut_evidence": {
+    "source": "evidence/beads_cloud_review/windows/gut/localization.xml",
+    "sha256": "d4b4f03f6cfedf75f9fbf01ccfd0506579258fcc5d4ecc79f570aa827ed1b689",
+    "suites": [
+      {
+        "script": "tests/unit/test_localization_extraction.gd",
+        "tests": 5,
+        "assertions": 125,
+        "failures": 0,
+        "skipped": 0,
+        "cases": [
+          {
+            "name": "test_every_immutable_subset_record_remains_in_catalogs_exactly",
+            "assertions": "104",
+            "status": "pass",
+            "classname": "tests/unit/test_localization_extraction.gd",
+            "time": "0.063268"
+          },
+          {
+            "name": "test_immutable_fingerprint_matches_exact_50_25_25_records",
+            "assertions": "3",
+            "status": "pass",
+            "classname": "tests/unit/test_localization_extraction.gd",
+            "time": "0.006632"
+          },
+          {
+            "name": "test_manifest_and_catalog_bundle_are_semantically_valid",
+            "assertions": "7",
+            "status": "pass",
+            "classname": "tests/unit/test_localization_extraction.gd",
+            "time": "0.262026"
+          },
+          {
+            "name": "test_manifest_rejects_duplicates_paths_and_cycles",
+            "assertions": "4",
+            "status": "pass",
+            "classname": "tests/unit/test_localization_extraction.gd",
+            "time": "0.003895"
+          },
+          {
+            "name": "test_placeholder_mismatch_rejects_bundle",
+            "assertions": "7",
+            "status": "pass",
+            "classname": "tests/unit/test_localization_extraction.gd",
+            "time": "0.132001"
+          }
+        ]
+      },
+      {
+        "script": "tests/unit/tooling/test_ui_literal_audit.gd",
+        "tests": 20,
+        "assertions": 234,
+        "failures": 0,
+        "skipped": 0,
+        "cases": [
+          {
+            "name": "test_current_dormant_scene_copy_has_literal_specific_demonstrated_owners",
+            "assertions": "16",
+            "status": "pass",
+            "classname": "tests/unit/tooling/test_ui_literal_audit.gd",
+            "time": "0.307856"
+          },
+          {
+            "name": "test_scene_owner_is_location_and_literal_specific",
+            "assertions": "4",
+            "status": "pass",
+            "classname": "tests/unit/tooling/test_ui_literal_audit.gd",
+            "time": "0.150621"
+          },
+          {
+            "name": "test_spoofed_binding_and_unknown_catalog_key_are_refused",
+            "assertions": "8",
+            "status": "pass",
+            "classname": "tests/unit/tooling/test_ui_literal_audit.gd",
+            "time": "0.005444"
+          },
+          {
+            "name": "test_unknown_shared_placeholder_is_not_blanket_runtime_data",
+            "assertions": "4",
+            "status": "pass",
+            "classname": "tests/unit/tooling/test_ui_literal_audit.gd",
+            "time": "0.002555"
+          },
+          {
+            "name": "test_script_scanner_refuses_stable_literals_inside_expressions_and_later_arguments",
+            "assertions": "25",
+            "status": "pass",
+            "classname": "tests/unit/tooling/test_ui_literal_audit.gd",
+            "time": "0.012792"
+          },
+          {
+            "name": "test_script_scanner_collects_every_failure_instead_of_stopping_at_the_first",
+            "assertions": "7",
+            "status": "pass",
+            "classname": "tests/unit/tooling/test_ui_literal_audit.gd",
+            "time": "0.003062"
+          },
+          {
+            "name": "test_script_scanner_accepts_registered_lookup_and_dynamic_presenter_value",
+            "assertions": "8",
+            "status": "pass",
+            "classname": "tests/unit/tooling/test_ui_literal_audit.gd",
+            "time": "0.003257"
+          },
+          {
+            "name": "test_direct_properties_and_accessibility_descriptions_are_sinks",
+            "assertions": "18",
+            "status": "pass",
+            "classname": "tests/unit/tooling/test_ui_literal_audit.gd",
+            "time": "0.008506"
+          },
+          {
+            "name": "test_comments_cannot_spoof_localization_or_create_sinks",
+            "assertions": "9",
+            "status": "pass",
+            "classname": "tests/unit/tooling/test_ui_literal_audit.gd",
+            "time": "0.00473"
+          },
+          {
+            "name": "test_localized_call_does_not_own_an_untranslated_sibling_fallback",
+            "assertions": "4",
+            "status": "pass",
+            "classname": "tests/unit/tooling/test_ui_literal_audit.gd",
+            "time": "0.002451"
+          },
+          {
+            "name": "test_lowercase_one_word_and_inline_locale_spoof_are_refused",
+            "assertions": "8",
+            "status": "pass",
+            "classname": "tests/unit/tooling/test_ui_literal_audit.gd",
+            "time": "0.004669"
+          },
+          {
+            "name": "test_localized_binding_refuses_root_escape_and_requires_exact_format_parameters",
+            "assertions": "11",
+            "status": "pass",
+            "classname": "tests/unit/tooling/test_ui_literal_audit.gd",
+            "time": "0.011312"
+          },
+          {
+            "name": "test_source_inventory_is_sorted_complete_and_reports_unreadable_sources",
+            "assertions": "14",
+            "status": "pass",
+            "classname": "tests/unit/tooling/test_ui_literal_audit.gd",
+            "time": "0.004685"
+          },
+          {
+            "name": "test_scene_accessibility_description_is_audited",
+            "assertions": "6",
+            "status": "pass",
+            "classname": "tests/unit/tooling/test_ui_literal_audit.gd",
+            "time": "0.003097"
+          },
+          {
+            "name": "test_direct_inherited_property_is_audited_in_every_script_root",
+            "assertions": "5",
+            "status": "pass",
+            "classname": "tests/unit/tooling/test_ui_literal_audit.gd",
+            "time": "0.002711"
+          },
+          {
+            "name": "test_path_specific_helper_does_not_own_sibling_fallback",
+            "assertions": "11",
+            "status": "pass",
+            "classname": "tests/unit/tooling/test_ui_literal_audit.gd",
+            "time": "0.006786"
+          },
+          {
+            "name": "test_quoted_dead_code_cannot_authenticate_an_owner_marker",
+            "assertions": "4",
+            "status": "pass",
+            "classname": "tests/unit/tooling/test_ui_literal_audit.gd",
+            "time": "0.001364"
+          },
+          {
+            "name": "test_dating_copy_has_concrete_five_locale_ownership",
+            "assertions": "30",
+            "status": "pass",
+            "classname": "tests/unit/tooling/test_ui_literal_audit.gd",
+            "time": "4.30373"
+          },
+          {
+            "name": "test_notification_copy_exists_in_all_five_catalogs_with_the_friend_parameter",
+            "assertions": "10",
+            "status": "pass",
+            "classname": "tests/unit/tooling/test_ui_literal_audit.gd",
+            "time": "0.00719"
+          },
+          {
+            "name": "test_dating_copy_rejects_unknown_phrases_untranslated_siblings_and_spoofed_helpers",
+            "assertions": "32",
+            "status": "pass",
+            "classname": "tests/unit/tooling/test_ui_literal_audit.gd",
+            "time": "6.535143"
+          }
+        ]
+      }
+    ]
+  }
+}

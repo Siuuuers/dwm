@@ -72,10 +72,8 @@ func test_current_dormant_scene_copy_has_literal_specific_demonstrated_owners() 
 	if not hospital.get("ok", false): return
 	var message := _record(hospital.value, "text", "\"You fainted.\"")
 	var continue_button := _record(hospital.value, "text", "\"Continue\"")
-	assert_eq(message.get("disposition"), "runtime_data")
-	assert_true(str(message.get("reason", "")).contains("HospitalScene"))
-	assert_eq(continue_button.get("disposition"), "runtime_data")
-	assert_true(str(continue_button.get("reason", "")).contains("HospitalScene"))
+	assert_true(message.is_empty(), "Hospital copy now belongs to its DTL, not a notice widget")
+	assert_true(continue_button.is_empty(), "normal Hospital progression has no separate Continue copy")
 
 
 func test_scene_owner_is_location_and_literal_specific() -> void:
@@ -310,3 +308,62 @@ func test_quoted_dead_code_cannot_authenticate_an_owner_marker() -> void:
 	assert_false(bool(audit.call("_source_contains_code_marker",
 		'var fake = """\n' + marker + '\n"""', marker)))
 	assert_true(bool(audit.call("_source_contains_code_marker", marker, marker)))
+
+
+func test_dating_copy_has_concrete_five_locale_ownership() -> void:
+	var path := "res://scripts/ui/DatingScene.gd"
+	var source := FileAccess.get_file_as_string(path)
+	var result := _script(path, source)
+	assert_true(result.get("ok", false), JSON.stringify(result))
+	var retry := _record(result.get("value", []), "text", '_ui_text("Retry")')
+	assert_eq(retry.get("disposition"), "localized_call")
+	assert_eq(retry.get("key"), "DatingScene.ui.inline")
+	for changed: String in [
+		source.replace('"Retry": "重试"', '"Other": "重试"'),
+		source.replace('"Retry": "重試"', '"Retry": ""'),
+		source.replace('"Retry": "再試行"', '"Retry": "Retry"'),
+		source.replace('"ko": {', '"unsupported": {'),
+		source.replace('return str(DRAFT_UI_COPY.get(_locale.replace("_", "-"), {}).get(english, english))', 'return english'),
+	]:
+		assert_ne(changed, source, "the fixture changes an actual locale or helper seam")
+		var rejected := _script(path, changed)
+		assert_false(rejected.get("ok", true))
+		assert_eq(rejected.get("code"), &"unclassified_script_literal")
+
+
+func test_notification_copy_exists_in_all_five_catalogs_with_the_friend_parameter() -> void:
+	for locale: String in ["en", "zh_CN", "zh_HK", "ja", "ko"]:
+		var catalog: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://localization/ui/%s.json" % locale))
+		var translated := ""
+		for message: Dictionary in catalog.messages:
+			if message.id == "desktop.notification.new_message_from_friend":
+				translated = message.text
+		assert_false(translated.is_empty(), locale)
+		assert_eq(translated.count("{friend_name}"), 1, locale)
+
+
+func test_dating_copy_rejects_unknown_phrases_untranslated_siblings_and_spoofed_helpers() -> void:
+	var path := "res://scripts/ui/DatingScene.gd"
+	var source := FileAccess.get_file_as_string(path)
+	for expression: String in [
+		'_ui_text("Unregistered phrase")',
+		'_ui_text("Retry") + "Untranslated sibling"',
+		'_ui_text("Retry") if ready else "Untranslated fallback"',
+		'_ui_text(dynamic_phrase)',
+		'"_ui_text(Retry)"',
+	]:
+		var result := _script(path, source + "\nfunc fixture() -> void:\n\tlabel.text = " + expression)
+		assert_false(result.get("ok", true), expression)
+		assert_eq(result.get("code"), &"unclassified_script_literal")
+	assert_false(_script("res://scripts/ui/fixture/Spoof.gd", source).get("ok", true))
+	var table_start := source.find("const DRAFT_UI_COPY := ")
+	var table_end := source.find("\n\n", table_start)
+	var table := source.substr(table_start, table_end - table_start)
+	var quoted_table := source.replace(table, 'var fake = """\n' + table + '\n"""')
+	assert_false(_script(path, quoted_table).get("ok", true), "quoted table data grants no ownership")
+	assert_false(_script(path, source.replace("const DRAFT_UI_COPY := ", "# const DRAFT_UI_COPY := ")).get("ok", true),
+		"commented table declaration grants no ownership")
+	var helper := 'func _ui_text(english: String) -> String:\n\treturn str(DRAFT_UI_COPY.get(_locale.replace("_", "-"), {}).get(english, english))'
+	var quoted_helper := source.replace(helper, 'func _ui_text(english: String) -> String:\n\treturn english') \
+		+ '\nvar fake_helper = """\n' + helper + '\n"""'
+	assert_false(_script(path, quoted_helper).get("ok", true), "quoted helper code grants no ownership")

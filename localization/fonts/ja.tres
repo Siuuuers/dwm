@@ -1,0 +1,6 @@
+[gd_resource type="FontVariation" load_steps=2 format=3]
+
+[ext_resource type="FontFile" path="res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-ja.otf.woff2" id="1"]
+
+[resource]
+base_font = ExtResource("1")

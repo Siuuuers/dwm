@@ -8,7 +8,7 @@ func test_all_manual_cell_sizes_preserve_scaled_grid_and_bounded_pan() -> void:
 	for band: Vector2i in BANDS:
 		for large: bool in [false, true]:
 			var source_target := 32 if large else 24
-			var gutter := source_target
+			var gutter := 24 if large else 12
 			for logical_size in range(10, 61, 2):
 				var result: Dictionary = LAYOUT.measure_view(22, 22, band, large, logical_size, false, Vector2i(9999, -9999))
 				assert_true(result.ok, str([band, large, logical_size]))
@@ -92,7 +92,7 @@ func test_invalid_manual_sizes_and_cells_do_not_create_view() -> void:
 	assert_false(LAYOUT.measure_view(8, 8, Vector2i(32, 32), true, 36, false).ok)
 	assert_false(LAYOUT.measure_view(8, 8, Vector2i(40, 40), true, 10, false).ok,
 		"A manual well must leave room for a complete rail thumb.")
-	assert_false(LAYOUT.measure_view(8, 8, Vector2i(64, 64), true, 10, false).ok,
+	assert_false(LAYOUT.measure_view(8, 8, Vector2i(48, 48), true, 10, false).ok,
 		"A thumb needs positive travel when the board overflows.")
 	assert_false(LAYOUT.reveal_view(8, 8, 64, Vector2i(400, 246), false, 36, false, Vector2i.ZERO).ok)
 

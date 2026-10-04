@@ -1,0 +1,22 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "Action completed."
+    }
+  ],
+  "structuredContent": {
+    "content": "{\"sha\":\"5e43e68afa04a31a53bc25cf5fe8893ff39d82af\",\"node_id\":\"C_kwDOTaMFrdoAKDVlNDNlNjhhZmEwNGEzMWE1M2JjMjVjZjVmZTg4OTNmZjM5ZDgyYWY\",\"url\":\"https://api.github.com/repos/Siuuuers/dwm/git/commits/5e43e68afa04a31a53bc25cf5fe8893ff39d82af\",\"html_url\":\"https://github.com/Siuuuers/dwm/commit/5e43e68afa04a31a53bc25cf5fe8893ff39d82af\",\"author\":{\"name\":\"Siuuuers\",\"email\":\"119431590+Siuuuers@users.noreply.github.com\",\"date\":\"2026-10-02T07:28:05Z\"},\"committer\":{\"name\":\"Siuuuers\",\"email\":\"119431590+Siuuuers@users.noreply.github.com\",\"date\":\"2026-10-02T07:28:05Z\"},\"tree\":{\"sha\":\"ffb743578e071a1996e6e1d3d3c383ba5882e250\",\"url\":\"https://api.github.com/repos/Siuuuers/dwm/git/trees/ffb743578e071a1996e6e1d3d3c383ba5882e250\"},\"message\":\"Retire partial native dialogue waits without synthetic completion [skip ci]\",\"parents\":[{\"sha\":\"d702c456177f76fe90cb73993af93949d7335b7e\",\"url\":\"https://api.github.com/repos/Siuuuers/dwm/git/commits/d702c456177f76fe90cb73993af93949d7335b7e\",\"html_url\":\"https://github.com/Siuuuers/dwm/commit/d702c456177f76fe90cb73993af93949d7335b7e\"}],\"verification\":{\"verified\":false,\"reason\":\"unsigned\",\"signature\":null,\"payload\":null,\"verified_at\":null}}",
+    "title": "5e43e68afa04a31a53bc25cf5fe8893ff39d82af",
+    "modified_date": null,
+    "url": "https://api.github.com/repos/Siuuuers/dwm/git/commits/5e43e68afa04a31a53bc25cf5fe8893ff39d82af",
+    "display_url": "https://api.github.com/repos/Siuuuers/dwm/git/commits/5e43e68afa04a31a53bc25cf5fe8893ff39d82af",
+    "display_title": "5e43e68afa04a31a53bc25cf5fe8893ff39d82af",
+    "structuredContent": {
+      "title": "5e43e68afa04a31a53bc25cf5fe8893ff39d82af",
+      "content": "{\"sha\":\"5e43e68afa04a31a53bc25cf5fe8893ff39d82af\",\"node_id\":\"C_kwDOTaMFrdoAKDVlNDNlNjhhZmEwNGEzMWE1M2JjMjVjZjVmZTg4OTNmZjM5ZDgyYWY\",\"url\":\"https://api.github.com/repos/Siuuuers/dwm/git/commits/5e43e68afa04a31a53bc25cf5fe8893ff39d82af\",\"html_url\":\"https://github.com/Siuuuers/dwm/commit/5e43e68afa04a31a53bc25cf5fe8893ff39d82af\",\"author\":{\"name\":\"Siuuuers\",\"email\":\"119431590+Siuuuers@users.noreply.github.com\",\"date\":\"2026-10-02T07:28:05Z\"},\"committer\":{\"name\":\"Siuuuers\",\"email\":\"119431590+Siuuuers@users.noreply.github.com\",\"date\":\"2026-10-02T07:28:05Z\"},\"tree\":{\"sha\":\"ffb743578e071a1996e6e1d3d3c383ba5882e250\",\"url\":\"https://api.github.com/repos/Siuuuers/dwm/git/trees/ffb743578e071a1996e6e1d3d3c383ba5882e250\"},\"message\":\"Retire partial native dialogue waits without synthetic completion [skip ci]\",\"parents\":[{\"sha\":\"d702c456177f76fe90cb73993af93949d7335b7e\",\"url\":\"https://api.github.com/repos/Siuuuers/dwm/git/commits/d702c456177f76fe90cb73993af93949d7335b7e\",\"html_url\":\"https://github.com/Siuuuers/dwm/commit/d702c456177f76fe90cb73993af93949d7335b7e\"}],\"verification\":{\"verified\":false,\"reason\":\"unsigned\",\"signature\":null,\"payload\":null,\"verified_at\":null}}",
+      "display_url": "https://api.github.com/repos/Siuuuers/dwm/git/commits/5e43e68afa04a31a53bc25cf5fe8893ff39d82af"
+    }
+  },
+  "isError": false
+}

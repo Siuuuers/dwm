@@ -81,6 +81,12 @@ var _backup_action_sequence := 0
 var _backup_capture_provider: Callable
 var _paused_desktop_admission: Callable
 var _backup_capture_configured := false
+## Bytes-only parser reuse. Schema/content admission and all storage custody checks
+## still run on every call. Keep no more than two documents or 8 MiB of source UTF-8.
+const _PARSE_CACHE_MAX_ENTRIES := 2
+const _PARSE_CACHE_MAX_TEXT_BYTES := 8 * 1024 * 1024
+var _document_parse_cache: Array[Dictionary] = []
+var _document_parse_cache_text_bytes := 0
 
 ## Bootstrap owns the live desktop source. Fixtures without this provider retain
 ## their explicit latest-stable contract; production never silently falls back.
@@ -112,6 +118,8 @@ const _PARTICIPANT_APPLY_ORDER: Array[String] = [
 func initialize(storage: StorageAdapter = null) -> Dictionary:
 	if storage == null:
 		return _fail(&"invalid_storage", "SaveManager requires an injected StorageAdapter")
+	_document_parse_cache.clear()
+	_document_parse_cache_text_bytes = 0
 	_storage = storage
 	var journal_ready: Dictionary = _continuation_journal.configure(storage, self)
 	if not journal_ready.get("ok", false):
@@ -252,6 +260,11 @@ func prepare_restore_autosave() -> Dictionary:
 ## the participant transaction with whatever "run"/"desktop_consequence"/"desktop_board" plans it
 ## already supplied, exactly as this method behaved before Task 6.
 func commit_prepared_restore(prepared: Dictionary) -> Dictionary:
+	var profile := _save_load_profile_begin("restore_commit", "", "")
+	return _save_load_profile_finish(profile, _commit_prepared_restore_profiled(prepared, profile))
+
+
+func _commit_prepared_restore_profiled(prepared: Dictionary, profile: Dictionary) -> Dictionary:
 	if _restore_participants.is_empty():
 		return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "configure_restore_participants first")
 	for key: Variant in prepared.keys():
@@ -260,6 +273,7 @@ func commit_prepared_restore(prepared: Dictionary) -> Dictionary:
 	if typeof(prepared.get("participant_plans")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_prepared_restore", "prepared requires participant_plans")
 	var plans: Dictionary = (prepared["participant_plans"] as Dictionary).duplicate(true)
+	_save_load_profile_phase(profile, "input_copy_us")
 
 	var has_source_locator := typeof(prepared.get("source_locator")) == TYPE_DICTIONARY
 	var gate_token := ""
@@ -283,9 +297,11 @@ func commit_prepared_restore(prepared: Dictionary) -> Dictionary:
 			gate_token = str(acquired["value"]["token"])
 			gate_acquired = true
 
+	_save_load_profile_phase(profile, "lock_us")
 	var continuation: Dictionary = {}
 	if has_source_locator:
 		var begun := _begin_restore_continuation(prepared)
+		_save_load_profile_phase(profile, "continuation_us")
 		if not begun.get("ok", false):
 			if gate_acquired:
 				_mutation_gate.release(&"restore", gate_token)
@@ -324,6 +340,7 @@ func commit_prepared_restore(prepared: Dictionary) -> Dictionary:
 			return view_prep
 		plans["schedule_view"] = view_prep["value"]["schedule_view_plan"]
 		continuation = (begun["value"] as Dictionary)["continuation"]
+		_save_load_profile_phase(profile, "remapped_prepare_us")
 
 	for key: String in _PARTICIPANT_KEYS:
 		if typeof(plans.get(key)) != TYPE_DICTIONARY:
@@ -332,8 +349,10 @@ func commit_prepared_restore(prepared: Dictionary) -> Dictionary:
 			if lock_acquired:
 				release_save_lock(&"restore")
 			return _fail(&"invalid_prepared_restore", "missing participant plan: " + key)
-	return _run_participant_transaction(&"restore", plans, prepared.get("journal_seed"),
+	var restored := _run_participant_transaction(&"restore", plans, prepared.get("journal_seed"),
 		str(prepared.get("route_id", "")), str(prepared.get("checkpoint_id", "")), true, continuation, gate_token)
+	_save_load_profile_phase(profile, "participant_transaction_us")
+	return restored
 
 ## Drives the identity-allocation participant plus the external continuation journal's
 ## `intent_committed -> identity_allocation_committed -> participants_applying` sequence for a
@@ -844,7 +863,8 @@ func _prepare_new_run_plans(snapshot: Dictionary, profile_candidate: Dictionary)
 		"desktop_consequence": {"state": snapshot["desktop"]["consequence"]},
 		"desktop_board": {"state": snapshot["desktop"]["board"]},
 		"schedule_view": _schedule_view_input(snapshot),
-		"localization": {"locale_id": str(profile["value"]["locale_id"])},
+		"localization": {"locale_id": str(profile["value"]["locale_id"]),
+			"font_style": profile["value"].get("font_style", "pixel"), "text_size": profile["value"].get("text_size", 100)},
 		"audio": {"preferences": profile_candidate["preferences"], "audio_context": snapshot["audio_context"]},
 		"route": {"route_id": "main", "route_context": {}, "active_app_id": null, "day": 1}}
 	var plan_keys := {"run": "run_plan", "desktop_consequence": "consequence_plan",
@@ -978,6 +998,17 @@ func _run_participant_transaction(
 		route_id: String, checkpoint_id: String, emit_restored: bool, continuation: Dictionary = {},
 		pre_acquired_gate_token: String = "", already_applied: bool = false
 ) -> Dictionary:
+	var profile := _save_load_profile_begin("restore_transaction") if owner == &"restore" else {}
+	var result := _run_participant_transaction_profiled(owner, plans, journal_candidate, route_id,
+		checkpoint_id, emit_restored, continuation, pre_acquired_gate_token, already_applied, profile)
+	return _save_load_profile_finish(profile, result)
+
+
+func _run_participant_transaction_profiled(
+		owner: StringName, plans: Dictionary, journal_candidate: Variant,
+		route_id: String, checkpoint_id: String, emit_restored: bool, continuation: Dictionary,
+		pre_acquired_gate_token: String, already_applied: bool, profile: Dictionary
+) -> Dictionary:
 	# `restore` also holds the SaveManager save lock; `new_run` relies on the gate.
 	# acquire_save_lock() is idempotent for an already-held `restore` lock, so this is safe to call
 	# again even when the caller pre-acquired the lock itself before this transaction began.
@@ -1001,6 +1032,7 @@ func _run_participant_transaction(
 		_release_transaction(owner, gate_token, holds_save_lock)
 		return activation
 	var activation_ticket: Dictionary = activation["value"]
+	_save_load_profile_phase(profile, "activation_prepare_us")
 
 	var journal_backup: Variant = null
 	if typeof(journal_candidate) == TYPE_DICTIONARY:
@@ -1017,6 +1049,7 @@ func _run_participant_transaction(
 			_release_transaction(owner, gate_token, holds_save_lock)
 			return captured
 		backups[key] = captured["value"]
+	_save_load_profile_phase(profile, "participant_capture_us")
 
 	var applied: Array[String] = []
 	var route_ready_token: Variant = null
@@ -1026,6 +1059,7 @@ func _run_participant_transaction(
 		if key == "narrative" and route_ready_token != null:
 			plan["route_ready_token"] = route_ready_token
 		var result: Dictionary = _restore_participants[key].apply_silent(plan)
+		_save_load_profile_phase(profile, "participant_apply_us")
 		if not result.get("ok", false):
 			return _rollback_transaction(owner, applied, backups, gate_token, holds_save_lock, result)
 		if key == "run" and continuation.has("remap"):
@@ -1036,6 +1070,7 @@ func _run_participant_transaction(
 			if not remapped.get("ok", false):
 				applied.append(key)
 				return _rollback_transaction(owner, applied, backups, gate_token, holds_save_lock, remapped)
+		_save_load_profile_phase(profile, "run_remap_us")
 		applied.append(key)
 		if key == "route":
 			route_ready_token = (result.get("value", {}) as Dictionary).get("route_ready_token")
@@ -1048,6 +1083,7 @@ func _run_participant_transaction(
 				"expected_next_participant_index": index, "allocation_receipt": null,
 				"participant_name": key, "participant_receipt": participant_receipt, "failure": null,
 			})
+			_save_load_profile_phase(profile, "continuation_advance_us")
 			if not advanced.get("ok", false):
 				return _rollback_transaction(owner, applied, backups, gate_token, holds_save_lock, advanced)
 
@@ -1058,6 +1094,7 @@ func _run_participant_transaction(
 			"expected_next_participant_index": _PARTICIPANT_APPLY_ORDER.size(), "allocation_receipt": null,
 			"participant_name": null, "participant_receipt": null, "failure": null,
 		})
+		_save_load_profile_phase(profile, "continuation_advance_us")
 		if not advanced_to_applied.get("ok", false):
 			return _rollback_transaction(owner, applied, backups, gate_token, holds_save_lock, advanced_to_applied)
 
@@ -1067,6 +1104,7 @@ func _run_participant_transaction(
 			return _rollback_transaction(owner, applied, backups, gate_token, holds_save_lock, committed)
 		if checkpoint_id.is_empty():
 			checkpoint_id = str(committed["value"]["checkpoint_id"])
+	_save_load_profile_phase(profile, "journal_commit_us")
 
 	# Route dispatch queues a physical scene change that rollback cannot cancel.
 	# Finish every other fallible participant before requesting that change.
@@ -1079,6 +1117,7 @@ func _run_participant_transaction(
 			if not validated.get("ok", false):
 				return _rollback_transaction(owner, applied, backups, gate_token, holds_save_lock, validated, journal_backup)
 		var finalized: Dictionary = _restore_participants[key].finalize()
+		_save_load_profile_phase(profile, "participant_finalize_us")
 		if not finalized.get("ok", false):
 			return _rollback_transaction(owner, applied, backups, gate_token, holds_save_lock, finalized, journal_backup)
 	if not activation_ticket.is_empty():
@@ -1106,10 +1145,44 @@ func _run_participant_transaction(
 			_session_activation_tickets.erase(operation_id)
 	else:
 		_session_activation_tickets.erase(operation_id)
+	_save_load_profile_phase(profile, "completion_us")
 	if not activation_ticket.is_empty(): live_session_ready.emit()
 	if emit_restored:
 		run_restored.emit(checkpoint_id, route_id)
+	_save_load_profile_phase(profile, "restored_signals_us")
 	return {"ok": true, "code": &"ok", "value": {"checkpoint_id": checkpoint_id, "route_id": route_id}}
+
+
+## Opt-in observations only. Scopes are nested/inclusive; their elapsed times must not be summed.
+## Disabled calls read no clock, format no metadata and return the original result object unchanged.
+func _save_load_profile_begin(scope: String, action: String = "", locator: Variant = "") -> Dictionary:
+	if OS.get_environment("DWM_SAVE_LOAD_PROFILE") != "1":
+		return {}
+	var now := Time.get_ticks_usec()
+	return {"scope": scope, "action": action,
+		"locator": str(locator.get("relative_path", "")) if locator is Dictionary else str(locator),
+		"context": OS.get_environment("DWM_SAVE_LOAD_CONTEXT"),
+		"_started_us": now, "_phase_started_us": now}
+
+
+func _save_load_profile_phase(profile: Dictionary, phase: String) -> void:
+	if profile.is_empty(): return
+	var now := Time.get_ticks_usec()
+	profile[phase] = int(profile.get(phase, 0)) + now - int(profile["_phase_started_us"])
+	profile["_phase_started_us"] = now
+
+
+func _save_load_profile_finish(profile: Dictionary, result: Dictionary) -> Dictionary:
+	if profile.is_empty(): return result
+	var now := Time.get_ticks_usec()
+	profile["elapsed_us"] = now - int(profile["_started_us"])
+	profile["unphased_us"] = now - int(profile["_phase_started_us"])
+	profile.erase("_started_us")
+	profile.erase("_phase_started_us")
+	profile["ok"] = bool(result.get("ok", false))
+	profile["code"] = str(result.get("code", ""))
+	print("DWM_SAVE_LOAD_PROFILE " + JSON.stringify(profile))
+	return result
 
 
 func _validate_new_run_context(initial_context: Dictionary) -> String:
@@ -1263,10 +1336,14 @@ func get_backup_quick_capability(action: String) -> Dictionary:
 			var record: Dictionary = inspected["value"]
 			if action == "load":
 				enabled = record.get("loadable", false)
+				if not enabled:
+					status = _quick_load_record_status(record)
 			else:
 				enabled = get_backup_save_capability().get("enabled", false) and _quick_save_record_allowed(record)
-		if not enabled or not is_quick_condition_current(condition):
+		if not is_quick_condition_current(condition):
 			enabled = false
+			status = "unavailable"
+		elif not enabled and status == "":
 			status = "unavailable"
 	return {"ok": true, "value": {"enabled": enabled, "status_key": status, "condition": condition}}
 
@@ -1328,16 +1405,28 @@ func _quick_failure(action: String, status: String = "") -> Dictionary:
 static func _quick_save_record_allowed(record: Dictionary) -> bool:
 	return record.get("state") in ["empty", "occupied"] and not record.get("fallback", false) and record.get("reason", "") == ""
 
+static func _quick_load_record_status(record: Dictionary) -> String:
+	if record.get("state") == "empty":
+		return "no_quick_save"
+	var reason: String = str(record.get("reason", ""))
+	return reason if reason in ["older_version", "newer_version", "unreadable", "no_compatible_checkpoint", "restore_unavailable"] else "unavailable"
+
 func _on_backup_gate_capability_changed(_capability: Dictionary) -> void:
 	save_capability_changed.emit(get_backup_save_capability())
 
 func _inspect_backup(locator_id: String) -> Dictionary:
+	var profile := _save_load_profile_begin("backup_inspection", "", locator_id)
+	return _save_load_profile_finish(profile, _inspect_backup_profiled(locator_id, profile))
+
+
+func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictionary:
 	var locator := _backup_locator(locator_id)
 	if locator.is_empty():
 		return _fail(&"INVALID_SAVE_REFERENCE", "")
 	if _storage == null:
 		return _fail(&"not_initialized", "")
 	var inspected: Dictionary = _storage.inspect_revision(str(locator["relative_path"]))
+	_save_load_profile_phase(profile, "revision_read_us")
 	if not inspected.get("ok", false):
 		return inspected
 	var evidence: Dictionary = inspected["value"]
@@ -1350,34 +1439,30 @@ func _inspect_backup(locator_id: String) -> Dictionary:
 	if typeof(evidence.get("text")) != TYPE_STRING:
 		record["reason"] = "unreadable"
 		return {"ok": true, "value": record}
-	var parsed := STRICT_JSON.parse_object(evidence["text"])
+	var parsed := _parse_document_text(evidence["text"])
+	_save_load_profile_phase(profile, "parse_us")
 	if not parsed.get("ok", false):
 		record["reason"] = "unreadable"
 		return {"ok": true, "value": record}
-	# The legacy migrator reconstructs outer keys. Validate the actual outer evidence first;
-	# otherwise a future version/wrong locator or false time could be silently relabeled.
-	var valid := SAVE_DOCUMENT_SCHEMA.validate(parsed["value"])
-	if not valid.get("ok", false):
+	# Admission validates the original evidence, including its version and locator, and
+	# returns a detached candidate. It does not reconstruct or relabel outer fields.
+	var migrated := SAVE_MIGRATIONS.migrate_document(parsed["value"],
+		{"kind": locator["kind"], "slot_id": locator["slot_id"]})
+	_save_load_profile_phase(profile, "admission_us")
+	if not migrated.get("ok", false):
 		var version: Variant = parsed["value"].get("schema_version")
 		record["reason"] = "unreadable"
 		if typeof(version) == TYPE_INT and version > 0:
 			if version > SAVE_DOCUMENT_SCHEMA.DOCUMENT_VERSION: record["reason"] = "newer_version"
 			elif version < SAVE_DOCUMENT_SCHEMA.DOCUMENT_VERSION: record["reason"] = "older_version"
 		return {"ok": true, "value": record}
-	var document: Dictionary = valid["value"]["candidate"]
-	var migrated := SAVE_MIGRATIONS.migrate_document(parsed["value"],
-		{"kind": locator["kind"], "slot_id": locator["slot_id"]})
-	if not migrated.get("ok", false):
-		record["reason"] = "unreadable"
-		return {"ok": true, "value": record}
-	if document["kind"] != locator["kind"] or document["slot_id"] != locator["slot_id"]:
-		record["reason"] = "unreadable"
-		return {"ok": true, "value": record}
+	var document: Dictionary = migrated["value"]["document"]
 	var snapshot: Dictionary = document["current_snapshot"]["snapshot"]
 	record["state"] = "occupied"
 	record["day"] = int(snapshot["lifecycle"]["day"])
 	record["saved_time"] = document.get("saved_time", {}).get("hhmm")
 	var prepared := _prepare_restore_document(locator, document, migrated["value"])
+	_save_load_profile_phase(profile, "restore_prepare_us")
 	if prepared.get("ok", false):
 		var target: Dictionary = prepared["value"]["prepared"]
 		record["loadable"] = true
@@ -1395,12 +1480,18 @@ func _inspect_backup(locator_id: String) -> Dictionary:
 
 ## Detached candidates remain owner-private; tokens convey consent to exactly one candidate.
 func prepare_backup_action(action: String, locator_id: String) -> Dictionary:
+	var profile := _save_load_profile_begin("backup_prepare", action, locator_id)
+	return _save_load_profile_finish(profile, _prepare_backup_action_profiled(action, locator_id, profile))
+
+
+func _prepare_backup_action_profiled(action: String, locator_id: String, profile: Dictionary) -> Dictionary:
 	if action not in ["save", "load", "delete"]:
 		return _fail(&"invalid_backup_action", "")
 	var guard := _backup_guard()
 	if not guard.get("ok", false):
 		return guard
 	var inspected := _inspect_backup(locator_id)
+	_save_load_profile_phase(profile, "inspection_us")
 	if not inspected.get("ok", false):
 		return inspected
 	var record: Dictionary = inspected["value"]
@@ -1413,7 +1504,7 @@ func prepare_backup_action(action: String, locator_id: String) -> Dictionary:
 		if not stable.get("ok", false):
 			return _fail(&"no_stable_checkpoint", "")
 		var bundle: Dictionary = stable["value"]["bundle"]
-		var earlier: Array = _journal.get_bundles_for_disk()
+		var earlier: Array
 		if _backup_capture_configured:
 			var fresh := _prepare_backup_capture()
 			if not fresh.get("ok", false):
@@ -1421,12 +1512,17 @@ func prepare_backup_action(action: String, locator_id: String) -> Dictionary:
 			candidate.merge(fresh["value"])
 			bundle = candidate["journal_candidate"]["current"]
 			earlier = candidate["journal_candidate"]["earlier"]
+		else:
+			earlier = _journal.get_bundles_for_disk()
+		_save_load_profile_phase(profile, "capture_us")
 		var built := SAVE_DOCUMENT_SCHEMA.build(StringName(locator["kind"]), locator["slot_id"],
 			&"quick" if locator_id == "quick" else &"manual", bundle, earlier, _capture_saved_time())
+		_save_load_profile_phase(profile, "document_build_us")
 		if not built.get("ok", false):
 			return built
 		candidate["document"] = built["value"]
 		candidate["stable_hash"] = _canonical_sha256(stable["value"]["bundle"])
+		_save_load_profile_phase(profile, "stable_hash_us")
 	elif action == "load":
 		if not record["loadable"]:
 			return _fail(&"backup_load_unavailable", "")
@@ -1437,12 +1533,18 @@ func prepare_backup_action(action: String, locator_id: String) -> Dictionary:
 	_backup_action_sequence += 1
 	var token := "backup-%d" % _backup_action_sequence
 	_backup_actions[token] = candidate.duplicate(true)
+	_save_load_profile_phase(profile, "candidate_copy_us")
 	return {"ok": true, "value": {"token": token, "record": record}}
 
 func cancel_backup_action(token: String) -> void:
 	_backup_actions.erase(token)
 
 func commit_backup_action(token: String) -> Dictionary:
+	var profile := _save_load_profile_begin("backup_commit", "", "")
+	return _save_load_profile_finish(profile, _commit_backup_action_profiled(token, profile))
+
+
+func _commit_backup_action_profiled(token: String, profile: Dictionary) -> Dictionary:
 	if not _backup_actions.has(token):
 		return _fail(&"stale_backup_action", "")
 	var candidate: Dictionary = _backup_actions[token]
@@ -1455,7 +1557,11 @@ func commit_backup_action(token: String) -> Dictionary:
 		return _fail(&"stale_backup_source", "")
 	var locator: Dictionary = candidate["locator"]
 	var path := str(locator["relative_path"])
+	if not profile.is_empty():
+		profile["action"] = str(candidate.get("action", ""))
+		profile["locator"] = path
 	var current: Dictionary = _storage.inspect_revision(path)
+	_save_load_profile_phase(profile, "revision_read_us")
 	if not current.get("ok", false):
 		return current
 	if current["value"]["revision"] != candidate["revision"]:
@@ -1463,16 +1569,22 @@ func commit_backup_action(token: String) -> Dictionary:
 	match str(candidate["action"]):
 		"load":
 			var reconciled: Dictionary = _storage.reconcile(path, _document_text_validator)
+			_save_load_profile_phase(profile, "reconcile_us")
 			if not reconciled.get("ok", false):
 				return reconciled
 			current = _storage.inspect_revision(path)
+			_save_load_profile_phase(profile, "revision_recheck_us")
 			if not current.get("ok", false) or current["value"]["revision"] != candidate["revision"]:
 				return _fail(&"stale_backup_target", "")
-			return commit_prepared_restore(candidate["prepared_restore"])
+			var restored := commit_prepared_restore(candidate["prepared_restore"])
+			_save_load_profile_phase(profile, "restore_commit_us")
+			return restored
 		"delete":
 			var removed: Dictionary = _storage.remove_if_revision(path, candidate["revision"])
+			_save_load_profile_phase(profile, "remove_us")
 			if removed.get("ok", false):
 				slot_metadata_changed.emit()
+				_save_load_profile_phase(profile, "metadata_refresh_us")
 			return removed
 		"save":
 			var stable := get_latest_stable_checkpoint()
@@ -1484,15 +1596,21 @@ func commit_backup_action(token: String) -> Dictionary:
 					return captured
 				if _canonical_sha256(captured["value"]) != candidate["capture_hash"] or _backup_journal_hash() != candidate["journal_hash"]:
 					return _fail(&"stale_backup_source", "")
+			_save_load_profile_phase(profile, "source_recheck_us")
 			var canonical := CANONICAL_JSON.stringify(candidate["document"])
+			_save_load_profile_phase(profile, "serialize_us")
 			if not canonical.get("ok", false):
 				return canonical
 			var bytes := str(canonical["value"]) + "\n"
-			var written: Dictionary = _storage.write_atomic_if_revision(path, bytes, _document_text_validator, candidate["revision"])
+			var validated_texts := {}
+			var validator := _write_document_text_validator.bind(validated_texts)
+			var written: Dictionary = _storage.write_atomic_if_revision(path, bytes, validator, candidate["revision"])
+			_save_load_profile_phase(profile, "write_atomic_us")
 			if not written.get("ok", false):
 				save_failed.emit(written)
 				return written
 			var read: Dictionary = _storage.read_text(path)
+			_save_load_profile_phase(profile, "reread_us")
 			if not read.get("ok", false) or str(read["value"]) != bytes:
 				return _fail(&"reread_mismatch", "")
 			if candidate.has("journal_candidate"):
@@ -1501,9 +1619,12 @@ func commit_backup_action(token: String) -> Dictionary:
 				var advanced: Dictionary = _journal.commit_prepared(candidate["journal_candidate"])
 				if not advanced.get("ok", false):
 					return _fail(&"backup_journal_commit_failed", "Durable save remains available; checkpoint publication failed")
+			_save_load_profile_phase(profile, "journal_commit_us")
 			var result := {"ok": true, "value": {"written": true}}
 			save_completed.emit(result)
+			_save_load_profile_phase(profile, "save_completed_signal_us")
 			slot_metadata_changed.emit()
+			_save_load_profile_phase(profile, "metadata_refresh_us")
 			return result
 	return _fail(&"invalid_backup_action", "")
 
@@ -1539,8 +1660,25 @@ func _capture_backup_inputs() -> Dictionary:
 	var dating_record: Variant = route_context.get("active_dating_challenge") if route_context is Dictionary else null
 	var dating: bool = inputs["route_id"] == "dating" and dating_record is Dictionary \
 		and not dating_record.is_empty() and dating_record.get("phase") in ["pre_challenge", "preparing", "challenge", "cleared_awaiting_terminal_choice", "post_challenge"]
-	if not (desktop or dating) or not inputs["dialogic_checkpoint"].is_empty() or inputs["snapshot_input"]["lifecycle"].get("state") != "PLAYING":
-		return _fail(&"backup_capture_unavailable", "A qualified desktop or paused Dating capture is required")
+	var narrative: Dictionary = inputs["dialogic_checkpoint"]
+	var hospital: bool = inputs["route_id"] == "hospital" and narrative.get("reading_session") is Dictionary \
+		and narrative.reading_session.get("schema_version") == 3 and narrative.reading_session.get("family") == "hospital" \
+		and narrative.reading_session.get("boundary") == "line"
+	var ending: bool = inputs["route_id"] == "ending" and narrative.get("reading_session") is Dictionary \
+		and narrative.reading_session.get("schema_version") == 3 and narrative.reading_session.get("family") == "ending" \
+		and narrative.reading_session.get("boundary") == "line"
+	if not (desktop or dating or hospital or ending) or (not narrative.is_empty() and (not (dating or hospital or ending) or not narrative.has("reading_session"))) \
+			or inputs["snapshot_input"]["lifecycle"].get("state") != ("ENDING" if ending else "PLAYING"):
+		return _fail(&"backup_capture_unavailable", "A qualified desktop or admitted reading capture is required")
+	if not narrative.is_empty():
+		# Full Run composition below performs the same cross-owner validation.
+		# This capture boundary also refuses malformed/foreign reading sessions
+		# before returning an apparently qualified source to Backup's token flow.
+		var snapshot: Dictionary = inputs["snapshot_input"].duplicate(true)
+		snapshot["route_id"] = inputs["route_id"]
+		snapshot["narrative_checkpoint"] = narrative
+		var reading: Dictionary = preload("res://scripts/narrative/FrozenRunContext.gd").validate_reading_checkpoint(narrative, snapshot)
+		if not reading.get("ok", false): return reading
 	return {"ok": true, "value": inputs}
 
 func _compose_live_checkpoint_input(snapshot_input: Dictionary) -> Dictionary:
@@ -1792,14 +1930,16 @@ func _prepare_restore(locator: Dictionary) -> Dictionary:
 	if not migrated.get("ok", false):
 		return migrated
 	var document: Dictionary = migrated["value"]["document"]
-	var validated: Dictionary = SAVE_DOCUMENT_SCHEMA.validate(document)
-	if not validated.get("ok", false):
-		return validated
-	document = validated["value"]["candidate"]
+	# Admission already returned the validated, detached document.
 	return _prepare_restore_document(locator, document, migrated["value"])
 
 ## Pure shared preparation: Backup inspections do not reconcile files or acquire leases.
 func _prepare_restore_document(locator: Dictionary, document: Dictionary, migration_output: Dictionary) -> Dictionary:
+	var profile := _save_load_profile_begin("restore_prepare", "", locator)
+	return _save_load_profile_finish(profile, _prepare_restore_document_profiled(locator, document, migration_output, profile))
+
+
+func _prepare_restore_document_profiled(locator: Dictionary, document: Dictionary, migration_output: Dictionary, profile: Dictionary) -> Dictionary:
 	if _restore_participants.is_empty():
 		return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "")
 
@@ -1811,10 +1951,12 @@ func _prepare_restore_document(locator: Dictionary, document: Dictionary, migrat
 		return int(a["snapshot"]["checkpoint_sequence"]) > int(b["snapshot"]["checkpoint_sequence"]))
 	for entry: Dictionary in earlier:
 		candidates.append(entry)
+	_save_load_profile_phase(profile, "candidate_order_us")
 
 	var causes: Array = []
 	for bundle: Dictionary in candidates:
 		var prepared := _prepare_bundle_with_all_participants(bundle, migration_output, document, locator)
+		_save_load_profile_phase(profile, "participant_prepare_us")
 		if prepared.get("ok", false):
 			return {"ok": true, "code": &"ok", "value": {"prepared": prepared["value"]}}
 		if prepared.get("code") == &"BUNDLE_CONTENT_INCOMPATIBLE":
@@ -1865,7 +2007,8 @@ func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output:
 	var locale_id := str(profile_prep["value"]["locale_id"])
 	var preferences: Dictionary = (plans["profile"].get("profile", {}) as Dictionary).get("preferences", {})
 
-	var loc_prep: Dictionary = _restore_participants["localization"].prepare({"locale_id": locale_id})
+	var loc_prep: Dictionary = _restore_participants["localization"].prepare({"locale_id": locale_id,
+		"font_style": profile_prep["value"].get("font_style", "pixel"), "text_size": profile_prep["value"].get("text_size", 100)})
 	if not loc_prep.get("ok", false):
 		return _content_incompatible_or_fail("localization", sequence, loc_prep)
 	plans["localization"] = loc_prep["value"]["localization_plan"]
@@ -1886,7 +2029,8 @@ func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output:
 	plans["route"] = route_prep["value"]["route_plan"]
 
 	var narr_prep: Dictionary = _restore_participants["narrative"].prepare(
-		{"narrative_checkpoint": snapshot["narrative_checkpoint"], "content_version": int(snapshot["content_version"])})
+		{"narrative_checkpoint": snapshot["narrative_checkpoint"], "content_version": int(snapshot["content_version"]),
+		"snapshot": snapshot})
 	if not narr_prep.get("ok", false):
 		return _content_incompatible_or_fail("narrative", sequence, narr_prep)
 	plans["narrative"] = narr_prep["value"]["narrative_plan"]
@@ -1947,10 +2091,7 @@ func load_context(locator: Dictionary) -> Dictionary:
 	if not migrated.get("ok", false):
 		return migrated
 	var document: Dictionary = migrated["value"]["document"]
-	var validated: Dictionary = SAVE_DOCUMENT_SCHEMA.validate(document)
-	if not validated.get("ok", false):
-		return validated
-	document = validated["value"]["candidate"]
+	# Admission already returned the validated, detached document.
 	var bundle := _find_bundle_by_checkpoint_id(document, str(locator.get("checkpoint_id", "")))
 	if bundle.is_empty():
 		return _fail(&"source_bundle_not_found", str(locator.get("checkpoint_id", "")))
@@ -2290,10 +2431,7 @@ func _reconstruct_restore_materials(operation: Dictionary) -> Dictionary:
 	if not migrated.get("ok", false):
 		return migrated
 	var document: Dictionary = migrated["value"]["document"]
-	var validated: Dictionary = SAVE_DOCUMENT_SCHEMA.validate(document)
-	if not validated.get("ok", false):
-		return validated
-	document = validated["value"]["candidate"]
+	# Admission already returned the validated, detached document.
 
 	var bundle := _find_bundle_by_checkpoint_id(document, str(locator.get("checkpoint_id", "")))
 	if bundle.is_empty():
@@ -2419,14 +2557,64 @@ func _delete(locator: Dictionary) -> Dictionary:
 	slot_metadata_changed.emit()
 	return {"ok": true, "code": &"ok", "value": {"deleted": true, "relative_path": relative_path}}
 
+## One synchronous Backup write may validate the same outgoing text before and after promotion.
+## Reuse only a successful validation of that exact String within this call. Storage still reads
+## and proves the physical revision/bytes itself; another write receives a fresh empty memo.
+## The caller consumes a storage witness, not the admitted document; each success is detached.
+func _write_document_text_validator(text: String, validated_texts: Dictionary) -> Dictionary:
+	if validated_texts.has(text):
+		return {"ok": true, "code": &"ok", "value": {}}
+	var result := _document_text_validator(text)
+	# Preserve every refusal, including a malformed success that storage rejects.
+	if not result.get("ok", false) or typeof(result.get("value")) != TYPE_DICTIONARY:
+		return result
+	validated_texts[text] = {"ok": true, "code": &"ok", "value": {}}
+	return {"ok": true, "code": &"ok", "value": {}}
+
 func _document_text_validator(text: String) -> Dictionary:
-	var parsed: Dictionary = STRICT_JSON.parse_object(text)
+	var parsed: Dictionary = _parse_document_text(text)
 	if not parsed.get("ok", false):
 		return {"ok": false, "code": &"invalid_json", "message": "strict parse failed"}
 	var validated: Dictionary = SAVE_DOCUMENT_SCHEMA.validate(parsed["value"])
 	if not validated.get("ok", false):
 		return validated
 	return {"ok": true, "code": &"ok", "value": validated["value"]["candidate"]}
+
+## A cache entry proves only strict JSON parsing of this exact String. In particular,
+## it never proves current schema, locator, content compatibility, or disk durability.
+func _parse_document_text(text: String) -> Dictionary:
+	var disabled := OS.get_environment("DWM_SAVE_PARSE_CACHE_DISABLED") == "1"
+	var profile := _save_load_profile_begin("document_parse")
+	if not profile.is_empty():
+		profile["cache_enabled"] = not disabled
+		profile["cache_hit"] = false
+	if disabled:
+		return _save_load_profile_finish(profile, STRICT_JSON.parse_object(text))
+	for index: int in _document_parse_cache.size():
+		var entry: Dictionary = _document_parse_cache[index]
+		if entry["text"] == text:
+			_document_parse_cache.remove_at(index)
+			_document_parse_cache.append(entry)
+			if not profile.is_empty(): profile["cache_hit"] = true
+			return _save_load_profile_finish(profile, (entry["parsed"] as Dictionary).duplicate(true))
+	var parsed := STRICT_JSON.parse_object(text)
+	if not parsed.get("ok", false):
+		return _save_load_profile_finish(profile, parsed)
+	# Count real UTF-8 bytes only for admission, after the unchanged strict parser.
+	# Oversized valid inputs keep their normal result without displacing useful entries.
+	var text_bytes := text.to_utf8_buffer().size()
+	if text_bytes > _PARSE_CACHE_MAX_TEXT_BYTES:
+		return _save_load_profile_finish(profile, parsed)
+	while not _document_parse_cache.is_empty() and (
+		_document_parse_cache.size() >= _PARSE_CACHE_MAX_ENTRIES
+		or _document_parse_cache_text_bytes + text_bytes > _PARSE_CACHE_MAX_TEXT_BYTES):
+		var oldest: Dictionary = _document_parse_cache.pop_front()
+		_document_parse_cache_text_bytes -= int(oldest["text_bytes"])
+	# The miss result belongs to this caller. Retain a separate tree even on first use.
+	_document_parse_cache.append({"text": text, "text_bytes": text_bytes,
+		"parsed": parsed.duplicate(true)})
+	_document_parse_cache_text_bytes += text_bytes
+	return _save_load_profile_finish(profile, parsed)
 
 func _validate_checkpoint_inputs(checkpoint_inputs: Dictionary) -> String:
 	var keys: Array = checkpoint_inputs.keys()

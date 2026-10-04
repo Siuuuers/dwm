@@ -1,4 +1,5 @@
 extends SceneTree
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const CLOCK := preload("res://scripts/ui/desktop/RoutineClock.gd")
 var failures := 0
 var reads := 0
@@ -21,13 +22,16 @@ func _run() -> void:
 	_check(clock._timer.one_shot and clock._timer.wait_time == 13, "one-shot aligns next read to minute")
 	_check(clock.focus_mode == Control.FOCUS_NONE and clock.mouse_filter == Control.MOUSE_FILTER_IGNORE, "clock has no focus or pointer target")
 	_check(int(clock.accessibility_live) == 0, "clock is not a live announcement region")
-	var font: Font = clock.get_theme_font("font")
-	for percent: int in [100, 125, 150]:
-		clock.set_presentation("en", percent)
-		var font_size := clock.get_theme_font_size("font_size")
-		_check(font_size == int(24 * percent / 100.0), "shared font scaling")
-		_check(is_equal_approx(font.get_string_size("11:11", HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x,
-			font.get_string_size("00:00", HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x), "clock digits have stable tabular widths")
+	for font_style: String in ["pixel", "readable"]:
+		for locale: String in ["en", "zh-CN", "zh-HK", "ja", "ko"]:
+			for percent: int in [100, 125, 150]:
+				clock.set_presentation(locale, percent, font_style)
+				var font: Font = clock.get_theme_font("font")
+				var font_size := clock.get_theme_font_size("font_size")
+				_check(font_size == int(24 * percent / 100.0), "shared font scaling")
+				_check(is_same(font, TYPOGRAPHY.font(locale, percent, font_style)), "clock uses the selected font face")
+				_check(is_equal_approx(font.get_string_size("11:11", HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x,
+					font.get_string_size("00:00", HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x), "clock digits have stable tabular widths")
 	clock_value = {"hour": 23, "minute": 59, "second": 59}
 	clock.refresh_clock()
 	_check(clock.text == "23:59" and clock._timer.wait_time == 1, "last second schedules next minute")
@@ -51,7 +55,7 @@ func _run() -> void:
 		clock_value = malformed
 		clock.refresh_clock()
 		_check(clock.text == "--:--" and clock._timer.wait_time == 60, "malformed time is unavailable without guessing")
-	for locale: String in ["en", "zh-CN", "zh-HK"]:
+	for locale: String in ["en", "zh-CN", "zh-HK", "ja", "ko"]:
 		clock.set_presentation(locale, 100)
 		_check(clock.accessibility_name == CLOCK.NAMES[locale] and clock.accessibility_description == CLOCK.UNAVAILABLE[locale], "unavailable accessibility copy follows locale")
 	clock.configure_clock(Callable())

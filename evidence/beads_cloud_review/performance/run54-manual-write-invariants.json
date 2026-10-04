@@ -1,0 +1,83 @@
+{
+  "repository": "Siuuuers/dwm",
+  "run_id": 35710770852,
+  "attempt": 1,
+  "job_id": 106692415536,
+  "head_sha": "217cc23cfe2018518e0d6037b9ea32ffc5b94957",
+  "tested_merge_sha": "8a328f52cdef7a0317e599ffcc4fa3639019acdd",
+  "source": "Completed GitHub Actions job log; public machine-readable markers. Raw user save documents are not included.",
+  "samples": 16,
+  "pairs": 8,
+  "alternating_order": true,
+  "identical_fields_across_all_samples": [
+    "candidate_sha256",
+    "source_revision",
+    "source_files_sha256",
+    "output_files_sha256",
+    "prior_journal_sha256",
+    "journal_sha256",
+    "output_sha256",
+    "output_bytes",
+    "retained_checkpoint_count",
+    "parse_cache_before"
+  ],
+  "all_66": true,
+  "parse_cache_enabled": true,
+  "strict_validation_calls": {
+    "baseline": 2,
+    "candidate": 1
+  },
+  "source_variant_hashes": {
+    "candidate": "045828f242d4292a513cdac101f66b43349f6b8891e05e30bee886aae0092c2c",
+    "baseline": "1ba6f37640ca15527366d7cc9092ba55e1bcb12b9616f6ea7fa86fb5b56f67d2",
+    "storage": "ad2691249d9c7a247147fdc76885044b6cd9f6ebaac1f7267b4c144586d2adab"
+  },
+  "all_deltas_negative": true,
+  "delta_range_us": [
+    -235515,
+    -133131
+  ],
+  "summary": {
+    "pair_count": 8,
+    "baseline_median_commit_us": 2482376,
+    "candidate_median_commit_us": 2316723,
+    "median_paired_candidate_minus_baseline_us": -159528
+  },
+  "median_reduction_percent": 6.673163130806937,
+  "control": "Public prepare_backup_action and commit_backup_action with real storage, the same seeded Day7 journal, immutable capture fixture and a test-subclass fixed clock. Only the write validation memo differs; parse cache enabled in both.",
+  "sampling": "Eight alternating pairs / sixteen fresh isolated processes; identical prepared candidate, physical source files, target revision and pre-commit parser cache. Commit timing excludes preparation, live UI callbacks, issuer-flush callbacks and rendering. OS filesystem caches are not flushed.",
+  "source_and_output_invariants": {
+    "candidate_sha256": "ef16e5f00d1edf0357a6e58d7aab59be564257f73361e1ab787460d754b88e4c",
+    "source_revision": "d372c4e6197ab301da548b32a9b58f21bb07723b010ace6e460572321ea35248",
+    "source_files_sha256": {
+      "autosave.json": "cc3330825670609c18760cd4cbe601592c3a8145602ec5c1fa16ee66c460c54a",
+      "autosave.json.bak": "3c65127423fb8dfb46051477b0e0a4d717967cc3cbc503ef034da113dab085bb",
+      "desktop-continuation-operations.json": "d1ac4258d3dda65d53389c9a1f19bc7070b5f8d9abfe61b2e8da288405c64da6",
+      "desktop-continuation-operations.json.bak": "fb156c856fed700c08622ea7b3b32600cbb55e51fbd9f18e48d9ccd7a8bd82d1",
+      "slot_1.json": "d372c4e6197ab301da548b32a9b58f21bb07723b010ace6e460572321ea35248"
+    },
+    "output_files_sha256": {
+      "autosave.json": "cc3330825670609c18760cd4cbe601592c3a8145602ec5c1fa16ee66c460c54a",
+      "autosave.json.bak": "3c65127423fb8dfb46051477b0e0a4d717967cc3cbc503ef034da113dab085bb",
+      "desktop-continuation-operations.json": "d1ac4258d3dda65d53389c9a1f19bc7070b5f8d9abfe61b2e8da288405c64da6",
+      "desktop-continuation-operations.json.bak": "fb156c856fed700c08622ea7b3b32600cbb55e51fbd9f18e48d9ccd7a8bd82d1",
+      "slot_1.json": "80d45108662ae565ab1efd592087fcffb474ffe60ae15865b48f7c66b2938e56"
+    },
+    "prior_journal_sha256": "10e29fcb7cd82a45a5479cd6fab9eff29c4cc2b17fc3acb55ee6cb2b372dbd54",
+    "journal_sha256": "331bc17ca0dd97055c8764f7df6c525c9b83f08b7691882c70b9d9c383f762dc",
+    "output_sha256": "80d45108662ae565ab1efd592087fcffb474ffe60ae15865b48f7c66b2938e56",
+    "output_bytes": 1923178,
+    "retained_checkpoint_count": 66,
+    "parse_cache_before": [
+      {
+        "bytes": 1872910,
+        "sha256": "d372c4e6197ab301da548b32a9b58f21bb07723b010ace6e460572321ea35248"
+      }
+    ]
+  },
+  "limitations": [
+    "Fresh processes on one shared Windows runner; OS filesystem caches are not flushed.",
+    "Commit timing includes production source/revision rechecks, serialization, real atomic storage and journal publication. It excludes preparation, live UI callbacks, issuer-flush callbacks and rendering.",
+    "The fixed-clock subclass and immutable capture provider are test fixtures; this is not an end-to-end player input-to-paint measurement."
+  ]
+}

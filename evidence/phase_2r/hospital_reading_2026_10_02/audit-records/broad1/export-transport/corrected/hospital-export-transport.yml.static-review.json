@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "scope": "Static workflow and synthetic split/reassembly validation only.",
+  "workflow_repository_path": ".github/workflows/hospital-export-evidence.yml",
+  "branch": "codex/hospital-export-evidence-20261003",
+  "expected_publication_parent": "0a22f556120178dddc7b28df1a8abfc8b011bc12",
+  "expected_source_artifact": {
+    "repository": "Siuuuers/dwm",
+    "artifact_id": 11244640103,
+    "size_in_bytes": 98850774,
+    "sha256": "e2739823bc11ab4a336072c1a437af8711f54c3dee248a6e388b42c6947d8cc9",
+    "run_id": 37044894986,
+    "workflow_head": "1bc4f6afd759e969f82b9c2134eb178479c19d13"
+  },
+  "prior_invalid_workflow_run": 37046971060,
+  "permissions": {
+    "contents": "read",
+    "actions": "read"
+  },
+  "checkout_required": false,
+  "github_context_placement": "No job-level runner context; shell steps export RUNNER_TEMP-derived path. runner.temp appears only in upload step inputs.",
+  "engine_execution": false,
+  "original_zip_preserved": true,
+  "chunk_bytes": 26214400,
+  "expected_chunk_lengths": [
+    26214400,
+    26214400,
+    26214400,
+    20207574
+  ],
+  "upload_count": 5,
+  "upload_compression_level": 0,
+  "secret_handling": "GH_TOKEN exists only in read-only download step environment; no tokens or signed URLs included in manifest or logs by script.",
+  "workflow": {
+    "bytes": 10002,
+    "sha256": "c0ecf97aded59db7fe87435f060e5964e828b8c541a17b794b10336d90026b57"
+  },
+  "embedded_splitter": {
+    "bytes": 6142,
+    "sha256": "5d30b0988b5fdd3160c259c67b2c41ae221efc94a09ae6d3d8a599576c814dcc"
+  },
+  "helper": {
+    "path": "/workspace/scratch/e58f796fe7a3/hospital-tools/build_export_evidence_transport.py",
+    "bytes": 16657,
+    "sha256": "af79d25c92008098423472f740ab7728257e74a3f6f38e9bcad2d09a61f5f559"
+  },
+  "static_and_synthetic_checks": {
+    "passed": true,
+    "synthetic_zip": {
+      "bytes": 10488,
+      "sha256": "7b339c9031992729cbccc345b631e68a4f30df263c1c64fefa7cd6d9727412a1"
+    },
+    "member_count": 2,
+    "chunk_count": 4,
+    "ordered_reassembly_byte_identical": true,
+    "original_untouched": true,
+    "saved_manifest_json_roundtrip": true,
+    "refusals_before_chunk_creation": [
+      "id",
+      "size",
+      "digest",
+      "expired",
+      "source_run",
+      "member_crc_despite_matching_outer_digest",
+      "downloaded_original_sha256"
+    ]
+  },
+  "pending": [
+    "Root review/publication.",
+    "Actual cloud download, identity/CRC and split validation.",
+    "Download five small transport artifacts, verify wrapper ZIPs, reassemble raw parts, verify exact original identity/CRC, then normal export evidence audit."
+  ]
+}

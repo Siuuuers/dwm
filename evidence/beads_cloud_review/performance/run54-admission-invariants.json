@@ -1,0 +1,41 @@
+{
+  "repository": "Siuuuers/dwm",
+  "run_id": 35710770852,
+  "attempt": 1,
+  "job_id": 106692415536,
+  "head_sha": "217cc23cfe2018518e0d6037b9ea32ffc5b94957",
+  "tested_merge_sha": "8a328f52cdef7a0317e599ffcc4fa3639019acdd",
+  "source": "Completed GitHub Actions job log; public machine-readable markers. Raw user save documents are not included.",
+  "samples": 16,
+  "pairs": 8,
+  "alternating_order": true,
+  "all_66": true,
+  "cache_enabled": true,
+  "same_gameplay": true,
+  "same_board": true,
+  "same_journal": true,
+  "same_autosave": true,
+  "source_variant_hashes": {
+    "candidate": "045828f242d4292a513cdac101f66b43349f6b8891e05e30bee886aae0092c2c",
+    "baseline": "606dd07c7877f4a464188240e3e64a2510198ff7497d1b8b1b7195c1335d1e01",
+    "shared": {
+      "scripts/infrastructure/save/SaveMigrations.gd": "7bc5ff311c552276cb276a7e0c1b739109d64eb0e0fd7db225cbdcc76f3b467c",
+      "scripts/infrastructure/save/SaveDocumentSchema.gd": "c47f17d39043ab597c1f2699cd3f5256aeee50d29f4b8b8226763d46034b0b1a",
+      "scripts/domain/run/RunSnapshotSchema.gd": "88c329ce56350c8cd09124222cc69ae2f0335731f6519d655c8c8a14beff9158",
+      "scripts/infrastructure/save/CheckpointJournal.gd": "617aa35fe71b426c8c0b643b9fdda2e65322f5e37e652fb98bf7f78f64e7c344"
+    }
+  },
+  "all_deltas_negative": true,
+  "delta_range_us": [
+    -2449243,
+    -1228084
+  ],
+  "summary": {
+    "pair_count": 8,
+    "baseline_median_login_us": 10425641.5,
+    "candidate_median_login_us": 8944981.5,
+    "median_paired_candidate_minus_baseline_us": -1446385
+  },
+  "control": "Current SaveManager versus the same source with only the four redundant schema validations restored. Same current schemas, parse cache enabled, identical retained source bytes, one new isolated process per sample.",
+  "sampling": "Eight matched pairs / sixteen processes; odd pairs baseline then candidate, even pairs candidate then baseline. Shared Windows runner; process-cold Login, not flushed OS filesystem caches or physical input-to-paint."
+}

@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "status": "FAILED_DIAGNOSTIC_EVIDENCE_ONLY",
+  "run_id": 37092368181,
+  "source": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965",
+  "actual_checkout": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965",
+  "workflow_head": "e91e0b50bd5e8720a3c40d48d02dbd3439dd04ef",
+  "actual_checkout_by_job": {
+    "111115218160": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965",
+    "111116111161": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965",
+    "111116111162": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965",
+    "111116111219": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965",
+    "111116111235": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965",
+    "111116111243": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965",
+    "111116111247": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965",
+    "111116111291": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965"
+  },
+  "archive": {
+    "file": "timed-hold-focus1-failed-diagnostic-evidence.tar.gz",
+    "bytes": 39763629,
+    "sha256": "84979244569ad99856d606ec1f784951a8da07c927c20b35b75262e8e807b51c"
+  },
+  "archive_members": 98,
+  "original_zip_count": 13,
+  "original_zip_bytes": 38310538,
+  "reproducible_extracted_files": 490,
+  "reproducible_extracted_bytes": 113693334,
+  "extraction_inventory": {
+    "bytes": 509070,
+    "sha256": "36e41c82a7f5a605c0aa7b3a12c500a1054022c3610ec17667a69f600c89d470"
+  },
+  "archive_inventory": {
+    "bytes": 31969,
+    "sha256": "6ed726270eb8d25125159934634dce85f627949088b57ede9efe5d9ccb397fd6"
+  },
+  "every_archive_member_roundtrip_verified": true,
+  "split_required": true,
+  "part_size_limit": 8388608,
+  "parts": [
+    {
+      "file": "timed-hold-focus1-failed-diagnostic-evidence.tar.gz.part001",
+      "index": 1,
+      "offset": 0,
+      "bytes": 8388608,
+      "sha256": "9527b18553e0fd91607fb3637705db8afc581cbc7c819fe49d597d70e7f93799"
+    },
+    {
+      "file": "timed-hold-focus1-failed-diagnostic-evidence.tar.gz.part002",
+      "index": 2,
+      "offset": 8388608,
+      "bytes": 8388608,
+      "sha256": "255a345eb6627a4b8b8e8f498ad127c16377b4732c708b7b50bbba3113002528"
+    },
+    {
+      "file": "timed-hold-focus1-failed-diagnostic-evidence.tar.gz.part003",
+      "index": 3,
+      "offset": 16777216,
+      "bytes": 8388608,
+      "sha256": "3113fee43fc116567d650d4040aeb494c1fdc11f821635d437da373f7a1b99a5"
+    },
+    {
+      "file": "timed-hold-focus1-failed-diagnostic-evidence.tar.gz.part004",
+      "index": 4,
+      "offset": 25165824,
+      "bytes": 8388608,
+      "sha256": "bf3efa9135721256a0c853ba583b2914542ccda6d343169a4e9e4d697af2a561"
+    },
+    {
+      "file": "timed-hold-focus1-failed-diagnostic-evidence.tar.gz.part005",
+      "index": 5,
+      "offset": 33554432,
+      "bytes": 6209197,
+      "sha256": "d4ec213a0f8de94ee33fec30d3e3994d81dd4d97888ffdd6d515ed0ab5c38cb8"
+    }
+  ],
+  "ordered_reassembly_verified": true,
+  "adopt_archive_files": [
+    "timed-hold-focus1-failed-diagnostic-evidence.tar.gz.part001",
+    "timed-hold-focus1-failed-diagnostic-evidence.tar.gz.part002",
+    "timed-hold-focus1-failed-diagnostic-evidence.tar.gz.part003",
+    "timed-hold-focus1-failed-diagnostic-evidence.tar.gz.part004",
+    "timed-hold-focus1-failed-diagnostic-evidence.tar.gz.part005"
+  ],
+  "do_not_adopt_unsplit_archive_when_parts_are_used": true,
+  "excluded_raw_extraction_copies_have_lossless_original_zip_representation": true
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "scope": "Additive diagnostic qualification and Broad1 erratum; original Broad1 report unchanged.",
+  "files": [
+    {
+      "path": "audit-records/exporter-diagnostic/README.md",
+      "bytes": 2498,
+      "sha256": "e0d0eae4ff118d5a31f436a6e538567a503a48d086ae70752b2a825a20ec3244"
+    },
+    {
+      "path": "audit-records/exporter-diagnostic/broad1-export-audit-erratum.json",
+      "bytes": 1855,
+      "sha256": "c87f70d06493fe1489055b8f297a11c9f681071e13f4e6fdcdf862a9141aca9a"
+    },
+    {
+      "path": "audit-records/exporter-diagnostic/review.json",
+      "bytes": 6415,
+      "sha256": "4aaef9438f7b1ec83538dcbe520da9f568e00d407adff0cd7147183eff0f4cca"
+    },
+    {
+      "path": "audit-records/exporter-diagnostic/audit_export.strict-initial.py",
+      "bytes": 7026,
+      "sha256": "ccdcbe99563e53d52d58a19dce891c981132643a06300a0e4fcdebaf0f128cd7"
+    }
+  ]
+}

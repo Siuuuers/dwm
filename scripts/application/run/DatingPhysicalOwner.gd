@@ -14,6 +14,7 @@ const RULES := preload("res://scripts/application/run/DatingChallengeRules.gd")
 const ATTEMPTS := preload("res://scripts/profile/DatingAttemptLedger.gd")
 const PRESENTATION_SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
 const OBSERVER_RULES := preload("res://scripts/domain/relationship/ProvisionalProgressionRules.gd")
+const FROZEN_CONTEXT := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 const OWNER_KIND := "dating_challenge"
 const PHASES := ["pre_challenge", "preparing", "challenge", "cleared_awaiting_terminal_choice", "settlement_retry", "post_challenge", "completed"]
 const RECORD_KEYS := ["applied_result", "board", "command_sha256", "completion_transaction_id",
@@ -40,6 +41,20 @@ var _history_reference: Dictionary = {}
 var _history_revision := 0
 var _history_committed := false
 var _history_target_branch := ""
+var _frozen_narrative_enabled := false
+
+## Production opt-in while the remaining semantic producers migrate separately.
+func configure_frozen_narrative_contexts() -> Dictionary:
+	if _game_state == null or not _game_state.has_method("capture_run_snapshot_input"):
+		return _fail(&"frozen_context_state_unavailable")
+	_frozen_narrative_enabled = true
+	return _ok({})
+
+func pull_frozen_narrative_context(physical_token: String, phase: String) -> Dictionary:
+	if not _frozen_narrative_enabled: return _ok({})
+	if not _adopt(physical_token) or phase != _record.phase or phase not in ["pre_challenge", "post_challenge"]:
+		return _fail(&"frozen_context_phase_mismatch")
+	return _read_frozen_narrative(phase)
 
 ## Production actions own a short causal lease. The stage owner still admits begin_physical.
 func configure_attempt_history(gate: Object) -> Dictionary:
@@ -91,13 +106,6 @@ func begin_physical(command: Dictionary) -> Dictionary:
 		# a refused admission leaves the live board and its pending progress untouched.
 		_routine_pending = false
 		_admitted_command = command.duplicate(true)
-		var source: Variant = _game_state.route_context.get("dating_observer_source")
-		if source is Dictionary:
-			# A saved proof is not proof that this newly admitted view has rendered.
-			# Window progress and durable receipts remain unchanged, including same-token Load.
-			source["rendered"] = false
-			source["playback_token"] = ""
-			source["comparison_shown"] = false
 	return result
 
 func _begin_physical(command: Dictionary) -> Dictionary:
@@ -112,8 +120,19 @@ func _begin_physical(command: Dictionary) -> Dictionary:
 	var stored: Dictionary = captured.value
 	if not stored.is_empty() and (str(stored.get("completion_transaction_id", "")) == completion_id 			or (_attempt_gate != null and stored.get("context") is Dictionary and not ATTEMPTS.semantic_slot(stored.context).is_empty() and ATTEMPTS.semantic_slot(stored.context) == ATTEMPTS.semantic_slot(command.context))):
 		if not _valid_record(stored, {}): return _fail(&"invalid_restored_dating_challenge")
+		# Validate the saved entry before rebinding the command or reconciling Profile.
+		# A group/deferred remap is a distinct first presentation, frozen separately below.
+		_record = stored.duplicate(true)
+		var restored_context := _validate_retained_frozen_contexts()
+		if not restored_context.ok: return restored_context
 		_record = _rebind_record(stored, command)
 		if not _valid_record(_record, command): return _fail(&"invalid_restored_dating_challenge")
+		if _frozen_narrative_enabled and _record.host == "canonical_pair" and _record.context.kind != stored.context.kind:
+			var remapped_pre := _freeze_narrative_projection("pre_challenge", {})
+			if not remapped_pre.ok: return remapped_pre
+			if _record.phase in ["post_challenge", "completed"]:
+				var remapped_post := _freeze_narrative_projection("post_challenge", {})
+				if not remapped_post.ok: return remapped_post
 		_pending_checkpoint = {}
 		if _attempt_gate != null and _record.phase not in ["pre_challenge", "preparing"]:
 			var resumed: Dictionary = _restore_attempt(command)
@@ -176,9 +195,7 @@ func dispatch_physical(physical_token: String, action: String, cell_index: int,
 func _dispatch_physical(physical_token: String, action: String, cell_index: int,
 		expected_revision: int) -> Dictionary:
 	if not _adopt(physical_token): return _fail(&"dating_challenge_unavailable")
-	var observer_pending: Variant = _game_state.route_context.get("dating_observer_source")
-	if observer_pending is Dictionary and observer_pending.get("checkpoint_pending", false) and observer_pending.get("run_id") == str(_attempt_identity().run_id) and _record.get("phase") == "pre_challenge":
-		return _fail(&"observer_checkpoint_retry_required")
+	# Retired Observer interactions cannot retain input custody in an older save.
 	# A later restore participant can roll GameState back without touching this retained
 	# owner's local preview. Rebuild that preview from the live branch before accepting input.
 	if _post_ending_history() and _record.phase not in ["pre_challenge", "preparing"] and (
@@ -198,6 +215,8 @@ func _dispatch_physical(physical_token: String, action: String, cell_index: int,
 				var fresh: Dictionary = _make_spec(str(_record.host))
 				if not fresh.get("ok", false): return fresh
 				_record.spec = fresh.value
+				var rebound_context := _bind_frozen_pre_to_entered_attempt()
+				if not rebound_context.ok: return rebound_context
 				_clear_history_state()
 				_history_selection = {"mode": "fresh"}
 			if _record.schema_version == 3:
@@ -223,12 +242,9 @@ func _dispatch_physical(physical_token: String, action: String, cell_index: int,
 			var changed: Dictionary = _settle_board() if action == "settle" else _board_action(action,cell_index)
 			if not changed.get("ok",false): return changed
 		"cleared_awaiting_terminal_choice":
-			if _record.schema_version == 3:
-				if action == "activate" and cell_index != int(_record.envelope.special_cell):
-					return _fail(&"dating_special_cell_mismatch")
-				if action == "continue" and cell_index != -1: return _fail(&"dating_challenge_command_refused")
-			_record.relationship_outcome = "dark" if action in ["special_mine", "activate"] else (
-				"foresight" if _record.outcome == "perfect" else "loved")
+			# Read old saved phases, but the retired special-mine decision cannot be replayed.
+			if action != "continue" or cell_index != -1: return _fail(&"dating_challenge_command_refused")
+			_record.relationship_outcome = "foresight" if _record.outcome == "perfect" else "loved"
 			var chosen: Dictionary = _settle_terminal()
 			if not chosen.get("ok", false): return chosen
 		"settlement_retry":
@@ -374,14 +390,23 @@ func reconcile_restore_silent(restored_snapshot: Dictionary) -> Dictionary:
 	var snapshot: Dictionary = _game_state.capture_run_snapshot_input()
 	var route_context: Dictionary = snapshot.gameplay.get("route_context", {})
 	var stored: Dictionary = route_context.get("active_dating_challenge", {})
+	var active_dating := not stored.is_empty() and int(stored.get("context", {}).get("day", 0)) == int(snapshot.lifecycle.day) \
+		and str(restored_snapshot.get("route_id", "")) == "dating"
+	if active_dating:
+		if not _valid_record(stored, {}): return _fail(&"invalid_restored_dating_challenge")
+		# Refusal must preserve the retained owner too: its pending board progress
+		# is part of the restore backup, not just the public gameplay snapshot.
+		var previous_record := _record
+		_record = stored.duplicate(true)
+		var frozen := _validate_retained_frozen_contexts()
+		_record = previous_record
+		if not frozen.ok: return frozen
 	_pending_checkpoint = {}
 	_routine_pending = false
 	_clear_history_state()
-	if stored.is_empty() or stored.get("phase") in ["pre_challenge", "preparing"] \
-			or int(stored.get("context", {}).get("day", 0)) != int(snapshot.lifecycle.day) \
-			or str(restored_snapshot.get("route_id", "")) != "dating": return _ok({})
-	if not _valid_record(stored, {}): return _fail(&"invalid_restored_dating_challenge")
+	if not active_dating: return _ok({})
 	_record = stored.duplicate(true)
+	if stored.phase in ["pre_challenge", "preparing"]: return _ok({})
 	return _restore_attempt(stored, true)
 
 func _attempt_identity() -> Dictionary:
@@ -557,6 +582,8 @@ func _publish_history_reference() -> Dictionary:
 	return _ok({})
 
 func _apply_record_effect(silent: bool = false) -> Dictionary:
+	var rebound_context := _bind_frozen_pre_to_entered_attempt()
+	if not rebound_context.ok: return rebound_context
 	if _record.host == "canonical_solo" and not _record.applied_result.is_empty():
 		var applied: Dictionary = _game_state.apply_dating_challenge_effect_receipt(_entry(),
 			_record.applied_result.receipt, not silent)
@@ -674,8 +701,8 @@ func _settle_board() -> Dictionary:
 		_record.relationship_outcome = "foresight"
 		return _settle_terminal()
 	if _record.outcome != "exploded":
-		_record.phase = "cleared_awaiting_terminal_choice"
-		return _ok({})
+		_record.relationship_outcome = "foresight" if _record.outcome == "perfect" else "loved"
+		return _settle_terminal()
 	var mine_ordinal: int = _record.board.mine_indices.find(_record.board.exploded_index)
 	_record.relationship_outcome = _record.mine_dispositions[mine_ordinal]
 	return _settle_terminal()
@@ -744,7 +771,7 @@ func _freeze_pre_challenge_presentation() -> Dictionary:
 	if stored is Dictionary and stored.get("board_token") == _record.spec.board_token and stored.get("entry_id") == entry_id:
 		if not stored.get("fields") is Dictionary: return _fail(&"invalid_saved_presentation_fields")
 		var checked: Dictionary = PRESENTATION_SIGNATURE.from_dating_pre_challenge(_record, stored.fields)
-		return _ok({}) if checked.ok else checked
+		return _freeze_narrative_projection("pre_challenge", stored.fields) if checked.ok else checked
 	var fields := {}
 	if _record.host == "canonical_solo":
 		var friend_id: String = _record.context.participants[0]
@@ -759,7 +786,7 @@ func _freeze_pre_challenge_presentation() -> Dictionary:
 	_game_state.route_context["dating_pre_challenge_presentation"] = {
 		"board_token": str(_record.spec.board_token), "entry_id": str(current.value.signature.entry_id),
 		"fields": fields.duplicate(true)}
-	return _ok({})
+	return _freeze_narrative_projection("pre_challenge", fields)
 
 func acknowledge_pre_challenge_render(physical_token: String) -> Dictionary:
 	if not _adopt(physical_token) or _record.phase != "pre_challenge" \
@@ -807,9 +834,9 @@ func _freeze_post_challenge_presentation() -> Dictionary:
 			_game_state.route_context["dating_post_challenge_presentation"] = {
 				"board_token": str(_record.spec.board_token),
 				"entry_id": str(remapped.value.signature.entry_id), "fields": saved_fields}
-			return _ok({})
+			return _freeze_narrative_projection("post_challenge", saved_fields)
 		var checked: Dictionary = PRESENTATION_SIGNATURE.from_dating_post_challenge(_record, saved_fields)
-		return _ok({}) if checked.ok and checked.value.signature.entry_id == stored.get("entry_id") else _fail(&"invalid_saved_presentation_fields")
+		return _freeze_narrative_projection("post_challenge", saved_fields) if checked.ok and checked.value.signature.entry_id == stored.get("entry_id") else _fail(&"invalid_saved_presentation_fields")
 	var fields := {}
 	if _record.host == "canonical_solo":
 		var friend_id: String = _record.context.participants[0]
@@ -832,7 +859,174 @@ func _freeze_post_challenge_presentation() -> Dictionary:
 	_game_state.route_context["dating_post_challenge_presentation"] = {
 		"board_token": str(_record.spec.board_token), "entry_id": str(current.value.signature.entry_id),
 		"fields": fields.duplicate(true)}
+	return _freeze_narrative_projection("post_challenge", fields)
+
+func _read_frozen_narrative(phase: String) -> Dictionary:
+	var saved: Variant = _game_state.route_context.get("dating_frozen_contexts_v1")
+	var entry_id := _narrative_entry_id(phase)
+	if not saved is Dictionary or saved.get("schema_version") != 1 \
+			or saved.get("board_token") != _record.spec.board_token or not saved.get("entries") is Dictionary \
+			or not saved.entries.get(entry_id) is Dictionary:
+		return _fail(&"frozen_context_snapshot_required")
+	var checked := FROZEN_CONTEXT.validate(entry_id, saved.entries[entry_id])
+	if not checked.ok: return checked
+	var fields: Dictionary = checked.value.fields
+	if fields.run_id != _attempt_identity().run_id \
+			or (phase == "post_challenge" and fields.attempt_id != _record.spec.board_token) \
+			or (_record.host == "canonical_pair" and fields.stable_deck_state.form != _record.pair_form):
+		return _fail(&"frozen_context_attempt_mismatch")
+	if phase == "post_challenge" and (fields.board_result != _record.outcome \
+			or fields.perfect_reasons != _record.perfect_reasons):
+		return _fail(&"frozen_context_result_mismatch")
+	if phase == "post_challenge" and _record.host == "canonical_solo" \
+			and (fields.relationship_outcome != _record.relationship_outcome \
+			or fields.effect_receipt_id != _record.applied_result.get("receipt", {}).get("terminal_fact", {}).get("transaction_id")):
+		return _fail(&"frozen_context_effect_receipt_required")
+	if fields.has("progression_window_result"):
+		var effect: Dictionary = _record.applied_result.get("receipt", {})
+		if fields.progression_window_result != {"evaluated": effect.get("progression_evaluated"),
+				"promotion_applied": effect.get("promotion_applied", false), "relationship_state": effect.get("relationship_state")}:
+			return _fail(&"frozen_context_effect_receipt_required")
+	return checked
+
+## The automatic pre-to-board handoff is when the canonical attempt is selected.
+## Pre prose has no attempt ID: its preliminary spec is not an entered board. A
+## locked Profile attempt or fresh post-ending attempt can replace that spec here.
+## Move only the owner's cache binding; already-presented facts stay byte-identical.
+func _bind_frozen_pre_to_entered_attempt() -> Dictionary:
+	if not _frozen_narrative_enabled: return _ok({})
+	var saved: Variant = _game_state.route_context.get("dating_frozen_contexts_v1")
+	if not saved is Dictionary or saved.get("schema_version") != 1 or not saved.get("entries") is Dictionary:
+		return _fail(&"frozen_context_snapshot_required")
+	if saved.get("board_token") == _record.spec.board_token: return _ok({})
+	if saved.entries.is_empty(): return _fail(&"frozen_context_snapshot_required")
+	for entry_id: String in saved.entries:
+		var checked := FROZEN_CONTEXT.validate(entry_id, saved.entries[entry_id])
+		if not checked.ok: return checked
+		if checked.value.fields.get("phase") != "pre_challenge" \
+				or checked.value.fields.get("day") != _record.context.day \
+				or checked.value.fields.get("run_id") != _attempt_identity().run_id:
+			return _fail(&"frozen_context_attempt_mismatch")
+	var prior: Variant = _game_state.route_context.get("dating_pre_challenge_presentation")
+	if not prior is Dictionary or prior.get("board_token") != saved.board_token:
+		return _fail(&"frozen_context_snapshot_required")
+	var rebound: Dictionary = saved.duplicate(true)
+	rebound.board_token = _record.spec.board_token
+	_game_state.route_context["dating_frozen_contexts_v1"] = rebound
+	var rebound_signature: Dictionary = prior.duplicate(true)
+	rebound_signature.board_token = _record.spec.board_token
+	_game_state.route_context["dating_pre_challenge_presentation"] = rebound_signature
 	return _ok({})
+
+func _validate_retained_frozen_contexts() -> Dictionary:
+	if not _frozen_narrative_enabled: return _ok({})
+	var pre := _read_frozen_narrative("pre_challenge")
+	if not pre.ok: return pre
+	return _read_frozen_narrative("post_challenge") if _record.phase in ["post_challenge", "completed"] else _ok({})
+
+func _narrative_entry_id(phase: String) -> String:
+	var context: Dictionary = _record.context
+	return "dating.solo.%s.day%d.%s" % [context.participants[0], int(context.day), phase] if context.kind == "solo" \
+		else "dating.%s.priscilla_lavinia.day%d.%s" % ["group" if context.kind == "group" else "twofriends", int(context.day), phase]
+
+func _freeze_narrative_projection(phase: String, signature_fields: Dictionary) -> Dictionary:
+	if not _frozen_narrative_enabled: return _ok({})
+	var entry_id := _narrative_entry_id(phase)
+	var existing: Variant = _game_state.route_context.get("dating_frozen_contexts_v1")
+	if existing is Dictionary and existing.get("board_token") == _record.spec.board_token \
+			and (existing.get("schema_version") != 1 or not existing.get("entries") is Dictionary):
+		return _fail(&"frozen_context_snapshot_required")
+	if existing is Dictionary and existing.get("board_token") == _record.spec.board_token \
+			and existing.get("entries") is Dictionary and existing.entries.has(entry_id):
+		return _read_frozen_narrative(phase)
+	if existing is Dictionary and existing.get("board_token") == _record.spec.board_token \
+			and _record.host == "canonical_pair":
+		# A trusted command may change only the pair's presentation mode. Preserve
+		# the same board's already-frozen facts, even if live receipts changed later.
+		var prior_kind := "twofriends" if _record.context.kind == "group" else "group"
+		var prior_id := "dating.%s.priscilla_lavinia.day%d.%s" % [prior_kind, int(_record.context.day), phase]
+		if existing.entries.has(prior_id):
+			var prior := FROZEN_CONTEXT.validate(prior_id, existing.entries[prior_id])
+			if not prior.ok: return prior
+			var remapped: Dictionary = prior.value.fields.duplicate(true)
+			remapped.entry_id = entry_id
+			remapped.encounter_presentation = _record.context.kind
+			var built := FROZEN_CONTEXT.build(entry_id, remapped)
+			if not built.ok: return built
+			var remapped_cache: Dictionary = existing.duplicate(true)
+			remapped_cache.entries[entry_id] = built.value
+			_game_state.route_context["dating_frozen_contexts_v1"] = remapped_cache
+			return _read_frozen_narrative(phase)
+	var identity: Dictionary = _attempt_identity()
+	var schema := FROZEN_CONTEXT.schema_for_entry(entry_id)
+	if not schema.ok: return schema
+	var fields := {"entry_id": entry_id, "entry_role": schema.value.fields.entry_role["const"],
+		"day": int(_record.context.day), "phase": phase, "run_id": str(identity.get("run_id", "")),
+		"branch_id": str(identity.get("branch_id", "")),
+		"attempt_residue_id": null}
+	if phase == "post_challenge": fields["attempt_id"] = str(_record.spec.board_token)
+	if _record.host == "canonical_solo":
+		fields.merge({"friend_id": str(_record.context.participants[0]),
+			"challenge_slot": entry_id.trim_suffix("." + phase), "tier": signature_fields.tier,
+			"tone": signature_fields.tone, "attitude": signature_fields.attitude,
+			# Current registered echoes are presented in Day7 fallback only. This empty
+			# set grants no echo receipt and never borrows an unregistered dating atom.
+			"due_echoes": []})
+		if phase == "post_challenge":
+			var effect: Variant = _record.applied_result.get("receipt")
+			if not effect is Dictionary or not effect.get("terminal_fact") is Dictionary:
+				return _fail(&"frozen_context_effect_receipt_required")
+			fields.merge({"board_result": _record.outcome, "perfect_reasons": _record.perfect_reasons.duplicate(),
+				"relationship_outcome": _record.relationship_outcome, "effect_receipt_id": effect.terminal_fact.transaction_id})
+			if schema.value.fields.has("progression_window_result"):
+				fields.progression_window_result = {"evaluated": effect.progression_evaluated,
+					"promotion_applied": effect.get("promotion_applied", false), "relationship_state": effect.relationship_state}
+	else:
+		var pair: Dictionary = _game_state.inter_friend_route_state.get("priscilla_lavinia", {})
+		var receipt := {}
+		for candidate: Variant in _game_state.contacts.get("transaction_receipts", {}).values():
+			if candidate is Dictionary and candidate.get("kind") == "resolve_day_end" \
+					and candidate.get("day") == _record.context.day and candidate.get("pl_window") is Dictionary:
+				if not receipt.is_empty() and receipt != candidate: return _fail(&"frozen_context_pair_receipt_ambiguous")
+				receipt = candidate
+		if not pair.get("pair_deck_draw") is Dictionary or pair.pair_deck_draw.get("form") != _record.pair_form:
+			return _fail(&"frozen_context_pair_receipt_required")
+		var count: Variant = null
+		if receipt.is_empty():
+			# Schedule-Done commits its one count at invitation_rollover AFTER dating.
+			# A pending plan is not a receipt. Hospital's earlier closure is already above.
+			var plan: Variant = identity.get("active_resolution_plan")
+			var pending := false
+			if plan is Dictionary and plan.get("source_day") == _record.context.day \
+					and preload("res://scripts/domain/run/DayResolutionPlan.gd").from_dict(plan).get("ok", false):
+				for stage: Dictionary in plan.get("stages", []):
+					if stage.get("stage_id") == "invitation_rollover" and stage.get("state") in ["pending", "active"]:
+						pending = true
+			if not pending: return _fail(&"frozen_context_pair_receipt_required")
+		else:
+			count = receipt.pl_window.duplicate(true)
+			count["transaction_id"] = str(receipt.transaction_id)
+		var variation: Variant = null
+		if _game_state.contacts.get("group_action", {}).get("day") == _record.context.day:
+			var group: Dictionary = _game_state.contacts.group_action
+			variation = {"action_state": group.state, "inviter_id": group.inviter_id,
+				"opened_ids": group.opened_ids.duplicate(), "replied_ids": group.replied_ids.duplicate(),
+				"contact_variation": receipt.get("group_date_variation")}
+		fields.merge({"pair_id": "priscilla_lavinia", "window_day": int(_record.context.day),
+			"encounter_presentation": _record.context.kind, "group_variation": variation,
+			"pair_count_receipt": count, "pair_count_status": "pending_rollover" if count == null else "committed",
+			"stable_deck_state": pair.pair_deck_draw.duplicate(true)})
+		if phase == "post_challenge":
+			fields.merge({"board_result": _record.outcome, "perfect_reasons": _record.perfect_reasons.duplicate(),
+				"observation_form": "truncated" if _record.outcome == "exploded" else "full",
+				"combination_witness_capability": _record.outcome != "exploded"})
+	var built := FROZEN_CONTEXT.build(entry_id, fields)
+	if not built.ok: return built
+	var saved: Dictionary = existing.duplicate(true) if existing is Dictionary and existing.get("board_token") == _record.spec.board_token \
+		else {"schema_version": 1, "board_token": str(_record.spec.board_token), "entries": {}}
+	saved.entries[entry_id] = built.value
+	_game_state.route_context["dating_frozen_contexts_v1"] = saved
+	return _ok(built.value)
 
 func acknowledge_post_challenge_render(physical_token: String) -> Dictionary:
 	if not _adopt(physical_token) or _record.phase != "post_challenge" or not _pending_checkpoint.is_empty() \
@@ -877,26 +1071,9 @@ func dispatch_observer(physical_token: String, atom_id: String, action: String, 
 	return result
 
 func _observer_source() -> Dictionary:
-	if _admitted_command.get("execution_mode", "canonical") != "canonical": return {}
-	if _record.is_empty() or _record.get("phase") != "pre_challenge" or _record.get("host") != "canonical_solo" \
-			or int(_record.context.get("day", 0)) != 2 or not _profile.has_method("get_observer_evidence"):
-		return {}
-	var participants: Array = _record.context.get("participants", [])
-	if participants.size() != 1 or participants[0] not in ["priscilla", "lavinia"]: return {}
-	var atom: Dictionary = OBSERVER_RULES.OBSERVER_ATOMS[participants[0]].duplicate(true)
-	# This is the same exact scene identity emitted by _entry(), not a loose friend match.
-	if (ATTEMPTS.semantic_slot(_record.context) + ".pre_challenge") != atom.entry_id: return {}
-	var registered: Dictionary = PRESENTATION_SIGNATURE.entry_record(str(atom.entry_id))
-	if not registered.ok: return {}
-	var expected := {"atom_id": atom.presentation_atom_id, "line_id": atom.line_id,
-		"evidence_id": "observer.%s.%s" % [participants[0], "verification" if participants[0] == "priscilla" else "restraint"],
-		"comparison_key": atom.comparison_key,
-		"grammar": "capture_compare" if participants[0] == "priscilla" else "withholding"}
-	var grants: Variant = registered.value.get("observer_atoms", [])
-	if not grants is Array or not grants.has(expected): return {}
-	atom["scope"] = participants[0]
-	atom["run_id"] = str(_attempt_identity().run_id)
-	return atom
+	# Current-build suspension (dwm-6gk). Original admission and tests are preserved
+	# at archive/observer-interactions-2026-09-21. No evidence is fabricated.
+	return {}
 
 func _observer_state(source: Dictionary) -> Dictionary:
 	var stored: Variant = _game_state.route_context.get("dating_observer_source")
@@ -1040,7 +1217,7 @@ func _view() -> Dictionary:
 	if not _pending_checkpoint.is_empty():
 		return {"phase": "checkpoint_retry", "host": _record.host, "board": _project_board(),
 			"outcome": _record.outcome, "actions": ["retry"], "no_flag": _no_flag_status(),
-			"special_mine_visible": _record.schema_version == 2 and _record.host == "canonical_solo", "special_mine_enabled": false}
+			"special_mine_visible": false, "special_mine_enabled": false}
 	var actions: Array=[]
 	match _record.phase:
 		"pre_challenge","post_challenge": actions=["continue"]
@@ -1048,11 +1225,10 @@ func _view() -> Dictionary:
 		"completed": actions=["resume_completion"]
 		"preparing": actions=["prepare"]
 		"challenge": actions=["settle"] if _record.board is Dictionary and bool(_record.board.terminal) else ["reveal","flag","unflag","chord"]
-		"cleared_awaiting_terminal_choice": actions=["continue","activate"] if _record.schema_version == 3 else ["continue","special_mine"]
+		"cleared_awaiting_terminal_choice": actions=["continue"]
 	return {"phase":_record.phase,"host":_record.host,"board":_project_board(),
 		"outcome":_record.outcome,"actions":actions,"no_flag":_no_flag_status(),
-		"special_mine_visible":_record.schema_version == 2 and _record.host == "canonical_solo",
-		"special_mine_enabled":_record.phase == "cleared_awaiting_terminal_choice"}
+		"special_mine_visible":false,"special_mine_enabled":false}
 
 func _project_board() -> Variant:
 	if _record.board == null:
@@ -1080,7 +1256,6 @@ func _project_board() -> Variant:
 	var board: Dictionary=checked.value.board
 	var cells: Array=[]
 	var inspectable: bool = not bool(board.terminal)
-	var choice: bool = _record.schema_version == 3 and _record.phase == "cleared_awaiting_terminal_choice"
 	for index in int(board.width)*int(board.height):
 		var revealed: bool=board.revealed_indices.has(index)
 		var flagged: bool=board.flagged_indices.has(index)
@@ -1098,15 +1273,11 @@ func _project_board() -> Variant:
 			cell.face="covered" if flagged else "revealed"; cell.number=0; cell.mark="exploded" if index==board.exploded_index else ("correct_flag" if flagged else "mine")
 		elif board.terminal and flagged:
 			cell.mark = "correct_flag" if board.mine_indices.has(index) else "incorrect_flag"
-		if choice and index == int(_record.envelope.special_cell):
-			cell.mark = "marked_flag" if flagged else "marked_mine"
-			cell.inspectable = true
-			cell.actions = ["activate"]
 		cell.pressable=not cell.actions.is_empty()
 		cells.append(cell)
 	return {"width":board.width,"height":board.height,"revision":board.revision,
 		"mine_estimate":board.mine_count-board.flagged_indices.size(),"terminal":board.terminal,
-		"custody":board.terminal and not choice,"cells":cells}
+		"custody":board.terminal,"cells":cells}
 
 func _revision() -> int:
 	return int(_record.board.revision) if _record.get("board") is Dictionary else (_record.envelope.shell.actions.size() if _record.get("schema_version") == 3 else 0)

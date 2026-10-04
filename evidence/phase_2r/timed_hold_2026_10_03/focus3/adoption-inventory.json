@@ -1,0 +1,50 @@
+{
+  "status": "SCRATCH_ONLY_NOT_ADOPTED",
+  "label": "timed-hold-focus3",
+  "files": [
+    {
+      "file": "timed-hold-focus3-evidence.tar.gz",
+      "bytes": 7161415,
+      "sha256": "15d4d4117d108fb98060ba5f7deaea79fb4daac8a05393db555d2d56fc13e4c8"
+    },
+    {
+      "file": "package-manifest.json",
+      "bytes": 1850,
+      "sha256": "e4809c0b81b2ffc731417ad2a8449b844f5c03c93d6d8c83e9f9694d48ca1dc2"
+    },
+    {
+      "file": "archive-inventory.json",
+      "bytes": 21132,
+      "sha256": "5f60c7c170a4537c4f5a3e6f3e6c53368c3bd3655ceb02ce1c221f83136dbe35"
+    },
+    {
+      "file": "extraction-inventory.json",
+      "bytes": 71097,
+      "sha256": "156148a0e066ddc0da9f8ab60b368207ba4eb18ef336fdfdad433753ef5a047b"
+    },
+    {
+      "file": "bounded-packaging-receipt.json",
+      "bytes": 4930,
+      "sha256": "7b910d5a0051b8f219ac7a2faada6ebfbdbd1abd70da3611712cd9c9d21e0778"
+    },
+    {
+      "file": "README.md",
+      "bytes": 2130,
+      "sha256": "d87c9b50b6a5db3e9c220ce40dfc75207bc7150c25d50ea711bb2656abeaca8f"
+    },
+    {
+      "file": "verify_package.py",
+      "bytes": 5590,
+      "sha256": "07f5d05a97d9c8f7aa9ebd8b860b844e06b8f04a52fd00a557b64a3532b861d1"
+    },
+    {
+      "file": "independent-delivery-verification.json",
+      "bytes": 1700,
+      "sha256": "d66133ef99133de45fc428ba04753684e922014af00d73a5eb60d44c018b4259"
+    }
+  ],
+  "unsplit_archive_excluded_when_parts_used": false,
+  "expanded_payload_excluded": true,
+  "original_export_binary_and_transport_chunks_excluded": false,
+  "runtime_acceptance_inferred": false
+}

@@ -1,0 +1,341 @@
+{
+  "run43": {
+    "run_id": 35631315483,
+    "head": "c832233de93de88a91c25ff3ae255d1c1859eb78",
+    "success": 14,
+    "total": 17,
+    "jobs": [
+      {
+        "id": 106437926218,
+        "name": "Windows / paired checkpoint performance",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 106437926222,
+        "name": "Windows / seven-day retained history",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 106437926260,
+        "name": "Rendered desktop and dialogue / Linux software OpenGL",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 106437926342,
+        "name": "Windows / desktop",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 106437926346,
+        "name": "Windows / exported release startup",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 106437926365,
+        "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 106437926600,
+        "name": "Windows / dating",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 106437926639,
+        "name": "Windows / audio",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 106437926656,
+        "name": "Windows / settings",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 106437926684,
+        "name": "Windows / persistence",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 106437926700,
+        "name": "Windows / reading_delivery",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 106437926733,
+        "name": "Windows / endings",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 106437926737,
+        "name": "Windows / minesweeper",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 106437926763,
+        "name": "Windows / localization",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 106437926788,
+        "name": "Windows / shop",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 106437926801,
+        "name": "Windows / public API surface contracts",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 106437926861,
+        "name": "Windows / new_account",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "remaining_failures": {
+      "export": "Native EXE smoke exit1; pre-throw diagnostic gap fixed locally. Pack audit not reached in run43.",
+      "journeys": "All five cases retain same48 script resources; synth-null absent after native speech service setup. Exact paths in dwm-run43-lifetime-evidence.json.",
+      "settings": "Core262/262 passed. Subsequent missing-storage-root refusal harness census stale78/75/3 vs actual83/80/3 after5 added storage-dependent regressions. Local precise census and diagnostic correction ready."
+    }
+  },
+  "run44": {
+    "run_id": 35633177416,
+    "head": "8e4d127f5aec8534506988c6669f94d3f145b86d",
+    "completed": 17,
+    "failures": 17,
+    "parse_errors": [
+      "scripts/narrative/FrozenRunContext.gd:55 Parse Error: Cannot infer the type of \"solo\" variable because the value doesn't have a set type.",
+      "scripts/narrative/ContactsFrozenContext.gd:203 Parse Error: Cannot infer the type of \"group_source\" variable because the value doesn't have a set type.",
+      "scripts/application/contact/ContactsPresentationPort.gd:84 Parse Error: Cannot infer the type of \"hospital_miss\" variable because the value doesn't have a set type.",
+      "scripts/application/contact/ContactsPresentationPort.gd:225 Parse Error: Cannot infer the type of \"hospital_miss\" variable because the value doesn't have a set type."
+    ],
+    "runtime_evidence": false
+  },
+  "run45": {
+    "run_id": 35633568072,
+    "head": "53d01b48413c37c327d94a521598bae5deb359ec",
+    "status": "completed",
+    "conclusion": "failure",
+    "created_at": "2026-09-21T17:41:03Z",
+    "updated_at": "2026-09-21T17:41:11Z",
+    "attempt": 1,
+    "jobs": [
+      {
+        "id": 106445378959,
+        "name": "Windows / paired checkpoint performance",
+        "status": "completed",
+        "conclusion": "failure",
+        "runner_id": 0,
+        "runner_name": "",
+        "started_at": "2026-09-21T17:41:03Z",
+        "completed_at": "2026-09-21T17:41:07Z",
+        "steps": []
+      },
+      {
+        "id": 106445379212,
+        "name": "Windows / seven-day retained history",
+        "status": "completed",
+        "conclusion": "failure",
+        "runner_id": 0,
+        "runner_name": "",
+        "started_at": "2026-09-21T17:41:03Z",
+        "completed_at": "2026-09-21T17:41:06Z",
+        "steps": []
+      },
+      {
+        "id": 106445379232,
+        "name": "Windows / public API surface contracts",
+        "status": "completed",
+        "conclusion": "failure",
+        "runner_id": 0,
+        "runner_name": "",
+        "started_at": "2026-09-21T17:41:03Z",
+        "completed_at": "2026-09-21T17:41:06Z",
+        "steps": []
+      },
+      {
+        "id": 106445379279,
+        "name": "Windows / exported release startup",
+        "status": "completed",
+        "conclusion": "failure",
+        "runner_id": 0,
+        "runner_name": "",
+        "started_at": "2026-09-21T17:41:03Z",
+        "completed_at": "2026-09-21T17:41:07Z",
+        "steps": []
+      },
+      {
+        "id": 106445379315,
+        "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+        "status": "completed",
+        "conclusion": "failure",
+        "runner_id": 0,
+        "runner_name": "",
+        "started_at": "2026-09-21T17:41:03Z",
+        "completed_at": "2026-09-21T17:41:06Z",
+        "steps": []
+      },
+      {
+        "id": 106445379329,
+        "name": "Windows / desktop",
+        "status": "completed",
+        "conclusion": "failure",
+        "runner_id": 0,
+        "runner_name": "",
+        "started_at": "2026-09-21T17:41:03Z",
+        "completed_at": "2026-09-21T17:41:05Z",
+        "steps": []
+      },
+      {
+        "id": 106445379401,
+        "name": "Rendered desktop and dialogue / Linux software OpenGL",
+        "status": "completed",
+        "conclusion": "failure",
+        "runner_id": 0,
+        "runner_name": "",
+        "started_at": "2026-09-21T17:41:03Z",
+        "completed_at": "2026-09-21T17:41:06Z",
+        "steps": []
+      },
+      {
+        "id": 106445379480,
+        "name": "Windows / endings",
+        "status": "completed",
+        "conclusion": "failure",
+        "runner_id": 0,
+        "runner_name": "",
+        "started_at": "2026-09-21T17:41:03Z",
+        "completed_at": "2026-09-21T17:41:11Z",
+        "steps": []
+      },
+      {
+        "id": 106445379532,
+        "name": "Windows / minesweeper",
+        "status": "completed",
+        "conclusion": "failure",
+        "runner_id": 0,
+        "runner_name": "",
+        "started_at": "2026-09-21T17:41:03Z",
+        "completed_at": "2026-09-21T17:41:05Z",
+        "steps": []
+      },
+      {
+        "id": 106445379534,
+        "name": "Windows / audio",
+        "status": "completed",
+        "conclusion": "failure",
+        "runner_id": 0,
+        "runner_name": "",
+        "started_at": "2026-09-21T17:41:03Z",
+        "completed_at": "2026-09-21T17:41:06Z",
+        "steps": []
+      },
+      {
+        "id": 106445379565,
+        "name": "Windows / dating",
+        "status": "completed",
+        "conclusion": "failure",
+        "runner_id": 0,
+        "runner_name": "",
+        "started_at": "2026-09-21T17:41:03Z",
+        "completed_at": "2026-09-21T17:41:06Z",
+        "steps": []
+      },
+      {
+        "id": 106445379633,
+        "name": "Windows / reading_delivery",
+        "status": "completed",
+        "conclusion": "failure",
+        "runner_id": 0,
+        "runner_name": "",
+        "started_at": "2026-09-21T17:41:03Z",
+        "completed_at": "2026-09-21T17:41:07Z",
+        "steps": []
+      },
+      {
+        "id": 106445379680,
+        "name": "Windows / localization",
+        "status": "completed",
+        "conclusion": "failure",
+        "runner_id": 0,
+        "runner_name": "",
+        "started_at": "2026-09-21T17:41:03Z",
+        "completed_at": "2026-09-21T17:41:08Z",
+        "steps": []
+      },
+      {
+        "id": 106445379708,
+        "name": "Windows / settings",
+        "status": "completed",
+        "conclusion": "failure",
+        "runner_id": 0,
+        "runner_name": "",
+        "started_at": "2026-09-21T17:41:03Z",
+        "completed_at": "2026-09-21T17:41:06Z",
+        "steps": []
+      },
+      {
+        "id": 106445379748,
+        "name": "Windows / new_account",
+        "status": "completed",
+        "conclusion": "failure",
+        "runner_id": 0,
+        "runner_name": "",
+        "started_at": "2026-09-21T17:41:03Z",
+        "completed_at": "2026-09-21T17:41:06Z",
+        "steps": []
+      },
+      {
+        "id": 106445379786,
+        "name": "Windows / shop",
+        "status": "completed",
+        "conclusion": "failure",
+        "runner_id": 0,
+        "runner_name": "",
+        "started_at": "2026-09-21T17:41:03Z",
+        "completed_at": "2026-09-21T17:41:05Z",
+        "steps": []
+      },
+      {
+        "id": 106445379844,
+        "name": "Windows / persistence",
+        "status": "completed",
+        "conclusion": "failure",
+        "runner_id": 0,
+        "runner_name": "",
+        "started_at": "2026-09-21T17:41:03Z",
+        "completed_at": "2026-09-21T17:41:05Z",
+        "steps": []
+      }
+    ],
+    "artifacts": [],
+    "runtime_evidence": false,
+    "log_retrieval": "Export/journey log requests return404BlobNotFound",
+    "annotation_retrieval": "17 check runs report one annotation each; supported GitHub fetch rejects direct annotation endpoint INVALID_ARGUMENT",
+    "cause": "Not yet established; no runner was allocated."
+  },
+  "pending_validation": [
+    "three runtime cycle releases",
+    "Contacts Hospital Ending canonical producers and detached saved-context validation",
+    "exact-text parser reuse and matched cold Login control",
+    "Windows native export plus PCK audit",
+    "strict RunSave successor and final public inventory reproduction"
+  ],
+  "scope": "No all-green, release-ready, or parse-cache speedup claim. All engine and PowerShell execution remains in GitHub cloud."
+}

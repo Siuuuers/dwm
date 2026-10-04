@@ -50,11 +50,7 @@ class RetryProvider extends Provider:
 
 func test_buy_control_dispatches_selected_quantity_and_refreshes_the_catalog() -> void:
 	var provider := Provider.new()
-	provider.rows = FIXTURE.new()._valid_rows()
-	var shop: Control = SHOP.instantiate()
-	assert_true(shop.configure_catalog(provider).get("ok", false))
-	add_child_autofree(shop)
-	await _settle()
+	var shop := await _shop(provider)
 	shop.quantity_buttons.maximum.pressed.emit()
 	assert_eq(shop.quantity, 4)
 	assert_not_null(shop.get("_buy_button"))
@@ -106,7 +102,7 @@ func test_supportz_activation_asks_price_only_and_yes_purchases_once() -> void:
 	await _settle()
 	assert_eq(provider.purchases, [{"item_id": "supportz", "quantity": 1}])
 	assert_false(supportz.visible)
-	assert_eq(shop.selected_id, "coffee", "Supportz never changes ordinary selection")
+	assert_eq(shop.selected_id, "spa_coupon", "Returning focus also restores the ordinary inspector")
 	assert_eq(get_viewport().gui_get_focus_owner(), shop.cards.spa_coupon)
 
 func test_supportz_purchase_departure_does_not_touch_a_retired_viewport() -> void:
@@ -208,6 +204,69 @@ func test_supportz_is_absent_on_page_two() -> void:
 	assert_eq(shop.page_index, 1)
 	assert_false(shop.get("_supportz_button").visible)
 	assert_eq(shop.page_count, 2)
+
+
+func test_focus_and_pointer_inspect_without_purchase_and_preserve_each_item_quantity() -> void:
+	var provider := Provider.new()
+	var shop := await _shop(provider)
+	provider.rows[0].description = "A sealed vending cup."
+	provider.rows[1].description = "A bottle from the campus shop."
+	provider.catalog_changed.emit()
+	await _settle()
+	shop.quantity_buttons.maximum.pressed.emit()
+	assert_eq(shop.quantity, 4)
+	shop.cards.wine.grab_focus()
+	assert_eq(shop.selected_id, "wine", "No Enter press is needed")
+	assert_eq(shop.get("_name_label").text, "Wine")
+	assert_eq(shop.get("_description_label").text, provider.rows[1].description)
+	assert_eq(shop.quantity, 1, "A different item does not inherit another item's batch")
+	assert_true(shop.cards.wine.selected)
+	shop.cards.coffee.get_node("PointerSurface").mouse_entered.emit()
+	assert_eq(shop.selected_id, "coffee", "The child pointer surface owns native hover")
+	assert_eq(shop.quantity, 4, "Returning from a preview restores the edited quantity")
+	assert_eq(shop.get("_name_label").text, "Coffee")
+	assert_eq(shop.get("_description_label").text, provider.rows[0].description)
+	assert_true(shop.cards.coffee.selected)
+	assert_false(shop.cards.wine.selected)
+	assert_true(provider.purchases.is_empty(), "Inspection never dispatches a purchase")
+	assert_eq(shop.get("_buy_button").accessibility_name, "Buy: Coffee × 4")
+	shop.get("_buy_button").pressed.emit()
+	await _settle()
+	assert_eq(provider.purchases, [{"item_id": "coffee", "quantity": 4}])
+	shop.cards.wine.grab_focus()
+	shop.cards.coffee.grab_focus()
+	assert_eq(shop.quantity, 1, "A successful purchase retires that item's old batch draft")
+
+
+func test_inspection_does_not_retarget_a_held_buy_action() -> void:
+	var provider := Provider.new()
+	var shop := await _shop(provider)
+	var buy: Button = shop.get("_buy_button")
+	buy.toggle_mode = true
+	buy.set_pressed_no_signal(true)
+	assert_true(buy.is_pressed())
+	shop.cards.wine.get_node("PointerSurface").mouse_entered.emit()
+	assert_eq(shop.selected_id, "coffee")
+	assert_eq(shop.get("_name_label").text, "Coffee")
+	assert_true(provider.purchases.is_empty())
+	buy.set_pressed_no_signal(false)
+	buy.toggle_mode = false
+	shop.cards.wine.get_node("PointerSurface").mouse_entered.emit()
+	assert_eq(shop.selected_id, "wine")
+
+
+func test_changed_catalog_retires_all_saved_item_quantities() -> void:
+	var provider := Provider.new()
+	var shop := await _shop(provider)
+	shop.quantity_buttons.maximum.pressed.emit()
+	shop.cards.wine.grab_focus()
+	shop.quantity_buttons.maximum.pressed.emit()
+	provider.rows[0].legal_max = 2
+	provider.catalog_changed.emit()
+	await _settle()
+	assert_eq(shop.quantity, 1)
+	shop.cards.coffee.grab_focus()
+	assert_eq(shop.quantity, 1, "A changed owner snapshot invalidates every old maximum")
 
 func _shop(provider: Provider) -> Control:
 	var fixture := FIXTURE.new()

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "source_sha": "96c8942ec8293b90891b3ba5780dcc759fda4283",
+  "lead_bead": "dwm-vky.14",
+  "outcome": "Assistive activation of the mounted current caption consumes the existing Normal Accept path once; review activation returns live without narrative advancement.",
+  "authority": "docs/design/current-ui/witnessed-scene.md section 8.1",
+  "owner": "WitnessedAcceptInput -> Dialogic Inputs; native DialogText retains reveal ownership",
+  "source_review": {
+    "independent_gap_audit": true,
+    "coordinator_review": true,
+    "existing_callers_checked": true,
+    "save_or_history_owner_changes": false,
+    "save_format_changes": false,
+    "inventory_change": "Six existing GameState lexical references shift by two lines; no public API or required contract changes."
+  },
+  "failure_cases": [
+    "Consumed callback reused in same/later frame",
+    "Hide/show or Pause/resume reuses old action",
+    "Replacement with identical text reuses identity",
+    "Held non-Accept physical contact overlaps activation",
+    "Passive retained leaf attempts activation",
+    "Review-current callback reused after return to live",
+    "Input custody suspension/resumption resurrects callback"
+  ],
+  "verification": {
+    "local": "git diff --check and exact uploaded Git tree identity only; no local Godot or PowerShell",
+    "cloud_run_id": 37147995237,
+    "status": "passed",
+    "tested_merge_sha": "01a366d59020fa0a828276da9ce789e601955e6a"
+  },
+  "limits": [
+    "Callback integration tests do not establish native Windows UIA action discovery or screen-reader reachability.",
+    "Production catalogue remains disabled and authored variants deferred.",
+    "No Beads closure or live Dolt synchronization."
+  ]
+}

@@ -43,8 +43,8 @@ func _localization(locale: String) -> FakeLocalization:
 	return localization
 
 
-func _theme(locale: String, percent: int) -> Theme:
-	return CAPTION_THEME.build(locale, percent, "AfterHours")
+func _theme(locale: String, percent: int, font_style: String = "pixel") -> Theme:
+	return CAPTION_THEME.build(locale, percent, "AfterHours", false, "standard", false, 1, false, font_style)
 
 
 func test_strict_catalogs_register_the_exact_failure_fact_in_all_locales() -> void:
@@ -63,14 +63,15 @@ func test_strict_catalogs_register_the_exact_failure_fact_in_all_locales() -> vo
 
 
 func test_failure_is_a_polite_noninteractive_fact_in_every_supported_presentation() -> void:
-	for row: Array in [["en", 100], ["zh-CN", 125], ["zh-HK", 150]]:
+	for row: Array in [["en", 100, "pixel"], ["zh-CN", 125, "pixel"], ["zh-HK", 150, "pixel"],
+			["en", 100, "readable"], ["zh-CN", 125, "readable"], ["zh-HK", 150, "readable"]]:
 		var locale: String = row[0]
 		var percent: int = row[1]
 		var status := _status()
 		if status == null:
 			continue
 		var localization := _localization(locale)
-		var presentation_theme := _theme(locale, percent)
+		var presentation_theme := _theme(locale, percent, row[2])
 		assert_true(status.update_presentation(localization, locale,
 			presentation_theme, percent), locale)
 		assert_false(status.visible, "configuration does not publish a status")
@@ -84,7 +85,8 @@ func test_failure_is_a_polite_noninteractive_fact_in_every_supported_presentatio
 		assert_eq(status.mouse_filter, Control.MOUSE_FILTER_IGNORE)
 		assert_eq(status.language, locale)
 		assert_same(status.theme, presentation_theme)
-		assert_eq(status.theme.default_font_size, int(20 * percent / 100.0))
+		assert_eq(status.get_theme_font_size("font_size"), int((24 if row[2] == "pixel" else 20) * percent / 100.0))
+		assert_same(status.get_theme_font("font"), presentation_theme.default_font)
 		assert_eq(status.get_theme_color(&"font_color"), SETTINGS_THEME.ROLES.danger,
 			"the factual error uses the registered contrast role")
 		assert_eq(status.get_theme_constant(&"outline_size"), 4,
@@ -100,10 +102,17 @@ func test_available_error_role_is_honoured_and_clear_is_idempotent() -> void:
 		return
 	var localization := _localization("en")
 	var presentation_theme := _theme("en", 100)
+	var custom_font := FontVariation.new()
+	custom_font.base_font = presentation_theme.default_font
+	custom_font.variation_embolden = 0.5
+	presentation_theme.default_font = custom_font
+	presentation_theme.default_font_size = 28
 	var supplied_danger := Color("f2a38d")
 	presentation_theme.set_color(&"danger", &"Settings", supplied_danger)
 	assert_true(status.update_presentation(localization, "en", presentation_theme, 100))
 	assert_true(status.show_failure())
+	assert_same(status.get_theme_font("font"), custom_font, "supplied font styling remains authoritative")
+	assert_eq(status.get_theme_font_size("font_size"), 28)
 	assert_eq(status.get_theme_color(&"font_color"), supplied_danger)
 	status.clear_status()
 	status.clear_status()
