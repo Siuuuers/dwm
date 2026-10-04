@@ -1,0 +1,1822 @@
+{
+  "schema_version": 1,
+  "status": "diagnostic_and_focused_evidence_final_pr_accepted_bounded",
+  "runs": {
+    "diagnostic": {
+      "source": "93e934b88a5ac1caaa111cdddd280b8122647090",
+      "id": 37183839755
+    },
+    "failed_candidate": {
+      "source_prefix": "9df331",
+      "id": 37184063851,
+      "result": "GDScript parse error; test variable corrected before focused rerun"
+    },
+    "focused": {
+      "source": "84ba09ddc8c7009f6618111e4e56dd3545428c16",
+      "id": 37184176470,
+      "render_captures": 25,
+      "reading_cases_passed": 633
+    },
+    "localization": {
+      "source": "c54401807db2dedd7dbd754e940401c50b166e95",
+      "id": 37184396640,
+      "cases_passed": 154,
+      "rail_tests": 12
+    },
+    "initial_pr": {
+      "source": "69138a20a6923b808f60da393fdaae4647221aa3",
+      "id": 37184566351,
+      "status_at_preparation": "failed",
+      "result": "Native caption action passed; public surface check refused a stale caller line number; dependent broad jobs did not run."
+    },
+    "inventory_regeneration": {
+      "workflow_source": "f93354f77535b744e2d461c08344113d246f0a83",
+      "checkout_source": "69138a20a6923b808f60da393fdaae4647221aa3",
+      "id": 37184831148,
+      "result": "Both inventories regenerated and checked in cloud; only GameState dynamic day reference moved render_delivery_dialogue.gd:366 to :384; SaveManager inventory unchanged."
+    },
+    "final_pr": {
+      "source": "027e90b664b6a75f0740defb20eae9735498b2c1",
+      "id": 37185050289,
+      "tested_merge": "879151f456d0deffeaccfe78c2ddc6442728ee9b",
+      "conclusion": "success",
+      "jobs_passed": 26,
+      "jobs_total": 26,
+      "primary_cases": 2602
+    }
+  },
+  "conclusion": "Native transport button minimum height grew to 68 in a 64-pixel rail. Font-staleness and horizontal-overflow hypotheses are unsupported by these diagnostics.",
+  "baseline_chinese_samples": [
+    {
+      "sample": "dialogue-older-zh-CN150",
+      "controls": [
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "History",
+          "rect": "[P: (0.0, 0.0), S: (212.0, 68.0)]",
+          "text": "历史",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "width": 72.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Skip",
+          "rect": "[P: (212.0, 0.0), S: (214.0, 68.0)]",
+          "text": "跳过 · 关",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "width": 180.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Auto",
+          "rect": "[P: (426.0, 0.0), S: (214.0, 68.0)]",
+          "text": "自动 · 关",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "width": 180.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Save",
+          "rect": "[P: (640.0, 0.0), S: (212.0, 68.0)]",
+          "text": "保存",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "width": 72.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Load",
+          "rect": "[P: (852.0, 0.0), S: (214.0, 68.0)]",
+          "text": "读取",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "width": 72.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Next",
+          "rect": "[P: (1066.0, 0.0), S: (214.0, 68.0)]",
+          "text": "下一步",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "width": 108.0
+        }
+      ]
+    },
+    {
+      "sample": "dialogue-older-zh-HK150",
+      "controls": [
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "History",
+          "rect": "[P: (0.0, 0.0), S: (212.0, 68.0)]",
+          "text": "歷史",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "width": 72.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Skip",
+          "rect": "[P: (212.0, 0.0), S: (214.0, 68.0)]",
+          "text": "跳過 · 關",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "width": 180.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Auto",
+          "rect": "[P: (426.0, 0.0), S: (214.0, 68.0)]",
+          "text": "自動 · 關",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "width": 180.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Save",
+          "rect": "[P: (640.0, 0.0), S: (212.0, 68.0)]",
+          "text": "儲存",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "width": 72.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Load",
+          "rect": "[P: (852.0, 0.0), S: (214.0, 68.0)]",
+          "text": "載入",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "width": 72.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Next",
+          "rect": "[P: (1066.0, 0.0), S: (214.0, 68.0)]",
+          "text": "下一步",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "width": 108.0
+        }
+      ]
+    },
+    {
+      "sample": "dating-overlay-live-zh-CN150",
+      "controls": [
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "History",
+          "rect": "[P: (0.0, 0.0), S: (212.0, 68.0)]",
+          "text": "历史",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "width": 72.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Skip",
+          "rect": "[P: (212.0, 0.0), S: (214.0, 68.0)]",
+          "text": "跳过 · 关",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "width": 180.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Auto",
+          "rect": "[P: (426.0, 0.0), S: (214.0, 68.0)]",
+          "text": "自动 · 关",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "width": 180.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Save",
+          "rect": "[P: (640.0, 0.0), S: (212.0, 68.0)]",
+          "text": "保存",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "width": 72.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Load",
+          "rect": "[P: (852.0, 0.0), S: (214.0, 68.0)]",
+          "text": "读取",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "width": 72.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Next",
+          "rect": "[P: (1066.0, 0.0), S: (214.0, 68.0)]",
+          "text": "下一步",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "width": 108.0
+        }
+      ]
+    },
+    {
+      "sample": "dating-overlay-review-zh-CN150",
+      "controls": [
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "History",
+          "rect": "[P: (0.0, 0.0), S: (212.0, 68.0)]",
+          "text": "历史",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "width": 72.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Skip",
+          "rect": "[P: (212.0, 0.0), S: (214.0, 68.0)]",
+          "text": "跳过 · 关",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "width": 180.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Auto",
+          "rect": "[P: (426.0, 0.0), S: (214.0, 68.0)]",
+          "text": "自动 · 关",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "width": 180.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Save",
+          "rect": "[P: (640.0, 0.0), S: (212.0, 68.0)]",
+          "text": "保存",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "width": 72.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Load",
+          "rect": "[P: (852.0, 0.0), S: (214.0, 68.0)]",
+          "text": "读取",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "width": 72.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Next",
+          "rect": "[P: (1066.0, 0.0), S: (214.0, 68.0)]",
+          "text": "下一步",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+          "width": 108.0
+        }
+      ]
+    },
+    {
+      "sample": "dating-overlay-live-zh-HK150",
+      "controls": [
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "History",
+          "rect": "[P: (0.0, 0.0), S: (212.0, 68.0)]",
+          "text": "歷史",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "width": 72.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Skip",
+          "rect": "[P: (212.0, 0.0), S: (214.0, 68.0)]",
+          "text": "跳過 · 關",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "width": 180.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Auto",
+          "rect": "[P: (426.0, 0.0), S: (214.0, 68.0)]",
+          "text": "自動 · 關",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "width": 180.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Save",
+          "rect": "[P: (640.0, 0.0), S: (212.0, 68.0)]",
+          "text": "儲存",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "width": 72.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Load",
+          "rect": "[P: (852.0, 0.0), S: (214.0, 68.0)]",
+          "text": "載入",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "width": 72.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Next",
+          "rect": "[P: (1066.0, 0.0), S: (214.0, 68.0)]",
+          "text": "下一步",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "width": 108.0
+        }
+      ]
+    },
+    {
+      "sample": "dating-overlay-review-zh-HK150",
+      "controls": [
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "History",
+          "rect": "[P: (0.0, 0.0), S: (212.0, 68.0)]",
+          "text": "歷史",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "width": 72.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Skip",
+          "rect": "[P: (212.0, 0.0), S: (214.0, 68.0)]",
+          "text": "跳過 · 關",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "width": 180.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Auto",
+          "rect": "[P: (426.0, 0.0), S: (214.0, 68.0)]",
+          "text": "自動 · 關",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "width": 180.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Save",
+          "rect": "[P: (640.0, 0.0), S: (212.0, 68.0)]",
+          "text": "儲存",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "width": 72.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Load",
+          "rect": "[P: (852.0, 0.0), S: (214.0, 68.0)]",
+          "text": "載入",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "width": 72.0
+        },
+        {
+          "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "font_size": 36,
+          "minimum": "(20.0, 68.0)",
+          "name": "Next",
+          "rect": "[P: (1066.0, 0.0), S: (214.0, 68.0)]",
+          "text": "下一步",
+          "theme_font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+          "width": 108.0
+        }
+      ]
+    }
+  ],
+  "reshaping_comparisons": [
+    {
+      "original": {
+        "path": "diagnostic/dating-overlay-live-zh-CN150.png",
+        "bytes": 1328528,
+        "sha256": "61166dd3893419e8bbf0ac9435cdbfe70a05cdd706fddf5428c7aa3e1029d268"
+      },
+      "reshaped": {
+        "path": "diagnostic/diagnostic/dating-overlay-live-zh-CN150-reshaped.png",
+        "bytes": 1328528,
+        "sha256": "61166dd3893419e8bbf0ac9435cdbfe70a05cdd706fddf5428c7aa3e1029d268"
+      },
+      "rgb_sha256": "9b23d29399ba8f0ca672bf42f1c771336c58a3e9f4c17cafe20d4ddb2d685ae0",
+      "rgb_bytes_identical": true
+    },
+    {
+      "original": {
+        "path": "diagnostic/dating-overlay-review-zh-CN150.png",
+        "bytes": 1325714,
+        "sha256": "8ccb4e1a1b6d27c914e98008db883988775ad25a3750004ab6080e089bcc08b9"
+      },
+      "reshaped": {
+        "path": "diagnostic/diagnostic/dating-overlay-review-zh-CN150-reshaped.png",
+        "bytes": 1325714,
+        "sha256": "8ccb4e1a1b6d27c914e98008db883988775ad25a3750004ab6080e089bcc08b9"
+      },
+      "rgb_sha256": "26ea68753fb48db003e7e5becb70552123734db4d1c1914fcd540bd056936a9b",
+      "rgb_bytes_identical": true
+    },
+    {
+      "original": {
+        "path": "diagnostic/dialogue-older-zh-CN150.png",
+        "bytes": 18993,
+        "sha256": "dffe0eee2304bc76ab93a8687070412354acfa7e8ba90a223276ec6048049111"
+      },
+      "reshaped": {
+        "path": "diagnostic/diagnostic/dialogue-older-zh-CN150-reshaped.png",
+        "bytes": 18993,
+        "sha256": "dffe0eee2304bc76ab93a8687070412354acfa7e8ba90a223276ec6048049111"
+      },
+      "rgb_sha256": "c155557e5e8a98f7178718b1a535250fb584db92eae42b83305a976bef7eba95",
+      "rgb_bytes_identical": true
+    }
+  ],
+  "prior_screenshot_comparisons": [
+    {
+      "previous": {
+        "path": "previous/screenshots/dialogue-older-zh-CN150.png",
+        "bytes": 18993,
+        "sha256": "dffe0eee2304bc76ab93a8687070412354acfa7e8ba90a223276ec6048049111"
+      },
+      "diagnostic": {
+        "path": "diagnostic/dialogue-older-zh-CN150.png",
+        "bytes": 18993,
+        "sha256": "dffe0eee2304bc76ab93a8687070412354acfa7e8ba90a223276ec6048049111"
+      },
+      "rgb_bytes_identical": true
+    },
+    {
+      "previous": {
+        "path": "previous/screenshots/dialogue-older-zh-HK150.png",
+        "bytes": 19469,
+        "sha256": "31d3e67a3dface5a7d4c6f29217e34f105a55b1afd38e4c7615fe8eec49748fb"
+      },
+      "diagnostic": {
+        "path": "diagnostic/dialogue-older-zh-HK150.png",
+        "bytes": 19469,
+        "sha256": "31d3e67a3dface5a7d4c6f29217e34f105a55b1afd38e4c7615fe8eec49748fb"
+      },
+      "rgb_bytes_identical": true
+    }
+  ],
+  "fixed_geometry": {
+    "caption_samples": 15,
+    "controls_checked": 90,
+    "all_exact_fixed_bays": true,
+    "all_visible_label_widths_fit_actual_margins": true,
+    "controls": [
+      {
+        "sample": "dialogue-live-en100.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "History",
+        "rect": "[P: (0.0, 0.0), S: (212.0, 64.0)]",
+        "text": "History",
+        "width": 87.0
+      },
+      {
+        "sample": "dialogue-live-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Skip",
+        "rect": "[P: (212.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Skip · Off",
+        "width": 132.0
+      },
+      {
+        "sample": "dialogue-live-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Auto",
+        "rect": "[P: (426.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Auto · Off",
+        "width": 132.0
+      },
+      {
+        "sample": "dialogue-live-en100.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Save",
+        "rect": "[P: (640.0, 0.0), S: (212.0, 64.0)]",
+        "text": "Save",
+        "width": 51.0
+      },
+      {
+        "sample": "dialogue-live-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Load",
+        "rect": "[P: (852.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Load",
+        "width": 48.0
+      },
+      {
+        "sample": "dialogue-live-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Next",
+        "rect": "[P: (1066.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Next",
+        "width": 51.0
+      },
+      {
+        "sample": "dialogue-older-en100.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "History",
+        "rect": "[P: (0.0, 0.0), S: (212.0, 64.0)]",
+        "text": "History",
+        "width": 87.0
+      },
+      {
+        "sample": "dialogue-older-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Skip",
+        "rect": "[P: (212.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Skip · Off",
+        "width": 132.0
+      },
+      {
+        "sample": "dialogue-older-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Auto",
+        "rect": "[P: (426.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Auto · Off",
+        "width": 132.0
+      },
+      {
+        "sample": "dialogue-older-en100.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Save",
+        "rect": "[P: (640.0, 0.0), S: (212.0, 64.0)]",
+        "text": "Save",
+        "width": 51.0
+      },
+      {
+        "sample": "dialogue-older-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Load",
+        "rect": "[P: (852.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Load",
+        "width": 48.0
+      },
+      {
+        "sample": "dialogue-older-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Next",
+        "rect": "[P: (1066.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Next",
+        "width": 51.0
+      },
+      {
+        "sample": "dialogue-oldest-en100.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "History",
+        "rect": "[P: (0.0, 0.0), S: (212.0, 64.0)]",
+        "text": "History",
+        "width": 87.0
+      },
+      {
+        "sample": "dialogue-oldest-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Skip",
+        "rect": "[P: (212.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Skip · Off",
+        "width": 132.0
+      },
+      {
+        "sample": "dialogue-oldest-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Auto",
+        "rect": "[P: (426.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Auto · Off",
+        "width": 132.0
+      },
+      {
+        "sample": "dialogue-oldest-en100.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Save",
+        "rect": "[P: (640.0, 0.0), S: (212.0, 64.0)]",
+        "text": "Save",
+        "width": 51.0
+      },
+      {
+        "sample": "dialogue-oldest-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Load",
+        "rect": "[P: (852.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Load",
+        "width": 48.0
+      },
+      {
+        "sample": "dialogue-oldest-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Next",
+        "rect": "[P: (1066.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Next",
+        "width": 51.0
+      },
+      {
+        "sample": "dialogue-newer-en100.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "History",
+        "rect": "[P: (0.0, 0.0), S: (212.0, 64.0)]",
+        "text": "History",
+        "width": 87.0
+      },
+      {
+        "sample": "dialogue-newer-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Skip",
+        "rect": "[P: (212.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Skip · Off",
+        "width": 132.0
+      },
+      {
+        "sample": "dialogue-newer-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Auto",
+        "rect": "[P: (426.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Auto · Off",
+        "width": 132.0
+      },
+      {
+        "sample": "dialogue-newer-en100.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Save",
+        "rect": "[P: (640.0, 0.0), S: (212.0, 64.0)]",
+        "text": "Save",
+        "width": 51.0
+      },
+      {
+        "sample": "dialogue-newer-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Load",
+        "rect": "[P: (852.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Load",
+        "width": 48.0
+      },
+      {
+        "sample": "dialogue-newer-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Next",
+        "rect": "[P: (1066.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Next",
+        "width": 51.0
+      },
+      {
+        "sample": "dialogue-return-live-en100.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "History",
+        "rect": "[P: (0.0, 0.0), S: (212.0, 64.0)]",
+        "text": "History",
+        "width": 87.0
+      },
+      {
+        "sample": "dialogue-return-live-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Skip",
+        "rect": "[P: (212.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Skip · Off",
+        "width": 132.0
+      },
+      {
+        "sample": "dialogue-return-live-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Auto",
+        "rect": "[P: (426.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Auto · Off",
+        "width": 132.0
+      },
+      {
+        "sample": "dialogue-return-live-en100.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Save",
+        "rect": "[P: (640.0, 0.0), S: (212.0, 64.0)]",
+        "text": "Save",
+        "width": 51.0
+      },
+      {
+        "sample": "dialogue-return-live-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Load",
+        "rect": "[P: (852.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Load",
+        "width": 48.0
+      },
+      {
+        "sample": "dialogue-return-live-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Next",
+        "rect": "[P: (1066.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Next",
+        "width": 51.0
+      },
+      {
+        "sample": "dialogue-older-zh-CN150.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+        "font_size": 36,
+        "name": "History",
+        "rect": "[P: (0.0, 0.0), S: (212.0, 64.0)]",
+        "text": "历史",
+        "width": 72.0
+      },
+      {
+        "sample": "dialogue-older-zh-CN150.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+        "font_size": 36,
+        "name": "Skip",
+        "rect": "[P: (212.0, 0.0), S: (214.0, 64.0)]",
+        "text": "跳过 · 关",
+        "width": 180.0
+      },
+      {
+        "sample": "dialogue-older-zh-CN150.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+        "font_size": 36,
+        "name": "Auto",
+        "rect": "[P: (426.0, 0.0), S: (214.0, 64.0)]",
+        "text": "自动 · 关",
+        "width": 180.0
+      },
+      {
+        "sample": "dialogue-older-zh-CN150.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+        "font_size": 36,
+        "name": "Save",
+        "rect": "[P: (640.0, 0.0), S: (212.0, 64.0)]",
+        "text": "保存",
+        "width": 72.0
+      },
+      {
+        "sample": "dialogue-older-zh-CN150.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+        "font_size": 36,
+        "name": "Load",
+        "rect": "[P: (852.0, 0.0), S: (214.0, 64.0)]",
+        "text": "读取",
+        "width": 72.0
+      },
+      {
+        "sample": "dialogue-older-zh-CN150.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+        "font_size": 36,
+        "name": "Next",
+        "rect": "[P: (1066.0, 0.0), S: (214.0, 64.0)]",
+        "text": "下一步",
+        "width": 108.0
+      },
+      {
+        "sample": "dialogue-older-zh-HK150.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+        "font_size": 36,
+        "name": "History",
+        "rect": "[P: (0.0, 0.0), S: (212.0, 64.0)]",
+        "text": "歷史",
+        "width": 72.0
+      },
+      {
+        "sample": "dialogue-older-zh-HK150.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+        "font_size": 36,
+        "name": "Skip",
+        "rect": "[P: (212.0, 0.0), S: (214.0, 64.0)]",
+        "text": "跳過 · 關",
+        "width": 180.0
+      },
+      {
+        "sample": "dialogue-older-zh-HK150.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+        "font_size": 36,
+        "name": "Auto",
+        "rect": "[P: (426.0, 0.0), S: (214.0, 64.0)]",
+        "text": "自動 · 關",
+        "width": 180.0
+      },
+      {
+        "sample": "dialogue-older-zh-HK150.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+        "font_size": 36,
+        "name": "Save",
+        "rect": "[P: (640.0, 0.0), S: (212.0, 64.0)]",
+        "text": "儲存",
+        "width": 72.0
+      },
+      {
+        "sample": "dialogue-older-zh-HK150.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+        "font_size": 36,
+        "name": "Load",
+        "rect": "[P: (852.0, 0.0), S: (214.0, 64.0)]",
+        "text": "載入",
+        "width": 72.0
+      },
+      {
+        "sample": "dialogue-older-zh-HK150.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+        "font_size": 36,
+        "name": "Next",
+        "rect": "[P: (1066.0, 0.0), S: (214.0, 64.0)]",
+        "text": "下一步",
+        "width": 108.0
+      },
+      {
+        "sample": "dating-overlay-live-en100.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "History",
+        "rect": "[P: (0.0, 0.0), S: (212.0, 64.0)]",
+        "text": "History",
+        "width": 87.0
+      },
+      {
+        "sample": "dating-overlay-live-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Skip",
+        "rect": "[P: (212.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Skip · Off",
+        "width": 132.0
+      },
+      {
+        "sample": "dating-overlay-live-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Auto",
+        "rect": "[P: (426.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Auto · Off",
+        "width": 132.0
+      },
+      {
+        "sample": "dating-overlay-live-en100.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Save",
+        "rect": "[P: (640.0, 0.0), S: (212.0, 64.0)]",
+        "text": "Save",
+        "width": 51.0
+      },
+      {
+        "sample": "dating-overlay-live-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Load",
+        "rect": "[P: (852.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Load",
+        "width": 48.0
+      },
+      {
+        "sample": "dating-overlay-live-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Next",
+        "rect": "[P: (1066.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Next",
+        "width": 51.0
+      },
+      {
+        "sample": "dating-overlay-review-en100.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "History",
+        "rect": "[P: (0.0, 0.0), S: (212.0, 64.0)]",
+        "text": "History",
+        "width": 87.0
+      },
+      {
+        "sample": "dating-overlay-review-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Skip",
+        "rect": "[P: (212.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Skip · Off",
+        "width": 132.0
+      },
+      {
+        "sample": "dating-overlay-review-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Auto",
+        "rect": "[P: (426.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Auto · Off",
+        "width": 132.0
+      },
+      {
+        "sample": "dating-overlay-review-en100.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Save",
+        "rect": "[P: (640.0, 0.0), S: (212.0, 64.0)]",
+        "text": "Save",
+        "width": 51.0
+      },
+      {
+        "sample": "dating-overlay-review-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Load",
+        "rect": "[P: (852.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Load",
+        "width": 48.0
+      },
+      {
+        "sample": "dating-overlay-review-en100.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Next",
+        "rect": "[P: (1066.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Next",
+        "width": 51.0
+      },
+      {
+        "sample": "dating-overlay-live-zh-CN150.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+        "font_size": 36,
+        "name": "History",
+        "rect": "[P: (0.0, 0.0), S: (212.0, 64.0)]",
+        "text": "历史",
+        "width": 72.0
+      },
+      {
+        "sample": "dating-overlay-live-zh-CN150.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+        "font_size": 36,
+        "name": "Skip",
+        "rect": "[P: (212.0, 0.0), S: (214.0, 64.0)]",
+        "text": "跳过 · 关",
+        "width": 180.0
+      },
+      {
+        "sample": "dating-overlay-live-zh-CN150.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+        "font_size": 36,
+        "name": "Auto",
+        "rect": "[P: (426.0, 0.0), S: (214.0, 64.0)]",
+        "text": "自动 · 关",
+        "width": 180.0
+      },
+      {
+        "sample": "dating-overlay-live-zh-CN150.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+        "font_size": 36,
+        "name": "Save",
+        "rect": "[P: (640.0, 0.0), S: (212.0, 64.0)]",
+        "text": "保存",
+        "width": 72.0
+      },
+      {
+        "sample": "dating-overlay-live-zh-CN150.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+        "font_size": 36,
+        "name": "Load",
+        "rect": "[P: (852.0, 0.0), S: (214.0, 64.0)]",
+        "text": "读取",
+        "width": 72.0
+      },
+      {
+        "sample": "dating-overlay-live-zh-CN150.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+        "font_size": 36,
+        "name": "Next",
+        "rect": "[P: (1066.0, 0.0), S: (214.0, 64.0)]",
+        "text": "下一步",
+        "width": 108.0
+      },
+      {
+        "sample": "dating-overlay-review-zh-CN150.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+        "font_size": 36,
+        "name": "History",
+        "rect": "[P: (0.0, 0.0), S: (212.0, 64.0)]",
+        "text": "历史",
+        "width": 72.0
+      },
+      {
+        "sample": "dating-overlay-review-zh-CN150.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+        "font_size": 36,
+        "name": "Skip",
+        "rect": "[P: (212.0, 0.0), S: (214.0, 64.0)]",
+        "text": "跳过 · 关",
+        "width": 180.0
+      },
+      {
+        "sample": "dating-overlay-review-zh-CN150.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+        "font_size": 36,
+        "name": "Auto",
+        "rect": "[P: (426.0, 0.0), S: (214.0, 64.0)]",
+        "text": "自动 · 关",
+        "width": 180.0
+      },
+      {
+        "sample": "dating-overlay-review-zh-CN150.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+        "font_size": 36,
+        "name": "Save",
+        "rect": "[P: (640.0, 0.0), S: (212.0, 64.0)]",
+        "text": "保存",
+        "width": 72.0
+      },
+      {
+        "sample": "dating-overlay-review-zh-CN150.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+        "font_size": 36,
+        "name": "Load",
+        "rect": "[P: (852.0, 0.0), S: (214.0, 64.0)]",
+        "text": "读取",
+        "width": 72.0
+      },
+      {
+        "sample": "dating-overlay-review-zh-CN150.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+        "font_size": 36,
+        "name": "Next",
+        "rect": "[P: (1066.0, 0.0), S: (214.0, 64.0)]",
+        "text": "下一步",
+        "width": 108.0
+      },
+      {
+        "sample": "dating-overlay-live-zh-HK150.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+        "font_size": 36,
+        "name": "History",
+        "rect": "[P: (0.0, 0.0), S: (212.0, 64.0)]",
+        "text": "歷史",
+        "width": 72.0
+      },
+      {
+        "sample": "dating-overlay-live-zh-HK150.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+        "font_size": 36,
+        "name": "Skip",
+        "rect": "[P: (212.0, 0.0), S: (214.0, 64.0)]",
+        "text": "跳過 · 關",
+        "width": 180.0
+      },
+      {
+        "sample": "dating-overlay-live-zh-HK150.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+        "font_size": 36,
+        "name": "Auto",
+        "rect": "[P: (426.0, 0.0), S: (214.0, 64.0)]",
+        "text": "自動 · 關",
+        "width": 180.0
+      },
+      {
+        "sample": "dating-overlay-live-zh-HK150.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+        "font_size": 36,
+        "name": "Save",
+        "rect": "[P: (640.0, 0.0), S: (212.0, 64.0)]",
+        "text": "儲存",
+        "width": 72.0
+      },
+      {
+        "sample": "dating-overlay-live-zh-HK150.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+        "font_size": 36,
+        "name": "Load",
+        "rect": "[P: (852.0, 0.0), S: (214.0, 64.0)]",
+        "text": "載入",
+        "width": 72.0
+      },
+      {
+        "sample": "dating-overlay-live-zh-HK150.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+        "font_size": 36,
+        "name": "Next",
+        "rect": "[P: (1066.0, 0.0), S: (214.0, 64.0)]",
+        "text": "下一步",
+        "width": 108.0
+      },
+      {
+        "sample": "dating-overlay-review-zh-HK150.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+        "font_size": 36,
+        "name": "History",
+        "rect": "[P: (0.0, 0.0), S: (212.0, 64.0)]",
+        "text": "歷史",
+        "width": 72.0
+      },
+      {
+        "sample": "dating-overlay-review-zh-HK150.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+        "font_size": 36,
+        "name": "Skip",
+        "rect": "[P: (212.0, 0.0), S: (214.0, 64.0)]",
+        "text": "跳過 · 關",
+        "width": 180.0
+      },
+      {
+        "sample": "dating-overlay-review-zh-HK150.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+        "font_size": 36,
+        "name": "Auto",
+        "rect": "[P: (426.0, 0.0), S: (214.0, 64.0)]",
+        "text": "自動 · 關",
+        "width": 180.0
+      },
+      {
+        "sample": "dating-overlay-review-zh-HK150.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+        "font_size": 36,
+        "name": "Save",
+        "rect": "[P: (640.0, 0.0), S: (212.0, 64.0)]",
+        "text": "儲存",
+        "width": 72.0
+      },
+      {
+        "sample": "dating-overlay-review-zh-HK150.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+        "font_size": 36,
+        "name": "Load",
+        "rect": "[P: (852.0, 0.0), S: (214.0, 64.0)]",
+        "text": "載入",
+        "width": 72.0
+      },
+      {
+        "sample": "dating-overlay-review-zh-HK150.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+        "font_size": 36,
+        "name": "Next",
+        "rect": "[P: (1066.0, 0.0), S: (214.0, 64.0)]",
+        "text": "下一步",
+        "width": 108.0
+      },
+      {
+        "sample": "dating-pair-480.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "History",
+        "rect": "[P: (0.0, 0.0), S: (212.0, 64.0)]",
+        "text": "History",
+        "width": 87.0
+      },
+      {
+        "sample": "dating-pair-480.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Skip",
+        "rect": "[P: (212.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Skip · Off",
+        "width": 132.0
+      },
+      {
+        "sample": "dating-pair-480.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Auto",
+        "rect": "[P: (426.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Auto · Off",
+        "width": 132.0
+      },
+      {
+        "sample": "dating-pair-480.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Save",
+        "rect": "[P: (640.0, 0.0), S: (212.0, 64.0)]",
+        "text": "Save",
+        "width": 51.0
+      },
+      {
+        "sample": "dating-pair-480.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Load",
+        "rect": "[P: (852.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Load",
+        "width": 48.0
+      },
+      {
+        "sample": "dating-pair-480.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Next",
+        "rect": "[P: (1066.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Next",
+        "width": 51.0
+      },
+      {
+        "sample": "dating-pair-640.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "History",
+        "rect": "[P: (0.0, 0.0), S: (212.0, 64.0)]",
+        "text": "History",
+        "width": 87.0
+      },
+      {
+        "sample": "dating-pair-640.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Skip",
+        "rect": "[P: (212.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Skip · Off",
+        "width": 132.0
+      },
+      {
+        "sample": "dating-pair-640.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Auto",
+        "rect": "[P: (426.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Auto · Off",
+        "width": 132.0
+      },
+      {
+        "sample": "dating-pair-640.png",
+        "available": 192.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Save",
+        "rect": "[P: (640.0, 0.0), S: (212.0, 64.0)]",
+        "text": "Save",
+        "width": 51.0
+      },
+      {
+        "sample": "dating-pair-640.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Load",
+        "rect": "[P: (852.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Load",
+        "width": 48.0
+      },
+      {
+        "sample": "dating-pair-640.png",
+        "available": 194.0,
+        "font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+        "font_size": 24,
+        "name": "Next",
+        "rect": "[P: (1066.0, 0.0), S: (214.0, 64.0)]",
+        "text": "Next",
+        "width": 51.0
+      }
+    ]
+  },
+  "image_comparisons": [
+    {
+      "file": "dialogue-live-en100.png",
+      "before": {
+        "path": "diagnostic/dialogue-live-en100.png",
+        "bytes": 16250,
+        "sha256": "9d7b62b734312bc07dbcdc360df31131347dc8ff2f0aba258e88aa08931b4d8f"
+      },
+      "after": {
+        "path": "focus/dialogue-live-en100.png",
+        "bytes": 16250,
+        "sha256": "9d7b62b734312bc07dbcdc360df31131347dc8ff2f0aba258e88aa08931b4d8f"
+      },
+      "rgb_difference_bbox_exclusive": null,
+      "upper_caption_rgb_sha256": "68411a6230813127f779f250fbcb38e5d860b302713eafc1f9cf0267033afa31",
+      "upper_caption_rect_exclusive": [
+        0,
+        0,
+        1280,
+        656
+      ],
+      "upper_caption_identical": true
+    },
+    {
+      "file": "dialogue-older-en100.png",
+      "before": {
+        "path": "diagnostic/dialogue-older-en100.png",
+        "bytes": 16483,
+        "sha256": "d147e0dd81923a02ef1a9d4936f022e788f86224776c309b258852e61e121f22"
+      },
+      "after": {
+        "path": "focus/dialogue-older-en100.png",
+        "bytes": 16483,
+        "sha256": "d147e0dd81923a02ef1a9d4936f022e788f86224776c309b258852e61e121f22"
+      },
+      "rgb_difference_bbox_exclusive": null,
+      "upper_caption_rgb_sha256": "984f49537c22fe43b49167273e2d0bc6655307af0bd50735c9aae7524a48bef1",
+      "upper_caption_rect_exclusive": [
+        0,
+        0,
+        1280,
+        656
+      ],
+      "upper_caption_identical": true
+    },
+    {
+      "file": "dialogue-oldest-en100.png",
+      "before": {
+        "path": "diagnostic/dialogue-oldest-en100.png",
+        "bytes": 16364,
+        "sha256": "80cbc024a0c74ab7685f13dc50a1b1843897badd920dedfec1f1bf9d655f638a"
+      },
+      "after": {
+        "path": "focus/dialogue-oldest-en100.png",
+        "bytes": 16364,
+        "sha256": "80cbc024a0c74ab7685f13dc50a1b1843897badd920dedfec1f1bf9d655f638a"
+      },
+      "rgb_difference_bbox_exclusive": null,
+      "upper_caption_rgb_sha256": "dc795bbfd3d59326b6fdc02001287203d039ccdf059af88b0f8e54a80e0848ec",
+      "upper_caption_rect_exclusive": [
+        0,
+        0,
+        1280,
+        656
+      ],
+      "upper_caption_identical": true
+    },
+    {
+      "file": "dialogue-newer-en100.png",
+      "before": {
+        "path": "diagnostic/dialogue-newer-en100.png",
+        "bytes": 16483,
+        "sha256": "d147e0dd81923a02ef1a9d4936f022e788f86224776c309b258852e61e121f22"
+      },
+      "after": {
+        "path": "focus/dialogue-newer-en100.png",
+        "bytes": 16483,
+        "sha256": "d147e0dd81923a02ef1a9d4936f022e788f86224776c309b258852e61e121f22"
+      },
+      "rgb_difference_bbox_exclusive": null,
+      "upper_caption_rgb_sha256": "984f49537c22fe43b49167273e2d0bc6655307af0bd50735c9aae7524a48bef1",
+      "upper_caption_rect_exclusive": [
+        0,
+        0,
+        1280,
+        656
+      ],
+      "upper_caption_identical": true
+    },
+    {
+      "file": "dialogue-return-live-en100.png",
+      "before": {
+        "path": "diagnostic/dialogue-return-live-en100.png",
+        "bytes": 16250,
+        "sha256": "9d7b62b734312bc07dbcdc360df31131347dc8ff2f0aba258e88aa08931b4d8f"
+      },
+      "after": {
+        "path": "focus/dialogue-return-live-en100.png",
+        "bytes": 16250,
+        "sha256": "9d7b62b734312bc07dbcdc360df31131347dc8ff2f0aba258e88aa08931b4d8f"
+      },
+      "rgb_difference_bbox_exclusive": null,
+      "upper_caption_rgb_sha256": "68411a6230813127f779f250fbcb38e5d860b302713eafc1f9cf0267033afa31",
+      "upper_caption_rect_exclusive": [
+        0,
+        0,
+        1280,
+        656
+      ],
+      "upper_caption_identical": true
+    },
+    {
+      "file": "dialogue-older-zh-CN150.png",
+      "before": {
+        "path": "diagnostic/dialogue-older-zh-CN150.png",
+        "bytes": 18993,
+        "sha256": "dffe0eee2304bc76ab93a8687070412354acfa7e8ba90a223276ec6048049111"
+      },
+      "after": {
+        "path": "focus/dialogue-older-zh-CN150.png",
+        "bytes": 19001,
+        "sha256": "0725374864eac919003d2b671803294e2749d3baa5324673e17b2e08c4d0a723"
+      },
+      "rgb_difference_bbox_exclusive": [
+        4,
+        673,
+        1276,
+        720
+      ],
+      "upper_caption_rgb_sha256": "f83a4650739561a90e3e1cd7bb60e4c8b29f677efeea3581856400a5cf61272a",
+      "upper_caption_rect_exclusive": [
+        0,
+        0,
+        1280,
+        656
+      ],
+      "upper_caption_identical": true
+    },
+    {
+      "file": "dialogue-older-zh-HK150.png",
+      "before": {
+        "path": "diagnostic/dialogue-older-zh-HK150.png",
+        "bytes": 19469,
+        "sha256": "31d3e67a3dface5a7d4c6f29217e34f105a55b1afd38e4c7615fe8eec49748fb"
+      },
+      "after": {
+        "path": "focus/dialogue-older-zh-HK150.png",
+        "bytes": 19473,
+        "sha256": "5843709d1f73b695d60d717279bc60232adbeaf24f1f55855e8453a64b8c9bb5"
+      },
+      "rgb_difference_bbox_exclusive": [
+        4,
+        673,
+        1276,
+        720
+      ],
+      "upper_caption_rgb_sha256": "b8a6f1b11631a87af96aed08a952fccf5d31336b3f2fb79bb743758542313096",
+      "upper_caption_rect_exclusive": [
+        0,
+        0,
+        1280,
+        656
+      ],
+      "upper_caption_identical": true
+    },
+    {
+      "file": "dating-overlay-live-en100.png",
+      "before": {
+        "path": "diagnostic/dating-overlay-live-en100.png",
+        "bytes": 1332320,
+        "sha256": "6a25c3cc4c5849c7d0e2bf14a4b349965c4f7b09249a79693aafdfedcdb19fe9"
+      },
+      "after": {
+        "path": "focus/dating-overlay-live-en100.png",
+        "bytes": 1332320,
+        "sha256": "6a25c3cc4c5849c7d0e2bf14a4b349965c4f7b09249a79693aafdfedcdb19fe9"
+      },
+      "rgb_difference_bbox_exclusive": null,
+      "upper_caption_rgb_sha256": "0bf304004ce972018c7c7b5aca1a5abafb91351f9bc6469aa4cff686316420a7",
+      "upper_caption_rect_exclusive": [
+        0,
+        0,
+        1280,
+        656
+      ],
+      "upper_caption_identical": true
+    },
+    {
+      "file": "dating-overlay-review-en100.png",
+      "before": {
+        "path": "diagnostic/dating-overlay-review-en100.png",
+        "bytes": 1332222,
+        "sha256": "adcf2c5064650e7e634e185f772bbe8b06a3d6a40b0b43326f00fe88eef7585c"
+      },
+      "after": {
+        "path": "focus/dating-overlay-review-en100.png",
+        "bytes": 1332222,
+        "sha256": "adcf2c5064650e7e634e185f772bbe8b06a3d6a40b0b43326f00fe88eef7585c"
+      },
+      "rgb_difference_bbox_exclusive": null,
+      "upper_caption_rgb_sha256": "2a9b6055f3d2c8e02713c2fe63ebf0add581bd29b0460143a197c42f3068bf56",
+      "upper_caption_rect_exclusive": [
+        0,
+        0,
+        1280,
+        656
+      ],
+      "upper_caption_identical": true
+    },
+    {
+      "file": "dating-overlay-live-zh-CN150.png",
+      "before": {
+        "path": "diagnostic/dating-overlay-live-zh-CN150.png",
+        "bytes": 1328528,
+        "sha256": "61166dd3893419e8bbf0ac9435cdbfe70a05cdd706fddf5428c7aa3e1029d268"
+      },
+      "after": {
+        "path": "focus/dating-overlay-live-zh-CN150.png",
+        "bytes": 1328534,
+        "sha256": "36f6b2e1157e1a8205b109fd8047fe9c0fdcee65ecc918540b946852d0abea4a"
+      },
+      "rgb_difference_bbox_exclusive": [
+        4,
+        673,
+        1276,
+        720
+      ],
+      "upper_caption_rgb_sha256": "4cb08d3993193279886a64a96b0c2a9816f4692c0c9c9d30a1be33bedb7d1294",
+      "upper_caption_rect_exclusive": [
+        0,
+        0,
+        1280,
+        656
+      ],
+      "upper_caption_identical": true
+    },
+    {
+      "file": "dating-overlay-review-zh-CN150.png",
+      "before": {
+        "path": "diagnostic/dating-overlay-review-zh-CN150.png",
+        "bytes": 1325714,
+        "sha256": "8ccb4e1a1b6d27c914e98008db883988775ad25a3750004ab6080e089bcc08b9"
+      },
+      "after": {
+        "path": "focus/dating-overlay-review-zh-CN150.png",
+        "bytes": 1325720,
+        "sha256": "7e65ac3f74aab93f2887889297fe584a416b9022c2acf395f5f9a72f1453b8e3"
+      },
+      "rgb_difference_bbox_exclusive": [
+        4,
+        673,
+        1276,
+        720
+      ],
+      "upper_caption_rgb_sha256": "f3ec7012dcc82761cf157beab8e6dea1509b3ea3f3e34eeba97f348e3f87e0f6",
+      "upper_caption_rect_exclusive": [
+        0,
+        0,
+        1280,
+        656
+      ],
+      "upper_caption_identical": true
+    },
+    {
+      "file": "dating-overlay-live-zh-HK150.png",
+      "before": {
+        "path": "diagnostic/dating-overlay-live-zh-HK150.png",
+        "bytes": 1326837,
+        "sha256": "a668580b713200c7dacbf88ad51971a27c7ea99b9c680cb50b9592ad06c9d7ef"
+      },
+      "after": {
+        "path": "focus/dating-overlay-live-zh-HK150.png",
+        "bytes": 1326839,
+        "sha256": "0e96c781e51c72fa8c09ff4c7b8bc075c9c8c3deb3fc30e75a02f8306dc8946a"
+      },
+      "rgb_difference_bbox_exclusive": [
+        4,
+        673,
+        1276,
+        720
+      ],
+      "upper_caption_rgb_sha256": "40a21cda9128bb1f074c18abc2f2baf20c2da8641e65b8a1d87b1609e9821ce7",
+      "upper_caption_rect_exclusive": [
+        0,
+        0,
+        1280,
+        656
+      ],
+      "upper_caption_identical": true
+    },
+    {
+      "file": "dating-overlay-review-zh-HK150.png",
+      "before": {
+        "path": "diagnostic/dating-overlay-review-zh-HK150.png",
+        "bytes": 1324729,
+        "sha256": "ca9a8e850f62152068c2ab4a316641b9913e91451941c3f9862611f63a4835be"
+      },
+      "after": {
+        "path": "focus/dating-overlay-review-zh-HK150.png",
+        "bytes": 1324731,
+        "sha256": "e62955d4668b1d61d4db59af48d76b4770d068cbe4edfeded122a7917edc3cc1"
+      },
+      "rgb_difference_bbox_exclusive": [
+        4,
+        673,
+        1276,
+        720
+      ],
+      "upper_caption_rgb_sha256": "29a0f806cc5b36ecccb8a5f643effdbca5df09d63222aa079ab0f479a9d66e5d",
+      "upper_caption_rect_exclusive": [
+        0,
+        0,
+        1280,
+        656
+      ],
+      "upper_caption_identical": true
+    },
+    {
+      "file": "dating-pair-480.png",
+      "before": {
+        "path": "diagnostic/dating-pair-480.png",
+        "bytes": 1219186,
+        "sha256": "cfd25f9c6ed619e46976026aea1da393ff752d376e95f668eb55d9ba56fa90be"
+      },
+      "after": {
+        "path": "focus/dating-pair-480.png",
+        "bytes": 1219186,
+        "sha256": "cfd25f9c6ed619e46976026aea1da393ff752d376e95f668eb55d9ba56fa90be"
+      },
+      "rgb_difference_bbox_exclusive": null,
+      "upper_caption_rgb_sha256": "515da7d0fc436396e88204012c632e36552419c2d55456a94d01af5c85c40367",
+      "upper_caption_rect_exclusive": [
+        0,
+        0,
+        1280,
+        656
+      ],
+      "upper_caption_identical": true
+    },
+    {
+      "file": "dating-pair-640.png",
+      "before": {
+        "path": "diagnostic/dating-pair-640.png",
+        "bytes": 1242219,
+        "sha256": "6bdcf2c6cbf663ac15f8f82b29d9b404758fde3f0fdff835ed1a1d46bc9dbf26"
+      },
+      "after": {
+        "path": "focus/dating-pair-640.png",
+        "bytes": 1242219,
+        "sha256": "6bdcf2c6cbf663ac15f8f82b29d9b404758fde3f0fdff835ed1a1d46bc9dbf26"
+      },
+      "rgb_difference_bbox_exclusive": null,
+      "upper_caption_rgb_sha256": "d6981ce836aded7f1452e8fd090b1ea088fc22dfa7979929dd0260d0e6bdfa56",
+      "upper_caption_rect_exclusive": [
+        0,
+        0,
+        1280,
+        656
+      ],
+      "upper_caption_identical": true
+    }
+  ],
+  "union_rgb_difference_bbox_exclusive": [
+    4,
+    673,
+    1276,
+    720
+  ],
+  "input_manifests": [
+    {
+      "path": "diagnostic/results.json",
+      "bytes": 9488,
+      "sha256": "300ba8be3e4431d712a41b1b932a9f9350d25145cfcd0f14e2f65898bfd693d5"
+    },
+    {
+      "path": "diagnostic/render.log",
+      "bytes": 46186,
+      "sha256": "cf8202bafa3cc0357d52ced1813a8e784561c6fb8dae0b339ceb0cba9bcd421d"
+    },
+    {
+      "path": "focus/results.json",
+      "bytes": 34244,
+      "sha256": "82f54110ed5fe6d8bc7ed47a4cb4cfa397ae202a3e7ad8fe2ea992e63fb99512"
+    },
+    {
+      "path": "focus/render.log",
+      "bytes": 56204,
+      "sha256": "2b3cff5fc1405a21e8af7abe488a1280c6bcadaf64258b75554ef1ca6656a4f5"
+    }
+  ],
+  "limits": [
+    "Synthetic fixtures, not complete authored-route or all-background visual acceptance.",
+    "Recorded focused cloud case totals supplied by coordinating agent; render and geometry counts independently checked against local artifacts.",
+    "No local Godot or PowerShell execution.",
+    "This file is not the final acceptance receipt."
+  ],
+  "focused_localization_final_source_file_sha256": {
+    "scripts/ui/witnessed/WitnessedTransportRail.gd": "f750a33fb4afdbc842414f5f98d7aea0bd54ff066aacc47a4d2e32c2ef80ff7e",
+    "tests/unit/test_witnessed_transport_rail.gd": "be31475abcecf6363a133467d7865f79b7573db3d06d357639500faad3fd77e3",
+    "tests/ui/render_delivery_dialogue.gd": "1da6db3d3b403dbb6916e2513d3f5d2c8982d2893e4ee1f3ba94c83da88e1f50"
+  }
+}

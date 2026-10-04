@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "status": "accepted_bounded",
+  "scope": "Fixed witnessed reading-control rail geometry across mounted locale and text-size transitions",
+  "lead_bead": "dwm-vky.14",
+  "source_sha": "027e90b664b6a75f0740defb20eae9735498b2c1",
+  "tested_merge_sha": "879151f456d0deffeaccfe78c2ddc6442728ee9b",
+  "master_observed": "dded76aee2e85aeea94f65218de043b1f4fdce7b",
+  "cloud": {
+    "run_id": 37185050289,
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/37185050289",
+    "primary_reports": 13,
+    "primary_cases": {
+      "tests": 2602,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "localization_cases": 154,
+    "reading_cases": 633,
+    "rendered_delivery_dialogue_samples": 25,
+    "rendered_japanese_korean_ui_samples": 30,
+    "native_windows_invocations": 2,
+    "engine": "Godot 4.6.3 standard GDScript",
+    "engine_and_powershell_execution": "GitHub Actions only",
+    "jobs_passed": 26,
+    "jobs_total": 26
+  },
+  "proof": {
+    "diagnosis": "Both Chinese 150% variants use the correct selected font. Native minimum/actual button height was 68 pixels in a fixed 64-pixel rail; label width 180 fits the 194-pixel aperture. Forced reshaping produces identical RGB bytes.",
+    "fix": "WitnessedTransportRail remains sole owner: reduce vertical plate margins from 10 to 8 pixels and reset actual button size to its fixed custom minimum after projection. No font substitution, shrinking, translation or saved-state owner change.",
+    "regression": "One mounted rail traverses locale/size transitions and all five locales, three sizes, two font styles and off/skip/auto modes; asserts actual selected fonts/sizes, native minimum, fixed bays, label fit and accessible state text.",
+    "render": "Final 15 caption samples contain 90 fixed controls and are RGB-byte-identical to focused output. Baseline-to-fixed differences confined to lower controls; upper caption/art region unchanged.",
+    "native": "Two actual Windows UIA Invoke calls prove reveal-only, then one advancement with successor revealing.",
+    "inventory": "Cloud-generated GameState inventory changed only dynamic day caller line 366 to 384; SaveManager inventory unchanged."
+  },
+  "evidence": {
+    "archive": "test-evidence.tar.gz",
+    "manifest": "archive-manifest.json",
+    "test_summary": "test-summary.json",
+    "diagnostic": "diagnostic-summary.json",
+    "source_review": "source-review.md",
+    "render_verification": "final-render-verification.json",
+    "jobs": "cloud-jobs.json",
+    "artifacts": "cloud-artifacts.json",
+    "run": "cloud-run.json"
+  },
+  "limits": [
+    "Bounded synthetic fixtures and mounted controls; not complete production caption or arbitrary artwork acceptance.",
+    "Japanese/Korean story fixture prose remains English; this evidence covers localized controls and UI.",
+    "Native review-current return-to-live and whole screen-reader navigation remain separate.",
+    "Two deliberate storage-refusal negative controls are retained but excluded from primary success totals.",
+    "Production catalogue registration remains disabled; production prose and exhaustive variants deferred; Hospital manual Save/Load/Next disabled.",
+    "No save format, recovery, History, consequence or completion owner changed.",
+    "Records-only descendant is not independently engine-tested."
+  ],
+  "beads": {
+    "unfinished": 23,
+    "statuses_changed": false,
+    "dependencies_changed": false,
+    "live_dolt_queried": false,
+    "live_dolt_synchronized": false
+  }
+}

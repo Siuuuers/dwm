@@ -6,7 +6,7 @@ execution_authority: false
 status_authority: false
 behavior_authority: false
 verification_authority: false
-inspected_source: "bbe024b4f2c55747d0886ab6c999648a9de54270"
+inspected_source: "027e90b664b6a75f0740defb20eae9735498b2c1"
 ---
 
 # DWM execution map
@@ -47,6 +47,44 @@ forgery regression coverage without implying a player Save/Load capability.
 
 ## Current bounded checkpoint
 
+**Accepted bounded reading-rail geometry correction.** Source
+`027e90b664b6a75f0740defb20eae9735498b2c1`; actual PR test merge
+`879151f456d0deffeaccfe78c2ddc6442728ee9b`.
+[Run 151](https://github.com/Siuuuers/dwm/actions/runs/37185050289) passes
+**26/26 jobs and 2,602 primary cases across 13 XML reports**, with zero failures,
+errors or skips. All retained-history comparisons and the aggregate gate passed.
+The [rail geometry receipt](../../evidence/phase_2r/rail_geometry_2026_10_04/receipt.json)
+retains source-bound reports, diagnostics, selected screenshots, native Windows
+records and artifact hashes. The records-only descendant is not independently
+engine-tested.
+
+The earlier Simplified Chinese crowding follow-up is diagnosed and corrected:
+both Chinese locales used the selected 12px Pixel face at size 36, and their
+180px mode labels fitted the 194px content aperture. Native controls instead
+grew to **68px in the fixed 64px rail**. Vertical margins now allow the full
+line height, and the existing rail owner restores each canonical allocation.
+Forced reshaping left three CN screenshots RGB-byte-identical, rejecting the
+stale-shaping suspicion. No font reduction, translated-copy change or new owner
+was needed.
+
+The mounted transition regression covers all five locales, three sizes and
+both font styles through off/Skip-on/Auto-on modes, including the retained
+EN100 → CN150 → HK150 sequence and its reversal. Rendered evidence checks
+**90 fixed controls across 15 caption samples**; the complete fixture retains
+25 captures. Pixel changes stay inside the lower strip, while the upper
+caption regions are byte-identical. The movie-style correction below remains
+accepted historical evidence; this increment preserves panel-free captions,
+requested fonts and Save/Load, recovery, History and consequence guarantees.
+
+Next bounded reading check: native Windows review-current invocation returns
+to live without reveal or advancement. That OS-level proof remains separate.
+Production catalogue/prose/variants remain deferred; Hospital manual
+Save/Load/Next remain disabled. All **23 unfinished Beads** keep their statuses
+and dependencies. No live Dolt synchronization is claimed; PR remains draft
+and unmerged, and this work does not change master.
+
+## Prior movie-style caption acceptance
+
 **Accepted bounded movie-style caption correction.** Source
 `bbe024b4f2c55747d0886ab6c999648a9de54270`; actual PR test merge
 `b5cc8885a9432f9388531e1ceab8367f63af7c0e`.
@@ -69,9 +107,9 @@ within the existing 120-frame bound; runtime focus behavior was not changed.
 This is bounded fixture evidence, not arbitrary-artwork contrast certification
 or complete production-route/screen-reader acceptance.
 
-Follow-up under the existing reading remainder: inspect Simplified Chinese rail
-label crowding at 150% in retained `dialogue-older-zh-CN150.png`; establish whether
-it is a fixture synchronization issue or production layout defect before editing.
+Historical follow-up: the observed Chinese rail crowding is resolved by the
+bounded geometry checkpoint above; diagnostics confirmed shared vertical
+68px-to-64px correction rather than a Simplified-Chinese-only width defect.
 Native review-current return-to-live remains separately unproven at OS level.
 Production catalogue/prose/variants stay deferred; Hospital manual Save/Load/Next
 remain disabled. All 23 unfinished Beads retain statuses/dependencies; export

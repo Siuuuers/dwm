@@ -1,0 +1,574 @@
+{
+  "run_id": 37185050289,
+  "source": "027e90b664b6a75f0740defb20eae9735498b2c1",
+  "checkout": "879151f456d0deffeaccfe78c2ddc6442728ee9b",
+  "count_method": "Actual testcase elements in primary XML only; failure/error/skipped children counted. Deliberate storage-refusal controls excluded.",
+  "reports": [
+    {
+      "suite": "public-surfaces",
+      "artifact": {
+        "id": 11296822085,
+        "name": "public-surfaces-37185050289-1",
+        "size_in_bytes": 154586,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11296822085",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11296822085/zip",
+        "expired": false,
+        "created_at": "2026-10-04T07:16:02Z",
+        "expires_at": "2026-10-11T07:16:01Z",
+        "updated_at": "2026-10-04T07:16:02Z",
+        "digest": "sha256:7cfe60f0a45d0c14c326e741c6a91f05f1805d040943dfa6c092cb5224d74fbb",
+        "workflow_run": {
+          "id": 37185050289,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "027e90b664b6a75f0740defb20eae9735498b2c1"
+        }
+      },
+      "zip_sha256": "7cfe60f0a45d0c14c326e741c6a91f05f1805d040943dfa6c092cb5224d74fbb",
+      "xml_member": "ci/public_surfaces.xml",
+      "xml_sha256": "0911252c109ee561700a4f0ac5eb0ada7952e20a67f02a2be2251ec2568fdc1a",
+      "counts": {
+        "testcases": 11,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "excluded_xml_members": [],
+      "new_rail_regression_cases": [],
+      "testcase_status_counts": {
+        "pass": 11
+      },
+      "xml_declared_root_counts": {
+        "name": "GutTests",
+        "failures": "0",
+        "tests": "11"
+      },
+      "archive_member": "reports/public-surfaces.xml"
+    },
+    {
+      "suite": "checkpoint_diagnostics",
+      "artifact": {
+        "id": 11297056636,
+        "name": "windows-checkpoint_diagnostics-37185050289-1",
+        "size_in_bytes": 602991,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11297056636",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11297056636/zip",
+        "expired": false,
+        "created_at": "2026-10-04T07:17:42Z",
+        "expires_at": "2026-10-11T07:17:41Z",
+        "updated_at": "2026-10-04T07:17:42Z",
+        "digest": "sha256:ecf73a61183a182daa23c93a2f4222b07eb6071b1ef35bead64427d9906c5c83",
+        "workflow_run": {
+          "id": 37185050289,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "027e90b664b6a75f0740defb20eae9735498b2c1"
+        }
+      },
+      "zip_sha256": "ecf73a61183a182daa23c93a2f4222b07eb6071b1ef35bead64427d9906c5c83",
+      "xml_member": "ci/checkpoint_diagnostics.xml",
+      "xml_sha256": "1ac1bc7868a2aeedfd0d640364ed1308123efcd397168d683cc22cadb8637d49",
+      "counts": {
+        "testcases": 22,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "excluded_xml_members": [],
+      "new_rail_regression_cases": [],
+      "testcase_status_counts": {
+        "pass": 22
+      },
+      "xml_declared_root_counts": {
+        "name": "GutTests",
+        "failures": "0",
+        "tests": "22"
+      },
+      "archive_member": "reports/checkpoint_diagnostics.xml"
+    },
+    {
+      "suite": "minesweeper",
+      "artifact": {
+        "id": 11296792198,
+        "name": "windows-minesweeper-37185050289-1",
+        "size_in_bytes": 166598,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11296792198",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11296792198/zip",
+        "expired": false,
+        "created_at": "2026-10-04T07:17:55Z",
+        "expires_at": "2026-10-11T07:17:54Z",
+        "updated_at": "2026-10-04T07:17:55Z",
+        "digest": "sha256:b31eb2323cea14271de56d0afe672142d03278c6e78c7501e5f41dd326e562d1",
+        "workflow_run": {
+          "id": 37185050289,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "027e90b664b6a75f0740defb20eae9735498b2c1"
+        }
+      },
+      "zip_sha256": "b31eb2323cea14271de56d0afe672142d03278c6e78c7501e5f41dd326e562d1",
+      "xml_member": "ci/minesweeper.xml",
+      "xml_sha256": "8b042b318287a440b96c4010f6f6b4f3ad3bd7f1dfdb3dcd14e6ab1da5f65ca5",
+      "counts": {
+        "testcases": 210,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "excluded_xml_members": [],
+      "new_rail_regression_cases": [],
+      "testcase_status_counts": {
+        "pass": 210
+      },
+      "xml_declared_root_counts": {
+        "name": "GutTests",
+        "failures": "0",
+        "tests": "210"
+      },
+      "archive_member": "reports/minesweeper.xml"
+    },
+    {
+      "suite": "audio",
+      "artifact": {
+        "id": 11296712385,
+        "name": "windows-audio-37185050289-1",
+        "size_in_bytes": 22450,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11296712385",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11296712385/zip",
+        "expired": false,
+        "created_at": "2026-10-04T07:17:49Z",
+        "expires_at": "2026-10-11T07:17:48Z",
+        "updated_at": "2026-10-04T07:17:49Z",
+        "digest": "sha256:7d9070f4538a06ae010855adabd538108632423b765043ea50c17c845b509a99",
+        "workflow_run": {
+          "id": 37185050289,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "027e90b664b6a75f0740defb20eae9735498b2c1"
+        }
+      },
+      "zip_sha256": "7d9070f4538a06ae010855adabd538108632423b765043ea50c17c845b509a99",
+      "xml_member": "ci/audio.xml",
+      "xml_sha256": "f0ff3fd0b0cbc2a3930a02cd37218512802946f0f4118d69498e33e29caa1dc2",
+      "counts": {
+        "testcases": 44,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "excluded_xml_members": [],
+      "new_rail_regression_cases": [],
+      "testcase_status_counts": {
+        "pass": 44
+      },
+      "xml_declared_root_counts": {
+        "name": "GutTests",
+        "failures": "0",
+        "tests": "44"
+      },
+      "archive_member": "reports/audio.xml"
+    },
+    {
+      "suite": "endings",
+      "artifact": {
+        "id": 11296552933,
+        "name": "windows-endings-37185050289-1",
+        "size_in_bytes": 75247,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11296552933",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11296552933/zip",
+        "expired": false,
+        "created_at": "2026-10-04T07:17:42Z",
+        "expires_at": "2026-10-11T07:17:41Z",
+        "updated_at": "2026-10-04T07:17:42Z",
+        "digest": "sha256:11df2ec0a8c764a24aaecc623c4e09ae9f1baae8b50dfc64b92295ab500b5795",
+        "workflow_run": {
+          "id": 37185050289,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "027e90b664b6a75f0740defb20eae9735498b2c1"
+        }
+      },
+      "zip_sha256": "11df2ec0a8c764a24aaecc623c4e09ae9f1baae8b50dfc64b92295ab500b5795",
+      "xml_member": "ci/endings.xml",
+      "xml_sha256": "b899cfc93e44df0cae82e5ce37116596b58fa64ce1ad85406da2354d3c310101",
+      "counts": {
+        "testcases": 106,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "excluded_xml_members": [],
+      "new_rail_regression_cases": [],
+      "testcase_status_counts": {
+        "pass": 106
+      },
+      "xml_declared_root_counts": {
+        "name": "GutTests",
+        "failures": "0",
+        "tests": "106"
+      },
+      "archive_member": "reports/endings.xml"
+    },
+    {
+      "suite": "persistence",
+      "artifact": {
+        "id": 11296543142,
+        "name": "windows-persistence-37185050289-1",
+        "size_in_bytes": 199694,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11296543142",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11296543142/zip",
+        "expired": false,
+        "created_at": "2026-10-04T07:18:05Z",
+        "expires_at": "2026-10-11T07:18:05Z",
+        "updated_at": "2026-10-04T07:18:05Z",
+        "digest": "sha256:7ff295063cd05793ae93a556b99af585c6bed592d7ae51e6e180815dd6b55027",
+        "workflow_run": {
+          "id": 37185050289,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "027e90b664b6a75f0740defb20eae9735498b2c1"
+        }
+      },
+      "zip_sha256": "7ff295063cd05793ae93a556b99af585c6bed592d7ae51e6e180815dd6b55027",
+      "xml_member": "ci/persistence.xml",
+      "xml_sha256": "0f2cebc30a9b59fdd374841a5f99123881a7803662f9b2d2bd5f1590286378ea",
+      "counts": {
+        "testcases": 234,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "excluded_xml_members": [],
+      "new_rail_regression_cases": [],
+      "testcase_status_counts": {
+        "pass": 234
+      },
+      "xml_declared_root_counts": {
+        "name": "GutTests",
+        "failures": "0",
+        "tests": "234"
+      },
+      "archive_member": "reports/persistence.xml"
+    },
+    {
+      "suite": "shop",
+      "artifact": {
+        "id": 11296508448,
+        "name": "windows-shop-37185050289-1",
+        "size_in_bytes": 65688,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11296508448",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11296508448/zip",
+        "expired": false,
+        "created_at": "2026-10-04T07:18:01Z",
+        "expires_at": "2026-10-11T07:18:00Z",
+        "updated_at": "2026-10-04T07:18:01Z",
+        "digest": "sha256:6ba61d28759d85bb04a40d96fa921b7af658563afe29239a453b2709bb9fda9f",
+        "workflow_run": {
+          "id": 37185050289,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "027e90b664b6a75f0740defb20eae9735498b2c1"
+        }
+      },
+      "zip_sha256": "6ba61d28759d85bb04a40d96fa921b7af658563afe29239a453b2709bb9fda9f",
+      "xml_member": "ci/shop.xml",
+      "xml_sha256": "ba9a735e74a0c12d6176268611893462f9bb41236eac7607aa09690f30caec29",
+      "counts": {
+        "testcases": 144,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "excluded_xml_members": [],
+      "new_rail_regression_cases": [],
+      "testcase_status_counts": {
+        "pass": 144
+      },
+      "xml_declared_root_counts": {
+        "name": "GutTests",
+        "failures": "0",
+        "tests": "144"
+      },
+      "archive_member": "reports/shop.xml"
+    },
+    {
+      "suite": "localization",
+      "artifact": {
+        "id": 11296407993,
+        "name": "windows-localization-37185050289-1",
+        "size_in_bytes": 375182,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11296407993",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11296407993/zip",
+        "expired": false,
+        "created_at": "2026-10-04T07:17:58Z",
+        "expires_at": "2026-10-11T07:17:56Z",
+        "updated_at": "2026-10-04T07:17:58Z",
+        "digest": "sha256:215919877d0f94c0475d6070f38d4693e97a87560d5adb67965b4b5490bc2095",
+        "workflow_run": {
+          "id": 37185050289,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "027e90b664b6a75f0740defb20eae9735498b2c1"
+        }
+      },
+      "zip_sha256": "215919877d0f94c0475d6070f38d4693e97a87560d5adb67965b4b5490bc2095",
+      "xml_member": "ci/localization.xml",
+      "xml_sha256": "0601bb81969986e4b47edad51c5c2c07d41a18d3dcfbf5ef9f938c25b0fb68d4",
+      "counts": {
+        "testcases": 154,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "excluded_xml_members": [],
+      "new_rail_regression_cases": [
+        {
+          "name": "test_mounted_locale_and_size_transitions_keep_the_selected_face_and_fixed_label_bays",
+          "assertions": "6772",
+          "status": "pass",
+          "classname": "tests/unit/test_witnessed_transport_rail.gd",
+          "time": "2.683561"
+        }
+      ],
+      "testcase_status_counts": {
+        "pass": 154
+      },
+      "xml_declared_root_counts": {
+        "name": "GutTests",
+        "failures": "0",
+        "tests": "154"
+      },
+      "archive_member": "reports/localization.xml"
+    },
+    {
+      "suite": "new_account",
+      "artifact": {
+        "id": 11296303355,
+        "name": "windows-new_account-37185050289-1",
+        "size_in_bytes": 238909,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11296303355",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11296303355/zip",
+        "expired": false,
+        "created_at": "2026-10-04T07:18:15Z",
+        "expires_at": "2026-10-11T07:18:15Z",
+        "updated_at": "2026-10-04T07:18:15Z",
+        "digest": "sha256:78ffacc619f169c3c6ef9c56f256332ec92eeed4e195d2184a0bb91a3bba0c89",
+        "workflow_run": {
+          "id": 37185050289,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "027e90b664b6a75f0740defb20eae9735498b2c1"
+        }
+      },
+      "zip_sha256": "78ffacc619f169c3c6ef9c56f256332ec92eeed4e195d2184a0bb91a3bba0c89",
+      "xml_member": "ci/new_account.xml",
+      "xml_sha256": "33840d40e19c9a2cfb96fbc8c2ad30fd1b0c46aea6927011cb21e6a556e23d8f",
+      "counts": {
+        "testcases": 179,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "excluded_xml_members": [],
+      "new_rail_regression_cases": [],
+      "testcase_status_counts": {
+        "pass": 179
+      },
+      "xml_declared_root_counts": {
+        "name": "GutTests",
+        "failures": "0",
+        "tests": "179"
+      },
+      "archive_member": "reports/new_account.xml"
+    },
+    {
+      "suite": "dating",
+      "artifact": {
+        "id": 11296737371,
+        "name": "windows-dating-37185050289-1",
+        "size_in_bytes": 591587,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11296737371",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11296737371/zip",
+        "expired": false,
+        "created_at": "2026-10-04T07:18:54Z",
+        "expires_at": "2026-10-11T07:18:53Z",
+        "updated_at": "2026-10-04T07:18:54Z",
+        "digest": "sha256:c329a566b5c3677b03d703413c576535c7f1356f282994c6fb8526c778992ba6",
+        "workflow_run": {
+          "id": 37185050289,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "027e90b664b6a75f0740defb20eae9735498b2c1"
+        }
+      },
+      "zip_sha256": "c329a566b5c3677b03d703413c576535c7f1356f282994c6fb8526c778992ba6",
+      "xml_member": "ci/dating.xml",
+      "xml_sha256": "cc5836ef43e8d9d1759fdc87eed6a8917a78974a9e91cdce30659efd198891ee",
+      "counts": {
+        "testcases": 174,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "excluded_xml_members": [],
+      "new_rail_regression_cases": [],
+      "testcase_status_counts": {
+        "pass": 174
+      },
+      "xml_declared_root_counts": {
+        "name": "GutTests",
+        "failures": "0",
+        "tests": "174"
+      },
+      "archive_member": "reports/dating.xml"
+    },
+    {
+      "suite": "desktop",
+      "artifact": {
+        "id": 11296976891,
+        "name": "windows-desktop-37185050289-1",
+        "size_in_bytes": 295865,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11296976891",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11296976891/zip",
+        "expired": false,
+        "created_at": "2026-10-04T07:19:35Z",
+        "expires_at": "2026-10-11T07:19:34Z",
+        "updated_at": "2026-10-04T07:19:35Z",
+        "digest": "sha256:7b86167b967f8e600a702e5d0798484135bae529a16acddea8569216baf4bb61",
+        "workflow_run": {
+          "id": 37185050289,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "027e90b664b6a75f0740defb20eae9735498b2c1"
+        }
+      },
+      "zip_sha256": "7b86167b967f8e600a702e5d0798484135bae529a16acddea8569216baf4bb61",
+      "xml_member": "ci/desktop.xml",
+      "xml_sha256": "649ee7fc0a02489735f978ccee1a9dbe4795bf5ad044ee1be06c3b5542473121",
+      "counts": {
+        "testcases": 334,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "excluded_xml_members": [],
+      "new_rail_regression_cases": [],
+      "testcase_status_counts": {
+        "pass": 334
+      },
+      "xml_declared_root_counts": {
+        "name": "GutTests",
+        "failures": "0",
+        "tests": "334"
+      },
+      "archive_member": "reports/desktop.xml"
+    },
+    {
+      "suite": "settings",
+      "artifact": {
+        "id": 11297156330,
+        "name": "windows-settings-37185050289-1",
+        "size_in_bytes": 2840401,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11297156330",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11297156330/zip",
+        "expired": false,
+        "created_at": "2026-10-04T07:20:54Z",
+        "expires_at": "2026-10-11T07:20:52Z",
+        "updated_at": "2026-10-04T07:20:54Z",
+        "digest": "sha256:30d504de9a49ea330e8cf3f2d23dd145d1481299e8a86adf8f565faaacff3986",
+        "workflow_run": {
+          "id": 37185050289,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "027e90b664b6a75f0740defb20eae9735498b2c1"
+        }
+      },
+      "zip_sha256": "30d504de9a49ea330e8cf3f2d23dd145d1481299e8a86adf8f565faaacff3986",
+      "xml_member": "ci/settings.xml",
+      "xml_sha256": "50d6e5a309e0354b8147f0162ed94ad857751a34cbe395550168cf4791c964a7",
+      "counts": {
+        "testcases": 357,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "excluded_xml_members": [
+        "ci/storage-refusal/empty/tests.xml",
+        "ci/storage-refusal/whitespace/tests.xml"
+      ],
+      "new_rail_regression_cases": [],
+      "testcase_status_counts": {
+        "pass": 357
+      },
+      "xml_declared_root_counts": {
+        "name": "GutTests",
+        "failures": "0",
+        "tests": "357"
+      },
+      "archive_member": "reports/settings.xml"
+    },
+    {
+      "suite": "reading_delivery",
+      "artifact": {
+        "id": 11296158929,
+        "name": "windows-reading_delivery-37185050289-1",
+        "size_in_bytes": 310436,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11296158929",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11296158929/zip",
+        "expired": false,
+        "created_at": "2026-10-04T07:20:27Z",
+        "expires_at": "2026-10-11T07:20:26Z",
+        "updated_at": "2026-10-04T07:20:27Z",
+        "digest": "sha256:b2d261889c6377fd645c0df596fd942b1b49e198bbb12d2ac704cf1d675fd146",
+        "workflow_run": {
+          "id": 37185050289,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "027e90b664b6a75f0740defb20eae9735498b2c1"
+        }
+      },
+      "zip_sha256": "b2d261889c6377fd645c0df596fd942b1b49e198bbb12d2ac704cf1d675fd146",
+      "xml_member": "ci/reading_delivery.xml",
+      "xml_sha256": "42d7ff170bf1996e13cb3c90311cfec9afaefcdce2daa59e856444fd440bf4b3",
+      "counts": {
+        "testcases": 633,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "excluded_xml_members": [],
+      "new_rail_regression_cases": [],
+      "testcase_status_counts": {
+        "pass": 633
+      },
+      "xml_declared_root_counts": {
+        "name": "GutTests",
+        "failures": "0",
+        "tests": "633"
+      },
+      "archive_member": "reports/reading_delivery.xml"
+    }
+  ],
+  "totals": {
+    "testcases": 2602,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "expected_reports": 13,
+  "collected_reports": 13,
+  "missing_suites": []
+}

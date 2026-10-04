@@ -1,0 +1,96 @@
+{
+  "source": "027e90b664b6a75f0740defb20eae9735498b2c1",
+  "tested_merge": "879151f456d0deffeaccfe78c2ddc6442728ee9b",
+  "run_id": 37185050289,
+  "rendered_samples": 25,
+  "caption_samples": 15,
+  "fixed_controls": 90,
+  "focused_comparison": [
+    {
+      "file": "dialogue-live-en100.png",
+      "sha256": "9d7b62b734312bc07dbcdc360df31131347dc8ff2f0aba258e88aa08931b4d8f",
+      "rgb_identical_to_focused": true
+    },
+    {
+      "file": "dialogue-older-en100.png",
+      "sha256": "d147e0dd81923a02ef1a9d4936f022e788f86224776c309b258852e61e121f22",
+      "rgb_identical_to_focused": true
+    },
+    {
+      "file": "dialogue-oldest-en100.png",
+      "sha256": "80cbc024a0c74ab7685f13dc50a1b1843897badd920dedfec1f1bf9d655f638a",
+      "rgb_identical_to_focused": true
+    },
+    {
+      "file": "dialogue-newer-en100.png",
+      "sha256": "d147e0dd81923a02ef1a9d4936f022e788f86224776c309b258852e61e121f22",
+      "rgb_identical_to_focused": true
+    },
+    {
+      "file": "dialogue-return-live-en100.png",
+      "sha256": "9d7b62b734312bc07dbcdc360df31131347dc8ff2f0aba258e88aa08931b4d8f",
+      "rgb_identical_to_focused": true
+    },
+    {
+      "file": "dialogue-older-zh-CN150.png",
+      "sha256": "0725374864eac919003d2b671803294e2749d3baa5324673e17b2e08c4d0a723",
+      "rgb_identical_to_focused": true
+    },
+    {
+      "file": "dialogue-older-zh-HK150.png",
+      "sha256": "5843709d1f73b695d60d717279bc60232adbeaf24f1f55855e8453a64b8c9bb5",
+      "rgb_identical_to_focused": true
+    },
+    {
+      "file": "dating-overlay-live-en100.png",
+      "sha256": "6a25c3cc4c5849c7d0e2bf14a4b349965c4f7b09249a79693aafdfedcdb19fe9",
+      "rgb_identical_to_focused": true
+    },
+    {
+      "file": "dating-overlay-review-en100.png",
+      "sha256": "adcf2c5064650e7e634e185f772bbe8b06a3d6a40b0b43326f00fe88eef7585c",
+      "rgb_identical_to_focused": true
+    },
+    {
+      "file": "dating-overlay-live-zh-CN150.png",
+      "sha256": "36f6b2e1157e1a8205b109fd8047fe9c0fdcee65ecc918540b946852d0abea4a",
+      "rgb_identical_to_focused": true
+    },
+    {
+      "file": "dating-overlay-review-zh-CN150.png",
+      "sha256": "7e65ac3f74aab93f2887889297fe584a416b9022c2acf395f5f9a72f1453b8e3",
+      "rgb_identical_to_focused": true
+    },
+    {
+      "file": "dating-overlay-live-zh-HK150.png",
+      "sha256": "0e96c781e51c72fa8c09ff4c7b8bc075c9c8c3deb3fc30e75a02f8306dc8946a",
+      "rgb_identical_to_focused": true
+    },
+    {
+      "file": "dating-overlay-review-zh-HK150.png",
+      "sha256": "e62955d4668b1d61d4db59af48d76b4770d068cbe4edfeded122a7917edc3cc1",
+      "rgb_identical_to_focused": true
+    },
+    {
+      "file": "dating-pair-480.png",
+      "sha256": "cfd25f9c6ed619e46976026aea1da393ff752d376e95f668eb55d9ba56fa90be",
+      "rgb_identical_to_focused": true
+    },
+    {
+      "file": "dating-pair-640.png",
+      "sha256": "6bdcf2c6cbf663ac15f8f82b29d9b404758fde3f0fdff835ed1a1d46bc9dbf26",
+      "rgb_identical_to_focused": true
+    }
+  ],
+  "japanese_korean_ui_samples": 30,
+  "inspected": [
+    "dialogue-older-zh-CN150.png",
+    "dialogue-older-zh-HK150.png",
+    "ja-witnessed-150.png",
+    "ko-witnessed-150.png"
+  ],
+  "limits": [
+    "Japanese/Korean fixture captions remain English; this verifies localized UI controls, not authored story translations.",
+    "Bounded synthetic and Dating fixtures, not exhaustive scene or background certification."
+  ]
+}
