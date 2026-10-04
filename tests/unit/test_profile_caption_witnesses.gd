@@ -251,3 +251,215 @@ func test_real_atomic_file_failures_recover_one_coherent_profile_and_allow_retry
 		assert_true(restarted.mark_caption_variant_witnessed(_beat(), _registry(_beat())).ok)
 		assert_true(restarted.is_caption_variant_witnessed(_beat()))
 	assert_gt(recovered_failures, 0, "the sweep must actually exercise refused persistence")
+
+
+class MergeFaultFiles extends "res://tests/support/FakeFileOps.gd":
+	var refuse_writes := false
+	var refuse_cleanup := false
+	func write_bytes(path: String, bytes: PackedByteArray) -> Dictionary:
+		if refuse_writes and "/profile.json" in path:
+			_record(&"write_bytes", path)
+			return _injected_failure()
+		return super.write_bytes(path, bytes)
+	func remove_path(path: String) -> Dictionary:
+		if refuse_cleanup and path.ends_with("/profile.json.txn.json"):
+			_record(&"remove_path", path)
+			return _injected_failure()
+		return super.remove_path(path)
+
+# Merge fixtures exercise real FileOps refusals, not a synthetic storage result.
+func _merge_fixture() -> Dictionary:
+	var ops := MergeFaultFiles.new()
+	var storage := CountingStorage.new(ops)
+	return {"ops": ops, "storage": storage, "manager": _manager(storage)}
+
+func _merge_beat(id: String = "one", variant: String = "a") -> Dictionary:
+	return {"beat_id": "fixture." + id, "line_id": "fixture.line." + id,
+		"owning_entry_id": "fixture.entry", "presentation_signature": {
+			"content_revision": "TEST-r1", "variant_id": variant}}
+
+func _merge_registry(beats: Array[Dictionary]) -> Dictionary:
+	return {"kind": "narrative_caption_registry", "schema_version": 1, "beats": beats.duplicate(true)}
+
+func _merge_before(f: Dictionary) -> Dictionary:
+	return {"profile": f.manager.get_profile_snapshot(), "revision": f.manager.get_profile_revision(),
+		"bytes": f.ops.snapshot_persisted(), "writes": f.storage.writes, "operations": f.ops.operation_count()}
+
+func _merge_assert_live_unchanged(f: Dictionary, before: Dictionary) -> void:
+	assert_eq(f.manager.get_profile_snapshot(), before.profile)
+	assert_eq(f.manager.get_profile_revision(), before.revision)
+
+func _merge_assert_no_io(f: Dictionary, before: Dictionary) -> void:
+	_merge_assert_live_unchanged(f, before)
+	assert_eq(f.ops.snapshot_persisted(), before.bytes)
+	assert_eq(f.storage.writes, before.writes)
+	assert_eq(f.ops.operation_count(), before.operations)
+
+func test_atomic_union_is_one_commit_detached_and_changes_only_two_history_fields() -> void:
+	var f := _merge_fixture()
+	assert_true(f.manager.set_preference(&"preferences.audio.music_volume", 0.37).ok)
+	assert_true(f.manager.unlock_ending("ending.alone", "history-merge:fixture").ok)
+	var prior: Array[Dictionary] = [_merge_beat("prior")]
+	assert_true(f.manager.mark_caption_variant_witnessed(prior[0], _merge_registry(prior)).ok)
+	var beats: Array[Dictionary] = [_merge_beat(), _merge_beat("two"), _merge_beat()]
+	var registry_beats: Array[Dictionary] = [_merge_beat(), _merge_beat("two")]
+	var registry := _merge_registry(registry_beats)
+	var before := _merge_before(f)
+	var publications: Array[Dictionary] = []
+	f.manager.caption_variant_witness_changed.connect(func(_id: String, _value: bool) -> void:
+		publications.append({"profile": f.manager.get_profile_snapshot(), "bytes": f.ops.snapshot_persisted()}))
+	var result: Dictionary = f.manager.merge_caption_history(beats, registry, before.revision)
+	assert_true(result.ok, str(result))
+	assert_eq(result.value, {"history_added": true})
+	assert_eq(f.storage.writes, before.writes + 1, "the whole batch shares one Profile transaction")
+	assert_eq(f.manager.get_profile_revision(), before.revision + 1)
+	var saved: Dictionary = f.manager.get_profile_snapshot()
+	assert_eq(saved.visited_line_ids.size(), 3)
+	assert_eq(saved.witnessed_caption_variants.size(), 3)
+	assert_true(f.manager.is_caption_variant_witnessed(prior[0]))
+	assert_true(f.manager.is_caption_variant_witnessed(_merge_beat()))
+	assert_true(f.manager.is_caption_variant_witnessed(_merge_beat("two")))
+	var unchanged_fields := saved.duplicate(true)
+	var previous_fields: Dictionary = before.profile.duplicate(true)
+	for field: String in ["visited_line_ids", "witnessed_caption_variants"]:
+		unchanged_fields.erase(field)
+		previous_fields.erase(field)
+	assert_eq(unchanged_fields, previous_fields, "preferences, discovery and all unrelated Profile facts are exact")
+	assert_eq(publications.size(), 2, "duplicate input is not another witness publication")
+	for publication: Dictionary in publications:
+		assert_eq(publication.profile, saved, "no observer sees a partial batch")
+		assert_eq(publication.bytes, f.ops.snapshot_persisted(), "all publications follow durable adoption")
+	beats[0].presentation_signature.variant_id = "caller mutation"
+	registry.beats.clear()
+	result.value.history_added = false
+	assert_eq(f.manager.get_profile_snapshot(), saved)
+	var restarted := _manager(STORAGE.new(STORE_ROOT, OPS.new(f.ops.snapshot_persisted())))
+	assert_eq(restarted.get_profile_snapshot(), saved)
+
+func test_duplicate_and_empty_batches_are_write_signal_and_revision_free() -> void:
+	var f := _merge_fixture()
+	var beats: Array[Dictionary] = [_merge_beat(), _merge_beat("two")]
+	var registry := _merge_registry(beats)
+	assert_true(f.manager.merge_caption_history(beats, registry).ok)
+	watch_signals(f.manager)
+	var before := _merge_before(f)
+	var duplicate: Dictionary = f.manager.merge_caption_history(beats, registry, before.revision)
+	assert_true(duplicate.ok)
+	assert_true(duplicate.unchanged)
+	assert_eq(duplicate.value, {"history_added": false})
+	var empty: Array[Dictionary] = []
+	var result: Dictionary = f.manager.merge_caption_history(empty, {}, before.revision)
+	assert_true(result.ok)
+	assert_true(result.unchanged)
+	assert_eq(result.value, {"history_added": false})
+	_merge_assert_no_io(f, before)
+	assert_signal_emit_count(f.manager, "visited_history_changed", 0)
+	assert_signal_emit_count(f.manager, "caption_variant_witness_changed", 0)
+
+func test_new_exact_variant_of_visited_line_commits_without_history_added_status() -> void:
+	var f := _merge_fixture()
+	var first: Array[Dictionary] = [_merge_beat()]
+	assert_true(f.manager.merge_caption_history(first, _merge_registry(first)).value.history_added)
+	var next: Array[Dictionary] = [_merge_beat("one", "b")]
+	var before := _merge_before(f)
+	watch_signals(f.manager)
+	var result: Dictionary = f.manager.merge_caption_history(next, _merge_registry(next), before.revision)
+	assert_true(result.ok)
+	assert_eq(result.value, {"history_added": false}, "new exact credit is not a newly visited base line")
+	assert_false(result.get("unchanged", false))
+	assert_eq(f.storage.writes, before.writes + 1)
+	assert_true(f.manager.is_caption_variant_witnessed(first[0]))
+	assert_true(f.manager.is_caption_variant_witnessed(next[0]))
+	assert_eq(f.manager.get_profile_snapshot().visited_line_ids, before.profile.visited_line_ids)
+	assert_signal_emit_count(f.manager, "visited_history_changed", 0)
+	assert_signal_emit_count(f.manager, "caption_variant_witness_changed", 1)
+
+func test_invalid_late_member_or_registry_rejects_entire_batch_before_storage() -> void:
+	var f := _merge_fixture()
+	var registered: Array[Dictionary] = [_merge_beat(), _merge_beat("two")]
+	var registry := _merge_registry(registered)
+	var before := _merge_before(f)
+	var unregistered: Array[Dictionary] = [_merge_beat(), _merge_beat("two", "absent")]
+	assert_eq(f.manager.merge_caption_history(unregistered, registry).get("code"), &"unregistered_caption_variant")
+	var malformed: Array[Dictionary] = [_merge_beat(), {"line_id": "raw caller ID"}]
+	assert_false(f.manager.merge_caption_history(malformed, registry).ok)
+	var invalid_registry := registry.duplicate(true)
+	invalid_registry.beats.append({"line_id": "incomplete"})
+	assert_eq(f.manager.merge_caption_history(registered, invalid_registry).get("code"), &"invalid_caption_witness_registry")
+	_merge_assert_no_io(f, before)
+	assert_false(f.manager.is_caption_variant_witnessed(_merge_beat()), "the valid prefix of a refused batch was not adopted")
+
+func test_stale_revision_and_mutation_custody_refuse_even_empty_and_duplicate_batches() -> void:
+	var f := _merge_fixture()
+	var beats: Array[Dictionary] = [_merge_beat()]
+	var registry := _merge_registry(beats)
+	var stale: int = f.manager.get_profile_revision()
+	assert_true(f.manager.merge_caption_history(beats, registry, stale).ok)
+	var before := _merge_before(f)
+	var empty: Array[Dictionary] = []
+	assert_eq(f.manager.merge_caption_history(beats, registry, stale).get("code"), &"profile_revision_changed")
+	assert_eq(f.manager.merge_caption_history(empty, {}, stale).get("code"), &"profile_revision_changed")
+	var fresh := MANAGER.new()
+	autofree(fresh)
+	assert_eq(fresh.merge_caption_history(empty, {}).get("code"), &"not_initialized")
+	var gate := GATE.new()
+	assert_true(f.manager.configure_mutation_gate(gate).ok)
+	var held: Dictionary = gate.acquire(&"restore")
+	assert_true(held.ok)
+	assert_eq(f.manager.merge_caption_history(beats, registry).get("code"), &"MUTATION_ACTIVE")
+	assert_eq(f.manager.merge_caption_history(empty, {}).get("code"), &"MUTATION_ACTIVE")
+	_merge_assert_no_io(f, before)
+	assert_true(gate.release(&"restore", held.value.token).ok)
+	assert_true(f.manager.merge_caption_history(beats, registry).unchanged)
+
+func test_proven_write_refusal_preserves_whole_profile_and_allows_one_fresh_batch() -> void:
+	var f := _merge_fixture()
+	var beats: Array[Dictionary] = [_merge_beat(), _merge_beat("two")]
+	var registry := _merge_registry(beats)
+	var before := _merge_before(f)
+	watch_signals(f.manager)
+	f.ops.refuse_writes = true
+	var refused: Dictionary = f.manager.merge_caption_history(beats, registry, before.revision)
+	assert_false(refused.ok)
+	assert_false(refused.get("fatal", false))
+	_merge_assert_live_unchanged(f, before)
+	assert_eq(f.ops.snapshot_persisted(), before.bytes)
+	assert_signal_emit_count(f.manager, "visited_history_changed", 0)
+	assert_signal_emit_count(f.manager, "caption_variant_witness_changed", 0)
+	f.ops.refuse_writes = false
+	var writes: int = f.storage.writes
+	var retried: Dictionary = f.manager.merge_caption_history(beats, registry, before.revision)
+	assert_true(retried.ok, str(retried))
+	assert_true(retried.value.history_added)
+	assert_eq(f.storage.writes, writes + 1)
+	assert_true(f.manager.is_caption_variant_witnessed(beats[0]))
+	assert_true(f.manager.is_caption_variant_witnessed(beats[1]))
+
+func test_indeterminate_promotion_preserves_live_profile_and_fences_all_further_batches() -> void:
+	var f := _merge_fixture()
+	var old: Array[Dictionary] = [_merge_beat("old")]
+	assert_true(f.manager.merge_caption_history(old, _merge_registry(old)).ok)
+	var beats: Array[Dictionary] = [_merge_beat(), _merge_beat("two")]
+	var registry := _merge_registry(beats)
+	var before := _merge_before(f)
+	watch_signals(f.manager)
+	f.ops.refuse_cleanup = true
+	var result: Dictionary = f.manager.merge_caption_history(beats, registry, before.revision)
+	assert_false(result.ok)
+	assert_eq(result.get("code"), &"indeterminate_commit")
+	_merge_assert_live_unchanged(f, before)
+	assert_signal_emit_count(f.manager, "visited_history_changed", 0)
+	assert_signal_emit_count(f.manager, "caption_variant_witness_changed", 0)
+	var bytes: Dictionary = f.ops.snapshot_persisted()
+	assert_true(bytes.has(STORE_ROOT + "/profile.json.txn.json"))
+	var durable: Dictionary = JSON.parse_string(bytes[STORE_ROOT + "/profile.json"].get_string_from_utf8())
+	assert_eq(durable.visited_line_ids.size(), 3, "promotion installed the entire candidate, despite uncertain cleanup")
+	assert_eq(durable.witnessed_caption_variants.size(), 3)
+	f.ops.refuse_cleanup = false
+	var fenced := _merge_before(f)
+	var empty: Array[Dictionary] = []
+	assert_eq(f.manager.merge_caption_history(old, _merge_registry(old)).get("code"), &"indeterminate_commit")
+	assert_eq(f.manager.merge_caption_history(empty, {}).get("code"), &"indeterminate_commit")
+	assert_eq(f.manager.merge_caption_history(beats, registry).get("code"), &"indeterminate_commit")
+	assert_eq(f.manager.set_preference(&"preferences.audio.music_volume", 0.3).get("code"), &"indeterminate_commit")
+	_merge_assert_no_io(f, fenced)

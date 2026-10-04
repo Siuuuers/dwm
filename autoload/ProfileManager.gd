@@ -521,6 +521,39 @@ func mark_caption_variant_witnessed(beat: Dictionary, registry: Dictionary) -> D
 	return _commit_profile_candidate(candidate)
 
 
+## The presentation owner supplies only captions actually presented in its session.
+## Registry membership validates descriptors; it is not evidence of presentation.
+## History status means a new base line, even when a new exact variant is committed.
+func merge_caption_history(beats: Array[Dictionary], registry: Dictionary, expected_revision: int = -1) -> Dictionary:
+	var guarded := _guard(&"profile_commit")
+	if not guarded.ok: return guarded
+	if not _initialized: return _failure(&"not_initialized", "ProfileManager is not initialized")
+	if _mutation_blocked: return _failure(&"indeterminate_commit", "Profile mutation is blocked", true)
+	var revision_check := _check_profile_revision(expected_revision)
+	if not revision_check.ok: return revision_check
+	var admitted_beats: Dictionary = {}
+	for beat: Dictionary in beats:
+		var admitted := CAPTION_WITNESSES.admit(beat, registry)
+		if not admitted.ok: return admitted
+		admitted_beats[admitted.value.witness_id] = admitted.value.beat
+	var candidate := _profile.duplicate(true)
+	var changed := false
+	var history_added := false
+	for witness_id: String in admitted_beats:
+		if candidate.witnessed_caption_variants.has(witness_id): continue
+		var beat: Dictionary = admitted_beats[witness_id]
+		candidate.witnessed_caption_variants[witness_id] = beat
+		changed = true
+		if beat.line_id not in candidate.visited_line_ids:
+			candidate.visited_line_ids.append(beat.line_id)
+			history_added = true
+	if not changed:
+		return {"ok": true, "code": &"ok", "value": {"history_added": false}, "unchanged": true}
+	var committed := _commit_profile_candidate(candidate, false, expected_revision)
+	if not committed.ok: return committed
+	return {"ok": true, "code": &"ok", "value": {"history_added": history_added}}
+
+
 ## Only physical presentation owners call this after a counted event or ending.
 ## A hidden New Run selection never writes a witness receipt.
 func record_pair_form_witness(form: String, transaction_id: String) -> Dictionary:
