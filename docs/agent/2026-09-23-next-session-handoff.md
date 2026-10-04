@@ -10,12 +10,39 @@ execution_map: "docs/agent/execution-map.md"
 issue_authority: beads
 ---
 
-# Current handoff: 4 October 2026
+# Current handoff: 5 October 2026
 
 Continue `Siuuuers/dwm` PR #1 on `codex/windows-cloud-ux`. Keep it draft and
 unmerged; do not change master. Read this handoff, the [execution map](execution-map.md),
 the selected Bead and its current approved design before editing. Beads owns
 status and dependencies; these documents are navigation, not a second backlog.
+
+## Latest accepted Settings visible-keyboard checkpoint
+
+The bounded Pause → Settings → High Contrast keyboard route is accepted at
+source `5959cb7abf30c1cf546e1b0dfa0de372aa7d0b36`, tested merge
+`80a7249203beee5106cdc38bf8bc35a2f2d122cd`.
+[Run 161](https://github.com/Siuuuers/dwm/actions/runs/37220956097) passed all
+26 jobs, including the four retained-history comparisons and their aggregate.
+The [receipt](../../evidence/phase_2r/settings_keyboard_navigation_2026_10_05/receipt.json)
+and [review](../../evidence/phase_2r/settings_keyboard_navigation_2026_10_05/review.md)
+own exact scope, artifact hashes and limits. Final Settings XML verifies 361
+cases with zero failures/errors/skips; no new all-suite execution total is claimed.
+
+The existing rendered fixture now uses separate settled key events to reach the
+visible checkbox. Every sheet target and its focus perimeter fits inside the
+viewport; Profile contents/revision, durable bytes and 45 FileOps are unchanged
+by navigation. The three PNGs were independently reviewed through the diagnostic
+and final-run byte identity. Uncertainty/repeated-refusal retain identical images
+and 64 FileOps. This closes the previous pre-action visible-target evidence gap
+for English 100% AfterHours Standard, using Viewport key events rather than native
+OS keyboard/UIA. It does not establish a runtime defect or full accessibility.
+
+No runtime, save, recovery or History owner changed. Net implementation changes
+are the existing fixture and three cloud-generated inventory caller coordinates.
+The complete strict workflow is restored byte-for-byte. Run157's failure-handling
+receipt remains unchanged. This records-only publication is not independently
+engine-tested; `dwm-eei.2` remains open and all 23 unfinished records remain so.
 
 ## Accepted Settings write-failure checkpoint
 
@@ -84,11 +111,18 @@ Master was checked through its actual ref, not normalized PR-base metadata.
 
 ## Next work and task accounting
 
-**Do not redo the accepted bounded Settings write-failure field.**
+**Do not redo the accepted bounded Settings failure or visible-keyboard fields.**
 `dwm-eei.2` stays open: remaining authored sample, native speech/display and
 broader preview clauses are separate. Select one demonstrated remaining outcome
 from the Bead and accepted evidence before another implementation; no new
 architecture choice is implied by this checkpoint.
+
+Recommended next bounded implementation: `dwm-7wj`, the already approved visible
+plural witnessed-version register, preserving existing newest-first chronology,
+exact selection/Retry and write-free inspection. Use the active August 24 Gallery
+Standard; `docs/design/current-ui/gallery.md` has not cut over. Noncanonical
+fixture cues may prove engineering; production exact-version cues remain an
+authored-input gate. Do not reopen the existing replay or chronology owners.
 
 Apply the [owner-approved software responsibility boundary](../design/2026-10-04-software-responsibility-boundary.md).
 Preserve canonical mutation/recovery fences and truthful save reporting. Reuse

@@ -1,0 +1,14 @@
+{
+  "empty": {
+    "cases": 83,
+    "failures": 80,
+    "errors": 0,
+    "skips": 0
+  },
+  "whitespace": {
+    "cases": 83,
+    "failures": 80,
+    "errors": 0,
+    "skips": 0
+  }
+}

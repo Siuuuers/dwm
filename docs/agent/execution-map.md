@@ -6,17 +6,35 @@ execution_authority: false
 status_authority: false
 behavior_authority: false
 verification_authority: false
-inspected_source: "07492163071a6dbe24d881b7c7fe17f7a3236be7"
+inspected_source: "5959cb7abf30c1cf546e1b0dfa0de372aa7d0b36"
 ---
 
 # DWM execution map
 
-Reviewed 4 October 2026. This is the maintained navigation map, not task-status
+Reviewed 5 October 2026. This is the maintained navigation map, not task-status
 or behavior authority. Beads owns statuses/dependencies; approved design owns
 behavior. The [current handoff](2026-09-23-next-session-handoff.md) owns restart
 guidance and points to source-bound acceptance. Do not create a second backlog.
 
 ## Current checkpoint and next outcome
+
+The bounded Pause Settings visible-keyboard route is accepted at source
+`5959cb7abf30c1cf546e1b0dfa0de372aa7d0b36`, tested merge
+`80a7249203beee5106cdc38bf8bc35a2f2d122cd`, Run161 attempt1. All 26 jobs passed;
+Settings XML verifies 361 cases with zero failures/errors/skips. The
+[receipt](../../evidence/phase_2r/settings_keyboard_navigation_2026_10_05/receipt.json)
+and [review](../../evidence/phase_2r/settings_keyboard_navigation_2026_10_05/review.md)
+retain exact proof and limits. Only the rendered fixture and three generated
+caller coordinates changed; no runtime owner changed. Viewport-key navigation
+now proves the focused High Contrast target is visible before action and performs
+no Profile/storage mutation. This is English 100% AfterHours Standard, not native
+OS/UIA or whole Settings acceptance. Reuse this proof rather than repeating it.
+
+Recommended next bounded outcome: `dwm-7wj` visible plural-version register using
+existing chronology and replay ownership. Its layout is already approved by the
+active August 24 Standard; the newer current-ui Gallery dossier has not cut over.
+Keep exact production cues as a separate authored-input gate; noncanonical fixture
+cues can establish the engineering behavior without claiming production completion.
 
 The bounded native Windows review-current return is accepted at source
 `845ec12c83cecfab1bfe3b5b4a194537c783aa7e`, tested PR merge
