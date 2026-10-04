@@ -86,12 +86,6 @@ jobs:
         env:
           DWM_CI_SUITE: ${{ matrix.suite }}
         run: ./tools/testing/Invoke-CloudTests.ps1 -Suite $env:DWM_CI_SUITE
-      - name: Verify native caption discovery and Normal Accept
-        if: matrix.suite == 'reading_delivery'
-        timeout-minutes: 3
-        run: |
-          powershell.exe -NoProfile -ExecutionPolicy Bypass -File ./tools/testing/Invoke-CaptionNativeAccept.ps1
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Upload logs and test results
         if: always()
         uses: actions/upload-artifact@v4
@@ -103,7 +97,6 @@ jobs:
             .godot/ci/*.json
             .godot/ci/*.xml
             .godot/ci/storage-refusal/
-            .godot/ci/caption-native/
             .godot/phase2r_logs/cloud-*.log
           include-hidden-files: true
           if-no-files-found: warn
@@ -318,6 +311,11 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify native caption discovery and Normal Accept
+        timeout-minutes: 3
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File ./tools/testing/Invoke-CaptionNativeAccept.ps1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Verify isolated runner contracts and timeout diagnostics
         timeout-minutes: 4
         run: |
@@ -337,6 +335,7 @@ jobs:
           path: |
             .godot/ci/import.log
             .godot/ci/public-surfaces/
+            .godot/ci/caption-native/
             .godot/ci/public_surfaces.xml
             .godot/ci/public_surfaces.jsonl
             .godot/ci/isolation-timeout.jsonl

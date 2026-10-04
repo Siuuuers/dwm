@@ -72,8 +72,13 @@ function Invoke-Caption([object]$Ready) {
             $matches = @($elements | Where-Object {
                 $_.Current.Name.TrimEnd() -ceq $Ready.text -and -not $_.Current.IsOffscreen
             })
-            if ($matches.Count -gt 1) { throw 'CAPTION_UIA_AMBIGUOUS' }
-            if ($matches.Count -eq 1) { $target = $matches[0]; break }
+            $actionable = @($matches | Where-Object {
+                $candidatePattern = $null
+                $_.Current.IsEnabled -and $_.TryGetCurrentPattern(
+                    [Windows.Automation.InvokePattern]::Pattern, [ref]$candidatePattern)
+            })
+            if ($actionable.Count -gt 1) { throw 'CAPTION_UIA_AMBIGUOUS' }
+            if ($actionable.Count -eq 1) { $target = $actionable[0]; break }
         }
         Start-Sleep -Milliseconds 100
     }
@@ -96,7 +101,7 @@ function Invoke-Caption([object]$Ready) {
 
 $start = New-Object Diagnostics.ProcessStartInfo
 $start.FileName = $env:GODOT_CONSOLE_PATH
-$start.Arguments = '--path "' + $repositoryRoot + '" --rendering-method gl_compatibility --accessibility always --log-file "' + $log + '" --script ' + $scriptArgument
+$start.Arguments = '--path "' + $repositoryRoot + '" --rendering-method gl_compatibility --audio-driver Dummy --accessibility always --log-file "' + $log + '" --script ' + $scriptArgument
 $start.UseShellExecute = $false
 $start.EnvironmentVariables['APPDATA'] = Join-Path $isolated 'appdata'
 $start.EnvironmentVariables['LOCALAPPDATA'] = Join-Path $isolated 'localappdata'
