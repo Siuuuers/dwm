@@ -41,6 +41,40 @@ retain their original scope; do not implement automatic no-Sylvia completion.
 
 ## Current acceptance
 
+**Accepted bounded movie-style caption correction.** Source
+`bbe024b4f2c55747d0886ab6c999648a9de54270`; actual PR test merge
+`b5cc8885a9432f9388531e1ceab8367f63af7c0e`.
+[Run 149](https://github.com/Siuuuers/dwm/actions/runs/37177243270) passes
+26/26 jobs and 2,601 primary cases across 13 XML reports, with zero failures,
+errors or skips. The [movie-caption receipt](../../evidence/phase_2r/movie_caption_2026_10_04/receipt.json)
+owns raw reports, native Windows records, rendered results, selected inspected
+screenshots, source identities and artifact hashes.
+
+Live and retained captions now use centered white outlined text with no backing
+panel, seam or focus rectangle. Ordinary artwork extends behind the caption
+space to the separate reading-control strip. Requested font sizes, three-caption
+window, reveal/input, Save/Load, recovery and History owners remain intact.
+The [owner correction](../design/2026-10-04-movie-caption-correction.md)
+supersedes earlier opaque-material directions; old contrast receipts remain historical.
+
+All 25 delivery/dialogue samples and two native Windows UIA invocations pass.
+Two journey checks now wait for the exact deferred History return-focus target
+within the existing 120-frame bound; runtime focus behavior was not changed.
+This is bounded fixture evidence, not arbitrary-artwork contrast certification
+or complete production-route/screen-reader acceptance.
+
+Follow-up under the existing reading remainder: inspect Simplified Chinese rail
+label crowding at 150% in retained `dialogue-older-zh-CN150.png`; establish whether
+it is a fixture synchronization issue or production layout defect before editing.
+Native review-current return-to-live remains separately unproven at OS level.
+Production catalogue/prose/variants stay deferred; Hospital manual Save/Load/Next
+remain disabled. All 23 unfinished Beads retain statuses/dependencies; export
+note only, no live Dolt synchronization. PR stays draft/unmerged; master
+`dded76aee2e85aeea94f65218de043b1f4fdce7b` is unchanged by this work.
+The records-only descendant is not independently engine-tested.
+
+## Prior native Windows caption acceptance
+
 **Accepted bounded native Windows caption Normal Accept.** Source
 `761e2e42a2266e51eb396e3ae0916598fba20eff`; actual PR test merge
 `e21892b49107cd13c6be77f1afe87bb568135118`. [Cloud run 37173880983](https://github.com/Siuuuers/dwm/actions/runs/37173880983)
