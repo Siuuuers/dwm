@@ -17,6 +17,27 @@ unmerged; do not change master. Read this handoff, the [execution map](execution
 the selected Bead and its current approved design before editing. Beads owns
 status and dependencies; these documents are navigation, not a second backlog.
 
+## Latest bounded Gallery catalogue checkpoint
+
+Exact authored version-cue lookup is accepted at source
+`ed2161cc3d4e74143c1b8a24840c7b5d2a1ff0e6`, tested merge
+`55251ffa3db3f229162bd558d6573b51edee224b`.
+[Run 162](https://github.com/Siuuuers/dwm/actions/runs/37226011217) passed the
+ending suite (126 cases, including 14 catalogue and 6 Gallery integration cases)
+and public-surface suite (11 cases), with no failures/errors/skips.
+The [receipt](../../evidence/phase_2r/gallery_version_cue_catalogue_2026_10_05/receipt.json)
+and [review](../../evidence/phase_2r/gallery_version_cue_catalogue_2026_10_05/review.md)
+record source, artifact hashes and the bounded acceptance. The wider workflow was
+still running at this checkpoint; do not infer an all-job or performance seal.
+
+`GalleryRecordCatalog.version_cue()` accepts only exact authored metadata and
+keeps missing cues absent. General record projection and production replay are
+unchanged. Clearly marked TEST cues prove the lookup contract; production overrides
+remain empty. The dropdown is still present: **the visible register is not yet
+implemented**. Continue its fixture-backed engineering through the existing
+catalogue, paper and replay owners. Do not add another metadata store or silently
+turn missing cues into disabled production replays. `dwm-7wj` stays in progress.
+
 ## Latest accepted Settings visible-keyboard checkpoint
 
 The bounded Pause → Settings → High Contrast keyboard route is accepted at
