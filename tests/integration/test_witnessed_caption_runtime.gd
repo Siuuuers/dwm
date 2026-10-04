@@ -1682,7 +1682,7 @@ func test_real_profile_material_preferences_preserve_native_reading_and_pending_
 		for role: StringName in high_roles:
 			assert_eq(caption.canvas.theme.get_color(role,&"WitnessedCaption"),high_roles[role],str(role))
 		assert_eq(caption.canvas.theme.get_color(&"focus_inner",&"WitnessedCaption"),Color(tuple[2]))
-		assert_eq(native.get_theme_color(&"default_color"),Color("f6efdc"),"the actual native text receives the published ink")
+		assert_eq(native.get_theme_color(&"default_color"),Color.WHITE,"movie-caption ink remains white across palette presets")
 		assert_eq(_stack_invariants(),before)
 		assert_eq(bar.value,100.0)
 		assert_true(native.has_focus())
