@@ -24,7 +24,7 @@ const STATUS_FALLBACK := {
 	"gallery.record.unavailable": "Unavailable record",
 	"gallery.archive.unavailable": "Gallery is unavailable.",
 	"gallery.empty": "No records are filed here yet.",
-	"gallery.title": "Gallery", "gallery.replay": "Replay", "button.return": "Return",
+	"gallery.title": "Gallery", "gallery.replay": "Replay", "button.return": "Return", "gallery.versions.heading": "Other witnessed versions",
 }
 
 @onready var _ending_tile_grid: GridContainer = %EndingTileGrid
@@ -443,7 +443,7 @@ func _clear_replay_versions() -> void:
 	_version_selector.clear()
 	_version_selector.hide()
 	var no_versions: Array[Dictionary] = []
-	_version_register.set_versions(no_versions, "", "en")
+	_version_register.set_versions(no_versions, "", "en", "")
 	_refresh_record_copy()
 	_sync_replay_controls()
 
@@ -480,7 +480,7 @@ func _refresh_version_register() -> void:
 				entries.clear()
 				break
 			entries.append({"signature_id": str(version.signature_id), "cue": cue})
-	_version_register.set_versions(entries, _selected_signature_id(), locale)
+	_version_register.set_versions(entries, _selected_signature_id(), locale, _localized("gallery.versions.heading"))
 	_version_selector.visible = _versions.size() > 1 and entries.is_empty()
 
 func _selected_signature_id() -> String:

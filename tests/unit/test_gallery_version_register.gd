@@ -37,11 +37,12 @@ func _key(code: int) -> void:
 		await _settle()
 
 func test_plural_geometry_and_single_version_absence() -> void:
-	_register.set_versions(_entries(), "fixture-first", "en")
+	_register.set_versions(_entries(), "fixture-first", "en", "Other witnessed versions")
 	await _settle()
 	var rows: Array[Control] = _register.get_rows()
 	var heading: Label = _register.get_node("VersionHeading")
 	assert_true(_register.visible)
+	assert_eq(heading.text, "Other witnessed versions")
 	assert_eq(_register.size.x, 520.0)
 	assert_eq(heading.position, Vector2(24, 0))
 	assert_eq(heading.size.x, 464.0)
@@ -55,26 +56,26 @@ func test_plural_geometry_and_single_version_absence() -> void:
 	assert_true(rows[0].selected)
 	assert_false(rows[1].selected)
 	var one: Array[Dictionary] = [_entries()[0]]
-	_register.set_versions(one, "fixture-first", "en")
+	_register.set_versions(one, "fixture-first", "en", "Other witnessed versions")
 	assert_false(_register.visible)
 	assert_eq(_register.size, Vector2.ZERO)
 	assert_eq(_register.custom_minimum_size, Vector2.ZERO)
 	assert_eq(_register.get_rows().size(), 0)
 	assert_null(_register.get_node_or_null("VersionHeading"))
 	var no_versions: Array[Dictionary] = []
-	_register.set_versions(no_versions, "", "en")
+	_register.set_versions(no_versions, "", "en", "")
 	assert_eq(_register.size, Vector2.ZERO)
 	assert_null(_register.row_for_signature("fixture-first"))
 
 func test_exact_rows_and_focus_survive_reorder_locale_and_selection_reprojection() -> void:
-	_register.set_versions(_entries(), "fixture-first", "en")
+	_register.set_versions(_entries(), "fixture-first", "en", "Other witnessed versions")
 	await _settle()
 	var second: Control = _register.row_for_signature("fixture-second")
 	second.grab_focus()
 	var reordered := _entries()
 	reordered.reverse()
 	reordered[0].cue = "TEST 第二提示"
-	_register.set_versions(reordered, "fixture-second", "zh_HK")
+	_register.set_versions(reordered, "fixture-second", "zh_HK", "其他見證版本")
 	await _settle()
 	assert_same(_register.get_rows()[0], second)
 	assert_true(second.has_focus())
@@ -88,7 +89,7 @@ func test_exact_rows_and_focus_survive_reorder_locale_and_selection_reprojection
 	assert_eq(_register.get_rows().size(), 2)
 
 func test_navigation_clamps_and_emits_selection_before_focus_without_owning_replay() -> void:
-	_register.set_versions(_entries(), "fixture-first", "en")
+	_register.set_versions(_entries(), "fixture-first", "en", "Other witnessed versions")
 	await _settle()
 	var events: Array = []
 	_register.item_selected.connect(func(index: int): events.append(index))
@@ -116,22 +117,22 @@ func test_navigation_clamps_and_emits_selection_before_focus_without_owning_repl
 	assert_eq(rows[0].focus_mode, Control.FOCUS_ALL)
 
 func test_removed_focused_row_notifies_owner_once_and_does_not_choose_another() -> void:
-	_register.set_versions(_entries(), "fixture-second", "en")
+	_register.set_versions(_entries(), "fixture-second", "en", "Other witnessed versions")
 	await _settle()
 	_register.row_for_signature("fixture-second").grab_focus(true)
 	var removed: Array = []
 	_register.focused_row_removed.connect(func(hidden: bool): removed.append(hidden))
 	var no_versions: Array[Dictionary] = []
-	_register.set_versions(no_versions, "", "en")
+	_register.set_versions(no_versions, "", "en", "")
 	assert_eq(removed, [true])
 	assert_eq(_register.focused_signature_id(), "")
-	_register.set_versions(no_versions, "", "en")
+	_register.set_versions(no_versions, "", "en", "")
 	assert_eq(removed.size(), 1)
 
 func test_wrapped_theme_relayout_preserves_rows_and_guards_reentrant_layout() -> void:
 	var entries := _entries()
 	entries[0].cue = "TEST noncanonical long cue ".repeat(18)
-	_register.set_versions(entries, "fixture-first", "en")
+	_register.set_versions(entries, "fixture-first", "en", "Other witnessed versions")
 	await _settle()
 	var first: Control = _register.get_rows()[0]
 	var height: float = _register.size.y
@@ -163,7 +164,7 @@ func test_oversized_cue_reveal_and_relayout_keep_visible_interior_and_focus_stab
 	paper.set_actions(null, null, _register)
 	var entries := _entries()
 	entries[0].cue = "TEST noncanonical oversized cue ".repeat(100)
-	_register.set_versions(entries, "fixture-first", "en")
+	_register.set_versions(entries, "fixture-first", "en", "Other witnessed versions")
 	await _settle()
 	var first: Control = _register.row_for_signature("fixture-first")
 	assert_gt(first.size.y, PAPER.VIEW_SIZE.y * 2.0,

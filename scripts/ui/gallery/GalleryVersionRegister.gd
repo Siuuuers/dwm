@@ -27,7 +27,7 @@ func _ensure_heading() -> void:
 	_heading.add_theme_constant_override("line_spacing", 0)
 	add_child(_heading)
 
-func set_versions(entries: Array[Dictionary], selected_id: String, locale: String) -> void:
+func set_versions(entries: Array[Dictionary], selected_id: String, locale: String, heading_copy: String) -> void:
 	_ensure_heading()
 	var retained: Dictionary = {}
 	for row: Control in _rows: retained[row.get_meta("gallery_signature_id")] = row
@@ -62,8 +62,7 @@ func set_versions(entries: Array[Dictionary], selected_id: String, locale: Strin
 	for index: int in range(_rows.size()): move_child(_rows[index], index + 1)
 	var language_code := locale.replace("_", "-")
 	_heading.language = language_code
-	_heading.text = "其他见证版本" if language_code.begins_with("zh") else "Other witnessed versions"
-	if language_code == "zh-HK": _heading.text = "其他見證版本"
+	_heading.text = heading_copy
 	set_selected(selected_id)
 	set_interactive(_interactive)
 	refresh_layout()
