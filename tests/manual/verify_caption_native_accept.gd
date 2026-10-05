@@ -14,6 +14,8 @@ var _partial_setup: Dictionary = {}
 var _journey: Dictionary = {}
 var _partial_rect := Rect2i()
 var _partial_pixels := PackedByteArray()
+var _clock_freezes: Array[Dictionary] = []
+var _gui_wheels: Array[Dictionary] = []
 
 func _initialize() -> void:
 	_run_native.call_deferred()
@@ -45,11 +47,14 @@ func _run_native() -> void:
 	root.content_scale_size = Vector2i(1280, 720)
 	var title := "DWM Native Caption Accept %d" % OS.get_process_id()
 	DisplayServer.window_set_title(title)
-	# Freeze elapsed-time reveal, including when review exit calls set_process(true).
-	# Native accessibility callbacks and Dialogic reveal/advance methods are unchanged.
-	_caption.caption_text.process_mode = Node.PROCESS_MODE_DISABLED
+	# Keep the real control's process mode: GUI delivery requires can_process().
+	# Connect after the owner's reveal-start sync. Review return also syncs first,
+	# then grabs live focus; freeze synchronously there, before any idle reveal tick.
+	_caption.caption_text.started_revealing_text.connect(_freeze_elapsed_reveal.bind("reveal_started"))
+	_caption.caption_text.focus_entered.connect(_freeze_elapsed_reveal.bind("live_focus_entered"))
+	_caption.caption_text.gui_input.connect(_observe_gui_wheel)
 	_runtime.Text.text_started.connect(func(_info: Dictionary):
-		_caption.caption_text.set_process(false)
+		_freeze_elapsed_reveal("text_started")
 		_caption.set_process(false))
 	var captions := [FIRST, SECOND, "Third witnessed caption.",
 		"The live fourth caption stays partial.", "Guard caption."]
@@ -75,7 +80,7 @@ func _run_native() -> void:
 	var invariant := _review_invariants()
 	_journey["review_entry"] = {"before": before, "observed_offsets": [0]}
 	# Observe native delivery only. No offset setter, Viewport event or callback fallback.
-	await _ready("review-enter", title)
+	if not await _ready("review-enter", title): return
 	var deadline := Time.get_ticks_msec() + 30000
 	while int(_caption.get_caption_projection().review_offset) == 0 and Time.get_ticks_msec() < deadline:
 		if _review_invariants() != invariant: break
@@ -94,7 +99,7 @@ func _run_native() -> void:
 		_finish(false, "native_review_entry")
 		return
 	_journey["review_return"] = {"before": before, "reviewing": reviewing}
-	await _ready("review-return", title)
+	if not await _ready("review-return", title): return
 	deadline = Time.get_ticks_msec() + 30000
 	while int(_caption.get_caption_projection().review_offset) == 1 and Time.get_ticks_msec() < deadline:
 		if _review_invariants() != invariant: break
@@ -173,7 +178,7 @@ func _native_action(stage: String, title: String, event: int, revealing: bool, f
 	if _valid(event, revealing, finished):
 		_finish(false, stage + "_already_at_destination")
 		return false
-	await _ready(stage, title)
+	if not await _ready(stage, title): return false
 	var deadline := Time.get_ticks_msec() + 30000
 	while not _valid(event, revealing, finished) and Time.get_ticks_msec() < deadline:
 		if _runtime.current_event_idx > event or _finished > finished or _ended != 0: break
@@ -194,6 +199,26 @@ func _review_invariants() -> Dictionary:
 	invariant["reveal_generation"] = _caption.caption_text.get_reveal_generation()
 	return invariant
 
+func _freeze_elapsed_reveal(reason: String) -> void:
+	# Fixture clock control only: never repair visible count, generation or state.
+	var was_processing: bool = _caption.caption_text.is_processing()
+	_caption.caption_text.set_process(false)
+	_clock_freezes.append({"reason": reason, "event_index": _runtime.current_event_idx,
+		"review_offset": _caption.get_caption_projection().review_offset,
+		"can_process": _caption.caption_text.can_process(), "idle_before": was_processing,
+		"idle_after": _caption.caption_text.is_processing()})
+
+func _observe_gui_wheel(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+		# Passive signal observer; canonical GUI handlers retain event ownership.
+		_gui_wheels.append({"button": event.button_index, "pressed": event.pressed,
+			"device": event.device, "review_offset": _caption.get_caption_projection().review_offset})
+
+func _elapsed_reveal_frozen() -> bool:
+	var target: Control = _caption.review_current if int(_caption.get_caption_projection().review_offset) > 0 else _caption.caption_text
+	return _caption.caption_text.can_process() and target.can_process() \
+		and not _caption.caption_text.is_processing() and not _caption.is_processing()
+
 func _wait_input_delay() -> void:
 	var deadline := Time.get_ticks_msec() + 5000
 	while not _runtime.Inputs.input_block_timer.is_stopped() and Time.get_ticks_msec() < deadline:
@@ -205,12 +230,18 @@ func _valid(event: int, revealing: bool, finished: int) -> bool:
 		and _finished == finished and _ended == 0 and not _runtime.paused \
 		and _runtime.Inputs.input_block_timer.is_stopped() \
 		and root.get_node("InputManager").get_physical_contacts().is_empty() \
-		and not paused and not Input.is_anything_pressed() and _caption.accept_input.is_source_admitted()
+		and not paused and not Input.is_anything_pressed() and _caption.accept_input.is_source_admitted() \
+		and _elapsed_reveal_frozen()
 
 func _state() -> Dictionary:
 	var projection: Dictionary = _caption.get_caption_projection()
 	var review: int = projection.review_offset
 	return {"run_token": _run_token, "source_admitted": _caption.accept_input.is_source_admitted(),
+		"caption_process_mode": _caption.caption_text.process_mode,
+		"caption_can_process": _caption.caption_text.can_process(),
+		"caption_idle_processing": _caption.caption_text.is_processing(),
+		"layer_idle_processing": _caption.is_processing(),
+		"target_can_process": (_caption.review_current if review > 0 else _caption.caption_text).can_process(),
 		"input_delay_stopped": _runtime.Inputs.input_block_timer.is_stopped(),
 		"anything_pressed": Input.is_anything_pressed(), "tree_paused": paused, "runtime_paused": _runtime.paused,
 		"window_focused": DisplayServer.window_is_focused(),
@@ -228,12 +259,19 @@ func _state() -> Dictionary:
 		"simple_history": _runtime.History.simple_history_content.duplicate(true),
 		"full_history": _runtime.History.full_event_history_content.duplicate(true)}
 
-func _ready(stage: String, title: String) -> void:
+func _ready(stage: String, title: String) -> bool:
+	if not _elapsed_reveal_frozen():
+		_finish(false, stage + "_clock_boundary")
+		return false
 	await _capture_native(stage)
+	if not _elapsed_reveal_frozen():
+		_finish(false, stage + "_capture_clock_boundary")
+		return false
 	var state := _state()
 	state.merge({"stage": stage, "pid": OS.get_process_id(), "window_title": title,
 		"capture": _native_captures.get(stage, {}), "partial_setup": _partial_setup})
 	print("CAPTION_READY " + JSON.stringify(state))
+	return true
 
 func _capture_native(stage: String) -> Image:
 	await RenderingServer.frame_post_draw
@@ -257,7 +295,8 @@ func _finish(ok: bool, phase: String) -> void:
 	var result := _state()
 	result.merge({"ok": ok, "phase": phase,
 		"scope": "Synthetic mounted caption; native wheel entry and UIA return. Seeded count with elapsed reveal disabled. No speech, ScrollPattern, production consequences or timed-lifecycle acceptance.",
-		"partial_setup": _partial_setup, "captures": _native_captures})
+		"partial_setup": _partial_setup, "captures": _native_captures,
+		"clock_freezes": _clock_freezes, "gui_wheels": _gui_wheels})
 	result.merge(_journey)
 	var file := FileAccess.open(_evidence.path_join("runtime.json"), FileAccess.WRITE)
 	if file != null:
