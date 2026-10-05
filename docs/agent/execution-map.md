@@ -6,207 +6,280 @@ execution_authority: false
 status_authority: false
 behavior_authority: false
 verification_authority: false
-inspected_source: "1cce6ff5424c3438e45b311407216a24fb144d59"
+inspected_source: "04ca9baf44e5a93183abd490d473615a33b81630"
 ---
 
 # DWM execution map
 
-Reviewed 5 October 2026. This is the maintained navigation map, not task-status
-or behavior authority. Beads owns statuses/dependencies; approved design owns
-behavior. The [current handoff](2026-09-23-next-session-handoff.md) owns restart
-guidance and points to source-bound acceptance. Do not create a second backlog.
+Reviewed 5 October 2026. This is the maintained navigation map, not task-status,
+behavior or verification authority. Beads owns statuses/dependencies; approved
+design owns behavior. The [current handoff](2026-09-23-next-session-handoff.md)
+retains restart guidance and guarantees. Do not create another authoritative backlog.
 
 ## Current checkpoint and next outcome
 
-The atomic Profile caption-History union prerequisite is accepted at source
-`1cce6ff5424c3438e45b311407216a24fb144d59`, tested merge
-`7936c4be314e2b2e1b5d95df86a1cb4ca4902409`. [Run 168](https://github.com/Siuuuers/dwm/actions/runs/37236784020)
-passed all 26 jobs. Settings XML verifies 368 cases, including 17 caption-witness
-cases with seven new atomic-union tests; public XML verifies 11 cases. All have
-zero failures/errors/skips. The [receipt](../../evidence/phase_2r/profile_caption_history_union_2026_10_05/receipt.json)
-and [review](../../evidence/phase_2r/profile_caption_history_union_2026_10_05/review.md)
-own the exact evidence and limits. Reuse `ProfileManager.merge_caption_history()`;
-do not rebuild its transaction or introduce another History persistence owner.
+[Run 171 completion](https://github.com/Siuuuers/dwm/pull/1#issuecomment-5988614205)
+records all 26 jobs passing on source `04ca9baf44e5a93183abd490d473615a33b81630`,
+actual tested merge `d923dafe0cc100818e4d63475019adb28c6ada86`, attempt 1 of run
+`37242534975`. Actual master parent was
+`dded76aee2e85aeea94f65218de043b1f4fdce7b`. Recheck actual live refs before
+editing; normalized PR-base metadata is not the master-ref authority.
 
-The method validates the complete batch before one existing atomic Profile commit,
-changes only exact-caption witnesses/base visited-line IDs, and fences even empty
-or duplicate calls under stale revision, mutation custody or uncertainty. Its
-`history_added` result means a newly durable base-line visit; a new exact variant
-of an already visited line does not claim a new-History notice.
+Exact admitted TEST ending replay now collects eligible, actually-presented
+captions under its session token. The [bounded review](https://github.com/Siuuuers/dwm/pull/1#issuecomment-5985720209)
+records 644 reading-delivery cases including 11 new collection cases, 169 ending
+cases and 11 public-surface cases, zero failures/errors/skips in those selected
+reports, and 42 rendered checks with three captures. Run 170 remains diagnostic
+only; Run 171 fixed the omitted explicit final-bootstrap argument. This map reuses
+those receipts without claiming a new raw-artifact audit, census or engine pass.
 
-Replay does not call this method yet. Next bind an explicitly admitted TEST exact
-replay signature and collectable lines to the existing NarrativeCaptionLedger and
-visible-caption acknowledgement under Bridge's reached-replay session. Do not
-fabricate canonical causal fields or treat publication/registry membership as
-actual presentation. Retain session custody through merge failure/uncertainty and
-revalidate after synchronous Profile publication before a truthful notice. The
-existing strict workflow is restored unchanged. No Bead is closed; all 23
-unfinished records remain open, including `dwm-7wj`.
+**Completed prerequisites, not the next implementation:** Run 166 visible
+witnessed-version register, Run 168 atomic `ProfileManager.merge_caption_history()`,
+and Run 171 temporary session-bound collection. Replay still discards the
+collection at exit. The next bounded `dwm-7wj` outcome is durable exit merging
+through that existing Profile operation and a truthful notice only for confirmed
+new base-line History visits. Duplicate-only batches stay silent; new exact
+variants of existing base lines do not imply new base History. Refusal/uncertainty
+retain required custody; recheck session identity after synchronous Profile
+publication. No canonical gameplay consequences or second History store.
 
-Fixture-backed visible version selection is accepted at source
-`097fc17cc0d48889f076f63921e55997a41b8e07`, tested merge
-`a74cb4520b3b6e6848e98c3ac89da54cb95b009a`. [Run 166](https://github.com/Siuuuers/dwm/actions/runs/37231841772)
-passes 169 ending tests, 154 localization tests and 11 public-contract tests, all
-without failures/errors/skips, plus 390 rendered-register checks across 18 tuples.
-The UI literal audit passes; final images match the reviewed captures exactly.
-The [receipt](../../evidence/phase_2r/gallery_version_register_2026_10_05/receipt.json)
-and [review](../../evidence/phase_2r/gallery_version_register_2026_10_05/review.md)
-own scope, hashes, diagnostic corrections and limits. Run 166 completed successfully: all 26 jobs passed, including the retained-history producer, four comparisons and aggregate. This supports the bounded register checkpoint; no new performance-improvement or whole Gallery completion claim is made.
+The [Run 168 receipt](../../evidence/phase_2r/profile_caption_history_union_2026_10_05/receipt.json)
+retains complete-batch validation and existing revision/custody/uncertainty fences,
+even for no-ops. The [Run 166 receipt](../../evidence/phase_2r/gallery_version_register_2026_10_05/receipt.json)
+retains chronology, selection/Retry and write-free inspection. Production cue sets
+remain absent; incomplete sets retain existing picker/Replay access. Authored
+cutover, native ScrollPattern and whole Gallery acceptance are separate.
 
-GalleryScene remains selection/Retry owner; Paper alone owns record scrolling.
-The register reuses existing row input/paint and exact catalogue cues. Selection,
-focus, locale refresh and inspection do not write Profile or start playback.
-Production cue sets remain absent, so existing picker/Replay access stays intact
-for incomplete sets. This is not production cutover, native UIA/ScrollPattern or
-whole Gallery acceptance. `dwm-7wj` and all 23 unfinished Beads remain open.
+The [August 24 Gallery Standard](../design/2026-08-24-gallery-maintained-microfiche-registrar-standard-palette-and-state-disposition.md)
+remains current; the current-ui dossier has not cut over. Current ending Replay
+does not promote future Rehearsal, Scenes, Full Dates or their anticipatory scaffold.
+Production catalogue registration, prose and exhaustive exact variants stay deferred.
 
-Next integration: collect actually presented, valid session-bound replay lines
-and reuse the accepted ProfileManager.merge_caption_history atomic union.
-Registry membership alone is not presentation proof. A success notice requires
-newly durable additions; duplicate replay stays silent, refusal adds nothing, and
-uncertainty retains custody. Reuse Bridge, Profile and GalleryReplayOwner; no new
-History store, recovery framework or external-system repair. Production exact
-replay admission and authored content remain separate from fixture engineering.
-
-The bounded Pause Settings visible-keyboard route is accepted at source
-`5959cb7abf30c1cf546e1b0dfa0de372aa7d0b36`, tested merge
-`80a7249203beee5106cdc38bf8bc35a2f2d122cd`, Run161 attempt1. All 26 jobs passed;
-Settings XML verifies 361 cases with zero failures/errors/skips. The
-[receipt](../../evidence/phase_2r/settings_keyboard_navigation_2026_10_05/receipt.json)
-and [review](../../evidence/phase_2r/settings_keyboard_navigation_2026_10_05/review.md)
-retain exact proof and limits. Only the rendered fixture and three generated
-caller coordinates changed; no runtime owner changed. Viewport-key navigation
-now proves the focused High Contrast target is visible before action and performs
-no Profile/storage mutation. This is English 100% AfterHours Standard, not native
-OS/UIA or whole Settings acceptance. Reuse this proof rather than repeating it.
-
-The active August 24 Gallery Standard remains the layout authority; the newer
-current-ui dossier has not cut over. Reuse Run 166 register proof and the existing
-chronology, including explicitly unordered legacy provenance.
-
-The bounded native Windows review-current return is accepted at source
-`845ec12c83cecfab1bfe3b5b4a194537c783aa7e`, tested PR merge
-`bd4a3806769954663c46aed1064a076a0276865e`, Run152 attempt1.
-The [single receipt](../../evidence/phase_2r/caption_native_review_2026_10_04/receipt.json)
-owns exact results, artifact hashes and limitations. Do not repeat that proof.
-It does not close whole-screen-reader navigation, authored production replay or
-all partial-reveal lifetime acceptance. Current owner constraints in the handoff
-supersede historical opaque-caption, timed no-Sylvia and Hospital manual-save plans.
-
-The bounded **truthful Settings write-failure field** under `dwm-eei.2` is
-accepted at source `07492163071a6dbe24d881b7c7fe17f7a3236be7`, tested merge
-`635e833cb345fa12089f0a3b795ef0d49dd5e6aa`, Run 157.
-The [receipt](../../evidence/phase_2r/settings_write_failure_2026_10_04/receipt.json)
-and [review](../../evidence/phase_2r/settings_write_failure_2026_10_04/review.md)
-own counts, artifacts and limits. Do not redo this field. The full Settings Bead
-remains open for separate preview/authored sample/native speech/display clauses.
-Select a demonstrated remaining outcome before the next implementation.
-
-The [software responsibility boundary](../design/2026-10-04-software-responsibility-boundary.md)
-still excludes external repair, forced automatic restart and new elaborate live
-recovery. Existing data protections and truthful error handling remain required.
-Reading acceptance remains a linked later field; accepted proofs are reused.
-
-The complete committed export contains **191 records, 23 unfinished**. All 23
-were reconciled against current decisions and source-bound evidence. No whole
-Bead was closed/retired and no dependency changed. `dwm-eei.2` remains open for its separate remaining clauses; `dwm-n3h.2`, `dwm-hsi` and `dwm-eei.17` are deferred with explicit
-resume conditions. This is a retained-export update, not live Dolt synchronization.
-See [the reconciliation receipt](../../evidence/beads_reconciliation_2026_10_04/review.json).
-Historical plans, counts and session exclusions are not a new implementation queue.
+Reuse accepted bounded Settings [failure handling / Run 157](../../evidence/phase_2r/settings_write_failure_2026_10_04/receipt.json),
+[visible keyboard route / Run 161](../../evidence/phase_2r/settings_keyboard_navigation_2026_10_05/receipt.json)
+and [native review-current return / Run 152](../../evidence/phase_2r/caption_native_review_2026_10_04/receipt.json).
+These do not close full Settings, native speech/navigation, arbitrary partial-reveal
+lifetime or production-content clauses. The [software responsibility boundary](../design/2026-10-04-software-responsibility-boundary.md)
+excludes external repair, forced restart and new elaborate live recovery while
+preserving existing data protections and truthful error reporting.
 
 ## Work queue and shared acceptance
 
+The committed reconciliation records **191 total records, 23 unfinished**. This is
+not a new live Dolt query or recount. The following grouping preserves every
+unfinished ID and does not change status, scope, dependencies or deferred inputs.
+
 | Lead / placement | Related records | Remaining outcome and boundaries |
 |---|---|---|
-| Reading remainder: `dwm-vky.14` | `dwm-eei.10`, `dwm-eei.11`, Witnessed portion of `dwm-eei.5` | Preserve accepted fixed-fixture Solo pre/board/post, exact witnessing/Next, Save/Quick/fresh Load, paused Settings F5/F9, shared Hospital, manual-command refusal, ordered-ending History/visible continuity/Auto, panel-free captions and native live/review-current Invoke. Map the actual remaining native navigation, production exact replay and lifetime clauses without reopening those owners. One bounded receipt is not umbrella completion. |
-| Remaining latency: `dwm-634.3` | `dwm-634`; touched `dwm-sx8` mappings | Per-write validation witness and frozen-baseline controls are accepted in Runs81/82. Remaining terminal/checkpoint cost and native responsiveness need matched complete-operation measurements, not shorter code alone. |
-| Deferred authored contract: `dwm-n3h.2` | `dwm-n3h`, exact Next/replay of `dwm-vky.14`, relevant `dwm-oyo.5` | Finite per-entry catalogue-v2 selector admission and bounded physical sweet/exploded Solo Save/Load are accepted. Global reached signatures and production exact-variant Next/replay remain open; production registration is disabled and prose/exhaustive variants deferred. Ordinary phase/reply/line and Alone cause are known gaps; ask only about an additional independent authored fact. |
-| Remaining Settings: `dwm-eei.2` | Settings/Profile recovery and preview clauses | Bounded truthful write-failure presentation/custody is accepted in Run 157. Preserve it; remaining authored samples, native speech/display and broader preview obligations are separate. No external repair, forced restart or new live Retry architecture. |
-| Independent: `dwm-7wj` | Gallery clauses of `dwm-oyo.6` | Fixture-backed visible register accepted in Run 166 (169 ending/154 localization/11 public cases and 390 rendered checks). Production exact cues remain absent; incomplete sets retain existing picker/Replay. The atomic Profile union prerequisite is accepted in Run 168; reuse it. Next prove exact replay admission, actually-presented collection and determinate custody before its notice. Authored cutover, native ScrollPattern and broader release gates remain separate. |
-| Catalogue-dependent: `dwm-nqn` | `dwm-oyo.5`; Settings audio-output clauses | Admit immutable neutral-ID cue/Load-anchor plan through current save/restore owners. Pause preserves physical playhead; Load uses authored anchors. Fixtures may prove engineering without inventing production audio. |
-| Remaining UI amendment: `dwm-vky` | Drift and all-input clauses | Only fully specified Drift cards through one deterministic plan/receipt and safe-boundary projection. Tint and Steady Interface have accepted children. Coordinate schema edits without blocking unrelated UI on Drift. |
-| Rolling companion: `dwm-sx8` | Every changed public boundary | Inspect real callers/current authority, retire only truly unused superseded APIs, otherwise link meaningful behavior proof. Repair nearby mappings and regenerate inventories once, not a parallel whole-facade rewrite. |
-| Integration/aggregates | `dwm-oyo.5`, `dwm-oyo.6`, `dwm-oyo.7`, `dwm-oyo`, `dwm-eei` | Consume exact component clauses, preserve pair-deck/Practice/endings and use one stable final candidate for broad/release acceptance. A green focused batch cannot close an umbrella. |
-| Explicit later inputs | `dwm-eob`, `dwm-5ht` | Representative authored translations, then adapter choice and bilingual captions/History on one semantic leaf. Menus stay single-language and speech Primary-only. Deferred; do not block English fixture-backed development. |
-| Evidence waiting list | `dwm-hsi`, `dwm-eei.17`, `dwm-wuk` | Resume respectively on matching reply-failure diagnostics, a matching native shutdown stall, or usable upstream Windows scrolling capability. Repeated successes alone identify no failure cause. |
+| Reading: `dwm-vky.14` | `dwm-eei.10`, `dwm-eei.11`, witnessed portion of `dwm-eei.5` | Preserve accepted Solo pre/board/post, exact witnessing/Next, Save/Quick/fresh Load, paused Settings F5/F9, shared Hospital and command refusal, ending continuity/Auto, panel-free rails and native live/review-current Invoke. Map actual remaining native navigation/speech, partial-reveal lifetime and production exact replay clauses. No umbrella closure from one receipt. |
+| Latency: `dwm-634.3` | `dwm-634`; touched `dwm-sx8` mappings | Runs 81/82 validation witnesses and frozen-baseline controls stay accepted. Remaining terminal/checkpoint cost and native responsiveness need matched complete-operation measurements, not shorter code alone. |
+| Deferred authored contract: `dwm-n3h.2` | `dwm-n3h`; exact Next/replay reading and relevant `dwm-oyo.5` clauses | Finite per-entry catalogue-v2 admission and bounded physical sweet/exploded Solo Save/Load accepted. Global reached signatures and production exact Next/replay remain open; production registration/prose/exhaustive variants deferred. Ordinary phase/reply/line and Alone cause are known gaps; ask only about an additional independent authored fact. |
+| Settings: `dwm-eei.2` | Settings/Profile and preview clauses | Preserve accepted Runs 157/161. Remaining authored samples, native speech/display and broader preview obligations are separate. No external repair, forced restart or new live Retry/unlatch system. |
+| Gallery: `dwm-7wj` | Gallery clauses of `dwm-oyo.6` | Reuse Run 166 register, Run 168 Profile union and Run 171 temporary collection. Next integrate ending-replay exit merging and truthful durable-History notice. Retain exact chronology/Retry and missing-cue behavior. Authored cutover, native ScrollPattern and wider release remain separate. |
+| Audio: `dwm-nqn` | `dwm-oyo.5`; Settings audio-output clauses | Admit immutable neutral-ID cue/Load-anchor plan through current save/restore owners. Pause preserves physical playhead; Load uses authored anchors. Fixtures prove engineering without inventing production audio. Separate outcome after exclusive core ownership transfer. |
+| UI amendment: `dwm-vky` | Drift and all-input clauses | Only fully specified Drift cards through one deterministic plan/receipt and safe-boundary projection. Tint and Steady Interface have accepted children. Coordinate schema edits; do not block unrelated UI on Drift. |
+| Rolling companion: `dwm-sx8` | Every changed public boundary | Inspect actual callers/current authority and meaningful behavior proof. Retire only genuinely unused superseded APIs. Coordinate nearby mappings/generated inventories, not a parallel whole-facade rewrite. |
+| Integration/aggregates | `dwm-oyo.5`, `dwm-oyo.6`, `dwm-oyo.7`, `dwm-oyo`, `dwm-eei` | Consume exact component clauses; preserve pair-deck/Practice/endings; use one stable final candidate for broad/release acceptance. Green focused tests do not close umbrellas. |
+| Later inputs | `dwm-eob`, `dwm-5ht` | Representative authored translations, then adapter choice and bilingual captions/History on one semantic leaf. Menus single-language, speech Primary-only. Deferred, not a blocker for English fixture engineering. |
+| Waiting conditions | `dwm-hsi`, `dwm-eei.17`, `dwm-wuk` | Resume respectively on matching reply-failure diagnostics, a matching native shutdown stall, or usable upstream Windows scrolling capability. Repeated successful runs alone establish no cause or new capability. |
 
-All 23 freshly recounted unfinished IDs are represented; Beads retains exact status
-and dependencies. The table groups work and is not a second status store. Historical .10/.11 retain separate content, reprojection, ending and
-assistive requirements; do not close them simply as duplicates.
+Recorded blocking chain: `dwm-nqn` -> `dwm-oyo.5` -> `dwm-oyo.6` -> `dwm-oyo.7`.
+History-before-Audio is a shared-owner scheduling choice, not a new Beads dependency.
+Parent-child/discovered-from links are not automatic blockers. Historical .10/.11
+retain their separate content, reprojection, ending and assistive requirements.
+The [reconciliation receipt](../../evidence/beads_reconciliation_2026_10_04/review.json)
+retains status changes made previously; this publication changes none. Compare
+live Dolt before any later export import; never overwrite newer live records.
 
-Recorded unfinished blocking chain: `dwm-nqn` -> `dwm-oyo.5` -> `dwm-oyo.6` ->
-`dwm-oyo.7`. Shared reading and Gallery proofs can feed that chain but are not new
-Beads dependencies. Parent-child/discovered-from links are not automatic blockers.
+## First-wave allocation
+
+The coordinator has assigned the following initial scopes for launch. **Allocation
+is not execution:** no worker or subagent is claimed to be running by this document.
+No whole Bead is closed or newly activated. The coordinator's PR #1 publication
+records the actual common launch SHA and successful branch creation. That SHA is
+the records-only commit introducing this section; its code baseline remains the
+accepted `04ca9baf44e5a93183abd490d473615a33b81630` above. Verify both the launch
+record and live branch before acting; this is not permission to reset later work.
+
+### A: ending-replay History exit
+
+Lead: `dwm-7wj`; companion: touched `dwm-sx8` contracts.
+Branch: `codex/parallel-history-exit`. Child PR target: `codex/windows-cloud-ux`.
+One worker holds the exclusive core integration slot; the coordinator does not
+concurrently edit A's allocated owners. Audio implementation is not included.
+
+Outcome: ending replay exit commits only eligible, actually-presented captions
+through `ProfileManager.merge_caption_history()` and announces only newly durable
+base-line visits. Complete the exit/caller audit before code changes. Initial
+writable files, and only these files:
+
+- `autoload/DialogicBridge.gd`
+- `scripts/application/ending/GalleryReplayOwner.gd`
+- `scripts/ui/GalleryScene.gd`
+- `tests/integration/test_gallery_caption_collection.gd`
+- `tests/ui/render_gallery_caption_collection.gd`
+
+This is a minimal initial allowlist, not a claim that all five must change or that
+no additional owner will be needed. ProfileManager, SaveManager, schemas, semantic
+ledger, shared CaptionLayer/input, Title host, localization, project configuration,
+workflow, test registration, generated inventories, other fixtures, Beads and
+consolidated docs are read-only to A. Return the smallest concrete request when
+another path is needed. The coordinator can extend/transfer ownership explicitly;
+never evade the boundary with a duplicate owner or unregistered fixture.
+
+Inspection has identified these integration boundaries, not newly diagnosed
+runtime defects: GalleryReplayOwner clears session identity on successful close
+and completion; GalleryScene clears status and hides on close; Profile refresh can
+synchronously refresh Gallery. Follow the approved surviving notice host, retain
+ownership before irreversible work and revalidate before publishing a result.
+A success notice must not inherit failure styling merely by sharing a status path.
+
+Failure/proof matrix: complete and explicit-close exit; empty/duplicate batches;
+new exact variant of an existing base line; proven refusal; uncertain storage;
+repeated exit; stale/replaced session; session replacement during synchronous
+Profile publication; no canonical consequences; actually-visible notice lifetime.
+Preserve pre-exit no-write checks, detached/exact/stale presentation proof and all
+unrelated-state guarantees. Revise only intentional old discard-on-exit assertions
+for the newly implemented boundary, replacing them with durability/failure checks.
+Do not weaken tests to obtain a pass or rewrite historical Run 171 evidence.
+
+Use the existing registered integration and rendered fixtures where suitable.
+Relevant initial gates: reading_delivery, endings, touched public contracts and
+Profile/persistence regressions where affected, plus a connected exit/notice/failure
+journey. Coordinator handles needed shared inventory/CI/localization updates before
+strict acceptance. Preserve explicit final bootstrap for the rendered fixture.
+Stop after the bounded outcome and honest evidence handoff, or a concrete ownership
+or genuinely unresolved architecture boundary; do not expand to Audio/Rehearsal.
+
+### B: remaining reading/native evidence audit
+
+Lead: `dwm-vky.14`; linked `dwm-eei.10`, `dwm-eei.11`, applicable `dwm-eei.5`.
+Branch: `codex/parallel-reading-evidence`. **Initial writable files: none.**
+Inspect the Run 152 receipt, `tests/manual/verify_caption_native_accept.gd`,
+`tools/testing/Invoke-CaptionNativeAccept.ps1` and their actual callers/authorities.
+
+Deliver one missing observable journey and minimal exact-file proposal. A candidate
+is native review entry and return preserving a deliberately nonzero partial live
+caption without revealing, advancing or duplicating consequences. Establish
+feasibility rather than presuming that all required native actions exist. Preserve
+the accepted zero-character/fixture-entry return proof. UIA transport is not whole
+screen-reader speech proof; signal counts are not consequence counters.
+
+Return source-bound observations, accepted-versus-missing clauses, exact required
+files, existing cloud command, failures and acceptance limits. Do not mutate code,
+fixtures, shared owners, CI, inventories or Beads until the coordinator explicitly
+releases a disjoint write allocation. No empty PR or extra workflow run is needed
+for a read-only report. No production/native capability is invented or promoted.
+
+### D: complete-operation performance investigation
+
+Lead: `dwm-634.3`; parent `dwm-634`; touched contract companion `dwm-sx8`.
+Branch: `codex/parallel-latency-evidence`. **Initial writable files: none.**
+Inspect accepted Runs 81/82 controls, source-bound remaining cost evidence and the
+existing measurement commands in `.github/workflows/windows-tests.yml` and the
+harnesses it invokes. Follow real paths rather than inventing a new benchmark.
+
+Deliver one justified measurement proposal: complete operation, matched baseline,
+one suspected cause, fresh roots, separate cold/warm modes, existing cloud command,
+raw inputs and acceptance criteria. A defensible conclusion that the current
+evidence does not establish a cause is useful. No shorter-code/historical-time
+speedup claim and no speculative SaveManager/checkpoint optimization.
+
+Source/report inspection can proceed independently of A. Runtime, harness, CI,
+inventory and Beads writes remain forbidden until a specific ownership release.
+Coordinate cloud timing runs before dispatch, preserve isolated runner experiments
+and never compete for timing inside one runner. No empty PR is required for an
+audit. Stop at a source-bound report or exact minimal measurement/change request.
+
+### Coordinator and later C
+
+This session coordinates. C (`dwm-eei.2` or one specified `dwm-vky` field) is not
+launched or assigned writable files. Select a real remaining preview/native-display
+or fully specified Drift outcome and its inputs first. Do not reopen accepted
+Settings, Tint/Steady Interface or invent authored audio samples.
+
+The coordinator alone publishes shared workflow, test-registration, localization,
+inventory, handoff/map and Beads changes. A required shared patch is reviewed and
+serialized into the relevant candidate before acceptance, not blindly deferred
+until integration. Historical source-bound receipts remain immutable. Candidate
+receipt paths are assigned separately when real evidence exists.
+
+One session per worker branch. Before any write, inspect existing branch work and
+current allocation; record the claimed lane and baseline in a PR #1 comment, or
+in its child PR once one exists. An explicit handoff releases/transfers ownership.
+No force-push, branch reset, direct integration/master push or worker self-merge.
+Create a child PR only when a coherent diff exists, targeting `codex/windows-cloud-ux`.
+Use the existing PR1 integration branch rather than another long-lived integration
+layer. A child pass is not evidence for a later combination of all workers' changes.
 
 ## Batch rule and simplification
 
 Use one observable outcome, one lead Bead, one coherent candidate and one shared
-source-bound receipt. Link companion clauses rather than duplicating narratives.
-Keep one implementation touching shared save/narrative owners at a time; parallel
-work must have disjoint owners or read-only responsibilities. One integrator owns
-shared files, publication and Beads. Use agents only when actually available and
-useful; never report a review that did not occur.
+source-bound receipt. Link companion clauses instead of duplicating acceptance
+narratives. One implementation touches shared save/narrative owners at a time;
+parallel work is disjoint or read-only. Use agents only when actually available
+and useful; never report an independent review that did not occur.
 
-Reuse existing live captions, three-caption viewport, Skip/Auto/Load, two-device
-rebinding, frozen-context schemas, chronology, pair-deck, tint and Steady Interface.
-One semantic ledger serves captions, History, Save/Load and Quick; no second store.
-The [unshipped-save policy](../design/2026-09-29-unshipped-development-save-policy.md)
-removes obsolete migration/backfill work from the required path while preserving
-supported-format correctness and explicit admission boundaries. Delete runtime
-code only after real caller, current-authority and saved-data review with matching
-regression or retirement proof. Do not manufacture compatibility scaffolding.
-
-Use this short card in the existing lead Bead or scoped plan, not a new document:
-
-```text
-Outcome: observable behavior or measured decision
-Lead + companions: exact shared acceptance clauses
-Prerequisites: real missing inputs and resume condition
-Owned files: canonical owners; independent work boundaries
-Simplification: removed complexity or deliberately avoided abstraction
-Proof: relevant failure cases, commands and connected journey
-Receipt: source/actual merge, run and raw artifact identities
-Stop: acceptance passes or one concrete architecture choice is unresolved
-```
+Reuse live captions, the three-caption viewport, Skip/Auto/Load, two-device rebinding,
+frozen-context schemas, chronology, pair-deck, Tint and Steady Interface. One semantic
+ledger serves captions, History, Save/Load and Quick. The [unshipped-save policy](../design/2026-09-29-unshipped-development-save-policy.md)
+removes obsolete migration/backfill from the required path while preserving
+supported-format correctness. Delete runtime code only after caller, approved-behavior
+and saved-data review with matching regression or retirement proof.
 
 ## Cloud verification
 
-Godot 4.6.3 standard GDScript and PowerShell run only in GitHub Actions. Use focused
-suites while changing the candidate, then the required broad gate once the coherent
-batch is stable. Documentation/status-only updates receive structural review and
-source-scoped evidence; they need not restart engine benchmarks. Preserve the four
-deliberate duplicate executions for isolated and Settings interaction-order checks.
+Godot 4.6.3 standard GDScript and PowerShell run only in GitHub Actions. Use existing
+focused entry points while changing a candidate, then the required broad gate once
+the coherent batch is stable. Documentation-only changes receive structural review,
+not a new engine or benchmark acceptance. Preserve the four deliberate duplicate
+executions for isolated/Settings interaction-order checks and separate negative
+storage-refusal controls from passing primary suites.
 
 | Changed boundary | Initial checks |
 |---|---|
 | Reading ledger/session | `reading_delivery`; `dating` or `endings` for changed adapters |
 | Save admission / Quick | `settings`, `persistence`, `checkpoint_diagnostics`; actual Desktop/Dating adapters when changed |
 | Save/schema successor | `new_account`, `persistence`, `settings`, then fresh seven-day recovery |
-| Public API / callers | [public-surface gate](../../tools/testing/Invoke-PublicSurfaceValidation.ps1) and owning behavior suites |
-| Connected presentation | Relevant suites and rendered journeys; UI literal audit for UI changes; retain native-platform limits |
+| Public API / callers | [Public-surface gate](../../tools/testing/Invoke-PublicSurfaceValidation.ps1) and owning behavior suites |
+| Connected presentation | Relevant suites/rendered journeys; UI literal audit for UI changes; preserve native-platform limits |
 
-UI amendment section13 item7 still requires final-candidate regeneration of eight
+The existing workflow has `pull_request`, master-only `push` and `workflow_dispatch`
+triggers. Its concurrency group is `windows-tests-${{ github.event.pull_request.number || github.ref }}`
+with `cancel-in-progress: true`. Different child PRs have different cancellation
+groups, not unlimited runner capacity. A new run on the same PR can supersede its
+in-flight run. Merely creating worker branches is neither launching agents nor
+running the game. Keep strict workflow configuration unchanged for this setup.
+
+Before final acceptance, finish compatible source/caller/test-body audits and
+coordinate regenerated public inventories. Do not bypass strict gates, hand-union
+generated files or leave known failures for a later integration pass. Retain worker
+head, actual target base/checkout merge, run/attempt, tool version and raw artifact
+identities. Recheck the relevant combination after the integration base advances.
+PR #1's final combined candidate needs its required broad gate.
+
+UI amendment section13 item7 requires actual final-candidate regeneration of eight
 `result.json` evidence records: `tools/desktop_shell`, `tools/stat_hud`,
 `tools/title_resume`, `tools/title_shell`, `tools/backup_ui/evidence/ui`, and
-`tools/save_load_loop/evidence/{baseline,loop,smoke}`. Copying hashes into old
-receipts is not acceptance. Existing fixtures must actually execute.
+`tools/save_load_loop/evidence/{baseline,loop,smoke}`. Copying hashes into historical
+receipts is not acceptance; the existing fixtures must execute.
 
-The retained-history CI fanout is already accepted in Run82. One producer feeds
-four comparisons on separate runners/checkouts; the original required-check name
-is retained by an aggregate requiring all five jobs. Keep exact checkout/run/
-attempt identity, input hashes and recovered 66-checkpoint identity. Outgoing also
-consumes the localized payload pair and manifest; other comparisons use the exact
-Day7 inputs. Maintain required Git history, alternating baseline/candidate runs,
-fresh process roots and separate cache modes. Temporary SaveManager substitutions
-must remain isolated; separate jobs do not authorize concurrent timing probes
-inside one runner. Historical elapsed times and theoretical savings are not causal
-speedup claims. Measure the complete operation before further surgery.
+The retained-History fanout accepted in Run 82 has one producer, four comparisons
+on separate runners/checkouts and the original required-check aggregate requiring
+all five jobs. Preserve exact checkout/run/attempt identity, input hashes and the
+recovered 66-checkpoint identity. Outgoing consumes the localized payload pair and
+manifest; the other comparisons use exact Day7 inputs. Maintain required Git
+history, alternating baseline/candidate operations, fresh process roots and separate
+cache modes. Temporary SaveManager substitutions stay isolated. Separate jobs do
+not authorize competing timing probes inside one runner. Historical elapsed times
+or theoretical savings are not causal speedup proof. Preserve raw evidence before
+its expiry rather than relying only on a run number or screenshot caption.
 
 ## Historical detail
 
-Existing source-bound receipts are unchanged. The complete earlier queue narrative,
-physical selector/paused Settings/Hospital/ending receipts, performance observations
-and their limitations remain in the [immutable earlier map](https://github.com/Siuuuers/dwm/blob/845ec12c83cecfab1bfe3b5b4a194537c783aa7e/docs/agent/execution-map.md)
-and [earlier handoff](https://github.com/Siuuuers/dwm/blob/845ec12c83cecfab1bfe3b5b4a194537c783aa7e/docs/agent/2026-09-23-next-session-handoff.md).
-Their old "next" directions are historical; use the current checkpoint and queue
-above. No evidence is resealed or task scope erased by this navigation cleanup.
+Existing source-bound receipts remain unchanged. The [immutable pre-refresh map](https://github.com/Siuuuers/dwm/blob/04ca9baf44e5a93183abd490d473615a33b81630/docs/agent/execution-map.md)
+and [handoff](https://github.com/Siuuuers/dwm/blob/04ca9baf44e5a93183abd490d473615a33b81630/docs/agent/2026-09-23-next-session-handoff.md)
+retain fuller prior chronology, original count scopes, links and diagnostic limits.
+Their old "next" directions do not supersede the Run 171 checkpoint and allocation
+above. No evidence is resealed, deferred feature promoted or task status changed
+by this navigation publication.
