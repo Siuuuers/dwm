@@ -1,6 +1,6 @@
 extends RefCounted
 
-## Read-only title-host playback. Endings require discovery; other reached scenes require the ending milestone.
+## Title-host playback with Profile-owned caption History at exit. Endings require discovery; other reached scenes require the ending milestone.
 signal playback_finished(result: Dictionary)
 const SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
 var _entry_catalog: Script = preload("res://scripts/data/DialogicTimelineCatalog.gd")
@@ -116,8 +116,10 @@ func begin(signature_id: String) -> Dictionary:
 
 func close() -> Dictionary:
 	if _active_signature.is_empty(): return {"ok":true}
-	var cancelled: Dictionary = _bridge.cancel_reached_replay(_active_signature)
-	if cancelled.get("ok", false):
+	var signature_id := _active_signature
+	var token := _active_token
+	var cancelled: Dictionary = _bridge.cancel_reached_replay(signature_id)
+	if cancelled.get("ok", false) and _active_signature == signature_id and _active_token == token:
 		_active_signature = ""
 		_active_token = ""
 	return cancelled
@@ -131,8 +133,9 @@ func _on_finished(result: Dictionary) -> void:
 		return
 	if str(result.get("signature_id", "")) != _active_signature \
 			or str(result.get("playback_token", "")) != _active_token: return
-	_active_signature = ""
-	_active_token = ""
+	if not result.get("retained", false):
+		_active_signature = ""
+		_active_token = ""
 	playback_finished.emit(result.duplicate(true))
 
 static func _fail(code: StringName) -> Dictionary:

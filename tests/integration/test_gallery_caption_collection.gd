@@ -2,7 +2,7 @@ extends "res://addons/gut/test.gd"
 
 ## Real Bridge admission, caption ledger and Profile; only the native playhead is
 ## replaced. Explicit TEST copy is noncanonical. This proves collection contracts,
-## not mounted visibility, production admission, or durable History merging.
+## durable exit merging, not mounted visibility or production admission.
 const BRIDGE := preload("res://autoload/DialogicBridge.gd")
 const MANAGER := preload("res://autoload/ProfileManager.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
@@ -92,6 +92,20 @@ class NativeFrontier extends RefCounted:
 		caption_publication_recorded.emit(result)
 		return result
 
+class ExitFaultFiles extends "res://tests/support/FakeFileOps.gd":
+	var refuse_writes := false
+	var refuse_cleanup := false
+	func write_bytes(path: String, bytes: PackedByteArray) -> Dictionary:
+		if refuse_writes and "/profile.json" in path:
+			_record(&"write_bytes", path)
+			return _injected_failure()
+		return super.write_bytes(path, bytes)
+	func remove_path(path: String) -> Dictionary:
+		if refuse_cleanup and path.ends_with("/profile.json.txn.json"):
+			_record(&"remove_path", path)
+			return _injected_failure()
+		return super.remove_path(path)
+
 var _bridge: Node
 var _profile: Node
 var _native: NativeFrontier
@@ -102,7 +116,7 @@ var _identity := ""
 func before_each() -> void:
 	var wrapper := OS.get_environment("DWM_TEST_ROOT").strip_edges()
 	assert_false(wrapper.is_empty(), "cloud wrapper owns isolated storage")
-	_files = FILES.new()
+	_files = ExitFaultFiles.new()
 	_profile = autofree(MANAGER.new())
 	assert_true(_profile.initialize(STORAGE.new(wrapper.path_join("gallery-caption-collection"), _files)).ok)
 	_native = NativeFrontier.new()
@@ -324,9 +338,11 @@ func test_collection_and_completion_preserve_profile_variables_and_canonical_cap
 	assert_false(_bridge.capture_reached_caption_collection().ok)
 	assert_false(_bridge.has_active_playback())
 	assert_null(_native._caption_ledger)
-	assert_eq(_profile.get_profile_snapshot(), before, "completion discards; this increment never merges")
-	assert_eq(_files.snapshot_persisted(), persisted)
-	assert_eq(_profile.get_profile_revision(), revision)
+	assert_true(_profile.is_line_visited(FIRST))
+	assert_false(_profile.is_line_visited(SECOND))
+	assert_eq(_profile.get_profile_revision(), revision + 1)
+	_assert_only_caption_history_changed(before)
+	_assert_durable_caption(FIRST)
 	assert_eq(dialogic.current_state_info.get("variables", {}), variables)
 	assert_eq(_bridge._playback_counter, canonical_counter)
 	assert_eq(_native.advances, 0)
@@ -369,3 +385,188 @@ func test_replay_teardown_preserves_a_replaced_runtime_caption_binding() -> void
 	assert_same(_native._caption_ledger, foreign)
 	assert_false(_bridge.capture_reached_caption_collection().ok)
 	assert_false(_bridge.has_active_playback())
+
+func _assert_only_caption_history_changed(before: Dictionary) -> void:
+	var after: Dictionary = _profile.get_profile_snapshot()
+	for key: String in before:
+		if key not in ["visited_line_ids", "witnessed_caption_variants"]:
+			assert_eq(after[key], before[key], "unrelated Profile field: " + key)
+
+func _assert_durable_caption(line_id: String) -> void:
+	var fresh := autofree(MANAGER.new())
+	var root_path := OS.get_environment("DWM_TEST_ROOT").path_join("gallery-caption-collection")
+	assert_true(fresh.initialize(STORAGE.new(root_path, FILES.new(_files.snapshot_persisted()))).ok)
+	assert_true(fresh.is_line_visited(line_id), "fresh owner reads durable History")
+	assert_eq(fresh.get_profile_snapshot(), _profile.get_profile_snapshot())
+
+func _collect_first() -> Dictionary:
+	_start()
+	assert_true(_native.publish(FIRST).ok)
+	var proof := _proof()
+	assert_true(_bridge.acknowledge_current_line_presentation(proof).ok)
+	return proof
+
+func test_explicit_exit_commits_once_and_empty_duplicate_exits_are_silent() -> void:
+	_configure()
+	var results: Array[Dictionary] = []
+	_bridge.reached_replay_finished.connect(func(result: Dictionary): results.append(result))
+	_start()
+	var revision: int = _profile.get_profile_revision()
+	assert_true(_bridge.cancel_reached_replay(_identity).ok)
+	assert_false(results.back().history_added)
+	assert_eq(_profile.get_profile_revision(), revision)
+	_collect_first()
+	assert_true(_bridge.cancel_reached_replay(_identity).ok)
+	assert_true(results.back().history_added)
+	_assert_durable_caption(FIRST)
+	var bytes: Dictionary = _files.snapshot_persisted()
+	assert_true(_bridge.cancel_reached_replay(_identity).ok)
+	assert_eq(results.size(), 2, "repeated close emits no second result")
+	_collect_first()
+	assert_true(_bridge.cancel_reached_replay(_identity).ok)
+	assert_false(results.back().history_added)
+	assert_eq(_files.snapshot_persisted(), bytes)
+
+func test_new_exact_variant_of_existing_base_line_commits_without_added_notice() -> void:
+	_configure()
+	var variant: Dictionary = _bridge._reached_caption_variants[FIRST].duplicate(true)
+	variant.presentation_signature.content_revision = "TEST-gallery-older-variant"
+	var old: Array[Dictionary] = [variant]
+	var registry := {"kind": "narrative_caption_registry", "schema_version": 1, "beats": [variant]}
+	assert_true(_profile.merge_caption_history(old, registry).ok)
+	var proof := _collect_first()
+	assert_false(_profile.is_caption_variant_witnessed(proof.value.caption_variant))
+	var result: Dictionary = _bridge.cancel_reached_replay(_identity)
+	assert_true(result.ok)
+	assert_false(result.history_added)
+	assert_true(_profile.is_caption_variant_witnessed(proof.value.caption_variant))
+	_assert_durable_caption(FIRST)
+
+func test_proven_storage_refusal_retains_exact_batch_and_owner_until_fresh_close_succeeds() -> void:
+	_configure()
+	var owner := preload("res://scripts/application/ending/GalleryReplayOwner.gd").new()
+	assert_true(owner.configure(_profile, _bridge).ok)
+	assert_true(owner.begin(_identity).ok)
+	assert_true(_native.publish(FIRST).ok)
+	assert_true(_bridge.acknowledge_current_line_presentation(_proof()).ok)
+	var batch: Dictionary = _bridge.capture_reached_caption_collection()
+	var before: Dictionary = _profile.get_profile_snapshot()
+	var bytes: Dictionary = _files.snapshot_persisted()
+	_files.refuse_writes = true
+	var failed: Dictionary = owner.close()
+	assert_false(failed.ok)
+	assert_eq(failed.history_status, "failed")
+	assert_true(owner.is_playing())
+	assert_eq(_bridge.capture_reached_caption_collection(), batch)
+	assert_eq(_profile.get_profile_snapshot(), before)
+	assert_eq(_files.snapshot_persisted(), bytes)
+	assert_false(_bridge.has_active_playback())
+	assert_false(_bridge.replay_reached_signature(_identity).ok)
+	_files.refuse_writes = false
+	assert_true(owner.close().ok)
+	assert_false(owner.is_playing())
+	_assert_durable_caption(FIRST)
+
+func test_natural_exit_uncertainty_retains_batch_and_never_retries_or_reports_success() -> void:
+	_configure()
+	var owner := preload("res://scripts/application/ending/GalleryReplayOwner.gd").new()
+	assert_true(owner.configure(_profile, _bridge).ok)
+	assert_true(owner.begin(_identity).ok)
+	assert_true(_native.publish(FIRST).ok)
+	assert_true(_bridge.acknowledge_current_line_presentation(_proof()).ok)
+	var batch: Dictionary = _bridge.capture_reached_caption_collection()
+	var before: Dictionary = _profile.get_profile_snapshot()
+	var results: Array[Dictionary] = []
+	_bridge.reached_replay_finished.connect(func(result: Dictionary): results.append(result))
+	_files.refuse_cleanup = true
+	_native.finish()
+	assert_true(owner.is_playing())
+	assert_eq(results.size(), 1)
+	assert_eq(results[0].history_status, "uncertain")
+	assert_false(results[0].history_added)
+	assert_eq(_profile.get_profile_snapshot(), before)
+	assert_eq(_bridge.capture_reached_caption_collection(), batch)
+	var operations: int = _files.operation_count()
+	_files.refuse_cleanup = false
+	assert_false(owner.close().ok)
+	assert_eq(_files.operation_count(), operations)
+	assert_eq(results.size(), 1)
+	assert_eq(_bridge.capture_reached_caption_collection(), batch)
+
+func test_synchronous_profile_publication_refuses_reentry_and_preserves_replacement_identity() -> void:
+	_configure()
+	_collect_first()
+	var old: Dictionary = _bridge.capture_reached_caption_collection()
+	var nested: Array[Dictionary] = []
+	var results: Array[Dictionary] = []
+	_bridge.reached_replay_finished.connect(func(result: Dictionary): results.append(result))
+	_profile.visited_history_changed.connect(func(_line: String, _visited: bool):
+		nested.append(_bridge.cancel_reached_replay(_identity))
+		# Simulate synchronous owner replacement at the public publication seam.
+		_bridge._reached_replay = {}
+		nested.append(_bridge.replay_reached_signature(_identity)))
+	assert_false(_bridge.cancel_reached_replay(_identity).ok)
+	assert_eq(nested[0].code, &"replay_exit_in_progress")
+	assert_true(nested[1].ok)
+	var current: Dictionary = _bridge.capture_reached_caption_collection()
+	assert_ne(current.value.playback_token, old.value.playback_token)
+	assert_eq(current.value.captions, [])
+	assert_eq(results, [], "old result cannot announce for successor")
+	assert_true(_native.active)
+
+func test_synchronous_failure_publication_cannot_clear_or_announce_for_replaced_session() -> void:
+	_configure()
+	_collect_first()
+	var old_token: String = _bridge.capture_reached_caption_collection().value.playback_token
+	var results: Array[Dictionary] = []
+	_bridge.reached_replay_finished.connect(func(result: Dictionary): results.append(result))
+	_files.refuse_writes = true
+	_profile.profile_write_failed.connect(func(_result: Dictionary):
+		_bridge._reached_replay = {}
+		assert_true(_bridge.replay_reached_signature(_identity).ok))
+	assert_false(_bridge.cancel_reached_replay(_identity).ok)
+	assert_ne(_bridge.capture_reached_caption_collection().value.playback_token, old_token)
+	assert_eq(results, [])
+
+func test_owner_close_cannot_clear_replacement_started_by_finish_listener() -> void:
+	_configure()
+	var owner := preload("res://scripts/application/ending/GalleryReplayOwner.gd").new()
+	assert_true(owner.configure(_profile, _bridge).ok)
+	assert_true(owner.begin(_identity).ok)
+	owner.playback_finished.connect(func(_result: Dictionary): assert_true(owner.begin(_identity).ok), CONNECT_ONE_SHOT)
+	assert_true(owner.close().ok)
+	assert_true(owner.is_playing())
+	assert_true(_native.active)
+
+func test_physical_retirement_replacement_is_not_finished_as_the_old_exit() -> void:
+	_configure()
+	_collect_first()
+	var old_token: String = _bridge.capture_reached_caption_collection().value.playback_token
+	_bridge.scene_art_changed.connect(func():
+		# The callback changes logical custody during abort, before its return.
+		_bridge._reached_replay.token = "replacement-custody", CONNECT_ONE_SHOT)
+	assert_false(_bridge.cancel_reached_replay(_identity).ok)
+	assert_eq(_bridge._reached_replay.token, "replacement-custody")
+	assert_ne(_bridge._reached_replay.token, old_token)
+	assert_false(_profile.is_line_visited(FIRST))
+
+func test_natural_completion_proven_refusal_can_retry_without_an_active_entry() -> void:
+	_configure()
+	var owner := preload("res://scripts/application/ending/GalleryReplayOwner.gd").new()
+	assert_true(owner.configure(_profile, _bridge).ok)
+	assert_true(owner.begin(_identity).ok)
+	assert_true(_native.publish(FIRST).ok)
+	assert_true(_bridge.acknowledge_current_line_presentation(_proof()).ok)
+	var batch: Dictionary = _bridge.capture_reached_caption_collection()
+	_files.refuse_writes = true
+	_native.finish()
+	assert_true(_bridge._active_entry.is_empty())
+	assert_true(owner.is_playing())
+	assert_eq(_bridge.capture_reached_caption_collection(), batch)
+	_files.refuse_writes = false
+	var result: Dictionary = owner.close()
+	assert_true(result.ok)
+	assert_eq(result.outcome, "completed")
+	assert_true(result.history_added)
+	assert_false(owner.is_playing())
+	_assert_durable_caption(FIRST)

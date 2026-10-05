@@ -402,7 +402,9 @@ func _on_log_in_pressed() -> void:
 	if not await _close_setting():
 		_end_title_transition()
 		return
-	_close_gallery()
+	if not _close_gallery():
+		_end_title_transition()
+		return
 	_backup_app_host.visible = true
 	_update_title_destination()
 	if is_instance_valid(_backup_app_instance):
@@ -457,6 +459,7 @@ func _on_gallery_practice_visibility_changed(_active: bool) -> void:
 	_sync_title_navigation()
 
 func _on_gallery_pressed() -> void:
+	if is_instance_valid(_gallery_host) and _gallery_host.visible: return
 	if not _begin_title_transition(): return
 	if not await _close_setting():
 		_end_title_transition()
@@ -488,7 +491,7 @@ func _on_setting_pressed() -> void:
 	if not _can_leave_login():
 		return
 	_close_backup_app()
-	_close_gallery()
+	if not _close_gallery(): return
 	if is_instance_valid(_setting_instance):
 		_setting_host.visible = true
 		_setting_instance.show_window()
@@ -505,6 +508,7 @@ func _on_setting_pressed() -> void:
 func _on_shut_down_pressed() -> void:
 	if not _can_leave_login():
 		return
+	if not _close_gallery(): return
 	var copy: Array = SHUTDOWN_COPY.get(_locale, SHUTDOWN_COPY.en)
 	present_confirmation({"title": copy[0], "body": copy[1], "cancel": copy[2],
 		"confirm": copy[3], "risk": "neutral", "warning": false,
@@ -533,12 +537,13 @@ func _close_setting() -> bool:
 		_setting_closed()
 	return true
 
-func _close_gallery() -> void:
-	if not is_instance_valid(_gallery_host) or not _gallery_host.visible: return
-	if is_instance_valid(_gallery_instance) and not _gallery_instance.close_for_title_host(): return
+func _close_gallery() -> bool:
+	if not is_instance_valid(_gallery_host) or not _gallery_host.visible: return true
+	if is_instance_valid(_gallery_instance) and not _gallery_instance.close_for_title_host(): return false
 	_gallery_host.hide()
 	_update_title_destination()
 	if not _title_transition: _gallery_button.grab_focus()
+	return true
 
 func _begin_title_transition() -> bool:
 	if not _can_leave_login(): return false

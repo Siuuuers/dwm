@@ -3,6 +3,8 @@ extends Control
 
 var unavailable_record := false
 var replay_start_failed := false
+var history_notice := false
+var history_failed := false
 var replay_unavailable := false
 var unavailable_height := 0.0
 var unavailable_top := 32.0
@@ -18,9 +20,9 @@ func _draw() -> void:
 	draw_rect(Rect2(16, 16, 344, 624), get_theme_color("face", "Gallery"))
 	draw_rect(Rect2(376, 16, 568, 544), get_theme_color("paper", "Gallery"))
 	draw_rect(Rect2(376, 560, 568, 80), get_theme_color("face", "Gallery"))
-	if replay_start_failed:
+	if replay_start_failed or history_failed:
 		draw_rect(Rect2(392, 576, 2, 48), get_theme_color("error_rule", "Gallery"))
-	elif replay_unavailable:
+	elif replay_unavailable or history_notice:
 		draw_rect(Rect2(392, 576, 2, 48), get_theme_color("information_rule", "Gallery"))
 	if unavailable_record:
 		var ink := get_theme_color("paper_ink", "Gallery")
