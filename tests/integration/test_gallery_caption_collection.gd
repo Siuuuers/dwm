@@ -393,7 +393,7 @@ func _assert_only_caption_history_changed(before: Dictionary) -> void:
 			assert_eq(after[key], before[key], "unrelated Profile field: " + key)
 
 func _assert_durable_caption(line_id: String) -> void:
-	var fresh := autofree(MANAGER.new())
+	var fresh: Node = autofree(MANAGER.new())
 	var root_path := OS.get_environment("DWM_TEST_ROOT").path_join("gallery-caption-collection")
 	assert_true(fresh.initialize(STORAGE.new(root_path, FILES.new(_files.snapshot_persisted()))).ok)
 	assert_true(fresh.is_line_visited(line_id), "fresh owner reads durable History")

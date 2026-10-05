@@ -89,7 +89,7 @@ func _run() -> void:
 		return
 	_gallery.set("_record_catalog", LongCopy.new())
 	for ending_id: String in preload("res://scripts/profile/ProfileSchema.gd").ENDING_IDS:
-		_check(_profile.unlock_ending(ending_id, "caption-collection:scroll-TEST").get("ok", false), "scroll fixture discovery refused")
+		_check(_profile.unlock_ending(ending_id, "caption-collection:scroll-TEST:" + ending_id).get("ok", false), "scroll fixture discovery refused")
 	var other := signature.duplicate(true)
 	other.fields.ending_role = "primary"
 	_check(_profile.record_reached_presentation(other).get("ok", false), "second witnessed version refused")
