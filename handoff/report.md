@@ -8,6 +8,48 @@ verification_authority: false
 
 # Worker A handoff: ending-replay History exit
 
+## Current candidate — Work continuation
+
+Implementation source: [`1cafd00f32b93c48d539ca0970b19e86cfb0404e`](https://github.com/Siuuuers/dwm/commit/1cafd00f32b93c48d539ca0970b19e86cfb0404e).
+This supersedes the incomplete implementation/source-access status below. The
+remaining pre-implementation report is retained as historical context, not the
+current execution instruction.
+
+The coherent source candidate changes the seven originally allocated runtime/test
+paths, the five catalogues (only the fifteen delegated messages), and the existing
+`tests/unit/test_gallery_replay_owner.gd` under [extension 5993054418](https://github.com/Siuuuers/dwm/pull/1#issuecomment-5993054418).
+Ending replay merges eligible presented captions through Profile on clean exit,
+retains exact custody on refusal/uncertainty, revalidates synchronous callbacks,
+and restores Gallery context with action-bounded neutral success feedback.
+Menu destination guards preserve retained exit custody. The legacy dating-card
+close contract remains unchanged.
+
+Integration fixture coverage increases from 11 to 20 test functions, with no
+removed tests. The existing rendered fixture now mounts the real Menu and covers
+explicit/natural exit, real storage faults, context/focus, destination refusal,
+and 90 projection tuples (five locales, two font styles, three sizes, three
+statuses). Projection tuples are not owner-outcome or native-input proof.
+
+**Actually checked:** complete Git checkout/connectivity; focused independent
+source review; exact 13-path implementation scope; whitespace/UTF-8 checks;
+semantic preservation of every existing catalogue entry and schema; existing
+Japanese/Korean catalogue validator; all thirteen remote blob identities and the
+entire remote tree matching local reviewed bytes. This is not GDScript parsing.
+
+**Pending:** cloud-generated public inventories and any literal/test mapping
+reconciliation; Godot/PowerShell import and tests; rendered captures/visual fit;
+strict and combined acceptance. No child PR or run was created. The full strict
+workflow, inventories, Profile/Save/schema owners, Beads, integration and master
+remain unchanged. This report-only descendant does not add engine evidence.
+
+The A writer has stopped and released ownership to coordinator review. Resume
+from the live A branch and newer PR1 comments; do not redo source-access or apply
+the old optional partial draft. The Director must select the supported cloud
+route and exact source before execution. B's dispatch-capability handoff
+5992989075 and D's pause remain separate.
+
+## Historical pre-implementation report
+
 Snapshot: 5 October 2026. Repository: `Siuuuers/dwm`, PR #1.
 Lead: `dwm-7wj`; companion: touched `dwm-sx8` contracts.
 
