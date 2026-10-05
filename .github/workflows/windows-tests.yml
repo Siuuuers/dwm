@@ -19,7 +19,7 @@ concurrency:
 jobs:
   worker-b-diagnostic:
     name: Worker B / diagnostic only (not strict acceptance)
-    if: ${{ github.event.before == '0e36e1e98c8355e2234fb735686ef66e30cf3a2f' && github.event.forced == false && github.event.deleted == false }}
+    if: ${{ github.event.before == 'c5de96609da484422d3b69fe5ac4563979d4bbf8' && github.event.forced == false && github.event.deleted == false }}
     runs-on: windows-2022
     timeout-minutes: 35
     defaults:
@@ -27,7 +27,7 @@ jobs:
         shell: pwsh
     env:
       DWM_EXPECTED_HEAD: ${{ github.sha }}
-      DWM_EXPECTED_PARENT: 0e36e1e98c8355e2234fb735686ef66e30cf3a2f
+      DWM_EXPECTED_PARENT: c5de96609da484422d3b69fe5ac4563979d4bbf8
     steps:
       - name: Checkout the released push commit
         id: checkout
@@ -50,7 +50,7 @@ jobs:
               return subprocess.check_output(['git', *args], cwd=root)
           def blob(data):
               return hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest()
-          base = 'cf58d436c897587813975274472061cdf7e4f8e2'
+          base = 'c5de96609da484422d3b69fe5ac4563979d4bbf8'
           workflow = '.github/workflows/windows-tests.yml'
           canonical = '643ff7794f8f602fb261df583705e4475d5c9ee4'
           head = git('rev-parse', 'HEAD').decode().strip()
@@ -73,7 +73,7 @@ jobs:
           if changed != [workflow]:
               raise SystemExit('B_DIAGNOSTIC_NON_WORKFLOW_COMMIT_DELTA: ' + repr(changed))
           frozen = {
-              'tests/manual/verify_caption_native_accept.gd': '856c9b4a970dd15c53b0eb3a765f46e445df6b77',
+              'tests/manual/verify_caption_native_accept.gd': '877f15ed1eeaa440d076cc57bc8bcac12d71b036',
               'tools/testing/Invoke-CaptionNativeAccept.ps1': 'a68c8fe5a2b1aba4cb8b5c28471409a4e6a2f43e',
               'tools/testing/Invoke-PublicSurfaceValidation.ps1': 'ad46c78cd5be9da80b650feae95b892d7798415d',
           }
@@ -86,7 +86,7 @@ jobs:
               if committed != expected_blob or blob(data) != expected_blob:
                   raise SystemExit('B_DIAGNOSTIC_SOURCE_MISMATCH: ' + name)
               records[name] = {'git_blob': committed, 'sha256': hashlib.sha256(data).hexdigest()}
-          restored = git('cat-file', 'blob', base + ':' + workflow)
+          restored = git('cat-file', 'blob', 'cf58d436c897587813975274472061cdf7e4f8e2:' + workflow)
           if blob(restored) != canonical:
               raise SystemExit('B_DIAGNOSTIC_CANONICAL_WORKFLOW_MISMATCH')
           (out / 'canonical-windows-tests.yml').write_bytes(restored)
