@@ -55,33 +55,88 @@ function Get-AAFiles {
     return $files
 }
 
+# Read-only Git inspection. Keep exit failures distinct from an empty, clean result.
+function Read-AAGit {
+    param([string[]]$Arguments)
+    $lines = @(& git -C $repositoryRoot @Arguments)
+    if ($LASTEXITCODE -ne 0) { throw "Source inspection failed: git $($Arguments -join ' ')" }
+    return $lines
+}
+
 function Assert-AASource {
+    param([string]$EvidencePath)
     $pin = 'a6decec3693ee4d57df9f879b90ace3e118c9d1d'
-    $paths = @('tests/manual/benchmark_minesweeper_click_latency.gd', 'tools/testing/Invoke-CheckpointPerformance.ps1')
-    $head = [string](& git -C $repositoryRoot rev-parse HEAD)
-    if ($LASTEXITCODE -ne 0 -or $TerminalAAExpectedHead -cnotmatch '^[0-9a-f]{40}$' -or $head -cne $TerminalAAExpectedHead) {
-        throw 'Exact coordinator-approved harness HEAD required.'
+    $harnessPaths = @('tests/manual/benchmark_minesweeper_click_latency.gd', 'tools/testing/Invoke-CheckpointPerformance.ps1')
+    # Coordinator 5992027200 approves these exact generated outputs as metadata, not runtime.
+    # Their contents still require coordinator generation/review and an exact approved HEAD.
+    $metadataPaths = @('evidence/phase_2r/runtime/save_manager_surface.json', 'evidence/phase_2r/runtime/game_state_surface.json')
+    $allowedPaths = $harnessPaths + $metadataPaths
+    $gitlinks = @('.claude/skills/godot-prompter/1.10.0', '.claude/skills/superpowers/6.1.1')
+    $inspection = [ordered]@{ policy_version = 2; status = 'REJECTED'; runtime_pin = $pin
+        expected_head = $TerminalAAExpectedHead; index_policy = 'clean-only; defer disposable gitlink cleanup until after all guarded stages' }
+    try {
+        $head = [string](Read-AAGit @('rev-parse', 'HEAD'))
+        $inspection['head'] = $head
+        # Retain the actual index/worktree evidence even when clean-source admission fails.
+        $inspection['gitlink_head_raw'] = @(Read-AAGit (@('ls-tree', 'HEAD', '--') + $gitlinks))
+        $inspection['gitlink_index_raw'] = @(Read-AAGit (@('ls-files', '--stage', '--') + $gitlinks))
+        $inspection['status_porcelain_v1'] = @(Read-AAGit @('status', '--porcelain=v1', '--untracked-files=no', '--ignore-submodules=none'))
+        $inspection['index_diff_raw'] = @(Read-AAGit @('diff', '--cached', '--raw', '--no-abbrev', '--no-renames', '--no-ext-diff', '--no-textconv', '--ignore-submodules=none', 'HEAD', '--'))
+        $inspection['worktree_diff_raw'] = @(Read-AAGit @('diff', '--raw', '--no-abbrev', '--no-renames', '--no-ext-diff', '--no-textconv', '--ignore-submodules=none', '--'))
+        if ($TerminalAAExpectedHead -cnotmatch '^[0-9a-f]{40}$' -or $head -cne $TerminalAAExpectedHead) {
+            throw 'Exact coordinator-approved harness/metadata HEAD required.'
+        }
+        if ($inspection.status_porcelain_v1.Count -ne 0 -or $inspection.index_diff_raw.Count -ne 0 -or
+            $inspection.worktree_diff_raw.Count -ne 0) {
+            throw 'Tracked index and worktree must be clean, including both gitlinks and inventories. Defer cleanup until after guarded work.'
+        }
+        [void](Read-AAGit @('merge-base', '--is-ancestor', $pin, 'HEAD'))
+        $changed = @(Read-AAGit @('diff', '--name-only', '--no-renames', '--no-ext-diff', '--no-textconv', '--ignore-submodules=none', $pin, 'HEAD', '--'))
+        $inspection['changed_paths'] = $changed
+        if (@($changed | Where-Object { $_ -cnotin $allowedPaths }).Count -ne 0) {
+            throw 'Runtime/nonallocated source differs from pin; explicit reconciliation is required.'
+        }
+        $harnessHashes = [ordered]@{}
+        $metadataHashes = [ordered]@{}
+        $headEntries = [ordered]@{}
+        foreach ($path in $allowedPaths) {
+            $entry = @(Read-AAGit @('ls-tree', 'HEAD', '--', $path))
+            if ($entry.Count -ne 1 -or $entry[0] -cnotmatch ('^100644 blob ([0-9a-f]{40})\t' + [regex]::Escape($path) + '$')) {
+                throw "Required harness/metadata path must remain a regular tracked file: $path"
+            }
+            $headEntries[$path] = $Matches[1]
+            $full = Join-Path $repositoryRoot $path
+            if (-not (Test-Path -LiteralPath $full -PathType Leaf) -or
+                ((Get-Item -Force -LiteralPath $full).Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
+                throw "Missing or redirected harness/metadata file: $path"
+            }
+            $hash = Get-AAHash $full
+            if ($path -cin $harnessPaths) { $harnessHashes[$path] = $hash }
+            else { $metadataHashes[$path] = $hash }
+        }
+        $live = @(Read-AAGit @('ls-remote', '--exit-code', 'origin', 'refs/heads/codex/windows-cloud-ux'))
+        if ($live.Count -ne 1 -or ($live[0] -split '\s+')[0] -cne $pin) {
+            throw 'Live integration moved or cannot be verified; obtain explicit re-pin/reconciliation before execution.'
+        }
+        if (-not $env:GODOT_CONSOLE_PATH -or $env:GODOT_CONSOLE_PATH -match 'mono' -or
+            -not (Test-Path -LiteralPath $env:GODOT_CONSOLE_PATH -PathType Leaf)) {
+            throw 'Explicit standard Godot executable required; no runner mono fallback.'
+        }
+        $source = [ordered]@{ policy_version = 2; runtime_pin = $pin; head = $head
+            changed_paths = $changed
+            harness_changed_paths = @($changed | Where-Object { $_ -cin $harnessPaths })
+            metadata_changed_paths = @($changed | Where-Object { $_ -cin $metadataPaths })
+            harness_sha256 = $harnessHashes; metadata_sha256 = $metadataHashes; head_blobs = $headEntries
+            index_policy = 'clean-only'; godot_sha256 = Get-AAHash $env:GODOT_CONSOLE_PATH; live_integration = $pin }
+        $inspection['source'] = $source
+        $inspection.status = 'ACCEPTED_SOURCE_ONLY'
+        return $source
+    } catch {
+        $inspection['reason'] = $_.Exception.Message
+        throw
+    } finally {
+        if ($EvidencePath) { Write-AAJson $EvidencePath $inspection }
     }
-    & git -C $repositoryRoot merge-base --is-ancestor $pin HEAD
-    if ($LASTEXITCODE -ne 0) { throw 'Pinned history unavailable or HEAD is not its descendant.' }
-    $changed = @(& git -C $repositoryRoot diff --name-only $pin HEAD)
-    if ($LASTEXITCODE -ne 0 -or @($changed | Where-Object { $_ -cnotin $paths }).Count -ne 0) {
-        throw 'Runtime/nonallocated source differs from pin; explicit reconciliation is required.'
-    }
-    $dirty = @(& git -C $repositoryRoot status --porcelain --untracked-files=no)
-    if ($LASTEXITCODE -ne 0 -or $dirty.Count -ne 0) { throw 'Tracked checkout must be clean.' }
-    $live = @(& git -C $repositoryRoot ls-remote --exit-code origin refs/heads/codex/windows-cloud-ux)
-    if ($LASTEXITCODE -ne 0 -or $live.Count -ne 1 -or ($live[0] -split '\s+')[0] -cne $pin) {
-        throw 'Live integration moved or cannot be verified; obtain explicit re-pin/reconciliation before execution.'
-    }
-    if (-not $env:GODOT_CONSOLE_PATH -or $env:GODOT_CONSOLE_PATH -match 'mono' -or
-        -not (Test-Path -LiteralPath $env:GODOT_CONSOLE_PATH -PathType Leaf)) {
-        throw 'Explicit standard Godot executable required; no runner mono fallback.'
-    }
-    $hashes = [ordered]@{}
-    foreach ($path in $paths) { $hashes[$path] = Get-AAHash (Join-Path $repositoryRoot $path) }
-    return [ordered]@{ runtime_pin = $pin; head = $head; changed_paths = $changed; harness_sha256 = $hashes
-        godot_sha256 = Get-AAHash $env:GODOT_CONSOLE_PATH; live_integration = $pin }
 }
 
 function Assert-AAInput {
@@ -115,7 +170,7 @@ function Invoke-AATrial {
     $attempt = [ordered]@{ name = $Name; stage = $Stage; condition = $Condition; status = 'NOT_MEASURED'
         result_path = $resultPath; arguments = $arguments; source = $script:aaSource }
     try {
-        $current = Assert-AASource
+        $current = Assert-AASource -EvidencePath (Join-Path $directory 'source-before.json')
         if (($current | ConvertTo-Json -Depth 10 -Compress) -cne ($script:aaSource | ConvertTo-Json -Depth 10 -Compress)) {
             throw 'Source or executable identity changed.'
         }
@@ -131,7 +186,10 @@ function Invoke-AATrial {
         $attempt['exit_code'] = $exitCode
         if ($Stage -cne 'produce') { Assert-AAInput $script:aaManifest }
         if ($Reference -and (Get-AAHash $Reference) -cne $referenceHash) { throw 'Admission reference changed.' }
-        [void](Assert-AASource)
+        $after = Assert-AASource -EvidencePath (Join-Path $directory 'source-after.json')
+        if (($after | ConvertTo-Json -Depth 10 -Compress) -cne ($script:aaSource | ConvertTo-Json -Depth 10 -Compress)) {
+            throw 'Source, metadata or executable identity changed during the attempt.'
+        }
         $record = Get-Content -LiteralPath $evidence | Select-Object -Last 1 | ConvertFrom-Json
         $attempt['isolation'] = $record
         $root = [string]$record.user_dir
@@ -185,7 +243,6 @@ function Invoke-AATrial {
 
 function Invoke-TerminalAA {
     if ($env:GITHUB_ACTIONS -cne 'true') { throw 'Terminal-AA Godot/PowerShell execution is cloud-only.' }
-    $script:aaSource = Assert-AASource
     $script:aaOutput = Assert-AAPath $TerminalAAOutput
     $script:aaInput = Assert-AAPath $TerminalAAInput
     if (Test-Path -LiteralPath $script:aaOutput) { throw 'Output must be a new directory; existing attempts are immutable.' }
@@ -193,11 +250,13 @@ function Invoke-TerminalAA {
         $script:aaOutput.Equals($script:aaInput, [StringComparison]::OrdinalIgnoreCase)) { throw 'Output must not modify the input root.' }
     New-Item -ItemType Directory -Path $script:aaOutput -Force | Out-Null
     $script:aaRoots = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
-    $report = [ordered]@{ version = 1; stage = $TerminalAAStage; source = $script:aaSource
+    $report = [ordered]@{ version = 1; stage = $TerminalAAStage; source = $null
         run_id = [string]$env:GITHUB_RUN_ID; run_attempt = [string]$env:GITHUB_RUN_ATTEMPT
         policy = 'Same source A/A; first-operation and repeated-load are separate, not OS-cache conditions. Four fixed alternating pairs each. No replacement, threshold, improvement or significance claim. Nested profiles are not summed.'
         attempts = @(); pairs = @(); status = 'NOT_MEASURED' }
     try {
+        $script:aaSource = Assert-AASource -EvidencePath (Join-Path $script:aaOutput 'source-preflight.json')
+        $report.source = $script:aaSource
         if ($TerminalAAStage -ieq 'Produce') {
             if (Test-Path -LiteralPath $script:aaInput) { throw 'Input destination already exists.' }
             $trial = Invoke-AATrial -Name 'producer' -Stage 'produce'
