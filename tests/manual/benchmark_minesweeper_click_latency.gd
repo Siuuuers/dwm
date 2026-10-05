@@ -64,6 +64,9 @@ func _initialize() -> void:
 	if not source.is_empty() and source != USER_DATA_INVALID and not _seed_user_data(source):
 		quit(1)
 		return
+	if _aa_requested() and not source.is_empty() and not _aa_verify_seed():
+		quit(1)
+		return
 	super()
 
 
@@ -113,6 +116,9 @@ func _copy_tree(from: String, to: String, counts: Dictionary) -> String:
 
 
 func _run() -> void:
+	if _aa_requested():
+		await _aa_run()
+		return
 	await _frames()
 	var bootstrap: Node = root.get_node("ApplicationBootstrap")
 	if not _check(bootstrap.get_startup_state().get("ready", false), "benchmark startup " + JSON.stringify(bootstrap.get_startup_state())): return
@@ -518,3 +524,321 @@ func _issuer_root_bytes() -> int:
 	var file := FileAccess.open(path, FileAccess.READ)
 	if file == null: return -1
 	return int(file.get_length())
+
+
+
+# Opt-in same-source terminal diagnostic. No runtime source substitution or injected snapshots.
+# Produce and Admit execute normal owners without collecting elapsed-operation samples.
+const TERMINAL_AA_PIN := "a6decec3693ee4d57df9f879b90ace3e118c9d1d"
+var _aa_evidence: Dictionary = {}
+
+
+func _aa_requested() -> bool:
+	for argument: String in OS.get_cmdline_user_args():
+		if argument.begins_with("--terminal-aa-"): return true
+	return false
+
+
+func _aa_require(ok: bool, reason: String) -> bool:
+	if not ok:
+		_aa_evidence["reason"] = reason
+		printerr("TERMINAL_AA_REJECTED: " + reason)
+	return ok
+
+
+func _aa_read(path: String) -> Dictionary:
+	if not FileAccess.file_exists(path): return {}
+	var parsed: Dictionary = CANONICAL_JSON.STRICT_JSON.parse_object(FileAccess.get_file_as_string(path))
+	return parsed.get("value", {}) if parsed.get("ok", false) else {}
+
+
+func _aa_same(left: Variant, right: Variant) -> bool:
+	var first: Dictionary = CANONICAL_JSON.stringify(left)
+	var second: Dictionary = CANONICAL_JSON.stringify(right)
+	return first.get("ok", false) and second.get("ok", false) and first.value == second.value
+
+
+func _aa_run() -> void:
+	var options := {}
+	var valid := true
+	for argument: String in OS.get_cmdline_user_args():
+		if not argument.begins_with("--terminal-aa-"): continue
+		var parts := argument.trim_prefix("--terminal-aa-").split("=", true, 1)
+		if parts.size() != 2 or parts[0] not in ["stage", "result", "manifest", "reference", "condition"]:
+			valid = false
+			continue
+		if options.has(parts[0]) or parts[1].is_empty(): valid = false
+		options[parts[0]] = parts[1]
+	_aa_evidence = {"version": 1, "status": "NOT_MEASURED", "runtime_pin": TERMINAL_AA_PIN,
+		"stage": options.get("stage", ""), "condition": options.get("condition", ""),
+		"engine": Engine.get_version_info(), "user_dir": ProjectSettings.globalize_path("user://")}
+	var ok := _aa_require(valid and options.get("stage", "") in ["produce", "admit", "measure"] \
+		and options.has("result"), "invalid or duplicate terminal-AA options")
+	if ok: ok = _aa_require(OS.get_environment("GITHUB_ACTIONS") == "true", "cloud execution required")
+	if ok: ok = _aa_require(not OS.has_feature("C#"), "standard GDScript build required")
+	if ok: ok = _aa_require(str(Engine.get_version_info().get("string", "")).begins_with("4.6.3.stable"), "Godot 4.6.3 stable required")
+	if ok: ok = await _aa_operation(options)
+	if not ok: _aa_evidence["status"] = "NOT_MEASURED"
+	# An absent/truncated result or marker is independently rejected by the PowerShell driver.
+	var result_path := str(options.get("result", "")).replace("\\", "/").simplify_path()
+	var output_root := ProjectSettings.globalize_path("res://.godot/ci/performance/terminal-aa/").simplify_path().trim_suffix("/") + "/"
+	if not result_path.begins_with(output_root) or FileAccess.file_exists(result_path):
+		printerr("TERMINAL_AA_REJECTED: result must be a new isolated output file")
+		quit(1)
+		return
+	var file := FileAccess.open(result_path, FileAccess.WRITE) if not result_path.is_empty() else null
+	if file == null:
+		printerr("TERMINAL_AA_REJECTED: cannot write result")
+		quit(1)
+		return
+	var serialized: Dictionary = CANONICAL_JSON.stringify(_aa_evidence)
+	if not serialized.get("ok", false):
+		ok = false
+		_aa_evidence = {"status": "NOT_MEASURED", "reason": "result is not lossless canonical JSON"}
+		serialized = CANONICAL_JSON.stringify(_aa_evidence)
+	file.store_string(str(serialized.value) + "\n")
+	file.close()
+	print("TERMINAL_AA_RESULT: " + JSON.stringify({"status": _aa_evidence.status, "result": result_path}))
+	quit(0 if ok else 1)
+
+
+## Normal title New Account or Log In / Backup Load, with no test-only state injection.
+func _aa_enter(locator: String) -> Node:
+	await _frames()
+	var bootstrap: Node = root.get_node("ApplicationBootstrap")
+	if not _aa_require(bootstrap.get_startup_state().get("ready", false), "startup not ready"): return null
+	root.get_node("SceneRouter").goto_menu()
+	await _frames()
+	var menu: Node = current_scene
+	var deadline := Time.get_ticks_msec() + 120000
+	if locator.is_empty():
+		menu.get_node("%NewAccButton").pressed.emit()
+		while is_instance_valid(menu) and menu._title_transition and Time.get_ticks_msec() < deadline:
+			await process_frame
+		if is_instance_valid(menu) and is_instance_valid(menu._confirmation):
+			menu._confirmation.confirm_button.pressed.emit()
+	else:
+		var login: Button = menu.get_node("%LogInButton")
+		if not _aa_require(not login.disabled, "UNPLAYABLE: Log In disabled"): return null
+		login.pressed.emit()
+		await _frames()
+		var picker: Node = menu.get("_backup_app_instance")
+		if not _aa_require(is_instance_valid(picker) and picker.is_visible_in_tree(), "Backup picker missing"): return null
+		if not _aa_require(picker.drawer_buttons.has(locator), "Backup locator missing: " + locator): return null
+		picker.drawer_buttons[locator].pressed.emit()
+		if not _aa_require(not picker.action_buttons["load"].disabled, "normal Load disabled"): return null
+		picker.action_buttons["load"].pressed.emit()
+		if is_instance_valid(picker.confirmation): picker.confirmation.confirm_button.pressed.emit()
+		if not _aa_require(picker.last_result.get("ok", false), "normal Load preparation refused"): return null
+	var game: Node = root.get_node("GameState")
+	var manager: Node = root.get_node("SaveManager")
+	while Time.get_ticks_msec() < deadline:
+		var desktop: Node = current_scene.find_child("ComputerDesktop", true, false) if current_scene != null else null
+		if desktop != null and not manager._new_run_busy and game.capture_live_session().value.active:
+			await _frames()
+			return desktop
+		await process_frame
+	_aa_require(false, "UNPLAYABLE: normal entry timed out")
+	return null
+
+
+func _aa_app(desktop: Node) -> Node:
+	if not _aa_require(desktop.open_app(&"minesweeper").get("ok", false), "UNPLAYABLE: App open refused"): return null
+	await _frames()
+	var app: Node = desktop._cached_app_windows[&"minesweeper"]
+	if not _aa_require(app.panel.has_valid_presentation(), "UNPLAYABLE: invalid App presentation"): return null
+	return app
+
+
+func _aa_command(app: Node, action: StringName, index: int) -> bool:
+	app.panel.worksheet.cell_action_requested.emit(action, index, int(app.panel.public_view.board.revision))
+	await _frames()
+	return _aa_require(app.last_result.get("ok", false), "App command refused: " + str(action))
+
+
+## Complete live values and real durable JSON identities; no clock/revision normalization.
+func _aa_state(app: Node) -> Dictionary:
+	var files := {}
+	if not _aa_json_files("user://", "", files): return {}
+	var bootstrap: Node = root.get_node("ApplicationBootstrap")
+	var game: Node = root.get_node("GameState")
+	var manager: Node = root.get_node("SaveManager")
+	return {"board_capture": bootstrap._desktop_board_state.capture(),
+		"presentation_board": app.panel.public_view.board.duplicate(true),
+		"difficulty": str(app.panel.public_view.register.difficulty),
+		"snapshot_input": game.capture_run_snapshot_input(),
+		"journal": manager._journal.get_bundles_for_disk(),
+		"durable_json_files": files}.duplicate(true)
+
+
+func _aa_json_files(base: String, relative: String, files: Dictionary) -> bool:
+	var directory := DirAccess.open(base.path_join(relative))
+	if not _aa_require(directory != null, "cannot inspect durable directory"): return false
+	directory.include_hidden = true
+	if not _aa_require(directory.list_dir_begin() == OK, "cannot enumerate durable directory"): return false
+	var name := directory.get_next()
+	while not name.is_empty():
+		var child := relative.path_join(name)
+		if directory.current_is_dir():
+			# Engine logging is not save state; the immutable input manifest still retains its bytes.
+			if child != "logs" and not _aa_json_files(base, child, files): return false
+		elif name.ends_with(".json"):
+			var path := base.path_join(child)
+			var file := FileAccess.open(path, FileAccess.READ)
+			if not _aa_require(file != null, "cannot read durable file " + child): return false
+			files[child] = {"bytes": file.get_length(), "sha256": FileAccess.get_sha256(path)}
+			file.close()
+		name = directory.get_next()
+	directory.list_dir_end()
+	return true
+
+
+func _aa_operation(options: Dictionary) -> bool:
+	var stage: String = options.stage
+	var source := _user_data_option()
+	if stage == "produce":
+		if not _aa_require(source.is_empty() and not options.has("manifest") and not options.has("reference"), "producer must start a fresh account"): return false
+		var fresh: Node = await _aa_enter("")
+		if fresh == null: return false
+		var producer_app: Node = await _aa_app(fresh)
+		if producer_app == null: return false
+		return await _aa_produce(producer_app)
+	if not _aa_require(not source.is_empty() and source != USER_DATA_INVALID, "input copy required"): return false
+	var condition: String = options.get("condition", "")
+	if not _aa_require(condition in ["first-operation", "repeated-load"], "unknown condition"): return false
+	var manifest := _aa_read(options.get("manifest", ""))
+	if not _aa_require(manifest.get("runtime_pin", "") == TERMINAL_AA_PIN and manifest.has("producer"), "invalid input manifest"): return false
+	var producer: Dictionary = manifest.producer
+	var desktop: Node = await _aa_enter("slot:1")
+	if desktop == null: return false
+	var app: Node = await _aa_app(desktop)
+	if app == null: return false
+	var first := _aa_state(app)
+	if first.is_empty(): return false
+	_aa_evidence["first_load_state"] = first
+	if condition == "repeated-load":
+		desktop = await _aa_enter("slot:1")
+		if desktop == null: return false
+		app = await _aa_app(desktop)
+		if app == null: return false
+	var before := _aa_state(app)
+	_aa_evidence["pre_action"] = before
+	if not _aa_require(not before.is_empty() and _aa_same(first, before), "extra normal reload changed relevant state"): return false
+	var command: Dictionary = producer.get("command", {})
+	_aa_evidence["command"] = command
+	var physical := _app_physical(root.get_node("ApplicationBootstrap"))
+	if not _aa_require(_aa_same(physical, producer.get("physical", {})) \
+		and _aa_same(before.presentation_board, producer.get("presentation_board", {})) \
+		and before.difficulty == producer.get("difficulty", ""), "normally loaded board/revision/difficulty differs from producer"): return false
+	var index := int(command.get("index", -1))
+	if not _aa_require(command.get("action", "") == "reveal" and index >= 0 \
+		and index < int(physical.width) * int(physical.height) and index not in physical.mine_indices \
+		and index not in physical.revealed_indices and index not in physical.flagged_indices \
+		and _safe_remaining(physical) == 1 and not bool(physical.terminal) \
+		and not bool(app.panel.public_view.settled) \
+		and int(command.get("revision", -1)) == int(app.panel.public_view.board.revision), "not the specified preterminal winning action"): return false
+	var reference := _aa_read(options.get("reference", ""))
+	if stage == "measure" or condition == "repeated-load":
+		if not _aa_require(reference.get("status", "") == "ADMITTED" \
+			and _aa_same(reference.get("pre_action", {}), before) \
+			and _aa_same(reference.get("command", {}), command), "admitted reference state/command mismatch"): return false
+	var canonical: Dictionary = CANONICAL_JSON.stringify(before)
+	if not _aa_require(canonical.get("ok", false), "pre-action state is not canonical JSON"): return false
+	_aa_evidence["pre_action_sha256"] = str(canonical.value).sha256_text()
+	var game: Node = root.get_node("GameState")
+	var rounds_before := int(game.minesweeper_app_rounds_finished_today)
+	# Only Measure starts an operation timer. All capture/hash/oracle work is outside it.
+	print("TERMINAL_AA_OPERATION_BEGIN")
+	var started := Time.get_ticks_usec() if stage == "measure" else 0
+	app.panel.worksheet.cell_action_requested.emit(&"reveal", index, int(command.revision))
+	var deadline := Time.get_ticks_msec() + 120000
+	while is_instance_valid(app) and not bool(app.panel.public_view.settled) and Time.get_ticks_msec() < deadline:
+		await process_frame
+	var elapsed := Time.get_ticks_usec() - started if stage == "measure" else 0
+	print("TERMINAL_AA_OPERATION_END")
+	if not _aa_require(is_instance_valid(app) and app.last_result.get("ok", false) \
+		and bool(app.panel.public_view.settled), "terminal command refused or settlement timed out"): return false
+	var settled: Dictionary = root.get_node("ApplicationBootstrap")._desktop_board_state.capture()
+	physical = _app_physical(root.get_node("ApplicationBootstrap"))
+	if not _aa_require(bool(physical.get("terminal", false)) and _safe_remaining(physical) == 0 \
+		and settled.board.get("pending_terminal_receipt") == null \
+		and int(game.minesweeper_app_rounds_finished_today) == rounds_before + 1, "wrong winning settlement or consequence count"): return false
+	_aa_evidence["settled_board"] = settled
+	_aa_evidence["post_action"] = _aa_state(app)
+	if _aa_evidence.post_action.is_empty(): return false
+	_aa_evidence["stable_checkpoint"] = root.get_node("SaveManager").get_latest_stable_checkpoint()
+	if not _aa_require(_aa_evidence.stable_checkpoint.get("ok", false), "no stable checkpoint after settlement"): return false
+	# Independently use normal autosave Load after the timer, not a reconstructed snapshot.
+	desktop = await _aa_enter("autosave")
+	if desktop == null: return false
+	app = await _aa_app(desktop)
+	if app == null: return false
+	var restored: Dictionary = root.get_node("ApplicationBootstrap")._desktop_board_state.capture()
+	_aa_evidence["restored_board"] = restored
+	if not _aa_require(_aa_same(settled, restored) and bool(app.panel.public_view.settled) \
+		and int(game.minesweeper_app_rounds_finished_today) == rounds_before + 1, "normal autosave recovery differs or repeats consequence"): return false
+	if stage == "measure":
+		_aa_evidence["command_to_observed_settlement_us"] = elapsed
+		_aa_evidence["status"] = "MEASURED"
+	else:
+		_aa_evidence["status"] = "ADMITTED"
+	return true
+
+
+## Flag a covered safe cell so normal flood reveal cannot finish early, then unflag and Save.
+## A board that cannot supply this state is rejected once, never regenerated until it passes.
+func _aa_produce(app: Node) -> bool:
+	var bootstrap: Node = root.get_node("ApplicationBootstrap")
+	if not _aa_require(not bool(app.panel.public_view.settled), "producer board already settled"): return false
+	if not await _aa_command(app, &"reveal", 0): return false
+	var ready_deadline := Time.get_ticks_msec() + 120000
+	while _app_physical(bootstrap).is_empty() and Time.get_ticks_msec() < ready_deadline:
+		await process_frame
+	var physical := _app_physical(bootstrap)
+	if not _aa_require(not physical.is_empty() and not bool(physical.terminal), "producer first reveal already terminal"): return false
+	var reserved := _next_safe_cell(physical)
+	if not _aa_require(reserved >= 0, "no covered safe cell for input"): return false
+	if not await _aa_command(app, &"flag", reserved): return false
+	for attempt: int in 600:
+		physical = _app_physical(bootstrap)
+		if _safe_remaining(physical) == 1: break
+		var next := _next_safe_cell(physical)
+		if not _aa_require(next >= 0 and not bool(physical.terminal), "cannot finish preterminal input through normal reveals"): return false
+		if not await _aa_command(app, &"reveal", next): return false
+	if not _aa_require(_safe_remaining(_app_physical(bootstrap)) == 1, "producer reveal bound exceeded"): return false
+	if not await _aa_command(app, &"unflag", reserved): return false
+	var manager: Node = root.get_node("SaveManager")
+	var prepared: Dictionary = manager.prepare_backup_action("save", "slot:1", "Terminal A/A preterminal input")
+	if not _aa_require(prepared.get("ok", false), "normal Slot 1 Save preparation refused"): return false
+	var committed: Dictionary = manager.commit_backup_action(prepared.value.token)
+	if not _aa_require(committed.get("ok", false) and FileAccess.file_exists("user://saves/slot1.json"), "normal Slot 1 Save failed"): return false
+	physical = _app_physical(bootstrap)
+	if not _aa_require(not bool(physical.terminal) and _safe_remaining(physical) == 1 \
+		and reserved not in physical.flagged_indices and reserved not in physical.revealed_indices, "Save changed the preterminal action"): return false
+	_aa_evidence["physical"] = physical
+	_aa_evidence["presentation_board"] = app.panel.public_view.board.duplicate(true)
+	_aa_evidence["difficulty"] = str(app.panel.public_view.register.difficulty)
+	_aa_evidence["command"] = {"action": "reveal", "index": reserved, "revision": int(app.panel.public_view.board.revision)}
+	_aa_evidence["producer_state"] = _aa_state(app)
+	if _aa_evidence.producer_state.is_empty(): return false
+	_aa_evidence["status"] = "PRODUCED_UNADMITTED"
+	return true
+
+
+func _aa_verify_seed() -> bool:
+	var path := ""
+	for argument: String in OS.get_cmdline_user_args():
+		if argument.begins_with("--terminal-aa-manifest="):
+			path = argument.trim_prefix("--terminal-aa-manifest=")
+	var manifest := _aa_read(path)
+	if not _aa_require(manifest.get("files") is Dictionary and not manifest.files.is_empty(), "seed manifest missing"): return false
+	for relative: String in manifest.files:
+		if not _aa_require(not relative.is_absolute_path() and ".." not in relative.split("/"), "unsafe manifest path"): return false
+		var target := "user://".path_join(relative)
+		var file := FileAccess.open(target, FileAccess.READ)
+		if not _aa_require(file != null, "seed file missing: " + relative): return false
+		var expected: Dictionary = manifest.files[relative]
+		var matches := file.get_length() == int(expected.get("bytes", -1)) and FileAccess.get_sha256(target) == expected.get("sha256", "")
+		file.close()
+		if not _aa_require(matches, "seed byte identity mismatch: " + relative): return false
+	return true
