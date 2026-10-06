@@ -171,7 +171,7 @@ func _ready() -> void:
 	_body.resized.connect(_layout_presentation_geometry)
 	_layout_presentation_geometry()
 	get_viewport().gui_focus_changed.connect(_remember_focus)
-		if _port != null:
+	if _port != null:
 		refresh_view()
 
 func configure_backup(port: Object, localization: Object = null, profile: Object = null,
