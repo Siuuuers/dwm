@@ -13,6 +13,7 @@ class TypographyProfile extends Fixtures.FakeProfile:
 
 var tested_font_style := "pixel"
 var title_tail_runs: Array[String] = []
+var drawer_measurements: Array[Dictionary] = []
 
 func typography_profile() -> TypographyProfile:
 	var profile := TypographyProfile.new()
@@ -155,6 +156,17 @@ func check_geometry(app: Control) -> void:
 func check_drawer_text(app: Control, font_size: int) -> void:
 	for drawer in app.drawer_buttons.values():
 		var labels: Array = drawer.find_children("*", "Label", true, false)
+		if not drawer.get_global_rect().encloses(drawer.state_label.get_global_rect()):
+			var measured := {"style": tested_font_style, "identity": drawer.identity_label.text, "state": drawer.state_label.text, "labels": []}
+			for entry: Label in [drawer.identity_label, drawer.state_label]:
+				var face: Font = entry.get_theme_font("font")
+				var points: int = entry.get_theme_font_size("font_size")
+				var sizes: Array[Dictionary] = []
+				for width: int in [128, 136, 144]:
+					var minimum: Vector2 = face.get_multiline_string_size(entry.text, HORIZONTAL_ALIGNMENT_LEFT, width, points, -1, TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE)
+					sizes.append({"width": width, "minimum": [minimum.x, minimum.y]})
+				measured.labels.append({"text": entry.text, "font_size": points, "font": face.resource_path, "measures": sizes})
+			drawer_measurements.append(measured)
 		check(not labels.is_empty(), "Drawer has semantic visible identity/state text")
 		for label in labels:
 			check(drawer.get_global_rect().encloses(label.get_global_rect()), "Drawer text fits fixed geometry: %s style=%s path=%s rect=%s drawer=%s" % [label.text, tested_font_style, label.get_path(), label.get_rect(), drawer.size])
@@ -171,6 +183,9 @@ func check_key_caption(key: Button) -> void:
 	if caption == null:
 		return
 	check(caption.text == key.accessibility_name and not caption.text.is_empty(), "Visible caption and accessible action verb agree")
+	check(key.size.x >= 48 and key.size.y >= 48, "Action preserves the minimum interactive target")
+	if key.get_parent().name == "PinnedActions":
+		check(Rect2(Vector2.ZERO, key.get_parent().size).encloses(key.get_rect()), "Host-owned action stays fully inside the fixed dock")
 	check(key.get_global_rect().encloses(caption.get_global_rect()), "Action caption fits its fixed target: %s style=%s path=%s position=%s size=%s caption=%s parent=%s" % [caption.text, tested_font_style, key.get_path(), key.position, key.size, caption.size, key.get_parent().size])
 	check(caption.max_lines_visible == -1, "Action caption is not line capped")
 	var font: Font = caption.get_theme_font("font")
@@ -517,7 +532,7 @@ func _run() -> void:
 		tested_font_style = font_style
 		await _run_typography()
 	check(title_tail_runs == ["pixel", "readable"], "Title-login tail executes for default pixel and readable")
-	print(JSON.stringify({"checks_run": checks_run, "suite": "BackupUI", "font_styles": ["pixel", "readable"], "title_tail_runs": title_tail_runs, "failures": failures}))
+	print(JSON.stringify({"checks_run": checks_run, "suite": "BackupUI", "font_styles": ["pixel", "readable"], "title_tail_runs": title_tail_runs, "failures": failures, "drawer_measurements": drawer_measurements}))
 	if failures.is_empty():
 		print("BACKUP_UI_PASS")
 	quit(0 if failures.is_empty() else 1)
@@ -598,4 +613,3 @@ func _run_typography() -> void:
 		await settle()
 	# This separate fixture owns its own tree and still reports failures honestly.
 	await check_title_login()
-

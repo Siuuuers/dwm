@@ -47,6 +47,7 @@ var _records: Dictionary = {}
 var _locale := "en"
 var _percent := 100
 var _font_style := "pixel"
+var _action_layout_queued := false
 var _run_palette: StringName = &"after_hours"
 var _day := 1
 var _pending_presentation := false
@@ -382,6 +383,7 @@ func _build_actions() -> void:
 		key.pressed.connect(_action_pressed.bind(action))
 		action_dock.add_child(key)
 		key.caption.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(_locale, _percent, 20, _font_style))
+		key.caption.minimum_size_changed.connect(_queue_action_layout)
 		action_buttons[action] = key
 	_layout_action_buttons()
 	if action_buttons.has(prior_focus) and not action_buttons[prior_focus].disabled:
@@ -757,13 +759,31 @@ func _layout_presentation_geometry() -> void:
 	_info_overlay.queue_redraw()
 
 
+func _queue_action_layout() -> void:
+	if _action_layout_queued or not is_inside_tree():
+		return
+	_action_layout_queued = true
+	_reflow_action_buttons.call_deferred()
+
+func _reflow_action_buttons() -> void:
+	_action_layout_queued = false
+	_layout_action_buttons()
+
 func _layout_action_buttons() -> void:
 	var count := action_buttons.size()
 	if count == 0 or not is_instance_valid(action_dock):
 		return
 	var key_width := action_dock.size.x if count == 1 else (action_dock.size.x - ACTION_GAP) / 2.0
+	var row_height := 64.0
+	for key in action_buttons.values():
+		# Establish wrapping width before measuring the full selected-size caption.
+		key.size.x = key_width
+		key._sync_caption()
+		row_height = maxf(row_height, ceilf((key.caption.get_minimum_size().y + 8.0) / 2.0) * 2.0)
+	# The host retains horizontal order and owns the vertical action-row space.
+	var row_top := maxf(0.0, floorf((action_dock.size.y - row_height) / 2.0))
 	var index := 0
 	for key: Button in action_buttons.values():
-		key.position = Vector2(index * (key_width + ACTION_GAP), 24)
-		key.size = Vector2(key_width, 64)
+		key.position = Vector2(index * (key_width + ACTION_GAP), row_top)
+		key.size = Vector2(key_width, row_height)
 		index += 1
