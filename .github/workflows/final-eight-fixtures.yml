@@ -1,0 +1,85 @@
+name: Final eight frozen-source fixtures
+'on':
+  push:
+    branches:
+    - codex/final-eight-fixtures-20261006
+    paths:
+    - .github/workflows/final-eight-fixtures.yml
+permissions:
+  contents: read
+jobs:
+  fixtures:
+    runs-on: windows-latest
+    timeout-minutes: 70
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: 85f29f832dfa627ec128a413922e0daf9dff69f5
+        fetch-depth: 1
+        persist-credentials: false
+    - name: Install Godot 4.6.3 standard
+      run: "$ErrorActionPreference = 'Stop'\n$archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'\nInvoke-WebRequest\
+        \ -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip'\
+        \ -OutFile $archive\n# SHA256 published with the official 4.6.3-stable release asset.\n$expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'\n\
+        if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {\n  throw\
+        \ 'Godot archive checksum mismatch.'\n}\n$editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'\nExpand-Archive\
+        \ -LiteralPath $archive -DestinationPath $editor\n$console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'\n\
+        if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }\n\"GODOT_CONSOLE_PATH=$console\"\
+        \ | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8\n& $console --version\nif ($LASTEXITCODE -ne\
+        \ 0) { exit $LASTEXITCODE }\n"
+    - name: Execute unchanged eight fixtures and retain evidence
+      shell: python {0}
+      run: "import hashlib, json, os, pathlib, shutil, subprocess, sys, time\nroot = pathlib.Path.cwd()\nout = root\
+        \ / 'final-fixture-evidence'\nout.mkdir(exist_ok=True)\ndef sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()\n\
+        def git(*args): return subprocess.check_output(['git', *args], text=True).strip()\ndef write(name, data):\
+        \ (out/name).write_text(json.dumps(data, indent=2)+'\\n', encoding='utf-8')\nsource = '85f29f832dfa627ec128a413922e0daf9dff69f5'\n\
+        assert git('rev-parse','HEAD') == source\nassert git('rev-parse','HEAD^{tree}') == 'b00b065e696cae754c7287ca09f59e6e2a95326c'\n\
+        assert not git('diff','--name-only') and not git('diff','--cached','--name-only')\ntracked = subprocess.check_output(['git','ls-files','-z']).decode().split('\\\
+        0')[:-1]\nbefore = {p:sha(root/p) for p in tracked if (root/p).is_file()}\nwrite('source-before.json',before)\n\
+        identity = {'source':source,'tree':git('rev-parse','HEAD^{tree}'),'controller':os.environ['GITHUB_SHA'],\
+        \ 'ref':os.environ['GITHUB_REF'], 'run':os.environ['GITHUB_RUN_ID'], 'attempt':os.environ['GITHUB_RUN_ATTEMPT'],\
+        \ 'engine':os.environ['GODOT_CONSOLE_PATH'], 'engine_sha256':sha(pathlib.Path(os.environ['GODOT_CONSOLE_PATH'])),\
+        \ 'engine_version':subprocess.check_output([os.environ['GODOT_CONSOLE_PATH'],'--version'],text=True).strip()}\n\
+        write('identity.json',identity)\nfixtures = [\n ('desktop_shell','tools/desktop_shell/verify.py',[], 'tools/desktop_shell/evidence'),\n\
+        \ ('stat_hud','tools/stat_hud/verify.py',[], 'tools/stat_hud/evidence'),\n ('title_shell','tools/title_shell/verify.py',[],\
+        \ 'tools/title_shell/evidence'),\n ('backup_ui','tools/backup_ui/verify.py',[], 'tools/backup_ui/evidence/ui'),\n\
+        \ ('baseline','tools/save_load_loop/verify.py',['--baseline'], 'tools/save_load_loop/evidence/baseline'),\n\
+        \ ('loop','tools/save_load_loop/verify.py',[], 'tools/save_load_loop/evidence/loop'),\n ('smoke','tools/save_load_loop/verify.py',['--smoke'],\
+        \ 'tools/save_load_loop/evidence/smoke'),\n ('title_resume','tools/title_resume/verify.py',[], 'tools/title_resume/evidence'),\n\
+        ]\n# Remove historical output from this disposable checkout so it cannot satisfy a fresh result.\nallowed\
+        \ = set()\nfor _,_,_,directory in fixtures:\n for p in (root/directory).rglob('*'):\n  if p.is_file(): allowed.add(p.relative_to(root).as_posix())\n\
+        \ shutil.rmtree(root/directory, ignore_errors=True)\n (root/directory).mkdir(parents=True)\nrecords=[]\n\
+        for name,runner,args,directory in fixtures:\n command=[sys.executable,runner,*args]\n start=time.time()\n\
+        \ try:\n  result=subprocess.run(command,capture_output=True,timeout=700)\n  code=result.returncode; stdout=result.stdout;\
+        \ stderr=result.stderr\n except subprocess.TimeoutExpired as e:\n  code=None; stdout=e.stdout or b''; stderr=(e.stderr\
+        \ or b'')+b'\\nCONTROLLER_TIMEOUT\\n'\n (out/(name+'-stdout.log')).write_bytes(stdout)\n (out/(name+'-stderr.log')).write_bytes(stderr)\n\
+        \ target=out/'results'/name\n shutil.copytree(root/directory,target)\n report_path=target/'result.json'\n\
+        \ report=json.loads(report_path.read_text(encoding='utf-8-sig')) if report_path.exists() else None\n mismatches=[]\n\
+        \ if report:\n  mismatches=[p for p,h in report.get('sources',{}).items() if p not in before or h!=before[p]]\n\
+        \ record={'name':name,'command':command,'start_unix':start,'end_unix':time.time(),'returncode':code,'result_exists':report\
+        \ is not None,'passed':bool(code==0 and report and report.get('passed') is True and not mismatches),'source_mismatches':mismatches,'result_sha256':sha(report_path)\
+        \ if report else None}\n records.append(record); write('executions.json',records)\n print(json.dumps(record),flush=True)\n\
+        \ # Output paths are the only allowed tracked changes. Source files remain byte-frozen.\n for p in (root/directory).rglob('*'):\n\
+        \  if p.is_file():allowed.add(p.relative_to(root).as_posix())\n changed=[p for p,h in before.items() if\
+        \ p not in allowed and (not (root/p).is_file() or sha(root/p)!=h)]\n if changed:\n  write('source-custody-failure.json',changed)\n\
+        \  raise RuntimeError('Frozen source changed: '+repr(changed))\n# Preserve runner logs/results, configuration\
+        \ and isolated user data. Do not archive copied engine caches/assets.\nfor scratch in (root/'.godot').iterdir():\n\
+        \ if not scratch.is_dir():continue\n dest=out/'scratch'/scratch.name\n for p in scratch.rglob('*'):\n  rel=p.relative_to(scratch)\n\
+        \  if p.is_file() and ('project' not in rel.parts and '.godot' not in rel.parts) and (len(rel.parts)==1\
+        \ or rel.parts[0] in ('appdata','localappdata','temp','tmp')):\n   q=dest/rel; q.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(p,q)\n\
+        write('custody.json',{'source':source,'tracked_count':len(before),'allowed_output_paths':sorted(allowed),'unexpected_source_changes':[],'git_status':git('status','--porcelain','--untracked-files=all'),'fixtures_complete':len(records)==8})\n\
+        write('manifest.json',[{'path':p.relative_to(out).as_posix(),'size':p.stat().st_size,'sha256':sha(p)} for\
+        \ p in sorted(out.rglob('*')) if p.is_file() and p.name!='manifest.json'])\nsys.exit(0 if len(records)==8\
+        \ and all(r['passed'] for r in records) else 1)\n"
+    - name: Upload original fixture outputs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: final-eight-fixtures-${{ github.run_id }}-${{ github.run_attempt }}
+        path: final-fixture-evidence/
+        include-hidden-files: true
+        if-no-files-found: error
+        retention-days: 7
