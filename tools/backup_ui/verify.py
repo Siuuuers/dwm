@@ -11,13 +11,17 @@ import tempfile
 
 root = Path(__file__).resolve().parents[2]
 probe = '--probe' in sys.argv
+render = '--render' in sys.argv
+measure_layout = '--measure-layout' in sys.argv
 test_script = globals().get('TEST_SCRIPT', 'tests/backup_ui/probe_font_fit.gd' if probe else 'tests/backup_ui/test_backup_ui.gd')
 marker = globals().get('PASS_MARKER', 'BACKUP_FONT_FIT_PROBE_DONE' if probe else 'BACKUP_UI_PASS')
+if measure_layout:
+    marker = 'BACKUP_LAYOUT_MEASUREMENT_DONE'
 cache = root / '.godot'
 cache.mkdir(exist_ok=True)
 scratch = Path(tempfile.mkdtemp(prefix=globals().get('SCRATCH_PREFIX', 'backup-ui-'), dir=cache))
 classes = {}
-for path in (root / 'scripts').rglob('*.gd'):
+for path in sorted(path for directory in ['scripts', 'addons/dialogic'] for path in (root / directory).rglob('*.gd')):
     match = re.search(r'^class_name\s+(\w+)', path.read_text(encoding='utf-8-sig'), re.M)
     if match:
         classes[match.group(1)] = path.relative_to(root).as_posix()
@@ -44,6 +48,12 @@ while pending:
     if source.suffix in {'.gd', '.tscn', '.tres'}:
         content = source.read_text(encoding='utf-8-sig')
         pending.extend(re.findall(r'res://([^"\s]+)', content))
+        # Addon global classes and relative script resources belong to the same
+        # real dependency closure; no autoload or replacement class is installed.
+        for local in re.findall(r'(?:preload|load|@icon)\(\s*[\"\']([^\"\']+)[\"\']', content):
+            if '://' not in local:
+                dependency = (source.parent / local).resolve()
+                pending.append(dependency.relative_to(root).as_posix())
         for name in set(re.findall(r'\b\w+\b', content)).intersection(classes):
             pending.append(classes[name])
 for source in (root / 'assets/ui/contacts/fonts').iterdir():
@@ -63,21 +73,27 @@ window/size/viewport_height=720
 renderer/rendering_method="gl_compatibility"
 ''', encoding='utf-8')
 env = os.environ.copy()
+if measure_layout:
+    env["DWM_BACKUP_MEASURE_LAYOUT"] = "1"
 for key in ['APPDATA', 'LOCALAPPDATA']:
     location = scratch / key.lower()
     location.mkdir()
     env[key] = str(location)
 godot = env.get('GODOT_CONSOLE_PATH', r'C:\Program Files\Godot_v4.6.3-stable_mono_win64\Godot_v4.6.3-stable_mono_win64_console.exe')
+if render:
+    capture_dir = scratch / "captures"
+    capture_dir.mkdir()
+    env["DWM_BACKUP_CAPTURE_DIR"] = str(capture_dir)
 logs = []
 passed = True
 for arguments in [['--editor', '--import', '--quit'], ['--script', 'res://' + test_script]]:
-    result = subprocess.run([godot, '--headless', '--path', str(scratch), *arguments],
-                            env=env, capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=90)
+    display_args = ['--rendering-method', 'gl_compatibility', '--audio-driver', 'Dummy'] if render and '--script' in arguments else ['--headless']
+    result = subprocess.run([godot, *display_args, '--path', str(scratch), *arguments],
+                            env=env, capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=180 if render else 90)
     output = result.stdout + result.stderr
     logs.append(output)
     checked = output.replace('ERROR: Failed to read the root certificate store.', '')
     if result.returncode or 'SCRIPT ERROR:' in checked or 'ERROR:' in checked:
-        print(output, end='')
         passed = False
         break
 (scratch / 'verification.log').write_text('\n'.join(logs), encoding='utf-8')
@@ -89,6 +105,8 @@ report = {
     'known_environment_diagnostic': 'Windows root certificate store inaccessible; only that exact diagnostic is allowed and remains logged.',
     'sources': {relative: hashlib.sha256((scratch / relative).read_bytes()).hexdigest() for relative in sorted(copied)},
 }
+if measure_layout:
+    report['scope'] = 'Production-font and real Label width/height measurement only; not Backup acceptance.'
 report['sources'][Path(__file__).relative_to(root).as_posix()] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 if globals().get('WRAPPER_SOURCE'):
     report['sources'][WRAPPER_SOURCE] = hashlib.sha256((root / WRAPPER_SOURCE).read_bytes()).hexdigest()
@@ -96,15 +114,26 @@ if probe:
     report['measurements'] = [json.loads(line) for line in logs[-1].splitlines() if line.startswith('{')]
 else:
     report['test_summaries'] = [json.loads(line) for line in logs[-1].splitlines() if line.startswith('{')]
+if render:
+    report['rendered'] = True
+    report['scope'] = 'Real Backup/shared-shell scenes with injected external owners. Rendered viewport and layout/interaction fixture; no native accessibility or physical input acceptance.'
+    report['captures'] = [{'file': p.name, 'sha256': hashlib.sha256(p.read_bytes()).hexdigest(), 'size': p.stat().st_size} for p in sorted(capture_dir.glob('*.png'))]
 (scratch / 'result.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
 evidence = root / EVIDENCE_DIR if globals().get('EVIDENCE_DIR') else root / 'tools/backup_ui/evidence' / ('font-probe' if probe else 'ui')
+if render:
+    evidence = evidence.parent / 'rendered'
 evidence.mkdir(parents=True, exist_ok=True)
+if render:
+    shutil.copytree(capture_dir, evidence / 'captures', dirs_exist_ok=True)
+
 portable_report = dict(report)
 portable_report['log'] = (evidence / 'verification.log').relative_to(root).as_posix()
 (evidence / 'verification.log').write_text('\n'.join(logs), encoding='utf-8')
 (evidence / 'result.json').write_text(json.dumps(portable_report, indent=2) + '\n', encoding='utf-8')
+# Evidence above is committed to disk before console encoding can fail.
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='backslashreplace')
 print('Verification evidence:', scratch / 'result.json')
-if passed:
-    print(logs[-1], end='')
+print(logs[-1], end='')
 sys.exit(0 if passed else 1)
 

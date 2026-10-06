@@ -7,9 +7,18 @@ const DRAWER := preload("res://scripts/ui/backup/BackupDrawer.gd")
 const KEY := preload("res://scripts/ui/backup/BackupKey.gd")
 const BACKUP_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
 const LOCATORS := ["autosave", "quick", "slot:1", "slot:2", "slot:3", "slot:4", "slot:5", "slot:6", "slot:7"]
-const RIGHT_X := 480.0
-const RIGHT_MARGIN := 16.0
-const RIGHT_MIN_WIDTH := 304.0
+# Cloud Label matrix: English Autosave147px; Japanese older-state360px.
+# A180px text measure plus two4px edges is the smallest even common width.
+const DRAWER_WIDTH := DRAWER.MINIMUM_SIZE.x
+const DRAWER_HEIGHT := DRAWER.MINIMUM_SIZE.y
+const DRAWER_GAP := 8.0
+const BODY_MARGIN := 14.0
+const RIGHT_X := BODY_MARGIN + 3.0 * DRAWER_WIDTH + 2.0 * DRAWER_GAP + 16.0
+const RIGHT_MARGIN := BODY_MARGIN
+const RIGHT_MIN_WIDTH := 176.0
+const BODY_MIN_WIDTH := RIGHT_X + RIGHT_MIN_WIDTH + RIGHT_MARGIN
+const BODY_PREFERRED_WIDTH := RIGHT_X + 304.0 + RIGHT_MARGIN
+const MAIN_HEIGHT := 544.0
 const ACTION_GAP := 16.0
 const COMPACT_COPY := {
 	"ja": {"save": "保存", "load": "読込", "autosave": "自動", "quick": "Q保存", "slot": "保存 {n}"},
@@ -47,6 +56,7 @@ var _records: Dictionary = {}
 var _locale := "en"
 var _percent := 100
 var _font_style := "pixel"
+var _action_layout_queued := false
 var _run_palette: StringName = &"after_hours"
 var _day := 1
 var _pending_presentation := false
@@ -75,18 +85,22 @@ func _exit_tree() -> void:
 
 func _ready() -> void:
 	super._ready()
-	custom_minimum_size = Vector2(800, 656)
-	if not _title_login:
+	custom_minimum_size = Vector2(BODY_MIN_WIDTH, 656)
+	if _title_login:
+		# Own only this content body's placement inside the unchanged title host.
+		size.x = minf(BODY_PREFERRED_WIDTH, get_parent().size.x)
+		position.x = floorf((get_parent().size.x - size.x) / 4.0) * 2.0
+	else:
 		set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	$VBoxContainer/TopBar.hide()
 	$VBoxContainer.add_theme_constant_override("separation", 0)
-	_content_host.custom_minimum_size = Vector2(800, 656)
+	_content_host.custom_minimum_size = Vector2(BODY_MIN_WIDTH, 656)
 	auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	theme = BACKUP_THEME.build(_locale, _percent, _run_palette, _day)
 	_body = Control.new()
 	_body.name = "BackupBody"
-	_body.size = Vector2(800, 656)
+	_body.size = Vector2(BODY_MIN_WIDTH, 656)
 	_content_host.add_child(_body)
 	_body.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_body.draw.connect(_draw_body)
@@ -105,15 +119,15 @@ func _ready() -> void:
 		var locator: String = LOCATORS[index]
 		var drawer := DRAWER.new()
 		drawer.name = "Drawer" + str(index)
-		drawer.position = Vector2(16 + (index % 3) * 152, 96 + (index / 3) * 184)
-		drawer.size = Vector2(144, 176)
+		drawer.position = Vector2(BODY_MARGIN + (index % 3) * (DRAWER_WIDTH + DRAWER_GAP), (16 if _title_login else 96) + (index / 3) * (DRAWER_HEIGHT + DRAWER_GAP))
+		drawer.size = Vector2(DRAWER_WIDTH, DRAWER_HEIGHT)
 		drawer.pressed.connect(_select_drawer.bind(locator))
 		drawer.focus_entered.connect(_select_drawer.bind(locator))
 		_body.add_child(drawer)
 		drawer_buttons[locator] = drawer
 	info_scroll = ScrollContainer.new()
 	info_scroll.name = "InformationViewport"
-	info_scroll.position = Vector2(480, 96)
+	info_scroll.position = Vector2(RIGHT_X, 16 if _title_login else 96)
 	info_scroll.size = Vector2(304, 336)
 	info_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	info_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
@@ -139,7 +153,7 @@ func _ready() -> void:
 	info_scroll.focus_exited.connect(_info_overlay.queue_redraw)
 	status_region = Control.new()
 	status_region.name = "PinnedStatus"
-	status_region.position = Vector2(480, 432)
+	status_region.position = Vector2(RIGHT_X, 352 if _title_login else 432)
 	status_region.size = Vector2(304, 96)
 	_body.add_child(status_region)
 	status_label = Label.new()
@@ -148,17 +162,15 @@ func _ready() -> void:
 	status_label.size = Vector2(280, 88)
 	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	status_region.add_child(status_label)
+	status_label.minimum_size_changed.connect(_queue_action_layout)
 	action_dock = Control.new()
 	action_dock.name = "PinnedActions"
-	action_dock.position = Vector2(480, 528)
+	action_dock.position = Vector2(RIGHT_X, 448 if _title_login else 528)
 	action_dock.size = Vector2(304, 112)
 	_body.add_child(action_dock)
 	_body.resized.connect(_layout_presentation_geometry)
 	_layout_presentation_geometry()
 	get_viewport().gui_focus_changed.connect(_remember_focus)
-	if _title_login:
-		for control in drawer_buttons.values() + [info_scroll, _info_overlay, status_region, action_dock]:
-			control.position.y -= 80
 	if _port != null:
 		refresh_view()
 
@@ -317,8 +329,6 @@ func _refresh_presentation() -> void:
 		var compact := _compact_text(identity_key, identity, {"n": locator.trim_prefix("slot:")})
 		var visible_identity := _fit_caption(identity, compact, drawer.identity_label)
 		drawer.present(visible_identity, _record_state(_records[locator]), _records[locator].state == "unavailable")
-		if _locale in ["ja", "ko"]:
-			drawer.identity_label.size = Vector2(128, 52)
 		drawer.accessibility_name = identity + ", " + _record_state(_records[locator])
 		drawer.tooltip_text = identity if visible_identity != identity else ""
 	for mode in mode_buttons:
@@ -371,7 +381,7 @@ func _build_actions() -> void:
 		var key := KEY.new()
 		key.name = action.to_pascal_case() + "Action"
 		key.position = Vector2.ZERO
-		key.size = Vector2(304, 64)
+		key.size = Vector2(_right_width(), 64)
 		key.set_caption(_t(action if action != "retry" or _source_action == "save" and _confirmation_kind == "none" else (_source_action if _source_action != "save" else "overwrite")))
 		key.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(_locale, _percent, 20, _font_style))
 		key.disabled = not _projection_valid or (not record.actions.get(action, false) if not _recovering else false)
@@ -382,6 +392,7 @@ func _build_actions() -> void:
 		key.pressed.connect(_action_pressed.bind(action))
 		action_dock.add_child(key)
 		key.caption.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(_locale, _percent, 20, _font_style))
+		key.caption.minimum_size_changed.connect(_queue_action_layout)
 		action_buttons[action] = key
 	_layout_action_buttons()
 	if action_buttons.has(prior_focus) and not action_buttons[prior_focus].disabled:
@@ -539,7 +550,7 @@ func _restore_source_focus() -> void:
 func _measure_information(revision: int) -> void:
 	if not is_inside_tree() or revision != _measure_revision or is_instance_valid(confirmation) or _in_operation:
 		return
-	var overflowing := _info_margin.size.y > 336
+	var overflowing := _info_margin.size.y > info_scroll.size.y
 	info_scroll.focus_mode = Control.FOCUS_ALL if overflowing else Control.FOCUS_NONE
 	if not overflowing:
 		info_scroll.scroll_vertical = 0
@@ -718,25 +729,25 @@ func _reason_text(reason: String) -> String:
 func _draw_body() -> void:
 	var right_width := _right_width()
 	_body.draw_rect(Rect2(Vector2.ZERO, _body.size), theme.get_color("habitat", "Backup"))
-	_body.draw_rect(Rect2(RIGHT_X, info_scroll.position.y, right_width, 544), theme.get_color("paper", "Backup"))
+	_body.draw_rect(Rect2(RIGHT_X, info_scroll.position.y, right_width, MAIN_HEIGHT), theme.get_color("paper", "Backup"))
 	if _recovering:
-		_body.draw_rect(Rect2(RIGHT_X, status_region.position.y, right_width, 96), theme.get_color("face", "Backup"))
-		_body.draw_rect(Rect2(RIGHT_X, status_region.position.y, 2, 96), theme.get_color("destructive", "Backup"))
+		_body.draw_rect(Rect2(RIGHT_X, status_region.position.y, right_width, status_region.size.y), theme.get_color("face", "Backup"))
+		_body.draw_rect(Rect2(RIGHT_X, status_region.position.y, 2, status_region.size.y), theme.get_color("destructive", "Backup"))
 	elif _status_key == "saved":
-		_body.draw_rect(Rect2(RIGHT_X, status_region.position.y, 2, 96), theme.get_color("paper_ink", "Backup"))
+		_body.draw_rect(Rect2(RIGHT_X, status_region.position.y, 2, status_region.size.y), theme.get_color("paper_ink", "Backup"))
 
 func _draw_information() -> void:
 	var width := _info_overlay.size.x
-	var height := int(ceil(_info_margin.size.y / 2.0))
-	if height > 168:
-		var thumb := maxi(8, int(floor(168.0 * 168 / height)))
-		var offset := int(floor(info_scroll.scroll_vertical / 2.0))
-		var at := int(floor(float((168 - thumb) * offset) / (height - 168)))
-		_info_overlay.draw_rect(Rect2(width - 2, 0, 2, 336), theme.get_color("structure", "Backup"))
-		_info_overlay.draw_rect(Rect2(width - 2, at * 2, 2, thumb * 2), theme.get_color("paper_ink", "Backup"))
+	var viewport_height := _info_overlay.size.y
+	var content_height := _info_margin.size.y
+	if content_height > viewport_height:
+		var thumb := maxf(16.0, floorf(viewport_height * viewport_height / content_height / 2.0) * 2.0)
+		var at := floorf((viewport_height - thumb) * info_scroll.scroll_vertical / (content_height - viewport_height) / 2.0) * 2.0
+		_info_overlay.draw_rect(Rect2(width - 2, 0, 2, viewport_height), theme.get_color("structure", "Backup"))
+		_info_overlay.draw_rect(Rect2(width - 2, at, 2, thumb), theme.get_color("paper_ink", "Backup"))
 	if info_scroll.has_focus():
-		_info_overlay.draw_rect(Rect2(3, 3, width - 6, 330), theme.get_color("paper_ink", "Backup"), false, 2)
-		_info_overlay.draw_rect(Rect2(7, 7, width - 14, 322), theme.get_color("paper_focus", "Backup"), false, 2)
+		_info_overlay.draw_rect(Rect2(3, 3, width - 6, viewport_height - 6), theme.get_color("paper_ink", "Backup"), false, 2)
+		_info_overlay.draw_rect(Rect2(7, 7, width - 14, viewport_height - 14), theme.get_color("paper_focus", "Backup"), false, 2)
 
 
 func _right_width() -> float:
@@ -757,13 +768,48 @@ func _layout_presentation_geometry() -> void:
 	_info_overlay.queue_redraw()
 
 
+func _queue_action_layout() -> void:
+	if _action_layout_queued or not is_inside_tree():
+		return
+	_action_layout_queued = true
+	_reflow_action_buttons.call_deferred()
+
+func _reflow_action_buttons() -> void:
+	_action_layout_queued = false
+	_layout_action_buttons()
+
 func _layout_action_buttons() -> void:
 	var count := action_buttons.size()
-	if count == 0 or not is_instance_valid(action_dock):
+	if not is_instance_valid(action_dock):
 		return
 	var key_width := action_dock.size.x if count == 1 else (action_dock.size.x - ACTION_GAP) / 2.0
+	var row_height := 64.0
+	for key in action_buttons.values():
+		# Establish wrapping width before measuring the full selected-size caption.
+		key.size.x = key_width
+		key._sync_caption()
+		row_height = maxf(row_height, ceilf((key.caption.get_minimum_size().y + 8.0) / 2.0) * 2.0)
+	# Full selected-size status/action captions own their required height. The
+	# remaining inspector area is the only scroll owner; no text is capped.
+	var dock_height := maxf(112.0, row_height)
+	var status_height := maxf(96.0, ceilf((status_label.get_minimum_size().y + 8.0) / 2.0) * 2.0)
+	var top := 16.0 if _title_login else 96.0
+	var info_height := MAIN_HEIGHT - dock_height - status_height
+	info_scroll.size.y = info_height
+	_info_overlay.size.y = info_height
+	status_region.position.y = top + info_height
+	status_region.size.y = status_height
+	status_label.size.y = status_height - 8.0
+	action_dock.position.y = top + MAIN_HEIGHT - dock_height
+	action_dock.size.y = dock_height
+	_measure_revision += 1
+	_measure_information.call_deferred(_measure_revision)
+	_body.queue_redraw()
+	_info_overlay.queue_redraw()
+	# The host retains horizontal order and owns the vertical action-row space.
+	var row_top := maxf(0.0, floorf((action_dock.size.y - row_height) / 2.0))
 	var index := 0
 	for key: Button in action_buttons.values():
-		key.position = Vector2(index * (key_width + ACTION_GAP), 24)
-		key.size = Vector2(key_width, 64)
+		key.position = Vector2(index * (key_width + ACTION_GAP), row_top)
+		key.size = Vector2(key_width, row_height)
 		index += 1

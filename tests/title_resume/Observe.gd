@@ -94,7 +94,7 @@ func _open_title(menu: Node) -> Node:
 	_check(app.mode_buttons.is_empty() and app.active_mode == "load", "Title exposes Load/Delete with no mode group")
 	_check(menu._title_label.text == "Log in", "Opened title heading uses the ready English catalog text")
 	_check(menu._backup_app_host.get_global_rect().is_equal_approx(Rect2(320, 0, 960, 720)), "Actual title reserves 320 pixels for menu and 960 for the login host")
-	_check(app.get_global_rect().is_equal_approx(Rect2(400, 64, 800, 656)), "Title Backup keeps its 800x656 body below the 64px strip with 80px side inset")
+	_check(app.get_global_rect().is_equal_approx(Rect2(336, 64, 928, 656)) and menu._backup_app_host.get_global_rect().encloses(app.get_global_rect()), "Title Backup centers its measured 928x656 body below the 64px strip with 16px side insets inside the host")
 	return app
 
 func _back() -> void:

@@ -50,16 +50,18 @@ class ProfileFixture extends Node:
 	signal preference_changed(path: StringName, value: Variant)
 	var scale := 1.0
 	func get_preference(path: StringName, fallback: Variant = null) -> Variant:
-		return scale if path == &"preferences.accessibility.font_scale" else fallback
+		return roundi(scale * 100) if path == &"preferences.accessibility.text_size" else fallback
 	func change(value: float) -> void:
 		scale = value
-		preference_changed.emit(&"preferences.accessibility.font_scale", value)
+		preference_changed.emit(&"preferences.accessibility.text_size", roundi(value * 100))
 
 const ROWS := ["DayLabel", "PressureRow", "HealthRow", "MotivationRow", "MoneyRow", "CoinRow", "ConditionDisplay", "PenaltyLabel", "UnavailableLabel"]
 const NAMES := {
 	"en": ["Day", "Pressure", "Health", "Motivation", "Money", "Coins"],
 	"zh-CN": ["天", "压力", "健康", "动力", "金钱", "硬币"],
-	"zh-HK": ["天", "壓力", "健康", "動力", "金錢", "硬幣"]}
+	"zh-HK": ["天", "壓力", "健康", "動力", "金錢", "硬幣"],
+	"ja": ["日目", "プレッシャー", "体調", "意欲", "所持金", "コイン"],
+	"ko": ["일차", "압박감", "건강", "의욕", "소지금", "코인"]}
 var checks := 0
 var failures: Array[String] = []
 
@@ -200,7 +202,7 @@ func _run() -> void:
 	owner.penalty_points_today = 6
 	owner.day = 3
 	owner.day_changed.emit(owner.day)
-	for code: String in ["en", "zh-CN", "zh-HK"]:
+	for code: String in ["en", "zh-CN", "zh-HK", "ja", "ko"]:
 		locale.change(code)
 		for scale: float in [1.0, 1.25, 1.5]:
 			profile.change(scale)
