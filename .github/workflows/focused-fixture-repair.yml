@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v7
       with:
-        ref: 603388cb6612e2e635b472fffdab20210211b001
+        ref: 486a27c145c31374741d00da44adaebd99bfb90a
         fetch-depth: 1
         persist-credentials: true
     - name: Prepare disposable checkout for credential cleanup
@@ -48,13 +48,13 @@ jobs:
         if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }\n\"GODOT_CONSOLE_PATH=$console\"\
         \ | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8\n& $console --version\nif ($LASTEXITCODE -ne\
         \ 0) { exit $LASTEXITCODE }\n"
-    - name: Validate Backup host row and measure drawer text
+    - name: Validate full-width drawer and decoration separation
       shell: python {0}
       run: "import hashlib, json, os, pathlib, shutil, subprocess, sys, time\nroot = pathlib.Path.cwd()\nout = root\
         \ / 'final-fixture-evidence'\nout.mkdir(exist_ok=True)\ndef sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()\n\
         def git(*args): return subprocess.check_output(['git', *args], text=True).strip()\ndef write(name, data):\
-        \ (out/name).write_text(json.dumps(data, indent=2)+'\\n', encoding='utf-8')\nsource = '603388cb6612e2e635b472fffdab20210211b001'\n\
-        assert git('rev-parse','HEAD') == source\nassert git('rev-parse','HEAD^{tree}') == '595d3ebdd378b15751b5dd4e0caa78465a1b54f6'\n\
+        \ (out/name).write_text(json.dumps(data, indent=2)+'\\n', encoding='utf-8')\nsource = '486a27c145c31374741d00da44adaebd99bfb90a'\n\
+        assert git('rev-parse','HEAD') == source\nassert git('rev-parse','HEAD^{tree}') == '8ce8090092b44861ce7b116cbce53b65816f61ef'\n\
         assert not git('diff','--name-only')\nassert set(git('diff','--cached','--name-only').splitlines()) == {'.claude/skills/godot-prompter/1.10.0',\
         \ '.claude/skills/superpowers/6.1.1'}\nassert all(line.startswith('D\\t') for line in git('diff','--cached','--name-status').splitlines())\n\
         tracked = subprocess.check_output(['git','ls-files','-z']).decode().split('\\0')[:-1]\nbefore = {p:sha(root/p)\
