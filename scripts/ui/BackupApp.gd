@@ -9,8 +9,8 @@ const BACKUP_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
 const LOCATORS := ["autosave", "quick", "slot:1", "slot:2", "slot:3", "slot:4", "slot:5", "slot:6", "slot:7"]
 # Cloud Label matrix: English Autosave147px; Japanese older-state360px.
 # A180px text measure plus two4px edges is the smallest even common width.
-const DRAWER_WIDTH := 188.0
-const DRAWER_HEIGHT := 176.0
+const DRAWER_WIDTH := DRAWER.MINIMUM_SIZE.x
+const DRAWER_HEIGHT := DRAWER.MINIMUM_SIZE.y
 const DRAWER_GAP := 8.0
 const BODY_MARGIN := 14.0
 const RIGHT_X := BODY_MARGIN + 3.0 * DRAWER_WIDTH + 2.0 * DRAWER_GAP + 16.0

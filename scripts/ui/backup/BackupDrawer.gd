@@ -1,6 +1,8 @@
 extends Button
 ## One semantic locator. Focus/selection never performs a record operation.
 
+const MINIMUM_SIZE := Vector2(188, 176)
+
 var selected := false:
 	set(value):
 		selected = value
@@ -11,7 +13,7 @@ var state_label: Label
 var _layout_queued := false
 
 func _ready() -> void:
-	custom_minimum_size = Vector2(188, 176)
+	custom_minimum_size = MINIMUM_SIZE
 	focus_mode = Control.FOCUS_ALL
 	for state in ["normal", "hover", "pressed", "focus", "disabled"]:
 		add_theme_stylebox_override(state, StyleBoxEmpty.new())

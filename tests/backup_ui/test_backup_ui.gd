@@ -135,7 +135,14 @@ func capture_layout(app: Control, name: String) -> void:
 		geometry.append({"identity": drawer.identity_label.text, "state": drawer.state_label.text,
 			"drawer": str(drawer.get_global_rect()), "identity_rect": str(drawer.identity_label.get_global_rect()),
 			"state_rect": str(drawer.state_label.get_global_rect()), "focused": drawer.has_focus(), "unavailable": drawer.unavailable})
-	captures.append({"name": name, "size": [picture.get_width(), picture.get_height()], "drawers": geometry})
+	var actions: Array[Dictionary] = []
+	for key: Button in app.action_buttons.values():
+		actions.append({"caption": key.caption.text, "rect": str(key.get_global_rect()), "caption_rect": str(key.caption.get_global_rect()), "focused": key.has_focus(), "risk": key.risk})
+	captures.append({"name": name, "size": [picture.get_width(), picture.get_height()], "drawers": geometry,
+		"body": str(app.get_global_rect()), "host": str(app.get_parent().get_global_rect()),
+		"info": str(app.info_scroll.get_global_rect()), "status": str(app.status_label.get_global_rect()),
+		"dock": str(app.action_dock.get_global_rect()), "actions": actions, "recovering": app._recovering,
+		"confirmation": is_instance_valid(app.confirmation)})
 
 func press_key(code: Key, shifted: bool = false) -> void:
 	var event := InputEventKey.new()
@@ -359,6 +366,8 @@ func verify_ui(desktop: Control, app: Control, port: FakeBackupPort, locale: Nod
 	port.records[0].load_day = null
 	port.records[0].load_saved_time = null
 	app.refresh_view()
+	port.records[7].state = "unavailable"
+	port.records[7].actions.delete = true
 	port.records[7].reason = "older_version"
 	app.refresh_view()
 	for language in ["en", "zh-CN", "zh-HK", "ja", "ko"]:
@@ -382,7 +391,10 @@ func verify_ui(desktop: Control, app: Control, port: FakeBackupPort, locale: Nod
 				check(button.size.x == (app.action_dock.size.x - 16) / 2 and button.size.y >= 64, "Load/Delete retain two full-size dock targets")
 				check_key_caption(button)
 	port.records[7].reason = ""
+	port.records[7].state = "empty"
+	port.records[7].actions.delete = false
 	app.refresh_view()
+	await verify_recovery_matrix(app, port, locale, profile)
 	locale.change("en")
 	profile.change_scale(1.5)
 	app.mode_buttons["save"].pressed.emit()
@@ -497,6 +509,33 @@ func verify_ui(desktop: Control, app: Control, port: FakeBackupPort, locale: Nod
 		check(app.info_scroll.get_focus_mode_with_override() == Control.FOCUS_NONE, "Deferred information measurement cannot reactivate a modal-covered viewport")
 		check(app.confirmation.is_ancestor_of(root.gui_get_focus_owner()), "Modal retains exclusive focus after deferred remeasurement")
 
+func verify_recovery_matrix(app: Control, port: FakeBackupPort, locale: Node, profile: RefCounted) -> void:
+	for language: String in ["en", "zh-CN", "zh-HK", "ja", "ko"]:
+		locale.change(language)
+		for percent: float in [1.0, 1.25, 1.5]:
+			profile.change_scale(percent)
+			app.mode_buttons.save.pressed.emit()
+			app.drawer_buttons["slot:2"].pressed.emit()
+			await settle()
+			app.action_buttons.save.pressed.emit()
+			await settle()
+			check(is_instance_valid(app.confirmation), "Recovery matrix starts with real overwrite consent")
+			if not is_instance_valid(app.confirmation):
+				continue
+			port.reject_commit = true
+			app.confirmation.confirm_button.pressed.emit()
+			await settle()
+			check(app._recovering and app.action_buttons.has("retry"), "Storage refusal enters real recovery")
+			check_geometry(app)
+			check(app.status_label.text == app._t("failed"), "Recovery status retains full localized failure")
+			check(app.action_buttons.cancel.has_focus(), "Recovery retains Cancel-first focus")
+			for key in app.action_buttons.values():
+				check_key_caption(key)
+			if percent == 1.5 and language in ["ja", "ko"]:
+				await capture_layout(app, "recovery-" + language + "-150-" + tested_font_style)
+			app.action_buttons.cancel.pressed.emit()
+			await settle()
+
 func check_title_login() -> void:
 	title_tail_runs.append(tested_font_style)
 	# Real body and fonts; title scene/owner/process boundaries have separate tests.
@@ -522,6 +561,8 @@ func check_title_login() -> void:
 	check(app.configure_backup(port, locale, profile).get("ok", false), "Title body configures with injected title operations")
 	app.show_window()
 	await settle()
+	port.records[7].state = "unavailable"
+	port.records[7].actions.delete = true
 	port.records[7].reason = "older_version"
 	app.refresh_view()
 	for language in ["en", "zh-CN", "zh-HK", "ja", "ko"]:
