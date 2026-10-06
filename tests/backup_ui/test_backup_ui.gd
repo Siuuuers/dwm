@@ -155,17 +155,28 @@ func check_rect(control: Control, app: Control, expected: Rect2, description: St
 	check(actual.is_equal_approx(expected), description + ": " + str(actual))
 
 func check_geometry(app: Control) -> void:
-	check(app.size.is_equal_approx(Vector2(800, 656)), "Backup remains an800x656 content pane")
+	check(app.size.x >= 800 and app.size.y == 656, "Backup uses the available host width and original height")
+	check(Rect2(Vector2.ZERO, Vector2(1280, 720)).encloses(app.get_global_rect()), "Backup body stays inside the actual stage")
+	check(app.get_parent().get_global_rect().encloses(app.get_global_rect()), "Backup body stays inside its actual host")
 	check(app.drawer_buttons.keys() == LOCATORS, "Nine semantic locators retain exact row-major order")
+	var top: int = 16 if app._title_login else 96
 	for index in range(LOCATORS.size()):
 		var drawer: Button = app.drawer_buttons[LOCATORS[index]]
-		check_rect(drawer, app, Rect2(16 + (index % 3) * 152, 96 + (index / 3) * 184, 144, 176), "Stable cabinet drawer " + LOCATORS[index])
-		check(not drawer.disabled and drawer.focus_mode == Control.FOCUS_ALL, "Every drawer remains inspectable regardless of record availability")
-	check_rect(app.mode_buttons["save"], app, Rect2(16, 16, 96, 64), "Large Save mode target chosen for font fit")
-	check_rect(app.mode_buttons["load"], app, Rect2(128, 16, 96, 64), "Large Load mode target chosen for font fit")
-	check_rect(app.info_scroll, app, Rect2(480, 96, 304, 336), "Only information viewport may overflow")
-	check_rect(app.status_region, app, Rect2(480, 432, 304, 96), "Pinned status region")
-	check_rect(app.action_dock, app, Rect2(480, 528, 304, 112), "Pinned action dock")
+		check_rect(drawer, app, Rect2(14 + (index % 3) * 196, top + (index / 3) * 184, 188, 176), "Measured cabinet drawer " + LOCATORS[index])
+		check(not drawer.disabled, "Every drawer remains inspectable regardless of record availability")
+		check(app.get_global_rect().encloses(drawer.get_global_rect().grow(7)), "Drawer outer focus ring stays inside the body")
+	if not app._title_login:
+		check_rect(app.mode_buttons["save"], app, Rect2(16, 16, 96, 64), "Save mode target retained")
+		check_rect(app.mode_buttons["load"], app, Rect2(128, 16, 96, 64), "Load mode target retained")
+	for region in [app.info_scroll, app.status_region, app.action_dock]:
+		check(region.position.x == 610 and region.size.x == app.size.x - 624, "One cabinet split owns all inspector widths")
+		check(app.get_global_rect().encloses(region.get_global_rect()), "Inspector region stays inside host")
+	check(app.info_scroll.position.y == top and app.info_scroll.size.y >= 96, "Information viewport retains a usable visible area")
+	check(app.info_scroll.get_rect().end.y == app.status_region.position.y, "Information stops before pinned status")
+	check(app.status_region.get_rect().end.y == app.action_dock.position.y, "Status stops before pinned actions")
+	check(app.action_dock.get_rect().end.y == top + 544, "Actions remain pinned to cabinet bottom")
+	check(app.status_region.get_global_rect().encloses(app.status_label.get_global_rect()), "Full status fits its allocation")
+	check(app.status_label.max_lines_visible == -1, "Status is not line capped")
 	for scroll in app.find_children("*", "ScrollContainer", true, false):
 		check(scroll == app.info_scroll, "Cabinet, status and actions have no competing scroll owner")
 	check(not app.info_scroll.is_ancestor_of(app.status_region) and not app.info_scroll.is_ancestor_of(app.action_dock), "Status and actions cannot scroll away with information")
@@ -201,7 +212,14 @@ func check_key_caption(key: Button) -> void:
 	check(caption != null, "Action has a real visible Caption")
 	if caption == null:
 		return
-	check(caption.text == key.accessibility_name and not caption.text.is_empty(), "Visible caption and accessible action verb agree")
+	var expected: String = key.accessibility_name
+	if key.name in ["SaveMode", "LoadMode"]:
+		var app: Node = key.get_parent()
+		while not app is BackupApp:
+			app = app.get_parent()
+		var role := "save" if key.name == "SaveMode" else "load"
+		expected = app._fit_caption(key.accessibility_name, app._compact_text(role, key.accessibility_name), caption)
+	check(caption.text == expected and not caption.text.is_empty(), "Visible action preserves full copy or its existing authored mode contract")
 	check(key.size.x >= 48 and key.size.y >= 48, "Action preserves the minimum interactive target")
 	if key.get_parent().name == "PinnedActions":
 		check(Rect2(Vector2.ZERO, key.get_parent().size).encloses(key.get_rect()), "Host-owned action stays fully inside the fixed dock")
@@ -341,7 +359,9 @@ func verify_ui(desktop: Control, app: Control, port: FakeBackupPort, locale: Nod
 	port.records[0].load_day = null
 	port.records[0].load_saved_time = null
 	app.refresh_view()
-	for language in ["en", "zh-CN", "zh-HK"]:
+	port.records[7].reason = "older_version"
+	app.refresh_view()
+	for language in ["en", "zh-CN", "zh-HK", "ja", "ko"]:
 		locale.change(language)
 		for index in range(3):
 			profile.change_scale([1.0, 1.25, 1.5][index])
@@ -359,8 +379,10 @@ func verify_ui(desktop: Control, app: Control, port: FakeBackupPort, locale: Nod
 			app.mode_buttons["load"].pressed.emit()
 			await settle()
 			for button in app.action_buttons.values():
-				check(button.size == Vector2(144, 64), "Load/Delete retain fixed two-key dock targets")
+				check(button.size.x == (app.action_dock.size.x - 16) / 2 and button.size.y >= 64, "Load/Delete retain two full-size dock targets")
 				check_key_caption(button)
+	port.records[7].reason = ""
+	app.refresh_view()
 	locale.change("en")
 	profile.change_scale(1.5)
 	app.mode_buttons["save"].pressed.emit()
@@ -368,7 +390,7 @@ func verify_ui(desktop: Control, app: Control, port: FakeBackupPort, locale: Nod
 	await settle()
 	app.action_buttons["save"].pressed.emit()
 	await settle()
-	await capture_layout(app, "overwrite-" + tested_font_style)
+	await capture_layout(app, "overwrite-confirmation-" + tested_font_style)
 	check(is_instance_valid(app.confirmation), "Occupied numbered Save requires overwrite confirmation")
 	if is_instance_valid(app.confirmation):
 		check_key_caption(app.confirmation.cancel_button)
@@ -376,8 +398,12 @@ func verify_ui(desktop: Control, app: Control, port: FakeBackupPort, locale: Nod
 		port.reject_commit = true
 		app.confirmation.confirm_button.pressed.emit()
 		await settle()
+		check(app._recovering and not is_instance_valid(app.confirmation), "Capture is actual failed-save recovery, not confirmation")
+		check(app.action_buttons.has("retry") and app.action_buttons.retry.caption.text == "Overwrite", "Recovery dock retains explicit Overwrite")
+		check_geometry(app)
 		for button in app.action_buttons.values():
 			check_key_caption(button)
+		await capture_layout(app, "overwrite-recovery-dock-" + tested_font_style)
 		if app.action_buttons.has("cancel"):
 			app.action_buttons["cancel"].pressed.emit()
 			await settle()
@@ -475,7 +501,8 @@ func check_title_login() -> void:
 	title_tail_runs.append(tested_font_style)
 	# Real body and fonts; title scene/owner/process boundaries have separate tests.
 	var host := Control.new()
-	host.size = Vector2(1280, 720)
+	host.position = Vector2(320, 0)
+	host.size = Vector2(960, 720)
 	root.add_child(host)
 	var return_button := Button.new()
 	return_button.position = Vector2(320, 0)
@@ -483,7 +510,7 @@ func check_title_login() -> void:
 	host.add_child(return_button)
 	var app: Control = load("res://scenes/apps/BackupApp.tscn").instantiate()
 	app.configure_title_login()
-	app.position = Vector2(400, 64)
+	app.position = Vector2(80, 64)
 	app.size = Vector2(800, 656)
 	host.add_child(app)
 	var locale := Fixtures.FakeLocale.new()
@@ -495,7 +522,9 @@ func check_title_login() -> void:
 	check(app.configure_backup(port, locale, profile).get("ok", false), "Title body configures with injected title operations")
 	app.show_window()
 	await settle()
-	for language in ["en", "zh-CN", "zh-HK"]:
+	port.records[7].reason = "older_version"
+	app.refresh_view()
+	for language in ["en", "zh-CN", "zh-HK", "ja", "ko"]:
 		locale.change(language)
 		for index in range(3):
 			profile.change_scale([1.0, 1.25, 1.5][index])
@@ -504,12 +533,8 @@ func check_title_login() -> void:
 			check(app.action_buttons.keys() == ["load", "delete"], "Title exposes only Load and Delete")
 			check(app.action_buttons.load.risk == "neutral", "Title ordinary Load is neutral")
 			check(app.selected_locator == "autosave", "Loadable Autosave is the title first selection")
-			for drawer_index in range(LOCATORS.size()):
-				var drawer: Control = app.drawer_buttons[LOCATORS[drawer_index]]
-				check_rect(drawer, app, Rect2(16 + (drawer_index % 3) * 152, 16 + (drawer_index / 3) * 184, 144, 176), "Title cabinet fixed offset")
-			check_rect(app.info_scroll, app, Rect2(480, 16, 304, 336), "Title information starts without reserved mode space")
-			check_rect(app.status_region, app, Rect2(480, 352, 304, 96), "Title status stays pinned above quiet field")
-			check_rect(app.action_dock, app, Rect2(480, 448, 304, 112), "Title actions end at quiet lower field")
+			check_geometry(app)
+			check(app.size.x == 928 and app.position.x == 16, "Title uses available width before narrowing inspector")
 			check_drawer_text(app, ([24, 30, 36] if tested_font_style == "pixel" else [20, 25, 30])[index])
 			if tested_font_style == "pixel" and ((language == "en" and index in [0, 2]) or (language != "en" and index == 2)):
 				await capture_layout(app, "title-" + language + "-" + str(index))
