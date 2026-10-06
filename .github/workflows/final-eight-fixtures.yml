@@ -9,17 +9,35 @@ permissions:
   contents: read
 jobs:
   fixtures:
-    runs-on: windows-latest
+    runs-on: windows-2022
     timeout-minutes: 70
     defaults:
       run:
         shell: pwsh
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         ref: 85f29f832dfa627ec128a413922e0daf9dff69f5
         fetch-depth: 1
-        persist-credentials: false
+        persist-credentials: true
+    - name: Prepare disposable checkout for credential cleanup
+      run: '$ErrorActionPreference = ''Stop''
+
+        # These legacy tooling gitlinks have no .gitmodules URLs. Git''s
+
+        # submodule foreach reads the index even with sparse checkout.
+
+        # The source commit and working files remain unchanged.
+
+        git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        git submodule foreach --recursive ''true''
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        '
     - name: Install Godot 4.6.3 standard
       run: "$ErrorActionPreference = 'Stop'\n$archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'\nInvoke-WebRequest\
         \ -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip'\
@@ -37,9 +55,10 @@ jobs:
         def git(*args): return subprocess.check_output(['git', *args], text=True).strip()\ndef write(name, data):\
         \ (out/name).write_text(json.dumps(data, indent=2)+'\\n', encoding='utf-8')\nsource = '85f29f832dfa627ec128a413922e0daf9dff69f5'\n\
         assert git('rev-parse','HEAD') == source\nassert git('rev-parse','HEAD^{tree}') == 'b00b065e696cae754c7287ca09f59e6e2a95326c'\n\
-        assert not git('diff','--name-only') and not git('diff','--cached','--name-only')\ntracked = subprocess.check_output(['git','ls-files','-z']).decode().split('\\\
-        0')[:-1]\nbefore = {p:sha(root/p) for p in tracked if (root/p).is_file()}\nwrite('source-before.json',before)\n\
-        identity = {'source':source,'tree':git('rev-parse','HEAD^{tree}'),'controller':os.environ['GITHUB_SHA'],\
+        assert not git('diff','--name-only')\nassert set(git('diff','--cached','--name-only').splitlines()) == {'.claude/skills/godot-prompter/1.10.0',\
+        \ '.claude/skills/superpowers/6.1.1'}\nassert all(line.startswith('D\\t') for line in git('diff','--cached','--name-status').splitlines())\n\
+        tracked = subprocess.check_output(['git','ls-files','-z']).decode().split('\\0')[:-1]\nbefore = {p:sha(root/p)\
+        \ for p in tracked if (root/p).is_file()}\nwrite('source-before.json',before)\nidentity = {'source':source,'tree':git('rev-parse','HEAD^{tree}'),'controller':os.environ['GITHUB_SHA'],\
         \ 'ref':os.environ['GITHUB_REF'], 'run':os.environ['GITHUB_RUN_ID'], 'attempt':os.environ['GITHUB_RUN_ATTEMPT'],\
         \ 'engine':os.environ['GODOT_CONSOLE_PATH'], 'engine_sha256':sha(pathlib.Path(os.environ['GODOT_CONSOLE_PATH'])),\
         \ 'engine_version':subprocess.check_output([os.environ['GODOT_CONSOLE_PATH'],'--version'],text=True).strip()}\n\
