@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v7
       with:
-        ref: 8d9acd27faa57a0be8a0b333079df2b3c861b3b4
+        ref: b4efeac2e3fddaddf890c889fcc86b33faa7f914
         fetch-depth: 1
         persist-credentials: true
     - name: Prepare disposable checkout for credential cleanup
@@ -48,22 +48,23 @@ jobs:
         \ (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }\n\"GODOT_CONSOLE_PATH=$console\"\
         \ | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8\n& $console --version\nif ($LASTEXITCODE -ne 0) { exit\
         \ $LASTEXITCODE }\n"
-    - name: Measure production Backup fonts and real Label width budgets
+    - name: Verify measured Backup geometry and original rendered recovery dock
       shell: python {0}
       run: "import hashlib, json, os, pathlib, shutil, subprocess, sys, time\nroot = pathlib.Path.cwd()\nout = root / 'final-fixture-evidence'\n\
         out.mkdir(exist_ok=True)\ndef sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()\ndef git(*args): return subprocess.check_output(['git',\
         \ *args], text=True).strip()\ndef write(name, data): (out/name).write_text(json.dumps(data, indent=2)+'\\n', encoding='utf-8')\n\
-        source = '8d9acd27faa57a0be8a0b333079df2b3c861b3b4'\nassert git('rev-parse','HEAD') == source\nassert git('rev-parse','HEAD^{tree}')\
-        \ == '3b70788cc2ed28ec82abbb29bb2d1aaa4aa1956a'\nassert not git('diff','--name-only')\nassert set(git('diff','--cached','--name-only').splitlines())\
+        source = 'b4efeac2e3fddaddf890c889fcc86b33faa7f914'\nassert git('rev-parse','HEAD') == source\nassert git('rev-parse','HEAD^{tree}')\
+        \ == '47871675c099b93f9365f2f0cc4bfaeb2a041c36'\nassert not git('diff','--name-only')\nassert set(git('diff','--cached','--name-only').splitlines())\
         \ == {'.claude/skills/godot-prompter/1.10.0', '.claude/skills/superpowers/6.1.1'}\nassert all(line.startswith('D\\\
         t') for line in git('diff','--cached','--name-status').splitlines())\ntracked = subprocess.check_output(['git','ls-files','-z']).decode().split('\\\
         0')[:-1]\nbefore = {p:sha(root/p) for p in tracked if (root/p).is_file()}\nwrite('source-before.json',before)\nidentity\
         \ = {'source':source,'tree':git('rev-parse','HEAD^{tree}'),'controller':os.environ['GITHUB_SHA'], 'ref':os.environ['GITHUB_REF'],\
         \ 'run':os.environ['GITHUB_RUN_ID'], 'attempt':os.environ['GITHUB_RUN_ATTEMPT'], 'engine':os.environ['GODOT_CONSOLE_PATH'],\
         \ 'engine_sha256':sha(pathlib.Path(os.environ['GODOT_CONSOLE_PATH'])), 'engine_version':subprocess.check_output([os.environ['GODOT_CONSOLE_PATH'],'--version'],text=True).strip()}\n\
-        write('identity.json',identity)\nfixtures = [\n ('backup_ui','tools/backup_ui/verify.py',['--measure-layout'], 'tools/backup_ui/evidence/ui'),\n\
-        ]\n# Remove historical output from this disposable checkout so it cannot satisfy a fresh result.\nallowed = set()\n\
-        for _,_,_,directory in fixtures:\n for p in (root/directory).rglob('*'):\n  if p.is_file(): allowed.add(p.relative_to(root).as_posix())\n\
+        write('identity.json',identity)\nfixtures = [\n ('backup_headless','tools/backup_ui/verify.py',[], 'tools/backup_ui/evidence/ui'),\n\
+        \ ('backup_rendered','tools/backup_ui/verify.py',['--render'], 'tools/backup_ui/evidence/rendered'),\n]\n# Remove\
+        \ historical output from this disposable checkout so it cannot satisfy a fresh result.\nallowed = set()\nfor _,_,_,directory\
+        \ in fixtures:\n for p in (root/directory).rglob('*'):\n  if p.is_file(): allowed.add(p.relative_to(root).as_posix())\n\
         \ shutil.rmtree(root/directory, ignore_errors=True)\n (root/directory).mkdir(parents=True)\nrecords=[]\nfor name,runner,args,directory\
         \ in fixtures:\n command=[sys.executable,runner,*args]\n start=time.time()\n try:\n  result=subprocess.run(command,capture_output=True,timeout=700)\n\
         \  code=result.returncode; stdout=result.stdout; stderr=result.stderr\n except subprocess.TimeoutExpired as e:\n \
@@ -82,9 +83,9 @@ jobs:
         \ not scratch.is_dir():continue\n dest=out/'scratch'/scratch.name\n for p in scratch.rglob('*'):\n  rel=p.relative_to(scratch)\n\
         \  if p.is_file() and ('project' not in rel.parts and '.godot' not in rel.parts) and (len(rel.parts)==1 or rel.parts[0]\
         \ in ('appdata','localappdata','temp','tmp')):\n   q=dest/rel; q.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(p,q)\n\
-        write('custody.json',{'source':source,'tracked_count':len(before),'allowed_output_paths':sorted(allowed),'unexpected_source_changes':[],'git_status':git('status','--porcelain','--untracked-files=all'),'fixtures_complete':len(records)==1})\n\
+        write('custody.json',{'source':source,'tracked_count':len(before),'allowed_output_paths':sorted(allowed),'unexpected_source_changes':[],'git_status':git('status','--porcelain','--untracked-files=all'),'fixtures_complete':len(records)==2})\n\
         write('manifest.json',[{'path':p.relative_to(out).as_posix(),'size':p.stat().st_size,'sha256':sha(p)} for p in sorted(out.rglob('*'))\
-        \ if p.is_file() and p.name!='manifest.json'])\nsys.exit(0 if len(records)==1 and all(r['passed'] for r in records)\
+        \ if p.is_file() and p.name!='manifest.json'])\nsys.exit(0 if len(records)==2 and all(r['passed'] for r in records)\
         \ else 1)\n"
     - name: Upload original fixture outputs
       if: always()
