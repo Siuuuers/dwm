@@ -11,6 +11,7 @@ import tempfile
 
 root = Path(__file__).resolve().parents[2]
 probe = '--probe' in sys.argv
+render = '--render' in sys.argv
 test_script = globals().get('TEST_SCRIPT', 'tests/backup_ui/probe_font_fit.gd' if probe else 'tests/backup_ui/test_backup_ui.gd')
 marker = globals().get('PASS_MARKER', 'BACKUP_FONT_FIT_PROBE_DONE' if probe else 'BACKUP_UI_PASS')
 cache = root / '.godot'
@@ -74,11 +75,16 @@ for key in ['APPDATA', 'LOCALAPPDATA']:
     location.mkdir()
     env[key] = str(location)
 godot = env.get('GODOT_CONSOLE_PATH', r'C:\Program Files\Godot_v4.6.3-stable_mono_win64\Godot_v4.6.3-stable_mono_win64_console.exe')
+if render:
+    capture_dir = scratch / "captures"
+    capture_dir.mkdir()
+    env["DWM_BACKUP_CAPTURE_DIR"] = str(capture_dir)
 logs = []
 passed = True
 for arguments in [['--editor', '--import', '--quit'], ['--script', 'res://' + test_script]]:
-    result = subprocess.run([godot, '--headless', '--path', str(scratch), *arguments],
-                            env=env, capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=90)
+    display_args = ['--rendering-method', 'gl_compatibility', '--audio-driver', 'Dummy'] if render and '--script' in arguments else ['--headless']
+    result = subprocess.run([godot, *display_args, '--path', str(scratch), *arguments],
+                            env=env, capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=180 if render else 90)
     output = result.stdout + result.stderr
     logs.append(output)
     checked = output.replace('ERROR: Failed to read the root certificate store.', '')
@@ -101,9 +107,18 @@ if probe:
     report['measurements'] = [json.loads(line) for line in logs[-1].splitlines() if line.startswith('{')]
 else:
     report['test_summaries'] = [json.loads(line) for line in logs[-1].splitlines() if line.startswith('{')]
+if render:
+    report['rendered'] = True
+    report['scope'] = 'Real Backup/shared-shell scenes with injected external owners. Rendered viewport and layout/interaction fixture; no native accessibility or physical input acceptance.'
+    report['captures'] = [{'file': p.name, 'sha256': hashlib.sha256(p.read_bytes()).hexdigest(), 'size': p.stat().st_size} for p in sorted(capture_dir.glob('*.png'))]
 (scratch / 'result.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
 evidence = root / EVIDENCE_DIR if globals().get('EVIDENCE_DIR') else root / 'tools/backup_ui/evidence' / ('font-probe' if probe else 'ui')
+if render:
+    evidence = evidence.parent / 'rendered'
 evidence.mkdir(parents=True, exist_ok=True)
+if render:
+    shutil.copytree(capture_dir, evidence / 'captures', dirs_exist_ok=True)
+
 portable_report = dict(report)
 portable_report['log'] = (evidence / 'verification.log').relative_to(root).as_posix()
 (evidence / 'verification.log').write_text('\n'.join(logs), encoding='utf-8')

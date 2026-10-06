@@ -14,6 +14,7 @@ class TypographyProfile extends Fixtures.FakeProfile:
 var tested_font_style := "pixel"
 var title_tail_runs: Array[String] = []
 var drawer_measurements: Array[Dictionary] = []
+var captures: Array[Dictionary] = []
 
 func typography_profile() -> TypographyProfile:
 	var profile := TypographyProfile.new()
@@ -119,6 +120,22 @@ func check(condition: bool, description: String) -> void:
 func settle() -> void:
 	for frame in range(6):
 		await process_frame
+
+func capture_layout(app: Control, name: String) -> void:
+	var directory := OS.get_environment("DWM_BACKUP_CAPTURE_DIR")
+	if directory.is_empty():
+		return
+	await RenderingServer.frame_post_draw
+	var picture := root.get_texture().get_image()
+	check(not picture.is_empty(), "Rendered viewport has pixels")
+	var path := directory.path_join(name + ".png")
+	check(picture.save_png(path) == OK, "Rendered viewport saved: " + name)
+	var geometry: Array[Dictionary] = []
+	for drawer in app.drawer_buttons.values():
+		geometry.append({"identity": drawer.identity_label.text, "state": drawer.state_label.text,
+			"drawer": str(drawer.get_global_rect()), "identity_rect": str(drawer.identity_label.get_global_rect()),
+			"state_rect": str(drawer.state_label.get_global_rect()), "focused": drawer.has_focus(), "unavailable": drawer.unavailable})
+	captures.append({"name": name, "size": [picture.get_width(), picture.get_height()], "drawers": geometry})
 
 func press_key(code: Key, shifted: bool = false) -> void:
 	var event := InputEventKey.new()
@@ -332,6 +349,8 @@ func verify_ui(desktop: Control, app: Control, port: FakeBackupPort, locale: Nod
 			await settle()
 			check_geometry(app)
 			check_drawer_text(app, ([24, 30, 36] if tested_font_style == "pixel" else [20, 25, 30])[index])
+			if tested_font_style == "pixel" and ((language == "en" and index in [0, 2]) or (language != "en" and index == 2)):
+				await capture_layout(app, "in-run-" + language + "-" + str(index))
 			for button in app.mode_buttons.values():
 				check(button.size.y == 64 and button.get_theme_font_size("font_size") == [24, 30, 36][index], "Mode uses readable full-size type in fixed64 target")
 				check_key_caption(button)
@@ -349,6 +368,7 @@ func verify_ui(desktop: Control, app: Control, port: FakeBackupPort, locale: Nod
 	await settle()
 	app.action_buttons["save"].pressed.emit()
 	await settle()
+	await capture_layout(app, "overwrite-" + tested_font_style)
 	check(is_instance_valid(app.confirmation), "Occupied numbered Save requires overwrite confirmation")
 	if is_instance_valid(app.confirmation):
 		check_key_caption(app.confirmation.cancel_button)
@@ -491,6 +511,8 @@ func check_title_login() -> void:
 			check_rect(app.status_region, app, Rect2(480, 352, 304, 96), "Title status stays pinned above quiet field")
 			check_rect(app.action_dock, app, Rect2(480, 448, 304, 112), "Title actions end at quiet lower field")
 			check_drawer_text(app, ([24, 30, 36] if tested_font_style == "pixel" else [20, 25, 30])[index])
+			if tested_font_style == "pixel" and ((language == "en" and index in [0, 2]) or (language != "en" and index == 2)):
+				await capture_layout(app, "title-" + language + "-" + str(index))
 			for key in app.action_buttons.values():
 				check_key_caption(key)
 			app.drawer_buttons.autosave.grab_focus()
@@ -534,7 +556,7 @@ func _run() -> void:
 		tested_font_style = font_style
 		await _run_typography()
 	check(title_tail_runs == ["pixel", "readable"], "Title-login tail executes for default pixel and readable")
-	print(JSON.stringify({"checks_run": checks_run, "suite": "BackupUI", "font_styles": ["pixel", "readable"], "title_tail_runs": title_tail_runs, "failures": failures, "drawer_measurements": drawer_measurements}))
+	print(JSON.stringify({"checks_run": checks_run, "suite": "BackupUI", "font_styles": ["pixel", "readable"], "title_tail_runs": title_tail_runs, "failures": failures, "drawer_measurements": drawer_measurements, "captures": captures}))
 	if failures.is_empty():
 		print("BACKUP_UI_PASS")
 	quit(0 if failures.is_empty() else 1)
