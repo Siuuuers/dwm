@@ -12,8 +12,11 @@ import tempfile
 root = Path(__file__).resolve().parents[2]
 probe = '--probe' in sys.argv
 render = '--render' in sys.argv
+measure_layout = '--measure-layout' in sys.argv
 test_script = globals().get('TEST_SCRIPT', 'tests/backup_ui/probe_font_fit.gd' if probe else 'tests/backup_ui/test_backup_ui.gd')
 marker = globals().get('PASS_MARKER', 'BACKUP_FONT_FIT_PROBE_DONE' if probe else 'BACKUP_UI_PASS')
+if measure_layout:
+    marker = 'BACKUP_LAYOUT_MEASUREMENT_DONE'
 cache = root / '.godot'
 cache.mkdir(exist_ok=True)
 scratch = Path(tempfile.mkdtemp(prefix=globals().get('SCRATCH_PREFIX', 'backup-ui-'), dir=cache))
@@ -70,6 +73,8 @@ window/size/viewport_height=720
 renderer/rendering_method="gl_compatibility"
 ''', encoding='utf-8')
 env = os.environ.copy()
+if measure_layout:
+    env["DWM_BACKUP_MEASURE_LAYOUT"] = "1"
 for key in ['APPDATA', 'LOCALAPPDATA']:
     location = scratch / key.lower()
     location.mkdir()
@@ -100,6 +105,8 @@ report = {
     'known_environment_diagnostic': 'Windows root certificate store inaccessible; only that exact diagnostic is allowed and remains logged.',
     'sources': {relative: hashlib.sha256((scratch / relative).read_bytes()).hexdigest() for relative in sorted(copied)},
 }
+if measure_layout:
+    report['scope'] = 'Production-font and real Label width/height measurement only; not Backup acceptance.'
 report['sources'][Path(__file__).relative_to(root).as_posix()] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 if globals().get('WRAPPER_SOURCE'):
     report['sources'][WRAPPER_SOURCE] = hashlib.sha256((root / WRAPPER_SOURCE).read_bytes()).hexdigest()

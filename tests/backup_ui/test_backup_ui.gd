@@ -552,6 +552,9 @@ func _bind_isolated_desktop(child: Node) -> void:
 		check(child.configure_run_configuration(CapturedRun.new()).get("ok", false), "Desktop admits the isolated captured run before ready")
 
 func _run() -> void:
+	if OS.get_environment("DWM_BACKUP_MEASURE_LAYOUT") == "1":
+		await measure_layout_budget()
+		return
 	for font_style: String in ["pixel", "readable"]:
 		tested_font_style = font_style
 		await _run_typography()
@@ -637,3 +640,50 @@ func _run_typography() -> void:
 		await settle()
 	# This separate fixture owns its own tree and still reports failures honestly.
 	await check_title_login()
+
+# Measurement mode is explicitly separate from Backup acceptance. It uses the
+# production faces/copy and real Label shaping without altering runtime geometry.
+func measure_layout_budget() -> void:
+	root.size = Vector2i(1280, 720)
+	var typography := preload("res://scripts/ui/UiTypography.gd")
+	var rows: Array[Dictionary] = []
+	for style: String in ["pixel", "readable"]:
+		for language: String in ["en", "zh-CN", "zh-HK", "ja", "ko"]:
+			for percent: int in [100, 125, 150]:
+				var face: Font = typography.font(language, percent, style)
+				var points: int = typography.font_size(language, percent, 20, style)
+				var copy: Dictionary = BackupApp.COPY[language]
+				var texts: Array[String] = [copy.autosave, copy.quick, str(copy.slot).format({"n": 7}),
+					str(copy.day).format({"day": 7, "time": "09:07"}), copy.empty, copy.unavailable, copy.older]
+				for key: String in ["autosave", "quick", "slot"]:
+					if BackupApp.COMPACT_COPY.get(language, {}).has(key):
+						texts.append(str(BackupApp.COMPACT_COPY[language][key]).format({"n": 7}))
+				var row := {"texts": texts, "locale": language, "style": style, "percent": percent, "points": points, "natural": {}, "widths": []}
+				for text: String in texts:
+					row.natural[text] = face.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, points).x
+				var labels: Array[Label] = []
+				for width: int in range(144, 202, 2):
+					for text: String in texts:
+						var label := Label.new()
+						label.text = text
+						label.add_theme_font_override("font", face)
+						label.add_theme_font_size_override("font_size", points)
+						label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+						label.size.x = width - 8 # 4px clear paper edge on each side.
+						root.add_child(label)
+						labels.append(label)
+				await settle()
+				var cursor := 0
+				for width: int in range(144, 202, 2):
+					var heights: Array[float] = []
+					for text: String in texts:
+						heights.append(labels[cursor].size.y)
+						cursor += 1
+					row.widths.append({"drawer_width": width, "text_width": width - 8, "heights": heights})
+				rows.append(row)
+				for label: Label in labels:
+					label.queue_free()
+				await settle()
+	print(JSON.stringify({"suite": "BackupLayoutMeasurement", "measurements": rows, "acceptance": false}))
+	print("BACKUP_LAYOUT_MEASUREMENT_DONE")
+	quit(0)
