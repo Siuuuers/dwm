@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v7
       with:
-        ref: e189996c5c799d83952b6904b516afbdc37b60da
+        ref: 7ea3a6a1968f35d7bfd1f1d2e1bf64a5bdca20ea
         fetch-depth: 1
         persist-credentials: true
     - name: Prepare disposable checkout for credential cleanup
@@ -53,8 +53,8 @@ jobs:
       run: "import hashlib, json, os, pathlib, shutil, subprocess, sys, time\nroot = pathlib.Path.cwd()\nout = root / 'final-fixture-evidence'\n\
         out.mkdir(exist_ok=True)\ndef sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()\ndef git(*args): return subprocess.check_output(['git',\
         \ *args], text=True).strip()\ndef write(name, data): (out/name).write_text(json.dumps(data, indent=2)+'\\n', encoding='utf-8')\n\
-        source = 'e189996c5c799d83952b6904b516afbdc37b60da'\nassert git('rev-parse','HEAD') == source\nassert git('rev-parse','HEAD^{tree}')\
-        \ == '8274abf8c408905df65a8c6f488b314b1fe1aed3'\nassert not git('diff','--name-only')\nassert set(git('diff','--cached','--name-only').splitlines())\
+        source = '7ea3a6a1968f35d7bfd1f1d2e1bf64a5bdca20ea'\nassert git('rev-parse','HEAD') == source\nassert git('rev-parse','HEAD^{tree}')\
+        \ == 'e04d1871395ce424bf13e95d294c7e3be5ad4a0f'\nassert not git('diff','--name-only')\nassert set(git('diff','--cached','--name-only').splitlines())\
         \ == {'.claude/skills/godot-prompter/1.10.0', '.claude/skills/superpowers/6.1.1'}\nassert all(line.startswith('D\\\
         t') for line in git('diff','--cached','--name-status').splitlines())\ntracked = subprocess.check_output(['git','ls-files','-z']).decode().split('\\\
         0')[:-1]\nbefore = {p:sha(root/p) for p in tracked if (root/p).is_file()}\nwrite('source-before.json',before)\nidentity\
