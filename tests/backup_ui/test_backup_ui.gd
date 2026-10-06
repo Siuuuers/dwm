@@ -167,6 +167,8 @@ func check_drawer_text(app: Control, font_size: int) -> void:
 					sizes.append({"width": width, "minimum": [minimum.x, minimum.y]})
 				measured.labels.append({"text": entry.text, "font_size": points, "font": face.resource_path, "measures": sizes})
 			drawer_measurements.append(measured)
+		check(drawer.identity_label.get_rect().end.y + 4 <= drawer.state_label.position.y, "Drawer identity and state have explicit separation")
+		check(drawer.identity_label.position.y >= 4 and drawer.state_label.get_rect().end.y <= 160, "Drawer labels clear top border and lower decoration band")
 		check(not labels.is_empty(), "Drawer has semantic visible identity/state text")
 		for label in labels:
 			check(drawer.get_global_rect().encloses(label.get_global_rect()), "Drawer text fits fixed geometry: %s style=%s path=%s rect=%s drawer=%s" % [label.text, tested_font_style, label.get_path(), label.get_rect(), drawer.size])
