@@ -1181,8 +1181,8 @@ func configure_reached_caption_collection(document: Dictionary, admissions: Arra
 	_reached_caption_admissions = admitted
 	return {"ok": true}
 
-## Detached session inspection; closing or failing replay discards this subset.
-## Publication alone never enters it, and it is never merged into Profile here.
+## Detached inspection of the session-owned batch, retained through exit refusal.
+## Publication alone never enters it; Profile alone owns durable History.
 func capture_reached_caption_collection() -> Dictionary:
 	if not _reached_replay.has("caption_ledger"): return _command_failure(&"replay_caption_unavailable")
 	return {"ok": true, "value": {"signature_id": _reached_replay.signature_id,
@@ -1383,32 +1383,62 @@ func _on_reached_date_card_acknowledged(receipt: Dictionary, _result: Dictionary
 func cancel_reached_replay(signature_id: String) -> Dictionary:
 	if _reached_replay.is_empty(): return {"ok": true}
 	if str(_reached_replay.signature_id) != signature_id: return _command_failure(&"replay_identity_mismatch")
-	if _reached_replay.has("surface"):
-		_finish_reached_replay("cancelled")
-		return {"ok": true}
-	if str(_active_entry.get("token", "")) != str(_reached_replay.token):
-		return _command_failure(&"replay_identity_mismatch")
-	var cancelled := abort_current_entry(&"gallery_closed")
-	if not cancelled.get("ok", false): return cancelled
-	_finish_reached_replay("cancelled")
-	return {"ok": true}
+	if _reached_replay.get("merge_busy", false): return _command_failure(&"replay_exit_in_progress")
+	if _reached_replay.has("exit_outcome"):
+		return _finish_reached_replay(str(_reached_replay.exit_outcome))
+	if not _reached_replay.has("surface"):
+		if str(_active_entry.get("token", "")) != str(_reached_replay.token):
+			return _command_failure(&"replay_identity_mismatch")
+		var token: String = _reached_replay.token
+		var cancelled := abort_current_entry(&"gallery_closed")
+		if not cancelled.get("ok", false): return cancelled
+		if _reached_replay.get("token") != token or _reached_replay.get("signature_id") != signature_id:
+			return _command_failure(&"replay_identity_mismatch")
+	return _finish_reached_replay("cancelled")
 
-func _finish_reached_replay(outcome: String, code: String = "", restore_variables: bool = true, failure_phase: StringName = &"") -> void:
-	if _reached_replay.is_empty(): return
+func _finish_reached_replay(outcome: String, code: String = "", restore_variables: bool = true, failure_phase: StringName = &"") -> Dictionary:
+	if _reached_replay.is_empty(): return {"ok": true}
+	if _reached_replay.get("merge_busy", false): return _command_failure(&"replay_exit_in_progress")
+	if _reached_replay.get("exit_uncertain", false):
+		return _reached_replay.exit_result.duplicate(true)
 	var replay := _reached_replay.duplicate(true)
-	_reached_replay.clear()
-	if replay.has("caption_ledger") and _runtime_adapter != null \
-			and _runtime_adapter.get("_caption_ledger") == replay.caption_ledger:
-		_runtime_adapter._retire_caption_binding()
-	if replay.has("surface") and is_instance_valid(replay.surface):
-		replay.surface.hide()
-		replay.surface.queue_free()
-	var dialogic := get_node_or_null("/root/Dialogic")
-	if dialogic != null and restore_variables: dialogic.current_state_info["variables"] = replay.variables.duplicate(true)
-	var result := {"signature_id":replay.signature_id, "playback_token":replay.token,
-		"outcome":outcome, "code":code}
+	# Retire physical presentation once. The batch and exact identity stay owned
+	# until Profile confirms durability; a failed merge never restarts playback.
+	if not replay.has("exit_outcome"):
+		_reached_replay["exit_outcome"] = outcome
+		if replay.has("caption_ledger") and _runtime_adapter != null \
+				and _runtime_adapter.get("_caption_ledger") == replay.caption_ledger:
+			_runtime_adapter._retire_caption_binding()
+		if replay.has("surface") and is_instance_valid(replay.surface):
+			replay.surface.hide()
+			replay.surface.queue_free()
+		var dialogic := get_node_or_null("/root/Dialogic")
+		if dialogic != null and restore_variables: dialogic.current_state_info["variables"] = replay.variables.duplicate(true)
+	var merged := {"ok": true, "value": {"history_added": false}}
+	if outcome in ["completed", "cancelled"] and replay.has("caption_ledger"):
+		_reached_replay["merge_busy"] = true
+		var captions: Array[Dictionary] = []
+		for beat: Dictionary in replay.collected_captions: captions.append(beat.duplicate(true))
+		merged = _replay_profile.merge_caption_history(captions, replay.caption_registry)
+		# Profile publishes synchronously, including write failures. A callback may
+		# replace this session: never clear or announce on behalf of its successor.
+		if _reached_replay.get("token") != replay.token or _reached_replay.get("signature_id") != replay.signature_id:
+			return _command_failure(&"replay_identity_mismatch")
+		_reached_replay["merge_busy"] = false
+	var result := {"ok": merged.get("ok", false), "signature_id": replay.signature_id,
+		"playback_token": replay.token, "outcome": outcome, "code": code,
+		"history_added": merged.get("ok", false) and merged.get("value", {}).get("history_added", false)}
+	if not merged.get("ok", false):
+		result["code"] = merged.get("code", &"history_merge_failed")
+		result["history_status"] = "uncertain" if merged.get("fatal", false) or merged.get("code") == &"indeterminate_commit" else "failed"
+		result["retained"] = true
+		_reached_replay["exit_uncertain"] = result.history_status == "uncertain"
+		_reached_replay["exit_result"] = result.duplicate(true)
+	else:
+		_reached_replay.clear()
 	if outcome == "failed" and failure_phase != &"": result["failure_phase"] = failure_phase
-	reached_replay_finished.emit(result)
+	reached_replay_finished.emit(result.duplicate(true))
+	return result
 
 
 # ---- Global read history and boundary-safe skip (dwm-p2r.8, Plan-05 Task 4) ----

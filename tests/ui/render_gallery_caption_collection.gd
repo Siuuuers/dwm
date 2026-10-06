@@ -1,15 +1,33 @@
 extends SceneTree
-## Transient, explicitly admitted TEST replay captions; no History merge or story claim.
+## Explicit TEST replay captions: real Menu/Gallery exit and durable History, no story claim.
 ## Native line wait/visible-layer lookup follow the accepted reading-rail journey,
 ## without inheriting its canonical run, Save/Load, or ending-completion setup.
 
 const LOCATOR := preload("res://tests/support/EndingReadingTimelineCatalog.gd")
 const FIXTURE := preload("res://tests/support/EndingReadingFixture.gd")
-const GALLERY := preload("res://scenes/menu/GalleryScene.tscn")
+const MENU := preload("res://scenes/menu/MenuScene.tscn")
 const ENTRY := "ending.sylvia.special.full"
 const FIRST := "fixture.ending.first"
 const SECOND := "fixture.ending.prior"
 const UNSEEN := "fixture.ending.boundary"
+
+class ExitFiles extends "res://scripts/infrastructure/storage/FileOps.gd":
+	var refuse_writes := false
+	var refuse_cleanup := false
+	func write_bytes(path: String, bytes: PackedByteArray) -> Dictionary:
+		if refuse_writes and "/profile.json" in path: return {"ok": false, "code": &"fixture_write_refused"}
+		return super.write_bytes(path, bytes)
+	func remove_path(path: String) -> Dictionary:
+		if refuse_cleanup and path.ends_with("/profile.json.txn.json"): return {"ok": false, "code": &"fixture_cleanup_refused"}
+		return super.remove_path(path)
+
+class LongCopy extends "res://scripts/ui/gallery/GalleryRecordCatalog.gd":
+	func projection(_record_id: String, _signature: String, _locale: String) -> Dictionary:
+		return {"sentence": "TEST record copy for retained paper scrolling.\n".repeat(40), "media_asset_id": ""}
+
+var _menu: Control
+var _exit_files := ExitFiles.new()
+var _return_context: Dictionary = {}
 
 var _bridge: Node
 var _profile: Node
@@ -55,21 +73,43 @@ func _run() -> void:
 		_finish()
 		return
 	_signature_id = str(reached.value.signature_id)
-	var home := Button.new()
-	home.text = "TEST return"
-	root.add_child(home)
-	_gallery = GALLERY.instantiate()
-	if not _check(_gallery.configure_title_host(home, root.get_node("LocalizationManager"), _profile).get("ok", false), "Gallery host rejected") \
-			or not _check(_gallery.configure_replay(_bridge).get("ok", false), "Gallery replay owner rejected"):
+	# Mount the production Menu host, then enter through its actual Gallery command.
+	_menu = MENU.instantiate()
+	if not _check(_menu.configure_gallery_replay(_profile, _bridge).get("ok", false), "Menu replay services rejected"):
 		_finish()
 		return
-	root.add_child(_gallery)
-	_gallery.open_in_title_host()
+	root.add_child(_menu)
 	await _frames()
+	_menu.get_node("%GalleryButton").grab_focus()
+	await process_frame
+	await _key(KEY_SPACE)
+	_gallery = _menu.get("_gallery_instance")
+	if not _check(is_instance_valid(_gallery) and _gallery.is_visible_in_tree(), "Menu did not open Gallery"):
+		_finish()
+		return
+	_gallery.set("_record_catalog", LongCopy.new())
+	for ending_id: String in preload("res://scripts/profile/ProfileSchema.gd").ENDING_IDS:
+		_check(_profile.unlock_ending(ending_id, "caption-collection:scroll-TEST:" + ending_id).get("ok", false), "scroll fixture discovery refused")
+	var other := signature.duplicate(true)
+	other.fields.ending_role = "primary"
+	_check(_profile.record_reached_presentation(other).get("ok", false), "second witnessed version refused")
+	_profile.publish_restore()
+	await _frames()
+	for row: Button in _gallery.get_node("%EndingTileGrid").get_children():
+		if row.get_meta(&"gallery_record_id") == "ending.sylvia.special": row.pressed.emit()
+	for index: int in _gallery.get("_versions").size():
+		if _gallery.get("_versions")[index].signature_id == _signature_id: _gallery.call("_on_version_selected", index)
+	await _frames()
+	_gallery.set("_index_offset", 48.0)
+	_gallery.call("_update_scroll")
+	_gallery.get("_record_paper").scroll_to(96.0)
+	_return_context = _context()
+	_check(_return_context.index > 0 and _return_context.paper > 0, "fixture must exercise nonzero scroll anchors")
 	_adapter = _bridge.get("_runtime_adapter")
 	_adapter.caption_publication_recorded.connect(_on_publication)
 	var storage: RefCounted = _profile.get("_storage")
 	_profile_path = str(storage.get("_root_dir")).path_join("profile.json")
+	storage.set("_file_ops", _exit_files)
 	if not _check(FileAccess.file_exists(_profile_path), "isolated persisted Profile missing"):
 		_finish()
 		return
@@ -115,16 +155,34 @@ func _run() -> void:
 			or not await _capture("second-visible-not-collectable", second):
 		_finish()
 		return
-	if not _check(_gallery.close_for_title_host(), "safe replay close refused"):
-		_finish()
-		return
+	_profile.publish_restore() # Separate refresh while replay owns the exact return address.
+	_menu.call("_return_from_title_host")
 	await _frames()
 	if not _check(not _bridge.capture_reached_caption_collection().get("ok", false), "closed candidate remained accessible") \
-			or not _unchanged("safe close discards transient candidate"):
+			or not _check(_gallery.is_visible_in_tree() and _context() == _return_context, "exit did not restore exact Gallery context") \
+			or not _check(_gallery.get_node("%ReplayButton").has_focus(), "exit did not restore Replay focus") \
+			or not _check(_gallery.get("_status_key") == "gallery.history.added", "new durable History notice missing") \
+			or not _check(_profile.is_line_visited(FIRST) and not _profile.is_line_visited(SECOND) and not _profile.is_line_visited(UNSEEN), "durable History admitted unseen/ineligible lines"):
 		_finish()
 		return
-	_gallery.open_in_title_host()
+	var disk: Variant = JSON.parse_string(FileAccess.get_file_as_string(_profile_path))
+	_check(disk is Dictionary and FIRST in disk.visited_line_ids and SECOND not in disk.visited_line_ids and UNSEEN not in disk.visited_line_ids, "Profile bytes disagree with confirmed notice")
+	_check(_state().game == _baseline.game, "exit changed canonical run")
+	for key: String in _baseline.profile:
+		if key not in ["visited_line_ids", "witnessed_caption_variants"]:
+			_check(_profile.get_profile_snapshot()[key] == _baseline.profile[key], "unrelated Profile mutation: " + key)
+	_profile.publish_restore()
 	await _frames()
+	_check(_gallery.get("_status_key") == "gallery.history.added" and _context() == _return_context, "Profile restoration refresh cleared notice or context")
+	_menu.call("_on_gallery_pressed")
+	_check(_gallery.get("_status_key") == "gallery.history.added" and _context() == _return_context, "same Gallery command reset context")
+	await _status_locales()
+	# Restore ordinary fixture preferences and prove a version command clears notice.
+	root.get_node("LocalizationManager").set_locale("en")
+	_profile.set_preference(&"preferences.accessibility.text_size", 100)
+	_gallery.call("_on_version_selected", int(_gallery.get("_selected_version")))
+	_check(_gallery.get("_status_key") == "", "same-version command did not clear notice")
+	_baseline = _state()
 	_active_attempt = 2
 	if not await _start_and_wait(FIRST):
 		_finish()
@@ -139,13 +197,111 @@ func _run() -> void:
 			or not await _capture("restarted-visible", restarted):
 		_finish()
 		return
-	if not _check(_gallery.close_for_title_host(), "second close refused"):
+	_menu.call("_return_from_title_host")
+	var commanded_row: Button
+	for row: Button in _gallery.get_node("%EndingTileGrid").get_children():
+		if row.get_meta(&"gallery_record_id") == _gallery.get("_selected_id"):
+			commanded_row = row
+			row.grab_focus()
+			row.pressed.emit()
+	await _frames()
+	_check(is_instance_valid(commanded_row) and commanded_row.has_focus(), "deferred replay restoration stole later record-command focus")
+	_check(not _bridge.capture_reached_caption_collection().get("ok", false), "second close retained candidate")
+	_check(_gallery.get("_status_key") == "", "duplicate-only replay announced additions")
+	_unchanged("duplicate-only exit")
+	# A fresh actual batch exercises proven FileOps refusal, blocked destinations,
+	# then natural completion and an uncertain disk promotion.
+	_check(_profile.reset_visited_history().get("ok", false), "failure-fixture reset refused")
+	_active_attempt = 3
+	if not await _start_and_wait(FIRST):
 		_finish()
 		return
+	var held: Dictionary = _bridge.capture_reached_caption_collection()
+	_exit_files.refuse_writes = true
+	_menu.call("_on_setting_pressed")
 	await _frames()
-	_check(not _bridge.capture_reached_caption_collection().get("ok", false), "second close retained candidate")
-	_unchanged("second close")
+	_check(_gallery.is_visible_in_tree() and not _menu.get("_setting_host").visible, "Settings opened over retained exit")
+	_check(_gallery.get("_status_key") == "gallery.history.failed", "proven failure copy missing")
+	_check(_bridge.capture_reached_caption_collection() == held, "refused exit lost exact batch")
+	await _status_capture("failed-real")
+	_menu.call("_on_log_in_pressed")
+	await _frames()
+	_check(not _menu.get("_backup_app_host").visible, "Log in bypassed retained exit")
+	_menu.call("_on_new_acc_pressed")
+	await _frames()
+	_check(_menu.get("_new_acc_token") == "" and _gallery.is_visible_in_tree(), "New Acc bypassed retained exit")
+	_menu.call("_on_shut_down_pressed")
+	_check(not is_instance_valid(_menu.get("_confirmation")), "Shutdown confirmation bypassed retained exit")
+	_menu.call("_on_gallery_pressed")
+	_check(_bridge.capture_reached_caption_collection() == held, "same Gallery command discarded custody")
+	_exit_files.refuse_writes = false
+	_menu.call("_return_from_title_host")
+	await _frames()
+	_check(_gallery.get("_status_key") == "gallery.history.added", "fresh close did not confirm retained batch")
+	_check(_profile.reset_visited_history().get("ok", false), "natural-fixture reset refused")
+	_active_attempt = 4
+	if not await _start_and_wait(FIRST):
+		_finish()
+		return
+	# Finish through real caption input, including the noncollectable final line.
+	for step: int in 12:
+		if not _bridge.has_active_playback(): break
+		await _accept()
+	await _frames()
+	_check(not _bridge.has_active_playback() and _gallery.get("_status_key") == "gallery.history.added", "natural completion did not merge and restore Gallery")
+	_check(_profile.reset_visited_history().get("ok", false), "uncertain-fixture reset refused")
+	_active_attempt = 5
+	if not await _start_and_wait(FIRST):
+		_finish()
+		return
+	held = _bridge.capture_reached_caption_collection()
+	_exit_files.refuse_cleanup = true
+	_menu.call("_return_from_title_host")
+	await _frames()
+	_check(_gallery.get("_status_key") == "gallery.history.uncertain", "uncertain durability copy missing")
+	_check(_bridge.capture_reached_caption_collection() == held and _gallery.is_visible_in_tree(), "uncertain exit discarded custody")
+	await _status_capture("uncertain-real")
+	_menu.call("_on_setting_pressed")
+	_menu.call("_on_log_in_pressed")
+	await _frames()
+	_check(not _menu.get("_setting_host").visible and not _menu.get("_backup_app_host").visible, "uncertainty allowed destination switch")
 	_finish()
+
+func _context() -> Dictionary:
+	return {"record": _gallery.get("_selected_id"), "signature": _gallery.call("_selected_signature_id"),
+		"index": _gallery.get("_index_offset"), "paper": _gallery.get("_record_paper").scroll_offset}
+
+func _status_locales() -> void:
+	var prior_style: String = _profile.get_preference(&"preferences.accessibility.font_style", "pixel")
+	for style: String in ["pixel", "readable"]:
+		_check(root.get_node("LocalizationManager").set_font_style(style).get("ok", false), "font style refused")
+		_check(_profile.get_preference(&"preferences.accessibility.font_style") == style, "matrix font style was not applied")
+		for locale: String in ["en", "zh_CN", "zh_HK", "ja", "ko"]:
+			_check(root.get_node("LocalizationManager").set_locale(locale).get("ok", false), "locale refused")
+			for percent: int in [100, 125, 150]:
+				_check(_profile.set_preference(&"preferences.accessibility.text_size", percent).get("ok", false), "text size refused")
+				for status: String in ["added", "failed", "uncertain"]:
+					# Projection-only matrix; real owner outcomes are checked separately.
+					_gallery.set("_history_status", "gallery.history." + status)
+					_gallery.call("_set_replay_status", "gallery.history." + status)
+					await _frames()
+					await _status_capture("status-%s-%s-%d-%s" % [style, locale, percent, status])
+	root.get_node("LocalizationManager").set_font_style(prior_style)
+	_gallery.set("_history_status", "gallery.history.added")
+	_gallery.call("_set_replay_status", "gallery.history.added")
+
+func _status_capture(name: String) -> void:
+	var status: Label = _gallery.get_node("%ReplayStatus")
+	_check(not status.text.is_empty() and not status.text.begins_with("gallery."), "status untranslated")
+	var line_height: float = status.get_theme_font("font").get_height(status.get_theme_font_size("font_size"))
+	_check(status.get_line_count() * line_height <= 64.0, "status exceeds dock height")
+	_check(status.position.x + status.size.x <= _gallery.get_node("%ReplayButton").position.x, "status overlaps Replay action")
+	if _gallery.get("_status_key") == "gallery.history.added":
+		_check(not _gallery.get("_canvas").history_failed and status.get_theme_color("font_color") == _gallery.theme.get_color("ink", "Gallery"), "success inherited failure styling")
+	await RenderingServer.frame_post_draw
+	var image := root.get_texture().get_image()
+	_check(image != null and not image.is_empty() and image.save_png(_folder.path_join(name + ".png")) == OK, "status capture failed")
+	_samples.append({"file": name + ".png", "status": status.text, "rect": str(status.get_rect()), "context": _context()})
 
 func _signature() -> Dictionary:
 	return {"entry_id": ENTRY, "schema_version": 1, "fields": {"tier": "friend", "tone": "sweet",
@@ -254,7 +410,7 @@ func _finish() -> void:
 		if report != null:
 			report.store_string(JSON.stringify({"ok": _failures.is_empty(), "checks": _checks,
 				"failures": _failures, "samples": _samples, "publications": _publications,
-				"scope": "Explicit fixture-only replay admission, real Gallery/Bridge/Profile/native Dialogic and mounted CaptionLayer; transient collection only. No merge, production content admission, physical keyboard, or native accessibility claim."}, "\t") + "\n")
+				"scope": "Explicit fixture-only replay admission, real Gallery/Bridge/Profile/native Dialogic and mounted CaptionLayer; durable exit merging, refusal/uncertainty and locale projections. No production content admission, physical keyboard, or native accessibility claim."}, "\t") + "\n")
 			report.close()
 	print("GALLERY_CAPTION_COLLECTION_RENDER_", "VERIFIED" if _failures.is_empty() else "FAILED", " captures=", _samples.size(), " evidence=", _folder)
 	quit(0 if _failures.is_empty() else 1)

@@ -184,8 +184,10 @@ func test_public_gallery_selects_only_reached_versions_and_return_cancels_its_pl
 	gallery.get_node("%ReplayButton").pressed.emit()
 	assert_eq(runtime.starts.back().label,entry_id)
 	assert_true(gallery.get_node("%ReplayButton").disabled)
-	assert_true(gallery.close_for_title_host())
+	assert_false(gallery.close_for_title_host())
 	assert_false(bridge.has_active_playback())
+	assert_true(gallery.visible, "first Return restores the ending record")
+	assert_true(gallery.close_for_title_host())
 	assert_false(gallery.visible)
 	assert_eq(profile.get_profile_snapshot(),before)
 
