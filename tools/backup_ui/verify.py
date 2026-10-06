@@ -17,7 +17,7 @@ cache = root / '.godot'
 cache.mkdir(exist_ok=True)
 scratch = Path(tempfile.mkdtemp(prefix=globals().get('SCRATCH_PREFIX', 'backup-ui-'), dir=cache))
 classes = {}
-for path in (root / 'scripts').rglob('*.gd'):
+for path in sorted(path for directory in ['scripts', 'addons/dialogic'] for path in (root / directory).rglob('*.gd')):
     match = re.search(r'^class_name\s+(\w+)', path.read_text(encoding='utf-8-sig'), re.M)
     if match:
         classes[match.group(1)] = path.relative_to(root).as_posix()
@@ -44,6 +44,12 @@ while pending:
     if source.suffix in {'.gd', '.tscn', '.tres'}:
         content = source.read_text(encoding='utf-8-sig')
         pending.extend(re.findall(r'res://([^"\s]+)', content))
+        # Addon global classes and relative script resources belong to the same
+        # real dependency closure; no autoload or replacement class is installed.
+        for local in re.findall(r'(?:preload|load|@icon)\(\s*[\"\']([^\"\']+)[\"\']', content):
+            if '://' not in local:
+                dependency = (source.parent / local).resolve()
+                pending.append(dependency.relative_to(root).as_posix())
         for name in set(re.findall(r'\b\w+\b', content)).intersection(classes):
             pending.append(classes[name])
 for source in (root / 'assets/ui/contacts/fonts').iterdir():
@@ -77,7 +83,6 @@ for arguments in [['--editor', '--import', '--quit'], ['--script', 'res://' + te
     logs.append(output)
     checked = output.replace('ERROR: Failed to read the root certificate store.', '')
     if result.returncode or 'SCRIPT ERROR:' in checked or 'ERROR:' in checked:
-        print(output, end='')
         passed = False
         break
 (scratch / 'verification.log').write_text('\n'.join(logs), encoding='utf-8')
@@ -103,8 +108,10 @@ portable_report = dict(report)
 portable_report['log'] = (evidence / 'verification.log').relative_to(root).as_posix()
 (evidence / 'verification.log').write_text('\n'.join(logs), encoding='utf-8')
 (evidence / 'result.json').write_text(json.dumps(portable_report, indent=2) + '\n', encoding='utf-8')
+# Evidence above is committed to disk before console encoding can fail.
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='backslashreplace')
 print('Verification evidence:', scratch / 'result.json')
-if passed:
-    print(logs[-1], end='')
+print(logs[-1], end='')
 sys.exit(0 if passed else 1)
 

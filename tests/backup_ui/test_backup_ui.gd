@@ -3,6 +3,22 @@ extends SceneTree
 const LOCATORS := ["autosave", "quick", "slot:1", "slot:2", "slot:3", "slot:4", "slot:5", "slot:6", "slot:7"]
 const Fixtures := preload("res://tests/contacts_shell/test_contacts_shell.gd")
 
+# Pixel deliberately uses the production fallback; readable is an explicit choice.
+class TypographyProfile extends Fixtures.FakeProfile:
+	var font_style := "pixel"
+	func get_preference(path: StringName, default: Variant = null) -> Variant:
+		if path == &"preferences.accessibility.font_style" and font_style == "readable":
+			return font_style
+		return super.get_preference(path, default)
+
+var tested_font_style := "pixel"
+var title_tail_runs: Array[String] = []
+
+func typography_profile() -> TypographyProfile:
+	var profile := TypographyProfile.new()
+	profile.font_style = tested_font_style
+	return profile
+
 class IsolatedDesktop extends ComputerDesktop:
 	# This scene fixture supplies every owner; it does not start a player account.
 	func _configure_from_bootstrap() -> void: pass
@@ -141,7 +157,7 @@ func check_drawer_text(app: Control, font_size: int) -> void:
 		var labels: Array = drawer.find_children("*", "Label", true, false)
 		check(not labels.is_empty(), "Drawer has semantic visible identity/state text")
 		for label in labels:
-			check(drawer.get_global_rect().encloses(label.get_global_rect()), "Drawer text fits fixed geometry at chosen scale: " + label.text)
+			check(drawer.get_global_rect().encloses(label.get_global_rect()), "Drawer text fits fixed geometry: %s style=%s path=%s rect=%s drawer=%s" % [label.text, tested_font_style, label.get_path(), label.get_rect(), drawer.size])
 			check(label.get_theme_font_size("font_size") == font_size, "Drawer text follows requested text preset")
 			check(label.max_lines_visible == -1, "Drawer text remains complete")
 			var font: Font = label.get_theme_font("font")
@@ -155,7 +171,7 @@ func check_key_caption(key: Button) -> void:
 	if caption == null:
 		return
 	check(caption.text == key.accessibility_name and not caption.text.is_empty(), "Visible caption and accessible action verb agree")
-	check(key.get_global_rect().encloses(caption.get_global_rect()), "Action caption fits its fixed target: %s size=%s caption=%s" % [caption.text, key.size, caption.size])
+	check(key.get_global_rect().encloses(caption.get_global_rect()), "Action caption fits its fixed target: %s style=%s path=%s position=%s size=%s caption=%s parent=%s" % [caption.text, tested_font_style, key.get_path(), key.position, key.size, caption.size, key.get_parent().size])
 	check(caption.max_lines_visible == -1, "Action caption is not line capped")
 	var font: Font = caption.get_theme_font("font")
 	for character in caption.text:
@@ -298,7 +314,7 @@ func verify_ui(desktop: Control, app: Control, port: FakeBackupPort, locale: Nod
 			app.mode_buttons["save"].pressed.emit()
 			await settle()
 			check_geometry(app)
-			check_drawer_text(app, [20, 25, 30][index])
+			check_drawer_text(app, ([24, 30, 36] if tested_font_style == "pixel" else [20, 25, 30])[index])
 			for button in app.mode_buttons.values():
 				check(button.size.y == 64 and button.get_theme_font_size("font_size") == [24, 30, 36][index], "Mode uses readable full-size type in fixed64 target")
 				check_key_caption(button)
@@ -419,6 +435,7 @@ func verify_ui(desktop: Control, app: Control, port: FakeBackupPort, locale: Nod
 		check(app.confirmation.is_ancestor_of(root.gui_get_focus_owner()), "Modal retains exclusive focus after deferred remeasurement")
 
 func check_title_login() -> void:
+	title_tail_runs.append(tested_font_style)
 	# Real body and fonts; title scene/owner/process boundaries have separate tests.
 	var host := Control.new()
 	host.size = Vector2(1280, 720)
@@ -434,7 +451,7 @@ func check_title_login() -> void:
 	host.add_child(app)
 	var locale := Fixtures.FakeLocale.new()
 	root.add_child(locale)
-	var profile := Fixtures.FakeProfile.new()
+	var profile := typography_profile()
 	var port := FakeBackupPort.new()
 	port.title_context = true
 	app.configure_desktop_home(return_button)
@@ -456,7 +473,7 @@ func check_title_login() -> void:
 			check_rect(app.info_scroll, app, Rect2(480, 16, 304, 336), "Title information starts without reserved mode space")
 			check_rect(app.status_region, app, Rect2(480, 352, 304, 96), "Title status stays pinned above quiet field")
 			check_rect(app.action_dock, app, Rect2(480, 448, 304, 112), "Title actions end at quiet lower field")
-			check_drawer_text(app, [20, 25, 30][index])
+			check_drawer_text(app, ([24, 30, 36] if tested_font_style == "pixel" else [20, 25, 30])[index])
 			for key in app.action_buttons.values():
 				check_key_caption(key)
 			app.drawer_buttons.autosave.grab_focus()
@@ -496,6 +513,17 @@ func _bind_isolated_desktop(child: Node) -> void:
 		check(child.configure_run_configuration(CapturedRun.new()).get("ok", false), "Desktop admits the isolated captured run before ready")
 
 func _run() -> void:
+	for font_style: String in ["pixel", "readable"]:
+		tested_font_style = font_style
+		await _run_typography()
+	check(title_tail_runs == ["pixel", "readable"], "Title-login tail executes for default pixel and readable")
+	print(JSON.stringify({"checks_run": checks_run, "suite": "BackupUI", "font_styles": ["pixel", "readable"], "title_tail_runs": title_tail_runs, "failures": failures}))
+	if failures.is_empty():
+		print("BACKUP_UI_PASS")
+	quit(0 if failures.is_empty() else 1)
+
+func _run_typography() -> void:
+	var failures_before := failures.size()
 	root.size = Vector2i(1280, 720)
 	var app: Control = load("res://scenes/apps/BackupApp.tscn").instantiate()
 	app.size = Vector2(800, 656)
@@ -510,7 +538,7 @@ func _run() -> void:
 		check(property in properties, "Backup exposes " + property + " (expected initial red)")
 	app.queue_free()
 	await settle()
-	if failures.is_empty():
+	if failures.size() == failures_before:
 		var main: Control = load("res://scenes/main/MainGameScene.tscn").instantiate()
 		main.get_node("RootHBox/ComputerPanel").child_entered_tree.connect(_bind_isolated_desktop)
 		root.add_child(main)
@@ -519,7 +547,7 @@ func _run() -> void:
 		var port := FakeBackupPort.new()
 		var locale := Fixtures.FakeLocale.new()
 		root.add_child(locale)
-		var profile := Fixtures.FakeProfile.new()
+		var profile := typography_profile()
 		var owner := Fixtures.FakeHost.new()
 		owner.reject_next = false
 		check(desktop.configure_backup_port(port).get("ok", false), "Desktop accepts injected Backup operation owner")
@@ -568,9 +596,6 @@ func _run() -> void:
 			check(not is_instance_valid(restored_app.confirmation) and restored_app.status_label.text.is_empty(), "Restore recreates no modal or transient status")
 		restored.queue_free()
 		await settle()
-	if failures.is_empty():
-		await check_title_login()
-	if failures.is_empty():
-		print(JSON.stringify({"checks_run": checks_run, "suite": "BackupUI"}))
-		print("BACKUP_UI_PASS")
-	quit(0 if failures.is_empty() else 1)
+	# This separate fixture owns its own tree and still reports failures honestly.
+	await check_title_login()
+
