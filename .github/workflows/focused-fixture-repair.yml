@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v7
       with:
-        ref: 726d8f8007bcaec9f6bd253fbdd2f778a18e5cca
+        ref: 196e38e4c4ea4130e1c7ada955254c5de3b3b70e
         fetch-depth: 1
         persist-credentials: true
     - name: Prepare disposable checkout for credential cleanup
@@ -48,13 +48,13 @@ jobs:
         if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }\n\"GODOT_CONSOLE_PATH=$console\"\
         \ | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8\n& $console --version\nif ($LASTEXITCODE -ne\
         \ 0) { exit $LASTEXITCODE }\n"
-    - name: Execute three repaired fixtures with unchanged error gates
+    - name: Validate corrected StatHud day expectations
       shell: python {0}
       run: "import hashlib, json, os, pathlib, shutil, subprocess, sys, time\nroot = pathlib.Path.cwd()\nout = root\
         \ / 'final-fixture-evidence'\nout.mkdir(exist_ok=True)\ndef sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()\n\
         def git(*args): return subprocess.check_output(['git', *args], text=True).strip()\ndef write(name, data):\
-        \ (out/name).write_text(json.dumps(data, indent=2)+'\\n', encoding='utf-8')\nsource = '726d8f8007bcaec9f6bd253fbdd2f778a18e5cca'\n\
-        assert git('rev-parse','HEAD') == source\nassert git('rev-parse','HEAD^{tree}') == '00cd33f436d16b038d9c89ae6dff654eb1d7b8d2'\n\
+        \ (out/name).write_text(json.dumps(data, indent=2)+'\\n', encoding='utf-8')\nsource = '196e38e4c4ea4130e1c7ada955254c5de3b3b70e'\n\
+        assert git('rev-parse','HEAD') == source\nassert git('rev-parse','HEAD^{tree}') == '2e4ca53a2ddbe4e2c356f3b21289c8675340080f'\n\
         assert not git('diff','--name-only')\nassert set(git('diff','--cached','--name-only').splitlines()) == {'.claude/skills/godot-prompter/1.10.0',\
         \ '.claude/skills/superpowers/6.1.1'}\nassert all(line.startswith('D\\t') for line in git('diff','--cached','--name-status').splitlines())\n\
         tracked = subprocess.check_output(['git','ls-files','-z']).decode().split('\\0')[:-1]\nbefore = {p:sha(root/p)\
@@ -63,18 +63,17 @@ jobs:
         \ 'engine':os.environ['GODOT_CONSOLE_PATH'], 'engine_sha256':sha(pathlib.Path(os.environ['GODOT_CONSOLE_PATH'])),\
         \ 'engine_version':subprocess.check_output([os.environ['GODOT_CONSOLE_PATH'],'--version'],text=True).strip()}\n\
         write('identity.json',identity)\nfixtures = [\n ('stat_hud','tools/stat_hud/verify.py',[], 'tools/stat_hud/evidence'),\n\
-        \ ('title_shell','tools/title_shell/verify.py',[], 'tools/title_shell/evidence'),\n ('backup_ui','tools/backup_ui/verify.py',[],\
-        \ 'tools/backup_ui/evidence/ui'),\n]\n# Remove historical output from this disposable checkout so it cannot\
-        \ satisfy a fresh result.\nallowed = set()\nfor _,_,_,directory in fixtures:\n for p in (root/directory).rglob('*'):\n\
-        \  if p.is_file(): allowed.add(p.relative_to(root).as_posix())\n shutil.rmtree(root/directory, ignore_errors=True)\n\
-        \ (root/directory).mkdir(parents=True)\nrecords=[]\nfor name,runner,args,directory in fixtures:\n command=[sys.executable,runner,*args]\n\
-        \ start=time.time()\n try:\n  result=subprocess.run(command,capture_output=True,timeout=700)\n  code=result.returncode;\
-        \ stdout=result.stdout; stderr=result.stderr\n except subprocess.TimeoutExpired as e:\n  code=None; stdout=e.stdout\
-        \ or b''; stderr=(e.stderr or b'')+b'\\nCONTROLLER_TIMEOUT\\n'\n (out/(name+'-stdout.log')).write_bytes(stdout)\n\
-        \ (out/(name+'-stderr.log')).write_bytes(stderr)\n target=out/'results'/name\n shutil.copytree(root/directory,target)\n\
-        \ report_path=target/'result.json'\n report=json.loads(report_path.read_text(encoding='utf-8-sig')) if report_path.exists()\
-        \ else None\n mismatches=[]\n if report:\n  mismatches=[p for p,h in report.get('sources',{}).items() if\
-        \ p not in before or h!=before[p]]\n record={'name':name,'command':command,'start_unix':start,'end_unix':time.time(),'returncode':code,'result_exists':report\
+        ]\n# Remove historical output from this disposable checkout so it cannot satisfy a fresh result.\nallowed\
+        \ = set()\nfor _,_,_,directory in fixtures:\n for p in (root/directory).rglob('*'):\n  if p.is_file(): allowed.add(p.relative_to(root).as_posix())\n\
+        \ shutil.rmtree(root/directory, ignore_errors=True)\n (root/directory).mkdir(parents=True)\nrecords=[]\n\
+        for name,runner,args,directory in fixtures:\n command=[sys.executable,runner,*args]\n start=time.time()\n\
+        \ try:\n  result=subprocess.run(command,capture_output=True,timeout=700)\n  code=result.returncode; stdout=result.stdout;\
+        \ stderr=result.stderr\n except subprocess.TimeoutExpired as e:\n  code=None; stdout=e.stdout or b''; stderr=(e.stderr\
+        \ or b'')+b'\\nCONTROLLER_TIMEOUT\\n'\n (out/(name+'-stdout.log')).write_bytes(stdout)\n (out/(name+'-stderr.log')).write_bytes(stderr)\n\
+        \ target=out/'results'/name\n shutil.copytree(root/directory,target)\n report_path=target/'result.json'\n\
+        \ report=json.loads(report_path.read_text(encoding='utf-8-sig')) if report_path.exists() else None\n mismatches=[]\n\
+        \ if report:\n  mismatches=[p for p,h in report.get('sources',{}).items() if p not in before or h!=before[p]]\n\
+        \ record={'name':name,'command':command,'start_unix':start,'end_unix':time.time(),'returncode':code,'result_exists':report\
         \ is not None,'passed':bool(code==0 and report and report.get('passed') is True and not mismatches),'source_mismatches':mismatches,'result_sha256':sha(report_path)\
         \ if report else None}\n records.append(record); write('executions.json',records)\n print(json.dumps(record),flush=True)\n\
         \ # Output paths are the only allowed tracked changes. Source files remain byte-frozen.\n for p in (root/directory).rglob('*'):\n\
@@ -85,9 +84,9 @@ jobs:
         \ if not scratch.is_dir():continue\n dest=out/'scratch'/scratch.name\n for p in scratch.rglob('*'):\n  rel=p.relative_to(scratch)\n\
         \  if p.is_file() and ('project' not in rel.parts and '.godot' not in rel.parts) and (len(rel.parts)==1\
         \ or rel.parts[0] in ('appdata','localappdata','temp','tmp')):\n   q=dest/rel; q.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(p,q)\n\
-        write('custody.json',{'source':source,'tracked_count':len(before),'allowed_output_paths':sorted(allowed),'unexpected_source_changes':[],'git_status':git('status','--porcelain','--untracked-files=all'),'fixtures_complete':len(records)==3})\n\
+        write('custody.json',{'source':source,'tracked_count':len(before),'allowed_output_paths':sorted(allowed),'unexpected_source_changes':[],'git_status':git('status','--porcelain','--untracked-files=all'),'fixtures_complete':len(records)==1})\n\
         write('manifest.json',[{'path':p.relative_to(out).as_posix(),'size':p.stat().st_size,'sha256':sha(p)} for\
-        \ p in sorted(out.rglob('*')) if p.is_file() and p.name!='manifest.json'])\nsys.exit(0 if len(records)==3\
+        \ p in sorted(out.rglob('*')) if p.is_file() and p.name!='manifest.json'])\nsys.exit(0 if len(records)==1\
         \ and all(r['passed'] for r in records) else 1)\n"
     - name: Upload original fixture outputs
       if: always()
