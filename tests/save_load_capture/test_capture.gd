@@ -25,6 +25,7 @@ func _run() -> void:
 	_check(manager.initialize(storage).get("ok", false), "initialize")
 	_check(manager.configure_mutation_gate(GATE.new()).get("ok", false), "gate")
 	var snapshot: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(FIXTURE))
+	snapshot["schema_version"] = preload("res://scripts/domain/run/RunSnapshotSchema.gd").SCHEMA_VERSION
 	snapshot["route_id"] = "main"
 	snapshot["gameplay"]["money"] = 100
 	manager._journal.reset(snapshot["run_id"])

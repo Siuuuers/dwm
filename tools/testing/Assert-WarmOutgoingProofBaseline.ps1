@@ -129,10 +129,18 @@ $adapterComment = "## Internal splice adapter: the port collected each normalize
     "## text's retention/reset/restore lifetime. A complete set needs only detached composition; an`n" +
     "## absent, partial or text-only set retains validate_outgoing()'s raw normalization unchanged.`n"
 if (-not $currentSchema.Contains($adapterComment + $adapter + "`n")) { throw 'Missing reviewed schema adapter boundary.' }
+# Both measurement variants use the current v8 document contract. Authenticate that exact
+# declaration before reversing only its reviewed v8-to-v7 evolution in provenance text.
+$documentVersionDeclarations = [regex]::Matches($currentSchema, '(?m)^const DOCUMENT_VERSION[^\n]*$')
+if ($documentVersionDeclarations.Count -ne 1 -or
+    $documentVersionDeclarations[0].Value -cne 'const DOCUMENT_VERSION := 8') {
+    throw 'Current schema must declare exactly DOCUMENT_VERSION 8 before historical reconstruction.'
+}
 $bridgedSchema = $currentSchema.Replace($adapterComment + $adapter + "`n", '').Replace(
     (Get-WarmProofMethod $currentSchema '_validate_document'), $originalValidator)
+$bridgedSchema = [regex]::Replace($bridgedSchema, '(?m)^const DOCUMENT_VERSION := 8$', 'const DOCUMENT_VERSION := 7')
 if ((Get-WarmProofTextHash $bridgedSchema) -cne $schemaHash) {
-    throw 'Reversing only reviewed schema adapter/validator changes does not reproduce the accepted whole schema.'
+    throw 'Reversing only reviewed schema adapter/validator and document-version changes does not reproduce the accepted whole schema.'
 }
 # Return the actual immutable historical source for the region benchmark's second, original
 # 5c3368d bridge. That driver must still prove its frozen search method and original whole-port hash.

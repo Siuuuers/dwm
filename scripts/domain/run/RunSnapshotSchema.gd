@@ -26,7 +26,8 @@ extends RefCounted
 
 ## v7 requires every admitted canonical presentation's immutable source-bound context.
 ## Earlier Run snapshots are refused; no historical context or Profile fact is reconstructed.
-const SCHEMA_VERSION := 7
+## v8 adds strictly validated scene-event receipts to the existing command ledger.
+const SCHEMA_VERSION := 8
 const RECOVERY_LINE_HISTORY_LIMIT := 32
 
 const ORDINARY_CORRESPONDENCE := preload("res://scripts/domain/contact/OrdinaryReplyEchoState.gd")
@@ -40,6 +41,7 @@ const DESKTOP_BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBo
 const DESKTOP_CONSEQUENCE_STATE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
 const SCHEDULE_VIEW_STATE := preload("res://scripts/domain/schedule/ScheduleViewState.gd")
 const SCHEDULE_ACTION_REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
+const SCENE_EVENT_CONTRACT := preload("res://scripts/domain/narrative/SceneEventContract.gd")
 
 const TOP_KEYS: Array[String] = [
 	"active_app_id", "applied_effect_transaction_ids", "applied_variable_transaction_ids",
@@ -258,7 +260,7 @@ static func validate(snapshot: Dictionary) -> Dictionary:
 	if not frozen_check.get("ok", false): return frozen_check
 	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
 
-## Effect/variable command ledger only (dwm-p2r.8, Plan-05 Task 3). Ending/gallery receipt
+## Effect/variable and scene-event command ledger. Ending/gallery receipt
 ## variants are rejected outright: that ledger belongs to ProfileManager and .7.
 const COMMAND_RECEIPT_KEYS: Array[String] = ["kind", "request_fingerprint", "source_id", "transaction_id"]
 const COMMAND_RECEIPT_KINDS: Array[String] = ["effect_transaction", "variable_transaction"]
@@ -272,6 +274,8 @@ static func _validate_command_receipts(receipts: Variant, applied_effects: Varia
 		var receipt: Variant = (receipts as Dictionary)[key]
 		if typeof(receipt) != TYPE_DICTIONARY:
 			return "command receipt must be an object: " + str(key)
+		if (receipt as Dictionary).get("kind") == "scene_event":
+			continue # The scene-event owner validates this complete variant and its chain below.
 		var receipt_keys: Array = (receipt as Dictionary).keys()
 		receipt_keys.sort()
 		if receipt_keys != Array(COMMAND_RECEIPT_KEYS):
@@ -283,7 +287,10 @@ static func _validate_command_receipts(receipts: Variant, applied_effects: Varia
 		var fingerprint := str((receipt as Dictionary)["request_fingerprint"])
 		if fingerprint.length() != 64 or not fingerprint.is_valid_hex_number():
 			return "command receipt fingerprint must be lowercase sha256 hex: " + str(key)
-	# Partition equality: the receipt map and the two applied-ID sets describe exactly the same
+	var scene_events: Dictionary = SCENE_EVENT_CONTRACT.validate_receipts(receipts as Dictionary)
+	if not scene_events.get("ok", false):
+		return str(scene_events.get("code", "invalid_scene_event_receipts"))
+	# Partition equality: legacy receipts and the two applied-ID sets describe exactly the same
 	# transactions, split by kind. A ledger entry without its applied ID (or an applied ID without
 	# its receipt) would let a legacy transaction be applied twice, so both directions are checked.
 	return _validate_receipt_partition(receipts as Dictionary, applied_effects, applied_variables)
@@ -299,6 +306,8 @@ static func _validate_receipt_partition(receipts: Dictionary, applied_effects: V
 	var seen := {"effect_transaction": {}, "variable_transaction": {}}
 	for key: Variant in receipts:
 		var kind := str((receipts[key] as Dictionary)["kind"])
+		if kind == "scene_event":
+			continue # Already validated separately; never counted as an effect or variable ID.
 		if not (expected[kind] as Dictionary).has(str(key)):
 			return "command receipt is not present in its applied %s id set: %s" % [kind, str(key)]
 		seen[kind][str(key)] = true

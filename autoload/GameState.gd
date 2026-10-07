@@ -3921,3 +3921,167 @@ func ensure_contact_presentation_contexts(friend_id: String = "") -> Dictionary:
 	var released: Dictionary = _mutation_gate.release(&"causal_transaction", str(lease.value.token))
 	if not released.ok: return released
 	return {"ok": true, "value": route_context[_CONTACTS_FROZEN.CACHE_KEY].duplicate(true)}
+
+
+# Scene events share the existing Run receipt map. The registry contains trusted
+# content only; the issuer binds each command, and the saved chain binds order.
+const _SCENE_EVENT := preload("res://scripts/domain/narrative/SceneEventContract.gd")
+var _scene_event_bridge: Object
+var _scene_event_registry: Dictionary = {}
+var _scene_event_before_adoption: Callable
+
+func configure_scene_event_owner(bridge: Object) -> Dictionary:
+	if bridge == null or not bridge.has_method("capture_scene_event_boundary") \
+			or not bridge.has_method("validate_scene_event_anchor"):
+		return _transaction_failure(&"event_dependency_invalid", "reading owner required")
+	if _scene_event_bridge != null and _scene_event_bridge != bridge:
+		return _transaction_failure(&"event_already_configured", "reading owner replacement refused")
+	_scene_event_bridge = bridge
+	return {"ok": true}
+
+## No production content is installed by this slice. TEST registries contain
+## fixed authored values, never saved receipts, a projection or a mutable frontier.
+func configure_test_scene_event_registry(registry: Dictionary) -> Dictionary:
+	if not OS.has_feature("debug") or OS.get_environment("DWM_TEST_ROOT").strip_edges().is_empty():
+		return _transaction_failure(&"event_test_registry_forbidden", "isolated debug root required")
+	if not _scene_event_registry.is_empty():
+		return {"ok": true} if registry == _scene_event_registry else _transaction_failure(&"event_registry_conflict", "")
+	for entry: Variant in registry:
+		if typeof(entry) != TYPE_STRING or not registry[entry] is Dictionary:
+			return _transaction_failure(&"event_registration_invalid", "")
+		var row: Dictionary = registry[entry]
+		if not _SCENE_EVENT._keys(row, ["content_version", "events"]) \
+				or typeof(row.content_version) != TYPE_INT or row.content_version < 1 or not row.events is Dictionary:
+			return _transaction_failure(&"event_registration_invalid", "")
+		for event_id: Variant in row.events:
+			var template: Variant = row.events[event_id]
+			var keys: Array = _SCENE_EVENT.RECORD_KEYS.duplicate()
+			keys.erase("command_id")
+			if not _SCENE_EVENT._keys(template, keys) or template.event_id != event_id:
+				return _transaction_failure(&"event_registration_invalid", "")
+	_scene_event_registry = registry.duplicate(true)
+	return {"ok": true}
+
+func scene_event_registration(event: Dictionary) -> Dictionary:
+	var row: Dictionary = _scene_event_registry.get(event.source.entry_id, {})
+	if row.get("content_version") != event.source.content_version:
+		return _transaction_failure(&"event_registration_invalid", "entry revision unavailable")
+	var raw: Variant = row.get("events", {}).get(event.event_id)
+	if not raw is Dictionary: return _transaction_failure(&"event_registration_invalid", "event unavailable")
+	var record: Dictionary = raw.duplicate(true)
+	# Command identity comes from the independently authenticated issuer receipt.
+	# It cannot change a retained occurrence or replay an occupied ordinal.
+	record["command_id"] = event.command_id
+	var matched: Dictionary = _SCENE_EVENT.match_registration(event, record)
+	if not matched.ok: return matched
+	return {"ok": true, "value": record}
+
+func scene_event_context() -> Dictionary:
+	if not is_instance_valid(_scene_event_bridge) or _identity_issuer == null:
+		return _transaction_failure(&"event_dependency_invalid", "")
+	var live := capture_desktop_identity_context()
+	if not live.ok: return live
+	var boundary: Dictionary = _scene_event_bridge.capture_scene_event_boundary()
+	if not boundary.get("ok", false): return boundary
+	var source := {"run_id": live.value.run_id, "branch_id": live.value.branch_id,
+		"causal_day_instance": live.value.causal_day_instance,
+		"scene_occurrence": boundary.value.anchor.session_id, "entry_id": boundary.value.anchor.entry_id,
+		"content_version": boundary.value.anchor.content_version}
+	var checked: Dictionary = _SCENE_EVENT.validate_receipts(_command_receipts)
+	if not checked.ok: return checked
+	var group: Dictionary = checked.value.occurrences.get(_SCENE_EVENT.occurrence_key(source), {})
+	if not group.is_empty():
+		# Only admitted owner state can restore historical occurrence identity.
+		# Load changes the live caller's authority, never these semantic bytes.
+		source = group.source.duplicate(true)
+		if source.run_id != live.value.run_id:
+			return _transaction_failure(&"event_source_mismatch", "")
+	return {"ok": true, "value": {"mode": "canonical", "suspended": false, "computer_held": false,
+		"source": source, "playback_token": str(boundary.value.playback_token) + "." + str(
+			_SCENE_EVENT.WRITER.stringify(live.value).value).sha256_text(),
+		"next_ordinal": group.get("next_ordinal", 0), "predecessor": group.get("predecessor", ""),
+		"notification": group.get("notification", {}).duplicate(true), "anchor": boundary.value.anchor,
+		"checkpoint": boundary.value.checkpoint}}
+
+func lookup_scene_event(command_id: String, digest: String) -> Dictionary:
+	if not _command_receipts.has(command_id): return {"ok": true, "found": false}
+	var receipt: Dictionary = _command_receipts[command_id]
+	if receipt.get("kind") != "scene_event" or receipt.get("request_fingerprint") != digest:
+		return _transaction_failure(&"duplicate_transaction_conflict", command_id)
+	return {"ok": true, "found": true, "duplicate": true,
+		"value": receipt.scene_event.result.duplicate(true)}
+
+func accept_scene_event(event: Dictionary, digest: String, lease: String) -> Dictionary:
+	if not is_instance_valid(_mutation_gate) or not _mutation_gate.is_lease_active(&"causal_transaction", lease):
+		return _transaction_failure(&"event_lease_lost", "")
+	if _narrative_checkpoint_port == null or not _narrative_checkpoint_port.has_method("commit_scene_event"):
+		return _transaction_failure(&"event_dependency_invalid", "real checkpoint owner required")
+	var context := scene_event_context()
+	if not context.ok: return context
+	var current: Dictionary = context.value
+	if current.source != event.source or current.playback_token != event.playback_token \
+			or current.next_ordinal != event.ordinal or current.predecessor != event.predecessor:
+		return _transaction_failure(&"event_frontier_mismatch", "")
+	var registered := scene_event_registration(event)
+	if not registered.ok: return registered
+	var proven: Dictionary = _identity_issuer.verify_issued(event.issuer_receipt, &"transaction_id")
+	if not proven.ok: return proven
+	var made: Dictionary = _SCENE_EVENT.make_receipt(event, current.anchor)
+	if not made.ok: return made
+	if made.value.request_fingerprint != digest: return _transaction_failure(&"event_digest_mismatch", "")
+	var prior := _command_receipts.duplicate(true)
+	var receipts := prior.duplicate(true)
+	if receipts.has(event.command_id): return _transaction_failure(&"duplicate_transaction_conflict", "")
+	receipts[event.command_id] = made.value
+	var checked: Dictionary = _SCENE_EVENT.validate_receipts(receipts)
+	if not checked.ok: return checked
+	var candidate := capture_run_snapshot_input()
+	candidate["command_receipts"] = receipts
+	var committed: Dictionary = _narrative_checkpoint_port.commit_scene_event(candidate, current.checkpoint)
+	if not committed.get("ok", false):
+		if committed.get("committed", false): return _scene_event_fatal(&"event_commit_ack_invalid")
+		return committed
+	# Confirmed disk+journal success is irrevocable here. A failed adoption must
+	# retain fatal custody, not roll back a committed result or release stale state.
+	if _scene_event_before_adoption.is_valid():
+		var observed: Variant = _scene_event_before_adoption.call()
+		if observed != true: return _scene_event_fatal(&"event_adoption_interrupted")
+	var after := scene_event_context()
+	if not after.get("ok", false) or after.value != current or _command_receipts != prior \
+			or not _mutation_gate.is_lease_active(&"causal_transaction", lease):
+		return _scene_event_fatal(&"event_adoption_source_changed")
+	_command_receipts = receipts.duplicate(true)
+	return {"ok": true, "duplicate": false, "value": made.value.scene_event.result.duplicate(true)}
+
+func _scene_event_fatal(code: StringName) -> Dictionary:
+	_mutation_gate.latch_fatal({"source": &"scene_event", "phase": &"committed_adoption",
+		"code": code, "details": {"committed": true}})
+	return {"ok": false, "code": code, "committed": true}
+
+## RunRestoreParticipant invokes this before any participant mutates live state.
+func validate_scene_event_snapshot(snapshot: Dictionary) -> Dictionary:
+	var checked: Dictionary = _SCENE_EVENT.validate_receipts(snapshot.get("command_receipts", {}))
+	if not checked.ok: return checked
+	if checked.value.occurrences.is_empty(): return {"ok": true}
+	if not is_instance_valid(_scene_event_bridge) or _identity_issuer == null:
+		return _transaction_failure(&"event_dependency_invalid", "")
+	var checkpoint: Dictionary = snapshot.get("narrative_checkpoint", {})
+	var active_occurrence: String = str(snapshot.get("gameplay", {}).get("route_context", {}).get(
+		"active_dating_challenge", {}).get("completion_transaction_id", "")) if snapshot.get("route_id") == "dating" else ""
+	for group: Dictionary in checked.value.occurrences.values():
+		if group.source.scene_occurrence == active_occurrence and (not checkpoint.get("reading_session") is Dictionary \
+				or checkpoint.reading_session.get("ledger", {}).get("session_token") != active_occurrence):
+			return _transaction_failure(&"event_anchor_invalid", "active occurrence requires its actual reading ledger")
+		if group.source.run_id != snapshot.get("run_id"):
+			return _transaction_failure(&"event_source_mismatch", "")
+		for receipt: Dictionary in group.receipts:
+			var event: Dictionary = receipt.scene_event.semantic.duplicate(true)
+			event["playback_token"] = "restore.validation"
+			var registered := scene_event_registration(event)
+			if not registered.ok: return registered
+			var proven: Dictionary = _identity_issuer.verify_issued(event.issuer_receipt, &"transaction_id")
+			if not proven.ok: return proven
+			var anchored: Dictionary = _scene_event_bridge.validate_scene_event_anchor(
+				receipt.scene_event.reading_anchor, checkpoint)
+			if not anchored.ok: return anchored
+	return {"ok": true}

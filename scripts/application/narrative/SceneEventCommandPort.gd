@@ -1,11 +1,7 @@
 class_name SceneEventCommandPort
 extends RefCounted
-## Nonwired foundation: one injected owner retains registration, receipts, pending
-## outcomes and frontier. No port-local deduplication, progression clock or History.
-## Owner methods are synchronous. accept_scene_event must recheck source/frontier,
-## bind occurrence to command, and atomically retain effect/outcome/frontier before
-## returning success. Uncertainty resolution belongs to that same owner, not retry.
-## The fixture demonstrates in-process custody only; no crash guarantee is claimed.
+## Synchronous admission through the shared causal gate. The injected owner keeps
+## the only receipt map and commits before adopting. Fatal custody is irreversible.
 
 const CONTRACT := preload("res://scripts/domain/narrative/SceneEventContract.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
@@ -60,8 +56,15 @@ func _dispatch_owned(event: Dictionary, digest: String, lease: String) -> Dictio
 	if not retained.ok: return retained
 	if typeof(retained.get("found")) != TYPE_BOOL: return _fail(&"event_owner_result_invalid")
 	if retained.found: return retained
-	if not context.get("registrations") is Dictionary: return _fail(&"event_registration_invalid")
-	var registered: Dictionary = CONTRACT.match_registration(event, context.registrations.get(event.event_id))
+	var record: Variant
+	if _owner.has_method("scene_event_registration"):
+		var registration: Dictionary = _owner.call(&"scene_event_registration", event)
+		if not registration.get("ok", false): return registration
+		record = registration.value
+	else:
+		if not context.get("registrations") is Dictionary: return _fail(&"event_registration_invalid")
+		record = context.registrations.get(event.event_id)
+	var registered: Dictionary = CONTRACT.match_registration(event, record)
 	if not registered.get("ok", false): return registered
 	if typeof(context.get("next_ordinal")) != TYPE_INT or context.next_ordinal != event.ordinal \
 			or context.get("predecessor") != event.predecessor:

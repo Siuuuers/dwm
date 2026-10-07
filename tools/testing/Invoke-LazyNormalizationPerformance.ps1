@@ -66,7 +66,7 @@ foreach ($mode in @('full', 'splice')) {
                 $measurement.input_sha256 -cne $inputHash -or $measurement.output_sha256 -cne $inputHash -or
                 $measurement.bytes -ne (Get-Item -LiteralPath $document).Length -or
                 $measurement.journal_bundles -ne 66 -or $measurement.validated_journal_bundles -ne 66 -or
-                $measurement.schema_version -ne 7 -or $measurement.snapshot_schema_version -ne 7 -or
+                $measurement.schema_version -ne 8 -or $measurement.snapshot_schema_version -ne 8 -or
                 $measurement.warmup_count -ne 2 -or $measurement.sample_count -ne 5 -or
                 $measurement.identity_preserved_unchanged -ne $true -or $measurement.identity_replaced_changed -ne $true -or
                 $measurement.source_unchanged -ne $true -or

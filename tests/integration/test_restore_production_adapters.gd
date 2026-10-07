@@ -77,7 +77,7 @@ func _empty_desktop() -> Dictionary:
 
 func _snapshot(run_id: String, seq: int, narrative: Dictionary = {}) -> Dictionary:
 	var s: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(VALID_FIXTURE))
-	s["schema_version"] = 7
+	s["schema_version"] = preload("res://scripts/domain/run/RunSnapshotSchema.gd").SCHEMA_VERSION
 	s["contacts"] = preload("res://scripts/domain/contact/ContactInvitationState.gd").make_defaults()
 	s["lifecycle"]["dark_mode"] = false
 	s["gameplay"].erase("opening_seen")

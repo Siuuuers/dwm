@@ -31,7 +31,7 @@ func _empty_desktop() -> Dictionary:
 
 func _current_fixture(snapshot: Dictionary) -> Dictionary:
 	var upgraded := snapshot.duplicate(true)
-	upgraded["schema_version"] = 7
+	upgraded["schema_version"] = preload("res://scripts/domain/run/RunSnapshotSchema.gd").SCHEMA_VERSION
 	# Current empty fixtures explicitly author the Contacts owner; malformed shapes stay malformed.
 	if upgraded.get("contacts") is Dictionary and upgraded.contacts.is_empty():
 		upgraded["contacts"] = CONTACTS.make_defaults()
@@ -111,9 +111,9 @@ func test_validate_rejection_matrix() -> void:
 	var schema: Script = load(SCHEMA_PATH)
 	var base := _fixture(VALID_FIXTURE)
 
-	# v7 is current; the unsupported-future probe must remain newer.
+	# v8 is current; the unsupported-future probe must remain newer.
 	var future := base.duplicate(true)
-	future["schema_version"] = 8
+	future["schema_version"] = 9
 	assert_false(schema.validate(future).get("ok", true), "unsupported future schema version rejects")
 
 	var non_integral := base.duplicate(true)
@@ -215,7 +215,7 @@ func test_current_ending_refuses_missing_seed_and_legacy_plan_without_reconstruc
 		assert_eq(schema.validate(legacy).get("code"), &"ending_frozen_seed_required")
 		assert_eq(legacy, retained, "a current version tag does not manufacture historical eligibility")
 
-func test_v7_requires_generated_contact_context_before_preparing_a_detached_candidate() -> void:
+func test_v8_requires_generated_contact_context_before_preparing_a_detached_candidate() -> void:
 	var schema: Script = load(SCHEMA_PATH)
 	var snapshot := _fixture(VALID_FIXTURE)
 	snapshot.lifecycle.day = 1
@@ -307,12 +307,12 @@ func test_derive_route_restore_context_exact_shape() -> void:
 # retires in the same boundary. Committed validation is DELEGATED to ScheduleStateSchema; this module
 # owns no second copy of the aggregate law.
 
-func test_schema_version_is_seven() -> void:
+func test_schema_version_is_eight() -> void:
 	assert_true(_schema_exists(), "RunSnapshotSchema must exist")
 	if not _schema_exists():
 		return
 	var schema: Script = load(SCHEMA_PATH)
-	assert_eq(int(schema.SCHEMA_VERSION), 7, "the reconciled snapshot contract requires v7")
+	assert_eq(int(schema.SCHEMA_VERSION), 8, "the reconciled snapshot contract requires v8")
 
 func test_top_level_committed_schedule_replaces_legacy_schedule() -> void:
 	assert_true(_schema_exists(), "RunSnapshotSchema must exist")
@@ -420,7 +420,7 @@ func test_v3_build_round_trips_the_aggregate_unchanged() -> void:
 		_snapshot_input_from(fixture), {}, "main", null, {}, 1, 42)
 	assert_true(built.get("ok", false), JSON.stringify(built))
 	var snapshot: Dictionary = built["value"]["snapshot"]
-	assert_eq(int(snapshot["schema_version"]), 7, "build stamps the current version")
+	assert_eq(int(snapshot["schema_version"]), 8, "build stamps the current version")
 	# JSON parsing yields floats for integral numbers, so the expectation is the schema's own
 	# normalized projection of the same fixture -- not the raw parse.
 	var normalized_fixture: Dictionary = schema.validate(fixture)["value"]["candidate"]

@@ -7,10 +7,10 @@ const FIXTURES := "res://tests/fixtures/saves/"
 func _fixture(name: String) -> Dictionary:
 	return JSON.parse_string(FileAccess.get_file_as_string(FIXTURES + name))
 
-# These are authored v7 test documents, not upgrades of player records.
+# These are authored current test documents, not upgrades of player records.
 func _document(kind: StringName = &"slot", slot_id: Variant = 1, dark_mode: bool = false) -> Dictionary:
 	var snapshot := _fixture("v5_desktop_none.json")
-	snapshot["schema_version"] = 7
+	snapshot["schema_version"] = preload("res://scripts/domain/run/RunSnapshotSchema.gd").SCHEMA_VERSION
 	snapshot["contacts"] = preload("res://scripts/domain/contact/ContactInvitationState.gd").make_defaults()
 	snapshot["lifecycle"]["dark_mode"] = dark_mode
 	snapshot["lifecycle"]["active_condition_hospital_plan"] = null
@@ -130,9 +130,23 @@ func test_retained_v6_snapshot_is_refused_without_repair_or_profile_patch() -> v
 		&"unsupported_run_configuration_schema")
 	assert_eq(FileAccess.get_file_as_bytes(path), source_bytes, "the historical fixture remains untouched")
 
+func test_retained_v7_snapshot_is_refused_without_repair_or_profile_patch() -> void:
+	# This historical source stays v7; the current builder must not relabel it.
+	var path := FIXTURES + "v7_desktop_prepared.json"
+	var source_bytes := FileAccess.get_file_as_bytes(path)
+	var old_snapshot: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(
+		source_bytes.get_string_from_utf8()).value
+	assert_eq(old_snapshot.schema_version, 7)
+	var historical := {"schema_version": 7, "kind": "slot", "slot_id": 1, "save_reason": "manual",
+		"current_snapshot": {"checkpoint_kind": "manual_save", "snapshot": old_snapshot}, "recovery_journal": []}
+	_assert_refused_unchanged(historical, {"kind": "slot", "slot_id": 1},
+		&"unsupported_run_configuration_schema")
+	assert_eq(FileAccess.get_file_as_bytes(path), source_bytes, "the historical fixture remains untouched")
+
+
 func test_future_fractional_missing_and_wrong_type_versions_are_refused() -> void:
 	var future := _document()
-	future.schema_version = 8
+	future.schema_version = DOCUMENT.DOCUMENT_VERSION + 1
 	_assert_refused_unchanged(future, {"kind": "slot", "slot_id": 1}, &"unsupported_future_schema")
 	for version: Variant in [6.5, "6", null, true, {}, [], INF]:
 		var raw := _document()

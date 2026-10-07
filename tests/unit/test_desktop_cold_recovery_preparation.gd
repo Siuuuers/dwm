@@ -12,6 +12,7 @@ func _snapshot() -> Dictionary:
 	var parsed: Dictionary = STRICT_JSON.parse_object(FileAccess.get_file_as_string(
 		"res://tests/fixtures/saves/v7_desktop_prepared.json"))
 	var source: Dictionary = parsed.value
+	source["schema_version"] = SNAPSHOT.SCHEMA_VERSION
 	source["lifecycle"]["day"] = 2
 	source["committed_schedule"]["day"] = 2
 	source["schedule_view"]["day"] = 2

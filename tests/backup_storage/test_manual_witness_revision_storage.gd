@@ -60,6 +60,7 @@ func _build_document() -> bool:
 	var snapshot := STRICT.parse_object(FileAccess.get_file_as_string(
 		"res://tests/fixtures/saves/v7_desktop_prepared.json"))
 	if not _check(snapshot.get("ok", false), "strict fixture parse"): return false
+	snapshot.value["schema_version"] = preload("res://scripts/domain/run/RunSnapshotSchema.gd").SCHEMA_VERSION
 	var built := SCHEMA.build(&"slot", 1, &"manual",
 		{"checkpoint_kind": "manual_save", "snapshot": snapshot.value}, [])
 	if not _check(built.get("ok", false), "real save schema build"): return false
