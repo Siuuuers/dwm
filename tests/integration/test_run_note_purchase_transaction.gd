@@ -121,6 +121,47 @@ func test_catalogue_registration_and_full_candidate_are_detached_and_refuse_tamp
 	assert_eq(fixture.witness(), before, "all preparation and refusal is mutation-free")
 	assert_eq(fixture.disk_text(), bytes)
 
+func test_equal_valued_target_type_substitutions_refuse_validation_and_commit() -> void:
+	if not _ready_fixture(): return
+	fixture.game.money = 500
+	var identity: Dictionary = fixture.issuer.issue(&"transaction_id")
+	assert_true(identity.get("ok", false), JSON.stringify(identity))
+	if not identity.get("ok", false): return
+	var item := {"item_id": NOTES.ITEMS[0], "currency": "money", "price": 45,
+		"max_purchases": 3, "effect_ids": [], "quantity": 1}
+	var quote := {"transaction_id": identity.value.token, "item_id": NOTES.ITEMS[0], "currency": "money", "price": 45}
+	var prepared: Dictionary = fixture.state_port.prepare_purchase(item, quote,
+		identity.value.token, identity.value.issuer_receipt)
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	if not prepared.get("ok", false): return
+	var candidate: Dictionary = prepared.value.candidate
+	assert_true(fixture.state_port.validate_note_candidate(candidate).get("ok", false))
+	var before: PackedByteArray = var_to_bytes(fixture.witness())
+	var disk_before: String = fixture.disk_text()
+	for substitution: String in ["money", "count_float", "count_bool", "day", "nested_stat"]:
+		var forged: Dictionary = candidate.duplicate(true)
+		match substitution:
+			"money": forged.ordinary_gameplay.money = float(candidate.ordinary_gameplay.money)
+			"count_float": forged.ordinary_gameplay.shop_purchase_counts[NOTES.ITEMS[0]] = 1.0
+			"count_bool": forged.ordinary_gameplay.shop_purchase_counts[NOTES.ITEMS[0]] = true
+			"day": forged.ordinary_gameplay.day = float(candidate.ordinary_gameplay.day)
+			"nested_stat":
+				assert_eq(typeof(candidate.ordinary_gameplay.stats.health), TYPE_INT)
+				forged.ordinary_gameplay.stats.health = float(candidate.ordinary_gameplay.stats.health)
+		assert_ne(var_to_bytes(forged), var_to_bytes(candidate), "actual typed substitution: " + substitution)
+		var validated: Dictionary = fixture.state_port.validate_note_candidate(forged)
+		assert_false(validated.get("ok", false), substitution)
+		assert_eq(validated.get("code"), &"invalid_note_shop_candidate", substitution)
+		assert_eq(var_to_bytes(fixture.witness()), before, "validation preserves exact owner types: " + substitution)
+		assert_eq(fixture.disk_text(), disk_before, "validation preserves disk: " + substitution)
+		var committed: Dictionary = fixture.state_port.commit(forged)
+		assert_false(committed.get("ok", false), substitution)
+		assert_eq(committed.get("code"), &"invalid_note_shop_candidate", substitution)
+		assert_eq(var_to_bytes(fixture.witness()), before, "commit refuses before owner mutation: " + substitution)
+		assert_eq(fixture.disk_text(), disk_before, "commit preserves disk: " + substitution)
+	assert_true(fixture.state_port.validate_note_candidate(candidate).get("ok", false), "original candidate still valid")
+
+
 func test_insufficient_money_and_invalid_counts_refuse_before_checkpoint() -> void:
 	if not _ready_fixture(): return
 	fixture.game.money = 44

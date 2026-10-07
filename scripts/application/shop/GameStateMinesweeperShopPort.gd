@@ -154,10 +154,10 @@ func commit(candidate: Dictionary) -> Dictionary:
 		var checked := validate_note_candidate(candidate)
 		if not checked.get("ok", false): return checked
 		var live: Dictionary = _game_state.to_save_dict()
-		var source_matches: bool = live == candidate.ordinary_source_gameplay \
-			and _game_state.contacts == candidate.ordinary_source_contacts
-		var adopted_matches: bool = live == candidate.ordinary_gameplay \
-			and _game_state.contacts == candidate.ordinary_contacts
+		var source_matches: bool = _same_note_state(live, candidate.ordinary_source_gameplay) \
+			and _same_note_state(_game_state.contacts, candidate.ordinary_source_contacts)
+		var adopted_matches: bool = _same_note_state(live, candidate.ordinary_gameplay) \
+			and _same_note_state(_game_state.contacts, candidate.ordinary_contacts)
 		if not source_matches and not adopted_matches:
 			return _fail(&"stale_note_shop_source", "", {})
 	if candidate.get("ordinary_gameplay") is Dictionary:
@@ -391,7 +391,7 @@ func validate_note_candidate(candidate: Dictionary) -> Dictionary:
 	var source: Dictionary = candidate.ordinary_source_gameplay
 	if typeof(source.get("money")) != TYPE_INT or source.money < 45 \
 			or typeof(source.get("day")) != TYPE_INT \
-			or candidate.ordinary_contacts != candidate.ordinary_source_contacts:
+			or not _same_note_state(candidate.ordinary_contacts, candidate.ordinary_source_contacts):
 		return _fail(&"invalid_note_shop_candidate", "", {})
 	var validated: Dictionary = _NOTE_RULES.validate_counts(source.get("shop_purchase_counts", {}))
 	if not validated.get("ok", false): return validated
@@ -402,6 +402,26 @@ func validate_note_candidate(candidate: Dictionary) -> Dictionary:
 	var expected := source.duplicate(true)
 	expected.money = source.money - 45
 	expected.shop_purchase_counts = counts
-	if expected != candidate.ordinary_gameplay:
+	if not _same_note_state(expected, candidate.ordinary_gameplay):
 		return _fail(&"invalid_note_shop_candidate", "", {})
 	return {"ok": true}
+
+
+## Variant equality alone permits equal-valued numeric type substitutions.
+## Preserve every nested value and key type, independent of dictionary order.
+func _same_note_state(left: Variant, right: Variant) -> bool:
+	if typeof(left) != typeof(right): return false
+	if left is Dictionary:
+		if left.size() != right.size(): return false
+		var right_keys: Array = right.keys()
+		for key: Variant in left:
+			var index: int = right_keys.find(key)
+			if index < 0 or typeof(key) != typeof(right_keys[index]): return false
+			if not _same_note_state(left[key], right[right_keys[index]]): return false
+		return true
+	if left is Array:
+		if left.size() != right.size(): return false
+		for index: int in left.size():
+			if not _same_note_state(left[index], right[index]): return false
+		return true
+	return left == right
