@@ -200,32 +200,11 @@ func _restore_retired_query_source(source: String) -> String:
 	return source.replace(current_comment, historical_comment)
 
 
-func _without_authenticated_scene_event_extension(source: String) -> String:
-	# Reverse only this reviewed append-only extension; preserve the historical oracle.
-	const ANCHOR := "\n\n# Scene events share the existing Run receipt map."
-	const EXTENSION_SHA256 := "e11d2990a0737baf57a85b43ed0fd3d2755dc3929cbef9231a9b62e5b0f99552"
-	const FOUNDATION_SHA256 := "02ed11392633e9ded43609d93977adb0805870880add55b67c483d5d305694bc"
-	assert_eq(source.count(ANCHOR), 1, "one exact scene-event extension anchor")
-	if source.count(ANCHOR) != 1: return ""
-	var offset := source.find(ANCHOR)
-	var extension := source.substr(offset)
-	var foundation := source.substr(0, offset)
-	assert_eq(extension.to_utf8_buffer().size(), 10108, "exact scene-event extension byte count")
-	assert_eq(extension.sha256_text(), EXTENSION_SHA256, "exact complete scene-event extension")
-	assert_eq(foundation.sha256_text(), FOUNDATION_SHA256, "exact accepted foundation owner")
-	if extension.to_utf8_buffer().size() != 10108 or extension.sha256_text() != EXTENSION_SHA256 \
-			or foundation.sha256_text() != FOUNDATION_SHA256:
-		return ""
-	return foundation
-
-
 func _assert_frozen_provenance() -> bool:
 	# A later owner edit must deliberately rebase this comparison contract and
 	# retain a reproducible failing control; do not silently loosen these hashes.
 	const LIVE_REFERENCE := preload("res://tests/support/LiveRunRollbackAliasingReference.gd")
-	var source := FileAccess.get_file_as_string("res://autoload/GameState.gd").replace("\r\n", "\n")
-	source = _without_authenticated_scene_event_extension(source)
-	if source.is_empty(): return false
+	var source := _without_authenticated_scene_event_extension(FileAccess.get_file_as_string("res://autoload/GameState.gd").replace("\r\n", "\n"))
 	var reference := FileAccess.get_file_as_string("res://tests/support/RunRestoreAliasingReference.gd").replace("\r\n", "\n")
 	var live_reference := FileAccess.get_file_as_string("res://tests/support/LiveRunRollbackAliasingReference.gd").replace("\r\n", "\n")
 	var capture := _source_method(source, "capture_restore_state")
@@ -292,3 +271,22 @@ func test_prepared_restore_plan_and_installed_owner_remain_independent_until_fin
 func test_rollback_backup_and_restored_owner_remain_independent_until_finalize() -> void:
 	for owner_to_payload: bool in [false, true]:
 		_assert_all_isolated(_installation_probe(true, owner_to_payload), true, "rollback")
+
+
+func _without_authenticated_scene_event_extension(source: String) -> String:
+	# Reverse only this reviewed append-only extension; preserve the historical oracle.
+	const ANCHOR := "\n\n# Scene events share the existing Run receipt map."
+	const EXTENSION_SHA256 := "e11d2990a0737baf57a85b43ed0fd3d2755dc3929cbef9231a9b62e5b0f99552"
+	const FOUNDATION_SHA256 := "02ed11392633e9ded43609d93977adb0805870880add55b67c483d5d305694bc"
+	assert_eq(source.count(ANCHOR), 1, "one exact scene-event extension anchor")
+	if source.count(ANCHOR) != 1: return ""
+	var offset := source.find(ANCHOR)
+	var extension := source.substr(offset)
+	var foundation := source.substr(0, offset)
+	assert_eq(extension.to_utf8_buffer().size(), 10108, "exact scene-event extension byte count")
+	assert_eq(extension.sha256_text(), EXTENSION_SHA256, "exact complete scene-event extension")
+	assert_eq(foundation.sha256_text(), FOUNDATION_SHA256, "exact accepted foundation owner")
+	if extension.to_utf8_buffer().size() != 10108 or extension.sha256_text() != EXTENSION_SHA256 \
+			or foundation.sha256_text() != FOUNDATION_SHA256:
+		return ""
+	return foundation
