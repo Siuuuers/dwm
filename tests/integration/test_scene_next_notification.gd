@@ -16,6 +16,46 @@ func _receipt(plan: Dictionary) -> Dictionary:
 	envelope["playback_token"] = "fixture.live"
 	return EVENT.make_receipt(envelope, plan.destination.anchor)
 
+func test_v4_physical_admission_preserves_owner_checks_and_saved_bytes() -> void:
+	var session: RefCounted = FIXTURE.started()
+	var plan := _plan(session)
+	assert_true(plan.ok, str(plan))
+	if not plan.ok: return
+	var source: Dictionary = OP.project(plan.value, "source").value
+	var marker: Dictionary = OP.project(plan.value, "destination").value
+	assert_true(session.restore(marker, FIXTURE.ENTRY).ok)
+	var next: Dictionary = session.prepare_marker_next(marker.frontier, func(_variant: Dictionary) -> bool: return false)
+	assert_true(next.ok, str(next))
+	if not next.ok: return
+	var later: Dictionary = OP.project(next.value, "destination").value
+	assert_true(session.restore(later, FIXTURE.ENTRY).ok)
+	var completed: Dictionary = session.prepare_marker_next(later.frontier, func(_variant: Dictionary) -> bool: return false)
+	assert_true(completed.ok, str(completed))
+	if not completed.ok: return
+	var states: Array = [OP.without_operation(source), source, marker,
+		OP.project(next.value, "source").value, later, OP.project(completed.value, "destination").value]
+	for reading: Dictionary in states:
+		var snapshot: Dictionary = FIXTURE.BASE.snapshot()
+		snapshot.narrative_checkpoint.reading_session = reading.duplicate(true)
+		var before := var_to_bytes(snapshot)
+		var admitted: Dictionary = FIXTURE.BASE.RUN_CONTEXT.validate_reading_checkpoint(snapshot.narrative_checkpoint, snapshot)
+		assert_true(admitted.ok, str(admitted))
+		assert_eq(var_to_bytes(snapshot), before, "admission never rewrites saved v4")
+		var wrong := snapshot.duplicate(true)
+		wrong.gameplay.route_context.active_dating_challenge.physical_token = "forged.physical"
+		assert_false(FIXTURE.BASE.RUN_CONTEXT.validate_reading_checkpoint(wrong.narrative_checkpoint, wrong).ok)
+		wrong = snapshot.duplicate(true)
+		wrong.narrative_checkpoint.reading_session["unknown"] = true
+		assert_false(FIXTURE.BASE.RUN_CONTEXT.validate_reading_checkpoint(wrong.narrative_checkpoint, wrong).ok)
+	var bad := FIXTURE.BASE.snapshot()
+	bad.narrative_checkpoint.reading_session = marker.duplicate(true)
+	bad.narrative_checkpoint.reading_session.next_operation = null
+	bad.narrative_checkpoint.reading_session.frontier.anchor.content_version = 2
+	assert_false(FIXTURE.BASE.RUN_CONTEXT.validate_reading_checkpoint(bad.narrative_checkpoint, bad).ok)
+	bad.narrative_checkpoint.reading_session = source.duplicate(true)
+	bad.narrative_checkpoint.reading_session.next_operation.operation_id = "0".repeat(64)
+	assert_false(FIXTURE.BASE.RUN_CONTEXT.validate_reading_checkpoint(bad.narrative_checkpoint, bad).ok)
+
 func test_first_marker_stops_before_any_later_witness_query_or_caption_publication() -> void:
 	var session: RefCounted = FIXTURE.started()
 	assert_not_null(session)

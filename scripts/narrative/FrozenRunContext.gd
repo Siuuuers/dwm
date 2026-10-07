@@ -72,6 +72,26 @@ static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictio
 		return _hospital_reading(checkpoint, snapshot, reading)
 	if snapshot.get("route_id") != "dating": return _fail(&"reading_saved_run_required")
 	if reading is Dictionary and typeof(reading.get("schema_version")) == TYPE_INT \
+			and reading.schema_version == 4:
+		if not READING_NEXT.valid_marker_reading_shape(reading): return _fail(&"reading_session_invalid")
+		if reading.next_operation != null:
+			var operation := READING_NEXT.validate(reading, checkpoint.entry_id)
+			if not operation.ok: return operation
+		if reading.ledger.captions.back().beat.owning_entry_id != checkpoint.entry_id:
+			return _fail(&"reading_physical_owner_mismatch")
+		# This local projection checks the same physical Solo owner; saved v4 bytes
+		# remain intact. Marker programme and receipt converse stay Bridge-owned.
+		var frontier: Dictionary = reading.frontier.duplicate(true)
+		var boundary: String = reading.boundary
+		if boundary == "notification":
+			var anchor: Dictionary = frontier.anchor
+			if anchor.entry_id != checkpoint.entry_id or anchor.content_version != checkpoint.content_version:
+				return _fail(&"reading_physical_owner_mismatch")
+			frontier = {"line_id": anchor.line_id, "publication_id": anchor.publication_id}
+			boundary = "line"
+		reading = {"schema_version": 1, "catalogue_fingerprint": reading.catalogue_fingerprint,
+			"boundary": boundary, "ledger": reading.ledger, "frontier": frontier}
+	if reading is Dictionary and typeof(reading.get("schema_version")) == TYPE_INT \
 			and reading.schema_version == 2:
 		var operation := READING_NEXT.validate(reading, checkpoint.entry_id)
 		if not operation.ok: return operation
