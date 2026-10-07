@@ -253,7 +253,10 @@ static func validate(snapshot: Dictionary) -> Dictionary:
 		(candidate["gameplay"] as Dictionary).get("shop_purchase_counts", {}))
 	if not counts_check.get("ok", false):
 		return _fail(&"invalid_gameplay", "invalid shop_purchase_counts")
-	candidate["gameplay"]["shop_purchase_counts"] = counts_check["value"]["shop_purchase_counts"]
+	# Preserve omitted wire fields so full and proof-backed document builders keep
+	# identical bytes. Restore owners materialize the empty map before mutation.
+	if candidate["gameplay"].has("shop_purchase_counts"):
+		candidate["gameplay"]["shop_purchase_counts"] = counts_check["value"]["shop_purchase_counts"]
 	for member: String in ["applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
 		var ids_error := _validate_transaction_ids(candidate[member], member)
 		if ids_error != "":

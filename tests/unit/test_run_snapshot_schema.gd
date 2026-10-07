@@ -670,13 +670,13 @@ func test_note_counts_saved_integral_numbers_normalize_and_detach() -> void:
 	assert_eq(snapshot["gameplay"]["shop_purchase_counts"]["crystal_stutters"], 3.0)
 
 
-func test_note_counts_omission_defaults_empty_without_mutating_source() -> void:
+func test_note_counts_omission_preserves_wire_shape_for_restore_owner_defaulting() -> void:
 	var snapshot: Dictionary = _fixture(VALID_FIXTURE)
 	snapshot["gameplay"].erase("shop_purchase_counts")
 	var result: Dictionary = load(SCHEMA_PATH).validate(snapshot)
 	assert_true(result.ok)
 	if not result.ok: return
-	assert_eq(result.value.candidate.gameplay.shop_purchase_counts, {})
+	assert_false(result.value.candidate.gameplay.has("shop_purchase_counts"), "validation preserves omitted wire fields")
 	assert_false(snapshot["gameplay"].has("shop_purchase_counts"))
 
 
