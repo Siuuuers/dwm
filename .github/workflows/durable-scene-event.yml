@@ -16,7 +16,7 @@ jobs:
         with:
           # The schedule-gate contract inspects its immutable historical seals.
           fetch-depth: 0
-          ref: f28ff205f9ed303c99ed88d44e1fd41316ce996b
+          ref: af9440207e0b0f7672c4b13eacd3aa904f4416f7
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
@@ -51,7 +51,7 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path .godot/ci | Out-Null
           [ordered]@{source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); controller=$env:GITHUB_SHA; run=$env:GITHUB_RUN_ID; attempt=$env:GITHUB_RUN_ATTEMPT} | ConvertTo-Json | Tee-Object .godot/ci/pre-import-identity.json
-          if ((git rev-parse HEAD) -cne 'f28ff205f9ed303c99ed88d44e1fd41316ce996b' -or (git rev-parse 'HEAD^{tree}') -cne '71deb423b43fb38fc3d8ff069f33e20c51bf9fb2') { throw 'pre-import identity mismatch' }
+          if ((git rev-parse HEAD) -cne 'af9440207e0b0f7672c4b13eacd3aa904f4416f7' -or (git rev-parse 'HEAD^{tree}') -cne 'c3dbb7a0e67d46c54f97fec4ba6f33d4cfa02957') { throw 'pre-import identity mismatch' }
       - name: Import project
         timeout-minutes: 8
         run: |
@@ -76,8 +76,8 @@ jobs:
       - name: Verify exact product source and record executable identity
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne 'f28ff205f9ed303c99ed88d44e1fd41316ce996b') { throw 'source mismatch' }
-          if ((git rev-parse 'HEAD^{tree}') -cne '71deb423b43fb38fc3d8ff069f33e20c51bf9fb2') { throw 'tree mismatch' }
+          if ((git rev-parse HEAD) -cne 'af9440207e0b0f7672c4b13eacd3aa904f4416f7') { throw 'source mismatch' }
+          if ((git rev-parse 'HEAD^{tree}') -cne 'c3dbb7a0e67d46c54f97fec4ba6f33d4cfa02957') { throw 'tree mismatch' }
           if (git diff --name-only) { throw 'tracked source changed during import' }
           [ordered]@{source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); controller=$env:GITHUB_SHA; run=$env:GITHUB_RUN_ID; attempt=$env:GITHUB_RUN_ATTEMPT; executable=$env:GODOT_CONSOLE_PATH; executable_sha256=(Get-FileHash $env:GODOT_CONSOLE_PATH -Algorithm SHA256).Hash.ToLowerInvariant(); version=(& $env:GODOT_CONSOLE_PATH --version)} | ConvertTo-Json | Set-Content .godot/ci/identity.json
       - name: Execute explicit new suites and retained dependency contracts
