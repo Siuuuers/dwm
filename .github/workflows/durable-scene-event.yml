@@ -1,4 +1,4 @@
-name: Isolated durable scene-event preparation
+name: Isolated scene-event receipt preparation
 on:
   push:
     branches: [codex/durable-scene-event-controller-20261007]
@@ -16,7 +16,7 @@ jobs:
         with:
           # The schedule-gate contract inspects its immutable historical seals.
           fetch-depth: 0
-          ref: 960dabf2836c97bd97b85755060c3b27852f3957
+          ref: 262b50efaa0851be8497de4127ed4bc4666f7b91
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
@@ -71,17 +71,15 @@ jobs:
       - name: Verify exact product source and record executable identity
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '960dabf2836c97bd97b85755060c3b27852f3957') { throw 'source mismatch' }
-          if ((git rev-parse 'HEAD^{tree}') -cne 'b26fde6f66f0a1365a8516b4aa594516d3f94937') { throw 'tree mismatch' }
+          if ((git rev-parse HEAD) -cne '262b50efaa0851be8497de4127ed4bc4666f7b91') { throw 'source mismatch' }
+          if ((git rev-parse 'HEAD^{tree}') -cne '3432650ecb18f8309a3747dc737f609692ec921f') { throw 'tree mismatch' }
           if (git diff --name-only) { throw 'tracked source changed during import' }
           [ordered]@{source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); controller=$env:GITHUB_SHA; run=$env:GITHUB_RUN_ID; attempt=$env:GITHUB_RUN_ATTEMPT; executable=$env:GODOT_CONSOLE_PATH; executable_sha256=(Get-FileHash $env:GODOT_CONSOLE_PATH -Algorithm SHA256).Hash.ToLowerInvariant(); version=(& $env:GODOT_CONSOLE_PATH --version)} | ConvertTo-Json | Set-Content .godot/ci/identity.json
-      - name: Generate declared inventories in isolated checkout
+      - name: Verify committed public inventories without regeneration
         run: |
-          ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate
+          ./tools/testing/Invoke-PublicSurfaceValidation.ps1
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git restore -- evidence/phase_2r/runtime/game_state_surface.json evidence/phase_2r/runtime/save_manager_surface.json
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (git diff --name-only) { throw 'unexpected tracked product source changed' }
+          if (git diff --name-only) { throw 'tracked product source changed' }
       - name: Execute explicit new suites and retained dependency contracts
         run: |
           $ErrorActionPreference = 'Stop'
