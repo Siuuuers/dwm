@@ -93,7 +93,7 @@ jobs:
                 path=live/part;path.mkdir(parents=True,exist_ok=True);env[key]=str(path)
             env['DWM_SCENE_MARKER_PHASE']=phase
             before=manifest()
-            command=['xvfb-run','-a',env['GODOT_CONSOLE_PATH'],'--path',str(root),'--rendering-method','gl_compatibility','--rendering-driver','opengl3','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_next_notification.gd','-gunit_test_name=test_connected_bridge_partial_next','-gexit','-glog=1','-gjunit_xml_file=res://.godot/ci/restart/reports/'+phase+'.xml','--','--phase2r-bootstrap-mode=final']
+            command=['xvfb-run','-a',env['GODOT_CONSOLE_PATH'],'--path',str(root),'--rendering-method','gl_compatibility','--rendering-driver','opengl3','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_next_notification.gd','-gunit_test_name=test_connected_bridge_partial_next','-gexit','-glog=1','-gjunit_xml_file=res://.godot/ci/restart/reports/'+phase+'.xml']
             run=subprocess.run(command,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=240)
             (reports/(phase+'.log')).write_text(run.stdout)
             (reports/(phase+'-launcher.json')).write_text(json.dumps({'phase':phase,'command':command,'returncode':run.returncode,'before':before,'after':manifest()},indent=2))
