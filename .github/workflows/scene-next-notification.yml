@@ -10,12 +10,12 @@ jobs:
     timeout-minutes: 20
     env:
       LIBGL_ALWAYS_SOFTWARE: '1'
-      PRODUCT_SHA: ac82bd99d895f4221c307dddca010f327b6afb73
-      PRODUCT_TREE: 7a1827770f2eac50d848a5aa1a0383a8094efead
+      PRODUCT_SHA: 0b8fd58318b72cf1f5e70a007b2f78f2986a6ac2
+      PRODUCT_TREE: d5abad0fcf69de95c1efa9fab0d5929e0d33437a
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ac82bd99d895f4221c307dddca010f327b6afb73
+          ref: 0b8fd58318b72cf1f5e70a007b2f78f2986a6ac2
           fetch-depth: 0
           persist-credentials: true
       - name: Record immutable source before import
@@ -63,7 +63,7 @@ jobs:
             env=os.environ.copy()
             for key,part in [('DWM_TEST_ROOT','test-root'),('XDG_DATA_HOME','data'),('XDG_CONFIG_HOME','config'),('XDG_CACHE_HOME','cache')]:
               target=base/part;target.mkdir(parents=True,exist_ok=True);env[key]=str(target)
-            command=['xvfb-run','-a',env['GODOT_CONSOLE_PATH'],'--path',str(root),'--rendering-method','gl_compatibility','--rendering-driver','opengl3','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/'+suite+'.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/'+suite+'/results.xml']
+            command=['xvfb-run','-a',env['GODOT_CONSOLE_PATH'],'--path',str(root),'--rendering-method','gl_compatibility','--rendering-driver','opengl3','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/'+suite+'.gd','-gexit','-glog=1','-gjunit_xml_file=res://.godot/ci/'+suite+'/results.xml']
             result=subprocess.run(command,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=480)
             (base/'original.log').write_text(result.stdout)
             (base/'command.json').write_text(json.dumps({'command':command,'returncode':result.returncode},indent=2))
@@ -79,7 +79,7 @@ jobs:
           import os,pathlib,subprocess,json,hashlib,shutil,xml.etree.ElementTree as ET
           root=pathlib.Path.cwd();base=root/'.godot/ci/restart';base.mkdir(parents=True,exist_ok=True)
           live=base/'live';reports=base/'reports';reports.mkdir(parents=True,exist_ok=True)
-          phases=['produce-pre-marker','consume-pre-marker-source','consume-source-marker','consume-marker-source','consume-marker-source-later','consume-later-completion','consume-completion']
+          phases=['produce-pre-marker','consume-pre-marker-source','consume-source-marker','consume-marker-source','consume-marker-source-later','consume-later-completion','consume-completion','fault-install-produce','fault-install-consume']
           env=os.environ.copy()
           for key,part in [('DWM_TEST_ROOT','test-root'),('XDG_DATA_HOME','data'),('XDG_CONFIG_HOME','config'),('XDG_CACHE_HOME','cache')]:
             path=live/part;path.mkdir(parents=True,exist_ok=True);env[key]=str(path)
@@ -87,9 +87,13 @@ jobs:
           def manifest():
             return {p.relative_to(live).as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in sorted(live.rglob('*')) if p.is_file()}
           for phase in phases:
+            if phase == 'fault-install-produce':
+              live=base/'fault-live'
+              for key,part in [('DWM_TEST_ROOT','test-root'),('XDG_DATA_HOME','data'),('XDG_CONFIG_HOME','config'),('XDG_CACHE_HOME','cache')]:
+                path=live/part;path.mkdir(parents=True,exist_ok=True);env[key]=str(path)
             env['DWM_SCENE_MARKER_PHASE']=phase
             before=manifest()
-            command=['xvfb-run','-a',env['GODOT_CONSOLE_PATH'],'--path',str(root),'--rendering-method','gl_compatibility','--rendering-driver','opengl3','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_next_notification.gd','-gunit_test_name=test_connected_bridge_partial_next','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/restart/reports/'+phase+'.xml','--','--phase2r-bootstrap-mode=final']
+            command=['xvfb-run','-a',env['GODOT_CONSOLE_PATH'],'--path',str(root),'--rendering-method','gl_compatibility','--rendering-driver','opengl3','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_next_notification.gd','-gunit_test_name=test_connected_bridge_partial_next','-gexit','-glog=1','-gjunit_xml_file=res://.godot/ci/restart/reports/'+phase+'.xml','--','--phase2r-bootstrap-mode=final']
             run=subprocess.run(command,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=240)
             (reports/(phase+'.log')).write_text(run.stdout)
             (reports/(phase+'-launcher.json')).write_text(json.dumps({'phase':phase,'command':command,'returncode':run.returncode,'before':before,'after':manifest()},indent=2))
