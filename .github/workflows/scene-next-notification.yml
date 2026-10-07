@@ -10,12 +10,12 @@ jobs:
     timeout-minutes: 20
     env:
       LIBGL_ALWAYS_SOFTWARE: '1'
-      PRODUCT_SHA: 13fa15237e2026350a4b454f6ea4cd11bd4ef6ab
-      PRODUCT_TREE: 7df2de1c12e83ffdc40b270d757dd44ff1f5d5bb
+      PRODUCT_SHA: ac82bd99d895f4221c307dddca010f327b6afb73
+      PRODUCT_TREE: 7a1827770f2eac50d848a5aa1a0383a8094efead
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: 13fa15237e2026350a4b454f6ea4cd11bd4ef6ab
+          ref: ac82bd99d895f4221c307dddca010f327b6afb73
           fetch-depth: 0
           persist-credentials: true
       - name: Record immutable source before import
@@ -28,7 +28,7 @@ jobs:
           pathlib.Path('.godot/ci/provenance.json').write_text(json.dumps({
             'product':os.environ['PRODUCT_SHA'],'tree':os.environ['PRODUCT_TREE'],
             'controller':os.environ['GITHUB_SHA'],'run':os.environ['GITHUB_RUN_ID'],
-            'attempt':os.environ['GITHUB_RUN_ATTEMPT'],'purpose':'diagnostic; inventories and fresh-process matrix pending',
+            'attempt':os.environ['GITHUB_RUN_ATTEMPT'],'purpose':'focused and seven real process phases; final inventories/gates pending',
             'index_cleanup':['.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1']},indent=2))
           PY
           git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
@@ -72,6 +72,32 @@ jobs:
             report=ET.parse(base/'results.xml');cases=report.findall('.//testcase')
             if not cases or any(list(c) for c in cases if any(t.tag in ['failure','error','skipped'] for t in c)): raise SystemExit(suite+' missing/pending/failed cases')
             print(suite+': '+str(len(cases))+' cases passed')
+          PY
+      - name: Seven fresh processes with real saved roots
+        run: |
+          python3 - <<'PY'
+          import os,pathlib,subprocess,json,hashlib,shutil,xml.etree.ElementTree as ET
+          root=pathlib.Path.cwd();base=root/'.godot/ci/restart';base.mkdir(parents=True,exist_ok=True)
+          live=base/'live';reports=base/'reports';reports.mkdir(parents=True,exist_ok=True)
+          phases=['produce-pre-marker','consume-pre-marker-source','consume-source-marker','consume-marker-source','consume-marker-source-later','consume-later-completion','consume-completion']
+          env=os.environ.copy()
+          for key,part in [('DWM_TEST_ROOT','test-root'),('XDG_DATA_HOME','data'),('XDG_CONFIG_HOME','config'),('XDG_CACHE_HOME','cache')]:
+            path=live/part;path.mkdir(parents=True,exist_ok=True);env[key]=str(path)
+          env['DWM_SCENE_MARKER_REPORT_DIR']=str(reports)
+          def manifest():
+            return {p.relative_to(live).as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in sorted(live.rglob('*')) if p.is_file()}
+          for phase in phases:
+            env['DWM_SCENE_MARKER_PHASE']=phase
+            before=manifest()
+            command=['xvfb-run','-a',env['GODOT_CONSOLE_PATH'],'--path',str(root),'--rendering-method','gl_compatibility','--rendering-driver','opengl3','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_next_notification.gd','-gunit_test_name=test_connected_bridge_partial_next','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/restart/reports/'+phase+'.xml','--','--phase2r-bootstrap-mode=final']
+            run=subprocess.run(command,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=240)
+            (reports/(phase+'.log')).write_text(run.stdout)
+            (reports/(phase+'-launcher.json')).write_text(json.dumps({'phase':phase,'command':command,'returncode':run.returncode,'before':before,'after':manifest()},indent=2))
+            shutil.copytree(live,base/(phase+'-original'))
+            print(run.stdout)
+            if run.returncode or 'SCENE_NEXT_NOTIFICATION_PHASE_PASS: '+phase not in run.stdout or any(x in run.stdout for x in ['SCRIPT ERROR:','ERROR: Failed to load','Unicode parsing error','Unexpected NUL character']): raise SystemExit(phase+' failed')
+            report=ET.parse(reports/(phase+'.xml'));cases=report.findall('.//testcase')
+            if len(cases)!=1 or any(t.tag in ['failure','error','skipped'] for c in cases for t in c): raise SystemExit(phase+' incomplete test result')
           PY
       - name: Final tracked source check
         if: always()
