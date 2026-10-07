@@ -120,7 +120,7 @@ static func validate_receipts(receipts: Dictionary) -> Dictionary:
 		if not saved.semantic is Dictionary or saved.semantic.has("playback_token"):
 			return _fail(&"event_receipt_invalid")
 		var envelope: Dictionary = saved.semantic.duplicate(true)
-		envelope.playback_token = "receipt.validation"
+		envelope["playback_token"] = "receipt.validation"
 		if not saved.reading_anchor is Dictionary: return _fail(&"event_anchor_invalid")
 		var rebuilt: Dictionary = make_receipt(envelope, saved.reading_anchor)
 		if not rebuilt.ok: return rebuilt

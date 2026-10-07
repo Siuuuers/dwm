@@ -27,7 +27,8 @@ func test_rebuilds_set_clear_chain_independent_of_dictionary_order() -> void:
 	clear.kind = "notification.clear"
 	clear.payload = {"notification_id": "TEST.notice"}
 	var result: Dictionary = CONTRACT.validate_receipts(_map([_receipt(clear), first]))
-	assert_true(result.ok)
+	assert_true(result.ok, str(result))
+	if not result.ok: return
 	var state: Dictionary = result.value.occurrences[CONTRACT.occurrence_key(clear.source)]
 	assert_eq(state.next_ordinal, 2)
 	assert_eq(state.predecessor, clear.event_id)
@@ -69,38 +70,39 @@ func test_rejects_tampered_digests_results_and_closed_shapes() -> void:
 
 func test_rejects_gaps_wrong_predecessors_duplicate_ordinals_and_events() -> void:
 	var first: Dictionary = _receipt(_event())
-	assert_false(CONTRACT.validate_receipts(_map([first, _receipt(_event(2))])).ok)
+	assert_eq(CONTRACT.validate_receipts(_map([first, _receipt(_event(2))])).get("code"), &"event_receipt_chain_invalid")
 	var second: Dictionary = _event(1)
 	second.predecessor = "TEST.wrong"
-	assert_false(CONTRACT.validate_receipts(_map([first, _receipt(second)])).ok)
+	assert_eq(CONTRACT.validate_receipts(_map([first, _receipt(second)])).get("code"), &"event_receipt_chain_invalid")
 	second = _event()
 	second.command_id = "TEST.other_command"
 	second.issuer_receipt.token = second.command_id
 	second.event_id = "TEST.other_event"
-	assert_false(CONTRACT.validate_receipts(_map([first, _receipt(second)])).ok)
+	assert_eq(CONTRACT.validate_receipts(_map([first, _receipt(second)])).get("code"), &"event_receipt_chain_invalid")
 	second = _event(1)
 	second.event_id = "TEST.event.0"
-	assert_false(CONTRACT.validate_receipts(_map([first, _receipt(second)])).ok)
+	assert_eq(CONTRACT.validate_receipts(_map([first, _receipt(second)])).get("code"), &"event_receipt_chain_invalid")
 
 func test_clear_requires_matching_current_notification() -> void:
 	var clear: Dictionary = _event()
 	clear.kind = "notification.clear"
 	clear.payload = {"notification_id": "TEST.notice"}
-	assert_false(CONTRACT.validate_receipts(_map([_receipt(clear)])).ok)
+	assert_eq(CONTRACT.validate_receipts(_map([_receipt(clear)])).get("code"), &"event_notification_clear_invalid")
 	clear = _event(1)
 	clear.kind = "notification.clear"
 	clear.payload = {"notification_id": "TEST.other"}
-	assert_false(CONTRACT.validate_receipts(_map([_receipt(_event()), _receipt(clear)])).ok)
+	assert_eq(CONTRACT.validate_receipts(_map([_receipt(_event()), _receipt(clear)])).get("code"), &"event_notification_clear_invalid")
 
 func test_occurrences_are_isolated_and_source_is_immutable() -> void:
 	var one: Dictionary = _event()
 	var two: Dictionary = _event(0, "TEST.other_session")
 	var result: Dictionary = CONTRACT.validate_receipts(_map([_receipt(one), _receipt(two)]))
-	assert_true(result.ok)
+	assert_true(result.ok, str(result))
+	if not result.ok: return
 	assert_eq(result.value.occurrences.size(), 2)
 	var changed: Dictionary = _event(1)
 	changed.source.branch_id = "TEST.other_branch"
-	assert_false(CONTRACT.validate_receipts(_map([_receipt(one), _receipt(changed)])).ok)
+	assert_eq(CONTRACT.validate_receipts(_map([_receipt(one), _receipt(changed)])).get("code"), &"event_receipt_source_changed")
 	one.source.scene_occurrence = "a:b"
 	one.source.entry_id = "c"
 	two.source.scene_occurrence = "a"
@@ -125,7 +127,7 @@ func test_rejects_anchor_drift_and_unbound_issuer_token() -> void:
 	var anchor: Dictionary = _receipt(event).scene_event.reading_anchor
 	anchor.catalogue_fingerprint = "cd".repeat(32)
 	var second: Dictionary = CONTRACT.make_receipt(event, anchor).value
-	assert_false(CONTRACT.validate_receipts(_map([first, second])).ok)
+	assert_eq(CONTRACT.validate_receipts(_map([first, second])).get("code"), &"event_anchor_changed")
 	event.issuer_receipt.token = "TEST.other_command"
 	assert_false(CONTRACT.make_receipt(event, anchor).ok)
 	event.issuer_receipt = {}
@@ -139,5 +141,6 @@ func test_later_publication_and_line_anchor_are_permitted_in_same_occurrence() -
 	anchor.line_id = "TEST.later_line"
 	var second: Dictionary = CONTRACT.make_receipt(event, anchor).value
 	var result: Dictionary = CONTRACT.validate_receipts(_map([first, second]))
-	assert_true(result.ok)
+	assert_true(result.ok, str(result))
+	if not result.ok: return
 	assert_eq(result.value.occurrences[CONTRACT.occurrence_key(event.source)].next_ordinal, 2)
