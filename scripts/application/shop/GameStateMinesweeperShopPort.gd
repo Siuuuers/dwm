@@ -6,6 +6,8 @@ extends RefCounted
 ## Preparation never changes live balances. The participant owns admission, save/retry, and
 ## publication; this port only captures, applies, restores, and publishes the source values.
 
+const _NOTE_RULES := preload("res://scripts/domain/shop/RunNotePurchaseRules.gd")
+
 const _STAT_HEALTH := "health"
 const _STAT_PRESSURE := "pressure"
 const _CONDITION_SEQUELA := "sequela"
@@ -16,6 +18,8 @@ const _CONDITION_SEQUELA := "sequela"
 const _CAPABILITY_ITEM_IDS: Array[String] = ["lucky_charm", "debug_key"]
 const _SUPPORTZ_ITEM_ID := "supportz"
 
+var _note_catalogue: Dictionary = {}
+var _note_catalogue_configured: bool = false
 var _game_state: Object = null
 var _desktop_identity_context: Variant = {}
 
@@ -104,6 +108,8 @@ func prepare_purchase(item: Dictionary, quote: Dictionary, transaction_id: Strin
 	if transaction_id.strip_edges().is_empty():
 		return _fail(&"invalid_transaction_id", "transaction_id must be nonblank", {})
 	var item_id := str(item.get("item_id", ""))
+	if item_id in _NOTE_RULES.ITEM_IDS:
+		return _prepare_note(item, quote, transaction_id)
 	if item_id not in _CAPABILITY_ITEM_IDS and item_id != _SUPPORTZ_ITEM_ID:
 		return _prepare_ordinary(item, quote, transaction_id)
 	if str(quote.get("item_id", "")) != item_id:
@@ -144,6 +150,16 @@ func commit(candidate: Dictionary) -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
 		return ready
+	if candidate.get("item_id", "") in _NOTE_RULES.ITEM_IDS:
+		var checked := validate_note_candidate(candidate)
+		if not checked.get("ok", false): return checked
+		var live: Dictionary = _game_state.to_save_dict()
+		var source_matches: bool = _same_note_state(live, candidate.ordinary_source_gameplay) \
+			and _same_note_state(_game_state.contacts, candidate.ordinary_source_contacts)
+		var adopted_matches: bool = _same_note_state(live, candidate.ordinary_gameplay) \
+			and _same_note_state(_game_state.contacts, candidate.ordinary_contacts)
+		if not source_matches and not adopted_matches:
+			return _fail(&"stale_note_shop_source", "", {})
 	if candidate.get("ordinary_gameplay") is Dictionary:
 		var gameplay: Dictionary = candidate.ordinary_gameplay
 		if int(gameplay.get("day", -1)) != int(_game_state.day) or not candidate.get("ordinary_contacts") is Dictionary:
@@ -292,3 +308,120 @@ func _capture_identity() -> Dictionary:
 	var shaped := _exact_keys(captured.value,
 		["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance"], &"invalid_desktop_identity_context")
 	return captured if shaped.get("ok", false) else shaped
+
+
+## Content registration is detached, validated and immutable for this port's lifetime.
+func configure_note_catalogue(catalogue: Variant) -> Dictionary:
+	var checked: Dictionary = _NOTE_RULES.validate_counts_and_catalogue({}, catalogue)
+	if not checked.get("ok", false): return checked
+	var value: Dictionary = checked.value.catalogue
+	if _note_catalogue_configured and _note_catalogue != value:
+		return _fail(&"note_catalogue_already_configured", "", {})
+	_note_catalogue = value.duplicate(true)
+	_note_catalogue_configured = true
+	return {"ok": true}
+
+
+func _prepare_note(item: Dictionary, quote: Dictionary, transaction_id: String) -> Dictionary:
+	if not _note_catalogue_configured:
+		return _fail(&"note_catalogue_unconfigured", "", {})
+	if typeof(item.get("currency")) != TYPE_STRING or item.currency != "money" \
+			or typeof(item.get("price")) != TYPE_INT or item.price != 45 \
+			or typeof(item.get("max_purchases")) != TYPE_INT or item.max_purchases != 3 \
+			or not item.get("effect_ids") is Array or not item.effect_ids.is_empty() \
+			or typeof(item.get("quantity")) != TYPE_INT or item.quantity != 1:
+		return _fail(&"invalid_note_shop_record", "", {})
+	if quote.get("transaction_id") != transaction_id or quote.get("item_id") != item.item_id or quote.get("currency") != "money" \
+			or typeof(quote.get("price")) != TYPE_INT or quote.price != 45 \
+			or typeof(quote.get("quantity", 1)) != TYPE_INT or quote.get("quantity", 1) != 1:
+		return _fail(&"invalid_ordinary_shop_quote", "", {})
+	var source: Dictionary = _game_state.to_save_dict().duplicate(true)
+	var prepared: Dictionary = _NOTE_RULES.prepare(item.item_id, item.quantity,
+		source.get("money"), source.get("shop_purchase_counts", {}), _note_catalogue)
+	if not prepared.get("ok", false): return prepared
+	var gameplay: Dictionary = source.duplicate(true)
+	gameplay.money = prepared.value.candidate.money
+	gameplay.shop_purchase_counts = prepared.value.candidate.shop_purchase_counts.duplicate(true)
+	var contacts: Dictionary = _game_state.contacts.duplicate(true)
+	var candidate := {"transaction_id": transaction_id, "item_id": item.item_id,
+		"currency": "money", "price": 45,
+		"ordinary_source_gameplay": source.duplicate(true),
+		"ordinary_source_contacts": contacts.duplicate(true),
+		"ordinary_gameplay": gameplay, "ordinary_contacts": contacts.duplicate(true)}
+	var checked := validate_note_candidate(candidate)
+	if not checked.get("ok", false): return checked
+	return {"ok": true, "value": {"candidate": candidate,
+		"condition_after": {"health": int(_game_state.get_stat("health")),
+			"pressure": int(_game_state.get_stat("pressure")),
+			"carried_sequela": (_game_state.condition_effects_today as Array).has("sequela")},
+		"backup": {"gameplay": source.duplicate(true), "contacts": contacts.duplicate(true)}}}
+
+
+## Recovery checks the frozen full-state delta without consulting content or today's price.
+## The participant binds transaction identity and hash to its durable pending action.
+func validate_note_candidate(candidate: Dictionary) -> Dictionary:
+	var expected_keys: Array = ["transaction_id", "item_id", "currency", "price",
+		"ordinary_source_gameplay", "ordinary_source_contacts", "ordinary_gameplay", "ordinary_contacts"]
+	# The participant adds checkpoint custody after this port prepares the detached candidate.
+	if candidate.has("source_checkpoint"):
+		expected_keys.append("source_checkpoint")
+		if not candidate.source_checkpoint is Dictionary:
+			return _fail(&"invalid_note_shop_candidate", "", {})
+		var checkpoint: Dictionary = candidate.source_checkpoint
+		var checkpoint_shape := _exact_keys(checkpoint, ["checkpoint_id", "snapshot_sha256"],
+			&"invalid_note_shop_candidate")
+		if not checkpoint_shape.get("ok", false): return checkpoint_shape
+		if typeof(checkpoint.checkpoint_id) != TYPE_STRING or checkpoint.checkpoint_id.strip_edges().is_empty() \
+				or typeof(checkpoint.snapshot_sha256) != TYPE_STRING or checkpoint.snapshot_sha256.length() != 64:
+			return _fail(&"invalid_note_shop_candidate", "", {})
+		for index: int in 64:
+			if checkpoint.snapshot_sha256.substr(index, 1) not in "0123456789abcdef":
+				return _fail(&"invalid_note_shop_candidate", "", {})
+	var shaped := _exact_keys(candidate, expected_keys, &"invalid_note_shop_candidate")
+	if not shaped.get("ok", false): return shaped
+	if typeof(candidate.transaction_id) != TYPE_STRING or candidate.transaction_id.strip_edges().is_empty() \
+			or typeof(candidate.item_id) != TYPE_STRING or candidate.item_id not in _NOTE_RULES.ITEM_IDS \
+			or typeof(candidate.currency) != TYPE_STRING or candidate.currency != "money" \
+			or typeof(candidate.price) != TYPE_INT or candidate.price != 45 \
+			or not candidate.ordinary_source_gameplay is Dictionary \
+			or not candidate.ordinary_gameplay is Dictionary \
+			or not candidate.ordinary_source_contacts is Dictionary \
+			or not candidate.ordinary_contacts is Dictionary:
+		return _fail(&"invalid_note_shop_candidate", "", {})
+	var source: Dictionary = candidate.ordinary_source_gameplay
+	if typeof(source.get("money")) != TYPE_INT or source.money < 45 \
+			or typeof(source.get("day")) != TYPE_INT \
+			or not _same_note_state(candidate.ordinary_contacts, candidate.ordinary_source_contacts):
+		return _fail(&"invalid_note_shop_candidate", "", {})
+	var validated: Dictionary = _NOTE_RULES.validate_counts(source.get("shop_purchase_counts", {}))
+	if not validated.get("ok", false): return validated
+	var counts: Dictionary = validated.value.shop_purchase_counts
+	var count: int = counts.get(candidate.item_id, 0)
+	if count >= 3: return _fail(&"invalid_note_shop_candidate", "", {})
+	counts[candidate.item_id] = count + 1
+	var expected := source.duplicate(true)
+	expected.money = source.money - 45
+	expected.shop_purchase_counts = counts
+	if not _same_note_state(expected, candidate.ordinary_gameplay):
+		return _fail(&"invalid_note_shop_candidate", "", {})
+	return {"ok": true}
+
+
+## Variant equality alone permits equal-valued numeric type substitutions.
+## Preserve every nested value and key type, independent of dictionary order.
+func _same_note_state(left: Variant, right: Variant) -> bool:
+	if typeof(left) != typeof(right): return false
+	if left is Dictionary:
+		if left.size() != right.size(): return false
+		var right_keys: Array = right.keys()
+		for key: Variant in left:
+			var index: int = right_keys.find(key)
+			if index < 0 or typeof(key) != typeof(right_keys[index]): return false
+			if not _same_note_state(left[key], right[right_keys[index]]): return false
+		return true
+	if left is Array:
+		if left.size() != right.size(): return false
+		for index: int in left.size():
+			if not _same_note_state(left[index], right[index]): return false
+		return true
+	return left == right

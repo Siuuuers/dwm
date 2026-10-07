@@ -9,6 +9,8 @@ const ITEM_ART := preload("res://scripts/ui/shop/ShopItemArt.gd")
 
 signal catalog_changed
 
+const _NOTE_RULES := preload("res://scripts/domain/shop/RunNotePurchaseRules.gd")
+
 const _COPY := preload("res://scripts/ui/shop/ShopCopy.gd")
 const _CAPABILITY_RULES := preload("res://scripts/domain/minesweeper/MinesweeperCapabilityRules.gd")
 
@@ -303,6 +305,9 @@ func _resolve_item(public_id: String) -> Dictionary:
 	var raw: Variant = _data_catalog.call(&"get_shop_item", source_id)
 	if typeof(raw) != TYPE_DICTIONARY or (raw as Dictionary).is_empty():
 		return _fail(&"unregistered_shop_item")
+	if source_id in _NOTE_RULES.ITEM_IDS:
+		var checked := _validate_note_record(raw)
+		if not checked.get("ok", false): return checked
 	var item := ShopItemData.new()
 	item.id = source_id
 	item.price = int((raw as Dictionary).get("price", 0))
@@ -316,6 +321,8 @@ func _resolve_item(public_id: String) -> Dictionary:
 
 
 func _validate_quantity(public_id: String, item: ShopItemData, quantity: int) -> Dictionary:
+	if item.id in _NOTE_RULES.ITEM_IDS and quantity != 1:
+		return _fail(&"invalid_quantity")
 	if quantity < 1:
 		return _fail(&"invalid_shop_quantity")
 	if public_id in _SPECIAL_IDS and quantity != 1:
@@ -395,3 +402,12 @@ static func _ok(value: Variant) -> Dictionary:
 
 static func _fail(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code, "message": "", "details": {}}
+
+
+static func _validate_note_record(raw: Dictionary) -> Dictionary:
+	if typeof(raw.get("currency")) != TYPE_STRING or raw.currency != "money" \
+			or typeof(raw.get("price")) != TYPE_INT or raw.price != 45 \
+			or typeof(raw.get("max_purchases")) != TYPE_INT or raw.max_purchases != 3 \
+			or not raw.get("effect_ids") is Array or not raw.effect_ids.is_empty():
+		return _fail(&"invalid_note_shop_record")
+	return _ok({})
