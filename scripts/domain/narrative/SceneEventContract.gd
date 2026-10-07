@@ -61,8 +61,11 @@ static func inspect(envelope: Variant) -> Dictionary:
 		"digest": str(encoded.value).sha256_text()}}
 
 static func match_registration(envelope: Dictionary, record: Variant) -> Dictionary:
+	var shaped: Dictionary = inspect(envelope)
+	if not shaped.get("ok", false): return shaped
 	if not _keys(record, RECORD_KEYS): return _fail(&"event_registration_invalid")
 	for key: String in RECORD_KEYS:
+		if typeof(envelope[key]) != typeof(record[key]): return _fail(&"event_registration_invalid")
 		if envelope[key] != record[key]: return _fail(&"event_registration_mismatch")
 	return {"ok": true}
 
