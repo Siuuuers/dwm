@@ -1,0 +1,89 @@
+name: Isolated Next notification diagnostic
+on:
+  push:
+    branches: [codex/scene-next-notification-controller-20261008]
+permissions:
+  contents: read
+jobs:
+  focused:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
+      PRODUCT_SHA: 13fa15237e2026350a4b454f6ea4cd11bd4ef6ab
+      PRODUCT_TREE: 7df2de1c12e83ffdc40b270d757dd44ff1f5d5bb
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: 13fa15237e2026350a4b454f6ea4cd11bd4ef6ab
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Record immutable source before import
+        run: |
+          mkdir -p .godot/ci
+          test "$(git rev-parse HEAD)" = "$PRODUCT_SHA"
+          test "$(git rev-parse 'HEAD^{tree}')" = "$PRODUCT_TREE"
+          python3 - <<'PY'
+          import json,os,pathlib,subprocess
+          pathlib.Path('.godot/ci/provenance.json').write_text(json.dumps({
+            'product':os.environ['PRODUCT_SHA'],'tree':os.environ['PRODUCT_TREE'],
+            'controller':os.environ['GITHUB_SHA'],'run':os.environ['GITHUB_RUN_ID'],
+            'attempt':os.environ['GITHUB_RUN_ATTEMPT'],'purpose':'diagnostic; inventories and fresh-process matrix pending',
+            'index_cleanup':['.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1']},indent=2))
+          PY
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+      - name: Install pinned standard engine and software display
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri
+          curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip' --output "$RUNNER_TEMP/godot.zip"
+          printf '%s  %s\n' 'd0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3' "$RUNNER_TEMP/godot.zip" | sha256sum --check
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          chmod +x "$RUNNER_TEMP/godot/Godot_v4.6.3-stable_linux.x86_64"
+          echo "GODOT_CONSOLE_PATH=$RUNNER_TEMP/godot/Godot_v4.6.3-stable_linux.x86_64" >> "$GITHUB_ENV"
+          sha256sum "$RUNNER_TEMP/godot/Godot_v4.6.3-stable_linux.x86_64" > .godot/ci/engine.sha256
+      - name: Import exact candidate
+        env:
+          DWM_TEST_ROOT: ${{ github.workspace }}/.godot/ci/import/test-root
+          XDG_DATA_HOME: ${{ github.workspace }}/.godot/ci/import/data
+        run: |
+          mkdir -p "$DWM_TEST_ROOT" "$XDG_DATA_HOME"
+          "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --import --log-file "$GITHUB_WORKSPACE/.godot/ci/import.log"
+          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' .godot/ci/import.log; then exit 1; fi
+          git restore -- project.godot
+          test -z "$(git diff --name-only)"
+      - name: Exact focused suites in isolated rendered processes
+        run: |
+          python3 - <<'PY'
+          import os,pathlib,subprocess,xml.etree.ElementTree as ET,json
+          root=pathlib.Path.cwd()
+          suites=['test_scene_next_notification','test_dialogic_next_traversal','test_run_restore_isolation']
+          for suite in suites:
+            base=root/'.godot/ci'/suite; base.mkdir(parents=True,exist_ok=True)
+            env=os.environ.copy()
+            for key,part in [('DWM_TEST_ROOT','test-root'),('XDG_DATA_HOME','data'),('XDG_CONFIG_HOME','config'),('XDG_CACHE_HOME','cache')]:
+              target=base/part;target.mkdir(parents=True,exist_ok=True);env[key]=str(target)
+            command=['xvfb-run','-a',env['GODOT_CONSOLE_PATH'],'--path',str(root),'--rendering-method','gl_compatibility','--rendering-driver','opengl3','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/'+suite+'.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/'+suite+'/results.xml']
+            result=subprocess.run(command,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=480)
+            (base/'original.log').write_text(result.stdout)
+            (base/'command.json').write_text(json.dumps({'command':command,'returncode':result.returncode},indent=2))
+            print(result.stdout)
+            if result.returncode or any(x in result.stdout for x in ['SCRIPT ERROR:','ERROR: Failed to load','Unicode parsing error','Unexpected NUL character']): raise SystemExit(suite+' failed')
+            report=ET.parse(base/'results.xml');cases=report.findall('.//testcase')
+            if not cases or any(list(c) for c in cases if any(t.tag in ['failure','error','skipped'] for t in c)): raise SystemExit(suite+' missing/pending/failed cases')
+            print(suite+': '+str(len(cases))+' cases passed')
+          PY
+      - name: Final tracked source check
+        if: always()
+        run: |
+          git diff --name-only > .godot/ci/tracked-source-diff.txt
+          test ! -s .godot/ci/tracked-source-diff.txt
+      - name: Preserve original diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scene-next-notification-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
