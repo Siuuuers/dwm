@@ -16,7 +16,7 @@ jobs:
         with:
           # Preserve the accepted product ancestry; checkout the pinned product.
           fetch-depth: 0
-          ref: 8748d71ff40b37f3cb21163bae55904a7b49fdf2
+          ref: e7fbf747cf501f7010253af3d07f38fe3ea0c83c
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
@@ -53,8 +53,8 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           New-Item -ItemType Directory -Force -Path .godot/ci | Out-Null
-          if ((git rev-parse HEAD) -cne '8748d71ff40b37f3cb21163bae55904a7b49fdf2') { throw 'source mismatch' }
-          if ((git rev-parse 'HEAD^{tree}') -cne 'f9da6cfbefcd32ed4dcc16c52b490859bea30748') { throw 'tree mismatch' }
+          if ((git rev-parse HEAD) -cne 'e7fbf747cf501f7010253af3d07f38fe3ea0c83c') { throw 'source mismatch' }
+          if ((git rev-parse 'HEAD^{tree}') -cne 'd8646f222ff56f90f4bde2cd7165f118e446efce') { throw 'tree mismatch' }
           if (git diff --name-only) { throw 'tracked source differs before import' }
           [ordered]@{source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); controller=$env:GITHUB_SHA; run=$env:GITHUB_RUN_ID; attempt=$env:GITHUB_RUN_ATTEMPT; executable=$env:GODOT_CONSOLE_PATH; executable_sha256=(Get-FileHash $env:GODOT_CONSOLE_PATH -Algorithm SHA256).Hash.ToLowerInvariant(); version=(& $env:GODOT_CONSOLE_PATH --version)} | ConvertTo-Json | Set-Content .godot/ci/identity.json
           Get-Content .godot/ci/identity.json
@@ -92,10 +92,12 @@ jobs:
           [xml]$xml = Get-Content .godot/ci/run-note-rules.xml -Raw
           if ($xml.SelectNodes('//failure | //error | //skipped').Count -ne 0) { throw 'failed or skipped tests' }
           $results = @($xml.SelectNodes('//testsuite') | ForEach-Object { [ordered]@{name=$_.GetAttribute('name'); cases=$_.SelectNodes('./testcase').Count} })
+          if ($results.Count -ne 2) { throw 'Expected exactly two reported suites.' }
+          $expectedCases = @{'tests/unit/test_run_note_purchase_rules.gd'=17; 'tests/unit/test_notes_catalog_projection.gd'=15}
           foreach ($path in $paths) {
             $relative = $path.Replace('res://','')
             $matching = @($results | Where-Object { $_.name.Replace('res://','') -ceq $relative })
-            if ($matching.Count -ne 1 -or $matching[0].cases -eq 0) { throw "requested suite not executed: $path" }
+            if ($matching.Count -ne 1 -or $matching[0].cases -ne $expectedCases[$relative]) { throw "requested suite not executed: $path" }
           }
           $results | ConvertTo-Json | Set-Content .godot/ci/executed-suites.json
           Get-Content .godot/ci/executed-suites.json
