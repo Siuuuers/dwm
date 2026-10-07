@@ -382,7 +382,12 @@ func run_process_phase(test_owner: Node, phase: String, report_directory: String
 	# proves this Load's new branch; the launcher separately proves distinct PIDs.
 	if not _phase_check(game.capture_run_snapshot_input().lifecycle.branch_id != prior.saved_lifecycle.branch_id,
 		"fresh Load allocates a distinct durable continuation branch"): return
-	if not _phase_check(_phase_node("ProfileManager").get_profile_snapshot() == profile, "Load does not witness a caption"): return
+	var loaded_profile: Dictionary = _phase_node("ProfileManager").get_profile_snapshot()
+	if loaded_profile != profile:
+		for key: String in profile:
+			if profile[key] != loaded_profile.get(key):
+				print("SCENE_MARKER_LOAD_PROFILE_DELTA: ", JSON.stringify({"key": key, "before": profile[key], "after": loaded_profile.get(key)}))
+	if not _phase_check(loaded_profile == profile, "Load does not witness a caption"): return
 	if phase == "fault-install-consume":
 		if not _phase_check(prior.get("fatal", false) and prior.get("live_receipt_adopted", false), "producer recorded post-owner installation failure"): return
 		if not _phase_check(prior.checkpoint.reading_session.boundary == "notification"
