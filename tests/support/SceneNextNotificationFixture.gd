@@ -270,6 +270,24 @@ func _phase_new_run() -> bool:
 		if desktop != null and not _phase_node("SaveManager").get("_new_run_busy"): break
 		await _phase_tree.process_frame
 	if not _phase_check(desktop != null, "actual New Account reached desktop"): return false
+	# The production Day1 journey retains its initial board prerequisite. Finish
+	# it through actual inputs before scheduling the synthetic Solo presentation.
+	var game: Node = _phase_node("GameState")
+	if not _phase_check(desktop.open_app(&"minesweeper").get("ok", false), "initial board opens"): return false
+	await _phase_frames()
+	var app: Node = desktop.get("_cached_app_windows")[&"minesweeper"]
+	var panel: Control = app.panel
+	var finished_before: int = game.minesweeper_app_rounds_finished_today
+	panel.worksheet.cell_action_requested.emit(&"reveal", 0, int(panel.public_view.board.revision))
+	if not _phase_check(app.last_result.get("ok", false), "initial actual Reveal"): return false
+	var physical: Dictionary = _phase_node("ApplicationBootstrap").get("_desktop_board_state").capture().board.board
+	if not panel.public_view.board.terminal:
+		panel.worksheet.cell_action_requested.emit(&"reveal", int(physical.mine_indices[0]), int(panel.public_view.board.revision))
+	for frame: int in 480:
+		if game.minesweeper_app_rounds_finished_today > finished_before: break
+		await _phase_tree.process_frame
+	if not _phase_check(game.minesweeper_app_rounds_finished_today == finished_before + 1, "initial board settled once"): return false
+	if not _phase_check(desktop.return_home().get("ok", false), "Home after initial board"): return false
 	if not _phase_check(desktop.open_app(&"contacts").get("ok", false), "Contacts opens"): return false
 	await _phase_frames()
 	var contacts: Node = desktop.get("_cached_app_windows")[&"contacts"]
@@ -294,7 +312,8 @@ func _phase_new_run() -> bool:
 			await _phase_frames()
 			return true
 		await _phase_tree.process_frame
-	return _phase_check(false, "actual FIRST caption timeout")
+	return _phase_check(false, "actual FIRST caption timeout: " + str(bridge.get_state())
+		+ " physical=" + str(game.capture_dating_challenge_state()))
 
 func _phase_next(refuse_destination: bool = false) -> Dictionary:
 	var bridge: Node = _phase_node("DialogicBridge")
