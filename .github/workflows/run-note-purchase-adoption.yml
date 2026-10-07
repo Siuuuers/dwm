@@ -16,7 +16,7 @@ jobs:
         with:
           # Preserve the accepted product ancestry; checkout the pinned product.
           fetch-depth: 0
-          ref: b7d19a7f5b523ff8b9441a5bf7be6ad0f77315d5
+          ref: 452ab34e39f6a3d6e91c4125954b092d9a499e87
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
@@ -53,8 +53,8 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           New-Item -ItemType Directory -Force -Path .godot/ci | Out-Null
-          if ((git rev-parse HEAD) -cne 'b7d19a7f5b523ff8b9441a5bf7be6ad0f77315d5') { throw 'source mismatch' }
-          if ((git rev-parse 'HEAD^{tree}') -cne '3a9935052c6f45a4c0a32a35fde9f0c74d1174f1') { throw 'tree mismatch' }
+          if ((git rev-parse HEAD) -cne '452ab34e39f6a3d6e91c4125954b092d9a499e87') { throw 'source mismatch' }
+          if ((git rev-parse 'HEAD^{tree}') -cne '97454efa14e700b801939cac3bed75b83674aaa7') { throw 'tree mismatch' }
           if (git diff --name-only) { throw 'tracked source differs before import' }
           [ordered]@{source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); controller=$env:GITHUB_SHA; run=$env:GITHUB_RUN_ID; attempt=$env:GITHUB_RUN_ATTEMPT; executable=$env:GODOT_CONSOLE_PATH; executable_sha256=(Get-FileHash $env:GODOT_CONSOLE_PATH -Algorithm SHA256).Hash.ToLowerInvariant(); version=(& $env:GODOT_CONSOLE_PATH --version)} | ConvertTo-Json | Set-Content .godot/ci/identity.json
           Get-Content .godot/ci/identity.json
@@ -139,7 +139,7 @@ jobs:
               $finished = $process.WaitForExit(240000)
               if (-not $finished) { $process.Kill($true); throw "timeout $phase" }
               $process.Refresh()
-              [ordered]@{phase=$phase;pid=$process.Id;exit=$process.ExitCode;source='b7d19a7f5b523ff8b9441a5bf7be6ad0f77315d5';tree='3a9935052c6f45a4c0a32a35fde9f0c74d1174f1';controller=$env:GITHUB_SHA;run=$env:GITHUB_RUN_ID;attempt=$env:GITHUB_RUN_ATTEMPT} | ConvertTo-Json | Set-Content (Join-Path $reportPath "$phase.process.json")
+              [ordered]@{phase=$phase;pid=$process.Id;exit=$process.ExitCode;source='452ab34e39f6a3d6e91c4125954b092d9a499e87';tree='97454efa14e700b801939cac3bed75b83674aaa7';controller=$env:GITHUB_SHA;run=$env:GITHUB_RUN_ID;attempt=$env:GITHUB_RUN_ATTEMPT} | ConvertTo-Json | Set-Content (Join-Path $reportPath "$phase.process.json")
               Get-Content $stdout
               $marker = "RUN_NOTE_RESTART_" + $phase.ToUpperInvariant().Replace("-", "_") + "_PASS"
               if (-not (Select-String -Path $stdout -SimpleMatch $marker -Quiet)) { throw "missing restart success marker $phase" }
@@ -150,14 +150,14 @@ jobs:
           }
       - name: Generate or validate exact branch inventories
         run: |
-          ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate
+          ./tools/testing/Invoke-PublicSurfaceValidation.ps1
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Verify source changes limited to declared generated outputs
         run: |
           $allowed = @('evidence/phase_2r/runtime/game_state_surface.json','evidence/phase_2r/runtime/save_manager_surface.json')
           $changed = @(git diff --name-only)
           foreach ($path in $changed) { if ($path -notin $allowed) { throw "unexpected tracked change: $path" } }
-          if ('generate' -eq 'check' -and $changed.Count -ne 0) { throw 'final tracked source changed' }
+          if ('check' -eq 'check' -and $changed.Count -ne 0) { throw 'final tracked source changed' }
       - name: Hash original evidence even on failure
         if: always()
         run: |
