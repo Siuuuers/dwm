@@ -16,7 +16,7 @@ jobs:
         with:
           # Preserve the accepted product ancestry; checkout the pinned product.
           fetch-depth: 0
-          ref: 4a64dcebf9825e292dfd1118740932e89a2694ac
+          ref: 5d55656fd59f3712039c07c21cc1d47007e4a262
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
@@ -53,8 +53,8 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           New-Item -ItemType Directory -Force -Path .godot/ci | Out-Null
-          if ((git rev-parse HEAD) -cne '4a64dcebf9825e292dfd1118740932e89a2694ac') { throw 'source mismatch' }
-          if ((git rev-parse 'HEAD^{tree}') -cne '15b5e9ee1a87205364cb1bc84e869b06f6b29ac6') { throw 'tree mismatch' }
+          if ((git rev-parse HEAD) -cne '5d55656fd59f3712039c07c21cc1d47007e4a262') { throw 'source mismatch' }
+          if ((git rev-parse 'HEAD^{tree}') -cne 'f0d1ce9387a11696ba6d3976427be115a79d6bcb') { throw 'tree mismatch' }
           if (git diff --name-only) { throw 'tracked source differs before import' }
           [ordered]@{source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); controller=$env:GITHUB_SHA; run=$env:GITHUB_RUN_ID; attempt=$env:GITHUB_RUN_ATTEMPT; executable=$env:GODOT_CONSOLE_PATH; executable_sha256=(Get-FileHash $env:GODOT_CONSOLE_PATH -Algorithm SHA256).Hash.ToLowerInvariant(); version=(& $env:GODOT_CONSOLE_PATH --version)} | ConvertTo-Json | Set-Content .godot/ci/identity.json
           Get-Content .godot/ci/identity.json
@@ -105,16 +105,16 @@ jobs:
         timeout-minutes: 12
         run: |
           $ErrorActionPreference = 'Stop'
-          $paths = @('res://tests/unit/test_shop_presentation_port.gd','res://tests/unit/test_minesweeper_shop_purchase_participant.gd','res://tests/integration/test_minesweeper_shop_transaction.gd')
+          $paths = @('res://tests/unit/test_shop_presentation_port.gd','res://tests/unit/test_minesweeper_shop_purchase_participant.gd','res://tests/integration/test_minesweeper_shop_transaction.gd','res://tests/unit/test_save_document_schema.gd')
           $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',('-gtest=' + ($paths -join ',')),'-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/shop-regression.xml')
           ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'shop-regression' -LogName 'shop-regression.log' -EvidenceLogPath '.godot/ci/shop-regression.jsonl' -TimeoutSeconds 660 -KeepRoot -GodotArgs $arguments
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           if (Select-String -Path '.godot/phase2r_logs/shop-regression.log' -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'invalid regression output' }
           [xml]$xml = Get-Content .godot/ci/shop-regression.xml -Raw
           if ($xml.SelectNodes('//failure | //error | //skipped').Count -ne 0) { throw 'failed or skipped regressions' }
-          $expected = @{'tests/unit/test_shop_presentation_port.gd'=10; 'tests/unit/test_minesweeper_shop_purchase_participant.gd'=41; 'tests/integration/test_minesweeper_shop_transaction.gd'=4}
+          $expected = @{'tests/unit/test_shop_presentation_port.gd'=10; 'tests/unit/test_minesweeper_shop_purchase_participant.gd'=41; 'tests/integration/test_minesweeper_shop_transaction.gd'=4; 'tests/unit/test_save_document_schema.gd'=21}
           $suites = @($xml.SelectNodes('//testsuite'))
-          if ($suites.Count -ne 3) { throw 'wrong regression suite census' }
+          if ($suites.Count -ne 4) { throw 'wrong regression suite census' }
           foreach ($suite in $suites) {
             $name = $suite.GetAttribute('name').Replace('res://','')
             if (-not $expected.ContainsKey($name) -or $suite.SelectNodes('./testcase').Count -ne $expected[$name]) { throw "wrong regression cases $name" }
@@ -139,7 +139,7 @@ jobs:
               $finished = $process.WaitForExit(240000)
               if (-not $finished) { $process.Kill($true); throw "timeout $phase" }
               $process.Refresh()
-              [ordered]@{phase=$phase;pid=$process.Id;exit=$process.ExitCode;source='4a64dcebf9825e292dfd1118740932e89a2694ac';tree='15b5e9ee1a87205364cb1bc84e869b06f6b29ac6';controller=$env:GITHUB_SHA;run=$env:GITHUB_RUN_ID;attempt=$env:GITHUB_RUN_ATTEMPT} | ConvertTo-Json | Set-Content (Join-Path $reportPath "$phase.process.json")
+              [ordered]@{phase=$phase;pid=$process.Id;exit=$process.ExitCode;source='5d55656fd59f3712039c07c21cc1d47007e4a262';tree='f0d1ce9387a11696ba6d3976427be115a79d6bcb';controller=$env:GITHUB_SHA;run=$env:GITHUB_RUN_ID;attempt=$env:GITHUB_RUN_ATTEMPT} | ConvertTo-Json | Set-Content (Join-Path $reportPath "$phase.process.json")
               Get-Content $stdout
               $marker = "RUN_NOTE_RESTART_" + $phase.ToUpperInvariant().Replace("-", "_") + "_PASS"
               if (-not (Select-String -Path $stdout -SimpleMatch $marker -Quiet)) { throw "missing restart success marker $phase" }
