@@ -784,18 +784,18 @@ func test_committed_entry_key_law_and_state_schema_agree() -> void:
 	var aggregate_keys: Array = ((aggregate["value"] as Dictionary)["values"] as Array).duplicate()
 	aggregate_keys.sort()
 	assert_eq(aggregate_keys, _generator.COMMITTED_AGGREGATE_KEYS, "the five aggregate keys")
-	# The sealed Plan-01 subject had v3; the live v7 contract also requires frozen
+	# The sealed Plan-01 subject had v3; the live v8 contract also requires frozen
 	# presentation contexts while retaining the Schedule view, condition lifecycle and Dark.
 	var subject_schema: String = _git_blob(str(_record["subject_commit"]),
 		"scripts/domain/run/RunSnapshotSchema.gd").get_string_from_utf8()
 	assert_eq(int((_generator.parse_int_constant(subject_schema, "SCHEMA_VERSION")["value"] as Dictionary)["value"]), 3,
 		"the committed Plan-01 subject still owns the historical v3 boundary")
 	var live_schema: String = FileAccess.get_file_as_string("res://scripts/domain/run/RunSnapshotSchema.gd")
-	assert_eq(int((_generator.parse_int_constant(live_schema, "SCHEMA_VERSION")["value"] as Dictionary)["value"]), 7,
-		"the current RunSnapshotSchema carries the v7 frozen-context contract")
+	assert_eq(int((_generator.parse_int_constant(live_schema, "SCHEMA_VERSION")["value"] as Dictionary)["value"]), 8,
+		"the current RunSnapshotSchema carries the v8 frozen-context contract")
 	assert_true(live_schema.contains("\"committed_schedule\"") and live_schema.contains("\"schedule_view\"")
 		and live_schema.contains("\"dark_mode\""),
-		"v7 retains committed Schedule and captured Dark beside the saved Schedule view")
+		"v8 retains committed Schedule and captured Dark beside the saved Schedule view")
 
 
 func test_stage_arrays_are_frozen_and_the_ending_residue_is_unreachable() -> void:

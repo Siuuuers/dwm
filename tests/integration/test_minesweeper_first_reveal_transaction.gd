@@ -297,6 +297,7 @@ func _different_live_run_snapshot(run_id: String, seq: int) -> Dictionary:
 	var parsed: Variant = JSON.parse_string(text)
 	assert_true(typeof(parsed) == TYPE_DICTIONARY, "fixture must parse")
 	var s: Dictionary = parsed
+	s["schema_version"] = preload("res://scripts/domain/run/RunSnapshotSchema.gd").SCHEMA_VERSION
 	s["run_id"] = run_id
 	s["checkpoint_sequence"] = seq
 	s["checkpoint_id"] = "%s:%d" % [run_id, seq]

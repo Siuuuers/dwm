@@ -224,6 +224,7 @@ func release_retained_caption_layout(dispose: bool = true) -> void:
 
 
 func _retire_caption_binding() -> void:
+	_scene_event_hold = {}
 	_retain_caption_layout = false
 	_caption_ledger = null
 	_caption_token = ""
@@ -1063,3 +1064,35 @@ func _on_signal_event(argument: Variant) -> void:
 
 func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": {}}
+
+
+var _scene_event_hold: Dictionary = {}
+var _scene_event_ack_active := false
+
+## Synchronous transport hold. A refused command remains at its exact caption;
+## retry may acknowledge it, while a fatal committed interruption requires restart.
+func dispatch_scene_event_acknowledged(envelope: Dictionary, dispatch: Callable) -> Dictionary:
+	if not dispatch.is_valid() or _scene_event_ack_active:
+		return _fail(&"event_handoff_unavailable", "")
+	var frontier := capture_reading_frontier()
+	if not frontier.ok: return frontier
+	var identity := {"frontier": frontier.value, "session": _caption_token, "entry": _caption_entry}
+	if _scene_event_hold.is_empty():
+		if _dialogic.paused: return _fail(&"event_presentation_held", "")
+		_scene_event_hold = identity.duplicate(true)
+	elif _scene_event_hold != identity:
+		return _fail(&"event_handoff_source_changed", "")
+	var held := set_paused(true)
+	if not held.ok: return held
+	_scene_event_ack_active = true
+	var result: Dictionary = dispatch.call(envelope.duplicate(true))
+	_scene_event_ack_active = false
+	if not result.get("ok", false): return result
+	var after := capture_reading_frontier()
+	if not after.ok or after.value != _scene_event_hold.frontier \
+			or _caption_token != _scene_event_hold.session or _caption_entry != _scene_event_hold.entry:
+		return {"ok": false, "code": &"event_ack_source_changed", "committed": true}
+	var resumed := set_paused(false)
+	if not resumed.ok: return {"ok": false, "code": &"event_ack_resume_failed", "committed": true}
+	_scene_event_hold = {}
+	return result

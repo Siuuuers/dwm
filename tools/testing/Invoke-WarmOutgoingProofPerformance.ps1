@@ -88,7 +88,7 @@ foreach ($mode in @('cold', 'mixed', 'warm')) {
                 $measurement.bytes -ne (Get-Item -LiteralPath $document).Length -or
                 $measurement.journal_bundles -ne 66 -or $measurement.validated_journal_bundles -ne 66 -or
                 $measurement.retained.line -ne 32 -or $measurement.retained.manual_save -ne 32 -or $measurement.retained.semantic -ne 2 -or
-                $measurement.schema_version -ne 7 -or $measurement.snapshot_schema_version -ne 7 -or
+                $measurement.schema_version -ne 8 -or $measurement.snapshot_schema_version -ne 8 -or
                 $measurement.warmup_count -ne 2 -or $measurement.sample_count -ne 5 -or
                 $measurement.initial_proofs_present -ne $present -or $measurement.initial_proofs_missing -ne (66 - $present) -or
                 @($measurement.proof_seed).Count -ne $present -or @($measurement.final_proof_manifest).Count -ne 66 -or

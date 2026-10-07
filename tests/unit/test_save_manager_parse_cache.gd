@@ -87,6 +87,7 @@ func _fixture(validation_probe: bool = false, baseline: bool = false) -> Diction
 		"res://tests/fixtures/saves/v7_desktop_prepared.json"))
 	assert_true(snapshot.get("ok", false), str(snapshot))
 	if not snapshot.get("ok", false): return {}
+	snapshot.value["schema_version"] = preload("res://scripts/domain/run/RunSnapshotSchema.gd").SCHEMA_VERSION
 	var built := SCHEMA.build(&"slot", 1, &"manual",
 		{"checkpoint_kind": "manual_save", "snapshot": snapshot.value}, [])
 	assert_true(built.get("ok", false), str(built))

@@ -199,6 +199,58 @@ func _commit_reading_next_autosave(checkpoint: Dictionary, operation_id: String,
 			"narrative_fingerprint": _fingerprint(checkpoint)}}
 
 
+## The caller owns receipt admission and live adoption. This seam commits its detached
+## complete snapshot through the existing journal/autosave transaction, without a cache.
+func commit_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary) -> Dictionary:
+	if not _configured: return _fail(&"not_configured", "configure first")
+	if _next_commit_in_progress or _active_owner != &"":
+		return _fail(&"transaction_in_progress", "another checkpoint command owns publication")
+	if not checkpoint.get("reading_session") is Dictionary \
+			or checkpoint.reading_session.get("boundary") != "line":
+		return _fail(&"scene_event_checkpoint_invalid", "a reading line checkpoint is required")
+	_next_commit_in_progress = true
+	var result := _commit_scene_event_autosave(snapshot_input.duplicate(true), checkpoint.duplicate(true))
+	_next_commit_in_progress = false
+	return result
+
+
+func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictionary) -> Dictionary:
+	var route := _call_provider("route_id", [])
+	if not route.ok: return route
+	if route.value != "dating": return _fail(&"scene_event_route_mismatch", "only the admitted Solo owner is supported")
+	var active := _call_provider("active_app_id", [])
+	if not active.ok: return active
+	if active.value != null: return _fail(&"scene_event_active_app_mismatch", "the reading owner requires no active app")
+	var audio := _call_provider("audio_context", [])
+	if not audio.ok: return audio
+	var content := _call_provider("content_version", [])
+	if not content.ok: return content
+	var inputs := _checkpoint_inputs(active.value, audio.value, content.value, checkpoint, route.value, snapshot_input)
+	var captured: Dictionary = _real_port.capture()
+	if not captured.get("ok", false): return captured
+	var prepared: Dictionary = _real_port.prepare(inputs, &"safe_marker",
+		{"kind": &"autosave", "reason": &"automatic"})
+	if not prepared.get("ok", false): return prepared
+	var candidate: Dictionary = prepared.value.candidate
+	if not candidate.get("storage_backup") is Dictionary:
+		return _fail(&"scene_event_storage_backup_missing", "the real autosave preimage is required")
+	var committed: Dictionary = _real_port.commit(candidate)
+	var value: Variant = committed.get("value")
+	var confirmed := committed.get("ok", false) == true and value is Dictionary \
+		and typeof(value.get("checkpoint_id")) == TYPE_STRING and not str(value.get("checkpoint_id", "")).is_empty() \
+		and value.get("checkpoint_id") == candidate.get("checkpoint_id")
+	if committed.get("ok", false) and not confirmed:
+		return {"ok": false, "code": &"event_commit_ack_invalid", "committed": true}
+	if not committed.get("ok", false):
+		var rolled: Dictionary = _real_port.rollback({"journal_backup": captured.value.backup,
+			"storage_backup": candidate.storage_backup})
+		if not rolled.get("ok", false): return rolled
+		var failure := committed.duplicate(true)
+		failure["rolled_back"] = true
+		return failure
+	return {"ok": true, "code": &"ok", "value": {"checkpoint_id": value.checkpoint_id, "committed": true}}
+
+
 func preview_checkpoint_id(run_id: String) -> Dictionary:
 	if not _configured:
 		return _fail(&"not_configured", "")

@@ -66,6 +66,7 @@ func _fixture() -> Dictionary:
 	var text := FileAccess.get_file_as_string(FIXTURE_PATH)
 	var parsed: Variant = JSON.parse_string(text)
 	assert_true(typeof(parsed) == TYPE_DICTIONARY, "fixture must parse")
+	parsed["schema_version"] = preload("res://scripts/domain/run/RunSnapshotSchema.gd").SCHEMA_VERSION
 	return parsed as Dictionary
 
 

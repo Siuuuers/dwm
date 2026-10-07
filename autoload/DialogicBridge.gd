@@ -3268,3 +3268,82 @@ func _validate_frozen_projection(entry_id: String, context: Dictionary) -> Dicti
 
 func _playback_failure(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": {}}
+
+
+var _scene_event_port: RefCounted
+var _scene_event_session_validator: Callable
+var _scene_event_dispatching := false
+
+func configure_scene_event_port(port: RefCounted, session_validator: Callable) -> Dictionary:
+	if port == null or not port.has_method("dispatch") or not session_validator.is_valid():
+		return _command_failure(&"event_dependency_invalid")
+	if _scene_event_port != null and (_scene_event_port != port or _scene_event_session_validator != session_validator):
+		return _command_failure(&"event_already_configured")
+	_scene_event_port = port
+	_scene_event_session_validator = session_validator
+	return {"ok": true}
+
+## An acknowledged call, never a fire-and-forget timeline signal. Caller identity
+## is live; the envelope's immutable semantic identity belongs to the Run owner.
+func dispatch_scene_event(live_session: Dictionary, envelope: Dictionary) -> Dictionary:
+	if _scene_event_port == null or not _scene_event_session_validator.is_valid() or _scene_event_dispatching:
+		return _command_failure(&"event_dependency_invalid")
+	var admitted: Dictionary = _scene_event_session_validator.call(live_session)
+	if not admitted.get("ok", false): return admitted
+	var boundary := capture_scene_event_boundary()
+	if not boundary.ok: return boundary
+	if envelope.get("playback_token") != boundary.value.playback_token:
+		return _command_failure(&"event_stale_token")
+	if not _runtime_adapter.has_method("dispatch_scene_event_acknowledged"):
+		return _command_failure(&"event_dependency_invalid")
+	_scene_event_dispatching = true
+	var result: Dictionary = _runtime_adapter.dispatch_scene_event_acknowledged(
+		envelope, Callable(_scene_event_port, "dispatch"))
+	_scene_event_dispatching = false
+	if result.get("committed", false) and not result.get("ok", false):
+		_mutation_gate.latch_fatal({"source": &"scene_event", "phase": &"acknowledgement",
+			"code": result.get("code", &"event_ack_interrupted"), "details": {"committed": true}})
+	return result
+
+func capture_scene_event_boundary() -> Dictionary:
+	if not has_reading_session() or _reading_session.family != "solo" or _reading_session.boundary != "line" \
+			or _active_entry.is_empty() or _active_entry.get("execution_mode") != &"canonical" \
+			or not _pause_handle.is_empty() or _pause_changing or _next_active \
+			or not _active_transaction.is_empty() or not _reading_restore_pending.is_empty():
+		return _command_failure(&"event_presentation_held")
+	var captured := capture_reading_checkpoint(false)
+	if not captured.ok: return captured
+	var checkpoint: Dictionary = captured.value
+	var reading: Dictionary = checkpoint.reading_session
+	return {"ok": true, "value": {"checkpoint": checkpoint, "playback_token": str(_active_entry.token),
+		"anchor": {"session_id": reading.ledger.session_token, "entry_id": checkpoint.entry_id,
+			"content_version": checkpoint.content_version, "catalogue_fingerprint": reading.catalogue_fingerprint,
+			"publication_id": reading.frontier.publication_id, "line_id": reading.frontier.line_id}}}
+
+## A historical anchor is not the live frontier. The active session proves exact
+## ledger membership; previous occurrences prove their immutable registered beat.
+func validate_scene_event_anchor(anchor: Dictionary, checkpoint: Dictionary) -> Dictionary:
+	var catalogue := _READING_SESSION.new()
+	var configured: Dictionary = catalogue.configure(_reading_catalogue_for_entry(str(anchor.entry_id)))
+	if not configured.get("ok", false) or catalogue.family != "solo" \
+			or catalogue.fingerprint != anchor.catalogue_fingerprint \
+			or not catalogue.catalogue.has(anchor.entry_id) \
+			or catalogue.catalogue[anchor.entry_id].content_version != anchor.content_version:
+		return _command_failure(&"event_anchor_catalogue_mismatch")
+	# The first durable slice supports the fixed registered Solo catalogue only.
+	if catalogue.catalogue_schema_version != 1: return _command_failure(&"event_anchor_catalogue_mismatch")
+	var known_line := false
+	for line: Dictionary in catalogue.catalogue[anchor.entry_id].lines:
+		if line.line_id == anchor.line_id: known_line = true
+	if not known_line: return _command_failure(&"event_anchor_invalid")
+	var ledger: Dictionary = checkpoint.get("reading_session", {}).get("ledger", {})
+	if ledger.get("session_token") == anchor.session_id:
+		if checkpoint.reading_session.get("catalogue_fingerprint") != anchor.catalogue_fingerprint:
+			return _command_failure(&"event_anchor_catalogue_mismatch")
+		for caption: Dictionary in ledger.get("captions", []):
+			if caption.get("publication_id") == anchor.publication_id \
+					and caption.get("beat", {}).get("owning_entry_id") == anchor.entry_id \
+					and caption.get("beat", {}).get("line_id") == anchor.line_id:
+				return {"ok": true}
+		return _command_failure(&"event_anchor_invalid")
+	return {"ok": true}

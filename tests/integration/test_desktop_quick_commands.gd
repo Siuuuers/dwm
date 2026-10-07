@@ -113,6 +113,7 @@ func before_each() -> void:
 	_host.reset(1)
 
 	var snapshot: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(FIXTURE))
+	snapshot["schema_version"] = preload("res://scripts/domain/run/RunSnapshotSchema.gd").SCHEMA_VERSION
 	assert_true(_seed_stable(snapshot).ok)
 	_source = CaptureSource.new()
 	add_child_autofree(_source)

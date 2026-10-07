@@ -38,6 +38,7 @@ func _wired() -> Dictionary:
 	var parsed := STRICT.parse_object(FileAccess.get_file_as_string(
 		"res://tests/fixtures/saves/v7_desktop_prepared.json"))
 	assert_true(parsed.get("ok", false), "fixture strict parse: " + str(parsed.get("code", "")))
+	parsed.value["schema_version"] = SNAPSHOT.SCHEMA_VERSION
 	var validated := SNAPSHOT.validate(parsed.get("value", {}))
 	assert_true(validated.get("ok", false), "fixture snapshot validation: " + str(validated.get("code", "")))
 	var snapshot: Dictionary = validated.get("value", {}).get("candidate", {})

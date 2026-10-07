@@ -303,3 +303,134 @@ func test_prepare_result_is_recursively_detached() -> void:
 	snapshot_input["lifecycle"]["run_id"] = "mutated"
 	var committed: Dictionary = port.commit(&"game_state_narrative_transaction", prepared["value"]["candidate"])
 	assert_false(committed.get("ok", false), "an externally mutated candidate cannot commit")
+
+
+class SceneEventContext extends "res://tests/support/FakeNarrativeCheckpointContext.gd":
+	var inputs: Dictionary = {}
+	var policy: Dictionary = {}
+	var rolled_backup: Dictionary = {}
+	var with_storage := true
+	var bad_ack := false
+	var reenter := Callable()
+	var nested_result: Dictionary = {}
+
+	func prepare(checkpoint_inputs: Dictionary, checkpoint_kind: StringName, disk_write: Dictionary) -> Dictionary:
+		inputs = checkpoint_inputs.duplicate(true)
+		policy = disk_write.duplicate(true)
+		if reenter.is_valid(): nested_result = reenter.call()
+		var result: Dictionary = super.prepare(checkpoint_inputs, checkpoint_kind, disk_write)
+		if result.get("ok", false) and with_storage:
+			result.value.candidate["storage_backup"] = {"original_bytes": "autosave-before"}
+		return result
+
+	func commit(candidate: Dictionary) -> Dictionary:
+		var result: Dictionary = super.commit(candidate)
+		if bad_ack and result.get("ok", false): result.value.erase("checkpoint_id")
+		return result
+
+	func rollback(backup: Dictionary) -> Dictionary:
+		rolled_backup = backup.duplicate(true)
+		return super.rollback(backup)
+
+
+func _scene_pair() -> Array:
+	var context := SceneEventContext.new()
+	context.route_id_value = "dating"
+	var port: Object = _port_script.new()
+	assert_true(port.configure(context, context.provider_callables()).ok)
+	return [port, context]
+
+
+func _scene_checkpoint() -> Dictionary:
+	return {"entry_id": "solo.entry", "reading_session": {"boundary": "line"}}
+
+
+func test_scene_event_autosaves_supplied_snapshot_without_provider_or_cache() -> void:
+	var pair := _scene_pair()
+	var port: Object = pair[0]
+	var context: RefCounted = pair[1]
+	var snapshot := {"lifecycle": {"run_id": "run-1"}, "command_receipts": {"event": {"kind": "scene_event"}}}
+	var result: Dictionary = port.commit_scene_event(snapshot, _scene_checkpoint())
+	assert_true(result.ok, str(result))
+	assert_eq(result.value, {"checkpoint_id": "run-1:7", "committed": true})
+	assert_eq(context.inputs.snapshot_input, snapshot)
+	assert_eq(context.inputs.dialogic_checkpoint, _scene_checkpoint())
+	assert_eq(context.policy, {"kind": &"autosave", "reason": &"automatic"})
+	assert_eq(context.provider_order, ["route_id", "active_app_id", "audio_context", "content_version"])
+	assert_true(str(context.calls[1]).begins_with("prepare:safe_marker:"))
+	snapshot.command_receipts.clear()
+	assert_false(context.inputs.snapshot_input.command_receipts.is_empty(), "prepared input is detached")
+	port.commit_scene_event(snapshot, _scene_checkpoint())
+	assert_eq(context.calls.count("commit"), 2, "receipt idempotence belongs to the caller, not a port cache")
+
+
+func test_scene_event_failed_commit_restores_both_preimages_and_releases_guard() -> void:
+	var pair := _scene_pair()
+	var port: Object = pair[0]
+	var context: RefCounted = pair[1]
+	context.commit_ok = false
+	var result: Dictionary = port.commit_scene_event(context.snapshot_input_value, _scene_checkpoint())
+	assert_false(result.ok)
+	assert_true(result.get("rolled_back", false))
+	assert_eq(context.rolled_backup, {"journal_backup": {"journal_backup": {"run_id": "run-1"}},
+		"storage_backup": {"original_bytes": "autosave-before"}})
+	context.commit_ok = true
+	assert_true(port.commit_scene_event(context.snapshot_input_value, _scene_checkpoint()).ok)
+
+
+func test_scene_event_rollback_failure_preserves_fatal_result() -> void:
+	var pair := _scene_pair()
+	var context: RefCounted = pair[1]
+	context.commit_ok = false
+	context.rollback_ok = false
+	var result: Dictionary = pair[0].commit_scene_event(context.snapshot_input_value, _scene_checkpoint())
+	assert_false(result.ok)
+	assert_eq(result.code, &"APPLICATION_FATAL")
+	assert_false(result.get("rolled_back", false), "failed rollback cannot claim a restored preimage")
+
+
+func test_scene_event_bad_success_ack_preserves_committed_storage_for_fatal_owner() -> void:
+	var pair := _scene_pair()
+	var context: RefCounted = pair[1]
+	context.bad_ack = true
+	var result: Dictionary = pair[0].commit_scene_event(context.snapshot_input_value, _scene_checkpoint())
+	assert_false(result.ok)
+	assert_eq(result.code, &"event_commit_ack_invalid")
+	assert_true(result.get("committed", false))
+	assert_false("rollback" in context.calls, "successful publication must not be erased for an invalid acknowledgement")
+
+
+func test_scene_event_requires_storage_preimage_before_commit() -> void:
+	var pair := _scene_pair()
+	var context: RefCounted = pair[1]
+	context.with_storage = false
+	var result: Dictionary = pair[0].commit_scene_event(context.snapshot_input_value, _scene_checkpoint())
+	assert_eq(result.code, &"scene_event_storage_backup_missing")
+	assert_false("commit" in context.calls)
+
+
+func test_scene_event_rejects_unsupported_owner_and_checkpoint_before_capture() -> void:
+	var pair := _scene_pair()
+	var port: Object = pair[0]
+	var context: RefCounted = pair[1]
+	assert_eq(port.commit_scene_event({}, {}).code, &"scene_event_checkpoint_invalid")
+	context.route_id_value = "main"
+	assert_eq(port.commit_scene_event({}, _scene_checkpoint()).code, &"scene_event_route_mismatch")
+	context.route_id_value = "dating"
+	context.active_app_id_value = "minesweeper"
+	assert_eq(port.commit_scene_event({}, _scene_checkpoint()).code, &"scene_event_active_app_mismatch")
+	assert_eq(context.calls, [])
+
+
+func test_scene_event_holds_shared_guard_during_prepare() -> void:
+	var pair := _scene_pair()
+	var port: Object = pair[0]
+	var context: RefCounted = pair[1]
+	context.reenter = func() -> Dictionary: return port.commit_scene_event({}, _scene_checkpoint())
+	assert_true(port.commit_scene_event(context.snapshot_input_value, _scene_checkpoint()).ok)
+	assert_eq(context.nested_result.code, &"transaction_in_progress")
+	context.reenter = Callable()
+	var prepared: Dictionary = port.prepare_candidate(&"game_state_narrative_transaction", context.snapshot_input_value,
+		"run-1:effect:1", "source", &"effect_transaction", "run-1:7")
+	assert_true(prepared.ok)
+	assert_eq(port.commit_scene_event({}, _scene_checkpoint()).code, &"transaction_in_progress")

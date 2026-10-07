@@ -33,7 +33,7 @@ func _empty_desktop() -> Dictionary:
 
 func _snapshot(run_id: String, sequence: int, day: int = 3) -> Dictionary:
 	var snapshot: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(SNAPSHOT_FIXTURE))
-	snapshot["schema_version"] = 7
+	snapshot["schema_version"] = preload("res://scripts/domain/run/RunSnapshotSchema.gd").SCHEMA_VERSION
 	snapshot["contacts"] = preload("res://scripts/domain/contact/ContactInvitationState.gd").make_defaults()
 	snapshot["lifecycle"]["dark_mode"] = false
 	snapshot["gameplay"].erase("opening_seen")
@@ -217,7 +217,7 @@ func test_prepare_seed_selects_and_excludes() -> void:
 		"snapshot": _snapshot("run-z", 9)}).get("ok", true),
 		"a selected bundle outside the document rejects")
 
-func test_v7_seed_skips_old_and_missing_context_history_without_repair() -> void:
+func test_v8_seed_skips_old_and_missing_context_history_without_repair() -> void:
 	var contacts := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 	var frozen := preload("res://scripts/narrative/ContactsFrozenContext.gd")
 	var schema := preload("res://scripts/domain/run/RunSnapshotSchema.gd")

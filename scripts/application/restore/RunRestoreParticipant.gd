@@ -28,6 +28,9 @@ func activate_live_session(ticket: Dictionary) -> Dictionary:
 func prepare(input: Dictionary) -> Dictionary:
 	if typeof(input.get("snapshot")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_run_input", "run participant requires a snapshot")
+	if _owner.has_method("validate_scene_event_snapshot"):
+		var events: Dictionary = _owner.validate_scene_event_snapshot(input["snapshot"])
+		if not events.get("ok", false): return events
 	return {"ok": true, "code": &"ok", "value": {"run_plan": {"snapshot": (input["snapshot"] as Dictionary).duplicate(true)}}}
 
 ## `branch_id`/`desktop_timeline_generation`/`causal_day_instance`/`causal_day_instance_issuer_

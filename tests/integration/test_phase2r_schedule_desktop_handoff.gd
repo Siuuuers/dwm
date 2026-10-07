@@ -19,7 +19,7 @@ const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 #    paths. No fake manufactures a domain success anywhere in this file. The disposable boot opens
 #    a real playable lifecycle day, installs that GameState's canonical initial consequence in the
 #    real disposable consequence owner, and opens the exact retained ScheduleView for that day so
-#    the CURRENT v7 snapshot can be exercised; a later preparation test also has the Schedule
+#    the CURRENT v8 snapshot can be exercised; a later preparation test also has the Schedule
 #    commit port install its prepared aggregate into a separate DISPOSABLE GameState. None touches
 #    a ledger, durable store, or production-scoped state.
 #
@@ -223,7 +223,7 @@ func _compose_production_graph() -> void:
 	var game_state: Node = _adopt(load(GAME_STATE_PATH).new())
 	game_state.reset_game()
 	# reset_game() deliberately leaves a template at day zero. Move this disposable owner to the
-	# first playable day so the retained ScheduleView and the current v7 snapshot can share the
+	# first playable day so the retained ScheduleView and the current v8 snapshot can share the
 	# same real lifecycle identity.
 	game_state.call(&"_lifecycle_set_playing_day", 1)
 	var initial_input: Dictionary = game_state.call(&"capture_run_snapshot_input")
@@ -1815,19 +1815,19 @@ func test_the_ten_real_restore_participant_classes_share_one_interface() -> void
 ## GameState.capture_run_snapshot_input() is still the raw nine-key predecessor contribution.
 ## Current Bootstrap adds its retained ScheduleView before RunSnapshotSchema.build(); this fixture
 ## does the same with the exact controller whose participant survived configuration replay.
-func test_the_current_snapshot_input_round_trips_through_the_real_v7_schema() -> void:
+func test_the_current_snapshot_input_round_trips_through_the_real_v8_schema() -> void:
 	if not _fixture_ready:
 		return
 	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(_current_snapshot.duplicate(true), {}, "main", null,
 		{}, 1, 1)
 	assert_true(built.get("ok", false),
-		"the real current snapshot input builds a real v7 snapshot: " + str(built))
+		"the real current snapshot input builds a real v8 snapshot: " + str(built))
 	if not built.get("ok", false):
 		return
 	var snapshot: Dictionary = (built["value"] as Dictionary)["snapshot"]
-	assert_eq(int(snapshot["schema_version"]), 7, "build stamps the current v7 version")
+	assert_eq(int(snapshot["schema_version"]), 8, "build stamps the current v8 version")
 	assert_eq(snapshot["schedule_view"], _current_snapshot["schedule_view"],
-		"the v7 builder preserves the exact retained ScheduleView")
+		"the v8 builder preserves the exact retained ScheduleView")
 	assert_true(RUN_SNAPSHOT_SCHEMA.validate(snapshot.duplicate(true)).get("ok", false),
 		"the produced snapshot revalidates, which is what makes this a round trip")
 	assert_eq(int(_state["run_snapshot_schema_version"]), RUN_SNAPSHOT_SCHEMA.SCHEMA_VERSION,
@@ -1836,7 +1836,7 @@ func test_the_current_snapshot_input_round_trips_through_the_real_v7_schema() ->
 		"the historical desktop seal remains v4")
 
 
-func test_the_real_v7_builder_refuses_a_snapshot_input_missing_a_declared_member() -> void:
+func test_the_real_v8_builder_refuses_a_snapshot_input_missing_a_declared_member() -> void:
 	if not _fixture_ready:
 		return
 	var incomplete: Dictionary = _current_snapshot_copy()
@@ -1846,13 +1846,13 @@ func test_the_real_v7_builder_refuses_a_snapshot_input_missing_a_declared_member
 	assert_eq(str(built.get("code", "")), "invalid_snapshot_input", "the exact production code")
 
 
-func test_the_real_v7_builder_refuses_a_snapshot_input_missing_schedule_view() -> void:
+func test_the_real_v8_builder_refuses_a_snapshot_input_missing_schedule_view() -> void:
 	if not _fixture_ready:
 		return
 	var incomplete: Dictionary = _current_snapshot_copy()
 	incomplete.erase("schedule_view")
 	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(incomplete, {}, "main", null, {}, 1, 1)
-	assert_false(built.get("ok", true), "a v7 snapshot input missing ScheduleView builds nothing")
+	assert_false(built.get("ok", true), "a v8 snapshot input missing ScheduleView builds nothing")
 	assert_eq(str(built.get("code", "")), "invalid_snapshot_input", "the exact production code")
 
 

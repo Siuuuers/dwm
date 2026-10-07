@@ -764,6 +764,8 @@ func _wire_narrative_and_ending_ports(bridge: Object) -> Dictionary:
 	var state_port: Dictionary = game_state.call(&"configure_narrative_checkpoint_port", _narrative_checkpoint_adapter)
 	if not state_port.get("ok", false):
 		return state_port
+	var scene_events := _wire_scene_event_owner(game_state, bridge)
+	if not scene_events.get("ok", false): return scene_events
 	var adapter_id := _narrative_checkpoint_adapter.get_instance_id()
 	if int(bridge_port["value"]["port_instance_id"]) != adapter_id or int(state_port["value"]["port_instance_id"]) != adapter_id:
 		return _failure(&"narrative_checkpoint_identity_mismatch", "A consumer retained another narrative adapter")
@@ -2572,3 +2574,16 @@ func _finish_day_resolution_route() -> Dictionary:
 	var router := _target(&"SceneRouter")
 	if str(router.get_current_route_id()) != "ending": router.goto_ending()
 	return resumed
+
+
+var _scene_event_command_port: RefCounted
+
+func _wire_scene_event_owner(game_state: Node, bridge: Node) -> Dictionary:
+	if _scene_event_command_port == null:
+		_scene_event_command_port = preload("res://scripts/application/narrative/SceneEventCommandPort.gd").new()
+		var bound: Dictionary = game_state.configure_scene_event_owner(bridge)
+		if not bound.get("ok", false): return bound
+		var configured: Dictionary = _scene_event_command_port.configure(game_state,
+			_application_gate, _desktop_identity_nonce_issuer)
+		if not configured.get("ok", false): return configured
+	return bridge.configure_scene_event_port(_scene_event_command_port, Callable(game_state, "validate_live_session"))

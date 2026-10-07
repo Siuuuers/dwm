@@ -10,7 +10,7 @@ extends RefCounted
 ## `RunSnapshotSchema.validate()` -- so a document/embedded-snapshot version mismatch can never both
 ## pass: whichever one carries the wrong integer is rejected by its own owning check.
 
-const DOCUMENT_VERSION := 7
+const DOCUMENT_VERSION := 8
 
 const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 
