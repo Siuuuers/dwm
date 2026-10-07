@@ -392,9 +392,9 @@ func _fault_consume() -> void:
 	var bridge: Node = root.get_node("DialogicBridge")
 	var profile: Dictionary = root.get_node("ProfileManager").get_profile_snapshot().duplicate(true)
 	if not _check(profile == prior.profile, "exact Profile survives fault process"): return
-	var prepared: Dictionary = saves.prepare_restore_autosave()
+	var prepared: Dictionary = saves.prepare_backup_action("load", "autosave")
 	if not _check(prepared.get("ok", false), "prepare real fault Autosave " + str(prepared)): return
-	var restored: Dictionary = saves.commit_prepared_restore(prepared.value)
+	var restored: Dictionary = saves.commit_backup_action(prepared.value.token)
 	if not _check(restored.get("ok", false), "commit real fault Autosave " + str(restored)): return
 	if not await _wait_line(prior.checkpoint.reading_session.frontier.line_id): return
 	if not _check(game.capture_run_snapshot_input().command_receipts == prior.receipts and bridge.capture_reading_checkpoint(false).value.reading_session == prior.checkpoint.reading_session, "fresh fault Load restores exact receipt and History"): return
