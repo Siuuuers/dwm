@@ -16,7 +16,7 @@ jobs:
         with:
           # The schedule-gate contract inspects its immutable historical seals.
           fetch-depth: 0
-          ref: 520c05fb876624c41fc5257387b8900b10a85eda
+          ref: f28ff205f9ed303c99ed88d44e1fd41316ce996b
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
@@ -51,7 +51,7 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path .godot/ci | Out-Null
           [ordered]@{source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); controller=$env:GITHUB_SHA; run=$env:GITHUB_RUN_ID; attempt=$env:GITHUB_RUN_ATTEMPT} | ConvertTo-Json | Tee-Object .godot/ci/pre-import-identity.json
-          if ((git rev-parse HEAD) -cne '520c05fb876624c41fc5257387b8900b10a85eda' -or (git rev-parse 'HEAD^{tree}') -cne '25e68e3d79292ce2f7bc0fa260a97de917c3afd5') { throw 'pre-import identity mismatch' }
+          if ((git rev-parse HEAD) -cne 'f28ff205f9ed303c99ed88d44e1fd41316ce996b' -or (git rev-parse 'HEAD^{tree}') -cne '71deb423b43fb38fc3d8ff069f33e20c51bf9fb2') { throw 'pre-import identity mismatch' }
       - name: Import project
         timeout-minutes: 8
         run: |
@@ -76,8 +76,8 @@ jobs:
       - name: Verify exact product source and record executable identity
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '520c05fb876624c41fc5257387b8900b10a85eda') { throw 'source mismatch' }
-          if ((git rev-parse 'HEAD^{tree}') -cne '25e68e3d79292ce2f7bc0fa260a97de917c3afd5') { throw 'tree mismatch' }
+          if ((git rev-parse HEAD) -cne 'f28ff205f9ed303c99ed88d44e1fd41316ce996b') { throw 'source mismatch' }
+          if ((git rev-parse 'HEAD^{tree}') -cne '71deb423b43fb38fc3d8ff069f33e20c51bf9fb2') { throw 'tree mismatch' }
           if (git diff --name-only) { throw 'tracked source changed during import' }
           [ordered]@{source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); controller=$env:GITHUB_SHA; run=$env:GITHUB_RUN_ID; attempt=$env:GITHUB_RUN_ATTEMPT; executable=$env:GODOT_CONSOLE_PATH; executable_sha256=(Get-FileHash $env:GODOT_CONSOLE_PATH -Algorithm SHA256).Hash.ToLowerInvariant(); version=(& $env:GODOT_CONSOLE_PATH --version)} | ConvertTo-Json | Set-Content .godot/ci/identity.json
       - name: Execute explicit new suites and retained dependency contracts
@@ -107,6 +107,18 @@ jobs:
             $allResults | ConvertTo-Json | Set-Content .godot/ci/executed-suites.json
           }
           Get-Content .godot/ci/executed-suites.json
+      - name: Verify persistence and actual historical alias controls
+        timeout-minutes: 10
+        run: |
+          ./tools/testing/Invoke-CloudTests.ps1 -Suite persistence
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          [xml]$xml = Get-Content .godot/ci/persistence.xml -Raw
+          if ($xml.SelectNodes('//failure | //error | //skipped').Count -ne 0) { throw 'persistence failures or skips' }
+          if ($xml.SelectNodes('//testcase').Count -ne 235) { throw 'unexpected persistence case census' }
+          $marker = 'RESTORE_ALIAS_CONTROL: six historical directions observed; nested dictionary/array aliases reproduced'
+          $markers = @(Get-Content .godot/phase2r_logs/cloud-persistence.log | Where-Object { $_ -ceq $marker })
+          if ($markers.Count -ne 1) { throw 'historical alias controls not observed exactly once' }
+          Write-Host $markers[0]
       - name: Validate committed inventories without regeneration
         run: |
           ./tools/testing/Invoke-PublicSurfaceValidation.ps1
