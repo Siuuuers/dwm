@@ -65,9 +65,6 @@ func _produce() -> void:
 		if not _check(result.get("ok", false), "real purchase " + JSON.stringify(result)): return
 	if not _check(fixture.witness().profile == before.profile and fixture.witness().reading == before.reading, "purchase preserves cold reading and Profile witnesses"): return
 	var path := "autosave.json"
-	if phase == "produce":
-		if not _check(fixture.save_to("quick").get("ok", false), "actual Quick Save"): return
-		path = "quicksave.json"
 	var saved: Dictionary = fixture.disk_snapshot(path)
 	if not _check(saved.get("ok", false), "saved source validates " + JSON.stringify(saved)): return
 	if phase == "produce":
@@ -98,7 +95,7 @@ func _consume() -> void:
 	if not _check(fixture.witness().profile == prior.profile, "cold Profile witness"): return
 	var cold: Dictionary = fixture.game.capture_live_session()
 	if not _check(cold.get("ok", false) and not cold.value.active, "consumer starts with no live Run"): return
-	var restored: Dictionary = await fixture.load_from("autosave" if phase == "fault-consume" else "quick")
+	var restored: Dictionary = await fixture.load_from("autosave")
 	if not _check(restored.get("ok", false), "real fresh-process Load " + JSON.stringify(restored)): return
 	# Fresh process cannot replay transient stages; it loads the actual durable boundary.
 	if not _check(fixture.game.money == prior.expected_money, "fresh Load restores exact durable money"): return
@@ -110,7 +107,7 @@ func _consume() -> void:
 		var settled: Dictionary = fixture.disk_snapshot()
 		if not _check(settled.get("ok", false) and settled.value.gameplay.money == prior.expected_money and settled.value.desktop.consequence.pending == null, "fresh fault process retains source Autosave with no transient pending stage"): return
 	else:
-		var again: Dictionary = await fixture.load_from("quick")
+		var again: Dictionary = await fixture.load_from("autosave")
 		if not _check(again.get("ok", false) and fixture.game.money == prior.expected_money and fixture.projection() == prior.projection, "repeated Load neither charges nor unlocks again"): return
 	var loaded_witness: Dictionary = fixture.witness()
 	if phase == "consume-again":

@@ -3143,7 +3143,7 @@ func restore_live_run_state(backup: Dictionary) -> Dictionary:
 		var gameplay_check: Dictionary = _prepare_note_restore_gameplay(detached["gameplay"])
 		if not gameplay_check.get("ok", false):
 			return gameplay_check
-		apply_save_dict(gameplay_check["value"]["gameplay"])
+		apply_save_dict(gameplay_check["value"]["gameplay"].duplicate(true))
 	if typeof(detached.get("contacts")) == TYPE_DICTIONARY:
 		contacts = (detached["contacts"] as Dictionary).duplicate(true)
 	_command_receipts = (detached["command_receipts"] as Dictionary).duplicate(true)
@@ -3468,7 +3468,7 @@ func _prepare_note_restore_gameplay(gameplay: Dictionary) -> Dictionary:
 	var checked: Dictionary = _NOTE_PURCHASE_RULES.validate_counts(gameplay.get("shop_purchase_counts", {}))
 	if not checked.get("ok", false):
 		return checked
-	var detached: Dictionary = gameplay.duplicate(true)
+	var detached: Dictionary = gameplay.duplicate()
 	detached["shop_purchase_counts"] = checked["value"]["shop_purchase_counts"]
 	return {"ok": true, "code": &"ok", "value": {"gameplay": detached}}
 

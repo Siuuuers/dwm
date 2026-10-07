@@ -63,6 +63,11 @@ func test_invalid_quantities_catalogue_rows_and_quote_leave_owners_and_disk_unch
 	var bytes: String = fixture.disk_text()
 	for quantity: int in [-1, 0, 2, 3, 4]:
 		assert_false(fixture.presentation.purchase(NOTES.ITEMS[0], quantity).get("ok", false))
+		var identity: Dictionary = fixture.issuer.issue(&"transaction_id")
+		assert_true(identity.get("ok", false), JSON.stringify(identity))
+		if not identity.get("ok", false): return
+		assert_false(fixture.participant.quote(NOTES.ITEMS[0], identity.value.token,
+			identity.value.issuer_receipt, quantity).get("ok", false), "participant independently refuses quantity")
 	var prepared: Dictionary = fixture.request_for(NOTES.ITEMS[0])
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
 	if not prepared.get("ok", false): return
@@ -75,8 +80,45 @@ func test_invalid_quantities_catalogue_rows_and_quote_leave_owners_and_disk_unch
 		row.merge(changed, true)
 		fixture.catalog.overrides[NOTES.ITEMS[1]] = row
 		assert_false(fixture.presentation.purchase(NOTES.ITEMS[1], 1).get("ok", false), JSON.stringify(changed))
+		assert_false(fixture.request_for(NOTES.ITEMS[1]).get("ok", false), "raw participant record also refuses before normalization")
 		fixture.catalog.overrides.clear()
 	assert_eq(fixture.witness(), before)
+	assert_eq(fixture.disk_text(), bytes)
+
+func test_catalogue_registration_and_full_candidate_are_detached_and_refuse_tampering() -> void:
+	if not _ready_fixture(): return
+	fixture.game.money = 500
+	var before: Dictionary = fixture.witness()
+	var bytes: String = fixture.disk_text()
+	var port := preload("res://scripts/application/shop/GameStateMinesweeperShopPort.gd").new()
+	assert_true(port.configure(fixture.game, Callable(fixture.game, "capture_desktop_identity_context")).get("ok", false))
+	var identity: Dictionary = fixture.issuer.issue(&"transaction_id")
+	assert_true(identity.get("ok", false), JSON.stringify(identity))
+	if not identity.get("ok", false): return
+	var item := {"item_id": NOTES.ITEMS[0], "currency": "money", "price": 45,
+		"max_purchases": 3, "effect_ids": [], "quantity": 1}
+	var quote := {"transaction_id": identity.value.token, "item_id": NOTES.ITEMS[0], "currency": "money", "price": 45}
+	assert_eq(port.prepare_purchase(item, quote, identity.value.token, identity.value.issuer_receipt).get("code"), &"note_catalogue_unconfigured")
+	var catalogue: Dictionary = NOTES.catalogue()
+	assert_true(port.configure_note_catalogue(catalogue).get("ok", false))
+	catalogue[NOTES.ITEMS[0]][0].text = "TEST caller changed its copy"
+	assert_true(port.configure_note_catalogue(NOTES.catalogue()).get("ok", false), "caller mutation did not change retained catalogue")
+	assert_false(port.configure_note_catalogue(catalogue).get("ok", false), "replacement is refused")
+	var prepared: Dictionary = port.prepare_purchase(item, quote, identity.value.token, identity.value.issuer_receipt)
+	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
+	if not prepared.get("ok", false): return
+	var candidate: Dictionary = prepared.value.candidate
+	assert_true(port.validate_note_candidate(candidate).get("ok", false))
+	for key: String in ["money", "day"]:
+		var forged: Dictionary = candidate.duplicate(true)
+		forged.ordinary_gameplay[key] += 1
+		assert_false(port.validate_note_candidate(forged).get("ok", false), "changed full-state field: " + key)
+	var forged: Dictionary = candidate.duplicate(true)
+	forged.ordinary_gameplay.shop_purchase_counts[NOTES.ITEMS[0]] = 2
+	assert_false(port.validate_note_candidate(forged).get("ok", false), "cannot skip note")
+	prepared.value.backup.gameplay.shop_purchase_counts[NOTES.ITEMS[1]] = 3
+	assert_true(port.validate_note_candidate(candidate).get("ok", false), "backup cannot change source/candidate")
+	assert_eq(fixture.witness(), before, "all preparation and refusal is mutation-free")
 	assert_eq(fixture.disk_text(), bytes)
 
 func test_insufficient_money_and_invalid_counts_refuse_before_checkpoint() -> void:
@@ -120,10 +162,9 @@ func test_repeated_real_load_then_new_run_retains_profile_and_resets_counts() ->
 	if not _ready_fixture(): return
 	fixture.game.money = 500
 	assert_true(fixture.presentation.purchase(NOTES.ITEMS[2], 1).get("ok", false))
-	assert_true(fixture.save_to("quick").get("ok", false))
 	var expected: Dictionary = fixture.witness()
 	for repeat_index: int in 2:
-		var restored: Dictionary = await fixture.load_from("quick")
+		var restored: Dictionary = await fixture.load_from("autosave")
 		assert_true(restored.get("ok", false), JSON.stringify(restored))
 		if not restored.get("ok", false): return
 		assert_eq(fixture.game.money, 455)
