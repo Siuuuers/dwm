@@ -6,6 +6,16 @@ extends SceneTree
 const FIXTURE := preload("res://tests/support/RunNotePurchaseTransactionFixture.gd")
 const NOTES := preload("res://tests/support/RunNotePurchaseFixture.gd")
 const STRICT := preload("res://scripts/validation/StrictJson.gd")
+
+# GUT rejects unknown application flags. Register the two exact flags used by
+# this entry point; preserve the upstream CLI's option validation and XML output.
+class NotesGutCli extends "res://addons/gut/cli/gut_cli.gd":
+	func setup_options(options, font_names):
+		var opts = super.setup_options(options, font_names)
+		opts.add("--phase2r-bootstrap-mode", "final", "Application bootstrap mode")
+		opts.add("--phase", "tests", "Notes evidence phase")
+		return opts
+
 var fixture: RefCounted
 var phase := ""
 var report_dir := ""
@@ -24,6 +34,11 @@ func _run() -> void:
 		if arg.begins_with("--phase="): phase = arg.trim_prefix("--phase=")
 		if arg.begins_with("--root="): supplied_root = arg.trim_prefix("--root=")
 		if arg.begins_with("--report-dir="): report_dir = arg.trim_prefix("--report-dir=")
+	if phase == "tests":
+		var cli := NotesGutCli.new()
+		root.add_child(cli)
+		cli.main()
+		return
 	if not _check(phase in ["produce", "consume", "consume-again", "fault-produce", "fault-consume"], "explicit phase required"): return
 	if not _check(not supplied_root.is_empty() and supplied_root.simplify_path() == OS.get_environment("DWM_TEST_ROOT").simplify_path(), "explicit root equals isolated environment"): return
 	if not _check(not report_dir.is_empty(), "explicit report directory"): return
