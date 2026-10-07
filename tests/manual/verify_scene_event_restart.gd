@@ -515,12 +515,35 @@ func _verify_old_occupied_slot() -> bool:
 	if not _write_report("old-format-original", {"document": old, "original_text": text, "sha256": text.sha256_text()}): return false
 	var profile: Dictionary = root.get_node("ProfileManager").get_profile_snapshot().duplicate(true)
 	var results := {}
-	for action: String in ["load", "save"]:
-		var prepared: Dictionary = saves.prepare_backup_action(action, "slot:3")
-		var result: Dictionary = saves.commit_backup_action(prepared.value.token) if prepared.get("ok", false) else prepared
-		results[action] = result
-		_write_report("old-format-observed", {"results": results, "current_sha256": FileAccess.get_file_as_string(path).sha256_text(), "expected_sha256": text.sha256_text()})
-		if not _check(not result.get("ok", false), "old v7 occupied destination refuses " + action): return false
-		if not _check(FileAccess.get_file_as_string(path) == text, "old v7 bytes retained after " + action): return false
-	if not _check(root.get_node("ProfileManager").get_profile_snapshot() == profile, "old-format refusal leaves Profile intact"): return false
+	var inspected: Dictionary = saves.inspect_backup("slot:3")
+	if not _check(inspected.get("ok", false) and inspected.value.reason == "older_version" and not inspected.value.loadable, "inspection identifies unsupported v7"): return false
+	results["load"] = saves.prepare_backup_action("load", "slot:3")
+	if not _check(not results.load.get("ok", false) and FileAccess.get_file_as_string(path) == text, "inspection and refused Load preserve original v7 bytes"): return false
+	var prepared: Dictionary = saves.prepare_backup_action("save", "slot:3")
+	if not _check(prepared.get("ok", false) and FileAccess.get_file_as_string(path) == text, "unconfirmed Save preserves original v7 bytes"): return false
+	saves.cancel_backup_action(prepared.value.token)
+	results["cancelled"] = saves.commit_backup_action(prepared.value.token)
+	if not _check(results.cancelled.get("code") == &"stale_backup_action" and FileAccess.get_file_as_string(path) == text, "cancelled consent cannot replace v7"): return false
+	prepared = saves.prepare_backup_action("save", "slot:3")
+	if not _check(prepared.get("ok", false), "prepare revision-bound overwrite consent"): return false
+	# Simulate an external target revision change without changing old schema.
+	var changed_text := text + "\n"
+	file = FileAccess.open(path, FileAccess.WRITE)
+	if not _check(file != null, "open isolated stale-target fixture"): return false
+	file.store_string(changed_text)
+	file.close()
+	results["stale_target"] = saves.commit_backup_action(prepared.value.token)
+	if not _check(results.stale_target.get("code") == &"stale_backup_target" and FileAccess.get_file_as_string(path) == changed_text, "stale consent preserves changed old bytes"): return false
+	results["stale_token"] = saves.commit_backup_action(prepared.value.token)
+	if not _check(results.stale_token.get("code") == &"stale_backup_action" and FileAccess.get_file_as_string(path) == changed_text, "failed consent is single use"): return false
+	prepared = saves.prepare_backup_action("save", "slot:3")
+	if not _check(prepared.get("ok", false) and FileAccess.get_file_as_string(path) == changed_text, "new consent captures current old revision without writing"): return false
+	results["confirmed"] = saves.commit_backup_action(prepared.value.token)
+	if not _check(results.confirmed.get("ok", false), "explicit confirmed replacement commits " + str(results.confirmed)): return false
+	var replacement: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(path))
+	if not _check(replacement.get("ok", false) and replacement.value.schema_version == 8 and DOCUMENT.validate(replacement.value).get("ok", false), "confirmed replacement is valid v8"): return false
+	var replacement_text := FileAccess.get_file_as_string(path)
+	results["reused"] = saves.commit_backup_action(prepared.value.token)
+	if not _check(results.reused.get("code") == &"stale_backup_action" and FileAccess.get_file_as_string(path) == replacement_text, "successful overwrite consumes consent without repeat write"): return false
+	if not _check(root.get_node("ProfileManager").get_profile_snapshot() == profile, "old-format consent cases leave Profile intact"): return false
 	return _write_report("old-format", {"original_sha256": text.sha256_text(), "bytes": text.to_utf8_buffer().size(), "results": results})

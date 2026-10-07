@@ -1964,6 +1964,62 @@
       "disposition": "retain",
       "replacement": "",
       "contract_test": "test_game_owner_hospital_request_is_bound_durable_detached_and_idempotent"
+    },
+    {
+      "symbol": "configure_scene_event_owner",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_restore_preparation_requires_registry_and_active_reading_before_mutation"
+    },
+    {
+      "symbol": "configure_test_scene_event_registry",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_restore_preparation_requires_registry_and_active_reading_before_mutation"
+    },
+    {
+      "symbol": "validate_scene_event_snapshot",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_restore_preparation_requires_registry_and_active_reading_before_mutation"
+    },
+    {
+      "symbol": "scene_event_registration",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_registered_unsupported_kind_and_conflicting_duplicate_refuse_without_save"
+    },
+    {
+      "symbol": "scene_event_context",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_stale_source_token_unregistered_and_out_of_order_refuse_before_storage"
+    },
+    {
+      "symbol": "lookup_scene_event",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_set_clear_and_duplicate_share_durable_receipts_without_consuming_reading"
+    },
+    {
+      "symbol": "accept_scene_event",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_confirmed_commit_interrupted_before_adoption_fences_retry_and_manual_save"
     }
   ]
 }
