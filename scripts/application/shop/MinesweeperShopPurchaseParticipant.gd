@@ -1,6 +1,8 @@
 class_name MinesweeperShopPurchaseParticipant
 extends RefCounted
 
+const _NOTE_RULES := preload("res://scripts/domain/shop/RunNotePurchaseRules.gd")
+
 ## Shop purchase participant (Plan 02 Task 7, dwm-p2r.32.7, req.shop.capabilities,
 ## req.desktop.cross_app_actions, req.minesweeper.safety_capabilities), amendment SS8 and 12.6.
 ##
@@ -151,6 +153,13 @@ func _get_item_record(item_id: String, quantity: int) -> Dictionary:
 	if _catalog == null: return _fail(&"unregistered_shop_item", "", {})
 	var item: Dictionary = _catalog.get_shop_item(item_id)
 	if item.is_empty(): return _fail(&"unregistered_shop_item", "", {})
+	if item_id in _NOTE_RULES.ITEM_IDS:
+		if quantity != 1: return _fail(&"invalid_quantity", "", {})
+		if typeof(item.get("currency")) != TYPE_STRING or item.currency != "money" \
+				or typeof(item.get("price")) != TYPE_INT or item.price != 45 \
+				or typeof(item.get("max_purchases")) != TYPE_INT or item.max_purchases != 3 \
+				or not item.get("effect_ids") is Array or not item.effect_ids.is_empty():
+			return _fail(&"invalid_note_shop_record", "", {})
 	var maximum := maxi(1, int(item.get("max_purchases", 0)))
 	if quantity < 1 or quantity > maximum:
 		return _fail(&"shop_quantity_exceeds_batch_cap", "", {})
@@ -559,6 +568,11 @@ func validate_recovery_action(action_candidate: Dictionary, action_receipt: Dict
 		return _fail(&"action_receipt_source_kind_mismatch", "", {})
 	if str(action_candidate.get("transaction_id", "")) != str(receipt["transaction_id"]):
 		return _fail(&"invalid_action_candidate", "action_candidate.transaction_id must match action_receipt", {})
+	if action_candidate.get("item_id", "") in _NOTE_RULES.ITEM_IDS:
+		var checked: Dictionary = _state_port.call(&"validate_note_candidate", action_candidate)
+		if not checked.get("ok", false): return checked
+		if action_candidate.ordinary_source_gameplay.get("day") != receipt.get("day"):
+			return _fail(&"invalid_note_shop_candidate", "source day does not match action receipt", {})
 	var action_candidate_sha256 := _action_candidate_sha256_from_receipt(receipt)
 	return {"ok": true, "code": &"ok", "value": {"publication": {
 		"action_candidate_sha256": action_candidate_sha256, "action_receipt": receipt.duplicate(true),
@@ -583,6 +597,12 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
 	var transaction_id := str(receipt["transaction_id"])
 	if str(action_candidate.get("transaction_id", "")) != transaction_id:
 		return _fail(&"invalid_action_candidate", "action_candidate.transaction_id must match action_receipt", {})
+
+	if action_candidate.get("item_id", "") in _NOTE_RULES.ITEM_IDS:
+		var checked: Dictionary = _state_port.call(&"validate_note_candidate", action_candidate)
+		if not checked.get("ok", false): return checked
+		if action_candidate.ordinary_source_gameplay.get("day") != receipt.get("day"):
+			return _fail(&"invalid_note_shop_candidate", "source day does not match action receipt", {})
 
 	if _recovery_committed.has(transaction_id):
 		var recorded: Dictionary = _recovery_committed[transaction_id]

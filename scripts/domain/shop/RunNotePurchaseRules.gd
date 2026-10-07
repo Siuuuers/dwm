@@ -53,10 +53,9 @@ static func prepare(
 	})
 
 
-## The one validation seam shared by purchasing and Notes projection.
-## Missing counts remain absent and mean zero. Unrelated valid counts survive.
-## Catalogue registration is explicit; no production or placeholder text is supplied.
-static func validate_counts_and_catalogue(counts: Variant, catalogue: Variant) -> Dictionary:
+## Counts-only owner shared by purchasing, projection, and restore boundaries.
+## Missing item entries mean zero; the caller must explicitly supply a map.
+static func validate_counts(counts: Variant) -> Dictionary:
 	if typeof(counts) != TYPE_DICTIONARY:
 		return _refuse("invalid_counts")
 	var supplied_counts: Dictionary = counts
@@ -73,6 +72,15 @@ static func validate_counts_and_catalogue(counts: Variant, catalogue: Variant) -
 		if ITEM_IDS.has(normalized_key) and count > PURCHASE_CAP:
 			return _refuse("invalid_counts")
 		detached_counts[normalized_key] = count
+	return _accept({"shop_purchase_counts": detached_counts})
+
+
+## Catalogue registration is explicit; no production or placeholder text is supplied.
+static func validate_counts_and_catalogue(counts: Variant, catalogue: Variant) -> Dictionary:
+	var checked: Dictionary = validate_counts(counts)
+	if not checked["ok"]:
+		return checked
+	var detached_counts: Dictionary = checked["value"]["shop_purchase_counts"]
 	if typeof(catalogue) != TYPE_DICTIONARY:
 		return _refuse("invalid_catalogue")
 	var supplied_catalogue: Dictionary = catalogue
