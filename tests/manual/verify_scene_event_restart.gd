@@ -149,10 +149,18 @@ func _consume() -> void:
 		await _finish()
 		return
 	var first_handle: Dictionary = game.capture_live_session().value
+	# A live witnessed scene must transfer custody through the retained Pause
+	# owner before SaveManager may replace its standing native playback.
+	var pause_owner: Node = root.get_node("SceneRouter").get("_production_pause")
+	var paused_source: Dictionary = await pause_owner.request_pause()
+	if not _check(paused_source.get("ok", false), "second Load pauses actual source " + str(paused_source)): return
 	prepared = saves.prepare_backup_action("load", "slot:1")
 	if not _check(prepared.get("ok", false), "second actual manual slot Load prepares"): return
+	var released: Dictionary = await pause_owner.release_for_backup_load()
+	if not _check(released.get("ok", false), "second Load retains restore handoff " + str(released)): return
 	loaded = saves.commit_backup_action(prepared.value.token)
-	if not _check(loaded.get("ok", false), "second Load commits"): return
+	loaded = await pause_owner.finish_backup_load(loaded)
+	if not _check(loaded.get("ok", false), "second Load commits " + str(loaded)): return
 	if not await _wait_line(line): return
 	if not _check(not game.validate_live_session(first_handle).get("ok", false), "Load remaps old live authority"): return
 	if not _check(bridge.capture_reading_checkpoint(false).value.reading_session == prior.checkpoint.reading_session and game.capture_run_snapshot_input().command_receipts == prior.receipts, "second Load preserves immutable event bytes"): return
