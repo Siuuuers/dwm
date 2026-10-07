@@ -14,7 +14,7 @@ func _run() -> void:
 		if argument.begins_with("--scene-event-fault="): _fault = argument.trim_prefix("--scene-event-fault=")
 		if argument.begins_with("--scene-event-phase="): _phase = argument.trim_prefix("--scene-event-phase=")
 		if argument.begins_with("--scene-event-report-dir="): _report_dir = argument.trim_prefix("--scene-event-report-dir=")
-	if not _check(_phase in ["produce", "consume", "consume-again", "missing-registry", "mismatched-registry", "fault-produce", "fault-consume", "produce-other", "consume-other"], "explicit scene event phase"): return
+	if not _check(_phase in ["produce", "consume", "consume-again", "missing-registry", "mismatched-registry", "fault-produce", "fault-consume", "produce-other", "consume-other", "old-format"], "explicit scene event phase"): return
 	if not _check(not OS.get_environment("DWM_TEST_ROOT").strip_edges().is_empty()
 		and DisplayServer.get_name() != "headless", "isolated rendered scene event proof"): return
 	await _frames()
@@ -94,7 +94,6 @@ func _produce() -> void:
 	result = _dispatch(envelope)
 	if not _check(result.get("ok", false) and result.get("duplicate", false) and _disk_hashes() == disk_before, "duplicate set writes nothing"): return
 	if not _save("slot:1") or not _save("quick"): return
-	if not _verify_old_occupied_slot(): return
 	var report := _report(envelope)
 	report["duplicate_no_write"] = true
 	report["live_session"] = root.get_node("GameState").capture_live_session().value
@@ -127,6 +126,10 @@ func _consume() -> void:
 	var bridge: Node = root.get_node("DialogicBridge")
 	if not _check(bridge.capture_reading_checkpoint(false).value.reading_session == prior.checkpoint.reading_session and game.capture_run_snapshot_input().command_receipts == prior.receipts, "restored complete ledger and receipts"): return
 	if not _check(root.get_node("ProfileManager").get_profile_snapshot() == profile, "Load preserves Profile"): return
+	if _phase == "old-format":
+		if not _verify_old_occupied_slot(): return
+		await _finish()
+		return
 	if prior.has("live_session"):
 		var stale_session: Dictionary = bridge.dispatch_scene_event(prior.live_session, prior.envelope)
 		if not _check(not stale_session.get("ok", false), "old live session refused"): return
@@ -500,13 +503,15 @@ func _verify_old_occupied_slot() -> bool:
 	if not _check(file != null, "write isolated occupied old-format fixture"): return false
 	file.store_string(text)
 	file.close()
+	if not _write_report("old-format-original", {"document": old, "original_text": text, "sha256": text.sha256_text()}): return false
 	var profile: Dictionary = root.get_node("ProfileManager").get_profile_snapshot().duplicate(true)
 	var results := {}
 	for action: String in ["load", "save"]:
 		var prepared: Dictionary = saves.prepare_backup_action(action, "slot:3")
 		var result: Dictionary = saves.commit_backup_action(prepared.value.token) if prepared.get("ok", false) else prepared
-		if not _check(not result.get("ok", false), "old v7 occupied destination refuses " + action): return false
 		results[action] = result
+		_write_report("old-format-observed", {"results": results, "current_sha256": FileAccess.get_file_as_string(path).sha256_text(), "expected_sha256": text.sha256_text()})
+		if not _check(not result.get("ok", false), "old v7 occupied destination refuses " + action): return false
 		if not _check(FileAccess.get_file_as_string(path) == text, "old v7 bytes retained after " + action): return false
 	if not _check(root.get_node("ProfileManager").get_profile_snapshot() == profile, "old-format refusal leaves Profile intact"): return false
 	return _write_report("old-format", {"original_sha256": text.sha256_text(), "bytes": text.to_utf8_buffer().size(), "results": results})
