@@ -451,8 +451,22 @@ func test_connected_bridge_partial_next_commits_marker_and_later_next_preserves_
 	assert_eq(profile.get_profile_snapshot(), admission_profile)
 	assert_eq(fixture.files.snapshot_persisted(), admission_files)
 	assert_eq(_results.size(), 1)
+	var reveal_callbacks: Array[Dictionary] = []
+	_runtime.get_subsystem("Text").text_finished.connect(func(_info: Dictionary) -> void:
+		assert_eq(fixture.real.commits, 0, "reentrant callback runs during reveal, before durable lease")
+		reveal_callbacks.append(await bridge.request_next(proof))
+		var changed := proof.duplicate(true)
+		changed.value.token = "forged.reentrant"
+		reveal_callbacks.append(await bridge.request_next(changed))
+		assert_false(bridge.request_skip_step().ok)
+		assert_false(bridge.request_auto_step(proof).ok)
+		assert_false(bridge.acknowledge_current_line_presentation(proof).ok), CONNECT_ONE_SHOT)
 	fixture.real.fail_on_commit = 2
 	var refused: Dictionary = await bridge.request_next(proof)
+	assert_eq(reveal_callbacks.size(), 2)
+	if reveal_callbacks.size() == 2:
+		assert_eq(reveal_callbacks[0].get("code"), &"coalesced")
+		assert_eq(reveal_callbacks[1].get("code"), &"reading_next_command_conflict")
 	assert_false(refused.ok, "destination write fails after the source commit")
 	assert_eq(refused.get("code"), &"injected_failure", "actual FileOps refusal reaches the caller")
 	assert_eq(fixture.real.commits, 2, "the first source commit succeeded")

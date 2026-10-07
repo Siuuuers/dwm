@@ -3633,6 +3633,11 @@ func _validate_marker_commit(snapshot: Dictionary, checkpoint: Dictionary, sourc
 		return _command_failure(&"event_handoff_invalid")
 	var candidate := snapshot.duplicate(true)
 	candidate["narrative_checkpoint"] = checkpoint.duplicate(true)
+	# The sealed owner supplies snapshot input; the real checkpoint builder adds
+	# its top-level run_id from this lifecycle. Apply that same identity here.
+	if not snapshot.get("lifecycle") is Dictionary or not snapshot.lifecycle.get("run_id") is String:
+		return _command_failure(&"event_handoff_invalid")
+	candidate["run_id"] = snapshot.lifecycle.run_id
 	return validate_scene_marker_snapshot(candidate)
 # Validate the saved cursor against trusted configuration and retained receipts.
 # Neither a checkpoint nor a native locator can configure this document.
