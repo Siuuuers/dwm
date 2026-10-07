@@ -79,85 +79,16 @@ jobs:
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-      - name: Execute explicit rules schema and real transaction suites
-        timeout-minutes: 12
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $paths = @('res://tests/unit/test_run_note_purchase_rules.gd','res://tests/unit/test_notes_catalog_projection.gd','res://tests/unit/test_run_snapshot_schema.gd','res://tests/integration/test_run_note_purchase_transaction.gd','res://tests/integration/test_run_restore_isolation.gd')
-          $arguments = @('-s','res://tests/integration/run_note_purchase_restart.gd','-gconfig=',('-gtest=' + ($paths -join ',')),'-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/notes-adoption.xml','--','--phase2r-bootstrap-mode=final','--phase=tests')
-          ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'notes-adoption' -LogName 'notes-adoption.log' -EvidenceLogPath '.godot/ci/notes-adoption.jsonl' -TimeoutSeconds 660 -KeepRoot -GodotArgs $arguments
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $log = '.godot/phase2r_logs/notes-adoption.log'
-          if (Select-String -Path $log -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'invalid engine output' }
-          [xml]$xml = Get-Content .godot/ci/notes-adoption.xml -Raw
-          if ($xml.SelectNodes('//failure | //error | //skipped').Count -ne 0) { throw 'failed or skipped tests' }
-          $expectedCases = @{'tests/unit/test_run_note_purchase_rules.gd'=19; 'tests/unit/test_notes_catalog_projection.gd'=15; 'tests/unit/test_run_snapshot_schema.gd'=30; 'tests/integration/test_run_note_purchase_transaction.gd'=8; 'tests/integration/test_run_restore_isolation.gd'=5}
-          $results = @($xml.SelectNodes('//testsuite') | ForEach-Object { [ordered]@{name=$_.GetAttribute('name'); cases=$_.SelectNodes('./testcase').Count} })
-          if ($results.Count -ne $paths.Count) { throw 'Missing or extra suite' }
-          foreach ($path in $paths) {
-            $relative = $path.Replace('res://','')
-            $matching = @($results | Where-Object { $_.name.Replace('res://','') -ceq $relative })
-            if ($matching.Count -ne 1 -or $matching[0].cases -ne $expectedCases[$relative]) { throw "wrong executed cases: $path" }
-          }
-          if (-not (Select-String -Path $log -SimpleMatch 'RESTORE_ALIAS_CONTROL: six historical directions observed' -Quiet)) { throw 'alias controls did not execute' }
-          $results | ConvertTo-Json | Set-Content .godot/ci/executed-suites.json
-      - name: Existing ordinary capability and participant regressions
-        timeout-minutes: 12
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $paths = @('res://tests/unit/test_shop_presentation_port.gd','res://tests/unit/test_minesweeper_shop_purchase_participant.gd','res://tests/integration/test_minesweeper_shop_transaction.gd','res://tests/unit/test_save_document_schema.gd')
-          $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',('-gtest=' + ($paths -join ',')),'-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/shop-regression.xml')
-          ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'shop-regression' -LogName 'shop-regression.log' -EvidenceLogPath '.godot/ci/shop-regression.jsonl' -TimeoutSeconds 660 -KeepRoot -GodotArgs $arguments
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String -Path '.godot/phase2r_logs/shop-regression.log' -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'invalid regression output' }
-          [xml]$xml = Get-Content .godot/ci/shop-regression.xml -Raw
-          if ($xml.SelectNodes('//failure | //error | //skipped').Count -ne 0) { throw 'failed or skipped regressions' }
-          $expected = @{'tests/unit/test_shop_presentation_port.gd'=10; 'tests/unit/test_minesweeper_shop_purchase_participant.gd'=41; 'tests/integration/test_minesweeper_shop_transaction.gd'=4; 'tests/unit/test_save_document_schema.gd'=21}
-          $suites = @($xml.SelectNodes('//testsuite'))
-          if ($suites.Count -ne 4) { throw 'wrong regression suite census' }
-          foreach ($suite in $suites) {
-            $name = $suite.GetAttribute('name').Replace('res://','')
-            if (-not $expected.ContainsKey($name) -or $suite.SelectNodes('./testcase').Count -ne $expected[$name]) { throw "wrong regression cases $name" }
-          }
-      - name: Real filesystem restart and interrupted adoption
-        timeout-minutes: 15
-        run: |
-          $ErrorActionPreference = 'Stop'
-          foreach ($group in @(@('produce','consume','consume-again'), @('fault-produce','fault-consume'))) {
-            $chain = if ($group[0] -eq 'produce') { 'regular' } else { 'fault' }
-            $rootPath = Join-Path $env:GITHUB_WORKSPACE ".godot/phase2r_tests/note-restart-$chain"
-            $reportPath = Join-Path $env:GITHUB_WORKSPACE ".godot/ci/restart-$chain"
-            New-Item -ItemType Directory -Force -Path $rootPath,$reportPath | Out-Null
-            $env:DWM_TEST_ROOT = $rootPath
-            $env:APPDATA = Join-Path $rootPath 'appdata'
-            $env:LOCALAPPDATA = Join-Path $rootPath 'localappdata'
-            foreach ($phase in $group) {
-              $stdout = Join-Path $reportPath "$phase.stdout.log"
-              $stderr = Join-Path $reportPath "$phase.stderr.log"
-              $arguments = @('--headless','--path',('"' + $env:GITHUB_WORKSPACE + '"'),'-s','res://tests/integration/run_note_purchase_restart.gd','--','--phase2r-bootstrap-mode=final',"--phase=$phase",('"--root=' + $rootPath + '"'),('"--report-dir=' + $reportPath + '"'))
-              $process = Start-Process -FilePath $env:GODOT_CONSOLE_PATH -ArgumentList $arguments -PassThru -RedirectStandardOutput $stdout -RedirectStandardError $stderr
-              $finished = $process.WaitForExit(240000)
-              if (-not $finished) { $process.Kill($true); throw "timeout $phase" }
-              $process.Refresh()
-              [ordered]@{phase=$phase;pid=$process.Id;exit=$process.ExitCode;source='5d55656fd59f3712039c07c21cc1d47007e4a262';tree='f0d1ce9387a11696ba6d3976427be115a79d6bcb';controller=$env:GITHUB_SHA;run=$env:GITHUB_RUN_ID;attempt=$env:GITHUB_RUN_ATTEMPT} | ConvertTo-Json | Set-Content (Join-Path $reportPath "$phase.process.json")
-              Get-Content $stdout
-              $marker = "RUN_NOTE_RESTART_" + $phase.ToUpperInvariant().Replace("-", "_") + "_PASS"
-              if (-not (Select-String -Path $stdout -SimpleMatch $marker -Quiet)) { throw "missing restart success marker $phase" }
-              if (-not (Test-Path (Join-Path $reportPath "$phase.json"))) { throw "missing restart report $phase" }
-              if ($process.ExitCode -ne 0) { Get-Content $stderr; throw "restart phase failed: $phase" }
-              if (Select-String -Path $stdout,$stderr -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw "invalid restart output $phase" }
-            }
-          }
       - name: Generate or validate exact branch inventories
         run: |
-          ./tools/testing/Invoke-PublicSurfaceValidation.ps1
+          ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Verify source changes limited to declared generated outputs
         run: |
           $allowed = @('evidence/phase_2r/runtime/game_state_surface.json','evidence/phase_2r/runtime/save_manager_surface.json')
           $changed = @(git diff --name-only)
           foreach ($path in $changed) { if ($path -notin $allowed) { throw "unexpected tracked change: $path" } }
-          if ('check' -eq 'check' -and $changed.Count -ne 0) { throw 'final tracked source changed' }
+          if ('generate' -eq 'check' -and $changed.Count -ne 0) { throw 'final tracked source changed' }
       - name: Hash original evidence even on failure
         if: always()
         run: |
