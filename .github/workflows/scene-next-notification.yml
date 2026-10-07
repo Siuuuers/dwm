@@ -11,12 +11,12 @@ jobs:
     timeout-minutes: 20
     env:
       LIBGL_ALWAYS_SOFTWARE: '1'
-      PRODUCT_SHA: 0b8fd58318b72cf1f5e70a007b2f78f2986a6ac2
-      PRODUCT_TREE: d5abad0fcf69de95c1efa9fab0d5929e0d33437a
+      PRODUCT_SHA: 0676c04a62171ad9e5d396a23bdd0b2fbc343a0e
+      PRODUCT_TREE: 674aae0e5b4837dc4b4755ceda00fbd12152911b
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: 0b8fd58318b72cf1f5e70a007b2f78f2986a6ac2
+          ref: 0676c04a62171ad9e5d396a23bdd0b2fbc343a0e
           fetch-depth: 0
           persist-credentials: true
       - name: Record immutable source before import
@@ -120,7 +120,7 @@ jobs:
           retention-days: 14
 
   generated-surfaces:
-    name: Windows / exact candidate generated inventories
+    name: Windows / exact candidate read-only inventory check
     runs-on: windows-2022
     timeout-minutes: 20
     defaults:
@@ -132,12 +132,12 @@ jobs:
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
-          ref: 0b8fd58318b72cf1f5e70a007b2f78f2986a6ac2
+          ref: 0676c04a62171ad9e5d396a23bdd0b2fbc343a0e
       - name: Record exact source and controller before import
         run: |
           $actual = (git rev-parse HEAD).Trim()
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($actual -ne '0b8fd58318b72cf1f5e70a007b2f78f2986a6ac2' -or $tree -ne 'd5abad0fcf69de95c1efa9fab0d5929e0d33437a') { throw 'Candidate mismatch.' }
+          if ($actual -ne '0676c04a62171ad9e5d396a23bdd0b2fbc343a0e' -or $tree -ne '674aae0e5b4837dc4b4755ceda00fbd12152911b') { throw 'Candidate mismatch.' }
           New-Item -ItemType Directory -Force .godot/ci/public-surfaces | Out-Null
           @{product=$actual;tree=$tree;controller=$env:GITHUB_SHA;run=$env:GITHUB_RUN_ID;attempt=$env:GITHUB_RUN_ATTEMPT} | ConvertTo-Json | Set-Content .godot/ci/public-surfaces/provenance.json
       - name: Prepare disposable checkout for credential cleanup
@@ -234,22 +234,22 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Generate and check original public inventories
+      - name: Check committed original inventories without regeneration
         timeout-minutes: 10
-        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
+        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -EmitPayloads
       - name: Record generated-only tracked delta
         if: always()
         run: |
           $changed = @(git diff --name-only)
           $changed | Set-Content .godot/ci/public-surfaces/tracked-diff.txt
           foreach ($path in $changed) {
-            if ($path -notin @('evidence/phase_2r/runtime/game_state_surface.json','evidence/phase_2r/runtime/save_manager_surface.json')) { throw "Unexpected tracked mutation $path" }
+            throw "Unexpected tracked mutation $path"
           }
       - name: Upload canonical inventories and retirement evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: marker-generated-surfaces-${{ github.run_id }}-${{ github.run_attempt }}
+          name: marker-checked-surfaces-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             .godot/ci/import.log
             .godot/ci/public-surfaces/
