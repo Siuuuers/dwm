@@ -59,7 +59,7 @@ static func semantic(session: RefCounted) -> Dictionary:
 func initialize_with_bridge(bridge: Node) -> Dictionary:
 	var made: Dictionary = preload("res://tests/support/TemporaryStorage.gd").create("durable_scene_event")
 	if not made.ok: return made
-	files = OPS.new()
+	files = MarkerFileOps.new()
 	storage = STORAGE.new(str(made.value).path_join("saves"), files)
 	manager = SAVE.new()
 	var result: Dictionary = manager.initialize(storage)
@@ -123,6 +123,16 @@ func initialize_with_bridge(bridge: Node) -> Dictionary:
 	return bridge.configure_scene_event_port(port, Callable(game, "validate_live_session"), Callable(game, "scene_event_context"))
 
 ## Failure is armed at the actual disk commit, after production preimage capture.
+class MarkerFileOps extends "res://tests/support/FakeFileOps.gd":
+	var fail_next_write := false
+	var failed_writes := 0
+	func write_bytes(path: String, bytes: PackedByteArray) -> Dictionary:
+		if fail_next_write:
+			fail_next_write = false
+			failed_writes += 1
+			return {"ok": false, "code": &"injected_failure", "message": "TEST marker write refusal"}
+		return super.write_bytes(path, bytes)
+
 class MarkerFaultPort extends "res://scripts/application/run/SaveManagerCheckpointPort.gd":
 	var files: RefCounted
 	var commits := 0
@@ -130,7 +140,7 @@ class MarkerFaultPort extends "res://scripts/application/run/SaveManagerCheckpoi
 	func commit(candidate: Dictionary) -> Dictionary:
 		commits += 1
 		if commits == fail_on_commit:
-			files.fail_after(files.operation_count() + 1)
+			files.fail_next_write = true
 		return super.commit(candidate)
 
 ## The support script also provides the two locator functions consumed by Bridge.
