@@ -1,0 +1,114 @@
+name: Isolated scene-event foundation
+on:
+  push:
+    branches: [codex/scene-event-foundation-controller-20261007]
+permissions:
+  contents: read
+jobs:
+  foundation:
+    runs-on: windows-2022
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # The schedule-gate contract inspects its immutable historical seals.
+          fetch-depth: 0
+          ref: 37e6d775ee700c5913f6ce6f7efe0d5a6fdcd32a
+          # Defer credential removal until the post-job cleanup, after the
+          # malformed gitlinks are removed from this disposable runner's index.
+          persist-credentials: true
+      - name: Prepare disposable checkout for credential cleanup
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
+          # submodule foreach reads the index even with sparse checkout.
+          # The source commit and working files remain unchanged.
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git submodule foreach --recursive 'true'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Install Godot 4.6.3 standard
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
+          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
+          # SHA256 published with the official 4.6.3-stable release asset.
+          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
+            throw 'Godot archive checksum mismatch.'
+          }
+          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
+          Expand-Archive -LiteralPath $archive -DestinationPath $editor
+          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
+          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          & $console --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Import project
+        timeout-minutes: 8
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
+          $env:APPDATA = Join-Path $output 'import-user/appdata'
+          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
+          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
+          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
+            throw 'Project import reported script errors; inspect import.log.'
+          }
+      - name: Restore committed project settings after editor import
+        run: |
+          # Dialogic's editor scan rewrites its timeline lookup during import.
+          # Execute the committed configuration with the freshly imported assets.
+          git restore -- project.godot
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Verify exact product source and record executable identity
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ((git rev-parse HEAD) -cne '37e6d775ee700c5913f6ce6f7efe0d5a6fdcd32a') { throw 'source mismatch' }
+          if ((git rev-parse 'HEAD^{tree}') -cne '3fe9603af53cd0587ab01f63e7c384a2cc424a32') { throw 'tree mismatch' }
+          if (git diff --name-only) { throw 'tracked source changed during import' }
+          [ordered]@{source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); controller=$env:GITHUB_SHA; run=$env:GITHUB_RUN_ID; attempt=$env:GITHUB_RUN_ATTEMPT; executable=$env:GODOT_CONSOLE_PATH; executable_sha256=(Get-FileHash $env:GODOT_CONSOLE_PATH -Algorithm SHA256).Hash.ToLowerInvariant(); version=(& $env:GODOT_CONSOLE_PATH --version)} | ConvertTo-Json | Set-Content .godot/ci/identity.json
+      - name: Generate affected existing public inventories in disposable checkout
+        run: |
+          ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $allowed = @('evidence/phase_2r/runtime/game_state_surface.json','evidence/phase_2r/runtime/save_manager_surface.json')
+          foreach ($path in @(git diff --name-only)) { if ($path -notin $allowed) { throw "unexpected generated mutation $path" } }
+          git diff --stat
+      - name: Execute explicit new suites and retained dependency contracts
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $paths = @('res://tests/unit/test_scene_event_contract.gd','res://tests/integration/test_scene_event_owner_contract.gd','res://tests/unit/test_application_mutation_gate.gd','res://tests/unit/test_desktop_identity_nonce_issuer.gd','res://tests/unit/test_canonical_writer_compatibility.gd')
+          $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',("-gtest=" + ($paths -join ',')),'-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/scene-event.xml')
+          ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'scene-event-foundation' -LogName 'scene-event.log' -EvidenceLogPath '.godot/ci/scene-event.jsonl' -TimeoutSeconds 480 -GodotArgs $arguments
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $log = '.godot/phase2r_logs/scene-event.log'
+          if (Select-String -Path $log -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'invalid engine output' }
+          [xml]$xml = Get-Content .godot/ci/scene-event.xml -Raw
+          if ($xml.SelectNodes('//failure | //error | //skipped').Count -ne 0) { throw 'failed or skipped tests' }
+          $results = @($xml.SelectNodes('//testsuite') | ForEach-Object { [ordered]@{name=$_.GetAttribute('name'); cases=$_.SelectNodes('./testcase').Count} })
+          foreach ($path in $paths) {
+            $relative = $path.Replace('res://','')
+            $matching = @($results | Where-Object { $_.name.Replace('res://','') -ceq $relative })
+            if ($matching.Count -ne 1 -or $matching[0].cases -eq 0) { throw "requested suite not executed: $path" }
+          }
+          $results | ConvertTo-Json | Set-Content .godot/ci/executed-suites.json
+          Get-Content .godot/ci/executed-suites.json
+      - name: Retain original logs reports and generated bytes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scene-event-foundation-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .godot/ci/
+            .godot/phase2r_logs/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
