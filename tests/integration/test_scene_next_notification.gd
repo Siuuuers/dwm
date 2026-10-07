@@ -352,6 +352,11 @@ func test_witnessed_intermediate_caption_is_retained_once_before_marker_stop() -
 	assert_eq(session.ledger.snapshot().captions.size(), 2)
 
 func test_connected_bridge_partial_next_commits_marker_and_later_next_preserves_receipt() -> void:
+	var process_phase := OS.get_environment("DWM_SCENE_MARKER_PHASE").strip_edges()
+	if not process_phase.is_empty():
+		await FIXTURE.new().run_process_phase(self, process_phase,
+			OS.get_environment("DWM_SCENE_MARKER_REPORT_DIR").strip_edges())
+		return
 	await _mount_native()
 	var bridge: Node = preload("res://autoload/DialogicBridge.gd").new()
 	add_child_autofree(bridge)
@@ -386,6 +391,26 @@ func test_connected_bridge_partial_next_commits_marker_and_later_next_preserves_
 	var proof: Dictionary = bridge.capture_next_frontier()
 	assert_true(proof.ok, str(proof))
 	if not proof.ok: return
+	var admission_profile: Dictionary = profile.get_profile_snapshot().duplicate(true)
+	var admission_files: Dictionary = fixture.files.snapshot_persisted()
+	for busy: String in ["_line_ack_in_progress", "_auto_step_in_progress", "_skip_step_in_progress"]:
+		bridge.set(busy, true)
+		var busy_result: Dictionary = await bridge.request_next(proof)
+		bridge.set(busy, false)
+		assert_false(busy_result.ok, busy)
+		assert_false(_adapter.is_current_line_complete(), "busy refusal precedes revealing")
+	bridge._pause_restore = {"applied": false}
+	var pause_refused: Dictionary = await bridge.request_next(proof)
+	bridge._pause_restore = {}
+	assert_false(pause_refused.ok)
+	bridge._line_ack_fatal_failure = {"ok": false, "code": &"fixture_retained_ack_failure"}
+	var fatal_refused: Dictionary = await bridge.request_next(proof)
+	bridge._line_ack_fatal_failure = {}
+	assert_eq(fatal_refused.code, &"fixture_retained_ack_failure")
+	assert_false(_adapter.is_current_line_complete())
+	assert_eq(profile.get_profile_snapshot(), admission_profile)
+	assert_eq(fixture.files.snapshot_persisted(), admission_files)
+	assert_eq(_results.size(), 1)
 	fixture.real.fail_on_commit = 2
 	var refused: Dictionary = await bridge.request_next(proof)
 	assert_false(refused.ok, "destination write fails after the source commit")

@@ -3472,7 +3472,9 @@ func _marker_source_valid() -> bool:
 			or _active_entry != _marker_source.entry or not _pause_handle.is_empty() or _pause_changing \
 			or not _active_transaction.is_empty() or _reading_session.ledger.snapshot() != _marker_source.ledger \
 			or _skip_profile.get_profile_revision() != _marker_source.revision \
-			or _runtime_adapter.capture_pause_frontier() != _marker_source.pause: return false
+			or _runtime_adapter.capture_pause_frontier() != _marker_source.pause \
+			or not _MARKER_EVENT._same_types(_marker_reading_identity(), _marker_source.reading) \
+			or _marker_reading_identity() != _marker_source.reading: return false
 	if not _marker_lease.is_empty() and not _mutation_gate.is_lease_active(&"causal_transaction", _marker_lease): return false
 	var native: Dictionary = _runtime_adapter.marker_source_identity()
 	return native.get("ok", false) and native.value == _marker_source.native
@@ -3482,10 +3484,15 @@ func _marker_boundary(checkpoint: Dictionary, anchor: Dictionary) -> Dictionary:
 		"playback_token": str(_active_entry.token)}
 
 func _perform_marker_next(expected: Dictionary) -> Dictionary:
+	if _line_ack_in_progress or _auto_step_in_progress or _skip_step_in_progress or is_pause_restore_pending():
+		return _command_failure(&"reading_next_unavailable")
+	if not _line_ack_fatal_failure.is_empty(): return _line_ack_fatal_failure.duplicate(true)
 	var current := capture_next_frontier()
 	if not current.ok or current != expected: return _command_failure(&"presentation_frontier_changed")
 	if _skip_profile.get_preference(&"preferences.reading.auto_enabled", false): return _command_failure(&"reading_next_auto_enabled")
 	if not _runtime_adapter.is_marker_source_held():
+		var admission := _line_presentation_context(expected)
+		if not admission.ok: return admission
 		var revealed: Dictionary = _runtime_adapter.reveal_current_line(true)
 		if not revealed.ok: return revealed
 		if capture_next_frontier() != expected: return _command_failure(&"presentation_frontier_changed")
@@ -3499,7 +3506,7 @@ func _perform_marker_next(expected: Dictionary) -> Dictionary:
 	_marker_source_session = _reading_session
 	_marker_source = {"entry": _active_entry.duplicate(true), "ledger": _reading_session.ledger.snapshot(),
 		"revision": _skip_profile.get_profile_revision(), "native": native.value.duplicate(true),
-		"pause": _runtime_adapter.capture_pause_frontier()}
+		"pause": _runtime_adapter.capture_pause_frontier(), "reading": _marker_reading_identity()}
 	var tail: Dictionary = source.reading_session.ledger.captions.back()
 	_marker_context = _marker_boundary(source, {"session_id": source.reading_session.ledger.session_token,
 		"entry_id": source.entry_id, "content_version": source.content_version,
@@ -3585,6 +3592,7 @@ func _run_marker_next(source: Dictionary, expected: Dictionary) -> Dictionary:
 	if not _marker_source_valid(): return _finish_next(_marker_lease, _next_fatal(&"reading_marker_source_changed", false))
 	_marker_source_checkpoint_id = str(committed.value.checkpoint_id)
 	_reading_session.next_operation = from.value.next_operation.duplicate(true)
+	_marker_source.reading = _marker_reading_identity()
 	var held: Dictionary = _runtime_adapter.hold_marker_source(_marker_source.native.frontier)
 	if not held.ok or not _marker_source_valid(): return _finish_next(_marker_lease, _next_fatal(&"reading_marker_hold_failed", false))
 	var destination := source.duplicate(true)
@@ -3626,11 +3634,8 @@ func _validate_marker_commit(snapshot: Dictionary, checkpoint: Dictionary, sourc
 	var candidate := snapshot.duplicate(true)
 	candidate["narrative_checkpoint"] = checkpoint.duplicate(true)
 	return validate_scene_marker_snapshot(candidate)
-# Bridge proposal. Use the existing trusted marker-document field if named differently.
-# Configure this document before beginning a reading session, and call
-# candidate.configure_markers(_reading_marker_document) after each Solo catalogue
-# configuration (Next candidate, capture/restore candidate, and fresh session).
-# Do not configure markers from a checkpoint or from a native runtime locator.
+# Validate the saved cursor against trusted configuration and retained receipts.
+# Neither a checkpoint nor a native locator can configure this document.
 
 func validate_scene_marker_snapshot(snapshot: Dictionary) -> Dictionary:
 	var checkpoint: Variant = snapshot.get("narrative_checkpoint", {})
@@ -3661,3 +3666,9 @@ func _acknowledge_next_source(frontier: Dictionary) -> Dictionary:
 	var result := acknowledge_current_line_presentation(frontier)
 	_next_acknowledging = false
 	return result
+
+func _marker_reading_identity() -> Dictionary:
+	return {"boundary": _reading_session.boundary, "frontier": _reading_session.marker_frontier.duplicate(true),
+		"operation": _reading_session.next_operation.duplicate(true), "command_id": _reading_session.command_id,
+		"entry": _reading_session.latest_entry, "pre_entry": _reading_session.pre_entry_id,
+		"catalogue": _reading_session.fingerprint, "markers": _reading_session.marker_fingerprint}

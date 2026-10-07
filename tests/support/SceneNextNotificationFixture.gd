@@ -132,3 +132,281 @@ class MarkerFaultPort extends "res://scripts/application/run/SaveManagerCheckpoi
 		if commits == fail_on_commit:
 			files.fail_after(files.operation_count() + 1)
 		return super.commit(candidate)
+
+## The support script also provides the two locator functions consumed by Bridge.
+## Save input never supplies these test-only authored substitutions.
+static func get_entry(entry_id: String, locale: String = "") -> Dictionary:
+	var result: Dictionary = preload("res://scripts/data/DialogicTimelineCatalog.gd").get_entry(entry_id, locale)
+	if result.get("ok", false) and entry_id in [ENTRY, "dating.solo.priscilla.day1.post_challenge"]:
+		result.value.path = PATH
+		result.value.label = entry_id
+	return result
+
+static func get_path_for_id(timeline_id: String) -> Dictionary:
+	return preload("res://scripts/data/DialogicTimelineCatalog.gd").get_path_for_id(timeline_id)
+
+class RefuseDestinationCommit extends RefCounted:
+	var target: Object
+	var commits := 0
+	func _init(owner: Object) -> void: target = owner
+	func preview_checkpoint_id(run_id: String) -> Dictionary: return target.preview_checkpoint_id(run_id)
+	func capture() -> Dictionary: return target.capture()
+	func prepare(inputs: Dictionary, kind: StringName, write: Dictionary) -> Dictionary:
+		return target.prepare(inputs, kind, write)
+	func commit(candidate: Dictionary) -> Dictionary:
+		commits += 1
+		if commits == 2: return {"ok": false, "code": &"TEST_marker_destination_refused"}
+		return target.commit(candidate)
+	func rollback(backup: Dictionary) -> Dictionary: return target.rollback(backup)
+
+var _phase_test: Node
+var _phase_tree: SceneTree
+var _phase_name := ""
+var _phase_reports := ""
+
+func _phase_check(ok: bool, detail: String) -> bool:
+	_phase_test.assert_true(ok, detail)
+	return ok
+
+func _phase_node(name: String) -> Node:
+	return _phase_tree.root.get_node(name)
+
+func _phase_frames(count: int = 12) -> void:
+	for frame: int in count: await _phase_tree.process_frame
+
+func _phase_wait_frontier(expected: Dictionary) -> bool:
+	var bridge: Node = _phase_node("DialogicBridge")
+	for frame: int in 480:
+		var actual: Dictionary = bridge.capture_reading_checkpoint(false)
+		if actual.get("ok", false) and actual.value.reading_session == expected:
+			await _phase_frames()
+			return true
+		await _phase_tree.process_frame
+	return _phase_check(false, "restored exact reading cursor did not become available: " + str(expected))
+
+func _phase_save(slot: String) -> bool:
+	var saves: Node = _phase_node("SaveManager")
+	var prepared: Dictionary = saves.prepare_backup_action("save", slot)
+	if not _phase_check(prepared.get("ok", false), "actual Save prepares " + slot + ": " + str(prepared)): return false
+	var result: Dictionary = saves.commit_backup_action(prepared.value.token)
+	return _phase_check(result.get("ok", false), "actual Save commits " + slot + ": " + str(result))
+
+func _phase_load(slot: String, paused: bool = false) -> bool:
+	var saves: Node = _phase_node("SaveManager")
+	var owner: Node = _phase_node("SceneRouter").get("_production_pause")
+	if paused:
+		var pause: Dictionary = await owner.request_pause()
+		if not _phase_check(pause.get("ok", false), "real Pause retains source: " + str(pause)): return false
+	var prepared: Dictionary = saves.prepare_backup_action("load", slot)
+	if not _phase_check(prepared.get("ok", false), "actual Load prepares " + slot + ": " + str(prepared)): return false
+	if paused:
+		var released: Dictionary = await owner.release_for_backup_load()
+		if not _phase_check(released.get("ok", false), "Pause hands source to restore: " + str(released)): return false
+	var result: Dictionary = saves.commit_backup_action(prepared.value.token)
+	if paused: result = await owner.finish_backup_load(result)
+	return _phase_check(result.get("ok", false), "actual Load commits " + slot + ": " + str(result))
+
+func _phase_raw(path: String) -> String:
+	var storage: RefCounted = _phase_node("SaveManager").get("_storage")
+	return FileAccess.get_file_as_string(storage.describe_root().path_join(path))
+
+func _phase_snapshot(path: String) -> Dictionary:
+	var raw := _phase_raw(path)
+	if not _phase_check(not raw.is_empty(), "retained physical save exists " + path): return {}
+	var parsed: Dictionary = STRICT.parse_object(raw)
+	if not _phase_check(parsed.get("ok", false), "strict saved JSON " + path): return {}
+	var admitted: Dictionary = DOCUMENT.validate(parsed.value)
+	if not _phase_check(admitted.get("ok", false), "actual save schema " + str(admitted)): return {}
+	return admitted.value.candidate.current_snapshot.snapshot
+
+func _phase_report(path: String) -> bool:
+	var snapshot_value := _phase_snapshot(path)
+	if snapshot_value.is_empty(): return false
+	var report := {"phase": _phase_name, "process_id": OS.get_process_id(), "path": path,
+		"sha256": _phase_raw(path).sha256_text(), "checkpoint": snapshot_value.narrative_checkpoint,
+		"receipts": snapshot_value.command_receipts,
+		"profile": _phase_node("ProfileManager").get_profile_snapshot(),
+		"live_session": _phase_node("GameState").capture_live_session().value,
+		"scope": "real Bootstrap, native disk, SaveManager Backup Load and ordinary process exit"}
+	if not _phase_check(DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_phase_reports)) == OK, "report directory"): return false
+	var file := FileAccess.open(_phase_reports.path_join(_phase_name + ".json"), FileAccess.WRITE)
+	if not _phase_check(file != null, "write retained report"): return false
+	file.store_string(JSON.stringify(report, "\t") + "\n")
+	file.close()
+	print("SCENE_NEXT_NOTIFICATION_PHASE_PASS: " + _phase_name)
+	return true
+
+func _phase_prior(name: String) -> Dictionary:
+	var parsed: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(_phase_reports.path_join(name + ".json")))
+	if not _phase_check(parsed.get("ok", false), "prior process report " + name): return {}
+	var prior: Dictionary = parsed.value
+	if not _phase_check(prior.process_id != OS.get_process_id(), "different operating system process"): return {}
+	if not _phase_check(_phase_raw(prior.path).sha256_text() == prior.sha256, "exact producer bytes precede Load"): return {}
+	return prior
+
+func _phase_new_run() -> bool:
+	_phase_node("SceneRouter").goto_menu()
+	await _phase_frames()
+	var menu: Node = _phase_tree.current_scene
+	if not _phase_check(menu != null and menu.has_node("%NewAccButton"), "actual title mounted"): return false
+	var button: Button = menu.get_node("%NewAccButton")
+	if not _phase_check(not button.disabled, "New Account enabled"): return false
+	button.pressed.emit()
+	var desktop: Node
+	for frame: int in 1200:
+		if _phase_tree.current_scene != null:
+			desktop = _phase_tree.current_scene.find_child("ComputerDesktop", true, false)
+		if desktop != null and not _phase_node("SaveManager").get("_new_run_busy"): break
+		await _phase_tree.process_frame
+	if not _phase_check(desktop != null, "actual New Account reached desktop"): return false
+	if not _phase_check(desktop.open_app(&"contacts").get("ok", false), "Contacts opens"): return false
+	await _phase_frames()
+	var contacts: Node = desktop.get("_cached_app_windows")[&"contacts"]
+	contacts.contacts_panel.open_requested.emit("priscilla")
+	if not _phase_check(contacts.last_result.get("ok", false), "real invitation accepted"): return false
+	if not _phase_check(desktop.return_home().get("ok", false), "Home"): return false
+	if not _phase_check(desktop.open_app(&"schedule").get("ok", false), "Schedule opens"): return false
+	await _phase_frames()
+	var schedule: Node = desktop.get("_cached_app_windows")[&"schedule"]
+	schedule.panel.source_requested.emit("solo:priscilla:day1")
+	if not _phase_check(schedule.last_result.get("ok", false), "real invitation scheduled"): return false
+	var ports: Dictionary = desktop.get_meta("gameplay_ports")
+	for attempt: int in 5:
+		var done: Dictionary = ports.commands.dispatch_done()
+		if not _phase_check(done.get("ok", false), "Schedule Done: " + str(done)): return false
+		var warning: Variant = done.get("value", {}).get("warning")
+		if warning == null: break
+		if not _phase_check(ports.warning_commands.resolve_warning(str(warning.activation_id), &"dismiss").get("ok", false), "warning dismisses"): return false
+	var bridge: Node = _phase_node("DialogicBridge")
+	for frame: int in 480:
+		if bridge.get("_runtime_adapter").current_line_id() == FIRST:
+			await _phase_frames()
+			return true
+		await _phase_tree.process_frame
+	return _phase_check(false, "actual FIRST caption timeout")
+
+func _phase_next(refuse_destination: bool = false) -> Dictionary:
+	var bridge: Node = _phase_node("DialogicBridge")
+	var frontier: Dictionary = bridge.capture_next_frontier()
+	if not _phase_check(frontier.get("ok", false), "admitted Next frontier " + str(frontier)): return frontier
+	var adapter: RefCounted = _phase_node("GameState").get("_narrative_checkpoint_port")
+	var real_port: Object = adapter.get("_real_port")
+	var refused := RefuseDestinationCommit.new(real_port)
+	if refuse_destination: adapter.set("_real_port", refused)
+	var result: Dictionary = await bridge.request_next(frontier)
+	if refuse_destination:
+		adapter.set("_real_port", real_port)
+		_phase_check(not result.get("ok", false) and refused.commits == 2, "source committed before injected destination refusal: " + str(result))
+		_phase_check(not _phase_node("ApplicationBootstrap").get("_application_gate").is_fatal_latched(), "compensated refusal retains retry")
+	else:
+		_phase_check(result.get("ok", false), "real Next completed " + str(result))
+	return result
+
+func run_process_phase(test_owner: Node, phase: String, report_directory: String) -> void:
+	_phase_test = test_owner
+	_phase_tree = test_owner.get_tree()
+	_phase_name = phase
+	_phase_reports = report_directory
+	var phases := ["produce-pre-marker", "consume-pre-marker-source", "consume-source-marker",
+		"consume-marker-source", "consume-marker-source-later", "consume-later-completion", "consume-completion"]
+	if not _phase_check(phase in phases and not report_directory.is_empty(), "explicit controlled process phase and report directory"): return
+	if not _phase_check(DisplayServer.get_name() != "headless" and not OS.get_environment("DWM_TEST_ROOT").is_empty(), "isolated rendered process"): return
+	await _phase_frames()
+	var bootstrap: Node = _phase_node("ApplicationBootstrap")
+	if not _phase_check(bootstrap.get_startup_state().get("ready", false), "retained final Bootstrap is ready"): return
+	var bridge: Node = _phase_node("DialogicBridge")
+	# Use this loaded support script's two static catalogue functions. No saved
+	# document may provide executable locator or registration data.
+	if not _phase_check(bridge.initialize(get_script()).get("ok", false), "fixture physical locator admitted"): return
+	if not _phase_check(bridge.configure_reading_catalogue(catalogue()).get("ok", false), "trusted reading programme"): return
+	var trusted: RefCounted = configured()
+	if not _phase_check(trusted != null, "trusted marker programme"): return
+	if not _phase_check(_phase_node("GameState").configure_test_scene_event_registry(registry()).get("ok", false), "independent event registry"): return
+	var marker_result: Dictionary = bridge.configure_test_reading_markers(markers(trusted.fingerprint), bootstrap.get("_desktop_identity_nonce_issuer"))
+	if not _phase_check(marker_result.get("ok", false), "real Bootstrap issuer bound " + str(marker_result)): return
+	if phase == "produce-pre-marker":
+		if not await _phase_new_run(): return
+		if not _phase_save("quick") or not _phase_save("slot:1"): return
+		var initial := _phase_snapshot("quicksave.json")
+		if not _phase_check(not initial.is_empty() and initial.narrative_checkpoint.reading_session.boundary == "line"
+			and initial.narrative_checkpoint.reading_session.next_operation == null and _phase_event_count(initial.command_receipts) == 0, "ordinary pre-marker save has no synthetic marker receipt"): return
+		_phase_report("quicksave.json")
+		await _phase_finish()
+		return
+	var previous: String = phases[phases.find(phase) - 1]
+	var prior := _phase_prior(previous)
+	if prior.is_empty(): return
+	var profile: Dictionary = _phase_node("ProfileManager").get_profile_snapshot().duplicate(true)
+	if not _phase_check(profile == prior.profile, "independent process retained exact Profile"): return
+	var slot := "quick" if prior.path == "quicksave.json" else "autosave"
+	if not await _phase_load(slot): return
+	if not await _phase_wait_frontier(prior.checkpoint.reading_session): return
+	var game: Node = _phase_node("GameState")
+	if not _phase_check(game.capture_run_snapshot_input().command_receipts == prior.receipts, "Load retains immutable event receipts"): return
+	if not _phase_check(not game.validate_live_session(prior.live_session).get("ok", false), "prior process live authority is retired"): return
+	if not _phase_check(_phase_node("ProfileManager").get_profile_snapshot() == profile, "Load does not witness a caption"): return
+	if phase == "consume-marker-source":
+		var live: Dictionary = game.capture_live_session().value
+		if not await _phase_load("slot:2", true): return
+		if not await _phase_wait_frontier(prior.checkpoint.reading_session): return
+		if not _phase_check(not game.validate_live_session(live).get("ok", false), "repeated Slot Load remaps live authority"): return
+		if not _phase_check(game.capture_run_snapshot_input().command_receipts == prior.receipts
+			and _phase_node("ProfileManager").get_profile_snapshot() == profile, "repeated Load preserves receipts and Profile"): return
+	if phase in ["consume-pre-marker-source", "consume-marker-source"]:
+		var refused: Dictionary = await _phase_next(true)
+		if refused.get("ok", true): return
+		var source := _phase_snapshot("autosave.json")
+		if source.is_empty(): return
+		if not _phase_check(source.narrative_checkpoint.reading_session.next_operation.phase == "source", "actual source operation is retained"): return
+		if not _phase_check(source.command_receipts == prior.receipts, "failed destination adds no receipt"): return
+		if not _phase_check(source.narrative_checkpoint.reading_session.boundary == prior.checkpoint.reading_session.boundary, "failed destination retains source boundary"): return
+		_phase_report("autosave.json")
+	elif phase in ["consume-source-marker", "consume-marker-source-later"]:
+		var result: Dictionary = await _phase_next()
+		if not result.get("ok", false): return
+		var expected := "notification" if phase == "consume-source-marker" else "line"
+		if not _phase_check(result.value.destination == expected, "restored source reaches exact expected stop"): return
+		if not _phase_save("quick"): return
+		if phase == "consume-source-marker" and not _phase_save("slot:2"): return
+		var destination := _phase_snapshot("quicksave.json")
+		if destination.is_empty(): return
+		if not _phase_check(_phase_event_count(destination.command_receipts) == 1, "exactly one notification receipt across processes"): return
+		if phase == "consume-marker-source-later":
+			if not _phase_check(destination.command_receipts == prior.receipts, "later-caption Next does not reissue marker"): return
+			if not _phase_check(destination.narrative_checkpoint.reading_session.ledger.captions.size() == 2, "FIRST and SECOND each occur once"): return
+		else:
+			if not _phase_check(destination.narrative_checkpoint.reading_session.ledger.captions.size() == 1, "marker stop remains before SECOND"): return
+		_phase_report("quicksave.json")
+	elif phase == "consume-later-completion":
+		var result: Dictionary = await _phase_next()
+		if not result.get("ok", false): return
+		if not _phase_check(result.value.destination == "completion", "later caption reaches natural completion"): return
+		var completion := _phase_snapshot("autosave.json")
+		if completion.is_empty(): return
+		if not _phase_check(completion.command_receipts == prior.receipts
+			and completion.narrative_checkpoint.reading_session.boundary == "between_entries", "completion retains receipt and semantic stop"): return
+		_phase_report("autosave.json")
+	else:
+		if not _phase_check(prior.checkpoint.reading_session.boundary == "between_entries", "fresh completion cursor"): return
+		_phase_report(prior.path)
+	await _phase_finish()
+
+func _phase_finish() -> void:
+	var bridge: Node = _phase_node("DialogicBridge")
+	if not bridge.get("_active_entry").is_empty():
+		var stopped: Dictionary = bridge.abort_current_entry(&"scene_marker_phase_teardown")
+		if not _phase_check(stopped.get("ok", false), "retire active native phase without saving"): return
+	var speech: Node = _phase_node("SystemTtsCoordinator")
+	speech.stop(&"scene_marker_phase_teardown")
+	await speech.wait_until_recovered()
+	for frame: int in 120:
+		var runtime: Node = _phase_node("Dialogic")
+		if runtime.current_timeline == null and not runtime.is_ending_timeline(): break
+		await _phase_tree.process_frame
+	await _phase_frames()
+
+func _phase_event_count(receipts: Dictionary) -> int:
+	var count := 0
+	for receipt: Dictionary in receipts.values():
+		if receipt.get("kind") == "scene_event": count += 1
+	return count

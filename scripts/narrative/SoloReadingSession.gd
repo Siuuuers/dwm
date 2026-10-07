@@ -625,7 +625,7 @@ func validate_marker_receipts(saved: Dictionary, entry_id: String, receipts: Dic
 		var marker: Dictionary = marker_entries[marked]
 		var key: String = str(JSON_WRITER.stringify([saved.ledger.session_token, marked]).value)
 		var group: Dictionary = checked.value.occurrences.get(key, {})
-		var passed := saved.ledger.entry_contexts.has(marked) and _marker_crossed(saved, marked)
+		var passed: bool = saved.ledger.entry_contexts.has(marked) and _marker_crossed(saved, marked)
 		if not passed:
 			if not group.is_empty(): return _fail(&"reading_marker_receipt_ahead")
 			continue
