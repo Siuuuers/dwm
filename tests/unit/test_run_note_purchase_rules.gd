@@ -69,6 +69,19 @@ func test_missing_counts_mean_zero_without_filling_unrelated_keys() -> void:
 	assert_true(result.ok)
 	if result.ok: assert_eq(result.value.candidate.shop_purchase_counts, {"inked_silk_string": 1})
 
+func test_runtime_string_name_count_keys_normalize_without_bypassing_caps() -> void:
+	var counts := {&"crystal_stutters": 2, &"supportz": 8}
+	var before: Dictionary = counts.duplicate(true)
+	var result: Dictionary = RULES.prepare(&"crystal_stutters", 1, 45, counts, FIXTURE.catalogue())
+	assert_true(result.ok)
+	assert_eq(counts, before)
+	if result.ok:
+		assert_eq(result.value.candidate.shop_purchase_counts, {"crystal_stutters": 3, "supportz": 8})
+		for key: Variant in result.value.candidate.shop_purchase_counts:
+			assert_eq(typeof(key), TYPE_STRING)
+	assert_eq(RULES.prepare("crystal_stutters", 1, 45, {&"crystal_stutters": 3}, FIXTURE.catalogue()).code, "purchase_cap_reached")
+	assert_eq(RULES.prepare("crystal_stutters", 1, 45, {&"crystal_stutters": 4}, FIXTURE.catalogue()).code, "invalid_counts")
+
 func test_all_note_counts_are_validated_before_any_debit() -> void:
 	for item: String in FIXTURE.ITEMS:
 		for value: Variant in [-1, 4, 9223372036854775807, 0.0, 1.5, true, "1", null, [], {}]:
