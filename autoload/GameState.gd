@@ -3997,7 +3997,8 @@ func scene_event_context() -> Dictionary:
 		if source.run_id != live.value.run_id:
 			return _transaction_failure(&"event_source_mismatch", "")
 	return {"ok": true, "value": {"mode": "canonical", "suspended": false, "computer_held": false,
-		"source": source, "playback_token": boundary.value.playback_token,
+		"source": source, "playback_token": str(boundary.value.playback_token) + "." + str(
+			_SCENE_EVENT.WRITER.stringify(live.value).value).sha256_text(),
 		"next_ordinal": group.get("next_ordinal", 0), "predecessor": group.get("predecessor", ""),
 		"notification": group.get("notification", {}).duplicate(true), "anchor": boundary.value.anchor,
 		"checkpoint": boundary.value.checkpoint}}

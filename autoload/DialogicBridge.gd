@@ -3272,15 +3272,17 @@ func _playback_failure(code: StringName, message: String) -> Dictionary:
 
 var _scene_event_port: RefCounted
 var _scene_event_session_validator: Callable
+var _scene_event_context_provider: Callable
 var _scene_event_dispatching := false
 
-func configure_scene_event_port(port: RefCounted, session_validator: Callable) -> Dictionary:
-	if port == null or not port.has_method("dispatch") or not session_validator.is_valid():
+func configure_scene_event_port(port: RefCounted, session_validator: Callable, context_provider: Callable) -> Dictionary:
+	if port == null or not port.has_method("dispatch") or not session_validator.is_valid() or not context_provider.is_valid():
 		return _command_failure(&"event_dependency_invalid")
-	if _scene_event_port != null and (_scene_event_port != port or _scene_event_session_validator != session_validator):
+	if _scene_event_port != null and (_scene_event_port != port or _scene_event_session_validator != session_validator or _scene_event_context_provider != context_provider):
 		return _command_failure(&"event_already_configured")
 	_scene_event_port = port
 	_scene_event_session_validator = session_validator
+	_scene_event_context_provider = context_provider
 	return {"ok": true}
 
 ## An acknowledged call, never a fire-and-forget timeline signal. Caller identity
@@ -3290,9 +3292,9 @@ func dispatch_scene_event(live_session: Dictionary, envelope: Dictionary) -> Dic
 		return _command_failure(&"event_dependency_invalid")
 	var admitted: Dictionary = _scene_event_session_validator.call(live_session)
 	if not admitted.get("ok", false): return admitted
-	var boundary := capture_scene_event_boundary()
-	if not boundary.ok: return boundary
-	if envelope.get("playback_token") != boundary.value.playback_token:
+	var context: Dictionary = _scene_event_context_provider.call()
+	if not context.get("ok", false): return context
+	if envelope.get("playback_token") != context.value.playback_token:
 		return _command_failure(&"event_stale_token")
 	if not _runtime_adapter.has_method("dispatch_scene_event_acknowledged"):
 		return _command_failure(&"event_dependency_invalid")

@@ -6,13 +6,15 @@ const STRICT := preload("res://scripts/validation/StrictJson.gd")
 const RUN_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 const DOCUMENT := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 var _phase := ""
+var _fault := ""
 var _report_dir := "res://.godot/ci/restart"
 
 func _run() -> void:
 	for argument: String in OS.get_cmdline_user_args():
+		if argument.begins_with("--scene-event-fault="): _fault = argument.trim_prefix("--scene-event-fault=")
 		if argument.begins_with("--scene-event-phase="): _phase = argument.trim_prefix("--scene-event-phase=")
 		if argument.begins_with("--scene-event-report-dir="): _report_dir = argument.trim_prefix("--scene-event-report-dir=")
-	if not _check(_phase in ["produce", "consume", "consume-again", "missing-registry", "mismatched-registry"], "explicit scene event phase"): return
+	if not _check(_phase in ["produce", "consume", "consume-again", "missing-registry", "mismatched-registry", "fault-produce", "fault-consume"], "explicit scene event phase"): return
 	if not _check(not OS.get_environment("DWM_TEST_ROOT").strip_edges().is_empty()
 		and DisplayServer.get_name() != "headless", "isolated rendered scene event proof"): return
 	await _frames()
@@ -27,7 +29,9 @@ func _run() -> void:
 		if _phase == "mismatched-registry":
 			registry[CATALOG.FIXTURE_ENTRIES[0]].events["fixture.notice.set"].payload.content_id = "fixture.changed"
 		if not _check(root.get_node("GameState").configure_test_scene_event_registry(registry).get("ok", false), "fixed TEST registration"): return
-	if _phase == "produce": await super._run()
+	if _phase in ["fault-produce", "fault-consume"] and not _check(_fault in ["before-write", "lost-ack", "rollback-fail", "adoption"], "explicit injected fault"): return
+	if _phase in ["produce", "fault-produce"]: await super._run()
+	elif _phase == "fault-consume": await _fault_consume()
 	else: await _consume()
 
 func _dating_journey(game: Node, desktop: Node) -> void:
@@ -50,7 +54,8 @@ func _dating_journey(game: Node, desktop: Node) -> void:
 		if warning == null: break
 		if not _check(ports.warning_commands.resolve_warning(str(warning.activation_id), &"dismiss").get("ok", false), "schedule warning"): return
 	if not await _wait_line("fixture.solo.pre.a"): return
-	await _produce()
+	if _phase == "fault-produce": await _fault_produce()
+	else: await _produce()
 
 func _envelope(event_id: String) -> Dictionary:
 	var context: Dictionary = root.get_node("GameState").scene_event_context()
@@ -123,6 +128,7 @@ func _consume() -> void:
 	if prior.has("live_session"):
 		var stale_session: Dictionary = bridge.dispatch_scene_event(prior.live_session, prior.envelope)
 		if not _check(not stale_session.get("ok", false), "old live session refused"): return
+	if not _check(not _dispatch(prior.envelope).get("ok", false), "actual prior process playback token refused with current live handle"): return
 	var duplicate: Dictionary = prior.envelope.duplicate(true)
 	var context: Dictionary = game.scene_event_context()
 	if not _check(context.get("ok", false), "restored owner context"): return
@@ -241,3 +247,151 @@ func _finish() -> void:
 	await _frames()
 	print("SCENE_EVENT_" + _phase.to_upper().replace("-", "_") + "_PASS")
 	quit(0)
+
+
+## TEST seam at native FileOps: every noninjected operation remains real disk I/O.
+class AutosaveFaultOps extends RefCounted:
+	var target: RefCounted
+	var armed := false
+	var persistent := false
+	var failures := 0
+	func _init(native: RefCounted) -> void: target = native
+	func exists(path: String) -> bool: return target.exists(path)
+	func read_bytes(path: String) -> Dictionary: return target.read_bytes(path)
+	func write_bytes(path: String, bytes: PackedByteArray) -> Dictionary:
+		if armed and path.replace("\\", "/").ends_with("/autosave.json.next"):
+			failures += 1
+			if not persistent: armed = false
+			return {"ok": false, "code": &"write_failed", "message": "TEST native Autosave candidate write refusal"}
+		return target.write_bytes(path, bytes)
+	func flush_path(path: String) -> Dictionary: return target.flush_path(path)
+	func rename_path(source: String, destination: String) -> Dictionary: return target.rename_path(source, destination)
+	func remove_path(path: String) -> Dictionary: return target.remove_path(path)
+	func sha256(bytes: PackedByteArray) -> String: return target.sha256(bytes)
+
+
+## Lost acknowledgement follows a completed real disk+journal commit. Failure of
+## compensation is then injected inside real FileOps, not fabricated rollback.
+class SceneEventFaultPort extends RefCounted:
+	var target: Object
+	var files: AutosaveFaultOps
+	var fault: String
+	var commit_result := {}
+	var rollback_result := {}
+	func _init(real_port: Object, file_ops: AutosaveFaultOps, mode: String) -> void:
+		target = real_port
+		files = file_ops
+		fault = mode
+	func preview_checkpoint_id(run_id: String) -> Dictionary: return target.preview_checkpoint_id(run_id)
+	func capture() -> Dictionary: return target.capture()
+	func prepare(inputs: Dictionary, kind: StringName, write: Dictionary) -> Dictionary:
+		return target.prepare(inputs, kind, write)
+	func commit(candidate: Dictionary) -> Dictionary:
+		if fault == "before-write": files.armed = true
+		commit_result = target.commit(candidate)
+		if commit_result.get("ok", false) and fault in ["lost-ack", "rollback-fail"]:
+			return {"ok": false, "code": &"TEST_lost_ack", "message": "TEST interrupted acknowledgement after real commit"}
+		return commit_result
+	func rollback(backup: Dictionary) -> Dictionary:
+		if fault == "rollback-fail":
+			files.armed = true
+			files.persistent = true
+		rollback_result = target.rollback(backup)
+		return rollback_result
+
+
+func _fault_produce() -> void:
+	var game: Node = root.get_node("GameState")
+	var bridge: Node = root.get_node("DialogicBridge")
+	var saves: Node = root.get_node("SaveManager")
+	var gate: RefCounted = root.get_node("ApplicationBootstrap").get("_application_gate")
+	var adapter: RefCounted = game.get("_narrative_checkpoint_port")
+	var real_port: Object = adapter.get("_real_port")
+	var storage: RefCounted = saves.get("_storage")
+	var native_files: RefCounted = storage.get("_file_ops")
+	var fault_files := AutosaveFaultOps.new(native_files)
+	var fault_port := SceneEventFaultPort.new(real_port, fault_files, _fault)
+	var prior_disk: Dictionary = storage.read_text("autosave.json")
+	if not _check(prior_disk.get("ok", false), "actual Autosave preimage exists"): return
+	var prior_journal: Dictionary = real_port.capture()
+	if not _check(prior_journal.get("ok", false), "actual journal preimage"): return
+	var prior_live: Dictionary = game.capture_run_snapshot_input().duplicate(true)
+	var prior_reading: Dictionary = bridge.capture_reading_checkpoint(false)
+	if not _check(prior_reading.get("ok", false), "fault reading source"): return
+	var prior_profile: Dictionary = root.get_node("ProfileManager").get_profile_snapshot().duplicate(true)
+	var envelope := _envelope("fixture.notice.set")
+	if envelope.is_empty(): return
+	storage.set("_file_ops", fault_files)
+	adapter.set("_real_port", fault_port)
+	if _fault == "adoption": game.set("_scene_event_before_adoption", func() -> bool: return false)
+	var failed := _dispatch(envelope)
+	# Restore only I/O machinery for observation/retry. Never clear fatal custody.
+	storage.set("_file_ops", native_files)
+	adapter.set("_real_port", real_port)
+	game.set("_scene_event_before_adoption", Callable())
+	if not _check(not failed.get("ok", false), "injected fault refused " + str(failed)): return
+	if not _check(game.capture_run_snapshot_input() == prior_live and bridge.capture_reading_checkpoint(false).value == prior_reading.value and root.get_node("ProfileManager").get_profile_snapshot() == prior_profile, "fault retains exact live owner reading and Profile"): return
+	var after_disk: Dictionary = storage.read_text("autosave.json")
+	if not _check(after_disk.get("ok", false), "actual post-fault primary readable"): return
+	var fatal: bool = gate.is_fatal_latched()
+	var compensated: bool = _fault in ["before-write", "lost-ack"]
+	if compensated:
+		if not _check(not fatal and after_disk.value == prior_disk.value and real_port.capture() == prior_journal, "proven compensation restores exact primary journal and live"): return
+		var retry := _dispatch(envelope)
+		if not _check(retry.get("ok", false) and not retry.get("duplicate", false), "same command retries once after proven compensation " + str(retry)): return
+	else:
+		if not _check(fatal and after_disk.value != prior_disk.value, "committed interruption retains fatal custody with new primary"): return
+		var bypass: Dictionary = saves.prepare_backup_action("save", "slot:1")
+		if not _check(not bypass.get("ok", false) and not _dispatch(envelope).get("ok", false), "fatal custody refuses Save and event bypass"): return
+		if not _check(storage.read_text("autosave.json").value == after_disk.value and game.capture_run_snapshot_input() == prior_live, "refused bypass cannot alter retained disk or stale live"): return
+	if _fault == "before-write" and not _check(fault_files.failures == 1, "one real candidate write was refused"): return
+	if _fault == "rollback-fail" and not _check(fault_files.failures > 0 and not fault_port.rollback_result.get("ok", false), "actual rollback file write failed"): return
+	if _fault in ["lost-ack", "rollback-fail"] and not _check(fault_port.commit_result.get("ok", false), "lost ack followed actual committed write"): return
+	var snapshot := _disk_snapshot("autosave.json")
+	if snapshot.is_empty(): return
+	if not _check(snapshot.command_receipts.has(envelope.command_id), "fresh recovery input contains actual committed receipt"): return
+	var report := {"phase": _phase, "fault": _fault, "process_id": OS.get_process_id(),
+		"scope": "injected native file/ack/adoption faults; ordinary process exit, not a process crash",
+		"envelope": envelope, "checkpoint": snapshot.narrative_checkpoint, "receipts": snapshot.command_receipts,
+		"profile": prior_profile, "disk": _disk_hashes(), "prior_primary_sha256": str(prior_disk.value).sha256_text(),
+		"failure": failed, "fatal": fatal, "compensated": compensated, "file_refusals": fault_files.failures,
+		"native_commit": fault_port.commit_result, "native_rollback": fault_port.rollback_result}
+	if not _write_report("fault-produce", report): return
+	if fatal:
+		# Do not invoke cleanup commands through fatal custody; the controller starts
+		# a new process over these exact bytes. This is explicitly ordinary exit.
+		print("SCENE_EVENT_FAULT_PRODUCE_PASS")
+		quit(0)
+	else: await _finish()
+
+
+func _fault_consume() -> void:
+	var prior := _read_report("fault-produce")
+	if prior.is_empty(): return
+	if not _check(prior.fault == _fault and int(prior.process_id) != OS.get_process_id(), "matched fault and independent fresh process"): return
+	if not _check(_disk_hashes().get("autosave.json") == prior.disk["autosave.json"], "fresh process reads exact fault producer Autosave"): return
+	var saves: Node = root.get_node("SaveManager")
+	var game: Node = root.get_node("GameState")
+	var bridge: Node = root.get_node("DialogicBridge")
+	var profile: Dictionary = root.get_node("ProfileManager").get_profile_snapshot().duplicate(true)
+	if not _check(profile == prior.profile, "exact Profile survives fault process"): return
+	var prepared: Dictionary = saves.prepare_restore_autosave()
+	if not _check(prepared.get("ok", false), "prepare real fault Autosave " + str(prepared)): return
+	var restored: Dictionary = saves.commit_prepared_restore(prepared.value)
+	if not _check(restored.get("ok", false), "commit real fault Autosave " + str(restored)): return
+	if not await _wait_line(prior.checkpoint.reading_session.frontier.line_id): return
+	if not _check(game.capture_run_snapshot_input().command_receipts == prior.receipts and bridge.capture_reading_checkpoint(false).value.reading_session == prior.checkpoint.reading_session, "fresh fault Load restores exact receipt and History"): return
+	if not _check(not _dispatch(prior.envelope).get("ok", false), "actual fault producer token refused after Load"): return
+	var envelope: Dictionary = prior.envelope.duplicate(true)
+	var context: Dictionary = game.scene_event_context()
+	if not _check(context.get("ok", false), "fresh fault event owner"): return
+	envelope["playback_token"] = context.value.playback_token
+	var disk_before := _disk_hashes()
+	var result := _dispatch(envelope)
+	if not _check(result.get("ok", false) and result.get("duplicate", false) and _disk_hashes() == disk_before, "fault receipt duplicate performs no new write " + str(result)): return
+	if not _check(root.get_node("ProfileManager").get_profile_snapshot() == profile and bridge.capture_reading_checkpoint(false).value.reading_session == prior.checkpoint.reading_session, "fault duplicate leaves Profile and History intact"): return
+	var report := _report(envelope)
+	report["fault"] = _fault
+	report["duplicate_no_write"] = true
+	if not _write_report("fault-consume", report): return
+	await _finish()

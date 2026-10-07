@@ -148,7 +148,7 @@ func initialize() -> Dictionary:
 		event["source"] = owner_context.value.source.duplicate(true)
 		event["command_id"] = issued.value.token
 		event["issuer_receipt"] = issued.value.issuer_receipt
-		event["playback_token"] = boundary.token
+		event["playback_token"] = owner_context.value.playback_token
 		commands.append(event)
 	return {"ok": true}
 

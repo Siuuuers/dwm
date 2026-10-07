@@ -236,7 +236,7 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 		return _fail(&"scene_event_storage_backup_missing", "the real autosave preimage is required")
 	var committed: Dictionary = _real_port.commit(candidate)
 	var value: Variant = committed.get("value")
-	var confirmed := committed.get("ok", false) == true and value is Dictionary \
+	var confirmed: bool = committed.get("ok", false) == true and value is Dictionary \
 		and typeof(value.get("checkpoint_id")) == TYPE_STRING and not str(value.get("checkpoint_id", "")).is_empty() \
 		and value.get("checkpoint_id") == candidate.get("checkpoint_id")
 	if committed.get("ok", false) and not confirmed:

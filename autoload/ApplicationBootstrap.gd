@@ -2586,4 +2586,5 @@ func _wire_scene_event_owner(game_state: Node, bridge: Node) -> Dictionary:
 		var configured: Dictionary = _scene_event_command_port.configure(game_state,
 			_application_gate, _desktop_identity_nonce_issuer)
 		if not configured.get("ok", false): return configured
-	return bridge.configure_scene_event_port(_scene_event_command_port, Callable(game_state, "validate_live_session"))
+	return bridge.configure_scene_event_port(_scene_event_command_port, Callable(game_state, "validate_live_session"),
+		Callable(game_state, "scene_event_context"))
