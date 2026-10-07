@@ -235,6 +235,7 @@ func _phase_report(path: String, extra: Dictionary = {}) -> bool:
 	var report := {"phase": _phase_name, "process_id": OS.get_process_id(), "path": path,
 		"sha256": _phase_raw(path).sha256_text(), "checkpoint": snapshot_value.narrative_checkpoint,
 		"receipts": snapshot_value.command_receipts,
+		"saved_lifecycle": snapshot_value.lifecycle,
 		"profile": _phase_node("ProfileManager").get_profile_snapshot(),
 		"live_session": _phase_node("GameState").capture_live_session().value,
 		"scope": "real Bootstrap, native disk, SaveManager Backup Load and ordinary process exit"}
@@ -376,7 +377,11 @@ func run_process_phase(test_owner: Node, phase: String, report_directory: String
 	if not await _phase_wait_frontier(prior.checkpoint.reading_session): return
 	var game: Node = _phase_node("GameState")
 	if not _phase_check(game.capture_run_snapshot_input().command_receipts == prior.receipts, "Load retains immutable event receipts"): return
-	if not _phase_check(not game.validate_live_session(prior.live_session).get("ok", false), "prior process live authority is retired"): return
+	# Object IDs/generations are local counters and can numerically repeat in a
+	# fresh process. Durable continuation identity, not serialized local handles,
+	# proves this Load's new branch; the launcher separately proves distinct PIDs.
+	if not _phase_check(game.capture_run_snapshot_input().lifecycle.branch_id != prior.saved_lifecycle.branch_id,
+		"fresh Load allocates a distinct durable continuation branch"): return
 	if not _phase_check(_phase_node("ProfileManager").get_profile_snapshot() == profile, "Load does not witness a caption"): return
 	if phase == "fault-install-consume":
 		if not _phase_check(prior.get("fatal", false) and prior.get("live_receipt_adopted", false), "producer recorded post-owner installation failure"): return
