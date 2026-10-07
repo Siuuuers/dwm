@@ -1,0 +1,165 @@
+name: Isolated Notes purchase adoption
+on:
+  push:
+    branches: [codex/notes-purchase-adoption-controller-20261008]
+permissions:
+  contents: read
+jobs:
+  notes:
+    runs-on: windows-2022
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Preserve the accepted product ancestry; checkout the pinned product.
+          fetch-depth: 0
+          ref: d438a3a941d16192c88a5c991b48f9db3602e1be
+          # Defer credential removal until the post-job cleanup, after the
+          # malformed gitlinks are removed from this disposable runner's index.
+          persist-credentials: true
+      - name: Prepare disposable checkout for credential cleanup
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
+          # submodule foreach reads the index even with sparse checkout.
+          # The source commit and working files remain unchanged.
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git submodule foreach --recursive 'true'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Install Godot 4.6.3 standard
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
+          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
+          # SHA256 published with the official 4.6.3-stable release asset.
+          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
+            throw 'Godot archive checksum mismatch.'
+          }
+          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
+          Expand-Archive -LiteralPath $archive -DestinationPath $editor
+          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
+          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          $executableHash = (Get-FileHash -LiteralPath $console -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($executableHash -cne '63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a') { throw 'Godot executable checksum mismatch.' }
+          & $console --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Record and verify source engine controller run identity BEFORE import
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force -Path .godot/ci | Out-Null
+          if ((git rev-parse HEAD) -cne 'd438a3a941d16192c88a5c991b48f9db3602e1be') { throw 'source mismatch' }
+          if ((git rev-parse 'HEAD^{tree}') -cne '38c80b08d5ae99f579e3bc2ad023b2611b57dcea') { throw 'tree mismatch' }
+          if (git diff --name-only) { throw 'tracked source differs before import' }
+          [ordered]@{source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); controller=$env:GITHUB_SHA; run=$env:GITHUB_RUN_ID; attempt=$env:GITHUB_RUN_ATTEMPT; executable=$env:GODOT_CONSOLE_PATH; executable_sha256=(Get-FileHash $env:GODOT_CONSOLE_PATH -Algorithm SHA256).Hash.ToLowerInvariant(); version=(& $env:GODOT_CONSOLE_PATH --version)} | ConvertTo-Json | Set-Content .godot/ci/identity.json
+          Get-Content .godot/ci/identity.json
+      - name: Import project
+        timeout-minutes: 8
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
+          $env:APPDATA = Join-Path $output 'import-user/appdata'
+          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
+          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
+          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
+            throw 'Project import reported script errors; inspect import.log.'
+          }
+      - name: Restore committed project settings after editor import
+        run: |
+          # Dialogic's editor scan rewrites its timeline lookup during import.
+          # Execute the committed configuration with the freshly imported assets.
+          git restore -- project.godot
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Execute explicit rules schema and real transaction suites
+        timeout-minutes: 12
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $paths = @('res://tests/unit/test_run_note_purchase_rules.gd','res://tests/unit/test_notes_catalog_projection.gd','res://tests/unit/test_run_snapshot_schema.gd','res://tests/integration/test_run_note_purchase_transaction.gd','res://tests/integration/test_run_restore_isolation.gd')
+          $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',('-gtest=' + ($paths -join ',')),'-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/notes-adoption.xml','--','--phase2r-bootstrap-mode=final')
+          ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'notes-adoption' -LogName 'notes-adoption.log' -EvidenceLogPath '.godot/ci/notes-adoption.jsonl' -TimeoutSeconds 660 -KeepRoot -GodotArgs $arguments
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $log = '.godot/phase2r_logs/notes-adoption.log'
+          if (Select-String -Path $log -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'invalid engine output' }
+          [xml]$xml = Get-Content .godot/ci/notes-adoption.xml -Raw
+          if ($xml.SelectNodes('//failure | //error | //skipped').Count -ne 0) { throw 'failed or skipped tests' }
+          $expectedCases = @{'tests/unit/test_run_note_purchase_rules.gd'=19; 'tests/unit/test_notes_catalog_projection.gd'=15; 'tests/unit/test_run_snapshot_schema.gd'=30; 'tests/integration/test_run_note_purchase_transaction.gd'=7; 'tests/integration/test_run_restore_isolation.gd'=5}
+          $results = @($xml.SelectNodes('//testsuite') | ForEach-Object { [ordered]@{name=$_.GetAttribute('name'); cases=$_.SelectNodes('./testcase').Count} })
+          if ($results.Count -ne $paths.Count) { throw 'Missing or extra suite' }
+          foreach ($path in $paths) {
+            $relative = $path.Replace('res://','')
+            $matching = @($results | Where-Object { $_.name.Replace('res://','') -ceq $relative })
+            if ($matching.Count -ne 1 -or $matching[0].cases -ne $expectedCases[$relative]) { throw "wrong executed cases: $path" }
+          }
+          if (-not (Select-String -Path $log -SimpleMatch 'RESTORE_ALIAS_CONTROL: six historical directions observed' -Quiet)) { throw 'alias controls did not execute' }
+          $results | ConvertTo-Json | Set-Content .godot/ci/executed-suites.json
+      - name: Real filesystem restart and interrupted adoption
+        timeout-minutes: 15
+        run: |
+          $ErrorActionPreference = 'Stop'
+          foreach ($group in @(@('produce','consume','consume-again'), @('fault-produce','fault-consume'))) {
+            $chain = if ($group[0] -eq 'produce') { 'regular' } else { 'fault' }
+            $rootPath = Join-Path $env:GITHUB_WORKSPACE ".godot/phase2r_tests/note-restart-$chain"
+            $reportPath = Join-Path $env:GITHUB_WORKSPACE ".godot/ci/restart-$chain"
+            New-Item -ItemType Directory -Force -Path $rootPath,$reportPath | Out-Null
+            $env:DWM_TEST_ROOT = $rootPath
+            $env:APPDATA = Join-Path $rootPath 'appdata'
+            $env:LOCALAPPDATA = Join-Path $rootPath 'localappdata'
+            foreach ($phase in $group) {
+              $stdout = Join-Path $reportPath "$phase.stdout.log"
+              $stderr = Join-Path $reportPath "$phase.stderr.log"
+              $arguments = @('--headless','--path',('"' + $env:GITHUB_WORKSPACE + '"'),'-s','res://tests/integration/run_note_purchase_restart.gd','--','--phase2r-bootstrap-mode=final',"--phase=$phase",('"--root=' + $rootPath + '"'),('"--report-dir=' + $reportPath + '"'))
+              $process = Start-Process -FilePath $env:GODOT_CONSOLE_PATH -ArgumentList $arguments -PassThru -RedirectStandardOutput $stdout -RedirectStandardError $stderr
+              $finished = $process.WaitForExit(240000)
+              if (-not $finished) { $process.Kill($true); throw "timeout $phase" }
+              $process.Refresh()
+              [ordered]@{phase=$phase;pid=$process.Id;exit=$process.ExitCode;source='d438a3a941d16192c88a5c991b48f9db3602e1be';tree='38c80b08d5ae99f579e3bc2ad023b2611b57dcea';controller=$env:GITHUB_SHA;run=$env:GITHUB_RUN_ID;attempt=$env:GITHUB_RUN_ATTEMPT} | ConvertTo-Json | Set-Content (Join-Path $reportPath "$phase.process.json")
+              Get-Content $stdout
+              $marker = "RUN_NOTE_RESTART_" + $phase.ToUpperInvariant().Replace("-", "_") + "_PASS"
+              if (-not (Select-String -Path $stdout -SimpleMatch $marker -Quiet)) { throw "missing restart success marker $phase" }
+              if (-not (Test-Path (Join-Path $reportPath "$phase.json"))) { throw "missing restart report $phase" }
+              if ($process.ExitCode -ne 0) { Get-Content $stderr; throw "restart phase failed: $phase" }
+              if (Select-String -Path $stdout,$stderr -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw "invalid restart output $phase" }
+            }
+          }
+      - name: Generate or validate exact branch inventories
+        run: |
+          ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify source changes limited to declared generated outputs
+        run: |
+          $allowed = @('evidence/phase_2r/runtime/game_state_surface.json','evidence/phase_2r/runtime/save_manager_surface.json')
+          $changed = @(git diff --name-only)
+          foreach ($path in $changed) { if ($path -notin $allowed) { throw "unexpected tracked change: $path" } }
+          if ('generate' -eq 'check' -and $changed.Count -ne 0) { throw 'final tracked source changed' }
+      - name: Hash original evidence even on failure
+        if: always()
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force -Path .godot/ci | Out-Null
+          $paths = @('.godot/ci', '.godot/phase2r_logs', '.godot/phase2r_tests', 'evidence/phase_2r/runtime/game_state_surface.json', 'evidence/phase_2r/runtime/save_manager_surface.json')
+          $files = @($paths | Where-Object { Test-Path $_ } | ForEach-Object { Get-ChildItem -File -Recurse -Force $_ } | Sort-Object FullName)
+          $manifest = @($files | ForEach-Object { [ordered]@{path=[IO.Path]::GetRelativePath($env:GITHUB_WORKSPACE,$_.FullName).Replace('\','/'); bytes=$_.Length; sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()} })
+          $manifest | ConvertTo-Json -Depth 4 | Set-Content .godot/ci/original-file-hashes.json
+      - name: Retain original logs reports and hashes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: notes-adoption-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .godot/ci/
+            .godot/phase2r_logs/
+            .godot/phase2r_tests/
+            evidence/phase_2r/runtime/game_state_surface.json
+            evidence/phase_2r/runtime/save_manager_surface.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
