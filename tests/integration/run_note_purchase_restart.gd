@@ -97,18 +97,24 @@ func _consume() -> void:
 	if not _check(cold.get("ok", false) and not cold.value.active, "consumer starts with no live Run"): return
 	var restored: Dictionary = await fixture.load_from("autosave")
 	if not _check(restored.get("ok", false), "real fresh-process Load " + JSON.stringify(restored)): return
+	var observed: Dictionary = fixture.witness()
+	if not _write(phase + "-observed", {"reading": observed.reading, "profile": observed.profile,
+		"projection": fixture.projection()}): return
 	# Fresh process cannot replay transient stages; it loads the actual durable boundary.
 	if not _check(fixture.game.money == prior.expected_money, "fresh Load restores exact durable money"): return
 	for item: String in NOTES.ITEMS:
 		if not _check(fixture.game.shop_purchase_counts.get(item, 0) == prior.expected_counts.get(item, 0), "fresh Load exact count " + item): return
-	if not _check(fixture.witness().profile == prior.profile and fixture.witness().reading == prior.reading, "Load preserves Profile and cold reading witness"): return
-	if not _check(fixture.projection() == prior.projection, "fresh-process projection exact"): return
+	if not _check(observed.profile == prior.profile, "Load preserves Profile witness"): return
+	# Reports cross JSON's StringName/String boundary. Compare the complete primitive
+	# representation, retaining every field; do not compare runtime Variant tags.
+	if not _check(JSON.stringify(observed.reading) == JSON.stringify(prior.reading), "Load preserves cold reading witness " + JSON.stringify(observed.reading)): return
+	if not _check(JSON.stringify(fixture.projection()) == JSON.stringify(prior.projection), "fresh-process projection exact"): return
 	if phase == "fault-consume":
 		var settled: Dictionary = fixture.disk_snapshot()
 		if not _check(settled.get("ok", false) and settled.value.gameplay.money == prior.expected_money and settled.value.desktop.consequence.pending == null, "fresh fault process retains source Autosave with no transient pending stage"): return
 	else:
 		var again: Dictionary = await fixture.load_from("autosave")
-		if not _check(again.get("ok", false) and fixture.game.money == prior.expected_money and fixture.projection() == prior.projection, "repeated Load neither charges nor unlocks again"): return
+		if not _check(again.get("ok", false) and fixture.game.money == prior.expected_money and JSON.stringify(fixture.projection()) == JSON.stringify(prior.projection), "repeated Load neither charges nor unlocks again"): return
 	var loaded_witness: Dictionary = fixture.witness()
 	if phase == "consume-again":
 		var started: Dictionary = await fixture.new_run()
