@@ -3,7 +3,6 @@ extends "res://tests/integration/verify_playable_startup.gd"
 const EVENT_FIXTURE := preload("res://tests/support/DurableSceneEventFixture.gd")
 const CATALOG := preload("res://tests/support/SoloReadingRailTimelineCatalog.gd")
 const STRICT := preload("res://scripts/validation/StrictJson.gd")
-const RUN_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 const DOCUMENT := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 var _phase := ""
 var _fault := ""
@@ -215,7 +214,9 @@ func _write_report(name: String, report: Dictionary) -> bool:
 func _read_report(name: String) -> Dictionary:
 	var parsed: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(_report_dir.path_join(name + ".json")))
 	if not _check(parsed.get("ok", false), "prior process report"): return {}
-	return RUN_SCHEMA._normalize_integral_floats(parsed.value)
+	# StrictJson already preserves integer tokens. Profile has intentional Float
+	# preferences; applying Run normalization to this mixed report changes them.
+	return parsed.value
 
 func _wait_line(line_id: String) -> bool:
 	var bridge: Node = root.get_node("DialogicBridge")
@@ -497,7 +498,7 @@ func _verify_old_occupied_slot() -> bool:
 	if not _check(historical.get("ok", false), "original historical v7 snapshot"): return false
 	# Synthetic old document envelope; original historical snapshot stays untouched.
 	var old := {"schema_version": 7, "kind": "slot", "slot_id": 3, "save_reason": "manual",
-		"current_snapshot": {"checkpoint_kind": "safe_marker", "snapshot": historical.value}, "journal": []}
+		"current_snapshot": {"checkpoint_kind": "safe_marker", "snapshot": historical.value}, "recovery_journal": []}
 	var text := JSON.stringify(old, "\t") + "\n"
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	if not _check(file != null, "write isolated occupied old-format fixture"): return false
