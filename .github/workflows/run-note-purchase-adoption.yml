@@ -16,7 +16,7 @@ jobs:
         with:
           # Preserve the accepted product ancestry; checkout the pinned product.
           fetch-depth: 0
-          ref: 1acab86fa3ebfcaecfebf58102fc59e0a9a895c4
+          ref: 6e9d30bf134840dfdcfd1362bce5738e7f61a4d1
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
@@ -53,8 +53,8 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           New-Item -ItemType Directory -Force -Path .godot/ci | Out-Null
-          if ((git rev-parse HEAD) -cne '1acab86fa3ebfcaecfebf58102fc59e0a9a895c4') { throw 'source mismatch' }
-          if ((git rev-parse 'HEAD^{tree}') -cne '97a20dc3b7f41d9f686290ef23b30846def1f05b') { throw 'tree mismatch' }
+          if ((git rev-parse HEAD) -cne '6e9d30bf134840dfdcfd1362bce5738e7f61a4d1') { throw 'source mismatch' }
+          if ((git rev-parse 'HEAD^{tree}') -cne '11e6c39393f5a981211595b1152c5289f120b16b') { throw 'tree mismatch' }
           if (git diff --name-only) { throw 'tracked source differs before import' }
           [ordered]@{source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); controller=$env:GITHUB_SHA; run=$env:GITHUB_RUN_ID; attempt=$env:GITHUB_RUN_ATTEMPT; executable=$env:GODOT_CONSOLE_PATH; executable_sha256=(Get-FileHash $env:GODOT_CONSOLE_PATH -Algorithm SHA256).Hash.ToLowerInvariant(); version=(& $env:GODOT_CONSOLE_PATH --version)} | ConvertTo-Json | Set-Content .godot/ci/identity.json
           Get-Content .godot/ci/identity.json
@@ -91,7 +91,7 @@ jobs:
           if (Select-String -Path $log -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'invalid engine output' }
           [xml]$xml = Get-Content .godot/ci/notes-adoption.xml -Raw
           if ($xml.SelectNodes('//failure | //error | //skipped').Count -ne 0) { throw 'failed or skipped tests' }
-          $expectedCases = @{'tests/unit/test_run_note_purchase_rules.gd'=19; 'tests/unit/test_notes_catalog_projection.gd'=15; 'tests/unit/test_run_snapshot_schema.gd'=30; 'tests/integration/test_run_note_purchase_transaction.gd'=7; 'tests/integration/test_run_restore_isolation.gd'=5}
+          $expectedCases = @{'tests/unit/test_run_note_purchase_rules.gd'=19; 'tests/unit/test_notes_catalog_projection.gd'=15; 'tests/unit/test_run_snapshot_schema.gd'=30; 'tests/integration/test_run_note_purchase_transaction.gd'=8; 'tests/integration/test_run_restore_isolation.gd'=5}
           $results = @($xml.SelectNodes('//testsuite') | ForEach-Object { [ordered]@{name=$_.GetAttribute('name'); cases=$_.SelectNodes('./testcase').Count} })
           if ($results.Count -ne $paths.Count) { throw 'Missing or extra suite' }
           foreach ($path in $paths) {
@@ -121,7 +121,7 @@ jobs:
               $finished = $process.WaitForExit(240000)
               if (-not $finished) { $process.Kill($true); throw "timeout $phase" }
               $process.Refresh()
-              [ordered]@{phase=$phase;pid=$process.Id;exit=$process.ExitCode;source='1acab86fa3ebfcaecfebf58102fc59e0a9a895c4';tree='97a20dc3b7f41d9f686290ef23b30846def1f05b';controller=$env:GITHUB_SHA;run=$env:GITHUB_RUN_ID;attempt=$env:GITHUB_RUN_ATTEMPT} | ConvertTo-Json | Set-Content (Join-Path $reportPath "$phase.process.json")
+              [ordered]@{phase=$phase;pid=$process.Id;exit=$process.ExitCode;source='6e9d30bf134840dfdcfd1362bce5738e7f61a4d1';tree='11e6c39393f5a981211595b1152c5289f120b16b';controller=$env:GITHUB_SHA;run=$env:GITHUB_RUN_ID;attempt=$env:GITHUB_RUN_ATTEMPT} | ConvertTo-Json | Set-Content (Join-Path $reportPath "$phase.process.json")
               Get-Content $stdout
               $marker = "RUN_NOTE_RESTART_" + $phase.ToUpperInvariant().Replace("-", "_") + "_PASS"
               if (-not (Select-String -Path $stdout -SimpleMatch $marker -Quiet)) { throw "missing restart success marker $phase" }
