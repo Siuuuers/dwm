@@ -14,7 +14,7 @@ func _run() -> void:
 		if argument.begins_with("--scene-event-fault="): _fault = argument.trim_prefix("--scene-event-fault=")
 		if argument.begins_with("--scene-event-phase="): _phase = argument.trim_prefix("--scene-event-phase=")
 		if argument.begins_with("--scene-event-report-dir="): _report_dir = argument.trim_prefix("--scene-event-report-dir=")
-	if not _check(_phase in ["produce", "consume", "consume-again", "missing-registry", "mismatched-registry", "fault-produce", "fault-consume"], "explicit scene event phase"): return
+	if not _check(_phase in ["produce", "consume", "consume-again", "missing-registry", "mismatched-registry", "fault-produce", "fault-consume", "produce-other", "consume-other"], "explicit scene event phase"): return
 	if not _check(not OS.get_environment("DWM_TEST_ROOT").strip_edges().is_empty()
 		and DisplayServer.get_name() != "headless", "isolated rendered scene event proof"): return
 	await _frames()
@@ -32,6 +32,7 @@ func _run() -> void:
 	if _phase in ["fault-produce", "fault-consume"] and not _check(_fault in ["before-write", "lost-ack", "rollback-fail", "adoption"], "explicit injected fault"): return
 	if _phase in ["produce", "fault-produce"]: await super._run()
 	elif _phase == "fault-consume": await _fault_consume()
+	elif _phase in ["produce-other", "consume-other"]: await _other_occurrence()
 	else: await _consume()
 
 func _dating_journey(game: Node, desktop: Node) -> void:
@@ -93,6 +94,7 @@ func _produce() -> void:
 	result = _dispatch(envelope)
 	if not _check(result.get("ok", false) and result.get("duplicate", false) and _disk_hashes() == disk_before, "duplicate set writes nothing"): return
 	if not _save("slot:1") or not _save("quick"): return
+	if not _verify_old_occupied_slot(): return
 	var report := _report(envelope)
 	report["duplicate_no_write"] = true
 	report["live_session"] = root.get_node("GameState").capture_live_session().value
@@ -145,8 +147,8 @@ func _consume() -> void:
 		await _finish()
 		return
 	var first_handle: Dictionary = game.capture_live_session().value
-	prepared = saves.prepare_backup_action("load", "quick")
-	if not _check(prepared.get("ok", false), "second Load prepares"): return
+	prepared = saves.prepare_backup_action("load", "slot:1")
+	if not _check(prepared.get("ok", false), "second actual manual slot Load prepares"): return
 	loaded = saves.commit_backup_action(prepared.value.token)
 	if not _check(loaded.get("ok", false), "second Load commits"): return
 	if not await _wait_line(line): return
@@ -180,12 +182,12 @@ func _disk_hashes() -> Dictionary:
 	var storage: RefCounted = root.get_node("SaveManager").get("_storage")
 	var result := {}
 	for path: String in ["autosave.json", "quicksave.json"]:
-		var read: Dictionary = storage.read_text(path)
+		var read: Dictionary = _raw_primary(path)
 		result[path] = str(read.value).sha256_text() if read.get("ok", false) else "missing"
 	return result
 
 func _disk_snapshot(path: String) -> Dictionary:
-	var read: Dictionary = root.get_node("SaveManager").get("_storage").read_text(path)
+	var read: Dictionary = _raw_primary(path)
 	if not _check(read.get("ok", false), "read real " + path): return {}
 	var parsed: Dictionary = STRICT.parse_object(read.value)
 	if not _check(parsed.get("ok", false), "strict saved bytes"): return {}
@@ -228,6 +230,9 @@ func _advance_line(source: String, destination: String) -> bool:
 	if not _check(runtime.reveal_current_line(true).get("ok", false), "real reveal completes"): return false
 	await _frames()
 	if not _check(runtime.advance_one_event().get("ok", false), "native coroutine advances"): return false
+	if destination.is_empty():
+		await _frames()
+		return true
 	return await _wait_line(destination)
 
 func _finish() -> void:
@@ -311,7 +316,7 @@ func _fault_produce() -> void:
 	var native_files: RefCounted = storage.get("_file_ops")
 	var fault_files := AutosaveFaultOps.new(native_files)
 	var fault_port := SceneEventFaultPort.new(real_port, fault_files, _fault)
-	var prior_disk: Dictionary = storage.read_text("autosave.json")
+	var prior_disk: Dictionary = _raw_primary("autosave.json")
 	if not _check(prior_disk.get("ok", false), "actual Autosave preimage exists"): return
 	var prior_journal: Dictionary = real_port.capture()
 	if not _check(prior_journal.get("ok", false), "actual journal preimage"): return
@@ -331,7 +336,7 @@ func _fault_produce() -> void:
 	game.set("_scene_event_before_adoption", Callable())
 	if not _check(not failed.get("ok", false), "injected fault refused " + str(failed)): return
 	if not _check(game.capture_run_snapshot_input() == prior_live and bridge.capture_reading_checkpoint(false).value == prior_reading.value and root.get_node("ProfileManager").get_profile_snapshot() == prior_profile, "fault retains exact live owner reading and Profile"): return
-	var after_disk: Dictionary = storage.read_text("autosave.json")
+	var after_disk: Dictionary = _raw_primary("autosave.json")
 	if not _check(after_disk.get("ok", false), "actual post-fault primary readable"): return
 	var fatal: bool = gate.is_fatal_latched()
 	var compensated: bool = _fault in ["before-write", "lost-ack"]
@@ -343,7 +348,7 @@ func _fault_produce() -> void:
 		if not _check(fatal and after_disk.value != prior_disk.value, "committed interruption retains fatal custody with new primary"): return
 		var bypass: Dictionary = saves.prepare_backup_action("save", "slot:1")
 		if not _check(not bypass.get("ok", false) and not _dispatch(envelope).get("ok", false), "fatal custody refuses Save and event bypass"): return
-		if not _check(storage.read_text("autosave.json").value == after_disk.value and game.capture_run_snapshot_input() == prior_live, "refused bypass cannot alter retained disk or stale live"): return
+		if not _check(_raw_primary("autosave.json").value == after_disk.value and game.capture_run_snapshot_input() == prior_live, "refused bypass cannot alter retained disk or stale live"): return
 	if _fault == "before-write" and not _check(fault_files.failures == 1, "one real candidate write was refused"): return
 	if _fault == "rollback-fail" and not _check(fault_files.failures > 0 and not fault_port.rollback_result.get("ok", false), "actual rollback file write failed"): return
 	if _fault in ["lost-ack", "rollback-fail"] and not _check(fault_port.commit_result.get("ok", false), "lost ack followed actual committed write"): return
@@ -395,3 +400,113 @@ func _fault_consume() -> void:
 	report["duplicate_no_write"] = true
 	if not _write_report("fault-consume", report): return
 	await _finish()
+
+
+## Evidence inspection is raw and read-only: cold/fatal storage may deliberately
+## have no read lease. These bytes never become an input to an admission owner.
+func _raw_primary(path: String) -> Dictionary:
+	var storage: RefCounted = root.get_node("SaveManager").get("_storage")
+	var absolute: String = storage.describe_root().path_join(path)
+	if not FileAccess.file_exists(absolute): return {"ok": false}
+	var file := FileAccess.open(absolute, FileAccess.READ)
+	if file == null: return {"ok": false}
+	var bytes: PackedByteArray = file.get_buffer(file.get_length())
+	file.close()
+	return {"ok": true, "value": bytes.get_string_from_utf8()}
+
+
+func _other_occurrence() -> void:
+	var prior := _read_report("produce-other" if _phase == "consume-other" else "consume")
+	if prior.is_empty(): return
+	if not _check(int(prior.process_id) != OS.get_process_id(), "other entry uses fresh process"): return
+	if not _check(_disk_hashes()["quicksave.json"] == prior.disk["quicksave.json"], "other entry starts from exact retained Quick"): return
+	var saves: Node = root.get_node("SaveManager")
+	var game: Node = root.get_node("GameState")
+	var bridge: Node = root.get_node("DialogicBridge")
+	var profile: Dictionary = root.get_node("ProfileManager").get_profile_snapshot().duplicate(true)
+	if not _check(profile == prior.profile, "other entry fresh Profile matches"): return
+	var prepared: Dictionary = saves.prepare_backup_action("load", "quick")
+	if not _check(prepared.get("ok", false), "other entry actual Quick prepares " + str(prepared)): return
+	var loaded: Dictionary = saves.commit_backup_action(prepared.value.token)
+	if not _check(loaded.get("ok", false), "other entry actual Quick commits " + str(loaded)): return
+	if not await _wait_line(prior.checkpoint.reading_session.frontier.line_id): return
+	if not _check(game.capture_run_snapshot_input().command_receipts == prior.receipts and bridge.capture_reading_checkpoint(false).value.reading_session == prior.checkpoint.reading_session, "other entry Load preserves every receipt and full reading ledger"): return
+	if not _check(root.get_node("ProfileManager").get_profile_snapshot() == profile, "other entry Load is Profile neutral"): return
+	if _phase == "consume-other":
+		if not _check(not _dispatch(prior.envelope).get("ok", false), "prior post-entry token refused"): return
+		var duplicate: Dictionary = prior.envelope.duplicate(true)
+		var context: Dictionary = game.scene_event_context()
+		if not _check(context.get("ok", false) and context.value.next_ordinal == 1, "restored post group owns frontier1"): return
+		duplicate["playback_token"] = context.value.playback_token
+		var before := _disk_hashes()
+		var result := _dispatch(duplicate)
+		if not _check(result.get("ok", false) and result.get("duplicate", false) and _disk_hashes() == before, "post duplicate no new disk write " + str(result)): return
+		if not _check(game.capture_run_snapshot_input().command_receipts == prior.receipts and bridge.capture_reading_checkpoint(false).value.reading_session == prior.checkpoint.reading_session and root.get_node("ProfileManager").get_profile_snapshot() == profile, "post duplicate preserves both chains History and Profile"): return
+		if not _write_report(_phase, _report(duplicate)): return
+		await _finish()
+		return
+	var dating: Node = current_scene
+	if not _check(dating != null and dating.get("worksheet") != null, "actual Dating host mounted"): return
+	if not await _advance_line("fixture.solo.pre.b", ""): return
+	if not await _wait_for_dating_board(dating): return
+	dating.worksheet.cell_action_requested.emit(&"reveal", 0, int(dating.get("_physical_view").board.revision))
+	var physical: Dictionary = game.capture_dating_challenge_state().value
+	if not _check(physical.board is Dictionary, "actual Reveal materializes board"): return
+	# Read hidden fixture state only to choose the next legal player Reveal.
+	if not bool(physical.board.terminal):
+		dating.worksheet.cell_action_requested.emit(&"reveal", int(physical.board.mine_indices[0]), int(dating.get("_physical_view").board.revision))
+	if not await _wait_line("fixture.solo.post.a"): return
+	physical = game.capture_dating_challenge_state().value
+	if not _check(physical.phase == "post_challenge" and physical.board.terminal, "real terminal result precedes post entry"): return
+	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false).value
+	var before_profile: Dictionary = root.get_node("ProfileManager").get_profile_snapshot().duplicate(true)
+	var before_receipts: Dictionary = game.capture_run_snapshot_input().command_receipts.duplicate(true)
+	var envelope := _envelope("fixture.notice.set")
+	if envelope.is_empty(): return
+	if not _check(envelope.source.entry_id == CATALOG.FIXTURE_ENTRIES[1] and envelope.ordinal == 0 and envelope.source.scene_occurrence == prior.envelope.source.scene_occurrence, "new entry has independent ordinal0 within same real reading session"): return
+	var committed := _dispatch(envelope)
+	if not _check(committed.get("ok", false), "actual second entry set commits " + str(committed)): return
+	var receipts: Dictionary = game.capture_run_snapshot_input().command_receipts
+	for key: String in before_receipts:
+		if not _check(receipts.get(key) == before_receipts[key], "all prior receipt bytes retained " + key): return
+	if not _check(bridge.capture_reading_checkpoint(false).value == checkpoint and root.get_node("ProfileManager").get_profile_snapshot() == before_profile, "post set leaves History and Profile unchanged"): return
+	var contract: Script = preload("res://scripts/domain/narrative/SceneEventContract.gd")
+	var validated: Dictionary = contract.validate_receipts(receipts)
+	if not _check(validated.get("ok", false) and validated.value.occurrences.size() == 2, "two admitted event occurrence groups"): return
+	var old_group: Dictionary = validated.value.occurrences[contract.occurrence_key(prior.envelope.source)]
+	var new_group: Dictionary = validated.value.occurrences[contract.occurrence_key(envelope.source)]
+	if not _check(old_group.next_ordinal == 2 and old_group.notification.is_empty() and new_group.next_ordinal == 1 and new_group.notification.notification_id == "fixture.notice", "independent prior clear and post set projections"): return
+	if not _save("quick"): return
+	var report := _report(envelope)
+	report["occurrence_count"] = 2
+	report["prior_receipts_preserved"] = true
+	if not _write_report(_phase, report): return
+	await _finish()
+
+
+func _verify_old_occupied_slot() -> bool:
+	var saves: Node = root.get_node("SaveManager")
+	var storage: RefCounted = saves.get("_storage")
+	var path: String = storage.describe_root().path_join("slot_3.json")
+	if not _check(not FileAccess.file_exists(path), "old-format test destination starts empty"): return false
+	var historical: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(
+		"res://tests/fixtures/saves/v7_desktop_prepared.json"))
+	if not _check(historical.get("ok", false), "original historical v7 snapshot"): return false
+	# Synthetic old document envelope; original historical snapshot stays untouched.
+	var old := {"schema_version": 7, "kind": "slot", "slot_id": 3, "save_reason": "manual",
+		"current_snapshot": {"checkpoint_kind": "safe_marker", "snapshot": historical.value}, "journal": []}
+	var text := JSON.stringify(old, "\t") + "\n"
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	if not _check(file != null, "write isolated occupied old-format fixture"): return false
+	file.store_string(text)
+	file.close()
+	var profile: Dictionary = root.get_node("ProfileManager").get_profile_snapshot().duplicate(true)
+	var results := {}
+	for action: String in ["load", "save"]:
+		var prepared: Dictionary = saves.prepare_backup_action(action, "slot:3")
+		var result: Dictionary = saves.commit_backup_action(prepared.value.token) if prepared.get("ok", false) else prepared
+		if not _check(not result.get("ok", false), "old v7 occupied destination refuses " + action): return false
+		results[action] = result
+		if not _check(FileAccess.get_file_as_string(path) == text, "old v7 bytes retained after " + action): return false
+	if not _check(root.get_node("ProfileManager").get_profile_snapshot() == profile, "old-format refusal leaves Profile intact"): return false
+	return _write_report("old-format", {"original_sha256": text.sha256_text(), "bytes": text.to_utf8_buffer().size(), "results": results})

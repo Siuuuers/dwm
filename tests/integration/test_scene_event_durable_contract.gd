@@ -52,7 +52,7 @@ func test_set_clear_and_duplicate_share_durable_receipts_without_consuming_readi
 	assert_eq(f.game.scene_event_context().value.next_ordinal, 2)
 	assert_false(f.gate.is_active())
 
-func test_failed_physical_write_restores_disk_and_journal_then_exact_retry_commits() -> void:
+func test_prewrite_io_refusal_restores_primary_and_journal_then_exact_retry_commits() -> void:
 	var f := _fixture()
 	if f == null: return
 	assert_true(f.port.dispatch(f.event_at(0)).get("ok", false))
@@ -63,7 +63,14 @@ func test_failed_physical_write_restores_disk_and_journal_then_exact_retry_commi
 	var failed: Dictionary = f.port.dispatch(f.event_at(1))
 	assert_false(failed.get("ok", true), str(failed))
 	assert_true(failed.get("rolled_back", false), "adapter proved paired compensation")
-	assert_eq(f.files.snapshot_persisted(), saved)
+	var restored: Dictionary = f.files.snapshot_persisted()
+	var primary: String = f.storage.describe_root().path_join("autosave.json")
+	assert_eq(restored[primary], saved[primary], "exact admitted primary preimage restored")
+	# The existing atomic compensation rotates a coherent backup; it does not
+	# promise to restore an incidental old .bak directory entry byte-for-byte.
+	assert_eq(restored.get(primary + ".bak"), saved[primary])
+	assert_false(restored.has(primary + ".next"))
+	assert_false(restored.has(primary + ".txn.json"))
 	assert_eq(f.manager._journal.capture_state(), journal)
 	assert_eq(f.game.capture_run_snapshot_input(), live)
 	assert_false(f.gate.is_fatal_latched())
@@ -131,3 +138,25 @@ func test_registered_unsupported_kind_and_conflicting_duplicate_refuse_without_s
 	assert_eq(f.files.snapshot_persisted(), saved)
 	assert_eq(f.manager._journal.capture_state(), journal)
 	assert_eq(f.real.commits, 2)
+
+func test_restore_preparation_requires_registry_and_active_reading_before_mutation() -> void:
+	var f := _fixture()
+	if f == null: return
+	var committed: Dictionary = f.port.dispatch(f.event_at(0))
+	assert_true(committed.get("ok", false), str(committed))
+	if not committed.get("ok", false): return
+	var disk: Dictionary = f.disk_snapshot()
+	assert_true(disk.get("ok", false), str(disk))
+	if not disk.get("ok", false): return
+	var participant := preload("res://scripts/application/restore/RunRestoreParticipant.gd").new(f.game)
+	var before: Dictionary = f.game.capture_run_snapshot_input()
+	assert_true(participant.prepare({"snapshot": disk.value}).get("ok", false))
+	var stripped: Dictionary = disk.value.duplicate(true)
+	stripped.narrative_checkpoint = {}
+	var refused: Dictionary = participant.prepare({"snapshot": stripped})
+	assert_eq(refused.get("code"), &"event_anchor_invalid")
+	f.game._scene_event_registry = {}
+	refused = participant.prepare({"snapshot": disk.value})
+	assert_eq(refused.get("code"), &"event_registration_invalid")
+	assert_eq(f.game.capture_run_snapshot_input(), before, "prepare never installs a partial run")
+	assert_eq(f.disk_snapshot().value, disk.value, "refusal preserves actual saved snapshot")

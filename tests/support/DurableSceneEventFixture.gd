@@ -16,7 +16,7 @@ const ROOT := preload("res://tests/support/FakeDesktopIssuerRootStore.gd")
 const CONTEXT := preload("res://tests/support/FakeNarrativeCheckpointContext.gd")
 
 static func registry() -> Dictionary:
-	return {READING.ENTRY: {"content_version": 1, "events": {
+	var registered := {READING.ENTRY: {"content_version": 1, "events": {
 		"fixture.notice.set": {"event_id": "fixture.notice.set", "ordinal": 0, "predecessor": "",
 			"kind": "notification.set", "payload": {"notification_id": "fixture.notice",
 				"content_id": "fixture.notice.text", "parameters": {}}},
@@ -26,6 +26,8 @@ static func registry() -> Dictionary:
 		"fixture.background": {"event_id": "fixture.background", "ordinal": 2,
 			"predecessor": "fixture.notice.clear", "kind": "background.set",
 			"payload": {"art_id": "fixture.art"}}}}}
+	registered["dating.solo.priscilla.day1.post_challenge"] = registered[READING.ENTRY].duplicate(true)
+	return registered
 
 class ReadingBoundary extends RefCounted:
 	var checkpoint: Dictionary

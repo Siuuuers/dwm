@@ -220,7 +220,8 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 	if route.value != "dating": return _fail(&"scene_event_route_mismatch", "only the admitted Solo owner is supported")
 	var active := _call_provider("active_app_id", [])
 	if not active.ok: return active
-	if active.value != null: return _fail(&"scene_event_active_app_mismatch", "the reading owner requires no active app")
+	# Desktop host state can retain its last app while the dating route owns
+	# physical presentation. Preserve it; the bridge admits the actual Solo host.
 	var audio := _call_provider("audio_context", [])
 	if not audio.ok: return audio
 	var content := _call_provider("content_version", [])

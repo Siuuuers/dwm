@@ -416,10 +416,11 @@ func test_scene_event_rejects_unsupported_owner_and_checkpoint_before_capture() 
 	assert_eq(port.commit_scene_event({}, {}).code, &"scene_event_checkpoint_invalid")
 	context.route_id_value = "main"
 	assert_eq(port.commit_scene_event({}, _scene_checkpoint()).code, &"scene_event_route_mismatch")
-	context.route_id_value = "dating"
-	context.active_app_id_value = "minesweeper"
-	assert_eq(port.commit_scene_event({}, _scene_checkpoint()).code, &"scene_event_active_app_mismatch")
 	assert_eq(context.calls, [])
+	context.route_id_value = "dating"
+	context.active_app_id_value = "schedule"
+	assert_true(port.commit_scene_event({}, _scene_checkpoint()).ok)
+	assert_eq(context.inputs.active_app_id, "schedule", "retained desktop host state is preserved during Solo")
 
 
 func test_scene_event_holds_shared_guard_during_prepare() -> void:
