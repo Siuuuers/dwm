@@ -42,7 +42,7 @@ jobs:
           if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' .godot/ci/import-linux.log; then exit 1; fi
           git restore -- project.godot
           test "$(git rev-parse HEAD)" = 'd730a357bef8b1c5701e4db6edd04bbd2f39f59c'
-          test "$(git rev-parse 'HEAD^{tree}')" = '4de76849667f1115d26023f771b2daf0e3ef3574'
+          test "$(git rev-parse 'HEAD^{tree}')" = 'c94d84ab7265c3d906adf42ea97bc797db4c2b97'
           test -z "$(git diff --name-only)"
       - name: Connected fresh processes and exact saved roots
         run: |
