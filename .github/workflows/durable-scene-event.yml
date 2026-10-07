@@ -5,99 +5,122 @@ on:
 permissions:
   contents: read
 jobs:
-  foundation:
-    runs-on: windows-2022
-    timeout-minutes: 25
-    defaults:
-      run:
-        shell: pwsh
+  restart:
+    name: Actual rendered process restart
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
     steps:
       - uses: actions/checkout@v7
         with:
-          # The schedule-gate contract inspects its immutable historical seals.
+          ref: 6381f03a547bf53d4727b58f4e789d60fc060b3f
           fetch-depth: 0
-          ref: 1e7d4d2a5f266d4efdd220c5b1e5ede98d9116eb
-          # Defer credential removal until the post-job cleanup, after the
-          # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
-      - name: Prepare disposable checkout for credential cleanup
+      - name: Prepare disposable checkout
         run: |
-          $ErrorActionPreference = 'Stop'
-          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
-          # submodule foreach reads the index even with sparse checkout.
-          # The source commit and working files remain unchanged.
           git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           git submodule foreach --recursive 'true'
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Install Godot 4.6.3 standard
+      - name: Install pinned standard engine and software display
         run: |
-          $ErrorActionPreference = 'Stop'
-          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
-          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
-          # SHA256 published with the official 4.6.3-stable release asset.
-          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
-          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
-            throw 'Godot archive checksum mismatch.'
-          }
-          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
-          Expand-Archive -LiteralPath $archive -DestinationPath $editor
-          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
-          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
-          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          & $console --version
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri
+          archive="$RUNNER_TEMP/godot-linux.zip"
+          curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip' --output "$archive"
+          printf '%s  %s\n' 'd0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3' "$archive" | sha256sum --check
+          unzip -q "$archive" -d "$RUNNER_TEMP/godot-linux"
+          editor="$RUNNER_TEMP/godot-linux/Godot_v4.6.3-stable_linux.x86_64"
+          chmod +x "$editor"
+          echo "GODOT_CONSOLE_PATH=$editor" >> "$GITHUB_ENV"
       - name: Record immutable identity before import
         run: |
-          New-Item -ItemType Directory -Force -Path .godot/ci | Out-Null
-          [ordered]@{source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); controller=$env:GITHUB_SHA; run=$env:GITHUB_RUN_ID; attempt=$env:GITHUB_RUN_ATTEMPT} | ConvertTo-Json | Tee-Object .godot/ci/pre-import-identity.json
-          if ((git rev-parse HEAD) -cne '1e7d4d2a5f266d4efdd220c5b1e5ede98d9116eb' -or (git rev-parse 'HEAD^{tree}') -cne '44ae45a4bf32c664ab3bb4871e8ee0bdd1ce123a') { throw 'pre-import identity mismatch' }
-      - name: Import project
-        timeout-minutes: 8
+          mkdir -p .godot/ci
+          python3 - <<'PY'
+          import json, os, subprocess
+          identity={k:subprocess.check_output(['git','rev-parse',v],text=True).strip() for k,v in [('source','HEAD'),('tree','HEAD^{tree}')]}
+          identity.update(controller=os.environ['GITHUB_SHA'],run=os.environ['GITHUB_RUN_ID'],attempt=os.environ['GITHUB_RUN_ATTEMPT'])
+          print(json.dumps(identity))
+          open('.godot/ci/pre-import-identity.json','w').write(json.dumps(identity,indent=2))
+          assert identity['source']=='6381f03a547bf53d4727b58f4e789d60fc060b3f' and identity['tree']=='a54448b406b3b21c4609ab386d88ef9048a652ec'
+          PY
+      - name: Import exact product
+        env:
+          XDG_DATA_HOME: ${{ github.workspace }}/.godot/ci/import-linux/data
+          DWM_TEST_ROOT: ${{ github.workspace }}/.godot/ci/import-linux/test-root
         run: |
-          $ErrorActionPreference = 'Stop'
-          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
-          $env:APPDATA = Join-Path $output 'import-user/appdata'
-          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
-          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
-          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
-          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
-            throw 'Project import reported script errors; inspect import.log.'
-          }
-      - name: Restore committed project settings after editor import
-        run: |
-          # Dialogic's editor scan rewrites its timeline lookup during import.
-          # Execute the committed configuration with the freshly imported assets.
+          mkdir -p .godot/ci "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
+          "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --import --log-file "$GITHUB_WORKSPACE/.godot/ci/import-linux.log"
+          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' .godot/ci/import-linux.log; then exit 1; fi
           git restore -- project.godot
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-      - name: Verify exact product source and record executable identity
+          test "$(git rev-parse HEAD)" = '6381f03a547bf53d4727b58f4e789d60fc060b3f'
+          test "$(git rev-parse 'HEAD^{tree}')" = 'a54448b406b3b21c4609ab386d88ef9048a652ec'
+          test -z "$(git diff --name-only)"
+      - name: Connected fresh processes and exact saved roots
         run: |
-          $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '1e7d4d2a5f266d4efdd220c5b1e5ede98d9116eb') { throw 'source mismatch' }
-          if ((git rev-parse 'HEAD^{tree}') -cne '44ae45a4bf32c664ab3bb4871e8ee0bdd1ce123a') { throw 'tree mismatch' }
-          if (git diff --name-only) { throw 'tracked source changed during import' }
-          [ordered]@{source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); controller=$env:GITHUB_SHA; run=$env:GITHUB_RUN_ID; attempt=$env:GITHUB_RUN_ATTEMPT; executable=$env:GODOT_CONSOLE_PATH; executable_sha256=(Get-FileHash $env:GODOT_CONSOLE_PATH -Algorithm SHA256).Hash.ToLowerInvariant(); version=(& $env:GODOT_CONSOLE_PATH --version)} | ConvertTo-Json | Set-Content .godot/ci/identity.json
-      - name: Generate candidate public inventories in disposable checkout
-        run: |
-          ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git restore -- evidence/phase_2r/runtime/game_state_surface.json evidence/phase_2r/runtime/save_manager_surface.json
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (git diff --name-only) { throw 'tracked product source changed' }
-      - name: Verify tracked source remains clean
-        run: |
-          if (git diff --name-only) { throw 'tracked product source changed during proof' }
-      - name: Retain original logs reports and generated bytes
+          python3 - <<'PYCODE'
+          import os, pathlib, subprocess, json, hashlib, shutil
+          work=pathlib.Path.cwd()
+          output=work/'.godot/ci'
+          roots=output/'restart-roots'
+          reports=output/'restart'
+          def manifest(root):
+              return {p.relative_to(root).as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in sorted(root.rglob('*')) if p.is_file()}
+          def execute(phase, case='main', fault=''):
+              root=roots/case
+              report=reports/case
+              report.mkdir(parents=True,exist_ok=True)
+              env=os.environ.copy()
+              for key,part in [('XDG_DATA_HOME','data'),('XDG_CONFIG_HOME','config'),('XDG_CACHE_HOME','cache'),('DWM_TEST_ROOT','test-root')]:
+                  path=root/part;path.mkdir(parents=True,exist_ok=True);env[key]=str(path)
+              before=manifest(root)
+              args=['xvfb-run','-a',env['GODOT_CONSOLE_PATH'],'--path',str(work),'--rendering-method','gl_compatibility','--rendering-driver','opengl3','--audio-driver','Dummy','--script','res://tests/manual/verify_scene_event_restart.gd','--','--phase2r-bootstrap-mode=final','--probe-dating','--scene-event-phase='+phase,'--scene-event-report-dir=res://.godot/ci/restart/'+case]
+              if fault:args+=['--scene-event-fault='+fault]
+              run=subprocess.run(args,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=240)
+              (report/(phase+'.log')).write_text(run.stdout)
+              after=manifest(root)
+              (report/(phase+'-manifest.json')).write_text(json.dumps({'before':before,'after':after,'exit':run.returncode,'source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'controller':env['GITHUB_SHA'],'run':env['GITHUB_RUN_ID'],'attempt':env['GITHUB_RUN_ATTEMPT'],'command':args},indent=2))
+              marker='SCENE_EVENT_'+phase.upper().replace('-','_')+'_PASS'
+              if run.returncode or marker not in run.stdout or any(x in run.stdout for x in ['SCRIPT ERROR:','ERROR: Failed to load','Unicode parsing error','Unexpected NUL character','PLAYABLE_STARTUP_FAIL:']):
+                  print(run.stdout);raise SystemExit('Failed '+case+'/'+phase)
+              print(case+'/'+phase+' verified; '+str(len(after))+' actual root files')
+          execute('produce')
+          shutil.copytree(roots/'main',roots/'producer-original')
+          for refusal in ['missing-registry','mismatched-registry']:
+              shutil.copytree(roots/'producer-original',roots/refusal)
+              (reports/refusal).mkdir(parents=True,exist_ok=True)
+              shutil.copy2(reports/'main/produce.json',reports/refusal/'produce.json')
+              execute(refusal,refusal)
+          execute('consume')
+          shutil.copytree(roots/'main',roots/'consumer-original')
+          execute('consume-again')
+          execute('produce-other')
+          shutil.copytree(roots/'main',roots/'other-entry-original')
+          execute('consume-other')
+          failures=[]
+          for fault in ['before-write','lost-ack','rollback-fail','adoption']:
+              try:
+                  execute('fault-produce',fault,fault)
+                  shutil.copytree(roots/fault,roots/(fault+'-original'))
+                  execute('fault-consume',fault,fault)
+              except SystemExit as failure:
+                  failures.append(str(failure))
+          shutil.copytree(roots/'producer-original',roots/'old-format')
+          (reports/'old-format').mkdir(parents=True,exist_ok=True)
+          shutil.copy2(reports/'main/produce.json',reports/'old-format/produce.json')
+          try:
+              execute('old-format','old-format')
+          except SystemExit as failure:
+              failures.append(str(failure))
+          if failures: raise SystemExit('; '.join(failures))
+          PYCODE
+      - name: Check unmodified source
+        run: test -z "$(git diff --name-only)"
+      - name: Retain original process logs and every saved root
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: scene-event-durable-candidate-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            .godot/ci/
-            .godot/phase2r_logs/
+          name: scene-event-restart-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 14
