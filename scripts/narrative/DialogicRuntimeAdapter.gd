@@ -358,7 +358,11 @@ func validate_reading_entry(path: String, entry_label: String, lines: Array, mar
 	for event: DialogicEvent in detached.events:
 		if event is DialogicLabelEvent:
 			if str(event.name).begins_with("scene.marker."):
-				if not selected or ended or marker.is_empty() or event.name != marker.get("label") or ordinal == 0 \
+				if not selected:
+					if not marker.is_empty() and event.name == marker.get("label"):
+						return _fail(&"reading_marker_position_invalid", "the registered marker is outside its entry")
+					continue
+				if ended or marker.is_empty() or event.name != marker.get("label") or ordinal == 0 \
 						or ordinal >= lines.size() or lines[ordinal - 1].line_id != marker.get("after_line_id") \
 						or lines[ordinal].line_id != marker.get("before_line_id"):
 					return _fail(&"reading_marker_position_invalid", "unregistered marker locator")
@@ -542,7 +546,11 @@ func _reading_seek_indices(entry_label: String, lines: Array, destination: Strin
 			event = detached
 		if event is DialogicLabelEvent:
 			if str(event.name).begins_with("scene.marker."):
-				if not selected or ended or _marker_binding.is_empty() or event.name != _marker_binding.label \
+				if not selected:
+					if not _marker_binding.is_empty() and event.name == _marker_binding.label:
+						return _fail(&"reading_seek_changed", "the registered marker is outside its entry")
+					continue
+				if ended or _marker_binding.is_empty() or event.name != _marker_binding.label \
 						or ordinal == 0 or ordinal >= lines.size() \
 						or lines[ordinal - 1].line_id != _marker_binding.after_line_id \
 						or lines[ordinal].line_id != _marker_binding.before_line_id:

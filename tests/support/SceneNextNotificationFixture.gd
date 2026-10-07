@@ -11,8 +11,8 @@ const PATH := "res://tests/fixtures/dialogic/scene_next_notification.dtl"
 static func catalogue() -> Dictionary:
 	return {"kind": "solo_reading_catalogue", "schema_version": 1, "entries": [
 		{"entry_id": ENTRY, "content_version": 1, "lines": [
-			{"beat_id": "fixture.next.beat.a", "line_id": FIRST, "text": "FIRST: a deliberately long partial reveal that remains visible until one Next activation finishes it and commits the registered notification without publishing SECOND.", "revision": "fixture-v1"},
-			{"beat_id": "fixture.next.beat.b", "line_id": SECOND, "text": "SECOND: visible only after the next deliberate activation.", "revision": "fixture-v1"}]},
+			{"beat_id": "fixture.next.beat.a", "line_id": FIRST, "text": "FIRST — a deliberately long partial reveal that remains visible until one Next activation finishes it and commits the registered notification without publishing SECOND.", "revision": "fixture-v1"},
+			{"beat_id": "fixture.next.beat.b", "line_id": SECOND, "text": "SECOND — visible only after the next deliberate activation.", "revision": "fixture-v1"}]},
 		{"entry_id": "dating.solo.priscilla.day1.post_challenge", "content_version": 1, "lines": [
 			{"beat_id": "fixture.next.post", "line_id": "fixture.next.post", "text": "POST", "revision": "fixture-v1"}]}]}
 
@@ -219,7 +219,7 @@ func _phase_snapshot(path: String) -> Dictionary:
 	if not _phase_check(admitted.get("ok", false), "actual save schema " + str(admitted)): return {}
 	return admitted.value.candidate.current_snapshot.snapshot
 
-func _phase_report(path: String) -> bool:
+func _phase_report(path: String, extra: Dictionary = {}) -> bool:
 	var snapshot_value := _phase_snapshot(path)
 	if snapshot_value.is_empty(): return false
 	var report := {"phase": _phase_name, "process_id": OS.get_process_id(), "path": path,
@@ -228,6 +228,7 @@ func _phase_report(path: String) -> bool:
 		"profile": _phase_node("ProfileManager").get_profile_snapshot(),
 		"live_session": _phase_node("GameState").capture_live_session().value,
 		"scope": "real Bootstrap, native disk, SaveManager Backup Load and ordinary process exit"}
+	for key: String in extra: report[key] = extra[key]
 	if not _phase_check(DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_phase_reports)) == OK, "report directory"): return false
 	var file := FileAccess.open(_phase_reports.path_join(_phase_name + ".json"), FileAccess.WRITE)
 	if not _phase_check(file != null, "write retained report"): return false
@@ -309,7 +310,7 @@ func run_process_phase(test_owner: Node, phase: String, report_directory: String
 	_phase_reports = report_directory
 	var phases := ["produce-pre-marker", "consume-pre-marker-source", "consume-source-marker",
 		"consume-marker-source", "consume-marker-source-later", "consume-later-completion", "consume-completion"]
-	if not _phase_check(phase in phases and not report_directory.is_empty(), "explicit controlled process phase and report directory"): return
+	if not _phase_check((phase in phases or phase in ["fault-install-produce", "fault-install-consume"]) and not report_directory.is_empty(), "explicit controlled process phase and report directory"): return
 	if not _phase_check(DisplayServer.get_name() != "headless" and not OS.get_environment("DWM_TEST_ROOT").is_empty(), "isolated rendered process"): return
 	await _phase_frames()
 	var bootstrap: Node = _phase_node("ApplicationBootstrap")
@@ -324,6 +325,9 @@ func run_process_phase(test_owner: Node, phase: String, report_directory: String
 	if not _phase_check(_phase_node("GameState").configure_test_scene_event_registry(registry()).get("ok", false), "independent event registry"): return
 	var marker_result: Dictionary = bridge.configure_test_reading_markers(markers(trusted.fingerprint), bootstrap.get("_desktop_identity_nonce_issuer"))
 	if not _phase_check(marker_result.get("ok", false), "real Bootstrap issuer bound " + str(marker_result)): return
+	if phase == "fault-install-produce":
+		await _phase_fault_install_produce()
+		return
 	if phase == "produce-pre-marker":
 		if not await _phase_new_run(): return
 		if not _phase_save("quick") or not _phase_save("slot:1"): return
@@ -333,7 +337,7 @@ func run_process_phase(test_owner: Node, phase: String, report_directory: String
 		_phase_report("quicksave.json")
 		await _phase_finish()
 		return
-	var previous: String = phases[phases.find(phase) - 1]
+	var previous: String = "fault-install-produce" if phase == "fault-install-consume" else phases[phases.find(phase) - 1]
 	var prior := _phase_prior(previous)
 	if prior.is_empty(): return
 	var profile: Dictionary = _phase_node("ProfileManager").get_profile_snapshot().duplicate(true)
@@ -345,6 +349,16 @@ func run_process_phase(test_owner: Node, phase: String, report_directory: String
 	if not _phase_check(game.capture_run_snapshot_input().command_receipts == prior.receipts, "Load retains immutable event receipts"): return
 	if not _phase_check(not game.validate_live_session(prior.live_session).get("ok", false), "prior process live authority is retired"): return
 	if not _phase_check(_phase_node("ProfileManager").get_profile_snapshot() == profile, "Load does not witness a caption"): return
+	if phase == "fault-install-consume":
+		if not _phase_check(prior.get("fatal", false) and prior.get("live_receipt_adopted", false), "producer recorded post-owner installation failure"): return
+		if not _phase_check(prior.checkpoint.reading_session.boundary == "notification"
+			and prior.checkpoint.reading_session.ledger.captions.size() == 1, "fresh consumer restores committed marker before SECOND"): return
+		if not _phase_check(not bootstrap.get("_application_gate").is_fatal_latched(), "fresh validated restore has current custody"): return
+		var native: RefCounted = bridge.get("_runtime_adapter")
+		if not _phase_check(native.is_marker_source_held(), "fresh native marker capability is restored"): return
+		_phase_report(prior.path, {"recovered_post_owner_install_failure": true})
+		await _phase_finish()
+		return
 	if phase == "consume-marker-source":
 		var live: Dictionary = game.capture_live_session().value
 		if not await _phase_load("slot:2", true): return
@@ -410,3 +424,46 @@ func _phase_event_count(receipts: Dictionary) -> int:
 	for receipt: Dictionary in receipts.values():
 		if receipt.get("kind") == "scene_event": count += 1
 	return count
+
+## Existing owner seam runs after actual disk commitment and immediately before
+## live receipt adoption. Change only the native locator: source identity and
+## immutable cursor stay valid, so owner adoption succeeds before Bridge install.
+func _phase_fault_install_produce() -> void:
+	if not await _phase_new_run(): return
+	var game: Node = _phase_node("GameState")
+	var bridge: Node = _phase_node("DialogicBridge")
+	var native: RefCounted = bridge.get("_runtime_adapter")
+	var gate: RefCounted = _phase_node("ApplicationBootstrap").get("_application_gate")
+	var frontier: Dictionary = bridge.capture_next_frontier()
+	if not _phase_check(frontier.get("ok", false), "fault producer owns FIRST frontier"): return
+	var hook_calls := {"count": 0}
+	game.set("_scene_event_before_adoption", func() -> bool:
+		hook_calls.count += 1
+		var binding: Dictionary = native.get("_marker_binding").duplicate(true)
+		binding.label = "scene.marker.fixture.invalid_install_locator"
+		native.set("_marker_binding", binding)
+		return true)
+	var result: Dictionary = await bridge.request_next(frontier)
+	game.set("_scene_event_before_adoption", Callable())
+	if not _phase_check(hook_calls.count == 1, "existing post-commit owner seam ran exactly once"): return
+	if not _phase_check(not result.get("ok", false) and result.get("code") == &"reading_marker_install_failed",
+		"native locator rejection occurs after receipt adoption: " + str(result)): return
+	if not _phase_check(gate.is_fatal_latched(), "committed native install failure retains fatal custody"): return
+	var committed := _phase_snapshot("autosave.json")
+	if committed.is_empty(): return
+	var live: Dictionary = game.capture_run_snapshot_input()
+	if not _phase_check(_phase_event_count(committed.command_receipts) == 1
+		and live.command_receipts == committed.command_receipts, "Run owner adopted exactly the actually saved receipt"): return
+	if not _phase_check(committed.narrative_checkpoint.reading_session.boundary == "notification"
+		and committed.narrative_checkpoint.reading_session.ledger.captions.size() == 1, "durable marker precedes SECOND"): return
+	if not _phase_check(native.current_line_id() != SECOND and native.is_marker_source_held(), "failed install never publishes SECOND"): return
+	var raw_before := _phase_raw("autosave.json")
+	var bypass: Dictionary = _phase_node("SaveManager").prepare_backup_action("save", "slot:1")
+	if not _phase_check(not bypass.get("ok", false), "fatal custody refuses manual Save bypass"): return
+	var retried: Dictionary = await bridge.request_next(frontier)
+	if not _phase_check(not retried.get("ok", false) and _phase_raw("autosave.json") == raw_before
+		and game.capture_run_snapshot_input().command_receipts == live.command_receipts, "fatal retry preserves confirmed bytes and adopted receipts"): return
+	_phase_report("autosave.json", {"fatal": true, "live_receipt_adopted": true,
+		"failure": result, "hook_calls": hook_calls.count, "second_published": false})
+	# No cleanup command crosses fatal custody. GUT exits this isolated process;
+	# the consumer reopens these exact native bytes with a pristine runtime.

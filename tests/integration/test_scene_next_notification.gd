@@ -13,7 +13,7 @@ func _plan(session: RefCounted) -> Dictionary:
 
 func _receipt(plan: Dictionary) -> Dictionary:
 	var envelope: Dictionary = plan.destination.semantic.duplicate(true)
-	envelope.playback_token = "fixture.live"
+	envelope["playback_token"] = "fixture.live"
 	return EVENT.make_receipt(envelope, plan.destination.anchor)
 
 func test_first_marker_stops_before_any_later_witness_query_or_caption_publication() -> void:
@@ -414,6 +414,9 @@ func test_connected_bridge_partial_next_commits_marker_and_later_next_preserves_
 	fixture.real.fail_on_commit = 2
 	var refused: Dictionary = await bridge.request_next(proof)
 	assert_false(refused.ok, "destination write fails after the source commit")
+	assert_eq(refused.get("code"), &"injected_failure", "actual FileOps refusal reaches the caller")
+	assert_eq(fixture.real.commits, 2, "the first source commit succeeded")
+	assert_true(refused.get("rolled_back", false), "destination compensation completed")
 	assert_false(fixture.gate.is_fatal_latched(), str(refused))
 	assert_false(fixture.gate.is_active())
 	assert_true(_adapter.is_marker_source_held(), "retry retains the retired coroutine capability")
