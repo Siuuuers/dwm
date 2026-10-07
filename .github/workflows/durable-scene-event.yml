@@ -16,7 +16,7 @@ jobs:
         with:
           # The schedule-gate contract inspects its immutable historical seals.
           fetch-depth: 0
-          ref: 39220d3f52eb19da81f7b3ec70dd11bc11f4d4c1
+          ref: a67f326da3841fe054904ea0554fc8ef9f170d76
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
@@ -71,17 +71,10 @@ jobs:
       - name: Verify exact product source and record executable identity
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '39220d3f52eb19da81f7b3ec70dd11bc11f4d4c1') { throw 'source mismatch' }
-          if ((git rev-parse 'HEAD^{tree}') -cne '8f741a0e6c8a2b01083118c30da57c4575b43e8b') { throw 'tree mismatch' }
+          if ((git rev-parse HEAD) -cne 'a67f326da3841fe054904ea0554fc8ef9f170d76') { throw 'source mismatch' }
+          if ((git rev-parse 'HEAD^{tree}') -cne '71d154fd4f3cb21baf60b0c6436f39832a422783') { throw 'tree mismatch' }
           if (git diff --name-only) { throw 'tracked source changed during import' }
           [ordered]@{source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); controller=$env:GITHUB_SHA; run=$env:GITHUB_RUN_ID; attempt=$env:GITHUB_RUN_ATTEMPT; executable=$env:GODOT_CONSOLE_PATH; executable_sha256=(Get-FileHash $env:GODOT_CONSOLE_PATH -Algorithm SHA256).Hash.ToLowerInvariant(); version=(& $env:GODOT_CONSOLE_PATH --version)} | ConvertTo-Json | Set-Content .godot/ci/identity.json
-      - name: Generate candidate public inventories in disposable checkout
-        run: |
-          ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git restore -- evidence/phase_2r/runtime/game_state_surface.json evidence/phase_2r/runtime/save_manager_surface.json
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (git diff --name-only) { throw 'tracked product source changed' }
       - name: Execute explicit new suites and retained dependency contracts
         run: |
           $ErrorActionPreference = 'Stop'
@@ -102,6 +95,13 @@ jobs:
           }
           $results | ConvertTo-Json | Set-Content .godot/ci/executed-suites.json
           Get-Content .godot/ci/executed-suites.json
+      - name: Generate candidate public inventories in disposable checkout
+        run: |
+          ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git restore -- evidence/phase_2r/runtime/game_state_surface.json evidence/phase_2r/runtime/save_manager_surface.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (git diff --name-only) { throw 'tracked product source changed' }
       - name: Verify tracked source remains clean
         run: |
           if (git diff --name-only) { throw 'tracked product source changed during proof' }
@@ -113,6 +113,100 @@ jobs:
           path: |
             .godot/ci/
             .godot/phase2r_logs/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+
+  restart:
+    name: Actual rendered process restart
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: a67f326da3841fe054904ea0554fc8ef9f170d76
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Prepare disposable checkout
+        run: |
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          git submodule foreach --recursive 'true'
+      - name: Install pinned standard engine and software display
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri
+          archive="$RUNNER_TEMP/godot-linux.zip"
+          curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip' --output "$archive"
+          printf '%s  %s\n' 'd0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3' "$archive" | sha256sum --check
+          unzip -q "$archive" -d "$RUNNER_TEMP/godot-linux"
+          editor="$RUNNER_TEMP/godot-linux/Godot_v4.6.3-stable_linux.x86_64"
+          chmod +x "$editor"
+          echo "GODOT_CONSOLE_PATH=$editor" >> "$GITHUB_ENV"
+      - name: Import exact product
+        env:
+          XDG_DATA_HOME: ${{ github.workspace }}/.godot/ci/import-linux/data
+          DWM_TEST_ROOT: ${{ github.workspace }}/.godot/ci/import-linux/test-root
+        run: |
+          mkdir -p .godot/ci "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
+          "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --import --log-file "$GITHUB_WORKSPACE/.godot/ci/import-linux.log"
+          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' .godot/ci/import-linux.log; then exit 1; fi
+          git restore -- project.godot
+          test "$(git rev-parse HEAD)" = 'a67f326da3841fe054904ea0554fc8ef9f170d76'
+          test "$(git rev-parse 'HEAD^{tree}')" = '71d154fd4f3cb21baf60b0c6436f39832a422783'
+          test -z "$(git diff --name-only)"
+      - name: Connected fresh processes and exact saved roots
+        run: |
+          python3 - <<'PYCODE'
+          import os, pathlib, subprocess, json, hashlib, shutil
+          work=pathlib.Path.cwd()
+          output=work/'.godot/ci'
+          roots=output/'restart-roots'
+          reports=output/'restart'
+          def manifest(root):
+              return {p.relative_to(root).as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in sorted(root.rglob('*')) if p.is_file()}
+          def execute(phase, case='main', fault=''):
+              root=roots/case
+              report=reports/case
+              report.mkdir(parents=True,exist_ok=True)
+              env=os.environ.copy()
+              for key,part in [('XDG_DATA_HOME','data'),('XDG_CONFIG_HOME','config'),('XDG_CACHE_HOME','cache'),('DWM_TEST_ROOT','test-root')]:
+                  path=root/part;path.mkdir(parents=True,exist_ok=True);env[key]=str(path)
+              before=manifest(root)
+              args=['xvfb-run','-a',env['GODOT_CONSOLE_PATH'],'--path',str(work),'--rendering-method','gl_compatibility','--rendering-driver','opengl3','--audio-driver','Dummy','--script','res://tests/manual/verify_scene_event_restart.gd','--','--phase2r-bootstrap-mode=final','--probe-dating','--scene-event-phase='+phase,'--scene-event-report-dir=res://.godot/ci/restart/'+case]
+              if fault:args+=['--scene-event-fault='+fault]
+              run=subprocess.run(args,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=240)
+              (report/(phase+'.log')).write_text(run.stdout)
+              after=manifest(root)
+              (report/(phase+'-manifest.json')).write_text(json.dumps({'before':before,'after':after,'exit':run.returncode,'source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'controller':env['GITHUB_SHA'],'run':env['GITHUB_RUN_ID'],'attempt':env['GITHUB_RUN_ATTEMPT'],'command':args},indent=2))
+              marker='SCENE_EVENT_'+phase.upper().replace('-','_')+'_PASS'
+              if run.returncode or marker not in run.stdout or any(x in run.stdout for x in ['SCRIPT ERROR:','ERROR: Failed to load','Unicode parsing error','Unexpected NUL character','PLAYABLE_STARTUP_FAIL:']):
+                  print(run.stdout);raise SystemExit('Failed '+case+'/'+phase)
+              print(case+'/'+phase+' verified; '+str(len(after))+' actual root files')
+          execute('produce')
+          shutil.copytree(roots/'main',roots/'producer-original')
+          for refusal in ['missing-registry','mismatched-registry']:
+              shutil.copytree(roots/'producer-original',roots/refusal)
+              (reports/refusal).mkdir(parents=True,exist_ok=True)
+              shutil.copy2(reports/'main/produce.json',reports/refusal/'produce.json')
+              execute(refusal,refusal)
+          execute('consume')
+          shutil.copytree(roots/'main',roots/'consumer-original')
+          execute('consume-again')
+          for fault in ['before-write','lost-ack','rollback-fail','adoption']:
+              execute('fault-produce',fault,fault)
+              shutil.copytree(roots/fault,roots/(fault+'-original'))
+              execute('fault-consume',fault,fault)
+          PYCODE
+      - name: Check unmodified source
+        run: test -z "$(git diff --name-only)"
+      - name: Retain original process logs and every saved root
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scene-event-restart-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 14
