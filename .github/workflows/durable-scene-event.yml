@@ -16,7 +16,7 @@ jobs:
         with:
           # The schedule-gate contract inspects its immutable historical seals.
           fetch-depth: 0
-          ref: 9863e25b675667b90799c745421e6a69833727e6
+          ref: a5bde2c884f9fe8b24a687ed8b5d99e9d1d8e410
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
@@ -71,14 +71,15 @@ jobs:
       - name: Verify exact product source and record executable identity
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '9863e25b675667b90799c745421e6a69833727e6') { throw 'source mismatch' }
-          if ((git rev-parse 'HEAD^{tree}') -cne '0c52548ed70259577bcae6152fc793e43e2f68a5') { throw 'tree mismatch' }
+          if ((git rev-parse HEAD) -cne 'a5bde2c884f9fe8b24a687ed8b5d99e9d1d8e410') { throw 'source mismatch' }
+          if ((git rev-parse 'HEAD^{tree}') -cne '37aafcc4b55a28b57512a17b3d600f0c06811e9d') { throw 'tree mismatch' }
           if (git diff --name-only) { throw 'tracked source changed during import' }
           [ordered]@{source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); controller=$env:GITHUB_SHA; run=$env:GITHUB_RUN_ID; attempt=$env:GITHUB_RUN_ATTEMPT; executable=$env:GODOT_CONSOLE_PATH; executable_sha256=(Get-FileHash $env:GODOT_CONSOLE_PATH -Algorithm SHA256).Hash.ToLowerInvariant(); version=(& $env:GODOT_CONSOLE_PATH --version)} | ConvertTo-Json | Set-Content .godot/ci/identity.json
       - name: Execute explicit new suites and retained dependency contracts
+        timeout-minutes: 12
         run: |
           $ErrorActionPreference = 'Stop'
-          $paths = @('res://tests/integration/test_scene_event_durable_contract.gd','res://tests/unit/test_save_manager_narrative_checkpoint_port.gd','res://tests/unit/test_scene_event_receipt_state.gd','res://tests/backup_storage/test_manual_witness_revision_storage.gd','res://tests/integration/test_desktop_board_persistence.gd','res://tests/integration/test_desktop_bootstrap_wiring.gd','res://tests/integration/test_desktop_quick_commands.gd','res://tests/integration/test_minesweeper_first_reveal_transaction.gd','res://tests/integration/test_new_run_pair_durability.gd','res://tests/integration/test_phase2r_schedule_desktop_handoff.gd','res://tests/integration/test_restore_production_adapters.gd','res://tests/integration/test_warm_outgoing_proof_commits.gd','res://tests/save_load_capture/test_capture.gd','res://tests/unit/test_checkpoint_history_region_search.gd','res://tests/unit/test_checkpoint_journal.gd','res://tests/unit/test_checkpoint_phase_diagnostics.gd','res://tests/unit/test_checkpoint_validation_reuse.gd','res://tests/unit/test_desktop_cold_recovery_preparation.gd','res://tests/unit/test_run_dark_configuration.gd','res://tests/unit/test_run_snapshot_schema.gd','res://tests/unit/test_save_document_schema.gd','res://tests/unit/test_save_manager_checkpoint_port.gd','res://tests/unit/test_save_manager_parse_cache.gd','res://tests/unit/test_save_migrations.gd','res://tests/unit/tooling/test_phase2r_schedule_gate.gd','res://tests/unit/test_scene_event_contract.gd','res://tests/integration/test_scene_event_owner_contract.gd','res://tests/unit/test_application_mutation_gate.gd','res://tests/unit/test_desktop_identity_nonce_issuer.gd','res://tests/unit/test_canonical_writer_compatibility.gd','res://tests/unit/test_reading_next_checkpoint.gd','res://tests/unit/test_reading_restore_admission.gd')
+          $paths = @('res://tests/integration/test_scene_event_durable_contract.gd','res://tests/unit/test_save_manager_narrative_checkpoint_port.gd','res://tests/unit/test_scene_event_receipt_state.gd','res://tests/integration/test_desktop_board_persistence.gd','res://tests/integration/test_desktop_bootstrap_wiring.gd','res://tests/integration/test_desktop_quick_commands.gd','res://tests/integration/test_minesweeper_first_reveal_transaction.gd','res://tests/integration/test_new_run_pair_durability.gd','res://tests/integration/test_phase2r_schedule_desktop_handoff.gd','res://tests/integration/test_restore_production_adapters.gd','res://tests/integration/test_warm_outgoing_proof_commits.gd','res://tests/unit/test_checkpoint_history_region_search.gd','res://tests/unit/test_checkpoint_journal.gd','res://tests/unit/test_checkpoint_phase_diagnostics.gd','res://tests/unit/test_checkpoint_validation_reuse.gd','res://tests/unit/test_desktop_cold_recovery_preparation.gd','res://tests/unit/test_run_dark_configuration.gd','res://tests/unit/test_run_snapshot_schema.gd','res://tests/unit/test_save_document_schema.gd','res://tests/unit/test_save_manager_checkpoint_port.gd','res://tests/unit/test_save_manager_parse_cache.gd','res://tests/unit/test_save_migrations.gd','res://tests/unit/tooling/test_phase2r_schedule_gate.gd','res://tests/unit/test_scene_event_contract.gd','res://tests/integration/test_scene_event_owner_contract.gd','res://tests/unit/test_application_mutation_gate.gd','res://tests/unit/test_desktop_identity_nonce_issuer.gd','res://tests/unit/test_canonical_writer_compatibility.gd','res://tests/unit/test_reading_next_checkpoint.gd','res://tests/unit/test_reading_restore_admission.gd')
           $allResults = @()
           $index = 0
           foreach ($path in $paths) {
@@ -101,6 +102,20 @@ jobs:
             $allResults | ConvertTo-Json | Set-Content .godot/ci/executed-suites.json
           }
           Get-Content .godot/ci/executed-suites.json
+      - name: Execute standalone affected storage and capture contracts
+        timeout-minutes: 8
+        run: |
+          $cases = @(
+            @{path='res://tests/backup_storage/test_manual_witness_revision_storage.gd'; name='manual-witness'; marker='MANUAL_WITNESS_REVISION_STORAGE_PASS'},
+            @{path='res://tests/save_load_capture/test_capture.gd'; name='save-load-capture'; marker='SAVE_LOAD_CAPTURE_PASS'}
+          )
+          foreach ($case in $cases) {
+            ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId $case.name -LogName ($case.name + '.log') -EvidenceLogPath ('.godot/ci/' + $case.name + '.jsonl') -TimeoutSeconds 180 -GodotArgs @('-s',$case.path)
+            if ($LASTEXITCODE -ne 0) { throw "standalone failed: $($case.path)" }
+            $log = '.godot/phase2r_logs/' + $case.name + '.log'
+            if (-not (Select-String -Path $log -Pattern $case.marker -SimpleMatch -Quiet)) { throw "standalone did not execute: $($case.path)" }
+            if (Select-String -Path $log -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw "invalid engine output: $($case.path)" }
+          }
       - name: Generate candidate public inventories in disposable checkout
         run: |
           ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate
@@ -132,7 +147,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: 9863e25b675667b90799c745421e6a69833727e6
+          ref: a5bde2c884f9fe8b24a687ed8b5d99e9d1d8e410
           fetch-depth: 0
           persist-credentials: true
       - name: Prepare disposable checkout
@@ -159,8 +174,8 @@ jobs:
           "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --import --log-file "$GITHUB_WORKSPACE/.godot/ci/import-linux.log"
           if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' .godot/ci/import-linux.log; then exit 1; fi
           git restore -- project.godot
-          test "$(git rev-parse HEAD)" = '9863e25b675667b90799c745421e6a69833727e6'
-          test "$(git rev-parse 'HEAD^{tree}')" = '0c52548ed70259577bcae6152fc793e43e2f68a5'
+          test "$(git rev-parse HEAD)" = 'a5bde2c884f9fe8b24a687ed8b5d99e9d1d8e410'
+          test "$(git rev-parse 'HEAD^{tree}')" = '37aafcc4b55a28b57512a17b3d600f0c06811e9d'
           test -z "$(git diff --name-only)"
       - name: Connected fresh processes and exact saved roots
         run: |
@@ -207,6 +222,10 @@ jobs:
               execute('fault-produce',fault,fault)
               shutil.copytree(roots/fault,roots/(fault+'-original'))
               execute('fault-consume',fault,fault)
+          shutil.copytree(roots/'producer-original',roots/'old-format')
+          (reports/'old-format').mkdir(parents=True,exist_ok=True)
+          shutil.copy2(reports/'main/produce.json',reports/'old-format/produce.json')
+          execute('old-format','old-format')
           PYCODE
       - name: Check unmodified source
         run: test -z "$(git diff --name-only)"
