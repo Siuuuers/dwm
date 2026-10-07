@@ -224,6 +224,9 @@ func release_retained_caption_layout(dispose: bool = true) -> void:
 
 
 func _retire_caption_binding() -> void:
+	_marker_hold = {}
+	_marker_binding = {}
+	_marker_restore = {}
 	_scene_event_hold = {}
 	_retain_caption_layout = false
 	_caption_ledger = null
@@ -282,14 +285,28 @@ func complete_reading_frontier() -> Dictionary:
 ## it. Finish only the exact retained node of the current layout, without showing
 ## it, stopping suspended audio or exposing a next event to the foreground.
 func complete_paused_reading_frontier(text_node: DialogicNode_DialogText) -> Dictionary:
-	var before := capture_reading_frontier()
-	if not before.get("ok", false): return before
+	if not _bound or _dialogic == null:
+		return _fail(&"reading_frontier_unavailable", "the exact hidden suspended caption is required")
+	var before := {}
+	if _marker_hold.is_empty():
+		before = capture_reading_frontier()
+		if not before.get("ok", false): return before
 	var layout: Node = _dialogic.Styles.get_layout_node()
 	if not _dialogic.paused or not is_instance_valid(text_node) or not is_instance_valid(layout) \
 			or not layout.is_ancestor_of(text_node) or not text_node.is_inside_tree() \
 			or text_node.is_queued_for_deletion() or text_node.is_visible_in_tree() \
 			or not text_node.enabled or text_node.text != _dialogic.current_state_info.get("text"):
 		return _fail(&"reading_frontier_unavailable", "the exact hidden suspended caption is required")
+	if not _marker_hold.is_empty():
+		# The marker's ledger may include witnessed captions that were never
+		# rendered here. Pause still owns this exact completed native source;
+		# do not reveal it again or demand that it be the ledger's new tail.
+		if not _marker_hold_current() or text_node.revealing or text_node.visible_ratio != 1.0:
+			return _fail(&"reading_frontier_changed", "the held marker source is no longer complete")
+		var held_native := capture_pause_frontier()
+		if not held_native.ok:
+			return _fail(&"reading_frontier_unavailable", "the marker has no suspended native source")
+		return {"ok": true, "value": {"reveal_generation": text_node.get_reveal_generation(), "completed": false}}
 	var event := _caption_event
 	var native := capture_pause_frontier()
 	var generation := text_node.get_reveal_generation()
@@ -318,7 +335,7 @@ func validate_reading_line(path: String, entry_label: String, line_id: String, e
 
 ## This fixed-prose increment admits the whole native programme, not just its
 ## registered subset. A saved line may not skip an unregistered caption/effect.
-func validate_reading_entry(path: String, entry_label: String, lines: Array) -> Dictionary:
+func validate_reading_entry(path: String, entry_label: String, lines: Array, marker: Dictionary = {}) -> Dictionary:
 	if path.is_empty() or entry_label.is_empty() or lines.is_empty() or not ResourceLoader.exists(path):
 		return _fail(&"reading_entry_invalid", "an authored entry and ordered captions are required")
 	var identifiers := {}
@@ -337,8 +354,16 @@ func validate_reading_entry(path: String, entry_label: String, lines: Array) -> 
 	var labels := 0
 	var ordinal := 0
 	var ended := false
+	var marker_count := 0
 	for event: DialogicEvent in detached.events:
 		if event is DialogicLabelEvent:
+			if str(event.name).begins_with("scene.marker."):
+				if not selected or ended or marker.is_empty() or event.name != marker.get("label") or ordinal == 0 \
+						or ordinal >= lines.size() or lines[ordinal - 1].line_id != marker.get("after_line_id") \
+						or lines[ordinal].line_id != marker.get("before_line_id"):
+					return _fail(&"reading_marker_position_invalid", "unregistered marker locator")
+				marker_count += 1
+				continue
 			selected = event.name == entry_label
 			if selected:
 				labels += 1
@@ -358,7 +383,7 @@ func validate_reading_entry(path: String, entry_label: String, lines: Array) -> 
 		if not _reading_text_matches(event, lines[ordinal].text):
 			return _fail(&"reading_line_content_mismatch", "the authored plain caption differs from its catalogue")
 		ordinal += 1
-	if labels != 1 or not ended or ordinal != lines.size():
+	if labels != 1 or not ended or ordinal != lines.size() or marker_count != (0 if marker.is_empty() else 1):
 		return _fail(&"reading_entry_mismatch", "the complete fixed entry must end with return")
 	return {"ok": true}
 
@@ -508,6 +533,7 @@ func _reading_seek_indices(entry_label: String, lines: Array, destination: Strin
 	var target_ordinal := -1
 	var target_index := -1
 	var ended := false
+	var markers := 0
 	for index: int in _dialogic.current_timeline_events.size():
 		var event: DialogicEvent = _dialogic.current_timeline_events[index]
 		if not event.event_node_ready:
@@ -515,6 +541,14 @@ func _reading_seek_indices(entry_label: String, lines: Array, destination: Strin
 			detached._load_from_string(event.event_node_as_text)
 			event = detached
 		if event is DialogicLabelEvent:
+			if str(event.name).begins_with("scene.marker."):
+				if not selected or ended or _marker_binding.is_empty() or event.name != _marker_binding.label \
+						or ordinal == 0 or ordinal >= lines.size() \
+						or lines[ordinal - 1].line_id != _marker_binding.after_line_id \
+						or lines[ordinal].line_id != _marker_binding.before_line_id:
+					return _fail(&"reading_seek_changed", "marker locator changed")
+				markers += 1
+				continue
 			selected = event.name == entry_label
 			if selected: labels += 1
 			continue
@@ -531,13 +565,15 @@ func _reading_seek_indices(entry_label: String, lines: Array, destination: Strin
 				or _authored_line_id(event) != lines[ordinal].line_id or not _is_single_skip_line(event) \
 				or not _reading_text_matches(event, lines[ordinal].text):
 			return _fail(&"reading_seek_changed", "the native entry differs from the complete fixed catalogue")
-		if index == int(_dialogic.current_event_idx) and event == _caption_event: source_ordinal = ordinal
+		if _marker_hold.is_empty():
+			if index == int(_dialogic.current_event_idx) and event == _caption_event: source_ordinal = ordinal
+		elif _authored_line_id(event) == _marker_hold.source_line: source_ordinal = ordinal
 		if _authored_line_id(event) == destination:
 			target_index = index
 			target_ordinal = ordinal
 		ordinal += 1
 	if labels != 1 or not ended or ordinal != lines.size() or source_ordinal < 0 \
-			or target_index < 0 or target_ordinal < source_ordinal:
+			or target_index < 0 or target_ordinal < source_ordinal or markers != (0 if _marker_binding.is_empty() else 1):
 		return _fail(&"reading_seek_changed", "the target must be in the current fixed entry at or after its source")
 	var crossed: Array[String] = []
 	for index: int in range(source_ordinal + 1, mini(target_ordinal + 1, lines.size())):
@@ -613,6 +649,7 @@ func _resolve_reading_line(path: String, entry_label: String, line_id: String, e
 	for index: int in detached.events.size():
 		var event: DialogicEvent = detached.events[index]
 		if event is DialogicLabelEvent:
+			if str(event.name).begins_with("scene.marker."): continue
 			selected = event.name == entry_label
 			if selected: labels += 1
 		elif selected and event is DialogicTextEvent and _authored_line_id(event) == line_id:
@@ -649,6 +686,14 @@ func _finish_reading_restore(request_id: String, event: DialogicTextEvent) -> vo
 	if not captured.ok or captured.value != expected:
 		_fail_reading_restore(_fail(&"reading_frontier_changed", "the resumed occurrence changed"))
 		return
+	if not _marker_restore.is_empty():
+		var parked := hold_marker_source(captured.value)
+		if not parked.ok:
+			_fail_reading_restore(parked)
+			return
+		_marker_hold.source_line = _marker_restore.anchor.line_id
+		_marker_hold.frontier = _marker_restore.duplicate(true)
+		_marker_restore = {}
 	reading_frontier_restored.emit(captured)
 
 
@@ -1096,3 +1141,143 @@ func dispatch_scene_event_acknowledged(envelope: Dictionary, dispatch: Callable)
 	if not resumed.ok: return {"ok": false, "code": &"event_ack_resume_failed", "committed": true}
 	_scene_event_hold = {}
 	return result
+
+
+var _marker_binding: Dictionary = {}
+var _marker_hold: Dictionary = {}
+var _marker_restore: Dictionary = {}
+
+func bind_reading_marker(marker: Dictionary, restore_frontier: Dictionary = {}) -> Dictionary:
+	if has_active_playback() or _caption_ledger == null: return _fail(&"reading_marker_binding_unavailable", "")
+	if not marker.is_empty():
+		for field: String in ["event_id", "label", "after_line_id", "before_line_id"]:
+			if not marker.get(field) is String or str(marker[field]).is_empty():
+				return _fail(&"reading_marker_binding_invalid", "the trusted marker locator is incomplete")
+		if marker.label != "scene.marker." + marker.event_id or marker.after_line_id == marker.before_line_id:
+			return _fail(&"reading_marker_binding_invalid", "the trusted marker locator is invalid")
+	if not restore_frontier.is_empty():
+		if marker.is_empty() or restore_frontier.get("event_id") != marker.event_id \
+				or not restore_frontier.get("anchor") is Dictionary:
+			return _fail(&"reading_marker_binding_invalid", "the restore must name the registered marker")
+		var anchor: Dictionary = restore_frontier.anchor
+		if anchor.get("line_id") != marker.after_line_id or anchor.get("session_id") != _caption_token \
+				or anchor.get("entry_id") != _caption_entry:
+			return _fail(&"reading_marker_binding_invalid", "the restore must retain its session anchor")
+		var occurrence := _check_reading_occurrence({"line_id": anchor.line_id, "publication_id": anchor.get("publication_id")})
+		if not occurrence.ok: return occurrence
+	_marker_binding = marker.duplicate(true)
+	_marker_restore = restore_frontier.duplicate(true)
+	return {"ok": true}
+
+func is_marker_source_held() -> bool:
+	return _marker_hold_current()
+
+func marker_source_identity() -> Dictionary:
+	if not _marker_hold.is_empty():
+		if not _marker_hold_current(): return _fail(&"reading_marker_source_changed", "")
+		return {"ok": true, "value": _marker_hold.identity.duplicate(true)}
+	var captured := capture_reading_frontier()
+	if not captured.ok: return captured
+	return {"ok": true, "value": {"request": _request_id, "generation": _runtime_generation,
+		"session": _caption_token, "entry": _caption_entry, "event_index": int(_dialogic.current_event_idx),
+		"frontier": captured.value.duplicate(true)}}
+
+func _marker_hold_current() -> bool:
+	return not _marker_hold.is_empty() and _caption_source_is_current() \
+		and _marker_hold.identity.request == _request_id and _marker_hold.identity.generation == _runtime_generation \
+		and _marker_hold.identity.session == _caption_token and _marker_hold.identity.entry == _caption_entry \
+		and _marker_hold.identity.event_index == int(_dialogic.current_event_idx) \
+		and _marker_hold.ledger == _caption_ledger and _marker_hold.snapshot == _caption_ledger.snapshot() \
+		and _marker_hold.event == _caption_event and _caption_event == _current_skip_text(true) \
+		and _caption_event.state == DialogicTextEvent.States.DONE \
+		and _caption_event._execution_generation == _marker_hold.execution_generation \
+		and not _caption_event.event_finished.is_connected(Callable(_dialogic, "handle_next_event"))
+
+## Finish precisely once and remove its native continuation. A compensated retry
+## retains this capability; it never sends advance into a retired coroutine.
+func hold_marker_source(source: Dictionary) -> Dictionary:
+	if not _marker_hold.is_empty():
+		return {"ok": true} if _marker_hold_current() and _marker_hold.identity.frontier == source else _fail(&"reading_marker_source_changed", "")
+	var identity := marker_source_identity()
+	if not identity.ok or identity.value.frontier != source: return _fail(&"reading_marker_source_changed", "")
+	var ledger := _caption_ledger
+	var snapshot := ledger.snapshot()
+	var completed := complete_reading_frontier()
+	if not completed.ok: return completed
+	var after := marker_source_identity()
+	if not after.ok or after.value != identity.value or ledger != _caption_ledger or snapshot != ledger.snapshot():
+		return _fail(&"reading_marker_source_changed", "")
+	var event := _caption_event
+	var continuation := Callable(_dialogic, "handle_next_event")
+	if not event.event_finished.is_connected(continuation): return _fail(&"reading_marker_continuation_missing", "")
+	var observed := {"finished": false}
+	var callback := func(_event: DialogicEvent) -> void: observed.finished = true
+	event.event_finished.connect(callback, CONNECT_ONE_SHOT)
+	event.event_finished.disconnect(continuation)
+	event.advance.emit()
+	if event.event_finished.is_connected(callback): event.event_finished.disconnect(callback)
+	after = marker_source_identity()
+	if not observed.finished or not after.ok or after.value != identity.value \
+			or ledger != _caption_ledger or snapshot != ledger.snapshot():
+		# Once continuation is detached the source is no longer retryable unless
+		# its exact finished coroutine is proved. Fail closed instead of reviving it.
+		var failed := _fail(&"reading_marker_source_changed", "source retirement could not be proved")
+		halt_with_error(failed)
+		return failed
+	event._clear_state()
+	after = marker_source_identity()
+	if not after.ok or after.value != identity.value or ledger != _caption_ledger or snapshot != ledger.snapshot():
+		var failed := _fail(&"reading_marker_source_changed", "source cleanup changed the admitted occurrence")
+		halt_with_error(failed)
+		return failed
+	_marker_hold = {"identity": identity.value.duplicate(true), "source_line": source.line_id,
+		"frontier": {}, "ledger": _caption_ledger, "snapshot": _caption_ledger.snapshot(),
+		"event": event, "execution_generation": event._execution_generation}
+	return {"ok": true}
+
+func prepare_marker_seek(entry_label: String, lines: Array, destination_line: String) -> Dictionary:
+	if _marker_binding.is_empty() or _dialogic == null or _dialogic.paused \
+			or not _caption_seek_result.is_empty() or is_reading_frontier_restoring() \
+			or _dialogic.Inputs.auto_skip.enabled or _dialogic.Inputs.auto_advance.is_enabled():
+		return _fail(&"reading_seek_unavailable", "ordinary transport at the exact source is required")
+	var source := marker_source_identity()
+	if not source.ok: return source
+	var valid := validate_reading_entry(_requested_path, entry_label, lines, _marker_binding)
+	if not valid.ok: return valid
+	var indices := _reading_seek_indices(entry_label, lines, destination_line)
+	if not indices.ok: return indices
+	return {"ok": true, "value": {"identity": source.value.duplicate(true), "entry_label": entry_label,
+		"lines": lines.duplicate(true), "destination": destination_line, "indices": indices.value}}
+
+func install_marker_candidate(plan: Dictionary, candidate: NarrativeCaptionLedger, frontier: Dictionary) -> Dictionary:
+	if not _marker_hold_current() or _marker_hold.identity != plan.get("identity") \
+			or _dialogic.paused or _dialogic.Inputs.auto_skip.enabled or _dialogic.Inputs.auto_advance.is_enabled():
+		return _fail(&"reading_marker_source_changed", "")
+	var indices := _reading_seek_indices(plan.entry_label, plan.lines, plan.destination)
+	if not indices.ok or indices.value != plan.indices: return _fail(&"reading_seek_changed", "")
+	var target_frontier := frontier.duplicate(true)
+	if frontier.has("anchor"):
+		if not frontier.anchor is Dictionary or frontier.get("event_id") != _marker_binding.event_id \
+				or frontier.anchor.get("line_id") != _marker_binding.after_line_id \
+				or frontier.anchor.get("session_id") != _caption_token \
+				or frontier.anchor.get("entry_id") != _caption_entry:
+			return _fail(&"reading_seek_target_invalid", "the exact registered marker anchor is required")
+		target_frontier = {"line_id": frontier.anchor.line_id, "publication_id": frontier.anchor.get("publication_id")}
+	var prepared := {"snapshot": _marker_hold.snapshot, "indices": plan.indices,
+		"plan": {"terminal": plan.destination.is_empty(), "destination_line_id": plan.destination}}
+	var checked := _check_reading_seek_target(prepared, candidate, target_frontier)
+	if not checked.ok: return checked
+	var after: Dictionary = candidate.snapshot()
+	_caption_ledger = candidate
+	_marker_hold.ledger = candidate
+	_marker_hold.snapshot = after
+	if frontier.has("anchor"):
+		_marker_hold.frontier = frontier.duplicate(true)
+		_marker_hold.source_line = frontier.anchor.line_id
+		return {"ok": true, "value": {"pending": false}}
+	_caption_seek_frontier = frontier.duplicate(true)
+	_caption_seek_result = {"ok": true, "value": {"frontier": frontier.duplicate(true), "terminal": frontier.is_empty()}}
+	_caption_seek_queued = false
+	_marker_hold = {}
+	_dialogic.handle_event(int(indices.value.target_index))
+	return {"ok": true, "value": {"pending": true}}

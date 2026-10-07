@@ -1,0 +1,12 @@
+# NON-CANON: explicitly registered only by the isolated marker fixture.
+return
+
+label dating.solo.priscilla.day1.pre_challenge
+FIRST: a deliberately long partial reveal that remains visible until one Next activation finishes it and commits the registered notification without publishing SECOND. #id:fixture.next.a
+label scene.marker.fixture.notice.set
+SECOND: visible only after the next deliberate activation. #id:fixture.next.b
+return
+
+label dating.solo.priscilla.day1.post_challenge
+POST #id:fixture.next.post
+return
