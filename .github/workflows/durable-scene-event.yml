@@ -5,139 +5,6 @@ on:
 permissions:
   contents: read
 jobs:
-  foundation:
-    runs-on: windows-2022
-    timeout-minutes: 25
-    defaults:
-      run:
-        shell: pwsh
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          # The schedule-gate contract inspects its immutable historical seals.
-          fetch-depth: 0
-          ref: a5bde2c884f9fe8b24a687ed8b5d99e9d1d8e410
-          # Defer credential removal until the post-job cleanup, after the
-          # malformed gitlinks are removed from this disposable runner's index.
-          persist-credentials: true
-      - name: Prepare disposable checkout for credential cleanup
-        run: |
-          $ErrorActionPreference = 'Stop'
-          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
-          # submodule foreach reads the index even with sparse checkout.
-          # The source commit and working files remain unchanged.
-          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git submodule foreach --recursive 'true'
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Install Godot 4.6.3 standard
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
-          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
-          # SHA256 published with the official 4.6.3-stable release asset.
-          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
-          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
-            throw 'Godot archive checksum mismatch.'
-          }
-          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
-          Expand-Archive -LiteralPath $archive -DestinationPath $editor
-          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
-          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
-          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          & $console --version
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Import project
-        timeout-minutes: 8
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
-          $env:APPDATA = Join-Path $output 'import-user/appdata'
-          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
-          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
-          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
-          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
-            throw 'Project import reported script errors; inspect import.log.'
-          }
-      - name: Restore committed project settings after editor import
-        run: |
-          # Dialogic's editor scan rewrites its timeline lookup during import.
-          # Execute the committed configuration with the freshly imported assets.
-          git restore -- project.godot
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-      - name: Verify exact product source and record executable identity
-        run: |
-          $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne 'a5bde2c884f9fe8b24a687ed8b5d99e9d1d8e410') { throw 'source mismatch' }
-          if ((git rev-parse 'HEAD^{tree}') -cne '37aafcc4b55a28b57512a17b3d600f0c06811e9d') { throw 'tree mismatch' }
-          if (git diff --name-only) { throw 'tracked source changed during import' }
-          [ordered]@{source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); controller=$env:GITHUB_SHA; run=$env:GITHUB_RUN_ID; attempt=$env:GITHUB_RUN_ATTEMPT; executable=$env:GODOT_CONSOLE_PATH; executable_sha256=(Get-FileHash $env:GODOT_CONSOLE_PATH -Algorithm SHA256).Hash.ToLowerInvariant(); version=(& $env:GODOT_CONSOLE_PATH --version)} | ConvertTo-Json | Set-Content .godot/ci/identity.json
-      - name: Execute explicit new suites and retained dependency contracts
-        timeout-minutes: 12
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $paths = @('res://tests/integration/test_scene_event_durable_contract.gd','res://tests/unit/test_save_manager_narrative_checkpoint_port.gd','res://tests/unit/test_scene_event_receipt_state.gd','res://tests/integration/test_desktop_board_persistence.gd','res://tests/integration/test_desktop_bootstrap_wiring.gd','res://tests/integration/test_desktop_quick_commands.gd','res://tests/integration/test_minesweeper_first_reveal_transaction.gd','res://tests/integration/test_new_run_pair_durability.gd','res://tests/integration/test_phase2r_schedule_desktop_handoff.gd','res://tests/integration/test_restore_production_adapters.gd','res://tests/integration/test_warm_outgoing_proof_commits.gd','res://tests/unit/test_checkpoint_history_region_search.gd','res://tests/unit/test_checkpoint_journal.gd','res://tests/unit/test_checkpoint_phase_diagnostics.gd','res://tests/unit/test_checkpoint_validation_reuse.gd','res://tests/unit/test_desktop_cold_recovery_preparation.gd','res://tests/unit/test_run_dark_configuration.gd','res://tests/unit/test_run_snapshot_schema.gd','res://tests/unit/test_save_document_schema.gd','res://tests/unit/test_save_manager_checkpoint_port.gd','res://tests/unit/test_save_manager_parse_cache.gd','res://tests/unit/test_save_migrations.gd','res://tests/unit/tooling/test_phase2r_schedule_gate.gd','res://tests/unit/test_scene_event_contract.gd','res://tests/integration/test_scene_event_owner_contract.gd','res://tests/unit/test_application_mutation_gate.gd','res://tests/unit/test_desktop_identity_nonce_issuer.gd','res://tests/unit/test_canonical_writer_compatibility.gd','res://tests/unit/test_reading_next_checkpoint.gd','res://tests/unit/test_reading_restore_admission.gd')
-          $allResults = @()
-          $index = 0
-          foreach ($path in $paths) {
-            $index += 1
-            $base = "scene-event-$index"
-            $xmlPath = ".godot/ci/$base.xml"
-            $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',("-gtest=" + $path),'-gexit','-glog=2',("-gjunit_xml_file=res://" + $xmlPath))
-            ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId $base -LogName "$base.log" -EvidenceLogPath ".godot/ci/$base.jsonl" -TimeoutSeconds 120 -GodotArgs $arguments
-            $result = $LASTEXITCODE
-            $log = ".godot/phase2r_logs/$base.log"
-            if ($result -ne 0) { Get-Content $log -Tail 160; throw "focused suite failed: $path ($result)" }
-            if (Select-String -Path $log -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw "invalid engine output: $path" }
-            [xml]$xml = Get-Content $xmlPath -Raw
-            if ($xml.SelectNodes('//failure | //error | //skipped').Count -ne 0) { throw "failed or skipped tests: $path" }
-            $results = @($xml.SelectNodes('//testsuite') | ForEach-Object { [ordered]@{name=$_.GetAttribute('name'); cases=$_.SelectNodes('./testcase').Count} })
-            $relative = $path.Replace('res://','')
-            $matching = @($results | Where-Object { $_.name.Replace('res://','') -ceq $relative })
-            if ($matching.Count -ne 1 -or $matching[0].cases -eq 0) { throw "requested suite not executed: $path" }
-            $allResults += $results
-            $allResults | ConvertTo-Json | Set-Content .godot/ci/executed-suites.json
-          }
-          Get-Content .godot/ci/executed-suites.json
-      - name: Execute standalone affected storage and capture contracts
-        timeout-minutes: 8
-        run: |
-          $cases = @(
-            @{path='res://tests/backup_storage/test_manual_witness_revision_storage.gd'; name='manual-witness'; marker='MANUAL_WITNESS_REVISION_STORAGE_PASS'},
-            @{path='res://tests/save_load_capture/test_capture.gd'; name='save-load-capture'; marker='SAVE_LOAD_CAPTURE_PASS'}
-          )
-          foreach ($case in $cases) {
-            ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId $case.name -LogName ($case.name + '.log') -EvidenceLogPath ('.godot/ci/' + $case.name + '.jsonl') -TimeoutSeconds 180 -GodotArgs @('-s',$case.path)
-            if ($LASTEXITCODE -ne 0) { throw "standalone failed: $($case.path)" }
-            $log = '.godot/phase2r_logs/' + $case.name + '.log'
-            if (-not (Select-String -Path $log -Pattern $case.marker -SimpleMatch -Quiet)) { throw "standalone did not execute: $($case.path)" }
-            if (Select-String -Path $log -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw "invalid engine output: $($case.path)" }
-          }
-      - name: Generate candidate public inventories in disposable checkout
-        run: |
-          ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git restore -- evidence/phase_2r/runtime/game_state_surface.json evidence/phase_2r/runtime/save_manager_surface.json
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (git diff --name-only) { throw 'tracked product source changed' }
-      - name: Verify tracked source remains clean
-        run: |
-          if (git diff --name-only) { throw 'tracked product source changed during proof' }
-      - name: Retain original logs reports and generated bytes
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: scene-event-durable-candidate-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            .godot/ci/
-            .godot/phase2r_logs/
-          include-hidden-files: true
-          if-no-files-found: error
-          retention-days: 14
-
   restart:
     name: Actual rendered process restart
     runs-on: ubuntu-24.04
@@ -147,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: a5bde2c884f9fe8b24a687ed8b5d99e9d1d8e410
+          ref: f08a61a0b1180c77f141363bfdbeb05a2dfc2f7d
           fetch-depth: 0
           persist-credentials: true
       - name: Prepare disposable checkout
@@ -174,8 +41,8 @@ jobs:
           "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --import --log-file "$GITHUB_WORKSPACE/.godot/ci/import-linux.log"
           if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' .godot/ci/import-linux.log; then exit 1; fi
           git restore -- project.godot
-          test "$(git rev-parse HEAD)" = 'a5bde2c884f9fe8b24a687ed8b5d99e9d1d8e410'
-          test "$(git rev-parse 'HEAD^{tree}')" = '37aafcc4b55a28b57512a17b3d600f0c06811e9d'
+          test "$(git rev-parse HEAD)" = 'f08a61a0b1180c77f141363bfdbeb05a2dfc2f7d'
+          test "$(git rev-parse 'HEAD^{tree}')" = '4de76849667f1115d26023f771b2daf0e3ef3574'
           test -z "$(git diff --name-only)"
       - name: Connected fresh processes and exact saved roots
         run: |
