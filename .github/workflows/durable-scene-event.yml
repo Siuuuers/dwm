@@ -16,7 +16,7 @@ jobs:
         with:
           # The schedule-gate contract inspects its immutable historical seals.
           fetch-depth: 0
-          ref: 6381f03a547bf53d4727b58f4e789d60fc060b3f
+          ref: 520c05fb876624c41fc5257387b8900b10a85eda
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
@@ -51,7 +51,7 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path .godot/ci | Out-Null
           [ordered]@{source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); controller=$env:GITHUB_SHA; run=$env:GITHUB_RUN_ID; attempt=$env:GITHUB_RUN_ATTEMPT} | ConvertTo-Json | Tee-Object .godot/ci/pre-import-identity.json
-          if ((git rev-parse HEAD) -cne '6381f03a547bf53d4727b58f4e789d60fc060b3f' -or (git rev-parse 'HEAD^{tree}') -cne 'a54448b406b3b21c4609ab386d88ef9048a652ec') { throw 'pre-import identity mismatch' }
+          if ((git rev-parse HEAD) -cne '520c05fb876624c41fc5257387b8900b10a85eda' -or (git rev-parse 'HEAD^{tree}') -cne '25e68e3d79292ce2f7bc0fa260a97de917c3afd5') { throw 'pre-import identity mismatch' }
       - name: Import project
         timeout-minutes: 8
         run: |
@@ -76,13 +76,40 @@ jobs:
       - name: Verify exact product source and record executable identity
         run: |
           $ErrorActionPreference = 'Stop'
-          if ((git rev-parse HEAD) -cne '6381f03a547bf53d4727b58f4e789d60fc060b3f') { throw 'source mismatch' }
-          if ((git rev-parse 'HEAD^{tree}') -cne 'a54448b406b3b21c4609ab386d88ef9048a652ec') { throw 'tree mismatch' }
+          if ((git rev-parse HEAD) -cne '520c05fb876624c41fc5257387b8900b10a85eda') { throw 'source mismatch' }
+          if ((git rev-parse 'HEAD^{tree}') -cne '25e68e3d79292ce2f7bc0fa260a97de917c3afd5') { throw 'tree mismatch' }
           if (git diff --name-only) { throw 'tracked source changed during import' }
           [ordered]@{source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); controller=$env:GITHUB_SHA; run=$env:GITHUB_RUN_ID; attempt=$env:GITHUB_RUN_ATTEMPT; executable=$env:GODOT_CONSOLE_PATH; executable_sha256=(Get-FileHash $env:GODOT_CONSOLE_PATH -Algorithm SHA256).Hash.ToLowerInvariant(); version=(& $env:GODOT_CONSOLE_PATH --version)} | ConvertTo-Json | Set-Content .godot/ci/identity.json
-      - name: Generate candidate public inventories in disposable checkout
+      - name: Execute explicit new suites and retained dependency contracts
+        timeout-minutes: 12
         run: |
-          ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate
+          $ErrorActionPreference = 'Stop'
+          $paths = @('res://tests/unit/test_scene_event_receipt_state.gd','res://tests/integration/test_scene_event_durable_contract.gd')
+          $allResults = @()
+          $index = 0
+          foreach ($path in $paths) {
+            $index += 1
+            $base = "scene-event-$index"
+            $xmlPath = ".godot/ci/$base.xml"
+            $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',("-gtest=" + $path),'-gexit','-glog=2',("-gjunit_xml_file=res://" + $xmlPath))
+            ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId $base -LogName "$base.log" -EvidenceLogPath ".godot/ci/$base.jsonl" -TimeoutSeconds 120 -GodotArgs $arguments
+            $result = $LASTEXITCODE
+            $log = ".godot/phase2r_logs/$base.log"
+            if ($result -ne 0) { Get-Content $log -Tail 160; throw "focused suite failed: $path ($result)" }
+            if (Select-String -Path $log -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw "invalid engine output: $path" }
+            [xml]$xml = Get-Content $xmlPath -Raw
+            if ($xml.SelectNodes('//failure | //error | //skipped').Count -ne 0) { throw "failed or skipped tests: $path" }
+            $results = @($xml.SelectNodes('//testsuite') | ForEach-Object { [ordered]@{name=$_.GetAttribute('name'); cases=$_.SelectNodes('./testcase').Count} })
+            $relative = $path.Replace('res://','')
+            $matching = @($results | Where-Object { $_.name.Replace('res://','') -ceq $relative })
+            if ($matching.Count -ne 1 -or $matching[0].cases -eq 0) { throw "requested suite not executed: $path" }
+            $allResults += $results
+            $allResults | ConvertTo-Json | Set-Content .godot/ci/executed-suites.json
+          }
+          Get-Content .godot/ci/executed-suites.json
+      - name: Validate committed inventories without regeneration
+        run: |
+          ./tools/testing/Invoke-PublicSurfaceValidation.ps1
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           git restore -- evidence/phase_2r/runtime/game_state_surface.json evidence/phase_2r/runtime/save_manager_surface.json
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
