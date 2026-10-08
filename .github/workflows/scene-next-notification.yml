@@ -10,12 +10,12 @@ jobs:
     timeout-minutes: 20
     env:
       LIBGL_ALWAYS_SOFTWARE: '1'
-      PRODUCT_SHA: e96d795133df6126116d3288bdf5477e8dfe9b2f
-      PRODUCT_TREE: a7dda6ad2aab7c6b533248ef2fa64dfb0f5fef52
+      PRODUCT_SHA: 890de760a57c9a50d958b770f9d84f5c0a74c793
+      PRODUCT_TREE: 0c4903e528f763fdcc145a9627fd01157935161f
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: e96d795133df6126116d3288bdf5477e8dfe9b2f
+          ref: 890de760a57c9a50d958b770f9d84f5c0a74c793
           fetch-depth: 0
           persist-credentials: true
       - name: Record immutable source before import
@@ -76,7 +76,7 @@ jobs:
             if not cases or any(list(c) for c in cases if any(t.tag in ['failure','error','skipped'] for t in c)): raise SystemExit(suite+' missing/pending/failed cases')
             print(suite+': '+str(len(cases))+' cases passed')
           PY
-      - name: Seven fresh processes with real saved roots
+      - name: Nine fresh processes with real saved roots
         run: |
           python3 - <<'PY'
           import os,pathlib,subprocess,json,hashlib,shutil,xml.etree.ElementTree as ET
@@ -122,7 +122,7 @@ jobs:
           retention-days: 14
 
   generated-surfaces:
-    name: Windows / exact candidate inventory regeneration
+    name: Windows / exact candidate read-only inventory check
     runs-on: windows-2022
     timeout-minutes: 20
     defaults:
@@ -134,12 +134,12 @@ jobs:
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
-          ref: e96d795133df6126116d3288bdf5477e8dfe9b2f
+          ref: 890de760a57c9a50d958b770f9d84f5c0a74c793
       - name: Record exact source and controller before import
         run: |
           $actual = (git rev-parse HEAD).Trim()
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($actual -ne 'e96d795133df6126116d3288bdf5477e8dfe9b2f' -or $tree -ne 'a7dda6ad2aab7c6b533248ef2fa64dfb0f5fef52') { throw 'Candidate mismatch.' }
+          if ($actual -ne '890de760a57c9a50d958b770f9d84f5c0a74c793' -or $tree -ne '0c4903e528f763fdcc145a9627fd01157935161f') { throw 'Candidate mismatch.' }
           New-Item -ItemType Directory -Force .godot/ci/public-surfaces | Out-Null
           @{product=$actual;tree=$tree;controller=$env:GITHUB_SHA;run=$env:GITHUB_RUN_ID;attempt=$env:GITHUB_RUN_ATTEMPT} | ConvertTo-Json | Set-Content .godot/ci/public-surfaces/provenance.json
       - name: Prepare disposable checkout for credential cleanup
@@ -236,16 +236,16 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Generate and verify original inventories
+      - name: Check committed original inventories without regeneration
         timeout-minutes: 10
-        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
+        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -EmitPayloads
       - name: Record generated-only tracked delta
         if: always()
         run: |
           $changed = @(git diff --name-only)
           $changed | Set-Content .godot/ci/public-surfaces/tracked-diff.txt
           foreach ($path in $changed) {
-            if ($path -notin @("evidence/phase_2r/runtime/game_state_surface.json", "evidence/phase_2r/runtime/save_manager_surface.json")) { throw "Unexpected tracked mutation $path" }
+            throw "Unexpected tracked mutation $path"
           }
       - name: Upload canonical inventories and retirement evidence
         if: always()
