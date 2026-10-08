@@ -21,16 +21,16 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: bab9e0ac32fa375c484856e82d8a527f394a66d0
+          ref: c8e07e4a1215097506d5483ee9d0d436e5b8021c
           fetch-depth: 1
           persist-credentials: true
       - name: Verify and record immutable source before import
         run: |
           $ErrorActionPreference = 'Stop'
           $source = (git rev-parse HEAD).Trim()
-          if ($LASTEXITCODE -ne 0 -or $source -cne 'bab9e0ac32fa375c484856e82d8a527f394a66d0') { throw 'Wrong source commit.' }
+          if ($LASTEXITCODE -ne 0 -or $source -cne 'c8e07e4a1215097506d5483ee9d0d436e5b8021c') { throw 'Wrong source commit.' }
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($LASTEXITCODE -ne 0 -or $tree -cne '64a5498cbb3a28e1c830120490d66b02fe61f578') { throw 'Wrong source tree.' }
+          if ($LASTEXITCODE -ne 0 -or $tree -cne '90f9ccbc45c36288f05f15361238ad7d5d8cca50') { throw 'Wrong source tree.' }
           git diff --exit-code HEAD --
           if ($LASTEXITCODE -ne 0) { throw 'Source checkout is dirty before import.' }
           New-Item -ItemType Directory -Force -Path '.godot/ci' | Out-Null
