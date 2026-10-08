@@ -12,7 +12,6 @@ var active_style := "pixel"
 var settings_content: Control
 var mine_app: Control
 var mine_port: RefCounted
-var stats_owner: Node
 var initial_cells: Array
 var grid_identity := 0
 
@@ -54,7 +53,6 @@ func _run() -> void:
 		await settle()
 		await _readable_caption(language)
 		main.queue_free()
-		stats_owner.queue_free()
 		await settle()
 	check(samples.size() == FONT_CHOICES_CAPTURE_COUNT, "all 30 font-choice states checked")
 	if DisplayServer.get_name() != "headless": check(captures == FONT_CHOICES_CAPTURE_COUNT, "all 30 native captures")
@@ -76,9 +74,6 @@ func _run() -> void:
 
 func _mount_font_desktop() -> void:
 	main = SPLIT.MAIN.instantiate()
-	stats_owner = HUD.OwnerFixture.new()
-	viewport.add_child(stats_owner)
-	main.get_node("%StatHud").configure(stats_owner, locale, profile)
 	desktop = SPLIT.DESKTOP.instantiate()
 	desktop.set_script(SHELL.IsolatedDesktop)
 	desktop.configure_run_configuration(SHELL.RunConfigurationFixture.new())
@@ -86,6 +81,7 @@ func _mount_font_desktop() -> void:
 	main.get_node("%ComputerPanel").add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	main.get_node("%ComputerPanel").add_child(desktop)
 	viewport.add_child(main)
+	check(main.get_node_or_null("%StatHud") == null, "mounted shell has no retired HUD")
 	var host := SCHEDULE.HOST.new()
 	host.reset(1)
 	check(desktop.configure_contacts(ContactPort.new(), locale, profile, host).get("ok", false), "desktop locale/profile owners")
@@ -187,7 +183,6 @@ func _capture_font(surface: String, language: String, scene: Node) -> void:
 	if scene == main:
 		_check_desktop_chrome()
 		check(_base_face(desktop.theme.default_font) == expected, surface + ": desktop uses selected face")
-		check(_base_face(main.get_node("%StatHud").theme.default_font) == expected, surface + ": stats use selected face")
 	var measured := {"labels": 0, "missing_glyphs": []}
 	_measure_text(scene, measured)
 	check(measured.labels > 0, surface + ": visible production text")

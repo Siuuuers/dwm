@@ -8,7 +8,6 @@ const FILES := preload("res://tests/support/FakeFileOps.gd")
 const SPLIT := preload("res://tests/desktop_shell/test_desktop_split_touch.gd")
 const SHELL := preload("res://tests/desktop_shell/test_desktop_shell.gd")
 const CONTACT := preload("res://tests/contacts_shell/test_contacts_shell.gd")
-const HUD := preload("res://tests/unit/test_stat_hud_week_tint.gd")
 const SETTINGS := preload("res://tests/unit/test_settings_panel_resize.gd")
 const SHOP := preload("res://tests/manual/verify_shop_desktop_native.gd")
 const SCHEDULE := preload("res://tests/manual/verify_schedule_desktop_native.gd")
@@ -224,9 +223,6 @@ func _title_and_gallery(language: String) -> void:
 
 func _desktop_samples(language: String) -> void:
 	main = SPLIT.MAIN.instantiate()
-	var stats := HUD.OwnerFixture.new()
-	viewport.add_child(stats)
-	main.get_node("%StatHud").configure(stats, locale, profile)
 	desktop = SPLIT.DESKTOP.instantiate()
 	desktop.set_script(SHELL.IsolatedDesktop)
 	desktop.configure_run_configuration(SHELL.RunConfigurationFixture.new())
@@ -234,6 +230,7 @@ func _desktop_samples(language: String) -> void:
 	main.get_node("%ComputerPanel").add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	main.get_node("%ComputerPanel").add_child(desktop)
 	viewport.add_child(main)
+	check(main.get_node_or_null("%StatHud") == null, "mounted shell has no retired HUD")
 	var host := SCHEDULE.HOST.new()
 	host.reset(1)
 	check(desktop.configure_contacts(ContactPort.new(), locale, profile, host).get("ok", false), "Contacts owners")
@@ -330,7 +327,6 @@ func _desktop_samples(language: String) -> void:
 		check(desktop.app_scroll.get_global_rect().grow(0.01).encloses(opened.value.app.panel.dock.get_global_rect()), "Mines150 enlarged dock remains reachable")
 		check(profile.set_preference(&"preferences.accessibility.large_targets", false).get("ok", false), "restore ordinary pointer targets")
 	main.queue_free()
-	stats.queue_free()
 	await settle()
 	check(profile.set_preference(&"preferences.accessibility.text_size", 100).get("ok", false), "desktop ordinary preference")
 

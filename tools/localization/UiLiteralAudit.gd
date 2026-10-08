@@ -65,7 +65,6 @@ const SCRIPT_LOCALIZATION_HELPERS := {
 	"res://scripts/ui/SettingsPanelController.gd": ["_content.text("],
 	"res://scripts/ui/ShopApp.gd": ["_t(", "_supportz_accessible_name("],
 	"res://scripts/ui/ShopItemBox.gd": ["_copy["],
-	"res://scripts/ui/StatHud.gd": ["COPY["],
 	"res://scripts/ui/desktop/QuickStatusEdge.gd": ["COPY["],
 	"res://scripts/ui/desktop/RoutineClock.gd": ["NAMES[", "UNAVAILABLE["],
 }

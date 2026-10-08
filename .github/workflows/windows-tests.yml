@@ -1189,7 +1189,7 @@ jobs:
           include-hidden-files: true
           if-no-files-found: warn
           retention-days: 7
-      - name: Render and verify Angela stat overlay
+      - name: Render and verify HUD retirement and retained shell
         timeout-minutes: 5
         env:
           XDG_DATA_HOME: ${{ github.workspace }}/.godot/ci/angela-overlay-user/data
@@ -1202,7 +1202,7 @@ jobs:
             --rendering-driver opengl3 --audio-driver Dummy \
             --log-file "$DWM_RENDER_OUTPUT/render.log" \
             --script res://tests/ui/render_angela_overlay.gd
-          grep 'ANGELA_OVERLAY_RENDER_VERIFIED' "$DWM_RENDER_OUTPUT/render.log"
+          grep 'HUD_RETIREMENT_RENDER_VERIFIED' "$DWM_RENDER_OUTPUT/render.log"
           if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_RENDER_OUTPUT/render.log"; then
             exit 1
           fi
@@ -1214,10 +1214,13 @@ jobs:
           assert report['ok'] is True and not report['failures'], report
           assert report['renderer'] != 'headless', report
           assert report['samples'] == report['captures'] == 10, report
+          expected = {'wide-en100', 'narrow-en100', 'narrow-en150', 'narrow-en150-high-contrast', 'narrow-zh-CN150-high-contrast', 'narrow-zh-HK150', 'wide-zh-HK150', 'wide-en100-day1', 'wide-en100-day7', 'wide-en100-day7-high-contrast'}
+          assert {sample['name'] for sample in report['evidence']} == expected, report
+          assert all(sample['hud_absent'] is True for sample in report['evidence']), report
           captures = list(output.glob('*.png'))
           assert len(captures) == 10 and all(path.stat().st_size > 0 for path in captures)
           PY
-      - name: Upload Angela stat overlay evidence
+      - name: Upload HUD retirement and retained shell evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
