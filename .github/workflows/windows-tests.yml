@@ -17,7 +17,7 @@ jobs:
         with:
           # Preserve the accepted product ancestry; checkout the pinned product.
           fetch-depth: 0
-          ref: 73e7ba8a32d1b8f66754b5fb3617115d95a293e9
+          ref: da3fc0b7438e82c1df3f10aad09ed2afef1d25af
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
@@ -54,9 +54,9 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           New-Item -ItemType Directory -Force -Path .godot/ci | Out-Null
-          if ((git rev-parse HEAD) -cne '73e7ba8a32d1b8f66754b5fb3617115d95a293e9') { throw 'source mismatch' }
-          if ((git rev-parse 'HEAD^{tree}') -cne 'dc478dfbddb6eb37b694c5c6568542a2537bfb06') { throw 'tree mismatch' }
-          if ((git rev-parse 'HEAD^') -cne 'ce220a526e00f4224e57ce050bf1d8745ac46d2e') { throw 'source parent mismatch' }
+          if ((git rev-parse HEAD) -cne 'da3fc0b7438e82c1df3f10aad09ed2afef1d25af') { throw 'source mismatch' }
+          if ((git rev-parse 'HEAD^{tree}') -cne '8c0a678d267deabf219a24ea39355828f844e5b1') { throw 'tree mismatch' }
+          if ((git rev-parse 'HEAD^') -cne '73e7ba8a32d1b8f66754b5fb3617115d95a293e9') { throw 'source parent mismatch' }
           if (git diff --name-only) { throw 'tracked source differs before import' }
           [ordered]@{source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); parent=(git rev-parse 'HEAD^'); controller=$env:GITHUB_SHA; run=$env:GITHUB_RUN_ID; attempt=$env:GITHUB_RUN_ATTEMPT; executable=$env:GODOT_CONSOLE_PATH; executable_sha256=(Get-FileHash $env:GODOT_CONSOLE_PATH -Algorithm SHA256).Hash.ToLowerInvariant(); version=(& $env:GODOT_CONSOLE_PATH --version)} | ConvertTo-Json | Set-Content .godot/ci/identity.json
           Get-Content .godot/ci/identity.json
