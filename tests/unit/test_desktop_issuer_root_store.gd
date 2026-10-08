@@ -1310,7 +1310,7 @@ func _issue_transaction_receipt() -> Dictionary:
 	return _issuer_receipt(issued)
 
 
-func _commit_exact_day_advance(source_receipt: Dictionary) -> bool:
+func _commit_exact_day_advance(source_receipt: Dictionary, scene: bool = false) -> bool:
 	var issuer := ISSUER.new()
 	if not _require_ok(issuer.configure(_store), "configure issuer for exact day advance"):
 		return false
@@ -1320,7 +1320,7 @@ func _commit_exact_day_advance(source_receipt: Dictionary) -> bool:
 	var parent_receipt := _issuer_receipt(parent)
 	var derived: Dictionary = issuer.derive_child({
 		"parent_receipt_id": str(parent_receipt.get("receipt_id", "")),
-		"child_kind": &"day_resolution_stage",
+		"child_kind": &"scene_day_completion" if scene else &"day_resolution_stage",
 		"ordinal": 0,
 		"source_ids": [],
 	})
@@ -1330,8 +1330,8 @@ func _commit_exact_day_advance(source_receipt: Dictionary) -> bool:
 	var port := DAY_ADVANCE_PORT.new()
 	if not _require_ok(port.configure(issuer), "configure day-advance port"):
 		return false
-	var prepared: Dictionary = port.prepare_advance({
-		"resolution_kind": "schedule_done",
+	var request := {
+		"resolution_kind": "scene_day_complete" if scene else "schedule_done",
 		"source_resolution_receipt": {
 			"receipt_id": str(derived_value.get("child_id", "")),
 			"provenance": (derived_value.get("provenance", {}) as Dictionary).duplicate(true),
@@ -1342,7 +1342,10 @@ func _commit_exact_day_advance(source_receipt: Dictionary) -> bool:
 		"source_day": 1,
 		"source_causal_day_instance": str(source_receipt.get("token", "")),
 		"source_causal_day_instance_issuer_receipt": source_receipt.duplicate(true),
-	})
+	}
+	if scene:
+		request.erase("source_day")
+	var prepared: Dictionary = port.prepare_advance(request)
 	if not _require_ok(prepared, "prepare exact day advance"):
 		return false
 	var candidate: Dictionary = (prepared.get("value", {}) as Dictionary).get(
@@ -1751,3 +1754,19 @@ func _persisted_root_bytes(ops: FakeFileOps) -> PackedByteArray:
 		return PackedByteArray()
 	var bytes: PackedByteArray = persisted[ROOT_FINAL_PATH]
 	return bytes
+
+
+func test_scene_receipt_version_and_calendar_members_fail_closed_on_reload() -> void:
+	if _opened_document().is_empty():
+		return
+	var source := _store.issue(&"causal_day_instance")
+	if not _require_ok(source, "scene source"):
+		return
+	if not _commit_exact_day_advance(_issuer_receipt(source), true):
+		return
+	var document := _captured_document()
+	var key: String = str((document["day_advance_allocation_receipts"] as Dictionary).keys()[0])
+	for field in ["schema_version", "source_day", "target_day"]:
+		var changed := document.duplicate(true)
+		changed["day_advance_allocation_receipts"][key][field] = 1
+		_assert_seeded_root_rejected_without_write(changed, "scene receipt rejects " + field)

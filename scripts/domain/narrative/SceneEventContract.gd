@@ -197,3 +197,355 @@ static func _keys(value: Variant, expected: Array) -> bool:
 
 static func _fail(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code}
+
+# Nonwired scene2 helpers. The selected DialogicEntryManifest owner must validate
+# its four nested registries and actual DTL bytes/compiled positions before use.
+# These pure checks cannot authenticate disk durability, Profile history, live
+# issuer custody or programme installation. Legacy receipt generation stays exact.
+const BUNDLE_KEYS := ["kind", "schema_version", "entry_manifest", "context_registry",
+	"ids_registry", "caption_registry", "scene_programme", "targets", "board_profiles", "challenges", "contacts"]
+const SCENE_PAYLOAD_KEYS := {
+	"scene.transition": ["target_id"], "challenge.playable": ["challenge_id"],
+	"challenge.end": ["challenge_id"], "contact.enter": ["contact_event_id"],
+	"contact.return": ["contact_event_id"],
+	"notification.set": ["notification_id", "content_id", "parameters"],
+	"notification.clear": ["notification_id"],
+}
+const TARGET_KEYS := ["kind", "entry_id", "label", "content_version", "program_sha256"]
+const PROGRAMME_ENTRY_KEYS := ["entry_id", "content_version", "content_sha256", "program_sha256", "markers"]
+const MARKER_KEYS := ["marker_id", "label", "after_line_id", "kind", "payload"]
+const CHECKPOINT_KEYS := ["checkpoint_id", "checkpoint_sequence", "snapshot_sha256"]
+const OUTCOMES := ["never_started", "unfinished", "lost", "won"]
+
+static func _inspect_scene_shape(envelope: Variant) -> Dictionary:
+	if not _json_data(envelope) or not _keys(envelope, ENVELOPE_KEYS) or not _keys(envelope.source, SOURCE_KEYS):
+		return _fail(&"scene_event_shape_invalid")
+	for key: String in SOURCE_KEYS:
+		if key == "content_version":
+			if not _positive_int(envelope.source[key]): return _fail(&"scene_event_source_invalid")
+		elif not _id(envelope.source[key]): return _fail(&"scene_event_source_invalid")
+	for key: String in ["event_id", "kind", "command_id", "playback_token"]:
+		if not _id(envelope[key]): return _fail(&"scene_event_identity_invalid")
+	if typeof(envelope.ordinal) != TYPE_INT or envelope.ordinal < 0:
+		return _fail(&"event_ordinal_invalid")
+	if typeof(envelope.predecessor) != TYPE_STRING or (envelope.predecessor != "" and not _id(envelope.predecessor)):
+		return _fail(&"event_predecessor_invalid")
+	if not envelope.issuer_receipt is Dictionary or envelope.issuer_receipt.get("token") != envelope.command_id:
+		return _fail(&"event_issuer_invalid")
+	if not _scene_payload(envelope.kind, envelope.payload): return _fail(&"event_payload_invalid")
+	var semantic: Dictionary = envelope.duplicate(true)
+	semantic.erase("playback_token")
+	var encoded: Dictionary = WRITER.stringify(semantic)
+	if not encoded.get("ok", false): return _fail(&"event_not_canonical")
+	return {"ok": true, "value": {"semantic": semantic, "digest": str(encoded.value).sha256_text()}}
+
+static func _scene_payload(kind: String, payload: Variant) -> bool:
+	if not SCENE_PAYLOAD_KEYS.has(kind) or not _keys(payload, SCENE_PAYLOAD_KEYS[kind]): return false
+	for key: String in payload:
+		if key == "parameters":
+			if not payload[key] is Dictionary: return false
+			for parameter: Variant in payload[key]:
+				if not _id(parameter) or typeof(payload[key][parameter]) not in [TYPE_STRING, TYPE_INT, TYPE_BOOL]: return false
+		elif not _id(payload[key]): return false
+	return true
+
+static func validate_bundle_structure(bundle: Variant) -> Dictionary:
+	if not _json_data(bundle) or not _keys(bundle, BUNDLE_KEYS) or bundle.kind != "scene_reading_registration" \
+			or typeof(bundle.schema_version) != TYPE_INT or bundle.schema_version != 1:
+		return _fail(&"scene_bundle_invalid")
+	# Deliberately no replacement for A's nested validators or caller trust flag.
+	for key: String in ["entry_manifest", "context_registry", "ids_registry", "caption_registry"]:
+		if not bundle[key] is Dictionary or bundle[key].is_empty() or not WRITER.stringify(bundle[key]).get("ok", false):
+			return _fail(&"scene_bundle_nested_invalid")
+	var programme: Variant = bundle.scene_programme
+	if not _keys(programme, ["kind", "schema_version", "entries"]) or programme.kind != "scene_programme" \
+			or typeof(programme.schema_version) != TYPE_INT or programme.schema_version != 1:
+		return _fail(&"scene_programme_invalid")
+	var tables := {}
+	for pair: Array in [["entries", "entry_id"], ["targets", "target_id"], ["board_profiles", "board_profile_id"],
+			["challenges", "challenge_id"], ["contacts", "contact_event_id"]]:
+		var rows: Variant = programme.entries if pair[0] == "entries" else bundle[pair[0]]
+		var indexed := _index_sorted(rows, pair[1])
+		if not indexed.ok: return indexed
+		tables[pair[0]] = indexed.value
+	if tables.entries.is_empty(): return _fail(&"scene_programme_invalid")
+	var markers := {}
+	for entry: Dictionary in tables.entries.values():
+		if not _keys(entry, PROGRAMME_ENTRY_KEYS) or not _positive_int(entry.content_version) \
+				or not _hash(entry.content_sha256) or not _hash(entry.program_sha256) or not entry.markers is Array:
+			return _fail(&"scene_programme_invalid")
+		var labels := {}
+		for marker: Variant in entry.markers:
+			if not _keys(marker, MARKER_KEYS): return _fail(&"scene_marker_invalid")
+			for key: String in ["marker_id", "label", "after_line_id", "kind"]:
+				if not _id(marker[key]): return _fail(&"scene_marker_invalid")
+			if markers.has(marker.marker_id) or labels.has(marker.label) or not _scene_payload(marker.kind, marker.payload):
+				return _fail(&"scene_marker_invalid")
+			markers[marker.marker_id] = {"entry_id": entry.entry_id, "marker": marker}
+			labels[marker.label] = true
+	for row: Dictionary in tables.targets.values():
+		if not _keys(row, ["target_id", "target"]) or not _target_valid(row.target, tables.entries):
+			return _fail(&"scene_target_invalid")
+	for profile: Dictionary in tables.board_profiles.values():
+		if not _keys(profile, ["board_profile_id", "board_kind", "difficulty_id", "width", "height", "base_mine_count",
+				"generator_version", "verifier_version", "capability_policy_id"]): return _fail(&"scene_board_profile_invalid")
+		for key: String in ["board_kind", "difficulty_id", "generator_version", "verifier_version", "capability_policy_id"]:
+			if not _id(profile[key]): return _fail(&"scene_board_profile_invalid")
+		if not _positive_int(profile.width) or not _positive_int(profile.height) or not _positive_int(profile.base_mine_count) \
+				or profile.width > 9223372036854775807 / profile.height or profile.base_mine_count >= profile.width * profile.height:
+			return _fail(&"scene_board_profile_invalid")
+	for challenge: Dictionary in tables.challenges.values():
+		if not _keys(challenge, ["challenge_id", "entry_id", "playable_marker_id", "end_marker_id", "board_profile_id", "targets"]) \
+				or not _keys(challenge.targets, OUTCOMES): return _fail(&"scene_challenge_registration_invalid")
+		if not _table_has(tables.entries, challenge.entry_id) or not _table_has(tables.board_profiles, challenge.board_profile_id):
+			return _fail(&"scene_challenge_registration_invalid")
+		for pair: Array in [["playable_marker_id", "challenge.playable"], ["end_marker_id", "challenge.end"]]:
+			if not _table_has(markers, challenge[pair[0]]): return _fail(&"scene_challenge_registration_invalid")
+			var bound: Dictionary = markers[challenge[pair[0]]]
+			if bound.entry_id != challenge.entry_id or bound.marker.kind != pair[1] \
+					or bound.marker.payload.challenge_id != challenge.challenge_id: return _fail(&"scene_challenge_registration_invalid")
+		for target_id: Variant in challenge.targets.values():
+			if not _table_has(tables.targets, target_id): return _fail(&"scene_target_unregistered")
+	for contact: Dictionary in tables.contacts.values():
+		if not _keys(contact, ["contact_event_id", "entry_id", "source_fact_ids", "return_target_id"]) \
+				or not _table_has(tables.entries, contact.entry_id) or not _sorted_ids(contact.source_fact_ids) \
+				or not _table_has(tables.targets, contact.return_target_id): return _fail(&"scene_contact_registration_invalid")
+		if tables.targets[contact.return_target_id].target.kind != "return": return _fail(&"scene_contact_registration_invalid")
+	for bound: Dictionary in markers.values():
+		var marker: Dictionary = bound.marker
+		match marker.kind:
+			"scene.transition":
+				if not _table_has(tables.targets, marker.payload.target_id): return _fail(&"scene_target_unregistered")
+			"challenge.playable", "challenge.end":
+				if not _table_has(tables.challenges, marker.payload.challenge_id): return _fail(&"scene_challenge_registration_invalid")
+				var challenge: Dictionary = tables.challenges[marker.payload.challenge_id]
+				var marker_field := "playable_marker_id" if marker.kind == "challenge.playable" else "end_marker_id"
+				if challenge.entry_id != bound.entry_id or challenge[marker_field] != marker.marker_id:
+					return _fail(&"scene_challenge_registration_invalid")
+			"contact.enter", "contact.return":
+				if not _table_has(tables.contacts, marker.payload.contact_event_id): return _fail(&"scene_contact_registration_invalid")
+				if marker.kind == "contact.return" and tables.contacts[marker.payload.contact_event_id].entry_id != bound.entry_id:
+					return _fail(&"scene_contact_registration_invalid")
+	var encoded: Dictionary = WRITER.stringify(bundle)
+	if not encoded.get("ok", false): return _fail(&"scene_bundle_invalid")
+
+	tables["markers"] = markers
+	tables["fingerprint"] = str(encoded.value).sha256_text()
+	return {"ok": true, "value": tables.duplicate(true)}
+
+static func bundle_fingerprint(bundle: Variant) -> Dictionary:
+	var checked := validate_bundle_structure(bundle)
+	if not checked.ok: return checked
+	return {"ok": true, "value": checked.value.fingerprint}
+
+static func inspect_scene(envelope: Variant, bundle: Variant) -> Dictionary:
+	if not envelope is Dictionary or typeof(envelope.get("schema_version")) != TYPE_INT or envelope.schema_version != 2:
+		return _fail(&"scene_event_version_invalid")
+	var shaped := _inspect_scene_shape(envelope)
+	if not shaped.ok: return shaped
+	var registered := validate_bundle_structure(bundle)
+	if not registered.ok: return registered
+	var entries: Dictionary = registered.value.entries
+	var markers: Dictionary = registered.value.markers
+	if not entries.has(envelope.source.entry_id) or not markers.has(envelope.event_id): return _fail(&"scene_marker_unregistered")
+	var bound: Dictionary = markers[envelope.event_id]
+	if bound.entry_id != envelope.source.entry_id or entries[bound.entry_id].content_version != envelope.source.content_version \
+			or bound.marker.kind != envelope.kind or not _equal(bound.marker.payload, envelope.payload):
+		return _fail(&"scene_marker_mismatch")
+	shaped.value["registration_fingerprint"] = registered.value.fingerprint
+	shaped.value["programme_entry"] = entries[bound.entry_id].duplicate(true)
+	return shaped
+
+static func validate_target(target: Variant, bundle: Variant) -> Dictionary:
+	var checked := validate_bundle_structure(bundle)
+	if not checked.ok: return checked
+	for row: Dictionary in checked.value.targets.values():
+		if _equal(row.target, target): return {"ok": true}
+	return _fail(&"scene_target_unregistered")
+
+static func scene_completion_request(envelope: Dictionary, anchor: Dictionary, bundle: Dictionary) -> Dictionary:
+	var checked := inspect_scene(envelope, bundle)
+	if not checked.ok: return checked
+	if envelope.kind != "scene.transition" or not _valid_anchor(anchor, envelope.source): return _fail(&"scene_completion_source_invalid")
+	var registered := validate_bundle_structure(bundle)
+	var target: Dictionary = registered.value.targets[envelope.payload.target_id].target
+	if anchor.line_id != registered.value.markers[envelope.event_id].marker.after_line_id:
+		return _fail(&"event_anchor_invalid")
+	if target.kind != "scene": return _fail(&"scene_completion_target_invalid")
+	if not _id(envelope.issuer_receipt.get("receipt_id")): return _fail(&"event_issuer_invalid")
+	var projections := {"command_id": envelope.command_id,
+		"content_sha256": checked.value.programme_entry.content_sha256, "event_digest": checked.value.digest,
+		"marker_program_fingerprint": _sha(checked.value.programme_entry), "reading_anchor_sha256": _sha(anchor),
+		"registration_fingerprint": checked.value.registration_fingerprint, "role": "scene_day_complete",
+		"source_scene_occurrence": envelope.source.scene_occurrence, "successor_id": envelope.payload.target_id}
+	var source_ids: Array[String] = []
+	for key: String in projections:
+		source_ids.append(key + "=" + str(WRITER.stringify(projections[key]).value))
+	source_ids.sort()
+	return {"ok": true, "value": {"parent_receipt_id": envelope.issuer_receipt.receipt_id,
+		"child_kind": "scene_day_completion", "ordinal": 0, "source_ids": source_ids}}
+
+static func make_scene_receipt(envelope: Dictionary, anchor: Dictionary, result: Dictionary, bundle: Dictionary) -> Dictionary:
+	var checked := inspect_scene(envelope, bundle)
+	if not checked.ok: return checked
+	if not _valid_anchor(anchor, envelope.source): return _fail(&"event_anchor_invalid")
+	var registered := validate_bundle_structure(bundle)
+	if anchor.line_id != registered.value.markers[envelope.event_id].marker.after_line_id:
+		return _fail(&"event_anchor_invalid")
+	var validated := validate_scene_result(envelope, result, bundle)
+	if not validated.ok: return validated
+	if result.kind == "scene_transition_accepted":
+		var request := scene_completion_request(envelope, anchor, bundle)
+		if not request.ok: return request
+		if not _completion_matches(envelope.issuer_receipt, request.value, result.resolution_receipt):
+			return _fail(&"scene_completion_mismatch")
+	return {"ok": true, "value": {"transaction_id": envelope.command_id, "request_fingerprint": checked.value.digest,
+		"kind": "scene_event", "source_id": envelope.source.scene_occurrence, "scene_event": {
+			"schema_version": 2, "semantic": checked.value.semantic, "registration_fingerprint": checked.value.registration_fingerprint,
+			"reading_anchor": anchor.duplicate(true), "result": result.duplicate(true)}}}
+
+static func validate_scene_result(envelope: Dictionary, result: Variant, bundle: Dictionary) -> Dictionary:
+	var checked := inspect_scene(envelope, bundle)
+	if not checked.ok: return checked
+	if not _json_data(result) or not result is Dictionary or typeof(result.get("kind")) != TYPE_STRING: return _fail(&"scene_result_invalid")
+	var registered := validate_bundle_structure(bundle)
+	var targets: Dictionary = registered.value.targets
+	match result.kind:
+		"scene_transition_accepted":
+			if not _keys(result, ["kind", "source_scene_occurrence", "target_id", "target", "resolution_receipt"]) \
+					or envelope.kind != "scene.transition" or not _id(result.source_scene_occurrence) \
+					or result.source_scene_occurrence != envelope.source.scene_occurrence \
+					or result.target_id != envelope.payload.target_id or not _table_has(targets, result.target_id): return _fail(&"scene_result_invalid")
+			if not _equal(targets[result.target_id].target, result.target) or result.target.kind != "scene" \
+					or not _keys(result.resolution_receipt, ["receipt_id", "provenance"]) \
+					or not _id(result.resolution_receipt.receipt_id) or not result.resolution_receipt.provenance is Dictionary:
+				return _fail(&"scene_result_invalid")
+		"challenge_closed":
+			if not _keys(result, ["kind", "challenge_occurrence", "playable_command_id", "attempt_proof", "outcome", "target_id"]) \
+					or envelope.kind != "challenge.end" or typeof(result.outcome) != TYPE_STRING \
+					or result.outcome not in OUTCOMES or not _id(result.target_id) or not _hash(result.challenge_occurrence):
+				return _fail(&"scene_result_invalid")
+			var challenge: Dictionary = registered.value.challenges[envelope.payload.challenge_id]
+			var occurrence := _sha([envelope.source.scene_occurrence, envelope.payload.challenge_id])
+			if result.challenge_occurrence != occurrence or not _id(result.playable_command_id) \
+					or result.target_id != challenge.targets[result.outcome]: return _fail(&"scene_result_invalid")
+			if result.outcome == "never_started":
+				if result.attempt_proof != null: return _fail(&"scene_attempt_proof_invalid")
+			elif not _attempt_proof(result.attempt_proof, envelope.source.run_id, occurrence): return _fail(&"scene_attempt_proof_invalid")
+		"contact_returned":
+			if not _keys(result, ["kind", "contact_admission_receipt_id", "target_id", "parent_occurrence_id"]) \
+					or envelope.kind != "contact.return" or not _id(result.contact_admission_receipt_id) \
+					or not _id(result.parent_occurrence_id) or not _id(result.target_id): return _fail(&"scene_result_invalid")
+			if result.target_id != registered.value.contacts[envelope.payload.contact_event_id].return_target_id:
+				return _fail(&"scene_result_invalid")
+		_:
+			return _fail(&"scene_result_unsupported")
+	return {"ok": true}
+
+static func _completion_matches(parent: Dictionary, request: Dictionary, completion: Dictionary) -> bool:
+	if not _id(parent.get("namespace")) or not _positive_int(parent.get("counter")): return false
+	var child := "scene_day_completion." + ("desktop_child_v1\n%s\n%d\n%s\n%s\n%d\n%s" % [
+		parent.namespace, parent.counter, request.parent_receipt_id, request.child_kind, request.ordinal,
+		WRITER.stringify(request.source_ids).value]).sha256_text()
+	return _equal(completion, {"receipt_id": child, "provenance": {"schema_version": 1,
+		"parent_receipt_id": request.parent_receipt_id, "child_kind": request.child_kind,
+		"ordinal": request.ordinal, "source_ids": request.source_ids, "child_id": child}})
+
+static func _attempt_proof(proof: Variant, run_id: String, occurrence: String) -> bool:
+	if not _keys(proof, ["run_id", "slot_id", "attempt_id", "branch_id", "generation", "revision", "record_sha256", "checkpoint"]): return false
+	if not _id(proof.run_id) or not _id(proof.slot_id) or proof.run_id != run_id or proof.slot_id != "scene.challenge." + occurrence: return false
+	return _id(proof.attempt_id) and _id(proof.branch_id) and _positive_int(proof.generation) \
+		and _positive_int(proof.revision) and _hash(proof.record_sha256) and _checkpoint(proof.checkpoint)
+
+static func validate_scene_admission(result: Variant, bundle: Dictionary) -> Dictionary:
+	var checked := validate_bundle_structure(bundle)
+	if not checked.ok: return checked
+	if not _json_data(result) or not _keys(result, ["kind", "occurrence_id", "entry_id", "target_id", "source_checkpoint", "trigger_command_id", "return_to"]) \
+			or typeof(result.kind) != TYPE_STRING or result.kind != "scene_admitted" \
+			or not _id(result.occurrence_id) or not _id(result.entry_id) \
+			or not _table_has(checked.value.targets, result.target_id) or not _checkpoint(result.source_checkpoint):
+		return _fail(&"scene_admission_invalid")
+	var target: Dictionary = checked.value.targets[result.target_id].target
+	if target.entry_id != result.entry_id or target.kind not in ["scene", "contact"]: return _fail(&"scene_admission_invalid")
+	if result.trigger_command_id != null and not _id(result.trigger_command_id): return _fail(&"scene_admission_invalid")
+	if target.kind != "contact":
+		if result.return_to != null: return _fail(&"scene_admission_invalid")
+	else:
+		var back: Variant = result.return_to
+		if not _id(result.trigger_command_id) or not _keys(back, ["scene_occurrence", "admission_receipt_id", "entry_id", "target_id", "source_checkpoint"]):
+			return _fail(&"scene_admission_invalid")
+		if not _id(back.scene_occurrence) or not _id(back.admission_receipt_id) or not _id(back.entry_id) or not _checkpoint(back.source_checkpoint) \
+				or not _table_has(checked.value.targets, back.target_id): return _fail(&"scene_admission_invalid")
+		var return_target: Dictionary = checked.value.targets[back.target_id].target
+		if return_target.kind != "return" or return_target.entry_id != back.entry_id: return _fail(&"scene_admission_invalid")
+	# Pristine NewRun, issuer-backed occurrence and checkpoint/parent receipt resolution
+	# are authenticated by the live owner, not by this structural helper.
+	return {"ok": true}
+
+static func _checkpoint(value: Variant) -> bool:
+	return _keys(value, CHECKPOINT_KEYS) and _id(value.checkpoint_id) and _positive_int(value.checkpoint_sequence) and _hash(value.snapshot_sha256)
+
+static func _target_valid(target: Variant, entries: Dictionary) -> bool:
+	if not _keys(target, TARGET_KEYS) or target.kind not in ["local", "scene", "ending", "contact", "return"] \
+			or not _table_has(entries, target.entry_id) or not _id(target.label) or not _positive_int(target.content_version) \
+			or not _hash(target.program_sha256): return false
+	var entry: Dictionary = entries[target.entry_id]
+	if target.content_version != entry.content_version or target.program_sha256 != entry.program_sha256: return false
+	if target.kind in ["scene", "ending", "contact"]: return target.label == target.entry_id
+	for marker: Dictionary in entry.markers:
+		if marker.label == target.label: return true
+	return false
+
+static func _index_sorted(rows: Variant, key: String) -> Dictionary:
+	if not rows is Array: return _fail(&"scene_table_invalid")
+	var previous := ""
+	var indexed := {}
+	for row: Variant in rows:
+		if not row is Dictionary or not _id(row.get(key)) or str(row[key]) <= previous: return _fail(&"scene_table_invalid")
+		previous = row[key]
+		indexed[previous] = row
+	return {"ok": true, "value": indexed}
+
+static func _sorted_ids(ids: Variant) -> bool:
+	if not ids is Array: return false
+	var previous := ""
+	for value: Variant in ids:
+		if not _id(value) or value <= previous: return false
+		previous = value
+	return true
+
+static func _table_has(table: Dictionary, key: Variant) -> bool:
+	return _id(key) and table.has(key)
+
+static func _positive_int(value: Variant) -> bool:
+	return typeof(value) == TYPE_INT and value > 0
+
+static func _hash(value: Variant) -> bool:
+	if typeof(value) != TYPE_STRING or value.length() != 64: return false
+	for index in range(64):
+		if value[index] not in "0123456789abcdef": return false
+	return true
+
+static func _sha(value: Variant) -> String:
+	var encoded: Dictionary = WRITER.stringify(value)
+	return str(encoded.value).sha256_text() if encoded.get("ok", false) else ""
+
+static func _equal(actual: Variant, expected: Variant) -> bool:
+	return _same_types(actual, expected) and _sha(actual) != "" and _sha(actual) == _sha(expected)
+
+static func _json_data(value: Variant, depth: int = 0) -> bool:
+	# Writer intentionally normalizes StringName; scene contracts instead require
+	# JSON primitive types before hashing. Bound recursion also refuses cyclic input.
+	if depth > 128: return false
+	match typeof(value):
+		TYPE_NIL, TYPE_BOOL, TYPE_INT, TYPE_STRING: return true
+		TYPE_FLOAT: return is_finite(value)
+		TYPE_ARRAY:
+			for item: Variant in value:
+				if not _json_data(item, depth + 1): return false
+			return true
+		TYPE_DICTIONARY:
+			for key: Variant in value:
+				if typeof(key) != TYPE_STRING or not _json_data(value[key], depth + 1): return false
+			return true
+	return false
