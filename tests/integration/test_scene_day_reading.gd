@@ -22,12 +22,16 @@ class SimulatedCheckpointPort:
 	var consumes := 0
 	var authority: Callable
 	var authority_bridge: Object
+	var on_configure: Callable
+	var refuse_configuration := false
 	var accepted_phases: Array[String] = []
 	var probe_wrong_phases := false
 	var wrong_phase_results: Array[Dictionary] = []
 
 	func configure_scene_entry_authority(bridge: Object, callback: Callable) -> Dictionary:
 		if authority.is_valid() or bridge == null or not callback.is_valid(): return {"ok": false}
+		if on_configure.is_valid(): on_configure.call()
+		if refuse_configuration: return {"ok": false}
 		authority_bridge = bridge
 		authority = callback
 		return {"ok": true}
@@ -113,6 +117,38 @@ func _staged_fixture() -> Dictionary:
 			return {"ok": true, "value": binding.duplicate(true)})
 	assert_true(configured.ok, str(configured))
 	return {"bridge": bridge, "port": port, "native": native}
+
+func test_simulated_configuration_reentrancy_refuses_nested_owners_and_releases_refusal_guard() -> void:
+	var bridge := BRIDGE.new()
+	autofree(bridge)
+	var outer := SimulatedCheckpointPort.new()
+	var other := SimulatedCheckpointPort.new()
+	var source := func(_binding: Dictionary) -> Dictionary: return {"ok": true}
+	var context := func(_entry: String, _frame: Dictionary) -> Dictionary: return {"ok": false}
+	var nested: Array[Dictionary] = []
+	outer.on_configure = func() -> void:
+		nested.append(bridge.configure_scene_staging(other, source, context))
+		nested.append(bridge.prepare_day_entry(FIXTURE.A, FIXTURE.frame(FIXTURE.A, "a:1")))
+	outer.refuse_configuration = true
+	assert_false(bridge.configure_scene_staging(outer, source, context).ok)
+	assert_eq(nested.size(), 2)
+	for result: Dictionary in nested: assert_false(result.ok)
+	assert_null(bridge._scene_stage_port, "refusal installs neither outer nor reentrant owner")
+	assert_false(other.authority.is_valid())
+	assert_false(bridge._scene_stage_busy, "refused configuration releases its temporary guard")
+	nested.clear()
+	outer.refuse_configuration = false
+	assert_true(bridge.configure_scene_staging(outer, source, context).ok)
+	assert_eq(nested.size(), 2)
+	for result: Dictionary in nested: assert_false(result.ok)
+	assert_eq(bridge._scene_stage_port, outer)
+	assert_eq(outer.authority_bridge, bridge)
+	assert_true(outer.authority.is_valid())
+	assert_false(other.authority.is_valid(), "nested port never receives authority")
+	assert_false(bridge.configure_scene_staging(other, source, context).ok)
+	assert_false(bridge.configure_scene_staging(outer, source, context).ok)
+	assert_eq(bridge._scene_stage_port, outer, "configured owner cannot be replaced or rebound")
+	assert_true(bridge._scene_stage.is_empty(), "nested preparation cannot retain a candidate")
 
 func test_simulated_checkpoint_authority_binds_private_candidate_and_call_phase() -> void:
 	var fixture := _staged_fixture()

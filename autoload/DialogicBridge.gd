@@ -43,13 +43,15 @@ var _scene_stage_phase := ""
 var _scene_authority_validating := false
 
 func configure_scene_staging(port: Object, source_validator: Callable, context_provider: Callable) -> Dictionary:
-	if _scene_stage_port != null or port == null or has_active_playback() or has_reading_session() \
+	if _scene_stage_busy or _scene_stage_port != null or port == null or has_active_playback() or has_reading_session() \
 			or not source_validator.is_valid() or not context_provider.is_valid():
 		return _command_failure(&"scene_staging_configuration_invalid")
 	for method: String in ["retain_scene_entry", "consume_scene_entry_ack"]:
 		if not port.has_method(method): return _command_failure(&"scene_staging_configuration_invalid")
 	if port.has_method("configure_scene_entry_authority"):
+		_scene_stage_busy = true
 		var configured: Variant = port.call("configure_scene_entry_authority", self, validate_scene_entry_authority)
+		_scene_stage_busy = false
 		if not configured is Dictionary or not configured.get("ok", false):
 			return _command_failure(&"scene_staging_configuration_invalid")
 	_scene_stage_port = port
