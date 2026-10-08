@@ -1,11 +1,11 @@
 # Day 6 Dark–Ambiguous: photograph working record
 
 **Updated:** 2026-10-08. **Status:** `UNSELECTED` / `REACTION TEST`.
-This is the current navigation and development owner for the photograph candidate, not a newly synthesized scene. The [handoff](../session-handoff.md) explains the reading route. The [Bible](../../../01-core-story-bible.md) and [dossiers](../../../02-character-relationship-handbook.md) retain their authority.
+This is the current navigation and development owner for the photograph candidate, not a newly synthesized scene. The [working home and restart point](../README.md) explains the reading route. The [Bible](../../../01-core-story-bible.md) and [dossiers](../../../02-character-relationship-handbook.md) retain their authority.
 
 ## Last complete scene versus latest proposed turn
 
-The [private-portrait review of 2026-10-05](../../../maintenance/pl-session-sources/2026-10-08/PL_day6_dark_ambiguous_private_portrait_review_2026-10-05.md) is the last fully assembled camera/retention comparison. Its exact text is preserved unchanged. It has Priscilla requesting private retention of Lavinia's portrait AFTER Lavinia deletes the refused image of Priscilla and asks for counter-deletion.
+The [private-portrait review of 2026-10-05](https://github.com/Siuuuers/dwm/blob/b2d7366d62936cbc6a9d2fa974e8908e45457536/story/maintenance/pl-session-sources/2026-10-08/PL_day6_dark_ambiguous_private_portrait_review_2026-10-05.md) is the last fully assembled camera/retention comparison. Its exact text is preserved unchanged. It has Priscilla requesting private retention of Lavinia's portrait AFTER Lavinia deletes the refused image of Priscilla and asks for counter-deletion.
 
 **The later owner proposal reverses the requester and the image:** Lavinia asks “May I keep it? Just for myself” about the refused photograph of Priscilla on Lavinia's phone. The owner explicitly leaves permission versus deletion open. The assistant favored a specific allowance in a local test. That proposed grant has not been approved, and no whole revised scene has yet integrated it.
 
@@ -13,7 +13,7 @@ Do not append both negotiations. The latest candidate replaces the old counter-d
 
 ## The reason for this visit and its pleasure
 
-The original [phone-only audition](../../../maintenance/pl-session-sources/2026-10-08/PL_day6_dark_ambiguous_photograph_audition_2026-10-04.md) began with technically failed selfies. The author questioned why Lavinia invited Priscilla at all. The later proposal starts with wanted reunion contact: Priscilla asks to come over; Lavinia offers tea and freshly admits her. This does not require an offscreen reconciliation, jealousy episode, or hidden intimate meeting after Day 2.
+The original [phone-only audition](https://github.com/Siuuuers/dwm/blob/b2d7366d62936cbc6a9d2fa974e8908e45457536/story/maintenance/pl-session-sources/2026-10-08/PL_day6_dark_ambiguous_photograph_audition_2026-10-04.md) began with technically failed selfies. The author questioned why Lavinia invited Priscilla at all. The later proposal starts with wanted reunion contact: Priscilla asks to come over; Lavinia offers tea and freshly admits her. This does not require an offscreen reconciliation, jealousy episode, or hidden intimate meeting after Day 2.
 
 The retained event record permits a proposed brief reached-home check after the Dark departure, but its exact message/reply and audience access remain unselected. A workable optional bridge was: “Are you at home this evening?” / “I will be.” / “I'd like to come over.” / “Come for tea.” These are writer-side proposed messages, not a newly authorized visible transcript.
 
@@ -111,4 +111,4 @@ Day 6 portraits are clothed. Hypothetical nude-portrait and more extreme explora
 
 **Checks not claimed:** performance, medical/physical review, equipment tests, image asset review, historical raw-source audit closure, independent agents, full-family comparison, and runtime tests.
 
-**Provenance:** the two linked complete snapshots; [camera/time-horizon exploration](../../../maintenance/pl-session-sources/2026-10-08/PL_camera_intimacy_time_horizons_2026-10-05.md); the visible discussions after the private-portrait review, particularly the questions beginning “why would Priscilla like Lavinia to delete” and “what if ‘May I keep it’ is something Lavinia says”; and the [session capture](../development/2026-10-08-session-capture.md). This records known development, not a reconstructed transcript of skipped turns.
+**Provenance:** the two linked complete snapshots; [camera/time-horizon exploration](https://github.com/Siuuuers/dwm/blob/b2d7366d62936cbc6a9d2fa974e8908e45457536/story/maintenance/pl-session-sources/2026-10-08/PL_camera_intimacy_time_horizons_2026-10-05.md); the visible discussions after the private-portrait review, particularly the questions beginning “why would Priscilla like Lavinia to delete” and “what if ‘May I keep it’ is something Lavinia says”; and the [session capture](../development/2026-10-08-session-capture.md). This records known development, not a reconstructed transcript of skipped turns.

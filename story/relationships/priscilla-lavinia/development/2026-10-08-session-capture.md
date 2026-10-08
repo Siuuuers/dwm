@@ -1,8 +1,8 @@
 # Session capture and lessons: 2026-10-08
 
-**Purpose:** preserve the available Markdown work and useful recent discussion for a fresh session. This is a documentation transaction, not new fiction, a blanket approval, or an amendment to the Bible/Handbook. The author explicitly requested GitHub recording and a fresh-session handoff. No merge or implementation was requested.
+**Purpose:** preserve the available Markdown work and useful recent discussion for a fresh session. This is a documentation transaction, not new fiction, a blanket approval, or an amendment to the Bible/Handbook. The author explicitly requested GitHub recording and a fresh-session handoff. The later owner request explicitly authorizes consolidating the story documents and merging PR #13; it does not authorize implementation or new fictional decisions.
 
-Read [the handoff](../session-handoff.md) first. [Exact source index](../../../maintenance/pl-session-sources/2026-10-08/README.md) preserves the 14 available draft files. Their internal dates, “local only” notes, old “current” headings, and prior review claims are historical evidence, not present commands or new validation.
+Read [the working home and restart point](../README.md) first. [Exact source index](../../../maintenance/pl-session-sources/2026-10-08/README.md) links all 14 draft files at their exact preserved commit; archival copies no longer occupy the working tree. Their internal dates, “local only” notes, old “current” headings, and prior review claims are historical evidence, not present commands or new validation.
 
 ## Coverage and omissions
 
@@ -92,6 +92,6 @@ Fox/Priscilla and swan/Lavinia remain optional private creative metaphors, not n
 
 ## What this checkpoint changes
 
-It publishes exact local drafts as source snapshots, creates a current photographic development record, supplies a short handoff, and updates navigation/capture status. It does not merge scene alternatives, finalize a chosen private-retention outcome, modify the Bible/Handbook, fix a diagnosis, implement scenes, or change branch-protected game work.
+The initial capture published exact local drafts and created the photographic development record. The authorized consolidation folds the separate handoff into README.md, keeps the originals at the exact capture commit, and updates all active source links. All substantive sections of each snapshot remain available there, including alternatives and historical review claims; none are promoted by retirement from the working tree. It does not merge scene alternatives, finalize a chosen private-retention outcome, modify the Bible/Handbook, fix a diagnosis, implement scenes, or change branch-protected game work.
 
 The next session should begin with the latest unfinished choice rather than the oldest snapshot's “current” heading. The source index permits exact retrieval when a disagreement arises, without making every session ingest the full archive.
