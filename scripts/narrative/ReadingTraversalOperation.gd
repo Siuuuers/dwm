@@ -417,7 +417,7 @@ static func validate_scene_path(plan: Dictionary, nodes: Array) -> Dictionary:
 		var target: Dictionary = nodes[edge.to]
 		if target.kind == "caption": expected_lines.append(target.line_id)
 		elif target.kind in ["control", "completion"]: stopped = true
-		var backward_caption := node.kind == "jump" and edge.to <= edge.from and target.kind == "caption"
+		var backward_caption: bool = node.kind == "jump" and edge.to <= edge.from and target.kind == "caption"
 		if node.kind == "jump" and edge.to <= edge.from:
 			if target.kind != "caption": return _fail(&"reading_next_path_invalid")
 			stopped = true
