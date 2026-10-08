@@ -1,4 +1,4 @@
-name: Isolated Next authored-selector proof
+name: Isolated Next notification final validation
 on:
   push:
     branches: [codex/scene-next-notification-controller-20261008]
@@ -10,12 +10,12 @@ jobs:
     timeout-minutes: 20
     env:
       LIBGL_ALWAYS_SOFTWARE: '1'
-      PRODUCT_SHA: 1fb4b5aa4de7a413fa7962fc0e16d29810d22491
-      PRODUCT_TREE: 986e669a4a89d5504ccb265767ee8b40145e49e1
+      PRODUCT_SHA: ab33586a3e10aed1e853c6f3e9469022df2150b0
+      PRODUCT_TREE: 4f696303b9dc049aedd7717252c1bd9368963707
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: 1fb4b5aa4de7a413fa7962fc0e16d29810d22491
+          ref: ab33586a3e10aed1e853c6f3e9469022df2150b0
           fetch-depth: 0
           persist-credentials: true
       - name: Record immutable source before import
@@ -28,7 +28,7 @@ jobs:
           pathlib.Path('.godot/ci/provenance.json').write_text(json.dumps({
             'product':os.environ['PRODUCT_SHA'],'tree':os.environ['PRODUCT_TREE'],
             'controller':os.environ['GITHUB_SHA'],'run':os.environ['GITHUB_RUN_ID'],
-            'attempt':os.environ['GITHUB_RUN_ATTEMPT'],'purpose':'approved authored-selector one-action correction',
+            'attempt':os.environ['GITHUB_RUN_ATTEMPT'],'purpose':'final focused suites, nine real process phases, exact read-only inventories',
             'index_cleanup':['.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1']},indent=2))
           PY
           git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
@@ -55,25 +55,63 @@ jobs:
           if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' .godot/ci/import.log; then exit 1; fi
           git restore -- project.godot
           test -z "$(git diff --name-only)"
-      - name: Prove one-action authored-selector journey
+      - name: Exact focused suites in isolated rendered processes
         run: |
           python3 - <<'PY'
-          import pathlib,subprocess
-          result=subprocess.run(['python3','tools/testing/run_solo_authored_selector_journey.py'])
-          for p in sorted(pathlib.Path('.godot/ci/solo-authored-selector').rglob('*')):
-            if p.suffix not in ['.log','.txt']: continue
-            lines=p.read_text(errors='replace').splitlines()
-            if any('SOLO_AUTHORED_SELECTOR_FAIL:' in line or 'SCRIPT ERROR:' in line for line in lines):
-              print('ORIGINAL_DIAGNOSTIC_LOG: '+str(p),flush=True)
-              print('\n'.join(lines),flush=True)
-          raise SystemExit(result.returncode)
+          import os,pathlib,subprocess,xml.etree.ElementTree as ET,json
+          root=pathlib.Path.cwd()
+          suites=['test_scene_next_notification','test_dialogic_next_traversal','test_run_restore_isolation','test_gallery_caption_collection']
+          for suite in suites:
+            base=root/'.godot/ci'/suite; base.mkdir(parents=True,exist_ok=True)
+            env=os.environ.copy()
+            for key,part in [('DWM_TEST_ROOT','test-root'),('XDG_DATA_HOME','data'),('XDG_CONFIG_HOME','config'),('XDG_CACHE_HOME','cache')]:
+              target=base/part;target.mkdir(parents=True,exist_ok=True);env[key]=str(target)
+            command=['xvfb-run','-a',env['GODOT_CONSOLE_PATH'],'--path',str(root),'--rendering-method','gl_compatibility','--rendering-driver','opengl3','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/'+suite+'.gd','-gexit','-glog=1','-gjunit_xml_file=res://.godot/ci/'+suite+'/results.xml']
+            result=subprocess.run(command,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=480)
+            (base/'original.log').write_text(result.stdout)
+            (base/'command.json').write_text(json.dumps({'command':command,'returncode':result.returncode},indent=2))
+            print(result.stdout)
+            if result.returncode or any(x in result.stdout for x in ['SCRIPT ERROR:','ERROR: Failed to load','Unicode parsing error','Unexpected NUL character']): raise SystemExit(suite+' failed')
+            report=ET.parse(base/'results.xml');cases=report.findall('.//testcase')
+            if not cases or any(list(c) for c in cases if any(t.tag in ['failure','error','skipped'] for t in c)): raise SystemExit(suite+' missing/pending/failed cases')
+            print(suite+': '+str(len(cases))+' cases passed')
+          PY
+      - name: Nine fresh processes with real saved roots
+        run: |
+          python3 - <<'PY'
+          import os,pathlib,subprocess,json,hashlib,shutil,xml.etree.ElementTree as ET
+          root=pathlib.Path.cwd();base=root/'.godot/ci/restart';base.mkdir(parents=True,exist_ok=True)
+          live=base/'live';reports=base/'reports';reports.mkdir(parents=True,exist_ok=True)
+          phases=['produce-pre-marker','consume-pre-marker-source','consume-source-marker','consume-marker-source','consume-marker-source-later','consume-later-completion','consume-completion','fault-install-produce','fault-install-consume']
+          env=os.environ.copy()
+          for key,part in [('DWM_TEST_ROOT','test-root'),('XDG_DATA_HOME','data'),('XDG_CONFIG_HOME','config'),('XDG_CACHE_HOME','cache')]:
+            path=live/part;path.mkdir(parents=True,exist_ok=True);env[key]=str(path)
+          env['DWM_SCENE_MARKER_REPORT_DIR']=str(reports)
+          def manifest():
+            return {p.relative_to(live).as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in sorted(live.rglob('*')) if p.is_file()}
+          for phase in phases:
+            if phase == 'fault-install-produce':
+              live=base/'fault-live'
+              for key,part in [('DWM_TEST_ROOT','test-root'),('XDG_DATA_HOME','data'),('XDG_CONFIG_HOME','config'),('XDG_CACHE_HOME','cache')]:
+                path=live/part;path.mkdir(parents=True,exist_ok=True);env[key]=str(path)
+            env['DWM_SCENE_MARKER_PHASE']=phase
+            before=manifest()
+            command=['xvfb-run','-a',env['GODOT_CONSOLE_PATH'],'--path',str(root),'--rendering-method','gl_compatibility','--rendering-driver','opengl3','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_next_notification.gd','-gunit_test_name=test_connected_bridge_partial_next','-gexit','-glog=1','-gjunit_xml_file=res://.godot/ci/restart/reports/'+phase+'.xml']
+            run=subprocess.run(command,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=240)
+            (reports/(phase+'.log')).write_text(run.stdout)
+            (reports/(phase+'-launcher.json')).write_text(json.dumps({'phase':phase,'command':command,'returncode':run.returncode,'before':before,'after':manifest()},indent=2))
+            shutil.copytree(live,base/(phase+'-original'))
+            print(run.stdout)
+            if run.returncode or 'SCENE_NEXT_NOTIFICATION_PHASE_PASS: '+phase not in run.stdout or any(x in run.stdout for x in ['SCRIPT ERROR:','ERROR: Failed to load','Unicode parsing error','Unexpected NUL character']): raise SystemExit(phase+' failed')
+            report=ET.parse(reports/(phase+'.xml'));cases=report.findall('.//testcase')
+            if len(cases)!=1 or any(t.tag in ['failure','error','skipped'] for c in cases for t in c): raise SystemExit(phase+' incomplete test result')
           PY
       - name: Final tracked source check
         if: always()
         run: |
           git diff --name-only > .godot/ci/tracked-source-diff.txt
           test ! -s .godot/ci/tracked-source-diff.txt
-      - name: Preserve targeted proof and original failure logs
+      - name: Preserve original diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -84,7 +122,7 @@ jobs:
           retention-days: 14
 
   generated-surfaces:
-    name: Windows / exact candidate generated inventory check
+    name: Windows / exact candidate read-only inventory check
     runs-on: windows-2022
     timeout-minutes: 20
     defaults:
@@ -96,12 +134,12 @@ jobs:
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
-          ref: 1fb4b5aa4de7a413fa7962fc0e16d29810d22491
+          ref: ab33586a3e10aed1e853c6f3e9469022df2150b0
       - name: Record exact source and controller before import
         run: |
           $actual = (git rev-parse HEAD).Trim()
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($actual -ne '1fb4b5aa4de7a413fa7962fc0e16d29810d22491' -or $tree -ne '986e669a4a89d5504ccb265767ee8b40145e49e1') { throw 'Candidate mismatch.' }
+          if ($actual -ne 'ab33586a3e10aed1e853c6f3e9469022df2150b0' -or $tree -ne '4f696303b9dc049aedd7717252c1bd9368963707') { throw 'Candidate mismatch.' }
           New-Item -ItemType Directory -Force .godot/ci/public-surfaces | Out-Null
           @{product=$actual;tree=$tree;controller=$env:GITHUB_SHA;run=$env:GITHUB_RUN_ID;attempt=$env:GITHUB_RUN_ATTEMPT} | ConvertTo-Json | Set-Content .godot/ci/public-surfaces/provenance.json
       - name: Prepare disposable checkout for credential cleanup
@@ -198,16 +236,16 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Regenerate and check original inventories
+      - name: Check committed original inventories without regeneration
         timeout-minutes: 10
-        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
+        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -EmitPayloads
       - name: Record generated-only tracked delta
         if: always()
         run: |
           $changed = @(git diff --name-only)
           $changed | Set-Content .godot/ci/public-surfaces/tracked-diff.txt
           foreach ($path in $changed) {
-            if ($path -notin @('evidence/phase_2r/runtime/game_state_surface.json', 'evidence/phase_2r/runtime/save_manager_surface.json')) { throw "Unexpected tracked mutation $path" }
+            throw "Unexpected tracked mutation $path"
           }
       - name: Upload canonical inventories and retirement evidence
         if: always()
