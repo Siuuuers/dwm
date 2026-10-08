@@ -83,6 +83,7 @@ const _CHILD_KINDS: Array[String] = [
 	"day_resolution_stage", "board_command", "board_start", "shop_quote", "desktop_action",
 	"causal_sequence", "condition", "board_fate", "destination_intent", "notification_intent",
 	"continuation_operation", "warning", "navigation", "terminal_intent", "action_consequence",
+	"scene_day_completion",
 ]
 
 ## Registration seam (bead addendum 9). `handled=true` rows are implemented in `_remap_board()`/
