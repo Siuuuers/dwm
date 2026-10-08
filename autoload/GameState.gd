@@ -125,6 +125,7 @@ const _ORDINARY_CORRESPONDENCE := preload("res://scripts/domain/contact/Ordinary
 const _DAY7_FOLLOWUPS := preload("res://scripts/domain/contact/Day7FollowupState.gd")
 const _DATING_ENDING_RULES := preload("res://scripts/domain/ending/DatingEndingRules.gd")
 const _PROVISIONAL_RELATIONSHIP_RULES := preload("res://scripts/domain/relationship/ProvisionalProgressionRules.gd")
+const _NOTE_PURCHASE_RULES := preload("res://scripts/domain/shop/RunNotePurchaseRules.gd")
 const _SCHEDULE_ACTION_REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
 
 var _run_lifecycle: RefCounted = _RUN_LIFECYCLE_SCRIPT.new()
@@ -3139,7 +3140,10 @@ func restore_live_run_state(backup: Dictionary) -> Dictionary:
 		return _transaction_failure(&"invalid_run_backup", "backup was not issued by capture_live_run_state")
 	var detached: Dictionary = source as Dictionary
 	if typeof(detached.get("gameplay")) == TYPE_DICTIONARY:
-		apply_save_dict(detached["gameplay"].duplicate(true))
+		var gameplay_check: Dictionary = _prepare_note_restore_gameplay(detached["gameplay"])
+		if not gameplay_check.get("ok", false):
+			return gameplay_check
+		apply_save_dict(gameplay_check["value"]["gameplay"].duplicate(true))
 	if typeof(detached.get("contacts")) == TYPE_DICTIONARY:
 		contacts = (detached["contacts"] as Dictionary).duplicate(true)
 	_command_receipts = (detached["command_receipts"] as Dictionary).duplicate(true)
@@ -3349,6 +3353,9 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 		return {"ok": false, "code": &"invalid_run_backup", "message": "run backup requires gameplay and lifecycle"}
 	if typeof(source.get("run_configuration_installed")) != TYPE_BOOL:
 		return {"ok": false, "code": &"invalid_run_backup", "message": "run installation evidence is required"}
+	var gameplay_check: Dictionary = _prepare_note_restore_gameplay(source["gameplay"])
+	if not gameplay_check.get("ok", false):
+		return gameplay_check
 	var bookkeeping := _prepare_restore_bookkeeping(source, true)
 	if not bookkeeping.get("ok", false):
 		return bookkeeping
@@ -3379,7 +3386,7 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 	elif dating_backup != null:
 		return _transaction_failure(&"invalid_dating_reconciliation_backup", "local owner is not configured")
 	_run_lifecycle.commit_restore(restored["value"]["candidate"])
-	_apply_gameplay_silent((source as Dictionary)["gameplay"])
+	_apply_gameplay_silent(gameplay_check["value"]["gameplay"])
 	_apply_restore_bookkeeping(bookkeeping["value"])
 	_restore_contacts_section((source as Dictionary).get("contacts"))
 	if not validated_backup.is_empty():
@@ -3418,6 +3425,11 @@ func apply_continuation_remap_silent(restore_transaction_id: String, identity_al
 func _apply_run_snapshot_silent(snapshot: Dictionary) -> Dictionary:
 	if typeof(snapshot.get("lifecycle")) != TYPE_DICTIONARY:
 		return {"ok": false, "code": &"invalid_run_plan", "message": "snapshot.lifecycle is required"}
+	var gameplay_check: Dictionary = {}
+	if typeof(snapshot.get("gameplay")) == TYPE_DICTIONARY:
+		gameplay_check = _prepare_note_restore_gameplay(snapshot["gameplay"])
+		if not gameplay_check.get("ok", false):
+			return gameplay_check
 	var bookkeeping := _prepare_restore_bookkeeping(snapshot)
 	if not bookkeeping.get("ok", false):
 		return bookkeeping
@@ -3440,7 +3452,7 @@ func _apply_run_snapshot_silent(snapshot: Dictionary) -> Dictionary:
 			return {"ok": false, "code": &"invalid_run_plan", "message": desktop_error}
 	_run_lifecycle.commit_restore(restored["value"]["candidate"])
 	if typeof(snapshot.get("gameplay")) == TYPE_DICTIONARY:
-		_apply_gameplay_silent(snapshot["gameplay"])
+		_apply_gameplay_silent(gameplay_check["value"]["gameplay"])
 	_apply_restore_bookkeeping(bookkeeping["value"])
 	_restore_contacts_section(snapshot.get("contacts"))
 	if not validated_committed.is_empty():
@@ -3449,6 +3461,16 @@ func _apply_run_snapshot_silent(snapshot: Dictionary) -> Dictionary:
 		_desktop_snapshot = (desktop as Dictionary).duplicate(true)
 	_run_configuration_installed = true
 	return {"ok": true, "code": &"ok"}
+
+
+## Only restore defaults an omitted count map. Runtime floats remain invalid.
+func _prepare_note_restore_gameplay(gameplay: Dictionary) -> Dictionary:
+	var checked: Dictionary = _NOTE_PURCHASE_RULES.validate_counts(gameplay.get("shop_purchase_counts", {}))
+	if not checked.get("ok", false):
+		return checked
+	var detached: Dictionary = gameplay.duplicate()
+	detached["shop_purchase_counts"] = checked["value"]["shop_purchase_counts"]
+	return {"ok": true, "code": &"ok", "value": {"gameplay": detached}}
 
 
 ## Canonical saves carry all receipt fields; old partial owner plans may omit the

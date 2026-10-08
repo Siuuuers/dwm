@@ -258,11 +258,13 @@ head, actual target base/checkout merge, run/attempt, tool version and raw artif
 identities. Recheck the relevant combination after the integration base advances.
 PR #1's final combined candidate needs its required broad gate.
 
-UI amendment section13 item7 requires actual final-candidate regeneration of eight
-`result.json` evidence records: `tools/desktop_shell`, `tools/stat_hud`,
+UI amendment section13 item7 requires actual final-candidate regeneration of seven
+`result.json` evidence records: `tools/desktop_shell`,
 `tools/title_resume`, `tools/title_shell`, `tools/backup_ui/evidence/ui`, and
 `tools/save_load_loop/evidence/{baseline,loop,smoke}`. Copying hashes into historical
-receipts is not acceptance; the existing fixtures must execute.
+receipts is not acceptance; the existing fixtures must execute. The active `tools/stat_hud`
+regeneration requirement is retired with the HUD-only deletion; its original
+historical receipts remain unchanged.
 
 The retained-History fanout accepted in Run 82 has one producer, four comparisons
 on separate runners/checkouts and the original required-check aggregate requiring

@@ -41,6 +41,7 @@ const DESKTOP_BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBo
 const DESKTOP_CONSEQUENCE_STATE := preload("res://scripts/domain/desktop/DesktopConsequenceState.gd")
 const SCHEDULE_VIEW_STATE := preload("res://scripts/domain/schedule/ScheduleViewState.gd")
 const SCHEDULE_ACTION_REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.gd")
+const NOTE_PURCHASE_RULES := preload("res://scripts/domain/shop/RunNotePurchaseRules.gd")
 const SCENE_EVENT_CONTRACT := preload("res://scripts/domain/narrative/SceneEventContract.gd")
 
 const TOP_KEYS: Array[String] = [
@@ -246,6 +247,16 @@ static func validate(snapshot: Dictionary) -> Dictionary:
 	var gameplay_error := _validate_gameplay(candidate["gameplay"])
 	if gameplay_error != "":
 		return _fail(&"invalid_gameplay", gameplay_error)
+	# Primitive validation above keeps persisted keys strictly String. Runtime count
+	# normalization must never widen the wire schema to accept StringName keys.
+	var counts_check: Dictionary = NOTE_PURCHASE_RULES.validate_counts(
+		(candidate["gameplay"] as Dictionary).get("shop_purchase_counts", {}))
+	if not counts_check.get("ok", false):
+		return _fail(&"invalid_gameplay", "invalid shop_purchase_counts")
+	# Preserve omitted wire fields so full and proof-backed document builders keep
+	# identical bytes. Restore owners materialize the empty map before mutation.
+	if candidate["gameplay"].has("shop_purchase_counts"):
+		candidate["gameplay"]["shop_purchase_counts"] = counts_check["value"]["shop_purchase_counts"]
 	for member: String in ["applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
 		var ids_error := _validate_transaction_ids(candidate[member], member)
 		if ids_error != "":

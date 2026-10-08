@@ -137,7 +137,6 @@ $suites = @{
         'tests/integration/test_contacts_run_presentation.gd'
         'tests/scene/test_controls_input_contact_release.gd'
         'tests/unit/test_angela_stat_overlay.gd'
-        'tests/unit/test_stat_hud_week_tint.gd'
         'tests/integration/test_ui_art_placements.gd'
         'tests/integration/test_desktop_logout_consent.gd'
         'tests/unit/test_session_exit_coordinator.gd'
