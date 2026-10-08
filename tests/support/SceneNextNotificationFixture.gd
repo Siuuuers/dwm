@@ -190,6 +190,10 @@ func _phase_wait_frontier(expected: Dictionary) -> bool:
 		var actual: Dictionary = bridge.capture_reading_checkpoint(false)
 		if actual.get("ok", false) and actual.value.reading_session == expected:
 			await _phase_frames()
+			if expected.boundary == "notification":
+				var physical: Dictionary = _phase_node("GameState").capture_dating_challenge_state()
+				if not _phase_check(physical.get("ok", false) and physical.value.get("phase") == "pre_challenge",
+					"restored marker retains physical pre-challenge custody: " + str(physical)): return false
 			return true
 		await _phase_tree.process_frame
 	return _phase_check(false, "restored exact reading cursor did not become available: " + str(expected))
