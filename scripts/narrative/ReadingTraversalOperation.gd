@@ -12,8 +12,8 @@ const PLAN_KEYS := ["entry_id", "catalogue_fingerprint", "source_ledger", "sourc
 const PHASES := ["source", "destination"]
 
 static func create(plan: Dictionary, phase: String) -> Dictionary:
-	if plan.get("schema_version") == 3: return _create_scene_operation(plan, phase)
-	if plan.get("schema_version") == 2: return _create_marker_operation(plan, phase)
+	if typeof(plan.get("schema_version")) == TYPE_INT and plan.schema_version == 3: return _create_scene_operation(plan, phase)
+	if typeof(plan.get("schema_version")) == TYPE_INT and plan.schema_version == 2: return _create_marker_operation(plan, phase)
 	if phase not in PHASES: return _fail(&"reading_next_phase_invalid")
 	var checked := _validate_plan(plan)
 	if not checked.ok: return checked
@@ -24,13 +24,13 @@ static func create(plan: Dictionary, phase: String) -> Dictionary:
 
 ## The complete source/destination projection, useful to the one semantic owner.
 static func project(plan: Dictionary, phase: String) -> Dictionary:
-	if plan.get("schema_version") == 3:
+	if typeof(plan.get("schema_version")) == TYPE_INT and plan.schema_version == 3:
 		var made := _create_scene_operation(plan, phase)
 		if not made.ok: return made
 		var result := _scene_projection(plan, phase)
 		result.next_operation = made.value
 		return {"ok": true, "value": result}
-	if plan.get("schema_version") == 2: return _project_marker_operation(plan, phase)
+	if typeof(plan.get("schema_version")) == TYPE_INT and plan.schema_version == 2: return _project_marker_operation(plan, phase)
 	var made := create(plan, phase)
 	if not made.ok: return made
 	var reading := _projection(plan, phase)
@@ -39,7 +39,7 @@ static func project(plan: Dictionary, phase: String) -> Dictionary:
 	return {"ok": true, "value": reading}
 
 static func validate(reading: Dictionary, entry_id: String) -> Dictionary:
-	if reading.get("schema_version") == 5: return _validate_scene_operation(reading, entry_id)
+	if typeof(reading.get("schema_version")) == TYPE_INT and reading.schema_version == 5: return _validate_scene_operation(reading, entry_id)
 	if reading.get("schema_version") == 4: return _validate_marker_operation(reading, entry_id)
 	var keys := READING_KEYS.duplicate()
 	keys.append("next_operation")

@@ -187,9 +187,9 @@ static func _is_scene_checkpoint(checkpoint: Variant) -> bool:
 	if not checkpoint is Dictionary: return false
 	var reading: Variant = checkpoint.get("reading_session")
 	var frame: Variant = checkpoint.get("frozen_context")
-	return (reading is Dictionary and (reading.get("schema_version") == 5 \
+	return (reading is Dictionary and ((typeof(reading.get("schema_version")) == TYPE_INT and reading.schema_version == 5) \
 			or reading.has("registration_sha256") or reading.has("occurrence_id"))) \
-			or (frame is Dictionary and frame.get("role") == "scene")
+			or (frame is Dictionary and (frame.get("role") is String and frame.role == "scene"))
 
 static func _validate_scene_envelope(checkpoint: Dictionary) -> Dictionary:
 	var reading: Variant = checkpoint.get("reading_session")

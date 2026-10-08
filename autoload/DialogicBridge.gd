@@ -2511,7 +2511,7 @@ func get_reading_history() -> Dictionary:
 ## Prepare is pure and validates every frame and occurrence, never a prefix.
 ## The restore participant supplies independently admitted saved Run contexts.
 func validate_reading_checkpoint(checkpoint: Dictionary, entry_contexts: Dictionary = {}) -> Dictionary:
-	if checkpoint.get("reading_session") is Dictionary and checkpoint.reading_session.get("schema_version") == 5:
+	if checkpoint.get("reading_session") is Dictionary and typeof(checkpoint.reading_session.get("schema_version")) == TYPE_INT and checkpoint.reading_session.schema_version == 5:
 		# A detached session can prove reading representation, but full Run
 		# receipt admission/native restore is not installed in this slice.
 		return _command_failure(&"scene_restore_owner_unavailable")
@@ -2599,7 +2599,7 @@ func is_hospital_reading_restore_for(command: Dictionary) -> bool:
 
 
 func _resume_reading_checkpoint(checkpoint: Dictionary, execution_mode: StringName) -> Dictionary:
-	if checkpoint.get("reading_session") is Dictionary and checkpoint.reading_session.get("schema_version") == 5:
+	if checkpoint.get("reading_session") is Dictionary and typeof(checkpoint.reading_session.get("schema_version")) == TYPE_INT and checkpoint.reading_session.schema_version == 5:
 		return _command_failure(&"scene_restore_owner_unavailable")
 	if execution_mode != &"canonical": return _command_failure(&"rehearsal_commit_denied")
 	var checked := validate_reading_checkpoint(checkpoint)
@@ -3553,7 +3553,7 @@ func capture_scene_event_boundary() -> Dictionary:
 ## A historical anchor is not the live frontier. The active session proves exact
 ## ledger membership; previous occurrences prove their immutable registered beat.
 func validate_scene_event_anchor(anchor: Dictionary, checkpoint: Dictionary) -> Dictionary:
-	if checkpoint.get("reading_session") is Dictionary and checkpoint.reading_session.get("schema_version") == 5:
+	if checkpoint.get("reading_session") is Dictionary and typeof(checkpoint.reading_session.get("schema_version")) == TYPE_INT and checkpoint.reading_session.schema_version == 5:
 		return _command_failure(&"scene_restore_owner_unavailable")
 	var catalogue := _READING_SESSION.new()
 	var configured: Dictionary = catalogue.configure(_reading_catalogue_for_entry(str(anchor.entry_id)))
