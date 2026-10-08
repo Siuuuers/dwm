@@ -39,6 +39,8 @@ var _scene_stage: Dictionary = {}
 var _scene_stage_serial := 0
 var _scene_stage_fatal := false
 var _scene_stage_busy := false
+var _scene_stage_phase := ""
+var _scene_authority_validating := false
 
 func configure_scene_staging(port: Object, source_validator: Callable, context_provider: Callable) -> Dictionary:
 	if _scene_stage_port != null or port == null or has_active_playback() or has_reading_session() \
@@ -46,10 +48,36 @@ func configure_scene_staging(port: Object, source_validator: Callable, context_p
 		return _command_failure(&"scene_staging_configuration_invalid")
 	for method: String in ["retain_scene_entry", "consume_scene_entry_ack"]:
 		if not port.has_method(method): return _command_failure(&"scene_staging_configuration_invalid")
+	if port.has_method("configure_scene_entry_authority"):
+		var configured: Variant = port.call("configure_scene_entry_authority", self, validate_scene_entry_authority)
+		if not configured is Dictionary or not configured.get("ok", false):
+			return _command_failure(&"scene_staging_configuration_invalid")
 	_scene_stage_port = port
 	_scene_stage_source = source_validator
 	_scene_stage_context = context_provider
 	return {"ok": true}
+
+## Real checkpoint port callback. Copies/digests alone are never authority.
+func validate_scene_entry_authority(capability_id: String, binding: Dictionary,
+		checkpoint: Dictionary, phase: String) -> Dictionary:
+	if _scene_authority_validating or _scene_stage_fatal or _scene_stage.is_empty() \
+			or capability_id != _scene_stage.transport.capability_id \
+			or not _READING_TRAVERSAL._same(binding, _scene_stage.binding) \
+			or not _READING_TRAVERSAL._same(checkpoint, _scene_stage.transport.narrative_checkpoint):
+		return _command_failure(&"scene_staging_authority_invalid")
+	if (phase == "retain" and (not _scene_stage_busy or _scene_stage_phase != "prepare")) \
+			or (phase == "consume" and (not _scene_stage_busy or _scene_stage_phase != "commit")) \
+			or (phase == "commit" and _scene_stage_busy) or phase not in ["retain", "commit", "consume"]:
+		return _command_failure(&"scene_staging_authority_invalid")
+	var was_busy := _scene_stage_busy
+	_scene_authority_validating = true
+	_scene_stage_busy = true
+	var source: Variant = _scene_stage_source.call(binding.duplicate(true))
+	var valid: bool = source is Dictionary and source.get("ok", false) \
+		and _scene_source_current() and _scene_candidate_current()
+	_scene_stage_busy = was_busy
+	_scene_authority_validating = false
+	return {"ok": true} if valid else _command_failure(&"scene_staging_authority_invalid")
 
 ## Explicit owner action: preparation itself never reveals or retires live text.
 func hold_scene_entry_source() -> Dictionary:
@@ -67,7 +95,9 @@ func hold_scene_entry_source() -> Dictionary:
 func prepare_day_entry(entry_id: String, context: Dictionary) -> Dictionary:
 	if _scene_stage_busy: return _command_failure(&"scene_staging_busy")
 	_scene_stage_busy = true
+	_scene_stage_phase = "prepare"
 	var result := _prepare_scene_entry(entry_id, context)
+	_scene_stage_phase = ""
 	_scene_stage_busy = false
 	return result
 
@@ -170,7 +200,9 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 func commit_day_entry(candidate: Dictionary) -> Dictionary:
 	if _scene_stage_busy: return _command_failure(&"scene_staging_busy")
 	_scene_stage_busy = true
+	_scene_stage_phase = "commit"
 	var result := _commit_scene_entry(candidate)
+	_scene_stage_phase = ""
 	_scene_stage_busy = false
 	return result
 
@@ -234,7 +266,9 @@ func _commit_scene_entry(candidate: Dictionary) -> Dictionary:
 		if installed.get("value", {}).get("pending", false) and not _scene_stage.get("frontier_restored", false):
 			return {"ok": true, "value": candidate.narrative_checkpoint.duplicate(true), "pending": true}
 		var adopted := _adopt_scene_target()
-		if not adopted.ok: return adopted
+		if not adopted.ok:
+			_scene_stage["native_failure"] = adopted.duplicate(true)
+			return adopted
 	return {"ok": true, "value": candidate.narrative_checkpoint.duplicate(true)}
 
 func _scene_source_current() -> bool:

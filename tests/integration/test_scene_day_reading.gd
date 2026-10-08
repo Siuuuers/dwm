@@ -20,15 +20,48 @@ class SimulatedCheckpointPort:
 	var corrupt_hash := false
 	var uncertain := false
 	var consumes := 0
+	var authority: Callable
+	var authority_bridge: Object
+	var accepted_phases: Array[String] = []
+	var probe_wrong_phases := false
+	var wrong_phase_results: Array[Dictionary] = []
 
-	func retain_scene_entry(_bridge: Object, capability_id: String, owner_binding: Dictionary,
+	func configure_scene_entry_authority(bridge: Object, callback: Callable) -> Dictionary:
+		if authority.is_valid() or bridge == null or not callback.is_valid(): return {"ok": false}
+		authority_bridge = bridge
+		authority = callback
+		return {"ok": true}
+
+	func simulate_checkpoint_commit() -> Dictionary:
+		# This is callback-order evidence only, never disk durability evidence.
+		var checked: Dictionary = authority.call(capability, binding, checkpoint, "commit")
+		if not checked.ok: return checked
+		accepted_phases.append("commit")
+		confirmed = true
+		return {"ok": true}
+
+	func retain_scene_entry(bridge: Object, capability_id: String, owner_binding: Dictionary,
 			narrative_checkpoint: Dictionary) -> Dictionary:
+		if bridge != authority_bridge or not authority.is_valid(): return {"ok": false}
+		var checked: Dictionary = authority.call(capability_id, owner_binding, narrative_checkpoint, "retain")
+		if not checked.ok: return checked
+		accepted_phases.append("retain")
+		if probe_wrong_phases:
+			for phase: String in ["commit", "consume"]:
+				wrong_phase_results.append(authority.call(capability_id, owner_binding, narrative_checkpoint, phase))
 		capability = capability_id
 		binding = owner_binding.duplicate(true)
 		checkpoint = narrative_checkpoint.duplicate(true)
 		return {"ok": true}
 
 	func consume_scene_entry_ack(capability_id: String) -> Dictionary:
+		if not authority.is_valid(): return {"ok": false}
+		var checked: Dictionary = authority.call(capability_id, binding, checkpoint, "consume")
+		if not checked.ok: return checked
+		accepted_phases.append("consume")
+		if probe_wrong_phases:
+			for phase: String in ["retain", "commit"]:
+				wrong_phase_results.append(authority.call(capability_id, binding, checkpoint, phase))
 		consumes += 1
 		if uncertain: return {"ok": false}
 		if not confirmed: return {"ok": false, "committed": false}
@@ -80,6 +113,49 @@ func _staged_fixture() -> Dictionary:
 			return {"ok": true, "value": binding.duplicate(true)})
 	assert_true(configured.ok, str(configured))
 	return {"bridge": bridge, "port": port, "native": native}
+
+func test_simulated_checkpoint_authority_binds_private_candidate_and_call_phase() -> void:
+	var fixture := _staged_fixture()
+	fixture.port.probe_wrong_phases = true
+	assert_eq(fixture.port.authority_bridge, fixture.bridge)
+	var prepared: Dictionary = fixture.bridge.prepare_day_entry(FIXTURE.A, FIXTURE.frame(FIXTURE.A, "a:1"))
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	assert_eq(fixture.port.accepted_phases, ["retain"])
+	var cap: String = fixture.port.capability
+	var binding: Dictionary = fixture.port.binding.duplicate(true)
+	var checkpoint: Dictionary = fixture.port.checkpoint.duplicate(true)
+	for phase: String in ["retain", "consume", "unknown"]:
+		var wrong_phase: Dictionary = fixture.port.authority.call(cap, binding, checkpoint, phase)
+		assert_false(wrong_phase.ok, "idle retained candidate cannot authorize " + phase)
+	var foreign: Dictionary = fixture.port.authority.call("foreign:capability", binding, checkpoint, "commit")
+	assert_false(foreign.ok)
+	var changed_binding: Dictionary = binding.duplicate(true)
+	changed_binding.operation_id = "foreign:operation"
+	var changed: Dictionary = fixture.port.authority.call(cap, changed_binding, checkpoint, "commit")
+	assert_false(changed.ok)
+	var changed_checkpoint: Dictionary = checkpoint.duplicate(true)
+	changed_checkpoint.content_version += 1
+	changed = fixture.port.authority.call(cap, binding, changed_checkpoint, "commit")
+	assert_false(changed.ok)
+	assert_eq(fixture.port.binding, binding, "authority refusals preserve retained binding")
+	assert_eq(fixture.port.checkpoint, checkpoint, "authority refusals preserve detached target")
+	assert_false(fixture.bridge.has_reading_session())
+	assert_eq(fixture.native.installations, 0)
+	var confirmed: Dictionary = fixture.port.simulate_checkpoint_commit()
+	assert_true(confirmed.ok, str(confirmed))
+	if not confirmed.ok: return
+	var installed: Dictionary = fixture.bridge.commit_day_entry(prepared.value)
+	assert_true(installed.ok, str(installed))
+	assert_eq(fixture.port.accepted_phases, ["retain", "commit", "consume"])
+	assert_eq(fixture.port.wrong_phase_results.size(), 4)
+	for refused: Dictionary in fixture.port.wrong_phase_results: assert_false(refused.ok)
+	assert_true(fixture.port.consumed)
+	assert_eq(fixture.port.consumes, 1)
+	assert_eq(fixture.native.installations, 1)
+	for phase: String in ["retain", "commit", "consume"]:
+		var spent: Dictionary = fixture.port.authority.call(cap, binding, checkpoint, phase)
+		assert_false(spent.ok, "adopted candidate cannot authorize " + phase)
 
 func test_simulated_staging_requires_exact_candidate_and_confirmation_then_installs_once() -> void:
 	var fixture := _staged_fixture()
