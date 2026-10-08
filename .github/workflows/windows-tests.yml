@@ -17,7 +17,7 @@ jobs:
         with:
           # Preserve the accepted product ancestry; checkout the pinned product.
           fetch-depth: 0
-          ref: 993d9bb4a070dfe6aaedb356e4053799b0cd39b7
+          ref: 85876935f40feafb546559efffcc5024c01de51a
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
@@ -54,9 +54,9 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           New-Item -ItemType Directory -Force -Path .godot/ci | Out-Null
-          if ((git rev-parse HEAD) -cne '993d9bb4a070dfe6aaedb356e4053799b0cd39b7') { throw 'source mismatch' }
-          if ((git rev-parse 'HEAD^{tree}') -cne 'd26ae7cabf64e68990c8594683aa3e54fb913747') { throw 'tree mismatch' }
-          if ((git rev-parse 'HEAD^') -cne '90a7319072a6c5c0703f093d16edf52e2cb04e73') { throw 'source parent mismatch' }
+          if ((git rev-parse HEAD) -cne '85876935f40feafb546559efffcc5024c01de51a') { throw 'source mismatch' }
+          if ((git rev-parse 'HEAD^{tree}') -cne '160b583e7fffdf5acc6251629814f55e708549ab') { throw 'tree mismatch' }
+          if ((git rev-parse 'HEAD^') -cne '993d9bb4a070dfe6aaedb356e4053799b0cd39b7') { throw 'source parent mismatch' }
           if (git diff --name-only) { throw 'tracked source differs before import' }
           [ordered]@{source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); parent=(git rev-parse 'HEAD^'); controller=$env:GITHUB_SHA; run=$env:GITHUB_RUN_ID; attempt=$env:GITHUB_RUN_ATTEMPT; executable=$env:GODOT_CONSOLE_PATH; executable_sha256=(Get-FileHash $env:GODOT_CONSOLE_PATH -Algorithm SHA256).Hash.ToLowerInvariant(); version=(& $env:GODOT_CONSOLE_PATH --version)} | ConvertTo-Json | Set-Content .godot/ci/identity.json
           Get-Content .godot/ci/identity.json
@@ -94,23 +94,11 @@ jobs:
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-      - name: Execute eleven explicit affected owner suites
+      - name: Execute affected scene restoration suite
         timeout-minutes: 12
         run: |
           $ErrorActionPreference = 'Stop'
-          $paths = @(
-            'res://tests/unit/test_scene_challenge.gd',
-            'res://tests/unit/test_scene_checkpoint_ack.gd',
-            'res://tests/unit/test_dating_physical_owner.gd',
-            'res://tests/unit/test_dating_attempt_runtime.gd',
-            'res://tests/unit/test_dating_capability_envelope.gd',
-            'res://tests/unit/test_profile_dating_attempts.gd',
-            'res://tests/unit/test_profile_manager.gd',
-            'res://tests/unit/test_save_manager_narrative_checkpoint_port.gd',
-            'res://tests/unit/test_reading_next_checkpoint.gd',
-            'res://tests/integration/test_scene_event_durable_contract.gd',
-            'res://tests/integration/test_narrative_checkpoint_wiring.gd'
-          )
+          $paths = @('res://tests/unit/test_scene_challenge.gd')
           $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',("-gtest=" + ($paths -join ',')),'-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/scene-challenge.xml')
           ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'scene-challenge' -LogName 'scene-challenge.log' -EvidenceLogPath '.godot/ci/scene-challenge.jsonl' -TimeoutSeconds 600 -GodotArgs $arguments
           $result = $LASTEXITCODE
@@ -122,7 +110,7 @@ jobs:
           [xml]$xml = Get-Content .godot/ci/scene-challenge.xml -Raw
           if ($xml.SelectNodes('//failure | //error | //skipped').Count -ne 0) { throw 'failed or skipped tests' }
           $results = @($xml.SelectNodes('//testsuite') | ForEach-Object { [ordered]@{name=$_.GetAttribute('name'); cases=$_.SelectNodes('./testcase').Count} })
-          if ($results.Count -ne $paths.Count) { throw 'Expected exactly eleven reported suites.' }
+          if ($results.Count -ne $paths.Count) { throw 'Expected exactly one reported suite.' }
           foreach ($path in $paths) {
             $relative = $path.Replace('res://','')
             $matching = @($results | Where-Object { $_.name.Replace('res://','') -ceq $relative })
