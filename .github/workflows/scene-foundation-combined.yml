@@ -1,4 +1,4 @@
-name: Combined foundation original inventory generation
+name: Combined foundation scoped proof
 'on':
   push:
     branches:
@@ -6,32 +6,172 @@ name: Combined foundation original inventory generation
 permissions:
   contents: read
 jobs:
-  inventories:
-    name: Generate exact combined inventories
+  marker:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
+      PRODUCT_SHA: b37d662403398139fc2b1029853b236c334f59a0
+      PRODUCT_TREE: 63e8573562511b432a2f67eca7e16f053b40aed7
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        ref: b37d662403398139fc2b1029853b236c334f59a0
+        fetch-depth: 0
+        persist-credentials: true
+    - name: Record immutable source before import
+      run: "mkdir -p .godot/ci\ntest \"$(git rev-parse HEAD)\" = \"$PRODUCT_SHA\"\ntest \"$(git rev-parse 'HEAD^{tree}')\"\
+        \ = \"$PRODUCT_TREE\"\npython3 - <<'PY'\nimport json,os,pathlib,subprocess\npathlib.Path('.godot/ci/provenance.json').write_text(json.dumps({\n\
+        \  'product':os.environ['PRODUCT_SHA'],'tree':os.environ['PRODUCT_TREE'],\n  'controller':os.environ['GITHUB_SHA'],'run':os.environ['GITHUB_RUN_ID'],\n\
+        \  'attempt':os.environ['GITHUB_RUN_ATTEMPT'],'purpose':'final focused suites, nine real process phases, exact read-only\
+        \ inventories',\n  'index_cleanup':['.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1']},indent=2))\n\
+        PY\ngit update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1\n"
+    - name: Install pinned standard engine and software display
+      run: 'sudo apt-get update
+
+        sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri pulseaudio pulseaudio-utils libspeechd2
+        speech-dispatcher speech-dispatcher-audio-plugins speech-dispatcher-espeak-ng
+
+        curl --fail --location --retry 3 ''https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip''
+        --output "$RUNNER_TEMP/godot.zip"
+
+        printf ''%s  %s\n'' ''d0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3'' "$RUNNER_TEMP/godot.zip"
+        | sha256sum --check
+
+        unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+
+        chmod +x "$RUNNER_TEMP/godot/Godot_v4.6.3-stable_linux.x86_64"
+
+        echo "GODOT_CONSOLE_PATH=$RUNNER_TEMP/godot/Godot_v4.6.3-stable_linux.x86_64" >> "$GITHUB_ENV"
+
+        sha256sum "$RUNNER_TEMP/godot/Godot_v4.6.3-stable_linux.x86_64" > .godot/ci/engine.sha256
+
+        '
+    - name: Start and verify native Linux speech service
+      timeout-minutes: 2
+      run: bash tools/testing/start_cloud_speech.sh
+    - name: Authenticate combined constituent bytes and parents before import
+      shell: python
+      run: "import json,pathlib,subprocess,os,hashlib\nsource=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()\n\
+        tree=subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()\nparents=subprocess.check_output(['git','show','-s','--format=%P','HEAD'],text=True).strip().split()\n\
+        assert source == 'b37d662403398139fc2b1029853b236c334f59a0' and tree == '63e8573562511b432a2f67eca7e16f053b40aed7'\nexpected = json.loads('{\"autoload/DialogicBridge.gd\"\
+        : \"cfcb66c49849b5191da07779efb8c179da2a1d84\", \"scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd\"\
+        : \"a050905892decfea4a339e861868780c9b70aad0\", \"scripts/application/narrative/SceneEventCommandPort.gd\": \"507d596ef1e6a1613cbace3fa323e827c19f6ba5\"\
+        , \"scripts/application/run/DatingNarrativePlayback.gd\": \"666c528f6d88b571343049ac0df908f115d3a1a4\", \"scripts/narrative/DialogicRuntimeAdapter.gd\"\
+        : \"c3ddc54db5249e0e8feee29f6ff122152887d51e\", \"scripts/narrative/FrozenRunContext.gd\": \"9ea963135164471cd39e0ca232898c07f61ffa97\"\
+        , \"scripts/narrative/ReadingTraversalOperation.gd\": \"a5e4894da01a8cd5a82592d33e2cfd19e705fb70\", \"scripts/narrative/SoloReadingSession.gd\"\
+        : \"48b47e3afdb4eda50e59c32aa4f3af1fd69fc0ff\", \"tests/integration/test_dialogic_next_traversal.gd\": \"950dc645f8edf7944b3d94b60c3b5aeed90e0052\"\
+        , \"tests/integration/verify_reading_rail_journey.gd\": \"ec847b944e487adc2c8ff7326d9f3b01a8a2c62a\", \"tests/integration/verify_solo_authored_selector_journey.gd\"\
+        : \"2be62e46f622c25c340caaeab9e0bf4b4608f796\", \"tools/testing/run_reading_rail_journey.py\": \"517d315784688bf6fc83b1df7c639dfabc02b35b\"\
+        , \"tools/testing/run_solo_authored_selector_journey.py\": \"1f1adc6abcee930d447c0498ebb4d26fe0ada165\", \"tests/fixtures/dialogic/scene_next_notification.dtl\"\
+        : \"82e483957b9b45a8dd22a5b8c7c98abd4ea13b94\", \"tests/integration/test_scene_next_notification.gd\": \"d2686af45a678497016160f8d399db044d8d7d7c\"\
+        , \"tests/support/SceneNextNotificationFixture.gd\": \"94325fe3a1a9871831023592ec72779569c11df5\", \".github/workflows/windows-tests.yml\"\
+        : \"6efb7ab714a39a3e2672f0eab9da0e01d13c5695\", \"docs/agent/execution-map.md\": \"e94646497d245cf85cdd725b2f9479ac52dedd98\"\
+        , \"scenes/main/MainGameScene.tscn\": \"f442a2cc2336d4d51d4ff08e9409bf0e0c606e1c\", \"scenes/shared/StatHud.tscn\"\
+        : null, \"scripts/application/shop/GameStateMinesweeperShopPort.gd\": \"cd773f625a742b32db19b273b875572341a2540d\"\
+        , \"scripts/application/shop/MinesweeperShopPurchaseParticipant.gd\": \"38647d5c553e883b029fea61b70841bcf331992d\"\
+        , \"scripts/application/shop/ShopPresentationPort.gd\": \"9c85ecf11dfa087e4a2bb70c2e98314c8ea631f7\", \"scripts/domain/run/RunSnapshotSchema.gd\"\
+        : \"18de2c3796b1421f5cda12dd6e8c8863c32ae3d8\", \"scripts/ui/MainGameScene.gd\": \"19d02437e3471b81f7d12401b9ac8d5d458d8c19\"\
+        , \"scripts/ui/StatHud.gd\": null, \"scripts/ui/StatHud.gd.uid\": null, \"tests/desktop_shell/test_desktop_split_touch.gd\"\
+        : \"da17949aa50f98f0ef33cebd6ca09a0863de1c29\", \"tests/smoke_load_scenes.gd\": \"da2a223e0995a10d59f4fd07fe8eeb5fb84e87be\"\
+        , \"tests/stat_hud/test_stat_hud.gd\": null, \"tests/stat_hud/test_stat_hud.gd.uid\": null, \"tests/title_resume/Observe.gd\"\
+        : \"76e6e460a51147e7b499ca5a55da7b596482b6c4\", \"tests/ui/render_angela_overlay.gd\": \"327dddeada2e03ab163e4d3a63b47a029e8b4c57\"\
+        , \"tests/ui/render_delivery_dialogue.gd\": \"d7ad219663756b31d7353f2e7b373519ba616290\", \"tests/ui/render_desktop_scaling.gd\"\
+        : \"4564deb4ba7bec5354e393929fbd16be036d2cb8\", \"tests/ui/render_font_choices.gd\": \"e50d8620b5bbcb63cdb0084c2a691eec7e9e6607\"\
+        , \"tests/ui/render_japanese_korean_ui.gd\": \"d0423fd923845f0847cdc16b78e1802ebb78e5ff\", \"tests/unit/test_angela_stat_overlay.gd\"\
+        : \"6c9a0502d9d0f76b830eefaed705e38f783b1b6e\", \"tests/unit/test_run_snapshot_schema.gd\": \"90b80767daea69312bc190e3d9d0280b1b085315\"\
+        , \"tests/unit/test_stat_hud_week_tint.gd\": null, \"tests/unit/test_stat_hud_week_tint.gd.uid\": null, \"tools/localization/UiLiteralAudit.gd\"\
+        : \"d382e6503c5f174d86aaa5ea40fcd4663f1d1a65\", \"tools/stat_hud/verify.py\": null, \"tools/testing/Invoke-CloudTests.ps1\"\
+        : \"9e46f03e415b4f2cdc6081a78314d951ace7b3de\", \"scripts/domain/shop/RunNotePurchaseRules.gd\": \"2c9c670526c00d9486684439082bcbc208ffd100\"\
+        , \"scripts/ui/notes/NotesCatalogProjection.gd\": \"2ba181d3fcea0ec1615ec36519e9355e7a650cac\", \"tests/integration/run_note_purchase_restart.gd\"\
+        : \"0ac875916247f37c54e400ce62391ced92c75a5c\", \"tests/integration/test_run_note_purchase_transaction.gd\": \"76d8d04ee4234e0f864adc7eb39418838c54df22\"\
+        , \"tests/support/RunNotePurchaseFixture.gd\": \"141340d468a20c8081f4b8a42d60466f3d76ee9a\", \"tests/support/RunNotePurchaseTransactionFixture.gd\"\
+        : \"6fea947b1768dd910bdcc4400d50b64a78e04ab6\", \"tests/unit/test_notes_catalog_projection.gd\": \"38b251becdbe3fa036f179d42dfc8602363c8e77\"\
+        , \"tests/unit/test_run_note_purchase_rules.gd\": \"fec23bb94e3537d19ebe785e77eeeda6722edcc8\", \"scripts/domain/narrative/SceneDayProgression.gd\"\
+        : \"252eeaed2b1bfc5c0ade05eb433f89488e1d9e8c\", \"tests/support/SceneDayProgressionFixture.gd\": \"5c0d91f4a280e1e90dafec25365a7c76fc427b76\"\
+        , \"tests/unit/test_scene_day_progression.gd\": \"5a25b3f6b8a1d09ea4399aac91780a326daeb385\"}')\nfor path,sha in expected.items():\n\
+        \    if sha is None:\n        assert not pathlib.Path(path).exists(), path\n    else:\n        assert subprocess.check_output(['git','rev-parse','HEAD:'+path],text=True).strip()\
+        \ == sha,path\nassert hashlib.sha256(pathlib.Path('autoload/GameState.gd').read_bytes()).hexdigest() == '6cbd8f935e2fb6c02db5e78cbafd915d5cd2971712d061c5d9e8f336bbea100f'\n\
+        assert not subprocess.check_output(['git','diff','--name-only'],text=True)\nbase=pathlib.Path('.godot/ci');base.mkdir(parents=True,exist_ok=True)\n\
+        (base/'composition.json').write_text(json.dumps(dict(source=source,tree=tree,parents=parents,controller=os.environ['GITHUB_SHA'],run=os.environ['GITHUB_RUN_ID'],attempt=os.environ['GITHUB_RUN_ATTEMPT'],constituents=dict(A='ab33586a3e10aed1e853c6f3e9469022df2150b0',EF='5269dc80a1b66bebd49f13482ee5d13a0a986d98',G='544780814217bb7935c58b5a7b7f5885cc0f77ef'),unchanged_blobs=expected),indent=2))\n"
+    - name: Import exact candidate
+      env:
+        DWM_TEST_ROOT: ${{ github.workspace }}/.godot/ci/import/test-root
+        XDG_DATA_HOME: ${{ github.workspace }}/.godot/ci/import/data
+      run: 'mkdir -p "$DWM_TEST_ROOT" "$XDG_DATA_HOME"
+
+        "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --import --log-file "$GITHUB_WORKSPACE/.godot/ci/import.log"
+
+        if grep -E ''SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character'' .godot/ci/import.log;
+        then exit 1; fi
+
+        git restore -- project.godot
+
+        test -z "$(git diff --name-only)"
+
+        '
+    - name: Exact focused suites in isolated rendered processes
+      run: "python3 - <<'PY'\nimport os,pathlib,subprocess,xml.etree.ElementTree as ET,json\nroot=pathlib.Path.cwd()\nsuites=['test_scene_next_notification','test_dialogic_next_traversal','test_run_restore_isolation','test_gallery_caption_collection']\n\
+        for suite in suites:\n  base=root/'.godot/ci'/suite; base.mkdir(parents=True,exist_ok=True)\n  env=os.environ.copy()\n\
+        \  for key,part in [('DWM_TEST_ROOT','test-root'),('XDG_DATA_HOME','data'),('XDG_CONFIG_HOME','config'),('XDG_CACHE_HOME','cache')]:\n\
+        \    target=base/part;target.mkdir(parents=True,exist_ok=True);env[key]=str(target)\n  command=['xvfb-run','-a',env['GODOT_CONSOLE_PATH'],'--path',str(root),'--rendering-method','gl_compatibility','--rendering-driver','opengl3','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/'+suite+'.gd','-gexit','-glog=1','-gjunit_xml_file=res://.godot/ci/'+suite+'/results.xml']\n\
+        \  result=subprocess.run(command,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=480)\n\
+        \  (base/'original.log').write_text(result.stdout)\n  (base/'command.json').write_text(json.dumps({'command':command,'returncode':result.returncode},indent=2))\n\
+        \  print(result.stdout)\n  if result.returncode or any(x in result.stdout for x in ['SCRIPT ERROR:','ERROR: Failed\
+        \ to load','Unicode parsing error','Unexpected NUL character']): raise SystemExit(suite+' failed')\n  report=ET.parse(base/'results.xml');cases=report.findall('.//testcase')\n\
+        \  if not cases or any(list(c) for c in cases if any(t.tag in ['failure','error','skipped'] for t in c)): raise SystemExit(suite+'\
+        \ missing/pending/failed cases')\n  print(suite+': '+str(len(cases))+' cases passed')\nPY\n"
+    - name: Nine fresh processes with real saved roots
+      run: "python3 - <<'PY'\nimport os,pathlib,subprocess,json,hashlib,shutil,xml.etree.ElementTree as ET\nroot=pathlib.Path.cwd();base=root/'.godot/ci/restart';base.mkdir(parents=True,exist_ok=True)\n\
+        live=base/'live';reports=base/'reports';reports.mkdir(parents=True,exist_ok=True)\nphases=['produce-pre-marker','consume-pre-marker-source','consume-source-marker','consume-marker-source','consume-marker-source-later','consume-later-completion','consume-completion','fault-install-produce','fault-install-consume']\n\
+        env=os.environ.copy()\nfor key,part in [('DWM_TEST_ROOT','test-root'),('XDG_DATA_HOME','data'),('XDG_CONFIG_HOME','config'),('XDG_CACHE_HOME','cache')]:\n\
+        \  path=live/part;path.mkdir(parents=True,exist_ok=True);env[key]=str(path)\nenv['DWM_SCENE_MARKER_REPORT_DIR']=str(reports)\n\
+        def manifest():\n  return {p.relative_to(live).as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}\
+        \ for p in sorted(live.rglob('*')) if p.is_file()}\nfor phase in phases:\n  if phase == 'fault-install-produce':\n\
+        \    live=base/'fault-live'\n    for key,part in [('DWM_TEST_ROOT','test-root'),('XDG_DATA_HOME','data'),('XDG_CONFIG_HOME','config'),('XDG_CACHE_HOME','cache')]:\n\
+        \      path=live/part;path.mkdir(parents=True,exist_ok=True);env[key]=str(path)\n  env['DWM_SCENE_MARKER_PHASE']=phase\n\
+        \  before=manifest()\n  command=['xvfb-run','-a',env['GODOT_CONSOLE_PATH'],'--path',str(root),'--rendering-method','gl_compatibility','--rendering-driver','opengl3','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_next_notification.gd','-gunit_test_name=test_connected_bridge_partial_next','-gexit','-glog=1','-gjunit_xml_file=res://.godot/ci/restart/reports/'+phase+'.xml']\n\
+        \  run=subprocess.run(command,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=240)\n  (reports/(phase+'.log')).write_text(run.stdout)\n\
+        \  (reports/(phase+'-launcher.json')).write_text(json.dumps({'phase':phase,'command':command,'returncode':run.returncode,'before':before,'after':manifest()},indent=2))\n\
+        \  shutil.copytree(live,base/(phase+'-original'))\n  print(run.stdout)\n  if run.returncode or 'SCENE_NEXT_NOTIFICATION_PHASE_PASS:\
+        \ '+phase not in run.stdout or any(x in run.stdout for x in ['SCRIPT ERROR:','ERROR: Failed to load','Unicode parsing\
+        \ error','Unexpected NUL character']): raise SystemExit(phase+' failed')\n  report=ET.parse(reports/(phase+'.xml'));cases=report.findall('.//testcase')\n\
+        \  if len(cases)!=1 or any(t.tag in ['failure','error','skipped'] for c in cases for t in c): raise SystemExit(phase+'\
+        \ incomplete test result')\nPY\n"
+    - name: Prove combined reading rail and authored selector journeys
+      run: 'python3 tools/testing/run_reading_rail_journey.py
+
+        python3 tools/testing/run_solo_authored_selector_journey.py
+
+        '
+    - name: Final tracked source check
+      if: always()
+      run: 'git diff --name-only > .godot/ci/tracked-source-diff.txt
+
+        test ! -s .godot/ci/tracked-source-diff.txt
+
+        '
+    - name: Preserve original diagnostics
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: scene-next-notification-${{ github.run_id }}-${{ github.run_attempt }}
+        path: .godot/ci/
+        include-hidden-files: true
+        if-no-files-found: error
+        retention-days: 14
+  notes_and_progression:
     runs-on: windows-2022
-    timeout-minutes: 20
+    timeout-minutes: 45
     defaults:
       run:
         shell: pwsh
     steps:
     - uses: actions/checkout@v7
       with:
+        fetch-depth: 0
+        ref: b37d662403398139fc2b1029853b236c334f59a0
         persist-credentials: true
-        ref: 23d8b3dfdd63948549af318917df5f4a84ac5120
-    - name: Record exact source and controller before import
-      run: '$actual = (git rev-parse HEAD).Trim()
-
-        $tree = (git rev-parse ''HEAD^{tree}'').Trim()
-
-        if ($actual -ne ''23d8b3dfdd63948549af318917df5f4a84ac5120'' -or $tree -ne ''5466485ce16146ba4430519b5ff8017062d67059'')
-        { throw ''Candidate mismatch.'' }
-
-        New-Item -ItemType Directory -Force .godot/ci/public-surfaces | Out-Null
-
-        @{product=$actual;tree=$tree;controller=$env:GITHUB_SHA;run=$env:GITHUB_RUN_ID;attempt=$env:GITHUB_RUN_ATTEMPT} |
-        ConvertTo-Json | Set-Content .godot/ci/public-surfaces/provenance.json
-
-        '
     - name: Prepare disposable checkout for credential cleanup
       run: '$ErrorActionPreference = ''Stop''
 
@@ -50,26 +190,6 @@ jobs:
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
         '
-    - name: Record fixture and schema version census
-      run: "@'\nimport json, pathlib, re, subprocess\nroot = pathlib.Path.cwd()\npaths = subprocess.check_output([\n    \"\
-        git\", \"ls-files\", \"-z\", \"--\", \"autoload/\", \"scripts/\", \"tests/\",\n    \"tools/testing/\", \".github/workflows/\"\
-        \n]).decode(\"utf-8\").split(\"\\0\")\npatterns = {\n    \"legacy_prepared_fixture\": r\"\\bv[1-6]_desktop_prepared\\\
-        .json\\b\",\n    \"historical_day3_seed\": r\"valid_day3\\.json\",\n    \"backup_fixture_helper\": r\"BackupSnapshotFixture\"\
-        ,\n    \"run_document_version\": r\"\\b(?:schema_version|SCHEMA_VERSION|DOCUMENT_VERSION)\\b\",\n    \"empty_contacts_literal\"\
-        : r\"\\bcontacts\\b[\\\"']?\\s*[:=]\\s*\\{\\s*\\}\",\n}\ncompiled = {key: re.compile(value) for key, value in patterns.items()}\n\
-        records = []\nscanned = 0\nfor name in sorted(paths):\n    path = root / name\n    if path.suffix not in {\".gd\"\
-        , \".ps1\", \".py\", \".yml\", \".yaml\"} or not path.is_file():\n        continue\n    scanned += 1\n    for number,\
-        \ line in enumerate(path.read_text(encoding=\"utf-8-sig\").splitlines(), 1):\n        families = [key for key, pattern\
-        \ in compiled.items() if pattern.search(line)]\n        if families:\n            records.append({\"path\": name,\
-        \ \"line\": number, \"families\": families, \"text\": line})\nreport = {\n    \"checkout_ref\": subprocess.check_output([\"\
-        git\", \"rev-parse\", \"HEAD\"], text=True).strip(),\n    \"policy\": \"Observational census only; historical, refusal\
-        \ and Profile references require review, not automatic failure.\",\n    \"scanned_files\": scanned, \"patterns\":\
-        \ patterns, \"matches\": records,\n}\noutput = root / \".godot/ci/public-surfaces/fixture-version-census.json\"\n\
-        output.parent.mkdir(parents=True, exist_ok=True)\noutput.write_text(json.dumps(report, ensure_ascii=False, indent=2)\
-        \ + \"\\n\", encoding=\"utf-8\")\nfor record in records:\n    print(\"FIXTURE_VERSION_CENSUS_MATCH: \" + json.dumps(record))\n\
-        print(\"FIXTURE_VERSION_CENSUS_SUMMARY: \" + json.dumps({\n    \"checkout_ref\": report[\"checkout_ref\"], \"scanned_files\"\
-        : scanned,\n    \"matching_lines\": len(records), \"logged_lines\": len(records),\n    \"complete_artifact\": \".godot/ci/public-surfaces/fixture-version-census.json\"\
-        ,\n    \"policy\": report[\"policy\"],\n}))\n'@ | python -\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\n"
     - name: Install Godot 4.6.3 standard
       run: "$ErrorActionPreference = 'Stop'\n$archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'\nInvoke-WebRequest -Uri\
         \ 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile\
@@ -78,9 +198,73 @@ jobs:
         \ archive checksum mismatch.'\n}\n$editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'\nExpand-Archive -LiteralPath\
         \ $archive -DestinationPath $editor\n$console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'\nif (-not\
         \ (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }\n\"GODOT_CONSOLE_PATH=$console\"\
-        \ | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8\nif ((Get-FileHash -LiteralPath $console -Algorithm\
-        \ SHA256).Hash.ToLowerInvariant() -ne '63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a') { throw\
-        \ 'Executable checksum mismatch.' }\n& $console --version\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\n"
+        \ | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8\n$executableHash = (Get-FileHash -LiteralPath $console\
+        \ -Algorithm SHA256).Hash.ToLowerInvariant()\nif ($executableHash -cne '63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a')\
+        \ { throw 'Godot executable checksum mismatch.' }\n& $console --version\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE\
+        \ }\n"
+    - name: Record and verify source engine controller run identity BEFORE import
+      run: '$ErrorActionPreference = ''Stop''
+
+        New-Item -ItemType Directory -Force -Path .godot/ci | Out-Null
+
+        if ((git rev-parse HEAD) -cne ''b37d662403398139fc2b1029853b236c334f59a0'') { throw ''source mismatch'' }
+
+        if ((git rev-parse ''HEAD^{tree}'') -cne ''63e8573562511b432a2f67eca7e16f053b40aed7'') { throw ''tree mismatch'' }
+
+        if (git diff --name-only) { throw ''tracked source differs before import'' }
+
+        [ordered]@{source=(git rev-parse HEAD); tree=(git rev-parse ''HEAD^{tree}''); controller=$env:GITHUB_SHA; run=$env:GITHUB_RUN_ID;
+        attempt=$env:GITHUB_RUN_ATTEMPT; executable=$env:GODOT_CONSOLE_PATH; executable_sha256=(Get-FileHash $env:GODOT_CONSOLE_PATH
+        -Algorithm SHA256).Hash.ToLowerInvariant(); version=(& $env:GODOT_CONSOLE_PATH --version)} | ConvertTo-Json | Set-Content
+        .godot/ci/identity.json
+
+        Get-Content .godot/ci/identity.json
+
+        '
+    - name: Authenticate combined constituent bytes and parents before import
+      shell: python
+      run: "import json,pathlib,subprocess,os,hashlib\nsource=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()\n\
+        tree=subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()\nparents=subprocess.check_output(['git','show','-s','--format=%P','HEAD'],text=True).strip().split()\n\
+        assert source == 'b37d662403398139fc2b1029853b236c334f59a0' and tree == '63e8573562511b432a2f67eca7e16f053b40aed7'\nexpected = json.loads('{\"autoload/DialogicBridge.gd\"\
+        : \"cfcb66c49849b5191da07779efb8c179da2a1d84\", \"scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd\"\
+        : \"a050905892decfea4a339e861868780c9b70aad0\", \"scripts/application/narrative/SceneEventCommandPort.gd\": \"507d596ef1e6a1613cbace3fa323e827c19f6ba5\"\
+        , \"scripts/application/run/DatingNarrativePlayback.gd\": \"666c528f6d88b571343049ac0df908f115d3a1a4\", \"scripts/narrative/DialogicRuntimeAdapter.gd\"\
+        : \"c3ddc54db5249e0e8feee29f6ff122152887d51e\", \"scripts/narrative/FrozenRunContext.gd\": \"9ea963135164471cd39e0ca232898c07f61ffa97\"\
+        , \"scripts/narrative/ReadingTraversalOperation.gd\": \"a5e4894da01a8cd5a82592d33e2cfd19e705fb70\", \"scripts/narrative/SoloReadingSession.gd\"\
+        : \"48b47e3afdb4eda50e59c32aa4f3af1fd69fc0ff\", \"tests/integration/test_dialogic_next_traversal.gd\": \"950dc645f8edf7944b3d94b60c3b5aeed90e0052\"\
+        , \"tests/integration/verify_reading_rail_journey.gd\": \"ec847b944e487adc2c8ff7326d9f3b01a8a2c62a\", \"tests/integration/verify_solo_authored_selector_journey.gd\"\
+        : \"2be62e46f622c25c340caaeab9e0bf4b4608f796\", \"tools/testing/run_reading_rail_journey.py\": \"517d315784688bf6fc83b1df7c639dfabc02b35b\"\
+        , \"tools/testing/run_solo_authored_selector_journey.py\": \"1f1adc6abcee930d447c0498ebb4d26fe0ada165\", \"tests/fixtures/dialogic/scene_next_notification.dtl\"\
+        : \"82e483957b9b45a8dd22a5b8c7c98abd4ea13b94\", \"tests/integration/test_scene_next_notification.gd\": \"d2686af45a678497016160f8d399db044d8d7d7c\"\
+        , \"tests/support/SceneNextNotificationFixture.gd\": \"94325fe3a1a9871831023592ec72779569c11df5\", \".github/workflows/windows-tests.yml\"\
+        : \"6efb7ab714a39a3e2672f0eab9da0e01d13c5695\", \"docs/agent/execution-map.md\": \"e94646497d245cf85cdd725b2f9479ac52dedd98\"\
+        , \"scenes/main/MainGameScene.tscn\": \"f442a2cc2336d4d51d4ff08e9409bf0e0c606e1c\", \"scenes/shared/StatHud.tscn\"\
+        : null, \"scripts/application/shop/GameStateMinesweeperShopPort.gd\": \"cd773f625a742b32db19b273b875572341a2540d\"\
+        , \"scripts/application/shop/MinesweeperShopPurchaseParticipant.gd\": \"38647d5c553e883b029fea61b70841bcf331992d\"\
+        , \"scripts/application/shop/ShopPresentationPort.gd\": \"9c85ecf11dfa087e4a2bb70c2e98314c8ea631f7\", \"scripts/domain/run/RunSnapshotSchema.gd\"\
+        : \"18de2c3796b1421f5cda12dd6e8c8863c32ae3d8\", \"scripts/ui/MainGameScene.gd\": \"19d02437e3471b81f7d12401b9ac8d5d458d8c19\"\
+        , \"scripts/ui/StatHud.gd\": null, \"scripts/ui/StatHud.gd.uid\": null, \"tests/desktop_shell/test_desktop_split_touch.gd\"\
+        : \"da17949aa50f98f0ef33cebd6ca09a0863de1c29\", \"tests/smoke_load_scenes.gd\": \"da2a223e0995a10d59f4fd07fe8eeb5fb84e87be\"\
+        , \"tests/stat_hud/test_stat_hud.gd\": null, \"tests/stat_hud/test_stat_hud.gd.uid\": null, \"tests/title_resume/Observe.gd\"\
+        : \"76e6e460a51147e7b499ca5a55da7b596482b6c4\", \"tests/ui/render_angela_overlay.gd\": \"327dddeada2e03ab163e4d3a63b47a029e8b4c57\"\
+        , \"tests/ui/render_delivery_dialogue.gd\": \"d7ad219663756b31d7353f2e7b373519ba616290\", \"tests/ui/render_desktop_scaling.gd\"\
+        : \"4564deb4ba7bec5354e393929fbd16be036d2cb8\", \"tests/ui/render_font_choices.gd\": \"e50d8620b5bbcb63cdb0084c2a691eec7e9e6607\"\
+        , \"tests/ui/render_japanese_korean_ui.gd\": \"d0423fd923845f0847cdc16b78e1802ebb78e5ff\", \"tests/unit/test_angela_stat_overlay.gd\"\
+        : \"6c9a0502d9d0f76b830eefaed705e38f783b1b6e\", \"tests/unit/test_run_snapshot_schema.gd\": \"90b80767daea69312bc190e3d9d0280b1b085315\"\
+        , \"tests/unit/test_stat_hud_week_tint.gd\": null, \"tests/unit/test_stat_hud_week_tint.gd.uid\": null, \"tools/localization/UiLiteralAudit.gd\"\
+        : \"d382e6503c5f174d86aaa5ea40fcd4663f1d1a65\", \"tools/stat_hud/verify.py\": null, \"tools/testing/Invoke-CloudTests.ps1\"\
+        : \"9e46f03e415b4f2cdc6081a78314d951ace7b3de\", \"scripts/domain/shop/RunNotePurchaseRules.gd\": \"2c9c670526c00d9486684439082bcbc208ffd100\"\
+        , \"scripts/ui/notes/NotesCatalogProjection.gd\": \"2ba181d3fcea0ec1615ec36519e9355e7a650cac\", \"tests/integration/run_note_purchase_restart.gd\"\
+        : \"0ac875916247f37c54e400ce62391ced92c75a5c\", \"tests/integration/test_run_note_purchase_transaction.gd\": \"76d8d04ee4234e0f864adc7eb39418838c54df22\"\
+        , \"tests/support/RunNotePurchaseFixture.gd\": \"141340d468a20c8081f4b8a42d60466f3d76ee9a\", \"tests/support/RunNotePurchaseTransactionFixture.gd\"\
+        : \"6fea947b1768dd910bdcc4400d50b64a78e04ab6\", \"tests/unit/test_notes_catalog_projection.gd\": \"38b251becdbe3fa036f179d42dfc8602363c8e77\"\
+        , \"tests/unit/test_run_note_purchase_rules.gd\": \"fec23bb94e3537d19ebe785e77eeeda6722edcc8\", \"scripts/domain/narrative/SceneDayProgression.gd\"\
+        : \"252eeaed2b1bfc5c0ade05eb433f89488e1d9e8c\", \"tests/support/SceneDayProgressionFixture.gd\": \"5c0d91f4a280e1e90dafec25365a7c76fc427b76\"\
+        , \"tests/unit/test_scene_day_progression.gd\": \"5a25b3f6b8a1d09ea4399aac91780a326daeb385\"}')\nfor path,sha in expected.items():\n\
+        \    if sha is None:\n        assert not pathlib.Path(path).exists(), path\n    else:\n        assert subprocess.check_output(['git','rev-parse','HEAD:'+path],text=True).strip()\
+        \ == sha,path\nassert hashlib.sha256(pathlib.Path('autoload/GameState.gd').read_bytes()).hexdigest() == '6cbd8f935e2fb6c02db5e78cbafd915d5cd2971712d061c5d9e8f336bbea100f'\n\
+        assert not subprocess.check_output(['git','diff','--name-only'],text=True)\nbase=pathlib.Path('.godot/ci');base.mkdir(parents=True,exist_ok=True)\n\
+        (base/'composition.json').write_text(json.dumps(dict(source=source,tree=tree,parents=parents,controller=os.environ['GITHUB_SHA'],run=os.environ['GITHUB_RUN_ID'],attempt=os.environ['GITHUB_RUN_ATTEMPT'],constituents=dict(A='ab33586a3e10aed1e853c6f3e9469022df2150b0',EF='5269dc80a1b66bebd49f13482ee5d13a0a986d98',G='544780814217bb7935c58b5a7b7f5885cc0f77ef'),unchanged_blobs=expected),indent=2))\n"
     - name: Import project
       timeout-minutes: 8
       run: "$ErrorActionPreference = 'Stop'\n$output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'\n$env:APPDATA = Join-Path\
@@ -100,38 +284,483 @@ jobs:
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
         '
-    - name: Generate then validate original combined inventories
-      timeout-minutes: 10
-      run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
-    - name: Record generated-only tracked delta
+    - name: Execute explicit rules schema and real transaction suites
+      timeout-minutes: 12
+      run: "$ErrorActionPreference = 'Stop'\n$paths = @('res://tests/unit/test_run_note_purchase_rules.gd','res://tests/unit/test_notes_catalog_projection.gd','res://tests/unit/test_run_snapshot_schema.gd','res://tests/integration/test_run_note_purchase_transaction.gd','res://tests/integration/test_run_restore_isolation.gd')\n\
+        $arguments = @('-s','res://tests/integration/run_note_purchase_restart.gd','-gconfig=',('-gtest=' + ($paths -join\
+        \ ',')),'-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/notes-adoption.xml','--','--phase2r-bootstrap-mode=final','--phase=tests')\n\
+        ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'notes-adoption' -LogName 'notes-adoption.log' -EvidenceLogPath\
+        \ '.godot/ci/notes-adoption.jsonl' -TimeoutSeconds 660 -KeepRoot -GodotArgs $arguments\nif ($LASTEXITCODE -ne 0) {\
+        \ exit $LASTEXITCODE }\n$log = '.godot/phase2r_logs/notes-adoption.log'\nif (Select-String -Path $log -Pattern 'SCRIPT\
+        \ ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'invalid engine output'\
+        \ }\n[xml]$xml = Get-Content .godot/ci/notes-adoption.xml -Raw\nif ($xml.SelectNodes('//failure | //error | //skipped').Count\
+        \ -ne 0) { throw 'failed or skipped tests' }\n$expectedCases = @{'tests/unit/test_run_note_purchase_rules.gd'=19;\
+        \ 'tests/unit/test_notes_catalog_projection.gd'=15; 'tests/unit/test_run_snapshot_schema.gd'=30; 'tests/integration/test_run_note_purchase_transaction.gd'=9;\
+        \ 'tests/integration/test_run_restore_isolation.gd'=5}\n$results = @($xml.SelectNodes('//testsuite') | ForEach-Object\
+        \ { [ordered]@{name=$_.GetAttribute('name'); cases=$_.SelectNodes('./testcase').Count} })\nif ($results.Count -ne\
+        \ $paths.Count) { throw 'Missing or extra suite' }\nforeach ($path in $paths) {\n  $relative = $path.Replace('res://','')\n\
+        \  $matching = @($results | Where-Object { $_.name.Replace('res://','') -ceq $relative })\n  if ($matching.Count -ne\
+        \ 1 -or $matching[0].cases -ne $expectedCases[$relative]) { throw \"wrong executed cases: $path\" }\n}\nif (-not (Select-String\
+        \ -Path $log -SimpleMatch 'RESTORE_ALIAS_CONTROL: six historical directions observed' -Quiet)) { throw 'alias controls\
+        \ did not execute' }\n$results | ConvertTo-Json | Set-Content .godot/ci/executed-suites.json\n"
+    - name: Existing ordinary capability and participant regressions
+      timeout-minutes: 12
+      run: "$ErrorActionPreference = 'Stop'\n$paths = @('res://tests/unit/test_shop_presentation_port.gd','res://tests/unit/test_minesweeper_shop_purchase_participant.gd','res://tests/integration/test_minesweeper_shop_transaction.gd','res://tests/unit/test_save_document_schema.gd')\n\
+        $arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',('-gtest=' + ($paths -join ',')),'-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/shop-regression.xml')\n\
+        ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'shop-regression' -LogName 'shop-regression.log' -EvidenceLogPath\
+        \ '.godot/ci/shop-regression.jsonl' -TimeoutSeconds 660 -KeepRoot -GodotArgs $arguments\nif ($LASTEXITCODE -ne 0)\
+        \ { exit $LASTEXITCODE }\nif (Select-String -Path '.godot/phase2r_logs/shop-regression.log' -Pattern 'SCRIPT ERROR:|ERROR:\
+        \ Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'invalid regression output' }\n[xml]$xml\
+        \ = Get-Content .godot/ci/shop-regression.xml -Raw\nif ($xml.SelectNodes('//failure | //error | //skipped').Count\
+        \ -ne 0) { throw 'failed or skipped regressions' }\n$expected = @{'tests/unit/test_shop_presentation_port.gd'=10;\
+        \ 'tests/unit/test_minesweeper_shop_purchase_participant.gd'=41; 'tests/integration/test_minesweeper_shop_transaction.gd'=4;\
+        \ 'tests/unit/test_save_document_schema.gd'=21}\n$suites = @($xml.SelectNodes('//testsuite'))\nif ($suites.Count -ne\
+        \ 4) { throw 'wrong regression suite census' }\nforeach ($suite in $suites) {\n  $name = $suite.GetAttribute('name').Replace('res://','')\n\
+        \  if (-not $expected.ContainsKey($name) -or $suite.SelectNodes('./testcase').Count -ne $expected[$name]) { throw\
+        \ \"wrong regression cases $name\" }\n}\n"
+    - name: Execute explicit pure routing suite
+      run: "$ErrorActionPreference = 'Stop'\n$paths = @('res://tests/unit/test_scene_day_progression.gd')\n$arguments = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',(\"\
+        -gtest=\" + ($paths -join ',')),'-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/scene-day-progression.xml')\n\
+        ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'scene-day-progression' -LogName 'scene-day-progression.log' -EvidenceLogPath\
+        \ '.godot/ci/scene-day-progression.jsonl' -TimeoutSeconds 480 -GodotArgs $arguments\n$result = $LASTEXITCODE\n$log\
+        \ = '.godot/phase2r_logs/scene-day-progression.log'\nif ($result -ne 0) { Get-Content $log; exit $result }\nif (Select-String\
+        \ -Path $log -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet)\
+        \ { throw 'invalid engine output' }\n[xml]$xml = Get-Content .godot/ci/scene-day-progression.xml -Raw\nif ($xml.SelectNodes('//failure\
+        \ | //error | //skipped').Count -ne 0) { throw 'failed or skipped tests' }\n$results = @($xml.SelectNodes('//testsuite')\
+        \ | ForEach-Object { [ordered]@{name=$_.GetAttribute('name'); cases=$_.SelectNodes('./testcase').Count} })\nif ($results.Count\
+        \ -ne 1) { throw 'Expected exactly one reported suite.' }\n$expectedCases = @{'tests/unit/test_scene_day_progression.gd'=16}\n\
+        foreach ($path in $paths) {\n  $relative = $path.Replace('res://','')\n  $matching = @($results | Where-Object { $_.name.Replace('res://','')\
+        \ -ceq $relative })\n  if ($matching.Count -ne 1 -or $matching[0].cases -ne $expectedCases[$relative]) { throw \"\
+        requested suite not executed: $path\" }\n}\n$results | ConvertTo-Json | Set-Content .godot/ci/progression-executed-suites.json\n\
+        Get-Content .godot/ci/progression-executed-suites.json\nWrite-Output 'ORIGINAL_JUNIT_BEGIN'\nGet-Content .godot/ci/scene-day-progression.xml\
+        \ -Raw\nWrite-Output 'ORIGINAL_JUNIT_END'\n"
+    - name: Real filesystem restart and interrupted adoption
+      timeout-minutes: 15
+      run: "$ErrorActionPreference = 'Stop'\nforeach ($group in @(@('produce','consume','consume-again'), @('fault-produce','fault-consume')))\
+        \ {\n  $chain = if ($group[0] -eq 'produce') { 'regular' } else { 'fault' }\n  $rootPath = Join-Path $env:GITHUB_WORKSPACE\
+        \ \".godot/phase2r_tests/note-restart-$chain\"\n  $reportPath = Join-Path $env:GITHUB_WORKSPACE \".godot/ci/restart-$chain\"\
+        \n  New-Item -ItemType Directory -Force -Path $rootPath,$reportPath | Out-Null\n  $env:DWM_TEST_ROOT = $rootPath\n\
+        \  $env:APPDATA = Join-Path $rootPath 'appdata'\n  $env:LOCALAPPDATA = Join-Path $rootPath 'localappdata'\n  foreach\
+        \ ($phase in $group) {\n    $stdout = Join-Path $reportPath \"$phase.stdout.log\"\n    $stderr = Join-Path $reportPath\
+        \ \"$phase.stderr.log\"\n    $arguments = @('--headless','--path',('\"' + $env:GITHUB_WORKSPACE + '\"'),'-s','res://tests/integration/run_note_purchase_restart.gd','--','--phase2r-bootstrap-mode=final',\"\
+        --phase=$phase\",('\"--root=' + $rootPath + '\"'),('\"--report-dir=' + $reportPath + '\"'))\n    $process = Start-Process\
+        \ -FilePath $env:GODOT_CONSOLE_PATH -ArgumentList $arguments -PassThru -RedirectStandardOutput $stdout -RedirectStandardError\
+        \ $stderr\n    $finished = $process.WaitForExit(240000)\n    if (-not $finished) { $process.Kill($true); throw \"\
+        timeout $phase\" }\n    $process.Refresh()\n    [ordered]@{phase=$phase;pid=$process.Id;exit=$process.ExitCode;source='b37d662403398139fc2b1029853b236c334f59a0';tree='63e8573562511b432a2f67eca7e16f053b40aed7';controller=$env:GITHUB_SHA;run=$env:GITHUB_RUN_ID;attempt=$env:GITHUB_RUN_ATTEMPT}\
+        \ | ConvertTo-Json | Set-Content (Join-Path $reportPath \"$phase.process.json\")\n    Get-Content $stdout\n    $marker\
+        \ = \"RUN_NOTE_RESTART_\" + $phase.ToUpperInvariant().Replace(\"-\", \"_\") + \"_PASS\"\n    if (-not (Select-String\
+        \ -Path $stdout -SimpleMatch $marker -Quiet)) { throw \"missing restart success marker $phase\" }\n    if (-not (Test-Path\
+        \ (Join-Path $reportPath \"$phase.json\"))) { throw \"missing restart report $phase\" }\n    if ($process.ExitCode\
+        \ -ne 0) { Get-Content $stderr; throw \"restart phase failed: $phase\" }\n    if (Select-String -Path $stdout,$stderr\
+        \ -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw \"\
+        invalid restart output $phase\" }\n  }\n}\n"
+    - name: Generate or validate exact branch inventories
+      run: './tools/testing/Invoke-PublicSurfaceValidation.ps1
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        '
+    - name: Verify source changes limited to declared generated outputs
+      run: '$allowed = @(''evidence/phase_2r/runtime/game_state_surface.json'',''evidence/phase_2r/runtime/save_manager_surface.json'')
+
+        $changed = @(git diff --name-only)
+
+        foreach ($path in $changed) { if ($path -notin $allowed) { throw "unexpected tracked change: $path" } }
+
+        if (''check'' -eq ''check'' -and $changed.Count -ne 0) { throw ''final tracked source changed'' }
+
+        '
+    - name: Hash original evidence even on failure
       if: always()
-      run: "$changed = @(git diff --name-only)\n$changed | Set-Content .godot/ci/public-surfaces/tracked-diff.txt\nforeach\
-        \ ($path in $changed) {\n  if ($path -notin @('evidence/phase_2r/runtime/game_state_surface.json', 'evidence/phase_2r/runtime/save_manager_surface.json'))\
-        \ { throw \"Unexpected tracked mutation $path\" }\n}\n"
-    - name: Upload canonical inventories and retirement evidence
+      run: '$ErrorActionPreference = ''Stop''
+
+        New-Item -ItemType Directory -Force -Path .godot/ci | Out-Null
+
+        $paths = @(''.godot/ci'', ''.godot/phase2r_logs'', ''.godot/phase2r_tests'', ''evidence/phase_2r/runtime/game_state_surface.json'',
+        ''evidence/phase_2r/runtime/save_manager_surface.json'')
+
+        $files = @($paths | Where-Object { Test-Path $_ } | ForEach-Object { Get-ChildItem -File -Recurse -Force $_ } | Sort-Object
+        FullName)
+
+        $manifest = @($files | ForEach-Object { [ordered]@{path=[IO.Path]::GetRelativePath($env:GITHUB_WORKSPACE,$_.FullName).Replace(''\'',''/'');
+        bytes=$_.Length; sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()} })
+
+        $manifest | ConvertTo-Json -Depth 4 | Set-Content .godot/ci/original-file-hashes.json
+
+        '
+    - name: Retain original logs reports and hashes
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: marker-checked-surfaces-${{ github.run_id }}-${{ github.run_attempt }}
-        path: '.godot/ci/import.log
+        name: notes-adoption-${{ github.run_id }}-${{ github.run_attempt }}
+        path: '.godot/ci/
 
-          .godot/ci/public-surfaces/
+          .godot/phase2r_logs/
 
-          .godot/ci/caption-native/
+          .godot/phase2r_tests/
 
-          .godot/ci/public_surfaces.xml
+          evidence/phase_2r/runtime/game_state_surface.json
 
-          .godot/ci/public_surfaces.jsonl
-
-          .godot/ci/isolation-timeout.jsonl
-
-          .godot/phase2r_logs/cloud-isolation-timeout.log*
-
-          .godot/phase2r_logs/cloud-public-surface-*.log
-
-          .godot/phase2r_logs/cloud-public_surfaces.log*
+          evidence/phase_2r/runtime/save_manager_surface.json
 
           '
         include-hidden-files: true
+        if-no-files-found: error
+        retention-days: 14
+  hud_windows:
+    runs-on: windows-2022
+    timeout-minutes: 35
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+        ref: b37d662403398139fc2b1029853b236c334f59a0
+        persist-credentials: true
+    - name: Prepare disposable checkout for credential cleanup
+      run: '$ErrorActionPreference = ''Stop''
+
+        # These legacy tooling gitlinks have no .gitmodules URLs. Git''s
+
+        # submodule foreach reads the index even with sparse checkout.
+
+        # The source commit and working files remain unchanged.
+
+        git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        git submodule foreach --recursive ''true''
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        '
+    - name: Install Godot 4.6.3 standard
+      run: "$ErrorActionPreference = 'Stop'\n$archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'\nInvoke-WebRequest -Uri\
+        \ 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile\
+        \ $archive\n# SHA256 published with the official 4.6.3-stable release asset.\n$expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'\n\
+        if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {\n  throw 'Godot\
+        \ archive checksum mismatch.'\n}\n$editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'\nExpand-Archive -LiteralPath\
+        \ $archive -DestinationPath $editor\n$console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'\nif (-not\
+        \ (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }\n\"GODOT_CONSOLE_PATH=$console\"\
+        \ | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8\n$executableHash = (Get-FileHash -LiteralPath $console\
+        \ -Algorithm SHA256).Hash.ToLowerInvariant()\nif ($executableHash -cne '63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a')\
+        \ { throw 'Godot executable checksum mismatch.' }\n& $console --version\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE\
+        \ }\n"
+    - name: Record and verify source engine controller run identity BEFORE import
+      run: '$ErrorActionPreference = ''Stop''
+
+        New-Item -ItemType Directory -Force -Path .godot/ci | Out-Null
+
+        if ((git rev-parse HEAD) -cne ''b37d662403398139fc2b1029853b236c334f59a0'') { throw ''source mismatch'' }
+
+        if ((git rev-parse ''HEAD^{tree}'') -cne ''63e8573562511b432a2f67eca7e16f053b40aed7'') { throw ''tree mismatch'' }
+
+        if (git diff --name-only) { throw ''tracked source differs before import'' }
+
+        [ordered]@{source=(git rev-parse HEAD); tree=(git rev-parse ''HEAD^{tree}''); controller=$env:GITHUB_SHA; run=$env:GITHUB_RUN_ID;
+        attempt=$env:GITHUB_RUN_ATTEMPT; executable=$env:GODOT_CONSOLE_PATH; executable_sha256=(Get-FileHash $env:GODOT_CONSOLE_PATH
+        -Algorithm SHA256).Hash.ToLowerInvariant(); version=(& $env:GODOT_CONSOLE_PATH --version)} | ConvertTo-Json | Set-Content
+        .godot/ci/identity.json
+
+        Get-Content .godot/ci/identity.json
+
+        '
+    - name: Authenticate combined constituent bytes and parents before import
+      shell: python
+      run: "import json,pathlib,subprocess,os,hashlib\nsource=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()\n\
+        tree=subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()\nparents=subprocess.check_output(['git','show','-s','--format=%P','HEAD'],text=True).strip().split()\n\
+        assert source == 'b37d662403398139fc2b1029853b236c334f59a0' and tree == '63e8573562511b432a2f67eca7e16f053b40aed7'\nexpected = json.loads('{\"autoload/DialogicBridge.gd\"\
+        : \"cfcb66c49849b5191da07779efb8c179da2a1d84\", \"scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd\"\
+        : \"a050905892decfea4a339e861868780c9b70aad0\", \"scripts/application/narrative/SceneEventCommandPort.gd\": \"507d596ef1e6a1613cbace3fa323e827c19f6ba5\"\
+        , \"scripts/application/run/DatingNarrativePlayback.gd\": \"666c528f6d88b571343049ac0df908f115d3a1a4\", \"scripts/narrative/DialogicRuntimeAdapter.gd\"\
+        : \"c3ddc54db5249e0e8feee29f6ff122152887d51e\", \"scripts/narrative/FrozenRunContext.gd\": \"9ea963135164471cd39e0ca232898c07f61ffa97\"\
+        , \"scripts/narrative/ReadingTraversalOperation.gd\": \"a5e4894da01a8cd5a82592d33e2cfd19e705fb70\", \"scripts/narrative/SoloReadingSession.gd\"\
+        : \"48b47e3afdb4eda50e59c32aa4f3af1fd69fc0ff\", \"tests/integration/test_dialogic_next_traversal.gd\": \"950dc645f8edf7944b3d94b60c3b5aeed90e0052\"\
+        , \"tests/integration/verify_reading_rail_journey.gd\": \"ec847b944e487adc2c8ff7326d9f3b01a8a2c62a\", \"tests/integration/verify_solo_authored_selector_journey.gd\"\
+        : \"2be62e46f622c25c340caaeab9e0bf4b4608f796\", \"tools/testing/run_reading_rail_journey.py\": \"517d315784688bf6fc83b1df7c639dfabc02b35b\"\
+        , \"tools/testing/run_solo_authored_selector_journey.py\": \"1f1adc6abcee930d447c0498ebb4d26fe0ada165\", \"tests/fixtures/dialogic/scene_next_notification.dtl\"\
+        : \"82e483957b9b45a8dd22a5b8c7c98abd4ea13b94\", \"tests/integration/test_scene_next_notification.gd\": \"d2686af45a678497016160f8d399db044d8d7d7c\"\
+        , \"tests/support/SceneNextNotificationFixture.gd\": \"94325fe3a1a9871831023592ec72779569c11df5\", \".github/workflows/windows-tests.yml\"\
+        : \"6efb7ab714a39a3e2672f0eab9da0e01d13c5695\", \"docs/agent/execution-map.md\": \"e94646497d245cf85cdd725b2f9479ac52dedd98\"\
+        , \"scenes/main/MainGameScene.tscn\": \"f442a2cc2336d4d51d4ff08e9409bf0e0c606e1c\", \"scenes/shared/StatHud.tscn\"\
+        : null, \"scripts/application/shop/GameStateMinesweeperShopPort.gd\": \"cd773f625a742b32db19b273b875572341a2540d\"\
+        , \"scripts/application/shop/MinesweeperShopPurchaseParticipant.gd\": \"38647d5c553e883b029fea61b70841bcf331992d\"\
+        , \"scripts/application/shop/ShopPresentationPort.gd\": \"9c85ecf11dfa087e4a2bb70c2e98314c8ea631f7\", \"scripts/domain/run/RunSnapshotSchema.gd\"\
+        : \"18de2c3796b1421f5cda12dd6e8c8863c32ae3d8\", \"scripts/ui/MainGameScene.gd\": \"19d02437e3471b81f7d12401b9ac8d5d458d8c19\"\
+        , \"scripts/ui/StatHud.gd\": null, \"scripts/ui/StatHud.gd.uid\": null, \"tests/desktop_shell/test_desktop_split_touch.gd\"\
+        : \"da17949aa50f98f0ef33cebd6ca09a0863de1c29\", \"tests/smoke_load_scenes.gd\": \"da2a223e0995a10d59f4fd07fe8eeb5fb84e87be\"\
+        , \"tests/stat_hud/test_stat_hud.gd\": null, \"tests/stat_hud/test_stat_hud.gd.uid\": null, \"tests/title_resume/Observe.gd\"\
+        : \"76e6e460a51147e7b499ca5a55da7b596482b6c4\", \"tests/ui/render_angela_overlay.gd\": \"327dddeada2e03ab163e4d3a63b47a029e8b4c57\"\
+        , \"tests/ui/render_delivery_dialogue.gd\": \"d7ad219663756b31d7353f2e7b373519ba616290\", \"tests/ui/render_desktop_scaling.gd\"\
+        : \"4564deb4ba7bec5354e393929fbd16be036d2cb8\", \"tests/ui/render_font_choices.gd\": \"e50d8620b5bbcb63cdb0084c2a691eec7e9e6607\"\
+        , \"tests/ui/render_japanese_korean_ui.gd\": \"d0423fd923845f0847cdc16b78e1802ebb78e5ff\", \"tests/unit/test_angela_stat_overlay.gd\"\
+        : \"6c9a0502d9d0f76b830eefaed705e38f783b1b6e\", \"tests/unit/test_run_snapshot_schema.gd\": \"90b80767daea69312bc190e3d9d0280b1b085315\"\
+        , \"tests/unit/test_stat_hud_week_tint.gd\": null, \"tests/unit/test_stat_hud_week_tint.gd.uid\": null, \"tools/localization/UiLiteralAudit.gd\"\
+        : \"d382e6503c5f174d86aaa5ea40fcd4663f1d1a65\", \"tools/stat_hud/verify.py\": null, \"tools/testing/Invoke-CloudTests.ps1\"\
+        : \"9e46f03e415b4f2cdc6081a78314d951ace7b3de\", \"scripts/domain/shop/RunNotePurchaseRules.gd\": \"2c9c670526c00d9486684439082bcbc208ffd100\"\
+        , \"scripts/ui/notes/NotesCatalogProjection.gd\": \"2ba181d3fcea0ec1615ec36519e9355e7a650cac\", \"tests/integration/run_note_purchase_restart.gd\"\
+        : \"0ac875916247f37c54e400ce62391ced92c75a5c\", \"tests/integration/test_run_note_purchase_transaction.gd\": \"76d8d04ee4234e0f864adc7eb39418838c54df22\"\
+        , \"tests/support/RunNotePurchaseFixture.gd\": \"141340d468a20c8081f4b8a42d60466f3d76ee9a\", \"tests/support/RunNotePurchaseTransactionFixture.gd\"\
+        : \"6fea947b1768dd910bdcc4400d50b64a78e04ab6\", \"tests/unit/test_notes_catalog_projection.gd\": \"38b251becdbe3fa036f179d42dfc8602363c8e77\"\
+        , \"tests/unit/test_run_note_purchase_rules.gd\": \"fec23bb94e3537d19ebe785e77eeeda6722edcc8\", \"scripts/domain/narrative/SceneDayProgression.gd\"\
+        : \"252eeaed2b1bfc5c0ade05eb433f89488e1d9e8c\", \"tests/support/SceneDayProgressionFixture.gd\": \"5c0d91f4a280e1e90dafec25365a7c76fc427b76\"\
+        , \"tests/unit/test_scene_day_progression.gd\": \"5a25b3f6b8a1d09ea4399aac91780a326daeb385\"}')\nfor path,sha in expected.items():\n\
+        \    if sha is None:\n        assert not pathlib.Path(path).exists(), path\n    else:\n        assert subprocess.check_output(['git','rev-parse','HEAD:'+path],text=True).strip()\
+        \ == sha,path\nassert hashlib.sha256(pathlib.Path('autoload/GameState.gd').read_bytes()).hexdigest() == '6cbd8f935e2fb6c02db5e78cbafd915d5cd2971712d061c5d9e8f336bbea100f'\n\
+        assert not subprocess.check_output(['git','diff','--name-only'],text=True)\nbase=pathlib.Path('.godot/ci');base.mkdir(parents=True,exist_ok=True)\n\
+        (base/'composition.json').write_text(json.dumps(dict(source=source,tree=tree,parents=parents,controller=os.environ['GITHUB_SHA'],run=os.environ['GITHUB_RUN_ID'],attempt=os.environ['GITHUB_RUN_ATTEMPT'],constituents=dict(A='ab33586a3e10aed1e853c6f3e9469022df2150b0',EF='5269dc80a1b66bebd49f13482ee5d13a0a986d98',G='544780814217bb7935c58b5a7b7f5885cc0f77ef'),unchanged_blobs=expected),indent=2))\n"
+    - name: Import project
+      timeout-minutes: 8
+      run: "$ErrorActionPreference = 'Stop'\n$output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'\n$env:APPDATA = Join-Path\
+        \ $output 'import-user/appdata'\n$env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'\n$env:DWM_TEST_ROOT\
+        \ = Join-Path $output 'import-user/test-root'\nNew-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA,\
+        \ $env:DWM_TEST_ROOT | Out-Null\n& $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file\
+        \ \"$output/import.log\"\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\nif (Select-String -Path \"$output/import.log\"\
+        \ -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {\n  throw\
+        \ 'Project import reported script errors; inspect import.log.'\n}\n"
+    - name: Restore committed project settings after editor import
+      run: '# Dialogic''s editor scan rewrites its timeline lookup during import.
+
+        # Execute the committed configuration with the freshly imported assets.
+
+        git restore -- project.godot
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        '
+    - name: Run affected desktop integration and shell suites
+      timeout-minutes: 12
+      run: './tools/testing/Invoke-CloudTests.ps1 -Suite desktop
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        '
+    - name: Check committed public inventories without regeneration
+      run: './tools/testing/Invoke-PublicSurfaceValidation.ps1
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        '
+    - name: Verify source changes limited to declared generated outputs
+      run: '$allowed = @(''evidence/phase_2r/runtime/game_state_surface.json'',''evidence/phase_2r/runtime/save_manager_surface.json'')
+
+        $changed = @(git diff --name-only)
+
+        foreach ($path in $changed) { if ($path -notin $allowed) { throw "unexpected tracked change: $path" } }
+
+        if (''check'' -eq ''check'' -and $changed.Count -ne 0) { throw ''final tracked source changed'' }
+
+        '
+    - name: Hash original evidence even on failure
+      if: always()
+      run: '$ErrorActionPreference = ''Stop''
+
+        New-Item -ItemType Directory -Force -Path .godot/ci | Out-Null
+
+        $paths = @(''.godot/ci'', ''.godot/phase2r_logs'', ''.godot/phase2r_tests'', ''evidence/phase_2r/runtime/game_state_surface.json'',
+        ''evidence/phase_2r/runtime/save_manager_surface.json'')
+
+        $files = @($paths | Where-Object { Test-Path $_ } | ForEach-Object { Get-ChildItem -File -Recurse -Force $_ } | Sort-Object
+        FullName)
+
+        $manifest = @($files | ForEach-Object { [ordered]@{path=[IO.Path]::GetRelativePath($env:GITHUB_WORKSPACE,$_.FullName).Replace(''\'',''/'');
+        bytes=$_.Length; sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()} })
+
+        $manifest | ConvertTo-Json -Depth 4 | Set-Content .godot/ci/original-file-hashes.json
+
+        '
+    - name: Retain original logs reports and hashes
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: hud-windows-${{ github.run_id }}-${{ github.run_attempt }}
+        path: '.godot/ci/
+
+          .godot/phase2r_logs/
+
+          .godot/phase2r_tests/
+
+          evidence/phase_2r/runtime/game_state_surface.json
+
+          evidence/phase_2r/runtime/save_manager_surface.json
+
+          '
+        include-hidden-files: true
+        if-no-files-found: error
+        retention-days: 14
+  hud_render:
+    needs: hud_windows
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
+      XDG_DATA_HOME: ${{ github.workspace }}/.godot/ci/import-user/data
+      DWM_TEST_ROOT: ${{ github.workspace }}/.godot/ci/import-user/test-root
+      DWM_RENDER_OUTPUT: ${{ github.workspace }}/.godot/ci/angela-overlay
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        persist-credentials: true
+        ref: b37d662403398139fc2b1029853b236c334f59a0
+        fetch-depth: 0
+    - name: Prepare disposable checkout for credential cleanup
+      run: 'git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+
+        git submodule foreach --recursive ''true''
+
+        '
+    - name: Record exact product and controller identity
+      run: 'mkdir -p .godot/ci
+
+        python3 - <<''CHECK''
+
+        import subprocess,json,os,pathlib
+
+        source=subprocess.check_output([''git'',''rev-parse'',''HEAD''],text=True).strip()
+
+        tree=subprocess.check_output([''git'',''rev-parse'',''HEAD^{tree}''],text=True).strip()
+
+        assert source == "b37d662403398139fc2b1029853b236c334f59a0" and tree == "63e8573562511b432a2f67eca7e16f053b40aed7"
+
+        assert not subprocess.check_output([''git'',''diff'',''--name-only''],text=True)
+
+        pathlib.Path(''.godot/ci/identity.json'').write_text(json.dumps(dict(source=source,tree=tree,controller=os.environ[''GITHUB_SHA''],run=os.environ[''GITHUB_RUN_ID''],attempt=os.environ[''GITHUB_RUN_ATTEMPT'']),indent=2))
+
+        CHECK
+
+        '
+    - name: Install Godot and software display
+      timeout-minutes: 12
+      run: 'sudo apt-get update
+
+        sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri pulseaudio pulseaudio-utils libspeechd2
+        speech-dispatcher speech-dispatcher-audio-plugins speech-dispatcher-espeak-ng
+
+        archive="$RUNNER_TEMP/godot-4.6.3-linux.zip"
+
+        curl --fail --location --retry 3 ''https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip''
+        --output "$archive"
+
+        printf ''%s  %s\n'' ''d0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3'' "$archive" | sha256sum --check
+
+        unzip -q "$archive" -d "$RUNNER_TEMP/godot-4.6.3-linux"
+
+        editor="$RUNNER_TEMP/godot-4.6.3-linux/Godot_v4.6.3-stable_linux.x86_64"
+
+        chmod +x "$editor"
+
+        echo "GODOT_CONSOLE_PATH=$editor" >> "$GITHUB_ENV"
+
+        "$editor" --version
+
+        '
+    - name: Authenticate combined constituent bytes and parents before import
+      shell: python
+      run: "import json,pathlib,subprocess,os,hashlib\nsource=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()\n\
+        tree=subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()\nparents=subprocess.check_output(['git','show','-s','--format=%P','HEAD'],text=True).strip().split()\n\
+        assert source == 'b37d662403398139fc2b1029853b236c334f59a0' and tree == '63e8573562511b432a2f67eca7e16f053b40aed7'\nexpected = json.loads('{\"autoload/DialogicBridge.gd\"\
+        : \"cfcb66c49849b5191da07779efb8c179da2a1d84\", \"scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd\"\
+        : \"a050905892decfea4a339e861868780c9b70aad0\", \"scripts/application/narrative/SceneEventCommandPort.gd\": \"507d596ef1e6a1613cbace3fa323e827c19f6ba5\"\
+        , \"scripts/application/run/DatingNarrativePlayback.gd\": \"666c528f6d88b571343049ac0df908f115d3a1a4\", \"scripts/narrative/DialogicRuntimeAdapter.gd\"\
+        : \"c3ddc54db5249e0e8feee29f6ff122152887d51e\", \"scripts/narrative/FrozenRunContext.gd\": \"9ea963135164471cd39e0ca232898c07f61ffa97\"\
+        , \"scripts/narrative/ReadingTraversalOperation.gd\": \"a5e4894da01a8cd5a82592d33e2cfd19e705fb70\", \"scripts/narrative/SoloReadingSession.gd\"\
+        : \"48b47e3afdb4eda50e59c32aa4f3af1fd69fc0ff\", \"tests/integration/test_dialogic_next_traversal.gd\": \"950dc645f8edf7944b3d94b60c3b5aeed90e0052\"\
+        , \"tests/integration/verify_reading_rail_journey.gd\": \"ec847b944e487adc2c8ff7326d9f3b01a8a2c62a\", \"tests/integration/verify_solo_authored_selector_journey.gd\"\
+        : \"2be62e46f622c25c340caaeab9e0bf4b4608f796\", \"tools/testing/run_reading_rail_journey.py\": \"517d315784688bf6fc83b1df7c639dfabc02b35b\"\
+        , \"tools/testing/run_solo_authored_selector_journey.py\": \"1f1adc6abcee930d447c0498ebb4d26fe0ada165\", \"tests/fixtures/dialogic/scene_next_notification.dtl\"\
+        : \"82e483957b9b45a8dd22a5b8c7c98abd4ea13b94\", \"tests/integration/test_scene_next_notification.gd\": \"d2686af45a678497016160f8d399db044d8d7d7c\"\
+        , \"tests/support/SceneNextNotificationFixture.gd\": \"94325fe3a1a9871831023592ec72779569c11df5\", \".github/workflows/windows-tests.yml\"\
+        : \"6efb7ab714a39a3e2672f0eab9da0e01d13c5695\", \"docs/agent/execution-map.md\": \"e94646497d245cf85cdd725b2f9479ac52dedd98\"\
+        , \"scenes/main/MainGameScene.tscn\": \"f442a2cc2336d4d51d4ff08e9409bf0e0c606e1c\", \"scenes/shared/StatHud.tscn\"\
+        : null, \"scripts/application/shop/GameStateMinesweeperShopPort.gd\": \"cd773f625a742b32db19b273b875572341a2540d\"\
+        , \"scripts/application/shop/MinesweeperShopPurchaseParticipant.gd\": \"38647d5c553e883b029fea61b70841bcf331992d\"\
+        , \"scripts/application/shop/ShopPresentationPort.gd\": \"9c85ecf11dfa087e4a2bb70c2e98314c8ea631f7\", \"scripts/domain/run/RunSnapshotSchema.gd\"\
+        : \"18de2c3796b1421f5cda12dd6e8c8863c32ae3d8\", \"scripts/ui/MainGameScene.gd\": \"19d02437e3471b81f7d12401b9ac8d5d458d8c19\"\
+        , \"scripts/ui/StatHud.gd\": null, \"scripts/ui/StatHud.gd.uid\": null, \"tests/desktop_shell/test_desktop_split_touch.gd\"\
+        : \"da17949aa50f98f0ef33cebd6ca09a0863de1c29\", \"tests/smoke_load_scenes.gd\": \"da2a223e0995a10d59f4fd07fe8eeb5fb84e87be\"\
+        , \"tests/stat_hud/test_stat_hud.gd\": null, \"tests/stat_hud/test_stat_hud.gd.uid\": null, \"tests/title_resume/Observe.gd\"\
+        : \"76e6e460a51147e7b499ca5a55da7b596482b6c4\", \"tests/ui/render_angela_overlay.gd\": \"327dddeada2e03ab163e4d3a63b47a029e8b4c57\"\
+        , \"tests/ui/render_delivery_dialogue.gd\": \"d7ad219663756b31d7353f2e7b373519ba616290\", \"tests/ui/render_desktop_scaling.gd\"\
+        : \"4564deb4ba7bec5354e393929fbd16be036d2cb8\", \"tests/ui/render_font_choices.gd\": \"e50d8620b5bbcb63cdb0084c2a691eec7e9e6607\"\
+        , \"tests/ui/render_japanese_korean_ui.gd\": \"d0423fd923845f0847cdc16b78e1802ebb78e5ff\", \"tests/unit/test_angela_stat_overlay.gd\"\
+        : \"6c9a0502d9d0f76b830eefaed705e38f783b1b6e\", \"tests/unit/test_run_snapshot_schema.gd\": \"90b80767daea69312bc190e3d9d0280b1b085315\"\
+        , \"tests/unit/test_stat_hud_week_tint.gd\": null, \"tests/unit/test_stat_hud_week_tint.gd.uid\": null, \"tools/localization/UiLiteralAudit.gd\"\
+        : \"d382e6503c5f174d86aaa5ea40fcd4663f1d1a65\", \"tools/stat_hud/verify.py\": null, \"tools/testing/Invoke-CloudTests.ps1\"\
+        : \"9e46f03e415b4f2cdc6081a78314d951ace7b3de\", \"scripts/domain/shop/RunNotePurchaseRules.gd\": \"2c9c670526c00d9486684439082bcbc208ffd100\"\
+        , \"scripts/ui/notes/NotesCatalogProjection.gd\": \"2ba181d3fcea0ec1615ec36519e9355e7a650cac\", \"tests/integration/run_note_purchase_restart.gd\"\
+        : \"0ac875916247f37c54e400ce62391ced92c75a5c\", \"tests/integration/test_run_note_purchase_transaction.gd\": \"76d8d04ee4234e0f864adc7eb39418838c54df22\"\
+        , \"tests/support/RunNotePurchaseFixture.gd\": \"141340d468a20c8081f4b8a42d60466f3d76ee9a\", \"tests/support/RunNotePurchaseTransactionFixture.gd\"\
+        : \"6fea947b1768dd910bdcc4400d50b64a78e04ab6\", \"tests/unit/test_notes_catalog_projection.gd\": \"38b251becdbe3fa036f179d42dfc8602363c8e77\"\
+        , \"tests/unit/test_run_note_purchase_rules.gd\": \"fec23bb94e3537d19ebe785e77eeeda6722edcc8\", \"scripts/domain/narrative/SceneDayProgression.gd\"\
+        : \"252eeaed2b1bfc5c0ade05eb433f89488e1d9e8c\", \"tests/support/SceneDayProgressionFixture.gd\": \"5c0d91f4a280e1e90dafec25365a7c76fc427b76\"\
+        , \"tests/unit/test_scene_day_progression.gd\": \"5a25b3f6b8a1d09ea4399aac91780a326daeb385\"}')\nfor path,sha in expected.items():\n\
+        \    if sha is None:\n        assert not pathlib.Path(path).exists(), path\n    else:\n        assert subprocess.check_output(['git','rev-parse','HEAD:'+path],text=True).strip()\
+        \ == sha,path\nassert hashlib.sha256(pathlib.Path('autoload/GameState.gd').read_bytes()).hexdigest() == '6cbd8f935e2fb6c02db5e78cbafd915d5cd2971712d061c5d9e8f336bbea100f'\n\
+        assert not subprocess.check_output(['git','diff','--name-only'],text=True)\nbase=pathlib.Path('.godot/ci');base.mkdir(parents=True,exist_ok=True)\n\
+        (base/'composition.json').write_text(json.dumps(dict(source=source,tree=tree,parents=parents,controller=os.environ['GITHUB_SHA'],run=os.environ['GITHUB_RUN_ID'],attempt=os.environ['GITHUB_RUN_ATTEMPT'],constituents=dict(A='ab33586a3e10aed1e853c6f3e9469022df2150b0',EF='5269dc80a1b66bebd49f13482ee5d13a0a986d98',G='544780814217bb7935c58b5a7b7f5885cc0f77ef'),unchanged_blobs=expected),indent=2))\n"
+    - name: Import project
+      timeout-minutes: 8
+      run: "mkdir -p \"$DWM_RENDER_OUTPUT\" \"$XDG_DATA_HOME\" \"$DWM_TEST_ROOT\"\n\"$GODOT_CONSOLE_PATH\" --headless --path\
+        \ \"$GITHUB_WORKSPACE\" --import --log-file \"$DWM_RENDER_OUTPUT/import.log\"\nif grep -E 'SCRIPT ERROR:|ERROR: Failed\
+        \ to load|Unicode parsing error|Unexpected NUL character' \"$DWM_RENDER_OUTPUT/import.log\"; then\n  exit 1\nfi\n\
+        # Dialogic's editor scan rewrites its timeline lookup during import.\ngit restore -- project.godot\n"
+    - name: Render and verify HUD retirement and retained shell
+      timeout-minutes: 5
+      env:
+        XDG_DATA_HOME: ${{ github.workspace }}/.godot/ci/angela-overlay-user/data
+        DWM_TEST_ROOT: ${{ github.workspace }}/.godot/ci/angela-overlay-user/test-root
+        DWM_RENDER_OUTPUT: ${{ github.workspace }}/.godot/ci/angela-overlay
+      run: "mkdir -p \"$DWM_RENDER_OUTPUT\" \"$XDG_DATA_HOME\" \"$DWM_TEST_ROOT\"\nxvfb-run -a -s '-screen 0 1920x1080x24'\
+        \ \"$GODOT_CONSOLE_PATH\" \\\n  --path \"$GITHUB_WORKSPACE\" --rendering-method gl_compatibility \\\n  --rendering-driver\
+        \ opengl3 --audio-driver Dummy \\\n  --log-file \"$DWM_RENDER_OUTPUT/render.log\" \\\n  --script res://tests/ui/render_angela_overlay.gd\n\
+        grep 'HUD_RETIREMENT_RENDER_VERIFIED' \"$DWM_RENDER_OUTPUT/render.log\"\nif grep -E 'SCRIPT ERROR:|ERROR: Failed to\
+        \ load|Unicode parsing error|Unexpected NUL character' \"$DWM_RENDER_OUTPUT/render.log\"; then\n  exit 1\nfi\npython3\
+        \ - <<'PY'\nimport json, os\nfrom pathlib import Path\noutput = Path(os.environ['DWM_RENDER_OUTPUT'])\nreport = json.loads((output\
+        \ / 'results.json').read_text())\nassert report['ok'] is True and not report['failures'], report\nassert report['renderer']\
+        \ != 'headless', report\nassert report['samples'] == report['captures'] == 10, report\nexpected = {'wide-en100', 'narrow-en100',\
+        \ 'narrow-en150', 'narrow-en150-high-contrast', 'narrow-zh-CN150-high-contrast', 'narrow-zh-HK150', 'wide-zh-HK150',\
+        \ 'wide-en100-day1', 'wide-en100-day7', 'wide-en100-day7-high-contrast'}\nassert {sample['name'] for sample in report['evidence']}\
+        \ == expected, report\nassert all(sample['hud_absent'] is True for sample in report['evidence']), report\ncaptures\
+        \ = list(output.glob('*.png'))\nassert len(captures) == 10 and all(path.stat().st_size > 0 for path in captures)\n\
+        PY\n"
+    - name: Upload HUD retirement and retained shell evidence
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: angela-overlay-render-${{ github.run_id }}-${{ github.run_attempt }}
+        path: .godot/ci/angela-overlay/
+        include-hidden-files: true
         if-no-files-found: warn
         retention-days: 7
+    - name: Verify tracked source remains unchanged
+      run: test -z "$(git diff --name-only)"
+    - name: Hash original render files
+      if: always()
+      run: 'python3 - <<''HASH''
+
+        from pathlib import Path
+
+        import hashlib,json
+
+        base=Path(''.godot/ci'');base.mkdir(parents=True,exist_ok=True)
+
+        rows=[dict(path=p.as_posix(),bytes=p.stat().st_size,sha256=hashlib.sha256(p.read_bytes()).hexdigest()) for p in sorted(base.rglob(''*''))
+        if p.is_file()]
+
+        (base/''original-file-hashes.json'').write_text(json.dumps(rows,indent=2))
+
+        HASH
+
+        '
+    - name: Retain source identity and original render reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: hud-render-${{ github.run_id }}-${{ github.run_attempt }}
+        path: .godot/ci/
+        include-hidden-files: true
+        if-no-files-found: error
+        retention-days: 14
