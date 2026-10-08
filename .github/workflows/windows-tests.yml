@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [held-source, scene-reading]
+        suite: [scene-reading]
     defaults:
       run:
         shell: pwsh
@@ -23,26 +23,26 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: ed492cbae8bd892b1b4eb30a1bb3bc3be6657522
+          ref: d2aacc316920a4198763b4835333b6535e601001
           fetch-depth: 0
           persist-credentials: true
       - name: Verify and record immutable source before import
         run: |
           $ErrorActionPreference = 'Stop'
           $source = (git rev-parse HEAD).Trim()
-          if ($LASTEXITCODE -ne 0 -or $source -cne 'ed492cbae8bd892b1b4eb30a1bb3bc3be6657522') { throw 'Wrong source commit.' }
+          if ($LASTEXITCODE -ne 0 -or $source -cne 'd2aacc316920a4198763b4835333b6535e601001') { throw 'Wrong source commit.' }
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($LASTEXITCODE -ne 0 -or $tree -cne 'ea53412ddbee46a48acf1a927ea2f0a20729e7e6') { throw 'Wrong source tree.' }
+          if ($LASTEXITCODE -ne 0 -or $tree -cne 'cc0e213d8472a3ac4c55f1a698fed635dc0457c7') { throw 'Wrong source tree.' }
 
           $base = '90a7319072a6c5c0703f093d16edf52e2cb04e73'
           $baseTree = (git rev-parse "$($base)^{tree}").Trim()
           if ($LASTEXITCODE -ne 0 -or $baseTree -cne 'a1712ca59c81edc40cce5b688e6d2e4e0b1b3eb6') { throw 'Wrong immutable integration base.' }
           $parents = @((git rev-list --parents -n 1 HEAD).Trim().Split(' '))
-          if ($LASTEXITCODE -ne 0 -or $parents.Count -ne 2 -or $parents[1] -cne 'fcc549ee82dc009407887f67fca60e8d8bbbe71b') { throw 'Authority alignment must descend directly from the tested held-source candidate.' }
-          $priorTree = (git rev-parse 'fcc549ee82dc009407887f67fca60e8d8bbbe71b^{tree}').Trim()
-          if ($LASTEXITCODE -ne 0 -or $priorTree -cne '16bbf68e5a4b0e694c6b8e0202ca533a5cb460ea') { throw 'Prior tested candidate tree mismatch.' }
-          $delta = @(git diff --name-only 'fcc549ee82dc009407887f67fca60e8d8bbbe71b' HEAD)
-          if ($LASTEXITCODE -ne 0 -or $delta.Count -ne 2 -or 'autoload/DialogicBridge.gd' -cnotin $delta -or 'tests/integration/test_scene_day_reading.gd' -cnotin $delta) { throw 'Authority alignment changed more than its two reviewed paths.' }
+          if ($LASTEXITCODE -ne 0 -or $parents.Count -ne 2 -or $parents[1] -cne 'ed492cbae8bd892b1b4eb30a1bb3bc3be6657522') { throw 'Configuration guard must descend directly from the tested held-source candidate.' }
+          $priorTree = (git rev-parse 'ed492cbae8bd892b1b4eb30a1bb3bc3be6657522^{tree}').Trim()
+          if ($LASTEXITCODE -ne 0 -or $priorTree -cne 'ea53412ddbee46a48acf1a927ea2f0a20729e7e6') { throw 'Prior tested candidate tree mismatch.' }
+          $delta = @(git diff --name-only 'ed492cbae8bd892b1b4eb30a1bb3bc3be6657522' HEAD)
+          if ($LASTEXITCODE -ne 0 -or $delta.Count -ne 2 -or 'autoload/DialogicBridge.gd' -cnotin $delta -or 'tests/integration/test_scene_day_reading.gd' -cnotin $delta) { throw 'Configuration guard changed more than its two reviewed paths.' }
           $allowed = @(
             'autoload/DialogicBridge.gd',
             'scripts/narrative/DialogicRuntimeAdapter.gd',
