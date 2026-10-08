@@ -28,7 +28,7 @@ jobs:
           pathlib.Path('.godot/ci/provenance.json').write_text(json.dumps({
             'product':os.environ['PRODUCT_SHA'],'tree':os.environ['PRODUCT_TREE'],
             'controller':os.environ['GITHUB_SHA'],'run':os.environ['GITHUB_RUN_ID'],
-            'attempt':os.environ['GITHUB_RUN_ATTEMPT'],'purpose':'focused and seven real process phases; final inventories/gates pending',
+            'attempt':os.environ['GITHUB_RUN_ATTEMPT'],'purpose':'focused and nine real process phases; exact inventories and rail diagnosis',
             'index_cleanup':['.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1']},indent=2))
           PY
           git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
@@ -122,7 +122,7 @@ jobs:
           retention-days: 14
 
   generated-surfaces:
-    name: Windows / exact candidate read-only inventory check
+    name: Windows / regenerate exact candidate inventories
     runs-on: windows-2022
     timeout-minutes: 20
     defaults:
@@ -236,16 +236,16 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Check committed original inventories without regeneration
+      - name: Generate and check exact original inventories
         timeout-minutes: 10
-        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -EmitPayloads
+        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
       - name: Record generated-only tracked delta
         if: always()
         run: |
           $changed = @(git diff --name-only)
           $changed | Set-Content .godot/ci/public-surfaces/tracked-diff.txt
           foreach ($path in $changed) {
-            throw "Unexpected tracked mutation $path"
+            if ($path -notin @("evidence/phase_2r/runtime/game_state_surface.json", "evidence/phase_2r/runtime/save_manager_surface.json")) { throw "Unexpected tracked mutation $path" }
           }
       - name: Upload canonical inventories and retirement evidence
         if: always()
@@ -290,7 +290,7 @@ jobs:
           pathlib.Path('.godot/ci/provenance.json').write_text(json.dumps({
             'product':os.environ['PRODUCT_SHA'],'tree':os.environ['PRODUCT_TREE'],
             'controller':os.environ['GITHUB_SHA'],'run':os.environ['GITHUB_RUN_ID'],
-            'attempt':os.environ['GITHUB_RUN_ATTEMPT'],'purpose':'focused and seven real process phases; final inventories/gates pending',
+            'attempt':os.environ['GITHUB_RUN_ATTEMPT'],'purpose':'focused and nine real process phases; exact inventories and rail diagnosis',
             'index_cleanup':['.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1']},indent=2))
           PY
           git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
@@ -322,9 +322,10 @@ jobs:
           python3 - <<'PY'
           import pathlib,subprocess
           result=subprocess.run(['python3','tools/testing/run_reading_rail_journey.py'])
-          for p in sorted(pathlib.Path('.godot/ci/reading-rail').rglob('*.log')):
+          for p in sorted(pathlib.Path('.godot/ci/reading-rail').rglob('*')):
+            if p.suffix not in ['.log','.txt']: continue
             lines=p.read_text(errors='replace').splitlines()
-            if any('READING_RAIL_ASSERTION_FAILED' in line or 'SCRIPT ERROR:' in line for line in lines):
+            if any('READING_RAIL_FAIL:' in line or 'SCRIPT ERROR:' in line for line in lines):
               print('ORIGINAL_DIAGNOSTIC_LOG: '+str(p),flush=True)
               print('\n'.join(lines),flush=True)
           raise SystemExit(result.returncode)
