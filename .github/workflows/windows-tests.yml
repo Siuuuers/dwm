@@ -112,7 +112,26 @@ jobs:
           $log = '.godot/phase2r_logs/event-identity.log'
           if (Test-Path -LiteralPath $log) { Get-Content -LiteralPath $log }
           if ($result -ne 0) { exit $result }
-          if (Select-String -Path $log -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'invalid engine output' }
+          if (Select-String -Path $log -Pattern 'SCRIPT ERROR:|ERROR: Failed to load' -Quiet) { throw 'invalid engine output' }
+          $sourceScript = ''
+          $sourceTest = ''
+          $surrogateDiagnostics = 0
+          foreach ($line in Get-Content -LiteralPath $log) {
+            if ($line.StartsWith('res://tests/', [StringComparison]::Ordinal)) { $sourceScript = $line; $sourceTest = '' }
+            if ($line.StartsWith('* test_', [StringComparison]::Ordinal)) { $sourceTest = $line.Substring(2) }
+            if ($line -notmatch '^(?:ERROR: )?(?:Unicode parsing error\b|Unexpected NUL character\b)') { continue }
+            # The retained negative fixture constructs one unpaired surrogate deliberately.
+            if ($surrogateDiagnostics -eq 0 -and
+                $sourceScript -ceq 'res://tests/unit/test_desktop_continuation_remapper.gd' -and
+                $sourceTest -ceq 'test_prepare_rejects_a_source_id_that_is_not_canonically_representable' -and
+                $line -ceq 'Unicode parsing error: Unpaired lead surrogate (d800 [eol])') {
+              $surrogateDiagnostics += 1
+              continue
+            }
+            throw "Unexpected Unicode/NUL diagnostic in $sourceScript / ${sourceTest}: $line"
+          }
+          if ($surrogateDiagnostics -ne 1) { throw 'Expected exactly one retained surrogate fixture diagnostic.' }
+          Write-Output 'EXPECTED_SURROGATE_DIAGNOSTIC_VERIFIED count=1'
           [xml]$xml = Get-Content .godot/ci/event-identity.xml -Raw
           if ($xml.SelectNodes('//failure | //error | //skipped').Count -ne 0) { throw 'failed or skipped tests' }
           $results = @($xml.SelectNodes('//testsuite') | ForEach-Object { [ordered]@{name=$_.GetAttribute('name'); cases=$_.SelectNodes('./testcase').Count} })
