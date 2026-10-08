@@ -6,17 +6,16 @@ permissions:
   contents: read
 jobs:
   focused:
-    if: ${{ false }} # Existing restart failure requires out-of-allocation playback owner.
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
       LIBGL_ALWAYS_SOFTWARE: '1'
-      PRODUCT_SHA: 19a579251e1dd269947577918de732d3249aa34c
-      PRODUCT_TREE: 804f75eb5129a8462b22ab751c29f4222d63e3c2
+      PRODUCT_SHA: f7388401dbd8020dae5d8a5518482a3dfd70d2d1
+      PRODUCT_TREE: 41bd8ef2140fff396641c3ee835d4d70c3516e27
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: 19a579251e1dd269947577918de732d3249aa34c
+          ref: f7388401dbd8020dae5d8a5518482a3dfd70d2d1
           fetch-depth: 0
           persist-credentials: true
       - name: Record immutable source before import
@@ -132,12 +131,12 @@ jobs:
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
-          ref: 19a579251e1dd269947577918de732d3249aa34c
+          ref: f7388401dbd8020dae5d8a5518482a3dfd70d2d1
       - name: Record exact source and controller before import
         run: |
           $actual = (git rev-parse HEAD).Trim()
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($actual -ne '19a579251e1dd269947577918de732d3249aa34c' -or $tree -ne '804f75eb5129a8462b22ab751c29f4222d63e3c2') { throw 'Candidate mismatch.' }
+          if ($actual -ne 'f7388401dbd8020dae5d8a5518482a3dfd70d2d1' -or $tree -ne '41bd8ef2140fff396641c3ee835d4d70c3516e27') { throw 'Candidate mismatch.' }
           New-Item -ItemType Directory -Force .godot/ci/public-surfaces | Out-Null
           @{product=$actual;tree=$tree;controller=$env:GITHUB_SHA;run=$env:GITHUB_RUN_ID;attempt=$env:GITHUB_RUN_ATTEMPT} | ConvertTo-Json | Set-Content .godot/ci/public-surfaces/provenance.json
       - name: Prepare disposable checkout for credential cleanup
