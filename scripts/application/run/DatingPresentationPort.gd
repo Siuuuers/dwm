@@ -146,6 +146,7 @@ static func _is_pair_explosion_cutoff(command: Dictionary, view: Dictionary) -> 
 		and view.get("phase") == "post_challenge" and view.get("outcome") == "exploded"
 
 func begin(request: Dictionary) -> Dictionary:
+	if request.get("context") is Dictionary and request.context.get("kind") == "scene_challenge": return _begin_scene(request)
 	if _identity_issuer == null or _physical_owner == null:
 		return _fail(&"dating_physical_owner_unconfigured",
 			"The canonical Dating physical owner has not been configured", {})
@@ -197,6 +198,8 @@ func begin(request: Dictionary) -> Dictionary:
 ## physical receipt is proved by the CONFIGURED OWNER; any drift returns
 ## `physical_completion_untrusted` before a domain stage mutation can be requested.
 func complete(request: Dictionary) -> Dictionary:
+	if request.get("presentation_command") is Dictionary and request.presentation_command.get("context") is Dictionary and request.presentation_command.context.get("kind") == "scene_challenge":
+		return _fail(&"scene_requires_authenticated_end", "Scene closure is owned by its end command", {})
 	if _identity_issuer == null or _physical_owner == null:
 		return _fail(&"dating_physical_owner_unconfigured",
 			"The canonical Dating physical owner has not been configured", {})
@@ -444,6 +447,8 @@ func _completion_sources(request: Dictionary) -> Array:
 ## The exact dating context. `schedule_entry_id` is nullable only where the plan allows it, and the
 ## participant list is checked against its OWNED order rather than sorted.
 func _context_error(context: Variant) -> String:
+	if context is Dictionary and context.get("kind") == "scene_challenge":
+		return "" if not preload("res://scripts/profile/DatingAttemptLedger.gd").semantic_slot(context).is_empty() else "invalid scene Challenge context"
 	if typeof(context) != TYPE_DICTIONARY:
 		return "context must be a dictionary"
 	var keys: Array = (context as Dictionary).keys()
@@ -566,3 +571,23 @@ static func _ok(value: Dictionary) -> Dictionary:
 
 static func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": details}
+
+## The configured physical owner independently authenticates the playable command
+## through the registered scene authority; legacy Schedule provenance cannot enter here.
+func _begin_scene(request: Dictionary) -> Dictionary:
+	if _physical_owner == null: return _fail(&"dating_physical_owner_unconfigured", "", {})
+	var keys: Array = request.keys(); keys.sort()
+	if keys != ["command_sha256", "completion_transaction_id", "context"] or _context_error(request.context) != "":
+		return _fail(&"invalid_scene_challenge_command", "", {})
+	var admitted: Dictionary = _physical_owner.begin_physical(request.duplicate(true))
+	if not admitted.get("ok", false): return admitted
+	var command := request.duplicate(true)
+	command["physical_token"] = admitted.value.physical_token
+	_commands[str(command.completion_transaction_id)] = command.duplicate(true)
+	return _ok({"presentation_command": command})
+
+func close_scene_challenge(presentation_command: Dictionary) -> Dictionary:
+	var trusted := _trusted_physical_command(presentation_command)
+	if not trusted.ok: return trusted
+	if not presentation_command.get("context") is Dictionary or presentation_command.context.get("kind") != "scene_challenge": return _fail(&"scene_challenge_family_mismatch", "", {})
+	return _physical_owner.close_scene_challenge(str(presentation_command.physical_token))

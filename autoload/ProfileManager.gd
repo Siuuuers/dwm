@@ -580,7 +580,7 @@ func get_dating_attempt(run_id: String, slot_id: String, attempt_id: String = ""
 func prepare_dating_continuation(run_id: String, slot_id: String, attempt_id: String,
 		source_branch_id: String, branch_id: String, saved_record: Dictionary) -> Dictionary:
 	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
-	if not has_completed_ending(): return _failure(&"dating_replacement_locked", "A completed ending is required")
+	if saved_record.get("schema_version") != 4 and not has_completed_ending(): return _failure(&"dating_replacement_locked", "A completed ending is required")
 	return DATING_ATTEMPTS.prepare_continuation(_profile.dating_attempts, run_id, slot_id,
 		attempt_id, source_branch_id, branch_id, saved_record)
 
@@ -589,7 +589,7 @@ func prepare_dating_attempt(run_id: String, slot_id: String, branch_id: String, 
 		expected_revision: int, first_cell_index: int = -1, frozen_effect: Dictionary = {},
 		selection: Dictionary = {}) -> Dictionary:
 	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
-	if not selection.is_empty() and not has_completed_ending():
+	if record.get("schema_version") != 4 and not selection.is_empty() and not has_completed_ending():
 		return _failure(&"dating_replacement_locked", "Branch continuations require a completed ending")
 	var prepared: Dictionary = DATING_ATTEMPTS.prepare_update(_profile.dating_attempts,
 		run_id, slot_id, branch_id, record, expected_revision, first_cell_index, frozen_effect, selection)
@@ -624,7 +624,7 @@ func commit_dating_attempt(material: Dictionary) -> Dictionary:
 	if typeof(request.expected_revision) != TYPE_INT or typeof(request.first_cell_index) != TYPE_INT \
 			or not request.record is Dictionary or not request.frozen_effect is Dictionary or not request.selection is Dictionary:
 		return _failure(&"invalid_dating_preparation", "Unexpected Dating request types")
-	if not request.selection.is_empty() and not has_completed_ending():
+	if request.record.get("schema_version") != 4 and not request.selection.is_empty() and not has_completed_ending():
 		return _failure(&"dating_replacement_locked", "Branch continuations require a completed ending")
 	var prepared: Dictionary = DATING_ATTEMPTS.prepare_update(_profile.dating_attempts,
 		request.run_id, request.slot_id, request.branch_id, request.record, request.expected_revision,
@@ -635,7 +635,7 @@ func commit_dating_attempt(material: Dictionary) -> Dictionary:
 	var attempt: Dictionary = prepared.value.attempt
 	var witness_id := ""
 	var requires_witness := false
-	if attempt.record.host == "canonical_pair" and attempt.completion_receipt != null \
+	if attempt.record.schema_version != 4 and attempt.record.host == "canonical_pair" and attempt.completion_receipt != null \
 			and attempt.record.outcome in ["perfect", "cleared"]:
 		witness_id = str(attempt.attempt_id) + ":complete"
 		var witnesses: Dictionary = _profile.pair_form_witness_receipts
