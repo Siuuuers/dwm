@@ -833,7 +833,7 @@ func _validate_day_advance_receipt(receipt: Dictionary, document: Dictionary,
 	if not keys.get("ok", false):
 		return _failed(&"root_day_advance_record_malformed",
 			str(keys.get("message", "day-advance receipt member set")))
-	var scene := receipt.get("resolution_kind", "") == "scene_day_complete"
+	var scene: bool = receipt.get("resolution_kind", "") == "scene_day_complete"
 	var expected_version := SCENE_DAY_RECEIPT_VERSION if scene else SCHEMA_VERSION
 	if typeof(receipt["schema_version"]) != TYPE_INT or int(receipt["schema_version"]) != expected_version:
 		return _failed(&"root_day_advance_record_malformed", "unexpected schema_version")
