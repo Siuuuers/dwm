@@ -16,7 +16,7 @@ jobs:
     - uses: actions/checkout@v7
       with:
         fetch-depth: 0
-        ref: e912ea6dbe467dab5c67f962b73a94f063b1eee9
+        ref: 5269dc80a1b66bebd49f13482ee5d13a0a986d98
         persist-credentials: true
     - name: Prepare disposable checkout for credential cleanup
       run: '$ErrorActionPreference = ''Stop''
@@ -53,9 +53,9 @@ jobs:
 
         New-Item -ItemType Directory -Force -Path .godot/ci | Out-Null
 
-        if ((git rev-parse HEAD) -cne ''e912ea6dbe467dab5c67f962b73a94f063b1eee9'') { throw ''source mismatch'' }
+        if ((git rev-parse HEAD) -cne ''5269dc80a1b66bebd49f13482ee5d13a0a986d98'') { throw ''source mismatch'' }
 
-        if ((git rev-parse ''HEAD^{tree}'') -cne ''06715854f783b92ad5a5a774f03ab1eb38df63e5'') { throw ''tree mismatch'' }
+        if ((git rev-parse ''HEAD^{tree}'') -cne ''571323aec818f4c620e9fc59fe8eccd0bbc60c00'') { throw ''tree mismatch'' }
 
         if (git diff --name-only) { throw ''tracked source differs before import'' }
 
@@ -93,8 +93,8 @@ jobs:
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
         '
-    - name: Generate exact public inventories from cloud source
-      run: './tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate
+    - name: Check committed public inventories without regeneration
+      run: './tools/testing/Invoke-PublicSurfaceValidation.ps1
 
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
@@ -106,7 +106,7 @@ jobs:
 
         foreach ($path in $changed) { if ($path -notin $allowed) { throw "unexpected tracked change: $path" } }
 
-        if (''generate'' -eq ''check'' -and $changed.Count -ne 0) { throw ''final tracked source changed'' }
+        if (''check'' -eq ''check'' -and $changed.Count -ne 0) { throw ''final tracked source changed'' }
 
         '
     - name: Hash original evidence even on failure
@@ -159,7 +159,7 @@ jobs:
     - uses: actions/checkout@v7
       with:
         persist-credentials: true
-        ref: e912ea6dbe467dab5c67f962b73a94f063b1eee9
+        ref: 5269dc80a1b66bebd49f13482ee5d13a0a986d98
         fetch-depth: 0
     - name: Prepare disposable checkout for credential cleanup
       run: 'git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
@@ -178,7 +178,7 @@ jobs:
 
         tree=subprocess.check_output([''git'',''rev-parse'',''HEAD^{tree}''],text=True).strip()
 
-        assert source == "e912ea6dbe467dab5c67f962b73a94f063b1eee9" and tree == "06715854f783b92ad5a5a774f03ab1eb38df63e5"
+        assert source == "5269dc80a1b66bebd49f13482ee5d13a0a986d98" and tree == "571323aec818f4c620e9fc59fe8eccd0bbc60c00"
 
         assert not subprocess.check_output([''git'',''diff'',''--name-only''],text=True)
 
