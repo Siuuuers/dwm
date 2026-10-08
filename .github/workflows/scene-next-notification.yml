@@ -10,12 +10,12 @@ jobs:
     timeout-minutes: 20
     env:
       LIBGL_ALWAYS_SOFTWARE: '1'
-      PRODUCT_SHA: 9542f61128c60a6bd5c4ebcef4457aafd9d8a23a
-      PRODUCT_TREE: 61bc6c48fe31fa841c4dc7c3e5a28a710e03c02a
+      PRODUCT_SHA: 0986552aed6c31b00e870d8f2341ece8444e0762
+      PRODUCT_TREE: 59303a4beb2104261c4ef5bc036a49978ee2bdbf
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: 9542f61128c60a6bd5c4ebcef4457aafd9d8a23a
+          ref: 0986552aed6c31b00e870d8f2341ece8444e0762
           fetch-depth: 0
           persist-credentials: true
       - name: Record immutable source before import
@@ -122,7 +122,7 @@ jobs:
           retention-days: 14
 
   generated-surfaces:
-    name: Windows / regenerate exact candidate inventories
+    name: Windows / exact candidate read-only inventory check
     runs-on: windows-2022
     timeout-minutes: 20
     defaults:
@@ -134,12 +134,12 @@ jobs:
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
-          ref: 9542f61128c60a6bd5c4ebcef4457aafd9d8a23a
+          ref: 0986552aed6c31b00e870d8f2341ece8444e0762
       - name: Record exact source and controller before import
         run: |
           $actual = (git rev-parse HEAD).Trim()
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($actual -ne '9542f61128c60a6bd5c4ebcef4457aafd9d8a23a' -or $tree -ne '61bc6c48fe31fa841c4dc7c3e5a28a710e03c02a') { throw 'Candidate mismatch.' }
+          if ($actual -ne '0986552aed6c31b00e870d8f2341ece8444e0762' -or $tree -ne '59303a4beb2104261c4ef5bc036a49978ee2bdbf') { throw 'Candidate mismatch.' }
           New-Item -ItemType Directory -Force .godot/ci/public-surfaces | Out-Null
           @{product=$actual;tree=$tree;controller=$env:GITHUB_SHA;run=$env:GITHUB_RUN_ID;attempt=$env:GITHUB_RUN_ATTEMPT} | ConvertTo-Json | Set-Content .godot/ci/public-surfaces/provenance.json
       - name: Prepare disposable checkout for credential cleanup
@@ -236,16 +236,16 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Generate and check exact original inventories
+      - name: Check committed original inventories without regeneration
         timeout-minutes: 10
-        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
+        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -EmitPayloads
       - name: Record generated-only tracked delta
         if: always()
         run: |
           $changed = @(git diff --name-only)
           $changed | Set-Content .godot/ci/public-surfaces/tracked-diff.txt
           foreach ($path in $changed) {
-            if ($path -notin @("evidence/phase_2r/runtime/game_state_surface.json", "evidence/phase_2r/runtime/save_manager_surface.json")) { throw "Unexpected tracked mutation $path" }
+            throw "Unexpected tracked mutation $path"
           }
       - name: Upload canonical inventories and retirement evidence
         if: always()
@@ -265,77 +265,3 @@ jobs:
           include-hidden-files: true
           if-no-files-found: warn
           retention-days: 7
-
-  rail-diagnostic:
-    name: Existing reading rail failure diagnostic
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    env:
-      LIBGL_ALWAYS_SOFTWARE: '1'
-      PRODUCT_SHA: 9542f61128c60a6bd5c4ebcef4457aafd9d8a23a
-      PRODUCT_TREE: 61bc6c48fe31fa841c4dc7c3e5a28a710e03c02a
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: 9542f61128c60a6bd5c4ebcef4457aafd9d8a23a
-          fetch-depth: 0
-          persist-credentials: true
-      - name: Record immutable source before import
-        run: |
-          mkdir -p .godot/ci
-          test "$(git rev-parse HEAD)" = "$PRODUCT_SHA"
-          test "$(git rev-parse 'HEAD^{tree}')" = "$PRODUCT_TREE"
-          python3 - <<'PY'
-          import json,os,pathlib,subprocess
-          pathlib.Path('.godot/ci/provenance.json').write_text(json.dumps({
-            'product':os.environ['PRODUCT_SHA'],'tree':os.environ['PRODUCT_TREE'],
-            'controller':os.environ['GITHUB_SHA'],'run':os.environ['GITHUB_RUN_ID'],
-            'attempt':os.environ['GITHUB_RUN_ATTEMPT'],'purpose':'focused and nine real process phases; exact inventories and rail diagnosis',
-            'index_cleanup':['.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1']},indent=2))
-          PY
-          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-      - name: Install pinned standard engine and software display
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri pulseaudio pulseaudio-utils libspeechd2 speech-dispatcher speech-dispatcher-audio-plugins speech-dispatcher-espeak-ng
-          curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip' --output "$RUNNER_TEMP/godot.zip"
-          printf '%s  %s\n' 'd0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3' "$RUNNER_TEMP/godot.zip" | sha256sum --check
-          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
-          chmod +x "$RUNNER_TEMP/godot/Godot_v4.6.3-stable_linux.x86_64"
-          echo "GODOT_CONSOLE_PATH=$RUNNER_TEMP/godot/Godot_v4.6.3-stable_linux.x86_64" >> "$GITHUB_ENV"
-          sha256sum "$RUNNER_TEMP/godot/Godot_v4.6.3-stable_linux.x86_64" > .godot/ci/engine.sha256
-      - name: Start and verify native Linux speech service
-        timeout-minutes: 2
-        run: bash tools/testing/start_cloud_speech.sh
-      - name: Import exact candidate
-        env:
-          DWM_TEST_ROOT: ${{ github.workspace }}/.godot/ci/import/test-root
-          XDG_DATA_HOME: ${{ github.workspace }}/.godot/ci/import/data
-        run: |
-          mkdir -p "$DWM_TEST_ROOT" "$XDG_DATA_HOME"
-          "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --import --log-file "$GITHUB_WORKSPACE/.godot/ci/import.log"
-          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' .godot/ci/import.log; then exit 1; fi
-          git restore -- project.godot
-          test -z "$(git diff --name-only)"
-      - name: Run unchanged rail and expose original assertion logs
-        run: |
-          python3 - <<'PY'
-          import pathlib,subprocess
-          result=subprocess.run(['python3','tools/testing/run_reading_rail_journey.py'])
-          for p in sorted(pathlib.Path('.godot/ci/reading-rail').rglob('*')):
-            if p.suffix not in ['.log','.txt']: continue
-            lines=p.read_text(errors='replace').splitlines()
-            if any('READING_RAIL_FAIL:' in line or 'SCRIPT ERROR:' in line for line in lines):
-              print('ORIGINAL_DIAGNOSTIC_LOG: '+str(p),flush=True)
-              print('\n'.join(lines),flush=True)
-          raise SystemExit(result.returncode)
-          PY
-      - name: Preserve original rail diagnostic
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: unchanged-reading-rail-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .godot/ci/
-          include-hidden-files: true
-          if-no-files-found: error
-          retention-days: 14
