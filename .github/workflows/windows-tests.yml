@@ -14,23 +14,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [scene-reading, legacy-core, legacy-notification, legacy-next]
+        suite: [scene-reading, scene-activation, legacy-core, legacy-notification, legacy-next]
     defaults:
       run:
         shell: pwsh
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: 2d6d0d3ff29b341a9e1343dafd33341087c85b9a
+          ref: bab9e0ac32fa375c484856e82d8a527f394a66d0
           fetch-depth: 1
           persist-credentials: true
       - name: Verify and record immutable source before import
         run: |
           $ErrorActionPreference = 'Stop'
           $source = (git rev-parse HEAD).Trim()
-          if ($LASTEXITCODE -ne 0 -or $source -cne '2d6d0d3ff29b341a9e1343dafd33341087c85b9a') { throw 'Wrong source commit.' }
+          if ($LASTEXITCODE -ne 0 -or $source -cne 'bab9e0ac32fa375c484856e82d8a527f394a66d0') { throw 'Wrong source commit.' }
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($LASTEXITCODE -ne 0 -or $tree -cne '026731d08ac5b9a52eceb16add42bc6b05d0b07b') { throw 'Wrong source tree.' }
+          if ($LASTEXITCODE -ne 0 -or $tree -cne '64a5498cbb3a28e1c830120490d66b02fe61f578') { throw 'Wrong source tree.' }
           git diff --exit-code HEAD --
           if ($LASTEXITCODE -ne 0) { throw 'Source checkout is dirty before import.' }
           New-Item -ItemType Directory -Force -Path '.godot/ci' | Out-Null
@@ -87,9 +87,10 @@ jobs:
           $scripts = switch ($suite) {
             'scene-registration' { @('tests/unit/test_scene_reading_registration.gd') }
             'scene-reading' { @('tests/integration/test_scene_day_reading.gd') }
+            'scene-activation' { @('tests/unit/test_scene_runtime_activation.gd') }
             'legacy-core' { @('tests/unit/test_narrative_caption_ledger.gd', 'tests/unit/test_solo_reading_session.gd', 'tests/unit/test_frozen_run_context.gd', 'tests/unit/test_frozen_presentation_context.gd', 'tests/unit/test_dialogic_entry_manifest.gd', 'tests/unit/test_reading_restore_admission.gd', 'tests/unit/test_reading_next_checkpoint.gd') }
             'legacy-notification' { @('tests/integration/test_scene_next_notification.gd') }
-            'legacy-next' { @('tests/integration/test_dialogic_next_traversal.gd') }
+            'legacy-next' { @('tests/integration/test_dialogic_next_traversal.gd', 'tests/integration/test_narrative_caption_ledger_runtime.gd') }
             default { throw 'Unknown focused suite.' }
           }
           $scripts = @($scripts)
@@ -100,7 +101,7 @@ jobs:
           $gutArguments = @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', "-gtest=$($paths -join ',')", '-gexit', '-glog=2', "-gjunit_xml_file=res://.godot/ci/$suite.xml")
           # GUT rejects unknown user arguments, so select the debug-only fixture
           # through the child process environment instead of its CLI parser.
-          if ($suite -eq 'scene-reading') { $env:DWM_SCENE_READING_FIXTURE = '1' }
+          if ($suite -in @('scene-reading', 'scene-activation')) { $env:DWM_SCENE_READING_FIXTURE = '1' }
           & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId "scene-controller-$suite" -LogName "$suite.log" -EvidenceLogPath ".godot/ci/$suite.jsonl" -TimeoutSeconds 480 -GodotArgs $gutArguments
           $result = $LASTEXITCODE
           $log = ".godot/phase2r_logs/$suite.log"
