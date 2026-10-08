@@ -5,7 +5,6 @@ const MAIN := preload("res://scenes/main/MainGameScene.tscn")
 const DESKTOP := preload("res://scenes/desktop/ComputerDesktop.tscn")
 const SHELL_FIXTURES := preload("res://tests/desktop_shell/test_desktop_shell.gd")
 const CONTACT_FIXTURES := preload("res://tests/contacts_shell/test_contacts_shell.gd")
-const HUD_FIXTURES := preload("res://tests/unit/test_stat_hud_week_tint.gd")
 const MINESWEEPER_FIXTURES := preload("res://tests/unit/test_minesweeper_app.gd")
 const BACKUP_FIXTURES := preload("res://tests/unit/test_backup_panel_resize.gd")
 const SETTINGS_FIXTURES := preload("res://tests/unit/test_settings_panel_resize.gd")
@@ -53,7 +52,6 @@ var main: Control
 var desktop: Control
 var locale: Node
 var profile: RefCounted
-var stats: Node
 
 
 func before_each() -> void:
@@ -65,13 +63,8 @@ func before_each() -> void:
 	locale = CONTACT_FIXTURES.FakeLocale.new()
 	add_child_autofree(locale)
 	profile = NavigationProfile.new()
-	stats = HUD_FIXTURES.OwnerFixture.new()
-	stats.condition_effects_today = ["nausea", "dizzy", "sequela", "faint"]
-	stats.penalty_points_today = 10
-	add_child_autofree(stats)
 	main = MAIN.instantiate()
 	assert_true(main.bind_view_preferences(profile))
-	main.get_node("%StatHud").configure(stats, locale, profile)
 	desktop = DESKTOP.instantiate()
 	desktop.set_script(SHELL_FIXTURES.IsolatedDesktop)
 	desktop.configure_run_configuration(SHELL_FIXTURES.RunConfigurationFixture.new())
@@ -79,6 +72,7 @@ func before_each() -> void:
 	main.get_node("%ComputerPanel").add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	main.get_node("%ComputerPanel").add_child(desktop)
 	viewport.add_child(main)
+	assert_null(main.get_node_or_null("%StatHud"), "mounted shell has no retired HUD")
 	var host := CONTACT_FIXTURES.FakeHost.new()
 	host.reject_next = false
 	assert_true(desktop.configure_contacts(CONTACT_FIXTURES.FakePort.new(), locale, profile, host).get("ok", false))
@@ -151,7 +145,7 @@ func test_desktop_resize_saves_only_user_commits_and_rolls_back_failed_saves() -
 	assert_eq(split.get_angela_width(), unbound_width, "explicitly disabling binding disconnects the old owner")
 
 
-func test_resizing_keeps_current_app_and_focus_and_hud_inside_the_shell() -> void:
+func test_resizing_keeps_current_app_focus_and_portrait_inside_the_shell() -> void:
 	var split := main.get_node("RootHBox")
 	assert_true(split.has_method("set_angela_width"), "main mounts the draggable split")
 	if not split.has_method("set_angela_width"): return
@@ -169,18 +163,11 @@ func test_resizing_keeps_current_app_and_focus_and_hud_inside_the_shell() -> voi
 			split.set_angela_width(320)
 			await settle()
 			var panel: Control = main.get_node("%AngelaPanel")
-			var hud: Control = main.get_node("%StatHud")
 			assert_eq(panel.size.x, 320.0)
 			assert_eq(desktop.size.x, 960.0)
-			assert_true(panel.get_global_rect().encloses(hud.get_global_rect()), "HUD fits %s at %s" % [language, scale_value])
-			var stat_scroll: ScrollContainer = hud.get_node("%StatScroll")
-			for row: Control in hud.get_node("%Rows").get_children():
-				if row.visible:
-					stat_scroll.ensure_control_visible(row)
-					await settle()
-					assert_true(stat_scroll.get_global_rect().grow(0.01).encloses(row.get_global_rect()), "every fact remains reachable in the overlay")
+			assert_null(main.get_node_or_null("%StatHud"), "retired HUD stays absent during resize")
 			var art: Control = main.get_node("%AngelaImage")
-			assert_eq(art.get_global_rect(), panel.get_global_rect(), "portrait continues behind the stat overlay")
+			assert_eq(art.get_global_rect(), panel.get_global_rect(), "portrait fills the Angela panel")
 			for layer: Control in art.get_children():
 				assert_true(panel.get_global_rect().encloses(layer.get_global_rect()), "art remains inside Angela")
 	assert_same(desktop._cached_app_windows[&"contacts"], app, "resize never remounts the app")

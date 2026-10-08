@@ -655,3 +655,38 @@ func test_legacy_logout_autosave_is_unavailable_without_rewriting_or_guessing_jo
 	assert_false(inspected.value.loadable)
 	assert_false(inspected.value.fallback)
 	assert_eq(files.snapshot_persisted(), before, "inspection preserves old data for an explicit compatibility disposition")
+
+
+func test_note_counts_saved_integral_numbers_normalize_and_detach() -> void:
+	var snapshot: Dictionary = _fixture(VALID_FIXTURE)
+	snapshot["gameplay"]["shop_purchase_counts"] = {"crystal_stutters": 3.0, "other_item": 19.0}
+	var result: Dictionary = load(SCHEMA_PATH).validate(snapshot)
+	assert_true(result.ok)
+	if not result.ok: return
+	var counts: Dictionary = result.value.candidate.gameplay.shop_purchase_counts
+	assert_eq(counts, {"crystal_stutters": 3, "other_item": 19})
+	assert_eq(typeof(counts["crystal_stutters"]), TYPE_INT)
+	counts["crystal_stutters"] = 0
+	assert_eq(snapshot["gameplay"]["shop_purchase_counts"]["crystal_stutters"], 3.0)
+
+
+func test_note_counts_omission_preserves_wire_shape_for_restore_owner_defaulting() -> void:
+	var snapshot: Dictionary = _fixture(VALID_FIXTURE)
+	snapshot["gameplay"].erase("shop_purchase_counts")
+	var result: Dictionary = load(SCHEMA_PATH).validate(snapshot)
+	assert_true(result.ok)
+	if not result.ok: return
+	assert_false(result.value.candidate.gameplay.has("shop_purchase_counts"), "validation preserves omitted wire fields")
+	assert_false(snapshot["gameplay"].has("shop_purchase_counts"))
+
+
+func test_note_counts_saved_malformed_maps_refuse() -> void:
+	for invalid: Variant in [null, [], false, {"crystal_stutters": 4},
+			{"crystal_stutters": -1}, {"crystal_stutters": true},
+			{"crystal_stutters": 1.5}, {"other_item": -1},
+			{"other_item": {}}, {1: 0}, {&"crystal_stutters": 1}]:
+		var snapshot: Dictionary = _fixture(VALID_FIXTURE)
+		snapshot["gameplay"]["shop_purchase_counts"] = invalid
+		var result: Dictionary = load(SCHEMA_PATH).validate(snapshot)
+		assert_false(result.ok, str(invalid))
+		assert_eq(result.code, &"invalid_gameplay")
