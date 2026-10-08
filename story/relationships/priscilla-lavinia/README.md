@@ -4,6 +4,31 @@
 seven-day plot. Start with the current question; unfold development evidence only
 when it matters to the task. Scene candidates remain `UNSELECTED` / `REACTION TEST`.
 
+## Current capture and restart route: 2026-10-08
+
+Start a fresh P–L session with [the handoff](session-handoff.md), then the
+[current Dark–Ambiguous photograph record](auditions/day-6-dark-photograph.md).
+The last complete scene and its later speaker-reversal/cheek alternatives are
+kept distinct there. [Recent development and lessons](development/2026-10-08-session-capture.md)
+record the useful reasoning without treating every proposal as canon.
+
+**Dark–Love:** read the latest [local bounded comparison](../../maintenance/pl-session-sources/2026-10-08/PL_day6_dark_love_bounded_review_2026-10-04.md)
+with its later [open-night amendment](../../maintenance/pl-session-sources/2026-10-08/PL_day6_open_ending_and_dark_ambiguous_direction_2026-10-04.md).
+The definite departure in the older full text is not the leading closing choice.
+The earlier book-based notebook below remains intact as provenance.
+
+**Coverage:** all 14 available local Markdown drafts are preserved verbatim in the
+[source archive](../../maintenance/pl-session-sources/2026-10-08/README.md), plus
+curated visible later discussion through the Lavinia-retention/cheek reopening
+and the owner's explicit request to publish and prepare a fresh session.
+**Destination:** documentation branch `docs/pl-story-handoff-20261008`, based on
+`dded76a`; this is not a claim that `master` was updated or that the PR was merged.
+Archived “local only” and “current” headings retain their historical meaning.
+**Still open:** retention outcome, cheek actor/placement/consequence, integrated
+new Ambiguous scene, physical/equipment/language/performance review, historical
+source gaps, Group/whole-week selection, and runtime behavior. No fictional fact,
+scene selection, code, Bible, Handbook, or mechanics changes in this capture.
+
 | Work | Owner | Boundary |
 |---|---|---|
 | Established pair guidance and attraction | [Relationship](relationship.md) | Handbook pair section transferred unchanged; Bible still owns history |
@@ -15,7 +40,8 @@ when it matters to the task. Scene candidates remain `UNSELECTED` / `REACTION TE
 | Day 2 Dark–Love | [Retained portrait read-through](auditions/2026-09-26-priscilla-lavinia-day-2-portrait-dark-love-read-through.md) | Strike transition, physical staging and family review remain open |
 | Day 6 Sweet–Love dance | [Another way to listen](auditions/day-6-sweet-love-dance.md) | Indirect invitation, familiar teasing, continued company |
 | Day 6 Sweet–Ambiguous | [Imagined refusal and tea](auditions/day-6-sweet-ambiguous-refusal.md) | Reciprocal imitation; Sweet keeps the “much” exchange |
-| Day 6 Dark–Love | [The kept page](auditions/day-6-dark-notebook.md) | Current notebook proposal, selective sharing, intrusion and open aftermath |
+| Day 6 Dark–Love: earlier owner | [The kept page](auditions/day-6-dark-notebook.md) | Retained book-based development; use the current capture above for the later film/diary/open-night version |
+| Day 6 Dark–Ambiguous: current development | [Photograph and retention](auditions/day-6-dark-photograph.md) | Last full comparison plus later Lavinia request and separate unresolved cheek test |
 | Source coverage and originals | [Exchange map](../../maintenance/our-pl-upload-recovery.md) | useful topic selection from the supplied source; earlier absent sources not invented |
 
 ## Retained alternatives and baseline functions
@@ -47,7 +73,7 @@ Read the [Matrix](../../07-seven-day-causal-matrix.md) for current placement and
 for the conditional tea/Room 2.17 and Day-6-only ending proposal. Neither mechanics
 nor invitation suppression changes merely because the proposal is preserved.
 
-## Capture checkpoint — 2026-10-04
+## Previous capture checkpoint — 2026-10-04
 
 **Coverage:** the latest return-driven-urgency and intensity clarification, the
 preceding challenge to “simply” wanting company, and the attributed working
