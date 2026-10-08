@@ -17,7 +17,7 @@ jobs:
         with:
           # Preserve the accepted product ancestry; checkout the pinned product.
           fetch-depth: 0
-          ref: da3fc0b7438e82c1df3f10aad09ed2afef1d25af
+          ref: 08a2caa3108c625e890cf1a1c802d7529be6d54b
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
@@ -54,12 +54,22 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           New-Item -ItemType Directory -Force -Path .godot/ci | Out-Null
-          if ((git rev-parse HEAD) -cne 'da3fc0b7438e82c1df3f10aad09ed2afef1d25af') { throw 'source mismatch' }
-          if ((git rev-parse 'HEAD^{tree}') -cne '8c0a678d267deabf219a24ea39355828f844e5b1') { throw 'tree mismatch' }
-          if ((git rev-parse 'HEAD^') -cne '73e7ba8a32d1b8f66754b5fb3617115d95a293e9') { throw 'source parent mismatch' }
+          if ((git rev-parse HEAD) -cne '08a2caa3108c625e890cf1a1c802d7529be6d54b') { throw 'source mismatch' }
+          if ((git rev-parse 'HEAD^{tree}') -cne 'ed742ec0d6a297e68168fccd169f1008ef9b890c') { throw 'tree mismatch' }
+          if ((git rev-parse 'HEAD^') -cne 'da3fc0b7438e82c1df3f10aad09ed2afef1d25af') { throw 'source parent mismatch' }
           if (git diff --name-only) { throw 'tracked source differs before import' }
           [ordered]@{source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); parent=(git rev-parse 'HEAD^'); controller=$env:GITHUB_SHA; run=$env:GITHUB_RUN_ID; attempt=$env:GITHUB_RUN_ATTEMPT; executable=$env:GODOT_CONSOLE_PATH; executable_sha256=(Get-FileHash $env:GODOT_CONSOLE_PATH -Algorithm SHA256).Hash.ToLowerInvariant(); version=(& $env:GODOT_CONSOLE_PATH --version)} | ConvertTo-Json | Set-Content .godot/ci/identity.json
           Get-Content .godot/ci/identity.json
+          $originalRef = 'c8e07e4a1215097506d5483ee9d0d436e5b8021c:tests/fixtures/dialogic/scene_reading_registration.json'
+          $compatPath = 'tests/fixtures/dialogic/scene_reading_registration_compat.json'
+          $originalBlob = git rev-parse $originalRef
+          if ($LASTEXITCODE -ne 0 -or $originalBlob -cne '7c2d3e5eb3677f2695071816cbf2c30e7f195a20') { throw 'original A fixture blob mismatch' }
+          $compatBlob = git hash-object --no-filters $compatPath
+          if ($LASTEXITCODE -ne 0 -or $compatBlob -cne $originalBlob) { throw 'copied fixture bytes differ from A' }
+          $compatSha256 = (Get-FileHash -LiteralPath $compatPath -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($compatSha256 -cne '099e0ef79457c1bb56ecd06849f5c0abf3cd829d71b355f3d0292822a04a4f4b') { throw 'fixture byte SHA256 mismatch' }
+          [ordered]@{original=$originalRef; original_blob=$originalBlob; copy=$compatPath; copy_blob=$compatBlob; byte_sha256=$compatSha256; byte_length=(Get-Item $compatPath).Length; scope='structural only; installed-label existence remains trusted DTL owner responsibility'} | ConvertTo-Json | Set-Content .godot/ci/fixture-provenance.json
+          Get-Content .godot/ci/fixture-provenance.json
           git ls-tree -r --full-tree HEAD | Set-Content .godot/ci/source-tree.txt
           if ($LASTEXITCODE -ne 0) { throw 'source inventory failed' }
           $changed = @(git diff --name-only 'b37d662403398139fc2b1029853b236c334f59a0' HEAD)
