@@ -76,13 +76,17 @@ class FailOneAutoOffWrite extends RefCounted:
 	var target: RefCounted
 	var refusals := 0
 	var matching_writes := 0
-	func _init(real_ops: RefCounted) -> void: target = real_ops
+	var source_witnesses: Dictionary
+	func _init(real_ops: RefCounted, witnesses: Dictionary) -> void:
+		target = real_ops
+		source_witnesses = witnesses.duplicate(true)
 	func exists(path: String) -> bool: return target.exists(path)
 	func read_bytes(path: String) -> Dictionary: return target.read_bytes(path)
 	func write_bytes(path: String, bytes: PackedByteArray) -> Dictionary:
 		if path.replace("\\", "/").ends_with("/profile.json.next"):
 			var parsed: Dictionary = JSON_READER.parse_object(bytes.get_string_from_utf8())
-			if parsed.get("ok", false) and parsed.value.get("preferences", {}).get("reading", {}).get("auto_enabled") == false:
+			if parsed.get("ok", false) and parsed.value.get("preferences", {}).get("reading", {}).get("auto_enabled") == false \
+					and parsed.value.get("witnessed_caption_variants") == source_witnesses:
 				matching_writes += 1
 				if refusals == 0:
 					refusals += 1
@@ -150,6 +154,9 @@ func _run() -> void:
 		# Explicitly different fixed revision, with unchanged noncanonical prose.
 		# The original variant-B witnessing and Read Only proof remain independent.
 		catalogue.value.entries[0].lines[0].revision = "fixture-next-unseen-v1"
+		# Keep the destination unseen too: earlier processes witnessed its original
+		# revision, which would correctly make Next cross the tail to completion.
+		catalogue.value.entries[0].lines[1].revision = "fixture-next-unseen-target-v1"
 	var configured: Dictionary = bridge.configure_reading_catalogue(catalogue.value)
 	if not _check(configured.get("ok", false), "real reading owner accepts fixture catalogue: " + str(configured)): return
 	var first_entry: Dictionary = catalogue.value.entries[0]
@@ -1279,6 +1286,7 @@ func _witness_read_process() -> void:
 func _begin_next_observation() -> void:
 	_next_observations = {"observing": true, "text_started": 0, "about_to_show_text": 0,
 		"caption_publications": 0, "speech_before": _speech_admissions,
+		"destination_at_settlement": {},
 		"exclusive_frames": 0, "exclusive_activations": 0, "intermediate_checkpoint_admissions": 0}
 	if _next_observers_installed: return
 	_next_observers_installed = true
@@ -1290,6 +1298,11 @@ func _begin_next_observation() -> void:
 		if _next_observations.get("observing", false): _next_observations.about_to_show_text += 1)
 	bridge.get("_runtime_adapter").caption_publication_recorded.connect(func(_result: Dictionary) -> void:
 		if _next_observations.get("observing", false): _next_observations.caption_publications += 1)
+	bridge.next_request_finished.connect(func(_frontier: Dictionary, result: Dictionary) -> void:
+		if not _next_observations.get("observing", false) or not result.get("ok", false): return
+		var runtime: RefCounted = bridge.get("_runtime_adapter")
+		_next_observations.destination_at_settlement = {"line_id": runtime.current_line_id(),
+			"complete": runtime.is_current_line_complete()})
 	bridge.next_traversal_changed.connect(func() -> void:
 		if not _next_observations.get("observing", false) or not bridge.is_next_traversal_active(): return
 		_next_observations.exclusive_activations += 1
@@ -1444,7 +1457,7 @@ func _next_unseen_session(game: Node, dating: Node, report: Dictionary) -> void:
 		"enable real Auto before testing Next arbitration"): return
 	var storage: RefCounted = profile.get("_storage")
 	var real_ops: RefCounted = storage.get("_file_ops")
-	var fault := FailOneAutoOffWrite.new(real_ops)
+	var fault := FailOneAutoOffWrite.new(real_ops, profile.get_profile_snapshot().witnessed_caption_variants)
 	storage.set("_file_ops", fault)
 	var before_profile: Dictionary = profile.get_profile_snapshot()
 	var before_disk := _witness_disk()
@@ -1472,30 +1485,56 @@ func _next_unseen_session(game: Node, dating: Node, report: Dictionary) -> void:
 	if not await _retry_next(): return
 	var observations := _end_next_observation()
 	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
+	var observed_complete: bool = runtime.is_current_line_complete()
 	if not _check(fault.refusals == 1 and fault.matching_writes == 2
 		and not profile.get_preference(&"preferences.reading.auto_enabled", true)
-		and runtime.current_line_id() == "fixture.solo.pre.a" and runtime.is_current_line_complete()
+		and runtime.current_line_id() == "fixture.solo.pre.b"
+		and observations.destination_at_settlement == {"line_id": "fixture.solo.pre.b", "complete": false}
 		and checkpoint.get("ok", false)
-		and checkpoint.value.reading_session.ledger == report.source_checkpoint.reading_session.ledger
-		and checkpoint.value.reading_session.frontier == report.source_checkpoint.reading_session.frontier
-		and profile.get_profile_snapshot().witnessed_caption_variants == before_profile.witnessed_caption_variants
-		and _next_is_silent(observations),
-		"fresh one-shot Next durably turns Auto Off, completes only the unseen current line, and grants no extra witness"): return
+		and observations.exclusive_activations == 1 and observations.intermediate_checkpoint_admissions == 0
+		and observations.text_started == 1 and observations.about_to_show_text == 1
+		and observations.caption_publications == 1 and observations.speech_after == observations.speech_before + 1,
+		"fresh one-shot Next turns Auto Off, finishes the source and presents exactly one partial unseen destination: "
+		+ JSON.stringify({"line": runtime.current_line_id(), "complete": runtime.is_current_line_complete(),
+			"observations": observations, "checkpoint": checkpoint})): return
+	var reading: Dictionary = checkpoint.value.reading_session
+	var operation: Dictionary = reading.get("next_operation", {})
+	var plan: Dictionary = operation.get("plan", {})
+	if not _check(reading.schema_version == 2 and operation.get("schema_version") == 1
+		and operation.get("phase") == "destination" and plan.get("destination", {}).get("kind") == "line"
+		and plan.source_ledger == report.source_checkpoint.reading_session.ledger
+		and plan.source_frontier == report.source_checkpoint.reading_session.frontier
+		and plan.traversed_captions.is_empty() and reading.boundary == "line"
+		and plan.destination.caption.beat.line_id == "fixture.solo.pre.b"
+		and reading.ledger.captions == plan.source_ledger.captions + [plan.destination.caption]
+		and reading.frontier == {"line_id": "fixture.solo.pre.b", "publication_id": plan.destination.caption.publication_id},
+		"unseen Next retains the exact source and one destination occurrence without intermediate captions"): return
+	var destination_beat: Dictionary = plan.destination.caption.beat
+	var described: Dictionary = WITNESSES.describe(destination_beat)
+	if not _check(described.get("ok", false)
+		and destination_beat.presentation_signature.content_revision == "fixture-next-unseen-target-v1"
+		and not before_profile.witnessed_caption_variants.has(described.value.witness_id),
+		"destination is an exact registered variant not previously witnessed"): return
+	var expected_witnesses: Dictionary = before_profile.witnessed_caption_variants.duplicate(true)
+	expected_witnesses[described.value.witness_id] = destination_beat.duplicate(true)
+	if not _check(profile.get_profile_snapshot().witnessed_caption_variants == expected_witnesses,
+		"ordinary visible renderer acknowledges only the new destination, preserving all prior witnesses"): return
 	storage.set("_file_ops", real_ops)
 	var layer: Node = _caption_layer()
 	if not _check(layer != null and layer.caption_text.has_focus(), "unseen Next stop returns caption Focus"): return
 	if not await _capture_next_screen("01-next-unseen"): return
-	if not await _inspect_history("next-unseen-history-not-captured", 1): return
+	if not await _inspect_history("next-unseen-history-not-captured", 2): return
 	report.merge({"checkpoint": checkpoint.value.duplicate(true), "observations": observations,
 		"refusal_observations": refusal_observations, "auto_off_refusals": fault.refusals,
 		"auto_off_matching_writes": fault.matching_writes, "auto_enabled_after": false,
 		"refused_profile_sha256": before_disk.sha256, "profile_after_sha256": _witness_disk().sha256,
 		"witnesses_before": before_profile.witnessed_caption_variants.duplicate(true),
 		"witnesses_after": profile.get_profile_snapshot().witnessed_caption_variants.duplicate(true),
-		"current_line_complete": true, "history_observations": _history_observations}, true)
+		"destination_beat": destination_beat.duplicate(true), "destination_witness_id": described.value.witness_id,
+		"current_line_complete": observed_complete, "history_observations": _history_observations}, true)
 	if not _check(_write_text("next-unseen.json", JSON.stringify(report, "\t")), "retain unseen Next refusal/retry report"): return
 	_trace("next_unseen_verified", report)
-	print("READING_RAIL_NEXT_UNSEEN_PASS: real Auto Off refusal -> physical retry -> complete current unseen only -> caption Focus and neutral History")
+	print("READING_RAIL_NEXT_UNSEEN_PASS: real Auto Off refusal -> physical retry -> finish source and advance once -> partial unseen destination, caption Focus and neutral History")
 	await _finish_proof()
 
 

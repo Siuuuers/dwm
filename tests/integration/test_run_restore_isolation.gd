@@ -204,7 +204,7 @@ func _assert_frozen_provenance() -> bool:
 	# A later owner edit must deliberately rebase this comparison contract and
 	# retain a reproducible failing control; do not silently loosen these hashes.
 	const LIVE_REFERENCE := preload("res://tests/support/LiveRunRollbackAliasingReference.gd")
-	var source := _without_authenticated_scene_event_extension(FileAccess.get_file_as_string("res://autoload/GameState.gd").replace("\r\n", "\n"))
+	var source := _without_authenticated_scene_event_extension(_without_authenticated_marker_validation(FileAccess.get_file_as_string("res://autoload/GameState.gd").replace("\r\n", "\n")))
 	var reference := FileAccess.get_file_as_string("res://tests/support/RunRestoreAliasingReference.gd").replace("\r\n", "\n")
 	var live_reference := FileAccess.get_file_as_string("res://tests/support/LiveRunRollbackAliasingReference.gd").replace("\r\n", "\n")
 	var capture := _source_method(source, "capture_restore_state")
@@ -290,3 +290,17 @@ func _without_authenticated_scene_event_extension(source: String) -> String:
 			or foundation.sha256_text() != FOUNDATION_SHA256:
 		return ""
 	return foundation
+
+
+func _without_authenticated_marker_validation(source: String) -> String:
+	# Reverse only A's exact scoped validator, then authenticate the accepted owner.
+	const FRAGMENT := "\t# Cursor-to-receipt proof is required even for an empty receipt map.\n\tif is_instance_valid(_scene_event_bridge) and _scene_event_bridge.has_method(\"validate_scene_marker_snapshot\"):\n\t\tvar cursor: Dictionary = _scene_event_bridge.validate_scene_marker_snapshot(snapshot)\n\t\tif not cursor.get(\"ok\", false): return cursor\n\telif snapshot.get(\"narrative_checkpoint\", {}).get(\"reading_session\", {}).get(\"schema_version\") == 4:\n\t\treturn _transaction_failure(&\"event_dependency_invalid\", \"marker validator required\")\n"
+	const FRAGMENT_SHA256 := "7401f988303d931993df50fda5123ef43f2488185b9443bdb95bc9eac94d116f"
+	const ACCEPTED_SHA256 := "ce2fb9fc8c9821c8857641a377d0832fb1a862bafd86268c43226b24329ff2a8"
+	assert_eq(FRAGMENT.to_utf8_buffer().size(), 509, "exact marker-validator bytes")
+	assert_eq(FRAGMENT.sha256_text(), FRAGMENT_SHA256, "exact marker-validator fragment")
+	assert_eq(source.count(FRAGMENT), 1, "one complete marker-validator delta")
+	if FRAGMENT.to_utf8_buffer().size() != 509 or FRAGMENT.sha256_text() != FRAGMENT_SHA256 or source.count(FRAGMENT) != 1: return ""
+	var accepted := source.replace(FRAGMENT, "")
+	assert_eq(accepted.sha256_text(), ACCEPTED_SHA256, "exact af944020 owner before historical reversal")
+	return accepted if accepted.sha256_text() == ACCEPTED_SHA256 else ""

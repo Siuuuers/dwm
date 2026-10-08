@@ -16,6 +16,7 @@ var _speech_admissions := 0
 var _history_observations := 0
 var _trace_sequence := 0
 var _next_results: Array[Dictionary] = []
+var _next_settlements: Array[Dictionary] = []
 var _checkpoint_results: Array[Dictionary] = []
 var _next_observations: Dictionary = {}
 var _next_observers_installed := false
@@ -65,7 +66,8 @@ func _run() -> void:
 	_document = parsed.value
 	if not _check(bridge.configure_reading_catalogue(_document).get("ok", false), "catalogue-v2 admitted"): return
 	bridge.next_request_finished.connect(func(_frontier: Dictionary, result: Dictionary) -> void:
-		_next_results.append(result.duplicate(true)))
+		_next_results.append(result.duplicate(true))
+		_next_settlements.append(_native_caption()))
 	var speech: Node = root.get_node("SystemTtsCoordinator")
 	speech.speech_admitted.connect(func(_token: int, _source: String) -> void: _speech_admissions += 1)
 	var capability: Dictionary = speech.refresh_capability("en")
@@ -168,12 +170,11 @@ func _dating_journey(game: Node, desktop: Node) -> void:
 	_trace("quick_committed", {"sha256": disk.sha256, "checkpoint": reading, "profile_sha256": profile_disk.sha256})
 	await _capture_screen("07-post-save")
 	var report := _report(game, reading, disk, profile_disk)
-	report["unseen_stop"] = next_proof.unseen_stop
-	report["next"] = next_proof.next
+	report["next"] = next_proof
 	if not _check(_speech_admissions > 0, "writer exercised enabled native speech before restore suppression"): return
 	if not _check(_write_text("saved-quick.json", disk.text) and _write_text("saved-profile.json", profile_disk.text)
 		and _write_text("write.json", JSON.stringify(report, "\t")), "retain exact writer bytes and report"): return
-	print("SOLO_AUTHORED_SELECTOR_WRITE_PASS: actual selected pre -> committed exploded board -> unseen stop -> Next destination -> physical Quick")
+	print("SOLO_AUTHORED_SELECTOR_WRITE_PASS: actual selected pre -> committed exploded board -> one Next from partial A to B -> physical Quick")
 	await _finish_proof()
 
 
@@ -187,43 +188,35 @@ func _prove_next(game: Node) -> Dictionary:
 	if not _check(source.get("ok", false) and ack.get("ok", false) and not ack.receipt.was_visited_before_presentation
 		and runtime.current_line_id() == EXPECTED_LINES[2] and not runtime.is_current_line_complete(), "initially unseen selected post-A is partial"): return {}
 	var native_before := _native_caption()
-	var game_before: Dictionary = game.to_save_dict().duplicate(true)
-	var witnesses_before: Dictionary = profile.get_profile_snapshot().witnessed_caption_variants.duplicate(true)
+	var physical_before: Dictionary = game.capture_dating_challenge_state().value.duplicate(true)
+	var frames_before := _authoritative_frames(game)
 	var real_port: RefCounted = bridge.get("_narrative_checkpoint_port")
 	bridge.set("_narrative_checkpoint_port", CheckpointObserver.new(real_port, _checkpoint_results, root.get_node("SaveManager").get("_storage"), _evidence_path("")))
 	_begin_next_observation()
-	if not await _activate_next("first deliberate selected Next"): return {}
-	var unseen_observations := _end_next_observation()
-	var after: Dictionary = bridge.capture_reading_checkpoint(false)
-	if not _check(_next_results.size() == 1 and _next_results[0].get("ok", false)
-		and _next_results[0].get("code") == &"unseen_stop" and _checkpoint_results.is_empty()
-		and _next_is_silent(unseen_observations)
-		and after.get("ok", false) and after.value == source.value and game.to_save_dict() == game_before
-		and runtime.current_line_id() == EXPECTED_LINES[2] and runtime.is_current_line_complete()
-		and profile.get_profile_snapshot().witnessed_caption_variants == witnesses_before,
-		"first Next completes unseen A without semantic motion or source/destination writes"): return {}
-	var unseen := {"result": _next_results[0].duplicate(true), "before_checkpoint": source.value.duplicate(true),
-		"after_checkpoint": after.value.duplicate(true), "checkpoint_writes": _checkpoint_results.duplicate(true),
-		"native_before": native_before, "native_after": _native_caption(), "acknowledgement_receipt": ack.receipt.duplicate(true),
-		"observations": unseen_observations}
-	_trace("next_unseen_verified", unseen)
-	_begin_next_observation()
-	if not await _activate_next("second deliberate selected Next"): return {}
+	if not await _activate_next("one deliberate selected Next from partial A to B"): return {}
 	var next_observations := _end_next_observation()
 	bridge.set("_narrative_checkpoint_port", real_port)
 	if not await _wait_line(EXPECTED_LINES[3]): return {}
 	var destination: Dictionary = bridge.capture_reading_checkpoint(false)
-	if not _check(_next_results.size() == 2 and _next_results[1].get("ok", false)
-		and _next_results[1].get("code") == &"next_complete" and _next_results[1].value.destination == "line"
+	if not _check(_next_results.size() == 1 and _next_results[0].get("ok", false)
+		and _next_results[0].get("code") == &"next_complete" and _next_results[0].value.destination == "line"
 		and _checkpoint_results.size() == 2 and _checkpoint_results[0].phase == "source"
 		and _checkpoint_results[1].phase == "destination" and _checkpoint_results[0].result.get("ok", false)
-		and _checkpoint_results[1].result.get("ok", false) and destination.get("ok", false), "second Next durably commits source then destination"): return {}
+		and _checkpoint_results[1].result.get("ok", false) and destination.get("ok", false), "one Next durably commits source then destination"): return {}
+	if not _check(_next_settlements.size() == 1 and _next_settlements[0].line_id == EXPECTED_LINES[3]
+		and _next_settlements[0].revealing and _next_settlements[0].visible_ratio < 1.0
+		and _next_settlements[0].visible_characters >= 0
+		and _next_settlements[0].visible_characters < _next_settlements[0].total_characters
+		and game.capture_dating_challenge_state().value == physical_before
+		and _authoritative_frames(game) == frames_before,
+		"one action settles on literal partial B without changing committed board or frozen phase authority"): return {}
 	if not _check(next_observations.text_started == 1 and next_observations.about_to_show_text == 1
 		and next_observations.caption_publications == 1 and next_observations.exclusive_activations == 1
 		and next_observations.texts == [_native_caption().text]
 		and next_observations.publications[0].get("ok", false)
 		and next_observations.publications[0].value.get("duplicate", false)
-		and next_observations.intermediate_checkpoint_admissions == 0,
+		and next_observations.intermediate_checkpoint_admissions == 0
+		and next_observations.speech_after == next_observations.speech_before + 1,
 		"selected Next publishes only its fresh B destination using the already committed occurrence, with no intermediate capture admission"): return {}
 	for receipt: Dictionary in _checkpoint_results:
 		if not _check(not receipt.autosave.is_empty(), "retain actual physical Next endpoint bytes"): return {}
@@ -245,11 +238,15 @@ func _prove_next(game: Node) -> Dictionary:
 	var beat: Dictionary = operation.plan.destination.caption.beat
 	if not _check(destination_ack.get("ok", false) and not destination_ack.receipt.was_visited_before_presentation
 		and profile.is_caption_variant_witnessed(beat), "visible B acknowledges one exact witness while retaining its false prepublication baseline"): return {}
-	var next := {"result": _next_results[1].duplicate(true), "checkpoint_results": _checkpoint_results.duplicate(true),
+	var next := {"result": _next_results[0].duplicate(true), "activation_count": _next_results.size(),
+		"source_checkpoint": source.value.duplicate(true), "native_before": native_before,
+		"native_at_settlement": _next_settlements[0].duplicate(true),
+		"physical_before": physical_before, "frames_before": frames_before,
+		"checkpoint_results": _checkpoint_results.duplicate(true),
 		"source_ack": ack.receipt.duplicate(true), "destination_ack": destination_ack.receipt.duplicate(true),
 		"operation": operation.duplicate(true), "checkpoint": destination.value.duplicate(true), "observations": next_observations}
 	_trace("next_destination_verified", next)
-	return {"unseen_stop": unseen, "next": next}
+	return next
 
 
 func _read_process() -> void:

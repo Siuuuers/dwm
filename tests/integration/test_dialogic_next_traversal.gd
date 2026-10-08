@@ -166,20 +166,20 @@ func _proof() -> Dictionary:
 	assert_true(proof.ok, str(proof))
 	return proof
 
-func test_partial_unseen_next_finishes_and_witnesses_current_line_without_seek_or_run_write() -> void:
-	var session := _activate()
-	var before: Dictionary = session.ledger.snapshot()
+func test_partial_unseen_next_finishes_and_witnesses_current_line_then_seeks_in_same_activation() -> void:
+	_activate()
 	var proof := _proof()
 	assert_true(_bridge.can_next_current_line())
 	var result: Dictionary = await _bridge.request_next(proof)
 	assert_true(result.ok, str(result))
-	assert_eq(result.code, &"unseen_stop")
-	assert_true(_native.complete)
+	assert_eq(result.value.destination, "line")
 	assert_eq(_native.reveals, 1)
-	assert_eq(_native.applies, 0)
-	assert_eq(_port.calls, [])
-	assert_eq(session.ledger.snapshot(), before)
+	assert_eq(_native.applies, 1)
+	assert_eq(_port.calls.size(), 2)
+	assert_eq(_native.line_id, SECOND)
+	assert_false(_native.complete, "destination retains ordinary partial reveal")
 	assert_true(_profile.is_caption_variant_witnessed(proof.value.caption_variant))
+	assert_eq(_bridge.get_reading_history().value.captions.size(), 2)
 	assert_false(_gate.is_active())
 	assert_false(_bridge.is_next_traversal_active())
 
@@ -333,7 +333,7 @@ func test_reentrant_source_replacement_after_source_commit_fences_without_overwr
 	assert_eq(_native.applies, 0)
 	assert_eq(_port.persisted.reading_session.next_operation.phase, "source")
 
-func test_changed_exact_revision_stops_even_when_base_line_and_previous_variant_were_witnessed() -> void:
+func test_changed_exact_revision_is_acknowledged_before_traversing_witnessed_tail() -> void:
 	_seed([FIRST, SECOND])
 	var changed := _document.duplicate(true)
 	changed.entries[0].lines[0].revision = "next-fixture-revised-source"
@@ -342,10 +342,11 @@ func test_changed_exact_revision_stops_even_when_base_line_and_previous_variant_
 	assert_true(_profile.is_line_visited(FIRST))
 	assert_false(_profile.is_caption_variant_witnessed(proof.value.caption_variant))
 	var result: Dictionary = await _bridge.request_next(proof)
-	assert_eq(result.code, &"unseen_stop")
-	assert_eq(_native.applies, 0)
-	assert_eq(_port.calls, [])
-	assert_eq(_native.line_id, FIRST)
+	assert_true(result.ok, str(result))
+	assert_eq(result.value.destination, "completion")
+	assert_true(_profile.is_caption_variant_witnessed(proof.value.caption_variant))
+	assert_eq(_native.applies, 1)
+	assert_eq(_port.calls.size(), 2)
 
 func test_normal_publication_after_refused_destination_retires_only_the_live_operation() -> void:
 	_seed([FIRST, SECOND])

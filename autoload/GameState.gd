@@ -4062,6 +4062,12 @@ func _scene_event_fatal(code: StringName) -> Dictionary:
 func validate_scene_event_snapshot(snapshot: Dictionary) -> Dictionary:
 	var checked: Dictionary = _SCENE_EVENT.validate_receipts(snapshot.get("command_receipts", {}))
 	if not checked.ok: return checked
+	# Cursor-to-receipt proof is required even for an empty receipt map.
+	if is_instance_valid(_scene_event_bridge) and _scene_event_bridge.has_method("validate_scene_marker_snapshot"):
+		var cursor: Dictionary = _scene_event_bridge.validate_scene_marker_snapshot(snapshot)
+		if not cursor.get("ok", false): return cursor
+	elif snapshot.get("narrative_checkpoint", {}).get("reading_session", {}).get("schema_version") == 4:
+		return _transaction_failure(&"event_dependency_invalid", "marker validator required")
 	if checked.value.occurrences.is_empty(): return {"ok": true}
 	if not is_instance_valid(_scene_event_bridge) or _identity_issuer == null:
 		return _transaction_failure(&"event_dependency_invalid", "")

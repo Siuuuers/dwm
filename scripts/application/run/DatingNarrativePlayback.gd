@@ -43,7 +43,7 @@ func begin_presentation(command_to_present: Dictionary) -> Dictionary:
 			_entry_id = checkpoint.entry_id
 			_context = checkpoint.frozen_context.duplicate(true)
 			_receipt = reading.value.receipt.duplicate(true)
-			_status = "playing" if checkpoint.reading_session.boundary == "line" else "completed"
+			_status = "playing" if checkpoint.reading_session.boundary in ["line", "notification"] else "completed"
 			return _ok()
 	if not _command.is_empty() and _bridge.is_entry_playback_active(
 			str(_receipt.get("playback_token", "")), _entry_id):

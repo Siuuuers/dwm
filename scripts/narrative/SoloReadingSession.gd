@@ -21,6 +21,10 @@ var latest_entry := ""
 var boundary := "between_entries"
 var _caption_variants_by_line: Dictionary = {}
 var next_operation: Dictionary = {}
+var marker_document: Dictionary = {}
+var marker_fingerprint := ""
+var marker_entries: Dictionary = {}
+var marker_frontier: Dictionary = {}
 
 func configure(document: Dictionary) -> Dictionary:
 	if not catalogue.is_empty(): return _fail(&"reading_catalogue_already_configured")
@@ -128,7 +132,9 @@ func admit(entry_id: String, context: Dictionary) -> Dictionary:
 		if not admitted.ok: return admitted
 	# A successful physical handoff has already checkpointed the preceding
 	# operation. The next independently admitted frame starts a fresh frontier.
-	if latest_entry != entry_id: next_operation = {}
+	if latest_entry != entry_id:
+		next_operation = {}
+		marker_frontier = {}
 	latest_entry = entry_id
 	boundary = "line"
 	return {"ok": true}
@@ -152,6 +158,7 @@ func current_caption_variant(entry_id: String, frontier: Dictionary) -> Dictiona
 	return {"ok": true, "value": beat.duplicate(true)}
 
 func capture(frontier: Dictionary) -> Dictionary:
+	if marker_entries.has(latest_entry): return _capture_marker(frontier)
 	if ledger == null or latest_entry.is_empty(): return _fail(&"reading_session_unavailable")
 	var saved := {"schema_version": 1, "catalogue_fingerprint": fingerprint,
 		"boundary": boundary, "ledger": ledger.snapshot(), "frontier": frontier.duplicate(true)}
@@ -167,6 +174,8 @@ func capture(frontier: Dictionary) -> Dictionary:
 
 ## Validates the full fixed-prose sequence before a fresh candidate is installed.
 func validate_saved(saved: Dictionary, entry_id: String) -> Dictionary:
+	if marker_entries.has(entry_id) or saved.get("schema_version") == 4:
+		return _validate_marker_saved(saved, entry_id)
 	if family in ["hospital", "ending"]: return _validate_base_saved(saved, entry_id)
 	if typeof(saved.get("schema_version")) == TYPE_INT and saved.schema_version == 2:
 		var operation := TRAVERSAL.validate(saved, entry_id)
@@ -253,7 +262,8 @@ func restore(saved: Dictionary, entry_id: String) -> Dictionary:
 	pre_entry_id = saved.ledger.frozen_context.get("entry_id" if family in ["hospital", "ending"] else "pre_entry_id")
 	latest_entry = entry_id
 	boundary = saved.boundary
-	next_operation = saved.get("next_operation", {}).duplicate(true)
+	next_operation = saved.next_operation.duplicate(true) if saved.get("next_operation") is Dictionary else {}
+	marker_frontier = saved.frontier.duplicate(true) if saved.boundary == "notification" else {}
 	return {"ok": true}
 
 ## Build one detached, exact route suffix. The live ledger and Profile are never
@@ -440,3 +450,208 @@ static func _hospital_entry(entry_id: String) -> bool:
 
 static func _fail(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code, "message": ""}
+
+
+## The separate trusted document preserves catalogue/receipt identity. No saved
+## checkpoint or native label may configure an event or its authored position.
+func configure_markers(document: Dictionary) -> Dictionary:
+	if document.is_empty(): return {"ok": true}
+	if not marker_document.is_empty():
+		return {"ok": true} if TRAVERSAL.EVENT._same_types(marker_document, document) and marker_document == document else _fail(&"reading_markers_already_configured")
+	if not OS.has_feature("debug") or OS.get_environment("DWM_TEST_ROOT").strip_edges().is_empty() \
+			or ledger != null or family != "solo" or catalogue_schema_version != 1 \
+			or not FROZEN._exact(document, ["kind", "schema_version", "entries"]) \
+			or document.get("kind") != "reading_notification_markers" \
+			or typeof(document.get("schema_version")) != TYPE_INT or document.schema_version != 1 \
+			or not document.get("entries") is Array or document.entries.is_empty(): return _fail(&"reading_markers_invalid")
+	var selected := {}
+	var ids := {}
+	for raw: Variant in document.entries:
+		if not raw is Dictionary or not FROZEN._exact(raw, ["entry_id", "content_version", "catalogue_fingerprint", "marker"]) \
+				or not raw.entry_id is String or not catalogue.has(raw.entry_id) or selected.has(raw.entry_id) \
+				or typeof(raw.content_version) != TYPE_INT or raw.content_version != catalogue[raw.entry_id].content_version \
+				or raw.catalogue_fingerprint != fingerprint or not raw.marker is Dictionary: return _fail(&"reading_markers_invalid")
+		var marker: Dictionary = raw.marker
+		if not FROZEN._exact(marker, ["event_id", "ordinal", "predecessor", "kind", "payload", "after_line_id", "before_line_id", "label"]) \
+				or not TRAVERSAL.EVENT._id(marker.event_id) or ids.has(marker.event_id) \
+				or typeof(marker.ordinal) != TYPE_INT or marker.ordinal != 0 or marker.predecessor != "" \
+				or marker.kind != "notification.set" or marker.label != "scene.marker." + marker.event_id \
+				or not TRAVERSAL.EVENT._id(marker.label) or not marker.payload is Dictionary \
+				or not FROZEN._exact(marker.payload, ["notification_id", "content_id", "parameters"]) \
+				or not TRAVERSAL.EVENT._id(marker.payload.notification_id) or not TRAVERSAL.EVENT._id(marker.payload.content_id) \
+				or not marker.payload.parameters is Dictionary: return _fail(&"reading_markers_invalid")
+		for key: Variant in marker.payload.parameters:
+			if not TRAVERSAL.EVENT._id(key) or typeof(marker.payload.parameters[key]) not in [TYPE_STRING, TYPE_INT, TYPE_BOOL]:
+				return _fail(&"reading_markers_invalid")
+		var lines: Array = catalogue[raw.entry_id].lines
+		var gap := -1
+		for index: int in range(lines.size() - 1):
+			if lines[index].line_id == marker.after_line_id and lines[index + 1].line_id == marker.before_line_id: gap = index
+		if gap < 0: return _fail(&"reading_marker_position_invalid")
+		selected[raw.entry_id] = marker.duplicate(true)
+		ids[marker.event_id] = true
+	var encoded := JSON_WRITER.stringify(document)
+	if not encoded.ok: return encoded
+	marker_document = document.duplicate(true)
+	marker_entries = selected
+	marker_fingerprint = str(encoded.value).sha256_text()
+	FROZEN._freeze(marker_document)
+	FROZEN._freeze(marker_entries)
+	return {"ok": true}
+
+func _capture_marker(frontier: Dictionary) -> Dictionary:
+	if ledger == null: return _fail(&"reading_session_unavailable")
+	var saved := {"schema_version": 4, "catalogue_fingerprint": fingerprint,
+		"marker_program_fingerprint": marker_fingerprint, "boundary": boundary, "ledger": ledger.snapshot(),
+		"frontier": marker_frontier.duplicate(true) if boundary == "notification" else frontier.duplicate(true),
+		"next_operation": null if next_operation.is_empty() else next_operation.duplicate(true)}
+	var checked := _validate_marker_saved(saved, latest_entry)
+	return {"ok": true, "value": saved} if checked.ok else checked
+
+func _validate_marker_saved(saved: Dictionary, entry_id: String) -> Dictionary:
+	if not marker_entries.has(entry_id) or not TRAVERSAL.valid_marker_reading_shape(saved) \
+			or saved.marker_program_fingerprint != marker_fingerprint: return _fail(&"reading_marker_checkpoint_invalid")
+	if saved.next_operation != null:
+		var checked := TRAVERSAL.validate(saved, entry_id)
+		if not checked.ok: return checked
+		for phase: String in ["source", "destination"]:
+			var projected := TRAVERSAL.project(checked.value.plan, phase)
+			if not projected.ok: return projected
+			var endpoint := _validate_marker_base(projected.value, entry_id)
+			if not endpoint.ok: return endpoint
+		var route := _validate_marker_route(checked.value.plan)
+		if not route.ok: return route
+	return _validate_marker_base(saved, entry_id)
+
+func _validate_marker_base(saved: Dictionary, entry_id: String) -> Dictionary:
+	var base := {"schema_version": 1, "catalogue_fingerprint": saved.catalogue_fingerprint,
+		"boundary": saved.boundary, "ledger": saved.ledger.duplicate(true), "frontier": saved.frontier.duplicate(true)}
+	if saved.boundary == "notification":
+		var marker: Dictionary = marker_entries[entry_id]
+		var anchor: Dictionary = saved.frontier.anchor
+		if saved.frontier.event_id != marker.event_id or anchor.line_id != marker.after_line_id \
+				or anchor.content_version != catalogue[entry_id].content_version: return _fail(&"reading_marker_position_invalid")
+		base.boundary = "line"
+		base.frontier = {"line_id": anchor.line_id, "publication_id": anchor.publication_id}
+	return _validate_base_saved(base, entry_id)
+
+func _marker_crossed(reading: Dictionary, entry_id: String) -> bool:
+	var marker: Dictionary = marker_entries[entry_id]
+	for row: Dictionary in reading.ledger.captions:
+		if row.beat.owning_entry_id == entry_id and row.beat.line_id == marker.before_line_id: return true
+	return reading.ledger.captions.back().beat.owning_entry_id == entry_id \
+		and reading.boundary in ["notification", "between_entries"]
+
+func _validate_marker_route(plan: Dictionary) -> Dictionary:
+	var source: Dictionary = plan.source_reading
+	var destination := TRAVERSAL._marker_projection(plan, "destination")
+	var crossed_before := _marker_crossed(source, plan.entry_id)
+	var crossed_after := _marker_crossed(destination, plan.entry_id)
+	if not crossed_before and crossed_after and plan.destination.kind != "notification": return _fail(&"reading_marker_bypassed")
+	if crossed_before and plan.destination.kind == "notification": return _fail(&"reading_marker_repeated")
+	if plan.destination.kind == "notification":
+		var semantic: Dictionary = plan.destination.semantic
+		var marker: Dictionary = marker_entries[plan.entry_id]
+		for key: String in ["event_id", "ordinal", "predecessor", "kind", "payload"]:
+			if not TRAVERSAL.EVENT._same_types(semantic[key], marker[key]) or semantic[key] != marker[key]:
+				return _fail(&"reading_marker_registration_mismatch")
+	return {"ok": true}
+
+## A detached route stops at the first marker, before querying a later witness.
+## The issuer-supplied semantic command is needed only if that stop is reached.
+func prepare_marker_next(frontier: Dictionary, is_witnessed: Callable, semantic: Dictionary = {}) -> Dictionary:
+	if not marker_entries.has(latest_entry) or not is_witnessed.is_valid() \
+			or boundary not in ["line", "notification"]: return _fail(&"reading_next_unavailable")
+	var captured := capture(frontier)
+	if not captured.ok: return captured
+	var source := TRAVERSAL.without_operation(captured.value)
+	var marker: Dictionary = marker_entries[latest_entry]
+	var lines: Array = catalogue[latest_entry].lines
+	var tail: Dictionary = source.ledger.captions.back()
+	var index := -1
+	for ordinal: int in lines.size():
+		if lines[ordinal].line_id == tail.beat.line_id: index = ordinal
+	if index < 0: return _fail(&"reading_frontier_invalid")
+	var candidate := LEDGER.new()
+	var copied := candidate.restore_snapshot(command_id, source.ledger.frozen_context, manifest,
+		registry, source.ledger, source.ledger.entry_contexts, true)
+	if not copied.ok: return copied
+	var traversed: Array = []
+	var destination := {"kind": "completion"}
+	var crossed := _marker_crossed(source, latest_entry)
+	for ordinal: int in range(index, lines.size()):
+		if not crossed and lines[ordinal].line_id == marker.after_line_id:
+			if semantic.is_empty(): return {"ok": true, "needs_event": true}
+			var anchor_row: Dictionary = candidate.snapshot().captions.back()
+			destination = {"kind": "notification", "semantic": semantic.duplicate(true), "anchor": {
+				"session_id": command_id, "entry_id": latest_entry, "content_version": catalogue[latest_entry].content_version,
+				"catalogue_fingerprint": fingerprint, "line_id": anchor_row.beat.line_id, "publication_id": anchor_row.publication_id}}
+			break
+		if ordinal + 1 >= lines.size(): break
+		var variant: Dictionary = _caption_variants_by_line[lines[ordinal + 1].line_id]
+		var witnessed: Variant = is_witnessed.call(variant.duplicate(true))
+		if typeof(witnessed) != TYPE_BOOL: return _fail(&"reading_next_witness_invalid")
+		var allocation := candidate.allocate_publication(command_id, latest_entry)
+		if not allocation.ok: return allocation
+		var published := candidate.publish_caption(command_id, allocation.value, variant)
+		if not published.ok: return published
+		var row := {"publication_id": allocation.value, "beat": variant.duplicate(true)}
+		if not witnessed:
+			destination = {"kind": "line", "caption": row}
+			break
+		traversed.append(row)
+	var plan := {"schema_version": 2, "entry_id": latest_entry, "source_reading": source,
+		"traversed_captions": traversed, "destination": destination}
+	var made := TRAVERSAL.create(plan, "source")
+	if not made.ok: return made
+	var route := _validate_marker_route(plan)
+	return {"ok": true, "value": plan} if route.ok else route
+
+## Converse proof is derived from authored positions, including preceding entries;
+## no saved flag or receipt cache can grant a skipped marker.
+func validate_marker_receipts(saved: Dictionary, entry_id: String, receipts: Dictionary, run_id: String) -> Dictionary:
+	var admitted := validate_saved(saved, entry_id)
+	if not admitted.ok: return admitted
+	var checked := TRAVERSAL.EVENT.validate_receipts(receipts)
+	if not checked.ok: return checked
+	# A source-phase checkpoint has no marker receipt yet, but its immutable
+	# planned command must already belong to this Run. Issuer authentication
+	# remains with the event port, including when resuming this planned command.
+	if saved.get("next_operation") is Dictionary and saved.next_operation.schema_version == 2:
+		var target: Dictionary = saved.next_operation.plan.destination
+		if target.kind == "notification" and target.semantic.source.run_id != run_id:
+			return _fail(&"reading_marker_receipt_conflict")
+	for marked: String in marker_entries:
+		var marker: Dictionary = marker_entries[marked]
+		var key: String = str(JSON_WRITER.stringify([saved.ledger.session_token, marked]).value)
+		var group: Dictionary = checked.value.occurrences.get(key, {})
+		var passed: bool = saved.ledger.entry_contexts.has(marked) and _marker_crossed(saved, marked)
+		if not passed:
+			if not group.is_empty(): return _fail(&"reading_marker_receipt_ahead")
+			continue
+		if group.is_empty() or group.receipts.size() != 1 or group.source.run_id != run_id \
+				or group.source.content_version != catalogue[marked].content_version: return _fail(&"reading_marker_receipt_missing")
+		var receipt: Dictionary = group.receipts[0]
+		var event: Dictionary = receipt.scene_event.semantic
+		for field: String in ["event_id", "ordinal", "predecessor", "kind", "payload"]:
+			if not TRAVERSAL.EVENT._same_types(event[field], marker[field]) or event[field] != marker[field]:
+				return _fail(&"reading_marker_receipt_conflict")
+		var anchor: Dictionary = receipt.scene_event.reading_anchor
+		var expected := {}
+		for row: Dictionary in saved.ledger.captions:
+			if row.beat.owning_entry_id == marked and row.beat.line_id == marker.after_line_id:
+				expected = {"session_id": saved.ledger.session_token, "entry_id": marked,
+					"content_version": catalogue[marked].content_version, "catalogue_fingerprint": fingerprint,
+					"publication_id": row.publication_id, "line_id": row.beat.line_id}
+		if expected.is_empty() or not TRAVERSAL.EVENT._same_types(anchor, expected) or anchor != expected:
+			return _fail(&"reading_marker_receipt_conflict")
+		if marked == entry_id:
+			var cursors: Array = [saved]
+			if saved.get("next_operation") is Dictionary and saved.next_operation.schema_version == 2:
+				cursors.append(saved.next_operation.plan.source_reading)
+			for cursor: Dictionary in cursors:
+				if cursor.boundary != "notification": continue
+				if cursor.frontier.command_id != receipt.transaction_id or cursor.frontier.event_digest != receipt.request_fingerprint \
+						or not TRAVERSAL.EVENT._same_types(cursor.frontier.anchor, anchor) or cursor.frontier.anchor != anchor:
+					return _fail(&"reading_marker_receipt_conflict")
+	return {"ok": true}

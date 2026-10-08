@@ -315,9 +315,11 @@ def validate_witnesses(reports: dict, evidence: Path, folder: Path) -> dict:
 def validate_next(reports: dict, evidence: Path, folder: Path) -> dict:
     unseen, written, restored = (reports[mode] for mode in NEXT_MODES)
     for report in (unseen, written):
-        if report["replacement_confirmations"] != 1 or report["witnesses_before"] != report["witnesses_after"]:
-            raise RuntimeError("NEXT_REQUIRES_REAL_NEW_ACCOUNT_AND_NO_TRAVERSAL_WITNESS_CREDIT")
-        for key in ("observations", "refusal_observations") if report is unseen else ("observations",):
+        if report["replacement_confirmations"] != 1:
+            raise RuntimeError("NEXT_REQUIRES_REAL_NEW_ACCOUNT")
+        if report is written and report["witnesses_before"] != report["witnesses_after"]:
+            raise RuntimeError("NEXT_SILENT_TRAVERSAL_MUST_NOT_GRANT_WITNESS_CREDIT")
+        for key in ("refusal_observations",) if report is unseen else ("observations",):
             observation = report[key]
             if any(observation[field] != 0 for field in (
                 "text_started", "about_to_show_text", "caption_publications", "intermediate_checkpoint_admissions",
@@ -325,15 +327,47 @@ def validate_next(reports: dict, evidence: Path, folder: Path) -> dict:
                 raise RuntimeError(f"NEXT_INTERMEDIATE_PRESENTATION_OR_FRONTIER_EXPOSURE: {report['mode']}/{key}")
     source = unseen["source_checkpoint"]["reading_session"]
     stopped = unseen["checkpoint"]["reading_session"]
+    observation = unseen["observations"]
+    if any(observation[field] != 1 for field in (
+        "text_started", "about_to_show_text", "caption_publications", "exclusive_activations",
+    )) or observation["intermediate_checkpoint_admissions"] != 0 or (
+        observation["speech_after"] != observation["speech_before"] + 1
+        or observation["destination_at_settlement"] != {"line_id": "fixture.solo.pre.b", "complete": False}
+    ):
+        raise RuntimeError("NEXT_UNSEEN_REQUIRES_ONE_VISIBLE_DESTINATION_WITHOUT_INTERMEDIATE_EXPOSURE")
     if unseen["acknowledgement_receipt"]["was_visited_before_presentation"] is not False or (
         unseen["beat"]["presentation_signature"]["content_revision"] != "fixture-next-unseen-v1"
         or unseen["auto_off_refusals"] != 1 or unseen["auto_off_matching_writes"] != 2
-        or unseen["auto_enabled_after"] is not False or unseen["current_line_complete"] is not True
-        or unseen["history_observations"] != 1 or source["ledger"] != stopped["ledger"]
-        or source["frontier"] != stopped["frontier"] or stopped["frontier"]["line_id"] != "fixture.solo.pre.a"
+        or unseen["auto_enabled_after"] is not False or type(unseen["current_line_complete"]) is not bool
+        or unseen["history_observations"] != 1 or stopped["boundary"] != "line"
+        or stopped["frontier"]["line_id"] != "fixture.solo.pre.b"
         or unseen["refused_profile_sha256"] == unseen["profile_after_sha256"]
     ):
-        raise RuntimeError("NEXT_UNSEEN_REQUIRES_REFUSED_AUTO_OFF_AND_EXACT_CURRENT_LINE_RETRY")
+        raise RuntimeError("NEXT_UNSEEN_REQUIRES_REFUSED_AUTO_OFF_AND_ONE_PARTIAL_DESTINATION")
+    unseen_operation = stopped.get("next_operation", {})
+    unseen_plan = unseen_operation.get("plan", {})
+    destination = unseen_plan.get("destination", {}).get("caption", {})
+    expected_ledger = {**source["ledger"], "captions": source["ledger"]["captions"] + [destination]}
+    if stopped["schema_version"] != 2 or unseen_operation.get("schema_version") != 1 or (
+        unseen_operation.get("phase") != "destination"
+        or re.fullmatch(r"[0-9a-f]{64}", unseen_operation.get("operation_id", "")) is None
+        or unseen_plan.get("source_ledger") != source["ledger"]
+        or unseen_plan.get("source_frontier") != source["frontier"]
+        or unseen_plan.get("traversed_captions") != []
+        or unseen_plan.get("destination") != {"kind": "line", "caption": destination}
+        or destination.get("beat") != unseen["destination_beat"]
+        or stopped["ledger"] != expected_ledger
+        or stopped["frontier"] != {"line_id": "fixture.solo.pre.b", "publication_id": destination.get("publication_id")}
+    ):
+        raise RuntimeError("NEXT_UNSEEN_REQUIRES_EXACT_SOURCE_AND_ONE_DESTINATION_OCCURRENCE")
+    beat, witness_id = unseen["destination_beat"], unseen["destination_witness_id"]
+    if beat["line_id"] != "fixture.solo.pre.b" or (
+        beat["presentation_signature"]["content_revision"] != "fixture-next-unseen-target-v1"
+        or witness_id != hashlib.sha256(json.dumps(beat, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode()).hexdigest()
+        or witness_id in unseen["witnesses_before"]
+        or unseen["witnesses_after"] != {**unseen["witnesses_before"], witness_id: beat}
+    ):
+        raise RuntimeError("NEXT_VISIBLE_DESTINATION_MUST_ADD_ONLY_ITS_EXACT_RENDERER_WITNESS")
     session = written["checkpoint"]["reading_session"]
     operation = session.get("next_operation", {})
     plan = operation.get("plan", {})

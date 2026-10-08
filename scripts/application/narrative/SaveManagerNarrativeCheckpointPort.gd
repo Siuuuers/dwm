@@ -205,8 +205,12 @@ func commit_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary) -> D
 	if not _configured: return _fail(&"not_configured", "configure first")
 	if _next_commit_in_progress or _active_owner != &"":
 		return _fail(&"transaction_in_progress", "another checkpoint command owns publication")
-	if not checkpoint.get("reading_session") is Dictionary \
-			or checkpoint.reading_session.get("boundary") != "line":
+	if not checkpoint.get("reading_session") is Dictionary:
+		return _fail(&"scene_event_checkpoint_invalid", "a reading checkpoint is required")
+	if checkpoint.reading_session.get("schema_version") == 4:
+		var marker := _validate_marker_commit(snapshot_input, checkpoint)
+		if not marker.ok: return marker
+	elif checkpoint.reading_session.get("boundary") != "line":
 		return _fail(&"scene_event_checkpoint_invalid", "a reading line checkpoint is required")
 	_next_commit_in_progress = true
 	var result := _commit_scene_event_autosave(snapshot_input.duplicate(true), checkpoint.duplicate(true))
@@ -426,3 +430,36 @@ func _copy(value: Variant) -> Variant:
 
 func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": {}}
+
+
+var _marker_authority: Object
+var _marker_validator: Callable
+
+func configure_marker_handoff(authority: Object, validator: Callable) -> Dictionary:
+	if authority == null or not validator.is_valid() or validator.get_object() != authority \
+			or (_marker_authority != null and (_marker_authority != authority or _marker_validator != validator)):
+		return _fail(&"event_handoff_authority_invalid", "")
+	_marker_authority = authority
+	_marker_validator = validator
+	return {"ok": true}
+
+func _validate_marker_commit(snapshot: Dictionary, checkpoint: Dictionary) -> Dictionary:
+	if not is_instance_valid(_marker_authority) or not _marker_validator.is_valid():
+		return _fail(&"event_handoff_authority_invalid", "")
+	var operation := READING_NEXT.validate(checkpoint.reading_session, str(checkpoint.get("entry_id", "")))
+	if not operation.ok: return operation
+	if operation.value.phase != "destination" or operation.value.plan.destination.kind != "notification" \
+			or _next_source.get("operation_id") != operation.value.operation_id:
+		return _fail(&"reading_next_source_not_committed", "")
+	var captured: Dictionary = _real_port.capture()
+	if not captured.get("ok", false): return captured
+	var current: Dictionary = captured.value.backup.get("current", {}).get("snapshot", {})
+	if current.get("checkpoint_id") != _next_source.checkpoint_id \
+			or current.get("narrative_checkpoint") != _next_source.checkpoint:
+		return _fail(&"reading_next_source_changed", "")
+	var before_header: Dictionary = _next_source.checkpoint.duplicate(true)
+	var after_header := checkpoint.duplicate(true)
+	before_header.erase("reading_session")
+	after_header.erase("reading_session")
+	if before_header != after_header: return _fail(&"reading_next_source_changed", "")
+	return _marker_validator.call(snapshot.duplicate(true), checkpoint.duplicate(true), _next_source.duplicate(true))

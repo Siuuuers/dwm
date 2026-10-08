@@ -77,3 +77,31 @@ func _dispatch_owned(event: Dictionary, digest: String, lease: String) -> Dictio
 
 func _fail(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code}
+
+
+var _owned_authority: Object
+var _owned_validator: Callable
+var _owned_active := false
+
+func configure_owned_handoff(authority: Object, validator: Callable) -> Dictionary:
+	if authority == null or not validator.is_valid() or validator.get_object() != authority \
+			or (_owned_authority != null and (_owned_authority != authority or _owned_validator != validator)):
+		return _fail(&"event_handoff_authority_invalid")
+	_owned_authority = authority
+	_owned_validator = validator
+	return {"ok": true}
+
+## Caller retains its exact lease on every outcome, including fatal uncertainty.
+func dispatch_owned(envelope: Dictionary, lease: String, seal: Dictionary) -> Dictionary:
+	if _owned_active or not is_instance_valid(_owned_authority) or not _owned_validator.is_valid() \
+			or not _gate.is_lease_active(&"causal_transaction", lease): return _fail(&"event_lease_lost")
+	var inspected: Dictionary = CONTRACT.inspect(envelope)
+	if not inspected.ok: return inspected
+	_owned_active = true
+	var checked: Dictionary = _owned_validator.call(envelope.duplicate(true), lease, seal.duplicate(true))
+	if not checked.get("ok", false) or not _gate.is_lease_active(&"causal_transaction", lease):
+		_owned_active = false
+		return checked if not checked.get("ok", false) else _fail(&"event_lease_lost")
+	var result := _dispatch_owned(envelope.duplicate(true), inspected.value.digest, lease)
+	_owned_active = false
+	return result.duplicate(true)
