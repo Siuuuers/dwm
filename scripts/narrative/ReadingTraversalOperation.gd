@@ -12,7 +12,8 @@ const PLAN_KEYS := ["entry_id", "catalogue_fingerprint", "source_ledger", "sourc
 const PHASES := ["source", "destination"]
 
 static func create(plan: Dictionary, phase: String) -> Dictionary:
-	if plan.get("schema_version") == 2: return _create_marker_operation(plan, phase)
+	if typeof(plan.get("schema_version")) == TYPE_INT and plan.schema_version == 3: return _create_scene_operation(plan, phase)
+	if typeof(plan.get("schema_version")) == TYPE_INT and plan.schema_version == 2: return _create_marker_operation(plan, phase)
 	if phase not in PHASES: return _fail(&"reading_next_phase_invalid")
 	var checked := _validate_plan(plan)
 	if not checked.ok: return checked
@@ -23,7 +24,13 @@ static func create(plan: Dictionary, phase: String) -> Dictionary:
 
 ## The complete source/destination projection, useful to the one semantic owner.
 static func project(plan: Dictionary, phase: String) -> Dictionary:
-	if plan.get("schema_version") == 2: return _project_marker_operation(plan, phase)
+	if typeof(plan.get("schema_version")) == TYPE_INT and plan.schema_version == 3:
+		var made := _create_scene_operation(plan, phase)
+		if not made.ok: return made
+		var result := _scene_projection(plan, phase)
+		result.next_operation = made.value
+		return {"ok": true, "value": result}
+	if typeof(plan.get("schema_version")) == TYPE_INT and plan.schema_version == 2: return _project_marker_operation(plan, phase)
 	var made := create(plan, phase)
 	if not made.ok: return made
 	var reading := _projection(plan, phase)
@@ -32,6 +39,7 @@ static func project(plan: Dictionary, phase: String) -> Dictionary:
 	return {"ok": true, "value": reading}
 
 static func validate(reading: Dictionary, entry_id: String) -> Dictionary:
+	if typeof(reading.get("schema_version")) == TYPE_INT and reading.schema_version == 5: return _validate_scene_operation(reading, entry_id)
 	if reading.get("schema_version") == 4: return _validate_marker_operation(reading, entry_id)
 	var keys := READING_KEYS.duplicate()
 	keys.append("next_operation")
@@ -54,6 +62,9 @@ static func validate(reading: Dictionary, entry_id: String) -> Dictionary:
 
 static func without_operation(reading: Dictionary) -> Dictionary:
 	var result := reading.duplicate(true)
+	if typeof(result.get("schema_version")) == TYPE_INT and result.schema_version == 5:
+		result.next_operation = null
+		return result
 	if typeof(result.get("schema_version")) == TYPE_INT and result.schema_version == 4:
 		result["next_operation"] = null
 		return result
@@ -270,3 +281,158 @@ static func _hash(value: Variant) -> bool:
 	for character: String in value:
 		if character not in "0123456789abcdef": return false
 	return true
+
+## Scene indices address authenticated semantic programme nodes, never native
+## event resources. Shape validation cannot confer programme/receipt authority.
+const SCENE_LEDGER := preload("res://scripts/narrative/NarrativeCaptionLedger.gd")
+const SCENE_READING_KEYS := ["schema_version", "registration_sha256", "entry_id", "occurrence_id",
+	"program_index", "boundary", "ledger", "frontier", "next_operation"]
+
+static func valid_scene_reading_shape(reading: Dictionary) -> bool:
+	if not FROZEN._exact(reading, SCENE_READING_KEYS) or not FROZEN._primitive(reading) \
+			or typeof(reading.schema_version) != TYPE_INT or reading.schema_version != 5 \
+			or not _hash(reading.registration_sha256) or not _id(reading.entry_id) or not _id(reading.occurrence_id) \
+			or typeof(reading.program_index) != TYPE_INT or reading.program_index < 0 \
+			or reading.boundary not in ["line", "control", "between_entries"] \
+			or not reading.ledger is Dictionary or not reading.frontier is Dictionary \
+			or (reading.next_operation != null and not reading.next_operation is Dictionary): return false
+	var retained: Dictionary = reading.ledger
+	if not FROZEN._exact(retained, ["schema_version", "session_token", "frozen_context", "entry_contexts", "captions"]) \
+			or typeof(retained.schema_version) != TYPE_INT or retained.schema_version != 2 \
+			or not _id(retained.session_token) or not retained.frozen_context is Dictionary \
+			or not retained.entry_contexts is Dictionary or not retained.captions is Array: return false
+	if not SCENE_LEDGER.resolve_scene_frame(retained.entry_contexts, reading.occurrence_id, reading.entry_id).ok: return false
+	var publications := {}
+	for row: Variant in retained.captions:
+		if not _scene_row(row, publications, retained.entry_contexts): return false
+	if reading.boundary == "line":
+		if retained.captions.is_empty(): return false
+		var tail: Dictionary = retained.captions.back()
+		return tail.occurrence_id == reading.occurrence_id and tail.beat.owning_entry_id == reading.entry_id \
+			and _same(reading.frontier, {"line_id": tail.beat.line_id, "publication_id": tail.publication_id})
+	return reading.frontier.is_empty()
+
+static func _scene_row(row: Variant, publications: Dictionary, frames: Dictionary) -> bool:
+	if not row is Dictionary or not FROZEN._exact(row, ["publication_id", "occurrence_id", "beat"]) \
+			or not _id(row.publication_id) or not _id(row.occurrence_id) or not row.beat is Dictionary \
+			or not REGISTRY.valid_beat(row.beat) or publications.has(row.publication_id): return false
+	if not SCENE_LEDGER.resolve_scene_frame(frames, row.occurrence_id, row.beat.owning_entry_id).ok: return false
+	publications[row.publication_id] = true
+	return true
+
+static func _same(left: Variant, right: Variant) -> bool:
+	return EVENT._same_types(left, right) and left == right
+
+static func _create_scene_operation(plan: Dictionary, phase: String) -> Dictionary:
+	if phase not in PHASES: return _fail(&"reading_next_phase_invalid")
+	var checked := _validate_scene_plan_shape(plan)
+	if not checked.ok: return checked
+	var encoded := JSON_WRITER.stringify(plan)
+	if not encoded.ok: return _fail(&"reading_next_plan_invalid")
+	return {"ok": true, "value": {"schema_version": 3, "operation_id": str(encoded.value).sha256_text(),
+		"phase": phase, "plan": plan.duplicate(true)}}
+
+static func _validate_scene_plan_shape(plan: Dictionary) -> Dictionary:
+	if not FROZEN._exact(plan, ["schema_version", "entry_id", "source_reading", "path", "traversed_captions", "destination"]) \
+			or not FROZEN._primitive(plan) or typeof(plan.schema_version) != TYPE_INT or plan.schema_version != 3 \
+			or not _id(plan.entry_id) or not plan.source_reading is Dictionary \
+			or not plan.path is Array or plan.path.is_empty() or not plan.traversed_captions is Array \
+			or not plan.destination is Dictionary: return _fail(&"reading_next_plan_invalid")
+	var source: Dictionary = plan.source_reading
+	if not valid_scene_reading_shape(source) or source.next_operation != null \
+			or source.entry_id != plan.entry_id or source.boundary != "line": return _fail(&"reading_next_source_invalid")
+	var previous: int = source.program_index
+	for edge: Variant in plan.path:
+		if not edge is Dictionary or not FROZEN._exact(edge, ["from", "to"]) \
+				or typeof(edge.from) != TYPE_INT or typeof(edge.to) != TYPE_INT \
+				or edge.from != previous or edge.to < 0: return _fail(&"reading_next_path_invalid")
+		previous = edge.to
+	var publications := {}
+	for row: Variant in source.ledger.captions:
+		if not _scene_row(row, publications, source.ledger.entry_contexts): return _fail(&"reading_next_sequence_invalid")
+	for row: Variant in plan.traversed_captions:
+		if not _scene_row(row, publications, source.ledger.entry_contexts) \
+				or row.occurrence_id != source.occurrence_id or row.beat.owning_entry_id != plan.entry_id: return _fail(&"reading_next_sequence_invalid")
+	var target: Dictionary = plan.destination
+	if not FROZEN._exact(target, ["kind", "program_index", "caption"]) \
+			or target.kind not in ["line", "control", "completion"] \
+			or typeof(target.program_index) != TYPE_INT or target.program_index != previous: return _fail(&"reading_next_destination_invalid")
+	if target.kind == "line":
+		if not _scene_row(target.caption, publications, source.ledger.entry_contexts) \
+				or target.caption.occurrence_id != source.occurrence_id \
+				or target.caption.beat.owning_entry_id != plan.entry_id: return _fail(&"reading_next_destination_invalid")
+	elif target.caption != null: return _fail(&"reading_next_destination_invalid")
+	return {"ok": true}
+
+static func _scene_projection(plan: Dictionary, phase: String) -> Dictionary:
+	var result: Dictionary = plan.source_reading.duplicate(true)
+	if phase == "source": return result
+	for row: Dictionary in plan.traversed_captions: result.ledger.captions.append(row.duplicate(true))
+	result.program_index = plan.destination.program_index
+	match plan.destination.kind:
+		"line":
+			var row: Dictionary = plan.destination.caption
+			result.ledger.captions.append(row.duplicate(true))
+			result.boundary = "line"
+			result.frontier = {"line_id": row.beat.line_id, "publication_id": row.publication_id}
+		"control":
+			result.boundary = "control"
+			result.frontier = {}
+		"completion":
+			result.boundary = "between_entries"
+			result.frontier = {}
+	return result
+
+static func _validate_scene_operation(reading: Dictionary, entry_id: String) -> Dictionary:
+	if not valid_scene_reading_shape(reading) or not reading.next_operation is Dictionary: return _fail(&"reading_next_operation_invalid")
+	var operation: Dictionary = reading.next_operation
+	if not FROZEN._exact(operation, ["schema_version", "operation_id", "phase", "plan"]) \
+			or typeof(operation.schema_version) != TYPE_INT or operation.schema_version != 3 \
+			or not operation.phase is String or not operation.plan is Dictionary: return _fail(&"reading_next_operation_invalid")
+	var made := _create_scene_operation(operation.plan, operation.phase)
+	if not made.ok: return made
+	if not _same(operation, made.value) or operation.plan.entry_id != entry_id: return _fail(&"reading_next_operation_mismatch")
+	if not _same(without_operation(reading), _scene_projection(operation.plan, operation.phase)): return _fail(&"reading_next_projection_mismatch")
+	return {"ok": true, "value": operation.duplicate(true)}
+
+## Called only with nodes recompiled from the selected immutable registration.
+## Every caption encountered is represented once in the appended suffix; the
+## first control and every backwards jump target terminate this one operation.
+static func validate_scene_path(plan: Dictionary, nodes: Array) -> Dictionary:
+	var checked := _validate_scene_plan_shape(plan)
+	if not checked.ok: return checked
+	var source: Dictionary = plan.source_reading
+	if source.program_index >= nodes.size() or not nodes[source.program_index] is Dictionary \
+			or nodes[source.program_index].get("kind") != "caption" \
+			or nodes[source.program_index].get("line_id") != source.frontier.line_id:
+		return _fail(&"reading_next_source_invalid")
+	var expected_lines: Array = []
+	var stopped := false
+	var visited := {}
+	for ordinal: int in plan.path.size():
+		var edge: Dictionary = plan.path[ordinal]
+		if stopped or edge.from >= nodes.size() or edge.to >= nodes.size(): return _fail(&"reading_next_path_invalid")
+		var node: Dictionary = nodes[edge.from]
+		if node.get("kind") not in ["caption", "jump"] or node.get("next") != edge.to: return _fail(&"reading_next_path_invalid")
+		var target: Dictionary = nodes[edge.to]
+		if target.kind == "caption": expected_lines.append(target.line_id)
+		elif target.kind in ["control", "completion"]: stopped = true
+		var backward_caption: bool = node.kind == "jump" and edge.to <= edge.from and target.kind == "caption"
+		if node.kind == "jump" and edge.to <= edge.from:
+			if target.kind != "caption": return _fail(&"reading_next_path_invalid")
+			stopped = true
+		# The final backward target may already be in this operation's silent
+		# suffix. Its fresh publication is the bounded destination, not another
+		# traversal around the cycle. The stopped guard refuses any later edge.
+		if visited.has(edge.to) and not backward_caption: return _fail(&"reading_next_path_invalid")
+		visited[edge.to] = true
+	var destination: Dictionary = nodes[plan.destination.program_index]
+	var expected_kind: String = "line" if destination.kind == "caption" else destination.kind
+	if expected_kind != plan.destination.kind: return _fail(&"reading_next_destination_invalid")
+	var rows: Array = plan.traversed_captions.duplicate()
+	if plan.destination.kind == "line": rows.append(plan.destination.caption)
+	if rows.size() != expected_lines.size(): return _fail(&"reading_next_sequence_invalid")
+	for index: int in rows.size():
+		if rows[index].beat.line_id != expected_lines[index]: return _fail(&"reading_next_sequence_invalid")
+	return {"ok": true}
+

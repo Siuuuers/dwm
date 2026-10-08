@@ -19,6 +19,145 @@ signal reading_frontier_restored(result: Dictionary)
 signal reading_seek_finished(result: Dictionary)
 
 const CLEAR_KEEP_VARIABLES := 1
+const SCENE_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+var _scene_caption_occurrence := ""
+var _scene_activation_event: Object
+var _scene_activation_generation := -1
+
+## Called only after the configured checkpoint adapter confirms the staged target.
+## This first slice installs an idle native target; live held-source replacement
+## remains a later owner-wiring operation and refuses rather than abandoning it.
+func install_scene_target(session: RefCounted, checkpoint: Dictionary, target: Dictionary) -> Dictionary:
+	if not _bound or has_active_playback() or session == null or session.family != "scene":
+		return _fail(&"scene_native_target_unavailable", "idle qualified runtime required")
+	var checked: Dictionary = session.validate_saved(checkpoint.reading_session, checkpoint.entry_id)
+	if not checked.ok: return checked
+	var owner := preload("res://scripts/narrative/DialogicEntryManifest.gd")
+	var selected := owner.scene_registration()
+	if not selected.ok: return selected
+	var bundle: Dictionary = selected.value
+	var labels: Array = []
+	var path := ""
+	for entry: Dictionary in bundle.entry_manifest.entries:
+		labels.append(entry.entry_id)
+		if entry.entry_id == checkpoint.entry_id: path = entry.locators.en.path
+	var markers: Array = []
+	for row: Dictionary in bundle.scene_programme.entries:
+		if row.entry_id == checkpoint.entry_id: markers = row.markers
+	var compiled := compile_scene_programme(path, checkpoint.entry_id, labels, markers)
+	if not compiled.ok: return compiled
+	if compiled.value.program_sha256 != target.program_sha256 or not compiled.value.label_nodes.has(target.label) \
+			or compiled.value.label_nodes[target.label] != checkpoint.reading_session.program_index:
+		return _fail(&"scene_native_target_invalid", "target differs from the staged programme")
+	var bound := bind_caption_ledger(session.ledger, session.command_id, checkpoint.entry_id, false, session.scene_occurrence)
+	if not bound.ok: return bound
+	_caption_restore_frontier = checkpoint.reading_session.frontier.duplicate(true)
+	_caption_restore_queued = false
+	var started := start_timeline(path, compiled.value.native_indices[checkpoint.reading_session.program_index])
+	if not started.ok:
+		_caption_restore_frontier = {}
+	return started
+
+## Nonwired scene compiler. Semantic node positions are distinct from transient
+## native event indices. Only the returned native map may drive installed playback.
+static func compile_scene_programme(path: String, entry_label: String,
+		callable_labels: Array, markers: Array = []) -> Dictionary:
+	if not path.begins_with("res://") or not ResourceLoader.exists(path) or entry_label not in callable_labels:
+		return {"ok": false, "code": &"scene_programme_unavailable"}
+	var resource := load(path)
+	if not resource is DialogicTimeline:
+		return {"ok": false, "code": &"scene_programme_unavailable"}
+	var timeline := DialogicTimeline.new()
+	timeline.from_text((resource as DialogicTimeline).as_text())
+	timeline.process()
+	var selected := false
+	var found := 0
+	var events: Array = []
+	var nodes: Array = []
+	var native_indices: Array = []
+	var label_nodes := {}
+	var marker_labels := {}
+	var seen_lines := {}
+	for marker: Variant in markers:
+		if not marker is Dictionary or not marker.get("label") is String or marker_labels.has(marker.label):
+			return {"ok": false, "code": &"scene_marker_invalid"}
+		marker_labels[marker.label] = marker
+	for index: int in timeline.events.size():
+		var event: DialogicEvent = timeline.events[index]
+		if event is DialogicLabelEvent:
+			if event.name == entry_label:
+				found += 1
+				selected = true
+			elif event.name in callable_labels:
+				selected = false
+			if not selected: continue
+			if label_nodes.has(event.name):
+				return {"ok": false, "code": &"scene_label_duplicate"}
+			label_nodes[event.name] = nodes.size()
+			events.append({"kind": "label", "label": str(event.name)})
+			if marker_labels.has(event.name):
+				nodes.append({"kind": "control", "marker_id": marker_labels[event.name].marker_id})
+				native_indices.append(index)
+			continue
+		if not selected or event is DialogicCommentEvent: continue
+		if event is DialogicTextEvent:
+			var parts := event.get_property_translation_key("text").split("/")
+			var line_id: String = parts[1] if parts.size() == 3 and parts[0] == "Text" and parts[2] == "text" else ""
+			var prose: String = event.get_property_translated("text")
+			if line_id.is_empty() or seen_lines.has(line_id) or prose.is_empty() or event.character != null \
+					or not event.character_identifier.is_empty() or "[" in prose or "{" in prose or "<" in prose:
+				return {"ok": false, "code": &"scene_text_invalid"}
+			seen_lines[line_id] = true
+			events.append({"kind": "text", "line_id": line_id, "text": prose})
+			nodes.append({"kind": "caption", "line_id": line_id, "next": nodes.size() + 1})
+		elif event is DialogicJumpEvent:
+			if event.timeline != null or not event.timeline_identifier.is_empty() or event.label_name.is_empty():
+				return {"ok": false, "code": &"scene_jump_invalid"}
+			events.append({"kind": "jump", "label": str(event.label_name)})
+			nodes.append({"kind": "jump", "next": str(event.label_name)})
+		elif event is DialogicReturnEvent:
+			events.append({"kind": "return"})
+			nodes.append({"kind": "completion"})
+		elif event is DialogicSignalEvent:
+			var signal_id := str(event.argument)
+			var matches := false
+			for marker: Dictionary in markers:
+				if marker.kind == signal_id and label_nodes.has(marker.label) and label_nodes[marker.label] == nodes.size() - 1:
+					matches = true
+			if not matches or event.argument_type != DialogicSignalEvent.ArgumentTypes.STRING:
+				return {"ok": false, "code": &"scene_signal_invalid"}
+			events.append({"kind": "signal", "signal_id": signal_id})
+			continue # held registered label owns dispatch; native signal never runs first
+		else:
+			return {"ok": false, "code": &"scene_executable_event_refused"}
+		native_indices.append(index)
+	if found != 1 or nodes.is_empty(): return {"ok": false, "code": &"scene_entry_invalid"}
+	for label: String in label_nodes:
+		if int(label_nodes[label]) >= nodes.size():
+			return {"ok": false, "code": &"scene_label_without_frontier"}
+	for label: String in marker_labels:
+		if not label_nodes.has(label): return {"ok": false, "code": &"scene_marker_missing"}
+	for node: Dictionary in nodes:
+		if node.kind == "jump":
+			if not label_nodes.has(node.next): return {"ok": false, "code": &"scene_jump_invalid"}
+			node.next = int(label_nodes[node.next])
+		if node.has("next") and (node.next < 0 or node.next >= nodes.size()):
+			return {"ok": false, "code": &"scene_unterminated_programme"}
+	for index: int in nodes.size():
+		var node: Dictionary = nodes[index]
+		# A jump-only cycle cannot expose a caption or held control boundary.
+		if node.kind == "jump":
+			var cursor: int = index
+			var visited := {}
+			while nodes[cursor].kind == "jump":
+				if visited.has(cursor): return {"ok": false, "code": &"scene_control_cycle"}
+				visited[cursor] = true
+				cursor = int(nodes[cursor].next)
+	var encoded := SCENE_JSON.stringify(events)
+	if not encoded.ok: return encoded
+	return {"ok": true, "value": {"events": events, "nodes": nodes, "label_nodes": label_nodes,
+		"native_indices": native_indices, "content_sha256": FileAccess.get_file_as_string(path).sha256_text(),
+		"program_sha256": str(encoded.value).sha256_text()}}
 const CLEAR_KEEP_TEXT := 4
 const REQUIRED_METHODS := ["start", "start_timeline", "end_timeline", "handle_next_event", "handle_event", "clear", "has_subsystem", "get_subsystem"]
 const REQUIRED_SIGNALS := ["timeline_started", "timeline_ended", "event_handled", "signal_event"]
@@ -110,11 +249,11 @@ func bind_runtime(dialogic: Node) -> Dictionary:
 ## Opt-in internal publication capture only. This is not visible-witness admission,
 ## Profile history, durable History, or a save participant. Bind before start():
 ## the installed runtime may publish its first caption synchronously.
-func bind_caption_ledger(ledger: NarrativeCaptionLedger, token: String, entry_id: String, retain_layout: bool = false) -> Dictionary:
+func bind_caption_ledger(ledger: NarrativeCaptionLedger, token: String, entry_id: String, retain_layout: bool = false, occurrence_id: String = "") -> Dictionary:
 	if not _bound or not _qualified_runtime or has_active_playback() or _caption_ledger != null:
 		return _fail(&"caption_binding_unavailable", "no idle qualified publication slot")
 	if ledger == null: return _fail(&"caption_ledger_missing", "ledger is required")
-	var checked := ledger.check_session(token, entry_id)
+	var checked := ledger.check_session(token, entry_id, occurrence_id)
 	if not checked.ok: return checked
 	var text: Object = _dialogic.get_subsystem("Text")
 	if not text.has_signal("about_to_show_text"):
@@ -125,6 +264,9 @@ func bind_caption_ledger(ledger: NarrativeCaptionLedger, token: String, entry_id
 	_caption_ledger = ledger
 	_caption_token = token
 	_caption_entry = entry_id
+	_scene_caption_occurrence = occurrence_id
+	_scene_activation_event = null
+	_scene_activation_generation = -1
 	_connect_once(text, "about_to_show_text", _on_caption_about_to_show)
 	_connect_once(text, "text_started", _on_caption_text_started)
 	return {"ok": true}
@@ -143,6 +285,15 @@ func _on_caption_about_to_show(_info: Dictionary) -> void:
 	if not _caption_source_is_current(): return
 	_caption_event = _current_skip_text(true)
 	_caption_line = _authored_line_id(_caption_event)
+	var same_scene_activation := false
+	if not _scene_caption_occurrence.is_empty():
+		if _caption_event == null: return
+		same_scene_activation = _scene_activation_is_current()
+		# The installed handler clears the departing text event before each
+		# next execution. Its execution generation distinguishes a later loop
+		# through this same resource from duplicate callbacks in one activation.
+		_scene_activation_event = _caption_event
+		_scene_activation_generation = _caption_event._execution_generation
 	if not _caption_seek_frontier.is_empty():
 		if _caption_line != _caption_seek_frontier.line_id:
 			_fail_reading_seek(_fail(&"reading_seek_changed", "the destination publication changed"))
@@ -155,19 +306,22 @@ func _on_caption_about_to_show(_info: Dictionary) -> void:
 			return
 		_caption_publication = _caption_restore_frontier.publication_id
 		return
-	var allocated := _caption_ledger.allocate_publication(_caption_token, _caption_entry)
+	if same_scene_activation and not _caption_publication.is_empty():
+		return
+	var allocated := _caption_ledger.allocate_publication(_caption_token, _caption_entry, _scene_caption_occurrence)
 	_caption_publication = allocated.value if allocated.ok else ""
 
 
 func _on_caption_text_started(_info: Dictionary) -> void:
 	if not _caption_source_is_current(): return
-	if _caption_event == null or _caption_event != _current_skip_text(true):
+	if _caption_event == null or _caption_event != _current_skip_text(true) \
+			or (not _scene_caption_occurrence.is_empty() and not _scene_activation_is_current()):
 		caption_publication_recorded.emit(_fail(&"caption_publication_source_invalid", "no matching single-beat publication"))
 		return
 	# An authored #id identifies the registered semantic beat. The independent
 	# opaque publication identity is reused if text_started is delivered twice.
 	var result := _caption_ledger.publish_line(_caption_token, _caption_publication,
-		_caption_entry, _caption_line)
+		_caption_entry, _caption_line, _scene_caption_occurrence)
 	caption_publication_recorded.emit(result)
 	if not _caption_seek_frontier.is_empty():
 		if not result.ok or not result.value.get("duplicate", false):
@@ -189,12 +343,17 @@ func _on_caption_text_started(_info: Dictionary) -> void:
 			_finish_reading_restore.call_deferred(_request_id, _caption_event)
 
 
+func _scene_activation_is_current() -> bool:
+	return _caption_event != null and _scene_activation_event == _caption_event \
+		and _scene_activation_generation == _caption_event._execution_generation
+
+
 ## Only the current admitted ending occurrence may keep its mounted view after Return.
 func _begin_caption_handoff() -> bool:
 	if not _retain_caption_layout or not _caption_source_is_current() or _caption_event == null \
 			or _caption_event.state != DialogicTextEvent.States.DONE \
 			or not _caption_ledger.is_current_occurrence(_caption_token, _caption_entry,
-				{"line_id": _caption_line, "publication_id": _caption_publication}): return false
+				{"line_id": _caption_line, "publication_id": _caption_publication}, _scene_caption_occurrence): return false
 	var layout: Node = _dialogic.Styles.get_layout_node()
 	if not is_instance_valid(layout) or not layout.is_inside_tree(): return false
 	for layer: Node in layout.get_layers():
@@ -236,6 +395,9 @@ func _retire_caption_binding() -> void:
 	_caption_generation = 0
 	_caption_publication = ""
 	_caption_event = null
+	_scene_activation_event = null
+	_scene_activation_generation = -1
+	_scene_caption_occurrence = ""
 	_caption_line = ""
 	_caption_restore_frontier = {}
 	_caption_restore_queued = false
@@ -251,10 +413,11 @@ func _retire_caption_binding() -> void:
 func can_capture_reading_frontier() -> bool:
 	if not _caption_source_is_current() or is_reading_frontier_restoring() \
 			or _caption_event == null or _caption_event != _current_skip_text(true) \
+			or (not _scene_caption_occurrence.is_empty() and not _scene_activation_is_current()) \
 			or _authored_line_id(_caption_event) != _caption_line:
 		return false
 	return _caption_ledger.is_current_occurrence(_caption_token, _caption_entry,
-		{"line_id": _caption_line, "publication_id": _caption_publication})
+		{"line_id": _caption_line, "publication_id": _caption_publication}, _scene_caption_occurrence)
 
 
 func capture_reading_frontier() -> Dictionary:
@@ -496,7 +659,7 @@ func _reading_seek_source_matches(prepared: Dictionary) -> bool:
 
 func _check_reading_seek_target(prepared: Dictionary, candidate: NarrativeCaptionLedger,
 		frontier: Dictionary) -> Dictionary:
-	if candidate == null or not candidate.check_session(_caption_token, _caption_entry).ok:
+	if candidate == null or not candidate.check_session(_caption_token, _caption_entry, _scene_caption_occurrence).ok:
 		return _fail(&"reading_seek_target_invalid", "the destination requires the same admitted session")
 	var snapshot := candidate.snapshot()
 	var old: Dictionary = prepared.snapshot
@@ -519,7 +682,7 @@ func _check_reading_seek_target(prepared: Dictionary, candidate: NarrativeCaptio
 	if prepared.plan.terminal:
 		if not frontier.is_empty(): return _fail(&"reading_seek_target_invalid", "terminal Return has no text frontier")
 	elif frontier.get("line_id") != prepared.plan.destination_line_id \
-			or not candidate.is_current_occurrence(_caption_token, _caption_entry, frontier):
+			or not candidate.is_current_occurrence(_caption_token, _caption_entry, frontier, _scene_caption_occurrence):
 		return _fail(&"reading_seek_target_invalid", "the exact destination occurrence is required")
 	return {"ok": true}
 
@@ -635,7 +798,7 @@ func _check_reading_occurrence(frontier: Dictionary) -> Dictionary:
 			or not frontier.get("line_id") is String or str(frontier.line_id).is_empty() \
 			or not frontier.get("publication_id") is String or str(frontier.publication_id).is_empty():
 		return _fail(&"reading_frontier_invalid", "exact semantic line and occurrence are required")
-	if not _caption_ledger.is_current_occurrence(_caption_token, _caption_entry, frontier):
+	if not _caption_ledger.is_current_occurrence(_caption_token, _caption_entry, frontier, _scene_caption_occurrence):
 		return _fail(&"reading_frontier_invalid", "the frontier must be the session's final occurrence")
 	return {"ok": true}
 
@@ -1289,3 +1452,4 @@ func install_marker_candidate(plan: Dictionary, candidate: NarrativeCaptionLedge
 	_marker_hold = {}
 	_dialogic.handle_event(int(indices.value.target_index))
 	return {"ok": true, "value": {"pending": true}}
+

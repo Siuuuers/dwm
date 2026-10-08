@@ -150,6 +150,13 @@ static func _bindings(entry_id: String, fields: Dictionary) -> Dictionary:
 
 static func _load_registry() -> Dictionary:
 	if not _schemas.is_empty(): return _ok({})
+	var selected := DialogicEntryManifest.scene_registration()
+	if selected.ok:
+		for row: Dictionary in selected.value.context_registry.schemas:
+			_schemas[row.entry_id] = row.duplicate(true)
+		_ids = selected.value.ids_registry.duplicate(true)
+		return _ok({})
+	if selected.get("code") != &"scene_registration_absent": return selected
 	var registry: Variant = JSON.parse_string(FileAccess.get_file_as_string(REGISTRY_PATH))
 	var entries: Variant = JSON.parse_string(FileAccess.get_file_as_string(ENTRIES_PATH))
 	var ids: Variant = JSON.parse_string(FileAccess.get_file_as_string(IDS_PATH))
@@ -207,3 +214,4 @@ static func _ok(value: Dictionary) -> Dictionary:
 
 static func _fail(code: String, detail: String) -> Dictionary:
 	return {"ok": false, "code": StringName(code), "message": detail}
+

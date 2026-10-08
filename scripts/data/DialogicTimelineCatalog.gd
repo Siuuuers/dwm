@@ -192,16 +192,16 @@ static func build_missing_timeline_report(locale: String = "en") -> Dictionary:
 ## entries does not re-run the published schema 137 times. Nothing is cached until it validates.
 static func _ensure_entries() -> Dictionary:
 	if _entries_initialized:
-		return {"ok": true, "value": _entry_document}
+		return {"ok": true, "value": _entry_document.duplicate(true)}
 	var loaded := DialogicEntryManifest.load_default()
 	if not loaded.get("ok", false):
 		return loaded
 	var validated := DialogicEntryManifest.validate_document(loaded["value"])
 	if not validated.get("ok", false):
 		return validated
-	_entry_document = loaded["value"]
+	_entry_document = loaded["value"].duplicate(true)
 	_entries_initialized = true
-	return {"ok": true, "value": _entry_document}
+	return {"ok": true, "value": _entry_document.duplicate(true)}
 
 
 ## Resolve one semantic entry to its exact {path, label}. An empty locale means the default one,
@@ -273,3 +273,4 @@ static func build_validation_report(locale: String = "en") -> Dictionary:
 		"missing_count": missing.size(),
 		"missing": missing,
 	}
+
