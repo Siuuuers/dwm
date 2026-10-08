@@ -187,6 +187,53 @@ func test_reentry_loop_snapshot_restore_and_history_keep_all_publications() -> v
 	assert_true(after_restore.ok, str(after_restore))
 	if after_restore.ok: assert_eq(after_restore.value.ledger.captions.size(), 6)
 
+
+func test_fully_witnessed_next_stops_at_revisited_backward_caption() -> void:
+	var created := FIXTURE.create_session()
+	assert_true(created.ok, str(created))
+	if not created.ok: return
+	var session: RefCounted = created.value
+	var entered := FIXTURE.enter(session, FIXTURE.A, "a:1")
+	assert_true(entered.ok, str(entered))
+	if not entered.ok: return
+	var before: Dictionary = session.capture(FIXTURE.frontier(session)).value
+	var planned: Dictionary = session.prepare_next(FIXTURE.frontier(session),
+		func(_beat: Dictionary) -> bool: return true)
+	assert_true(planned.ok, str(planned))
+	if not planned.ok: return
+	var plan: Dictionary = planned.value
+	assert_eq(plan.path, [{"from": 0, "to": 1}, {"from": 1, "to": 2}, {"from": 2, "to": 1}])
+	assert_eq(plan.traversed_captions.size(), 1)
+	assert_eq(plan.destination.kind, "line")
+	assert_eq(plan.destination.program_index, 1)
+	assert_eq(plan.traversed_captions[0].beat.line_id, plan.destination.caption.beat.line_id)
+	assert_ne(plan.traversed_captions[0].publication_id, plan.destination.caption.publication_id)
+	assert_eq(session.capture(FIXTURE.frontier(session)).value, before,
+		"planning allocates only on the detached ledger and retains the live cursor")
+	var projected := OP.project(plan, "destination")
+	assert_true(projected.ok, str(projected))
+	if not projected.ok: return
+	var restored := SESSION.new()
+	assert_true(restored.configure_scene().ok)
+	var admitted: Dictionary = restored.restore(projected.value, FIXTURE.A)
+	assert_true(admitted.ok, str(admitted))
+	if not admitted.ok: return
+	assert_eq(restored.ledger.snapshot().captions.size(), 3)
+	assert_eq(restored.capture(projected.value.frontier).value, projected.value)
+	assert_eq(session.capture(FIXTURE.frontier(session)).value, before)
+	# Keep the forged operation structurally valid and programme-adjacent:
+	# continue around the same loop after its first mandatory stopping point.
+	var extended: Dictionary = plan.duplicate(true)
+	extended.path.append({"from": 1, "to": 2})
+	extended.path.append({"from": 2, "to": 1})
+	var invalid_projection := OP.project(extended, "destination")
+	assert_true(invalid_projection.ok, "shape alone does not authorize programme traversal")
+	if invalid_projection.ok:
+		var retained: Dictionary = restored.ledger.snapshot()
+		assert_false(restored.restore(invalid_projection.value, FIXTURE.A).ok,
+			"no edge may follow the first backward-caption stop")
+		assert_eq(restored.ledger.snapshot(), retained)
+
 func test_next_planning_is_detached_and_stops_at_registered_control() -> void:
 	var created := FIXTURE.create_session()
 	assert_true(created.ok, str(created))

@@ -417,10 +417,14 @@ static func validate_scene_path(plan: Dictionary, nodes: Array) -> Dictionary:
 		var target: Dictionary = nodes[edge.to]
 		if target.kind == "caption": expected_lines.append(target.line_id)
 		elif target.kind in ["control", "completion"]: stopped = true
+		var backward_caption := node.kind == "jump" and edge.to <= edge.from and target.kind == "caption"
 		if node.kind == "jump" and edge.to <= edge.from:
 			if target.kind != "caption": return _fail(&"reading_next_path_invalid")
 			stopped = true
-		if visited.has(edge.to): return _fail(&"reading_next_path_invalid")
+		# The final backward target may already be in this operation's silent
+		# suffix. Its fresh publication is the bounded destination, not another
+		# traversal around the cycle. The stopped guard refuses any later edge.
+		if visited.has(edge.to) and not backward_caption: return _fail(&"reading_next_path_invalid")
 		visited[edge.to] = true
 	var destination: Dictionary = nodes[plan.destination.program_index]
 	var expected_kind: String = "line" if destination.kind == "caption" else destination.kind

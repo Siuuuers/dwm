@@ -22,6 +22,7 @@ const CLEAR_KEEP_VARIABLES := 1
 const SCENE_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 var _scene_caption_occurrence := ""
 var _scene_activation_event: Object
+var _scene_activation_generation := -1
 
 ## Called only after the configured checkpoint adapter confirms the staged target.
 ## This first slice installs an idle native target; live held-source replacement
@@ -265,6 +266,7 @@ func bind_caption_ledger(ledger: NarrativeCaptionLedger, token: String, entry_id
 	_caption_entry = entry_id
 	_scene_caption_occurrence = occurrence_id
 	_scene_activation_event = null
+	_scene_activation_generation = -1
 	_connect_once(text, "about_to_show_text", _on_caption_about_to_show)
 	_connect_once(text, "text_started", _on_caption_text_started)
 	return {"ok": true}
@@ -283,6 +285,15 @@ func _on_caption_about_to_show(_info: Dictionary) -> void:
 	if not _caption_source_is_current(): return
 	_caption_event = _current_skip_text(true)
 	_caption_line = _authored_line_id(_caption_event)
+	var same_scene_activation := false
+	if not _scene_caption_occurrence.is_empty():
+		if _caption_event == null: return
+		same_scene_activation = _scene_activation_is_current()
+		# The installed handler clears the departing text event before each
+		# next execution. Its execution generation distinguishes a later loop
+		# through this same resource from duplicate callbacks in one activation.
+		_scene_activation_event = _caption_event
+		_scene_activation_generation = _caption_event._execution_generation
 	if not _caption_seek_frontier.is_empty():
 		if _caption_line != _caption_seek_frontier.line_id:
 			_fail_reading_seek(_fail(&"reading_seek_changed", "the destination publication changed"))
@@ -295,16 +306,16 @@ func _on_caption_about_to_show(_info: Dictionary) -> void:
 			return
 		_caption_publication = _caption_restore_frontier.publication_id
 		return
-	if not _scene_caption_occurrence.is_empty() and _scene_activation_event == _caption_event and not _caption_publication.is_empty():
+	if same_scene_activation and not _caption_publication.is_empty():
 		return
-	_scene_activation_event = _caption_event
 	var allocated := _caption_ledger.allocate_publication(_caption_token, _caption_entry, _scene_caption_occurrence)
 	_caption_publication = allocated.value if allocated.ok else ""
 
 
 func _on_caption_text_started(_info: Dictionary) -> void:
 	if not _caption_source_is_current(): return
-	if _caption_event == null or _caption_event != _current_skip_text(true):
+	if _caption_event == null or _caption_event != _current_skip_text(true) \
+			or (not _scene_caption_occurrence.is_empty() and not _scene_activation_is_current()):
 		caption_publication_recorded.emit(_fail(&"caption_publication_source_invalid", "no matching single-beat publication"))
 		return
 	# An authored #id identifies the registered semantic beat. The independent
@@ -330,6 +341,11 @@ func _on_caption_text_started(_info: Dictionary) -> void:
 			# Native text_started precedes the text event's text_finished await.
 			# A synchronous reveal here would strand that coroutine forever.
 			_finish_reading_restore.call_deferred(_request_id, _caption_event)
+
+
+func _scene_activation_is_current() -> bool:
+	return _caption_event != null and _scene_activation_event == _caption_event \
+		and _scene_activation_generation == _caption_event._execution_generation
 
 
 ## Only the current admitted ending occurrence may keep its mounted view after Return.
@@ -379,6 +395,9 @@ func _retire_caption_binding() -> void:
 	_caption_generation = 0
 	_caption_publication = ""
 	_caption_event = null
+	_scene_activation_event = null
+	_scene_activation_generation = -1
+	_scene_caption_occurrence = ""
 	_caption_line = ""
 	_caption_restore_frontier = {}
 	_caption_restore_queued = false
@@ -394,6 +413,7 @@ func _retire_caption_binding() -> void:
 func can_capture_reading_frontier() -> bool:
 	if not _caption_source_is_current() or is_reading_frontier_restoring() \
 			or _caption_event == null or _caption_event != _current_skip_text(true) \
+			or (not _scene_caption_occurrence.is_empty() and not _scene_activation_is_current()) \
 			or _authored_line_id(_caption_event) != _caption_line:
 		return false
 	return _caption_ledger.is_current_occurrence(_caption_token, _caption_entry,
