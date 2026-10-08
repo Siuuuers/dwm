@@ -1,5 +1,6 @@
 extends "res://addons/gut/test.gd"
 const CONTRACT := preload("res://scripts/domain/narrative/SceneEventContract.gd")
+const STRICT := preload("res://scripts/validation/StrictJson.gd")
 const FIXTURE := preload("res://tests/support/SceneEventFixture.gd")
 
 func test_all_nine_registered_kinds_have_narrow_fixture_payloads() -> void:
@@ -152,17 +153,37 @@ func test_scene_marker_binds_whole_source_payload_and_registered_version() -> vo
 	assert_false(CONTRACT.make_receipt(notification, _scene_anchor()).ok)
 	assert_false(CONTRACT.match_registration(notification, fixture.registrations[notification.event_id]).ok)
 
-func test_local_return_targets_require_registered_internal_label_and_callable_targets_require_entry() -> void:
-	var bundle := _scene_bundle()
-	bundle.targets[0].target.kind = "return"
-	assert_false(CONTRACT.validate_bundle_structure(bundle).ok)
-	bundle.targets[0].target.label = "TEST.exit"
-	assert_true(CONTRACT.validate_bundle_structure(bundle).ok)
-	bundle.targets[0].target.kind = "scene"
-	assert_false(CONTRACT.validate_bundle_structure(bundle).ok)
-	bundle.targets[0].target.label = "TEST.scene"
-	bundle.targets[0].target.program_sha256 = "d".repeat(64)
-	assert_false(CONTRACT.validate_bundle_structure(bundle).ok)
+func test_local_return_targets_are_structural_and_callable_targets_require_entry() -> void:
+	for kind: String in ["local", "return"]:
+		var bundle := _scene_bundle()
+		bundle.targets[0].target.kind = kind
+		bundle.targets[0].target.label = "TEST.internal"
+		assert_true(CONTRACT.validate_bundle_structure(bundle).ok, "installed-label existence belongs to trusted DTL registration")
+		for pair: Array in [["kind", "unknown"], ["entry_id", "TEST.missing"], ["label", ""], ["content_version", 2], ["program_sha256", "d".repeat(64)]]:
+			var bad: Dictionary = bundle.duplicate(true)
+			bad.targets[0].target[pair[0]] = pair[1]
+			assert_false(CONTRACT.validate_bundle_structure(bad).ok)
+		bundle.targets[0].target.extra = true
+		assert_false(CONTRACT.validate_bundle_structure(bundle).ok)
+	for kind: String in ["scene", "contact", "ending"]:
+		var bundle := _scene_bundle()
+		bundle.targets[0].target.kind = kind
+		assert_true(CONTRACT.validate_bundle_structure(bundle).ok)
+		bundle.targets[0].target.label = "TEST.exit"
+		assert_false(CONTRACT.validate_bundle_structure(bundle).ok)
+
+func test_authentic_registration_accepts_ordinary_return_label_without_effect_marker() -> void:
+	var text := FileAccess.get_file_as_string("res://tests/fixtures/dialogic/scene_reading_registration_compat.json")
+	assert_eq(text.sha256_text(), "099e0ef79457c1bb56ecd06849f5c0abf3cd829d71b355f3d0292822a04a4f4b")
+	var parsed: Dictionary = STRICT.parse_object(text)
+	assert_true(parsed.ok)
+	if not parsed.ok: return
+	var bundle: Dictionary = parsed.value
+	assert_eq(bundle.targets[0].target.kind, "return")
+	assert_eq(bundle.targets[0].target.label, "scene.test.a.loop")
+	assert_eq(bundle.scene_programme.entries[1].entry_id, "scene.test.a")
+	assert_eq(bundle.scene_programme.entries[1].markers, [])
+	assert_true(CONTRACT.validate_bundle_structure(bundle).ok, "structural compatibility only; full installed DTL validation belongs to A")
 
 func test_original_scene_completion_has_exact_nine_canonical_projections() -> void:
 	var event := _scene_event()

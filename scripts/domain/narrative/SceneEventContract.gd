@@ -492,9 +492,9 @@ static func _target_valid(target: Variant, entries: Dictionary) -> bool:
 	var entry: Dictionary = entries[target.entry_id]
 	if target.content_version != entry.content_version or target.program_sha256 != entry.program_sha256: return false
 	if target.kind in ["scene", "ending", "contact"]: return target.label == target.entry_id
-	for marker: Dictionary in entry.markers:
-		if marker.label == target.label: return true
-	return false
+	# Internal labels need not be effect markers. The trusted registration/DTL
+	# owner authenticates their existence in the installed compiled programme.
+	return true
 
 static func _index_sorted(rows: Variant, key: String) -> Dictionary:
 	if not rows is Array: return _fail(&"scene_table_invalid")
