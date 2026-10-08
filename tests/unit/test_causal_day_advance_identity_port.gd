@@ -724,6 +724,8 @@ func _resolution_receipt(resolution_kind: String) -> Dictionary:
 	var child_kind := &"day_resolution_stage"
 	if resolution_kind == "condition_hospital":
 		child_kind = &"hospital_resolution"
+	elif resolution_kind == "scene_day_complete":
+		child_kind = &"scene_day_completion"
 	var derived: Dictionary = _issuer.derive_child({
 		"parent_receipt_id": str(parent_receipt.get("receipt_id", "")),
 		"child_kind": child_kind,
@@ -755,3 +757,110 @@ func _set_resolution_child_kind(request: Dictionary, child_kind: StringName) -> 
 	provenance["child_kind"] = child_kind
 	receipt["provenance"] = provenance
 	request["source_resolution_receipt"] = receipt
+
+
+# Scene receipts use the real issuer; these require the separately released
+# scene_day_completion child-kind extension, never a fabricated provenance.
+func test_scene_allocate_retry_and_legacy_coexist_without_calendar_members() -> void:
+	var port := _configured_port()
+	if port == null:
+		return
+	var legacy := _advance_request("schedule_done", 2)
+	var scene := _advance_request("scene_day_complete", 2)
+	scene.erase("source_day")
+	# Share the four-member prefix deliberately: the legacy tuple has a fifth member.
+	for key in ["run_id", "branch_id", "desktop_timeline_generation",
+			"source_causal_day_instance", "source_causal_day_instance_issuer_receipt"]:
+		scene[key] = legacy[key]
+	var legacy_prepared := port.prepare_advance(legacy)
+	if not _require_ok(legacy_prepared, "legacy prepare"):
+		return
+	if not _require_ok(port.commit_advance(_prepared_candidate(legacy_prepared)), "legacy commit"):
+		return
+	var before := _captured_document()
+	var prepared := port.prepare_advance(scene)
+	if not _require_ok(prepared, "scene prepare beside legacy"):
+		return
+	assert_eq(_captured_document(), before, "scene prepare is mutation-free")
+	var receipt := _prepared_receipt(prepared)
+	var expected := RECEIPT_KEYS.duplicate()
+	expected.erase("source_day")
+	expected.erase("target_day")
+	var actual := receipt.keys()
+	actual.sort()
+	assert_eq(actual, expected, "scene receipt has exactly nineteen members")
+	assert_eq(receipt["schema_version"], 2)
+	if not _require_ok(port.commit_advance(_prepared_candidate(prepared)), "scene commit"):
+		return
+	var committed := _captured_document()
+	assert_eq(committed["schema_version"], 1, "root document stays v1")
+	assert_eq(committed["next_counter"], int(before["next_counter"]) + 1)
+	if not _require_ok(port.commit_advance(_prepared_candidate(prepared)), "identical scene commit"):
+		return
+	assert_eq(_captured_document(), committed, "retry consumes no identity")
+	var restarted := _port_over_bytes(_file_ops.snapshot_persisted(), NAMESPACE_B)
+	if restarted == null:
+		return
+	var retry := restarted.prepare_advance(scene)
+	if not _require_ok(retry, "mixed root reload and scene retry"):
+		return
+	assert_eq(_prepared_receipt(retry), receipt)
+	var legacy_retry := restarted.prepare_advance(legacy)
+	if not _require_ok(legacy_retry, "legacy retry in mixed root"):
+		return
+	assert_eq(_prepared_receipt(legacy_retry), _prepared_receipt(legacy_prepared))
+
+
+func test_scene_same_source_new_completion_conflicts_and_calendar_fields_are_rejected() -> void:
+	var port := _configured_port()
+	if port == null:
+		return
+	var request := _advance_request("scene_day_complete", 1)
+	request.erase("source_day")
+	var changed := request.duplicate(true)
+	changed["source_resolution_receipt"] = _resolution_receipt("scene_day_complete")
+	for extra in ["source_day", "target_day"]:
+		var malformed := request.duplicate(true)
+		malformed[extra] = 1
+		_assert_rejected(port.prepare_advance(malformed), "scene calendar field " + extra)
+	var prepared := port.prepare_advance(request)
+	if not _require_ok(prepared, "scene prepare"):
+		return
+	if not _require_ok(port.commit_advance(_prepared_candidate(prepared)), "scene commit"):
+		return
+	_assert_rejected_with(port.prepare_advance(changed),
+		&"causal_day_advance_identity_conflict", "same scene source different completion")
+	var changed_target := _prepared_candidate(prepared).duplicate(true)
+	changed_target["day_advance_identity_receipt"]["target_causal_day_instance"] = "changed-target"
+	_assert_rejected_with(port.commit_advance(changed_target),
+		&"causal_day_advance_identity_conflict", "same allocation different target")
+
+
+func test_scene_rejects_legacy_resolution_proof() -> void:
+	var port := _configured_port()
+	if port == null:
+		return
+	for kind in RESOLUTION_KINDS:
+		var request := _advance_request(kind, 1)
+		request["resolution_kind"] = "scene_day_complete"
+		request.erase("source_day")
+		_assert_rejected(port.prepare_advance(request), "scene must require its own completion proof")
+
+
+func test_tuple_comparison_refuses_malformed_cardinality_and_mixed_families() -> void:
+	var port := PORT.new()
+	for malformed: Array in [[], ["run", "branch", 0], ["run", "branch", 0, "causal", 1, "extra"]]:
+		assert_false(port.call("_tuple_equals", malformed, malformed),
+			"only four-member scene and five-member legacy tuples are comparable")
+	var scene: Array = ["run", "branch", 0, "causal"]
+	var legacy: Array = ["run", "branch", 0, "causal", 1]
+	assert_false(port.call("_tuple_equals", scene, legacy), "scene cannot alias legacy")
+	assert_false(port.call("_tuple_equals", legacy, scene), "legacy cannot alias scene")
+	assert_true(port.call("_tuple_equals", scene, scene.duplicate()))
+	assert_true(port.call("_tuple_equals", legacy, legacy.duplicate()))
+	var other_scene := scene.duplicate()
+	other_scene[3] = "different-causal"
+	assert_false(port.call("_tuple_equals", scene, other_scene))
+	var other_legacy := legacy.duplicate()
+	other_legacy[4] = 2
+	assert_false(port.call("_tuple_equals", legacy, other_legacy))
