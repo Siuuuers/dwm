@@ -451,7 +451,18 @@ func run_process_phase(test_owner: Node, phase: String, report_directory: String
 		if completion.is_empty(): return
 		if not _phase_check(completion.command_receipts == prior.receipts
 			and completion.narrative_checkpoint.reading_session.boundary == "between_entries", "completion retains receipt and semantic stop"): return
-		_phase_report("autosave.json")
+		var completion_text := _phase_raw("autosave.json")
+		# Natural Return releases the existing dating phase owner, whose lawful
+		# challenge transition may publish a newer Autosave before process exit.
+		# Retain both original documents; the consumer loads the settled bytes.
+		await _phase_finish()
+		var settled := _phase_snapshot("autosave.json")
+		if not _phase_check(not settled.is_empty() and settled.command_receipts == completion.command_receipts
+			and settled.narrative_checkpoint.reading_session == completion.narrative_checkpoint.reading_session,
+			"physical successor retains exact completed reading and marker receipt"): return
+		_phase_report("autosave.json", {"completion_commit_text": completion_text,
+			"completion_commit_sha256": completion_text.sha256_text()})
+		return
 	else:
 		if not _phase_check(prior.checkpoint.reading_session.boundary == "between_entries", "fresh completion cursor"): return
 		_phase_report(prior.path)
