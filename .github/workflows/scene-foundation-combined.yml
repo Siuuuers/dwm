@@ -1,0 +1,137 @@
+name: Combined foundation original inventory generation
+'on':
+  push:
+    branches:
+    - codex/scene-foundation-combined-controller-20261008
+permissions:
+  contents: read
+jobs:
+  inventories:
+    name: Generate exact combined inventories
+    runs-on: windows-2022
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        persist-credentials: true
+        ref: 23d8b3dfdd63948549af318917df5f4a84ac5120
+    - name: Record exact source and controller before import
+      run: '$actual = (git rev-parse HEAD).Trim()
+
+        $tree = (git rev-parse ''HEAD^{tree}'').Trim()
+
+        if ($actual -ne ''23d8b3dfdd63948549af318917df5f4a84ac5120'' -or $tree -ne ''5466485ce16146ba4430519b5ff8017062d67059'')
+        { throw ''Candidate mismatch.'' }
+
+        New-Item -ItemType Directory -Force .godot/ci/public-surfaces | Out-Null
+
+        @{product=$actual;tree=$tree;controller=$env:GITHUB_SHA;run=$env:GITHUB_RUN_ID;attempt=$env:GITHUB_RUN_ATTEMPT} |
+        ConvertTo-Json | Set-Content .godot/ci/public-surfaces/provenance.json
+
+        '
+    - name: Prepare disposable checkout for credential cleanup
+      run: '$ErrorActionPreference = ''Stop''
+
+        # These legacy tooling gitlinks have no .gitmodules URLs. Git''s
+
+        # submodule foreach reads the index even with sparse checkout.
+
+        # The source commit and working files remain unchanged.
+
+        git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        git submodule foreach --recursive ''true''
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        '
+    - name: Record fixture and schema version census
+      run: "@'\nimport json, pathlib, re, subprocess\nroot = pathlib.Path.cwd()\npaths = subprocess.check_output([\n    \"\
+        git\", \"ls-files\", \"-z\", \"--\", \"autoload/\", \"scripts/\", \"tests/\",\n    \"tools/testing/\", \".github/workflows/\"\
+        \n]).decode(\"utf-8\").split(\"\\0\")\npatterns = {\n    \"legacy_prepared_fixture\": r\"\\bv[1-6]_desktop_prepared\\\
+        .json\\b\",\n    \"historical_day3_seed\": r\"valid_day3\\.json\",\n    \"backup_fixture_helper\": r\"BackupSnapshotFixture\"\
+        ,\n    \"run_document_version\": r\"\\b(?:schema_version|SCHEMA_VERSION|DOCUMENT_VERSION)\\b\",\n    \"empty_contacts_literal\"\
+        : r\"\\bcontacts\\b[\\\"']?\\s*[:=]\\s*\\{\\s*\\}\",\n}\ncompiled = {key: re.compile(value) for key, value in patterns.items()}\n\
+        records = []\nscanned = 0\nfor name in sorted(paths):\n    path = root / name\n    if path.suffix not in {\".gd\"\
+        , \".ps1\", \".py\", \".yml\", \".yaml\"} or not path.is_file():\n        continue\n    scanned += 1\n    for number,\
+        \ line in enumerate(path.read_text(encoding=\"utf-8-sig\").splitlines(), 1):\n        families = [key for key, pattern\
+        \ in compiled.items() if pattern.search(line)]\n        if families:\n            records.append({\"path\": name,\
+        \ \"line\": number, \"families\": families, \"text\": line})\nreport = {\n    \"checkout_ref\": subprocess.check_output([\"\
+        git\", \"rev-parse\", \"HEAD\"], text=True).strip(),\n    \"policy\": \"Observational census only; historical, refusal\
+        \ and Profile references require review, not automatic failure.\",\n    \"scanned_files\": scanned, \"patterns\":\
+        \ patterns, \"matches\": records,\n}\noutput = root / \".godot/ci/public-surfaces/fixture-version-census.json\"\n\
+        output.parent.mkdir(parents=True, exist_ok=True)\noutput.write_text(json.dumps(report, ensure_ascii=False, indent=2)\
+        \ + \"\\n\", encoding=\"utf-8\")\nfor record in records:\n    print(\"FIXTURE_VERSION_CENSUS_MATCH: \" + json.dumps(record))\n\
+        print(\"FIXTURE_VERSION_CENSUS_SUMMARY: \" + json.dumps({\n    \"checkout_ref\": report[\"checkout_ref\"], \"scanned_files\"\
+        : scanned,\n    \"matching_lines\": len(records), \"logged_lines\": len(records),\n    \"complete_artifact\": \".godot/ci/public-surfaces/fixture-version-census.json\"\
+        ,\n    \"policy\": report[\"policy\"],\n}))\n'@ | python -\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\n"
+    - name: Install Godot 4.6.3 standard
+      run: "$ErrorActionPreference = 'Stop'\n$archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'\nInvoke-WebRequest -Uri\
+        \ 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile\
+        \ $archive\n# SHA256 published with the official 4.6.3-stable release asset.\n$expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'\n\
+        if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {\n  throw 'Godot\
+        \ archive checksum mismatch.'\n}\n$editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'\nExpand-Archive -LiteralPath\
+        \ $archive -DestinationPath $editor\n$console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'\nif (-not\
+        \ (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }\n\"GODOT_CONSOLE_PATH=$console\"\
+        \ | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8\nif ((Get-FileHash -LiteralPath $console -Algorithm\
+        \ SHA256).Hash.ToLowerInvariant() -ne '63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a') { throw\
+        \ 'Executable checksum mismatch.' }\n& $console --version\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\n"
+    - name: Import project
+      timeout-minutes: 8
+      run: "$ErrorActionPreference = 'Stop'\n$output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'\n$env:APPDATA = Join-Path\
+        \ $output 'import-user/appdata'\n$env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'\n$env:DWM_TEST_ROOT\
+        \ = Join-Path $output 'import-user/test-root'\nNew-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA,\
+        \ $env:DWM_TEST_ROOT | Out-Null\n& $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file\
+        \ \"$output/import.log\"\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\nif (Select-String -Path \"$output/import.log\"\
+        \ -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {\n  throw\
+        \ 'Project import reported script errors; inspect import.log.'\n}\n"
+    - name: Restore committed project settings after editor import
+      run: '# Dialogic''s editor scan rewrites its timeline lookup during import.
+
+        # Execute the committed configuration with the freshly imported assets.
+
+        git restore -- project.godot
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        '
+    - name: Generate then validate original combined inventories
+      timeout-minutes: 10
+      run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
+    - name: Record generated-only tracked delta
+      if: always()
+      run: "$changed = @(git diff --name-only)\n$changed | Set-Content .godot/ci/public-surfaces/tracked-diff.txt\nforeach\
+        \ ($path in $changed) {\n  if ($path -notin @('evidence/phase_2r/runtime/game_state_surface.json', 'evidence/phase_2r/runtime/save_manager_surface.json'))\
+        \ { throw \"Unexpected tracked mutation $path\" }\n}\n"
+    - name: Upload canonical inventories and retirement evidence
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: marker-checked-surfaces-${{ github.run_id }}-${{ github.run_attempt }}
+        path: '.godot/ci/import.log
+
+          .godot/ci/public-surfaces/
+
+          .godot/ci/caption-native/
+
+          .godot/ci/public_surfaces.xml
+
+          .godot/ci/public_surfaces.jsonl
+
+          .godot/ci/isolation-timeout.jsonl
+
+          .godot/phase2r_logs/cloud-isolation-timeout.log*
+
+          .godot/phase2r_logs/cloud-public-surface-*.log
+
+          .godot/phase2r_logs/cloud-public_surfaces.log*
+
+          '
+        include-hidden-files: true
+        if-no-files-found: warn
+        retention-days: 7
