@@ -46,11 +46,18 @@ class SimulatedCheckpointPort:
 
 class SimulatedNativeTarget:
 	extends RefCounted
+	signal reading_frontier_restored(result: Dictionary)
+	signal playback_start_failed(failure: Dictionary)
 	var installations := 0
 	var fail_install := false
+	var restore_inside_install := false
+	var fail_signal_inside_install := false
 
 	func install_scene_target(_session: RefCounted, _checkpoint: Dictionary, _target: Dictionary) -> Dictionary:
 		installations += 1
+		if restore_inside_install: reading_frontier_restored.emit({"ok": true})
+		if fail_signal_inside_install:
+			playback_start_failed.emit({"ok": false, "code": &"test_simulated_native_failure"})
 		if fail_install: return {"ok": false, "code": &"test_simulated_native_failure"}
 		return {"ok": true}
 
@@ -131,6 +138,45 @@ func test_simulated_confirmed_save_then_native_failure_never_retries_adoption() 
 	fixture.native.fail_install = false
 	assert_false(fixture.bridge.commit_day_entry(prepared.value).ok)
 	assert_eq(fixture.native.installations, 1)
+
+func test_synchronous_restore_then_native_failure_retains_committed_target_without_adoption() -> void:
+	for failure: String in ["return_failure", "failure_signal"]:
+		var fixture := _staged_fixture()
+		watch_signals(fixture.bridge)
+		var prepared: Dictionary = fixture.bridge.prepare_day_entry(FIXTURE.A, FIXTURE.frame(FIXTURE.A, "a:1"))
+		assert_true(prepared.ok, str(prepared))
+		if not prepared.ok: continue
+		fixture.port.confirmed = true
+		fixture.native.restore_inside_install = true
+		fixture.native.fail_install = failure == "return_failure"
+		fixture.native.fail_signal_inside_install = failure == "failure_signal"
+		var committed: Dictionary = fixture.bridge.commit_day_entry(prepared.value)
+		assert_false(committed.ok, failure)
+		assert_eq(committed.get("code"), &"test_simulated_native_failure", failure)
+		assert_true(fixture.port.consumed, failure)
+		assert_eq(fixture.port.consumes, 1, failure)
+		assert_true(fixture.bridge._scene_stage_fatal, failure)
+		assert_false(fixture.bridge.has_reading_session(), failure)
+		assert_true(fixture.bridge._active_entry.is_empty(), failure)
+		assert_signal_not_emitted(fixture.bridge, "reading_session_changed",
+			"a synchronous success callback cannot briefly publish before install returns")
+		assert_eq(fixture.bridge._scene_stage.get("committed_checkpoint"),
+			{"checkpoint_id": "test:target-checkpoint", "checkpoint_sequence": 1,
+				"snapshot_sha256": "1".repeat(64)}, failure)
+		assert_eq(fixture.bridge._scene_stage.transport, prepared.value, failure)
+		assert_true(fixture.bridge._scene_stage.has("native_failure"), failure)
+		assert_eq(fixture.native.installations, 1, failure)
+		fixture.native.fail_install = false
+		fixture.native.fail_signal_inside_install = false
+		# Late duplicate restoration must not clear failure custody either.
+		fixture.native.reading_frontier_restored.emit({"ok": true})
+		assert_false(fixture.bridge.has_reading_session(), failure)
+		assert_true(fixture.bridge._scene_stage_fatal, failure)
+		assert_false(fixture.bridge.commit_day_entry(prepared.value).ok, failure)
+		assert_false(fixture.bridge.prepare_day_entry(FIXTURE.A, FIXTURE.frame(FIXTURE.A, "a:2")).ok, failure)
+		assert_eq(fixture.port.consumes, 1, "fatal retries cannot consume another acknowledgement")
+		assert_eq(fixture.native.installations, 1, "fatal retries cannot install again")
+		assert_signal_not_emitted(fixture.bridge, "reading_session_changed")
 
 func test_selected_registration_rejects_late_or_changed_configuration() -> void:
 	var created := FIXTURE.create_session()
