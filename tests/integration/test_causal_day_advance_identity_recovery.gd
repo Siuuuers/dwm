@@ -260,3 +260,61 @@ func _causal_day_receipt(owners: Dictionary) -> Dictionary:
 	if not issued.get("ok", false):
 		return {}
 	return ((issued["value"] as Dictionary)["issuer_receipt"] as Dictionary).duplicate(true)
+
+
+func test_scene_restart_before_and_after_commit_reuses_one_opaque_identity() -> void:
+	if _root.is_empty():
+		return
+	var owners := _owners()
+	var issuer: RefCounted = owners["issuer"]
+	var parent := _root_receipt(issuer)
+	var proof: Dictionary = issuer.derive_child({
+		"parent_receipt_id": str(parent["receipt_id"]),
+		"child_kind": &"scene_day_completion",
+		"ordinal": 0,
+		"source_ids": ["scene=authored-source", "successor=authored-target"],
+	})
+	assert_true(proof.get("ok", false), "requires released real scene child-kind support")
+	if not proof.get("ok", false):
+		return
+	var source := _causal_day_receipt(owners)
+	var request := {
+		"resolution_kind": "scene_day_complete",
+		"source_resolution_receipt": {
+			"receipt_id": proof["value"]["child_id"],
+			"provenance": proof["value"]["provenance"],
+		},
+		"run_id": "scene-run", "branch_id": "scene-branch",
+		"desktop_timeline_generation": 0,
+		"source_causal_day_instance": source["token"],
+		"source_causal_day_instance_issuer_receipt": source,
+	}
+	var prepared: Dictionary = owners["port"].prepare_advance(request)
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false):
+		return
+	var expected: Dictionary = prepared["value"]["day_advance_identity_receipt"]
+	owners = {}
+	owners = _owners()
+	var recovered: Dictionary = owners["port"].prepare_advance(request)
+	assert_true(recovered.get("ok", false), str(recovered))
+	if not recovered.get("ok", false):
+		return
+	assert_eq(recovered["value"]["day_advance_identity_receipt"], expected,
+		"uncommitted prepare leaves no phantom allocation")
+	var committed: Dictionary = owners["port"].commit_advance(
+		recovered["value"]["day_advance_identity_candidate"])
+	assert_true(committed.get("ok", false), str(committed))
+	if not committed.get("ok", false):
+		return
+	owners = {}
+	owners = _owners()
+	var replayed: Dictionary = owners["port"].prepare_advance(request)
+	assert_true(replayed.get("ok", false), str(replayed))
+	if not replayed.get("ok", false):
+		return
+	assert_eq(replayed["value"]["day_advance_identity_receipt"], expected,
+		"durable scene commit replays the original receipt")
+	var root: Dictionary = owners["root_store"].capture()
+	assert_eq(root["value"]["next_counter"], expected["counter_end"],
+		"restarts never consume a second scene identity")
