@@ -10,12 +10,12 @@ jobs:
     timeout-minutes: 20
     env:
       LIBGL_ALWAYS_SOFTWARE: '1'
-      PRODUCT_SHA: 8298dd4fd13be670f8a139f88656a82c9e29de44
-      PRODUCT_TREE: 4db7dca300d5c0dc739d590b9bc0ec369b80e74c
+      PRODUCT_SHA: e5f4ace6f80e8bd497dcb39b78ca6cf154091669
+      PRODUCT_TREE: 59e976d848f34a597b94731616f9c68b39669539
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: 8298dd4fd13be670f8a139f88656a82c9e29de44
+          ref: e5f4ace6f80e8bd497dcb39b78ca6cf154091669
           fetch-depth: 0
           persist-credentials: true
       - name: Record immutable source before import
@@ -96,12 +96,12 @@ jobs:
           # Defer credential removal until the post-job cleanup, after the
           # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
-          ref: 8298dd4fd13be670f8a139f88656a82c9e29de44
+          ref: e5f4ace6f80e8bd497dcb39b78ca6cf154091669
       - name: Record exact source and controller before import
         run: |
           $actual = (git rev-parse HEAD).Trim()
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($actual -ne '8298dd4fd13be670f8a139f88656a82c9e29de44' -or $tree -ne '4db7dca300d5c0dc739d590b9bc0ec369b80e74c') { throw 'Candidate mismatch.' }
+          if ($actual -ne 'e5f4ace6f80e8bd497dcb39b78ca6cf154091669' -or $tree -ne '59e976d848f34a597b94731616f9c68b39669539') { throw 'Candidate mismatch.' }
           New-Item -ItemType Directory -Force .godot/ci/public-surfaces | Out-Null
           @{product=$actual;tree=$tree;controller=$env:GITHUB_SHA;run=$env:GITHUB_RUN_ID;attempt=$env:GITHUB_RUN_ATTEMPT} | ConvertTo-Json | Set-Content .godot/ci/public-surfaces/provenance.json
       - name: Prepare disposable checkout for credential cleanup
