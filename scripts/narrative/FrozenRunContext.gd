@@ -14,11 +14,19 @@ const CONTACTS := preload("res://scripts/narrative/ContactsFrozenContext.gd")
 const CONTACT_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const HOSPITAL := preload("res://scripts/narrative/HospitalFrozenContext.gd")
 const ENDING := preload("res://scripts/narrative/EndingFrozenContext.gd")
+const SCENE_ENTRIES := preload("res://scripts/narrative/DialogicEntryManifest.gd")
+const SCENE_LEDGER := preload("res://scripts/narrative/NarrativeCaptionLedger.gd")
 const DATING_KEY := "dating_frozen_contexts_v1"
 const HOSPITAL_KEY := "hospital_frozen_contexts_v1"
 const ENDING_KEY := "ending_frozen_contexts_v1"
 
 static func validate(snapshot: Dictionary, require_complete: bool = false) -> Dictionary:
+	# Scene reading must never enter the historical day/Contacts owner branches.
+	# This nonwired slice deliberately cannot establish G's issuer/NewRun/trigger
+	# authority from presentation copies or a caller-provided success Boolean.
+	var scene_checkpoint: Variant = snapshot.get("narrative_checkpoint")
+	if _is_scene_checkpoint(scene_checkpoint):
+		return validate_reading_checkpoint(scene_checkpoint, snapshot)
 	if not snapshot.get("lifecycle") is Dictionary or not snapshot.get("gameplay") is Dictionary \
 			or not snapshot.get("contacts") is Dictionary \
 			or (snapshot.gameplay.has("route_context") and not snapshot.gameplay.route_context is Dictionary):
@@ -63,6 +71,13 @@ static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictio
 		return _fail(&"reading_session_invalid")
 	for key: String in ["entry_id", "manifest_fingerprint", "stage", "transaction_id"]:
 		if not FROZEN._field(checkpoint[key], "id"): return _fail(&"reading_session_invalid")
+	if _is_scene_checkpoint(checkpoint):
+		var scene := _validate_scene_envelope(checkpoint)
+		if not scene.ok: return scene
+		# Full authority remains unavailable until the independently implemented
+		# SceneEventContract admission validator is composed. A structural helper
+		# below is useful for detached fixtures, but cannot authorize a saved Run.
+		return _fail(&"scene_owner_validation_unavailable")
 	if not snapshot.get("lifecycle") is Dictionary or not snapshot.get("gameplay") is Dictionary \
 			or not snapshot.get("contacts") is Dictionary or not snapshot.gameplay.get("route_context") is Dictionary:
 		return _fail(&"reading_saved_run_required")
@@ -165,6 +180,104 @@ static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictio
 			return _fail(&"reading_caption_sequence_invalid")
 		post_seen = post_seen or entry == post_entry
 	return {"ok": true, "value": {"entry_contexts": admitted}}
+
+## Discriminate malformed scene envelopes as scene too, so removing version or
+## changing it cannot fall through to a historical owner with weaker assumptions.
+static func _is_scene_checkpoint(checkpoint: Variant) -> bool:
+	if not checkpoint is Dictionary: return false
+	var reading: Variant = checkpoint.get("reading_session")
+	var frame: Variant = checkpoint.get("frozen_context")
+	return (reading is Dictionary and (reading.get("schema_version") == 5 \
+			or reading.has("registration_sha256") or reading.has("occurrence_id"))) \
+			or (frame is Dictionary and frame.get("role") == "scene")
+
+static func _validate_scene_envelope(checkpoint: Dictionary) -> Dictionary:
+	var reading: Variant = checkpoint.get("reading_session")
+	if not reading is Dictionary or not READING_NEXT.valid_scene_reading_shape(reading):
+		return _fail(&"reading_session_invalid")
+	if reading.next_operation != null:
+		var operation := READING_NEXT.validate(reading, checkpoint.entry_id)
+		if not operation.ok: return operation
+	var selected := SCENE_ENTRIES.scene_registration_fingerprint()
+	if selected.is_empty() or checkpoint.manifest_fingerprint != selected \
+			or reading.registration_sha256 != selected:
+		return _fail(&"reading_scene_registration_mismatch")
+	if reading.ledger.frozen_context != {"family": "scene", "session_token": reading.ledger.session_token,
+			"registration_sha256": selected}:
+		return _fail(&"reading_scene_context_mismatch")
+	var current := SCENE_LEDGER.resolve_scene_frame(reading.ledger.entry_contexts,
+		reading.occurrence_id, reading.entry_id)
+	if not current.ok: return current
+	if checkpoint.entry_id != reading.entry_id or checkpoint.frozen_context != current.value \
+			or checkpoint.stage != "scene" or checkpoint.transaction_id != current.value.transaction_id:
+		return _fail(&"reading_entry_context_mismatch")
+	return {"ok": true, "value": {}}
+
+## Pure structural derivation only. The map's values are scene_admitted RESULTS,
+## keyed by their immutable command IDs, after the owning scene contract has
+## authenticated the complete canonical receipts. This function neither proves
+## issuer custody nor accepts a Run; validate() intentionally remains fail-closed.
+static func derive_scene_frames(admissions: Dictionary, reading: Dictionary) -> Dictionary:
+	if not READING_NEXT.valid_scene_reading_shape(reading): return _fail(&"reading_session_invalid")
+	var registered := SCENE_ENTRIES.scene_registration()
+	if not registered.ok: return registered
+	if reading.registration_sha256 != SCENE_ENTRIES.scene_registration_fingerprint():
+		return _fail(&"reading_scene_registration_mismatch")
+	var targets := {}
+	for row: Dictionary in registered.value.targets: targets[row.target_id] = row.target
+	var frames := {}
+	for key: Variant in reading.ledger.entry_contexts:
+		if not key is String: return _fail(&"reading_entry_context_mismatch")
+		var pair := SCENE_LEDGER.decode_scene_frame_key(key)
+		if not pair.ok: return pair
+		var resolved := SCENE_LEDGER.resolve_scene_frame(reading.ledger.entry_contexts,
+			pair.value.occurrence_id, pair.value.entry_id)
+		if not resolved.ok: return resolved
+		var frame: Dictionary = resolved.value
+		var fields: Dictionary = frame.presentation.fields
+		var id: String = fields.admission_receipt_id
+		var admission: Variant = admissions.get(id)
+		if not admission is Dictionary or not _exact(admission, ["kind", "occurrence_id", "entry_id",
+				"target_id", "source_checkpoint", "trigger_command_id", "return_to"]) \
+			or admission.kind != "scene_admitted" or admission.occurrence_id != id \
+			or admission.occurrence_id != pair.value.occurrence_id or admission.entry_id != pair.value.entry_id \
+			or not admission.target_id is String or not targets.has(admission.target_id) \
+			or not _scene_checkpoint_reference(admission.source_checkpoint) \
+			or (admission.trigger_command_id != null and not FROZEN._field(admission.trigger_command_id, "id")):
+			return _fail(&"reading_scene_admission_invalid")
+		var target: Dictionary = targets[admission.target_id]
+		if target.entry_id != admission.entry_id or target.kind not in ["scene", "contact", "ending"]:
+			return _fail(&"reading_scene_admission_invalid")
+		if target.kind == "contact":
+			var back: Variant = admission.return_to
+			if not back is Dictionary or not _exact(back, ["scene_occurrence", "admission_receipt_id",
+					"entry_id", "target_id", "source_checkpoint"]) \
+			or not _scene_checkpoint_reference(back.source_checkpoint):
+				return _fail(&"reading_scene_admission_invalid")
+			for field: String in ["scene_occurrence", "admission_receipt_id", "entry_id", "target_id"]:
+				if not FROZEN._field(back[field], "id"): return _fail(&"reading_scene_admission_invalid")
+			if not targets.has(back.target_id) or targets[back.target_id].kind != "return" \
+			or targets[back.target_id].entry_id != back.entry_id:
+				return _fail(&"reading_scene_admission_invalid")
+		else:
+			if admission.return_to != null: return _fail(&"reading_scene_admission_invalid")
+		var presentation := FROZEN.build(admission.entry_id, {"entry_id": admission.entry_id,
+			"entry_role": "scene", "occurrence_id": id, "admission_receipt_id": id})
+		if not presentation.ok: return presentation
+		var expected := {"expected_stage": "scene", "playback_id": id, "role": "scene",
+			"transaction_id": id, "presentation": presentation.value}
+		if frame != expected: return _fail(&"reading_entry_context_mismatch")
+		frames[key] = expected
+	return {"ok": true, "value": {"entry_contexts": frames}}
+
+static func _scene_checkpoint_reference(value: Variant) -> bool:
+	if not value is Dictionary or not _exact(value, ["checkpoint_id", "checkpoint_sequence", "snapshot_sha256"]) \
+			or not FROZEN._field(value.checkpoint_id, "id") \
+			or typeof(value.checkpoint_sequence) != TYPE_INT or value.checkpoint_sequence < 0 \
+			or not value.snapshot_sha256 is String or value.snapshot_sha256.length() != 64: return false
+	for character: String in value.snapshot_sha256:
+		if character not in "0123456789abcdef": return false
+	return true
 
 ## The ordered plan owns step identity and completion. History may retain the
 ## just-completed tail while the durable cursor (and frozen cache) move forward.
@@ -717,3 +830,4 @@ static func _ok() -> Dictionary:
 
 static func _fail(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code, "message": str(code), "details": {}}
+

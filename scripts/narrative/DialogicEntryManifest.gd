@@ -84,6 +84,321 @@ const CONTEXT_PREFIX := "context."
 const CONTEXT_SUFFIX := ".v1"
 const WITNESS_SIGNAL := "history.line.witness"
 
+const SCENE_SCHEMA_PATH := "res://schemas/manifests/dialogic-scene-entries.schema.json"
+static var _scene_bundle: Dictionary = {}
+static var _registration_used := false
+static var _startup_selection_checked := false
+static var _startup_selection_error: Dictionary = {}
+const SCENE_TEST_FLAG := "--scene-reading-fixture"
+const SCENE_TEST_BUNDLE_PATH := "res://tests/fixtures/dialogic/scene_reading_registration.json"
+
+## First owner access precedes consumers' caches, including autoload consumers.
+## Only the explicit debug process switch selects this one shipped TEST fixture.
+## The exact environment value supports GUT, which rejects unknown CLI flags.
+static func _select_startup_fixture() -> Dictionary:
+	if _startup_selection_checked:
+		return {"ok": true} if _startup_selection_error.is_empty() else _startup_selection_error.duplicate(true)
+	_startup_selection_checked = true
+	if not OS.get_cmdline_user_args().has(SCENE_TEST_FLAG) and not OS.get_cmdline_args().has(SCENE_TEST_FLAG) \
+			and OS.get_environment("DWM_SCENE_READING_FIXTURE") != "1":
+		return {"ok": true}
+	if not OS.has_feature("debug"):
+		_startup_selection_error = _scene_fail("test_only")
+		return _startup_selection_error.duplicate(true)
+	var parsed := STRICT_JSON.parse_object(FileAccess.get_file_as_string(SCENE_TEST_BUNDLE_PATH))
+	if not parsed.ok:
+		_startup_selection_error = _scene_fail("startup fixture unavailable")
+		return _startup_selection_error.duplicate(true)
+	var selected := configure_test_scene_registration(parsed.value)
+	if not selected.ok: _startup_selection_error = selected.duplicate(true)
+	return selected
+
+## Process-local engineering seam. Save data is never a configuration source.
+static func configure_test_scene_registration(bundle: Dictionary) -> Dictionary:
+	if not OS.has_feature("debug"):
+		return _scene_fail("test_only")
+	if _registration_used or not _scene_bundle.is_empty():
+		return _scene_fail("registration_already_selected")
+	var checked := validate_scene_registration(bundle)
+	if not checked.ok: return checked
+	_scene_bundle = bundle.duplicate(true)
+	_scene_freeze(_scene_bundle)
+	return {"ok": true, "value": _scene_hash(_scene_bundle)}
+
+static func scene_registration() -> Dictionary:
+	var startup := _select_startup_fixture()
+	if not startup.ok: return startup
+	_registration_used = true
+	if _scene_bundle.is_empty(): return _fail(&"scene_registration_absent", "no TEST scene registration selected")
+	return {"ok": true, "value": _scene_bundle.duplicate(true)}
+
+static func scene_registration_fingerprint() -> String:
+	if not _select_startup_fixture().ok: return ""
+	_registration_used = true
+	return "" if _scene_bundle.is_empty() else _scene_hash(_scene_bundle)
+
+static func _scene_hash(value: Variant) -> String:
+	var encoded := CANONICAL_JSON.stringify(value)
+	return str(encoded.value).sha256_text() if encoded.ok else ""
+
+static func _scene_freeze(value: Variant) -> void:
+	if value is Dictionary or value is Array:
+		for child: Variant in (value.values() if value is Dictionary else value):
+			_scene_freeze(child)
+		value.make_read_only()
+
+static func _scene_exact(value: Variant, keys: Array) -> bool:
+	if not value is Dictionary or value.size() != keys.size(): return false
+	for key: Variant in value:
+		if not key is String or key not in keys: return false
+	return true
+
+static func _scene_id(value: Variant) -> bool:
+	return value is String and not value.strip_edges().is_empty()
+
+static func _scene_version(value: Variant) -> bool:
+	return typeof(value) == TYPE_INT and value > 0
+
+static func _scene_fail(detail: String) -> Dictionary:
+	return _fail(&"scene_registration_invalid", detail)
+
+static func _scene_table(value: Variant, id: String, keys: Array) -> Dictionary:
+	if not value is Array: return _scene_fail(id + ": array required")
+	var rows := {}
+	var previous := ""
+	for row: Variant in value:
+		if not _scene_exact(row, keys) or not _scene_id(row.get(id)) or str(row[id]) <= previous:
+			return _scene_fail(id + ": exact sorted unique rows required")
+		previous = row[id]
+		rows[row[id]] = row
+	return {"ok": true, "value": rows}
+
+static func _validate_scene_manifest(document: Dictionary) -> Dictionary:
+	var parsed := STRICT_JSON.parse_object(FileAccess.get_file_as_string(SCENE_SCHEMA_PATH))
+	if not parsed.ok: return _scene_fail("scene schema missing")
+	var shape := JsonSchemaValidator.validate(document, parsed.value)
+	if not shape.ok: return shape
+	if typeof(document.schema_version) != TYPE_INT or typeof(document.entry_count) != TYPE_INT \
+			or document.entry_count != document.entries.size(): return _scene_fail("entry count")
+	var seen := {}
+	var previous := ""
+	for row: Dictionary in document.entries:
+		if row.entry_id <= previous or not _scene_version(row.content_version): return _scene_fail("entry order/version")
+		previous = row.entry_id
+		if row.context_schema_id != "context.scene." + row.entry_id + ".v1" \
+				or row.line_namespace != "line." + row.entry_id or row.atom_namespace != "atom." + row.entry_id:
+			return _scene_fail("namespace")
+		var locator: Dictionary = row.locators.en
+		if not _locator_is_usable(locator, row.entry_id) or not locator.path.begins_with("res://tests/fixtures/dialogic/") \
+				or ".." in locator.path or not locator.path.ends_with(".dtl"): return _scene_fail("TEST locator")
+		var pair: String = locator.path + "|" + locator.label
+		if seen.has(pair): return _scene_fail("duplicate locator")
+		seen[pair] = true
+		var signals := _check_allowlist(row.entry_id, row.allowed_signals)
+		if not signals.ok: return signals
+	return {"ok": true, "value": document.duplicate(true)}
+
+## Validate the complete bundle before any consumer can populate a cache.
+static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
+	if not _scene_exact(bundle, ["kind", "schema_version", "entry_manifest", "context_registry",
+			"ids_registry", "caption_registry", "scene_programme", "targets", "board_profiles", "challenges", "contacts"]) \
+			or bundle.kind != "scene_reading_registration" or typeof(bundle.schema_version) != TYPE_INT \
+			or bundle.schema_version != 1: return _scene_fail("bundle shape")
+	for field: String in ["entry_manifest", "context_registry", "ids_registry", "caption_registry", "scene_programme"]:
+		if not bundle[field] is Dictionary: return _scene_fail(field)
+	var manifest := _validate_scene_manifest(bundle.entry_manifest)
+	if not manifest.ok: return manifest
+	var entries := _entry_index(bundle.entry_manifest)
+	var contexts: Dictionary = bundle.context_registry
+	if not _scene_exact(contexts, ["kind", "schema_version", "schemas"]) \
+			or contexts.kind != "dialogic_frozen_context_registry" or typeof(contexts.schema_version) != TYPE_INT \
+			or contexts.schema_version != 1: return _scene_fail("contexts shape")
+	var schemas := _scene_table(contexts.schemas, "entry_id", ["schema_id", "schema_version", "entry_id", "fields"])
+	if not schemas.ok or schemas.value.size() != entries.size(): return _scene_fail("context coverage")
+	for id: String in entries:
+		var row: Dictionary = schemas.value.get(id, {})
+		if row.get("schema_id") != entries[id].context_schema_id or typeof(row.get("schema_version")) != TYPE_INT \
+				or row.schema_version != 1 or row.get("fields") != {"entry_id": {"const": id},
+				"entry_role": {"const": "scene"}, "occurrence_id": "id", "admission_receipt_id": "id"}:
+			return _scene_fail("context fields")
+	var captions: Dictionary = bundle.caption_registry
+	if not _scene_exact(captions, ["kind", "schema_version", "entries"]) or captions.kind != "scene_caption_registry" \
+			or typeof(captions.schema_version) != TYPE_INT or captions.schema_version != 1: return _scene_fail("captions shape")
+	var caption_entries := _scene_table(captions.entries, "entry_id", ["entry_id", "lines"])
+	if not caption_entries.ok or caption_entries.value.size() != entries.size(): return _scene_fail("caption coverage")
+	var lines := {}
+	var beats := {}
+	for id: String in entries:
+		var row: Dictionary = caption_entries.value.get(id, {})
+		if not row.get("lines") is Array or row.lines.is_empty(): return _scene_fail("caption lines")
+		for line: Variant in row.lines:
+			if not _scene_exact(line, ["beat_id", "line_id", "text", "revision"]): return _scene_fail("caption shape")
+			for field: String in ["beat_id", "line_id", "text", "revision"]:
+				if not _scene_id(line[field]): return _scene_fail("caption value")
+			if lines.has(line.line_id) or beats.has(line.beat_id): return _scene_fail("caption duplicate")
+			lines[line.line_id] = id
+			beats[line.beat_id] = true
+	var ids: Dictionary = bundle.ids_registry
+	if not _scene_exact(ids, ["kind", "schema_version", "lines", "signals"]) or ids.kind != "scene_ids_registry" \
+			or typeof(ids.schema_version) != TYPE_INT or ids.schema_version != 1: return _scene_fail("ids shape")
+	var ids_lines := _scene_table(ids.lines, "line_id", ["line_id", "owning_entry_id"])
+	var signals := _scene_table(ids.signals, "signal_id", ["signal_id", "payload_fields"])
+	if not ids_lines.ok or not signals.ok or ids_lines.value.size() != lines.size(): return _scene_fail("ids coverage")
+	for id: String in lines:
+		if ids_lines.value.get(id, {}).get("owning_entry_id") != lines[id]: return _scene_fail("line owner")
+	var payloads := {"scene.transition": ["target_id"], "challenge.playable": ["challenge_id"],
+		"challenge.end": ["challenge_id"], "contact.enter": ["contact_event_id"], "contact.return": ["contact_event_id"],
+		"history.line.witness": ["entry_id", "line_id", "playback_token", "receipt_id"]}
+	for id: String in signals.value:
+		if not payloads.has(id) or signals.value[id].payload_fields != payloads[id]: return _scene_fail("signal shape")
+	for row: Dictionary in entries.values():
+		for signal_id: String in row.allowed_signals:
+			if not signals.value.has(signal_id): return _scene_fail("unbound signal")
+	var programme: Dictionary = bundle.scene_programme
+	if not _scene_exact(programme, ["kind", "schema_version", "entries"]) or programme.kind != "scene_programme" \
+			or typeof(programme.schema_version) != TYPE_INT or programme.schema_version != 1: return _scene_fail("programme shape")
+	var programmes := _scene_table(programme.entries, "entry_id", ["entry_id", "content_version", "content_sha256", "program_sha256", "markers"])
+	if not programmes.ok or programmes.value.size() != entries.size(): return _scene_fail("programme coverage")
+	var compiled := {}
+	var markers := {}
+	for id: String in entries:
+		var row: Dictionary = programmes.value.get(id, {})
+		if not _scene_version(row.get("content_version")) or row.content_version != entries[id].content_version \
+				or not row.get("markers") is Array: return _scene_fail("programme version")
+		# Shape-check before the native compiler consumes any marker fields.
+		for marker: Variant in row.markers:
+			if not _scene_exact(marker, ["marker_id", "label", "after_line_id", "kind", "payload"]):
+				return _scene_fail("marker shape")
+			for field: String in ["marker_id", "label", "after_line_id", "kind"]:
+				if not _scene_id(marker[field]): return _scene_fail("marker value")
+			if not marker.payload is Dictionary: return _scene_fail("marker payload")
+		var native := DialogicRuntimeAdapter.compile_scene_programme(entries[id].locators.en.path, id, entries.keys(), row.markers)
+		if not native.ok: return native
+		if row.content_sha256 != native.value.content_sha256 or row.program_sha256 != native.value.program_sha256:
+			return _scene_fail("programme hash")
+		compiled[id] = native.value
+		var native_lines: Array = []
+		var native_signals: Array = []
+		var labels: Array = []
+		for event: Dictionary in native.value.events:
+			if event.kind == "label": labels.append(event.label)
+			elif event.kind == "text": native_lines.append({"line_id": event.line_id, "text": event.text})
+			elif event.kind == "signal": native_signals.append(event.signal_id)
+		var expected_lines: Array = []
+		for line: Dictionary in caption_entries.value[id].lines:
+			expected_lines.append({"line_id": line.line_id, "text": line.text})
+		if native_lines != expected_lines: return _scene_fail("DTL captions")
+		var expected_signals: Array = []
+		var marker_labels := {}
+		for marker: Variant in row.markers:
+			if not _scene_exact(marker, ["marker_id", "label", "after_line_id", "kind", "payload"]) \
+					or not _scene_id(marker.marker_id) or markers.has(marker.marker_id) \
+					or marker_labels.has(marker.label) or marker.label not in labels \
+					or lines.get(marker.after_line_id) != id or marker.kind not in payloads \
+					or marker.kind == WITNESS_SIGNAL or marker.kind not in entries[id].allowed_signals \
+					or not _scene_exact(marker.payload, payloads[marker.kind]): return _scene_fail("marker")
+			for value: Variant in marker.payload.values():
+				if not _scene_id(value): return _scene_fail("marker payload")
+			markers[marker.marker_id] = {"entry_id": id, "row": marker}
+			marker_labels[marker.label] = true
+			expected_signals.append(marker.kind)
+		for signal_id: String in native_signals:
+			if signal_id not in expected_signals: return _scene_fail("DTL signal coverage")
+		# A marker must immediately follow its authenticated source caption label boundary.
+		var last_line := ""
+		var actual_marker_order: Array = []
+		for event: Dictionary in native.value.events:
+			if event.kind == "text": last_line = event.line_id
+			if event.kind == "label" and marker_labels.has(event.label):
+				actual_marker_order.append(event.label)
+				for marker: Dictionary in row.markers:
+					if marker.label == event.label and marker.after_line_id != last_line:
+						return _scene_fail("marker position")
+		var declared_marker_order: Array = []
+		var expected_grants: Array = [WITNESS_SIGNAL]
+		for marker: Dictionary in row.markers:
+			declared_marker_order.append(marker.label)
+			if marker.kind not in expected_grants: expected_grants.append(marker.kind)
+		expected_grants.sort()
+		if actual_marker_order != declared_marker_order or entries[id].allowed_signals != expected_grants:
+			return _scene_fail("marker order/grants")
+	var tables := _validate_scene_tables(bundle, entries, programmes.value, compiled, markers)
+	if not tables.ok: return tables
+	return {"ok": true, "value": bundle.duplicate(true)}
+
+static func _validate_scene_tables(bundle: Dictionary, entries: Dictionary, programmes: Dictionary,
+		compiled: Dictionary, markers: Dictionary) -> Dictionary:
+	var targets := _scene_table(bundle.targets, "target_id", ["target_id", "target"])
+	var profiles := _scene_table(bundle.board_profiles, "board_profile_id", ["board_profile_id", "board_kind",
+		"difficulty_id", "width", "height", "base_mine_count", "generator_version", "verifier_version", "capability_policy_id"])
+	var challenges := _scene_table(bundle.challenges, "challenge_id",
+		["challenge_id", "entry_id", "playable_marker_id", "end_marker_id", "board_profile_id", "targets"])
+	var contacts := _scene_table(bundle.contacts, "contact_event_id", ["contact_event_id", "entry_id", "source_fact_ids", "return_target_id"])
+	for table: Dictionary in [targets, profiles, challenges, contacts]:
+		if not table.ok: return table
+	for row: Dictionary in targets.value.values():
+		var target: Variant = row.target
+		if not _scene_exact(target, ["kind", "entry_id", "label", "content_version", "program_sha256"]) \
+				or target.kind not in ["local", "scene", "ending", "contact", "return"] \
+				or not entries.has(target.entry_id): return _scene_fail("target shape")
+		if not _scene_version(target.content_version) or target.content_version != programmes[target.entry_id].content_version \
+				or target.program_sha256 != programmes[target.entry_id].program_sha256: return _scene_fail("target version")
+		if target.kind in ["scene", "ending", "contact"]:
+			if target.label != target.entry_id: return _scene_fail("callable target")
+		elif not compiled[target.entry_id].label_nodes.has(target.label): return _scene_fail("internal target")
+	for row: Dictionary in profiles.value.values():
+		for key: String in ["width", "height", "base_mine_count"]:
+			if typeof(row[key]) != TYPE_INT: return _scene_fail("board integer")
+		if row.width <= 0 or row.height <= 0 or row.base_mine_count < 0 \
+				or row.base_mine_count >= row.width * row.height: return _scene_fail("board geometry")
+		var host: String = {"desktop": "desktop_app", "solo_challenge": "canonical_solo",
+			"pair_challenge": "canonical_pair"}.get(row.board_kind, "")
+		if not row.difficulty_id is String: return _scene_fail("board difficulty")
+		var geometry := MinesweeperBoardCatalog.lookup(host, row.difficulty_id if host == "desktop_app" else "")
+		if not geometry.ok or (host != "desktop_app" and row.difficulty_id != host) \
+				or geometry.value != {"width": row.width, "height": row.height, "base_mine_count": row.base_mine_count}:
+			return _scene_fail("unsupported board profile")
+		# Explicit scene discriminator selects the existing inventory capability projection.
+		if row.generator_version != "dwm_generator_v1" or row.verifier_version != "visible_deduction_v1" \
+				or row.capability_policy_id != "owned_inventory_v1": return _scene_fail("unsupported board policy")
+	for row: Dictionary in challenges.value.values():
+		if not entries.has(row.entry_id) or not profiles.value.has(row.board_profile_id) \
+				or not _scene_exact(row.targets, ["never_started", "unfinished", "lost", "won"]):
+			return _scene_fail("challenge shape")
+		for pair: Array in [["playable_marker_id", "challenge.playable"], ["end_marker_id", "challenge.end"]]:
+			var marker: Dictionary = markers.get(row[pair[0]], {})
+			if marker.get("entry_id") != row.entry_id or marker.row.kind != pair[1] \
+					or marker.row.payload != {"challenge_id": row.challenge_id}: return _scene_fail("challenge marker")
+		for target_id: Variant in row.targets.values():
+			if not targets.value.has(target_id): return _scene_fail("challenge target")
+			var target: Dictionary = targets.value[target_id].target
+			if target.kind == "local" and target.entry_id != row.entry_id: return _scene_fail("local challenge target")
+		var ordered: Array = programmes[row.entry_id].markers
+		if ordered.find(markers[row.playable_marker_id].row) >= ordered.find(markers[row.end_marker_id].row):
+			return _scene_fail("challenge marker order")
+	for row: Dictionary in contacts.value.values():
+		if not entries.has(row.entry_id) or not targets.value.has(row.return_target_id) \
+				or targets.value[row.return_target_id].target.kind != "return" or not row.source_fact_ids is Array:
+			return _scene_fail("contact target")
+		var previous := ""
+		for fact: Variant in row.source_fact_ids:
+			if not _scene_id(fact) or fact <= previous: return _scene_fail("contact facts")
+			previous = fact
+	for value: Dictionary in markers.values():
+		var marker: Dictionary = value.row
+		match marker.kind:
+			"scene.transition":
+				if not targets.value.has(marker.payload.target_id): return _scene_fail("dangling transition")
+				var target: Dictionary = targets.value[marker.payload.target_id].target
+				if target.kind == "local" and target.entry_id != value.entry_id: return _scene_fail("local transition target")
+			"challenge.playable", "challenge.end":
+				if not challenges.value.has(marker.payload.challenge_id): return _scene_fail("dangling challenge")
+			"contact.enter", "contact.return":
+				if not contacts.value.has(marker.payload.contact_event_id): return _scene_fail("dangling contact")
+				if marker.kind == "contact.return" and contacts.value[marker.payload.contact_event_id].entry_id != value.entry_id:
+					return _scene_fail("contact return owner")
+	return {"ok": true}
+
 
 # --------------------------------------------------------------------------------------------
 # Sub-commit 2B: the exact ID registries.
@@ -211,6 +526,11 @@ const OPAQUE_PAYLOAD_FIELDS := ["combination_id", "evidence_id", "playback_token
 
 
 static func load_default() -> Dictionary:
+	var startup := _select_startup_fixture()
+	if not startup.ok: return startup
+	_registration_used = true
+	if not _scene_bundle.is_empty():
+		return {"ok": true, "value": _scene_bundle.entry_manifest.duplicate(true)}
 	if not FileAccess.file_exists(MANIFEST_PATH):
 		return _fail(&"ENTRY_MANIFEST_FILE_MISSING", MANIFEST_PATH + " is absent")
 	var parsed: Dictionary = STRICT_JSON.parse_object(FileAccess.get_file_as_string(MANIFEST_PATH))
@@ -221,6 +541,8 @@ static func load_default() -> Dictionary:
 
 
 static func validate_document(document: Dictionary) -> Dictionary:
+	if document.get("schema_version") == 2:
+		return _validate_scene_manifest(document)
 	var entries: Variant = document.get("entries")
 	if not (entries is Array):
 		return _fail(&"ENTRY_MANIFEST_DOCUMENT_SHAPE", "the document declares no entries array")
@@ -391,6 +713,10 @@ static func resolve_entry(document: Dictionary, entry_id: String, locale: String
 ## The SHA-256 of the document's canonical serialization. Empty only when the document cannot be
 ## canonicalized at all, which CanonicalJsonWriter reports for a non-JSON Variant.
 static func fingerprint(document: Dictionary) -> String:
+	if document.get("schema_version") == 2:
+		if not _select_startup_fixture().ok: return ""
+		if _scene_bundle.is_empty() or document != _scene_bundle.entry_manifest: return ""
+		return scene_registration_fingerprint()
 	var emitted: Dictionary = CANONICAL_JSON.stringify(document)
 	if not emitted.get("ok", false):
 		return ""
@@ -478,6 +804,11 @@ static func _fail(code: StringName, message: String) -> Dictionary:
 
 
 static func load_ids_default() -> Dictionary:
+	var startup := _select_startup_fixture()
+	if not startup.ok: return startup
+	_registration_used = true
+	if not _scene_bundle.is_empty():
+		return {"ok": true, "value": _scene_bundle.ids_registry.duplicate(true)}
 	if not FileAccess.file_exists(IDS_MANIFEST_PATH):
 		return _fail(&"IDS_MANIFEST_FILE_MISSING", IDS_MANIFEST_PATH + " is absent")
 	var parsed: Dictionary = STRICT_JSON.parse_object(
@@ -490,6 +821,10 @@ static func load_ids_default() -> Dictionary:
 
 ## The registry document, taken explicitly so every law below is reachable from a fixture.
 static func validate_ids_document(ids_document: Dictionary) -> Dictionary:
+	if ids_document.get("kind") == "scene_ids_registry":
+		if _scene_bundle.is_empty() or ids_document != _scene_bundle.ids_registry:
+			return _scene_fail("unselected ids registry")
+		return {"ok": true, "value": ids_document.duplicate(true)}
 	for pair: Array in REGISTRY_COUNTS:
 		if not ids_document.has(str(pair[1])):
 			return _fail(&"IDS_MANIFEST_DOCUMENT_SHAPE",
@@ -654,6 +989,13 @@ static func validate_ids_document(ids_document: Dictionary) -> Dictionary:
 ## shape of line_id. A stranger that happens to sit under the owner's line_namespace is still
 ## refused, because membership here is registration.
 static func validate_line_id(document: Dictionary, entry_id: String, line_id: String) -> Dictionary:
+	if document.get("schema_version") == 2:
+		var selected := scene_registration()
+		if not selected.ok or document != selected.value.entry_manifest: return _scene_fail("unselected entries")
+		for row: Dictionary in selected.value.ids_registry.lines:
+			if row.line_id == line_id and row.owning_entry_id == entry_id:
+				return {"ok": true, "value": row.duplicate(true)}
+		return _fail(&"LINE_ID_UNREGISTERED", line_id)
 	var registry := load_ids_default()
 	if not registry.get("ok", false):
 		return registry
@@ -853,3 +1195,4 @@ static func _is_retired_label(entry_id: String, retired_registry: Variant = null
 		if str(record.get("label_id", "")) == entry_id:
 			return record.get("reject_on_restore") == true
 	return false
+

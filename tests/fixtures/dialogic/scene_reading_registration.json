@@ -1,0 +1,342 @@
+{
+  "kind": "scene_reading_registration",
+  "schema_version": 1,
+  "entry_manifest": {
+    "kind": "dialogic_entries",
+    "schema_version": 2,
+    "default_locale": "en",
+    "locales": [
+      "en"
+    ],
+    "entry_count": 3,
+    "entries": [
+      {
+        "entry_id": "contact.test.a",
+        "role": "scene",
+        "allowed_signals": [
+          "contact.return",
+          "history.line.witness"
+        ],
+        "atom_namespace": "atom.contact.test.a",
+        "line_namespace": "line.contact.test.a",
+        "content_version": 1,
+        "context_schema_id": "context.scene.contact.test.a.v1",
+        "locators": {
+          "en": {
+            "path": "res://tests/fixtures/dialogic/scene_day_terminal.dtl",
+            "label": "contact.test.a"
+          }
+        },
+        "visual_ids": {
+          "required": [],
+          "optional": []
+        },
+        "presentation_signature_schema": {
+          "schema_version": 1,
+          "fields": {}
+        }
+      },
+      {
+        "entry_id": "scene.test.a",
+        "role": "scene",
+        "allowed_signals": [
+          "history.line.witness"
+        ],
+        "atom_namespace": "atom.scene.test.a",
+        "line_namespace": "line.scene.test.a",
+        "content_version": 1,
+        "context_schema_id": "context.scene.scene.test.a.v1",
+        "locators": {
+          "en": {
+            "path": "res://tests/fixtures/dialogic/scene_day_terminal.dtl",
+            "label": "scene.test.a"
+          }
+        },
+        "visual_ids": {
+          "required": [],
+          "optional": []
+        },
+        "presentation_signature_schema": {
+          "schema_version": 1,
+          "fields": {}
+        }
+      },
+      {
+        "entry_id": "scene.test.b",
+        "role": "scene",
+        "allowed_signals": [
+          "history.line.witness",
+          "scene.transition"
+        ],
+        "atom_namespace": "atom.scene.test.b",
+        "line_namespace": "line.scene.test.b",
+        "content_version": 1,
+        "context_schema_id": "context.scene.scene.test.b.v1",
+        "locators": {
+          "en": {
+            "path": "res://tests/fixtures/dialogic/scene_day_terminal.dtl",
+            "label": "scene.test.b"
+          }
+        },
+        "visual_ids": {
+          "required": [],
+          "optional": []
+        },
+        "presentation_signature_schema": {
+          "schema_version": 1,
+          "fields": {}
+        }
+      }
+    ]
+  },
+  "context_registry": {
+    "kind": "dialogic_frozen_context_registry",
+    "schema_version": 1,
+    "schemas": [
+      {
+        "entry_id": "contact.test.a",
+        "schema_id": "context.scene.contact.test.a.v1",
+        "schema_version": 1,
+        "fields": {
+          "entry_id": {
+            "const": "contact.test.a"
+          },
+          "entry_role": {
+            "const": "scene"
+          },
+          "occurrence_id": "id",
+          "admission_receipt_id": "id"
+        }
+      },
+      {
+        "entry_id": "scene.test.a",
+        "schema_id": "context.scene.scene.test.a.v1",
+        "schema_version": 1,
+        "fields": {
+          "entry_id": {
+            "const": "scene.test.a"
+          },
+          "entry_role": {
+            "const": "scene"
+          },
+          "occurrence_id": "id",
+          "admission_receipt_id": "id"
+        }
+      },
+      {
+        "entry_id": "scene.test.b",
+        "schema_id": "context.scene.scene.test.b.v1",
+        "schema_version": 1,
+        "fields": {
+          "entry_id": {
+            "const": "scene.test.b"
+          },
+          "entry_role": {
+            "const": "scene"
+          },
+          "occurrence_id": "id",
+          "admission_receipt_id": "id"
+        }
+      }
+    ]
+  },
+  "ids_registry": {
+    "kind": "scene_ids_registry",
+    "schema_version": 1,
+    "lines": [
+      {
+        "line_id": "line.contact.test.a.one",
+        "owning_entry_id": "contact.test.a"
+      },
+      {
+        "line_id": "line.scene.test.a.one",
+        "owning_entry_id": "scene.test.a"
+      },
+      {
+        "line_id": "line.scene.test.a.two",
+        "owning_entry_id": "scene.test.a"
+      },
+      {
+        "line_id": "line.scene.test.b.one",
+        "owning_entry_id": "scene.test.b"
+      },
+      {
+        "line_id": "line.scene.test.b.two",
+        "owning_entry_id": "scene.test.b"
+      }
+    ],
+    "signals": [
+      {
+        "signal_id": "contact.return",
+        "payload_fields": [
+          "contact_event_id"
+        ]
+      },
+      {
+        "signal_id": "history.line.witness",
+        "payload_fields": [
+          "entry_id",
+          "line_id",
+          "playback_token",
+          "receipt_id"
+        ]
+      },
+      {
+        "signal_id": "scene.transition",
+        "payload_fields": [
+          "target_id"
+        ]
+      }
+    ]
+  },
+  "caption_registry": {
+    "kind": "scene_caption_registry",
+    "schema_version": 1,
+    "entries": [
+      {
+        "entry_id": "contact.test.a",
+        "lines": [
+          {
+            "beat_id": "beat.contact.test.a.one",
+            "line_id": "line.contact.test.a.one",
+            "text": "Contact first.",
+            "revision": "1"
+          }
+        ]
+      },
+      {
+        "entry_id": "scene.test.a",
+        "lines": [
+          {
+            "beat_id": "beat.scene.test.a.one",
+            "line_id": "line.scene.test.a.one",
+            "text": "A first.",
+            "revision": "1"
+          },
+          {
+            "beat_id": "beat.scene.test.a.two",
+            "line_id": "line.scene.test.a.two",
+            "text": "A loop.",
+            "revision": "1"
+          }
+        ]
+      },
+      {
+        "entry_id": "scene.test.b",
+        "lines": [
+          {
+            "beat_id": "beat.scene.test.b.one",
+            "line_id": "line.scene.test.b.one",
+            "text": "B first.",
+            "revision": "1"
+          },
+          {
+            "beat_id": "beat.scene.test.b.two",
+            "line_id": "line.scene.test.b.two",
+            "text": "B second.",
+            "revision": "1"
+          }
+        ]
+      }
+    ]
+  },
+  "scene_programme": {
+    "kind": "scene_programme",
+    "schema_version": 1,
+    "entries": [
+      {
+        "entry_id": "contact.test.a",
+        "content_version": 1,
+        "content_sha256": "9ba01cbf4d1d4cb058567494f543f21a86f6ca18a1f1ce85806cabe8d1bc7cd7",
+        "program_sha256": "f701dc416f8bc21bd529d70936d34af5738544ea4efb6e3f3f4f62a823b7b1e1",
+        "markers": [
+          {
+            "marker_id": "contact.test.a.end",
+            "label": "contact.test.a.end",
+            "after_line_id": "line.contact.test.a.one",
+            "kind": "contact.return",
+            "payload": {
+              "contact_event_id": "contact_test"
+            }
+          }
+        ]
+      },
+      {
+        "entry_id": "scene.test.a",
+        "content_version": 1,
+        "content_sha256": "9ba01cbf4d1d4cb058567494f543f21a86f6ca18a1f1ce85806cabe8d1bc7cd7",
+        "program_sha256": "830d476f574b2a37b0505fa252437b4c0af6c8dd932b6244cf6e4cf485f34a17",
+        "markers": []
+      },
+      {
+        "entry_id": "scene.test.b",
+        "content_version": 1,
+        "content_sha256": "9ba01cbf4d1d4cb058567494f543f21a86f6ca18a1f1ce85806cabe8d1bc7cd7",
+        "program_sha256": "6fa89473feb7e4a1277b39a76917ae69d6f829651b0dba0a4a850212ba74c4b8",
+        "markers": [
+          {
+            "marker_id": "scene.test.b.end",
+            "label": "scene.test.b.end",
+            "after_line_id": "line.scene.test.b.two",
+            "kind": "scene.transition",
+            "payload": {
+              "target_id": "target_a"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "targets": [
+    {
+      "target_id": "return_a",
+      "target": {
+        "kind": "return",
+        "entry_id": "scene.test.a",
+        "label": "scene.test.a.loop",
+        "content_version": 1,
+        "program_sha256": "830d476f574b2a37b0505fa252437b4c0af6c8dd932b6244cf6e4cf485f34a17"
+      }
+    },
+    {
+      "target_id": "target_a",
+      "target": {
+        "kind": "scene",
+        "entry_id": "scene.test.a",
+        "label": "scene.test.a",
+        "content_version": 1,
+        "program_sha256": "830d476f574b2a37b0505fa252437b4c0af6c8dd932b6244cf6e4cf485f34a17"
+      }
+    },
+    {
+      "target_id": "target_b",
+      "target": {
+        "kind": "scene",
+        "entry_id": "scene.test.b",
+        "label": "scene.test.b",
+        "content_version": 1,
+        "program_sha256": "6fa89473feb7e4a1277b39a76917ae69d6f829651b0dba0a4a850212ba74c4b8"
+      }
+    },
+    {
+      "target_id": "target_contact",
+      "target": {
+        "kind": "contact",
+        "entry_id": "contact.test.a",
+        "label": "contact.test.a",
+        "content_version": 1,
+        "program_sha256": "f701dc416f8bc21bd529d70936d34af5738544ea4efb6e3f3f4f62a823b7b1e1"
+      }
+    }
+  ],
+  "board_profiles": [],
+  "challenges": [],
+  "contacts": [
+    {
+      "contact_event_id": "contact_test",
+      "entry_id": "contact.test.a",
+      "source_fact_ids": [],
+      "return_target_id": "return_a"
+    }
+  ]
+}

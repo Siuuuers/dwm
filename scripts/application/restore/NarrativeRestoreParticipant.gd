@@ -163,6 +163,10 @@ func finalize() -> Dictionary:
 ## Ruling 14-D's semantic branch. It validates compatibility and starts nothing: every resolution
 ## question is asked of the bridge, so this file holds no second copy of the entry-resolution law.
 func _prepare_semantic(checkpoint: Dictionary) -> Dictionary:
+	# Scene admission requires the complete receipt-bearing Run and reading5.
+	# A stripped six-field scene frame cannot use the historical resume seam.
+	if FROZEN_RUN._is_scene_checkpoint(checkpoint):
+		return _fail(&"invalid_narrative_checkpoint", "scene_owner_validation_unavailable")
 	for key: String in _PHYSICAL_LOCATOR_KEYS:
 		if checkpoint.has(key):
 			return _fail(&"invalid_narrative_checkpoint",
@@ -220,7 +224,8 @@ func _prepare_reading(checkpoint: Dictionary, snapshot: Variant) -> Dictionary:
 	# All retained frames are independently admitted against the saved physical
 	# owner, not against the checkpoint's own copy of those same frames. Invalid
 	# saved bytes stay fail-closed even when a content fingerprint is also stale.
-	var frozen := FROZEN_RUN.validate_reading_checkpoint(checkpoint, snapshot)
+	var frozen := FROZEN_RUN.validate(snapshot, true) if FROZEN_RUN._is_scene_checkpoint(checkpoint) \
+		else FROZEN_RUN.validate_reading_checkpoint(checkpoint, snapshot)
 	if not frozen.get("ok", false):
 		return _fail(&"invalid_narrative_checkpoint", str(frozen.get("code", "")))
 	# Reuse the existing entry compatibility law without widening the old exact
@@ -289,3 +294,4 @@ static func _content_unavailable(message: String) -> Dictionary:
 
 static func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message}
+

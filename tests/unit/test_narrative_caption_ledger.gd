@@ -1,5 +1,118 @@
 extends "res://addons/gut/test.gd"
 
+# Scene registration/traversal authority is tested by its owners. This fixture
+# isolates ledger representation, occurrence custody and atomic reconstruction.
+func _scene_frame(occurrence_id: String, entry_id: String = ENTRY) -> Dictionary:
+	return {"expected_stage": "scene", "playback_id": occurrence_id, "role": "scene",
+		"transaction_id": "operation:" + occurrence_id,
+		"presentation": {"schema_id": "context.scene.%s.v1" % entry_id, "schema_version": 1,
+			"fields": {"entry_id": entry_id, "entry_role": "scene", "occurrence_id": occurrence_id,
+				"admission_receipt_id": "receipt:" + occurrence_id}}}
+
+func _scene_ledger() -> NarrativeCaptionLedger:
+	var fixture := _fixture()
+	var ledger := LEDGER.new()
+	assert_true(ledger.initialize(TOKEN, fixture.frozen_context, fixture.entry_manifest,
+		fixture.registry, false, true).ok)
+	return ledger
+
+func test_scene_revisit_and_loop_retain_publications_and_exact_live_duplicates() -> void:
+	var ledger := _scene_ledger()
+	assert_true(ledger.admit_entry_context(TOKEN, ENTRY, _scene_frame("visit:1"), "visit:1").ok)
+	assert_true(ledger.admit_entry_context(TOKEN, ENTRY, _scene_frame("visit:2"), "visit:2").ok)
+	for occurrence: String in ["visit:1", "visit:2", "visit:2"]:
+		var allocated := ledger.allocate_publication(TOKEN, ENTRY, occurrence)
+		assert_true(allocated.ok)
+		assert_true(ledger.publish_line(TOKEN, allocated.value, ENTRY, "fixture.caption.alpha", occurrence).ok)
+	var saved := ledger.snapshot()
+	assert_eq(saved.schema_version, 2)
+	assert_eq(saved.captions.size(), 3, "revisit and local loop are separate publications")
+	assert_eq(saved.entry_contexts.size(), 2)
+	var last: Dictionary = saved.captions.back()
+	var duplicate := ledger.publish_caption(TOKEN, last.publication_id, last.beat, "visit:2")
+	assert_eq(duplicate.value, {"duplicate": true, "ordinal": 2})
+	assert_eq(ledger.publish_caption(TOKEN, last.publication_id, last.beat, "visit:1").code,
+		&"caption_publication_conflict")
+	var frontier := {"line_id": last.beat.line_id, "publication_id": last.publication_id}
+	assert_true(ledger.is_current_occurrence(TOKEN, ENTRY, frontier, "visit:2"))
+	assert_false(ledger.is_current_occurrence(TOKEN, ENTRY, frontier, "visit:1"))
+	assert_eq(ledger.snapshot(), saved)
+
+func test_scene_requires_explicit_occurrence_and_immutable_exact_frame() -> void:
+	var ledger := _scene_ledger()
+	var empty := ledger.snapshot()
+	assert_false(ledger.admit_entry_context(TOKEN, ENTRY, _scene_frame("visit:1")).ok)
+	var wrong := _scene_frame("visit:1")
+	wrong.presentation.fields["extra"] = true
+	assert_false(ledger.admit_entry_context(TOKEN, ENTRY, wrong, "visit:1").ok)
+	wrong = _scene_frame("visit:1")
+	wrong.playback_id = "visit:2"
+	assert_false(ledger.admit_entry_context(TOKEN, ENTRY, wrong, "visit:1").ok)
+	assert_false(ledger.allocate_publication(TOKEN, ENTRY, "visit:1").ok)
+	assert_eq(ledger.snapshot(), empty)
+	var frame := _scene_frame("visit:1")
+	assert_true(ledger.admit_entry_context(TOKEN, ENTRY, frame, "visit:1").ok)
+	var admitted := ledger.snapshot()
+	frame.transaction_id = "different-operation"
+	assert_eq(ledger.admit_entry_context(TOKEN, ENTRY, frame, "visit:1").code,
+		&"caption_entry_context_conflict")
+	assert_false(ledger.publish_line(TOKEN, "new", ENTRY, "fixture.caption.alpha").ok)
+	assert_eq(ledger.snapshot(), admitted)
+	var resolved := LEDGER.resolve_scene_frame(admitted.entry_contexts, "visit:1", ENTRY)
+	assert_true(resolved.ok)
+	resolved.value.presentation.fields.admission_receipt_id = "changed"
+	assert_eq(ledger.snapshot(), admitted)
+
+func test_scene_restore_rejects_duplicate_rows_and_noncanonical_keys_atomically() -> void:
+	var fixture := _fixture()
+	var ledger := _scene_ledger()
+	assert_true(ledger.admit_entry_context(TOKEN, ENTRY, _scene_frame("visit:1"), "visit:1").ok)
+	assert_true(ledger.publish_line(TOKEN, "caption:2", ENTRY, "fixture.caption.alpha", "visit:1").ok)
+	var saved := ledger.snapshot()
+	var damaged := saved.duplicate(true)
+	damaged.captions.append(damaged.captions[0].duplicate(true))
+	var restored := LEDGER.new()
+	var empty := restored.snapshot()
+	assert_eq(restored.restore_snapshot(TOKEN, fixture.frozen_context, fixture.entry_manifest,
+		fixture.registry, damaged, damaged.entry_contexts, true).code, &"caption_snapshot_duplicate")
+	assert_eq(restored.snapshot(), empty)
+	damaged = saved.duplicate(true)
+	var key := LEDGER.scene_frame_key("visit:1", ENTRY)
+	damaged.entry_contexts[" " + key] = damaged.entry_contexts[key]
+	damaged.entry_contexts.erase(key)
+	assert_false(restored.restore_snapshot(TOKEN, fixture.frozen_context, fixture.entry_manifest,
+		fixture.registry, damaged, damaged.entry_contexts, true).ok)
+	assert_eq(restored.snapshot(), empty)
+	damaged = saved.duplicate(true)
+	damaged.entry_contexts[key].presentation.fields.occurrence_id = "visit:2"
+	assert_false(restored.restore_snapshot(TOKEN, fixture.frozen_context, fixture.entry_manifest,
+		fixture.registry, damaged, damaged.entry_contexts, true).ok)
+	assert_eq(restored.snapshot(), empty)
+	assert_true(restored.restore_snapshot(TOKEN, fixture.frozen_context, fixture.entry_manifest,
+		fixture.registry, saved, saved.entry_contexts, true).ok)
+	assert_eq(restored.snapshot(), saved)
+	assert_eq(restored.allocate_publication(TOKEN, ENTRY, "visit:1").value, "caption:3",
+		"allocator skips retained publication even when count differs from suffix")
+	assert_true(restored.publish_caption(TOKEN, "caption:2", saved.captions[0].beat, "visit:1").value["duplicate"])
+
+func test_scene_snapshot_cannot_downgrade_or_accept_foreign_row_occurrence() -> void:
+	var fixture := _fixture()
+	var ledger := _scene_ledger()
+	assert_true(ledger.admit_entry_context(TOKEN, ENTRY, _scene_frame("visit:1"), "visit:1").ok)
+	assert_true(ledger.publish_line(TOKEN, "caption:1", ENTRY, "fixture.caption.alpha", "visit:1").ok)
+	var saved := ledger.snapshot()
+	for mutation: String in ["version", "downgrade", "row"]:
+		var damaged := saved.duplicate(true)
+		match mutation:
+			"version": damaged.schema_version = 2.0
+			"downgrade": damaged.erase("schema_version")
+			"row": damaged.captions[0].occurrence_id = "visit:2"
+		var restored := LEDGER.new()
+		var empty := restored.snapshot()
+		assert_false(restored.restore_snapshot(TOKEN, fixture.frozen_context, fixture.entry_manifest,
+			fixture.registry, damaged, damaged.entry_contexts, true, true).ok, mutation)
+		assert_eq(restored.snapshot(), empty, mutation)
+
 const LEDGER := preload("res://scripts/narrative/NarrativeCaptionLedger.gd")
 const MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const FIXTURE := "res://tests/fixtures/dialogic/non_canon_caption_registry.json"
@@ -246,3 +359,4 @@ func test_original_unframed_snapshot_and_restore_contract_remains_available() ->
 	assert_true(restored.restore_snapshot(TOKEN, fixture.frozen_context,
 		fixture.entry_manifest, fixture.registry, saved).ok)
 	assert_eq(restored.snapshot(), saved)
+
