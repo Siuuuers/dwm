@@ -1,4 +1,4 @@
-name: Isolated Next notification diagnostic
+name: Isolated Next authored-selector proof
 on:
   push:
     branches: [codex/scene-next-notification-controller-20261008]
@@ -10,12 +10,12 @@ jobs:
     timeout-minutes: 20
     env:
       LIBGL_ALWAYS_SOFTWARE: '1'
-      PRODUCT_SHA: f97d134ae49f2028013ed2c0a7477a8cd2622528
-      PRODUCT_TREE: c230d9e4884d08bfb0ab8673ef0e273e675463c0
+      PRODUCT_SHA: 1fb4b5aa4de7a413fa7962fc0e16d29810d22491
+      PRODUCT_TREE: 986e669a4a89d5504ccb265767ee8b40145e49e1
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: f97d134ae49f2028013ed2c0a7477a8cd2622528
+          ref: 1fb4b5aa4de7a413fa7962fc0e16d29810d22491
           fetch-depth: 0
           persist-credentials: true
       - name: Record immutable source before import
@@ -28,7 +28,7 @@ jobs:
           pathlib.Path('.godot/ci/provenance.json').write_text(json.dumps({
             'product':os.environ['PRODUCT_SHA'],'tree':os.environ['PRODUCT_TREE'],
             'controller':os.environ['GITHUB_SHA'],'run':os.environ['GITHUB_RUN_ID'],
-            'attempt':os.environ['GITHUB_RUN_ATTEMPT'],'purpose':'focused and nine real process phases; exact inventories and rail diagnosis',
+            'attempt':os.environ['GITHUB_RUN_ATTEMPT'],'purpose':'approved authored-selector one-action correction',
             'index_cleanup':['.claude/skills/godot-prompter/1.10.0','.claude/skills/superpowers/6.1.1']},indent=2))
           PY
           git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
@@ -55,7 +55,7 @@ jobs:
           if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' .godot/ci/import.log; then exit 1; fi
           git restore -- project.godot
           test -z "$(git diff --name-only)"
-      - name: Diagnose unchanged authored-selector assertion
+      - name: Prove one-action authored-selector journey
         run: |
           python3 - <<'PY'
           import pathlib,subprocess
@@ -73,7 +73,7 @@ jobs:
         run: |
           git diff --name-only > .godot/ci/tracked-source-diff.txt
           test ! -s .godot/ci/tracked-source-diff.txt
-      - name: Preserve original diagnostics
+      - name: Preserve targeted proof and original failure logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -82,3 +82,148 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 14
+
+  generated-surfaces:
+    name: Windows / exact candidate generated inventory check
+    runs-on: windows-2022
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Defer credential removal until the post-job cleanup, after the
+          # malformed gitlinks are removed from this disposable runner's index.
+          persist-credentials: true
+          ref: 1fb4b5aa4de7a413fa7962fc0e16d29810d22491
+      - name: Record exact source and controller before import
+        run: |
+          $actual = (git rev-parse HEAD).Trim()
+          $tree = (git rev-parse 'HEAD^{tree}').Trim()
+          if ($actual -ne '1fb4b5aa4de7a413fa7962fc0e16d29810d22491' -or $tree -ne '986e669a4a89d5504ccb265767ee8b40145e49e1') { throw 'Candidate mismatch.' }
+          New-Item -ItemType Directory -Force .godot/ci/public-surfaces | Out-Null
+          @{product=$actual;tree=$tree;controller=$env:GITHUB_SHA;run=$env:GITHUB_RUN_ID;attempt=$env:GITHUB_RUN_ATTEMPT} | ConvertTo-Json | Set-Content .godot/ci/public-surfaces/provenance.json
+      - name: Prepare disposable checkout for credential cleanup
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
+          # submodule foreach reads the index even with sparse checkout.
+          # The source commit and working files remain unchanged.
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git submodule foreach --recursive 'true'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Record fixture and schema version census
+        run: |
+          @'
+          import json, pathlib, re, subprocess
+          root = pathlib.Path.cwd()
+          paths = subprocess.check_output([
+              "git", "ls-files", "-z", "--", "autoload/", "scripts/", "tests/",
+              "tools/testing/", ".github/workflows/"
+          ]).decode("utf-8").split("\0")
+          patterns = {
+              "legacy_prepared_fixture": r"\bv[1-6]_desktop_prepared\.json\b",
+              "historical_day3_seed": r"valid_day3\.json",
+              "backup_fixture_helper": r"BackupSnapshotFixture",
+              "run_document_version": r"\b(?:schema_version|SCHEMA_VERSION|DOCUMENT_VERSION)\b",
+              "empty_contacts_literal": r"\bcontacts\b[\"']?\s*[:=]\s*\{\s*\}",
+          }
+          compiled = {key: re.compile(value) for key, value in patterns.items()}
+          records = []
+          scanned = 0
+          for name in sorted(paths):
+              path = root / name
+              if path.suffix not in {".gd", ".ps1", ".py", ".yml", ".yaml"} or not path.is_file():
+                  continue
+              scanned += 1
+              for number, line in enumerate(path.read_text(encoding="utf-8-sig").splitlines(), 1):
+                  families = [key for key, pattern in compiled.items() if pattern.search(line)]
+                  if families:
+                      records.append({"path": name, "line": number, "families": families, "text": line})
+          report = {
+              "checkout_ref": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+              "policy": "Observational census only; historical, refusal and Profile references require review, not automatic failure.",
+              "scanned_files": scanned, "patterns": patterns, "matches": records,
+          }
+          output = root / ".godot/ci/public-surfaces/fixture-version-census.json"
+          output.parent.mkdir(parents=True, exist_ok=True)
+          output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+          for record in records:
+              print("FIXTURE_VERSION_CENSUS_MATCH: " + json.dumps(record))
+          print("FIXTURE_VERSION_CENSUS_SUMMARY: " + json.dumps({
+              "checkout_ref": report["checkout_ref"], "scanned_files": scanned,
+              "matching_lines": len(records), "logged_lines": len(records),
+              "complete_artifact": ".godot/ci/public-surfaces/fixture-version-census.json",
+              "policy": report["policy"],
+          }))
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Install Godot 4.6.3 standard
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
+          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
+          # SHA256 published with the official 4.6.3-stable release asset.
+          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
+            throw 'Godot archive checksum mismatch.'
+          }
+          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
+          Expand-Archive -LiteralPath $archive -DestinationPath $editor
+          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
+          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          if ((Get-FileHash -LiteralPath $console -Algorithm SHA256).Hash.ToLowerInvariant() -ne '63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a') { throw 'Executable checksum mismatch.' }
+          & $console --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Import project
+        timeout-minutes: 8
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
+          $env:APPDATA = Join-Path $output 'import-user/appdata'
+          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
+          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
+          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
+            throw 'Project import reported script errors; inspect import.log.'
+          }
+      - name: Restore committed project settings after editor import
+        run: |
+          # Dialogic's editor scan rewrites its timeline lookup during import.
+          # Execute the committed configuration with the freshly imported assets.
+          git restore -- project.godot
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Regenerate and check original inventories
+        timeout-minutes: 10
+        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
+      - name: Record generated-only tracked delta
+        if: always()
+        run: |
+          $changed = @(git diff --name-only)
+          $changed | Set-Content .godot/ci/public-surfaces/tracked-diff.txt
+          foreach ($path in $changed) {
+            if ($path -notin @('evidence/phase_2r/runtime/game_state_surface.json', 'evidence/phase_2r/runtime/save_manager_surface.json')) { throw "Unexpected tracked mutation $path" }
+          }
+      - name: Upload canonical inventories and retirement evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: marker-checked-surfaces-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .godot/ci/import.log
+            .godot/ci/public-surfaces/
+            .godot/ci/caption-native/
+            .godot/ci/public_surfaces.xml
+            .godot/ci/public_surfaces.jsonl
+            .godot/ci/isolation-timeout.jsonl
+            .godot/phase2r_logs/cloud-isolation-timeout.log*
+            .godot/phase2r_logs/cloud-public-surface-*.log
+            .godot/phase2r_logs/cloud-public_surfaces.log*
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7
