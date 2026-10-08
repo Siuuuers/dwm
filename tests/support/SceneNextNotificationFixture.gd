@@ -424,6 +424,15 @@ func run_process_phase(test_owner: Node, phase: String, report_directory: String
 		var expected := "notification" if phase == "consume-source-marker" else "line"
 		if not _phase_check(result.value.destination == expected, "restored source reaches exact expected stop"): return
 		if not _phase_save("quick"): return
+		if phase == "consume-marker-source-later":
+			# This core fixture invokes Bridge directly, so it must supply the
+			# ordinary renderer's post-Next acknowledgement of the visible SECOND.
+			# Use the public validated frontier; never edit Profile witness data.
+			var presented: Dictionary = bridge.capture_current_line_presentation_frontier()
+			if not _phase_check(presented.get("ok", false) and presented.value.line_id == SECOND,
+				"later visible caption has its exact presentation frontier"): return
+			if not _phase_check(bridge.acknowledge_current_line_presentation(presented).get("ok", false),
+				"renderer acknowledgement settles SECOND before the next process"): return
 		if phase == "consume-source-marker" and not _phase_save("slot:2"): return
 		var destination := _phase_snapshot("quicksave.json")
 		if destination.is_empty(): return
