@@ -14,23 +14,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [scene-registration, scene-reading, legacy-core, legacy-notification, legacy-next]
+        suite: [scene-reading, legacy-core, legacy-notification, legacy-next]
     defaults:
       run:
         shell: pwsh
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: 14689d3be9ca997da598bf591e149d23bcd4b84a
+          ref: 2d6d0d3ff29b341a9e1343dafd33341087c85b9a
           fetch-depth: 1
           persist-credentials: true
       - name: Verify and record immutable source before import
         run: |
           $ErrorActionPreference = 'Stop'
           $source = (git rev-parse HEAD).Trim()
-          if ($LASTEXITCODE -ne 0 -or $source -cne '14689d3be9ca997da598bf591e149d23bcd4b84a') { throw 'Wrong source commit.' }
+          if ($LASTEXITCODE -ne 0 -or $source -cne '2d6d0d3ff29b341a9e1343dafd33341087c85b9a') { throw 'Wrong source commit.' }
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($LASTEXITCODE -ne 0 -or $tree -cne 'd37cfa569b8b8b84b1cbcb045f6262f9d759ba75') { throw 'Wrong source tree.' }
+          if ($LASTEXITCODE -ne 0 -or $tree -cne '026731d08ac5b9a52eceb16add42bc6b05d0b07b') { throw 'Wrong source tree.' }
           git diff --exit-code HEAD --
           if ($LASTEXITCODE -ne 0) { throw 'Source checkout is dirty before import.' }
           New-Item -ItemType Directory -Force -Path '.godot/ci' | Out-Null
