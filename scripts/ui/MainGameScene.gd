@@ -5,7 +5,6 @@ class_name MainGameScene
 
 const COMPUTER_DESKTOP_SCENE := preload("res://scenes/desktop/ComputerDesktop.tscn")
 const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
-const PANEL_SPLIT := preload("res://scripts/ui/desktop/DesktopPanelSplit.gd")
 const PANEL_WIDTH_PATH := &"preferences.display.angela_panel_width"
 
 @onready var _computer_panel: PanelContainer = %ComputerPanel
@@ -21,14 +20,12 @@ func _ready() -> void:
 	$RootHBox.width_committed.connect(_on_panel_width_committed)
 	_mount_angela_art()
 	_ensure_computer_desktop()
-	%AngelaPanel.resized.connect(_layout_angela_overlay)
-	%StatHud.get_node("%Rows").minimum_size_changed.connect(_layout_angela_overlay)
+	if _computer_desktop_instance is Control:
+		(_computer_desktop_instance as Control).theme_changed.connect(_refresh_split_presentation)
 	var localization := get_node_or_null("/root/LocalizationManager")
 	if localization != null:
 		localization.locale_changed.connect(_refresh_split_presentation)
 	_refresh_split_presentation()
-	%StatHud.theme_changed.connect(_refresh_split_presentation)
-	_layout_angela_overlay.call_deferred()
 
 func bind_view_preferences(profile: Object) -> bool:
 	if profile != null and (not profile.has_method("get_preference") or not profile.has_method("set_preference")): return false
@@ -57,16 +54,6 @@ func _on_panel_width_committed(width: float) -> void:
 	var saved: Dictionary = _view_profile.set_preference(PANEL_WIDTH_PATH, roundi(width))
 	if not saved.get("ok", false): _refresh_panel_width()
 
-func _layout_angela_overlay() -> void:
-	var hud: Control = %StatHud
-	var rows: Control = hud.get_node("%Rows")
-	var natural_height: float = rows.get_combined_minimum_size().y + hud.get_theme_stylebox("panel").get_minimum_size().y
-	# Keep the whole card and native scroll rail above the divider's hit target.
-	var handle_top: float = maxf(0.0, (%AngelaPanel.size.y - PANEL_SPLIT.HANDLE_SIZE.y) * 0.5)
-	hud.offset_left = 16.0
-	hud.offset_right = -16.0
-	hud.offset_bottom = hud.offset_top + minf(natural_height, maxf(0.0, handle_top - hud.offset_top - 12.0))
-
 func _refresh_split_presentation(_locale_id: String = "") -> void:
 	var localization := get_node_or_null("/root/LocalizationManager")
 	var locale := str(localization.get_locale()) if localization != null else "en"
@@ -77,10 +64,15 @@ func _refresh_split_presentation(_locale_id: String = "") -> void:
 		"ja": ["アンジェラパネルのサイズ変更", "左右にドラッグ。左右キーで幅を調整、Home/End で最小/最大にします。"],
 		"ko": ["안젤라 패널 크기 조절", "가로로 드래그하세요. 좌우 키로 너비를 조절하고 Home/End로 최소/최대 크기를 설정하세요."],
 	}.get(locale, ["Resize Angela panel", "Drag horizontally to resize."])
-	if $RootHBox.theme != %StatHud.theme:
-		$RootHBox.theme = %StatHud.theme
+	if _computer_desktop_instance is Control:
+		var desktop_theme: Theme = (_computer_desktop_instance as Control).theme
+		# Inherited theme notifications can reenter this callback. Only assign a new
+		# resource; the mounted Desktop remains the sole palette/font owner.
+		if $RootHBox.theme != desktop_theme:
+			$RootHBox.theme = desktop_theme
 	$RootHBox.set_handle_accessibility(copy[0], copy[1])
-	_layout_angela_overlay.call_deferred()
+	# The handle copies its colors during sorting, even when width is unchanged.
+	$RootHBox.queue_sort()
 
 func _mount_angela_art() -> void:
 	for asset_id: String in ["shell.background", "shell.character.angela", "shell.keepsakes"]:
