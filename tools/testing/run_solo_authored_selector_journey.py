@@ -40,7 +40,7 @@ RETAINED_JSON = ("saved-quick.json", "saved-profile.json", "saved-next-source.js
 READER_JSON = ("read-before-quick.json", "read-after-quick.json", "read-before-profile.json", "read-after-profile.json")
 TRACE_KINDS = {
     "write": ("fixture_registered", "history_inspected", "pre_history", "committed_result_then_post_prose",
-              "next_unseen_verified", "next_destination_verified", "history_inspected", "quick_committed"),
+              "next_destination_verified", "history_inspected", "quick_committed"),
     "read": ("fresh_restore_prepared", "forged_checkpoint_refused", "history_inspected", "fresh_restore_verified"),
 }
 
@@ -206,38 +206,30 @@ def validate_saved_state(reports: dict, repository: Path, evidence: Path, folder
 
 
 def validate_next(written: dict, evidence: Path, folder: Path) -> dict:
-    unseen = written["unseen_stop"]
-    require(unseen["result"]["ok"] is True and unseen["result"]["code"] == "unseen_stop"
-            and unseen["checkpoint_writes"] == []
-            and unseen["before_checkpoint"] == unseen["after_checkpoint"],
-            "PARTIAL_UNSEEN_NEXT_MUST_PRESERVE_CHECKPOINT_WITH_NO_NEXT_WRITES")
-    before, after = unseen["native_before"], unseen["native_after"]
-    require(before["line_id"] == LINES[2] and after["line_id"] == before["line_id"]
-            and before["text"] == after["text"] and before["revealing"] is True
-            and 0 <= before["visible_characters"] < before["total_characters"]
-            and 0 <= before["visible_ratio"] < 1 and after["revealing"] is False
-            and after["visible_ratio"] == 1
-            and (after["visible_characters"] == -1 or after["visible_characters"] >= after["total_characters"]),
-            "FIRST_NEXT_MUST_FINISH_LITERAL_PARTIAL_POST_A_WITHOUT_ADVANCING")
     proof = written["next"]
+    before, settled = proof["native_before"], proof["native_at_settlement"]
+    require(proof["activation_count"] == 1 and before["line_id"] == LINES[2]
+            and settled["line_id"] == LINES[3] and settled["text"] == written["current_text"]
+            and proof["physical_before"] == written["physical_record"]
+            and proof["frames_before"] == written["authoritative_frames"],
+            "ONE_NEXT_MUST_PRESERVE_SELECTED_BOARD_AND_PHASE_AUTHORITY")
+    for phase, native in (("source", before), ("settlement", settled)):
+        require(native["revealing"] is True and 0 <= native["visible_ratio"] < 1
+                and 0 <= native["visible_characters"] < native["total_characters"],
+                f"NEXT_REQUIRES_LITERAL_PARTIAL_CAPTION_AT_{phase.upper()}")
     require(proof["result"]["ok"] is True and proof["result"]["code"] == "next_complete"
             and proof["result"]["value"]["destination"] == "line"
             and proof["source_ack"]["was_visited_before_presentation"] is False
             and proof["destination_ack"]["was_visited_before_presentation"] is False,
             "NEXT_MUST_RETAIN_BOTH_PRE_PUBLICATION_UNSEEN_BASELINES")
-    for phase, observations in (("unseen_stop", unseen["observations"]), ("next", proof["observations"])):
-        expected_publications = 1 if phase == "next" else 0
-        require(all(observations[key] == expected_publications for key in (
-                    "text_started", "about_to_show_text", "caption_publications"))
-                and observations["intermediate_checkpoint_admissions"] == 0
-                and observations["exclusive_activations"] == (1 if phase == "next" else 0),
-                f"NEXT_MUST_NOT_PUBLISH_INTERMEDIATE_NATIVE_TEXT_OR_CHECKPOINTS: {phase}")
-    require(unseen["observations"]["speech_before"] == unseen["observations"]["speech_after"],
-            "UNSEEN_STOP_MUST_NOT_REPLAY_CURRENT_SPEECH")
-    require(unseen["observations"]["texts"] == [] and unseen["observations"]["publications"] == []
-            and proof["observations"]["texts"] == [written["current_text"]]
-            and len(proof["observations"]["publications"]) == 1,
-            "SECOND_NEXT_MUST_PUBLISH_ONLY_THE_EXACT_NEW_POST_B_WORDING")
+    observations = proof["observations"]
+    require(all(observations[key] == 1 for key in (
+                "text_started", "about_to_show_text", "caption_publications", "exclusive_activations"))
+            and observations["intermediate_checkpoint_admissions"] == 0
+            and observations["speech_after"] == observations["speech_before"] + 1,
+            "ONE_NEXT_MUST_ADMIT_ONLY_NEW_B_WITHOUT_REPLAYING_A_OR_EXPOSING_INTERMEDIATE_CAPTURE")
+    require(observations["texts"] == [written["current_text"]] and len(observations["publications"]) == 1,
+            "ONE_NEXT_MUST_PUBLISH_ONLY_THE_EXACT_NEW_POST_B_WORDING")
     publication = proof["observations"]["publications"][0]
     require(publication["ok"] is True and publication["value"]["duplicate"] is True
             and publication["value"]["ordinal"] == 3,
@@ -245,7 +237,7 @@ def validate_next(written: dict, evidence: Path, folder: Path) -> dict:
     session = written["saved_checkpoint"]["reading_session"]
     operation = session["next_operation"]
     plan = operation["plan"]
-    source = unseen["after_checkpoint"]["reading_session"]
+    source = proof["source_checkpoint"]["reading_session"]
     require(session["schema_version"] == 2 and operation["schema_version"] == 1
             and operation == proof["operation"] and operation["phase"] == "destination"
             and operation["operation_id"] == canonical_sha256(plan)
@@ -295,8 +287,8 @@ def validate_next(written: dict, evidence: Path, folder: Path) -> dict:
     require(snapshots[0]["checkpoint_id"] != snapshots[1]["checkpoint_id"]
             and snapshots[0]["checkpoint_sequence"] < snapshots[1]["checkpoint_sequence"],
             "NEXT_SOURCE_AND_DESTINATION_REQUIRE_DISTINCT_ORDERED_PHYSICAL_CHECKPOINTS")
-    return {"operation_id": operation["operation_id"], "first_activation_writes": 0,
-            "second_activation_phases": [row["phase"] for row in writes],
+    return {"operation_id": operation["operation_id"], "activation_count": 1,
+            "activation_phases": [row["phase"] for row in writes],
             "source_line_id": LINES[2], "destination_line_id": LINES[3], "traversed_captions": 0,
             "retained_autosaves": retained}
 
@@ -337,8 +329,8 @@ def validate_trace(reports: dict, evidence: Path) -> None:
         for sequence, entry in enumerate(observed, 1):
             require(entry["sequence"] == sequence and entry["process_id"] == reports[mode]["process_id"],
                     f"TRANSACTION_PROCESS_OR_SEQUENCE_MISMATCH: {mode}/{sequence}")
-            if entry["kind"] in ("next_unseen_verified", "next_destination_verified", "forged_checkpoint_refused"):
-                key = {"next_unseen_verified": "unseen_stop", "next_destination_verified": "next",
+            if entry["kind"] in ("next_destination_verified", "forged_checkpoint_refused"):
+                key = {"next_destination_verified": "next",
                        "forged_checkpoint_refused": "forged_checkpoint"}[entry["kind"]]
                 require(entry["value"] == reports[mode][key], f"TRACE_REPORT_MISMATCH: {entry['kind']}")
             if entry["kind"] in ("quick_committed", "fresh_restore_verified"):
