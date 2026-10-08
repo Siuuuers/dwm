@@ -39,22 +39,67 @@ var _scene_stage: Dictionary = {}
 var _scene_stage_serial := 0
 var _scene_stage_fatal := false
 var _scene_stage_busy := false
+var _scene_stage_phase := ""
+var _scene_authority_validating := false
 
 func configure_scene_staging(port: Object, source_validator: Callable, context_provider: Callable) -> Dictionary:
-	if _scene_stage_port != null or port == null or has_active_playback() or has_reading_session() \
+	if _scene_stage_busy or _scene_stage_port != null or port == null or has_active_playback() or has_reading_session() \
 			or not source_validator.is_valid() or not context_provider.is_valid():
 		return _command_failure(&"scene_staging_configuration_invalid")
 	for method: String in ["retain_scene_entry", "consume_scene_entry_ack"]:
 		if not port.has_method(method): return _command_failure(&"scene_staging_configuration_invalid")
+	if port.has_method("configure_scene_entry_authority"):
+		_scene_stage_busy = true
+		var configured: Variant = port.call("configure_scene_entry_authority", self, validate_scene_entry_authority)
+		_scene_stage_busy = false
+		if not configured is Dictionary or not configured.get("ok", false):
+			return _command_failure(&"scene_staging_configuration_invalid")
 	_scene_stage_port = port
 	_scene_stage_source = source_validator
 	_scene_stage_context = context_provider
 	return {"ok": true}
 
+## Real checkpoint port callback. Copies/digests alone are never authority.
+func validate_scene_entry_authority(capability_id: String, binding: Dictionary,
+		checkpoint: Dictionary, phase: String) -> Dictionary:
+	if _scene_authority_validating or _scene_stage_fatal or _scene_stage.is_empty() \
+			or capability_id != _scene_stage.transport.capability_id \
+			or not _READING_TRAVERSAL._same(binding, _scene_stage.binding) \
+			or not _READING_TRAVERSAL._same(checkpoint, _scene_stage.transport.narrative_checkpoint):
+		return _command_failure(&"scene_staging_authority_invalid")
+	if (phase == "retain" and (not _scene_stage_busy or _scene_stage_phase != "prepare")) \
+			or (phase == "consume" and (not _scene_stage_busy or _scene_stage_phase != "commit")) \
+			or (phase == "commit" and _scene_stage_busy) or phase not in ["retain", "commit", "consume"]:
+		return _command_failure(&"scene_staging_authority_invalid")
+	var was_busy := _scene_stage_busy
+	_scene_authority_validating = true
+	_scene_stage_busy = true
+	var source: Variant = _scene_stage_source.call(binding.duplicate(true))
+	var valid: bool = source is Dictionary and source.get("ok", false) \
+		and _scene_source_current() and _scene_candidate_current()
+	_scene_stage_busy = was_busy
+	_scene_authority_validating = false
+	return {"ok": true} if valid else _command_failure(&"scene_staging_authority_invalid")
+
+## Explicit owner action: preparation itself never reveals or retires live text.
+func hold_scene_entry_source() -> Dictionary:
+	if _scene_stage_busy or _scene_stage_fatal or not _scene_stage.is_empty() \
+			or not has_reading_session() or _reading_session.family != "scene" \
+			or _next_active or not _pause_handle.is_empty() or _pause_changing \
+			or not _reading_restore_pending.is_empty() or _runtime_adapter == null \
+			or not _runtime_adapter.has_method("hold_scene_source"):
+		return _command_failure(&"scene_staging_source_invalid")
+	_scene_stage_busy = true
+	var held: Dictionary = _runtime_adapter.hold_scene_source(_reading_session)
+	_scene_stage_busy = false
+	return held
+
 func prepare_day_entry(entry_id: String, context: Dictionary) -> Dictionary:
 	if _scene_stage_busy: return _command_failure(&"scene_staging_busy")
 	_scene_stage_busy = true
+	_scene_stage_phase = "prepare"
 	var result := _prepare_scene_entry(entry_id, context)
+	_scene_stage_phase = ""
 	_scene_stage_busy = false
 	return result
 
@@ -72,7 +117,14 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 		return _command_failure(&"scene_staging_binding_invalid")
 	for field: String in ["operation_id", "target_id", "target_occurrence_id", "admission_receipt_id", "registration_sha256"]:
 		if not binding[field] is String or binding[field].strip_edges().is_empty(): return _command_failure(&"scene_staging_binding_invalid")
-	if not FrozenPresentationContext._primitive(binding): return _command_failure(&"scene_staging_binding_invalid")
+	if not FrozenPresentationContext._primitive(binding) or not _scene_checkpoint_ref(binding.source_checkpoint):
+		return _command_failure(&"scene_staging_binding_invalid")
+	if has_reading_session():
+		if _reading_session.family != "scene" or binding.source_occurrence_id != _reading_session.scene_occurrence \
+				or not binding.trigger_command_id is String or binding.trigger_command_id.is_empty():
+			return _command_failure(&"scene_staging_source_invalid")
+	elif binding.source_occurrence_id != null or binding.trigger_command_id != null or has_active_playback():
+		return _command_failure(&"scene_staging_source_invalid")
 	var source: Variant = _scene_stage_source.call(binding.duplicate(true))
 	if not source is Dictionary or not source.get("ok", false): return _command_failure(&"scene_staging_source_invalid")
 	var registration := _ENTRY_MANIFEST.scene_registration()
@@ -88,10 +140,19 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 	var candidate := _READING_SESSION.new()
 	var configured: Dictionary = candidate.configure_scene()
 	if not configured.ok: return configured
+	var source_session: RefCounted = _reading_session
+	var native_source: RefCounted
+	var source_reading := {}
+	var source_entry := _active_entry.duplicate(true)
 	if has_reading_session():
-		if _reading_session.family != "scene": return _command_failure(&"scene_staging_source_invalid")
+		if _runtime_adapter == null or not _runtime_adapter.has_method("retain_scene_source"):
+			return _command_failure(&"scene_staging_source_invalid")
+		var retained_source: Dictionary = _runtime_adapter.retain_scene_source(_reading_session)
+		if not retained_source.ok: return retained_source
+		native_source = retained_source.value
 		var captured := capture_reading_checkpoint(false)
 		if not captured.ok: return captured
+		source_reading = captured.value.reading_session.duplicate(true)
 		var copied: Dictionary = candidate.restore(captured.value.reading_session, captured.value.entry_id)
 		if not copied.ok: return copied
 	else:
@@ -126,25 +187,35 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 	var capability := "scene-stage:%s:%s" % [get_instance_id(), _scene_stage_serial]
 	var transport := {"capability_id": capability, "narrative_checkpoint": checkpoint}
 	_scene_stage = {"candidate": candidate, "transport": transport.duplicate(true), "binding": binding.duplicate(true),
-		"target": target, "binding_sha256": _scene_digest(binding), "checkpoint_sha256": _scene_digest(checkpoint)}
+		"target": target, "binding_sha256": _scene_digest(binding), "checkpoint_sha256": _scene_digest(checkpoint),
+		"source_session": source_session, "native_source": native_source, "source_reading": source_reading,
+		"source_entry": source_entry, "runtime": _runtime_adapter, "path": path}
 	var retained: Variant = _scene_stage_port.call("retain_scene_entry", self, capability, binding.duplicate(true), checkpoint.duplicate(true))
 	if not retained is Dictionary or not retained.get("ok", false):
 		_scene_stage.clear()
 		return _command_failure(&"scene_staging_owner_refused")
+	if not _scene_source_current() or not _scene_candidate_current():
+		_scene_stage.clear()
+		return _command_failure(&"scene_staging_source_invalid")
 	return {"ok": true, "value": transport}
 
 func commit_day_entry(candidate: Dictionary) -> Dictionary:
 	if _scene_stage_busy: return _command_failure(&"scene_staging_busy")
 	_scene_stage_busy = true
+	_scene_stage_phase = "commit"
 	var result := _commit_scene_entry(candidate)
+	_scene_stage_phase = ""
 	_scene_stage_busy = false
 	return result
 
 func _commit_scene_entry(candidate: Dictionary) -> Dictionary:
 	if _scene_stage_fatal or _scene_stage.is_empty() or not _READING_TRAVERSAL._same(candidate, _scene_stage.transport):
 		return _command_failure(&"scene_staging_candidate_invalid")
+	# Never read caller-owned transport again across an external callback.
+	candidate = _scene_stage.transport.duplicate(true)
 	var source: Variant = _scene_stage_source.call(_scene_stage.binding.duplicate(true))
-	if not source is Dictionary or not source.get("ok", false): return _command_failure(&"scene_staging_source_invalid")
+	if not source is Dictionary or not source.get("ok", false) or not _scene_source_current() or not _scene_candidate_current():
+		return _command_failure(&"scene_staging_source_invalid")
 	var ack: Variant = _scene_stage_port.call("consume_scene_entry_ack", candidate.capability_id)
 	# Missing confirmation is never installation permission. Adapter supplies
 	# committed=false only after proving no write; uncertainty keeps custody.
@@ -157,32 +228,95 @@ func _commit_scene_entry(candidate: Dictionary) -> Dictionary:
 	if not value is Dictionary or not _exact_keys(value, ["capability_id", "operation_id", "source_checkpoint",
 			"target_checkpoint", "binding_sha256", "narrative_checkpoint_sha256"]) \
 			or value.capability_id != candidate.capability_id or value.operation_id != _scene_stage.binding.operation_id \
-			or value.source_checkpoint != _scene_stage.binding.source_checkpoint \
+			or not _READING_TRAVERSAL._same(value.source_checkpoint, _scene_stage.binding.source_checkpoint) \
 			or value.binding_sha256 != _scene_stage.binding_sha256 \
 			or value.narrative_checkpoint_sha256 != _scene_stage.checkpoint_sha256:
 		_scene_stage_fatal = true
 		return _command_failure(&"scene_staging_ack_invalid")
 	var target_ref: Variant = value.target_checkpoint
-	if not target_ref is Dictionary or not _exact_keys(target_ref, ["checkpoint_id", "checkpoint_sequence", "snapshot_sha256"]) \
-			or not target_ref.checkpoint_id is String or target_ref.checkpoint_id.is_empty() \
-			or typeof(target_ref.checkpoint_sequence) != TYPE_INT or target_ref.checkpoint_sequence < 0 \
-			or not _READING_TRAVERSAL._hash(target_ref.snapshot_sha256):
+	if not _scene_checkpoint_ref(target_ref):
 		_scene_stage_fatal = true
 		return _command_failure(&"scene_staging_ack_invalid")
-	# Mark consumed before any synchronous native callback.
-	var staged := _scene_stage.duplicate()
+	# Confirmation changes failure custody before any native/caller callback.
 	_scene_stage_fatal = true
-	# Keep the committed target under fatal custody until native adoption succeeds.
 	_scene_stage["committed_checkpoint"] = target_ref.duplicate(true)
+	var confirmed_source: Variant = _scene_stage_source.call(_scene_stage.binding.duplicate(true))
+	if not confirmed_source is Dictionary or not confirmed_source.get("ok", false):
+		return _command_failure(&"scene_staging_source_invalid")
+	if not _scene_source_current() or not _scene_candidate_current():
+		return _command_failure(&"scene_staging_source_invalid")
 	if _runtime_adapter == null or not _runtime_adapter.has_method("install_scene_target"):
 		return _command_failure(&"scene_staging_native_failed")
-	var installed: Dictionary = _runtime_adapter.install_scene_target(staged.candidate, candidate.narrative_checkpoint, staged.target)
-	if not installed.ok: return installed
-	_reading_session = staged.candidate
+	for signal_name: String in ["reading_frontier_restored", "playback_start_failed"]:
+		var callback := Callable(self, "_on_" + signal_name)
+		if _runtime_adapter.has_signal(signal_name) and not _runtime_adapter.is_connected(signal_name, callback):
+			_runtime_adapter.connect(signal_name, callback)
+	_scene_stage["installing"] = true
+	_scene_stage["install_in_call"] = true
+	var staged := _scene_stage.duplicate()
+	var installed: Dictionary
+	if staged.native_source != null:
+		installed = _runtime_adapter.install_scene_target(staged.candidate, candidate.narrative_checkpoint, staged.target, staged.native_source)
+	else:
+		installed = _runtime_adapter.install_scene_target(staged.candidate, candidate.narrative_checkpoint, staged.target)
+	_scene_stage["install_in_call"] = false
+	if not installed.ok:
+		if not _scene_stage.is_empty(): _scene_stage["native_failure"] = installed.duplicate(true)
+		return installed
+	if not _scene_stage.is_empty():
+		if _scene_stage.has("native_failure"): return _scene_stage.native_failure.duplicate(true)
+		if installed.get("value", {}).get("pending", false) and not _scene_stage.get("frontier_restored", false):
+			return {"ok": true, "value": candidate.narrative_checkpoint.duplicate(true), "pending": true}
+		var adopted := _adopt_scene_target()
+		if not adopted.ok:
+			_scene_stage["native_failure"] = adopted.duplicate(true)
+			return adopted
+	return {"ok": true, "value": candidate.narrative_checkpoint.duplicate(true)}
+
+func _scene_source_current() -> bool:
+	if _scene_stage.is_empty() or _runtime_adapter != _scene_stage.runtime \
+			or _reading_session != _scene_stage.source_session \
+			or not _READING_TRAVERSAL._same(_active_entry, _scene_stage.source_entry): return false
+	if _scene_stage.source_session == null: return not has_active_playback()
+	var checked: Dictionary = _runtime_adapter.validate_scene_source(_scene_stage.native_source, _reading_session)
+	if not checked.ok: return false
+	var frontier: Dictionary = _runtime_adapter.capture_reading_frontier()
+	if not frontier.ok: return false
+	var captured: Dictionary = _reading_session.capture(frontier.value)
+	return captured.ok and _READING_TRAVERSAL._same(captured.value, _scene_stage.source_reading)
+
+func _scene_candidate_current() -> bool:
+	var checkpoint: Dictionary = _scene_stage.transport.narrative_checkpoint
+	var captured: Dictionary = _scene_stage.candidate.capture(checkpoint.reading_session.frontier)
+	return captured.ok and _READING_TRAVERSAL._same(captured.value, checkpoint.reading_session)
+
+func _adopt_scene_target() -> Dictionary:
+	if _scene_stage.is_empty() or not _scene_stage.get("installing", false) \
+			or _scene_stage.has("native_failure") or not _scene_candidate_current():
+		return _command_failure(&"scene_staging_native_failed")
+	var checkpoint: Dictionary = _scene_stage.transport.narrative_checkpoint
+	# A real runtime must prove its exact saved frontier before public adoption.
+	if _runtime_adapter.has_method("capture_reading_frontier"):
+		var frontier: Dictionary = _runtime_adapter.capture_reading_frontier()
+		if not frontier.ok or not _READING_TRAVERSAL._same(frontier.value, checkpoint.reading_session.frontier):
+			return _command_failure(&"scene_staging_native_failed")
+	var target: Dictionary = _scene_stage.target
+	_reading_session = _scene_stage.candidate
+	_active_entry = {"entry_id": checkpoint.entry_id, "token": _scene_stage.transport.capability_id,
+		"stage": "scene", "execution_mode": &"canonical", "transaction_id": checkpoint.transaction_id,
+		"content_version": checkpoint.content_version, "frozen_context": checkpoint.frozen_context.duplicate(true),
+		"context_fingerprint": _scene_digest(checkpoint.frozen_context), "path": _scene_stage.path,
+		"label": target.label, "used_fallback": false, "content_locale": "en", "suppress_first_speech": false}
 	_scene_stage.clear()
 	_scene_stage_fatal = false
 	reading_session_changed.emit()
-	return {"ok": true, "value": candidate.narrative_checkpoint.duplicate(true)}
+	return {"ok": true}
+
+static func _scene_checkpoint_ref(value: Variant) -> bool:
+	return value is Dictionary and _exact_keys(value, ["checkpoint_id", "checkpoint_sequence", "snapshot_sha256"]) \
+		and value.checkpoint_id is String and not value.checkpoint_id.is_empty() \
+		and typeof(value.checkpoint_sequence) == TYPE_INT and value.checkpoint_sequence >= 0 \
+		and _READING_TRAVERSAL._hash(value.snapshot_sha256)
 
 static func _scene_digest(value: Dictionary) -> String:
 	var encoded := _CANONICAL_JSON.stringify(value)
@@ -780,6 +914,7 @@ func _current_native_speech_frontier() -> Dictionary:
 
 
 func _current_speech_owner() -> Dictionary:
+	if _scene_stage_fatal: return {}
 	var owner: Dictionary = {}
 	if not _active_entry.is_empty():
 		owner = {"kind": &"entry", "token": str(_active_entry.get("token", "")),
@@ -838,6 +973,10 @@ func capture_current_speech_presentation() -> Dictionary:
 
 
 func _on_playback_start_failed(failure: Dictionary, halt_runtime: bool = false) -> void:
+	if _scene_stage.has("committed_checkpoint"):
+		_scene_stage_fatal = true
+		_scene_stage["native_failure"] = failure.duplicate(true)
+		return
 	_close_art_hold()
 	if _runtime_adapter != null and _runtime_adapter.has_method("release_frozen_presentation"):
 		_runtime_adapter.release_frozen_presentation()
@@ -2651,12 +2790,25 @@ func _resume_reading_checkpoint(checkpoint: Dictionary, execution_mode: StringNa
 
 
 func _on_reading_frontier_restored(result: Dictionary) -> void:
+	if _scene_stage.has("committed_checkpoint"):
+		if not result.get("ok", false):
+			_on_playback_start_failed(result, true)
+		elif _scene_stage.get("installing", false):
+			_scene_stage["frontier_restored"] = true
+			if _scene_stage.get("install_in_call", false): return
+			var adopted := _adopt_scene_target()
+			if not adopted.ok: _on_playback_start_failed(adopted, true)
+		return
 	if not result.get("ok", false):
 		_on_playback_start_failed(result, true)
 	reading_session_changed.emit()
 
 
 func _on_reading_publication(result: Dictionary) -> void:
+	if not _scene_stage.is_empty():
+		if not result.get("ok", false) and _scene_stage.has("committed_checkpoint"):
+			_on_playback_start_failed(result, true)
+		return
 	if _reached_replay.has("caption_ledger") and not result.get("ok", false):
 		_on_playback_start_failed(result, true)
 		return

@@ -23,19 +23,134 @@ const SCENE_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 var _scene_caption_occurrence := ""
 var _scene_activation_event: Object
 var _scene_activation_generation := -1
+var _scene_source_token: RefCounted
+var _scene_source: Dictionary = {}
+
+## Holding is explicit: preparing a target must never reveal or retire an
+## unheld caption as a side effect.
+func hold_scene_source(session: RefCounted) -> Dictionary:
+	var boundary := _scene_source_boundary(session)
+	if not boundary.ok: return boundary
+	return hold_marker_source(boundary.value.frontier)
+
+func retain_scene_source(session: RefCounted) -> Dictionary:
+	if not _marker_hold_current(): return _fail(&"scene_source_not_held", "")
+	var boundary := _scene_source_boundary(session)
+	if not boundary.ok: return boundary
+	if _scene_source_token != null:
+		var checked := validate_scene_source(_scene_source_token, session)
+		return {"ok": true, "value": _scene_source_token} if checked.ok else checked
+	_scene_source_token = RefCounted.new()
+	_scene_source = {"session": session, "ledger": _caption_ledger,
+		"snapshot": _caption_ledger.snapshot(), "boundary": boundary.value.duplicate(true),
+		"request": _request_id, "generation": _runtime_generation, "event": _caption_event,
+		"execution_generation": _caption_event._execution_generation,
+		"registration_sha256": session.fingerprint, "occurrence": _scene_caption_occurrence}
+	return {"ok": true, "value": _scene_source_token}
+
+func validate_scene_source(token: RefCounted, session: RefCounted) -> Dictionary:
+	if token == null or token != _scene_source_token or _scene_source.is_empty() \
+			or session == null or session != _scene_source.session or not _marker_hold_current() \
+			or _caption_ledger != _scene_source.ledger or _caption_ledger.snapshot() != _scene_source.snapshot \
+			or _request_id != _scene_source.request or _runtime_generation != _scene_source.generation \
+			or _caption_event != _scene_source.event \
+			or _caption_event._execution_generation != _scene_source.execution_generation \
+			or _scene_caption_occurrence != _scene_source.occurrence \
+			or session.fingerprint != _scene_source.registration_sha256:
+		return _fail(&"scene_source_changed", "")
+	var boundary := _scene_source_boundary(session)
+	if not boundary.ok or boundary.value != _scene_source.boundary:
+		return _fail(&"scene_source_changed", "")
+	return {"ok": true}
+
+func _scene_source_boundary(session: RefCounted) -> Dictionary:
+	if not _qualified_runtime or not _caption_source_is_current() or session == null \
+			or session.family != "scene" or session.boundary != "line" \
+			or session.ledger != _caption_ledger or session.command_id != _caption_token \
+			or session.latest_entry != _caption_entry or session.scene_occurrence != _scene_caption_occurrence \
+			or _dialogic.paused or _dialogic.Inputs.auto_skip.enabled or _dialogic.Inputs.auto_advance.is_enabled():
+		return _fail(&"scene_source_unavailable", "")
+	var frontier := capture_reading_frontier()
+	if not frontier.ok: return frontier
+	var saved: Dictionary = session.capture(frontier.value)
+	if not saved.ok: return saved
+	var owner := preload("res://scripts/narrative/DialogicEntryManifest.gd")
+	var selected := owner.scene_registration()
+	if not selected.ok or session.fingerprint != owner.scene_registration_fingerprint():
+		return _fail(&"scene_source_registration_changed", "")
+	var labels: Array = []
+	var path := ""
+	var programme := {}
+	for entry: Dictionary in selected.value.entry_manifest.entries:
+		labels.append(entry.entry_id)
+		if entry.entry_id == _caption_entry: path = entry.locators.en.path
+	for row: Dictionary in selected.value.scene_programme.entries:
+		if row.entry_id == _caption_entry: programme = row
+	if programme.is_empty() or path != _requested_path: return _fail(&"scene_source_unavailable", "")
+	var compiled := compile_scene_programme(path, _caption_entry, labels, programme.markers)
+	if not compiled.ok: return compiled
+	if compiled.value.program_sha256 != programme.program_sha256 \
+			or compiled.value.content_sha256 != programme.content_sha256:
+		return _fail(&"scene_source_registration_changed", "")
+	var index: int = session.scene_index
+	if index < 0 or index >= compiled.value.nodes.size(): return _fail(&"scene_source_boundary_invalid", "")
+	var node: Dictionary = compiled.value.nodes[index]
+	if node.kind != "caption" or node.line_id != frontier.value.line_id \
+			or compiled.value.native_indices[index] != int(_dialogic.current_event_idx):
+		return _fail(&"scene_source_boundary_invalid", "")
+	var authored_text := ""
+	for event: Dictionary in compiled.value.events:
+		if event.kind == "text" and event.line_id == node.line_id: authored_text = event.text
+	if _caption_event.get_property_translated("text") != authored_text \
+			or _caption_event.character != null or not _caption_event.character_identifier.is_empty():
+		return _fail(&"scene_source_boundary_invalid", "live source differs from the authenticated programme")
+	var next: Dictionary = compiled.value.nodes[node.next]
+	if next.kind != "control": return _fail(&"scene_source_boundary_invalid", "registered control predecessor required")
+	var marker := {}
+	for row: Dictionary in programme.markers:
+		if row.marker_id == next.marker_id: marker = row
+	if marker.is_empty() or marker.after_line_id != frontier.value.line_id:
+		return _fail(&"scene_source_boundary_invalid", "")
+	var native_index: int = compiled.value.native_indices[node.next]
+	if native_index >= _dialogic.current_timeline_events.size(): return _fail(&"scene_source_boundary_invalid", "")
+	var native: DialogicEvent = _dialogic.current_timeline_events[native_index]
+	if not native.event_node_ready:
+		var detached: DialogicEvent = native.get_script().new()
+		detached._load_from_string(native.event_node_as_text)
+		native = detached
+	if not native is DialogicLabelEvent or native.name != marker.label:
+		return _fail(&"scene_source_boundary_invalid", "")
+	return {"ok": true, "value": {"frontier": frontier.value.duplicate(true),
+		"reading": saved.value.duplicate(true), "marker": marker.duplicate(true), "native_index": native_index}}
 
 ## Called only after the configured checkpoint adapter confirms the staged target.
-## This first slice installs an idle native target; live held-source replacement
-## remains a later owner-wiring operation and refuses rather than abandoning it.
-func install_scene_target(session: RefCounted, checkpoint: Dictionary, target: Dictionary) -> Dictionary:
-	if not _bound or has_active_playback() or session == null or session.family != "scene":
-		return _fail(&"scene_native_target_unavailable", "idle qualified runtime required")
+## Live replacement requires the retained, unchanged held-source capability.
+func install_scene_target(session: RefCounted, checkpoint: Dictionary, target: Dictionary,
+		source_token: RefCounted = null) -> Dictionary:
+	if not _bound or not _qualified_runtime or session == null or session.family != "scene":
+		return _fail(&"scene_native_target_unavailable", "qualified runtime required")
+	if source_token != null:
+		var source_checked := validate_scene_source(source_token, _scene_source.get("session"))
+		if not source_checked.ok: return source_checked
+	elif has_active_playback():
+		return _fail(&"scene_native_target_unavailable", "held source capability required")
 	var checked: Dictionary = session.validate_saved(checkpoint.reading_session, checkpoint.entry_id)
 	if not checked.ok: return checked
+	var frame := NarrativeCaptionLedger.resolve_scene_frame(checkpoint.reading_session.ledger.entry_contexts,
+		checkpoint.reading_session.occurrence_id, checkpoint.entry_id)
+	if not frame.ok or frame.value != checkpoint.get("frozen_context"):
+		return _fail(&"scene_native_target_invalid", "target context differs from its admitted frame")
+	var presentation := FrozenPresentationContext.validate(checkpoint.entry_id, frame.value.presentation)
+	if not presentation.ok: return presentation
 	var owner := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 	var selected := owner.scene_registration()
 	if not selected.ok: return selected
 	var bundle: Dictionary = selected.value
+	var registered := false
+	for row: Dictionary in bundle.targets:
+		if row.target == target: registered = true
+	if not registered or target.entry_id != checkpoint.entry_id:
+		return _fail(&"scene_native_target_invalid", "registered target required")
 	var labels: Array = []
 	var path := ""
 	for entry: Dictionary in bundle.entry_manifest.entries:
@@ -49,14 +164,48 @@ func install_scene_target(session: RefCounted, checkpoint: Dictionary, target: D
 	if compiled.value.program_sha256 != target.program_sha256 or not compiled.value.label_nodes.has(target.label) \
 			or compiled.value.label_nodes[target.label] != checkpoint.reading_session.program_index:
 		return _fail(&"scene_native_target_invalid", "target differs from the staged programme")
+	if source_token != null:
+		# Recheck after target preflight; consume before any native callback can
+		# reenter. The source coroutine was proved finished by hold_marker_source.
+		var source_checked := validate_scene_source(source_token, _scene_source.get("session"))
+		if not source_checked.ok: return source_checked
+		_scene_source_token = null
+		_scene_source = {}
+		_retire_caption_binding()
+		release_frozen_presentation()
+		_activity_phase = ""
+		_requested_path = ""
+		_runtime_generation = 0
 	var bound := bind_caption_ledger(session.ledger, session.command_id, checkpoint.entry_id, false, session.scene_occurrence)
 	if not bound.ok: return bound
+	var frozen := install_frozen_presentation(presentation.value)
+	if not frozen.ok: return frozen
 	_caption_restore_frontier = checkpoint.reading_session.frontier.duplicate(true)
 	_caption_restore_queued = false
-	var started := start_timeline(path, compiled.value.native_indices[checkpoint.reading_session.program_index])
+	var native_index: int = compiled.value.native_indices[checkpoint.reading_session.program_index]
+	var started := _start_held_scene_target(path, native_index) if source_token != null else start_timeline(path, native_index)
 	if not started.ok:
 		_caption_restore_frontier = {}
-	return started
+		return started
+	return {"ok": true, "value": {"pending": is_reading_frontier_restoring()}}
+
+func _start_held_scene_target(path: String, native_index: int) -> Dictionary:
+	# The old coroutine has already finished under held-source custody. Keep its
+	# mounted layout and use the native qualified replacement directly: clear()
+	# schedules timeline.clean(), which could later disconnect this same DTL's
+	# newly started event resources when a local/return target shares the file.
+	_start_generation += 1
+	var generation := _start_generation
+	_request_id = "%d:%d" % [get_instance_id(), generation]
+	_caption_request = _request_id
+	_activity_phase = "starting"
+	_requested_path = path
+	_runtime_generation = 0
+	_dialogic.start_timeline(path, native_index, _request_id)
+	if generation != _start_generation or _activity_phase != "live" \
+			or not _caption_source_is_current():
+		return _fail(&"scene_native_target_failed", "qualified held replacement did not start")
+	return {"ok": true}
 
 ## Nonwired scene compiler. Semantic node positions are distinct from transient
 ## native event indices. Only the returned native map may drive installed playback.
@@ -383,6 +532,8 @@ func release_retained_caption_layout(dispose: bool = true) -> void:
 
 
 func _retire_caption_binding() -> void:
+	_scene_source_token = null
+	_scene_source = {}
 	_marker_hold = {}
 	_marker_binding = {}
 	_marker_restore = {}
@@ -1395,7 +1546,15 @@ func hold_marker_source(source: Dictionary) -> Dictionary:
 		var failed := _fail(&"reading_marker_source_changed", "source retirement could not be proved")
 		halt_with_error(failed)
 		return failed
+	var cleanup_generation: int = event._execution_generation
 	event._clear_state()
+	# This verified owner cleanup retires the coroutine, not the admitted
+	# caption. Preserve its activation binding only across this exact cleanup.
+	if not _scene_caption_occurrence.is_empty() and _scene_activation_event == event \
+			and _scene_activation_generation == cleanup_generation and _caption_event == event \
+			and event._execution_generation == cleanup_generation + 1 \
+			and _caption_source_is_current() and ledger == _caption_ledger and snapshot == ledger.snapshot():
+		_scene_activation_generation = event._execution_generation
 	after = marker_source_identity()
 	if not after.ok or after.value != identity.value or ledger != _caption_ledger or snapshot != ledger.snapshot():
 		var failed := _fail(&"reading_marker_source_changed", "source cleanup changed the admitted occurrence")
