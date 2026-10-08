@@ -2381,6 +2381,11 @@ func _validate_reading_entry(session: RefCounted, entry_id: String, context: Dic
 	var row: Dictionary = programme.value
 	var resolved := _resolve_entry_for_playback(entry_id, row.content_version)
 	if not resolved.ok: return resolved
+	# Ordinary entries retain the existing adapter contract; only marker entries
+	# require the extended native validation argument.
+	if not session.marker_entries.has(entry_id):
+		return _runtime_adapter.validate_reading_entry(resolved.value.path,
+			row.label if session.catalogue_schema_version == 2 else resolved.value.label, row.lines)
 	return _runtime_adapter.validate_reading_entry(resolved.value.path,
 		row.label if session.catalogue_schema_version == 2 else resolved.value.label, row.lines,
 		session.marker_entries.get(entry_id, {}))
