@@ -332,12 +332,13 @@ def validate_next(reports: dict, evidence: Path, folder: Path) -> dict:
         "text_started", "about_to_show_text", "caption_publications", "exclusive_activations",
     )) or observation["intermediate_checkpoint_admissions"] != 0 or (
         observation["speech_after"] != observation["speech_before"] + 1
+        or observation["destination_at_settlement"] != {"line_id": "fixture.solo.pre.b", "complete": False}
     ):
         raise RuntimeError("NEXT_UNSEEN_REQUIRES_ONE_VISIBLE_DESTINATION_WITHOUT_INTERMEDIATE_EXPOSURE")
     if unseen["acknowledgement_receipt"]["was_visited_before_presentation"] is not False or (
         unseen["beat"]["presentation_signature"]["content_revision"] != "fixture-next-unseen-v1"
         or unseen["auto_off_refusals"] != 1 or unseen["auto_off_matching_writes"] != 2
-        or unseen["auto_enabled_after"] is not False or unseen["current_line_complete"] is not False
+        or unseen["auto_enabled_after"] is not False or type(unseen["current_line_complete"]) is not bool
         or unseen["history_observations"] != 1 or stopped["boundary"] != "line"
         or stopped["frontier"]["line_id"] != "fixture.solo.pre.b"
         or unseen["refused_profile_sha256"] == unseen["profile_after_sha256"]

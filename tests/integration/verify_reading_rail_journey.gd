@@ -1286,6 +1286,7 @@ func _witness_read_process() -> void:
 func _begin_next_observation() -> void:
 	_next_observations = {"observing": true, "text_started": 0, "about_to_show_text": 0,
 		"caption_publications": 0, "speech_before": _speech_admissions,
+		"destination_at_settlement": {},
 		"exclusive_frames": 0, "exclusive_activations": 0, "intermediate_checkpoint_admissions": 0}
 	if _next_observers_installed: return
 	_next_observers_installed = true
@@ -1297,6 +1298,11 @@ func _begin_next_observation() -> void:
 		if _next_observations.get("observing", false): _next_observations.about_to_show_text += 1)
 	bridge.get("_runtime_adapter").caption_publication_recorded.connect(func(_result: Dictionary) -> void:
 		if _next_observations.get("observing", false): _next_observations.caption_publications += 1)
+	bridge.next_request_finished.connect(func(_frontier: Dictionary, result: Dictionary) -> void:
+		if not _next_observations.get("observing", false) or not result.get("ok", false): return
+		var runtime: RefCounted = bridge.get("_runtime_adapter")
+		_next_observations.destination_at_settlement = {"line_id": runtime.current_line_id(),
+			"complete": runtime.is_current_line_complete()})
 	bridge.next_traversal_changed.connect(func() -> void:
 		if not _next_observations.get("observing", false) or not bridge.is_next_traversal_active(): return
 		_next_observations.exclusive_activations += 1
@@ -1479,9 +1485,11 @@ func _next_unseen_session(game: Node, dating: Node, report: Dictionary) -> void:
 	if not await _retry_next(): return
 	var observations := _end_next_observation()
 	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
+	var observed_complete: bool = runtime.is_current_line_complete()
 	if not _check(fault.refusals == 1 and fault.matching_writes == 2
 		and not profile.get_preference(&"preferences.reading.auto_enabled", true)
-		and runtime.current_line_id() == "fixture.solo.pre.b" and not runtime.is_current_line_complete()
+		and runtime.current_line_id() == "fixture.solo.pre.b"
+		and observations.destination_at_settlement == {"line_id": "fixture.solo.pre.b", "complete": false}
 		and checkpoint.get("ok", false)
 		and observations.exclusive_activations == 1 and observations.intermediate_checkpoint_admissions == 0
 		and observations.text_started == 1 and observations.about_to_show_text == 1
@@ -1523,7 +1531,7 @@ func _next_unseen_session(game: Node, dating: Node, report: Dictionary) -> void:
 		"witnesses_before": before_profile.witnessed_caption_variants.duplicate(true),
 		"witnesses_after": profile.get_profile_snapshot().witnessed_caption_variants.duplicate(true),
 		"destination_beat": destination_beat.duplicate(true), "destination_witness_id": described.value.witness_id,
-		"current_line_complete": false, "history_observations": _history_observations}, true)
+		"current_line_complete": observed_complete, "history_observations": _history_observations}, true)
 	if not _check(_write_text("next-unseen.json", JSON.stringify(report, "\t")), "retain unseen Next refusal/retry report"): return
 	_trace("next_unseen_verified", report)
 	print("READING_RAIL_NEXT_UNSEEN_PASS: real Auto Off refusal -> physical retry -> finish source and advance once -> partial unseen destination, caption Focus and neutral History")
