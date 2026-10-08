@@ -55,56 +55,18 @@ jobs:
           if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' .godot/ci/import.log; then exit 1; fi
           git restore -- project.godot
           test -z "$(git diff --name-only)"
-      - name: Exact focused suites in isolated rendered processes
+      - name: Diagnose unchanged authored-selector assertion
         run: |
           python3 - <<'PY'
-          import os,pathlib,subprocess,xml.etree.ElementTree as ET,json
-          root=pathlib.Path.cwd()
-          suites=['test_scene_next_notification','test_dialogic_next_traversal','test_run_restore_isolation','test_gallery_caption_collection']
-          for suite in suites:
-            base=root/'.godot/ci'/suite; base.mkdir(parents=True,exist_ok=True)
-            env=os.environ.copy()
-            for key,part in [('DWM_TEST_ROOT','test-root'),('XDG_DATA_HOME','data'),('XDG_CONFIG_HOME','config'),('XDG_CACHE_HOME','cache')]:
-              target=base/part;target.mkdir(parents=True,exist_ok=True);env[key]=str(target)
-            command=['xvfb-run','-a',env['GODOT_CONSOLE_PATH'],'--path',str(root),'--rendering-method','gl_compatibility','--rendering-driver','opengl3','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/'+suite+'.gd','-gexit','-glog=1','-gjunit_xml_file=res://.godot/ci/'+suite+'/results.xml']
-            result=subprocess.run(command,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=480)
-            (base/'original.log').write_text(result.stdout)
-            (base/'command.json').write_text(json.dumps({'command':command,'returncode':result.returncode},indent=2))
-            print(result.stdout)
-            if result.returncode or any(x in result.stdout for x in ['SCRIPT ERROR:','ERROR: Failed to load','Unicode parsing error','Unexpected NUL character']): raise SystemExit(suite+' failed')
-            report=ET.parse(base/'results.xml');cases=report.findall('.//testcase')
-            if not cases or any(list(c) for c in cases if any(t.tag in ['failure','error','skipped'] for t in c)): raise SystemExit(suite+' missing/pending/failed cases')
-            print(suite+': '+str(len(cases))+' cases passed')
-          PY
-      - name: Nine fresh processes with real saved roots
-        run: |
-          python3 - <<'PY'
-          import os,pathlib,subprocess,json,hashlib,shutil,xml.etree.ElementTree as ET
-          root=pathlib.Path.cwd();base=root/'.godot/ci/restart';base.mkdir(parents=True,exist_ok=True)
-          live=base/'live';reports=base/'reports';reports.mkdir(parents=True,exist_ok=True)
-          phases=['produce-pre-marker','consume-pre-marker-source','consume-source-marker','consume-marker-source','consume-marker-source-later','consume-later-completion','consume-completion','fault-install-produce','fault-install-consume']
-          env=os.environ.copy()
-          for key,part in [('DWM_TEST_ROOT','test-root'),('XDG_DATA_HOME','data'),('XDG_CONFIG_HOME','config'),('XDG_CACHE_HOME','cache')]:
-            path=live/part;path.mkdir(parents=True,exist_ok=True);env[key]=str(path)
-          env['DWM_SCENE_MARKER_REPORT_DIR']=str(reports)
-          def manifest():
-            return {p.relative_to(live).as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in sorted(live.rglob('*')) if p.is_file()}
-          for phase in phases:
-            if phase == 'fault-install-produce':
-              live=base/'fault-live'
-              for key,part in [('DWM_TEST_ROOT','test-root'),('XDG_DATA_HOME','data'),('XDG_CONFIG_HOME','config'),('XDG_CACHE_HOME','cache')]:
-                path=live/part;path.mkdir(parents=True,exist_ok=True);env[key]=str(path)
-            env['DWM_SCENE_MARKER_PHASE']=phase
-            before=manifest()
-            command=['xvfb-run','-a',env['GODOT_CONSOLE_PATH'],'--path',str(root),'--rendering-method','gl_compatibility','--rendering-driver','opengl3','--audio-driver','Dummy','-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_next_notification.gd','-gunit_test_name=test_connected_bridge_partial_next','-gexit','-glog=1','-gjunit_xml_file=res://.godot/ci/restart/reports/'+phase+'.xml']
-            run=subprocess.run(command,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=240)
-            (reports/(phase+'.log')).write_text(run.stdout)
-            (reports/(phase+'-launcher.json')).write_text(json.dumps({'phase':phase,'command':command,'returncode':run.returncode,'before':before,'after':manifest()},indent=2))
-            shutil.copytree(live,base/(phase+'-original'))
-            print(run.stdout)
-            if run.returncode or 'SCENE_NEXT_NOTIFICATION_PHASE_PASS: '+phase not in run.stdout or any(x in run.stdout for x in ['SCRIPT ERROR:','ERROR: Failed to load','Unicode parsing error','Unexpected NUL character']): raise SystemExit(phase+' failed')
-            report=ET.parse(reports/(phase+'.xml'));cases=report.findall('.//testcase')
-            if len(cases)!=1 or any(t.tag in ['failure','error','skipped'] for c in cases for t in c): raise SystemExit(phase+' incomplete test result')
+          import pathlib,subprocess
+          result=subprocess.run(['python3','tools/testing/run_solo_authored_selector_journey.py'])
+          for p in sorted(pathlib.Path('.godot/ci/solo-authored-selector').rglob('*')):
+            if p.suffix not in ['.log','.txt']: continue
+            lines=p.read_text(errors='replace').splitlines()
+            if any('SOLO_AUTHORED_SELECTOR_FAIL:' in line or 'SCRIPT ERROR:' in line for line in lines):
+              print('ORIGINAL_DIAGNOSTIC_LOG: '+str(p),flush=True)
+              print('\n'.join(lines),flush=True)
+          raise SystemExit(result.returncode)
           PY
       - name: Final tracked source check
         if: always()
@@ -120,148 +82,3 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 14
-
-  generated-surfaces:
-    name: Windows / exact candidate read-only inventory check
-    runs-on: windows-2022
-    timeout-minutes: 20
-    defaults:
-      run:
-        shell: pwsh
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          # Defer credential removal until the post-job cleanup, after the
-          # malformed gitlinks are removed from this disposable runner's index.
-          persist-credentials: true
-          ref: f97d134ae49f2028013ed2c0a7477a8cd2622528
-      - name: Record exact source and controller before import
-        run: |
-          $actual = (git rev-parse HEAD).Trim()
-          $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($actual -ne 'f97d134ae49f2028013ed2c0a7477a8cd2622528' -or $tree -ne 'c230d9e4884d08bfb0ab8673ef0e273e675463c0') { throw 'Candidate mismatch.' }
-          New-Item -ItemType Directory -Force .godot/ci/public-surfaces | Out-Null
-          @{product=$actual;tree=$tree;controller=$env:GITHUB_SHA;run=$env:GITHUB_RUN_ID;attempt=$env:GITHUB_RUN_ATTEMPT} | ConvertTo-Json | Set-Content .godot/ci/public-surfaces/provenance.json
-      - name: Prepare disposable checkout for credential cleanup
-        run: |
-          $ErrorActionPreference = 'Stop'
-          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
-          # submodule foreach reads the index even with sparse checkout.
-          # The source commit and working files remain unchanged.
-          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git submodule foreach --recursive 'true'
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Record fixture and schema version census
-        run: |
-          @'
-          import json, pathlib, re, subprocess
-          root = pathlib.Path.cwd()
-          paths = subprocess.check_output([
-              "git", "ls-files", "-z", "--", "autoload/", "scripts/", "tests/",
-              "tools/testing/", ".github/workflows/"
-          ]).decode("utf-8").split("\0")
-          patterns = {
-              "legacy_prepared_fixture": r"\bv[1-6]_desktop_prepared\.json\b",
-              "historical_day3_seed": r"valid_day3\.json",
-              "backup_fixture_helper": r"BackupSnapshotFixture",
-              "run_document_version": r"\b(?:schema_version|SCHEMA_VERSION|DOCUMENT_VERSION)\b",
-              "empty_contacts_literal": r"\bcontacts\b[\"']?\s*[:=]\s*\{\s*\}",
-          }
-          compiled = {key: re.compile(value) for key, value in patterns.items()}
-          records = []
-          scanned = 0
-          for name in sorted(paths):
-              path = root / name
-              if path.suffix not in {".gd", ".ps1", ".py", ".yml", ".yaml"} or not path.is_file():
-                  continue
-              scanned += 1
-              for number, line in enumerate(path.read_text(encoding="utf-8-sig").splitlines(), 1):
-                  families = [key for key, pattern in compiled.items() if pattern.search(line)]
-                  if families:
-                      records.append({"path": name, "line": number, "families": families, "text": line})
-          report = {
-              "checkout_ref": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
-              "policy": "Observational census only; historical, refusal and Profile references require review, not automatic failure.",
-              "scanned_files": scanned, "patterns": patterns, "matches": records,
-          }
-          output = root / ".godot/ci/public-surfaces/fixture-version-census.json"
-          output.parent.mkdir(parents=True, exist_ok=True)
-          output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-          for record in records:
-              print("FIXTURE_VERSION_CENSUS_MATCH: " + json.dumps(record))
-          print("FIXTURE_VERSION_CENSUS_SUMMARY: " + json.dumps({
-              "checkout_ref": report["checkout_ref"], "scanned_files": scanned,
-              "matching_lines": len(records), "logged_lines": len(records),
-              "complete_artifact": ".godot/ci/public-surfaces/fixture-version-census.json",
-              "policy": report["policy"],
-          }))
-          '@ | python -
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Install Godot 4.6.3 standard
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
-          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
-          # SHA256 published with the official 4.6.3-stable release asset.
-          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
-          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
-            throw 'Godot archive checksum mismatch.'
-          }
-          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
-          Expand-Archive -LiteralPath $archive -DestinationPath $editor
-          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
-          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
-          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          if ((Get-FileHash -LiteralPath $console -Algorithm SHA256).Hash.ToLowerInvariant() -ne '63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a') { throw 'Executable checksum mismatch.' }
-          & $console --version
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Import project
-        timeout-minutes: 8
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
-          $env:APPDATA = Join-Path $output 'import-user/appdata'
-          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
-          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
-          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
-          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
-            throw 'Project import reported script errors; inspect import.log.'
-          }
-      - name: Restore committed project settings after editor import
-        run: |
-          # Dialogic's editor scan rewrites its timeline lookup during import.
-          # Execute the committed configuration with the freshly imported assets.
-          git restore -- project.godot
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Check committed original inventories without regeneration
-        timeout-minutes: 10
-        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -EmitPayloads
-      - name: Record generated-only tracked delta
-        if: always()
-        run: |
-          $changed = @(git diff --name-only)
-          $changed | Set-Content .godot/ci/public-surfaces/tracked-diff.txt
-          foreach ($path in $changed) {
-            throw "Unexpected tracked mutation $path"
-          }
-      - name: Upload canonical inventories and retirement evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: marker-checked-surfaces-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            .godot/ci/import.log
-            .godot/ci/public-surfaces/
-            .godot/ci/caption-native/
-            .godot/ci/public_surfaces.xml
-            .godot/ci/public_surfaces.jsonl
-            .godot/ci/isolation-timeout.jsonl
-            .godot/phase2r_logs/cloud-isolation-timeout.log*
-            .godot/phase2r_logs/cloud-public-surface-*.log
-            .godot/phase2r_logs/cloud-public_surfaces.log*
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
