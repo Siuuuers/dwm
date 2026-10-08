@@ -188,6 +188,7 @@ func test_same_owner_selected_prefix_clears_materialization_scratch_and_requires
 	var selected: Dictionary = f.state.capture_restore_state().value.backup
 	assert_true(f.action("reveal", 36).ok)
 	selected.lifecycle.branch_id = "TEST.same.owner.load"
+	f.owner.set("_first_cell_index", 36) # Transient scratch may predate this scene family.
 	assert_true(f.state.rollback_restore_silent(selected).ok)
 	assert_true(f.owner.reconcile_restore_silent({}).ok)
 	assert_false(f.owner.pull_physical(f.token).ok)

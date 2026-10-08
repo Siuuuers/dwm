@@ -399,6 +399,7 @@ func reconcile_restore_silent(restored_snapshot: Dictionary) -> Dictionary:
 	var stored: Dictionary = route_context.get("active_dating_challenge", {})
 	if stored.get("schema_version") == 4:
 		if not _valid_record(stored, {}): return _fail(&"invalid_restored_scene_challenge")
+		_first_cell_index = -1
 		_record = stored.duplicate(true)
 		_pending_checkpoint = {}
 		_routine_pending = false
@@ -1452,6 +1453,7 @@ func _begin_scene(command: Dictionary) -> Dictionary:
 		if not _valid_record(_pending_checkpoint, command): return _fail(&"scene_checkpoint_retry_required")
 		_admitted_command = command.duplicate(true)
 		return _ok({"physical_token": _pending_checkpoint.physical_token, "command_sha256": command.command_sha256})
+	_first_cell_index = -1
 	var captured: Dictionary = _game_state.capture_dating_challenge_state()
 	if not captured.ok: return captured
 	var stored: Dictionary = captured.value
