@@ -298,6 +298,29 @@ func test_callback_candidate_mutation_is_refused_before_native_adoption() -> voi
 	_assert_source_retained()
 	assert_true(_adapter.install_scene_control(mutating, _reading, _source_token).ok)
 
+func test_callback_reentrant_install_refuses_without_consuming_outer_custody() -> void:
+	if not await _start_source(): return
+	var mutating := MutatingCandidate.new()
+	if not _stage(mutating): return
+	var nested: Array[Dictionary] = []
+	var identity: Dictionary = _adapter.marker_source_identity().value
+	var publications := _results.size()
+	mutating.on_capture = func() -> void:
+		nested.append(_adapter.install_scene_control(mutating, _reading, _source_token))
+	var installed: Dictionary = _adapter.install_scene_control(mutating, _reading, _source_token)
+	assert_eq(nested.size(), 1)
+	if nested.size() != 1: return
+	assert_false(nested[0].ok)
+	assert_eq(nested[0].code, &"scene_control_reentrant")
+	assert_true(installed.ok, str(installed))
+	if not installed.ok: return
+	assert_eq(installed.value, _reading)
+	assert_eq(_adapter.capture_scene_control_position(mutating).value, _reading)
+	assert_eq(_adapter.marker_source_identity().value, identity)
+	assert_eq(_results.size(), publications)
+	assert_eq(_markers, [])
+	assert_false(_adapter.validate_scene_source(_source_token, _source).ok)
+
 func after_each() -> void:
 	assert_eq(get_node("/root/ProfileManager").get_profile_snapshot(), _profile_before,
 		"internal publication capture cannot write the real Profile")

@@ -26,6 +26,7 @@ var _scene_activation_generation := -1
 var _scene_source_token: RefCounted
 var _scene_source: Dictionary = {}
 var _scene_control_restore: Dictionary = {}
+var _scene_control_installing := false
 
 ## Holding is explicit: preparing a target must never reveal or retire an
 ## unheld caption as a side effect.
@@ -200,6 +201,15 @@ func install_scene_target(session: RefCounted, checkpoint: Dictionary, target: D
 ## durable destination acknowledgement; this native operation grants no receipt
 ## or persistence authority. The original completed caption never restarts.
 func install_scene_control(session: RefCounted, reading: Dictionary,
+		source_token: RefCounted) -> Dictionary:
+	if _scene_control_installing:
+		return _fail(&"scene_control_reentrant", "native installation is already active")
+	_scene_control_installing = true
+	var result := _install_scene_control(session, reading, source_token)
+	_scene_control_installing = false
+	return result
+
+func _install_scene_control(session: RefCounted, reading: Dictionary,
 		source_token: RefCounted) -> Dictionary:
 	if not _bound or not _qualified_runtime or session == null:
 		return _fail(&"scene_control_unavailable", "qualified native owner required")
