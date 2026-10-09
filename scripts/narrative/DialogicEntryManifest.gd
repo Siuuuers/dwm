@@ -200,10 +200,8 @@ static func _validate_scene_manifest(document: Dictionary) -> Dictionary:
 
 ## Validate the complete bundle before any consumer can populate a cache.
 static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
-	if not _scene_exact(bundle, ["kind", "schema_version", "entry_manifest", "context_registry",
-			"ids_registry", "caption_registry", "scene_programme", "targets", "board_profiles", "challenges", "contacts"]) \
-			or bundle.kind != "scene_reading_registration" or typeof(bundle.schema_version) != TYPE_INT \
-			or bundle.schema_version != 1: return _scene_fail("bundle shape")
+	var header := validate_scene_bundle_header(bundle)
+	if not header.ok: return header
 	for field: String in ["entry_manifest", "context_registry", "ids_registry", "caption_registry", "scene_programme"]:
 		if not bundle[field] is Dictionary: return _scene_fail(field)
 	var manifest := _validate_scene_manifest(bundle.entry_manifest)
@@ -325,6 +323,37 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 	var tables := _validate_scene_tables(bundle, entries, programmes.value, compiled, markers)
 	if not tables.ok: return tables
 	return {"ok": true, "value": bundle.duplicate(true)}
+
+## Shared closed envelope admission, not a replacement for full DTL validation.
+## The Contacts owner preloads this script, so load its pure validator only at
+## call time. Never call its installed-registration reader from this path.
+static func validate_scene_bundle_header(bundle: Variant) -> Dictionary:
+	if not bundle is Dictionary or typeof(bundle.get("schema_version")) != TYPE_INT:
+		return _scene_fail("bundle shape")
+	var keys := ["kind", "schema_version", "entry_manifest", "context_registry",
+		"ids_registry", "caption_registry", "scene_programme", "targets", "board_profiles", "challenges", "contacts"]
+	if bundle.schema_version == 2: keys.append("contact_definitions")
+	elif bundle.schema_version != 1: return _scene_fail("bundle version")
+	if not _scene_exact(bundle, keys) or bundle.kind != "scene_reading_registration":
+		return _scene_fail("bundle shape")
+	if bundle.schema_version == 1: return {"ok": true}
+	var contact_owner: Script = load("res://scripts/domain/contact/ContactInvitationState.gd")
+	if contact_owner == null: return _scene_fail("contact definitions owner")
+	var checked: Dictionary = contact_owner.validate_scene_definitions(bundle.contact_definitions)
+	if not checked.get("ok", false): return checked
+	var facts := {}
+	for row: Dictionary in checked.value.messages.values():
+		for field: String in ["message_fact_ids", "read_fact_ids"]:
+			for fact: String in row[field]: facts[fact] = true
+	for row: Dictionary in checked.value.replies.values():
+		for fact: String in row.source_fact_ids: facts[fact] = true
+	if not bundle.contacts is Array: return _scene_fail("contact facts")
+	for row: Variant in bundle.contacts:
+		if not row is Dictionary or not row.get("source_fact_ids") is Array:
+			return _scene_fail("contact facts")
+		for fact: Variant in row.source_fact_ids:
+			if not _scene_id(fact) or not facts.has(fact): return _scene_fail("unregistered contact fact")
+	return {"ok": true}
 
 static func _validate_scene_tables(bundle: Dictionary, entries: Dictionary, programmes: Dictionary,
 		compiled: Dictionary, markers: Dictionary) -> Dictionary:
@@ -1195,4 +1224,5 @@ static func _is_retired_label(entry_id: String, retired_registry: Variant = null
 		if str(record.get("label_id", "")) == entry_id:
 			return record.get("reject_on_restore") == true
 	return false
+
 

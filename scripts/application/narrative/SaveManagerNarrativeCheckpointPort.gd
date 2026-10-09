@@ -243,7 +243,12 @@ func commit_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary) -> D
 func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictionary) -> Dictionary:
 	var route := _call_provider("route_id", [])
 	if not route.ok: return route
-	if route.value != "dating": return _fail(&"scene_event_route_mismatch", "only the admitted Solo owner is supported")
+	if route.value not in ["dating", "scene"]: return _fail(&"scene_event_route_mismatch", "unsupported narrative host")
+	var scene_route: bool = route.value == "scene"
+	if scene_route and not _scene_route_input_valid(snapshot_input, checkpoint):
+		return _fail(&"scene_event_input_invalid", "scene input requires installed authority and exact family binding")
+	if not scene_route and snapshot_input.has("scene"):
+		return _fail(&"scene_event_route_mismatch", "scene input cannot use a legacy host")
 	var active := _call_provider("active_app_id", [])
 	if not active.ok: return active
 	# Desktop host state can retain its last app while the dating route owns
@@ -266,7 +271,10 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 	var candidate: Dictionary = prepared.value.candidate
 	if not candidate.get("storage_backup") is Dictionary:
 		return _fail(&"scene_event_storage_backup_missing", "the real autosave preimage is required")
-	var candidate_hash := _fingerprint(candidate) if not _scene_entry.is_empty() else ""
+	var guarded_candidate := scene_route or not _scene_entry.is_empty()
+	var candidate_hash := _fingerprint(candidate) if guarded_candidate else ""
+	if scene_route and not _scene_route_candidate_valid(candidate, snapshot_input, checkpoint):
+		return _fail(&"scene_entry_candidate_invalid", "prepared scene family differs from admitted input")
 	if not _scene_entry.is_empty() and _scene_candidate_reference(candidate, checkpoint).is_empty():
 		return _fail(&"scene_entry_candidate_invalid", "real prepared snapshot differs from retained target")
 
@@ -283,8 +291,10 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 		# the final authority/source callbacks before crossing its write boundary.
 		if _fingerprint(candidate) != candidate_hash or _scene_candidate_reference(candidate, checkpoint).is_empty():
 			return _fail(&"scene_entry_candidate_invalid", "prepared candidate changed before commit")
+	if scene_route and (_fingerprint(candidate) != candidate_hash or not _scene_route_candidate_valid(candidate, snapshot_input, checkpoint)):
+		return _fail(&"scene_entry_candidate_invalid", "scene candidate changed before commit")
 	var committed: Dictionary = _real_port.commit(candidate)
-	if not _scene_entry.is_empty() and _fingerprint(candidate) != candidate_hash:
+	if guarded_candidate and _fingerprint(candidate) != candidate_hash:
 		return {"ok": false, "code": &"scene_entry_commit_uncertain", "committed": true}
 
 	var value: Variant = committed.get("value")
@@ -310,7 +320,44 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 	if checkpoint.get("stage") == "scene" and candidate.get("autosave_document") is Dictionary:
 		var reference := _scene_committed_reference(candidate, checkpoint)
 		if not reference.is_empty(): result.value["checkpoint_reference"] = reference
+	if scene_route and not result.value.has("checkpoint_reference"):
+		return {"ok": false, "code": &"scene_entry_commit_uncertain", "committed": true}
 	return result
+
+
+# These adapter checks bind an admitted input to the real lower candidate. Complete
+# Run9/Save9 content, issuer and registration validation remains the lower owner’s job.
+# Ordinary scene checkpoints also require the caller's live source/lease custody.
+# The entry validator authenticates retained entry operations only; configuring it
+# does not authenticate an ordinary checkpoint's source by itself.
+const SCENE_INPUT_KEYS := ["lifecycle", "gameplay", "contacts", "desktop", "scene",
+	"applied_effect_transaction_ids", "applied_variable_transaction_ids", "command_receipts"]
+
+func _scene_route_input_valid(input: Dictionary, checkpoint: Dictionary) -> bool:
+	if not is_instance_valid(_scene_authority) or not _scene_validator.is_valid() \
+			or not _exact_keys(input, SCENE_INPUT_KEYS) or checkpoint.get("stage") != "scene": return false
+	for key: String in ["lifecycle", "gameplay", "contacts", "desktop", "scene", "command_receipts"]:
+		if not input.get(key) is Dictionary: return false
+	if not _exact_keys(input.scene, ["registration_sha256", "active_occurrence_id", "active_admission_receipt_id"]): return false
+	if input.scene.registration_sha256 != checkpoint.get("manifest_fingerprint") or not _scene_hash(input.scene.registration_sha256): return false
+	var frame: Variant = checkpoint.get("frozen_context")
+	if not frame is Dictionary or not frame.get("presentation") is Dictionary \
+			or not frame.presentation.get("fields") is Dictionary: return false
+	return input.scene.active_occurrence_id == frame.get("playback_id") \
+		and input.scene.active_admission_receipt_id == frame.presentation.fields.get("admission_receipt_id") \
+		and input.scene.active_occurrence_id is String and not input.scene.active_occurrence_id.is_empty() \
+		and input.scene.active_admission_receipt_id is String and not input.scene.active_admission_receipt_id.is_empty()
+
+func _scene_route_candidate_valid(candidate: Dictionary, input: Dictionary, checkpoint: Dictionary) -> bool:
+	if not _scene_route_input_valid(input, checkpoint) or not candidate.get("autosave_document") is Dictionary \
+			or not candidate.get("journal_candidate") is Dictionary: return false
+	var snapshot := _scene_bundle_snapshot(candidate.get("journal_candidate", {}).get("current"))
+	if typeof(snapshot.get("schema_version")) != TYPE_INT or snapshot.schema_version != 9 \
+			or snapshot.get("route_id") != "scene" or typeof(candidate.autosave_document.get("schema_version")) != TYPE_INT \
+			or candidate.autosave_document.schema_version != 9: return false
+	for key: String in SCENE_INPUT_KEYS:
+		if not snapshot.has(key) or _fingerprint(snapshot[key]) != _fingerprint(input[key]): return false
+	return not _scene_candidate_reference(candidate, checkpoint).is_empty()
 
 
 # Scene acknowledgements are in-process capabilities, not saved proof. The configured

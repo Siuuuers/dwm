@@ -54,7 +54,7 @@ causal_day_instance_issuer_receipt, restore_provenance, state
 
 `state=PLAYING`. Existing causal/desktop ancestry keeps its genuine issuer-defined identity, even where historical field names contain “day”; it imposes no numeric day, seven-day cap, Schedule or automatic reset. Existing exact restore-provenance and issuer/remap validation remains, with explicit scene-family handling. This is not permission to discard original historical identities.
 
-**Production NewRun is deliberately blocked pending the open ending-selection contract.** These generic fixture members do not purport to persist an approved Sweet/Dark selection. Before enabling real NewRun, Director must settle the replacement registered form identifiers and how selection is made/witnessed (random, player-selected or authored input). Then A adds its exact owner-validated persisted selection and ending-state variant. No partner is preselected, no old four-form default returns, and TEST IDs never become production IDs. G/F may implement against the stable gameplay/Contacts interfaces below without inventing that content decision.
+**Director 14:08 HKT resolves the selection policy.** First successfully created new run randomly assigns `sweet` or `dark`; each later successful new run receives the opposite, persistently across abandonment/restart. Refused/cancelled creation and same-operation retry do not consume or reroll; old Load never changes the sequence. A owns joint NewRun/schema/bootstrap; G supplies the existing Profile-owner delta. Extend the existing `pair_deck_draws` owner with an exact discriminated receipt, not a competing counter/store or the unrelated UI `captured_dark` preference. Proposed new receipt is `{ruleset_id,form,selection_kind,rng_nonce,predecessor_run_id,predecessor_assignment_sha256,creation_transaction_id}`, ruleset `scene.new_run.alternating.v1`, forms `sweet`/`dark`. Initial nonce is controlled, predecessor fields null; alternate nonce null, predecessor authenticated. Commit only with durable run creation, never a standalone precommit draw. Preserve old receipt shapes. Existing legacy suffixes establish tone but ledger insertion order does not establish successful creation chronology; inspect retained creation proof before selecting any legacy sequence seed. This receipt is a dependency contract, not implemented activation. Production authored content remains separately selected; no invented production IDs or partner.
 
 Exact scene `gameplay` keys (all required; neither a permissive subset nor arbitrary extras):
 
@@ -90,7 +90,7 @@ RunSnapshotSchema.build_scene(snapshot_input,dialogic_checkpoint,route_id,active
 
 ## 2. Durable selected-source owner
 
-The existing `desktop-continuation-operations.json` is the only durable continuation store. Add a **journal5 scene operation variant**, `kind=scene_restore`, whose exact fields are the existing restore operation fields plus **`selected_document`**. The issuer allocation request remains `kind=restore`; this does not invent a new allocation family.
+The existing `desktop-continuation-operations.json` is the only durable continuation store. Add a **journal5 scene operation variant**, `kind=scene_restore`, whose exact fields are the existing restore operation fields plus **`selected_document`** and **`activation_state`**. The issuer allocation request remains `kind=restore`; this does not invent a new allocation family.
 
 Retain exact old `new_run`/`restore` operation shapes and historical bytes; do not add null fields or reseal them. Journal reader/writer must explicitly distinguish the old schema4 envelope and new schema5 envelope. A schema5 envelope may retain old exact operation variants. Appending the first scene operation preserves all existing canonical operation bytes and receipts; this is an explicit continuation-envelope extension, not player-save migration. Corrupt/unknown historical variants refuse unchanged. The journal's participant-order dispatch also becomes family-specific (below).
 
@@ -201,7 +201,7 @@ Resolver returns `{ok:true,value:{receipts:[...]}}` in sorted source_fact_id ord
 
 A's Bridge uses the existing staged target/ack producer for genuine `contact.enter` after computer Close at the registered safe boundary. Preserve exact return_to `{scene_occurrence,admission_receipt_id,entry_id,target_id,source_checkpoint}`; return result remains `{kind:"contact_returned",contact_admission_receipt_id,target_id,parent_occurrence_id}`. Derive outstanding call from accepted enter/return receipts. No nested call or allocating scene/ending exit while outstanding. Retain parent Challenge/occurrence. Return uses current live scene execution identity/lease after Load, not stale parent execution authority.
 
-G's SaveManagerNarrativeCheckpointPort change admits route provider `{ok:true,value:"scene"}` only with Run9 scene input and actual scene authority. The exact lower checkpoint input remains `{active_app_id,audio_context,content_version,dialogic_checkpoint,route_id,snapshot_input}`. Existing `commit_scene_event(snapshot_input,checkpoint)` and acknowledged staged-target flow remain. No route string alone certifies content or custody.
+G's SaveManagerNarrativeCheckpointPort change admits route provider raw string `"scene"` only with Run9 scene input and actual scene authority. The exact lower checkpoint input remains `{active_app_id,audio_context,content_version,dialogic_checkpoint,route_id,snapshot_input}`. Existing `commit_scene_event(snapshot_input,checkpoint)` and acknowledged staged-target flow remain. No route string alone certifies content or custody.
 
 ## 4. Restore and shared method allocation
 
@@ -237,4 +237,20 @@ Injected failure diagnostics must be labeled and cannot substitute for successfu
 - G can implement the explicit absence API/selection and scene Contacts bag/context/resolver contract. Publish exact domain definition/receipt rows and any additional path before edits; compose against A's eventual complete registration binding, never guessed mutable data.
 - F can use the exact scene captured-input/gameplay/stat sets above for dependent composers. Keep all disjoint retirement work and hand shared changes to A.
 - D reviews only the new format, durable selected-document proof, completion/live-session fence and finite domain binding interfaces. Prior PR23 acceptance remains closed.
-- Director: the concrete future production blocker is ending form selection identifiers plus draw/input witnessing. Generic TEST-registered persistence proceeds without choosing that policy or enabling production NewRun.
+- Director settled NewRun form policy at 14:08 HKT. Its exact joint durable implementation and authored production content remain pending; do not ask the product question again.
+
+
+
+## D6074955676 completion and activation correction
+
+For the new scene_restore variant only, `activation_state` is null before COMPLETED, `pending` atomically with the durable APPLIED→COMPLETED write, and `acknowledged` after actual native frontier, mounted route and current live session confirmation. It is outside the immutable intent fingerprint. Historical operation shapes remain exact.
+
+1. Hold restore save lock and mutation/input custody; prepare and apply reversible participants silently. Do not resume native playback or publish readiness.
+2. Persist COMPLETED+pending as one durable write. Definite refusal rolls back reversible state and retains the same operation/identity for retry; uncertain outcome re-reads while fenced.
+3. Activate the committed target under custody. Queued route change or finalize return alone is insufficient: require genuine native frontier and mounted-route acknowledgement.
+4. SaveManager privately calls `acknowledge_scene_activation(transaction_id,request_fingerprint)` only after those confirmations; durably acknowledge before releasing custody/publishing ready or admitting Start.
+5. Failure after committed pending retains the committed target and identity, stays fenced, and never compensates or allocates again.
+
+`list_incomplete`, `reconcile_startup` and SaveManager `_resume_operation` must include precisely completed scene_restore/pending records. Reconstruct process-local participants/checkpoint seed from retained `selected_document` through `load_restore_context(transaction_id,locator)`, bypass historical receipt advancement/allocation, and resume activation. Normalize scene_restore custody owner to restore because existing save lock checks that name. Block new continuation while pending; conflicting multiple pending records fail closed. Do not replay all historical completed operations or choose an arbitrary latest operation.
+
+Required connected evidence: completion refusal/uncertainty; crash before completion, after pending commit and after physical activation before acknowledgement; native/route/ack-write refusal; source-slot overwrite; many acknowledged historical operations plus one pending. Assert no premature publication/Start, duplicate consequence or replacement identity. This is the corrected implementation contract, not a claim these paths already exist or passed.

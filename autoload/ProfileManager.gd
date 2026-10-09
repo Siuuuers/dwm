@@ -44,6 +44,14 @@ var _deferred_publications: Dictionary = {}
 var _publication_counter := 0
 var _pending_gallery_publications: Dictionary = {}
 var _restore_backup: Dictionary = {}
+var _scene_absence_validator: Callable
+var _scene_absence_validator_bound := false
+var _scene_absence_busy := false
+var _scene_absence_reentered := false
+var _scene_absence_material: Dictionary = {}
+var _scene_absence_material_value: Dictionary = {}
+var _scene_absence_context: Dictionary = {}
+var _scene_absence_context_value: Dictionary = {}
 
 
 func _ready() -> void:
@@ -576,6 +584,51 @@ func get_dating_attempt(run_id: String, slot_id: String, attempt_id: String = ""
 	return DATING_ATTEMPTS.read(_profile.dating_attempts, run_id, slot_id, attempt_id, branch_id)
 
 
+## Bound once by the application to its actual GameState semantic authority.
+func configure_scene_absence_validator(validator: Callable) -> Dictionary:
+	if _scene_absence_busy:
+		_scene_absence_reentered = true
+		return _failure(&"scene_absence_reentry", "Absence validation cannot reenter")
+	if not validator.is_valid() or not is_instance_valid(validator.get_object()) \
+			or validator.get_argument_count() != 4 or not _scene_absence_material.is_empty():
+		return _failure(&"invalid_scene_absence_validator", "An idle bound four-argument validator is required")
+	if _scene_absence_validator_bound:
+		return {"ok": true} if _scene_absence_validator == validator else _failure(&"scene_absence_validator_conflict", "Authority is fixed")
+	_scene_absence_validator = validator
+	_scene_absence_validator_bound = true
+	return {"ok": true}
+
+func is_scene_absence_validator_bound_to(authority: Object) -> bool:
+	return is_instance_valid(authority) and _scene_absence_validator.is_valid() \
+		and _scene_absence_validator.get_object() == authority
+
+func _validate_scene_absence_context(context: Dictionary) -> Dictionary:
+	if _scene_absence_busy:
+		_scene_absence_reentered = true
+		return _failure(&"scene_absence_reentry", "Absence validation cannot reenter")
+	if not _scene_absence_validator.is_valid() or not is_instance_valid(_scene_absence_validator.get_object()) \
+			or typeof(context.get("custody")) != TYPE_CALLABLE or not context.custody.is_valid() \
+			or not is_instance_valid(context.custody.get_object()) or context.custody.get_argument_count() != 0 \
+			or not is_instance_valid(_mutation_gate) or not _mutation_gate.is_lease_active(&"causal_transaction", context.lease):
+		return _failure(&"scene_absence_custody_required", "The live causal lease and configured authority are required")
+	var frozen := context.duplicate(true)
+	var revision: int = _profile_revision
+	var callback: Callable = _scene_absence_validator
+	var custody: Callable = context.custody
+	_scene_absence_busy = true
+	_scene_absence_reentered = false
+	var before: Variant = custody.call()
+	var result: Variant = callback.call(context.admission, context.command, context.bundle, context.lease) if typeof(before) == TYPE_BOOL and before else {"ok": false}
+	var after: Variant = custody.call() if custody.is_valid() else false
+	_scene_absence_busy = false
+	if typeof(before) != TYPE_BOOL or not before or typeof(after) != TYPE_BOOL or not after \
+			or _scene_absence_reentered or context != frozen or not is_instance_valid(callback.get_object()) or callback != _scene_absence_validator \
+			or revision != _profile_revision or not _mutation_gate.is_lease_active(&"causal_transaction", context.lease):
+		return _failure(&"scene_absence_custody_changed", "Validation changed its inputs or custody")
+	if not result is Dictionary or not result.get("ok", false):
+		return _failure(&"scene_absence_not_authorized", "The selected source owner refused admission")
+	return {"ok": true}
+
 ## Pure preview: Load does not persist anything. Use its selection on the first action.
 func prepare_dating_continuation(run_id: String, slot_id: String, attempt_id: String,
 		source_branch_id: String, branch_id: String, saved_record: Dictionary) -> Dictionary:
@@ -587,24 +640,56 @@ func prepare_dating_continuation(run_id: String, slot_id: String, attempt_id: St
 
 func prepare_dating_attempt(run_id: String, slot_id: String, branch_id: String, record: Dictionary,
 		expected_revision: int, first_cell_index: int = -1, frozen_effect: Dictionary = {},
-		selection: Dictionary = {}) -> Dictionary:
+		selection: Dictionary = {}, scene_command: Dictionary = {}, scene_bundle: Dictionary = {},
+		scene_lease: String = "", scene_custody: Callable = Callable()) -> Dictionary:
+	if _scene_absence_busy:
+		_scene_absence_reentered = true
+		return _failure(&"scene_absence_reentry", "Absence validation cannot reenter")
 	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
 	if record.get("schema_version") != 4 and not selection.is_empty() and not has_completed_ending():
 		return _failure(&"dating_replacement_locked", "Branch continuations require a completed ending")
+	var absence: bool = selection.get("mode") == "start_from_absence"
+	var absence_context := {}
+	if absence:
+		if not selection.get("admission") is Dictionary or scene_command.get("context") != record.get("context") \
+				or not scene_custody.is_valid() or not is_instance_valid(scene_custody.get_object()) \
+				or scene_custody.get_argument_count() != 0:
+			return _failure(&"invalid_scene_absence_selection", "The admitted command must bind this record")
+		absence_context = {"admission": selection.admission, "command": scene_command,
+			"bundle": scene_bundle, "lease": scene_lease, "custody": scene_custody}
 	var prepared: Dictionary = DATING_ATTEMPTS.prepare_update(_profile.dating_attempts,
 		run_id, slot_id, branch_id, record, expected_revision, first_cell_index, frozen_effect, selection)
 	if not prepared.get("ok", false): return prepared
-	return {"ok": true, "code": &"ok", "value": {
+	if absence:
+		var input_copy := {"record": record.duplicate(true), "selection": selection.duplicate(true)}
+		var authorized: Dictionary = _validate_scene_absence_context(absence_context)
+		if not authorized.ok: return authorized
+		if input_copy != {"record": record, "selection": selection}:
+			return _failure(&"scene_absence_preparation_conflict", "Preparation inputs changed")
+		var rechecked: Dictionary = DATING_ATTEMPTS.prepare_update(_profile.dating_attempts,
+			run_id, slot_id, branch_id, record, expected_revision, first_cell_index, frozen_effect, selection)
+		if not rechecked.ok or rechecked.value != prepared.value:
+			return _failure(&"scene_absence_history_changed", "History changed during preparation")
+	var material := {
 		"profile_revision": _profile_revision, "attempt": prepared.value.attempt.duplicate(true),
 		"changed": prepared.value.changed, "request": {"run_id": run_id, "slot_id": slot_id,
 			"branch_id": branch_id, "record": record.duplicate(true), "expected_revision": expected_revision,
 			"first_cell_index": first_cell_index, "frozen_effect": frozen_effect.duplicate(true),
-			"selection": selection.duplicate(true)}}}
+			"selection": selection.duplicate(true)}}
+	if absence:
+		_scene_absence_material = material
+		_scene_absence_material_value = material.duplicate(true)
+		_scene_absence_context = absence_context
+		_scene_absence_context_value = absence_context.duplicate(true)
+	return {"ok": true, "code": &"ok", "value": material}
 
 
 ## The Profile commit is durable before the caller writes Autosave. An Autosave failure
 ## must retry/reconcile this committed attempt, never roll the Profile commitment back.
 func commit_dating_attempt(material: Dictionary) -> Dictionary:
+	if _scene_absence_busy:
+		_scene_absence_reentered = true
+		return _failure(&"scene_absence_reentry", "Absence validation cannot reenter")
 	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
 	if _mutation_gate != null and not _mutation_gate.is_internal_owner_active(&"causal_transaction"):
 		return _failure(&"dating_attempt_custody_required", "Dating persistence requires its causal lease")
@@ -626,6 +711,12 @@ func commit_dating_attempt(material: Dictionary) -> Dictionary:
 		return _failure(&"invalid_dating_preparation", "Unexpected Dating request types")
 	if request.record.get("schema_version") != 4 and not request.selection.is_empty() and not has_completed_ending():
 		return _failure(&"dating_replacement_locked", "Branch continuations require a completed ending")
+	var absence: bool = request.selection.get("mode") == "start_from_absence"
+	if is_same(material, _scene_absence_material) and material != _scene_absence_material_value:
+		return _failure(&"scene_absence_preparation_conflict", "Prepared material changed")
+	if absence and (not is_same(material, _scene_absence_material) or material != _scene_absence_material_value \
+			or _scene_absence_context.is_empty() or _scene_absence_context != _scene_absence_context_value):
+		return _failure(&"scene_absence_preparation_conflict", "The private prepared object is required")
 	var prepared: Dictionary = DATING_ATTEMPTS.prepare_update(_profile.dating_attempts,
 		request.run_id, request.slot_id, request.branch_id, request.record, request.expected_revision,
 		request.first_cell_index, request.frozen_effect, request.selection)
@@ -642,7 +733,25 @@ func commit_dating_attempt(material: Dictionary) -> Dictionary:
 		if witnesses.has(witness_id) and witnesses[witness_id] != attempt.record.pair_form:
 			return _failure(&"pair_form_witness_conflict", "The completed attempt already witnessed another form")
 		requires_witness = not witnesses.has(witness_id)
+	if absence:
+		# Re-read the immutable entry and destination progress immediately before
+		# persistence, under the same real lease. The callback may not mutate either.
+		var authorized: Dictionary = _validate_scene_absence_context(_scene_absence_context)
+		if not authorized.ok: return authorized
+		if not is_same(material, _scene_absence_material) or material != _scene_absence_material_value \
+				or request.selection.admission != _scene_absence_context.admission:
+			return _failure(&"scene_absence_preparation_conflict", "Prepared inputs changed during validation")
+		var rechecked: Dictionary = DATING_ATTEMPTS.prepare_update(_profile.dating_attempts,
+			request.run_id, request.slot_id, request.branch_id, request.record, request.expected_revision,
+			request.first_cell_index, request.frozen_effect, request.selection)
+		if not rechecked.ok or rechecked.value != prepared.value:
+			return _failure(&"scene_absence_history_changed", "Retained attempt changed before commit")
 	if not prepared.value.changed and not requires_witness:
+		if absence:
+			_scene_absence_material = {}
+			_scene_absence_context = {}
+			_scene_absence_material_value = {}
+			_scene_absence_context_value = {}
 		return {"ok": true, "code": &"ok", "value": {"attempt": attempt.duplicate(true), "already_recorded": true}}
 	var candidate := _profile.duplicate(true)
 	candidate["dating_attempts"] = prepared.value.ledger.duplicate(true)
@@ -652,6 +761,11 @@ func commit_dating_attempt(material: Dictionary) -> Dictionary:
 		candidate["pair_form_witness_receipts"][witness_id] = attempt.record.pair_form
 	var committed := _commit_profile_candidate(candidate, false, material.profile_revision)
 	if not committed.get("ok", false): return committed
+	if absence:
+		_scene_absence_material = {}
+		_scene_absence_context = {}
+		_scene_absence_material_value = {}
+		_scene_absence_context_value = {}
 	return {"ok": true, "code": &"ok", "value": {"attempt": prepared.value.attempt.duplicate(true), "already_recorded": false}}
 
 

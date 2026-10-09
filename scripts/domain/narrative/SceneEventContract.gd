@@ -202,8 +202,6 @@ static func _fail(code: StringName) -> Dictionary:
 # its four nested registries and actual DTL bytes/compiled positions before use.
 # These pure checks cannot authenticate disk durability, Profile history, live
 # issuer custody or programme installation. Legacy receipt generation stays exact.
-const BUNDLE_KEYS := ["kind", "schema_version", "entry_manifest", "context_registry",
-	"ids_registry", "caption_registry", "scene_programme", "targets", "board_profiles", "challenges", "contacts"]
 const SCENE_PAYLOAD_KEYS := {
 	"scene.transition": ["target_id"], "challenge.playable": ["challenge_id"],
 	"challenge.end": ["challenge_id"], "contact.enter": ["contact_event_id"],
@@ -250,9 +248,13 @@ static func _scene_payload(kind: String, payload: Variant) -> bool:
 	return true
 
 static func validate_bundle_structure(bundle: Variant) -> Dictionary:
-	if not _json_data(bundle) or not _keys(bundle, BUNDLE_KEYS) or bundle.kind != "scene_reading_registration" \
-			or typeof(bundle.schema_version) != TYPE_INT or bundle.schema_version != 1:
+	if not _json_data(bundle):
 		return _fail(&"scene_bundle_invalid")
+	# One envelope/Contacts definition owner; no full DTL admission or cache here.
+	var manifest: Script = load("res://scripts/narrative/DialogicEntryManifest.gd")
+	if manifest == null: return _fail(&"scene_bundle_invalid")
+	var header: Dictionary = manifest.validate_scene_bundle_header(bundle)
+	if not header.get("ok", false): return _fail(&"scene_bundle_invalid")
 	# Deliberately no replacement for A's nested validators or caller trust flag.
 	for key: String in ["entry_manifest", "context_registry", "ids_registry", "caption_registry"]:
 		if not bundle[key] is Dictionary or bundle[key].is_empty() or not WRITER.stringify(bundle[key]).get("ok", false):
@@ -549,3 +551,4 @@ static func _json_data(value: Variant, depth: int = 0) -> bool:
 				if typeof(key) != TYPE_STRING or not _json_data(value[key], depth + 1): return false
 			return true
 	return false
+
