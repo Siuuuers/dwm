@@ -23,18 +23,18 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 9ebe1f086c011e5ebbf1433d2a760ded75361745
+          ref: a991b5256d88275debae051a61a7ee23494c868e
           fetch-depth: 0
           persist-credentials: true
       - name: Verify and record immutable source before import
         run: |
           $ErrorActionPreference = 'Stop'
           $source = (git rev-parse HEAD).Trim()
-          if ($LASTEXITCODE -ne 0 -or $source -cne '9ebe1f086c011e5ebbf1433d2a760ded75361745') { throw 'Wrong source commit.' }
+          if ($LASTEXITCODE -ne 0 -or $source -cne 'a991b5256d88275debae051a61a7ee23494c868e') { throw 'Wrong source commit.' }
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($LASTEXITCODE -ne 0 -or $tree -cne 'fc3c6aca44fef1c3c167a324fdfcbaee29712055') { throw 'Wrong source tree.' }
+          if ($LASTEXITCODE -ne 0 -or $tree -cne 'f63f8d0ae2da4999db9609caf23c6566e1c847dc') { throw 'Wrong source tree.' }
 
-          $parent = '4e20c0ae30d07addbf95be2729076e02b7998b52'
+          $parent = '9ebe1f086c011e5ebbf1433d2a760ded75361745'
           $parents = @((git rev-list --parents -n 1 HEAD).Trim().Split(' '))
           if ($LASTEXITCODE -ne 0 -or $parents.Count -ne 2 -or $parents[1] -cne $parent) { throw 'Wrong integration parent.' }
           $expected = @('tests/backup_operations/test_backup_operations.gd')
