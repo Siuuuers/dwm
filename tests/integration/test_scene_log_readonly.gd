@@ -9,6 +9,7 @@ const BASE := preload("res://tests/support/SceneDayReadingFixture.gd")
 const CHALLENGE := preload("res://tests/support/SceneChallengeFixture.gd")
 const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 const BRIDGE := preload("res://autoload/DialogicBridge.gd")
+const LOCALIZATION := preload("res://autoload/LocalizationManager.gd")
 const PATH := "res://tests/fixtures/dialogic/scene_day_terminal.dtl"
 
 class HistoryRouter extends Node:
@@ -48,6 +49,9 @@ var _input: Node
 var _bridge: Node
 var _session: RefCounted
 var _challenge: RefCounted
+var _localization: Node
+var _original_localization: Node
+var _original_localization_index := 0
 var _original_runtime: Node
 var _original_runtime_index := 0
 var _original_layout: Node
@@ -67,6 +71,21 @@ func before_all() -> void:
 
 func before_each() -> void:
 	_profile_before = get_node("/root/ProfileManager").get_profile_snapshot().duplicate(true)
+	_challenge = CHALLENGE.new()
+	assert_true(_challenge.setup("TEST.scene.log.readonly").ok)
+	# Bare GUT autoloads do not execute Bootstrap initialization. Mount with a
+	# real, initialized catalog owner using the isolated real fixture Profile,
+	# just as the retained caption presentation tests do. Never mutate the
+	# original autoload manager's one-time initialization state or preferences.
+	_localization = LOCALIZATION.new()
+	assert_true(_localization.initialize(_challenge.profile).get("ok", false))
+	assert_true(_localization.has_key("witnessed.transport.history"))
+	assert_true(_localization.has_key("button.close"))
+	_original_localization = get_node("/root/LocalizationManager")
+	_original_localization_index = _original_localization.get_index()
+	get_tree().root.remove_child(_original_localization)
+	_localization.name = "LocalizationManager"
+	get_tree().root.add_child(_localization)
 	_had_persistent = Engine.has_meta("dialogic_persistent_style_info")
 	_persistent = Engine.get_meta("dialogic_persistent_style_info", {})
 	_style_directory = DialogicStylesUtil.style_directory.duplicate(true)
@@ -127,8 +146,9 @@ func before_each() -> void:
 	assert_true(_caption._history_input_bound)
 	assert_true(_caption.transport_rail.bind_history_admission(_caption._history_admitted, _input),
 		"existing real binding remains idempotent")
-	_challenge = CHALLENGE.new()
-	assert_true(_challenge.setup("TEST.scene.log.readonly").ok)
+	assert_same(_caption._localization, _localization)
+	assert_true(_caption._configure_history_presentation(),
+		"real History validates initialized localization, theme and input before use")
 
 func _start_story() -> bool:
 	var created := BASE.create_session()
@@ -278,7 +298,6 @@ func test_mounted_log_is_read_only_across_real_challenge_owner_boundaries() -> v
 
 func after_each() -> void:
 	assert_eq(get_node("/root/ProfileManager").get_profile_snapshot(), _profile_before)
-	if _challenge != null: _challenge.dispose()
 	for text_node: Node in get_tree().get_nodes_in_group("dialogic_dialog_text"): text_node.set_process(false)
 	if is_instance_valid(_runtime):
 		_runtime.paused = false
@@ -288,10 +307,15 @@ func after_each() -> void:
 	_viewport.queue_free()
 	await get_tree().process_frame
 	if is_instance_valid(_runtime): _runtime.free()
+	if is_instance_valid(_localization): _localization.free()
+	if _challenge != null: _challenge.dispose()
 	_adapter = null
 	get_tree().remove_meta("dialogic_layout_node")
 	get_tree().root.add_child(_original_runtime)
 	get_tree().root.move_child(_original_runtime, _original_runtime_index)
+	if is_instance_valid(_original_localization):
+		get_tree().root.add_child(_original_localization)
+		get_tree().root.move_child(_original_localization, _original_localization_index)
 	if is_instance_valid(_original_layout) and is_instance_valid(_original_layout_parent):
 		_original_layout_parent.add_child(_original_layout)
 		_original_layout_parent.move_child(_original_layout, _original_layout_index)
