@@ -1,0 +1,126 @@
+[
+  {
+    "file": "scene-runtime-integration-completed-37939391271-1.zip",
+    "sha256": "fdb6cb31dd6a5f3649557fd2b164b74d87d5e71162d49c82e103935955bce50b",
+    "verified_members": 8,
+    "xml": [
+      {
+        "path": "ci/scene-interrupt-stop.xml",
+        "cases": 1,
+        "assertions": 1,
+        "failures": 1,
+        "errors": 0,
+        "skips": 0
+      }
+    ],
+    "source": {
+      "source_sha": "432cf8db15046262c76b830379b4933ee4811a2c",
+      "source_tree": "749ed5ccec4a26659b74918db46cfcecb7a17423",
+      "controller_event_sha": "bef30e8b2f32c22973a67741d7e21cd511956921",
+      "run_id": "37939391271",
+      "run_attempt": "1",
+      "suite": "completed",
+      "scope": "Test-selected two-process exact interruption after real route prefix or completed-pending journal write, then actual mounted/native recovery; ancillary participants diagnostic; no production or rendered acceptance"
+    }
+  },
+  {
+    "file": "scene-runtime-integration-completed-37939676468-1.zip",
+    "sha256": "454450cbe2d91faa5461816265253036ca50ad87076b5c6075afd6d7e7e67007",
+    "verified_members": 8,
+    "xml": [
+      {
+        "path": "ci/scene-interrupt-stop.xml",
+        "cases": 1,
+        "assertions": 12,
+        "failures": 1,
+        "errors": 0,
+        "skips": 0
+      }
+    ],
+    "source": {
+      "source_sha": "934b15f21b6ae5310c24944aa869aa9c04bdc63c",
+      "source_tree": "9cca2559a0f86630fb5fed4b57e5fb4ec333fe40",
+      "controller_event_sha": "f7bd2e9b853461ca70730b304ce8937eb976fdff",
+      "run_id": "37939676468",
+      "run_attempt": "1",
+      "suite": "completed",
+      "scope": "Test-selected two-process exact interruption after real route prefix or completed-pending journal write, then actual mounted/native recovery; ancillary participants diagnostic; no production or rendered acceptance"
+    }
+  },
+  {
+    "file": "scene-runtime-integration-prefix-37939391271-1.zip",
+    "sha256": "8874f7e6868f67d35541b6cc46fae914a55c6eeb7a736b8fa0f72eb4e0d1556d",
+    "verified_members": 8,
+    "xml": [
+      {
+        "path": "ci/scene-interrupt-stop.xml",
+        "cases": 1,
+        "assertions": 1,
+        "failures": 1,
+        "errors": 0,
+        "skips": 0
+      }
+    ],
+    "source": {
+      "source_sha": "432cf8db15046262c76b830379b4933ee4811a2c",
+      "source_tree": "749ed5ccec4a26659b74918db46cfcecb7a17423",
+      "controller_event_sha": "bef30e8b2f32c22973a67741d7e21cd511956921",
+      "run_id": "37939391271",
+      "run_attempt": "1",
+      "suite": "prefix",
+      "scope": "Test-selected two-process exact interruption after real route prefix or completed-pending journal write, then actual mounted/native recovery; ancillary participants diagnostic; no production or rendered acceptance"
+    }
+  },
+  {
+    "file": "scene-runtime-integration-prefix-37939676468-1.zip",
+    "sha256": "fa69eb6d13a784cfa6c44f8e08627093c593a4ccab33bc808830f099ea632c1d",
+    "verified_members": 11,
+    "xml": [
+      {
+        "path": "ci/scene-interrupt-resume.xml",
+        "cases": 1,
+        "assertions": 74,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      }
+    ],
+    "source": {
+      "source_sha": "934b15f21b6ae5310c24944aa869aa9c04bdc63c",
+      "source_tree": "9cca2559a0f86630fb5fed4b57e5fb4ec333fe40",
+      "controller_event_sha": "f7bd2e9b853461ca70730b304ce8937eb976fdff",
+      "run_id": "37939676468",
+      "run_attempt": "1",
+      "suite": "prefix",
+      "scope": "Test-selected two-process exact interruption after real route prefix or completed-pending journal write, then actual mounted/native recovery; ancillary participants diagnostic; no production or rendered acceptance"
+    }
+  },
+  {
+    "file": "scene-runtime-integration-completed-37940240596-1.zip",
+    "sha256": "0ef08a7ab67ad862fd2b1fcd51ff117bc72430e8d4c89d0bf6156ca143e42f84",
+    "verified_members": 11,
+    "xml": [
+      {
+        "path": "ci/scene-interrupt-resume.xml",
+        "cases": 1,
+        "assertions": 75,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      }
+    ],
+    "source": {
+      "source_sha": "63a70e37a6653b622f12336af0da75d13ad50bd6",
+      "source_tree": "9820db9429f78a36864b307e4407acc5a31a2bf8",
+      "controller_event_sha": "e01f3fd142b1db33b01fd6533083ee39a1062d58",
+      "run_id": "37940240596",
+      "run_attempt": "1",
+      "suite": "completed",
+      "scope": "Test-selected two-process exact interruption after real route prefix or completed-pending journal write, then actual mounted/native recovery; ancillary participants diagnostic; no production or rendered acceptance"
+    },
+    "pids": [
+      6472,
+      7412
+    ]
+  }
+]
