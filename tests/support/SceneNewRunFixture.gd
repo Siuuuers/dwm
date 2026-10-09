@@ -72,11 +72,24 @@ var bridge: Node
 var participants: Dictionary = {}
 var original_owners: Dictionary = {}
 
-func setup(scene_tree: SceneTree) -> Dictionary:
+func setup(scene_tree: SceneTree, shared_root: String = "") -> Dictionary:
 	tree = scene_tree
 	var checked: Dictionary = REGISTRATION.install_registration()
 	if not checked.ok: return checked
-	var temporary: Dictionary = TEMP.create("scene_joint_new_run")
+	var temporary: Dictionary
+	if shared_root.is_empty():
+		temporary = TEMP.create("scene_joint_new_run")
+	else:
+		var wrapper_root: String = OS.get_environment("DWM_TEST_ROOT").replace("\\", "/").simplify_path().trim_suffix("/")
+		var selected: String = shared_root.replace("\\", "/").simplify_path().trim_suffix("/")
+		var production: String = ProjectSettings.globalize_path("user://").replace("\\", "/").simplify_path().trim_suffix("/")
+		if wrapper_root.is_empty() or not selected.is_absolute_path() \
+				or not selected.to_lower().begins_with(wrapper_root.to_lower() + "/") \
+				or selected.nocasecmp_to(production) == 0:
+			return {"ok": false, "code": &"TEST.shared_root_invalid"}
+		var made: Error = DirAccess.make_dir_recursive_absolute(selected)
+		if made != OK: return {"ok": false, "code": &"TEST.shared_root_create_failed"}
+		temporary = {"ok": true, "value": selected}
 	if not temporary.ok: return temporary
 	storage = STORAGE.new(temporary.value, FILES.new())
 	root = ROOT.new()
