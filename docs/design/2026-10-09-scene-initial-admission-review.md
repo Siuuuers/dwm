@@ -1,6 +1,6 @@
 # Scene initial admission: proposed finite contract
 
-Status: **proposed, unimplemented, awaiting D review**. This document does not approve or activate a runtime format, report passing tests, or authorize a merge. It addresses the initial NewRun admission dependency only. Existing schema2 admission receipts and their canonical bytes remain unchanged.
+Status: **cleared for implementation by D6078194122; implementation candidate awaiting cloud evidence**. The initial creation path is explicitly configured; production host/content activation remains withheld. This document does not report passing tests or authorize a merge. It addresses the initial NewRun admission dependency only. Existing schema2 admission receipts and their canonical bytes remain unchanged.
 
 ## Observable outcome and current blocker
 

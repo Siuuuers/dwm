@@ -101,6 +101,33 @@ func prepare_reset_with_initial(snapshot: Dictionary, checkpoint_kind: StringNam
 		"earlier": [],
 	}}}
 
+## Creation/recovery uses only its retained candidate materials here. This path
+## does not ask for the completed creation whose checkpoint it is establishing.
+func prepare_scene_new_run_reset(snapshot: Dictionary, allocation_candidate: Dictionary,
+		profile_material: Dictionary, bundle: Dictionary, issuer: Object) -> Dictionary:
+	var validated: Dictionary = RUN_SNAPSHOT_SCHEMA.validate_scene_new_run_candidate(
+		snapshot, allocation_candidate, profile_material, bundle, issuer)
+	if not validated.get("ok", false): return validated
+	var candidate_snapshot: Dictionary = validated["value"]["candidate"]
+	return {"ok": true, "code": &"ok", "value": {"candidate": {
+		"candidate_kind": "reset", "run_id": candidate_snapshot["run_id"], "next_sequence": 2,
+		"current": {"checkpoint_kind": "day_start", "snapshot": candidate_snapshot}, "earlier": [],
+	}}}
+
+func commit_scene_new_run_reset(candidate: Dictionary, allocation_candidate: Dictionary,
+		profile_material: Dictionary, bundle: Dictionary, issuer: Object) -> Dictionary:
+	if typeof(candidate.get("current")) != TYPE_DICTIONARY \
+			or typeof(candidate["current"].get("snapshot")) != TYPE_DICTIONARY:
+		return _fail(&"invalid_candidate", "scene creation requires a current snapshot")
+	var prepared := prepare_scene_new_run_reset(candidate["current"]["snapshot"],
+		allocation_candidate, profile_material, bundle, issuer)
+	if not prepared.get("ok", false): return prepared
+	if not CANONICAL_JSON._deep_same(candidate, prepared["value"]["candidate"]):
+		return _fail(&"invalid_candidate", "scene creation reset differs from validated retained material")
+	if candidate["run_id"] == _run_id and candidate["next_sequence"] == _next_sequence:
+		return {"ok": false, "code": &"duplicate_commit", "message": candidate["run_id"]}
+	return _install_prepared(candidate)
+
 func commit_prepared(candidate: Dictionary) -> Dictionary:
 	var shape_error := _validate_candidate(candidate)
 	if shape_error != "":
@@ -119,6 +146,10 @@ func commit_prepared(candidate: Dictionary) -> Dictionary:
 		"reset":
 			if str(candidate["run_id"]) == _run_id and int(candidate["next_sequence"]) == _next_sequence:
 				return {"ok": false, "code": &"duplicate_commit", "message": str(candidate["run_id"])}
+	return _install_prepared(candidate)
+
+func _install_prepared(candidate: Dictionary) -> Dictionary:
+	var candidate_kind := str(candidate["candidate_kind"])
 	# A validated restore seed replaces the complete saved history, including when
 	# its cursor equals the live cursor. SaveManager owns restore consent and replay.
 	_run_id = str(candidate["run_id"])
@@ -369,3 +400,4 @@ static func _retained(earlier: Array[Dictionary]) -> Array[Dictionary]:
 	retained.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return int(a["snapshot"]["checkpoint_sequence"]) < int(b["snapshot"]["checkpoint_sequence"]))
 	return retained
+
