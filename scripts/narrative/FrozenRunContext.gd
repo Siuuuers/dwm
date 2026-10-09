@@ -18,12 +18,19 @@ const SCENE_ENTRIES := preload("res://scripts/narrative/DialogicEntryManifest.gd
 const SCENE_LEDGER := preload("res://scripts/narrative/NarrativeCaptionLedger.gd")
 const SCENE_CONTRACT := preload("res://scripts/domain/narrative/SceneEventContract.gd")
 static var _scene_issuer: Object
+static var _scene_creation_owner: Object
 
-static func configure_scene_validation(issuer: Object) -> Dictionary:
+static func configure_scene_validation(issuer: Object, creation_owner: Object = null) -> Dictionary:
 	if not is_instance_valid(issuer) or not issuer.has_method("verify_issued"):
 		return _fail(&"scene_identity_issuer_required")
+	if creation_owner != null and (not is_instance_valid(creation_owner) \
+			or creation_owner.get_script() != load("res://autoload/SaveManager.gd")):
+		return _fail(&"scene_creation_owner_required")
 	if _scene_issuer != null and _scene_issuer != issuer: return _fail(&"scene_identity_issuer_conflict")
+	if _scene_creation_owner != null and creation_owner != null and _scene_creation_owner != creation_owner:
+		return _fail(&"scene_creation_owner_conflict")
 	_scene_issuer = issuer
+	if creation_owner != null: _scene_creation_owner = creation_owner
 	return {"ok": true}
 
 const DATING_KEY := "dating_frozen_contexts_v1"
@@ -89,7 +96,7 @@ static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictio
 			return _fail(&"reading_saved_run_required")
 		var registered := SCENE_ENTRIES.scene_registration()
 		if not registered.ok: return registered
-		var receipts: Dictionary = SCENE_CONTRACT.validate_scene_receipts(snapshot.command_receipts, registered.value, _scene_issuer)
+		var receipts: Dictionary = SCENE_CONTRACT.validate_scene_receipts(snapshot.command_receipts, registered.value, _scene_issuer, _scene_creation_owner)
 		if not receipts.get("ok", false): return receipts
 		var scene_reading: Dictionary = checkpoint.reading_session
 		if snapshot.scene.get("registration_sha256") != scene_reading.registration_sha256 \
@@ -235,7 +242,7 @@ static func _validate_scene_envelope(checkpoint: Dictionary) -> Dictionary:
 		return _fail(&"reading_entry_context_mismatch")
 	return {"ok": true, "value": {}}
 
-## Pure structural derivation only. The map's values are scene_admitted RESULTS,
+## Pure structural derivation only. The map contains authenticated scene admission RESULTS,
 ## keyed by their immutable command IDs, after the owning scene contract has
 ## authenticated the complete canonical receipts. This function neither proves
 ## issuer custody nor accepts a Run; validate() intentionally remains fail-closed.
@@ -259,16 +266,25 @@ static func derive_scene_frames(admissions: Dictionary, reading: Dictionary) -> 
 		var fields: Dictionary = frame.presentation.fields
 		var id: String = fields.admission_receipt_id
 		var admission: Variant = admissions.get(id)
-		if not admission is Dictionary or not _exact(admission, ["kind", "occurrence_id", "entry_id",
-				"target_id", "source_checkpoint", "trigger_command_id", "return_to"]) \
-			or admission.kind != "scene_admitted" or admission.occurrence_id != id \
-			or admission.occurrence_id != pair.value.occurrence_id or admission.entry_id != pair.value.entry_id \
-			or not admission.target_id is String or not targets.has(admission.target_id) \
-			or not _scene_checkpoint_reference(admission.source_checkpoint) \
-			or (admission.trigger_command_id != null and not FROZEN._field(admission.trigger_command_id, "id")):
+		if not admission is Dictionary: return _fail(&"reading_scene_admission_invalid")
+		var initial: bool = admission.get("kind") == "scene_initial_admitted"
+		if initial:
+			if not _exact(admission, ["kind", "occurrence_id", "entry_id", "target_id"]):
+				return _fail(&"reading_scene_admission_invalid")
+		else:
+			if not _exact(admission, ["kind", "occurrence_id", "entry_id", "target_id",
+					"source_checkpoint", "trigger_command_id", "return_to"]) \
+					or admission.kind != "scene_admitted" \
+					or not _scene_checkpoint_reference(admission.source_checkpoint) \
+					or (admission.trigger_command_id != null and not FROZEN._field(admission.trigger_command_id, "id")):
+				return _fail(&"reading_scene_admission_invalid")
+		if admission.occurrence_id != id or admission.occurrence_id != pair.value.occurrence_id \
+				or admission.entry_id != pair.value.entry_id \
+				or not admission.target_id is String or not targets.has(admission.target_id):
 			return _fail(&"reading_scene_admission_invalid")
 		var target: Dictionary = targets[admission.target_id]
-		if target.entry_id != admission.entry_id or target.kind not in ["scene", "contact", "ending"]:
+		if target.entry_id != admission.entry_id or target.kind not in ["scene", "contact", "ending"] \
+				or (initial and target.kind != "scene"):
 			return _fail(&"reading_scene_admission_invalid")
 		if target.kind == "contact":
 			var back: Variant = admission.return_to
@@ -281,7 +297,7 @@ static func derive_scene_frames(admissions: Dictionary, reading: Dictionary) -> 
 			if not targets.has(back.target_id) or targets[back.target_id].kind != "return" \
 			or targets[back.target_id].entry_id != back.entry_id:
 				return _fail(&"reading_scene_admission_invalid")
-		else:
+		elif not initial:
 			if admission.return_to != null: return _fail(&"reading_scene_admission_invalid")
 		var presentation := FROZEN.build(admission.entry_id, {"entry_id": admission.entry_id,
 			"entry_role": "scene", "occurrence_id": id, "admission_receipt_id": id})

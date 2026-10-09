@@ -119,6 +119,31 @@ func prepare(input: Dictionary) -> Dictionary:
 	}
 	return {"ok": true, "code": &"ok", "value": {"narrative_plan": plan}}
 
+## Creation/recovery-owned preparation has no public completed-creation query:
+## the strict candidate is authenticated before retaining its silent plan.
+func prepare_scene_new_run(snapshot: Dictionary, allocation_candidate: Dictionary, profile_material: Dictionary,
+		bundle: Dictionary, issuer: Object, creation_owner: Object) -> Dictionary:
+	_prepared_scene_checkpoint = {}
+	if not is_instance_valid(creation_owner) or creation_owner.get_script() != load("res://autoload/SaveManager.gd") \
+			or not _owner is Node or not _owner.is_inside_tree() \
+			or creation_owner != _owner.get_node_or_null("/root/SaveManager"):
+		return _fail(&"scene_creation_owner_required", "actual continuation owner required")
+	var schema: Script = load("res://scripts/domain/run/RunSnapshotSchema.gd")
+	var checked: Dictionary = schema.validate_scene_new_run_candidate(
+		snapshot, allocation_candidate, profile_material, bundle, issuer)
+	if not checked.get("ok", false): return checked
+	var checkpoint: Dictionary = snapshot.narrative_checkpoint
+	var occurrence: String = allocation_candidate.request.transaction_id
+	var result: Dictionary = snapshot.command_receipts[occurrence].scene_admission.result
+	var frames := FROZEN_RUN.derive_scene_frames({occurrence: result}, checkpoint.reading_session)
+	if not frames.ok: return frames
+	if not _owner.has_method("validate_reading_checkpoint") or not _owner.has_method("stage_scene_reading_restore"):
+		return _content_unavailable("scene creation owner unavailable")
+	var admitted: Dictionary = _owner.validate_reading_checkpoint(checkpoint, frames.value.entry_contexts)
+	if not admitted.get("ok", false): return admitted
+	_prepared_scene_checkpoint = checkpoint.duplicate(true)
+	return {"ok": true, "value": {"narrative_plan": checkpoint.duplicate(true)}}
+
 func apply_silent(plan: Dictionary) -> Dictionary:
 	# Rejects a missing route-ready token and therefore cannot run early.
 	if typeof(plan.get("route_ready_token")) != TYPE_DICTIONARY:

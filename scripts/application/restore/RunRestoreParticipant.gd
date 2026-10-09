@@ -8,6 +8,8 @@ extends RefCounted
 
 const RUN_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 var _owner: Object = null
+var _scene_creation_plan: Dictionary = {}
+var _scene_creation_owner: Object
 
 func _init(owner: Object) -> void:
 	_owner = owner
@@ -27,6 +29,8 @@ func activate_live_session(ticket: Dictionary) -> Dictionary:
 	return _owner.activate_live_session(ticket)
 
 func prepare(input: Dictionary) -> Dictionary:
+	_scene_creation_plan = {}
+	_scene_creation_owner = null
 	if typeof(input.get("snapshot")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_run_input", "run participant requires a snapshot")
 	if input.snapshot.get("schema_version") == 9:
@@ -36,6 +40,21 @@ func prepare(input: Dictionary) -> Dictionary:
 		var events: Dictionary = _owner.validate_scene_event_snapshot(input["snapshot"])
 		if not events.get("ok", false): return events
 	return {"ok": true, "code": &"ok", "value": {"run_plan": {"snapshot": (input["snapshot"] as Dictionary).duplicate(true)}}}
+
+func prepare_scene_new_run_snapshot_input(allocation_candidate: Dictionary, profile_material: Dictionary,
+		admission: Dictionary, bundle: Dictionary) -> Dictionary:
+	return _owner.prepare_scene_new_run_snapshot_input(allocation_candidate, profile_material, admission, bundle)
+
+func prepare_scene_new_run(snapshot: Dictionary, allocation_candidate: Dictionary, profile_material: Dictionary,
+		bundle: Dictionary, issuer: Object, creation_owner: Object) -> Dictionary:
+	_scene_creation_plan = {}
+	_scene_creation_owner = null
+	var prepared: Dictionary = _owner.prepare_scene_new_run(snapshot, allocation_candidate, profile_material,
+		bundle, issuer, creation_owner)
+	if not prepared.get("ok", false): return prepared
+	_scene_creation_plan = prepared.value.run_plan.duplicate(true)
+	_scene_creation_owner = creation_owner
+	return prepared
 
 ## `branch_id`/`desktop_timeline_generation`/`causal_day_instance`/`causal_day_instance_issuer_
 ## receipt` (Plan 02 Task 6, dwm-p2r.32) arrive already durably allocated through SaveManager's
@@ -74,6 +93,14 @@ func capture() -> Dictionary:
 	return _owner.capture_restore_state()
 
 func apply_silent(plan: Dictionary) -> Dictionary:
+	if not _scene_creation_plan.is_empty():
+		if plan != _scene_creation_plan:
+			return _fail(&"scene_creation_plan_mismatch", "")
+		var applied: Dictionary = _owner.apply_scene_new_run_silent(plan, _scene_creation_owner)
+		if applied.get("ok", false):
+			_scene_creation_plan = {}
+			_scene_creation_owner = null
+		return applied
 	return _owner.apply_restore_silent(plan)
 
 func rollback_silent(backup: Dictionary) -> Dictionary:

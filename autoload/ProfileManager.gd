@@ -886,6 +886,43 @@ func get_pair_deck_draw(run_id: String) -> Dictionary:
 	var receipt: Variant = _profile.pair_deck_draws.get(run_id)
 	return {"ok": true, "value": receipt.duplicate(true) if receipt is Dictionary else null}
 
+## A completed creation keeps its immutable assignment through later Profile writes.
+## Prove that row against current physical canonical bytes, never an old whole-file
+## hash or silent in-memory adoption. Pending creation still uses full-output proof.
+func prove_scene_assignment(run_id: String, receipt: Dictionary) -> Dictionary:
+	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
+	if _mutation_blocked: return _failure(&"indeterminate_commit", "Profile mutation is blocked", true)
+	if not PAIR_DECK._scene_id(run_id): return _failure(&"invalid_scene_assignment", "Run identity is required")
+	var expected: Dictionary = PAIR_DECK.validate_scene(receipt)
+	if not expected.ok: return expected
+	if not _supports_new_run_storage(_storage):
+		return _failure(&"invalid_storage", "Revision-aware Profile storage is required")
+	var inspected: Dictionary = _storage.inspect_revision("profile.json")
+	if not inspected.ok: return inspected
+	var disk: Dictionary = inspected.value
+	if typeof(disk.get("text")) != TYPE_STRING or not _new_run_hash(disk.get("revision")) \
+			or disk.text.sha256_text() != disk.revision:
+		return _failure(&"scene_assignment_unproven", "Current Profile bytes are unavailable")
+	var decoded: Dictionary = _profile_text_validator(disk.text)
+	if not decoded.ok: return decoded
+	var canonical: Dictionary = WRITER.stringify(decoded.value)
+	if not canonical.ok or canonical.value != disk.text:
+		return _failure(&"scene_assignment_unproven", "Current Profile is not canonical")
+	var retained: Dictionary = PAIR_DECK.validate_scene(decoded.value.pair_deck_draws.get(run_id))
+	if not retained.ok: return retained
+	# Both rows have the strict flat G7 shape. Compare types before canonical bytes
+	# so numeric substitutions cannot acquire authority through JSON normalization.
+	for field: String in PAIR_DECK.SCENE_KEYS:
+		if typeof(receipt[field]) != typeof(retained.value[field]):
+			return _failure(&"scene_assignment_unproven", "Stored assignment types differ")
+	var retained_text: Dictionary = WRITER.stringify(retained.value)
+	var expected_text: Dictionary = WRITER.stringify(expected.value)
+	if not retained_text.ok or not expected_text.ok or retained_text.value != expected_text.value:
+		return _failure(&"scene_assignment_unproven", "Stored assignment differs from the creation")
+	return {"ok": true, "code": &"ok", "value": {"run_id": run_id,
+		"receipt": retained.value.duplicate(true), "source_revision": disk.revision}}
+
+
 func prepare_pair_deck_draw(run_id: String, receipt: Dictionary) -> Dictionary:
 	if typeof(receipt.get("ruleset_id")) == TYPE_STRING and receipt.ruleset_id == PAIR_DECK.SCENE_RULESET_ID:
 		return _failure(&"scene_assignment_joint_new_run_required", "Scene assignments belong to the joint New Run transaction")

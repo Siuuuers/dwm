@@ -4160,12 +4160,84 @@ const _SCENE_MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.
 const _SCENE_FROZEN := preload("res://scripts/narrative/FrozenRunContext.gd")
 var _scene_snapshot_references: Dictionary = {}
 
+# Only SaveManager's retained creation path can prepare/apply this plan. Ordinary
+# restore still uses committed admission authority, never this candidate seam.
+var _scene_new_run_plan: Dictionary = {}
+var _scene_new_run_plan_owner: Object
+
+static func make_scene_new_run_gameplay() -> Dictionary:
+	# Canonical scene defaults share the reset values. The dormant board seed keeps
+	# its declared zero value; preparing/validating a candidate must not draw RNG.
+	var gameplay := {"affection": {}, "coins": 0, "friend_attitude": {}, "friends": {},
+		"inter_friend_affection": {}, "inventory": {}, "minesweeper_app_rounds_finished_today": 0,
+		"minesweeper_money_earned_today": 0, "minesweeper_rng_seed": 0, "minesweeper_round_floor": 0,
+		"minesweeper_rounds_left": 2, "minesweeper_selected_difficulty": "beginner",
+		"minesweeper_task_rewards_claimed": {}, "money": 0, "narrative_variables": {},
+		"penalty_points_today": 0, "penalty_points_total": 0, "route_context": {},
+		"shop_purchase_counts": {}, "stats": {"pressure": 3}, "story_flags": {}}
+	for friend: String in _CONTACT_INVITATION_STATE.FRIEND_IDS:
+		gameplay.affection[friend] = 0
+		gameplay.friend_attitude[friend] = ""
+	return gameplay
+
+func prepare_scene_new_run_snapshot_input(allocation_candidate: Dictionary, profile_material: Dictionary,
+		admission: Dictionary, bundle: Dictionary) -> Dictionary:
+	var selected: Dictionary = _SCENE_MANIFEST.scene_registration()
+	if not selected.get("ok", false): return selected
+	if not _SCENE_EVENT._equal(bundle, selected.value):
+		return _transaction_failure(&"scene_registration_mismatch", "")
+	var checked: Dictionary = _SCENE_EVENT.validate_scene_initial_admission_candidate(
+		admission, allocation_candidate, profile_material, bundle, _identity_issuer)
+	if not checked.get("ok", false): return checked
+	var identity: Dictionary = admission.scene_admission.source_identity.duplicate(true)
+	var lifecycle: Dictionary = identity.duplicate(true)
+	lifecycle.merge({"state": "PLAYING", "restore_provenance": null,
+		"scene_assignment": profile_material.scene_assignment.receipt.duplicate(true)})
+	var occurrence: String = admission.transaction_id
+	return {"ok": true, "value": {"snapshot_input": {
+		"lifecycle": lifecycle, "gameplay": make_scene_new_run_gameplay(),
+		"contacts": _CONTACT_INVITATION_STATE.make_scene_defaults(),
+		"desktop": _empty_desktop_snapshot(identity.causal_day_instance, identity.causal_day_instance_issuer_receipt),
+		"scene": {"registration_sha256": _SCENE_MANIFEST.scene_registration_fingerprint(),
+			"active_occurrence_id": occurrence, "active_admission_receipt_id": occurrence},
+		"applied_effect_transaction_ids": [], "applied_variable_transaction_ids": [],
+		"command_receipts": {occurrence: admission.duplicate(true)}}}}
+
+func prepare_scene_new_run(snapshot: Dictionary, allocation_candidate: Dictionary, profile_material: Dictionary,
+		bundle: Dictionary, issuer: Object, creation_owner: Object) -> Dictionary:
+	_scene_new_run_plan = {}
+	_scene_new_run_plan_owner = null
+	if not is_instance_valid(creation_owner) or creation_owner != get_node_or_null("/root/SaveManager") \
+			or issuer != _identity_issuer or not is_instance_valid(_mutation_gate) \
+			or not _mutation_gate.is_internal_owner_active(&"new_run"):
+		return _transaction_failure(&"scene_creation_owner_required", "")
+	var checked: Dictionary = _NARRATIVE_VARIABLE_SCHEMA.validate_scene_new_run_candidate(
+		snapshot, allocation_candidate, profile_material, bundle, issuer)
+	if not checked.get("ok", false): return checked
+	_scene_new_run_plan = {"snapshot": snapshot.duplicate(true)}
+	_scene_new_run_plan_owner = creation_owner
+	return {"ok": true, "value": {"run_plan": _scene_new_run_plan.duplicate(true)}}
+
+func apply_scene_new_run_silent(plan: Dictionary, creation_owner: Object) -> Dictionary:
+	if not is_instance_valid(creation_owner) or creation_owner != _scene_new_run_plan_owner \
+			or creation_owner != get_node_or_null("/root/SaveManager") or _scene_new_run_plan.is_empty() \
+			or not _SCENE_EVENT._equal(plan, _scene_new_run_plan) or not is_instance_valid(_mutation_gate) \
+			or not _mutation_gate.is_internal_owner_active(&"new_run"):
+		return _transaction_failure(&"scene_creation_plan_mismatch", "")
+	# Allocation has been committed before silent participant application. Lifecycle
+	# commit independently checks the actual allocated identity; no completion query.
+	var installed := _install_scene_snapshot_silent(_scene_new_run_plan.snapshot)
+	if installed.get("ok", false):
+		_scene_new_run_plan = {}
+		_scene_new_run_plan_owner = null
+	return installed
+
 func validate_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary) -> Dictionary:
 	if _identity_issuer == null: return _transaction_failure(&"scene_identity_issuer_required", "")
 	var selected := _SCENE_MANIFEST.scene_registration()
 	if not selected.ok: return selected
 	if not _SCENE_EVENT._equal(bundle, selected.value): return _transaction_failure(&"scene_registration_mismatch", "")
-	var checked: Dictionary = _SCENE_EVENT.validate_scene_receipts(snapshot.command_receipts, bundle, _identity_issuer)
+	var checked: Dictionary = _SCENE_EVENT.validate_scene_receipts(snapshot.command_receipts, bundle, _identity_issuer, get_node_or_null("/root/SaveManager"))
 	if not checked.get("ok", false): return checked
 	var profile: Node = get_node_or_null("/root/ProfileManager")
 	if profile == null or not profile.has_method("get_pair_deck_draw"):
@@ -4229,7 +4301,7 @@ func configure_scene_runtime_validation() -> Dictionary:
 	if _identity_issuer == null: return _transaction_failure(&"scene_identity_issuer_required", "")
 	var lifecycle_binding: Dictionary = _run_lifecycle.configure_scene_issuer(_identity_issuer)
 	if not lifecycle_binding.get("ok", false): return lifecycle_binding
-	return _SCENE_FROZEN.configure_scene_validation(_identity_issuer)
+	return _SCENE_FROZEN.configure_scene_validation(_identity_issuer, get_node_or_null("/root/SaveManager"))
 
 func _scene_runtime_event_context() -> Dictionary:
 	if not is_instance_valid(_scene_event_bridge) or _identity_issuer == null:
@@ -4238,7 +4310,7 @@ func _scene_runtime_event_context() -> Dictionary:
 	if not live.ok: return live
 	var registration := _SCENE_MANIFEST.scene_registration()
 	if not registration.ok: return registration
-	var ledger := _SCENE_EVENT.validate_scene_receipts(_command_receipts, registration.value, _identity_issuer)
+	var ledger := _SCENE_EVENT.validate_scene_receipts(_command_receipts, registration.value, _identity_issuer, get_node_or_null("/root/SaveManager"))
 	if not ledger.ok: return ledger
 	var boundary: Dictionary = _scene_event_bridge.capture_scene_event_boundary()
 	if not boundary.get("ok", false): return boundary
@@ -4371,7 +4443,7 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 	if not identity.ok: return identity
 	var registration := _SCENE_MANIFEST.scene_registration()
 	if not registration.ok: return registration
-	var ledger := _SCENE_EVENT.validate_scene_receipts(_command_receipts, registration.value, _identity_issuer)
+	var ledger := _SCENE_EVENT.validate_scene_receipts(_command_receipts, registration.value, _identity_issuer, get_node_or_null("/root/SaveManager"))
 	if not ledger.ok: return ledger
 	var trigger: Variant = ledger.value.commands.get(trigger_command_id)
 	if not trigger is Dictionary or trigger.scene_event.result.get("kind") != "scene_transition_accepted" \

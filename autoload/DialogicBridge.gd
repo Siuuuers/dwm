@@ -105,6 +105,72 @@ func prepare_day_entry(entry_id: String, context: Dictionary) -> Dictionary:
 	_scene_stage_busy = false
 	return result
 
+## Detached initial candidate only: authenticates the prepared creation materials
+## and records the first actual compiled caption without touching live playback.
+func prepare_scene_initial_checkpoint(allocation_candidate: Dictionary, profile_material: Dictionary,
+		target_id: String, issuer: Object) -> Dictionary:
+	var registration := _ENTRY_MANIFEST.scene_registration()
+	if not registration.ok: return registration
+	var bundle: Dictionary = registration.value
+	var admitted := _MARKER_EVENT.prepare_scene_initial_admission(
+		allocation_candidate, profile_material, target_id, bundle, issuer)
+	if not admitted.ok: return admitted
+	var checkpoint := build_scene_initial_checkpoint(admitted.value, bundle)
+	if not checkpoint.ok: return checkpoint
+	return {"ok": true, "value": {"receipt": admitted.value, "checkpoint": checkpoint.value}}
+
+## Pure structural reconstruction after caller-owned admission authentication.
+## This never admits a Run or installs the detached session into live Bridge state.
+static func build_scene_initial_checkpoint(receipt: Dictionary, bundle: Dictionary) -> Dictionary:
+	var result: Dictionary = receipt.scene_admission.result
+	var target_id: String = result.target_id
+	var target := {}
+	for row: Dictionary in bundle.targets:
+		if row.target_id == target_id: target = row.target.duplicate(true)
+	if target.is_empty() or target.kind != "scene" or target.entry_id != result.entry_id:
+		return {"ok": false, "code": &"scene_initial_target_invalid"}
+	var labels: Array = []
+	var path := ""
+	var markers: Array = []
+	for entry: Dictionary in bundle.entry_manifest.entries:
+		labels.append(entry.entry_id)
+		if entry.entry_id == result.entry_id: path = entry.locators.en.path
+	for programme: Dictionary in bundle.scene_programme.entries:
+		if programme.entry_id == result.entry_id: markers = programme.markers
+	var compiled := DialogicRuntimeAdapter.compile_scene_programme(path, result.entry_id, labels, markers)
+	if not compiled.ok: return compiled
+	if compiled.value.program_sha256 != target.program_sha256 or not compiled.value.label_nodes.has(target.label):
+		return {"ok": false, "code": &"scene_initial_target_invalid"}
+	var index: int = compiled.value.label_nodes[target.label]
+	if index < 0 or index >= compiled.value.nodes.size() or compiled.value.nodes[index].kind != "caption":
+		return {"ok": false, "code": &"scene_initial_target_invalid"}
+	var occurrence: String = receipt.transaction_id
+	var presentation := FrozenPresentationContext.build(result.entry_id, {"entry_id": result.entry_id,
+		"entry_role": "scene", "occurrence_id": occurrence, "admission_receipt_id": occurrence})
+	if not presentation.ok: return presentation
+	var frame := {"expected_stage": "scene", "playback_id": occurrence, "role": "scene",
+		"transaction_id": occurrence, "presentation": presentation.value}
+	var candidate := _READING_SESSION.new()
+	var configured: Dictionary = candidate.configure_scene()
+	if not configured.ok: return configured
+	var begun: Dictionary = candidate.begin_scene(occurrence)
+	if not begun.ok: return begun
+	var entered: Dictionary = candidate.admit_scene(result.entry_id, frame, index)
+	if not entered.ok: return entered
+	var allocation: Dictionary = candidate.ledger.allocate_publication(occurrence, result.entry_id, occurrence)
+	if not allocation.ok: return allocation
+	var line_id: String = compiled.value.nodes[index].line_id
+	var published: Dictionary = candidate.ledger.publish_line(occurrence, allocation.value, result.entry_id, line_id, occurrence)
+	if not published.ok: return published
+	var captured: Dictionary = candidate.capture({"line_id": line_id, "publication_id": allocation.value})
+	if not captured.ok: return captured
+	var frames := FrozenRunContext.derive_scene_frames({occurrence: result}, captured.value)
+	if not frames.ok: return frames
+	var checkpoint := {"content_version": target.content_version, "entry_id": result.entry_id,
+		"frozen_context": frame, "manifest_fingerprint": _ENTRY_MANIFEST.scene_registration_fingerprint(),
+		"stage": "scene", "transaction_id": occurrence, "reading_session": captured.value}
+	return {"ok": true, "value": checkpoint}
+
 func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 	if _scene_stage_port == null or _scene_stage_fatal or not _scene_stage.is_empty():
 		return _command_failure(&"scene_staging_unavailable")

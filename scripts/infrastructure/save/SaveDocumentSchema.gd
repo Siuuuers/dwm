@@ -123,6 +123,30 @@ static func build(
 	_profile_phase(profile, "document_schema_metadata_us", tick)
 	return {"ok": true, "code": &"ok", "value": document}
 
+## The initial durable candidate cannot use ordinary committed-creation admission.
+## Validate this complete and deliberately narrower Save9 envelope before any write.
+static func validate_scene_new_run_candidate(document: Dictionary, allocation_candidate: Dictionary,
+		profile_material: Dictionary, bundle: Dictionary, issuer: Object) -> Dictionary:
+	var primitive := RUN_SNAPSHOT_SCHEMA.validate_primitive_tree(document)
+	if not primitive.ok: return primitive
+	var expected := DOCUMENT_KEYS.duplicate()
+	expected.append("saved_time")
+	if not RUN_SNAPSHOT_SCHEMA._scene_keys(document, expected) \
+			or typeof(document.schema_version) != TYPE_INT or document.schema_version != SCENE_DOCUMENT_VERSION \
+			or document.kind != "autosave" or document.slot_id != null or document.save_reason != "day_start" \
+			or not document.recovery_journal is Array or not document.recovery_journal.is_empty():
+		return _fail(&"invalid_document_shape", "initial Save9 requires Autosave, saved time and empty recovery")
+	if not validate_saved_time(document.saved_time):
+		return _fail(&"invalid_saved_time", "initial saved time is invalid")
+	var current: Variant = document.current_snapshot
+	if not RUN_SNAPSHOT_SCHEMA._scene_keys(current, ["checkpoint_kind", "snapshot"]) \
+			or current.checkpoint_kind != "day_start" or not current.snapshot is Dictionary:
+		return _fail(&"invalid_bundle_shape", "initial bundle must be day_start")
+	var checked := RUN_SNAPSHOT_SCHEMA.validate_scene_new_run_candidate(current.snapshot,
+		allocation_candidate, profile_material, bundle, issuer)
+	if not checked.ok: return checked
+	return {"ok": true, "code": &"ok", "value": {"candidate": document.duplicate(true)}}
+
 static func validate(document: Dictionary, profile: Dictionary = {}) -> Dictionary:
 	return _validate_document(document, [], false, profile)
 
@@ -165,6 +189,13 @@ static func _validate_outgoing_document_proofs(document: Dictionary, proven_jour
 
 static func _validate_document(document: Dictionary, proven_journal: Array,
 		use_proven_journal: bool, profile: Dictionary = {}, normalized_proofs: bool = false) -> Dictionary:
+	var type_guard := _validate_initial_types_before_normalization(document)
+	if not type_guard.ok: return type_guard
+	if use_proven_journal:
+		for proof: Variant in proven_journal:
+			var proof_guard := _validate_initial_types_before_normalization({
+				"schema_version": document.get("schema_version"), "current_snapshot": proof})
+			if not proof_guard.ok: return proof_guard
 	var tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 	# Normalize each envelope member, and NEVER the current bundle: its `snapshot` is rebuilt by
 	# `_validate_bundle()` -> `RunSnapshotSchema.validate()`, which normalizes it itself, and that
@@ -258,6 +289,19 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 		var scene_error := _scene_journal_error(candidate.current_snapshot, candidate.recovery_journal)
 		if not scene_error.is_empty(): return _fail(&"invalid_recovery_journal", scene_error)
 	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
+
+static func _validate_initial_types_before_normalization(document: Dictionary) -> Dictionary:
+	var bundles: Array = [document.get("current_snapshot")]
+	if document.get("recovery_journal") is Array: bundles.append_array(document.recovery_journal)
+	for bundle: Variant in bundles:
+		if not bundle is Dictionary or not bundle.get("snapshot") is Dictionary: continue
+		if not RUN_SNAPSHOT_SCHEMA._scene_has_initial_admission(bundle.snapshot): continue
+		if typeof(document.get("schema_version")) != TYPE_INT \
+				or (document.has("saved_time") and not validate_saved_time(document.saved_time)):
+			return _fail(&"scene_initial_types_invalid", "initial-admission Save header must retain exact types")
+		var error := RUN_SNAPSHOT_SCHEMA._scene_initial_types_error(bundle.snapshot)
+		if not error.is_empty(): return _fail(&"scene_initial_types_invalid", error)
+	return {"ok": true}
 
 ## Scene recovery is a complete owner-validated family, including proof/splice
 ## paths. Legacy recovery admission remains unchanged above.
