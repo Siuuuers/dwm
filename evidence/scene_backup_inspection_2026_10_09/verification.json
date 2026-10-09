@@ -1,0 +1,314 @@
+[
+  {
+    "archive": "scene-runtime-integration-backuplegacy-37949954744-1.zip",
+    "archive_sha256": "9f30a50fd87700ea421ed9b76edc76382e4b3df97f55ba3508116146b083cb68",
+    "manifest_members": 9,
+    "source": {
+      "source_sha": "4e20c0ae30d07addbf95be2729076e02b7998b52",
+      "source_tree": "bf9e93ecb780d83dbe3d23c72902ddfcf5afc89c",
+      "controller_event_sha": "c43ece47e61bb57b5bfea9ec8ee449dd73318e28",
+      "run_id": "37949954744",
+      "run_attempt": "1",
+      "suite": "backuplegacy",
+      "scope": "Scene Backup real-filesystem inspection with diagnostic activation; legacy Quick and consent regressions; no production capture or rendered acceptance"
+    },
+    "composition": {
+      "parent": "63a70e37a6653b622f12336af0da75d13ad50bd6",
+      "source": "4e20c0ae30d07addbf95be2729076e02b7998b52",
+      "source_tree": "bf9e93ecb780d83dbe3d23c72902ddfcf5afc89c",
+      "f_head": "45dc2df466d52f79a03bf2a4a640b1a160e8c257",
+      "g_head": "b29005cc989033092881942ddcd6203d0e1e07fb",
+      "exact_changed_files": [
+        {
+          "path": "autoload/SaveManager.gd",
+          "blob": "be8d28e1833ffe360b802b36b36722c7050e2555"
+        },
+        {
+          "path": "scripts/application/backup/BackupPresentationPort.gd",
+          "blob": "6b487655254232043cf6e142acb640a59938f6e1"
+        },
+        {
+          "path": "tests/unit/test_backup_quick_actions.gd",
+          "blob": "648edc2c257731fee027330997fed9eb9d9d9a93"
+        },
+        {
+          "path": "tests/unit/test_backup_host_admission.gd",
+          "blob": "38e3f5faa665806313405bb720d06bd7d0f036ea"
+        },
+        {
+          "path": "tests/backup_operations/test_backup_operations.gd",
+          "blob": "ed90aa766954b9c78588bb1f7ea7e9feaca7609d"
+        },
+        {
+          "path": "tests/integration/test_scene_backup_inspection.gd",
+          "blob": "7b1668331f05106649fe1589a3709f4ff178272b"
+        },
+        {
+          "path": "docs/design/2026-10-09-backup-scene-projection.md",
+          "blob": "9c360d9443d9addd1041eab68a835d56232551df"
+        },
+        {
+          "path": "docs/design/2026-10-09-scene-playable-forward-review.md",
+          "blob": "e1124a2dc551a230d7e3a4fc0a6d39d3722169eb"
+        }
+      ]
+    },
+    "engine": {
+      "archive_sha256": "e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90",
+      "console_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+      "version": "4.6.3.stable.official.7d41c59c4"
+    },
+    "xml": [
+      {
+        "path": "ci/backuplegacy.xml",
+        "cases": 31,
+        "xml_assertions": 847,
+        "failures_errors_skips": 0
+      }
+    ],
+    "script_errors": false,
+    "standalone_pass": false,
+    "log_assertions": [
+      "847"
+    ],
+    "artifact_id": 11626375173,
+    "retained_pass": true,
+    "job_id": 113885844724,
+    "controller_sha": "09772d0bffb98220e8c0de6648dc91bf151b54d9",
+    "workflow_blob": "11897ab46339daeb783d8222edf191683891bb1d",
+    "git_source_and_controller_verified": true
+  },
+  {
+    "archive": "scene-runtime-integration-backupoperations-37949954744-1.zip",
+    "archive_sha256": "af519e521e85f4dce3ad221dc2dd2f4fd528d14ce8cdd301befb917edf2dbbbc",
+    "manifest_members": 7,
+    "source": {
+      "source_sha": "4e20c0ae30d07addbf95be2729076e02b7998b52",
+      "source_tree": "bf9e93ecb780d83dbe3d23c72902ddfcf5afc89c",
+      "controller_event_sha": "c43ece47e61bb57b5bfea9ec8ee449dd73318e28",
+      "run_id": "37949954744",
+      "run_attempt": "1",
+      "suite": "backupoperations",
+      "scope": "Scene Backup real-filesystem inspection with diagnostic activation; legacy Quick and consent regressions; no production capture or rendered acceptance"
+    },
+    "composition": {
+      "parent": "63a70e37a6653b622f12336af0da75d13ad50bd6",
+      "source": "4e20c0ae30d07addbf95be2729076e02b7998b52",
+      "source_tree": "bf9e93ecb780d83dbe3d23c72902ddfcf5afc89c",
+      "f_head": "45dc2df466d52f79a03bf2a4a640b1a160e8c257",
+      "g_head": "b29005cc989033092881942ddcd6203d0e1e07fb",
+      "exact_changed_files": [
+        {
+          "path": "autoload/SaveManager.gd",
+          "blob": "be8d28e1833ffe360b802b36b36722c7050e2555"
+        },
+        {
+          "path": "scripts/application/backup/BackupPresentationPort.gd",
+          "blob": "6b487655254232043cf6e142acb640a59938f6e1"
+        },
+        {
+          "path": "tests/unit/test_backup_quick_actions.gd",
+          "blob": "648edc2c257731fee027330997fed9eb9d9d9a93"
+        },
+        {
+          "path": "tests/unit/test_backup_host_admission.gd",
+          "blob": "38e3f5faa665806313405bb720d06bd7d0f036ea"
+        },
+        {
+          "path": "tests/backup_operations/test_backup_operations.gd",
+          "blob": "ed90aa766954b9c78588bb1f7ea7e9feaca7609d"
+        },
+        {
+          "path": "tests/integration/test_scene_backup_inspection.gd",
+          "blob": "7b1668331f05106649fe1589a3709f4ff178272b"
+        },
+        {
+          "path": "docs/design/2026-10-09-backup-scene-projection.md",
+          "blob": "9c360d9443d9addd1041eab68a835d56232551df"
+        },
+        {
+          "path": "docs/design/2026-10-09-scene-playable-forward-review.md",
+          "blob": "e1124a2dc551a230d7e3a4fc0a6d39d3722169eb"
+        }
+      ]
+    },
+    "engine": {
+      "archive_sha256": "e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90",
+      "console_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+      "version": "4.6.3.stable.official.7d41c59c4"
+    },
+    "xml": [],
+    "script_errors": true,
+    "standalone_pass": false,
+    "log_assertions": [],
+    "artifact_id": 11625321878,
+    "retained_pass": false,
+    "job_id": 113885845046,
+    "controller_sha": "09772d0bffb98220e8c0de6648dc91bf151b54d9",
+    "workflow_blob": "11897ab46339daeb783d8222edf191683891bb1d",
+    "git_source_and_controller_verified": true
+  },
+  {
+    "archive": "scene-runtime-integration-backupoperations-37950420676-1.zip",
+    "archive_sha256": "deca6c401e58fb099a17209c2fb990e58aeba4de85018d3e4b92474a8c3bfeb9",
+    "manifest_members": 7,
+    "source": {
+      "source_sha": "9ebe1f086c011e5ebbf1433d2a760ded75361745",
+      "source_tree": "fc3c6aca44fef1c3c167a324fdfcbaee29712055",
+      "controller_event_sha": "cc160f430997eef4a30d5b8411e7022345f16ba3",
+      "run_id": "37950420676",
+      "run_attempt": "1",
+      "suite": "backupoperations",
+      "scope": "Scene Backup real-filesystem inspection with diagnostic activation; legacy Quick and consent regressions; no production capture or rendered acceptance"
+    },
+    "composition": {
+      "parent": "4e20c0ae30d07addbf95be2729076e02b7998b52",
+      "source": "9ebe1f086c011e5ebbf1433d2a760ded75361745",
+      "source_tree": "fc3c6aca44fef1c3c167a324fdfcbaee29712055",
+      "f_head": "45dc2df466d52f79a03bf2a4a640b1a160e8c257",
+      "g_head": "b29005cc989033092881942ddcd6203d0e1e07fb",
+      "exact_changed_files": [
+        {
+          "path": "tests/backup_operations/test_backup_operations.gd",
+          "blob": "9bd64b7018360a5d1c5d15b887580c4b5b52cd50"
+        }
+      ]
+    },
+    "engine": {
+      "archive_sha256": "e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90",
+      "console_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+      "version": "4.6.3.stable.official.7d41c59c4"
+    },
+    "xml": [],
+    "script_errors": true,
+    "standalone_pass": true,
+    "log_assertions": [],
+    "artifact_id": 11625377453,
+    "retained_pass": false,
+    "job_id": 113887445621,
+    "controller_sha": "172184bacd87e212c722bb4f48d1fbb6377d1a15",
+    "workflow_blob": "ea68f25ead08ece9858e871a81edd8f972d25409",
+    "git_source_and_controller_verified": true
+  },
+  {
+    "archive": "scene-runtime-integration-backupoperations-37950848439-1.zip",
+    "archive_sha256": "ce98302f75a3d8b4cf0b4f29a01708e24c2c36fb9526fb400cca183a84ede5a6",
+    "manifest_members": 7,
+    "source": {
+      "source_sha": "a991b5256d88275debae051a61a7ee23494c868e",
+      "source_tree": "f63f8d0ae2da4999db9609caf23c6566e1c847dc",
+      "controller_event_sha": "92591397eeec54694af4c57364d0826af03b90a7",
+      "run_id": "37950848439",
+      "run_attempt": "1",
+      "suite": "backupoperations",
+      "scope": "Scene Backup real-filesystem inspection with diagnostic activation; legacy Quick and consent regressions; no production capture or rendered acceptance"
+    },
+    "composition": {
+      "parent": "9ebe1f086c011e5ebbf1433d2a760ded75361745",
+      "source": "a991b5256d88275debae051a61a7ee23494c868e",
+      "source_tree": "f63f8d0ae2da4999db9609caf23c6566e1c847dc",
+      "f_head": "45dc2df466d52f79a03bf2a4a640b1a160e8c257",
+      "g_head": "b29005cc989033092881942ddcd6203d0e1e07fb",
+      "exact_changed_files": [
+        {
+          "path": "tests/backup_operations/test_backup_operations.gd",
+          "blob": "d899afa0af9e27a2f50d5bde420b2dee3cce549e"
+        }
+      ]
+    },
+    "engine": {
+      "archive_sha256": "e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90",
+      "console_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+      "version": "4.6.3.stable.official.7d41c59c4"
+    },
+    "xml": [],
+    "script_errors": false,
+    "standalone_pass": true,
+    "log_assertions": [],
+    "artifact_id": 11626236559,
+    "retained_pass": true,
+    "job_id": 113888917209,
+    "controller_sha": "89b9e0f1b74ccc569ccd9105fe7bae3dba884b07",
+    "workflow_blob": "15fe4101e9d888b729b22ccb9c3d8785980b5185",
+    "git_source_and_controller_verified": true
+  },
+  {
+    "archive": "scene-runtime-integration-scenebackup-37949954744-1.zip",
+    "archive_sha256": "a997e669711b51893ac68528073be61eb500ef8b83c95a59feabb4bf6752edb7",
+    "manifest_members": 9,
+    "source": {
+      "source_sha": "4e20c0ae30d07addbf95be2729076e02b7998b52",
+      "source_tree": "bf9e93ecb780d83dbe3d23c72902ddfcf5afc89c",
+      "controller_event_sha": "c43ece47e61bb57b5bfea9ec8ee449dd73318e28",
+      "run_id": "37949954744",
+      "run_attempt": "1",
+      "suite": "scenebackup",
+      "scope": "Scene Backup real-filesystem inspection with diagnostic activation; legacy Quick and consent regressions; no production capture or rendered acceptance"
+    },
+    "composition": {
+      "parent": "63a70e37a6653b622f12336af0da75d13ad50bd6",
+      "source": "4e20c0ae30d07addbf95be2729076e02b7998b52",
+      "source_tree": "bf9e93ecb780d83dbe3d23c72902ddfcf5afc89c",
+      "f_head": "45dc2df466d52f79a03bf2a4a640b1a160e8c257",
+      "g_head": "b29005cc989033092881942ddcd6203d0e1e07fb",
+      "exact_changed_files": [
+        {
+          "path": "autoload/SaveManager.gd",
+          "blob": "be8d28e1833ffe360b802b36b36722c7050e2555"
+        },
+        {
+          "path": "scripts/application/backup/BackupPresentationPort.gd",
+          "blob": "6b487655254232043cf6e142acb640a59938f6e1"
+        },
+        {
+          "path": "tests/unit/test_backup_quick_actions.gd",
+          "blob": "648edc2c257731fee027330997fed9eb9d9d9a93"
+        },
+        {
+          "path": "tests/unit/test_backup_host_admission.gd",
+          "blob": "38e3f5faa665806313405bb720d06bd7d0f036ea"
+        },
+        {
+          "path": "tests/backup_operations/test_backup_operations.gd",
+          "blob": "ed90aa766954b9c78588bb1f7ea7e9feaca7609d"
+        },
+        {
+          "path": "tests/integration/test_scene_backup_inspection.gd",
+          "blob": "7b1668331f05106649fe1589a3709f4ff178272b"
+        },
+        {
+          "path": "docs/design/2026-10-09-backup-scene-projection.md",
+          "blob": "9c360d9443d9addd1041eab68a835d56232551df"
+        },
+        {
+          "path": "docs/design/2026-10-09-scene-playable-forward-review.md",
+          "blob": "e1124a2dc551a230d7e3a4fc0a6d39d3722169eb"
+        }
+      ]
+    },
+    "engine": {
+      "archive_sha256": "e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90",
+      "console_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+      "version": "4.6.3.stable.official.7d41c59c4"
+    },
+    "xml": [
+      {
+        "path": "ci/scenebackup.xml",
+        "cases": 2,
+        "xml_assertions": 46,
+        "failures_errors_skips": 0
+      }
+    ],
+    "script_errors": false,
+    "standalone_pass": false,
+    "log_assertions": [
+      "49"
+    ],
+    "artifact_id": 11625381842,
+    "retained_pass": true,
+    "job_id": 113885845118,
+    "controller_sha": "09772d0bffb98220e8c0de6648dc91bf151b54d9",
+    "workflow_blob": "11897ab46339daeb783d8222edf191683891bb1d",
+    "git_source_and_controller_verified": true
+  }
+]
