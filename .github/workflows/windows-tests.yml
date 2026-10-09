@@ -23,24 +23,24 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 2fb4ddd29fd289c9f37a007c39be5803e0aeb467
+          ref: 4c6752829a412f82349fa546f0e022df7ff6e7ec
           fetch-depth: 0
           persist-credentials: true
       - name: Verify and record immutable source before import
         run: |
           $ErrorActionPreference = 'Stop'
           $source = (git rev-parse HEAD).Trim()
-          if ($LASTEXITCODE -ne 0 -or $source -cne '2fb4ddd29fd289c9f37a007c39be5803e0aeb467') { throw 'Wrong source commit.' }
+          if ($LASTEXITCODE -ne 0 -or $source -cne '4c6752829a412f82349fa546f0e022df7ff6e7ec') { throw 'Wrong source commit.' }
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($LASTEXITCODE -ne 0 -or $tree -cne '228bf8738f5bfdcac761c17159d8f99db68c6901') { throw 'Wrong source tree.' }
+          if ($LASTEXITCODE -ne 0 -or $tree -cne '5ff524bbb5a515191d69789a36280ee62d7c15a3') { throw 'Wrong source tree.' }
 
           $base = '90a7319072a6c5c0703f093d16edf52e2cb04e73'
           $aHead = 'd2aacc316920a4198763b4835333b6535e601001'
           $gHead = '1185f44539c52b9e8085ef51743056f92ac704d1'
           $parents = @((git rev-list --parents -n 1 HEAD).Trim().Split(' '))
-          if ($LASTEXITCODE -ne 0 -or $parents.Count -ne 2 -or $parents[1] -cne 'e92dc02e0858579b13efa58e96d9233b0e50b8bf') { throw 'UI correction requires exact composed parent.' }
-          $previousTree = (git rev-parse 'e92dc02e0858579b13efa58e96d9233b0e50b8bf^{tree}').Trim()
-          if ($LASTEXITCODE -ne 0 -or $previousTree -cne '8633fb01c8a36d25f2507f422b5c16e28ee69c1b') { throw 'Previous browsing fixture tree mismatch.' }
+          if ($LASTEXITCODE -ne 0 -or $parents.Count -ne 2 -or $parents[1] -cne '2fb4ddd29fd289c9f37a007c39be5803e0aeb467') { throw 'UI correction requires exact composed parent.' }
+          $previousTree = (git rev-parse '2fb4ddd29fd289c9f37a007c39be5803e0aeb467^{tree}').Trim()
+          if ($LASTEXITCODE -ne 0 -or $previousTree -cne '228bf8738f5bfdcac761c17159d8f99db68c6901') { throw 'Previous browsing fixture tree mismatch.' }
           $originalTree = (git rev-parse 'b3e7bfcce7a21138ed96113ec636a53e560286bb^{tree}').Trim()
           if ($LASTEXITCODE -ne 0 -or $originalTree -cne 'adad5cc1a33f923366b5352e24a08efe44f1fc9d') { throw 'Composed parent tree mismatch.' }
           $correctionPaths = @(git diff --name-only 'b3e7bfcce7a21138ed96113ec636a53e560286bb' HEAD)
