@@ -11,13 +11,15 @@ func _bundle(version: int = 2) -> Dictionary:
 	var bundle: Dictionary = parsed.value.duplicate(true)
 	if version == 2:
 		bundle.schema_version = 2
-		bundle.contact_definitions = FIXTURE.definitions()
+		bundle["contact_definitions"] = FIXTURE.definitions()
 		bundle.contacts[0].source_fact_ids = ["TEST.fact.read"]
 	return bundle
 
 func _assert_admitted(bundle: Dictionary, expected: bool) -> void:
-	assert_eq(MANIFEST.validate_scene_registration(bundle).get("ok", false), expected, "full registration")
-	assert_eq(CONTRACT.validate_bundle_structure(bundle).get("ok", false), expected, "event contract")
+	var full := MANIFEST.validate_scene_registration(bundle)
+	var contract := CONTRACT.validate_bundle_structure(bundle)
+	assert_eq(full.get("ok", false), expected, "full registration: " + str(full))
+	assert_eq(contract.get("ok", false), expected, "event contract: " + str(contract))
 
 func test_exact_v1_and_v2_admitted_without_changing_inputs() -> void:
 	for version: int in [1, 2]:

@@ -23,16 +23,16 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: eff70c12eba5eb192ce8f081ce08c6ac7052711c
+          ref: a700fe452d4bf9116c6a035d5aab2d4d98e8df81
           fetch-depth: 0
           persist-credentials: true
       - name: Verify and record immutable source before import
         run: |
           $ErrorActionPreference = 'Stop'
           $source = (git rev-parse HEAD).Trim()
-          if ($LASTEXITCODE -ne 0 -or $source -cne 'eff70c12eba5eb192ce8f081ce08c6ac7052711c') { throw 'Wrong source commit.' }
+          if ($LASTEXITCODE -ne 0 -or $source -cne 'a700fe452d4bf9116c6a035d5aab2d4d98e8df81') { throw 'Wrong source commit.' }
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($LASTEXITCODE -ne 0 -or $tree -cne '6a7e3d0f5d7cb0fef08f0f7342431f1536fa1a20') { throw 'Wrong source tree.' }
+          if ($LASTEXITCODE -ne 0 -or $tree -cne '9353307ea62ce57497f8aa2f77a0f53a0bff8f47') { throw 'Wrong source tree.' }
 
           $gHead = '80aa1adfd0d5d3da12ecdc007b5c36d9cf3961a4'
           git fetch --no-tags origin $gHead
@@ -54,8 +54,9 @@ jobs:
             'tests/unit/test_scene_runtime_remap.gd'
           )
           $parents = @((git rev-list --parents -n 1 HEAD).Trim().Split(' '))
-          if ($LASTEXITCODE -ne 0 -or $parents.Count -ne 2 -or $parents[1] -cne 'b9d00fdc66f6e2395d7de926765884218b702aef') { throw 'Wrong integration parent.' }
+          if ($LASTEXITCODE -ne 0 -or $parents.Count -ne 2 -or $parents[1] -cne 'eff70c12eba5eb192ce8f081ce08c6ac7052711c') { throw 'Wrong integration parent.' }
           $corrections = @{
+            'tests/support/SceneContactFixture.gd' = 'd125c1649e5088cec806ecfcba250a957f5817a8'
             'scripts/application/contact/ContactsPresentationPort.gd' = '6f32ee15074a613cfe9e54099aa4fcfe9da0c9d5'
             'scripts/domain/desktop/DesktopContinuationRemapper.gd' = '8b042cf8888e9bf73300f16c886f5eedbbf40df5'
           }
