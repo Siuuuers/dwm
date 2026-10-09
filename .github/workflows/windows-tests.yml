@@ -23,21 +23,21 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 432cf8db15046262c76b830379b4933ee4811a2c
+          ref: 934b15f21b6ae5310c24944aa869aa9c04bdc63c
           fetch-depth: 0
           persist-credentials: true
       - name: Verify and record immutable source before import
         run: |
           $ErrorActionPreference = 'Stop'
           $source = (git rev-parse HEAD).Trim()
-          if ($LASTEXITCODE -ne 0 -or $source -cne '432cf8db15046262c76b830379b4933ee4811a2c') { throw 'Wrong source commit.' }
+          if ($LASTEXITCODE -ne 0 -or $source -cne '934b15f21b6ae5310c24944aa869aa9c04bdc63c') { throw 'Wrong source commit.' }
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($LASTEXITCODE -ne 0 -or $tree -cne '749ed5ccec4a26659b74918db46cfcecb7a17423') { throw 'Wrong source tree.' }
+          if ($LASTEXITCODE -ne 0 -or $tree -cne '9cca2559a0f86630fb5fed4b57e5fb4ec333fe40') { throw 'Wrong source tree.' }
 
-          $parent = 'ae82ccd951ca4c6797b5ea18dcbfba6035fd60fb'
+          $parent = '432cf8db15046262c76b830379b4933ee4811a2c'
           $parents = @((git rev-list --parents -n 1 HEAD).Trim().Split(' '))
           if ($LASTEXITCODE -ne 0 -or $parents.Count -ne 2 -or $parents[1] -cne $parent) { throw 'Wrong integration parent.' }
-          $expected = @('tests/integration/test_scene_interrupt_child.gd', 'tests/integration/test_scene_interrupt_resume.gd', 'tests/integration/test_scene_interrupt_stop.gd', 'tests/support/SceneInterruptionFixture.gd', 'tools/testing/Invoke-SceneInterruptionProof.ps1')
+          $expected = @('tests/support/SceneInterruptionFixture.gd')
           $delta = @(git diff --name-only $parent HEAD)
           if ((@($delta | Sort-Object -CaseSensitive) -join "`n") -cne (@($expected | Sort-Object -CaseSensitive) -join "`n")) { throw 'Wrong integration path set.' }
           $files = @()
