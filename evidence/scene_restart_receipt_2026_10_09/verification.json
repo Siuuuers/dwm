@@ -1,0 +1,195 @@
+[
+  {
+    "file": "37923538473.zip",
+    "sha256": "ef46ba3e3f8b1bdab0aa25bef13213c78e9731a334ea6e5e865363e17777c2f9",
+    "verified_manifest_members": 8,
+    "source": {
+      "source_sha": "b7c1a0ab69622b9a35a5bc584c05ff84aecd6a90",
+      "source_tree": "205ba9aa10080e4d3c44bc9be6526cbc31dc8137",
+      "controller_event_sha": "2394d74198efb737e05094fc5ac80b1684cf0b23",
+      "run_id": "37923538473",
+      "run_attempt": "1",
+      "suite": "initialjoint",
+      "scope": "Exact committed initial receipt regression: real creation and rebuilt alternate target, evolved checkpoint and Profile; injected activation; no fresh-process proof"
+    },
+    "reports": [
+      {
+        "path": "ci/initialjoint.xml",
+        "cases": 3,
+        "assertions": 51,
+        "failures": 2,
+        "errors": 0,
+        "skips": 0
+      }
+    ]
+  },
+  {
+    "file": "scene-runtime-integration-initialjoint-37923940077-1.zip",
+    "sha256": "4545e03efb7c4fc911bfcbc0781bf5c9ed048d617ec8fde3e74e1354f670cdbd",
+    "verified_manifest_members": 9,
+    "source": {
+      "source_sha": "93c7aa497b2c5d8d0d166557247062142bc7a059",
+      "source_tree": "fd49ca60c024bef237e8ff77864ebad94a41a71a",
+      "controller_event_sha": "024cf9de27f038d5cf6bae0dcb1aff0b189eb832",
+      "run_id": "37923940077",
+      "run_attempt": "1",
+      "suite": "initialjoint",
+      "scope": "Committed-receipt regression plus test-selected two-process same-files NewRun and Load with real mounted/native readiness; ancillary participants diagnostic; no production or rendered acceptance"
+    },
+    "reports": [
+      {
+        "path": "ci/initialjoint.xml",
+        "cases": 3,
+        "assertions": 70,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      }
+    ]
+  },
+  {
+    "file": "scene-runtime-integration-restart-37923940077-1.zip",
+    "sha256": "b8756c29bd72860207bf259cbc0d06d2f96df2018069d887e86719e6cbb76aaa",
+    "verified_manifest_members": 11,
+    "source": {
+      "source_sha": "93c7aa497b2c5d8d0d166557247062142bc7a059",
+      "source_tree": "fd49ca60c024bef237e8ff77864ebad94a41a71a",
+      "controller_event_sha": "024cf9de27f038d5cf6bae0dcb1aff0b189eb832",
+      "run_id": "37923940077",
+      "run_attempt": "1",
+      "suite": "restart",
+      "scope": "Committed-receipt regression plus test-selected two-process same-files NewRun and Load with real mounted/native readiness; ancillary participants diagnostic; no production or rendered acceptance"
+    },
+    "reports": [
+      {
+        "path": "ci/scene-restart-create.xml",
+        "cases": 1,
+        "assertions": 35,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "path": "ci/scene-restart-load.xml",
+        "cases": 1,
+        "assertions": 7,
+        "failures": 1,
+        "errors": 0,
+        "skips": 0
+      }
+    ]
+  },
+  {
+    "file": "scene-runtime-integration-restart-37924410904-1.zip",
+    "sha256": "f273c5b6e71b668adb34f730e85126c9d8a223e607a2d8d7952759d02f722ec0",
+    "verified_manifest_members": 11,
+    "source": {
+      "source_sha": "c3f26fd65a9711b06df92b25aa47d3354f620cfc",
+      "source_tree": "c641a8b8ae9c02d3ec2c467bcf5bde42e84e753e",
+      "controller_event_sha": "708a8fe4153d88ef7577120eec5345f3d427437e",
+      "run_id": "37924410904",
+      "run_attempt": "1",
+      "suite": "restart",
+      "scope": "Committed-receipt regression plus test-selected two-process same-files NewRun and Load with real mounted/native readiness; ancillary participants diagnostic; no production or rendered acceptance"
+    },
+    "reports": [
+      {
+        "path": "ci/scene-restart-create.xml",
+        "cases": 1,
+        "assertions": 35,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "path": "ci/scene-restart-load.xml",
+        "cases": 1,
+        "assertions": 14,
+        "failures": 1,
+        "errors": 0,
+        "skips": 0
+      }
+    ]
+  },
+  {
+    "file": "scene-runtime-integration-tooling-37923940077-1.zip",
+    "sha256": "2f7c0e8c90737f9204581283115793837878fa0c78bb297a7e941029095becdc",
+    "verified_manifest_members": 18,
+    "source": {
+      "source_sha": "93c7aa497b2c5d8d0d166557247062142bc7a059",
+      "source_tree": "fd49ca60c024bef237e8ff77864ebad94a41a71a",
+      "controller_event_sha": "024cf9de27f038d5cf6bae0dcb1aff0b189eb832",
+      "run_id": "37923940077",
+      "run_attempt": "1",
+      "suite": "tooling",
+      "scope": "Committed-receipt regression plus test-selected two-process same-files NewRun and Load with real mounted/native readiness; ancillary participants diagnostic; no production or rendered acceptance"
+    },
+    "reports": []
+  },
+  {
+    "file": "scene-runtime-integration-restart-37925022971-1.zip",
+    "sha256": "5c0ac19bb52813b1a03e17de43aaaa1f3fe8d9e5a6f129dee3a10bfb350620ed",
+    "verified_manifest_members": 12,
+    "source": {
+      "source_sha": "ae82ccd951ca4c6797b5ea18dcbfba6035fd60fb",
+      "source_tree": "2c4505f76f30a03fbdba0ef03bc35200253cd785",
+      "controller_event_sha": "c45434e30aa941e8df944d10f9ea0fdc1a7629fc",
+      "run_id": "37925022971",
+      "run_attempt": "1",
+      "suite": "restart",
+      "scope": "Committed-receipt regression plus test-selected two-process same-files NewRun and Load with real mounted/native readiness; ancillary participants diagnostic; no production or rendered acceptance"
+    },
+    "reports": [
+      {
+        "path": "ci/scene-restart-create.xml",
+        "cases": 1,
+        "assertions": 35,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      {
+        "path": "ci/scene-restart-load.xml",
+        "cases": 1,
+        "assertions": 53,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      }
+    ],
+    "proofs": [
+      {
+        "autosave_sha256": "dda5d74745c3a1b94aea5b4f76729356da3d702d08e5e3b9f1fa52def8f41826",
+        "checkpoint_id": "run_id.4917798ebc04e9bbd7a61d2066c0368767616579e2bdadd78c19a19e6e249810:1",
+        "creator_process_id": 6212,
+        "mounted_host": "res://tests/fixtures/scene_activation_host.tscn",
+        "native_frontier": {
+          "line_id": "line.scene.test.b.one",
+          "publication_id": "caption:1"
+        },
+        "operation_id": "transaction_id.5c5f02fcf2a1840362e23ef85d31bb969a5c27acb6c09d9023add8cf75c363d0",
+        "phase": "create",
+        "process_id": 6212,
+        "run_id": "run_id.4917798ebc04e9bbd7a61d2066c0368767616579e2bdadd78c19a19e6e249810",
+        "scope": "test_selected_same_files_mount_and_native_integration",
+        "storage_root": "D:/a/dwm/dwm/.godot/phase2r_tests/3bdb072e-6af4-47d6-ac36-da01bd90566f/dwm_test_root/scene_restart_shared"
+      },
+      {
+        "autosave_sha256": "dda5d74745c3a1b94aea5b4f76729356da3d702d08e5e3b9f1fa52def8f41826",
+        "checkpoint_id": "run_id.4917798ebc04e9bbd7a61d2066c0368767616579e2bdadd78c19a19e6e249810:1",
+        "creator_process_id": 6212,
+        "mounted_host": "res://tests/fixtures/scene_activation_host.tscn",
+        "native_frontier": {
+          "line_id": "line.scene.test.b.one",
+          "publication_id": "caption:1"
+        },
+        "operation_id": "transaction_id.a456519f2b0c54c2567bd6e024da28fbc55f72bcc0700ad5c9c01f43aa5504fe",
+        "phase": "load",
+        "process_id": 3952,
+        "run_id": "run_id.4917798ebc04e9bbd7a61d2066c0368767616579e2bdadd78c19a19e6e249810",
+        "scope": "test_selected_same_files_mount_and_native_integration",
+        "storage_root": "D:/a/dwm/dwm/.godot/phase2r_tests/3bdb072e-6af4-47d6-ac36-da01bd90566f/dwm_test_root/scene_restart_shared"
+      }
+    ]
+  }
+]
