@@ -268,3 +268,175 @@ func test_failed_profile_write_keeps_live_history_and_allows_exact_retry() -> vo
 	assert_eq(manager.get_dating_attempt("run-a", SLOT).value.revision, 1)
 	assert_false(manager.commit_prepared_profile(before).ok, "ordinary Profile writes cannot erase committed attempts")
 	assert_false(manager.apply_restore_silent({"profile": before}).ok, "old restore material cannot erase committed attempts")
+
+const SCENE_ENVELOPE := preload("res://scripts/application/run/DatingChallengeEnvelope.gd")
+const SCENE_GENERATOR := preload("res://scripts/domain/minesweeper/MinesweeperBoardGenerator.gd")
+const SCENE_HASH := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
+
+func _scene_record(debug: bool = false) -> Dictionary:
+	var source: Dictionary = _record()
+	if debug:
+		var state := LegacySpecState.new()
+		state.inventory = {"debug_key": 1}
+		var issuer := ISSUER.new()
+		assert_true(issuer.configure(ROOT_STORE.new("86".repeat(32), 1)).ok)
+		var owner := OWNER.new()
+		owner._issuer = issuer
+		owner._game_state = state
+		source.spec = owner._make_spec("canonical_solo").value
+	var result := {"schema_version": 4, "completion_transaction_id": source.completion_transaction_id,
+		"command_sha256": source.command_sha256, "physical_token": source.physical_token,
+		"context": {"kind": "scene_challenge", "scene_occurrence": "scene-test-occurrence",
+			"challenge_id": "test-challenge", "playable_command_id": "test-playable", "registration_sha256": "b".repeat(64)},
+		"host": "scene_challenge", "spec": source.spec, "board": null,
+		"envelope": SCENE_ENVELOPE.make(), "phase": "ready", "state": "in_progress", "applied_result": {}}
+	if debug:
+		var begun: Dictionary = SCENE_GENERATOR.begin_debug(result.spec)
+		assert_true(begun.ok, str(begun))
+		result.phase = "preparing"
+		result.envelope.preparation = SCENE_ENVELOPE.plain_frontier(begun.value.preparation).value
+	return result
+
+func _scene_materialize(record: Dictionary, index: int) -> Dictionary:
+	var result := record.duplicate(true)
+	var mines: Array = []
+	for cell in 36: mines.append(cell)
+	var reduced: Dictionary = REDUCER.first_reveal({"schema_version": 1, "width": 18,
+		"height": 18, "mine_indices": mines, "mine_count": 36}, index)
+	result.board = SCENE_ENVELOPE.plain_frontier(reduced.value.board).value
+	result.envelope.special_cell = SCENE_ENVELOPE.special_cell(result.spec, result.board)
+	result.phase = "terminal" if result.board.terminal else "active"
+	result.state = ("lost" if result.board.outcome == "exploded" else "won") if result.board.terminal else "in_progress"
+	return result
+
+func _scene_proof(attempt: Dictionary) -> Dictionary:
+	return {"run_id": attempt.run_id, "slot_id": attempt.slot_id, "attempt_id": attempt.attempt_id,
+		"branch_id": attempt.branch_id, "generation": attempt.generation, "revision": attempt.revision,
+		"record_sha256": SCENE_HASH.canonical_sha256(attempt.record).value.sha256,
+		"checkpoint": {"checkpoint_id": "source-checkpoint", "checkpoint_sequence": 2, "snapshot_sha256": "c".repeat(64)}}
+
+func test_scene_entry_has_one_attempt_and_exact_family_without_legacy_effects() -> void:
+	var record := _scene_record()
+	var slot: String = LEDGER.semantic_slot(record.context)
+	assert_true(slot.begins_with("scene.challenge."))
+	var entered: Dictionary = LEDGER.prepare_update({}, "run-scene", slot, "branch-a", record, 0, -1, {}, {"mode": "fresh"})
+	assert_true(entered.ok, str(entered))
+	if not entered.ok: return
+	assert_eq(entered.value.attempt.entry_receipt.keys().size(), 4)
+	assert_eq(entered.value.attempt.entry_receipt.record_version, 4)
+	assert_null(entered.value.attempt.effect_receipt)
+	var forged := record.duplicate(true)
+	forged.spec.board_token += ".replacement"
+	assert_false(LEDGER.prepare_update(entered.value.ledger, "run-scene", slot, "branch-a", forged, 0, -1, {}, {"mode": "fresh"}).ok)
+	forged = record.duplicate(true)
+	forged.spec.board_kind = "desktop"
+	forged.spec.difficulty_id = "beginner"
+	assert_false(LEDGER.validate_record(forged))
+	forged = record.duplicate(true)
+	forged.schema_version = 4.0
+	assert_false(LEDGER.validate_record(forged))
+	forged = record.duplicate(true)
+	forged.context.kind = &"scene_challenge"
+	assert_false(LEDGER.validate_record(forged))
+	assert_false(LEDGER.prepare_update({}, "run-scene", slot, "branch-a", record, 0, -1, {"legacy_effect": true}).ok)
+	var legacy := _record()
+	legacy.context = record.context.duplicate(true)
+	assert_false(LEDGER.validate_record(legacy), "scene slot derivation cannot admit a legacy record family")
+
+func test_scene_selected_prefix_is_committed_to_new_branch_without_ending_unlock() -> void:
+	var manager := MANAGER.new()
+	autofree(manager)
+	assert_true(manager.initialize(STORAGE.new("scene-prefix-profile", OPS.new())).ok)
+	assert_false(manager.has_completed_ending())
+	var ready := _scene_record()
+	var slot: String = LEDGER.semantic_slot(ready.context)
+	var entered: Dictionary = manager.prepare_dating_attempt("scene-run", slot, "branch-a", ready, 0)
+	assert_true(entered.ok, str(entered))
+	if not entered.ok: return
+	assert_true(manager.commit_dating_attempt(entered.value).ok)
+	var terminal := _scene_materialize(ready, 323)
+	assert_eq(terminal.state, "won")
+	var progressed: Dictionary = manager.prepare_dating_attempt("scene-run", slot, "branch-a", terminal, 1, 323, {}, {"mode": "branch"})
+	assert_true(progressed.ok, str(progressed))
+	if not progressed.ok: return
+	assert_true(manager.commit_dating_attempt(progressed.value).ok)
+	var original: Dictionary = manager.get_dating_attempt("scene-run", slot, ready.spec.board_token, "branch-a").value
+	var proof := _scene_proof(original)
+	var preview: Dictionary = manager.prepare_dating_continuation("scene-run", slot, ready.spec.board_token, "branch-a", "branch-b", ready)
+	assert_true(preview.ok, str(preview))
+	if not preview.ok: return
+	assert_eq(preview.value.attempt.record, ready, "selected prefix does not import Profile-ahead terminal state")
+	var copied: Dictionary = manager.prepare_dating_attempt("scene-run", slot, "branch-b", ready, 0, -1, {}, preview.value.selection)
+	assert_true(copied.ok, str(copied))
+	if not copied.ok: return
+	assert_true(manager.commit_dating_attempt(copied.value).ok)
+	assert_eq(manager.get_dating_attempt("scene-run", slot, ready.spec.board_token, "branch-b").value.record, ready)
+	assert_eq(manager.get_dating_attempt("scene-run", slot, ready.spec.board_token, "branch-a").value, original)
+	assert_true(LEDGER.resolve_attempt_proof(manager.get_profile_snapshot().dating_attempts, proof).ok)
+	assert_false(manager.prepare_dating_attempt("scene-run", slot, "branch-a", ready, 2, -1, {}, {"mode": "branch"}).ok,
+		"same-operation branch cannot rewind its terminal history")
+
+func test_scene_proof_resolves_exact_original_branch_revision_and_hash() -> void:
+	var record := _scene_materialize(_scene_record(), 323)
+	var slot: String = LEDGER.semantic_slot(record.context)
+	var prepared: Dictionary = LEDGER.prepare_update({}, "scene-run", slot, "original", record, 0, 323)
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	var proof := _scene_proof(prepared.value.attempt)
+	assert_true(LEDGER.resolve_attempt_proof(prepared.value.ledger, proof).ok)
+	assert_false(prepared.value.attempt.terminal_receipt.perfect_reasons.is_empty(), "Perfect detail is retained")
+	for key: String in ["revision", "generation"]:
+		var bad := proof.duplicate(true)
+		bad[key] += 1
+		assert_false(LEDGER.resolve_attempt_proof(prepared.value.ledger, bad).ok)
+	for key: String in ["run_id", "slot_id", "attempt_id", "branch_id", "record_sha256"]:
+		var bad := proof.duplicate(true)
+		bad[key] += "x"
+		assert_false(LEDGER.resolve_attempt_proof(prepared.value.ledger, bad).ok)
+	var extra := proof.duplicate(true)
+	extra.checkpoint["confirmed"] = true
+	assert_false(LEDGER.resolve_attempt_proof(prepared.value.ledger, extra).ok)
+	assert_false(LEDGER.validate_attempt_proof(prepared.value.attempt, extra).ok)
+	var changed := record.duplicate(true)
+	changed.state = "in_progress"
+	changed.phase = "active"
+	assert_false(LEDGER.validate_record(changed), "terminal state is derived in the same physical boundary")
+
+func test_scene_preparing_prefix_replays_generator_and_freezes_only_entry_spec() -> void:
+	var preparing := _scene_record(true)
+	assert_true(LEDGER.validate_record(preparing))
+	var slot: String = LEDGER.semantic_slot(preparing.context)
+	var entered: Dictionary = LEDGER.prepare_update({}, "scene-run", slot, "branch-a", preparing, 0)
+	assert_true(entered.ok, str(entered))
+	if not entered.ok: return
+	var current: Dictionary = preparing.envelope.preparation
+	while str(current.status) == "searching":
+		var advanced: Dictionary = SCENE_GENERATOR.run_debug_slice(current)
+		assert_true(advanced.ok, str(advanced))
+		if not advanced.ok: return
+		current = SCENE_ENVELOPE.plain_frontier(advanced.value.preparation).value
+	assert_eq(str(current.status), "certified")
+	if str(current.status) != "certified": return
+	var ready := preparing.duplicate(true)
+	ready.phase = "ready"
+	ready.envelope.preparation = null
+	ready.envelope.prepared_layout = {"schema_version": 1, "width": ready.spec.width, "height": ready.spec.height,
+		"mine_count": current.candidate_state.mine_count, "mine_indices": current.candidate_state.mine_indices}
+	ready.envelope.forced_cell = current.forced_cell
+	ready.envelope.special_cell = SCENE_ENVELOPE.special_cell(ready.spec, ready.envelope.prepared_layout)
+	var finished: Dictionary = LEDGER.prepare_update(entered.value.ledger, "scene-run", slot, "branch-a", ready, 1)
+	assert_true(finished.ok, str(finished))
+	if not finished.ok: return
+	assert_eq(finished.value.attempt.entry_receipt, entered.value.attempt.entry_receipt)
+	var preview: Dictionary = LEDGER.prepare_continuation(finished.value.ledger, "scene-run", slot,
+		preparing.spec.board_token, "branch-a", "branch-b", preparing)
+	assert_true(preview.ok, str(preview))
+	if preview.ok: assert_eq(preview.value.attempt.record, preparing)
+	var forged := preparing.duplicate(true)
+	forged.envelope.preparation.operations_used += 1
+	assert_false(LEDGER.validate_record(forged), "structurally valid lower counters do not prove a generator prefix")
+	assert_false(LEDGER.prepare_continuation(finished.value.ledger, "scene-run", slot,
+		preparing.spec.board_token, "branch-a", "branch-c", forged).ok)
+	forged = ready.duplicate(true)
+	forged.envelope.prepared_layout.mine_indices.reverse()
+	assert_false(LEDGER.validate_record(forged), "a changed layout is not the certified deterministic result")
