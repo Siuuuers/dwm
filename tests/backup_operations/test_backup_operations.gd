@@ -115,6 +115,7 @@ func _run() -> void:
 	_check(port.commit_action(initial["value"]["token"]).get("ok", false), "real atomic save")
 	var record: Dictionary = port.get_projection()["value"]["records"][2]
 	_check(record["state"] == "occupied" and record["day"] == 1 and str(record["saved_time"]).length() == 5, "validated Day and frozen time")
+	_check(record["family"] == "legacy_day", "admitted legacy family is explicit")
 	var document: Dictionary = JSON.parse_string(storage.read_text("slot_1.json")["value"])
 	_check(SCHEMA.validate(document).get("ok", false), "saved time binds instant and original offset")
 	var invalid_time: Dictionary = document["saved_time"].duplicate(true)
@@ -373,6 +374,7 @@ func _test_restore(manager: Node, port: RefCounted) -> void:
 	_check(manager._storage.write_atomic("slot_4.json", JSON.stringify(fallback_document["value"]), manager._document_text_validator).get("ok", false), "fallback file fixture")
 	var fallback_record: Dictionary = port.get_projection()["value"]["records"][5]
 	_check(fallback_record["fallback"] and fallback_record["actions"]["load"] and fallback_record["load_day"] == 1 and fallback_record["load_saved_time"] == null, "typed current incompatibility selects whole earlier bundle with unknown time")
+	_check(fallback_record["family"] == "legacy_day" and fallback_record["load_family"] == "legacy_day", "fallback preserves explicit admitted and selected families")
 	var fallback_action: Dictionary = port.prepare_action("load", "slot:4")
 	_check(fallback_action.get("ok", false) and fallback_action["value"]["confirmation_kind"] == "replace_progress_fallback", "one combined fallback confirmation")
 	var fallback_committed: Dictionary = port.commit_action(fallback_action["value"]["token"])

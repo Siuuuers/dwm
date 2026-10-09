@@ -1631,8 +1631,8 @@ func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictio
 		return inspected
 	var evidence: Dictionary = inspected["value"]
 	var record := {"locator": locator_id, "revision": evidence["revision"],
-		"state": "empty" if not evidence["exists"] else "unavailable", "day": null,
-		"saved_time": null, "fallback": false, "load_day": null, "load_saved_time": null,
+		"state": "empty" if not evidence["exists"] else "unavailable", "family": null, "day": null,
+		"saved_time": null, "fallback": false, "load_family": null, "load_day": null, "load_saved_time": null,
 		"reason": "", "loadable": false, "operation_allowed": _backup_guard().get("ok", false)}
 	if not evidence["exists"]:
 		return {"ok": true, "value": record}
@@ -1653,13 +1653,17 @@ func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictio
 		var version: Variant = parsed["value"].get("schema_version")
 		record["reason"] = "unreadable"
 		if typeof(version) == TYPE_INT and version > 0:
-			if version > SAVE_DOCUMENT_SCHEMA.DOCUMENT_VERSION: record["reason"] = "newer_version"
+			if version > SAVE_DOCUMENT_SCHEMA.SCENE_DOCUMENT_VERSION: record["reason"] = "newer_version"
 			elif version < SAVE_DOCUMENT_SCHEMA.DOCUMENT_VERSION: record["reason"] = "older_version"
 		return {"ok": true, "value": record}
 	var document: Dictionary = migrated["value"]["document"]
 	var snapshot: Dictionary = document["current_snapshot"]["snapshot"]
 	record["state"] = "occupied"
-	record["day"] = int(snapshot["lifecycle"]["day"])
+	# Only admitted schemas establish presentation family. Missing day is never
+	# a mode discriminator, and scene saves must not acquire a fictional day.
+	record["family"] = "scene" if snapshot["schema_version"] == RUN_SNAPSHOT_SCHEMA.SCENE_SCHEMA_VERSION else "legacy_day"
+	if record["family"] == "legacy_day":
+		record["day"] = int(snapshot["lifecycle"]["day"])
 	record["saved_time"] = document.get("saved_time", {}).get("hhmm")
 	var prepared := _prepare_restore_document(locator, document, migrated["value"])
 	_save_load_profile_phase(profile, "restore_prepare_us")
@@ -1667,7 +1671,10 @@ func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictio
 		var target: Dictionary = prepared["value"]["prepared"]
 		record["loadable"] = true
 		record["fallback"] = str(target["checkpoint_id"]) != str(snapshot["checkpoint_id"])
-		record["load_day"] = int(target["bundle"]["snapshot"]["lifecycle"]["day"])
+		var load_snapshot: Dictionary = target["bundle"]["snapshot"]
+		record["load_family"] = "scene" if load_snapshot["schema_version"] == RUN_SNAPSHOT_SCHEMA.SCENE_SCHEMA_VERSION else "legacy_day"
+		if record["load_family"] == "legacy_day":
+			record["load_day"] = int(load_snapshot["lifecycle"]["day"])
 		record["load_saved_time"] = null if record["fallback"] else record["saved_time"]
 		record["prepared_restore"] = target
 	else:
