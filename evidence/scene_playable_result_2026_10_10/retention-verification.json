@@ -1,0 +1,29 @@
+{
+  "original_run_id": 37979744715,
+  "original_artifact_id": 11640677076,
+  "original_artifact_bytes": 8099152,
+  "original_artifact_sha256": "243aea0cedaf357140d70c73dfa4813f6f9bd632bad485d4129b5bf7f2ecdfc4",
+  "source_sha": "09addba8b544e21753846f2002880a7826b85f31",
+  "source_tree": "b8508742f46c7fb7deb5e576e6d5c6490ee352ec",
+  "verified_manifest_members": [
+    "ci/candidate-publication.json",
+    "ci/contract-summary.json",
+    "ci/engine-receipt.json",
+    "ci/import.log",
+    "ci/playable-contract.jsonl",
+    "ci/playable-contract.xml",
+    "ci/source-inspection.zip",
+    "ci/source-receipt.json",
+    "ci/source.patch",
+    "phase2r_logs/playable-contract.log"
+  ],
+  "tests": 25,
+  "assertions": 264,
+  "failures": 0,
+  "errors": 0,
+  "skips": 0,
+  "script_errors": 0,
+  "retention_run_id": "37980687499",
+  "new_engine_execution": false,
+  "scope": "Contract-only proof; genuine forward producer and durable native control handoff remain unimplemented."
+}
