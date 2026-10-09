@@ -512,7 +512,76 @@ static func _verified_schedule_start_child(parent: Dictionary, provenance: Dicti
 ## Every root transaction id this snapshot's rewindable (board command/terminal ledger, the one live
 ## consequence pending transaction, and the v5 ScheduleView/lifecycle roots C1-C5) structures
 ## currently reference. Sorted, unique.
+## Run9 is admitted by A's complete installed-content/schema owners BEFORE this
+## helper. These checks cover only remapper-owned discrimination and execution
+## identity. They are not a second Run9 validator or a production format switch.
+## Scene receipts, reading frames, Contact return references and physical history
+## remain byte-identical. Only desktop live keys and the lifecycle identity move;
+## A's RunLifecycle participant owns the new restore_provenance after this phase.
+static func _scene_runtime_boundary(snapshot: Dictionary) -> Dictionary:
+	var requested: bool = snapshot.get("schema_version") == 9 or snapshot.get("route_id") == "scene" or snapshot.has("scene")
+	if not requested: return {"ok": true, "value": false}
+	var event := preload("res://scripts/domain/narrative/SceneEventContract.gd")
+	if typeof(snapshot.get("schema_version")) != TYPE_INT or snapshot.schema_version != 9 \
+			or typeof(snapshot.get("route_id")) != TYPE_STRING or snapshot.route_id != "scene":
+		return _fail(&"remap_scene_family_invalid", "scene requires explicit Run9 and scene host", {})
+	for retired: String in ["dating", "committed_schedule", "schedule_view"]:
+		if snapshot.has(retired): return _fail(&"remap_scene_family_invalid", "retired scene member: " + retired, {})
+	var lifecycle: Variant = snapshot.get("lifecycle")
+	if not event._keys(lifecycle, ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance",
+			"causal_day_instance_issuer_receipt", "restore_provenance", "state"]) \
+			or not event._json_data(lifecycle) or lifecycle.state != "PLAYING":
+		return _fail(&"remap_scene_lifecycle_invalid", "exact scene PLAYING lifecycle required", {})
+	for key: String in ["run_id", "branch_id", "causal_day_instance"]:
+		if not event._id(lifecycle[key]): return _fail(&"remap_scene_lifecycle_invalid", key, {})
+	if typeof(lifecycle.desktop_timeline_generation) != TYPE_INT or lifecycle.desktop_timeline_generation < 0 \
+			or typeof(snapshot.get("run_id")) != TYPE_STRING or snapshot.run_id != lifecycle.run_id:
+		return _fail(&"remap_scene_lifecycle_invalid", "Run/generation mismatch", {})
+	var causal: Variant = lifecycle.causal_day_instance_issuer_receipt
+	if not event._keys(causal, ["counter", "namespace", "numeric_value", "purpose", "receipt_id", "token"]) \
+			or causal.purpose != "causal_day_instance" or causal.token != lifecycle.causal_day_instance:
+		return _fail(&"remap_scene_lifecycle_invalid", "causal pair mismatch", {})
+	var scene: Variant = snapshot.get("scene")
+	if not event._keys(scene, ["registration_sha256", "active_occurrence_id", "active_admission_receipt_id"]) \
+			or not event._json_data(scene):
+		return _fail(&"remap_scene_references_invalid", "exact scene references required", {})
+	for key: String in scene:
+		if not event._id(scene[key]): return _fail(&"remap_scene_references_invalid", key, {})
+	var desktop := _require_desktop(snapshot)
+	if not desktop.get("ok", false): return desktop
+	var consequence: Dictionary = desktop.value.consequence
+	var pending: Variant = consequence.get("pending")
+	if pending is Dictionary and pending.get("source_kind") == "schedule_done":
+		return _fail(&"remap_scene_calendar_pending", "scene has a live Schedule transaction", {})
+	var outbox: Variant = consequence.get("outbox", {})
+	if not outbox is Dictionary: return _fail(&"remap_scene_family_invalid", "outbox must be an object", {})
+	var hospital: Variant = outbox.get("hospital")
+	if hospital is Dictionary and hospital.get("status") == "pending":
+		return _fail(&"remap_scene_calendar_pending", "scene has a live Hospital destination", {})
+	return {"ok": true, "value": true}
+
+
+static func _scene_runtime_bundle(bundle: Dictionary, transaction_id: String) -> Dictionary:
+	var event := preload("res://scripts/domain/narrative/SceneEventContract.gd")
+	if not event._json_data(bundle) or typeof(bundle.transaction_id) != TYPE_STRING or bundle.transaction_id != transaction_id:
+		return _fail(&"invalid_identity_allocation_bundle", "scene restore transaction mismatch", {})
+	for key: String in ["branch_id", "causal_day_instance"]:
+		if not event._id(bundle[key]): return _fail(&"invalid_identity_allocation_bundle", key, {})
+	if typeof(bundle.desktop_timeline_generation) != TYPE_INT or bundle.desktop_timeline_generation < 0:
+		return _fail(&"invalid_identity_allocation_bundle", "scene generation must be an integer", {})
+	for pair: Array in [["transaction_issuer_receipt", "transaction_id"], ["causal_day_instance_issuer_receipt", "causal_day_instance"]]:
+		var receipt: Variant = bundle[pair[0]]
+		if not event._keys(receipt, ["counter", "namespace", "numeric_value", "purpose", "receipt_id", "token"]) \
+				or typeof(receipt.counter) != TYPE_INT or receipt.counter < 1 or receipt.numeric_value != null \
+				or receipt.purpose != pair[1] or receipt.token != bundle[pair[1]] \
+				or not event._id(receipt.receipt_id) or not event._id(receipt.namespace):
+			return _fail(&"invalid_identity_allocation_bundle", "scene issuer pair mismatch", {})
+	return {"ok": true}
+
+
 static func collect_rewindable_transaction_ids(snapshot: Dictionary) -> Dictionary:
+	var scene_check := _scene_runtime_boundary(snapshot)
+	if not scene_check.get("ok", false): return scene_check
 	var desktop_check := _require_desktop(snapshot)
 	if not desktop_check.get("ok", false):
 		return desktop_check
@@ -530,16 +599,17 @@ static func collect_rewindable_transaction_ids(snapshot: Dictionary) -> Dictiona
 		var transaction_id: Variant = (pending as Dictionary).get("transaction_id")
 		if typeof(transaction_id) == TYPE_STRING and not str(transaction_id).strip_edges().is_empty():
 			ids[str(transaction_id)] = true
-	var day7: Dictionary = _pending_day7_terminal(consequence)
-	if not day7.get("ok", false): return day7
-	if not day7.value.is_empty(): ids[str(day7.value.action_receipt.transaction_id)] = true
+	if not scene_check.value:
+		var day7: Dictionary = _pending_day7_terminal(consequence)
+		if not day7.get("ok", false): return day7
+		if not day7.value.is_empty(): ids[str(day7.value.action_receipt.transaction_id)] = true
 	var view: Variant = snapshot.get("schedule_view")
 	if typeof(view) == TYPE_DICTIONARY:
 		var view_census := _collect_view_roots(view as Dictionary, ids)
 		if not view_census.get("ok", false):
 			return view_census
 	var lifecycle: Variant = snapshot.get("lifecycle")
-	if typeof(lifecycle) == TYPE_DICTIONARY:
+	if not scene_check.value and typeof(lifecycle) == TYPE_DICTIONARY:
 		_collect_lifecycle_roots(lifecycle as Dictionary, ids)
 	var sorted_ids: Array = ids.keys()
 	sorted_ids.sort()
@@ -560,11 +630,16 @@ static func collect_rewindable_transaction_ids(snapshot: Dictionary) -> Dictiona
 ## condition-Hospital destination record is compared against the already-remapped live outbox).
 static func prepare(snapshot: Dictionary, restore_transaction_id: String,
 		identity_allocation_bundle: Dictionary) -> Dictionary:
+	var scene_check := _scene_runtime_boundary(snapshot)
+	if not scene_check.get("ok", false): return scene_check
 	if restore_transaction_id.strip_edges().is_empty():
 		return _fail(&"invalid_restore_transaction_id", "restore_transaction_id must be nonblank", {})
 	var bundle_check := _require_bundle_keys(identity_allocation_bundle)
 	if not bundle_check.get("ok", false):
 		return bundle_check
+	if scene_check.value:
+		var scene_bundle := _scene_runtime_bundle(identity_allocation_bundle, restore_transaction_id)
+		if not scene_bundle.get("ok", false): return scene_bundle
 	var desktop_check := _require_desktop(snapshot)
 	if not desktop_check.get("ok", false):
 		return desktop_check
@@ -583,13 +658,14 @@ static func prepare(snapshot: Dictionary, restore_transaction_id: String,
 		transaction_remap, owners)
 	if not consequence_result.get("ok", false):
 		return consequence_result
-	var day7: Dictionary = _pending_day7_terminal(desktop["consequence"])
-	if not day7.get("ok", false): return day7
-	if not day7.value.is_empty():
-		var terminal: Dictionary = _remap_day7_terminal(day7.value, desktop["consequence"],
-			snapshot.get("lifecycle", {}), identity_allocation_bundle, transaction_remap)
-		if not terminal.get("ok", false): return terminal
-		consequence_result.value["outbox"]["hospital"] = terminal.value
+	if not scene_check.value:
+		var day7: Dictionary = _pending_day7_terminal(desktop["consequence"])
+		if not day7.get("ok", false): return day7
+		if not day7.value.is_empty():
+			var terminal: Dictionary = _remap_day7_terminal(day7.value, desktop["consequence"],
+				snapshot.get("lifecycle", {}), identity_allocation_bundle, transaction_remap)
+			if not terminal.get("ok", false): return terminal
+			consequence_result.value["outbox"]["hospital"] = terminal.value
 
 	var remapped_snapshot: Dictionary = snapshot.duplicate(true)
 	var remapped_desktop: Dictionary = desktop.duplicate(true)
@@ -614,8 +690,15 @@ static func prepare(snapshot: Dictionary, restore_transaction_id: String,
 		var outbox_value: Variant = (remapped_desktop["consequence"] as Dictionary).get("outbox")
 		if typeof(outbox_value) == TYPE_DICTIONARY:
 			live_outbox = outbox_value
-		var lifecycle_result := _remap_lifecycle(source_lifecycle as Dictionary,
-			identity_allocation_bundle, transaction_remap, live_outbox)
+		var lifecycle_result: Dictionary
+		if scene_check.value:
+			var scene_lifecycle: Dictionary = source_lifecycle.duplicate(true)
+			for key: String in ["branch_id", "desktop_timeline_generation", "causal_day_instance", "causal_day_instance_issuer_receipt"]:
+				scene_lifecycle[key] = identity_allocation_bundle[key]
+			lifecycle_result = {"ok": true, "value": scene_lifecycle.duplicate(true)}
+		else:
+			lifecycle_result = _remap_lifecycle(source_lifecycle as Dictionary,
+				identity_allocation_bundle, transaction_remap, live_outbox)
 		if not lifecycle_result.get("ok", false):
 			return lifecycle_result
 		remapped_snapshot["lifecycle"] = lifecycle_result["value"]
@@ -649,7 +732,25 @@ static func prepare(snapshot: Dictionary, restore_transaction_id: String,
 ## entries), checks the candidate's own warning index-key laws, then rebuilds an equivalent raw
 ## bundle from those facts and requires `prepare()` against it to reproduce `candidate`
 ## byte-for-byte.
-static func validate_remap(source: Dictionary, candidate: Dictionary) -> Dictionary:
+static func validate_remap(source: Dictionary, candidate: Dictionary,
+		identity_allocation_bundle: Dictionary = {}) -> Dictionary:
+	var source_scene := _scene_runtime_boundary(source)
+	if not source_scene.get("ok", false): return source_scene
+	var candidate_scene := _scene_runtime_boundary(candidate)
+	if not candidate_scene.get("ok", false): return candidate_scene
+	if source_scene.value != candidate_scene.value:
+		return _fail(&"remap_family_mismatch", "source and candidate families differ", {})
+	if source_scene.value:
+		# No historical scene receipt may be borrowed as a live restore root. The
+		# real allocation participant retains this raw bundle even for an empty map.
+		var checked := _require_bundle_keys(identity_allocation_bundle)
+		if not checked.get("ok", false): return checked
+		var reproduced := prepare(source, str(identity_allocation_bundle.transaction_id), identity_allocation_bundle)
+		if not reproduced.get("ok", false): return reproduced
+		if not _scene_exact_equal(reproduced.value.snapshot, candidate):
+			return _fail(&"remap_not_reproducible", "scene candidate differs from its retained allocation", {})
+		return {"ok": true, "code": &"ok", "value": {
+			"transaction_remap": identity_allocation_bundle.transaction_remap.duplicate(true)}, "receipt": {}}
 	var source_desktop_check := _require_desktop(source)
 	if not source_desktop_check.get("ok", false):
 		return source_desktop_check

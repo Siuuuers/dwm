@@ -2371,3 +2371,376 @@ static func prepare_satisfy_ordinary_echo(state: Dictionary, echo_id: String, at
 	var verified := _verify_command(identity_issuer, command_id, issuer_receipt)
 	if not verified.ok: return verified
 	return ORDINARY_REPLIES.prepare_echo_presented(state, echo_id, atom_id, command_id, issuer_receipt, presented)
+
+# Scene Contacts use only the installed successor registration. These pure
+# candidate builders do not commit Run bytes or authenticate a screen draw.
+const _SCENE_MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
+const _SCENE_BAG_KEYS := ["schema_version", "messages", "read_watermarks", "transaction_receipts", "next_sequence"]
+const _SCENE_CONTEXT_KEYS := ["identity", "scene_occurrence", "registration_sha256", "contacts_sha256"]
+const _SCENE_IDENTITY_KEYS := ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance", "causal_day_instance_issuer_receipt"]
+const _SCENE_RECEIPT_KEYS := ["kind", "transaction_id", "command_issuer_receipt", "context", "definitions_sha256", "registration_sha256", "source_fact_ids", "result"]
+const _SCENE_MESSAGE_KEYS := ["message_id", "definition_id", "friend_id", "sequence", "transaction_id", "direction", "reply_id"]
+const _SCENE_LOCALES := ["en", "zh-CN", "zh-HK", "ja", "ko"]
+
+static func make_scene_defaults() -> Dictionary:
+	return {"schema_version": 2, "messages": {"priscilla": [], "lavinia": [], "sylvia": []},
+		"read_watermarks": {"priscilla": 0, "lavinia": 0, "sylvia": 0},
+		"transaction_receipts": {}, "next_sequence": 1}
+
+## A calls this pure row validator during full-B admission. No retained registry.
+static func validate_scene_definitions(definitions: Variant) -> Dictionary:
+	if not _s_json(definitions) or not _has_exact_keys(definitions, ["kind", "schema_version", "messages", "replies"]) \
+			or definitions.kind != "scene_contact_definitions" or typeof(definitions.schema_version) != TYPE_INT \
+			or definitions.schema_version != 1 or not definitions.messages is Array or not definitions.replies is Array:
+		return _s_fail("scene_contact_definitions_invalid")
+	var messages := {}
+	var replies := {}
+	var facts := {}
+	var previous := ""
+	for row: Variant in definitions.messages:
+		if not _has_exact_keys(row, ["definition_id", "friend_id", "texts", "message_fact_ids", "read_fact_ids"]) \
+				or not _s_id(row.definition_id) or row.definition_id <= previous or row.friend_id not in FRIEND_IDS \
+				or not _s_texts(row.texts): return _s_fail("scene_contact_message_definition_invalid")
+		previous = row.definition_id
+		for field: String in ["message_fact_ids", "read_fact_ids"]:
+			if not _s_claim_facts(row[field], facts): return _s_fail("scene_contact_fact_definition_invalid")
+		messages[row.definition_id] = row.duplicate(true)
+	previous = ""
+	for row: Variant in definitions.replies:
+		if not _has_exact_keys(row, ["reply_id", "definition_id", "line_id", "texts", "source_fact_ids"]) \
+				or not _s_id(row.reply_id) or row.reply_id <= previous or not _s_id(row.definition_id) \
+				or not messages.has(row.definition_id) or not _s_id(row.line_id) or not _s_texts(row.texts) \
+				or not _s_claim_facts(row.source_fact_ids, facts): return _s_fail("scene_contact_reply_definition_invalid")
+		previous = row.reply_id
+		replies[row.reply_id] = row.duplicate(true)
+	return {"ok": true, "value": {"messages": messages, "replies": replies,
+		"definitions_sha256": _s_hash(definitions)}}
+
+static func capture_scene_definitions(registration_sha256: String) -> Dictionary:
+	var loaded: Dictionary = _SCENE_MANIFEST.scene_registration()
+	if not loaded.get("ok", false): return loaded
+	var bundle: Variant = loaded.get("value")
+	if not bundle is Dictionary or typeof(bundle.get("schema_version")) != TYPE_INT or bundle.schema_version != 2 \
+			or not bundle.has("contact_definitions") or not _s_digest(registration_sha256) \
+			or _s_hash(bundle) != registration_sha256: return _s_fail("scene_contact_registration_unbound")
+	# scene_registration is the existing frozen/validated owner. Its full B binds
+	# every table, including these definitions; saved state cannot select a bundle.
+	return validate_scene_definitions(bundle.contact_definitions)
+
+static func validate_scene_state(state: Dictionary, registration_sha256: String, identity_issuer: Object) -> Dictionary:
+	var selected := capture_scene_definitions(registration_sha256)
+	if not selected.get("ok", false): return selected
+	return _s_validate_state(state, registration_sha256, identity_issuer, selected.value)
+
+static func _s_validate_state(state: Dictionary, registration_sha256: String, issuer: Object, definitions: Dictionary) -> Dictionary:
+	if not _s_json(state) or not _has_exact_keys(state, _SCENE_BAG_KEYS) \
+			or typeof(state.schema_version) != TYPE_INT or state.schema_version != 2 \
+			or not _has_exact_keys(state.messages, FRIEND_IDS) or not _has_exact_keys(state.read_watermarks, FRIEND_IDS) \
+			or not state.transaction_receipts is Dictionary or typeof(state.next_sequence) != TYPE_INT or state.next_sequence < 1:
+		return _s_fail("scene_contacts_invalid")
+	for friend: String in FRIEND_IDS:
+		if not state.messages[friend] is Array or typeof(state.read_watermarks[friend]) != TYPE_INT:
+			return _s_fail("scene_contacts_invalid")
+	var by_prior := {}
+	var run_id := ""
+	for command_id: Variant in state.transaction_receipts:
+		var receipt: Variant = state.transaction_receipts[command_id]
+		if not _s_id(command_id) or not _has_exact_keys(receipt, _SCENE_RECEIPT_KEYS) \
+				or not _s_id(receipt.kind) or not _s_id(receipt.transaction_id) \
+				or not _s_digest(receipt.registration_sha256) or not _s_digest(receipt.definitions_sha256) \
+				or receipt.transaction_id != command_id or receipt.registration_sha256 != registration_sha256 \
+				or receipt.definitions_sha256 != definitions.definitions_sha256 \
+				or not receipt.command_issuer_receipt is Dictionary or not _has_exact_keys(receipt.context, _SCENE_CONTEXT_KEYS) or not _s_digest(receipt.context.contacts_sha256):
+			return _s_fail("scene_contact_receipt_invalid")
+		if not _has_exact_keys(receipt.context.identity, _SCENE_IDENTITY_KEYS) or not _s_id(receipt.context.identity.run_id):
+			return _s_fail("scene_contact_identity_invalid")
+		if run_id != "" and receipt.context.identity.run_id != run_id: return _s_fail("scene_contact_run_changed")
+		run_id = receipt.context.identity.run_id
+		var prior: String = receipt.context.contacts_sha256
+		if by_prior.has(prior): return _s_fail("scene_contact_receipt_fork")
+		by_prior[prior] = receipt
+	var candidate := make_scene_defaults()
+	var remaining: int = by_prior.size()
+	while remaining > 0:
+		var prior := _s_hash(candidate)
+		if not by_prior.has(prior): return _s_fail("scene_contact_receipt_disconnected")
+		var receipt: Dictionary = by_prior[prior]
+		var applied := _s_apply(candidate, receipt, definitions, registration_sha256, issuer)
+		if not applied.get("ok", false): return applied
+		candidate = applied.value.candidate
+		by_prior.erase(prior)
+		remaining -= 1
+	if not _s_equal(candidate, state): return _s_fail("scene_contact_state_linkage_invalid")
+	return {"ok": true}
+
+static func prepare_scene_message(state: Dictionary, definition_id: String, command_id: String,
+		proof: Dictionary, context: Dictionary, issuer: Object) -> Dictionary:
+	return _s_prepare(state, "scene_message", {"definition_id": definition_id}, command_id, proof, context, issuer)
+
+static func prepare_scene_read(state: Dictionary, friend_id: String, command_id: String,
+		proof: Dictionary, context: Dictionary, issuer: Object) -> Dictionary:
+	return _s_prepare(state, "scene_read", {"friend_id": friend_id}, command_id, proof, context, issuer)
+
+static func prepare_scene_reply(state: Dictionary, reply_id: String, incoming_message_id: String, locale: String,
+		command_id: String, proof: Dictionary, context: Dictionary, rendered_line: Dictionary, issuer: Object) -> Dictionary:
+	return _s_prepare(state, "scene_reply", {"reply_id": reply_id, "incoming_message_id": incoming_message_id,
+		"locale": locale, "rendered_line": rendered_line}, command_id, proof, context, issuer)
+
+static func _s_prepare(state: Dictionary, kind: String, request: Dictionary, command_id: String,
+		proof: Dictionary, context: Dictionary, issuer: Object) -> Dictionary:
+	if not _has_exact_keys(context, _SCENE_CONTEXT_KEYS) or not _s_digest(context.registration_sha256):
+		return _s_fail("scene_contact_context_invalid")
+	var registered := capture_scene_definitions(context.registration_sha256)
+	if not registered.get("ok", false): return registered
+	var valid := _s_validate_state(state, context.registration_sha256, issuer, registered.value)
+	if not valid.get("ok", false): return valid
+	var verified := _s_verify(context, command_id, proof, context.registration_sha256, issuer)
+	if not verified.get("ok", false): return verified
+	if state.transaction_receipts.has(command_id):
+		var prior: Dictionary = state.transaction_receipts[command_id]
+		if prior.kind != kind or not _s_equal(prior.context, context) or not _s_equal(prior.command_issuer_receipt, proof):
+			return _s_fail("scene_contact_command_conflict")
+		for key: String in request:
+			if not prior.result.has(key) or not _s_equal(prior.result[key], request[key]): return _s_fail("scene_contact_command_conflict")
+		return _ok(state.duplicate(true), [], prior.duplicate(true))
+	if context.contacts_sha256 != _s_hash(state): return _s_fail("scene_contact_context_stale")
+	var receipt := {"kind": kind, "transaction_id": command_id, "command_issuer_receipt": proof.duplicate(true),
+		"context": context.duplicate(true), "definitions_sha256": registered.value.definitions_sha256,
+		"registration_sha256": context.registration_sha256, "source_fact_ids": [], "result": request.duplicate(true)}
+	return _s_apply(state, receipt, registered.value, context.registration_sha256, issuer, true)
+
+static func _s_apply(state: Dictionary, receipt: Dictionary, definitions: Dictionary,
+		registration_sha256: String, issuer: Object, preparing: bool = false) -> Dictionary:
+	var verified := _s_verify(receipt.context, receipt.transaction_id, receipt.command_issuer_receipt, registration_sha256, issuer)
+	if not verified.get("ok", false): return verified
+	if receipt.context.contacts_sha256 != _s_hash(state) or not receipt.result is Dictionary:
+		return _s_fail("scene_contact_context_stale")
+	var candidate: Dictionary = state.duplicate(true)
+	var result := {}
+	var source_facts: Array = []
+	var batch: Array = []
+	var command: String = receipt.transaction_id
+	var input: Dictionary = receipt.result
+	match receipt.kind:
+		"scene_message":
+			if not _s_id(input.get("definition_id")) or not definitions.messages.has(input.definition_id): return _s_fail("scene_contact_definition_missing")
+			var row: Dictionary = definitions.messages[input.definition_id]
+			for prior: Dictionary in state.transaction_receipts.values():
+				if prior.kind == "scene_message" and prior.result.definition_id == row.definition_id \
+						and prior.context.scene_occurrence == receipt.context.scene_occurrence: return _s_fail("scene_contact_message_already_emitted")
+			source_facts = row.message_fact_ids.duplicate()
+			result = {"definition_id": row.definition_id, "message_id": command, "sequence": state.next_sequence}
+			batch.append(_s_message(command, row, state.next_sequence, "incoming", null))
+		"scene_read":
+			if input.get("friend_id") not in FRIEND_IDS: return _s_fail("unknown_friend")
+			var friend: String = input.friend_id
+			var ids: Array = []
+			var through: int = state.read_watermarks[friend]
+			for message: Dictionary in state.messages[friend]:
+				if message.sequence <= state.read_watermarks[friend]: continue
+				through = maxi(through, message.sequence)
+				if message.direction == "incoming":
+					ids.append(message.message_id)
+					for fact: String in definitions.messages[message.definition_id].read_fact_ids:
+						if source_facts.has(fact): return _s_fail("scene_contact_fact_multiply_owned")
+						source_facts.append(fact)
+			if ids.is_empty(): return _s_fail("scene_contact_nothing_to_read")
+			result = {"friend_id": friend, "message_ids": ids, "through_sequence": through}
+			candidate.read_watermarks[friend] = through
+		"scene_reply":
+			if not _s_id(input.get("reply_id")) or not definitions.replies.has(input.reply_id) \
+					or not _s_id(input.get("incoming_message_id")) or input.get("locale") not in _SCENE_LOCALES:
+				return _s_fail("scene_contact_reply_invalid")
+			var reply: Dictionary = definitions.replies[input.reply_id]
+			var row: Dictionary = definitions.messages[reply.definition_id]
+			var incoming := _s_find_message(state, input.incoming_message_id)
+			if incoming.is_empty() or incoming.direction != "incoming" or incoming.definition_id != reply.definition_id \
+					or incoming.sequence > state.read_watermarks[row.friend_id] or _s_replied(state, incoming.message_id):
+				return _s_fail("scene_contact_reply_unavailable")
+			var text := _s_localized(reply.texts, input.locale)
+			var rendered := {"view_token": command, "line_id": reply.line_id, "text": text}
+			if text.is_empty() or not input.get("rendered_line") is Dictionary \
+					or not ORDINARY_REPLIES.validate_scene_rendered_line(command, reply.line_id, text, input.rendered_line).get("ok", false):
+				return _s_fail("scene_contact_reply_not_acknowledged")
+			source_facts = reply.source_fact_ids.duplicate()
+			result = {"definition_id": reply.definition_id, "reply_id": reply.reply_id,
+				"incoming_message_id": incoming.message_id, "message_id": command, "sequence": state.next_sequence,
+				"locale": input.locale, "rendered_line": rendered}
+			batch.append(_s_message(command, row, state.next_sequence, "outgoing", reply.reply_id))
+		_:
+			return _s_fail("scene_contact_kind_invalid")
+	source_facts.sort()
+	for prior: Dictionary in state.transaction_receipts.values():
+		for fact: String in source_facts:
+			if prior.source_fact_ids.has(fact): return _s_fail("scene_contact_fact_multiply_owned")
+	var actual: Dictionary = receipt.duplicate(true)
+	actual.result = result
+	actual.source_fact_ids = source_facts
+	if not preparing and not _s_equal(actual, receipt): return _s_fail("scene_contact_result_mismatch")
+	for message: Dictionary in batch:
+		candidate.messages[message.friend_id].append(message)
+		candidate.next_sequence += 1
+	candidate.transaction_receipts[command] = actual
+	return _ok(candidate, batch, actual.duplicate(true))
+
+static func validate_scene_facts(state: Dictionary, source_fact_ids: Array,
+		registration_sha256: String, identity_issuer: Object) -> Dictionary:
+	var checked := validate_scene_state(state, registration_sha256, identity_issuer)
+	if not checked.get("ok", false): return checked
+	if not _s_sorted_ids(source_fact_ids): return _s_fail("scene_contact_fact_request_invalid")
+	var resolved: Array = []
+	for fact: String in source_fact_ids:
+		var matched: Dictionary = {}
+		for receipt: Dictionary in state.transaction_receipts.values():
+			if not receipt.source_fact_ids.has(fact): continue
+			if not matched.is_empty(): return _s_fail("scene_contact_fact_multiply_owned")
+			matched = receipt
+		if matched.is_empty(): return _s_fail("scene_contact_fact_unresolved")
+		resolved.append({"source_fact_id": fact, "transaction_id": matched.transaction_id, "receipt": matched.duplicate(true)})
+	return {"ok": true, "value": {"receipts": resolved}}
+
+static func scene_reply_choices(state: Dictionary, friend_id: String, locale: String, registration_sha256: String) -> Dictionary:
+	var loaded := capture_scene_definitions(registration_sha256)
+	if not loaded.get("ok", false): return loaded
+	if friend_id not in FRIEND_IDS or locale not in _SCENE_LOCALES or not _s_projection_shape(state):
+		return _s_fail("scene_contact_reply_invalid")
+	var choices: Array = []
+	for reply: Dictionary in loaded.value.replies.values():
+		var row: Dictionary = loaded.value.messages[reply.definition_id]
+		if row.friend_id != friend_id: continue
+		var matches: Array = []
+		for message: Dictionary in state.messages[friend_id]:
+			if message.direction == "incoming" and message.definition_id == reply.definition_id \
+					and message.sequence <= state.read_watermarks[friend_id] and not _s_replied(state, message.message_id): matches.append(message)
+		if matches.size() > 1: return _s_fail("scene_contact_reply_ambiguous")
+		if matches.size() == 1:
+			var text := _s_localized(reply.texts, locale)
+			if text.is_empty(): return _s_fail("scene_contact_translation_unavailable")
+			choices.append({"reply_id": reply.reply_id, "incoming_message_id": matches[0].message_id,
+				"line_id": reply.line_id, "text": text})
+	return {"ok": true, "value": choices}
+
+static func scene_message_text(message: Dictionary, locale: String, registration_sha256: String) -> Dictionary:
+	var loaded := capture_scene_definitions(registration_sha256)
+	if not loaded.get("ok", false): return loaded
+	if not _s_json(message) or not _has_exact_keys(message, _SCENE_MESSAGE_KEYS) or locale not in _SCENE_LOCALES \
+			or not _s_id(message.definition_id) or message.direction not in ["incoming", "outgoing"] \
+			or not loaded.value.messages.has(message.definition_id): return _s_fail("scene_contact_message_invalid")
+	var row: Dictionary = loaded.value.messages[message.definition_id]
+	if row.friend_id != message.friend_id: return _s_fail("scene_contact_message_invalid")
+	if message.direction == "outgoing":
+		if not _s_id(message.reply_id) or not loaded.value.replies.has(message.reply_id): return _s_fail("scene_contact_reply_invalid")
+		row = loaded.value.replies[message.reply_id]
+		if row.definition_id != message.definition_id: return _s_fail("scene_contact_reply_invalid")
+	var text := _s_localized(row.texts, locale)
+	return {"ok": true, "value": text} if not text.is_empty() else _s_fail("scene_contact_translation_unavailable")
+
+static func _s_verify(context: Dictionary, command_id: String, proof: Dictionary, registration: String, issuer: Object) -> Dictionary:
+	if not _s_json(context) or not _has_exact_keys(context, _SCENE_CONTEXT_KEYS) \
+			or not _has_exact_keys(context.identity, _SCENE_IDENTITY_KEYS) or not _s_id(context.scene_occurrence) \
+			or context.registration_sha256 != registration or not _s_digest(registration) or not _s_digest(context.contacts_sha256):
+		return _s_fail("scene_contact_context_invalid")
+	if typeof(context.identity.desktop_timeline_generation) != TYPE_INT or context.identity.desktop_timeline_generation < 0:
+		return _s_fail("scene_contact_identity_invalid")
+	for key: String in ["run_id", "branch_id", "causal_day_instance"]:
+		if not _s_id(context.identity[key]): return _s_fail("scene_contact_identity_invalid")
+	if not context.identity.causal_day_instance_issuer_receipt is Dictionary or issuer == null \
+			or not issuer.has_method("verify_issued"): return _s_fail("scene_contact_issuer_unavailable")
+	var causal: Dictionary = context.identity.causal_day_instance_issuer_receipt
+	if causal.get("token") != context.identity.causal_day_instance: return _s_fail("scene_contact_identity_invalid")
+	var verified: Variant = issuer.call(&"verify_issued", causal.duplicate(true), &"causal_day_instance")
+	if not verified is Dictionary or not verified.get("ok", false): return _s_fail("scene_contact_identity_invalid")
+	return _verify_command(issuer, command_id, proof)
+
+static func _s_message(command: String, row: Dictionary, sequence: int, direction: String, reply_id: Variant) -> Dictionary:
+	return {"message_id": command, "definition_id": row.definition_id, "friend_id": row.friend_id,
+		"sequence": sequence, "transaction_id": command, "direction": direction, "reply_id": reply_id}
+
+static func _s_find_message(state: Dictionary, id: String) -> Dictionary:
+	for friend: String in FRIEND_IDS:
+		for message: Dictionary in state.messages[friend]:
+			if message.message_id == id: return message
+	return {}
+
+static func _s_replied(state: Dictionary, incoming: String) -> bool:
+	for receipt: Dictionary in state.transaction_receipts.values():
+		if receipt.kind == "scene_reply" and receipt.result.incoming_message_id == incoming: return true
+	return false
+
+static func _s_claim_facts(ids: Variant, claimed: Dictionary) -> bool:
+	if not _s_sorted_ids(ids): return false
+	for id: String in ids:
+		if claimed.has(id): return false
+		claimed[id] = true
+	return true
+
+static func _s_sorted_ids(ids: Variant) -> bool:
+	if not ids is Array: return false
+	var previous := ""
+	for id: Variant in ids:
+		if not _s_id(id) or id <= previous: return false
+		previous = id
+	return true
+
+static func _s_texts(texts: Variant) -> bool:
+	if not texts is Dictionary or not texts.has("en"): return false
+	for locale: Variant in texts:
+		if typeof(locale) != TYPE_STRING or locale not in _SCENE_LOCALES or typeof(texts[locale]) != TYPE_STRING \
+				or texts[locale].strip_edges().is_empty(): return false
+		for index in range(texts[locale].length()):
+			var code: int = texts[locale].unicode_at(index)
+			if (code < 32 and code != 10) or code == 127: return false
+	return true
+
+static func _s_localized(texts: Dictionary, locale: String) -> String:
+	return texts.get(locale, texts.en if locale in ["ja", "ko"] else "")
+
+static func _s_id(value: Variant) -> bool:
+	return typeof(value) == TYPE_STRING and not value.strip_edges().is_empty()
+
+static func _s_digest(value: Variant) -> bool:
+	if typeof(value) != TYPE_STRING or value.length() != 64: return false
+	for i in range(64):
+		if value[i] not in "0123456789abcdef": return false
+	return true
+
+static func _s_json(value: Variant, depth: int = 0) -> bool:
+	if depth > 128: return false
+	match typeof(value):
+		TYPE_NIL, TYPE_BOOL, TYPE_INT, TYPE_STRING: return true
+		TYPE_ARRAY:
+			for child: Variant in value:
+				if not _s_json(child, depth + 1): return false
+			return true
+		TYPE_DICTIONARY:
+			for key: Variant in value:
+				if typeof(key) != TYPE_STRING or not _s_json(value[key], depth + 1): return false
+			return true
+	return false
+
+static func _s_hash(value: Variant) -> String:
+	var encoded: Dictionary = _CANONICAL_WRITER.stringify(value)
+	return str(encoded.value).sha256_text() if encoded.get("ok", false) else ""
+
+static func _s_equal(a: Variant, b: Variant) -> bool:
+	return _s_json(a) and _s_json(b) and _s_hash(a) == _s_hash(b)
+
+static func _s_fail(code: String) -> Dictionary:
+	return _fail(StringName(code), "")
+
+static func _s_projection_shape(state: Dictionary) -> bool:
+	if not _s_json(state) or not _has_exact_keys(state, _SCENE_BAG_KEYS) or state.schema_version != 2 \
+			or not _has_exact_keys(state.messages, FRIEND_IDS) or not _has_exact_keys(state.read_watermarks, FRIEND_IDS) \
+			or not state.transaction_receipts is Dictionary: return false
+	for friend: String in FRIEND_IDS:
+		if not state.messages[friend] is Array or typeof(state.read_watermarks[friend]) != TYPE_INT: return false
+		for message: Variant in state.messages[friend]:
+			if not _has_exact_keys(message, _SCENE_MESSAGE_KEYS) or typeof(message.sequence) != TYPE_INT \
+					or not _s_id(message.message_id) or not _s_id(message.definition_id) \
+					or message.friend_id != friend or message.direction not in ["incoming", "outgoing"]: return false
+	for receipt: Variant in state.transaction_receipts.values():
+		if not _has_exact_keys(receipt, _SCENE_RECEIPT_KEYS) or receipt.kind not in ["scene_message", "scene_read", "scene_reply"] \
+				or not receipt.result is Dictionary: return false
+		if receipt.kind == "scene_reply" and not _s_id(receipt.result.get("incoming_message_id")): return false
+	return true
+
