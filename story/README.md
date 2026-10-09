@@ -1,5 +1,42 @@
 # Story workspace
 
+## Current restart point: Priscilla foundation, 2026-10-09
+
+Read the [approved foundation amendment](09-priscilla-foundation-amendment.md)
+before applying conflicting passages in the older owners below. Its scope map
+identifies what changes and what remains protected, provisional or unresolved.
+Read [intended behavior](../docs/design/2026-10-09-priscilla-flow-behavior-amendment.md)
+for the code consequences; publication is not a runtime implementation claim.
+
+The active direction is sole-Priscilla chapter flow, no in-world Angela, a
+childhood-friend Sylvia, optional local Challenge outcomes and a later single
+self-talk route fork. Yes leads toward Sylvia; ignoring defaults to Lavinia.
+Sweet/Dark ending form is selected at run creation independently of that fork.
+Ambiguous/Love is not a mandatory second axis. Perfect-based awareness does not
+require an observer confrontation or invalidate a healing relationship ending.
+
+**Checkpoint scope:** the owner's foundation discussion and separate-PR publication
+request are captured. Exact childhood history, whole-week plot, fork wording and
+placement, ending scenes, awareness thresholds and technical selection details
+remain open. Existing residence/bar/residue holds remain open. General praise does
+not approve nearby auditions, and reference horror examples are not a catalogue.
+
+**Repository status:** this checkpoint belongs to the documentation PR that contains
+these changes. Consult its metadata for open/merged state; this prose is not a claim
+that `master` has changed. PR #1's implementation branch is separate and untouched.
+The earlier local 15-file insertion package is not presented as already applied.
+This PR retains the long source owners and publishes scoped amendments instead.
+
+**Next creative unit:** audition one complete shared route-fork scene with both
+immediate continuations, compare healing Sweet and frightening Dark ending
+treatments, then fit selected choices into the whole seven-day causal structure.
+Do not restart the settled foundation or begin complete DTL before that plot gate.
+
+## Retained workspace navigation and earlier capture
+
+The map and dated history below retain their source scope. Use the current
+amendment first; older calendar and four-form labels are not active obligations.
+
 **Narrative working home.** The legacy audition directory has been consolidated
 here. This directory includes current narrative authorities, retained auditions,
 and attributed development evidence; its location is not a canon stamp.

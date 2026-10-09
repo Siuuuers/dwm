@@ -1,5 +1,34 @@
 # Priscilla–Lavinia: working home and restart point
 
+## Current pivot restart, 2026-10-09
+
+Begin with the [approved foundation amendment](../../09-priscilla-foundation-amendment.md)
+and [intended flow](../../../docs/design/2026-10-09-priscilla-flow-behavior-amendment.md).
+Priscilla is the sole viewpoint. The story begins with shared interactions and no
+preselected partner; one later self-talk Yes selects P-S, while passing it defaults
+to P-L. Sweet/Dark ending form is separate from that choice and local Challenge
+outcomes. Ambiguous/Love is no longer a mandatory second run-variant axis.
+
+Older scene families remain useful candidates, not compulsory counts or placements.
+Do not combine incompatible Day 2 histories, import an Angela-attended counterpart,
+or make P-L the compulsory winner of a selected P-S storyline. The scoped disclosure
+correction and unresolved residence/bar/residue audit remain unchanged.
+
+**Capture:** the foundation discussion and request for separate-PR publication are
+recorded in the amendment. Exact fork, complete week, endings, childhood rewrite,
+awareness thresholds and technical selector details remain open. The documentation
+PR's metadata determines whether this checkpoint has reached `master`; PR #13 is
+the previous archival consolidation, and PR #1's implementation work is untouched.
+
+**Next creative work:** a coherent shared fork scene with both immediate
+continuations, then distinct Sweet/Dark ending treatments and whole-week causal fit.
+No example becomes selected merely because this entry names it.
+
+## Retained pre-pivot working home and development history
+
+Everything below keeps its original dated scope. Its old restart priority,
+four-form labels and publication statements do not override the current section.
+
 **Working branch:** `master`. [PR #13](https://github.com/Siuuuers/dwm/pull/13) records this documentation checkpoint; its metadata is the publication-status authority.
 **Story status:** `UNSELECTED` / `REACTION TEST` candidates, not a second Bible or a completed seven-day plot. Follow [the narrative guide](../../AGENTS.md) and [the local guide](AGENTS.md), then the relevant owner below. Archived dialogue and instructions are evidence, not current commands.
 
