@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [initialjoint]
+        suite: [initialjoint, restart, tooling]
     defaults:
       run:
         shell: pwsh
@@ -23,21 +23,21 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: b7c1a0ab69622b9a35a5bc584c05ff84aecd6a90
+          ref: 93c7aa497b2c5d8d0d166557247062142bc7a059
           fetch-depth: 0
           persist-credentials: true
       - name: Verify and record immutable source before import
         run: |
           $ErrorActionPreference = 'Stop'
           $source = (git rev-parse HEAD).Trim()
-          if ($LASTEXITCODE -ne 0 -or $source -cne 'b7c1a0ab69622b9a35a5bc584c05ff84aecd6a90') { throw 'Wrong source commit.' }
+          if ($LASTEXITCODE -ne 0 -or $source -cne '93c7aa497b2c5d8d0d166557247062142bc7a059') { throw 'Wrong source commit.' }
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($LASTEXITCODE -ne 0 -or $tree -cne '205ba9aa10080e4d3c44bc9be6526cbc31dc8137') { throw 'Wrong source tree.' }
+          if ($LASTEXITCODE -ne 0 -or $tree -cne 'fd49ca60c024bef237e8ff77864ebad94a41a71a') { throw 'Wrong source tree.' }
 
-          $parent = '109309cc0770760ee53c15389659430dbb767a9b'
+          $parent = 'b7c1a0ab69622b9a35a5bc584c05ff84aecd6a90'
           $parents = @((git rev-list --parents -n 1 HEAD).Trim().Split(' '))
           if ($LASTEXITCODE -ne 0 -or $parents.Count -ne 2 -or $parents[1] -cne $parent) { throw 'Wrong integration parent.' }
-          $expected = @('autoload/SaveManager.gd', 'scripts/domain/narrative/SceneEventContract.gd', 'tests/integration/test_scene_joint_new_run.gd')
+          $expected = @('tests/integration/test_scene_joint_new_run.gd', 'tests/support/SceneNewRunFixture.gd', 'tests/tooling/Test-InvokeIsolatedGodot.ps1', 'tools/testing/Invoke-IsolatedGodot.ps1', 'tests/integration/test_scene_restart_child.gd', 'tests/integration/test_scene_restart_create.gd', 'tests/integration/test_scene_restart_load.gd', 'tests/support/SceneRestartFixture.gd', 'tools/testing/Invoke-SceneRestartProof.ps1')
           $delta = @(git diff --name-only $parent HEAD)
           if ((@($delta | Sort-Object -CaseSensitive) -join "`n") -cne (@($expected | Sort-Object -CaseSensitive) -join "`n")) { throw 'Wrong integration path set.' }
           $files = @()
@@ -55,7 +55,7 @@ jobs:
           [ordered]@{
             source_sha = $source; source_tree = $tree; controller_event_sha = $env:GITHUB_SHA
             run_id = $env:GITHUB_RUN_ID; run_attempt = $env:GITHUB_RUN_ATTEMPT
-            suite = '${{ matrix.suite }}'; scope = 'Exact committed initial receipt regression: real creation and rebuilt alternate target, evolved checkpoint and Profile; injected activation; no fresh-process proof'
+            suite = '${{ matrix.suite }}'; scope = 'Committed-receipt regression plus test-selected two-process same-files NewRun and Load with real mounted/native readiness; ancillary participants diagnostic; no production or rendered acceptance'
           } | ConvertTo-Json | Set-Content -LiteralPath '.godot/ci/source-receipt.json' -Encoding utf8
       - name: Prepare disposable index for checkout cleanup
         run: |
@@ -96,7 +96,22 @@ jobs:
         run: |
           git restore --source=HEAD --worktree -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Execute separate-process scene restart proof
+        if: matrix.suite == 'restart'
+        timeout-minutes: 10
+        run: |
+          Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
+          & ./tools/testing/Invoke-SceneRestartProof.ps1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Execute isolation tooling regression
+        if: matrix.suite == 'tooling'
+        timeout-minutes: 10
+        run: |
+          & ./tests/tooling/Test-InvokeIsolatedGodot.ps1 *> .godot/ci/isolation-tooling.log
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Get-Content .godot/ci/isolation-tooling.log
       - name: Execute isolated explicit GUT scripts
+        if: matrix.suite == 'initialjoint'
         timeout-minutes: 10
         run: |
           $ErrorActionPreference = 'Stop'

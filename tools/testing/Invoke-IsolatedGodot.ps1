@@ -10,6 +10,10 @@ param(
 
     [string]$EvidenceLogPath,
 
+    # Optional second process uses the same proven isolation root, sequentially.
+    [string[]]$NextGodotArgs = @(),
+    [string]$NextLogName,
+
     # Existing long-running evidence callers retain their own watchdogs unless
     # they opt in. Cloud focused suites set a limit below their step timeout.
     [ValidateRange(0, 86400)]
@@ -219,7 +223,9 @@ try {
     if (-not (Test-Path -LiteralPath $projectPath -PathType Leaf)) { throw 'PROJECT_ROOT_INVALID' }
     if ([string]::IsNullOrWhiteSpace($SuiteId)) { throw 'SUITE_ID_EMPTY' }
     if ([string]::IsNullOrWhiteSpace($LogName) -or [IO.Path]::GetFileName($LogName) -cne $LogName) { throw 'LOG_NAME_INVALID' }
-    foreach ($argument in $GodotArgs) {
+    if (($NextGodotArgs.Count -gt 0) -ne (-not [string]::IsNullOrWhiteSpace($NextLogName))) { throw 'NEXT_CHILD_INCOMPLETE' }
+    if ($NextGodotArgs.Count -gt 0 -and ([IO.Path]::GetFileName($NextLogName) -cne $NextLogName -or $NextLogName -ieq $LogName)) { throw 'NEXT_LOG_NAME_INVALID' }
+    foreach ($argument in (@($GodotArgs) + @($NextGodotArgs))) {
         if ([string]$argument -match '^(?i)--(?:path|headless|log-file)(?:=|$)') { throw "FORBIDDEN_GODOT_ARG: $argument" }
     }
     if ([string]::IsNullOrWhiteSpace($env:APPDATA)) { throw 'PARENT_APPDATA_MISSING' }
@@ -290,29 +296,49 @@ try {
     [void](Assert-ContainedNonReparseChain -Root $repositoryRoot -Candidate $guidRoot -RequireStrictDescendant)
     [void](Assert-ContainedNonReparseChain -Root $guidRoot -Candidate $userDir -RequireStrictDescendant)
 
-    $argv = @('--headless','--path',$repositoryRoot,'--log-file',$logPath) + @($GodotArgs)
-    $startedAt = [DateTime]::UtcNow.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
-    $requested = Invoke-GodotChild -Executable $godotExecutable -Arguments $argv -AppData $childAppData -LocalAppData $childLocalAppData -DwmTestRoot $childDwmRoot -TimeoutSeconds $TimeoutSeconds -TimeoutLogPath $timeoutLog
-    $endedAt = [DateTime]::UtcNow.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
-    $resultCode = [int]$requested.ExitCode
-    # GUT exits 0 while silently downgrading an unloadable suite to a warning, so a requested
-    # suite that never ran, a failed script load, or an invalid Tween must fail this runner instead.
-    $requestedSuites = @(Get-RequestedSuitePath -Arguments @($GodotArgs))
-    if ($requestedSuites.Count -ne 0) {
-        $suiteFailures = @(Get-SuiteExecutionFailure -LogPath $logPath -RequestedPaths $requestedSuites)
-        if ($suiteFailures.Count -ne 0) {
-            foreach ($suiteFailure in $suiteFailures) { [Console]::Error.WriteLine($suiteFailure) }
+    $childPlans = @([pscustomobject]@{Arguments=@($GodotArgs); Log=$LogName})
+    if ($NextGodotArgs.Count -gt 0) { $childPlans += [pscustomobject]@{Arguments=@($NextGodotArgs); Log=$NextLogName} }
+    foreach ($childPlan in $childPlans) {
+        $phase = 'execution'
+        $logPath = Get-CanonicalPath (Join-Path $logsRoot $childPlan.Log)
+        $timeoutLog = $logPath + '.timeout.log'
+        [void](Assert-ContainedNonReparseChain -Root $repositoryRoot -Candidate $logPath -RequireStrictDescendant)
+        [void](Assert-ContainedNonReparseChain -Root $repositoryRoot -Candidate $timeoutLog -RequireStrictDescendant)
+        [void](Assert-ContainedNonReparseChain -Root $guidRoot -Candidate $childDwmRoot -RequireStrictDescendant)
+        # A prior child must not redirect the retained storage or user directory
+        # through a junction before the next process consumes those paths.
+        Assert-TreeHasNoReparsePoints -Root $guidRoot
+        $argv = @('--headless','--path',$repositoryRoot,'--log-file',$logPath) + @($childPlan.Arguments)
+        $startedAt = [DateTime]::UtcNow.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
+        $requested = Invoke-GodotChild -Executable $godotExecutable -Arguments $argv -AppData $childAppData -LocalAppData $childLocalAppData -DwmTestRoot $childDwmRoot -TimeoutSeconds $TimeoutSeconds -TimeoutLogPath $timeoutLog
+        $endedAt = [DateTime]::UtcNow.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
+        $resultCode = [int]$requested.ExitCode
+        # GUT exits 0 while silently downgrading an unloadable suite to a warning, so a requested
+        # suite that never ran, a failed script load, or an invalid Tween must fail this runner instead.
+        $requestedSuites = @(Get-RequestedSuitePath -Arguments @($childPlan.Arguments))
+        if ($requestedSuites.Count -ne 0) {
+            $suiteFailures = @(Get-SuiteExecutionFailure -LogPath $logPath -RequestedPaths $requestedSuites)
+            if ($suiteFailures.Count -ne 0) {
+                foreach ($suiteFailure in $suiteFailures) { [Console]::Error.WriteLine($suiteFailure) }
+                if ($resultCode -eq 0) { $resultCode = 126 }
+            }
+        }
+        if ($NextGodotArgs.Count -gt 0 -and (Test-Path -LiteralPath $logPath) -and
+            (Select-String -LiteralPath $logPath -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet)) {
             if ($resultCode -eq 0) { $resultCode = 126 }
         }
+        $phase = 'evidence'
+        $record = [ordered]@{
+            suite_id = $SuiteId; argv = @($argv); exit_code = $resultCode; log_path = $logPath
+            test_root = (Get-CanonicalPath $guidRoot); user_dir = $userDir
+            started_at_utc = $startedAt; ended_at_utc = $endedAt
+        }
+        $recordJson = ConvertTo-Json -InputObject $record -Depth 4 -Compress
+        if ($null -ne $evidenceFull) { Add-JsonLineExclusive -Path $evidenceFull -JsonLine $recordJson }
+        [Console]::Out.WriteLine($recordJson)
+        $recordJson = $null
+        if ($resultCode -ne 0) { break }
     }
-    $phase = 'evidence'
-    $record = [ordered]@{
-        suite_id = $SuiteId; argv = @($argv); exit_code = $resultCode; log_path = $logPath
-        test_root = (Get-CanonicalPath $guidRoot); user_dir = $userDir
-        started_at_utc = $startedAt; ended_at_utc = $endedAt
-    }
-    $recordJson = ConvertTo-Json -InputObject $record -Depth 4 -Compress
-    if ($null -ne $evidenceFull) { Add-JsonLineExclusive -Path $evidenceFull -JsonLine $recordJson }
 } catch {
     if ($phase -eq 'evidence') { $resultCode = 125 } else { $resultCode = 124 }
     [Console]::Error.WriteLine($_.Exception.Message)

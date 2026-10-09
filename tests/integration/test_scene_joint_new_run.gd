@@ -14,18 +14,19 @@ const RUN := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 var fixture: RefCounted
 var fixture_ready := false
 
-func before_each() -> void:
+func before_all() -> void:
 	fixture = FIXTURE.new()
 	var setup: Dictionary = fixture.setup(get_tree())
 	assert_true(setup.get("ok", false), str(setup))
 	fixture_ready = setup.get("ok", false)
 
-func after_each() -> void:
+func after_all() -> void:
 	if fixture != null: fixture.close()
 
 func test_joint_creation_persists_exact_material_before_activation_and_alternates_after_ack() -> void:
 	assert_true(fixture_ready, "joint filesystem fixture must initialize")
 	if not fixture_ready: return
+	var prior_draw_count: int = fixture.profile.get_profile_snapshot().pair_deck_draws.size()
 	var started: Dictionary = fixture.start()
 	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
 	if started.get("code") != &"scene_activation_pending": return
@@ -107,14 +108,14 @@ func test_joint_creation_persists_exact_material_before_activation_and_alternate
 	assert_true(historical.ok, "later Profile assignment must preserve prior creation authority: " + str(historical))
 	var final_profile: Dictionary = fixture.reload_profile()
 	assert_true(final_profile.ok, str(final_profile))
-	assert_eq(final_profile.value.pair_deck_draws.size(), 2)
+	assert_eq(final_profile.value.pair_deck_draws.size(), prior_draw_count + 2)
 	assert_eq(final_profile.value.pair_deck_draws[snapshot.run_id], snapshot.lifecycle.scene_assignment,
 		"later creation preserves the original assignment exactly")
 
 func test_rebuilt_other_initial_target_is_valid_preparation_but_not_committed_authority() -> void:
 	assert_true(fixture_ready)
 	if not fixture_ready: return
-	var started: Dictionary = fixture.start(0)
+	var started: Dictionary = fixture.start()
 	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
 	if started.get("code") != &"scene_activation_pending": return
 	fixture.confirm_activation()
@@ -164,7 +165,7 @@ func test_rebuilt_other_initial_target_is_valid_preparation_but_not_committed_au
 func test_committed_receipt_survives_evolved_checkpoint_and_unrelated_profile_write() -> void:
 	assert_true(fixture_ready)
 	if not fixture_ready: return
-	var started: Dictionary = fixture.start(1)
+	var started: Dictionary = fixture.start()
 	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
 	if started.get("code") != &"scene_activation_pending": return
 	fixture.confirm_activation()
