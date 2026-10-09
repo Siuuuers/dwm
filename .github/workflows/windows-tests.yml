@@ -23,16 +23,16 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 5ff5b7ee0e05237956b1e88fb10cf2fb0af2efe0
+          ref: b9d00fdc66f6e2395d7de926765884218b702aef
           fetch-depth: 0
           persist-credentials: true
       - name: Verify and record immutable source before import
         run: |
           $ErrorActionPreference = 'Stop'
           $source = (git rev-parse HEAD).Trim()
-          if ($LASTEXITCODE -ne 0 -or $source -cne '5ff5b7ee0e05237956b1e88fb10cf2fb0af2efe0') { throw 'Wrong source commit.' }
+          if ($LASTEXITCODE -ne 0 -or $source -cne 'b9d00fdc66f6e2395d7de926765884218b702aef') { throw 'Wrong source commit.' }
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($LASTEXITCODE -ne 0 -or $tree -cne 'a17b5a2d198dafb4cef8c48638e669e09bcf4c99') { throw 'Wrong source tree.' }
+          if ($LASTEXITCODE -ne 0 -or $tree -cne '51556d31c0726a91b1abde79e4ea88b2c6560773') { throw 'Wrong source tree.' }
 
           $gHead = '80aa1adfd0d5d3da12ecdc007b5c36d9cf3961a4'
           git fetch --no-tags origin $gHead
@@ -54,16 +54,22 @@ jobs:
             'tests/unit/test_scene_runtime_remap.gd'
           )
           $parents = @((git rev-list --parents -n 1 HEAD).Trim().Split(' '))
-          if ($LASTEXITCODE -ne 0 -or $parents.Count -ne 2 -or $parents[1] -cne '97030bd990ee088d50a4dbe99d81e3fdcc25ffbf') { throw 'Wrong integration parent.' }
+          if ($LASTEXITCODE -ne 0 -or $parents.Count -ne 2 -or $parents[1] -cne '5ff5b7ee0e05237956b1e88fb10cf2fb0af2efe0') { throw 'Wrong integration parent.' }
+          $corrections = @{
+            'scripts/application/contact/ContactsPresentationPort.gd' = 'd7c5c15cb1f74dc5ed88aad681c74775ff7089ba'
+            'scripts/domain/desktop/DesktopContinuationRemapper.gd' = '8b042cf8888e9bf73300f16c886f5eedbbf40df5'
+          }
           $files = @()
           foreach ($path in $gPaths) {
             $original = (git rev-parse "$($gHead):$path").Trim()
             if ($LASTEXITCODE -ne 0) { throw "Missing constituent: $path" }
             $current = (git rev-parse "HEAD:$path").Trim()
-            if ($LASTEXITCODE -ne 0 -or $current -cne $original) { throw "Changed G constituent: $path" }
-            $files += [ordered]@{path=$path; source=$gHead; blob=$original}
+            if ($LASTEXITCODE -ne 0) { throw "Missing integrated blob: $path" }
+            $expectedBlob = if ($corrections.ContainsKey($path)) { $corrections[$path] } else { $original }
+            if ($current -cne $expectedBlob) { throw "Changed G constituent/correction: $path" }
+            $files += [ordered]@{path=$path; source=$gHead; original_blob=$original; integrated_blob=$current}
           }
-          $wholeDelta = @(git diff --name-only $parents[1] HEAD)
+          $wholeDelta = @(git diff --name-only '97030bd990ee088d50a4dbe99d81e3fdcc25ffbf' HEAD)
           $expected = @($gPaths) + @('scripts/narrative/DialogicEntryManifest.gd', 'scripts/domain/narrative/SceneEventContract.gd', 'tests/unit/test_scene_registration_v2.gd', 'docs/design/2026-10-09-scene-runtime-integration-seam.md')
           if ((@($wholeDelta | Sort-Object -CaseSensitive) -join "`n") -cne (@($expected | Sort-Object -CaseSensitive) -join "`n")) { throw 'Wrong integration path set.' }
           foreach ($path in $wholeDelta) {
@@ -117,6 +123,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           if (Select-String -LiteralPath "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Project import reported errors.' }
       - name: Restore committed project settings after import
+        if: always()
         run: |
           git restore --source=HEAD --worktree -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

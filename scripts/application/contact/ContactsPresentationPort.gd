@@ -208,7 +208,7 @@ func _project(state: Dictionary, day: int, friend_id: String, primary: String, s
 	if _ordinary_enabled():
 		for friend: String in CONTACT_STATE.FRIEND_IDS:
 			var available: Dictionary = ORDINARY_REPLIES.available(state, day, friend, primary)
-			if not available.get("ok", false): return available
+		if not available.get("ok", false): return available
 			if not available.value.is_empty(): unread[friend] = true
 			if friend == friend_id: ordinary = available.value
 	var entries: Array = []
