@@ -125,6 +125,8 @@ func get_state() -> Dictionary:
 
 
 func capture_persistent_state() -> Dictionary:
+	if _scene_mode:
+		return {"active_app_id": String(_active_app_id) if _active_app_id != &"" else null}
 	return {"active_app_id": _active_app_id if _active_app_id != &"" else null}
 
 

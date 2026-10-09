@@ -113,7 +113,7 @@ func test_scene_material_only_appends_assignment_and_preserves_unrelated_profile
 	assert_eq(material.size(), 7)
 	assert_false(material.has("captured_dark"))
 	assert_true(PROFILE.validate_scene_new_run_material(material).ok)
-	var unrelated := material.candidate.duplicate(true)
+	var unrelated: Dictionary = material.candidate.duplicate(true)
 	unrelated.pair_deck_draws = before.pair_deck_draws.duplicate(true)
 	assert_eq(unrelated, before)
 	assert_eq(f.profile.get_profile_snapshot(), before)
