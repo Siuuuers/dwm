@@ -41,8 +41,7 @@ func exercise_phase(phase: String) -> void:
 		assert_ne(OS.get_process_id(), first_pid, "selected Load runs in a different OS process")
 		assert_eq(fixture.storage.describe_root(), witness.value.storage_root)
 		original_hash = witness.value.autosave_sha256
-		# Observe the selected bytes without claiming a storage read lease before
-		# SaveManager's real prepare path has reconciled this fresh process.
+		# Observe the selected bytes before this fresh process obtains its read lease.
 		var bytes: Dictionary = fixture.storage.inspect_revision("autosave.json")
 		assert_true(bytes.ok, str(bytes))
 		if not bytes.ok: return
@@ -57,6 +56,13 @@ func exercise_phase(phase: String) -> void:
 		assert_eq(snapshot.checkpoint_id, witness.value.checkpoint_id)
 		assert_true(SAVE_SCHEMA.validate(document.value).ok, "fresh process proves saved creation authority")
 		previous_profile = fixture.profile.get_profile_snapshot().duplicate(true)
+		# Direct prepare_restore_autosave requires storage recovery first. Exercise
+		# real reconciliation with SaveManager's strict document validator; this
+		# explicit test bootstrap is not a claim about shipped startup wiring.
+		var reconciled: Dictionary = fixture.storage.reconcile("autosave.json",
+			Callable(fixture.manager, "_document_text_validator"))
+		assert_true(reconciled.ok, str(reconciled))
+		if not reconciled.ok: return
 		var prepared: Dictionary = fixture.manager.prepare_restore_autosave()
 		assert_true(prepared.ok, str(prepared))
 		if not prepared.ok: return
