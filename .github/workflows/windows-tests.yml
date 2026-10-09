@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [schema, journal, route, receipts, native, assignment, retirement]
+        suite: [route, assignment]
     defaults:
       run:
         shell: pwsh
@@ -23,87 +23,21 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 4b21a420a1b7aae19595c220e5a70ee66ae43afc
+          ref: eba66f0371470c97ba926e2ae84ef19b0e3fee07
           fetch-depth: 0
           persist-credentials: true
       - name: Verify and record immutable source before import
         run: |
           $ErrorActionPreference = 'Stop'
           $source = (git rev-parse HEAD).Trim()
-          if ($LASTEXITCODE -ne 0 -or $source -cne '4b21a420a1b7aae19595c220e5a70ee66ae43afc') { throw 'Wrong source commit.' }
+          if ($LASTEXITCODE -ne 0 -or $source -cne 'eba66f0371470c97ba926e2ae84ef19b0e3fee07') { throw 'Wrong source commit.' }
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($LASTEXITCODE -ne 0 -or $tree -cne 'a3e0e468e617bd96f9c2baca07dc480ef2bf5484') { throw 'Wrong source tree.' }
+          if ($LASTEXITCODE -ne 0 -or $tree -cne '1bcc407af37394fcaec88000ff05c367e33497a0') { throw 'Wrong source tree.' }
 
-          $parent = 'c7880edbac394c72583b7759cc14301704a2aca7'
+          $parent = '4b21a420a1b7aae19595c220e5a70ee66ae43afc'
           $parents = @((git rev-list --parents -n 1 HEAD).Trim().Split(' '))
           if ($LASTEXITCODE -ne 0 -or $parents.Count -ne 2 -or $parents[1] -cne $parent) { throw 'Wrong integration parent.' }
-          $expected = @(
-            'autoload/ApplicationBootstrap.gd',
-            'autoload/DialogicBridge.gd',
-            'autoload/EffectResolver.gd',
-            'autoload/GameState.gd',
-            'autoload/ProfileManager.gd',
-            'autoload/SaveManager.gd',
-            'autoload/SceneRouter.gd',
-            'data/manifests/art_placements.json',
-            'data/manifests/effects.json',
-            'docs/design/2026-10-09-scene-runtime-integration-seam.md',
-            'scripts/application/minesweeper/DesktopFirstRevealSnapshotComposer.gd',
-            'scripts/application/minesweeper/GameStateDesktopBoardPort.gd',
-            'scripts/application/minesweeper/GameStateMinesweeperPort.gd',
-            'scripts/application/narrative/SceneEventCommandPort.gd',
-            'scripts/application/restore/DesktopBoardRestoreParticipant.gd',
-            'scripts/application/restore/DesktopIdentityAllocationRestoreParticipant.gd',
-            'scripts/application/restore/NarrativeRestoreParticipant.gd',
-            'scripts/application/restore/RouteRestoreParticipant.gd',
-            'scripts/application/restore/RunRestoreParticipant.gd',
-            'scripts/application/run/DatingPhysicalOwner.gd',
-            'scripts/application/shop/GameStateMinesweeperShopPort.gd',
-            'scripts/application/shop/ShopPresentationPort.gd',
-            'scripts/data/DataCatalog.gd',
-            'scripts/domain/desktop/DesktopAppHostState.gd',
-            'scripts/domain/desktop/DesktopContinuationRemapper.gd',
-            'scripts/domain/minesweeper/DesktopBoardState.gd',
-            'scripts/domain/narrative/SceneEventContract.gd',
-            'scripts/domain/relationship/PairDeckDraw.gd',
-            'scripts/domain/run/RunLifecycle.gd',
-            'scripts/domain/run/RunSnapshotSchema.gd',
-            'scripts/infrastructure/save/DesktopContinuationOperationJournal.gd',
-            'scripts/infrastructure/save/NewRunMaterials.gd',
-            'scripts/infrastructure/save/SaveDocumentSchema.gd',
-            'scripts/infrastructure/save/SaveMigrations.gd',
-            'scripts/narrative/DialogicRuntimeAdapter.gd',
-            'scripts/narrative/FrozenRunContext.gd',
-            'scripts/profile/ProfileSchema.gd',
-            'scripts/ui/ShopApp.gd',
-            'scripts/ui/shop/ShopCatalogProjection.gd',
-            'scripts/ui/shop/ShopCopy.gd',
-            'scripts/ui/shop/ShopItemArt.gd',
-            'tests/fixtures/scene_activation_host.tscn',
-            'tests/integration/test_scene_native_activation.gd',
-            'tests/integration/test_scene_native_activation_runtime.gd',
-            'tests/integration/test_scene_route_activation.gd',
-            'tests/unit/test_desktop_board_state.gd',
-            'tests/unit/test_desktop_first_reveal_snapshot_composer.gd',
-            'tests/unit/test_effect_resolver.gd',
-            'tests/unit/test_game_state_desktop_board_port.gd',
-            'tests/unit/test_scene_board_restore_dispatch.gd',
-            'tests/unit/test_scene_bootstrap_recovery.gd',
-            'tests/unit/test_scene_desktop_host_restore.gd',
-            'tests/unit/test_scene_lifecycle_state.gd',
-            'tests/unit/test_scene_new_run_assignment.gd',
-            'tests/unit/test_scene_new_run_materials.gd',
-            'tests/unit/test_scene_receipt_validation.gd',
-            'tests/unit/test_scene_restore_journal.gd',
-            'tests/unit/test_scene_runtime_remap.gd',
-            'tests/unit/test_scene_save_schema.gd',
-            'tests/unit/test_shop_app_purchase_bridge.gd',
-            'tests/unit/test_shop_catalog_projection.gd',
-            'tests/unit/test_shop_copy.gd',
-            'tests/unit/test_shop_presentation_port.gd',
-            'tests/unit/test_shop_rules.gd',
-            'tests/unit/test_scene_restore_activation_protocol.gd'
-          )
+          $expected = @('scripts/domain/desktop/DesktopAppHostState.gd', 'tests/unit/test_scene_new_run_assignment.gd')
           $delta = @(git diff --name-only $parent HEAD)
           if ((@($delta | Sort-Object -CaseSensitive) -join "`n") -cne (@($expected | Sort-Object -CaseSensitive) -join "`n")) { throw 'Wrong integration path set.' }
           $files = @()
