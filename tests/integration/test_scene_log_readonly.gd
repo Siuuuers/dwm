@@ -2,27 +2,28 @@ extends "res://addons/gut/test.gd"
 ## Mounted unchanged caption/history UI, actual Dialogic text events, scene ledger,
 ## Bridge projection, and physical/Profile Challenge owners. TEST injection is
 ## limited to historical scene admission, Challenge admission/checkpoint/closure
-## authority and storage/generation from SceneChallengeFixture, plus router/input
-## custody below. This does NOT prove forward DTL -> Challenge or Save8 wiring.
+## authority and storage/generation from SceneChallengeFixture, plus router
+## lifecycle below. Input custody remains the actual mounted InputManager.
+## This does NOT prove forward DTL -> Challenge or Save8 wiring.
 const BASE := preload("res://tests/support/SceneDayReadingFixture.gd")
 const CHALLENGE := preload("res://tests/support/SceneChallengeFixture.gd")
 const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 const BRIDGE := preload("res://autoload/DialogicBridge.gd")
 const PATH := "res://tests/fixtures/dialogic/scene_day_terminal.dtl"
 
-class InputCustody extends Node:
-	signal source_input_custody_changed
-	signal input_bindings_changed
-	func is_source_input_admitted() -> bool: return true
-	func get_physical_contacts() -> Dictionary: return {}
-	func observe_physical_contact(_event: InputEvent) -> void: pass
-	func get_physical_contact_id(_event: InputEvent) -> String: return ""
-
 class HistoryRouter extends Node:
 	var runtime: Node
 	var source: Object
 	var opens := 0
 	var closes := 0
+	# Caption transport projects all sibling capabilities on each refresh.
+	# This injected router owns only History, so Save/Load explicitly refuse.
+	func can_open_witnessed_backup_load(_source: Object) -> bool: return false
+	func can_open_witnessed_backup_save(_source: Object) -> bool: return false
+	func open_witnessed_backup_load(_source: Object) -> Dictionary:
+		return {"ok": false, "code": &"TEST.load_outside_history_scope"}
+	func open_witnessed_backup_save(_source: Object) -> Dictionary:
+		return {"ok": false, "code": &"TEST.save_outside_history_scope"}
 	func can_open_witnessed_history(_source: Object) -> bool: return source == null
 	func open_witnessed_history(candidate: Object) -> Dictionary:
 		if source != null: return {"ok": false}
@@ -43,7 +44,7 @@ var _adapter: DialogicRuntimeAdapter
 var _viewport: SubViewport
 var _caption: Node
 var _router: HistoryRouter
-var _input: InputCustody
+var _input: Node
 var _bridge: Node
 var _session: RefCounted
 var _challenge: RefCounted
@@ -112,16 +113,20 @@ func before_each() -> void:
 	_bridge._runtime_adapter = _adapter
 	_bridge.timeline_marker_received.connect(func(id: String, payload: Dictionary) -> void: _bridge_markers.append([id, payload.duplicate(true)]))
 	_adapter.runtime_signal_event.connect(_bridge._on_runtime_signal_event)
-	_input = InputCustody.new()
-	_viewport.add_child(_input)
+	_input = get_node("/root/InputManager")
+	assert_true(_input.is_source_input_admitted(), "real mounted input custody is neutral")
+	assert_eq(_input.get_physical_contacts(), {})
 	_router = HistoryRouter.new()
 	_router.runtime = _runtime
 	_viewport.add_child(_router)
-	# Inject only external custody, never replace the actual UI or history owner.
-	_caption.accept_input._input_custody = _input
-	_caption._reading_input_owner = _input
+	# Keep the original one-time input owner bindings; only router lifecycle is
+	# injected. Rebinding a mounted button to another owner correctly refuses.
+	assert_same(_caption.accept_input._input_custody, _input)
+	assert_same(_caption._reading_input_owner, _input)
 	_caption._backup_load_router = _router
-	_caption._history_input_bound = _caption.transport_rail.bind_history_admission(_caption._history_admitted, _input)
+	assert_true(_caption._history_input_bound)
+	assert_true(_caption.transport_rail.bind_history_admission(_caption._history_admitted, _input),
+		"existing real binding remains idempotent")
 	_challenge = CHALLENGE.new()
 	assert_true(_challenge.setup("TEST.scene.log.readonly").ok)
 
