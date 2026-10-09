@@ -9,6 +9,7 @@ const ROW := preload("res://scripts/ui/minesweeper/MinesweeperSheetRow.gd")
 const RETURN := preload("res://scripts/ui/minesweeper/MinesweeperActionButton.gd")
 const RAIL := preload("res://scripts/ui/minesweeper/MinesweeperScrollRail.gd")
 
+var _scene_presentation := false
 var rows: Array[Control] = []
 var body: Control
 var document: Control
@@ -36,10 +37,17 @@ func _init() -> void:
 func configure(host: String = "desktop_app", locale: String = "en", percent: int = 100,
 		large: bool = false, palette: StringName = &"after_hours", native_band: Vector2i = Vector2i.ZERO,
 		high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel", day: int = 1) -> bool:
+	return _configure_context(host, locale, percent, large, palette, native_band, high_contrast, colour_preset, font_style, day, false)
+
+func configure_scene(host: String = "desktop_app", locale: String = "en", percent: int = 100, large: bool = false, palette: StringName = &"after_hours", native_band: Vector2i = Vector2i.ZERO, high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> bool:
+	return _configure_context(host, locale, percent, large, palette, native_band, high_contrast, colour_preset, font_style, null, true)
+
+func _configure_context(host: String = "desktop_app", locale: String = "en", percent: int = 100, large: bool = false, palette: StringName = &"after_hours", native_band: Vector2i = Vector2i.ZERO, high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel", day: Variant = 1, scene: bool = false) -> bool:
+	if _scene_presentation and not scene: return false
 	if host not in ["desktop_app","canonical_solo","canonical_pair"]: return false
 	if kind == "assignments" and host != "desktop_app": return false
 	locale = locale.replace("_","-")
-	var next_theme := MS_THEME.build(locale,percent,palette,high_contrast,colour_preset,font_style,day)
+	var next_theme := MS_THEME._build_context(locale,percent,palette,high_contrast,colour_preset,font_style,day, scene)
 	var band := native_band
 	if band == Vector2i.ZERO: band = Vector2i(400 if host == "desktop_app" else 480,232 if large else 246)
 	if next_theme == null or band.x <= 16 or (host == "desktop_app" and band.x != 400) or band.y <= 0: return false
@@ -50,6 +58,7 @@ func configure(host: String = "desktop_app", locale: String = "en", percent: int
 	_large = large
 	_high_contrast = high_contrast
 	_band = band
+	_scene_presentation = scene
 	theme = next_theme
 	custom_minimum_size = Vector2(band*2)
 	size = custom_minimum_size

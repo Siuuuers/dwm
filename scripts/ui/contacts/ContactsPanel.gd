@@ -14,6 +14,7 @@ const FRIENDS := ["priscilla", "lavinia", "sylvia"]
 const NAMES := ["Priscilla", "Lavinia", "Sylvia"]
 const LOCALES := ["en", "zh-CN", "zh-HK", "ja", "ko"]
 
+var _scene_presentation := false
 var selected_friend := ""
 var rows: Array[Button] = []
 var transcript: ScrollContainer
@@ -63,17 +64,25 @@ func _on_resized() -> void:
 
 func configure(english: Font, simplified: Font, traditional: Font, text_percent: int = 100,
 		midnight: bool = false, day: int = 1, high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> bool:
+	return _configure_context(english, simplified, traditional, text_percent, midnight, day, high_contrast, colour_preset, font_style, false)
+
+func configure_scene(english: Font, simplified: Font, traditional: Font, text_percent: int = 100, midnight: bool = false, high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> bool:
+	return _configure_context(english, simplified, traditional, text_percent, midnight, null, high_contrast, colour_preset, font_style, true)
+
+func _configure_context(english: Font, simplified: Font, traditional: Font, text_percent: int = 100, midnight: bool = false, day: Variant = 1, high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel", scene: bool = false) -> bool:
+	if _scene_presentation and not scene: return false
 	if font_style not in ["pixel","readable"] or english == null or simplified == null or traditional == null or text_percent not in [100, 125, 150]:
 		return false
 	var palette: StringName = &"midnight" if midnight else &"after_hours"
-	var candidate := CONTACTS_THEME.build(english, 24 * text_percent / 100, palette, day, high_contrast, colour_preset)
+	var candidate := CONTACTS_THEME._build_context(english, 24 * text_percent / 100, palette, day, high_contrast, colour_preset, scene)
 	if candidate == null: return false
 	var anchor := _scroll_anchor()
 	_fonts = {"en": english, "zh-CN": simplified, "zh-HK": traditional,
 		"ja": TYPOGRAPHY.font("ja", text_percent, font_style), "ko": TYPOGRAPHY.font("ko", text_percent, font_style)}
 	font_size = 24 * text_percent / 100
+	_scene_presentation = scene
 	theme = candidate
-	_presentation = [palette, day, high_contrast, colour_preset]
+	_presentation = [palette, day, high_contrast, colour_preset, scene]
 	for label in find_children("*", "Label", true, false):
 		_style_label(label, label.get_meta("locale", "en"), label.get_meta("outgoing", false))
 	_apply_materials()
@@ -82,12 +91,20 @@ func configure(english: Font, simplified: Font, traditional: Font, text_percent:
 	return true
 
 func apply_presentation(palette: StringName, day: int, high_contrast: bool, colour_preset: String) -> bool:
+	return _apply_presentation_context(palette, day, high_contrast, colour_preset, false)
+
+func apply_scene_presentation(palette: StringName, high_contrast: bool, colour_preset: String) -> bool:
+	return _apply_presentation_context(palette, null, high_contrast, colour_preset, true)
+
+func _apply_presentation_context(palette: StringName, day: Variant, high_contrast: bool, colour_preset: String, scene: bool = false) -> bool:
+	if _scene_presentation and not scene: return false
 	if _fonts.is_empty(): return false
-	if _presentation == [palette, day, high_contrast, colour_preset]: return true
-	var candidate := CONTACTS_THEME.build(_fonts.en, font_size, palette, day, high_contrast, colour_preset)
+	if _presentation == [palette, day, high_contrast, colour_preset, scene]: return true
+	var candidate := CONTACTS_THEME._build_context(_fonts.en, font_size, palette, day, high_contrast, colour_preset, scene)
 	if candidate == null: return false
+	_scene_presentation = scene
 	theme = candidate
-	_presentation = [palette, day, high_contrast, colour_preset]
+	_presentation = [palette, day, high_contrast, colour_preset, scene]
 	# Retain geometry and the exact pending draw receipt; only materials change.
 	_apply_materials()
 	return true

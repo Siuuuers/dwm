@@ -174,6 +174,12 @@ func _ready() -> void:
 	if _port != null:
 		refresh_view()
 
+## The scene inspection discriminator/fields are owned by A's Backup port.
+## Refuse before touching the current view until that genuine projection is installed.
+func configure_scene_backup(_scene_port: Object, _scene_localization: Object = null,
+		_scene_profile: Object = null, _scene_palette: StringName = &"after_hours") -> Dictionary:
+	return {"ok": false, "code": &"scene_backup_projection_unavailable"}
+
 func configure_backup(port: Object, localization: Object = null, profile: Object = null,
 		palette: StringName = &"after_hours", day: int = 1) -> Dictionary:
 	for method in ["get_projection", "prepare_action", "commit_action", "cancel_action"]:
