@@ -16,7 +16,7 @@ var cards: Dictionary = {}
 var page_index := 0
 var page_capacity := 9
 var page_count := 2
-var selected_id := "coffee"
+var selected_id := "wine"
 var quantity := 1
 var _item_quantities: Dictionary = {}
 var previous_button: Button
@@ -673,7 +673,8 @@ func _refresh_supportz() -> void:
 	var admitted: bool = page_index == 0 and _provider != null and _provider.has_method("purchase") \
 		and _provider_can_purchase("supportz", 1).get("ok", false)
 	var card_height: float = 176.0 if cards.is_empty() else (cards.values()[0] as Control).size.y
-	_supportz_button.position = Vector2(304, 2 * (card_height + 8))
+	var slot := _index_of("supportz") % page_capacity
+	_supportz_button.position = Vector2((slot % 3) * 152, (slot / 3) * (card_height + 8))
 	_supportz_button.size = Vector2(144, card_height)
 	_supportz_button.disabled = not admitted
 	_supportz_button.focus_mode = Control.FOCUS_ALL if admitted else Control.FOCUS_NONE
@@ -945,3 +946,4 @@ func _draw_information() -> void:
 
 func _role(name: StringName) -> Color:
 	return _roles[name]
+

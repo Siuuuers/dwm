@@ -15,13 +15,6 @@ static func texture(item_id: String, size: int) -> Texture2D:
 	if size not in [28, 56]: return null
 	var strokes: Array = []
 	match item_id:
-		"coffee":
-			strokes = [
-				[7, 4, 14, 3, INK], [5, 7, 18, 3, INK], [7, 7, 14, 1, LIGHT],
-				[7, 10, 14, 11, INK], [8, 10, 12, 10, PAPER],
-				[8, 21, 12, 3, INK], [9, 20, 10, 3, PAPER],
-				[7, 13, 14, 6, WOOD], [9, 14, 10, 4, SAND], [10, 14, 1, 4, LIGHT],
-			]
 		"wine":
 			strokes = [
 				[11, 2, 6, 8, INK], [12, 3, 4, 3, ROSE], [12, 7, 4, 4, SAGE],
@@ -40,13 +33,6 @@ static func texture(item_id: String, size: int) -> Texture2D:
 				[13, 15, 3, 1, WOOD], [16, 13, 3, 1, WOOD], [19, 11, 2, 1, WOOD],
 				[9, 9, 1, 2, WOOD], [11, 11, 1, 2, WOOD], [13, 13, 1, 2, WOOD],
 				[15, 15, 1, 2, WOOD], [15, 8, 1, 2, WOOD], [17, 10, 1, 2, WOOD],
-			]
-		"bandage_pack":
-			strokes = [
-				[4, 4, 15, 19, INK], [5, 5, 13, 17, PAPER],
-				[5, 5, 13, 3, SLATE], [7, 10, 8, 1, WOOD], [7, 12, 5, 1, WOOD],
-				[11, 15, 14, 7, INK], [12, 16, 12, 5, SAND],
-				[16, 17, 4, 3, LIGHT], [13, 18, 1, 1, WOOD], [22, 18, 1, 1, WOOD],
 			]
 		"quiet_tea":
 			strokes = [
@@ -85,30 +71,6 @@ static func texture(item_id: String, size: int) -> Texture2D:
 				[23, 9, 2, 2, PAPER], [23, 17, 2, 2, PAPER],
 				[7, 10, 9, 3, SAGE], [7, 16, 8, 1, WOOD], [7, 18, 6, 1, WOOD],
 				[19, 9, 1, 2, SAND], [19, 13, 1, 2, SAND], [19, 17, 1, 2, SAND],
-			]
-		"healthy_meal":
-			strokes = [
-				[8, 3, 12, 2, INK], [5, 5, 18, 3, INK], [3, 8, 22, 12, INK],
-				[5, 20, 18, 3, INK], [8, 23, 12, 2, INK],
-				[8, 5, 12, 18, PAPER], [5, 8, 18, 12, PAPER],
-				[7, 7, 14, 14, LIGHT], [7, 9, 6, 5, SAGE], [9, 7, 4, 2, SAGE],
-				[16, 9, 5, 7, SAND], [17, 10, 3, 1, WOOD], [17, 13, 3, 1, WOOD],
-				[10, 16, 5, 4, ROSE], [11, 16, 3, 1, SAND],
-			]
-		"protein_box":
-			strokes = [
-				[3, 5, 22, 18, INK], [4, 6, 20, 16, SLATE], [5, 7, 18, 14, PAPER],
-				[15, 7, 1, 14, INK], [16, 14, 7, 1, INK],
-				[7, 9, 6, 9, SAND], [8, 10, 1, 7, WOOD], [11, 10, 1, 7, WOOD],
-				[18, 9, 3, 3, LIGHT], [17, 17, 5, 3, SAGE], [5, 21, 18, 1, INK],
-			]
-		"pep_note":
-			strokes = [
-				[5, 3, 14, 22, INK], [19, 7, 4, 18, INK], [19, 5, 2, 2, INK],
-				[6, 4, 12, 20, PAPER], [18, 9, 4, 15, PAPER],
-				[18, 4, 1, 5, WOOD], [19, 7, 2, 1, LIGHT], [18, 8, 4, 1, WOOD],
-				[9, 11, 10, 1, SLATE], [9, 14, 8, 1, SLATE], [9, 17, 10, 1, SLATE],
-				[15, 21, 4, 1, ROSE],
 			]
 		"premium_care":
 			strokes = [
@@ -170,3 +132,4 @@ static func texture(item_id: String, size: int) -> Texture2D:
 		image.fill_rect(Rect2i(stroke[0] * step, stroke[1] * step,
 			stroke[2] * step, stroke[3] * step), stroke[4])
 	return ImageTexture.create_from_image(image)
+

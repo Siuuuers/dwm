@@ -67,6 +67,35 @@ var _command_receipts: Dictionary = {}
 var _terminal_receipts: Dictionary = {}
 # Recomputed at mutation/restore boundaries; idle reads do not hash the board.
 var _settled_inspection := false
+# Explicit Run9 admission. Legacy owners retain their separately admitted contract.
+# A configures the actual retained issuer before scene restore or live commands.
+var _scene_payment_issuer: Object = null
+
+const _PAYMENT_KEYS: Array[String] = [
+	"receipt_id", "receipt_provenance", "transaction_id", "transaction_issuer_receipt",
+	"identity", "difficulty_id", "first_cell", "board_revision", "rounds_before", "rounds_after",
+	"layout_sha256", "proof_sha256", "checkpoint_id",
+]
+
+
+func configure_scene_payments(issuer: Object) -> Dictionary:
+	if issuer == null or not issuer.has_method(&"verify_issued") or not issuer.has_method(&"validate_child"):
+		return _fail(&"scene_payment_issuer_required", "", {})
+	if _scene_payment_issuer != null and _scene_payment_issuer != issuer:
+		return _fail(&"scene_payment_issuer_already_configured", "", {})
+	# Configure before installing data; never bless an already installed legacy board.
+	if _scene_payment_issuer == null and (_phase != _PHASE_NONE or _revision != 0 \
+			or _identity != null or _candidate != null or _board != null or _settlement != null \
+			or not _command_receipts.is_empty() or not _terminal_receipts.is_empty()):
+		return _fail(&"scene_payment_configuration_requires_empty_state", "", {})
+	_scene_payment_issuer = issuer
+	return {"ok": true}
+
+
+func prepare_restore_scene(snapshot: Dictionary, issuer: Object) -> Dictionary:
+	var configured := configure_scene_payments(issuer)
+	if not configured.ok: return configured
+	return prepare_restore(snapshot)
 
 
 func _init() -> void:
@@ -131,6 +160,9 @@ func prepare_restore(snapshot: Dictionary) -> Dictionary:
 		return _fail(&"snapshot_field_invalid", "command_receipts must be a dictionary", {"field": "command_receipts"})
 	if typeof(snapshot["terminal_receipts"]) != TYPE_DICTIONARY:
 		return _fail(&"snapshot_field_invalid", "terminal_receipts must be a dictionary", {"field": "terminal_receipts"})
+	if _scene_payment_issuer != null:
+		var payments := _validate_scene_payments(snapshot)
+		if not payments.ok: return payments
 	return {"ok": true, "code": &"ok", "value": {"candidate": {
 		"kind": &"restore", "snapshot_after": snapshot.duplicate(true),
 	}}, "receipt": {}}
@@ -295,6 +327,12 @@ func prepare_first_reveal(input: Dictionary, materialized: Dictionary,
 
 	if _candidate is Dictionary and _candidate.has("paid_start_receipt") and paid_start_receipt != _candidate.paid_start_receipt:
 		return _fail(&"paid_start_receipt_mismatch", "", {})
+	if _scene_payment_issuer != null and not (_candidate is Dictionary and _candidate.has("paid_start_receipt")):
+		if not _same_typed(paid_start_receipt.get("transaction_id"), input.transaction_id):
+			return _fail(&"paid_start_transaction_mismatch", "", {})
+		var expected_proof: Variant = _candidate.get("proof_sha256") if _phase == _PHASE_PREPARED_UNSTARTED else null
+		if not _same_typed(paid_start_receipt.get("proof_sha256"), expected_proof):
+			return _fail(&"paid_start_proof_mismatch", "", {})
 	var board_after := {"board": board, "paid_start_receipt": paid_start_receipt.duplicate(true)}
 	if _phase == _PHASE_PAID or (_candidate is Dictionary and _candidate.has("paid_start_receipt")):
 		board_after["spec"] = spec.duplicate(true)
@@ -382,6 +420,9 @@ func commit(candidate: Dictionary) -> Dictionary:
 		if not candidate.has("snapshot_after") or typeof(candidate["snapshot_after"]) != TYPE_DICTIONARY:
 			return _fail(&"invalid_candidate", "restore candidate.snapshot_after is required", {})
 		var snapshot: Dictionary = candidate["snapshot_after"]
+		if _scene_payment_issuer != null:
+			var checked := prepare_restore(snapshot)
+			if not checked.ok: return checked
 		_phase = String(snapshot["phase"])
 		_revision = int(snapshot["revision"])
 		_identity = _dup_or_null(snapshot["identity"])
@@ -409,6 +450,11 @@ func commit(candidate: Dictionary) -> Dictionary:
 		return _fail(&"stale_revision",
 			"the candidate was prepared against a different revision than the current one",
 			{"expected": _revision, "candidate_pre_revision": candidate["pre_revision"]})
+	if _scene_payment_issuer != null:
+		if candidate.has("result_override") and not candidate.result_override is Dictionary:
+			return _fail(&"invalid_scene_board_result", "", {})
+		var checked := _validate_scene_payments(_scene_candidate_snapshot(candidate))
+		if not checked.ok: return checked
 
 	_phase = String(candidate["phase_after"])
 	_identity = _dup_or_null(candidate.get("identity_after"))
@@ -496,13 +542,17 @@ func _envelope(input: Dictionary, kind: StringName, phase_after: String, identit
 		var fp := _IDENTITY.fingerprint(identity_after)
 		if fp.get("ok", false):
 			identity_fp = str((fp["value"] as Dictionary)["fingerprint"])
-	return {"ok": true, "code": &"ok", "value": {"candidate": {
+	var prepared := {"ok": true, "code": &"ok", "value": {"candidate": {
 		"kind": kind, "transaction_id": str(input["transaction_id"]),
 		"request_fingerprint": str(input["request_fingerprint"]),
 		"identity_fingerprint": identity_fp, "pre_revision": _revision, "phase_after": phase_after,
 		"identity_after": _dup_or_null(identity_after), "candidate_after": _dup_or_null(candidate_after),
 		"board_after": _dup_or_null(board_after), "settlement_after": _dup_or_null(settlement_after),
 	}}, "receipt": {}}
+	if _scene_payment_issuer != null:
+		var checked := _validate_scene_payments(_scene_candidate_snapshot(prepared.value.candidate))
+		if not checked.ok: return checked
+	return prepared
 
 
 func _state_view() -> Dictionary:
@@ -711,3 +761,241 @@ static func _inspection_normalize(value: Variant) -> Variant:
 			for key: Variant in value: fields[key] = _inspection_normalize(value[key])
 			return fields
 	return value
+
+
+
+# Prospective state only; preparation and refused commits cannot mutate live data.
+func _scene_candidate_snapshot(candidate: Dictionary) -> Dictionary:
+	var projected := capture()
+	projected.phase = str(candidate.get("phase_after", ""))
+	projected.revision = _revision + 1
+	for slot: String in ["identity", "candidate", "board", "settlement"]:
+		projected[slot] = candidate.get(slot + "_after")
+	var result := {"ok": true, "code": &"ok", "value": {
+		"phase": projected.phase, "revision": projected.revision, "identity": projected.identity,
+		"candidate": projected.candidate, "board": projected.board, "settlement": projected.settlement}, "receipt": {}}
+	if candidate.has("result_override"):
+		result = candidate.result_override
+	projected.command_receipts[str(candidate.get("transaction_id", ""))] = {
+		"request_fingerprint": candidate.get("request_fingerprint"),
+		"identity_fingerprint": candidate.get("identity_fingerprint"),
+		"pre_revision": candidate.get("pre_revision"), "post_revision": projected.revision,
+		"command_kind": str(candidate.get("kind", "")), "result": result}
+	return projected
+
+
+func _validate_scene_payments(snapshot: Dictionary) -> Dictionary:
+	if not _PHASES.has(snapshot.get("phase")):
+		return _fail(&"invalid_scene_payment_phase", "", {})
+	var slots := _validate_phase_invariants(snapshot.phase, snapshot.get("identity"),
+		snapshot.get("candidate"), snapshot.get("board"), snapshot.get("settlement"))
+	if not slots.ok: return slots
+	# First-Reveal records are never compacted. Their receipt is the payment anchor;
+	# command-map keys and current identities may have been remapped by authenticated Load.
+	var anchors: Dictionary = {}
+	var retained: Array[Dictionary] = []
+	for entry: Variant in snapshot.command_receipts.values():
+		if not entry is Dictionary or not entry.get("result") is Dictionary:
+			return _fail(&"invalid_scene_board_result", "", {})
+		var result: Dictionary = entry.result
+		if str(result.get("code", "")) == "first_reveal_committed":
+			if str(entry.get("command_kind", "")) != "first_reveal" \
+					or not _exact_keys(result, ["ok", "code", "value", "receipt"], &"invalid_paid_result").ok \
+					or typeof(result.ok) != TYPE_BOOL or not result.ok or not result.value is Dictionary \
+					or not _exact_keys(result.value, ["receipt", "publication"], &"invalid_paid_result").ok \
+					or not result.receipt is Dictionary or not result.receipt.is_empty() \
+					or not result.value.receipt is Dictionary or not result.value.publication is Dictionary:
+				return _fail(&"invalid_paid_result", "", {})
+			var payment: Dictionary = result.value.receipt
+			var checked := _validate_payment(payment, true)
+			if not checked.ok: return checked
+			var publication: Dictionary = result.value.publication
+			if not _exact_keys(publication, ["transaction_id", "receipt"], &"invalid_paid_publication").ok \
+					or not _same_typed(publication.transaction_id, payment.transaction_id) \
+					or not _same_typed(publication.receipt, payment):
+				return _fail(&"invalid_paid_publication", "", {})
+			if anchors.has(payment.receipt_id) and not _same_typed(anchors[payment.receipt_id], payment):
+				return _fail(&"conflicting_payment_anchor", "", {})
+			anchors[payment.receipt_id] = payment
+			continue
+		var acknowledgement_kinds := {"board_configuration_committed": ["shell", "replace_board", "dismiss_inspection"],
+			"shell_flag_committed": ["shell"], "paid_reveal_committed": ["first_reveal"]}
+		var code := str(result.get("code", ""))
+		if acknowledgement_kinds.has(code):
+			if not str(entry.get("command_kind", "")) in acknowledgement_kinds[code] \
+					or not _exact_keys(result, ["ok", "code", "value"], &"invalid_board_acknowledgement").ok \
+					or typeof(result.ok) != TYPE_BOOL or not result.ok or not result.value is Dictionary \
+					or not _exact_keys(result.value, ["revision"], &"invalid_board_acknowledgement").ok \
+					or typeof(result.value.revision) != TYPE_INT or result.value.revision < 1:
+				return _fail(&"invalid_board_acknowledgement", "", {})
+			continue
+		if str(result.get("code", "")) == "board_command_already_applied":
+			if not _exact_keys(result, ["ok", "code", "value", "receipt"], &"invalid_compacted_board_result").ok \
+					or typeof(result.ok) != TYPE_BOOL or not result.ok or not result.value is Dictionary \
+					or not _exact_keys(result.value, ["already_applied", "revision"], &"invalid_compacted_board_result").ok \
+					or typeof(result.value.already_applied) != TYPE_BOOL or not result.value.already_applied \
+					or typeof(result.value.revision) != TYPE_INT or result.value.revision < 0 \
+					or not result.receipt is Dictionary or not result.receipt.is_empty():
+				return _fail(&"invalid_compacted_board_result", "", {})
+			continue
+		# Composer retains a direct state view; the board owner retains its result envelope.
+		var view: Dictionary = result
+		if result.has("value"):
+			if not _exact_keys(result, ["ok", "code", "value", "receipt"], &"invalid_scene_board_result").ok \
+					or typeof(result.ok) != TYPE_BOOL or not result.ok or not result.value is Dictionary \
+					or not result.receipt is Dictionary or not result.receipt.is_empty():
+				return _fail(&"invalid_scene_board_result", "", {})
+			view = result.value
+		if not _exact_keys(view, ["phase", "revision", "identity", "candidate", "board", "settlement"], &"invalid_scene_board_result").ok:
+			return _fail(&"invalid_scene_board_result", "", {})
+		retained.append(view)
+		if str(entry.get("command_kind", "")) == "first_reveal" and view.get("board") is Dictionary \
+				and not view.board.has("spec"):
+			var wrapper: Dictionary = view.board
+			if not wrapper.get("paid_start_receipt") is Dictionary: return _fail(&"invalid_paid_start_receipt", "", {})
+			var payment: Dictionary = wrapper.paid_start_receipt
+			var checked := _validate_payment(payment, true)
+			if not checked.ok: return checked
+			checked = _validate_original_payment_board(wrapper, view.identity, payment)
+			if not checked.ok: return checked
+			var id: String = payment.receipt_id
+			if anchors.has(id) and not _same_typed(anchors[id], payment):
+				return _fail(&"conflicting_payment_anchor", "", {})
+			anchors[id] = payment
+	for view: Dictionary in retained:
+		var checked := _validate_payment_slots(view, anchors, true)
+		if not checked.ok: return checked
+	return _validate_payment_slots(snapshot, anchors, false)
+
+
+func _validate_payment_slots(view: Dictionary, anchors: Dictionary, historical: bool) -> Dictionary:
+	if not _PHASES.has(view.get("phase")):
+		return _fail(&"invalid_scene_payment_phase", "", {})
+	var invariant := _validate_phase_invariants(view.phase, view.get("identity"), view.get("candidate"), view.get("board"), view.get("settlement"))
+	if not invariant.ok: return invariant
+	for key: String in ["candidate", "board"]:
+		var slot: Variant = view.get(key)
+		if slot == null: continue
+		if not slot is Dictionary: return _fail(&"invalid_scene_payment_slot", "", {})
+		var required: bool = key == "board" or view.phase == _PHASE_PAID
+		if not historical and key == "candidate" and view.get("identity") is Dictionary:
+			for payment: Dictionary in anchors.values():
+				if _same_typed(view.identity.get("run_id"), payment.identity.run_id) \
+						and _same_typed(view.identity.get("app_round_ordinal"), payment.identity.app_round_ordinal): required = true
+		if not slot.has("paid_start_receipt"):
+			if required: return _fail(&"paid_start_receipt_required", "", {})
+			continue
+		if not slot.paid_start_receipt is Dictionary: return _fail(&"invalid_paid_start_receipt", "", {})
+		var payment: Dictionary = slot.paid_start_receipt
+		var valid := _validate_payment(payment, historical)
+		if not valid.ok: return valid
+		if not anchors.has(payment.receipt_id) or not _same_typed(anchors[payment.receipt_id], payment):
+			return _fail(&"payment_anchor_missing_or_changed", "", {})
+		if not view.get("identity") is Dictionary or not _IDENTITY.validate(view.identity).ok \
+				or not _same_typed(view.identity.run_id, payment.identity.run_id) \
+				or not _same_typed(view.identity.app_round_ordinal, payment.identity.app_round_ordinal):
+			return _fail(&"payment_identity_mismatch", "", {})
+		if key == "board":
+			var expected: Array = ["board", "paid_start_receipt", "spec"] if slot.has("spec") else ["board", "paid_start_receipt"]
+			if not _exact_keys(slot, expected, &"invalid_paid_board_wrapper").ok or not slot.get("board") is Dictionary \
+					or not _BOARD_SCHEMA.validate_board(slot.board).ok:
+				return _fail(&"invalid_paid_board_wrapper", "", {})
+			# Only an explicit replacement spec permits a layout different from the anchor.
+			if not slot.has("spec"):
+				if _payment_layout_hash(slot.board) != payment.layout_sha256 \
+						or slot.board.revision < payment.board_revision or not slot.board.revealed_indices.has(payment.first_cell):
+					return _fail(&"payment_layout_mismatch", "", {})
+		if slot.has("spec"):
+			if not slot.spec is Dictionary or not _BOARD_SCHEMA.validate_spec(slot.spec).ok or slot.spec.board_kind != "desktop":
+				return _fail(&"invalid_payment_spec", "", {})
+			if key == "board" and (slot.board.width != slot.spec.width or slot.board.height != slot.spec.height):
+				return _fail(&"replacement_board_spec_mismatch", "", {})
+	return {"ok": true}
+
+
+func _validate_payment(payment: Dictionary, historical: bool) -> Dictionary:
+	var keys: Array[String] = _PAYMENT_KEYS.duplicate()
+	var legacy: bool = historical and payment.has("motivation_before")
+	if legacy: keys.append_array(["motivation_before", "motivation_after"])
+	if not _exact_keys(payment, keys, &"invalid_paid_start_receipt").ok:
+		return _fail(&"invalid_paid_start_receipt", "unexpected current or historical payment keys", {})
+	for key: String in ["receipt_id", "transaction_id", "difficulty_id", "layout_sha256", "checkpoint_id"]:
+		if typeof(payment[key]) != TYPE_STRING or payment[key].is_empty(): return _fail(&"invalid_paid_start_receipt", key, {})
+	for key: String in ["first_cell", "board_revision", "rounds_before", "rounds_after"]:
+		if typeof(payment[key]) != TYPE_INT: return _fail(&"invalid_paid_start_receipt", key, {})
+	if payment.first_cell < 0 or payment.board_revision < 0 or payment.rounds_before - 1 != payment.rounds_after:
+		return _fail(&"invalid_payment_debit", "", {})
+	var dimensions := _CATALOG.lookup("desktop_app", payment.difficulty_id)
+	if not dimensions.ok or payment.first_cell >= int(dimensions.value.width) * int(dimensions.value.height):
+		return _fail(&"invalid_payment_cell", "", {})
+	if legacy and (typeof(payment.motivation_before) != TYPE_INT or typeof(payment.motivation_after) != TYPE_INT \
+			or payment.motivation_before < 1 or payment.motivation_after != payment.motivation_before - 1):
+		return _fail(&"invalid_historical_payment_debit", "", {})
+	if not _sha256(payment.layout_sha256) or (payment.proof_sha256 != null and not _sha256(payment.proof_sha256)):
+		return _fail(&"invalid_payment_digest", "", {})
+	if not payment.identity is Dictionary or not _IDENTITY.validate(payment.identity).ok \
+			or not payment.transaction_issuer_receipt is Dictionary or not payment.receipt_provenance is Dictionary:
+		return _fail(&"invalid_payment_provenance", "", {})
+	var issued: Dictionary = _scene_payment_issuer.verify_issued(payment.transaction_issuer_receipt, &"transaction_id")
+	if not issued.get("ok", false): return issued
+	var provenance: Dictionary = payment.receipt_provenance
+	if typeof(provenance.get("schema_version")) != TYPE_INT or typeof(provenance.get("ordinal")) != TYPE_INT:
+		return _fail(&"invalid_payment_provenance", "", {})
+	var child: Dictionary = _scene_payment_issuer.validate_child(provenance, &"board_start")
+	if not child.get("ok", false): return child
+	if not _same_typed(payment.transaction_issuer_receipt.get("token"), payment.transaction_id) \
+			or not _same_typed(provenance.get("parent_receipt_id"), payment.transaction_issuer_receipt.get("receipt_id")) \
+			or not _same_typed(provenance.get("ordinal"), 0) \
+			or not _same_typed(provenance.get("source_ids"), [payment.transaction_id]) \
+			or not _same_typed(provenance.get("child_id"), payment.receipt_id):
+		return _fail(&"invalid_payment_provenance", "", {})
+	return {"ok": true}
+
+
+func _validate_original_payment_board(wrapper: Dictionary, identity: Variant, payment: Dictionary) -> Dictionary:
+	if not _exact_keys(wrapper, ["board", "paid_start_receipt"], &"invalid_original_payment_board").ok \
+			or not wrapper.get("board") is Dictionary or not _BOARD_SCHEMA.validate_board(wrapper.board).ok:
+		return _fail(&"invalid_original_payment_board", "", {})
+	var board: Dictionary = wrapper.board
+	var dimensions := _CATALOG.lookup("desktop_app", payment.difficulty_id)
+	if not dimensions.ok: return dimensions
+	if not _same_typed(identity, payment.identity) or board.width != dimensions.value.width or board.height != dimensions.value.height \
+			or payment.first_cell >= board.width * board.height or not board.revealed_indices.has(payment.first_cell) \
+			or board.mine_indices.has(payment.first_cell) or board.revision != payment.board_revision \
+			or _payment_layout_hash(board) != payment.layout_sha256:
+		return _fail(&"original_payment_board_mismatch", "", {})
+	return {"ok": true}
+
+
+static func _payment_layout_hash(board: Dictionary) -> String:
+	# Match the original producer's member order; never reseal historical receipts.
+	return JSON.stringify({"schema_version": 1, "width": board.width, "height": board.height,
+		"mine_indices": board.mine_indices, "mine_count": board.mine_count}).sha256_text()
+
+
+static func _sha256(value: Variant) -> bool:
+	if typeof(value) != TYPE_STRING or value.length() != 64: return false
+	for character: String in value:
+		if not character in "0123456789abcdef": return false
+	return true
+
+
+static func _same_typed(left: Variant, right: Variant) -> bool:
+	if typeof(left) != typeof(right): return false
+	if left is Dictionary:
+		if left.size() != right.size(): return false
+		for key: Variant in left:
+			if not right.has(key) or not _same_typed(left[key], right[key]): return false
+			var matching_key_type := false
+			for other: Variant in right:
+				if typeof(key) == typeof(other) and key == other:
+					matching_key_type = true
+					break
+			if not matching_key_type: return false
+		return true
+	if left is Array:
+		if left.size() != right.size(): return false
+		for index: int in left.size():
+			if not _same_typed(left[index], right[index]): return false
+		return true
+	return left == right
