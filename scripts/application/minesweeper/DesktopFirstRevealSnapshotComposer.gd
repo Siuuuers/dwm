@@ -14,7 +14,7 @@ extends RefCounted
 ## `{lifecycle, gameplay, contacts, committed_schedule, desktop, dating, applied_effect_transaction_
 ## ids, applied_variable_transaction_ids}`-shaped dict, captured via GameState.capture_run_snapshot_
 ## input() BEFORE first Reveal prepares anything. `compose()` returns that SAME shape with only
-## `gameplay.minesweeper_rounds_left`/`gameplay.motivation` (read off `game_state_candidate`) and
+## `gameplay.minesweeper_rounds_left` (read off `game_state_candidate`) and
 ## `desktop.board`/`desktop.consequence` (projected from `board_candidate`/`consequence_candidate`)
 ## overwritten -- everything else (contacts, committed_schedule, other gameplay fields) survives
 ## byte-for-byte, since first Reveal touches nothing else.
@@ -28,7 +28,7 @@ extends RefCounted
 ## `expected_run_revision` -- "matching consequence revision" (brief Step 6.10) rather than a content
 ## change.
 
-const _GAME_STATE_CANDIDATE_KEYS: Array[String] = ["transaction_id", "motivation", "rounds_left", "starts_today"]
+const _GAME_STATE_CANDIDATE_KEYS: Array[String] = ["transaction_id", "rounds_left", "starts_today"]
 const _BOARD_CANDIDATE_KEYS: Array[String] = [
 	"kind", "transaction_id", "request_fingerprint", "identity_fingerprint", "pre_revision",
 	"phase_after", "identity_after", "candidate_after", "board_after", "settlement_after",
@@ -79,9 +79,6 @@ static func compose(base_snapshot_input: Dictionary, game_state_candidate: Dicti
 	var gameplay: Dictionary = (composed["gameplay"] as Dictionary).duplicate(true)
 	if typeof(gameplay.get("stats")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_base_snapshot_input", "base_snapshot_input.gameplay.stats is required")
-	var stats: Dictionary = (gameplay["stats"] as Dictionary).duplicate(true)
-	stats["motivation"] = int(game_state_candidate["motivation"])
-	gameplay["stats"] = stats
 	gameplay["minesweeper_rounds_left"] = int(game_state_candidate["rounds_left"])
 	composed["gameplay"] = gameplay
 	var desktop: Dictionary = base_desktop.duplicate(true)
@@ -136,3 +133,4 @@ static func _exact_keys(value: Dictionary, expected: Array[String], code: String
 
 static func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": {}}
+

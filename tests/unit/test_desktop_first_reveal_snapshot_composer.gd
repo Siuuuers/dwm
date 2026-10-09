@@ -3,7 +3,7 @@ extends "res://addons/gut/test.gd"
 ## Representative, mutation-verified coverage of the core contract -- not the brief's full
 ## exhaustive crash-injection matrix, matching this task's own established precedent (see the
 ## task-6 report handoff). Proves: the composed post-commit snapshot_input carries the decremented
-## round/charged motivation and the materialized/revealed board (brief Step 6.10's own words), that
+## round without a stat charge and the materialized/revealed board (brief Step 6.10's own words), that
 ## desktop.consequence survives untouched when its run_revision agrees, and that every structural
 ## mismatch this composer is documented to catch fails closed before composing anything.
 
@@ -52,7 +52,7 @@ func _board_candidate(transaction_id: String = "tx-composer") -> Dictionary:
 	return (prepared["value"] as Dictionary)["candidate"]
 
 func _game_state_candidate(transaction_id: String = "tx-composer") -> Dictionary:
-	return {"transaction_id": transaction_id, "motivation": 6, "rounds_left": 4, "starts_today": {"day-composer": 1}}
+	return {"transaction_id": transaction_id, "rounds_left": 4, "starts_today": {"day-composer": 1}}
 
 func _empty_board_snapshot() -> Dictionary:
 	return BOARD_STATE.new().capture()
@@ -72,7 +72,7 @@ func _consequence(run_revision: int = 0) -> Dictionary:
 func _base_snapshot_input(run_revision: int = 0) -> Dictionary:
 	return {
 		"lifecycle": {"run_id": "run-composer", "day": 1},
-		"gameplay": {"stats": {"motivation": 7, "pressure": 3, "health": 6}, "minesweeper_rounds_left": 5},
+		"gameplay": {"stats": {"pressure": 3}, "minesweeper_rounds_left": 5},
 		"contacts": {}, "committed_schedule": {}, "dating": {},
 		"applied_effect_transaction_ids": [], "applied_variable_transaction_ids": [], "command_receipts": {},
 		"desktop": {"board": _empty_board_snapshot(), "consequence": _consequence(run_revision)},
@@ -82,13 +82,13 @@ func _consequence_candidate(run_revision: int = 0) -> Dictionary:
 	return {"expected_run_revision": run_revision}
 
 
-func test_compose_projects_decremented_round_charged_motivation_and_revealed_board() -> void:
+func test_compose_projects_decremented_round_without_stat_charge_and_revealed_board() -> void:
 	var composed: Dictionary = COMPOSER.compose(_base_snapshot_input(), _game_state_candidate(),
 		_board_candidate(), _consequence_candidate())
 	assert_true(composed.get("ok", false), JSON.stringify(composed))
 	var snapshot_input: Dictionary = (composed["value"] as Dictionary)["snapshot_input"]
 	assert_eq(int(snapshot_input["gameplay"]["minesweeper_rounds_left"]), 4, "the round is decremented")
-	assert_eq(int(snapshot_input["gameplay"]["stats"]["motivation"]), 6, "motivation is charged")
+	assert_eq(snapshot_input["gameplay"]["stats"], {"pressure": 3}, "first Reveal does not change or resurrect stats")
 	var board: Dictionary = snapshot_input["desktop"]["board"]
 	assert_eq(str(board["phase"]), "ACTIVE_VISIBLE", "the board is materialized/revealed")
 	assert_eq(int(board["revision"]), 1)
@@ -150,3 +150,16 @@ func test_compose_rejects_a_non_first_reveal_board_candidate() -> void:
 	var restore_candidate := {"kind": &"restore", "snapshot_after": _empty_board_snapshot()}
 	var composed: Dictionary = COMPOSER.compose(_base_snapshot_input(), _game_state_candidate(), restore_candidate, _consequence_candidate())
 	assert_false(composed.get("ok", true))
+
+
+
+func test_compose_refuses_retired_candidate_fields_without_mutating_input() -> void:
+	for stat_id: String in ["motivation", "health"]:
+		var base := _base_snapshot_input()
+		var before := base.duplicate(true)
+		var candidate := _game_state_candidate()
+		candidate[stat_id] = 1
+		var result: Dictionary = COMPOSER.compose(base, candidate, _board_candidate(), _consequence_candidate())
+		assert_false(result.get("ok", true))
+		assert_eq(result.code, &"invalid_game_state_candidate")
+		assert_eq(base, before)

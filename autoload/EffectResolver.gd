@@ -20,15 +20,10 @@ func _ready() -> void:
 
 
 func _build_fixed_effects() -> void:
-	# Pressure and health: +/- 1..4
+	# Pressure: +/- 1..4
 	for delta in [1, 2, 3, 4]:
 		_fixed_effects["pressure:+%d" % delta] = {"kind": "stat", "stat": "pressure", "delta": delta}
 		_fixed_effects["pressure:-%d" % delta] = {"kind": "stat", "stat": "pressure", "delta": -delta}
-		_fixed_effects["health:+%d" % delta] = {"kind": "stat", "stat": "health", "delta": delta}
-		_fixed_effects["health:-%d" % delta] = {"kind": "stat", "stat": "health", "delta": -delta}
-	# Motivation: +1 / -1 only
-	_fixed_effects["motivation:+1"] = {"kind": "stat", "stat": "motivation", "delta": 1}
-	_fixed_effects["motivation:-1"] = {"kind": "stat", "stat": "motivation", "delta": -1}
 	# Money positive
 	for amt in [1, 5, 6, 9, 10, 12, 20, 27, 30, 45, 54]:
 		_fixed_effects["money:+%d" % amt] = {"kind": "money", "delta": amt}
@@ -100,14 +95,19 @@ func resolve_effects(effect_ids: Array) -> Dictionary:
 
 
 ## Applies one already-resolved descriptor list onto an explicit target. Callers MUST have
-## validated through resolve_effects first; this performs no discovery of its own.
+## validated through resolve_effects first. Revalidate the complete batch before mutation so
+## forged or retired descriptors cannot partially apply a supported prefix.
 func apply_resolved_descriptors(target: Object, descriptors: Array) -> Dictionary:
 	if target == null:
 		return {"ok": false, "code": &"invalid_apply_target", "message": "target is required", "details": {}}
 	for descriptor in descriptors:
 		if typeof(descriptor) != TYPE_DICTIONARY or not (descriptor as Dictionary).has("effect_id"):
 			return {"ok": false, "code": &"invalid_descriptor", "message": str(descriptor), "details": {}}
-		_apply_single(target, str((descriptor as Dictionary)["effect_id"]))
+		var effect_id: Variant = (descriptor as Dictionary)["effect_id"]
+		if typeof(effect_id) != TYPE_STRING or not is_effect_known(effect_id):
+			return {"ok": false, "code": &"unknown_effect_id", "message": str(effect_id), "details": {}}
+	for descriptor in descriptors:
+		_apply_single(target, _normalize(str((descriptor as Dictionary)["effect_id"])))
 	return {"ok": true, "code": &"ok", "value": {"applied": descriptors.size()}, "receipt": {}}
 
 
@@ -162,3 +162,4 @@ func _apply_single(gs: Node, id: String) -> void:
 func _signed(token: String) -> int:
 	# Parse "+2" / "-1" / "+1" into an int.
 	return int(token)
+
