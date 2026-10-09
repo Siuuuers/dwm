@@ -92,9 +92,17 @@ func before_each() -> void:
 	add_child(_viewport)
 	var layout: Node = _runtime.Styles.load_style("res://dialogic/styles/witnessed_caption_style.tres", _viewport)
 	assert_not_null(layout)
+	# Installed Styles.create_layout defers parent.add_child. Returned layers
+	# exist before their @onready controls do; await the actual mount, not a
+	# guessed frame count, before touching caption input or presentation nodes.
+	if not layout.is_node_ready(): await layout.ready
+	assert_true(layout.is_inside_tree())
 	for layer: Node in layout.get_layers():
 		if layer.get_script().resource_path == "res://scripts/ui/witnessed/WitnessedCaptionLayer.gd": _caption = layer
 	assert_not_null(_caption)
+	assert_true(_caption.is_node_ready())
+	assert_not_null(_caption.accept_input)
+	assert_not_null(_caption.transport_rail)
 	_adapter = ADAPTER.new()
 	assert_true(_adapter.bind_runtime(_runtime).ok)
 	_adapter.caption_publication_recorded.connect(func(result: Dictionary) -> void: _publications.append(result.duplicate(true)))
@@ -265,7 +273,7 @@ func test_mounted_log_is_read_only_across_real_challenge_owner_boundaries() -> v
 
 func after_each() -> void:
 	assert_eq(get_node("/root/ProfileManager").get_profile_snapshot(), _profile_before)
-	_challenge.dispose()
+	if _challenge != null: _challenge.dispose()
 	for text_node: Node in get_tree().get_nodes_in_group("dialogic_dialog_text"): text_node.set_process(false)
 	if is_instance_valid(_runtime):
 		_runtime.paused = false
