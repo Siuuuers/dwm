@@ -140,6 +140,8 @@ static func validate(snapshot: Dictionary) -> Dictionary:
 	var version: Variant = snapshot.get("schema_version")
 	if typeof(version) == TYPE_FLOAT and is_finite(version) and version == floorf(version): version = int(version)
 	if version == SCENE_SCHEMA_VERSION:
+		var run_join := _validate_scene_history_run(snapshot.get("command_receipts"), snapshot.get("run_id"))
+		if not run_join.is_empty(): return _fail(&"scene_receipt_run_changed", run_join)
 		var selected: Dictionary = SCENE_MANIFEST.scene_registration()
 		if not selected.ok: return selected
 		return validate_scene(snapshot, selected.value)
@@ -646,6 +648,8 @@ static func build_scene(snapshot_input: Dictionary, dialogic_checkpoint: Diction
 	return {"ok": true, "code": &"ok", "value": {"snapshot": checked.value.candidate}}
 
 static func validate_scene(snapshot: Dictionary, bundle: Dictionary) -> Dictionary:
+	var run_join := _validate_scene_history_run(snapshot.get("command_receipts"), snapshot.get("run_id"))
+	if not run_join.is_empty(): return _fail(&"scene_receipt_run_changed", run_join)
 	if not is_instance_valid(_scene_issuer) or not is_instance_valid(_scene_authority) or _scene_semantic_busy:
 		return _fail(&"scene_validation_unavailable", "scene semantic owner unavailable or reentrant")
 	var selected: Dictionary = SCENE_MANIFEST.scene_registration()
@@ -749,6 +753,10 @@ static func _validate_scene_reading(candidate: Dictionary) -> Dictionary:
 ## captured input without inventing a narrative checkpoint. Full save admission
 ## still additionally requires validate_scene's reading and semantic checks.
 static func validate_scene_input_fields(input: Dictionary, bundle: Dictionary) -> Dictionary:
+	var lifecycle_input: Variant = input.get("lifecycle")
+	if lifecycle_input is Dictionary:
+		var run_join := _validate_scene_history_run(input.get("command_receipts"), lifecycle_input.get("run_id"))
+		if not run_join.is_empty(): return _fail(&"scene_receipt_run_changed", run_join)
 	if not is_instance_valid(_scene_issuer): return _fail(&"scene_validation_unavailable", "issuer unavailable")
 	if not _scene_keys(input, SCENE_INPUT_KEYS): return _fail(&"invalid_snapshot_input", "incomplete scene capture")
 	var primitive := validate_primitive_tree(input)
@@ -786,6 +794,26 @@ static func validate_scene_input_fields(input: Dictionary, bundle: Dictionary) -
 	var scene_receipts: Dictionary = SCENE_EVENT_CONTRACT.validate_scene_receipts(input.command_receipts, bundle, _scene_issuer)
 	if not scene_receipts.ok: return scene_receipts
 	return {"ok": true}
+
+## Historical receipts keep their original branch/generation. Only the Run is
+## invariant across the entire retained command ledger, including unused rows.
+static func _validate_scene_history_run(receipts: Variant, run_id: Variant) -> String:
+	if not receipts is Dictionary or not _scene_id(run_id): return ""
+	for id: Variant in receipts:
+		var receipt: Variant = receipts[id]
+		if not receipt is Dictionary: continue # Exact shapes are checked below.
+		var source: Variant = null
+		if receipt.get("kind") == "scene_admission":
+			var admission: Variant = receipt.get("scene_admission")
+			if admission is Dictionary: source = admission.get("source_identity")
+		elif receipt.get("kind") == "scene_event":
+			var event: Variant = receipt.get("scene_event")
+			if event is Dictionary and event.get("semantic") is Dictionary:
+				source = event.semantic.get("source")
+		else: continue
+		if not source is Dictionary or source.get("run_id") != run_id:
+			return "scene receipt %s belongs to another or missing Run" % str(id)
+	return ""
 
 static func _validate_scene_receipt_shapes(snapshot: Dictionary) -> String:
 	for id: Variant in snapshot.command_receipts:

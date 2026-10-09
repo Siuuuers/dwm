@@ -2770,6 +2770,10 @@ func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Varian
 	var found: Dictionary = _continuation_journal.get_operation(operation_id)
 	if not found.get("ok", false): return found
 	var committed: bool = _scene_activation_pending(found.value)
+	# Every owner must be reconstructed in a fresh process, but its historical
+	# receipt prefix is already durable. In particular, a new live route generation
+	# must never replace or be compared as a replay of the old process's receipt.
+	var recorded_participants: int = found.value.next_participant_index
 	var activation := _prepare_live_session_activation(plans, operation_id)
 	if not activation.get("ok", false):
 		return _scene_restore_early_failure(activation, committed, gate_token)
@@ -2812,7 +2816,7 @@ func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Varian
 				operation_id, remap.identity_allocation_bundle, remap.source_identity)
 			if not remapped.get("ok", false):
 				return _scene_restore_prepare_failure(remapped, committed, applied, backups, gate_token, operation_id, journal_backup)
-		if not already_applied:
+		if not already_applied and index >= recorded_participants:
 			var advanced := _advance_scene_restore(continuation, CONTINUATION_JOURNAL.STAGE_APPLYING,
 				CONTINUATION_JOURNAL.STAGE_APPLYING, index, key, result.get("value", {}))
 			if not advanced.get("ok", false):
