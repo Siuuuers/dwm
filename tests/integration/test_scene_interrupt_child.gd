@@ -30,6 +30,26 @@ func interrupt_selected_load() -> void:
 	assert_true(activated.ok, str(activated))
 	if not activated.ok: return
 	assert_eq(fixture.ready_count, 1)
+	if point == "completed":
+		# This is a live selected Load: the real source must be suspended before the
+		# restore participant may replace it, as the production Pause caller requires.
+		# The test owns only the transient handle, never a fabricated native frontier.
+		var bound: Dictionary = fixture.bridge.configure_mutation_gate(fixture.gate)
+		assert_true(bound.ok, str(bound))
+		if not bound.ok: return
+		var handle := {"generation": 1, "handle_id": "scene-interruption-test-pause",
+			"holder": &"scene_interruption_test", "reason": &"universal_pause"}
+		var suspended: Dictionary = fixture.bridge.begin_suspend(handle)
+		assert_true(suspended.ok, str(suspended))
+		if not suspended.ok: return
+		var suspension: Dictionary = fixture.bridge.get_state()
+		assert_true(suspension.ok, str(suspension))
+		if not suspension.ok: return
+		assert_eq(suspension.value.state, &"Suspended")
+		var pause_restore: Dictionary = fixture.bridge.begin_pause_restore(handle)
+		assert_true(pause_restore.ok, str(pause_restore))
+		if not pause_restore.ok: return
+		assert_true(fixture.bridge.is_pause_restore_pending())
 	var document: Dictionary = fixture.read_autosave()
 	assert_true(document.ok, str(document))
 	if not document.ok: return
