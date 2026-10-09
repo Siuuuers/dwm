@@ -23,21 +23,21 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 3076d1d156d677b2f21970bdfc315b85a21c3081
+          ref: 109309cc0770760ee53c15389659430dbb767a9b
           fetch-depth: 0
           persist-credentials: true
       - name: Verify and record immutable source before import
         run: |
           $ErrorActionPreference = 'Stop'
           $source = (git rev-parse HEAD).Trim()
-          if ($LASTEXITCODE -ne 0 -or $source -cne '3076d1d156d677b2f21970bdfc315b85a21c3081') { throw 'Wrong source commit.' }
+          if ($LASTEXITCODE -ne 0 -or $source -cne '109309cc0770760ee53c15389659430dbb767a9b') { throw 'Wrong source commit.' }
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($LASTEXITCODE -ne 0 -or $tree -cne '9b535d4c4cd5e4008bd19d3a080ff3bda5ac7200') { throw 'Wrong source tree.' }
+          if ($LASTEXITCODE -ne 0 -or $tree -cne 'b66fb81a6b91bdeea6add418d8ce0c8247634ff0') { throw 'Wrong source tree.' }
 
-          $parent = '0b7865dbd8e4d914b7b6c7d1b4e6a8f09fe01166'
+          $parent = '3076d1d156d677b2f21970bdfc315b85a21c3081'
           $parents = @((git rev-list --parents -n 1 HEAD).Trim().Split(' '))
           if ($LASTEXITCODE -ne 0 -or $parents.Count -ne 2 -or $parents[1] -cne $parent) { throw 'Wrong integration parent.' }
-          $expected = @('tests/integration/test_scene_joint_new_run.gd')
+          $expected = @('autoload/SaveManager.gd', 'autoload/ProfileManager.gd', 'tests/integration/test_scene_joint_new_run.gd', 'tests/support/SceneNewRunFixture.gd')
           $delta = @(git diff --name-only $parent HEAD)
           if ((@($delta | Sort-Object -CaseSensitive) -join "`n") -cne (@($expected | Sort-Object -CaseSensitive) -join "`n")) { throw 'Wrong integration path set.' }
           $files = @()

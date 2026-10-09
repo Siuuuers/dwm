@@ -121,7 +121,7 @@ func setup(scene_tree: SceneTree) -> Dictionary:
 	if checked.ok: checked = RUN.configure_scene_validation(issuer, game, manager)
 	return checked
 
-func start(nonce: int = 0) -> Dictionary:
+func start(nonce: Variant = null) -> Dictionary:
 	return manager.start_scene_new_run("target_b", {"audio_context": {}, "content_version": 1, "route_id": "scene"}, nonce)
 
 func confirm_activation() -> void:

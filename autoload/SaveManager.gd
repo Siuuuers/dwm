@@ -556,8 +556,13 @@ func _prepare_scene_new_run_decision(target_id: String, initial_context: Diction
 		"existing_run_id": null, "source_desktop_timeline_generation": null, "remap_source_transaction_ids": []})
 	if not allocated.get("ok", false): return allocated
 	var allocation: Dictionary = allocated.value
+	var frozen_nonce: Variant = rng_nonce
+	if chronology.value.fresh and frozen_nonce == null:
+		var entropy: PackedByteArray = Crypto.new().generate_random_bytes(4)
+		if entropy.size() != 4: return _fail(&"scene_assignment_entropy_unavailable", "")
+		frozen_nonce = entropy.decode_u32(0)
 	var assigned: Dictionary = _new_run_profile_owner.prepare_scene_new_run_consumption(
-		_new_run_profile_owner.get_profile_revision(), allocation.run_id, transaction_id, rng_nonce)
+		_new_run_profile_owner.get_profile_revision(), allocation.run_id, transaction_id, frozen_nonce)
 	if not assigned.get("ok", false): return assigned
 	var profile: Dictionary = assigned.value
 	var reading: Dictionary = _scene_new_run_bridge.prepare_scene_initial_checkpoint(allocation, profile, target_id, _identity_issuer)
@@ -3201,7 +3206,7 @@ func _validate_scene_creation_chronology() -> Dictionary:
 	if not validated.get("ok", false): return validated
 	if chronology.value.is_empty():
 		if not draws.is_empty(): return _fail(&"creation_history_unproven", "Profile draws lack successful creation history")
-		return {"ok": true}
+		return {"ok": true, "value": {"fresh": true}}
 	var latest: Dictionary = chronology.value[-1]
 	if latest.kind != "scene_new_run":
 		return _fail(&"scene_assignment_legacy_boundary_required", "latest successful legacy creation has no scene assignment")
@@ -3225,4 +3230,4 @@ func _validate_scene_creation_chronology() -> Dictionary:
 		scene_count += 1
 	if validated.value.scene_count != scene_count or validated.value.tail_run_id != previous_run:
 		return _fail(&"creation_history_unproven", "assignment tail differs from successful creations")
-	return {"ok": true}
+	return {"ok": true, "value": {"fresh": false}}
