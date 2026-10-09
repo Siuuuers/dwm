@@ -22,6 +22,17 @@ class Native extends RefCounted:
 		if mode == "success_then_signal_failure": playback_start_failed.emit({"ok": false, "code": &"TEST.native_failed"})
 		return {"ok": true, "value": {"pending": mode == "async"}}
 
+class ControlNative extends Native:
+	var saved: Dictionary = {}
+	var retained_session: RefCounted
+	func capture_scene_control_position(session: RefCounted) -> Dictionary:
+		return {"ok": session == retained_session, "value": saved.duplicate(true)}
+	func restore_scene_frontier(session: RefCounted, value: Dictionary) -> Dictionary:
+		starts += 1
+		retained_session = session
+		saved = value.reading_session.duplicate(true)
+		return {"ok": true}
+
 var bridge: Node
 var native: Native
 var checkpoint: Dictionary
@@ -137,3 +148,93 @@ func test_participant_rejects_changed_checkpoint_or_missing_private_operation() 
 	plan.transaction_id = "TEST.forged"
 	assert_false(participant.apply_silent(plan).ok)
 	assert_eq(native.starts, 0)
+
+func _control_checkpoint() -> Dictionary:
+	var created: Dictionary = BASE.create_session()
+	assert_true(created.ok)
+	var session: RefCounted = created.value
+	assert_true(BASE.enter(session, BASE.B, "TEST.protocol.control").ok)
+	assert_true(BASE.advance_detached(session).ok)
+	var caption: Dictionary = BASE.checkpoint(session)
+	assert_true(caption.ok)
+	assert_true(BASE.advance_detached(session).ok)
+	var captured: Dictionary = session.capture({})
+	assert_true(captured.ok)
+	var result: Dictionary = caption.value.duplicate(true)
+	result.reading_session = captured.value
+	return result
+
+func test_control_requires_distinct_transport_proof_and_rejects_poisoned_callback() -> void:
+	var control := _control_checkpoint()
+	assert_false(bridge.stage_scene_reading_restore(control, "restore.control").ok,
+		"line-only transport cannot start committed control restoration")
+	var transport := ControlNative.new()
+	bridge._runtime_adapter = transport
+	assert_true(bridge.stage_scene_reading_restore(control, "restore.control").ok)
+	assert_true(bridge.begin_scene_activation("restore.control").ok)
+	transport.reading_frontier_restored.emit({"ok": true, "value": {}})
+	assert_eq(confirmations, [])
+	assert_eq(failures, ["restore.control"])
+	assert_false(bridge.begin_scene_activation("restore.control").ok)
+	assert_eq(transport.starts, 1)
+	assert_eq(bridge._scene_restore.checkpoint, control)
+
+func test_duplicate_control_proof_never_publishes_and_changed_physical_proof_refuses() -> void:
+	var control := _control_checkpoint()
+	var transport := ControlNative.new()
+	bridge._runtime_adapter = transport
+	var publications: Array = []
+	bridge.reading_session_changed.connect(func() -> void: publications.append(true))
+	assert_true(bridge.stage_scene_reading_restore(control, "restore.control").ok)
+	assert_true(bridge.begin_scene_activation("restore.control").ok)
+	transport.reading_frontier_restored.emit({"ok": true, "value": control.reading_session})
+	assert_eq(confirmations, ["restore.control"])
+	transport.reading_frontier_restored.emit({"ok": true, "value": control.reading_session})
+	assert_eq(publications, [])
+	assert_true(bridge.validate_scene_activation("restore.control").ok)
+	transport.saved.program_index += 1
+	assert_false(bridge.validate_scene_activation("restore.control").ok)
+	assert_false(bridge.publish_scene_activation("restore.control").ok)
+	assert_eq(publications, [])
+
+func test_control_proof_refuses_changed_candidate_or_runtime() -> void:
+	for mutation: String in ["candidate", "runtime", "missing_runtime"]:
+		var owner: Node = BRIDGE.new()
+		autofree(owner)
+		var transport := ControlNative.new()
+		owner._runtime_adapter = transport
+		var control := _control_checkpoint()
+		var seen: Array = []
+		owner.scene_activation_confirmed.connect(func(id: String) -> void: seen.append(id))
+		assert_true(owner.stage_scene_reading_restore(control, "restore.control").ok)
+		assert_true(owner.begin_scene_activation("restore.control").ok)
+		if mutation == "candidate": owner._scene_restore.candidate.scene_index += 1
+		elif mutation == "missing_runtime": owner._runtime_adapter = null
+		else: owner._runtime_adapter = ControlNative.new()
+		transport.reading_frontier_restored.emit({"ok": true, "value": control.reading_session})
+		assert_eq(seen, [], mutation)
+		assert_false(owner.validate_scene_activation("restore.control").ok, mutation)
+		assert_false(owner.begin_scene_activation("restore.control").ok, mutation)
+		assert_eq(transport.starts, 1)
+
+func test_control_refuses_real_first_caption_as_terminal_predecessor_before_staging() -> void:
+	var end_checkpoint := _control_checkpoint()
+	var created: Dictionary = BASE.create_session()
+	assert_true(created.ok)
+	var first: RefCounted = created.value
+	assert_true(BASE.enter(first, BASE.B, "TEST.protocol.control").ok)
+	var captured: Dictionary = BASE.checkpoint(first)
+	assert_true(captured.ok)
+	var unsupported: Dictionary = captured.value.duplicate(true)
+	unsupported.reading_session.program_index = end_checkpoint.reading_session.program_index
+	unsupported.reading_session.boundary = "control"
+	unsupported.reading_session.frontier = {}
+	unsupported.reading_session.next_operation = null
+	assert_true(first.validate_saved(unsupported.reading_session, BASE.B).ok,
+		"base Reading5 validity alone does not prove the native predecessor")
+	var transport := ControlNative.new()
+	bridge._runtime_adapter = transport
+	assert_false(bridge.stage_scene_reading_restore(unsupported, "restore.control").ok)
+	assert_eq(transport.starts, 0)
+	assert_eq(bridge._scene_restore, {})
+	assert_eq(bridge._reading_restore_pending, {})

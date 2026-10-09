@@ -105,6 +105,75 @@ func test_real_native_restores_saved_second_caption_without_executing_end_or_rep
 	assert_true(_bridge.begin_scene_activation("restore.native").ok)
 	assert_eq(confirmations.size(), 1)
 
+func test_real_native_restores_control_as_held_predecessor_and_consumes_source_once() -> void:
+	var created: Dictionary = BASE.create_session()
+	assert_true(created.ok)
+	var session: RefCounted = created.value
+	assert_true(BASE.enter(session, BASE.B, "TEST.native.control").ok)
+	assert_true(BASE.advance_detached(session).ok)
+	var caption: Dictionary = BASE.checkpoint(session)
+	assert_true(caption.ok)
+	assert_true(BASE.advance_detached(session).ok)
+	var control: Dictionary = session.capture({})
+	assert_true(control.ok)
+	assert_eq(control.value.boundary, "control")
+	var checkpoint: Dictionary = caption.value.duplicate(true)
+	checkpoint.reading_session = control.value
+	var before: Dictionary = checkpoint.duplicate(true)
+	var confirmations: Array[String] = []
+	var markers: Array = []
+	_bridge.scene_activation_confirmed.connect(func(id: String) -> void: confirmations.append(id))
+	_adapter.runtime_signal_event.connect(func(value: Variant) -> void: markers.append(value))
+	assert_true(_bridge.stage_scene_reading_restore(checkpoint, "restore.control").ok)
+	assert_false(_adapter.has_active_playback())
+	assert_true(_bridge.begin_scene_activation("restore.control").ok)
+	for frame: int in 30:
+		if not confirmations.is_empty(): break
+		await get_tree().process_frame
+	assert_eq(confirmations, ["restore.control"])
+	assert_true(_bridge.validate_scene_activation("restore.control").ok)
+	assert_true(_adapter.is_marker_source_held())
+	assert_eq(_adapter.capture_scene_control_position(_bridge._reading_session).value, control.value)
+	assert_eq(_adapter.capture_reading_frontier().value, caption.value.reading_session.frontier,
+		"physical predecessor remains distinct from logical control")
+	assert_eq(_bridge.capture_reading_checkpoint(false).value, before)
+	var event_boundary: Dictionary = _bridge.capture_scene_event_boundary()
+	assert_true(event_boundary.ok)
+	assert_eq(event_boundary.value.checkpoint, before)
+	assert_eq(event_boundary.value.anchor.publication_id, caption.value.reading_session.frontier.publication_id)
+	assert_eq(markers, [], "native control signal must never execute during restoration")
+	assert_eq(_bridge._reading_session.ledger.snapshot(), control.value.ledger)
+	for result: Dictionary in _results:
+		assert_true(result.ok)
+		assert_true(result.value.get("duplicate", false))
+	assert_true(_bridge.begin_scene_activation("restore.control").ok)
+	assert_eq(confirmations.size(), 1)
+	assert_false(_adapter.capture_scene_control_position(session).ok, "foreign session cannot borrow the held proof")
+	var retained: Dictionary = _adapter.retain_scene_source(_bridge._reading_session)
+	assert_true(retained.ok)
+	assert_true(_adapter.validate_scene_source(retained.value, _bridge._reading_session).ok)
+	assert_false(_adapter.validate_scene_source(RefCounted.new(), _bridge._reading_session).ok)
+	var target_created: Dictionary = BASE.create_session()
+	assert_true(target_created.ok)
+	var target_session: RefCounted = target_created.value
+	assert_true(target_session.restore(control.value, BASE.B).ok)
+	assert_true(BASE.enter(target_session, BASE.A, "TEST.native.control.target").ok)
+	var target_checkpoint: Dictionary = BASE.checkpoint(target_session)
+	assert_true(target_checkpoint.ok)
+	var selected: Dictionary = preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_registration()
+	assert_true(selected.ok)
+	var target := {}
+	for row: Dictionary in selected.value.targets:
+		if row.target_id == "target_a": target = row.target
+	assert_false(target.is_empty())
+	assert_true(_adapter.install_scene_target(target_session, target_checkpoint.value, target, retained.value).ok)
+	assert_false(_adapter.validate_scene_source(retained.value, _bridge._reading_session).ok,
+		"held predecessor capability is consumed before target callbacks")
+	assert_false(_adapter.capture_scene_control_position(_bridge._reading_session).ok,
+		"replaced native runtime cannot confirm the old control")
+	assert_eq(checkpoint, before)
+
+
 func after_each() -> void:
 	assert_eq(get_node("/root/ProfileManager").get_profile_snapshot(), _profile_before,
 		"internal publication capture cannot write the real Profile")
