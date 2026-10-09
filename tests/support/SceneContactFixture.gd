@@ -32,7 +32,7 @@ static func install_registration() -> Dictionary:
 	if not loaded.ok: return loaded
 	var bundle: Dictionary = loaded.value
 	bundle.schema_version = 2
-	bundle.contact_definitions = definitions()
+	bundle["contact_definitions"] = definitions()
 	bundle.contacts[0].source_fact_ids = ["TEST.fact.read"]
 	return MANIFEST.configure_test_scene_registration(bundle)
 
@@ -111,3 +111,4 @@ func make_presentation(port: Object) -> RefCounted:
 	var presentation: RefCounted = PRESENTATION.new()
 	presentation.configure(self, port)
 	return presentation
+
