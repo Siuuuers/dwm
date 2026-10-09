@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [new-protocol, new-browsing, retained-scene, checkpoint-ack, native-neighbors]
+        suite: [new-browsing]
     defaults:
       run:
         shell: pwsh
@@ -23,22 +23,26 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: b3e7bfcce7a21138ed96113ec636a53e560286bb
+          ref: e92dc02e0858579b13efa58e96d9233b0e50b8bf
           fetch-depth: 0
           persist-credentials: true
       - name: Verify and record immutable source before import
         run: |
           $ErrorActionPreference = 'Stop'
           $source = (git rev-parse HEAD).Trim()
-          if ($LASTEXITCODE -ne 0 -or $source -cne 'b3e7bfcce7a21138ed96113ec636a53e560286bb') { throw 'Wrong source commit.' }
+          if ($LASTEXITCODE -ne 0 -or $source -cne 'e92dc02e0858579b13efa58e96d9233b0e50b8bf') { throw 'Wrong source commit.' }
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($LASTEXITCODE -ne 0 -or $tree -cne 'adad5cc1a33f923366b5352e24a08efe44f1fc9d') { throw 'Wrong source tree.' }
+          if ($LASTEXITCODE -ne 0 -or $tree -cne '8633fb01c8a36d25f2507f422b5c16e28ee69c1b') { throw 'Wrong source tree.' }
 
           $base = '90a7319072a6c5c0703f093d16edf52e2cb04e73'
           $aHead = 'd2aacc316920a4198763b4835333b6535e601001'
           $gHead = '1185f44539c52b9e8085ef51743056f92ac704d1'
           $parents = @((git rev-list --parents -n 1 HEAD).Trim().Split(' '))
-          if ($LASTEXITCODE -ne 0 -or $parents.Count -ne 2 -or $parents[1] -cne $aHead) { throw 'Composition requires exactly the immutable A20 parent.' }
+          if ($LASTEXITCODE -ne 0 -or $parents.Count -ne 2 -or $parents[1] -cne 'b3e7bfcce7a21138ed96113ec636a53e560286bb') { throw 'UI correction requires exact composed parent.' }
+          $originalTree = (git rev-parse 'b3e7bfcce7a21138ed96113ec636a53e560286bb^{tree}').Trim()
+          if ($LASTEXITCODE -ne 0 -or $originalTree -cne 'adad5cc1a33f923366b5352e24a08efe44f1fc9d') { throw 'Composed parent tree mismatch.' }
+          $correctionPaths = @(git diff --name-only 'b3e7bfcce7a21138ed96113ec636a53e560286bb' HEAD)
+          if ($LASTEXITCODE -ne 0 -or $correctionPaths.Count -ne 1 -or $correctionPaths[0] -cne 'tests/integration/test_scene_log_readonly.gd') { throw 'Only browsing fixture correction is authorized.' }
           git fetch --no-tags origin $gHead
           if ($LASTEXITCODE -ne 0) { throw 'Cannot fetch immutable G constituent.' }
           foreach ($pin in @(@{commit=$base; tree='a1712ca59c81edc40cce5b688e6d2e4e0b1b3eb6'}, @{commit=$aHead; tree='cc0e213d8472a3ac4c55f1a698fed635dc0457c7'}, @{commit=$gHead; tree='91d13c40f772e080f2a9dcce526504b9936bcb22'})) {
