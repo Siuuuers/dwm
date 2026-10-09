@@ -1,7 +1,7 @@
 """Apply the finite native reentrancy guard found during source review.
 
-Run after patch_scene_playable_native.py on the pinned source checkout.
-Neither helper executes an engine; the separate Actions lane supplies evidence.
+Run against the pinned eight-case native candidate. Neither helper executes an
+engine; the separate Actions lane supplies evidence.
 """
 from pathlib import Path
 import subprocess
@@ -81,8 +81,9 @@ def main() -> None:
         raise SystemExit("usage: refine_scene_playable_native.py CHECKOUT")
     root = Path(sys.argv[1]).resolve()
     def git(*args: str, data: str | None = None) -> str:
-        return subprocess.run(["git", "-C", str(root), *args], input=data,
-                              text=True, check=True, stdout=subprocess.PIPE).stdout.strip()
+        return subprocess.run(["git", "-C", str(root), *args],
+                              input=None if data is None else data.encode("utf-8"),
+                              check=True, stdout=subprocess.PIPE).stdout.decode("utf-8").strip()
     for path, (before, _) in EXPECTED.items():
         if git("hash-object", "--", path) != before:
             raise SystemExit(f"unexpected pre-refinement blob: {path}")
