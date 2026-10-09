@@ -41,11 +41,15 @@ func exercise_phase(phase: String) -> void:
 		assert_ne(OS.get_process_id(), first_pid, "selected Load runs in a different OS process")
 		assert_eq(fixture.storage.describe_root(), witness.value.storage_root)
 		original_hash = witness.value.autosave_sha256
-		var bytes: Dictionary = fixture.storage.read_text("autosave.json")
+		# Observe the selected bytes without claiming a storage read lease before
+		# SaveManager's real prepare path has reconciled this fresh process.
+		var bytes: Dictionary = fixture.storage.inspect_revision("autosave.json")
 		assert_true(bytes.ok, str(bytes))
 		if not bytes.ok: return
-		assert_eq(str(bytes.value).sha256_text(), original_hash, "load opens the creator's exact physical autosave")
-		var document: Dictionary = fixture.read_autosave()
+		assert_eq(bytes.value.revision, original_hash, "load opens the creator's exact physical autosave")
+		assert_true(bytes.value.text is String)
+		if not bytes.value.text is String: return
+		var document: Dictionary = PARSER.parse_object(bytes.value.text)
 		assert_true(document.ok, str(document))
 		if not document.ok: return
 		snapshot = document.value.current_snapshot.snapshot
