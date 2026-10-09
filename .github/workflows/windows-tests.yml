@@ -3,6 +3,7 @@ on:
   pull_request:
 permissions:
   contents: write
+  actions: read
 concurrency:
   group: scene-runtime-integration-controller-${{ github.event.pull_request.number }}
   cancel-in-progress: true
@@ -26,24 +27,24 @@ jobs:
           persist-credentials: true
       - uses: actions/checkout@v7
         with:
-          ref: 09addba8b544e21753846f2002880a7826b85f31
+          ref: 8a70985a140c32a0823141bace60f946454a232c
           path: source
           fetch-depth: 0
           persist-credentials: true
-      - name: Build exact four-file candidate without moving the product branch
+      - name: Build exact two-file refinement without moving the product branch
         run: |
           $ErrorActionPreference = 'Stop'
-          $base = '09addba8b544e21753846f2002880a7826b85f31'
+          $base = '8a70985a140c32a0823141bace60f946454a232c'
           if ((git rev-parse HEAD).Trim() -cne $base) { throw 'Wrong base.' }
-          if ((git rev-parse 'HEAD^{tree}').Trim() -cne 'b8508742f46c7fb7deb5e576e6d5c6490ee352ec') { throw 'Wrong base tree.' }
-          if ((git -C ../controller rev-parse 'HEAD:tools/cloud/patch_scene_playable_native.py').Trim() -cne '9feb024a31a1b8946244967f0a9a40283cbba0a1') { throw 'Wrong patch helper.' }
-          python ../controller/tools/cloud/patch_scene_playable_native.py .
+          if ((git rev-parse 'HEAD^{tree}').Trim() -cne '90ce20cee3fd3a4da6f48d0068319c519a73d20d') { throw 'Wrong base tree.' }
+          if ((git -C ../controller rev-parse 'HEAD:tools/cloud/refine_scene_playable_native.py').Trim() -cne '382d14f5d32cb17d6ee67184cda84755afc51987') { throw 'Wrong refinement helper.' }
+          python ../controller/tools/cloud/refine_scene_playable_native.py .
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $expected = @('scripts/narrative/DialogicRuntimeAdapter.gd', 'tests/fixtures/dialogic/scene_playable_native.dtl', 'tests/integration/test_scene_playable_native_control.gd', 'tests/integration/test_scene_playable_native_control.gd.uid')
+          $expected = @('scripts/narrative/DialogicRuntimeAdapter.gd', 'tests/integration/test_scene_playable_native_control.gd')
           git add -- $expected
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $delta = @(git diff --cached --name-only)
-          if ((@($delta | Sort-Object -CaseSensitive) -join "`n") -cne (@($expected | Sort-Object -CaseSensitive) -join "`n")) { throw 'Unexpected product path change.' }
+          if ((@($delta | Sort-Object -CaseSensitive) -join "`n") -cne (@($expected | Sort-Object -CaseSensitive) -join "`n")) { throw 'Unexpected refinement path change.' }
           git diff --cached --check
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           git config user.name 'github-actions[bot]'
@@ -51,7 +52,7 @@ jobs:
           $date = (git -C ../controller show -s --format=%cI HEAD).Trim()
           $env:GIT_AUTHOR_DATE = $date
           $env:GIT_COMMITTER_DATE = $date
-          git commit -m 'feat(scene): install genuine held native playable control without replay'
+          git commit -m 'fix(scene): reject reentrant native control installation'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $source = (git rev-parse HEAD).Trim()
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
@@ -126,7 +127,7 @@ jobs:
           if ($xml.SelectNodes('//failure | //error | //skipped').Count -ne 0) { throw 'Test failure, error or skip.' }
           $cases = @($xml.SelectNodes('//testcase'))
           $declared = @((Select-String -LiteralPath $script -Pattern '^func (test_[A-Za-z0-9_]+)\(').Matches | ForEach-Object { $_.Groups[1].Value })
-          if ($declared.Count -ne 8 -or $cases.Count -ne $declared.Count) { throw 'Declared/executed test count mismatch.' }
+          if ($declared.Count -ne 9 -or $cases.Count -ne $declared.Count) { throw 'Declared/executed test count mismatch.' }
           foreach ($name in $declared) {
             if (@($cases | Where-Object { $_.GetAttribute('name') -ceq $name }).Count -ne 1) { throw "Missing or repeated test: $name" }
           }
@@ -143,7 +144,7 @@ jobs:
           $candidate = 'refs/heads/codex/scene-playable-native-candidate-20261010'
           $existing = @(git ls-remote --heads origin $candidate)
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if ($existing.Count -gt 0 -and $existing[0].Split("`t")[0] -cne $source) { throw 'Candidate branch occupied; refusing overwrite.' }
+          if ($existing.Count -ne 1 -or $existing[0].Split("`t")[0] -cnotin @('8a70985a140c32a0823141bace60f946454a232c', $source)) { throw 'Candidate branch changed; refusing overwrite.' }
           git push origin "HEAD:$candidate"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           [ordered]@{branch=$candidate; source_sha=$source; product_branch_moved=$false} | ConvertTo-Json | Set-Content '.godot/ci/candidate-publication.json' -Encoding utf8
@@ -170,4 +171,68 @@ jobs:
             source/.godot/phase2r_logs/*.log
           include-hidden-files: true
           if-no-files-found: error
+          retention-days: 7
+  retain:
+    needs: native
+    if: needs.native.result == 'success'
+    runs-on: windows-2022
+    timeout-minutes: 10
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Preserve exact bytes
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: controller
+          persist-credentials: true
+      - uses: actions/checkout@v7
+        with:
+          ref: 9c3c66dfbad0caa77aeaf616d78d0aec56a0f29d
+          path: evidence
+          persist-credentials: true
+      - name: Retain exact original artifacts without engine execution
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python controller/tools/cloud/retain_scene_native_evidence.py evidence
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $folder = 'evidence/scene_playable_native_2026_10_10'
+          $paths = @("$folder/README.md", "$folder/retention-verification.json", "$folder/original-scene-playable-native-37990185115-1.zip", "$folder/original-scene-playable-native-${{ github.run_id }}-${{ github.run_attempt }}.zip")
+          $changed = @(git -C evidence ls-files --others --exclude-standard)
+          if ((@($changed | Sort-Object -CaseSensitive) -join "`n") -cne (@($paths | Sort-Object -CaseSensitive) -join "`n")) { throw 'Unexpected evidence path set.' }
+          git -C evidence diff --exit-code
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git -C evidence config user.name 'github-actions[bot]'
+          git -C evidence config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C evidence add -- $paths
+          git -C evidence commit -m 'docs(evidence): retain original native playable handoff runs and limits'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $ref = 'refs/heads/codex/scene-runtime-evidence-20261009'
+          $live = @(git -C evidence ls-remote --heads origin $ref)
+          if ($LASTEXITCODE -ne 0 -or $live.Count -ne 1 -or $live[0].Split("`t")[0] -cne '9c3c66dfbad0caa77aeaf616d78d0aec56a0f29d') { throw 'Evidence ref advanced; reconcile instead of overwriting.' }
+          git -C evidence push origin "HEAD:$ref"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Write-Output ('EVIDENCE_COMMIT=' + (git -C evidence rev-parse HEAD).Trim())
+      - name: Prepare disposable indexes for checkout cleanup
+        if: always()
+        run: |
+          foreach ($repo in @('controller', 'evidence')) {
+            if (-not (Test-Path -LiteralPath "$repo/.git")) { continue }
+            git -C $repo update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            git -C $repo submodule foreach --recursive 'true'
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+      - name: Upload retention verification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-evidence-retention-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/evidence/scene_playable_native_2026_10_10/retention-verification.json
+          if-no-files-found: warn
           retention-days: 7
