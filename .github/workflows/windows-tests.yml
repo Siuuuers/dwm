@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [initialcontract, initialcandidate, initialfrozen, initialjournal, initialjoint]
+        suite: [initialjoint]
     defaults:
       run:
         shell: pwsh
@@ -23,21 +23,21 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 0b7865dbd8e4d914b7b6c7d1b4e6a8f09fe01166
+          ref: 3076d1d156d677b2f21970bdfc315b85a21c3081
           fetch-depth: 0
           persist-credentials: true
       - name: Verify and record immutable source before import
         run: |
           $ErrorActionPreference = 'Stop'
           $source = (git rev-parse HEAD).Trim()
-          if ($LASTEXITCODE -ne 0 -or $source -cne '0b7865dbd8e4d914b7b6c7d1b4e6a8f09fe01166') { throw 'Wrong source commit.' }
+          if ($LASTEXITCODE -ne 0 -or $source -cne '3076d1d156d677b2f21970bdfc315b85a21c3081') { throw 'Wrong source commit.' }
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($LASTEXITCODE -ne 0 -or $tree -cne 'e8cbf88cc55cd1901ad037e254bd624e10a63494') { throw 'Wrong source tree.' }
+          if ($LASTEXITCODE -ne 0 -or $tree -cne '9b535d4c4cd5e4008bd19d3a080ff3bda5ac7200') { throw 'Wrong source tree.' }
 
-          $parent = '6f42a504c937d71720e7f9f2801b6f05d8b7c1c0'
+          $parent = '0b7865dbd8e4d914b7b6c7d1b4e6a8f09fe01166'
           $parents = @((git rev-list --parents -n 1 HEAD).Trim().Split(' '))
           if ($LASTEXITCODE -ne 0 -or $parents.Count -ne 2 -or $parents[1] -cne $parent) { throw 'Wrong integration parent.' }
-          $expected = @('autoload/SaveManager.gd', 'autoload/GameState.gd', 'autoload/ProfileManager.gd', 'autoload/DialogicBridge.gd', 'scripts/application/restore/RunRestoreParticipant.gd', 'scripts/application/restore/NarrativeRestoreParticipant.gd', 'scripts/domain/narrative/SceneEventContract.gd', 'scripts/domain/run/RunSnapshotSchema.gd', 'scripts/infrastructure/save/SaveDocumentSchema.gd', 'scripts/infrastructure/save/NewRunMaterials.gd', 'scripts/infrastructure/save/DesktopContinuationOperationJournal.gd', 'scripts/infrastructure/save/CheckpointJournal.gd', 'scripts/narrative/FrozenRunContext.gd', 'tests/integration/test_scene_initial_admission.gd', 'tests/integration/test_scene_initial_candidate.gd', 'tests/integration/test_scene_joint_new_run.gd', 'tests/support/SceneNewRunFixture.gd', 'tests/unit/test_scene_new_run_journal.gd', 'tests/unit/test_scene_initial_frozen.gd', 'tests/integration/test_scene_initial_admission.gd.uid', 'tests/integration/test_scene_initial_candidate.gd.uid', 'tests/integration/test_scene_joint_new_run.gd.uid', 'tests/support/SceneNewRunFixture.gd.uid', 'tests/unit/test_scene_new_run_journal.gd.uid', 'tests/unit/test_scene_initial_frozen.gd.uid', 'docs/design/2026-10-09-scene-initial-admission-review.md')
+          $expected = @('tests/integration/test_scene_joint_new_run.gd')
           $delta = @(git diff --name-only $parent HEAD)
           if ((@($delta | Sort-Object -CaseSensitive) -join "`n") -cne (@($expected | Sort-Object -CaseSensitive) -join "`n")) { throw 'Wrong integration path set.' }
           $files = @()
