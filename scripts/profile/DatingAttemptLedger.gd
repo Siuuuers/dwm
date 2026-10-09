@@ -54,13 +54,16 @@ static func prepare_update(ledger: Dictionary, run_id: String, slot_id: String, 
 	if scene and not frozen_effect.is_empty(): return _fail(&"invalid_dating_effect_receipt")
 	var mode: String = str(selection.get("mode", ""))
 	if not selection.is_empty():
-		if mode not in ["branch", "fresh", "continue"]: return _fail(&"invalid_dating_selection")
+		if mode not in ["branch", "fresh", "continue", "start_from_absence"]: return _fail(&"invalid_dating_selection")
 		var fields: Array = ["mode", "source_branch_id", "saved_record"] if mode == "continue" else ["mode"]
+		if mode == "start_from_absence": fields = ["mode", "admission", "attempt_id", "generation", "entry_sha256"]
 		if not _keys(selection, fields): return _fail(&"invalid_dating_selection")
 	var slot: Dictionary = ledger.get(run_id, {}).get(slot_id, {})
 	var attempt_id: String = str(record.spec.board_token)
 	if scene and not slot.is_empty() and slot.first_attempt_id != attempt_id:
 		return _fail(&"scene_challenge_attempt_already_started")
+	if mode == "start_from_absence":
+		return _prepare_absent_start(ledger, run_id, slot_id, branch_id, record, expected_revision, first_cell_index, selection)
 	var previous := {}
 	var generation := 1
 	var effective_branch := branch_id
@@ -646,3 +649,65 @@ static func _valid_proof_shape(proof: Dictionary) -> bool:
 			or proof.checkpoint.checkpoint_sequence < 1 or not _hash(proof.checkpoint.snapshot_sha256):
 		return false
 	return true
+
+## This pure branch verifies comparison material; Profile's privately configured
+## live authority must authorize the selected absence before any durable write.
+static func _prepare_absent_start(ledger: Dictionary, run_id: String, slot_id: String, branch_id: String,
+		record: Dictionary, expected_revision: int, first_cell: int, selection: Dictionary) -> Dictionary:
+	if record.schema_version != 4 or not _scene_json(selection) or expected_revision != 0 or first_cell != -1 \
+			or not _valid_absence_admission(selection.get("admission"), run_id, branch_id, record.context) \
+			or not _id(selection.attempt_id) or typeof(selection.generation) != TYPE_INT \
+			or not _hash(selection.entry_sha256): return _fail(&"invalid_scene_absence_selection")
+	var first: Dictionary = read(ledger, run_id, slot_id)
+	if not first.ok or first.value.is_empty(): return _fail(&"dating_attempt_missing")
+	var original: Dictionary = first.value
+	var entry_hash: Dictionary = CANONICAL.canonical_sha256(original.entry_receipt)
+	if not entry_hash.ok or original.attempt_id != selection.attempt_id or original.generation != selection.generation \
+			or entry_hash.value.sha256 != selection.entry_sha256 or _entry(record) != original.entry_receipt:
+		return _fail(&"dating_entry_conflict")
+	for key: String in ["completion_transaction_id", "command_sha256", "physical_token"]:
+		if record[key] != original.record[key]: return _fail(&"dating_entry_conflict")
+	var current: Dictionary = read(ledger, run_id, slot_id, original.attempt_id, branch_id)
+	if current.ok:
+		# Profile-before-Run retry must never replace progress with a new revision1.
+		return _ok({"ledger": ledger.duplicate(true), "attempt": current.value, "changed": false})
+	if branch_id == original.branch_id or record.board != null or record.state != "in_progress" \
+			or record.envelope.shell != ENVELOPE.make().shell or record.envelope.prepared_layout != null \
+			or record.envelope.forced_cell != -1 or record.envelope.special_cell != -1:
+		return _fail(&"invalid_scene_absence_start")
+	if record.spec.capability_ids.has("forced_no_guess"):
+		if record.phase != "preparing" or record.envelope.preparation == null \
+				or record.envelope.preparation.slice_sequence != 0: return _fail(&"invalid_scene_absence_start")
+	elif record.phase != "ready" or record.envelope.preparation != null: return _fail(&"invalid_scene_absence_start")
+	var prepared: Dictionary = _prepare_flat({}, run_id, slot_id, branch_id, record, 0)
+	if not prepared.ok: return prepared
+	var attempt: Dictionary = prepared.value.attempt
+	attempt["generation"] = original.generation
+	var candidate := ledger.duplicate(true)
+	candidate[run_id][slot_id].attempts[original.attempt_id].progress_by_branch[branch_id] = _progress(attempt)
+	var checked: Dictionary = validate(candidate)
+	if not checked.ok: return checked
+	return _ok({"ledger": candidate, "attempt": attempt, "changed": true})
+
+static func _valid_absence_admission(value: Variant, run_id: String, branch_id: String, context: Dictionary) -> bool:
+	if not value is Dictionary or not _scene_json(value) \
+			or not _keys(value, ["restore_transaction_id", "source_locator", "source_identity", "destination_identity",
+				"allocation_receipt_id", "remap_receipt_id", "transaction_remap_sha256", "challenge_key"]): return false
+	for key: String in ["restore_transaction_id", "allocation_receipt_id", "remap_receipt_id"]:
+		if not _id(value[key]): return false
+	if not _hash(value.transaction_remap_sha256) or not value.source_locator is Dictionary \
+			or not _keys(value.source_locator, ["slot_id", "bundle_id", "checkpoint_id", "document_sha256"]) \
+			or not _id(value.source_locator.slot_id) or not _id(value.source_locator.checkpoint_id) \
+			or not _hash(value.source_locator.bundle_id) or not _hash(value.source_locator.document_sha256): return false
+	for key: String in ["source_identity", "destination_identity"]:
+		var identity: Variant = value[key]
+		if not identity is Dictionary or not _keys(identity, ["run_id", "branch_id", "desktop_timeline_generation",
+				"causal_day_instance", "causal_day_instance_issuer_receipt"]) \
+				or identity.run_id != run_id or not _id(identity.branch_id) \
+				or typeof(identity.desktop_timeline_generation) != TYPE_INT or identity.desktop_timeline_generation < 0 \
+				or not _id(identity.causal_day_instance) or not identity.causal_day_instance_issuer_receipt is Dictionary \
+				or identity.causal_day_instance_issuer_receipt.is_empty(): return false
+	if value.destination_identity.branch_id != branch_id or value.source_identity.branch_id == branch_id: return false
+	return value.challenge_key == {"run_id": run_id, "scene_occurrence": context.scene_occurrence,
+		"challenge_id": context.challenge_id, "playable_command_id": context.playable_command_id,
+		"registration_sha256": context.registration_sha256}
