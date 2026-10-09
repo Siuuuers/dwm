@@ -1,0 +1,72 @@
+[
+  {
+    "artifact_id": 11644667431,
+    "artifact_name": "scene-playable-native-37990185115-1",
+    "bytes": 8107526,
+    "sha256": "5745d67208f2d6a22da9e934d1674ebd17fd0675bb1e1172ff26f57b6054913e",
+    "verified_manifest_members": 10,
+    "source": {
+      "source_sha": "8a70985a140c32a0823141bace60f946454a232c",
+      "source_tree": "90ce20cee3fd3a4da6f48d0068319c519a73d20d",
+      "parent": "09addba8b544e21753846f2002880a7826b85f31",
+      "controller_sha": "ad4f038d7b50907f4faa549d8266c5be93857b97",
+      "controller_event_sha": "736bf0957d17a5f8baecd547be86e3cf367a26d5",
+      "run_id": "37990185115",
+      "run_attempt": "1",
+      "scope": "Nonwired native adapter prerequisite only; no durable producer, Save/Load, Bridge acknowledgement, physical Start/End, rendered or release acceptance",
+      "changed_paths": [
+        "scripts/narrative/DialogicRuntimeAdapter.gd",
+        "tests/fixtures/dialogic/scene_playable_native.dtl",
+        "tests/integration/test_scene_playable_native_control.gd",
+        "tests/integration/test_scene_playable_native_control.gd.uid"
+      ],
+      "blobs": {
+        "scripts/narrative/DialogicRuntimeAdapter.gd": "d2807bf4df6a018efb8776464433f81b5727be3e",
+        "tests/fixtures/dialogic/scene_playable_native.dtl": "12f4043df0e4a8a42524a47c6f6a0b93e6dd964e",
+        "tests/integration/test_scene_playable_native_control.gd": "c4c2c9e1d3db00edba8aa789ece32c2da4f2e943",
+        "tests/integration/test_scene_playable_native_control.gd.uid": "c7c99d96f87851c9ef027e99343f4ef4e252edbc"
+      }
+    },
+    "engine": {
+      "archive_sha256": "e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90",
+      "console_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+      "version": "4.6.3.stable.official.7d41c59c4"
+    },
+    "cases": 8,
+    "xml_assertions": 231,
+    "status": "superseded eight-case diagnostic"
+  },
+  {
+    "artifact_id": 11645311740,
+    "artifact_name": "scene-playable-native-37990933159-1",
+    "bytes": 8103351,
+    "sha256": "4eb3c16ace5512a6e28f44decd4e576b9510f4f268ed09e5025cb2bbf3bf14a1",
+    "verified_manifest_members": 10,
+    "source": {
+      "source_sha": "665971ffc25bf6acd5e393ac37c6cf627a33c545",
+      "source_tree": "aaeacf4e338e1d876157e19fce239259b4093899",
+      "parent": "8a70985a140c32a0823141bace60f946454a232c",
+      "controller_sha": "437ad1fbd258b697b0d2ee9affefc0d81484301a",
+      "controller_event_sha": "07a012cdddaa85b9f6d35be78ddd8c309036308f",
+      "run_id": "37990933159",
+      "run_attempt": "1",
+      "scope": "Nonwired native adapter prerequisite only; no durable producer, Save/Load, Bridge acknowledgement, physical Start/End, rendered or release acceptance",
+      "changed_paths": [
+        "scripts/narrative/DialogicRuntimeAdapter.gd",
+        "tests/integration/test_scene_playable_native_control.gd"
+      ],
+      "blobs": {
+        "scripts/narrative/DialogicRuntimeAdapter.gd": "5c2918c79c03ee78de516ba0d0f25e9a8ba79147",
+        "tests/integration/test_scene_playable_native_control.gd": "beaab006e6807ae27df658d9b3e8ee8864fc7059"
+      }
+    },
+    "engine": {
+      "archive_sha256": "e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90",
+      "console_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+      "version": "4.6.3.stable.official.7d41c59c4"
+    },
+    "cases": 9,
+    "xml_assertions": 255,
+    "status": "final native prerequisite"
+  }
+]
