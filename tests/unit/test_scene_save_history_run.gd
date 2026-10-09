@@ -94,7 +94,7 @@ func test_history_join_allows_original_branches_and_scans_every_map_member() -> 
 	assert_ne(snapshot.lifecycle.branch_id, fixture.admission.scene_admission.source_identity.branch_id)
 	assert_eq(RUN._validate_scene_history_run(snapshot.command_receipts, snapshot.run_id), "",
 		"current branch does not replace historical receipt identities")
-	var unused := fixture.event.duplicate(true)
+	var unused: Dictionary = fixture.event.duplicate(true)
 	unused.scene_event.semantic.source.run_id = "TEST.foreign"
 	var extended: Dictionary = fixture.bag.duplicate(true)
 	extended["TEST.unused-history"] = unused

@@ -221,7 +221,11 @@ func test_restart_after_recorded_route_reapplies_live_owners_without_rewriting_p
 	assert_eq(retained.transaction_id, operation.transaction_id)
 	assert_eq(storage.writes, 3, "only narrative suffix, APPLIED and COMPLETED are newly recorded")
 	assert_eq(retained.allocation_receipt, original_allocation)
-	for name: String in original_prefix:
+	# The journal retains null placeholders for the unrecorded suffix too.
+	assert_null(original_prefix.narrative)
+	assert_not_null(retained.participant_receipts.narrative)
+	for index: int in operation.next_participant_index:
+		var name: String = JOURNAL.SCENE_PARTICIPANT_ORDER[index]
 		assert_eq(retained.participant_receipts[name], original_prefix[name], "durable prefix stays exact: " + name)
 	for participant: Participant in participants.values():
 		assert_eq(participant.silent_applies, 1, "fresh process rebuilds each owner exactly once")
