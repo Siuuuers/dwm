@@ -374,7 +374,7 @@ func _scene_project(state: Dictionary, friend_id: String, primary: String, secon
 	var choices: Array = []
 	if friend_id != "":
 		var available := CONTACT_STATE.scene_reply_choices(state, friend_id, primary, registration)
-			if not available.get("ok", false): return available
+		if not available.get("ok", false): return available
 		choices = available.value
 	return _ok({"friend_id": friend_id, "entries": entries, "unread": unread, "ordinary_choices": choices, "reply_required": false})
 

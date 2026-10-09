@@ -519,7 +519,7 @@ static func _verified_schedule_start_child(parent: Dictionary, provenance: Dicti
 ## remain byte-identical. Only desktop live keys and the lifecycle identity move;
 ## A's RunLifecycle participant owns the new restore_provenance after this phase.
 static func _scene_runtime_boundary(snapshot: Dictionary) -> Dictionary:
-	var requested := snapshot.get("schema_version") == 9 or snapshot.get("route_id") == "scene" or snapshot.has("scene")
+	var requested: bool = snapshot.get("schema_version") == 9 or snapshot.get("route_id") == "scene" or snapshot.has("scene")
 	if not requested: return {"ok": true, "value": false}
 	var event := preload("res://scripts/domain/narrative/SceneEventContract.gd")
 	if typeof(snapshot.get("schema_version")) != TYPE_INT or snapshot.schema_version != 9 \

@@ -32,17 +32,25 @@ static func install_registration() -> Dictionary:
 	if not loaded.ok: return loaded
 	var bundle: Dictionary = loaded.value
 	bundle.schema_version = 2
-	bundle.contact_definitions = definitions()
+	bundle["contact_definitions"] = definitions()
 	bundle.contacts[0].source_fact_ids = ["TEST.fact.read"]
 	return MANIFEST.configure_test_scene_registration(bundle)
 
 func setup() -> Dictionary:
 	var configured: Dictionary = issuer.configure(ROOT.new("ce".repeat(32), 1))
 	if not configured.ok: return configured
-	var causal: Dictionary = issuer.issue(&"causal_day_instance")
-	if not causal.ok: return causal
-	identity = {"run_id": "TEST.run", "branch_id": "TEST.branch", "desktop_timeline_generation": 0,
-		"causal_day_instance": causal.value.token, "causal_day_instance_issuer_receipt": causal.value.issuer_receipt}
+	# Causal identities are allocator-owned; direct issue deliberately refuses.
+	var transaction: Dictionary = issuer.issue(&"transaction_id")
+	if not transaction.ok: return transaction
+	var prepared: Dictionary = issuer.prepare_continuation_allocation({"kind": "new_run",
+		"transaction_id": transaction.value.token, "transaction_issuer_receipt": transaction.value.issuer_receipt,
+		"existing_run_id": null, "source_desktop_timeline_generation": null, "remap_source_transaction_ids": []})
+	if not prepared.ok: return prepared
+	var committed: Dictionary = issuer.commit_continuation_allocation(prepared.value)
+	if not committed.ok: return committed
+	identity = {}
+	for key: String in ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance", "causal_day_instance_issuer_receipt"]:
+		identity[key] = committed.value[key]
 	registration = MANIFEST.scene_registration_fingerprint()
 	return {"ok": true}
 
@@ -111,3 +119,4 @@ func make_presentation(port: Object) -> RefCounted:
 	var presentation: RefCounted = PRESENTATION.new()
 	presentation.configure(self, port)
 	return presentation
+

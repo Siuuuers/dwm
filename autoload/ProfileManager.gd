@@ -26,6 +26,9 @@ const CONTROLS_IMPORT := preload("res://scripts/settings/ControlsBindingImport.g
 const NEW_RUN_MATERIAL_KEYS := ["before", "candidate", "captured_dark", "profile_revision",
 	"source_revision", "outgoing_text", "outgoing_hash"]
 
+const SCENE_NEW_RUN_MATERIAL_KEYS := ["before", "candidate", "profile_revision", "source_revision",
+	"outgoing_text", "outgoing_hash", "scene_assignment"]
+
 const PRIMARY_LOCALE_PATH := &"preferences.language.primary_locale_id"
 const FONT_STYLE_PATH := &"preferences.accessibility.font_style"
 const _AUDIO_MEMORY_SURFACES := [&"META_POST_ENDING_TITLE", &"META_BACKUP_LOAD", &"META_GALLERY_REPLAY"]
@@ -171,6 +174,80 @@ func prepare_new_run_consumption(expected_revision: Variant) -> Dictionary:
 		"outgoing_text": text, "outgoing_hash": text.sha256_text()}}
 
 
+## The existing joint New Run transaction owns persistence/adoption. This only
+## prepares one exact assignment against the current durable Profile revision.
+## Caller must authenticate successful creation chronology: an empty draw ledger
+## alone cannot prove there was no legacy run whose delayed draw never committed.
+func prepare_scene_new_run_consumption(expected_revision: Variant, run_id: String,
+		creation_transaction_id: String, rng_nonce: Variant = null) -> Dictionary:
+	if not _initialized: return _failure(&"not_initialized", "Profile must be initialized")
+	if _mutation_blocked: return _failure(&"indeterminate_commit", "Profile mutation is blocked", true)
+	if typeof(expected_revision) != TYPE_INT or expected_revision < 1:
+		return _failure(&"invalid_profile_revision", "An exact Profile revision is required")
+	if expected_revision != _profile_revision: return _failure(&"profile_revision_changed", "Profile changed")
+	if not _supports_new_run_storage(_storage): return _failure(&"invalid_storage", "Revision-aware storage is required")
+	var checked: Dictionary = SCHEMA.validate(_profile)
+	if not checked.ok: return checked
+	var before: Dictionary = checked.value
+	var inspected: Dictionary = _storage.inspect_revision("profile.json")
+	if not inspected.ok: return inspected
+	var disk: Dictionary = inspected.value
+	if not _new_run_hash(disk.get("revision")) or typeof(disk.get("text")) != TYPE_STRING:
+		return _failure(&"profile_source_changed", "Current Profile bytes are unavailable")
+	var decoded: Dictionary = _profile_text_validator(disk.text)
+	if not decoded.ok or decoded.value != before or _profile_revision != expected_revision or _profile != before:
+		return _failure(&"profile_source_changed", "Live and stored Profile disagree")
+	var assignment: Dictionary = PAIR_DECK.prepare_scene_assignment(before.pair_deck_draws, run_id, creation_transaction_id, rng_nonce)
+	if not assignment.ok: return assignment
+	var candidate := before.duplicate(true)
+	candidate.pair_deck_draws[run_id] = assignment.value.duplicate(true)
+	var emitted: Dictionary = WRITER.stringify(candidate)
+	if not emitted.ok: return emitted
+	var material := {"before": before.duplicate(true), "candidate": candidate,
+		"profile_revision": expected_revision, "source_revision": disk.revision,
+		"outgoing_text": emitted.value, "outgoing_hash": str(emitted.value).sha256_text(),
+		"scene_assignment": {"run_id": run_id, "receipt": assignment.value.duplicate(true)}}
+	var validated: Dictionary = validate_scene_new_run_material(material)
+	return {"ok": true, "code": &"ok", "value": material} if validated.ok else validated
+
+## Pure delegation point for the joint NewRunMaterials owner. No RNG, filesystem,
+## allocation or adoption occurs here; historical material remains separately exact.
+static func validate_scene_new_run_material(material: Dictionary) -> Dictionary:
+	if not PAIR_DECK._scene_keys(material, SCENE_NEW_RUN_MATERIAL_KEYS) \
+			or not material.before is Dictionary or not material.candidate is Dictionary \
+			or typeof(material.profile_revision) != TYPE_INT or material.profile_revision < 1 \
+			or not PAIR_DECK._scene_hash(material.source_revision) or not PAIR_DECK._scene_hash(material.outgoing_hash) \
+			or typeof(material.outgoing_text) != TYPE_STRING or not material.scene_assignment is Dictionary \
+			or not PAIR_DECK._scene_keys(material.scene_assignment, ["run_id", "receipt"]) \
+			or not PAIR_DECK._scene_id(material.scene_assignment.run_id):
+		return {"ok": false, "code": &"invalid_scene_new_run_material"}
+	var before: Dictionary = SCHEMA.validate(material.before)
+	if not before.ok: return before
+	var after: Dictionary = SCHEMA.validate(material.candidate)
+	if not after.ok: return after
+	var original_before: Dictionary = WRITER.stringify(material.before)
+	var normalized_before: Dictionary = WRITER.stringify(before.value)
+	var original_after: Dictionary = WRITER.stringify(material.candidate)
+	var normalized_after: Dictionary = WRITER.stringify(after.value)
+	if not original_before.ok or not normalized_before.ok or not original_after.ok or not normalized_after.ok \
+			or original_before.value != normalized_before.value or original_after.value != normalized_after.value \
+			or not material.before.get("pair_deck_draws") is Dictionary or not material.candidate.get("pair_deck_draws") is Dictionary:
+		return {"ok": false, "code": &"invalid_scene_new_run_material"}
+	var receipt: Dictionary = PAIR_DECK.validate_scene(material.scene_assignment.receipt)
+	if not receipt.ok: return receipt
+	var selected: Dictionary = PAIR_DECK.prepare_scene_assignment(material.before.pair_deck_draws,
+		material.scene_assignment.run_id, receipt.value.creation_transaction_id, receipt.value.rng_nonce)
+	if not selected.ok: return selected
+	if selected.value != receipt.value: return {"ok": false, "code": &"scene_assignment_conflict"}
+	var candidate: Dictionary = material.before.duplicate(true)
+	candidate.pair_deck_draws[material.scene_assignment.run_id] = receipt.value.duplicate(true)
+	var expected: Dictionary = WRITER.stringify(candidate)
+	var supplied: Dictionary = WRITER.stringify(material.candidate)
+	if not expected.ok or not supplied.ok or expected.value != supplied.value \
+			or material.outgoing_text != expected.value or material.outgoing_text.sha256_text() != material.outgoing_hash:
+		return {"ok": false, "code": &"invalid_scene_new_run_material"}
+	return {"ok": true, "code": &"ok"}
+
 ## The caller owns the joint Autosave/Profile decision. This writes only Profile,
 ## under that caller's New Run custody, and never adopts or publishes its candidate.
 func persist_new_run_consumption(material: Dictionary) -> Dictionary:
@@ -265,6 +342,7 @@ func _admit_new_run_persistence(material: Dictionary) -> Dictionary:
 
 
 func _validate_new_run_material(material: Dictionary) -> Dictionary:
+	if material.has("scene_assignment"): return validate_scene_new_run_material(material)
 	if material.size() != NEW_RUN_MATERIAL_KEYS.size():
 		return _failure(&"invalid_new_run_profile_material", "Unexpected material members")
 	for key: Variant in material:
@@ -406,6 +484,21 @@ func _commit_profile_candidate(candidate: Dictionary, defer_signals: bool = fals
 	if not validation.get("ok", false):
 		return validation
 	var detached: Dictionary = validation["value"]
+	var scene_draws: Dictionary = _scene_assignment_records(detached.pair_deck_draws)
+	if allow_dating_reset:
+		if not scene_draws.is_empty(): return _failure(&"scene_assignment_joint_new_run_required", "Full reset cannot seed assignments")
+	else:
+		if scene_draws != _scene_assignment_records(_profile.pair_deck_draws):
+			return _failure(&"scene_assignment_joint_new_run_required", "Only joint New Run persists scene assignments")
+		if not scene_draws.is_empty():
+			# Silent participant adoption is not a durable append capability. Verify
+			# these rows already exist in the joint transaction's actual disk output.
+			if not _supports_new_run_storage(_storage): return _failure(&"invalid_storage", "Revision-aware storage is required")
+			var stored: Dictionary = _storage.inspect_revision("profile.json")
+			if not stored.ok: return stored
+			var stored_profile: Dictionary = _profile_text_validator(str(stored.value.get("text", "")))
+			if not stored_profile.ok or _scene_assignment_records(stored_profile.value.pair_deck_draws) != scene_draws:
+				return _failure(&"scene_assignment_joint_new_run_required", "Silent adoption cannot persist an uncommitted assignment")
 	if not allow_visited_reset and not CAPTION_WITNESSES.preserves(_profile.witnessed_caption_variants, detached.witnessed_caption_variants):
 		return _failure(&"caption_witness_rewind", "Only Clear Visited History or full Profile reset may remove exact caption witnesses")
 	if not allow_dating_reset and not DATING_ATTEMPTS.preserves(_profile.dating_attempts, detached.dating_attempts):
@@ -794,6 +887,8 @@ func get_pair_deck_draw(run_id: String) -> Dictionary:
 	return {"ok": true, "value": receipt.duplicate(true) if receipt is Dictionary else null}
 
 func prepare_pair_deck_draw(run_id: String, receipt: Dictionary) -> Dictionary:
+	if typeof(receipt.get("ruleset_id")) == TYPE_STRING and receipt.ruleset_id == PAIR_DECK.SCENE_RULESET_ID:
+		return _failure(&"scene_assignment_joint_new_run_required", "Scene assignments belong to the joint New Run transaction")
 	var existing := get_pair_deck_draw(run_id)
 	if not existing.ok: return existing
 	var checked := PAIR_DECK.validate(receipt)
@@ -1591,3 +1686,9 @@ func _line_registry_admits(line_id: String) -> bool:
 	if _line_registry_fingerprint.is_empty():
 		return false
 	return _line_registry_index.has(line_id)
+
+static func _scene_assignment_records(ledger: Dictionary) -> Dictionary:
+	var records := {}
+	for run_id: String in ledger:
+		if ledger[run_id].ruleset_id == PAIR_DECK.SCENE_RULESET_ID: records[run_id] = ledger[run_id].duplicate(true)
+	return records
