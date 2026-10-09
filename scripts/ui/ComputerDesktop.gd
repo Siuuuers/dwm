@@ -19,11 +19,11 @@ const WARNING_NAVIGATION_TARGETS := {
 	&"open_minesweeper": &"minesweeper",
 }
 const LABELS := {
-	"en": ["Minesweeper", "Contacts", "Schedule", "Shop", "Backup", "Settings", "Log out"],
-	"zh-CN": ["扫雷", "联系人", "日程", "商店", "备份", "设置", "退出登录"],
-	"zh-HK": ["踩地雷", "聯絡人", "日程", "商店", "備份", "設定", "登出"],
-	"ja": ["マインスイーパー", "連絡先", "予定", "ショップ", "バックアップ", "設定", "ログアウト"],
-	"ko": ["지뢰찾기", "연락처", "일정", "상점", "백업", "설정", "로그아웃"],
+	"en": {&"minesweeper": "Minesweeper", &"contacts": "Contacts", &"schedule": "Schedule", &"shop": "Shop", &"backup": "Backup", &"settings": "Settings", &"logout": "Log out"},
+	"zh-CN": {&"minesweeper": "扫雷", &"contacts": "联系人", &"schedule": "日程", &"shop": "商店", &"backup": "备份", &"settings": "设置", &"logout": "退出登录"},
+	"zh-HK": {&"minesweeper": "踩地雷", &"contacts": "聯絡人", &"schedule": "日程", &"shop": "商店", &"backup": "備份", &"settings": "設定", &"logout": "登出"},
+	"ja": {&"minesweeper": "マインスイーパー", &"contacts": "連絡先", &"schedule": "予定", &"shop": "ショップ", &"backup": "バックアップ", &"settings": "設定", &"logout": "ログアウト"},
+	"ko": {&"minesweeper": "지뢰찾기", &"contacts": "연락처", &"schedule": "일정", &"shop": "상점", &"backup": "백업", &"settings": "설정", &"logout": "로그아웃"},
 }
 const CONTACT_NAMES := {"priscilla": "Priscilla", "lavinia": "Lavinia", "sylvia": "Sylvia"}
 
@@ -68,6 +68,11 @@ var _quick_commands: Node
 var _localization: Object
 var _profile: Object
 var _host_state: Object
+var _scene_navigation := false
+var _scene_navigation_failed := false
+var _scene_phase_reader := Callable()
+var _scene_command_dispatch := Callable()
+var _scene_app_prepare := Callable()
 var _day := 1
 var _bootstrap: Node
 var _active_id: StringName = &""
@@ -92,6 +97,61 @@ var _delivery_pending := false
 var _delivery_has_message := false
 var _delivery_stage: StringName = &""
 var _delivery_elapsed := 0.0
+
+## Bootstrap calls this only after the real host's scene restore admission.
+## phase_reader() -> StringName; dispatch(command: Dictionary) -> Dictionary;
+## prepare(app_id: StringName, app: Control) -> Dictionary configures scene-only ports.
+## No day argument crosses this boundary. App preparation must be silent on refusal.
+func configure_scene_navigation(host: Object, phase_reader: Callable,
+		command_dispatch: Callable, app_prepare: Callable,
+		localization: Object = null, profile: Object = null) -> Dictionary:
+	if not is_instance_valid(host): return {"ok": false, "code": &"desktop_owner_unavailable"}
+	for method: String in ["get_state", "open_scene_app", "scene_go_home"]:
+		if not host.has_method(method): return {"ok": false, "code": &"desktop_owner_unavailable"}
+	if not phase_reader.is_valid() or phase_reader.get_argument_count() != 0 \
+			or not command_dispatch.is_valid() or command_dispatch.get_argument_count() != 1 \
+			or not app_prepare.is_valid() or app_prepare.get_argument_count() != 2:
+		return {"ok": false, "code": &"invalid_scene_navigation_ports"}
+	if _scene_navigation:
+		return {"ok": host == _host_state and phase_reader == _scene_phase_reader
+			and command_dispatch == _scene_command_dispatch and app_prepare == _scene_app_prepare
+			and localization == _localization and profile == _profile, "code": &"scene_navigation_already_configured"}
+	if _host_state != null or not _cached_app_windows.is_empty() or _active_id != &"" \
+			or _presentation_port != null or _minesweeper_port != null or _schedule_port != null or _shop_port != null:
+		return {"ok": false, "code": &"scene_navigation_bound_too_late"}
+	_scene_navigation = true
+	_host_state = host
+	_scene_phase_reader = phase_reader
+	_scene_command_dispatch = command_dispatch
+	_scene_app_prepare = app_prepare
+	_localization = localization
+	_profile = profile
+	if localization != null and localization.has_signal("locale_changed") and not localization.is_connected("locale_changed", _on_launcher_locale_changed):
+		localization.connect("locale_changed", _on_launcher_locale_changed)
+	if profile != null and profile.has_signal("preference_changed") and not profile.is_connected("preference_changed", _on_preference_changed):
+		profile.connect("preference_changed", _on_preference_changed)
+	if is_node_ready():
+		_update_launcher_navigation()
+		_refresh_launcher()
+	return {"ok": true, "code": &"ok"}
+
+func _launcher_ids() -> Array[StringName]:
+	return APP_REGISTRY.new().get_scene_ids() if _scene_navigation else APP_REGISTRY.new().get_ids()
+
+func _scene_navigate(app_id: StringName, home: bool = false) -> Dictionary:
+	var phase: Variant = _scene_phase_reader.call()
+	if typeof(phase) not in [TYPE_STRING, TYPE_STRING_NAME] or phase not in ["NONE", "PREPARING", "PREPARED_UNSTARTED", "UNPAID_UNSTARTED", "PAID_UNSTARTED", "ACTIVE_VISIBLE", "ACTIVE_SUSPENDED", "SETTLING"]:
+		return {"ok": false, "code": &"invalid_board_phase"}
+	var result: Dictionary = _host_state.scene_go_home(StringName(phase)) if home else _host_state.open_scene_app(app_id, StringName(phase))
+	if not result.get("ok", false): return result
+	for command: Dictionary in result.value.commands:
+		var applied: Variant = _scene_command_dispatch.call(command.duplicate(true))
+		if typeof(applied) != TYPE_DICTIONARY or not applied.get("ok", false):
+			# Host already committed. Do not roll back or retry effects through UI.
+			_scene_navigation_failed = true
+			_mask_run_configuration(&"scene_navigation_dispatch_failed")
+			return {"ok": false, "code": &"scene_navigation_dispatch_failed"}
+	return result
 
 func configure_run_configuration(owner: Object) -> Dictionary:
 	if not is_instance_valid(owner) or not owner.has_method("get_run_configuration") or Callable(owner,"get_run_configuration").get_argument_count() != 0:
@@ -245,6 +305,23 @@ func _build_shell() -> void:
 		button.icon_id = id
 		button.set_icon_texture(ART_MANIFEST.get_texture("launcher.%s" % String(id), Vector2i(48, 48)))
 		button.pressed.connect(open_app.bind(id))
+	_update_launcher_navigation()
+	status_label = Label.new()
+	status_label.name = "DesktopStatus"
+	status_label.position = Vector2(24, 420)
+	status_label.size = Vector2(752, 140)
+	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	status_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	status_label.hide()
+	desktop_canvas.add_child(status_label)
+	_refresh_strip_layout()
+
+
+func _update_launcher_navigation() -> void:
+	var ids := _launcher_ids()
+	for id: StringName in launcher_buttons:
+		launcher_buttons[id].visible = id in ids
+		launcher_buttons[id].focus_mode = Control.FOCUS_ALL if id in ids else Control.FOCUS_NONE
 	for index in ids.size():
 		var button: Button = launcher_buttons[ids[index]]
 		var left := index - 1 if index % 4 > 0 else index
@@ -257,16 +334,6 @@ func _build_shell() -> void:
 		button.focus_neighbor_bottom = button.get_path_to(launcher_buttons[ids[down]])
 		button.focus_next = button.get_path_to(launcher_buttons[ids[mini(index + 1, ids.size() - 1)]])
 		button.focus_previous = button.get_path_to(launcher_buttons[ids[maxi(index - 1, 0)]])
-	status_label = Label.new()
-	status_label.name = "DesktopStatus"
-	status_label.position = Vector2(24, 420)
-	status_label.size = Vector2(752, 140)
-	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	status_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	status_label.hide()
-	desktop_canvas.add_child(status_label)
-	_refresh_strip_layout()
-
 
 func _layout_desktop() -> void:
 	if not is_node_ready() or size.x <= 0: return
@@ -338,6 +405,7 @@ func _touch_focus_scope() -> Control:
 
 func configure_contacts(port: Object, localization: Object = null, profile: Object = null,
 		host_state: Object = null, day: int = 1) -> Dictionary:
+	if _scene_navigation: return {"ok": false, "code": &"scene_calendar_configuration_forbidden"}
 	if day < 1 or day > 7: return {"ok":false,"code":&"desktop_owner_day_mismatch"}
 	if host_state != null:
 		if not is_instance_valid(host_state) or not host_state.has_method("get_state"):
@@ -381,6 +449,7 @@ func open_contacts() -> Dictionary:
 
 func configure_minesweeper(port: Object, localization: Object = null, profile: Object = null,
 		host_state: Object = null, day: int = 1, input_owner: Object = null) -> Dictionary:
+	if _scene_navigation: return {"ok": false, "code": &"scene_calendar_configuration_forbidden"}
 	for method: String in ["pull","dispatch","set_foreground"]:
 		if not is_instance_valid(port) or not port.has_method(method): return {"ok":false,"code":&"invalid_minesweeper_port"}
 	var candidate_input: Object = input_owner if input_owner != null else get_node_or_null("/root/InputManager")
@@ -417,6 +486,7 @@ func configure_session_exit(owner: Object) -> Dictionary:
 
 func configure_shop(provider: Object, localization: Object = null, profile: Object = null,
 		host_state: Object = null, day: int = 1) -> Dictionary:
+	if _scene_navigation: return {"ok": false, "code": &"scene_calendar_configuration_forbidden"}
 	if not is_instance_valid(provider) or not provider.has_method("get_catalog") or not provider.has_signal("catalog_changed") \
 			or Callable(provider,"get_catalog").get_argument_count() != 1: return {"ok":false,"code":&"invalid_shop_provider"}
 	for event: Dictionary in provider.get_signal_list():
@@ -452,6 +522,7 @@ func configure_shop(provider: Object, localization: Object = null, profile: Obje
 func configure_schedule(port: Object, localization: Object = null, profile: Object = null,
 		host_state: Object = null, day: int = 1, done_handler: Callable = Callable(),
 		warning_presentation: Object = null, warning_commands: Object = null) -> Dictionary:
+	if _scene_navigation: return {"ok": false, "code": &"scene_calendar_configuration_forbidden"}
 	for method: String in ["project", "append", "move", "remove"]:
 		if not is_instance_valid(port) or not port.has_method(method): return {"ok":false,"code":&"invalid_schedule_port"}
 	if not done_handler.is_null() and (not done_handler.is_valid() or done_handler.get_argument_count() != 0):
@@ -578,6 +649,12 @@ func present_confirmation(request: Dictionary, accept: Callable, cancel: Callabl
 	desktop_canvas.move_child($DesktopCanvas/AppStrip, desktop_canvas.get_child_count() - 1)
 	return {"ok": true, "value": {"confirmation": _confirmation}}
 
+func _scene_confirmation_theme() -> Theme:
+	var result: Theme = theme.duplicate()
+	for role: String in CONFIRMATION_THEME.ROLES:
+		result.set_color(role, "Backup", theme.get_color(role, "Desktop"))
+	return result
+
 func _present_logout_confirmation(retry: bool = false, forward_only: bool = false) -> Dictionary:
 	var body: String = {
 		"en": "Log out could not finish. Please try again." if retry else "Save your progress and log out?",
@@ -590,9 +667,9 @@ func _present_logout_confirmation(retry: bool = false, forward_only: bool = fals
 	var cancel: String = {"en": "No", "zh-CN": "否", "zh-HK": "否", "ja": "いいえ", "ko": "아니요"}[_locale]
 	var high_contrast := bool(_profile.get_preference("preferences.accessibility.high_contrast", false)) if _profile != null and _profile.has_method("get_preference") else false
 	var colour_preset := str(_profile.get_preference("preferences.accessibility.colour_differentiation", "standard")) if _profile != null and _profile.has_method("get_preference") else "standard"
-	var shown := present_confirmation({"title": LABELS[_locale][6], "body": body,
+	var shown := present_confirmation({"title": LABELS[_locale][&"logout"], "body": body,
 		"confirm": confirm, "cancel": cancel, "cancelable": not forward_only, "warning": false,
-		"theme": CONFIRMATION_THEME.build(_locale, _percent, _run_palette, _day, high_contrast, colour_preset, _font_style)},
+		"theme": _scene_confirmation_theme() if _scene_navigation else CONFIRMATION_THEME.build(_locale, _percent, _run_palette, _day, high_contrast, colour_preset, _font_style)},
 		_confirm_logout, _cancel_logout)
 	_refresh_launcher()
 	return shown
@@ -608,15 +685,16 @@ func _cancel_logout() -> void:
 	launcher_buttons[&"logout"].grab_focus()
 
 func open_app(app_id: StringName) -> Dictionary:
+	if _scene_navigation_failed: return _route_failure(&"scene_navigation_dispatch_failed")
 	if _run_configuration_required and (not _run_configuration_ready or _run_configuration_masked):
 		return _route_failure(&"run_configuration_unavailable")
 	if is_instance_valid(_confirmation): return {"ok": false, "code": &"desktop_modal_active"}
 	var foreground: Node = _cached_app_windows.get(_active_id)
 	if is_instance_valid(foreground) and foreground.has_method("can_return_home") and not foreground.can_return_home():
 		return {"ok": false, "code": &"desktop_modal_active"}
-	if not APP_REGISTRY.new().has_app(app_id):
+	if app_id not in _launcher_ids():
 		return _route_failure(&"unknown_app_id")
-	if app_id not in [&"contacts", &"settings", &"backup", &"minesweeper", &"schedule", &"shop", &"logout"] or (app_id == &"minesweeper" and _minesweeper_port == null):
+	if app_id not in [&"contacts", &"settings", &"backup", &"minesweeper", &"schedule", &"shop", &"logout"] or (not _scene_navigation and app_id == &"minesweeper" and _minesweeper_port == null):
 		return _route_failure(&"desktop_app_unavailable")
 	if _active_id != &"" and _active_id != app_id:
 		return _route_failure(&"desktop_app_transition_unavailable")
@@ -624,18 +702,18 @@ func open_app(app_id: StringName) -> Dictionary:
 		var active: Variant = _host_state.get_state().get("active_app_id")
 		if active != null and active != "" and active != app_id:
 			return _route_failure(&"desktop_app_transition_unavailable")
-	if app_id == &"contacts" and _presentation_port == null:
+	if not _scene_navigation and app_id == &"contacts" and _presentation_port == null:
 		return _route_failure(&"contacts_unavailable")
 	if app_id == &"logout":
 		if _session_exit == null: return _route_failure(&"logout_unavailable")
 		return _present_logout_confirmation()
-	if app_id == &"shop" and _shop_port == null:
+	if not _scene_navigation and app_id == &"shop" and _shop_port == null:
 		return _route_failure(&"shop_unavailable")
-	if app_id == &"schedule" and _schedule_port == null:
+	if not _scene_navigation and app_id == &"schedule" and _schedule_port == null:
 		return _route_failure(&"schedule_unavailable")
-	if app_id == &"backup" and _backup_port == null:
+	if not _scene_navigation and app_id == &"backup" and _backup_port == null:
 		return _route_failure(&"backup_unavailable")
-	if app_id == &"settings" and (_host_state == null or get_node_or_null("/root/ProfileManager") == null or get_node_or_null("/root/LocalizationManager") == null):
+	if not _scene_navigation and app_id == &"settings" and (_host_state == null or get_node_or_null("/root/ProfileManager") == null or get_node_or_null("/root/LocalizationManager") == null):
 		return _route_failure(&"settings_dependencies_unavailable")
 	var app: Node = _cached_app_windows.get(app_id)
 	if not is_instance_valid(app):
@@ -644,7 +722,7 @@ func open_app(app_id: StringName) -> Dictionary:
 		if scene == null:
 			return _route_failure(&"desktop_scene_unavailable")
 		app = scene.instantiate()
-		if app_id == &"settings":
+		if not _scene_navigation and app_id == &"settings":
 			var presentation: Dictionary = app.configure_run_presentation(_run_palette, _day)
 			if not presentation.get("ok", false):
 				app.free()
@@ -652,7 +730,10 @@ func open_app(app_id: StringName) -> Dictionary:
 		app.hide()
 		app_window_host.add_child(app)
 		var configured: Dictionary
-		if app_id == &"contacts":
+		if _scene_navigation:
+			var scene_prepared: Variant = _scene_app_prepare.call(app_id, app)
+			configured = scene_prepared if typeof(scene_prepared) == TYPE_DICTIONARY else {"ok": false, "code": &"invalid_scene_app_preparation"}
+		elif app_id == &"contacts":
 			configured = app.configure_presentation(_presentation_port, _localization, _profile, _run_palette, _day)
 		elif app_id == &"minesweeper":
 			configured = app.configure_presentation(_minesweeper_port, _localization, _profile, _minesweeper_input, _run_palette, _day)
@@ -698,7 +779,7 @@ func open_app(app_id: StringName) -> Dictionary:
 		var prepared: Dictionary = app.prepare_show_window()
 		if not prepared.get("ok",false): return _route_failure(prepared.get("code",&"desktop_open_rejected"))
 	if _host_state != null:
-		var opened: Dictionary = _host_state.open_app(app_id, _day)
+		var opened: Dictionary = _scene_navigate(app_id) if _scene_navigation else _host_state.open_app(app_id, _day)
 		if not opened.get("ok", false):
 			return _route_failure(opened.get("code", &"desktop_open_rejected"))
 	_active_id = app_id
@@ -816,6 +897,7 @@ func _warning_navigation_fail(code: StringName) -> Dictionary:
 
 
 func return_home() -> Dictionary:
+	if _scene_navigation_failed or (_scene_navigation and _run_configuration_masked): return {"ok": false, "code": &"desktop_home_rejected"}
 	if is_instance_valid(_confirmation): return {"ok": false, "code": &"desktop_modal_active"}
 	if _active_id == &"":
 		return {"ok": true}
@@ -828,7 +910,7 @@ func return_home() -> Dictionary:
 		var prepared: Dictionary = app.prepare_return_home()
 		if not prepared.get("ok",false): return _route_failure(prepared.get("code",&"desktop_home_rejected"))
 	if _host_state != null:
-		var closed: Dictionary = _host_state.close_app()
+		var closed: Dictionary = _scene_navigate(&"", true) if _scene_navigation else _host_state.close_app()
 		if not closed.get("ok", false):
 			return _route_failure(closed.get("code", &"desktop_home_rejected"))
 	var source := _active_id
@@ -851,6 +933,7 @@ func _on_app_hidden(app_id: StringName) -> void:
 		_cached_app_windows[app_id].show()
 
 func _on_daily_state_reset() -> void:
+	if _scene_navigation: return
 	_reset_delivery_notice()
 	if is_instance_valid(_confirmation):
 		_confirmation._finish(false)
@@ -867,6 +950,7 @@ func _on_daily_state_reset() -> void:
 	launcher_buttons[&"minesweeper"].grab_focus()
 
 func dispatch_desktop_eviction(command: Dictionary) -> Dictionary:
+	if _scene_navigation: return {"ok": false, "code": &"scene_calendar_command_forbidden"}
 	if command.get("kind") != &"evict_cached_apps" or int(command.get("day", 0)) <= 0:
 		return {"ok": false, "code": &"invalid_desktop_eviction"}
 	_day = int(command.day)
@@ -884,6 +968,7 @@ func _mask_run_configuration(code: StringName) -> void:
 	_route_failure(code)
 
 func _configure_from_bootstrap() -> void:
+	if _scene_navigation_failed: return
 	_run_configuration_required = true
 	if _bootstrap == null or not _bootstrap.get_startup_state().get("ready",false):
 		_mask_run_configuration(&"run_configuration_unavailable")
@@ -932,7 +1017,7 @@ func _refresh_launcher(refresh_contacts: bool = true) -> void:
 	touch_navigation.visible = bool(_profile.get_preference("preferences.accessibility.large_targets", false)) if _profile != null and _profile.has_method("get_preference") else false
 	_refresh_strip_layout()
 	_refresh_app_scroll()
-	theme = DESKTOP_THEME.build(_locale, _percent, _run_palette, WEEK_TINT.tint_for_day(_day), high_contrast, colour_preset, _font_style)
+	theme = DESKTOP_THEME.build(_locale, _percent, _run_palette, (0.0 if _scene_navigation else WEEK_TINT.tint_for_day(_day)), high_contrast, colour_preset, _font_style)
 	var notice_style := StyleBoxFlat.new()
 	notice_style.bg_color = theme.get_color("face", "Desktop")
 	notice_style.border_color = theme.get_color("structure", "Desktop")
@@ -943,12 +1028,12 @@ func _refresh_launcher(refresh_contacts: bool = true) -> void:
 	delivery_notice.add_theme_stylebox_override("panel", notice_style)
 	_refresh_message_notification_copy()
 	_refresh_delivery_caption()
-	var ids: Array[StringName] = APP_REGISTRY.new().get_ids()
+	var ids: Array[StringName] = _launcher_ids()
 	for index in ids.size():
 		var button: Button = launcher_buttons[ids[index]]
 		button.theme = theme
 		if ids[index] != &"contacts" or refresh_contacts:
-			button.set_caption(LABELS[_locale][index])
+			button.set_caption(LABELS[_locale][ids[index]])
 	var home: String = {"en": "Home", "zh-CN": "主页", "zh-HK": "主頁", "ja": "ホーム", "ko": "홈"}[_locale]
 	home_button.accessibility_name = home
 	home_button.current_on_launcher = _active_id == &""
@@ -957,7 +1042,7 @@ func _refresh_launcher(refresh_contacts: bool = true) -> void:
 	var foreground: Node = _cached_app_windows.get(_active_id)
 	if is_instance_valid(_confirmation) or is_instance_valid(foreground) and foreground.has_method("can_return_home") and not foreground.can_return_home():
 		home_button.focus_mode = Control.FOCUS_NONE
-	title_label.text = home if _active_id == &"" else (LABELS[_locale][ids.find(_active_id)] if _active_id in ids else {"en": "Unavailable", "zh-CN": "不可用", "zh-HK": "不可用", "ja": "利用できません", "ko": "이용할 수 없어요"}[_locale])
+	title_label.text = home if _active_id == &"" else (LABELS[_locale][_active_id] if _active_id in ids else {"en": "Unavailable", "zh-CN": "不可用", "zh-HK": "不可用", "ja": "利用できません", "ko": "이용할 수 없어요"}[_locale])
 	clock_label.accessibility_name = {"en": "Local time", "zh-CN": "本地时间", "zh-HK": "本地時間", "ja": "現地時刻", "ko": "현지 시간"}[_locale]
 	var navigation_copy: Array = {
 		"en": ["Previous control", "Next control", "Confirm focused control"],
@@ -1129,7 +1214,7 @@ func _refresh_contact_notice() -> void:
 	var view: Dictionary = _presentation_port.get_projection("", _locale)
 	if not view.get("ok", false): return
 	var unread: bool = view.value.unread.values().has(true)
-	var caption: String = LABELS[_locale][1]
+	var caption: String = LABELS[_locale][&"contacts"]
 	contacts_button.set_caption(caption)
 	contacts_button.set_unread(unread)
 	contacts_button.accessibility_name = caption + ({"en": ", new message",
@@ -1175,3 +1260,4 @@ func _draw() -> void:
 	var chrome_height := (64.0 + _quick_status_band_height()) * desktop_canvas.scale.y
 	draw_rect(Rect2(0, size.y - chrome_height, size.x, chrome_height), get_theme_color("face", "Desktop"))
 	draw_rect(Rect2(0, size.y - footer_height, size.x, 2 * desktop_canvas.scale.y), get_theme_color("structure", "Desktop"))
+
