@@ -1,0 +1,75 @@
+[
+  {
+    "id": 11605685210,
+    "name": "scene-runtime-integration-recovery-37907406635-1",
+    "digest": "sha256:8307f8ddd3377e937147fe222bb7a58c07029e842e974c1942aca15858542ad9",
+    "path": "evidence-downloads/scene-runtime-integration-recovery-37907406635-1.zip",
+    "sha256": "8307f8ddd3377e937147fe222bb7a58c07029e842e974c1942aca15858542ad9",
+    "members": 8,
+    "source": {
+      "source_sha": "7d5ba28b8f9102de1dfa660cff896b4cce4d599e",
+      "source_tree": "20fd26343ed78f459aa6f5b9d3b37b239c626b22",
+      "controller_event_sha": "0e73e04c6729228cb28fb4d742bd1230eb95a9ce",
+      "run_id": "37907406635",
+      "run_attempt": "1",
+      "suite": "recovery",
+      "scope": "D-fix diagnostics: early Run/Save history refusal, detached reading anchor membership, memory journal recovery; no complete positive Run9/Save9, filesystem or runtime acceptance"
+    },
+    "cases": 5,
+    "xml_assertions": 140,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0,
+    "log_totals": [
+      "138/140"
+    ]
+  },
+  {
+    "id": 11605655271,
+    "name": "scene-runtime-integration-history-37907406635-1",
+    "digest": "sha256:5ac1db7cc4b40404910c5edbd655bba246d9b41e530635c837cf69de55d95c36",
+    "path": "evidence-downloads/scene-runtime-integration-history-37907406635-1.zip",
+    "sha256": "5ac1db7cc4b40404910c5edbd655bba246d9b41e530635c837cf69de55d95c36",
+    "members": 8,
+    "source": {
+      "source_sha": "7d5ba28b8f9102de1dfa660cff896b4cce4d599e",
+      "source_tree": "20fd26343ed78f459aa6f5b9d3b37b239c626b22",
+      "controller_event_sha": "0e73e04c6729228cb28fb4d742bd1230eb95a9ce",
+      "run_id": "37907406635",
+      "run_attempt": "1",
+      "suite": "history",
+      "scope": "D-fix diagnostics: early Run/Save history refusal, detached reading anchor membership, memory journal recovery; no complete positive Run9/Save9, filesystem or runtime acceptance"
+    },
+    "cases": 0,
+    "xml_assertions": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "log_totals": []
+  },
+  {
+    "id": 11604664751,
+    "name": "scene-runtime-integration-anchors-37907406635-1",
+    "digest": "sha256:e4701a27f0d3e9566efaaf6dc6ff11ab9a01b005e29fc77e3515532f9e6268d4",
+    "path": "evidence-downloads/scene-runtime-integration-anchors-37907406635-1.zip",
+    "sha256": "e4701a27f0d3e9566efaaf6dc6ff11ab9a01b005e29fc77e3515532f9e6268d4",
+    "members": 9,
+    "source": {
+      "source_sha": "7d5ba28b8f9102de1dfa660cff896b4cce4d599e",
+      "source_tree": "20fd26343ed78f459aa6f5b9d3b37b239c626b22",
+      "controller_event_sha": "0e73e04c6729228cb28fb4d742bd1230eb95a9ce",
+      "run_id": "37907406635",
+      "run_attempt": "1",
+      "suite": "anchors",
+      "scope": "D-fix diagnostics: early Run/Save history refusal, detached reading anchor membership, memory journal recovery; no complete positive Run9/Save9, filesystem or runtime acceptance"
+    },
+    "cases": 1,
+    "xml_assertions": 13,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "log_totals": [
+      "14"
+    ]
+  }
+]
