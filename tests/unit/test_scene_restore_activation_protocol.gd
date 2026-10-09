@@ -38,9 +38,15 @@ class Participant:
 	var published := 0
 	var rollbacks := 0
 	var activated := 0
+	var silent_applies := 0
+	var route_generation := 1
+	var last_plan: Dictionary = {}
 	var begin_observer := Callable()
 	func capture() -> Dictionary: return {"ok": true, "value": {}}
-	func apply_silent(_plan: Dictionary) -> Dictionary: return {"ok": true, "value": {"route_ready_token": {}}}
+	func apply_silent(plan: Dictionary) -> Dictionary:
+		silent_applies += 1
+		last_plan = plan.duplicate(true)
+		return {"ok": true, "value": {"route_ready_token": {"generation": route_generation}}}
 	func rollback_silent(_backup: Dictionary) -> Dictionary:
 		rollbacks += 1
 		return {"ok": true}
@@ -70,6 +76,7 @@ var operation: Dictionary
 var participants: Dictionary
 var plans: Dictionary
 var gate: Gate
+var route_crash_text := ""
 
 func before_each() -> void:
 	storage = JOURNAL_TEST.MemoryStorage.new()
@@ -96,9 +103,11 @@ func before_each() -> void:
 		var result: Dictionary = journal.advance({"transaction_id": tx, "request_fingerprint": operation.request_fingerprint,
 			"expected_stage": JOURNAL.STAGE_APPLYING, "next_stage": JOURNAL.STAGE_APPLYING,
 			"expected_next_participant_index": operation.next_participant_index,
-			"allocation_receipt": null, "participant_name": name, "participant_receipt": {}, "failure": null})
+			"allocation_receipt": null, "participant_name": name,
+			"participant_receipt": {"route_ready_token": {"generation": 1}} if name == "route" else {}, "failure": null})
 		assert_true(result.ok)
 		operation = result.value
+		if name == "route": route_crash_text = storage.text
 	_advance(JOURNAL.STAGE_APPLIED)
 	manager = MANAGER.new()
 	manager._continuation_journal = journal
@@ -172,3 +181,53 @@ func test_native_failure_after_completed_retains_target_and_custody() -> void:
 	assert_eq(participants.route.published, 0)
 	assert_false(gate.released)
 	assert_true(gate.fatal)
+
+func test_restart_after_recorded_route_reapplies_live_owners_without_rewriting_prefix() -> void:
+	# Capture was produced by the real journal immediately after route's receipt,
+	# before narrative/APPLIED. Reopen those exact bytes with fresh process owners.
+	manager.free()
+	storage = JOURNAL_TEST.MemoryStorage.new()
+	storage.text = route_crash_text
+	journal = JOURNAL_TEST.StateMachineOnly.new()
+	assert_true(journal.configure(storage, JOURNAL_TEST.SourceLoader.new()).ok)
+	var loaded: Dictionary = journal.get_operation(operation.transaction_id)
+	assert_true(loaded.ok)
+	if not loaded.ok:
+		manager = MANAGER.new()
+		return
+	operation = loaded.value
+	assert_eq(operation.stage, JOURNAL.STAGE_APPLYING)
+	assert_eq(operation.next_participant_index, 7)
+	var original_prefix: Dictionary = operation.participant_receipts.duplicate(true)
+	var original_allocation: Dictionary = operation.allocation_receipt.duplicate(true)
+	participants = {}
+	for name: String in JOURNAL.SCENE_PARTICIPANT_ORDER:
+		participants[name] = Participant.new()
+	participants.route.route_generation = 77
+	manager = MANAGER.new()
+	manager._continuation_journal = journal
+	manager._journal = Checkpoints.new()
+	manager._restore_participants = participants
+	gate = Gate.new()
+	manager._mutation_gate = gate
+	manager._lock_owner = &"restore"
+	var result: Dictionary = manager._run_scene_restore_transaction(plans, {}, "scene", "selected", true,
+		{"kind": "scene_restore", "transaction_id": operation.transaction_id,
+			"request_fingerprint": operation.request_fingerprint}, "lease", false)
+	assert_eq(result.get("code"), &"scene_activation_pending", str(result))
+	var retained: Dictionary = journal.get_operation(operation.transaction_id).value
+	assert_eq(retained.stage, JOURNAL.STAGE_COMPLETED)
+	assert_eq(retained.activation_state, "pending")
+	assert_eq(retained.transaction_id, operation.transaction_id)
+	assert_eq(storage.writes, 3, "only narrative suffix, APPLIED and COMPLETED are newly recorded")
+	assert_eq(retained.allocation_receipt, original_allocation)
+	for name: String in original_prefix:
+		assert_eq(retained.participant_receipts[name], original_prefix[name], "durable prefix stays exact: " + name)
+	for participant: Participant in participants.values():
+		assert_eq(participant.silent_applies, 1, "fresh process rebuilds each owner exactly once")
+		assert_eq(participant.rollbacks, 0)
+		assert_eq(participant.published, 0, "silent replay publishes no consequence")
+	assert_eq(participants.narrative.last_plan.route_ready_token.generation, 77,
+		"native staging receives the new process token rather than historical route receipt")
+	assert_eq(participants.run.activated, 0)
+	assert_false(participants.narrative.started)

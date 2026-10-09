@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [route, assignment]
+        suite: [history, anchors, recovery]
     defaults:
       run:
         shell: pwsh
@@ -23,21 +23,21 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: eba66f0371470c97ba926e2ae84ef19b0e3fee07
+          ref: 7d5ba28b8f9102de1dfa660cff896b4cce4d599e
           fetch-depth: 0
           persist-credentials: true
       - name: Verify and record immutable source before import
         run: |
           $ErrorActionPreference = 'Stop'
           $source = (git rev-parse HEAD).Trim()
-          if ($LASTEXITCODE -ne 0 -or $source -cne 'eba66f0371470c97ba926e2ae84ef19b0e3fee07') { throw 'Wrong source commit.' }
+          if ($LASTEXITCODE -ne 0 -or $source -cne '7d5ba28b8f9102de1dfa660cff896b4cce4d599e') { throw 'Wrong source commit.' }
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($LASTEXITCODE -ne 0 -or $tree -cne '1bcc407af37394fcaec88000ff05c367e33497a0') { throw 'Wrong source tree.' }
+          if ($LASTEXITCODE -ne 0 -or $tree -cne '20fd26343ed78f459aa6f5b9d3b37b239c626b22') { throw 'Wrong source tree.' }
 
-          $parent = '4b21a420a1b7aae19595c220e5a70ee66ae43afc'
+          $parent = 'eba66f0371470c97ba926e2ae84ef19b0e3fee07'
           $parents = @((git rev-list --parents -n 1 HEAD).Trim().Split(' '))
           if ($LASTEXITCODE -ne 0 -or $parents.Count -ne 2 -or $parents[1] -cne $parent) { throw 'Wrong integration parent.' }
-          $expected = @('scripts/domain/desktop/DesktopAppHostState.gd', 'tests/unit/test_scene_new_run_assignment.gd')
+          $expected = @('autoload/SaveManager.gd', 'autoload/GameState.gd', 'scripts/domain/run/RunSnapshotSchema.gd', 'tests/unit/test_scene_restore_activation_protocol.gd', 'tests/unit/test_scene_save_history_run.gd', 'tests/integration/test_scene_event_anchor_membership.gd', 'docs/design/2026-10-09-scene-initial-admission-review.md')
           $delta = @(git diff --name-only $parent HEAD)
           if ((@($delta | Sort-Object -CaseSensitive) -join "`n") -cne (@($expected | Sort-Object -CaseSensitive) -join "`n")) { throw 'Wrong integration path set.' }
           $files = @()
@@ -55,7 +55,7 @@ jobs:
           [ordered]@{
             source_sha = $source; source_tree = $tree; controller_event_sha = $env:GITHUB_SHA
             run_id = $env:GITHUB_RUN_ID; run_attempt = $env:GITHUB_RUN_ATTEMPT
-            suite = '${{ matrix.suite }}'; scope = 'Bounded scene restore diagnostics; injected journal/transport tests and mounted native frontier; no positive Save9 filesystem, NewRun, production UI or whole-runtime acceptance'
+            suite = '${{ matrix.suite }}'; scope = 'D-fix diagnostics: early Run/Save history refusal, detached reading anchor membership, memory journal recovery; no complete positive Run9/Save9, filesystem or runtime acceptance'
           } | ConvertTo-Json | Set-Content -LiteralPath '.godot/ci/source-receipt.json' -Encoding utf8
       - name: Prepare disposable index for checkout cleanup
         run: |
@@ -104,6 +104,9 @@ jobs:
           # Each matrix job is a fresh Godot process. Scene registration selection
           # cannot leak into legacy readers or another fixture's immutable caches.
           $scripts = switch ($suite) {
+            'history' { @('tests/unit/test_scene_save_history_run.gd') }
+            'anchors' { @('tests/integration/test_scene_event_anchor_membership.gd') }
+            'recovery' { @('tests/unit/test_scene_restore_activation_protocol.gd') }
             'schema' { @('tests/unit/test_scene_save_schema.gd', 'tests/unit/test_scene_lifecycle_state.gd', 'tests/unit/test_scene_runtime_remap.gd') }
             'journal' { @('tests/unit/test_scene_restore_journal.gd', 'tests/unit/test_scene_restore_activation_protocol.gd') }
             'route' { @('tests/integration/test_scene_route_activation.gd', 'tests/unit/test_scene_bootstrap_recovery.gd', 'tests/unit/test_scene_desktop_host_restore.gd', 'tests/unit/test_scene_board_restore_dispatch.gd') }
@@ -122,7 +125,7 @@ jobs:
           # GUT rejects unknown user arguments, so select the debug-only fixture
           # through the child process environment instead of its CLI parser.
           Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
-          if ($suite -eq 'native') { $env:DWM_SCENE_READING_FIXTURE = '1' }
+          if ($suite -in @('native', 'anchors')) { $env:DWM_SCENE_READING_FIXTURE = '1' }
           & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId "scene-runtime-integration-controller-$suite" -LogName "$suite.log" -EvidenceLogPath ".godot/ci/$suite.jsonl" -TimeoutSeconds 480 -GodotArgs $gutArguments
           $result = $LASTEXITCODE
           $log = ".godot/phase2r_logs/$suite.log"

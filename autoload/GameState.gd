@@ -4178,6 +4178,17 @@ func validate_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary)
 	if not physical.ok: return physical
 	var frozen: Dictionary = _SCENE_FROZEN.validate(snapshot, true)
 	if not frozen.get("ok", false): return frozen
+	# Receipt authentication and frozen frame derivation are independent proofs.
+	# Join every authenticated event to the actual retained reading ledger as well:
+	# historical occurrences remain valid, but invented publications never do.
+	if not checked.value.commands.is_empty():
+		if not is_instance_valid(_scene_event_bridge) \
+				or not _scene_event_bridge.has_method("validate_scene_event_anchor"):
+			return _transaction_failure(&"event_dependency_invalid", "scene reading anchor validator required")
+		for receipt: Dictionary in checked.value.commands.values():
+			var anchored: Dictionary = _scene_event_bridge.validate_scene_event_anchor(
+				receipt.scene_event.reading_anchor, snapshot.narrative_checkpoint)
+			if not anchored.get("ok", false): return anchored
 	return {"ok": true}
 
 func _install_scene_snapshot_silent(snapshot: Dictionary) -> Dictionary:
