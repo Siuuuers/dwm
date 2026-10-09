@@ -17,6 +17,9 @@ const ENVELOPE := preload("res://scripts/application/run/DatingChallengeEnvelope
 const RECORD_KEYS := ["applied_result", "board", "command_sha256", "completion_transaction_id", "context",
 	"host", "mine_dispositions", "outcome", "pair_form", "perfect_reasons", "phase", "physical_token",
 	"relationship_outcome", "schema_version", "spec"]
+const SCENE_RECORD_KEYS := ["schema_version", "completion_transaction_id", "command_sha256", "physical_token",
+	"context", "host", "spec", "board", "envelope", "phase", "state", "applied_result"]
+const SCENE_CONTEXT_KEYS := ["kind", "scene_occurrence", "challenge_id", "playable_command_id", "registration_sha256"]
 const RECEIPTS := ["materialization_receipt", "clear_receipt", "terminal_receipt", "effect_receipt", "completion_receipt"]
 const EFFECT_KEYS := ["attitude", "momentum_delta", "outcome", "perfect_reasons", "progression_evaluated",
 	"relationship_outcome", "relationship_state", "ruleset_id", "ruleset_status", "scene_id", "terminal_fact", "tone_delta"]
@@ -47,6 +50,8 @@ static func prepare_update(ledger: Dictionary, run_id: String, slot_id: String, 
 	if not _valid_record(record) or run_id.strip_edges().is_empty() or branch_id.strip_edges().is_empty() \
 			or slot_id != semantic_slot(record.context) or expected_revision < 0:
 		return _fail(&"invalid_dating_attempt")
+	var scene: bool = record.schema_version == 4
+	if scene and not frozen_effect.is_empty(): return _fail(&"invalid_dating_effect_receipt")
 	var mode: String = str(selection.get("mode", ""))
 	if not selection.is_empty():
 		if mode not in ["branch", "fresh", "continue"]: return _fail(&"invalid_dating_selection")
@@ -54,6 +59,8 @@ static func prepare_update(ledger: Dictionary, run_id: String, slot_id: String, 
 		if not _keys(selection, fields): return _fail(&"invalid_dating_selection")
 	var slot: Dictionary = ledger.get(run_id, {}).get(slot_id, {})
 	var attempt_id: String = str(record.spec.board_token)
+	if scene and not slot.is_empty() and slot.first_attempt_id != attempt_id:
+		return _fail(&"scene_challenge_attempt_already_started")
 	var previous := {}
 	var generation := 1
 	var effective_branch := branch_id
@@ -67,7 +74,8 @@ static func prepare_update(ledger: Dictionary, run_id: String, slot_id: String, 
 			effective_branch = str(previous.branch_id)
 			generation = int(previous.generation)
 	elif mode == "fresh":
-		if record.phase != "challenge" or record.board != null: return _fail(&"dating_fresh_entry_required")
+		if record.board != null or (record.phase not in ["ready", "preparing", "preparation_failed"] if scene else record.phase != "challenge"):
+			return _fail(&"dating_fresh_entry_required")
 		if not slot.is_empty() and slot.attempts.has(attempt_id):
 			var history: Dictionary = slot.attempts[attempt_id]
 			if history.origin_branch_id != branch_id: return _fail(&"dating_entry_conflict")
@@ -186,6 +194,7 @@ static func validate(ledger: Variant) -> Dictionary:
 							or not _keys(progress, PROGRESS_KEYS): return _fail(&"invalid_dating_ledger")
 					var checked := validate_attempt(_flatten(run_id, slot_id, attempt_id, branch_id, history))
 					if not checked.ok: return checked
+					if progress.record.schema_version == 4 and slot.attempts.size() != 1: return _fail(&"scene_challenge_attempt_already_started")
 	return _ok(ledger.duplicate(true))
 
 ## Every prior attempt and branch stays retained; only its latest progress advances.
@@ -229,6 +238,8 @@ static func _prepare_flat(ledger: Dictionary, run_id: String, slot_id: String, b
 	if run_id.strip_edges().is_empty() or branch_id.strip_edges().is_empty() or expected_revision < 0 \
 			or not _valid_record(record) or slot_id != semantic_slot(record.context):
 		return _fail(&"invalid_dating_attempt")
+	if record.schema_version == 4:
+		return _prepare_scene_flat(ledger, run_id, slot_id, branch_id, record, expected_revision, first_cell_index, frozen_effect)
 	var previous: Dictionary = ledger.get(run_id, {}).get(slot_id, {})
 	if not previous.is_empty() and not validate_attempt(previous).ok: return _fail(&"invalid_dating_attempt")
 	var attempt: Dictionary
@@ -317,6 +328,7 @@ static func validate_attempt(attempt: Dictionary) -> Dictionary:
 	if typeof(attempt.revision) != TYPE_INT or attempt.revision < 1 \
 			or attempt.slot_id != semantic_slot(record.context) or attempt.attempt_id != record.spec.board_token \
 			or attempt.entry_receipt != _entry(record): return _fail(&"invalid_dating_attempt")
+	if record.schema_version == 4: return _validate_scene_attempt(attempt)
 	var material: Variant = attempt.materialization_receipt
 	if record.board == null:
 		if material != null: return _fail(&"invalid_dating_materialization")
@@ -375,6 +387,13 @@ static func _valid_effect(effect: Dictionary, record: Dictionary, slot_id: Strin
 	return effect.terminal_fact.transaction_id is String and not effect.terminal_fact.transaction_id.is_empty()
 
 static func semantic_slot(context: Dictionary) -> String:
+	if context.get("kind") == "scene_challenge":
+		if not _keys(context, SCENE_CONTEXT_KEYS) or not _scene_json(context): return ""
+		for key: String in ["scene_occurrence", "challenge_id", "playable_command_id"]:
+			if not _id(context[key]): return ""
+		if not _hash(context.registration_sha256): return ""
+		var hashed: Dictionary = CANONICAL.canonical_sha256([context.scene_occurrence, context.challenge_id])
+		return "scene.challenge." + str(hashed.value.sha256) if hashed.ok else ""
 	if typeof(context.get("day")) != TYPE_INT or not context.get("participants") is Array: return ""
 	var day: int = context.day
 	if context.get("kind") == "solo" and context.participants.size() == 1:
@@ -387,6 +406,8 @@ static func semantic_slot(context: Dictionary) -> String:
 	return ""
 
 static func _entry(record: Dictionary) -> Dictionary:
+	if record.schema_version == 4:
+		return {"record_version": 4, "context": record.context.duplicate(true), "host": record.host, "spec": record.spec.duplicate(true)}
 	var entry := {"spec": record.spec.duplicate(true), "context": record.context.duplicate(true),
 		"host": record.host, "pair_form": record.pair_form}
 	if record.schema_version == 3:
@@ -410,12 +431,16 @@ static func _board_advances(before: Variant, after: Variant) -> bool:
 		if not after.revealed_indices.has(index): return false
 	return true
 
+static func validate_record(record: Dictionary) -> bool:
+	return _valid_record(record)
+
 static func _valid_record(record: Dictionary) -> bool:
+	if record.get("schema_version") == 4: return _valid_scene_record(record)
 	var expected_keys: Array = RECORD_KEYS.duplicate()
 	if record.get("schema_version") == 3: expected_keys.append("envelope")
 	if not _keys(record, expected_keys) or typeof(record.schema_version) != TYPE_INT \
 			or record.schema_version not in [2, 3] or record.phase not in PHASES \
-			or not record.context is Dictionary or semantic_slot(record.context).is_empty() \
+			or not record.context is Dictionary or record.context.get("kind") == "scene_challenge" or semantic_slot(record.context).is_empty() \
 			or not record.spec is Dictionary or not BOARD.validate_spec(record.spec).ok \
 			or not record.applied_result is Dictionary or not record.mine_dispositions is Array \
 			or not record.perfect_reasons is Array: return false
@@ -477,3 +502,147 @@ static func _ok(value: Variant) -> Dictionary:
 
 static func _fail(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code, "message": "Dating attempt commitment is invalid or would change history"}
+
+## Resolve the original retained execution branch, never the latest sibling. The
+## checkpoint's actual write acknowledgement belongs to the source save owner;
+## this resolver validates its immutable shape, not the continued presence of bytes.
+static func resolve_attempt_proof(ledger: Dictionary, proof: Dictionary) -> Dictionary:
+	if not _valid_proof_shape(proof): return _fail(&"invalid_scene_attempt_proof")
+	var found: Dictionary = read(ledger, proof.run_id, proof.slot_id, proof.attempt_id, proof.branch_id)
+	if not found.ok: return found
+	return validate_attempt_proof(found.value, proof)
+
+## Allows the Profile owner's existing exact four-key lookup to supply the record.
+static func validate_attempt_proof(attempt: Dictionary, proof: Dictionary) -> Dictionary:
+	if not _valid_proof_shape(proof): return _fail(&"invalid_scene_attempt_proof")
+	if not validate_attempt(attempt).ok or attempt.record.schema_version != 4 \
+			or not attempt.has("generation"): return _fail(&"invalid_scene_attempt_proof")
+	for key: String in ["run_id", "slot_id", "attempt_id", "branch_id", "generation", "revision"]:
+		if attempt[key] != proof.get(key): return _fail(&"scene_attempt_proof_conflict")
+	var hashed: Dictionary = CANONICAL.canonical_sha256(attempt.record)
+	if not hashed.ok or hashed.value.sha256 != proof.get("record_sha256"):
+		return _fail(&"scene_attempt_proof_conflict")
+	return _ok(attempt.duplicate(true))
+
+static func _valid_scene_record(record: Dictionary) -> bool:
+	if not _keys(record, SCENE_RECORD_KEYS) or not _scene_json(record) \
+			or typeof(record.schema_version) != TYPE_INT or record.schema_version != 4 \
+			or not record.context is Dictionary or record.context.get("kind") != "scene_challenge" \
+			or semantic_slot(record.context).is_empty() or record.host != "scene_challenge" \
+			or not record.spec is Dictionary or not BOARD.validate_spec(record.spec).ok \
+			or record.applied_result != {} or record.state not in ["in_progress", "lost", "won"]: return false
+	if not _id(record.completion_transaction_id) or not _hash(record.command_sha256) or not _id(record.physical_token): return false
+	var token: Dictionary = CANONICAL.canonical_sha256(record.completion_transaction_id + "|" + record.command_sha256)
+	if not token.ok or record.physical_token != "dating_challenge." + str(token.value.sha256): return false
+	var board_host: String = {"solo_challenge": "canonical_solo", "pair_challenge": "canonical_pair"}.get(record.spec.board_kind, "")
+	var geometry: Dictionary = CATALOG.lookup(board_host)
+	if not geometry.ok or record.spec.difficulty_id != board_host \
+			or record.spec.width != geometry.value.width or record.spec.height != geometry.value.height \
+			or record.spec.base_mine_count != geometry.value.base_mine_count: return false
+	if not ENVELOPE.validate(record): return false
+	if record.board == null:
+		return record.phase in ["preparing", "preparation_failed", "ready"] and record.state == "in_progress"
+	if not record.board is Dictionary or not BOARD.validate_board(record.board).ok: return false
+	var board: Dictionary = record.board
+	if board.width != record.spec.width or board.height != record.spec.height \
+			or board.mine_count < record.spec.base_mine_count or board.mine_count > record.spec.requested_mine_count: return false
+	if not board.terminal: return record.phase == "active" and record.state == "in_progress"
+	return record.phase == "terminal" and record.state == ("lost" if str(board.outcome) == "exploded" else "won")
+
+static func _scene_terminal(record: Dictionary) -> Variant:
+	if record.state == "in_progress": return null
+	return {"state": record.state, "outcome": str(record.board.outcome),
+		"perfect_reasons": RULES.perfect_reasons(record.board, 4)}
+
+static func _prepare_scene_flat(ledger: Dictionary, run_id: String, slot_id: String, branch_id: String,
+		record: Dictionary, expected_revision: int, first_cell: int, effect: Dictionary) -> Dictionary:
+	if not effect.is_empty(): return _fail(&"invalid_dating_effect_receipt")
+	var previous: Dictionary = ledger.get(run_id, {}).get(slot_id, {})
+	if not previous.is_empty() and not validate_attempt(previous).ok: return _fail(&"invalid_dating_attempt")
+	var attempt := {"run_id": run_id, "slot_id": slot_id, "attempt_id": record.spec.board_token,
+		"branch_id": branch_id, "revision": 1, "record": record.duplicate(true), "entry_receipt": _entry(record),
+		"materialization_receipt": null, "clear_receipt": null, "terminal_receipt": null,
+		"effect_receipt": null, "completion_receipt": null}
+	if not previous.is_empty():
+		if previous.entry_receipt != _entry(record): return _fail(&"dating_entry_conflict")
+		if not ENVELOPE.advances(previous.record, record) or not _board_advances(previous.record.board, record.board):
+			return _fail(&"dating_attempt_rewind")
+		attempt = previous.duplicate(true)
+		attempt.record = record.duplicate(true)
+	if record.board != null:
+		if attempt.materialization_receipt == null:
+			if first_cell < 0: return _fail(&"dating_first_cell_required")
+			attempt.materialization_receipt = {"first_cell_index": first_cell,
+				"layout": _layout(record.board), "shell": record.envelope.shell.duplicate(true)}
+		elif first_cell != -1 and first_cell != attempt.materialization_receipt.first_cell_index:
+			return _fail(&"dating_materialization_conflict")
+	elif first_cell != -1: return _fail(&"dating_materialization_conflict")
+	attempt.terminal_receipt = _scene_terminal(record)
+	attempt.clear_receipt = attempt.terminal_receipt if record.state == "won" else null
+	if not previous.is_empty():
+		for key: String in RECEIPTS:
+			if previous[key] != null and attempt[key] != previous[key]: return _fail(&"dating_receipt_conflict")
+		if attempt == previous: return _ok({"ledger": ledger.duplicate(true), "attempt": attempt, "changed": false})
+		attempt.revision = int(previous.revision) + 1
+	if expected_revision != int(previous.get("revision", 0)): return _fail(&"dating_revision_conflict")
+	if not validate_attempt(attempt).ok: return _fail(&"invalid_dating_attempt")
+	var candidate: Dictionary = ledger.duplicate(true)
+	if not candidate.has(run_id): candidate[run_id] = {}
+	candidate[run_id][slot_id] = attempt.duplicate(true)
+	return _ok({"ledger": candidate, "attempt": attempt, "changed": true})
+
+static func _validate_scene_attempt(attempt: Dictionary) -> Dictionary:
+	if not _scene_json(attempt): return _fail(&"invalid_dating_attempt")
+	var record: Dictionary = attempt.record
+	var terminal: Variant = _scene_terminal(record)
+	if attempt.terminal_receipt != terminal or attempt.clear_receipt != (terminal if record.state == "won" else null) \
+			or attempt.effect_receipt != null or attempt.completion_receipt != null: return _fail(&"invalid_dating_receipt")
+	var material: Variant = attempt.materialization_receipt
+	if record.board == null:
+		return _ok(attempt.duplicate(true)) if material == null else _fail(&"invalid_dating_materialization")
+	if not material is Dictionary or not _keys(material, ["first_cell_index", "layout", "shell"]) \
+			or typeof(material.first_cell_index) != TYPE_INT or material.layout != _layout(record.board) \
+			or material.shell != record.envelope.shell: return _fail(&"invalid_dating_materialization")
+	if record.envelope.forced_cell >= 0 and material.first_cell_index != record.envelope.forced_cell:
+		return _fail(&"invalid_dating_materialization")
+	var initial: Dictionary = REDUCER.first_reveal(material.layout, material.first_cell_index, material.shell)
+	if not initial.ok: return _fail(&"invalid_dating_materialization")
+	for cell: int in initial.value.board.revealed_indices:
+		if cell not in record.board.revealed_indices: return _fail(&"invalid_dating_materialization")
+	if record.board.actions.size() == material.shell.actions.size():
+		var plain: Dictionary = ENVELOPE.plain_frontier(initial.value.board)
+		if not plain.ok or plain.value != record.board: return _fail(&"invalid_dating_materialization")
+	return _ok(attempt.duplicate(true))
+
+static func _id(value: Variant) -> bool:
+	return value is String and not value.strip_edges().is_empty()
+
+static func _hash(value: Variant) -> bool:
+	if not value is String or value.length() != 64: return false
+	for character: String in value:
+		if character not in "0123456789abcdef": return false
+	return true
+
+static func _scene_json(value: Variant) -> bool:
+	if value is Dictionary:
+		for key: Variant in value:
+			if not key is String or not _scene_json(value[key]): return false
+	elif value is Array:
+		for child: Variant in value:
+			if not _scene_json(child): return false
+	elif typeof(value) not in [TYPE_NIL, TYPE_BOOL, TYPE_INT, TYPE_STRING]: return false
+	return true
+
+static func _valid_proof_shape(proof: Dictionary) -> bool:
+	if not _keys(proof, ["run_id", "slot_id", "attempt_id", "branch_id", "generation", "revision", "record_sha256", "checkpoint"]) \
+			or not _scene_json(proof): return false
+	for key: String in ["run_id", "slot_id", "attempt_id", "branch_id"]:
+		if not _id(proof[key]): return false
+	if typeof(proof.generation) != TYPE_INT or proof.generation < 1 \
+			or typeof(proof.revision) != TYPE_INT or proof.revision < 1 or not _hash(proof.record_sha256) \
+			or not proof.checkpoint is Dictionary \
+			or not _keys(proof.checkpoint, ["checkpoint_id", "checkpoint_sequence", "snapshot_sha256"]) \
+			or not _id(proof.checkpoint.checkpoint_id) or typeof(proof.checkpoint.checkpoint_sequence) != TYPE_INT \
+			or proof.checkpoint.checkpoint_sequence < 1 or not _hash(proof.checkpoint.snapshot_sha256):
+		return false
+	return true
