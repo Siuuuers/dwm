@@ -58,7 +58,8 @@ var _percent := 100
 var _font_style := "pixel"
 var _action_layout_queued := false
 var _run_palette: StringName = &"after_hours"
-var _day := 1
+var _day: Variant = 1
+var _scene_presentation := false
 var _pending_presentation := false
 var _ready_result := {"ok": false, "code": &"backup_unconfigured"}
 var _pending_token: Variant
@@ -97,7 +98,7 @@ func _ready() -> void:
 	$VBoxContainer.add_theme_constant_override("separation", 0)
 	_content_host.custom_minimum_size = Vector2(BODY_MIN_WIDTH, 656)
 	auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
-	theme = BACKUP_THEME.build(_locale, _percent, _run_palette, _day)
+	theme = BACKUP_THEME.build_scene(_locale, _percent, _run_palette) if _scene_presentation else BACKUP_THEME.build(_locale, _percent, _run_palette, _day)
 	_body = Control.new()
 	_body.name = "BackupBody"
 	_body.size = Vector2(BODY_MIN_WIDTH, 656)
@@ -174,14 +175,62 @@ func _ready() -> void:
 	if _port != null:
 		refresh_view()
 
-## The scene inspection discriminator/fields are owned by A's Backup port.
-## Refuse before touching the current view until that genuine projection is installed.
-func configure_scene_backup(_scene_port: Object, _scene_localization: Object = null,
-		_scene_profile: Object = null, _scene_palette: StringName = &"after_hours") -> Dictionary:
-	return {"ok": false, "code": &"scene_backup_projection_unavailable"}
+## A owns admission and action custody. Validate the public presentation snapshot
+## before replacing services, dismissing consent or changing any installed view.
+func configure_scene_backup(port: Object, localization: Object = null,
+		profile: Object = null, palette: StringName = &"after_hours") -> Dictionary:
+	if _pending_token != null or is_instance_valid(confirmation) or _in_operation or _recovering:
+		return {"ok": false, "code": &"backup_busy"}
+	for method in ["get_projection", "prepare_action", "commit_action", "cancel_action"]:
+		if not is_instance_valid(port) or not port.has_method(method):
+			return {"ok": false, "code": &"invalid_backup_port"}
+	if (localization != null and (not is_instance_valid(localization) or not localization.has_method("get_locale"))) or (
+		profile != null and (not is_instance_valid(profile) or not profile.has_method("get_preference"))):
+		return {"ok": false, "code": &"invalid_backup_presentation"}
+	var candidate := _presentation_candidate(palette, null, localization, profile, true)
+	if candidate.is_empty():
+		return {"ok": false, "code": &"invalid_backup_presentation"}
+	var result: Variant = port.get_projection()
+	var next := _projection_records(result, true)
+	if next.is_empty():
+		return {"ok": false, "code": &"invalid_backup_projection"}
+	# The validated snapshot is adopted once, without a second port read.
+	for binding in [[_port, "projection_changed", refresh_view],
+			[_localization, "locale_changed", _on_locale_changed],
+			[_profile, "preference_changed", _on_preference_changed]]:
+		var previous: Object = binding[0]
+		if is_instance_valid(previous) and previous.has_signal(binding[1]) and previous.is_connected(binding[1], binding[2]):
+			previous.disconnect(binding[1], binding[2])
+	_port = port
+	_localization = localization
+	_profile = profile
+	_run_palette = palette
+	_day = null
+	_scene_presentation = true
+	_records = next
+	_projection_valid = true
+	_status_key = ""
+	last_result = result.duplicate(true)
+	for binding in [[_port, "projection_changed", refresh_view],
+			[_localization, "locale_changed", _on_locale_changed],
+			[_profile, "preference_changed", _on_preference_changed]]:
+		var source: Object = binding[0]
+		if is_instance_valid(source) and source.has_signal(binding[1]) and not source.is_connected(binding[1], binding[2]):
+			source.connect(binding[1], binding[2])
+	if is_node_ready():
+		_apply_presentation(candidate)
+	else:
+		_locale = candidate.locale
+		_percent = candidate.percent
+		_font_style = candidate.font_style
+		theme = candidate.theme
+	_ready_result = {"ok": true}
+	return _ready_result.duplicate(true)
 
 func configure_backup(port: Object, localization: Object = null, profile: Object = null,
 		palette: StringName = &"after_hours", day: int = 1) -> Dictionary:
+	if _scene_presentation:
+		return {"ok": false, "code": &"scene_presentation_active"}
 	for method in ["get_projection", "prepare_action", "commit_action", "cancel_action"]:
 		if port == null or not port.has_method(method):
 			return {"ok": false, "code": &"invalid_backup_port"}
@@ -202,6 +251,8 @@ func configure_backup(port: Object, localization: Object = null, profile: Object
 	return _ready_result
 
 func configure_run_presentation(palette: StringName, day: int) -> Dictionary:
+	if _scene_presentation:
+		return {"ok": false, "code": &"scene_presentation_active"}
 	if palette == _run_palette and day == _day:
 		return {"ok": true}
 	var candidate: Dictionary = _presentation_candidate(palette, day, _localization, _profile)
@@ -249,21 +300,18 @@ func refresh_view() -> Dictionary:
 		return {"ok": false, "code": &"backup_unconfigured"}
 	if is_instance_valid(confirmation):
 		confirmation._finish(false)
-	var result: Dictionary = _port.get_projection()
+	var result: Variant = _port.get_projection()
+	if not result is Dictionary:
+		_projection_failure()
+		return {"ok": false, "code": &"invalid_backup_projection"}
 	last_result = result.duplicate(true)
 	if not result.get("ok", false):
 		_projection_failure()
 		return result
-	var records: Variant = result.get("value", {}).get("records")
-	if not records is Array or records.size() != 9:
+	var next := _projection_records(result, _scene_presentation)
+	if next.is_empty():
 		_projection_failure()
 		return {"ok": false, "code": &"invalid_backup_projection"}
-	var next := {}
-	for index in LOCATORS.size():
-		if not records[index] is Dictionary or records[index].get("locator") != LOCATORS[index] or not records[index].has_all(["state", "actions"]):
-			_projection_failure()
-			return {"ok": false, "code": &"invalid_backup_projection"}
-		next[LOCATORS[index]] = records[index].duplicate(true)
 	_records = next
 	_projection_valid = true
 	if _recovering:
@@ -272,6 +320,55 @@ func refresh_view() -> Dictionary:
 	_refresh_presentation()
 	return result
 
+## Surface validation only: never re-admit a Save, derive a family or grant an action.
+func _projection_records(result: Variant, require_family: bool) -> Dictionary:
+	if not result is Dictionary or typeof(result.get("ok")) != TYPE_BOOL or not result.ok:
+		return {}
+	var value: Variant = result.get("value")
+	if not value is Dictionary:
+		return {}
+	var records: Variant = value.get("records")
+	if not records is Array or records.size() != LOCATORS.size():
+		return {}
+	var next := {}
+	for index in LOCATORS.size():
+		var record: Variant = records[index]
+		if not record is Dictionary or record.get("locator") != LOCATORS[index] or not record.has_all(["state", "actions"]):
+			return {}
+		if require_family and not _scene_record_valid(record, LOCATORS[index]):
+			return {}
+		next[LOCATORS[index]] = record.duplicate(true)
+	return next
+
+func _scene_record_valid(record: Variant, locator: String) -> bool:
+	var fields := ["locator", "state", "family", "day", "saved_time", "fallback",
+		"load_family", "load_day", "load_saved_time", "reason", "actions"]
+	if not record is Dictionary or record.size() != fields.size() or not record.has_all(fields):
+		return false
+	if record.locator != locator or record.state not in ["empty", "occupied", "unavailable"]:
+		return false
+	if record.family not in [null, "scene", "legacy_day"] or record.load_family not in [null, "scene", "legacy_day"]:
+		return false
+	if typeof(record.fallback) != TYPE_BOOL or not record.reason is String:
+		return false
+	for prefix in ["", "load_"]:
+		if typeof(record[prefix + "day"]) not in [TYPE_NIL, TYPE_INT, TYPE_FLOAT]:
+			return false
+		var saved_time: Variant = record[prefix + "saved_time"]
+		if saved_time != null and not saved_time is String:
+			return false
+		if record[prefix + "family"] == "scene" and record[prefix + "day"] != null:
+			return false
+	if record.fallback and record.load_saved_time != null:
+		return false
+	var actions: Variant = record.actions
+	if not actions is Dictionary or actions.size() != 3:
+		return false
+	for action in ["save", "load", "delete"]:
+		if typeof(actions.get(action)) != TYPE_BOOL:
+			return false
+	return true
+
 func _projection_failure() -> void:
 	_projection_valid = false
 	_recovering = false
@@ -279,8 +376,8 @@ func _projection_failure() -> void:
 	_refresh_presentation()
 	status_label.text = _t("unavailable")
 
-func _presentation_candidate(palette: StringName, day: int, localization: Object,
-		profile: Object) -> Dictionary:
+func _presentation_candidate(palette: StringName, day: Variant, localization: Object,
+		profile: Object, scene: bool = false) -> Dictionary:
 	var locale := _locale
 	if localization != null:
 		var requested := str(localization.get_locale()).replace("_", "-")
@@ -290,13 +387,13 @@ func _presentation_candidate(palette: StringName, day: int, localization: Object
 	var high_contrast := bool(profile.get_preference("preferences.accessibility.high_contrast", false)) if profile != null else false
 	var colour_preset := str(profile.get_preference("preferences.accessibility.colour_differentiation", "standard")) if profile != null else "standard"
 	var font_style := str(profile.get_preference("preferences.accessibility.font_style", "pixel")) if profile != null else "pixel"
-	var candidate: Theme = BACKUP_THEME.build(locale, percent, palette, day, high_contrast, colour_preset, font_style)
+	var candidate: Theme = BACKUP_THEME.build_scene(locale, percent, palette, high_contrast, colour_preset, font_style) if scene else BACKUP_THEME.build(locale, percent, palette, day, high_contrast, colour_preset, font_style)
 	if candidate == null:
 		return {}
 	return {"locale": locale, "percent": percent, "font_style": font_style, "theme": candidate}
 
 func _apply_typography(refresh_content: bool = false) -> void:
-	var candidate: Dictionary = _presentation_candidate(_run_palette, _day, _localization, _profile)
+	var candidate: Dictionary = _presentation_candidate(_run_palette, _day, _localization, _profile, _scene_presentation)
 	if not candidate.is_empty():
 		_apply_presentation(candidate, refresh_content)
 
@@ -351,7 +448,7 @@ func _refresh_presentation() -> void:
 		facts.append(_t("automatic"))
 	if record.get("fallback", false):
 		facts.append(_t("fallback"))
-		facts.append(_day_time(record.get("load_day"), record.get("load_saved_time")))
+		facts.append(_record_time(record, true))
 	if record.get("reason", "") != "":
 		facts.append(_reason_text(str(record.reason)))
 	if active_mode == "save" and record.state == "unavailable" and record.actions.get("save", false):
@@ -454,7 +551,14 @@ func _action_pressed(action: String) -> void:
 	if not prepared.get("ok", false):
 		_operation_failed(prepared)
 		return
-	var value: Dictionary = prepared.value
+	var prepared_value: Variant = prepared.get("value")
+	if _scene_presentation and (not prepared_value is Dictionary or not _scene_record_valid(prepared_value.get("record"), selected_locator)):
+		if prepared_value is Dictionary and prepared_value.get("token") != null:
+			_port.cancel_action(prepared_value.token)
+		last_result = {"ok": false, "code": &"invalid_backup_projection"}
+		_operation_failed(last_result)
+		return
+	var value: Dictionary = prepared_value
 	_pending_token = value.token
 	_confirmation_kind = str(value.get("confirmation_kind", "none"))
 	if value.get("confirmation_required", false):
@@ -475,14 +579,14 @@ func _action_pressed(action: String) -> void:
 func _confirmation_copy(record: Dictionary) -> Dictionary:
 	var kind := _confirmation_kind
 	var title_key := "overwrite_title" if kind == "overwrite" else ("delete_title" if kind == "delete" else "load_title")
-	var body := _record_state(record)
+	var body := _record_time(record, true) if _source_action == "load" else _record_state(record)
 	if kind == "fallback":
 		title_key = "fallback_title"
-		body = _t("fallback") + "\n" + _day_time(record.get("load_day"), record.get("load_saved_time"))
+		body = _t("fallback") + "\n" + _record_time(record, true)
 	elif kind.begins_with("replace_progress"):
 		if record.get("fallback", false):
 			title_key = "fallback_title"
-			body = _t("fallback") + "\n" + _day_time(record.get("load_day"), record.get("load_saved_time"))
+			body = _t("fallback") + "\n" + _record_time(record, true)
 		body += "\n\n" + _t("replace_progress")
 	elif kind == "delete":
 		body += "\n\n" + _t("delete_body")
@@ -533,11 +637,10 @@ func _commit_pending() -> void:
 func _operation_failed(result: Dictionary) -> void:
 	_recovering = true
 	_retry_enabled = false
-	var current: Dictionary = _port.get_projection()
-	if current.get("ok", false):
-		for record in current.get("value", {}).get("records", []):
-			if record.get("locator") == selected_locator:
-				_retry_enabled = bool(record.get("actions", {}).get(_source_action, false))
+	var current: Variant = _port.get_projection()
+	var records := _projection_records(current, _scene_presentation)
+	if not records.is_empty():
+		_retry_enabled = bool(records[selected_locator].actions.get(_source_action, false))
 	_status_key = "stale" if "stale" in str(result.get("code", "")) else "failed"
 	_refresh_presentation()
 	if action_buttons.has("cancel"):
@@ -717,7 +820,15 @@ func _identity(locator: String) -> String:
 
 func _record_state(record: Dictionary) -> String:
 	if record.get("reason") == "older_version": return _t("older")
-	return _day_time(record.get("day"), record.get("saved_time")) if record.get("state") == "occupied" else _t("empty" if record.get("state") == "empty" else "unavailable")
+	return _record_time(record) if record.get("state") == "occupied" else _t("empty" if record.get("state") == "empty" else "unavailable")
+
+func _record_time(record: Dictionary, selected: bool = false) -> String:
+	var prefix := "load_" if selected else ""
+	var saved_time: Variant = record.get(prefix + "saved_time")
+	if record.get(prefix + "family") == "legacy_day":
+		return _day_time(record.get(prefix + "day"), saved_time)
+	# Scene and unknown records carry no inferred calendar or authored scene title.
+	return str(saved_time) if saved_time != null else "--:--"
 
 func _day_time(day: Variant, saved_time: Variant) -> String:
 	return _t("day", {"day": str(day) if day != null else "—", "time": str(saved_time) if saved_time != null else "--:--"})
