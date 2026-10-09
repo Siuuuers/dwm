@@ -428,6 +428,11 @@ static func validate_scene_result(envelope: Dictionary, result: Variant, bundle:
 					or not _keys(result.resolution_receipt, ["receipt_id", "provenance"]) \
 					or not _id(result.resolution_receipt.receipt_id) or not result.resolution_receipt.provenance is Dictionary:
 				return _fail(&"scene_result_invalid")
+		"challenge_playable":
+			if not _keys(result, ["kind", "challenge_occurrence"]) or envelope.kind != "challenge.playable" \
+					or not _hash(result.challenge_occurrence): return _fail(&"scene_result_invalid")
+			if result.challenge_occurrence != _sha([envelope.source.scene_occurrence, envelope.payload.challenge_id]):
+				return _fail(&"scene_result_invalid")
 		"challenge_closed":
 			if not _keys(result, ["kind", "challenge_occurrence", "playable_command_id", "attempt_proof", "outcome", "target_id"]) \
 					or envelope.kind != "challenge.end" or typeof(result.outcome) != TYPE_STRING \
@@ -585,8 +590,10 @@ static func validate_scene_receipts(receipts: Dictionary, bundle: Dictionary, is
 		if result.kind == "challenge_closed":
 			if not commands.has(result.playable_command_id): return _fail(&"scene_playable_receipt_missing")
 			var playable: Dictionary = commands[result.playable_command_id].scene_event.semantic
+			var playable_result: Dictionary = commands[result.playable_command_id].scene_event.result
 			if playable.kind != "challenge.playable" or not _equal(playable.source, semantic.source) \
-					or playable.payload.challenge_id != semantic.payload.challenge_id or playable.ordinal >= semantic.ordinal:
+					or playable.payload.challenge_id != semantic.payload.challenge_id or playable.ordinal >= semantic.ordinal \
+					or playable_result.kind != "challenge_playable" or playable_result.challenge_occurrence != result.challenge_occurrence:
 				return _fail(&"scene_playable_receipt_mismatch")
 		elif result.kind == "contact_returned":
 			if not admissions.has(result.contact_admission_receipt_id): return _fail(&"scene_contact_admission_missing")
