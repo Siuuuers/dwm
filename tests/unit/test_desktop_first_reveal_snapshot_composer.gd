@@ -73,7 +73,7 @@ func _base_snapshot_input(run_revision: int = 0) -> Dictionary:
 	return {
 		"lifecycle": {"run_id": "run-composer", "day": 1},
 		"gameplay": {"stats": {"pressure": 3}, "minesweeper_rounds_left": 5},
-		"contacts": {}, "committed_schedule": {}, "dating": {},
+		"contacts": {}, "scene": {},
 		"applied_effect_transaction_ids": [], "applied_variable_transaction_ids": [], "command_receipts": {},
 		"desktop": {"board": _empty_board_snapshot(), "consequence": _consequence(run_revision)},
 	}
@@ -163,3 +163,37 @@ func test_compose_refuses_retired_candidate_fields_without_mutating_input() -> v
 		assert_false(result.get("ok", true))
 		assert_eq(result.code, &"invalid_game_state_candidate")
 		assert_eq(base, before)
+
+
+func test_scene_composer_refuses_legacy_outer_members_and_missing_scene() -> void:
+	for key: String in ["committed_schedule", "schedule_view", "dating"]:
+		var base := _base_snapshot_input()
+		base[key] = {}
+		var before := base.duplicate(true)
+		assert_false(COMPOSER.compose(base, _game_state_candidate(), _board_candidate(), _consequence_candidate()).ok)
+		assert_eq(base, before)
+	var missing := _base_snapshot_input()
+	missing.erase("scene")
+	assert_false(COMPOSER.compose(missing, _game_state_candidate(), _board_candidate(), _consequence_candidate()).ok)
+
+func test_scene_composer_refuses_retired_stats_and_coercible_candidates() -> void:
+	for stats: Dictionary in [{"pressure": 3, "health": 8}, {"pressure": 3, "motivation": 4}, {"pressure": 3.0}, {"pressure": 13}]:
+		var base := _base_snapshot_input()
+		base.gameplay.stats = stats
+		assert_false(COMPOSER.compose(base, _game_state_candidate(), _board_candidate(), _consequence_candidate()).ok)
+	for value: Variant in [4.0, "4", true]:
+		var candidate := _game_state_candidate()
+		candidate.rounds_left = value
+		assert_false(COMPOSER.compose(_base_snapshot_input(), candidate, _board_candidate(), _consequence_candidate()).ok)
+
+
+func test_scene_composer_refuses_wrong_debit_and_coerced_revisions() -> void:
+	var candidate := _game_state_candidate()
+	candidate.rounds_left = 5
+	assert_false(COMPOSER.compose(_base_snapshot_input(), candidate, _board_candidate(), _consequence_candidate()).ok)
+	var board := _board_candidate()
+	board.pre_revision = 0.0
+	assert_false(COMPOSER.compose(_base_snapshot_input(), _game_state_candidate(), board, _consequence_candidate()).ok)
+	var consequence := _consequence_candidate()
+	consequence.extra = true
+	assert_false(COMPOSER.compose(_base_snapshot_input(), _game_state_candidate(), _board_candidate(), consequence).ok)
