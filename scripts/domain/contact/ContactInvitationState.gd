@@ -2446,6 +2446,8 @@ static func _s_validate_state(state: Dictionary, registration_sha256: String, is
 	for command_id: Variant in state.transaction_receipts:
 		var receipt: Variant = state.transaction_receipts[command_id]
 		if not _s_id(command_id) or not _has_exact_keys(receipt, _SCENE_RECEIPT_KEYS) \
+				or not _s_id(receipt.kind) or not _s_id(receipt.transaction_id) \
+				or not _s_digest(receipt.registration_sha256) or not _s_digest(receipt.definitions_sha256) \
 				or receipt.transaction_id != command_id or receipt.registration_sha256 != registration_sha256 \
 				or receipt.definitions_sha256 != definitions.definitions_sha256 \
 				or not receipt.command_issuer_receipt is Dictionary or not _has_exact_keys(receipt.context, _SCENE_CONTEXT_KEYS) or not _s_digest(receipt.context.contacts_sha256):
@@ -2741,3 +2743,4 @@ static func _s_projection_shape(state: Dictionary) -> bool:
 				or not receipt.result is Dictionary: return false
 		if receipt.kind == "scene_reply" and not _s_id(receipt.result.get("incoming_message_id")): return false
 	return true
+
