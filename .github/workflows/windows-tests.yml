@@ -1,23 +1,22 @@
-name: Scene playable result contract candidate
+name: Retain playable contract original evidence
 on:
   pull_request:
 permissions:
   contents: write
+  actions: read
 concurrency:
   group: scene-runtime-integration-controller-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 jobs:
-  contract:
+  retain:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
     runs-on: windows-2022
-    timeout-minutes: 20
+    timeout-minutes: 10
     defaults:
       run:
         shell: pwsh
-        working-directory: source
     steps:
-      - name: Preserve immutable checkout bytes
-        working-directory: .
+      - name: Preserve exact bytes
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
@@ -26,140 +25,49 @@ jobs:
           persist-credentials: true
       - uses: actions/checkout@v7
         with:
-          ref: a991b5256d88275debae051a61a7ee23494c868e
-          path: source
-          fetch-depth: 0
+          ref: 36fd3b7683ac42395977bda035ab530dabd1c53f
+          path: evidence
           persist-credentials: true
-      - name: Build exact two-file candidate without moving the product branch
+      - name: Retain and verify the original completed-run artifact without rerunning tests
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference = 'Stop'
-          $base = 'a991b5256d88275debae051a61a7ee23494c868e'
-          if ((git rev-parse HEAD).Trim() -cne $base) { throw 'Wrong base.' }
-          if ((git rev-parse 'HEAD^{tree}').Trim() -cne 'f63f8d0ae2da4999db9609caf23c6566e1c847dc') { throw 'Wrong base tree.' }
-          python ../controller/tools/cloud/patch_scene_playable_result.py .
+          if ((git -C evidence rev-parse HEAD).Trim() -cne '36fd3b7683ac42395977bda035ab530dabd1c53f') { throw 'Evidence parent changed.' }
+          python controller/tools/cloud/retain_scene_playable_evidence.py evidence
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $expected = @('scripts/domain/narrative/SceneEventContract.gd', 'tests/unit/test_scene_event_contract.gd')
-          $delta = @(git diff --name-only)
-          if ((@($delta | Sort-Object -CaseSensitive) -join "`n") -cne (@($expected | Sort-Object -CaseSensitive) -join "`n")) { throw 'Unexpected product path change.' }
-          git diff --check
+          Copy-Item -LiteralPath controller/tools/cloud/scene-playable-result-evidence.md -Destination evidence/evidence/scene_playable_result_2026_10_10/README.md
+          $paths = @('evidence/scene_playable_result_2026_10_10/README.md', 'evidence/scene_playable_result_2026_10_10/original-scene-playable-result-37979744715-1.zip', 'evidence/scene_playable_result_2026_10_10/retention-verification.json')
+          $changed = @(git -C evidence ls-files --others --exclude-standard)
+          if ((@($changed | Sort-Object -CaseSensitive) -join "`n") -cne (@($paths | Sort-Object -CaseSensitive) -join "`n")) { throw 'Unexpected evidence path set.' }
+          git -C evidence diff --exit-code
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          $date = (git -C ../controller show -s --format=%cI HEAD).Trim()
-          $env:GIT_AUTHOR_DATE = $date
-          $env:GIT_COMMITTER_DATE = $date
-          git add -- $expected
-          git commit -m 'feat(scene): validate exact playable availability receipts'
+          git -C evidence config user.name 'github-actions[bot]'
+          git -C evidence config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C evidence add -- $paths
+          git -C evidence commit -m 'docs(evidence): retain original playable contract cloud artifact and limits'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $source = (git rev-parse HEAD).Trim()
-          $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ((git rev-parse HEAD^).Trim() -cne $base) { throw 'Unexpected parent.' }
-          New-Item -ItemType Directory -Force -Path '.godot/ci' | Out-Null
-          [ordered]@{source_sha=$source; source_tree=$tree; parent=$base; controller_sha='${{ github.event.pull_request.head.sha }}'; controller_event_sha=$env:GITHUB_SHA; run_id=$env:GITHUB_RUN_ID; run_attempt=$env:GITHUB_RUN_ATTEMPT; scope='Contract-only unit regression; no forward producer, durable handoff, rendered or release acceptance'; changed_paths=$expected} | ConvertTo-Json -Depth 4 | Set-Content '.godot/ci/source-receipt.json' -Encoding utf8
-          git diff --binary $base HEAD --output=.godot/ci/source.patch
+          $ref = 'refs/heads/codex/scene-runtime-evidence-20261009'
+          $live = @(git -C evidence ls-remote --heads origin $ref)
+          if ($LASTEXITCODE -ne 0 -or $live.Count -ne 1 -or $live[0].Split("`t")[0] -cne '36fd3b7683ac42395977bda035ab530dabd1c53f') { throw 'Evidence ref advanced; reconcile instead of overwriting.' }
+          git -C evidence push origin "HEAD:$ref"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git archive -o .godot/ci/source-inspection.zip HEAD scripts autoload tests tools docs project.godot .github
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Write-Output ('EVIDENCE_COMMIT=' + (git -C evidence rev-parse HEAD).Trim())
       - name: Prepare disposable indexes for checkout cleanup
+        if: always()
         run: |
-          foreach ($repo in @('.', '../controller')) {
+          foreach ($repo in @('controller', 'evidence')) {
+            if (-not (Test-Path -LiteralPath "$repo/.git")) { continue }
             git -C $repo update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
             git -C $repo submodule foreach --recursive 'true'
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
-      - name: Install verified Godot 4.6.3 standard
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
-          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
-          $archiveHash = (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant()
-          if ($archiveHash -cne 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90') { throw 'Godot archive checksum mismatch.' }
-          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
-          Expand-Archive -LiteralPath $archive -DestinationPath $editor
-          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
-          $exeHash = (Get-FileHash -LiteralPath $console -Algorithm SHA256).Hash.ToLowerInvariant()
-          if ($exeHash -cne '63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a') { throw 'Godot console checksum mismatch.' }
-          "GODOT_CONSOLE_PATH=$console" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
-          $version = (& $console --version | Out-String).Trim()
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          [ordered]@{archive_sha256=$archiveHash; console_sha256=$exeHash; version=$version} | ConvertTo-Json | Set-Content '.godot/ci/engine-receipt.json' -Encoding utf8
-      - name: Import pinned candidate
-        timeout-minutes: 8
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $root = (Get-Location).Path
-          $output = Join-Path $root '.godot/ci'
-          $env:APPDATA = Join-Path $output 'import-user/appdata'
-          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
-          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
-          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
-          & $env:GODOT_CONSOLE_PATH --headless --path $root --import --log-file "$output/import.log"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String -LiteralPath "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Import script error.' }
-      - name: Restore committed project settings
-        if: always()
-        run: |
-          git restore --source=HEAD --worktree -- project.godot
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Run exact scene event contract tests
-        timeout-minutes: 10
-        run: |
-          $ErrorActionPreference = 'Stop'
-          Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
-          $script = 'tests/unit/test_scene_event_contract.gd'
-          $args = @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', "-gtest=res://$script", '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/playable-contract.xml')
-          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'scene-playable-result-contract' -LogName 'playable-contract.log' -EvidenceLogPath '.godot/ci/playable-contract.jsonl' -TimeoutSeconds 480 -GodotArgs $args
-          $result = $LASTEXITCODE
-          $log = '.godot/phase2r_logs/playable-contract.log'
-          if (Test-Path -LiteralPath $log) { Get-Content -LiteralPath $log }
-          if ($result -ne 0) { exit $result }
-          if (Select-String -LiteralPath $log -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Test script error.' }
-          [xml]$xml = Get-Content '.godot/ci/playable-contract.xml' -Raw
-          if ($xml.SelectNodes('//failure | //error | //skipped').Count -ne 0) { throw 'Test failure, error or skip.' }
-          $cases = @($xml.SelectNodes('//testcase'))
-          $declared = @((Select-String -LiteralPath $script -Pattern '^func (test_[A-Za-z0-9_]+)\(').Matches | ForEach-Object { $_.Groups[1].Value })
-          if ($declared.Count -le 7 -or $cases.Count -ne $declared.Count) { throw 'Declared/executed test count mismatch.' }
-          foreach ($name in $declared) {
-            if (@($cases | Where-Object { $_.GetAttribute('name') -ceq $name }).Count -ne 1) { throw "Missing or repeated test: $name" }
-          }
-          $suites = @($xml.SelectNodes('//testsuite') | Where-Object { $_.SelectNodes('./testcase').Count -gt 0 })
-          if ($suites.Count -ne 1 -or $suites[0].GetAttribute('name').Replace('res://', '') -cne $script) { throw 'Wrong test script.' }
-          [ordered]@{cases=$cases.Count; new_playable_tests=7; requested_script=$script; declared_tests=$declared; failures=0; errors=0; skips=0} | ConvertTo-Json -Depth 4 | Set-Content '.godot/ci/contract-summary.json' -Encoding utf8
-      - name: Verify tracked source and publish isolated candidate only
-        run: |
-          $ErrorActionPreference = 'Stop'
-          git diff --exit-code HEAD -- . ':(exclude).claude/skills/godot-prompter/1.10.0' ':(exclude).claude/skills/superpowers/6.1.1'
-          if ($LASTEXITCODE -ne 0) { throw 'Tracked source drift.' }
-          $source = (git rev-parse HEAD).Trim()
-          $candidate = 'refs/heads/codex/scene-playable-result-candidate-20261010'
-          $existing = @(git ls-remote --heads origin $candidate)
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if ($existing.Count -gt 0 -and $existing[0].Split("`t")[0] -cne $source) { throw 'Candidate branch occupied; refusing overwrite.' }
-          git push origin "HEAD:$candidate"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          [ordered]@{branch=$candidate; source_sha=$source; product_branch_moved=$false} | ConvertTo-Json | Set-Content '.godot/ci/candidate-publication.json' -Encoding utf8
-      - name: Hash original evidence
-        if: always()
-        run: |
-          $ErrorActionPreference = 'Stop'
-          New-Item -ItemType Directory -Force -Path '.godot/ci' | Out-Null
-          $files = @(@('.godot/ci', '.godot/phase2r_logs') | Where-Object { Test-Path -LiteralPath $_ } | ForEach-Object { Get-ChildItem -LiteralPath $_ -File -Force } | Where-Object { $_.Name -cne 'original-file-hashes.json' } | Sort-Object FullName)
-          $manifest = @($files | ForEach-Object { [ordered]@{path=[IO.Path]::GetRelativePath((Get-Location).Path, $_.FullName).Replace('\', '/'); bytes=$_.Length; sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()} })
-          $manifest | ConvertTo-Json -Depth 4 | Set-Content '.godot/ci/original-file-hashes.json' -Encoding utf8
-      - name: Upload original logs, JUnit and candidate source
+      - name: Upload retention verification
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: scene-playable-result-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            source/.godot/ci/*.log
-            source/.godot/ci/*.json
-            source/.godot/ci/*.jsonl
-            source/.godot/ci/*.xml
-            source/.godot/ci/*.patch
-            source/.godot/ci/*.zip
-            source/.godot/phase2r_logs/*.log
-          include-hidden-files: true
-          if-no-files-found: error
+          name: playable-contract-retention-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/evidence/scene_playable_result_2026_10_10/retention-verification.json
+          if-no-files-found: warn
           retention-days: 7
