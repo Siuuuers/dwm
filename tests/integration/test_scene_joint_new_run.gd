@@ -5,6 +5,7 @@ extends "res://addons/gut/test.gd"
 const FIXTURE := preload("res://tests/support/SceneNewRunFixture.gd")
 const SAVE := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 const JOURNAL := preload("res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd")
+const PROFILE := preload("res://autoload/ProfileManager.gd")
 const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 var fixture: RefCounted
 var fixture_ready := false
@@ -21,7 +22,7 @@ func after_all() -> void:
 func test_joint_creation_persists_exact_material_before_activation_and_alternates_after_ack() -> void:
 	assert_true(fixture_ready, "joint filesystem fixture must initialize")
 	if not fixture_ready: return
-	var started: Dictionary = fixture.start(0)
+	var started: Dictionary = fixture.start()
 	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
 	if started.get("code") != &"scene_activation_pending": return
 	var transaction: String = started.transaction_id
@@ -66,13 +67,25 @@ func test_joint_creation_persists_exact_material_before_activation_and_alternate
 	var acknowledged: Dictionary = fixture.manager._continuation_journal.get_operation(transaction)
 	assert_eq(acknowledged.value.activation_state, "acknowledged")
 	assert_true(fixture.manager.capture_committed_scene_creation(transaction).ok)
+	# Cold Bootstrap binds Profile storage before initialize/adoption. Historical
+	# journal admission must still prove the actual persisted assignment then.
+	var boot_profile: Node = PROFILE.new()
+	var boot_bound: Dictionary = boot_profile.configure_new_run_storage(fixture.storage)
+	assert_true(boot_bound.ok, str(boot_bound))
+	var boot_proof: Dictionary = boot_profile.prove_scene_assignment(snapshot.run_id, snapshot.lifecycle.scene_assignment)
+	assert_true(boot_proof.ok, str(boot_proof))
+	var wrong_assignment: Dictionary = snapshot.lifecycle.scene_assignment.duplicate(true)
+	wrong_assignment.creation_transaction_id = "TEST.wrong.creation"
+	assert_false(boot_profile.prove_scene_assignment(snapshot.run_id, wrong_assignment).ok,
+		"physical proof before adoption still rejects another creation")
+	boot_profile.free()
 	var validated: Dictionary = SAVE.validate(document)
 	assert_true(validated.ok, str(validated))
 	assert_eq(fixture.participants.route.publications, 1)
 	assert_eq(fixture.participants.narrative.publications, 1)
 	fixture.participants.narrative.confirm()
 	assert_eq(fixture.participants.narrative.publications, 1, "duplicate confirmation cannot republish")
-	var second: Dictionary = fixture.start(0)
+	var second: Dictionary = fixture.start()
 	assert_eq(second.get("code"), &"scene_activation_pending", str(second))
 	if second.get("code") != &"scene_activation_pending": return
 	var next_document: Dictionary = fixture.read_autosave()

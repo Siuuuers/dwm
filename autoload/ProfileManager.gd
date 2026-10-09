@@ -890,7 +890,8 @@ func get_pair_deck_draw(run_id: String) -> Dictionary:
 ## Prove that row against current physical canonical bytes, never an old whole-file
 ## hash or silent in-memory adoption. Pending creation still uses full-output proof.
 func prove_scene_assignment(run_id: String, receipt: Dictionary) -> Dictionary:
-	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
+	# Bootstrap binds storage before adoption; this physical proof intentionally
+	# works before initialize() and never reads the live Profile candidate.
 	if _mutation_blocked: return _failure(&"indeterminate_commit", "Profile mutation is blocked", true)
 	if not PAIR_DECK._scene_id(run_id): return _failure(&"invalid_scene_assignment", "Run identity is required")
 	var expected: Dictionary = PAIR_DECK.validate_scene(receipt)
