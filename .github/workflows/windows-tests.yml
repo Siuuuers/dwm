@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [restart]
+        suite: [prefix, completed]
     defaults:
       run:
         shell: pwsh
@@ -23,21 +23,21 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: ae82ccd951ca4c6797b5ea18dcbfba6035fd60fb
+          ref: 432cf8db15046262c76b830379b4933ee4811a2c
           fetch-depth: 0
           persist-credentials: true
       - name: Verify and record immutable source before import
         run: |
           $ErrorActionPreference = 'Stop'
           $source = (git rev-parse HEAD).Trim()
-          if ($LASTEXITCODE -ne 0 -or $source -cne 'ae82ccd951ca4c6797b5ea18dcbfba6035fd60fb') { throw 'Wrong source commit.' }
+          if ($LASTEXITCODE -ne 0 -or $source -cne '432cf8db15046262c76b830379b4933ee4811a2c') { throw 'Wrong source commit.' }
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($LASTEXITCODE -ne 0 -or $tree -cne '2c4505f76f30a03fbdba0ef03bc35200253cd785') { throw 'Wrong source tree.' }
+          if ($LASTEXITCODE -ne 0 -or $tree -cne '749ed5ccec4a26659b74918db46cfcecb7a17423') { throw 'Wrong source tree.' }
 
-          $parent = 'c3f26fd65a9711b06df92b25aa47d3354f620cfc'
+          $parent = 'ae82ccd951ca4c6797b5ea18dcbfba6035fd60fb'
           $parents = @((git rev-list --parents -n 1 HEAD).Trim().Split(' '))
           if ($LASTEXITCODE -ne 0 -or $parents.Count -ne 2 -or $parents[1] -cne $parent) { throw 'Wrong integration parent.' }
-          $expected = @('tests/integration/test_scene_restart_child.gd')
+          $expected = @('tests/integration/test_scene_interrupt_child.gd', 'tests/integration/test_scene_interrupt_resume.gd', 'tests/integration/test_scene_interrupt_stop.gd', 'tests/support/SceneInterruptionFixture.gd', 'tools/testing/Invoke-SceneInterruptionProof.ps1')
           $delta = @(git diff --name-only $parent HEAD)
           if ((@($delta | Sort-Object -CaseSensitive) -join "`n") -cne (@($expected | Sort-Object -CaseSensitive) -join "`n")) { throw 'Wrong integration path set.' }
           $files = @()
@@ -55,7 +55,7 @@ jobs:
           [ordered]@{
             source_sha = $source; source_tree = $tree; controller_event_sha = $env:GITHUB_SHA
             run_id = $env:GITHUB_RUN_ID; run_attempt = $env:GITHUB_RUN_ATTEMPT
-            suite = '${{ matrix.suite }}'; scope = 'Committed-receipt regression plus test-selected two-process same-files NewRun and Load with real mounted/native readiness; ancillary participants diagnostic; no production or rendered acceptance'
+            suite = '${{ matrix.suite }}'; scope = 'Test-selected two-process exact interruption after real route prefix or completed-pending journal write, then actual mounted/native recovery; ancillary participants diagnostic; no production or rendered acceptance'
           } | ConvertTo-Json | Set-Content -LiteralPath '.godot/ci/source-receipt.json' -Encoding utf8
       - name: Prepare disposable index for checkout cleanup
         run: |
@@ -96,80 +96,12 @@ jobs:
         run: |
           git restore --source=HEAD --worktree -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Execute separate-process scene restart proof
-        if: matrix.suite == 'restart'
+      - name: Execute exact process interruption and fresh-process recovery
         timeout-minutes: 10
         run: |
           Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
-          & ./tools/testing/Invoke-SceneRestartProof.ps1
+          & ./tools/testing/Invoke-SceneInterruptionProof.ps1 -Point '${{ matrix.suite }}'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Execute isolation tooling regression
-        if: matrix.suite == 'tooling'
-        timeout-minutes: 10
-        run: |
-          & ./tests/tooling/Test-InvokeIsolatedGodot.ps1 *> .godot/ci/isolation-tooling.log
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          Get-Content .godot/ci/isolation-tooling.log
-      - name: Execute isolated explicit GUT scripts
-        if: matrix.suite == 'initialjoint'
-        timeout-minutes: 10
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $suite = '${{ matrix.suite }}'
-          # Each matrix job is a fresh Godot process. Scene registration selection
-          # cannot leak into legacy readers or another fixture's immutable caches.
-          $scripts = switch ($suite) {
-            'initialcontract' { @('tests/integration/test_scene_initial_admission.gd') }
-            'initialcandidate' { @('tests/integration/test_scene_initial_candidate.gd') }
-            'initialfrozen' { @('tests/unit/test_scene_initial_frozen.gd') }
-            'initialjournal' { @('tests/unit/test_scene_new_run_journal.gd') }
-            'initialjoint' { @('tests/integration/test_scene_joint_new_run.gd') }
-            'nativeprotocol' { @('tests/integration/test_scene_native_activation.gd') }
-            'nativeruntime' { @('tests/integration/test_scene_native_activation_runtime.gd') }
-            'savedanchors' { @('tests/integration/test_scene_saved_event_anchor.gd') }
-            'history' { @('tests/unit/test_scene_save_history_run.gd') }
-            'anchors' { @('tests/integration/test_scene_event_anchor_membership.gd') }
-            'recovery' { @('tests/unit/test_scene_restore_activation_protocol.gd') }
-            'schema' { @('tests/unit/test_scene_save_schema.gd', 'tests/unit/test_scene_lifecycle_state.gd', 'tests/unit/test_scene_runtime_remap.gd') }
-            'journal' { @('tests/unit/test_scene_restore_journal.gd', 'tests/unit/test_scene_restore_activation_protocol.gd') }
-            'route' { @('tests/integration/test_scene_route_activation.gd', 'tests/unit/test_scene_bootstrap_recovery.gd', 'tests/unit/test_scene_desktop_host_restore.gd', 'tests/unit/test_scene_board_restore_dispatch.gd') }
-            'receipts' { @('tests/unit/test_scene_receipt_validation.gd') }
-            'native' { @('tests/integration/test_scene_native_activation.gd', 'tests/integration/test_scene_native_activation_runtime.gd') }
-            'assignment' { @('tests/unit/test_scene_new_run_assignment.gd', 'tests/unit/test_scene_new_run_materials.gd') }
-            'retirement' { @('tests/unit/test_desktop_board_state.gd', 'tests/unit/test_desktop_first_reveal_snapshot_composer.gd', 'tests/unit/test_effect_resolver.gd', 'tests/unit/test_game_state_desktop_board_port.gd', 'tests/unit/test_shop_app_purchase_bridge.gd', 'tests/unit/test_shop_catalog_projection.gd', 'tests/unit/test_shop_copy.gd', 'tests/unit/test_shop_presentation_port.gd', 'tests/unit/test_shop_rules.gd') }
-            default { throw 'Unknown diagnostic suite.' }
-          }
-          $scripts = @($scripts)
-          $paths = @($scripts | ForEach-Object {
-            if (-not (Test-Path -LiteralPath $_ -PathType Leaf)) { throw "Missing requested test: $_" }
-            "res://$_"
-          })
-          $gutArguments = @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', "-gtest=$($paths -join ',')", '-gexit', '-glog=2', "-gjunit_xml_file=res://.godot/ci/$suite.xml")
-          # GUT rejects unknown user arguments, so select the debug-only fixture
-          # through the child process environment instead of its CLI parser.
-          Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
-          if ($suite -in @('native', 'anchors', 'nativeprotocol', 'nativeruntime', 'initialfrozen')) { $env:DWM_SCENE_READING_FIXTURE = '1' }
-          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId "scene-runtime-integration-controller-$suite" -LogName "$suite.log" -EvidenceLogPath ".godot/ci/$suite.jsonl" -TimeoutSeconds 480 -GodotArgs $gutArguments
-          $result = $LASTEXITCODE
-          $log = ".godot/phase2r_logs/$suite.log"
-          if (Test-Path -LiteralPath $log) { Get-Content -LiteralPath $log }
-          if ($result -ne 0) { exit $result }
-          if (Select-String -LiteralPath $log -Pattern 'SCRIPT ERROR:|ERROR: Failed to load' -Quiet) { throw 'Focused suite reported script errors.' }
-          if (Select-String -LiteralPath $log -Pattern 'Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Unexpected Unicode/NUL diagnostic.' }
-          $report = ".godot/ci/$suite.xml"
-          if (-not (Test-Path -LiteralPath $report)) { throw 'Missing original JUnit XML.' }
-          [xml]$xml = Get-Content -LiteralPath $report -Raw
-          $cases = $xml.SelectNodes('//testcase').Count
-          if ($cases -le 0) { throw 'No test cases executed.' }
-          if ($xml.SelectNodes('//failure | //error | //skipped').Count -ne 0) { throw 'Failures, errors or skips in focused proof.' }
-          $reported = @($xml.SelectNodes('//testsuite') | Where-Object { $_.SelectNodes('./testcase').Count -gt 0 })
-          if ($reported.Count -ne $paths.Count) { throw 'Requested/reported script count mismatch.' }
-          foreach ($path in $paths) {
-            $relative = $path.Replace('res://', '')
-            $matching = @($reported | Where-Object { $_.GetAttribute('name').Replace('res://', '') -ceq $relative })
-            if ($matching.Count -ne 1 -or $matching[0].SelectNodes('./testcase').Count -le 0) { throw "Requested nonempty script not reported: $path" }
-          }
-          [ordered]@{ suite = $suite; cases = $cases; requested_scripts = $paths; reported_scripts = @($reported | ForEach-Object { $_.GetAttribute('name') }) } | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath ".godot/ci/$suite-summary.json" -Encoding utf8
       - name: Verify tracked source remains unchanged
         if: always()
         run: |
