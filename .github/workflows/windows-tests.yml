@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [initialjoint, restart, tooling]
+        suite: [restart]
     defaults:
       run:
         shell: pwsh
@@ -23,21 +23,21 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 93c7aa497b2c5d8d0d166557247062142bc7a059
+          ref: c3f26fd65a9711b06df92b25aa47d3354f620cfc
           fetch-depth: 0
           persist-credentials: true
       - name: Verify and record immutable source before import
         run: |
           $ErrorActionPreference = 'Stop'
           $source = (git rev-parse HEAD).Trim()
-          if ($LASTEXITCODE -ne 0 -or $source -cne '93c7aa497b2c5d8d0d166557247062142bc7a059') { throw 'Wrong source commit.' }
+          if ($LASTEXITCODE -ne 0 -or $source -cne 'c3f26fd65a9711b06df92b25aa47d3354f620cfc') { throw 'Wrong source commit.' }
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($LASTEXITCODE -ne 0 -or $tree -cne 'fd49ca60c024bef237e8ff77864ebad94a41a71a') { throw 'Wrong source tree.' }
+          if ($LASTEXITCODE -ne 0 -or $tree -cne 'c641a8b8ae9c02d3ec2c467bcf5bde42e84e753e') { throw 'Wrong source tree.' }
 
-          $parent = 'b7c1a0ab69622b9a35a5bc584c05ff84aecd6a90'
+          $parent = '93c7aa497b2c5d8d0d166557247062142bc7a059'
           $parents = @((git rev-list --parents -n 1 HEAD).Trim().Split(' '))
           if ($LASTEXITCODE -ne 0 -or $parents.Count -ne 2 -or $parents[1] -cne $parent) { throw 'Wrong integration parent.' }
-          $expected = @('tests/integration/test_scene_joint_new_run.gd', 'tests/support/SceneNewRunFixture.gd', 'tests/tooling/Test-InvokeIsolatedGodot.ps1', 'tools/testing/Invoke-IsolatedGodot.ps1', 'tests/integration/test_scene_restart_child.gd', 'tests/integration/test_scene_restart_create.gd', 'tests/integration/test_scene_restart_load.gd', 'tests/support/SceneRestartFixture.gd', 'tools/testing/Invoke-SceneRestartProof.ps1')
+          $expected = @('tests/integration/test_scene_restart_child.gd')
           $delta = @(git diff --name-only $parent HEAD)
           if ((@($delta | Sort-Object -CaseSensitive) -join "`n") -cne (@($expected | Sort-Object -CaseSensitive) -join "`n")) { throw 'Wrong integration path set.' }
           $files = @()
