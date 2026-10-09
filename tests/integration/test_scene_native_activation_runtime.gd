@@ -166,7 +166,25 @@ func test_real_native_restores_control_as_held_predecessor_and_consumes_source_o
 	for row: Dictionary in selected.value.targets:
 		if row.target_id == "target_a": target = row.target
 	assert_false(target.is_empty())
+	var target_proofs: Array[Dictionary] = []
+	_adapter.reading_frontier_restored.connect(func(result: Dictionary) -> void:
+		target_proofs.append(result.duplicate(true)))
 	assert_true(_adapter.install_scene_target(target_session, target_checkpoint.value, target, retained.value).ok)
+	# Installation starts an asynchronous native reveal. Await its real completion
+	# proof before teardown can clear the runtime beneath the text coroutine.
+	for frame: int in 30:
+		if not target_proofs.is_empty(): break
+		await get_tree().process_frame
+	assert_eq(target_proofs.size(), 1, "target must confirm its own native restoration")
+	if not target_proofs.is_empty():
+		assert_true(target_proofs[0].ok)
+		assert_eq(target_proofs[0].get("value"), target_checkpoint.value.reading_session.frontier)
+	assert_false(_adapter.is_reading_frontier_restoring())
+	assert_eq(_adapter.capture_reading_frontier().value, target_checkpoint.value.reading_session.frontier)
+	var native_caption: DialogicTextEvent = _adapter._current_skip_text(true)
+	assert_not_null(native_caption)
+	if native_caption != null:
+		assert_eq(native_caption.state, DialogicTextEvent.States.DONE)
 	assert_false(_adapter.validate_scene_source(retained.value, _bridge._reading_session).ok,
 		"held predecessor capability is consumed before target callbacks")
 	assert_false(_adapter.capture_scene_control_position(_bridge._reading_session).ok,

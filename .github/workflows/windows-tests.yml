@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [nativeprotocol, nativeruntime]
+        suite: [nativeruntime]
     defaults:
       run:
         shell: pwsh
@@ -23,21 +23,21 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 1699e574b4e83f28c09e9b936e6949d8018f1d53
+          ref: 6f42a504c937d71720e7f9f2801b6f05d8b7c1c0
           fetch-depth: 0
           persist-credentials: true
       - name: Verify and record immutable source before import
         run: |
           $ErrorActionPreference = 'Stop'
           $source = (git rev-parse HEAD).Trim()
-          if ($LASTEXITCODE -ne 0 -or $source -cne '1699e574b4e83f28c09e9b936e6949d8018f1d53') { throw 'Wrong source commit.' }
+          if ($LASTEXITCODE -ne 0 -or $source -cne '6f42a504c937d71720e7f9f2801b6f05d8b7c1c0') { throw 'Wrong source commit.' }
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($LASTEXITCODE -ne 0 -or $tree -cne '0af3af6cbf0b2b08adf4fcc13e6bd97438324646') { throw 'Wrong source tree.' }
+          if ($LASTEXITCODE -ne 0 -or $tree -cne '2ad42abbc178c6bce50afbf2a0d310abce8179d6') { throw 'Wrong source tree.' }
 
-          $parent = '5d9c4ef0617570139ea588e053ada3319e55e465'
+          $parent = '1699e574b4e83f28c09e9b936e6949d8018f1d53'
           $parents = @((git rev-list --parents -n 1 HEAD).Trim().Split(' '))
           if ($LASTEXITCODE -ne 0 -or $parents.Count -ne 2 -or $parents[1] -cne $parent) { throw 'Wrong integration parent.' }
-          $expected = @('autoload/DialogicBridge.gd', 'scripts/narrative/DialogicRuntimeAdapter.gd', 'tests/integration/test_scene_native_activation.gd', 'tests/integration/test_scene_native_activation_runtime.gd')
+          $expected = @('tests/integration/test_scene_native_activation_runtime.gd')
           $delta = @(git diff --name-only $parent HEAD)
           if ((@($delta | Sort-Object -CaseSensitive) -join "`n") -cne (@($expected | Sort-Object -CaseSensitive) -join "`n")) { throw 'Wrong integration path set.' }
           $files = @()
