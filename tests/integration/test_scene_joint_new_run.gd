@@ -7,20 +7,20 @@ const SAVE := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 const JOURNAL := preload("res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd")
 const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 var fixture: RefCounted
-var ready := false
+var fixture_ready := false
 
 func before_all() -> void:
 	fixture = FIXTURE.new()
 	var setup: Dictionary = fixture.setup(get_tree())
 	assert_true(setup.get("ok", false), str(setup))
-	ready = setup.get("ok", false)
+	fixture_ready = setup.get("ok", false)
 
 func after_all() -> void:
 	if fixture != null: fixture.close()
 
 func test_joint_creation_persists_exact_material_before_activation_and_alternates_after_ack() -> void:
-	assert_true(ready, "joint filesystem fixture must initialize")
-	if not ready: return
+	assert_true(fixture_ready, "joint filesystem fixture must initialize")
+	if not fixture_ready: return
 	var started: Dictionary = fixture.start(0)
 	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
 	if started.get("code") != &"scene_activation_pending": return
