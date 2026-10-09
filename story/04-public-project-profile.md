@@ -1,63 +1,93 @@
 # Game Details
 
+**Copy status:** proposed spoiler-safe wording for the Priscilla pivot. This
+profile describes the intended experience, not a claim that the new flow has
+already been implemented or released. Exact promotional wording remains unselected.
+
 ## Project Profile
 
-This game is an adult psychological-horror visual novel and relationship mystery set at East Harbour University, a fictional hillside campus near Kowloon, Hong Kong. Across a seven-day Open Week of classes, rehearsals, preparations, and public events, four adult women move through a week in which attention is intimate, absence has consequences, and certainty is never the same as control. Angela is the protagonist; the other women retain private histories and desires that do not reorganize themselves around her. All characters are adults.
+DWM is an adult psychological-horror visual novel and relationship mystery set at
+East Harbour University, a fictional hillside campus near Kowloon, Hong Kong.
+Across one consequential week, follow Priscilla's interactions with Lavinia and
+Sylvia through ordinary company, unusual coincidences, affection and choices whose
+consequences may outlast the moment. All three principal characters are adults.
 
-## Logline
+## Working Logline
 
-> During a seven-day university open week in Hong Kong, astrophysics student Angela arranges meetings with three women whose private histories continue without her. As schedules, messages, and memories disagree, choosing where to be cannot determine what anyone wants.
+> A week of university life brings Priscilla closer to two women she cannot quite
+> stop trying to understand. Between shared pleasures and unsettling coincidences,
+> a small decision changes whom she chooses to follow.
 
 ## Premise
 
-East Harbour's Open Week culminates in a major Saturday Information Day, but ordinary campus life never pauses for the programme. Astronomy demonstrations run late. Conservatory rehearsals continue. Communications need rewriting, welfare shifts need covering, and people meet when Angela is somewhere else.
+Open Week brings classes, rehearsals, preparations and public activity together
+without suspending ordinary campus life. Priscilla's familiarity with Lavinia and
+her childhood friendship with Sylvia give those encounters histories of their own.
+An affectionate exchange can be worth enjoying without explaining every motive;
+a sudden action can change what the next meeting means.
 
-Angela can decide whom to seek out and how directly to respond, but she cannot choose another person's desire or consent. Characters form private relationships and make choices outside Angela's presence. A missed meeting is not an empty branch: it leaves someone else with time, privacy, and reasons of her own.
-
-The resulting mystery is emotional as much as evidentiary. Schedules, messages, memories, objects, and ordinary sounds can disagree without yielding one final explanation. Dreamlike abnormality is treated as normal campus inconvenience, allowing intimate danger to gather quietly around care, interpretation, and the wish to be necessary.
+The story stays with Priscilla. What Lavinia and Sylvia do beyond her presence may
+remain partly unknown. Their choices are not automatically reorganized around her,
+and understanding somebody does not settle what she will choose next.
 
 ## What the Audience Does
 
-Choose where Angela spends her limited time, shape how she expresses an intention, and decide which inconsistencies deserve another look. The audience influences Angela without rewriting her personality, and no choice grants authority over anyone else's feelings.
+Read a flowing chapter narrative rather than manage a dating schedule. Optional
+self-talk prompts let the audience act on thoughts Priscilla is already considering;
+leaving a prompt unanswered allows her ordinary continuation. One consequential
+choice focuses the later story on a developing relationship.
 
-The interface remembers observation, hesitation, revisiting, and persistence. Returning to familiar scenes can change the weight of what is noticed without turning the story into a checklist or promising a single correct account. Replay value comes from seeing how other lives continue beyond Angela's attention—and from discovering how confidently the same evidence can be read in different ways.
+Optional Minesweeper Challenges provide local variations. Continuing the story
+does not require beginning a Challenge. Differences matter through the particular
+actions, information and consequences the later story uses, rather than an exposed
+competition to collect the most affection points.
 
 ## Characters
 
-### Angela — 20
+### Priscilla, 20
 
-A Hong Kong-born second-year astrophysics student whose dry emotional economy hides a taste for absurdly precise deductions. Angela is fluent in academic English and uses Cantonese in everyday life. She is comfortable letting someone else make a choice for her, yet unsettlingly unwilling to let that choice become the only available version of reality.
+A Hong Kong-born English literature student with polished Cantonese and English,
+institutional composure and precise attention. Her care can make a difficult moment
+easier; her need to shape its interpretation can make the same closeness difficult
+to leave uncomplicated. Her thoughts and observations anchor the story.
 
-### Priscilla — 20
+### Lavinia, 22
 
-A Hong Kong-born English literature student with polished Cantonese and English, formidable institutional composure, and a talent for making chaos legible. Her care arrives as anticipation and exact language. The unsettling part is how easily her corrections begin to sound like the answer you meant to give.
+A Romanian conservatory ballet student from Bucharest, disciplined in rehearsal
+and bold in conversation. She speaks fluent English, uses Romanian in private and
+is developing Cantonese. Her familiarity with Priscilla permits wit, affection,
+disagreement and an understanding that is never quite complete.
 
-### Lavinia — 22
+### Sylvia, 21
 
-A Romanian conservatory ballet student from Bucharest, disciplined in rehearsal and boldly physical in conversation. She speaks fluent English, uses Romanian in private, and is developing Cantonese. When direct reassurance feels insufficient, she can make a reaction feel like evidence.
+A third-year statistics or decision-science student and peer-welfare volunteer.
+She and Priscilla have known each other since childhood. Familiarity gives their
+interactions a shared past, but it does not prevent either woman from becoming
+newly interesting, surprising or difficult to the other.
 
-### Sylvia — 21
+## Emotional Range
 
-A third-year statistics or decision-science student serving as an Open Week peer-welfare and safety volunteer. Practical, attentive, and quietly reciprocal, Sylvia's role in Angela's week is not incidental. Her unsettling trait is timing: she arrives with exactly what Angela needs a moment before anyone can explain how she knew.
+Sweet endings aim for affection, relief and a genuinely comforting conclusion.
+Dark endings can be cruel, thrilling and frightening. Neither category replaces
+the characters' personalities, and an ordinary happy moment need not be exposed
+as meaningless by a later revelation.
 
-## Features
-
-- Autonomous character lives: people form private relationships, make consequential choices, and continue moving when Angela is absent.
-- A responsive interface that remembers how the audience observes, hesitates, revisits, and persists, turning attention itself into part of the relationship mystery.
-- Dialogue-led storytelling through speech, messages, visible action, objects, body language, sound, interface behavior, and rare character-bound perception, without an explanatory narrator telling the audience what to believe.
-- Choices about attention, company, and response have genuine local consequences, bounded by personalities, desires, and consent that the audience cannot author.
-- Replay built around changing context and accumulating uncertainty rather than exposed statistics, completion chores, or a promised master solution.
+Romance develops through what the women do together. It does not require every
+encounter to fit a dating format or every change in intimacy to receive a label.
 
 ## Presentation
 
-Layered 2D backgrounds and character sprites are supported by restrained animation, focused object and hand overlays, and a small number of brief visual fragments. The direction keeps abnormality intimate and normalized instead of announcing it through spectacle.
+The retained presentation direction uses layered 2D backgrounds, character
+sprites, restrained animation and focused visual details. Dialogue, self-talk,
+messages, gesture, sound and objects carry the experience through Priscilla's
+point of view rather than an explanatory omniscient narrator.
 
-Sound is diegetic and evidence-led: equipment hum, paper, footsteps, fabric, packaging, room tone, and silence can matter before their significance is understood. Music is sparse, there is no supernatural theme instructing the audience how to interpret an event, and every important piece of audio information has a visual equivalent.
+Diegetic Cantonese and Romanian retain their dramatic role. The existing language,
+subtitle, sound and accessibility requirements remain governed by their technical
+owners; this narrative amendment makes no new implementation claim about them.
 
-Meaningful diegetic Cantonese and Romanian reflect the characters' everyday and private lives. Configurable localized display languages support single- and dual-language reading while preserving the dramatic role of language choice. There is no recorded character voice acting.
+## Scope and Duration
 
-## Tone, Scope, and Duration
-
-The tone combines normalized dream logic, restrained psychological horror, and relational danger grounded in recognizable acts of care, interpretation, avoidance, and control. Its mysteries reward replay without requiring a public list of outcomes, and its intimate scope stays focused on four women across one consequential week.
-
-Final runtime is not yet fixed. The project and this profile are platform-neutral; no release platform is implied.
+The chapter flow covers seven days without making a dating scheduler its main
+structure. Final runtime, promotional copy and release platform are not fixed by
+this profile. The complete plot and its exact ending scenes remain in development.

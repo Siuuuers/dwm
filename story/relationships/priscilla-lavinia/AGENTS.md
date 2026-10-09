@@ -1,5 +1,23 @@
 # Priscilla–Lavinia working route
 
+## Current foundation boundary, 2026-10-09
+
+Apply the [approved Priscilla amendment](../../09-priscilla-foundation-amendment.md)
+and [current story restart point](../../README.md) before the retained instructions
+below. Priscilla alone supplies viewpoint. P-L is the default continuation of one
+later optional self-talk choice; the partner is not selected at run creation.
+Ambiguous/Love candidate labels do not require separate new-run forms or authorize
+incompatible histories to coexist. A P-S storyline does not make P-L history vanish,
+but P-L is no longer required to outrank every other attachment in every ending.
+
+Keep the scoped disclosure correction and all unresolved residence/bar/residue
+holds. Existing scene candidates stay unselected at their actual scope. Do not
+resume a historical Day 6 placement, add an Angela-attended counterpart, or treat
+the documentation PR as runtime approval. Current Chapter/Challenge behavior is
+in the [flow amendment](../../../docs/design/2026-10-09-priscilla-flow-behavior-amendment.md).
+
+## Retained working practice and source discipline
+
 Read the [general narrative guide](../../AGENTS.md), this folder's
 [entry point](README.md), and the requested owning passage. This local guide
 narrows navigation; it does not add a new personality rule or select an event.
