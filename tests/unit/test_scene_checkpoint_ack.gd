@@ -12,11 +12,13 @@ class CheckpointSeam extends "res://tests/support/FakeNarrativeCheckpointContext
 	var readback_mismatch := false
 	var before_commit := Callable()
 	var after_prepare := Callable()
+	var before_capture := Callable()
 	var prepared_object: Dictionary = {}
 	var committed_same_object := false
 
 	func capture() -> Dictionary:
 		calls.append("capture")
+		if before_capture.is_valid(): before_capture.call()
 		return {"ok": true, "value": {"backup": {"current": {"snapshot": current.duplicate(true)}}}}
 
 	func prepare(inputs: Dictionary, _kind: StringName, _disk: Dictionary) -> Dictionary:
@@ -283,3 +285,56 @@ func test_real_save8_prepare_refuses_unintegrated_scene_identity_without_ack() -
 	assert_false(ack.ok)
 	assert_false(ack.committed)
 	durable.dispose()
+
+func test_authority_callback_cannot_change_public_checkpoint_or_snapshot_commit() -> void:
+	var f := _fixture()
+	var original: Dictionary = f.checkpoint.duplicate(true)
+	var input := {"nested": {"original": true}}
+	f.authority.callback = func() -> void:
+		f.checkpoint["altered"] = true
+		input.nested["altered"] = true
+	var saved: Dictionary = f.port.commit_scene_event(input, f.checkpoint)
+	assert_true(saved.ok, str(saved))
+	assert_true(f.checkpoint.has("altered"), "mutation seam ran")
+	assert_true(input.nested.has("altered"))
+	assert_eq(f.real.current.narrative_checkpoint, original)
+	assert_eq(f.real.current.payload, {"nested": {"original": true}})
+	assert_true(f.real.committed_same_object)
+	var ack: Dictionary = f.port.consume_scene_entry_ack("cap:1")
+	assert_true(ack.ok, str(ack))
+	assert_eq(ack.value.narrative_checkpoint_sha256, _hash(f.real.current.narrative_checkpoint))
+	assert_eq(ack.value.narrative_checkpoint_sha256, _hash(original))
+	assert_eq(ack.value.target_checkpoint.snapshot_sha256, _hash(f.real.current))
+	f.authority.callback = Callable()
+
+func test_final_external_callbacks_cannot_mutate_prepared_candidate_before_write() -> void:
+	for callback_owner: String in ["authority", "source"]:
+		for mutation: String in ["narrative", "payload", "checkpoint_id"]:
+			var f := _fixture()
+			var original_source: Dictionary = f.real.current.duplicate(true)
+			var mutate := func() -> void:
+				if f.real.prepared_object.is_empty(): return
+				var candidate: Dictionary = f.real.prepared_object
+				if mutation == "checkpoint_id":
+					candidate.checkpoint_id = "changed:2"
+				else:
+					var snapshot: Dictionary = candidate.journal_candidate.current.snapshot
+					if mutation == "narrative": snapshot.narrative_checkpoint["altered"] = true
+					else: snapshot.payload["altered"] = true
+					candidate.autosave_document.current_snapshot.snapshot = snapshot.duplicate(true)
+			if callback_owner == "authority": f.authority.callback = mutate
+			else: f.real.before_capture = mutate
+			var refused: Dictionary = f.port.commit_scene_event({}, f.checkpoint)
+			assert_false(refused.ok, callback_owner + ":" + mutation)
+			assert_eq(str(refused.code), "scene_entry_candidate_invalid")
+			assert_false(f.real.calls.has("commit"), "refuse before write")
+			assert_false(f.real.calls.has("rollback"), "no write to roll back")
+			assert_eq(f.real.current, original_source)
+			var ack: Dictionary = f.port.consume_scene_entry_ack("cap:1")
+			assert_false(ack.ok)
+			assert_false(ack.committed)
+			f.authority.callback = Callable()
+			f.real.before_capture = Callable()
+			assert_true(f.port.commit_scene_event({}, f.checkpoint).ok, "no-write refusal retains retry custody")
+			assert_true(f.real.committed_same_object)
+			assert_true(f.port.consume_scene_entry_ack("cap:1").ok)

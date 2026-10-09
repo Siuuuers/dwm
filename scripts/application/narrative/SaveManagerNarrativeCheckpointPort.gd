@@ -205,6 +205,9 @@ func commit_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary) -> D
 	if not _configured: return _fail(&"not_configured", "configure first")
 	if _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy:
 		return _fail(&"transaction_in_progress", "another checkpoint command owns publication")
+	# Public dictionaries must be detached before marker/authority/provider callbacks.
+	snapshot_input = snapshot_input.duplicate(true)
+	checkpoint = checkpoint.duplicate(true)
 	if not checkpoint.get("reading_session") is Dictionary:
 		return _fail(&"scene_event_checkpoint_invalid", "a reading checkpoint is required")
 	if checkpoint.reading_session.get("schema_version") == 4:
@@ -219,7 +222,7 @@ func commit_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary) -> D
 				or not _scene_validate(_scene_entry, "commit"):
 			return _fail(&"scene_entry_custody_invalid", "no retained Bridge candidate")
 	_next_commit_in_progress = true
-	var result := _commit_scene_event_autosave(snapshot_input.duplicate(true), checkpoint.duplicate(true))
+	var result := _commit_scene_event_autosave(snapshot_input, checkpoint)
 	if scene_entry:
 		if result.get("ok", false):
 			var reference: Variant = result.get("value", {}).get("checkpoint_reference")
@@ -276,6 +279,10 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 		var current_source := _scene_bundle_snapshot(source_check.get("value", {}).get("backup", {}).get("current"))
 		if not source_check.get("ok", false) or _fingerprint(_scene_snapshot_reference(current_source)) != _fingerprint(_scene_entry.binding.source_checkpoint):
 			return _fail(&"scene_entry_source_changed", "journal changed during preparation")
+		# Keep the lower port's exact prepared object, but reject mutations made by
+		# the final authority/source callbacks before crossing its write boundary.
+		if _fingerprint(candidate) != candidate_hash or _scene_candidate_reference(candidate, checkpoint).is_empty():
+			return _fail(&"scene_entry_candidate_invalid", "prepared candidate changed before commit")
 	var committed: Dictionary = _real_port.commit(candidate)
 	if not _scene_entry.is_empty() and _fingerprint(candidate) != candidate_hash:
 		return {"ok": false, "code": &"scene_entry_commit_uncertain", "committed": true}
@@ -415,6 +422,12 @@ func _scene_candidate_reference(candidate: Dictionary, checkpoint: Dictionary) -
 	if not candidate.get("journal_candidate") is Dictionary or not candidate.get("autosave_document") is Dictionary: return {}
 	var snapshot: Dictionary = _scene_bundle_snapshot(candidate.get("journal_candidate", {}).get("current"))
 	var reference := _scene_snapshot_reference(snapshot)
+	# Entry acknowledgement names the privately retained target, never a caller's
+	# potentially callback-mutated copy. Ordinary source checkpoints use their input.
+	var narrative_hash := _fingerprint(snapshot.get("narrative_checkpoint"))
+	if not _scene_entry.is_empty() and (narrative_hash != _scene_entry.narrative_checkpoint_sha256 \
+			or narrative_hash != _fingerprint(_scene_entry.checkpoint)):
+		return {}
 	if reference.is_empty() or reference.checkpoint_id != candidate.get("checkpoint_id") \
 			or _fingerprint(snapshot.get("narrative_checkpoint")) != _fingerprint(checkpoint) \
 			or _fingerprint(_scene_bundle_snapshot(candidate.get("autosave_document", {}).get("current_snapshot"))) != reference.snapshot_sha256:

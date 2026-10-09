@@ -421,6 +421,15 @@ func reconcile_restore_silent(restored_snapshot: Dictionary) -> Dictionary:
 		var frozen := _validate_retained_frozen_contexts()
 		_record = previous_record
 		if not frozen.ok: return frozen
+	# A selected snapshot can remove the scene attempt or replace it with legacy
+	# Dating. Retained scene admission belongs to the prior execution branch and
+	# must not keep exposing or flushing its future board after that restore.
+	# Validate the replacement first; the restore owner's backup can reinstate this
+	# complete local custody if a later participant refuses the transaction.
+	if _scene_command() or _record.get("schema_version") == 4 or _pending_checkpoint.get("schema_version") == 4:
+		_record = {}
+		_admitted_command = {}
+		_first_cell_index = -1
 	_pending_checkpoint = {}
 	_routine_pending = false
 	_clear_history_state()

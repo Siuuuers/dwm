@@ -266,3 +266,99 @@ func test_malformed_successful_closure_ack_retains_fatal_custody() -> void:
 	assert_eq(str(closed.code), "scene_closure_ack_invalid")
 	assert_false(f.owner.pull_physical(f.token).ok)
 	assert_false(f.begin().ok)
+
+func test_same_owner_selected_absence_revokes_future_scene_and_restore_rollback_reinstates_it() -> void:
+	assert_true(f.begin().ok)
+	var selected: Dictionary = f.state.capture_restore_state().value.backup
+	assert_true(f.action("start").ok)
+	assert_true(f.action("reveal", 323).ok)
+	var original: Dictionary = f.attempt().value
+	var run_backup: Dictionary = f.state.capture_restore_state().value.backup
+	var owner_backup: Dictionary = f.owner.capture_reconciliation_state().value
+	var checkpoints: int = f.authority.checkpoints.size()
+	selected.lifecycle.branch_id = "TEST.absent.same.owner"
+	assert_true(f.state.rollback_restore_silent(selected).ok)
+	assert_true(f.owner.reconcile_restore_silent({}).ok)
+	assert_false(f.owner.pull_physical(f.token).ok, "old token cannot expose the future terminal board")
+	assert_false(f.owner.dispatch_physical(f.token, "start", -1, 0).ok)
+	assert_false(f.owner.close_scene_challenge(f.token).ok)
+	var flushed: Dictionary = f.owner.flush_pending_attempt()
+	assert_true(flushed.ok)
+	assert_false(flushed.value.committed, "no scene remains to flush")
+	assert_eq(f.record(), {})
+	assert_eq(f.authority.checkpoints.size(), checkpoints)
+	assert_eq(f.attempt(original.branch_id).value, original)
+	var refused: Dictionary = f.begin()
+	assert_false(refused.ok)
+	assert_eq(str(refused.code), "scene_attempt_recovery_required")
+	assert_eq(f.record(), {})
+	# A later restore-participant failure rolls both Run and retained owner back.
+	assert_true(f.state.rollback_restore_silent(run_backup).ok)
+	assert_true(f.owner.rollback_reconciliation_silent(owner_backup).ok)
+	assert_eq(f.owner.capture_reconciliation_state().value, owner_backup)
+	assert_eq(f.owner.pull_physical(f.token).value.state, "won")
+
+func test_same_owner_selected_absence_discards_old_profile_ahead_retry() -> void:
+	assert_true(f.begin().ok)
+	var selected: Dictionary = f.state.capture_restore_state().value.backup
+	f.authority.reject_checkpoint = true
+	assert_false(f.action("start").ok)
+	var original: Dictionary = f.attempt().value
+	assert_eq(f.owner.pull_physical(f.token).value.actions, ["retry"])
+	selected.lifecycle.branch_id = "TEST.absent.pending.owner"
+	assert_true(f.state.rollback_restore_silent(selected).ok)
+	assert_true(f.owner.reconcile_restore_silent({}).ok)
+	f.authority.reject_checkpoint = false
+	assert_false(f.owner.pull_physical(f.token).ok)
+	assert_false(f.owner.dispatch_physical(f.token, "retry", -1, 0).ok)
+	assert_false(f.owner.flush_pending_attempt().value.committed)
+	assert_eq(f.authority.checkpoints.size(), 0)
+	assert_eq(f.record(), {})
+	assert_eq(f.attempt(original.branch_id).value, original)
+	var refused: Dictionary = f.begin()
+	assert_false(refused.ok)
+	assert_eq(str(refused.code), "scene_attempt_recovery_required")
+
+func test_same_owner_legacy_replacement_revokes_scene_admission_after_validation() -> void:
+	assert_true(f.begin().ok)
+	assert_true(f.action("start").ok)
+	var scene: Dictionary = f.record()
+	var legacy := {"schema_version": 3, "completion_transaction_id": "TEST.legacy.completion",
+		"command_sha256": "TEST.legacy.command".sha256_text(), "physical_token": "",
+		"context": {"kind": "solo", "day": 1, "participants": ["sylvia"]},
+		"host": "canonical_solo", "spec": scene.spec.duplicate(true), "board": null,
+		"envelope": scene.envelope.duplicate(true), "phase": "pre_challenge", "outcome": null,
+		"applied_result": {}, "pair_form": "", "mine_dispositions": [],
+		"relationship_outcome": null, "perfect_reasons": []}
+	legacy.physical_token = f.owner._token(legacy.completion_transaction_id, legacy.command_sha256)
+	assert_true(f.owner._valid_record(legacy, {}))
+	var owner_backup: Dictionary = f.owner.capture_reconciliation_state().value
+	f.state.lifecycle.day = 1
+	f.state.lifecycle.branch_id = "TEST.legacy.replacement"
+	f.state.route_context = {"active_dating_challenge": legacy.duplicate(true)}
+	f.state.route_context.active_dating_challenge.context.participants = []
+	assert_false(f.owner.reconcile_restore_silent({"route_id": "dating"}).ok)
+	assert_eq(f.owner.capture_reconciliation_state().value, owner_backup, "invalid replacement preserves owner for rollback")
+	f.state.route_context.active_dating_challenge = legacy.duplicate(true)
+	assert_true(f.owner.reconcile_restore_silent({"route_id": "dating"}).ok)
+	assert_false(f.owner.pull_physical(f.token).ok)
+	assert_false(f.owner.dispatch_physical(f.token, "retry", -1, 0).ok)
+	assert_false(f.owner.flush_pending_attempt().value.committed)
+	assert_eq(f.record(), legacy, "legacy replacement retains its existing restore policy")
+	assert_eq(f.owner.pull_physical(legacy.physical_token).value.phase, "pre_challenge")
+
+func test_same_owner_same_operation_restore_keeps_profile_ahead_retry_after_readmission() -> void:
+	assert_true(f.begin().ok)
+	assert_true(f.action("start").ok)
+	var selected: Dictionary = f.state.capture_restore_state().value.backup
+	f.authority.reject_checkpoint = true
+	assert_false(f.action("flag", 0).ok)
+	var ahead: Dictionary = f.attempt().value.record
+	assert_true(f.state.rollback_restore_silent(selected).ok)
+	assert_true(f.owner.reconcile_restore_silent({}).ok)
+	assert_false(f.owner.pull_physical(f.token).ok)
+	assert_true(f.begin().ok)
+	assert_eq(f.owner.pull_physical(f.token).value.actions, ["retry"])
+	f.authority.reject_checkpoint = false
+	assert_true(f.action("retry").ok)
+	assert_eq(f.record(), ahead)
