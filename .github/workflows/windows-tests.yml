@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [scenebackup, backuplegacy, backupoperations]
+        suite: [backupoperations]
     defaults:
       run:
         shell: pwsh
@@ -23,21 +23,21 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 4e20c0ae30d07addbf95be2729076e02b7998b52
+          ref: 9ebe1f086c011e5ebbf1433d2a760ded75361745
           fetch-depth: 0
           persist-credentials: true
       - name: Verify and record immutable source before import
         run: |
           $ErrorActionPreference = 'Stop'
           $source = (git rev-parse HEAD).Trim()
-          if ($LASTEXITCODE -ne 0 -or $source -cne '4e20c0ae30d07addbf95be2729076e02b7998b52') { throw 'Wrong source commit.' }
+          if ($LASTEXITCODE -ne 0 -or $source -cne '9ebe1f086c011e5ebbf1433d2a760ded75361745') { throw 'Wrong source commit.' }
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($LASTEXITCODE -ne 0 -or $tree -cne 'bf9e93ecb780d83dbe3d23c72902ddfcf5afc89c') { throw 'Wrong source tree.' }
+          if ($LASTEXITCODE -ne 0 -or $tree -cne 'fc3c6aca44fef1c3c167a324fdfcbaee29712055') { throw 'Wrong source tree.' }
 
-          $parent = '63a70e37a6653b622f12336af0da75d13ad50bd6'
+          $parent = '4e20c0ae30d07addbf95be2729076e02b7998b52'
           $parents = @((git rev-list --parents -n 1 HEAD).Trim().Split(' '))
           if ($LASTEXITCODE -ne 0 -or $parents.Count -ne 2 -or $parents[1] -cne $parent) { throw 'Wrong integration parent.' }
-          $expected = @('autoload/SaveManager.gd', 'scripts/application/backup/BackupPresentationPort.gd', 'tests/unit/test_backup_quick_actions.gd', 'tests/unit/test_backup_host_admission.gd', 'tests/backup_operations/test_backup_operations.gd', 'tests/integration/test_scene_backup_inspection.gd', 'docs/design/2026-10-09-backup-scene-projection.md', 'docs/design/2026-10-09-scene-playable-forward-review.md')
+          $expected = @('tests/backup_operations/test_backup_operations.gd')
           $delta = @(git diff --name-only $parent HEAD)
           if ((@($delta | Sort-Object -CaseSensitive) -join "`n") -cne (@($expected | Sort-Object -CaseSensitive) -join "`n")) { throw 'Wrong integration path set.' }
           $files = @()

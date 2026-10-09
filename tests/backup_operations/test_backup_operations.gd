@@ -38,8 +38,8 @@ class ExternalOwners extends RefCounted:
 		return preload("res://scripts/profile/ProfileSchema.gd").validate(candidate)
 	func prepare_legacy_profile_patch(_input: Dictionary, _metadata: Dictionary = {}) -> Dictionary:
 		return {"ok": true, "value": preload("res://scripts/profile/ProfileSchema.gd").make_defaults()}
-	func prepare_locale(locale: String) -> Dictionary:
-		return {"ok": true, "value": {"canonical_locale_id": locale}}
+	func prepare_locale(locale: String, font_style: String = "pixel", text_size: int = 100) -> Dictionary:
+		return {"ok": true, "value": {"canonical_locale_id": locale, "font_style": font_style, "text_size": text_size}}
 	func prepare_semantic_restore(context: Dictionary, _preferences: Dictionary) -> Dictionary:
 		if context.get("fixture_missing_track", false):
 			return {"ok": false, "code": &"AUDIO_CONTENT_UNAVAILABLE"}
