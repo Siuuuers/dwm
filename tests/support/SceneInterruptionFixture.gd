@@ -1,5 +1,6 @@
 extends "res://tests/support/SceneRestartFixture.gd"
-## Exact stop seam only: all journal admission, persistence and participants are real.
+## Exact stop seam only: real journal admission and persistence are unchanged.
+## Inherited board/consequence/audio/localization participants remain diagnostic.
 const JSON_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const ENTRY_MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 
@@ -12,9 +13,9 @@ class InterruptingJournal:
 		if not result.get("ok", false) or stop_point.is_empty(): return result
 		var operation: Dictionary = result.value
 		if operation.get("kind") != "scene_restore": return result
-		var prefix := stop_point == "prefix" and operation.stage == STAGE_APPLYING \
+		var prefix: bool = stop_point == "prefix" and operation.stage == STAGE_APPLYING \
 			and operation.next_participant_index == 7 and operation.participant_receipts.get("route") is Dictionary
-		var completed := stop_point == "completed" and operation.stage == STAGE_COMPLETED \
+		var completed: bool = stop_point == "completed" and operation.stage == STAGE_COMPLETED \
 			and operation.activation_state == "pending"
 		if prefix or completed:
 			stop_point = ""
