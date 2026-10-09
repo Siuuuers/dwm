@@ -1,0 +1,282 @@
+[
+  {
+    "id": 11610860032,
+    "name": "scene-runtime-integration-initialcontract-37916848337-1",
+    "size_in_bytes": 26086,
+    "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11610860032",
+    "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11610860032/zip",
+    "expired": false,
+    "created_at": "2026-10-09T10:20:45Z",
+    "expires_at": "2026-10-16T10:20:44Z",
+    "updated_at": "2026-10-09T10:20:45Z",
+    "digest": "sha256:39fffbccd19cf4e55aa47f1fe841218951d0a1b2e5315f15f33a0d9ba165ec99",
+    "workflow_run": {
+      "id": 37916848337,
+      "repository_id": 1302529453,
+      "head_repository_id": 1302529453,
+      "head_branch": "codex/scene-runtime-integration-controller-20261009",
+      "head_sha": "f19bb4a45a0231aac856c08fcdb8b67b21e4137a"
+    },
+    "path": "evidence-downloads/scene-runtime-integration-initialcontract-37916848337-1.zip",
+    "sha256": "39fffbccd19cf4e55aa47f1fe841218951d0a1b2e5315f15f33a0d9ba165ec99",
+    "members": 9,
+    "source": {
+      "source_sha": "0b7865dbd8e4d914b7b6c7d1b4e6a8f09fe01166",
+      "source_tree": "e8cbf88cc55cd1901ad037e254bd624e10a63494",
+      "controller_event_sha": "3ede22e76b4054a0a781720c9a01c86f92f388a2",
+      "run_id": "37916848337",
+      "run_attempt": "1",
+      "suite": "initialcontract",
+      "scope": "Initial scene creation diagnostics: real issuer/Profile/Save filesystem and actual initial reading; injected route/native activation; no fresh-process Load or rendered acceptance"
+    },
+    "cases": 4,
+    "xml_assertions": 71,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "log_totals": [
+      "72"
+    ],
+    "script_errors": []
+  },
+  {
+    "id": 11610650177,
+    "name": "scene-runtime-integration-initialcandidate-37916848337-1",
+    "size_in_bytes": 32629,
+    "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11610650177",
+    "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11610650177/zip",
+    "expired": false,
+    "created_at": "2026-10-09T10:20:44Z",
+    "expires_at": "2026-10-16T10:20:43Z",
+    "updated_at": "2026-10-09T10:20:44Z",
+    "digest": "sha256:d49a89c735335916949f66ceb7ea9527fa19183cf63d6537717bce14384d1327",
+    "workflow_run": {
+      "id": 37916848337,
+      "repository_id": 1302529453,
+      "head_repository_id": 1302529453,
+      "head_branch": "codex/scene-runtime-integration-controller-20261009",
+      "head_sha": "f19bb4a45a0231aac856c08fcdb8b67b21e4137a"
+    },
+    "path": "evidence-downloads/scene-runtime-integration-initialcandidate-37916848337-1.zip",
+    "sha256": "d49a89c735335916949f66ceb7ea9527fa19183cf63d6537717bce14384d1327",
+    "members": 9,
+    "source": {
+      "source_sha": "0b7865dbd8e4d914b7b6c7d1b4e6a8f09fe01166",
+      "source_tree": "e8cbf88cc55cd1901ad037e254bd624e10a63494",
+      "controller_event_sha": "3ede22e76b4054a0a781720c9a01c86f92f388a2",
+      "run_id": "37916848337",
+      "run_attempt": "1",
+      "suite": "initialcandidate",
+      "scope": "Initial scene creation diagnostics: real issuer/Profile/Save filesystem and actual initial reading; injected route/native activation; no fresh-process Load or rendered acceptance"
+    },
+    "cases": 4,
+    "xml_assertions": 83,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "log_totals": [
+      "84"
+    ],
+    "script_errors": []
+  },
+  {
+    "id": 11610600350,
+    "name": "scene-runtime-integration-initialjoint-37916848337-1",
+    "size_in_bytes": 20585,
+    "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11610600350",
+    "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11610600350/zip",
+    "expired": false,
+    "created_at": "2026-10-09T10:20:10Z",
+    "expires_at": "2026-10-16T10:20:09Z",
+    "updated_at": "2026-10-09T10:20:10Z",
+    "digest": "sha256:000c6da7f07a3aa1b5b0a77400899e56417268b6101e42331cc0b753d7742e25",
+    "workflow_run": {
+      "id": 37916848337,
+      "repository_id": 1302529453,
+      "head_repository_id": 1302529453,
+      "head_branch": "codex/scene-runtime-integration-controller-20261009",
+      "head_sha": "f19bb4a45a0231aac856c08fcdb8b67b21e4137a"
+    },
+    "path": "evidence-downloads/scene-runtime-integration-initialjoint-37916848337-1.zip",
+    "sha256": "000c6da7f07a3aa1b5b0a77400899e56417268b6101e42331cc0b753d7742e25",
+    "members": 8,
+    "source": {
+      "source_sha": "0b7865dbd8e4d914b7b6c7d1b4e6a8f09fe01166",
+      "source_tree": "e8cbf88cc55cd1901ad037e254bd624e10a63494",
+      "controller_event_sha": "3ede22e76b4054a0a781720c9a01c86f92f388a2",
+      "run_id": "37916848337",
+      "run_attempt": "1",
+      "suite": "initialjoint",
+      "scope": "Initial scene creation diagnostics: real issuer/Profile/Save filesystem and actual initial reading; injected route/native activation; no fresh-process Load or rendered acceptance"
+    },
+    "cases": 0,
+    "xml_assertions": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "log_totals": [],
+    "script_errors": [
+      "SCRIPT ERROR: Parse Error: Member \"ready\" redefined (original in native class 'Node')"
+    ]
+  },
+  {
+    "id": 11610180309,
+    "name": "scene-runtime-integration-initialjournal-37916848337-1",
+    "size_in_bytes": 23290,
+    "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11610180309",
+    "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11610180309/zip",
+    "expired": false,
+    "created_at": "2026-10-09T10:20:17Z",
+    "expires_at": "2026-10-16T10:20:16Z",
+    "updated_at": "2026-10-09T10:20:17Z",
+    "digest": "sha256:8153d20b632eff8beb550c6102b4cf1e66d20adda3b6c8a37c23ee95d67e9a91",
+    "workflow_run": {
+      "id": 37916848337,
+      "repository_id": 1302529453,
+      "head_repository_id": 1302529453,
+      "head_branch": "codex/scene-runtime-integration-controller-20261009",
+      "head_sha": "f19bb4a45a0231aac856c08fcdb8b67b21e4137a"
+    },
+    "path": "evidence-downloads/scene-runtime-integration-initialjournal-37916848337-1.zip",
+    "sha256": "8153d20b632eff8beb550c6102b4cf1e66d20adda3b6c8a37c23ee95d67e9a91",
+    "members": 9,
+    "source": {
+      "source_sha": "0b7865dbd8e4d914b7b6c7d1b4e6a8f09fe01166",
+      "source_tree": "e8cbf88cc55cd1901ad037e254bd624e10a63494",
+      "controller_event_sha": "3ede22e76b4054a0a781720c9a01c86f92f388a2",
+      "run_id": "37916848337",
+      "run_attempt": "1",
+      "suite": "initialjournal",
+      "scope": "Initial scene creation diagnostics: real issuer/Profile/Save filesystem and actual initial reading; injected route/native activation; no fresh-process Load or rendered acceptance"
+    },
+    "cases": 6,
+    "xml_assertions": 96,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "log_totals": [
+      "96"
+    ],
+    "script_errors": []
+  },
+  {
+    "id": 11609244936,
+    "name": "scene-runtime-integration-initialfrozen-37916848337-1",
+    "size_in_bytes": 21028,
+    "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11609244936",
+    "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11609244936/zip",
+    "expired": false,
+    "created_at": "2026-10-09T10:20:15Z",
+    "expires_at": "2026-10-16T10:20:14Z",
+    "updated_at": "2026-10-09T10:20:15Z",
+    "digest": "sha256:f58bc09cc41a0c933491f8666f816e4f77fa475e9f2002b16703835233e65a02",
+    "workflow_run": {
+      "id": 37916848337,
+      "repository_id": 1302529453,
+      "head_repository_id": 1302529453,
+      "head_branch": "codex/scene-runtime-integration-controller-20261009",
+      "head_sha": "f19bb4a45a0231aac856c08fcdb8b67b21e4137a"
+    },
+    "path": "evidence-downloads/scene-runtime-integration-initialfrozen-37916848337-1.zip",
+    "sha256": "f58bc09cc41a0c933491f8666f816e4f77fa475e9f2002b16703835233e65a02",
+    "members": 9,
+    "source": {
+      "source_sha": "0b7865dbd8e4d914b7b6c7d1b4e6a8f09fe01166",
+      "source_tree": "e8cbf88cc55cd1901ad037e254bd624e10a63494",
+      "controller_event_sha": "3ede22e76b4054a0a781720c9a01c86f92f388a2",
+      "run_id": "37916848337",
+      "run_attempt": "1",
+      "suite": "initialfrozen",
+      "scope": "Initial scene creation diagnostics: real issuer/Profile/Save filesystem and actual initial reading; injected route/native activation; no fresh-process Load or rendered acceptance"
+    },
+    "cases": 3,
+    "xml_assertions": 38,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "log_totals": [
+      "39"
+    ],
+    "script_errors": []
+  },
+  {
+    "id": 11610390674,
+    "name": "scene-runtime-integration-initialjoint-37917082232-1",
+    "size_in_bytes": 31718,
+    "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11610390674",
+    "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11610390674/zip",
+    "expired": false,
+    "created_at": "2026-10-09T10:23:10Z",
+    "expires_at": "2026-10-16T10:23:09Z",
+    "updated_at": "2026-10-09T10:23:10Z",
+    "digest": "sha256:6263417eebbe46951e5f69df8e0bc864ed50f4348e1ddb33203b57565eceb96e",
+    "workflow_run": {
+      "id": 37917082232,
+      "repository_id": 1302529453,
+      "head_repository_id": 1302529453,
+      "head_branch": "codex/scene-runtime-integration-controller-20261009",
+      "head_sha": "0d3672196409f9de456081c1c8f2d3e567463d89"
+    },
+    "path": "evidence-downloads/scene-runtime-integration-initialjoint-37917082232-1.zip",
+    "sha256": "6263417eebbe46951e5f69df8e0bc864ed50f4348e1ddb33203b57565eceb96e",
+    "members": 8,
+    "source": {
+      "source_sha": "3076d1d156d677b2f21970bdfc315b85a21c3081",
+      "source_tree": "9b535d4c4cd5e4008bd19d3a080ff3bda5ac7200",
+      "controller_event_sha": "59936ea807da1f94a19517f5e34db07a7c6ce841",
+      "run_id": "37917082232",
+      "run_attempt": "1",
+      "suite": "initialjoint",
+      "scope": "Initial scene creation diagnostics: real issuer/Profile/Save filesystem and actual initial reading; injected route/native activation; no fresh-process Load or rendered acceptance"
+    },
+    "cases": 1,
+    "xml_assertions": 32,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0,
+    "log_totals": [
+      "32/33"
+    ],
+    "script_errors": []
+  },
+  {
+    "id": 11610491699,
+    "name": "scene-runtime-integration-initialjoint-37917370070-1",
+    "size_in_bytes": 34039,
+    "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11610491699",
+    "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11610491699/zip",
+    "expired": false,
+    "created_at": "2026-10-09T10:25:43Z",
+    "expires_at": "2026-10-16T10:25:43Z",
+    "updated_at": "2026-10-09T10:25:43Z",
+    "digest": "sha256:810dccb643d671a2c65d7ac0b28655fb28bc2eb869376c28b2451aae97c11d48",
+    "workflow_run": {
+      "id": 37917370070,
+      "repository_id": 1302529453,
+      "head_repository_id": 1302529453,
+      "head_branch": "codex/scene-runtime-integration-controller-20261009",
+      "head_sha": "71ca9bad225addf58d365777301da534289d337a"
+    },
+    "path": "evidence-downloads/scene-runtime-integration-initialjoint-37917370070-1.zip",
+    "sha256": "810dccb643d671a2c65d7ac0b28655fb28bc2eb869376c28b2451aae97c11d48",
+    "members": 9,
+    "source": {
+      "source_sha": "109309cc0770760ee53c15389659430dbb767a9b",
+      "source_tree": "b66fb81a6b91bdeea6add418d8ce0c8247634ff0",
+      "controller_event_sha": "7da459b90504521096e1666c29fe3583c69a6276",
+      "run_id": "37917370070",
+      "run_attempt": "1",
+      "suite": "initialjoint",
+      "scope": "Initial scene creation diagnostics: real issuer/Profile/Save filesystem and actual initial reading; injected route/native activation; no fresh-process Load or rendered acceptance"
+    },
+    "cases": 1,
+    "xml_assertions": 46,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "log_totals": [
+      "47"
+    ],
+    "script_errors": []
+  }
+]
