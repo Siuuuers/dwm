@@ -23,16 +23,16 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 603be6490e4eea897dfce815470338a869e629e3
+          ref: c7880edbac394c72583b7759cc14301704a2aca7
           fetch-depth: 0
           persist-credentials: true
       - name: Verify and record immutable source before import
         run: |
           $ErrorActionPreference = 'Stop'
           $source = (git rev-parse HEAD).Trim()
-          if ($LASTEXITCODE -ne 0 -or $source -cne '603be6490e4eea897dfce815470338a869e629e3') { throw 'Wrong source commit.' }
+          if ($LASTEXITCODE -ne 0 -or $source -cne 'c7880edbac394c72583b7759cc14301704a2aca7') { throw 'Wrong source commit.' }
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($LASTEXITCODE -ne 0 -or $tree -cne '45fa4c5e0cb83b3ec6ee83420ea85c9741146550') { throw 'Wrong source tree.' }
+          if ($LASTEXITCODE -ne 0 -or $tree -cne '3acc4a8297ba3174d6e8a855a0f46a9eca0595c9') { throw 'Wrong source tree.' }
 
           $gHead = '80aa1adfd0d5d3da12ecdc007b5c36d9cf3961a4'
           git fetch --no-tags origin $gHead
@@ -54,8 +54,9 @@ jobs:
             'tests/unit/test_scene_runtime_remap.gd'
           )
           $parents = @((git rev-list --parents -n 1 HEAD).Trim().Split(' '))
-          if ($LASTEXITCODE -ne 0 -or $parents.Count -ne 2 -or $parents[1] -cne 'a700fe452d4bf9116c6a035d5aab2d4d98e8df81') { throw 'Wrong integration parent.' }
+          if ($LASTEXITCODE -ne 0 -or $parents.Count -ne 2 -or $parents[1] -cne '603be6490e4eea897dfce815470338a869e629e3') { throw 'Wrong integration parent.' }
           $corrections = @{
+            'scripts/domain/contact/ContactInvitationState.gd' = '5515d12aaa54075ee05b618c2cea77b32fb35355'
             'tests/support/SceneContactFixture.gd' = 'b58413b895213fb8b535f31398e606b98c329cd9'
             'scripts/application/contact/ContactsPresentationPort.gd' = '6f32ee15074a613cfe9e54099aa4fcfe9da0c9d5'
             'scripts/domain/desktop/DesktopContinuationRemapper.gd' = '8b042cf8888e9bf73300f16c886f5eedbbf40df5'
