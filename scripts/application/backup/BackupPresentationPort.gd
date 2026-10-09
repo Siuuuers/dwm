@@ -62,8 +62,8 @@ func get_projection() -> Dictionary:
 		if inspected.get("ok", false):
 			record = _project_record(inspected["value"], capability, operations_admitted)
 		else:
-			record = {"locator": locator, "state": "unavailable", "day": null, "saved_time": null,
-				"fallback": false, "load_day": null, "load_saved_time": null, "reason": "unreadable",
+			record = {"locator": locator, "state": "unavailable", "family": null, "day": null, "saved_time": null,
+				"fallback": false, "load_family": null, "load_day": null, "load_saved_time": null, "reason": "unreadable",
 				"actions": {"save": false, "load": false, "delete": false}}
 		records.append(record)
 	return {"ok": true, "value": {"records": records, "save_capability": capability}}
@@ -187,6 +187,10 @@ func _project_record(source: Dictionary, capability: Dictionary, admitted: bool)
 	var record := {}
 	for key: String in ["locator", "state", "day", "saved_time", "fallback", "load_day", "load_saved_time", "reason"]:
 		record[key] = source[key]
+	# Older injected presentation owners may omit these fields. Unknown remains
+	# unknown; neither the UI nor this port infers family from a missing day.
+	record["family"] = source.get("family")
+	record["load_family"] = source.get("load_family")
 	var accessible: bool = source.has("revision") and source.get("operation_allowed", false)
 	record["actions"] = {
 		"save": admitted and _context != "title" and accessible and capability.get("enabled", false) and source["locator"] != "autosave",
