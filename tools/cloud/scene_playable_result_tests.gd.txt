@@ -1,0 +1,129 @@
+
+
+func _playable_event() -> Dictionary:
+	var event := _scene_event()
+	event.event_id = "TEST.playable"
+	event.kind = "challenge.playable"
+	event.payload = {"challenge_id": "TEST.challenge"}
+	return event
+
+func _playable_result() -> Dictionary:
+	# Independent fixed vector for canonical JSON ["TEST.occurrence","TEST.challenge"].
+	return {"kind": "challenge_playable", "challenge_occurrence": "db23df5fa0bcdb2aa7d9d45ac6809a5c7a02a389f2e83a768d8699a195d8490d"}
+
+func test_playable_result_is_exact_availability_not_start_or_closure() -> void:
+	var event := _playable_event()
+	var result := _playable_result()
+	var bundle := _challenge_bundle()
+	assert_true(CONTRACT.inspect_scene(event, bundle).ok)
+	assert_true(CONTRACT.validate_scene_result(event, result, bundle).ok)
+	var receipt: Dictionary = CONTRACT.make_scene_receipt(event, _scene_anchor(), result, bundle)
+	assert_true(receipt.ok)
+	if not receipt.ok: return
+	assert_eq(receipt.value.scene_event.result, result)
+	assert_eq(receipt.value.scene_event.result.size(), 2)
+	assert_eq(receipt.value.transaction_id, event.command_id)
+	assert_eq(receipt.value.scene_event.schema_version, 2)
+	assert_false(receipt.value.scene_event.semantic.has("playback_token"))
+	assert_eq(receipt.value.request_fingerprint, CONTRACT.inspect_scene(event, bundle).value.digest)
+	for field: String in ["attempt_id", "attempt_proof", "board", "outcome", "target_id", "playable_command_id", "profile_branch"]:
+		var polluted: Dictionary = result.duplicate(true)
+		polluted[field] = null
+		assert_false(CONTRACT.validate_scene_result(event, polluted, bundle).ok, field)
+
+func test_playable_result_rejects_missing_extra_and_non_json_members() -> void:
+	var event := _playable_event()
+	var bundle := _challenge_bundle()
+	for value: Variant in [null, [], "challenge_playable", 1, true, {}, {"kind": "challenge_playable"},
+			{"challenge_occurrence": _playable_result().challenge_occurrence}]:
+		assert_false(CONTRACT.validate_scene_result(event, value, bundle).ok)
+	for field: String in ["kind", "challenge_occurrence"]:
+		for value: Variant in [null, 1, 1.0, true, [], {}, &"challenge_playable"]:
+			var bad := _playable_result()
+			bad[field] = value
+			assert_false(CONTRACT.validate_scene_result(event, bad, bundle).ok, field)
+	var named_hash := _playable_result()
+	named_hash.challenge_occurrence = StringName(named_hash.challenge_occurrence)
+	assert_false(CONTRACT.validate_scene_result(event, named_hash, bundle).ok)
+	var extra := _playable_result()
+	extra[1] = "not a JSON object key"
+	assert_false(CONTRACT.validate_scene_result(event, extra, bundle).ok)
+
+func test_playable_result_requires_lowercase_exact_occurrence_hash() -> void:
+	var expected := _playable_result()
+	var encoded: Dictionary = CONTRACT.WRITER.stringify(["TEST.occurrence", "TEST.challenge"])
+	assert_eq(str(encoded.value).sha256_text(), expected.challenge_occurrence)
+	for value: String in ["", "0".repeat(64), "g".repeat(64), "a".repeat(63), "a".repeat(65),
+			expected.challenge_occurrence.to_upper(), " " + expected.challenge_occurrence, expected.challenge_occurrence + "\n"]:
+		var bad := _playable_result()
+		bad.challenge_occurrence = value
+		assert_false(CONTRACT.validate_scene_result(_playable_event(), bad, _challenge_bundle()).ok)
+
+func test_playable_result_binds_registered_marker_kind_payload_and_version() -> void:
+	var bundle := _challenge_bundle()
+	var result := _playable_result()
+	for pair: Array in [["schema_version", 1], ["schema_version", 2.0], ["event_id", "TEST.end"],
+			["event_id", "TEST.unregistered"], ["kind", "challenge.end"], ["kind", "notification.set"],
+			["payload", {"challenge_id": "TEST.foreign"}], ["payload", {"challenge_id": "TEST.challenge", "start": true}]]:
+		var bad := _playable_event()
+		bad[pair[0]] = pair[1]
+		assert_false(CONTRACT.validate_scene_result(bad, result, bundle).ok, str(pair))
+	var end := _playable_event()
+	end.event_id = "TEST.end"
+	end.kind = "challenge.end"
+	assert_true(CONTRACT.inspect_scene(end, bundle).ok)
+	assert_false(CONTRACT.validate_scene_result(end, result, bundle).ok)
+	assert_false(CONTRACT.validate_scene_result(_scene_event(), result, bundle).ok)
+	var version := _playable_event()
+	version.source.content_version = 2
+	assert_false(CONTRACT.validate_scene_result(version, result, bundle).ok)
+
+func test_playable_result_rederives_occurrence_from_semantic_source() -> void:
+	var event := _playable_event()
+	var bundle := _challenge_bundle()
+	var result := _playable_result()
+	event.source.scene_occurrence = "TEST.other.occurrence"
+	assert_true(CONTRACT.inspect_scene(event, bundle).ok)
+	assert_false(CONTRACT.validate_scene_result(event, result, bundle).ok)
+	var encoded: Dictionary = CONTRACT.WRITER.stringify([event.source.scene_occurrence, event.payload.challenge_id])
+	result.challenge_occurrence = str(encoded.value).sha256_text()
+	assert_true(CONTRACT.validate_scene_result(event, result, bundle).ok)
+	# Structural result validity is not issuer, admission, cursor, or disk proof.
+	assert_false(CONTRACT.make_scene_receipt(event, _scene_anchor(), result, bundle).ok)
+
+func test_playable_receipt_keeps_semantic_identity_across_live_token_change() -> void:
+	var event := _playable_event()
+	var bundle := _challenge_bundle()
+	var result := _playable_result()
+	var first: Dictionary = CONTRACT.make_scene_receipt(event, _scene_anchor(), result, bundle)
+	assert_true(first.ok)
+	if not first.ok: return
+	event.playback_token = "TEST.new.authenticated.process"
+	var retried: Dictionary = CONTRACT.make_scene_receipt(event, _scene_anchor(), result, bundle)
+	assert_eq(retried, first)
+	# Authentication of that new token remains the application port's responsibility.
+	var moved: Dictionary = event.duplicate(true)
+	moved.source.branch_id = "TEST.other.branch"
+	assert_ne(CONTRACT.inspect_scene(moved, bundle).value.digest, first.value.request_fingerprint)
+
+func test_playable_receipt_requires_exact_predecessor_anchor_and_detaches_result() -> void:
+	var event := _playable_event()
+	var bundle := _challenge_bundle()
+	var result := _playable_result()
+	var anchor := _scene_anchor()
+	var original_event: Dictionary = event.duplicate(true)
+	var original_bundle: Dictionary = bundle.duplicate(true)
+	var first: Dictionary = CONTRACT.make_scene_receipt(event, anchor, result, bundle)
+	assert_true(first.ok)
+	if not first.ok: return
+	first.value.scene_event.result.challenge_occurrence = "0".repeat(64)
+	assert_eq(result, _playable_result())
+	assert_eq(event, original_event)
+	assert_eq(bundle, original_bundle)
+	anchor.line_id = "TEST.other.line"
+	assert_false(CONTRACT.make_scene_receipt(event, anchor, result, bundle).ok)
+	anchor = _scene_anchor()
+	anchor.session_id = "TEST.other.occurrence"
+	assert_false(CONTRACT.make_scene_receipt(event, anchor, result, bundle).ok)
+	assert_eq(event, original_event)
+	assert_eq(bundle, original_bundle)

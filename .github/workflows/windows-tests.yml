@@ -1,68 +1,73 @@
-name: Scene Backup inspection diagnostics
+name: Scene playable result contract candidate
 on:
   pull_request:
 permissions:
-  contents: read
+  contents: write
 concurrency:
   group: scene-runtime-integration-controller-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 jobs:
-  focused:
-    name: Windows / ${{ matrix.suite }}
+  contract:
+    if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
     runs-on: windows-2022
     timeout-minutes: 20
-    strategy:
-      fail-fast: false
-      matrix:
-        suite: [backupoperations]
     defaults:
       run:
         shell: pwsh
+        working-directory: source
     steps:
-      - name: Preserve exact source bytes at checkout
+      - name: Preserve immutable checkout bytes
+        working-directory: .
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: controller
+          persist-credentials: true
+      - uses: actions/checkout@v7
+        with:
           ref: a991b5256d88275debae051a61a7ee23494c868e
+          path: source
           fetch-depth: 0
           persist-credentials: true
-      - name: Verify and record immutable source before import
+      - name: Build exact two-file candidate without moving the product branch
         run: |
           $ErrorActionPreference = 'Stop'
+          $base = 'a991b5256d88275debae051a61a7ee23494c868e'
+          if ((git rev-parse HEAD).Trim() -cne $base) { throw 'Wrong base.' }
+          if ((git rev-parse 'HEAD^{tree}').Trim() -cne 'f63f8d0ae2da4999db9609caf23c6566e1c847dc') { throw 'Wrong base tree.' }
+          python ../controller/tools/cloud/patch_scene_playable_result.py .
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $expected = @('scripts/domain/narrative/SceneEventContract.gd', 'tests/unit/test_scene_event_contract.gd')
+          $delta = @(git diff --name-only)
+          if ((@($delta | Sort-Object -CaseSensitive) -join "`n") -cne (@($expected | Sort-Object -CaseSensitive) -join "`n")) { throw 'Unexpected product path change.' }
+          git diff --check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          $date = (git -C ../controller show -s --format=%cI HEAD).Trim()
+          $env:GIT_AUTHOR_DATE = $date
+          $env:GIT_COMMITTER_DATE = $date
+          git add -- $expected
+          git commit -m 'feat(scene): validate exact playable availability receipts'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $source = (git rev-parse HEAD).Trim()
-          if ($LASTEXITCODE -ne 0 -or $source -cne 'a991b5256d88275debae051a61a7ee23494c868e') { throw 'Wrong source commit.' }
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($LASTEXITCODE -ne 0 -or $tree -cne 'f63f8d0ae2da4999db9609caf23c6566e1c847dc') { throw 'Wrong source tree.' }
-
-          $parent = '9ebe1f086c011e5ebbf1433d2a760ded75361745'
-          $parents = @((git rev-list --parents -n 1 HEAD).Trim().Split(' '))
-          if ($LASTEXITCODE -ne 0 -or $parents.Count -ne 2 -or $parents[1] -cne $parent) { throw 'Wrong integration parent.' }
-          $expected = @('tests/backup_operations/test_backup_operations.gd')
-          $delta = @(git diff --name-only $parent HEAD)
-          if ((@($delta | Sort-Object -CaseSensitive) -join "`n") -cne (@($expected | Sort-Object -CaseSensitive) -join "`n")) { throw 'Wrong integration path set.' }
-          $files = @()
-          foreach ($path in $expected) {
-            $blob = (git rev-parse "HEAD:$path").Trim()
-            $bytesBlob = (git hash-object --no-filters -- $path).Trim()
-            if ($LASTEXITCODE -ne 0 -or $bytesBlob -cne $blob) { throw "Checkout bytes differ: $path" }
-            $files += [ordered]@{path=$path; blob=$blob}
-          }
+          if ((git rev-parse HEAD^).Trim() -cne $base) { throw 'Unexpected parent.' }
           New-Item -ItemType Directory -Force -Path '.godot/ci' | Out-Null
-          [ordered]@{parent=$parent; source=$source; source_tree=$tree; f_head='45dc2df466d52f79a03bf2a4a640b1a160e8c257'; g_head='b29005cc989033092881942ddcd6203d0e1e07fb'; exact_changed_files=$files} | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath '.godot/ci/composition-receipt.json' -Encoding utf8
-          git diff --exit-code HEAD --
-          if ($LASTEXITCODE -ne 0) { throw 'Source checkout is dirty before import.' }
-          New-Item -ItemType Directory -Force -Path '.godot/ci' | Out-Null
-          [ordered]@{
-            source_sha = $source; source_tree = $tree; controller_event_sha = $env:GITHUB_SHA
-            run_id = $env:GITHUB_RUN_ID; run_attempt = $env:GITHUB_RUN_ATTEMPT
-            suite = '${{ matrix.suite }}'; scope = 'Scene Backup real-filesystem inspection with diagnostic activation; legacy Quick and consent regressions; no production capture or rendered acceptance'
-          } | ConvertTo-Json | Set-Content -LiteralPath '.godot/ci/source-receipt.json' -Encoding utf8
-      - name: Prepare disposable index for checkout cleanup
+          [ordered]@{source_sha=$source; source_tree=$tree; parent=$base; controller_sha='${{ github.event.pull_request.head.sha }}'; controller_event_sha=$env:GITHUB_SHA; run_id=$env:GITHUB_RUN_ID; run_attempt=$env:GITHUB_RUN_ATTEMPT; scope='Contract-only unit regression; no forward producer, durable handoff, rendered or release acceptance'; changed_paths=$expected} | ConvertTo-Json -Depth 4 | Set-Content '.godot/ci/source-receipt.json' -Encoding utf8
+          git diff --binary $base HEAD --output=.godot/ci/source.patch
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git archive -o .godot/ci/source-inspection.zip HEAD scripts autoload tests tools docs project.godot .github
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Prepare disposable indexes for checkout cleanup
         run: |
-          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git submodule foreach --recursive 'true'
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          foreach ($repo in @('.', '../controller')) {
+            git -C $repo update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            git -C $repo submodule foreach --recursive 'true'
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
       - name: Install verified Godot 4.6.3 standard
         run: |
           $ErrorActionPreference = 'Stop'
@@ -75,114 +80,86 @@ jobs:
           $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
           $exeHash = (Get-FileHash -LiteralPath $console -Algorithm SHA256).Hash.ToLowerInvariant()
           if ($exeHash -cne '63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a') { throw 'Godot console checksum mismatch.' }
-          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "GODOT_CONSOLE_PATH=$console" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
           $version = (& $console --version | Out-String).Trim()
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          [ordered]@{ archive_sha256 = $archiveHash; console_sha256 = $exeHash; version = $version } | ConvertTo-Json | Set-Content -LiteralPath '.godot/ci/engine-receipt.json' -Encoding utf8
-      - name: Import source
+          [ordered]@{archive_sha256=$archiveHash; console_sha256=$exeHash; version=$version} | ConvertTo-Json | Set-Content '.godot/ci/engine-receipt.json' -Encoding utf8
+      - name: Import pinned candidate
         timeout-minutes: 8
         run: |
           $ErrorActionPreference = 'Stop'
-          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
+          $root = (Get-Location).Path
+          $output = Join-Path $root '.godot/ci'
           $env:APPDATA = Join-Path $output 'import-user/appdata'
           $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
           $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
           New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
-          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
+          & $env:GODOT_CONSOLE_PATH --headless --path $root --import --log-file "$output/import.log"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String -LiteralPath "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Project import reported errors.' }
-      - name: Restore committed project settings after import
+          if (Select-String -LiteralPath "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Import script error.' }
+      - name: Restore committed project settings
         if: always()
         run: |
           git restore --source=HEAD --worktree -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Execute existing Backup operations diagnostic
-        if: matrix.suite == 'backupoperations'
+      - name: Run exact scene event contract tests
         timeout-minutes: 10
         run: |
           $ErrorActionPreference = 'Stop'
           Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
-          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'scene-backup-operations' -LogName 'backupoperations.log' -EvidenceLogPath '.godot/ci/backupoperations.jsonl' -TimeoutSeconds 480 -GodotArgs @('-s', 'res://tests/backup_operations/test_backup_operations.gd')
+          $script = 'tests/unit/test_scene_event_contract.gd'
+          $args = @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', "-gtest=res://$script", '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/playable-contract.xml')
+          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'scene-playable-result-contract' -LogName 'playable-contract.log' -EvidenceLogPath '.godot/ci/playable-contract.jsonl' -TimeoutSeconds 480 -GodotArgs $args
           $result = $LASTEXITCODE
-          $log = '.godot/phase2r_logs/backupoperations.log'
+          $log = '.godot/phase2r_logs/playable-contract.log'
           if (Test-Path -LiteralPath $log) { Get-Content -LiteralPath $log }
           if ($result -ne 0) { exit $result }
-          if (Select-String -LiteralPath $log -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Backup operations reported script errors.' }
-          if (-not (Select-String -LiteralPath $log -Pattern '^BACKUP_OPERATIONS_PASS$' -Quiet)) { throw 'Missing operations success marker.' }
-      - name: Execute isolated explicit GUT scripts
-        if: matrix.suite != 'backupoperations'
-        timeout-minutes: 10
+          if (Select-String -LiteralPath $log -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Test script error.' }
+          [xml]$xml = Get-Content '.godot/ci/playable-contract.xml' -Raw
+          if ($xml.SelectNodes('//failure | //error | //skipped').Count -ne 0) { throw 'Test failure, error or skip.' }
+          $cases = @($xml.SelectNodes('//testcase'))
+          $declared = @((Select-String -LiteralPath $script -Pattern '^func (test_[A-Za-z0-9_]+)\(').Matches | ForEach-Object { $_.Groups[1].Value })
+          if ($declared.Count -le 7 -or $cases.Count -ne $declared.Count) { throw 'Declared/executed test count mismatch.' }
+          foreach ($name in $declared) {
+            if (@($cases | Where-Object { $_.GetAttribute('name') -ceq $name }).Count -ne 1) { throw "Missing or repeated test: $name" }
+          }
+          $suites = @($xml.SelectNodes('//testsuite') | Where-Object { $_.SelectNodes('./testcase').Count -gt 0 })
+          if ($suites.Count -ne 1 -or $suites[0].GetAttribute('name').Replace('res://', '') -cne $script) { throw 'Wrong test script.' }
+          [ordered]@{cases=$cases.Count; new_playable_tests=7; requested_script=$script; declared_tests=$declared; failures=0; errors=0; skips=0} | ConvertTo-Json -Depth 4 | Set-Content '.godot/ci/contract-summary.json' -Encoding utf8
+      - name: Verify tracked source and publish isolated candidate only
         run: |
           $ErrorActionPreference = 'Stop'
-          $suite = '${{ matrix.suite }}'
-          # Each matrix job is a fresh Godot process. Scene registration selection
-          # cannot leak into legacy readers or another fixture's immutable caches.
-          $scripts = switch ($suite) {
-            'scenebackup' { @('tests/integration/test_scene_backup_inspection.gd') }
-            'backuplegacy' { @('tests/unit/test_backup_quick_actions.gd', 'tests/unit/test_backup_host_admission.gd') }
-            default { throw 'Unknown diagnostic suite.' }
-          }
-          $scripts = @($scripts)
-          $paths = @($scripts | ForEach-Object {
-            if (-not (Test-Path -LiteralPath $_ -PathType Leaf)) { throw "Missing requested test: $_" }
-            "res://$_"
-          })
-          $gutArguments = @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', "-gtest=$($paths -join ',')", '-gexit', '-glog=2', "-gjunit_xml_file=res://.godot/ci/$suite.xml")
-          # GUT rejects unknown user arguments, so select the debug-only fixture
-          # through the child process environment instead of its CLI parser.
-          Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
-          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId "scene-runtime-integration-controller-$suite" -LogName "$suite.log" -EvidenceLogPath ".godot/ci/$suite.jsonl" -TimeoutSeconds 480 -GodotArgs $gutArguments
-          $result = $LASTEXITCODE
-          $log = ".godot/phase2r_logs/$suite.log"
-          if (Test-Path -LiteralPath $log) { Get-Content -LiteralPath $log }
-          if ($result -ne 0) { exit $result }
-          if (Select-String -LiteralPath $log -Pattern 'SCRIPT ERROR:|ERROR: Failed to load' -Quiet) { throw 'Focused suite reported script errors.' }
-          if (Select-String -LiteralPath $log -Pattern 'Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Unexpected Unicode/NUL diagnostic.' }
-          $report = ".godot/ci/$suite.xml"
-          if (-not (Test-Path -LiteralPath $report)) { throw 'Missing original JUnit XML.' }
-          [xml]$xml = Get-Content -LiteralPath $report -Raw
-          $cases = $xml.SelectNodes('//testcase').Count
-          if ($cases -le 0) { throw 'No test cases executed.' }
-          if ($xml.SelectNodes('//failure | //error | //skipped').Count -ne 0) { throw 'Failures, errors or skips in focused proof.' }
-          $reported = @($xml.SelectNodes('//testsuite') | Where-Object { $_.SelectNodes('./testcase').Count -gt 0 })
-          if ($reported.Count -ne $paths.Count) { throw 'Requested/reported script count mismatch.' }
-          foreach ($path in $paths) {
-            $relative = $path.Replace('res://', '')
-            $matching = @($reported | Where-Object { $_.GetAttribute('name').Replace('res://', '') -ceq $relative })
-            if ($matching.Count -ne 1 -or $matching[0].SelectNodes('./testcase').Count -le 0) { throw "Requested nonempty script not reported: $path" }
-          }
-          [ordered]@{ suite = $suite; cases = $cases; requested_scripts = $paths; reported_scripts = @($reported | ForEach-Object { $_.GetAttribute('name') }) } | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath ".godot/ci/$suite-summary.json" -Encoding utf8
-      - name: Verify tracked source remains unchanged
-        if: always()
-        run: |
-          $ErrorActionPreference = 'Stop'
-          # Only the two documented index-only malformed gitlink removals are
-          # excluded. Generated ignored/untracked import and UID files are not
-          # tracked-source edits; every tracked file is compared with HEAD.
           git diff --exit-code HEAD -- . ':(exclude).claude/skills/godot-prompter/1.10.0' ':(exclude).claude/skills/superpowers/6.1.1'
-          if ($LASTEXITCODE -ne 0) { throw 'Tracked source drifted during proof.' }
-          git status --short --untracked-files=no | Set-Content -LiteralPath '.godot/ci/tracked-status.txt' -Encoding utf8
-      - name: Hash original evidence even on failure
+          if ($LASTEXITCODE -ne 0) { throw 'Tracked source drift.' }
+          $source = (git rev-parse HEAD).Trim()
+          $candidate = 'refs/heads/codex/scene-playable-result-candidate-20261010'
+          $existing = @(git ls-remote --heads origin $candidate)
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if ($existing.Count -gt 0 -and $existing[0].Split("`t")[0] -cne $source) { throw 'Candidate branch occupied; refusing overwrite.' }
+          git push origin "HEAD:$candidate"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          [ordered]@{branch=$candidate; source_sha=$source; product_branch_moved=$false} | ConvertTo-Json | Set-Content '.godot/ci/candidate-publication.json' -Encoding utf8
+      - name: Hash original evidence
         if: always()
         run: |
           $ErrorActionPreference = 'Stop'
           New-Item -ItemType Directory -Force -Path '.godot/ci' | Out-Null
-          $roots = @('.godot/ci', '.godot/phase2r_logs')
-          $files = @($roots | Where-Object { Test-Path -LiteralPath $_ } | ForEach-Object { Get-ChildItem -LiteralPath $_ -File -Force } | Where-Object { $_.Name -cne 'original-file-hashes.json' -and $_.Extension -in @('.log', '.json', '.jsonl', '.xml', '.txt') } | Sort-Object FullName)
-          $manifest = @($files | ForEach-Object { [ordered]@{path=[IO.Path]::GetRelativePath($env:GITHUB_WORKSPACE, $_.FullName).Replace('\', '/'); bytes=$_.Length; sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()} })
-          $manifest | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath '.godot/ci/original-file-hashes.json' -Encoding utf8
-      - name: Upload original logs and JUnit
+          $files = @(@('.godot/ci', '.godot/phase2r_logs') | Where-Object { Test-Path -LiteralPath $_ } | ForEach-Object { Get-ChildItem -LiteralPath $_ -File -Force } | Where-Object { $_.Name -cne 'original-file-hashes.json' } | Sort-Object FullName)
+          $manifest = @($files | ForEach-Object { [ordered]@{path=[IO.Path]::GetRelativePath((Get-Location).Path, $_.FullName).Replace('\', '/'); bytes=$_.Length; sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()} })
+          $manifest | ConvertTo-Json -Depth 4 | Set-Content '.godot/ci/original-file-hashes.json' -Encoding utf8
+      - name: Upload original logs, JUnit and candidate source
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: scene-runtime-integration-${{ matrix.suite }}-${{ github.run_id }}-${{ github.run_attempt }}
+          name: scene-playable-result-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
-            .godot/ci/*.log
-            .godot/ci/*.json
-            .godot/ci/*.jsonl
-            .godot/ci/*.xml
-            .godot/ci/tracked-status.txt
-            .godot/phase2r_logs/*.log
+            source/.godot/ci/*.log
+            source/.godot/ci/*.json
+            source/.godot/ci/*.jsonl
+            source/.godot/ci/*.xml
+            source/.godot/ci/*.patch
+            source/.godot/ci/*.zip
+            source/.godot/phase2r_logs/*.log
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7
