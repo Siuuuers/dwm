@@ -7,16 +7,20 @@ const SAVE := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 const JOURNAL := preload("res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd")
 const PROFILE := preload("res://autoload/ProfileManager.gd")
 const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+const CONTRACT := preload("res://scripts/domain/narrative/SceneEventContract.gd")
+const MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
+const BRIDGE := preload("res://autoload/DialogicBridge.gd")
+const RUN := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 var fixture: RefCounted
 var fixture_ready := false
 
-func before_all() -> void:
+func before_each() -> void:
 	fixture = FIXTURE.new()
 	var setup: Dictionary = fixture.setup(get_tree())
 	assert_true(setup.get("ok", false), str(setup))
 	fixture_ready = setup.get("ok", false)
 
-func after_all() -> void:
+func after_each() -> void:
 	if fixture != null: fixture.close()
 
 func test_joint_creation_persists_exact_material_before_activation_and_alternates_after_ack() -> void:
@@ -106,3 +110,88 @@ func test_joint_creation_persists_exact_material_before_activation_and_alternate
 	assert_eq(final_profile.value.pair_deck_draws.size(), 2)
 	assert_eq(final_profile.value.pair_deck_draws[snapshot.run_id], snapshot.lifecycle.scene_assignment,
 		"later creation preserves the original assignment exactly")
+
+func test_rebuilt_other_initial_target_is_valid_preparation_but_not_committed_authority() -> void:
+	assert_true(fixture_ready)
+	if not fixture_ready: return
+	var started: Dictionary = fixture.start(0)
+	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
+	if started.get("code") != &"scene_activation_pending": return
+	fixture.confirm_activation()
+	var original: Dictionary = fixture.read_autosave()
+	assert_true(original.ok, str(original))
+	if not original.ok: return
+	var transaction: String = started.transaction_id
+	var proof: Dictionary = fixture.manager.capture_committed_scene_creation(transaction)
+	assert_true(proof.ok, str(proof))
+	if not proof.ok: return
+	var bundle: Dictionary = MANIFEST.scene_registration().value
+	var allocation: Dictionary = proof.value.allocation_candidate
+	var material: Dictionary = proof.value.profile_material
+	var before: Dictionary = _observed_state(transaction)
+	var rebuilt: Dictionary = CONTRACT.prepare_scene_initial_admission(allocation, material, "target_a", bundle, fixture.issuer)
+	assert_true(rebuilt.ok, str(rebuilt))
+	if not rebuilt.ok: return
+	var receipt: Dictionary = rebuilt.value
+	assert_ne(receipt, proof.value.initial_receipt)
+	assert_true(CONTRACT.validate_scene_initial_admission_candidate(receipt, allocation, material, bundle, fixture.issuer).ok)
+	var checkpoint: Dictionary = BRIDGE.build_scene_initial_checkpoint(receipt, bundle)
+	assert_true(checkpoint.ok, str(checkpoint))
+	if not checkpoint.ok: return
+	var input: Dictionary = fixture.game.prepare_scene_new_run_snapshot_input(allocation, material, receipt, bundle)
+	assert_true(input.ok, str(input))
+	if not input.ok: return
+	var candidate: Dictionary = RUN.build_scene_new_run_candidate(input.value.snapshot_input, checkpoint.value, {},
+		checkpoint.value.content_version, allocation, material, bundle, fixture.issuer)
+	assert_true(candidate.ok, str(candidate))
+	if not candidate.ok: return
+	var substituted: Dictionary = original.value.duplicate(true)
+	substituted.current_snapshot.snapshot = candidate.value.snapshot
+	assert_true(SAVE.validate_scene_new_run_candidate(substituted, allocation, material, bundle, fixture.issuer).ok,
+		"the alternative has a correctly rebuilt first reading/frame, not a stale target edit")
+	var direct: Dictionary = CONTRACT.validate_scene_receipts({transaction: receipt}, bundle, fixture.issuer, fixture.manager)
+	assert_eq(direct.get("code"), &"scene_initial_committed_receipt_mismatch", str(direct))
+	var run_result: Dictionary = RUN.validate(candidate.value.snapshot)
+	assert_eq(run_result.get("code"), &"scene_initial_committed_receipt_mismatch", str(run_result))
+	var save_result: Dictionary = SAVE.validate(substituted)
+	assert_eq(save_result.get("code"), &"scene_initial_committed_receipt_mismatch", str(save_result))
+	assert_eq(_observed_state(transaction), before, "reconstruction and refusal preserve physical and live owners")
+	assert_true(SAVE.validate(original.value).ok, "the actual committed initial scene remains admitted")
+	# Returned proof is detached; mutating it cannot rewrite the committed choice.
+	proof.value.initial_receipt = receipt
+	assert_ne(fixture.manager.capture_committed_scene_creation(transaction).value.initial_receipt, receipt)
+
+func test_committed_receipt_survives_evolved_checkpoint_and_unrelated_profile_write() -> void:
+	assert_true(fixture_ready)
+	if not fixture_ready: return
+	var started: Dictionary = fixture.start(1)
+	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
+	if started.get("code") != &"scene_activation_pending": return
+	fixture.confirm_activation()
+	var original: Dictionary = fixture.read_autosave()
+	assert_true(original.ok, str(original))
+	if not original.ok: return
+	var document: Dictionary = original.value.duplicate(true)
+	var snapshot: Dictionary = document.current_snapshot.snapshot
+	snapshot.checkpoint_sequence = 2
+	snapshot.checkpoint_id = snapshot.run_id + ":2"
+	snapshot.gameplay.money = 17
+	document.current_snapshot.checkpoint_kind = "safe_marker"
+	document.save_reason = "automatic"
+	var evolved: Dictionary = SAVE.validate(document)
+	assert_true(evolved.ok, "only the immutable receipt must match creation: " + str(evolved))
+	var preference: Dictionary = fixture.profile.set_preference(&"preferences.audio.master_volume", 0.5)
+	assert_true(preference.ok, str(preference))
+	if not preference.ok: return
+	var before: Dictionary = _observed_state(started.transaction_id)
+	var historical: Dictionary = SAVE.validate(document)
+	assert_true(historical.ok, "unrelated later Profile bytes preserve creation authority: " + str(historical))
+	assert_eq(_observed_state(started.transaction_id), before)
+
+func _observed_state(transaction: String) -> Dictionary:
+	return {"game": fixture.game.capture_restore_state(), "profile": fixture.profile.get_profile_snapshot(),
+		"profile_revision": fixture.profile.get_profile_revision(), "root": fixture.issuer.capture_root(),
+		"operation": fixture.manager._continuation_journal.get_operation(transaction),
+		"autosave_bytes": fixture.storage.read_text("autosave.json"), "profile_bytes": fixture.storage.read_text("profile.json"),
+		"route_publications": fixture.participants.route.publications,
+		"narrative_publications": fixture.participants.narrative.publications}

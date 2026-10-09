@@ -807,9 +807,12 @@ static func _validate_committed_initial_admission(receipt: Dictionary, bundle: D
 	if not captured.get("ok", false): return captured
 	var proof: Variant = captured.get("value")
 	if not proof is Dictionary or not proof.get("allocation_candidate") is Dictionary \
-			or not proof.get("profile_material") is Dictionary: return _fail(&"scene_creation_proof_invalid")
+			or not proof.get("profile_material") is Dictionary \
+			or not proof.get("initial_receipt") is Dictionary: return _fail(&"scene_creation_proof_invalid")
 	var validated := validate_scene_initial_admission_candidate(receipt, proof.allocation_candidate, proof.profile_material, bundle, issuer)
 	if not validated.ok: return validated
+	if not _equal(receipt, proof.initial_receipt):
+		return _fail(&"scene_initial_committed_receipt_mismatch")
 	var root: Dictionary = issuer.capture_root()
 	if not root.get("ok", false): return root
 	if not _equal(root.value.get("allocation_receipts", {}).get(receipt.transaction_id), proof.allocation_candidate):

@@ -23,21 +23,21 @@ jobs:
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          ref: 109309cc0770760ee53c15389659430dbb767a9b
+          ref: b7c1a0ab69622b9a35a5bc584c05ff84aecd6a90
           fetch-depth: 0
           persist-credentials: true
       - name: Verify and record immutable source before import
         run: |
           $ErrorActionPreference = 'Stop'
           $source = (git rev-parse HEAD).Trim()
-          if ($LASTEXITCODE -ne 0 -or $source -cne '109309cc0770760ee53c15389659430dbb767a9b') { throw 'Wrong source commit.' }
+          if ($LASTEXITCODE -ne 0 -or $source -cne 'b7c1a0ab69622b9a35a5bc584c05ff84aecd6a90') { throw 'Wrong source commit.' }
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ($LASTEXITCODE -ne 0 -or $tree -cne 'b66fb81a6b91bdeea6add418d8ce0c8247634ff0') { throw 'Wrong source tree.' }
+          if ($LASTEXITCODE -ne 0 -or $tree -cne '205ba9aa10080e4d3c44bc9be6526cbc31dc8137') { throw 'Wrong source tree.' }
 
-          $parent = '3076d1d156d677b2f21970bdfc315b85a21c3081'
+          $parent = '109309cc0770760ee53c15389659430dbb767a9b'
           $parents = @((git rev-list --parents -n 1 HEAD).Trim().Split(' '))
           if ($LASTEXITCODE -ne 0 -or $parents.Count -ne 2 -or $parents[1] -cne $parent) { throw 'Wrong integration parent.' }
-          $expected = @('autoload/SaveManager.gd', 'autoload/ProfileManager.gd', 'tests/integration/test_scene_joint_new_run.gd', 'tests/support/SceneNewRunFixture.gd')
+          $expected = @('autoload/SaveManager.gd', 'scripts/domain/narrative/SceneEventContract.gd', 'tests/integration/test_scene_joint_new_run.gd')
           $delta = @(git diff --name-only $parent HEAD)
           if ((@($delta | Sort-Object -CaseSensitive) -join "`n") -cne (@($expected | Sort-Object -CaseSensitive) -join "`n")) { throw 'Wrong integration path set.' }
           $files = @()
@@ -55,7 +55,7 @@ jobs:
           [ordered]@{
             source_sha = $source; source_tree = $tree; controller_event_sha = $env:GITHUB_SHA
             run_id = $env:GITHUB_RUN_ID; run_attempt = $env:GITHUB_RUN_ATTEMPT
-            suite = '${{ matrix.suite }}'; scope = 'Initial scene creation diagnostics: real issuer/Profile/Save filesystem and actual initial reading; injected route/native activation; no fresh-process Load or rendered acceptance'
+            suite = '${{ matrix.suite }}'; scope = 'Exact committed initial receipt regression: real creation and rebuilt alternate target, evolved checkpoint and Profile; injected activation; no fresh-process proof'
           } | ConvertTo-Json | Set-Content -LiteralPath '.godot/ci/source-receipt.json' -Encoding utf8
       - name: Prepare disposable index for checkout cleanup
         run: |

@@ -3194,8 +3194,16 @@ func capture_committed_scene_creation(transaction_id: String) -> Dictionary:
 	var profile: Dictionary = _new_run_profile_owner.prove_scene_assignment(materials.allocation_candidate.run_id,
 		materials.profile.scene_assignment.receipt)
 	if not profile.get("ok", false): return profile
+	# The retained canonical initial document fixes the actual first scene. Never
+	# read today's mutable Autosave or require later snapshots to equal this one.
+	var initial: Dictionary = STRICT_JSON.parse_object(materials.autosave.outgoing_text)
+	if not initial.get("ok", false): return initial
+	var initial_receipt: Variant = initial.value.current_snapshot.snapshot.command_receipts.get(transaction_id)
+	if not initial_receipt is Dictionary:
+		return _fail(&"scene_creation_proof_invalid", "retained initial receipt missing")
 	return {"ok": true, "value": {"operation": operation.duplicate(true),
-		"allocation_candidate": materials.allocation_candidate.duplicate(true), "profile_material": materials.profile.duplicate(true)}}
+		"allocation_candidate": materials.allocation_candidate.duplicate(true), "profile_material": materials.profile.duplicate(true),
+		"initial_receipt": initial_receipt.duplicate(true)}}
 
 func _validate_scene_creation_chronology() -> Dictionary:
 	var chronology: Dictionary = _continuation_journal.capture_completed_creation_chronology(_identity_issuer)
