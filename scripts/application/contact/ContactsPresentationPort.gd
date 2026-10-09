@@ -208,7 +208,7 @@ func _project(state: Dictionary, day: int, friend_id: String, primary: String, s
 	if _ordinary_enabled():
 		for friend: String in CONTACT_STATE.FRIEND_IDS:
 			var available: Dictionary = ORDINARY_REPLIES.available(state, day, friend, primary)
-		if not available.get("ok", false): return available
+			if not available.get("ok", false): return available
 			if not available.value.is_empty(): unread[friend] = true
 			if friend == friend_id: ordinary = available.value
 	var entries: Array = []
@@ -374,7 +374,7 @@ func _scene_project(state: Dictionary, friend_id: String, primary: String, secon
 	var choices: Array = []
 	if friend_id != "":
 		var available := CONTACT_STATE.scene_reply_choices(state, friend_id, primary, registration)
-			if not available.get("ok", false): return available
+		if not available.get("ok", false): return available
 		choices = available.value
 	return _ok({"friend_id": friend_id, "entries": entries, "unread": unread, "ordinary_choices": choices, "reply_required": false})
 
