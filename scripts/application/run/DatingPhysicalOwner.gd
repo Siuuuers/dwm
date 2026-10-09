@@ -415,8 +415,8 @@ func reconcile_restore_silent(restored_snapshot: Dictionary) -> Dictionary:
 		if recovered_scene.ok and _history_committed and _record != stored:
 			_pending_checkpoint = _record.duplicate(true)
 		return recovered_scene
-	var active_dating := not stored.is_empty() and int(stored.get("context", {}).get("day", 0)) == int(snapshot.lifecycle.day) \
-		and str(restored_snapshot.get("route_id", "")) == "dating"
+	var active_dating := str(restored_snapshot.get("route_id", "")) == "dating" and not stored.is_empty() \
+		and int(stored.get("context", {}).get("day", 0)) == int(snapshot.lifecycle.day)
 	if active_dating:
 		if not _valid_record(stored, {}): return _fail(&"invalid_restored_dating_challenge")
 		# Refusal must preserve the retained owner too: its pending board progress

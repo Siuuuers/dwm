@@ -24,6 +24,80 @@ var _return_title_published: Dictionary = {}
 var _return_title_publishing := false
 
 signal restore_publication_released()
+signal scene_activation_confirmed(operation_id: String)
+var _scene_host_path := ""
+var _scene_activation: Dictionary = {}
+
+## Bootstrap selects the genuine scene shell; this is not saved routing input.
+func configure_scene_host(path: String) -> Dictionary:
+	if not _scene_host_path.is_empty():
+		return {"ok": true} if _scene_host_path == path else _startup_failure("scene_host_already_configured")
+	if path.is_empty() or not ResourceLoader.load(path) is PackedScene:
+		return _startup_failure("scene_host_unavailable")
+	_scene_host_path = path
+	return {"ok": true}
+
+func begin_scene_publication_hold(operation_id: String) -> Dictionary:
+	if operation_id.is_empty(): return _startup_failure("scene_activation_unavailable")
+	var handle := {"scene_restore_operation_id": operation_id}
+	if _restore_publication_handle == handle: return {"ok": true}
+	if is_restore_publication_held() or _restore_publication_publishing:
+		return _startup_failure("restore_publication_busy")
+	_restore_publication_handle = handle
+	_restore_publication_source_id = get_tree().current_scene.get_instance_id() if get_tree().current_scene != null else 0
+	_restore_publication_scene_id = "scene"
+	_restore_publication_published = false
+	return {"ok": true}
+
+func begin_scene_activation(operation_id: String) -> Dictionary:
+	if operation_id.is_empty() or _pending_restore_scene_id != "scene" or _scene_host_path.is_empty():
+		return _startup_failure("scene_activation_unavailable")
+	if not _scene_activation.is_empty():
+		if _scene_activation.operation_id != operation_id:
+			return _startup_failure("scene_activation_conflict")
+		if _scene_activation.node_id != 0: return validate_scene_activation(operation_id)
+		return {"ok": true, "value": {"pending": true}}
+	var tree := get_tree()
+	if tree == null or _return_title_publishing or _startup_publishing:
+		return _startup_failure("scene_activation_unavailable")
+	var packed := ResourceLoader.load(_scene_host_path) as PackedScene
+	if packed == null: return _startup_failure("scene_host_unavailable")
+	_scene_activation = {"operation_id": operation_id, "generation": _route_generation,
+		"path": _scene_host_path, "node_id": 0, "revision": _route_custody_revision + 1}
+	if not tree.scene_changed.is_connected(_on_scene_activation_mounted):
+		tree.scene_changed.connect(_on_scene_activation_mounted)
+	var changed := tree.change_scene_to_packed(packed)
+	if changed != OK:
+		_scene_activation.clear()
+		return _startup_failure("scene_change_failed")
+	_route_custody_revision += 1
+	_current_scene_id = "scene"
+	return {"ok": true, "value": {"pending": true}}
+
+func _on_scene_activation_mounted() -> void:
+	if _scene_activation.is_empty() or _scene_activation.node_id != 0: return
+	var tree := get_tree()
+	if tree == null or tree.current_scene == null: return
+	var mounted := tree.current_scene
+	if _scene_activation.generation != _route_generation \
+			or _scene_activation.revision != _route_custody_revision \
+			or _current_scene_id != "scene" or mounted.scene_file_path != _scene_activation.path \
+			or not mounted.is_node_ready(): return
+	_scene_activation.node_id = mounted.get_instance_id()
+	scene_activation_confirmed.emit(str(_scene_activation.operation_id))
+
+func validate_scene_activation(operation_id: String) -> Dictionary:
+	var tree := get_tree()
+	if _scene_activation.is_empty() or _scene_activation.operation_id != operation_id \
+			or _scene_activation.generation != _route_generation \
+			or _scene_activation.revision != _route_custody_revision \
+			or _current_scene_id != "scene" or tree == null or tree.current_scene == null \
+			or tree.current_scene.get_instance_id() != _scene_activation.node_id \
+			or tree.current_scene.scene_file_path != _scene_activation.path \
+			or not tree.current_scene.is_node_ready():
+		return _startup_failure("scene_activation_unproven")
+	return {"ok": true, "value": {"pending": false}}
+
 var _restore_publication_handle: Dictionary = {}
 var _restore_publication_scene_id := ""
 var _restore_publication_source_id := 0
@@ -109,6 +183,15 @@ func begin_restore_publication_hold(handle: Dictionary) -> Dictionary:
 
 
 func cancel_restore_publication_hold(handle: Dictionary) -> Dictionary:
+	if handle.has("scene_restore_operation_id") and handle == _restore_publication_handle \
+			and not _restore_publication_published and _scene_activation.is_empty():
+		var current := get_tree().current_scene
+		if (current == null and _restore_publication_source_id == 0) \
+				or (current != null and current.get_instance_id() == _restore_publication_source_id):
+			_restore_publication_handle.clear()
+			_restore_publication_scene_id = ""
+			_restore_publication_source_id = 0
+			return {"ok": true}
 	if handle != _restore_publication_handle or _restore_publication_publishing or _restore_publication_published \
 			or get_tree().current_scene == null \
 			or get_tree().current_scene.get_instance_id() != _restore_publication_source_id:
@@ -124,6 +207,11 @@ func publish_restore_publication_hold(handle: Dictionary) -> Dictionary:
 			or _restore_publication_publishing:
 		return _startup_failure("stale_restore_publication_hold")
 	if _restore_publication_published: return {"ok": true, "value": {"already_published": true}}
+	if _restore_publication_scene_id == "scene":
+		var checked := validate_scene_activation(str(_scene_activation.get("operation_id", "")))
+		if not checked.get("ok", false): return checked
+		_restore_publication_published = true
+		return {"ok": true}
 	_restore_publication_publishing = true
 	var published := _change_to(_restore_publication_scene_id)
 	_restore_publication_publishing = false
@@ -316,6 +404,16 @@ func publish_startup_route_hold(token: String) -> Dictionary:
 	result["value"] = value
 	_startup_published_result = result.duplicate(true)
 	return result
+
+func complete_startup_scene_activation(token: String, operation_id: String) -> Dictionary:
+	if token.is_empty() or token != _startup_hold_token or _startup_publishing:
+		return _startup_failure("stale_startup_route_hold")
+	var checked := validate_scene_activation(operation_id)
+	if not checked.get("ok", false): return checked
+	_startup_request.clear()
+	_startup_hold_active = false
+	_startup_published_result = {"ok": true, "value": {"route_id": "scene", "deferred": false}}
+	return _startup_published_result.duplicate(true)
 
 func _hold_startup_request(request: Dictionary) -> Dictionary:
 	_route_custody_revision += 1
@@ -676,9 +774,9 @@ func prepare_route_restore(route_id: String, route_context: Dictionary) -> Dicti
 	if _return_title_publishing: return _startup_failure("return_title_publication_busy")
 	if route_id.is_empty():
 		return {"ok": false, "code": &"invalid_route_id", "message": "route_id must be nonempty"}
-	if not _SCENE_PATHS.has(route_id):
+	if not _SCENE_PATHS.has(route_id) and not (route_id == "scene" and not _scene_host_path.is_empty()):
 		return {"ok": false, "code": &"unknown_scene_id", "message": route_id}
-	var path: String = _SCENE_PATHS[route_id]
+	var path: String = _scene_host_path if route_id == "scene" else _SCENE_PATHS[route_id]
 	if not ResourceLoader.exists(path) or not ResourceLoader.load(path) is PackedScene:
 		return {"ok": false, "code": &"scene_missing", "message": path}
 	return {"ok": true, "code": &"ok", "value": {
@@ -716,6 +814,7 @@ func apply_route_restore_silent(plan: Dictionary) -> Dictionary:
 		return {"ok": false, "code": &"stale_route_plan", "message": "route preparation is no longer current"}
 	# Semantic apply: record the target route and safe context without changing the
 	# live scene (finalize performs the navigation). Ordinary route signals stay silent.
+	_scene_activation.clear()
 	_route_custody_revision += 1
 	_route_generation = int(token["generation"])
 	_pending_restore_scene_id = route_id
@@ -744,6 +843,7 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 			return _startup_failure("stale_startup_route_backup")
 		_startup_request = held.request.duplicate(true)
 	_pending_restore_scene_id = held.pending_scene_id if _startup_hold_active else ""
+	_scene_activation.clear()
 	_route_custody_revision += 1
 	_current_scene_id = str((source as Dictionary)["scene_id"])
 	_route_generation = int(source.get("route_generation", _route_generation))
@@ -751,6 +851,9 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 
 
 func finalize_restore() -> Dictionary:
+	if _pending_restore_scene_id == "scene":
+		if is_restore_publication_held(): _restore_publication_scene_id = "scene"
+		return {"ok": true, "value": {"deferred": true}}
 	if is_restore_publication_held():
 		if _pending_restore_scene_id.is_empty(): return _startup_failure("restore_route_unavailable")
 		_restore_publication_scene_id = _pending_restore_scene_id
@@ -769,3 +872,4 @@ func finalize_restore() -> Dictionary:
 
 func get_current_scene_id() -> String:
 	return _current_scene_id
+

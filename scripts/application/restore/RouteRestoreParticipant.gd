@@ -8,9 +8,39 @@ extends RefCounted
 
 var _owner: Object = null
 var _desktop_host: Object = null
+signal scene_activation_confirmed(operation_id: String)
 
 func _init(owner: Object) -> void:
 	_owner = owner
+	if owner.has_signal("scene_activation_confirmed"):
+		owner.connect("scene_activation_confirmed", _on_scene_activation_confirmed)
+
+func _on_scene_activation_confirmed(operation_id: String) -> void:
+	var checked := validate_scene_activation(operation_id)
+	if checked.get("ok", false): scene_activation_confirmed.emit(operation_id)
+
+func begin_scene_activation(operation_id: String) -> Dictionary:
+	if not _owner.has_method("begin_scene_activation"):
+		return _fail(&"scene_activation_unavailable", "route owner has no mounted activation seam")
+	return _owner.begin_scene_activation(operation_id)
+
+func validate_scene_activation(operation_id: String) -> Dictionary:
+	if not _owner.has_method("validate_scene_activation"):
+		return _fail(&"scene_activation_unavailable", "route owner has no mounted activation seam")
+	return _owner.validate_scene_activation(operation_id)
+
+func begin_scene_publication_hold(operation_id: String) -> Dictionary:
+	return _owner.begin_scene_publication_hold(operation_id)
+
+func cancel_scene_publication_hold(operation_id: String) -> Dictionary:
+	return _owner.cancel_restore_publication_hold({"scene_restore_operation_id": operation_id})
+
+func publish_scene_activation(operation_id: String) -> Dictionary:
+	var checked := validate_scene_activation(operation_id)
+	if not checked.get("ok", false): return checked
+	var published: Dictionary = _owner.publish_restore_publication_hold({"scene_restore_operation_id": operation_id})
+	if not published.get("ok", false): return published
+	return _owner.release_restore_publication_hold({"scene_restore_operation_id": operation_id})
 
 ## One Bootstrap-owned DesktopAppHostState. When configured, prepare() derives the desktop
 ## subplan from the supplied active_app_id/day and apply/rollback rebuild the host state
@@ -40,6 +70,15 @@ func prepare(input: Dictionary) -> Dictionary:
 		return prepared
 	var value := {"route_plan": prepared.get("value", {})}
 	var desktop_context: Dictionary = input["route_context"]
+	if input["route_id"] == "scene" and _desktop_host != null:
+		if not _desktop_host.has_method("prepare_scene_restore"):
+			return _fail(&"scene_desktop_host_unavailable", "dayless scene host restore is required")
+		if not desktop_context.has("active_app_id"):
+			return _fail(&"invalid_route_input", "scene route requires its saved active_app_id")
+		var restored: Dictionary = _desktop_host.prepare_scene_restore(desktop_context["active_app_id"])
+		if not restored.get("ok", false): return restored
+		value["route_plan"]["desktop"] = restored["value"]["candidate_state"]
+		return {"ok": true, "code": &"ok", "value": value}
 	if input.has("active_app_id") and input.has("day"):
 		desktop_context = input
 	if _desktop_host != null and desktop_context.has("active_app_id") and desktop_context.has("day"):
@@ -87,3 +126,4 @@ func finalize() -> Dictionary:
 
 static func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message}
+

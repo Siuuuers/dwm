@@ -189,6 +189,54 @@ func install_scene_target(session: RefCounted, checkpoint: Dictionary, target: D
 		return started
 	return {"ok": true, "value": {"pending": is_reading_frontier_restoring()}}
 
+## Selected Load restores an authenticated saved caption, not a target label.
+## No marker/jump/Return is executed to reach it; unsupported parked boundaries refuse.
+func restore_scene_frontier(session: RefCounted, checkpoint: Dictionary) -> Dictionary:
+	if not _bound or not _qualified_runtime or has_active_playback() or session == null or session.family != "scene":
+		return _fail(&"scene_restore_native_unavailable", "idle qualified runtime required")
+	var checked: Dictionary = session.validate_saved(checkpoint.get("reading_session", {}), str(checkpoint.get("entry_id", "")))
+	if not checked.ok: return checked
+	var saved: Dictionary = checkpoint.reading_session
+	if saved.boundary != "line":
+		return _fail(&"scene_restore_boundary_unsupported", "only saved caption frontiers are released")
+	var frame := NarrativeCaptionLedger.resolve_scene_frame(saved.ledger.entry_contexts, saved.occurrence_id, checkpoint.entry_id)
+	if not frame.ok or frame.value != checkpoint.get("frozen_context"):
+		return _fail(&"scene_restore_native_invalid", "saved context mismatch")
+	var presentation := FrozenPresentationContext.validate(checkpoint.entry_id, frame.value.presentation)
+	if not presentation.ok: return presentation
+	var selected := preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_registration()
+	if not selected.ok: return selected
+	var labels: Array = []
+	var path := ""
+	var programme := {}
+	for entry: Dictionary in selected.value.entry_manifest.entries:
+		labels.append(entry.entry_id)
+		if entry.entry_id == checkpoint.entry_id: path = entry.locators.en.path
+	for row: Dictionary in selected.value.scene_programme.entries:
+		if row.entry_id == checkpoint.entry_id: programme = row
+	if programme.is_empty(): return _fail(&"scene_restore_native_invalid", "programme unavailable")
+	var compiled := compile_scene_programme(path, checkpoint.entry_id, labels, programme.markers)
+	if not compiled.ok: return compiled
+	if compiled.value.program_sha256 != programme.program_sha256 or compiled.value.content_sha256 != programme.content_sha256 \
+			or saved.program_index >= compiled.value.nodes.size():
+		return _fail(&"scene_restore_native_invalid", "installed programme changed")
+	var node: Dictionary = compiled.value.nodes[saved.program_index]
+	if node.kind != "caption" or node.line_id != saved.frontier.line_id:
+		return _fail(&"scene_restore_native_invalid", "saved caption position changed")
+	var bound := bind_caption_ledger(session.ledger, session.command_id, checkpoint.entry_id, false, saved.occurrence_id)
+	if not bound.ok: return bound
+	var frozen := install_frozen_presentation(presentation.value)
+	if not frozen.ok: return frozen
+	_caption_restore_frontier = saved.frontier.duplicate(true)
+	_caption_restore_queued = false
+	var started := start_timeline(path, int(compiled.value.native_indices[saved.program_index]))
+	if not started.ok:
+		_caption_restore_frontier = {}
+		_caption_restore_queued = false
+		return started
+	return {"ok": true, "value": {"pending": is_reading_frontier_restoring()}}
+
+
 func _start_held_scene_target(path: String, native_index: int) -> Dictionary:
 	# The old coroutine has already finished under held-source custody. Keep its
 	# mounted layout and use the native qualified replacement directly: clear()
@@ -1611,4 +1659,5 @@ func install_marker_candidate(plan: Dictionary, candidate: NarrativeCaptionLedge
 	_marker_hold = {}
 	_dialogic.handle_event(int(indices.value.target_index))
 	return {"ok": true, "value": {"pending": true}}
+
 

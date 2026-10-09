@@ -16,7 +16,10 @@ func _source() -> Dictionary:
 	return {"schema_version": 9, "route_id": "scene", "run_id": "TEST.run",
 		"lifecycle": {"run_id": "TEST.run", "branch_id": "TEST.old.branch", "desktop_timeline_generation": 0,
 			"causal_day_instance": "TEST.old.causal", "causal_day_instance_issuer_receipt": consequence.causal_day_instance_issuer_receipt,
-			"restore_provenance": null, "state": "PLAYING"},
+			"restore_provenance": null, "state": "PLAYING",
+			"scene_assignment": {"ruleset_id": "scene.new_run.alternating.v1", "form": "sweet",
+				"selection_kind": "initial_random", "rng_nonce": 0, "predecessor_run_id": null,
+				"predecessor_assignment_sha256": null, "creation_transaction_id": "TEST.creation"}},
 		"scene": {"registration_sha256": "a".repeat(64), "active_occurrence_id": "TEST.contact.occurrence",
 			"active_admission_receipt_id": "TEST.contact.admission"},
 		"desktop": {"board": BOARD.new().capture(), "consequence": consequence},
@@ -48,6 +51,7 @@ func test_scene_without_live_commands_preserves_all_historical_and_logical_refer
 	for key: String in ["scene", "command_receipts", "contacts", "narrative_checkpoint", "gameplay",
 			"applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
 		assert_eq(candidate[key], source[key], key)
+	assert_eq(candidate.lifecycle.scene_assignment, source.lifecycle.scene_assignment, "Load preserves assigned form and creation receipt")
 	assert_eq(candidate.lifecycle.branch_id, "TEST.new.branch")
 	assert_eq(candidate.lifecycle.causal_day_instance, "TEST.new.causal")
 	assert_null(candidate.lifecycle.restore_provenance, "A attaches new provenance in its lifecycle participant")

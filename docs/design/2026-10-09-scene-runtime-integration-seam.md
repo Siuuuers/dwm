@@ -49,10 +49,10 @@ Exact scene `lifecycle` keys for the released generic fixture-backed PLAYING bou
 
 ```text
 run_id, branch_id, desktop_timeline_generation, causal_day_instance,
-causal_day_instance_issuer_receipt, restore_provenance, state
+causal_day_instance_issuer_receipt, restore_provenance, state, scene_assignment
 ```
 
-`state=PLAYING`. Existing causal/desktop ancestry keeps its genuine issuer-defined identity, even where historical field names contain “day”; it imposes no numeric day, seven-day cap, Schedule or automatic reset. Existing exact restore-provenance and issuer/remap validation remains, with explicit scene-family handling. This is not permission to discard original historical identities.
+`state=PLAYING`. `scene_assignment` is exactly G's seven-member `scene.new_run.alternating.v1` receipt; there is no duplicate saved form field. Load preserves the receipt unchanged. Existing causal/desktop ancestry keeps its genuine issuer-defined identity, even where historical field names contain “day”; it imposes no numeric day, seven-day cap, Schedule or automatic reset. Existing exact restore-provenance and issuer/remap validation remains, with explicit scene-family handling. This is not permission to discard original historical identities.
 
 **Director 14:08 HKT resolves the selection policy.** First successfully created new run randomly assigns `sweet` or `dark`; each later successful new run receives the opposite, persistently across abandonment/restart. Refused/cancelled creation and same-operation retry do not consume or reroll; old Load never changes the sequence. A owns joint NewRun/schema/bootstrap; G supplies the existing Profile-owner delta. Extend the existing `pair_deck_draws` owner with an exact discriminated receipt, not a competing counter/store or the unrelated UI `captured_dark` preference. Proposed new receipt is `{ruleset_id,form,selection_kind,rng_nonce,predecessor_run_id,predecessor_assignment_sha256,creation_transaction_id}`, ruleset `scene.new_run.alternating.v1`, forms `sweet`/`dark`. Initial nonce is controlled, predecessor fields null; alternate nonce null, predecessor authenticated. Commit only with durable run creation, never a standalone precommit draw. Preserve old receipt shapes. Existing legacy suffixes establish tone but ledger insertion order does not establish successful creation chronology; inspect retained creation proof before selecting any legacy sequence seed. This receipt is a dependency contract, not implemented activation. Production authored content remains separately selected; no invented production IDs or partner.
 
@@ -253,4 +253,35 @@ For the new scene_restore variant only, `activation_state` is null before COMPLE
 
 `list_incomplete`, `reconcile_startup` and SaveManager `_resume_operation` must include precisely completed scene_restore/pending records. Reconstruct process-local participants/checkpoint seed from retained `selected_document` through `load_restore_context(transaction_id,locator)`, bypass historical receipt advancement/allocation, and resume activation. Normalize scene_restore custody owner to restore because existing save lock checks that name. Block new continuation while pending; conflicting multiple pending records fail closed. Do not replay all historical completed operations or choose an arbitrary latest operation.
 
-Required connected evidence: completion refusal/uncertainty; crash before completion, after pending commit and after physical activation before acknowledgement; native/route/ack-write refusal; source-slot overwrite; many acknowledged historical operations plus one pending. Assert no premature publication/Start, duplicate consequence or replacement identity. This is the corrected implementation contract, not a claim these paths already exist or passed.
+Required connected evidence: completion refusal/uncertainty; crash before completion, after pending commit and after physical activation before acknowledgement; native/route/ack-write refusal; source-slot overwrite; many acknowledged historical operations plus one pending. Assert no premature publication/Start, duplicate consequence or replacement identity. This is the corrected implementation contract, not a claim these paths already passed.
+
+### 9 October implementation candidate: bounded status
+
+The successor implements explicit Run9/Save9 validation, lifecycle assignment retention,
+retained-document journal5 recovery, mounted-route/native-line activation and the separate
+pending-activation startup state. F45dc2df's 23 paths and G b29005cc's four new paths are
+composed exactly. Shared reconciliation extends the scene remapper to lifecycle8,
+preserves the assignment receipt and checks route family before a legacy physical day lookup.
+
+`SceneEventContract.make_scene_admission` uses the existing issued transaction root and
+five-member scene identity. Its canonical request contains exactly schema_version=2,
+kind=scene_admission, source_identity, registration_fingerprint, issuer_receipt, target_id,
+source_checkpoint, trigger_command_id and return_to. Its continuation_operation child is
+ordinal0 under that root receipt, with sorted canonical request_fingerprint and
+role=scene.admission projections. The existing exact scene_admitted result remains the
+reading reference. Validators rederive issuer/allocation/child and command lineage.
+Transition and notification producers use the actual checkpoint/staging owners.
+
+This candidate does **not** enable production scene gameplay. The first scene NewRun
+admission lacks a genuine prior scene checkpoint: referring to the first saved snapshot
+from its own admission would create a circular hash dependency. No fabricated seed or
+precommit Profile-assignment exception is admitted. Challenge playable/end and Contact
+entry/return producers remain unavailable. Control/between-entry native restores refuse
+before mutation. The production desktop still has calendar presentation dependencies,
+so Bootstrap does not configure its scene host. These are remaining implementation work,
+not passing filesystem, rendered-journey or whole-runtime evidence.
+
+New tests distinguish journal/transport/injected-owner diagnostics from actual mounted
+native frontier restoration. Full positive Save9 filesystem and fresh-process recovery
+remain required. Existing accepted B2 and PR23 results are not rerun for continuity.
+

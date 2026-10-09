@@ -529,9 +529,12 @@ static func _scene_runtime_boundary(snapshot: Dictionary) -> Dictionary:
 		if snapshot.has(retired): return _fail(&"remap_scene_family_invalid", "retired scene member: " + retired, {})
 	var lifecycle: Variant = snapshot.get("lifecycle")
 	if not event._keys(lifecycle, ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance",
-			"causal_day_instance_issuer_receipt", "restore_provenance", "state"]) \
+			"causal_day_instance_issuer_receipt", "restore_provenance", "state", "scene_assignment"]) \
 			or not event._json_data(lifecycle) or lifecycle.state != "PLAYING":
 		return _fail(&"remap_scene_lifecycle_invalid", "exact scene PLAYING lifecycle required", {})
+	var assignment := preload("res://scripts/domain/relationship/PairDeckDraw.gd").validate_scene(lifecycle.scene_assignment)
+	if not assignment.get("ok", false):
+		return _fail(&"remap_scene_lifecycle_invalid", "scene assignment receipt is invalid", {})
 	for key: String in ["run_id", "branch_id", "causal_day_instance"]:
 		if not event._id(lifecycle[key]): return _fail(&"remap_scene_lifecycle_invalid", key, {})
 	if typeof(lifecycle.desktop_timeline_generation) != TYPE_INT or lifecycle.desktop_timeline_generation < 0 \
@@ -2393,3 +2396,4 @@ static func _sha256_hex(text: String) -> String:
 
 static func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": details}
+

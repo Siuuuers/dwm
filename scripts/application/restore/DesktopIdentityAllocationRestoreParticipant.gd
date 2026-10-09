@@ -56,7 +56,13 @@ func prepare(input: Dictionary) -> Dictionary:
 	if restore_transaction_id.strip_edges().is_empty():
 		return _fail(&"invalid_restore_transaction_id", "restore_transaction_id must be nonblank")
 
-	var loaded: Dictionary = _source_loader.call(&"load_context", input["source_locator"])
+	# SaveManager resolves scene restores from their durable retained document.
+	# Legacy loaders preserve their existing locator-only contract.
+	var loaded: Dictionary
+	if _source_loader.has_method("load_restore_context"):
+		loaded = _source_loader.call(&"load_restore_context", restore_transaction_id, input["source_locator"])
+	else:
+		loaded = _source_loader.call(&"load_context", input["source_locator"])
 	if not loaded.get("ok", false):
 		return loaded
 	var payload: Dictionary = loaded.get("value", {})
@@ -166,3 +172,4 @@ static func _canonical_sha256(value: Variant) -> String:
 
 static func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message}
+

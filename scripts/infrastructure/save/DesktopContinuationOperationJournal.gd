@@ -5,6 +5,11 @@ extends RefCounted
 ## External to every selectable snapshot: this uses its injected atomic storage and source-loader.
 const JOURNAL_PATH := "desktop-continuation-operations.json"
 const SCHEMA_VERSION := 4
+const SCENE_SCHEMA_VERSION := 5
+const SCENE_PARTICIPANT_ORDER: Array[String] = [
+	"run", "desktop_consequence", "desktop_board", "profile",
+	"localization", "audio", "route", "narrative",
+]
 const STAGE_INTENT := "intent_committed"
 const STAGE_ALLOCATED := "identity_allocation_committed"
 const STAGE_APPLYING := "participants_applying"
@@ -101,9 +106,10 @@ const STAGE_UNION: Array[String] = [
 	STAGE_ABORTED,
 ]
 
-const KIND_UNION: Array[String] = ["new_run", "restore"]
+const KIND_UNION: Array[String] = ["new_run", "restore", "scene_restore"]
 const DOCUMENT_KEYS: Array[String] = ["operations", "schema_version"]
 
+const _SAVE_DOCUMENT := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 const _STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
 const _CANONICAL_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const _NEW_RUN_MATERIALS := preload("res://scripts/infrastructure/save/NewRunMaterials.gd")
@@ -143,7 +149,7 @@ func prepare_intent(request: Dictionary) -> Dictionary:
 	if not ready.get("ok", false):
 		return ready
 
-	var shape := _exact_keys(request, PREPARE_INTENT_KEYS)
+	var shape := _exact_keys(request, _intent_keys(request))
 	if not shape.get("ok", false):
 		return shape
 
@@ -156,6 +162,9 @@ func prepare_intent(request: Dictionary) -> Dictionary:
 		return loaded
 
 	var txid := str(request["transaction_id"])
+	var pending_ok := _pending_conflict(txid)
+	if not pending_ok.get("ok", false): return pending_ok
+
 	var operations: Dictionary = _document.get("operations", {})
 	if not operations.has(txid):
 		return {"ok": true, "value": _intent_candidate(request)}
@@ -174,7 +183,7 @@ func commit_intent(candidate: Dictionary) -> Dictionary:
 	if not ready.get("ok", false):
 		return ready
 
-	var shape := _exact_keys(candidate, OPERATION_KEYS)
+	var shape := _exact_keys(candidate, _operation_keys(candidate))
 	if not shape.get("ok", false):
 		return shape
 
@@ -189,6 +198,9 @@ func commit_intent(candidate: Dictionary) -> Dictionary:
 		return loaded
 
 	var txid := str(candidate["transaction_id"])
+	var pending_ok := _pending_conflict(txid)
+	if not pending_ok.get("ok", false): return pending_ok
+
 	var operations: Dictionary = _document.get("operations", {})
 	if operations.has(txid):
 		var recorded: Dictionary = operations[txid]
@@ -198,6 +210,7 @@ func commit_intent(candidate: Dictionary) -> Dictionary:
 
 	var next_document := _document.duplicate(true)
 	next_document["operations"][txid] = candidate.duplicate(true)
+	if candidate.get("kind") == "scene_restore": next_document["schema_version"] = SCENE_SCHEMA_VERSION
 	var written := _write(next_document)
 	if not written.get("ok", false):
 		return written
@@ -219,6 +232,9 @@ func advance(request: Dictionary) -> Dictionary:
 		return loaded
 
 	var txid := str(request["transaction_id"])
+	var pending_ok := _pending_conflict(txid)
+	if not pending_ok.get("ok", false): return pending_ok
+
 	var operations: Dictionary = _document.get("operations", {})
 	if not operations.has(txid):
 		return _failed(&"continuation_transaction_not_found", txid)
@@ -323,13 +339,22 @@ func list_incomplete() -> Dictionary:
 	var loaded := _load()
 	if not loaded.get("ok", false):
 		return loaded
+	var pending_ok := _pending_conflict()
+	if not pending_ok.get("ok", false): return pending_ok
 	var listed: Array[Dictionary] = []
 	for operation: Dictionary in (_document.get("operations", {}).values() as Array):
 		var stage := str(operation.get("stage", ""))
-		if stage == STAGE_COMPLETED or stage == STAGE_ABORTED:
+		if (stage == STAGE_COMPLETED and not _activation_pending(operation)) or stage == STAGE_ABORTED:
 			continue
 		listed.append(operation.duplicate(true))
 	return {"ok": true, "value": listed}
+
+
+## Uncertain completion/acknowledgement is resolved from atomic storage while the
+## caller retains custody. A read failure is not evidence that the write refused.
+func reload_operation_from_storage(transaction_id: String) -> Dictionary:
+	_loaded = false
+	return get_operation(transaction_id)
 
 
 func reconcile_startup(transaction_id: String, issuer: Object) -> Dictionary:
@@ -340,6 +365,9 @@ func reconcile_startup(transaction_id: String, issuer: Object) -> Dictionary:
 	var loaded := _load()
 	if not loaded.get("ok", false):
 		return loaded
+	var pending_ok := _pending_conflict(transaction_id)
+	if not pending_ok.get("ok", false): return pending_ok
+
 	var operations: Dictionary = _document.get("operations", {})
 	if not operations.has(transaction_id):
 		return _failed(&"continuation_transaction_not_found", transaction_id)
@@ -351,7 +379,7 @@ func reconcile_startup(transaction_id: String, issuer: Object) -> Dictionary:
 		return verified
 
 	var stage := str(operation.get("stage", ""))
-	if stage == STAGE_COMPLETED or stage == STAGE_ABORTED:
+	if (stage == STAGE_COMPLETED and not _activation_pending(operation)) or stage == STAGE_ABORTED:
 		return {"ok": true}
 	if str(operation.get("kind", "")) == "new_run":
 		var computed := _canonical_sha256(operation.get("initial_context"))
@@ -363,13 +391,20 @@ func reconcile_startup(transaction_id: String, issuer: Object) -> Dictionary:
 		var locator: Variant = operation.get("source_locator")
 		if typeof(locator) != TYPE_DICTIONARY:
 			return _failed(&"operation_source_locator_invalid", str(operation.get("transaction_id", "")))
-		var loaded_source: Dictionary = _source_loader.call(&"load_context", locator)
+		var loaded_source: Dictionary
+		if operation.get("kind") == "scene_restore":
+			if not _source_loader.has_method(&"load_restore_context"):
+				return _failed(&"scene_source_loader_unbound", transaction_id)
+			loaded_source = _source_loader.call(&"load_restore_context", transaction_id, locator.duplicate(true))
+		else:
+			loaded_source = _source_loader.call(&"load_context", locator)
 		if not loaded_source.get("ok", false):
 			return loaded_source
 		var payload: Dictionary = loaded_source.get("value", {})
 		if not payload.has("context") or not payload.has("context_sha256"):
 			return _failed(&"operation_source_payload_invalid", str(operation.get("transaction_id", "")))
-		if str(payload.get("context_sha256", "")) != str(locator.get("document_sha256", "")):
+		if str(payload.get("context_sha256", "")) != str(locator.get("document_sha256", "")) \
+				or (operation.get("kind") == "scene_restore" and _canonical_sha256(payload.get("context")) != str(locator["document_sha256"])):
 			return _failed(&"continuation_source_hash_mismatch", str(operation.get("transaction_id", "")))
 
 	if operation.get("failure", null) == null:
@@ -457,7 +492,7 @@ func _serialize_document(document: Dictionary, changed_transaction: String = "")
 		var key_text: Dictionary = _CANONICAL_WRITER.stringify(transaction_id)
 		if not key_text.get("ok", false): return key_text
 		members.append(str(key_text["value"]) + ":" + str(cached["text"]))
-	return {"ok": true, "value": '{"operations":{' + ",".join(members) + '},"schema_version":' + str(SCHEMA_VERSION) + '}'}
+	return {"ok": true, "value": '{"operations":{' + ",".join(members) + '},"schema_version":' + str(document["schema_version"]) + '}'}
 
 func _serialize_operation(operation: Dictionary) -> Dictionary:
 	return _CANONICAL_WRITER.stringify(operation)
@@ -503,10 +538,11 @@ func _validate_document(document: Variant) -> Dictionary:
 	if document_keys != DOCUMENT_KEYS:
 		return _failed(_schema_error, "document has unexpected members: " + str(document_keys))
 	if typeof(document.get("schema_version")) != TYPE_INT \
-			or document.get("schema_version") != SCHEMA_VERSION:
+			or document.get("schema_version") not in [SCHEMA_VERSION, SCENE_SCHEMA_VERSION]:
 		return _failed(_schema_error, "invalid schema_version")
 	if typeof(document.get("operations", {})) != TYPE_DICTIONARY:
 		return _failed(_schema_error, "operations is not a dictionary")
+	var pending_count := 0
 	for key: String in document["operations"]:
 		if key.is_empty():
 			return _failed(_schema_error, "transaction_id must be non-empty")
@@ -518,16 +554,21 @@ func _validate_document(document: Variant) -> Dictionary:
 			return _failed(_schema_error, "transaction_id must be a string for key " + str(key))
 		if str(operation.get("transaction_id")) != key:
 			return _failed(_schema_error, "transaction_id must match operations key")
+		if document["schema_version"] == SCHEMA_VERSION and operation.get("kind") == "scene_restore":
+			return _failed(_schema_error, "scene operation requires journal5")
 		var validated := _validate_operation(operation)
 		if not validated.get("ok", false):
 			return validated
+		if _activation_pending(operation): pending_count += 1
+	if pending_count > 1:
+		return _failed(&"scene_activation_conflict", "multiple pending scene activations")
 	return {"ok": true}
 
 
 func _validate_operation(operation: Dictionary) -> Dictionary:
 	var keys: Array = operation.keys()
 	keys.sort()
-	var expected := OPERATION_KEYS.duplicate()
+	var expected := _operation_keys(operation)
 	expected.sort()
 	if keys != expected:
 		return _failed(_schema_error, "operation has unexpected members: " + str(keys))
@@ -553,6 +594,13 @@ func _validate_operation(operation: Dictionary) -> Dictionary:
 	if typeof(operation.get("stage")) != TYPE_STRING:
 		return _failed(_schema_error, "stage must be a string")
 	var stage := str(operation["stage"])
+	if operation.get("kind") == "scene_restore":
+		var activation: Variant = operation.get("activation_state")
+		if stage == STAGE_COMPLETED:
+			if typeof(activation) != TYPE_STRING or activation not in ["pending", "acknowledged"]:
+				return _failed(_schema_error, "completed scene activation state is invalid")
+		elif activation != null:
+			return _failed(_schema_error, "uncompleted scene cannot activate")
 	if not STAGE_UNION.has(stage):
 		return _failed(_schema_error, "invalid stage: " + stage)
 	var allocation_receipt: Variant = operation.get("allocation_receipt")
@@ -562,7 +610,7 @@ func _validate_operation(operation: Dictionary) -> Dictionary:
 	if typeof(next_index) != TYPE_INT:
 		return _failed(_schema_error, "next_participant_index must be an integer")
 	var index := int(next_index)
-	if index < 0 or index > PARTICIPANT_ORDER.size():
+	if index < 0 or index > _participant_order(operation).size():
 		return _failed(_schema_error, "invalid participant index: " + str(index))
 	var receipts_value: Variant = operation.get("participant_receipts", {})
 	if typeof(receipts_value) != TYPE_DICTIONARY:
@@ -570,11 +618,11 @@ func _validate_operation(operation: Dictionary) -> Dictionary:
 	var receipts: Dictionary = receipts_value
 	var receipt_keys: Array = receipts.keys()
 	receipt_keys.sort()
-	var ordered := PARTICIPANT_ORDER.duplicate()
+	var ordered := _participant_order(operation)
 	ordered.sort()
 	if receipt_keys != ordered:
 		return _failed(_schema_error, "invalid participant_receipts members")
-	for name in PARTICIPANT_ORDER:
+	for name in _participant_order(operation):
 		var receipt: Variant = receipts.get(name)
 		if receipt != null and typeof(receipt) != TYPE_DICTIONARY:
 			return _failed(_schema_error, "participant receipt must be null or a dictionary")
@@ -613,14 +661,17 @@ func _validate_transaction_issuer_receipt(value: Variant, transaction_id: String
 
 
 func _validate_kind_fields(operation: Dictionary, kind: String) -> Dictionary:
-	if kind == "restore":
+	if kind in ["restore", "scene_restore"]:
 		if operation.get("initial_context") != null or operation.get("initial_context_sha256") != null:
 			return _failed(_schema_error, "restore requires null initial context fields")
 		if operation.get("new_run_materials") != null:
 			return _failed(_schema_error, "restore requires null new_run_materials")
 		if operation.has("new_run_targets") and operation.get("new_run_targets") != null:
 			return _failed(_schema_error, "restore requires null new_run_targets")
-		return _validate_source_locator(operation.get("source_locator"))
+		var locator_ok := _validate_source_locator(operation.get("source_locator"))
+		if not locator_ok.get("ok", false): return locator_ok
+		if kind == "scene_restore": return _validate_scene_source(operation)
+		return {"ok": true}
 	if operation.get("source_locator") != null:
 		return _failed(_schema_error, "new_run requires null source_locator")
 	var context_value: Variant = operation.get("initial_context")
@@ -754,27 +805,27 @@ func _validate_stage_relationship(operation: Dictionary, stage: String, index: i
 	match stage:
 		STAGE_INTENT:
 			if allocation_present or (failure_present and operation.get("kind") != "new_run") \
-					or index != 0 or not targets_empty or not _receipts_match_index(receipts, 0):
+					or index != 0 or not targets_empty or not _receipts_match_index(operation, receipts, 0):
 				return _failed(_schema_error, "intent_committed fields do not match their stage")
 		STAGE_ALLOCATED:
-			if not allocation_present or index != 0 or not _receipts_match_index(receipts, 0):
+			if not allocation_present or index != 0 or not _receipts_match_index(operation, receipts, 0):
 				return _failed(_schema_error, "identity_allocation_committed fields do not match their stage")
 		STAGE_APPLYING:
 			if not allocation_present or not targets_complete \
-					or not _receipts_match_index(receipts, index):
+					or not _receipts_match_index(operation, receipts, index):
 				return _failed(_schema_error, "participants_applying fields do not match their stage")
 		STAGE_APPLIED:
-			if not allocation_present or not targets_complete or index != PARTICIPANT_ORDER.size() \
-					or not _receipts_match_index(receipts, PARTICIPANT_ORDER.size()):
+			if not allocation_present or not targets_complete or index != _participant_order(operation).size() \
+					or not _receipts_match_index(operation, receipts, _participant_order(operation).size()):
 				return _failed(_schema_error, "participants_applied fields do not match their stage")
 		STAGE_COMPLETED:
-			if not allocation_present or failure_present or not targets_complete \
-					or index != PARTICIPANT_ORDER.size() \
-					or not _receipts_match_index(receipts, PARTICIPANT_ORDER.size()):
+			if not allocation_present or (failure_present and not _activation_pending(operation)) or not targets_complete \
+					or index != _participant_order(operation).size() \
+					or not _receipts_match_index(operation, receipts, _participant_order(operation).size()):
 				return _failed(_schema_error, "completed fields do not match their stage")
 		STAGE_ABORTED:
 			if operation.get("kind") == "new_run" or allocation_present or not failure_present \
-					or index != 0 or not targets_empty or not _receipts_match_index(receipts, 0):
+					or index != 0 or not targets_empty or not _receipts_match_index(operation, receipts, 0):
 				return _failed(_schema_error, "aborted fields do not match their stage")
 	return {"ok": true}
 
@@ -788,9 +839,9 @@ func _new_run_target_count(operation: Dictionary) -> int:
 			count += 1
 	return count
 
-func _receipts_match_index(receipts: Dictionary, index: int) -> bool:
-	for participant_index: int in range(PARTICIPANT_ORDER.size()):
-		var present := receipts.get(PARTICIPANT_ORDER[participant_index]) != null
+func _receipts_match_index(operation: Dictionary, receipts: Dictionary, index: int) -> bool:
+	for participant_index: int in range(_participant_order(operation).size()):
+		var present := receipts.get(_participant_order(operation)[participant_index]) != null
 		if present != (participant_index < index):
 			return false
 	return true
@@ -850,7 +901,7 @@ func _validate_advance_request(request: Dictionary, operation: Dictionary) -> Di
 	if typeof(request.get("expected_next_participant_index")) != TYPE_INT:
 		return _failed(&"invalid_advance_request", "expected_next_participant_index must be an integer")
 	var index := int(request["expected_next_participant_index"])
-	if index < 0 or index > PARTICIPANT_ORDER.size():
+	if index < 0 or index > _participant_order(operation).size():
 		return _failed(&"invalid_advance_request", "expected_next_participant_index out of range")
 	var expected_stage := str(request["expected_stage"])
 	var next_stage := str(request["next_stage"])
@@ -899,6 +950,7 @@ func _advance_one_step(operation: Dictionary, request: Dictionary) -> Dictionary
 	var operation_stage := str(operation.get("stage", ""))
 
 	if failure != null and (expected in [STAGE_ALLOCATED, STAGE_APPLYING, STAGE_APPLIED] \
+			or (expected == STAGE_COMPLETED and _activation_pending(operation)) \
 			or (expected == STAGE_INTENT and operation.get("kind") == "new_run")) \
 			and next_stage == expected and \
 			request_alloc_receipt == null and request_name == null and request_receipt == null:
@@ -977,7 +1029,7 @@ func _advance_intent_to_abort(operation: Dictionary, failure: Variant, allocatio
 	next["failure"] = (failure as Dictionary).duplicate(true)
 	next["allocation_receipt"] = null
 	var receipts: Dictionary = {}
-	for name in PARTICIPANT_ORDER:
+	for name in _participant_order(operation):
 		receipts[name] = null
 	next["participant_receipts"] = receipts
 	next["next_participant_index"] = 0
@@ -1009,7 +1061,7 @@ func _advance_apply_participant(operation: Dictionary, allocation_receipt: Varia
 		participant_receipt: Variant, index: int, failure: Variant, operation_stage: String) -> Dictionary:
 	if operation_stage != STAGE_APPLYING:
 		return _failed(&"illegal_stage", "expected participants_applying stage")
-	if index < 0 or index >= PARTICIPANT_ORDER.size():
+	if index < 0 or index >= _participant_order(operation).size():
 		return _failed(&"advance_request_invalid", "expected index out of range")
 	if allocation_receipt != null:
 		return _failed(&"advance_request_invalid", "participant transition cannot carry allocation evidence")
@@ -1019,14 +1071,14 @@ func _advance_apply_participant(operation: Dictionary, allocation_receipt: Varia
 		return _failed(&"advance_request_invalid", "unexpected participant index")
 	if participant_name == null or participant_receipt == null:
 		return _failed(&"advance_request_invalid", "participant transition requires name and receipt")
-	var expected_name := PARTICIPANT_ORDER[index]
+	var expected_name := _participant_order(operation)[index]
 	if str(participant_name) != expected_name:
 		return _failed(&"advance_request_invalid", "participant order mismatch")
 	if typeof(participant_receipt) != TYPE_DICTIONARY:
 		return _failed(&"advance_request_invalid", "participant_receipt must be a dictionary")
 	var receipts: Dictionary = operation.get("participant_receipts", {}).duplicate(true)
 	for earlier in range(index):
-		if receipts.get(PARTICIPANT_ORDER[earlier]) == null:
+		if receipts.get(_participant_order(operation)[earlier]) == null:
 			return _failed(&"advance_request_invalid", "lower participant receipts must be present")
 	if receipts.get(expected_name) != null:
 		return _failed(&"advance_request_invalid", "current participant already recorded")
@@ -1045,18 +1097,18 @@ func _advance_to_applied(operation: Dictionary, allocation_receipt: Variant, par
 		return _failed(&"advance_request_invalid", "stage completion may not carry evidence")
 	if failure != null:
 		return _failed(&"advance_request_invalid", "stage completion cannot carry failure")
-	if index != PARTICIPANT_ORDER.size():
+	if index != _participant_order(operation).size():
 		return _failed(&"advance_request_invalid", "index must equal participant count to reach participants_applied")
 	var current_index := int(operation.get("next_participant_index", 0))
-	if current_index != PARTICIPANT_ORDER.size():
+	if current_index != _participant_order(operation).size():
 		return _failed(&"advance_request_invalid", "all participants must be applied before participants_applied")
 	var receipts: Dictionary = operation.get("participant_receipts", {})
-	for name in PARTICIPANT_ORDER:
+	for name in _participant_order(operation):
 		if receipts.get(name) == null:
 			return _failed(&"advance_request_invalid", "all participants must be applied before participants_applied")
 	var next := operation.duplicate(true)
 	next["stage"] = STAGE_APPLIED
-	next["next_participant_index"] = PARTICIPANT_ORDER.size()
+	next["next_participant_index"] = _participant_order(operation).size()
 	next["failure"] = null
 	return {"ok": true, "value": _normalize_after_advance(next)}
 
@@ -1069,10 +1121,11 @@ func _advance_to_completed(operation: Dictionary, allocation_receipt: Variant, p
 		return _failed(&"advance_request_invalid", "completion may not carry evidence")
 	if failure != null:
 		return _failed(&"advance_request_invalid", "completion may not carry failure")
-	if index != PARTICIPANT_ORDER.size():
+	if index != _participant_order(operation).size():
 		return _failed(&"advance_request_invalid", "completion index must equal participant count")
 	var next := operation.duplicate(true)
 	next["stage"] = STAGE_COMPLETED
+	if operation.get("kind") == "scene_restore": next["activation_state"] = "pending"
 	return {"ok": true, "value": _normalize_after_advance(next)}
 
 
@@ -1080,6 +1133,7 @@ func _apply_recovery_diagnostic(operation: Dictionary, request: Dictionary) -> D
 	var expected := str(request["expected_stage"])
 	var next_stage := str(request["next_stage"])
 	if expected not in [STAGE_ALLOCATED, STAGE_APPLYING, STAGE_APPLIED] \
+			and not (expected == STAGE_COMPLETED and _activation_pending(operation)) \
 			and not (expected == STAGE_INTENT and operation.get("kind") == "new_run"):
 		return _failed(&"advance_request_invalid", "diagnostic requires a recoverable nonterminal stage")
 	if expected != next_stage:
@@ -1149,13 +1203,13 @@ func _replay_for_advanced_transition(operation: Dictionary, request: Dictionary)
 		STAGE_APPLYING:
 			if next_stage != STAGE_APPLYING:
 				if next_stage == STAGE_APPLIED:
-					if int(request["expected_next_participant_index"]) != PARTICIPANT_ORDER.size():
+					if int(request["expected_next_participant_index"]) != _participant_order(operation).size():
 						return _failed(&"advance_request_invalid", "participants_applying replay index must equal participant count")
 					if request.get("allocation_receipt") != null or request.get("participant_name") != null \
 							or request.get("participant_receipt") != null or request.get("failure") != null:
 						return _failed(&"advance_request_invalid", "replay carries evidence")
 					var receipts: Dictionary = operation.get("participant_receipts", {})
-					for name in PARTICIPANT_ORDER:
+					for name in _participant_order(operation):
 						if receipts.get(name) == null:
 							return _failed(&"advance_request_invalid", "participants were not fully applied")
 					return {"ok": true}
@@ -1165,11 +1219,11 @@ func _replay_for_advanced_transition(operation: Dictionary, request: Dictionary)
 			if request.get("allocation_receipt") != null:
 				return _failed(&"advance_request_invalid", "participant replay carries no allocation receipt")
 			var replay_index := int(request["expected_next_participant_index"])
-			if replay_index < 0 or replay_index >= PARTICIPANT_ORDER.size():
+			if replay_index < 0 or replay_index >= _participant_order(operation).size():
 				return _failed(&"advance_request_invalid", "participant replay index is out of range")
 			var name := str(request.get("participant_name", ""))
 			var receipt: Variant = request.get("participant_receipt", null)
-			var expected_name := PARTICIPANT_ORDER[replay_index]
+			var expected_name := _participant_order(operation)[replay_index]
 			var receipts: Dictionary = operation.get("participant_receipts", {})
 			if name != expected_name:
 				return _failed(&"advance_request_invalid", "replay participant name mismatch")
@@ -1178,7 +1232,8 @@ func _replay_for_advanced_transition(operation: Dictionary, request: Dictionary)
 			if replay_index >= int(operation.get("next_participant_index", -1)) \
 					or receipts.get(name) == null:
 				return _failed(&"advance_request_invalid", "the replayed participant had not been recorded")
-			if receipts.get(name) != receipt:
+			if receipts.get(name) != receipt or (operation.get("kind") == "scene_restore" \
+					and not _CANONICAL_WRITER._deep_same(receipts.get(name), receipt)):
 				return _failed(&"advance_request_invalid", "participant receipt replay changed")
 			return {"ok": true}
 
@@ -1189,7 +1244,7 @@ func _replay_for_advanced_transition(operation: Dictionary, request: Dictionary)
 				return _failed(&"advance_request_invalid", "invalid replay transition")
 			if request.get("failure") != null:
 				return _failed(&"advance_request_invalid", "replay cannot carry failure")
-			if int(request["expected_next_participant_index"]) != PARTICIPANT_ORDER.size():
+			if int(request["expected_next_participant_index"]) != _participant_order(operation).size():
 				return _failed(&"advance_request_invalid", "replay index must equal participant count")
 			if request.get("allocation_receipt") != null or request.get("participant_name") != null \
 					or request.get("participant_receipt") != null:
@@ -1213,7 +1268,7 @@ func _replay_failure(operation: Dictionary, request: Dictionary) -> Dictionary:
 
 func _is_identical_diagnostic_replay(operation: Dictionary, request: Dictionary) -> bool:
 	var stage := str(operation.get("stage", ""))
-	if stage == STAGE_COMPLETED or stage == STAGE_ABORTED:
+	if (stage == STAGE_COMPLETED and not _activation_pending(operation)) or stage == STAGE_ABORTED:
 		return false
 	return str(request.get("expected_stage", "")) == stage \
 		and str(request.get("next_stage", "")) == stage \
@@ -1234,14 +1289,14 @@ func _intent_candidate(request: Dictionary) -> Dictionary:
 	operation["stage"] = STAGE_INTENT
 	operation["next_participant_index"] = 0
 	var participant_receipts: Dictionary = {}
-	for name: String in PARTICIPANT_ORDER:
+	for name: String in _participant_order(operation):
 		participant_receipts[name] = null
 	operation["participant_receipts"] = participant_receipts
 	return operation
 
 
 func _intent_candidate_from_operation(operation: Dictionary) -> Dictionary:
-	return {
+	var candidate := {
 		"allocation_candidate_fingerprint": operation.get("allocation_candidate_fingerprint"),
 		"allocation_receipt": operation.get("allocation_receipt"),
 		"failure": operation.get("failure"),
@@ -1260,8 +1315,14 @@ func _intent_candidate_from_operation(operation: Dictionary) -> Dictionary:
 	}
 
 
+	if operation.get("kind") == "scene_restore":
+		candidate["selected_document"] = (operation["selected_document"] as Dictionary).duplicate(true)
+		candidate["source_locator"] = (operation["source_locator"] as Dictionary).duplicate(true)
+		candidate["activation_state"] = operation.get("activation_state")
+	return candidate
+
 func _base_operation(request: Dictionary) -> Dictionary:
-	return {
+	var candidate := {
 		"allocation_candidate_fingerprint": str(request.get("allocation_candidate_fingerprint", "")),
 		"allocation_receipt": null,
 		"failure": null,
@@ -1280,6 +1341,12 @@ func _base_operation(request: Dictionary) -> Dictionary:
 		"transaction_issuer_receipt": (request["transaction_issuer_receipt"] as Dictionary).duplicate(true),
 	}
 
+
+	if request.get("kind") == "scene_restore":
+		candidate["selected_document"] = (request["selected_document"] as Dictionary).duplicate(true)
+		candidate["source_locator"] = (request["source_locator"] as Dictionary).duplicate(true)
+		candidate["activation_state"] = null
+	return candidate
 
 func _canonical_sha256(value: Variant) -> String:
 	var emitted := _CANONICAL_WRITER.stringify(value)
@@ -1311,6 +1378,9 @@ func _sha256_hex(value: String) -> String:
 
 
 func _operation_equals(left: Variant, right: Variant) -> bool:
+	if (typeof(left) == TYPE_DICTIONARY and left.get("kind") == "scene_restore") \
+			or (typeof(right) == TYPE_DICTIONARY and right.get("kind") == "scene_restore"):
+		return _CANONICAL_WRITER._deep_same(left, right)
 	return left == right
 
 
@@ -1346,3 +1416,113 @@ func _storage_failure(result: Dictionary, fallback: StringName = &"journal_stora
 
 func _failed(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": "DesktopContinuationOperationJournal: " + message}
+
+## Scene activation is acknowledged only by SaveManager after physical readiness.
+## This durable marker is not a live-session capability and never authorizes Start alone.
+func acknowledge_scene_activation(transaction_id: String, request_fingerprint: String) -> Dictionary:
+	var ready := _require_configured("acknowledge_scene_activation")
+	if not ready.get("ok", false): return ready
+	var loaded := _load()
+	if not loaded.get("ok", false): return loaded
+	var pending_ok := _pending_conflict(transaction_id)
+	if not pending_ok.get("ok", false): return pending_ok
+	var operations: Dictionary = _document["operations"]
+	if not operations.has(transaction_id):
+		return _failed(&"continuation_transaction_not_found", transaction_id)
+	var operation: Dictionary = operations[transaction_id]
+	if operation.get("request_fingerprint") != request_fingerprint:
+		return _failed(&"continuation_request_conflict", transaction_id)
+	if operation.get("kind") != "scene_restore" or operation.get("stage") != STAGE_COMPLETED:
+		return _failed(&"scene_activation_stage_invalid", transaction_id)
+	if operation.get("failure") != null:
+		return _failed(&"advance_blocked_by_recovery_diagnostic", transaction_id)
+	if operation.get("activation_state") == "acknowledged":
+		return {"ok": true, "value": operation.duplicate(true)}
+	var next := operation.duplicate(true)
+	next["activation_state"] = "acknowledged"
+	var document := _document.duplicate(true)
+	document["operations"][transaction_id] = next
+	var written := _write(document, transaction_id)
+	if not written.get("ok", false): return written
+	_document = document
+	return {"ok": true, "value": next.duplicate(true)}
+
+
+func _activation_pending(operation: Dictionary) -> bool:
+	return operation.get("kind") == "scene_restore" \
+		and operation.get("stage") == STAGE_COMPLETED \
+		and operation.get("activation_state") == "pending"
+
+
+func _pending_conflict(transaction_id: String = "") -> Dictionary:
+	var pending: Array[String] = []
+	for operation: Dictionary in _document.get("operations", {}).values():
+		if _activation_pending(operation): pending.append(str(operation["transaction_id"]))
+	if pending.size() > 1:
+		return _failed(&"scene_activation_conflict", "multiple pending scene activations")
+	if pending.size() == 1 and not transaction_id.is_empty() and pending[0] != transaction_id:
+		return _failed(&"scene_activation_pending", pending[0])
+	return {"ok": true}
+
+
+func _participant_order(operation: Dictionary) -> Array[String]:
+	return SCENE_PARTICIPANT_ORDER.duplicate() if operation.get("kind") == "scene_restore" else PARTICIPANT_ORDER.duplicate()
+
+
+func _operation_keys(operation: Dictionary) -> Array[String]:
+	var keys := OPERATION_KEYS.duplicate()
+	if operation.get("kind") == "scene_restore":
+		keys.append_array(["selected_document", "activation_state"])
+	return keys
+
+
+func _intent_keys(request: Dictionary) -> Array[String]:
+	var keys := PREPARE_INTENT_KEYS.duplicate()
+	if request.get("kind") == "scene_restore": keys.append("selected_document")
+	return keys
+
+
+func _validate_scene_source(operation: Dictionary) -> Dictionary:
+	var document: Variant = operation.get("selected_document")
+	if typeof(document) != TYPE_DICTIONARY or typeof(document.get("schema_version")) != TYPE_INT \
+			or document.get("schema_version") != 9:
+		return _failed(_schema_error, "scene restore requires actual Save9 selected_document")
+	var admitted: Dictionary = _SAVE_DOCUMENT.validate(document)
+	if not admitted.get("ok", false): return admitted
+	if not _CANONICAL_WRITER._deep_same(document, admitted["value"]["candidate"]):
+		return _failed(_schema_error, "selected_document must already be the exact validated Save9 value")
+	var locator: Dictionary = operation["source_locator"]
+	var slot := str(document["kind"])
+	if slot == "slot": slot = "slot:" + str(document["slot_id"])
+	if slot != locator["slot_id"]:
+		return _failed(_schema_error, "selected document slot differs from locator")
+	var matches := 0
+	var bundles: Array = [document["current_snapshot"]]
+	bundles.append_array(document["recovery_journal"])
+	for raw_bundle: Variant in bundles:
+		if typeof(raw_bundle) != TYPE_DICTIONARY:
+			return _failed(_schema_error, "retained recovery bundle is malformed")
+		var bundle: Dictionary = raw_bundle
+		if typeof(bundle.get("snapshot")) != TYPE_DICTIONARY:
+			return _failed(_schema_error, "retained recovery bundle is malformed")
+		var snapshot: Dictionary = bundle["snapshot"]
+		if snapshot.get("checkpoint_id") != locator["checkpoint_id"]: continue
+		var selected_ok: Dictionary = _SAVE_DOCUMENT._validate_bundle(bundle)
+		if not selected_ok.get("ok", false): return selected_ok
+		if not _CANONICAL_WRITER._deep_same(snapshot, selected_ok["value"]["candidate"]):
+			return _failed(_schema_error, "selected snapshot must already be validated")
+		# A repeated checkpoint identity is ambiguous even when only one hash matches.
+		matches += 1
+		if _canonical_sha256(bundle) != locator["bundle_id"] \
+				or _canonical_sha256(snapshot) != locator["document_sha256"]:
+			return _failed(_schema_error, "selected checkpoint identity or content conflicts")
+	if matches != 1:
+		return _failed(_schema_error, "selected checkpoint must be unique")
+	var fingerprint := _canonical_sha256({
+		"kind": "scene_restore", "transaction_id": operation["transaction_id"],
+		"source_locator": locator, "selected_document": document,
+	})
+	if fingerprint.is_empty() or fingerprint != operation["request_fingerprint"]:
+		return _failed(_schema_error, "scene request fingerprint must bind complete selected document")
+	return {"ok": true}
+

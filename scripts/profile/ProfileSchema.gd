@@ -330,11 +330,8 @@ static func _validate_modern_document(source: Dictionary, version: int, root_key
 		if not profile["reached_presentations"] is Dictionary: return _invalid("reached_presentations", "Reached presentations must be an object")
 		var reached := PRESENTATION_SIGNATURE.validate_ledger(profile["reached_presentations"])
 		if not reached.ok: return reached
-		if not profile["pair_deck_draws"] is Dictionary: return _invalid("pair_deck_draws", "Draws must be an object")
-		for run_id: Variant in profile["pair_deck_draws"]:
-			if not run_id is String or run_id.strip_edges().is_empty(): return _invalid("pair_deck_draws", "A run identity is required")
-			var draw := PAIR_DECK.validate(profile["pair_deck_draws"][run_id])
-			if not draw.ok: return draw
+		var draws: Dictionary = PAIR_DECK.validate_ledger(profile["pair_deck_draws"])
+		if not draws.ok: return draws
 	if version >= 9:
 		var chronology := _validate_presentation_chronology(profile)
 		if not chronology.ok: return chronology

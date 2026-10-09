@@ -148,20 +148,6 @@
         896
       ]
     },
-    "shop.coffee.card": {
-      "path": "res://art/shop/items/coffee-card.png",
-      "size": [
-        28,
-        28
-      ]
-    },
-    "shop.coffee.inspector": {
-      "path": "res://art/shop/items/coffee-inspector.png",
-      "size": [
-        56,
-        56
-      ]
-    },
     "shop.wine.card": {
       "path": "res://art/shop/items/wine-card.png",
       "size": [
@@ -185,20 +171,6 @@
     },
     "shop.pineapple_bun.inspector": {
       "path": "res://art/shop/items/pineapple_bun-inspector.png",
-      "size": [
-        56,
-        56
-      ]
-    },
-    "shop.bandage_pack.card": {
-      "path": "res://art/shop/items/bandage_pack-card.png",
-      "size": [
-        28,
-        28
-      ]
-    },
-    "shop.bandage_pack.inspector": {
-      "path": "res://art/shop/items/bandage_pack-inspector.png",
       "size": [
         56,
         56
@@ -255,48 +227,6 @@
     },
     "shop.spa_coupon.inspector": {
       "path": "res://art/shop/items/spa_coupon-inspector.png",
-      "size": [
-        56,
-        56
-      ]
-    },
-    "shop.healthy_meal.card": {
-      "path": "res://art/shop/items/healthy_meal-card.png",
-      "size": [
-        28,
-        28
-      ]
-    },
-    "shop.healthy_meal.inspector": {
-      "path": "res://art/shop/items/healthy_meal-inspector.png",
-      "size": [
-        56,
-        56
-      ]
-    },
-    "shop.protein_box.card": {
-      "path": "res://art/shop/items/protein_box-card.png",
-      "size": [
-        28,
-        28
-      ]
-    },
-    "shop.protein_box.inspector": {
-      "path": "res://art/shop/items/protein_box-inspector.png",
-      "size": [
-        56,
-        56
-      ]
-    },
-    "shop.pep_note.card": {
-      "path": "res://art/shop/items/pep_note-card.png",
-      "size": [
-        28,
-        28
-      ]
-    },
-    "shop.pep_note.inspector": {
-      "path": "res://art/shop/items/pep_note-inspector.png",
       "size": [
         56,
         56
@@ -2415,3 +2345,4 @@
     }
   }
 }
+

@@ -148,6 +148,7 @@ const DEVELOPMENT_STAGE_SETS := {
 var _started := false
 var _start_begun := false
 var _startup_recovery_busy := false
+var _scene_startup_recovery: Dictionary = {}
 var _new_run_startup_recovery := {
 	"available": false, "transaction_id": "", "failed_stage": &"",
 }
@@ -336,6 +337,41 @@ func start(mode: StringName = MODE_FINAL) -> Dictionary:
 func get_startup_state() -> Dictionary:
 	return _state.duplicate(true)
 
+func get_scene_startup_recovery() -> Dictionary:
+	return {"ok": true, "value": _scene_startup_recovery.duplicate(true)}
+
+
+## A committed scene Load retries activation of the same durable operation.
+## It never enters the New Run recovery path or releases readiness early.
+func retry_scene_startup_activation(transaction_id: String) -> Dictionary:
+	if _startup_recovery_busy:
+		return _failure(&"scene_startup_retry_busy", "Startup recovery is already running")
+	if _scene_startup_recovery.is_empty() or transaction_id.is_empty() or transaction_id != _scene_startup_recovery.transaction_id:
+		return _failure(&"scene_startup_recovery_unavailable", "No matching scene activation is pending")
+	var saves := _target(&"SaveManager")
+	if saves == null or not saves.has_method("retry_scene_activation"):
+		return _failure(&"scene_activation_unavailable", "Scene activation owner is unavailable")
+	_startup_recovery_busy = true
+	var failed_stage: StringName = _scene_startup_recovery.failed_stage
+	var result: Dictionary = saves.retry_scene_activation(transaction_id)
+	if result.get("ok", false):
+		if not _startup_route_hold_token.is_empty():
+			if _startup_route_owner == null or not _startup_route_owner.has_method("complete_startup_scene_activation"):
+				result = _failure(&"scene_startup_route_unavailable", "Scene startup publication owner is unavailable")
+			else:
+				result = _startup_route_owner.complete_startup_scene_activation(_startup_route_hold_token, transaction_id)
+		if result.get("ok", false):
+			result = _continue_startup_after_recovery(failed_stage, transaction_id)
+		if result.get("ok", false):
+			_scene_startup_recovery.clear()
+			startup_recovery_changed.emit()
+	if not result.get("ok", false):
+		# A failure after the durable commit keeps this exact recovery reachable.
+		_scene_startup_recovery["cause"] = result.duplicate(true)
+	_startup_recovery_busy = false
+	return result
+
+
 func get_new_run_startup_recovery() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {
 		"available": bool(_new_run_startup_recovery["available"]),
@@ -406,6 +442,17 @@ func _record_startup_retry_failure(stage_id: StringName, transaction_id: String,
 
 
 func _record_startup_stage_failure(stage_id: StringName, result: Dictionary) -> Dictionary:
+	if result.get("code") == &"scene_activation_pending" and typeof(result.get("transaction_id")) == TYPE_STRING and not str(result.transaction_id).is_empty():
+		if not _scene_startup_recovery.is_empty() and _scene_startup_recovery.transaction_id != result.transaction_id:
+			return _failure(&"scene_startup_transaction_changed", "Pending scene operation changed")
+		_scene_startup_recovery = {"available": true, "transaction_id": result.transaction_id,
+			"failed_stage": stage_id, "cause": result.duplicate(true)}
+		_state["ready"] = false
+		_state["fatal_result"] = {}
+		_state["failed_stage"] = stage_id
+		_started = true
+		startup_recovery_changed.emit()
+		return result.duplicate(true)
 	print("STARTUP_FAILED stage=%s code=%s" % [stage_id, str(result.get("code", "unknown"))])
 	var retained := result.duplicate(true)
 	_state["fatal_result"] = retained
@@ -698,6 +745,10 @@ func _construct_identity_issuer_and_contact_commands() -> Dictionary:
 		&"configure_identity_issuer", _desktop_identity_nonce_issuer)
 	if not injected.get("ok", false):
 		return injected
+	var scene_runtime: Dictionary = game_state.configure_scene_runtime_validation()
+	if not scene_runtime.get("ok", false): return scene_runtime
+	var scene_schema: Dictionary = RUN_SNAPSHOT_SCHEMA_FOR_PROBE.configure_scene_validation(_desktop_identity_nonce_issuer, game_state)
+	if not scene_schema.get("ok", false): return scene_schema
 	var frozen_contacts: Dictionary = game_state.configure_frozen_contacts_contexts()
 	if not frozen_contacts.get("ok", false): return frozen_contacts
 	if int(injected.get("value", {}).get("issuer_instance_id", 0)) \
@@ -1432,13 +1483,15 @@ func _configure_restore_participants() -> Dictionary:
 		_desktop_consequence_state = DESKTOP_CONSEQUENCE_STATE.new()
 	if _desktop_board_state == null:
 		_desktop_board_state = DESKTOP_BOARD_STATE.new()
+		var scene_payments: Dictionary = _desktop_board_state.configure_scene_payments(_desktop_identity_nonce_issuer)
+		if not scene_payments.get("ok", false): return scene_payments
 	var view_configured: Dictionary = _configure_schedule_view_participant()
 	if not view_configured.get("ok", false):
 		return view_configured
 	var participants := {
 		"run": RUN_RESTORE_PARTICIPANT.new(game_state),
 		"desktop_consequence": DESKTOP_CONSEQUENCE_RESTORE_PARTICIPANT.new(_desktop_consequence_state),
-		"desktop_board": DESKTOP_BOARD_RESTORE_PARTICIPANT.new(_desktop_board_state),
+		"desktop_board": DESKTOP_BOARD_RESTORE_PARTICIPANT.new(_desktop_board_state, _desktop_identity_nonce_issuer),
 		"schedule_view": _retained_schedule_view_restore_participant,
 		"profile": PROFILE_RESTORE_PARTICIPANT.new(profile),
 		"localization": LOCALIZATION_RESTORE_PARTICIPANT.new(localization),
@@ -2576,9 +2629,17 @@ func _finish_day_resolution_route() -> Dictionary:
 	return resumed
 
 
+var _scene_staging_wired := false
 var _scene_event_command_port: RefCounted
 
 func _wire_scene_event_owner(game_state: Node, bridge: Node) -> Dictionary:
+	if not _scene_staging_wired:
+		var source: Dictionary = game_state.configure_scene_checkpoint_source(_target(&"SaveManager"))
+		if not source.get("ok", false): return source
+		var staged: Dictionary = bridge.configure_scene_staging(_narrative_checkpoint_adapter,
+			Callable(game_state, "validate_scene_entry_staging_source"), Callable(game_state, "scene_entry_staging_context"))
+		if not staged.get("ok", false): return staged
+		_scene_staging_wired = true
 	if _scene_event_command_port == null:
 		_scene_event_command_port = preload("res://scripts/application/narrative/SceneEventCommandPort.gd").new()
 		var bound: Dictionary = game_state.configure_scene_event_owner(bridge)
@@ -2588,3 +2649,4 @@ func _wire_scene_event_owner(game_state: Node, bridge: Node) -> Dictionary:
 		if not configured.get("ok", false): return configured
 	return bridge.configure_scene_event_port(_scene_event_command_port, Callable(game_state, "validate_live_session"),
 		Callable(game_state, "scene_event_context"))
+

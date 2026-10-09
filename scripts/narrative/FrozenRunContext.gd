@@ -16,6 +16,16 @@ const HOSPITAL := preload("res://scripts/narrative/HospitalFrozenContext.gd")
 const ENDING := preload("res://scripts/narrative/EndingFrozenContext.gd")
 const SCENE_ENTRIES := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const SCENE_LEDGER := preload("res://scripts/narrative/NarrativeCaptionLedger.gd")
+const SCENE_CONTRACT := preload("res://scripts/domain/narrative/SceneEventContract.gd")
+static var _scene_issuer: Object
+
+static func configure_scene_validation(issuer: Object) -> Dictionary:
+	if not is_instance_valid(issuer) or not issuer.has_method("verify_issued"):
+		return _fail(&"scene_identity_issuer_required")
+	if _scene_issuer != null and _scene_issuer != issuer: return _fail(&"scene_identity_issuer_conflict")
+	_scene_issuer = issuer
+	return {"ok": true}
+
 const DATING_KEY := "dating_frozen_contexts_v1"
 const HOSPITAL_KEY := "hospital_frozen_contexts_v1"
 const ENDING_KEY := "ending_frozen_contexts_v1"
@@ -74,10 +84,22 @@ static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictio
 	if _is_scene_checkpoint(checkpoint):
 		var scene := _validate_scene_envelope(checkpoint)
 		if not scene.ok: return scene
-		# Full authority remains unavailable until the independently implemented
-		# SceneEventContract admission validator is composed. A structural helper
-		# below is useful for detached fixtures, but cannot authorize a saved Run.
-		return _fail(&"scene_owner_validation_unavailable")
+		if snapshot.get("schema_version") != 9 or snapshot.get("route_id") != "scene" \
+				or not snapshot.get("command_receipts") is Dictionary or not snapshot.get("scene") is Dictionary:
+			return _fail(&"reading_saved_run_required")
+		var registered := SCENE_ENTRIES.scene_registration()
+		if not registered.ok: return registered
+		var receipts: Dictionary = SCENE_CONTRACT.validate_scene_receipts(snapshot.command_receipts, registered.value, _scene_issuer)
+		if not receipts.get("ok", false): return receipts
+		var scene_reading: Dictionary = checkpoint.reading_session
+		if snapshot.scene.get("registration_sha256") != scene_reading.registration_sha256 \
+				or snapshot.scene.get("active_occurrence_id") != scene_reading.occurrence_id \
+				or snapshot.scene.get("active_admission_receipt_id") != scene_reading.occurrence_id:
+			return _fail(&"reading_scene_admission_invalid")
+		var frames := derive_scene_frames(receipts.value.admissions, scene_reading)
+		if not frames.ok: return frames
+		return frames
+
 	if not snapshot.get("lifecycle") is Dictionary or not snapshot.get("gameplay") is Dictionary \
 			or not snapshot.get("contacts") is Dictionary or not snapshot.gameplay.get("route_context") is Dictionary:
 		return _fail(&"reading_saved_run_required")
@@ -830,4 +852,5 @@ static func _ok() -> Dictionary:
 
 static func _fail(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code, "message": str(code), "details": {}}
+
 

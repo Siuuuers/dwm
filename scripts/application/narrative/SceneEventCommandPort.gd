@@ -23,7 +23,7 @@ func configure(owner: Object, gate: RefCounted, issuer: RefCounted) -> Dictionar
 
 func dispatch(envelope: Variant) -> Dictionary:
 	if not is_instance_valid(_owner): return _fail(&"event_port_unconfigured")
-	var shaped: Dictionary = CONTRACT.inspect(envelope)
+	var shaped: Dictionary = _inspect_event(envelope)
 	if not shaped.get("ok", false): return shaped
 	var guarded: Dictionary = _gate.guard_external(&"scene_event")
 	if not guarded.get("ok", false): return guarded
@@ -40,6 +40,8 @@ func _dispatch_owned(event: Dictionary, digest: String, lease: String) -> Dictio
 	if not raw is Dictionary or not raw.get("ok", false) or not raw.get("value") is Dictionary:
 		return _fail(&"event_context_unavailable")
 	var context: Dictionary = raw.value
+	if event.get("schema_version") == 2 and context.get("family") != "scene":
+		return _fail(&"event_context_family_mismatch")
 	# Absent flags fail closed. The caller cannot supply its own admission context.
 	if context.get("mode") != "canonical" or context.get("suspended") != false or context.get("computer_held") != false:
 		return _fail(&"event_presentation_held")
@@ -64,7 +66,14 @@ func _dispatch_owned(event: Dictionary, digest: String, lease: String) -> Dictio
 	else:
 		if not context.get("registrations") is Dictionary: return _fail(&"event_registration_invalid")
 		record = context.registrations.get(event.event_id)
-	var registered: Dictionary = CONTRACT.match_registration(event, record)
+	var registered: Dictionary
+	if event.get("schema_version") == 2:
+		var installed := _installed_scene_registration()
+		if not installed.get("ok", false): return installed
+		if not CONTRACT._equal(record, installed.value): return _fail(&"event_registration_mismatch")
+		registered = CONTRACT.inspect_scene(event, installed.value)
+	else:
+		registered = CONTRACT.match_registration(event, record)
 	if not registered.get("ok", false): return registered
 	if typeof(context.get("next_ordinal")) != TYPE_INT or context.next_ordinal != event.ordinal \
 			or context.get("predecessor") != event.predecessor:
@@ -95,7 +104,7 @@ func configure_owned_handoff(authority: Object, validator: Callable) -> Dictiona
 func dispatch_owned(envelope: Dictionary, lease: String, seal: Dictionary) -> Dictionary:
 	if _owned_active or not is_instance_valid(_owned_authority) or not _owned_validator.is_valid() \
 			or not _gate.is_lease_active(&"causal_transaction", lease): return _fail(&"event_lease_lost")
-	var inspected: Dictionary = CONTRACT.inspect(envelope)
+	var inspected: Dictionary = _inspect_event(envelope)
 	if not inspected.ok: return inspected
 	_owned_active = true
 	var checked: Dictionary = _owned_validator.call(envelope.duplicate(true), lease, seal.duplicate(true))
@@ -105,3 +114,19 @@ func dispatch_owned(envelope: Dictionary, lease: String, seal: Dictionary) -> Di
 	var result := _dispatch_owned(envelope.duplicate(true), inspected.value.digest, lease)
 	_owned_active = false
 	return result.duplicate(true)
+
+
+func _installed_scene_registration() -> Dictionary:
+	var manifest: Script = load("res://scripts/narrative/DialogicEntryManifest.gd")
+	if manifest == null: return _fail(&"event_registration_invalid")
+	return manifest.scene_registration()
+
+
+func _inspect_event(envelope: Variant) -> Dictionary:
+	if envelope is Dictionary and typeof(envelope.get("schema_version")) == TYPE_INT \
+			and envelope.schema_version == 2:
+		var installed := _installed_scene_registration()
+		if not installed.get("ok", false): return installed
+		return CONTRACT.inspect_scene(envelope, installed.value)
+	return CONTRACT.inspect(envelope)
+

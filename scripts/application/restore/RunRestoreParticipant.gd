@@ -6,6 +6,7 @@ extends RefCounted
 ## Thin adapter: prepares detached plans and delegates capture/apply/rollback/
 ## finalize to the owner's silent restore seams. Emits no domain signals here.
 
+const RUN_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 var _owner: Object = null
 
 func _init(owner: Object) -> void:
@@ -28,7 +29,10 @@ func activate_live_session(ticket: Dictionary) -> Dictionary:
 func prepare(input: Dictionary) -> Dictionary:
 	if typeof(input.get("snapshot")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_run_input", "run participant requires a snapshot")
-	if _owner.has_method("validate_scene_event_snapshot"):
+	if input.snapshot.get("schema_version") == 9:
+		var scene: Dictionary = RUN_SCHEMA.validate(input.snapshot)
+		if not scene.get("ok", false): return scene
+	elif _owner.has_method("validate_scene_event_snapshot"):
 		var events: Dictionary = _owner.validate_scene_event_snapshot(input["snapshot"])
 		if not events.get("ok", false): return events
 	return {"ok": true, "code": &"ok", "value": {"run_plan": {"snapshot": (input["snapshot"] as Dictionary).duplicate(true)}}}
@@ -80,3 +84,4 @@ func finalize() -> Dictionary:
 
 static func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message}
+

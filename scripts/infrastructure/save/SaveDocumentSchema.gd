@@ -11,6 +11,7 @@ extends RefCounted
 ## pass: whichever one carries the wrong integer is rejected by its own owning check.
 
 const DOCUMENT_VERSION := 8
+const SCENE_DOCUMENT_VERSION := 9
 
 const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 
@@ -93,7 +94,7 @@ static func build(
 	# which allocates a fresh Dictionary/Array at every container node: the `duplicate(true)`
 	# that used to precede it copied the whole retained history a second time per save.
 	var document := {
-		"schema_version": DOCUMENT_VERSION,
+		"schema_version": SCENE_DOCUMENT_VERSION if bundle_error.value.candidate.schema_version == 9 else DOCUMENT_VERSION,
 		"kind": String(kind),
 		"slot_id": RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(slot_id),
 		"save_reason": String(save_reason),
@@ -105,6 +106,14 @@ static func build(
 			else RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(journal)),
 	}
 	tick = _profile_phase(profile, "document_schema_compose_us", tick)
+	var family_error := _journal_family_error(document.schema_version, document.recovery_journal)
+	if not family_error.is_empty(): return _fail(&"invalid_recovery_journal", family_error)
+	if document.schema_version == SCENE_DOCUMENT_VERSION:
+		if proven:
+			var proof_error := _scene_proof_error(journal, proven_journal)
+			if not proof_error.is_empty(): return _fail(&"invalid_recovery_journal", proof_error)
+		var scene_error := _scene_journal_error(document.current_snapshot, document.recovery_journal)
+		if not scene_error.is_empty(): return _fail(&"invalid_recovery_journal", scene_error)
 	if not saved_time.is_empty():
 		document["saved_time"] = RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(
 			saved_time.duplicate(true))
@@ -188,9 +197,9 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 		return _fail(&"invalid_saved_time", "saved_time must bind a UTC instant, original offset, and frozen HH:MM")
 	if typeof(candidate["schema_version"]) != TYPE_INT:
 		return _fail(&"invalid_document_shape", "schema_version must be an integer")
-	if int(candidate["schema_version"]) > DOCUMENT_VERSION:
+	if int(candidate["schema_version"]) > SCENE_DOCUMENT_VERSION:
 		return _fail(&"unsupported_schema_version", str(candidate["schema_version"]))
-	if int(candidate["schema_version"]) != DOCUMENT_VERSION:
+	if int(candidate["schema_version"]) not in [DOCUMENT_VERSION, SCENE_DOCUMENT_VERSION]:
 		return _fail(&"invalid_document_shape", "schema_version must be %d" % DOCUMENT_VERSION)
 	var discriminator_error := _validate_discriminators(
 		str(candidate["kind"]), candidate["slot_id"], str(candidate["save_reason"]))
@@ -204,6 +213,8 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 	tick = _profile_phase(profile, "outgoing_schema_validate_current_us", tick)
 	if not bundle_result.get("ok", false):
 		return bundle_result
+	if bundle_result.value.candidate.schema_version != candidate.schema_version:
+		return _fail(&"invalid_document_shape", "Save and Run versions must agree")
 	# `_validate_bundle()` proved this bundle holds exactly `checkpoint_kind` and `snapshot`, so
 	# compose the candidate's bundle from those two proven parts rather than mutating the caller's
 	# container. `checkpoint_kind` is a scalar and still goes through the normalizer, so its value
@@ -217,6 +228,9 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 		return _fail(&"invalid_document_shape", "recovery_journal must be an array")
 	tick = _profile_phase(profile, "outgoing_schema_compose_current_us", tick)
 	if use_proven_journal:
+		if candidate.schema_version == SCENE_DOCUMENT_VERSION:
+			var proof_error := _scene_proof_error(candidate.recovery_journal, proven_journal)
+			if not proof_error.is_empty(): return _fail(&"invalid_recovery_journal", proof_error)
 		# The document's own entries are not validated here because they are not what is being
 		# written: the caller's proven bundles are, one per entry, in this order. See
 		# `validate_outgoing()` for the obligation that carries and the equivalence it rests on.
@@ -227,13 +241,63 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 			for bundle: Variant in proven_journal:
 				composed.append(_normalize_engine_text(bundle))
 		candidate["recovery_journal"] = composed
+		var composed_family_error := _journal_family_error(candidate.schema_version, composed)
+		if not composed_family_error.is_empty(): return _fail(&"invalid_recovery_journal", composed_family_error)
+		if candidate.schema_version == SCENE_DOCUMENT_VERSION:
+			var scene_error := _scene_journal_error(candidate.current_snapshot, composed)
+			if not scene_error.is_empty(): return _fail(&"invalid_recovery_journal", scene_error)
 		_profile_phase(profile, "outgoing_schema_compose_proven_journal_us", tick)
 		return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
 	var journal_error := _validate_journal(candidate["recovery_journal"])
 	_profile_phase(profile, "outgoing_schema_validate_journal_us", tick)
 	if journal_error != "":
 		return _fail(&"invalid_recovery_journal", journal_error)
+	var family_error := _journal_family_error(candidate.schema_version, candidate.recovery_journal)
+	if not family_error.is_empty(): return _fail(&"invalid_recovery_journal", family_error)
+	if candidate.schema_version == SCENE_DOCUMENT_VERSION:
+		var scene_error := _scene_journal_error(candidate.current_snapshot, candidate.recovery_journal)
+		if not scene_error.is_empty(): return _fail(&"invalid_recovery_journal", scene_error)
 	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
+
+## Scene recovery is a complete owner-validated family, including proof/splice
+## paths. Legacy recovery admission remains unchanged above.
+static func _journal_family_error(version: int, journal: Array) -> String:
+	# Preserve legacy recovery screening, but never admit a scene member into a
+	# calendar document, including the caller-owned proof/splice fast path.
+	if version != DOCUMENT_VERSION: return ""
+	for entry: Variant in journal:
+		if entry is Dictionary and entry.get("snapshot") is Dictionary \
+				and entry.snapshot.get("schema_version") == SCENE_DOCUMENT_VERSION:
+			return "Run9 recovery cannot belong to Save8"
+	return ""
+
+static func _scene_journal_error(current: Dictionary, journal: Array) -> String:
+	var source: Dictionary = current.snapshot
+	var seen := {source.checkpoint_id: true}
+	for raw: Variant in journal:
+		if not raw is Dictionary: return "scene journal bundle must be an object"
+		var checked := _validate_bundle(raw)
+		if not checked.ok: return str(checked.get("code", "invalid scene journal bundle"))
+		var saved: Dictionary = checked.value.candidate
+		if saved.schema_version != SCENE_DOCUMENT_VERSION or saved.run_id != source.run_id \
+				or saved.content_version != source.content_version:
+			return "scene journal family/run/content mismatch"
+		if saved.scene.registration_sha256 != source.scene.registration_sha256:
+			return "scene journal registration mismatch"
+		if seen.has(saved.checkpoint_id): return "duplicate scene checkpoint id"
+		if saved.checkpoint_sequence >= source.checkpoint_sequence:
+			return "scene recovery must precede the current checkpoint"
+		seen[saved.checkpoint_id] = true
+	return ""
+
+static func _scene_proof_error(journal: Array, proofs: Array) -> String:
+	if journal.size() != proofs.size(): return "scene journal proof count mismatch"
+	for index: int in journal.size():
+		var entry: Variant = RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(_normalize_engine_text(journal[index]))
+		var proof: Variant = RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(_normalize_engine_text(proofs[index]))
+		if not entry is Dictionary or not proof is Dictionary or entry != proof:
+			return "scene journal proof does not match its bundle"
+	return ""
 
 ## These subphases are nested inside the checkpoint port's inclusive schema timers.
 static func _profile_phase(profile: Dictionary, phase: String, started_us: int) -> int:
@@ -370,3 +434,4 @@ static func _normalize_engine_text(value: Variant) -> Variant:
 				visited += 1
 			return source_dictionary if dictionary == null else dictionary
 	return value
+

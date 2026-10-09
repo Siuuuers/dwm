@@ -11,12 +11,12 @@ extends RefCounted
 ##
 ## `base_snapshot_input` is shaped exactly like `SaveManagerCheckpointPort.prepare()`'s own
 ## `checkpoint_inputs.snapshot_input` (the established convention throughout this codebase): a
-## `{lifecycle, gameplay, contacts, committed_schedule, desktop, dating, applied_effect_transaction_
-## ids, applied_variable_transaction_ids}`-shaped dict, captured via GameState.capture_run_snapshot_
+## `{lifecycle, gameplay, contacts, desktop, scene, applied_effect_transaction_
+## ids, applied_variable_transaction_ids, command_receipts}`-shaped dict, captured via GameState.capture_run_snapshot_
 ## input() BEFORE first Reveal prepares anything. `compose()` returns that SAME shape with only
-## `gameplay.minesweeper_rounds_left`/`gameplay.motivation` (read off `game_state_candidate`) and
+## `gameplay.minesweeper_rounds_left` (read off `game_state_candidate`) and
 ## `desktop.board`/`desktop.consequence` (projected from `board_candidate`/`consequence_candidate`)
-## overwritten -- everything else (contacts, committed_schedule, other gameplay fields) survives
+## overwritten -- everything else (contacts, scene, other gameplay fields) survives
 ## byte-for-byte, since first Reveal touches nothing else.
 ##
 ## DESIGN CHOICE, not literally frozen by the brief (documented per this task's own established
@@ -28,13 +28,13 @@ extends RefCounted
 ## `expected_run_revision` -- "matching consequence revision" (brief Step 6.10) rather than a content
 ## change.
 
-const _GAME_STATE_CANDIDATE_KEYS: Array[String] = ["transaction_id", "motivation", "rounds_left", "starts_today"]
+const _GAME_STATE_CANDIDATE_KEYS: Array[String] = ["transaction_id", "rounds_left", "starts_today"]
 const _BOARD_CANDIDATE_KEYS: Array[String] = [
 	"kind", "transaction_id", "request_fingerprint", "identity_fingerprint", "pre_revision",
 	"phase_after", "identity_after", "candidate_after", "board_after", "settlement_after",
 ]
 const _SNAPSHOT_INPUT_KEYS: Array[String] = [
-	"lifecycle", "gameplay", "contacts", "committed_schedule", "desktop", "dating",
+	"lifecycle", "gameplay", "contacts", "desktop", "scene",
 	"applied_effect_transaction_ids", "applied_variable_transaction_ids", "command_receipts",
 ]
 
@@ -47,10 +47,24 @@ static func compose(base_snapshot_input: Dictionary, game_state_candidate: Dicti
 	var game_shape := _exact_keys(game_state_candidate, _GAME_STATE_CANDIDATE_KEYS, &"invalid_game_state_candidate")
 	if not game_shape.get("ok", false):
 		return game_shape
+	if typeof(game_state_candidate.transaction_id) != TYPE_STRING or game_state_candidate.transaction_id.is_empty() \
+			or typeof(game_state_candidate.rounds_left) != TYPE_INT or not game_state_candidate.starts_today is Dictionary:
+		return _fail(&"invalid_game_state_candidate", "typed transaction, round and start ledger required")
+	for key: Variant in game_state_candidate.starts_today:
+		if typeof(key) != TYPE_STRING or str(key).is_empty() \
+				or typeof(game_state_candidate.starts_today[key]) != TYPE_INT or game_state_candidate.starts_today[key] < 0:
+			return _fail(&"invalid_game_state_candidate", "invalid start ledger entry")
+	for key: String in ["desktop", "gameplay", "scene"]:
+		if not base_snapshot_input[key] is Dictionary:
+			return _fail(&"invalid_base_snapshot_input", "expected object: " + key)
 	var board_shape := _exact_keys(board_candidate, _BOARD_CANDIDATE_KEYS, &"invalid_board_candidate")
 	if not board_shape.get("ok", false):
 		return board_shape
-	if typeof(consequence_candidate.get("expected_run_revision")) != TYPE_INT:
+	if typeof(board_candidate.transaction_id) != TYPE_STRING or typeof(board_candidate.pre_revision) != TYPE_INT \
+			or typeof(board_candidate.kind) not in [TYPE_STRING, TYPE_STRING_NAME]:
+		return _fail(&"invalid_board_candidate", "typed transaction, kind and revision required")
+	if not _exact_keys(consequence_candidate, ["expected_run_revision"], &"invalid_consequence_candidate").ok \
+			or typeof(consequence_candidate.get("expected_run_revision")) != TYPE_INT:
 		return _fail(&"invalid_consequence_candidate", "consequence_candidate.expected_run_revision must be an integer")
 	if typeof(board_candidate.get("board_after")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_board_candidate", "a first-Reveal board candidate requires board_after")
@@ -67,6 +81,8 @@ static func compose(base_snapshot_input: Dictionary, game_state_candidate: Dicti
 	if typeof(base_desktop.get("board")) != TYPE_DICTIONARY or typeof(base_desktop.get("consequence")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_base_snapshot_input", "base_snapshot_input.desktop.{board,consequence} are required")
 	var base_consequence: Dictionary = base_desktop["consequence"]
+	if typeof(base_consequence.get("run_revision")) != TYPE_INT or typeof(base_desktop.board.get("revision")) != TYPE_INT:
+		return _fail(&"invalid_base_snapshot_input", "typed board and consequence revisions required")
 	if int(base_consequence.get("run_revision", -1)) != int(consequence_candidate["expected_run_revision"]):
 		return _fail(&"first_reveal_candidate_revision_mismatch",
 			"consequence_candidate.expected_run_revision no longer matches the base consequence state")
@@ -79,9 +95,12 @@ static func compose(base_snapshot_input: Dictionary, game_state_candidate: Dicti
 	var gameplay: Dictionary = (composed["gameplay"] as Dictionary).duplicate(true)
 	if typeof(gameplay.get("stats")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_base_snapshot_input", "base_snapshot_input.gameplay.stats is required")
-	var stats: Dictionary = (gameplay["stats"] as Dictionary).duplicate(true)
-	stats["motivation"] = int(game_state_candidate["motivation"])
-	gameplay["stats"] = stats
+	if not _exact_keys(gameplay.stats, ["pressure"], &"invalid_base_snapshot_input").ok \
+			or typeof(gameplay.stats.pressure) != TYPE_INT or gameplay.stats.pressure < 0 or gameplay.stats.pressure > 12:
+		return _fail(&"invalid_base_snapshot_input", "scene stats must contain only pressure in 0..12")
+	if typeof(gameplay.get("minesweeper_rounds_left")) != TYPE_INT \
+			or gameplay.minesweeper_rounds_left - 1 != game_state_candidate.rounds_left:
+		return _fail(&"invalid_game_state_candidate", "first Reveal must debit exactly one round")
 	gameplay["minesweeper_rounds_left"] = int(game_state_candidate["rounds_left"])
 	composed["gameplay"] = gameplay
 	var desktop: Dictionary = base_desktop.duplicate(true)
@@ -136,3 +155,5 @@ static func _exact_keys(value: Dictionary, expected: Array[String], code: String
 
 static func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message, "details": {}}
+
+
