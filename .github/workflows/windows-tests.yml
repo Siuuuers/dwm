@@ -1,9 +1,7 @@
-name: Scene playable repaired physical save and fresh Load
+name: Scene Challenge first Reveal transaction
 on:
   pull_request:
     paths:
-      - 'tools/cloud/scene-playable-candidate.json'
-      - 'tools/cloud/scene-playable-custody.patch'
       - '.github/workflows/windows-tests.yml'
 permissions:
   contents: write
@@ -11,12 +9,12 @@ concurrency:
   group: scene-runtime-integration-controller-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 jobs:
-  playable:
+  first-reveal:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
     runs-on: windows-2022
-    timeout-minutes: 25
+    timeout-minutes: 30
     env:
-      BASE_SHA: 69a5cdd70261692b7f1b1e2d4550155141ca6375
+      BASE_SHA: 8ead20846f830d7e4227b6650c5bd24b9038d5d7
       CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
       EVENT_SHA: ${{ github.sha }}
     defaults:
@@ -33,60 +31,365 @@ jobs:
           path: controller
       - uses: actions/checkout@v7
         with:
-          ref: 69a5cdd70261692b7f1b1e2d4550155141ca6375
+          ref: 8ead20846f830d7e4227b6650c5bd24b9038d5d7
           path: source
           fetch-depth: 0
-      - name: Apply pinned original and evidenced route repair
+      - name: Build bounded first-Reveal candidate
         run: |
           $ErrorActionPreference = 'Stop'
           @'
-          import base64,gzip,hashlib,json,os,pathlib,subprocess
-          def git(*args): return subprocess.check_output(['git',*args],text=True).strip()
-          base=os.environ['BASE_SHA']
-          assert git('rev-parse','HEAD')==base
-          assert git('ls-remote','origin','refs/heads/codex/scene-runtime-integration-20261009').split()[0]==base, 'A advanced; reconcile'
-          out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
-          payload=json.loads(pathlib.Path('../controller/tools/cloud/scene-playable-candidate.json').read_text())
-          patch=gzip.decompress(base64.b64decode(payload['patch_gzip_base64'],validate=True))
-          assert payload['base']==base
-          assert hashlib.sha256(patch).hexdigest()==payload['patch_sha256']=='1d6cb95788894ef8a95f8525c500b95f97c004f0305c95e1f86f9b428ca63335'
-          original=out/'original-candidate.patch';original.write_bytes(patch)
-          repair=pathlib.Path('../controller/tools/cloud/scene-playable-custody.patch')
-          assert hashlib.sha256(repair.read_bytes()).hexdigest()=='b5610fa0782f317e293a99ec41a3f839c12f574aec44555e662c8567d26bf0f1'
-          assert git('hash-object','autoload/SceneRouter.gd')=='81f2b6ecaa9c1fe142560deaec703abd2ed11978'
-          for p in (original,repair):
-              subprocess.run(['git','apply','--check',str(p)],check=True)
-              subprocess.run(['git','apply','--index',str(p)],check=True)
-          # Fresh processes must reconcile before the first lease-protected read.
-          child=pathlib.Path('tests/integration/scene_playable_child.gd')
-          before=child.read_text()
-          block='\tvar reconciled: Dictionary = fixture.storage.reconcile("autosave.json", Callable(fixture.manager, "_document_text_validator"))\n\tassert_true(reconciled.ok, str(reconciled))\n\tif not reconciled.ok: return\n'
-          first_read='\tvar bytes: Dictionary = fixture.storage.read_text("autosave.json")\n'
-          assert before.count(block)==1 and before.count(first_read)==1
-          after=before.replace(block,'').replace(first_read,block+first_read)
-          import difflib
-          order_patch=''.join(difflib.unified_diff(before.splitlines(True),after.splitlines(True),fromfile='a/'+child.as_posix(),tofile='b/'+child.as_posix()))
-          ordering=out/'load-reconciliation.patch';ordering.write_text(order_patch,encoding='utf-8',newline='\n')
-          subprocess.run(['git','apply','--check',str(ordering)],check=True)
-          subprocess.run(['git','apply','--index',str(ordering)],check=True)
-          subprocess.run(['git','diff','--cached','--check'],check=True)
-          expected={'tests/integration/scene_playable_child.gd':'72ec5432a115eddbbf8c72701338278e3ed7c064',
-                    'tests/support/ScenePlayableFixture.gd':'2f8882edec73931098c356c554d1e0b58e4d27a2',
-                    'tests/unit/test_scene_route_restore_context.gd':'a551defb5a135c8e979ce68ae12dff95e7956220'}
-          for path,blob in expected.items(): assert git('hash-object',path)==blob,(path,'postimage mismatch')
-          paths=git('diff','--cached','--name-only').splitlines()
-          allowed={'autoload/SceneRouter.gd','tests/unit/test_scene_route_restore_context.gd','autoload/DialogicBridge.gd','autoload/GameState.gd','scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd',
-              'tests/support/SceneNewRunFixture.gd','tests/support/ScenePlayableFixture.gd','tests/unit/test_scene_playable_preparation.gd',
-              'tests/integration/scene_playable_child.gd',*('tests/integration/test_scene_playable_'+n+'.gd' for n in ['create','load','dropped_ack','native_refusal'])}
-          assert set(paths)==allowed,paths
-          composed=subprocess.check_output(['git','diff','--cached','--binary','--full-index'])
-          (out/'candidate.patch').write_bytes(composed)
-          (out/'route-repair.patch').write_bytes(repair.read_bytes())
-          receipt={'base':base,'controller':os.environ['CONTROLLER_SHA'],'event':os.environ['EVENT_SHA'],
-              'original_patch_sha256':payload['patch_sha256'],'patch_sha256':hashlib.sha256(composed).hexdigest(),
-              'repair_sha256':hashlib.sha256(repair.read_bytes()).hexdigest(),'load_order_sha256':hashlib.sha256(ordering.read_bytes()).hexdigest(),'paths':paths,'publication_enabled':True,
-              'scope':'focused unit and three physical creator/fresh-Load journeys; guarded A-only publication'}
-          (out/'candidate-origin.json').write_text(json.dumps(receipt,indent=2));print(json.dumps(receipt))
+          import difflib, hashlib, json, os, pathlib, subprocess
+
+          def git(*args):
+              return subprocess.check_output(['git', *args], text=True).strip()
+
+          def replace_once(path, old, new):
+              p = pathlib.Path(path)
+              text = p.read_text(encoding='utf-8')
+              assert text.count(old) == 1, (path, 'needle count', text.count(old))
+              p.write_text(text.replace(old, new, 1), encoding='utf-8', newline='\n')
+
+          base = os.environ['BASE_SHA']
+          assert git('rev-parse', 'HEAD') == base
+          live = git('ls-remote', 'origin', 'refs/heads/codex/scene-runtime-integration-20261009').split()[0]
+          assert live == base, ('A advanced; reconcile before testing', live)
+          out = pathlib.Path('.godot/ci')
+          out.mkdir(parents=True, exist_ok=True)
+
+          generator_method = r'''
+
+          ## Scene Challenge first Reveal chooses the exact forced cell. Burn the same one
+          ## debug-stream draw as begin_debug(), then retain the player-selected cell while
+          ## leaving candidate search, budgets, fallback adoption and certification unchanged.
+          static func begin_debug_at_cell(spec: Dictionary, first_cell: int) -> Dictionary:
+          \tvar budget_loaded := _read_budget_manifest()
+          \tif not budget_loaded.get("ok", false):
+          \t\treturn budget_loaded
+          \tvar fallback_loaded := _read_fallback_manifest()
+          \tif not fallback_loaded.get("ok", false):
+          \t\treturn fallback_loaded
+
+          \tvar spec_check: Dictionary = _BOARD_SCHEMA.validate_spec(spec)
+          \tif not spec_check.get("ok", false):
+          \t\treturn spec_check
+          \tvar validated_spec: Dictionary = (spec_check["value"] as Dictionary)["spec"]
+          \tvar total_cells: int = int(validated_spec["width"]) * int(validated_spec["height"])
+          \tif typeof(first_cell) != TYPE_INT or first_cell < 0 or first_cell >= total_cells:
+          \t\treturn _fail(&"cell_index_out_of_range", "first_cell is out of range", {"first_cell": first_cell})
+
+          \tvar debug_seeded := _seed(StringName(validated_spec["debug_stream_id"]), String(validated_spec["debug_nonce"]))
+          \tif not debug_seeded.get("ok", false):
+          \t\treturn debug_seeded
+          \tvar debug_rng: RefCounted = debug_seeded["value"]
+          \tvar burned: Dictionary = debug_rng.sample_bounded(total_cells)
+          \tif not burned.get("ok", false):
+          \t\treturn burned
+          \tvar debug_state: Dictionary = debug_rng.capture()["value"]
+
+          \tvar placement_seeded := _seed(StringName(validated_spec["placement_stream_id"]), String(validated_spec["placement_nonce"]))
+          \tif not placement_seeded.get("ok", false):
+          \t\treturn placement_seeded
+          \tvar placement_state: Dictionary = (placement_seeded["value"] as RefCounted).capture()["value"]
+
+          \tvar explosion_seeded := _seed(StringName(validated_spec["explosion_stream_id"]), String(validated_spec["explosion_nonce"]))
+          \tif not explosion_seeded.get("ok", false):
+          \t\treturn explosion_seeded
+          \tvar explosion_state: Dictionary = (explosion_seeded["value"] as RefCounted).capture()["value"]
+
+          \tvar kernel_spec := _project_kernel_spec(validated_spec)
+          \tvar begun: Dictionary = _KERNEL.begin(kernel_spec, first_cell, _KERNEL.MODE_CANDIDATE_SEARCH,
+          \t\tplacement_state, debug_state, explosion_state)
+          \tif not begun.get("ok", false):
+          \t\treturn begun
+          \treturn _PREPARATION.validate((begun["value"] as Dictionary)["preparation"])
+          '''.replace('          ', '')
+          replace_once('scripts/domain/minesweeper/MinesweeperBoardGenerator.gd',
+              '\n\n## Advances one bounded slice of an in-progress Debug preparation',
+              generator_method + '\n\n## Advances one bounded slice of an in-progress Debug preparation')
+
+          port_method = r'''
+
+          func begin_search_at_cell(spec: Dictionary, first_cell: int) -> Dictionary:
+          \tvar begun: Dictionary = _GENERATOR.begin_debug_at_cell(spec, first_cell)
+          \tif not begun.get("ok", false):
+          \t\treturn begun
+          \tvar preparation: Dictionary = begun["value"]["preparation"]
+          \treturn _ok({"frontier": preparation.duplicate(true)})
+          '''.replace('          ', '')
+          replace_once('scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd',
+              '\n\nfunc run_search_slice(frontier: Dictionary) -> Dictionary:',
+              port_method + '\n\nfunc run_search_slice(frontier: Dictionary) -> Dictionary:')
+
+          replace_once('scripts/application/run/DatingChallengeEnvelope.gd',
+              'static func _scene_preparation_matches(spec: Dictionary, envelope: Dictionary) -> bool:\n\tvar begun: Dictionary = GENERATOR.begin_debug(spec)\n',
+              'static func _scene_preparation_matches(spec: Dictionary, envelope: Dictionary) -> bool:\n'
+              '\tvar forced_cell := int(envelope.forced_cell)\n'
+              '\tif envelope.preparation is Dictionary:\n'
+              '\t\tforced_cell = int(envelope.preparation.get("forced_cell", -1))\n'
+              '\tif forced_cell < 0: return false\n'
+              '\tvar begun: Dictionary = GENERATOR.begin_debug_at_cell(spec, forced_cell)\n')
+
+          panel_api = r'''
+
+          ## Presentation-facing Scene Challenge surface. The retained physical API still owns
+          ## legacy internal start/prepare tests, but the player surface has no Start command.
+          func pull_scene_panel(physical_token: String) -> Dictionary:
+          \tif not _scene_command(): return _fail(&"scene_challenge_unadmitted")
+          \tvar view: Dictionary = _pull_scene(physical_token)
+          \tif not view.get("ok", false): return view
+          \tif view.value.get("phase") != "never_started": return view
+          \tvar preview: Dictionary = _scene_unstarted_board()
+          \tif not preview.get("ok", false): return preview
+          \tvar value: Dictionary = view.value.duplicate(true)
+          \tvalue.actions = ["reveal"]
+          \tvalue.board = preview.value
+          \tvalue.revision = 0
+          \treturn _ok(value)
+
+          func dispatch_scene_panel_action(physical_token: String, action: String, cell_index: int,
+          \t\texpected_revision: int) -> Dictionary:
+          \tvar view: Dictionary = pull_scene_panel(physical_token)
+          \tif not view.get("ok", false): return view
+          \tif view.value.get("phase") == "never_started":
+          \t\tif action != "reveal" or expected_revision != 0 or cell_index < 0 \\
+          \t\t\t\tor cell_index >= int(view.value.board.width) * int(view.value.board.height):
+          \t\t\treturn _fail(&"scene_challenge_command_refused")
+          \t\treturn _dispatch_scene_first_reveal(physical_token, cell_index)
+          \tif action == "reveal":
+          \t\tvar duplicate: Dictionary = _scene_duplicate_first_reveal(cell_index, expected_revision)
+          \t\tif duplicate.get("matched", false): return duplicate.result
+          \treturn _dispatch_scene(physical_token, action, cell_index, expected_revision)
+          '''.replace('          ', '')
+          replace_once('scripts/application/run/DatingPhysicalOwner.gd',
+              '\nfunc dispatch_physical(physical_token: String, action: String, cell_index: int,\n',
+              panel_api + '\nfunc dispatch_physical(physical_token: String, action: String, cell_index: int,\n')
+
+          scene_helpers = r'''
+
+          func _scene_board_profile() -> Dictionary:
+          \tvar challenge := {}
+          \tfor row: Dictionary in _scene_bundle.challenges:
+          \t\tif row.challenge_id == _admitted_command.context.challenge_id: challenge = row
+          \tvar selected := {}
+          \tfor row: Dictionary in _scene_bundle.board_profiles:
+          \t\tif row.board_profile_id == challenge.get("board_profile_id"): selected = row
+          \tif selected.is_empty() or selected.difficulty_id not in ["canonical_solo", "canonical_pair"] \\
+          \t\t\tor selected.capability_policy_id != "owned_inventory_v1":
+          \t\treturn _fail(&"scene_board_profile_unsupported")
+          \treturn _ok(selected.duplicate(true))
+
+          func _scene_unstarted_board() -> Dictionary:
+          \tvar profile: Dictionary = _scene_board_profile()
+          \tif not profile.get("ok", false): return profile
+          \tvar selected: Dictionary = profile.value
+          \tvar owned: Dictionary = CAPABILITIES.resolve_owned(_game_state.inventory)
+          \tif not owned.get("ok", false): return owned
+          \tvar inputs: Dictionary = CAPABILITIES.build_spec_inputs(owned.value,
+          \t\tint(_game_state.get_stat("pressure")), int(_game_state.penalty_points_today))
+          \tif not inputs.get("ok", false): return inputs
+          \tvar cells: Array = []
+          \tfor index in int(selected.width) * int(selected.height):
+          \t\tcells.append({"index": index, "face": "covered", "mark": "none", "number": 0,
+          \t\t\t"bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal"]})
+          \treturn _ok({"width": int(selected.width), "height": int(selected.height), "revision": 0,
+          \t\t"mine_estimate": int(selected.base_mine_count) + int(inputs.value.effective_extra_mines),
+          \t\t"terminal": false, "custody": false, "cells": cells})
+
+          func _scene_duplicate_first_reveal(cell_index: int, expected_revision: int) -> Dictionary:
+          \tif expected_revision != 0 or not _pending_checkpoint.is_empty() or not _record.get("board") is Dictionary \\
+          \t\t\tor bool(_record.board.terminal) or not _history_committed or _history_reference.is_empty():
+          \t\treturn {"matched": false}
+          \tvar exact: Dictionary = _profile.get_dating_attempt(str(_attempt_identity().run_id),
+          \t\tATTEMPTS.semantic_slot(_record.context), str(_history_reference.attempt_id), str(_history_reference.branch_id))
+          \tif not exact.get("ok", false) or exact.value.record != _record \\
+          \t\t\tor not exact.value.get("materialization_receipt") is Dictionary \\
+          \t\t\tor int(exact.value.materialization_receipt.get("first_cell_index", -1)) != cell_index:
+          \t\treturn {"matched": false}
+          \treturn {"matched": true, "result": _pull_scene(_record.physical_token)}
+
+          func _dispatch_scene_first_reveal(token: String, index: int) -> Dictionary:
+          \tvar current: Dictionary = _pull_scene(token)
+          \tif not current.get("ok", false) or current.value.get("phase") != "never_started":
+          \t\treturn _fail(&"scene_challenge_command_refused")
+          \tvar lease: Dictionary = _attempt_gate.acquire(&"causal_transaction")
+          \tif not lease.get("ok", false): return lease
+          \t_scene_lease = str(lease.value.token)
+          \tvar prior_record := _record.duplicate(true)
+          \tvar prior_history := _history_state()
+          \tvar changed: Dictionary = _scene_start(index)
+          \tvar slices := 0
+          \twhile changed.get("ok", false) and _record.get("phase") == "preparing":
+          \t\tslices += 1
+          \t\tif slices > 4096:
+          \t\t\tchanged = _fail(&"scene_preparation_slice_limit")
+          \t\t\tbreak
+          \t\tchanged = _scene_prepare()
+          \tif changed.get("ok", false) and _record.get("phase") != "ready":
+          \t\tchanged = _fail(&"scene_preparation_failed")
+          \tvar result: Dictionary = changed
+          \tif changed.get("ok", false): result = _scene_action("reveal", index)
+          \tif not result.get("ok", false) and _pending_checkpoint.is_empty():
+          \t\t_record = prior_record
+          \t\t_first_cell_index = -1
+          \t\t_restore_history_state(prior_history)
+          \t_scene_lease = ""
+          \t_scene_start_admission = {}
+          \tvar released: Dictionary = _attempt_gate.release(&"causal_transaction", str(lease.value.token))
+          \treturn result if released.get("ok", false) else released
+          '''.replace('          ', '')
+          replace_once('scripts/application/run/DatingPhysicalOwner.gd',
+              '\nfunc _dispatch_scene(token: String, action: String, index: int, revision: int) -> Dictionary:',
+              scene_helpers + '\nfunc _dispatch_scene(token: String, action: String, index: int, revision: int) -> Dictionary:')
+
+          replace_once('scripts/application/run/DatingPhysicalOwner.gd',
+              'func _scene_start() -> Dictionary:\n\tif not _record.is_empty(): return _fail(&"scene_challenge_already_started")\n\tvar challenge := {}\n\tfor row: Dictionary in _scene_bundle.challenges:\n\t\tif row.challenge_id == _admitted_command.context.challenge_id: challenge = row\n\tvar selected := {}\n\tfor row: Dictionary in _scene_bundle.board_profiles:\n\t\tif row.board_profile_id == challenge.get("board_profile_id"): selected = row\n\tif selected.is_empty() or selected.difficulty_id not in ["canonical_solo", "canonical_pair"] or selected.capability_policy_id != "owned_inventory_v1":\n\t\treturn _fail(&"scene_board_profile_unsupported")\n',
+              'func _scene_start(first_reveal_index: int = -1) -> Dictionary:\n'
+              '\tif not _record.is_empty(): return _fail(&"scene_challenge_already_started")\n'
+              '\tvar selected_result: Dictionary = _scene_board_profile()\n'
+              '\tif not selected_result.get("ok", false): return selected_result\n'
+              '\tvar selected: Dictionary = selected_result.value\n')
+
+          debug_start = r'''
+          \tif _record.spec.capability_ids.has("forced_no_guess"):
+          \t\tvar begun: Dictionary = _generation.begin_search_at_cell(_record.spec, first_reveal_index) \\
+          \t\t\tif first_reveal_index >= 0 and _generation.has_method("begin_search_at_cell") else _generation.begin_search(_record.spec)
+          '''.replace('          ', '')
+          replace_once('scripts/application/run/DatingPhysicalOwner.gd',
+              '\tif _record.spec.capability_ids.has("forced_no_guess"):\n\t\tvar begun: Dictionary = _generation.begin_search(_record.spec)\n',
+              debug_start)
+
+          replace_once('tests/support/SceneChallengeFixture.gd',
+              'class Generation extends "res://tests/support/FakeMinesweeperGenerationPort.gd":\n\tfunc begin_search(spec: Dictionary) -> Dictionary:\n\t\treturn preload("res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd").new().begin_search(spec)\n',
+              'class Generation extends "res://tests/support/FakeMinesweeperGenerationPort.gd":\n'
+              '\tfunc begin_search(spec: Dictionary) -> Dictionary:\n'
+              '\t\treturn preload("res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd").new().begin_search(spec)\n'
+              '\tfunc begin_search_at_cell(spec: Dictionary, first_cell: int) -> Dictionary:\n'
+              '\t\treturn preload("res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd").new().begin_search_at_cell(spec, first_cell)\n')
+
+          test = r'''extends "res://addons/gut/test.gd"
+          ## Presentation-facing first-Reveal contract over the real physical owner, Profile
+          ## ledger, reducer and generator. Checkpoint authority remains an injected seam.
+          const FIXTURE := preload("res://tests/support/SceneChallengeFixture.gd")
+
+          var f: RefCounted
+
+          func before_each() -> void:
+          \tf = FIXTURE.new()
+          \tassert_true(f.setup("TEST.scene.first_reveal").ok)
+          \tassert_true(f.begin().ok)
+
+          func after_each() -> void:
+          \tf.dispose()
+
+          func _pull() -> Dictionary:
+          \treturn f.owner.pull_scene_panel(f.token)
+
+          func _reveal(index: int, revision: int = 0) -> Dictionary:
+          \treturn f.owner.dispatch_scene_panel_action(f.token, "reveal", index, revision)
+
+          func test_unstarted_panel_is_a_fixed_covered_board_without_start_mutation() -> void:
+          \tvar view: Dictionary = _pull()
+          \tassert_true(view.ok, str(view))
+          \tif not view.ok: return
+          \tassert_eq(view.value.phase, "never_started")
+          \tassert_eq(view.value.state, "never_started")
+          \tassert_eq(view.value.actions, ["reveal"])
+          \tassert_eq(view.value.revision, 0)
+          \tassert_eq(view.value.board.width, 18)
+          \tassert_eq(view.value.board.height, 18)
+          \tassert_eq(view.value.board.cells.size(), 324)
+          \tassert_eq(view.value.board.cells[323].actions, ["reveal"])
+          \tassert_eq(f.record(), {})
+          \tassert_true(f.attempt().ok)
+          \tassert_eq(f.attempt().value, {})
+          \tassert_eq(f.authority.checkpoints.size(), 0)
+
+          func test_first_reveal_materializes_commits_and_checkpoints_once() -> void:
+          \tvar revealed: Dictionary = _reveal(323)
+          \tassert_true(revealed.ok, str(revealed))
+          \tif not revealed.ok: return
+          \tvar record: Dictionary = f.record()
+          \tassert_eq(record.phase, "active")
+          \tassert_eq(record.state, "in_progress")
+          \tassert_true(record.board is Dictionary)
+          \tassert_true(record.board.revealed_indices.has(323))
+          \tvar attempt: Dictionary = f.attempt().value
+          \tassert_eq(attempt.materialization_receipt.first_cell_index, 323)
+          \tassert_eq(attempt.record, record)
+          \tassert_eq(attempt.revision, 1)
+          \tassert_eq(f.authority.checkpoints.size(), 1)
+
+          func test_duplicate_first_reveal_reuses_exact_profile_result() -> void:
+          \tassert_true(_reveal(323).ok)
+          \tvar record := f.record().duplicate(true)
+          \tvar attempt := f.attempt().value.duplicate(true)
+          \tvar checkpoints := f.authority.checkpoints.size()
+          \tvar duplicate: Dictionary = _reveal(323, 0)
+          \tassert_true(duplicate.ok, str(duplicate))
+          \tassert_eq(f.record(), record)
+          \tassert_eq(f.attempt().value, attempt)
+          \tassert_eq(f.authority.checkpoints.size(), checkpoints)
+
+          func test_non_reveal_bad_cell_and_stale_revision_refuse_before_start() -> void:
+          \tassert_false(f.owner.dispatch_scene_panel_action(f.token, "flag", 323, 0).ok)
+          \tassert_false(_reveal(-1).ok)
+          \tassert_false(_reveal(324).ok)
+          \tassert_false(_reveal(323, 1).ok)
+          \tassert_eq(f.record(), {})
+          \tassert_eq(f.attempt().value, {})
+          \tassert_eq(f.authority.checkpoints.size(), 0)
+
+          func test_debug_first_reveal_certifies_the_clicked_cell_in_same_transaction() -> void:
+          \tf.dispose()
+          \tf = FIXTURE.new()
+          \tf.state.inventory = {"debug_key": 1}
+          \tassert_true(f.setup("TEST.scene.first_reveal.debug").ok)
+          \tassert_true(f.begin().ok)
+          \tvar revealed: Dictionary = _reveal(323)
+          \tassert_true(revealed.ok, str(revealed))
+          \tif not revealed.ok: return
+          \tvar record: Dictionary = f.record()
+          \tassert_eq(record.phase, "active")
+          \tassert_eq(record.envelope.forced_cell, 323)
+          \tassert_eq(record.envelope.preparation, null)
+          \tassert_false(record.envelope.prepared_layout.mine_indices.has(323))
+          \tassert_true(record.board.revealed_indices.has(323))
+          \tassert_eq(f.attempt().value.materialization_receipt.first_cell_index, 323)
+          \tassert_eq(f.authority.checkpoints.size(), 1)
+          '''.replace('          ', '')
+          pathlib.Path('tests/unit/test_scene_first_reveal.gd').write_text(test, encoding='utf-8', newline='\n')
+
+          subprocess.run(['git', 'add', '--all'], check=True)
+          subprocess.run(['git', 'diff', '--cached', '--check'], check=True)
+          paths = git('diff', '--cached', '--name-only').splitlines()
+          allowed = {
+              'scripts/domain/minesweeper/MinesweeperBoardGenerator.gd',
+              'scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd',
+              'scripts/application/run/DatingChallengeEnvelope.gd',
+              'scripts/application/run/DatingPhysicalOwner.gd',
+              'tests/support/SceneChallengeFixture.gd',
+              'tests/unit/test_scene_first_reveal.gd',
+          }
+          assert set(paths) == allowed, paths
+          patch = subprocess.check_output(['git', 'diff', '--cached', '--binary', '--full-index'])
+          (out / 'candidate.patch').write_bytes(patch)
+          receipt = {
+              'base': base,
+              'controller': os.environ['CONTROLLER_SHA'],
+              'event': os.environ['EVENT_SHA'],
+              'patch_sha256': hashlib.sha256(patch).hexdigest(),
+              'paths': paths,
+              'observable_outcome': 'fixed covered Challenge panel; first accepted Reveal is one Profile/Run transaction',
+              'failure_boundaries': [
+                  'invalid action, index or revision refuses before allocation',
+                  'Debug preparation remains inside the first-Reveal lease',
+                  'Profile refusal leaves no Run start',
+                  'Run refusal retains the exact Profile-committed checkpoint for retry',
+                  'duplicate first Reveal resolves the retained materialization receipt without another write',
+              ],
+          }
+          (out / 'candidate-origin.json').write_text(json.dumps(receipt, indent=2))
+          print(json.dumps(receipt))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Install exact Godot standard engine
@@ -103,7 +406,7 @@ jobs:
           if ($LASTEXITCODE -ne 0 -or $version -cne '4.6.3.stable.official.7d41c59c4') { throw "Unexpected engine: $version" }
           "GODOT_CONSOLE_PATH=$console" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
           @{ version=$version; archive_sha256=$expected; console_sha256=(Get-FileHash $console -Algorithm SHA256).Hash.ToLowerInvariant() } | ConvertTo-Json | Set-Content .godot/ci/engine.json -Encoding utf8
-      - name: Import candidate in isolated user directories
+      - name: Import and freeze exact candidate
         timeout-minutes: 8
         run: |
           $ErrorActionPreference = 'Stop'
@@ -116,109 +419,86 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           if (Select-String "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Candidate import script error' }
           git restore --worktree -- project.godot
+          git add --all
+          git diff --cached --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Make first Challenge Reveal the atomic start boundary'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Freeze exact candidate and retain selected source
-        run: |
-          $ErrorActionPreference = 'Stop'
-          @'
-          import json,pathlib,subprocess
-          def git(*args): return subprocess.check_output(['git',*args],text=True).strip()
-          out=pathlib.Path('.godot/ci');origin=json.loads((out/'candidate-origin.json').read_text());paths=origin['paths']
-          for name in paths:
-              uid=pathlib.Path(name+'.uid')
-              if uid.exists(): subprocess.run(['git','add','--',str(uid)],check=True)
-          subprocess.run(['git','diff','--cached','--check'],check=True)
-          subprocess.run(['git','config','user.name','github-actions[bot]'],check=True)
-          subprocess.run(['git','config','user.email','41898282+github-actions[bot]@users.noreply.github.com'],check=True)
-          subprocess.run(['git','commit','-m','Preserve scene gameplay context through physical playable save and fresh Load'],check=True)
-          assert git('rev-parse','HEAD^')==origin['base'] and not git('diff','--name-only')
-          names=git('diff-tree','--no-commit-id','--name-only','-r','HEAD').splitlines()
-          assert all(n in paths or (n.endswith('.gd.uid') and n[:-4] in paths) for n in names)
-          selected=set(names)|{'scripts/application/run/SaveManagerCheckpointPort.gd','scripts/domain/run/RunSnapshotSchema.gd',
-              'scripts/domain/narrative/SceneEventContract.gd','scripts/narrative/FrozenRunContext.gd',
-              'tests/support/SceneRestartFixture.gd','tools/testing/Invoke-IsolatedGodot.ps1'}
-          receipt={'source':git('rev-parse','HEAD'),'tree':git('rev-parse','HEAD^{tree}'),'parent':git('rev-parse','HEAD^'),
-              'blobs':{n:git('rev-parse','HEAD:'+n) for n in names},'selected_source_blobs':{n:git('rev-parse','HEAD:'+n) for n in sorted(selected)}}
-          (out/'candidate-commit.json').write_text(json.dumps(receipt,indent=2))
-          subprocess.run(['git','archive','--format=zip','--output=.godot/ci/source-inspection.zip','HEAD','--',*sorted(selected)],check=True)
-          print(json.dumps(receipt))
-          '@ | python -
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Focused unit and physical same-files process journeys
-        timeout-minutes: 14
+          @{
+            source=(git rev-parse HEAD)
+            tree=(git rev-parse 'HEAD^{tree}')
+            parent=(git rev-parse HEAD^)
+          } | ConvertTo-Json | Set-Content .godot/ci/candidate-commit.json -Encoding utf8
+      - name: Focused owner and physical-save regression tests
+        timeout-minutes: 17
         run: |
           $ErrorActionPreference = 'Stop'
           $runner = './tools/testing/Invoke-IsolatedGodot.ps1'
           $failed = $false
-          foreach ($entry in @(@('preparation','tests/unit/test_scene_playable_preparation.gd'), @('checkpoint','tests/unit/test_scene_checkpoint_ack.gd'), @('route-context','tests/unit/test_scene_route_restore_context.gd'))) {
+          $tests = @(
+            @('first-reveal','tests/unit/test_scene_first_reveal.gd'),
+            @('absence','tests/unit/test_scene_absence.gd'),
+            @('playable-preparation','tests/unit/test_scene_playable_preparation.gd'),
+            @('checkpoint','tests/unit/test_scene_checkpoint_ack.gd')
+          )
+          foreach ($entry in $tests) {
             $name = $entry[0]
-            $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$($entry[1])",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$name.xml")
-            & $runner -SuiteId "playable-$name" -LogName "$name.log" -GodotArgs $args -EvidenceLogPath ".godot/ci/$name.jsonl" -TimeoutSeconds 180
+            $script = $entry[1]
+            $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$script",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$name.xml")
+            & $runner -SuiteId "scene-$name" -LogName "$name.log" -GodotArgs $args -EvidenceLogPath ".godot/ci/$name.jsonl" -TimeoutSeconds 300
             if ($LASTEXITCODE -ne 0) { $failed = $true }
           }
           foreach ($mode in @('normal','dropped_ack','native_refusal')) {
             $child = if ($mode -eq 'normal') { 'create' } else { $mode }
             $create = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://tests/integration/test_scene_playable_$child.gd",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$mode-create.xml")
             $load = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_playable_load.gd','-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$mode-load.xml")
-            & $runner -SuiteId "playable-$mode" -LogName "$mode-create.log" -GodotArgs $create -NextLogName "$mode-load.log" -NextGodotArgs $load -EvidenceLogPath ".godot/ci/$mode.jsonl" -TimeoutSeconds 180 -KeepRoot
+            & $runner -SuiteId "playable-$mode" -LogName "$mode-create.log" -GodotArgs $create -NextLogName "$mode-load.log" -NextGodotArgs $load -EvidenceLogPath ".godot/ci/$mode.jsonl" -TimeoutSeconds 240 -KeepRoot
             if ($LASTEXITCODE -ne 0) { $failed = $true }
-            $records = @()
-            if (Test-Path ".godot/ci/$mode.jsonl") { $records = @(Get-Content ".godot/ci/$mode.jsonl" | ForEach-Object { ConvertFrom-Json $_ }) }
-            if ($records.Count -gt 0) {
-              $root = Join-Path $records[0].test_root 'dwm_test_root/scene_restart_shared'
-              if (Test-Path $root) {
-                New-Item -ItemType Directory -Force '.godot/ci/physical' | Out-Null
-                Copy-Item $root ".godot/ci/physical/$mode" -Recurse
-              }
-            }
           }
-          if ($failed) { throw 'One or more focused engine children failed; retain original results' }
-      - name: Verify executed census, custody receipts and unchanged source
+          if ($failed) { throw 'One or more focused engine children failed' }
+      - name: Verify executed census and source identity
         run: |
           $ErrorActionPreference = 'Stop'
           @'
-          import collections, hashlib, json, pathlib, re, subprocess, xml.etree.ElementTree as ET
-          out=pathlib.Path('.godot/ci'); counts={}
-          suites={'preparation':'tests/unit/test_scene_playable_preparation.gd','checkpoint':'tests/unit/test_scene_checkpoint_ack.gd',
-              'route-context':'tests/unit/test_scene_route_restore_context.gd'}
+          import collections, json, pathlib, re, subprocess, xml.etree.ElementTree as ET
+          out = pathlib.Path('.godot/ci')
+          suites = {
+              'first-reveal':'tests/unit/test_scene_first_reveal.gd',
+              'absence':'tests/unit/test_scene_absence.gd',
+              'playable-preparation':'tests/unit/test_scene_playable_preparation.gd',
+              'checkpoint':'tests/unit/test_scene_checkpoint_ack.gd',
+          }
           for mode in ['normal','dropped_ack','native_refusal']:
-              suites[mode+'-create']='tests/integration/test_scene_playable_'+('create' if mode=='normal' else mode)+'.gd'
-              suites[mode+'-load']='tests/integration/test_scene_playable_load.gd'
-          for lane,script in suites.items():
-              expected=re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(),re.M)
-              root=ET.parse(out/(lane+'.xml')).getroot()
-              rows=list(root.iter('testcase'))
-              assert collections.Counter(r.attrib['name'] for r in rows)==collections.Counter(expected),(lane,'census mismatch')
-              assert rows and all(r.attrib.get('classname')==script and r.attrib.get('status')=='pass' and int(r.attrib.get('assertions','0'))>0 for r in rows),lane
-              assert not any(list(root.iter(t)) for t in ['failure','error','skipped']),lane
-              assert all(int(e.attrib.get(k,'0'))==0 for e in root.iter() for k in ['failures','errors','skipped']),lane
-              log=pathlib.Path('.godot/phase2r_logs')/(lane+'.log')
-              text=log.read_text(encoding='utf-8-sig')
-              assert not re.search(r'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character',text),lane
-              counts[lane]={'cases':len(rows),'xml_assertions':sum(int(r.attrib['assertions']) for r in rows)}
-          for mode in ['normal','dropped_ack','native_refusal']:
-              records=[json.loads(s) for s in (out/(mode+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
-              assert len(records)==2 and all(r['exit_code']==0 for r in records)
-              assert records[0]['test_root']==records[1]['test_root'] and records[0]['user_dir']==records[1]['user_dir']
-              assert records[1]['started_at_utc']>=records[0]['ended_at_utc']
-              a=json.loads((out/('playable-'+mode+'-create.json')).read_text())
-              b=json.loads((out/('playable-'+mode+'-load.json')).read_text())
-              assert a['process_id']!=b['process_id'] and b['creator_process_id']==a['process_id']
-              for key in ['storage_root','autosave_sha256','run_id','checkpoint_id','receipt','checkpoint','profile_files']:
-                  assert a[key]==b[key],(mode,key)
-              assert a['refused_writes']==(2 if mode=='normal' else 0)
-              assert hashlib.sha256((out/'physical'/mode/'autosave.json').read_bytes()).hexdigest()==a['autosave_sha256']
-              assert a['checkpoint']['reading_session']['boundary']=='control'
-              assert a['receipt']['scene_event']['result']['kind']=='challenge_playable'
-          assert not subprocess.check_output(['git','diff','--name-only'],text=True).strip()
-          assert not subprocess.check_output(['git','diff','--cached','--name-only'],text=True).strip()
-          result={'status':'passed','lanes':counts,'total_cases':sum(v['cases'] for v in counts.values()),
-              'total_xml_assertions':sum(v['xml_assertions'] for v in counts.values()),
-              'scope':'headless real-save/native test-host integration; not production startup, rendered E2E or full-suite acceptance'}
-          (out/'gate.json').write_text(json.dumps(result,indent=2)); print(json.dumps(result))
+              suites[mode+'-create'] = 'tests/integration/test_scene_playable_'+('create' if mode=='normal' else mode)+'.gd'
+              suites[mode+'-load'] = 'tests/integration/test_scene_playable_load.gd'
+          counts = {}
+          for lane, script in suites.items():
+              expected = re.findall(r'^func (test_\w+)\(', pathlib.Path(script).read_text(), re.M)
+              root = ET.parse(out/(lane+'.xml')).getroot()
+              rows = list(root.iter('testcase'))
+              assert collections.Counter(r.attrib['name'] for r in rows) == collections.Counter(expected), (lane, 'census')
+              assert rows and all(r.attrib.get('classname') == script and r.attrib.get('status') == 'pass' and int(r.attrib.get('assertions','0')) > 0 for r in rows), lane
+              assert not any(list(root.iter(tag)) for tag in ['failure','error','skipped']), lane
+              log = pathlib.Path('.godot/phase2r_logs')/(lane+'.log')
+              text = log.read_text(encoding='utf-8-sig')
+              assert not re.search(r'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character', text), lane
+              counts[lane] = {'cases':len(rows), 'assertions':sum(int(r.attrib['assertions']) for r in rows)}
+          assert not subprocess.check_output(['git','diff','--name-only'], text=True).strip()
+          assert not subprocess.check_output(['git','diff','--cached','--name-only'], text=True).strip()
+          result = {
+              'status':'passed',
+              'source':subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip(),
+              'lanes':counts,
+              'total_cases':sum(v['cases'] for v in counts.values()),
+              'total_xml_assertions':sum(v['assertions'] for v in counts.values()),
+              'scope':'headless owner first-Reveal transaction plus prior real-file playable save/Load regressions; fixed Desktop/rendered proof remains separate',
+          }
+          (out/'gate.json').write_text(json.dumps(result, indent=2))
+          print(json.dumps(result))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Publish passing candidate only as unchanged-A fast-forward
+      - name: Publish only the passing unchanged-A fast-forward
         run: |
           $ErrorActionPreference = 'Stop'
           $branch = 'refs/heads/codex/scene-runtime-integration-20261009'
@@ -230,27 +510,27 @@ jobs:
           git push origin "${source}:$branch"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @{ source=$source; base=$env:BASE_SHA; branch=$branch; force=$false } | ConvertTo-Json | Set-Content .godot/ci/publication.json -Encoding utf8
-      - name: Retain complete small evidence on every outcome
+      - name: Retain evidence on every outcome
         if: always()
         run: |
           $ErrorActionPreference = 'Stop'
           @'
-          import hashlib,json,pathlib,subprocess
-          out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
+          import hashlib, json, pathlib, subprocess
+          out = pathlib.Path('.godot/ci')
+          out.mkdir(parents=True, exist_ok=True)
           (out/'final-status.txt').write_text(subprocess.run(['git','status','--porcelain'],capture_output=True,text=True).stdout)
-          files={}
-          for root in [out,pathlib.Path('.godot/phase2r_logs')]:
+          files = {}
+          for root in [out, pathlib.Path('.godot/phase2r_logs')]:
               if root.exists():
                   for p in root.rglob('*'):
-                      if p.is_file() and p.name!='retained-hashes.json' and 'import-user' not in p.parts:
-                          files[p.as_posix()]={'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}
-          (out/'retained-hashes.json').write_text(json.dumps(files,indent=2))
+                      if p.is_file() and p.name != 'retained-hashes.json' and 'import-user' not in p.parts:
+                          files[p.as_posix()] = {'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}
+          (out/'retained-hashes.json').write_text(json.dumps(files, indent=2))
           '@ | python -
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: scene-playable-repaired-${{ github.run_id }}-${{ github.run_attempt }}
+          name: scene-first-reveal-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             source/.godot/ci
             source/.godot/phase2r_logs
@@ -258,11 +538,3 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7
-      - name: Prepare disposable indexes for checkout cleanup
-        if: always()
-        run: |
-          foreach ($repo in @('.', '../controller')) {
-            if (-not (Test-Path "$repo/.git")) { continue }
-            git -C $repo update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          }
