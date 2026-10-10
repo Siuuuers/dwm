@@ -1,4 +1,15 @@
 # DWM narrative authoring
+
+## Current foundation boundary
+
+Read [the approved Priscilla amendment](09-priscilla-foundation-amendment.md)
+and [current intended behavior](../docs/design/2026-10-09-priscilla-flow-behavior-amendment.md)
+before using the retained guidance below. Their named changes override older
+Angela, alternate-viewpoint, scheduling and explosion-cutoff instructions.
+Compatible craft, source discipline, selection and four-exchange capture remain.
+Current chapter-development records are routed through [the story home](README.md)
+and [audition index](auditions/README.md); recording a candidate is not approval.
+
 ## Scope and working agreement
 Develop fixed scripts, character backgrounds, plots, dialogue, and narrative
 documents. Do not introduce live generated dialogue or a runtime agent. A
