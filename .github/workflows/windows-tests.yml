@@ -1,8 +1,9 @@
-name: Scene playable durable producer
+name: Scene playable original diagnostics (no engine)
 on:
   pull_request:
     paths:
       - 'tools/cloud/scene-playable-candidate.json'
+      - '.github/workflows/windows-tests.yml'
 permissions:
   contents: write
 concurrency:
@@ -10,7 +11,8 @@ concurrency:
   cancel-in-progress: true
 jobs:
   playable:
-    if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
+    # Retrieval-only pass: preserve this exact candidate and all gates without running them.
+    if: false && github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
     runs-on: windows-2022
     timeout-minutes: 25
     env:
@@ -242,3 +244,209 @@ jobs:
             git -C $repo update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
+
+  retrieve_original_diagnostics:
+    name: Retrieve original failed-run diagnostics (no engine)
+    if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Verify original archive and extract byte-preserving diagnostics
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: python
+        run: |
+          """Retrieve one original failed artifact; do not run or publish a game candidate."""
+          import hashlib
+          import itertools
+          import json
+          import mmap
+          import os
+          from pathlib import Path, PurePosixPath
+          import re
+          import shutil
+          import tempfile
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+          import zipfile
+
+          RUN = 38050263178
+          ARTIFACT = 11672685856
+          SIZE = 660909860
+          DIGEST = '063aa6d0b32f837a249e6aacaded8149e5b1a26fe523b27e94a8cb760b7f45a5'
+          SOURCE = '66667c3b980f49c1dd61329a70dd93a2d870753e'
+          BASE = '69a5cdd70261692b7f1b1e2d4550155141ca6375'
+          CONTROLLER = 'ed31b87b036dc3a211299be4e9681970b14533db'
+          PATCH = '1d6cb95788894ef8a95f8525c500b95f97c004f0305c95e1f86f9b428ca63335'
+          API = 'https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/' + str(ARTIFACT)
+          out = Path('retrieved-diagnostics')
+          out.mkdir()
+          work = Path(tempfile.mkdtemp(prefix='original-diagnostics-', dir=os.environ['RUNNER_TEMP']))
+          headers = {'Authorization': 'Bearer ' + os.environ['GH_TOKEN'], 'Accept': 'application/vnd.github+json'}
+
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, req, fp, code, msg, response_headers, newurl):
+                  return None
+
+          api = urllib.request.build_opener(NoRedirect())
+          with api.open(urllib.request.Request(API, headers=headers), timeout=60) as response:
+              metadata_bytes = response.read()
+          metadata = json.loads(metadata_bytes)
+          assert metadata['id'] == ARTIFACT and metadata['workflow_run']['id'] == RUN
+          assert metadata['name'] == 'scene-playable-original-38050263178-2'
+          assert metadata['size_in_bytes'] == SIZE and metadata['digest'] == 'sha256:' + DIGEST
+          assert metadata['workflow_run']['head_sha'] == CONTROLLER and not metadata['expired']
+          # Authenticate only to GitHub. Never forward the bearer token to the signed storage URL.
+          try:
+              response = api.open(urllib.request.Request(API + '/zip', headers=headers), timeout=60)
+          except urllib.error.HTTPError as error:
+              if error.code != 302:
+                  raise
+              location = error.headers['Location']
+              error.close()
+              parsed = urllib.parse.urlsplit(location)
+              assert parsed.scheme == 'https' and parsed.hostname and not parsed.username
+              response = urllib.request.urlopen(location, timeout=120)
+          archive = work / 'original.zip'
+          hash_value = hashlib.sha256()
+          with response, archive.open('xb') as destination:
+              while block := response.read(1024 * 1024):
+                  destination.write(block)
+                  hash_value.update(block)
+          assert archive.stat().st_size == SIZE and hash_value.hexdigest() == DIGEST
+          print('Verified original archive:', ARTIFACT, SIZE, DIGEST)
+          report = {'purpose': 'Original failed-run evidence extraction only; NOT game acceptance',
+                    'original_run': RUN, 'original_attempt': 2, 'original_job': 114232214275,
+                    'original_artifact': ARTIFACT, 'archive_bytes': SIZE, 'archive_sha256_verified': DIGEST,
+                    'retrieval_run': os.environ['GITHUB_RUN_ID'], 'retrieval_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+                    'members': [], 'missing_original_members': [], 'identity_mismatches': [],
+                    'engine_executed': False, 'candidate_published': False}
+          selected = {}
+
+          def member(z, suffix):
+              matches = [i for i in z.infolist() if not i.is_dir() and
+                         (i.filename == suffix or i.filename.endswith('/' + suffix))]
+              if len(matches) > 1:
+                  raise ValueError('Ambiguous original member: ' + suffix)
+              if not matches:
+                  report['missing_original_members'].append(suffix)
+                  return None
+              return matches[0]
+
+          def retain(z, info, bundle, output_name, container=None):
+              assert not PurePosixPath(output_name).is_absolute() and '..' not in PurePosixPath(output_name).parts
+              record = {'original_member': info.filename, 'bytes': info.file_size}
+              if container:
+                  record['original_container_member'] = container
+              if info.file_size <= 8 * 1024 * 1024:
+                  data = z.read(info)
+                  record.update(sha256=hashlib.sha256(data).hexdigest(), complete=True, bundle_member=output_name)
+                  bundle.writestr(output_name, data)
+              else:
+                  # Large diagnostic logs: hash all bytes, retain labelled raw byte ranges, not a full-log audit.
+                  assert info.filename.endswith(('.log', '.txt', '.jsonl')), 'Oversized non-log diagnostic'
+                  temporary = work / 'large-member'
+                  h = hashlib.sha256()
+                  with z.open(info) as src, temporary.open('wb') as dst:
+                      while block := src.read(1024 * 1024):
+                          dst.write(block)
+                          h.update(block)
+                  ranges = [(0, 1024 * 1024), (info.file_size - 1024 * 1024, info.file_size)]
+                  with temporary.open('rb') as f, mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as data_map:
+                      pattern = rb'SCRIPT ERROR:|Parse Error:|Assertion|\[Failed\]|ERROR:'
+                      for match in itertools.islice(re.finditer(pattern, data_map), 32):
+                          ranges.append((max(0, match.start() - 2048), min(info.file_size, match.end() + 4096)))
+                      ranges.sort()
+                      merged = []
+                      for first, last in ranges:
+                          if merged and first <= merged[-1][1]:
+                              merged[-1][1] = max(last, merged[-1][1])
+                          else:
+                              merged.append([first, last])
+                      record.update(sha256=h.hexdigest(), complete=False, representation='indexed byte-preserving excerpts', ranges=[])
+                      for first, last in merged:
+                          piece = data_map[first:last]
+                          name = output_name + '.bytes-' + str(first) + '-' + str(last)
+                          bundle.writestr(name, piece)
+                          record['ranges'].append({'start': first, 'end_exclusive': last, 'bundle_member': name,
+                                                   'sha256': hashlib.sha256(piece).hexdigest()})
+                  data = None
+              report['members'].append(record)
+              return data
+
+          bundle_path = out / 'coordinator-a-original-diagnostics.zip'
+          with zipfile.ZipFile(archive) as original, zipfile.ZipFile(bundle_path, 'w', zipfile.ZIP_DEFLATED) as bundle:
+              bundle.writestr('github-artifact-metadata.json', metadata_bytes)
+              bundle.writestr('original-member-index.json', json.dumps([
+                  {'path': i.filename, 'bytes': i.file_size, 'compressed_bytes': i.compress_size, 'crc32': i.CRC}
+                  for i in original.infolist()], indent=2))
+              wanted = []
+              for mode in ('normal', 'dropped_ack', 'native_refusal'):
+                  wanted += [f'phase2r_logs/{mode}-create.log', f'ci/{mode}-create.xml', f'ci/{mode}.jsonl',
+                             f'ci/playable-{mode}-create.json', f'ci/playable-{mode}-load.json',
+                             f'phase2r_logs/{mode}-load.log', f'ci/{mode}-load.xml']
+              wanted += ['ci/' + name for name in ('candidate-origin.json', 'candidate-commit.json', 'candidate.patch',
+                         'candidate-paths.json', 'retained-hashes.json', 'final-status.txt', 'engine.json', 'gate.json',
+                         'publication.json', 'import.log')]
+              for lane in ('preparation', 'checkpoint'):
+                  wanted += [f'ci/{lane}.xml', f'ci/{lane}.jsonl', f'phase2r_logs/{lane}.log']
+              for suffix in wanted:
+                  info = member(original, suffix)
+                  if info:
+                      selected[suffix] = retain(original, info, bundle, 'original/' + info.filename)
+              origin = json.loads(selected['ci/candidate-origin.json'].decode('utf-8-sig'))
+              receipt = json.loads(selected['ci/candidate-commit.json'].decode('utf-8-sig'))
+              report['frozen_candidate'] = receipt
+              for key, expected in [('base', BASE), ('controller', CONTROLLER), ('patch_sha256', PATCH)]:
+                  if origin.get(key) != expected:
+                      report['identity_mismatches'].append('candidate-origin: ' + key)
+              if receipt.get('source') != SOURCE or receipt.get('parent') != BASE:
+                  report['identity_mismatches'].append('candidate commit/parent')
+              if hashlib.sha256(selected['ci/candidate.patch']).hexdigest() != PATCH:
+                  report['identity_mismatches'].append('patch SHA-256')
+              source_info = member(original, 'ci/source-inspection.zip')
+              if source_info:
+                  nested_path = work / 'source-inspection.zip'
+                  h = hashlib.sha256()
+                  with original.open(source_info) as src, nested_path.open('xb') as dst:
+                      while block := src.read(1024 * 1024):
+                          dst.write(block)
+                          h.update(block)
+                  report['source_archive'] = {'original_member': source_info.filename, 'bytes': nested_path.stat().st_size,
+                                              'sha256': h.hexdigest()}
+                  with zipfile.ZipFile(nested_path) as source:
+                      report['source_archive']['git_archive_comment'] = source.comment.decode('ascii', errors='replace')
+                      if source.comment != SOURCE.encode('ascii'):
+                          report['identity_mismatches'].append('source archive commit comment')
+                      source_paths = set(receipt['blobs']) | {'tests/unit/test_scene_checkpoint_ack.gd',
+                                    'tools/testing/Invoke-IsolatedGodot.ps1'}
+                      for path in sorted(source_paths):
+                          info = member(source, path)
+                          if not info:
+                              continue
+                          data = retain(source, info, bundle, 'frozen_source/' + path, source_info.filename)
+                          blob = hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest()
+                          report['members'][-1]['git_blob'] = blob
+                          if path in receipt['blobs'] and receipt['blobs'][path] != blob:
+                              report['identity_mismatches'].append('source blob: ' + path)
+              report['extraction_status'] = 'identity_mismatch' if report['identity_mismatches'] else 'originals_extracted'
+              bundle.writestr('extraction-manifest.json', json.dumps(report, indent=2) + '\n')
+          assert bundle_path.stat().st_size < 48 * 1024 * 1024, 'Diagnostic bundle is not small enough'
+          summary = {'bundle_bytes': bundle_path.stat().st_size, 'bundle_sha256': hashlib.sha256(bundle_path.read_bytes()).hexdigest(),
+                     'status': report['extraction_status'], 'missing_original_members': report['missing_original_members'],
+                     'identity_mismatches': report['identity_mismatches'], 'game_acceptance': 'NOT CLAIMED'}
+          (out / 'retrieval-summary.json').write_text(json.dumps(summary, indent=2) + '\n')
+          print(json.dumps(summary, indent=2))
+          if report['identity_mismatches']:
+              raise SystemExit(1)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: scene-playable-original-diagnostics-38050263178-2-${{ github.run_id }}-${{ github.run_attempt }}
+          path: retrieved-diagnostics
+          if-no-files-found: error
+          retention-days: 7
