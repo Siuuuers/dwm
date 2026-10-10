@@ -1,4 +1,4 @@
-name: Scene playable route-context diagnostic (no publication)
+name: Scene playable repaired physical save and fresh Load
 on:
   pull_request:
     paths:
@@ -6,15 +6,15 @@ on:
       - 'tools/cloud/scene-playable-diagnostics.patch'
       - '.github/workflows/windows-tests.yml'
 permissions:
-  contents: read
+  contents: write
 concurrency:
   group: scene-runtime-integration-controller-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 jobs:
-  diagnose:
+  playable:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
     runs-on: windows-2022
-    timeout-minutes: 20
+    timeout-minutes: 25
     env:
       BASE_SHA: 69a5cdd70261692b7f1b1e2d4550155141ca6375
       CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
@@ -36,7 +36,7 @@ jobs:
           ref: 69a5cdd70261692b7f1b1e2d4550155141ca6375
           path: source
           fetch-depth: 0
-      - name: Apply pinned original and bounded diagnostic correction
+      - name: Apply pinned original and evidenced route repair
         run: |
           $ErrorActionPreference = 'Stop'
           @'
@@ -51,27 +51,29 @@ jobs:
           assert payload['base']==base
           assert hashlib.sha256(patch).hexdigest()==payload['patch_sha256']=='1d6cb95788894ef8a95f8525c500b95f97c004f0305c95e1f86f9b428ca63335'
           original=out/'original-candidate.patch';original.write_bytes(patch)
-          repair=pathlib.Path('../controller/tools/cloud/scene-playable-diagnostics.patch')
-          assert hashlib.sha256(repair.read_bytes()).hexdigest()=='ffa72c4127cedc81bc1f1bb110ee0a45e3e7e6fd8a9674f1834606973ede2222'
+          repair=out/'route-repair.patch'
+          repair.write_bytes(gzip.decompress(base64.b64decode('H4sIAAAAAAAC/+Va62/bRhL/bP0VeyxwJ0Ey9ZYtFT40SJO7AG0S2EaLohcQK+5SYk2RPC5pRxf4f7+Z2V0+9LDlpvehuHxwRHJ3ZnYev5mdXREGATs/X4U5431e5EmUcNG/8WUsr5Mil5m7Emx57Evr/Pz8+LxWt9t9Yu5337Hzy+FF74J18b/hgMGboIh9xtM02noZjvQyqfIkk54KIxnn7TTi8YJ9H/p5mMQ823bY+d9rj4sWOzMTV8As4/ieXbEQpubJnYx/dar3zqcODk9lLMJ4VXFCMb1QwDRNKRQw7J5nbKXY4op5K9XutM7PwgBf/OWKxUUUMR4Llm9TmQQko7uSedvR8/0kzuXn3Ol02NUVu/3l4xvv+3evb999eP/q+pdFq3v2DSPVsOsiZkYKxqNMcrEFyVXOo0gKFuaK+ckmjWQu2YpvJPDZMkPcZbdryUh0IrhOVM5QEObzLAulooHcz1U/CgPpb/1I9oVUd3mSAs9AZjL2YVSQZGyTFHEOGumxOMmJGhciJA1HFeMglJFQLvtBrri/1apiG5lzwXMOJHMOopPQ8nOokB58zVbSBYqgOqtaVKBDcjukwz9EpewMhEaFZKDRlGd56Icpj/NSq0bLolzOefIQw6O/Rl3HK9nXTlGq15IMVZOeEIopHkhaj16j1sC3wAMI+/guB0k2PGUiVGANmJGvec7ArrkkwuhbYNllCCLUnRs8cKXcxopdUaRR6MPMdp4VstMS9QDOYVmqD84uV9rF+9qZcYV8GQGVdRgJHdInj22FsZCfWTAdLS+C4XwYDCfDQbDk/CJYTkbTIPCXchb4/nIk5pPpheuOx5czUIyc++PBmF9e+BMRDPloNJzJ8WA+l+PZFB7kkA0Hg9mUUlNOBIdnbDsrT4dhWYy7M1YF/7WYMYH38irCe1NIuSC3eQZ2Ixw5T4JBbkTV0pmuRfwSMk2REuhpNDumNw5PUbvOz2waGa/djpPzwNzb8I8l6I23REyCOMQwkg lRebL84cMHwIeRgUgQiqzDYYThFa2der05b/bQfg5h0FuADAJLqNZ9dgQqAa8iMA5/LwA30bX5/4aXD1dbxU4EoQZ4LPi99KNwb8Y8QTq3UPUo+QBsDviKvdScG8OaJmu uZLARYvslL+YZruUURJDTOcJRYH5BgL4d2kCxjvGSa/DiuaRVArWQ8MRPo4YgQF+PaNoHHJQXQg8Q/Yv5HB2tjdoRxY9uDbqmG40wGntLNB4RRYfth1CEgeARIjyM NjbTmm b3xTkq457z6MCtJ1k4SoENN bPR1wBoc31eYoPHgChp2KeqnWSe2GcFnkbPM4OXcoAMx+9P0JtmYViVaMHMmLSrCzZ1tq1Iu6QNuM7FIzTQW84Zt3ppDe8+BN EI6RJgHZdSmRJFC25f1dGowItn+N8zFYvCc3Ry2OsJojTfDTRFoB0yYPS oQZuI0zAvTDKxv/rKB u9JMrGJ0dZXT/1UMP8qhWxk10tVYo4y7pdtx8m2bae6yZ32qn0o/YpUBI USawcsccWreAdZG7mULy4fpFBBZaXMer aH7uy3Lz66Y138/qfb358hVNDgaVAnVQHpNjxwLoQLnDHfHkva7Hr2n BWUikQ0F1CCShATP CyCKoSB+vdryKIucVLUlN5uztZw/obqtJwKcdq+z7Ps kbtAMzqoG8QM U EL0OTLMM2VC3zKyAi VKmCovAejlCPDJpD8KbD2kkC2Ox/1hvPfj7XkelA0A8g8gZgpbDr0h7JoiUGDGaGmauAoYqjzxy oT BChiIBsnD7BdWkmEY7Isg6KdPEskKUjMInAcZy/Id5Rvt oFQpK8keA/sw aiUCnEnRoQoG5hdDn1nfgEZ XGydCj0rfe2AJ4rztDrtqGfFqjn7viorl/HSJENPjlWxsZUhp gldFzJRZOgJrKa/Dbg+e+C0c6RJsJGD0VBCJrGJWVjkc5yoTqrJiKAoEr9A6iejcd1OdnIJx/YFx aYBkdqgff0cx9FyWomkoCV4DsGTSxPhNr1/A6IxO0+RNxHcG0/dWVmT7pNgXwNZ+/WliI1bRYg4Au3fS+4IXtczrHGApzD7KZa71I7YqaTxu+HapuivIlRKd1CluyR/fYbcJ9cE/x3srdFit u1QQjJp9w/hpAFDvz+BKzuFq6vC/8hjOHxsNOvi9u0gfZLxCDXzzeH3AL58GUZhvoWAkhrTdSarNrOv7ZpYmiUrWK86tibb+TnCtvp8jDM AHHioD97PlgnPhKMT7nB2ga2G4QV2Nm3Cxf5nlW4bKZa aPxoQjuDhs/mwWmAs24aWW7b5IHXw2F+DM/SqIDjw taknS8aov2mqpnPaoZXKDi hZN+4w3YT3ugSA+h0o3Eu9XdnryLGyx3dQrl0n6x0P8M7B1GgT6kl Aasykn4+YiQswEWxOrKV04Jk5kBQ VtVCf42+cCOo1qNpGg/HpTlR2Bo/IJ0KV8txf49YXtL2WYi+1WgpHdtPl984zM8vHkkAzF+0Mp6zoAJOHMI9BDa6xnMG rpredOncf9w77wQnVpvG5w/NP79ost1AqVC2bk7fjA3DFH8D21BAvl88I8QGK TK NZ12t2sgGj0WCCYDQ aTrHjcoIjAWomgQt/fdClPgT5cIOa9qp3BDgknEfD2/TXWrrFWl19inO4KKgqgLqf9qC4TKWfYwO8tg9ZJhBuYH7075LQgv3EsxDb71e1TqI5Hmh GE/jfl8eO/tQsaeoJ lly4/ILbhbp gju6kOJC/rIzw06mx bpx25BkMzxTkoj YvU4YcYWP rC63EhsNXVRgtg7SIDm+FQeJm8uGheERiB7e6Le0De/ZrWsNE04IssAc1MvZhx7h7VvHz9bvbN9c QEGi+MN hqu rt QYeaW5bt57hw8ylB FirsJfXT40XjsWx u51THGM+ PMEYY/8mfzQMw5n8mZuJTT6VguB3M+8Cf zUTAdDSd8zAcD4bqj4PLyciSF9C/G8/FwML/0x9OZP51OhF AOVhOL+UsxKBz46dITxnCz148v nxlIMD3UI94YzjGA/Am2yn9F819h RA0cDx5axUJ BjpVr0+8rPMO31wzjIuK5RgFzfAFX/LaDMh1QBeYe2+GfWe74g4i+0B1L2E9ix/qt z++bmVmPTVuVyo3HJM+08bERu wFOAMgyGBLN+RKKGJKwPMqKeQPDXxhEGCgkqvmEfl lQGmCoAlkM9PoZ6+ZtiHLZcG9q2kzd/azoKkOCLgNP CoP5ShY/YFBQRM11Bt9XVijLUxesqWo+oC0+dEVnxKCkzW7wfeQwLy6rJH3FvS5rToHSgE7m4Yo4Dny nM PGwht/FwMVuALL9BENaiqXt2RhrSAzp2kqHXpgSkmoGJtbuFyPeQunp4qninf fLkwXj37DiKakYmd4c8SlahX9u q1VH0ZQB7dkA/VxT2B6EKfAmPdAEqj8Akk+CbWr1NF2uqTKuprpoOAp/2iFf+3Vvqlp/gB+XGte4N7+3LQ25harEsST08JgBn0Iiu3/M AKkT8sGCvYaOC0W67dNikm9SqPQ XLS6ssrcuZPJPYqMPft/DzwO0Hk2bIeISyZWYxr2AMxTICdg1EY Mf/QInd1jMejgJzKi ohYQJUcDoyr9BBsYZof00Ed YjjRn9GX7HE9yO2OZKdmZXA WH0cADV2EK6wfqOOmBdRm bvCQvVEjex0r4Cy9RKjlwO5qYDIpp+m0m/eV7Hn9bUkdeqEFrAklTPsy9oUo1PY4MR/r sun06GQwXLKh+Opfyn nF3Nfzi65HI5EEMyn8mI+nY1GA8pdfSHv+3jp opGdThYYXXjQG8Cut zfF8/VWdye2uBCwXe6v Ck0P7Q/Q/w27Rryv3Quy0EeupMuQNeC7gPq KDq3pzgSYU0iXvU9YWiytw/WIXkxxWdtl9ugExnbqEE+SrOoWGF9Hj AFsCLFdudxCIoJnXHuZRF7rpd4Qd7u099g0N2mgcUcDg/7LIwCOmW2WuquSw9eiysxCS10QlzKZ4M0jDHnLusRAHIsMaxPrMusPJC SkIc0LhxNV0/bAawHtRm7Syr5qUDLhABWnXtSVob bz3rVzS8n0loDgb5+TmQTbUklE9NUY+2gm1x3RuOCdlKn ybMfA6t+juzxQb+B2rsmIbnHZBgOaySFXkR46Bx2xmPYR1DJfqPCBH786ur6HYufT42MpXtPmVyXdvSs6Xds80CC1WzabxVcgpteIN7gswOpwNNtEZS66VE5OY91c+fu7moprWXBXrzq1fUljYNnt1KLTZbK6tiA6YR8IqkHIoDNC003ySDXwwfn4w6tf3r3/B6Z03FTTaF1JwqPTQ+d17JW0hrI/PfbshbBFxTHx9Sbc l3VS1VuHDIPC GgQ5omVbijSgrG349Wiluyq0BE sF2hd19dUG7SiPkuIx cZ666W g pmoZBUyhDtZTJPHd22sb7jt pjtZ4cGba8s2e OyaCcUqHKa624nWZ0U7Jd8kjTnC1VlxA zuaENcnl/kVoZBtXt9rha04JV3OzbOjO6xOfRhc4eOyhObcQOgkR0X7HSdh5GkUc3E5WHN/lKFMHcA7S8KFEIDVYZBzByDwpeDit0zkSFtXbvJ BLO4174NYYA4tItELDPgo2/yv3ROP8n3v/1ptnRe5On9v4vz8z4L1CxIMF2LQAA',validate=True)))
+          assert hashlib.sha256(repair.read_bytes()).hexdigest()=='6dfc46355369befc148e5276126af1631613a31172abac56b4028fce6d3ad0f1'
+          assert git('hash-object','autoload/SceneRouter.gd')=='81f2b6ecaa9c1fe142560deaec703abd2ed11978'
           for p in (original,repair):
               subprocess.run(['git','apply','--check',str(p)],check=True)
               subprocess.run(['git','apply','--index',str(p)],check=True)
           subprocess.run(['git','diff','--cached','--check'],check=True)
-          expected={'tests/integration/scene_playable_child.gd':'54d36ec7baedb0b7748de1fb5fcf34620e49baee',
-                    'tests/support/ScenePlayableFixture.gd':'0a9e68ccb3a88f83ee8ef612e76b38cdc4de93ab'}
+          expected={'tests/integration/scene_playable_child.gd':'3386adde9c303a87c4df1a2216e3099e365221e1',
+                    'tests/support/ScenePlayableFixture.gd':'2f8882edec73931098c356c554d1e0b58e4d27a2',
+                    'tests/unit/test_scene_route_restore_context.gd':'a551defb5a135c8e979ce68ae12dff95e7956220'}
           for path,blob in expected.items(): assert git('hash-object',path)==blob,(path,'postimage mismatch')
           paths=git('diff','--cached','--name-only').splitlines()
-          allowed={'autoload/DialogicBridge.gd','autoload/GameState.gd','scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd',
+          allowed={'autoload/SceneRouter.gd','tests/unit/test_scene_route_restore_context.gd','autoload/DialogicBridge.gd','autoload/GameState.gd','scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd',
               'tests/support/SceneNewRunFixture.gd','tests/support/ScenePlayableFixture.gd','tests/unit/test_scene_playable_preparation.gd',
               'tests/integration/scene_playable_child.gd',*('tests/integration/test_scene_playable_'+n+'.gd' for n in ['create','load','dropped_ack','native_refusal'])}
           assert set(paths)==allowed,paths
           composed=subprocess.check_output(['git','diff','--cached','--binary','--full-index'])
           (out/'candidate.patch').write_bytes(composed)
-          (out/'diagnostic-correction.patch').write_bytes(repair.read_bytes())
           receipt={'base':base,'controller':os.environ['CONTROLLER_SHA'],'event':os.environ['EVENT_SHA'],
               'original_patch_sha256':payload['patch_sha256'],'patch_sha256':hashlib.sha256(composed).hexdigest(),
-              'repair_sha256':hashlib.sha256(repair.read_bytes()).hexdigest(),'paths':paths,'publication_enabled':False,
-              'scope':'one changed normal-create diagnostic; not full physical Save/Load acceptance'}
+              'repair_sha256':hashlib.sha256(repair.read_bytes()).hexdigest(),'paths':paths,'publication_enabled':True,
+              'scope':'focused unit and three physical creator/fresh-Load journeys; guarded A-only publication'}
           (out/'candidate-origin.json').write_text(json.dumps(receipt,indent=2));print(json.dumps(receipt))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -103,7 +105,7 @@ jobs:
           if (Select-String "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Candidate import script error' }
           git restore --worktree -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Freeze and retain exact selected diagnostic source
+      - name: Freeze exact candidate and retain selected source
         run: |
           $ErrorActionPreference = 'Stop'
           @'
@@ -116,7 +118,7 @@ jobs:
           subprocess.run(['git','diff','--cached','--check'],check=True)
           subprocess.run(['git','config','user.name','github-actions[bot]'],check=True)
           subprocess.run(['git','config','user.email','41898282+github-actions[bot]@users.noreply.github.com'],check=True)
-          subprocess.run(['git','commit','-m','Diagnose playable route context with corrected stored-receipt tests'],check=True)
+          subprocess.run(['git','commit','-m','Preserve scene gameplay context through physical playable save and fresh Load'],check=True)
           assert git('rev-parse','HEAD^')==origin['base'] and not git('diff','--name-only')
           names=git('diff-tree','--no-commit-id','--name-only','-r','HEAD').splitlines()
           assert all(n in paths or (n.endswith('.gd.uid') and n[:-4] in paths) for n in names)
@@ -130,20 +132,93 @@ jobs:
           print(json.dumps(receipt))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Run one changed physical creator diagnostic
-        timeout-minutes: 4
+      - name: Focused unit and physical same-files process journeys
+        timeout-minutes: 14
         run: |
           $ErrorActionPreference = 'Stop'
-          $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_playable_create.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/normal-create.xml')
-          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'playable-normal-diagnostic' -LogName 'normal-create.log' -GodotArgs $args -EvidenceLogPath '.godot/ci/normal.jsonl' -TimeoutSeconds 180 -KeepRoot
-          $childExit = $LASTEXITCODE
-          if (Test-Path '.godot/phase2r_logs/normal-create.log') {
-            Select-String '.godot/phase2r_logs/normal-create.log' -Pattern 'SCENE_PLAYABLE_|SCRIPT ERROR:|invalid_gameplay|\[Failed\]' | ForEach-Object { $_.Line }
+          $runner = './tools/testing/Invoke-IsolatedGodot.ps1'
+          $failed = $false
+          foreach ($entry in @(@('preparation','tests/unit/test_scene_playable_preparation.gd'), @('checkpoint','tests/unit/test_scene_checkpoint_ack.gd'), @('route-context','tests/unit/test_scene_route_restore_context.gd'))) {
+            $name = $entry[0]
+            $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$($entry[1])",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$name.xml")
+            & $runner -SuiteId "playable-$name" -LogName "$name.log" -GodotArgs $args -EvidenceLogPath ".godot/ci/$name.jsonl" -TimeoutSeconds 180
+            if ($LASTEXITCODE -ne 0) { $failed = $true }
           }
-          if ($childExit -ne 0) { exit $childExit }
-          if (Select-String '.godot/phase2r_logs/normal-create.log' -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Strict diagnostic script-error gate' }
-          if ((git diff --name-only) -or (git diff --cached --name-only)) { throw 'Diagnostic changed tracked source' }
-      - name: Retain complete small diagnostics on every outcome
+          foreach ($mode in @('normal','dropped_ack','native_refusal')) {
+            $child = if ($mode -eq 'normal') { 'create' } else { $mode }
+            $create = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://tests/integration/test_scene_playable_$child.gd",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$mode-create.xml")
+            $load = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_playable_load.gd','-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$mode-load.xml")
+            & $runner -SuiteId "playable-$mode" -LogName "$mode-create.log" -GodotArgs $create -NextLogName "$mode-load.log" -NextGodotArgs $load -EvidenceLogPath ".godot/ci/$mode.jsonl" -TimeoutSeconds 180 -KeepRoot
+            if ($LASTEXITCODE -ne 0) { $failed = $true }
+            $records = @()
+            if (Test-Path ".godot/ci/$mode.jsonl") { $records = @(Get-Content ".godot/ci/$mode.jsonl" | ForEach-Object { ConvertFrom-Json $_ }) }
+            if ($records.Count -gt 0) {
+              $root = Join-Path $records[0].test_root 'dwm_test_root/scene_restart_shared'
+              if (Test-Path $root) {
+                New-Item -ItemType Directory -Force '.godot/ci/physical' | Out-Null
+                Copy-Item $root ".godot/ci/physical/$mode" -Recurse
+              }
+            }
+          }
+          if ($failed) { throw 'One or more focused engine children failed; retain original results' }
+      - name: Verify executed census, custody receipts and unchanged source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          @'
+          import collections, hashlib, json, pathlib, re, subprocess, xml.etree.ElementTree as ET
+          out=pathlib.Path('.godot/ci'); counts={}
+          suites={'preparation':'tests/unit/test_scene_playable_preparation.gd','checkpoint':'tests/unit/test_scene_checkpoint_ack.gd',
+              'route-context':'tests/unit/test_scene_route_restore_context.gd'}
+          for mode in ['normal','dropped_ack','native_refusal']:
+              suites[mode+'-create']='tests/integration/test_scene_playable_'+('create' if mode=='normal' else mode)+'.gd'
+              suites[mode+'-load']='tests/integration/test_scene_playable_load.gd'
+          for lane,script in suites.items():
+              expected=re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(),re.M)
+              root=ET.parse(out/(lane+'.xml')).getroot()
+              rows=list(root.iter('testcase'))
+              assert collections.Counter(r.attrib['name'] for r in rows)==collections.Counter(expected),(lane,'census mismatch')
+              assert rows and all(r.attrib.get('classname')==script and r.attrib.get('status')=='pass' and int(r.attrib.get('assertions','0'))>0 for r in rows),lane
+              assert not any(list(root.iter(t)) for t in ['failure','error','skipped']),lane
+              assert all(int(e.attrib.get(k,'0'))==0 for e in root.iter() for k in ['failures','errors','skipped']),lane
+              log=pathlib.Path('.godot/phase2r_logs')/(lane+'.log')
+              text=log.read_text(encoding='utf-8-sig')
+              assert not re.search(r'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character',text),lane
+              counts[lane]={'cases':len(rows),'xml_assertions':sum(int(r.attrib['assertions']) for r in rows)}
+          for mode in ['normal','dropped_ack','native_refusal']:
+              records=[json.loads(s) for s in (out/(mode+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
+              assert len(records)==2 and all(r['exit_code']==0 for r in records)
+              assert records[0]['test_root']==records[1]['test_root'] and records[0]['user_dir']==records[1]['user_dir']
+              assert records[1]['started_at_utc']>=records[0]['ended_at_utc']
+              a=json.loads((out/('playable-'+mode+'-create.json')).read_text())
+              b=json.loads((out/('playable-'+mode+'-load.json')).read_text())
+              assert a['process_id']!=b['process_id'] and b['creator_process_id']==a['process_id']
+              for key in ['storage_root','autosave_sha256','run_id','checkpoint_id','receipt','checkpoint','profile_files']:
+                  assert a[key]==b[key],(mode,key)
+              assert a['refused_writes']==(2 if mode=='normal' else 0)
+              assert hashlib.sha256((out/'physical'/mode/'autosave.json').read_bytes()).hexdigest()==a['autosave_sha256']
+              assert a['checkpoint']['reading_session']['boundary']=='control'
+              assert a['receipt']['scene_event']['result']['kind']=='challenge_playable'
+          assert not subprocess.check_output(['git','diff','--name-only'],text=True).strip()
+          assert not subprocess.check_output(['git','diff','--cached','--name-only'],text=True).strip()
+          result={'status':'passed','lanes':counts,'total_cases':sum(v['cases'] for v in counts.values()),
+              'total_xml_assertions':sum(v['xml_assertions'] for v in counts.values()),
+              'scope':'headless real-save/native test-host integration; not production startup, rendered E2E or full-suite acceptance'}
+          (out/'gate.json').write_text(json.dumps(result,indent=2)); print(json.dumps(result))
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Publish passing candidate only as unchanged-A fast-forward
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $branch = 'refs/heads/codex/scene-runtime-integration-20261009'
+          $live = (git ls-remote origin $branch).Split()[0]
+          if ($LASTEXITCODE -ne 0 -or $live -cne $env:BASE_SHA) { throw 'A advanced; candidate retained without overwrite' }
+          $controller = (git ls-remote origin 'refs/heads/codex/scene-runtime-integration-controller-20261009').Split()[0]
+          if ($LASTEXITCODE -ne 0 -or $controller -cne $env:CONTROLLER_SHA) { throw 'Controller advanced; candidate superseded' }
+          $source = git rev-parse HEAD
+          git push origin "${source}:$branch"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          @{ source=$source; base=$env:BASE_SHA; branch=$branch; force=$false } | ConvertTo-Json | Set-Content .godot/ci/publication.json -Encoding utf8
+      - name: Retain complete small evidence on every outcome
         if: always()
         run: |
           $ErrorActionPreference = 'Stop'
@@ -163,7 +238,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: scene-playable-context-diagnostic-${{ github.run_id }}-${{ github.run_attempt }}
+          name: scene-playable-repaired-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             source/.godot/ci
             source/.godot/phase2r_logs
