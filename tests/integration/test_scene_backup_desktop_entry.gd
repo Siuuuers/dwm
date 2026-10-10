@@ -9,7 +9,7 @@ var viewport: SubViewport
 var desktop: Control
 var host: RefCounted
 var ports: RefCounted
-var owner: RefCounted
+var save_owner: RefCounted
 var port: RefCounted
 var bind_confirmation := true
 var reject_configuration := false
@@ -29,9 +29,9 @@ func before_each() -> void:
 	ports = DESKTOP_FIXTURE.new()
 	host = DESKTOP_FIXTURE.HOST.new()
 	assert_true(host.commit_restore(host.prepare_scene_restore(null).value.candidate_state).ok)
-	owner = APP_FIXTURE.backup_owner()
+	save_owner = APP_FIXTURE.backup_owner()
 	port = APP_FIXTURE.BACKUP_PORT.new()
-	assert_true(port.configure(owner).ok)
+	assert_true(port.configure(save_owner).ok)
 	desktop = ports.make_desktop()
 	viewport.add_child(desktop)
 	assert_true(desktop.configure_scene_navigation(host, ports.read_phase,
@@ -80,7 +80,7 @@ func test_uncached_backup_uses_real_desktop_consent_and_reuses_the_view() -> voi
 	assert_same(sheet, desktop._confirmation)
 	assert_same(sheet.get_parent(), desktop.desktop_canvas)
 	assert_eq(sheet.request.body, app._t("fallback") + "\n--:--\n\n" + app._t("replace_progress"))
-	assert_true(owner.committed.is_empty())
+	assert_true(save_owner.committed.is_empty())
 	var before: Dictionary = host.get_state()
 	assert_eq(desktop.return_home().code, &"desktop_modal_active")
 	assert_eq(desktop.open_app(&"shop").code, &"desktop_modal_active")
@@ -92,9 +92,9 @@ func test_uncached_backup_uses_real_desktop_consent_and_reuses_the_view() -> voi
 	assert_null(desktop._confirmation)
 	assert_null(app.confirmation)
 	assert_null(app._pending_token)
-	assert_eq(owner.cancelled, [token])
-	assert_true(owner.pending.is_empty())
-	assert_true(owner.committed.is_empty())
+	assert_eq(save_owner.cancelled, [token])
+	assert_true(save_owner.pending.is_empty())
+	assert_true(save_owner.committed.is_empty())
 	assert_true(desktop.return_home().ok)
 	assert_false(app.visible)
 	var reopened: Dictionary = desktop.open_app(&"backup")
@@ -119,8 +119,8 @@ func test_refused_configuration_never_admits_or_caches_backup_and_can_retry() ->
 	assert_true(desktop._cached_app_windows.is_empty())
 	assert_eq(desktop.app_window_host.get_child_count(), children)
 	assert_true(ports.commands.is_empty())
-	assert_true(owner.prepared.is_empty())
-	assert_true(owner.committed.is_empty())
+	assert_true(save_owner.prepared.is_empty())
+	assert_true(save_owner.committed.is_empty())
 	assert_null(desktop._confirmation)
 	await _settle_views()
 	assert_null(prepared_app.get_ref(), "The rejected view must be released, not cached")
@@ -145,11 +145,11 @@ func test_missing_confirmation_host_cancels_prepared_action_without_commit() -> 
 	var before: Dictionary = host.get_state()
 	app.mode_buttons.load.pressed.emit()
 	app.action_buttons.load.pressed.emit()
-	assert_eq(owner.prepared.size(), 1)
-	if owner.prepared.is_empty(): return
-	assert_eq(owner.cancelled, [owner.prepared[0].token])
-	assert_true(owner.committed.is_empty())
-	assert_true(owner.pending.is_empty())
+	assert_eq(save_owner.prepared.size(), 1)
+	if save_owner.prepared.is_empty(): return
+	assert_eq(save_owner.cancelled, [save_owner.prepared[0].token])
+	assert_true(save_owner.committed.is_empty())
+	assert_true(save_owner.pending.is_empty())
 	assert_null(app._pending_token)
 	assert_null(app.confirmation)
 	assert_null(desktop._confirmation)
