@@ -8,6 +8,7 @@ const CONTACTS_THEME := preload("res://scripts/ui/contacts/ContactsTheme.gd")
 
 signal presentation_failed(result: Dictionary)
 
+var _scene_presentation := false
 @onready var contacts_panel: Control = %ContactsPanel
 
 var _command_port: Object = null
@@ -15,7 +16,7 @@ var _presentation_port: Object = null
 var _localization: Object = null
 var _profile: Object = null
 var _palette: StringName = &"after_hours"
-var _day := 1
+var _day: Variant = 1
 var _primary := "en"
 var _secondary := ""
 var _reply_button: Button
@@ -77,7 +78,14 @@ func _ready() -> void:
 
 func configure_presentation(port: Object, localization: Object = null, profile: Object = null,
 		palette: StringName = &"after_hours", day: int = 1) -> Dictionary:
-	if CONTACTS_THEME.resolve(palette, day).is_empty():
+	return _configure_presentation_context(port, localization, profile, palette, day, false)
+
+func configure_scene_presentation(port: Object, localization: Object = null, profile: Object = null, palette: StringName = &"after_hours") -> Dictionary:
+	return _configure_presentation_context(port, localization, profile, palette, null, true)
+
+func _configure_presentation_context(port: Object, localization: Object = null, profile: Object = null, palette: StringName = &"after_hours", day: Variant = 1, scene: bool = false) -> Dictionary:
+	if _scene_presentation and not scene: return {"ok": false, "code": &"scene_calendar_configuration_forbidden"}
+	if CONTACTS_THEME._resolve_context(palette, day, false, "standard", scene).is_empty():
 		return _failure(&"invalid_contacts_presentation", "invalid palette or day")
 	if port == null:
 		return _failure(&"invalid_contacts_presentation_port", "presentation port required")
@@ -90,6 +98,7 @@ func configure_presentation(port: Object, localization: Object = null, profile: 
 		return _failure(&"contacts_presentation_already_configured", "installed context is retained")
 	_presentation_port = port
 	_palette = palette
+	_scene_presentation = scene
 	_day = day
 	_localization = localization
 	_profile = profile
@@ -131,9 +140,9 @@ func _apply_typography() -> void:
 	var appearance := _read_appearance()
 	if appearance.is_empty(): return
 	var font_style := str(_profile.get_preference("preferences.accessibility.font_style", "pixel")) if _profile != null else "pixel"
-	if not contacts_panel.configure(TYPOGRAPHY.font("en", percent, font_style),
+	if not contacts_panel._configure_context(TYPOGRAPHY.font("en", percent, font_style),
 			TYPOGRAPHY.font("zh-CN", percent, font_style), TYPOGRAPHY.font("zh-HK", percent, font_style), percent,
-			_palette == &"midnight", _day, appearance.high_contrast, appearance.colour_preset, font_style): return
+			_palette == &"midnight", _day, appearance.high_contrast, appearance.colour_preset, font_style, _scene_presentation): return
 	_apply_app_colours()
 	_title_label.text = {"en": "Contacts", "zh-CN": "联系人", "zh-HK": "聯絡人", "ja": "連絡先", "ko": "연락처"}[_primary]
 	_title_label.add_theme_font_override("font", contacts_panel._fonts[_primary])
@@ -149,7 +158,7 @@ func _read_appearance() -> Dictionary:
 		high_contrast = _profile.get_preference("preferences.accessibility.high_contrast", false)
 		colour_preset = _profile.get_preference("preferences.accessibility.colour_differentiation", "standard")
 	if not high_contrast is bool or not colour_preset is String \
-			or CONTACTS_THEME.resolve(_palette, _day, high_contrast, colour_preset).is_empty(): return {}
+			or CONTACTS_THEME._resolve_context(_palette, _day, high_contrast, colour_preset, _scene_presentation).is_empty(): return {}
 	return {"high_contrast": high_contrast, "colour_preset": colour_preset}
 
 
@@ -395,8 +404,8 @@ func _on_preference_changed(path: StringName, _value: Variant) -> void:
 		refresh_view()
 	elif is_node_ready() and path in [&"preferences.accessibility.high_contrast", &"preferences.accessibility.colour_differentiation"]:
 		var appearance := _read_appearance()
-		if not appearance.is_empty() and contacts_panel.apply_presentation(_palette, _day,
-				appearance.high_contrast, appearance.colour_preset):
+		if not appearance.is_empty() and contacts_panel._apply_presentation_context(_palette, _day,
+				appearance.high_contrast, appearance.colour_preset, _scene_presentation):
 			_apply_app_colours()
 
 
