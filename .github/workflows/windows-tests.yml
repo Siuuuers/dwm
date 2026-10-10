@@ -57,8 +57,20 @@ jobs:
           for p in (original,repair):
               subprocess.run(['git','apply','--check',str(p)],check=True)
               subprocess.run(['git','apply','--index',str(p)],check=True)
+          # Fresh processes must reconcile before the first lease-protected read.
+          child=pathlib.Path('tests/integration/scene_playable_child.gd')
+          before=child.read_text()
+          block='\tvar reconciled: Dictionary = fixture.storage.reconcile("autosave.json", Callable(fixture.manager, "_document_text_validator"))\n\tassert_true(reconciled.ok, str(reconciled))\n\tif not reconciled.ok: return\n'
+          first_read='\tvar bytes: Dictionary = fixture.storage.read_text("autosave.json")\n'
+          assert before.count(block)==1 and before.count(first_read)==1
+          after=before.replace(block,'').replace(first_read,block+first_read)
+          import difflib
+          order_patch=''.join(difflib.unified_diff(before.splitlines(True),after.splitlines(True),fromfile='a/'+child.as_posix(),tofile='b/'+child.as_posix()))
+          ordering=out/'load-reconciliation.patch';ordering.write_text(order_patch,encoding='utf-8',newline='\n')
+          subprocess.run(['git','apply','--check',str(ordering)],check=True)
+          subprocess.run(['git','apply','--index',str(ordering)],check=True)
           subprocess.run(['git','diff','--cached','--check'],check=True)
-          expected={'tests/integration/scene_playable_child.gd':'e4923e5ae2a126a1f6a5da09e5f517d6e0b92d6a',
+          expected={'tests/integration/scene_playable_child.gd':'72ec5432a115eddbbf8c72701338278e3ed7c064',
                     'tests/support/ScenePlayableFixture.gd':'2f8882edec73931098c356c554d1e0b58e4d27a2',
                     'tests/unit/test_scene_route_restore_context.gd':'a551defb5a135c8e979ce68ae12dff95e7956220'}
           for path,blob in expected.items(): assert git('hash-object',path)==blob,(path,'postimage mismatch')
@@ -72,7 +84,7 @@ jobs:
           (out/'route-repair.patch').write_bytes(repair.read_bytes())
           receipt={'base':base,'controller':os.environ['CONTROLLER_SHA'],'event':os.environ['EVENT_SHA'],
               'original_patch_sha256':payload['patch_sha256'],'patch_sha256':hashlib.sha256(composed).hexdigest(),
-              'repair_sha256':hashlib.sha256(repair.read_bytes()).hexdigest(),'paths':paths,'publication_enabled':True,
+              'repair_sha256':hashlib.sha256(repair.read_bytes()).hexdigest(),'load_order_sha256':hashlib.sha256(ordering.read_bytes()).hexdigest(),'paths':paths,'publication_enabled':True,
               'scope':'focused unit and three physical creator/fresh-Load journeys; guarded A-only publication'}
           (out/'candidate-origin.json').write_text(json.dumps(receipt,indent=2));print(json.dumps(receipt))
           '@ | python -
