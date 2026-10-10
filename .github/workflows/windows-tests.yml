@@ -32,7 +32,7 @@ jobs:
           ref: 69a5cdd70261692b7f1b1e2d4550155141ca6375
           path: source
           fetch-depth: 0
-          persist-credentials: false
+          persist-credentials: true
       - name: Verify one-file composition and unchanged original test bodies
         run: |
           $ErrorActionPreference = 'Stop'

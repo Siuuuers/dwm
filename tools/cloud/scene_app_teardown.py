@@ -109,7 +109,52 @@ def api(path):
     with urllib.request.urlopen(req, timeout=120) as response:
         return response.read()
 
+def retain_failed_checkout():
+    """Retain the original pre-engine failure; it is never counted as a test pass."""
+    folder = Path('evidence/scene_app_teardown_2026_10_10/38028509673-1')
+    original = folder / 'scene-app-teardown-38028509673-1.zip'
+    digest = '16eea0d4d1c06fe887fe3669db51349246ed238c19d450e76989fa36ed1e4c99'
+    if folder.exists():
+        assert sha(original.read_bytes()) == digest
+        assert (folder / 'failed-checkout-verification.json').is_file()
+        return
+    data = api('actions/artifacts/11660909076/zip')
+    assert sha(data) == digest
+    archive = zipfile.ZipFile(io.BytesIO(data))
+    assert archive.testzip() is None
+    assert archive.namelist() == ['ci/original-file-hashes.json']
+    assert json.loads(archive.read('ci/original-file-hashes.json')) == []
+    folder.mkdir(parents=True)
+    original.write_bytes(data)
+    run = json.loads(api('actions/runs/38028509673'))
+    assert run['head_sha'] == '18d37922553c6fef38a736c591fa1e20cac7b03d'
+    assert run['conclusion'] == 'failure'
+    write_json(folder / 'run.json', run)
+    jobs = json.loads(api('actions/runs/38028509673/jobs?per_page=100'))
+    write_json(folder / 'jobs.json', jobs)
+    for job in (114144350803, 114144490256):
+        (folder / f'job-{job}.log').write_bytes(api(f'actions/jobs/{job}/logs'))
+    proof = {'run_id': 38028509673, 'run_attempt': 1,
+        'artifact_id': 11660909076, 'zip_sha256': digest,
+        'manifest_members_verified': 0, 'engine_executed': False,
+        'reason': 'Checkout immediate credential removal hit malformed inherited gitlink metadata; source verification and all engine steps skipped. Original retention then lacked a source receipt.',
+        'files': [{'path': p.name, 'bytes': len(p.read_bytes()), 'sha256': sha(p.read_bytes())}
+                  for p in sorted(folder.iterdir()) if p.is_file()]}
+    write_json(folder / 'failed-checkout-verification.json', proof)
+    (folder / 'README.md').write_text('# Original pre-engine checkout failure\n\n'
+        'Run38028509673/1 failed during checkout credential removal before source validation or Godot. '
+        'No engine test executed. The original empty-manifest ZIP and both original job logs are retained. '
+        'The controller-only correction defers credential cleanup until the existing disposable-index cleanup; '
+        'candidate69a5cdd7 and every test assertion are unchanged.\n', encoding='utf-8')
+    git('config', 'user.name', 'Siuuuers')
+    git('config', 'user.email', '119431590+Siuuuers@users.noreply.github.com')
+    git('add', '--', str(folder))
+    git('commit', '-m', 'evidence: retain original pre-engine checkout failure38028509673')
+    git('push', 'origin', f'HEAD:refs/heads/{BRANCH}')
+    print(json.dumps({'failure_evidence_sha': text('rev-parse', 'HEAD'), **proof}, indent=2))
+
 def retain():
+    retain_failed_checkout()
     run, attempt = os.environ['GITHUB_RUN_ID'], os.environ['GITHUB_RUN_ATTEMPT']
     name = f'{PREFIX}-{run}-{attempt}'
     artifacts = json.loads(api(f'actions/runs/{run}/artifacts?per_page=100'))['artifacts']
