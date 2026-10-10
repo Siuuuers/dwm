@@ -55,13 +55,19 @@ SCOPE = ('Composed app presentation and cached desktop protocol only. Lower stor
          'app ports and preparation are injected. No connected production Backup, '
          'physical Save/Load, playable producer, rendered or release acceptance.')
 OUT = Path('.godot/ci')
+EOF_PATH = 'scripts/ui/ComputerDesktop.gd'
+EOF_BLOB = '5e874c66c2f33d85e443cefb6a8c742229198d7c'
 
 def require(value: bool, message: str) -> None:
     if not value:
         raise RuntimeError(message)
 
 def git(*args: str, binary: bool = False):
-    value = subprocess.check_output(['git', *args])
+    try:
+        value = subprocess.check_output(['git', *args])
+    except subprocess.CalledProcessError as error:
+        sys.stderr.write(error.output.decode('utf-8', errors='replace'))
+        raise
     return value if binary else value.decode('utf-8').strip()
 
 def write_json(path: Path, value) -> None:
@@ -81,12 +87,14 @@ def record() -> None:
     paths = git('diff', '--name-only', A, 'HEAD').splitlines()
     require(set(paths) in (set(PATHS), set(PATHS + UIDS)), 'Unexpected product path set')
     for path in PATHS:
-        require(git('rev-parse', 'HEAD:' + path) == git('rev-parse', C + ':' + path),
-                'Constituent drift: ' + path)
+        original = git('show', C + ':' + path, binary=True)
+        expected = original[:-1] if path == EOF_PATH else original
+        require(git('show', 'HEAD:' + path, binary=True) == expected, 'Constituent drift: ' + path)
     git('merge-base', '--is-ancestor', A, 'HEAD')
     value = dict(source_sha=git('rev-parse', 'HEAD'), source_tree=git('rev-parse', 'HEAD^{tree}'),
                  parent=git('rev-parse', 'HEAD^'), a_base=A, a_tree=A_TREE, c_base=C_BASE,
                  c_source=C, c_tree=C_TREE, changed_paths=paths,
+                 integration_correction={'path': EOF_PATH, 'original_blob': EOF_BLOB, 'change': 'Remove one extra LF at EOF; no GDScript statement changed'},
                  constituent_blobs={p: git('rev-parse', 'HEAD:' + p) for p in paths},
                  controller_sha=os.environ['CONTROLLER_SHA'], controller_event_sha=os.environ['GITHUB_SHA'],
                  controller_workflow_blob=git('-C', '../controller', 'rev-parse', 'HEAD:.github/workflows/windows-tests.yml'),
@@ -111,9 +119,14 @@ def compose() -> None:
     patch = OUT / 'c-source.patch'
     patch.write_bytes(git('diff', '--binary', '--full-index', C_BASE, C, binary=True))
     git('apply', '--index', str(patch))
+    original = git('show', C + ':' + EOF_PATH, binary=True)
+    require(git('rev-parse', C + ':' + EOF_PATH) == EOF_BLOB, 'Wrong EOF source blob')
+    require(Path(EOF_PATH).read_bytes() == original and original.endswith(b'\n\n'), 'Wrong EOF source bytes')
+    Path(EOF_PATH).write_bytes(original[:-1])
+    git('add', '--', EOF_PATH)
     require(set(git('diff', '--cached', '--name-only').splitlines()) == set(PATHS), 'Wrong staged paths')
     git('diff', '--cached', '--check')
-    commit('feat(desktop): compose reviewed C scene app presentation on current A')
+    commit('feat(desktop): compose reviewed C apps on A with one EOF-only cleanup')
     record()
 
 def uids() -> None:
@@ -182,6 +195,23 @@ def api(path: str, binary: bool = False):
             data = response.read()
     return data if binary else json.loads(data)
 
+def verify_archive(data: bytes) -> tuple[zipfile.ZipFile, list]:
+    archive = zipfile.ZipFile(io.BytesIO(data))
+    require(archive.testzip() is None, 'ZIP CRC failure')
+    names = [n for n in archive.namelist() if not n.endswith('/')]
+    require(len(names) == len(set(names)), 'Duplicate archive members')
+    members = json.loads(archive.read('ci/original-file-hashes.json').decode('utf-8-sig'))
+    expected = {'ci/original-file-hashes.json'}
+    for member in members:
+        path = member['path'].removeprefix('.godot/')
+        require(path not in expected, 'Duplicate manifest member')
+        expected.add(path)
+        body = archive.read(path)
+        require(len(body) == member['bytes'] and hashlib.sha256(body).hexdigest() == member['sha256'],
+                'Manifest mismatch: ' + path)
+    require(set(names) == expected, 'Manifest coverage mismatch')
+    return archive, members
+
 def retain() -> None:
     run, attempt = os.environ['GITHUB_RUN_ID'], os.environ['GITHUB_RUN_ATTEMPT']
     name = f'scene-app-composed-{run}-{attempt}'
@@ -193,22 +223,19 @@ def retain() -> None:
     digest = hashlib.sha256(data).hexdigest()
     require(len(data) == artifact['size_in_bytes'], 'Archive size mismatch')
     require(artifact.get('digest') == 'sha256:' + digest, 'Archive digest mismatch')
-    with zipfile.ZipFile(io.BytesIO(data)) as archive:
-        require(archive.testzip() is None, 'ZIP CRC failure')
-        names = [n for n in archive.namelist() if not n.endswith('/')]
-        require(len(names) == len(set(names)), 'Duplicate archive members')
-        members = json.loads(archive.read('ci/original-file-hashes.json').decode('utf-8-sig'))
-        expected = {'ci/original-file-hashes.json'}
-        for member in members:
-            path = member['path'].removeprefix('.godot/')
-            require(path not in expected, 'Duplicate manifest member')
-            expected.add(path)
-            body = archive.read(path)
-            require(len(body) == member['bytes'] and hashlib.sha256(body).hexdigest() == member['sha256'],
-                    'Manifest mismatch: ' + path)
-        require(set(names) == expected, 'Manifest coverage mismatch')
-        source = json.loads(archive.read('ci/source-receipt.json').decode('utf-8-sig'))
-        summary = json.loads(archive.read('ci/apps-summary.json').decode('utf-8-sig'))
+    archive, members = verify_archive(data)
+    source = json.loads(archive.read('ci/source-receipt.json').decode('utf-8-sig'))
+    summary = json.loads(archive.read('ci/apps-summary.json').decode('utf-8-sig'))
+    archive.close()
+    # Preserve the pre-engine failure as a failure, including its original job log.
+    prior = api('actions/artifacts/11657160739/zip', binary=True)
+    prior_hash = hashlib.sha256(prior).hexdigest()
+    require(len(prior) == 29584 and prior_hash == '19ff06fde88ab18e8952ecc9c5e7533afa390cba6484bd261e8c8c4723c58ffc',
+            'Failed original archive changed')
+    prior_archive, prior_members = verify_archive(prior)
+    prior_archive.close()
+    prior_log = api('actions/jobs/114112509984/logs', binary=True)
+    require(b'new blank line at EOF' in prior_log, 'Wrong failed job log')
     require(git('rev-parse', 'HEAD') == EVIDENCE, 'Wrong evidence checkout')
     ref = 'refs/heads/codex/scene-runtime-evidence-20261009'
     require(git('ls-remote', '--heads', 'origin', ref).split()[0] == EVIDENCE, 'Evidence advanced; reconcile')
@@ -216,24 +243,33 @@ def retain() -> None:
     require(not folder.exists(), 'Evidence folder already exists')
     folder.mkdir(parents=True)
     (folder / ('original-' + name + '.zip')).write_bytes(data)
+    (folder / 'original-scene-app-composed-38018006833-1.zip').write_bytes(prior)
+    (folder / 'original-job-114112509984.log').write_bytes(prior_log)
     verification = dict(artifact_id=artifact['id'], archive_bytes=len(data), archive_sha256=digest,
-                        verified_manifest_members=len(members), source=source, summary=summary)
+        verified_manifest_members=len(members), source=source, summary=summary,
+        failed_original=dict(run_id=38018006833, job_id=114112509984, artifact_id=11657160739,
+            archive_bytes=len(prior), archive_sha256=prior_hash, verified_manifest_members=len(prior_members),
+            job_log_sha256=hashlib.sha256(prior_log).hexdigest(),
+            reason='Strict whitespace gate: one extra EOF LF in C ComputerDesktop; no engine execution'))
     write_json(folder / 'retention-verification.json', verification)
     (folder / 'README.md').write_text(
         '# Original composed scene app evidence\n\n'
         f"Run {run}, attempt {attempt}; artifact {artifact['id']}. Original ZIP SHA256 `{digest}`.\n\n"
         f"Source `{source['source_sha']}`, tree `{source['source_tree']}`. "
-        f"Exact C26 paths on A `{A}`, plus four engine-imported UID companions.\n\n"
+        f"C26 paths on A `{A}`: 25 exact C blobs, ComputerDesktop only loses one extra EOF LF; "
+        'four engine-imported UID companions. No statement-level correction.\n\n'
         f"{summary['cases']} executed cases, {summary['xml_assertions']} XML testcase assertions; "
-        'zero failure/error/skip. GUT-log assertion totals remain separately reported in the original log.\n\n'
-        f'All {len(members)} original manifest members rehashed; originals were not reconstructed.\n\n'
+        'zero failure/error/skip. GUT-log assertions remain separately reported in the original log.\n\n'
+        f'Both original ZIPs, all {len(members) + len(prior_members)} manifest members rehashed. '
+        'First run38018006833 failed before the engine at the strict whitespace gate; original archive and job log retained. '
+        'The corrected candidate does not weaken that gate or change a test assertion.\n\n'
         + SCOPE + '\n\nIndependent D acceptance remains separate. No engine rerun during retention.\n', encoding='utf-8')
     require(not git('diff', '--name-only'), 'Existing evidence changed')
     added = git('ls-files', '--others', '--exclude-standard').splitlines()
-    expected_paths = sorted(str(p.as_posix()) for p in folder.iterdir())
-    require(sorted(added) == expected_paths, 'Unexpected evidence additions')
+    expected_paths = sorted(p.as_posix() for p in folder.iterdir())
+    require(sorted(added) == expected_paths and len(added) == 5, 'Unexpected evidence additions')
     git('add', '--', folder.as_posix())
-    commit('docs(evidence): retain original composed scene app and desktop cloud proof')
+    commit('docs(evidence): retain original composed app proof and pre-engine failure')
     git('push', 'origin', 'HEAD:' + ref)
     print('EVIDENCE_COMMIT=' + git('rev-parse', 'HEAD'))
 
