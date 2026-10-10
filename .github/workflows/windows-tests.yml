@@ -5,6 +5,7 @@ on:
       - '.github/workflows/windows-tests.yml'
 permissions:
   contents: write
+  actions: read
 concurrency:
   group: scene-runtime-integration-controller-${{ github.event.pull_request.number }}
   cancel-in-progress: true
@@ -12,11 +13,10 @@ jobs:
   first-reveal:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
     runs-on: windows-2022
-    timeout-minutes: 30
+    timeout-minutes: 35
     env:
       BASE_SHA: 8ead20846f830d7e4227b6650c5bd24b9038d5d7
       CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
-      EVENT_SHA: ${{ github.sha }}
     defaults:
       run:
         shell: pwsh
@@ -34,361 +34,85 @@ jobs:
           ref: 8ead20846f830d7e4227b6650c5bd24b9038d5d7
           path: source
           fetch-depth: 0
-      - name: Build bounded first-Reveal candidate
+      - name: Recover the frozen candidate packet
+        uses: actions/download-artifact@v4
+        with:
+          name: scene-first-reveal-38092016425-1
+          path: inherited
+          github-token: ${{ github.token }}
+          repository: Siuuuers/dwm
+          run-id: 38092016425
+      - name: Reconstruct the bounded candidate
         run: |
           $ErrorActionPreference = 'Stop'
           @'
-          import difflib, hashlib, json, os, pathlib, subprocess
+          import hashlib, json, os, pathlib, subprocess
 
           def git(*args):
               return subprocess.check_output(['git', *args], text=True).strip()
-
-          def replace_once(path, old, new):
-              p = pathlib.Path(path)
-              text = p.read_text(encoding='utf-8')
-              assert text.count(old) == 1, (path, 'needle count', text.count(old))
-              p.write_text(text.replace(old, new, 1), encoding='utf-8', newline='\n')
 
           base = os.environ['BASE_SHA']
           assert git('rev-parse', 'HEAD') == base
           live = git('ls-remote', 'origin', 'refs/heads/codex/scene-runtime-integration-20261009').split()[0]
           assert live == base, ('A advanced; reconcile before testing', live)
-          out = pathlib.Path('.godot/ci')
-          out.mkdir(parents=True, exist_ok=True)
 
-          generator_method = r'''
+          inherited = pathlib.Path('../inherited')
+          origins = list(inherited.rglob('candidate-origin.json'))
+          assert len(origins) == 1, origins
+          origin_path = origins[0]
+          origin = json.loads(origin_path.read_text(encoding='utf-8'))
+          raw_path = origin_path.with_name('candidate.patch')
+          raw = raw_path.read_bytes()
+          assert origin['base'] == base
+          assert origin['controller'] == '8a1ce85f479afc2236fced14f88c87587e2d799e'
+          assert hashlib.sha256(raw).hexdigest() == '0b3c19fb4637f179beb00dcdff1711e4ab65ef3501fe75917521031cbc25c2ee'
 
-          ## Scene Challenge first Reveal chooses the exact forced cell. Burn the same one
-          ## debug-stream draw as begin_debug(), then retain the player-selected cell while
-          ## leaving candidate search, budgets, fallback adoption and certification unchanged.
-          static func begin_debug_at_cell(spec: Dictionary, first_cell: int) -> Dictionary:
-          \tvar budget_loaded := _read_budget_manifest()
-          \tif not budget_loaded.get("ok", false):
-          \t\treturn budget_loaded
-          \tvar fallback_loaded := _read_fallback_manifest()
-          \tif not fallback_loaded.get("ok", false):
-          \t\treturn fallback_loaded
+          tab_escapes = 0
+          continuations = 0
+          corrected_lines = []
+          for line in raw.decode('utf-8').splitlines(keepends=True):
+              if line.startswith('+') and not line.startswith('+++'):
+                  tab_escapes += line.count('\\t')
+                  line = line.replace('\\t', '\t')
+                  newline = '\r\n' if line.endswith('\r\n') else ('\n' if line.endswith('\n') else '')
+                  body = line[:-len(newline)] if newline else line
+                  if body.endswith('\\\\'):
+                      body = body[:-1]
+                      continuations += 1
+                  line = body + newline
+              corrected_lines.append(line)
+          assert tab_escapes == 251, tab_escapes
+          assert continuations == 6, continuations
 
-          \tvar spec_check: Dictionary = _BOARD_SCHEMA.validate_spec(spec)
-          \tif not spec_check.get("ok", false):
-          \t\treturn spec_check
-          \tvar validated_spec: Dictionary = (spec_check["value"] as Dictionary)["spec"]
-          \tvar total_cells: int = int(validated_spec["width"]) * int(validated_spec["height"])
-          \tif typeof(first_cell) != TYPE_INT or first_cell < 0 or first_cell >= total_cells:
-          \t\treturn _fail(&"cell_index_out_of_range", "first_cell is out of range", {"first_cell": first_cell})
-
-          \tvar debug_seeded := _seed(StringName(validated_spec["debug_stream_id"]), String(validated_spec["debug_nonce"]))
-          \tif not debug_seeded.get("ok", false):
-          \t\treturn debug_seeded
-          \tvar debug_rng: RefCounted = debug_seeded["value"]
-          \tvar burned: Dictionary = debug_rng.sample_bounded(total_cells)
-          \tif not burned.get("ok", false):
-          \t\treturn burned
-          \tvar debug_state: Dictionary = debug_rng.capture()["value"]
-
-          \tvar placement_seeded := _seed(StringName(validated_spec["placement_stream_id"]), String(validated_spec["placement_nonce"]))
-          \tif not placement_seeded.get("ok", false):
-          \t\treturn placement_seeded
-          \tvar placement_state: Dictionary = (placement_seeded["value"] as RefCounted).capture()["value"]
-
-          \tvar explosion_seeded := _seed(StringName(validated_spec["explosion_stream_id"]), String(validated_spec["explosion_nonce"]))
-          \tif not explosion_seeded.get("ok", false):
-          \t\treturn explosion_seeded
-          \tvar explosion_state: Dictionary = (explosion_seeded["value"] as RefCounted).capture()["value"]
-
-          \tvar kernel_spec := _project_kernel_spec(validated_spec)
-          \tvar begun: Dictionary = _KERNEL.begin(kernel_spec, first_cell, _KERNEL.MODE_CANDIDATE_SEARCH,
-          \t\tplacement_state, debug_state, explosion_state)
-          \tif not begun.get("ok", false):
-          \t\treturn begun
-          \treturn _PREPARATION.validate((begun["value"] as Dictionary)["preparation"])
-          '''.replace('          ', '')
-          replace_once('scripts/domain/minesweeper/MinesweeperBoardGenerator.gd',
-              '\n\n## Advances one bounded slice of an in-progress Debug preparation',
-              generator_method + '\n\n## Advances one bounded slice of an in-progress Debug preparation')
-
-          port_method = r'''
-
-          func begin_search_at_cell(spec: Dictionary, first_cell: int) -> Dictionary:
-          \tvar begun: Dictionary = _GENERATOR.begin_debug_at_cell(spec, first_cell)
-          \tif not begun.get("ok", false):
-          \t\treturn begun
-          \tvar preparation: Dictionary = begun["value"]["preparation"]
-          \treturn _ok({"frontier": preparation.duplicate(true)})
-          '''.replace('          ', '')
-          replace_once('scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd',
-              '\n\nfunc run_search_slice(frontier: Dictionary) -> Dictionary:',
-              port_method + '\n\nfunc run_search_slice(frontier: Dictionary) -> Dictionary:')
-
-          replace_once('scripts/application/run/DatingChallengeEnvelope.gd',
-              'static func _scene_preparation_matches(spec: Dictionary, envelope: Dictionary) -> bool:\n\tvar begun: Dictionary = GENERATOR.begin_debug(spec)\n',
-              'static func _scene_preparation_matches(spec: Dictionary, envelope: Dictionary) -> bool:\n'
-              '\tvar forced_cell := int(envelope.forced_cell)\n'
-              '\tif envelope.preparation is Dictionary:\n'
-              '\t\tforced_cell = int(envelope.preparation.get("forced_cell", -1))\n'
-              '\tif forced_cell < 0: return false\n'
-              '\tvar begun: Dictionary = GENERATOR.begin_debug_at_cell(spec, forced_cell)\n')
-
-          panel_api = r'''
-
-          ## Presentation-facing Scene Challenge surface. The retained physical API still owns
-          ## legacy internal start/prepare tests, but the player surface has no Start command.
-          func pull_scene_panel(physical_token: String) -> Dictionary:
-          \tif not _scene_command(): return _fail(&"scene_challenge_unadmitted")
-          \tvar view: Dictionary = _pull_scene(physical_token)
-          \tif not view.get("ok", false): return view
-          \tif view.value.get("phase") != "never_started": return view
-          \tvar preview: Dictionary = _scene_unstarted_board()
-          \tif not preview.get("ok", false): return preview
-          \tvar value: Dictionary = view.value.duplicate(true)
-          \tvalue.actions = ["reveal"]
-          \tvalue.board = preview.value
-          \tvalue.revision = 0
-          \treturn _ok(value)
-
-          func dispatch_scene_panel_action(physical_token: String, action: String, cell_index: int,
-          \t\texpected_revision: int) -> Dictionary:
-          \tvar view: Dictionary = pull_scene_panel(physical_token)
-          \tif not view.get("ok", false): return view
-          \tif view.value.get("phase") == "never_started":
-          \t\tif action != "reveal" or expected_revision != 0 or cell_index < 0 \\
-          \t\t\t\tor cell_index >= int(view.value.board.width) * int(view.value.board.height):
-          \t\t\treturn _fail(&"scene_challenge_command_refused")
-          \t\treturn _dispatch_scene_first_reveal(physical_token, cell_index)
-          \tif action == "reveal":
-          \t\tvar duplicate: Dictionary = _scene_duplicate_first_reveal(cell_index, expected_revision)
-          \t\tif duplicate.get("matched", false): return duplicate.result
-          \treturn _dispatch_scene(physical_token, action, cell_index, expected_revision)
-          '''.replace('          ', '')
-          replace_once('scripts/application/run/DatingPhysicalOwner.gd',
-              '\nfunc dispatch_physical(physical_token: String, action: String, cell_index: int,\n',
-              panel_api + '\nfunc dispatch_physical(physical_token: String, action: String, cell_index: int,\n')
-
-          scene_helpers = r'''
-
-          func _scene_board_profile() -> Dictionary:
-          \tvar challenge := {}
-          \tfor row: Dictionary in _scene_bundle.challenges:
-          \t\tif row.challenge_id == _admitted_command.context.challenge_id: challenge = row
-          \tvar selected := {}
-          \tfor row: Dictionary in _scene_bundle.board_profiles:
-          \t\tif row.board_profile_id == challenge.get("board_profile_id"): selected = row
-          \tif selected.is_empty() or selected.difficulty_id not in ["canonical_solo", "canonical_pair"] \\
-          \t\t\tor selected.capability_policy_id != "owned_inventory_v1":
-          \t\treturn _fail(&"scene_board_profile_unsupported")
-          \treturn _ok(selected.duplicate(true))
-
-          func _scene_unstarted_board() -> Dictionary:
-          \tvar profile: Dictionary = _scene_board_profile()
-          \tif not profile.get("ok", false): return profile
-          \tvar selected: Dictionary = profile.value
-          \tvar owned: Dictionary = CAPABILITIES.resolve_owned(_game_state.inventory)
-          \tif not owned.get("ok", false): return owned
-          \tvar inputs: Dictionary = CAPABILITIES.build_spec_inputs(owned.value,
-          \t\tint(_game_state.get_stat("pressure")), int(_game_state.penalty_points_today))
-          \tif not inputs.get("ok", false): return inputs
-          \tvar cells: Array = []
-          \tfor index in int(selected.width) * int(selected.height):
-          \t\tcells.append({"index": index, "face": "covered", "mark": "none", "number": 0,
-          \t\t\t"bracketed": false, "inspectable": true, "pressable": true, "actions": ["reveal"]})
-          \treturn _ok({"width": int(selected.width), "height": int(selected.height), "revision": 0,
-          \t\t"mine_estimate": int(selected.base_mine_count) + int(inputs.value.effective_extra_mines),
-          \t\t"terminal": false, "custody": false, "cells": cells})
-
-          func _scene_duplicate_first_reveal(cell_index: int, expected_revision: int) -> Dictionary:
-          \tif expected_revision != 0 or not _pending_checkpoint.is_empty() or not _record.get("board") is Dictionary \\
-          \t\t\tor bool(_record.board.terminal) or not _history_committed or _history_reference.is_empty():
-          \t\treturn {"matched": false}
-          \tvar exact: Dictionary = _profile.get_dating_attempt(str(_attempt_identity().run_id),
-          \t\tATTEMPTS.semantic_slot(_record.context), str(_history_reference.attempt_id), str(_history_reference.branch_id))
-          \tif not exact.get("ok", false) or exact.value.record != _record \\
-          \t\t\tor not exact.value.get("materialization_receipt") is Dictionary \\
-          \t\t\tor int(exact.value.materialization_receipt.get("first_cell_index", -1)) != cell_index:
-          \t\treturn {"matched": false}
-          \treturn {"matched": true, "result": _pull_scene(_record.physical_token)}
-
-          func _dispatch_scene_first_reveal(token: String, index: int) -> Dictionary:
-          \tvar current: Dictionary = _pull_scene(token)
-          \tif not current.get("ok", false) or current.value.get("phase") != "never_started":
-          \t\treturn _fail(&"scene_challenge_command_refused")
-          \tvar lease: Dictionary = _attempt_gate.acquire(&"causal_transaction")
-          \tif not lease.get("ok", false): return lease
-          \t_scene_lease = str(lease.value.token)
-          \tvar prior_record := _record.duplicate(true)
-          \tvar prior_history := _history_state()
-          \tvar changed: Dictionary = _scene_start(index)
-          \tvar slices := 0
-          \twhile changed.get("ok", false) and _record.get("phase") == "preparing":
-          \t\tslices += 1
-          \t\tif slices > 4096:
-          \t\t\tchanged = _fail(&"scene_preparation_slice_limit")
-          \t\t\tbreak
-          \t\tchanged = _scene_prepare()
-          \tif changed.get("ok", false) and _record.get("phase") != "ready":
-          \t\tchanged = _fail(&"scene_preparation_failed")
-          \tvar result: Dictionary = changed
-          \tif changed.get("ok", false): result = _scene_action("reveal", index)
-          \tif not result.get("ok", false) and _pending_checkpoint.is_empty():
-          \t\t_record = prior_record
-          \t\t_first_cell_index = -1
-          \t\t_restore_history_state(prior_history)
-          \t_scene_lease = ""
-          \t_scene_start_admission = {}
-          \tvar released: Dictionary = _attempt_gate.release(&"causal_transaction", str(lease.value.token))
-          \treturn result if released.get("ok", false) else released
-          '''.replace('          ', '')
-          replace_once('scripts/application/run/DatingPhysicalOwner.gd',
-              '\nfunc _dispatch_scene(token: String, action: String, index: int, revision: int) -> Dictionary:',
-              scene_helpers + '\nfunc _dispatch_scene(token: String, action: String, index: int, revision: int) -> Dictionary:')
-
-          replace_once('scripts/application/run/DatingPhysicalOwner.gd',
-              'func _scene_start() -> Dictionary:\n\tif not _record.is_empty(): return _fail(&"scene_challenge_already_started")\n\tvar challenge := {}\n\tfor row: Dictionary in _scene_bundle.challenges:\n\t\tif row.challenge_id == _admitted_command.context.challenge_id: challenge = row\n\tvar selected := {}\n\tfor row: Dictionary in _scene_bundle.board_profiles:\n\t\tif row.board_profile_id == challenge.get("board_profile_id"): selected = row\n\tif selected.is_empty() or selected.difficulty_id not in ["canonical_solo", "canonical_pair"] or selected.capability_policy_id != "owned_inventory_v1":\n\t\treturn _fail(&"scene_board_profile_unsupported")\n',
-              'func _scene_start(first_reveal_index: int = -1) -> Dictionary:\n'
-              '\tif not _record.is_empty(): return _fail(&"scene_challenge_already_started")\n'
-              '\tvar selected_result: Dictionary = _scene_board_profile()\n'
-              '\tif not selected_result.get("ok", false): return selected_result\n'
-              '\tvar selected: Dictionary = selected_result.value\n')
-
-          debug_start = r'''
-          \tif _record.spec.capability_ids.has("forced_no_guess"):
-          \t\tvar begun: Dictionary = _generation.begin_search_at_cell(_record.spec, first_reveal_index) \\
-          \t\t\tif first_reveal_index >= 0 and _generation.has_method("begin_search_at_cell") else _generation.begin_search(_record.spec)
-          '''.replace('          ', '')
-          replace_once('scripts/application/run/DatingPhysicalOwner.gd',
-              '\tif _record.spec.capability_ids.has("forced_no_guess"):\n\t\tvar begun: Dictionary = _generation.begin_search(_record.spec)\n',
-              debug_start)
-
-          replace_once('tests/support/SceneChallengeFixture.gd',
-              'class Generation extends "res://tests/support/FakeMinesweeperGenerationPort.gd":\n\tfunc begin_search(spec: Dictionary) -> Dictionary:\n\t\treturn preload("res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd").new().begin_search(spec)\n',
-              'class Generation extends "res://tests/support/FakeMinesweeperGenerationPort.gd":\n'
-              '\tfunc begin_search(spec: Dictionary) -> Dictionary:\n'
-              '\t\treturn preload("res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd").new().begin_search(spec)\n'
-              '\tfunc begin_search_at_cell(spec: Dictionary, first_cell: int) -> Dictionary:\n'
-              '\t\treturn preload("res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd").new().begin_search_at_cell(spec, first_cell)\n')
-
-          test = r'''extends "res://addons/gut/test.gd"
-          ## Presentation-facing first-Reveal contract over the real physical owner, Profile
-          ## ledger, reducer and generator. Checkpoint authority remains an injected seam.
-          const FIXTURE := preload("res://tests/support/SceneChallengeFixture.gd")
-
-          var f: RefCounted
-
-          func before_each() -> void:
-          \tf = FIXTURE.new()
-          \tassert_true(f.setup("TEST.scene.first_reveal").ok)
-          \tassert_true(f.begin().ok)
-
-          func after_each() -> void:
-          \tf.dispose()
-
-          func _pull() -> Dictionary:
-          \treturn f.owner.pull_scene_panel(f.token)
-
-          func _reveal(index: int, revision: int = 0) -> Dictionary:
-          \treturn f.owner.dispatch_scene_panel_action(f.token, "reveal", index, revision)
-
-          func test_unstarted_panel_is_a_fixed_covered_board_without_start_mutation() -> void:
-          \tvar view: Dictionary = _pull()
-          \tassert_true(view.ok, str(view))
-          \tif not view.ok: return
-          \tassert_eq(view.value.phase, "never_started")
-          \tassert_eq(view.value.state, "never_started")
-          \tassert_eq(view.value.actions, ["reveal"])
-          \tassert_eq(view.value.revision, 0)
-          \tassert_eq(view.value.board.width, 18)
-          \tassert_eq(view.value.board.height, 18)
-          \tassert_eq(view.value.board.cells.size(), 324)
-          \tassert_eq(view.value.board.cells[323].actions, ["reveal"])
-          \tassert_eq(f.record(), {})
-          \tassert_true(f.attempt().ok)
-          \tassert_eq(f.attempt().value, {})
-          \tassert_eq(f.authority.checkpoints.size(), 0)
-
-          func test_first_reveal_materializes_commits_and_checkpoints_once() -> void:
-          \tvar revealed: Dictionary = _reveal(323)
-          \tassert_true(revealed.ok, str(revealed))
-          \tif not revealed.ok: return
-          \tvar record: Dictionary = f.record()
-          \tassert_eq(record.phase, "active")
-          \tassert_eq(record.state, "in_progress")
-          \tassert_true(record.board is Dictionary)
-          \tassert_true(record.board.revealed_indices.has(323))
-          \tvar attempt: Dictionary = f.attempt().value
-          \tassert_eq(attempt.materialization_receipt.first_cell_index, 323)
-          \tassert_eq(attempt.record, record)
-          \tassert_eq(attempt.revision, 1)
-          \tassert_eq(f.authority.checkpoints.size(), 1)
-
-          func test_duplicate_first_reveal_reuses_exact_profile_result() -> void:
-          \tassert_true(_reveal(323).ok)
-          \tvar record := f.record().duplicate(true)
-          \tvar attempt := f.attempt().value.duplicate(true)
-          \tvar checkpoints := f.authority.checkpoints.size()
-          \tvar duplicate: Dictionary = _reveal(323, 0)
-          \tassert_true(duplicate.ok, str(duplicate))
-          \tassert_eq(f.record(), record)
-          \tassert_eq(f.attempt().value, attempt)
-          \tassert_eq(f.authority.checkpoints.size(), checkpoints)
-
-          func test_non_reveal_bad_cell_and_stale_revision_refuse_before_start() -> void:
-          \tassert_false(f.owner.dispatch_scene_panel_action(f.token, "flag", 323, 0).ok)
-          \tassert_false(_reveal(-1).ok)
-          \tassert_false(_reveal(324).ok)
-          \tassert_false(_reveal(323, 1).ok)
-          \tassert_eq(f.record(), {})
-          \tassert_eq(f.attempt().value, {})
-          \tassert_eq(f.authority.checkpoints.size(), 0)
-
-          func test_debug_first_reveal_certifies_the_clicked_cell_in_same_transaction() -> void:
-          \tf.dispose()
-          \tf = FIXTURE.new()
-          \tf.state.inventory = {"debug_key": 1}
-          \tassert_true(f.setup("TEST.scene.first_reveal.debug").ok)
-          \tassert_true(f.begin().ok)
-          \tvar revealed: Dictionary = _reveal(323)
-          \tassert_true(revealed.ok, str(revealed))
-          \tif not revealed.ok: return
-          \tvar record: Dictionary = f.record()
-          \tassert_eq(record.phase, "active")
-          \tassert_eq(record.envelope.forced_cell, 323)
-          \tassert_eq(record.envelope.preparation, null)
-          \tassert_false(record.envelope.prepared_layout.mine_indices.has(323))
-          \tassert_true(record.board.revealed_indices.has(323))
-          \tassert_eq(f.attempt().value.materialization_receipt.first_cell_index, 323)
-          \tassert_eq(f.authority.checkpoints.size(), 1)
-          '''.replace('          ', '')
-          pathlib.Path('tests/unit/test_scene_first_reveal.gd').write_text(test, encoding='utf-8', newline='\n')
-
-          subprocess.run(['git', 'add', '--all'], check=True)
+          output = pathlib.Path('.godot/ci')
+          output.mkdir(parents=True, exist_ok=True)
+          corrected = ''.join(corrected_lines).encode('utf-8')
+          corrected_path = output / 'candidate-corrected.patch'
+          corrected_path.write_bytes(corrected)
+          subprocess.run(['git', 'apply', '--index', '--binary', str(corrected_path)], check=True)
           subprocess.run(['git', 'diff', '--cached', '--check'], check=True)
           paths = git('diff', '--cached', '--name-only').splitlines()
           allowed = {
-              'scripts/domain/minesweeper/MinesweeperBoardGenerator.gd',
               'scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd',
               'scripts/application/run/DatingChallengeEnvelope.gd',
               'scripts/application/run/DatingPhysicalOwner.gd',
+              'scripts/domain/minesweeper/MinesweeperBoardGenerator.gd',
               'tests/support/SceneChallengeFixture.gd',
               'tests/unit/test_scene_first_reveal.gd',
           }
           assert set(paths) == allowed, paths
-          patch = subprocess.check_output(['git', 'diff', '--cached', '--binary', '--full-index'])
-          (out / 'candidate.patch').write_bytes(patch)
           receipt = {
               'base': base,
               'controller': os.environ['CONTROLLER_SHA'],
-              'event': os.environ['EVENT_SHA'],
-              'patch_sha256': hashlib.sha256(patch).hexdigest(),
+              'inherited_run': 38092016425,
+              'inherited_raw_patch_sha256': hashlib.sha256(raw).hexdigest(),
+              'corrected_patch_sha256': hashlib.sha256(corrected).hexdigest(),
+              'decoded_tab_escapes': tab_escapes,
+              'collapsed_line_continuations': continuations,
               'paths': paths,
               'observable_outcome': 'fixed covered Challenge panel; first accepted Reveal is one Profile/Run transaction',
-              'failure_boundaries': [
-                  'invalid action, index or revision refuses before allocation',
-                  'Debug preparation remains inside the first-Reveal lease',
-                  'Profile refusal leaves no Run start',
-                  'Run refusal retains the exact Profile-committed checkpoint for retry',
-                  'duplicate first Reveal resolves the retained materialization receipt without another write',
-              ],
           }
-          (out / 'candidate-origin.json').write_text(json.dumps(receipt, indent=2))
+          (output / 'candidate-origin.json').write_text(json.dumps(receipt, indent=2), encoding='utf-8')
           print(json.dumps(receipt))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -474,7 +198,7 @@ jobs:
               suites[mode+'-load'] = 'tests/integration/test_scene_playable_load.gd'
           counts = {}
           for lane, script in suites.items():
-              expected = re.findall(r'^func (test_\w+)\(', pathlib.Path(script).read_text(), re.M)
+              expected = re.findall(r'^func (test_\w+)\(', pathlib.Path(script).read_text(encoding='utf-8'), re.M)
               root = ET.parse(out/(lane+'.xml')).getroot()
               rows = list(root.iter('testcase'))
               assert collections.Counter(r.attrib['name'] for r in rows) == collections.Counter(expected), (lane, 'census')
@@ -494,7 +218,7 @@ jobs:
               'total_xml_assertions':sum(v['assertions'] for v in counts.values()),
               'scope':'headless owner first-Reveal transaction plus prior real-file playable save/Load regressions; fixed Desktop/rendered proof remains separate',
           }
-          (out/'gate.json').write_text(json.dumps(result, indent=2))
+          (out/'gate.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
           print(json.dumps(result))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -518,14 +242,14 @@ jobs:
           import hashlib, json, pathlib, subprocess
           out = pathlib.Path('.godot/ci')
           out.mkdir(parents=True, exist_ok=True)
-          (out/'final-status.txt').write_text(subprocess.run(['git','status','--porcelain'],capture_output=True,text=True).stdout)
+          (out/'final-status.txt').write_text(subprocess.run(['git','status','--porcelain'],capture_output=True,text=True).stdout, encoding='utf-8')
           files = {}
           for root in [out, pathlib.Path('.godot/phase2r_logs')]:
               if root.exists():
                   for p in root.rglob('*'):
                       if p.is_file() and p.name != 'retained-hashes.json' and 'import-user' not in p.parts:
                           files[p.as_posix()] = {'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}
-          (out/'retained-hashes.json').write_text(json.dumps(files, indent=2))
+          (out/'retained-hashes.json').write_text(json.dumps(files, indent=2), encoding='utf-8')
           '@ | python -
       - uses: actions/upload-artifact@v4
         if: always()
