@@ -22,6 +22,8 @@ signal ending_playback_failed(playback_token: String, ending_id: String, result:
 signal ending_playback_retired(playback_token: String, ending_id: String)
 signal scene_art_changed
 signal reading_session_changed
+signal scene_activation_confirmed(operation_id: String)
+signal scene_activation_failed(operation_id: String, result: Dictionary)
 ## Exact command retained by the Hospital physical owner; emitted only by its native end.
 signal hospital_reading_finished(command: Dictionary, result: Dictionary)
 signal next_traversal_changed
@@ -102,6 +104,72 @@ func prepare_day_entry(entry_id: String, context: Dictionary) -> Dictionary:
 	_scene_stage_phase = ""
 	_scene_stage_busy = false
 	return result
+
+## Detached initial candidate only: authenticates the prepared creation materials
+## and records the first actual compiled caption without touching live playback.
+func prepare_scene_initial_checkpoint(allocation_candidate: Dictionary, profile_material: Dictionary,
+		target_id: String, issuer: Object) -> Dictionary:
+	var registration := _ENTRY_MANIFEST.scene_registration()
+	if not registration.ok: return registration
+	var bundle: Dictionary = registration.value
+	var admitted := _MARKER_EVENT.prepare_scene_initial_admission(
+		allocation_candidate, profile_material, target_id, bundle, issuer)
+	if not admitted.ok: return admitted
+	var checkpoint := build_scene_initial_checkpoint(admitted.value, bundle)
+	if not checkpoint.ok: return checkpoint
+	return {"ok": true, "value": {"receipt": admitted.value, "checkpoint": checkpoint.value}}
+
+## Pure structural reconstruction after caller-owned admission authentication.
+## This never admits a Run or installs the detached session into live Bridge state.
+static func build_scene_initial_checkpoint(receipt: Dictionary, bundle: Dictionary) -> Dictionary:
+	var result: Dictionary = receipt.scene_admission.result
+	var target_id: String = result.target_id
+	var target := {}
+	for row: Dictionary in bundle.targets:
+		if row.target_id == target_id: target = row.target.duplicate(true)
+	if target.is_empty() or target.kind != "scene" or target.entry_id != result.entry_id:
+		return {"ok": false, "code": &"scene_initial_target_invalid"}
+	var labels: Array = []
+	var path := ""
+	var markers: Array = []
+	for entry: Dictionary in bundle.entry_manifest.entries:
+		labels.append(entry.entry_id)
+		if entry.entry_id == result.entry_id: path = entry.locators.en.path
+	for programme: Dictionary in bundle.scene_programme.entries:
+		if programme.entry_id == result.entry_id: markers = programme.markers
+	var compiled := DialogicRuntimeAdapter.compile_scene_programme(path, result.entry_id, labels, markers)
+	if not compiled.ok: return compiled
+	if compiled.value.program_sha256 != target.program_sha256 or not compiled.value.label_nodes.has(target.label):
+		return {"ok": false, "code": &"scene_initial_target_invalid"}
+	var index: int = compiled.value.label_nodes[target.label]
+	if index < 0 or index >= compiled.value.nodes.size() or compiled.value.nodes[index].kind != "caption":
+		return {"ok": false, "code": &"scene_initial_target_invalid"}
+	var occurrence: String = receipt.transaction_id
+	var presentation := FrozenPresentationContext.build(result.entry_id, {"entry_id": result.entry_id,
+		"entry_role": "scene", "occurrence_id": occurrence, "admission_receipt_id": occurrence})
+	if not presentation.ok: return presentation
+	var frame := {"expected_stage": "scene", "playback_id": occurrence, "role": "scene",
+		"transaction_id": occurrence, "presentation": presentation.value}
+	var candidate := _READING_SESSION.new()
+	var configured: Dictionary = candidate.configure_scene()
+	if not configured.ok: return configured
+	var begun: Dictionary = candidate.begin_scene(occurrence)
+	if not begun.ok: return begun
+	var entered: Dictionary = candidate.admit_scene(result.entry_id, frame, index)
+	if not entered.ok: return entered
+	var allocation: Dictionary = candidate.ledger.allocate_publication(occurrence, result.entry_id, occurrence)
+	if not allocation.ok: return allocation
+	var line_id: String = compiled.value.nodes[index].line_id
+	var published: Dictionary = candidate.ledger.publish_line(occurrence, allocation.value, result.entry_id, line_id, occurrence)
+	if not published.ok: return published
+	var captured: Dictionary = candidate.capture({"line_id": line_id, "publication_id": allocation.value})
+	if not captured.ok: return captured
+	var frames := FrozenRunContext.derive_scene_frames({occurrence: result}, captured.value)
+	if not frames.ok: return frames
+	var checkpoint := {"content_version": target.content_version, "entry_id": result.entry_id,
+		"frozen_context": frame, "manifest_fingerprint": _ENTRY_MANIFEST.scene_registration_fingerprint(),
+		"stage": "scene", "transaction_id": occurrence, "reading_session": captured.value}
+	return {"ok": true, "value": checkpoint}
 
 func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 	if _scene_stage_port == null or _scene_stage_fatal or not _scene_stage.is_empty():
@@ -407,6 +475,8 @@ var _reading_restore_adoption := false
 var _reading_adoption_checkpoint: Dictionary = {}
 var _reading_restore_token := ""
 var _reading_resume_frontier: Dictionary = {}
+# Only the restore participant stages this checkpoint; completion starts native adoption.
+var _scene_restore: Dictionary = {}
 const _READING_TRAVERSAL := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
 var _next_active := false
 var _next_command: Dictionary = {}
@@ -973,6 +1043,9 @@ func capture_current_speech_presentation() -> Dictionary:
 
 
 func _on_playback_start_failed(failure: Dictionary, halt_runtime: bool = false) -> void:
+	if not _scene_restore.is_empty() and _scene_restore.get("native_started", false) and not _scene_restore.get("confirmed", false):
+		_fail_scene_activation(failure)
+		return
 	if _scene_stage.has("committed_checkpoint"):
 		_scene_stage_fatal = true
 		_scene_stage["native_failure"] = failure.duplicate(true)
@@ -1096,6 +1169,7 @@ func capture_restore_state() -> Dictionary:
 		"timeline_id": _current_timeline_id,
 		"timeline_context": _current_timeline_context.duplicate(true),
 		"reading_owner": _reading_session, "reading_pending": _reading_restore_pending.duplicate(),
+		"scene_restore": _scene_restore.duplicate(true),
 		"reading_adoption": _reading_restore_adoption,
 		"reading_adoption_checkpoint": _reading_adoption_checkpoint.duplicate(true),
 		"reading_restore_token": _reading_restore_token,
@@ -1163,7 +1237,12 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 
 func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 	var reading_backup: Variant = backup.get("backup", backup)
+	if not _scene_restore.is_empty() and _scene_restore.get("started", false) \
+			and (not reading_backup is Dictionary or not reading_backup.get("scene_restore") is Dictionary \
+			or reading_backup.scene_restore.get("operation_id") != _scene_restore.operation_id):
+		return _command_failure(&"scene_activation_forward_only")
 	if reading_backup is Dictionary:
+		_scene_restore = reading_backup.get("scene_restore", {}).duplicate(true)
 		if not _reading_restore_token.is_empty() and _active_entry.get("token") == _reading_restore_token:
 			abort_current_entry(&"reading_restore_rolled_back")
 		_ending_reading = reading_backup.get("ending_reading", {}).duplicate(true)
@@ -2553,15 +2632,19 @@ func has_reading_session() -> bool:
 func can_capture_reading_checkpoint() -> bool:
 	if has_reading_session() and _reading_session.family == "scene":
 		if _scene_stage_fatal or _next_active or _pause_changing or not _reading_restore_pending.is_empty() \
-				or _reading_session.latest_entry.is_empty() or _reading_session.boundary != "line" \
+				or _reading_session.latest_entry.is_empty() or _reading_session.boundary not in ["line", "control"] \
 				or _active_entry.get("entry_id") != _reading_session.latest_entry \
 				or _runtime_adapter == null or not _runtime_adapter.has_method("can_capture_reading_frontier"):
 			return false
 		var retained: Dictionary = _reading_session.ledger.snapshot()
 		var frame := preload("res://scripts/narrative/NarrativeCaptionLedger.gd").resolve_scene_frame(
 			retained.entry_contexts, _reading_session.scene_occurrence, _reading_session.latest_entry)
-		return frame.ok and _READING_TRAVERSAL._same(frame.value, _active_entry.get("frozen_context")) \
-			and _runtime_adapter.can_capture_reading_frontier()
+		if not frame.ok or not _READING_TRAVERSAL._same(frame.value, _active_entry.get("frozen_context")):
+			return false
+		if _reading_session.boundary == "control":
+			return _runtime_adapter.has_method("capture_scene_control_position") \
+				and _runtime_adapter.capture_scene_control_position(_reading_session).get("ok", false)
+		return _runtime_adapter.can_capture_reading_frontier()
 	if _marker_entry_active() and _runtime_adapter.is_marker_source_held():
 		return not _next_active and not _pause_changing and _reading_restore_pending.is_empty()
 	if _next_active or not has_reading_session() or _reading_session.latest_entry.is_empty() \
@@ -2651,9 +2734,9 @@ func get_reading_history() -> Dictionary:
 ## The restore participant supplies independently admitted saved Run contexts.
 func validate_reading_checkpoint(checkpoint: Dictionary, entry_contexts: Dictionary = {}) -> Dictionary:
 	if checkpoint.get("reading_session") is Dictionary and typeof(checkpoint.reading_session.get("schema_version")) == TYPE_INT and checkpoint.reading_session.schema_version == 5:
-		# A detached session can prove reading representation, but full Run
-		# receipt admission/native restore is not installed in this slice.
-		return _command_failure(&"scene_restore_owner_unavailable")
+		var scene := _prepare_scene_reading_candidate(checkpoint, entry_contexts)
+		if not scene.ok: return scene
+		return {"ok": true, "value": {"entry_contexts": checkpoint.reading_session.ledger.entry_contexts.duplicate(true)}}
 	if _reading_catalogue_for_entry(str(checkpoint.get("entry_id", ""))).is_empty(): return _command_failure(&"reading_catalogue_unavailable")
 	var keys := _RESUME_CHECKPOINT_KEYS.duplicate()
 	keys.append("manifest_fingerprint")
@@ -2708,6 +2791,187 @@ func _validate_reading_entry(session: RefCounted, entry_id: String, context: Dic
 	return _runtime_adapter.validate_reading_entry(resolved.value.path,
 		row.label if session.catalogue_schema_version == 2 else resolved.value.label, row.lines,
 		session.marker_entries.get(entry_id, {}))
+
+
+## This is representation/native compatibility only. The participant first
+## admits the complete saved Run through FrozenRunContext and real receipt owners.
+func _prepare_scene_reading_candidate(checkpoint: Dictionary, entry_contexts: Dictionary = {}) -> Dictionary:
+	var keys := _RESUME_CHECKPOINT_KEYS.duplicate()
+	keys.append("manifest_fingerprint")
+	keys.append("reading_session")
+	if not _exact_keys(checkpoint, keys) or not checkpoint.get("reading_session") is Dictionary \
+			or typeof(checkpoint.get("content_version")) != TYPE_INT or checkpoint.content_version <= 0 \
+			or not checkpoint.get("entry_id") is String or typeof(checkpoint.get("stage")) != TYPE_STRING \
+			or checkpoint.stage != "scene":
+		return _command_failure(&"reading_checkpoint_invalid")
+	for key: String in ["entry_id", "manifest_fingerprint", "stage", "transaction_id"]:
+		if typeof(checkpoint.get(key)) != TYPE_STRING or checkpoint[key].strip_edges().is_empty():
+			return _command_failure(&"reading_checkpoint_invalid")
+	var selected := _ENTRY_MANIFEST.scene_registration()
+	if not selected.ok or checkpoint.manifest_fingerprint != _ENTRY_MANIFEST.scene_registration_fingerprint():
+		return _command_failure(&"reading_catalogue_mismatch")
+	var candidate := _READING_SESSION.new()
+	var configured: Dictionary = candidate.configure_scene()
+	if not configured.ok: return configured
+	var restored: Dictionary = candidate.restore(checkpoint.reading_session, checkpoint.entry_id)
+	if not restored.ok: return restored
+	var saved: Dictionary = checkpoint.reading_session
+	if saved.boundary not in ["line", "control"]: return _command_failure(&"scene_restore_boundary_unsupported")
+	var frame := NarrativeCaptionLedger.resolve_scene_frame(saved.ledger.entry_contexts, saved.occurrence_id, checkpoint.entry_id)
+	if not frame.ok or not _READING_TRAVERSAL._same(frame.value, checkpoint.frozen_context) \
+			or checkpoint.transaction_id != frame.value.transaction_id \
+			or (not entry_contexts.is_empty() and not _READING_TRAVERSAL._same(entry_contexts, saved.ledger.entry_contexts)):
+		return _command_failure(&"reading_context_invalid")
+	var path := ""
+	for entry: Dictionary in selected.value.entry_manifest.entries:
+		if entry.entry_id == checkpoint.entry_id:
+			if entry.content_version != checkpoint.content_version: return _command_failure(&"reading_catalogue_mismatch")
+			path = entry.locators.en.path
+	if path.is_empty(): return _command_failure(&"reading_entry_mismatch")
+	if saved.boundary == "control":
+		var labels: Array = []
+		var markers: Array = []
+		for entry: Dictionary in selected.value.entry_manifest.entries: labels.append(entry.entry_id)
+		for row: Dictionary in selected.value.scene_programme.entries:
+			if row.entry_id == checkpoint.entry_id: markers = row.markers
+		var compiled := DialogicRuntimeAdapter.compile_scene_programme(path, checkpoint.entry_id, labels, markers)
+		if not compiled.ok: return compiled
+		var predecessor := DialogicRuntimeAdapter._scene_control_predecessor(saved, compiled.value, markers)
+		if not predecessor.ok: return predecessor
+	return {"ok": true, "value": {"candidate": candidate, "path": path}}
+
+func stage_scene_reading_restore(checkpoint: Dictionary, operation_id: String) -> Dictionary:
+	if operation_id.strip_edges().is_empty() or not _scene_stage.is_empty() \
+			or (not _scene_restore.is_empty() and not _scene_restore.get("confirmed", false)):
+		return _command_failure(&"scene_restore_staging_invalid")
+	var checked := _prepare_scene_reading_candidate(checkpoint)
+	if not checked.ok: return checked
+	if checkpoint.reading_session.boundary == "control" and (_runtime_adapter == null \
+			or not _runtime_adapter.has_method("capture_scene_control_position")):
+		return _command_failure(&"scene_restore_control_unproven")
+	if has_active_playback() and not is_pause_restore_pending(): return _command_failure(&"narrative_playback_active")
+	if is_pause_restore_pending():
+		var staged := stage_pause_restore(checkpoint, true)
+		if not staged.ok: return staged
+	_scene_restore = {"operation_id": operation_id, "checkpoint": checkpoint.duplicate(true),
+		"digest": _scene_digest(checkpoint), "candidate": checked.value.candidate,
+		"path": checked.value.path, "runtime": _runtime_adapter, "started": false,
+		"in_call": false, "native_started": false, "proof": false, "confirmed": false}
+	_reading_restore_pending = checkpoint.duplicate(true)
+	return {"ok": true}
+
+func begin_scene_activation(operation_id: String) -> Dictionary:
+	if _scene_restore.is_empty() or _scene_restore.operation_id != operation_id:
+		return _command_failure(&"scene_activation_operation_invalid")
+	if _scene_restore.has("failure"): return _scene_restore.failure.duplicate(true)
+	if _scene_restore.confirmed: return validate_scene_activation(operation_id)
+	if _scene_restore.started: return {"ok": true, "value": {"pending": true}}
+	if _runtime_adapter == null or not _runtime_adapter.has_method("restore_scene_frontier") \
+			or not _runtime_adapter.has_signal("reading_frontier_restored") \
+			or not _runtime_adapter.has_signal("playback_start_failed"):
+		return _command_failure(&"scene_restore_native_unavailable")
+	for signal_name: String in ["reading_frontier_restored", "playback_start_failed"]:
+		var callback := Callable(self, "_on_" + signal_name)
+		if not _runtime_adapter.is_connected(signal_name, callback): _runtime_adapter.connect(signal_name, callback)
+	_scene_restore.started = true
+	_start_scene_restore_native(operation_id)
+	if _scene_restore.has("failure"): return _scene_restore.failure.duplicate(true)
+	return {"ok": true, "value": {"pending": not _scene_restore.confirmed}}
+
+func _start_scene_restore_native(operation_id: String) -> void:
+	if is_pause_restore_pending():
+		var retired := _retire_suspended_playback(_pause_restore.handle)
+		if not retired.ok:
+			_fail_scene_activation(retired)
+			return
+		_pause_restore["cancelled"] = true
+		if _runtime_adapter.has_active_playback() and is_inside_tree(): await get_tree().process_frame
+	if _scene_restore.is_empty() or _scene_restore.operation_id != operation_id or not _scene_restore_current():
+		_fail_scene_activation(_command_failure(&"scene_activation_changed"))
+		return
+	_scene_restore.native_started = true
+	_scene_restore.in_call = true
+	var installed: Dictionary = _runtime_adapter.restore_scene_frontier(_scene_restore.candidate,
+		_scene_restore.checkpoint.duplicate(true))
+	_scene_restore.in_call = false
+	if not installed.get("ok", false):
+		_fail_scene_activation(installed)
+		return
+	if _scene_restore.has("failure"): return
+	if _scene_restore.proof: _confirm_scene_activation()
+
+func _scene_restore_current() -> bool:
+	if _scene_restore.is_empty() or _runtime_adapter != _scene_restore.runtime \
+			or _scene_digest(_scene_restore.checkpoint) != _scene_restore.digest:
+		return false
+	var checkpoint: Dictionary = _scene_restore.checkpoint
+	var captured: Dictionary = _scene_restore.candidate.capture(checkpoint.reading_session.frontier)
+	return captured.get("ok", false) and _READING_TRAVERSAL._same(captured.value, checkpoint.reading_session) \
+		and checkpoint.manifest_fingerprint == _ENTRY_MANIFEST.scene_registration_fingerprint()
+
+func _fail_scene_activation(failure: Dictionary) -> void:
+	if _scene_restore.is_empty() or _scene_restore.has("failure"): return
+	_scene_restore["failure"] = failure.duplicate(true)
+	_scene_restore.confirmed = false
+	# Keep committed target/checkpoint and fence input; failure is forward-only.
+	scene_activation_failed.emit(_scene_restore.operation_id, failure.duplicate(true))
+
+func _confirm_scene_activation() -> void:
+	if _scene_restore.is_empty() or _scene_restore.has("failure") or _scene_restore.in_call \
+			or not _scene_restore.proof or _scene_restore.confirmed: return
+	var captured := _capture_scene_restore_position()
+	if not _scene_restore_current() or not captured.get("ok", false) \
+			or not _READING_TRAVERSAL._same(captured.value, _expected_scene_restore_position()):
+		_fail_scene_activation(_command_failure(&"scene_activation_frontier_changed"))
+		return
+	var checkpoint: Dictionary = _scene_restore.checkpoint
+	_reading_session = _scene_restore.candidate
+	_active_entry = {"entry_id": checkpoint.entry_id, "token": "scene-restore:" + _scene_restore.operation_id,
+		"stage": "scene", "execution_mode": &"canonical", "transaction_id": checkpoint.transaction_id,
+		"content_version": checkpoint.content_version, "frozen_context": checkpoint.frozen_context.duplicate(true),
+		"context_fingerprint": _scene_digest(checkpoint.frozen_context), "path": _scene_restore.path,
+		"label": checkpoint.entry_id, "used_fallback": false, "content_locale": "en", "suppress_first_speech": true}
+	_reading_restore_pending = {}
+	_pause_restore.clear()
+	_scene_restore.confirmed = true
+	# SaveManager still owns publication/input custody until its durable acknowledgement.
+	scene_activation_confirmed.emit(_scene_restore.operation_id)
+
+func validate_scene_activation(operation_id: String) -> Dictionary:
+	if _scene_restore.is_empty() or _scene_restore.operation_id != operation_id \
+			or not _scene_restore.confirmed or _scene_restore.has("failure") \
+			or _scene_restore.in_call or not _scene_restore.proof or not _scene_restore_current() \
+			or _reading_session != _scene_restore.candidate \
+			or _active_entry.get("token") != "scene-restore:" + operation_id:
+		return _command_failure(&"scene_activation_unconfirmed")
+	var captured := _capture_scene_restore_position()
+	if not captured.get("ok", false) or not _READING_TRAVERSAL._same(captured.value, _expected_scene_restore_position()):
+		return _command_failure(&"scene_activation_frontier_changed")
+	return {"ok": true}
+
+
+func _expected_scene_restore_position() -> Dictionary:
+	var reading: Dictionary = _scene_restore.checkpoint.reading_session
+	return reading if reading.boundary == "control" else reading.frontier
+
+func _capture_scene_restore_position() -> Dictionary:
+	if not _scene_restore_current() or not is_instance_valid(_runtime_adapter):
+		return _command_failure(&"scene_activation_changed")
+	if _scene_restore.checkpoint.reading_session.boundary == "control":
+		if not _runtime_adapter.has_method("capture_scene_control_position"):
+			return _command_failure(&"scene_restore_control_unproven")
+		return _runtime_adapter.capture_scene_control_position(_scene_restore.candidate)
+	return _runtime_adapter.capture_reading_frontier()
+
+
+## SaveManager calls only after its durable activation acknowledgement.
+func publish_scene_activation(operation_id: String) -> Dictionary:
+	var checked := validate_scene_activation(operation_id)
+	if not checked.ok: return checked
+	if _scene_restore.get("published", false): return {"ok": true}
+	_scene_restore["published"] = true
+	reading_session_changed.emit()
+	return {"ok": true}
 
 
 func stage_reading_restore(checkpoint: Dictionary) -> Dictionary:
@@ -2790,6 +3054,14 @@ func _resume_reading_checkpoint(checkpoint: Dictionary, execution_mode: StringNa
 
 
 func _on_reading_frontier_restored(result: Dictionary) -> void:
+	if not _scene_restore.is_empty() and _scene_restore.get("native_started", false) and not _scene_restore.get("confirmed", false):
+		if not result.get("ok", false): _fail_scene_activation(result)
+		elif not _READING_TRAVERSAL._same(result.get("value"), _expected_scene_restore_position()):
+			_fail_scene_activation(_command_failure(&"scene_activation_frontier_changed"))
+		elif not _scene_restore.has("failure"):
+			_scene_restore.proof = true
+			if not _scene_restore.in_call: _confirm_scene_activation()
+		return
 	if _scene_stage.has("committed_checkpoint"):
 		if not result.get("ok", false):
 			_on_playback_start_failed(result, true)
@@ -2798,6 +3070,10 @@ func _on_reading_frontier_restored(result: Dictionary) -> void:
 			if _scene_stage.get("install_in_call", false): return
 			var adopted := _adopt_scene_target()
 			if not adopted.ok: _on_playback_start_failed(adopted, true)
+		return
+	if not _scene_restore.is_empty() and _scene_restore.get("confirmed", false) \
+			and _reading_session == _scene_restore.candidate:
+		# A duplicate transport callback is not publication authorization.
 		return
 	if not result.get("ok", false):
 		_on_playback_start_failed(result, true)
@@ -2896,6 +3172,7 @@ func validate_resume_checkpoint(checkpoint: Dictionary,
 ## _begin_entry_playback asks the same question through this method, so the one-active-playback law
 ## has ONE copy rather than two that can drift apart.
 func has_active_playback() -> bool:
+	if not _scene_restore.is_empty() and not _scene_restore.get("confirmed", false): return true
 	if _reached_replay.has("surface"): return true
 	return _start_in_progress or not (_ordinary_playback.is_empty() and _active_entry.is_empty() and _active_playback.is_empty()) \
 		or (_runtime_adapter != null and _runtime_adapter.has_method("has_active_playback") and _runtime_adapter.has_active_playback())
@@ -3688,7 +3965,7 @@ func capture_scene_event_boundary() -> Dictionary:
 	if not _marker_context.is_empty():
 		if not _marker_source_valid(): return _command_failure(&"reading_marker_source_changed")
 		return {"ok": true, "value": _marker_context.duplicate(true)}
-	if not has_reading_session() or _reading_session.family != "solo" or _reading_session.boundary != "line" \
+	if not has_reading_session() or _reading_session.family not in ["solo", "scene"] or (_reading_session.boundary != "line" and not (_reading_session.family == "scene" and _reading_session.boundary == "control")) \
 			or _active_entry.is_empty() or _active_entry.get("execution_mode") != &"canonical" \
 			or not _pause_handle.is_empty() or _pause_changing or _next_active \
 			or not _active_transaction.is_empty() or not _reading_restore_pending.is_empty():
@@ -3697,16 +3974,22 @@ func capture_scene_event_boundary() -> Dictionary:
 	if not captured.ok: return captured
 	var checkpoint: Dictionary = captured.value
 	var reading: Dictionary = checkpoint.reading_session
+	var anchor_frontier: Dictionary = reading.frontier
+	if reading.boundary == "control":
+		var native: Dictionary = _runtime_adapter.capture_reading_frontier()
+		if not native.ok: return native
+		anchor_frontier = native.value
 	return {"ok": true, "value": {"checkpoint": checkpoint, "playback_token": str(_active_entry.token),
-		"anchor": {"session_id": reading.ledger.session_token, "entry_id": checkpoint.entry_id,
-			"content_version": checkpoint.content_version, "catalogue_fingerprint": reading.catalogue_fingerprint,
-			"publication_id": reading.frontier.publication_id, "line_id": reading.frontier.line_id}}}
+		"anchor": {"session_id": reading.occurrence_id if _reading_session.family == "scene" else reading.ledger.session_token,
+			"entry_id": checkpoint.entry_id, "content_version": checkpoint.content_version,
+			"catalogue_fingerprint": reading.registration_sha256 if _reading_session.family == "scene" else reading.catalogue_fingerprint,
+			"publication_id": anchor_frontier.publication_id, "line_id": anchor_frontier.line_id}}}
 
 ## A historical anchor is not the live frontier. The active session proves exact
 ## ledger membership; previous occurrences prove their immutable registered beat.
 func validate_scene_event_anchor(anchor: Dictionary, checkpoint: Dictionary) -> Dictionary:
 	if checkpoint.get("reading_session") is Dictionary and typeof(checkpoint.reading_session.get("schema_version")) == TYPE_INT and checkpoint.reading_session.schema_version == 5:
-		return _command_failure(&"scene_restore_owner_unavailable")
+		return _validate_scene5_event_anchor(anchor, checkpoint)
 	var catalogue := _READING_SESSION.new()
 	var configured: Dictionary = catalogue.configure(_reading_catalogue_for_entry(str(anchor.entry_id)))
 	if not configured.get("ok", false) or catalogue.family != "solo" \
@@ -3731,6 +4014,31 @@ func validate_scene_event_anchor(anchor: Dictionary, checkpoint: Dictionary) -> 
 				return {"ok": true}
 		return _command_failure(&"event_anchor_invalid")
 	return {"ok": true}
+
+func _validate_scene5_event_anchor(anchor: Dictionary, checkpoint: Dictionary) -> Dictionary:
+	if not _exact_keys(anchor, ["session_id", "entry_id", "content_version", "catalogue_fingerprint", "publication_id", "line_id"]) \
+			or typeof(anchor.get("content_version")) != TYPE_INT or anchor.content_version <= 0:
+		return _command_failure(&"event_anchor_invalid")
+	for key: String in ["session_id", "entry_id", "catalogue_fingerprint", "publication_id", "line_id"]:
+		if typeof(anchor[key]) != TYPE_STRING or anchor[key].strip_edges().is_empty(): return _command_failure(&"event_anchor_invalid")
+	var candidate := _READING_SESSION.new()
+	var configured: Dictionary = candidate.configure_scene()
+	if not configured.ok: return configured
+	var restored: Dictionary = candidate.restore(checkpoint.reading_session, str(checkpoint.get("entry_id", "")))
+	if not restored.ok: return restored
+	if anchor.catalogue_fingerprint != candidate.fingerprint or not candidate.catalogue.has(anchor.entry_id) \
+			or candidate.catalogue[anchor.entry_id].content_version != anchor.content_version:
+		return _command_failure(&"event_anchor_catalogue_mismatch")
+	var ledger: Dictionary = candidate.ledger.snapshot()
+	# Anchor session_id is the logical occurrence; ledger session_token spans occurrences.
+	var frame := NarrativeCaptionLedger.resolve_scene_frame(ledger.entry_contexts, anchor.session_id, anchor.entry_id)
+	if not frame.ok: return _command_failure(&"event_anchor_invalid")
+	for row: Dictionary in ledger.captions:
+		if row.publication_id == anchor.publication_id and row.occurrence_id == anchor.session_id \
+				and row.beat.owning_entry_id == anchor.entry_id and row.beat.line_id == anchor.line_id:
+			return {"ok": true}
+	return _command_failure(&"event_anchor_invalid")
+
 
 # One pre-reveal guard covers synchronous renderer/Profile callbacks as well as
 # the later durable lease. It is never itself durable authority.
@@ -4018,4 +4326,5 @@ func _marker_reading_identity() -> Dictionary:
 		"operation": _reading_session.next_operation.duplicate(true), "command_id": _reading_session.command_id,
 		"entry": _reading_session.latest_entry, "pre_entry": _reading_session.pre_entry_id,
 		"catalogue": _reading_session.fingerprint, "markers": _reading_session.marker_fingerprint}
+
 

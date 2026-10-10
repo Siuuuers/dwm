@@ -54,7 +54,7 @@ const _CHECKPOINT_INPUT_KEYS: Array[String] = [
 const _PREPARED_RESTORE_ALLOWED_KEYS: Array[String] = [
 	"bundle", "journal_seed", "participant_plans", "route_id", "checkpoint_id",
 	"source_locator", "existing_run_id", "source_desktop_timeline_generation",
-	"remap_source_transaction_ids",
+	"remap_source_transaction_ids", "scene_preparation_token",
 ]
 
 var _storage: RefCounted = null
@@ -63,11 +63,21 @@ var _continuation_journal: RefCounted = CONTINUATION_JOURNAL.new()
 var _mutation_gate: Object = null
 var _identity_issuer: Object = null
 var _new_run_profile_owner: Object = null
+var _scene_new_run_bridge: Object = null
+var _scene_new_run_bundle: Dictionary = {}
 var _new_run_busy := false
 var _new_run_slice_started_us := 0
 var _new_run_gate_token := ""
 # Process-local tickets survive same-operation retries; never saved in player data.
 var _session_activation_tickets: Dictionary = {}
+var _scene_restore_preparations: Dictionary = {}
+var _scene_restore_preparation_counter := 0
+var _scene_restore_activation: Dictionary = {}
+var _scene_activation_busy := false
+var _scene_restore_commit_busy := false
+const _SCENE_PARTICIPANT_ORDER: Array[String] = [
+	"run", "desktop_consequence", "desktop_board", "profile", "localization", "audio", "route", "narrative",
+]
 var _new_run_transaction_id := ""
 var _new_run_intent: Dictionary = {}
 var _prepared_new_run: Dictionary = {}
@@ -260,6 +270,13 @@ func prepare_restore_autosave() -> Dictionary:
 ## the participant transaction with whatever "run"/"desktop_consequence"/"desktop_board" plans it
 ## already supplied, exactly as this method behaved before Task 6.
 func commit_prepared_restore(prepared: Dictionary) -> Dictionary:
+	if prepared.get("route_id") == "scene":
+		if _scene_restore_commit_busy or not _scene_restore_activation.is_empty():
+			return _fail(&"scene_restore_busy", "a retained scene restore owns custody")
+		_scene_restore_commit_busy = true
+		var scene_result := _commit_prepared_restore_profiled(prepared, {})
+		_scene_restore_commit_busy = false
+		return scene_result
 	var profile := _save_load_profile_begin("restore_commit", "", "")
 	return _save_load_profile_finish(profile, _commit_prepared_restore_profiled(prepared, profile))
 
@@ -272,6 +289,17 @@ func _commit_prepared_restore_profiled(prepared: Dictionary, profile: Dictionary
 			return _fail(&"invalid_prepared_restore", "unexpected prepared key: " + str(key))
 	if typeof(prepared.get("participant_plans")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_prepared_restore", "prepared requires participant_plans")
+	var scene_restore: bool = prepared.get("route_id") == "scene"
+	if scene_restore:
+		var retained := _validate_scene_restore_preparation(prepared)
+		if not retained.get("ok", false): return retained
+		if retained.value.has("intent"):
+			var recorded: Dictionary = _continuation_journal.commit_intent(retained.value.intent)
+			if not recorded.get("ok", false):
+				var existing: Dictionary = _continuation_journal.get_operation(retained.value.intent.transaction_id)
+				if not existing.get("ok", false): return recorded
+				return _resume_operation(existing.value)
+			return _resume_operation(recorded.value)
 	var plans: Dictionary = (prepared["participant_plans"] as Dictionary).duplicate(true)
 	_save_load_profile_phase(profile, "input_copy_us")
 
@@ -323,7 +351,7 @@ func _commit_prepared_restore_profiled(prepared: Dictionary, profile: Dictionary
 			return consequence_prep
 		plans["desktop_consequence"] = (consequence_prep["value"] as Dictionary)["consequence_plan"]
 		var board_prep: Dictionary = _restore_participants["desktop_board"].prepare(
-			{"state": remapped_desktop["board"]})
+			{"state": remapped_desktop["board"], "schema_version": remapped_snapshot.get("schema_version")})
 		if not board_prep.get("ok", false):
 			if gate_acquired:
 				_mutation_gate.release(&"restore", gate_token)
@@ -331,18 +359,19 @@ func _commit_prepared_restore_profiled(prepared: Dictionary, profile: Dictionary
 				release_save_lock(&"restore")
 			return board_prep
 		plans["desktop_board"] = (board_prep["value"] as Dictionary)["board_plan"]
-		var view_prep: Dictionary = _restore_participants["schedule_view"].prepare(_schedule_view_input(remapped_snapshot))
-		if not view_prep.get("ok", false):
-			if gate_acquired:
-				_mutation_gate.release(&"restore", gate_token)
-			if lock_acquired:
-				release_save_lock(&"restore")
-			return view_prep
-		plans["schedule_view"] = view_prep["value"]["schedule_view_plan"]
+		if not scene_restore:
+			var view_prep: Dictionary = _restore_participants["schedule_view"].prepare(_schedule_view_input(remapped_snapshot))
+			if not view_prep.get("ok", false):
+				if gate_acquired:
+					_mutation_gate.release(&"restore", gate_token)
+				if lock_acquired:
+					release_save_lock(&"restore")
+				return view_prep
+			plans["schedule_view"] = view_prep["value"]["schedule_view_plan"]
 		continuation = (begun["value"] as Dictionary)["continuation"]
 		_save_load_profile_phase(profile, "remapped_prepare_us")
 
-	for key: String in _PARTICIPANT_KEYS:
+	for key: String in (_SCENE_PARTICIPANT_ORDER if scene_restore else _PARTICIPANT_KEYS):
 		if typeof(plans.get(key)) != TYPE_DICTIONARY:
 			if gate_acquired:
 				_mutation_gate.release(&"restore", gate_token)
@@ -366,6 +395,12 @@ func _begin_restore_continuation(prepared: Dictionary) -> Dictionary:
 		return _fail(&"identity_allocation_participant_not_configured", "configure_identity_allocation_participant first")
 	if _identity_issuer == null:
 		return _fail(&"identity_issuer_not_configured", "configure_identity_issuer first")
+	var selected_document := {}
+	var scene_restore: bool = prepared.get("route_id") == "scene"
+	if scene_restore:
+		var retained := _validate_scene_restore_preparation(prepared)
+		if not retained.get("ok", false): return retained
+		selected_document = retained.value.selected_document.duplicate(true)
 	var source_locator: Dictionary = prepared["source_locator"]
 	var existing_run_id := str(prepared.get("existing_run_id", ""))
 	var source_generation := int(prepared.get("source_desktop_timeline_generation", 0))
@@ -390,21 +425,23 @@ func _begin_restore_continuation(prepared: Dictionary) -> Dictionary:
 	if allocation_fingerprint.is_empty():
 		return _fail(&"allocation_candidate_not_canonicalizable", "")
 
-	var request_fingerprint := _canonical_sha256({
-		"kind": "restore", "transaction_id": restore_transaction_id, "source_locator": source_locator,
-	})
-	if request_fingerprint.is_empty():
-		return _fail(&"continuation_request_not_canonicalizable", "")
-
-	var intent_prepared: Dictionary = _continuation_journal.prepare_intent({
+	var kind := "scene_restore" if scene_restore else "restore"
+	var fingerprint_input := {"kind": kind, "transaction_id": restore_transaction_id, "source_locator": source_locator}
+	if scene_restore: fingerprint_input["selected_document"] = selected_document
+	var request_fingerprint := _canonical_sha256(fingerprint_input)
+	if request_fingerprint.is_empty(): return _fail(&"continuation_request_not_canonicalizable", "")
+	var intent_request := {
 		"allocation_candidate_fingerprint": allocation_fingerprint, "initial_context": null,
-		"initial_context_sha256": null, "kind": "restore", "request_fingerprint": request_fingerprint,
-		"new_run_materials": null,
-		"source_locator": source_locator, "transaction_id": restore_transaction_id,
+		"initial_context_sha256": null, "kind": kind, "request_fingerprint": request_fingerprint,
+		"new_run_materials": null, "source_locator": source_locator, "transaction_id": restore_transaction_id,
 		"transaction_issuer_receipt": transaction_issuer_receipt,
-	})
+	}
+	if scene_restore: intent_request["selected_document"] = selected_document
+	var intent_prepared: Dictionary = _continuation_journal.prepare_intent(intent_request)
 	if not intent_prepared.get("ok", false):
 		return intent_prepared
+	if scene_restore:
+		_scene_restore_preparations[prepared.scene_preparation_token]["intent"] = intent_prepared.value.duplicate(true)
 	var intent_committed: Dictionary = _continuation_journal.commit_intent(intent_prepared["value"])
 	if not intent_committed.get("ok", false):
 		return intent_committed
@@ -448,7 +485,7 @@ func _begin_restore_continuation(prepared: Dictionary) -> Dictionary:
 		"identity_allocation_bundle": identity_candidate["identity_allocation_bundle"],
 		"remapped_snapshot": identity_candidate["remapped_snapshot"],
 		"continuation": {
-			"transaction_id": restore_transaction_id, "request_fingerprint": request_fingerprint,
+			"kind": kind, "transaction_id": restore_transaction_id, "request_fingerprint": request_fingerprint,
 			"remap": {"restore_transaction_id": restore_transaction_id,
 				"identity_allocation_bundle": identity_candidate["identity_allocation_bundle"],
 				"source_identity": _source_identity_from_lifecycle(prepared["bundle"]["snapshot"]["lifecycle"])},
@@ -457,6 +494,163 @@ func _begin_restore_continuation(prepared: Dictionary) -> Dictionary:
 
 ## PREPARE_INTENT is the durable decision. Before it, preparation is detached;
 ## after it, errors retain custody and retries finish the same frozen pair forward.
+## Explicit scene creation dependency. This configures validation, not a production target.
+func configure_scene_new_run(bridge: Object) -> Dictionary:
+	if not is_instance_valid(bridge) or bridge.get_script() != load("res://autoload/DialogicBridge.gd") or _identity_issuer == null:
+		return _fail(&"scene_new_run_not_configured", "actual Bridge and issuer required")
+	if _scene_new_run_bridge != null and _scene_new_run_bridge != bridge:
+		return _fail(&"scene_new_run_already_configured", "")
+	var selected: Dictionary = preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_registration()
+	if not selected.get("ok", false): return selected
+	var configured: Dictionary = _continuation_journal.configure_scene_new_run_validation(selected.value, _identity_issuer)
+	if not configured.get("ok", false): return configured
+	_scene_new_run_bridge = bridge
+	_scene_new_run_bundle = selected.value.duplicate(true)
+	return {"ok": true}
+
+## The caller selects only an installed target and presentation context. All identity,
+## assignment and reading materials are produced and retained by their existing owners.
+func start_scene_new_run(target_id: String, initial_context: Dictionary, rng_nonce: Variant = null) -> Dictionary:
+	if _new_run_busy or not _scene_restore_activation.is_empty(): return _fail(&"new_run_busy", "")
+	if not is_instance_valid(_scene_new_run_bridge) or _scene_new_run_bundle.is_empty():
+		return _fail(&"scene_new_run_not_configured", "")
+	if _storage == null or _mutation_gate == null or _new_run_profile_owner == null:
+		return _fail(&"new_run_not_configured", "")
+	for key: String in _SCENE_PARTICIPANT_ORDER:
+		if not _restore_participants.has(key): return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", key)
+	var keys: Array = initial_context.keys()
+	keys.sort()
+	if keys != ["audio_context", "content_version", "route_id"] or initial_context.route_id != "scene" \
+			or not initial_context.audio_context is Dictionary or typeof(initial_context.content_version) != TYPE_INT \
+			or initial_context.content_version < 1:
+		return _fail(&"invalid_initial_context", "exact scene presentation context required")
+	if not _new_run_transaction_id.is_empty(): return _new_run_failure(_fail(&"new_run_recovery_required", ""))
+	var admitted: Dictionary = _admit_new_run_journal_io()
+	if not admitted.get("ok", false): return admitted
+	var pending: Dictionary = _continuation_journal.list_incomplete()
+	if not pending.get("ok", false): return pending
+	if not pending.value.is_empty(): return _fail(&"continuation_recovery_required", "")
+	var acquired := _take_new_run_custody()
+	if not acquired.get("ok", false): return acquired
+	_new_run_busy = true
+	var prepared := _prepare_scene_new_run_decision(target_id, initial_context, rng_nonce)
+	var result: Dictionary
+	if not prepared.get("ok", false):
+		var released := _release_new_run_custody()
+		result = prepared if released.get("ok", false) else released
+	else:
+		result = call("_commit_new_run_intent", prepared, false)
+	_new_run_busy = false
+	return result
+
+func _prepare_scene_new_run_decision(target_id: String, initial_context: Dictionary, rng_nonce: Variant) -> Dictionary:
+	var source := _capture_prepared_autosave_baseline()
+	if not source.get("ok", false): return source
+	var chronology := _validate_scene_creation_chronology()
+	if not chronology.get("ok", false): return chronology
+	var issued: Dictionary = _identity_issuer.issue(&"transaction_id")
+	if not issued.get("ok", false): return issued
+	var transaction_id: String = issued.value.token
+	var allocated: Dictionary = _identity_issuer.prepare_continuation_allocation({"kind": "new_run",
+		"transaction_id": transaction_id, "transaction_issuer_receipt": issued.value.issuer_receipt,
+		"existing_run_id": null, "source_desktop_timeline_generation": null, "remap_source_transaction_ids": []})
+	if not allocated.get("ok", false): return allocated
+	var allocation: Dictionary = allocated.value
+	var frozen_nonce: Variant = rng_nonce
+	if chronology.value.fresh and frozen_nonce == null:
+		var entropy: PackedByteArray = Crypto.new().generate_random_bytes(4)
+		if entropy.size() != 4: return _fail(&"scene_assignment_entropy_unavailable", "")
+		frozen_nonce = entropy.decode_u32(0)
+	var assigned: Dictionary = _new_run_profile_owner.prepare_scene_new_run_consumption(
+		_new_run_profile_owner.get_profile_revision(), allocation.run_id, transaction_id, frozen_nonce)
+	if not assigned.get("ok", false): return assigned
+	var profile: Dictionary = assigned.value
+	var reading: Dictionary = _scene_new_run_bridge.prepare_scene_initial_checkpoint(allocation, profile, target_id, _identity_issuer)
+	if not reading.get("ok", false): return reading
+	var input: Dictionary = _restore_participants.run.prepare_scene_new_run_snapshot_input(
+		allocation, profile, reading.value.receipt, _scene_new_run_bundle)
+	if not input.get("ok", false): return input
+	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build_scene_new_run_candidate(input.value.snapshot_input,
+		reading.value.checkpoint, initial_context.audio_context, initial_context.content_version,
+		allocation, profile, _scene_new_run_bundle, _identity_issuer)
+	if not built.get("ok", false): return built
+	var snapshot: Dictionary = built.value.snapshot
+	var plans := _prepare_scene_new_run_plans(snapshot, allocation, profile)
+	if not plans.get("ok", false): return plans
+	var document := {"schema_version": 9, "kind": "autosave", "slot_id": null, "save_reason": "day_start",
+		"current_snapshot": {"checkpoint_kind": "day_start", "snapshot": snapshot},
+		"recovery_journal": [], "saved_time": _capture_saved_time()}
+	var checked: Dictionary = SAVE_DOCUMENT_SCHEMA.validate_scene_new_run_candidate(document,
+		allocation, profile, _scene_new_run_bundle, _identity_issuer)
+	if not checked.get("ok", false): return checked
+	var serialized: Dictionary = CANONICAL_JSON.stringify(checked.value.candidate)
+	if not serialized.get("ok", false): return serialized
+	var outgoing: String = serialized.value + "\n"
+	var materials := {"allocation_candidate": allocation, "profile": profile, "autosave": {
+		"source_revision": source.value.revision, "outgoing_text": outgoing, "outgoing_hash": outgoing.sha256_text()}}
+	var context := initial_context.duplicate(true)
+	context["active_app_id"] = null
+	context["dialogic_checkpoint"] = reading.value.checkpoint.duplicate(true)
+	var fingerprint := _canonical_sha256({"kind": "scene_new_run", "transaction_id": transaction_id,
+		"initial_context": context, "new_run_materials": materials})
+	return _continuation_journal.prepare_intent({"allocation_candidate_fingerprint": _canonical_sha256(allocation),
+		"initial_context": context, "initial_context_sha256": _canonical_sha256(context), "kind": "scene_new_run",
+		"request_fingerprint": fingerprint, "source_locator": null, "transaction_id": transaction_id,
+		"transaction_issuer_receipt": issued.value.issuer_receipt, "new_run_materials": materials})
+
+func _prepare_scene_new_run_plans(snapshot: Dictionary, allocation: Dictionary, profile_material: Dictionary) -> Dictionary:
+	var run: Dictionary = _restore_participants.run.prepare_scene_new_run(snapshot, allocation,
+		profile_material, _scene_new_run_bundle, _identity_issuer, self)
+	if not run.get("ok", false): return run
+	var profile: Dictionary = _restore_participants.profile.prepare_frozen_profile(profile_material.candidate)
+	if not profile.get("ok", false): return profile
+	var narrative: Dictionary = _restore_participants.narrative.prepare_scene_new_run(snapshot, allocation,
+		profile_material, _scene_new_run_bundle, _identity_issuer, self)
+	if not narrative.get("ok", false): return narrative
+	var plans := {"run": run.value.run_plan, "profile": profile.value.profile_plan, "narrative": narrative.value.narrative_plan}
+	var inputs := {"desktop_consequence": {"state": snapshot.desktop.consequence},
+		"desktop_board": {"state": snapshot.desktop.board, "schema_version": 9},
+		"localization": {"locale_id": profile.value.locale_id, "font_style": profile.value.get("font_style", "pixel"),
+			"text_size": profile.value.get("text_size", 100)},
+		"audio": {"preferences": profile_material.candidate.preferences, "audio_context": snapshot.audio_context},
+		"route": {"route_id": "scene", "route_context": {"run_id": snapshot.run_id,
+			"lifecycle_state": snapshot.lifecycle.state, "active_app_id": null,
+			"scene": snapshot.scene.duplicate(true), "contacts": snapshot.contacts.duplicate(true)}}}
+	var names := {"desktop_consequence": "consequence_plan", "desktop_board": "board_plan",
+		"localization": "localization_plan", "audio": "audio_plan", "route": "route_plan"}
+	for key: String in inputs:
+		var prepared: Dictionary = _restore_participants[key].prepare(inputs[key])
+		if not prepared.get("ok", false): return prepared
+		plans[key] = prepared.value[names[key]]
+	return {"ok": true, "value": plans}
+
+func _resume_scene_new_run(operation: Dictionary, gate_token: String) -> Dictionary:
+	if not _scene_restore_activation.is_empty():
+		if _scene_restore_activation.operation_id != operation.transaction_id: return _fail(&"new_run_recovery_conflict", "")
+		return _drive_scene_restore_activation()
+	if operation.stage == CONTINUATION_JOURNAL.STAGE_COMPLETED and operation.activation_state == "acknowledged":
+		return _release_new_run_custody()
+	var settled: Dictionary = call("_settle_new_run_pair", operation, false)
+	if not settled.get("ok", false): return _new_run_failure(settled)
+	operation = settled.value
+	if operation.stage == CONTINUATION_JOURNAL.STAGE_ALLOCATED:
+		var advanced := _advance_new_run(operation, CONTINUATION_JOURNAL.STAGE_APPLYING)
+		if not advanced.get("ok", false): return _new_run_failure(advanced)
+		operation = advanced.value
+	var material: Dictionary = operation.new_run_materials
+	var parsed: Dictionary = STRICT_JSON.parse_object(material.autosave.outgoing_text)
+	if not parsed.get("ok", false): return _new_run_failure(parsed)
+	var snapshot: Dictionary = parsed.value.current_snapshot.snapshot
+	var plans := _prepare_scene_new_run_plans(snapshot, material.allocation_candidate, material.profile)
+	if not plans.get("ok", false): return _new_run_failure(plans)
+	var reset: Dictionary = _journal.prepare_scene_new_run_reset(snapshot, material.allocation_candidate,
+		material.profile, _scene_new_run_bundle, _identity_issuer)
+	if not reset.get("ok", false): return _new_run_failure(reset)
+	return _run_scene_restore_transaction(plans.value, reset.value.candidate, "scene", snapshot.checkpoint_id,
+		false, {"kind": "scene_new_run", "transaction_id": operation.transaction_id,
+		"request_fingerprint": operation.request_fingerprint}, gate_token,
+		operation.stage in [CONTINUATION_JOURNAL.STAGE_APPLIED, CONTINUATION_JOURNAL.STAGE_COMPLETED])
+
 func configure_new_run_profile_owner(owner: Object) -> Dictionary:
 	if owner == null or not is_instance_valid(owner):
 		return _fail(&"invalid_new_run_profile_owner", "")
@@ -475,7 +669,7 @@ func _new_run_ready(live: bool) -> Dictionary:
 		return _fail(&"identity_issuer_not_configured", "")
 	if _storage == null or _mutation_gate == null or _new_run_profile_owner == null:
 		return _fail(&"new_run_not_configured", "")
-	if live and not _restore_participants["schedule_view"].has_method("prepare_new_run"):
+	if live and _scene_new_run_bundle.is_empty() and (not _restore_participants.has("schedule_view") or not _restore_participants["schedule_view"].has_method("prepare_new_run")):
 		return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "schedule_view cannot prepare a new run")
 	if live and not _restore_participants["profile"].has_method("prepare_frozen_profile"):
 		return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "")
@@ -744,11 +938,11 @@ func _retry_new_run(transaction_id: String, responsive: bool = false) -> Diction
 	var listed: Dictionary = _continuation_journal.list_incomplete()
 	if not listed.get("ok", false): return listed
 	for pending: Dictionary in listed["value"]:
-		if pending["kind"] != "new_run" or pending["transaction_id"] != transaction_id:
+		if pending["kind"] not in ["new_run", "scene_new_run"] or pending["transaction_id"] != transaction_id:
 			return _fail(&"new_run_recovery_conflict", "another unresolved operation exists")
 	var found: Dictionary = _continuation_journal.get_operation(transaction_id)
 	if not found.get("ok", false) and _new_run_intent.is_empty(): return found
-	if found.get("ok", false) and found["value"]["kind"] != "new_run":
+	if found.get("ok", false) and found["value"]["kind"] not in ["new_run", "scene_new_run"]:
 		return _fail(&"invalid_new_run_transaction", "")
 	var acquired := _take_new_run_custody(transaction_id)
 	if not acquired.get("ok", false): return acquired
@@ -776,12 +970,12 @@ func _reconcile_new_run_storage() -> Dictionary:
 	if not listed.get("ok", false): return listed
 	var pending: Array[Dictionary] = []
 	for operation: Dictionary in listed["value"]:
-		if operation["kind"] == "new_run": pending.append(operation)
+		if operation["kind"] in ["new_run", "scene_new_run"]: pending.append(operation)
 	if not pending.is_empty() and listed["value"].size() != 1:
 		return _fail(&"new_run_recovery_conflict", "conflicting incomplete continuations")
 	var settled: Array[String] = []
 	for operation: Dictionary in listed["value"]:
-		if operation["kind"] != "new_run": continue
+		if operation["kind"] not in ["new_run", "scene_new_run"]: continue
 		var acquired := _take_new_run_custody(str(operation["transaction_id"]))
 		if not acquired.get("ok", false): return acquired
 		var result: Dictionary = call("_settle_new_run_pair", operation, false)
@@ -861,7 +1055,7 @@ func _prepare_new_run_plans(snapshot: Dictionary, profile_candidate: Dictionary)
 	if not profile.get("ok", false): return profile
 	var inputs := {"run": {"snapshot": snapshot},
 		"desktop_consequence": {"state": snapshot["desktop"]["consequence"]},
-		"desktop_board": {"state": snapshot["desktop"]["board"]},
+		"desktop_board": {"state": snapshot["desktop"]["board"], "schema_version": snapshot.get("schema_version")},
 		"schedule_view": _schedule_view_input(snapshot),
 		"localization": {"locale_id": str(profile["value"]["locale_id"]),
 			"font_style": profile["value"].get("font_style", "pixel"), "text_size": profile["value"].get("text_size", 100)},
@@ -916,7 +1110,7 @@ func _settle_new_run_pair(operation: Dictionary, responsive: bool = false) -> Di
 	if not identity.get("ok", false): return identity
 	operation = identity["value"]
 	if responsive: await _render_new_run_frame()
-	var autosave := _persist_new_run_autosave(materials["autosave"])
+	var autosave := _persist_new_run_autosave(materials["autosave"], operation)
 	if not autosave.get("ok", false): return autosave
 	if responsive: await _render_new_run_frame()
 	var saved := _record_new_run_target(operation, &"autosave", str(materials["autosave"]["outgoing_hash"]))
@@ -943,7 +1137,10 @@ func _prove_new_run_autosave(material: Dictionary) -> Dictionary:
 		return _fail(&"new_run_autosave_unproven", "")
 	return {"ok": true, "value": {"outgoing_hash": material["outgoing_hash"]}}
 
-func _persist_new_run_autosave(material: Dictionary) -> Dictionary:
+func _persist_new_run_autosave(material: Dictionary, operation: Dictionary = {}) -> Dictionary:
+	var validator: Callable = _document_text_validator
+	if operation.get("kind") == "scene_new_run":
+		validator = _scene_new_run_text_validator.bind(operation.new_run_materials)
 	var inspected: Dictionary = _storage.inspect_revision("autosave.json")
 	if not inspected.get("ok", false) and inspected.get("code") == &"reconcile_required":
 		# Never reconcile another operation's pending file family.
@@ -958,7 +1155,7 @@ func _persist_new_run_autosave(material: Dictionary) -> Dictionary:
 				or marker.get("relative_path") != "autosave.json" or marker.get("previous_hash") != prior \
 				or marker.get("outgoing_hash") != material["outgoing_hash"]:
 			return _fail(&"new_run_autosave_foreign_pending", "")
-		var reconciled: Dictionary = _storage.reconcile("autosave.json", _document_text_validator)
+		var reconciled: Dictionary = _storage.reconcile("autosave.json", validator)
 		if not reconciled.get("ok", false) and reconciled.get("code") != &"write_not_committed": return reconciled
 		inspected = _storage.inspect_revision("autosave.json")
 	if not inspected.get("ok", false): return inspected
@@ -967,7 +1164,7 @@ func _persist_new_run_autosave(material: Dictionary) -> Dictionary:
 	if inspected["value"].get("revision") != material["source_revision"]:
 		return _fail(&"new_run_autosave_source_changed", "")
 	var written: Dictionary = _storage.write_atomic_if_revision("autosave.json", material["outgoing_text"],
-		_document_text_validator, material["source_revision"])
+		validator, material["source_revision"])
 	if not written.get("ok", false): return written
 	return _prove_new_run_autosave(material)
 
@@ -1009,6 +1206,9 @@ func _run_participant_transaction_profiled(
 		route_id: String, checkpoint_id: String, emit_restored: bool, continuation: Dictionary,
 		pre_acquired_gate_token: String, already_applied: bool, profile: Dictionary
 ) -> Dictionary:
+	if continuation.get("kind") == "scene_restore":
+		return _run_scene_restore_transaction(plans, journal_candidate, route_id, checkpoint_id,
+			emit_restored, continuation, pre_acquired_gate_token, already_applied)
 	# `restore` also holds the SaveManager save lock; `new_run` relies on the gate.
 	# acquire_save_lock() is idempotent for an already-held `restore` lock, so this is safe to call
 	# again even when the caller pre-acquired the lock itself before this transaction began.
@@ -1431,8 +1631,8 @@ func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictio
 		return inspected
 	var evidence: Dictionary = inspected["value"]
 	var record := {"locator": locator_id, "revision": evidence["revision"],
-		"state": "empty" if not evidence["exists"] else "unavailable", "day": null,
-		"saved_time": null, "fallback": false, "load_day": null, "load_saved_time": null,
+		"state": "empty" if not evidence["exists"] else "unavailable", "family": null, "day": null,
+		"saved_time": null, "fallback": false, "load_family": null, "load_day": null, "load_saved_time": null,
 		"reason": "", "loadable": false, "operation_allowed": _backup_guard().get("ok", false)}
 	if not evidence["exists"]:
 		return {"ok": true, "value": record}
@@ -1453,13 +1653,17 @@ func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictio
 		var version: Variant = parsed["value"].get("schema_version")
 		record["reason"] = "unreadable"
 		if typeof(version) == TYPE_INT and version > 0:
-			if version > SAVE_DOCUMENT_SCHEMA.DOCUMENT_VERSION: record["reason"] = "newer_version"
+			if version > SAVE_DOCUMENT_SCHEMA.SCENE_DOCUMENT_VERSION: record["reason"] = "newer_version"
 			elif version < SAVE_DOCUMENT_SCHEMA.DOCUMENT_VERSION: record["reason"] = "older_version"
 		return {"ok": true, "value": record}
 	var document: Dictionary = migrated["value"]["document"]
 	var snapshot: Dictionary = document["current_snapshot"]["snapshot"]
 	record["state"] = "occupied"
-	record["day"] = int(snapshot["lifecycle"]["day"])
+	# Only admitted schemas establish presentation family. Missing day is never
+	# a mode discriminator, and scene saves must not acquire a fictional day.
+	record["family"] = "scene" if snapshot["schema_version"] == RUN_SNAPSHOT_SCHEMA.SCENE_SCHEMA_VERSION else "legacy_day"
+	if record["family"] == "legacy_day":
+		record["day"] = int(snapshot["lifecycle"]["day"])
 	record["saved_time"] = document.get("saved_time", {}).get("hhmm")
 	var prepared := _prepare_restore_document(locator, document, migrated["value"])
 	_save_load_profile_phase(profile, "restore_prepare_us")
@@ -1467,7 +1671,10 @@ func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictio
 		var target: Dictionary = prepared["value"]["prepared"]
 		record["loadable"] = true
 		record["fallback"] = str(target["checkpoint_id"]) != str(snapshot["checkpoint_id"])
-		record["load_day"] = int(target["bundle"]["snapshot"]["lifecycle"]["day"])
+		var load_snapshot: Dictionary = target["bundle"]["snapshot"]
+		record["load_family"] = "scene" if load_snapshot["schema_version"] == RUN_SNAPSHOT_SCHEMA.SCENE_SCHEMA_VERSION else "legacy_day"
+		if record["load_family"] == "legacy_day":
+			record["load_day"] = int(load_snapshot["lifecycle"]["day"])
 		record["load_saved_time"] = null if record["fallback"] else record["saved_time"]
 		record["prepared_restore"] = target
 	else:
@@ -1990,14 +2197,15 @@ func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output:
 	plans["desktop_consequence"] = consequence_prep["value"]["consequence_plan"]
 
 	var board_prep: Dictionary = _restore_participants["desktop_board"].prepare(
-		{"state": snapshot["desktop"]["board"]})
+		{"state": snapshot["desktop"]["board"], "schema_version": snapshot.get("schema_version")})
 	if not board_prep.get("ok", false):
 		return board_prep
 	plans["desktop_board"] = board_prep["value"]["board_plan"]
-	var view_prep: Dictionary = _restore_participants["schedule_view"].prepare(_schedule_view_input(snapshot))
-	if not view_prep.get("ok", false):
-		return view_prep
-	plans["schedule_view"] = view_prep["value"]["schedule_view_plan"]
+	if snapshot.get("schema_version") != 9:
+		var view_prep: Dictionary = _restore_participants["schedule_view"].prepare(_schedule_view_input(snapshot))
+		if not view_prep.get("ok", false):
+			return view_prep
+		plans["schedule_view"] = view_prep["value"]["schedule_view_plan"]
 
 	var profile_prep: Dictionary = _restore_participants["profile"].prepare(
 		{"legacy_profile_patch_input": migration_output["legacy_profile_patch_input"]})
@@ -2042,7 +2250,7 @@ func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output:
 	var remap_ids: Dictionary = REMAPPER.collect_rewindable_transaction_ids(snapshot)
 	if not remap_ids.get("ok", false):
 		return remap_ids
-	return {"ok": true, "code": &"ok", "value": {
+	var prepared := {
 		"bundle": bundle.duplicate(true),
 		"journal_seed": seed["value"]["candidate"],
 		"participant_plans": plans,
@@ -2051,8 +2259,13 @@ func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output:
 		"source_locator": _build_source_locator(str(locator["kind"]), locator["slot_id"], bundle),
 		"existing_run_id": str(snapshot["run_id"]),
 		"source_desktop_timeline_generation": int(snapshot["lifecycle"]["desktop_timeline_generation"]),
-		"remap_source_transaction_ids": (remap_ids["value"] as Dictionary)["transaction_ids"],
-	}}
+		"remap_source_transaction_ids": (remap_ids["value"] as Dictionary)["transaction_ids"],	}
+	if snapshot.get("schema_version") == 9:
+		_scene_restore_preparation_counter += 1
+		var token := "scene_restore_preparation:%d" % _scene_restore_preparation_counter
+		prepared["scene_preparation_token"] = token
+		_scene_restore_preparations[token] = {"prepared": prepared.duplicate(true), "selected_document": document.duplicate(true)}
+	return {"ok": true, "code": &"ok", "value": prepared}
 
 static func _content_incompatible_or_fail(participant_id: String, sequence: int, failure: Dictionary) -> Dictionary:
 	# A typed content-unavailability becomes a recoverable BUNDLE_CONTENT_INCOMPATIBLE so
@@ -2189,7 +2402,9 @@ func reconcile_incomplete_continuations() -> Dictionary:
 		var transaction_id := str((operation as Dictionary)["transaction_id"])
 		var reconciled: Dictionary = _resume_operation((operation as Dictionary).duplicate(true))
 		results.append({"transaction_id": transaction_id, "result": reconciled})
-		if operation.get("kind") == "new_run" and not reconciled.get("ok", false):
+		if operation.get("kind") == "scene_restore" and not reconciled.get("ok", false):
+			return reconciled
+		if operation.get("kind") in ["new_run", "scene_new_run"] and not reconciled.get("ok", false):
 			return reconciled
 	return {"ok": true, "code": &"ok", "value": {"reconciled": results}}
 
@@ -2202,11 +2417,11 @@ func reconcile_incomplete_continuations() -> Dictionary:
 ## (never abort); when it cannot prove forward progress, it persists a typed diagnostic and latches
 ## a fatal recovery failure instead, per `_latch_recovery_diagnostic()` below.
 func _resume_operation(operation: Dictionary) -> Dictionary:
-	if operation.get("kind") == "new_run":
+	if operation.get("kind") in ["new_run", "scene_new_run"]:
 		return retry_new_run(str(operation["transaction_id"]))
 	var transaction_id := str(operation["transaction_id"])
 	var kind := str(operation["kind"])
-	var owner := StringName(kind)
+	var owner := &"restore" if kind == "scene_restore" else StringName(kind)
 
 	var gate_token := ""
 	var gate_acquired := false
@@ -2248,7 +2463,7 @@ func _resume_operation(operation: Dictionary) -> Dictionary:
 		return refreshed
 	operation = refreshed["value"]
 	var stage := str(operation.get("stage", ""))
-	if stage == CONTINUATION_JOURNAL.STAGE_COMPLETED or stage == CONTINUATION_JOURNAL.STAGE_ABORTED:
+	if (stage == CONTINUATION_JOURNAL.STAGE_COMPLETED and not _scene_activation_pending(operation)) or stage == CONTINUATION_JOURNAL.STAGE_ABORTED:
 		if gate_acquired:
 			_mutation_gate.release(owner, gate_token)
 		return {"ok": true, "code": &"ok", "value": {"transaction_id": transaction_id, "outcome": "already_terminal"}}
@@ -2268,6 +2483,7 @@ func _render_new_run_frame() -> void:
 	_new_run_slice_started_us = Time.get_ticks_usec()
 
 func _resume_new_run(operation: Dictionary, _gate_token: String, responsive: bool = false) -> Dictionary:
+	if operation.get("kind") == "scene_new_run": return _resume_scene_new_run(operation, _gate_token)
 	if operation["stage"] == CONTINUATION_JOURNAL.STAGE_COMPLETED:
 		var released := _release_new_run_custody()
 		if not released.get("ok", false): return released
@@ -2396,8 +2612,12 @@ func _resume_restore(operation: Dictionary, gate_token: String) -> Dictionary:
 
 	var result := _run_participant_transaction(&"restore", built["plans"], built["journal_candidate"],
 		str(built["route_id"]), str(built["checkpoint_id"]), true, built["continuation"], gate_token,
-		stage == CONTINUATION_JOURNAL.STAGE_APPLIED)
+		stage == CONTINUATION_JOURNAL.STAGE_APPLIED or _scene_activation_pending(operation))
+	if result.get("code") == &"scene_activation_pending": return result
 	if not result.get("ok", false):
+		if operation.get("kind") == "scene_restore":
+			_latch_recovery_diagnostic(operation, &"restore", result)
+			return result
 		return _latch_recovery_diagnostic(operation, &"restore", result)
 	return {"ok": true, "code": &"ok", "value": {
 		"transaction_id": transaction_id, "outcome": "completed", "result": result["value"]}}
@@ -2417,21 +2637,27 @@ func _reconstruct_restore_materials(operation: Dictionary) -> Dictionary:
 	var resolved := _resolve_locator_from_slot_id(str(locator.get("slot_id", "")))
 	if resolved.is_empty():
 		return _fail(&"invalid_source_locator", "unrecognized slot_id: " + str(locator.get("slot_id", "")))
-	var relative_path := str(resolved["relative_path"])
-	if not _storage.exists(relative_path):
-		return _fail(&"save_absent", relative_path)
-	var read: Dictionary = _storage.read_text(relative_path)
-	if not read.get("ok", false):
-		return read
-	var parsed: Dictionary = STRICT_JSON.parse_object(str(read["value"]))
-	if not parsed.get("ok", false):
-		return _fail(&"corrupt_save_document", relative_path)
-	var migrated: Dictionary = SAVE_MIGRATIONS.migrate_document(parsed["value"],
-		{"kind": str(resolved["kind"]), "slot_id": resolved["slot_id"]})
-	if not migrated.get("ok", false):
-		return migrated
+	var migrated: Dictionary
+	if operation.get("kind") == "scene_restore":
+		var retained := _selected_scene_restore_bundle(operation)
+		if not retained.get("ok", false): return retained
+		migrated = {"ok": true, "value": {"document": operation.selected_document.duplicate(true), "legacy_profile_patch_input": {}}}
+	else:
+		var relative_path := str(resolved["relative_path"])
+		if not _storage.exists(relative_path):
+			return _fail(&"save_absent", relative_path)
+		var read: Dictionary = _storage.read_text(relative_path)
+		if not read.get("ok", false):
+			return read
+		var parsed: Dictionary = STRICT_JSON.parse_object(str(read["value"]))
+		if not parsed.get("ok", false):
+			return _fail(&"corrupt_save_document", relative_path)
+		migrated = SAVE_MIGRATIONS.migrate_document(parsed["value"],
+			{"kind": str(resolved["kind"]), "slot_id": resolved["slot_id"]})
+		if not migrated.get("ok", false):
+			return migrated
+	
 	var document: Dictionary = migrated["value"]["document"]
-	# Admission already returned the validated, detached document.
 
 	var bundle := _find_bundle_by_checkpoint_id(document, str(locator.get("checkpoint_id", "")))
 	if bundle.is_empty():
@@ -2470,14 +2696,15 @@ func _reconstruct_restore_materials(operation: Dictionary) -> Dictionary:
 		return consequence_prep
 	plans["desktop_consequence"] = (consequence_prep["value"] as Dictionary)["consequence_plan"]
 	var board_prep: Dictionary = _restore_participants["desktop_board"].prepare(
-		{"state": remapped_desktop["board"]})
+		{"state": remapped_desktop["board"], "schema_version": remapped_snapshot.get("schema_version")})
 	if not board_prep.get("ok", false):
 		return board_prep
 	plans["desktop_board"] = (board_prep["value"] as Dictionary)["board_plan"]
-	var view_prep: Dictionary = _restore_participants["schedule_view"].prepare(_schedule_view_input(remapped_snapshot))
-	if not view_prep.get("ok", false):
-		return view_prep
-	plans["schedule_view"] = view_prep["value"]["schedule_view_plan"]
+	if remapped_snapshot.get("schema_version") != 9:
+		var view_prep: Dictionary = _restore_participants["schedule_view"].prepare(_schedule_view_input(remapped_snapshot))
+		if not view_prep.get("ok", false):
+			return view_prep
+		plans["schedule_view"] = view_prep["value"]["schedule_view_plan"]
 
 	return {"ok": true, "code": &"ok", "value": {
 		"plans": plans,
@@ -2486,7 +2713,7 @@ func _reconstruct_restore_materials(operation: Dictionary) -> Dictionary:
 		"route_id": str(prepared.get("route_id", "")),
 		"checkpoint_id": str(prepared.get("checkpoint_id", "")),
 		"continuation": {
-			"transaction_id": str(operation["transaction_id"]),
+			"kind": operation["kind"], "transaction_id": str(operation["transaction_id"]),
 			"request_fingerprint": str(operation["request_fingerprint"]),
 			"remap": {"restore_transaction_id": str(operation["transaction_id"]),
 				"identity_allocation_bundle": identity_candidate["identity_allocation_bundle"],
@@ -2639,6 +2866,277 @@ static func _source_identity_from_lifecycle(lifecycle: Dictionary) -> Dictionary
 		"causal_day_instance": lifecycle.get("causal_day_instance"),
 		"causal_day_instance_issuer_receipt": receipt.duplicate(true) if typeof(receipt) == TYPE_DICTIONARY else receipt}
 
+func _validate_scene_restore_preparation(prepared: Dictionary) -> Dictionary:
+	var token: Variant = prepared.get("scene_preparation_token")
+	if not token is String or not _scene_restore_preparations.has(token):
+		return _fail(&"invalid_scene_restore_preparation", "private prepared scene source required")
+	var retained: Dictionary = _scene_restore_preparations[token]
+	if not CANONICAL_JSON._deep_same(retained.prepared, prepared):
+		return _fail(&"invalid_scene_restore_preparation", "prepared scene source changed")
+	return {"ok": true, "value": retained.duplicate(true)}
+
+func _scene_activation_pending(operation: Dictionary) -> bool:
+	return operation.get("kind") in ["scene_restore", "scene_new_run"] and operation.get("stage") == CONTINUATION_JOURNAL.STAGE_COMPLETED \
+		and operation.get("activation_state") == "pending"
+
+func retry_scene_activation(transaction_id: String) -> Dictionary:
+	if _scene_activation_busy or _scene_restore_commit_busy: return _fail(&"scene_restore_busy", "")
+	if not _scene_restore_activation.is_empty():
+		if _scene_restore_activation.operation_id != transaction_id: return _fail(&"scene_restore_busy", "")
+		return _drive_scene_restore_activation()
+	var found: Dictionary = _continuation_journal.get_operation(transaction_id)
+	if not found.get("ok", false): return found
+	if _scene_activation_pending(found.value): return _resume_operation(found.value)
+	if found.value.get("kind") in ["scene_restore", "scene_new_run"] and found.value.get("activation_state") == "acknowledged":
+		for key: String in ["route", "narrative"]:
+			var checked: Dictionary = _restore_participants[key].validate_scene_activation(transaction_id)
+			if not checked.get("ok", false): return checked
+		return {"ok": true, "transaction_id": transaction_id, "value": {"transaction_id": transaction_id}}
+	return _fail(&"scene_activation_unavailable", "")
+
+func _selected_scene_restore_bundle(operation: Dictionary) -> Dictionary:
+	if operation.get("kind") != "scene_restore":
+		return _fail(&"invalid_scene_restore", "scene operation required")
+	var checked: Dictionary = _continuation_journal._validate_scene_source(operation)
+	if not checked.get("ok", false): return checked
+	var bundle := _find_bundle_by_checkpoint_id(operation.selected_document, operation.source_locator.checkpoint_id)
+	return {"ok": true, "value": bundle.duplicate(true)}
+
+func load_restore_context(transaction_id: String, locator: Dictionary) -> Dictionary:
+	var found: Dictionary = _continuation_journal.get_operation(transaction_id)
+	if not found.get("ok", false): return found
+	var operation: Dictionary = found.value
+	if operation.get("kind") != "scene_restore": return load_context(locator)
+	if not CANONICAL_JSON._deep_same(operation.source_locator, locator):
+		return _fail(&"continuation_source_drifted", "retained locator differs")
+	var selected := _selected_scene_restore_bundle(operation)
+	if not selected.get("ok", false): return selected
+	var snapshot: Dictionary = selected.value.snapshot
+	return {"ok": true, "value": {"context": snapshot.duplicate(true), "context_sha256": _canonical_sha256(snapshot)}}
+
+func capture_committed_scene_restore(transaction_id: String) -> Dictionary:
+	var found: Dictionary = _continuation_journal.get_operation(transaction_id)
+	if not found.get("ok", false): return found
+	var operation: Dictionary = found.value
+	if operation.get("kind") != "scene_restore" or operation.get("stage") != CONTINUATION_JOURNAL.STAGE_COMPLETED \
+			or operation.get("activation_state") != "acknowledged":
+		return _fail(&"scene_restore_not_activated", "durable completion and activation acknowledgement required")
+	var selected := _selected_scene_restore_bundle(operation)
+	if not selected.get("ok", false): return selected
+	return {"ok": true, "value": {"operation": operation.duplicate(true), "selected_bundle": selected.value}}
+
+func _advance_scene_restore(continuation: Dictionary, expected: String, next: String,
+		index: int, participant: Variant = null, receipt: Variant = null) -> Dictionary:
+	return _continuation_journal.advance({"transaction_id": continuation.transaction_id,
+		"request_fingerprint": continuation.request_fingerprint, "expected_stage": expected, "next_stage": next,
+		"expected_next_participant_index": index, "allocation_receipt": null,
+		"participant_name": participant, "participant_receipt": receipt, "failure": null})
+
+func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Variant,
+		route_id: String, checkpoint_id: String, _emit_restored: bool, continuation: Dictionary,
+		gate_token: String, already_applied: bool) -> Dictionary:
+	if not _scene_restore_activation.is_empty(): return _fail(&"scene_restore_busy", "")
+	var operation_id: String = continuation.transaction_id
+	var found: Dictionary = _continuation_journal.get_operation(operation_id)
+	if not found.get("ok", false): return found
+	var committed: bool = _scene_activation_pending(found.value)
+	var creating: bool = found.value.get("kind") == "scene_new_run"
+	# Every owner must be reconstructed in a fresh process, but its historical
+	# receipt prefix is already durable. In particular, a new live route generation
+	# must never replace or be compared as a replay of the old process's receipt.
+	var recorded_participants: int = found.value.next_participant_index
+	var activation := _prepare_live_session_activation(plans, operation_id)
+	if not activation.get("ok", false):
+		return _scene_restore_early_failure(activation, committed or creating, gate_token)
+	for key: String in ["route", "narrative"]:
+		var participant: Object = _restore_participants[key]
+		for method: String in ["begin_scene_activation", "validate_scene_activation", "publish_scene_activation"]:
+			if not participant.has_method(method):
+				return _scene_restore_early_failure(_fail(&"scene_activation_owner_unavailable", key + "." + method), committed or creating, gate_token)
+		if not participant.has_signal("scene_activation_confirmed"):
+			return _scene_restore_early_failure(_fail(&"scene_activation_owner_unavailable", key), committed or creating, gate_token)
+	var held: Dictionary = _restore_participants.route.begin_scene_publication_hold(operation_id)
+	if not held.get("ok", false): return _scene_restore_early_failure(held, committed or creating, gate_token)
+	var backups := {}
+	var applied: Array[String] = []
+	var journal_backup: Variant = null
+	var captured: Dictionary = _journal.capture_state()
+	if not captured.get("ok", false):
+		return _scene_restore_prepare_failure(captured, committed or creating, applied, backups, gate_token, operation_id, null)
+	journal_backup = captured.value.backup
+	for key: String in _SCENE_PARTICIPANT_ORDER:
+		var backup: Dictionary = _restore_participants[key].capture()
+		if not backup.get("ok", false):
+			return _scene_restore_prepare_failure(backup, committed or creating, applied, backups, gate_token, operation_id, null)
+		backups[key] = backup.value
+	var route_token: Dictionary = {}
+	for index: int in _SCENE_PARTICIPANT_ORDER.size():
+		var key: String = _SCENE_PARTICIPANT_ORDER[index]
+		var plan: Dictionary = plans[key].duplicate(true)
+		if key == "narrative":
+			plan["route_ready_token"] = route_token.duplicate(true)
+			plan["scene_restore_operation_id"] = operation_id
+		var result: Dictionary = _restore_participants[key].apply_silent(plan)
+		if not result.get("ok", false):
+			return _scene_restore_prepare_failure(result, committed or creating, applied, backups, gate_token, operation_id, journal_backup)
+		applied.append(key)
+		if key == "route": route_token = result.get("value", {}).get("route_ready_token", {})
+		if key == "run" and continuation.has("remap"):
+			var remap: Dictionary = continuation.remap
+			var remapped: Dictionary = _restore_participants.run.apply_continuation_remap(
+				operation_id, remap.identity_allocation_bundle, remap.source_identity)
+			if not remapped.get("ok", false):
+				return _scene_restore_prepare_failure(remapped, committed or creating, applied, backups, gate_token, operation_id, journal_backup)
+		if not already_applied and index >= recorded_participants:
+			var advanced := _advance_scene_restore(continuation, CONTINUATION_JOURNAL.STAGE_APPLYING,
+				CONTINUATION_JOURNAL.STAGE_APPLYING, index, key, result.get("value", {}))
+			if not advanced.get("ok", false):
+				return _scene_restore_prepare_failure(advanced, committed or creating, applied, backups, gate_token, operation_id, journal_backup)
+	if not already_applied:
+		var applied_result := _advance_scene_restore(continuation, CONTINUATION_JOURNAL.STAGE_APPLYING,
+			CONTINUATION_JOURNAL.STAGE_APPLIED, _SCENE_PARTICIPANT_ORDER.size())
+		if not applied_result.get("ok", false):
+			return _scene_restore_prepare_failure(applied_result, creating, applied, backups, gate_token, operation_id, journal_backup)
+	if journal_candidate is Dictionary:
+		var seeded: Dictionary
+		if creating:
+			var materials: Dictionary = found.value.new_run_materials
+			seeded = _journal.commit_scene_new_run_reset(journal_candidate, materials.allocation_candidate,
+				materials.profile, _scene_new_run_bundle, _identity_issuer)
+			if not seeded.get("ok", false) and seeded.get("code") == &"duplicate_commit":
+				var retained: Dictionary = _journal.capture_state()
+				var expected: Dictionary = journal_candidate.duplicate(true)
+				expected.erase("candidate_kind")
+				if retained.get("ok", false) and CANONICAL_JSON._deep_same(retained.value.backup, expected):
+					seeded = {"ok": true}
+		else:
+			seeded = _journal.commit_prepared(journal_candidate)
+		if not seeded.get("ok", false):
+			return _scene_restore_prepare_failure(seeded, committed or creating, applied, backups, gate_token, operation_id, journal_backup)
+	if not committed:
+		var completed := _advance_scene_restore(continuation, CONTINUATION_JOURNAL.STAGE_APPLIED,
+			CONTINUATION_JOURNAL.STAGE_COMPLETED, _SCENE_PARTICIPANT_ORDER.size())
+		if not completed.get("ok", false):
+			var reread: Dictionary = _continuation_journal.reload_operation_from_storage(operation_id)
+			if not reread.get("ok", false):
+				return _fatal_transaction_recovery("scene_restore", [{"owner_id": "journal", "operation": "completion_uncertain", "result": reread}])
+			if _scene_activation_pending(reread.value):
+				committed = true
+			elif reread.value.get("stage") == CONTINUATION_JOURNAL.STAGE_APPLIED:
+				return _scene_restore_prepare_failure(completed, creating, applied, backups, gate_token, operation_id, journal_backup)
+			else:
+				return _fatal_transaction_recovery("scene_restore", [{"owner_id": "journal", "operation": "completion_state_conflict", "result": reread}])
+	_scene_restore_activation = {"operation_id": operation_id, "continuation": continuation.duplicate(true),
+		"ticket": activation.value.duplicate(true), "gate_token": gate_token, "route_id": route_id,
+		"owner": "new_run" if creating else "restore",
+		"checkpoint_id": checkpoint_id, "phase": "route", "route_confirmed": false,
+		"narrative_confirmed": false, "started": false, "failure": {}}
+	for key: String in _SCENE_PARTICIPANT_ORDER:
+		var finalized: Dictionary = _restore_participants[key].finalize()
+		if not finalized.get("ok", false): return _scene_restore_activation_failure(finalized)
+	for key: String in ["route", "narrative"]:
+		var callback: Callable = _on_scene_route_confirmed if key == "route" else _on_scene_narrative_confirmed
+		if not _restore_participants[key].is_connected("scene_activation_confirmed", callback):
+			_restore_participants[key].connect("scene_activation_confirmed", callback)
+	if not _restore_participants.narrative.is_connected("scene_activation_failed", _on_scene_restore_failed):
+		_restore_participants.narrative.connect("scene_activation_failed", _on_scene_restore_failed)
+	return _drive_scene_restore_activation()
+
+func _scene_restore_prepare_failure(failure: Dictionary, committed: bool, applied: Array[String],
+		backups: Dictionary, gate_token: String, operation_id: String, journal_backup: Variant) -> Dictionary:
+	if committed:
+		return _fatal_transaction_recovery("scene_restore", [{"owner_id": "restore", "operation": "reconstruct", "result": failure}])
+	var cancelled: Dictionary = _restore_participants.route.cancel_scene_publication_hold(operation_id)
+	if not cancelled.get("ok", false):
+		return _fatal_transaction_recovery("scene_restore", [{"owner_id": "route", "operation": "cancel_hold", "result": cancelled}])
+	return _rollback_transaction(&"restore", applied, backups, gate_token, true, failure, journal_backup)
+
+func _scene_restore_early_failure(failure: Dictionary, committed: bool, gate_token: String) -> Dictionary:
+	if committed:
+		return _fatal_transaction_recovery("scene_restore", [{"owner_id": "restore", "operation": "reconstruct", "result": failure}])
+	_release_transaction(&"restore", gate_token, true)
+	return failure
+
+func _on_scene_route_confirmed(operation_id: String) -> void:
+	if _scene_restore_activation.get("operation_id") != operation_id: return
+	_scene_restore_activation.route_confirmed = true
+	if not _scene_activation_busy: _drive_scene_restore_activation()
+
+func _on_scene_narrative_confirmed(operation_id: String) -> void:
+	if _scene_restore_activation.get("operation_id") != operation_id: return
+	_scene_restore_activation.narrative_confirmed = true
+	if not _scene_activation_busy: _drive_scene_restore_activation()
+
+func _on_scene_restore_failed(operation_id: String, result: Dictionary) -> void:
+	if _scene_restore_activation.get("operation_id") == operation_id:
+		_scene_restore_activation_failure(result)
+
+func _scene_restore_activation_failure(failure: Dictionary) -> Dictionary:
+	if not _scene_restore_activation.is_empty(): _scene_restore_activation.failure = failure.duplicate(true)
+	return _fatal_transaction_recovery("scene_restore", [{"owner_id": "restore", "operation": "activate", "result": failure}])
+
+func _drive_scene_restore_activation() -> Dictionary:
+	if _scene_activation_busy: return _fail(&"scene_restore_busy", "")
+	_scene_activation_busy = true
+	var result := _drive_scene_restore_activation_owned()
+	_scene_activation_busy = false
+	return result
+
+func _drive_scene_restore_activation_owned() -> Dictionary:
+	if _scene_restore_activation.is_empty(): return _fail(&"scene_activation_unavailable", "")
+	if not _scene_restore_activation.failure.is_empty(): return _scene_restore_activation.failure
+	var operation_id: String = _scene_restore_activation.operation_id
+	for phase: String in ["route", "narrative"]:
+		if _scene_restore_activation.phase != phase: continue
+		var participant: Object = _restore_participants[phase]
+		if not _scene_restore_activation.started:
+			_scene_restore_activation.started = true
+			var begun: Dictionary = participant.begin_scene_activation(operation_id)
+			if not begun.get("ok", false): return _scene_restore_activation_failure(begun)
+		if not _scene_restore_activation.failure.is_empty(): return _scene_restore_activation.failure
+		if not _scene_restore_activation[phase + "_confirmed"]:
+			return {"ok": false, "code": &"scene_activation_pending", "recovery_required": true,
+				"transaction_id": operation_id,
+				"value": {"transaction_id": operation_id}}
+		var checked: Dictionary = participant.validate_scene_activation(operation_id)
+		if not checked.get("ok", false): return _scene_restore_activation_failure(checked)
+		_scene_restore_activation.phase = "narrative" if phase == "route" else "ack"
+		_scene_restore_activation.started = false
+	for key: String in ["route", "narrative"]:
+		var checked: Dictionary = _restore_participants[key].validate_scene_activation(operation_id)
+		if not checked.get("ok", false): return _scene_restore_activation_failure(checked)
+	var activation_owner := StringName(_scene_restore_activation.get("owner", "restore"))
+	if _mutation_gate == null or not _mutation_gate.is_lease_active(activation_owner, _scene_restore_activation.gate_token):
+		return _scene_restore_activation_failure(_fail(&"scene_restore_lease_lost", ""))
+	var ticket: Dictionary = _scene_restore_activation.ticket
+	var validated: Dictionary = _restore_participants.run.validate_live_session_activation(ticket)
+	if not validated.get("ok", false): return _scene_restore_activation_failure(validated)
+	var activated: Dictionary = _restore_participants.run.activate_live_session(ticket)
+	if not activated.get("ok", false): return _scene_restore_activation_failure(activated)
+	var acknowledged: Dictionary = _continuation_journal.acknowledge_scene_activation(operation_id,
+		_scene_restore_activation.continuation.request_fingerprint)
+	if not acknowledged.get("ok", false):
+		var reread: Dictionary = _continuation_journal.reload_operation_from_storage(operation_id)
+		if not reread.get("ok", false): return _scene_restore_activation_failure(reread)
+		if reread.value.get("activation_state") != "acknowledged":
+			return _scene_restore_activation_failure(acknowledged)
+	for key: String in ["narrative", "route"]:
+		var published: Dictionary = _restore_participants[key].publish_scene_activation(operation_id)
+		if not published.get("ok", false): return _scene_restore_activation_failure(published)
+	var completed := _scene_restore_activation.duplicate(true)
+	_scene_restore_activation.clear()
+	_session_activation_tickets.erase(operation_id)
+	if activation_owner == &"new_run":
+		var released := _release_new_run_custody()
+		if not released.get("ok", false): return released
+	else:
+		_release_transaction(&"restore", completed.gate_token, true)
+	live_session_ready.emit()
+	if activation_owner == &"restore": run_restored.emit(completed.checkpoint_id, completed.route_id)
+	return {"ok": true, "value": {"transaction_id": operation_id, "checkpoint_id": completed.checkpoint_id,
+		"route_id": completed.route_id}}
+
+
 static func _schedule_view_input(snapshot: Dictionary) -> Dictionary:
 	return {"schedule_view": snapshot["schedule_view"],
 		"registry_fingerprint": snapshot["committed_schedule"]["registry_fingerprint"]}
@@ -2661,3 +3159,90 @@ func _prepare_live_session_activation(plans: Dictionary, operation_id: String) -
 		"owner_id": session["owner_id"], "run_id": plan["snapshot"]["run_id"]}
 	_session_activation_tickets[operation_id] = ticket.duplicate(true)
 	return {"ok": true, "value": ticket}
+
+
+func _scene_new_run_text_validator(text: String, materials: Dictionary) -> Dictionary:
+	var parsed: Dictionary = STRICT_JSON.parse_object(text)
+	if not parsed.get("ok", false): return parsed
+	return SAVE_DOCUMENT_SCHEMA.validate_scene_new_run_candidate(parsed.value, materials.allocation_candidate,
+		materials.profile, _scene_new_run_bundle, _identity_issuer)
+
+func configure_scene_restore_participants(participants: Dictionary) -> Dictionary:
+	var keys: Array = participants.keys()
+	keys.sort()
+	var expected: Array = _SCENE_PARTICIPANT_ORDER.duplicate()
+	expected.sort()
+	if keys != expected: return _fail(&"invalid_restore_participants", "exactly eight scene participants required")
+	for key: String in keys:
+		if not is_instance_valid(participants[key]): return _fail(&"invalid_restore_participants", key)
+		for method: String in ["prepare", "capture", "apply_silent", "rollback_silent", "finalize"]:
+			if not participants[key].has_method(method): return _fail(&"invalid_restore_participants", key + "." + method)
+	_restore_participants = participants.duplicate()
+	return {"ok": true}
+
+## Ordinary Load obtains authority only from an acknowledged creation, the exact
+## committed allocation and its still-physical Profile assignment. Autosave may
+## legitimately have advanced since creation; its historical target receipt remains.
+func capture_committed_scene_creation(transaction_id: String) -> Dictionary:
+	if _identity_issuer == null or _new_run_profile_owner == null:
+		return _fail(&"scene_creation_owner_unavailable", "")
+	var found: Dictionary = _continuation_journal.get_creation_operation(transaction_id)
+	if not found.get("ok", false): return found
+	var operation: Dictionary = found.value
+	if operation.get("kind") != "scene_new_run" or operation.get("stage") != CONTINUATION_JOURNAL.STAGE_COMPLETED \
+			or operation.get("activation_state") != "acknowledged":
+		return _fail(&"scene_creation_not_activated", "durable completed creation and activation required")
+	var materials: Dictionary = operation.new_run_materials
+	var captured: Dictionary = _identity_issuer.capture_root()
+	if not captured.get("ok", false): return captured
+	var root: Dictionary = captured.value
+	if not CANONICAL_JSON._deep_same(root.get("allocation_receipts", {}).get(transaction_id), materials.allocation_candidate):
+		return _fail(&"scene_creation_allocation_unproven", "")
+	var profile: Dictionary = _new_run_profile_owner.prove_scene_assignment(materials.allocation_candidate.run_id,
+		materials.profile.scene_assignment.receipt)
+	if not profile.get("ok", false): return profile
+	# The retained canonical initial document fixes the actual first scene. Never
+	# read today's mutable Autosave or require later snapshots to equal this one.
+	var initial: Dictionary = STRICT_JSON.parse_object(materials.autosave.outgoing_text)
+	if not initial.get("ok", false): return initial
+	var initial_receipt: Variant = initial.value.current_snapshot.snapshot.command_receipts.get(transaction_id)
+	if not initial_receipt is Dictionary:
+		return _fail(&"scene_creation_proof_invalid", "retained initial receipt missing")
+	return {"ok": true, "value": {"operation": operation.duplicate(true),
+		"allocation_candidate": materials.allocation_candidate.duplicate(true), "profile_material": materials.profile.duplicate(true),
+		"initial_receipt": initial_receipt.duplicate(true)}}
+
+func _validate_scene_creation_chronology() -> Dictionary:
+	var chronology: Dictionary = _continuation_journal.capture_completed_creation_chronology(_identity_issuer)
+	if not chronology.get("ok", false): return chronology
+	var profile: Dictionary = _new_run_profile_owner.get_profile_snapshot()
+	var draws: Dictionary = profile.get("pair_deck_draws", {})
+	var validated: Dictionary = preload("res://scripts/domain/relationship/PairDeckDraw.gd").validate_ledger(draws)
+	if not validated.get("ok", false): return validated
+	if chronology.value.is_empty():
+		if not draws.is_empty(): return _fail(&"creation_history_unproven", "Profile draws lack successful creation history")
+		return {"ok": true, "value": {"fresh": true}}
+	var latest: Dictionary = chronology.value[-1]
+	if latest.kind != "scene_new_run":
+		return _fail(&"scene_assignment_legacy_boundary_required", "latest successful legacy creation has no scene assignment")
+	var previous_run := ""
+	var scene_count := 0
+	for operation: Dictionary in chronology.value:
+		if operation.kind != "scene_new_run":
+			previous_run = ""
+			continue
+		var material: Dictionary = operation.new_run_materials
+		var assignment: Dictionary = material.profile.scene_assignment.receipt
+		var run_id: String = material.allocation_candidate.run_id
+		if not CANONICAL_JSON._deep_same(draws.get(run_id), assignment):
+			return _fail(&"creation_history_unproven", "successful creation assignment differs from Profile")
+		if (previous_run.is_empty() and assignment.selection_kind != "initial_random") \
+				or (not previous_run.is_empty() and assignment.predecessor_run_id != previous_run):
+			return _fail(&"creation_history_unproven", "assignment skips successful creation chronology")
+		var proved: Dictionary = _new_run_profile_owner.prove_scene_assignment(run_id, assignment)
+		if not proved.get("ok", false): return proved
+		previous_run = run_id
+		scene_count += 1
+	if validated.value.scene_count != scene_count or validated.value.tail_run_id != previous_run:
+		return _fail(&"creation_history_unproven", "assignment tail differs from successful creations")
+	return {"ok": true, "value": {"fresh": false}}

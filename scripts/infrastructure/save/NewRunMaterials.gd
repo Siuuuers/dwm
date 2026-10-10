@@ -38,10 +38,13 @@ const EMPTY_AUDIO_CONTEXT := {
 const RECEIPT_KEYS: Array[String] = [
 	"counter", "namespace", "numeric_value", "purpose", "receipt_id", "token",
 ]
+const SCENE_INITIAL_KEYS: Array[String] = [
+	"active_app_id", "audio_context", "content_version", "dialogic_checkpoint", "route_id",
+]
 
 
 static func validate(materials: Variant, initial_context: Dictionary, transaction_id: String,
-		allocation_fingerprint: String) -> Dictionary:
+		allocation_fingerprint: String, scene_bundle: Dictionary = {}, scene_issuer: Object = null) -> Dictionary:
 	if typeof(materials) != TYPE_DICTIONARY:
 		return _fail(&"new_run_materials_invalid", "materials must be an object")
 	var detached: Dictionary = (materials as Dictionary).duplicate(true)
@@ -49,6 +52,8 @@ static func validate(materials: Variant, initial_context: Dictionary, transactio
 		return _fail(&"new_run_materials_invalid", "materials have unexpected members")
 	if transaction_id.strip_edges().is_empty() or not _is_sha256(allocation_fingerprint):
 		return _fail(&"new_run_materials_invalid", "transaction identity is malformed")
+	if initial_context.get("route_id") == "scene":
+		return _validate_scene(detached, initial_context, transaction_id, allocation_fingerprint, scene_bundle, scene_issuer)
 	if typeof(initial_context.get("dark_mode")) != TYPE_BOOL:
 		return _fail(&"new_run_materials_invalid", "initial context has no captured Dark Boolean")
 
@@ -64,6 +69,40 @@ static func validate(materials: Variant, initial_context: Dictionary, transactio
 	if not autosave.get("ok", false):
 		return autosave
 	return {"ok": true, "code": &"ok", "value": {"materials": detached}}
+
+
+static func _validate_scene(materials: Dictionary, initial_context: Dictionary,
+		transaction_id: String, allocation_fingerprint: String, scene_bundle: Dictionary, scene_issuer: Object) -> Dictionary:
+	var run_schema: Script = load("res://scripts/domain/run/RunSnapshotSchema.gd")
+	var primitive: Dictionary = run_schema.validate_primitive_tree(initial_context)
+	if not primitive.ok: return primitive
+	if not _has_exact_keys(initial_context, SCENE_INITIAL_KEYS) \
+			or initial_context.active_app_id != null \
+			or typeof(initial_context.content_version) != TYPE_INT or initial_context.content_version < 1 \
+			or not initial_context.audio_context is Dictionary \
+			or not initial_context.dialogic_checkpoint is Dictionary \
+			or initial_context.dialogic_checkpoint.is_empty() \
+			or not initial_context.dialogic_checkpoint.get("reading_session") is Dictionary \
+			or typeof(initial_context.dialogic_checkpoint.reading_session.get("schema_version")) != TYPE_INT \
+			or initial_context.dialogic_checkpoint.reading_session.schema_version != 5:
+		return _fail(&"new_run_materials_invalid", "scene initial context must carry its actual reading checkpoint")
+	var allocation := _validate_allocation(materials.allocation_candidate, transaction_id, allocation_fingerprint)
+	if not allocation.get("ok", false): return allocation
+	if not materials.profile is Dictionary:
+		return _fail(&"new_run_profile_invalid", "scene profile material must be an object")
+	# The existing Profile owner owns the exact G7 material and assignment-chain law.
+	# Load here to avoid introducing an eager autoload dependency into historical validation.
+	var profile_owner: Script = load("res://autoload/ProfileManager.gd")
+	var profile: Dictionary = profile_owner.validate_scene_new_run_material(materials.profile)
+	if not profile.get("ok", false): return profile
+	var assignment: Dictionary = materials.profile.scene_assignment
+	if assignment.run_id != allocation.value.run_id \
+			or assignment.receipt.creation_transaction_id != transaction_id:
+		return _fail(&"new_run_profile_invalid", "scene assignment does not bind this allocated creation")
+	var autosave := _validate_autosave(materials.autosave, initial_context, allocation.value,
+		false, assignment.receipt, materials.profile, scene_bundle, scene_issuer)
+	if not autosave.get("ok", false): return autosave
+	return {"ok": true, "code": &"ok", "value": {"materials": materials.duplicate(true)}}
 
 
 static func _validate_allocation(value: Variant, transaction_id: String,
@@ -204,7 +243,8 @@ static func _validate_profile(value: Variant, captured_dark: bool) -> Dictionary
 
 
 static func _validate_autosave(value: Variant, initial_context: Dictionary,
-		allocation: Dictionary, captured_dark: bool) -> Dictionary:
+		allocation: Dictionary, captured_dark: bool, scene_assignment: Dictionary = {},
+		profile_material: Dictionary = {}, scene_bundle: Dictionary = {}, scene_issuer: Object = null) -> Dictionary:
 	if typeof(value) != TYPE_DICTIONARY or not _has_exact_keys(value as Dictionary, AUTOSAVE_KEYS):
 		return _fail(&"new_run_autosave_invalid", "Autosave material has unexpected members")
 	var autosave: Dictionary = value
@@ -218,7 +258,12 @@ static func _validate_autosave(value: Variant, initial_context: Dictionary,
 	var parsed: Dictionary = STRICT_JSON.parse_object(outgoing_text)
 	if not parsed.get("ok", false):
 		return _fail(&"new_run_autosave_invalid", "Autosave bytes are not strict JSON")
-	var validated: Dictionary = SAVE_DOCUMENT_SCHEMA.validate(parsed["value"] as Dictionary)
+	var validated: Dictionary
+	if not scene_assignment.is_empty():
+		validated = SAVE_DOCUMENT_SCHEMA.validate_scene_new_run_candidate(parsed["value"] as Dictionary,
+			allocation, profile_material, scene_bundle, scene_issuer)
+	else:
+		validated = SAVE_DOCUMENT_SCHEMA.validate(parsed["value"] as Dictionary)
 	if not validated.get("ok", false):
 		return _fail(&"new_run_autosave_invalid", "Autosave bytes do not satisfy the current schema")
 	var document: Dictionary = validated["value"]["candidate"]
@@ -243,6 +288,17 @@ static func _validate_autosave(value: Variant, initial_context: Dictionary,
 			or lifecycle.get("causal_day_instance") != allocation["causal_day_instance"] \
 			or lifecycle.get("causal_day_instance_issuer_receipt") != allocation["causal_day_instance_issuer_receipt"]:
 		return _fail(&"new_run_autosave_invalid", "Autosave snapshot does not bind allocated identity")
+	if not scene_assignment.is_empty():
+		if document.get("schema_version") != 9 or snapshot.get("schema_version") != 9 \
+				or lifecycle.get("state") != "PLAYING" or lifecycle.get("restore_provenance") != null \
+				or lifecycle.get("scene_assignment") != scene_assignment \
+				or snapshot.get("route_id") != "scene" or initial_context.get("route_id") != "scene" \
+				or snapshot.get("active_app_id") != null or initial_context.get("active_app_id") != null \
+				or snapshot.get("content_version") != initial_context.get("content_version") \
+				or not SAVE_DOCUMENT_SCHEMA.RUN_SNAPSHOT_SCHEMA._scene_exact_value(snapshot.get("narrative_checkpoint"), initial_context.get("dialogic_checkpoint")) \
+				or not SAVE_DOCUMENT_SCHEMA.RUN_SNAPSHOT_SCHEMA._scene_exact_value(snapshot.get("audio_context"), initial_context.get("audio_context")):
+			return _fail(&"new_run_autosave_invalid", "scene Autosave differs from its allocated assignment or initial context")
+		return {"ok": true, "code": &"ok", "value": autosave.duplicate(true)}
 	if lifecycle.get("day") != 1 or lifecycle.get("state") != "PLAYING" \
 			or lifecycle.get("dark_mode") != captured_dark \
 			or initial_context.get("dark_mode") != captured_dark \
@@ -298,3 +354,4 @@ static func _has_exact_keys(value: Dictionary, expected: Array[String]) -> bool:
 
 static func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message}
+

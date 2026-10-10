@@ -38,8 +38,8 @@ class ExternalOwners extends RefCounted:
 		return preload("res://scripts/profile/ProfileSchema.gd").validate(candidate)
 	func prepare_legacy_profile_patch(_input: Dictionary, _metadata: Dictionary = {}) -> Dictionary:
 		return {"ok": true, "value": preload("res://scripts/profile/ProfileSchema.gd").make_defaults()}
-	func prepare_locale(locale: String) -> Dictionary:
-		return {"ok": true, "value": {"canonical_locale_id": locale}}
+	func prepare_locale(locale: String, font_style: String = "pixel", text_size: int = 100) -> Dictionary:
+		return {"ok": true, "value": {"canonical_locale_id": locale, "font_style": font_style, "text_size": text_size}}
 	func prepare_semantic_restore(context: Dictionary, _preferences: Dictionary) -> Dictionary:
 		if context.get("fixture_missing_track", false):
 			return {"ok": false, "code": &"AUDIO_CONTENT_UNAVAILABLE"}
@@ -79,6 +79,7 @@ class FinalizeParticipant extends RefCounted:
 
 var failures := 0
 var projection_events := 0
+var restore_state: Node
 
 func _initialize() -> void:
 	call_deferred("_run")
@@ -115,6 +116,7 @@ func _run() -> void:
 	_check(port.commit_action(initial["value"]["token"]).get("ok", false), "real atomic save")
 	var record: Dictionary = port.get_projection()["value"]["records"][2]
 	_check(record["state"] == "occupied" and record["day"] == 1 and str(record["saved_time"]).length() == 5, "validated Day and frozen time")
+	_check(record["family"] == "legacy_day", "admitted legacy family is explicit")
 	var document: Dictionary = JSON.parse_string(storage.read_text("slot_1.json")["value"])
 	_check(SCHEMA.validate(document).get("ok", false), "saved time binds instant and original offset")
 	var invalid_time: Dictionary = document["saved_time"].duplicate(true)
@@ -338,6 +340,9 @@ func _test_unavailable(manager: Node, port: RefCounted, files: RefCounted) -> vo
 
 func _test_restore(manager: Node, port: RefCounted) -> void:
 	var state: Node = GS.new()
+	# The manager's participant stack is still inspected by _run after this
+	# helper returns; its owner must live until that manager is disposed.
+	restore_state = state
 	state.reset_game()
 	_check(state.configure_mutation_gate(manager._mutation_gate).get("ok", false), "restore GameState shares transaction custody")
 	var external := ExternalOwners.new()
@@ -360,7 +365,6 @@ func _test_restore(manager: Node, port: RefCounted) -> void:
 	manager._journal.reset("different-live-run")
 	var earlier := _snapshot()
 	if earlier.is_empty():
-		state.free()
 		return
 	earlier["active_app_id"] = "contacts"
 	var newer := earlier.duplicate(true)
@@ -373,6 +377,7 @@ func _test_restore(manager: Node, port: RefCounted) -> void:
 	_check(manager._storage.write_atomic("slot_4.json", JSON.stringify(fallback_document["value"]), manager._document_text_validator).get("ok", false), "fallback file fixture")
 	var fallback_record: Dictionary = port.get_projection()["value"]["records"][5]
 	_check(fallback_record["fallback"] and fallback_record["actions"]["load"] and fallback_record["load_day"] == 1 and fallback_record["load_saved_time"] == null, "typed current incompatibility selects whole earlier bundle with unknown time")
+	_check(fallback_record["family"] == "legacy_day" and fallback_record["load_family"] == "legacy_day", "fallback preserves explicit admitted and selected families")
 	var fallback_action: Dictionary = port.prepare_action("load", "slot:4")
 	_check(fallback_action.get("ok", false) and fallback_action["value"]["confirmation_kind"] == "replace_progress_fallback", "one combined fallback confirmation")
 	var fallback_committed: Dictionary = port.commit_action(fallback_action["value"]["token"])
@@ -406,7 +411,6 @@ func _test_restore(manager: Node, port: RefCounted) -> void:
 				_check(state.money == saved_money, "current checkpoint restores live money")
 				_check(manager._journal.capture_state()["value"]["backup"] == saved_journal, "restore installs the exact saved journal")
 				_check(not port.commit_action(same_checkpoint["value"]["token"]).get("ok", false), "consumed UI restore token still rejects replay")
-	state.free()
 
 func _test_title_cold_load(storage: RefCounted) -> void:
 	# A fresh owner with no seeded journal reopens the persisted in-memory files.
@@ -466,5 +470,6 @@ func _check(condition: bool, message: String) -> void:
 
 func _finish(manager: Node) -> void:
 	manager.free()
+	if is_instance_valid(restore_state): restore_state.free()
 	print("BACKUP_OPERATIONS_PASS" if failures == 0 else "BACKUP_OPERATIONS_FAIL %d" % failures)
 	quit(0 if failures == 0 else 1)

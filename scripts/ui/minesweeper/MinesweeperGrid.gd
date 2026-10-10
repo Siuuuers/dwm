@@ -18,6 +18,7 @@ const MODES := [&"reveal",&"flag",&"drag"]
 const TOGGLE_ACTION := &"game_toggle_board_mode"
 const NEW_BOARD_ACTION := &"game_new_board"
 
+var _scene_presentation := false
 var cell_nodes: Array[Control] = []
 var focused_index := -1
 var mode: StringName = &"reveal"
@@ -31,7 +32,7 @@ var _palette: StringName = &"after_hours"
 var _high_contrast := false
 var _colour_preset := "standard"
 var _font_style := "pixel"
-var _day := 1
+var _day: Variant = 1
 var _held_index := -1
 var _held_revision := -1
 var _held_action: StringName = &""
@@ -109,8 +110,15 @@ func _on_view_visibility_changed() -> void:
 
 func configure(locale: String = "en", percent: int = 100, large: bool = false, palette: StringName = &"after_hours",
 		high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel", day: int = 1) -> bool:
+	return _configure_context(locale, percent, large, palette, high_contrast, colour_preset, font_style, day, false)
+
+func configure_scene(locale: String = "en", percent: int = 100, large: bool = false, palette: StringName = &"after_hours", high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> bool:
+	return _configure_context(locale, percent, large, palette, high_contrast, colour_preset, font_style, null, true)
+
+func _configure_context(locale: String = "en", percent: int = 100, large: bool = false, palette: StringName = &"after_hours", high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel", day: Variant = 1, scene: bool = false) -> bool:
+	if _scene_presentation and not scene: return false
 	var probe: Control = CELL.new()
-	if not probe.configure(locale,percent,large,palette,high_contrast,colour_preset,font_style,day):
+	if not probe._configure_context(locale,percent,large,palette,high_contrast,colour_preset,font_style,day, scene):
 		probe.free()
 		return false
 	var content_changed: bool = _locale != locale.replace("_","-") or _percent != percent or _large != large or _font_style != font_style
@@ -121,11 +129,12 @@ func configure(locale: String = "en", percent: int = 100, large: bool = false, p
 	_high_contrast = high_contrast
 	_colour_preset = colour_preset
 	_font_style = font_style
+	_scene_presentation = scene
 	_day = day
 	theme = probe.theme
 	probe.free()
 	if content_changed: cancel_pointer_gesture()
-	for cell: Control in cell_nodes: cell.configure(_locale,_percent,_large,_palette,_high_contrast,_colour_preset,_font_style,_day)
+	for cell: Control in cell_nodes: cell._configure_context(_locale,_percent,_large,_palette,_high_contrast,_colour_preset,_font_style,_day, scene)
 	_reflow()
 	_refresh_accessibility()
 	return true
@@ -243,7 +252,7 @@ func _rebuild() -> void:
 	while cell_nodes.size() < projection.cells.size():
 		var cell: Control = CELL.new()
 		add_child(cell)
-		cell.configure(_locale,_percent,_large,_palette,_high_contrast,_colour_preset,_font_style,_day)
+		cell._configure_context(_locale,_percent,_large,_palette,_high_contrast,_colour_preset,_font_style,_day, _scene_presentation)
 		cell_nodes.append(cell)
 	for index in projection.cells.size(): cell_nodes[index].present(projection.cells[index])
 	_reflow()

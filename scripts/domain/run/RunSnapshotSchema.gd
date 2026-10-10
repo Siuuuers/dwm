@@ -28,6 +28,7 @@ extends RefCounted
 ## Earlier Run snapshots are refused; no historical context or Profile fact is reconstructed.
 ## v8 adds strictly validated scene-event receipts to the existing command ledger.
 const SCHEMA_VERSION := 8
+const SCENE_SCHEMA_VERSION := 9
 const RECOVERY_LINE_HISTORY_LIMIT := 32
 
 const ORDINARY_CORRESPONDENCE := preload("res://scripts/domain/contact/OrdinaryReplyEchoState.gd")
@@ -92,6 +93,9 @@ static func build(
 		content_version: int,
 		checkpoint_sequence: int
 ) -> Dictionary:
+	if route_id == "scene":
+		return build_scene(snapshot_input, dialogic_checkpoint, route_id, active_app_id,
+			audio_context, content_version, checkpoint_sequence)
 	for member: String in ["lifecycle", "gameplay", "contacts", "committed_schedule", "dating",
 			"applied_effect_transaction_ids", "applied_variable_transaction_ids", "desktop",
 			"schedule_view"]:
@@ -133,6 +137,14 @@ static func build(
 	return {"ok": true, "code": &"ok", "value": {"snapshot": validated["value"]["candidate"]}}
 
 static func validate(snapshot: Dictionary) -> Dictionary:
+	var version: Variant = snapshot.get("schema_version")
+	if typeof(version) == TYPE_FLOAT and is_finite(version) and version == floorf(version): version = int(version)
+	if version == SCENE_SCHEMA_VERSION:
+		var run_join := _validate_scene_history_run(snapshot.get("command_receipts"), snapshot.get("run_id"))
+		if not run_join.is_empty(): return _fail(&"scene_receipt_run_changed", run_join)
+		var selected: Dictionary = SCENE_MANIFEST.scene_registration()
+		if not selected.ok: return selected
+		return validate_scene(snapshot, selected.value)
 	# `_normalize_integral_floats()` allocates a FRESH Dictionary/Array at every container node,
 	# so the candidate never aliases the caller and a `duplicate(true)` ahead of it only rebuilt
 	# the same tree a second time. Proof obligation for the leaves the normalizer passes through
@@ -317,7 +329,7 @@ static func _validate_receipt_partition(receipts: Dictionary, applied_effects: V
 	var seen := {"effect_transaction": {}, "variable_transaction": {}}
 	for key: Variant in receipts:
 		var kind := str((receipts[key] as Dictionary)["kind"])
-		if kind == "scene_event":
+		if kind in ["scene_event", "scene_admission"]:
 			continue # Already validated separately; never counted as an effect or variable ID.
 		if not (expected[kind] as Dictionary).has(str(key)):
 			return "command receipt is not present in its applied %s id set: %s" % [kind, str(key)]
@@ -372,6 +384,11 @@ static func derive_route_restore_context(snapshot: Dictionary) -> Dictionary:
 		return validated
 	var candidate: Dictionary = validated["value"]["candidate"]
 	var lifecycle: Dictionary = candidate["lifecycle"]
+	if candidate.schema_version == SCENE_SCHEMA_VERSION:
+		return {"ok": true, "code": &"ok", "value": {
+			"run_id": candidate.run_id, "lifecycle_state": lifecycle.state,
+			"active_app_id": candidate.active_app_id, "scene": candidate.scene.duplicate(true),
+			"contacts": candidate.contacts.duplicate(true)}}
 	return {"ok": true, "code": &"ok", "value": {
 		"run_id": str(candidate["run_id"]),
 		"day": int(lifecycle["day"]),
@@ -575,3 +592,490 @@ static func _detached(value: Variant) -> Variant:
 
 static func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message}
+
+
+## Scene format is admitted jointly with Save9. The legacy constants and paths
+## above remain intact; no calendar-shaped defaults are produced for scenes.
+const SCENE_MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
+const SCENE_CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
+const SCENE_READING := preload("res://scripts/narrative/SoloReadingSession.gd")
+const SCENE_ATTEMPTS := preload("res://scripts/profile/DatingAttemptLedger.gd")
+const SCENE_ASSIGNMENT := preload("res://scripts/domain/relationship/PairDeckDraw.gd")
+const SCENE_CANONICAL := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+const SCENE_CAPABILITIES := preload("res://scripts/domain/minesweeper/MinesweeperCapabilityRules.gd")
+const SCENE_INPUT_KEYS := ["lifecycle", "gameplay", "contacts", "desktop", "scene",
+	"applied_effect_transaction_ids", "applied_variable_transaction_ids", "command_receipts"]
+const SCENE_TOP_KEYS := ["active_app_id", "applied_effect_transaction_ids", "applied_variable_transaction_ids",
+	"audio_context", "checkpoint_id", "checkpoint_sequence", "command_receipts", "contacts", "content_version",
+	"desktop", "gameplay", "lifecycle", "narrative_checkpoint", "route_id", "run_id", "scene", "schema_version"]
+const SCENE_LIFECYCLE_KEYS := ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance",
+	"causal_day_instance_issuer_receipt", "restore_provenance", "state", "scene_assignment"]
+const SCENE_GAMEPLAY_KEYS := ["affection", "coins", "friend_attitude", "friends", "inter_friend_affection", "inventory",
+	"minesweeper_app_rounds_finished_today", "minesweeper_money_earned_today", "minesweeper_rng_seed",
+	"minesweeper_round_floor", "minesweeper_rounds_left", "minesweeper_selected_difficulty", "minesweeper_task_rewards_claimed",
+	"money", "narrative_variables", "penalty_points_today", "penalty_points_total", "route_context",
+	"shop_purchase_counts", "stats", "story_flags"]
+const SCENE_CHECKPOINT_KEYS := ["content_version", "entry_id", "frozen_context", "manifest_fingerprint", "stage",
+	"transaction_id", "reading_session"]
+static var _scene_issuer: Object
+static var _scene_authority: Object
+static var _scene_creation_owner: Object
+static var _scene_semantic_busy := false
+
+static func configure_scene_validation(issuer: Object, authority: Object, creation_owner: Object = null) -> Dictionary:
+	if not is_instance_valid(issuer) or not issuer.has_method("verify_issued") \
+			or not is_instance_valid(authority) or not authority.has_method("validate_scene_snapshot_semantics"):
+		return _fail(&"scene_validation_unavailable", "real issuer and semantic owner are required")
+	if creation_owner != null and (not is_instance_valid(creation_owner) \
+			or creation_owner.get_script() != load("res://autoload/SaveManager.gd")):
+		return _fail(&"scene_validation_unavailable", "creation authority must be the real SaveManager")
+	if _scene_issuer != null or _scene_authority != null:
+		if _scene_issuer != issuer or _scene_authority != authority \
+				or (_scene_creation_owner != null and creation_owner != null and _scene_creation_owner != creation_owner):
+			return _fail(&"scene_validation_already_configured", "owner replacement refused")
+		if creation_owner != null: _scene_creation_owner = creation_owner
+		return {"ok": true}
+	_scene_issuer = issuer
+	_scene_authority = authority
+	_scene_creation_owner = creation_owner
+	return {"ok": true}
+
+static func build_scene(snapshot_input: Dictionary, dialogic_checkpoint: Dictionary, route_id: String,
+		active_app_id: Variant, audio_context: Dictionary, content_version: int, checkpoint_sequence: int) -> Dictionary:
+	if route_id != "scene" or not _scene_keys(snapshot_input, SCENE_INPUT_KEYS) \
+			or not snapshot_input.lifecycle is Dictionary:
+		return _fail(&"invalid_snapshot_input", "scene input requires its exact complete owner shape")
+	var snapshot: Dictionary = snapshot_input.duplicate(true)
+	snapshot.merge({"schema_version": SCENE_SCHEMA_VERSION, "content_version": content_version,
+		"run_id": snapshot_input.lifecycle.get("run_id"), "checkpoint_sequence": checkpoint_sequence,
+		"checkpoint_id": "%s:%d" % [str(snapshot_input.lifecycle.get("run_id", "")), checkpoint_sequence],
+		"route_id": route_id, "active_app_id": active_app_id,
+		"narrative_checkpoint": dialogic_checkpoint.duplicate(true), "audio_context": audio_context.duplicate(true)})
+	var checked := validate(snapshot)
+	if not checked.ok: return checked
+	return {"ok": true, "code": &"ok", "value": {"snapshot": checked.value.candidate}}
+
+## Producer construction uses the same exact initial candidate proof, never ordinary Load.
+static func build_scene_new_run_candidate(snapshot_input: Dictionary, dialogic_checkpoint: Dictionary,
+		audio_context: Dictionary, content_version: int, allocation_candidate: Dictionary,
+		profile_material: Dictionary, bundle: Dictionary, issuer: Object) -> Dictionary:
+	if not _scene_keys(snapshot_input, SCENE_INPUT_KEYS) or not snapshot_input.lifecycle is Dictionary:
+		return _fail(&"invalid_snapshot_input", "initial scene input requires its complete owner shape")
+	var snapshot: Dictionary = snapshot_input.duplicate(true)
+	snapshot.merge({"schema_version": SCENE_SCHEMA_VERSION, "content_version": content_version,
+		"run_id": snapshot_input.lifecycle.get("run_id"), "checkpoint_sequence": 1,
+		"checkpoint_id": str(snapshot_input.lifecycle.get("run_id", "")) + ":1",
+		"route_id": "scene", "active_app_id": null,
+		"narrative_checkpoint": dialogic_checkpoint.duplicate(true), "audio_context": audio_context.duplicate(true)})
+	var checked := validate_scene_new_run_candidate(snapshot, allocation_candidate, profile_material, bundle, issuer)
+	if not checked.ok: return checked
+	return {"ok": true, "code": &"ok", "value": {"snapshot": checked.value.candidate}}
+
+## Detached initial candidates have their own authority: the reproducible allocation and
+## frozen Profile material, not a completed creation or current live Profile.
+static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_candidate: Dictionary,
+		profile_material: Dictionary, bundle: Dictionary, issuer: Object) -> Dictionary:
+	var primitive := validate_primitive_tree(snapshot)
+	if not primitive.ok: return primitive
+	var selected: Dictionary = SCENE_MANIFEST.scene_registration()
+	if not selected.ok: return selected
+	if not _scene_exact_value(bundle, selected.value):
+		return _fail(&"scene_registration_mismatch", "initial candidate must use the installed registration")
+	var candidate: Dictionary = snapshot.duplicate(true)
+	if not _scene_keys(candidate, SCENE_TOP_KEYS) or typeof(candidate.schema_version) != TYPE_INT \
+			or candidate.schema_version != SCENE_SCHEMA_VERSION or candidate.route_id != "scene" \
+			or not _scene_id(candidate.run_id) or not _scene_int(candidate.content_version, 1) \
+			or not _scene_int(candidate.checkpoint_sequence, 1, 1) \
+			or candidate.checkpoint_id != candidate.run_id + ":1" or candidate.active_app_id != null:
+		return _fail(&"invalid_snapshot_shape", "initial Run9 requires the exact sequence-one scene shape")
+	if not _scene_keys(candidate.lifecycle, SCENE_LIFECYCLE_KEYS) \
+			or candidate.lifecycle.state != "PLAYING" or candidate.lifecycle.restore_provenance != null \
+			or not candidate.command_receipts is Dictionary or candidate.command_receipts.size() != 1 \
+			or not candidate.applied_effect_transaction_ids is Array or not candidate.applied_effect_transaction_ids.is_empty() \
+			or not candidate.applied_variable_transaction_ids is Array or not candidate.applied_variable_transaction_ids.is_empty():
+		return _fail(&"scene_initial_state_invalid", "initial candidate cannot contain prior effects or history")
+	var receipt: Variant = candidate.command_receipts.values()[0]
+	if not receipt is Dictionary:
+		return _fail(&"scene_initial_state_invalid", "initial admission must be an object")
+	var admitted: Dictionary = SCENE_EVENT_CONTRACT.validate_scene_initial_admission_candidate(
+		receipt, allocation_candidate, profile_material, bundle, issuer)
+	if not admitted.ok: return admitted
+	var transaction_id: String = allocation_candidate.request.transaction_id
+	if candidate.command_receipts.keys() != [transaction_id] or candidate.run_id != allocation_candidate.run_id:
+		return _fail(&"scene_initial_state_invalid", "initial receipt and run must use the creation identity")
+	for member: String in ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance", "causal_day_instance_issuer_receipt"]:
+		if not _scene_exact_value(candidate.lifecycle[member], allocation_candidate[member]):
+			return _fail(&"invalid_lifecycle", "initial lifecycle differs from its allocation")
+	if not _scene_exact_value(candidate.lifecycle.scene_assignment, profile_material.scene_assignment.receipt):
+		return _fail(&"invalid_lifecycle", "initial lifecycle differs from its frozen assignment")
+	var expected_scene := {"registration_sha256": SCENE_MANIFEST.scene_registration_fingerprint(),
+		"active_occurrence_id": transaction_id, "active_admission_receipt_id": transaction_id}
+	if not _scene_exact_value(candidate.scene, expected_scene) or not candidate.audio_context is Dictionary:
+		return _fail(&"scene_initial_state_invalid", "initial scene reference or audio context is invalid")
+	var gameplay_error := _validate_scene_gameplay(candidate.gameplay)
+	if not gameplay_error.is_empty(): return _fail(&"invalid_gameplay", gameplay_error)
+	var game_owner: Script = load("res://autoload/GameState.gd")
+	var gameplay: Dictionary = game_owner.make_scene_new_run_gameplay()
+	if not _scene_exact_value(candidate.gameplay, gameplay) \
+			or not _scene_exact_value(candidate.contacts, SCENE_CONTACTS.make_scene_defaults()):
+		return _fail(&"scene_initial_state_invalid", "initial gameplay and Contacts must be pristine owner defaults")
+	var consequence: Dictionary = DESKTOP_CONSEQUENCE_STATE.make_empty({
+		"causal_day_instance": allocation_candidate.causal_day_instance,
+		"causal_day_instance_issuer_receipt": allocation_candidate.causal_day_instance_issuer_receipt})
+	if not consequence.ok: return consequence
+	var desktop := {"board": DESKTOP_BOARD_STATE.new().capture(), "consequence": consequence.value.state}
+	if not _scene_exact_value(candidate.desktop, desktop):
+		return _fail(&"scene_initial_state_invalid", "initial desktop cannot contain prior attempts or consequences")
+	var reading := _validate_scene_reading(candidate)
+	if not reading.ok: return reading
+	var checkpoint: Dictionary = candidate.narrative_checkpoint
+	var saved: Dictionary = checkpoint.reading_session
+	var result: Dictionary = receipt.scene_admission.result
+	if checkpoint.transaction_id != transaction_id or checkpoint.entry_id != result.entry_id \
+			or typeof(checkpoint.content_version) != TYPE_INT or typeof(saved.schema_version) != TYPE_INT \
+			or typeof(saved.program_index) != TYPE_INT \
+			or saved.boundary != "line" or saved.next_operation != null \
+			or saved.ledger.captions.size() != 1 or saved.ledger.entry_contexts.size() != 1:
+		return _fail(&"scene_initial_state_invalid", "initial reading must contain only its first caption and frame")
+	var bridge_owner: Script = load("res://autoload/DialogicBridge.gd")
+	var initial_reading: Dictionary = bridge_owner.build_scene_initial_checkpoint(receipt, bundle)
+	if not initial_reading.ok: return initial_reading
+	if not _scene_exact_value(checkpoint, initial_reading.value):
+		return _fail(&"scene_initial_state_invalid", "initial checkpoint must be the registered target's exact first caption")
+	var frozen_owner: Script = load("res://scripts/narrative/FrozenRunContext.gd")
+	var frames: Dictionary = frozen_owner.derive_scene_frames({transaction_id: result}, saved)
+	if not frames.ok: return frames
+	if frames.value.entry_contexts.size() != 1 \
+			or not _scene_exact_value(frames.value.entry_contexts.values()[0], checkpoint.frozen_context):
+		return _fail(&"reading_entry_context_mismatch", "initial frozen frame differs from its authenticated admission")
+	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
+
+## Historical normalization must never coerce the new authenticated variant.
+## Float-valued story/audio leaves remain untouched; this screens only identity,
+## initial receipts and the integer snapshot header before any normalization.
+static func _scene_has_initial_admission(snapshot: Dictionary) -> bool:
+	var receipts: Variant = snapshot.get("command_receipts")
+	if not receipts is Dictionary: return false
+	for receipt: Variant in receipts.values():
+		if not receipt is Dictionary or receipt.get("kind") != "scene_admission": continue
+		var admission: Variant = receipt.get("scene_admission")
+		if not admission is Dictionary: continue
+		if admission.get("schema_version") == 3 or admission.has("allocation_candidate_sha256") \
+				or admission.has("scene_assignment_sha256"):
+			return true
+	return false
+
+static func _scene_initial_types_error(snapshot: Dictionary) -> String:
+	if not _scene_has_initial_admission(snapshot): return ""
+	for member: String in ["schema_version", "content_version", "checkpoint_sequence"]:
+		if snapshot.has(member) and typeof(snapshot[member]) != TYPE_INT:
+			return "initial-admission snapshot header must retain integer types"
+	var lifecycle: Variant = snapshot.get("lifecycle")
+	if lifecycle is Dictionary and not SCENE_EVENT_CONTRACT._same_types(lifecycle, _normalize_integral_floats(lifecycle)):
+		return "initial-admission lifecycle must retain exact identity types"
+	for receipt: Variant in snapshot.command_receipts.values():
+		if not receipt is Dictionary or receipt.get("kind") != "scene_admission": continue
+		var admission: Variant = receipt.get("scene_admission")
+		if not admission is Dictionary: continue
+		if admission.get("schema_version") == 3 or admission.has("allocation_candidate_sha256") \
+				or admission.has("scene_assignment_sha256"):
+			if not SCENE_EVENT_CONTRACT._same_types(receipt, _normalize_integral_floats(receipt)):
+				return "initial admission must retain exact receipt types"
+	return ""
+
+static func _scene_exact_value(left: Variant, right: Variant) -> bool:
+	return SCENE_EVENT_CONTRACT._same_types(left, right) and _scene_equal(left, right)
+
+static func validate_scene(snapshot: Dictionary, bundle: Dictionary) -> Dictionary:
+	var type_error := _scene_initial_types_error(snapshot)
+	if not type_error.is_empty(): return _fail(&"scene_initial_types_invalid", type_error)
+	var run_join := _validate_scene_history_run(snapshot.get("command_receipts"), snapshot.get("run_id"))
+	if not run_join.is_empty(): return _fail(&"scene_receipt_run_changed", run_join)
+	if not is_instance_valid(_scene_issuer) or not is_instance_valid(_scene_authority) or _scene_semantic_busy:
+		return _fail(&"scene_validation_unavailable", "scene semantic owner unavailable or reentrant")
+	var selected: Dictionary = SCENE_MANIFEST.scene_registration()
+	if not selected.ok: return selected
+	if not _scene_equal(selected.value, bundle):
+		return _fail(&"scene_registration_mismatch", "saved data cannot select a registration")
+	var candidate: Dictionary = _normalize_integral_floats(snapshot)
+	var primitive := validate_primitive_tree(candidate)
+	if not primitive.ok: return primitive
+	if not _scene_keys(candidate, SCENE_TOP_KEYS) or typeof(candidate.schema_version) != TYPE_INT \
+			or candidate.schema_version != SCENE_SCHEMA_VERSION or candidate.route_id != "scene" \
+			or not _scene_id(candidate.run_id) or not _scene_int(candidate.content_version, 1) \
+			or not _scene_int(candidate.checkpoint_sequence, 0) \
+			or candidate.checkpoint_id != "%s:%d" % [candidate.run_id, candidate.checkpoint_sequence]:
+		return _fail(&"invalid_snapshot_shape", "invalid Run9 header or member set")
+	if not _scene_keys(candidate.lifecycle, SCENE_LIFECYCLE_KEYS) \
+			or candidate.lifecycle.run_id != candidate.run_id or candidate.lifecycle.state != "PLAYING":
+		return _fail(&"invalid_lifecycle", "scene lifecycle requires its exact eight members and PLAYING")
+	var assignment: Dictionary = SCENE_ASSIGNMENT.validate_scene(candidate.lifecycle.scene_assignment)
+	if not assignment.ok: return assignment
+	var lifecycle: Dictionary = RUN_LIFECYCLE.validate_scene(candidate.lifecycle, _scene_issuer)
+	if not lifecycle.ok: return lifecycle
+	if candidate.active_app_id != null and (not candidate.active_app_id is String \
+			or candidate.active_app_id == "logout" or not DESKTOP_APP_REGISTRY.new().has_app(StringName(candidate.active_app_id))):
+		return _fail(&"invalid_snapshot_shape", "invalid active content app")
+	if not candidate.audio_context is Dictionary or not candidate.contacts is Dictionary \
+			or not candidate.command_receipts is Dictionary:
+		return _fail(&"invalid_snapshot_shape", "scene owner sections must be objects")
+	if not _scene_keys(candidate.scene, ["registration_sha256", "active_occurrence_id", "active_admission_receipt_id"]) \
+			or candidate.scene.registration_sha256 != SCENE_MANIFEST.scene_registration_fingerprint() \
+			or not _scene_id(candidate.scene.active_occurrence_id) or not _scene_id(candidate.scene.active_admission_receipt_id):
+		return _fail(&"scene_registration_mismatch", "active scene reference must use installed registration")
+	var gameplay_error := _validate_scene_gameplay(candidate.gameplay)
+	if not gameplay_error.is_empty(): return _fail(&"invalid_gameplay", gameplay_error)
+	var contacts: Dictionary = SCENE_CONTACTS.validate_scene_state(candidate.contacts, candidate.scene.registration_sha256, _scene_issuer)
+	if not contacts.ok: return contacts
+	for receipt: Dictionary in candidate.contacts.transaction_receipts.values():
+		if receipt.context.identity.run_id != candidate.run_id:
+			return _fail(&"scene_contact_run_changed", "Contacts receipt belongs to another run")
+	if not _scene_keys(candidate.desktop, DESKTOP_KEYS) or not candidate.desktop.board is Dictionary \
+			or not candidate.desktop.consequence is Dictionary:
+		return _fail(&"invalid_desktop_aggregate", "desktop requires its exact owners")
+	var board: Dictionary = DESKTOP_BOARD_STATE.new().prepare_restore_scene(candidate.desktop.board, _scene_issuer)
+	if not board.ok: return board
+	var consequence: Dictionary = DESKTOP_CONSEQUENCE_STATE.validate(candidate.desktop.consequence)
+	if not consequence.ok: return consequence
+	for member: String in ["applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
+		var ids_error := _validate_transaction_ids(candidate[member], member)
+		if not ids_error.is_empty(): return _fail(&"invalid_transaction_ids", ids_error)
+	var receipts_error := _validate_scene_receipt_shapes(candidate)
+	if not receipts_error.is_empty(): return _fail(&"invalid_command_receipts", receipts_error)
+	var scene_receipts: Dictionary = SCENE_EVENT_CONTRACT.validate_scene_receipts(candidate.command_receipts, bundle, _scene_issuer, _scene_creation_owner)
+	if not scene_receipts.ok: return scene_receipts
+	var reading := _validate_scene_reading(candidate)
+	if not reading.ok: return reading
+	# The real live owner authenticates historical/current admissions, issuer
+	# chains, physical Profile references, assignment creation and Frozen frames.
+	# It must not call Run.validate again. A Boolean supplied by saved data is
+	# never substituted for this privately installed owner.
+	var before := _scene_hash(candidate)
+	var detached := candidate.duplicate(true)
+	var detached_bundle := bundle.duplicate(true)
+	var bundle_before := _scene_hash(detached_bundle)
+	_scene_semantic_busy = true
+	var semantic: Variant = _scene_authority.call("validate_scene_snapshot_semantics", detached, detached_bundle)
+	_scene_semantic_busy = false
+	if _scene_hash(detached) != before or _scene_hash(detached_bundle) != bundle_before:
+		return _fail(&"scene_validation_mutated", "semantic owner mutated validation input")
+	if not semantic is Dictionary or semantic.get("ok") != true:
+		return semantic if semantic is Dictionary else _fail(&"scene_validation_invalid_result", "semantic owner must return a result")
+	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
+
+static func _validate_scene_reading(candidate: Dictionary) -> Dictionary:
+	var checkpoint: Variant = candidate.narrative_checkpoint
+	if not _scene_keys(checkpoint, SCENE_CHECKPOINT_KEYS) or checkpoint.stage != "scene" \
+			or not _scene_id(checkpoint.entry_id) or not _scene_id(checkpoint.transaction_id) \
+			or checkpoint.content_version != candidate.content_version \
+			or checkpoint.manifest_fingerprint != candidate.scene.registration_sha256 \
+			or not checkpoint.reading_session is Dictionary or not checkpoint.frozen_context is Dictionary:
+		return _fail(&"reading_checkpoint_invalid", "Run9 requires a complete scene checkpoint")
+	var saved: Dictionary = checkpoint.reading_session
+	if saved.get("schema_version") != 5 or saved.get("occurrence_id") != candidate.scene.active_occurrence_id \
+			or saved.get("entry_id") != checkpoint.entry_id:
+		return _fail(&"reading_context_invalid", "active occurrence and reading5 must agree")
+	var session := SCENE_READING.new()
+	var configured: Dictionary = session.configure_scene()
+	if not configured.ok: return configured
+	var restored: Dictionary = session.restore(saved, checkpoint.entry_id)
+	if not restored.ok: return restored
+	if not checkpoint.frozen_context.get("presentation") is Dictionary:
+		return _fail(&"reading_context_invalid", "frozen presentation must be an object")
+	var fields: Variant = checkpoint.frozen_context.presentation.get("fields")
+	if not fields is Dictionary or fields.get("occurrence_id") != candidate.scene.active_occurrence_id \
+			or fields.get("admission_receipt_id") != candidate.scene.active_admission_receipt_id \
+			or fields.get("entry_id") != checkpoint.entry_id \
+			or checkpoint.frozen_context.get("transaction_id") != checkpoint.transaction_id:
+		return _fail(&"reading_context_invalid", "active admission and frozen wrapper must agree")
+	return {"ok": true}
+
+## For the actual GameState rollback/capture owner. This validates the complete
+## captured input without inventing a narrative checkpoint. Full save admission
+## still additionally requires validate_scene's reading and semantic checks.
+static func validate_scene_input_fields(input: Dictionary, bundle: Dictionary) -> Dictionary:
+	var type_error := _scene_initial_types_error(input)
+	if not type_error.is_empty(): return _fail(&"scene_initial_types_invalid", type_error)
+	var lifecycle_input: Variant = input.get("lifecycle")
+	if lifecycle_input is Dictionary:
+		var run_join := _validate_scene_history_run(input.get("command_receipts"), lifecycle_input.get("run_id"))
+		if not run_join.is_empty(): return _fail(&"scene_receipt_run_changed", run_join)
+	if not is_instance_valid(_scene_issuer): return _fail(&"scene_validation_unavailable", "issuer unavailable")
+	if not _scene_keys(input, SCENE_INPUT_KEYS): return _fail(&"invalid_snapshot_input", "incomplete scene capture")
+	var primitive := validate_primitive_tree(input)
+	if not primitive.ok: return primitive
+	var selected: Dictionary = SCENE_MANIFEST.scene_registration()
+	if not selected.ok: return selected
+	if not _scene_equal(selected.value, bundle): return _fail(&"scene_registration_mismatch", "unselected bundle")
+	if not _scene_keys(input.lifecycle, SCENE_LIFECYCLE_KEYS): return _fail(&"invalid_lifecycle", "invalid scene lifecycle keys")
+	var lifecycle: Dictionary = RUN_LIFECYCLE.validate_scene(input.lifecycle, _scene_issuer)
+	if not lifecycle.ok: return lifecycle
+	if not _scene_keys(input.scene, ["registration_sha256", "active_occurrence_id", "active_admission_receipt_id"]) \
+			or input.scene.registration_sha256 != SCENE_MANIFEST.scene_registration_fingerprint() \
+			or not _scene_id(input.scene.active_occurrence_id) or not _scene_id(input.scene.active_admission_receipt_id):
+		return _fail(&"scene_registration_mismatch", "invalid active scene reference")
+	var gameplay_error := _validate_scene_gameplay(input.gameplay)
+	if not gameplay_error.is_empty(): return _fail(&"invalid_gameplay", gameplay_error)
+	if not input.contacts is Dictionary or not input.command_receipts is Dictionary:
+		return _fail(&"invalid_snapshot_input", "Contacts/receipts must be objects")
+	var contacts: Dictionary = SCENE_CONTACTS.validate_scene_state(input.contacts, input.scene.registration_sha256, _scene_issuer)
+	if not contacts.ok: return contacts
+	for receipt: Dictionary in input.contacts.transaction_receipts.values():
+		if receipt.context.identity.run_id != input.lifecycle.run_id:
+			return _fail(&"scene_contact_run_changed", "Contacts receipt belongs to another run")
+	if not _scene_keys(input.desktop, DESKTOP_KEYS) or not input.desktop.board is Dictionary \
+			or not input.desktop.consequence is Dictionary: return _fail(&"invalid_desktop_aggregate", "invalid desktop owners")
+	var board: Dictionary = DESKTOP_BOARD_STATE.new().prepare_restore_scene(input.desktop.board, _scene_issuer)
+	if not board.ok: return board
+	var consequence: Dictionary = DESKTOP_CONSEQUENCE_STATE.validate(input.desktop.consequence)
+	if not consequence.ok: return consequence
+	for member: String in ["applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
+		var ids_error := _validate_transaction_ids(input[member], member)
+		if not ids_error.is_empty(): return _fail(&"invalid_transaction_ids", ids_error)
+	var receipts_error := _validate_scene_receipt_shapes(input)
+	if not receipts_error.is_empty(): return _fail(&"invalid_command_receipts", receipts_error)
+	var scene_receipts: Dictionary = SCENE_EVENT_CONTRACT.validate_scene_receipts(input.command_receipts, bundle, _scene_issuer, _scene_creation_owner)
+	if not scene_receipts.ok: return scene_receipts
+	return {"ok": true}
+
+## Historical receipts keep their original branch/generation. Only the Run is
+## invariant across the entire retained command ledger, including unused rows.
+static func _validate_scene_history_run(receipts: Variant, run_id: Variant) -> String:
+	if not receipts is Dictionary or not _scene_id(run_id): return ""
+	for id: Variant in receipts:
+		var receipt: Variant = receipts[id]
+		if not receipt is Dictionary: continue # Exact shapes are checked below.
+		var source: Variant = null
+		if receipt.get("kind") == "scene_admission":
+			var admission: Variant = receipt.get("scene_admission")
+			if admission is Dictionary: source = admission.get("source_identity")
+		elif receipt.get("kind") == "scene_event":
+			var event: Variant = receipt.get("scene_event")
+			if event is Dictionary and event.get("semantic") is Dictionary:
+				source = event.semantic.get("source")
+		else: continue
+		if not source is Dictionary or source.get("run_id") != run_id:
+			return "scene receipt %s belongs to another or missing Run" % str(id)
+	return ""
+
+static func _validate_scene_receipt_shapes(snapshot: Dictionary) -> String:
+	for id: Variant in snapshot.command_receipts:
+		var receipt: Variant = snapshot.command_receipts[id]
+		if not _scene_id(id) or not receipt is Dictionary or receipt.get("transaction_id") != id \
+				or not _scene_digest(receipt.get("request_fingerprint")) or not _scene_id(receipt.get("source_id")):
+			return "invalid command receipt identity"
+		if receipt.get("kind") == "scene_admission":
+			if not _scene_keys(receipt, ["transaction_id", "request_fingerprint", "kind", "source_id", "scene_admission"]) \
+					or not receipt.scene_admission is Dictionary:
+				return "invalid scene admission receipt members"
+			var admission: Dictionary = receipt.scene_admission
+			var admission_keys := ["schema_version", "registration_fingerprint", "source_identity", "issuer_receipt", "provenance", "result"]
+			if admission.get("schema_version") == 3:
+				admission_keys.append_array(["allocation_candidate_sha256", "scene_assignment_sha256"])
+			if not _scene_keys(admission, admission_keys): return "invalid scene admission receipt members"
+			if typeof(admission.schema_version) != TYPE_INT or admission.schema_version not in [2, 3] \
+					or admission.registration_fingerprint != snapshot.scene.registration_sha256 \
+					or not admission.source_identity is Dictionary or not admission.issuer_receipt is Dictionary \
+					or not admission.provenance is Dictionary or not admission.result is Dictionary:
+				return "invalid scene admission receipt family/registration"
+		elif receipt.get("kind") == "scene_event":
+			if not _scene_keys(receipt, ["transaction_id", "request_fingerprint", "kind", "source_id", "scene_event"]) \
+					or not _scene_keys(receipt.scene_event, ["schema_version", "semantic", "registration_fingerprint", "reading_anchor", "result"]):
+				return "invalid scene command receipt members"
+			var event: Dictionary = receipt.scene_event
+			if typeof(event.schema_version) != TYPE_INT or event.schema_version != 2 \
+					or event.registration_fingerprint != snapshot.scene.registration_sha256 \
+					or not event.semantic is Dictionary or not event.result is Dictionary or not event.reading_anchor is Dictionary:
+				return "invalid scene command receipt family/registration"
+		else:
+			if not _scene_keys(receipt, COMMAND_RECEIPT_KEYS) or receipt.get("kind") not in COMMAND_RECEIPT_KINDS:
+				return "invalid effect/variable command receipt"
+	if not snapshot.command_receipts.has(snapshot.scene.active_admission_receipt_id):
+		return "active admission receipt is absent"
+	return _validate_receipt_partition(snapshot.command_receipts,
+		snapshot.applied_effect_transaction_ids, snapshot.applied_variable_transaction_ids)
+
+static func _validate_scene_gameplay(gameplay: Variant) -> String:
+	if not _scene_keys(gameplay, SCENE_GAMEPLAY_KEYS): return "unexpected scene gameplay members"
+	for key: String in ["affection", "friend_attitude", "friends", "inter_friend_affection", "inventory",
+			"minesweeper_task_rewards_claimed", "narrative_variables", "route_context", "shop_purchase_counts", "story_flags"]:
+		if not gameplay[key] is Dictionary: return key + " must be an object"
+	if not _scene_keys(gameplay.stats, ["pressure"]) or not _scene_int(gameplay.stats.pressure, 0, 12):
+		return "stats must contain only pressure in 0..12"
+	if not _scene_int(gameplay.money, -30) or not _scene_int(gameplay.coins, 0): return "invalid money/coins"
+	for key: String in ["minesweeper_app_rounds_finished_today", "minesweeper_money_earned_today", "minesweeper_rng_seed",
+			"penalty_points_today", "penalty_points_total"]:
+		if not _scene_int(gameplay[key], 0): return "invalid " + key
+	if gameplay.penalty_points_total < gameplay.penalty_points_today: return "penalty total precedes current count"
+	if not _scene_int(gameplay.minesweeper_round_floor, -3, 0) \
+			or not _scene_int(gameplay.minesweeper_rounds_left, gameplay.minesweeper_round_floor, 2): return "invalid desktop round bounds"
+	if gameplay.minesweeper_selected_difficulty not in ["beginner", "intermediate", "expert"]:
+		return "unregistered desktop difficulty"
+	if not _scene_keys(gameplay.affection, SCENE_CONTACTS.FRIEND_IDS) \
+			or not _scene_keys(gameplay.friend_attitude, SCENE_CONTACTS.FRIEND_IDS): return "invalid friend indexes"
+	for friend: String in SCENE_CONTACTS.FRIEND_IDS:
+		if not _scene_int(gameplay.affection[friend], -4, 10) or not gameplay.friend_attitude[friend] is String:
+			return "invalid friend affection/attitude"
+	for pair: Variant in gameplay.inter_friend_affection:
+		if pair not in ["lavinia_priscilla", "lavinia_sylvia", "priscilla_sylvia"] \
+				or typeof(gameplay.inter_friend_affection[pair]) != TYPE_INT: return "invalid inter-friend affection"
+	for item: Variant in gameplay.inventory:
+		if not _scene_id(item) or not _scene_int(gameplay.inventory[item], 0): return "invalid inventory count"
+	var owned: Dictionary = SCENE_CAPABILITIES.resolve_owned(gameplay.inventory)
+	if not owned.ok: return "invalid inventory capabilities"
+	var spec: Dictionary = SCENE_CAPABILITIES.build_spec_inputs(owned.value, gameplay.stats.pressure, gameplay.penalty_points_today)
+	if not spec.ok: return "invalid capability inputs"
+	var notes: Dictionary = NOTE_PURCHASE_RULES.validate_counts(gameplay.shop_purchase_counts)
+	if not notes.ok: return "invalid Notes purchase counts"
+	for task: Variant in gameplay.minesweeper_task_rewards_claimed:
+		if task not in ["complete_beginner", "complete_intermediate", "complete_expert", "no_flag_finish", "foresight_finish",
+				"perfect_beginner", "perfect_intermediate", "perfect_expert", "win_win_win"] \
+				or typeof(gameplay.minesweeper_task_rewards_claimed[task]) != TYPE_BOOL: return "invalid task reward claim"
+	var registered := _registered_narrative_variables()
+	for variable: Variant in gameplay.narrative_variables:
+		if variable not in registered: return "unregistered narrative variable"
+	return _validate_scene_route_context(gameplay.route_context)
+
+static func _validate_scene_route_context(context: Dictionary) -> String:
+	for key: String in context:
+		if key not in ["active_dating_challenge", "dating_active_attempt_ref", "dating_canonical_heads"]:
+			return "unregistered scene route-context member"
+		if not context[key] is Dictionary: return "scene route-context owner must be an object"
+	var record: Dictionary = context.get("active_dating_challenge", {})
+	var reference: Dictionary = context.get("dating_active_attempt_ref", {})
+	if not record.is_empty():
+		if record.get("schema_version") != 4 or not SCENE_ATTEMPTS.validate_record(record): return "invalid scene physical record"
+		if not _scene_keys(reference, ["attempt_id", "branch_id", "generation"]) \
+				or reference.attempt_id != record.spec.board_token or not _scene_id(reference.branch_id) \
+				or not _scene_int(reference.generation, 1): return "scene physical record requires its matching attempt reference"
+	elif not reference.is_empty(): return "attempt reference without physical record"
+	for slot: Variant in context.get("dating_canonical_heads", {}):
+		var head: Variant = context.dating_canonical_heads[slot]
+		if not _scene_id(slot) or not str(slot).begins_with("scene.challenge.") \
+				or not _scene_keys(head, ["attempt_id", "branch_id"]) \
+				or not _scene_id(head.attempt_id) or not _scene_id(head.branch_id): return "invalid scene canonical head"
+	return ""
+
+static func _scene_keys(value: Variant, keys: Array) -> bool:
+	if not value is Dictionary or value.size() != keys.size(): return false
+	for key: Variant in value:
+		if not key is String or key not in keys: return false
+	return true
+
+static func _scene_id(value: Variant) -> bool:
+	return value is String and not value.strip_edges().is_empty()
+
+static func _scene_int(value: Variant, minimum: int, maximum: int = 9223372036854775807) -> bool:
+	return typeof(value) == TYPE_INT and value >= minimum and value <= maximum
+
+static func _scene_digest(value: Variant) -> bool:
+	return value is String and value.length() == 64 and value.is_valid_hex_number(false) and value == value.to_lower()
+
+static func _scene_hash(value: Variant) -> String:
+	var encoded: Dictionary = SCENE_CANONICAL.stringify(value)
+	return str(encoded.value).sha256_text() if encoded.ok else ""
+
+static func _scene_equal(a: Variant, b: Variant) -> bool:
+	var hash := _scene_hash(a)
+	return not hash.is_empty() and hash == _scene_hash(b)
+

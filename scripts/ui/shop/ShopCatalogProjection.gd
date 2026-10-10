@@ -7,25 +7,20 @@ extends RefCounted
 ## Dictionaries/scalars detach; art resources are immutable owner-retained references.
 
 const _ORDER := [
-	"coffee", "wine", "pineapple_bun", "bandage_pack", "quiet_tea",
+	"wine", "pineapple_bun", "quiet_tea",
 	"soft_blanket", "weighted_plush", "spa_coupon", "supportz",
-	"healthy_meal", "protein_box", "pep_note", "premium_care", "lucky_charm",
+	"premium_care", "lucky_charm",
 	"debug_key", "bookend_keepsake", "metronome_keepsake",
 	"pocket_calculator_keepsake",
 ]
 
 const _CATALOG := {
-	"coffee": [20, "money", true],
 	"wine": [55, "money", true],
 	"pineapple_bun": [10, "money", true],
-	"bandage_pack": [15, "money", true],
 	"quiet_tea": [15, "money", true],
 	"soft_blanket": [25, "money", true],
 	"weighted_plush": [35, "money", true],
 	"spa_coupon": [45, "money", false],
-	"healthy_meal": [25, "money", true],
-	"protein_box": [35, "money", true],
-	"pep_note": [10, "money", true],
 	"premium_care": [1, "minesweeper_coin", true],
 	"lucky_charm": [1, "minesweeper_coin", false],
 	"debug_key": [3, "minesweeper_coin", false],
@@ -145,3 +140,4 @@ static func _public_item(item: Dictionary) -> Dictionary:
 
 static func _failure(code: String) -> Dictionary:
 	return {"ok": false, "code": code, "value": []}
+

@@ -12,6 +12,7 @@ const DESKTOP := ["flag","drag","new_board","assignments","rules"]
 const CANONICAL := ["flag","drag","rules","pause"]
 const GAP := 8
 
+var _scene_presentation := false
 var buttons: Dictionary = {}
 var mode: StringName = &"reveal"
 var _enabled: Array = []
@@ -29,8 +30,15 @@ func _init() -> void:
 func configure(host: String = "desktop_app", locale: String = "en", percent: int = 100,
 		large: bool = false, palette: StringName = &"after_hours",
 		high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel", day: int = 1) -> bool:
+	return _configure_context(host, locale, percent, large, palette, high_contrast, colour_preset, font_style, day, false)
+
+func configure_scene(host: String = "desktop_app", locale: String = "en", percent: int = 100, large: bool = false, palette: StringName = &"after_hours", high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> bool:
+	return _configure_context(host, locale, percent, large, palette, high_contrast, colour_preset, font_style, null, true)
+
+func _configure_context(host: String = "desktop_app", locale: String = "en", percent: int = 100, large: bool = false, palette: StringName = &"after_hours", high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel", day: Variant = 1, scene: bool = false) -> bool:
+	if _scene_presentation and not scene: return false
 	if host not in ["desktop_app","canonical_solo","canonical_pair"]: return false
-	var next_theme := MS_THEME.build(locale,percent,palette,high_contrast,colour_preset,font_style,day)
+	var next_theme := MS_THEME._build_context(locale,percent,palette,high_contrast,colour_preset,font_style,day, scene)
 	if next_theme == null: return false
 	var copy := COPY.get_copy(locale)
 	var actions: Array = DESKTOP if host == "desktop_app" else CANONICAL
@@ -62,6 +70,7 @@ func configure(host: String = "desktop_app", locale: String = "en", percent: int
 	_host = host
 	_selected_copy = copy.selected
 	_copy = copy
+	_scene_presentation = scene
 	theme = next_theme
 	var inset := 6 if large else 4
 	custom_minimum_size = Vector2(dock_width,height+inset*2)
@@ -113,4 +122,3 @@ func _draw() -> void:
 	if theme == null: return
 	draw_rect(Rect2(Vector2.ZERO,size),theme.get_color(&"controlled_face",&"Minesweeper"))
 	draw_rect(Rect2(0,0,size.x,2),theme.get_color(&"dark_registration",&"Minesweeper"))
-

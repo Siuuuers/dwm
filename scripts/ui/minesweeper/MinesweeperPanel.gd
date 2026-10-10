@@ -13,6 +13,7 @@ const PLAY_ACTIONS := ["reveal","flag","drag","assignments","rules"]
 const SETTLED_ACTIONS := ["new_board","assignments","rules"]
 const ACTIONS := PLAY_ACTIONS+SETTLED_ACTIONS
 
+var _scene_presentation := false
 var register: Control
 var worksheet: Control
 var dock: Control
@@ -25,7 +26,7 @@ var _palette: StringName = &"after_hours"
 var _high_contrast := false
 var _colour_preset := "standard"
 var _font_style := "pixel"
-var _day := 1
+var _day: Variant = 1
 var _band := Vector2i.ZERO
 ## The last measurement and the exact inputs it was derived from.
 var _measured_key: Array = []
@@ -59,11 +60,18 @@ func _init() -> void:
 
 func configure(locale: String = "en", percent: int = 100, large: bool = false,
 		palette: StringName = &"after_hours", high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel", day: int = 1) -> bool:
-	var measured := _measure(public_view,locale,percent,large,palette,high_contrast,colour_preset,font_style,day)
+	return _configure_context(locale, percent, large, palette, high_contrast, colour_preset, font_style, day, false)
+
+func configure_scene(locale: String = "en", percent: int = 100, large: bool = false, palette: StringName = &"after_hours", high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel") -> bool:
+	return _configure_context(locale, percent, large, palette, high_contrast, colour_preset, font_style, null, true)
+
+func _configure_context(locale: String = "en", percent: int = 100, large: bool = false, palette: StringName = &"after_hours", high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel", day: Variant = 1, scene: bool = false) -> bool:
+	if _scene_presentation and not scene: return false
+	var measured := _measure(public_view,locale,percent,large,palette,high_contrast,colour_preset,font_style,day, scene)
 	if measured.is_empty(): return false
-	if not worksheet.configure("desktop_app",locale,percent,large,palette,measured.band,high_contrast,colour_preset,font_style,day): return false
-	register.configure("desktop_app",locale,percent,large,palette,high_contrast,colour_preset,font_style,day)
-	dock.configure("desktop_app",locale,percent,large,palette,high_contrast,colour_preset,font_style,day)
+	if not worksheet._configure_context("desktop_app",locale,percent,large,palette,measured.band,high_contrast,colour_preset,font_style,day, scene): return false
+	register._configure_context("desktop_app",locale,percent,large,palette,high_contrast,colour_preset,font_style,day, scene)
+	dock._configure_context("desktop_app",locale,percent,large,palette,high_contrast,colour_preset,font_style,day, scene)
 	_locale = locale
 	_percent = percent
 	_large = large
@@ -71,6 +79,7 @@ func configure(locale: String = "en", percent: int = 100, large: bool = false,
 	_high_contrast = high_contrast
 	_colour_preset = colour_preset
 	_font_style = font_style
+	_scene_presentation = scene
 	_day = day
 	_band = measured.band
 	_place(measured.register_height)
@@ -81,7 +90,7 @@ func set_layout_height(height: int) -> bool:
 	if height == layout_height: return true
 	var previous := layout_height
 	layout_height = height
-	if configure(_locale, _percent, _large, _palette, _high_contrast, _colour_preset, _font_style, _day): return true
+	if _configure_context(_locale, _percent, _large, _palette, _high_contrast, _colour_preset, _font_style, _day, _scene_presentation): return true
 	layout_height = previous
 	return false
 
@@ -112,16 +121,16 @@ func present(value: Dictionary) -> bool:
 	# instance, so the caller's dictionary stays detached without copying it three times.
 	var accepted: Dictionary = value.duplicate(true)
 	if not _valid(accepted): return _fail(&"minesweeper_panel_invalid_view")
-	var measured := _measure(accepted,_locale,_percent,_large,_palette,_high_contrast,_colour_preset,_font_style,_day)
+	var measured := _measure(accepted,_locale,_percent,_large,_palette,_high_contrast,_colour_preset,_font_style,_day, _scene_presentation)
 	if measured.is_empty(): return _fail(&"minesweeper_panel_invalid_view")
 	# Reconfigure only for changed geometry: a synchronous Flag publication must
 	# retain the grid's touch-release latch and all existing cell nodes.
 	if worksheet.theme == null or measured.band != _band:
-		if not worksheet.configure("desktop_app",_locale,_percent,_large,_palette,measured.band,_high_contrast,_colour_preset,_font_style,_day):
+		if not worksheet._configure_context("desktop_app",_locale,_percent,_large,_palette,measured.band,_high_contrast,_colour_preset,_font_style,_day, _scene_presentation):
 			return _fail(&"minesweeper_panel_invalid_view")
 		_band = measured.band
-	if register.theme == null: register.configure("desktop_app",_locale,_percent,_large,_palette,_high_contrast,_colour_preset,_font_style,_day)
-	if dock.theme == null: dock.configure("desktop_app",_locale,_percent,_large,_palette,_high_contrast,_colour_preset,_font_style,_day)
+	if register.theme == null: register._configure_context("desktop_app",_locale,_percent,_large,_palette,_high_contrast,_colour_preset,_font_style,_day, _scene_presentation)
+	if dock.theme == null: dock._configure_context("desktop_app",_locale,_percent,_large,_palette,_high_contrast,_colour_preset,_font_style,_day, _scene_presentation)
 	var assignments_changed: bool = public_view.get("assignments") != accepted.assignments
 	register.present(accepted.register)
 	if not worksheet.set_view_scope("app_" + str(accepted.register.difficulty)): return _fail(&"minesweeper_view_preferences_unavailable")
@@ -167,26 +176,26 @@ func _valid(value: Dictionary) -> bool:
 	return not value.board.terminal and seen == expected
 
 func _measure(value: Dictionary, locale: String, percent: int, large: bool, palette: StringName,
-		high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel", day: int = 1) -> Dictionary:
+		high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel", day: Variant = 1, scene: bool = false) -> Dictionary:
 	var facts: Dictionary = value.get("register",{"difficulty":"beginner","rounds":2,"mine_estimate":null,
 		"foresight":null,"no_flag":"intact","custody":false,"difficulty_enabled":[]})
 	var claimed: Array = value.get("assignments",[false,false,false,false,false,false,false,false,false])
 	# The band and register height are a pure function of these inputs. A click that changes
 	# none of them must not build, configure, present and free three probe controls again.
-	var key: Array = [locale,percent,large,palette,high_contrast,colour_preset,font_style,day,facts,claimed,worksheet.view_controls_external,layout_height]
+	var key: Array = [locale,percent,large,palette,high_contrast,colour_preset,font_style,day,scene,facts,claimed,worksheet.view_controls_external,layout_height]
 	if key == _measured_key: return _measured
 	var probe_register: Control = REGISTER.new()
 	var probe_dock: Control = DOCK.new()
 	var probe_sheet: Control = SHEET.new()
-	var valid: bool = probe_register.configure("desktop_app",locale,percent,large,palette,high_contrast,colour_preset,font_style,day)
+	var valid: bool = probe_register._configure_context("desktop_app",locale,percent,large,palette,high_contrast,colour_preset,font_style,day, scene)
 	if valid: valid = probe_register.present(facts)
-	if valid: valid = probe_dock.configure("desktop_app",locale,percent,large,palette,high_contrast,colour_preset,font_style,day)
+	if valid: valid = probe_dock._configure_context("desktop_app",locale,percent,large,palette,high_contrast,colour_preset,font_style,day, scene)
 	var result: Dictionary = {}
 	if valid:
 		var sheet_band := Vector2i(400,layout_height/2-int(probe_register.size.y/2)-int(probe_dock.size.y/2))
 		var band := sheet_band - Vector2i(0, 0 if worksheet.view_controls_external else WORKSHEET.view_controls_height(locale, probe_dock.theme, large) / 2)
 		valid = LAYOUT.measure(1,1,band,large).ok
-		if valid: valid = probe_sheet.configure("desktop_app",locale,percent,large,palette,sheet_band,high_contrast,colour_preset,font_style,day)
+		if valid: valid = probe_sheet._configure_context("desktop_app",locale,percent,large,palette,sheet_band,high_contrast,colour_preset,font_style,day, scene)
 		if valid: valid = probe_sheet.present_assignments(claimed)
 		if valid: result = {"band":band,"register_height":probe_register.size.y}
 	probe_register.free()
@@ -319,4 +328,3 @@ func _input(event: InputEvent) -> void:
 	if not grid.consume_new_board_input(event, true): return
 	get_viewport().set_input_as_handled()
 	_action(&"new_board")
-

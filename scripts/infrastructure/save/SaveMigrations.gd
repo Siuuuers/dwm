@@ -12,7 +12,7 @@ static func migrate_document(raw: Dictionary, expected_locator: Dictionary) -> D
 	if typeof(version) != TYPE_INT: return _fail(&"invalid_schema_version", "Document version must be integral")
 	if version < SAVE_DOCUMENT_SCHEMA.DOCUMENT_VERSION:
 		return _fail(&"unsupported_run_configuration_schema", "Captured run configuration is required")
-	if version > SAVE_DOCUMENT_SCHEMA.DOCUMENT_VERSION:
+	if version > SAVE_DOCUMENT_SCHEMA.SCENE_DOCUMENT_VERSION:
 		return _fail(&"unsupported_future_schema", str(version))
 	var validated := SAVE_DOCUMENT_SCHEMA.validate(raw)
 	if not validated.get("ok", false): return validated
@@ -40,3 +40,4 @@ static func _validate_expected_locator(locator: Dictionary) -> String:
 
 static func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message}
+

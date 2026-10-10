@@ -25,6 +25,8 @@ var _scene_activation_event: Object
 var _scene_activation_generation := -1
 var _scene_source_token: RefCounted
 var _scene_source: Dictionary = {}
+var _scene_control_restore: Dictionary = {}
+var _scene_control_installing := false
 
 ## Holding is explicit: preparing a target must never reveal or retire an
 ## unheld caption as a side effect.
@@ -65,14 +67,14 @@ func validate_scene_source(token: RefCounted, session: RefCounted) -> Dictionary
 
 func _scene_source_boundary(session: RefCounted) -> Dictionary:
 	if not _qualified_runtime or not _caption_source_is_current() or session == null \
-			or session.family != "scene" or session.boundary != "line" \
+			or session.family != "scene" or session.boundary not in ["line", "control"] \
 			or session.ledger != _caption_ledger or session.command_id != _caption_token \
 			or session.latest_entry != _caption_entry or session.scene_occurrence != _scene_caption_occurrence \
 			or _dialogic.paused or _dialogic.Inputs.auto_skip.enabled or _dialogic.Inputs.auto_advance.is_enabled():
 		return _fail(&"scene_source_unavailable", "")
 	var frontier := capture_reading_frontier()
 	if not frontier.ok: return frontier
-	var saved: Dictionary = session.capture(frontier.value)
+	var saved: Dictionary = session.capture({} if session.boundary == "control" else frontier.value)
 	if not saved.ok: return saved
 	var owner := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 	var selected := owner.scene_registration()
@@ -93,6 +95,12 @@ func _scene_source_boundary(session: RefCounted) -> Dictionary:
 			or compiled.value.content_sha256 != programme.content_sha256:
 		return _fail(&"scene_source_registration_changed", "")
 	var index: int = session.scene_index
+	if session.boundary == "control":
+		if not _marker_hold_current(): return _fail(&"scene_source_not_held", "")
+		var predecessor := _scene_control_predecessor(saved.value, compiled.value, programme.markers)
+		if not predecessor.ok or predecessor.value.frontier != frontier.value:
+			return _fail(&"scene_source_boundary_invalid", "")
+		index = predecessor.value.index
 	if index < 0 or index >= compiled.value.nodes.size(): return _fail(&"scene_source_boundary_invalid", "")
 	var node: Dictionary = compiled.value.nodes[index]
 	if node.kind != "caption" or node.line_id != frontier.value.line_id \
@@ -188,6 +196,167 @@ func install_scene_target(session: RefCounted, checkpoint: Dictionary, target: D
 		_caption_restore_frontier = {}
 		return started
 	return {"ok": true, "value": {"pending": is_reading_frontier_restoring()}}
+
+## Nonwired forward-control installer. Bridge must first consume the exact
+## durable destination acknowledgement; this native operation grants no receipt
+## or persistence authority. The original completed caption never restarts.
+func install_scene_control(session: RefCounted, reading: Dictionary,
+		source_token: RefCounted) -> Dictionary:
+	if _scene_control_installing:
+		return _fail(&"scene_control_reentrant", "native installation is already active")
+	_scene_control_installing = true
+	var result := _install_scene_control(session, reading, source_token)
+	_scene_control_installing = false
+	return result
+
+func _install_scene_control(session: RefCounted, reading: Dictionary,
+		source_token: RefCounted) -> Dictionary:
+	if not _bound or not _qualified_runtime or session == null:
+		return _fail(&"scene_control_unavailable", "qualified native owner required")
+	var source_session: RefCounted = _scene_source.get("session")
+	var source_checked := validate_scene_source(source_token, source_session)
+	if not source_checked.ok: return source_checked
+	var source: Dictionary = _scene_source.boundary.reading.duplicate(true)
+	var marker: Dictionary = _scene_source.boundary.marker.duplicate(true)
+	if source.boundary != "line" or marker.kind != "challenge.playable" \
+			or session == source_session or session.family != "scene" \
+			or session.ledger == _caption_ledger:
+		return _fail(&"scene_control_source_invalid", "separate immediate playable candidate required")
+	var traversal := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
+	var retained: Dictionary = reading.duplicate(true)
+	if typeof(retained.get("schema_version")) != TYPE_INT or retained.schema_version != 5:
+		return _fail(&"scene_control_candidate_invalid", "Reading5 destination required")
+	var operation := traversal.validate(retained, source.entry_id)
+	if not operation.ok: return operation
+	var plan: Dictionary = operation.value.plan
+	if operation.value.phase != "destination" or retained.boundary != "control" \
+			or plan.path.size() != 1 or not plan.traversed_captions.is_empty() \
+			or plan.destination.kind != "control" or plan.destination.caption != null \
+			or plan.destination.program_index != source.program_index + 1 \
+			or not traversal._same(plan.source_reading, traversal.without_operation(source)) \
+			or not traversal._same(retained.ledger, source.ledger):
+		return _fail(&"scene_control_candidate_invalid", "exact immediate destination required")
+	var candidate_ledger: NarrativeCaptionLedger = session.ledger
+	# The retained source's validator recompiles the installed programme. The
+	# candidate's normal validator also checks the complete traversal and ledger.
+	var checked: Dictionary = session.validate_saved(retained.duplicate(true), source.entry_id)
+	if not checked.ok: return checked
+	var captured: Dictionary = session.capture({})
+	if not captured.ok or not traversal._same(captured.get("value"), retained):
+		return _fail(&"scene_control_candidate_changed", "candidate changed during preflight")
+	source_checked = validate_scene_source(source_token, source_session)
+	if not source_checked.ok: return source_checked
+	if session.ledger != candidate_ledger or session.command_id != _caption_token \
+			or session.family != "scene" or session.latest_entry != _caption_entry \
+			or session.scene_occurrence != _scene_caption_occurrence \
+			or session.fingerprint != source.registration_sha256 \
+			or session.scene_index != retained.program_index or session.boundary != "control" \
+			or not traversal._same(session.next_operation, retained.next_operation) \
+			or not traversal._same(candidate_ledger.snapshot(), retained.ledger) \
+			or not traversal._same(reading, retained):
+		return _fail(&"scene_control_candidate_changed", "candidate changed during preflight")
+	# No callbacks occur between consuming custody and rebinding the equal ledger.
+	# Keep request, event, execution generation, activation proof and held native
+	# continuation exactly as they were. bind_caption_ledger would retire them.
+	_scene_source_token = null
+	_scene_source = {}
+	_caption_ledger = candidate_ledger
+	_marker_hold.ledger = candidate_ledger
+	_scene_control_restore = {"session": session, "reading": retained.duplicate(true)}
+	var adopted := capture_scene_control_position(session)
+	if not adopted.ok:
+		halt_with_error(adopted)
+		return adopted
+	return adopted
+
+## Selected Load restores an authenticated saved caption, not a target label.
+## No marker/jump/Return is executed to reach it; unsupported parked boundaries refuse.
+func restore_scene_frontier(session: RefCounted, checkpoint: Dictionary) -> Dictionary:
+	if not _bound or not _qualified_runtime or has_active_playback() or session == null or session.family != "scene":
+		return _fail(&"scene_restore_native_unavailable", "idle qualified runtime required")
+	var checked: Dictionary = session.validate_saved(checkpoint.get("reading_session", {}), str(checkpoint.get("entry_id", "")))
+	if not checked.ok: return checked
+	var saved: Dictionary = checkpoint.reading_session
+	if saved.boundary not in ["line", "control"]:
+		return _fail(&"scene_restore_boundary_unsupported", "only caption and held control positions are released")
+	var frame := NarrativeCaptionLedger.resolve_scene_frame(saved.ledger.entry_contexts, saved.occurrence_id, checkpoint.entry_id)
+	if not frame.ok or frame.value != checkpoint.get("frozen_context"):
+		return _fail(&"scene_restore_native_invalid", "saved context mismatch")
+	var presentation := FrozenPresentationContext.validate(checkpoint.entry_id, frame.value.presentation)
+	if not presentation.ok: return presentation
+	var selected := preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_registration()
+	if not selected.ok: return selected
+	var labels: Array = []
+	var path := ""
+	var programme := {}
+	for entry: Dictionary in selected.value.entry_manifest.entries:
+		labels.append(entry.entry_id)
+		if entry.entry_id == checkpoint.entry_id: path = entry.locators.en.path
+	for row: Dictionary in selected.value.scene_programme.entries:
+		if row.entry_id == checkpoint.entry_id: programme = row
+	if programme.is_empty(): return _fail(&"scene_restore_native_invalid", "programme unavailable")
+	var compiled := compile_scene_programme(path, checkpoint.entry_id, labels, programme.markers)
+	if not compiled.ok: return compiled
+	if compiled.value.program_sha256 != programme.program_sha256 or compiled.value.content_sha256 != programme.content_sha256 \
+			or saved.program_index >= compiled.value.nodes.size():
+		return _fail(&"scene_restore_native_invalid", "installed programme changed")
+	var native_program_index: int = saved.program_index
+	var restore_frontier: Dictionary = saved.frontier.duplicate(true)
+	if saved.boundary == "control":
+		var predecessor := _scene_control_predecessor(saved, compiled.value, programme.markers)
+		if not predecessor.ok: return predecessor
+		native_program_index = predecessor.value.index
+		restore_frontier = predecessor.value.frontier
+	var node: Dictionary = compiled.value.nodes[native_program_index]
+	if node.kind != "caption" or node.line_id != restore_frontier.line_id:
+		return _fail(&"scene_restore_native_invalid", "saved caption position changed")
+	var bound := bind_caption_ledger(session.ledger, session.command_id, checkpoint.entry_id, false, saved.occurrence_id)
+	if not bound.ok: return bound
+	var frozen := install_frozen_presentation(presentation.value)
+	if not frozen.ok: return frozen
+	_scene_control_restore = {}
+	if saved.boundary == "control":
+		_scene_control_restore = {"session": session, "reading": saved.duplicate(true)}
+	_caption_restore_frontier = restore_frontier.duplicate(true)
+	_caption_restore_queued = false
+	var started := start_timeline(path, int(compiled.value.native_indices[native_program_index]))
+	if not started.ok:
+		_scene_control_restore = {}
+		_caption_restore_frontier = {}
+		_caption_restore_queued = false
+		return started
+	return {"ok": true, "value": {"pending": is_reading_frontier_restoring()}}
+
+
+## Only a registered control immediately following the retained publication is
+## supported. Native playback always starts at that caption, never at the label.
+static func _scene_control_predecessor(saved: Dictionary, compiled: Dictionary, markers: Array) -> Dictionary:
+	var index: int = saved.program_index
+	if saved.boundary != "control" or index < 1 or index >= compiled.nodes.size() \
+			or compiled.nodes[index].kind != "control" or saved.ledger.captions.is_empty():
+		return {"ok": false, "code": &"scene_restore_boundary_unsupported"}
+	var prior: Dictionary = compiled.nodes[index - 1]
+	var row: Dictionary = saved.ledger.captions.back()
+	if prior.kind != "caption" or prior.next != index or row.occurrence_id != saved.occurrence_id \
+			or row.beat.owning_entry_id != saved.entry_id or row.beat.line_id != prior.line_id:
+		return {"ok": false, "code": &"scene_restore_control_invalid"}
+	for marker: Dictionary in markers:
+		if marker.marker_id == compiled.nodes[index].marker_id and marker.after_line_id == prior.line_id:
+			return {"ok": true, "value": {"index": index - 1,
+				"frontier": {"line_id": prior.line_id, "publication_id": row.publication_id}}}
+	return {"ok": false, "code": &"scene_restore_control_invalid"}
+
+func capture_scene_control_position(session: RefCounted) -> Dictionary:
+	if _scene_control_restore.is_empty() or session != _scene_control_restore.session \
+			or not _marker_hold_current():
+		return _fail(&"scene_restore_control_unproven", "")
+	var captured: Dictionary = session.capture({})
+	if not captured.ok or captured.value != _scene_control_restore.reading:
+		return _fail(&"scene_restore_control_changed", "")
+	var physical := _scene_source_boundary(session)
+	if not physical.ok: return physical
+	return {"ok": true, "value": captured.value}
+
 
 func _start_held_scene_target(path: String, native_index: int) -> Dictionary:
 	# The old coroutine has already finished under held-source custody. Keep its
@@ -534,6 +703,7 @@ func release_retained_caption_layout(dispose: bool = true) -> void:
 func _retire_caption_binding() -> void:
 	_scene_source_token = null
 	_scene_source = {}
+	_scene_control_restore = {}
 	_marker_hold = {}
 	_marker_binding = {}
 	_marker_restore = {}
@@ -1007,6 +1177,17 @@ func _finish_reading_restore(request_id: String, event: DialogicTextEvent) -> vo
 	var captured := capture_reading_frontier()
 	if not captured.ok or captured.value != expected:
 		_fail_reading_restore(_fail(&"reading_frontier_changed", "the resumed occurrence changed"))
+		return
+	if not _scene_control_restore.is_empty():
+		var parked := hold_marker_source(captured.value)
+		if not parked.ok:
+			_fail_reading_restore(parked)
+			return
+		var position := capture_scene_control_position(_scene_control_restore.session)
+		if not position.ok:
+			_fail_reading_restore(position)
+			return
+		reading_frontier_restored.emit(position)
 		return
 	if not _marker_restore.is_empty():
 		var parked := hold_marker_source(captured.value)
@@ -1611,4 +1792,5 @@ func install_marker_candidate(plan: Dictionary, candidate: NarrativeCaptionLedge
 	_marker_hold = {}
 	_dialogic.handle_event(int(indices.value.target_index))
 	return {"ok": true, "value": {"pending": true}}
+
 

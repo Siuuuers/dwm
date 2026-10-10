@@ -8,8 +8,8 @@ extends RefCounted
 
 const _NOTE_RULES := preload("res://scripts/domain/shop/RunNotePurchaseRules.gd")
 
-const _STAT_HEALTH := "health"
 const _STAT_PRESSURE := "pressure"
+const _RETIRED_ITEM_IDS := ["coffee", "pep_note", "bandage_pack", "healthy_meal", "protein_box"]
 const _CONDITION_SEQUELA := "sequela"
 
 ## The closed item-id union this port interprets. Kept separate from MinesweeperShopRegistry's own
@@ -79,7 +79,7 @@ func capture() -> Dictionary:
 		"causal_day_instance": str(identity_context["causal_day_instance"]),
 		"day": int(_game_state.day),
 		"money": money, "coins": coins,
-		"health": _game_state.get_stat(_STAT_HEALTH), "pressure": _game_state.get_stat(_STAT_PRESSURE),
+		"pressure": _game_state.get_stat(_STAT_PRESSURE),
 		"carried_sequela": (_game_state.condition_effects_today as Array).has(_CONDITION_SEQUELA),
 		"owned_item_ids": owned_item_ids, "minesweeper_round_floor": round_floor,
 		"backup": {
@@ -108,6 +108,8 @@ func prepare_purchase(item: Dictionary, quote: Dictionary, transaction_id: Strin
 	if transaction_id.strip_edges().is_empty():
 		return _fail(&"invalid_transaction_id", "transaction_id must be nonblank", {})
 	var item_id := str(item.get("item_id", ""))
+	if item_id in _RETIRED_ITEM_IDS:
+		return _fail(&"retired_shop_item", "", {})
 	if item_id in _NOTE_RULES.ITEM_IDS:
 		return _prepare_note(item, quote, transaction_id)
 	if item_id not in _CAPABILITY_ITEM_IDS and item_id != _SUPPORTZ_ITEM_ID:
@@ -150,6 +152,8 @@ func commit(candidate: Dictionary) -> Dictionary:
 	var ready := _require_configured()
 	if not ready.get("ok", false):
 		return ready
+	if candidate.get("item_id", "") in _RETIRED_ITEM_IDS:
+		return _fail(&"retired_shop_item", "", {})
 	if candidate.get("item_id", "") in _NOTE_RULES.ITEM_IDS:
 		var checked := validate_note_candidate(candidate)
 		if not checked.get("ok", false): return checked
@@ -190,6 +194,8 @@ func commit(candidate: Dictionary) -> Dictionary:
 ## gameplay values enter the same durable purchase flow as the three capability items.
 func _prepare_ordinary(item: Dictionary, quote: Dictionary, transaction_id: String) -> Dictionary:
 	var item_id := str(item.get("item_id", ""))
+	if item_id in _RETIRED_ITEM_IDS:
+		return _fail(&"retired_shop_item", "", {})
 	var currency := str(item.get("currency", ""))
 	var price := int(item.get("price", -1))
 	var quantity := int(item.get("quantity", 0))
@@ -223,7 +229,7 @@ func _prepare_ordinary(item: Dictionary, quote: Dictionary, transaction_id: Stri
 		return applied
 	var candidate := {"transaction_id": transaction_id, "item_id": item_id, "currency": currency,
 		"price": price, "ordinary_gameplay": clone.to_save_dict(), "ordinary_contacts": clone.contacts.duplicate(true)}
-	var condition := {"health": int(clone.get_stat("health")), "pressure": int(clone.get_stat("pressure")),
+	var condition := {"pressure": int(clone.get_stat("pressure")),
 		"carried_sequela": (_game_state.condition_effects_today as Array).has("sequela")}
 	clone.free()
 	return {"ok": true, "value": {"candidate": candidate, "condition_after": condition,
@@ -252,7 +258,7 @@ func publish(_publication: Dictionary) -> Dictionary:
 	_game_state.emit_signal("money_changed", int(_game_state.money))
 	_game_state.emit_signal("coins_changed", int(_game_state.coins))
 	_game_state.emit_signal("inventory_changed")
-	for stat_id: String in ["health", "pressure", "motivation"]:
+	for stat_id: String in ["pressure"]:
 		_game_state.emit_signal("stat_changed", stat_id, int(_game_state.get_stat(stat_id)),
 			int(_game_state.call(&"_stat_min", stat_id)), int(_game_state.call(&"_stat_max", stat_id)))
 	return {"ok": true, "code": &"ok", "value": {"published": true}, "receipt": {}}
@@ -351,8 +357,7 @@ func _prepare_note(item: Dictionary, quote: Dictionary, transaction_id: String) 
 	var checked := validate_note_candidate(candidate)
 	if not checked.get("ok", false): return checked
 	return {"ok": true, "value": {"candidate": candidate,
-		"condition_after": {"health": int(_game_state.get_stat("health")),
-			"pressure": int(_game_state.get_stat("pressure")),
+		"condition_after": {"pressure": int(_game_state.get_stat("pressure")),
 			"carried_sequela": (_game_state.condition_effects_today as Array).has("sequela")},
 		"backup": {"gameplay": source.duplicate(true), "contacts": contacts.duplicate(true)}}}
 
@@ -425,3 +430,4 @@ func _same_note_state(left: Variant, right: Variant) -> bool:
 			if not _same_note_state(left[index], right[index]): return false
 		return true
 	return left == right
+

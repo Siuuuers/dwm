@@ -1,6 +1,9 @@
 class_name NarrativeRestoreParticipant
 extends RefCounted
 
+signal scene_activation_confirmed(operation_id: String)
+signal scene_activation_failed(operation_id: String, result: Dictionary)
+
 ## Restore participant wrapping DialogicBridge's semantic checkpoint
 ## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 7,
 ## upgraded to the manifest-aware implementation by Plan 05 Task 2 / dwm-p2r.8).
@@ -65,12 +68,19 @@ var _owner: Object = null
 var _catalog: Object = null
 ## The ONE semantic plan apply_silent has staged and finalize has not yet consumed.
 var _pending_semantic_plan: Dictionary = {}
+var _prepared_scene_checkpoint: Dictionary = {}
+var _scene_operation := ""
+var _scene_activation_in_call := false
+var _scene_activation_proof := false
+var _scene_activation_notified := false
+var _scene_activation_failure: Dictionary = {}
 
 func _init(owner: Object, catalog: Object = null) -> void:
 	_owner = owner
 	_catalog = catalog if catalog != null else preload("res://scripts/data/DialogicTimelineCatalog.gd")
 
 func prepare(input: Dictionary) -> Dictionary:
+	_prepared_scene_checkpoint = {}
 	if typeof(input.get("narrative_checkpoint")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_narrative_input", "narrative participant requires a narrative_checkpoint")
 	if typeof(input.get("content_version")) != TYPE_INT:
@@ -109,10 +119,52 @@ func prepare(input: Dictionary) -> Dictionary:
 	}
 	return {"ok": true, "code": &"ok", "value": {"narrative_plan": plan}}
 
+## Creation/recovery-owned preparation has no public completed-creation query:
+## the strict candidate is authenticated before retaining its silent plan.
+func prepare_scene_new_run(snapshot: Dictionary, allocation_candidate: Dictionary, profile_material: Dictionary,
+		bundle: Dictionary, issuer: Object, creation_owner: Object) -> Dictionary:
+	_prepared_scene_checkpoint = {}
+	if not is_instance_valid(creation_owner) or creation_owner.get_script() != load("res://autoload/SaveManager.gd") \
+			or not _owner is Node or not _owner.is_inside_tree() \
+			or creation_owner != _owner.get_node_or_null("/root/SaveManager"):
+		return _fail(&"scene_creation_owner_required", "actual continuation owner required")
+	var schema: Script = load("res://scripts/domain/run/RunSnapshotSchema.gd")
+	var checked: Dictionary = schema.validate_scene_new_run_candidate(
+		snapshot, allocation_candidate, profile_material, bundle, issuer)
+	if not checked.get("ok", false): return checked
+	var checkpoint: Dictionary = snapshot.narrative_checkpoint
+	var occurrence: String = allocation_candidate.request.transaction_id
+	var result: Dictionary = snapshot.command_receipts[occurrence].scene_admission.result
+	var frames := FROZEN_RUN.derive_scene_frames({occurrence: result}, checkpoint.reading_session)
+	if not frames.ok: return frames
+	if not _owner.has_method("validate_reading_checkpoint") or not _owner.has_method("stage_scene_reading_restore"):
+		return _content_unavailable("scene creation owner unavailable")
+	var admitted: Dictionary = _owner.validate_reading_checkpoint(checkpoint, frames.value.entry_contexts)
+	if not admitted.get("ok", false): return admitted
+	_prepared_scene_checkpoint = checkpoint.duplicate(true)
+	return {"ok": true, "value": {"narrative_plan": checkpoint.duplicate(true)}}
+
 func apply_silent(plan: Dictionary) -> Dictionary:
 	# Rejects a missing route-ready token and therefore cannot run early.
 	if typeof(plan.get("route_ready_token")) != TYPE_DICTIONARY:
 		return _fail(&"missing_route_ready_token", "narrative apply requires the route-ready token")
+	if FROZEN_RUN._is_scene_checkpoint(plan):
+		var checkpoint := _projected(plan)
+		if _prepared_scene_checkpoint.is_empty() or not _same_scene_value(checkpoint, _prepared_scene_checkpoint) \
+				or typeof(plan.get("scene_restore_operation_id")) != TYPE_STRING \
+				or plan.scene_restore_operation_id.strip_edges().is_empty() \
+				or not _owner.has_method("stage_scene_reading_restore"):
+			return _fail(&"scene_restore_plan_invalid", "private prepared checkpoint and current operation required")
+		var staged: Dictionary = _owner.stage_scene_reading_restore(checkpoint, plan.scene_restore_operation_id)
+		if not staged.get("ok", false): return staged
+		_scene_operation = plan.scene_restore_operation_id
+		_scene_activation_proof = false
+		_scene_activation_notified = false
+		_scene_activation_failure = {}
+		_pending_semantic_plan = {}
+		return {"ok": true}
+	_scene_operation = ""
+	_scene_activation_proof = false
 	var pause_pending: bool = _owner.has_method("is_pause_restore_pending") and _owner.is_pause_restore_pending()
 	if plan.has("reading_session"):
 		if not pause_pending and _owner.has_active_playback():
@@ -142,6 +194,11 @@ func capture() -> Dictionary:
 	return _owner.capture_restore_state()
 
 func rollback_silent(backup: Dictionary) -> Dictionary:
+	_prepared_scene_checkpoint = {}
+	_scene_operation = ""
+	_scene_activation_proof = false
+	_scene_activation_notified = false
+	_scene_activation_failure = {}
 	# A rolled-back restore must never resume the entry, so the ATTEMPT cancels the staged plan,
 	# mirroring the bridge's own _pending_resume_token cancellation. Cancelling before the owner is
 	# consulted is deliberate: a malformed backup is a FAILED rollback, and a failed rollback must
@@ -150,6 +207,8 @@ func rollback_silent(backup: Dictionary) -> Dictionary:
 	return _owner.rollback_restore_silent(backup)
 
 func finalize() -> Dictionary:
+	if not _scene_operation.is_empty():
+		return {"ok": true, "value": {"pending": true}}
 	if _owner.has_method("is_pause_restore_pending") and _owner.is_pause_restore_pending():
 		return _owner.finalize_pause_restore()
 	if _pending_semantic_plan.is_empty():
@@ -159,6 +218,62 @@ func finalize() -> Dictionary:
 	var checkpoint: Dictionary = _pending_semantic_plan
 	_pending_semantic_plan = {}
 	return _owner.resume_entry(checkpoint)
+
+## Called only by SaveManager after the same durable operation is COMPLETED.
+func begin_scene_activation(operation_id: String) -> Dictionary:
+	if operation_id.is_empty() or operation_id != _scene_operation or _scene_activation_in_call:
+		return _fail(&"scene_activation_operation_invalid", "no matching staged scene operation")
+	if not _scene_activation_failure.is_empty(): return _scene_activation_failure.duplicate(true)
+	for method: String in ["begin_scene_activation", "validate_scene_activation"]:
+		if not _owner.has_method(method): return _fail(&"scene_activation_owner_unavailable", "")
+	if not _owner.has_signal("scene_activation_confirmed") or not _owner.has_signal("scene_activation_failed"):
+		return _fail(&"scene_activation_owner_unavailable", "")
+	# Subscribe before native begin, including a synchronous native callback.
+	if not _owner.is_connected("scene_activation_confirmed", _on_scene_activation_confirmed):
+		_owner.connect("scene_activation_confirmed", _on_scene_activation_confirmed)
+	if not _owner.is_connected("scene_activation_failed", _on_scene_activation_failed):
+		_owner.connect("scene_activation_failed", _on_scene_activation_failed)
+	_scene_activation_in_call = true
+	var begun: Dictionary = _owner.begin_scene_activation(operation_id)
+	_scene_activation_in_call = false
+	if not begun.get("ok", false):
+		_on_scene_activation_failed(operation_id, begun)
+		return begun
+	if not _scene_activation_failure.is_empty(): return _scene_activation_failure.duplicate(true)
+	if _scene_activation_proof: _publish_scene_activation_confirmation()
+	return begun
+
+func _on_scene_activation_confirmed(operation_id: String) -> void:
+	if operation_id != _scene_operation or not _scene_activation_failure.is_empty(): return
+	_scene_activation_proof = true
+	if not _scene_activation_in_call: _publish_scene_activation_confirmation()
+
+func _publish_scene_activation_confirmation() -> void:
+	if _scene_activation_notified or not validate_scene_activation(_scene_operation).get("ok", false): return
+	_scene_activation_notified = true
+	scene_activation_confirmed.emit(_scene_operation)
+
+func _on_scene_activation_failed(operation_id: String, result: Dictionary) -> void:
+	if operation_id != _scene_operation or not _scene_activation_failure.is_empty(): return
+	_scene_activation_failure = result.duplicate(true)
+	_scene_activation_proof = false
+	scene_activation_failed.emit(operation_id, result.duplicate(true))
+
+func validate_scene_activation(operation_id: String) -> Dictionary:
+	if operation_id.is_empty() or operation_id != _scene_operation or not _scene_activation_proof \
+			or _scene_activation_in_call or not _scene_activation_failure.is_empty() \
+			or not _owner.has_method("validate_scene_activation"):
+		return _fail(&"scene_activation_unconfirmed", "matching native frontier proof required")
+	return _owner.validate_scene_activation(operation_id)
+
+func publish_scene_activation(operation_id: String) -> Dictionary:
+	var checked := validate_scene_activation(operation_id)
+	if not checked.ok: return checked
+	if not _owner.has_method("publish_scene_activation"): return _fail(&"scene_activation_owner_unavailable", "")
+	return _owner.publish_scene_activation(operation_id)
+
+static func _same_scene_value(left: Variant, right: Variant) -> bool:
+	return preload("res://scripts/narrative/ReadingTraversalOperation.gd")._same(left, right)
 
 ## Ruling 14-D's semantic branch. It validates compatibility and starts nothing: every resolution
 ## question is asked of the bridge, so this file holds no second copy of the entry-resolution law.
@@ -228,6 +343,13 @@ func _prepare_reading(checkpoint: Dictionary, snapshot: Variant) -> Dictionary:
 		else FROZEN_RUN.validate_reading_checkpoint(checkpoint, snapshot)
 	if not frozen.get("ok", false):
 		return _fail(&"invalid_narrative_checkpoint", str(frozen.get("code", "")))
+	if FROZEN_RUN._is_scene_checkpoint(checkpoint):
+		if not _owner.has_method("validate_reading_checkpoint") or not _owner.has_method("stage_scene_reading_restore"):
+			return _content_unavailable("scene restore owner unavailable")
+		var admitted: Dictionary = _owner.validate_reading_checkpoint(checkpoint, frozen.value.entry_contexts)
+		if not admitted.get("ok", false): return admitted
+		_prepared_scene_checkpoint = checkpoint.duplicate(true)
+		return {"ok": true, "value": {"narrative_plan": checkpoint.duplicate(true)}}
 	# Reuse the existing entry compatibility law without widening the old exact
 	# reader. A six-field reader still refuses a seven-field reading checkpoint.
 	var semantic := checkpoint.duplicate(true)
@@ -294,4 +416,5 @@ static func _content_unavailable(message: String) -> Dictionary:
 
 static func _fail(code: StringName, message: String) -> Dictionary:
 	return {"ok": false, "code": code, "message": message}
+
 

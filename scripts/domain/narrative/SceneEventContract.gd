@@ -5,6 +5,7 @@ extends RefCounted
 ## A production adapter must bind registration/identity/frontier to one supported Run.
 
 const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+const SCENE_RECEIPT_ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd")
 const ENVELOPE_KEYS := ["schema_version", "source", "event_id", "ordinal", "predecessor",
 	"kind", "payload", "command_id", "issuer_receipt", "playback_token"]
 const SOURCE_KEYS := ["run_id", "branch_id", "causal_day_instance", "scene_occurrence",
@@ -202,8 +203,6 @@ static func _fail(code: StringName) -> Dictionary:
 # its four nested registries and actual DTL bytes/compiled positions before use.
 # These pure checks cannot authenticate disk durability, Profile history, live
 # issuer custody or programme installation. Legacy receipt generation stays exact.
-const BUNDLE_KEYS := ["kind", "schema_version", "entry_manifest", "context_registry",
-	"ids_registry", "caption_registry", "scene_programme", "targets", "board_profiles", "challenges", "contacts"]
 const SCENE_PAYLOAD_KEYS := {
 	"scene.transition": ["target_id"], "challenge.playable": ["challenge_id"],
 	"challenge.end": ["challenge_id"], "contact.enter": ["contact_event_id"],
@@ -250,9 +249,13 @@ static func _scene_payload(kind: String, payload: Variant) -> bool:
 	return true
 
 static func validate_bundle_structure(bundle: Variant) -> Dictionary:
-	if not _json_data(bundle) or not _keys(bundle, BUNDLE_KEYS) or bundle.kind != "scene_reading_registration" \
-			or typeof(bundle.schema_version) != TYPE_INT or bundle.schema_version != 1:
+	if not _json_data(bundle):
 		return _fail(&"scene_bundle_invalid")
+	# One envelope/Contacts definition owner; no full DTL admission or cache here.
+	var manifest: Script = load("res://scripts/narrative/DialogicEntryManifest.gd")
+	if manifest == null: return _fail(&"scene_bundle_invalid")
+	var header: Dictionary = manifest.validate_scene_bundle_header(bundle)
+	if not header.get("ok", false): return _fail(&"scene_bundle_invalid")
 	# Deliberately no replacement for A's nested validators or caller trust flag.
 	for key: String in ["entry_manifest", "context_registry", "ids_registry", "caption_registry"]:
 		if not bundle[key] is Dictionary or bundle[key].is_empty() or not WRITER.stringify(bundle[key]).get("ok", false):
@@ -411,6 +414,11 @@ static func validate_scene_result(envelope: Dictionary, result: Variant, bundle:
 	var registered := validate_bundle_structure(bundle)
 	var targets: Dictionary = registered.value.targets
 	match result.kind:
+		"notification_updated":
+			if not _keys(result, ["kind", "notification"]) or envelope.kind not in ["notification.set", "notification.clear"]:
+				return _fail(&"scene_result_invalid")
+			var expected: Dictionary = envelope.payload if envelope.kind == "notification.set" else {}
+			if not _equal(result.notification, expected): return _fail(&"scene_result_invalid")
 		"scene_transition_accepted":
 			if not _keys(result, ["kind", "source_scene_occurrence", "target_id", "target", "resolution_receipt"]) \
 					or envelope.kind != "scene.transition" or not _id(result.source_scene_occurrence) \
@@ -419,6 +427,11 @@ static func validate_scene_result(envelope: Dictionary, result: Variant, bundle:
 			if not _equal(targets[result.target_id].target, result.target) or result.target.kind != "scene" \
 					or not _keys(result.resolution_receipt, ["receipt_id", "provenance"]) \
 					or not _id(result.resolution_receipt.receipt_id) or not result.resolution_receipt.provenance is Dictionary:
+				return _fail(&"scene_result_invalid")
+		"challenge_playable":
+			if not _keys(result, ["kind", "challenge_occurrence"]) or envelope.kind != "challenge.playable" \
+					or not _hash(result.challenge_occurrence): return _fail(&"scene_result_invalid")
+			if result.challenge_occurrence != _sha([envelope.source.scene_occurrence, envelope.payload.challenge_id]):
 				return _fail(&"scene_result_invalid")
 		"challenge_closed":
 			if not _keys(result, ["kind", "challenge_occurrence", "playable_command_id", "attempt_proof", "outcome", "target_id"]) \
@@ -485,6 +498,357 @@ static func validate_scene_admission(result: Variant, bundle: Dictionary) -> Dic
 static func _checkpoint(value: Variant) -> bool:
 	return _keys(value, CHECKPOINT_KEYS) and _id(value.checkpoint_id) and _positive_int(value.checkpoint_sequence) and _hash(value.snapshot_sha256)
 
+
+## Full scene command ledger admission. The Run owner separately checks the applied
+## effect/variable partitions, physical Profile proofs and anchors against the actual ledger.
+static func validate_scene_receipts(receipts: Dictionary, bundle: Dictionary, issuer: Object,
+		creation_owner: Object = null) -> Dictionary:
+	if not _json_data(receipts): return _fail(&"scene_receipt_invalid")
+	if issuer == null or issuer.get_script() != SCENE_RECEIPT_ISSUER:
+		return _fail(&"scene_receipt_issuer_unbound")
+	var registered := validate_bundle_structure(bundle)
+	if not registered.ok: return registered
+	var occurrences := {}
+	var commands := {}
+	var admissions := {}
+	var admission_receipts := {}
+	for command: Variant in receipts:
+		var receipt: Variant = receipts[command]
+		if not _id(command) or not receipt is Dictionary or receipt.get("transaction_id") != command:
+			return _fail(&"scene_receipt_identity_invalid")
+		if receipt.get("kind") in ["effect_transaction", "variable_transaction"]:
+			if not _keys(receipt, ["kind", "request_fingerprint", "source_id", "transaction_id"]) \
+					or not _hash(receipt.request_fingerprint) or not _id(receipt.source_id):
+				return _fail(&"scene_receipt_invalid")
+			continue
+		if receipt.get("kind") == "scene_admission":
+			var admitted: Dictionary
+			if receipt.get("scene_admission") is Dictionary and receipt.scene_admission.get("schema_version") == 3:
+				admitted = _validate_committed_initial_admission(receipt, bundle, issuer, creation_owner)
+			else:
+				admitted = _validate_scene_admission_receipt(receipt, bundle, issuer)
+			if not admitted.ok: return admitted
+			admissions[command] = receipt.scene_admission.result.duplicate(true)
+			admission_receipts[command] = receipt.duplicate(true)
+			continue
+		if receipt.get("kind") != "scene_event" or not _keys(receipt, RECEIPT_KEYS):
+			return _fail(&"scene_receipt_kind_invalid")
+		var saved: Variant = receipt.scene_event
+		if not _keys(saved, SAVED_EVENT_KEYS) or typeof(saved.schema_version) != TYPE_INT \
+				or saved.schema_version != 2 or not saved.semantic is Dictionary \
+				or saved.semantic.has("playback_token") or not saved.reading_anchor is Dictionary \
+				or not saved.result is Dictionary:
+			return _fail(&"scene_receipt_invalid")
+		var envelope: Dictionary = saved.semantic.duplicate(true)
+		envelope["playback_token"] = "receipt.validation"
+		var rebuilt := make_scene_receipt(envelope, saved.reading_anchor, saved.result, bundle)
+		if not rebuilt.ok: return rebuilt
+		if not _equal(receipt, rebuilt.value): return _fail(&"scene_receipt_mismatch")
+		var issued: Dictionary = issuer.call(&"verify_issued", envelope.issuer_receipt.duplicate(true), &"transaction_id")
+		if not issued.get("ok", false): return issued
+		if saved.result.kind == "scene_transition_accepted":
+			var child: Dictionary = issuer.call(&"validate_child", saved.result.resolution_receipt.provenance.duplicate(true), &"scene_day_completion")
+			if not child.get("ok", false): return child
+		var key := occurrence_key(envelope.source)
+		if not occurrences.has(key):
+			occurrences[key] = {"source": envelope.source.duplicate(true), "next_ordinal": 0,
+				"predecessor": "", "receipts": [], "notification": {}}
+		var group: Dictionary = occurrences[key]
+		if not _equal(group.source, envelope.source): return _fail(&"scene_receipt_source_changed")
+		if not group.receipts.is_empty():
+			var prior_anchor: Dictionary = group.receipts[0].scene_event.reading_anchor
+			for field: String in ["session_id", "entry_id", "content_version", "catalogue_fingerprint"]:
+				if not _equal(prior_anchor[field], saved.reading_anchor[field]): return _fail(&"event_anchor_changed")
+		group.receipts.append(receipt.duplicate(true))
+		commands[command] = receipt.duplicate(true)
+	for group: Dictionary in occurrences.values():
+		var occurrence: String = group.source.scene_occurrence
+		if not admissions.has(occurrence): return _fail(&"scene_admission_missing")
+		var admission: Dictionary = admissions[occurrence]
+		if admission.entry_id != group.source.entry_id \
+				or admission_receipts[occurrence].scene_admission.source_identity.run_id != group.source.run_id:
+			return _fail(&"scene_admission_source_mismatch")
+		group.receipts.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+			return a.scene_event.semantic.ordinal < b.scene_event.semantic.ordinal)
+		var seen := {}
+		var transitioned := false
+		for receipt: Dictionary in group.receipts:
+			var semantic: Dictionary = receipt.scene_event.semantic
+			if transitioned or semantic.ordinal != group.next_ordinal or semantic.predecessor != group.predecessor \
+					or seen.has(semantic.event_id): return _fail(&"scene_receipt_chain_invalid")
+			if semantic.kind == "notification.clear" and group.notification.get("notification_id") != semantic.payload.notification_id:
+				return _fail(&"event_notification_clear_invalid")
+			if semantic.kind in ["notification.set", "notification.clear"]:
+				group.notification = receipt.scene_event.result.notification.duplicate(true)
+			transitioned = semantic.kind == "scene.transition"
+			seen[semantic.event_id] = true
+			group.next_ordinal += 1
+			group.predecessor = semantic.event_id
+	for receipt: Dictionary in commands.values():
+		var semantic: Dictionary = receipt.scene_event.semantic
+		var result: Dictionary = receipt.scene_event.result
+		if result.kind == "challenge_closed":
+			if not commands.has(result.playable_command_id): return _fail(&"scene_playable_receipt_missing")
+			var playable: Dictionary = commands[result.playable_command_id].scene_event.semantic
+			var playable_result: Dictionary = commands[result.playable_command_id].scene_event.result
+			if playable.kind != "challenge.playable" or not _equal(playable.source, semantic.source) \
+					or playable.payload.challenge_id != semantic.payload.challenge_id or playable.ordinal >= semantic.ordinal \
+					or playable_result.kind != "challenge_playable" or playable_result.challenge_occurrence != result.challenge_occurrence:
+				return _fail(&"scene_playable_receipt_mismatch")
+		elif result.kind == "contact_returned":
+			if not admissions.has(result.contact_admission_receipt_id): return _fail(&"scene_contact_admission_missing")
+	var roots := {}
+	var triggers := {}
+	for admission_id: String in admissions:
+		var admission: Dictionary = admissions[admission_id]
+		var identity: Dictionary = admission_receipts[admission_id].scene_admission.source_identity
+		if admission.kind == "scene_initial_admitted":
+			if roots.has(identity.run_id): return _fail(&"scene_admission_root_conflict")
+			roots[identity.run_id] = admission_id
+			continue
+		if admission.trigger_command_id == null:
+			if admission.return_to != null or roots.has(identity.run_id): return _fail(&"scene_admission_root_conflict")
+			roots[identity.run_id] = admission_id
+			continue
+		if not commands.has(admission.trigger_command_id) or triggers.has(admission.trigger_command_id):
+			return _fail(&"scene_admission_trigger_missing")
+		triggers[admission.trigger_command_id] = admission_id
+		var trigger: Dictionary = commands[admission.trigger_command_id].scene_event
+		if trigger.semantic.source.run_id != identity.run_id: return _fail(&"scene_admission_source_mismatch")
+		if admission.return_to != null:
+			# Contact entry needs the actual authored fact/entry owner, not a guessed result.
+			return _fail(&"scene_contact_entry_unavailable")
+		if trigger.result.kind != "scene_transition_accepted" or trigger.result.target_id != admission.target_id:
+			return _fail(&"scene_admission_trigger_mismatch")
+		var source_admission: Dictionary = admission_receipts.get(trigger.semantic.source.scene_occurrence, {})
+		if source_admission.is_empty() or source_admission.scene_admission.issuer_receipt.counter >= admission_receipts[admission_id].scene_admission.issuer_receipt.counter:
+			return _fail(&"scene_admission_cycle")
+	for receipt: Dictionary in admission_receipts.values():
+		if not roots.has(receipt.scene_admission.source_identity.run_id): return _fail(&"scene_admission_root_missing")
+	return {"ok": true, "value": {"admissions": admissions, "admission_receipts": admission_receipts,
+		"occurrences": occurrences, "commands": commands}}
+
+## A scene admission has its own issued command root; it is not a fabricated DTL
+## marker. The existing child derivation authenticates the complete request.
+static func make_scene_admission(identity: Dictionary, root_issuer_receipt: Dictionary,
+		target_id: String, source_checkpoint: Dictionary, trigger_command_id: Variant,
+		return_to: Variant, bundle: Dictionary, issuer: Object) -> Dictionary:
+	if issuer == null or issuer.get_script() != SCENE_RECEIPT_ISSUER:
+		return _fail(&"scene_receipt_issuer_unbound")
+	if not _json_data(identity) or not _keys(identity, ["run_id", "branch_id",
+			"desktop_timeline_generation", "causal_day_instance", "causal_day_instance_issuer_receipt"]):
+		return _fail(&"scene_admission_identity_invalid")
+	for key: String in ["run_id", "branch_id", "causal_day_instance"]:
+		if not _id(identity[key]): return _fail(&"scene_admission_identity_invalid")
+	if typeof(identity.desktop_timeline_generation) != TYPE_INT or identity.desktop_timeline_generation < 0 \
+			or not identity.causal_day_instance_issuer_receipt is Dictionary \
+			or identity.causal_day_instance_issuer_receipt.get("token") != identity.causal_day_instance:
+		return _fail(&"scene_admission_identity_invalid")
+	var issued: Dictionary = issuer.verify_issued(root_issuer_receipt, &"transaction_id")
+	if not issued.get("ok", false): return issued
+	var causal: Dictionary = issuer.verify_issued(identity.causal_day_instance_issuer_receipt, &"causal_day_instance")
+	if not causal.get("ok", false): return causal
+	var allocated := _scene_admission_identity_proof(identity, issuer)
+	if not allocated.ok: return allocated
+	var registered := validate_bundle_structure(bundle)
+	if not registered.ok: return registered
+	if not registered.value.targets.has(target_id): return _fail(&"scene_target_unregistered")
+	var target: Dictionary = registered.value.targets[target_id].target
+	if target.kind not in ["scene", "contact"]: return _fail(&"scene_admission_invalid")
+	var result := {"kind": "scene_admitted", "occurrence_id": root_issuer_receipt.token,
+		"entry_id": target.entry_id, "target_id": target_id, "source_checkpoint": source_checkpoint.duplicate(true),
+		"trigger_command_id": trigger_command_id, "return_to": _scene_detach(return_to)}
+	var valid := validate_scene_admission(result, bundle)
+	if not valid.ok: return valid
+	var request := {"schema_version": 2, "kind": "scene_admission",
+		"source_identity": identity.duplicate(true), "registration_fingerprint": registered.value.fingerprint,
+		"issuer_receipt": root_issuer_receipt.duplicate(true), "target_id": target_id,
+		"source_checkpoint": source_checkpoint.duplicate(true), "trigger_command_id": trigger_command_id,
+		"return_to": _scene_detach(return_to)}
+	var fingerprint := _sha(request)
+	if fingerprint.is_empty(): return _fail(&"scene_admission_invalid")
+	var source_ids: Array[String] = [
+		"request_fingerprint=" + str(WRITER.stringify(fingerprint).value), 'role="scene.admission"']
+	source_ids.sort()
+	var child: Dictionary = issuer.derive_child({"parent_receipt_id": root_issuer_receipt.receipt_id,
+		"child_kind": "continuation_operation", "ordinal": 0, "source_ids": source_ids})
+	if not child.get("ok", false): return child
+	return {"ok": true, "value": {"transaction_id": root_issuer_receipt.token,
+		"request_fingerprint": fingerprint, "kind": "scene_admission", "source_id": root_issuer_receipt.token,
+		"scene_admission": {"schema_version": 2, "registration_fingerprint": registered.value.fingerprint,
+			"source_identity": identity.duplicate(true), "issuer_receipt": root_issuer_receipt.duplicate(true),
+			"provenance": child.value.provenance.duplicate(true), "result": result}}}
+
+
+static func _validate_scene_admission_receipt(receipt: Dictionary, bundle: Dictionary, issuer: Object) -> Dictionary:
+	if not _keys(receipt, ["transaction_id", "request_fingerprint", "kind", "source_id", "scene_admission"]):
+		return _fail(&"scene_admission_receipt_invalid")
+	var saved: Variant = receipt.scene_admission
+	if not _keys(saved, ["schema_version", "registration_fingerprint", "source_identity", "issuer_receipt", "provenance", "result"]) \
+			or typeof(saved.schema_version) != TYPE_INT or saved.schema_version != 2 \
+			or not saved.source_identity is Dictionary or not saved.issuer_receipt is Dictionary \
+			or not saved.provenance is Dictionary or not saved.result is Dictionary:
+		return _fail(&"scene_admission_receipt_invalid")
+	var result: Dictionary = saved.result
+	var result_ok := validate_scene_admission(result, bundle)
+	if not result_ok.ok: return result_ok
+	var rebuilt := make_scene_admission(saved.source_identity, saved.issuer_receipt, result.target_id,
+		result.source_checkpoint, result.trigger_command_id, result.return_to, bundle, issuer)
+	if not rebuilt.ok: return rebuilt
+	if not _equal(receipt, rebuilt.value): return _fail(&"scene_admission_receipt_mismatch")
+	var proven: Dictionary = issuer.validate_child(saved.provenance, &"continuation_operation")
+	if not proven.get("ok", false): return proven
+	return {"ok": true}
+
+
+## Prepared initial admission proves reproducible material only. It never grants
+## committed Load authority or a live session before the owning creation completes.
+static func prepare_scene_initial_admission(allocation_candidate: Dictionary,
+		profile_material: Dictionary, target_id: String, bundle: Dictionary, issuer: Object) -> Dictionary:
+	var materials := _validate_initial_materials(allocation_candidate, profile_material, issuer)
+	if not materials.ok: return materials
+	var registered := validate_bundle_structure(bundle)
+	if not registered.ok: return registered
+	if not registered.value.targets.has(target_id): return _fail(&"scene_target_unregistered")
+	var target: Dictionary = registered.value.targets[target_id].target
+	if target.kind != "scene": return _fail(&"scene_initial_target_invalid")
+	var identity := {}
+	for key: String in ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance", "causal_day_instance_issuer_receipt"]:
+		identity[key] = _scene_detach(allocation_candidate[key])
+	var root: Dictionary = allocation_candidate.request.transaction_issuer_receipt
+	var request := {"schema_version": 3, "kind": "scene_initial_admission",
+		"registration_fingerprint": registered.value.fingerprint, "source_identity": identity,
+		"issuer_receipt": root.duplicate(true), "allocation_candidate_sha256": _sha(allocation_candidate),
+		"scene_assignment_sha256": _sha(profile_material.scene_assignment.receipt), "target_id": target_id}
+	var fingerprint := _sha(request)
+	var projections: Array[String] = ["request_fingerprint=" + str(WRITER.stringify(fingerprint).value), 'role="scene.initial_admission"']
+	projections.sort()
+	var child: Dictionary = issuer.derive_child({"parent_receipt_id": root.receipt_id,
+		"child_kind": "continuation_operation", "ordinal": 0, "source_ids": projections})
+	if not child.get("ok", false): return child
+	return {"ok": true, "value": {"transaction_id": root.token, "request_fingerprint": fingerprint,
+		"kind": "scene_admission", "source_id": root.token, "scene_admission": {
+			"schema_version": 3, "registration_fingerprint": registered.value.fingerprint,
+			"source_identity": identity, "issuer_receipt": root.duplicate(true),
+			"allocation_candidate_sha256": request.allocation_candidate_sha256,
+			"scene_assignment_sha256": request.scene_assignment_sha256,
+			"provenance": child.value.provenance.duplicate(true), "result": {
+				"kind": "scene_initial_admitted", "occurrence_id": root.token,
+				"entry_id": target.entry_id, "target_id": target_id}}}}
+
+
+static func validate_scene_initial_admission_candidate(receipt: Dictionary,
+		allocation_candidate: Dictionary, profile_material: Dictionary,
+		bundle: Dictionary, issuer: Object) -> Dictionary:
+	if not _json_data(receipt) or not _keys(receipt, ["transaction_id", "request_fingerprint", "kind", "source_id", "scene_admission"]):
+		return _fail(&"scene_initial_receipt_invalid")
+	var saved: Variant = receipt.scene_admission
+	if not _keys(saved, ["schema_version", "registration_fingerprint", "source_identity", "issuer_receipt",
+			"allocation_candidate_sha256", "scene_assignment_sha256", "provenance", "result"]) \
+			or typeof(saved.schema_version) != TYPE_INT or saved.schema_version != 3 \
+			or not _keys(saved.result, ["kind", "occurrence_id", "entry_id", "target_id"]) \
+			or not _id(saved.result.target_id): return _fail(&"scene_initial_receipt_invalid")
+	var rebuilt := prepare_scene_initial_admission(allocation_candidate, profile_material, saved.result.target_id, bundle, issuer)
+	if not rebuilt.ok: return rebuilt
+	if not _equal(receipt, rebuilt.value): return _fail(&"scene_initial_receipt_mismatch")
+	var child: Dictionary = issuer.validate_child(saved.provenance, &"continuation_operation")
+	if not child.get("ok", false): return child
+	return {"ok": true, "value": rebuilt.value.duplicate(true)}
+
+
+static func _validate_initial_materials(candidate: Dictionary, profile: Dictionary, issuer: Object) -> Dictionary:
+	if issuer == null or issuer.get_script() != SCENE_RECEIPT_ISSUER:
+		return _fail(&"scene_receipt_issuer_unbound")
+	if not _json_data(candidate) or not _keys(candidate, ["branch_id", "branch_id_issuer_receipt",
+			"causal_day_instance", "causal_day_instance_issuer_receipt", "desktop_timeline_generation",
+			"desktop_timeline_generation_issuer_receipt", "kind", "remap_transaction_issuer_receipts",
+			"request", "root_namespace", "root_next_counter", "run_id", "run_id_issuer_receipt", "schema_version", "transaction_remap"]) \
+			or typeof(candidate.schema_version) != TYPE_INT or candidate.schema_version != 1 \
+			or candidate.kind != "new_run" or not _hash(candidate.root_namespace) \
+			or typeof(candidate.root_next_counter) != TYPE_INT or candidate.root_next_counter < 1 \
+			or typeof(candidate.desktop_timeline_generation) != TYPE_INT or candidate.desktop_timeline_generation != 0:
+		return _fail(&"scene_initial_allocation_invalid")
+	var request: Variant = candidate.request
+	if not _keys(request, ["existing_run_id", "kind", "remap_source_transaction_ids", "source_desktop_timeline_generation", "transaction_id", "transaction_issuer_receipt"]) \
+			or request.kind != "new_run" or request.existing_run_id != null or request.source_desktop_timeline_generation != null \
+			or not request.remap_source_transaction_ids is Array or not request.remap_source_transaction_ids.is_empty() \
+			or not candidate.transaction_remap is Dictionary or not candidate.transaction_remap.is_empty() \
+			or not candidate.remap_transaction_issuer_receipts is Dictionary or not candidate.remap_transaction_issuer_receipts.is_empty() \
+			or not _id(request.transaction_id): return _fail(&"scene_initial_allocation_invalid")
+	for key: String in ["run_id", "branch_id", "causal_day_instance"]:
+		if not _id(candidate[key]): return _fail(&"scene_initial_allocation_invalid")
+	# Strict integer/null/string receipts precede issuer methods, whose historical
+	# internals may coerce types. Full reproduction then authenticates their values.
+	for key: String in ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance", "transaction_id"]:
+		var receipt: Variant = request.transaction_issuer_receipt if key == "transaction_id" else candidate[key + "_issuer_receipt"]
+		if not _keys(receipt, ["counter", "namespace", "numeric_value", "purpose", "receipt_id", "token"]) \
+				or typeof(receipt.counter) != TYPE_INT or receipt.counter < 0 \
+				or not _hash(receipt.namespace) or receipt.namespace != candidate.root_namespace \
+				or typeof(receipt.purpose) != TYPE_STRING or receipt.purpose != key \
+				or not _id(receipt.receipt_id) or not _id(receipt.token): return _fail(&"scene_initial_allocation_invalid")
+		if key == "desktop_timeline_generation":
+			if typeof(receipt.numeric_value) != TYPE_INT or receipt.numeric_value != 0: return _fail(&"scene_initial_allocation_invalid")
+		elif receipt.numeric_value != null or receipt.token != (request.transaction_id if key == "transaction_id" else candidate[key]):
+			return _fail(&"scene_initial_allocation_invalid")
+	var issued: Dictionary = issuer.verify_issued(request.transaction_issuer_receipt, &"transaction_id")
+	if not issued.get("ok", false): return issued
+	var reproduced: Dictionary = issuer.prepare_continuation_allocation(request.duplicate(true))
+	if not reproduced.get("ok", false): return reproduced
+	if not _equal(candidate, reproduced.value): return _fail(&"scene_initial_allocation_mismatch")
+	if not _json_data(profile): return _fail(&"scene_initial_profile_invalid")
+	var profile_owner: Script = load("res://autoload/ProfileManager.gd")
+	var checked: Dictionary = profile_owner.validate_scene_new_run_material(profile)
+	if not checked.get("ok", false): return checked
+	if profile.scene_assignment.run_id != candidate.run_id \
+			or profile.scene_assignment.receipt.creation_transaction_id != request.transaction_id:
+		return _fail(&"scene_initial_assignment_mismatch")
+	return {"ok": true}
+
+
+static func _validate_committed_initial_admission(receipt: Dictionary, bundle: Dictionary,
+		issuer: Object, creation_owner: Object) -> Dictionary:
+	# Caller-supplied dictionaries/callbacks cannot assert durable creation authority.
+	if creation_owner == null or creation_owner.get_script() != load("res://autoload/SaveManager.gd"):
+		return _fail(&"scene_creation_owner_unbound")
+	var captured: Dictionary = creation_owner.call(&"capture_committed_scene_creation", receipt.transaction_id)
+	if not captured.get("ok", false): return captured
+	var proof: Variant = captured.get("value")
+	if not proof is Dictionary or not proof.get("allocation_candidate") is Dictionary \
+			or not proof.get("profile_material") is Dictionary \
+			or not proof.get("initial_receipt") is Dictionary: return _fail(&"scene_creation_proof_invalid")
+	var validated := validate_scene_initial_admission_candidate(receipt, proof.allocation_candidate, proof.profile_material, bundle, issuer)
+	if not validated.ok: return validated
+	if not _equal(receipt, proof.initial_receipt):
+		return _fail(&"scene_initial_committed_receipt_mismatch")
+	var root: Dictionary = issuer.capture_root()
+	if not root.get("ok", false): return root
+	if not _equal(root.value.get("allocation_receipts", {}).get(receipt.transaction_id), proof.allocation_candidate):
+		return _fail(&"scene_initial_allocation_uncommitted")
+	return validated
+
+
+static func _scene_detach(value: Variant) -> Variant:
+	return value.duplicate(true) if value is Dictionary or value is Array else value
+
+
+static func _scene_admission_identity_proof(identity: Dictionary, issuer: Object) -> Dictionary:
+	var captured: Dictionary = issuer.capture_root()
+	if not captured.get("ok", false): return captured
+	var document: Dictionary = captured.value
+	for allocation: Dictionary in document.get("allocation_receipts", {}).values():
+		var exact := true
+		for key: String in identity:
+			if not _equal(identity[key], allocation.get(key)): exact = false
+		if exact: return {"ok": true}
+	for allocation: Dictionary in document.get("day_advance_allocation_receipts", {}).values():
+		if allocation.get("resolution_kind") != "scene_day_complete": continue
+		var projected := {"run_id": allocation.get("run_id"), "branch_id": allocation.get("branch_id"),
+			"desktop_timeline_generation": allocation.get("desktop_timeline_generation"),
+			"causal_day_instance": allocation.get("target_causal_day_instance"),
+			"causal_day_instance_issuer_receipt": allocation.get("target_causal_day_instance_issuer_receipt")}
+		if _equal(identity, projected): return {"ok": true}
+	return _fail(&"scene_admission_identity_unallocated")
+
 static func _target_valid(target: Variant, entries: Dictionary) -> bool:
 	if not _keys(target, TARGET_KEYS) or target.kind not in ["local", "scene", "ending", "contact", "return"] \
 			or not _table_has(entries, target.entry_id) or not _id(target.label) or not _positive_int(target.content_version) \
@@ -549,3 +913,5 @@ static func _json_data(value: Variant, depth: int = 0) -> bool:
 				if typeof(key) != TYPE_STRING or not _json_data(value[key], depth + 1): return false
 			return true
 	return false
+
+
