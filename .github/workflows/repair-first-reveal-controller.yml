@@ -1,0 +1,64 @@
+name: Repair first-Reveal controller encoding
+on:
+  push:
+    branches:
+      - codex/scene-runtime-integration-controller-20261009
+    paths:
+      - '.github/workflows/repair-first-reveal-controller.yml'
+permissions:
+  contents: write
+concurrency:
+  group: repair-first-reveal-controller
+  cancel-in-progress: false
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: codex/scene-runtime-integration-controller-20261009
+          fetch-depth: 0
+      - name: Decode embedded GDScript and retire this helper
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          workflow = Path('.github/workflows/windows-tests.yml')
+          text = workflow.read_text(encoding='utf-8')
+          old = "'''.replace('          ', '')"
+          new = "'''.replace('          ', '').replace(r'\\t', '\t').replace(r'\\\\', '\\')"
+          count = text.count(old)
+          if count != 6:
+              raise SystemExit(f'expected 6 embedded raw blocks, found {count}')
+          text = text.replace(old, new)
+
+          anchor = "      - name: Retain evidence on every outcome\n"
+          cleanup = """      - name: Retire one-shot trigger after successful publication
+            if: success()
+            working-directory: controller
+            shell: pwsh
+            run: |
+              $ErrorActionPreference = 'Stop'
+              $marker = '.github/scene-first-reveal-trigger.txt'
+              if (Test-Path $marker) {
+                git config user.name 'github-actions[bot]'
+                git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+                git rm -- $marker
+                git commit -m 'Retire first-Reveal run trigger'
+                git push origin HEAD:codex/scene-runtime-integration-controller-20261009
+              }
+"""
+          if text.count(anchor) != 1:
+              raise SystemExit('evidence-step anchor mismatch')
+          text = text.replace(anchor, cleanup + anchor, 1)
+          workflow.write_text(text, encoding='utf-8', newline='\n')
+          PY
+          git rm .github/workflows/repair-first-reveal-controller.yml
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/workflows/windows-tests.yml
+          git commit -m 'Decode generated first-Reveal GDScript'
+          git push origin HEAD:codex/scene-runtime-integration-controller-20261009
