@@ -78,7 +78,7 @@ index f52b7f191f1410fbaa7fb425ffcbe6fccb2d9457..54d36ec7baedb0b7748de1fb5fcf3462
  	var encoded: Dictionary = WRITER.stringify(proof)
  	assert_true(encoded.ok, str(encoded))
 diff --git a/tests/support/ScenePlayableFixture.gd b/tests/support/ScenePlayableFixture.gd
-index c2c69fd9aa6e6d8e553eb09a0c492f5214a3a00d..2c043547b11032965050bf477c91df60f2baf5ee 100644
+index c2c69fd9aa6e6d8e553eb09a0c492f5214a3a00d..0a9e68ccb3a88f83ee8ef612e76b38cdc4de93ab 100644
 --- a/tests/support/ScenePlayableFixture.gd
 +++ b/tests/support/ScenePlayableFixture.gd
 @@ -21,6 +21,23 @@ class WriteRefusal extends "res://scripts/infrastructure/storage/FileOps.gd":
