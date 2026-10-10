@@ -1,6 +1,6 @@
 class_name DtlStructureValidator
 extends RefCounted
-## Scene-oriented, dialogue-free DTL checks. Physical layout is independent of semantic IDs.
+## Scene-oriented DTL checks. The minimal playable entries admit only text and frozen routing.
 ## Legacy labels remain registered in timelines.json; semantic labels retain their allowed hooks.
 
 const LABEL_PREFIX := "label "
@@ -20,6 +20,12 @@ const DTL_SIGNAL_COMMENT_MISMATCH := &"DTL_SIGNAL_COMMENT_MISMATCH"
 const DTL_DIRECT_DOMAIN_CALL := &"DTL_DIRECT_DOMAIN_CALL"
 const DTL_DYNAMIC_RESOURCE_PATH := &"DTL_DYNAMIC_RESOURCE_PATH"
 const DTL_DIALOGUE_LINE := &"DTL_DIALOGUE_LINE"
+const DTL_INVALID_JUMP := &"DTL_INVALID_JUMP"
+const PLAYABLE := {
+	"res://dialogic/timelines/en/core/hospital_faint.dtl": {
+		"labels": ["hospital.faint.shared", "hospital.faint.sylvia", "hospital.faint.ordinary"],
+		"conditions": ["if {Frozen.sylvia_eligible}:", "else:"]},
+}
 
 
 static func validate_text(path: String, text: String, expected: Array,
@@ -28,6 +34,8 @@ static func validate_text(path: String, text: String, expected: Array,
 	if text.is_empty():
 		return _result([_failure(DTL_EMPTY, 0, path + ": scene is empty")])
 	var blocks := {}
+	var playable := _playable_policy(path, expected)
+	var jumps: Array[Dictionary] = []
 	var current := ""
 	var first_event := ""
 	var line_number := 0
@@ -55,6 +63,11 @@ static func validate_text(path: String, text: String, expected: Array,
 			current = label
 		elif line == TERMINATOR:
 			if current != "": blocks[current]["closed"] = true
+		elif not playable.is_empty() and not current.is_empty() and line.begins_with("jump "):
+			jumps.append({"target": line.trim_prefix("jump "), "line": line_number})
+		elif not playable.is_empty() and not current.is_empty() and (
+				line in playable.conditions or _plain_caption(line)):
+			pass
 		else:
 			var code := DTL_DIALOGUE_LINE
 			if line.contains("res://") or line.contains("user://") or line.contains("load("):
@@ -78,13 +91,40 @@ static func validate_text(path: String, text: String, expected: Array,
 			failures.append(_failure(DTL_PURPOSE_MISMATCH, block["line"], path + ": " + label))
 		if block["signals"] != ", ".join(PackedStringArray(entry["allowed_signals"])):
 			failures.append(_failure(DTL_SIGNAL_COMMENT_MISMATCH, block["line"], path + ": " + label))
+	for jump: Dictionary in jumps:
+		if not blocks.has(jump.target) or not jump.target in playable.labels:
+			failures.append(_failure(DTL_INVALID_JUMP, jump.line, path + ": " + jump.target))
 	for label: Variant in blocks:
-		if not registered.has(label) and not legacy_labels.has(label):
+		if not registered.has(label) and not legacy_labels.has(label) and not label in playable.get("labels", []):
 			failures.append(_failure(DTL_UNREGISTERED_LABEL, blocks[label]["line"], path + ": " + str(label)))
 	for label: Variant in legacy_labels:
 		if not blocks.has(label):
 			failures.append(_failure(DTL_MISSING_LABEL, 0, path + ": legacy " + str(label)))
 	return _result(failures)
+
+
+static func _playable_policy(path: String, expected: Array) -> Dictionary:
+	if PLAYABLE.has(path): return PLAYABLE[path]
+	if not path.begins_with("res://dialogic/timelines/en/dating/") or expected.size() != 1:
+		return {}
+	var entry: Dictionary = expected[0]
+	if entry.get("role") not in ["solo_post_challenge", "pair_post_challenge_scene"] \
+			or not str(entry.get("label", "")).ends_with(".post_challenge"):
+		return {}
+	var label: String = entry.label
+	return {"labels": [label + ".exploded", label + ".perfect", label + ".cleared"],
+		"conditions": ['if {Frozen.board_result} == "exploded":',
+			'elif {Frozen.board_result} == "perfect":', 'elif {Frozen.board_result} == "cleared":']}
+
+
+## The first playable slice uses narrator text only. Reject Dialogic shortcodes,
+## interpolation, choices, speaker commands and expression syntax rather than
+## admitting a general executable event under the guise of placeholder copy.
+static func _plain_caption(line: String) -> bool:
+	if line.is_empty() or not line.left(1).to_lower() in "abcdefghijklmnopqrstuvwxyz": return false
+	for symbol: String in ["[", "]", "{", "}", "(", ")", ":", "=", "<", ">", "\\"]:
+		if line.contains(symbol): return false
+	return DialogicTimeline.event_from_string(line, DialogicResourceUtil.get_event_cache()) is DialogicTextEvent
 
 
 ## Compatibility name retained for callers; the values are now ordinary scene paths.

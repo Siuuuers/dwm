@@ -131,7 +131,8 @@ func _style_recovery() -> void:
 	var high_contrast: bool = _profile.get_preference("preferences.accessibility.high_contrast", false)
 	var colour: String = _profile.get_preference("preferences.accessibility.colour_differentiation", "standard")
 	# Technical recovery stays clean; it is not a fictional week-tinted surface.
-	var material := RECOVERY_THEME.build(_localization.get_locale(), percent, _recovery_palette, high_contrast, colour)
+	var material := RECOVERY_THEME.build(_localization.get_locale(), percent, _recovery_palette, high_contrast, colour, 1,
+		str(_profile.get_preference("preferences.accessibility.font_style", "pixel")))
 	if material == null: return
 	var face := material.get_color("face", "Settings")
 	var ink := material.get_color("ink", "Settings")
@@ -258,6 +259,11 @@ func on_ending_playback_failed(failure: Dictionary) -> void:
 	_pending_ending_command = {}
 	_pending_completion = {}
 	_set_playback_status(true)
+
+
+## Read-only source witness for Pause/Backup; the scene retains the exact command.
+func get_presentation_projection() -> Dictionary:
+	return _pending_ending_command.duplicate(true)
 
 
 func _completion_matches_pending(completion: Dictionary) -> bool:

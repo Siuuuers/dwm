@@ -1,0 +1,802 @@
+{
+  "scope": "Static new-test inventory compared with baseline; focused primary XML execution audit only, not broad or rendered acceptance.",
+  "baseline": "dd00c5a74484b3938cf2fa8fc59a1823f3c45cb4",
+  "source": "57e47bafc32c602a03d9e0a153e6eed09e1434a2",
+  "focused_run": 37125341304,
+  "source8_inventory_only": "76f3ed115da83e51526efe65b1529ff5a9d086cb",
+  "changed_gd_scripts": [
+    {
+      "path": "tests/integration/test_ordered_ending_real_runtime.gd",
+      "new_test_functions": [
+        "test_ending_reading_restore_adopts_same_caption_in_both_route_orders",
+        "test_ending_reading_abort_retires_port_without_completion",
+        "test_ending_boundary_restore_rollback_retires_started_successor",
+        "test_ending_start_refusal_retry_preserves_preceding_history",
+        "test_reached_write_failure_retries_completed_ending_without_native_replay",
+        "test_retired_textbox_listener_cannot_block_successor_caption_animation"
+      ],
+      "source_sha256": "cd95eb96bb80fb6248ed4dae5d02df1f7e694bff80ffd1578d5d08b935ad0dca"
+    },
+    {
+      "path": "tests/integration/verify_ending_reading_journey.gd",
+      "new_test_functions": [],
+      "source_sha256": "e438533b9d8f5fdeeb7ac319b11b2090de7ce639aeab988518711f660b061b36"
+    },
+    {
+      "path": "tests/support/EndingReadingFixture.gd",
+      "new_test_functions": [],
+      "source_sha256": "3735e6007ffd05b1d576c69c32dfb4884503856998c9253ed748929dc4671f7e"
+    },
+    {
+      "path": "tests/support/EndingReadingTimelineCatalog.gd",
+      "new_test_functions": [],
+      "source_sha256": "791e8604d067bc067199504a129fb6334b56872225aa439fb30a6d3567316657"
+    },
+    {
+      "path": "tests/unit/test_frozen_run_context.gd",
+      "new_test_functions": [
+        "test_ending_reading_restore_binds_old_and_current_frames_to_saved_plan",
+        "test_ending_reading_between_steps_accepts_future_cache_without_fabricating_frame",
+        "test_ending_reading_refuses_reordered_history_foreign_session_and_missing_prerequisite",
+        "test_ending_reading_completed_tail_remains_an_inert_history_anchor"
+      ],
+      "source_sha256": "f6a0a2de876e3062bda8c08f323837fe32363f4919360acb71021c58c444d829"
+    },
+    {
+      "path": "tests/unit/test_reading_pause_save.gd",
+      "new_test_functions": [
+        "test_ending_terminal_anchor_retires_only_for_completed_current_run_after_menu_publication"
+      ],
+      "source_sha256": "e9ba1af47f2ab1b426bf1f2a9ac62f9fc7f3de988a61379cc9c733e7c02cb30d"
+    },
+    {
+      "path": "tests/unit/test_solo_reading_session.gd",
+      "new_test_functions": [
+        "test_ending_frames_advance_only_after_complete_preceding_caption_prefix",
+        "test_ending_fresh_restore_keeps_exact_cross_step_history_and_published_frontier",
+        "test_ending_rejects_corrupt_cross_step_saves_without_replacing_standing_history",
+        "test_ending_frame_rebinding_and_next_cannot_mutate_the_retained_session",
+        "test_ending_catalogue_order_is_bound_to_the_saved_history"
+      ],
+      "source_sha256": "9d339abfed15e1a13489d547f4a345226abb6a21259e72e3c78fb74f97cf63cf"
+    }
+  ],
+  "new_test_count": 16,
+  "new_tests": [
+    {
+      "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+      "test": "test_ending_reading_restore_adopts_same_caption_in_both_route_orders",
+      "execution_count": 1,
+      "executions": [
+        {
+          "report": "evidence/phase_2r/ending_reading_2026_10_03/focused/windows-dating-37125341304-1/ci/dating.xml.gz",
+          "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+          "test": "test_ending_reading_restore_adopts_same_caption_in_both_route_orders",
+          "status": "pass",
+          "passed": true,
+          "assertions": 42
+        }
+      ]
+    },
+    {
+      "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+      "test": "test_ending_reading_abort_retires_port_without_completion",
+      "execution_count": 1,
+      "executions": [
+        {
+          "report": "evidence/phase_2r/ending_reading_2026_10_03/focused/windows-dating-37125341304-1/ci/dating.xml.gz",
+          "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+          "test": "test_ending_reading_abort_retires_port_without_completion",
+          "status": "pass",
+          "passed": true,
+          "assertions": 23
+        }
+      ]
+    },
+    {
+      "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+      "test": "test_ending_boundary_restore_rollback_retires_started_successor",
+      "execution_count": 1,
+      "executions": [
+        {
+          "report": "evidence/phase_2r/ending_reading_2026_10_03/focused/windows-dating-37125341304-1/ci/dating.xml.gz",
+          "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+          "test": "test_ending_boundary_restore_rollback_retires_started_successor",
+          "status": "pass",
+          "passed": true,
+          "assertions": 28
+        }
+      ]
+    },
+    {
+      "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+      "test": "test_ending_start_refusal_retry_preserves_preceding_history",
+      "execution_count": 1,
+      "executions": [
+        {
+          "report": "evidence/phase_2r/ending_reading_2026_10_03/focused/windows-dating-37125341304-1/ci/dating.xml.gz",
+          "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+          "test": "test_ending_start_refusal_retry_preserves_preceding_history",
+          "status": "pass",
+          "passed": true,
+          "assertions": 26
+        }
+      ]
+    },
+    {
+      "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+      "test": "test_reached_write_failure_retries_completed_ending_without_native_replay",
+      "execution_count": 1,
+      "executions": [
+        {
+          "report": "evidence/phase_2r/ending_reading_2026_10_03/focused/windows-dating-37125341304-1/ci/dating.xml.gz",
+          "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+          "test": "test_reached_write_failure_retries_completed_ending_without_native_replay",
+          "status": "pass",
+          "passed": true,
+          "assertions": 31
+        }
+      ]
+    },
+    {
+      "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+      "test": "test_retired_textbox_listener_cannot_block_successor_caption_animation",
+      "execution_count": 1,
+      "executions": [
+        {
+          "report": "evidence/phase_2r/ending_reading_2026_10_03/focused/windows-dating-37125341304-1/ci/dating.xml.gz",
+          "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+          "test": "test_retired_textbox_listener_cannot_block_successor_caption_animation",
+          "status": "pass",
+          "passed": true,
+          "assertions": 15
+        }
+      ]
+    },
+    {
+      "script": "tests/unit/test_frozen_run_context.gd",
+      "test": "test_ending_reading_restore_binds_old_and_current_frames_to_saved_plan",
+      "execution_count": 1,
+      "executions": [
+        {
+          "report": "evidence/phase_2r/ending_reading_2026_10_03/focused/windows-persistence-37125341304-1/ci/persistence.xml.gz",
+          "script": "tests/unit/test_frozen_run_context.gd",
+          "test": "test_ending_reading_restore_binds_old_and_current_frames_to_saved_plan",
+          "status": "pass",
+          "passed": true,
+          "assertions": 5
+        }
+      ]
+    },
+    {
+      "script": "tests/unit/test_frozen_run_context.gd",
+      "test": "test_ending_reading_between_steps_accepts_future_cache_without_fabricating_frame",
+      "execution_count": 1,
+      "executions": [
+        {
+          "report": "evidence/phase_2r/ending_reading_2026_10_03/focused/windows-persistence-37125341304-1/ci/persistence.xml.gz",
+          "script": "tests/unit/test_frozen_run_context.gd",
+          "test": "test_ending_reading_between_steps_accepts_future_cache_without_fabricating_frame",
+          "status": "pass",
+          "passed": true,
+          "assertions": 5
+        }
+      ]
+    },
+    {
+      "script": "tests/unit/test_frozen_run_context.gd",
+      "test": "test_ending_reading_refuses_reordered_history_foreign_session_and_missing_prerequisite",
+      "execution_count": 1,
+      "executions": [
+        {
+          "report": "evidence/phase_2r/ending_reading_2026_10_03/focused/windows-persistence-37125341304-1/ci/persistence.xml.gz",
+          "script": "tests/unit/test_frozen_run_context.gd",
+          "test": "test_ending_reading_refuses_reordered_history_foreign_session_and_missing_prerequisite",
+          "status": "pass",
+          "passed": true,
+          "assertions": 9
+        }
+      ]
+    },
+    {
+      "script": "tests/unit/test_frozen_run_context.gd",
+      "test": "test_ending_reading_completed_tail_remains_an_inert_history_anchor",
+      "execution_count": 1,
+      "executions": [
+        {
+          "report": "evidence/phase_2r/ending_reading_2026_10_03/focused/windows-persistence-37125341304-1/ci/persistence.xml.gz",
+          "script": "tests/unit/test_frozen_run_context.gd",
+          "test": "test_ending_reading_completed_tail_remains_an_inert_history_anchor",
+          "status": "pass",
+          "passed": true,
+          "assertions": 5
+        }
+      ]
+    },
+    {
+      "script": "tests/unit/test_reading_pause_save.gd",
+      "test": "test_ending_terminal_anchor_retires_only_for_completed_current_run_after_menu_publication",
+      "execution_count": 1,
+      "executions": [
+        {
+          "report": "evidence/phase_2r/ending_reading_2026_10_03/focused/windows-reading_delivery-37125341304-1/ci/reading_delivery.xml.gz",
+          "script": "tests/unit/test_reading_pause_save.gd",
+          "test": "test_ending_terminal_anchor_retires_only_for_completed_current_run_after_menu_publication",
+          "status": "pass",
+          "passed": true,
+          "assertions": 7
+        }
+      ]
+    },
+    {
+      "script": "tests/unit/test_solo_reading_session.gd",
+      "test": "test_ending_frames_advance_only_after_complete_preceding_caption_prefix",
+      "execution_count": 1,
+      "executions": [
+        {
+          "report": "evidence/phase_2r/ending_reading_2026_10_03/focused/windows-reading_delivery-37125341304-1/ci/reading_delivery.xml.gz",
+          "script": "tests/unit/test_solo_reading_session.gd",
+          "test": "test_ending_frames_advance_only_after_complete_preceding_caption_prefix",
+          "status": "pass",
+          "passed": true,
+          "assertions": 35
+        }
+      ]
+    },
+    {
+      "script": "tests/unit/test_solo_reading_session.gd",
+      "test": "test_ending_fresh_restore_keeps_exact_cross_step_history_and_published_frontier",
+      "execution_count": 1,
+      "executions": [
+        {
+          "report": "evidence/phase_2r/ending_reading_2026_10_03/focused/windows-reading_delivery-37125341304-1/ci/reading_delivery.xml.gz",
+          "script": "tests/unit/test_solo_reading_session.gd",
+          "test": "test_ending_fresh_restore_keeps_exact_cross_step_history_and_published_frontier",
+          "status": "pass",
+          "passed": true,
+          "assertions": 35
+        }
+      ]
+    },
+    {
+      "script": "tests/unit/test_solo_reading_session.gd",
+      "test": "test_ending_rejects_corrupt_cross_step_saves_without_replacing_standing_history",
+      "execution_count": 1,
+      "executions": [
+        {
+          "report": "evidence/phase_2r/ending_reading_2026_10_03/focused/windows-reading_delivery-37125341304-1/ci/reading_delivery.xml.gz",
+          "script": "tests/unit/test_solo_reading_session.gd",
+          "test": "test_ending_rejects_corrupt_cross_step_saves_without_replacing_standing_history",
+          "status": "pass",
+          "passed": true,
+          "assertions": 48
+        }
+      ]
+    },
+    {
+      "script": "tests/unit/test_solo_reading_session.gd",
+      "test": "test_ending_frame_rebinding_and_next_cannot_mutate_the_retained_session",
+      "execution_count": 1,
+      "executions": [
+        {
+          "report": "evidence/phase_2r/ending_reading_2026_10_03/focused/windows-reading_delivery-37125341304-1/ci/reading_delivery.xml.gz",
+          "script": "tests/unit/test_solo_reading_session.gd",
+          "test": "test_ending_frame_rebinding_and_next_cannot_mutate_the_retained_session",
+          "status": "pass",
+          "passed": true,
+          "assertions": 48
+        }
+      ]
+    },
+    {
+      "script": "tests/unit/test_solo_reading_session.gd",
+      "test": "test_ending_catalogue_order_is_bound_to_the_saved_history",
+      "execution_count": 1,
+      "executions": [
+        {
+          "report": "evidence/phase_2r/ending_reading_2026_10_03/focused/windows-reading_delivery-37125341304-1/ci/reading_delivery.xml.gz",
+          "script": "tests/unit/test_solo_reading_session.gd",
+          "test": "test_ending_catalogue_order_is_bound_to_the_saved_history",
+          "status": "pass",
+          "passed": true,
+          "assertions": 21
+        }
+      ]
+    }
+  ],
+  "primary_reports": [
+    {
+      "path": "evidence/phase_2r/ending_reading_2026_10_03/focused/public-surfaces-37125341304-1/ci/public_surfaces.xml.gz",
+      "xml_sha256": "ed11f0a6cbf3990cc5895b208c2553dc484365c1396af7ab321d26c1f13d3ebe",
+      "declared_tests": 11,
+      "actual_testcases": 11,
+      "failures": 0,
+      "not_passed": 0,
+      "suite_count": 1
+    },
+    {
+      "path": "evidence/phase_2r/ending_reading_2026_10_03/focused/windows-dating-37125341304-1/ci/dating.xml.gz",
+      "xml_sha256": "e7a8e554d556572057472e7996952a7c1fd9a2a4f83391a9eeb3e5d4d29155d0",
+      "declared_tests": 174,
+      "actual_testcases": 174,
+      "failures": 0,
+      "not_passed": 0,
+      "suite_count": 12
+    },
+    {
+      "path": "evidence/phase_2r/ending_reading_2026_10_03/focused/windows-persistence-37125341304-1/ci/persistence.xml.gz",
+      "xml_sha256": "b71bb34c2a18acd471fc7c0e4c8d82d09f0c7996481605ba19f540bb6abfac8c",
+      "declared_tests": 234,
+      "actual_testcases": 234,
+      "failures": 0,
+      "not_passed": 0,
+      "suite_count": 22
+    },
+    {
+      "path": "evidence/phase_2r/ending_reading_2026_10_03/focused/windows-reading_delivery-37125341304-1/ci/reading_delivery.xml.gz",
+      "xml_sha256": "c59f9a56b5a618f374c18feb510923b0fdeadb4106b99853e92a48aa5ac3df40",
+      "declared_tests": 623,
+      "actual_testcases": 623,
+      "failures": 0,
+      "not_passed": 0,
+      "suite_count": 44
+    }
+  ],
+  "actual_primary_executions": 1042,
+  "unique_primary_script_test_pairs": 1042,
+  "all_primary_cases_passed": true,
+  "missing_new_tests": [],
+  "failed_new_tests": [],
+  "non_gut_rendered_script": "tests/integration/verify_ending_reading_journey.gd",
+  "limits": [
+    "The rendered writer/reader journey is not represented by GUT XML and is outside this execution census.",
+    "Primary testcase execution counts are not unique test counts.",
+    "Source8 updates two retained public-surface inventory JSON files only; all test source files are identical to Source7. Final broad reports require a separate census."
+  ],
+  "source8_diff_files": [
+    "evidence/phase_2r/runtime/game_state_surface.json",
+    "evidence/phase_2r/runtime/save_manager_surface.json"
+  ],
+  "broad": {
+    "run": 37129223870,
+    "source": "76f3ed115da83e51526efe65b1529ff5a9d086cb",
+    "actual_checkout": "5df681a5d8f6477f571af9256157ac514642a061",
+    "scope": "All 13 retained primary XML reports only. At audit time the dependent job gate was pending; final 26/26 acceptance is recorded by the coordinator in receipt.json and broad-manifest.json.",
+    "report_count": 13,
+    "reports": [
+      {
+        "path": "evidence/phase_2r/ending_reading_2026_10_03/broad/public-surfaces-37129223870-1/ci/public_surfaces.xml.gz",
+        "xml_sha256": "153070433c83c60e9d3a216c586d61902f32a018fb2abdfe7257104187a22ec2",
+        "declared_tests": 11,
+        "actual_testcases": 11,
+        "failure_children": 0,
+        "error_children": 0,
+        "skipped_children": 0,
+        "not_passed": 0,
+        "suite_count": 1
+      },
+      {
+        "path": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-audio-37129223870-1/ci/audio.xml.gz",
+        "xml_sha256": "31889fe5c22189a7e4fc1f1b3c76c54fc91373a8db1db850e1d210971f1c92ad",
+        "declared_tests": 44,
+        "actual_testcases": 44,
+        "failure_children": 0,
+        "error_children": 0,
+        "skipped_children": 0,
+        "not_passed": 0,
+        "suite_count": 2
+      },
+      {
+        "path": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-checkpoint_diagnostics-37129223870-1/ci/checkpoint_diagnostics.xml.gz",
+        "xml_sha256": "1602d974e88922972bb1b42d8911b0eb071fbc020ef49b8090875a10dfff3cf7",
+        "declared_tests": 22,
+        "actual_testcases": 22,
+        "failure_children": 0,
+        "error_children": 0,
+        "skipped_children": 0,
+        "not_passed": 0,
+        "suite_count": 4
+      },
+      {
+        "path": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-dating-37129223870-1/ci/dating.xml.gz",
+        "xml_sha256": "f340756a2572d88aa07df74e8bf9703ace74783e0edb61b7afd2714a84ab776c",
+        "declared_tests": 174,
+        "actual_testcases": 174,
+        "failure_children": 0,
+        "error_children": 0,
+        "skipped_children": 0,
+        "not_passed": 0,
+        "suite_count": 12
+      },
+      {
+        "path": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-desktop-37129223870-1/ci/desktop.xml.gz",
+        "xml_sha256": "4735ef5b1468e285c96be2bbdb756934182cacfc50c98cfbfdad475f962e3673",
+        "declared_tests": 334,
+        "actual_testcases": 334,
+        "failure_children": 0,
+        "error_children": 0,
+        "skipped_children": 0,
+        "not_passed": 0,
+        "suite_count": 22
+      },
+      {
+        "path": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-endings-37129223870-1/ci/endings.xml.gz",
+        "xml_sha256": "bc5a762cd2d2a1fe694ee1fdd02519a458cda7a8b6c0008706812ae83a02dcdc",
+        "declared_tests": 106,
+        "actual_testcases": 106,
+        "failure_children": 0,
+        "error_children": 0,
+        "skipped_children": 0,
+        "not_passed": 0,
+        "suite_count": 12
+      },
+      {
+        "path": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-localization-37129223870-1/ci/localization.xml.gz",
+        "xml_sha256": "d69ce670aa9f787c84edfebd7b10f3ce24cf1a918390ffcb34065a4e442c559c",
+        "declared_tests": 153,
+        "actual_testcases": 153,
+        "failure_children": 0,
+        "error_children": 0,
+        "skipped_children": 0,
+        "not_passed": 0,
+        "suite_count": 18
+      },
+      {
+        "path": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-minesweeper-37129223870-1/ci/minesweeper.xml.gz",
+        "xml_sha256": "e41648c64e86715ce4373ae824f7bdaad52dc8af61074b94f1fddc820bd4b960",
+        "declared_tests": 210,
+        "actual_testcases": 210,
+        "failure_children": 0,
+        "error_children": 0,
+        "skipped_children": 0,
+        "not_passed": 0,
+        "suite_count": 22
+      },
+      {
+        "path": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-new_account-37129223870-1/ci/new_account.xml.gz",
+        "xml_sha256": "9ca286c19a551b142085ecbd7501ef9761ce380089db5ca05ff15d9fca003587",
+        "declared_tests": 179,
+        "actual_testcases": 179,
+        "failure_children": 0,
+        "error_children": 0,
+        "skipped_children": 0,
+        "not_passed": 0,
+        "suite_count": 15
+      },
+      {
+        "path": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-persistence-37129223870-1/ci/persistence.xml.gz",
+        "xml_sha256": "3c55918ae6d523f11f1d086bcc61031cc7500fde4febde924ca57d0f55f06029",
+        "declared_tests": 234,
+        "actual_testcases": 234,
+        "failure_children": 0,
+        "error_children": 0,
+        "skipped_children": 0,
+        "not_passed": 0,
+        "suite_count": 22
+      },
+      {
+        "path": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-reading_delivery-37129223870-1/ci/reading_delivery.xml.gz",
+        "xml_sha256": "d17e0a4e4e6df3d9ca0521d4413f18f301e00bb3d0e6538c63a84a120fc988ff",
+        "declared_tests": 623,
+        "actual_testcases": 623,
+        "failure_children": 0,
+        "error_children": 0,
+        "skipped_children": 0,
+        "not_passed": 0,
+        "suite_count": 44
+      },
+      {
+        "path": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-settings-37129223870-1/ci/settings.xml.gz",
+        "xml_sha256": "66665b567c1519934886065297a07ba7211f71c8699a196ac6989a9c9cf29829",
+        "declared_tests": 357,
+        "actual_testcases": 357,
+        "failure_children": 0,
+        "error_children": 0,
+        "skipped_children": 0,
+        "not_passed": 0,
+        "suite_count": 31
+      },
+      {
+        "path": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-shop-37129223870-1/ci/shop.xml.gz",
+        "xml_sha256": "fbbb4d09370c9080ea733ec876b1bf9cdcad6cec857e4c46f94bf54003a0af40",
+        "declared_tests": 144,
+        "actual_testcases": 144,
+        "failure_children": 0,
+        "error_children": 0,
+        "skipped_children": 0,
+        "not_passed": 0,
+        "suite_count": 8
+      }
+    ],
+    "excluded_controls": [
+      {
+        "path": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-settings-37129223870-1/ci/storage-refusal/empty/tests.xml.gz",
+        "reason": "Intentional storage-refusal negative control; excluded from primary census.",
+        "xml_sha256": "24cbe697434e63ba008fb7213a1a31741bfea62cf49cb5793b461af59290251a",
+        "testcases": 83,
+        "failure_children": 80
+      },
+      {
+        "path": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-settings-37129223870-1/ci/storage-refusal/whitespace/tests.xml.gz",
+        "reason": "Intentional storage-refusal negative control; excluded from primary census.",
+        "xml_sha256": "8a715220ccf2117ef1de5778898783e649aa81bdfaa14b4e0e16ffe83ebc3fd3",
+        "testcases": 83,
+        "failure_children": 80
+      }
+    ],
+    "actual_primary_executions": 2591,
+    "unique_primary_script_test_pairs": 2587,
+    "script_executions": 213,
+    "unique_scripts": 212,
+    "all_primary_cases_passed": true,
+    "declared_counts_match": true,
+    "failure_children": 0,
+    "error_children": 0,
+    "skipped_children": 0,
+    "new_tests": [
+      {
+        "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+        "test": "test_ending_reading_restore_adopts_same_caption_in_both_route_orders",
+        "execution_count": 1,
+        "executions": [
+          {
+            "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+            "test": "test_ending_reading_restore_adopts_same_caption_in_both_route_orders",
+            "status": "pass",
+            "passed": true,
+            "assertions": 42,
+            "report": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-dating-37129223870-1/ci/dating.xml.gz"
+          }
+        ]
+      },
+      {
+        "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+        "test": "test_ending_reading_abort_retires_port_without_completion",
+        "execution_count": 1,
+        "executions": [
+          {
+            "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+            "test": "test_ending_reading_abort_retires_port_without_completion",
+            "status": "pass",
+            "passed": true,
+            "assertions": 23,
+            "report": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-dating-37129223870-1/ci/dating.xml.gz"
+          }
+        ]
+      },
+      {
+        "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+        "test": "test_ending_boundary_restore_rollback_retires_started_successor",
+        "execution_count": 1,
+        "executions": [
+          {
+            "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+            "test": "test_ending_boundary_restore_rollback_retires_started_successor",
+            "status": "pass",
+            "passed": true,
+            "assertions": 28,
+            "report": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-dating-37129223870-1/ci/dating.xml.gz"
+          }
+        ]
+      },
+      {
+        "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+        "test": "test_ending_start_refusal_retry_preserves_preceding_history",
+        "execution_count": 1,
+        "executions": [
+          {
+            "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+            "test": "test_ending_start_refusal_retry_preserves_preceding_history",
+            "status": "pass",
+            "passed": true,
+            "assertions": 26,
+            "report": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-dating-37129223870-1/ci/dating.xml.gz"
+          }
+        ]
+      },
+      {
+        "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+        "test": "test_reached_write_failure_retries_completed_ending_without_native_replay",
+        "execution_count": 1,
+        "executions": [
+          {
+            "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+            "test": "test_reached_write_failure_retries_completed_ending_without_native_replay",
+            "status": "pass",
+            "passed": true,
+            "assertions": 31,
+            "report": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-dating-37129223870-1/ci/dating.xml.gz"
+          }
+        ]
+      },
+      {
+        "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+        "test": "test_retired_textbox_listener_cannot_block_successor_caption_animation",
+        "execution_count": 1,
+        "executions": [
+          {
+            "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+            "test": "test_retired_textbox_listener_cannot_block_successor_caption_animation",
+            "status": "pass",
+            "passed": true,
+            "assertions": 15,
+            "report": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-dating-37129223870-1/ci/dating.xml.gz"
+          }
+        ]
+      },
+      {
+        "script": "tests/unit/test_frozen_run_context.gd",
+        "test": "test_ending_reading_restore_binds_old_and_current_frames_to_saved_plan",
+        "execution_count": 1,
+        "executions": [
+          {
+            "script": "tests/unit/test_frozen_run_context.gd",
+            "test": "test_ending_reading_restore_binds_old_and_current_frames_to_saved_plan",
+            "status": "pass",
+            "passed": true,
+            "assertions": 5,
+            "report": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-persistence-37129223870-1/ci/persistence.xml.gz"
+          }
+        ]
+      },
+      {
+        "script": "tests/unit/test_frozen_run_context.gd",
+        "test": "test_ending_reading_between_steps_accepts_future_cache_without_fabricating_frame",
+        "execution_count": 1,
+        "executions": [
+          {
+            "script": "tests/unit/test_frozen_run_context.gd",
+            "test": "test_ending_reading_between_steps_accepts_future_cache_without_fabricating_frame",
+            "status": "pass",
+            "passed": true,
+            "assertions": 5,
+            "report": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-persistence-37129223870-1/ci/persistence.xml.gz"
+          }
+        ]
+      },
+      {
+        "script": "tests/unit/test_frozen_run_context.gd",
+        "test": "test_ending_reading_refuses_reordered_history_foreign_session_and_missing_prerequisite",
+        "execution_count": 1,
+        "executions": [
+          {
+            "script": "tests/unit/test_frozen_run_context.gd",
+            "test": "test_ending_reading_refuses_reordered_history_foreign_session_and_missing_prerequisite",
+            "status": "pass",
+            "passed": true,
+            "assertions": 9,
+            "report": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-persistence-37129223870-1/ci/persistence.xml.gz"
+          }
+        ]
+      },
+      {
+        "script": "tests/unit/test_frozen_run_context.gd",
+        "test": "test_ending_reading_completed_tail_remains_an_inert_history_anchor",
+        "execution_count": 1,
+        "executions": [
+          {
+            "script": "tests/unit/test_frozen_run_context.gd",
+            "test": "test_ending_reading_completed_tail_remains_an_inert_history_anchor",
+            "status": "pass",
+            "passed": true,
+            "assertions": 5,
+            "report": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-persistence-37129223870-1/ci/persistence.xml.gz"
+          }
+        ]
+      },
+      {
+        "script": "tests/unit/test_reading_pause_save.gd",
+        "test": "test_ending_terminal_anchor_retires_only_for_completed_current_run_after_menu_publication",
+        "execution_count": 1,
+        "executions": [
+          {
+            "script": "tests/unit/test_reading_pause_save.gd",
+            "test": "test_ending_terminal_anchor_retires_only_for_completed_current_run_after_menu_publication",
+            "status": "pass",
+            "passed": true,
+            "assertions": 7,
+            "report": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-reading_delivery-37129223870-1/ci/reading_delivery.xml.gz"
+          }
+        ]
+      },
+      {
+        "script": "tests/unit/test_solo_reading_session.gd",
+        "test": "test_ending_frames_advance_only_after_complete_preceding_caption_prefix",
+        "execution_count": 1,
+        "executions": [
+          {
+            "script": "tests/unit/test_solo_reading_session.gd",
+            "test": "test_ending_frames_advance_only_after_complete_preceding_caption_prefix",
+            "status": "pass",
+            "passed": true,
+            "assertions": 35,
+            "report": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-reading_delivery-37129223870-1/ci/reading_delivery.xml.gz"
+          }
+        ]
+      },
+      {
+        "script": "tests/unit/test_solo_reading_session.gd",
+        "test": "test_ending_fresh_restore_keeps_exact_cross_step_history_and_published_frontier",
+        "execution_count": 1,
+        "executions": [
+          {
+            "script": "tests/unit/test_solo_reading_session.gd",
+            "test": "test_ending_fresh_restore_keeps_exact_cross_step_history_and_published_frontier",
+            "status": "pass",
+            "passed": true,
+            "assertions": 35,
+            "report": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-reading_delivery-37129223870-1/ci/reading_delivery.xml.gz"
+          }
+        ]
+      },
+      {
+        "script": "tests/unit/test_solo_reading_session.gd",
+        "test": "test_ending_rejects_corrupt_cross_step_saves_without_replacing_standing_history",
+        "execution_count": 1,
+        "executions": [
+          {
+            "script": "tests/unit/test_solo_reading_session.gd",
+            "test": "test_ending_rejects_corrupt_cross_step_saves_without_replacing_standing_history",
+            "status": "pass",
+            "passed": true,
+            "assertions": 48,
+            "report": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-reading_delivery-37129223870-1/ci/reading_delivery.xml.gz"
+          }
+        ]
+      },
+      {
+        "script": "tests/unit/test_solo_reading_session.gd",
+        "test": "test_ending_frame_rebinding_and_next_cannot_mutate_the_retained_session",
+        "execution_count": 1,
+        "executions": [
+          {
+            "script": "tests/unit/test_solo_reading_session.gd",
+            "test": "test_ending_frame_rebinding_and_next_cannot_mutate_the_retained_session",
+            "status": "pass",
+            "passed": true,
+            "assertions": 48,
+            "report": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-reading_delivery-37129223870-1/ci/reading_delivery.xml.gz"
+          }
+        ]
+      },
+      {
+        "script": "tests/unit/test_solo_reading_session.gd",
+        "test": "test_ending_catalogue_order_is_bound_to_the_saved_history",
+        "execution_count": 1,
+        "executions": [
+          {
+            "script": "tests/unit/test_solo_reading_session.gd",
+            "test": "test_ending_catalogue_order_is_bound_to_the_saved_history",
+            "status": "pass",
+            "passed": true,
+            "assertions": 21,
+            "report": "evidence/phase_2r/ending_reading_2026_10_03/broad/windows-reading_delivery-37129223870-1/ci/reading_delivery.xml.gz"
+          }
+        ]
+      }
+    ],
+    "all_16_new_tests_executed_once_and_passed": true,
+    "duplicated_script_test_pairs": [
+      {
+        "script": "tests/unit/test_checkpoint_phase_diagnostics.gd",
+        "test": "test_profile_on_and_off_preserve_documents_journal_and_every_physical_operation",
+        "execution_count": 2
+      },
+      {
+        "script": "tests/unit/test_checkpoint_phase_diagnostics.gd",
+        "test": "test_cold_history_learning_is_distinct_from_next_prepares_proof_hits",
+        "execution_count": 2
+      },
+      {
+        "script": "tests/unit/test_checkpoint_phase_diagnostics.gd",
+        "test": "test_schema_valid_history_edit_counts_a_learning_attempt_without_a_success",
+        "execution_count": 2
+      },
+      {
+        "script": "tests/unit/test_checkpoint_phase_diagnostics.gd",
+        "test": "test_refused_journal_commit_never_reports_or_creates_successful_learning",
+        "execution_count": 2
+      }
+    ]
+  }
+}

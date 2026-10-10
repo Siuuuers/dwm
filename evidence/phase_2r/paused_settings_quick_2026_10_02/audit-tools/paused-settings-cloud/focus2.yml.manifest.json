@@ -1,0 +1,420 @@
+{
+  "schema_version": 1,
+  "source_checkout": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b",
+  "trigger_branch": "codex/paused-settings-f5-cloud-20261002",
+  "canonical_workflow": "/workspace/scratch/e169b180163f/dwm/.github/workflows/windows-tests.yml",
+  "canonical_workflow_sha256": "3517b65230d9e84536b47ff93cf290d77dcc64fba0748a6bd5a7357825604a6f",
+  "workflow_repository_path": ".github/workflows/windows-tests.yml",
+  "job_count": 4,
+  "journey_command": "python3 tools/testing/run_reading_rail_journey.py",
+  "retained_journey_artifact_root": ".godot/ci/reading-rail/",
+  "derived_steps": {
+    "public-surfaces": [
+      "actions/checkout@v7",
+      "Prepare disposable checkout for credential cleanup",
+      "Record fixture and schema version census",
+      "Install Godot 4.6.3 standard",
+      "Import project",
+      "Restore committed project settings after editor import",
+      "Verify isolated runner contracts and timeout diagnostics",
+      "Generate affected public inventories for review",
+      "Verify public inventory drift and read-only contracts",
+      "Upload canonical inventories and retirement evidence"
+    ],
+    "focused-tests": [
+      "actions/checkout@v7",
+      "Prepare disposable checkout for credential cleanup",
+      "Install Godot 4.6.3 standard",
+      "Import project",
+      "Restore committed project settings after editor import",
+      "Run focused regression suite",
+      "Upload logs and test results"
+    ],
+    "paused-settings-reading": [
+      "actions/checkout@v7",
+      "Prepare disposable checkout for credential cleanup",
+      "Install Godot and software display",
+      "Start and verify native Linux speech service",
+      "Upload native speech environment evidence",
+      "Import project",
+      "Exercise real Solo reading Save and fresh-process Load",
+      "Upload Solo reading reports, exact save bytes and screenshots",
+      "Upload project import evidence",
+      "Audit all UI literal ownership",
+      "Upload UI literal audit evidence"
+    ]
+  },
+  "limits": [
+    "Focused candidate gate only; final frozen production source still needs the canonical broad gate.",
+    "Generated public inventories require review and adoption before committed-inventory verification.",
+    "The auxiliary workflow branch must advance by fast-forward; it is distinct from the PR source branch.",
+    "A preview with the explicit frozen-source placeholder is not publish-ready.",
+    "The unchanged reading runner command owns all original eight modes, their seal, and the nested independent Settings writer/reader proof.",
+    "The separate physical catalogue-v2 journey is retained by the final broad gate and is not added to this focused candidate."
+  ],
+  "source_pending": false,
+  "publish_ready": true,
+  "job_definition_count": 3,
+  "expected_ordinary_xml_count": 3,
+  "focused_suites": [
+    "reading_delivery",
+    "settings"
+  ],
+  "public_inventory_mode": "Regenerate EmitPayloads",
+  "public_inventory_command": "./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads",
+  "reading_supplement": {
+    "modes": [
+      "settings-write",
+      "settings-read"
+    ],
+    "parent_result_key": "settings_quick_save",
+    "artifact_subdirectory": "settings-quick/",
+    "original_eight_mode_proof_retained": true
+  },
+  "suite_census": {
+    "suite_runner_path": "/workspace/scratch/e169b180163f/dwm/tools/testing/Invoke-CloudTests.ps1",
+    "suite_runner_sha256": "ec1ebbfa075819f5c8b928a32a45a3614312e33f84e734985027b8c1cdad8073",
+    "affected_fixture_suites": {
+      "tests/unit/test_production_pause_controller.gd": [
+        "reading_delivery"
+      ],
+      "tests/unit/test_reading_pause_save.gd": [
+        "reading_delivery"
+      ],
+      "tests/scene/test_settings_reset_confirmation.gd": [
+        "settings"
+      ]
+    },
+    "suites": {
+      "reading_delivery": {
+        "scripts": [
+          {
+            "path": "tests/unit/test_hospital_frozen_context.gd",
+            "sha256": "32935adde26e0fee4b121f90bb91ac49c87c9a634ac81d276fca4db0f5514361",
+            "static_case_count": 7
+          },
+          {
+            "path": "tests/unit/test_frozen_replay_context.gd",
+            "sha256": "b6224bf2b13e9610c5a1d22828d100044d5b5e98eaa6c8a010b1c52e743b38ba",
+            "static_case_count": 3
+          },
+          {
+            "path": "tests/unit/test_minesweeper_delivery_notice.gd",
+            "sha256": "548780337803831515b54ba631239de489d337206ad741bb04cda8fb4a9dd0fc",
+            "static_case_count": 10
+          },
+          {
+            "path": "tests/unit/test_narrative_caption_ledger.gd",
+            "sha256": "1bb876cb920f71a6be89458faaaef45fc15e870018dd7f600b681d9c2d823c7b",
+            "static_case_count": 12
+          },
+          {
+            "path": "tests/unit/test_solo_reading_session.gd",
+            "sha256": "b0d93295c9d2c976aa5acf772cf866293b560d3297235dd5110a239c7b16fcfc",
+            "static_case_count": 9
+          },
+          {
+            "path": "tests/unit/test_solo_reading_catalogue.gd",
+            "sha256": "f6230e396ff3e908675f6a5c67ac5248f76fc48f6f27b9df4d6afed48529b46f",
+            "static_case_count": 10
+          },
+          {
+            "path": "tests/integration/test_solo_authored_selector_witness.gd",
+            "sha256": "f0de3479b80a21f241228063554aaf89a14b0bdfa2aabfea154ea62e6a03b394",
+            "static_case_count": 9
+          },
+          {
+            "path": "tests/integration/test_solo_authored_selector_runtime.gd",
+            "sha256": "64767c4a6cb3aad1b96dd6459477640a12eecc9b5df33e5405051bd532b05993",
+            "static_case_count": 3
+          },
+          {
+            "path": "tests/integration/test_dialogic_caption_variant_witness.gd",
+            "sha256": "ab5ab235ad2ddc5c7e439ad1686c543e2d94a25bc20e7418d9275f32c9e2eaae",
+            "static_case_count": 7
+          },
+          {
+            "path": "tests/integration/test_dialogic_next_traversal.gd",
+            "sha256": "1228ca8ba33cf9d678b59c7fc1830497ef1022fc4823450fff9c5806ff82d668",
+            "static_case_count": 11
+          },
+          {
+            "path": "tests/integration/test_dialogic_skip.gd",
+            "sha256": "a197a793bd75c4c99c3d116494122bcb5948382915fd1ab24bd8193497fea370",
+            "static_case_count": 23
+          },
+          {
+            "path": "tests/integration/test_narrative_caption_ledger_runtime.gd",
+            "sha256": "99e200d884e2fc633ab568dd2b59aa71fb3ed5667784641469ac005a9c8a880c",
+            "static_case_count": 9
+          },
+          {
+            "path": "tests/unit/test_witnessed_reading_rail.gd",
+            "sha256": "507eb83261fe13a245483670755dd63c8264a4b7d3aaac76b33e4fe1badc9092",
+            "static_case_count": 10
+          },
+          {
+            "path": "tests/unit/test_reading_pause_save.gd",
+            "sha256": "bccbcfbe339531d57338e41bf56f6e3bd3f91657664b34b82bf46d770ad86a41",
+            "static_case_count": 12
+          },
+          {
+            "path": "tests/unit/test_dialogic_pause_recovery.gd",
+            "sha256": "f87a758792aa977452116adee5b704565081a46ecb204ec3b57d90fd2fef7775",
+            "static_case_count": 9
+          },
+          {
+            "path": "tests/unit/test_pause_surface.gd",
+            "sha256": "00c93ec9f90a9319dbd2c900decf5d7958cf26ec62d36de8ec0a11b1d430d245",
+            "static_case_count": 8
+          },
+          {
+            "path": "tests/integration/test_narrative_reading_frontier_runtime.gd",
+            "sha256": "d560dd86ffad9322dee2d379c0af1608bd2cb4fd6e931761513365ecca5b00db",
+            "static_case_count": 13
+          },
+          {
+            "path": "tests/integration/test_narrative_pause_frontier.gd",
+            "sha256": "a01f3cc019588168cf7724751f12a87d9403780b308bae6e0a7ca904bd251879",
+            "static_case_count": 19
+          },
+          {
+            "path": "tests/integration/test_witnessed_caption_runtime.gd",
+            "sha256": "532af8e71d1c7c580060ae47753b82ca8314157e1e2a95497dd3e71fdc856af6",
+            "static_case_count": 48
+          },
+          {
+            "path": "tests/unit/test_witnessed_pause_view.gd",
+            "sha256": "fbe722b597d74bf7834e04b6446fd9cd546359b620df077992e471416178fb24",
+            "static_case_count": 11
+          },
+          {
+            "path": "tests/unit/test_witnessed_auto_controller.gd",
+            "sha256": "7b25c11cc9fabb7f094a0d20189b190f739eb7e43b8cf71fda3f45a73469cc36",
+            "static_case_count": 13
+          },
+          {
+            "path": "tests/unit/test_witnessed_skip_controller.gd",
+            "sha256": "dd09fd0956d6f364cdb528b65d6b86f710fe06a292f5b081178faf3a89af968b",
+            "static_case_count": 10
+          },
+          {
+            "path": "tests/scene/test_witnessed_transport_recovery.gd",
+            "sha256": "92ecf2c4deb9137d8ae4cece717ed89d64764517206b7b637abca2a1eb32bb7d",
+            "static_case_count": 10
+          },
+          {
+            "path": "tests/integration/test_witnessed_speech_projection.gd",
+            "sha256": "a690edae94d7640483dd183bef5e79b13b441524ddeef01088c9e0b49ee28402",
+            "static_case_count": 8
+          },
+          {
+            "path": "tests/integration/test_dating_caption_style.gd",
+            "sha256": "eb33012653521ff6a0af843d56f3551963e2d1122d5e122b7000094cd48d844e",
+            "static_case_count": 19
+          },
+          {
+            "path": "tests/unit/test_scene_art_bindings.gd",
+            "sha256": "5e22b82f6436433d861c3d02e1f66ddd41b15ec87a7a676b134ba480bcafb059",
+            "static_case_count": 13
+          },
+          {
+            "path": "tests/unit/test_scene_art_hold.gd",
+            "sha256": "4cd048ca9d297b1a6e18eefed3e0f3c1f120ed6fcdca9d5f3826a3364193c954",
+            "static_case_count": 6
+          },
+          {
+            "path": "tests/unit/test_production_pause_controller.gd",
+            "sha256": "97772008dd4077fc6ca59b3edea5590615609e3d46f8f3434a19e2c798120680",
+            "static_case_count": 39
+          },
+          {
+            "path": "tests/scene/test_hospital_scene.gd",
+            "sha256": "8067f1dad531e8f16e6705ff369a1089e5b25f8dd3cdb7c7f8c5bc84bd055b23",
+            "static_case_count": 10
+          },
+          {
+            "path": "tests/unit/test_day7_font_preferences.gd",
+            "sha256": "a25af3d1f9e66af1ea00c6e227e906f5fc9c0dab24de6946da5861b3a1eeb69b",
+            "static_case_count": 3
+          },
+          {
+            "path": "tests/unit/test_gallery_replay_owner.gd",
+            "sha256": "e85fd562507075f8b89bb9201493d8df81d802939393cf79e62d937f95adae97",
+            "static_case_count": 15
+          }
+        ],
+        "script_count": 31,
+        "static_case_count": 389
+      },
+      "settings": {
+        "scripts": [
+          {
+            "path": "tests/unit/test_save_manager_parse_cache.gd",
+            "sha256": "830b958146e7f19e0354f89d42544f0d93b36a34162014eff3202cc4f082c71f",
+            "static_case_count": 18
+          },
+          {
+            "path": "tests/unit/test_backup_quick_actions.gd",
+            "sha256": "d8f49a20478f588feebdac96addf4cd80a816bcec87ec4f889776d356922fff8",
+            "static_case_count": 20
+          },
+          {
+            "path": "tests/unit/test_settings_panel_resize.gd",
+            "sha256": "42ad100504d9cd4b387656442430482dd29b5dee0fa74d4ede3e9f01c201a071",
+            "static_case_count": 3
+          },
+          {
+            "path": "tests/unit/test_settings_preference_registry.gd",
+            "sha256": "4b2a3748141347d582e7f0acf88816b70e06fcfb0878540417b92ca35bd22bcf",
+            "static_case_count": 5
+          },
+          {
+            "path": "tests/unit/test_shared_week_tint.gd",
+            "sha256": "f34bfb88ca1215c6151af84c58825993d5ec3ad73abdca2118893fca49e6ed31",
+            "static_case_count": 2
+          },
+          {
+            "path": "tests/unit/test_settings_window_transactions.gd",
+            "sha256": "3b9892907fbb8ed494c6f9438bcada405931bfcda8ff7bdc744e082a00bc14a9",
+            "static_case_count": 13
+          },
+          {
+            "path": "tests/unit/test_window_mode_manager.gd",
+            "sha256": "ec8cefe728dbc8d7a2cc2281f7c2fd731b58aa9cada2c6a68aae4e75354e9e6c",
+            "static_case_count": 13
+          },
+          {
+            "path": "tests/unit/test_window_mode_port.gd",
+            "sha256": "84efa900949fac66c77be5e4bc6100474503d403be704c80fe4cd050e87c09ed",
+            "static_case_count": 12
+          },
+          {
+            "path": "tests/unit/test_bootstrap_window_output.gd",
+            "sha256": "a10910da3b086ff7f347f1513509cb19b10f7cbd9e181d3ae4686fcb2ad0c107",
+            "static_case_count": 6
+          },
+          {
+            "path": "tests/scene/test_settings_window_mode_live.gd",
+            "sha256": "13e119b89d615e762a251e486f9029a211fb1b28738daadbffaebe9137562858",
+            "static_case_count": 6
+          },
+          {
+            "path": "tests/scene/test_settings_audio_live.gd",
+            "sha256": "76997dca4c9db9e61bc6e095501be9fd0aa2b4147da8c7aad62ba7e07d6612ef",
+            "static_case_count": 5
+          },
+          {
+            "path": "tests/scene/test_settings_reset_confirmation.gd",
+            "sha256": "f0c817970683cef21cb95957a17a82c1496464781e2135ce6d65557f426adac0",
+            "static_case_count": 8
+          },
+          {
+            "path": "tests/scene/test_settings_folio.gd",
+            "sha256": "fe7280288b4b6056bba4c78e4054acf90fe1169f325a55c954f8a0e54dca0be2",
+            "static_case_count": 8
+          },
+          {
+            "path": "tests/scene/test_settings_host_geometry.gd",
+            "sha256": "76419428b56f8a55998ae006e3ec5c18e3f2250ae83fb2a6f6a4a3f74cc23f00",
+            "static_case_count": 5
+          },
+          {
+            "path": "tests/scene/test_settings_localization_scene.gd",
+            "sha256": "3f290de3b16c7e0e17de5e344361173cb88ce364637f7f6a90879439c15c2ff2",
+            "static_case_count": 34
+          },
+          {
+            "path": "tests/integration/test_settings_shared_hosts.gd",
+            "sha256": "fb0af29464a418b7af6248db035ba36e56eae10c27a302ea0e5bde706ffe185c",
+            "static_case_count": 8
+          },
+          {
+            "path": "tests/unit/test_profile_manager.gd",
+            "sha256": "1806a50e78aa0ff73fdafb98de930d5e0a498155843442f71f323cdd5c928ebe",
+            "static_case_count": 23
+          },
+          {
+            "path": "tests/unit/test_profile_caption_witnesses.gd",
+            "sha256": "af1686a1b4fb76eecc29aecd9c32f173215b3772bbacb2d6aca96729d783b04b",
+            "static_case_count": 10
+          },
+          {
+            "path": "tests/unit/test_controls_binding_import.gd",
+            "sha256": "ed7f41840d79001ce1313d7fc288a6bfec7c313182028052cec8f6653f8bce38",
+            "static_case_count": 12
+          },
+          {
+            "path": "tests/unit/test_steady_interface_profile.gd",
+            "sha256": "b1dc1049367c2770d429c748be4496094fc9e65dbd5833cb2a972f191a2f0b83",
+            "static_case_count": 3
+          },
+          {
+            "path": "tests/unit/test_restore_participants.gd",
+            "sha256": "d088f092deb22a1cb0ddf6a3f751e1b4d8c52532d2fdda3ec7e8d6451e1ffe18",
+            "static_case_count": 7
+          },
+          {
+            "path": "tests/integration/test_restore_preserves_current_profile.gd",
+            "sha256": "3198bfe599564b5ca8b9e76eee4090af5d9280f0d37a2b51b9ed4edd6f8d8805",
+            "static_case_count": 4
+          },
+          {
+            "path": "tests/integration/test_restore_production_adapters.gd",
+            "sha256": "25c4911880355d7547e67b52b04c3521a963e66d46ce771ba1cc35633ba2db2e",
+            "static_case_count": 13
+          },
+          {
+            "path": "tests/integration/test_desktop_board_persistence.gd",
+            "sha256": "3c3810f5e46ffdb800d948c731cd4ca7a5f4dc7ab9c6b5e4bcfda1d73efab0a7",
+            "static_case_count": 5
+          },
+          {
+            "path": "tests/integration/test_minesweeper_first_reveal_transaction.gd",
+            "sha256": "2af07227dbd424a503e75069435b67a27554daa04dc425598e50e0a3aade23b6",
+            "static_case_count": 7
+          },
+          {
+            "path": "tests/unit/test_save_manager_checkpoint_port.gd",
+            "sha256": "3bb4ccf8c7348c2e3f9622e0be2cb230d0a4c5b9e9547fd0aaad5004fad7143e",
+            "static_case_count": 42
+          },
+          {
+            "path": "tests/unit/test_checkpoint_validation_reuse.gd",
+            "sha256": "8ba350d92e315385b3358d6e0ebb4917777d176b0157dc7b3665ea027915b66c",
+            "static_case_count": 21
+          },
+          {
+            "path": "tests/unit/test_checkpoint_phase_diagnostics.gd",
+            "sha256": "d41217e89892e96e5b78257faa1f5ebf001ac69799a90be4ec96628a326ea77b",
+            "static_case_count": 4
+          },
+          {
+            "path": "tests/unit/test_checkpoint_journal.gd",
+            "sha256": "780750b402bd2e132c8df79ad3db17cf6f38aa0f32824534aff44cd5cc5e5e07",
+            "static_case_count": 20
+          }
+        ],
+        "script_count": 29,
+        "static_case_count": 337
+      },
+      "public_surfaces": {
+        "scripts": [
+          {
+            "path": "tests/unit/tooling/test_public_surface_inventory.gd",
+            "sha256": "536097a273d289c829688ca6070c2c8162e40e6fbee03f38aacc9947ede812be",
+            "static_case_count": 11
+          }
+        ],
+        "script_count": 1,
+        "static_case_count": 11
+      }
+    },
+    "predicted_case_executions": 737,
+    "predicted_script_executions": 61,
+    "limit": "Static definitions predict ordinary GUT counts; acceptance must audit actual cloud XML and reject failures, errors, skips or undiscovered scripts."
+  },
+  "derivation_helper": "/workspace/scratch/e169b180163f/build_layout_workflow.py",
+  "derivation_helper_sha256": "343415c04234cf7dbcafc1c38bf7b96f02777ea779227f3bb2aded6971121b78",
+  "workflow_sha256": "8111b04d72f44d8bab3a936bdf4458c8a2b9a7183b30f102a876873a00b028e3"
+}

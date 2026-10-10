@@ -14,8 +14,12 @@ signal event_handled_signal(resource)
 signal runtime_signal_event(argument)
 signal preference_reapply_requested
 signal playback_start_failed(result: Dictionary)
+signal caption_publication_recorded(result: Dictionary)
+signal reading_frontier_restored(result: Dictionary)
+signal reading_seek_finished(result: Dictionary)
 
 const CLEAR_KEEP_VARIABLES := 1
+const CLEAR_KEEP_TEXT := 4
 const REQUIRED_METHODS := ["start", "start_timeline", "end_timeline", "handle_next_event", "handle_event", "clear", "has_subsystem", "get_subsystem"]
 const REQUIRED_SIGNALS := ["timeline_started", "timeline_ended", "event_handled", "signal_event"]
 const REQUIRED_SUBSYSTEMS := {
@@ -33,6 +37,26 @@ var _requested_path := ""
 var _runtime_generation := 0
 var _qualified_runtime := false
 var _request_id := ""
+var _retain_caption_layout := false
+var _retained_caption_layout: Node
+var _retained_caption_layer: Node
+var _retained_caption_ledger: NarrativeCaptionLedger
+var _retained_caption_token := ""
+var _caption_ledger: NarrativeCaptionLedger
+var _caption_token := ""
+var _caption_entry := ""
+var _caption_request := ""
+var _caption_generation := 0
+var _caption_publication := ""
+var _caption_event: DialogicTextEvent
+var _caption_line := ""
+var _caption_restore_frontier: Dictionary = {}
+var _caption_restore_queued := false
+var _prepared_reading_seek: Dictionary = {}
+var _reading_seek_serial := 0
+var _caption_seek_frontier: Dictionary = {}
+var _caption_seek_result: Dictionary = {}
+var _caption_seek_queued := false
 
 
 func bind_runtime(dialogic: Node) -> Dictionary:
@@ -66,6 +90,8 @@ func bind_runtime(dialogic: Node) -> Dictionary:
 			return _fail(&"invalid_runtime", "qualified lifecycle requires both signals and generation queries")
 		_qualified_runtime = true
 	_dialogic = dialogic
+	if _qualified_runtime and dialogic.has_method("set_caption_handoff_guard"):
+		dialogic.set_caption_handoff_guard(_begin_caption_handoff)
 	_activity_phase = "live" if _dialogic.get("current_timeline") != null else ""
 	if _qualified_runtime:
 		_runtime_generation = int(dialogic.get_timeline_generation())
@@ -79,6 +105,556 @@ func bind_runtime(dialogic: Node) -> Dictionary:
 	_connect_once(dialogic, "signal_event", _on_signal_event)
 	_bound = true
 	return {"ok": true, "code": &"ok", "value": {"already_bound": false}}
+
+
+## Opt-in internal publication capture only. This is not visible-witness admission,
+## Profile history, durable History, or a save participant. Bind before start():
+## the installed runtime may publish its first caption synchronously.
+func bind_caption_ledger(ledger: NarrativeCaptionLedger, token: String, entry_id: String, retain_layout: bool = false) -> Dictionary:
+	if not _bound or not _qualified_runtime or has_active_playback() or _caption_ledger != null:
+		return _fail(&"caption_binding_unavailable", "no idle qualified publication slot")
+	if ledger == null: return _fail(&"caption_ledger_missing", "ledger is required")
+	var checked := ledger.check_session(token, entry_id)
+	if not checked.ok: return checked
+	var text: Object = _dialogic.get_subsystem("Text")
+	if not text.has_signal("about_to_show_text"):
+		return _fail(&"caption_publication_signal_missing", "publication start signal is required")
+	if is_instance_valid(_retained_caption_layout) and (not retain_layout or ledger != _retained_caption_ledger or token != _retained_caption_token):
+		release_retained_caption_layout()
+	_retain_caption_layout = retain_layout
+	_caption_ledger = ledger
+	_caption_token = token
+	_caption_entry = entry_id
+	_connect_once(text, "about_to_show_text", _on_caption_about_to_show)
+	_connect_once(text, "text_started", _on_caption_text_started)
+	return {"ok": true}
+
+
+func _caption_source_is_current() -> bool:
+	return _caption_ledger != null and _activity_phase == "live" \
+		and not _caption_request.is_empty() and _caption_request == _request_id \
+		and _caption_generation == _runtime_generation \
+		and _dialogic.get_timeline_generation() == _caption_generation \
+		and not _dialogic.is_ending_timeline() and _dialogic.current_timeline != null \
+		and str(_dialogic.current_timeline.resource_path) == _requested_path
+
+
+func _on_caption_about_to_show(_info: Dictionary) -> void:
+	if not _caption_source_is_current(): return
+	_caption_event = _current_skip_text(true)
+	_caption_line = _authored_line_id(_caption_event)
+	if not _caption_seek_frontier.is_empty():
+		if _caption_line != _caption_seek_frontier.line_id:
+			_fail_reading_seek(_fail(&"reading_seek_changed", "the destination publication changed"))
+			return
+		_caption_publication = _caption_seek_frontier.publication_id
+		return
+	if not _caption_restore_frontier.is_empty():
+		if _caption_line != _caption_restore_frontier.line_id:
+			_fail_reading_restore(_fail(&"reading_frontier_changed", "the resumed publication changed"))
+			return
+		_caption_publication = _caption_restore_frontier.publication_id
+		return
+	var allocated := _caption_ledger.allocate_publication(_caption_token, _caption_entry)
+	_caption_publication = allocated.value if allocated.ok else ""
+
+
+func _on_caption_text_started(_info: Dictionary) -> void:
+	if not _caption_source_is_current(): return
+	if _caption_event == null or _caption_event != _current_skip_text(true):
+		caption_publication_recorded.emit(_fail(&"caption_publication_source_invalid", "no matching single-beat publication"))
+		return
+	# An authored #id identifies the registered semantic beat. The independent
+	# opaque publication identity is reused if text_started is delivered twice.
+	var result := _caption_ledger.publish_line(_caption_token, _caption_publication,
+		_caption_entry, _caption_line)
+	caption_publication_recorded.emit(result)
+	if not _caption_seek_frontier.is_empty():
+		if not result.ok or not result.value.get("duplicate", false):
+			_fail_reading_seek(_fail(&"reading_seek_changed", "the destination must reuse its committed occurrence"))
+			return
+		if not _caption_seek_queued:
+			_caption_seek_queued = true
+			# Let the ordinary visible publication and its first speech admission
+			# finish. Unlike Load, Next leaves this unseen caption revealing.
+			_finish_reading_seek.call_deferred(_request_id, _caption_event)
+	if not _caption_restore_frontier.is_empty():
+		if not result.ok or not result.value.get("duplicate", false):
+			_fail_reading_restore(_fail(&"reading_frontier_occurrence_changed", "resume must reuse the saved occurrence"))
+			return
+		if not _caption_restore_queued:
+			_caption_restore_queued = true
+			# Native text_started precedes the text event's text_finished await.
+			# A synchronous reveal here would strand that coroutine forever.
+			_finish_reading_restore.call_deferred(_request_id, _caption_event)
+
+
+## Only the current admitted ending occurrence may keep its mounted view after Return.
+func _begin_caption_handoff() -> bool:
+	if not _retain_caption_layout or not _caption_source_is_current() or _caption_event == null \
+			or _caption_event.state != DialogicTextEvent.States.DONE \
+			or not _caption_ledger.is_current_occurrence(_caption_token, _caption_entry,
+				{"line_id": _caption_line, "publication_id": _caption_publication}): return false
+	var layout: Node = _dialogic.Styles.get_layout_node()
+	if not is_instance_valid(layout) or not layout.is_inside_tree(): return false
+	for layer: Node in layout.get_layers():
+		if layer.has_method("begin_ending_caption_handoff") and layer.call("begin_ending_caption_handoff", _caption_token) == true:
+			_retained_caption_layout = layout
+			_retained_caption_layer = layer
+			_retained_caption_ledger = _caption_ledger
+			_retained_caption_token = _caption_token
+			return true
+	return false
+
+
+func release_retained_caption_layout(dispose: bool = true) -> void:
+	_retain_caption_layout = false
+	var layout := _retained_caption_layout
+	var layer := _retained_caption_layer
+	_retained_caption_layout = null
+	_retained_caption_layer = null
+	_retained_caption_ledger = null
+	_retained_caption_token = ""
+	if is_instance_valid(layer):
+		if layer.has_method("end_ending_caption_handoff"): layer.call("end_ending_caption_handoff")
+		layer.call("reset_caption_stack")
+	if dispose and is_instance_valid(layout):
+		if layout.get_parent() != null: layout.get_parent().remove_child(layout)
+		layout.queue_free()
+
+
+func _retire_caption_binding() -> void:
+	_retain_caption_layout = false
+	_caption_ledger = null
+	_caption_token = ""
+	_caption_entry = ""
+	_caption_request = ""
+	_caption_generation = 0
+	_caption_publication = ""
+	_caption_event = null
+	_caption_line = ""
+	_caption_restore_frontier = {}
+	_caption_restore_queued = false
+	_prepared_reading_seek = {}
+	_caption_seek_frontier = {}
+	_caption_seek_result = {}
+	_caption_seek_queued = false
+
+
+## Opt-in durable frontier. Publication identity comes from the session ledger;
+## native event positions and runtime identities never cross this boundary.
+## Pause/History may inspect it while the native runtime is suspended.
+func can_capture_reading_frontier() -> bool:
+	if not _caption_source_is_current() or is_reading_frontier_restoring() \
+			or _caption_event == null or _caption_event != _current_skip_text(true) \
+			or _authored_line_id(_caption_event) != _caption_line:
+		return false
+	return _caption_ledger.is_current_occurrence(_caption_token, _caption_entry,
+		{"line_id": _caption_line, "publication_id": _caption_publication})
+
+
+func capture_reading_frontier() -> Dictionary:
+	if not can_capture_reading_frontier():
+		return _fail(&"reading_frontier_unavailable", "no admitted semantic publication")
+	return {"ok": true, "value": {"line_id": _caption_line, "publication_id": _caption_publication}}
+
+
+func is_reading_frontier_restoring() -> bool:
+	return not _caption_restore_frontier.is_empty()
+
+
+## Save finishes only the current reveal, preserving the semantic boundary even
+## when a choice follows. Recheck after reveal callbacks before returning proof.
+func complete_reading_frontier() -> Dictionary:
+	var before := capture_reading_frontier()
+	if not before.ok: return before
+	if _caption_event.state != DialogicTextEvent.States.DONE:
+		var revealed := reveal_current_line(true)
+		if not revealed.ok: return revealed
+	var after := capture_reading_frontier()
+	if not after.ok or after.value != before.value or _caption_event.state != DialogicTextEvent.States.DONE:
+		return _fail(&"reading_frontier_changed", "reveal did not retain the current semantic boundary")
+	return after
+
+
+## Pause hides the caption, so Text.skip_text_reveal() intentionally cannot find
+## it. Finish only the exact retained node of the current layout, without showing
+## it, stopping suspended audio or exposing a next event to the foreground.
+func complete_paused_reading_frontier(text_node: DialogicNode_DialogText) -> Dictionary:
+	var before := capture_reading_frontier()
+	if not before.get("ok", false): return before
+	var layout: Node = _dialogic.Styles.get_layout_node()
+	if not _dialogic.paused or not is_instance_valid(text_node) or not is_instance_valid(layout) \
+			or not layout.is_ancestor_of(text_node) or not text_node.is_inside_tree() \
+			or text_node.is_queued_for_deletion() or text_node.is_visible_in_tree() \
+			or not text_node.enabled or text_node.text != _dialogic.current_state_info.get("text"):
+		return _fail(&"reading_frontier_unavailable", "the exact hidden suspended caption is required")
+	var event := _caption_event
+	var native := capture_pause_frontier()
+	var generation := text_node.get_reveal_generation()
+	var needs_reveal := event.state != DialogicTextEvent.States.DONE
+	if needs_reveal:
+		_dialogic.set_meta(&"dwm_boundary_safe_skip_reveal", true)
+		text_node.finish_text()
+		_dialogic.remove_meta(&"dwm_boundary_safe_skip_reveal")
+	var after := capture_reading_frontier()
+	if not after.get("ok", false) or after.value != before.value or native != capture_pause_frontier() \
+			or event != _caption_event or event.state != DialogicTextEvent.States.DONE \
+			or not is_instance_valid(text_node) or text_node.is_visible_in_tree() or text_node.revealing \
+			or text_node.visible_ratio != 1.0 \
+			or text_node.get_reveal_generation() != generation + int(needs_reveal):
+		return _fail(&"reading_frontier_changed", "completion changed the held native publication")
+	return {"ok": true, "value": {"reveal_generation": text_node.get_reveal_generation(),
+		"completed": needs_reveal}}
+
+
+## Pure authored lookup for the owner's pre-install compatibility check. Its
+## locator is supplied by the admitted entry manifest, never by the checkpoint.
+func validate_reading_line(path: String, entry_label: String, line_id: String, expected_text: String = "") -> Dictionary:
+	var checked := _resolve_reading_line(path, entry_label, line_id, expected_text)
+	return {"ok": true} if checked.ok else checked
+
+
+## This fixed-prose increment admits the whole native programme, not just its
+## registered subset. A saved line may not skip an unregistered caption/effect.
+func validate_reading_entry(path: String, entry_label: String, lines: Array) -> Dictionary:
+	if path.is_empty() or entry_label.is_empty() or lines.is_empty() or not ResourceLoader.exists(path):
+		return _fail(&"reading_entry_invalid", "an authored entry and ordered captions are required")
+	var identifiers := {}
+	for line: Variant in lines:
+		if not line is Dictionary or not line.get("line_id") is String or line.line_id.is_empty() \
+				or not line.get("text") is String or line.text.is_empty() or identifiers.has(line.line_id):
+			return _fail(&"reading_entry_invalid", "the catalogue requires unique ordered captions")
+		identifiers[line.line_id] = true
+	var resource := load(path)
+	if not resource is DialogicTimeline:
+		return _fail(&"reading_entry_invalid", "the entry locator is not a timeline")
+	var detached := DialogicTimeline.new()
+	detached.from_text((resource as DialogicTimeline).as_text())
+	detached.process()
+	var selected := false
+	var labels := 0
+	var ordinal := 0
+	var ended := false
+	for event: DialogicEvent in detached.events:
+		if event is DialogicLabelEvent:
+			selected = event.name == entry_label
+			if selected:
+				labels += 1
+				if labels > 1: return _fail(&"reading_entry_mismatch", "the entry label is ambiguous")
+			continue
+		if not selected or event is DialogicCommentEvent: continue
+		if ended:
+			return _fail(&"reading_entry_mismatch", "the entry contains events after its return")
+		if event is DialogicReturnEvent:
+			if ordinal != lines.size():
+				return _fail(&"reading_entry_mismatch", "the entry returns before its registered captions")
+			ended = true
+			continue
+		if not event is DialogicTextEvent or ordinal >= lines.size() \
+				or _authored_line_id(event) != lines[ordinal].line_id or not _is_single_skip_line(event):
+			return _fail(&"reading_entry_mismatch", "the native programme differs from its ordered catalogue")
+		if not _reading_text_matches(event, lines[ordinal].text):
+			return _fail(&"reading_line_content_mismatch", "the authored plain caption differs from its catalogue")
+		ordinal += 1
+	if labels != 1 or not ended or ordinal != lines.size():
+		return _fail(&"reading_entry_mismatch", "the complete fixed entry must end with return")
+	return {"ok": true}
+
+
+## The coordinator owns exact witnessing, exclusive custody and durable source /
+## destination commits. This transient capability admits only the already fixed
+## native programme; no event index or runtime identity belongs in its Run record.
+func prepare_reading_seek(source_frontier: Dictionary, entry_label: String,
+		ordered_lines: Array, destination_line_id: String = "") -> Dictionary:
+	var source := capture_reading_frontier()
+	if not source.ok or source.value != source_frontier or _dialogic.paused \
+			or not _caption_seek_result.is_empty() or _dialogic.Inputs.auto_skip.enabled \
+			or _dialogic.Inputs.auto_advance.is_enabled():
+		return _fail(&"reading_seek_unavailable", "an exact current frontier with ordinary transport is required")
+	var checked := validate_reading_entry(_requested_path, entry_label, ordered_lines)
+	if not checked.ok: return checked
+	var indices := _reading_seek_indices(entry_label, ordered_lines, destination_line_id)
+	if not indices.ok: return indices
+	var intent := {"source": source_frontier.duplicate(true), "entry_id": _caption_entry,
+		"destination_line_id": destination_line_id, "terminal": destination_line_id.is_empty()}
+	if not _prepared_reading_seek.is_empty():
+		var previous: Dictionary = _prepared_reading_seek.plan.duplicate(true)
+		previous.erase("seek_id")
+		if previous == intent and _reading_seek_source_matches(_prepared_reading_seek) \
+				and _prepared_reading_seek.lines == ordered_lines and _prepared_reading_seek.entry_label == entry_label:
+			return {"ok": true, "value": _prepared_reading_seek.plan.duplicate(true)}
+	_reading_seek_serial += 1
+	intent["seek_id"] = "reading-seek:%d:%d" % [get_instance_id(), _reading_seek_serial]
+	_prepared_reading_seek = {"plan": intent.duplicate(true), "lines": ordered_lines.duplicate(true),
+		"entry_label": entry_label, "indices": indices.value, "event": _caption_event,
+		"ledger": _caption_ledger, "snapshot": _caption_ledger.snapshot(),
+		"request_id": _request_id, "generation": _runtime_generation}
+	return {"ok": true, "value": intent.duplicate(true)}
+
+
+## Install the durable candidate into the existing live playback without running
+## any crossed caption. Completing and unwinding the source coroutine first is
+## essential: jumping straight to handle_event() would leave its await alive.
+func apply_reading_seek(plan: Dictionary, destination_ledger: NarrativeCaptionLedger,
+		destination_frontier: Dictionary = {}) -> Dictionary:
+	if _prepared_reading_seek.is_empty() or plan != _prepared_reading_seek.plan \
+			or not _reading_seek_source_matches(_prepared_reading_seek):
+		return _fail(&"reading_seek_stale", "the prepared native source is no longer current")
+	var prepared := _prepared_reading_seek
+	var native := _reading_seek_indices(prepared.entry_label, prepared.lines, plan.destination_line_id)
+	if not native.ok: return native
+	if native.value != prepared.indices:
+		return _fail(&"reading_seek_changed", "the admitted native programme changed")
+	var target := _check_reading_seek_target(prepared, destination_ledger, destination_frontier)
+	if not target.ok: return target
+	var completed := complete_reading_frontier()
+	if not completed.ok: return completed
+	if not _reading_seek_source_matches(prepared):
+		return _fail(&"reading_seek_stale", "source reveal replaced the prepared native source")
+	var after_reveal := _reading_seek_indices(prepared.entry_label, prepared.lines, plan.destination_line_id)
+	if not after_reveal.ok or after_reveal.value != prepared.indices:
+		return _fail(&"reading_seek_changed", "source reveal changed the admitted native programme")
+	target = _check_reading_seek_target(prepared, destination_ledger, destination_frontier)
+	if not target.ok: return target
+	# A same-caption Next completes an unseen partial line and stops. It does
+	# not end its coroutine, manufacture another occurrence, or restart speech.
+	if plan.destination_line_id == plan.source.line_id:
+		_caption_ledger = destination_ledger
+		_prepared_reading_seek = {}
+		var result := {"ok": true, "value": {"frontier": destination_frontier.duplicate(true), "terminal": false}}
+		reading_seek_finished.emit(result)
+		return result
+	var event: DialogicTextEvent = prepared.event
+	var continuation := Callable(_dialogic, "handle_next_event")
+	if not event.event_finished.is_connected(continuation):
+		return _fail(&"reading_seek_unavailable", "the native source continuation is missing")
+	var completion := {"finished": false}
+	var observe := func(_event: DialogicEvent) -> void: completion.finished = true
+	event.event_finished.connect(observe, CONNECT_ONE_SHOT)
+	event.event_finished.disconnect(continuation)
+	event.advance.emit()
+	if event.event_finished.is_connected(observe): event.event_finished.disconnect(observe)
+	# Restore the exact native connection even on refusal. handle_event's own
+	# cleanup retires it and the source's input signals on a successful seek.
+	if not event.event_finished.is_connected(continuation): event.event_finished.connect(continuation)
+	if not completion.finished or not _reading_seek_source_matches(prepared):
+		return _fail(&"reading_seek_changed", "the exact source coroutine did not finish at its held boundary")
+	var after_finish := _reading_seek_indices(prepared.entry_label, prepared.lines, plan.destination_line_id)
+	if not after_finish.ok or after_finish.value != prepared.indices:
+		return _fail(&"reading_seek_changed", "source completion changed the admitted native programme")
+	target = _check_reading_seek_target(prepared, destination_ledger, destination_frontier)
+	if not target.ok: return target
+	_caption_ledger = destination_ledger
+	_prepared_reading_seek = {}
+	_caption_seek_frontier = destination_frontier.duplicate(true)
+	_caption_seek_queued = false
+	_caption_seek_result = {"ok": true, "value": {"frontier": destination_frontier.duplicate(true),
+		"terminal": bool(plan.terminal)}}
+	_dialogic.handle_event(int(native.value.target_index))
+	return {"ok": true, "value": {"pending": true}}
+
+
+func _reading_seek_source_matches(prepared: Dictionary) -> bool:
+	var source := capture_reading_frontier()
+	return source.ok and source.value == prepared.plan.source and not _dialogic.paused \
+		and not _dialogic.Inputs.auto_skip.enabled and not _dialogic.Inputs.auto_advance.is_enabled() \
+		and _caption_seek_result.is_empty() and prepared.ledger == _caption_ledger \
+		and prepared.event == _current_skip_text() and prepared.request_id == _request_id \
+		and prepared.generation == _runtime_generation and prepared.snapshot == _caption_ledger.snapshot()
+
+
+func _check_reading_seek_target(prepared: Dictionary, candidate: NarrativeCaptionLedger,
+		frontier: Dictionary) -> Dictionary:
+	if candidate == null or not candidate.check_session(_caption_token, _caption_entry).ok:
+		return _fail(&"reading_seek_target_invalid", "the destination requires the same admitted session")
+	var snapshot := candidate.snapshot()
+	var old: Dictionary = prepared.snapshot
+	var original_headers := old.duplicate(true)
+	var target_headers := snapshot.duplicate(true)
+	original_headers.erase("captions")
+	target_headers.erase("captions")
+	if original_headers != target_headers:
+		return _fail(&"reading_seek_target_invalid", "the destination changed its immutable session frame")
+	var crossed: Array = prepared.indices.crossed_lines
+	if snapshot.captions.size() != old.captions.size() + crossed.size():
+		return _fail(&"reading_seek_target_invalid", "the candidate must retain the source and every crossed caption")
+	for index: int in old.captions.size():
+		if snapshot.captions[index] != old.captions[index]:
+			return _fail(&"reading_seek_target_invalid", "the candidate changed source History")
+	for index: int in crossed.size():
+		var row: Dictionary = snapshot.captions[old.captions.size() + index]
+		if row.beat.owning_entry_id != _caption_entry or row.beat.line_id != crossed[index]:
+			return _fail(&"reading_seek_target_invalid", "the candidate skipped or reordered a caption")
+	if prepared.plan.terminal:
+		if not frontier.is_empty(): return _fail(&"reading_seek_target_invalid", "terminal Return has no text frontier")
+	elif frontier.get("line_id") != prepared.plan.destination_line_id \
+			or not candidate.is_current_occurrence(_caption_token, _caption_entry, frontier):
+		return _fail(&"reading_seek_target_invalid", "the exact destination occurrence is required")
+	return {"ok": true}
+
+
+## Decode only detached future events. Inspect the live event list as well as the
+## resource preflight so a replaced/mutated runtime cannot inherit a locator.
+func _reading_seek_indices(entry_label: String, lines: Array, destination: String) -> Dictionary:
+	if _dialogic.current_timeline == null or not _dialogic.has_subsystem("Jump") \
+			or not _dialogic.Jump.is_jump_stack_empty():
+		return _fail(&"reading_seek_unavailable", "Return must be a proved natural completion")
+	var selected := false
+	var labels := 0
+	var ordinal := 0
+	var source_ordinal := -1
+	var target_ordinal := -1
+	var target_index := -1
+	var ended := false
+	for index: int in _dialogic.current_timeline_events.size():
+		var event: DialogicEvent = _dialogic.current_timeline_events[index]
+		if not event.event_node_ready:
+			var detached: DialogicEvent = event.get_script().new()
+			detached._load_from_string(event.event_node_as_text)
+			event = detached
+		if event is DialogicLabelEvent:
+			selected = event.name == entry_label
+			if selected: labels += 1
+			continue
+		if not selected or event is DialogicCommentEvent: continue
+		if ended: return _fail(&"reading_seek_changed", "the native entry continues after Return")
+		if event is DialogicReturnEvent:
+			if ordinal != lines.size(): return _fail(&"reading_seek_changed", "the native entry returns early")
+			ended = true
+			if destination.is_empty():
+				target_index = index
+				target_ordinal = ordinal
+			continue
+		if not event is DialogicTextEvent or ordinal >= lines.size() \
+				or _authored_line_id(event) != lines[ordinal].line_id or not _is_single_skip_line(event) \
+				or not _reading_text_matches(event, lines[ordinal].text):
+			return _fail(&"reading_seek_changed", "the native entry differs from the complete fixed catalogue")
+		if index == int(_dialogic.current_event_idx) and event == _caption_event: source_ordinal = ordinal
+		if _authored_line_id(event) == destination:
+			target_index = index
+			target_ordinal = ordinal
+		ordinal += 1
+	if labels != 1 or not ended or ordinal != lines.size() or source_ordinal < 0 \
+			or target_index < 0 or target_ordinal < source_ordinal:
+		return _fail(&"reading_seek_changed", "the target must be in the current fixed entry at or after its source")
+	var crossed: Array[String] = []
+	for index: int in range(source_ordinal + 1, mini(target_ordinal + 1, lines.size())):
+		crossed.append(lines[index].line_id)
+	return {"ok": true, "value": {"target_index": target_index, "crossed_lines": crossed}}
+
+
+func _finish_reading_seek(request_id: String, event: DialogicTextEvent) -> void:
+	if _caption_seek_result.is_empty() or request_id != _request_id: return
+	if not _caption_source_is_current() or event != _current_skip_text(true):
+		_fail_reading_seek(_fail(&"reading_seek_changed", "the visible destination was replaced"))
+		return
+	var result := _caption_seek_result.duplicate(true)
+	var captured := capture_reading_frontier()
+	if not captured.ok or captured.value != _caption_seek_frontier:
+		_fail_reading_seek(_fail(&"reading_seek_changed", "the committed destination occurrence changed"))
+		return
+	_caption_seek_frontier = {}
+	_caption_seek_result = {}
+	_caption_seek_queued = false
+	reading_seek_finished.emit(result)
+
+
+func _fail_reading_seek(result: Dictionary) -> void:
+	var seeking := not _caption_seek_result.is_empty()
+	halt_with_error(result)
+	if not seeking: reading_seek_finished.emit(result)
+	playback_start_failed.emit(result)
+
+
+func start_reading_frontier(path: String, frontier: Dictionary, entry_label: String = "") -> Dictionary:
+	if not _bound or not _qualified_runtime or has_active_playback() or _caption_ledger == null:
+		return _fail(&"reading_frontier_unavailable", "an idle bound caption session is required")
+	var checked := _check_reading_occurrence(frontier)
+	if not checked.ok: return checked
+	var resolved := _resolve_reading_line(path, _caption_entry if entry_label.is_empty() else entry_label,
+		frontier.line_id)
+	if not resolved.ok: return resolved
+	_caption_restore_frontier = frontier.duplicate(true)
+	_caption_restore_queued = false
+	var started := start_timeline(path, resolved.value)
+	if not started.ok:
+		_caption_restore_frontier = {}
+		_caption_restore_queued = false
+		return started
+	return {"ok": true}
+
+
+func _check_reading_occurrence(frontier: Dictionary) -> Dictionary:
+	if _caption_ledger == null or frontier.size() != 2 \
+			or not frontier.get("line_id") is String or str(frontier.line_id).is_empty() \
+			or not frontier.get("publication_id") is String or str(frontier.publication_id).is_empty():
+		return _fail(&"reading_frontier_invalid", "exact semantic line and occurrence are required")
+	if not _caption_ledger.is_current_occurrence(_caption_token, _caption_entry, frontier):
+		return _fail(&"reading_frontier_invalid", "the frontier must be the session's final occurrence")
+	return {"ok": true}
+
+
+func _resolve_reading_line(path: String, entry_label: String, line_id: String, expected_text: String = "") -> Dictionary:
+	if path.is_empty() or entry_label.is_empty() or line_id.is_empty() or not ResourceLoader.exists(path):
+		return _fail(&"reading_line_unavailable", "an authored entry and line are required")
+	var resource := load(path)
+	if not resource is DialogicTimeline:
+		return _fail(&"reading_line_unavailable", "the entry locator is not a timeline")
+	# Process a detached timeline: compatibility checks must not mutate cached
+	# resources, a standing event coroutine, or the runtime's current event list.
+	var detached := DialogicTimeline.new()
+	detached.from_text((resource as DialogicTimeline).as_text())
+	detached.process()
+	var selected := false
+	var labels := 0
+	var found := -1
+	for index: int in detached.events.size():
+		var event: DialogicEvent = detached.events[index]
+		if event is DialogicLabelEvent:
+			selected = event.name == entry_label
+			if selected: labels += 1
+		elif selected and event is DialogicTextEvent and _authored_line_id(event) == line_id:
+			if found >= 0 or not _is_single_skip_line(event):
+				return _fail(&"reading_line_ambiguous", "the authored line must name one single-beat event")
+			if not expected_text.is_empty() and not _reading_text_matches(event, expected_text):
+				return _fail(&"reading_line_content_mismatch", "the authored plain caption differs from its catalogue")
+			found = index
+	if labels != 1 or found < 0:
+		return _fail(&"reading_line_unavailable", "the line is absent from its unique entry label")
+	return {"ok": true, "value": found}
+
+
+func _reading_text_matches(event: DialogicTextEvent, expected_text: String) -> bool:
+	# Do not execute the mutable variable/effect parser during pure validation.
+	var prose := event.get_property_translated("text")
+	return prose == expected_text and event.character == null and event.character_identifier.is_empty() \
+		and not "[" in prose and not "{" in prose and not "<" in prose \
+		and str(ProjectSettings.get_setting("dialogic/text/dialog_text_prefix", "")).is_empty()
+
+
+func _finish_reading_restore(request_id: String, event: DialogicTextEvent) -> void:
+	if not is_reading_frontier_restoring() or request_id != _request_id \
+			or not _caption_source_is_current() or event != _current_skip_text(true): return
+	var expected := _caption_restore_frontier.duplicate(true)
+	var revealed := {"ok": true} if event.state == DialogicTextEvent.States.DONE else reveal_current_line(true)
+	if not revealed.ok or not _caption_source_is_current() or event != _current_skip_text(true) \
+			or event.state != DialogicTextEvent.States.DONE:
+		_fail_reading_restore(_fail(&"reading_frontier_changed", "the resumed reveal did not retain its boundary"))
+		return
+	_caption_restore_frontier = {}
+	_caption_restore_queued = false
+	var captured := capture_reading_frontier()
+	if not captured.ok or captured.value != expected:
+		_fail_reading_restore(_fail(&"reading_frontier_changed", "the resumed occurrence changed"))
+		return
+	reading_frontier_restored.emit(captured)
+
+
+func _fail_reading_restore(result: Dictionary) -> void:
+	halt_with_error(result)
+	reading_frontier_restored.emit(result)
+	playback_start_failed.emit(result)
 
 
 ## Task 5 (dwm-oyo.2 R-BB): widened to Dialogic's own two-argument vocabulary - the second
@@ -95,10 +671,14 @@ func start_timeline(path: String, label_or_index: Variant = 0) -> Dictionary:
 	_start_generation += 1
 	var generation := _start_generation
 	_request_id = "%d:%d" % [get_instance_id(), generation]
+	if _caption_ledger != null: _caption_request = _request_id
 	_activity_phase = "starting"
 	_requested_path = path
 	_runtime_generation = 0
-	_dialogic.clear(CLEAR_KEEP_VARIABLES)
+	var keep_text := is_instance_valid(_retained_caption_layout) and _retain_caption_layout \
+		and _caption_ledger == _retained_caption_ledger and _caption_token == _retained_caption_token
+	if not keep_text and is_instance_valid(_retained_caption_layout): release_retained_caption_layout()
+	_dialogic.clear(CLEAR_KEEP_VARIABLES | (CLEAR_KEEP_TEXT if keep_text else 0))
 	preference_reapply_requested.emit()
 	if generation != _start_generation:
 		return _fail(&"runtime_start_cancelled", "playback was cancelled during startup")
@@ -111,6 +691,7 @@ func start_timeline(path: String, label_or_index: Variant = 0) -> Dictionary:
 			_pending_start = Callable(_dialogic, "start_timeline").bind(path, label_or_index)
 			if _qualified_runtime: _pending_start = Callable(_dialogic, "start_timeline").bind(path, label_or_index, _request_id)
 		if not is_instance_valid(layout) or not layout is Node or layout.is_node_ready():
+			_retire_caption_binding()
 			_activity_phase = ""
 			_requested_path = ""
 			_discard_pending_layout()
@@ -120,6 +701,48 @@ func start_timeline(path: String, label_or_index: Variant = 0) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"path": path, "label_or_index": label_or_index}}
 
 
+## Frozen is a reserved, transient DTL namespace. The variable tree is read-only for
+## this entry; gameplay changes still travel through acknowledged semantic signals.
+var _frozen_variables_before: Dictionary = {}
+var _frozen_variables_installed := false
+
+func install_frozen_presentation(presentation: Dictionary) -> Dictionary:
+	if not _bound or has_active_playback() or _frozen_variables_installed:
+		return _fail(&"frozen_context_runtime_busy", "no idle presentation slot")
+	if not presentation.get("fields") is Dictionary:
+		return _fail(&"frozen_context_schema_mismatch", "fields must be a dictionary")
+	var checked := preload("res://scripts/narrative/FrozenPresentationContext.gd").validate(
+		str(presentation.get("fields", {}).get("entry_id", "")), presentation)
+	if not checked.ok: return checked
+	return _install_frozen_projection(checked.value)
+
+## Historical replay has its own exact signature schema. It never borrows absent
+## canonical receipts or prose selectors from the current Run.
+func install_frozen_replay(signature: Dictionary, mode: String = "gallery_replay") -> Dictionary:
+	if not _bound or has_active_playback() or _frozen_variables_installed:
+		return _fail(&"frozen_context_runtime_busy", "no idle presentation slot")
+	var checked := preload("res://scripts/narrative/FrozenReplayContext.gd").build(signature, mode)
+	if not checked.ok: return checked
+	return _install_frozen_projection(checked.value)
+
+func _install_frozen_projection(presentation: Dictionary) -> Dictionary:
+	var prior: Variant = _dialogic.current_state_info.get("variables", {})
+	if not prior is Dictionary: return _fail(&"frozen_context_variables_invalid", "variables must be a dictionary")
+	var fields: Dictionary = preload("res://scripts/narrative/FrozenPresentationContext.gd").immutable_fields(presentation)
+	var projected: Dictionary = prior.duplicate(true)
+	_frozen_variables_before = prior.duplicate(true)
+	projected["Frozen"] = fields
+	projected.make_read_only()
+	_dialogic.current_state_info["variables"] = projected
+	_frozen_variables_installed = true
+	return {"ok": true}
+
+func release_frozen_presentation() -> void:
+	if not _frozen_variables_installed: return
+	_dialogic.current_state_info["variables"] = _frozen_variables_before.duplicate(true)
+	_frozen_variables_before = {}
+	_frozen_variables_installed = false
+
 func has_active_playback() -> bool:
 	return _activity_phase != ""
 
@@ -128,29 +751,50 @@ func is_bound_to_runtime(runtime: Node) -> bool:
 	return _bound and runtime == _dialogic
 
 
-## Ephemeral reading frontier only. Startup, cleanup and non-text events cannot open Pause.
+## Ephemeral text or authored silent-hold frontier. This is never a save cursor.
+## Startup, cleanup and other native events remain unavailable to Pause.
 func capture_pause_frontier() -> Dictionary:
 	if not _bound or not _qualified_runtime or _activity_phase != "live" \
 		or _request_id.is_empty() or _requested_path.is_empty() or _dialogic.current_timeline == null \
 		or _dialogic.is_ending_timeline():
 		return _fail(&"pause_frontier_unavailable", "no admitted live reading frontier")
 	var index := int(_dialogic.current_event_idx)
-	if index < 0 or index >= _dialogic.current_timeline_events.size() \
-		or not _dialogic.current_timeline_events[index] is DialogicTextEvent \
-		or _dialogic.current_state not in [DialogicGameHandler.States.IDLE, DialogicGameHandler.States.REVEALING_TEXT]:
+	if index < 0 or index >= _dialogic.current_timeline_events.size():
 		return _fail(&"pause_frontier_unavailable", "the current event has no reading frontier")
-	return {"ok": true, "code": &"ok", "value": {
+	var event: Variant = _dialogic.current_timeline_events[index]
+	var frontier := {
 		"generation": _runtime_generation, "event_index": index,
 		"request_id": _request_id, "paused": bool(_dialogic.paused),
-	}}
+	}
+	if event is DialogicTextEvent and _dialogic.current_state in [DialogicGameHandler.States.IDLE, DialogicGameHandler.States.REVEALING_TEXT]:
+		return {"ok": true, "code": &"ok", "value": frontier}
+	if not event is DialogicWaitEvent or _dialogic.current_state != DialogicGameHandler.States.WAITING:
+		return _fail(&"pause_frontier_unavailable", "the current event has no admitted silent hold")
+	var wait_event := event as DialogicWaitEvent
+	if not wait_event.hide_text or wait_event.skippable or not is_finite(wait_event.time) or wait_event.time <= 0.0 \
+			or not wait_event.has_method("get_wait_execution_state"):
+		return _fail(&"pause_frontier_unavailable", "silent hold requires a finite authored non-skippable duration")
+	var hold: Dictionary = wait_event.call("get_wait_execution_state")
+	if typeof(hold.get("execution_token")) != TYPE_INT or int(hold.get("execution_token", 0)) <= 0 \
+			or hold.get("timeline_generation") != _runtime_generation \
+			or hold.get("event_index") != index or hold.get("paused") != bool(_dialogic.paused) \
+			or hold.get("hide_text") != true or hold.get("skippable") != false:
+		return _fail(&"pause_frontier_unavailable", "silent hold no longer owns the native timer")
+	# Stable invocation identity survives Pause; continuously changing remaining
+	# time must never enter the Bridge's exact suspension/source comparisons.
+	frontier["kind"] = "timed_hold"
+	frontier["execution_token"] = hold.execution_token
+	return {"ok": true, "code": &"ok", "value": frontier}
 
 
 func _verify_pending_start(generation: int) -> void:
 	if generation != _start_generation or _activity_phase != "starting":
 		return
+	_retire_caption_binding()
 	_activity_phase = ""
 	_requested_path = ""
 	_discard_pending_layout()
+	release_frozen_presentation()
 	playback_start_failed.emit(_fail(&"runtime_start_failed", "ready layout did not start its timeline"))
 
 
@@ -206,6 +850,10 @@ func restore_captured_state(backup: Dictionary) -> Dictionary:
 
 
 func halt_with_error(result: Dictionary) -> Dictionary:
+	release_retained_caption_layout()
+	var seeking := not _caption_seek_result.is_empty()
+	_retire_caption_binding()
+	release_frozen_presentation()
 	_start_generation += 1
 	if _activity_phase == "starting":
 		# Cancel only the queued native start this adapter admitted. No prose ran.
@@ -215,6 +863,10 @@ func halt_with_error(result: Dictionary) -> Dictionary:
 	if _bound and _dialogic.current_timeline != null:
 		_activity_phase = "stopping"
 		_dialogic.end_timeline(true)
+	if seeking:
+		var stopped := result.duplicate(true) if result.has("ok") and not result.ok else \
+			_fail(&"reading_seek_cancelled", "the admitted seek was halted before publication")
+		reading_seek_finished.emit(stopped)
 	return {"ok": false, "code": &"runtime_halted", "message": "timeline halted", "details": result.duplicate(true)}
 
 
@@ -247,7 +899,10 @@ func reveal_current_line(preserve_next_boundary: bool = false) -> Dictionary:
 ## The authored #id is a semantic identity, never a path/index/prose-derived fallback.
 ## The bridge checks its registered owner before revealing or writing visited history.
 func current_line_id() -> String:
-	var event := _current_skip_text()
+	return _authored_line_id(_current_skip_text())
+
+
+func _authored_line_id(event: DialogicTextEvent) -> String:
 	if event == null:
 		return ""
 	var parts := event.get_property_translation_key("text").split("/")
@@ -259,9 +914,9 @@ func is_current_line_complete() -> bool:
 	return event != null and event.state == DialogicTextEvent.States.DONE
 
 
-func _current_skip_text() -> DialogicTextEvent:
+func _current_skip_text(allow_paused: bool = false) -> DialogicTextEvent:
 	if not _bound or _activity_phase != "live" or _dialogic.current_timeline == null \
-		or _dialogic.paused or _dialogic.current_state not in [
+		or (_dialogic.paused and not allow_paused) or _dialogic.current_state not in [
 			DialogicGameHandler.States.IDLE, DialogicGameHandler.States.REVEALING_TEXT]:
 		return null
 	var index := int(_dialogic.current_event_idx)
@@ -350,18 +1005,29 @@ func _on_timeline_started() -> void:
 
 
 func _on_timeline_ended() -> void:
+	var seek := _caption_seek_result.duplicate(true)
+	_retire_caption_binding()
+	release_frozen_presentation()
 	_activity_phase = ""
 	_runtime_generation = 0
 	_pending_layout = null
 	_requested_path = ""
 	timeline_ended_signal.emit()
+	if not seek.is_empty():
+		reading_seek_finished.emit(seek if seek.value.terminal else \
+			_fail(&"reading_seek_changed", "the timeline ended before its destination publication"))
 
 
 func _on_qualified_timeline_started(generation: int, request_id: String) -> void:
+	if is_instance_valid(_retained_caption_layout) and request_id != _request_id:
+		release_retained_caption_layout(false)
 	var replaced := not _requested_path.is_empty() and (_activity_phase != "starting" \
 		or request_id != _request_id or str(_dialogic.current_timeline.resource_path) != _requested_path)
 	_runtime_generation = generation
 	if replaced:
+		var seeking := not _caption_seek_result.is_empty()
+		_retire_caption_binding()
+		release_frozen_presentation()
 		_start_generation += 1
 		_requested_path = ""
 		# Never delete a layout now used by foreign native playback.
@@ -373,8 +1039,12 @@ func _on_qualified_timeline_started(generation: int, request_id: String) -> void
 		_pending_layout = null
 		_pending_start = Callable()
 		_activity_phase = "live"
-		playback_start_failed.emit(_fail(&"runtime_playback_replaced", "native playback replaced the admitted timeline"))
+		var result := _fail(&"runtime_playback_replaced", "native playback replaced the admitted timeline")
+		playback_start_failed.emit(result)
+		if seeking: reading_seek_finished.emit(result)
 		return
+	if _caption_ledger != null and _caption_request == request_id:
+		_caption_generation = generation
 	_on_timeline_started()
 
 

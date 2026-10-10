@@ -1,0 +1,497 @@
+{
+  "schema_version": 1,
+  "run_id": 37093072813,
+  "scope": "Every archive payload except this inventory itself, whose identity is recorded by the external package manifest.",
+  "files": [
+    {
+      "archive_path": "README.md",
+      "source_path": "generated_scope_description",
+      "kind": "readme",
+      "bytes": 1111,
+      "sha256": "e9f0d36475070b8529f3eb99f930ad7cd11c2ef34e5d650c2bbe25f6dd861fc7"
+    },
+    {
+      "archive_path": "build_failed_focus_evidence.py",
+      "source_path": "hold-failed-focus-stage/build_failed_focus_evidence.py",
+      "kind": "archive_builder",
+      "bytes": 23230,
+      "sha256": "e0dc8445a3baf7a884529881da13dc98132107ea68962dc0a64b9900178e6c2b"
+    },
+    {
+      "archive_path": "capture/artifact-manifest.json",
+      "source_path": "hold-focus2/artifact-manifest.json",
+      "kind": "complete_capture_record",
+      "bytes": 578,
+      "sha256": "2c1e86003cbde8124fd0949905c9ea617a126a5413032f47813aafabc572e7cf"
+    },
+    {
+      "archive_path": "capture/artifacts-api.json",
+      "source_path": "hold-focus2/artifacts-api.json",
+      "kind": "complete_capture_record",
+      "bytes": 916,
+      "sha256": "83c7f821c9961645373d23cc6a9923b5725558a91729cf6c4849facf8afae219"
+    },
+    {
+      "archive_path": "capture/jobs.json",
+      "source_path": "hold-focus2/jobs.json",
+      "kind": "complete_capture_record",
+      "bytes": 9145,
+      "sha256": "bba12965be859e286edde6c661ad1948dfba99d39379ecbb84ce84c9e385c707"
+    },
+    {
+      "archive_path": "capture/logs/111117336547.log",
+      "source_path": "hold-focus2/logs/111117336547.log",
+      "kind": "complete_capture_record",
+      "bytes": 698895,
+      "sha256": "c19b59b500bc16bbe61e6e7b01c59b2f012ea697256cc981e8cd3ead5bf6d675"
+    },
+    {
+      "archive_path": "capture/omissions.json",
+      "source_path": "hold-focus2/omissions.json",
+      "kind": "complete_capture_record",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "archive_path": "capture/run.json",
+      "source_path": "hold-focus2/run.json",
+      "kind": "complete_capture_record",
+      "bytes": 12812,
+      "sha256": "6bea6f4cddbd4c73d7995d67c09d3db9fda3063cf7bef37d5d0b61d283b1fb56"
+    },
+    {
+      "archive_path": "capture/skipped-jobs.json",
+      "source_path": "hold-focus2/skipped-jobs.json",
+      "kind": "complete_capture_record",
+      "bytes": 1320,
+      "sha256": "78896a0d60f5c2a7e41a3afcadb50f90db3743af122170f3ef0582332b19f239"
+    },
+    {
+      "archive_path": "diagnostic-summary.json",
+      "source_path": "generated_from_preserved_failed_capture",
+      "kind": "diagnostic_summary",
+      "bytes": 2002,
+      "sha256": "653746cbc2e4873433f2ef4da7b0fcb817b6b944ad101dc7579979579f37f9be"
+    },
+    {
+      "archive_path": "extraction-inventory.json",
+      "source_path": "generated_from_every_original_zip_and_capture_file",
+      "kind": "lossless_extraction_reconstruction_inventory",
+      "bytes": 8559,
+      "sha256": "186571e5aaad39b8aad9bdc9beabbe84b329619871966eaa4c65898993d53b95"
+    },
+    {
+      "archive_path": "original-artifacts/11263672301-public-surfaces-37093072813-1.zip",
+      "source_path": "attachments/16070829-cb70-4d79-8a07-10506e0aa4f0/public-surfaces-37093072813-1.zip",
+      "kind": "original_artifact_zip_once",
+      "bytes": 41049,
+      "sha256": "72f8bc0ca6ec7cf7b2d4ba21baf0ebe5f93ee1c7ff8cec4d71e2e2b33abed3cf"
+    },
+    {
+      "archive_path": "provenance/runtime-source.commit.txt",
+      "source_path": "058f817e587e0fc333ae66b769702d5cf0a68ebc",
+      "kind": "exact_git_commit_object",
+      "bytes": 317,
+      "sha256": "0b45e65e5f6a227f81e378bb6c2f947f635b027a413e81f521ee7d5aead997ea"
+    },
+    {
+      "archive_path": "provenance/runtime-source.tree.txt",
+      "source_path": "058f817e587e0fc333ae66b769702d5cf0a68ebc",
+      "kind": "complete_git_tree_object_inventory",
+      "bytes": 1366282,
+      "sha256": "045c1ac1388a3b65d2e07d4542a6a207c1e0626cbe54392998512492e55bb37f"
+    },
+    {
+      "archive_path": "provenance/source-and-workflow.json",
+      "source_path": "generated_from_exact_git_objects",
+      "kind": "source_provenance",
+      "bytes": 6747,
+      "sha256": "b3af226f9d60cb12f950ff2f5cb26ad4830202b14d70bf65af980dcf77a3cc3c"
+    },
+    {
+      "archive_path": "provenance/workflow-head.commit.txt",
+      "source_path": "f22f187d77190be74d60c2ad491407f3f6daef84",
+      "kind": "exact_git_commit_object",
+      "bytes": 374,
+      "sha256": "faf7e15627e7389602ce9c1eb2ae188d69c18d7a92b5301493bc1c80502f919a"
+    },
+    {
+      "archive_path": "provenance/workflow-head.tree.txt",
+      "source_path": "f22f187d77190be74d60c2ad491407f3f6daef84",
+      "kind": "complete_git_tree_object_inventory",
+      "bytes": 1366374,
+      "sha256": "a362b51741fe4d22279bccf0ae923d785704caef65ff2be3b87dc49b2ccdceb9"
+    },
+    {
+      "archive_path": "source-context/.github/workflows/windows-tests.yml",
+      "source_path": "058f817e587e0fc333ae66b769702d5cf0a68ebc:.github/workflows/windows-tests.yml",
+      "kind": "frozen_runtime_source",
+      "bytes": 65945,
+      "sha256": "c994415aab3dac81f146b979586363ce10cf53d5116f30c6809e43714b1b0bd0"
+    },
+    {
+      "archive_path": "source-context/addons/dialogic/Core/DialogicGameHandler.gd",
+      "source_path": "058f817e587e0fc333ae66b769702d5cf0a68ebc:addons/dialogic/Core/DialogicGameHandler.gd",
+      "kind": "frozen_runtime_source",
+      "bytes": 18668,
+      "sha256": "c05cd2e152b66133f5d1dae647d37b448f92bd9352ad73e73433892c4451a7b7"
+    },
+    {
+      "archive_path": "source-context/addons/dialogic/Modules/Core/subsystem_animation.gd",
+      "source_path": "058f817e587e0fc333ae66b769702d5cf0a68ebc:addons/dialogic/Modules/Core/subsystem_animation.gd",
+      "kind": "frozen_runtime_source",
+      "bytes": 1025,
+      "sha256": "4ad06599e38b713b9dead79e75cc09b70d2cecb18c4d760cb3f0a26cb2851a6a"
+    },
+    {
+      "archive_path": "source-context/addons/dialogic/Modules/Core/subsystem_input.gd",
+      "source_path": "058f817e587e0fc333ae66b769702d5cf0a68ebc:addons/dialogic/Modules/Core/subsystem_input.gd",
+      "kind": "frozen_runtime_source",
+      "bytes": 9187,
+      "sha256": "73a1a67e5a9bc238ef690c5543535e4928a38db0ec790d5682d79fc1b638db64"
+    },
+    {
+      "archive_path": "source-context/addons/dialogic/Modules/Wait/event_wait.gd",
+      "source_path": "058f817e587e0fc333ae66b769702d5cf0a68ebc:addons/dialogic/Modules/Wait/event_wait.gd",
+      "kind": "frozen_runtime_source",
+      "bytes": 7075,
+      "sha256": "795dfa0dd0280ba5d9e68515c0c1f67e83bb6ec53aee08daa9697d968486b731"
+    },
+    {
+      "archive_path": "source-context/addons/dialogic/Resources/event.gd",
+      "source_path": "058f817e587e0fc333ae66b769702d5cf0a68ebc:addons/dialogic/Resources/event.gd",
+      "kind": "frozen_runtime_source",
+      "bytes": 19648,
+      "sha256": "3d6c655cd7ae6d338d75c2f1503aa6d8511ea81c315b813e54174fabbec8222d"
+    },
+    {
+      "archive_path": "source-context/autoload/DialogicBridge.gd",
+      "source_path": "058f817e587e0fc333ae66b769702d5cf0a68ebc:autoload/DialogicBridge.gd",
+      "kind": "frozen_runtime_source",
+      "bytes": 154132,
+      "sha256": "31448820a4ec9b22979445dc99a419bbf7c7ce4f892ca53bf63d701fcb9905d2"
+    },
+    {
+      "archive_path": "source-context/evidence/phase_2r/runtime/game_state_surface.json",
+      "source_path": "058f817e587e0fc333ae66b769702d5cf0a68ebc:evidence/phase_2r/runtime/game_state_surface.json",
+      "kind": "frozen_runtime_source",
+      "bytes": 569000,
+      "sha256": "1c41b2493fc60863886bd3e0f66817196483e1b99bcf63301f2b0f63a2164d91"
+    },
+    {
+      "archive_path": "source-context/evidence/phase_2r/runtime/save_manager_surface.json",
+      "source_path": "058f817e587e0fc333ae66b769702d5cf0a68ebc:evidence/phase_2r/runtime/save_manager_surface.json",
+      "kind": "frozen_runtime_source",
+      "bytes": 151372,
+      "sha256": "0fbcfb504cbda802600e3a7317f92c7365ca61642506f719be519d1ed48e54d6"
+    },
+    {
+      "archive_path": "source-context/scripts/narrative/DialogicRuntimeAdapter.gd",
+      "source_path": "058f817e587e0fc333ae66b769702d5cf0a68ebc:scripts/narrative/DialogicRuntimeAdapter.gd",
+      "kind": "frozen_runtime_source",
+      "bytes": 50513,
+      "sha256": "139eb946288b23b94e33d135ee0be729e1164c36480316038290f57eb3333445"
+    },
+    {
+      "archive_path": "source-context/scripts/ui/witnessed/WitnessedCaptionLayer.gd",
+      "source_path": "058f817e587e0fc333ae66b769702d5cf0a68ebc:scripts/ui/witnessed/WitnessedCaptionLayer.gd",
+      "kind": "frozen_runtime_source",
+      "bytes": 73748,
+      "sha256": "d9c5d13474b0d6a93225002559f92524e37845ff093c64a093f49d21af58d84f"
+    },
+    {
+      "archive_path": "source-context/tests/fixtures/dialogic/timed_hold_journey.dtl",
+      "source_path": "058f817e587e0fc333ae66b769702d5cf0a68ebc:tests/fixtures/dialogic/timed_hold_journey.dtl",
+      "kind": "frozen_runtime_source",
+      "bytes": 399,
+      "sha256": "c512e181733d21cf08acf0b9a60d623f356115f2b70dc45ab497ed6b18e6d1a3"
+    },
+    {
+      "archive_path": "source-context/tests/fixtures/dialogic/timed_hold_legacy_controls.dtl",
+      "source_path": "058f817e587e0fc333ae66b769702d5cf0a68ebc:tests/fixtures/dialogic/timed_hold_legacy_controls.dtl",
+      "kind": "frozen_runtime_source",
+      "bytes": 318,
+      "sha256": "824c31fde671cdb3234e399965a6e0757bb1b7c3f50769a109e64a9258c52d62"
+    },
+    {
+      "archive_path": "source-context/tests/fixtures/dialogic/timed_hold_runtime.dtl",
+      "source_path": "058f817e587e0fc333ae66b769702d5cf0a68ebc:tests/fixtures/dialogic/timed_hold_runtime.dtl",
+      "kind": "frozen_runtime_source",
+      "bytes": 244,
+      "sha256": "6a4950a484c29c3a27b2c4f14fdab0d8b00abc68488b3a2060f30ac8ff68633f"
+    },
+    {
+      "archive_path": "source-context/tests/integration/test_dialogic_timed_hold_runtime.gd",
+      "source_path": "058f817e587e0fc333ae66b769702d5cf0a68ebc:tests/integration/test_dialogic_timed_hold_runtime.gd",
+      "kind": "frozen_runtime_source",
+      "bytes": 32248,
+      "sha256": "4a0486d58e9a71027d4126cf6ddd8accd899d25209cedb1380ddc43bc2660fff"
+    },
+    {
+      "archive_path": "source-context/tests/integration/test_narrative_pause_frontier.gd",
+      "source_path": "058f817e587e0fc333ae66b769702d5cf0a68ebc:tests/integration/test_narrative_pause_frontier.gd",
+      "kind": "frozen_runtime_source",
+      "bytes": 58341,
+      "sha256": "640ba3a9680e109071a3fc5b0ac4f1a4a5bda1df3db0aee36cf17993d3df4e82"
+    },
+    {
+      "archive_path": "source-context/tests/integration/verify_timed_hold_journey.gd",
+      "source_path": "058f817e587e0fc333ae66b769702d5cf0a68ebc:tests/integration/verify_timed_hold_journey.gd",
+      "kind": "frozen_runtime_source",
+      "bytes": 20055,
+      "sha256": "ec69c2abfa55779ae62ebd46420c771fc6bcf7dc5464393b6bd83a94db067a5b"
+    },
+    {
+      "archive_path": "source-context/tests/unit/test_witnessed_timed_hold.gd",
+      "source_path": "058f817e587e0fc333ae66b769702d5cf0a68ebc:tests/unit/test_witnessed_timed_hold.gd",
+      "kind": "frozen_runtime_source",
+      "bytes": 8058,
+      "sha256": "8e66e68a9092e29f44bcecf2040b56250467ad5daa71c64c539432dcb5509a26"
+    },
+    {
+      "archive_path": "source-context/tools/testing/Invoke-CloudTests.ps1",
+      "source_path": "058f817e587e0fc333ae66b769702d5cf0a68ebc:tools/testing/Invoke-CloudTests.ps1",
+      "kind": "frozen_runtime_source",
+      "bytes": 20756,
+      "sha256": "472db5593da4de1980ed9b699a2aac2f687fc159b1ddb834d29a62f6e1111c80"
+    },
+    {
+      "archive_path": "source-context/tools/testing/Invoke-IsolatedGodot.ps1",
+      "source_path": "058f817e587e0fc333ae66b769702d5cf0a68ebc:tools/testing/Invoke-IsolatedGodot.ps1",
+      "kind": "frozen_runtime_source",
+      "bytes": 16728,
+      "sha256": "e37252b9313d5dbf809e9502578bb270118d12a997fc189bf088648eb97329f1"
+    },
+    {
+      "archive_path": "source-context/tools/testing/run_timed_hold_journey.py",
+      "source_path": "058f817e587e0fc333ae66b769702d5cf0a68ebc:tools/testing/run_timed_hold_journey.py",
+      "kind": "frozen_runtime_source",
+      "bytes": 18456,
+      "sha256": "fcf96b638817a1aaf987deaf84be43d3dc5c759c900afbce7a1cd243bfe2fe9b"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/audit_focus2_source.py",
+      "source_path": "hold-cloud-plan/audit_focus2_source.py",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 17760,
+      "sha256": "e185f1f4954050ee3139f78674e79ddf8bb2e73f66c06f96bd9e200ae42e98f9"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/build_timed_hold_workflow.py",
+      "source_path": "hold-cloud-plan/build_timed_hold_workflow.py",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 22543,
+      "sha256": "091f042bcf389b848d9d9e7d4aac98df5c4ed5484fff21c49629c49866f98aa1"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/check_inventory_reference_compatibility.py",
+      "source_path": "hold-cloud-plan/check_inventory_reference_compatibility.py",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 5839,
+      "sha256": "1ea571fab9726490a488196382273f5138ce73f25a1ab4bb0a3efa73d3a00299"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/focus2-api-commit.json",
+      "source_path": "hold-cloud-plan/focus2-api-commit.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 1613,
+      "sha256": "e089e7166f1fc53b9fb3c8799f6f7c726ee66c50d50dba7f5312da435c3f1a2a"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/focus2-frozen-source-audit.json",
+      "source_path": "hold-cloud-plan/focus2-frozen-source-audit.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 466817,
+      "sha256": "205779f7776779ab9a119784cd1986b4a23e1a023146e5f267e55b782e1cb332"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/focus2-inventory-preflight-red.json",
+      "source_path": "hold-cloud-plan/focus2-inventory-preflight-red.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 3745,
+      "sha256": "65e9a42d1a753ca66ff7f89b3c73cd31ea1f65f3b5031e956acbeadd4a30800b"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/focus2-publication.json",
+      "source_path": "hold-cloud-plan/focus2-publication.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 335,
+      "sha256": "e065e02c7e0207602e6ff1350a09cf5a51eb72d026da3c12852513735cf28735"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/focus2-stale-inventory-source-diagnosis.json",
+      "source_path": "hold-cloud-plan/focus2-stale-inventory-source-diagnosis.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 4296,
+      "sha256": "667d39e642acc6203e7638e4aedaaa26a75e1ad97b39be6ef71922f2a96ece11"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/focus2-tree-review.json",
+      "source_path": "hold-cloud-plan/focus2-tree-review.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 449,
+      "sha256": "1e2a07b397abde364d84b0b4ea7c89fcff80afd86f031a5d63939472dbc0df20"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/import_auxiliary_tree.py",
+      "source_path": "hold-cloud-plan/import_auxiliary_tree.py",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 1922,
+      "sha256": "23cda6c681416c9f381d6da0febc6ceda761bebd29192dabba21f87916045a19"
+    },
+    {
+      "archive_path": "support/hold-cloud-plan/timed-hold-focus2-parallel.yml.manifest.json",
+      "source_path": "hold-cloud-plan/timed-hold-focus2-parallel.yml.manifest.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 772614,
+      "sha256": "600b533e983bff24b21929f60f25c79469e937bf16b9dfefb1949d62c66c8cb5"
+    },
+    {
+      "archive_path": "support/hold-contract-review/audit_focus.v2.py",
+      "source_path": "hold-contract-review/audit_focus.v2.py",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 17880,
+      "sha256": "ab22f45a67717e8796330f0ec9760dd49448d477c2c2bb1cfb1a1c7d223f911e"
+    },
+    {
+      "archive_path": "support/hold-contract-review/focus2-audit-expectations.json",
+      "source_path": "hold-contract-review/focus2-audit-expectations.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 7726,
+      "sha256": "531d9687708fa4d58d1988066a013fa1d64d53fa36b8ef582df94e48ec5bc8c4"
+    },
+    {
+      "archive_path": "support/hold-contract-review/visible-wait-refusal-review.json",
+      "source_path": "hold-contract-review/visible-wait-refusal-review.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 1431,
+      "sha256": "242156fff0318b4a4581066f1c8bc94758a5a9088e84d9ceff95edfa73e5473b"
+    },
+    {
+      "archive_path": "support/hold-green1-source/api-commit.json",
+      "source_path": "hold-green1-source/api-commit.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 1340,
+      "sha256": "959d989348682390a1d38e1a18dbb922c64f4d1aec72548ead761ec05f16de32"
+    },
+    {
+      "archive_path": "support/hold-green1-source/manifest.json",
+      "source_path": "hold-green1-source/manifest.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 3363,
+      "sha256": "352281dbefbd4115dc0c56959b83d44c327e2cbe2e7dbd8dcfa5924043a7676d"
+    },
+    {
+      "archive_path": "support/hold-green1-source/publication.json",
+      "source_path": "hold-green1-source/publication.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 201,
+      "sha256": "2341a27d9021081d9cac8b73375d4e10056a2cb2ae0a73341edb0c047667b1ee"
+    },
+    {
+      "archive_path": "support/hold-green1-source/published-blobs.json",
+      "source_path": "hold-green1-source/published-blobs.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 1050,
+      "sha256": "82ce3defe9cc89bd07273582cc8d8e30327af2aca2cbcf453404b2d320ed786a"
+    },
+    {
+      "archive_path": "support/hold-green2-source/api-commit.json",
+      "source_path": "hold-green2-source/api-commit.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 1345,
+      "sha256": "7d3bb9ce681f453cc2f3590f229f56fe8147ec1bc7eb7e657e952d526b81968b"
+    },
+    {
+      "archive_path": "support/hold-green2-source/manifest.json",
+      "source_path": "hold-green2-source/manifest.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 1121,
+      "sha256": "afbd8e63da02a08fbeecd2f842ead6de85859ef2bba0519f6931f4fe034dbd3e"
+    },
+    {
+      "archive_path": "support/hold-green2-source/publication.json",
+      "source_path": "hold-green2-source/publication.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 200,
+      "sha256": "fa71161b8e5017137dbf1eb556efcba989a60a215961c7147497c1da2bb539b2"
+    },
+    {
+      "archive_path": "support/hold-green2-source/published-blobs.json",
+      "source_path": "hold-green2-source/published-blobs.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 324,
+      "sha256": "4205536d26a795e17108381cbf997487980c8a12f9c5eb67c2992a89f487c4b7"
+    },
+    {
+      "archive_path": "support/hold-green3-source/api-commit.json",
+      "source_path": "hold-green3-source/api-commit.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 1323,
+      "sha256": "078b84f4bd744bcfa7146279f9cebe0462092cc46e3eaabe371211a88ef45f7c"
+    },
+    {
+      "archive_path": "support/hold-green3-source/manifest.json",
+      "source_path": "hold-green3-source/manifest.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 552,
+      "sha256": "f7ce8c20f44f6b7841ba18e467a271de8f76a99fdf4f2521346b2c6b04ee6d53"
+    },
+    {
+      "archive_path": "support/hold-green3-source/publication.json",
+      "source_path": "hold-green3-source/publication.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 200,
+      "sha256": "539b1eb62beeaa3e1464757cc52b95482ac9b26ba05c070ae2ebb8a7d029ae23"
+    },
+    {
+      "archive_path": "support/hold-green3-source/published-blobs.json",
+      "source_path": "hold-green3-source/published-blobs.json",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 113,
+      "sha256": "8d6cf5940550b6cfb39bf6273df300459c890e9432630f64921fceb3f7bd87bc"
+    },
+    {
+      "archive_path": "support/hospital-tools/build_hospital_broad_workflow.py",
+      "source_path": "hospital-tools/build_hospital_broad_workflow.py",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 22609,
+      "sha256": "4bbc908b107cec3f26e33a3b6405fa177044890e21b1103c3a950381b3b68aae"
+    },
+    {
+      "archive_path": "support/hospital-tools/build_layout_workflow.py",
+      "source_path": "hospital-tools/build_layout_workflow.py",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 6666,
+      "sha256": "fbbe7088e7d09b4b55eadd6fd06fba277f10544d510252b33fa05def93815e86"
+    },
+    {
+      "archive_path": "support/hospital-tools/build_paused_settings_f9_workflow.py",
+      "source_path": "hospital-tools/build_paused_settings_f9_workflow.py",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 18498,
+      "sha256": "716d807f6855bdbc86a58db33efba0518407e5f00e8d9cfb246fd91abd813fe0"
+    },
+    {
+      "archive_path": "support/hospital-tools/capture_cloud_evidence.js",
+      "source_path": "hospital-tools/capture_cloud_evidence.js",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 7743,
+      "sha256": "77c2a96ff1630e4d113e340542dc479db111938aa7022f0b7e7ca8f99526c640"
+    },
+    {
+      "archive_path": "support/hospital-tools/cloud_evidence.py",
+      "source_path": "hospital-tools/cloud_evidence.py",
+      "kind": "independent_audit_or_publication_provenance",
+      "bytes": 38539,
+      "sha256": "7d0f4139bdb86ad760871713580277e9d8ea5440a6c269a7c6100362545aaa90"
+    },
+    {
+      "archive_path": "workflow/published-timed-hold-cloud.yml",
+      "source_path": "f22f187d77190be74d60c2ad491407f3f6daef84:.github/workflows/timed-hold-cloud.yml",
+      "kind": "published_workflow_snapshot",
+      "bytes": 22733,
+      "sha256": "b65a1c28155aefe327fb8fcb8699a85eeac54f6edddf37cfba581cf0108df264"
+    }
+  ]
+}

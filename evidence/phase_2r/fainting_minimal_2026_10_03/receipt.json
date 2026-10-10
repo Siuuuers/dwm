@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "status": "accepted_bounded_shared_fainting_and_result_routing",
+  "lead_bead": "dwm-vky.14",
+  "companion_bead": "dwm-n3h.2",
+  "source": "3710d3a20cfd53f9aebf23524fd6f28b6d69e3dd",
+  "prior_source": "7a3825a3bc9320285fda7e62724f2bf0062fb422",
+  "focused_pr_source": "d0b1b5109eea443851af60535e4917ef5a628ff7",
+  "focused_auxiliary_checkout": "e983d485a1d573ad72ae16effe163e0a0d6136e2",
+  "canonical_test_merge": "50088e6b54ba43f08012e887922d4a912fd11e89",
+  "master_parent": "6a5ddf1564870b43aa9140cad7e0e5b12e43f399",
+  "canonical_run": {
+    "id": 37111087986,
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/37111087986",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs_passed": 25,
+    "jobs_total": 25,
+    "ordinary_public_reports": 13,
+    "tests": 2575,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "suites": {
+      "broad2-windows-reading_delivery-reading_delivery.xml.gz": {
+        "tests": 617,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "broad2-windows-desktop-desktop.xml.gz": {
+        "tests": 334,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "broad2-windows-endings-endings.xml.gz": {
+        "tests": 106,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "broad2-windows-persistence-persistence.xml.gz": {
+        "tests": 230,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "broad2-windows-checkpoint_diagnostics-checkpoint_diagnostics.xml.gz": {
+        "tests": 22,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "broad2-windows-dating-dating.xml.gz": {
+        "tests": 168,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "broad2-windows-settings-settings.xml.gz": {
+        "tests": 357,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "broad2-windows-localization-localization.xml.gz": {
+        "tests": 153,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "broad2-windows-audio-audio.xml.gz": {
+        "tests": 44,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "broad2-public-surfaces-public_surfaces.xml.gz": {
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "broad2-windows-new_account-new_account.xml.gz": {
+        "tests": 179,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "broad2-windows-minesweeper-minesweeper.xml.gz": {
+        "tests": 210,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "broad2-windows-shop-shop.xml.gz": {
+        "tests": 144,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      }
+    }
+  },
+  "focused_run": {
+    "id": 37109676981,
+    "jobs_passed": 3,
+    "jobs_total": 3,
+    "tests": 1026,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "focused_to_pr_tree_difference": [
+    "auxiliary workflow removed",
+    "two exact cloud-generated public inventories adopted"
+  ],
+  "followup_source_changes": [
+    "obsolete Hospital copy test assertions replaced with absence checks",
+    "localized recovery copy expression rewritten as direct branches"
+  ],
+  "implemented": [
+    "Every faint uses one shared Hospital DTL with normal Dating-style input; no challenge, separate Continue or automatic timed notice.",
+    "Sylvia eligibility remains accepted solo appointment prevented by fainting.",
+    "All 16 canonical post-challenge DTLs route frozen board_result to exploded, perfect or cleared empty labels.",
+    "Practice admits only exact empty routing and selected empty result leaf, using its private outcome.",
+    "Technical Retry settles the retained receipt or resumes resolution after durable receipt consumption; no dialogue or consequence replay.",
+    "Same-timeline native Return continues the admitted playback generation and frozen context."
+  ],
+  "rendered": [
+    "Actual Shop condition faint: shared ordinary captions, injected completion-write refusal, physical Retry, exactly one recovery/charge/day advance, stale finish harmless.",
+    "Schedule-Done Hospital: both Sylvia variants, Save/fresh Load/History, coherent forged eligibility refusal and next-day transition."
+  ],
+  "diagnostics": [
+    {
+      "run": 37108057672,
+      "checkout": "fdbad64823739f81aa418810cae13b8bcaf29249",
+      "result": "11 stale reading fixture failures; not accepted."
+    },
+    {
+      "run": 37108994456,
+      "checkout": "9c1e513881f809a58d01c466c860cd41d4ac4961",
+      "result": "Hospital saved variants pass; native routing and condition completion expose replacement generation from internal Return; stale ordinary-Hospital save assertion fails."
+    },
+    {
+      "run": 37109353428,
+      "checkout": "88b04803e7a4923212176d9b76b2cee9eb4f71af",
+      "result": "Diagnostic only: captions render without physical completion; same-timeline Return replacement identified."
+    },
+    {
+      "run": 37110285927,
+      "source": "d0b1b5109eea443851af60535e4917ef5a628ff7",
+      "checkout": "6ab64b90e829fbe27eb60d1e167ea9dcebc655dd",
+      "result": "Rejected: obsolete localization notice assertions and unclassified nested localized-copy expression. Remaining run canceled by successor. Retained reports are diagnostic, not acceptance."
+    }
+  ],
+  "limits": [
+    "Production semantic catalogue remains disabled: placeholder routing is not exact-caption registration.",
+    "Semantic Hospital saves are Schedule-Done only; condition-triggered exact-caption authority remains unfinished.",
+    "Hospital Next remains disabled and History contains only actually published captions.",
+    "Ordered-ending History/restore, broader input/accessibility, Settings recovery, Gallery version UI, audio composition and specified Drift remain unfinished.",
+    "Production prose, exhaustive authored variants and translations are deferred.",
+    "Windows headless/export startup and Linux software renders do not establish native Windows graphics/accessibility, universal performance gains, warning-free export or OS-crash safety.",
+    "Storage-refusal negative-control XML is deliberately excluded from the 13 primary report count.",
+    "Records-only descendants are not independently engine-tested."
+  ],
+  "beads": {
+    "unfinished": 23,
+    "statuses_and_dependencies_changed": false,
+    "live_dolt_queried_or_synced": false
+  },
+  "artifact_manifest": "artifact-manifest.json",
+  "jobs_evidence": "cloud-run.json"
+}

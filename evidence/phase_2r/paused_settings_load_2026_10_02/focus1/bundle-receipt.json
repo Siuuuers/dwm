@@ -1,0 +1,11 @@
+{
+  "archive": "settings-f9-focus1-diagnostic.tar.gz",
+  "archive_member_count": 199,
+  "bytes": 14934403,
+  "evidence_kind": "failed-run-diagnostic-only",
+  "excluded_file_count": 4,
+  "manifest_sha256": "35cc59495b5e517624967cff371ebfadb2e57bc70fd612d79518e3e3f32fe9c7",
+  "payload_file_count": 197,
+  "round_trip_verified": true,
+  "sha256": "3830f571f50e67ba3285e39d65faeb133a0450253fa68b2a8ea46bd9c02790b0"
+}

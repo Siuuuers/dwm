@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "reason": "Base64 GitHub connector requests must stay below the 16 MiB transport limit. This changes transport only, not archive bytes or evidence.",
+  "archive": "settings-f9-run130.tar.gz",
+  "bytes": 26633840,
+  "sha256": "e571c842fed73bd7640db0e294a5800842b9ac2d0bc3c46044a53a326e8a99be",
+  "parts": [
+    {
+      "file": "settings-f9-run130.tar.gz.part-01",
+      "bytes": 8388608,
+      "sha256": "68cb94d8934bd8ee6f4d360b292668884fbc453533982aa6360f372e89c89be7"
+    },
+    {
+      "file": "settings-f9-run130.tar.gz.part-02",
+      "bytes": 8388608,
+      "sha256": "cfe0c2cefa7d22b04fa272f9d761a0a90d1d70d1b8c46f3bcda6b1d3d24a40e9"
+    },
+    {
+      "file": "settings-f9-run130.tar.gz.part-03",
+      "bytes": 8388608,
+      "sha256": "d291c2574bebec59029dcbee584b274a1e9716be4bdd33dfe77206dbac069ca1"
+    },
+    {
+      "file": "settings-f9-run130.tar.gz.part-04",
+      "bytes": 1468016,
+      "sha256": "52ada51a0c43bb55834b66076eed44f21412bbddf661b7be3c9987477fe475cd"
+    }
+  ],
+  "reassembly_verified_byte_for_byte": true
+}

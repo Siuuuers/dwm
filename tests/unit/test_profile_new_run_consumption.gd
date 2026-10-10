@@ -8,8 +8,10 @@ const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const JSON_READER := preload("res://scripts/validation/StrictJson.gd")
 const ROOT := "profile-new-run-memory"
 const PATH := ROOT + "/profile.json"
+const CAPTION := {"beat_id": "fixture.new-run.beat", "line_id": "fixture.new-run.persisted-line",
+	"owning_entry_id": "fixture.new-run.entry", "presentation_signature": {"revision": "fixture-r1"}}
 const SIGNALS := ["profile_restored", "preference_changed", "gallery_changed", "visited_history_changed",
-	"input_mappings_changed", "controls_bindings_changed", "profile_reset", "profile_write_failed"]
+	"caption_variant_witness_changed", "input_mappings_changed", "controls_bindings_changed", "profile_reset", "profile_write_failed"]
 
 
 func _fixture(dark: bool = true) -> Dictionary:
@@ -26,6 +28,8 @@ func _fixture(dark: bool = true) -> Dictionary:
 	candidate["gallery_unlocks"] = ["ending.alone"]
 	candidate["visited_line_ids"] = ["fixture.new-run.persisted-line"]
 	assert_true(profile.commit_prepared_profile(candidate).get("ok", false))
+	assert_true(profile.mark_caption_variant_witnessed(CAPTION,
+		{"kind": "narrative_caption_registry", "schema_version": 1, "beats": [CAPTION]}).ok)
 	var gate: RefCounted = GATE.new()
 	assert_true(profile.configure_mutation_gate(gate).get("ok", false))
 	watch_signals(profile)

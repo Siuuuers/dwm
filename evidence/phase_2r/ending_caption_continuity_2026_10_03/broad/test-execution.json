@@ -1,0 +1,146 @@
+{
+  "primary_xml_reports": 13,
+  "primary_cases": 2596,
+  "failures": 0,
+  "errors": 0,
+  "skips": 0,
+  "reports": [
+    {
+      "artifact": "windows-endings-37134912094-1",
+      "member": "ci/endings.xml",
+      "cases": 106,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "sha256": "6d313fd8dac8e650369a9139dcbc60723789ecc6afe110ab2b553ff12003b8bb"
+    },
+    {
+      "artifact": "windows-audio-37134912094-1",
+      "member": "ci/audio.xml",
+      "cases": 44,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "sha256": "07407ddb429017f02f0221d3426fafb0742ebbf089c61326a548507d2854087b"
+    },
+    {
+      "artifact": "public-surfaces-37134912094-1",
+      "member": "ci/public_surfaces.xml",
+      "cases": 11,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "sha256": "34b04da92fc741ebc6b4d431c6009efd74097a63086cc2e0b088f0da77fb8d81"
+    },
+    {
+      "artifact": "windows-checkpoint_diagnostics-37134912094-1",
+      "member": "ci/checkpoint_diagnostics.xml",
+      "cases": 22,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "sha256": "2dd20a092eb0adc02d162ccc7403e568f7488406bebc89a7ed9e67dbd137efb1"
+    },
+    {
+      "artifact": "windows-new_account-37134912094-1",
+      "member": "ci/new_account.xml",
+      "cases": 179,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "sha256": "e46ad49aa8f80e0ddd579bc59ba5b78ce1ef2e295585117557aa5d6bc98864df"
+    },
+    {
+      "artifact": "windows-persistence-37134912094-1",
+      "member": "ci/persistence.xml",
+      "cases": 234,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "sha256": "ca6214507721d772bbbb4b333b432864553fea7964710724ac3eecdf5e8b3b0b"
+    },
+    {
+      "artifact": "windows-shop-37134912094-1",
+      "member": "ci/shop.xml",
+      "cases": 144,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "sha256": "5b589a770e2cb8f31f9bc2901aae33022eb65a1cbe36740fc41cbd4fbaeec6cf"
+    },
+    {
+      "artifact": "windows-dating-37134912094-1",
+      "member": "ci/dating.xml",
+      "cases": 174,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "sha256": "3dbeb24092060b55dd0bda8a2b0550a7e9c368966740cde36862a3b2b75abf71"
+    },
+    {
+      "artifact": "windows-localization-37134912094-1",
+      "member": "ci/localization.xml",
+      "cases": 153,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "sha256": "558258a7436c056b5ff7bea0741d9d3ce823d77dd56e9cfb46904dcccc560140"
+    },
+    {
+      "artifact": "windows-desktop-37134912094-1",
+      "member": "ci/desktop.xml",
+      "cases": 334,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "sha256": "a9ed786e9dbe2ec46bbe50a87bd330ee37d43468a7fe8a74e5d9eb99a236e53a"
+    },
+    {
+      "artifact": "windows-minesweeper-37134912094-1",
+      "member": "ci/minesweeper.xml",
+      "cases": 210,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "sha256": "cad46585b32ae4dc8dfb760a6d629d5c4921d64c1c002744902d785906051bf8"
+    },
+    {
+      "artifact": "windows-reading_delivery-37134912094-1",
+      "member": "ci/reading_delivery.xml",
+      "cases": 628,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "sha256": "62a45eaffb527180680447963814d9e67047ef6e90b27a6f04eb75e76aa2858b"
+    },
+    {
+      "artifact": "windows-settings-37134912094-1",
+      "member": "ci/settings.xml",
+      "cases": 357,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "sha256": "d99307f5e728bef8b09dd984a5349a8a59b90906d2acfb70999958802d60d402"
+    }
+  ],
+  "separate_controls": [
+    {
+      "artifact": "windows-settings-37134912094-1",
+      "member": "ci/storage-refusal/empty/tests.xml",
+      "cases": 83,
+      "failures": 80,
+      "errors": 0,
+      "skips": 0,
+      "sha256": "280edd0fb222a6f7ff62aab174fc96b343712a6032b442468862ae06cbd65a64"
+    },
+    {
+      "artifact": "windows-settings-37134912094-1",
+      "member": "ci/storage-refusal/whitespace/tests.xml",
+      "cases": 83,
+      "failures": 80,
+      "errors": 0,
+      "skips": 0,
+      "sha256": "324e74c06726d47e94257df9a61564bc90cb0a2093c96fcb9c5c9b4e42e0a1d9"
+    }
+  ]
+}

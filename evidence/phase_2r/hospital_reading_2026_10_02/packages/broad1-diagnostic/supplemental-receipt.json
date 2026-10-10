@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "supplemental-independent-bounded-audits",
+  "archive": "hospital-broad1-supplemental-audits.tar.gz",
+  "bytes": 416623,
+  "sha256": "7283455e16eb69971ea39c773284bb28a298c8eeb078a048b1df88e161e7151e",
+  "payload_file_count": 38,
+  "payload_bytes": 2816822,
+  "round_trip_verified": true,
+  "canonical_diagnostic_archive": {
+    "archive": "hospital-broad1-diagnostic-evidence.tar.gz",
+    "bytes": 28177357,
+    "sha256": "b566782f3c8acd276968cc8dfc22eb9b610bc9a998ebcda75fb3554676d0096d",
+    "manifest_sha256": "bd0efa30ccd870beedb1b5f47ecf3c980e3cac5094868cc02eebc16e0d406346",
+    "evidence_kind": "failed-run-diagnostic-only"
+  },
+  "scope": "Independent audit and root visual-review records retain only their explicit bounded scopes and do not convert the failed canonical broad run into acceptance.",
+  "original_artifact_policy": "No original GitHub artifact ZIP is duplicated in this supplemental archive. Original artifacts remain separately captured and identity-bound; durable original-archive publication is a separate decision."
+}

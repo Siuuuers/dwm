@@ -10,8 +10,10 @@ const HOME_BUTTON := preload("res://scripts/ui/desktop/DesktopHomeButton.gd")
 const BACKUP_PORT := preload("res://scripts/application/backup/BackupPresentationPort.gd")
 const QUICK_COMMANDS := preload("res://scripts/ui/desktop/DesktopQuickCommands.gd")
 const CONFIRMATION := preload("res://scripts/ui/desktop/DesktopConfirmation.gd")
+const CONFIRMATION_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
 const TOUCH_NAVIGATION := preload("res://scripts/ui/desktop/DesktopTouchNavigation.gd")
 const MINESWEEPER_GRID := preload("res://scripts/ui/minesweeper/MinesweeperGrid.gd")
+const QUICK_STATUS_APPS := [&"minesweeper", &"contacts", &"schedule", &"shop", &"settings"]
 const WARNING_NAVIGATION_TARGETS := {
 	&"open_contacts_list": &"contacts",
 	&"open_minesweeper": &"minesweeper",
@@ -20,19 +22,26 @@ const LABELS := {
 	"en": ["Minesweeper", "Contacts", "Schedule", "Shop", "Backup", "Settings", "Log out"],
 	"zh-CN": ["扫雷", "联系人", "日程", "商店", "备份", "设置", "退出登录"],
 	"zh-HK": ["踩地雷", "聯絡人", "日程", "商店", "備份", "設定", "登出"],
+	"ja": ["マインスイーパー", "連絡先", "予定", "ショップ", "バックアップ", "設定", "ログアウト"],
+	"ko": ["지뢰찾기", "연락처", "일정", "상점", "백업", "설정", "로그아웃"],
 }
 const CONTACT_NAMES := {"priscilla": "Priscilla", "lavinia": "Lavinia", "sylvia": "Sylvia"}
 
+@onready var desktop_canvas: Control = %DesktopCanvas
+@onready var app_scroll: ScrollContainer = %AppScroll
+@onready var app_scroll_rail: VScrollBar = %AppScrollRail
 @onready var icon_grid: GridContainer = %IconGrid
 @onready var app_window_host: Control = %AppWindowHost
 @onready var notification_layer: Control = %NotificationLayer
 @onready var contacts_button: Button = %ContactsButton
-@onready var background_image: TextureRect = $BackgroundImage
+@onready var background_image: TextureRect = $DesktopCanvas/BackgroundImage
 @onready var message_notification: PanelContainer = %MinesweeperMessageNotification
 @onready var notification_title: Label = %NotificationTitle
 @onready var notification_body: Label = %NotificationBody
 @onready var notification_close: Button = %CloseButton
 @onready var notification_go: Button = %GoButton
+@onready var delivery_notice: PanelContainer = %DeliveryNotice
+@onready var delivery_caption: Label = %DeliveryCaption
 
 var launcher_buttons: Dictionary = {}
 var home_button: Button
@@ -40,6 +49,7 @@ var title_label: Label
 var clock_label: Label
 var status_label: Label
 var touch_navigation: HBoxContainer
+var app_footer_slot: HBoxContainer
 var _clock_timer: Timer
 var _clock_reader: Callable
 var _cached_app_windows: Dictionary = {}
@@ -62,6 +72,8 @@ var _day := 1
 var _bootstrap: Node
 var _active_id: StringName = &""
 var _locale := "en"
+var _percent := 100
+var _font_style := "pixel"
 var _clock_available := false
 var _foreground_eligible := true
 var _restoration_failed := false
@@ -75,6 +87,11 @@ var _warning_navigation_serial := 0
 var _prepared_warning_navigation: Dictionary = {}
 var _message_notification_queue: Array[Dictionary] = []
 var _seen_message_notifications: Dictionary = {}
+var _delivery_generation := 0
+var _delivery_pending := false
+var _delivery_has_message := false
+var _delivery_stage: StringName = &""
+var _delivery_elapsed := 0.0
 
 func configure_run_configuration(owner: Object) -> Dictionary:
 	if not is_instance_valid(owner) or not owner.has_method("get_run_configuration") or Callable(owner,"get_run_configuration").get_argument_count() != 0:
@@ -112,8 +129,26 @@ func _ready() -> void:
 	message_notification.mouse_filter = Control.MOUSE_FILTER_STOP
 	notification_close.pressed.connect(_dismiss_message_notification)
 	notification_go.pressed.connect(_open_contacts_from_notification)
+	visibility_changed.connect(_on_delivery_visibility_changed)
+	set_process(false)
 	_build_shell()
 	resized.connect(queue_redraw)
+	resized.connect(_layout_desktop)
+	_layout_desktop()
+	var native_scroll := app_scroll.get_v_scroll_bar()
+	native_scroll.share(app_scroll_rail)
+	native_scroll.changed.connect(_refresh_app_scroll)
+	app_scroll_rail.add_theme_stylebox_override("scroll", StyleBoxEmpty.new())
+	var grabber := StyleBoxFlat.new()
+	grabber.bg_color = Color(0.55, 0.55, 0.55, 0.7)
+	grabber.content_margin_left = 4
+	grabber.content_margin_right = 4
+	grabber.set_corner_radius_all(4)
+	for state: String in ["grabber", "grabber_highlight", "grabber_pressed"]:
+		app_scroll_rail.add_theme_stylebox_override(state, grabber)
+	for state: String in ["increment", "increment_highlight", "increment_pressed", "decrement", "decrement_highlight", "decrement_pressed"]:
+		app_scroll_rail.add_theme_icon_override(state, ImageTexture.new())
+	_refresh_app_scroll()
 	_refresh_launcher()
 	_foreground_eligible = get_window().has_focus()
 	configure_clock(_clock_reader if _clock_reader.is_valid() else Time.get_time_dict_from_system)
@@ -158,7 +193,7 @@ func _build_shell() -> void:
 	var strip := HBoxContainer.new()
 	strip.name = "AppStrip"
 	strip.add_theme_constant_override("separation", 16)
-	add_child(strip)
+	desktop_canvas.add_child(strip)
 	strip.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
 	strip.offset_top = -64
 	home_button = HOME_BUTTON.new()
@@ -169,6 +204,8 @@ func _build_shell() -> void:
 	title_label = Label.new()
 	title_label.name = "CurrentTitle"
 	title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_label.clip_text = true
+	title_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	strip.add_child(title_label)
 	clock_label = Label.new()
@@ -176,13 +213,19 @@ func _build_shell() -> void:
 	clock_label.custom_minimum_size.x = 152
 	clock_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	clock_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	strip.add_child(clock_label)
+	app_footer_slot = HBoxContainer.new()
+	app_footer_slot.name = "AppFooterSlot"
+	app_footer_slot.alignment = BoxContainer.ALIGNMENT_END
+	app_footer_slot.child_entered_tree.connect(_on_footer_child_added)
+	app_footer_slot.child_exiting_tree.connect(func(_child: Node): _refresh_strip_layout.call_deferred())
+	strip.add_child(app_footer_slot)
 	touch_navigation = TOUCH_NAVIGATION.new()
 	touch_navigation.name = "TouchNavigation"
 	touch_navigation.configure(_touch_focus_scope, _touch_input_admitted)
 	# Only these inert navigation buttons remain pointer-reachable over a modal.
 	touch_navigation.mouse_behavior_recursive = Control.MOUSE_BEHAVIOR_ENABLED
 	strip.add_child(touch_navigation)
+	strip.add_child(clock_label)
 	_clock_timer = Timer.new()
 	_clock_timer.one_shot = true
 	_clock_timer.timeout.connect(refresh_clock)
@@ -199,6 +242,7 @@ func _build_shell() -> void:
 			icon_grid.add_child(button)
 		icon_grid.move_child(button, index)
 		launcher_buttons[id] = button
+		button.icon_id = id
 		button.set_icon_texture(ART_MANIFEST.get_texture("launcher.%s" % String(id), Vector2i(48, 48)))
 		button.pressed.connect(open_app.bind(id))
 	for index in ids.size():
@@ -220,7 +264,53 @@ func _build_shell() -> void:
 	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	status_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	status_label.hide()
-	add_child(status_label)
+	desktop_canvas.add_child(status_label)
+	_refresh_strip_layout()
+
+
+func _layout_desktop() -> void:
+	if not is_node_ready() or size.x <= 0: return
+	# One canvas keeps artwork, text, controls, overlays and hit targets in the
+	# same coordinate system. Fixed-height apps scroll instead of being clipped.
+	var factor := size.x / 800.0
+	desktop_canvas.scale = Vector2.ONE * factor
+	desktop_canvas.size = size / factor
+	status_label.size.y = minf(140, maxf(0, desktop_canvas.size.y - 80 - status_label.position.y))
+	_refresh_app_scroll()
+
+
+func _refresh_app_scroll() -> void:
+	if not is_instance_valid(app_scroll_rail): return
+	var chrome_height := 64.0 + _quick_status_band_height()
+	app_scroll.offset_bottom = -chrome_height
+	app_scroll_rail.offset_bottom = -chrome_height
+	background_image.offset_bottom = -chrome_height
+	app_scroll.visible = _active_id != &""
+	var app: Control = _cached_app_windows.get(_active_id)
+	if is_instance_valid(app):
+		if app.has_method("set_desktop_height"):
+			app.set_desktop_height(floori(desktop_canvas.size.y - chrome_height))
+		app_window_host.custom_minimum_size.y = app.get_combined_minimum_size().y
+	app_scroll_rail.visible = app_scroll.visible and app_scroll_rail.max_value > app_scroll_rail.page
+	queue_redraw()
+
+
+func _on_footer_child_added(child: Node) -> void:
+	if child is Control:
+		child.visibility_changed.connect(_refresh_strip_layout)
+	_refresh_strip_layout.call_deferred()
+
+
+func _refresh_strip_layout() -> void:
+	if not is_instance_valid(app_footer_slot) or not is_instance_valid(touch_navigation): return
+	var has_app_controls := false
+	for child: Node in app_footer_slot.get_children():
+		if child is Control and child.visible:
+			has_app_controls = true
+			break
+	app_footer_slot.visible = has_app_controls
+	# The expanding title yields width before app controls, navigation, and time.
+	clock_label.show()
 
 func _touch_input_admitted() -> bool:
 	if not is_visible_in_tree() or not can_process() or not _foreground_eligible or _restoration_failed:
@@ -244,8 +334,6 @@ func _touch_focus_scope() -> Control:
 				if is_instance_valid(app.warning_sheet): return app.warning_sheet
 			&"shop":
 				if is_instance_valid(app._supportz_confirmation): return app._supportz_confirmation
-			&"minesweeper":
-				if is_instance_valid(app.panel.worksheet.information_sheet): return app.panel.worksheet.information_sheet
 	return self
 
 func configure_contacts(port: Object, localization: Object = null, profile: Object = null,
@@ -437,6 +525,7 @@ func configure_quick_commands(port: Object, input_owner: Object, source_admissio
 		return {"ok": false, "code": &"quick_owners_unavailable"}
 	_quick_commands = candidate
 	add_child(candidate)
+	_refresh_app_scroll()
 	return {"ok": true}
 
 func _quick_production_admitted() -> bool:
@@ -447,19 +536,33 @@ func _quick_production_admitted() -> bool:
 		and bridge.get_current_timeline_id().is_empty()
 
 func _input(event: InputEvent) -> void:
-	if is_instance_valid(_quick_commands): _quick_commands.observe_input(event)
+	if not is_instance_valid(_quick_commands): return
+	_quick_commands.observe_input(event)
+	# Focused app controls can consume keyboard packets during GUI dispatch.
+	# Only an admitted Quick command precedes them; capture and modal owners keep
+	# every denied packet through their existing can_return_home custody seam.
+	if _quick_commands._admitted() and _quick_commands.handle_input(event):
+		get_viewport().set_input_as_handled()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if is_instance_valid(_quick_commands) and _quick_commands.handle_input(event) and is_inside_tree():
 		get_viewport().set_input_as_handled()
 
 func quick_status_safe_rect() -> Rect2:
-	# Known blank regions only. Other apps wait for their own protected-region map.
+	if status_label.visible or delivery_notice.is_visible_in_tree(): return Rect2()
 	for child: Node in notification_layer.get_children():
 		if child is Control and child.is_visible_in_tree(): return Rect2()
-	if _active_id == &"backup": return Rect2(480, 16, 304, 64)
-	if _active_id == &"": return Rect2(24, 576, 752, 64)
+	if _active_id == &"backup" and app_scroll.scroll_vertical == 0: return Rect2(480, 16, 304, 64)
+	if _active_id == &"": return Rect2(24, desktop_canvas.size.y - 144, 752, 64)
+	if _quick_status_band_height() > 0:
+		return Rect2(24, desktop_canvas.size.y - 128, 752, 64)
 	return Rect2()
+
+func _quick_status_band_height() -> float:
+	# Reserve geometry while the app is open, even when no status is visible.
+	# The board/transcript and transaction controls remain inside AppScroll;
+	# the existing app strip keeps its full height and input targets.
+	return 64.0 if is_instance_valid(_quick_commands) and _active_id in QUICK_STATUS_APPS else 0.0
 
 func present_confirmation(request: Dictionary, accept: Callable, cancel: Callable) -> Dictionary:
 	if is_instance_valid(_confirmation):
@@ -470,10 +573,39 @@ func present_confirmation(request: Dictionary, accept: Callable, cancel: Callabl
 	_confirmation.finished.connect(func(accepted: bool):
 		_confirmation = null
 		(accept if accepted else cancel).call())
-	add_child(_confirmation)
+	desktop_canvas.add_child(_confirmation)
 	# The navigation bar handles its own pointer contacts before modal input.
-	move_child($AppStrip, get_child_count() - 1)
+	desktop_canvas.move_child($DesktopCanvas/AppStrip, desktop_canvas.get_child_count() - 1)
 	return {"ok": true, "value": {"confirmation": _confirmation}}
+
+func _present_logout_confirmation(retry: bool = false, forward_only: bool = false) -> Dictionary:
+	var body: String = {
+		"en": "Log out could not finish. Please try again." if retry else "Save your progress and log out?",
+		"zh-CN": "暂时无法登出。请重试。" if retry else "保存进度并登出？",
+		"zh-HK": "暫時無法登出。請重試。" if retry else "儲存進度並登出？",
+		"ja": "ログアウトを完了できませんでした。再試行してください。" if retry else "進行状況を保存してログアウトしますか？",
+		"ko": "로그아웃을 완료하지 못했습니다. 다시 시도하세요." if retry else "진행 상황을 저장하고 로그아웃할까요?",
+	}[_locale]
+	var confirm: String = {"en": "Retry", "zh-CN": "重试", "zh-HK": "重試", "ja": "再試行", "ko": "다시 시도"}[_locale] if retry else {"en": "Yes", "zh-CN": "是", "zh-HK": "是", "ja": "はい", "ko": "예"}[_locale]
+	var cancel: String = {"en": "No", "zh-CN": "否", "zh-HK": "否", "ja": "いいえ", "ko": "아니요"}[_locale]
+	var high_contrast := bool(_profile.get_preference("preferences.accessibility.high_contrast", false)) if _profile != null and _profile.has_method("get_preference") else false
+	var colour_preset := str(_profile.get_preference("preferences.accessibility.colour_differentiation", "standard")) if _profile != null and _profile.has_method("get_preference") else "standard"
+	var shown := present_confirmation({"title": LABELS[_locale][6], "body": body,
+		"confirm": confirm, "cancel": cancel, "cancelable": not forward_only, "warning": false,
+		"theme": CONFIRMATION_THEME.build(_locale, _percent, _run_palette, _day, high_contrast, colour_preset, _font_style)},
+		_confirm_logout, _cancel_logout)
+	_refresh_launcher()
+	return shown
+
+func _confirm_logout() -> void:
+	var result: Dictionary = _session_exit.return_to_title(true)
+	if not result.get("ok", false):
+		# A retired session can only retry its existing forward exit operation.
+		_present_logout_confirmation(true, result.get("code") == &"exit_route_retry_required")
+
+func _cancel_logout() -> void:
+	_refresh_launcher()
+	launcher_buttons[&"logout"].grab_focus()
 
 func open_app(app_id: StringName) -> Dictionary:
 	if _run_configuration_required and (not _run_configuration_ready or _run_configuration_masked):
@@ -494,8 +626,9 @@ func open_app(app_id: StringName) -> Dictionary:
 			return _route_failure(&"desktop_app_transition_unavailable")
 	if app_id == &"contacts" and _presentation_port == null:
 		return _route_failure(&"contacts_unavailable")
-	if app_id == &"logout" and _session_exit == null:
-		return _route_failure(&"logout_unavailable")
+	if app_id == &"logout":
+		if _session_exit == null: return _route_failure(&"logout_unavailable")
+		return _present_logout_confirmation()
 	if app_id == &"shop" and _shop_port == null:
 		return _route_failure(&"shop_unavailable")
 	if app_id == &"schedule" and _schedule_port == null:
@@ -522,16 +655,14 @@ func open_app(app_id: StringName) -> Dictionary:
 		if app_id == &"contacts":
 			configured = app.configure_presentation(_presentation_port, _localization, _profile, _run_palette, _day)
 		elif app_id == &"minesweeper":
-			configured = app.configure_presentation(_minesweeper_port, _localization, _profile, _minesweeper_input, _run_palette)
-		elif app_id == &"logout":
-			configured = app.configure_exit(_session_exit, _locale)
+			configured = app.configure_presentation(_minesweeper_port, _localization, _profile, _minesweeper_input, _run_palette, _day)
 		elif app_id == &"shop":
 			app.configure_desktop_home(home_button)
 			configured = app.configure_catalog(_shop_port, _localization, _profile, _run_palette, _day)
 		elif app_id == &"schedule":
 			app.configure_desktop_home(home_button)
-			configured = app.configure_presentation(_schedule_port, _locale, int(theme.default_font_size * 100 / 24),
-				false, _schedule_done, _run_palette, _schedule_warning_port, _schedule_warning_commands, _day)
+			configured = app.configure_presentation(_schedule_port, _locale, _percent,
+				false, _schedule_done, _run_palette, _schedule_warning_port, _schedule_warning_commands, _day, _font_style)
 			if configured.get("ok",false): configured = app.configure_shared_preferences(_localization, _profile)
 		elif app_id == &"backup":
 			app.set_confirmation_host(self)
@@ -543,10 +674,14 @@ func open_app(app_id: StringName) -> Dictionary:
 			app.queue_free()
 			return _route_failure(configured.get("code", &"desktop_app_unavailable"))
 		app.configure_desktop_home(home_button)
+		if app.has_method("set_footer_host"):
+			app.set_footer_host(app_footer_slot)
 		app.window_hidden.connect(_on_app_hidden.bind(app_id))
 		if app_id == &"minesweeper":
 			app.recovery_requested.connect(_route_failure)
+			app.recovery_requested.connect(_on_delivery_failed)
 			app.panel.presentation_changed.connect(status_label.hide)
+			app.panel.presentation_changed.connect(_on_minesweeper_delivery_presented.bind(app))
 		if app_id == &"shop":
 			app.recovery_requested.connect(func(code: String): _route_failure(StringName(code)))
 		if app_id == &"schedule":
@@ -554,6 +689,7 @@ func open_app(app_id: StringName) -> Dictionary:
 			app.warning_foreground_changed.connect(func(_active: bool): _refresh_launcher())
 			app.command_custody_changed.connect(func(_active: bool): _refresh_launcher())
 		_cached_app_windows[app_id] = app
+		app.minimum_size_changed.connect(_refresh_app_scroll)
 	elif app_id in [&"backup", &"minesweeper", &"schedule", &"shop"]:
 		var refreshed: Dictionary = app.refresh_view()
 		if not refreshed.get("ok", false):
@@ -715,6 +851,7 @@ func _on_app_hidden(app_id: StringName) -> void:
 		_cached_app_windows[app_id].show()
 
 func _on_daily_state_reset() -> void:
+	_reset_delivery_notice()
 	if is_instance_valid(_confirmation):
 		_confirmation._finish(false)
 	for window in _cached_app_windows.values():
@@ -788,10 +925,14 @@ func _refresh_launcher(refresh_contacts: bool = true) -> void:
 		var requested := str(_localization.get_locale()).replace("_", "-")
 		if LABELS.has(requested):
 			_locale = requested
-	var percent := int(_profile.get_preference("preferences.accessibility.text_size", 100)) if _profile != null and _profile.has_method("get_preference") else 100
+	_percent = int(_profile.get_preference("preferences.accessibility.text_size", 100)) if _profile != null and _profile.has_method("get_preference") else 100
+	_font_style = str(_profile.get_preference("preferences.accessibility.font_style", "pixel")) if _profile != null and _profile.has_method("get_preference") else "pixel"
 	var high_contrast := bool(_profile.get_preference("preferences.accessibility.high_contrast", false)) if _profile != null and _profile.has_method("get_preference") else false
 	var colour_preset := str(_profile.get_preference("preferences.accessibility.colour_differentiation", "standard")) if _profile != null and _profile.has_method("get_preference") else "standard"
-	theme = DESKTOP_THEME.build(_locale, percent, _run_palette, WEEK_TINT.tint_for_day(_day), high_contrast, colour_preset)
+	touch_navigation.visible = bool(_profile.get_preference("preferences.accessibility.large_targets", false)) if _profile != null and _profile.has_method("get_preference") else false
+	_refresh_strip_layout()
+	_refresh_app_scroll()
+	theme = DESKTOP_THEME.build(_locale, _percent, _run_palette, WEEK_TINT.tint_for_day(_day), high_contrast, colour_preset, _font_style)
 	var notice_style := StyleBoxFlat.new()
 	notice_style.bg_color = theme.get_color("face", "Desktop")
 	notice_style.border_color = theme.get_color("structure", "Desktop")
@@ -799,14 +940,16 @@ func _refresh_launcher(refresh_contacts: bool = true) -> void:
 	for edge: int in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
 		notice_style.set_content_margin(edge, 16)
 	message_notification.add_theme_stylebox_override("panel", notice_style)
+	delivery_notice.add_theme_stylebox_override("panel", notice_style)
 	_refresh_message_notification_copy()
+	_refresh_delivery_caption()
 	var ids: Array[StringName] = APP_REGISTRY.new().get_ids()
 	for index in ids.size():
 		var button: Button = launcher_buttons[ids[index]]
 		button.theme = theme
 		if ids[index] != &"contacts" or refresh_contacts:
 			button.set_caption(LABELS[_locale][index])
-	var home: String = {"en": "Home", "zh-CN": "主页", "zh-HK": "主頁"}[_locale]
+	var home: String = {"en": "Home", "zh-CN": "主页", "zh-HK": "主頁", "ja": "ホーム", "ko": "홈"}[_locale]
 	home_button.accessibility_name = home
 	home_button.current_on_launcher = _active_id == &""
 	home_button.disabled = _active_id == &"" or _restoration_failed
@@ -814,19 +957,22 @@ func _refresh_launcher(refresh_contacts: bool = true) -> void:
 	var foreground: Node = _cached_app_windows.get(_active_id)
 	if is_instance_valid(_confirmation) or is_instance_valid(foreground) and foreground.has_method("can_return_home") and not foreground.can_return_home():
 		home_button.focus_mode = Control.FOCUS_NONE
-	title_label.text = home if _active_id == &"" else (LABELS[_locale][ids.find(_active_id)] if _active_id in ids else {"en": "Unavailable", "zh-CN": "不可用", "zh-HK": "不可用"}[_locale])
-	clock_label.add_theme_font_override("font", DESKTOP_THEME.ENGLISH)
-	clock_label.accessibility_name = {"en": "Local time", "zh-CN": "本地时间", "zh-HK": "本地時間"}[_locale]
+	title_label.text = home if _active_id == &"" else (LABELS[_locale][ids.find(_active_id)] if _active_id in ids else {"en": "Unavailable", "zh-CN": "不可用", "zh-HK": "不可用", "ja": "利用できません", "ko": "이용할 수 없어요"}[_locale])
+	clock_label.accessibility_name = {"en": "Local time", "zh-CN": "本地时间", "zh-HK": "本地時間", "ja": "現地時刻", "ko": "현지 시간"}[_locale]
 	var navigation_copy: Array = {
 		"en": ["Previous control", "Next control", "Confirm focused control"],
 		"zh-CN": ["上一个控件", "下一个控件", "确认当前控件"],
 		"zh-HK": ["上一個控制項", "下一個控制項", "確認目前控制項"],
+		"ja": ["前の操作項目", "次の操作項目", "選択した操作を実行"],
+		"ko": ["이전 조작 항목", "다음 조작 항목", "선택한 조작 실행"],
 	}[_locale]
 	var navigation_buttons: Array = [touch_navigation.previous_button, touch_navigation.next_button, touch_navigation.confirm_button]
 	for index: int in navigation_buttons.size():
 		var button: Button = navigation_buttons[index]
 		button.text = ["←", "→", "✓"][index]
-		button.add_theme_font_override("font", DESKTOP_THEME.ENGLISH)
+		button.remove_theme_font_override("font")
+		if not theme.default_font.has_char(button.text.unicode_at(0)):
+			button.add_theme_font_override("font", DESKTOP_THEME.ENGLISH)
 		button.accessibility_name = navigation_copy[index]
 		button.tooltip_text = navigation_copy[index]
 	_refresh_clock_description()
@@ -841,7 +987,7 @@ func _route_failure(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code}
 
 func _set_failure_copy() -> void:
-	status_label.text = {"en": "This action is currently unavailable.", "zh-CN": "此操作暂不可用。", "zh-HK": "此操作暫不可用。"}[_locale]
+	status_label.text = {"en": "This action is currently unavailable.", "zh-CN": "此操作暂不可用。", "zh-HK": "此操作暫不可用。", "ja": "現在この操作は利用できません。", "ko": "현재 이 작업을 이용할 수 없어요."}[_locale]
 
 func _on_launcher_locale_changed(_locale_id: String) -> void:
 	_refresh_launcher()
@@ -852,7 +998,14 @@ func _on_contact_message_unlocked(result: Dictionary) -> void:
 	var friend_id := str(result.get("friend_id", ""))
 	if notification_id.is_empty() or friend_id not in CONTACT_NAMES or _seen_message_notifications.has(notification_id): return
 	_seen_message_notifications[notification_id] = true
-	_message_notification_queue.append({"notification_id": notification_id, "friend_id": friend_id})
+	var generation := 0
+	if _delivery_pending:
+		generation = _delivery_generation
+		_delivery_has_message = true
+		# A durable retry may publish after its earlier error cleared the spinner.
+		if _delivery_stage == &"": _show_delivery_notice(&"delivering")
+	_message_notification_queue.append({"notification_id": notification_id, "friend_id": friend_id,
+		"delivery_generation": generation})
 	_present_next_message_notification()
 
 
@@ -863,6 +1016,71 @@ func _present_next_message_notification() -> void:
 	message_notification.set_meta("friend_id", entry.friend_id)
 	_refresh_message_notification_copy()
 	message_notification.show()
+	if int(entry.get("delivery_generation", 0)) == _delivery_generation and _delivery_has_message:
+		_show_delivery_notice(&"delivered")
+
+
+func _on_minesweeper_delivery_presented(app: Control) -> void:
+	if _cached_app_windows.get(&"minesweeper") != app: return
+	var view: Dictionary = app.panel.public_view
+	if not bool(view.get("board", {}).get("terminal", false)): return
+	if not bool(view.get("settled", false)):
+		if _delivery_pending: return
+		_delivery_generation += 1
+		_delivery_pending = true
+		_delivery_has_message = false
+		_show_delivery_notice(&"delivering")
+	elif _delivery_pending:
+		_delivery_pending = false
+		# Some rounds have no eligible friend notice. Never invent a delivery.
+		if not _delivery_has_message: _reset_delivery_notice()
+
+
+func _show_delivery_notice(stage: StringName) -> void:
+	_delivery_stage = stage
+	_delivery_elapsed = 0.0
+	_refresh_delivery_caption()
+	delivery_notice.modulate.a = 1.0
+	delivery_notice.show()
+	set_process(true)
+
+
+func _process(delta: float) -> void:
+	_delivery_elapsed += delta
+	if _delivery_stage == &"delivering":
+		_refresh_delivery_caption()
+	elif _delivery_stage == &"delivered":
+		delivery_notice.modulate.a = clampf(1.0 - (_delivery_elapsed - 2.0) / 0.5, 0.0, 1.0)
+		if _delivery_elapsed >= 2.5:
+			_hide_delivery_notice()
+
+
+func _refresh_delivery_caption() -> void:
+	if _delivery_stage == &"delivered":
+		delivery_caption.text = {"zh-CN": "已送达 :)", "zh-HK": "已送達 :)", "ja": "届きました :)", "ko": "전달했어요 :)"}.get(_locale, "delivered :)")
+	elif _delivery_stage == &"delivering":
+		delivery_caption.text = {"zh-CN": "发送中", "zh-HK": "傳送中", "ja": "お届け中", "ko": "전달 중"}.get(_locale, "delivering") + ".".repeat(1 + int(_delivery_elapsed / 0.4) % 3)
+
+func _on_delivery_failed(_code: StringName) -> void:
+	# Keep the pending generation so the existing Retry path can finish this delivery.
+	if _delivery_pending and _delivery_stage != &"delivered": _hide_delivery_notice()
+
+
+func _hide_delivery_notice() -> void:
+	_delivery_stage = &""
+	delivery_notice.hide()
+	set_process(false)
+
+
+func _reset_delivery_notice() -> void:
+	_delivery_generation += 1
+	_delivery_pending = false
+	_delivery_has_message = false
+	_hide_delivery_notice()
+
+
+func _on_delivery_visibility_changed() -> void:
+	if not is_visible_in_tree(): _reset_delivery_notice()
 
 
 func _refresh_message_notification_copy() -> void:
@@ -893,10 +1111,10 @@ func _open_contacts_from_notification() -> void:
 		_dismiss_message_notification()
 
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
-	if path == &"preferences.accessibility.text_size":
+	if path in [&"preferences.accessibility.text_size", &"preferences.accessibility.large_targets"]:
 		_refresh_launcher()
-	elif path in [&"preferences.accessibility.high_contrast", &"preferences.accessibility.colour_differentiation"]:
-		# Preserve the displayed unread fact; colours do not invalidate correspondence.
+	elif path in [&"preferences.accessibility.high_contrast", &"preferences.accessibility.colour_differentiation", &"preferences.accessibility.font_style"]:
+		# Preserve the displayed unread fact; presentation does not invalidate correspondence.
 		_refresh_launcher(false)
 
 func _on_contacts_changed(_result: Dictionary) -> void:
@@ -912,9 +1130,10 @@ func _refresh_contact_notice() -> void:
 	if not view.get("ok", false): return
 	var unread: bool = view.value.unread.values().has(true)
 	var caption: String = LABELS[_locale][1]
-	contacts_button.set_caption(caption + (" •" if unread else ""))
+	contacts_button.set_caption(caption)
+	contacts_button.set_unread(unread)
 	contacts_button.accessibility_name = caption + ({"en": ", new message",
-		"zh-CN": "，有新消息", "zh-HK": "，有新訊息"}[_locale] if unread else "")
+		"zh-CN": "，有新消息", "zh-HK": "，有新訊息", "ja": "、新着メッセージ", "ko": ", 새 메시지"}[_locale] if unread else "")
 
 
 func configure_clock(reader: Callable) -> void:
@@ -936,7 +1155,7 @@ func refresh_clock() -> void:
 	_clock_timer.start(60 - int(second) if valid else 60)
 
 func _refresh_clock_description() -> void:
-	clock_label.accessibility_description = "" if _clock_available else {"en": "Time unavailable", "zh-CN": "时间不可用", "zh-HK": "時間不可用"}[_locale]
+	clock_label.accessibility_description = "" if _clock_available else {"en": "Time unavailable", "zh-CN": "时间不可用", "zh-HK": "時間不可用", "ja": "時刻を表示できません", "ko": "시간을 표시할 수 없어요"}[_locale]
 
 func _notification(what: int) -> void:
 	if not is_node_ready():
@@ -952,5 +1171,7 @@ func _draw() -> void:
 	if theme == null:
 		return
 	draw_rect(Rect2(Vector2.ZERO, size), get_theme_color("habitat", "Desktop"))
-	draw_rect(Rect2(0, size.y - 64, size.x, 64), get_theme_color("face", "Desktop"))
-	draw_rect(Rect2(0, size.y - 64, size.x, 2), get_theme_color("structure", "Desktop"))
+	var footer_height := 64.0 * desktop_canvas.scale.y
+	var chrome_height := (64.0 + _quick_status_band_height()) * desktop_canvas.scale.y
+	draw_rect(Rect2(0, size.y - chrome_height, size.x, chrome_height), get_theme_color("face", "Desktop"))
+	draw_rect(Rect2(0, size.y - footer_height, size.x, 2 * desktop_canvas.scale.y), get_theme_color("structure", "Desktop"))

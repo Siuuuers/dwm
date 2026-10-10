@@ -97,7 +97,8 @@ func _assert_panel_geometry(width: float) -> void:
 	assert_eq(_content.rail_scroll.position, Vector2(16, 16))
 	assert_eq(_content.rail_scroll.size, Vector2(208, 624))
 	assert_eq(_content.get_node("Heading").get_rect(), Rect2(240, 16, width - 256, 80))
-	assert_eq(_content.sheet_scroll.get_rect(), Rect2(240, 96, width - 256, 400))
+	# Language hides the accessibility specimen footer, reclaiming its 144 pixels.
+	assert_eq(_content.sheet_scroll.get_rect(), Rect2(240, 96, width - 256, 544))
 	assert_eq(_content.get_node("Footer").get_rect(), Rect2(240, 496, width - 256, 144))
 	assert_eq(_content.get_node("Heading/CategoryHeading").get_rect(),
 		Rect2(16, 8, width - 288, 64))
@@ -125,6 +126,23 @@ func test_panel_keeps_the_canonical_layout_at_800_and_expands_only_the_reading_s
 	_host.size.x = 800
 	await _settle()
 	_assert_panel_geometry(800)
+
+
+func test_focus_scroll_uses_the_same_logical_distance_when_the_panel_is_enlarged() -> void:
+	_content.select_category("accessibility")
+	var target: Control = _content.control_for(&"preferences.accessibility.steady_interface")
+	target.grab_focus()
+	await _settle()
+	var scroll: ScrollContainer = _content.sheet_scroll
+	var corrected: Array[int] = []
+	for factor: float in [1.0, 1.2]:
+		_host.scale = Vector2.ONE * factor
+		scroll.scroll_vertical = 0
+		await _settle()
+		_content._clear_focus_perimeter(scroll, target)
+		corrected.append(scroll.scroll_vertical)
+	assert_gt(corrected[0], 0, "The lower reading row needs scrolling.")
+	assert_eq(corrected[1], corrected[0], "Magnification must not overscroll the same focused row.")
 
 
 func test_live_resize_preserves_category_focus_and_uncommitted_volume_preview() -> void:

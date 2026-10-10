@@ -1072,7 +1072,7 @@ static func _canonical(value: Variant) -> String:
 	if written.get("ok", false):
 		return str(written.get("value", ""))
 	_uncanonicalisable_count += 1
-	return "\u0000uncanonicalisable:%d" % _uncanonicalisable_count
+	return String.chr(0xFFFD) + "uncanonicalisable:%d" % _uncanonicalisable_count
 
 
 static func _ok(value: Variant) -> Dictionary:

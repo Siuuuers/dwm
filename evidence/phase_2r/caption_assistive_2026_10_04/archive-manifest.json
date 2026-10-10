@@ -1,0 +1,88 @@
+{
+  "archive": "test-evidence.tar.gz",
+  "bytes": 362626,
+  "sha256": "88c8601f283c62dbc77567b2ffe0027ed43eb14d00a6271430eb25f399e410b7",
+  "members": [
+    {
+      "path": "audio.xml",
+      "bytes": 9435,
+      "sha256": "5fbaf0f3c3baa14aa33934cd4bb5bd3a4db00a2f1ec6433ea2599fc79afd601b"
+    },
+    {
+      "path": "checkpoint_diagnostics.xml",
+      "bytes": 5446,
+      "sha256": "674a279f980fe37963510f0d9bcd4d7ad598e6ec01cd9099274b29aa5599cdc2"
+    },
+    {
+      "path": "controls/ci/storage-refusal/empty/tests.xml",
+      "bytes": 31403,
+      "sha256": "247a3bff08084d298d6b863ed5b3259ff62b30cdd53c17adb3d8ed2b1f963a0b"
+    },
+    {
+      "path": "controls/ci/storage-refusal/whitespace/tests.xml",
+      "bytes": 31410,
+      "sha256": "4064689c13b2e2f15520fe6884413026e7eec43f0b7dfdc931f6e5a633440109"
+    },
+    {
+      "path": "dating.xml",
+      "bytes": 39337,
+      "sha256": "01965e46c146385eb27e28b2dc9bccc18e91aaa1ed84cdcd7050fc00ed6a5185"
+    },
+    {
+      "path": "desktop.xml",
+      "bytes": 75227,
+      "sha256": "95dd5038e5716b92ba7e2c553ba9a1db3926700091cf3072da3b4b6d568dd464"
+    },
+    {
+      "path": "endings.xml",
+      "bytes": 22931,
+      "sha256": "2287d05090bc73473e7a63d8ec093f4102e25de00f878a3b2e43e80eb0d8b954"
+    },
+    {
+      "path": "localization.xml",
+      "bytes": 34705,
+      "sha256": "b518677871195f4983f440e6768692f801e704bf55e82a1fbb3980f13834a5b6"
+    },
+    {
+      "path": "minesweeper.xml",
+      "bytes": 47967,
+      "sha256": "97f037b01e091152658a2a8b33692bb8b7e6780dab2c61016397223f6676f4e9"
+    },
+    {
+      "path": "new_account.xml",
+      "bytes": 39874,
+      "sha256": "6690e2bb88bc87697e0d222c25aaf444fa1e0038f3eb6e659587bb5f3b1bf434"
+    },
+    {
+      "path": "persistence.xml",
+      "bytes": 52791,
+      "sha256": "34efac81f901becdbe896dee2e3d8adb14c841e535ca2ee3a2ea676493963d94"
+    },
+    {
+      "path": "public_surfaces.xml",
+      "bytes": 2505,
+      "sha256": "5aa811ee5440df1c48404ef27b3af2b6149737bfa1d6cef8a2defa3bf5bf9a61"
+    },
+    {
+      "path": "reading_delivery.log",
+      "bytes": 4659255,
+      "sha256": "828471282ac3316e98066b07ba27f0211d7cc80905cf8ad345dfd642ebcf41aa"
+    },
+    {
+      "path": "reading_delivery.xml",
+      "bytes": 145291,
+      "sha256": "607882659f368768545de630cd444bb4733e803dff55bdb15e9a20478b685618"
+    },
+    {
+      "path": "settings.xml",
+      "bytes": 81093,
+      "sha256": "d1654716f2aad725f0e5e0e1e3c9dd6091da17d3d8ec997b6dca34ae2667f220"
+    },
+    {
+      "path": "shop.xml",
+      "bytes": 31566,
+      "sha256": "8bc3ff03de0e95453de3140286292c576f955c8f9629b933ba30cc9b2636a4f8"
+    }
+  ],
+  "scope": "Original 13 primary XML reports, two intentional storage-refusal XML controls, and complete reading_delivery log. Other job artifacts remain linked by source/run manifests."
+}

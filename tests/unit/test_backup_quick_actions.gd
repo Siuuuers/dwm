@@ -6,19 +6,21 @@ const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.g
 const FILES := preload("res://tests/support/FakeFileOps.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 const SNAPSHOT_FIXTURE := preload("res://tests/support/BackupSnapshotFixture.gd")
+const CANONICAL := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
 # Only restore compatibility/execution is doubled. Journal, file revision, token
 # custody, Quick policy and atomic writes remain the production SaveManager.
 class RestoreFixture extends "res://autoload/SaveManager.gd":
 	var fallback := false
 	var restore_unavailable := false
+	var restore_failure_code := &"fixture_restore_unavailable"
 	var final_record_fallback := false
 	var restore_prepares := 0
 	var restore_commits := 0
 	func _prepare_restore_document(_locator: Dictionary, document: Dictionary, _migration: Dictionary) -> Dictionary:
 		restore_prepares += 1
 		if restore_unavailable:
-			return {"ok": false, "code": &"fixture_restore_unavailable"}
+			return {"ok": false, "code": restore_failure_code}
 		var bundle: Dictionary = document["current_snapshot"].duplicate(true)
 		return {"ok": true, "value": {"prepared": {
 			"bundle": bundle, "checkpoint_id": "fixture-earlier" if fallback else bundle["snapshot"]["checkpoint_id"]}}}
@@ -30,6 +32,33 @@ class RestoreFixture extends "res://autoload/SaveManager.gd":
 		if final_record_fallback and result.get("ok", false):
 			result["value"]["record"]["fallback"] = true
 		return result
+
+# Compare the frozen full-result baseline with the actual production write helper.
+# As above, restore execution is doubled; presentation, consent, capture, journal,
+# exact-text validation and atomic storage use their real owners.
+class QuickWriteProbe extends "res://tests/support/ManualSaveWitnessPort.gd":
+	var helper_calls := 0
+	var compact_successes := 0
+	var validation_texts: Array[String] = []
+	var restore_commits := 0
+	func _capture_saved_time() -> Dictionary:
+		return {"unix_seconds": 0, "utc_offset_minutes": 0, "hhmm": "00:00"}
+	func _document_text_validator(text: String) -> Dictionary:
+		validation_texts.append(text)
+		return super._document_text_validator(text)
+	func _write_document_text_validator(text: String, validated_texts: Dictionary) -> Dictionary:
+		helper_calls += 1
+		var result := super._write_document_text_validator(text, validated_texts)
+		if result.get("ok", false) and result.get("value") is Dictionary and result.value.is_empty():
+			compact_successes += 1
+		return result
+	func _prepare_restore_document(_locator: Dictionary, document: Dictionary, _migration: Dictionary) -> Dictionary:
+		var bundle: Dictionary = document["current_snapshot"].duplicate(true)
+		return {"ok": true, "value": {"prepared": {
+			"bundle": bundle, "checkpoint_id": bundle["snapshot"]["checkpoint_id"]}}}
+	func commit_prepared_restore(_prepared: Dictionary) -> Dictionary:
+		restore_commits += 1
+		return {"ok": true, "value": {"restored": true}}
 
 class Capture extends RefCounted:
 	var result: Dictionary = {"ok": false, "code": &"fixture_capture_unavailable"}
@@ -120,6 +149,7 @@ func test_quick_does_not_cancel_preexisting_backup_consent() -> void:
 	var sequence: int = _manager._backup_action_sequence
 	assert_false(port.get_quick_capability("save").value.enabled)
 	assert_eq(port.prepare_quick_action("save").status_key, "unavailable")
+	assert_eq(port.prepare_quick_action("load").status_key, "unavailable", "pending consent owns the surface even when Quick is empty")
 	assert_eq(_manager._backup_action_sequence, sequence)
 	assert_true(_manager._backup_actions.has(pending.value.token))
 	assert_true(port.commit_action(pending.value.token).get("ok", false), "original consent remains usable")
@@ -138,9 +168,10 @@ func test_only_explicit_nonfatal_guard_facts_produce_please_wait_without_future_
 	assert_eq(port.prepare_quick_action("save").status_key, "unavailable", "F5 remains unavailable under an active gate")
 	assert_eq(port.prepare_quick_action("load").status_key, "please_wait")
 	assert_true(gate.release(&"causal_transaction", lease.value.token).get("ok", false))
-	assert_eq(port.prepare_quick_action("load").status_key, "unavailable", "empty is not temporary")
+	assert_eq(port.prepare_quick_action("load").status_key, "no_quick_save", "empty is not temporary")
 	assert_true(gate.latch_fatal({"source": "fixture", "phase": "test", "code": "fixture_fatal", "details": {}}).get("ok", false))
 	assert_eq(port.prepare_quick_action("save").status_key, "unavailable")
+	assert_eq(port.prepare_quick_action("load").status_key, "unavailable", "fatal custody takes priority over an empty record")
 	assert_eq(files.snapshot_persisted(), before)
 
 func test_fallback_and_unavailable_quick_never_silently_overwrite() -> void:
@@ -152,9 +183,77 @@ func test_fallback_and_unavailable_quick_never_silently_overwrite() -> void:
 	_manager.fallback = false
 	_manager.restore_unavailable = true
 	assert_eq(port.prepare_quick_action("save").status_key, "unavailable")
-	assert_eq(port.prepare_quick_action("load").status_key, "unavailable", "generic restore refusal is not guessed temporary")
+	assert_eq(port.prepare_quick_action("load").status_key, "restore_unavailable", "the inspected technical refusal is not guessed temporary")
 	assert_eq(files.snapshot_persisted(), before)
 	assert_true(_manager._backup_actions.is_empty())
+
+func test_empty_quick_load_reports_absence_without_token_write_or_queued_work() -> void:
+	var persisted: Dictionary = files.snapshot_persisted()
+	var journal: Dictionary = _manager._journal.capture_state()
+	var capability: Dictionary = port.get_quick_capability("load")
+	assert_false(capability.value.enabled)
+	assert_eq(capability.value.status_key, "no_quick_save")
+	var refused: Dictionary = port.prepare_quick_action("load")
+	assert_false(refused.ok)
+	assert_eq(refused.status_key, "no_quick_save")
+	assert_true(port.is_quick_condition_current(refused.condition))
+	assert_eq(_manager._backup_action_sequence, 0)
+	assert_true(_manager._backup_actions.is_empty())
+	assert_true(port._pending.is_empty())
+	assert_eq(_manager.restore_commits, 0)
+	assert_false(_manager._pending_deferred_save)
+	assert_eq(_manager._journal.capture_state(), journal)
+	assert_eq(files.snapshot_persisted(), persisted)
+	_save_quick()
+	assert_false(port.is_quick_condition_current(refused.condition), "new Quick bytes retire the prior absence fact")
+	assert_true(port.get_quick_capability("load").value.enabled)
+	assert_eq(_manager.restore_commits, 0, "creating a later Quick never replays the refused load")
+
+func test_quick_load_preserves_actual_document_compatibility_and_read_failure_reasons() -> void:
+	var journal: Dictionary = _manager._journal.capture_state()
+	var cases := {
+		"unreadable": "not a save document",
+		"older_version": '{"schema_version":1,"kind":"quick","slot_id":null}',
+		"newer_version": JSON.stringify({"schema_version": MANAGER.SAVE_DOCUMENT_SCHEMA.DOCUMENT_VERSION + 1}),
+	}
+	for reason: String in cases:
+		files._persisted["memory/quick-actions/quicksave.json"] = cases[reason].to_utf8_buffer()
+		var persisted: Dictionary = files.snapshot_persisted()
+		var inspected: Dictionary = _manager.inspect_backup("quick")
+		assert_eq(inspected.value.reason, reason)
+		assert_false(inspected.value.loadable)
+		assert_eq(port.get_quick_capability("load").value.status_key, reason)
+		assert_eq(_manager.prepare_quick_backup_action("load").status_key, reason)
+		assert_eq(port.prepare_quick_action("load").status_key, reason)
+		assert_eq(port.prepare_quick_action("save").status_key, "unavailable", "F5 still refuses an unproved overwrite")
+		assert_eq(files.snapshot_persisted(), persisted)
+		assert_eq(_manager._journal.capture_state(), journal)
+		assert_true(_manager._backup_actions.is_empty())
+		assert_true(port._pending.is_empty())
+		assert_false(_manager._pending_deferred_save)
+	assert_eq(_manager._backup_action_sequence, 0)
+	assert_eq(_manager.restore_commits, 0)
+
+func test_quick_load_distinguishes_no_compatible_target_from_technical_restore_refusal() -> void:
+	_save_quick()
+	var persisted: Dictionary = files.snapshot_persisted()
+	var journal: Dictionary = _manager._journal.capture_state()
+	var sequence: int = _manager._backup_action_sequence
+	_manager.restore_unavailable = true
+	for code: StringName in [&"NO_COMPATIBLE_BUNDLE", &"fixture_restore_unavailable"]:
+		_manager.restore_failure_code = code
+		var reason := "no_compatible_checkpoint" if code == &"NO_COMPATIBLE_BUNDLE" else "restore_unavailable"
+		var inspected: Dictionary = _manager.inspect_backup("quick")
+		assert_eq(inspected.value.reason, reason)
+		assert_false(inspected.value.loadable)
+		assert_false(inspected.value.fallback)
+		assert_eq(port.prepare_quick_action("load").status_key, reason)
+		assert_true(_manager._backup_actions.is_empty())
+		assert_true(port._pending.is_empty())
+		assert_eq(_manager._backup_action_sequence, sequence)
+		assert_eq(files.snapshot_persisted(), persisted)
+		assert_eq(_manager._journal.capture_state(), journal)
+	assert_eq(_manager.restore_commits, 0)
 
 func test_authoritative_preparation_fallback_cancels_only_its_new_token() -> void:
 	_manager.final_record_fallback = true
@@ -243,6 +342,21 @@ func _paused_desktop_capture() -> Capture:
 		"route_id": "main", "active_app_id": "minesweeper", "dialogic_checkpoint": {},
 		"audio_context": {}, "content_version": 1}}
 	return capture
+
+func test_reading_marker_alone_cannot_admit_an_unsupported_narrative_save() -> void:
+	var capture := _paused_desktop_capture()
+	capture.result.value.route_id = "dating"
+	capture.result.value.snapshot_input.gameplay["route_context"] = {
+		"active_dating_challenge": {"phase": "pre_challenge", "host": "canonical_solo"}}
+	capture.result.value.dialogic_checkpoint = {"entry_id": "dating.solo.priscilla.day1.pre_challenge",
+		"reading_session": {}}
+	assert_true(_manager.configure_backup_capture_provider(capture.capture).ok)
+	var journal: Dictionary = _manager._journal.capture_state()
+	var persisted: Dictionary = files.snapshot_persisted()
+	assert_false(_manager.get_backup_save_capability().enabled)
+	assert_eq(_manager.prepare_backup_action("save", "quick").code, &"reading_session_invalid")
+	assert_eq(_manager._journal.capture_state(), journal)
+	assert_eq(files.snapshot_persisted(), persisted, "malformed semantic capture writes nothing")
 
 func test_main_minesweeper_without_paused_admission_refuses_before_save_candidate_or_write() -> void:
 	var capture := _paused_desktop_capture()
@@ -350,3 +464,170 @@ func test_legacy_slot_is_replaceable_only_after_explicit_overwrite_confirmation(
 	var committed: Dictionary = port.commit_action(prepared.value.token)
 	assert_true(committed.get("ok", false), str(committed))
 	assert_eq(port.get_projection().value.records[2].state, "occupied")
+
+
+func _quick_equivalence_setup(write_variant: String) -> Capture:
+	_manager.free()
+	files = FILES.new()
+	storage = STORAGE.new("memory/quick-actions", files)
+	gate = GATE.new()
+	_manager = QuickWriteProbe.new()
+	_manager.write_variant = write_variant
+	assert_true(_manager.initialize(storage).get("ok", false))
+	assert_true(_manager.configure_mutation_gate(gate).get("ok", false))
+	_seed()
+	port = PORT.new()
+	assert_true(port.configure(_manager).get("ok", false))
+	var capture := _paused_desktop_capture()
+	# This fixture represents Backup itself; Pause's distinct admission remains
+	# covered by the existing production cases above.
+	capture.result["value"]["active_app_id"] = "backup"
+	assert_true(_manager.configure_backup_capture_provider(capture.capture).get("ok", false))
+	return capture
+
+func _commit_quick_with_proof(prepared: Dictionary) -> Dictionary:
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return {}
+	var token: String = prepared.value.token
+	var candidate: Dictionary = _manager._backup_actions[token].duplicate(true)
+	var emitted: Dictionary = CANONICAL.stringify(candidate.document)
+	assert_true(emitted.get("ok", false), str(emitted))
+	if not emitted.get("ok", false): return {}
+	var expected_text: String = emitted.value + "\n"
+	var helper_before: int = _manager.helper_calls
+	var strict_before: int = _manager.validation_texts.size()
+	var committed: Dictionary = port.commit_action(token)
+	assert_true(committed.get("ok", false), str(committed))
+	if not committed.get("ok", false): return {}
+	var helper_delta: int = _manager.helper_calls - helper_before
+	var strict_delta: int = _manager.validation_texts.size() - strict_before
+	assert_gte(helper_delta, 2, "modern F5 validates outgoing and promoted text through the write helper")
+	assert_eq(strict_delta, 1, "one fresh write memo must strictly admit its exact outgoing text")
+	assert_eq(_manager.validation_texts[strict_before], expected_text)
+	assert_eq(_manager.compact_successes,
+		_manager.helper_calls if _manager.write_variant == "production" else 0,
+		"production executes its compact helper; the frozen baseline returns the full document")
+	var persisted: Dictionary = files.snapshot_persisted()
+	assert_eq(persisted["memory/quick-actions/quicksave.json"], expected_text.to_utf8_buffer())
+	assert_eq(persisted.size(), 1, "successful Quick leaves only the complete final document")
+	var expected_journal: Dictionary = candidate.journal_candidate.duplicate(true)
+	expected_journal.erase("candidate_kind")
+	var journal: Dictionary = _manager._journal.capture_state().value.backup
+	assert_eq(journal, expected_journal, "the prepared capture becomes the exact committed journal")
+	assert_false(port.is_quick_condition_current(prepared.value.condition))
+	assert_true(_manager._backup_actions.is_empty())
+	assert_true(port._pending.is_empty())
+	assert_eq(port.commit_action(token).code, &"stale_backup_action")
+	assert_eq(_manager.commit_backup_action(token).code, &"stale_backup_action")
+	assert_eq(files.snapshot_persisted(), persisted, "consumed consent cannot write again")
+	assert_eq(_manager._journal.capture_state().value.backup, journal)
+	return {"committed": committed, "record": prepared.value.record,
+		"files": persisted, "journal": journal, "helper_calls": helper_delta,
+		"strict_calls": strict_delta}
+
+func test_production_modern_f5_fresh_and_replacement_match_frozen_baseline_bytes_and_journal() -> void:
+	var baseline: Array = []
+	for write_variant: String in ["baseline", "production"]:
+		var capture := _quick_equivalence_setup(write_variant)
+		var outcomes: Array = []
+		for replacement: bool in [false, true]:
+			if replacement: capture.result["value"]["snapshot_input"]["gameplay"]["money"] += 1
+			var inputs: Dictionary = capture.result.duplicate(true)
+			var persisted: Dictionary = files.snapshot_persisted()
+			var journal: Dictionary = _manager._journal.capture_state()
+			var prepared: Dictionary = port.prepare_quick_action("save")
+			assert_true(prepared.get("ok", false), str(prepared))
+			if not prepared.get("ok", false): return
+			assert_false(prepared.value.confirmation_required)
+			assert_eq(prepared.value.confirmation_kind, "none")
+			assert_eq(prepared.value.record.state, "occupied" if replacement else "empty")
+			assert_eq(files.snapshot_persisted(), persisted, "F5 preparation cannot write")
+			assert_eq(_manager._journal.capture_state(), journal, "F5 preparation cannot publish a checkpoint")
+			outcomes.append(_commit_quick_with_proof(prepared))
+			assert_eq(capture.result, inputs, "live capture inputs stay detached")
+		if write_variant == "baseline": baseline = outcomes
+		else: assert_eq(outcomes, baseline, "both modern F5 writes preserve exact public results, bytes and journal")
+
+func test_production_modern_quick_cancel_and_load_consent_stay_single_use() -> void:
+	var baseline: Dictionary = {}
+	for write_variant: String in ["baseline", "production"]:
+		var capture := _quick_equivalence_setup(write_variant)
+		var persisted: Dictionary = files.snapshot_persisted()
+		var journal: Dictionary = _manager._journal.capture_state()
+		var canceled: Dictionary = port.prepare_quick_action("save")
+		assert_true(canceled.get("ok", false), str(canceled))
+		if not canceled.get("ok", false): return
+		port.cancel_action(canceled.value.token)
+		assert_eq(port.commit_action(canceled.value.token).code, &"stale_backup_action")
+		assert_eq(_manager.commit_backup_action(canceled.value.token).code, &"stale_backup_action")
+		assert_eq(_manager.helper_calls, 0, "canceling a prepared F5 never calls the writer")
+		assert_eq(files.snapshot_persisted(), persisted)
+		assert_eq(_manager._journal.capture_state(), journal)
+		var saved := _commit_quick_with_proof(port.prepare_quick_action("save"))
+		if saved.is_empty(): return
+		var helper_before: int = _manager.helper_calls
+		var load_results: Array = []
+		for accept: bool in [false, true]:
+			var prepared: Dictionary = port.prepare_quick_action("load")
+			assert_true(prepared.get("ok", false), str(prepared))
+			if not prepared.get("ok", false): return
+			assert_true(prepared.value.confirmation_required)
+			assert_eq(prepared.value.confirmation_kind, "replace_progress")
+			assert_eq(_manager.restore_commits, 0, "preparing or canceling consent cannot restore")
+			if not accept: port.cancel_action(prepared.value.token)
+			var committed: Dictionary = port.commit_action(prepared.value.token)
+			assert_eq(committed.get("ok", false), accept)
+			load_results.append(committed)
+			assert_eq(port.commit_action(prepared.value.token).code, &"stale_backup_action")
+			assert_eq(_manager.commit_backup_action(prepared.value.token).code, &"stale_backup_action")
+		assert_eq(_manager.restore_commits, 1)
+		assert_eq(_manager.helper_calls, helper_before, "Quick Load never invokes the write-only helper")
+		assert_eq(files.snapshot_persisted(), saved.files)
+		assert_eq(_manager._journal.capture_state().value.backup, saved.journal)
+		assert_true(_manager._backup_actions.is_empty())
+		assert_true(port._pending.is_empty())
+		var result := {"saved": saved, "loads": load_results, "capture": capture.result,
+			"restores": _manager.restore_commits}
+		if write_variant == "baseline": baseline = result
+		else: assert_eq(result, baseline)
+
+func _quick_stale_receipt(write_variant: String, changed: String) -> Dictionary:
+	var capture := _quick_equivalence_setup(write_variant)
+	var prepared: Dictionary = port.prepare_quick_action("save")
+	assert_true(prepared.get("ok", false), str(prepared))
+	if not prepared.get("ok", false): return {}
+	match changed:
+		"stable": _advance_source()
+		"capture": capture.result["value"]["snapshot_input"]["gameplay"]["money"] += 1
+		"target": files._persisted["memory/quick-actions/quicksave.json"] = "external replacement".to_utf8_buffer()
+	var persisted: Dictionary = files.snapshot_persisted()
+	var journal: Dictionary = _manager._journal.capture_state()
+	assert_false(port.is_quick_condition_current(prepared.value.condition), changed)
+	var committed: Dictionary = port.commit_action(prepared.value.token)
+	assert_false(committed.get("ok", false), changed)
+	assert_eq(committed.status_key, "unavailable")
+	assert_eq(_manager.helper_calls, 0, "stale " + changed + " refuses before entering the write helper")
+	assert_true(_manager.validation_texts.is_empty())
+	assert_true(_manager._backup_actions.is_empty())
+	assert_true(port._pending.is_empty())
+	assert_eq(port.commit_action(prepared.value.token).code, &"stale_backup_action")
+	assert_eq(_manager.commit_backup_action(prepared.value.token).code, &"stale_backup_action")
+	assert_eq(files.snapshot_persisted(), persisted)
+	assert_eq(_manager._journal.capture_state(), journal)
+	assert_false(_manager._pending_deferred_save)
+	# Quick conditions intentionally bind each owner instance; compare the public
+	# refusal and preserved state, never another owner's opaque signature.
+	return {"code": committed.code, "status_key": committed.status_key,
+		"files": persisted, "journal": journal}
+
+func test_production_modern_f5_stale_checkpoint_refusal_matches_frozen_baseline() -> void:
+	var baseline := _quick_stale_receipt("baseline", "stable")
+	assert_eq(_quick_stale_receipt("production", "stable"), baseline)
+
+func test_production_modern_f5_stale_capture_refusal_matches_frozen_baseline() -> void:
+	var baseline := _quick_stale_receipt("baseline", "capture")
+	assert_eq(_quick_stale_receipt("production", "capture"), baseline)
+
+func test_production_modern_f5_stale_target_refusal_matches_frozen_baseline() -> void:
+	var baseline := _quick_stale_receipt("baseline", "target")
+	assert_eq(_quick_stale_receipt("production", "target"), baseline)

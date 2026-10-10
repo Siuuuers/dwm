@@ -1,0 +1,344 @@
+{
+  "auditor_identity": {
+    "bytes": 14937,
+    "sha256": "fbc0c3e271071df494376c9fcb5aa187d97e979ccbe67944916ecb6ac65374fc"
+  },
+  "baseline": "2254d6956de778cc54aa42fe610bcdf94f5301a5",
+  "bounded_settings_f9_acceptance": true,
+  "canonical_successful_job_count": 23,
+  "complete_discovery_counts": {
+    "case_executions": 2313,
+    "script_executions": 196,
+    "unique_cases": 2309,
+    "unique_scripts": 195,
+    "xml_count": 13
+  },
+  "component_bindings": {
+    "discovery": {
+      "auditor": {
+        "bytes": 13000,
+        "file": "audit_settings_load_inventory.py",
+        "sha256": "7b6e62ddcef5b0633a7b3c6fc8db5c6edd6be6bf6749d99ae6a7d28576043f5b"
+      },
+      "bytes": 871964,
+      "file": "audit/settings-load-discovery-audit.json",
+      "sha256": "df735f1e0a86eed70c6fcfeaa536d9b18a904477c3d6fa78e30d464e3a7d8c30"
+    },
+    "f9": {
+      "auditor": {
+        "bytes": 36830,
+        "file": "audit_settings_load_journey_v3.py",
+        "sha256": "efbb297dc1ece082d3c637add08f60dd57db392f5070f004be0eb038414b269a"
+      },
+      "bytes": 32279,
+      "file": "audit/settings-load-journey-v3-audit.json",
+      "sha256": "f44ff8212821c670e710aa043b99ceb60b69b8cfbb24ffcd2a935cb8de039c9b"
+    },
+    "physical_v2": {
+      "auditor": {
+        "bytes": 35924,
+        "file": "audit_physical_selector_journey.py",
+        "sha256": "df20b8cc91daedb3fbc909b376539369e04174e196e2f8496818593016af1d1c"
+      },
+      "bytes": 8584,
+      "file": "audit/physical-selector-journey-audit.json",
+      "sha256": "e6a8d351ff179963a5c5cfb5437013aa9a0d7a234375a20c670aff5123f89f91"
+    },
+    "public": {
+      "auditor": {
+        "bytes": 13000,
+        "file": "audit_settings_load_inventory.py",
+        "sha256": "7b6e62ddcef5b0633a7b3c6fc8db5c6edd6be6bf6749d99ae6a7d28576043f5b"
+      },
+      "bytes": 1010456,
+      "file": "audit/settings-load-public-audit.json",
+      "sha256": "23e1045e4b6fba5c15688a2ed227f0093175237ab45a343fc30ed95000f22680"
+    }
+  },
+  "generic_audit": {
+    "bytes": 510958,
+    "file": "audit/generic-evidence-audit.json",
+    "sha256": "a59bdd4251bd6ec08f313548646f7d8bbd3da4fe4aebbce0c2b155b1079e171f"
+  },
+  "limits": [
+    "Bounded Settings F9 increment only. Every required component belongs to this exact successful canonical run; earlier focused/failed runs confer no final acceptance.",
+    "Original eight-mode catalogue-v1, F5 writer/reader and bounded physical catalogue-v2 remain separately scoped; this join does not widen their literal or history guarantees.",
+    "Recovery proof includes exact primary-file neutrality, existing internal bookkeeping and raw endpoints; it does not establish arbitrary-filesystem or actual OS-crash behavior.",
+    "Other canonical jobs are linked at observed command/step-success scope. This join does not repeat their historical independent auditor forest.",
+    "Linux software rendering and Windows automated tests do not establish all native input/accessibility, production replay, final visual polish, or completion of every Beads task."
+  ],
+  "other_canonical_job_scoped_passes": [
+    {
+      "execution_job_id": 110755020157,
+      "log": "logs/110755020157.log",
+      "log_identity": {
+        "bytes": 498886,
+        "sha256": "65524ee61e471b2ebb9a24132cd74b960f675df0f95af945df610e41b8ad7155"
+      },
+      "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+      "scope": "Canonical cloud command/step success; no additional independent payload semantics claimed by this join.",
+      "successful_steps": [
+        "Set up job",
+        "Run actions/checkout@v7",
+        "Prepare disposable checkout for credential cleanup",
+        "Install Godot and software display",
+        "Start and verify native Linux speech service",
+        "Upload native speech environment evidence",
+        "Import project",
+        "Exercise complete rendered journeys in fresh isolated profiles",
+        "Upload journey reports, logs and screenshots",
+        "Exercise real Solo reading Save and fresh-process Load",
+        "Upload Solo reading reports, exact save bytes and screenshots",
+        "Exercise authored Solo selectors through physical Save and fresh-process Load",
+        "Upload authored Solo selector reports, exact save bytes and screenshots",
+        "Post Run actions/checkout@v7",
+        "Complete job"
+      ]
+    },
+    {
+      "execution_job_id": 110755020211,
+      "log": "logs/110755020211.log",
+      "log_identity": {
+        "bytes": 453932,
+        "sha256": "e1ede1fdc0e93639065257b5b493a3bbb35756d1b7ddd283c77e8dd897dafcba"
+      },
+      "name": "Windows / paired checkpoint performance",
+      "scope": "Canonical cloud command/step success; no additional independent payload semantics claimed by this join.",
+      "successful_steps": [
+        "Set up job",
+        "Run actions/checkout@v7",
+        "Prepare disposable checkout for credential cleanup",
+        "Install Godot 4.6.3 standard",
+        "Import project",
+        "Restore committed project settings after editor import",
+        "Measure localized journeys and matched payloads",
+        "Share current localized payloads",
+        "Upload paired performance evidence",
+        "Post Run actions/checkout@v7",
+        "Complete job"
+      ]
+    },
+    {
+      "execution_job_id": 110755020260,
+      "log": "logs/110755020260.log",
+      "log_identity": {
+        "bytes": 450174,
+        "sha256": "880677e6b1819829657b1aa7cb424d16cbd94899f8218536f1a911c35202dbf5"
+      },
+      "name": "Windows / exported release startup",
+      "scope": "Canonical cloud command/step success; no additional independent payload semantics claimed by this join.",
+      "successful_steps": [
+        "Set up job",
+        "Run actions/checkout@v7",
+        "Prepare disposable checkout for credential cleanup",
+        "Install Godot 4.6.3 standard",
+        "Import project",
+        "Restore committed project settings after editor import",
+        "Cache pinned export templates",
+        "Download verified Godot export templates",
+        "Export and launch isolated Windows executable",
+        "Upload Windows validation build and evidence",
+        "Post Run actions/checkout@v7",
+        "Complete job"
+      ]
+    },
+    {
+      "execution_job_id": 110755020387,
+      "log": "logs/110755020387.log",
+      "log_identity": {
+        "bytes": 599614,
+        "sha256": "3cc40792ee8f6fc2eebfd510e25c974d7e4d032db3cd1e525ae255ed88bec0f5"
+      },
+      "name": "Rendered desktop and dialogue / Linux software OpenGL",
+      "scope": "Canonical cloud command/step success; no additional independent payload semantics claimed by this join.",
+      "successful_steps": [
+        "Set up job",
+        "Run actions/checkout@v7",
+        "Prepare disposable checkout for credential cleanup",
+        "Install Godot and software display",
+        "Start and verify native Linux speech service",
+        "Upload native speech environment evidence",
+        "Import project",
+        "Render and verify desktop scaling",
+        "Upload rendered evidence",
+        "Render and verify delivery and dialogue",
+        "Upload delivery and dialogue evidence",
+        "Render and verify Angela stat overlay",
+        "Upload Angela stat overlay evidence",
+        "Validate Japanese and Korean catalogs",
+        "Render and verify Japanese and Korean UI",
+        "Upload Japanese and Korean UI evidence",
+        "Render and verify font choices",
+        "Upload font-choice evidence",
+        "Verify rendered startup and Logout consent",
+        "Upload rendered startup and Logout evidence",
+        "Audit all UI literal ownership",
+        "Upload UI literal audit evidence",
+        "Post Run actions/checkout@v7",
+        "Complete job"
+      ]
+    },
+    {
+      "execution_job_id": 110755020394,
+      "log": "logs/110755020394.log",
+      "log_identity": {
+        "bytes": 788617,
+        "sha256": "0120ed67a2452217c042beafc35d454a74dd82d05238c75f3ef09cab2d43e034"
+      },
+      "name": "Windows / seven-day retained history producer",
+      "scope": "Canonical cloud command/step success; no additional independent payload semantics claimed by this join.",
+      "successful_steps": [
+        "Set up job",
+        "Run actions/checkout@v7",
+        "Prepare disposable checkout for credential cleanup",
+        "Install Godot 4.6.3 standard",
+        "Import project",
+        "Restore committed project settings after editor import",
+        "Measure seven days and saturated retained history",
+        "Record Day7 consumer input provenance",
+        "Share verified Day7 consumer inputs",
+        "Upload seven-day history evidence",
+        "Post Run actions/checkout@v7",
+        "Complete job"
+      ]
+    },
+    {
+      "execution_job_id": 110759843419,
+      "log": "logs/110759843419.log",
+      "log_identity": {
+        "bytes": 1998334,
+        "sha256": "d776cede99ffba99b6c063923fe7e149a075e796438dbd1c6782ac433255b369"
+      },
+      "name": "Windows / warm-outgoing-proof comparison",
+      "scope": "Canonical cloud command/step success; no additional independent payload semantics claimed by this join.",
+      "successful_steps": [
+        "Set up job",
+        "Run actions/checkout@v7",
+        "Prepare disposable checkout for credential cleanup",
+        "Install Godot 4.6.3 standard",
+        "Import project",
+        "Restore committed project settings after editor import",
+        "Download exact Day7 producer inputs",
+        "Verify Day7 checkout, run, attempt, hashes and recovered identity",
+        "Run isolated retained-history comparison",
+        "Upload comparison raw evidence and input provenance",
+        "Post Run actions/checkout@v7",
+        "Complete job"
+      ]
+    },
+    {
+      "execution_job_id": 110759843484,
+      "log": "logs/110759843484.log",
+      "log_identity": {
+        "bytes": 507142,
+        "sha256": "047c4d381a315c94f2c406736900136ef78a7b7aff5a1d8c32d8284311703cf3"
+      },
+      "name": "Windows / lazy-normalization comparison",
+      "scope": "Canonical cloud command/step success; no additional independent payload semantics claimed by this join.",
+      "successful_steps": [
+        "Set up job",
+        "Run actions/checkout@v7",
+        "Prepare disposable checkout for credential cleanup",
+        "Install Godot 4.6.3 standard",
+        "Import project",
+        "Restore committed project settings after editor import",
+        "Download exact Day7 producer inputs",
+        "Verify Day7 checkout, run, attempt, hashes and recovered identity",
+        "Run isolated retained-history comparison",
+        "Upload comparison raw evidence and input provenance",
+        "Post Run actions/checkout@v7",
+        "Complete job"
+      ]
+    },
+    {
+      "execution_job_id": 110759843486,
+      "log": "logs/110759843486.log",
+      "log_identity": {
+        "bytes": 845801,
+        "sha256": "97927b9b651334226b740d72d507274b6d6337cf121afd5295d4aaac2b91031e"
+      },
+      "name": "Windows / history-region-search comparison",
+      "scope": "Canonical cloud command/step success; no additional independent payload semantics claimed by this join.",
+      "successful_steps": [
+        "Set up job",
+        "Run actions/checkout@v7",
+        "Prepare disposable checkout for credential cleanup",
+        "Install Godot 4.6.3 standard",
+        "Import project",
+        "Restore committed project settings after editor import",
+        "Download exact Day7 producer inputs",
+        "Verify Day7 checkout, run, attempt, hashes and recovered identity",
+        "Run isolated retained-history comparison",
+        "Upload comparison raw evidence and input provenance",
+        "Post Run actions/checkout@v7",
+        "Complete job"
+      ]
+    },
+    {
+      "execution_job_id": 110759843529,
+      "log": "logs/110759843529.log",
+      "log_identity": {
+        "bytes": 471037,
+        "sha256": "4e9334174402b05f906ae6e5666c581d7f5206e15a1ff0b977ab1be9c39f1db2"
+      },
+      "name": "Windows / outgoing-normalization comparison",
+      "scope": "Canonical cloud command/step success; no additional independent payload semantics claimed by this join.",
+      "successful_steps": [
+        "Set up job",
+        "Run actions/checkout@v7",
+        "Prepare disposable checkout for credential cleanup",
+        "Install Godot 4.6.3 standard",
+        "Import project",
+        "Restore committed project settings after editor import",
+        "Download exact Day7 producer inputs",
+        "Verify Day7 checkout, run, attempt, hashes and recovered identity",
+        "Download current localized payloads for outgoing comparison",
+        "Run isolated retained-history comparison",
+        "Upload comparison raw evidence and input provenance",
+        "Post Run actions/checkout@v7",
+        "Complete job"
+      ]
+    },
+    {
+      "execution_job_id": 110765206918,
+      "log": "logs/110765206918.log",
+      "log_identity": {
+        "bytes": 2576,
+        "sha256": "80dbfd2f170acb44a5f8a42e8c6cf733192860ba73dc7f7d05d8cf41cc196ef8"
+      },
+      "name": "Windows / seven-day retained history",
+      "scope": "Canonical cloud command/step success; no additional independent payload semantics claimed by this join.",
+      "successful_steps": [
+        "Set up job",
+        "Require the Day7 producer and all four comparison jobs",
+        "Complete job"
+      ]
+    }
+  ],
+  "predecessor_auditor_identity": {
+    "bytes": 14633,
+    "path": "join_settings_f9_acceptance.py",
+    "sha256": "93a3272f8ce1ba9960bd682008b50298b5c8fb2a16338a355145691d7d6e72e7"
+  },
+  "registered_case_identities_report": {
+    "auditor": {
+      "bytes": 13000,
+      "file": "audit_settings_load_inventory.py",
+      "sha256": "7b6e62ddcef5b0633a7b3c6fc8db5c6edd6be6bf6749d99ae6a7d28576043f5b"
+    },
+    "bytes": 871964,
+    "file": "audit/settings-load-discovery-audit.json",
+    "sha256": "df735f1e0a86eed70c6fcfeaa536d9b18a904477c3d6fa78e30d464e3a7d8c30"
+  },
+  "run_attempt": 1,
+  "run_id": 36980559297,
+  "schema_version": 1,
+  "source": "41cc51992b74ec9472f7912e0eb8e1c39679af44",
+  "source_provenance": {
+    "bytes": 14275,
+    "file": "audit/source-provenance.json",
+    "sha256": "25af5354b558f8940dcb7fb83982c915768e909702473a369f67c38df27cdb62"
+  },
+  "tested_checkout": "705ea660b4d6ee9f3376ae4660a3d50e65fe5502",
+  "workflow_head": "41cc51992b74ec9472f7912e0eb8e1c39679af44"
+}

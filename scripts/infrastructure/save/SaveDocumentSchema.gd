@@ -10,7 +10,7 @@ extends RefCounted
 ## `RunSnapshotSchema.validate()` -- so a document/embedded-snapshot version mismatch can never both
 ## pass: whichever one carries the wrong integer is rejected by its own owning check.
 
-const DOCUMENT_VERSION := 6
+const DOCUMENT_VERSION := 7
 
 const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 
@@ -49,23 +49,34 @@ static func build(
 		current_bundle: Dictionary,
 		journal: Array,
 		saved_time: Dictionary = {},
-		proven_journal: Array = []
+		proven_journal: Array = [],
+		profile: Dictionary = {}
 ) -> Dictionary:
+	# Optional caller-owned diagnostics only. Timers never enter the returned document.
+	var tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 	var discriminator_error := _validate_discriminators(String(kind), slot_id, String(save_reason))
+	tick = _profile_phase(profile, "document_schema_discriminators_us", tick)
 	if discriminator_error != "":
 		return _fail(&"invalid_discriminator", discriminator_error)
 	var proven := _journal_is_proven(journal, proven_journal)
+	tick = _profile_phase(profile, "document_schema_proof_selection_us", tick)
+	if not profile.is_empty(): profile["document_schema_journal_proven"] = proven
 	# Only the internal builder converts immutable engine text; external validation stays strict.
 	current_bundle = _normalize_engine_text(current_bundle)
+	tick = _profile_phase(profile, "document_schema_normalize_current_us", tick)
 	if not proven:
 		journal = _normalize_engine_text(journal)
+	tick = _profile_phase(profile, "document_schema_normalize_journal_us", tick)
 	var bundle_error := _validate_bundle(current_bundle)
+	tick = _profile_phase(profile, "document_schema_validate_current_us", tick)
 	if not bundle_error.get("ok", false):
 		return bundle_error
 	if not proven:
 		var journal_error := _validate_journal(journal)
 		if journal_error != "":
+			_profile_phase(profile, "document_schema_validate_journal_us", tick)
 			return _fail(&"invalid_recovery_journal", journal_error)
+	tick = _profile_phase(profile, "document_schema_validate_journal_us", tick)
 	# The builder already proved its discriminators, current bundle and journal above. Its fixed
 	# envelope cannot gain unknown members; only optional metadata remains to check. So normalize
 	# each member AS the document is composed, in the same member order, and pass the current
@@ -93,15 +104,18 @@ static func build(
 		"recovery_journal": (_proven_entries(proven_journal) if proven
 			else RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(journal)),
 	}
+	tick = _profile_phase(profile, "document_schema_compose_us", tick)
 	if not saved_time.is_empty():
 		document["saved_time"] = RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(
 			saved_time.duplicate(true))
 	if document.has("saved_time") and not validate_saved_time(document["saved_time"]):
+		_profile_phase(profile, "document_schema_metadata_us", tick)
 		return _fail(&"invalid_saved_time", "saved_time must bind a UTC instant, original offset, and frozen HH:MM")
+	_profile_phase(profile, "document_schema_metadata_us", tick)
 	return {"ok": true, "code": &"ok", "value": document}
 
-static func validate(document: Dictionary) -> Dictionary:
-	return _validate_document(document, [], false)
+static func validate(document: Dictionary, profile: Dictionary = {}) -> Dictionary:
+	return _validate_document(document, [], false, profile)
 
 ## `validate()` for an outgoing document whose `recovery_journal` bytes are NOT being emitted from
 ## the document itself. The checkpoint port splices each journal entry's bytes from the text its own
@@ -125,11 +139,24 @@ static func validate(document: Dictionary) -> Dictionary:
 ## - The composed Array is deliberately UNTYPED, exactly as `_normalize_integral_floats()` rebuilds
 ##   every Array: a proven journal handed in as `Array[Dictionary]` must not leak its typedness into
 ##   a candidate that is supposed to match a strict re-parse of JSON.
-static func validate_outgoing(document: Dictionary, proven_journal: Array) -> Dictionary:
-	return _validate_document(document, proven_journal, true)
+static func validate_outgoing(document: Dictionary, proven_journal: Array,
+		profile: Dictionary = {}) -> Dictionary:
+	return _validate_document(document, proven_journal, true, profile)
+
+## Internal splice adapter: the port collected each normalized document proof from the journal
+## under the SAME checkpoint id as its raw bundle and exact spliced text. These journal-owned
+## proofs were normalized before their bytes were proven, never mutated in place, and share the
+## text's retention/reset/restore lifetime. A complete set needs only detached composition; an
+## absent, partial or text-only set retains validate_outgoing()'s raw normalization unchanged.
+static func _validate_outgoing_document_proofs(document: Dictionary, proven_journal: Array,
+		proven_documents: Array, profile: Dictionary = {}) -> Dictionary:
+	if _journal_is_proven(proven_journal, proven_documents):
+		return _validate_document(document, proven_documents, true, profile, true)
+	return validate_outgoing(document, proven_journal, profile)
 
 static func _validate_document(document: Dictionary, proven_journal: Array,
-		use_proven_journal: bool) -> Dictionary:
+		use_proven_journal: bool, profile: Dictionary = {}, normalized_proofs: bool = false) -> Dictionary:
+	var tick := Time.get_ticks_usec() if not profile.is_empty() else 0
 	# Normalize each envelope member, and NEVER the current bundle: its `snapshot` is rebuilt by
 	# `_validate_bundle()` -> `RunSnapshotSchema.validate()`, which normalizes it itself, and that
 	# candidate overwrites whatever a whole-document walk would have produced here. The caller's
@@ -142,10 +169,13 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 	# order, and every check below still runs where it ran before.
 	var candidate := {}
 	for key: Variant in document:
-		if key == "current_snapshot":
+		# The outgoing splice replaces the caller's journal with proven bundles below;
+		# retain only its container here so the existing array check keeps its order.
+		if key == "current_snapshot" or (use_proven_journal and key == "recovery_journal"):
 			candidate[key] = document[key]
 		else:
 			candidate[key] = RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(document[key])
+	tick = _profile_phase(profile, "outgoing_schema_envelope_normalize_us", tick)
 	var keys: Array = candidate.keys()
 	keys.sort()
 	var expected := DOCUMENT_KEYS.duplicate()
@@ -168,8 +198,10 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 		return _fail(&"invalid_discriminator", discriminator_error)
 	if typeof(candidate["current_snapshot"]) != TYPE_DICTIONARY:
 		return _fail(&"invalid_document_shape", "current_snapshot must be an object")
+	tick = _profile_phase(profile, "outgoing_schema_shape_us", tick)
 	var current_bundle: Dictionary = candidate["current_snapshot"]
 	var bundle_result := _validate_bundle(current_bundle)
+	tick = _profile_phase(profile, "outgoing_schema_validate_current_us", tick)
 	if not bundle_result.get("ok", false):
 		return bundle_result
 	# `_validate_bundle()` proved this bundle holds exactly `checkpoint_kind` and `snapshot`, so
@@ -183,19 +215,32 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 	}
 	if typeof(candidate["recovery_journal"]) != TYPE_ARRAY:
 		return _fail(&"invalid_document_shape", "recovery_journal must be an array")
+	tick = _profile_phase(profile, "outgoing_schema_compose_current_us", tick)
 	if use_proven_journal:
 		# The document's own entries are not validated here because they are not what is being
 		# written: the caller's proven bundles are, one per entry, in this order. See
 		# `validate_outgoing()` for the obligation that carries and the equivalence it rests on.
 		var composed: Array = []
-		for bundle: Variant in proven_journal:
-			composed.append(_normalize_engine_text(bundle))
+		if normalized_proofs:
+			composed = _proven_entries(proven_journal)
+		else:
+			for bundle: Variant in proven_journal:
+				composed.append(_normalize_engine_text(bundle))
 		candidate["recovery_journal"] = composed
+		_profile_phase(profile, "outgoing_schema_compose_proven_journal_us", tick)
 		return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
 	var journal_error := _validate_journal(candidate["recovery_journal"])
+	_profile_phase(profile, "outgoing_schema_validate_journal_us", tick)
 	if journal_error != "":
 		return _fail(&"invalid_recovery_journal", journal_error)
 	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
+
+## These subphases are nested inside the checkpoint port's inclusive schema timers.
+static func _profile_phase(profile: Dictionary, phase: String, started_us: int) -> int:
+	if profile.is_empty(): return 0
+	var now := Time.get_ticks_usec()
+	profile[phase] = now - started_us
+	return now
 
 static func prepare_candidate(document: Dictionary) -> Dictionary:
 	return validate(document)
@@ -296,26 +341,32 @@ static func _normalize_engine_text(value: Variant) -> Variant:
 		TYPE_STRING_NAME: return String(value)
 		TYPE_ARRAY:
 			var source_array: Array = value
-			var array: Array = []
-			var array_converted := false
-			for element: Variant in source_array:
+			var array: Variant = null
+			for index: int in source_array.size():
+				var element: Variant = source_array[index]
 				var normalized_element: Variant = _normalize_engine_text(element)
-				if not is_same(normalized_element, element):
-					array_converted = true
-				array.append(normalized_element)
-			return array if array_converted else source_array
+				if array == null and not is_same(normalized_element, element):
+					array = []
+					for prior: int in index:
+						array.append(source_array[prior])
+				if array != null: array.append(normalized_element)
+			return source_array if array == null else array
 		TYPE_DICTIONARY:
 			var source_dictionary: Dictionary = value
-			var dictionary := {}
-			var dictionary_converted := false
+			var dictionary: Variant = null
+			var visited := 0
 			for raw_key: Variant in source_dictionary:
 				var key: Variant = String(raw_key) if typeof(raw_key) == TYPE_STRING_NAME else raw_key
-				if not is_same(key, raw_key):
-					dictionary_converted = true
 				var member: Variant = source_dictionary[raw_key]
 				var normalized_member: Variant = _normalize_engine_text(member)
-				if not is_same(normalized_member, member):
-					dictionary_converted = true
-				dictionary[key] = normalized_member
-			return dictionary if dictionary_converted else source_dictionary
+				if dictionary == null and (not is_same(key, raw_key) or not is_same(normalized_member, member)):
+					dictionary = {}
+					var copied := 0
+					for prior_key: Variant in source_dictionary:
+						if copied == visited: break
+						dictionary[prior_key] = source_dictionary[prior_key]
+						copied += 1
+				if dictionary != null: dictionary[key] = normalized_member
+				visited += 1
+			return source_dictionary if dictionary == null else dictionary
 	return value

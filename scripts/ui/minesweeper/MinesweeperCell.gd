@@ -9,6 +9,8 @@ const A11Y := {
 	"en":{"none":"","flag":"Flag","mine":"Mine","exploded":"Exploded mine","correct_flag":"Correct flag","incorrect_flag":"Incorrect flag","marked_mine":"Marked mine","marked_flag":"Marked flag"},
 	"zh-CN":{"none":"","flag":"旗帜","mine":"地雷","exploded":"爆炸的地雷","correct_flag":"正确旗帜","incorrect_flag":"错误旗帜","marked_mine":"标记地雷","marked_flag":"标记旗帜"},
 	"zh-HK":{"none":"","flag":"旗幟","mine":"地雷","exploded":"爆炸的地雷","correct_flag":"正確旗幟","incorrect_flag":"錯誤旗幟","marked_mine":"標記地雷","marked_flag":"標記旗幟"},
+	"ja": {"none": "", "flag": "旗", "mine": "地雷", "exploded": "爆発した地雷", "correct_flag": "正しい旗", "incorrect_flag": "誤った旗", "marked_mine": "印付きの地雷", "marked_flag": "印付きの旗"},
+	"ko": {"none": "", "flag": "깃발", "mine": "지뢰", "exploded": "폭발한 지뢰", "correct_flag": "올바른 깃발", "incorrect_flag": "잘못된 깃발", "marked_mine": "표시된 지뢰", "marked_flag": "표시된 깃발"},
 }
 
 var public_cell: Dictionary = {}
@@ -26,9 +28,9 @@ func _ready() -> void:
 	_resize()
 
 func configure(locale: String = "en", percent: int = 100, large: bool = false, palette: StringName = &"after_hours",
-		high_contrast: bool = false, colour_preset: String = "standard") -> bool:
+		high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel", day: int = 1) -> bool:
 	locale = locale.replace("_","-")
-	var candidate: Theme = MINESWEEPER_THEME.build(locale,percent,palette,high_contrast,colour_preset)
+	var candidate: Theme = MINESWEEPER_THEME.build(locale,percent,palette,high_contrast,colour_preset,font_style,day)
 	if candidate == null: return false
 	_locale = locale
 	_large = large
@@ -152,8 +154,8 @@ func _draw_public_mark(covered: bool) -> void:
 		var baseline: Vector2 = aperture.position+Vector2((aperture.size.x-measure.x)/2.0,(aperture.size.y-ascent-descent)/2.0+ascent)
 		baseline = (baseline/2.0).round()*2.0
 		# Source Han's numeral ink sits below its typographic centre. Lift one native pixel;
-		# keep the complete 20/25/30 logical font size and the fixed aperture (GPU atlas proof).
-		if _locale != "en": baseline.y -= 2
+		# retain the complete theme font size and the fixed aperture.
+		if font.get_font_name().begins_with("Source Han Sans"): baseline.y -= 2
 		draw_string(font,baseline,text,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size,ink)
 
 func _numeral_font_size() -> int:

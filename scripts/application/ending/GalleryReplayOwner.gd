@@ -45,13 +45,14 @@ func get_variants(ending_id: String) -> Dictionary:
 			return _fail(&"gallery_record_unavailable")
 		if not _entry_available(located.value): return _fail(&"gallery_record_unavailable")
 		variants.append(record.duplicate(true))
-	return {"ok":true, "value":{"records":variants}}
+	return {"ok":true, "value":{"records":variants, "chronology": _variant_chronology(reached.value, variants)}}
 
 ## No new Gallery discovery identities: these are exact already-reached callable scenes.
 func get_reached_entry_variants(entry_id: String = "") -> Dictionary:
 	if _profile == null: return _fail(&"gallery_replay_unavailable")
 	if not _profile.has_method("has_completed_ending") or not _profile.has_completed_ending():
-		return {"ok": true, "value": {"records": [], "entry_ids": []}}
+		return {"ok": true, "value": {"records": [], "entry_ids": [],
+			"chronology": {"first_witnessed": [], "legacy_unordered": []}}}
 	var reached: Dictionary = _profile.get_reached_presentations()
 	if not reached.get("ok", false): return reached
 	var variants: Array[Dictionary] = []
@@ -68,12 +69,20 @@ func get_reached_entry_variants(entry_id: String = "") -> Dictionary:
 			if not entry_id.is_empty(): return _fail(&"gallery_record_unavailable")
 			continue
 		variants.append(record.duplicate(true))
-	variants.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		var left: String = str(a.signature.entry_id) + ":" + str(a.signature_id)
-		var right: String = str(b.signature.entry_id) + ":" + str(b.signature_id)
-		return left < right)
 	entry_ids.sort()
-	return {"ok": true, "value": {"records": variants, "entry_ids": entry_ids}}
+	return {"ok": true, "value": {"records": variants, "entry_ids": entry_ids,
+		"chronology": _variant_chronology(reached.value, variants)}}
+
+## Filters owner-provided provenance without interpreting a signature digest as chronology.
+func _variant_chronology(source: Dictionary, variants: Array[Dictionary]) -> Dictionary:
+	var result := {"first_witnessed": [], "legacy_unordered": []}
+	var selected := {}
+	for record: Dictionary in variants: selected[record.signature_id] = true
+	var chronology: Dictionary = source.get("chronology", {})
+	for partition: String in result:
+		for identity: String in chronology.get(partition, []):
+			if selected.has(identity): result[partition].append(identity)
+	return result
 
 func _is_date_record(entry: Dictionary) -> bool:
 	var parts := str(entry.entry_id).split(".")

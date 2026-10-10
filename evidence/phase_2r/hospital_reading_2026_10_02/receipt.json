@@ -1,0 +1,678 @@
+{
+  "schema_version": 1,
+  "document_id": "hospital_reading_broad2_2026_10_02",
+  "status": "accepted_bounded_hospital_integration_with_explicit_exporter_lifetime_exclusion",
+  "canonical_broad_acceptance": true,
+  "whole_game_acceptance": false,
+  "pr_test_merge_acceptance": false,
+  "acceptance_meaning": "All current canonical job definitions executed successfully in one auxiliary-branch attempt, with raw artifacts and independent bounded audits. This is not a PR test-merge, production-content or whole-game acceptance.",
+  "recorded_date_utc": "2026-10-02",
+  "recorded_date_asia_hong_kong": "2026-10-03",
+  "engine": "Godot 4.6.3 standard GDScript",
+  "execution_policy": {
+    "godot_and_powershell": "GitHub Actions only",
+    "local_work": "Static Python/Git and artifact/hash/semantic/visual review; no local engine or PowerShell"
+  },
+  "source_boundary": {
+    "all_unlisted_paths_byte_identical": true,
+    "checkout_parents": [
+      "1bc4f6afd759e969f82b9c2134eb178479c19d13",
+      "a24f71766a624b57601814dda487b53c66518c39"
+    ],
+    "explicit_allowed_difference_patterns": [
+      ".github/workflows/hospital-reading-cloud.yml"
+    ],
+    "master": null,
+    "source": "a24f71766a624b57601814dda487b53c66518c39",
+    "source_checkout_differences": [
+      {
+        "checkout_blob": "f2fd4a8a2029dd465dbcd10c73651caa2f36841d",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": ".github/workflows/hospital-reading-cloud.yml",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      }
+    ],
+    "tested_checkout": "c9c013397f2e309b48fc1548490b401e54938c6c"
+  },
+  "source_tree": "173218aacfb79c580f2a593d864fb625a84aa076",
+  "tested_checkout_tree": "fe94308c9de9dadfe6cd2a2e7351d054cbae1960",
+  "workflow": {
+    "path": ".github/workflows/hospital-reading-cloud.yml",
+    "canonical_path": ".github/workflows/windows-tests.yml",
+    "derivation": {
+      "changed_top_level_sections": [
+        "name",
+        "on",
+        "concurrency"
+      ],
+      "canonical_jobs_block": {
+        "bytes": 62234,
+        "sha256": "0324e5a3c8f07b54696552abc2ccd4b6e19551398621a7003c1fac64e5ab4b1e"
+      },
+      "derived_jobs_block": {
+        "bytes": 62234,
+        "sha256": "0324e5a3c8f07b54696552abc2ccd4b6e19551398621a7003c1fac64e5ab4b1e"
+      },
+      "jobs_byte_identical": true,
+      "jobs_semantically_identical": true,
+      "all_other_top_level_sections_byte_identical": true
+    },
+    "manifest": {
+      "path": "hospital-broad2.yml.manifest.json",
+      "bytes": 1486413,
+      "sha256": "ac48742e1cbf7e60aa1b952a49815a3fb7135324806437eba2eac9a1b9741f63",
+      "archive": "broad2-independent-audits.tar.gz",
+      "archive_member": "hospital-broad2.yml.manifest.json"
+    },
+    "master_is_not_a_direct_parent_of_this_auxiliary_test_commit": true
+  },
+  "run": {
+    "conclusion": "success",
+    "event": "push",
+    "head_branch": "codex/hospital-reading-cloud-20261002",
+    "head_sha": "c9c013397f2e309b48fc1548490b401e54938c6c",
+    "html_url": "https://github.com/Siuuuers/dwm/actions/runs/37048318182",
+    "id": 37048318182,
+    "run_attempt": 1,
+    "run_number": 7,
+    "status": "completed"
+  },
+  "jobs": [
+    {
+      "id": 110975144104,
+      "name": "Windows / public API surface contracts",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "checkout_shas": [
+        "c9c013397f2e309b48fc1548490b401e54938c6c"
+      ],
+      "checkout_exemption": null
+    },
+    {
+      "id": 110976704690,
+      "name": "Windows / exported release startup",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "checkout_shas": [
+        "c9c013397f2e309b48fc1548490b401e54938c6c"
+      ],
+      "checkout_exemption": null
+    },
+    {
+      "id": 110976704735,
+      "name": "Rendered Hospital reading / Schedule-Done Save and fresh-process Load",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "checkout_shas": [
+        "c9c013397f2e309b48fc1548490b401e54938c6c"
+      ],
+      "checkout_exemption": null
+    },
+    {
+      "id": 110976704737,
+      "name": "Windows / seven-day retained history producer",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "checkout_shas": [
+        "c9c013397f2e309b48fc1548490b401e54938c6c"
+      ],
+      "checkout_exemption": null
+    },
+    {
+      "id": 110976704748,
+      "name": "Windows / paired checkpoint performance",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "checkout_shas": [
+        "c9c013397f2e309b48fc1548490b401e54938c6c"
+      ],
+      "checkout_exemption": null
+    },
+    {
+      "id": 110976704754,
+      "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "checkout_shas": [
+        "c9c013397f2e309b48fc1548490b401e54938c6c"
+      ],
+      "checkout_exemption": null
+    },
+    {
+      "id": 110976704988,
+      "name": "Rendered desktop and dialogue / Linux software OpenGL",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "checkout_shas": [
+        "c9c013397f2e309b48fc1548490b401e54938c6c"
+      ],
+      "checkout_exemption": null
+    },
+    {
+      "id": 110976705134,
+      "name": "Windows / settings",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "checkout_shas": [
+        "c9c013397f2e309b48fc1548490b401e54938c6c"
+      ],
+      "checkout_exemption": null
+    },
+    {
+      "id": 110976705146,
+      "name": "Windows / shop",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "checkout_shas": [
+        "c9c013397f2e309b48fc1548490b401e54938c6c"
+      ],
+      "checkout_exemption": null
+    },
+    {
+      "id": 110976705237,
+      "name": "Windows / localization",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "checkout_shas": [
+        "c9c013397f2e309b48fc1548490b401e54938c6c"
+      ],
+      "checkout_exemption": null
+    },
+    {
+      "id": 110976705240,
+      "name": "Windows / checkpoint_diagnostics",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "checkout_shas": [
+        "c9c013397f2e309b48fc1548490b401e54938c6c"
+      ],
+      "checkout_exemption": null
+    },
+    {
+      "id": 110976705248,
+      "name": "Windows / persistence",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "checkout_shas": [
+        "c9c013397f2e309b48fc1548490b401e54938c6c"
+      ],
+      "checkout_exemption": null
+    },
+    {
+      "id": 110976705258,
+      "name": "Windows / reading_delivery",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "checkout_shas": [
+        "c9c013397f2e309b48fc1548490b401e54938c6c"
+      ],
+      "checkout_exemption": null
+    },
+    {
+      "id": 110976705282,
+      "name": "Windows / dating",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "checkout_shas": [
+        "c9c013397f2e309b48fc1548490b401e54938c6c"
+      ],
+      "checkout_exemption": null
+    },
+    {
+      "id": 110976705307,
+      "name": "Windows / new_account",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "checkout_shas": [
+        "c9c013397f2e309b48fc1548490b401e54938c6c"
+      ],
+      "checkout_exemption": null
+    },
+    {
+      "id": 110976705320,
+      "name": "Windows / minesweeper",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "checkout_shas": [
+        "c9c013397f2e309b48fc1548490b401e54938c6c"
+      ],
+      "checkout_exemption": null
+    },
+    {
+      "id": 110976705427,
+      "name": "Windows / desktop",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "checkout_shas": [
+        "c9c013397f2e309b48fc1548490b401e54938c6c"
+      ],
+      "checkout_exemption": null
+    },
+    {
+      "id": 110976705430,
+      "name": "Windows / audio",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "checkout_shas": [
+        "c9c013397f2e309b48fc1548490b401e54938c6c"
+      ],
+      "checkout_exemption": null
+    },
+    {
+      "id": 110976705444,
+      "name": "Windows / endings",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "checkout_shas": [
+        "c9c013397f2e309b48fc1548490b401e54938c6c"
+      ],
+      "checkout_exemption": null
+    },
+    {
+      "id": 110983083100,
+      "name": "Windows / outgoing-normalization comparison",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "checkout_shas": [
+        "c9c013397f2e309b48fc1548490b401e54938c6c"
+      ],
+      "checkout_exemption": null
+    },
+    {
+      "id": 110983083116,
+      "name": "Windows / history-region-search comparison",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "checkout_shas": [
+        "c9c013397f2e309b48fc1548490b401e54938c6c"
+      ],
+      "checkout_exemption": null
+    },
+    {
+      "id": 110983083148,
+      "name": "Windows / lazy-normalization comparison",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "checkout_shas": [
+        "c9c013397f2e309b48fc1548490b401e54938c6c"
+      ],
+      "checkout_exemption": null
+    },
+    {
+      "id": 110983083220,
+      "name": "Windows / warm-outgoing-proof comparison",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "checkout_shas": [
+        "c9c013397f2e309b48fc1548490b401e54938c6c"
+      ],
+      "checkout_exemption": null
+    },
+    {
+      "id": 110990911645,
+      "name": "Windows / seven-day retained history",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "checkout_shas": [],
+      "checkout_exemption": "explicit checkout-free aggregate"
+    }
+  ],
+  "gut": {
+    "case_executions": 2437,
+    "errors": 0,
+    "failures": 0,
+    "negative_xml_exclusions": [
+      {
+        "bytes": 31411,
+        "path": "artifacts/windows-settings-37048318182-1/ci/storage-refusal/empty/tests.xml",
+        "reason": "Expected negative storage-root refusal probe; excluded from ordinary GUT totals.",
+        "sha256": "439dce0983a0c93095ccb53ff6ae6d43af892d56eed2dfa72e2c2fae4f951c23"
+      },
+      {
+        "bytes": 31409,
+        "path": "artifacts/windows-settings-37048318182-1/ci/storage-refusal/whitespace/tests.xml",
+        "reason": "Expected negative storage-root refusal probe; excluded from ordinary GUT totals.",
+        "sha256": "386f90b1355f54f9df71e1068c74ce940858a127925fd319dde3a000800941ce"
+      }
+    ],
+    "script_executions": 204,
+    "skipped": 0,
+    "suites": [
+      {
+        "bytes": 2504,
+        "cases": 11,
+        "path": "artifacts/public-surfaces-37048318182-1/ci/public_surfaces.xml",
+        "run_attempt": 1,
+        "scripts": 1,
+        "sha256": "071db429b392c50e6afddbd5b898199ff5af41010142d617964efc48aa29cf49"
+      },
+      {
+        "bytes": 9438,
+        "cases": 44,
+        "path": "artifacts/windows-audio-37048318182-1/ci/audio.xml",
+        "run_attempt": 1,
+        "scripts": 2,
+        "sha256": "802a07beb1c185df9c9630f073e504c45d6bc24cb0210acb5315518e5fb19fdc"
+      },
+      {
+        "bytes": 5449,
+        "cases": 22,
+        "path": "artifacts/windows-checkpoint_diagnostics-37048318182-1/ci/checkpoint_diagnostics.xml",
+        "run_attempt": 1,
+        "scripts": 4,
+        "sha256": "d3f28e3d549a7cf1e2671d89e355fcd084d1cc91fa63388aaa1946d6ecadd71f"
+      },
+      {
+        "bytes": 37785,
+        "cases": 167,
+        "path": "artifacts/windows-dating-37048318182-1/ci/dating.xml",
+        "run_attempt": 1,
+        "scripts": 12,
+        "sha256": "5e02cb5a393f0c7005f412b9b298573894dd43234f78b596aa15ebbd926cf801"
+      },
+      {
+        "bytes": 75227,
+        "cases": 334,
+        "path": "artifacts/windows-desktop-37048318182-1/ci/desktop.xml",
+        "run_attempt": 1,
+        "scripts": 22,
+        "sha256": "18ceddd876847219bda5ea23d6f0d238a34bbd52f0af7964a79171c177c660f3"
+      },
+      {
+        "bytes": 22936,
+        "cases": 106,
+        "path": "artifacts/windows-endings-37048318182-1/ci/endings.xml",
+        "run_attempt": 1,
+        "scripts": 12,
+        "sha256": "a874acb213e806b93f8f217527cf62100a0aac2fa40c7de415833b74abcc9ce9"
+      },
+      {
+        "bytes": 34704,
+        "cases": 153,
+        "path": "artifacts/windows-localization-37048318182-1/ci/localization.xml",
+        "run_attempt": 1,
+        "scripts": 18,
+        "sha256": "c7ef3f2be11b118d527e3bddf5bb73dc5131b27d5a006d76f0d6a0686299475e"
+      },
+      {
+        "bytes": 47972,
+        "cases": 210,
+        "path": "artifacts/windows-minesweeper-37048318182-1/ci/minesweeper.xml",
+        "run_attempt": 1,
+        "scripts": 22,
+        "sha256": "76494aaebc22184986b8fa99ccdced4baf4cfa4d9102059fe5aad889f6366028"
+      },
+      {
+        "bytes": 39872,
+        "cases": 179,
+        "path": "artifacts/windows-new_account-37048318182-1/ci/new_account.xml",
+        "run_attempt": 1,
+        "scripts": 15,
+        "sha256": "ccd78a7836b308d4c62f470d765ca06826240514bc56cc4f7b97a047808967cf"
+      },
+      {
+        "bytes": 51918,
+        "cases": 230,
+        "path": "artifacts/windows-persistence-37048318182-1/ci/persistence.xml",
+        "run_attempt": 1,
+        "scripts": 22,
+        "sha256": "406a790db2a2964d30350120bb23ecfed5526a55e7b8b343ee1ed84ae15c07b2"
+      },
+      {
+        "bytes": 110585,
+        "cases": 480,
+        "path": "artifacts/windows-reading_delivery-37048318182-1/ci/reading_delivery.xml",
+        "run_attempt": 1,
+        "scripts": 35,
+        "sha256": "6fac14bd25ad1e53d831dc68ccf281db5e5e8493e75ca25972e23550a1360dec"
+      },
+      {
+        "bytes": 81097,
+        "cases": 357,
+        "path": "artifacts/windows-settings-37048318182-1/ci/settings.xml",
+        "run_attempt": 1,
+        "scripts": 31,
+        "sha256": "0ab09965b516c8f1b6f6e97d2e2d25a7d93504b8ca9991e8ac3f270606637a20"
+      },
+      {
+        "bytes": 31569,
+        "cases": 144,
+        "path": "artifacts/windows-shop-37048318182-1/ci/shop.xml",
+        "run_attempt": 1,
+        "scripts": 8,
+        "sha256": "b25377f544fa7fec8ecfb5e1881d45128fb94bb4ff5f0ae8f85e965306d67181"
+      }
+    ],
+    "unique_cases": 2433,
+    "unique_identity": "testsuite.name + testcase.name",
+    "unique_scripts": 203,
+    "xml_count": 13
+  },
+  "artifact_integrity": {
+    "original_artifacts": 36,
+    "extracted_files": 904,
+    "all_original_zip_api_sizes_and_sha256_and_crcs_verified": true,
+    "extracted_bytes_matched_original_zips": true,
+    "missing_artifacts": [],
+    "large_export_transport_run": 37058649284,
+    "transport_scope": "Byte-preserving delivery of the original artifact only; independent export audit supplies semantics."
+  },
+  "audits": {
+    "infrastructure": {
+      "path": "hospital-broad2/infrastructure-audit.json",
+      "bytes": 21200,
+      "sha256": "27bce88a918caf974ef2e008233a808872332900f43a1161cb8898350b418976",
+      "archive": "broad2-independent-audits.tar.gz",
+      "archive_member": "hospital-broad2/infrastructure-audit.json"
+    },
+    "generic_raw_evidence": {
+      "path": "hospital-broad2/audit",
+      "bytes": 578175,
+      "sha256": "0f279846842e65cbc229f705c0b8effd199d88defe181c4f8f5feefa8c4954d2",
+      "archive": "broad2-independent-audits.tar.gz",
+      "archive_member": "hospital-broad2/audit"
+    },
+    "hospital_semantics": {
+      "path": "hospital-broad2-semantic-audit/hospital-broad2-semantic-audit.json",
+      "bytes": 97432,
+      "sha256": "1efccca6ba86a67ea855b3919d6609d86de49f2cd1a436827052b49c86ef42e1",
+      "archive": "broad2-independent-audits.tar.gz",
+      "archive_member": "hospital-broad2-semantic-audit/hospital-broad2-semantic-audit.json"
+    },
+    "ordinary_suites_public_and_negative_controls": {
+      "path": "hospital-broad2-suite-audit/hospital-broad2-suite-audit.json",
+      "bytes": 169583,
+      "sha256": "94d01285164d5ac2ecd89222e261d5197f097c1a083a9896b7c3345668741a05",
+      "archive": "broad2-independent-audits.tar.gz",
+      "archive_member": "hospital-broad2-suite-audit/hospital-broad2-suite-audit.json"
+    },
+    "original_solo_f5_f9": {
+      "path": "hospital-broad2-original-reading-audit/audit.json",
+      "bytes": 11552,
+      "sha256": "d95dbfdfc9a92c4ba9f3d016e6863654ac8f589bf84701ec2ac75768d75e9e3b",
+      "archive": "broad2-independent-audits.tar.gz",
+      "archive_member": "hospital-broad2-original-reading-audit/audit.json"
+    },
+    "physical_authored_selectors": {
+      "path": "hospital-broad2-selector-audit/selector-audit.json",
+      "bytes": 25327,
+      "sha256": "7b59367013777a42eb879770af624e54d579f95f9470ceec09454782da45f684",
+      "archive": "broad2-independent-audits.tar.gz",
+      "archive_member": "hospital-broad2-selector-audit/selector-audit.json"
+    },
+    "retained_day7_producer": {
+      "path": "hospital-broad2-retained-history-audit/retained-history-audit.json",
+      "bytes": 181370,
+      "sha256": "12902afa2fae5d44a85032fd00d802b499d32329504f4e0367496d51f5459240",
+      "archive": "broad2-independent-audits.tar.gz",
+      "archive_member": "hospital-broad2-retained-history-audit/retained-history-audit.json"
+    },
+    "warm_and_region": {
+      "path": "hospital-broad2-review/warm-region-combined-audit.json",
+      "bytes": 10278,
+      "sha256": "492087ee6bbd80982c05488fb6a3991a2ed08107525519a62c0e4f4128fe8fe2",
+      "archive": "broad2-independent-audits.tar.gz",
+      "archive_member": "hospital-broad2-review/warm-region-combined-audit.json"
+    },
+    "paired_checkpoint_performance": {
+      "path": "hospital-broad2-performance-audit/audit.json",
+      "bytes": 21185,
+      "sha256": "1bdc5e63a04b1a09d4d7e86e0a9cafd7e5c31d90d0e388f1ff732bd56633871b",
+      "archive": "broad2-independent-audits.tar.gz",
+      "archive_member": "hospital-broad2-performance-audit/audit.json"
+    },
+    "rendered_regressions": {
+      "path": "hospital-broad2-rendered-audit/audit.json",
+      "bytes": 13763,
+      "sha256": "ba6b2fa2c13ab2a29fa7c2c3e4841a3c9a3aa878010e92a0cf85ddf69a68d198",
+      "archive": "broad2-independent-audits.tar.gz",
+      "archive_member": "hospital-broad2-rendered-audit/audit.json"
+    },
+    "outgoing_and_lazy_normalization": {
+      "path": "hospital-broad2-normalization-audit/audit.json",
+      "bytes": 8922,
+      "sha256": "f7023ceef019e7d0e980bcf013f2b8b6c631c0db376271aeed6fa5c5ee900d99",
+      "archive": "broad2-independent-audits.tar.gz",
+      "archive_member": "hospital-broad2-normalization-audit/audit.json"
+    },
+    "windows_export": {
+      "path": "hospital-broad2-export-audit/windows-export-audit.json",
+      "bytes": 13590,
+      "sha256": "49bc160d5f54fc756bbef51962a8907c2f2491d275701a9cd0eb834e25d6727a",
+      "archive": "broad2-independent-audits.tar.gz",
+      "archive_member": "hospital-broad2-export-audit/windows-export-audit.json"
+    },
+    "selected_visuals": {
+      "path": "hospital-broad2-root-visual-review.json",
+      "bytes": 8407,
+      "sha256": "9856d859318c10e01a46685394ca6f62a5f5cb8e62784d426baf25dee988caf3",
+      "archive": "broad2-independent-audits.tar.gz",
+      "archive_member": "hospital-broad2-root-visual-review.json"
+    }
+  },
+  "hospital_acceptance": [
+    "One noncanonical two-caption Sylvia-present Day3 Schedule-Done ingress through existing physical and semantic owners; 15 independent semantic groups passed.",
+    "Current-line-only manual Save, exact ordered History, independent raw saved Hospital authority and genuine fresh-process Load.",
+    "Saved B-only History/line reconstruction remains silent with read-aloud enabled; ordinary synthesized Godot Enter completes through the physical Hospital owner.",
+    "Durable Day4 settlement is audited separately from the subsequent live Day4 desktop and a fresh next Solo session.",
+    "The settled Autosave still has Hospital route, between_entries anchor and unlock_day pending. The receipt does not claim the saved route is already desktop or the whole coordinator is completed.",
+    "Slot3 remains unchanged; the successful reader legitimately updates Autosave/Profile later. Only the separate forge refusal proves all primary files invariant.",
+    "Two independent forged-frame refusals preserve exact primary bytes and do not install the forged session.",
+    "Cold existing-autosave preparation reconciles missing leases and performs one physical reread; true read/hash/changed-byte failures remain refusals, corrupt bytes remain preserved, and a subsequent explicit preparation is required after a genuine failed read.",
+    "Restore ancestry and retained desktop eviction ownership preserve real continuation and day-change invariants without requiring an already-mounted desktop."
+  ],
+  "regression_acceptance": [
+    "13 ordinary/public XML suites: 2437 case executions, 204 script executions, 2433 unique script/test pairs, 203 unique scripts, zero failures/errors/skips.",
+    "Both storage-refusal controls have exactly 83 cases: 80 expected test_root_missing failures and 3 passes. They are excluded from ordinary green totals. New-account malformed UTF-8 and public isolation timeout are separately attributed expected controls.",
+    "Original eight-mode Solo, F5, F9, physical authored selectors, Day7 retained history, paired ablations, public inventories, rendered journeys and bounded UI checks are independently re-audited on this run.",
+    "F9 retains 224 FileOps observations across 16 internal transactions and nine participants. Primary no-write claims apply to the correct paused baseline; recovery bookkeeping is expected to change.",
+    "Source9 repairs only benchmark provenance reconstruction and reports explicit shared cold-autosave evolution. Historical guard hashes and current production inheritance remain checked; no benchmark-only runtime override was introduced."
+  ],
+  "export_qualification": {
+    "bounded_status": "Unsigned Windows release export, exact package/data audit and isolated 240-iteration headless startup passed; 111 runtime data files verified.",
+    "original_artifact": {
+      "id": 11245855941,
+      "bytes": 98850757,
+      "sha256": "2184a604d785c5f8fa09049c7f8cfa7f3a91ad4944db6af05bf401143c6e0090"
+    },
+    "warning": "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+    "observed_in": "export.console.log; byte-identical in Broad1 and Broad2",
+    "warning_free_or_leak_free_exporter_acceptance": false,
+    "cause_object_count_and_owner_established": false,
+    "console_order_is_temporal_evidence": false,
+    "review": {
+      "path": "audit-records/exporter-diagnostic/review.json",
+      "sha256": "4aaef9438f7b1ec83538dcbe520da9f568e00d407adff0cd7147183eff0f4cca"
+    },
+    "broad1_additive_erratum": {
+      "path": "audit-records/exporter-diagnostic/broad1-export-audit-erratum.json",
+      "sha256": "c87f70d06493fe1489055b8f297a11c9f681071e13f4e6fdcdf862a9141aca9a"
+    },
+    "binary_retention": "The original binary archive was reconstructed and fully audited; its binary bytes/chunk wrappers are excluded from repository evidence. Recorded identities do not promise permanent original-binary availability after Actions expiry."
+  },
+  "performance_limits": [
+    "Measurements are per-run paired observations, not a universal speedup or acceptance threshold.",
+    "Mixed warm-proof commit paired median is 15331 microseconds slower; one lazy-normalization splice pair is 2052 microseconds slower.",
+    "Inclusive profile timers are not additive and do not establish native input-to-paint or real-disk performance."
+  ],
+  "prior_attempts": {
+    "focused": "Focus1 through Focus4 remain failed diagnostics; Focus3 corrected package records failure before eviction at missing adapter. Focus5 is a separate accepted focused gate.",
+    "focus5_run": 37039358038,
+    "broad1": {
+      "run_id": 37044894986,
+      "successful_jobs": 20,
+      "failed_jobs": 4,
+      "accepted_as_full_gate": false,
+      "failures": [
+        "Endings engine download failed before tests",
+        "Warm-outgoing-proof historical guard rejected source evolution",
+        "History-region-search historical guard rejected source evolution",
+        "Aggregate propagated failures"
+      ],
+      "no_failed_component_was_borrowed_into_broad2_acceptance": true
+    },
+    "static_census_correction": "The initial lexical census omitted eight inherited cases in each of two Shop scripts. Actual Shop count is 144. Initial 2421/2417 predictions remain historical diagnostics; current complete census is 2437/2433.",
+    "focused_receipt_immutable_sha256": "8bdd267cd123f217ec591d4bd41927a2e2a05c99f3dc9b151d0c3dea8ce49276",
+    "focused_inventory_immutable_sha256": "25a4b5973bfb6a6f5fa1390f0058bf618eeaed5be65e124321565b5aa983f7a6"
+  },
+  "excluded_acceptance": [
+    "Production catalogue registration, production prose/timing/selectors and all unexercised Hospital days/ingresses/dispositions.",
+    "No-Sylvia captionless holds and native hold Pause/cancellation, ordered ending History/restore, production replay and whole-game completion.",
+    "Native Windows graphical rendering, OS/hardware input, audible speech, screen-reader/all-input accessibility, signing and full release acceptance.",
+    "Exhaustive screenshot inspection, pixel-identical transient scrollback, all native-event lifetime behavior and OS-crash interruption proof.",
+    "Warning-free or leak-free exporter shutdown and permanent repository archival of original Windows binary bytes.",
+    "Independent engine testing of later documentation/evidence-only descendant commits or a PR/master test merge."
+  ],
+  "beads": {
+    "committed_records": 191,
+    "closed": 168,
+    "unfinished": 23,
+    "states_changed": false,
+    "live_dolt_queried": false,
+    "leading_tasks": [
+      "dwm-vky.14",
+      "dwm-n3h.2"
+    ]
+  },
+  "next_work": {
+    "proposal": "next-slice-source-review/next-work-proposal.md",
+    "first_slice": "One noncanonical captionless native timed-hold Pause/cancellation fixture, then a separate no-Sylvia Schedule-Done integration.",
+    "design_conflict": "Current no-Sylvia notice/Continue conflicts with approved no-notice/no-Continue presentation. Removing the button alone would strand its physical completion contract.",
+    "unproven_risk": "Native Wait callback lacks event-local cancellation/generation custody; prove it with a native regression before changing it. This is source-based risk, not an observed Broad2 failure.",
+    "author_input_not_needed_for_bounded_fixture": true,
+    "production_duration_or_prose_invented": false
+  },
+  "publication_boundary": {
+    "prior_pr_head": "732e3fe266be69396bd0835c3e07c7beb06f9e5f",
+    "records_commit": "Containing commit; exact identity belongs to Git, not a self-referential receipt.",
+    "draft_required": true,
+    "merge_authorized": false,
+    "master_changed_by_this_work": false,
+    "later_records_descendant_separately_engine_tested": false
+  },
+  "packages": {
+    "raw_evidence_archive": {
+      "bytes": 28877911,
+      "file": "hospital-broad2-evidence.tar.gz",
+      "sha256": "221a811b8266832cea52f9ae3cceeac2db956258a599c6f40cbba05f639f848a"
+    },
+    "raw_parts_manifest": {
+      "path": "broad2-package-parts/manifest.json",
+      "bytes": 2529,
+      "sha256": "600072efbf90f1cb85f1fc54a4efa79424837e37859d968b201365a111dcfd16"
+    },
+    "independent_audits": {
+      "path": "broad2-independent-audits.tar.gz",
+      "bytes": 5411554,
+      "sha256": "d61f67f820d3ad789503bba4994283f6023be8f5e6c06d242b00e208f9a5a6f1"
+    },
+    "independent_audits_manifest": {
+      "path": "broad2-independent-audits.manifest.json",
+      "bytes": 77901,
+      "sha256": "79670e4179a0136a0421360be83631aa34c9e6bf8f305000d64e58c6d8edaa0e"
+    },
+    "explicit_exclusions": "Original Windows binary ZIP/chunk wrapper bytes and each source file identified in the manifests; no permanent original-binary archiving claim."
+  }
+}

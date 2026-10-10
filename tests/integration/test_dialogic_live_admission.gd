@@ -120,8 +120,7 @@ func _hospital_command() -> Dictionary:
 		"command_sha256":"c".repeat(64)}
 
 func _sylvia_hospital_command() -> Dictionary:
-	# The owner requires the same-day saved witness and frozen source IDs. A normal
-	# faint with the empty context above intentionally takes the notice-only path.
+	# Sylvia art requires same-day saved witness and source IDs; playback is shared by every faint.
 	var command: Dictionary = _hospital_command()
 	command.context.source_entry_ids = ["accepted.3"]
 	command.context.miss_receipt_ids = ["miss.3"]
@@ -150,7 +149,7 @@ func _continue_art_hold_if_present() -> bool:
 	assert_null(bridge.get_art_hold_view(), "real Continue retires the art hold")
 	return true
 
-func test_normal_faint_uses_notice_acknowledgment_without_native_playback_or_gameplay_effects() -> void:
+func test_normal_faint_uses_native_playback_without_applying_gameplay_effects() -> void:
 	var owner: RefCounted = PHYSICAL_OWNER.new()
 	assert_true(owner.configure(bridge).get("ok",false))
 	var receipts: Array[Dictionary] = []
@@ -161,20 +160,15 @@ func test_normal_faint_uses_notice_acknowledgment_without_native_playback_or_gam
 	var begun: Dictionary = owner.begin_physical(command)
 	assert_true(begun.get("ok",false),str(begun))
 	if not begun.get("ok",false): return
-	assert_eq(_native_starts,0,"normal fainting shows a notice without starting a DTL")
-	assert_false(bridge.has_active_playback())
-	assert_true(receipts.is_empty(),"a notice needs its own Continue acknowledgment")
-	command["physical_token"] = begun.value.physical_token
-	var forged: Dictionary = command.duplicate(true)
-	forged["physical_token"] = str(command.physical_token) + ".foreign"
-	assert_false(owner.complete_notice(forged).get("ok",false))
-	assert_true(owner.complete_notice(command).get("ok",false))
+	assert_true(bridge.has_active_playback(), "normal fainting reserves the shared DTL")
+	assert_true(receipts.is_empty(), "admission cannot stand in for native completion")
+	await _wait_for_natural_end()
 	assert_eq(receipts.size(),1)
 	if receipts.size() == 1:
-		assert_eq(receipts[0].result,{"notice_acknowledged":true})
+		assert_false(receipts[0].result.has("notice_acknowledged"))
 		assert_eq(receipts[0].physical_token,begun.value.physical_token)
-	assert_eq(_native_starts,0)
-	assert_true(_finished.is_empty())
+	assert_eq(_native_starts,1)
+	assert_eq(_finished.size(),1)
 	assert_eq({"day":GameState._run_lifecycle.get_day(),"health":GameState.get_stat("health"),
 		"pressure":GameState.get_stat("pressure"),"contacts":GameState.contacts.duplicate(true)},before,
 		"the presentation owner neither applies recovery nor advances the day")

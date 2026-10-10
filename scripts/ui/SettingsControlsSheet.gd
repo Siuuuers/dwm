@@ -346,8 +346,16 @@ func begin_capture(action: String, slot: String, activation: InputEvent = null) 
 	_session.begin(action, slot, null if _activation_released else _opening_activation, held_events)
 	_opening_activation = null
 	_refresh_capture_copy()
-	capture_dialog.popup_centered(Vector2i(720, 240))
+	_popup_dialog(capture_dialog, Vector2i(720, 240))
 	capture_dialog.get_cancel_button().grab_focus()
+
+
+func _popup_dialog(dialog: ConfirmationDialog, minimum_size: Vector2i) -> void:
+	# Native and embedded Windows have their own canvas, unlike the sheet controls.
+	var source_scale := (get_global_transform_with_canvas() if dialog.is_embedded() else get_screen_transform()).get_scale()
+	dialog.content_scale_factor = minf(source_scale.x, source_scale.y)
+	dialog.min_size = Vector2i((Vector2(minimum_size) * dialog.content_scale_factor).round())
+	dialog.popup_centered(dialog.min_size)
 
 
 func _refresh_capture_copy() -> void:
@@ -438,7 +446,7 @@ func _propose(binding: Dictionary) -> void:
 		_commit_proposal()
 	else:
 		_render_proposal()
-		conflict_dialog.popup_centered(Vector2i(720, 480))
+		_popup_dialog(conflict_dialog, Vector2i(720, 480))
 		conflict_dialog.get_cancel_button().grab_focus()
 
 
@@ -716,7 +724,7 @@ func show_original_bindings() -> void:
 	_source = original_button
 	_original_source = result.value.legacy_bindings.duplicate(true)
 	_render_original(_original_source)
-	original_dialog.popup_centered(Vector2i(720, 480))
+	_popup_dialog(original_dialog, Vector2i(720, 480))
 	original_dialog.get_cancel_button().grab_focus()
 
 
@@ -745,7 +753,7 @@ func confirm_import_review() -> void:
 	_import_proposal = result.value.duplicate(true)
 	_source = apply_review_button
 	_render_import()
-	import_dialog.popup_centered(Vector2i(720, 480))
+	_popup_dialog(import_dialog, Vector2i(720, 480))
 	import_dialog.get_cancel_button().grab_focus()
 
 

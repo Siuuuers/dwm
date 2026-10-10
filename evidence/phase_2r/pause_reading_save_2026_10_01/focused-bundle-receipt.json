@@ -1,0 +1,17 @@
+{
+  "archive": "dwm-run96-run97-focused-evidence.tar.gz",
+  "archive_bytes": 9163722,
+  "archive_member_count": 150,
+  "archive_sha256": "d3cb382326610118506368bc1df8605fcb25f67b4fee9a4741ed797b6445137f",
+  "counts": {
+    "gut_xml": 10,
+    "independent_audits": 3,
+    "job_logs": 10,
+    "run97_pngs": 9
+  },
+  "excluded_extracted_file_count": 7,
+  "manifest_sha256": "f7bac31a01771b8212b345dc04d69085abf49a9c83fe4f4242ac6a645457d31f",
+  "payload_bytes": 80654361,
+  "payload_file_count": 148,
+  "round_trip_verified": true
+}

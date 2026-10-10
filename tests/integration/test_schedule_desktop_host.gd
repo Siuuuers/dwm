@@ -304,6 +304,37 @@ func test_real_owner_edits_and_cached_home_reopen_preserve_draft_selection_focus
 	assert_eq(_owner.day,3)
 
 
+func test_desktop_enlargement_preserves_schedule_draft_focus_and_controls() -> void:
+	var desktop := _desktop_on_tree()
+	desktop.size = Vector2(800, 720)
+	assert_true(_configure_schedule(desktop).ok)
+	var app := _open_schedule(desktop)
+	if app == null: return
+	app.panel.source_buttons.rest.pressed.emit()
+	for frame: int in range(5): await get_tree().process_frame
+	var source: Button = app.panel.source_buttons.training
+	var command: Button = app.panel.commands.remove
+	command.grab_focus()
+	var original_size := source.get_global_rect().size
+	var draft: Dictionary = _view.snapshot().value.view.duplicate(true)
+	var selection: String = app.panel.selected_id
+	for width: float in [960.0, 800.0]:
+		desktop.size.x = width
+		for frame: int in range(5): await get_tree().process_frame
+		assert_true(source.get_global_rect().size.is_equal_approx(original_size * (width / 800.0)),
+			"source artwork and text magnify with the computer pane")
+		assert_same(desktop._cached_app_windows[&"schedule"], app)
+		assert_same(app.panel.source_buttons.training, source)
+		assert_same(app.panel.commands.remove, command)
+		assert_same(_viewport.gui_get_focus_owner(), command)
+		assert_eq(app.panel.selected_id, selection)
+		assert_eq(_view.snapshot().value.view, draft, "resize cannot edit the pending schedule")
+		desktop.app_scroll.ensure_control_visible(command)
+		for frame: int in range(3): await get_tree().process_frame
+		assert_true(desktop.app_scroll.get_global_rect().encloses(command.get_global_rect()),
+			"the enlarged command remains reachable above the fixed footer")
+
+
 func test_pre_ready_configuration_reconciles_a_restored_active_schedule_route() -> void:
 	assert_true(_host.open_app(&"schedule",3).ok)
 	var desktop: Control = DESKTOP.instantiate()
@@ -358,7 +389,7 @@ func test_schedule_configuration_is_immutable_and_rejects_mismatched_or_partial_
 	assert_eq(desktop.configure_contacts(_contacts_port,_localization,_profile,other_host,3).code,
 		&"desktop_owner_mismatch","Contacts cannot replace Schedule's retained host.")
 	assert_eq(desktop.configure_contacts(_contacts_port,_localization,_profile,_host,4).code,
-		&"desktop_owner_mismatch","Contacts cannot change Schedule's retained day.")
+		&"desktop_owner_day_mismatch","The retained host rejects a different day before comparing shared owners.")
 	assert_eq(desktop.configure_schedule(_port,_localization,_profile,_host,3,_done_with_argument).code,
 		&"invalid_schedule_done")
 	var warning: Dictionary = _warning_fixture()

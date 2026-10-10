@@ -1,0 +1,152 @@
+{
+  "focus1-dating.xml.gz": {
+    "tests": 167,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "focus1-public_surfaces.xml.gz": {
+    "tests": 11,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "focus1-reading_delivery.xml.gz": {
+    "tests": 612,
+    "failures": 11,
+    "errors": 0,
+    "skips": 0
+  },
+  "focus2-dating.xml.gz": {
+    "tests": 168,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "focus2-persistence.xml.gz": {
+    "tests": 230,
+    "failures": 1,
+    "errors": 0,
+    "skips": 0
+  },
+  "focus2-public_surfaces.xml.gz": {
+    "tests": 11,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "focus2-reading_delivery.xml.gz": {
+    "tests": 617,
+    "failures": 2,
+    "errors": 0,
+    "skips": 0
+  },
+  "focus4-dating.xml.gz": {
+    "tests": 168,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "focus4-persistence.xml.gz": {
+    "tests": 230,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "focus4-public_surfaces.xml.gz": {
+    "tests": 11,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "focus4-reading_delivery.xml.gz": {
+    "tests": 617,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "broad1-localization-localization.xml.gz": {
+    "tests": 153,
+    "failures": 1,
+    "errors": 0,
+    "skips": 0
+  },
+  "broad2-windows-reading_delivery-reading_delivery.xml.gz": {
+    "tests": 617,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "broad2-windows-desktop-desktop.xml.gz": {
+    "tests": 334,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "broad2-windows-endings-endings.xml.gz": {
+    "tests": 106,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "broad2-windows-persistence-persistence.xml.gz": {
+    "tests": 230,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "broad2-windows-checkpoint_diagnostics-checkpoint_diagnostics.xml.gz": {
+    "tests": 22,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "broad2-windows-dating-dating.xml.gz": {
+    "tests": 168,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "broad2-windows-settings-settings.xml.gz": {
+    "tests": 357,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "broad2-windows-localization-localization.xml.gz": {
+    "tests": 153,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "broad2-windows-audio-audio.xml.gz": {
+    "tests": 44,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "broad2-public-surfaces-public_surfaces.xml.gz": {
+    "tests": 11,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "broad2-windows-new_account-new_account.xml.gz": {
+    "tests": 179,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "broad2-windows-minesweeper-minesweeper.xml.gz": {
+    "tests": 210,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "broad2-windows-shop-shop.xml.gz": {
+    "tests": 144,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  }
+}

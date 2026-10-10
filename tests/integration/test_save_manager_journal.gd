@@ -51,6 +51,7 @@ func _empty_desktop() -> Dictionary:
 
 func _checkpoint_inputs(run_id: String) -> Dictionary:
 	var fixture: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(VALID_FIXTURE))
+	fixture["contacts"] = preload("res://scripts/domain/contact/ContactInvitationState.gd").make_defaults()
 	fixture["gameplay"].erase("opening_seen")
 	fixture["gameplay"].erase("tutorial_seen")
 	var lifecycle: Dictionary = fixture["lifecycle"]
@@ -61,6 +62,9 @@ func _checkpoint_inputs(run_id: String) -> Dictionary:
 	lifecycle["causal_day_instance"] = "causal-day-1"
 	lifecycle["causal_day_instance_issuer_receipt"] = _issuer_receipt("causal-day-1")
 	lifecycle["restore_provenance"] = null
+	lifecycle["active_condition_hospital_plan"] = null
+	lifecycle["condition_hospital_history"] = {}
+	lifecycle["terminal_intent_handoff"] = null
 	return {
 		"snapshot_input": {
 			"lifecycle": lifecycle,
@@ -69,6 +73,12 @@ func _checkpoint_inputs(run_id: String) -> Dictionary:
 			"committed_schedule": {
 				"schema_version": 1, "day": int(lifecycle["day"]),
 				"registry_fingerprint": null, "entries": [], "commit_receipt": null,
+			},
+			"schedule_view": {
+				"day": int(lifecycle["day"]),
+				"causal_day_instance": lifecycle["causal_day_instance"],
+				"entries": [], "date_entry_seen": false, "pending_warning": null,
+				"consumed_warning_receipts": {}, "condition_departure_receipts": {},
 			},
 			"desktop": _empty_desktop(),
 			"dating": fixture["dating"],
@@ -204,3 +214,4 @@ func test_no_local_gate_or_projector_in_save_layer() -> void:
 			path + " must not construct a gate")
 		assert_false(source.contains("class_name FatalDiagnosticProjector"),
 			path + " must not declare another projector")
+

@@ -251,6 +251,66 @@ func test_all_locales_and_text_sizes_keep_complete_labels_inside_their_plates() 
 			rail.free()
 
 
+func test_mounted_locale_and_size_transitions_keep_the_selected_face_and_fixed_label_bays() -> void:
+	var canvas := Control.new()
+	add_child_autofree(canvas)
+	var rail := _new_rail()
+	canvas.add_child(rail)
+	# Exercise the retained delivery screenshot order and its reverse before
+	# covering the other supported tuples on the same mounted controls.
+	var transitions: Array = [["en", 100], ["zh-CN", 150], ["zh-HK", 150],
+		["zh-CN", 150], ["en", 100]]
+	for language: String in ["en", "zh-CN", "zh-HK", "ja", "ko"]:
+		for percent: int in [100, 125, 150]:
+			transitions.append([language, percent])
+	for font_style: String in ["pixel", "readable"]:
+		for tuple: Array in transitions:
+			var language: String = tuple[0]
+			var percent: int = tuple[1]
+			var context := "%s/%s/%d%%" % [font_style, language, percent]
+			var presentation: Theme = CAPTION_THEME.build(language, percent,
+				"AfterHours", false, "standard", false, 1, false, font_style)
+			assert_not_null(presentation, context)
+			assert_true(_localization.set_locale(language.replace("-", "_")).get("ok", false), context)
+			assert_true(rail.bind_localization(_localization), context)
+			# WitnessedCaptionLayer publishes the rail theme before Canvas.theme.
+			assert_true(rail.configure_presentation(presentation, language), context)
+			canvas.theme = presentation
+			await get_tree().process_frame
+			await get_tree().process_frame
+			var mode_labels := {"skip": {}, "auto": {}}
+			for modes: Array in [[false, false], [true, false], [false, true]]:
+				assert_true(rail.project(true, modes[0], modes[1], true, true, true, true, true), context)
+				await get_tree().process_frame
+				for index: int in NAMES.size():
+					var button := rail.get_child(index) as Button
+					var id: String = String(RAIL.CONTROL_IDS[index])
+					var detail := context + "/" + id + "/" + str(modes)
+					assert_same(button.get_theme_font("font"), presentation.default_font, detail + ": selected face")
+					assert_eq(button.get_theme_font_size("font_size"), presentation.default_font_size, detail + ": full size")
+					assert_eq(button.position, Vector2(LEFTS[index], 0), detail + ": fixed position")
+					assert_eq(button.size, Vector2(WIDTHS[index], 64), detail + ": fixed bay")
+					assert_lte(button.get_combined_minimum_size().y, 64.0, detail + ": native minimum fits the rail")
+					var plate: StyleBox = button.get_theme_stylebox("normal")
+					var available := button.size.x - plate.get_content_margin(SIDE_LEFT) - plate.get_content_margin(SIDE_RIGHT)
+					var available_height := button.size.y - plate.get_content_margin(SIDE_TOP) - plate.get_content_margin(SIDE_BOTTOM)
+					assert_lte(button.get_theme_font("font").get_height(button.get_theme_font_size("font_size")),
+						available_height + 0.01, detail + ": full line height fits actual vertical margins")
+					var width := button.get_theme_font("font").get_string_size(button.text,
+						HORIZONTAL_ALIGNMENT_LEFT, -1, button.get_theme_font_size("font_size")).x
+					assert_lte(width, available + 0.01, detail + ": complete visible label fits actual margins")
+					var full: String = _localization.t("witnessed.transport." + id)
+					if id in ["skip", "auto"]:
+						var enabled: bool = modes[0] if id == "skip" else modes[1]
+						full += " · " + _localization.t("witnessed.transport.on" if enabled else "witnessed.transport.off")
+						mode_labels[id][enabled] = button.text
+					assert_eq(button.accessibility_name, full, detail + ": full accessible label")
+					if language not in ["ja", "ko"] or id not in ["skip", "auto"]:
+						assert_eq(button.text, full, detail + ": full visible label")
+			for id: String in mode_labels:
+				assert_ne(mode_labels[id][false], mode_labels[id][true], context + "/" + id + ": visible on/off distinction")
+
+
 func test_materials_use_caption_roles_and_skip_signal_stays_admission_bound() -> void:
 	var presentation: Theme = CAPTION_THEME.build("en", 100, "Midnight")
 	var rail := _new_rail()

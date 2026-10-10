@@ -1,0 +1,291 @@
+{
+  "schema_version": 1,
+  "scope": "Source analysis and retained failed-test diagnosis only; no current cloud acceptance claim.",
+  "reviewed_source": "63b59b67a169a34a17f0f5ec4c15b98a55c6ff2b",
+  "baseline": "5a581fc89121864aead5202e01d6a82423b1b52d",
+  "focus2_run_id": 36965784091,
+  "focus2_acceptance_claimed": false,
+  "engines_executed_locally": false,
+  "godot": {
+    "tag": "4.6.3-stable",
+    "resolved_commit": "35e80b3a8822a9df9be390814b62f44c0a9c69e8",
+    "ref_metadata": {
+      "bytes": 364,
+      "sha256": "2977b4adc4b10470413168c2f41c4e4846072c7a1e322d69a786960c8cb55d3c",
+      "git_blob": "c7db5861ac64443561f5b03308b89a01367f6b9d"
+    },
+    "sources": [
+      {
+        "path": "scene/main/viewport.cpp",
+        "commit": "35e80b3a8822a9df9be390814b62f44c0a9c69e8",
+        "url": "https://github.com/godotengine/godot/blob/35e80b3a8822a9df9be390814b62f44c0a9c69e8/scene/main/viewport.cpp",
+        "raw_url": "https://raw.githubusercontent.com/godotengine/godot/35e80b3a8822a9df9be390814b62f44c0a9c69e8/scene/main/viewport.cpp",
+        "upstream_git_blob": "996d44455b3a9d1257939d6b0da061dc29d5ab05",
+        "api_blob_identity_verified": true,
+        "retained_path": "/workspace/scratch/e169b180163f/historical-objects/godot-viewport.cpp",
+        "retained_identity": {
+          "bytes": 191768,
+          "sha256": "36c7ad7161baae6e170aedeae903247b4c4119fe89bf68230ac3b7a17552dcd7",
+          "git_blob": "655e2aa19da1be7da605217299a90e99c05cd0e3"
+        },
+        "exact_copy": "upstream/viewport.cpp",
+        "exact_identity": {
+          "bytes": 191767,
+          "sha256": "8499322e9bba800abbd4e930a5dd578c549a950c7f993ce5c2dd207f58b93cf2",
+          "git_blob": "996d44455b3a9d1257939d6b0da061dc29d5ab05"
+        },
+        "transport_extra_terminal_newline_removed": true
+      },
+      {
+        "path": "scene/main/window.cpp",
+        "commit": "35e80b3a8822a9df9be390814b62f44c0a9c69e8",
+        "url": "https://github.com/godotengine/godot/blob/35e80b3a8822a9df9be390814b62f44c0a9c69e8/scene/main/window.cpp",
+        "raw_url": "https://raw.githubusercontent.com/godotengine/godot/35e80b3a8822a9df9be390814b62f44c0a9c69e8/scene/main/window.cpp",
+        "upstream_git_blob": "c8e2f057208bc40f3ddad992a3361d9e49ff43f6",
+        "api_blob_identity_verified": true,
+        "retained_path": "/workspace/scratch/e169b180163f/historical-objects/godot-window.cpp",
+        "retained_identity": {
+          "bytes": 129960,
+          "sha256": "21530c14e2e8889e1abdce0a43881a68dc2cef4a493b1e290494df7c9e8eeaf5",
+          "git_blob": "0c198fd8b5c9827fcd83d94b001cd25d3491f6e4"
+        },
+        "exact_copy": "upstream/window.cpp",
+        "exact_identity": {
+          "bytes": 129959,
+          "sha256": "51b253a12011693f897026be8b391c9f73ea71018d730ee0dbfba3abaf7b5a76",
+          "git_blob": "c8e2f057208bc40f3ddad992a3361d9e49ff43f6"
+        },
+        "transport_extra_terminal_newline_removed": true
+      },
+      {
+        "path": "scene/gui/dialogs.cpp",
+        "commit": "35e80b3a8822a9df9be390814b62f44c0a9c69e8",
+        "url": "https://github.com/godotengine/godot/blob/35e80b3a8822a9df9be390814b62f44c0a9c69e8/scene/gui/dialogs.cpp",
+        "raw_url": "https://raw.githubusercontent.com/godotengine/godot/35e80b3a8822a9df9be390814b62f44c0a9c69e8/scene/gui/dialogs.cpp",
+        "upstream_git_blob": "69993a4153fb3cd83cb4c98a3455a225ca25ae9e",
+        "api_blob_identity_verified": true,
+        "retained_path": "/workspace/scratch/e169b180163f/historical-objects/godot-dialogs.cpp",
+        "retained_identity": {
+          "bytes": 18601,
+          "sha256": "aeeca6e6f3203dc89e56259709b922a184e594efab010f9dafdd63d806d93a2e",
+          "git_blob": "c4718d47b4290d6a4d6dfcf2f35ea505f21098cc"
+        },
+        "exact_copy": "upstream/dialogs.cpp",
+        "exact_identity": {
+          "bytes": 18600,
+          "sha256": "212ad0929d5bacd3f6bfd10684f0641c65642b90c8150015bff4ce9cb308d62e",
+          "git_blob": "69993a4153fb3cd83cb4c98a3455a225ca25ae9e"
+        },
+        "transport_extra_terminal_newline_removed": true
+      },
+      {
+        "path": "scene/gui/option_button.cpp",
+        "commit": "35e80b3a8822a9df9be390814b62f44c0a9c69e8",
+        "url": "https://github.com/godotengine/godot/blob/35e80b3a8822a9df9be390814b62f44c0a9c69e8/scene/gui/option_button.cpp",
+        "raw_url": "https://raw.githubusercontent.com/godotengine/godot/35e80b3a8822a9df9be390814b62f44c0a9c69e8/scene/gui/option_button.cpp",
+        "upstream_git_blob": "748fa97f7a4c4d84f65797ed0c5fa4a57afed03b",
+        "api_blob_identity_verified": true,
+        "retained_path": "/workspace/scratch/e169b180163f/historical-objects/godot-option_button.cpp",
+        "retained_identity": {
+          "bytes": 22240,
+          "sha256": "644fea7000a045d6c7c6dfc0c650c360eea0afb11ea15107c15abaa4f9c2ece2",
+          "git_blob": "3ec14dcf50e64e793429cbea47c1ce40e2ae6e6a"
+        },
+        "exact_copy": "upstream/option_button.cpp",
+        "exact_identity": {
+          "bytes": 22239,
+          "sha256": "1333370dfc1aa5aa43ed1abc724d6c2a9568728ff37313f699c644523f8e1f8b",
+          "git_blob": "748fa97f7a4c4d84f65797ed0c5fa4a57afed03b"
+        },
+        "transport_extra_terminal_newline_removed": true
+      },
+      {
+        "path": "scene/gui/popup.cpp",
+        "commit": "35e80b3a8822a9df9be390814b62f44c0a9c69e8",
+        "url": "https://github.com/godotengine/godot/blob/35e80b3a8822a9df9be390814b62f44c0a9c69e8/scene/gui/popup.cpp",
+        "raw_url": "https://raw.githubusercontent.com/godotengine/godot/35e80b3a8822a9df9be390814b62f44c0a9c69e8/scene/gui/popup.cpp",
+        "upstream_git_blob": "40e0948195914c7117cd39be70810cce82db8e2c",
+        "api_blob_identity_verified": true,
+        "retained_path": "/workspace/scratch/e169b180163f/historical-objects/godot-popup.cpp",
+        "retained_identity": {
+          "bytes": 14442,
+          "sha256": "fcbd0ca7c17f8708774c1704f60cd7a47b3012b0cc16186437cd6b3f9e21fc14",
+          "git_blob": "92e31fbd26ddb7b899d4a28aa54b4d8656660dd4"
+        },
+        "exact_copy": "upstream/popup.cpp",
+        "exact_identity": {
+          "bytes": 14441,
+          "sha256": "6565152130c587a13b42924ca1d7fa1df28f164221bf5981f1f7650316b58c83",
+          "git_blob": "40e0948195914c7117cd39be70810cce82db8e2c"
+        },
+        "transport_extra_terminal_newline_removed": true
+      },
+      {
+        "path": "scene/gui/popup_menu.cpp",
+        "commit": "35e80b3a8822a9df9be390814b62f44c0a9c69e8",
+        "url": "https://github.com/godotengine/godot/blob/35e80b3a8822a9df9be390814b62f44c0a9c69e8/scene/gui/popup_menu.cpp",
+        "raw_url": "https://raw.githubusercontent.com/godotengine/godot/35e80b3a8822a9df9be390814b62f44c0a9c69e8/scene/gui/popup_menu.cpp",
+        "upstream_git_blob": "f78d7f12c7ffbc31c20b649b41d6accb96746b63",
+        "api_blob_identity_verified": true,
+        "retained_path": "/workspace/scratch/e169b180163f/historical-objects/godot-popup_menu.cpp",
+        "retained_identity": {
+          "bytes": 128660,
+          "sha256": "40b9f141bae0ea899b83d9302c332ea01bea41686aa5461e69b1f608520aea2b",
+          "git_blob": "d48594495e562fae3afce77fb7165357db091a47"
+        },
+        "exact_copy": "upstream/popup_menu.cpp",
+        "exact_identity": {
+          "bytes": 128659,
+          "sha256": "941c566e047eafe1a0ff2a5ce9766c1588f7233752ab384d2f3ff2cad7fb101a",
+          "git_blob": "f78d7f12c7ffbc31c20b649b41d6accb96746b63"
+        },
+        "transport_extra_terminal_newline_removed": true
+      }
+    ]
+  },
+  "findings": [
+    {
+      "id": "native_popup_contacts",
+      "basis": [
+        "scene/main/viewport.cpp:3464",
+        "scene/main/viewport.cpp:3501",
+        "scene/main/window.cpp:1879",
+        "scene/gui/option_button.cpp:651"
+      ],
+      "conclusion": "Embedded subwindow dispatch returns before parent _input. OptionButton owns an internal PopupMenu. A contact pressed in Settings and released in that popup bypassed the shared parent ledger; popup-only presses were also absent. Visibility snapshots alone cannot observe packets that never reached the ledger.",
+      "classification": "Production input-custody gap inferred from exact engine and project source; cloud regression required."
+    },
+    {
+      "id": "reset_dispatch_fixture",
+      "basis": [
+        "scene/main/window.cpp:1897",
+        "scene/gui/dialogs.cpp:39",
+        "scene/gui/dialogs.cpp:144"
+      ],
+      "conclusion": "Direct Window.push_input bypasses Window::_input_from_window, where AcceptDialog recognizes native Escape. Cancel schedules hide deferred. The original test therefore never canceled its native dialog; later Quick assertions failed behind that still-open owner. The revised test enters through the embedded parent viewport and resumes at the real hide signal before the immediate held-contact retry.",
+      "classification": "Focus1 observed test failure, explained by exact engine dispatch."
+    },
+    {
+      "id": "single_owner_fix",
+      "basis": [
+        "scripts/ui/pause/PauseQuickCommands.gd:11",
+        "scripts/ui/pause/PauseQuickCommands.gd:71",
+        "scripts/ui/pause/PauseSurface.gd:307"
+      ],
+      "conclusion": "Each mounted Settings Window gets a private ALWAYS input observer forwarding to the existing InputManager and immediately retaining those contacts. No visibility guard drops final packets after native hiding; visibility signals also retire contacts synchronously. No second contact ledger, Save owner, or durable format is introduced. Settings F5 admission remains action-specific; F9 is outside this bounded admission."
+    }
+  ],
+  "production_changes": [
+    {
+      "path": "scripts/ui/pause/PauseQuickCommands.gd",
+      "before": {
+        "bytes": 12213,
+        "sha256": "963660b3c645757a7705e28bd0bcce38f296adf5f33797e66961427f1d49a436",
+        "git_blob": "1f7c5202f2a45c6b22196eb9fdbe54e1b616271d"
+      },
+      "after": {
+        "bytes": 13559,
+        "sha256": "a5e65575680e8d4d555073cc7046df91f6a5ed24adc669770b6d091f9b6cc9a6",
+        "git_blob": "3af090553274386e5379942c51402f955f76c14c"
+      }
+    },
+    {
+      "path": "scripts/ui/pause/PauseSurface.gd",
+      "before": {
+        "bytes": 20324,
+        "sha256": "bb9067682d50ec9cfd881121231cbe104db1a40a49f3a18199b5825534c613cc",
+        "git_blob": "619776b056943ddd4d6b9f8833db12867f00c0f8"
+      },
+      "after": {
+        "bytes": 20825,
+        "sha256": "5d837ba801c55e0fee8ba2b472def80aa609123903173cf77b31710fbd170ee1",
+        "git_blob": "2aa9eb9ac81acafed5da981fb178a00b79d60319"
+      }
+    }
+  ],
+  "production_diff": {
+    "path": "production.diff",
+    "bytes": 6757,
+    "sha256": "73bd8a20c6de91dda26ba1b04e9b66276f636999aef47a6e89b5cbc13d88218a",
+    "git_blob": "1cdb76784352d21f090bf8fb73ea5b374188d35e"
+  },
+  "only_two_production_files_changed": true,
+  "reset_seam_reverted_to_baseline": {
+    "scripts/ui/SettingsContent.gd": true,
+    "scripts/ui/SettingsResetConfirmation.gd": true
+  },
+  "gut_cases": {
+    "script": "tests/unit/test_production_pause_controller.gd",
+    "before": {
+      "bytes": 52946,
+      "sha256": "1a516b4ab73d5d3f3f480c640dcf485081d3436fc8560f1ab3fc456a2fefe8e7",
+      "git_blob": "52da6ccc2be7162a4036c2d7ac716ad870cdd8e3"
+    },
+    "after": {
+      "bytes": 65119,
+      "sha256": "97772008dd4077fc6ca59b3edea5590615609e3d46f8f3434a19e2c798120680",
+      "git_blob": "8c80121b1ce8e6907e5c67bfbb9baf08588d71a2"
+    },
+    "added": [
+      "test_paused_settings_binding_capture_never_saves_and_requires_fresh_release",
+      "test_paused_settings_option_popup_forwards_release_and_retires_same_frame_save",
+      "test_paused_settings_pending_preference_commit_retires_save_until_release",
+      "test_paused_settings_quick_load_remains_unavailable_and_cannot_wake_on_exit",
+      "test_paused_settings_quick_save_keeps_host_focus_and_exact_canonical_source",
+      "test_paused_settings_reset_window_forwards_contacts_without_saving_or_queued_replay"
+    ],
+    "removed": [],
+    "historical_identity_preserved": "test_paused_quick_refusal_is_visible_and_settings_custody_blocks_shortcuts",
+    "expected_broad_counts": {
+      "case_executions": 2286,
+      "unique_cases": 2282,
+      "unique_scripts": 194,
+      "script_executions": 195,
+      "xml_count": 13
+    }
+  },
+  "focus1_failure": {
+    "run_id": 36964699167,
+    "workflow_head": "093a123c05633b91509fa88d4a296fa8ee1af08b",
+    "source": "e6d445343c292342310359faa898aabd2959f4db",
+    "job_id": 110706676237,
+    "tests": 388,
+    "passed": 387,
+    "failed_cases": [
+      {
+        "script": "tests/unit/test_production_pause_controller.gd",
+        "case": "test_paused_settings_reset_window_forwards_contacts_without_saving_or_queued_replay"
+      }
+    ],
+    "failed_assertion_source_lines": [
+      1077,
+      1084,
+      1094,
+      1095
+    ],
+    "xml": {
+      "path": "settings-focus1/artifacts/windows-reading_delivery-36964699167-1/ci/reading_delivery.xml",
+      "bytes": 89863,
+      "sha256": "2c3800faf0462b178a3c2a5b97df3fc851bf9d55e075f66f6a24a70cbb1e4e24",
+      "git_blob": "ca117af2a8d5bd3ceca085c6407cd90b1d123b57"
+    },
+    "job_log": {
+      "path": "settings-focus1/logs/110706676237.log",
+      "bytes": 3587391,
+      "sha256": "927610a658c8f454ff310ac56ccd75f822d29b850c9e82319fc5d7452edf0ba9",
+      "git_blob": "35b2d199c6acaf72b2d1f894b638103d971d5145"
+    },
+    "limits": "The separate Focus1 rendered settings-read failure is not diagnosed by this source review."
+  },
+  "independent_review": {
+    "reviewer": "/root/historical_objects/settings_f5_review",
+    "status": "No further static blockers identified after shared Window observer and embedded dispatch repair.",
+    "verified_boundaries": [
+      "Existing InputManager is the sole contact ledger.",
+      "Window observers retire packets synchronously, including packets after native hide.",
+      "Mounted-tree traversal includes internal OptionButton popups and terminates after its observer nodes.",
+      "Settings F9 exclusion and canonical Save ownership remain intact."
+    ],
+    "limitation": "Read-only review; not engine execution or broad acceptance."
+  }
+}

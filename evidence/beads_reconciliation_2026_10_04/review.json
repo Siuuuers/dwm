@@ -1,0 +1,320 @@
+{
+  "schema_version": 1,
+  "kind": "records_only_beads_reconciliation",
+  "source_commit": "425e575cd357af031fbeea5a56ca8e0d099c71ac",
+  "source_export_blob": "021be603688a39b6a3980f3e963682ec78a04c7e",
+  "scope": "All unfinished committed-export records; no runtime/test/workflow/story/master mutation.",
+  "records_total": 191,
+  "unfinished_before": 23,
+  "unfinished_after": 23,
+  "closed": [],
+  "retired": [],
+  "dependencies_changed": false,
+  "historical_notes_preserved": true,
+  "closed_records_preserved": true,
+  "live_dolt_queried": false,
+  "live_dolt_synchronized": false,
+  "bd_cli_available": false,
+  "engine_tests_run": false,
+  "independent_read_only_audits": [
+    "reading_audit",
+    "other_fields_audit"
+  ],
+  "next_field": {
+    "lead": "dwm-eei.2",
+    "name": "Settings indeterminate-Profile-write recovery acceptance",
+    "scope_limit": "Not whole Settings or all preview/native speech/display acceptance",
+    "source_observation": "ProfileManager owns failure signal/mutation block; SettingsPanelController lacks corresponding subscription/block projection. Inspect shared recovery composition before editing."
+  },
+  "changes": [
+    {
+      "id": "dwm-5ht",
+      "status_before": "deferred",
+      "status_after": "deferred",
+      "changed_fields": [
+        "description",
+        "notes",
+        "updated_at"
+      ],
+      "reconciliation_note": "Current scope is captions/History, not a bilingual rewrite of menus or speech. Test-only noncanonical content does not approve production translations. Remains deferred, not canceled."
+    },
+    {
+      "id": "dwm-634",
+      "status_before": "in_progress",
+      "status_after": "in_progress",
+      "changed_fields": [
+        "description",
+        "notes",
+        "updated_at"
+      ],
+      "reconciliation_note": "Accepted performance receipts: evidence/beads_cloud_review/save-witness-production-run78-82.json and the source-bound earlier performance receipts. Historical per-run timings and optimization proposals are observations, not current budgets or authorization to weaken validation. Remaining classification: measurement first, implementation only for an evidenced cause, followed by matched complete-operation acceptance."
+    },
+    {
+      "id": "dwm-634.3",
+      "status_before": "in_progress",
+      "status_after": "in_progress",
+      "changed_fields": [
+        "title",
+        "description",
+        "notes",
+        "updated_at"
+      ],
+      "reconciliation_note": "Run81/82 accepted the production per-write validation witness; receipt evidence/beads_cloud_review/save-witness-production-run78-82.json. Do not repeat adoption or treat fixed-capture improvements as native responsiveness acceptance. Historical session-specific exclusion of shared owners is not a permanent blocker under the coordinated PR1 continuation; one integrator still owns shared save/schema edits."
+    },
+    {
+      "id": "dwm-eei",
+      "status_before": "deferred",
+      "status_after": "deferred",
+      "changed_fields": [
+        "description",
+        "notes",
+        "updated_at"
+      ],
+      "reconciliation_note": "This parent remains an acceptance aggregate, not a parallel caption/Settings controller project. Later Hospital policy disables manual Save/Load/Next including paused F5/F9; no old Hospital-save acceptance request may override it. Preserve supported-format durability, Profile history and actual owner custody."
+    },
+    {
+      "id": "dwm-eei.10",
+      "status_before": "deferred",
+      "status_after": "deferred",
+      "changed_fields": [
+        "description",
+        "notes",
+        "updated_at"
+      ],
+      "reconciliation_note": "Keep this deferred linked checklist distinct from the active reading lead. Current movie-caption design and caption_assistive/caption_native/caption_native_review/rail_geometry receipts under evidence/phase_2r supersede historical implementation gaps only within their tested scopes."
+    },
+    {
+      "id": "dwm-eei.11",
+      "status_before": "deferred",
+      "status_after": "deferred",
+      "changed_fields": [
+        "description",
+        "notes",
+        "updated_at"
+      ],
+      "reconciliation_note": "Reuse reading_rail, hospital_reading and ending_reading/ending_caption_continuity/ending_auto source-bound receipts; hospital_manual_policy supersedes player Hospital-save implications. Historical unresolved legacy compatibility wording is superseded by docs/design/2026-09-29-unshipped-development-save-policy.md."
+    },
+    {
+      "id": "dwm-eei.17",
+      "status_before": "open",
+      "status_after": "deferred",
+      "changed_fields": [
+        "title",
+        "description",
+        "notes",
+        "status",
+        "updated_at"
+      ],
+      "reconciliation_note": "Status open -> deferred records the explicit recurrence waiting condition. Evidence/witnessed_shutdown_recheck/observation.json and native.log retain the passing recheck; historical evidence/witnessed_palettes retains the original context. No closure or new engine execution."
+    },
+    {
+      "id": "dwm-eei.2",
+      "status_before": "deferred",
+      "status_after": "open",
+      "changed_fields": [
+        "title",
+        "description",
+        "notes",
+        "status",
+        "updated_at"
+      ],
+      "reconciliation_note": "Status deferred -> open selects the next session's bounded Settings recovery field; no implementation is claimed in this records-only cleanup. Static source audit: ProfileManager already emits profile_write_failed and owns mutation blocking; SettingsPanelController lacks that failure subscription/block projection and falls back to generic settings.status.failed. Inspect complete shared recovery design/owners before implementation. Outcome: actual indeterminate storage failure under an open Settings host locks mutations/custody until proven reconciliation; Retry/re-entry cannot duplicate effects. Failures to cover: failure before/after durable write, stale/departed host, repeated input, failed reconciliation and output rollback. Evidence: meaningful owner integration plus rendered/native foreground journey, cloud-only Godot4.6.3/PowerShell; reuse accepted paused_settings_quick/load receipts. No authored audio catalogue prerequisite."
+    },
+    {
+      "id": "dwm-eei.5",
+      "status_before": "in_progress",
+      "status_after": "in_progress",
+      "changed_fields": [
+        "description",
+        "notes",
+        "updated_at"
+      ],
+      "reconciliation_note": "Paused Settings F9 acceptance is evidence/phase_2r/paused_settings_load_2026_10_02/receipt.json; it supersedes the preceding F5 receipt's historical F9-unavailable limitation. Hospital refusal is separately accepted. These bounded proofs do not close every native input/context clause."
+    },
+    {
+      "id": "dwm-eob",
+      "status_before": "deferred",
+      "status_after": "deferred",
+      "changed_fields": [
+        "description",
+        "notes",
+        "updated_at"
+      ],
+      "reconciliation_note": "Resume condition remains representative reviewed authored files. No production adapter or translation decision is made by this cleanup."
+    },
+    {
+      "id": "dwm-hsi",
+      "status_before": "in_progress",
+      "status_after": "deferred",
+      "changed_fields": [
+        "title",
+        "description",
+        "notes",
+        "status",
+        "updated_at"
+      ],
+      "reconciliation_note": "Status in_progress -> deferred records a recurrence-only waiting condition, not a fixed bug. Existing c2e7ec785 evidence is retained in evidence/ordinary_reply_recovery/README.md. No matching new failure was supplied in this cleanup."
+    },
+    {
+      "id": "dwm-n3h",
+      "status_before": "in_progress",
+      "status_after": "in_progress",
+      "changed_fields": [
+        "description",
+        "notes",
+        "updated_at"
+      ],
+      "reconciliation_note": "Aggregate remains unfinished; accepted fixture engineering does not imply production replay. Reuse authored_selector_2026_10_02 and physical_authored_selector_2026_10_02 receipts. Child dwm-n3h.2 is explicitly deferred pending selected authored contracts; this does not cancel its engineering obligations."
+    },
+    {
+      "id": "dwm-nqn",
+      "status_before": "open",
+      "status_after": "open",
+      "changed_fields": [
+        "notes",
+        "updated_at"
+      ],
+      "reconciliation_note": "Current scope retained: immutable neutral-ID cue/Load-anchor composition through coordinated Audio/Save/schema/restore owners. Pause preserves physical playhead; Load uses authored anchors. Production catalogue is missing; labeled noncanonical fixtures can prove engineering. No obsolete exact-position Load requirement or historical dirty-worktree blocker is reinstated. Remains open; its downstream dependency edges are unchanged."
+    },
+    {
+      "id": "dwm-oyo",
+      "status_before": "open",
+      "status_after": "open",
+      "changed_fields": [
+        "description",
+        "notes",
+        "updated_at"
+      ],
+      "reconciliation_note": "The current PR handoff supersedes historical startup/ownership directions. Keep PR1 draft and unmerged and do not modify master. This aggregate is not an additional implementation lane; completion requires applicable component and release obligations, not merely a green bounded fixture."
+    },
+    {
+      "id": "dwm-oyo.5",
+      "status_before": "in_progress",
+      "status_after": "in_progress",
+      "changed_fields": [
+        "description",
+        "notes",
+        "updated_at"
+      ],
+      "reconciliation_note": "Real unfinished blocking chain remains dwm-nqn -> dwm-oyo.5 -> dwm-oyo.6 -> dwm-oyo.7. Read the actual applicable phase clauses before closing; this reconciliation preserves all dependency edges and does not assert exhaustive Phase04 acceptance. Development-format ruling: docs/design/2026-09-29-unshipped-development-save-policy.md."
+    },
+    {
+      "id": "dwm-oyo.6",
+      "status_before": "in_progress",
+      "status_after": "in_progress",
+      "changed_fields": [
+        "description",
+        "notes",
+        "updated_at"
+      ],
+      "reconciliation_note": "Later bounded ending receipts are evidence/phase_2r/ending_reading_2026_10_03/receipt.json, ending_caption_continuity_2026_10_03/receipt.json and ending_auto_2026_10_03/receipt.json. They qualify the older general remaining-work wording, not the terminal invariants or Phase05 closure gate. dwm-oyo.5 remains an unfinished blocking prerequisite."
+    },
+    {
+      "id": "dwm-oyo.7",
+      "status_before": "open",
+      "status_after": "open",
+      "changed_fields": [
+        "description",
+        "notes",
+        "updated_at"
+      ],
+      "reconciliation_note": "No release closure follows from Run152 or any other bounded green batch. The unresolved nqn/oyo.5/oyo.6 chain remains; recurrence-only diagnostics and upstream Windows scrolling retain their explicit limitations. This cleanup does not rerun engines or relabel old evidence."
+    },
+    {
+      "id": "dwm-sx8",
+      "status_before": "in_progress",
+      "status_after": "in_progress",
+      "changed_fields": [
+        "description",
+        "notes",
+        "updated_at"
+      ],
+      "reconciliation_note": "Use docs/agent/2026-09-29-facade-contract-proof.md and evidence/beads_cloud_review/facade-contract-run74.json for exact accepted scope/limits. This is a rolling companion to selected feature work, not a prerequisite for starting every independent field and not a whole-facade rewrite. Regenerate inventories after a stable code/test candidate, then run the appropriate cloud gate."
+    },
+    {
+      "id": "dwm-vky",
+      "status_before": "in_progress",
+      "status_after": "in_progress",
+      "changed_fields": [
+        "notes",
+        "updated_at"
+      ],
+      "reconciliation_note": "Current Drift/all-input scope retained. Fully specified Drift cards use one deterministic plan/receipt and safe-boundary projection; accepted Tint/Steady children are not reopened. Remaining eight evidence records and all-input child acceptance require exact execution/review, not closure by inherited test counts. No new Drift design decision is made."
+    },
+    {
+      "id": "dwm-vky.14",
+      "status_before": "in_progress",
+      "status_after": "in_progress",
+      "changed_fields": [
+        "description",
+        "acceptance_criteria",
+        "notes",
+        "updated_at"
+      ],
+      "reconciliation_note": "Current receipt index: evidence/phase_2r/{reading_rail_2026_10_01,exact_caption_witness_2026_10_02,one_shot_next_2026_10_02,paused_settings_quick_2026_10_02,paused_settings_load_2026_10_02,hospital_manual_policy_2026_10_03,ending_reading_2026_10_03,ending_caption_continuity_2026_10_03,ending_auto_2026_10_03,movie_caption_2026_10_04,rail_geometry_2026_10_04,caption_native_review_2026_10_04}/receipt.json. Run152 is accepted only within its recorded limits: zero-character partial position, synthetic English fixture, native exit but fixture review entry, no full speech/navigation or gameplay-consequence-counter proof."
+    },
+    {
+      "id": "dwm-7wj",
+      "status_before": "in_progress",
+      "status_after": "in_progress",
+      "changed_fields": [
+        "description",
+        "notes",
+        "updated_at"
+      ],
+      "reconciliation_note": "Static source audit at 425e575: scripts/ui/GalleryScene.gd still constructs OptionButton; ProfileManager.get_reached_presentations and GalleryReplayOwner already preserve newest-first chronology. Replay completion currently shows generic failure/blank success rather than a proven new-History-lines notice. No complete Gallery closure; authored cues and native scrolling remain distinct prerequisites/limits."
+    },
+    {
+      "id": "dwm-wuk",
+      "status_before": "blocked",
+      "status_after": "blocked",
+      "changed_fields": [
+        "description",
+        "notes",
+        "updated_at"
+      ],
+      "reconciliation_note": "Keep blocked, not fixed. This is an external capability waiting condition; another successful headless/rendered test does not supply native ScrollPattern."
+    },
+    {
+      "id": "dwm-n3h.2",
+      "status_before": "open",
+      "status_after": "deferred",
+      "changed_fields": [
+        "description",
+        "notes",
+        "status",
+        "updated_at"
+      ],
+      "reconciliation_note": "Status open -> deferred records the current 3 October minimal-build decision, not completion or feature cancellation. Production registration remains disabled. Reopen for a selected reviewed authored contract or an explicitly bounded fixture-engineering outcome; preserve all dependencies and accepted source-bound receipts."
+    }
+  ],
+  "verification": {
+    "kind": "structural only",
+    "checks": [
+      "191 unique IDs preserved",
+      "all 168 closed records byte-preserved",
+      "all dependency arrays unchanged",
+      "historical note prefixes preserved",
+      "only 23 selected unfinished records changed",
+      "JSONL parse and status-count check",
+      "local navigation links resolve against source tree plus candidate paths"
+    ],
+    "not_claimed": [
+      "new runtime acceptance",
+      "complete live database state",
+      "full-game completion",
+      "fixed recurrence-only defects",
+      "fresh upstream ScrollPattern availability check"
+    ],
+    "result": "passed",
+    "final_status_counts": {
+      "closed": 168,
+      "deferred": 8,
+      "in_progress": 10,
+      "open": 4,
+      "blocked": 1
+    },
+    "candidate_export_sha256": "480c4c32f546c540a46be270a1defde3a1071dea8f5d781e7d4e0d807f5cda85",
+    "independent_review_correction": "Retained explicit caption palette, speaker-free/full-size projection, 100/125/150 geometry and overflow/focus clauses; movie-caption material supersession does not erase them."
+  }
+}

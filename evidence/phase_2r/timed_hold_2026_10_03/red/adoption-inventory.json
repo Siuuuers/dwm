@@ -1,0 +1,55 @@
+{
+  "status": "sealed_staging_only",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 2672,
+      "sha256": "376b8970188e9a3311a2456b072f5327bf4e0eede2ade8f04e17db1d40803364"
+    },
+    {
+      "path": "build_red_evidence.py",
+      "bytes": 16295,
+      "sha256": "1e643eba37fda2bdba321918782e2ab55118a32dba5447181389cd851f95c8f6"
+    },
+    {
+      "path": "red-evidence-summary.json",
+      "bytes": 2526,
+      "sha256": "e97ed5f92c8c14bc39fce12ee94d2d94fa12672e740eb6565a603222f5a7f168"
+    },
+    {
+      "path": "red1-inventory.json",
+      "bytes": 9940,
+      "sha256": "32604adf047af109e96e6c9b7fbad5475998c3ffaf62d35a011f6b2425b0c53c"
+    },
+    {
+      "path": "red1-package-manifest.json",
+      "bytes": 1057,
+      "sha256": "4a74ad128ec3faa955899a0bf79643a4b390128c936ee28177784cfb4a0c326b"
+    },
+    {
+      "path": "red2-inventory.json",
+      "bytes": 9662,
+      "sha256": "acca7c93161cfe8d9d427dde10e301ed29b5f6fcedce5b50820ca513f357717c"
+    },
+    {
+      "path": "red2-package-manifest.json",
+      "bytes": 1057,
+      "sha256": "d9ff0494b983480a1e957ff6473832949724c2c847b73ec400009bb6a02ef855"
+    },
+    {
+      "path": "timed-hold-red1-diagnostic-evidence.tar.gz",
+      "bytes": 142127,
+      "sha256": "d7617713cc2871e9ec68fe43753fa979a68499cb8d43acc66871d9e5470183b9"
+    },
+    {
+      "path": "timed-hold-red2-diagnostic-evidence.tar.gz",
+      "bytes": 144179,
+      "sha256": "32f56193edc416ccc908993100bb5361fe525274278a4e3cd1d9830753fa1b11"
+    }
+  ],
+  "total_files": 9,
+  "total_bytes": 329515,
+  "rebuild": "second full construction matched every pre-existing sealed output byte-for-byte",
+  "excluded_in_scope_capture_files": [],
+  "candidate_or_green_sources_in_failure_archives": false
+}

@@ -90,7 +90,7 @@ func test_initialization_loads_manifest_and_returns_detached_selectable_records(
 	assert_eq(_manager.get_readiness(), &"ready")
 	assert_eq(_manager.get_locale(), "en")
 	var locales: Array[Dictionary] = _manager.get_selectable_locales()
-	assert_eq(locales.size(), 3)
+	assert_eq(locales.size(), 5)
 	assert_eq(locales[1]["release_status"], "draft")
 	locales[0]["native_name"] = "mutated"
 	assert_eq(_manager.get_selectable_locales()[0]["native_name"], "English")
@@ -110,6 +110,11 @@ func test_lookup_uses_registered_fallback_and_exact_placeholder_sets() -> void:
 	assert_true(_initialize().get("ok", false))
 	assert_true(_manager.set_locale("zh_CN").get("ok", false))
 	assert_eq(_manager.t("app.minesweeper"), "扫雷")
+	assert_eq(_manager.t("desktop.notification.new_message_from_friend", {"friend_name": "Priscilla"}), "Angela 收到了来自 Priscilla 的新消息。")
+	# Remove only this isolated manager's detached translation to exercise the registered fallback.
+	var catalog: Dictionary = _manager.get("_bundle")["catalogs"]["zh_CN"]
+	catalog["messages"] = (catalog["messages"] as Array).filter(func(message: Dictionary) -> bool:
+		return message["id"] != "desktop.notification.new_message_from_friend")
 	assert_eq(_manager.t("desktop.notification.new_message_from_friend", {"friend_name": "Priscilla"}), "Angela received a new message from Priscilla.")
 	assert_eq(_manager.t("hud.minesweeper_rounds", {"remaining": 1}), "[format_error:hud.minesweeper_rounds]")
 	assert_eq(_manager.t("hud.minesweeper_rounds", {"remaining": 1, "max": 2, "extra": 3}), "[format_error:hud.minesweeper_rounds]")
@@ -289,3 +294,100 @@ func test_witnessed_transport_copy_is_catalog_owned_in_all_three_locales() -> vo
 			var key: String = "witnessed.transport." + keys[index]
 			assert_true(_manager.has_key(key), locale + " " + key)
 			assert_eq(_manager.t(key), expected[locale][index], locale + " " + key)
+
+func test_font_choice_publishes_after_durable_commit_without_locale_signal_and_survives_restart() -> void:
+	assert_true(_initialize().get("ok", false))
+	var root: FakePresentationRoot = autofree(FakePresentationRoot.new())
+	assert_true(_manager.register_presentation_root(root).get("ok", false))
+	var observed: Array = []
+	var locales: Array = []
+	_profile.preference_changed.connect(func(path: StringName, value: Variant) -> void:
+		if path == &"preferences.accessibility.font_style": observed.append([value, root.applied_profile.font_style, _manager.get_presentation_profile().font_style]))
+	_manager.locale_changed.connect(func(locale: String) -> void: locales.append(locale))
+	assert_true(_manager.set_font_style("readable").get("ok", false))
+	assert_eq(observed, [["readable", "readable", "readable"]])
+	assert_eq(locales, [], "A font change is not a language change")
+	var restarted: Node = autofree(_profile_script.new())
+	assert_true(restarted.initialize(_storage_script.new(ROOT, _ops)).get("ok", false))
+	assert_eq(restarted.get_preference(&"preferences.accessibility.font_style"), "readable")
+	var restarted_locale: Node = autofree(_localization_script.new())
+	assert_true(restarted_locale.initialize(restarted).get("ok", false))
+	assert_eq(restarted_locale.get_presentation_profile().font_style, "readable")
+	assert_true(_manager.set_locale("ja").get("ok", false))
+	assert_eq(root.applied_profile.font_style, "readable", "Language changes retain the selected style")
+	assert_true(_profile.reset_preferences().get("ok", false))
+	assert_eq(root.applied_profile.font_style, "pixel", "Reset refreshes presentation as well as persistence")
+
+func test_font_choice_refusal_rolls_back_roots_profile_and_publication() -> void:
+	assert_true(_initialize().get("ok", false))
+	var first: FakePresentationRoot = autofree(FakePresentationRoot.new())
+	var second: FakePresentationRoot = autofree(FakePresentationRoot.new())
+	assert_true(_manager.register_presentation_root(first).get("ok", false))
+	assert_true(_manager.register_presentation_root(second).get("ok", false))
+	var before: Dictionary = _profile.get_profile_snapshot()
+	var publications: Array = []
+	_profile.preference_changed.connect(func(path: StringName, _value: Variant) -> void: publications.append(path))
+	assert_false(_manager.set_font_style("unknown").get("ok", true))
+	second.fail_prepare = true
+	assert_eq(_manager.set_font_style("readable").get("code"), &"root_prepare_failed")
+	second.fail_prepare = false
+	second.fail_apply = true
+	assert_eq(_manager.set_font_style("readable").get("code"), &"root_apply_failed")
+	assert_eq(first.applied_profile.font_style, "pixel")
+	assert_eq(second.applied_profile.font_style, "pixel")
+	second.fail_apply = false
+	_ops.fail_after(_ops.operation_count() + 1)
+	assert_false(_manager.set_font_style("readable").get("ok", true))
+	assert_eq(first.applied_profile.font_style, "pixel", "A refused durable write restores prior roots")
+	assert_eq(second.applied_profile.font_style, "pixel")
+	assert_eq(_manager.get_presentation_profile().font_style, "pixel")
+	assert_eq(_profile.get_profile_snapshot(), before)
+	assert_eq(publications, [])
+
+func test_restore_uses_candidate_font_and_size_with_silent_apply_rollback_and_profile_match() -> void:
+	assert_true(_initialize().get("ok", false))
+	var root: FakePresentationRoot = autofree(FakePresentationRoot.new())
+	assert_true(_manager.register_presentation_root(root).get("ok", false))
+	var candidate: Dictionary = _profile.get_profile_snapshot()
+	candidate.preferences.accessibility.font_style = "readable"
+	candidate.preferences.accessibility.text_size = 150
+	var participant := preload("res://scripts/application/restore/ProfileRestoreParticipant.gd").new(_profile)
+	var profile_plan: Dictionary = participant.prepare_frozen_profile(candidate)
+	assert_true(profile_plan.get("ok", false))
+	var locale_participant := preload("res://scripts/application/restore/LocalizationRestoreParticipant.gd").new(_manager)
+	var prepared: Dictionary = locale_participant.prepare(profile_plan.value)
+	assert_true(prepared.get("ok", false), str(prepared))
+	var plan: Dictionary = prepared.value.localization_plan
+	assert_eq(plan.presentation_profile.font_style, "readable")
+	assert_eq(plan.presentation_profile.text_size, 150)
+	assert_eq(_manager.get_presentation_profile().font_style, "pixel", "Candidate remains unpublished")
+	assert_eq(_manager.apply_restore_silent(plan).get("code"), &"localization_restore_profile_mismatch")
+	var previous_profile: Dictionary = _profile.capture_restore_state()
+	var previous_locale: Dictionary = _manager.capture_restore_state()
+	var publications: Array = []
+	_profile.preference_changed.connect(func(path: StringName, _value: Variant) -> void: publications.append(path))
+	assert_true(participant.apply_silent(profile_plan.value.profile_plan).get("ok", false))
+	assert_true(locale_participant.apply_silent(plan).get("ok", false))
+	assert_eq(root.applied_profile.font_style, "readable")
+	assert_eq(root.applied_profile.text_size, 150)
+	assert_eq(publications, [])
+	assert_true(locale_participant.rollback_silent(previous_locale).get("ok", false))
+	assert_true(participant.rollback_silent(previous_profile.value).get("ok", false))
+	assert_eq(root.applied_profile.font_style, "pixel")
+	assert_eq(root.applied_profile.text_size, 100)
+	assert_eq(publications, [])
+
+func test_separate_profile_owners_do_not_share_selected_style() -> void:
+	assert_true(_initialize().get("ok", false))
+	var other_profile: Node = autofree(_profile_script.new())
+	assert_true(other_profile.initialize(_storage_script.new("localization-tests/other", _fake_ops_script.new())).get("ok", false))
+	var other_manager: Node = autofree(_localization_script.new())
+	assert_true(other_manager.initialize(other_profile).get("ok", false))
+	assert_true(_manager.set_font_style("readable").get("ok", false))
+	assert_eq(other_manager.prepare_locale("ko").value.presentation_profile.font_style, "pixel")
+	assert_eq(other_profile.get_preference(&"preferences.accessibility.font_style"), "pixel")
+	for locale: String in ["en", "zh_CN", "zh_HK", "ja", "ko"]:
+		assert_true(_manager.set_locale(locale).get("ok", false))
+		for key: String in ["settings.accessibility_font_style", "settings.value.pixel", "settings.value.readable"]:
+			assert_true(_manager.has_key(key), locale + " " + key)
+			assert_false(_manager.t(key).begins_with("[missing"))

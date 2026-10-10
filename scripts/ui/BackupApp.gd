@@ -2,6 +2,7 @@ extends AppWindowBase
 class_name BackupApp
 signal navigation_state_changed()
 
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const DRAWER := preload("res://scripts/ui/backup/BackupDrawer.gd")
 const KEY := preload("res://scripts/ui/backup/BackupKey.gd")
 const BACKUP_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
@@ -10,10 +11,16 @@ const RIGHT_X := 480.0
 const RIGHT_MARGIN := 16.0
 const RIGHT_MIN_WIDTH := 304.0
 const ACTION_GAP := 16.0
+const COMPACT_COPY := {
+	"ja": {"save": "保存", "load": "読込", "autosave": "自動", "quick": "Q保存", "slot": "保存 {n}"},
+	"ko": {"load": "로드", "autosave": "자동", "quick": "퀵 저장"},
+}
 const COPY := {
-	"en": {"save":"Save","load":"Load","delete":"Delete","cancel":"Cancel","retry":"Retry","overwrite":"Overwrite","autosave":"Autosave","quick":"Quick","slot":"Slot {n}","empty":"Empty","unavailable":"Unavailable","day":"Day {day} · {time}","automatic":"Autosave is created automatically.","fallback":"Only an earlier compatible checkpoint can be loaded.","newer":"Newer game version required.","unreadable":"Can't read this save.","older":"Older save","older_details":"This save is from an older build and cannot be loaded.","replaceable":"Choose Save to replace it with your current game.","save_unavailable":"Saving is currently unavailable.","saved":"Saved","failed":"Operation failed.","stale":"Save changed.","failure_details":"The operation did not complete. Cancel or try again using current record details.","overwrite_title":"Overwrite {record}?","delete_title":"Delete {record}?","load_title":"Load {record}?","fallback_title":"Load earlier checkpoint?","replace_progress":"Unsaved progress in the current game will be replaced.","delete_body":"This save will be deleted."},
-	"zh-CN": {"save":"保存","load":"载入","delete":"删除","cancel":"取消","retry":"重试","overwrite":"覆盖","autosave":"自动存档","quick":"快速存档","slot":"存档 {n}","empty":"空","unavailable":"不可用","day":"第 {day} 天 · {time}","automatic":"自动存档由系统自动创建。","fallback":"只能载入较早的兼容检查点。","newer":"需要更新的游戏版本。","unreadable":"无法读取此存档。","save_unavailable":"当前无法保存。","saved":"已保存","failed":"操作失败。","stale":"存档已变更。","failure_details":"操作未完成。请取消，或根据当前存档信息重试。","overwrite_title":"覆盖{record}？","delete_title":"删除{record}？","load_title":"载入{record}？","fallback_title":"载入较早的检查点？","replace_progress":"当前游戏中未保存的进度将被替换。","delete_body":"此存档将被删除。","older":"旧版存档","older_details":"此存档来自较旧版本，无法载入。","replaceable":"选择保存，即可用当前游戏覆盖此存档。"},
-	"zh-HK": {"save":"儲存","load":"載入","delete":"刪除","cancel":"取消","retry":"重試","overwrite":"覆寫","autosave":"自動存檔","quick":"快速存檔","slot":"存檔 {n}","empty":"空","unavailable":"不可用","day":"第 {day} 天 · {time}","automatic":"自動存檔由系統自動建立。","fallback":"只能載入較早的相容檢查點。","newer":"需要更新的遊戲版本。","unreadable":"無法讀取此存檔。","save_unavailable":"目前無法儲存。","saved":"已儲存","failed":"操作失敗。","stale":"存檔已變更。","failure_details":"操作未完成。請取消，或根據目前存檔資訊重試。","overwrite_title":"覆寫{record}？","delete_title":"刪除{record}？","load_title":"載入{record}？","fallback_title":"載入較早的檢查點？","replace_progress":"目前遊戲中未儲存的進度將被取代。","delete_body":"此存檔將被刪除。","older":"舊版存檔","older_details":"此存檔來自較舊版本，無法載入。","replaceable":"選擇儲存，即可用目前遊戲覆寫此存檔。"},
+	"ja": {"save": "セーブ","load": "ロード","delete": "削除","cancel": "キャンセル","retry": "再試行","overwrite": "上書き","autosave": "オートセーブ","quick": "クイックセーブ","slot": "セーブ {n}","empty": "空き","unavailable": "利用不可","day": "{day}日目 · {time}","automatic": "オートセーブは自動で作成されます。","fallback": "以前の互換性のあるチェックポイントのみロードできます。","load_unavailable": "現在、このセーブはロードできません。","no_compatible": "互換性のあるチェックポイントがありません。","newer": "より新しいゲームバージョンが必要です。","unreadable": "このセーブは読み取れません。","save_unavailable": "現在はセーブできません。","saved": "セーブしました","failed": "処理に失敗しました。","stale": "セーブが変更されました。","failure_details": "処理が完了しませんでした。キャンセルするか、現在のセーブ情報を確認して再試行してください。","overwrite_title": "{record}を上書きしますか？","delete_title": "{record}を削除しますか？","load_title": "{record}をロードしますか？","fallback_title": "以前のチェックポイントをロードしますか？","replace_progress": "現在の未保存の進行状況は置き換えられます。","delete_body": "このセーブは削除されます。","older": "旧バージョンのセーブ","older_details": "古いバージョンのセーブのためロードできません。","replaceable": "「セーブ」で現在のゲームをこのセーブに上書きできます。"},
+	"ko": {"save": "저장","load": "불러오기","delete": "삭제","cancel": "취소","retry": "다시 시도","overwrite": "덮어쓰기","autosave": "자동 저장","quick": "빠른 저장","slot": "저장 {n}","empty": "비어 있음","unavailable": "사용 불가","day": "{day}일째 · {time}","automatic": "자동 저장은 자동으로 생성됩니다.","fallback": "이전의 호환되는 체크포인트만 불러올 수 있습니다.","load_unavailable": "현재 이 저장을 불러올 수 없습니다.","no_compatible": "호환되는 체크포인트가 없습니다.","newer": "더 최신 게임 버전이 필요합니다.","unreadable": "이 저장을 읽을 수 없습니다.","save_unavailable": "지금은 저장할 수 없습니다.","saved": "저장 완료","failed": "작업에 실패했습니다.","stale": "저장이 변경되었습니다.","failure_details": "작업이 완료되지 않았습니다. 취소하거나 현재 저장 정보를 확인한 뒤 다시 시도하세요.","overwrite_title": "{record}을(를) 덮어쓸까요?","delete_title": "{record}을(를) 삭제할까요?","load_title": "{record}을(를) 불러올까요?","fallback_title": "이전 체크포인트를 불러올까요?","replace_progress": "현재 게임의 저장하지 않은 진행 상황이 대체됩니다.","delete_body": "이 저장이 삭제됩니다.","older": "이전 버전의 저장","older_details": "이전 버전에서 만든 저장이므로 불러올 수 없습니다.","replaceable": "저장을 선택하면 현재 게임으로 이 저장을 덮어쓸 수 있습니다."},
+	"en": {"save":"Save","load":"Load","delete":"Delete","cancel":"Cancel","retry":"Retry","overwrite":"Overwrite","autosave":"Autosave","quick":"Quick","slot":"Slot {n}","empty":"Empty","unavailable":"Unavailable","day":"Day {day} · {time}","automatic":"Autosave is created automatically.","fallback":"Only an earlier compatible checkpoint can be loaded.","load_unavailable":"This save cannot currently be loaded.","no_compatible":"No compatible checkpoint is available.","newer":"Newer game version required.","unreadable":"Can't read this save.","older":"Older save","older_details":"This save is from an older build and cannot be loaded.","replaceable":"Choose Save to replace it with your current game.","save_unavailable":"Saving is currently unavailable.","saved":"Saved","failed":"Operation failed.","stale":"Save changed.","failure_details":"The operation did not complete. Cancel or try again using current record details.","overwrite_title":"Overwrite {record}?","delete_title":"Delete {record}?","load_title":"Load {record}?","fallback_title":"Load earlier checkpoint?","replace_progress":"Unsaved progress in the current game will be replaced.","delete_body":"This save will be deleted."},
+	"zh-CN": {"save":"保存","load":"载入","delete":"删除","cancel":"取消","retry":"重试","overwrite":"覆盖","autosave":"自动存档","quick":"快速存档","slot":"存档 {n}","empty":"空","unavailable":"不可用","day":"第 {day} 天 · {time}","automatic":"自动存档由系统自动创建。","fallback":"只能载入较早的兼容检查点。","load_unavailable":"当前无法载入此存档。","no_compatible":"没有兼容的检查点。","newer":"需要更新的游戏版本。","unreadable":"无法读取此存档。","save_unavailable":"当前无法保存。","saved":"已保存","failed":"操作失败。","stale":"存档已变更。","failure_details":"操作未完成。请取消，或根据当前存档信息重试。","overwrite_title":"覆盖{record}？","delete_title":"删除{record}？","load_title":"载入{record}？","fallback_title":"载入较早的检查点？","replace_progress":"当前游戏中未保存的进度将被替换。","delete_body":"此存档将被删除。","older":"旧版存档","older_details":"此存档来自较旧版本，无法载入。","replaceable":"选择保存，即可用当前游戏覆盖此存档。"},
+	"zh-HK": {"save":"儲存","load":"載入","delete":"刪除","cancel":"取消","retry":"重試","overwrite":"覆寫","autosave":"自動存檔","quick":"快速存檔","slot":"存檔 {n}","empty":"空","unavailable":"不可用","day":"第 {day} 天 · {time}","automatic":"自動存檔由系統自動建立。","fallback":"只能載入較早的相容檢查點。","load_unavailable":"目前無法載入此存檔。","no_compatible":"沒有相容的檢查點。","newer":"需要更新的遊戲版本。","unreadable":"無法讀取此存檔。","save_unavailable":"目前無法儲存。","saved":"已儲存","failed":"操作失敗。","stale":"存檔已變更。","failure_details":"操作未完成。請取消，或根據目前存檔資訊重試。","overwrite_title":"覆寫{record}？","delete_title":"刪除{record}？","load_title":"載入{record}？","fallback_title":"載入較早的檢查點？","replace_progress":"目前遊戲中未儲存的進度將被取代。","delete_body":"此存檔將被刪除。","older":"舊版存檔","older_details":"此存檔來自較舊版本，無法載入。","replaceable":"選擇儲存，即可用目前遊戲覆寫此存檔。"},
 }
 
 var mode_buttons: Dictionary = {}
@@ -39,6 +46,7 @@ var _confirmation_host: Object
 var _records: Dictionary = {}
 var _locale := "en"
 var _percent := 100
+var _font_style := "pixel"
 var _run_palette: StringName = &"after_hours"
 var _day := 1
 var _pending_presentation := false
@@ -263,10 +271,11 @@ func _presentation_candidate(palette: StringName, day: int, localization: Object
 	var percent := int(profile.get_preference("preferences.accessibility.text_size", 100)) if profile != null else 100
 	var high_contrast := bool(profile.get_preference("preferences.accessibility.high_contrast", false)) if profile != null else false
 	var colour_preset := str(profile.get_preference("preferences.accessibility.colour_differentiation", "standard")) if profile != null else "standard"
-	var candidate: Theme = BACKUP_THEME.build(locale, percent, palette, day, high_contrast, colour_preset)
+	var font_style := str(profile.get_preference("preferences.accessibility.font_style", "pixel")) if profile != null else "pixel"
+	var candidate: Theme = BACKUP_THEME.build(locale, percent, palette, day, high_contrast, colour_preset, font_style)
 	if candidate == null:
 		return {}
-	return {"locale": locale, "percent": percent, "theme": candidate}
+	return {"locale": locale, "percent": percent, "font_style": font_style, "theme": candidate}
 
 func _apply_typography(refresh_content: bool = false) -> void:
 	var candidate: Dictionary = _presentation_candidate(_run_palette, _day, _localization, _profile)
@@ -276,12 +285,13 @@ func _apply_typography(refresh_content: bool = false) -> void:
 func _apply_presentation(candidate: Dictionary, refresh_content: bool = true) -> void:
 	_locale = candidate.locale
 	_percent = candidate.percent
+	_font_style = candidate.font_style
 	theme = candidate.theme
 	_pending_presentation = false
 	for drawer in drawer_buttons.values():
 		drawer.theme = theme
 		for label in [drawer.identity_label, drawer.state_label]:
-			label.add_theme_font_size_override("font_size", int(20 * _percent / 100.0))
+			label.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(_locale, _percent, 20, _font_style))
 	_info_text.add_theme_color_override("font_color", theme.get_color("paper_ink", "Backup"))
 	status_label.add_theme_color_override("font_color", theme.get_color("paper_ink", "Backup"))
 	_body.queue_redraw()
@@ -302,10 +312,23 @@ func _refresh_presentation() -> void:
 	for locator in LOCATORS:
 		var drawer: Button = drawer_buttons[locator]
 		drawer.selected = locator == selected_locator
-		drawer.present(_identity(locator), _record_state(_records[locator]), _records[locator].state == "unavailable")
+		var identity := _identity(locator)
+		var identity_key := "slot" if locator.begins_with("slot:") else str(locator)
+		var compact := _compact_text(identity_key, identity, {"n": locator.trim_prefix("slot:")})
+		var visible_identity := _fit_caption(identity, compact, drawer.identity_label)
+		drawer.present(visible_identity, _record_state(_records[locator]), _records[locator].state == "unavailable")
+		if _locale in ["ja", "ko"]:
+			drawer.identity_label.size = Vector2(128, 52)
+		drawer.accessibility_name = identity + ", " + _record_state(_records[locator])
+		drawer.tooltip_text = identity if visible_identity != identity else ""
 	for mode in mode_buttons:
-		mode_buttons[mode].selected = mode == active_mode
-		mode_buttons[mode].set_caption(_t(mode))
+		var button: Button = mode_buttons[mode]
+		button.selected = mode == active_mode
+		var full := _t(mode)
+		var visible_copy := _fit_caption(full, _compact_text(mode, full), button.caption)
+		button.set_caption(visible_copy)
+		button.accessibility_name = full
+		button.tooltip_text = full if visible_copy != full else ""
 	var record: Dictionary = _records[selected_locator]
 	var facts := [_identity(selected_locator), _record_state(record)]
 	if selected_locator == "autosave":
@@ -350,7 +373,7 @@ func _build_actions() -> void:
 		key.position = Vector2.ZERO
 		key.size = Vector2(304, 64)
 		key.set_caption(_t(action if action != "retry" or _source_action == "save" and _confirmation_kind == "none" else (_source_action if _source_action != "save" else "overwrite")))
-		key.add_theme_font_size_override("font_size", int(20 * _percent / 100.0))
+		key.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(_locale, _percent, 20, _font_style))
 		key.disabled = not _projection_valid or (not record.actions.get(action, false) if not _recovering else false)
 		key.focus_mode = Control.FOCUS_NONE if key.disabled else Control.FOCUS_ALL
 		key.risk = "danger" if action == "load" and not _title_login else ("destructive" if action == "delete" else "neutral")
@@ -358,7 +381,7 @@ func _build_actions() -> void:
 			key.risk = "danger" if _source_action == "load" and not _title_login else ("destructive" if _source_action == "delete" or _confirmation_kind == "overwrite" else "neutral")
 		key.pressed.connect(_action_pressed.bind(action))
 		action_dock.add_child(key)
-		key.caption.add_theme_font_size_override("font_size", int(20 * _percent / 100.0))
+		key.caption.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(_locale, _percent, 20, _font_style))
 		action_buttons[action] = key
 	_layout_action_buttons()
 	if action_buttons.has(prior_focus) and not action_buttons[prior_focus].disabled:
@@ -657,12 +680,20 @@ func _on_locale_changed(_value: String) -> void:
 	_refresh_appearance()
 
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
-	if path in [&"preferences.accessibility.text_size", &"preferences.accessibility.high_contrast",
+	if path in [&"preferences.accessibility.font_style", &"preferences.accessibility.text_size", &"preferences.accessibility.high_contrast",
 			&"preferences.accessibility.colour_differentiation"]:
 		_refresh_appearance()
 
 func _t(key: String, replacements: Dictionary = {}) -> String:
 	return str(COPY[_locale].get(key, key)).format(replacements)
+
+func _compact_text(key: String, fallback: String, replacements: Dictionary = {}) -> String:
+	return str(COMPACT_COPY.get(_locale, {}).get(key, fallback)).format(replacements)
+
+func _fit_caption(full: String, compact: String, label: Label) -> String:
+	var font := label.get_theme_font("font")
+	var width := font.get_string_size(full, HORIZONTAL_ALIGNMENT_LEFT, -1, label.get_theme_font_size("font_size")).x
+	return full if width <= label.size.x else compact
 
 func _identity(locator: String) -> String:
 	return _t("slot", {"n": locator.trim_prefix("slot:")}) if locator.begins_with("slot:") else _t(locator)
@@ -675,6 +706,8 @@ func _day_time(day: Variant, saved_time: Variant) -> String:
 	return _t("day", {"day": str(day) if day != null else "—", "time": str(saved_time) if saved_time != null else "--:--"})
 
 func _reason_text(reason: String) -> String:
+	if reason == "no_compatible_checkpoint": return _t("no_compatible")
+	if reason == "restore_unavailable": return _t("load_unavailable")
 	if reason == "older_version": return _t("older_details")
 	if "future" in reason or "newer" in reason:
 		return _t("newer")

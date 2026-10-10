@@ -1,0 +1,2 @@
+# Preserve original cloud artifact bytes, including Windows line endings.
+* -text

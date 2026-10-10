@@ -1,0 +1,68 @@
+{
+  "captures": [
+    {
+      "bytes": 6630,
+      "file": "01-title.png",
+      "sha256": "3fac61e753d5e1266feedda15783b722b2e5802d1ed9a271cab19f5b8bb34328"
+    },
+    {
+      "bytes": 353674,
+      "file": "02-desktop.png",
+      "sha256": "b006557695847cd541bbab4f337ede1183ff39023dffd98f2fffe2f4a4f1653d"
+    },
+    {
+      "bytes": 358257,
+      "file": "03-minesweeper.png",
+      "sha256": "e3bca31e3a4e76c1a9d26916ded409fa6ee06f62d108a806c319185eb71b9f59"
+    },
+    {
+      "bytes": 7318,
+      "file": "04-pre-history.png",
+      "sha256": "4d878362e53a01aad70fb13415154dfcf38c1f331455699c8909a191ea3fcb42"
+    },
+    {
+      "bytes": 673665,
+      "file": "05-dating-board.png",
+      "sha256": "e0e5b98560bb2a01eb4a19a3906aaf45dac34926d10c97ea1ff8eb9cd5fb75e6"
+    },
+    {
+      "bytes": 9031,
+      "file": "06-post-history.png",
+      "sha256": "d0fa56bcf7326b46a3e8bee910ecf1844b053da4765b7d03049e063a5923b81a"
+    },
+    {
+      "bytes": 1329756,
+      "file": "07-post-save.png",
+      "sha256": "eccb7301e58f4a0a6bf06c8a392a6aff596dd6769871df7741dfbeba429ab9bf"
+    },
+    {
+      "bytes": 9031,
+      "file": "08-restored-history.png",
+      "sha256": "d0fa56bcf7326b46a3e8bee910ecf1844b053da4765b7d03049e063a5923b81a"
+    },
+    {
+      "bytes": 1330459,
+      "file": "09-restored-line.png",
+      "sha256": "d5148fe105c1700944ea6ab51b832aa316c0a2182bb03042b5b4e33f75dd4447"
+    }
+  ],
+  "checkout": "efad9b11f6b5a063feeeead2aef6bfb7b3d6d0c5",
+  "limits": [
+    "Semantic selected caption, frozen frames, physical Save/Load, History and witness guarantees are covered by the separate successful automated artifact audit.",
+    "No claim of final native visual polish or identical accumulated text layout across restart.",
+    "The separate known cold board-null Load title clipping is neither exercised nor fixed by this materialized-board journey.",
+    "Only the captured sweet/exploded/amused run and 1280x720 viewport were visually inspected; no other outcome, resolution or production dialogue acceptance."
+  ],
+  "observations": [
+    "Title, Day 1 desktop and generic Minesweeper captures show readable labels and visible focus cues at 1280x720.",
+    "Pre History shows both selected sweet captions; post and restored History show the same four selected captions, including the actual amused explosion reflection and sweet closing.",
+    "The materialized Dating board capture has a visible Priscilla / Day 1 title, Rules button and zoom controls; the board extends within its scroll viewport.",
+    "Both post-save and restored-line captures visibly show the current sweet closing and the full transport rail.",
+    "The live post-save capture also shows preceding exploded post-A wording above post-B; the fresh restored-line capture shows only post-B. This observed accumulated-presentation difference prevents a pixel-identical live/restored-layout claim."
+  ],
+  "review_method": "Direct visual inspection of all nine retained cloud PNG captures; no engine execution or image alteration.",
+  "run_attempt": 1,
+  "run_id": 36949671754,
+  "schema_version": 1,
+  "source": "efad9b11f6b5a063feeeead2aef6bfb7b3d6d0c5"
+}

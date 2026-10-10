@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "status": "accepted_bounded_ephemeral_native_hold",
+  "lead_bead": "dwm-vky.14",
+  "source": "2937bc569094186dbd1bbefe75efeaa58deccbcc",
+  "actual_checkout": "bee762330520dcf2835df5f725535004a355e015",
+  "run_id": 37094251984,
+  "run_url": "https://github.com/Siuuuers/dwm/actions/runs/37094251984",
+  "run_attempt": 1,
+  "jobs": {
+    "successful": 25,
+    "total": 25,
+    "checkout_jobs": 24,
+    "aggregate_without_checkout": 1
+  },
+  "source_relation": {
+    "auxiliary_only_difference": ".github/workflows/timed-hold-cloud.yml",
+    "canonical_jobs_byte_identical": true,
+    "pr_master_test_merge": false,
+    "evidence_ancestor": "c8303aa4cf076946f870089e7e408e5e1bddca87",
+    "master_observed": "6a5ddf1564870b43aa9140cad7e0e5b12e43f399",
+    "records_descendants_engine_tested": false
+  },
+  "ordinary_xml": {
+    "artifacts": 13,
+    "test_executions": 2472,
+    "unique_script_test_pairs": 2468,
+    "script_executions": 207,
+    "unique_scripts": 206,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "all_names_reconciled_to_source": true,
+    "reading_delivery_tests": 515,
+    "native_hold_tests": 10,
+    "caption_hold_tests": 4
+  },
+  "negative_controls": {
+    "separate_from_primary_counts": true,
+    "settings_root_refusal_xmls": 2,
+    "cases_each": 83,
+    "expected_test_root_missing_failures_each": 80,
+    "storage_free_passes_each": 3
+  },
+  "rendered_hold": {
+    "process_id": 4058,
+    "noncanonical_duration_seconds": 2.0,
+    "pause_observed_seconds": 2.509,
+    "native_elapsed_before_and_after_pause": 0.341324666666667,
+    "native_wait_finishes": 1,
+    "native_timeline_ends": 1,
+    "profile_bytes_unchanged_during_hold": true,
+    "no_caption_history_witness_speech_focus_during_hold": true,
+    "six_rail_actions_disabled": true,
+    "fresh_input_required_after_hold": true,
+    "source_hashes_and_raw_capture_copies_verified": true,
+    "selected_captures_visually_reviewed": true,
+    "cancel_replacement_proof": "Separate native regression, not inferred from rendered journey"
+  },
+  "ownership": [
+    "Native Wait owns timer and bound callback retirement.",
+    "Runtime/Bridge owns ephemeral admission and Pause custody.",
+    "Caption layer only projects the hold; no durable timer cursor or parallel save/history store."
+  ],
+  "regressions": [
+    "Original Solo and paused Settings F5/F9",
+    "Physical authored Solo selectors",
+    "Sylvia-present Hospital Save/fresh Load",
+    "Public API and UI literal inventories",
+    "Seven-day producer and all four comparison consumers",
+    "Unsigned Windows package and isolated headless startup"
+  ],
+  "qualifications": [
+    "Editor import logged GUT update HTTP403 in three jobs and cleanup/toolchain warnings; no whole-run warning-free claim.",
+    "Windows exporter console retained one ObjectDB exit cleanup warning; exported startup and pack-audit logs lack that warning. Exporter lifetime remains unresolved.",
+    "Performance comparisons have no timing acceptance threshold and do not prove universal speedup or resolved latency.",
+    "Two deliberate refusal XMLs contain expected failures and are excluded from ordinary green counts.",
+    "Conditional outgoing-payload download steps are skipped in three non-outgoing variants, not skipped test cases."
+  ],
+  "scope_exclusions": [
+    "Production prose, duration or staging selectors; production catalogue remains disabled.",
+    "No-Sylvia Hospital integration and physical completion.",
+    "Arbitrary mid-hold Save/Load or durable hold history.",
+    "Ordered-ending History/restore.",
+    "Native Windows graphics, hardware input, UIA/screen-reader and audible speech quality.",
+    "General event_started observer reentrancy and whole-game/release acceptance."
+  ],
+  "legacy_wait_limit": "Existing visible/skippable auto-skip durations have controls; direct user-input skippable completion remains source-preserved without a new dedicated positive case.",
+  "evidence": {
+    "package": "broad1/package-manifest.json",
+    "verifier": "broad1/verify_package.py",
+    "archive": {
+      "bytes": 88782016,
+      "sha256": "4d8a17b52dad29891dd81640daf94a30558a3ea7feed7bbe120eaa18c41daca9"
+    },
+    "original_zips_retained": 37,
+    "zip_members_verified": 933,
+    "raw_export_records_retained": true,
+    "export_binary_bytes_excluded": true,
+    "original_export_sha256": "e80cd7e674a19a13ddd8110c67c39703d2113d80afa98f0fe5d7ef38f2e4fbbc",
+    "original_export_bytes": 98859886,
+    "prior_diagnostics": [
+      "red/README.md",
+      "failed-focus/README.md",
+      "focus3/README.md"
+    ]
+  },
+  "next": "Noncanonical no-Sylvia Schedule-Done Hospital through existing command/receipt owner; replace notice/Continue contract and tests together, preserving physical completion.",
+  "beads": {
+    "records": 191,
+    "unfinished": 23,
+    "status_dependency_changes": false,
+    "live_dolt_queried_or_synchronized": false
+  },
+  "pr": {
+    "number": 1,
+    "draft": true,
+    "merged": false,
+    "master_changed": false
+  }
+}

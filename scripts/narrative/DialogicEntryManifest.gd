@@ -675,6 +675,13 @@ static func validate_line_id(document: Dictionary, entry_id: String, line_id: St
 	return _fail(&"LINE_ID_UNREGISTERED", "%s is not a registered line id" % line_id)
 
 
+## Separate opt-in caption registration; the reply/Observer registry is not a
+## complete narrative beat catalog. This never grants Profile visited membership.
+static func validate_caption_registry(document: Dictionary, registry: Dictionary) -> Dictionary:
+	return preload("res://scripts/narrative/NarrativeCaptionRegistry.gd").validate_document(
+		registry, _entry_index(document).keys())
+
+
 ## DEVIATION-4 Ruling C. An atom resolves at the entry that OWNS it or at an entry that PRESENTS it,
 ## and the success value's match field reports which. RULING B: nothing here reads the shape of
 ## atom_id, because no atom id the plan mandates nests under its owner's atom_namespace.

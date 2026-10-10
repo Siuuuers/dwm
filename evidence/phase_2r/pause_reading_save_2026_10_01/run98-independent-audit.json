@@ -1,0 +1,1242 @@
+{
+  "schema_version": 1,
+  "run_id": 36877062304,
+  "run_number": 98,
+  "run_attempt": 1,
+  "candidate_source": "36d2fdca56c53c0d6b8571ded45e92fc6d3a9e91",
+  "tested_merge": "5792c629b9e0bfe27ce4d5b2b07837dc6a070fbf",
+  "audit_scope": "Assigned non-GUT cloud evidence: rendered UI and journeys, literal classification, storage refusal/fault equivalence, checkpoint and retained-history performance, new-account latency, exported release startup.",
+  "audit_complete": true,
+  "runtime_proof_failures": [],
+  "pending_areas": [],
+  "component_audits": [
+    {
+      "file": "audit/render-settings-audit.json",
+      "sha256": "26b867b3c5470e3ef67c679041bf1479386a86fbc9f7474d370aefe28971b22e"
+    },
+    {
+      "file": "audit/performance-export-audit.json",
+      "sha256": "8bc4e9bcffa6a2bb2cb136cdc825bbd33dd98fd7428238c0718458a4836524e1"
+    }
+  ],
+  "rendered_ui": {
+    "group_count": 6,
+    "capture_count": 137,
+    "groups": [
+      {
+        "group": "desktop-scaling-render",
+        "captures": 38,
+        "renderer": "X11"
+      },
+      {
+        "group": "delivery-dialogue-render",
+        "captures": 25,
+        "renderer": "X11"
+      },
+      {
+        "group": "angela-overlay-render",
+        "captures": 10,
+        "renderer": "X11"
+      },
+      {
+        "group": "japanese-korean-ui-render",
+        "captures": 30,
+        "renderer": "X11"
+      },
+      {
+        "group": "font-choices-render",
+        "captures": 30,
+        "renderer": "X11"
+      },
+      {
+        "group": "playable-startup-render",
+        "captures": 4,
+        "renderer": "rendered startup per process log"
+      }
+    ]
+  },
+  "literal_audit": {
+    "ok": true,
+    "reports": [
+      {
+        "report": "artifacts/ui-literal-audit-36877062304-1/ui_literal_disposition.json",
+        "sha256": "2bcc2d325c95cefae7ef35079ba12adb02b550d1762ec43fd9a1a932882a2d03",
+        "source_count": 31,
+        "classified_records": 53,
+        "failures": [],
+        "source_line_hashes_match_candidate": true
+      },
+      {
+        "report": "artifacts/ui-literal-audit-36877062304-1/script_ui_disposition.json",
+        "sha256": "dc462ff15dad7901cc4a00939da532bdbc1ae54649e1c85d3cf73c8b550a0f2f",
+        "source_count": 314,
+        "classified_records": 327,
+        "failures": [],
+        "source_line_hashes_match_candidate": true
+      }
+    ],
+    "history_title_and_close_labels_localized": true
+  },
+  "existing_playable_journeys": {
+    "case_count": 5,
+    "capture_count": 27,
+    "five_fresh_isolation_roots": true,
+    "cases": [
+      {
+        "case_id": "seven-days-ending-gallery",
+        "fixture_scope": "No prior ending or reached-presentation fixture.",
+        "captures": 4,
+        "exit_code": 0
+      },
+      {
+        "case_id": "seven-days-condition-ending",
+        "fixture_scope": "No prior ending or reached-presentation fixture.",
+        "captures": 3,
+        "exit_code": 0
+      },
+      {
+        "case_id": "dating-reload",
+        "fixture_scope": "No prior ending or reached-presentation fixture; empty DTL earns no signature.",
+        "captures": 7,
+        "exit_code": 0
+      },
+      {
+        "case_id": "practice-empty-dtl",
+        "fixture_scope": "Prior-ending milestone only. Canonical empty DTL must leave Practice empty.",
+        "captures": 5,
+        "exit_code": 0
+      },
+      {
+        "case_id": "practice-legacy-compatibility",
+        "fixture_scope": "Explicit prior-ending and historical reached-signature fixtures. Private-board compatibility evidence only; never evidence that empty canonical DTL was witnessed.",
+        "captures": 8,
+        "exit_code": 0
+      }
+    ]
+  },
+  "reading_journey": {
+    "ok": true,
+    "tested_merge": "5792c629b9e0bfe27ce4d5b2b07837dc6a070fbf",
+    "pause_stages": [
+      "ordinary_pause_entered",
+      "ordinary_pause_cancelled",
+      "ordinary_pause_continued",
+      "ordinary_pause_reentered",
+      "ordinary_backup_previewed",
+      "ordinary_backup_entered",
+      "ordinary_pause_save_committed",
+      "ordinary_pause_save_continued"
+    ],
+    "all_source_state_unchanged_during_pause_entry_save_and_continue": true,
+    "plain_pause_and_preview_remain_partial": true,
+    "explicit_backup_reveal_generation_delta": 1,
+    "foreign_handle_refused_without_mutation": true,
+    "manual_slot": {
+      "locator": "slot:3",
+      "bytes": 116821,
+      "sha256": "30783a8ee3a5f7953176b29f21d40c1c7dd9040fc91cc35476eeccf62a868a94",
+      "line_id": "fixture.solo.pre.a",
+      "caption_count": 1,
+      "immutable_frames": 1,
+      "fresh_loaded": false
+    },
+    "quick": {
+      "bytes": 174851,
+      "sha256": "ae71459c69e8076bf53b514336660d1ba23c1aa1927600bbce438120ed96744b",
+      "line_id": "fixture.solo.post.a",
+      "caption_count": 3,
+      "immutable_frames": 2,
+      "fresh_loaded": true
+    },
+    "write_pid": 4460,
+    "read_pid": 4599,
+    "write_speech_admissions": 4,
+    "read_speech_admissions": 0,
+    "write_history_inspections": 2,
+    "read_history_inspections": 1,
+    "both_process_exit_codes": 0,
+    "lifetime_error_markers": [],
+    "trace_entries": 20,
+    "trace_sha256": "f2a177c4210ba4d7283234491f4e82e3c1370ed12fbc80c3e94d4d52d8a5c1a3",
+    "limit": "Fresh READ proves post Quick; manual pre slot is independently retained and admitted but not separately loaded.",
+    "capture_count": 9
+  },
+  "settings_storage": {
+    "ok": true,
+    "negative_storage_roots": [
+      {
+        "case": "empty",
+        "expected_refusals": 80,
+        "all_refusal_codes": "test_root_missing",
+        "storage_free_passes": 3,
+        "expected_exit_code": 1,
+        "repository_inventory_entries": 11983,
+        "before_after_bytes_identical": true,
+        "inventory_sha256": "a122fce0ae405cdcd47d8afc8d0bcc1afec0e15203ed99488a681f3849e5d059"
+      },
+      {
+        "case": "whitespace",
+        "expected_refusals": 80,
+        "all_refusal_codes": "test_root_missing",
+        "storage_free_passes": 3,
+        "expected_exit_code": 1,
+        "repository_inventory_entries": 11983,
+        "before_after_bytes_identical": true,
+        "inventory_sha256": "a122fce0ae405cdcd47d8afc8d0bcc1afec0e15203ed99488a681f3849e5d059"
+      }
+    ],
+    "simulated_fileops_equivalence": {
+      "assertions": 61180,
+      "distinct_snapshots": 94,
+      "failures": [],
+      "refusal_pairs": 30,
+      "restart_fault_pairs": 1604,
+      "restart_pairs": 2218,
+      "write_fault_pairs": 154,
+      "write_pairs": 14
+    },
+    "equivalence_log": "artifacts/windows-settings-36877062304-1/phase2r_logs/cloud-manual-witness-revision-storage.log",
+    "equivalence_log_sha256": "f96a2e17bbe1d842875f49476a8419eab5d7b3419fbfdb2850a3e4df407fc147",
+    "limit": "80 expected refusal assertions in each negative-root case are deliberate, separate from ordinary GUT totals. Restart/fault assertions simulate durable FileOps, not physical OS crash injection."
+  },
+  "new_account_latency": {
+    "summary": {
+      "ok": true,
+      "samples": [
+        {
+          "button_to_desktop_us": 731133,
+          "case": "fresh",
+          "max_frame_gap_us": 206126
+        },
+        {
+          "button_to_desktop_us": 718251,
+          "case": "replacement",
+          "max_frame_gap_us": 107553
+        }
+      ]
+    },
+    "limitations": [
+      "Two actual Windows cloud samples; no causal speedup or universal responsiveness claim."
+    ]
+  },
+  "paired_checkpoint_performance": {
+    "verified": true,
+    "ablation": "Current SaveDocumentSchema with only its outgoing proven-journal normalization shortcut reversed; all current validation remains in both variants.",
+    "baseline_single_condition_reversal_verified": true,
+    "journey_count": 4,
+    "fixed_payload_probe_count": 4,
+    "limitations": [
+      "Observations on one shared Windows runner; no speed threshold or frame-time guarantee.",
+      "Fresh journeys may generate different boards; fixed_payloads reuse identical saved bytes.",
+      "Measurements exercise existing checkpoint optimization, not a performance comparison of the new Pause Save change."
+    ]
+  },
+  "retained_history": {
+    "status": "verified",
+    "producer": {
+      "status": "verified",
+      "job_id": 110420749400,
+      "name": "Windows / seven-day retained history producer",
+      "conclusion": "success",
+      "log_sha256": "2cd577248e4a1a30d0651b58c9e5e55bf7de50da64890788528a230bb58212dc",
+      "artifact_archives": [
+        {
+          "id": 11170422015,
+          "name": "seven-day-inputs-36877062304",
+          "size_in_bytes": 80706,
+          "digest": "sha256:2a679fc04ad1981ccf853b0752bcb8403641ec47b3407d43d0ea0d5be2d8c785"
+        },
+        {
+          "id": 11170303923,
+          "name": "seven-day-history-36877062304-1",
+          "size_in_bytes": 314210,
+          "digest": "sha256:92d32e220d1057de8e8ab731d0b6640cc90ceea05887c76e0cebac9a31baf5dc"
+        }
+      ],
+      "consumer_input_manifest": {
+        "schema_version": 1,
+        "checkout_ref": "5792c629b9e0bfe27ce4d5b2b07837dc6a070fbf",
+        "producer_run_id": "36877062304",
+        "producer_run_attempt": 1,
+        "files": {
+          "results.json": "6f56b39bc5ad5b25301fca97aaab440933d062f968b36df72226e516e42a145b",
+          "day7-autosave.json": "4d02925b01f5e85709818a92ddfbf235101b5ecb932d79531a7dcb10d183efe0"
+        }
+      },
+      "payload_bytes": 1910744,
+      "retained_checkpoint_kinds": {
+        "line": 32,
+        "manual_save": 32,
+        "pre_board": 1,
+        "safe_marker": 1
+      },
+      "write_receipt": {
+        "autosave_sha256": "4d02925b01f5e85709818a92ddfbf235101b5ecb932d79531a7dcb10d183efe0",
+        "days": 7,
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "synthetic_checkpoints": 98
+      },
+      "cold_read_receipt": {
+        "autosave_sha256": "4d02925b01f5e85709818a92ddfbf235101b5ecb932d79531a7dcb10d183efe0",
+        "day": 7,
+        "login_us": 9124265,
+        "parse_cache_enabled": true,
+        "restored_board_sha256": "ce4c9c82dfb6abaad3dee3025dc404b9c874ca4ac6a362de44c7fb5da636d1ce",
+        "restored_gameplay_sha256": "eff0b615c8f061e3a5e447773fd312d04f7f865e356ae61f37126d707412e0a9",
+        "restored_recovery_journal_sha256": "8cd4b13dac375d422081c02a5c8141c0d26148d9d2f42b3ae64ece7b9f0b89ec",
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "retained_checkpoint_count": 66,
+        "save_manager_sha256": "4281556c8e8ae9fd2d87921aa89f91dbc579dcfbc7dcefa5722481afc6b89de8"
+      },
+      "days": 7,
+      "checkpoint_profiles": 190,
+      "consequence_profiles": 349,
+      "checkpoint_diagnostics": {
+        "diagnostics_version": 2,
+        "prepare_records": 35,
+        "commit_records": 35
+      },
+      "isolated_processes_verified": 35,
+      "raw_log_count": 35,
+      "save_admission_comparison": {
+        "source_sha256": {
+          "candidate": "4281556c8e8ae9fd2d87921aa89f91dbc579dcfbc7dcefa5722481afc6b89de8",
+          "baseline": "8353ba8abd243df08712879c6f21f83d740b8bc292f2bae665810bf7ee29811c",
+          "shared": {
+            "scripts/infrastructure/save/SaveMigrations.gd": "7bc5ff311c552276cb276a7e0c1b739109d64eb0e0fd7db225cbdcc76f3b467c",
+            "scripts/infrastructure/save/SaveDocumentSchema.gd": "c7a18cea7a87699a1e69cef4ec2fc61f4ace858c9b45df5a6db622830e5e0540",
+            "scripts/domain/run/RunSnapshotSchema.gd": "88c329ce56350c8cd09124222cc69ae2f0335731f6519d655c8c8a14beff9158",
+            "scripts/infrastructure/save/CheckpointJournal.gd": "40ff91bc9e2be063c25f10d0ef89b717d3e47b9247b087679eaa69898dfe369d"
+          }
+        },
+        "summary": {
+          "pair_count": 8,
+          "baseline_median_login_us": 10308575.5,
+          "candidate_median_login_us": 8900571.5,
+          "median_paired_candidate_minus_baseline_us": -1412460.0
+        },
+        "matched_pairs": 8,
+        "derived_current_source_baseline_byte_verified": true
+      },
+      "manual_prepare_comparison": {
+        "source_sha256": {
+          "candidate": "4281556c8e8ae9fd2d87921aa89f91dbc579dcfbc7dcefa5722481afc6b89de8",
+          "baseline": "1a47e8b8d33e1bc96e42111b94684da1818a9da5fa8c9affed3bb71fb470fa16",
+          "storage": "ad2691249d9c7a247147fdc76885044b6cd9f6ebaac1f7267b4c144586d2adab",
+          "harness": "e1b3401fd4603c9f306e9a3117ef6dae2f5b685a54630994c4f4c63a621dc3ea",
+          "witness_port": "f64ba5e94f592a0edce725e686d7e7b190363ab15d74f3c1271ea6b493ae905c"
+        },
+        "summary": {
+          "pair_count": 8,
+          "median_paired_candidate_minus_baseline_us": -23579.5,
+          "baseline_median_prepare_us": 2144403.5,
+          "candidate_median_prepare_us": 2119490.5
+        },
+        "matched_pairs": 8,
+        "derived_current_source_baseline_byte_verified": true,
+        "strict_validation_calls_per_process": 1,
+        "expected_negative_profile_per_process": {
+          "scope": "restore_prepare",
+          "code": "TRANSACTION_PARTICIPANTS_NOT_CONFIGURED",
+          "explanation": "The isolated manual SaveManager has no restore participants. Occupied-slot inspection records load unavailable while preserving save availability, as SaveManager explicitly admits this code; public Save prepare/commit and exact output checks succeed."
+        }
+      },
+      "parse_cache_control": {
+        "control": "Same checkout and retained user-data source, cloned into a new isolated process per variant. Only DWM_SAVE_PARSE_CACHE_DISABLED differs.",
+        "sampling": "One cold Login per variant, fixed disabled-then-enabled order on one shared Windows runner; observational, not a repeated-sample or frame-time guarantee.",
+        "source_json_sha256": {
+          "desktop-issuer-root.json": "9d49ad84dab291a2f333c0776b809300591ded6752a0a78371cd8272ad60a69c",
+          "desktop-publications.json": "9567bab22629418320070f9cc477653681a91f56985334d232f3a291dec6e9aa",
+          "profile.json": "ceccc07351098f7c309366e0a8cddeb28fbb827d759ea43a61ecdd52d2411959",
+          "saves/autosave.json": "4d02925b01f5e85709818a92ddfbf235101b5ecb932d79531a7dcb10d183efe0",
+          "saves/desktop-continuation-operations.json": "69242820eb20ef1358fddf94f795ab89183ebcc3e81c63f54a811b0bb283d4f1",
+          "saves/slot_1.json": "09cf25426da246b1c7746c0826a4040d8babaad2f16aac6e219c4b25344a271a",
+          "schedule-foundation-publications.json": "05da861ba4fcc0d1151bd974bc2bf7768f650b88b9b0f9b86d76473d1c1de13d",
+          "seven-day-history-proof.json": "03864faf84e355c181dd2cf1dc50e69982c852aa1218e8feb24ca4f850197400"
+        },
+        "disabled": {
+          "autosave_sha256": "4d02925b01f5e85709818a92ddfbf235101b5ecb932d79531a7dcb10d183efe0",
+          "day": 7,
+          "login_us": 12935074,
+          "parse_cache_enabled": false,
+          "restored_board_sha256": "ce4c9c82dfb6abaad3dee3025dc404b9c874ca4ac6a362de44c7fb5da636d1ce",
+          "restored_gameplay_sha256": "eff0b615c8f061e3a5e447773fd312d04f7f865e356ae61f37126d707412e0a9",
+          "restored_recovery_journal_sha256": "8cd4b13dac375d422081c02a5c8141c0d26148d9d2f42b3ae64ece7b9f0b89ec",
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "4281556c8e8ae9fd2d87921aa89f91dbc579dcfbc7dcefa5722481afc6b89de8"
+        },
+        "enabled": {
+          "autosave_sha256": "4d02925b01f5e85709818a92ddfbf235101b5ecb932d79531a7dcb10d183efe0",
+          "day": 7,
+          "login_us": 9124265,
+          "parse_cache_enabled": true,
+          "restored_board_sha256": "ce4c9c82dfb6abaad3dee3025dc404b9c874ca4ac6a362de44c7fb5da636d1ce",
+          "restored_gameplay_sha256": "eff0b615c8f061e3a5e447773fd312d04f7f865e356ae61f37126d707412e0a9",
+          "restored_recovery_journal_sha256": "8cd4b13dac375d422081c02a5c8141c0d26148d9d2f42b3ae64ece7b9f0b89ec",
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "4281556c8e8ae9fd2d87921aa89f91dbc579dcfbc7dcefa5722481afc6b89de8"
+        }
+      },
+      "raw_report_markers_matched": true,
+      "all_source_fields_verified_against_tested_merge": true,
+      "all_invocations_exit_zero": true,
+      "day7_gameplay_board_journal_identity_matched": true,
+      "evidence_sha256": {
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/admission-pairs.json": "f5ba956c30e1ac1b1a82000973aa61452aef5620e0f5d09619fc27cc23d86ea6",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/prepare-pair-2-candidate.jsonl": "f9b11210ed033745290551de53194217bcbef3be914a4593e78d7b2accc5fb56",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/consumer-input-manifest.json": "aa60eb857f2fa34c8030c11f71a1073dadee873e88820d2c61e81c646a6c4db4",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/prepare-pair-1-candidate.jsonl": "461b9a7839c2b52567b1e3579a4caaafa1f0ad419da458f80320ab7ec2a3838a",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/prepare-pair-6-candidate.jsonl": "4b577a5e87df65fcd731bd4a4d1044b495d6231be8c3ad649f5c6d8bdbc614ac",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/results.json": "6f56b39bc5ad5b25301fca97aaab440933d062f968b36df72226e516e42a145b",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/read-admission-pair-6-baseline.jsonl": "3863250bf480f6e0c09dc04b9294150540d5d7e0d13394341d7fa5762dd171e2",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/baseline-prepare-SaveManager.gd": "1a47e8b8d33e1bc96e42111b94684da1818a9da5fa8c9affed3bb71fb470fa16",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/manual-prepare-pairs.json": "860840babe9a67190fd3833f63451c1178bb80ac3b90c06c60138cecacaa8ca3",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/read-admission-pair-4-baseline.jsonl": "906b3e703160d1edd14c8e36e787984228a8f9968d955fea0fc04f31fd0b5c81",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/read-cache-enabled.jsonl": "553d68e4346b5b79713b3d4d11f20c95c953de7c43063921cfa8bc47a5b0653c",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/prepare-pair-5-baseline.jsonl": "b9412fb991616f24eff6fa00367c1e05881f09a6c64a725ee7f852461108aadb",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/read-cache-disabled.jsonl": "0d1f61ef0184748b04bbcf2553b17d432969ca6c09a9953444a43b3760b6389a",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/day7-autosave.json": "4d02925b01f5e85709818a92ddfbf235101b5ecb932d79531a7dcb10d183efe0",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/prepare-pair-2-baseline.jsonl": "157a0fa3b3c4bcee2bea60a1347426a581d45a0c08858932fae423b7e7966c84",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/read-admission-pair-6-candidate.jsonl": "f245a077f08a360e001d1b1fe383050b8b46b4f685e9e2714e2cda9b26927f79",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/read-admission-pair-2-baseline.jsonl": "14bbad8f3324c952cd6d0935d0ff5689c8941c2ad9c25ae3aa8ba65c83792317",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/write.jsonl": "fda6ef58d999cd691e8d4e2491b83a71576a428b6e8234104556c5b1783aed93",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/prepare-pair-4-candidate.jsonl": "077deabb9058994f5ca28a8296d924395b7f34852d6555c35d8cd834dfa6a82c",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/prepare-pair-1-baseline.jsonl": "845bf39bb45ec4a340805735b7681a647f41a9df7f7360ab8f05d04dd9e299f0",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/read-admission-pair-7-candidate.jsonl": "91604c464f496d6e885c2a12e7576e39ff8a0f15db826313d4a0c34cf89fc265",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/prepare-pair-8-candidate.jsonl": "9de43bba7a771cee44672276272d797e8baeaa1b354ce888904cfb145aace324",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/prepare-pair-7-baseline.jsonl": "a56749d8720532c491f8c5d9b7c03a55e2892532d842f9feb86206b0fbfba8ff",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/read-admission-pair-3-candidate.jsonl": "8dcd343c75b4d7253a80aa182bd5409460dd0f79d8aa4b461e4df4365771294b",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/baseline-SaveManager.gd": "8353ba8abd243df08712879c6f21f83d740b8bc292f2bae665810bf7ee29811c",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/read-admission-pair-2-candidate.jsonl": "12a906484ef161a239db9dd0230f796cc6821075cd583b45b2af63676b5200f3",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/prepare-pair-5-candidate.jsonl": "bc29d6e5ecb7ed024abc97cfc5b2961a7187a3c103d60df1b2ef59fd653072a1",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/read-admission-pair-8-candidate.jsonl": "868501e14f88affda42e2542f00eda0cce32d3c6dc3b9cf8a4522a7a1c42d7fd",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/prepare-pair-4-baseline.jsonl": "8855ef25018a3eb85d954402371e4eceb1bc4d9314a3546884c0c167c1b21430",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/read-admission-pair-1-baseline.jsonl": "0cc39e2d35bbd21e61cc6c3cfae477dde9f7e57ba64eea9c5d168ce5f9060def",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/read-admission-pair-1-candidate.jsonl": "35982088058194764b7212b2229f7acbf0867ecafbede92c63e7c9469d8f4a17",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/read-admission-pair-4-candidate.jsonl": "8a51ac30543295469242ffe420c12daf5286de722f5d2e59687f2c04d1bab1f5",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/read-admission-pair-5-baseline.jsonl": "c6bdb5afe53777bfb417a057be3e4add6f9373929c4d6428442228cb4872beb1",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/prepare-pair-3-baseline.jsonl": "8e568c5307ca41e4272c002c42bfe516ad833cfd331f8847b06165743d79c00c",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/read-admission-pair-5-candidate.jsonl": "0d0f0bca0d0d19b2b9dbd202d928338adfe6aee5b6921b8895e92b0a1c4b69d1",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/prepare-pair-3-candidate.jsonl": "ea0ab0ebdc3a7f8cc0cf973c52d0fc23107db79eea602b0da474ab555fe40899",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/prepare-pair-6-baseline.jsonl": "494a85198e5691e402a31f2ba16d5fe044dbf88a14e12849550fcfbe0a4ca76b",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/read-admission-pair-3-baseline.jsonl": "c3e7ceb4f99d3253d7fd431e2f4049b21d20d616e96f973e1c8d4e9083e6812e",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/read-admission-pair-7-baseline.jsonl": "a2a5e14bf72190c50b038a93ef65d32a4f69179fac07ecf2297d1cbdfce33b86",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/prepare-pair-7-candidate.jsonl": "8c72c3125972c035770d51c74f21e3c555831ae3c156346182a490598ff35d52",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/read-admission-pair-8-baseline.jsonl": "459d656c3d061a092ab9bbb278f56ce2dfa4d9b0c15b0e82424bbe1cc740cedc",
+        "artifacts/seven-day-history-36877062304-1/ci/seven-day-history/prepare-pair-8-baseline.jsonl": "f62236246a8876b8df8cf659ca74a7310608cb8a22666cca79d642347c0cd08e",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-read-admission-pair-2-candidate.log": "8cd06265f7e6ba817b10dbc8f25dc1e9d45546c13dec91c10953728b89b2073a",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-prepare-pair-3-candidate.log": "74598d308311145eec47c0820f82c7b8c5ec78c907ef8cf0205c60dc4820b5d1",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-prepare-pair-1-baseline.log": "711bdbced883ada4de52de5f64f84b3a0ae6c79f6c083fc1f1bcae984379540c",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-write.log": "0927d86081d6b66ada67a2d20ce5b362c47659907996d9c37d239b84d49f6104",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-read-admission-pair-5-baseline.log": "2b81e7a93aff53e5d44a32e463bbd59ce3b502e61363b7e51aae8c564f3f85f2",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-read-admission-pair-5-candidate.log": "3b50e452013f976ddb7b2f5b81c5e22cdbf1aa3fb3efc8e9f3ce14f5d443d951",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-read-admission-pair-4-baseline.log": "82df883feccce308c473fe0459b3fe66530e24e14d8cf5322053866f345e9b60",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-read-admission-pair-3-baseline.log": "7c22932c7dfd8aacd7c2122a4fc6b6c0c0f729550e4504aad76a4fdd030254b4",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-prepare-pair-8-candidate.log": "a364840479734907aa6ff9700b7834d4dc1c10b2b4ba58695d2069a4c407e026",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-prepare-pair-2-baseline.log": "a120ef9ffab76fd01e4bdf19a0a07a5fc8c5f5aa515beecefff13521382f43ba",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-prepare-pair-7-baseline.log": "89555fb57341e62099e2ebcad5e1871acc7fd496bc24645f36c77decd9f5171b",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-read-cache-disabled.log": "ee2d31b5f6ccb31e102c25b7b673e1b4622b6d27e91e8f8655adba115380fdca",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-read-admission-pair-4-candidate.log": "75083d93aabd293eaa56450e4a87a7cbf87105bc0a9e74c627d4da10548d077b",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-prepare-pair-3-baseline.log": "5e41feeceebf69154385028b7ad6910e59d01b6f196ac08c0a2b7359c3864e16",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-prepare-pair-4-baseline.log": "7d243620f53880956fa3a1380322d39476545c41f5d52d6fcbb2c6b34de7366e",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-read-admission-pair-7-candidate.log": "eb9e7ef3a16d955052f4422c10b39b90b6ff6c2222b315dee4e0b08cffaf227d",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-read-admission-pair-7-baseline.log": "3e0c6ade28d62c65caf3be8b07a756e33b371f9bf784957446674f52eb936750",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-prepare-pair-6-baseline.log": "446899e160367e061de03d87cd9fcae32612621bb54adf5b69c4853b290376ed",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-read-admission-pair-1-candidate.log": "121104cda2d7e056e19127533469dcb087b332faedbf58070746276a7536bfb2",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-read-admission-pair-8-baseline.log": "af21773d5a2a12645f65af94115daa2c207106aea5bb2a3baad1ceff12562cc9",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-read-admission-pair-6-candidate.log": "77c2bbcbd20f05f44cb48db0847d16d5d1a0c8f959ed4882e0a662e59f85384d",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-read-admission-pair-1-baseline.log": "bae7c0317ab0ed1470279d5886b5001ba865e8f4991211163e6c225d97768035",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-prepare-pair-4-candidate.log": "63489d296f3b3d66a21aaa5c09ace90f4ae26203bd1965ca05e8909b50da87f4",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-read-admission-pair-8-candidate.log": "31939d4956e688bd341e90a1c9d31fea04b37b787476ad47be7a57e1be02a4e3",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-prepare-pair-8-baseline.log": "0dd9427e4e2e5510583b38f57539f2fc2d2fd3ee32d85baaed8e34c08886f1b8",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-read-cache-enabled.log": "8b0654e800433a9013c4fc2bcb103e7f956e97f4316d91dd5fae8d7a14bae98f",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-prepare-pair-6-candidate.log": "d36bac81db966ff92740057612d584a99beb1ded5b5aed5e1695d73ef2d798e9",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-prepare-pair-5-candidate.log": "5197b32bd1eaf1b5dc5e558bb68886b90b728eb10624123ce6d0de7540fe9f8b",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-read-admission-pair-6-baseline.log": "b1148bb64f5a1f2d80a5a00d76a173c2ebbfc7aff3d5be81e05016ec1415ffc0",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-prepare-pair-1-candidate.log": "073836dac6b379308e68972482682f755f6c62891c34790044ace5be4c9502c0",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-prepare-pair-2-candidate.log": "058a38be03093a5026bcee1679742985561a991e162e153ff3819d60ec311b87",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-prepare-pair-5-baseline.log": "f003d36cba38a15a8d0a34ada578a520d9d7d8855e5748a0ec07588be4512bed",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-prepare-pair-7-candidate.log": "564f10607dbfa7e2a7b5648f892d262d7c7203e985c2426a2d2e0bcedf114909",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-read-admission-pair-2-baseline.log": "0c6875565449590f71869e4f44c2949916c1e43496009127b160b87eb6193a1e",
+        "artifacts/seven-day-history-36877062304-1/phase2r_logs/cloud-seven-day-history-read-admission-pair-3-candidate.log": "a4b6782e2e47b5f79eb5c72bc11f18ada5d5c657807d1c24278898c3cc5d36a7"
+      },
+      "limitations": [
+        "Seven synthetic line and seven synthetic manual checkpoint records per day, plus real Slot 1 save/App loss/Schedule Done progression; this is not authored-dialogue content acceptance.",
+        "Eight alternating matched process pairs per ablation on one shared Windows runner; timing observations establish no frame-time or universal speedup guarantee.",
+        "These retained-history controls exercise existing save optimizations, not a performance comparison of the new partial reading Pause Save."
+      ]
+    },
+    "comparisons": {
+      "outgoing-normalization": {
+        "status": "verified",
+        "job_id": 110428116886,
+        "name": "Windows / outgoing-normalization comparison",
+        "conclusion": "success",
+        "log_sha256": "864a60905a2ea49ad078e9fb041612524c79514eba29dc222b9458ac95f25a57",
+        "artifact_archive": {
+          "id": 11171061582,
+          "name": "outgoing-normalization-36877062304-1",
+          "size_in_bytes": 24551,
+          "digest": "sha256:c2419a62a3aa1b90122af7194ff70841c9d8d4ed9cbc3f257a250e4b6abcbd12"
+        },
+        "same_producer_input_manifest_verified": true,
+        "producer_run_id": 36877062304,
+        "producer_run_attempt": 1,
+        "producer_input_hashes": {
+          "results.json": "6f56b39bc5ad5b25301fca97aaab440933d062f968b36df72226e516e42a145b",
+          "day7-autosave.json": "4d02925b01f5e85709818a92ddfbf235101b5ecb932d79531a7dcb10d183efe0"
+        },
+        "isolated_processes": 6,
+        "raw_log_count": 6,
+        "all_invocations_exit_zero": true,
+        "evidence_sha256": {
+          "artifacts/outgoing-normalization-36877062304-1/ci/outgoing-normalization/candidate-zh-HK.jsonl": "66a48b21d81c0592196b7f3f2939b10798fbb8014088b250685e04572e5ed7f6",
+          "artifacts/outgoing-normalization-36877062304-1/ci/outgoing-normalization/results.json": "a7cfb07bf8715e925cab4a71c5c666316090f684535a482f220f4d61dfe01c5c",
+          "artifacts/outgoing-normalization-36877062304-1/ci/outgoing-normalization/candidate-day7.jsonl": "378202dad9205bb1429c3200bc99041290bf144fa2bb187a24c37c6e21f8855e",
+          "artifacts/outgoing-normalization-36877062304-1/ci/outgoing-normalization/baseline-zh-HK.jsonl": "f65fee401e5bc9c1f7112515f85a372601fdcd59dcf328c6c07a0e60fc613cfb",
+          "artifacts/outgoing-normalization-36877062304-1/ci/outgoing-normalization/baseline-zh-CN.jsonl": "69cae278bba72c0e3199ee6d54eda91f71bf9856d1d9d1a13d83b3d75ad8fdea",
+          "artifacts/outgoing-normalization-36877062304-1/ci/outgoing-normalization/candidate-zh-CN.jsonl": "a38ec851863864e27ce7f2313ed8d784523d836ddb8ed061b3988db1bf10cfb3",
+          "artifacts/outgoing-normalization-36877062304-1/ci/outgoing-normalization/baseline-day7.jsonl": "d73cb29fe546f12f762b0f98295683b2708f34e182bcc3214c1b643507dfc06b",
+          "artifacts/outgoing-normalization-36877062304-1/phase2r_logs/cloud-outgoing-normalization-baseline-zh-HK.log": "876e4d9a4adca6da37db4effd6d48a6daaea6f0cffa94459c40cea18e6a040ff",
+          "artifacts/outgoing-normalization-36877062304-1/phase2r_logs/cloud-outgoing-normalization-candidate-zh-CN.log": "4745c5bf91759c55bfaf3ecce354a0108331dd67cfdf3146b5e3cc8abca4891e",
+          "artifacts/outgoing-normalization-36877062304-1/phase2r_logs/cloud-outgoing-normalization-candidate-zh-HK.log": "abdaeb76e3e9ca45949d767f2790dc6840a2560c97c76a70e4dfa47ec82886e8",
+          "artifacts/outgoing-normalization-36877062304-1/phase2r_logs/cloud-outgoing-normalization-candidate-day7.log": "c6f63cd9195ee71c742db4dffbea9f8b5277b0b70db0884a80354c6fc864113d",
+          "artifacts/outgoing-normalization-36877062304-1/phase2r_logs/cloud-outgoing-normalization-baseline-day7.log": "edac870ebf4bee82701e9837236d981100dcb28e1ef8362f7ea87c6faf226b38",
+          "artifacts/outgoing-normalization-36877062304-1/phase2r_logs/cloud-outgoing-normalization-baseline-zh-CN.log": "35c6658ab5003e97d964ed8c52c4f049f9e11891d8cec6ac5b422100a9ef8584",
+          "artifacts/outgoing-normalization-36877062304-1/ci/seven-day-history/consumer-input-manifest.json": "aa60eb857f2fa34c8030c11f71a1073dadee873e88820d2c61e81c646a6c4db4"
+        },
+        "source_sha256": {
+          "checkpoint_port": "26365de9d20d5537d5ee2f30d306805c76e3850b6852cfa99678cb3e9cb0ce17",
+          "document_schema": "c7a18cea7a87699a1e69cef4ec2fc61f4ace858c9b45df5a6db622830e5e0540",
+          "run_schema": "88c329ce56350c8cd09124222cc69ae2f0335731f6519d655c8c8a14beff9158"
+        },
+        "localized_producer_manifest_verified": true,
+        "measurements": [
+          {
+            "variant": "baseline",
+            "label": "zh-CN",
+            "input_output_sha256": "1107c3abb47db8c388a1a29ff398f6d980b23845f57cded23ce6771ecff28745",
+            "retained_checkpoints": 2,
+            "samples": 5,
+            "median_us": 20987
+          },
+          {
+            "variant": "baseline",
+            "label": "zh-HK",
+            "input_output_sha256": "7c33f7b40cb4d5f5eaf0fa40b42143d136e22c2cf5cceb1d46d028aac63edd3b",
+            "retained_checkpoints": 2,
+            "samples": 5,
+            "median_us": 15879
+          },
+          {
+            "variant": "baseline",
+            "label": "day7",
+            "input_output_sha256": "4d02925b01f5e85709818a92ddfbf235101b5ecb932d79531a7dcb10d183efe0",
+            "retained_checkpoints": 66,
+            "samples": 5,
+            "median_us": 172168
+          },
+          {
+            "variant": "candidate",
+            "label": "zh-CN",
+            "input_output_sha256": "1107c3abb47db8c388a1a29ff398f6d980b23845f57cded23ce6771ecff28745",
+            "retained_checkpoints": 2,
+            "samples": 5,
+            "median_us": 16559
+          },
+          {
+            "variant": "candidate",
+            "label": "zh-HK",
+            "input_output_sha256": "7c33f7b40cb4d5f5eaf0fa40b42143d136e22c2cf5cceb1d46d028aac63edd3b",
+            "retained_checkpoints": 2,
+            "samples": 5,
+            "median_us": 12382
+          },
+          {
+            "variant": "candidate",
+            "label": "day7",
+            "input_output_sha256": "4d02925b01f5e85709818a92ddfbf235101b5ecb932d79531a7dcb10d183efe0",
+            "retained_checkpoints": 66,
+            "samples": 5,
+            "median_us": 91069
+          }
+        ],
+        "ablation": "Current port and strict schema for both variants; only complete-document versus proven-journal normalization differs. Five timed samples after two warmups reuse each identical document. No timing threshold.",
+        "limitations": [
+          "Seam normalization proof on identical current producer payloads; does not prove a complete gameplay splice proof set, physical save performance, or Pause Save speedup."
+        ]
+      },
+      "history-region-search": {
+        "status": "verified",
+        "job_id": 110428116972,
+        "name": "Windows / history-region-search comparison",
+        "conclusion": "success",
+        "log_sha256": "cdd304209df6b3dcbbd1092279f00333629d5d4c7b0927f067e666a0764f51e3",
+        "artifact_archive": {
+          "id": 11171417376,
+          "name": "history-region-search-36877062304-1",
+          "size_in_bytes": 125342,
+          "digest": "sha256:1685358609ad856e1276ae0c1551d79b89e45369e593f058fad039cc636b4463"
+        },
+        "same_producer_input_manifest_verified": true,
+        "producer_run_id": 36877062304,
+        "producer_run_attempt": 1,
+        "producer_input_hashes": {
+          "results.json": "6f56b39bc5ad5b25301fca97aaab440933d062f968b36df72226e516e42a145b",
+          "day7-autosave.json": "4d02925b01f5e85709818a92ddfbf235101b5ecb932d79531a7dcb10d183efe0"
+        },
+        "isolated_processes": 16,
+        "raw_log_count": 16,
+        "all_invocations_exit_zero": true,
+        "evidence_sha256": {
+          "artifacts/history-region-search-36877062304-1/ci/history-region-search/cold-2-candidate.jsonl": "65cd79418c1b29b514864deb4d3a75b7f31a4ff82d395155e8e3747b8e3a57e9",
+          "artifacts/history-region-search-36877062304-1/ci/history-region-search/results.json": "59e81950788aadf2daba515b6c3dd7308e762d5510dcc9872c4e55c6dd6abd0d",
+          "artifacts/history-region-search-36877062304-1/ci/history-region-search/mixed-4-baseline.jsonl": "65744cd256511f445049c9942990cb3cdfcaeb3b620080aa42fadfc25eb52516",
+          "artifacts/history-region-search-36877062304-1/ci/history-region-search/mixed-2-baseline.jsonl": "7cda87ec4882f10e95712d37048de15e7b2d1af36eedb4b2c5cf9d983667c8bf",
+          "artifacts/history-region-search-36877062304-1/ci/history-region-search/cold-3-candidate.jsonl": "daf2fe14fb339625e27cc57d009f7982184d4e03b3aca226c40d713706b3d120",
+          "artifacts/history-region-search-36877062304-1/ci/history-region-search/mixed-1-candidate.jsonl": "eab14c788cca570326401f3101d8dd74d598a636cdea50389f2b67bf582dd256",
+          "artifacts/history-region-search-36877062304-1/ci/history-region-search/mixed-4-candidate.jsonl": "2df5f55c0dd33f933a8e6f863d3a556d82fa142a14bba24c866aad95458b823a",
+          "artifacts/history-region-search-36877062304-1/ci/history-region-search/mixed-2-candidate.jsonl": "6702b8ade0ef0942a5496a30c2eac6ffdda823a6364e898624abc76145167cf5",
+          "artifacts/history-region-search-36877062304-1/ci/history-region-search/cold-4-baseline.jsonl": "334ec62734b8eaf0ea9d4a35f20c53c9b074895858e75942a134d4aa52a04d14",
+          "artifacts/history-region-search-36877062304-1/ci/history-region-search/cold-1-candidate.jsonl": "2f3ec6975d70aa628196a2d5978c0c7c9c77bc4864c7f474cd64ba82d71859c4",
+          "artifacts/history-region-search-36877062304-1/ci/history-region-search/cold-3-baseline.jsonl": "a7e41b2653e637af32327fde4425f5c958d4416a589ec9ffc0af8ae18c0190d3",
+          "artifacts/history-region-search-36877062304-1/ci/history-region-search/cold-2-baseline.jsonl": "f97677e352fa2e6aac613107395311a7b46d6b8fba01a1c2fc2fbda734b94dbe",
+          "artifacts/history-region-search-36877062304-1/ci/history-region-search/mixed-3-candidate.jsonl": "a70c714a2242f1891f935c15833804543cdab1cad54af63558f2e1262090e061",
+          "artifacts/history-region-search-36877062304-1/ci/history-region-search/cold-1-baseline.jsonl": "6c7107a1d7dc03740556deedd359200a7c35846f16a9d6dc9732105da8326878",
+          "artifacts/history-region-search-36877062304-1/ci/history-region-search/cold-4-candidate.jsonl": "bd434c04a3fe4656b8fd30c014448eb3815d29b15353b531d8c587005bb8384e",
+          "artifacts/history-region-search-36877062304-1/ci/history-region-search/mixed-1-baseline.jsonl": "e0bf42fdf737bce94945acec802c65074f92617912eb22922de341caf99aa335",
+          "artifacts/history-region-search-36877062304-1/ci/history-region-search/mixed-3-baseline.jsonl": "d960a084b612c02fa894a1f2101f6a6ca38780155a9b5bd901521b4bc4e8da2d",
+          "artifacts/history-region-search-36877062304-1/phase2r_logs/cloud-history-region-search-cold-4-baseline.log": "e75346ff04533ec0224b0aee5528e5fd117f85ec9c6923075ea602a9e59b629e",
+          "artifacts/history-region-search-36877062304-1/phase2r_logs/cloud-history-region-search-cold-1-candidate.log": "3d2dfcc2701b91c610c6493066a069b9f402585216dbf760518f6972e36dc459",
+          "artifacts/history-region-search-36877062304-1/phase2r_logs/cloud-history-region-search-cold-2-baseline.log": "3f870dad9b8cf482de1b844f036d8dab004a8098fb7ca3278b36f37baf857735",
+          "artifacts/history-region-search-36877062304-1/phase2r_logs/cloud-history-region-search-mixed-1-baseline.log": "d05e09640685d2ea5f34e277ce4bb642b3d347ee6f1b0c3c4fded5160f92b073",
+          "artifacts/history-region-search-36877062304-1/phase2r_logs/cloud-history-region-search-cold-3-baseline.log": "e181e79835d596768586b5aa2d597730c1ec83afd70564df91848d2990b35a32",
+          "artifacts/history-region-search-36877062304-1/phase2r_logs/cloud-history-region-search-mixed-4-candidate.log": "e0c1e56e8895bbdf529db3e31d718b9cacf44cd9dd5c02e83fe98d19d64f2029",
+          "artifacts/history-region-search-36877062304-1/phase2r_logs/cloud-history-region-search-mixed-1-candidate.log": "4bc442841a7ef82eee0b4d4543e054c76217b60d65b22bb862087fdacdb04a35",
+          "artifacts/history-region-search-36877062304-1/phase2r_logs/cloud-history-region-search-mixed-2-baseline.log": "26a7a013423bc158e3377b6ba3b36cab0c6c843f37227e446afba4f3037f51d0",
+          "artifacts/history-region-search-36877062304-1/phase2r_logs/cloud-history-region-search-cold-3-candidate.log": "717931bf8f09838483d9db1e8c46c0dc8208fe53912f9b2a9b2491e6e1101aee",
+          "artifacts/history-region-search-36877062304-1/phase2r_logs/cloud-history-region-search-cold-1-baseline.log": "b759011406006bda7d8549d490ae4958caa48f24b3695be7b93c059ce32bfcda",
+          "artifacts/history-region-search-36877062304-1/phase2r_logs/cloud-history-region-search-mixed-3-candidate.log": "347a7e5bb6f983e31b660a547822c96050b03e085e8b3118120bb33142f32862",
+          "artifacts/history-region-search-36877062304-1/phase2r_logs/cloud-history-region-search-mixed-4-baseline.log": "45fb0b9c95bf3c8faf0b4e98bfa805e807c9251cd64fd1e771ca0c05867eaad7",
+          "artifacts/history-region-search-36877062304-1/phase2r_logs/cloud-history-region-search-cold-4-candidate.log": "5d407aea10d949973e0fbfb5ab550ebc35719644d3acf86ac50043fba2359cbc",
+          "artifacts/history-region-search-36877062304-1/phase2r_logs/cloud-history-region-search-cold-2-candidate.log": "af2c10b7410e3beb863882a25a78ed5c47086d92c16c1efacdd08ed97181f7ac",
+          "artifacts/history-region-search-36877062304-1/phase2r_logs/cloud-history-region-search-mixed-3-baseline.log": "961f4faa5ffb1458c41d5f2d60fb671f46d231ffb17091b1e648d939bbd13ac2",
+          "artifacts/history-region-search-36877062304-1/phase2r_logs/cloud-history-region-search-mixed-2-candidate.log": "4f09559a0f70e66b074407ac290b3848a89be597c8ae57aa446054925920def1",
+          "artifacts/history-region-search-36877062304-1/ci/seven-day-history/consumer-input-manifest.json": "aa60eb857f2fa34c8030c11f71a1073dadee873e88820d2c61e81c646a6c4db4"
+        },
+        "source_sha256": {
+          "port": "26365de9d20d5537d5ee2f30d306805c76e3850b6852cfa99678cb3e9cb0ce17",
+          "schema": "c7a18cea7a87699a1e69cef4ec2fc61f4ace858c9b45df5a6db622830e5e0540",
+          "warm_reference": "c051c7969b71d9eb13c3750ff327e91aeffab039e28f1cb298970ea6a5e1557c",
+          "warm_provenance": "3fa506b82cdd06212fc4644848596a2b29541eecef829e42cffbb97d52828157",
+          "journal": "40ff91bc9e2be063c25f10d0ef89b717d3e47b9247b087679eaa69898dfe369d",
+          "storage": "ad2691249d9c7a247147fdc76885044b6cd9f6ebaac1f7267b4c144586d2adab",
+          "file_ops": "aac20757aafbc978e051be8bb2607f75c7b431c0b98649cdf82db5534e30a1a0",
+          "reference": "5772a3289d6f96389a11bac0c9b8de8deb2e0f7c5f5f19fd9bf5f0f1344b03c7",
+          "harness": "6de888e2ff3c43853edeeec79baa019859d71a285286688bd1db13de57c1ba61",
+          "driver": "a056251a1b13246aa199969f1851c683f261d52b6c99d094da9f7013638a8784"
+        },
+        "source_guard_path": "/workspace/scratch/e6146007a498/run98/audit/warm-source-provenance.json",
+        "source_guard_sha256": "70564da151e482ef60f82c759682a4e5e8faaa20499c5b79b8f276263e11be6f",
+        "exact_current_and_historical_source_boundaries_verified": true,
+        "modes": [
+          "cold",
+          "mixed"
+        ],
+        "pairs_per_mode": 4,
+        "samples_per_metric_process": 5,
+        "warmups_per_metric_process": 2,
+        "raw_measurements_and_summary_medians_verified": true,
+        "exact_proof_manifest_journal_file_hash_ordered_trace_invariants_verified": true,
+        "initial_proof_counts": {
+          "cold": {
+            "present": 0,
+            "missing": 66
+          },
+          "mixed": {
+            "present": 51,
+            "missing": 15
+          }
+        },
+        "summaries": [
+          {
+            "mode": "cold",
+            "metric": "learning_seam",
+            "pairs": 4,
+            "baseline_median_us": 847229.0,
+            "candidate_median_us": 690861.0,
+            "median_paired_candidate_minus_baseline_us": -156633.5
+          },
+          {
+            "mode": "cold",
+            "metric": "port_commit_fake_io",
+            "pairs": 4,
+            "baseline_median_us": 1561880.0,
+            "candidate_median_us": 1404737.5,
+            "median_paired_candidate_minus_baseline_us": -151811.0
+          },
+          {
+            "mode": "mixed",
+            "metric": "learning_seam",
+            "pairs": 4,
+            "baseline_median_us": 259038.0,
+            "candidate_median_us": 198005.5,
+            "median_paired_candidate_minus_baseline_us": -60134.5
+          },
+          {
+            "mode": "mixed",
+            "metric": "port_commit_fake_io",
+            "pairs": 4,
+            "baseline_median_us": 968803.0,
+            "candidate_median_us": 901571.0,
+            "median_paired_candidate_minus_baseline_us": -67004.0
+          }
+        ],
+        "sampling": "Four alternating pairs per cold/mixed mode; sixteen fresh isolated processes. Each independent metric keeps five fresh-state samples after two warmups. No pooled/nested timing sum or timing threshold; OS caches are not flushed.",
+        "scope": "Frozen original method versus current ordered cursor; both variants inherit the same current warm document-proof path, checked through the accepted226 provenance bridge. Exact Day7 bytes and 66 history bundles; mixed has the same first 51 proofs and 15 misses. Direct learning plus complete port commit use real journal and storage protocol with FakeFileOps, not physical disk, public port preparation, gameplay or input-to-paint timing.",
+        "limitations": [
+          "FakeFileOps reproduces storage protocol and exact bytes/ordered traces; these measurements do not time physical disk, public preparation, gameplay, rendering, or input-to-paint.",
+          "Per-mode alternating pair samples on separate shared Windows runners are observations with no performance threshold; they do not establish a new Pause Save speedup."
+        ]
+      },
+      "warm-outgoing-proof": {
+        "status": "verified",
+        "job_id": 110428116848,
+        "name": "Windows / warm-outgoing-proof comparison",
+        "conclusion": "success",
+        "log_sha256": "c23419b89eb21d76f0ef5ef3e46830d0ce5dfb0aab89e5059c06b98fd5247700",
+        "artifact_archive": {
+          "id": 11171393543,
+          "name": "warm-outgoing-proof-36877062304-1",
+          "size_in_bytes": 463330,
+          "digest": "sha256:edb93ec48ee813355b1a413a9002c5e453e502e46e04bb39726b9e311b607ba0"
+        },
+        "same_producer_input_manifest_verified": true,
+        "producer_run_id": 36877062304,
+        "producer_run_attempt": 1,
+        "producer_input_hashes": {
+          "results.json": "6f56b39bc5ad5b25301fca97aaab440933d062f968b36df72226e516e42a145b",
+          "day7-autosave.json": "4d02925b01f5e85709818a92ddfbf235101b5ecb932d79531a7dcb10d183efe0"
+        },
+        "isolated_processes": 24,
+        "raw_log_count": 24,
+        "all_invocations_exit_zero": true,
+        "evidence_sha256": {
+          "artifacts/warm-outgoing-proof-36877062304-1/ci/warm-outgoing-proof/warm-1-baseline.jsonl": "c786831be77d36691b4b82e562e2ccc9387dd7307833337c58b8aa1f51d1438d",
+          "artifacts/warm-outgoing-proof-36877062304-1/ci/warm-outgoing-proof/cold-2-candidate.jsonl": "b95bbe8f1ac6c82d7c545662f88ab2bd5a8cbd777a2665c23b912d5a36361370",
+          "artifacts/warm-outgoing-proof-36877062304-1/ci/warm-outgoing-proof/warm-2-baseline.jsonl": "047c3b5012cbb00d863e68b47bbdc71a8eaf2eadbbf8aedaa1166b7d4e54876d",
+          "artifacts/warm-outgoing-proof-36877062304-1/ci/warm-outgoing-proof/results.json": "7e96104882d2b4f0927e09e3e78da66865e2bf224845bdbdade251ef6c42ee6e",
+          "artifacts/warm-outgoing-proof-36877062304-1/ci/warm-outgoing-proof/mixed-4-baseline.jsonl": "18e3b0889e8b635fd1fe4c529a78c572dce7deddc39d705c7cccf6113b64c40d",
+          "artifacts/warm-outgoing-proof-36877062304-1/ci/warm-outgoing-proof/mixed-2-baseline.jsonl": "0c12d31a6748f639d5df097901c8bfd8ac657017e4845b8d2857601d0a03059e",
+          "artifacts/warm-outgoing-proof-36877062304-1/ci/warm-outgoing-proof/cold-3-candidate.jsonl": "93b04bb76ab22c8a54900849a7c9e1a3ca6ef31420229a8a5f4b8d87d62e30a2",
+          "artifacts/warm-outgoing-proof-36877062304-1/ci/warm-outgoing-proof/mixed-1-candidate.jsonl": "0bc9fd5d90d5fc202140075fc33917db1ac04b01cecafe9b039b29082d476db9",
+          "artifacts/warm-outgoing-proof-36877062304-1/ci/warm-outgoing-proof/mixed-4-candidate.jsonl": "e0fbb7375c7c81a22ccc39d08c5b17b61c0a1ce5b5eb16dcc49c60e78b99ee54",
+          "artifacts/warm-outgoing-proof-36877062304-1/ci/warm-outgoing-proof/mixed-2-candidate.jsonl": "adaf92ea292abbf508ed54cded2dfb4054b766113c368f667a12949e6df5a671",
+          "artifacts/warm-outgoing-proof-36877062304-1/ci/warm-outgoing-proof/cold-4-baseline.jsonl": "4cddc3ae7605cea73843428cae1bf1d805d9dd5927f3f241c7f42501ff86f8ef",
+          "artifacts/warm-outgoing-proof-36877062304-1/ci/warm-outgoing-proof/cold-1-candidate.jsonl": "97acdb35dffddb77cef286fc326c8857bf0b5e95da84dff38446773c4c81234e",
+          "artifacts/warm-outgoing-proof-36877062304-1/ci/warm-outgoing-proof/cold-3-baseline.jsonl": "75a2e36508ca2b8dc52cf104fc231fce117a6d2423f4f7003326f9a20770f50d",
+          "artifacts/warm-outgoing-proof-36877062304-1/ci/warm-outgoing-proof/cold-2-baseline.jsonl": "260aeb5003a63d7f2ba4852bc6165400687b907ff67704363c70f1bc6f6102bb",
+          "artifacts/warm-outgoing-proof-36877062304-1/ci/warm-outgoing-proof/warm-1-candidate.jsonl": "96c3fb247bf55589150c057e88dc3f86142d03ec0092670521097f3c9fb8c7b5",
+          "artifacts/warm-outgoing-proof-36877062304-1/ci/warm-outgoing-proof/warm-4-candidate.jsonl": "e6765696d961b7dfd20dbd5871313fbf377195ba1762e9bdd78465ff18b8ae1c",
+          "artifacts/warm-outgoing-proof-36877062304-1/ci/warm-outgoing-proof/warm-4-baseline.jsonl": "1d4034ecc6069ff093b75f65fcf3cd335e172bf48778a8a74ccf8c0ddb5449db",
+          "artifacts/warm-outgoing-proof-36877062304-1/ci/warm-outgoing-proof/mixed-3-candidate.jsonl": "1ecdc4b0ef195040a299ce4227373ee440e7ce557422e733cb0d1f8c93e7c2a2",
+          "artifacts/warm-outgoing-proof-36877062304-1/ci/warm-outgoing-proof/cold-1-baseline.jsonl": "815b09a4824ac596c1c61e0133a428023641cedfc15de38a783bc1e0b8072e45",
+          "artifacts/warm-outgoing-proof-36877062304-1/ci/warm-outgoing-proof/warm-3-baseline.jsonl": "d76b0ef3710a6fa74b8153900ac39c35c13ae4bf126c7a94e8e0edea2ec16ea9",
+          "artifacts/warm-outgoing-proof-36877062304-1/ci/warm-outgoing-proof/cold-4-candidate.jsonl": "aa92e48edee00b0b73cf5bd537802ab061b89a7c850c19257174ebc8158f7365",
+          "artifacts/warm-outgoing-proof-36877062304-1/ci/warm-outgoing-proof/mixed-1-baseline.jsonl": "bf80c43362cbb9e985809390aa4328564b8428ac94ad89258dfbe5c9335db593",
+          "artifacts/warm-outgoing-proof-36877062304-1/ci/warm-outgoing-proof/warm-2-candidate.jsonl": "29147bcc28ce1262a6a1368206d283ad4d2f2bbdebb2fdd8ddc614b0beda033f",
+          "artifacts/warm-outgoing-proof-36877062304-1/ci/warm-outgoing-proof/mixed-3-baseline.jsonl": "7b39b51c0362aa7c89ecd8b081c386e1a06303bb37d35d4ef579973212f35212",
+          "artifacts/warm-outgoing-proof-36877062304-1/ci/warm-outgoing-proof/warm-3-candidate.jsonl": "97bc6e908be31d458d9acf62dd22ac5d1b983e72514353b0aa303aaa2946867b",
+          "artifacts/warm-outgoing-proof-36877062304-1/phase2r_logs/cloud-warm-outgoing-proof-mixed-1-candidate.log": "6e0d190dc431df5be9867d2aeb4ad3a3a5e91eddd8e53e85e5c92e53ce8d7c8f",
+          "artifacts/warm-outgoing-proof-36877062304-1/phase2r_logs/cloud-warm-outgoing-proof-cold-1-candidate.log": "5a0c2c0a0597102331b57219562d7d8313221f3f564a41f8cd52d0500f0f57b3",
+          "artifacts/warm-outgoing-proof-36877062304-1/phase2r_logs/cloud-warm-outgoing-proof-warm-1-candidate.log": "901113eb7e0518268fc39a950e0897ab00f599cd5b3867b80f46d540b73621c5",
+          "artifacts/warm-outgoing-proof-36877062304-1/phase2r_logs/cloud-warm-outgoing-proof-cold-4-candidate.log": "a6f43ae2350777d6f4d8a0621988f774d5a914b6792bfd4a415263a924d7aece",
+          "artifacts/warm-outgoing-proof-36877062304-1/phase2r_logs/cloud-warm-outgoing-proof-cold-2-baseline.log": "29096f37b93153d611f50d6b756d7001a7e88045b0b974557b9aff2d4bb0edaa",
+          "artifacts/warm-outgoing-proof-36877062304-1/phase2r_logs/cloud-warm-outgoing-proof-mixed-3-candidate.log": "5cbbc797b98ed08b48c613dca8e79c77879a8810c20a8551ada19d7b9ab6c87c",
+          "artifacts/warm-outgoing-proof-36877062304-1/phase2r_logs/cloud-warm-outgoing-proof-warm-3-candidate.log": "15998cbe5cd31451e8cd8f7948563a21c2856d16026964876c96eeb4e1ddc934",
+          "artifacts/warm-outgoing-proof-36877062304-1/phase2r_logs/cloud-warm-outgoing-proof-warm-3-baseline.log": "3e2d30beeb48ee7a148759d23631dfb1f4aa47e1ebf132acadd38714359fbf77",
+          "artifacts/warm-outgoing-proof-36877062304-1/phase2r_logs/cloud-warm-outgoing-proof-warm-2-candidate.log": "522c026bb6d5523c0359ffbf37c1f1e7a18e4d0313f0ca6df59f116341b36526",
+          "artifacts/warm-outgoing-proof-36877062304-1/phase2r_logs/cloud-warm-outgoing-proof-warm-1-baseline.log": "ed97fb9609d9c4734cdbe90b378a2f15c021b6d20eec6071fd82dae02f3e8f77",
+          "artifacts/warm-outgoing-proof-36877062304-1/phase2r_logs/cloud-warm-outgoing-proof-mixed-2-baseline.log": "b595d4aee623ce461fac1e02140b5048ace113811f1d51234032343d23f86fac",
+          "artifacts/warm-outgoing-proof-36877062304-1/phase2r_logs/cloud-warm-outgoing-proof-mixed-4-candidate.log": "c23b492905618213c1174d24966a1845f189abef0028daeac95b568cd744a381",
+          "artifacts/warm-outgoing-proof-36877062304-1/phase2r_logs/cloud-warm-outgoing-proof-cold-2-candidate.log": "899f31dacfe4522be2e1a5342e96c3b2be0d07b6e027ef9c2de9be2be2819e1f",
+          "artifacts/warm-outgoing-proof-36877062304-1/phase2r_logs/cloud-warm-outgoing-proof-cold-4-baseline.log": "107b34953a7f4b41065b096d11254ccf63ff5d4f440f0b6a5ed609636808d9f2",
+          "artifacts/warm-outgoing-proof-36877062304-1/phase2r_logs/cloud-warm-outgoing-proof-cold-3-candidate.log": "776319c88978ee2f51b54a6ad8ac72bde412277e457821f99cfd618780d827ed",
+          "artifacts/warm-outgoing-proof-36877062304-1/phase2r_logs/cloud-warm-outgoing-proof-warm-4-candidate.log": "0ee6912e669895fa02bc209866c7040487011966e3ff0d1176e0df5da82667c7",
+          "artifacts/warm-outgoing-proof-36877062304-1/phase2r_logs/cloud-warm-outgoing-proof-warm-4-baseline.log": "5328c190733969620846bdea57d028d89891f46be0b64f2c18b61f25954b081f",
+          "artifacts/warm-outgoing-proof-36877062304-1/phase2r_logs/cloud-warm-outgoing-proof-cold-3-baseline.log": "38d1b208571bc4a8ee26dd920b38d500fe99efa8330b3dbed8d7b78e1ea78cef",
+          "artifacts/warm-outgoing-proof-36877062304-1/phase2r_logs/cloud-warm-outgoing-proof-mixed-4-baseline.log": "99938ad2285e83cb105af3bafbaf0d78b220eae9126d077b0ddba31449cf9d2f",
+          "artifacts/warm-outgoing-proof-36877062304-1/phase2r_logs/cloud-warm-outgoing-proof-warm-2-baseline.log": "bc09cc672a2313d12f95fc8c92505f3ff7ae7c29bf29b6a9551029eafacbb7c2",
+          "artifacts/warm-outgoing-proof-36877062304-1/phase2r_logs/cloud-warm-outgoing-proof-cold-1-baseline.log": "39555f50fc539042c9b5abf53f030d5a86fdd195aef54ba0ddafd8683972afa5",
+          "artifacts/warm-outgoing-proof-36877062304-1/phase2r_logs/cloud-warm-outgoing-proof-mixed-2-candidate.log": "53abfb8d09728f8fb259b1781ec938e7d547d1bad3889013fbd5911467861213",
+          "artifacts/warm-outgoing-proof-36877062304-1/phase2r_logs/cloud-warm-outgoing-proof-mixed-1-baseline.log": "679882b33bbb0d06acac8e2c921ae5c2f00c22780afeefd05cf52f1f00d72f75",
+          "artifacts/warm-outgoing-proof-36877062304-1/phase2r_logs/cloud-warm-outgoing-proof-mixed-3-baseline.log": "6f91c3cece0345a188515f63f071f76cc462758f868997a2ca41374b08e16eab",
+          "artifacts/warm-outgoing-proof-36877062304-1/ci/seven-day-history/consumer-input-manifest.json": "aa60eb857f2fa34c8030c11f71a1073dadee873e88820d2c61e81c646a6c4db4"
+        },
+        "source_sha256": {
+          "port": "26365de9d20d5537d5ee2f30d306805c76e3850b6852cfa99678cb3e9cb0ce17",
+          "schema": "c7a18cea7a87699a1e69cef4ec2fc61f4ace858c9b45df5a6db622830e5e0540",
+          "warm_provenance": "3fa506b82cdd06212fc4644848596a2b29541eecef829e42cffbb97d52828157",
+          "journal": "40ff91bc9e2be063c25f10d0ef89b717d3e47b9247b087679eaa69898dfe369d",
+          "storage": "ad2691249d9c7a247147fdc76885044b6cd9f6ebaac1f7267b4c144586d2adab",
+          "file_ops": "aac20757aafbc978e051be8bb2607f75c7b431c0b98649cdf82db5534e30a1a0",
+          "reference": "c051c7969b71d9eb13c3750ff327e91aeffab039e28f1cb298970ea6a5e1557c",
+          "journal_reference": "2563431f02ac68555cb301f6c670817e263613edb8961daf810e33c863887518",
+          "harness": "466f813d17110d84b919b3ee1e2e020e4451fe37ded2d3f98927cc9df9485458",
+          "driver": "19d716f9bb248b94b73bf4db1ee9f199328235aad1b28eb9bb7268600483fd6c"
+        },
+        "source_guard_path": "/workspace/scratch/e6146007a498/run98/audit/warm-source-provenance.json",
+        "source_guard_sha256": "70564da151e482ef60f82c759682a4e5e8faaa20499c5b79b8f276263e11be6f",
+        "exact_current_and_historical_source_boundaries_verified": true,
+        "modes": [
+          "cold",
+          "mixed",
+          "warm"
+        ],
+        "pairs_per_mode": 4,
+        "samples_per_metric_process": 5,
+        "warmups_per_metric_process": 2,
+        "raw_measurements_and_summary_medians_verified": true,
+        "exact_proof_manifest_journal_file_hash_ordered_trace_invariants_verified": true,
+        "initial_proof_counts": {
+          "cold": {
+            "present": 0,
+            "missing": 66
+          },
+          "mixed": {
+            "present": 51,
+            "missing": 15
+          },
+          "warm": {
+            "present": 66,
+            "missing": 0
+          }
+        },
+        "summaries": [
+          {
+            "mode": "cold",
+            "metric": "schema_composition",
+            "pairs": 4,
+            "baseline_median_us": 89966.5,
+            "candidate_median_us": 89008.5,
+            "median_paired_candidate_minus_baseline_us": -958.0
+          },
+          {
+            "mode": "cold",
+            "metric": "port_commit_fake_io",
+            "pairs": 4,
+            "baseline_median_us": 1372151.5,
+            "candidate_median_us": 1366488.5,
+            "median_paired_candidate_minus_baseline_us": -9648.5
+          },
+          {
+            "mode": "mixed",
+            "metric": "schema_composition",
+            "pairs": 4,
+            "baseline_median_us": 90894.5,
+            "candidate_median_us": 90547.5,
+            "median_paired_candidate_minus_baseline_us": -34.0
+          },
+          {
+            "mode": "mixed",
+            "metric": "port_commit_fake_io",
+            "pairs": 4,
+            "baseline_median_us": 887713.5,
+            "candidate_median_us": 887704.0,
+            "median_paired_candidate_minus_baseline_us": -831.0
+          },
+          {
+            "mode": "warm",
+            "metric": "schema_composition",
+            "pairs": 4,
+            "baseline_median_us": 90915.0,
+            "candidate_median_us": 32570.0,
+            "median_paired_candidate_minus_baseline_us": -58614.0
+          },
+          {
+            "mode": "warm",
+            "metric": "port_commit_fake_io",
+            "pairs": 4,
+            "baseline_median_us": 218147.0,
+            "candidate_median_us": 169128.5,
+            "median_paired_candidate_minus_baseline_us": -49095.0
+          }
+        ],
+        "sampling": "Four alternating pairs per cold/mixed/warm mode; twenty-four fresh isolated processes. Each independent metric keeps five fresh-state samples after two warmups. No pooled/nested timing sum or timing threshold; OS caches are not flushed.",
+        "scope": "Accepted226 commit/splice and journal proof learning versus current warm document-proof path; remaining port/journal methods and public raw-proof validator are shared and source-guarded. Each variant seeds its own journal implementation outside timing. Direct schema composition always has 66 trusted raw bundles with 0/51/66 normalized proofs. Complete commit uses the same real journal proof count, causing full fallback for cold/mixed and splice for warm. Exact Day7 bytes, types, proofs, journal and physical files/ordered traces with FakeFileOps; no physical disk, public preparation, gameplay or input-to-paint claim.",
+        "limitations": [
+          "FakeFileOps reproduces storage protocol and exact bytes/ordered traces; these measurements do not time physical disk, public preparation, gameplay, rendering, or input-to-paint.",
+          "Per-mode alternating pair samples on separate shared Windows runners are observations with no performance threshold; they do not establish a new Pause Save speedup."
+        ]
+      },
+      "lazy-normalization": {
+        "status": "verified",
+        "job_id": 110428116825,
+        "name": "Windows / lazy-normalization comparison",
+        "conclusion": "success",
+        "log_sha256": "f54325d4ce20189fe3d35def9421dc841fa0420d22144f8624b43dec7dd7c947",
+        "artifact_archive": {
+          "id": 11171211866,
+          "name": "lazy-normalization-36877062304-1",
+          "size_in_bytes": 49079,
+          "digest": "sha256:6e4861a80523dbd9176bbef92f8076a60150b26f516ed5ac5ffe94d8fe6fdb77"
+        },
+        "same_producer_input_manifest_verified": true,
+        "producer_run_id": 36877062304,
+        "producer_run_attempt": 1,
+        "producer_input_hashes": {
+          "results.json": "6f56b39bc5ad5b25301fca97aaab440933d062f968b36df72226e516e42a145b",
+          "day7-autosave.json": "4d02925b01f5e85709818a92ddfbf235101b5ecb932d79531a7dcb10d183efe0"
+        },
+        "isolated_processes": 16,
+        "raw_log_count": 16,
+        "all_invocations_exit_zero": true,
+        "evidence_sha256": {
+          "artifacts/lazy-normalization-36877062304-1/ci/lazy-normalization/splice-1-candidate.jsonl": "04fdefcb51fbe05c4383dcbe4db7e37016c9678e6fb6f6fe183f0a94b065a6f3",
+          "artifacts/lazy-normalization-36877062304-1/ci/lazy-normalization/results.json": "d5374ddc0f851b7251a66934f26513e632d2bf4fb65220419366ab5bd5a114d9",
+          "artifacts/lazy-normalization-36877062304-1/ci/lazy-normalization/full-3-candidate.jsonl": "3a306d540cac8502594386831ee230a8c9a1e2978e422923f66d11622e280201",
+          "artifacts/lazy-normalization-36877062304-1/ci/lazy-normalization/full-1-baseline.jsonl": "ea57122b36589471dfdb30d1647573c13a6a441b0b2efc3ee8e42780c34a8f8c",
+          "artifacts/lazy-normalization-36877062304-1/ci/lazy-normalization/splice-4-candidate.jsonl": "e12dad695ef43d6408f45e0a3e2839cf1fc1a3a84004951b7955873166bf9448",
+          "artifacts/lazy-normalization-36877062304-1/ci/lazy-normalization/full-4-candidate.jsonl": "a03fb54914886803ae1432ddf95f090d2fc1a1ee5d9fbec0a2ebe0489c21baed",
+          "artifacts/lazy-normalization-36877062304-1/ci/lazy-normalization/full-2-candidate.jsonl": "83ac44e571084052045fc4f528822ee6a9db6058fbe0913ecc109138a196f217",
+          "artifacts/lazy-normalization-36877062304-1/ci/lazy-normalization/splice-1-baseline.jsonl": "dd06365498c7d8a858b6672ce7f41432c6cb826e1b9ea21f193b316bf7317b6a",
+          "artifacts/lazy-normalization-36877062304-1/ci/lazy-normalization/full-1-candidate.jsonl": "78bff36c1b046d5f86c67c5e96977e0d2614d1c6993f61465a95ad9822800732",
+          "artifacts/lazy-normalization-36877062304-1/ci/lazy-normalization/splice-3-candidate.jsonl": "7317d8e52f517c6c2871a1f0817b4d01a35a88896641ce611f6537c42e177563",
+          "artifacts/lazy-normalization-36877062304-1/ci/lazy-normalization/splice-2-baseline.jsonl": "ec78d17c63d5eef1f67b28aa695b06c6ec1ec0cf88d0fed2b86b93a821b80388",
+          "artifacts/lazy-normalization-36877062304-1/ci/lazy-normalization/splice-2-candidate.jsonl": "b0cb8c57dc59822287a9f6d3d56ce3f2eda66dfa5f694eb070ff09be9667da27",
+          "artifacts/lazy-normalization-36877062304-1/ci/lazy-normalization/full-2-baseline.jsonl": "6d5a51bac6436f2a3f9373c5bad2c4a4b61221130955b195096e555818142564",
+          "artifacts/lazy-normalization-36877062304-1/ci/lazy-normalization/splice-4-baseline.jsonl": "260be3a7b22ce6f3781b5c78f1f76ffac890bdd2a6f7e8f5315f439e0520d89f",
+          "artifacts/lazy-normalization-36877062304-1/ci/lazy-normalization/splice-3-baseline.jsonl": "f91f5f05bd22454dabad24168cd25eed4d24a3d2bcdb9db92782f804f29340e6",
+          "artifacts/lazy-normalization-36877062304-1/ci/lazy-normalization/full-4-baseline.jsonl": "3b1f1b69628afeaa383005ed1fa172e4e3f4cff844d6817a637e1a737f1dc6cf",
+          "artifacts/lazy-normalization-36877062304-1/ci/lazy-normalization/full-3-baseline.jsonl": "526d049392a62de9501b4e09dc202d004b1a567a133d403a9c171ad4dd762afa",
+          "artifacts/lazy-normalization-36877062304-1/phase2r_logs/cloud-lazy-normalization-full-4-candidate.log": "9019e6a2475ee879a9f14b4b117788c8626eae6ddb7ce31be1c70412207691df",
+          "artifacts/lazy-normalization-36877062304-1/phase2r_logs/cloud-lazy-normalization-full-4-baseline.log": "40210c9b3e265d32897f1a3db8aee998edc8098ebdd8f1e1216d839c0f671b68",
+          "artifacts/lazy-normalization-36877062304-1/phase2r_logs/cloud-lazy-normalization-full-2-baseline.log": "0808df198a79385a5c856a35994cf8b07f8624d7438c03aef1c18d49b6ba2655",
+          "artifacts/lazy-normalization-36877062304-1/phase2r_logs/cloud-lazy-normalization-full-1-baseline.log": "151a23d9771646cfd90ac05eefa2cb20b1d1d31c62bb51b2686eabac0fe357ae",
+          "artifacts/lazy-normalization-36877062304-1/phase2r_logs/cloud-lazy-normalization-splice-3-candidate.log": "008ffb0b28fa8a59305a9182daa4e4b69d787988192da8b3826b974ef122975c",
+          "artifacts/lazy-normalization-36877062304-1/phase2r_logs/cloud-lazy-normalization-splice-4-baseline.log": "8fa54b16bd7e616726d462f7e5fb98f3229a295615c95de3ba1092f3cf4f4dd8",
+          "artifacts/lazy-normalization-36877062304-1/phase2r_logs/cloud-lazy-normalization-splice-4-candidate.log": "a652f9eb5d4ed88bb3de316cacad999286ce00ce54ac3d42079f5ab25d44d02a",
+          "artifacts/lazy-normalization-36877062304-1/phase2r_logs/cloud-lazy-normalization-splice-2-baseline.log": "e6439f63c62594b12b12c93701647aa80e5a23fe6e6c6e6b1c91f9b6b486ca4c",
+          "artifacts/lazy-normalization-36877062304-1/phase2r_logs/cloud-lazy-normalization-full-1-candidate.log": "e31a143cfc2154a7f05960b6bf8909acdfe1710bb6fdf0d4889c5c83ac264f01",
+          "artifacts/lazy-normalization-36877062304-1/phase2r_logs/cloud-lazy-normalization-splice-3-baseline.log": "41d44915113db1c9ff3493f21b3f14fe7de6fcaad58faa090a5005dc9e834cfc",
+          "artifacts/lazy-normalization-36877062304-1/phase2r_logs/cloud-lazy-normalization-full-3-candidate.log": "ea7e291aabde7d569f5555df577cc6911c6ff4930e330b16f43786ef077f8c0d",
+          "artifacts/lazy-normalization-36877062304-1/phase2r_logs/cloud-lazy-normalization-splice-1-candidate.log": "9c3138535266a2497b62cc15ea36e87481fdb00dece9cb298aeacbfe9c23b3f1",
+          "artifacts/lazy-normalization-36877062304-1/phase2r_logs/cloud-lazy-normalization-splice-2-candidate.log": "a2380f373f57fb7a333627f071f7cc1dfd4895ec37f80f4699d1aad568e5bc56",
+          "artifacts/lazy-normalization-36877062304-1/phase2r_logs/cloud-lazy-normalization-full-3-baseline.log": "867b78ee27444d30cd7a1f90ce7b637fa99ffec2933c691743749dff96eb22cb",
+          "artifacts/lazy-normalization-36877062304-1/phase2r_logs/cloud-lazy-normalization-splice-1-baseline.log": "82379a27fe0185043b5d88d41ab3707866c5081b9ac774de09b2db01584781ef",
+          "artifacts/lazy-normalization-36877062304-1/phase2r_logs/cloud-lazy-normalization-full-2-candidate.log": "b524f88dc2b46233ba55d46ab0c618072878e16bc0b203f5ee6fbd863bfa5008",
+          "artifacts/lazy-normalization-36877062304-1/ci/seven-day-history/consumer-input-manifest.json": "aa60eb857f2fa34c8030c11f71a1073dadee873e88820d2c61e81c646a6c4db4"
+        },
+        "independent_component_report": "/workspace/scratch/e6146007a498/run98/audit/lazy-normalization-audit.json",
+        "independent_component_report_sha256": "bafaaf62f227c63b4d1d655984a97a810f4681408676a9a86eafc5a3200f81c2",
+        "independent_audit": {
+          "schema_version": 1,
+          "run_id": 36877062304,
+          "run_attempt": 1,
+          "candidate_source": "36d2fdca56c53c0d6b8571ded45e92fc6d3a9e91",
+          "tested_merge": "5792c629b9e0bfe27ce4d5b2b07837dc6a070fbf",
+          "audit_complete": true,
+          "runtime_proof_failures": [],
+          "pending_areas": [],
+          "status": "verified",
+          "job_id": 110428116825,
+          "checkout_merge": "5792c629b9e0bfe27ce4d5b2b07837dc6a070fbf",
+          "job_log_sha256": "f54325d4ce20189fe3d35def9421dc841fa0420d22144f8624b43dec7dd7c947",
+          "artifact": {
+            "name": "lazy-normalization-36877062304-1",
+            "id": 11171211866,
+            "verified_zip_sha256": "6e4861a80523dbd9176bbef92f8076a60150b26f516ed5ac5ffe94d8fe6fdb77"
+          },
+          "results_sha256": "d5374ddc0f851b7251a66934f26513e632d2bf4fb65220419366ab5bd5a114d9",
+          "consumer_manifest_sha256": "aa60eb857f2fa34c8030c11f71a1073dadee873e88820d2c61e81c646a6c4db4",
+          "input_sha256": "4d02925b01f5e85709818a92ddfbf235101b5ecb932d79531a7dcb10d183efe0",
+          "input_bytes": 1910744,
+          "retained_checkpoint_count": 66,
+          "source_sha256": {
+            "schema": "c7a18cea7a87699a1e69cef4ec2fc61f4ace858c9b45df5a6db622830e5e0540",
+            "port": "26365de9d20d5537d5ee2f30d306805c76e3850b6852cfa99678cb3e9cb0ce17",
+            "reference": "f1bb63f480e09b72abeaa486047e7c2ac0a5d63b0396874ddb55d9bbf1b44cf8",
+            "harness": "44f7b26800252ca8af28c52b3f1b76e132c15ca4239a869faa514c5714d59a78"
+          },
+          "frozen_reference": {
+            "commit": "dae70bf9aa05b6b3debb60f95738e5ffc4e97548",
+            "whole_source_hashes_match": true,
+            "both_helpers_byte_identical_to_history": true,
+            "helper_hashes_match": true
+          },
+          "pair_count": 8,
+          "process_count": 16,
+          "all_exit_codes_zero": true,
+          "unique_isolation_roots": 16,
+          "raw_reports_equal_summary": true,
+          "identity_and_source_unchanged": true,
+          "raw_samples_and_all_medians_recomputed": true,
+          "summaries": [
+            {
+              "mode": "full",
+              "metric": "schema_helper",
+              "pairs": 4,
+              "baseline_median_us": 88464.0,
+              "candidate_median_us": 81167.5,
+              "median_paired_candidate_minus_baseline_us": -7453.0
+            },
+            {
+              "mode": "full",
+              "metric": "port_helper",
+              "pairs": 4,
+              "baseline_median_us": 88857.5,
+              "candidate_median_us": 81389.5,
+              "median_paired_candidate_minus_baseline_us": -7813.0
+            },
+            {
+              "mode": "full",
+              "metric": "port_seam",
+              "pairs": 4,
+              "baseline_median_us": 177147.0,
+              "candidate_median_us": 169380.5,
+              "median_paired_candidate_minus_baseline_us": -7635.5
+            },
+            {
+              "mode": "splice",
+              "metric": "schema_helper",
+              "pairs": 4,
+              "baseline_median_us": 2409.0,
+              "candidate_median_us": 2151.0,
+              "median_paired_candidate_minus_baseline_us": -253.0
+            },
+            {
+              "mode": "splice",
+              "metric": "port_helper",
+              "pairs": 4,
+              "baseline_median_us": 2040.0,
+              "candidate_median_us": 1847.5,
+              "median_paired_candidate_minus_baseline_us": -185.0
+            },
+            {
+              "mode": "splice",
+              "metric": "port_seam",
+              "pairs": 4,
+              "baseline_median_us": 91634.5,
+              "candidate_median_us": 89039.5,
+              "median_paired_candidate_minus_baseline_us": -2487.0
+            }
+          ],
+          "invocations": [
+            {
+              "name": "full-1-baseline",
+              "exit_code": 0,
+              "isolated_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\00c9aa17-22e2-40da-a45e-d77292b9511f",
+              "invocation_sha256": "ea57122b36589471dfdb30d1647573c13a6a441b0b2efc3ee8e42780c34a8f8c",
+              "measurement_log_sha256": "151a23d9771646cfd90ac05eefa2cb20b1d1d31c62bb51b2686eabac0fe357ae"
+            },
+            {
+              "name": "full-1-candidate",
+              "exit_code": 0,
+              "isolated_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\d6073bd1-72c6-4844-9290-811183e946c4",
+              "invocation_sha256": "78bff36c1b046d5f86c67c5e96977e0d2614d1c6993f61465a95ad9822800732",
+              "measurement_log_sha256": "e31a143cfc2154a7f05960b6bf8909acdfe1710bb6fdf0d4889c5c83ac264f01"
+            },
+            {
+              "name": "full-2-candidate",
+              "exit_code": 0,
+              "isolated_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\049440f2-5ae2-4b29-8003-410a29434dab",
+              "invocation_sha256": "83ac44e571084052045fc4f528822ee6a9db6058fbe0913ecc109138a196f217",
+              "measurement_log_sha256": "b524f88dc2b46233ba55d46ab0c618072878e16bc0b203f5ee6fbd863bfa5008"
+            },
+            {
+              "name": "full-2-baseline",
+              "exit_code": 0,
+              "isolated_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\b5222bc6-8a84-4c3a-aaec-501ec550fd68",
+              "invocation_sha256": "6d5a51bac6436f2a3f9373c5bad2c4a4b61221130955b195096e555818142564",
+              "measurement_log_sha256": "0808df198a79385a5c856a35994cf8b07f8624d7438c03aef1c18d49b6ba2655"
+            },
+            {
+              "name": "full-3-baseline",
+              "exit_code": 0,
+              "isolated_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\cc8b2448-901a-45b1-8ce8-d0fe409b2630",
+              "invocation_sha256": "526d049392a62de9501b4e09dc202d004b1a567a133d403a9c171ad4dd762afa",
+              "measurement_log_sha256": "867b78ee27444d30cd7a1f90ce7b637fa99ffec2933c691743749dff96eb22cb"
+            },
+            {
+              "name": "full-3-candidate",
+              "exit_code": 0,
+              "isolated_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\2a3cb4ce-bf1f-4cba-88be-f27cdeeebfb5",
+              "invocation_sha256": "3a306d540cac8502594386831ee230a8c9a1e2978e422923f66d11622e280201",
+              "measurement_log_sha256": "ea7e291aabde7d569f5555df577cc6911c6ff4930e330b16f43786ef077f8c0d"
+            },
+            {
+              "name": "full-4-candidate",
+              "exit_code": 0,
+              "isolated_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\ade89078-4398-4bf1-85d6-0559d2f03c78",
+              "invocation_sha256": "a03fb54914886803ae1432ddf95f090d2fc1a1ee5d9fbec0a2ebe0489c21baed",
+              "measurement_log_sha256": "9019e6a2475ee879a9f14b4b117788c8626eae6ddb7ce31be1c70412207691df"
+            },
+            {
+              "name": "full-4-baseline",
+              "exit_code": 0,
+              "isolated_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\300ebcf8-92d4-4153-a99e-b9e227e6aa60",
+              "invocation_sha256": "3b1f1b69628afeaa383005ed1fa172e4e3f4cff844d6817a637e1a737f1dc6cf",
+              "measurement_log_sha256": "40210c9b3e265d32897f1a3db8aee998edc8098ebdd8f1e1216d839c0f671b68"
+            },
+            {
+              "name": "splice-1-baseline",
+              "exit_code": 0,
+              "isolated_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\2825eff9-089f-4a05-ad63-b37cd4ae855d",
+              "invocation_sha256": "dd06365498c7d8a858b6672ce7f41432c6cb826e1b9ea21f193b316bf7317b6a",
+              "measurement_log_sha256": "82379a27fe0185043b5d88d41ab3707866c5081b9ac774de09b2db01584781ef"
+            },
+            {
+              "name": "splice-1-candidate",
+              "exit_code": 0,
+              "isolated_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\b35f880a-0125-4814-84c0-c707e96f13b4",
+              "invocation_sha256": "04fdefcb51fbe05c4383dcbe4db7e37016c9678e6fb6f6fe183f0a94b065a6f3",
+              "measurement_log_sha256": "9c3138535266a2497b62cc15ea36e87481fdb00dece9cb298aeacbfe9c23b3f1"
+            },
+            {
+              "name": "splice-2-candidate",
+              "exit_code": 0,
+              "isolated_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\b055e3fd-292e-4c94-b88b-58570f37f1c3",
+              "invocation_sha256": "b0cb8c57dc59822287a9f6d3d56ce3f2eda66dfa5f694eb070ff09be9667da27",
+              "measurement_log_sha256": "a2380f373f57fb7a333627f071f7cc1dfd4895ec37f80f4699d1aad568e5bc56"
+            },
+            {
+              "name": "splice-2-baseline",
+              "exit_code": 0,
+              "isolated_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\788c1611-10e6-46d4-9533-cf4737deb446",
+              "invocation_sha256": "ec78d17c63d5eef1f67b28aa695b06c6ec1ec0cf88d0fed2b86b93a821b80388",
+              "measurement_log_sha256": "e6439f63c62594b12b12c93701647aa80e5a23fe6e6c6e6b1c91f9b6b486ca4c"
+            },
+            {
+              "name": "splice-3-baseline",
+              "exit_code": 0,
+              "isolated_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\581fd0cd-2419-4d06-9dc9-6d397962e8e5",
+              "invocation_sha256": "f91f5f05bd22454dabad24168cd25eed4d24a3d2bcdb9db92782f804f29340e6",
+              "measurement_log_sha256": "41d44915113db1c9ff3493f21b3f14fe7de6fcaad58faa090a5005dc9e834cfc"
+            },
+            {
+              "name": "splice-3-candidate",
+              "exit_code": 0,
+              "isolated_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\ea143114-1a15-43d8-b8bb-dc211f503ca9",
+              "invocation_sha256": "7317d8e52f517c6c2871a1f0817b4d01a35a88896641ce611f6537c42e177563",
+              "measurement_log_sha256": "008ffb0b28fa8a59305a9182daa4e4b69d787988192da8b3826b974ef122975c"
+            },
+            {
+              "name": "splice-4-candidate",
+              "exit_code": 0,
+              "isolated_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\b257db1c-7573-4d9d-871e-af339e131683",
+              "invocation_sha256": "e12dad695ef43d6408f45e0a3e2839cf1fc1a3a84004951b7955873166bf9448",
+              "measurement_log_sha256": "a652f9eb5d4ed88bb3de316cacad999286ce00ce54ac3d42079f5ab25d44d02a"
+            },
+            {
+              "name": "splice-4-baseline",
+              "exit_code": 0,
+              "isolated_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\9dc3f724-be0d-48b5-aa91-38f5b8c88d2f",
+              "invocation_sha256": "260be3a7b22ce6f3781b5c78f1f76ffac890bdd2a6f7e8f5315f439e0520d89f",
+              "measurement_log_sha256": "8fa54b16bd7e616726d462f7e5fb98f3229a295615c95de3ba1092f3cf4f4dd8"
+            }
+          ],
+          "sampling": "Four alternating pairs per full/splice mode; sixteen fresh isolated processes. Each metric keeps five samples after two warmups. No timing threshold; OS caches are not flushed.",
+          "scope": "Frozen eager helpers versus current lazy helpers on identical strict Day7 JSON. Both port seams use the same current strict outgoing schema and proofs. This is not a matched schema-build, physical-save, gameplay, or input-to-paint comparison.",
+          "limits": [
+            "Strict current validator runs in both variants. Timing excludes proof creation, envelope construction, emission and equality checks.",
+            "No timing threshold or OS cache flush; no full-save, gameplay, frame-time or universal speedup claim."
+          ]
+        }
+      }
+    },
+    "aggregate": {
+      "status": "verified",
+      "job_id": 110435819099,
+      "name": "Windows / seven-day retained history",
+      "run_attempt": 1,
+      "conclusion": "success",
+      "producer_result": "success",
+      "comparisons_matrix_result": "success",
+      "dependency_jobs": [
+        {
+          "job_id": 110420749400,
+          "name": "Windows / seven-day retained history producer",
+          "conclusion": "success"
+        },
+        {
+          "job_id": 110428116825,
+          "name": "Windows / lazy-normalization comparison",
+          "conclusion": "success"
+        },
+        {
+          "job_id": 110428116848,
+          "name": "Windows / warm-outgoing-proof comparison",
+          "conclusion": "success"
+        },
+        {
+          "job_id": 110428116886,
+          "name": "Windows / outgoing-normalization comparison",
+          "conclusion": "success"
+        },
+        {
+          "job_id": 110428116972,
+          "name": "Windows / history-region-search comparison",
+          "conclusion": "success"
+        }
+      ],
+      "log_sha256": "1f150fe0f54794268bb0eb18ef016ce514f803bb220f23a08f7ad5ce7ff659f1",
+      "workflow_sha256": "271748014039105b2f9fad7349c59c251985a573f23376cccb2b4bf101acde53",
+      "scope": "Aggregate has no checkout or engine invocation; its source-bound workflow requires this run\u2019s producer and all four isolated matrix comparisons to succeed."
+    }
+  },
+  "windows_export": {
+    "conclusion": "success",
+    "checkout_merge": "5792c629b9e0bfe27ce4d5b2b07837dc6a070fbf",
+    "receipt": {
+      "ok": true,
+      "commit": "5792c629b9e0bfe27ce4d5b2b07837dc6a070fbf",
+      "engine": "4.6.3.stable",
+      "runtime_data_files_verified": 111,
+      "templates_sha256": "3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8",
+      "executable_sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+      "pck_sha256": "c04d67b6e6fe570729735302eaab16b134cfa800b5626e3d2284ac75f00d1e05",
+      "archive": {
+        "file": "DWM-windows-x86_64-validation.zip",
+        "sha256": "b5d04beec1a806dbfbb2484fe443de344cf494592326aa289f71b3baff938aae",
+        "bytes": 98827055
+      }
+    },
+    "local_export_archive_inspected": false,
+    "cloud_receipt_scope": [
+      "Unsigned x86_64 release export using standard Godot 4.6.3",
+      "111 packaged runtime data files matched source hashes and forbidden development directories excluded",
+      "isolated exported DWM.exe headless startup with adjacent PCK, 240 iterations and a newly created valid isolated Profile"
+    ],
+    "limitations": [
+      "Export archive and its nested validation/startup logs were not downloaded or locally inspected; cloud receipt, job step success and source-bound validator control flow establish this scope.",
+      "No graphical, UIA, screen-reader, audible-quality or release-readiness acceptance.",
+      "API artifact SHA256 hashes the Actions wrapper; the receipt archive SHA256 hashes its nested Windows package."
+    ]
+  },
+  "limits": [
+    "Artifact assertions and raw evidence are audited; no new Godot or PowerShell execution occurs locally.",
+    "Rendered UI uses Linux software OpenGL; this is not full native Windows all-input acceptance.",
+    "Pixel hashes and dimensions plus produced geometry/contrast assertions are checked; this is not a separate visual review of every screenshot.",
+    "Reading dialogue/catalogue is explicitly noncanonical and production registration remains disabled.",
+    "GUT totals, public contract inventories, all-job checkout provenance and whole-workflow conclusion are recorded by the root audit separately.",
+    "Performance and latency results are measured samples; no universal speedup or whole-product acceptance is inferred."
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "run_id": 37229449592,
+  "run_number": 163,
+  "source_commit": "dad76b355ca5fe41b3bb59f28c604e1be503c40d",
+  "purpose": "Focused diagnostic with cloud inventory regeneration; not final acceptance",
+  "endings_cases": 169,
+  "failures": [
+    {
+      "script": "tests/unit/test_gallery_version_register.gd",
+      "case": "test_plural_geometry_and_single_version_absence",
+      "detail": "Unexpected Errors:\n      [1] <engine-2>Invalid type in function 'set_versions' in base 'Control (GalleryVersionRegister.gd)'. The array of argument 1 (Array) does not have the same element type as the expected typed array argument.\n            at line 64"
+    },
+    {
+      "script": "tests/unit/test_gallery_version_register.gd",
+      "case": "test_removed_focused_row_notifies_owner_once_and_does_not_choose_another",
+      "detail": "Unexpected Errors:\n      [1] <engine-2>Invalid type in function 'set_versions' in base 'Control (GalleryVersionRegister.gd)'. The array of argument 1 (Array) does not have the same element type as the expected typed array argument.\n            at line 123"
+    },
+    {
+      "script": "tests/integration/test_gallery_replay_status.gd",
+      "case": "test_determinate_synchronous_start_failure_is_stable_and_retry_reuses_exact_signature_without_mutation",
+      "detail": "[VECTOR2(16.0, 96.0)] expected to equal [VECTOR2(16.0, 56.0)]:  \n            at line 171"
+    },
+    {
+      "script": "tests/integration/test_gallery_replay_status.gd",
+      "case": "test_async_start_failure_retains_error_across_locales_and_version_change_clears_it",
+      "detail": "[VECTOR2(16.0, 96.0)] expected to equal [VECTOR2(16.0, 56.0)]:  \n            at line 225"
+    },
+    {
+      "script": "tests/integration/test_gallery_record_metadata.gd",
+      "case": "test_unreached_cross_record_empty_and_unavailable_never_leak_details",
+      "detail": "Unexpected Errors:\n      [1] <engine-2>Invalid type in function 'set_versions' in base 'Control (GalleryVersionRegister.gd)'. The array of argument 1 (Array) does not have the same element type as the expected typed array argument.\n      [2] <engine-2>Invalid type in function 'set_versions' in base 'Control (GalleryVersionRegister.gd)'. The array of argument 1 (Array) does not have the same element type as the expected typed array argument.\n      [3] <engine-2>Invalid type in function 'set_versions' in base 'Control (GalleryVersionRegister.gd)'. The array of argument 1 (Array) does not have the same element type as the expected typed array argument.\n      [4] <engine-2>Invalid type in function 'set_versions' in base 'Control (GalleryVersionRegister.gd)'. The array of argument 1 (Array) does not have the same element type as the expected typed array argument.\n            at line 208"
+    },
+    {
+      "script": "tests/integration/test_gallery_art_placements.gd",
+      "case": "test_unreached_and_empty_records_keep_inert_title_semantics",
+      "detail": "Unexpected Errors:\n      [1] <engine-2>Invalid type in function 'set_versions' in base 'Control (GalleryVersionRegister.gd)'. The array of argument 1 (Array) does not have the same element type as the expected typed array argument.\n      [2] <engine-2>Invalid type in function 'set_versions' in base 'Control (GalleryVersionRegister.gd)'. The array of argument 1 (Array) does not have the same element type as the expected typed array argument.\n      [3] <engine-2>Invalid type in function 'set_versions' in base 'Control (GalleryVersionRegister.gd)'. The array of argument 1 (Array) does not have the same element type as the expected typed array argument.\n      [4] <engine-2>Invalid type in function 'set_versions' in base 'Control (GalleryVersionRegister.gd)'. The array of argument 1 (Array) does not have the same element type as the expected typed array argument.\n            at line -1"
+    }
+  ],
+  "rendered": {
+    "tuples": 18,
+    "checks": 378,
+    "failures": 0,
+    "scope": "Short cues; paragraph overflow. Final candidate adds wrapped cues at125."
+  },
+  "fixes": [
+    "Explicit Array[Dictionary] on empty register clears and unit calls.",
+    "Existing Retry fixture accounts for the already-present production sentence."
+  ],
+  "artifact_sha256": {
+    "public": "67fad61a8ab8be2328d8499bffd18ee4e8f1281b3dbeb855094ce4d67dd68628",
+    "endings": "9e9d15ec9bda04990e063d1eb24a2d17c0d473da91a1d519aeaa6e4b3ea5298e",
+    "render": "56df39e28c32149c28b46097d5dded7a9ccb137e346ceefb58d6159c627fb383"
+  }
+}

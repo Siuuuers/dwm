@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "repository": "Siuuuers/dwm",
+  "pr": 1,
+  "run_number": 62,
+  "run_id": 36295890230,
+  "run_url": "https://github.com/Siuuuers/dwm/actions/runs/36295890230",
+  "source_commit": "504b242d79b1380e843c19edf27d89bb78b09b5c",
+  "tested_merge": "9c2230ceb93c86622df08a812fb4e7259c8f1e69",
+  "acceptance": "rejected_diagnostic_fixture_failed_settings_cancelled",
+  "jobs": [
+    {
+      "id": 108554548175,
+      "name": "Windows / public API surface contracts",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T04:59:33Z",
+      "completed_at": "2026-09-27T05:03:11Z"
+    },
+    {
+      "id": 108555054478,
+      "name": "Windows / paired checkpoint performance",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T05:03:13Z",
+      "completed_at": "2026-09-27T05:07:20Z"
+    },
+    {
+      "id": 108555054515,
+      "name": "Rendered desktop and dialogue / Linux software OpenGL",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T05:03:13Z",
+      "completed_at": "2026-09-27T05:06:54Z"
+    },
+    {
+      "id": 108555054532,
+      "name": "Windows / exported release startup",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T05:03:13Z",
+      "completed_at": "2026-09-27T05:05:10Z"
+    },
+    {
+      "id": 108555054551,
+      "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T05:03:14Z",
+      "completed_at": "2026-09-27T05:05:45Z"
+    },
+    {
+      "id": 108555054640,
+      "name": "Windows / shop",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T05:03:13Z",
+      "completed_at": "2026-09-27T05:04:47Z"
+    },
+    {
+      "id": 108555054645,
+      "name": "Windows / desktop",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T05:03:14Z",
+      "completed_at": "2026-09-27T05:06:16Z"
+    },
+    {
+      "id": 108555054649,
+      "name": "Windows / reading_delivery",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T05:03:13Z",
+      "completed_at": "2026-09-27T05:05:44Z"
+    },
+    {
+      "id": 108555054650,
+      "name": "Windows / checkpoint_diagnostics",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-09-27T05:03:13Z",
+      "completed_at": "2026-09-27T05:04:30Z"
+    },
+    {
+      "id": 108555054653,
+      "name": "Windows / minesweeper",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T05:03:13Z",
+      "completed_at": "2026-09-27T05:05:32Z"
+    },
+    {
+      "id": 108555054655,
+      "name": "Windows / dating",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T05:03:14Z",
+      "completed_at": "2026-09-27T05:05:53Z"
+    },
+    {
+      "id": 108555054668,
+      "name": "Windows / audio",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T05:03:13Z",
+      "completed_at": "2026-09-27T05:04:34Z"
+    },
+    {
+      "id": 108555054684,
+      "name": "Windows / endings",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T05:03:13Z",
+      "completed_at": "2026-09-27T05:04:34Z"
+    },
+    {
+      "id": 108555054685,
+      "name": "Windows / new_account",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T05:03:13Z",
+      "completed_at": "2026-09-27T05:04:46Z"
+    },
+    {
+      "id": 108555054690,
+      "name": "Windows / settings",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-09-27T05:03:13Z",
+      "completed_at": "2026-09-27T05:28:13Z"
+    },
+    {
+      "id": 108555054715,
+      "name": "Windows / localization",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T05:03:13Z",
+      "completed_at": "2026-09-27T05:05:22Z"
+    },
+    {
+      "id": 108555054716,
+      "name": "Windows / persistence",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T05:03:13Z",
+      "completed_at": "2026-09-27T05:05:04Z"
+    },
+    {
+      "id": 108555615053,
+      "name": "Windows / seven-day retained history",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T05:07:23Z",
+      "completed_at": "2026-09-27T05:24:43Z"
+    }
+  ],
+  "isolation": {
+    "job_id": 108555054650,
+    "test_cases": 4,
+    "passed": 0,
+    "failed": 4,
+    "seconds": 0.511,
+    "assertions_passed": 45,
+    "assertions_total": 100,
+    "excerpt": "evidence/beads_cloud_review/run62-checkpoint-diagnostics-red.log",
+    "first_failure": "checkpoint prepare: invalid_gameplay",
+    "secondary_failures": [
+      "invalid_candidate",
+      "missing diagnostic scopes and timers",
+      "invalid dictionary property access"
+    ],
+    "artifact_id": 10924105970,
+    "excerpt_normalization": "Timestamp prefixes and trailing horizontal whitespace removed; original message order retained."
+  },
+  "source_diagnosis": {
+    "fixture": "tests/fixtures/saves/v7_desktop_prepared.json initially has no gameplay.money key",
+    "defect": "Dot insertion uses a StringName key; RunSnapshotSchema._validate_gameplay requires String keys.",
+    "proposed_correction": "Use snapshot[\"gameplay\"][\"money\"] = money, preserving strict runtime validation.",
+    "engine_sources": [
+      "https://github.com/godotengine/godot/blob/4.6.3-stable/modules/gdscript/gdscript_vm.cpp",
+      "https://github.com/godotengine/godot/blob/4.6.3-stable/core/variant/variant_setget.cpp"
+    ],
+    "verification": "Requires the next cloud execution; this RED does not prove the correction."
+  },
+  "settings": {
+    "job_id": 108555054690,
+    "conclusion": "cancelled",
+    "log_after_completion": "BlobNotFound/404",
+    "cause": "unestablished; the isolated test failure does not explain the longer suite stall"
+  },
+  "limitations": [
+    "No full source acceptance or lag fix claimed.",
+    "The isolated four-test job duplicates tests kept in Settings.",
+    "The 16 successful job states are recorded; this receipt does not invent unparsed per-suite counts."
+  ]
+}

@@ -1,0 +1,7 @@
+# Native Wait lifecycle fixture only. The 2-second duration is deliberately
+# noncanonical: it neither authors a production Hospital hold nor registers prose.
+return
+
+label timed_hold
+[wait time="2.0" hide_text="true" skippable="false"]
+return

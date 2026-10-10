@@ -1,0 +1,75 @@
+{
+  "status": "blocked_by_automatic_approval_review",
+  "local_cut": {
+    "base": "ad9c1801d89c1eee37655ce3684b5d6a18b69a46",
+    "source": "e99c984ccf97df7f183a99378ba30783d980a994",
+    "commit": "3aedd6d05ab6f892674d2a72a4bb7c013a649a54",
+    "tree": "22732eb1ac9e66db3c75e8916b784b817c2b8cf9",
+    "files": [
+      ".github/workflows/windows-tests.yml",
+      "autoload/SaveManager.gd",
+      "docs/agent/2026-09-21-session-handoff.md",
+      "evidence/beads_cloud_review/resumed-public-cloud-run50.json",
+      "tests/integration/test_dating_caption_style.gd",
+      "tests/integration/test_desktop_board_persistence.gd",
+      "tests/integration/test_desktop_bootstrap_wiring.gd",
+      "tests/integration/test_minesweeper_first_reveal_transaction.gd",
+      "tests/integration/test_new_run_pair_durability.gd",
+      "tests/integration/test_phase2r_schedule_desktop_handoff.gd",
+      "tests/integration/test_save_capability.gd",
+      "tests/integration/test_save_manager_journal.gd",
+      "tests/manual/benchmark_seven_day_history.gd",
+      "tests/save_load_capture/test_capture.gd",
+      "tests/tooling/Test-InvokeIsolatedGodot.ps1",
+      "tests/unit/test_desktop_cold_recovery_preparation.gd",
+      "tests/unit/test_production_pause_controller.gd",
+      "tests/unit/test_run_dark_configuration.gd",
+      "tests/unit/tooling/test_phase2r_schedule_gate.gd",
+      "tools/testing/Invoke-CloudTests.ps1",
+      "tools/testing/Invoke-IsolatedGodot.ps1",
+      "tools/testing/Invoke-SevenDayHistoryPerformance.ps1",
+      "tools/testing/derive_save_admission_baseline.py"
+    ],
+    "deferred": [
+      ".beads/issues.jsonl"
+    ],
+    "count": 23
+  },
+  "uploaded_blobs": [
+    {
+      "path": "tools/testing/derive_save_admission_baseline.py",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "230984910efdd73887cd3121abf30bae3f5b9b5b",
+      "size": 3417
+    },
+    {
+      "path": ".github/workflows/windows-tests.yml",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "fa26049207f69a639ef30f58f48fe4d1d41d9edc",
+      "size": 46999
+    }
+  ],
+  "no_tree_commit_or_ref_created": true,
+  "blocked_path": "autoload/SaveManager.gd",
+  "blocked_sha": "782baabcbc056c3e6e4001967eb63b2b49c2241e",
+  "rejection": "This publishes a large repository source file to a public GitHub repository; continuing PR work does not explicitly authorize disclosing this source payload publicly, and the destination is not trusted under policy.",
+  "branch_last_verified": "ad9c1801d89c1eee37655ce3684b5d6a18b69a46",
+  "final_remote_verification": {
+    "pr": 1,
+    "draft": true,
+    "head_branch": "codex/windows-cloud-ux",
+    "head_sha": "ad9c1801d89c1eee37655ce3684b5d6a18b69a46",
+    "base_branch": "master",
+    "base_sha": "9e43b52c9884ccd59e82245d2168c3113ee4d037"
+  },
+  "repository_writes": {
+    "blob_objects_only": 2,
+    "tree": false,
+    "commit": false,
+    "ref": false,
+    "pr_comment": false
+  },
+  "receipt_scope": "Public repository, commit, tree, blob and workflow evidence only; authenticated account and permission-check metadata omitted."
+}

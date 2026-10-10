@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "archive": "hospital-broad1-normalization-supplement.tar.gz",
+  "bytes": 9700,
+  "sha256": "e12d3168fc8c2dfd1bcbd2d76a3cff9794077fd5629255cdce348a5e7e7e7354",
+  "payload_file_count": 3,
+  "round_trip_verified": true,
+  "payloads": [
+    {
+      "path": "hospital-broad1-normalization-audit/README.md",
+      "bytes": 5668,
+      "sha256": "21f778d6afe4f5c892280697622dda57d2c8b9b1ed71d282233bdad09ebfd93b"
+    },
+    {
+      "path": "hospital-broad1-normalization-audit/audit.json",
+      "bytes": 8894,
+      "sha256": "0cef6c2ea2c96e3bc4d89dbed37e1db405097e97e3b2cc78bbfb61285d2c4205"
+    },
+    {
+      "path": "hospital-broad1-normalization-audit/audit_normalization.py",
+      "bytes": 19493,
+      "sha256": "1861944dcd4c55596eb6d7306f042544f71330ec406409426c30e39d700fbf5b"
+    }
+  ],
+  "scope": "Additive bounded audit for the independently successful outgoing-normalization and lazy-normalization jobs. Broad1 remains failed.",
+  "performance_limit": "Observed paired samples and medians only. One splice port_seam pair was 497 microseconds slower for the candidate, so no universal speedup is claimed."
+}

@@ -6,6 +6,10 @@ extends RefCounted
 ## GetClientRect/ClientToScreen. Other backends need their own completion proof.
 
 const BASELINE := Vector2i(1280, 720)
+const WINDOW_SIZES := {"1280x720": BASELINE, "1600x900": Vector2i(1600, 900), "1920x1080": Vector2i(1920, 1080)}
+# Leave room for ordinary Windows borders and the title bar. The native readback
+# remains authoritative if the platform rejects the requested client size.
+const FRAME_ALLOWANCE := Vector2i(32, 64)
 const MAIN := DisplayServer.MAIN_WINDOW_ID
 const WINDOWED := DisplayServer.WINDOW_MODE_WINDOWED
 const BORDERLESS := DisplayServer.WINDOW_FLAG_BORDERLESS
@@ -28,8 +32,9 @@ func capture_output() -> Dictionary:
 	if not _valid_snapshot(snapshot): return _failure(&"window_output_unavailable")
 	return _success(snapshot)
 
-func apply_mode(mode: Variant) -> Dictionary:
+func apply_mode(mode: Variant, window_size: Variant = "1280x720") -> Dictionary:
 	if not _valid_mode(mode): return _failure(&"invalid_window_mode")
+	if not _valid_size(window_size): return _failure(&"invalid_window_size")
 	var captured := capture_output()
 	if not captured.ok: return captured
 	var target: Dictionary = captured.value.duplicate(true)
@@ -37,21 +42,43 @@ func apply_mode(mode: Variant) -> Dictionary:
 	if not _valid_rect(usable): return _failure(&"window_output_unavailable")
 	target.mode = WINDOWED
 	target.borderless = mode == "borderless"
-	target.size = usable.size if target.borderless else BASELINE
-	target.position = usable.position if target.borderless else usable.position + (usable.size - BASELINE) / 2
+	target.size = usable.size if target.borderless else _fitted_size(window_size, usable.size)
+	target.position = usable.position if target.borderless else usable.position + (usable.size - target.size) / 2
 	_write(target)
 	if _read() != target: return _failure(&"window_output_unproven")
 	return _success({"mode": String(mode)})
 
-func output_matches(mode: Variant) -> bool:
-	if not _valid_mode(mode): return false
+func output_matches(mode: Variant, window_size: Variant = "1280x720") -> bool:
+	if not _valid_mode(mode) or not _valid_size(window_size): return false
 	var captured := capture_output()
 	if not captured.ok: return false
 	var actual: Dictionary = captured.value
 	if actual.mode != WINDOWED or actual.borderless != (mode == "borderless"): return false
-	if mode == "windowed": return actual.size == BASELINE
 	var usable: Variant = _platform.screen_get_usable_rect(actual.screen)
-	return _valid_rect(usable) and actual.position == usable.position and actual.size == usable.size
+	if not _valid_rect(usable): return false
+	if mode == "windowed": return actual.size == _fitted_size(window_size, usable.size)
+	return actual.position == usable.position and actual.size == usable.size
+
+func get_available_window_sizes() -> Array[String]:
+	var sizes: Array[String] = []
+	var captured := capture_output()
+	if not captured.ok: return sizes
+	var usable: Variant = _platform.screen_get_usable_rect(captured.value.screen)
+	if not _valid_rect(usable): return sizes
+	for id: String in WINDOW_SIZES:
+		if _fitted_size(id, usable.size) == WINDOW_SIZES[id]: sizes.append(id)
+	return sizes
+
+func _fitted_size(id: String, usable: Vector2i) -> Vector2i:
+	# A saved preference may be reopened on a smaller monitor. Fit safely without
+	# rewriting that preference; it remains available on the original monitor.
+	var desired: Vector2i = WINDOW_SIZES[id]
+	var available := Vector2i(maxi(1, usable.x - FRAME_ALLOWANCE.x), maxi(1, usable.y - FRAME_ALLOWANCE.y))
+	var factor := minf(1.0, minf(float(available.x) / desired.x, float(available.y) / desired.y))
+	return Vector2i(maxi(1, floori(desired.x * factor)), maxi(1, floori(desired.y * factor)))
+
+func _valid_size(value: Variant) -> bool:
+	return typeof(value) == TYPE_STRING and WINDOW_SIZES.has(value)
 
 func restore_output(snapshot: Variant) -> Dictionary:
 	if not _available(): return _failure(&"window_output_unavailable")

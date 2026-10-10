@@ -1,0 +1,143 @@
+{
+	"captures": 10,
+	"crop_checks": [
+		{
+			"identical": true,
+			"maximum_channel_difference": 0,
+			"sample_height": 720,
+			"sample_width": 256,
+			"source_width": 480,
+			"source_x": 80,
+			"target_width": 320
+		},
+		{
+			"identical": true,
+			"maximum_channel_difference": 0,
+			"sample_height": 720,
+			"sample_width": 414,
+			"source_width": 480,
+			"source_x": 1,
+			"target_width": 478
+		}
+	],
+	"evidence": [
+		{
+			"art_rect": "[P: (0.0, 0.0), S: (480.0, 720.0)]",
+			"hud_rect": "[P: (16.0, 16.0), S: (448.0, 292.0)]",
+			"locale": "en",
+			"name": "wide-en100",
+			"percent": 100,
+			"scroll": 0,
+			"scroll_extent": 0.0,
+			"width": 480
+		},
+		{
+			"art_rect": "[P: (0.0, 0.0), S: (320.0, 720.0)]",
+			"hud_rect": "[P: (16.0, 16.0), S: (288.0, 292.0)]",
+			"locale": "en",
+			"name": "narrow-en100",
+			"percent": 100,
+			"scroll": 0,
+			"scroll_extent": 0.0,
+			"width": 320
+		},
+		{
+			"art_rect": "[P: (0.0, 0.0), S: (480.0, 720.0)]",
+			"conditions": true,
+			"hud_rect": "[P: (16.0, 16.0), S: (448.0, 300.0)]",
+			"locale": "en",
+			"name": "wide-en150-conditions",
+			"percent": 150,
+			"scroll": 0,
+			"scroll_extent": 274.0,
+			"width": 480
+		},
+		{
+			"art_rect": "[P: (0.0, 0.0), S: (320.0, 720.0)]",
+			"conditions": true,
+			"hud_rect": "[P: (16.0, 16.0), S: (288.0, 300.0)]",
+			"locale": "en",
+			"name": "narrow-en150-conditions",
+			"percent": 150,
+			"scroll": 0,
+			"scroll_extent": 529.0,
+			"width": 320
+		},
+		{
+			"art_rect": "[P: (0.0, 0.0), S: (320.0, 720.0)]",
+			"bottom": true,
+			"conditions": true,
+			"hud_rect": "[P: (16.0, 16.0), S: (288.0, 300.0)]",
+			"locale": "en",
+			"name": "narrow-en150-last-row",
+			"percent": 150,
+			"scroll": 529,
+			"scroll_extent": 529.0,
+			"width": 320
+		},
+		{
+			"art_rect": "[P: (0.0, 0.0), S: (320.0, 720.0)]",
+			"conditions": true,
+			"hud_rect": "[P: (16.0, 16.0), S: (288.0, 300.0)]",
+			"locale": "zh-CN",
+			"name": "narrow-zh-CN150-conditions",
+			"percent": 150,
+			"scroll": 0,
+			"scroll_extent": 274.0,
+			"width": 320
+		},
+		{
+			"art_rect": "[P: (0.0, 0.0), S: (480.0, 720.0)]",
+			"conditions": true,
+			"hud_rect": "[P: (16.0, 16.0), S: (448.0, 300.0)]",
+			"locale": "zh-HK",
+			"name": "wide-zh-HK150-conditions",
+			"percent": 150,
+			"scroll": 0,
+			"scroll_extent": 223.0,
+			"width": 480
+		},
+		{
+			"art_rect": "[P: (0.0, 0.0), S: (320.0, 720.0)]",
+			"bottom": true,
+			"conditions": true,
+			"contrast": true,
+			"hud_rect": "[P: (16.0, 16.0), S: (288.0, 300.0)]",
+			"locale": "en",
+			"name": "narrow-en150-high-contrast",
+			"percent": 150,
+			"scroll": 529,
+			"scroll_extent": 529.0,
+			"width": 320
+		},
+		{
+			"art_rect": "[P: (0.0, 0.0), S: (320.0, 720.0)]",
+			"conditions": true,
+			"contrast": true,
+			"hud_rect": "[P: (16.0, 16.0), S: (288.0, 300.0)]",
+			"locale": "zh-HK",
+			"name": "narrow-zh-HK150-high-contrast",
+			"percent": 150,
+			"scroll": 0,
+			"scroll_extent": 274.0,
+			"width": 320
+		},
+		{
+			"art_rect": "[P: (0.0, 0.0), S: (480.0, 720.0)]",
+			"conditions": true,
+			"day": 7,
+			"hud_rect": "[P: (16.0, 16.0), S: (448.0, 300.0)]",
+			"locale": "en",
+			"name": "wide-en100-day7-conditions",
+			"percent": 100,
+			"scroll": 0,
+			"scroll_extent": 111.0,
+			"width": 480
+		}
+	],
+	"failures": [],
+	"ok": true,
+	"renderer": "X11",
+	"samples": 10,
+	"scope": "production Main/StatHud and authored artwork; synthetic public stat values"
+}

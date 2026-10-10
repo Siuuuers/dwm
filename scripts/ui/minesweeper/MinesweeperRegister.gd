@@ -81,9 +81,9 @@ func _init() -> void:
 
 func configure(host: String = "desktop_app", locale: String = "en", percent: int = 100,
 		large: bool = false, palette: StringName = &"after_hours",
-		high_contrast: bool = false, colour_preset: String = "standard") -> bool:
+		high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel", day: int = 1) -> bool:
 	if host not in ["desktop_app","canonical_solo","canonical_pair"]: return false
-	var next_theme := MS_THEME.build(locale,percent,palette,high_contrast,colour_preset)
+	var next_theme := MS_THEME.build(locale,percent,palette,high_contrast,colour_preset,font_style,day)
 	if next_theme == null or (not public_view.is_empty() and (host == "desktop_app") != (_host == "desktop_app")): return false
 	var measured: Dictionary = {}
 	if not public_view.is_empty():
@@ -127,43 +127,127 @@ func _compose(view: Dictionary, next_theme: Theme, host: String, locale: String,
 	var copy := COPY.get_copy(locale)
 	var candidate_buttons: Dictionary = {}
 	var candidate_metrics: Dictionary = {}
-	var height := 108 if large else 92
+	var height := 72 if large else 56
+	var stacked := false
+	var tier_band := 480
+	var responsive_allocations: Array = []
 	if host == "desktop_app":
+		if metrics.has("rounds") and metrics.rounds.theme == next_theme:
+			stacked = metrics.rounds.position.y > 0
+			tier_band = int(metrics.rounds.position.x) if not stacked else 800
+		else:
+			var minimum_width := 0
+			for key: String in TIERS:
+				minimum_width += BUTTON.single_line_width(copy[key],next_theme,large)
+			var status_widths: Array[int] = []
+			for key: String in ["rounds","mine_estimate"]:
+				var label: String = COPY.COMPACT_METRICS.get(locale.replace("_","-"),{}).get(key,copy[key])
+				var measured := TEXT.measure_copy(label,next_theme,784)
+				if measured.is_empty() or measured.paragraph.get_line_count() != 1: return {}
+				var width := int(ceilf((measured.paragraph.get_line_width(0)+16)/2.0))*2
+				status_widths.append(width)
+				minimum_width += width
+			stacked = minimum_width > 800
+			if not stacked and status_widths[0]+status_widths[1] > 320:
+				tier_band = 800-status_widths[0]-status_widths[1]
+				responsive_allocations = [["rounds",tier_band/2,status_widths[0]/2],
+					["mine_estimate",(tier_band+status_widths[0])/2,status_widths[1]/2]]
+		var widths: Array[int] = []
+		if large == _large:
+			for key: String in TIERS:
+				var button: Button = difficulties.get(key)
+				if button == null or button.theme != next_theme or button.public_copy != copy[key]:
+					widths.clear()
+					break
+				widths.append(int(button.custom_minimum_size.x))
+		if stacked:
+			widths.assign([266,268,266])
+		elif widths.is_empty():
+			widths.assign([160,160,160])
+			var minimums: Array[int] = []
+			var excess := 480-tier_band
+			for index in TIERS.size():
+				var minimum := BUTTON.single_line_width(copy[TIERS[index]],next_theme,large)
+				if minimum == 0: return {}
+				minimums.append(minimum)
+				widths[index] = maxi(160,minimum)
+				excess += widths[index]-160
+			# Keep the authored bays unless a label needs room; borrow only spare width.
+			while excess > 0:
+				var reduced := false
+				for index in TIERS.size():
+					if excess == 0: break
+					if widths[index]-2 >= minimums[index]:
+						widths[index] -= 2
+						excess -= 2
+						reduced = true
+				if not reduced: return {}
+		var left := 0
 		for index in TIERS.size():
 			var key: String = TIERS[index]
 			var button: Button = difficulties.get(key)
-			if button == null or button.theme != next_theme or button.public_copy != copy[key] or large != _large:
+			if button == null or button.theme != next_theme or button.public_copy != copy[key] or large != _large \
+					or int(button.custom_minimum_size.x) != widths[index]:
 				button = BUTTON.new()
-				if not button.configure(copy[key],next_theme,large,96):
+				if not button.configure(copy[key],next_theme,large,widths[index]):
 					button.free()
 					_free_candidates(candidate_buttons,candidate_metrics)
 					return {}
-			candidate_buttons[key] = {"node":button,"x":index*96,
+			candidate_buttons[key] = {"node":button,"x":left,
 				"enabled":key in view.difficulty_enabled,"selected":key == view.difficulty,
 				"description":copy.selected if key == view.difficulty else ""}
-			height = maxi(height,int(button.custom_minimum_size.y)+44)
-	var allocations: Array = [["rounds",144,56],["mine_estimate",200,72],["foresight",272,64],["no_flag",336,64]] if host == "desktop_app" else [["mine_estimate",280,72],["foresight",352,64],["no_flag",416,64]]
+			left += widths[index]
+			height = maxi(height,int(button.custom_minimum_size.y)+8)
+	var status_y := height if stacked else 0
+	var allocations: Array = [["rounds",0,200],["mine_estimate",200,200]] if stacked else _status_allocations(next_theme,host,locale,copy)
+	if not responsive_allocations.is_empty(): allocations = responsive_allocations
 	for allocation: Array in allocations:
 		var key: String = allocation[0]
 		var value := ""
 		match key:
 			"rounds": value = str(view.rounds)+"/2"
-			"no_flag": value = copy[view.no_flag]
-			"foresight": value = "—" if view.foresight == null else str(view.foresight)+"%"
 			"mine_estimate": value = "—" if view.mine_estimate == null else str(view.mine_estimate)
 		var width: int = allocation[2]*2
+		var label: String = COPY.COMPACT_METRICS.get(locale.replace("_","-"),{}).get(key,copy[key])
 		var metric: Metric = metrics.get(key)
-		var retained: bool = metric != null and metric.theme == next_theme and metric.label_copy == copy[key] \
+		var retained: bool = metric != null and metric.theme == next_theme and metric.label_copy == label \
 			and metric.value_copy == value and int(metric.custom_minimum_size.x) == width
 		if metric == null: metric = Metric.new()
-		var measured: Dictionary = {} if retained else metric.measure(copy[key],value,next_theme,width)
+		var measured: Dictionary = {} if retained else metric.measure(label,value,next_theme,width)
 		if not retained and measured.is_empty():
 			if not metrics.has(key): metric.free()
 			_free_candidates(candidate_buttons,candidate_metrics)
 			return {}
-		candidate_metrics[key] = {"node":metric,"measured":measured,"x":allocation[1]*2,"trailing_rule":key != "no_flag"}
-		height = maxi(height,int(metric.content_height() if retained else measured.height))
-	return {"buttons":candidate_buttons,"metrics":candidate_metrics,"height":height}
+		candidate_metrics[key] = {"node":metric,"measured":measured,"x":allocation[1]*2,"trailing_rule":key != "mine_estimate", "accessible_name":copy[key]+": "+value}
+		height = maxi(height,status_y+int(metric.content_height() if retained else measured.height))
+	return {"buttons":candidate_buttons,"metrics":candidate_metrics,"height":height,"status_y":status_y}
+
+## Keep the status block fixed; extra heading width comes from its spare capacity.
+func _status_allocations(next_theme: Theme, host: String, locale: String, copy: Dictionary) -> Array:
+	var allocations: Array = [["rounds",240,72],["mine_estimate",312,88]] if host == "desktop_app" else [["mine_estimate",392,88]]
+	var labels: Dictionary = {}
+	var retained := true
+	for allocation: Array in allocations:
+		var key: String = allocation[0]
+		labels[key] = COPY.COMPACT_METRICS.get(locale.replace("_","-"),{}).get(key,copy[key])
+		var metric: Metric = metrics.get(key)
+		if metric == null or metric.theme != next_theme or metric.label_copy != labels[key]: retained = false
+	if retained:
+		for allocation: Array in allocations:
+			var metric: Metric = metrics[allocation[0]]
+			allocation[1] = int(metric.position.x/2.0)
+			allocation[2] = int(metric.custom_minimum_size.x/2.0)
+		return allocations
+	var measured := TEXT.measure_copy(labels.mine_estimate,next_theme,304)
+	if measured.is_empty() or measured.paragraph.get_line_count() != 1: return allocations
+	var width := maxi(176,int(ceilf((measured.paragraph.get_line_width(0)+16)/2.0))*2)
+	if width == 176: return allocations
+	var half_width := int(width/2.0)
+	if host == "desktop_app":
+		var rounds := TEXT.measure_copy(labels.rounds,next_theme,320-width-16)
+		if rounds.is_empty() or rounds.paragraph.get_line_count() != 1: return allocations
+		return [["rounds",240,160-half_width],["mine_estimate",400-half_width,half_width]]
+	return [["mine_estimate",480-half_width,half_width]]
 
 func _free_candidates(buttons: Dictionary, fields: Dictionary) -> void:
 	for key: String in buttons:
@@ -190,7 +274,8 @@ func _install(measured: Dictionary) -> void:
 	for key: String in measured.buttons:
 		var plan: Dictionary = measured.buttons[key]
 		var button: Button = plan.node
-		button.position = Vector2(plan.x,floorf((size.y-button.custom_minimum_size.y)/4.0)*2.0)
+		var button_band: float = measured.status_y if measured.status_y > 0 else size.y
+		button.position = Vector2(plan.x,floorf((button_band-button.custom_minimum_size.y)/4.0)*2.0)
 		button.present_state(plan.enabled,plan.selected)
 		button.accessibility_description = plan.description
 		if button.get_parent() == null:
@@ -200,23 +285,31 @@ func _install(measured: Dictionary) -> void:
 		var plan: Dictionary = measured.metrics[key]
 		var metric: Metric = plan.node
 		if not plan.measured.is_empty(): metric.apply(plan.measured)
-		metric.position.x = plan.x
+		metric.accessibility_name = plan.accessible_name
+		metric.position = Vector2(plan.x,measured.status_y)
 		metric.trailing_rule = plan.trailing_rule
-		metric.custom_minimum_size.y = size.y
+		metric.custom_minimum_size.y = size.y-measured.status_y
 		metric.size = metric.custom_minimum_size
 		if metric.get_parent() == null: add_child(metric)
 	if difficulties.has(focused) and not difficulties[focused].disabled: difficulties[focused].grab_focus()
 	queue_redraw()
 
 func _request(tier: String) -> void:
-	if tier in public_view.difficulty_enabled and tier != public_view.difficulty:
+	if tier in public_view.difficulty_enabled:
 		difficulty_requested.emit(StringName(tier))
 
 func _draw() -> void:
 	if theme == null or public_view.is_empty(): return
 	draw_rect(Rect2(Vector2.ZERO,size),theme.get_color(&"controlled_face" if _host == "desktop_app" else &"habitat",&"Minesweeper"))
 	# Canonical blank capacity has no field face, seam, label or node.
-	var boundaries: Array = [48,96,144,200,272,336] if _host == "desktop_app" else []
-	for x: int in boundaries:
-		draw_rect(Rect2(x*2-2,0,2,size.y),theme.get_color(&"dark_registration",&"Minesweeper"))
+	if _host == "desktop_app":
+		var status_y: float = metrics.rounds.position.y
+		var button_band: float = status_y if status_y > 0 else size.y
+		for key: String in TIERS:
+			var x: float = difficulties[key].position.x+difficulties[key].size.x
+			draw_rect(Rect2(x-2,0,2,button_band),theme.get_color(&"dark_registration",&"Minesweeper"))
+		draw_rect(Rect2(metrics.mine_estimate.position.x-2,status_y,2,size.y-status_y),theme.get_color(&"dark_registration",&"Minesweeper"))
+		if status_y > 0:
+			draw_rect(Rect2(0,status_y-2,size.x,2),theme.get_color(&"dark_registration",&"Minesweeper"))
 	draw_rect(Rect2(0,size.y-2,size.x,2),theme.get_color(&"dark_registration",&"Minesweeper"))
+

@@ -1,0 +1,2 @@
+3830f571f50e67ba3285e39d65faeb133a0450253fa68b2a8ea46bd9c02790b0  settings-f9-focus1-diagnostic.tar.gz
+35cc59495b5e517624967cff371ebfadb2e57bc70fd612d79518e3e3f32fe9c7  manifest.json

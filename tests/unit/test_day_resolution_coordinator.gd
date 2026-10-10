@@ -1334,3 +1334,86 @@ func test_same_frozen_presentation_relaunches_once_after_route_generation_change
 	assert_true(wired.coordinator.resume().get("ok", false))
 	assert_eq(wired.router.get_routes().size(), 2, "the new mount is idempotent within its own generation")
 	assert_eq(_stage_state(wired.state, "hospital_if_triggered"), "active")
+
+
+## Production dispatcher + coordinator + mutation gate over a failing checkpoint port.
+## One native receipt survives failed persistence; Retry settles it without another begin.
+func test_dispatcher_retries_failed_hospital_checkpoint_without_replaying_presentation() -> void:
+	if not _all_exist(): return
+	var wired := _wired_presentation(3)
+	var dispatcher := preload("res://scripts/application/schedule/ScheduleDoneDispatcher.gd").new()
+	assert_true(dispatcher.configure(wired.coordinator, wired.hospital_port, wired.dating_port).ok)
+	var notifications: Array[Dictionary] = []
+	dispatcher.completion_dispatch_finished.connect(func(result: Dictionary, completion: Dictionary):
+		notifications.append({"result": result, "completion": completion}))
+	var before: Dictionary = wired.state.peek_state()
+	var checkpoints_before: Dictionary = wired.checkpoint.peek_state()
+	var requests_before: Array[Dictionary] = wired.hospital_port.get_requests()
+	wired.checkpoint.set_failure(&"commit_after_mutation")
+	wired.hospital_port.publish_completion(_completion_receipt())
+	assert_false(dispatcher.get_last_dispatch_result().ok)
+	assert_eq(wired.state.peek_state(), before, "failed durability cannot advance Hospital")
+	assert_eq(wired.checkpoint.peek_state(), checkpoints_before, "failed checkpoint rolls back")
+	assert_eq(wired.coordinator.get_last_presentation_completion(), _completion_receipt())
+	assert_eq(notifications.size(), 1)
+	if notifications.size() != 1: return
+	var completion: Dictionary = notifications[0].completion
+	wired.checkpoint.set_failure(&"")
+	var retried: Dictionary = dispatcher.retry_completion(completion)
+	assert_true(retried.ok, str(retried))
+	assert_eq(_stage_state(wired.state, "hospital_if_triggered"), "completed")
+	assert_eq(wired.coordinator.get_last_presentation_completion(), {})
+	assert_eq(wired.hospital_port.get_requests(), requests_before, "Retry does not replay DTL")
+	var settled: Dictionary = wired.state.peek_state()
+	var checkpoint_settled: Dictionary = wired.checkpoint.peek_state()
+	assert_false(dispatcher.retry_completion(completion).ok, "stale Retry cannot settle twice")
+	assert_eq(wired.state.peek_state(), settled)
+	assert_eq(wired.checkpoint.peek_state(), checkpoint_settled)
+
+
+class FailSecondCompletionCheckpoint extends RefCounted:
+	var target: Object
+	var commits := 0
+	var enabled := true
+	func _init(port: Object) -> void: target = port
+	func capture() -> Dictionary: return target.capture()
+	func preview_checkpoint_id(run_id: String) -> Dictionary: return target.preview_checkpoint_id(run_id)
+	func prepare(inputs: Dictionary, kind: StringName, write: Dictionary) -> Dictionary:
+		return target.prepare(inputs, kind, write)
+	func commit(candidate: Dictionary) -> Dictionary:
+		commits += 1
+		if enabled and commits == 2: return {"ok": false, "code": &"injected_forward_checkpoint_failure"}
+		return target.commit(candidate)
+	func rollback(backup: Dictionary) -> Dictionary: return target.rollback(backup)
+
+
+func test_dispatcher_resumes_after_hospital_is_durable_but_following_checkpoint_fails() -> void:
+	if not _all_exist(): return
+	var wired := _wired_presentation(3)
+	var dispatcher := preload("res://scripts/application/schedule/ScheduleDoneDispatcher.gd").new()
+	assert_true(dispatcher.configure(wired.coordinator, wired.hospital_port, wired.dating_port).ok)
+	var notifications: Array[Dictionary] = []
+	dispatcher.completion_dispatch_finished.connect(func(result: Dictionary, completion: Dictionary):
+		notifications.append({"result": result, "completion": completion}))
+	var injected := FailSecondCompletionCheckpoint.new(wired.checkpoint)
+	wired.coordinator.set("_checkpoint_port", injected)
+	var requests_before: Array[Dictionary] = wired.hospital_port.get_requests()
+	wired.hospital_port.publish_completion(_completion_receipt())
+	assert_eq(dispatcher.get_last_dispatch_result().get("code"), &"injected_forward_checkpoint_failure")
+	assert_eq(_stage_state(wired.state, "hospital_if_triggered"), "completed")
+	assert_eq(wired.coordinator.get_last_presentation_completion(), {}, "Hospital receipt already settled")
+	assert_eq(notifications.size(), 1)
+	if notifications.size() != 1: return
+	var completion: Dictionary = notifications[0].completion
+	assert_true(dispatcher.can_retry_completion(completion))
+	injected.enabled = false
+	var retried: Dictionary = dispatcher.retry_completion(completion)
+	assert_true(retried.ok, str(retried))
+	assert_eq(retried.get("code"), &"plan_complete")
+	assert_eq(_stage_state(wired.state, "hospital_if_triggered"), "completed")
+	assert_eq(wired.hospital_port.get_requests(), requests_before, "forward Retry never replays Hospital")
+	var settled: Dictionary = wired.state.peek_state()
+	var checkpoints: Dictionary = wired.checkpoint.peek_state()
+	assert_false(dispatcher.retry_completion(completion).ok)
+	assert_eq(wired.state.peek_state(), settled)
+	assert_eq(wired.checkpoint.peek_state(), checkpoints)

@@ -23,11 +23,16 @@ class FakeLocale extends Node:
 class FakeProfile extends Node:
 	signal preference_changed(path: StringName, value: Variant)
 	var scale := 1.0
+	var font_style := "pixel"
 	func get_preference(path: StringName, default: Variant = null) -> Variant:
+		if path == &"preferences.accessibility.font_style": return font_style
 		return roundi(scale*100.0) if path == &"preferences.accessibility.text_size" else default
 	func change(value: float) -> void:
 		scale = value
 		preference_changed.emit(&"preferences.accessibility.text_size", roundi(value*100.0))
+	func change_style(value: String) -> void:
+		font_style = value
+		preference_changed.emit(&"preferences.accessibility.font_style", value)
 
 class SaveCounter extends Node:
 	var calls := 0
@@ -139,6 +144,19 @@ func _run() -> void:
 	await key(KEY_TAB)
 	check(ledger[0].has_focus(), "Unhosted ledger Tab follows its declared cycle")
 	check(saves.calls == 0 and routes.calls == 0 and menu._backup_app_instance == null and menu._setting_instance == null, "Focus navigation does not activate apps, save or route commands")
+	var welcome: Control = menu._title_welcome
+	welcome.set_busy("preparing")
+	var busy_started: int = welcome._dot_started_us
+	var focused: Control = root.gui_get_focus_owner()
+	for style: String in ["readable", "pixel"]:
+		profile.change_style(style)
+		await settle()
+		var expected: Font = preload("res://scripts/ui/UiTypography.gd").font("en", 100, style)
+		check(menu.theme.default_font == expected and welcome.welcome.get_theme_font("font") == expected, "title consumes the explicit profile font style")
+		check(menu._title_welcome == welcome and welcome._dot_started_us == busy_started, "font switching retains the welcome and startup feedback cadence")
+		check(root.gui_get_focus_owner() == focused, "font switching keeps the selected title control")
+		check(saves.calls == 0 and routes.calls == 0, "font switching issues no account or route command")
+	welcome.set_busy("")
 	for language in ["en", "zh-CN", "zh-HK"]:
 		locale.change(language)
 		for index in range(3):

@@ -116,3 +116,21 @@ func test_live_accessibility_changes_rebuild_hud_and_high_contrast_has_no_week_t
 	assert_lt(f.hud.theme.get_color("face", "Desktop").ok_hsl_l, base.face.ok_hsl_l)
 	assert_eq(f.hud.theme.get_color("structure", "Desktop"), base.structure, "CVD suppresses saturation drift")
 	assert_eq(f.hud.theme.get_color("focus", "Desktop"), base.focus)
+
+func test_font_style_alone_rebuilds_cached_hud_and_pixel_day_heading_uses_whole_pixels() -> void:
+	var f := _fixture()
+	var typography := preload("res://scripts/ui/UiTypography.gd")
+	var original_copy: String = f.hud.get_node("%PressureRow").text
+	for percent: int in [100,125,150]:
+		f.profile.change(&"preferences.accessibility.text_size",percent)
+		for style: String in ["readable","pixel"]:
+			var previous: Theme = f.hud.theme
+			f.profile.change(&"preferences.accessibility.font_style",style)
+			assert_not_same(f.hud.theme,previous)
+			assert_same(f.hud.theme.default_font.base_font,typography.font("en",percent,style))
+			assert_eq(f.hud.get_node("%PressureRow").text,original_copy)
+			if style == "pixel":
+				assert_eq(f.hud.get_node("%DayLabel").get_theme_font_size("font_size"),32*percent/100)
+			var installed: Theme = f.hud.theme
+			f.hud.refresh_all()
+			assert_same(f.hud.theme,installed,"Ordinary stat refresh retains the chosen style cache.")

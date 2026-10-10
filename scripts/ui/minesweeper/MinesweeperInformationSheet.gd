@@ -19,6 +19,7 @@ var _claims: Array = []
 var _host := "desktop_app"
 var _locale := "en"
 var _large := false
+var _high_contrast := false
 var _band := Vector2i(400,246)
 var _scroll := 0
 var _extent := 0
@@ -34,19 +35,20 @@ func _init() -> void:
 
 func configure(host: String = "desktop_app", locale: String = "en", percent: int = 100,
 		large: bool = false, palette: StringName = &"after_hours", native_band: Vector2i = Vector2i.ZERO,
-		high_contrast: bool = false, colour_preset: String = "standard") -> bool:
+		high_contrast: bool = false, colour_preset: String = "standard", font_style: String = "pixel", day: int = 1) -> bool:
 	if host not in ["desktop_app","canonical_solo","canonical_pair"]: return false
 	if kind == "assignments" and host != "desktop_app": return false
 	locale = locale.replace("_","-")
-	var next_theme := MS_THEME.build(locale,percent,palette,high_contrast,colour_preset)
+	var next_theme := MS_THEME.build(locale,percent,palette,high_contrast,colour_preset,font_style,day)
 	var band := native_band
 	if band == Vector2i.ZERO: band = Vector2i(400 if host == "desktop_app" else 480,232 if large else 246)
-	if next_theme == null or band.x != (400 if host == "desktop_app" else 480) or band.y <= 0: return false
+	if next_theme == null or band.x <= 16 or (host == "desktop_app" and band.x != 400) or band.y <= 0: return false
 	var measured := _compose(next_theme,band,large,locale,"rules" if kind.is_empty() else kind,_claims)
 	if measured.is_empty(): return false
 	_host = host
 	_locale = locale
 	_large = large
+	_high_contrast = high_contrast
 	_band = band
 	theme = next_theme
 	custom_minimum_size = Vector2(band*2)
@@ -75,7 +77,20 @@ func _present(next_kind: String, claimed: Array) -> bool:
 	_install(measured,new_sheet)
 	return true
 
-func _compose(next_theme: Theme, band: Vector2i, large: bool, locale: String, next_kind: String, claimed: Array) -> Dictionary:
+## The challenge host reserves enough height for the longest complete Rules row.
+## A zero-height measurement reserves the rail, using the same shaped copy as drawing.
+static func minimum_rules_height(next_theme: Theme, locale: String, large: bool, width_logical: int) -> int:
+	var measured := _compose(next_theme,Vector2i(width_logical/2,0),large,locale,"rules",[],true)
+	if measured.is_empty(): return 0
+	var page := 32 if large else 24
+	for row: Control in measured.rows:
+		page = maxi(page,ceili(row.custom_minimum_size.y/2.0))
+	var height := 2 * (int(measured.body_top)+4+page-int(measured.footer_top))
+	_free_measured(measured)
+	return height
+
+static func _compose(next_theme: Theme, band: Vector2i, large: bool, locale: String, next_kind: String,
+		claimed: Array, measure_height_only: bool = false) -> Dictionary:
 	var copy := COPY.get_copy(locale)
 	var target := 32 if large else 24
 	var button: Button = RETURN.new()
@@ -105,20 +120,21 @@ func _compose(next_theme: Theme, band: Vector2i, large: bool, locale: String, ne
 		extent += int(row.custom_minimum_size.y/2)
 	var overflow := extent > page
 	if overflow:
-		row_width -= target*2
+		row_width -= (24 if large else 12)*2
 		extent = 0
 		for index in measured_rows.size():
 			measured_rows[index].configure(text_rows[index],next_theme,row_width,target*2)
 			extent += int(measured_rows[index].custom_minimum_size.y/2)
 	var result := {"rows":measured_rows,"button":button,"title":copy[next_kind],"heading":heading_height,
 		"body_top":body_top,"footer_top":footer_top,"page":page,"extent":extent,"row_width":row_width,"overflow":overflow}
+	if measure_height_only: return result
 	for row: Control in measured_rows:
 		if page < target or row.custom_minimum_size.y > page*2:
 			_free_measured(result)
 			return {}
 	return result
 
-func _free_measured(measured: Dictionary) -> void:
+static func _free_measured(measured: Dictionary) -> void:
 	for row: Control in measured.rows: row.free()
 	measured.button.free()
 
@@ -175,7 +191,7 @@ func _install(measured: Dictionary, reset: bool) -> void:
 		var paper_theme := theme.duplicate() as Theme
 		for pair: Array in [[&"controlled_face",&"paper"],[&"dark_registration",&"paper_structure"],[&"dark_scroll_thumb",&"paper_scroll_thumb"],[&"dark_separation",&"paper_structure"],[&"dark_focus_outer",&"paper_focus_outer"],[&"dark_focus_inner",&"paper_focus_inner"]]:
 			paper_theme.set_color(pair[0],&"Minesweeper",theme.get_color(pair[1],&"Minesweeper"))
-		rail.configure(true,_locale,paper_theme)
+		rail.configure(true,_locale,paper_theme,_large)
 		rail.scroll_requested.connect(set_scroll)
 	_update_scroll()
 	var focus_order: Array[Control] = rows.duplicate()
@@ -208,7 +224,7 @@ func set_scroll(value: int) -> void:
 func _update_scroll() -> void:
 	document.position.y = -_scroll*2
 	if rail == null: return
-	var target := 32 if _large else 24
+	var target := 24 if _large else 12
 	var rect := Rect2i(_band.x-8-target,int(body.position.y/2),target,_page)
 	var length := maxi(target,floori(float(_page*_page)/_extent))
 	var leading := floori(float((_page-length)*_scroll)/(_extent-_page))
@@ -246,4 +262,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 func _draw() -> void:
-	if theme != null: draw_rect(Rect2(Vector2.ZERO,size),theme.get_color(&"paper",&"Minesweeper"))
+	if theme == null: return
+	var paper := theme.get_color(&"paper",&"Minesweeper")
+	if not _high_contrast: paper.a = 0.82
+	draw_rect(Rect2(Vector2.ZERO,size),paper)

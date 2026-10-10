@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "DWM profile schema v8",
-  "description": "Profile v8: fifteen exact roots; retained Dating branch progress, immutable Observer evidence and run-stable pair deck draws, reached presentation signatures, and existing settings/history. GDScript validators enforce finite source ownership and cross-receipt proofs.",
+  "title": "DWM profile schema v10",
+  "description": "Profile v10: seventeen exact roots; exact registered caption witnesses alongside preserved reached signatures, immutable first-witness chronology, Dating, evidence, settings and history. GDScript validates witness hashes, visited-line membership, the complete disjoint chronology partition and monotonic writes.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -9,6 +9,7 @@
     "gallery_unlocks",
     "gallery_transaction_receipts",
     "visited_line_ids",
+    "witnessed_caption_variants",
     "preferences",
     "input_mappings",
     "controls_bindings",
@@ -19,7 +20,8 @@
     "dating_attempts",
     "observer_evidence",
     "pair_deck_draws",
-    "reached_presentations"
+    "reached_presentations",
+    "reached_presentation_chronology"
   ],
   "properties": {
     "dating_attempts": {
@@ -46,7 +48,7 @@
     },
     "schema_version": {
       "type": "integer",
-      "const": 8
+      "const": 10
     },
     "gallery_unlocks": {
       "type": "array",
@@ -64,6 +66,21 @@
       "items": {
         "type": "string",
         "minLength": 1
+      }
+    },
+    "witnessed_caption_variants": {
+      "type": "object",
+      "description": "Canonical SHA-256 keys map to exact registered caption beats. Runtime validates each key against the complete primitive-valued beat, requires its line in visited_line_ids, and preserves membership until an explicit visited-history or full Profile reset.",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["beat_id", "line_id", "owning_entry_id", "presentation_signature"],
+        "properties": {
+          "beat_id": {"type": "string", "minLength": 1},
+          "line_id": {"type": "string", "minLength": 1},
+          "owning_entry_id": {"type": "string", "minLength": 1},
+          "presentation_signature": {"type": "object", "minProperties": 1}
+        }
       }
     },
     "preferences": {
@@ -93,7 +110,9 @@
               "enum": [
                 "en",
                 "zh_CN",
-                "zh_HK"
+                "zh_HK",
+                "ja",
+                "ko"
               ]
             },
             "secondary_locale_id": {
@@ -101,7 +120,9 @@
               "enum": [
                 "en",
                 "zh_CN",
-                "zh_HK"
+                "zh_HK",
+                "ja",
+                "ko"
               ]
             },
             "dual_enabled": {
@@ -229,22 +250,82 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "window_mode"
+            "window_mode",
+            "angela_panel_width",
+            "dating_solo_portrait_width",
+            "dating_group_portrait_width"
           ],
           "properties": {
+            "angela_panel_width": {
+              "type": "integer",
+              "minimum": 320,
+              "maximum": 480,
+              "multipleOf": 2,
+              "default": 480
+            },
+            "dating_solo_portrait_width": {
+              "type": "integer",
+              "anyOf": [{"const": 0}, {"minimum": 320, "maximum": 640, "multipleOf": 2}],
+              "default": 0,
+              "description": "Zero inherits the current Angela panel width."
+            },
+            "dating_group_portrait_width": {
+              "type": "integer",
+              "anyOf": [{"const": 0}, {"minimum": 320, "maximum": 640, "multipleOf": 4}],
+              "default": 0,
+              "description": "Zero inherits the current Angela panel width."
+            },
+            "window_size": {
+              "type": "string",
+              "enum": ["1280x720", "1600x900", "1920x1080"],
+              "default": "1280x720"
+            },
             "window_mode": {
               "type": "string",
               "enum": [
                 "windowed",
                 "borderless"
               ]
-            }
+            },
+            "minesweeper_app_beginner_cell_size": {
+              "type": "integer",
+              "minimum": 10,
+              "maximum": 60,
+              "multipleOf": 2,
+              "default": 36
+            },
+            "minesweeper_app_beginner_always_fit": {"type": "boolean", "default": false},
+            "minesweeper_app_intermediate_cell_size": {
+              "type": "integer",
+              "minimum": 10,
+              "maximum": 60,
+              "multipleOf": 2,
+              "default": 36
+            },
+            "minesweeper_app_intermediate_always_fit": {"type": "boolean", "default": false},
+            "minesweeper_app_expert_cell_size": {
+              "type": "integer",
+              "minimum": 10,
+              "maximum": 60,
+              "multipleOf": 2,
+              "default": 36
+            },
+            "minesweeper_app_expert_always_fit": {"type": "boolean", "default": false},
+            "minesweeper_challenge_cell_size": {
+              "type": "integer",
+              "minimum": 10,
+              "maximum": 60,
+              "multipleOf": 2,
+              "default": 36
+            },
+            "minesweeper_challenge_always_fit": {"type": "boolean", "default": false}
           }
         },
         "accessibility": {
           "type": "object",
           "additionalProperties": false,
           "required": [
+            "font_style",
             "text_size",
             "large_targets",
             "high_contrast",
@@ -254,6 +335,14 @@
             "sound_detail_text"
           ],
           "properties": {
+            "font_style": {
+              "type": "string",
+              "enum": [
+                "pixel",
+                "readable"
+              ],
+              "default": "pixel"
+            },
             "text_size": {
               "type": "integer",
               "enum": [
@@ -271,6 +360,7 @@
             "reduced_motion": {
               "type": "boolean"
             },
+            "steady_interface": {"type": "boolean", "default": false},
             "screen_shake": {
               "type": "string",
               "enum": [
@@ -416,6 +506,33 @@
       "type": "object",
       "additionalProperties": {
         "type": "object"
+      }
+    },
+    "reached_presentation_chronology": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "first_witnessed",
+        "legacy_unordered"
+      ],
+      "description": "first_witnessed is oldest-first. legacy_unordered is a sorted membership set whose historical witness order is unknown. Every reached signature belongs to exactly one partition.",
+      "properties": {
+        "first_witnessed": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "legacy_unordered": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
       }
     }
   },

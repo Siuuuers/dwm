@@ -9,6 +9,8 @@ const _LOCALE_ALIASES := {
 	"zh-CN": "zh_CN",
 	"zh_HK": "zh_HK",
 	"zh-HK": "zh_HK",
+	"ja": "ja",
+	"ko": "ko",
 }
 
 const _TEXT := {
@@ -39,6 +41,8 @@ const _TEXT := {
 		"confirmation": "確認購買",
 		"retry_purchase": "無法完成儲存。請重試。",
 	},
+	"ja": {"previous": "前へ", "next": "次へ", "available": "在庫あり", "sold_out": "売り切れ", "minimum": "最小", "maximum": "最大", "minus": "減らす", "plus": "増やす", "quantity": "数量", "buy": "購入", "unavailable": "購入不可", "information": "商品情報", "blank_card": "空の商品カード", "no": "いいえ", "yes": "はい", "confirmation": "購入の確認", "retry_purchase": "保存を完了できません。もう一度お試しください。"},
+	"ko": {"previous": "이전", "next": "다음", "available": "재고 있음", "sold_out": "품절", "minimum": "최소", "maximum": "최대", "minus": "줄이기", "plus": "늘리기", "quantity": "수량", "buy": "구매", "unavailable": "구매 불가", "information": "상품 정보", "blank_card": "빈 상품 카드", "no": "아니요", "yes": "예", "confirmation": "구매 확인", "retry_purchase": "저장을 완료할 수 없어요. 다시 시도해 주세요."},
 }
 
 const _ITEM_NAMES := {
@@ -73,6 +77,8 @@ const _ITEM_NAMES := {
 		"metronome_keepsake": "節拍器",
 		"pocket_calculator_keepsake": "袖珍計算器",
 	},
+	"ja": {"coffee": "コーヒー", "wine": "ワイン", "pineapple_bun": "パイナップルパン", "bandage_pack": "包帯セット", "quiet_tea": "安らぎのお茶", "soft_blanket": "柔らかな毛布", "weighted_plush": "重みのあるぬいぐるみ", "spa_coupon": "スパ利用券", "healthy_meal": "ヘルシーな食事", "protein_box": "プロテイン弁当", "pep_note": "励ましのメモ", "premium_care": "上質なケア用品", "lucky_charm": "幸運のお守り", "debug_key": "デバッグキー", "bookend_keepsake": "ブックエンド", "metronome_keepsake": "メトロノーム", "pocket_calculator_keepsake": "ポケット電卓"},
+	"ko": {"coffee": "커피", "wine": "와인", "pineapple_bun": "파인애플 번", "bandage_pack": "붕대 세트", "quiet_tea": "차분한 차", "soft_blanket": "부드러운 담요", "weighted_plush": "무게감 있는 봉제 인형", "spa_coupon": "스파 이용권", "healthy_meal": "건강식", "protein_box": "단백질 도시락", "pep_note": "응원 쪽지", "premium_care": "고급 케어 용품", "lucky_charm": "행운의 부적", "debug_key": "디버그 키", "bookend_keepsake": "북엔드", "metronome_keepsake": "메트로놈", "pocket_calculator_keepsake": "휴대용 계산기"},
 }
 
 
@@ -100,6 +106,10 @@ static func price(locale: String, amount: int, currency: String) -> String:
 		return ""
 	if locale_id == "en":
 		return "%d coin%s" % [amount, "" if amount == 1 else "s"]
+	if locale_id == "ja":
+		return "%d コイン" % amount
+	if locale_id == "ko":
+		return "%d 코인" % amount
 	if locale_id == "zh_CN":
 		return "%d 枚硬币" % amount
 	return "%d 枚硬幣" % amount

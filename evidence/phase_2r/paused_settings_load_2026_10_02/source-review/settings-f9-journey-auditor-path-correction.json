@@ -1,0 +1,22 @@
+{
+  "corrected_auditor": {
+    "bytes": 36830,
+    "file": "audit/tools/audit_settings_load_journey_v3.py",
+    "sha256": "efbb297dc1ece082d3c637add08f60dd57db392f5070f004be0eb038414b269a"
+  },
+  "correction_only": true,
+  "delta": "The native Godot report user_dir may be exactly the Python user_dir or that identical string with one trailing slash. Raw versus nested report equality and every lifecycle, path, artifact, mutation and source check remain required.",
+  "initial_refusal": {
+    "bytes": 242,
+    "file": "audit/helper-revisions/initial-journey-path-refusal.json",
+    "sha256": "978bf112e26dd1349814a3411b1dac47167771c694a16cd280000967d68e5a24"
+  },
+  "old_auditor": {
+    "bytes": 36791,
+    "file": "audit/helper-revisions/audit_settings_load_journey_v3.py",
+    "sha256": "69b0590d57193f90cf6f60031256fc2323f05deb40bc3c4fa77f44c7d0569ec0"
+  },
+  "outcome": "Full focused F9 audit passes with actual raw final primary files and strict lifetime validation.",
+  "runtime_changed": false,
+  "schema_version": 1
+}

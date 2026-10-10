@@ -1,0 +1,56 @@
+{
+  "parent": "5a581fc89121864aead5202e01d6a82423b1b52d",
+  "base_tree": "163c6b3bef5e4df2531c48cd6573c4cfeeab56cf",
+  "tree": "35c3039ced343fbf59fecb08ca0aefd741a0f4c2",
+  "files": [
+    {
+      "path": "scripts/ui/SettingsContent.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "9dd26b016c9e89a2ceaaea3cd538f0a8cfed8394",
+      "bytes": 32490
+    },
+    {
+      "path": "scripts/ui/SettingsResetConfirmation.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c94f2bcac991fa0fba9b08e629e590717e43e10f",
+      "bytes": 4210
+    },
+    {
+      "path": "scripts/ui/pause/PauseQuickCommands.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c0413db120c96e46ab50d7fe61afa102edc0e074",
+      "bytes": 12893
+    },
+    {
+      "path": "scripts/ui/pause/PauseSurface.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2aa9eb9ac81acafed5da981fb178a00b79d60319",
+      "bytes": 20825
+    },
+    {
+      "path": "tests/integration/verify_reading_rail_journey.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "3aab5246a2c46b4b2bd1ef2f60cbe9438f21c28f",
+      "bytes": 90679
+    },
+    {
+      "path": "tests/unit/test_production_pause_controller.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "9b496fd29e05f96e1c411655f2ae726d7bc668f0",
+      "bytes": 62529
+    },
+    {
+      "path": "tools/testing/run_reading_rail_journey.py",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "83e3300ba916ca60db7604964501a470d718b363",
+      "bytes": 46856
+    }
+  ]
+}

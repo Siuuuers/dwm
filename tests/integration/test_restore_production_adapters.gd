@@ -45,7 +45,7 @@ class Owner extends RefCounted:
 	func prepare_legacy_profile_patch(_l: Dictionary, _m: Dictionary = {}) -> Dictionary:
 		var g := _g("prepare_legacy_profile_patch")
 		return g if not g.is_empty() else {"ok": true, "value": preload("res://scripts/profile/ProfileSchema.gd").make_defaults()}
-	func prepare_locale(locale_id: String) -> Dictionary:
+	func prepare_locale(locale_id: String, _font_style: String = "pixel", _text_size: int = 100) -> Dictionary:
 		return {"ok": true, "value": {"canonical_locale_id": locale_id}}
 	func prepare_semantic_restore(ctx: Dictionary, _p: Dictionary) -> Dictionary:
 		return {"ok": true, "value": {"snapshot": ctx.duplicate(true)}}
@@ -77,7 +77,8 @@ func _empty_desktop() -> Dictionary:
 
 func _snapshot(run_id: String, seq: int, narrative: Dictionary = {}) -> Dictionary:
 	var s: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(VALID_FIXTURE))
-	s["schema_version"] = 6
+	s["schema_version"] = 7
+	s["contacts"] = preload("res://scripts/domain/contact/ContactInvitationState.gd").make_defaults()
 	s["lifecycle"]["dark_mode"] = false
 	s["gameplay"].erase("opening_seen")
 	s["gameplay"].erase("tutorial_seen")

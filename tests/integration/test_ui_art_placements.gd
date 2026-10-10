@@ -35,7 +35,7 @@ func test_title_desktop_launcher_and_contact_attach_valid_optional_art() -> void
 	if title_art != null:
 		assert_eq(title_art.position, Vector2(320, 64))
 		assert_eq(title_art.size, Vector2(960, 656))
-	var background := desktop.get_node("BackgroundImage") as TextureRect
+	var background := desktop.get_node("DesktopCanvas/BackgroundImage") as TextureRect
 	assert_not_null(background.texture)
 	assert_eq(background.position, Vector2.ZERO)
 	assert_eq(background.offset_top, 0.0)
@@ -57,7 +57,7 @@ func test_missing_and_wrong_sized_art_keep_existing_fallbacks() -> void:
 	assert_null(contacts.rows[0].get("portrait_texture"))
 	assert_null(ART.get_texture("missing.consumer.asset"))
 
-func test_shell_layers_share_the_remaining_art_host_and_preserve_order() -> void:
+func test_shell_layers_share_the_full_art_host_and_preserve_order() -> void:
 	for id: String in ["shell.background", "shell.character.angela", "shell.keepsakes"]:
 		_place(id, "ui-480x504.svg", Vector2i(480, 504))
 	var main := MAIN.instantiate()
@@ -65,6 +65,8 @@ func test_shell_layers_share_the_remaining_art_host_and_preserve_order() -> void
 	await get_tree().process_frame
 	await get_tree().process_frame
 	var host := main.get_node("%AngelaImage")
+	assert_eq(host.get_global_rect(), main.get_node("%AngelaPanel").get_global_rect())
+	assert_true(host.clip_contents, "covered layers cannot bleed across the divider")
 	assert_eq(host.get_child_count(), 3)
 	assert_eq(host.get_child(0).name, "BackgroundArtwork")
 	assert_eq(host.get_child(1).name, "AngelaArtwork")
@@ -73,7 +75,7 @@ func test_shell_layers_share_the_remaining_art_host_and_preserve_order() -> void
 		assert_not_null(child.texture)
 		assert_eq(child.position, Vector2.ZERO)
 		assert_eq(child.size, host.size)
-		assert_eq(child.stretch_mode, TextureRect.STRETCH_KEEP_ASPECT_CENTERED)
+		assert_eq(child.stretch_mode, TextureRect.STRETCH_KEEP_ASPECT_COVERED)
 		assert_eq(child.mouse_filter, Control.MOUSE_FILTER_IGNORE)
 
 func test_shop_art_uses_valid_exact_sizes_and_wrong_size_keeps_procedural_tile() -> void:

@@ -1,0 +1,11 @@
+{
+  "archive": "dwm-run102-cloud-evidence.tar.gz",
+  "archive_member_count": 536,
+  "bytes": 16264094,
+  "evidence_kind": "bounded-successful-run-audit",
+  "excluded_file_count": 170,
+  "manifest_sha256": "bccaf9c2b259dae1c11fff25cac957e6cb4159c0ae71ffb85efb28adad528759",
+  "payload_file_count": 534,
+  "round_trip_verified": true,
+  "sha256": "2f808f89d2b2d6ce3fb2b6c4f9049973c79cf23d332ad2833be42b50b48559ba"
+}

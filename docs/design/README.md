@@ -11,6 +11,12 @@ records registered sources; it does not override a later owner decision.
 
 ## Active working authority
 
+The owner confirmed on 2026-09-29 that the game is unshipped. The
+[development-save policy](2026-09-29-unshipped-development-save-policy.md)
+allows obsolete development Run/Profile formats to be retired without migration
+or further compatibility approval. It supersedes earlier mandatory legacy-save
+preservation wording while retaining correctness for supported formats.
+
 The owner decision of 2026-09-08 cancels eight-master DTL consolidation and
 retains the original scene-oriented files. The base design sections 4.1, 12.1,
 and 16.4 record this bounded change; contradictory old cutover/count gates are

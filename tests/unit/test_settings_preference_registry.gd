@@ -4,8 +4,8 @@ const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 const REGISTRY_PATH := "res://scripts/settings/SettingsPreferenceRegistry.gd"
 
 const EXPECTED_RECORDS := {
-	"preferences.language.primary_locale_id": {"type": "locale_id", "default_value": "en", "section_id": "language", "renderer": "locale_option", "player_writable": true, "allowed_values": ["en", "zh_CN", "zh_HK"], "step": 0.0},
-	"preferences.language.secondary_locale_id": {"type": "locale_id", "default_value": "zh_CN", "section_id": "language", "renderer": "locale_option", "player_writable": true, "allowed_values": ["en", "zh_CN", "zh_HK"], "step": 0.0},
+	"preferences.language.primary_locale_id": {"type": "locale_id", "default_value": "en", "section_id": "language", "renderer": "locale_option", "player_writable": true, "allowed_values": ["en", "zh_CN", "zh_HK", "ja", "ko"], "step": 0.0},
+	"preferences.language.secondary_locale_id": {"type": "locale_id", "default_value": "zh_CN", "section_id": "language", "renderer": "locale_option", "player_writable": true, "allowed_values": ["en", "zh_CN", "zh_HK", "ja", "ko"], "step": 0.0},
 	"preferences.language.dual_enabled": {"type": "bool", "default_value": false, "section_id": "language", "renderer": "toggle", "player_writable": true, "allowed_values": [], "step": 0.0},
 	"preferences.reading.reveal_speed": {"type": "enum_string", "default_value": "normal", "section_id": "reading", "renderer": "enum_option", "player_writable": true, "allowed_values": ["instant", "fast", "normal", "slow"], "step": 0.0},
 	"preferences.reading.auto_enabled": {"type": "bool", "default_value": false, "section_id": "reading", "renderer": "toggle", "player_writable": true, "allowed_values": [], "step": 0.0},
@@ -25,6 +25,7 @@ const EXPECTED_RECORDS := {
 	"preferences.audio.mute_when_inactive": {"type": "bool", "default_value": true, "section_id": "audio", "renderer": "toggle", "player_writable": true, "allowed_values": [], "step": 0.0},
 	"preferences.audio.output_mode": {"type": "enum_string", "default_value": "stereo", "section_id": "audio", "renderer": "enum_option", "player_writable": true, "allowed_values": ["stereo", "mono"], "step": 0.0},
 	"preferences.display.window_mode": {"type": "enum_string", "default_value": "windowed", "section_id": "display", "renderer": "enum_option", "player_writable": true, "allowed_values": ["windowed", "borderless"], "step": 0.0},
+	"preferences.display.window_size": {"type": "enum_string", "default_value": "1280x720", "section_id": "display", "renderer": "enum_option", "player_writable": true, "allowed_values": ["1280x720", "1600x900", "1920x1080"], "step": 0.0},
 	"preferences.display.minesweeper_app_beginner_cell_size": {"type": "enum_int", "default_value": 36, "section_id": "display", "renderer": "enum_option", "player_writable": true, "allowed_values": [10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60], "step": 2.0},
 	"preferences.display.minesweeper_app_beginner_always_fit": {"type": "bool", "default_value": false, "section_id": "display", "renderer": "toggle", "player_writable": true, "allowed_values": [], "step": 0.0},
 	"preferences.display.minesweeper_app_intermediate_cell_size": {"type": "enum_int", "default_value": 36, "section_id": "display", "renderer": "enum_option", "player_writable": true, "allowed_values": [10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60], "step": 2.0},
@@ -33,6 +34,7 @@ const EXPECTED_RECORDS := {
 	"preferences.display.minesweeper_app_expert_always_fit": {"type": "bool", "default_value": false, "section_id": "display", "renderer": "toggle", "player_writable": true, "allowed_values": [], "step": 0.0},
 	"preferences.display.minesweeper_challenge_cell_size": {"type": "enum_int", "default_value": 36, "section_id": "display", "renderer": "enum_option", "player_writable": true, "allowed_values": [10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60], "step": 2.0},
 	"preferences.display.minesweeper_challenge_always_fit": {"type": "bool", "default_value": false, "section_id": "display", "renderer": "toggle", "player_writable": true, "allowed_values": [], "step": 0.0},
+	"preferences.accessibility.font_style": {"type": "enum_string", "default_value": "pixel", "section_id": "accessibility", "renderer": "enum_option", "player_writable": true, "allowed_values": ["pixel", "readable"], "step": 0.0},
 	"preferences.accessibility.text_size": {"type": "enum_int", "default_value": 100, "section_id": "accessibility", "renderer": "enum_option", "player_writable": true, "allowed_values": [100, 125, 150], "step": 0.0},
 	"preferences.accessibility.large_targets": {"type": "bool", "default_value": false, "section_id": "accessibility", "renderer": "toggle", "player_writable": true, "allowed_values": [], "step": 0.0},
 	"preferences.accessibility.high_contrast": {"type": "bool", "default_value": false, "section_id": "accessibility", "renderer": "toggle", "player_writable": true, "allowed_values": [], "step": 0.0},
@@ -50,13 +52,21 @@ const EXPECTED_RECORDS := {
 
 func test_registry_records_are_the_complete_accepted_vocabulary() -> void:
 	var records_by_path := _records_by_path(_records())
-	assert_eq(_sorted_strings(records_by_path.keys()), _sorted_strings(EXPECTED_RECORDS.keys()),
+	var expected_records := EXPECTED_RECORDS.duplicate(true)
+	for item: Array in [["angela_panel_width", 480, 480, 2],
+			["dating_solo_portrait_width", 0, 640, 2], ["dating_group_portrait_width", 0, 640, 4]]:
+		var values := range(320, int(item[2]) + 1, int(item[3]))
+		if item[1] == 0: values.push_front(0)
+		expected_records["preferences.display." + item[0]] = {"type": "enum_int", "default_value": item[1],
+			"section_id": "display", "renderer": "enum_option", "player_writable": true,
+			"allowed_values": values, "step": float(item[3])}
+	assert_eq(_sorted_strings(records_by_path.keys()), _sorted_strings(expected_records.keys()),
 			"registry must expose exactly the accepted v2 preference paths and no retired aliases")
-	if records_by_path.size() != EXPECTED_RECORDS.size():
+	if records_by_path.size() != expected_records.size():
 		return
-	for path in EXPECTED_RECORDS.keys():
+	for path in expected_records.keys():
 		var record: Dictionary = records_by_path[path]
-		var expected: Dictionary = EXPECTED_RECORDS[path]
+		var expected: Dictionary = expected_records[path]
 		assert_eq(str(record.get("path")), path)
 		assert_eq(str(record.get("type")), expected["type"], path)
 		assert_eq(record.get("default_value"), expected["default_value"], path)

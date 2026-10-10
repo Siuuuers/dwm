@@ -1,0 +1,165 @@
+{
+  "head_sha": "e1d3428fbfc9de27a0f350f3a858478cd06c0978",
+  "run_id": 35577704852,
+  "workflow_url": "https://github.com/Siuuuers/dwm/actions/runs/35577704852",
+  "ok": true,
+  "render_families": 6,
+  "captures_verified": 137,
+  "image_checks": [
+    "All PNGs decoded by Pillow, 1280 x 720, nonuniform pixels",
+    "Every extracted artifact file matched ZIP bytes",
+    "ZIP digests match GitHub metadata at the tested head",
+    "All report capture counts and named capture lists matched files",
+    "Five JSON verification markers exactly match their results.json reports",
+    "All three actual playable route markers present exactly once"
+  ],
+  "reports": [
+    {
+      "family": "angela-overlay",
+      "artifact": "angela-overlay-render-35577704852-1",
+      "captures": 10,
+      "ok": true,
+      "failures": [],
+      "marker": "ANGELA_OVERLAY_RENDER_VERIFIED",
+      "report_sha256": "bb41ba4fbef35351120e5b346b136682d309f6008af5db8dd1911130d8949e83",
+      "scope": "production Main/StatHud and authored artwork; synthetic public stat values"
+    },
+    {
+      "family": "delivery-dialogue",
+      "artifact": "delivery-dialogue-render-35577704852-1",
+      "captures": 25,
+      "ok": true,
+      "failures": [],
+      "marker": "DELIVERY_DIALOGUE_RENDER_VERIFIED",
+      "report_sha256": "300ba8be3e4431d712a41b1b932a9f9350d25145cfcd0f14e2f65898bfd693d5",
+      "scope": "synthetic public board and dialogue fixtures; production Desktop, split dating artwork and challenge host, installed Dialogic"
+    },
+    {
+      "family": "desktop-scaling",
+      "artifact": "desktop-scaling-render-35577704852-1",
+      "captures": 38,
+      "ok": true,
+      "failures": [],
+      "marker": "DESKTOP_SCALING_RENDER_VERIFIED",
+      "report_sha256": "7a55d9c94001f28a9b9209be4269649c6955fe61d8673c05486b05781e0a761b",
+      "scope": "Production desktop scaling/render probe"
+    },
+    {
+      "family": "font-choices",
+      "artifact": "font-choices-render-35577704852-1",
+      "captures": 30,
+      "ok": true,
+      "failures": [],
+      "marker": "FONT_CHOICES_RENDER_VERIFIED",
+      "report_sha256": "fa6f5c1608921fc92f86928d3b202b058e14d6fb3a2a77c05812d4c86d2fe48d",
+      "scope": "Real Settings selector, Profile/Localization and production desktop, Gallery and witnessed captions. Synthetic public board and English dialogue; no player commands."
+    },
+    {
+      "family": "japanese-korean-ui",
+      "artifact": "japanese-korean-ui-render-35577704852-1",
+      "captures": 30,
+      "ok": true,
+      "failures": [],
+      "marker": "JAPANESE_KOREAN_UI_RENDER_VERIFIED",
+      "report_sha256": "1c43065761ffa203c12d8524cea5a26f54f40331d7b58c52ff833b1f7ab6373c",
+      "scope": "Real production UI, active locale/profile providers and Fusion fonts; synthetic shop/contact/board records, empty Gallery, English dialogue fixture. No player commands."
+    },
+    {
+      "family": "playable-startup",
+      "artifact": "playable-startup-render-35577704852-1",
+      "captures": 4,
+      "ok": true,
+      "failures": [],
+      "marker": "three PLAYABLE_*_PASS route markers",
+      "report_sha256": "4410f903bb6fe959412ebf74077c82d684bf5a333aa28f5e5ae43fa449f6c2af",
+      "scope": "Actual playable startup, Day 2 and Logout/Login route"
+    }
+  ],
+  "logs_checked": [
+    {
+      "artifact": "angela-overlay-render-35577704852-1",
+      "file": "render.log",
+      "sha256": "043ad6ae8eb2ac415bc522dd0bb6b7d8c8f1de1ad9f7ab0499b76b76123ca700",
+      "lines": 18,
+      "expected_vsync_warning_count": 1,
+      "unexpected_diagnostics": []
+    },
+    {
+      "artifact": "delivery-dialogue-render-35577704852-1",
+      "file": "render.log",
+      "sha256": "f0e79e474114bc0ae34f75ffab2cecfa54c832540945567937314a7f235730de",
+      "lines": 31,
+      "expected_vsync_warning_count": 1,
+      "unexpected_diagnostics": []
+    },
+    {
+      "artifact": "desktop-scaling-render-35577704852-1",
+      "file": "import.log",
+      "sha256": "88bbd208bae3179e47d40de1fc4c4753163a23055f97491066e07f99e56edeb6",
+      "lines": 3920,
+      "expected_vsync_warning_count": 0,
+      "unexpected_diagnostics": []
+    },
+    {
+      "artifact": "desktop-scaling-render-35577704852-1",
+      "file": "render.log",
+      "sha256": "7bd0a9b336afba989b3a3cfcd0d20f7b903049e23ef6b7c740d9ae1cce347be5",
+      "lines": 44,
+      "expected_vsync_warning_count": 1,
+      "unexpected_diagnostics": []
+    },
+    {
+      "artifact": "font-choices-render-35577704852-1",
+      "file": "render.log",
+      "sha256": "fc38840064e9b64d0d84a78299cdd72db0ae6a83ae71a8e2417c19ffcb474481",
+      "lines": 36,
+      "expected_vsync_warning_count": 1,
+      "unexpected_diagnostics": []
+    },
+    {
+      "artifact": "japanese-korean-ui-render-35577704852-1",
+      "file": "render.log",
+      "sha256": "616e1dc6f73193a64805e87598b4f27e9c2f9bd97c72c67e21a34549b649918b",
+      "lines": 36,
+      "expected_vsync_warning_count": 1,
+      "unexpected_diagnostics": []
+    },
+    {
+      "artifact": "playable-startup-render-35577704852-1",
+      "file": "render.log",
+      "sha256": "e4c30f1dbe5ee9b06c83c8d8d900c2fd4ce8de5bb4dcb7c529e9b9f3020503f9",
+      "lines": 12,
+      "expected_vsync_warning_count": 1,
+      "unexpected_diagnostics": []
+    },
+    {
+      "artifact": "ui-literal-audit-35577704852-1",
+      "file": "audit.log",
+      "sha256": "a9912b85473f126d3f4f63ec824170c828df3473a292f866dde86cafda5b66da",
+      "lines": 2,
+      "expected_vsync_warning_count": 0,
+      "unexpected_diagnostics": []
+    }
+  ],
+  "unexpected_diagnostics": [],
+  "expected_environment_warning": {
+    "message": "WARNING: Could not set V-Sync mode, as changing V-Sync mode is not supported by the graphics driver.",
+    "count": 6
+  },
+  "renderer": "Linux X11; Godot 4.6.3 stable 7d41c59c4; OpenGL Compatibility; Mesa llvmpipe software renderer",
+  "visual_spot_check": {
+    "file": "logout-consent.png",
+    "observations": [
+      "Consent centered over computer panel, heading and question readable",
+      "No and Yes separated; No visibly focused",
+      "Day 2 background, home control, right-aligned clock remain visible"
+    ],
+    "scope": "Single full-resolution visual inspection; automated decoding and harness checks cover all 137 captures"
+  },
+  "limits": [
+    "Synthetic fixture scope is retained per render report; not full-story or play-balance validation",
+    "Linux X11 renders do not establish native Windows rendering, hardware responsiveness, screen-reader output, or human assistive-technology acceptance",
+    "Audit results establish the existing concrete literal-ownership contracts, not linguistic review of every translation",
+    "GitHub artifact archives expire; this directory retains reports, hashes and one representative consent capture, not all screenshots"
+  ]
+}

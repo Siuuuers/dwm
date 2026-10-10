@@ -8,6 +8,7 @@ const ISSUER := preload("res://scripts/application/desktop/DesktopIdentityNonceI
 const STORE := preload("res://tests/support/FakeDesktopIssuerRootStore.gd")
 const GENERATION := preload("res://tests/support/FakeMinesweeperGenerationPort.gd")
 const CANONICAL := preload("res://scripts/domain/schedule/ScheduleStateSchema.gd")
+const NARRATIVE := preload("res://tests/support/FakeDatingNarrativePlayback.gd")
 
 class State extends RefCounted:
 	var inventory: Dictionary = {}
@@ -100,34 +101,68 @@ func before_each() -> void:
 	completion_results = []
 	port.completion_ready.connect(func(receipt: Dictionary): completion_results.append(receipt.duplicate(true)))
 
-func test_solo_public_actions_clear_then_saved_choice_pays_exactly_once() -> void:
+func test_solo_clear_settles_automatically_and_restores_without_paying_twice() -> void:
 	_begin("solo")
 	var pre: Dictionary = port.pull_physical(command).value
 	assert_eq(pre.board.cells.size(), 324)
 	assert_false(pre.special_mine_enabled)
+	assert_false(pre.special_mine_visible)
 	assert_true(pre.board.custody)
 	assert_false(_dispatch("reveal", 323).ok)
 	assert_true(_dispatch("continue").ok)
 	assert_true(_dispatch("flag", 0).ok)
 	assert_true(_dispatch("unflag", 0).ok)
 	assert_true(_dispatch("reveal", 323).ok)
-	assert_eq(state.saved.phase, "cleared_awaiting_terminal_choice")
+	assert_eq(state.saved.phase, "post_challenge")
 	assert_eq(state.saved.spec.requested_mine_count, 36)
 	assert_eq(state.saved.perfect_reasons, [])
-	assert_eq(state.applications, 0, "clearing cannot apply a relationship outcome")
+	assert_eq(state.applications, 1)
+	assert_eq(state.facts[command.completion_transaction_id].relationship_outcome, "loved")
 	assert_true(CANONICAL.canonical_json(state.saved).ok, "saved reducer enums are JSON safe")
 	var frozen: Dictionary = state.saved.duplicate(true)
 	physical_owner = OWNER.new()
 	assert_true(physical_owner.configure(issuer, state, profile, generation).ok)
 	assert_true(physical_owner.begin_physical(command).ok)
 	assert_eq(state.saved, frozen)
-	assert_eq(generation.call_log.size(), 1, "fresh physical_owner never regenerates an active board")
-	assert_true(physical_owner.dispatch_physical(command.physical_token, "activate", int(state.saved.envelope.special_cell), int(state.saved.board.revision)).ok)
-	assert_eq(state.applications, 1)
-	assert_eq(state.facts[command.completion_transaction_id].relationship_outcome, "dark")
-	assert_eq(state.saved.outcome, "cleared", "Dark is available only after a non-Perfect clear")
+	assert_eq(generation.call_log.size(), 1, "fresh ownership never regenerates a settled board")
 	assert_false(physical_owner.dispatch_physical(command.physical_token, "activate", int(state.saved.envelope.special_cell), int(state.saved.board.revision)).ok)
+	assert_false(physical_owner.dispatch_physical(command.physical_token, "special_mine", -1, int(state.saved.board.revision)).ok)
+	assert_false(physical_owner.dispatch_physical(command.physical_token, "settle", -1, int(state.saved.board.revision)).ok)
 	assert_true(physical_owner.dispatch_physical(command.physical_token, "continue", -1, int(state.saved.board.revision)).ok)
+	assert_eq(state.applications, 1)
+
+func test_legacy_saved_clear_retires_special_actions_and_continues_as_loved_once() -> void:
+	_begin("solo")
+	assert_true(_dispatch("continue").ok)
+	assert_true(_dispatch("flag", 0).ok)
+	assert_true(_dispatch("unflag", 0).ok)
+	assert_true(_dispatch_unsettled("reveal", 323).ok)
+	# A valid historical save stopped here before asking for a terminal choice.
+	state.saved.phase = "cleared_awaiting_terminal_choice"
+	state.saved.outcome = "cleared"
+	state.saved.perfect_reasons = []
+	var legacy: Dictionary = state.saved.duplicate(true)
+	physical_owner = OWNER.new()
+	assert_true(physical_owner.configure(issuer, state, profile, generation).ok)
+	assert_true(physical_owner.begin_physical(command).ok)
+	assert_eq(state.saved, legacy)
+	var view: Dictionary = physical_owner.pull_physical(command.physical_token).value
+	assert_eq(view.actions, ["continue"])
+	assert_false(view.special_mine_visible)
+	assert_false(view.special_mine_enabled)
+	for cell: Dictionary in view.board.cells:
+		assert_eq(cell.actions, [])
+		assert_false(cell.get("mark", "") in ["marked_mine", "marked_flag"])
+	assert_false(physical_owner.dispatch_physical(command.physical_token, "activate", int(state.saved.envelope.special_cell), int(view.board.revision)).ok)
+	assert_false(physical_owner.dispatch_physical(command.physical_token, "special_mine", -1, int(view.board.revision)).ok)
+	assert_false(physical_owner.dispatch_physical(command.physical_token, "continue", -1, int(view.board.revision) + 1).ok)
+	assert_eq(state.saved, legacy, "retired or stale actions cannot alter a historical save")
+	assert_eq(state.applications, 0)
+	assert_true(physical_owner.dispatch_physical(command.physical_token, "continue", -1, int(view.board.revision)).ok)
+	assert_eq(state.saved.phase, "post_challenge")
+	assert_eq(state.saved.relationship_outcome, "loved")
+	assert_eq(state.applications, 1)
+	assert_true(physical_owner.dispatch_physical(command.physical_token, "continue", -1, int(view.board.revision)).ok)
 	assert_eq(state.applications, 1)
 
 func test_explosion_uses_frozen_disposition_and_retry_keeps_same_fact() -> void:
@@ -150,6 +185,29 @@ func test_explosion_uses_frozen_disposition_and_retry_keeps_same_fact() -> void:
 	assert_eq(completion_results.size(), 1)
 	assert_true(_dispatch("resume_completion").ok)
 	assert_eq(completion_results.size(), 1, "port completion publication is idempotent")
+
+func test_ordinary_clear_failure_retries_the_same_automatic_loved_result() -> void:
+	_begin("solo")
+	assert_true(_dispatch("continue").ok)
+	assert_true(_dispatch("flag", 0).ok)
+	assert_true(_dispatch("unflag", 0).ok)
+	state.fail_apply = true
+	assert_false(_dispatch("reveal", 323).ok)
+	assert_eq(state.saved.phase, "settlement_retry")
+	assert_eq(state.saved.relationship_outcome, "loved")
+	assert_eq(state.applications, 0)
+	var view: Dictionary = port.pull_physical(command).value
+	assert_eq(view.actions, ["retry"])
+	assert_false(_dispatch("activate", int(state.saved.envelope.special_cell)).ok)
+	assert_false(_dispatch("special_mine").ok)
+	assert_false(_dispatch("continue").ok)
+	state.fail_apply = false
+	assert_true(_dispatch("retry").ok)
+	assert_eq(state.saved.phase, "post_challenge")
+	assert_eq(state.facts[command.completion_transaction_id].relationship_outcome, "loved")
+	assert_eq(state.applications, 1)
+	assert_false(_dispatch("retry").ok)
+	assert_eq(state.applications, 1)
 
 func test_group_and_deferred_pair_only_record_board_and_witness() -> void:
 	for kind: String in ["group", "twofriends_if_deferred"]:
@@ -176,7 +234,7 @@ func test_flag_unflag_chord_are_public_and_stale_revision_is_refused() -> void:
 	assert_true(_dispatch("flag", 18).ok)
 	assert_true(_dispatch("flag", 19).ok)
 	assert_true(_dispatch("chord", 36).ok)
-	assert_eq(state.saved.phase, "cleared_awaiting_terminal_choice")
+	assert_eq(state.saved.phase, "post_challenge")
 	assert_eq(state.saved.outcome, "cleared")
 	assert_eq(state.saved.perfect_reasons, [])
 	assert_true(_dispatch("continue").ok)
@@ -208,7 +266,7 @@ func test_three_bv_counts_zero_openings_and_remaining_numbers() -> void:
 	assert_true(board.terminal)
 	assert_eq(RULES.perfect_reasons(board), ["efficiency_gte_100"])
 
-func test_checkpoint_failure_rolls_back_terminal_stats_and_selection_before_retry() -> void:
+func test_checkpoint_failure_rolls_back_automatic_settlement_before_retry() -> void:
 	var stored: Array = []
 	var refuse: Array = [false]
 	var writer: Callable = func(record: Dictionary) -> Dictionary:
@@ -221,17 +279,23 @@ func test_checkpoint_failure_rolls_back_terminal_stats_and_selection_before_retr
 	assert_true(_dispatch("continue").ok)
 	assert_true(_dispatch("flag", 0).ok)
 	assert_true(_dispatch("unflag", 0).ok)
-	assert_true(_dispatch("reveal", 323).ok)
-	assert_eq(stored.back().phase, "cleared_awaiting_terminal_choice")
-	var before_choice: Dictionary = state.saved.duplicate(true)
+	assert_true(_dispatch_unsettled("reveal", 323).ok)
+	var painted: Dictionary = state.saved.duplicate(true)
+	assert_eq(painted.phase, "challenge")
+	assert_true(painted.board.terminal)
+	var checkpoint_count := stored.size()
 	refuse[0] = true
-	assert_false(_dispatch("activate", int(state.saved.envelope.special_cell)).ok)
-	assert_eq(state.saved, before_choice)
+	assert_false(_dispatch_unsettled("settle").ok)
+	assert_eq(state.saved, painted)
+	assert_eq(stored.size(), checkpoint_count)
 	assert_eq(state.applications, 0)
 	assert_eq(completion_results.size(), 0)
 	refuse[0] = false
-	assert_true(_dispatch("activate", int(state.saved.envelope.special_cell)).ok)
+	assert_true(_dispatch_unsettled("settle").ok)
+	assert_eq(state.saved.phase, "post_challenge")
+	assert_eq(state.saved.relationship_outcome, "loved")
 	assert_eq(state.applications, 1)
+	assert_eq(stored.size(), checkpoint_count + 1)
 	refuse[0] = true
 	assert_false(_dispatch("continue").ok)
 	assert_eq(state.saved.phase, "post_challenge")
@@ -242,13 +306,15 @@ func test_checkpoint_failure_rolls_back_terminal_stats_and_selection_before_retr
 	assert_eq(state.applications, 1)
 
 func test_mounted_scene_mouse_input_reaches_real_board_and_completion_port() -> void:
-	# This mounted canonical UI now acknowledges reached presentations. Keep that actual port
-	# contract enabled; the remaining legacy domain tests retain their narrower witness-only fake.
+	# The mounted scene advances only through the explicit narrative playback adapter.
+	# Chrome never acknowledges a reached narrative presentation.
 	profile = ReachedProfile.new()
 	physical_owner = OWNER.new()
 	assert_true(physical_owner.configure(issuer, state, profile, generation).ok)
 	port = PORT.new()
 	assert_true(port.configure(issuer, physical_owner).ok)
+	var narrative := NARRATIVE.new()
+	assert_true(port.configure_narrative_playback(narrative).ok)
 	port.completion_ready.connect(func(receipt: Dictionary): completion_results.append(receipt.duplicate(true)))
 	_begin("solo")
 	var scene: Control = preload("res://scenes/dating/DatingScene.tscn").instantiate()
@@ -264,15 +330,12 @@ func test_mounted_scene_mouse_input_reaches_real_board_and_completion_port() -> 
 	var next: Button = scene.find_child("ContinueChallenge", true, false)
 	var special: Button = scene.find_child("SpecialMine", true, false)
 	assert_true(special.disabled)
-	# Headless rendering does not emit CanvasItem.draw; exercise the real title's connected
-	# draw acknowledgement, as the focused post-render unit test does for the status label.
-	var title: Label = scene.find_child("ChallengeTitle", true, false)
-	title.draw.emit()
-	scene._process(0.0)
-	assert_true(scene._pre_challenge_reached)
-	assert_eq((profile as ReachedProfile).reached.size(), 1)
-	next.pressed.emit()
-	await get_tree().process_frame
+	assert_false(special.visible)
+	assert_false(next.visible, "entry needs no Continue confirmation")
+	assert_eq(state.saved.phase, "challenge")
+	assert_eq(narrative.started.size(), 1)
+	assert_eq(narrative.started[0].phase, "pre_challenge")
+	assert_eq((profile as ReachedProfile).reached.size(), 0, "empty DTL and challenge chrome grant no narrative evidence")
 	# A real paired pointer press/release, through the existing public widget input handler.
 	var cell: Control = grid.cell_nodes[36]
 	var down := InputEventMouseButton.new()
@@ -299,21 +362,25 @@ func test_mounted_scene_mouse_input_reaches_real_board_and_completion_port() -> 
 	scene._process(0.0)
 	assert_eq(state.saved.phase, "post_challenge")
 	assert_eq(state.applications, 1)
-	assert_true(next.visible)
-	scene._status_label.draw.emit()
+	assert_false(next.visible, "settlement needs no Done confirmation")
+	assert_eq(completion_results.size(), 0, "the post DTL has not yet completed")
 	scene._process(0.0)
-	assert_true(scene._post_challenge_reached)
-	assert_eq((profile as ReachedProfile).reached.size(), 2)
-	next.pressed.emit()
+	assert_eq(state.saved.phase, "completed")
+	assert_eq(narrative.started.size(), 2)
+	assert_eq(narrative.started[1].phase, "post_challenge")
+	assert_eq((profile as ReachedProfile).reached.size(), 0)
 	assert_eq(completion_results.size(), 1)
+	scene._process(0.0)
+	assert_eq(completion_results.size(), 1, "automatic completion publishes once")
 
-func test_mounted_scene_retries_a_refused_settlement_from_continue_not_every_frame() -> void:
+func test_mounted_scene_retries_a_refused_settlement_only_from_retry() -> void:
 	profile = ReachedProfile.new()
 	physical_owner = OWNER.new()
 	assert_true(physical_owner.configure(issuer, state, profile, generation).ok)
 	var refusing := RefusingSettlePort.new()
 	port = refusing
 	assert_true(port.configure(issuer, physical_owner).ok)
+	assert_true(port.configure_narrative_playback(NARRATIVE.new()).ok)
 	_begin("solo")
 	var scene: Control = preload("res://scenes/dating/DatingScene.tscn").instantiate()
 	assert_true(scene.configure_presentation(port, command).ok)
@@ -324,11 +391,8 @@ func test_mounted_scene_retries_a_refused_settlement_from_continue_not_every_fra
 	if scene.worksheet == null: return
 	var grid: Control = scene.worksheet.grid
 	var next: Button = scene.find_child("ContinueChallenge", true, false)
-	var title: Label = scene.find_child("ChallengeTitle", true, false)
-	title.draw.emit()
-	scene._process(0.0)
-	next.pressed.emit()
-	await get_tree().process_frame
+	assert_eq(state.saved.phase, "challenge")
+	assert_false(next.visible)
 	var cell: Control = grid.cell_nodes[36]
 	var down := InputEventMouseButton.new()
 	down.device = 0
@@ -470,7 +534,7 @@ func test_routine_board_actions_defer_receipts_and_write_no_checkpoint() -> void
 	assert_eq(fake_root.calls_to(&"issue_deferred").size(), deferred_issues + 2, "routine actions defer their receipts")
 	assert_eq(fake_root.calls_to(&"issue").size(), durable_issues, "routine actions never take the durable issue")
 	assert_true(_dispatch("reveal", 306).ok)
-	assert_eq(state.saved.phase, "cleared_awaiting_terminal_choice")
+	assert_eq(state.saved.phase, "post_challenge")
 	assert_eq(stored.size(), boundary_checkpoints + 2, "the terminal reveal is a checkpoint boundary")
 
 ## dwm-634.2: a terminal reveal only paints; its settlement is its own command on a later frame.
@@ -510,7 +574,7 @@ func test_losing_reveal_paints_before_its_settlement_runs_as_the_boundary() -> v
 	assert_eq(state.applications, 1)
 	assert_false(_dispatch_unsettled("settle").ok, "settlement runs exactly once")
 
-func test_solving_reveal_paints_before_the_terminal_choice_is_offered() -> void:
+func test_solving_reveal_paints_before_automatic_loved_settlement() -> void:
 	var stored: Array = _enter_walled_board_with_writer()
 	var boundary_checkpoints := stored.size()
 	# A flag on the last safe cell keeps the clear from being Perfect, as the precedent above does.
@@ -522,7 +586,12 @@ func test_solving_reveal_paints_before_the_terminal_choice_is_offered() -> void:
 	assert_eq(stored.size(), boundary_checkpoints, "an unsettled solved board writes no checkpoint")
 	assert_eq(port.pull_physical(command).value.actions, ["settle"])
 	assert_true(_dispatch_unsettled("settle").ok)
-	assert_eq(state.saved.phase, "cleared_awaiting_terminal_choice")
+	assert_eq(state.saved.phase, "post_challenge")
 	assert_eq(state.saved.outcome, "cleared")
 	assert_eq(stored.size(), boundary_checkpoints + 1, "settlement is the checkpoint boundary")
-	assert_eq(state.applications, 0, "clearing cannot apply a relationship outcome")
+	assert_eq(state.saved.relationship_outcome, "loved")
+	assert_eq(state.applications, 1, "the later settlement applies the ordinary clear result once")
+	assert_false(_dispatch_unsettled("settle").ok)
+	assert_false(_dispatch_unsettled("activate", int(state.saved.envelope.special_cell)).ok)
+	assert_eq(state.applications, 1)
+

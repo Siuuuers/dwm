@@ -10,6 +10,7 @@ extends RefCounted
 ## effect/variable transaction (Task 3).
 
 const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+const READING_NEXT := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
 
 const REAL_PORT_METHODS := ["preview_checkpoint_id", "capture", "prepare", "commit", "rollback"]
 const PROVIDER_KEYS := ["active_app_id", "audio_context", "content_version", "narrative_checkpoint", "route_id", "snapshot_input"]
@@ -28,6 +29,8 @@ var _provider_identity: Dictionary = {}
 var _committed: Dictionary = {}
 var _active_owner: StringName = &""
 var _active_candidate: Dictionary = {}
+var _next_commit_in_progress := false
+var _next_source: Dictionary = {}
 
 
 func configure(checkpoint_port: Object, providers: Dictionary) -> Dictionary:
@@ -63,6 +66,8 @@ func configure(checkpoint_port: Object, providers: Dictionary) -> Dictionary:
 func commit_current_boundary(request: Dictionary) -> Dictionary:
 	if not _configured:
 		return _fail(&"not_configured", "configure first")
+	if _next_commit_in_progress:
+		return _fail(&"transaction_in_progress", "reading Next owns checkpoint publication")
 	if typeof(request) != TYPE_DICTIONARY or not _exact_keys(request, ["boundary_id", "checkpoint_kind", "narrative_checkpoint"]):
 		return _fail(&"invalid_request", "request keys must be exactly boundary_id, checkpoint_kind, narrative_checkpoint")
 	var boundary_id := str(request["boundary_id"])
@@ -121,6 +126,79 @@ func commit_current_boundary(request: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"checkpoint_id": checkpoint_id, "duplicate": false}, "receipt": receipt}
 
 
+## Unlike ordinary memory-only narrative boundaries, each admitted Next source
+## and destination is an automatic autosave. The caller owns exclusive narrative
+## custody and the authored plan; this adapter owns disk/journal commitment.
+## A cold source restores the pre-command state, never a queued traversal.
+func commit_reading_next(checkpoint: Dictionary, operation_id: String, phase: String) -> Dictionary:
+	if not _configured: return _fail(&"not_configured", "configure first")
+	if _next_commit_in_progress or _active_owner != &"":
+		return _fail(&"transaction_in_progress", "another checkpoint command owns publication")
+	if not checkpoint.get("reading_session") is Dictionary or not checkpoint.get("entry_id") is String:
+		return _fail(&"reading_next_operation_invalid", "an exact semantic reading checkpoint is required")
+	var checked := READING_NEXT.validate(checkpoint.reading_session, checkpoint.entry_id)
+	if not checked.ok: return checked
+	if checked.value.operation_id != operation_id or checked.value.phase != phase:
+		return _fail(&"reading_next_operation_mismatch", "the request differs from its frozen operation")
+	# Coalescing belongs to the bridge's one live command lease. Never cache a
+	# successful source across later Autosaves or Load: every new activation must
+	# prove this source durable again, even when its semantic plan bytes repeat.
+	if phase == "source": _next_source = {}
+	if phase == "destination" and _next_source.get("operation_id") != operation_id:
+		return _fail(&"reading_next_source_not_committed", "the exact source must be durable first")
+	_next_commit_in_progress = true
+	var result := _commit_reading_next_autosave(checkpoint, operation_id, phase)
+	_next_commit_in_progress = false
+	if result.get("ok", false):
+		_next_source = {"operation_id": operation_id, "checkpoint": checkpoint.duplicate(true),
+			"checkpoint_id": result.value.checkpoint_id} if phase == "source" else {}
+	return result
+
+func _commit_reading_next_autosave(checkpoint: Dictionary, operation_id: String, phase: String) -> Dictionary:
+	var snapshot := _call_provider("snapshot_input", [])
+	if not snapshot.ok: return snapshot
+	var route := _call_provider("route_id", [])
+	if not route.ok: return route
+	if route.value != "dating": return _fail(&"reading_next_route_mismatch", "only the admitted Solo owner is supported")
+	var active := _call_provider("active_app_id", [])
+	if not active.ok: return active
+	var audio := _call_provider("audio_context", [])
+	if not audio.ok: return audio
+	var content := _call_provider("content_version", [])
+	if not content.ok: return content
+	var inputs := _checkpoint_inputs(active.value, audio.value, content.value, checkpoint, route.value, snapshot.value)
+	var captured: Dictionary = _real_port.capture()
+	if not captured.get("ok", false): return captured
+	if phase == "destination":
+		var current: Dictionary = captured.value.backup.get("current", {}).get("snapshot", {})
+		var header := checkpoint.duplicate(true)
+		header.erase("reading_session")
+		var source_header: Dictionary = _next_source.checkpoint.duplicate(true)
+		source_header.erase("reading_session")
+		if current.get("checkpoint_id") != _next_source.checkpoint_id \
+				or current.get("narrative_checkpoint") != _next_source.checkpoint or header != source_header:
+			_next_source = {}
+			return _fail(&"reading_next_source_changed", "the durable source no longer owns the current journal")
+	var prepared: Dictionary = _real_port.prepare(inputs, &"safe_marker",
+		{"kind": &"autosave", "reason": &"automatic"})
+	if not prepared.get("ok", false): return prepared
+	var candidate: Dictionary = prepared.value.candidate
+	if not candidate.get("storage_backup") is Dictionary:
+		return _fail(&"reading_next_storage_backup_missing", "the real autosave preimage is required")
+	var committed: Dictionary = _real_port.commit(candidate)
+	if not committed.get("ok", false):
+		# capture() contains the journal alone. A failed write may already have
+		# replaced disk, so rollback must also restore the exact prepared preimage.
+		var rolled: Dictionary = _real_port.rollback({"journal_backup": captured.value.backup,
+			"storage_backup": candidate.storage_backup})
+		if not rolled.get("ok", false): return rolled
+		return committed
+	var checkpoint_id := str(committed.value.checkpoint_id)
+	return {"ok": true, "code": &"ok", "value": {"checkpoint_id": checkpoint_id, "duplicate": false},
+		"receipt": {"operation_id": operation_id, "phase": phase, "checkpoint_id": checkpoint_id,
+			"narrative_fingerprint": _fingerprint(checkpoint)}}
+
+
 func preview_checkpoint_id(run_id: String) -> Dictionary:
 	if not _configured:
 		return _fail(&"not_configured", "")
@@ -139,6 +217,8 @@ func capture() -> Dictionary:
 func prepare_candidate(owner_id: StringName, snapshot_input: Dictionary, transaction_id: String, source_id: String, checkpoint_kind: StringName, expected_checkpoint_id: String) -> Dictionary:
 	if not _configured:
 		return _fail(&"not_configured", "")
+	if _next_commit_in_progress:
+		return _fail(&"transaction_in_progress", "reading Next owns checkpoint publication")
 	if owner_id != LOW_LEVEL_OWNER:
 		return _fail(&"invalid_owner", str(owner_id))
 	if _active_owner != &"":

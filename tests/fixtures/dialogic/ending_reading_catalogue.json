@@ -1,0 +1,42 @@
+{
+  "kind": "ending_reading_catalogue",
+  "schema_version": 1,
+  "entries": [
+    {
+      "entry_id": "ending.sylvia.special.full",
+      "content_version": 1,
+      "lines": [
+        {
+          "beat_id": "fixture.ending.first",
+          "line_id": "fixture.ending.first",
+          "revision": "fixture-ending-v1",
+          "text": "This explicitly noncanonical ending caption belongs to the first ordered step."
+        },
+        {
+          "beat_id": "fixture.ending.prior",
+          "line_id": "fixture.ending.prior",
+          "revision": "fixture-ending-v1",
+          "text": "The second test leaf remains in the visible ending stack."
+        },
+        {
+          "beat_id": "fixture.ending.boundary",
+          "line_id": "fixture.ending.boundary",
+          "revision": "fixture-ending-v1",
+          "text": "The third test leaf crosses the physical ending boundary."
+        }
+      ]
+    },
+    {
+      "entry_id": "ending.sylvia.dark",
+      "content_version": 1,
+      "lines": [
+        {
+          "beat_id": "fixture.ending.second",
+          "line_id": "fixture.ending.second",
+          "revision": "fixture-ending-v1",
+          "text": "The next ending begins with both prior captions retained."
+        }
+      ]
+    }
+  ]
+}

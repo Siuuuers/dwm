@@ -1,0 +1,553 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="254" >
+  <testsuite name="tests/unit/test_settings_panel_resize.gd" tests="3" failures="0" skipped="0" time="1.073743" >
+      <testcase name="test_panel_keeps_the_canonical_layout_at_800_and_expands_only_the_reading_side" assertions="44" status="pass" classname="tests/unit/test_settings_panel_resize.gd" time="0.380127" >
+      </testcase>
+      <testcase name="test_focus_scroll_uses_the_same_logical_distance_when_the_panel_is_enlarged" assertions="2" status="pass" classname="tests/unit/test_settings_panel_resize.gd" time="0.382204" >
+      </testcase>
+      <testcase name="test_live_resize_preserves_category_focus_and_uncommitted_volume_preview" assertions="8" status="pass" classname="tests/unit/test_settings_panel_resize.gd" time="0.311412" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_settings_preference_registry.gd" tests="5" failures="0" skipped="0" time="0.138019" >
+      <testcase name="test_registry_records_are_the_complete_accepted_vocabulary" assertions="369" status="pass" classname="tests/unit/test_settings_preference_registry.gd" time="0.100734" >
+      </testcase>
+      <testcase name="test_registry_validates_manual_extensions_and_rejects_retired_names" assertions="25" status="pass" classname="tests/unit/test_settings_preference_registry.gd" time="0.004591" >
+      </testcase>
+      <testcase name="test_registry_rejects_non_finite_audio_and_wrong_numeric_shapes" assertions="5" status="pass" classname="tests/unit/test_settings_preference_registry.gd" time="0.001135" >
+      </testcase>
+      <testcase name="test_visible_records_are_section_authority_and_audio_uses_five_percent_steps" assertions="6" status="pass" classname="tests/unit/test_settings_preference_registry.gd" time="0.001707" >
+      </testcase>
+      <testcase name="test_capability_owned_fields_are_the_only_non_player_writable_records" assertions="47" status="pass" classname="tests/unit/test_settings_preference_registry.gd" time="0.029852" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_settings_window_transactions.gd" tests="13" failures="0" skipped="0" time="0.522878" >
+      <testcase name="test_window_binding_has_one_identity_and_requires_the_same_profile" assertions="9" status="pass" classname="tests/unit/test_settings_window_transactions.gd" time="0.013758" >
+      </testcase>
+      <testcase name="test_window_commit_applies_before_one_deferred_profile_publication" assertions="13" status="pass" classname="tests/unit/test_settings_window_transactions.gd" time="0.032402" >
+      </testcase>
+      <testcase name="test_audio_preview_commit_and_cancel_never_touch_an_unchanged_window" assertions="41" status="pass" classname="tests/unit/test_settings_window_transactions.gd" time="0.039967" >
+      </testcase>
+      <testcase name="test_invalid_stale_and_gate_refusals_happen_before_capture_or_output" assertions="14" status="pass" classname="tests/unit/test_settings_window_transactions.gd" time="0.033017" >
+      </testcase>
+      <testcase name="test_reset_that_changes_window_refuses_unbound_or_unavailable_output_before_audio" assertions="19" status="pass" classname="tests/unit/test_settings_window_transactions.gd" time="0.066492" >
+      </testcase>
+      <testcase name="test_disk_failure_restores_exact_resized_window_before_audio_compensation" assertions="13" status="pass" classname="tests/unit/test_settings_window_transactions.gd" time="0.032444" >
+      </testcase>
+      <testcase name="test_reset_combines_audio_window_and_one_profile_reset_publication" assertions="12" status="pass" classname="tests/unit/test_settings_window_transactions.gd" time="0.055737" >
+      </testcase>
+      <testcase name="test_failed_reset_restores_both_outputs_without_partial_profile_adoption" assertions="12" status="pass" classname="tests/unit/test_settings_window_transactions.gd" time="0.063293" >
+      </testcase>
+      <testcase name="test_new_profile_commit_during_window_apply_wins_over_original_geometry" assertions="13" status="pass" classname="tests/unit/test_settings_window_transactions.gd" time="0.033885" >
+      </testcase>
+      <testcase name="test_publication_callback_reverting_mode_applies_latest_instead_of_old_geometry" assertions="12" status="pass" classname="tests/unit/test_settings_window_transactions.gd" time="0.054925" >
+      </testcase>
+      <testcase name="test_unproved_window_compensation_latches_shared_fatal" assertions="10" status="pass" classname="tests/unit/test_settings_window_transactions.gd" time="0.034332" >
+      </testcase>
+      <testcase name="test_window_apply_failure_compensates_audio_and_retains_exact_prior_geometry" assertions="15" status="pass" classname="tests/unit/test_settings_window_transactions.gd" time="0.044098" >
+      </testcase>
+      <testcase name="test_helper_attempts_its_window_backup_after_native_owner_internal_rollback_latches_fatal" assertions="17" status="pass" classname="tests/unit/test_settings_window_transactions.gd" time="0.018528" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_window_mode_manager.gd" tests="13" failures="0" skipped="0" time="0.433129" >
+      <testcase name="test_ready_owner_commits_once_through_real_profile_and_shared_output_transaction" assertions="16" status="pass" classname="tests/unit/test_window_mode_manager.gd" time="0.039583" >
+      </testcase>
+      <testcase name="test_headless_owner_initializes_as_unavailable_without_physical_or_profile_mutation" assertions="12" status="pass" classname="tests/unit/test_window_mode_manager.gd" time="0.018568" >
+      </testcase>
+      <testcase name="test_failed_physical_apply_restores_exact_prior_geometry_and_does_not_publish" assertions="12" status="pass" classname="tests/unit/test_window_mode_manager.gd" time="0.02432" >
+      </testcase>
+      <testcase name="test_failed_persistence_restores_prior_output_not_generic_windowed_geometry" assertions="10" status="pass" classname="tests/unit/test_window_mode_manager.gd" time="0.037156" >
+      </testcase>
+      <testcase name="test_unproved_apply_and_failed_rollback_latch_shared_fatal" assertions="12" status="pass" classname="tests/unit/test_window_mode_manager.gd" time="0.020092" >
+      </testcase>
+      <testcase name="test_publication_profile_change_is_settled_to_latest_committed_mode" assertions="13" status="pass" classname="tests/unit/test_window_mode_manager.gd" time="0.054588" >
+      </testcase>
+      <testcase name="test_second_window_owner_binding_refuses_and_restores_its_prior_physical_state" assertions="11" status="pass" classname="tests/unit/test_window_mode_manager.gd" time="0.013984" >
+      </testcase>
+      <testcase name="test_invalid_restore_plans_refuse_and_silent_restore_does_not_publish_profile" assertions="16" status="pass" classname="tests/unit/test_window_mode_manager.gd" time="0.019449" >
+      </testcase>
+      <testcase name="test_failed_initialization_retains_one_binding_and_only_exact_dependencies_can_retry" assertions="36" status="pass" classname="tests/unit/test_window_mode_manager.gd" time="0.054024" >
+      </testcase>
+      <testcase name="test_get_preference_only_profile_is_cleanly_refused_before_binding_or_output" assertions="10" status="pass" classname="tests/unit/test_window_mode_manager.gd" time="0.013769" >
+      </testcase>
+      <testcase name="test_window_size_commits_once_and_survives_borderless_round_trip_and_reload" assertions="16" status="pass" classname="tests/unit/test_window_mode_manager.gd" time="0.09105" >
+      </testcase>
+      <testcase name="test_failed_window_size_persistence_restores_exact_geometry_and_selected_size" assertions="12" status="pass" classname="tests/unit/test_window_mode_manager.gd" time="0.04007" >
+      </testcase>
+      <testcase name="test_legacy_profile_admits_only_missing_window_size_and_rejects_invalid_values" assertions="7" status="pass" classname="tests/unit/test_window_mode_manager.gd" time="0.006476" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_window_mode_port.gd" tests="12" failures="0" skipped="0" time="0.021018" >
+      <testcase name="test_capture_is_actual_detached_and_main_window_only" assertions="8" status="pass" classname="tests/unit/test_window_mode_port.gd" time="0.001434" >
+      </testcase>
+      <testcase name="test_borderless_uses_current_screen_usable_bounds_and_preserves_foreign_flags" assertions="16" status="pass" classname="tests/unit/test_window_mode_port.gd" time="0.002565" >
+      </testcase>
+      <testcase name="test_windowed_uses_baseline_without_fullscreen_and_readback_detects_external_drift" assertions="7" status="pass" classname="tests/unit/test_window_mode_port.gd" time="0.00124" >
+      </testcase>
+      <testcase name="test_restore_proves_exact_prior_mode_screen_position_size_and_borderless" assertions="6" status="pass" classname="tests/unit/test_window_mode_port.gd" time="0.001721" >
+      </testcase>
+      <testcase name="test_invalid_modes_and_capsules_refuse_before_mutation" assertions="25" status="pass" classname="tests/unit/test_window_mode_port.gd" time="0.004557" >
+      </testcase>
+      <testcase name="test_headless_unsupported_missing_window_and_bad_screen_bounds_refuse" assertions="12" status="pass" classname="tests/unit/test_window_mode_port.gd" time="0.001646" >
+      </testcase>
+      <testcase name="test_silent_setter_failure_cannot_claim_apply_or_restoration_success" assertions="6" status="pass" classname="tests/unit/test_window_mode_port.gd" time="0.001592" >
+      </testcase>
+      <testcase name="test_editor_embedding_never_attempts_to_control_the_host_window" assertions="5" status="pass" classname="tests/unit/test_window_mode_port.gd" time="0.000928" >
+      </testcase>
+      <testcase name="test_window_size_presets_follow_current_monitor_and_leave_frame_space" assertions="7" status="pass" classname="tests/unit/test_window_mode_port.gd" time="0.001775" >
+      </testcase>
+      <testcase name="test_saved_large_window_fits_a_smaller_monitor_without_clipping" assertions="6" status="pass" classname="tests/unit/test_window_mode_port.gd" time="0.000999" >
+      </testcase>
+      <testcase name="test_invalid_window_sizes_never_reach_native_setters" assertions="11" status="pass" classname="tests/unit/test_window_mode_port.gd" time="0.001732" >
+      </testcase>
+      <testcase name="test_borderless_ignores_window_size_and_keeps_native_usable_bounds" assertions="4" status="pass" classname="tests/unit/test_window_mode_port.gd" time="0.000829" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_bootstrap_window_output.gd" tests="6" failures="0" skipped="0" time="0.14308" >
+      <testcase name="test_window_stage_order_and_missing_dependencies_refuse_before_physical_output" assertions="15" status="pass" classname="tests/unit/test_bootstrap_window_output.gd" time="0.014914" >
+      </testcase>
+      <testcase name="test_real_stage_applies_saved_mode_and_rejects_replacement_owner_before_setters" assertions="13" status="pass" classname="tests/unit/test_bootstrap_window_output.gd" time="0.031727" >
+      </testcase>
+      <testcase name="test_restore_wiring_embeds_exact_window_in_profile_without_adding_outer_participant" assertions="10" status="pass" classname="tests/unit/test_bootstrap_window_output.gd" time="0.020715" >
+      </testcase>
+      <testcase name="test_uninitialized_or_other_transaction_window_refuses_before_save_configuration" assertions="14" status="pass" classname="tests/unit/test_bootstrap_window_output.gd" time="0.037859" >
+      </testcase>
+      <testcase name="test_unavailable_native_window_is_ready_but_supplies_no_physical_restore_binding" assertions="14" status="pass" classname="tests/unit/test_bootstrap_window_output.gd" time="0.032789" >
+      </testcase>
+      <testcase name="test_actual_final_gate_injection_retains_one_identity_in_real_window_and_every_target" assertions="27" status="pass" classname="tests/unit/test_bootstrap_window_output.gd" time="0.005076" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/scene/test_settings_window_mode_live.gd" tests="6" failures="0" skipped="0" time="6.481644" >
+      <testcase name="test_actual_window_option_commits_one_profile_revision_and_proven_output" assertions="14" status="pass" classname="tests/scene/test_settings_window_mode_live.gd" time="0.83304" >
+      </testcase>
+      <testcase name="test_failed_physical_selection_restores_option_geometry_focus_and_factual_error" assertions="15" status="pass" classname="tests/scene/test_settings_window_mode_live.gd" time="0.772661" >
+      </testcase>
+      <testcase name="test_absent_window_service_disables_row_and_refuses_programmatic_commit" assertions="11" status="pass" classname="tests/scene/test_settings_window_mode_live.gd" time="0.837724" >
+      </testcase>
+      <testcase name="test_unavailable_window_owner_disables_row_and_refuses_programmatic_commit" assertions="12" status="pass" classname="tests/scene/test_settings_window_mode_live.gd" time="0.842985" >
+      </testcase>
+      <testcase name="test_actual_preferences_confirmation_resets_both_outputs_once_and_preserves_language_controls" assertions="27" status="pass" classname="tests/scene/test_settings_window_mode_live.gd" time="2.039888" >
+      </testcase>
+      <testcase name="test_window_size_picker_disables_oversized_choices_and_retains_size_in_borderless" assertions="16" status="pass" classname="tests/scene/test_settings_window_mode_live.gd" time="1.155346" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/scene/test_settings_reset_confirmation.gd" tests="8" failures="0" skipped="0" time="21.463391" >
+      <testcase name="test_all_reset_sheets_fit_the_actual_workfield_in_nine_presentations" assertions="1809" status="pass" classname="tests/scene/test_settings_reset_confirmation.gd" time="8.465265" >
+      </testcase>
+      <testcase name="test_scaled_reset_sheets_and_controls_windows_match_their_parent_and_reopen_without_compounding" assertions="591" status="pass" classname="tests/scene/test_settings_reset_confirmation.gd" time="4.319248" >
+      </testcase>
+      <testcase name="test_activating_initial_cancel_is_inert_for_every_reset_and_locale" assertions="111" status="pass" classname="tests/scene/test_settings_reset_confirmation.gd" time="2.386752" >
+      </testcase>
+      <testcase name="test_escape_cancels_even_after_the_scoped_action_gains_focus" assertions="37" status="pass" classname="tests/scene/test_settings_reset_confirmation.gd" time="0.946515" >
+      </testcase>
+      <testcase name="test_changed_profile_invalidates_consent_and_cancel_reopen_binds_the_new_revision" assertions="82" status="pass" classname="tests/scene/test_settings_reset_confirmation.gd" time="3.668995" >
+      </testcase>
+      <testcase name="test_focus_loss_during_sample_shutdown_cannot_open_a_late_reset_sheet" assertions="9" status="pass" classname="tests/scene/test_settings_reset_confirmation.gd" time="0.549472" >
+      </testcase>
+      <testcase name="test_leaving_records_during_sample_shutdown_cannot_open_the_old_reset_sheet" assertions="9" status="pass" classname="tests/scene/test_settings_reset_confirmation.gd" time="0.550659" >
+      </testcase>
+      <testcase name="test_revision_change_during_reset_departure_releases_busy_controls_after_refusal" assertions="11" status="pass" classname="tests/scene/test_settings_reset_confirmation.gd" time="0.576485" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/scene/test_settings_folio.gd" tests="8" failures="0" skipped="0" time="26.038908" >
+      <testcase name="test_fixed_geometry_fonts_and_targets_in_all_eighteen_presentations" assertions="4104" status="pass" classname="tests/scene/test_settings_folio.gd" time="5.369283" >
+      </testcase>
+      <testcase name="test_every_enabled_control_can_be_revealed_at_all_locales_and_sizes" assertions="2574" status="pass" classname="tests/scene/test_settings_folio.gd" time="16.568857" >
+      </testcase>
+      <testcase name="test_selected_category_and_focus_have_independent_evidence" assertions="9" status="pass" classname="tests/scene/test_settings_folio.gd" time="0.347535" >
+      </testcase>
+      <testcase name="test_real_input_enters_sheet_and_back_returns_to_selected_directory_row" assertions="6" status="pass" classname="tests/scene/test_settings_folio.gd" time="0.427714" >
+      </testcase>
+      <testcase name="test_scroll_owners_keep_their_offsets_independent" assertions="5" status="pass" classname="tests/scene/test_settings_folio.gd" time="0.374023" >
+      </testcase>
+      <testcase name="test_control_sample_is_noninteractive_and_only_in_accessibility_footer" assertions="32" status="pass" classname="tests/scene/test_settings_folio.gd" time="0.693411" >
+      </testcase>
+      <testcase name="test_title_and_desktop_hosts_fit_the_complete_plate_without_close_overlap" assertions="18" status="pass" classname="tests/scene/test_settings_folio.gd" time="0.586783" >
+      </testcase>
+      <testcase name="test_boolean_captions_use_localized_on_off_and_follow_committed_values" assertions="105" status="pass" classname="tests/scene/test_settings_folio.gd" time="1.671302" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/scene/test_settings_host_geometry.gd" tests="5" failures="0" skipped="0" time="20.894494" >
+      <testcase name="test_both_bare_wrappers_fit_canonical_shell_rectangles_in_nine_presentations" assertions="342" status="pass" classname="tests/scene/test_settings_host_geometry.gd" time="13.761462" >
+      </testcase>
+      <testcase name="test_desktop_readiness_refuses_uninitialized_real_dependencies" assertions="5" status="pass" classname="tests/scene/test_settings_host_geometry.gd" time="0.486005" >
+      </testcase>
+      <testcase name="test_desktop_home_and_back_preserve_native_modal_then_sheet_then_rail_custody" assertions="21" status="pass" classname="tests/scene/test_settings_host_geometry.gd" time="1.264952" >
+      </testcase>
+      <testcase name="test_departure_blocks_input_and_reopen_until_held_sample_cleanup_finishes" assertions="48" status="pass" classname="tests/scene/test_settings_host_geometry.gd" time="3.234316" >
+      </testcase>
+      <testcase name="test_busy_reset_cannot_be_detached_by_either_wrapper" assertions="25" status="pass" classname="tests/scene/test_settings_host_geometry.gd" time="2.147759" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/scene/test_settings_localization_scene.gd" tests="34" failures="0" skipped="0" time="17.598012" >
+      <testcase name="test_settings_controller_and_scenes_exist_with_shared_contract" assertions="9" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.546006" >
+      </testcase>
+      <testcase name="test_both_settings_hosts_share_languages_skip_modes_and_confirmed_resets" assertions="18" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="1.41714" >
+      </testcase>
+      <testcase name="test_shared_controller_exposes_closed_settings_allowlist_without_dark_or_legacy_aliases" assertions="42" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.67485" >
+      </testcase>
+      <testcase name="test_each_reset_is_inert_until_its_own_confirmation" assertions="20" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="1.815643" >
+      </testcase>
+      <testcase name="test_task9_hosts_instance_the_same_shared_content_scene" assertions="5" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.002254" >
+      </testcase>
+      <testcase name="test_task9_pointer_drag_previews_then_commits_once_with_exact_handle" assertions="7" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.394683" >
+      </testcase>
+      <testcase name="test_task9_discrete_volume_steps_and_failure_restore_committed_visible_value" assertions="4" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.41944" >
+      </testcase>
+      <testcase name="test_task9_mute_and_output_mode_use_atomic_audio_sink" assertions="3" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.46215" >
+      </testcase>
+      <testcase name="test_task9_audio_tests_never_autoplay_and_muted_or_zero_prevent_admission" assertions="7" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.462128" >
+      </testcase>
+      <testcase name="test_task9_test_replacement_and_back_precedence_preserve_host" assertions="6" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.358201" >
+      </testcase>
+      <testcase name="test_task9_tts_test_works_while_read_aloud_off_and_uses_frozen_specimen" assertions="6" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.260471" >
+      </testcase>
+      <testcase name="test_task9_reading_omits_internal_duck_preference_but_registry_retains_it" assertions="3" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.217764" >
+      </testcase>
+      <testcase name="test_task9_settings_stops_only_the_source_owned_by_its_detached_test" assertions="5" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.366451" >
+      </testcase>
+      <testcase name="test_task9_deliberate_tts_stop_confirms_only_after_owned_recovery" assertions="4" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.451193" >
+      </testcase>
+      <testcase name="test_task9_failed_duck_recovery_suppresses_stop_confirmation_and_reports_failure" assertions="4" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.317903" >
+      </testcase>
+      <testcase name="test_task9_old_recovery_wait_cannot_stop_a_newer_settings_source" assertions="7" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.361075" >
+      </testcase>
+      <testcase name="test_task9_shared_settings_uses_real_speech_owner_and_projects_async_failure" assertions="22" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.311775" >
+      </testcase>
+      <testcase name="test_task9_unavailable_tts_preserves_desired_preference_and_disables_controls" assertions="7" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.270834" >
+      </testcase>
+      <testcase name="test_task9_independent_scroll_wrapping_and_exact_rail_at_all_text_sizes" assertions="254" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.638895" >
+      </testcase>
+      <testcase name="test_task9_stale_drag_completion_cancels_only_its_old_handle" assertions="4" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.576782" >
+      </testcase>
+      <testcase name="test_task9_missing_audio_sink_has_no_direct_profile_write_fallback" assertions="4" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.541959" >
+      </testcase>
+      <testcase name="test_task9_exact_localized_tts_specimens_and_rates_use_no_receipt_api" assertions="7" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.409649" >
+      </testcase>
+      <testcase name="test_task9_committed_primary_locale_refreshes_shared_rail_labels" assertions="3" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.799072" >
+      </testcase>
+      <testcase name="test_task9_title_settings_reopens_after_closing_its_cached_host" assertions="2" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.528582" >
+      </testcase>
+      <testcase name="test_review_back_cancels_pending_drag_before_returning_focus" assertions="3" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.322007" >
+      </testcase>
+      <testcase name="test_review_late_tts_admission_cannot_rebind_new_test" assertions="3" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.310302" >
+      </testcase>
+      <testcase name="test_review_old_departure_cannot_stop_test_started_after_reopen" assertions="3" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.415214" >
+      </testcase>
+      <testcase name="test_review_busy_commit_restores_rejected_control_value" assertions="2" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.438529" >
+      </testcase>
+      <testcase name="test_review_drag_cancel_cannot_release_unrelated_pending_commit" assertions="1" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.534233" >
+      </testcase>
+      <testcase name="test_review_reset_labels_exist_in_each_locale_without_fallback" assertions="24" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.006102" >
+      </testcase>
+      <testcase name="test_review_confirmation_body_and_buttons_follow_accessibility_size" assertions="20" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.297247" >
+      </testcase>
+      <testcase name="test_audio_affecting_reset_uses_physical_sink_and_never_falls_back_after_refusal" assertions="4" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.51885" >
+      </testcase>
+      <testcase name="test_audio_affecting_reset_without_sink_does_not_write_profile" assertions="1" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="0.529594" >
+      </testcase>
+      <testcase name="test_font_style_picker_is_live_in_both_shared_hosts_and_restores_pixel" assertions="17" status="pass" classname="tests/scene/test_settings_localization_scene.gd" time="1.621034" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_settings_shared_hosts.gd" tests="8" failures="0" skipped="0" time="12.680253" >
+      <testcase name="test_pause_preview_is_inert_and_native_back_retreats_one_level_each" assertions="28" status="pass" classname="tests/integration/test_settings_shared_hosts.gd" time="1.585427" >
+      </testcase>
+      <testcase name="test_actual_pause_host_recolours_for_captured_day_and_keeps_focus_through_accessibility_refresh" assertions="29" status="pass" classname="tests/integration/test_settings_shared_hosts.gd" time="3.469629" >
+      </testcase>
+      <testcase name="test_desktop_canonical_commit_updates_fonts_without_resetting_controls" assertions="16" status="pass" classname="tests/integration/test_settings_shared_hosts.gd" time="1.408776" >
+      </testcase>
+      <testcase name="test_pause_enter_restores_native_paging_on_overflowing_settings_sheet" assertions="14" status="pass" classname="tests/integration/test_settings_shared_hosts.gd" time="1.273615" >
+      </testcase>
+      <testcase name="test_pause_controls_capture_blocks_parent_leave_and_back_only_cancels_capture" assertions="18" status="pass" classname="tests/integration/test_settings_shared_hosts.gd" time="1.313088" >
+      </testcase>
+      <testcase name="test_paused_settings_mouse_release_after_custody_cycle_cannot_commit" assertions="12" status="pass" classname="tests/integration/test_settings_shared_hosts.gd" time="1.463454" >
+      </testcase>
+      <testcase name="test_actual_audio_output_capability_does_not_invent_sample_assets" assertions="14" status="pass" classname="tests/integration/test_settings_shared_hosts.gd" time="0.904392" >
+      </testcase>
+      <testcase name="test_title_caches_settings_and_shared_return_preserves_capture_then_restores_row" assertions="14" status="pass" classname="tests/integration/test_settings_shared_hosts.gd" time="1.261872" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_profile_manager.gd" tests="23" failures="0" skipped="0" time="0.799102" >
+      <testcase name="test_defaults_are_schema_valid_and_exact" assertions="5" status="pass" classname="tests/unit/test_profile_manager.gd" time="0.003425" >
+      </testcase>
+      <testcase name="test_schema_rejects_unknown_nested_fields_bad_types_and_aliases" assertions="3" status="pass" classname="tests/unit/test_profile_manager.gd" time="0.004551" >
+      </testcase>
+      <testcase name="test_invalid_skip_is_the_only_narrow_document_repair" assertions="5" status="pass" classname="tests/unit/test_profile_manager.gd" time="0.003561" >
+      </testcase>
+      <testcase name="test_legacy_patch_is_exact_detached_and_discards_runtime_audio" assertions="11" status="pass" classname="tests/unit/test_profile_manager.gd" time="0.00513" >
+      </testcase>
+      <testcase name="test_root_relative_legacy_input_import_is_one_shot_and_source_is_untouched" assertions="8" status="pass" classname="tests/unit/test_profile_manager.gd" time="0.047504" >
+      </testcase>
+      <testcase name="test_manager_initializes_once_and_uses_detached_snapshots" assertions="3" status="pass" classname="tests/unit/test_profile_manager.gd" time="0.011532" >
+      </testcase>
+      <testcase name="test_flat_fully_qualified_preference_batch_is_atomic" assertions="7" status="pass" classname="tests/unit/test_profile_manager.gd" time="0.014359" >
+      </testcase>
+      <testcase name="test_locale_candidate_commits_deferred_and_publishes_exactly_once" assertions="7" status="pass" classname="tests/unit/test_profile_manager.gd" time="0.030346" >
+      </testcase>
+      <testcase name="test_prepared_gallery_transaction_is_idempotent_and_conflicts_fail" assertions="6" status="pass" classname="tests/unit/test_profile_manager.gd" time="0.029567" >
+      </testcase>
+      <testcase name="test_gallery_and_entire_reset_retain_internal_ledgers" assertions="7" status="pass" classname="tests/unit/test_profile_manager.gd" time="0.071852" >
+      </testcase>
+      <testcase name="test_preference_reset_publishes_leaf_changes_before_one_summary" assertions="6" status="pass" classname="tests/unit/test_profile_manager.gd" time="0.053184" >
+      </testcase>
+      <testcase name="test_mutation_gate_configuration_is_identity_stable_and_side_effect_free" assertions="5" status="pass" classname="tests/unit/test_profile_manager.gd" time="0.001047" >
+      </testcase>
+      <testcase name="test_profile_schema_registers_observation_not_true" assertions="4" status="pass" classname="tests/unit/test_profile_manager.gd" time="0.000715" >
+      </testcase>
+      <testcase name="test_profile_document_remaps_retired_true_gallery_unlocks" assertions="5" status="pass" classname="tests/unit/test_profile_manager.gd" time="0.003024" >
+      </testcase>
+      <testcase name="test_visited_history_is_global_and_idempotent" assertions="7" status="pass" classname="tests/unit/test_profile_manager.gd" time="0.030017" >
+      </testcase>
+      <testcase name="test_visited_history_survives_a_new_run_and_only_its_own_reset_clears_it" assertions="6" status="pass" classname="tests/unit/test_profile_manager.gd" time="0.047934" >
+      </testcase>
+      <testcase name="test_visited_reset_leaves_other_profile_state_intact" assertions="3" status="pass" classname="tests/unit/test_profile_manager.gd" time="0.050469" >
+      </testcase>
+      <testcase name="test_font_style_missing_leaf_is_persisted_as_pixel_and_explicit_values_remain_strict" assertions="18" status="pass" classname="tests/unit/test_profile_manager.gd" time="0.094497" >
+      </testcase>
+      <testcase name="test_missing_panel_widths_migrate_together_and_persist_without_touching_other_preferences" assertions="16" status="pass" classname="tests/unit/test_profile_manager.gd" time="0.053219" >
+      </testcase>
+      <testcase name="test_panel_width_preferences_are_hidden_and_reject_invalid_ranges_steps_and_types" assertions="47" status="pass" classname="tests/unit/test_profile_manager.gd" time="0.006319" >
+      </testcase>
+      <testcase name="test_solo_group_and_desktop_widths_are_independent_and_survive_restart" assertions="10" status="pass" classname="tests/unit/test_profile_manager.gd" time="0.109947" >
+      </testcase>
+      <testcase name="test_failed_first_dating_width_write_preserves_inheritance_and_publishes_no_change" assertions="7" status="pass" classname="tests/unit/test_profile_manager.gd" time="0.054429" >
+      </testcase>
+      <testcase name="test_new_account_preserves_panel_widths_and_preferences_reset_restores_inheritance" assertions="11" status="pass" classname="tests/unit/test_profile_manager.gd" time="0.072474" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_restore_participants.gd" tests="7" failures="0" skipped="0" time="0.027441" >
+      <testcase name="test_all_participant_scripts_exist" assertions="1" status="pass" classname="tests/unit/test_restore_participants.gd" time="0.000584" >
+      </testcase>
+      <testcase name="test_run_participant_prepare_and_delegation" assertions="14" status="pass" classname="tests/unit/test_restore_participants.gd" time="0.005146" >
+      </testcase>
+      <testcase name="test_profile_participant_prepares_legacy_patch_and_derives_locale" assertions="3" status="pass" classname="tests/unit/test_restore_participants.gd" time="0.001232" >
+      </testcase>
+      <testcase name="test_localization_and_audio_participants" assertions="4" status="pass" classname="tests/unit/test_restore_participants.gd" time="0.000847" >
+      </testcase>
+      <testcase name="test_route_participant_returns_ready_token" assertions="3" status="pass" classname="tests/unit/test_restore_participants.gd" time="0.000732" >
+      </testcase>
+      <testcase name="test_narrative_participant_unavailable_for_nonempty_playhead" assertions="5" status="pass" classname="tests/unit/test_restore_participants.gd" time="0.018302" >
+      </testcase>
+      <testcase name="test_participant_owner_failures_propagate" assertions="2" status="pass" classname="tests/unit/test_restore_participants.gd" time="0.000598" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_restore_preserves_current_profile.gd" tests="4" failures="0" skipped="0" time="0.294573" >
+      <testcase name="test_empty_patch_preserves_first_process_current_document_without_import_or_publication" assertions="17" status="pass" classname="tests/integration/test_restore_preserves_current_profile.gd" time="0.075469" >
+      </testcase>
+      <testcase name="test_empty_patch_apply_and_finalize_preserve_all_current_fields_and_receipts" assertions="17" status="pass" classname="tests/integration/test_restore_preserves_current_profile.gd" time="0.079004" >
+      </testcase>
+      <testcase name="test_frozen_candidate_is_validated_detached_and_uses_the_same_locale_window_plan" assertions="19" status="pass" classname="tests/integration/test_restore_preserves_current_profile.gd" time="0.068907" >
+      </testcase>
+      <testcase name="test_explicit_nonempty_legacy_patch_still_uses_real_import_preparation" assertions="11" status="pass" classname="tests/integration/test_restore_preserves_current_profile.gd" time="0.071193" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_restore_production_adapters.gd" tests="13" failures="0" skipped="0" time="0.585464" >
+      <testcase name="test_prepare_builds_nine_plans_and_commits" assertions="26" status="pass" classname="tests/integration/test_restore_production_adapters.gd" time="0.103173" >
+      </testcase>
+      <testcase name="test_commit_prepared_restore_rejects_stray_identity_allocation_bundle_key" assertions="14" status="pass" classname="tests/integration/test_restore_production_adapters.gd" time="0.02636" >
+      </testcase>
+      <testcase name="test_commit_prepared_restore_rejects_stray_transaction_issuer_receipt_key" assertions="14" status="pass" classname="tests/integration/test_restore_production_adapters.gd" time="0.025352" >
+      </testcase>
+      <testcase name="test_commit_prepared_restore_rejects_stray_transaction_remap_key" assertions="14" status="pass" classname="tests/integration/test_restore_production_adapters.gd" time="0.025449" >
+      </testcase>
+      <testcase name="test_late_narrative_incompatibility_selects_earlier_bundle" assertions="11" status="pass" classname="tests/integration/test_restore_production_adapters.gd" time="0.036755" >
+      </testcase>
+      <testcase name="test_profile_prepare_failure_is_structural_not_content" assertions="10" status="pass" classname="tests/integration/test_restore_production_adapters.gd" time="0.021348" >
+      </testcase>
+      <testcase name="test_physical_narrative_participant_prepares_against_current_manifest" assertions="2" status="pass" classname="tests/integration/test_restore_production_adapters.gd" time="0.0008" >
+      </testcase>
+      <testcase name="test_physical_narrative_participant_reports_removed_content_as_recoverable" assertions="1" status="pass" classname="tests/integration/test_restore_production_adapters.gd" time="0.00052" >
+      </testcase>
+      <testcase name="test_physical_narrative_participant_reports_fingerprint_drift_as_recoverable" assertions="1" status="pass" classname="tests/integration/test_restore_production_adapters.gd" time="0.000467" >
+      </testcase>
+      <testcase name="test_physical_narrative_participant_fails_closed_on_malformed_bytes" assertions="1" status="pass" classname="tests/integration/test_restore_production_adapters.gd" time="0.000511" >
+      </testcase>
+      <testcase name="test_checkpoint_port_configures_desktop_context_provider" assertions="4" status="pass" classname="tests/integration/test_restore_production_adapters.gd" time="0.000751" >
+      </testcase>
+      <testcase name="test_semantic_narrative_participant_prepares_the_six_field_plan_over_the_real_bridge" assertions="5" status="pass" classname="tests/integration/test_restore_production_adapters.gd" time="0.341088" >
+      </testcase>
+      <testcase name="test_semantic_narrative_participant_reports_manifest_drift_as_recoverable" assertions="3" status="pass" classname="tests/integration/test_restore_production_adapters.gd" time="0.00289" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_desktop_board_persistence.gd" tests="5" failures="0" skipped="0" time="0.504007" >
+      <testcase name="test_restore_remaps_board_identity_and_command_receipt_keys" assertions="25" status="pass" classname="tests/integration/test_desktop_board_persistence.gd" time="0.150094" >
+      </testcase>
+      <testcase name="test_restore_remaps_consequence_causal_day_pair" assertions="17" status="pass" classname="tests/integration/test_desktop_board_persistence.gd" time="0.152018" >
+      </testcase>
+      <testcase name="test_restore_rejects_a_corrupted_board_before_touching_live_state" assertions="10" status="pass" classname="tests/integration/test_desktop_board_persistence.gd" time="0.006537" >
+      </testcase>
+      <testcase name="test_restore_rejects_a_corrupted_consequence_receipt_before_live_mutation" assertions="18" status="pass" classname="tests/integration/test_desktop_board_persistence.gd" time="0.045804" >
+      </testcase>
+      <testcase name="test_a_completed_restore_leaves_no_incomplete_continuation" assertions="17" status="pass" classname="tests/integration/test_desktop_board_persistence.gd" time="0.149554" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_minesweeper_first_reveal_transaction.gd" tests="7" failures="0" skipped="0" time="0.274874" >
+      <testcase name="test_first_reveal_writes_a_durable_pre_board_autosave_with_the_charged_and_revealed_state" assertions="27" status="pass" classname="tests/integration/test_minesweeper_first_reveal_transaction.gd" time="0.041836" >
+      </testcase>
+      <testcase name="test_first_reveal_charges_exactly_once_across_a_retried_request" assertions="22" status="pass" classname="tests/integration/test_minesweeper_first_reveal_transaction.gd" time="0.034268" >
+      </testcase>
+      <testcase name="test_adapter_rejects_a_desktop_less_post_commit_snapshot_input" assertions="17" status="pass" classname="tests/integration/test_minesweeper_first_reveal_transaction.gd" time="0.004826" >
+      </testcase>
+      <testcase name="test_adapter_rejects_a_board_only_desktop_value" assertions="16" status="pass" classname="tests/integration/test_minesweeper_first_reveal_transaction.gd" time="0.004035" >
+      </testcase>
+      <testcase name="test_adapter_rejects_an_extra_desktop_key" assertions="16" status="pass" classname="tests/integration/test_minesweeper_first_reveal_transaction.gd" time="0.00404" >
+      </testcase>
+      <testcase name="test_restore_after_a_crash_between_checkpoint_commit_and_live_adoption_recovers_the_paid_first_reveal" assertions="40" status="pass" classname="tests/integration/test_minesweeper_first_reveal_transaction.gd" time="0.179359" >
+      </testcase>
+      <testcase name="test_first_reveal_falls_back_to_the_fake_checkpoint_when_durable_is_not_configured" assertions="10" status="pass" classname="tests/integration/test_minesweeper_first_reveal_transaction.gd" time="0.00651" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_save_manager_checkpoint_port.gd" tests="37" failures="0" skipped="0" time="0.82647" >
+      <testcase name="test_prepare_consequence_checkpoint_builds_a_candidate_and_receipt" assertions="15" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.005313" >
+      </testcase>
+      <testcase name="test_prepare_consequence_checkpoint_attaches_the_receipt_to_the_admission_candidate" assertions="13" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.005362" >
+      </testcase>
+      <testcase name="test_commit_consequence_checkpoint_retains_and_rereads_in_same_process" assertions="15" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.006291" >
+      </testcase>
+      <testcase name="test_issued_transient_record_cache_is_bounded_and_cleared_with_transient_state" assertions="38" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.020167" >
+      </testcase>
+      <testcase name="test_commit_consequence_checkpoint_rejects_a_receipt_mismatch" assertions="10" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.003833" >
+      </testcase>
+      <testcase name="test_known_issued_checkpoint_rejects_equal_float_payload_before_first_commit" assertions="13" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.008156" >
+      </testcase>
+      <testcase name="test_supplied_checkpoint_receipt_rejects_equal_float_ordinal" assertions="10" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.003832" >
+      </testcase>
+      <testcase name="test_known_issued_checkpoint_accepts_string_name_aliases_after_normalization" assertions="14" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.00803" >
+      </testcase>
+      <testcase name="test_cache_evicted_prepared_checkpoint_still_commits_through_cold_validation" assertions="37" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.021051" >
+      </testcase>
+      <testcase name="test_evicted_checkpoints_accept_each_legitimate_recovery_stage" assertions="99" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.055902" >
+      </testcase>
+      <testcase name="test_evicted_checkpoint_rejects_inconsistent_fields_before_insertion" assertions="216" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.133497" >
+      </testcase>
+      <testcase name="test_evicted_reprepared_admission_preserves_its_older_admission_receipt" assertions="44" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.023568" >
+      </testcase>
+      <testcase name="test_evicted_preadmission_checkpoints_preserve_receipt_free_state" assertions="79" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.046258" >
+      </testcase>
+      <testcase name="test_commit_consequence_checkpoint_rejects_malformed_or_uncanonicalizable_records" assertions="11" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.007127" >
+      </testcase>
+      <testcase name="test_commit_consequence_checkpoint_replays_an_identical_rewrite_at_an_occupied_slot" assertions="10" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.005954" >
+      </testcase>
+      <testcase name="test_commit_consequence_checkpoint_rejects_a_different_rewrite_at_an_occupied_slot" assertions="39" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.022122" >
+      </testcase>
+      <testcase name="test_a_committed_admission_checkpoint_reads_back_and_validates" assertions="12" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.005471" >
+      </testcase>
+      <testcase name="test_abandon_pending_consequence_checkpoint_marks_a_pre_admission_checkpoint_abandoned" assertions="16" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.004764" >
+      </testcase>
+      <testcase name="test_abandon_pending_consequence_checkpoint_rejects_a_nonexistent_transaction" assertions="6" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.001898" >
+      </testcase>
+      <testcase name="test_abandon_pending_consequence_checkpoint_rejects_an_already_admitted_transaction" assertions="9" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.003731" >
+      </testcase>
+      <testcase name="test_read_pending_consequence_checkpoint_finds_nothing_when_no_checkpoint_exists" assertions="6" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.00186" >
+      </testcase>
+      <testcase name="test_clear_transient_consequence_checkpoints_is_explicit_and_complete" assertions="12" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.004242" >
+      </testcase>
+      <testcase name="test_clear_transient_consequence_checkpoints_does_not_depend_on_storage_readiness" assertions="5" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.00095" >
+      </testcase>
+      <testcase name="test_fresh_port_ignores_and_preserves_every_legacy_sidecar_artifact" assertions="15" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.004165" >
+      </testcase>
+      <testcase name="test_prepare_consequence_checkpoint_requires_configuration" assertions="4" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.001564" >
+      </testcase>
+      <testcase name="test_checkpoint_content_preimage_is_the_sole_builder" assertions="9" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.004056" >
+      </testcase>
+      <testcase name="test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_ordinal_0" assertions="9" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.003037" >
+      </testcase>
+      <testcase name="test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_ordinal_9" assertions="9" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.003034" >
+      </testcase>
+      <testcase name="test_restart_drops_unfinished_action_but_preserves_completed_post_result_autosave" assertions="23" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.031335" >
+      </testcase>
+      <testcase name="test_autosave_bytes_equal_the_full_canonical_writer_across_three_commits" assertions="37" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.076791" >
+      </testcase>
+      <testcase name="test_autosave_bytes_survive_snapshot_strings_equal_to_splice_sentinels" assertions="34" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.078208" >
+      </testcase>
+      <testcase name="test_seeded_journal_without_remembered_texts_writes_full_writer_bytes" assertions="19" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.065863" >
+      </testcase>
+      <testcase name="test_autosave_bytes_equal_the_full_writer_when_an_earlier_bundle_is_not_native_eligible" assertions="28" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.073064" >
+      </testcase>
+      <testcase name="test_committed_autosave_remembers_the_document_bundle_under_the_texts_own_gate" assertions="23" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.049231" >
+      </testcase>
+      <testcase name="test_prepare_composes_the_autosave_journal_from_the_journals_own_proofs" assertions="3" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.001414" >
+      </testcase>
+      <testcase name="test_normalized_preimage_is_deep_equal_and_never_aliases_the_callers_stage_candidate" assertions="39" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.016719" >
+      </testcase>
+      <testcase name="test_prepare_emits_a_permanent_env_gated_profile_record" assertions="19" status="pass" classname="tests/unit/test_save_manager_checkpoint_port.gd" time="0.01861" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_checkpoint_validation_reuse.gd" tests="21" failures="0" skipped="0" time="3.073868" >
+      <testcase name="test_reuse_preserves_saved_bytes_and_every_disk_operation_across_three_commits" assertions="32" status="pass" classname="tests/unit/test_checkpoint_validation_reuse.gd" time="0.342634" >
+      </testcase>
+      <testcase name="test_detached_candidate_normalization_matches_uncached_bytes_and_physical_trace" assertions="26" status="pass" classname="tests/unit/test_checkpoint_validation_reuse.gd" time="0.089727" >
+      </testcase>
+      <testcase name="test_non_object_outgoing_values_match_uncached_failure_without_physical_mutation" assertions="60" status="pass" classname="tests/unit/test_checkpoint_validation_reuse.gd" time="0.110906" >
+      </testcase>
+      <testcase name="test_schema_invalid_and_canonical_invalid_candidates_preserve_reference_precedence" assertions="40" status="pass" classname="tests/unit/test_checkpoint_validation_reuse.gd" time="0.096296" >
+      </testcase>
+      <testcase name="test_cache_is_exact_text_success_only_and_detaches_nested_results" assertions="14" status="pass" classname="tests/unit/test_checkpoint_validation_reuse.gd" time="0.034089" >
+      </testcase>
+      <testcase name="test_corrupt_next_final_and_backup_keep_existing_recovery_results_and_disk_trace" assertions="62" status="pass" classname="tests/unit/test_checkpoint_validation_reuse.gd" time="0.505609" >
+      </testcase>
+      <testcase name="test_schema_valid_changed_reread_is_rejected_before_journal_commit" assertions="9" status="pass" classname="tests/unit/test_checkpoint_validation_reuse.gd" time="0.027332" >
+      </testcase>
+      <testcase name="test_failed_reread_retry_has_a_fresh_validation_scope_and_commits_once" assertions="10" status="pass" classname="tests/unit/test_checkpoint_validation_reuse.gd" time="0.026288" >
+      </testcase>
+      <testcase name="test_prepared_validation_is_not_reused_after_a_process_frame" assertions="9" status="pass" classname="tests/unit/test_checkpoint_validation_reuse.gd" time="0.106869" >
+      </testcase>
+      <testcase name="test_new_prepare_and_released_custody_discard_prepared_validation" assertions="49" status="pass" classname="tests/unit/test_checkpoint_validation_reuse.gd" time="0.142799" >
+      </testcase>
+      <testcase name="test_committed_documents_are_remembered_bounded_and_forgotten_on_capability_change" assertions="20" status="pass" classname="tests/unit/test_checkpoint_validation_reuse.gd" time="0.086229" >
+      </testcase>
+      <testcase name="test_a_failed_commit_proves_nothing" assertions="10" status="pass" classname="tests/unit/test_checkpoint_validation_reuse.gd" time="0.057012" >
+      </testcase>
+      <testcase name="test_mutated_outgoing_document_fails_and_retry_revalidates_preimage" assertions="25" status="pass" classname="tests/unit/test_checkpoint_validation_reuse.gd" time="0.157758" >
+      </testcase>
+      <testcase name="test_storage_backup_proof_keeps_every_validation_and_disk_operation_without_copying_the_proof" assertions="57" status="pass" classname="tests/unit/test_checkpoint_validation_reuse.gd" time="0.823598" >
+      </testcase>
+      <testcase name="test_three_bundle_seed_equals_a_strict_reparse_of_the_written_document" assertions="22" status="pass" classname="tests/unit/test_checkpoint_validation_reuse.gd" time="0.072031" >
+      </testcase>
+      <testcase name="test_a_journal_bundle_mutated_between_prepare_and_commit_cannot_diverge_the_lease_from_the_bytes" assertions="23" status="pass" classname="tests/unit/test_checkpoint_validation_reuse.gd" time="0.103737" >
+      </testcase>
+      <testcase name="test_an_edited_current_bundle_is_written_but_never_remembered_for_a_later_splice" assertions="25" status="pass" classname="tests/unit/test_checkpoint_validation_reuse.gd" time="0.090152" >
+      </testcase>
+      <testcase name="test_witness_answers_a_proven_document_with_an_empty_value" assertions="14" status="pass" classname="tests/unit/test_checkpoint_validation_reuse.gd" time="0.023426" >
+      </testcase>
+      <testcase name="test_witness_validates_an_unknown_document_exactly_like_the_validator" assertions="25" status="pass" classname="tests/unit/test_checkpoint_validation_reuse.gd" time="0.039207" >
+      </testcase>
+      <testcase name="test_commit_and_rollback_hand_storage_the_witness" assertions="11" status="pass" classname="tests/unit/test_checkpoint_validation_reuse.gd" time="0.002837" >
+      </testcase>
+      <testcase name="test_externally_corrupted_autosave_is_refused_and_rolled_back_like_the_reference" assertions="24" status="pass" classname="tests/unit/test_checkpoint_validation_reuse.gd" time="0.135332" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_checkpoint_journal.gd" tests="16" failures="0" skipped="0" time="0.440192" >
+      <testcase name="test_checkpoint_journal_exists" assertions="1" status="pass" classname="tests/unit/test_checkpoint_journal.gd" time="0.000416" >
+      </testcase>
+      <testcase name="test_reset_peek_and_run_mismatch" assertions="6" status="pass" classname="tests/unit/test_checkpoint_journal.gd" time="0.001575" >
+      </testcase>
+      <testcase name="test_failed_preparation_never_consumes_sequence" assertions="7" status="pass" classname="tests/unit/test_checkpoint_journal.gd" time="0.003328" >
+      </testcase>
+      <testcase name="test_commit_advances_and_duplicate_commit_rejects" assertions="8" status="pass" classname="tests/unit/test_checkpoint_journal.gd" time="0.002979" >
+      </testcase>
+      <testcase name="test_every_accepted_checkpoint_kind_including_line" assertions="27" status="pass" classname="tests/unit/test_checkpoint_journal.gd" time="0.02344" >
+      </testcase>
+      <testcase name="test_retention_after_forty_lines_and_semantic_anchor" assertions="120" status="pass" classname="tests/unit/test_checkpoint_journal.gd" time="0.277719" >
+      </testcase>
+      <testcase name="test_reset_with_initial_replaces_run_and_restore_reinstates" assertions="17" status="pass" classname="tests/unit/test_checkpoint_journal.gd" time="0.01573" >
+      </testcase>
+      <testcase name="test_prepare_seed_selects_and_excludes" assertions="11" status="pass" classname="tests/unit/test_checkpoint_journal.gd" time="0.008022" >
+      </testcase>
+      <testcase name="test_seed_replaces_same_counter_contents_and_history_and_can_repeat" assertions="15" status="pass" classname="tests/unit/test_checkpoint_journal.gd" time="0.024381" >
+      </testcase>
+      <testcase name="test_semantic_recovery_history_is_bounded_without_changing_current_snapshot" assertions="30" status="pass" classname="tests/unit/test_checkpoint_journal.gd" time="0.028569" >
+      </testcase>
+      <testcase name="test_remember_committed_bundle_text_accepts_only_the_current_checkpoint" assertions="11" status="pass" classname="tests/unit/test_checkpoint_journal.gd" time="0.003052" >
+      </testcase>
+      <testcase name="test_remembered_document_bundle_is_a_private_deep_copy_served_by_reference" assertions="21" status="pass" classname="tests/unit/test_checkpoint_journal.gd" time="0.005324" >
+      </testcase>
+      <testcase name="test_retained_bundle_text_is_forgotten_when_the_bundle_leaves_retention" assertions="28" status="pass" classname="tests/unit/test_checkpoint_journal.gd" time="0.012168" >
+      </testcase>
+      <testcase name="test_retained_bundle_texts_clear_on_reset_candidate_seed_restore_and_reset" assertions="40" status="pass" classname="tests/unit/test_checkpoint_journal.gd" time="0.020404" >
+      </testcase>
+      <testcase name="test_prepare_record_takes_the_fast_path_only_for_the_identical_proven_candidate" assertions="13" status="pass" classname="tests/unit/test_checkpoint_journal.gd" time="0.004484" >
+      </testcase>
+      <testcase name="test_prepare_record_keeps_every_refusal_and_its_order_when_a_proof_is_supplied" assertions="14" status="pass" classname="tests/unit/test_checkpoint_journal.gd" time="0.008601" >
+      </testcase>
+  </testsuite>
+</testsuites>

@@ -1,0 +1,40 @@
+[
+  {
+    "archive": "hospital-focus1.zip",
+    "sha256": "f87539b895750cfb2d4a4075f511438fa4cf0ba6a85ba968b481db58a9e85909",
+    "bytes": 116994,
+    "kept": [
+      {
+        "artifact_path": "1277675c-b0ef-4006-967e-9ebc535a0a3b/write.log",
+        "retained_file": "hospital-focus1-1277675c-b0ef-4006-967e-9ebc535a0a3b-write.log.gz",
+        "raw_bytes": 33212,
+        "raw_sha256": "bf5e8ffdc61b7371404e7825ab949d977d7d3774282a259fbc2586ac6efbefba"
+      },
+      {
+        "artifact_path": "aed43135-f036-48f6-999f-06620ed2ff48/write.log",
+        "retained_file": "hospital-focus1-aed43135-f036-48f6-999f-06620ed2ff48-write.log.gz",
+        "raw_bytes": 33212,
+        "raw_sha256": "8fe1e6fadf20fb264635072f430809e3d96c068bfdbf59ef5daef0af54f867e9"
+      }
+    ]
+  },
+  {
+    "archive": "reading-focus1.zip",
+    "sha256": "ffe9e9c212cfa518413c150546de03828ad7103988f9826054ad83770c697b27",
+    "bytes": 305093,
+    "kept": [
+      {
+        "artifact_path": "ci/reading_delivery.xml",
+        "retained_file": "reading-focus1-ci-reading_delivery.xml.gz",
+        "raw_bytes": 142176,
+        "raw_sha256": "2e6ea84a01306859650b3a34d535115951cec5bff406960e2f8bdc0389f0f195"
+      },
+      {
+        "artifact_path": "phase2r_logs/cloud-reading_delivery.log",
+        "retained_file": "reading-focus1-phase2r_logs-cloud-reading_delivery.log.gz",
+        "raw_bytes": 4564621,
+        "raw_sha256": "fba14dbdb46a9d8453369e472c8812072fc4cb7ecd18ec74bae57ea6bc8c89bc"
+      }
+    ]
+  }
+]

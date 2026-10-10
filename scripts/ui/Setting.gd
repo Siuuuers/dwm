@@ -25,7 +25,7 @@ func show_window() -> void:
 
 
 func hide_window() -> void:
-	if _closing or not is_visible_in_tree() or settings_content.get_controller().is_commit_pending():
+	if _closing or not is_visible_in_tree() or settings_content.get_controller().is_commit_pending() or settings_content.is_profile_write_uncertain():
 		return
 	_closing = true
 	_generation += 1

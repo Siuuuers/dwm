@@ -8,7 +8,7 @@ signal foreground_availability_changed()
 const PANEL := preload("res://scripts/ui/minesweeper/MinesweeperPanel.gd")
 const GRID := preload("res://scripts/ui/minesweeper/MinesweeperGrid.gd")
 const RETRY_BUTTON := preload("res://scripts/ui/minesweeper/MinesweeperActionButton.gd")
-const PREFERENCE_KEYS := ["preferences.accessibility.text_size","preferences.accessibility.large_targets",
+const PREFERENCE_KEYS := ["preferences.accessibility.font_style","preferences.accessibility.text_size","preferences.accessibility.large_targets",
 	"preferences.accessibility.font_scale","preferences.accessibility.large_click_targets",
 	"preferences.accessibility.high_contrast","preferences.accessibility.colour_differentiation",
 	"preferences.accessibility.colorblind_mode"]
@@ -21,6 +21,7 @@ var _localization: Object
 var _profile: Object
 var _input_owner: Object
 var _palette: StringName = &"after_hours"
+var _day := 1
 var _home: Button
 var _busy := false
 var _show_prepared := false
@@ -33,6 +34,7 @@ var _has_cached_navigation := false
 var _preparation_retry: Button
 var _preparation_retry_needed := false
 var _preparation_foreground := false
+var _desktop_layout_height := 0
 
 func _ready() -> void:
 	super._ready()
@@ -61,11 +63,36 @@ func _ready() -> void:
 	if get_parent() is Control: get_parent().resized.connect(_fit_host)
 	_fit_host()
 
+func set_desktop_height(height: int) -> void:
+	if height <= 0 or height == _desktop_layout_height: return
+	_desktop_layout_height = height
+	_fit_host()
+
+
 func _fit_host() -> void:
 	var host := get_parent() as Control
 	if host == null or host.size.x <= 0 or host.size.y <= 0: return
-	var factor := minf(1.0,minf(host.size.x/800.0,host.size.y/656.0))
+	# Desktop enlargement belongs to the shared canvas; small standalone hosts
+	# still fit the complete app without adding another enlargement factor.
+	var factor := minf(1.0, minf(host.size.x / 800.0, host.size.y / 656.0))
+	var height := floori(host.size.y / factor / 2.0) * 2
+	if _desktop_layout_height > 0:
+		factor = 1.0
+		height = _desktop_layout_height / 2 * 2
+	if not panel.set_layout_height(height):
+		panel.set_layout_height(656)
+	custom_minimum_size = Vector2(800, panel.layout_height)
+	_content_host.custom_minimum_size = custom_minimum_size
+	size = custom_minimum_size
 	scale = Vector2.ONE * factor
+
+func set_footer_host(host: Control) -> void:
+	if panel == null: return
+	panel.worksheet.set_footer_host(host)
+	panel.configure(panel._locale, panel._percent, panel._large, panel._palette,
+		panel._high_contrast, panel._colour_preset, panel._font_style, panel._day)
+	_fit_host()
+	_update_home()
 
 func _process(_delta: float) -> void:
 	if _busy or _port == null or not _port.has_method("advance_preparation") or panel == null \
@@ -105,15 +132,15 @@ func _refresh_preparation_retry() -> void:
 		_preparation_retry.hide()
 		return
 	var locale := str(_localization.get_locale()).replace("_","-") if _localization != null else "en"
-	var copy: String = {"en":"Retry","zh-CN":"\u91cd\u8bd5","zh-HK":"\u91cd\u8a66"}.get(locale,"Retry")
+	var copy: String = {"en":"Retry","zh-CN":"\u91cd\u8bd5","zh-HK":"\u91cd\u8a66", "ja": "再試行", "ko": "다시 시도"}.get(locale,"Retry")
 	if not _preparation_retry.configure(copy,panel.register.theme,bool(panel.get("_large")),160): return
 	_preparation_retry.present_state(true,false)
 	_preparation_retry.position = Vector2(320,300)
 	_preparation_retry.show()
 
 func configure_presentation(port: Object, localization: Object = null, profile: Object = null,
-		input_owner: Object = null, palette: StringName = &"after_hours") -> Dictionary:
-	if palette not in [&"after_hours",&"midnight"]: return {"ok":false,"code":&"invalid_minesweeper_palette"}
+		input_owner: Object = null, palette: StringName = &"after_hours", day: int = 1) -> Dictionary:
+	if day not in range(1, 8) or palette not in [&"after_hours",&"midnight"]: return {"ok":false,"code":&"invalid_minesweeper_palette"}
 	if not is_node_ready() or not is_instance_valid(port): return _fail(&"minesweeper_unconfigured")
 	for method: String in ["pull","dispatch","set_foreground"]:
 		if not port.has_method(method): return _fail(&"invalid_minesweeper_presentation")
@@ -121,7 +148,7 @@ func configure_presentation(port: Object, localization: Object = null, profile: 
 	if profile != null and not profile.has_method("get_preference"): return _fail(&"invalid_minesweeper_preferences")
 	var candidate_input: Object = input_owner if input_owner != null else get_node_or_null("/root/InputManager")
 	if candidate_input != null and not GRID.accepts_input_owner(candidate_input): return _fail(&"invalid_minesweeper_input")
-	if _port != null and (_port != port or _localization != localization or _profile != profile or _input_owner != candidate_input or _palette != palette):
+	if _port != null and (_port != port or _localization != localization or _profile != profile or _input_owner != candidate_input or _palette != palette or _day != day):
 		return {"ok":false,"code":&"minesweeper_already_configured"}
 	if not panel.bind(port): return _fail(&"invalid_minesweeper_presentation")
 	if candidate_input != null and not panel.worksheet.grid.configure_input(candidate_input): return _fail(&"invalid_minesweeper_input")
@@ -132,6 +159,7 @@ func configure_presentation(port: Object, localization: Object = null, profile: 
 		return _fail(&"invalid_minesweeper_preferences")
 	_input_owner = candidate_input
 	_palette = palette
+	_day = day
 	if localization != null and localization.has_signal("locale_changed") and not localization.is_connected("locale_changed",_on_locale_changed):
 		localization.connect("locale_changed",_on_locale_changed)
 	if profile != null and profile.has_signal("preference_changed") and not profile.is_connected("preference_changed",_on_preference_changed):
@@ -160,6 +188,7 @@ func prepare_return_home() -> Dictionary:
 	_scroll = panel.worksheet.get_scroll()
 	_has_cached_navigation = true
 	var result := _foreground(false)
+	if result.get("ok",false): panel.worksheet.close_information()
 	_hide_prepared = result.get("ok",false)
 	return result
 
@@ -195,8 +224,7 @@ func hide_window() -> void:
 
 func can_return_home() -> bool:
 	if _hide_prepared: return true
-	if _busy or panel == null or not panel.has_valid_presentation() \
-			or panel.worksheet.information_sheet != null: return false
+	if _busy or panel == null or not panel.has_valid_presentation(): return false
 	if panel.public_view.settled or not panel.public_view.board.custody: return true
 	return last_result.get("ok",false) and _port != null \
 		and _port.has_method("can_park_preparation") \
@@ -212,7 +240,7 @@ func _update_home() -> void:
 	_home.disabled = not enabled
 	_home.focus_mode = Control.FOCUS_ALL if enabled else Control.FOCUS_NONE
 	panel.connect_host_focus(_home,_home)
-	var first: Control = panel.worksheet.grid
+	var first: Control = panel.worksheet.information_sheet.rows[0] if panel.worksheet.information_sheet != null else panel.worksheet.grid
 	for button: Control in panel.register.difficulties.values():
 		if button.focus_mode != Control.FOCUS_NONE:
 			first = button
@@ -220,6 +248,10 @@ func _update_home() -> void:
 	_home.focus_next = _home.get_path_to(first)
 	_home.focus_neighbor_bottom = _home.focus_next
 	_home.focus_previous = _home.get_path_to(panel.dock.buttons.rules) if panel.dock.buttons.has("rules") else NodePath()
+	if panel.worksheet.view_controls_external:
+		for control: Control in panel.worksheet.zoom_controls:
+			if control.is_visible_in_tree() and control.focus_mode != Control.FOCUS_NONE:
+				_home.focus_previous = _home.get_path_to(control)
 	foreground_availability_changed.emit()
 
 func remember_focus() -> void:
@@ -259,9 +291,9 @@ func _on_visibility_changed() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not is_visible_in_tree(): return
-	if panel.worksheet.information_sheet != null: return
 	if event.is_action_pressed("ui_cancel"):
-		hide_window()
+		if panel.worksheet.information_sheet != null: panel.worksheet.close_information()
+		else: hide_window()
 		get_viewport().set_input_as_handled()
 
 func _notification(what: int) -> void:
@@ -288,13 +320,24 @@ func _apply_preferences() -> bool:
 		if typeof(legacy) != TYPE_STRING or not LEGACY_COLOUR_PRESETS.has(legacy): return false
 		colour = LEGACY_COLOUR_PRESETS[legacy]
 	if typeof(high_contrast) != TYPE_BOOL or typeof(colour) != TYPE_STRING: return false
+	var font_style := str(_profile.get_preference("preferences.accessibility.font_style", "pixel")) if _profile != null else "pixel"
 	var retained_scroll: Vector2i = panel.worksheet.get_scroll()
-	if not panel.configure(locale,percent,large,_palette,high_contrast,colour): return false
+	if not panel.configure(locale,percent,large,_palette,high_contrast,colour,font_style,_day):
+		var previous_height: int = panel.layout_height
+		# Large text can outgrow the compact board. Keep its readable layout and
+		# let the desktop scroll the page instead of rejecting valid preferences.
+		if _desktop_layout_height <= 0 or previous_height >= 656 or not panel.set_layout_height(656): return false
+		if not panel.configure(locale,percent,large,_palette,high_contrast,colour,font_style,_day):
+			panel.set_layout_height(previous_height)
+			return false
+	_fit_host()
 	if panel.worksheet.get_scroll() != retained_scroll: panel.worksheet.set_scroll(retained_scroll)
 	return true
 
 func _on_locale_changed(_locale: String) -> void:
 	if not _apply_preferences(): _fail(&"invalid_minesweeper_preferences")
+	elif last_result.get("code") == &"invalid_minesweeper_preferences" and panel.has_valid_presentation():
+		last_result = {"ok":true}
 	_refresh_preparation_retry()
 	_update_home()
 
@@ -315,3 +358,4 @@ func _on_failure(code: StringName) -> void:
 func _fail(code: StringName) -> Dictionary:
 	_on_failure(code)
 	return last_result.duplicate()
+

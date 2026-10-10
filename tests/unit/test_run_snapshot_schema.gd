@@ -2,6 +2,7 @@ extends "res://addons/gut/test.gd"
 
 const SCHEMA_PATH := "res://scripts/domain/run/RunSnapshotSchema.gd"
 const SCHEDULE_STATE_SCHEMA_PATH := "res://scripts/domain/schedule/ScheduleStateSchema.gd"
+const CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const VALID_FIXTURE := "res://tests/fixtures/snapshots/valid_day3.json"
 const DAY8_FIXTURE := "res://tests/fixtures/snapshots/invalid_day8.json"
 const SHAPES_FIXTURE := "res://tests/fixtures/snapshots/invalid_object_shapes.json"
@@ -30,7 +31,10 @@ func _empty_desktop() -> Dictionary:
 
 func _current_fixture(snapshot: Dictionary) -> Dictionary:
 	var upgraded := snapshot.duplicate(true)
-	upgraded["schema_version"] = 6
+	upgraded["schema_version"] = 7
+	# Current empty fixtures explicitly author the Contacts owner; malformed shapes stay malformed.
+	if upgraded.get("contacts") is Dictionary and upgraded.contacts.is_empty():
+		upgraded["contacts"] = CONTACTS.make_defaults()
 	upgraded["gameplay"].erase("opening_seen")
 	upgraded["gameplay"].erase("tutorial_seen")
 	var lifecycle: Dictionary = (upgraded["lifecycle"] as Dictionary).duplicate(true)
@@ -107,9 +111,9 @@ func test_validate_rejection_matrix() -> void:
 	var schema: Script = load(SCHEMA_PATH)
 	var base := _fixture(VALID_FIXTURE)
 
-	# v6 is current; the unsupported-future probe must remain newer.
+	# v7 is current; the unsupported-future probe must remain newer.
 	var future := base.duplicate(true)
-	future["schema_version"] = 7
+	future["schema_version"] = 8
 	assert_false(schema.validate(future).get("ok", true), "unsupported future schema version rejects")
 
 	var non_integral := base.duplicate(true)
@@ -143,8 +147,7 @@ func test_validate_rejection_matrix() -> void:
 	assert_false(schema.validate(missing_key).get("ok", true), "absent required field is not silently filled")
 
 func _ending_snapshot(ending_plan: Dictionary) -> Dictionary:
-	# A day-7 ENDING snapshot carrying the given ending_plan, built from the frozen day-3 fixture.
-	# v3: a snapshot names ONE day, so the committed aggregate moves with the lifecycle.
+	# Test-authored Day 7 shape. Callers explicitly supply current frozen facts or test refusal.
 	var base := _fixture(VALID_FIXTURE)
 	base["lifecycle"]["day"] = 7
 	base["lifecycle"]["state"] = "ENDING"
@@ -152,6 +155,25 @@ func _ending_snapshot(ending_plan: Dictionary) -> Dictionary:
 	(base["committed_schedule"] as Dictionary)["day"] = 7
 	(base["schedule_view"] as Dictionary)["day"] = 7
 	return base
+
+func _ordered_ending_snapshot(steps: Array) -> Dictionary:
+	var pair := false
+	for step: Dictionary in steps:
+		if step.get("role") == "pair_coda": pair = true
+	var plan := {"ending_id": steps[0].ending_id, "epilogue_ending_id": "ending.priscilla_lavinia" if pair else "",
+		"playback_receipts": {}, "playback_stage": "PRIMARY_PENDING", "source_day": 7,
+		"steps": steps.duplicate(true), "next_step_index": 0}
+	var snapshot := _ending_snapshot(plan)
+	var inputs := {"dark_mode": false, "pair_form": "love_sweet", "special_variant": "full"}
+	for friend: String in CONTACTS.FRIEND_IDS:
+		inputs[friend] = {"tier": "love", "tone": "sweet", "attitude": "affectionate", "echo_ids": [], "miss_reasons": []}
+	var seed := preload("res://scripts/narrative/EndingFrozenContext.gd").make_seed(inputs,
+		{"priscilla": [], "lavinia": [], "sylvia": [], "priscilla_lavinia": []}, [], "empty_done")
+	assert_true(seed.ok, str(seed))
+	snapshot.gameplay["route_context"] = {
+		"provisional_ending_plan": {"eligibility_snapshot": {"presentation_by_scope": inputs.duplicate(true), "hospital_required": false}},
+		"ending_frozen_contexts_v1": {"schema_version": 1, "seed": seed.value, "presentations": {}}}
+	return snapshot
 
 func test_validate_enforces_ending_id_is_a_canonical_primary() -> void:
 	# A restored ending_plan is structurally valid AND semantically valid: a tampered save cannot
@@ -161,21 +183,59 @@ func test_validate_enforces_ending_id_is_a_canonical_primary() -> void:
 	if not _schema_exists():
 		return
 	var schema: Script = load(SCHEMA_PATH)
-	var canonical := {"ending_id": "ending.priscilla.sweet", "epilogue_ending_id": "", "playback_receipts": {}, "playback_stage": "PRIMARY_PENDING", "source_day": 7}
-	assert_true(schema.validate(_ending_snapshot(canonical)).get("ok", false), "a canonical primary ending plan validates")
-	var with_epilogue := canonical.duplicate(true)
-	with_epilogue["ending_id"] = "ending.sylvia.special"
-	with_epilogue["epilogue_ending_id"] = "ending.priscilla_lavinia"
-	assert_true(schema.validate(_ending_snapshot(with_epilogue)).get("ok", false), "a canonical primary + canonical epilogue validates")
-	var epilogue_as_primary := canonical.duplicate(true)
-	epilogue_as_primary["ending_id"] = "ending.priscilla_lavinia"
-	assert_false(schema.validate(_ending_snapshot(epilogue_as_primary)).get("ok", true), "the epilogue-only id is never a valid primary")
-	var retired_true := canonical.duplicate(true)
-	retired_true["ending_id"] = "ending.priscilla.true"
-	assert_false(schema.validate(_ending_snapshot(retired_true)).get("ok", true), "a retired true-path id is not a valid primary")
+	var canonical := _ordered_ending_snapshot([{"ending_id": "ending.priscilla.sweet", "role": "core"}])
+	assert_true(schema.validate(canonical).get("ok", false), "a current ordered primary with its admission seed validates")
+	var with_epilogue := _ordered_ending_snapshot([
+		{"ending_id": "ending.sylvia.special", "role": "special_prefix"},
+		{"ending_id": "ending.sylvia.dark", "role": "core"},
+		{"ending_id": "ending.priscilla_lavinia.sweet", "role": "pair_coda", "pair_form": "love_sweet"}])
+	assert_true(schema.validate(with_epilogue).get("ok", false), "Special, forced Dark and the frozen pair coda validate")
+	for invalid: String in ["ending.priscilla_lavinia", "ending.priscilla.true"]:
+		var altered := canonical.duplicate(true)
+		altered.lifecycle.ending_plan.ending_id = invalid
+		altered.lifecycle.ending_plan.steps[0].ending_id = invalid
+		assert_false(schema.validate(altered).get("ok", true), "epilogue-only and retired primary IDs refuse")
 	var bogus_epilogue := canonical.duplicate(true)
-	bogus_epilogue["epilogue_ending_id"] = "ending.sylvia.sweet"
-	assert_false(schema.validate(_ending_snapshot(bogus_epilogue)).get("ok", true), "the epilogue must be empty or ending.priscilla_lavinia")
+	bogus_epilogue.lifecycle.ending_plan.epilogue_ending_id = "ending.sylvia.sweet"
+	assert_false(schema.validate(bogus_epilogue).get("ok", true), "the epilogue must project a real pair coda")
+
+func test_current_ending_refuses_missing_seed_and_legacy_plan_without_reconstructing_facts() -> void:
+	var schema: Script = load(SCHEMA_PATH)
+	var current := _ordered_ending_snapshot([{"ending_id": "ending.alone", "role": "core"}])
+	assert_true(schema.validate(current).get("ok", false))
+	current.gameplay.route_context.erase("ending_frozen_contexts_v1")
+	var before := current.duplicate(true)
+	assert_eq(schema.validate(current).get("code"), &"ending_frozen_seed_required")
+	assert_eq(current, before)
+	for primary: String in ["ending.priscilla.sweet", "ending.sylvia.special"]:
+		var legacy := _ending_snapshot({"ending_id": primary,
+			"epilogue_ending_id": "ending.priscilla_lavinia" if primary == "ending.sylvia.special" else "",
+			"playback_receipts": {}, "playback_stage": "PRIMARY_PENDING", "source_day": 7})
+		var retained := legacy.duplicate(true)
+		assert_eq(schema.validate(legacy).get("code"), &"ending_frozen_seed_required")
+		assert_eq(legacy, retained, "a current version tag does not manufacture historical eligibility")
+
+func test_v7_requires_generated_contact_context_before_preparing_a_detached_candidate() -> void:
+	var schema: Script = load(SCHEMA_PATH)
+	var snapshot := _fixture(VALID_FIXTURE)
+	snapshot.lifecycle.day = 1
+	snapshot.committed_schedule.day = 1
+	snapshot.schedule_view.day = 1
+	assert_true(schema.prepare_candidate(snapshot).get("ok", false), "empty current Contacts needs no invented presentation")
+	var offered := CONTACTS.prepare_offer_solo(snapshot.contacts, "priscilla", 1, "fixture:invitation", "fixture:offer")
+	assert_true(offered.ok, str(offered))
+	if not offered.ok: return
+	var captured := preload("res://scripts/narrative/ContactsFrozenContext.gd").capture_candidate(
+		snapshot.contacts, offered.value.candidate, snapshot.gameplay, 1)
+	assert_true(captured.ok, str(captured))
+	if not captured.ok: return
+	snapshot.contacts = offered.value.candidate
+	snapshot.gameplay = captured.value
+	assert_true(schema.prepare_candidate(snapshot).get("ok", false))
+	snapshot.gameplay.route_context.erase("contacts_frozen_contexts_v1")
+	var before := snapshot.duplicate(true)
+	assert_eq(schema.prepare_candidate(snapshot).get("code"), &"contacts_frozen_history_missing")
+	assert_eq(snapshot, before, "refusal cannot fill a missing historical projection")
 
 func test_validate_primitive_tree_rejects_engine_types() -> void:
 	assert_true(_schema_exists(), "RunSnapshotSchema must exist")
@@ -227,7 +287,7 @@ func test_derive_route_restore_context_exact_shape() -> void:
 		"lifecycle_state": "PLAYING",
 		"active_app_id": null,
 		"ending_plan": null,
-		"contacts": {},
+		"contacts": CONTACTS.make_defaults(),
 		"committed_schedule": {
 			"schema_version": 1,
 			"day": 3,
@@ -247,12 +307,12 @@ func test_derive_route_restore_context_exact_shape() -> void:
 # retires in the same boundary. Committed validation is DELEGATED to ScheduleStateSchema; this module
 # owns no second copy of the aggregate law.
 
-func test_schema_version_is_six() -> void:
+func test_schema_version_is_seven() -> void:
 	assert_true(_schema_exists(), "RunSnapshotSchema must exist")
 	if not _schema_exists():
 		return
 	var schema: Script = load(SCHEMA_PATH)
-	assert_eq(int(schema.SCHEMA_VERSION), 6, "the reconciled snapshot contract requires v6")
+	assert_eq(int(schema.SCHEMA_VERSION), 7, "the reconciled snapshot contract requires v7")
 
 func test_top_level_committed_schedule_replaces_legacy_schedule() -> void:
 	assert_true(_schema_exists(), "RunSnapshotSchema must exist")
@@ -360,7 +420,7 @@ func test_v3_build_round_trips_the_aggregate_unchanged() -> void:
 		_snapshot_input_from(fixture), {}, "main", null, {}, 1, 42)
 	assert_true(built.get("ok", false), JSON.stringify(built))
 	var snapshot: Dictionary = built["value"]["snapshot"]
-	assert_eq(int(snapshot["schema_version"]), 6, "build stamps the current version")
+	assert_eq(int(snapshot["schema_version"]), 7, "build stamps the current version")
 	# JSON parsing yields floats for integral numbers, so the expectation is the schema's own
 	# normalized projection of the same fixture -- not the raw parse.
 	var normalized_fixture: Dictionary = schema.validate(fixture)["value"]["candidate"]
@@ -551,3 +611,47 @@ func test_validate_neither_aliases_nor_mutates_the_caller_snapshot() -> void:
 		"depth 3 stayed detached")
 	assert_eq((candidate["applied_effect_transaction_ids"] as Array).size(), 1,
 		"the Array member stayed detached")
+
+func test_logout_is_neither_a_valid_saved_workspace_nor_a_buildable_checkpoint() -> void:
+	var schema: Script = load(SCHEMA_PATH)
+	var base := _fixture(VALID_FIXTURE)
+	for invalid: Variant in ["logout", &"logout", 7, [], {}]:
+		var candidate := base.duplicate(true)
+		candidate.active_app_id = invalid
+		assert_false(schema.validate(candidate).get("ok", true), "invalid workspace identity rejects without coercion")
+	var built: Dictionary = schema.build(_snapshot_input_from(base), {}, "main", &"logout", {}, 1, 42)
+	assert_false(built.get("ok", true), "even an invalid capture cannot write Logout into a new checkpoint")
+	for id: StringName in [&"minesweeper", &"contacts", &"schedule", &"shop", &"backup", &"settings"]:
+		var candidate := base.duplicate(true)
+		candidate.active_app_id = id
+		assert_true(schema.validate(candidate).get("ok", false), "%s remains restorable" % id)
+
+func test_legacy_logout_autosave_is_unavailable_without_rewriting_or_guessing_journal_fallback() -> void:
+	var document_schema: Script = load("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
+	var snapshot := _fixture(VALID_FIXTURE)
+	var earlier := snapshot.duplicate(true)
+	earlier.checkpoint_sequence = int(snapshot.checkpoint_sequence) - 1
+	earlier.checkpoint_id = "%s:%d" % [earlier.run_id, earlier.checkpoint_sequence]
+	var built: Dictionary = document_schema.build(&"autosave", null, &"logout",
+		{"checkpoint_kind": "day_start", "snapshot": snapshot},
+		[{"checkpoint_kind": "day_start", "snapshot": earlier}])
+	assert_true(built.get("ok", false))
+	if not built.get("ok", false): return
+	var legacy: Dictionary = built.value
+	legacy.current_snapshot.snapshot.active_app_id = "logout"
+	var source := JSON.stringify(legacy)
+	assert_false(document_schema.validate(legacy).get("ok", true), "invalid current workspace refuses before valid earlier bundles")
+	assert_eq(JSON.stringify(legacy), source, "validation never rewrites the supplied save")
+	var files: RefCounted = load("res://tests/support/FakeFileOps.gd").new({"memory/legacy-logout/autosave.json": source})
+	var storage: RefCounted = load("res://scripts/infrastructure/storage/JsonFileStorage.gd").new("memory/legacy-logout", files)
+	var manager: Node = load("res://autoload/SaveManager.gd").new()
+	add_child_autofree(manager)
+	assert_true(manager.initialize(storage).ok)
+	var before: Dictionary = files.snapshot_persisted()
+	var inspected: Dictionary = manager.inspect_backup("autosave")
+	assert_true(inspected.get("ok", false))
+	assert_eq(inspected.value.state, "unavailable")
+	assert_eq(inspected.value.reason, "unreadable")
+	assert_false(inspected.value.loadable)
+	assert_false(inspected.value.fallback)
+	assert_eq(files.snapshot_persisted(), before, "inspection preserves old data for an explicit compatibility disposition")

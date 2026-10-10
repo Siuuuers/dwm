@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "reason": "The GitHub connector request limit requires bounded transfer parts. Reassembly preserves the exact audited archive.",
+  "archive": "dwm-run100-focused-cloud-evidence.tar.gz",
+  "bytes": 12778408,
+  "sha256": "09d0affe0291f0fd31e4e0e6df0ba3c04cf5ce31e5e9c80b96e156c3fc40f1e6",
+  "parts": [
+    {
+      "file": "dwm-run100-focused-cloud-evidence.tar.gz.part01",
+      "bytes": 8388608,
+      "sha256": "d81639e6a37454ba03941d527469878f0dc5e2c825151489fb157724f0ef7d22"
+    },
+    {
+      "file": "dwm-run100-focused-cloud-evidence.tar.gz.part02",
+      "bytes": 4389800,
+      "sha256": "034a07d9408aa50de69da99e0633de8de33f24bd0d6b4f034d1f03c014d16fdd"
+    }
+  ],
+  "concatenate_parts_in_list_order": true,
+  "reassembly_byte_verified": true
+}

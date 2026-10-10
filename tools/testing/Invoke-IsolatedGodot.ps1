@@ -10,6 +10,11 @@ param(
 
     [string]$EvidenceLogPath,
 
+    # Existing long-running evidence callers retain their own watchdogs unless
+    # they opt in. Cloud focused suites set a limit below their step timeout.
+    [ValidateRange(0, 86400)]
+    [int]$TimeoutSeconds = 0,
+
     [switch]$KeepRoot
 )
 
@@ -93,7 +98,9 @@ function Invoke-GodotChild {
         [string[]]$Arguments,
         [string]$AppData,
         [string]$LocalAppData,
-        [string]$DwmTestRoot
+        [string]$DwmTestRoot,
+        [int]$TimeoutSeconds,
+        [string]$TimeoutLogPath
     )
     $start = New-Object Diagnostics.ProcessStartInfo
     $start.FileName = $Executable
@@ -107,13 +114,34 @@ function Invoke-GodotChild {
     $start.EnvironmentVariables['DWM_TEST_ROOT'] = $DwmTestRoot
     $process = New-Object Diagnostics.Process
     $process.StartInfo = $start
-    if (-not $process.Start()) { throw 'GODOT_START_FAILED' }
-    $stdoutTask = $process.StandardOutput.ReadToEndAsync()
-    $stderrTask = $process.StandardError.ReadToEndAsync()
-    $process.WaitForExit()
-    $stdout = $stdoutTask.GetAwaiter().GetResult()
-    $stderr = $stderrTask.GetAwaiter().GetResult()
-    return [pscustomobject]@{ ExitCode = $process.ExitCode; Stdout = $stdout; Stderr = $stderr }
+    try {
+        if (-not $process.Start()) { throw 'GODOT_START_FAILED' }
+        $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+        $stderrTask = $process.StandardError.ReadToEndAsync()
+        $waitMilliseconds = if ($TimeoutSeconds -eq 0) { -1 } else { $TimeoutSeconds * 1000 }
+        $timedOut = -not $process.WaitForExit($waitMilliseconds)
+        if ($timedOut) {
+            [Console]::Error.WriteLine("GODOT_CHILD_TIMEOUT: exceeded $TimeoutSeconds seconds; terminating child process tree $($process.Id).")
+            $process.Kill($true)
+            if (-not $process.WaitForExit(10000)) { throw 'GODOT_CHILD_TERMINATION_TIMEOUT' }
+        }
+        # Descendants can inherit pipe handles. Do not let draining their output
+        # replace the bounded child wait with another unbounded wait.
+        if (-not [Threading.Tasks.Task]::WaitAll([Threading.Tasks.Task[]]@($stdoutTask, $stderrTask), 10000)) {
+            throw 'GODOT_CHILD_OUTPUT_DRAIN_TIMEOUT'
+        }
+        $stdout = $stdoutTask.GetAwaiter().GetResult()
+        $stderr = $stderrTask.GetAwaiter().GetResult()
+        if ($timedOut) {
+            $diagnostic = "GODOT_CHILD_TIMEOUT: exceeded $TimeoutSeconds seconds.`n$stdout`n$stderr"
+            [IO.File]::WriteAllText($TimeoutLogPath, $diagnostic, (New-Object Text.UTF8Encoding($false)))
+            [Console]::Error.WriteLine("GODOT_TIMEOUT_OUTPUT: $TimeoutLogPath")
+        }
+        $exitCode = if ($timedOut) { 124 } else { $process.ExitCode }
+        return [pscustomobject]@{ ExitCode = $exitCode; Stdout = $stdout; Stderr = $stderr }
+    } finally {
+        $process.Dispose()
+    }
 }
 
 function Assert-TreeHasNoReparsePoints {
@@ -172,6 +200,9 @@ function Get-SuiteExecutionFailure {
     }
     foreach ($line in $lines) {
         if ($line.Contains('ERROR: Failed to load script')) { $failures += ('SCRIPT_LOAD_FAILED: ' + $line.Trim()) }
+        # GUT ends per-test error tracking before after_each; an invalid Tween
+        # can therefore be logged during teardown while the child still exits 0.
+        if ($line.Contains('ERROR: Tween invalid.')) { $failures += ('TWEEN_INVALID: ' + $line.Trim()) }
     }
     return @($failures | Sort-Object -Unique)
 }
@@ -244,9 +275,12 @@ try {
         [void](Assert-ContainedNonReparseChain -Root $repositoryRoot -Candidate $parent -RequireStrictDescendant)
     }
 
+    $logPath = Get-CanonicalPath (Join-Path $logsRoot $LogName)
+    $timeoutLog = $logPath + '.timeout.log'
+    [void](Assert-ContainedNonReparseChain -Root $repositoryRoot -Candidate $timeoutLog -RequireStrictDescendant)
     $proofLog = Join-Path $guidRoot 'user-dir-proof.log'
     $proofArgs = @('--headless','--path',$repositoryRoot,'--log-file',$proofLog,'-s','res://tools/evidence/print_user_dir.gd')
-    $proof = Invoke-GodotChild -Executable $godotExecutable -Arguments $proofArgs -AppData $childAppData -LocalAppData $childLocalAppData -DwmTestRoot $childDwmRoot
+    $proof = Invoke-GodotChild -Executable $godotExecutable -Arguments $proofArgs -AppData $childAppData -LocalAppData $childLocalAppData -DwmTestRoot $childDwmRoot -TimeoutSeconds 60 -TimeoutLogPath $timeoutLog
     if ($proof.ExitCode -ne 0) { throw "USER_DIR_PROOF_EXIT: $($proof.ExitCode) $($proof.Stderr)" }
     $markers = @($proof.Stdout -split "`r?`n" | Where-Object { $_.StartsWith('PHASE2R_USER_DIR=', [StringComparison]::Ordinal) })
     if ($markers.Count -ne 1) { throw "USER_DIR_MARKER_COUNT: $($markers.Count)" }
@@ -256,14 +290,13 @@ try {
     [void](Assert-ContainedNonReparseChain -Root $repositoryRoot -Candidate $guidRoot -RequireStrictDescendant)
     [void](Assert-ContainedNonReparseChain -Root $guidRoot -Candidate $userDir -RequireStrictDescendant)
 
-    $logPath = Get-CanonicalPath (Join-Path $logsRoot $LogName)
     $argv = @('--headless','--path',$repositoryRoot,'--log-file',$logPath) + @($GodotArgs)
     $startedAt = [DateTime]::UtcNow.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
-    $requested = Invoke-GodotChild -Executable $godotExecutable -Arguments $argv -AppData $childAppData -LocalAppData $childLocalAppData -DwmTestRoot $childDwmRoot
+    $requested = Invoke-GodotChild -Executable $godotExecutable -Arguments $argv -AppData $childAppData -LocalAppData $childLocalAppData -DwmTestRoot $childDwmRoot -TimeoutSeconds $TimeoutSeconds -TimeoutLogPath $timeoutLog
     $endedAt = [DateTime]::UtcNow.ToString('o', [Globalization.CultureInfo]::InvariantCulture)
     $resultCode = [int]$requested.ExitCode
     # GUT exits 0 while silently downgrading an unloadable suite to a warning, so a requested
-    # suite that never ran, or any failed script load, must fail this runner instead.
+    # suite that never ran, a failed script load, or an invalid Tween must fail this runner instead.
     $requestedSuites = @(Get-RequestedSuitePath -Arguments @($GodotArgs))
     if ($requestedSuites.Count -ne 0) {
         $suiteFailures = @(Get-SuiteExecutionFailure -LogPath $logPath -RequestedPaths $requestedSuites)

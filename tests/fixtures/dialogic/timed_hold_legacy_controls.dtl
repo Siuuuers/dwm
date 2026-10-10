@@ -1,0 +1,11 @@
+# Noncanonical native Wait compatibility controls. Durations and labels are
+# fixture-owned; no production narrative registration or semantic prose.
+return
+
+label skippable_wait
+[wait time="2.0" hide_text="true" skippable="true"]
+return
+
+label visible_wait
+[wait time="2.0" hide_text="false" skippable="false"]
+return

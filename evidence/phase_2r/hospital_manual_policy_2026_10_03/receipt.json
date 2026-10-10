@@ -1,0 +1,341 @@
+{
+  "schema_version": 1,
+  "status": "accepted",
+  "date": "2026-10-03",
+  "scope": "Hospital manual Save/Load restriction through existing command owners",
+  "observable_outcome": "In Hospital, manual Save/Load commands and F5/F9 refuse without changing the partial caption, History or primary save bytes; ordinary dialogue and History remain available.",
+  "owner": "scripts/application/lifecycle/ProductionPauseController.gd; existing Backup/Quick callers",
+  "source": "82dc881e77f21c34f152d940d55cf317ba5bd784",
+  "baseline": "2e0de5d54a872ba5af8fd9cb4b2419d0de6008e0",
+  "master_unchanged": "6a5ddf1564870b43aa9140cad7e0e5b12e43f399",
+  "pr": "https://github.com/Siuuuers/dwm/pull/1",
+  "pr_state": "draft, unmerged",
+  "implementation": [
+    "Existing shared command gates reject Hospital rail/Backup/Quick Save and Load, including Pause and Settings.",
+    "History uses independent shared witnessed-surface admission.",
+    "Two unreachable private Hospital manual-save capture helpers removed after caller inspection.",
+    "No saved field, save schema, existing restore validator, global autosave timing or internal completion/recovery owner was changed.",
+    "Backup inspection/Delete and Return to Title remain available."
+  ],
+  "broad": {
+    "run_id": 37117747147,
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/37117747147",
+    "source": "82dc881e77f21c34f152d940d55cf317ba5bd784",
+    "actual_checkout": "0ba41f19f9fed4c2a608d6c329ad3cc07b4d378e",
+    "checkout_evidence": "broad/public-surfaces-37117747147-1/ci/public-surfaces/retirement-audit.json.gz",
+    "jobs_passed": 25,
+    "jobs_total": 25,
+    "primary_xml_reports": 13,
+    "primary_cases": 2575,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "manifest": "broad-manifest.json",
+    "changed_test_execution_audit": "audits/full-xml-audit.json"
+  },
+  "focused": {
+    "run_id": 37117263065,
+    "source": "cd9020c6a326b800a74966e9ad04dc38ad56bff0",
+    "auxiliary_workflow_head": "4a1a9b16e000b8a79ebd7c41ef906f45bc040327",
+    "jobs_passed": 4,
+    "jobs_total": 4,
+    "primary_cases": 858,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "manifest": "focused-manifest.json",
+    "workflow_derivation": "audits/hospital-policy-focused3.yml.manifest.json",
+    "note": "Pinned source checkout; auxiliary workflow is not on PR branch. Reviewed generated public inventory references were subsequently committed in source 82dc."
+  },
+  "diagnostic_attempt": {
+    "run_id": 37116506934,
+    "source": "05b6ac61331b9d23ffe9cbd6a8faa3926aaa4f10",
+    "auxiliary_workflow_head": "68ba5c078177ca5d005eade2db4fdf1917fcc16e",
+    "accepted": false,
+    "jobs_passed": 4,
+    "jobs_total": 6,
+    "reading_cases": 616,
+    "reading_failures": 7,
+    "reading_errors": 0,
+    "reading_skips": 0,
+    "failures": [
+      "Seven generic Load tests still mounted Hospital, whose manual Load was intentionally disabled. They now mount actual ending.alone content/context/scene; Hospital-only pause fixtures remain, and a mounted Hospital refusal test was added.",
+      "Rendered writer prerequisite used an incidental Desktop F5 input route. Setup now seeds Quick through explicit test-only save API; actual Hospital F5/F9 remain physical negative tests with a real existing Quick save."
+    ],
+    "retained": "diagnostics/manifest.json"
+  },
+  "evidence": [
+    "Both Sylvia variants pass physical Pause/Settings F5/F9 refusal, active rail refusal and disabled Backup action checks while preserving captured source and primary save bytes.",
+    "History remains independently available. The paused Quick capability test has an enabled fake owner and positive Dating control, avoiding a vacuous refusal test.",
+    "Explicitly test-only saved fixtures retain fresh-process restore, forged-frame/caption rejection, History and once-only completion; fixture creation is not a player Hospital save path.",
+    "Actual condition-faint journey passes ordinary Hospital dialogue, injected completion failure, technical Retry and next-day transition.",
+    "All canonical jobs including Windows export/startup, ordinary rendered journeys, Settings/Solo controls and performance gates pass."
+  ],
+  "negative_controls": "Intentional storage-refusal controls are separate from the 2,575 primary cases: empty and whitespace controls each execute 83 cases with 80 expected failures; see full XML audit. They are not passing primary tests.",
+  "warnings_and_limits": [
+    "Godot 4.6.3 standard GDScript and PowerShell ran only in GitHub Actions. Rendered journeys use Linux software OpenGL; no native Windows graphics/accessibility acceptance.",
+    "Windows export job reports ObjectDB cleanup warning during editor import; export/startup passed. Action Node deprecation warnings also remain. No global warning-free or leak-free claim.",
+    "Performance gates establish no universal speedup; no performance runtime surgery was made.",
+    "No guarantee against hardware loss, OS crash, or arbitrary power interruption is newly established. Existing committed-save integrity and recovery are retained.",
+    "Production semantic registration, authored catalogue/History and broader reading/ordered-ending remainder remain unfinished; Hospital Next remains disabled.",
+    "This bounded result does not complete the game or close either lead/companion Bead. All 23 unfinished records retain statuses/dependencies; no live Dolt query or sync.",
+    "Final evidence/navigation commit is records-only and not separately engine-tested; acceptance belongs to exact source and PR checkout above."
+  ],
+  "audit_files": [
+    "audits/candidate-review.json",
+    "audits/source-review.json",
+    "audits/inventory-review2.json",
+    "audits/export-job.log.gz"
+  ],
+  "export_log": {
+    "raw_bytes": 452451,
+    "raw_sha256": "bda577117ca55a89cc0e6f892c337442a1d7989ec6a11be8d02548d59ebd8191"
+  },
+  "retained_files": [
+    {
+      "path": "audits/candidate-review.json",
+      "bytes": 3795,
+      "sha256": "686295c03330094f57833640dac86f7a1882267772c3b4de472a8f6501a771bc"
+    },
+    {
+      "path": "audits/export-job.log.gz",
+      "bytes": 46284,
+      "sha256": "0be0879a313f3b3c73bf2cc52730109efed5016a4817f14f49431fe1a9c64906"
+    },
+    {
+      "path": "audits/full-xml-audit.json",
+      "bytes": 5038,
+      "sha256": "e1e99b46d70db9676dc4b91ac807e044cd6e35480c0d86ddbb631124baed776f"
+    },
+    {
+      "path": "audits/hospital-policy-focused.yml",
+      "bytes": 14949,
+      "sha256": "975d80c28f536331f392f4b91d98951ee49ea1f68e69f4ad3a60b058b418bfb0"
+    },
+    {
+      "path": "audits/hospital-policy-focused.yml.manifest.json",
+      "bytes": 180070,
+      "sha256": "efba5473a25e78b677edbd805bb9ed26f2dd94de06659eb1f9544cbc22d428f8"
+    },
+    {
+      "path": "audits/hospital-policy-focused3.yml",
+      "bytes": 14899,
+      "sha256": "c44fecc31ea7c6bb7251172aa2dfb97a2b1e9144242e038424e091fb549b9334"
+    },
+    {
+      "path": "audits/hospital-policy-focused3.yml.manifest.json",
+      "bytes": 113164,
+      "sha256": "ee44c0aba34cd295c7eb4171c8d0c23f9397cebd6c52b7f2af8dd4fb893a036e"
+    },
+    {
+      "path": "audits/inventory-review2.json",
+      "bytes": 22778,
+      "sha256": "ab916cd0436774bec02dac5285c29ea34c786272d8ccc463a19036502640e0cc"
+    },
+    {
+      "path": "audits/source-review.json",
+      "bytes": 2774,
+      "sha256": "91a0ce5ca9a28d23940707fdc72839c45d289bbd7153466e21ba43c257149fa4"
+    },
+    {
+      "path": "broad/hospital-reading-37117747147-1/8a296ffd-badc-4a34-a9b9-c03c228631c9/sealed-write/hospital-partial-history.png",
+      "bytes": 8138,
+      "sha256": "a7d0339d1377eb9ee6e7310575844ef2faba72d08a9674af78266ed739d0c29b"
+    },
+    {
+      "path": "broad/hospital-reading-37117747147-1/8a296ffd-badc-4a34-a9b9-c03c228631c9/sealed-write/hospital-save-load-disabled.png",
+      "bytes": 9499,
+      "sha256": "f54d5e422cdb619d21fb2b32308f2cb86088a0615cd6fc9c87792b87a81f2783"
+    },
+    {
+      "path": "broad/hospital-reading-37117747147-1/cb2b5f42-8cad-4f99-b5e1-5a44bd03222b/sealed-write/hospital-partial-history.png",
+      "bytes": 8138,
+      "sha256": "a7d0339d1377eb9ee6e7310575844ef2faba72d08a9674af78266ed739d0c29b"
+    },
+    {
+      "path": "broad/hospital-reading-37117747147-1/cb2b5f42-8cad-4f99-b5e1-5a44bd03222b/sealed-write/hospital-save-load-disabled.png",
+      "bytes": 9501,
+      "sha256": "897eb596af5c4080462035ce2e250c760d043341e6a3801d51469b044eb19a77"
+    },
+    {
+      "path": "broad/hospital-reading-37117747147-1/result.json.gz",
+      "bytes": 591680,
+      "sha256": "3fd16b9737e7926f720bc90aa4cde5ebb5b010bfe7f47caf58539b11255d3876"
+    },
+    {
+      "path": "broad/playable-journeys-37117747147-1/9174b042-ac82-41d2-b154-ac91e394b1d8/condition-hospital-dialogue-retry/journey.log.gz",
+      "bytes": 4933,
+      "sha256": "9e8b19f84614dcf789f2bfeb8214c3317954f5cfb317634addcde93cee306d6f"
+    },
+    {
+      "path": "broad/playable-journeys-37117747147-1/9174b042-ac82-41d2-b154-ac91e394b1d8/condition-hospital-dialogue-retry/result.json.gz",
+      "bytes": 1452,
+      "sha256": "f4050a0a922cb8e9703d0e0bfbd87e4401d720c5c1b1e6d97bb096d5094435ab"
+    },
+    {
+      "path": "broad/public-surfaces-37117747147-1/ci/public-surfaces/fixture-version-census.json.gz",
+      "bytes": 22423,
+      "sha256": "5f628da55e3de3ce548b53abe4f1865efa3694a506ba02b3bc20ed059d23a25e"
+    },
+    {
+      "path": "broad/public-surfaces-37117747147-1/ci/public-surfaces/retirement-audit.json.gz",
+      "bytes": 322,
+      "sha256": "25bf716739956d24cbba98fa7294d4f40ee09a1985cc0b08766207a2d1678762"
+    },
+    {
+      "path": "broad/public-surfaces-37117747147-1/ci/public_surfaces.xml.gz",
+      "bytes": 623,
+      "sha256": "222f9e36d5827933eceb8e3699b48ae168a8d8ccf2f676e9601850210a307864"
+    },
+    {
+      "path": "broad/windows-audio-37117747147-1/ci/audio.xml.gz",
+      "bytes": 1703,
+      "sha256": "e4782d35fa34a2eda81c269c3a596ad0eefba0f63c2ca8b1590530dea9588cbe"
+    },
+    {
+      "path": "broad/windows-checkpoint_diagnostics-37117747147-1/ci/checkpoint_diagnostics.xml.gz",
+      "bytes": 1235,
+      "sha256": "fa654d3dde43a33ffcd9c1320474f0c8a87b92b76d17fee7d683a8208ecfc6bc"
+    },
+    {
+      "path": "broad/windows-dating-37117747147-1/ci/dating.xml.gz",
+      "bytes": 6322,
+      "sha256": "23fec288317b7b9eb5a51fa394ca8c7b14fc783c8c5599d5f72c171c0d541508"
+    },
+    {
+      "path": "broad/windows-desktop-37117747147-1/ci/desktop.xml.gz",
+      "bytes": 11226,
+      "sha256": "6c121ea3f30066a4fcd04dedb83dba056402ba235b9c3da517e4c422e05417e4"
+    },
+    {
+      "path": "broad/windows-endings-37117747147-1/ci/endings.xml.gz",
+      "bytes": 3714,
+      "sha256": "27b3c6b591ff4f78ec2dff2a146e82fd774e9c6f3b85d3cafa13d1d78a895a9f"
+    },
+    {
+      "path": "broad/windows-localization-37117747147-1/ci/localization.xml.gz",
+      "bytes": 6219,
+      "sha256": "26985deebabe553df19e35980e8298ce6147d5bbc743ea2983bbfde152a127f7"
+    },
+    {
+      "path": "broad/windows-minesweeper-37117747147-1/ci/minesweeper.xml.gz",
+      "bytes": 8123,
+      "sha256": "4c4a4a19da9b2cfc9f843405e9529e06d6c4d8a5fc247c7217e2196130bbe99f"
+    },
+    {
+      "path": "broad/windows-new_account-37117747147-1/ci/new_account.xml.gz",
+      "bytes": 6579,
+      "sha256": "96831f697829d25f0161133817f246fe09626da8ec8c14bf32dacfaf6a461b00"
+    },
+    {
+      "path": "broad/windows-persistence-37117747147-1/ci/persistence.xml.gz",
+      "bytes": 8397,
+      "sha256": "fddba32f8883a4a4eead55e882db03a9af9ad0edc3f2cf98b54a5f4e9ceee29b"
+    },
+    {
+      "path": "broad/windows-reading_delivery-37117747147-1/ci/reading_delivery.xml.gz",
+      "bytes": 21182,
+      "sha256": "26b6f9aaaa004d5f69d75c2e4b97abab63a15d09dbbea583a0f9dbb9c3e42098"
+    },
+    {
+      "path": "broad/windows-settings-37117747147-1/ci/settings.xml.gz",
+      "bytes": 12825,
+      "sha256": "818492ee38d83a20a3d9b33ce6cc67c6790d408d46a5e746f7e6f91495bb33e7"
+    },
+    {
+      "path": "broad/windows-settings-37117747147-1/ci/storage-refusal/empty/tests.xml.gz",
+      "bytes": 2880,
+      "sha256": "e9793bd618e76c2d1f76bc64cad9d8cf2a0a86aa39d6a73e241ac2bff72106aa"
+    },
+    {
+      "path": "broad/windows-settings-37117747147-1/ci/storage-refusal/whitespace/tests.xml.gz",
+      "bytes": 2857,
+      "sha256": "284c64da45f19dd24c099e78943605c8ffb83feacaba7e14c27791ce566f0577"
+    },
+    {
+      "path": "broad/windows-shop-37117747147-1/ci/shop.xml.gz",
+      "bytes": 4854,
+      "sha256": "303f3ece7effb3435f0f5258b9f5599b89fe5350bb4eddaa387c3396c3b2f44e"
+    },
+    {
+      "path": "broad-manifest.json",
+      "bytes": 22252,
+      "sha256": "b2a1c75669a73bb221d0aff5e4e83b88a59d6bf2bc9d2c8103490d3cc4b452b3"
+    },
+    {
+      "path": "diagnostics/hospital-focus1-1277675c-b0ef-4006-967e-9ebc535a0a3b-write.log.gz",
+      "bytes": 4885,
+      "sha256": "f8a0118c81d00877ab40eb82dea45c3d2b7b9c251672fa78f6b19c970c7a5014"
+    },
+    {
+      "path": "diagnostics/hospital-focus1-aed43135-f036-48f6-999f-06620ed2ff48-write.log.gz",
+      "bytes": 4885,
+      "sha256": "039c1d1a13e8aa3fe53d759ce2b525839d249dea728cf55d19be64306450d3ec"
+    },
+    {
+      "path": "diagnostics/manifest.json",
+      "bytes": 1493,
+      "sha256": "10788ed3bc8107647d32979c9be200b6ee10d397ea27d31f4a5caddd753c46ef"
+    },
+    {
+      "path": "diagnostics/reading-focus1-ci-reading_delivery.xml.gz",
+      "bytes": 21319,
+      "sha256": "2e93117b04b5c764893217789e18e57245d24b978126afe726faf2ccbd10c122"
+    },
+    {
+      "path": "diagnostics/reading-focus1-phase2r_logs-cloud-reading_delivery.log.gz",
+      "bytes": 262642,
+      "sha256": "f90a2cc2245f7a12df09866a4208ceff09aca08e06e2f7c44962dd9c059aaa62"
+    },
+    {
+      "path": "focused/focus2-11271663651/449c9ccf-eceb-4ed7-a119-e9ac3b65bad5/sealed-write/hospital-partial-history.png",
+      "bytes": 8138,
+      "sha256": "a7d0339d1377eb9ee6e7310575844ef2faba72d08a9674af78266ed739d0c29b"
+    },
+    {
+      "path": "focused/focus2-11271663651/449c9ccf-eceb-4ed7-a119-e9ac3b65bad5/sealed-write/hospital-save-load-disabled.png",
+      "bytes": 9486,
+      "sha256": "8611346efbbc22d592be11735f09eadc8428bb9333c8d147adf3f186924343df"
+    },
+    {
+      "path": "focused/focus2-11271663651/845ec73a-9420-4e92-bdac-fdf643b5b336/sealed-write/hospital-partial-history.png",
+      "bytes": 8138,
+      "sha256": "a7d0339d1377eb9ee6e7310575844ef2faba72d08a9674af78266ed739d0c29b"
+    },
+    {
+      "path": "focused/focus2-11271663651/845ec73a-9420-4e92-bdac-fdf643b5b336/sealed-write/hospital-save-load-disabled.png",
+      "bytes": 9496,
+      "sha256": "82d1ade206b5902588828971c5d4283f2cf94aecc9051e4f91e06ddfae2114f4"
+    },
+    {
+      "path": "focused/focus2-11271663651/result.json.gz",
+      "bytes": 593780,
+      "sha256": "5247156eef09e517dda755da947afd0b52e107423ae534041b3ceebbe1aae95f"
+    },
+    {
+      "path": "focused/focus2-11271713425/ci/persistence.xml.gz",
+      "bytes": 8456,
+      "sha256": "eb1deafa287c76dc246b504794070368aaef29798953beeb90cf811295b51e84"
+    },
+    {
+      "path": "focused/focus2-11271723494/ci/reading_delivery.xml.gz",
+      "bytes": 21064,
+      "sha256": "5ee9d2cb1da2f93d25317a2b74921f9b4a5cb22829e62dcd9416af7fb84efe47"
+    },
+    {
+      "path": "focused/hospital-policy-public2/ci/public-surfaces/retirement-audit.json.gz",
+      "bytes": 320,
+      "sha256": "16809484e0233a3af2acb40c6ddf7534db7bcc708db852975f17519d7311570d"
+    },
+    {
+      "path": "focused/hospital-policy-public2/ci/public_surfaces.xml.gz",
+      "bytes": 622,
+      "sha256": "bbb78cbfad17a5f31069423323a896358e5c3623a0861ab6b30e6a7c75fd01c4"
+    },
+    {
+      "path": "focused-manifest.json",
+      "bytes": 4435,
+      "sha256": "3940c9f529e07d072a102423f047f08ce99c0ca30a273fa7e1df6d76b5756bf8"
+    }
+  ]
+}

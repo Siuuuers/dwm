@@ -83,14 +83,10 @@ func test_theme_projects_tinted_roles_without_changing_metrics_or_state_geometry
 					assert_eq(theme.get_color_list(&"WitnessedCaption").size(), 7)
 					for role: StringName in roles:
 						assert_eq(theme.get_color(role, &"WitnessedCaption"), roles[role], str(role))
-					assert_eq(theme.get_color(&"default_color", &"RichTextLabel"), roles[&"text"])
-					var current := theme.get_stylebox(&"normal", &"RichTextLabel") as StyleBoxFlat
-					var previous := theme.get_stylebox(&"normal", &"WitnessedPrevious") as StyleBoxFlat
-					var oldest := theme.get_stylebox(&"normal", &"WitnessedOldest") as StyleBoxFlat
-					assert_eq(current.bg_color, roles[&"current"])
-					assert_eq(previous.bg_color, roles[&"field"])
-					assert_eq(oldest.bg_color, roles[&"deep"])
-					assert_eq(current.border_color, roles[&"rule"])
+					assert_eq(theme.get_color(&"default_color", &"RichTextLabel"), Color.WHITE)
+					for variation: StringName in [&"RichTextLabel", &"WitnessedPrevious", &"WitnessedOldest"]:
+						assert_true(theme.get_stylebox(&"normal", variation) is StyleBoxEmpty)
+					assert_eq(theme.get_constant(&"outline_size", &"RichTextLabel"), 2)
 					var track := theme.get_stylebox(&"scroll", &"VScrollBar") as StyleBoxFlat
 					assert_eq(track.bg_color, roles[&"deep"])
 					assert_eq(track.border_color, roles[&"rule"])

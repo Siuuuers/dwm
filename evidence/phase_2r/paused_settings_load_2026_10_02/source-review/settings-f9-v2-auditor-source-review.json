@@ -1,0 +1,32 @@
+{
+  "audit_complete": false,
+  "auditor": {
+    "bytes": 36285,
+    "sha256": "3d93bc8d80e2e8b561d9cb65ab0d00db37d7ddc47dc95334590560679dbceba2"
+  },
+  "historical_predecessor_unchanged": {
+    "bytes": 22169,
+    "path": "audit_settings_load_journey.py",
+    "sha256": "9ed27f51a1936eabf03112ddb8adf101f10e89475e865197059071521e75251f"
+  },
+  "historical_run_used_as_control": 36975542531,
+  "kind": "bounded_auditor_control_and_source_review",
+  "known_previous_hash_marker_receipts_reconstructed": 56,
+  "limitations": [
+    "This checks helper behavior against retained failed Focus2 metadata, not acceptance.",
+    "First issuer and journal marker blocks require the new raw before endpoints absent from Focus2.",
+    "New full recovery auditor awaits actual Focus3 endpoint artifacts."
+  ],
+  "raw_quick_bundle_and_snapshot_fragment_control": true,
+  "source": "d702c456177f76fe90cb73993af93949d7335b7e",
+  "source_files": {
+    "tests/integration/verify_reading_rail_journey.gd": {
+      "bytes": 113307,
+      "sha256": "60f3e520a25b887cb38d9c8022d61b10bc17d688beae68220d604a71e6bab966"
+    },
+    "tools/testing/run_reading_rail_journey.py": {
+      "bytes": 69867,
+      "sha256": "df0e318b8f01e7a66c576f93b0841b964379e4747e8ca94f54aa8cc423884c6b"
+    }
+  }
+}

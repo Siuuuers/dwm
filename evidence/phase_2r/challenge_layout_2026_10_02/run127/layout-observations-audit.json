@@ -1,0 +1,761 @@
+{
+  "schema_version": 1,
+  "audit_pass": true,
+  "audit_scope": "Bounded existing English Solo board-entry geometry and corrected historical image interpretation",
+  "run": {
+    "conclusion": "success",
+    "event": "pull_request",
+    "head_branch": "codex/windows-cloud-ux",
+    "head_sha": "79b36d90e3ea41d36a81a4c5ba0f87b0ae4a7bfa",
+    "html_url": "https://github.com/Siuuuers/dwm/actions/runs/36960182145",
+    "id": 36960182145,
+    "run_attempt": 1,
+    "run_number": 127,
+    "status": "completed"
+  },
+  "source_boundary": {
+    "all_unlisted_paths_byte_identical": true,
+    "checkout_parents": [
+      "6a5ddf1564870b43aa9140cad7e0e5b12e43f399",
+      "79b36d90e3ea41d36a81a4c5ba0f87b0ae4a7bfa"
+    ],
+    "explicit_allowed_difference_patterns": [
+      "AGENTS.md",
+      "docs/*",
+      "story/*"
+    ],
+    "master": "6a5ddf1564870b43aa9140cad7e0e5b12e43f399",
+    "source": "79b36d90e3ea41d36a81a4c5ba0f87b0ae4a7bfa",
+    "source_checkout_differences": [
+      {
+        "checkout_blob": "9da0aa3bde65484361d88f04346a3dca749ec49e",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "AGENTS.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "9c4d88ce68a3086e3dbd1b20b0d3b4167b26e4be",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "docs/design/2026-08-30-supportz-audience-priority-three-truth-mechanism-amendment.md",
+        "source_blob": "130a657200e94da2dbd28a93383f0218b895f690",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "c7018cbc945c2c624435a31a8f7584e334b794ec",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "docs/design/2026-09-02-narrative-constitution-working-decision-ledger.md",
+        "source_blob": "2726549b0400419dc9597ad133877e7a877d6810",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "05f99daf57689d9d37a1bbf9c05840e0608d2065",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md",
+        "source_blob": "83bfa0ace708aabf821469c67e1f17e85e70527d",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "79dafcf6e2f0ad5868beeac018b6cc53ba09c8db",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "docs/design/2026-09-06-angela-absent-pair-explosion-visibility-reconciliation.md",
+        "source_blob": "0584fae5a22338b4b9c635e3827f53b26807313c",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "9da29d1a49b21a3c33c0fe010e1c1b78aaca3dda",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "docs/design/2026-09-06-priscilla-lavinia-working-event-documentary-audit.md",
+        "source_blob": "dc85bd98601eeda6a38b270b28202acdb154ebdd",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "a06116cfa59acf49febc6e505ed21e77038218e3",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "docs/design/README.md",
+        "source_blob": "e8b4a646a79e0a1522d440eaa1021bdee54cce50",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/2026-08-30-angela-lavinia-day-2-focus-audition-design.md",
+        "source_blob": "97ac51f336322c247e59af2db734b9e1983d5116",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/2026-08-30-room-217-group-adaptation-audition-record.md",
+        "source_blob": "73dc72fd510930e84d1ba93474bb09b6afd147cf",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/2026-08-31-seven-day-owner-review-constellation-audition.md",
+        "source_blob": "22bf6ad866163e2ded66a6120d0a4fd494978e17",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md",
+        "source_blob": "9753c076331d4dc515c5d6f89b568fe1e4deea35",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md",
+        "source_blob": "2df1739d29fa0b6ebb4aa195d099e06c49fdcea9",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/2026-09-06-priscilla-lavinia-day-6-sweet-imagined-refusal-audition.md",
+        "source_blob": "8ba9e7c2ca99b9dfc0c4925c94397a34bf2102ba",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/2026-09-07-priscilla-lavinia-day-6-sweet-love-interrupted-hearing-audition.md",
+        "source_blob": "6b3fcaae5a6ef7d23bcac7e78b3490abb15ae72d",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/2026-09-12-day-1-priscilla-lavinia-retrospective-reflex-audition.md",
+        "source_blob": "023d7be0cdd18762c30070e4d5162760b57417d0",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/README.md",
+        "source_blob": "96cab07be3dc4964e7c81a49c866663e5049c19a",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "a0f741bd3d1044ff77178a3b7383e7986082d677",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "story/01-core-story-bible.md",
+        "source_blob": "3776536d195e4aae9c616bd2840f1fc45b72d608",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "06e63c6d0f4e5b6773f3b0d5b78e32480d4eece2",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "story/02-character-relationship-handbook.md",
+        "source_blob": "e2d738d1049f997dc3e68e82dae87fc16f051524",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "322b173a08813d1590cfb7c9c0d586d5e58840db",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/AGENTS.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "cba8cac69862dffd6f8c1642063f554ccef4e6ed",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/README.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "08f9a4fbb80cbcbf6abbca65f194c3cd98c33c8e",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/auditions/2026-08-30-angela-lavinia-day-2-focus-audition-design.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "1fd85692c724cfb348a8d81851af7e7a002369cd",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/auditions/2026-08-30-room-217-group-adaptation-audition-record.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "6bbdc51cb9f4d892ae4ce5c5afa54b30f3e799b9",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/auditions/2026-08-31-seven-day-owner-review-constellation-audition.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "d85d8a67e0b91146cefb24d82ee3ea01e3450953",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/auditions/README.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "7097eeecf7e046ca9460024199ff4a8ff8c102ab",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "story/library/03-seven-day-plot-material-library.md",
+        "source_blob": "2dd68369fa945c8297ba36c53a141b48a33b256a",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "dd65a4d70a9faa494db46085739fd190338bad69",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/maintenance/our-pl-upload-recovery.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "a90e838f42b83694b573debb787132c433d6ab68",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/maintenance/source-migration.json",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "16c89cdbe313636c165171e7d4ee0f9934275071",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/maintenance/source-migration.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "efee2a95216355bf180a319b5542766a99718e6f",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/maintenance/verify_consolidation.py",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "fd591bf02a7f2aab1b7c504dceba119eea768108",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/AGENTS.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "85d012ccfe82e61c95c71f46070f67f8517b7c15",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/README.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "228385dcd953064885964edf9e3493061bcd2462",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "43a70fdc7435085d3bf30103b814c66f808a0dc0",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "691c98ce2fa0221c3b86031751dfd30ff168ade8",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-6-sweet-imagined-refusal-audition.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "fe90bc68df5bb578519838372faab54cf7e21720",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/2026-09-07-priscilla-lavinia-day-6-sweet-love-interrupted-hearing-audition.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "f3792a9b34cb2cebf38c32b910acb33dcc39df2d",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/2026-09-12-day-1-priscilla-lavinia-retrospective-reflex-audition.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "8bc169fa41355384c01cf36ee1e65537e76d696c",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/2026-09-26-priscilla-lavinia-day-2-portrait-dark-love-read-through.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "7b9ecbcb38c6be19ab973a17f754b37199ad3c03",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/day-2-portrait-development.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "5a7b0800e55e16cae3ee10c68077a503f0b61f16",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/day-2-sweet-love-portrait.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "ae89186de0ac280e8cf724656803b6f7bc157c27",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/day-6-dark-notebook.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "51d9a33311fcdaaf49910b28cc4e3bc5761aa702",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/day-6-sweet-ambiguous-refusal.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "592fe48396a216bf9e2aad7202af7c577fd8d6ab",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/day-6-sweet-love-dance.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "ab36739aa955a859405b30ee9e12d19d44773d36",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/intimacy-and-ordinary-company.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "ebb7057a582f3239886d2cbb4f5d4fa520d0aef7",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/relationship.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "43b27c7f278699f00bbd4bf2f7526213376b02c0",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/seven-day-options.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      }
+    ],
+    "tested_checkout": "d1c3205392205ab85306f1e2afed15d58b517bd1"
+  },
+  "generic_audit_identity": {
+    "bytes": 484937,
+    "sha256": "c5609c3193cf37b8024599834516c7ccf54c9a226f94647b15ce95f90a956f40"
+  },
+  "stage_counts": {
+    "original_reading_modes": 8,
+    "distinct_processes": 8,
+    "all_process_exits_zero": true,
+    "gut_case_executions": 2280
+  },
+  "current_archive": {
+    "artifact_id": 11207379853,
+    "name": "reading-rail-36960182145-1",
+    "workflow_run": {
+      "id": 36960182145,
+      "repository_id": 1302529453,
+      "head_repository_id": 1302529453,
+      "head_branch": "codex/windows-cloud-ux",
+      "head_sha": "79b36d90e3ea41d36a81a4c5ba0f87b0ae4a7bfa"
+    },
+    "zip": {
+      "bytes": 11049277,
+      "sha256": "5d50138f1b0fbf7d0cdd22cb3951853f9576d4d85ac5ba6272843321790ebc9f"
+    },
+    "manifest_digest_verified": true
+  },
+  "historical_archive": {
+    "artifact_id": 11203881876,
+    "name": "reading-rail-36950541601-1",
+    "workflow_run": {
+      "id": 36950541601,
+      "repository_id": 1302529453,
+      "head_repository_id": 1302529453,
+      "head_branch": "codex/windows-cloud-ux",
+      "head_sha": "cfb7616bfd498979bef520e1522cbbb712298aea"
+    },
+    "zip": {
+      "bytes": 11009231,
+      "sha256": "ec89202d8422302b7670a8dfa90a901f1013d402666a3208cd88a884e3783b0f"
+    },
+    "manifest_digest_verified": true
+  },
+  "layout_modes": [
+    {
+      "mode": "next",
+      "process_id": 4844,
+      "streams": {
+        "process": {
+          "total_samples": 134,
+          "visible_samples": 120,
+          "phase_counts": {
+            "pre_challenge": 14,
+            "challenge": 120
+          },
+          "all_visible_titles_enclosed": true,
+          "visible_focus_empty": true,
+          "visible_scroll_zero": true,
+          "title_rects": [
+            [
+              492.0,
+              12.0,
+              776.0,
+              36.0
+            ]
+          ],
+          "challenge_bands": [
+            [
+              384.0,
+              209.0
+            ]
+          ],
+          "first_visible": {
+            "sequence": 105,
+            "process_frame": 139,
+            "drawn_frame": 139
+          },
+          "last_visible": {
+            "sequence": 343,
+            "process_frame": 258,
+            "drawn_frame": 258
+          }
+        },
+        "post_draw": {
+          "total_samples": 134,
+          "visible_samples": 120,
+          "phase_counts": {
+            "pre_challenge": 14,
+            "challenge": 120
+          },
+          "all_visible_titles_enclosed": true,
+          "visible_focus_empty": true,
+          "visible_scroll_zero": true,
+          "title_rects": [
+            [
+              492.0,
+              12.0,
+              776.0,
+              36.0
+            ]
+          ],
+          "challenge_bands": [
+            [
+              384.0,
+              209.0
+            ]
+          ],
+          "first_visible": {
+            "sequence": 104,
+            "process_frame": 138,
+            "drawn_frame": 138
+          },
+          "last_visible": {
+            "sequence": 342,
+            "process_frame": 257,
+            "drawn_frame": 257
+          }
+        }
+      },
+      "visible_focus_or_scroll_events": 0,
+      "event_count": 74,
+      "raw_report": {
+        "zip_member": "30a5aa58-b18c-42b6-82d9-d45dcf91c60c/layout-next.json",
+        "bytes": 1485421,
+        "sha256": "7c7a430555285d472c1f6ec543e693e567a7e3b9b4c5ab7f0f4a7f4a7678a062"
+      }
+    },
+    {
+      "mode": "next-read",
+      "process_id": 4912,
+      "streams": {
+        "process": {
+          "total_samples": 121,
+          "visible_samples": 120,
+          "phase_counts": {
+            "unmounted": 1,
+            "challenge": 120
+          },
+          "all_visible_titles_enclosed": true,
+          "visible_focus_empty": true,
+          "visible_scroll_zero": true,
+          "title_rects": [
+            [
+              492.0,
+              12.0,
+              776.0,
+              36.0
+            ]
+          ],
+          "challenge_bands": [
+            [
+              388.0,
+              209.0
+            ]
+          ],
+          "first_visible": {
+            "sequence": 85,
+            "process_frame": 13,
+            "drawn_frame": 13
+          },
+          "last_visible": {
+            "sequence": 323,
+            "process_frame": 132,
+            "drawn_frame": 132
+          }
+        },
+        "post_draw": {
+          "total_samples": 121,
+          "visible_samples": 120,
+          "phase_counts": {
+            "unmounted": 1,
+            "challenge": 120
+          },
+          "all_visible_titles_enclosed": true,
+          "visible_focus_empty": true,
+          "visible_scroll_zero": true,
+          "title_rects": [
+            [
+              492.0,
+              12.0,
+              776.0,
+              36.0
+            ]
+          ],
+          "challenge_bands": [
+            [
+              388.0,
+              209.0
+            ]
+          ],
+          "first_visible": {
+            "sequence": 84,
+            "process_frame": 12,
+            "drawn_frame": 12
+          },
+          "last_visible": {
+            "sequence": 322,
+            "process_frame": 131,
+            "drawn_frame": 131
+          }
+        }
+      },
+      "visible_focus_or_scroll_events": 0,
+      "event_count": 80,
+      "raw_report": {
+        "zip_member": "30a5aa58-b18c-42b6-82d9-d45dcf91c60c/layout-next-read.json",
+        "bytes": 1330143,
+        "sha256": "b05e3d4b9568e717e76f3df126a658706e9e86b590f72514a42cdbf08d9beba3"
+      }
+    }
+  ],
+  "historical_image_comparisons": [
+    {
+      "name": "02-next-board.png",
+      "current_member": "30a5aa58-b18c-42b6-82d9-d45dcf91c60c/next/captures/02-next-board.png",
+      "historical_member": "cf218e76-237a-470b-8b44-835521d2c2c7/next/captures/02-next-board.png",
+      "raw_member_bytes_identical": true,
+      "current": {
+        "bytes": 673448,
+        "sha256": "5c836f06869380aa2cd0674ae0c0c03483d8f21ee5ff3db50a9e131629829552",
+        "dimensions": [
+          1280,
+          720
+        ],
+        "title_ink_sample_roi": [
+          710,
+          0,
+          390,
+          58
+        ],
+        "title_ink_y_bounds": [
+          21,
+          44
+        ],
+        "title_ink_inclusive_bounds": [
+          769,
+          21,
+          987,
+          44
+        ],
+        "title_band_rgb8_identity": {
+          "bytes": 139200,
+          "sha256": "650321a3b6e3e9632aabf50d65eaa39f911384663b3eb43a77ae5036896dd406"
+        }
+      },
+      "historical": {
+        "bytes": 673448,
+        "sha256": "5c836f06869380aa2cd0674ae0c0c03483d8f21ee5ff3db50a9e131629829552",
+        "dimensions": [
+          1280,
+          720
+        ],
+        "title_ink_sample_roi": [
+          710,
+          0,
+          390,
+          58
+        ],
+        "title_ink_y_bounds": [
+          21,
+          44
+        ],
+        "title_ink_inclusive_bounds": [
+          769,
+          21,
+          987,
+          44
+        ],
+        "title_band_rgb8_identity": {
+          "bytes": 139200,
+          "sha256": "650321a3b6e3e9632aabf50d65eaa39f911384663b3eb43a77ae5036896dd406"
+        }
+      }
+    },
+    {
+      "name": "03-next-restored-board.png",
+      "current_member": "30a5aa58-b18c-42b6-82d9-d45dcf91c60c/next/captures/03-next-restored-board.png",
+      "historical_member": "cf218e76-237a-470b-8b44-835521d2c2c7/next/captures/03-next-restored-board.png",
+      "raw_member_bytes_identical": true,
+      "current": {
+        "bytes": 673430,
+        "sha256": "aed01f2418e238d0695ca0b9997d5528122c8c1f8af22dd1956f9e67ed2ac1b7",
+        "dimensions": [
+          1280,
+          720
+        ],
+        "title_ink_sample_roi": [
+          710,
+          0,
+          390,
+          58
+        ],
+        "title_ink_y_bounds": [
+          21,
+          44
+        ],
+        "title_ink_inclusive_bounds": [
+          769,
+          21,
+          987,
+          44
+        ],
+        "title_band_rgb8_identity": {
+          "bytes": 139200,
+          "sha256": "650321a3b6e3e9632aabf50d65eaa39f911384663b3eb43a77ae5036896dd406"
+        }
+      },
+      "historical": {
+        "bytes": 673430,
+        "sha256": "aed01f2418e238d0695ca0b9997d5528122c8c1f8af22dd1956f9e67ed2ac1b7",
+        "dimensions": [
+          1280,
+          720
+        ],
+        "title_ink_sample_roi": [
+          710,
+          0,
+          390,
+          58
+        ],
+        "title_ink_y_bounds": [
+          21,
+          44
+        ],
+        "title_ink_inclusive_bounds": [
+          769,
+          21,
+          987,
+          44
+        ],
+        "title_band_rgb8_identity": {
+          "bytes": 139200,
+          "sha256": "650321a3b6e3e9632aabf50d65eaa39f911384663b3eb43a77ae5036896dd406"
+        }
+      }
+    }
+  ],
+  "warm_cold_title_pixel_comparison": {
+    "roi": [
+      480,
+      0,
+      800,
+      58
+    ],
+    "encoding": "raw row-major RGB8",
+    "bytes_identical": true,
+    "warm": {
+      "bytes": 139200,
+      "sha256": "650321a3b6e3e9632aabf50d65eaa39f911384663b3eb43a77ae5036896dd406"
+    },
+    "cold": {
+      "bytes": 139200,
+      "sha256": "650321a3b6e3e9632aabf50d65eaa39f911384663b3eb43a77ae5036896dd406"
+    },
+    "scope": "Rendered title region only; no equality of worksheet bands or complete warm/cold frames is required."
+  },
+  "historical_visual_correction": {
+    "finding": "The retained Run122 raw warm/cold PNGs contain the complete title and exactly match this run's corresponding PNGs.",
+    "prior_claim": "Cold board-null Load title clipping was reported from visual inspection.",
+    "disposition": "Corrected historical visual interpretation; no production layout defect or fix is established.",
+    "runtime_fix_claimed": false
+  },
+  "limitations": [
+    "Only the existing fixed English Solo board-entry fixture and current settings are observed.",
+    "Geometry containment plus raw PNG inspection does not establish every locale, text preset, resize, native Windows or accessibility case.",
+    "Warm and cold worksheet bands may differ; this audit does not require equal bands or pixel identity between warm and cold.",
+    "Upstream lazy minimum-size behavior and an initial eager probe do not establish a production cause or observer effect.",
+    "This audit does not close the reading parent, establish whole-game visual polish, or replace the separately bound broad gate."
+  ]
+}

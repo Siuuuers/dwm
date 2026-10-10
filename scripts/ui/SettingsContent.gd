@@ -6,6 +6,7 @@ signal close_requested()
 @export_enum("desktop", "title", "pause") var host_context: String = "desktop"
 @export var interaction_enabled: bool = true
 
+const WRITE_RECOVERY := preload("res://scenes/ui/witnessed/WitnessedTransportRecovery.tscn")
 const CONTROLLER := preload("res://scripts/ui/SettingsPanelController.gd")
 const REGISTRY := preload("res://scripts/settings/SettingsPreferenceRegistry.gd")
 const COMFORT := preload("res://scripts/audio/accessibility/ListeningComfortNoticeCoordinator.gd")
@@ -17,9 +18,9 @@ const CATEGORY_FIELDS: Dictionary = {
 	"language": ["language.primary_locale_id"],
 	"reading": ["reading.reveal_speed", "reading.auto_enabled", "reading.auto_delay", "reading.skip_mode", "reading.read_aloud_enabled", "reading.read_aloud_rate"],
 	"audio": ["audio.master_volume", "audio.master_muted", "audio.music_volume", "audio.music_muted", "audio.ambience_volume", "audio.ambience_muted", "audio.sfx_volume", "audio.sfx_muted", "audio.mute_when_inactive", "audio.output_mode"],
-	"display": ["display.window_mode"],
+	"display": ["display.window_mode", "display.window_size"],
 	"controls": [],
-	"accessibility": ["accessibility.text_size", "accessibility.large_targets", "accessibility.high_contrast", "accessibility.reduced_motion", "accessibility.steady_interface", "accessibility.screen_shake", "accessibility.colour_differentiation", "accessibility.sound_detail_text"],
+	"accessibility": ["accessibility.font_style", "accessibility.text_size", "accessibility.large_targets", "accessibility.high_contrast", "accessibility.reduced_motion", "accessibility.steady_interface", "accessibility.screen_shake", "accessibility.colour_differentiation", "accessibility.sound_detail_text"],
 	"records": ["exceptional_replay.available", "exceptional_replay.replay_full", "dark_mode.next_run_enabled"],
 }
 const RESET_METHODS: Dictionary = {
@@ -50,6 +51,7 @@ var _comfort_note: Label
 var _general_status: Label
 var _sample_labels: Array[Label] = []
 var _presentation_locale: String = ""
+var _presentation_font_style: String = ""
 var _presentation_percent: int = 0
 var _presentation_palette: StringName = &""
 var _presentation_high_contrast: bool = false
@@ -61,6 +63,9 @@ var _selected_extension: Control
 var _reset_consent: Dictionary = {}
 var _confirmation_generation: int = 0
 var _reset_busy := false
+# Presentation of ProfileManager's retained mutation fence; never an unlock owner.
+var _profile_write_uncertain := false
+var _write_recovery: Control
 
 
 func configure_services(services: Dictionary) -> void:
@@ -81,6 +86,7 @@ func configure_run_presentation(palette: StringName, day: int) -> Dictionary:
 
 
 func set_interaction_enabled(enabled: bool) -> void:
+	enabled = enabled and not _profile_write_uncertain
 	interaction_enabled = enabled
 	mouse_behavior_recursive = Control.MOUSE_BEHAVIOR_INHERITED if enabled else Control.MOUSE_BEHAVIOR_DISABLED
 	focus_behavior_recursive = Control.FOCUS_BEHAVIOR_INHERITED if enabled else Control.FOCUS_BEHAVIOR_DISABLED
@@ -103,8 +109,10 @@ func is_interaction_enabled() -> bool:
 	return interaction_enabled
 
 func is_departure_blocked() -> bool:
+	if _profile_write_uncertain: return true
 	if _reset_busy or (_controller != null and (_controller.is_commit_pending() \
-		or not _controller.get("_drag").is_empty() or not String(_controller.get("_test_kind")).is_empty())):
+		or not _controller.get("_drag").is_empty() or not String(_controller.get("_test_kind")).is_empty() \
+		or not _controller.get("_preview_operations").is_empty())):
 		return true
 	if _controls_sheet != null and (_controls_sheet.get("_opening_capture") \
 		or _controls_sheet._modal_visible() or _controls_sheet.is_reviewing_import()): return true
@@ -128,6 +136,9 @@ func _ready() -> void:
 	_build_content()
 	_controller = CONTROLLER.new()
 	_controller.bind(self, _services)
+	var profile: Variant = _services.get("profile")
+	if is_instance_valid(profile) and profile.has_signal("profile_write_failed"):
+		profile.profile_write_failed.connect(_on_profile_write_failed)
 	refresh_labels()
 	select_category("language")
 	visibility_changed.connect(_on_visibility_changed)
@@ -135,6 +146,10 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	var profile: Variant = _services.get("profile")
+	if is_instance_valid(profile) and profile.has_signal("profile_write_failed") \
+			and profile.profile_write_failed.is_connected(_on_profile_write_failed):
+		profile.profile_write_failed.disconnect(_on_profile_write_failed)
 	if _controller != null:
 		_controller.unbind()
 
@@ -266,6 +281,10 @@ func _add_preference(sheet: VBoxContainer, record: Dictionary) -> void:
 	if path == &"preferences.accessibility.steady_interface":
 		var description := _label("settings.accessibility_steady_interface_description")
 		description.name = "SteadyInterfaceDescription"
+		row.add_child(description)
+	if path == &"preferences.accessibility.large_targets":
+		var description := _label("settings.accessibility_large_targets_description")
+		description.name = "LargeTargetsDescription"
 		row.add_child(description)
 	var status := _label("")
 	status.name = "LanguageStatus" if path == &"preferences.language.primary_locale_id" else row.name + "Status"
@@ -411,10 +430,11 @@ func _ensure_focus_visible(scroll: ScrollContainer, control: Control) -> void:
 func _clear_focus_perimeter(scroll: ScrollContainer, control: Control) -> void:
 	if not is_instance_valid(control) or not control.has_focus() or not control.is_visible_in_tree():
 		return
-	var target := control.get_global_rect().grow(8)
-	var viewport := scroll.get_global_rect()
+	var to_scroll := scroll.get_global_transform().affine_inverse()
+	var target := (to_scroll * control.get_global_rect()).grow(8)
+	var viewport := Rect2(Vector2.ZERO, scroll.size)
 	if control == controls.get(&"preferences.accessibility.steady_interface"):
-		var reading_row: Rect2 = rows[&"preferences.accessibility.steady_interface"].get_global_rect().grow(8)
+		var reading_row: Rect2 = (to_scroll * rows[&"preferences.accessibility.steady_interface"].get_global_rect()).grow(8)
 		if reading_row.size.y <= viewport.size.y:
 			target = reading_row
 	if target.position.y < viewport.position.y:
@@ -434,12 +454,16 @@ func refresh_labels() -> void:
 		control.accessibility_name = text("settings." + String(path).trim_prefix("preferences.").replace(".", "_"))
 		if path == &"preferences.accessibility.steady_interface":
 			control.accessibility_description = text("settings.accessibility_steady_interface_description")
+		if path == &"preferences.accessibility.large_targets":
+			control.accessibility_description = text("settings.accessibility_large_targets_description")
 		if control is OptionButton:
 			var option := control as OptionButton
 			option.clear()
 			for value: Variant in records[path]["allowed_values"]:
 				var caption := ""
-				if String(path).ends_with("locale_id"):
+				if path == &"preferences.display.window_size":
+					caption = str(value).replace("x", " × ")
+				elif String(path).ends_with("locale_id"):
 					caption = _locale_name(str(value))
 				else:
 					caption = text(("settings.rate." if path == &"preferences.reading.read_aloud_rate" else "settings.value.") + str(value))
@@ -477,6 +501,7 @@ func apply_text_size(percent: int, large_targets: bool) -> void:
 	var palette_id := get_palette_id()
 	var day := 1 if host_context == "title" else _run_day
 	var presentation_profile: Variant = _services.get("profile")
+	var font_style := str(presentation_profile.get_preference(&"preferences.accessibility.font_style", "pixel")) if presentation_profile != null else "pixel"
 	var contrast_value: Variant = presentation_profile.get_preference(&"preferences.accessibility.high_contrast", false) if presentation_profile != null else false
 	var colour_value: Variant = presentation_profile.get_preference(&"preferences.accessibility.colour_differentiation", "standard") if presentation_profile != null else "standard"
 	if typeof(contrast_value) != TYPE_BOOL or typeof(colour_value) != TYPE_STRING:
@@ -484,12 +509,13 @@ func apply_text_size(percent: int, large_targets: bool) -> void:
 	var high_contrast: bool = contrast_value
 	var colour_preset: String = colour_value
 	var font_size := roundi(24.0 * float(percent) / 100.0)
-	if locale != _presentation_locale or percent != _presentation_percent or palette_id != _presentation_palette \
+	if locale != _presentation_locale or font_style != _presentation_font_style or percent != _presentation_percent or palette_id != _presentation_palette \
 			or high_contrast != _presentation_high_contrast or colour_preset != _presentation_colour_preset or day != _presentation_day:
-		var candidate := PRESENTATION.build(locale, percent, palette_id, high_contrast, colour_preset, day)
+		var candidate := PRESENTATION.build(locale, percent, palette_id, high_contrast, colour_preset, day, font_style)
 		if candidate == null:
 			return
 		_presentation_locale = locale
+		_presentation_font_style = font_style
 		_presentation_percent = percent
 		_presentation_palette = palette_id
 		_presentation_high_contrast = high_contrast
@@ -614,7 +640,44 @@ func test_status(kind: String) -> String:
 
 
 func set_general_status(key: String) -> void:
+	if _profile_write_uncertain: key = "settings.status.uncertain"
 	_general_status.text = "" if key.is_empty() else text(key)
+	_general_status.visible = not key.is_empty()
+
+
+func is_profile_write_uncertain() -> bool:
+	return _profile_write_uncertain
+
+
+func _on_profile_write_failed(result: Dictionary) -> void:
+	if _profile_write_uncertain or not (result.get("fatal", false) or result.get("code") == &"indeterminate_commit"):
+		return
+	# Fence immediately. The output transaction still owns its synchronous failure
+	# compensation; presentation cleanup must wait until its stack has unwound.
+	_profile_write_uncertain = true
+	interaction_enabled = false
+	call_deferred("_present_profile_write_uncertainty")
+
+
+func _present_profile_write_uncertainty() -> void:
+	if not is_inside_tree(): return
+	set_interaction_enabled(false)
+	set_general_status("settings.status.uncertain")
+	_controller.depart()
+	if is_instance_valid(_write_recovery): return
+	_write_recovery = WRITE_RECOVERY.instantiate()
+	_write_recovery.name = "SettingsWriteRecovery"
+	add_child(_write_recovery)
+	_write_recovery.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var profile: Variant = _services.get("profile")
+	if not _write_recovery.bind_owners(_services.get("localization"), _services.get("input"), func() -> bool: return false): return
+	if not _write_recovery.configure_presentation(current_locale(),
+		int(profile.get_preference(&"preferences.accessibility.text_size", 100)), String(get_palette_id()),
+		bool(profile.get_preference(&"preferences.accessibility.high_contrast", false)),
+		String(profile.get_preference(&"preferences.accessibility.colour_differentiation", "standard")),
+		bool(profile.get_preference(&"preferences.accessibility.large_targets", false)),
+		String(profile.get_preference(&"preferences.accessibility.font_style", "pixel"))): return
+	_write_recovery.present(false, false, &"settings")
 
 
 func select_category(category: String) -> void:
@@ -630,7 +693,9 @@ func select_category(category: String) -> void:
 		_rails[id].set_pressed_no_signal(id == category)
 		PRESENTATION.apply_category(_rails[id], id == category)
 	$Heading/CategoryHeading.text = text("settings.category." + category)
+	$Footer.visible = category == "accessibility"
 	$Footer/ControlSample.visible = category == "accessibility"
+	sheet_scroll.offset_bottom = $Footer.offset_top if category == "accessibility" else $Footer.offset_bottom
 	sheet_scroll.scroll_vertical = 0
 	queue_redraw()
 	_selected_extension.queue_redraw()
@@ -640,7 +705,7 @@ func _draw_selected_extension() -> void:
 	if not _rails.has(_selected):
 		return
 	var button: Button = _rails[_selected]
-	var row := Rect2(button.global_position - global_position, button.size)
+	var row := get_global_transform().affine_inverse() * button.get_global_rect()
 	var top := maxf(row.position.y, rail_scroll.position.y + 8)
 	var bottom := minf(row.end.y, rail_scroll.position.y + rail_scroll.size.y - 8)
 	if bottom <= top:
@@ -749,3 +814,4 @@ func _unhandled_input(event: InputEvent) -> void:
 		var delta := -1 if event.keycode == KEY_PAGEUP else 1
 		sheet_scroll.scroll_vertical += roundi(sheet_scroll.size.y * 0.85) * delta
 		get_viewport().set_input_as_handled()
+

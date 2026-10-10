@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "reason": "Final suite audit completed after the original bounded-audit supplement was sealed; source-only next-work review is additive.",
+  "files": [
+    {
+      "path": "audit-records/broad1/final-suite-audit/hospital-broad1-suite-audit.json",
+      "bytes": 160898,
+      "sha256": "279849f690815d485103ff6b4c702a1d3da389f44de34f7da92501352e49207d",
+      "scope": "Twelve passing Broad1 suites; full failed run remains unaccepted."
+    },
+    {
+      "path": "audit-records/broad1/final-suite-audit/hospital-broad1-suite-audit.md",
+      "bytes": 5741,
+      "sha256": "570c788508b9f4e6b424381d1392a56a500a754831563b1d87a6db859eb80664",
+      "scope": "Twelve passing Broad1 suites; full failed run remains unaccepted."
+    },
+    {
+      "path": "audit-records/broad1/final-suite-audit/public-source-scan-identities.json",
+      "bytes": 178611,
+      "sha256": "7c6bfb5897b9a82ea08dacc50d417517f5916dcb0765bfb2f28561138ee85ff1",
+      "scope": "Twelve passing Broad1 suites; full failed run remains unaccepted."
+    },
+    {
+      "path": "audit-records/broad1/final-suite-audit/audit_suites.py",
+      "bytes": 28491,
+      "sha256": "8d05147e5aa9388f49657dd691e1b65a542c4fad3cdc7c9f6cf7fafb81222d4c",
+      "scope": "Twelve passing Broad1 suites; full failed run remains unaccepted."
+    },
+    {
+      "path": "next-slice-source-review/next-work-proposal.md",
+      "bytes": 6416,
+      "sha256": "9965207dfee7424c2dcde65db67516fd29ed49b7b0836a69d06504bc47f4d5b1",
+      "scope": "Read-only source9 next-work proposal; no implementation or acceptance."
+    },
+    {
+      "path": "next-slice-source-review/next-work-proposal.json",
+      "bytes": 8595,
+      "sha256": "6efa4d11aed41e96cc9a2230b2fa77a22c2db6ce558517bafb79bce25685d9e7",
+      "scope": "Read-only source9 next-work proposal; no implementation or acceptance."
+    }
+  ]
+}

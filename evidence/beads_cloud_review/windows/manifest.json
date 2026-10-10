@@ -1,0 +1,722 @@
+{
+  "head_sha": "e1d3428fbfc9de27a0f350f3a858478cd06c0978",
+  "run_id": 35577704852,
+  "workflow_url": "https://github.com/Siuuuers/dwm/actions/runs/35577704852",
+  "normal_suites": 7,
+  "normal_tests": 1218,
+  "unique_scripts": 109,
+  "intentional_refusal_cases_excluded_from_normal_test_total": 156,
+  "source_artifacts": [
+    {
+      "id": 10629350116,
+      "name": "windows-desktop-35577704852-1",
+      "size_in_bytes": 160225,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/10629350116",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/10629350116/zip",
+      "expired": false,
+      "created_at": "2026-09-21T08:27:12Z",
+      "expires_at": "2026-09-28T08:27:11Z",
+      "updated_at": "2026-09-21T08:27:12Z",
+      "digest": "sha256:b92fe42f5c0568b140a15b35636e8ed4a70ccd572531ec63e45dad2ca0ced1b0",
+      "workflow_run": {
+        "id": 35577704852,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/windows-cloud-ux",
+        "head_sha": "e1d3428fbfc9de27a0f350f3a858478cd06c0978"
+      }
+    },
+    {
+      "id": 10629295193,
+      "name": "windows-minesweeper-35577704852-1",
+      "size_in_bytes": 138941,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/10629295193",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/10629295193/zip",
+      "expired": false,
+      "created_at": "2026-09-21T08:27:07Z",
+      "expires_at": "2026-09-28T08:27:06Z",
+      "updated_at": "2026-09-21T08:27:07Z",
+      "digest": "sha256:a53b5b2c93579a1ba8a0fe88877d19ce94aba04bab943bbc548225de05864149",
+      "workflow_run": {
+        "id": 35577704852,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/windows-cloud-ux",
+        "head_sha": "e1d3428fbfc9de27a0f350f3a858478cd06c0978"
+      }
+    },
+    {
+      "id": 10629210257,
+      "name": "windows-reading_delivery-35577704852-1",
+      "size_in_bytes": 79049,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/10629210257",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/10629210257/zip",
+      "expired": false,
+      "created_at": "2026-09-21T08:26:58Z",
+      "expires_at": "2026-09-28T08:26:57Z",
+      "updated_at": "2026-09-21T08:26:58Z",
+      "digest": "sha256:3f04011c730040ed91eb3f23e5ba801ac4bdc521f52e343dcc0d5cc459f475a8",
+      "workflow_run": {
+        "id": 35577704852,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/windows-cloud-ux",
+        "head_sha": "e1d3428fbfc9de27a0f350f3a858478cd06c0978"
+      }
+    },
+    {
+      "id": 10628653124,
+      "name": "windows-shop-35577704852-1",
+      "size_in_bytes": 65029,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/10628653124",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/10628653124/zip",
+      "expired": false,
+      "created_at": "2026-09-21T08:26:22Z",
+      "expires_at": "2026-09-28T08:26:21Z",
+      "updated_at": "2026-09-21T08:26:22Z",
+      "digest": "sha256:763e4f5fea19a6c5856cf3073db6bf71b38a877451bfef1b09dd62cd42f2d908",
+      "workflow_run": {
+        "id": 35577704852,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/windows-cloud-ux",
+        "head_sha": "e1d3428fbfc9de27a0f350f3a858478cd06c0978"
+      }
+    },
+    {
+      "id": 10627874406,
+      "name": "windows-settings-35577704852-1",
+      "size_in_bytes": 2241435,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/10627874406",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/10627874406/zip",
+      "expired": false,
+      "created_at": "2026-09-21T08:28:40Z",
+      "expires_at": "2026-09-28T08:28:38Z",
+      "updated_at": "2026-09-21T08:28:40Z",
+      "digest": "sha256:37ab4baf03fe6711793e9c68983c92268a02d89567c6a2a560a17d5fce186c5f",
+      "workflow_run": {
+        "id": 35577704852,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/windows-cloud-ux",
+        "head_sha": "e1d3428fbfc9de27a0f350f3a858478cd06c0978"
+      }
+    },
+    {
+      "id": 10627799215,
+      "name": "windows-localization-35577704852-1",
+      "size_in_bytes": 324778,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/10627799215",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/10627799215/zip",
+      "expired": false,
+      "created_at": "2026-09-21T08:26:50Z",
+      "expires_at": "2026-09-28T08:26:50Z",
+      "updated_at": "2026-09-21T08:26:50Z",
+      "digest": "sha256:74f84610fe4a219346e0e31ddaea208a31338d5f72b06735bfce63387b0a79c5",
+      "workflow_run": {
+        "id": 35577704852,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/windows-cloud-ux",
+        "head_sha": "e1d3428fbfc9de27a0f350f3a858478cd06c0978"
+      }
+    },
+    {
+      "id": 10627704371,
+      "name": "windows-new_account-35577704852-1",
+      "size_in_bytes": 92889,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/10627704371",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/10627704371/zip",
+      "expired": false,
+      "created_at": "2026-09-21T08:26:37Z",
+      "expires_at": "2026-09-28T08:26:36Z",
+      "updated_at": "2026-09-21T08:26:37Z",
+      "digest": "sha256:c34fa02ad9df8504684392379e0b6a36d17e36b6f4870419f4d0c180b066369c",
+      "workflow_run": {
+        "id": 35577704852,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/windows-cloud-ux",
+        "head_sha": "e1d3428fbfc9de27a0f350f3a858478cd06c0978"
+      }
+    }
+  ],
+  "repository_snapshots": [
+    {
+      "case": "empty",
+      "bytes": 1477515,
+      "entries": 11187,
+      "before_sha256": "702b31ec9bfbdeb55b2e6c3ac5a7841920f349c906d1735ef9f659fd05a68b74",
+      "after_sha256": "702b31ec9bfbdeb55b2e6c3ac5a7841920f349c906d1735ef9f659fd05a68b74",
+      "identical": true,
+      "original_before": "windows-settings-35577704852-1/ci/storage-refusal/empty/repository-before.json",
+      "original_after": "windows-settings-35577704852-1/ci/storage-refusal/empty/repository-after.json"
+    },
+    {
+      "case": "whitespace",
+      "bytes": 1477515,
+      "entries": 11187,
+      "before_sha256": "702b31ec9bfbdeb55b2e6c3ac5a7841920f349c906d1735ef9f659fd05a68b74",
+      "after_sha256": "702b31ec9bfbdeb55b2e6c3ac5a7841920f349c906d1735ef9f659fd05a68b74",
+      "identical": true,
+      "original_before": "windows-settings-35577704852-1/ci/storage-refusal/whitespace/repository-before.json",
+      "original_after": "windows-settings-35577704852-1/ci/storage-refusal/whitespace/repository-after.json"
+    }
+  ],
+  "log_checks": [
+    {
+      "source": "windows-desktop-35577704852-1/ci/import.log",
+      "uncompressed_sha256": "bf869f670da702473bca8ea86c09a7e4b44f0eb4cbefcae3eccb8cf591bcaa3d",
+      "script_errors": 0,
+      "load_errors": 0,
+      "nul_bytes": 0,
+      "unexpected_unicode_or_nul_diagnostics": 0,
+      "intentional_corrupt_save_diagnostics": 0
+    },
+    {
+      "source": "windows-desktop-35577704852-1/phase2r_logs/cloud-desktop.log",
+      "uncompressed_sha256": "102d068d16ae9a947720969b77aa08e5ddf3667d01af9e6de0a3fba43c01fe56",
+      "script_errors": 0,
+      "load_errors": 0,
+      "nul_bytes": 0,
+      "unexpected_unicode_or_nul_diagnostics": 0,
+      "intentional_corrupt_save_diagnostics": 0
+    },
+    {
+      "source": "windows-localization-35577704852-1/ci/import.log",
+      "uncompressed_sha256": "88bbd208bae3179e47d40de1fc4c4753163a23055f97491066e07f99e56edeb6",
+      "script_errors": 0,
+      "load_errors": 0,
+      "nul_bytes": 0,
+      "unexpected_unicode_or_nul_diagnostics": 0,
+      "intentional_corrupt_save_diagnostics": 0
+    },
+    {
+      "source": "windows-localization-35577704852-1/phase2r_logs/cloud-localization.log",
+      "uncompressed_sha256": "e961d13c85670f866a5fe3c743334df42c9da1f57633c4f8119a1873c40ebc56",
+      "script_errors": 0,
+      "load_errors": 0,
+      "nul_bytes": 0,
+      "unexpected_unicode_or_nul_diagnostics": 0,
+      "intentional_corrupt_save_diagnostics": 0
+    },
+    {
+      "source": "windows-minesweeper-35577704852-1/ci/import.log",
+      "uncompressed_sha256": "88bbd208bae3179e47d40de1fc4c4753163a23055f97491066e07f99e56edeb6",
+      "script_errors": 0,
+      "load_errors": 0,
+      "nul_bytes": 0,
+      "unexpected_unicode_or_nul_diagnostics": 0,
+      "intentional_corrupt_save_diagnostics": 0
+    },
+    {
+      "source": "windows-minesweeper-35577704852-1/phase2r_logs/cloud-minesweeper.log",
+      "uncompressed_sha256": "15a08ad68782116e755c2e2b90616ce2fb118a38424e29b5369261f7c3348cfd",
+      "script_errors": 0,
+      "load_errors": 0,
+      "nul_bytes": 0,
+      "unexpected_unicode_or_nul_diagnostics": 0,
+      "intentional_corrupt_save_diagnostics": 0
+    },
+    {
+      "source": "windows-new_account-35577704852-1/ci/import.log",
+      "uncompressed_sha256": "88bbd208bae3179e47d40de1fc4c4753163a23055f97491066e07f99e56edeb6",
+      "script_errors": 0,
+      "load_errors": 0,
+      "nul_bytes": 0,
+      "unexpected_unicode_or_nul_diagnostics": 0,
+      "intentional_corrupt_save_diagnostics": 0
+    },
+    {
+      "source": "windows-new_account-35577704852-1/phase2r_logs/cloud-new-account-latency.log",
+      "uncompressed_sha256": "ae937865271e8453003d5793715833cc2e782a21419cd2508b6251926ddf5d4a",
+      "script_errors": 0,
+      "load_errors": 0,
+      "nul_bytes": 0,
+      "unexpected_unicode_or_nul_diagnostics": 0,
+      "intentional_corrupt_save_diagnostics": 0
+    },
+    {
+      "source": "windows-new_account-35577704852-1/phase2r_logs/cloud-new_account.log",
+      "uncompressed_sha256": "eab0352b0c08a1badbccb949c60bfd9247ec77373965ffcad56058a3fe410796",
+      "script_errors": 0,
+      "load_errors": 0,
+      "nul_bytes": 0,
+      "unexpected_unicode_or_nul_diagnostics": 0,
+      "intentional_corrupt_save_diagnostics": 1
+    },
+    {
+      "source": "windows-reading_delivery-35577704852-1/ci/import.log",
+      "uncompressed_sha256": "88bbd208bae3179e47d40de1fc4c4753163a23055f97491066e07f99e56edeb6",
+      "script_errors": 0,
+      "load_errors": 0,
+      "nul_bytes": 0,
+      "unexpected_unicode_or_nul_diagnostics": 0,
+      "intentional_corrupt_save_diagnostics": 0
+    },
+    {
+      "source": "windows-reading_delivery-35577704852-1/phase2r_logs/cloud-reading_delivery.log",
+      "uncompressed_sha256": "047ae0098810282e411973519e968de506c4aa92ae0bdb23424e215d46fdceeb",
+      "script_errors": 0,
+      "load_errors": 0,
+      "nul_bytes": 0,
+      "unexpected_unicode_or_nul_diagnostics": 0,
+      "intentional_corrupt_save_diagnostics": 0
+    },
+    {
+      "source": "windows-settings-35577704852-1/ci/import.log",
+      "uncompressed_sha256": "88bbd208bae3179e47d40de1fc4c4753163a23055f97491066e07f99e56edeb6",
+      "script_errors": 0,
+      "load_errors": 0,
+      "nul_bytes": 0,
+      "unexpected_unicode_or_nul_diagnostics": 0,
+      "intentional_corrupt_save_diagnostics": 0
+    },
+    {
+      "source": "windows-settings-35577704852-1/ci/storage-refusal/empty/console.log",
+      "uncompressed_sha256": "b257c34bc582d51a589056189419713d503b8746a4cac22e0ab38132643ada66",
+      "script_errors": 0,
+      "load_errors": 0,
+      "nul_bytes": 0,
+      "unexpected_unicode_or_nul_diagnostics": 0,
+      "intentional_corrupt_save_diagnostics": 0
+    },
+    {
+      "source": "windows-settings-35577704852-1/ci/storage-refusal/empty/godot.log",
+      "uncompressed_sha256": "383d248b627fc5901d420a6b3209f0439b1a397805aba2deda1fa462b9dddf7b",
+      "script_errors": 0,
+      "load_errors": 0,
+      "nul_bytes": 0,
+      "unexpected_unicode_or_nul_diagnostics": 0,
+      "intentional_corrupt_save_diagnostics": 0
+    },
+    {
+      "source": "windows-settings-35577704852-1/ci/storage-refusal/empty/user-dir-console.log",
+      "uncompressed_sha256": "da4890b2f01db144f7ef84f8a60ab43ff82e6dd6943f6b9cc20b69f9369f8c3e",
+      "script_errors": 0,
+      "load_errors": 0,
+      "nul_bytes": 0,
+      "unexpected_unicode_or_nul_diagnostics": 0,
+      "intentional_corrupt_save_diagnostics": 0
+    },
+    {
+      "source": "windows-settings-35577704852-1/ci/storage-refusal/empty/user-dir.log",
+      "uncompressed_sha256": "050cd18a30fc39a0de5f5276fbf215790680148732f5c1ee4b46ab0f62fc15ab",
+      "script_errors": 0,
+      "load_errors": 0,
+      "nul_bytes": 0,
+      "unexpected_unicode_or_nul_diagnostics": 0,
+      "intentional_corrupt_save_diagnostics": 0
+    },
+    {
+      "source": "windows-settings-35577704852-1/ci/storage-refusal/whitespace/console.log",
+      "uncompressed_sha256": "02a10e5b450cf1a5c74c27943b3f4261e84a41e997a1cdc1e6ac1377452fecfb",
+      "script_errors": 0,
+      "load_errors": 0,
+      "nul_bytes": 0,
+      "unexpected_unicode_or_nul_diagnostics": 0,
+      "intentional_corrupt_save_diagnostics": 0
+    },
+    {
+      "source": "windows-settings-35577704852-1/ci/storage-refusal/whitespace/godot.log",
+      "uncompressed_sha256": "b9c3b466c0563dac5d7c7b77f4867164745fb08e99d0e7a45b6d7b691593b241",
+      "script_errors": 0,
+      "load_errors": 0,
+      "nul_bytes": 0,
+      "unexpected_unicode_or_nul_diagnostics": 0,
+      "intentional_corrupt_save_diagnostics": 0
+    },
+    {
+      "source": "windows-settings-35577704852-1/ci/storage-refusal/whitespace/user-dir-console.log",
+      "uncompressed_sha256": "e15be0eb7c1d73c192bdee3ee28fc9fb4deef6e1d43051484c9c1ef3bf152060",
+      "script_errors": 0,
+      "load_errors": 0,
+      "nul_bytes": 0,
+      "unexpected_unicode_or_nul_diagnostics": 0,
+      "intentional_corrupt_save_diagnostics": 0
+    },
+    {
+      "source": "windows-settings-35577704852-1/ci/storage-refusal/whitespace/user-dir.log",
+      "uncompressed_sha256": "b792f87d4b2febdde77f6b552e3ec0dc42ebed9ef263a47cb1ffdd7bced021bc",
+      "script_errors": 0,
+      "load_errors": 0,
+      "nul_bytes": 0,
+      "unexpected_unicode_or_nul_diagnostics": 0,
+      "intentional_corrupt_save_diagnostics": 0
+    },
+    {
+      "source": "windows-settings-35577704852-1/phase2r_logs/cloud-settings.log",
+      "uncompressed_sha256": "2e877ec7685e85fdc1b08f55599f51272eb30fd8e5d72628d1c313d337fdd9c7",
+      "script_errors": 0,
+      "load_errors": 0,
+      "nul_bytes": 0,
+      "unexpected_unicode_or_nul_diagnostics": 0,
+      "intentional_corrupt_save_diagnostics": 0
+    },
+    {
+      "source": "windows-shop-35577704852-1/ci/import.log",
+      "uncompressed_sha256": "88bbd208bae3179e47d40de1fc4c4753163a23055f97491066e07f99e56edeb6",
+      "script_errors": 0,
+      "load_errors": 0,
+      "nul_bytes": 0,
+      "unexpected_unicode_or_nul_diagnostics": 0,
+      "intentional_corrupt_save_diagnostics": 0
+    },
+    {
+      "source": "windows-shop-35577704852-1/phase2r_logs/cloud-shop.log",
+      "uncompressed_sha256": "9d66983c455f7178fb7b11b52f65f0cd5815691784a4154fccd4a444d92506d4",
+      "script_errors": 0,
+      "load_errors": 0,
+      "nul_bytes": 0,
+      "unexpected_unicode_or_nul_diagnostics": 0,
+      "intentional_corrupt_save_diagnostics": 0
+    }
+  ],
+  "files": [
+    {
+      "path": "verified-windows.json",
+      "source": "verified-windows.json",
+      "bytes": 3976,
+      "sha256": "06bfa64950e822016c2e9fc90da4df4ba12f66108f6d21d11f17fa2a9285be2f"
+    },
+    {
+      "path": "verify-full-artifacts.py",
+      "source": "beads-task/verify-windows.py",
+      "bytes": 9700,
+      "sha256": "32f0e9d8759e6fcb79b147c6ccfb03a32320b0a9111284a977195304c49c3dea"
+    },
+    {
+      "path": "gut/desktop.xml",
+      "source": "windows-desktop-35577704852-1/ci/desktop.xml",
+      "bytes": 35554,
+      "sha256": "196a2426ca8ac0e5bcd8fe28ba87895bd86adb815d1433de4e880ee5e6c9caab"
+    },
+    {
+      "path": "gut/desktop.jsonl",
+      "source": "windows-desktop-35577704852-1/ci/desktop.jsonl",
+      "bytes": 1427,
+      "sha256": "8eb5d4a34363f00b88f354097b66330d6f0d93082a767a0d4147c1e6430e952d"
+    },
+    {
+      "path": "gut/localization.xml",
+      "source": "windows-localization-35577704852-1/ci/localization.xml",
+      "bytes": 34488,
+      "sha256": "d4b4f03f6cfedf75f9fbf01ccfd0506579258fcc5d4ecc79f570aa827ed1b689"
+    },
+    {
+      "path": "gut/localization.jsonl",
+      "source": "windows-localization-35577704852-1/ci/localization.jsonl",
+      "bytes": 1548,
+      "sha256": "9bb807f473a39de89145f7b285cfe3c7030b33ecbf45ee351b3e4717eafa1d1f"
+    },
+    {
+      "path": "gut/minesweeper.xml",
+      "source": "windows-minesweeper-35577704852-1/ci/minesweeper.xml",
+      "bytes": 44909,
+      "sha256": "ab2e7f1b67124ddb92646318a0e7fa061c852ee1213fef7ccdcdea492c1320df"
+    },
+    {
+      "path": "gut/minesweeper.jsonl",
+      "source": "windows-minesweeper-35577704852-1/ci/minesweeper.jsonl",
+      "bytes": 1692,
+      "sha256": "b2548503d1ac0955082323b61b514a711c8db3d87a2b72b99c5d29e7c89ae43f"
+    },
+    {
+      "path": "gut/new_account.xml",
+      "source": "windows-new_account-35577704852-1/ci/new_account.xml",
+      "bytes": 30253,
+      "sha256": "6383b87b14c89c1f09aad8d32e5e87a6c5d91756c5431a11d670b65dec3c30f0"
+    },
+    {
+      "path": "gut/new_account.jsonl",
+      "source": "windows-new_account-35577704852-1/ci/new_account.jsonl",
+      "bytes": 1351,
+      "sha256": "0417b0e6deca14def39945bca4355f4c11158e878ca101b1a754670c03801d93"
+    },
+    {
+      "path": "gut/reading_delivery.xml",
+      "source": "windows-reading_delivery-35577704852-1/ci/reading_delivery.xml",
+      "bytes": 40886,
+      "sha256": "6906f223094d43b0ab5094c5ba3acdfdb8ee72d9c6a2a586a8a64de35fb15122"
+    },
+    {
+      "path": "gut/reading_delivery.jsonl",
+      "source": "windows-reading_delivery-35577704852-1/ci/reading_delivery.jsonl",
+      "bytes": 1402,
+      "sha256": "6c13230c6742cff4c6a90f4af8aa6891db43c6d84fd44a86460be438b0b7118f"
+    },
+    {
+      "path": "gut/settings.xml",
+      "source": "windows-settings-35577704852-1/ci/settings.xml",
+      "bytes": 57643,
+      "sha256": "2c2b520defe46e050d1351c78e4586d791b2d9ed62d58dd711241c29c97a6cb7"
+    },
+    {
+      "path": "gut/settings.jsonl",
+      "source": "windows-settings-35577704852-1/ci/settings.jsonl",
+      "bytes": 1758,
+      "sha256": "c491f64f555df259a92233ecb07a3f0d5a2980db0cc2de2d2d835f454e7e89b6"
+    },
+    {
+      "path": "gut/shop.xml",
+      "source": "windows-shop-35577704852-1/ci/shop.xml",
+      "bytes": 31567,
+      "sha256": "be62bd6443195828a9c0b5c605e469fa7bb61041ef4bf529818869f9238ac6ba"
+    },
+    {
+      "path": "gut/shop.jsonl",
+      "source": "windows-shop-35577704852-1/ci/shop.jsonl",
+      "bytes": 1050,
+      "sha256": "9760aec83e9f48a5e747b6c869f4192607fcfe7249f58bbc40141f7a4698ccbd"
+    },
+    {
+      "path": "latency/new-account-latency.json",
+      "source": "windows-new_account-35577704852-1/ci/new-account-latency.json",
+      "bytes": 176,
+      "sha256": "6b29827336618df12b5d29bb107da9b7e7caa113eacead4164f3b3d909fb8be8"
+    },
+    {
+      "path": "latency/new-account-latency.jsonl",
+      "source": "windows-new_account-35577704852-1/ci/new-account-latency.jsonl",
+      "bytes": 675,
+      "sha256": "eb4d5f525aa8b428077b062d1929a955f9332126f4fc8b6d2d3dfa03ad4fa353"
+    },
+    {
+      "path": "latency/cloud-new-account-latency.log",
+      "source": "windows-new_account-35577704852-1/phase2r_logs/cloud-new-account-latency.log",
+      "bytes": 273,
+      "sha256": "ae937865271e8453003d5793715833cc2e782a21419cd2508b6251926ddf5d4a"
+    },
+    {
+      "path": "storage-refusal/results.json",
+      "source": "windows-settings-35577704852-1/ci/storage-refusal/results.json",
+      "bytes": 507,
+      "sha256": "e56bd0f191515b9a0144fc6c94c59ca863270fdbdb96ff75fc6724df6d05bba1"
+    },
+    {
+      "path": "storage-refusal/empty/tests.xml",
+      "source": "windows-settings-35577704852-1/ci/storage-refusal/empty/tests.xml",
+      "bytes": 29526,
+      "sha256": "1c3343491f339baa0490927383684f8d8401d685bfa600abc58cde5fd206d059"
+    },
+    {
+      "path": "storage-refusal/empty/console.log",
+      "source": "windows-settings-35577704852-1/ci/storage-refusal/empty/console.log",
+      "bytes": 36639,
+      "sha256": "b257c34bc582d51a589056189419713d503b8746a4cac22e0ab38132643ada66"
+    },
+    {
+      "path": "storage-refusal/empty/user-dir-console.log",
+      "source": "windows-settings-35577704852-1/ci/storage-refusal/empty/user-dir-console.log",
+      "bytes": 414,
+      "sha256": "da4890b2f01db144f7ef84f8a60ab43ff82e6dd6943f6b9cc20b69f9369f8c3e"
+    },
+    {
+      "path": "storage-refusal/whitespace/tests.xml",
+      "source": "windows-settings-35577704852-1/ci/storage-refusal/whitespace/tests.xml",
+      "bytes": 29522,
+      "sha256": "8fc43c8bc8b797bdc28244728da40303668f33f1bb6af309fb69ccc3bc45b8b2"
+    },
+    {
+      "path": "storage-refusal/whitespace/console.log",
+      "source": "windows-settings-35577704852-1/ci/storage-refusal/whitespace/console.log",
+      "bytes": 36649,
+      "sha256": "02a10e5b450cf1a5c74c27943b3f4261e84a41e997a1cdc1e6ac1377452fecfb"
+    },
+    {
+      "path": "storage-refusal/whitespace/user-dir-console.log",
+      "source": "windows-settings-35577704852-1/ci/storage-refusal/whitespace/user-dir-console.log",
+      "bytes": 419,
+      "sha256": "e15be0eb7c1d73c192bdee3ee28fc9fb4deef6e1d43051484c9c1ef3bf152060"
+    },
+    {
+      "path": "logs/windows-desktop-35577704852-1/ci/import.log.gz",
+      "source": "windows-desktop-35577704852-1/ci/import.log",
+      "bytes": 14743,
+      "sha256": "d60681918e5cc9379a3a92ec238d053e9f4957aee9db6d9ff3448791b024dcaa",
+      "uncompressed_bytes": 198667,
+      "uncompressed_sha256": "bf869f670da702473bca8ea86c09a7e4b44f0eb4cbefcae3eccb8cf591bcaa3d"
+    },
+    {
+      "path": "logs/windows-desktop-35577704852-1/phase2r_logs/cloud-desktop.log.gz",
+      "source": "windows-desktop-35577704852-1/phase2r_logs/cloud-desktop.log",
+      "bytes": 130008,
+      "sha256": "c8c6247b5ed81b44d63379b434583daa2f0ebbbaa473e0657038ace9571ec45a",
+      "uncompressed_bytes": 2861639,
+      "uncompressed_sha256": "102d068d16ae9a947720969b77aa08e5ddf3667d01af9e6de0a3fba43c01fe56"
+    },
+    {
+      "path": "logs/windows-localization-35577704852-1/ci/import.log.gz",
+      "source": "windows-localization-35577704852-1/ci/import.log",
+      "bytes": 14451,
+      "sha256": "207a8fae15cae4d82914ea1acf691e6ed6133f3288d44a726d15ca30347fb8ac",
+      "uncompressed_bytes": 198256,
+      "uncompressed_sha256": "88bbd208bae3179e47d40de1fc4c4753163a23055f97491066e07f99e56edeb6"
+    },
+    {
+      "path": "logs/windows-localization-35577704852-1/phase2r_logs/cloud-localization.log.gz",
+      "source": "windows-localization-35577704852-1/phase2r_logs/cloud-localization.log",
+      "bytes": 290083,
+      "sha256": "99c4c17d36a2998cc649b966082706db3eff7eb03b9479f0328fc45bf86d9a9f",
+      "uncompressed_bytes": 3017664,
+      "uncompressed_sha256": "e961d13c85670f866a5fe3c743334df42c9da1f57633c4f8119a1873c40ebc56"
+    },
+    {
+      "path": "logs/windows-minesweeper-35577704852-1/ci/import.log.gz",
+      "source": "windows-minesweeper-35577704852-1/ci/import.log",
+      "bytes": 14451,
+      "sha256": "207a8fae15cae4d82914ea1acf691e6ed6133f3288d44a726d15ca30347fb8ac",
+      "uncompressed_bytes": 198256,
+      "uncompressed_sha256": "88bbd208bae3179e47d40de1fc4c4753163a23055f97491066e07f99e56edeb6"
+    },
+    {
+      "path": "logs/windows-minesweeper-35577704852-1/phase2r_logs/cloud-minesweeper.log.gz",
+      "source": "windows-minesweeper-35577704852-1/phase2r_logs/cloud-minesweeper.log",
+      "bytes": 112057,
+      "sha256": "0e2fc29a56d515a847078634d1098385f4fcf3288216fcfa5e33573624262179",
+      "uncompressed_bytes": 2373898,
+      "uncompressed_sha256": "15a08ad68782116e755c2e2b90616ce2fb118a38424e29b5369261f7c3348cfd"
+    },
+    {
+      "path": "logs/windows-new_account-35577704852-1/ci/import.log.gz",
+      "source": "windows-new_account-35577704852-1/ci/import.log",
+      "bytes": 14451,
+      "sha256": "207a8fae15cae4d82914ea1acf691e6ed6133f3288d44a726d15ca30347fb8ac",
+      "uncompressed_bytes": 198256,
+      "uncompressed_sha256": "88bbd208bae3179e47d40de1fc4c4753163a23055f97491066e07f99e56edeb6"
+    },
+    {
+      "path": "logs/windows-new_account-35577704852-1/phase2r_logs/cloud-new-account-latency.log.gz",
+      "source": "windows-new_account-35577704852-1/phase2r_logs/cloud-new-account-latency.log",
+      "bytes": 221,
+      "sha256": "355fc05027ae33c0c0e71e6c05df335e90294092473ffad993489a126e23346f",
+      "uncompressed_bytes": 273,
+      "uncompressed_sha256": "ae937865271e8453003d5793715833cc2e782a21419cd2508b6251926ddf5d4a"
+    },
+    {
+      "path": "logs/windows-new_account-35577704852-1/phase2r_logs/cloud-new_account.log.gz",
+      "source": "windows-new_account-35577704852-1/phase2r_logs/cloud-new_account.log",
+      "bytes": 68680,
+      "sha256": "9aae57bb97b1fc4a79f18a86188b6716622b6c43e1befa6ccc9c6f01cd241724",
+      "uncompressed_bytes": 1247357,
+      "uncompressed_sha256": "eab0352b0c08a1badbccb949c60bfd9247ec77373965ffcad56058a3fe410796"
+    },
+    {
+      "path": "logs/windows-reading_delivery-35577704852-1/ci/import.log.gz",
+      "source": "windows-reading_delivery-35577704852-1/ci/import.log",
+      "bytes": 14451,
+      "sha256": "207a8fae15cae4d82914ea1acf691e6ed6133f3288d44a726d15ca30347fb8ac",
+      "uncompressed_bytes": 198256,
+      "uncompressed_sha256": "88bbd208bae3179e47d40de1fc4c4753163a23055f97491066e07f99e56edeb6"
+    },
+    {
+      "path": "logs/windows-reading_delivery-35577704852-1/phase2r_logs/cloud-reading_delivery.log.gz",
+      "source": "windows-reading_delivery-35577704852-1/phase2r_logs/cloud-reading_delivery.log",
+      "bytes": 54949,
+      "sha256": "e0a4ddb99a56dc40a5da67be8bfb35e57b06abc38132e805ae53df6b4f1ef48a",
+      "uncompressed_bytes": 1246444,
+      "uncompressed_sha256": "047ae0098810282e411973519e968de506c4aa92ae0bdb23424e215d46fdceeb"
+    },
+    {
+      "path": "logs/windows-settings-35577704852-1/ci/import.log.gz",
+      "source": "windows-settings-35577704852-1/ci/import.log",
+      "bytes": 14451,
+      "sha256": "207a8fae15cae4d82914ea1acf691e6ed6133f3288d44a726d15ca30347fb8ac",
+      "uncompressed_bytes": 198256,
+      "uncompressed_sha256": "88bbd208bae3179e47d40de1fc4c4753163a23055f97491066e07f99e56edeb6"
+    },
+    {
+      "path": "logs/windows-settings-35577704852-1/ci/storage-refusal/empty/console.log.gz",
+      "source": "windows-settings-35577704852-1/ci/storage-refusal/empty/console.log",
+      "bytes": 4132,
+      "sha256": "dc2d26c9e5b781e12fad96ab18a7508e2b76c1c8603f3896e4e9a125d793a727",
+      "uncompressed_bytes": 36639,
+      "uncompressed_sha256": "b257c34bc582d51a589056189419713d503b8746a4cac22e0ab38132643ada66"
+    },
+    {
+      "path": "logs/windows-settings-35577704852-1/ci/storage-refusal/empty/godot.log.gz",
+      "source": "windows-settings-35577704852-1/ci/storage-refusal/empty/godot.log",
+      "bytes": 3919,
+      "sha256": "a29a9fd2d858788eec9aa4f336f2596cf3f175406badd27e7b66a68aefa383c0",
+      "uncompressed_bytes": 34262,
+      "uncompressed_sha256": "383d248b627fc5901d420a6b3209f0439b1a397805aba2deda1fa462b9dddf7b"
+    },
+    {
+      "path": "logs/windows-settings-35577704852-1/ci/storage-refusal/empty/user-dir-console.log.gz",
+      "source": "windows-settings-35577704852-1/ci/storage-refusal/empty/user-dir-console.log",
+      "bytes": 294,
+      "sha256": "2c89172eeb2643418f20c23a8e0952461acf017bdbbcc631a60582a4230b6545",
+      "uncompressed_bytes": 414,
+      "uncompressed_sha256": "da4890b2f01db144f7ef84f8a60ab43ff82e6dd6943f6b9cc20b69f9369f8c3e"
+    },
+    {
+      "path": "logs/windows-settings-35577704852-1/ci/storage-refusal/empty/user-dir.log.gz",
+      "source": "windows-settings-35577704852-1/ci/storage-refusal/empty/user-dir.log",
+      "bytes": 162,
+      "sha256": "ccacf0512c1415a7fb8f654f1ccec4d38510daf3dbcf68be2acb528dd489d9ad",
+      "uncompressed_bytes": 167,
+      "uncompressed_sha256": "050cd18a30fc39a0de5f5276fbf215790680148732f5c1ee4b46ab0f62fc15ab"
+    },
+    {
+      "path": "logs/windows-settings-35577704852-1/ci/storage-refusal/whitespace/console.log.gz",
+      "source": "windows-settings-35577704852-1/ci/storage-refusal/whitespace/console.log",
+      "bytes": 4138,
+      "sha256": "1e78ea7c115219516a727d4d7286850f396382bf20704e6132eeb209bb7302d2",
+      "uncompressed_bytes": 36649,
+      "uncompressed_sha256": "02a10e5b450cf1a5c74c27943b3f4261e84a41e997a1cdc1e6ac1377452fecfb"
+    },
+    {
+      "path": "logs/windows-settings-35577704852-1/ci/storage-refusal/whitespace/godot.log.gz",
+      "source": "windows-settings-35577704852-1/ci/storage-refusal/whitespace/godot.log",
+      "bytes": 3925,
+      "sha256": "db7da0781edd7f6292fece5428b63d6e0159727987bdd5ae6dfd02d233908d64",
+      "uncompressed_bytes": 34272,
+      "uncompressed_sha256": "b9c3b466c0563dac5d7c7b77f4867164745fb08e99d0e7a45b6d7b691593b241"
+    },
+    {
+      "path": "logs/windows-settings-35577704852-1/ci/storage-refusal/whitespace/user-dir-console.log.gz",
+      "source": "windows-settings-35577704852-1/ci/storage-refusal/whitespace/user-dir-console.log",
+      "bytes": 296,
+      "sha256": "46312b84d5eaf1568e47d77779216c0a3f46a14cdd2057c6d982bb575686b95e",
+      "uncompressed_bytes": 419,
+      "uncompressed_sha256": "e15be0eb7c1d73c192bdee3ee28fc9fb4deef6e1d43051484c9c1ef3bf152060"
+    },
+    {
+      "path": "logs/windows-settings-35577704852-1/ci/storage-refusal/whitespace/user-dir.log.gz",
+      "source": "windows-settings-35577704852-1/ci/storage-refusal/whitespace/user-dir.log",
+      "bytes": 164,
+      "sha256": "29d92b96d5db2ea75304720206d562ae022ad07a4aac1294f548ae9084a41f9e",
+      "uncompressed_bytes": 172,
+      "uncompressed_sha256": "b792f87d4b2febdde77f6b552e3ec0dc42ebed9ef263a47cb1ffdd7bced021bc"
+    },
+    {
+      "path": "logs/windows-settings-35577704852-1/phase2r_logs/cloud-settings.log.gz",
+      "source": "windows-settings-35577704852-1/phase2r_logs/cloud-settings.log",
+      "bytes": 243212,
+      "sha256": "303625f48045e6d0fbaec392846eb814c00a818b3f979ce3d9d9ee817a199085",
+      "uncompressed_bytes": 8235948,
+      "uncompressed_sha256": "2e877ec7685e85fdc1b08f55599f51272eb30fd8e5d72628d1c313d337fdd9c7"
+    },
+    {
+      "path": "logs/windows-shop-35577704852-1/ci/import.log.gz",
+      "source": "windows-shop-35577704852-1/ci/import.log",
+      "bytes": 14451,
+      "sha256": "207a8fae15cae4d82914ea1acf691e6ed6133f3288d44a726d15ca30347fb8ac",
+      "uncompressed_bytes": 198256,
+      "uncompressed_sha256": "88bbd208bae3179e47d40de1fc4c4753163a23055f97491066e07f99e56edeb6"
+    },
+    {
+      "path": "logs/windows-shop-35577704852-1/phase2r_logs/cloud-shop.log.gz",
+      "source": "windows-shop-35577704852-1/phase2r_logs/cloud-shop.log",
+      "bytes": 42631,
+      "sha256": "905584e4fe36971fd30a94da2f8c2ea9097f04327dbc959c758ede2937a3355c",
+      "uncompressed_bytes": 863123,
+      "uncompressed_sha256": "9d66983c455f7178fb7b11b52f65f0cd5815691784a4154fccd4a444d92506d4"
+    }
+  ],
+  "limits": [
+    "Repository before/after snapshots remain in the original settings artifact; this compact evidence retains their verified equal hashes and entry counts.",
+    "Machine timings are observed measurements, not a performance budget or an end-to-end gameplay benchmark.",
+    "verify-full-artifacts.py runs against the downloaded full artifacts and GitHub metadata, not this compact extracted selection."
+  ]
+}

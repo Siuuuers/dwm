@@ -6,6 +6,8 @@ signal normal_accept_requested
 const ACTION_SETTING := "dialogic/text/input_action"
 const TAP_LIMIT_MSEC := 500
 
+var _scene_input: Control
+var _review_caption: Control
 var _caption: DialogicNode_DialogText
 var _viewport_control: ScrollContainer
 var _runtime: Node
@@ -24,6 +26,7 @@ var _before_accept: Callable
 var _automatic_admission: Callable
 var _local_admission: Callable
 var _submitting := false
+var _accessibility_generation := 0
 
 func _enter_tree() -> void:
 	add_to_group("dialogic_input_policy")
@@ -44,6 +47,22 @@ func bind(caption: DialogicNode_DialogText, viewport_control: ScrollContainer, r
 	_viewport_control.get_v_scroll_bar().value_changed.connect(cancel_pending_accept)
 	if _runtime != null and _runtime.has_signal("dialogic_paused"):
 		_runtime.connect("dialogic_paused", _cancel_candidate)
+	if _runtime != null and _runtime.has_signal("dialogic_resumed"):
+		_runtime.connect("dialogic_resumed", _cancel_candidate)
+
+func bind_scene_input(control: Control) -> void:
+	_scene_input = control
+
+func set_review_caption(control: Control) -> void:
+	_review_caption = control
+	if is_instance_valid(control) and not control.focus_exited.is_connected(_cancel_candidate):
+		control.focus_exited.connect(_cancel_candidate)
+	if is_instance_valid(control) and not control.visibility_changed.is_connected(_cancel_candidate):
+		control.visibility_changed.connect(_cancel_candidate)
+	retire_input()
+
+func _focus_caption() -> Control:
+	return _review_caption if is_instance_valid(_review_caption) else _caption
 
 func bind_input_custody(owner: Node) -> bool:
 	if owner == null or not owner.has_method("is_source_input_admitted") \
@@ -90,17 +109,40 @@ func retire_input() -> void:
 func _cancel_candidate() -> void:
 	_candidate.clear()
 	_fresh_page_source = ""
+	_retire_accessibility_accept()
 
 func cancel_pending_accept(_scroll_value: float = 0.0) -> void:
 	# Real scrollbar movement (including its native gutter) also cancels contact.
 	_candidate.clear()
+
+func _retire_accessibility_accept() -> void:
+	_accessibility_generation += 1
+	if is_instance_valid(_caption): _caption.queue_accessibility_update()
+	if is_instance_valid(_review_caption): _review_caption.queue_accessibility_update()
+
+## Capture both custody lifetime and native reveal identity; equal text is not identity.
+func capture_accessibility_accept(target: Control) -> Callable:
+	return _accessibility_accept.bind(target, _accessibility_generation, _caption.get_reveal_generation())
+
+func _accessibility_accept(_request: Variant, target: Control, generation: int, reveal_generation: int) -> void:
+	if generation != _accessibility_generation or not _admissible() \
+			or target != _focus_caption() or reveal_generation != _caption.get_reveal_generation() \
+			or not _contacts.is_empty() or not _page_contacts.is_empty() or _await_initial_neutral \
+			or Input.is_action_pressed(_action()) or _page_is_held(): return
+	if is_instance_valid(_input_custody) and _input_custody.has_method("get_physical_contacts") \
+			and not _input_custody.call("get_physical_contacts").is_empty(): return
+	target.grab_focus()
+	if generation != _accessibility_generation or target != _focus_caption(): return
+	_retire_accessibility_accept()
+	_candidate = {"generation": reveal_generation}
+	_submit(false)
 
 func _action() -> StringName:
 	return StringName(ProjectSettings.get_setting(ACTION_SETTING, "dialogic_default_action"))
 
 func _admissible() -> bool:
 	return _source_has_custody() and not get_tree().paused and _foreground and is_instance_valid(_runtime) and not bool(_runtime.get("paused")) \
-		and is_instance_valid(_caption) and _caption.is_visible_in_tree() \
+		and is_instance_valid(_caption) and _focus_caption().is_visible_in_tree() \
 		and not _caption.get_parsed_text().is_empty()
 
 
@@ -113,15 +155,21 @@ func _process(_delta: float) -> void:
 		_candidate.clear()
 
 func _notification(what: int) -> void:
+	if what in [NOTIFICATION_PAUSED, NOTIFICATION_UNPAUSED, NOTIFICATION_DISABLED, NOTIFICATION_ENABLED]:
+		_retire_accessibility_accept()
 	if what in [NOTIFICATION_WM_WINDOW_FOCUS_OUT, NOTIFICATION_APPLICATION_FOCUS_OUT]:
 		_foreground = false
 		_cancel_candidate()
 		_fresh_key_event = 0
 	elif what in [NOTIFICATION_WM_WINDOW_FOCUS_IN, NOTIFICATION_APPLICATION_FOCUS_IN]:
 		_foreground = true
+		_retire_accessibility_accept()
 
 func _input(event: InputEvent) -> void:
 	if event.device == InputEvent.DEVICE_ID_EMULATION:
+		return
+	if event is InputEventPanGesture or (event is InputEventMouseButton and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]):
+		cancel_pending_accept()
 		return
 	if _page_direction(event) != 0:
 		_track_page_contact(event)
@@ -130,7 +178,8 @@ func _input(event: InputEvent) -> void:
 		_candidate.clear()
 		return
 	if event is InputEventMouseMotion:
-		if not _inside_current(event.position):
+		if not _inside_source(event.position) or (not _candidate.is_empty() and _candidate.has("origin") \
+				and event.position.distance_to(_candidate.origin) > 12.0):
 			_candidate.clear()
 		return
 	var source := _source(event)
@@ -147,6 +196,7 @@ func _input(event: InputEvent) -> void:
 			return
 		_candidate = {"source": source, "generation": _caption.get_reveal_generation(),
 			"started": Time.get_ticks_msec(), "armed": false}
+		if _is_pointer(event): _candidate.origin = _pointer_position(event)
 		if not _is_pointer(event):
 			_fresh_key_event = event.get_instance_id()
 	else:
@@ -154,7 +204,7 @@ func _input(event: InputEvent) -> void:
 		if _contacts.is_empty() and not Input.is_action_pressed(_action()):
 			_await_initial_neutral = false
 		if not _candidate.is_empty() and _candidate.source == source:
-			if _is_double_or_canceled(event) or (_is_pointer(event) and not _inside_current(_pointer_position(event))):
+			if _is_double_or_canceled(event) or (_is_pointer(event) and not _inside_source(_pointer_position(event))):
 				_candidate.clear()
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -168,14 +218,14 @@ func _unhandled_input(event: InputEvent) -> void:
 	# Consume rejected mapped packets too: a held contact must not reach fallback.
 	get_viewport().set_input_as_handled()
 	if event.get_instance_id() == _fresh_key_event and event.is_pressed() \
-			and not event.is_echo() and is_instance_valid(_caption) and _caption.has_focus():
+			and not event.is_echo() and is_instance_valid(_caption) and _focus_caption().has_focus():
 		_submit(false)
 
 func handle_page_input(event: InputEvent) -> bool:
 	if get_tree().paused or not _source_has_custody():
 		return false
 	var direction := _page_direction(event)
-	if direction == 0 or not is_instance_valid(_caption) or not _caption.has_focus():
+	if direction == 0 or not is_instance_valid(_caption) or not _focus_caption().has_focus():
 		return false
 	# Current-caption GUI gets first refusal; unhandled input is the controller fallback.
 	if event.is_pressed() and not event.is_echo() and _fresh_page_source == _physical_source(event):
@@ -196,7 +246,7 @@ func _track_page_contact(event: InputEvent) -> void:
 			return
 		var neutral := _page_contacts.is_empty()
 		_page_contacts[source] = true
-		if neutral and not _await_page_neutral and _admissible() and _caption.has_focus():
+		if neutral and not _await_page_neutral and _admissible() and _focus_caption().has_focus():
 			_fresh_page_source = source
 	else:
 		_page_contacts.erase(source)
@@ -227,6 +277,9 @@ func _page_is_held() -> bool:
 	return false
 
 func handle_caption_gui_input(event: InputEvent) -> void:
+	handle_background_gui_input(event, _caption)
+
+func handle_background_gui_input(event: InputEvent, source_control: Control) -> void:
 	if get_tree().paused or not _source_has_custody():
 		return
 	if event.device == InputEvent.DEVICE_ID_EMULATION or not _is_pointer(event):
@@ -235,13 +288,16 @@ func handle_caption_gui_input(event: InputEvent) -> void:
 	if source.is_empty() or _candidate.is_empty() or _candidate.source != source:
 		return
 	# GUI positions are local; the raw phase and this phase both check the aperture clip.
-	var viewport_point: Vector2 = _caption.get_global_transform_with_canvas() * _pointer_position(event)
-	if not _inside_current(viewport_point) or _is_double_or_canceled(event):
+	var viewport_point: Vector2 = source_control.get_global_transform_with_canvas() * _pointer_position(event)
+	if not _inside_source(viewport_point) or _is_double_or_canceled(event):
+		_candidate.clear()
+		return
+	if not event.is_pressed() and _release_hits_control(viewport_point):
 		_candidate.clear()
 		return
 	if event.is_pressed():
 		_candidate.armed = true
-		_caption.grab_focus()
+		_focus_caption().grab_focus()
 	elif bool(_candidate.armed):
 		if event is InputEventScreenTouch and Time.get_ticks_msec() - int(_candidate.started) > TAP_LIMIT_MSEC:
 			_candidate.clear()
@@ -273,6 +329,26 @@ func _submit(pointer: bool) -> void:
 		if is_instance_valid(inputs):
 			inputs.set("input_was_mouse_input", false)
 	_submitting = false
+
+func _release_hits_control(viewport_point: Vector2) -> bool:
+	# A captured release still belongs to the pressed background Control. Check
+	# the real buttons/scrollbar under it so crossing an edge cannot accept prose.
+	var controls: Array[Node] = get_tree().get_nodes_in_group("dialogic_choice_button")
+	if is_instance_valid(_scene_input):
+		controls.append_array(_scene_input.get_parent().find_children("*", "BaseButton", true, false))
+	if is_instance_valid(_viewport_control): controls.append(_viewport_control.get_v_scroll_bar())
+	for node: Node in controls:
+		if not node is Control or not node.is_visible_in_tree(): continue
+		var control := node as Control
+		if Rect2(Vector2.ZERO, control.size).has_point(
+				control.get_global_transform_with_canvas().affine_inverse() * viewport_point): return true
+	return false
+
+func _inside_source(viewport_point: Vector2) -> bool:
+	if is_instance_valid(_scene_input):
+		return _admissible() and _scene_input.is_visible_in_tree() and Rect2(Vector2.ZERO, _scene_input.size).has_point(
+			_scene_input.get_global_transform_with_canvas().affine_inverse() * viewport_point)
+	return _inside_current(viewport_point)
 
 func _inside_current(viewport_point: Vector2) -> bool:
 	if not _admissible() or not is_instance_valid(_viewport_control):

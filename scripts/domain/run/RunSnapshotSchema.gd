@@ -24,7 +24,9 @@ extends RefCounted
 ## condition-departure ledger law. It owns only the in-document bindings a snapshot's single day
 ## and causal-day identity impose, plus the date-latch coherence check below.
 
-const SCHEMA_VERSION := 6
+## v7 requires every admitted canonical presentation's immutable source-bound context.
+## Earlier Run snapshots are refused; no historical context or Profile fact is reconstructed.
+const SCHEMA_VERSION := 7
 const RECOVERY_LINE_HISTORY_LIMIT := 32
 
 const ORDINARY_CORRESPONDENCE := preload("res://scripts/domain/contact/OrdinaryReplyEchoState.gd")
@@ -164,12 +166,12 @@ static func validate(snapshot: Dictionary) -> Dictionary:
 	if typeof(candidate["route_id"]) != TYPE_STRING or str(candidate["route_id"]).is_empty():
 		return _fail(&"invalid_snapshot_shape", "route_id must be a nonempty String")
 	if candidate["active_app_id"] != null:
-		# Null is allowed; a non-null id must be a registered desktop app (replaces the
-		# provisional free-string validation, dwm-p2r.9 Plan 02 Task 1). Paths/UI state
-		# are never persisted here.
+		# Logout is registered on the launcher, but its consent is never saved as a workspace.
+		if typeof(candidate["active_app_id"]) not in [TYPE_STRING, TYPE_STRING_NAME]:
+			return _fail(&"invalid_snapshot_shape", "active_app_id must be null or a content app id")
 		var aid := StringName(candidate["active_app_id"])
-		if not DESKTOP_APP_REGISTRY.new().has_app(aid):
-			return _fail(&"invalid_snapshot_shape", "active_app_id must be null or a registered desktop app id")
+		if aid == &"logout" or not DESKTOP_APP_REGISTRY.new().has_app(aid):
+			return _fail(&"invalid_snapshot_shape", "active_app_id must be null or a content app id")
 	for member: String in ["narrative_checkpoint", "contacts", "dating", "audio_context"]:
 		if typeof(candidate[member]) != TYPE_DICTIONARY:
 			return _fail(&"invalid_snapshot_shape", member + " must be an object")
@@ -250,6 +252,10 @@ static func validate(snapshot: Dictionary) -> Dictionary:
 		candidate["applied_effect_transaction_ids"], candidate["applied_variable_transaction_ids"])
 	if receipts_error != "":
 		return _fail(&"invalid_command_receipts", receipts_error)
+	# Inspect the detached saved facts before any restore participant installs them.
+	# v7 requires the applicable producer caches and their exact admitted projections.
+	var frozen_check: Dictionary = preload("res://scripts/narrative/FrozenRunContext.gd").validate(candidate, true)
+	if not frozen_check.get("ok", false): return frozen_check
 	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
 
 ## Effect/variable command ledger only (dwm-p2r.8, Plan-05 Task 3). Ending/gallery receipt
@@ -419,8 +425,8 @@ static func _validate_ending_plan(plan: Variant) -> String:
 	if typeof(plan) != TYPE_DICTIONARY:
 		return "ending_plan must be null or an object"
 	# RunLifecycle is the single owner of both exact admitted shapes and their semantic laws.
-	# v6 remains strict: this delegates a closed legacy/ordered union rather than accepting
-	# optional or unknown members at the document boundary.
+	# The structural delegate retains its closed legacy/ordered union. The v7 frozen-context
+	# check additionally requires the admitted ordered plan's source-bound seed.
 	return RUN_LIFECYCLE._validate_ending_plan(plan as Dictionary)
 
 

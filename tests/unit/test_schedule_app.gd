@@ -620,8 +620,10 @@ class SharedPreferences extends RefCounted:
 	var large := false
 	var high_contrast := false
 	var colour_preset := "standard"
+	var font_style := "pixel"
 	func get_locale() -> String: return locale
 	func get_preference(path: String, fallback: Variant = null) -> Variant:
+		if path == "preferences.accessibility.font_style": return font_style
 		if path == "preferences.accessibility.text_size": return percent
 		if path == "preferences.accessibility.large_targets": return large
 		if path == "preferences.accessibility.high_contrast": return high_contrast
@@ -684,7 +686,7 @@ func test_shared_preferences_reflow_preserves_occurrences_selection_focus_and_se
 	assert_eq(_app.panel.selected_id,selected)
 	assert_true(_app.panel.entry_buttons[first].has_focus())
 	assert_eq(_app.panel.docket_scroll.scroll_vertical,int(_app.panel.entry_buttons[second].position.y)+2)
-	assert_eq(_app.panel._font_size,30)
+	assert_eq(_app.panel._font_size,36)
 	assert_true(_app.panel._large)
 
 func test_hidden_shared_refresh_keeps_foreground_focus_then_reflows_on_return() -> void:
@@ -705,7 +707,7 @@ func test_hidden_shared_refresh_keeps_foreground_focus_then_reflows_on_return() 
 	await get_tree().process_frame
 	await get_tree().process_frame
 	assert_eq(_app._locale,"zh-CN")
-	assert_eq(_app.panel._font_size,30)
+	assert_eq(_app.panel._font_size,36)
 	assert_true(_app.panel._large)
 	assert_true(_app.panel.source_buttons.rest.has_focus())
 
@@ -768,7 +770,7 @@ func test_warning_shared_reflow_uses_retained_owner_copy_and_preserves_modal_foc
 	await get_tree().process_frame
 	await get_tree().process_frame
 	assert_true(_app.warning_sheet.go_button.has_focus())
-	assert_eq(_app.warning_sheet._font_size,30)
+	assert_eq(_app.warning_sheet._font_size,36)
 	assert_eq(_app._warning_data,_app._warning_port.project("zh-HK").value.warning)
 	assert_eq(_app.panel.process_mode,Node.PROCESS_MODE_DISABLED)
 	assert_eq(_view.snapshot().value.view,before)
@@ -917,3 +919,22 @@ func test_unaffordable_done_keeps_docket_editable_and_restores_done_focus() -> v
 	_app.panel.commands.remove.pressed.emit()
 	assert_true(_view.snapshot().value.view.entries.is_empty())
 	assert_null(_app.panel.get_node_or_null("DockStatus"))
+
+func test_font_style_reflow_preserves_schedule_occurrences_and_selected_control() -> void:
+	var preferences := SharedPreferences.new()
+	assert_true(_app.configure_shared_preferences(preferences,preferences).ok)
+	_app.panel.source_buttons.training.pressed.emit()
+	await get_tree().process_frame
+	var before: Dictionary = _view.snapshot().value.view.duplicate(true)
+	var selected: String = _app.panel.selected_id
+	var typography := preload("res://scripts/ui/UiTypography.gd")
+	for style: String in ["readable","pixel"]:
+		_app.panel.source_buttons.training.grab_focus()
+		preferences.font_style = style
+		preferences.preference_changed.emit(&"preferences.accessibility.font_style",style)
+		for frame in 3: await get_tree().process_frame
+		assert_same(_app.panel.theme.default_font,typography.font("en",100,style))
+		assert_eq(_app._font_style,style)
+		assert_eq(_view.snapshot().value.view,before)
+		assert_eq(_app.panel.selected_id,selected)
+		assert_true(_app.panel.source_buttons.training.has_focus())

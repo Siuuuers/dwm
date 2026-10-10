@@ -70,6 +70,8 @@ func _prepare_profile_plan(candidate: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {
 		"profile_plan": profile_plan,
 		"locale_id": str(((candidate.get("preferences", {}) as Dictionary).get("language", {}) as Dictionary).get("primary_locale_id", "")),
+		"font_style": str(candidate["preferences"]["accessibility"]["font_style"]),
+		"text_size": int(candidate["preferences"]["accessibility"]["text_size"]),
 	}}
 
 func capture() -> Dictionary:

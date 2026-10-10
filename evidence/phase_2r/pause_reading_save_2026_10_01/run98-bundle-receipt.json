@@ -1,0 +1,19 @@
+{
+  "archive": "dwm-run98-cloud-evidence.tar.gz",
+  "archive_bytes": 11948860,
+  "archive_member_count": 491,
+  "archive_sha256": "1eeb7639fd8e25d6643c82c538e7521c1f4fc1006885032d2363721606b0f029",
+  "counts": {
+    "audit_files": 14,
+    "gut_suite_xml": 13,
+    "omitted_png_payloads": 164,
+    "raw_job_logs": 23,
+    "reading_pngs": 9,
+    "storage_refusal_xml": 2
+  },
+  "excluded_extracted_file_count": 170,
+  "manifest_sha256": "1ddcb55ee63434ef1576a093c1fe2282af96c8f89895c00f46e9a667ddfe8d97",
+  "payload_bytes": 116814979,
+  "payload_file_count": 489,
+  "round_trip_verified": true
+}

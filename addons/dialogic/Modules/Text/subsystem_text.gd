@@ -82,13 +82,16 @@ var parse_stack: Array[Dictionary] = []
 ####################################################################################################
 
 func clear_game_state(_clear_flag:=DialogicGameHandler.ClearFlags.FULL_CLEAR) -> void:
-	update_dialog_text("", true)
-	update_name_label(null)
+	var keep_text := bool(_clear_flag & DialogicGameHandler.ClearFlags.KEEP_TEXT)
+	if not keep_text:
+		update_dialog_text("", true)
+		update_name_label(null)
 	dialogic.current_state_info["speaker"] = ""
 	dialogic.current_state_info["text"] = ""
 
 	set_text_reveal_skippable(ProjectSettings.get_setting('dialogic/text/initial_text_reveal_skippable', true))
 
+	if keep_text: return
 	# TODO check whether this can happen on the node directly
 	for text_node in get_tree().get_nodes_in_group('dialogic_dialog_text'):
 		if text_node.start_hidden:

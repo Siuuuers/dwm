@@ -1,0 +1,656 @@
+{
+  "schema_version": 1,
+  "accepted": true,
+  "outcome": "Finite noncanonical Solo per-entry authored selector/signature admission",
+  "candidate_source": "1459af29ad467ca1375ed12fe9e2f31671ce8171",
+  "tested_merge": "e84131335d7e49a4d7ae151f99df6f8f2ce93eec",
+  "master_parent": "6a5ddf1564870b43aa9140cad7e0e5b12e43f399",
+  "final_run": {
+    "number": 120,
+    "id": 36941566670,
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/36941566670",
+    "attempt": 1,
+    "logical_jobs": 23,
+    "checkout_executions": 22,
+    "gut_executions": 2279,
+    "gut_unique_cases": 2275,
+    "gut_unique_scripts": 194,
+    "acceptance_summary": "run120/acceptance-summary.json"
+  },
+  "focused_run": {
+    "number": 119,
+    "id": 36940998839,
+    "source": "7a545490acc65a3332e766c243dee5f8938c7b4a",
+    "acceptance_summary": "run119/acceptance-summary.json"
+  },
+  "new_selector_cases": {
+    "pure_catalogue": 9,
+    "profile_semantic_owner": 9,
+    "mounted_native_bridge": 3
+  },
+  "failed_cloud_runs": [],
+  "bundles": {
+    "run119": {
+      "archive": "selector-run119-cloud-evidence.tar.gz",
+      "archive_member_count": 32,
+      "bytes": 426006,
+      "evidence_kind": "bounded-successful-run-audit",
+      "excluded_file_count": 2,
+      "manifest_sha256": "4d2e6bf88a1675955ce72648d69d3ed8d4dddbb3c1b0e5724b4ae84ce8e470da",
+      "payload_file_count": 30,
+      "round_trip_verified": true,
+      "sha256": "453f02d19e4c60b4dc63c991e60940937f160a0763faacac6715bfcbec6f2c27"
+    },
+    "run120": {
+      "archive": "selector-run120-cloud-evidence.tar.gz",
+      "archive_member_count": 569,
+      "bytes": 19099687,
+      "evidence_kind": "bounded-successful-run-audit",
+      "excluded_file_count": 170,
+      "manifest_sha256": "03e499cbab58f26065651337f4c76b07a99eedf2c05352133283d8486004c346",
+      "payload_file_count": 567,
+      "round_trip_verified": true,
+      "sha256": "3b05b2121eade6d14bbf8f67aee3e6b16628f4b75b96cd5891bdec0f02acaac9"
+    }
+  },
+  "source_boundary": {
+    "all_unlisted_paths_byte_identical": true,
+    "checkout_parents": [
+      "6a5ddf1564870b43aa9140cad7e0e5b12e43f399",
+      "1459af29ad467ca1375ed12fe9e2f31671ce8171"
+    ],
+    "explicit_allowed_difference_patterns": [
+      "AGENTS.md",
+      "docs/*",
+      "story/*"
+    ],
+    "master": "6a5ddf1564870b43aa9140cad7e0e5b12e43f399",
+    "source": "1459af29ad467ca1375ed12fe9e2f31671ce8171",
+    "source_checkout_differences": [
+      {
+        "checkout_blob": "9da0aa3bde65484361d88f04346a3dca749ec49e",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "AGENTS.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "9c4d88ce68a3086e3dbd1b20b0d3b4167b26e4be",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "docs/design/2026-08-30-supportz-audience-priority-three-truth-mechanism-amendment.md",
+        "source_blob": "130a657200e94da2dbd28a93383f0218b895f690",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "c7018cbc945c2c624435a31a8f7584e334b794ec",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "docs/design/2026-09-02-narrative-constitution-working-decision-ledger.md",
+        "source_blob": "2726549b0400419dc9597ad133877e7a877d6810",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "05f99daf57689d9d37a1bbf9c05840e0608d2065",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md",
+        "source_blob": "83bfa0ace708aabf821469c67e1f17e85e70527d",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "79dafcf6e2f0ad5868beeac018b6cc53ba09c8db",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "docs/design/2026-09-06-angela-absent-pair-explosion-visibility-reconciliation.md",
+        "source_blob": "0584fae5a22338b4b9c635e3827f53b26807313c",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "9da29d1a49b21a3c33c0fe010e1c1b78aaca3dda",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "docs/design/2026-09-06-priscilla-lavinia-working-event-documentary-audit.md",
+        "source_blob": "dc85bd98601eeda6a38b270b28202acdb154ebdd",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "a06116cfa59acf49febc6e505ed21e77038218e3",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "docs/design/README.md",
+        "source_blob": "e8b4a646a79e0a1522d440eaa1021bdee54cce50",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/2026-08-30-angela-lavinia-day-2-focus-audition-design.md",
+        "source_blob": "97ac51f336322c247e59af2db734b9e1983d5116",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/2026-08-30-room-217-group-adaptation-audition-record.md",
+        "source_blob": "73dc72fd510930e84d1ba93474bb09b6afd147cf",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/2026-08-31-seven-day-owner-review-constellation-audition.md",
+        "source_blob": "22bf6ad866163e2ded66a6120d0a4fd494978e17",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md",
+        "source_blob": "9753c076331d4dc515c5d6f89b568fe1e4deea35",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md",
+        "source_blob": "2df1739d29fa0b6ebb4aa195d099e06c49fdcea9",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/2026-09-06-priscilla-lavinia-day-6-sweet-imagined-refusal-audition.md",
+        "source_blob": "8ba9e7c2ca99b9dfc0c4925c94397a34bf2102ba",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/2026-09-07-priscilla-lavinia-day-6-sweet-love-interrupted-hearing-audition.md",
+        "source_blob": "6b3fcaae5a6ef7d23bcac7e78b3490abb15ae72d",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/2026-09-12-day-1-priscilla-lavinia-retrospective-reflex-audition.md",
+        "source_blob": "023d7be0cdd18762c30070e4d5162760b57417d0",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "0000000000000000000000000000000000000000",
+        "new_mode": "000000",
+        "old_mode": "100644",
+        "path": "docs/story-auditions/README.md",
+        "source_blob": "96cab07be3dc4964e7c81a49c866663e5049c19a",
+        "status": "D"
+      },
+      {
+        "checkout_blob": "a0f741bd3d1044ff77178a3b7383e7986082d677",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "story/01-core-story-bible.md",
+        "source_blob": "3776536d195e4aae9c616bd2840f1fc45b72d608",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "06e63c6d0f4e5b6773f3b0d5b78e32480d4eece2",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "story/02-character-relationship-handbook.md",
+        "source_blob": "e2d738d1049f997dc3e68e82dae87fc16f051524",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "322b173a08813d1590cfb7c9c0d586d5e58840db",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/AGENTS.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "cba8cac69862dffd6f8c1642063f554ccef4e6ed",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/README.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "08f9a4fbb80cbcbf6abbca65f194c3cd98c33c8e",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/auditions/2026-08-30-angela-lavinia-day-2-focus-audition-design.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "1fd85692c724cfb348a8d81851af7e7a002369cd",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/auditions/2026-08-30-room-217-group-adaptation-audition-record.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "6bbdc51cb9f4d892ae4ce5c5afa54b30f3e799b9",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/auditions/2026-08-31-seven-day-owner-review-constellation-audition.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "d85d8a67e0b91146cefb24d82ee3ea01e3450953",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/auditions/README.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "7097eeecf7e046ca9460024199ff4a8ff8c102ab",
+        "new_mode": "100644",
+        "old_mode": "100644",
+        "path": "story/library/03-seven-day-plot-material-library.md",
+        "source_blob": "2dd68369fa945c8297ba36c53a141b48a33b256a",
+        "status": "M"
+      },
+      {
+        "checkout_blob": "dd65a4d70a9faa494db46085739fd190338bad69",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/maintenance/our-pl-upload-recovery.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "a90e838f42b83694b573debb787132c433d6ab68",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/maintenance/source-migration.json",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "16c89cdbe313636c165171e7d4ee0f9934275071",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/maintenance/source-migration.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "efee2a95216355bf180a319b5542766a99718e6f",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/maintenance/verify_consolidation.py",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "fd591bf02a7f2aab1b7c504dceba119eea768108",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/AGENTS.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "85d012ccfe82e61c95c71f46070f67f8517b7c15",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/README.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "228385dcd953064885964edf9e3493061bcd2462",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "43a70fdc7435085d3bf30103b814c66f808a0dc0",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "691c98ce2fa0221c3b86031751dfd30ff168ade8",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-6-sweet-imagined-refusal-audition.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "fe90bc68df5bb578519838372faab54cf7e21720",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/2026-09-07-priscilla-lavinia-day-6-sweet-love-interrupted-hearing-audition.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "f3792a9b34cb2cebf38c32b910acb33dcc39df2d",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/2026-09-12-day-1-priscilla-lavinia-retrospective-reflex-audition.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "8bc169fa41355384c01cf36ee1e65537e76d696c",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/2026-09-26-priscilla-lavinia-day-2-portrait-dark-love-read-through.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "7b9ecbcb38c6be19ab973a17f754b37199ad3c03",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/day-2-portrait-development.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "5a7b0800e55e16cae3ee10c68077a503f0b61f16",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/day-2-sweet-love-portrait.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "ae89186de0ac280e8cf724656803b6f7bc157c27",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/day-6-dark-notebook.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "51d9a33311fcdaaf49910b28cc4e3bc5761aa702",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/day-6-sweet-ambiguous-refusal.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "592fe48396a216bf9e2aad7202af7c577fd8d6ab",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/auditions/day-6-sweet-love-dance.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "ab36739aa955a859405b30ee9e12d19d44773d36",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/intimacy-and-ordinary-company.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "ebb7057a582f3239886d2cbb4f5d4fa520d0aef7",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/relationship.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      },
+      {
+        "checkout_blob": "43b27c7f278699f00bbd4bf2f7526213376b02c0",
+        "new_mode": "100644",
+        "old_mode": "000000",
+        "path": "story/relationships/priscilla-lavinia/seven-day-options.md",
+        "source_blob": "0000000000000000000000000000000000000000",
+        "status": "A"
+      }
+    ],
+    "tested_checkout": "e84131335d7e49a4d7ae151f99df6f8f2ce93eec"
+  },
+  "selector_proof": {
+    "catalogue_version": 2,
+    "new_cases": [
+      {
+        "script": "tests/integration/test_solo_authored_selector_runtime.gd",
+        "test": "test_bridge_next_keeps_selected_label_and_fresh_resume_preserves_history_without_speech_replay",
+        "selected_xml": [
+          "artifacts/windows-reading_delivery-36941566670-1/ci/reading_delivery.xml"
+        ]
+      },
+      {
+        "script": "tests/integration/test_solo_authored_selector_runtime.gd",
+        "test": "test_real_bridge_plays_only_selected_pre_and_post_programmes_for_every_fixture_context",
+        "selected_xml": [
+          "artifacts/windows-reading_delivery-36941566670-1/ci/reading_delivery.xml"
+        ]
+      },
+      {
+        "script": "tests/integration/test_solo_authored_selector_runtime.gd",
+        "test": "test_whole_selected_label_refuses_other_tone_even_when_first_post_caption_matches",
+        "selected_xml": [
+          "artifacts/windows-reading_delivery-36941566670-1/ci/reading_delivery.xml"
+        ]
+      },
+      {
+        "script": "tests/integration/test_solo_authored_selector_witness.gd",
+        "test": "test_changed_authored_tone_keeps_stable_identity_but_requires_an_exact_new_witness",
+        "selected_xml": [
+          "artifacts/windows-reading_delivery-36941566670-1/ci/reading_delivery.xml"
+        ]
+      },
+      {
+        "script": "tests/integration/test_solo_authored_selector_witness.gd",
+        "test": "test_changed_causal_receipts_preserve_selected_variant_without_rewriting_profile",
+        "selected_xml": [
+          "artifacts/windows-reading_delivery-36941566670-1/ci/reading_delivery.xml"
+        ]
+      },
+      {
+        "script": "tests/integration/test_solo_authored_selector_witness.gd",
+        "test": "test_failed_profile_commit_and_explicit_retry_keep_selected_variant_unseen_baseline",
+        "selected_xml": [
+          "artifacts/windows-reading_delivery-36941566670-1/ci/reading_delivery.xml"
+        ]
+      },
+      {
+        "script": "tests/integration/test_solo_authored_selector_witness.gd",
+        "test": "test_next_queries_the_selected_variant_and_never_substitutes_a_coarse_visit",
+        "selected_xml": [
+          "artifacts/windows-reading_delivery-36941566670-1/ci/reading_delivery.xml"
+        ]
+      },
+      {
+        "script": "tests/integration/test_solo_authored_selector_witness.gd",
+        "test": "test_next_restore_checks_unpublished_future_variant_against_the_admitted_frame",
+        "selected_xml": [
+          "artifacts/windows-reading_delivery-36941566670-1/ci/reading_delivery.xml"
+        ]
+      },
+      {
+        "script": "tests/integration/test_solo_authored_selector_witness.gd",
+        "test": "test_phase_admission_freezes_only_available_facts_and_restores_one_ordered_history",
+        "selected_xml": [
+          "artifacts/windows-reading_delivery-36941566670-1/ci/reading_delivery.xml"
+        ]
+      },
+      {
+        "script": "tests/integration/test_solo_authored_selector_witness.gd",
+        "test": "test_post_result_selects_different_prose_and_signature_at_the_same_stable_beat",
+        "selected_xml": [
+          "artifacts/windows-reading_delivery-36941566670-1/ci/reading_delivery.xml"
+        ]
+      },
+      {
+        "script": "tests/integration/test_solo_authored_selector_witness.gd",
+        "test": "test_restore_rejects_known_alternate_signature_and_frame_mismatch_without_replacing_state",
+        "selected_xml": [
+          "artifacts/windows-reading_delivery-36941566670-1/ci/reading_delivery.xml"
+        ]
+      },
+      {
+        "script": "tests/integration/test_solo_authored_selector_witness.gd",
+        "test": "test_reveal_callback_cannot_reclassify_the_selected_unseen_variant_as_previously_seen",
+        "selected_xml": [
+          "artifacts/windows-reading_delivery-36941566670-1/ci/reading_delivery.xml"
+        ]
+      },
+      {
+        "script": "tests/unit/test_solo_reading_catalogue.gd",
+        "test": "test_ambiguous_missing_and_malformed_selection_fail_closed",
+        "selected_xml": [
+          "artifacts/windows-reading_delivery-36941566670-1/ci/reading_delivery.xml"
+        ]
+      },
+      {
+        "script": "tests/unit/test_solo_reading_catalogue.gd",
+        "test": "test_causal_frame_changes_preserve_exact_caption_and_entry_selector_identity",
+        "selected_xml": [
+          "artifacts/windows-reading_delivery-36941566670-1/ci/reading_delivery.xml"
+        ]
+      },
+      {
+        "script": "tests/unit/test_solo_reading_catalogue.gd",
+        "test": "test_compile_rejects_wrong_types_constants_outcomes_and_unregistered_echoes",
+        "selected_xml": [
+          "artifacts/windows-reading_delivery-36941566670-1/ci/reading_delivery.xml"
+        ]
+      },
+      {
+        "script": "tests/unit/test_solo_reading_catalogue.gd",
+        "test": "test_exact_frame_selects_same_line_variant_and_detached_projection",
+        "selected_xml": [
+          "artifacts/windows-reading_delivery-36941566670-1/ci/reading_delivery.xml"
+        ]
+      },
+      {
+        "script": "tests/unit/test_solo_reading_catalogue.gd",
+        "test": "test_identical_descriptor_cannot_alias_different_text",
+        "selected_xml": [
+          "artifacts/windows-reading_delivery-36941566670-1/ci/reading_delivery.xml"
+        ]
+      },
+      {
+        "script": "tests/unit/test_solo_reading_catalogue.gd",
+        "test": "test_line_identity_and_native_label_cannot_alias_foreign_programmes",
+        "selected_xml": [
+          "artifacts/windows-reading_delivery-36941566670-1/ci/reading_delivery.xml"
+        ]
+      },
+      {
+        "script": "tests/unit/test_solo_reading_catalogue.gd",
+        "test": "test_line_subset_does_not_turn_unrelated_entry_selector_into_caption_variant",
+        "selected_xml": [
+          "artifacts/windows-reading_delivery-36941566670-1/ci/reading_delivery.xml"
+        ]
+      },
+      {
+        "script": "tests/unit/test_solo_reading_catalogue.gd",
+        "test": "test_missing_duplicate_unknown_and_causal_selector_contracts_refuse",
+        "selected_xml": [
+          "artifacts/windows-reading_delivery-36941566670-1/ci/reading_delivery.xml"
+        ]
+      },
+      {
+        "script": "tests/unit/test_solo_reading_catalogue.gd",
+        "test": "test_unrelated_entry_and_unknown_document_fields_refuse",
+        "selected_xml": [
+          "artifacts/windows-reading_delivery-36941566670-1/ci/reading_delivery.xml"
+        ]
+      }
+    ],
+    "new_scripts": [
+      "tests/integration/test_solo_authored_selector_runtime.gd",
+      "tests/integration/test_solo_authored_selector_witness.gd",
+      "tests/unit/test_solo_reading_catalogue.gd"
+    ],
+    "discovery_binding": {
+      "file": "audit/selector-test-discovery.json",
+      "bytes": 49120,
+      "sha256": "99cf9bc922c29016a3693ae3bc7baaf6d4b53a14eb816ed5fa06f4a8963da886"
+    },
+    "scope": "Finite noncanonical Priscilla Day-1 Solo authored entry and per-caption selection, Profile/History/Next and mounted native checkpoint reconstruction.",
+    "current_post_frames": "Canonical-schema-valid synthetic frames with empty attitude; they do not cover the attitude committed by real terminal effects.",
+    "checkpoint_transport": "New v2 native tests use FakeFileOps and an in-memory checkpoint recorder with independent canonical frames. Original v1 physical eight-process journey is separately rerun.",
+    "production_catalogue_registered": false
+  },
+  "supported_formats": {
+    "catalogue": [
+      1,
+      2
+    ],
+    "profile": 10,
+    "run_document_and_snapshot": 7,
+    "ordinary_reading": 1,
+    "retained_next_reading": 2,
+    "next_operation": 1
+  },
+  "beads": {
+    "schema_version": 1,
+    "before_sha256": "27097bbef59b4abfd9b2c0ed20c7bc5efc700f7c00ebcded55c04c7e700c1b20",
+    "after_sha256": "b9770fc2fa63d645d769885a71ebe903994c90dc78bba06b2173b2009faccbba",
+    "records": 191,
+    "other_records_byte_identical": 189,
+    "unfinished_count": 23,
+    "changed_records": [
+      "dwm-n3h.2",
+      "dwm-vky.14"
+    ],
+    "changed_fields": [
+      "notes",
+      "updated_at"
+    ],
+    "all_statuses_and_dependencies_unchanged": true,
+    "dolt_synchronization_claimed": false
+  },
+  "next_step": "Extend the connected physical Save/Load fixture to catalogue-v2 selected frames; retain separate global reached-signature and production admission work.",
+  "records_scope": "Documentation, evidence and two Beads notes/timestamps; records descendants are not separately engine-tested.",
+  "limits": [
+    "Fixed v1 noncanonical Solo catalogue; production dialogue remains outside this proof.",
+    "The separate v2 authored-selector native tests use fixture frames and checkpoint recorders; this physical v1 journey does not establish v2 physical fresh-process Save/Load.",
+    "Known cold board-null Load title clipping remains open; PNG integrity checks do not establish visual polish.",
+    "Challenge entry is recovered; this does not claim a generated board was played or restored.",
+    "FileOps fault tests do not establish physical OS-crash recovery.",
+    "Rendered Linux evidence does not establish exhaustive native Windows input or accessibility acceptance.",
+    "Direct inspection covers these three retained catalogue-v1 Next captures only, not every render artifact.",
+    "Cold board-null challenge Load title clipping remains an observed unfixed defect; no visual-polish acceptance is claimed.",
+    "Images do not establish the underlying layout/scroll cause or native all-input/accessibility acceptance.",
+    "Finite noncanonical catalogue-v2 selector admission does not close unfinished Beads or accept production registration/replay.",
+    "New v2 native reconstruction is not a physical fresh-process Save/Load proof; real terminal-effect attitude and exploded fixture rows remain next.",
+    "Later documentation/evidence-only commits are not separately engine-tested.",
+    "Full GUT totals, all-job checkout identities and final workflow conclusion are joined by the separate broad acceptance audit.",
+    "Reading and Next proof uses fixed noncanonical English Solo fixtures; production authored catalogue registration remains separate.",
+    "Nine original capture files include identical restored-image pairs; nine sealed copies add no scenarios.",
+    "The new catalogue-v2 native tests use in-memory checkpoint reconstruction; the eight-process physical journey remains catalogue v1.",
+    "The known cold board-null Load title clipping remains unfixed; no visual-polish acceptance is claimed.",
+    "The manual pre-line slot is physically retained and admitted, but only the post-line Quick is independently fresh-loaded in the original proof.",
+    "Next fresh Load recovers challenge entry and exact History; no generated board playthrough is claimed.",
+    "Fault/restart probes simulate FileOps failures; they do not inject physical OS crashes.",
+    "Performance observations establish no universal speedup or input-to-paint guarantee.",
+    "The large Windows export archive is not locally inspected; export scope comes from source-bound cloud validator and receipt.",
+    "Capture hashes and machine predicates do not imply manual inspection of every image or native all-input/accessibility acceptance.",
+    "Performance invocation receipts bind isolated roots and UTC intervals; they do not independently retain process IDs."
+  ]
+}

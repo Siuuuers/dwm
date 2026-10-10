@@ -33,6 +33,9 @@ func _ready() -> void:
 
 
 func _on_textbox_show() -> void:
+	# Removed layouts remain signal subscribers until queue_free is flushed.
+	# An off-tree AnimationPlayer cannot settle a new global animation wait.
+	if not is_inside_tree(): return
 	if animation_in == AnimationsIn.NONE:
 		return
 	play('RESET')
@@ -50,6 +53,9 @@ func _on_textbox_show() -> void:
 
 
 func _on_textbox_hide() -> void:
+	# Removed layouts remain signal subscribers until queue_free is flushed.
+	# An off-tree AnimationPlayer cannot settle a new global animation wait.
+	if not is_inside_tree(): return
 	if animation_out == AnimationsOut.NONE:
 		return
 	play('RESET')
@@ -70,6 +76,9 @@ func _on_about_to_show_text(info:Dictionary) -> void:
 
 
 func _on_textbox_new_text() -> void:
+	# Removed layouts remain signal subscribers until queue_free is flushed.
+	# An off-tree AnimationPlayer cannot settle a new global animation wait.
+	if not is_inside_tree(): return
 	if DialogicUtil.autoload().Inputs.auto_skip.enabled:
 		return
 

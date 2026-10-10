@@ -340,7 +340,24 @@ func prepare_semantic_restore(snapshot: Dictionary, prepared_profile: Dictionary
 
 
 func capture_restore_state() -> Dictionary:
-	return {"ok": true, "code": &"ok", "value": {"snapshot": _semantic.duplicate(true), "settings": _settings.duplicate(true)}, "receipt": {}}
+	if not _initialized:
+		return _failure(&"not_initialized")
+	# Settings must settle its own transient output before a restore is admitted.
+	# Otherwise compensation could resurrect a preview gain after its handle died.
+	if _settings_transactions.is_busy():
+		return _failure(&"settings_audio_busy")
+	if _settings_transactions.has_preview():
+		return _failure(&"settings_audio_preview_active")
+	var captured: Dictionary = _playback_port.call(&"capture_runtime")
+	if not captured.get("ok", false):
+		return captured
+	# This is a transient compensation capsule, never the persisted audio context.
+	# Keep the physical streams/playheads/fades and the manager's matching identities.
+	return {"ok": true, "code": &"ok", "value": {
+		"snapshot": _semantic.duplicate(true), "settings": _settings.duplicate(true),
+		"runtime": captured["value"].duplicate(true),
+		"records": _records.duplicate(true), "active_players": _active_players.duplicate(true),
+	}, "receipt": {}}
 
 
 func apply_restore_silent(plan: Dictionary) -> Dictionary:
@@ -356,41 +373,49 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 	if not audio.is_empty():
 		if not _valid_prepared_audio(audio): return _failure(&"invalid_restore_plan")
 		if not _supports_output_mode(audio.output_mode): return _failure(&"unsupported_audio_output_mode")
-	var settled: Dictionary = _settings_transactions.cancel_current_preview()
-	if not settled.get("ok", false): return settled
-	_restore_backup = capture_restore_state()["value"].duplicate(true)
+	var captured := capture_restore_state()
+	if not captured.get("ok", false):
+		return captured
+	_restore_backup = captured["value"]
 	var music := _set_context(&"music", snapshot["music_context_id"], snapshot["music_context"], 0.0, true, true)
 	if not music.get("ok", false):
-		return music
+		return _compensate_restore_failure(music)
 	var ambience := _set_context(&"ambience", snapshot["ambience_context_id"], snapshot["ambience_context"], 0.0, true, true)
 	if not ambience.get("ok", false):
-		return ambience
+		return _compensate_restore_failure(ambience)
 	if not audio.is_empty():
 		var candidate := _settings_from_audio(audio)
 		var settings_result := _apply_settings_silent(candidate)
 		if not settings_result.get("ok", false):
-			return settings_result
+			return _compensate_restore_failure(settings_result)
 		_settings = candidate
 	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
 
 
 func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 	var source: Dictionary = backup if not backup.is_empty() else _restore_backup
-	if not source.has("snapshot") or not source.has("settings"):
-		return _failure(&"invalid_restore_backup")
-	var snapshot: Dictionary = source["snapshot"]
-	var settings_result := _apply_settings_silent(source["settings"])
-	if not settings_result.get("ok", false):
-		return settings_result
+	for member: String in ["snapshot", "settings", "runtime", "records", "active_players"]:
+		if typeof(source.get(member)) != TYPE_DICTIONARY:
+			return _failure(&"invalid_restore_backup")
+	var restored: Dictionary = _playback_port.call(&"restore_runtime", source["runtime"].duplicate(true))
+	if not restored.get("ok", false):
+		_latch_consumer_fatal(&"restore_rollback", restored)
+		var failure := _failure(&"audio_runtime_indeterminate")
+		failure["fatal"] = true
+		return failure
+	_semantic = source["snapshot"].duplicate(true)
 	_settings = source["settings"].duplicate(true)
-	var ambience := _set_context(&"ambience", snapshot["ambience_context_id"], snapshot["ambience_context"], 0.0, true, true)
-	if not ambience.get("ok", false):
-		return ambience
-	var music := _set_context(&"music", snapshot["music_context_id"], snapshot["music_context"], 0.0, true, true)
-	if not music.get("ok", false):
-		return music
+	_records = source["records"].duplicate(true)
+	_active_players = source["active_players"].duplicate(true)
 	_restore_backup = {}
 	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
+
+
+func _compensate_restore_failure(cause: Dictionary) -> Dictionary:
+	# SaveManager compensates only successfully applied participants. If our
+	# second channel or preferences refuse, undo our own earlier work here.
+	var restored := rollback_restore_silent(_restore_backup)
+	return cause if restored.get("ok", false) else restored
 
 
 func finalize_restore() -> Dictionary:

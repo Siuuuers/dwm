@@ -1,0 +1,92 @@
+[
+  {
+    "path": "scripts/ui/SettingsContent.gd",
+    "size": 35118,
+    "sha256": "026323c9cddc9679730396d124bf25c687a051ee18957acd3076c4675c1e90e6",
+    "git_blob": "3969c6c30d8db8395c28cc94fcea2d0e98f96f85"
+  },
+  {
+    "path": "scripts/ui/SettingsApp.gd",
+    "size": 4308,
+    "sha256": "68d53d191733f75c43beb663db614f90141302840a76b228acbf8a93dc89cd2d",
+    "git_blob": "638b146c81a727c1cb607c7ba822a79f31aa62b1"
+  },
+  {
+    "path": "scripts/ui/Setting.gd",
+    "size": 1464,
+    "sha256": "64d1307d2594e90ea5a34a1685b3f760b901760af82d474169fc2d54529e5ff9",
+    "git_blob": "1401494cd938502276b7ea8573286a67578722e4"
+  },
+  {
+    "path": "scripts/ui/witnessed/WitnessedTransportRecovery.gd",
+    "size": 8023,
+    "sha256": "1e05e5a9808a133f6161c783c666ff373e47d4ba1d8c6333abf50eac3465fcf0",
+    "git_blob": "380ac78a7d33a9b104e282d2ed8c16093e3d8acf"
+  },
+  {
+    "path": "tests/integration/test_settings_shared_hosts.gd",
+    "size": 26999,
+    "sha256": "65b56a17e2a867d9fcaaa590014b7567949b6abe50a9baabbae75b126dd08f51",
+    "git_blob": "c668322230dff7bf80528828ddab298cfba48f08"
+  },
+  {
+    "path": "tests/ui/render_settings_shared.gd",
+    "size": 17085,
+    "sha256": "fb379754a7fa10fb8cebcc04c5ecbe04982d0d48853688be2053228668e73084",
+    "git_blob": "6bf59bdd3e4966b6fc40e88b214d77d7c51718d3"
+  },
+  {
+    "path": ".github/workflows/windows-tests.yml",
+    "size": 71179,
+    "sha256": "b93abcc13a0ce8d7471058d4cb2aca377be02464bc69373387dccbc96636c812",
+    "git_blob": "0a79edfb628d2055da8a55860dc3709aa8927073"
+  },
+  {
+    "path": "tests/unit/test_japanese_korean_ui.gd",
+    "size": 13338,
+    "sha256": "7c0498e52743fae4cd457868448bd08619137b31b3539c81421a5939e94fd22b",
+    "git_blob": "8ac619655a08eb3afe090ef5d0432e654f477228"
+  },
+  {
+    "path": "localization/ui/en.json",
+    "size": 20499,
+    "sha256": "2fccab3e72161327516b8d4bd4670af3b729a54cb8a0f7ff56381193b0998ce8",
+    "git_blob": "91563239cd3eaffac0c09bbdb314093797c6cc1a"
+  },
+  {
+    "path": "localization/ui/zh_CN.json",
+    "size": 15630,
+    "sha256": "4b9c2a61e28627700745a17b8c00225d245c4f2a67293b23ff017f54ad7eaf66",
+    "git_blob": "849859ab0598105e4f40aed6f696815b6ba5ba38"
+  },
+  {
+    "path": "localization/ui/zh_HK.json",
+    "size": 15627,
+    "sha256": "6e48573ce0c715d0f9af6cd8f5836a7861ddafb5448f2ac2eec1d698859c44d0",
+    "git_blob": "0182f167ea29b598b0feb7966784111da1a44893"
+  },
+  {
+    "path": "localization/ui/ja.json",
+    "size": 24097,
+    "sha256": "504faa90acb5293cd81ad43ad58d9927c995a24f52885d3bbb80c6806008ce7f",
+    "git_blob": "c93d6190319929844f08c0bda7b64271f3aafce1"
+  },
+  {
+    "path": "localization/ui/ko.json",
+    "size": 22622,
+    "sha256": "b15e172141076af7c853cedb1eadddfca344f0886b936264ad564fe674694c8c",
+    "git_blob": "1530bbf12785492e3267deb243169dd7d905dc7f"
+  },
+  {
+    "path": "evidence/phase_2r/runtime/game_state_surface.json",
+    "size": 570032,
+    "sha256": "17e9e7ead24e6fa3222138b93cd27bb259d7a539ae75d8265b5eac414e0941b9",
+    "git_blob": "2fe3f213a094123fc3d246c45c296c35e2609c15"
+  },
+  {
+    "path": "evidence/phase_2r/runtime/save_manager_surface.json",
+    "size": 152431,
+    "sha256": "bf618c3d603c54504c7cf20047db6267c9d666182efd3bdc874a12184495c69d",
+    "git_blob": "557a113918a13a53de9d9d8cac9383a51ba6d614"
+  }
+]

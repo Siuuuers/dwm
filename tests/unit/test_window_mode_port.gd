@@ -160,3 +160,42 @@ func test_editor_embedding_never_attempts_to_control_the_host_window() -> void:
 	assert_eq(port.apply_mode("borderless").code, &"window_output_unavailable")
 	assert_false(port.output_matches("windowed"))
 	assert_true(platform.operations.is_empty(), "the editor owns embedded-window geometry")
+
+func test_window_size_presets_follow_current_monitor_and_leave_frame_space() -> void:
+	var platform := Platform.new()
+	var port := PORT.new(platform)
+	assert_eq(port.get_available_window_sizes(), ["1280x720"])
+	platform.screen = 0
+	assert_eq(port.get_available_window_sizes(), ["1280x720", "1600x900"])
+	assert_true(port.apply_mode("windowed", "1600x900").ok)
+	assert_eq(platform.size, Vector2i(1600, 900))
+	assert_eq(platform.position, Vector2i(160, 70))
+	assert_true(port.output_matches("windowed", "1600x900"))
+	assert_false(port.output_matches("windowed", "1280x720"))
+
+func test_saved_large_window_fits_a_smaller_monitor_without_clipping() -> void:
+	var platform := Platform.new()
+	platform.screens[1] = Rect2i(-1366, 0, 1366, 728)
+	var port := PORT.new(platform)
+	assert_true(port.get_available_window_sizes().is_empty())
+	assert_true(port.apply_mode("windowed", "1920x1080").ok)
+	assert_lte(platform.size.x, 1366 - PORT.FRAME_ALLOWANCE.x)
+	assert_lte(platform.size.y, 728 - PORT.FRAME_ALLOWANCE.y)
+	assert_true(port.output_matches("windowed", "1920x1080"))
+	assert_true(platform.screens[1].encloses(Rect2i(platform.position, platform.size)))
+
+func test_invalid_window_sizes_never_reach_native_setters() -> void:
+	var platform := Platform.new()
+	var port := PORT.new(platform)
+	for value: Variant in ["", "4096x2160", "1280X720", Vector2i(1280, 720), null]:
+		assert_eq(port.apply_mode("windowed", value).code, &"invalid_window_size")
+		assert_false(port.output_matches("windowed", value))
+	assert_true(platform.operations.is_empty())
+
+func test_borderless_ignores_window_size_and_keeps_native_usable_bounds() -> void:
+	var platform := Platform.new()
+	var port := PORT.new(platform)
+	assert_true(port.apply_mode("borderless", "1920x1080").ok)
+	assert_eq(platform.size, platform.screens[1].size)
+	assert_eq(platform.position, platform.screens[1].position)
+	assert_true(port.output_matches("borderless", "1920x1080"))

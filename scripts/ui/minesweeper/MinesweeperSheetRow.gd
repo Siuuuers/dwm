@@ -65,7 +65,7 @@ static func measure_copy(copy: String, next_theme: Theme, width_logical: int) ->
 
 static func _measure_text(copy: String, next_theme: Theme, width_logical: int) -> Dictionary:
 	if copy.strip_edges().is_empty() or next_theme == null or width_logical <= 0: return {}
-	if next_theme.default_font == null or next_theme.default_font_size not in [20,25,30]: return {}
+	if next_theme.default_font == null or next_theme.default_font_size not in [20,24,25,30,36]: return {}
 	var paragraph := TextParagraph.new()
 	paragraph.width = width_logical
 	paragraph.break_flags = BREAKS

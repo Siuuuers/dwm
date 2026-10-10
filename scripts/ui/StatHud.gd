@@ -8,9 +8,15 @@ const COPY := {
 	"en": {"day": "Day", "pressure": "Pressure", "health": "Health", "motivation": "Motivation", "money": "Money", "coins": "Coins", "condition": "Condition", "penalty": "Daily penalty", "unavailable": "Status unavailable", "condition_unavailable": "Condition unavailable", "nausea": "Nausea", "dizzy": "Dizziness", "sequela": "Aftereffects", "faint": "Fainting"},
 	"zh-CN": {"day": "天数", "pressure": "压力", "health": "健康", "motivation": "动力", "money": "金钱", "coins": "硬币", "condition": "状态", "penalty": "当日惩罚", "unavailable": "状态信息不可用", "condition_unavailable": "状态不可用", "nausea": "恶心", "dizzy": "头晕", "sequela": "后遗症", "faint": "昏厥"},
 	"zh-HK": {"day": "天數", "pressure": "壓力", "health": "健康", "motivation": "動力", "money": "金錢", "coins": "硬幣", "condition": "狀態", "penalty": "當日懲罰", "unavailable": "狀態資訊無法使用", "condition_unavailable": "狀態無法使用", "nausea": "噁心", "dizzy": "頭暈", "sequela": "後遺症", "faint": "昏厥"},
+	"ja": {"day": "日数", "pressure": "プレッシャー", "health": "体調", "motivation": "意欲", "money": "所持金", "coins": "コイン", "condition": "状態", "penalty": "本日のペナルティ", "unavailable": "状態を表示できません", "condition_unavailable": "状態を確認できません", "nausea": "吐き気", "dizzy": "めまい", "sequela": "後遺症", "faint": "失神"},
+	"ko": {"day": "일수", "pressure": "압박감", "health": "건강", "motivation": "의욕", "money": "소지금", "coins": "코인", "condition": "상태", "penalty": "오늘의 페널티", "unavailable": "상태 정보를 볼 수 없어요", "condition_unavailable": "상태를 확인할 수 없어요", "nausea": "메스꺼움", "dizzy": "어지러움", "sequela": "후유증", "faint": "실신"},
 }
 const CONDITION_IDS := ["nausea", "dizzy", "sequela", "faint"]
 const STAT_ROWS := {"pressure": "PressureRow", "health": "HealthRow", "motivation": "MotivationRow"}
+const SCROLL_NAMES := {"en": "Scroll status", "zh-CN": "滚动查看状态", "zh-HK": "捲動查看狀態",
+	"ja": "状態をスクロール",
+	"ko": "상태 스크롤",
+}
 
 var _owner: Object
 var _localization: Object
@@ -38,6 +44,7 @@ func _ready() -> void:
 		_localization = get_node_or_null("/root/LocalizationManager")
 		_profile = get_node_or_null("/root/ProfileManager")
 	_bind_sources()
+	%StatScroll.get_v_scroll_bar().focus_mode = Control.FOCUS_ALL
 	refresh_all()
 
 
@@ -83,7 +90,10 @@ func refresh_all(_a: Variant = null, _b: Variant = null, _c: Variant = null, _d:
 	if typeof(day) != TYPE_INT or day < 1 or day > 7:
 		_publish(%UnavailableLabel, COPY[_locale].unavailable)
 		return
-	_publish(%DayLabel, "%s: %d" % [COPY[_locale].day, day])
+	var day_text := "%s: %d" % [COPY[_locale].day, day]
+	if _locale == "ja": day_text = "%d日目" % day
+	elif _locale == "ko": day_text = "%d일차" % day
+	_publish(%DayLabel, day_text)
 	for stat: String in STAT_ROWS:
 		var value: int = _owner.get_stat_display_value(stat)
 		var maximum: int = _owner.get_stat_display_max(stat)
@@ -109,7 +119,7 @@ func _refresh_conditions(conditions: Variant) -> void:
 		if public_name not in names:
 			names.append(public_name)
 	if not names.is_empty():
-		_publish(%ConditionDisplay, "%s: %s" % [COPY[_locale].condition, (", " if _locale == "en" else "、").join(names)])
+		_publish(%ConditionDisplay, "%s: %s" % [COPY[_locale].condition, (", " if _locale in ["en", "ko"] else "、").join(names)])
 
 
 func _refresh_presentation() -> void:
@@ -127,23 +137,48 @@ func _refresh_presentation() -> void:
 			palette = &"midnight" if configuration.value.dark_mode else &"after_hours"
 	var day: Variant = _owner.get("day") if is_instance_valid(_owner) else null
 	var tint: float = WEEK_TINT.tint_for_day(int(day)) if typeof(day) == TYPE_INT else 0.0
-	var presentation_key := "%s:%d:%s:%s:%s:%.2f" % [_locale, percent, palette, high_contrast, colour_preset, tint]
+	var font_style := str(_profile.get_preference("preferences.accessibility.font_style", "pixel")) if is_instance_valid(_profile) and _profile.has_method("get_preference") else "pixel"
+	var presentation_key := "%s:%d:%s:%s:%s:%.2f:%s" % [_locale, percent, palette, high_contrast, colour_preset, tint, font_style]
 	if presentation_key == _presentation_key:
 		return
-	var next_theme: Theme = DESKTOP_THEME.build(_locale, percent, palette, tint, high_contrast, colour_preset)
+	var next_theme: Theme = DESKTOP_THEME.build(_locale, percent, palette, tint, high_contrast, colour_preset, font_style)
 	if next_theme == null: return
 	_presentation_key = presentation_key
 	theme = next_theme
+	%StatScroll.get_v_scroll_bar().accessibility_name = SCROLL_NAMES[_locale]
 	var font := FontVariation.new()
 	font.base_font = theme.default_font
 	font.opentype_features = {"tnum": 1}
 	theme.default_font = font
+	%DayLabel.add_theme_font_size_override("font_size", roundi(theme.default_font_size * (4.0 / 3.0 if font_style == "pixel" else 1.16)))
+	var rule_color := theme.get_color("structure", "Desktop")
+	rule_color.a = 1.0 if high_contrast else 0.6
+	var day_rule := StyleBoxFlat.new()
+	day_rule.draw_center = false
+	day_rule.border_color = rule_color
+	day_rule.border_width_bottom = 1
+	day_rule.content_margin_bottom = 8
+	%DayLabel.add_theme_stylebox_override("normal", day_rule)
+	var balance_rule := StyleBoxFlat.new()
+	balance_rule.draw_center = false
+	balance_rule.border_color = rule_color
+	balance_rule.border_width_top = 1
+	balance_rule.content_margin_top = 8
+	%MoneyRow.add_theme_stylebox_override("normal", balance_rule)
 	var panel := StyleBoxFlat.new()
-	panel.bg_color = theme.get_color("habitat", "Desktop")
+	panel.bg_color = theme.get_color("habitat" if high_contrast else "face", "Desktop")
+	panel.bg_color.a = 1.0 if high_contrast else 0.82
+	panel.border_color = rule_color
+	panel.set_border_width_all(1)
+	panel.set_corner_radius_all(4)
+	if not high_contrast:
+		panel.shadow_color = Color(0, 0, 0, 0.2)
+		panel.shadow_size = 4
+		panel.shadow_offset = Vector2(0, 2)
 	panel.content_margin_left = 16
 	panel.content_margin_right = 16
-	panel.content_margin_top = 12
-	panel.content_margin_bottom = 12
+	panel.content_margin_top = 14
+	panel.content_margin_bottom = 14
 	add_theme_stylebox_override("panel", panel)
 
 

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "before_sha256": "27097bbef59b4abfd9b2c0ed20c7bc5efc700f7c00ebcded55c04c7e700c1b20",
+  "after_sha256": "b9770fc2fa63d645d769885a71ebe903994c90dc78bba06b2173b2009faccbba",
+  "records": 191,
+  "other_records_byte_identical": 189,
+  "unfinished_count": 23,
+  "changed_records": [
+    "dwm-n3h.2",
+    "dwm-vky.14"
+  ],
+  "changed_fields": [
+    "notes",
+    "updated_at"
+  ],
+  "all_statuses_and_dependencies_unchanged": true,
+  "dolt_synchronization_claimed": false
+}

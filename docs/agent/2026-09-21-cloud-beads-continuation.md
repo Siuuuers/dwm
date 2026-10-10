@@ -1,0 +1,161 @@
+# PR1 cloud Beads continuation — 2026-09-21
+
+Work continues on `codex/windows-cloud-ux`, PR #1. Bead closure requires the
+relevant implementation and cloud evidence; the expanded workflow is not yet
+fully passing at the checkpoint recorded below.
+
+## Implemented and under verification
+
+- Profile v9 retains first-witnessed presentation chronology. Migrated v8
+  signatures retain explicit unknown legacy order. Replays cannot rewrite the
+  known chronology or manufacture a first witness.
+- Failed Load compensation restores the exact prior audio runtime, including
+  stream/player identity and playback/fade state. A successful Load still uses
+  the accepted curated-anchor behavior; this is a separate contract.
+- Minesweeper receives the admitted day tint on Desktop and Dating surfaces.
+  All 16 palette tuples across seven days retain semantic ink and accessibility
+  constraints; Day 1 and High Contrast are preserved.
+- Direct SaveManager boundary tests exercise responsive New Account/Retry,
+  session-exit custody, and exact retained `load_context` behavior. Four contract
+  labels identify these direct tests. Six unused GameState wrappers are retired.
+- Pause and Desktop Quick commands use the existing Backup transaction owner,
+  preserving app/modal custody, Cancel-first Load consent, and held-contact
+  quarantine. The existing Controls rules reject modifier chords; tests preserve
+  that deliberate restriction and the unchanged default binding.
+- Frozen presentation contexts now cover Dating, native Contacts, Hospital and
+  ordered endings. Saved-context validation runs before installation and Profile
+  reconciliation. This producer checkpoint remains RunSave v6 and validates
+  present caches; strict v7 completeness still requires cloud proof. Historical
+  replay exposes only facts its saved signature actually contains. Missing old
+  selectors remain a separate tracked decision, without invented history.
+- Application destruction explicitly breaks three retained reference cycles:
+  day-resolution/start, desktop consequence/round, and Condition Hospital/pair
+  draw. Normal command ownership is unchanged; teardown performs no save,
+  advancement or signal publication. Cloud shutdown verification is pending.
+
+Dating retains automatic pre-board/post-board handoff with no Continue/Done
+interstitial or special-mine action. Observer interactions remain retired from
+current play and preserved at `archive/observer-interactions-2026-09-21`.
+
+## Measured cloud checkpoints
+
+| Run | PR head | Result and scope |
+| --- | --- | --- |
+| 39 / `35604201178` | `69abfaf0065edcbfed5c6efb6a7f7f0a3ff60c55` | 11/14 jobs passed. New ending, persistence, and Minesweeper fixtures exposed stale assumptions. Seven-day retained-history/cold Login correctness passed. |
+| 40 / `35627055044` | `34926b45af076559de40d8ee00c3403254428a3b` | All 17 jobs stopped at import: Godot rejected an array-expression constant in ProfileSchema. No test-pass claim. |
+| 41 / `35627369190` | `86e511f5c05e902d2ab7e625fcd91581d510a470` | Parser fixed; 12/17 jobs passed. Settings, persistence, reading/delivery, exported startup, and full rendered journeys still failed. |
+| 42 / `35629589023` | `0fa182fdf5ca6999f4adcfe0369781d2a308a6db` | 11/17 jobs passed. All five rendered journeys reached their markers/captures; strict native-TTS and shutdown-resource gates still failed. Three focused fixture corrections and one real no-mutation Dating refusal fix remain under verification. |
+| 43 / `35631315483` | `c832233de93de88a91c25ff3ae255d1c1859eb78` | 14/17 jobs passed. All focused GUT suites passed, including 262 Settings tests and 150 persistence tests. Linux native TTS setup and all five journey markers/captures passed. Strict shutdown retained 48 resources, native Windows EXE exited 1 before diagnostics, and the storage-refusal census was stale. |
+| 44 / `35633177416` | `8e4d127f5aec8534506988c6669f94d3f145b86d` | All 17 jobs stopped at import on four Boolean type-inference errors. Fixed by explicit types in the next commit; no runtime tests executed. |
+| 45 / `35633568072` | `53d01b48413c37c327d94a521598bae5deb359ec` | GitHub assigned no runners: all 17 jobs ended in 2–8 seconds with no steps, logs or artifacts. Cause unverified; each check has an annotation unavailable through the connector. |
+
+Run 41's focused failures were two invalid checkpoint-field fixture accesses,
+two paused-Quick fixture assumptions, and one expected storage-refusal code.
+The storage guard correctly returned `reconcile_required` after an external byte
+change. Fixes retain the real guards and add unchanged-state assertions.
+
+Run 41 generated canonical public inventories successfully and found zero
+references to the six retired GameState APIs in 888 scanned source files.
+The exact inventories were recovered with byte counts and SHA256 verification.
+Further source/contract edits require regeneration followed by a final read-only
+check of the committed inventories.
+
+The expanded full-journey harness found script/teardown failures and a dating
+watchdog timeout even where some expected markers were reached. A marker alone
+does not pass the strict engine-error gate. The export reached pack audit but
+failed its strict engine-error scan; bounded engine diagnostics are being added
+to make the underlying failure visible in the job log.
+
+## Performance evidence and remaining work
+
+Run 41 retained exactly 32 line, 32 manual-save, and two semantic checkpoints
+after seven days, then restored the exact Day 7 Autosave in a fresh process.
+The fixture adds 98 explicitly synthetic checkpoints alongside real New Account,
+App-loss, Schedule Done, and Slot 1 paths. It is not an authored-dialogue
+playthrough.
+
+The final document was 1,671,028 bytes with SHA256
+`7ebffe8e2e1ecbc2233e8b678e09ae851eace5e336e5b4372ad29a159515f1c9`.
+On that shared Windows runner, Day 7 first Reveal took 925.962 ms synchronously,
+settlement took 1,988.443 ms, Slot 1 save took 5,163.638 ms, and cold Login took
+12,188.362 ms. These are observations for this fixture and runner.
+
+All 34 durable Autosaves took the full-document fallback: no retained-journal
+splice was used. This establishes the next concrete optimization target:
+remember validated historical bundles only after an exact durable full write,
+successful reread, and successful journal commit. Failed or mismatched writes
+must never establish that proof.
+
+The separate matched-payload normalization probe used five samples after two
+warmups with identical input/output hashes. Day 7's normalization median was
+160.144 ms for the pinned baseline and 81.871 ms for the candidate. This measures
+one normalization seam with a complete proof set; because production history
+used no splices, it does not establish a corresponding end-to-end speedup.
+
+Run 42 proved real use of the retained-history optimization: 14 of 34 durable
+Autosaves used the splice. Its Day 7 document was 1,671,259 bytes. First Reveal
+took 911.698 ms, settlement 627.815 ms, Slot 1 prepare-plus-commit 4,123.819 ms,
+and the automated cold Login flow 9,709.482 ms. Login includes opening the Title
+Backup picker, selecting Autosave, consent, restoration, and frame waits. The
+fresh payload and runner differ from run 41, so these observations do not prove
+a causal end-to-end percentage improvement. Save/Load phase instrumentation is
+the next step for the remaining multi-second operations.
+
+Outstanding content/native gates remain explicit: authored per-version Gallery
+cues and canonical dialogue History require their accepted content/catalogs;
+native Windows UI Automation requires the missing upstream scroll-provider
+capability. Headless tests, software-rendered screenshots, and package startup
+do not substitute for those gates.
+
+
+Run 43 phase instrumentation measured Day 7 manual save at 5.063 s (2.110 s
+prepare and 2.953 s commit). Atomic storage write took 2.224 s. Cold Login
+was 11.848 s and included three Autosave and two Slot 1 inspections; inspection
+parsing totalled 4.273 s. Nested timing scopes are inclusive and must not be
+summed. Synchronous metadata signal delivery was only 8 microseconds.
+A reviewed two-entry parse cache now reuses only successful strict parses of
+exactly identical text, with detached results and an 8 MiB source-byte budget.
+Schema, migration, revision, participant and disk-read guards remain active. Seven
+focused tests and disabled/enabled cold-Login controls are registered. No cache
+speedup or runtime-pass claim is made until those cloud checks execute.
+
+The next validation batch corrects the refusal census to 83 cases / 80 expected
+root refusals / 3 passes (five new existing checkpoint tests explain the change).
+Every failure must still be the expected root refusal and repository snapshots
+must remain unchanged. Export validation now runs the independent native EXE
+and PCK checks even if one fails, prints bounded diagnostics before throwing,
+and permits neither the release manifest nor ZIP after either failure.
+
+
+The latest review also binds a Contacts virtual group phase to its exact registered
+entry identity. A schema-valid message snapshot cannot borrow an activation receipt
+by changing its variation. Its tamper regression is included.
+
+GitHub's job annotations confirmed that runs 45 and 46 initially could not start
+because of account billing enforcement. After the owner made the repository public,
+run 46 attempt 2 allocated a Windows runner and imported the current source
+successfully. Attempt 3 then allocated all seventeen jobs. The earlier billing
+failure is no longer the current execution blocker.
+
+The resumed run exposed seven new GameState methods missing public contract
+classifications, a sparse New Account relationship-default mismatch in Contacts
+capture, and a typed-array return error in frozen Hospital artwork. Two real-DTL
+tests also injected cached prose while the art-hold probe still read a return-only
+file; their fixture must replace and restore both representations. The release
+export also encountered the GUT editor plugin's optional version-check HTTP 403.
+These are concrete integration/setup failures; they do not justify weakening
+validators. In particular, the failed journey cannot establish a parse-cache
+speedup. Full resumed results and fixes are recorded with their exact commit/run
+identities in the continuation evidence.
+
+Keep RunSave v7 gated on successful producer validation and compatible performance
+fixtures. Canonical public inventories still need recovery from the final source,
+commit, and a subsequent read-only cloud check before inventory acceptance.
+
+
+Three bounded children are closed from exact run43 evidence: `dwm-7wj.1`
+(Profile/Gallery chronology), `dwm-vky.16` (Minesweeper week tint), and
+`dwm-nqn.1` (failed-Load audio compensation). Their implemented source remains
+unchanged by the later context/cache batches. Parent feature and release gates
+remain open. The four SaveManager contract child stays open until committed
+public inventories reproduce under the final read-only gate.

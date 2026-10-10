@@ -8,8 +8,9 @@ const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 # SUBSTRATE. The same real-object substrate as test_committed_schedule_day_resolution.gd: a
 # GUID-isolated root, a real DesktopIssuerRootStore over real JsonFileStorage, the real
 # DesktopIdentityNonceIssuer, the production ScheduleActionRegistry through load_current(), a real
-# GameState, and the real GameStateScheduleCommitPort. No fake supplies a success here: every
-# aggregate below was minted by the production commit port and installed into the real owner.
+# GameState, and the real GameStateScheduleCommitPort. Every aggregate below is minted by the
+# production commit port and installed into the real owner. Hospital playback completion uses an
+# explicit bridge boundary double; native admission/rendering are proven by the runtime suites.
 #
 # WHAT THIS FILE OWNS. Task 6 proved the committed entries REACH the plan. This file proves what
 # Task 7 adds: that each ordinary entry's REGISTERED effects are committed exactly once through the
@@ -26,7 +27,7 @@ const REGISTRY := preload("res://scripts/domain/schedule/ScheduleActionRegistry.
 const LEDGER := preload("res://scripts/infrastructure/save/ScheduleFoundationPublicationLedger.gd")
 const CONTACT_STATE := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 ## dwm-p2r.18: a Hospital that TRIGGERS now presents, so this suite must be able to carry a
-## resolution through a real presentation boundary to reach the stages after it.
+## resolution through the real presentation port, using a playback-boundary double.
 const START_PORT := preload("res://scripts/application/run/DayResolutionStartPort.gd")
 const HOSPITAL_PORT := preload("res://scripts/application/run/HospitalPresentationPort.gd")
 const PRESENTATION_OWNER := preload("res://scripts/application/narrative/DialogicPresentationOwnerAdapter.gd")
@@ -92,10 +93,10 @@ func before_each() -> void:
 	assert_true(_state_port.configure_resolution_identity(
 		_issuer, START_PORT.new(_state_port, _registry, _issuer, ledger)).get("ok", false))
 
-	# The REAL narrative owner over a real bridge: an ordinary Hospital completes only through its
-	# explicit notice acknowledgment; the receipt-proven Sylvia branch retains real playback.
+	# The real narrative owner receives completion from an explicit bridge boundary double.
+	# Native Dialogic admission and playback are covered by the dedicated runtime suites.
 	_presentation_receipts = []
-	_bridge = load("res://autoload/DialogicBridge.gd").new()
+	_bridge = preload("res://tests/support/FakeHospitalTimelineBridge.gd").new()
 	add_child_autofree(_bridge)
 	_presentation_owner = PRESENTATION_OWNER.new()
 	assert_true(_presentation_owner.configure(_bridge).get("ok", false))
@@ -427,6 +428,12 @@ func _seed_solo_source(friend_id: String, day: int, action_id: String) -> String
 	assert_true(offered.get("ok", false), str(offered))
 	if not offered.get("ok", false):
 		return ""
+	# Capture immutable offer facts at generation, before installing the accepted
+	# Contacts source. A persisted offer may not reconstruct them during restore.
+	var frozen := preload("res://scripts/narrative/ContactsFrozenContext.gd").capture_candidate(
+		_game_state.contacts, offered.value.candidate, _game_state.to_save_dict(), day)
+	assert_true(frozen.get("ok", false), str(frozen))
+	if not frozen.get("ok", false): return ""
 	var command: Dictionary = _command("open.%s.day%d" % [friend_id, day])
 	var found: Dictionary = _registry.find_record(action_id)
 	assert_true(found.get("ok", false), str(found))
@@ -439,6 +446,7 @@ func _seed_solo_source(friend_id: String, day: int, action_id: String) -> String
 	if not opened.get("ok", false):
 		return ""
 	_game_state.contacts = opened["value"]["candidate"]
+	_game_state.route_context = frozen.value.route_context
 	return str(opened["receipt"]["receipt_id"])
 
 func _commit_and_begin(day: int, drafts: Array) -> void:
@@ -512,8 +520,8 @@ func _complete_current() -> bool:
 ## Carries one awaiting presentation to its physical completion through the REAL port and owner,
 ## and returns the stage envelope value that embeds the port's completion receipt.
 ##
-## The physical completion is driven through the ordinary notice's public acknowledgment seam, so
-## nothing here fabricates Dialogic playback that did not happen. The stage is left ACTIVE:
+## An explicit bridge boundary double supplies playback completion to the production physical owner.
+## The stage is left ACTIVE:
 ## committing it is the caller's decision.
 func _presentation_receipt_value(begun_value: Dictionary) -> Dictionary:
 	var command: Dictionary = begun_value["command"]
@@ -521,13 +529,8 @@ func _presentation_receipt_value(begun_value: Dictionary) -> Dictionary:
 	assert_true(started.get("ok", false), JSON.stringify(started))
 	if not started.get("ok", false):
 		return {}
-	assert_false(_bridge.has_active_playback(),
-		"an ordinary Hospital notice starts no Dialogic playback")
-	var acknowledged: Dictionary = _hospital_port.acknowledge_notice(
-		(started["value"] as Dictionary)["presentation_command"])
-	assert_true(acknowledged.get("ok", false), JSON.stringify(acknowledged))
-	if not acknowledged.get("ok", false):
-		return {}
+	assert_true(_bridge.has_active_playback(), "every faint starts shared Hospital playback")
+	_bridge.publish_fixture_completion()
 	assert_eq(_presentation_receipts.size(), 1, "the port published exactly one completion")
 	if _presentation_receipts.size() != 1:
 		return {}

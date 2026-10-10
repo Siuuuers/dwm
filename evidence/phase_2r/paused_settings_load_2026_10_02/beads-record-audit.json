@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "baseline_source": "41cc51992b74ec9472f7912e0eb8e1c39679af44",
+  "before": {
+    "bytes": 2017898,
+    "sha256": "55c5f455f3909274ce3e8186e4be4b418e245f83a06c9ee760a3e8cf4c2f556b"
+  },
+  "after": {
+    "bytes": 2019981,
+    "sha256": "21301e6a6e2fac9bddb9d3e358c398f77c32f8390901fd0b694b20cc7f40baab"
+  },
+  "records": 191,
+  "changed_records": [
+    "dwm-vky.14"
+  ],
+  "changed_fields": [
+    "notes",
+    "updated_at"
+  ],
+  "other_190_records_byte_identical": true,
+  "all_statuses_and_dependencies_unchanged": true,
+  "unfinished": 23,
+  "status_counts": {
+    "closed": 168,
+    "deferred": 6,
+    "in_progress": 11,
+    "open": 5,
+    "blocked": 1
+  },
+  "live_dolt_queried": false,
+  "live_dolt_synchronized": false
+}

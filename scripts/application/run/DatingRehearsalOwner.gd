@@ -116,6 +116,55 @@ func pull_physical(command: Dictionary) -> Dictionary:
 	if not _matches(command): return _fail("rehearsal_identity_mismatch")
 	return _physical.pull_physical(str(_command.physical_token))
 
+## Minimal practice entries are return-only or exact result routes into empty leaves.
+## Prove the entire source route and selected leaf are empty; prose needs private playback.
+## This path neither invokes canonical Dialogic nor grants a witnessed line/signature.
+func begin_narrative_phase(command: Dictionary, _retry: bool = false) -> Dictionary:
+	if not _matches(command): return _fail("rehearsal_identity_mismatch")
+	var pulled := pull_physical(command)
+	if not pulled.get("ok", false): return pulled
+	var phase := str(pulled.value.phase)
+	if phase not in ["pre_challenge", "post_challenge"]: return _fail("rehearsal_narrative_phase_unavailable")
+	if command.context.kind == "twofriends_if_deferred" and phase == "post_challenge" \
+			and pulled.value.outcome == "exploded":
+		return _ok({"status": "completed", "reason": "pair_explosion_cutoff"})
+	var entry_id := str(_source.signature.entry_id).trim_suffix(".pre_challenge") + "." + phase
+	var located: Dictionary = preload("res://scripts/data/DialogicTimelineCatalog.gd").get_entry(entry_id, "en")
+	if not located.get("ok", false): return located
+	if preload("res://autoload/DialogicBridge.gd").is_return_only_entry(
+			str(located.value.path), str(located.value.label)):
+		return _ok({"status": "completed", "entry_id": entry_id, "reason": "empty_authored_entry"})
+	if phase == "post_challenge" and _is_empty_result_route(
+		FileAccess.get_file_as_string(str(located.value.path)), str(located.value.label), str(pulled.value.outcome)):
+		return _ok({"status": "completed", "entry_id": entry_id,
+			"reason": "empty_authored_result_route", "result_label": str(located.value.label) + "." + str(pulled.value.outcome)})
+	return _fail("rehearsal_authored_playback_unavailable")
+
+
+## A deliberately narrow proof, not a Dialogic interpreter. Only the complete
+## approved result dispatch plus an empty selected leaf may be skipped privately.
+static func _is_empty_result_route(source: String, label: String, outcome: String) -> bool:
+	if label.is_empty() or outcome not in ["exploded", "perfect", "cleared"]: return false
+	var bodies := {}
+	var current_label := ""
+	for raw_line: String in source.split("\n"):
+		var line := raw_line.strip_edges(false, true)
+		if line.strip_edges().is_empty() or line.strip_edges().begins_with("#"): continue
+		if line.begins_with("label "):
+			current_label = line.trim_prefix("label ")
+			if bodies.has(current_label): return false
+			bodies[current_label] = []
+		elif not current_label.is_empty():
+			bodies[current_label].append(line)
+	var expected: Array[String] = [
+		'if {Frozen.board_result} == "exploded":', "\tjump " + label + ".exploded",
+		'elif {Frozen.board_result} == "perfect":', "\tjump " + label + ".perfect",
+		'elif {Frozen.board_result} == "cleared":', "\tjump " + label + ".cleared", "return"]
+	return bodies.get(label) == expected and bodies.get(label + "." + outcome) == ["return"]
+
+func pull_narrative_phase(command: Dictionary) -> Dictionary:
+	return begin_narrative_phase(command)
+
 func dispatch_physical(command: Dictionary, action: String, index: int, revision: int) -> Dictionary:
 	if not _matches(command): return _fail("rehearsal_identity_mismatch")
 	var result: Dictionary = _physical.dispatch_physical(str(_command.physical_token), action, index, revision)
@@ -196,3 +245,4 @@ static func _ok(value: Dictionary) -> Dictionary:
 
 static func _fail(code: String) -> Dictionary:
 	return {"ok": false, "code": StringName(code), "message": ""}
+

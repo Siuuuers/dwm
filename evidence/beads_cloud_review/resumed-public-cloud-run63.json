@@ -1,0 +1,2322 @@
+{
+  "schema": "dwm_cloud_run_evidence.v1",
+  "repository": "Siuuuers/dwm",
+  "pull_request": 1,
+  "workflow_run_id": 36314617828,
+  "workflow_run_number": 63,
+  "url": "https://github.com/Siuuuers/dwm/actions/runs/36314617828",
+  "overall_accepted": true,
+  "source_binding": {
+    "source_commit": "dae70bf9aa05b6b3debb60f95738e5ffc4e97548",
+    "source_tree": "02a5f17b89f2c2522973a13a1d708ed4ea8a0423",
+    "tested_merge": "682355a8031d13069290cbe85b0269aea0c758ee",
+    "tested_tree": "46ff81adfe3978c6a442bb75e1927a036547b8d8",
+    "parents": [
+      "538b61ba96457eb5448053c8b0897b4fcbaa464a",
+      "dae70bf9aa05b6b3debb60f95738e5ffc4e97548"
+    ],
+    "source_to_merge_difference": [
+      {
+        "path": "docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md",
+        "sha": "e9ae0a1deba976b2611a6407a765895af1204e34",
+        "status": "modified"
+      },
+      {
+        "path": "docs/story-auditions/2026-09-26-priscilla-lavinia-day-2-portrait-dark-love-read-through.md",
+        "sha": "013ef7fc625652ff74d440035a231aa22ed24dfd",
+        "status": "added"
+      },
+      {
+        "path": "docs/story-auditions/2026-09-26-priscilla-lavinia-portrait-and-intimacy-working-record.md",
+        "sha": "2175108321c5a8aea02b86143ab1a7a15f4642b6",
+        "status": "added"
+      },
+      {
+        "path": "docs/story-auditions/README.md",
+        "sha": "110550d1ed4524e5cea8a2e14cd1d3e39c664453",
+        "status": "modified"
+      },
+      {
+        "path": "story/01-core-story-bible.md",
+        "sha": "79d21a6a73d5a31554a1ed1f7f60d4eafad6612a",
+        "status": "modified"
+      }
+    ],
+    "runtime_tests_workflow_inventory_unchanged": true
+  },
+  "counts": {
+    "jobs": 18,
+    "success": 18,
+    "gut_executions": 2022,
+    "gut_passed": 2022,
+    "gut_skipped": 0,
+    "unique_gut_cases": 2018,
+    "deliberately_repeated_diagnostic_cases": 4
+  },
+  "jobs": [
+    {
+      "id": 108606853724,
+      "name": "Windows / public API surface contracts",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T11:05:37Z",
+      "completed_at": "2026-09-27T11:09:19Z"
+    },
+    {
+      "id": 108607404928,
+      "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T11:09:21Z",
+      "completed_at": "2026-09-27T11:12:03Z"
+    },
+    {
+      "id": 108607404947,
+      "name": "Rendered desktop and dialogue / Linux software OpenGL",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T11:09:21Z",
+      "completed_at": "2026-09-27T11:13:25Z"
+    },
+    {
+      "id": 108607404962,
+      "name": "Windows / paired checkpoint performance",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T11:09:21Z",
+      "completed_at": "2026-09-27T11:12:48Z"
+    },
+    {
+      "id": 108607404987,
+      "name": "Windows / exported release startup",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T11:09:21Z",
+      "completed_at": "2026-09-27T11:11:15Z"
+    },
+    {
+      "id": 108607405037,
+      "name": "Windows / minesweeper",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T11:09:22Z",
+      "completed_at": "2026-09-27T11:11:50Z"
+    },
+    {
+      "id": 108607405041,
+      "name": "Windows / reading_delivery",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T11:09:21Z",
+      "completed_at": "2026-09-27T11:11:34Z"
+    },
+    {
+      "id": 108607405043,
+      "name": "Windows / settings",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T11:09:22Z",
+      "completed_at": "2026-09-27T11:13:42Z"
+    },
+    {
+      "id": 108607405052,
+      "name": "Windows / checkpoint_diagnostics",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T11:09:21Z",
+      "completed_at": "2026-09-27T11:10:29Z"
+    },
+    {
+      "id": 108607405063,
+      "name": "Windows / shop",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T11:09:21Z",
+      "completed_at": "2026-09-27T11:10:56Z"
+    },
+    {
+      "id": 108607405069,
+      "name": "Windows / persistence",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T11:09:21Z",
+      "completed_at": "2026-09-27T11:11:03Z"
+    },
+    {
+      "id": 108607405077,
+      "name": "Windows / dating",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T11:09:21Z",
+      "completed_at": "2026-09-27T11:11:56Z"
+    },
+    {
+      "id": 108607405095,
+      "name": "Windows / localization",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T11:09:21Z",
+      "completed_at": "2026-09-27T11:11:28Z"
+    },
+    {
+      "id": 108607405097,
+      "name": "Windows / audio",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T11:09:21Z",
+      "completed_at": "2026-09-27T11:10:30Z"
+    },
+    {
+      "id": 108607405103,
+      "name": "Windows / endings",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T11:09:21Z",
+      "completed_at": "2026-09-27T11:10:49Z"
+    },
+    {
+      "id": 108607405111,
+      "name": "Windows / new_account",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T11:09:23Z",
+      "completed_at": "2026-09-27T11:11:27Z"
+    },
+    {
+      "id": 108607405139,
+      "name": "Windows / desktop",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T11:09:20Z",
+      "completed_at": "2026-09-27T11:11:48Z"
+    },
+    {
+      "id": 108607934999,
+      "name": "Windows / seven-day retained history",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-27T11:12:51Z",
+      "completed_at": "2026-09-27T11:27:01Z"
+    }
+  ],
+  "reported_gut_results": [
+    {
+      "suite": "public_surfaces",
+      "test_cases": 11,
+      "passed": 11,
+      "skipped": 0,
+      "requested_scripts": 1,
+      "reported_scripts": 1,
+      "scripts": [
+        {
+          "script": "tests/unit/tooling/test_public_surface_inventory.gd",
+          "test_cases": 11,
+          "passed": 11,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "suite": "minesweeper",
+      "test_cases": 210,
+      "passed": 210,
+      "skipped": 0,
+      "requested_scripts": 22,
+      "reported_scripts": 22,
+      "scripts": [
+        {
+          "script": "tests/unit/test_minesweeper_theme.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_palette_components.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_app.gd",
+          "test_cases": 22,
+          "passed": 22,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_cell.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_gallery_rehearsal_host.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_dock.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_register.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_panel.gd",
+          "test_cases": 23,
+          "passed": 23,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_worksheet.gd",
+          "test_cases": 19,
+          "passed": 19,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_worksheet_layout.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_worksheet_view_layout.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_view_controls.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_view_preferences.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_zoom_input.gd",
+          "test_cases": 17,
+          "passed": 17,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_scroll_rail.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_sheet_controls.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_information_sheet.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_minesweeper_toggle_bindings.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_minesweeper_new_board_bindings.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_minesweeper_view_gestures.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_minesweeper_challenge_controls.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_minesweeper_desktop_host.gd",
+          "test_cases": 11,
+          "passed": 11,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "suite": "reading_delivery",
+      "test_cases": 228,
+      "passed": 228,
+      "skipped": 0,
+      "requested_scripts": 18,
+      "reported_scripts": 18,
+      "scripts": [
+        {
+          "script": "tests/unit/test_hospital_frozen_context.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_frozen_replay_context.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_delivery_notice.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_narrative_caption_ledger.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_narrative_caption_ledger_runtime.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_witnessed_caption_runtime.gd",
+          "test_cases": 48,
+          "passed": 48,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_witnessed_pause_view.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_witnessed_auto_controller.gd",
+          "test_cases": 13,
+          "passed": 13,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_witnessed_skip_controller.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_witnessed_transport_recovery.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_witnessed_speech_projection.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_dating_caption_style.gd",
+          "test_cases": 19,
+          "passed": 19,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_scene_art_bindings.gd",
+          "test_cases": 13,
+          "passed": 13,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_scene_art_hold.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_production_pause_controller.gd",
+          "test_cases": 33,
+          "passed": 33,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_hospital_scene.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_day7_font_preferences.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_gallery_replay_owner.gd",
+          "test_cases": 15,
+          "passed": 15,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "suite": "checkpoint_diagnostics",
+      "test_cases": 4,
+      "passed": 4,
+      "skipped": 0,
+      "requested_scripts": 1,
+      "reported_scripts": 1,
+      "scripts": [
+        {
+          "script": "tests/unit/test_checkpoint_phase_diagnostics.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "suite": "shop",
+      "test_cases": 144,
+      "passed": 144,
+      "skipped": 0,
+      "requested_scripts": 8,
+      "reported_scripts": 8,
+      "scripts": [
+        {
+          "script": "tests/unit/test_shop_app_purchase_bridge.gd",
+          "test_cases": 13,
+          "passed": 13,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_shop_catalog_projection.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_shop_presentation_port.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_shop_card.gd",
+          "test_cases": 16,
+          "passed": 16,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_shop_plate.gd",
+          "test_cases": 37,
+          "passed": 37,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_shop_desktop_host.gd",
+          "test_cases": 15,
+          "passed": 15,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_minesweeper_shop_transaction.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_shop_purchase_participant.gd",
+          "test_cases": 41,
+          "passed": 41,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "suite": "persistence",
+      "test_cases": 175,
+      "passed": 175,
+      "skipped": 0,
+      "requested_scripts": 17,
+      "reported_scripts": 17,
+      "scripts": [
+        {
+          "script": "tests/unit/test_frozen_run_context.gd",
+          "test_cases": 18,
+          "passed": 18,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_presentation_chronology.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_dating_attempts.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_dating_branches.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_pair_form_witness.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_contact_invitation_state.gd",
+          "test_cases": 42,
+          "passed": 42,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_seven_day_calendar.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_pair_deck_draw.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_pair_deck_draw_port.gd",
+          "test_cases": 11,
+          "passed": 11,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_v4_upgrade.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_new_run_consumption.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_save_migrations.gd",
+          "test_cases": 11,
+          "passed": 11,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_save_manager_journal.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_restore_transaction.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_unified_restore_contract.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_save_manager_public_boundaries.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_save_capability.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "suite": "dating",
+      "test_cases": 162,
+      "passed": 162,
+      "skipped": 0,
+      "requested_scripts": 12,
+      "reported_scripts": 12,
+      "scripts": [
+        {
+          "script": "tests/unit/test_active_dating_backup_capture.gd",
+          "test_cases": 15,
+          "passed": 15,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_dating_quick_commands.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_frozen_presentation_context.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_narrative_playback.gd",
+          "test_cases": 18,
+          "passed": 18,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_canonical_dating_mastery.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_attempt_runtime.gd",
+          "test_cases": 45,
+          "passed": 45,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_evidence_v8.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_physical_owner.gd",
+          "test_cases": 15,
+          "passed": 15,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_capability_envelope.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_rehearsal_owner.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_presentation_port.gd",
+          "test_cases": 21,
+          "passed": 21,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "suite": "localization",
+      "test_cases": 152,
+      "passed": 152,
+      "skipped": 0,
+      "requested_scripts": 18,
+      "reported_scripts": 18,
+      "scripts": [
+        {
+          "script": "tests/unit/test_japanese_korean_ui.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_localization.gd",
+          "test_cases": 20,
+          "passed": 20,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_localization_extraction.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_locale_font_preparation.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_gallery_typography.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_font_styles.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_ordinary_reply_echo_state.gd",
+          "test_cases": 11,
+          "passed": 11,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_provisional_correspondence_catalog.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_system_tts_coordinator.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_witnessed_transport_rail.gd",
+          "test_cases": 11,
+          "passed": 11,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_witnessed_speech_status.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_gallery_registrar.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_controls_binding_rules.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_backup_panel_resize.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_backup_presentation.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_desktop_crash_recovery.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_ending_recovery_localization.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/tooling/test_ui_literal_audit.gd",
+          "test_cases": 20,
+          "passed": 20,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "suite": "audio",
+      "test_cases": 44,
+      "passed": 44,
+      "skipped": 0,
+      "requested_scripts": 2,
+      "reported_scripts": 2,
+      "scripts": [
+        {
+          "script": "tests/unit/test_audio_manager.gd",
+          "test_cases": 23,
+          "passed": 23,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_audio_settings_transactions.gd",
+          "test_cases": 21,
+          "passed": 21,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "suite": "endings",
+      "test_cases": 106,
+      "passed": 106,
+      "skipped": 0,
+      "requested_scripts": 12,
+      "reported_scripts": 12,
+      "scripts": [
+        {
+          "script": "tests/unit/test_ending_frozen_context.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_day7_condition_ending.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_ending_completion_durability.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_ending_presentation_signature.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dialogic_ending_playback_port.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_run_lifecycle.gd",
+          "test_cases": 14,
+          "passed": 14,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_ending_rules.gd",
+          "test_cases": 18,
+          "passed": 18,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_ending_rules_migration.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_ordered_ending_playback.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_ending_dialogic_wiring.gd",
+          "test_cases": 11,
+          "passed": 11,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scenario/test_day7_endings.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scenario/test_day7_schedule_provenance.gd",
+          "test_cases": 15,
+          "passed": 15,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "suite": "new_account",
+      "test_cases": 179,
+      "passed": 179,
+      "skipped": 0,
+      "requested_scripts": 15,
+      "reported_scripts": 15,
+      "scripts": [
+        {
+          "script": "tests/unit/test_canonical_writer_compatibility.gd",
+          "test_cases": 17,
+          "passed": 17,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_continuation_serialization_cache.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_new_acc_title_lifetime.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_run_dark_configuration.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_prepared_new_run.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_new_run_transaction.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_new_run_pair_durability.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_new_run_startup_publication.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_new_run_durability_journal.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_json_file_storage.gd",
+          "test_cases": 14,
+          "passed": 14,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_temporary_storage.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_save_document_schema.gd",
+          "test_cases": 21,
+          "passed": 21,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_run_snapshot_schema.gd",
+          "test_cases": 27,
+          "passed": 27,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/tooling/test_phase2r_closeout_sentinel.gd",
+          "test_cases": 1,
+          "passed": 1,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/tooling/test_phase2r_schedule_gate.gd",
+          "test_cases": 34,
+          "passed": 34,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "suite": "desktop",
+      "test_cases": 319,
+      "passed": 319,
+      "skipped": 0,
+      "requested_scripts": 20,
+      "reported_scripts": 20,
+      "scripts": [
+        {
+          "script": "tests/unit/test_application_runtime_lifetime.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_contacts_frozen_context.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_desktop_panel_split.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/desktop_shell/test_desktop_split_touch.gd",
+          "test_cases": 13,
+          "passed": 13,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_desktop_touch_navigation.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_desktop_app_host_state.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_desktop_accessibility_contract.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_desktop_quick_commands.gd",
+          "test_cases": 17,
+          "passed": 17,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_desktop_bootstrap_wiring.gd",
+          "test_cases": 27,
+          "passed": 27,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_desktop_cold_recovery_preparation.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_schedule_desktop_host.gd",
+          "test_cases": 15,
+          "passed": 15,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_phase2r_schedule_desktop_handoff.gd",
+          "test_cases": 111,
+          "passed": 111,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_schedule_app.gd",
+          "test_cases": 40,
+          "passed": 40,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_contacts_run_presentation.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_controls_input_contact_release.gd",
+          "test_cases": 1,
+          "passed": 1,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_angela_stat_overlay.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_stat_hud_week_tint.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_ui_art_placements.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_desktop_logout_consent.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_session_exit_coordinator.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "suite": "settings",
+      "test_cases": 288,
+      "passed": 288,
+      "skipped": 0,
+      "requested_scripts": 25,
+      "reported_scripts": 25,
+      "scripts": [
+        {
+          "script": "tests/unit/test_save_manager_parse_cache.gd",
+          "test_cases": 14,
+          "passed": 14,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_settings_panel_resize.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_settings_preference_registry.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_shared_week_tint.gd",
+          "test_cases": 2,
+          "passed": 2,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_settings_window_transactions.gd",
+          "test_cases": 13,
+          "passed": 13,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_window_mode_manager.gd",
+          "test_cases": 13,
+          "passed": 13,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_window_mode_port.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_bootstrap_window_output.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_window_mode_live.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_audio_live.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_reset_confirmation.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_folio.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_host_geometry.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_localization_scene.gd",
+          "test_cases": 34,
+          "passed": 34,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_settings_shared_hosts.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_manager.gd",
+          "test_cases": 23,
+          "passed": 23,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_restore_participants.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_restore_preserves_current_profile.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_restore_production_adapters.gd",
+          "test_cases": 13,
+          "passed": 13,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_desktop_board_persistence.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_minesweeper_first_reveal_transaction.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_save_manager_checkpoint_port.gd",
+          "test_cases": 42,
+          "passed": 42,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_checkpoint_validation_reuse.gd",
+          "test_cases": 21,
+          "passed": 21,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_checkpoint_phase_diagnostics.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_checkpoint_journal.gd",
+          "test_cases": 20,
+          "passed": 20,
+          "skipped": 0
+        }
+      ]
+    }
+  ],
+  "acceptance_markers": [
+    {
+      "id": 108606853724,
+      "name": "Windows / public API surface contracts",
+      "checkout_verified": true,
+      "markers": [
+        "PUBLIC_SURFACE_RETIRED_APIS_VERIFIED: 6 symbols; 911 source files; zero remaining references.",
+        "DWM_PUBLIC_SURFACE_PAYLOAD_BEGIN {\"path\":\"evidence/phase_2r/runtime/game_state_surface.json\",\"encoding\":\"gzip+base64\",\"sha256\":\"8c5e0a110fe05bc418894ba273ce7e3a72cfe60963535f227e17bd416ee0e08c\",\"bytes\":548218,\"compressed_bytes\":61159,\"parts\":40}",
+        "DWM_PUBLIC_SURFACE_PAYLOAD_END {\"path\":\"evidence/phase_2r/runtime/game_state_surface.json\",\"encoding\":\"gzip+base64\",\"sha256\":\"8c5e0a110fe05bc418894ba273ce7e3a72cfe60963535f227e17bd416ee0e08c\",\"bytes\":548218,\"compressed_bytes\":61159,\"parts\":40}",
+        "DWM_PUBLIC_SURFACE_PAYLOAD_BEGIN {\"path\":\"evidence/phase_2r/runtime/save_manager_surface.json\",\"encoding\":\"gzip+base64\",\"sha256\":\"7ec7f20767cf48098c49625b21fc806ff9d10766892600538f488f26502e23a3\",\"bytes\":141807,\"compressed_bytes\":16685,\"parts\":11}",
+        "DWM_PUBLIC_SURFACE_PAYLOAD_END {\"path\":\"evidence/phase_2r/runtime/save_manager_surface.json\",\"encoding\":\"gzip+base64\",\"sha256\":\"7ec7f20767cf48098c49625b21fc806ff9d10766892600538f488f26502e23a3\",\"bytes\":141807,\"compressed_bytes\":16685,\"parts\":11}",
+        "PUBLIC_SURFACE_VALIDATION_VERIFIED: both complete-tree inventories reproduce canonical bytes.",
+        "CLOUD_GUT_RESULT {\"suite\":\"public_surfaces\",\"test_cases\":11,\"passed\":11,\"skipped\":0,\"requested_scripts\":1,\"reported_scripts\":1,\"scripts\":[{\"script\":\"tests/unit/tooling/test_public_surface_inventory.gd\",\"test_cases\":11,\"passed\":11,\"skipped\":0}]}"
+      ]
+    },
+    {
+      "id": 108607404928,
+      "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+      "checkout_verified": true,
+      "markers": [
+        "PLAYABLE_JOURNEY_BEGIN: seven-days-ending-gallery",
+        "PLAYABLE_JOURNEY_PASS: seven-days-ending-gallery",
+        "PLAYABLE_JOURNEY_BEGIN: seven-days-condition-ending",
+        "PLAYABLE_JOURNEY_PASS: seven-days-condition-ending",
+        "PLAYABLE_JOURNEY_BEGIN: dating-reload",
+        "PLAYABLE_JOURNEY_PASS: dating-reload",
+        "PLAYABLE_JOURNEY_BEGIN: practice-empty-dtl",
+        "PLAYABLE_JOURNEY_PASS: practice-empty-dtl",
+        "PLAYABLE_JOURNEY_BEGIN: practice-legacy-compatibility",
+        "PLAYABLE_JOURNEY_PASS: practice-legacy-compatibility",
+        "PLAYABLE_JOURNEYS_VERIFIED: 5 isolated rendered cases"
+      ]
+    },
+    {
+      "id": 108607404987,
+      "name": "Windows / exported release startup",
+      "checkout_verified": true,
+      "markers": [
+        "WINDOWS_EXPORT_RECEIPT {\"ok\":true,\"commit\":\"682355a8031d13069290cbe85b0269aea0c758ee\",\"engine\":\"4.6.3.stable\",\"runtime_data_files_verified\":111,\"templates_sha256\":\"3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8\",\"executable_sha256\":\"91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6\",\"pck_sha256\":\"ae5300f54e74ef307c9a98a87f2bdac0bfc3aa66ab920f47b4a859b65ea72a91\",\"archive\":{\"file\":\"DWM-windows-x86_64-validation.zip\",\"sha256\":\"d757ec90cc8f11a4ba97cf89fbaaa226f8ae3edfbc7b41ee6bf71ec8acb46f4f\",\"bytes\":98776002}}"
+      ]
+    },
+    {
+      "id": 108607405037,
+      "name": "Windows / minesweeper",
+      "checkout_verified": true,
+      "markers": [
+        "CLOUD_GUT_RESULT {\"suite\":\"minesweeper\",\"test_cases\":210,\"passed\":210,\"skipped\":0,\"requested_scripts\":22,\"reported_scripts\":22,\"scripts\":[{\"script\":\"tests/unit/test_minesweeper_theme.gd\",\"test_cases\":5,\"passed\":5,\"skipped\":0},{\"script\":\"tests/unit/test_minesweeper_palette_components.gd\",\"test_cases\":5,\"passed\":5,\"skipped\":0},{\"script\":\"tests/unit/test_minesweeper_app.gd\",\"test_cases\":22,\"passed\":22,\"skipped\":0},{\"script\":\"tests/unit/test_minesweeper_cell.gd\",\"test_cases\":7,\"passed\":7,\"skipped\":0},{\"script\":\"tests/unit/test_gallery_rehearsal_host.gd\",\"test_cases\":4,\"passed\":4,\"skipped\":0},{\"script\":\"tests/unit/test_minesweeper_dock.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0},{\"script\":\"tests/unit/test_minesweeper_register.gd\",\"test_cases\":9,\"passed\":9,\"skipped\":0},{\"script\":\"tests/unit/test_minesweeper_panel.gd\",\"test_cases\":23,\"passed\":23,\"skipped\":0},{\"script\":\"tests/unit/test_minesweeper_worksheet.gd\",\"test_cases\":19,\"passed\":19,\"skipped\":0},{\"script\":\"tests/unit/test_minesweeper_worksheet_layout.gd\",\"test_cases\":4,\"passed\":4,\"skipped\":0},{\"script\":\"tests/unit/test_minesweeper_worksheet_view_layout.gd\",\"test_cases\":5,\"passed\":5,\"skipped\":0},{\"script\":\"tests/unit/test_minesweeper_view_controls.gd\",\"test_cases\":10,\"passed\":10,\"skipped\":0},{\"script\":\"tests/unit/test_minesweeper_view_preferences.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0},{\"script\":\"tests/unit/test_minesweeper_zoom_input.gd\",\"test_cases\":17,\"passed\":17,\"skipped\":0},{\"script\":\"tests/unit/test_minesweeper_scroll_rail.gd\",\"test_cases\":9,\"passed\":9,\"skipped\":0},{\"script\":\"tests/unit/test_minesweeper_sheet_controls.gd\",\"test_cases\":10,\"passed\":10,\"skipped\":0},{\"script\":\"tests/unit/test_minesweeper_information_sheet.gd\",\"test_cases\":9,\"passed\":9,\"skipped\":0},{\"script\":\"tests/scene/test_minesweeper_toggle_bindings.gd\",\"test_cases\":12,\"passed\":12,\"skipped\":0},{\"script\":\"tests/scene/test_minesweeper_new_board_bindings.gd\",\"test_cases\":5,\"passed\":5,\"skipped\":0},{\"script\":\"tests/scene/test_minesweeper_view_gestures.gd\",\"test_cases\":4,\"passed\":4,\"skipped\":0},{\"script\":\"tests/scene/test_minesweeper_challenge_controls.gd\",\"test_cases\":8,\"passed\":8,\"skipped\":0},{\"script\":\"tests/integration/test_minesweeper_desktop_host.gd\",\"test_cases\":11,\"passed\":11,\"skipped\":0}]}"
+      ]
+    },
+    {
+      "id": 108607405041,
+      "name": "Windows / reading_delivery",
+      "checkout_verified": true,
+      "markers": [
+        "CLOUD_GUT_RESULT {\"suite\":\"reading_delivery\",\"test_cases\":228,\"passed\":228,\"skipped\":0,\"requested_scripts\":18,\"reported_scripts\":18,\"scripts\":[{\"script\":\"tests/unit/test_hospital_frozen_context.gd\",\"test_cases\":7,\"passed\":7,\"skipped\":0},{\"script\":\"tests/unit/test_frozen_replay_context.gd\",\"test_cases\":3,\"passed\":3,\"skipped\":0},{\"script\":\"tests/unit/test_minesweeper_delivery_notice.gd\",\"test_cases\":10,\"passed\":10,\"skipped\":0},{\"script\":\"tests/unit/test_narrative_caption_ledger.gd\",\"test_cases\":9,\"passed\":9,\"skipped\":0},{\"script\":\"tests/integration/test_narrative_caption_ledger_runtime.gd\",\"test_cases\":8,\"passed\":8,\"skipped\":0},{\"script\":\"tests/integration/test_witnessed_caption_runtime.gd\",\"test_cases\":48,\"passed\":48,\"skipped\":0},{\"script\":\"tests/unit/test_witnessed_pause_view.gd\",\"test_cases\":4,\"passed\":4,\"skipped\":0},{\"script\":\"tests/unit/test_witnessed_auto_controller.gd\",\"test_cases\":13,\"passed\":13,\"skipped\":0},{\"script\":\"tests/unit/test_witnessed_skip_controller.gd\",\"test_cases\":10,\"passed\":10,\"skipped\":0},{\"script\":\"tests/scene/test_witnessed_transport_recovery.gd\",\"test_cases\":9,\"passed\":9,\"skipped\":0},{\"script\":\"tests/integration/test_witnessed_speech_projection.gd\",\"test_cases\":8,\"passed\":8,\"skipped\":0},{\"script\":\"tests/integration/test_dating_caption_style.gd\",\"test_cases\":19,\"passed\":19,\"skipped\":0},{\"script\":\"tests/unit/test_scene_art_bindings.gd\",\"test_cases\":13,\"passed\":13,\"skipped\":0},{\"script\":\"tests/unit/test_scene_art_hold.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0},{\"script\":\"tests/unit/test_production_pause_controller.gd\",\"test_cases\":33,\"passed\":33,\"skipped\":0},{\"script\":\"tests/scene/test_hospital_scene.gd\",\"test_cases\":10,\"passed\":10,\"skipped\":0},{\"script\":\"tests/unit/test_day7_font_preferences.gd\",\"test_cases\":3,\"passed\":3,\"skipped\":0},{\"script\":\"tests/unit/test_gallery_replay_owner.gd\",\"test_cases\":15,\"passed\":15,\"skipped\":0}]}"
+      ]
+    },
+    {
+      "id": 108607405052,
+      "name": "Windows / checkpoint_diagnostics",
+      "checkout_verified": true,
+      "markers": [
+        "CLOUD_GUT_RESULT {\"suite\":\"checkpoint_diagnostics\",\"test_cases\":4,\"passed\":4,\"skipped\":0,\"requested_scripts\":1,\"reported_scripts\":1,\"scripts\":[{\"script\":\"tests/unit/test_checkpoint_phase_diagnostics.gd\",\"test_cases\":4,\"passed\":4,\"skipped\":0}]}"
+      ]
+    },
+    {
+      "id": 108607405063,
+      "name": "Windows / shop",
+      "checkout_verified": true,
+      "markers": [
+        "CLOUD_GUT_RESULT {\"suite\":\"shop\",\"test_cases\":144,\"passed\":144,\"skipped\":0,\"requested_scripts\":8,\"reported_scripts\":8,\"scripts\":[{\"script\":\"tests/unit/test_shop_app_purchase_bridge.gd\",\"test_cases\":13,\"passed\":13,\"skipped\":0},{\"script\":\"tests/unit/test_shop_catalog_projection.gd\",\"test_cases\":8,\"passed\":8,\"skipped\":0},{\"script\":\"tests/unit/test_shop_presentation_port.gd\",\"test_cases\":10,\"passed\":10,\"skipped\":0},{\"script\":\"tests/scene/test_shop_card.gd\",\"test_cases\":16,\"passed\":16,\"skipped\":0},{\"script\":\"tests/scene/test_shop_plate.gd\",\"test_cases\":37,\"passed\":37,\"skipped\":0},{\"script\":\"tests/integration/test_shop_desktop_host.gd\",\"test_cases\":15,\"passed\":15,\"skipped\":0},{\"script\":\"tests/integration/test_minesweeper_shop_transaction.gd\",\"test_cases\":4,\"passed\":4,\"skipped\":0},{\"script\":\"tests/unit/test_minesweeper_shop_purchase_participant.gd\",\"test_cases\":41,\"passed\":41,\"skipped\":0}]}"
+      ]
+    },
+    {
+      "id": 108607405069,
+      "name": "Windows / persistence",
+      "checkout_verified": true,
+      "markers": [
+        "CLOUD_GUT_RESULT {\"suite\":\"persistence\",\"test_cases\":175,\"passed\":175,\"skipped\":0,\"requested_scripts\":17,\"reported_scripts\":17,\"scripts\":[{\"script\":\"tests/unit/test_frozen_run_context.gd\",\"test_cases\":18,\"passed\":18,\"skipped\":0},{\"script\":\"tests/unit/test_profile_presentation_chronology.gd\",\"test_cases\":9,\"passed\":9,\"skipped\":0},{\"script\":\"tests/unit/test_profile_dating_attempts.gd\",\"test_cases\":10,\"passed\":10,\"skipped\":0},{\"script\":\"tests/unit/test_profile_dating_branches.gd\",\"test_cases\":7,\"passed\":7,\"skipped\":0},{\"script\":\"tests/unit/test_profile_pair_form_witness.gd\",\"test_cases\":3,\"passed\":3,\"skipped\":0},{\"script\":\"tests/unit/test_contact_invitation_state.gd\",\"test_cases\":42,\"passed\":42,\"skipped\":0},{\"script\":\"tests/unit/test_seven_day_calendar.gd\",\"test_cases\":7,\"passed\":7,\"skipped\":0},{\"script\":\"tests/unit/test_pair_deck_draw.gd\",\"test_cases\":4,\"passed\":4,\"skipped\":0},{\"script\":\"tests/unit/test_pair_deck_draw_port.gd\",\"test_cases\":11,\"passed\":11,\"skipped\":0},{\"script\":\"tests/unit/test_profile_v4_upgrade.gd\",\"test_cases\":10,\"passed\":10,\"skipped\":0},{\"script\":\"tests/unit/test_profile_new_run_consumption.gd\",\"test_cases\":12,\"passed\":12,\"skipped\":0},{\"script\":\"tests/unit/test_save_migrations.gd\",\"test_cases\":11,\"passed\":11,\"skipped\":0},{\"script\":\"tests/integration/test_save_manager_journal.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0},{\"script\":\"tests/integration/test_restore_transaction.gd\",\"test_cases\":12,\"passed\":12,\"skipped\":0},{\"script\":\"tests/integration/test_unified_restore_contract.gd\",\"test_cases\":3,\"passed\":3,\"skipped\":0},{\"script\":\"tests/integration/test_save_manager_public_boundaries.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0},{\"script\":\"tests/integration/test_save_capability.gd\",\"test_cases\":4,\"passed\":4,\"skipped\":0}]}",
+        "SAVE_LOAD_CAPTURE_PASS 136 checks; failures=0"
+      ]
+    },
+    {
+      "id": 108607405077,
+      "name": "Windows / dating",
+      "checkout_verified": true,
+      "markers": [
+        "CLOUD_GUT_RESULT {\"suite\":\"dating\",\"test_cases\":162,\"passed\":162,\"skipped\":0,\"requested_scripts\":12,\"reported_scripts\":12,\"scripts\":[{\"script\":\"tests/unit/test_active_dating_backup_capture.gd\",\"test_cases\":15,\"passed\":15,\"skipped\":0},{\"script\":\"tests/integration/test_dating_quick_commands.gd\",\"test_cases\":10,\"passed\":10,\"skipped\":0},{\"script\":\"tests/unit/test_frozen_presentation_context.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0},{\"script\":\"tests/unit/test_dating_narrative_playback.gd\",\"test_cases\":18,\"passed\":18,\"skipped\":0},{\"script\":\"tests/unit/test_canonical_dating_mastery.gd\",\"test_cases\":9,\"passed\":9,\"skipped\":0},{\"script\":\"tests/unit/test_dating_attempt_runtime.gd\",\"test_cases\":45,\"passed\":45,\"skipped\":0},{\"script\":\"tests/unit/test_profile_evidence_v8.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0},{\"script\":\"tests/unit/test_dating_physical_owner.gd\",\"test_cases\":15,\"passed\":15,\"skipped\":0},{\"script\":\"tests/unit/test_dating_capability_envelope.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0},{\"script\":\"tests/unit/test_dating_rehearsal_owner.gd\",\"test_cases\":5,\"passed\":5,\"skipped\":0},{\"script\":\"tests/unit/test_dating_presentation_port.gd\",\"test_cases\":21,\"passed\":21,\"skipped\":0},{\"script\":\"tests/integration/test_ordered_ending_real_runtime.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0}]}"
+      ]
+    },
+    {
+      "id": 108607405095,
+      "name": "Windows / localization",
+      "checkout_verified": true,
+      "markers": [
+        "CLOUD_GUT_RESULT {\"suite\":\"localization\",\"test_cases\":152,\"passed\":152,\"skipped\":0,\"requested_scripts\":18,\"reported_scripts\":18,\"scripts\":[{\"script\":\"tests/unit/test_japanese_korean_ui.gd\",\"test_cases\":10,\"passed\":10,\"skipped\":0},{\"script\":\"tests/unit/test_localization.gd\",\"test_cases\":20,\"passed\":20,\"skipped\":0},{\"script\":\"tests/unit/test_localization_extraction.gd\",\"test_cases\":5,\"passed\":5,\"skipped\":0},{\"script\":\"tests/unit/test_locale_font_preparation.gd\",\"test_cases\":3,\"passed\":3,\"skipped\":0},{\"script\":\"tests/unit/test_gallery_typography.gd\",\"test_cases\":3,\"passed\":3,\"skipped\":0},{\"script\":\"tests/unit/test_font_styles.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0},{\"script\":\"tests/unit/test_ordinary_reply_echo_state.gd\",\"test_cases\":11,\"passed\":11,\"skipped\":0},{\"script\":\"tests/unit/test_provisional_correspondence_catalog.gd\",\"test_cases\":4,\"passed\":4,\"skipped\":0},{\"script\":\"tests/unit/test_system_tts_coordinator.gd\",\"test_cases\":12,\"passed\":12,\"skipped\":0},{\"script\":\"tests/unit/test_witnessed_transport_rail.gd\",\"test_cases\":11,\"passed\":11,\"skipped\":0},{\"script\":\"tests/unit/test_witnessed_speech_status.gd\",\"test_cases\":4,\"passed\":4,\"skipped\":0},{\"script\":\"tests/unit/test_gallery_registrar.gd\",\"test_cases\":10,\"passed\":10,\"skipped\":0},{\"script\":\"tests/unit/test_controls_binding_rules.gd\",\"test_cases\":12,\"passed\":12,\"skipped\":0},{\"script\":\"tests/unit/test_backup_panel_resize.gd\",\"test_cases\":3,\"passed\":3,\"skipped\":0},{\"script\":\"tests/unit/test_backup_presentation.gd\",\"test_cases\":3,\"passed\":3,\"skipped\":0},{\"script\":\"tests/integration/test_desktop_crash_recovery.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0},{\"script\":\"tests/scene/test_ending_recovery_localization.gd\",\"test_cases\":9,\"passed\":9,\"skipped\":0},{\"script\":\"tests/unit/tooling/test_ui_literal_audit.gd\",\"test_cases\":20,\"passed\":20,\"skipped\":0}]}"
+      ]
+    },
+    {
+      "id": 108607405097,
+      "name": "Windows / audio",
+      "checkout_verified": true,
+      "markers": [
+        "CLOUD_GUT_RESULT {\"suite\":\"audio\",\"test_cases\":44,\"passed\":44,\"skipped\":0,\"requested_scripts\":2,\"reported_scripts\":2,\"scripts\":[{\"script\":\"tests/unit/test_audio_manager.gd\",\"test_cases\":23,\"passed\":23,\"skipped\":0},{\"script\":\"tests/unit/test_audio_settings_transactions.gd\",\"test_cases\":21,\"passed\":21,\"skipped\":0}]}"
+      ]
+    },
+    {
+      "id": 108607405103,
+      "name": "Windows / endings",
+      "checkout_verified": true,
+      "markers": [
+        "CLOUD_GUT_RESULT {\"suite\":\"endings\",\"test_cases\":106,\"passed\":106,\"skipped\":0,\"requested_scripts\":12,\"reported_scripts\":12,\"scripts\":[{\"script\":\"tests/unit/test_ending_frozen_context.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0},{\"script\":\"tests/unit/test_day7_condition_ending.gd\",\"test_cases\":8,\"passed\":8,\"skipped\":0},{\"script\":\"tests/unit/test_ending_completion_durability.gd\",\"test_cases\":3,\"passed\":3,\"skipped\":0},{\"script\":\"tests/unit/test_ending_presentation_signature.gd\",\"test_cases\":5,\"passed\":5,\"skipped\":0},{\"script\":\"tests/unit/test_dialogic_ending_playback_port.gd\",\"test_cases\":12,\"passed\":12,\"skipped\":0},{\"script\":\"tests/unit/test_run_lifecycle.gd\",\"test_cases\":14,\"passed\":14,\"skipped\":0},{\"script\":\"tests/unit/test_dating_ending_rules.gd\",\"test_cases\":18,\"passed\":18,\"skipped\":0},{\"script\":\"tests/unit/test_dating_ending_rules_migration.gd\",\"test_cases\":5,\"passed\":5,\"skipped\":0},{\"script\":\"tests/integration/test_ordered_ending_playback.gd\",\"test_cases\":3,\"passed\":3,\"skipped\":0},{\"script\":\"tests/integration/test_ending_dialogic_wiring.gd\",\"test_cases\":11,\"passed\":11,\"skipped\":0},{\"script\":\"tests/scenario/test_day7_endings.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0},{\"script\":\"tests/scenario/test_day7_schedule_provenance.gd\",\"test_cases\":15,\"passed\":15,\"skipped\":0}]}"
+      ]
+    },
+    {
+      "id": 108607405111,
+      "name": "Windows / new_account",
+      "checkout_verified": true,
+      "markers": [
+        "CORRUPT_SAVE_DIAGNOSTIC_VERIFIED: expected 0xff fixture diagnostic observed once.",
+        "CLOUD_GUT_RESULT {\"suite\":\"new_account\",\"test_cases\":179,\"passed\":179,\"skipped\":0,\"requested_scripts\":15,\"reported_scripts\":15,\"scripts\":[{\"script\":\"tests/unit/test_canonical_writer_compatibility.gd\",\"test_cases\":17,\"passed\":17,\"skipped\":0},{\"script\":\"tests/unit/test_continuation_serialization_cache.gd\",\"test_cases\":9,\"passed\":9,\"skipped\":0},{\"script\":\"tests/unit/test_new_acc_title_lifetime.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0},{\"script\":\"tests/unit/test_run_dark_configuration.gd\",\"test_cases\":7,\"passed\":7,\"skipped\":0},{\"script\":\"tests/integration/test_prepared_new_run.gd\",\"test_cases\":10,\"passed\":10,\"skipped\":0},{\"script\":\"tests/integration/test_new_run_transaction.gd\",\"test_cases\":12,\"passed\":12,\"skipped\":0},{\"script\":\"tests/integration/test_new_run_pair_durability.gd\",\"test_cases\":8,\"passed\":8,\"skipped\":0},{\"script\":\"tests/integration/test_new_run_startup_publication.gd\",\"test_cases\":3,\"passed\":3,\"skipped\":0},{\"script\":\"tests/unit/test_new_run_durability_journal.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0},{\"script\":\"tests/unit/test_json_file_storage.gd\",\"test_cases\":14,\"passed\":14,\"skipped\":0},{\"script\":\"tests/unit/test_temporary_storage.gd\",\"test_cases\":4,\"passed\":4,\"skipped\":0},{\"script\":\"tests/unit/test_save_document_schema.gd\",\"test_cases\":21,\"passed\":21,\"skipped\":0},{\"script\":\"tests/unit/test_run_snapshot_schema.gd\",\"test_cases\":27,\"passed\":27,\"skipped\":0},{\"script\":\"tests/unit/tooling/test_phase2r_closeout_sentinel.gd\",\"test_cases\":1,\"passed\":1,\"skipped\":0},{\"script\":\"tests/unit/tooling/test_phase2r_schedule_gate.gd\",\"test_cases\":34,\"passed\":34,\"skipped\":0}]}",
+        "NEW_ACC_LATENCY_VERIFIED {\"ok\":true,\"samples\":[{\"button_to_desktop_us\":750852,\"case\":\"fresh\",\"max_frame_gap_us\":213214},{\"button_to_desktop_us\":739644,\"case\":\"replacement\",\"max_frame_gap_us\":115831}]}"
+      ]
+    },
+    {
+      "id": 108607405139,
+      "name": "Windows / desktop",
+      "checkout_verified": true,
+      "markers": [
+        "CLOUD_GUT_RESULT {\"suite\":\"desktop\",\"test_cases\":319,\"passed\":319,\"skipped\":0,\"requested_scripts\":20,\"reported_scripts\":20,\"scripts\":[{\"script\":\"tests/unit/test_application_runtime_lifetime.gd\",\"test_cases\":3,\"passed\":3,\"skipped\":0},{\"script\":\"tests/unit/test_contacts_frozen_context.gd\",\"test_cases\":8,\"passed\":8,\"skipped\":0},{\"script\":\"tests/unit/test_desktop_panel_split.gd\",\"test_cases\":12,\"passed\":12,\"skipped\":0},{\"script\":\"tests/desktop_shell/test_desktop_split_touch.gd\",\"test_cases\":13,\"passed\":13,\"skipped\":0},{\"script\":\"tests/unit/test_desktop_touch_navigation.gd\",\"test_cases\":10,\"passed\":10,\"skipped\":0},{\"script\":\"tests/unit/test_desktop_app_host_state.gd\",\"test_cases\":12,\"passed\":12,\"skipped\":0},{\"script\":\"tests/unit/test_desktop_accessibility_contract.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0},{\"script\":\"tests/integration/test_desktop_quick_commands.gd\",\"test_cases\":17,\"passed\":17,\"skipped\":0},{\"script\":\"tests/integration/test_desktop_bootstrap_wiring.gd\",\"test_cases\":27,\"passed\":27,\"skipped\":0},{\"script\":\"tests/unit/test_desktop_cold_recovery_preparation.gd\",\"test_cases\":7,\"passed\":7,\"skipped\":0},{\"script\":\"tests/integration/test_schedule_desktop_host.gd\",\"test_cases\":15,\"passed\":15,\"skipped\":0},{\"script\":\"tests/integration/test_phase2r_schedule_desktop_handoff.gd\",\"test_cases\":111,\"passed\":111,\"skipped\":0},{\"script\":\"tests/unit/test_schedule_app.gd\",\"test_cases\":40,\"passed\":40,\"skipped\":0},{\"script\":\"tests/integration/test_contacts_run_presentation.gd\",\"test_cases\":8,\"passed\":8,\"skipped\":0},{\"script\":\"tests/scene/test_controls_input_contact_release.gd\",\"test_cases\":1,\"passed\":1,\"skipped\":0},{\"script\":\"tests/unit/test_angela_stat_overlay.gd\",\"test_cases\":7,\"passed\":7,\"skipped\":0},{\"script\":\"tests/unit/test_stat_hud_week_tint.gd\",\"test_cases\":8,\"passed\":8,\"skipped\":0},{\"script\":\"tests/integration/test_ui_art_placements.gd\",\"test_cases\":5,\"passed\":5,\"skipped\":0},{\"script\":\"tests/integration/test_desktop_logout_consent.gd\",\"test_cases\":4,\"passed\":4,\"skipped\":0},{\"script\":\"tests/unit/test_session_exit_coordinator.gd\",\"test_cases\":5,\"passed\":5,\"skipped\":0}]}"
+      ]
+    },
+    {
+      "id": 108607404947,
+      "name": "Rendered desktop and dialogue / Linux software OpenGL",
+      "checkout_verified": true,
+      "markers": [
+        "DESKTOP_SCALING_RENDER_VERIFIED {\"captures\":38,\"failures\":[],\"launcher_pixels\":[{\"distinct_icons\":7,\"sample\":\"launcher\",\"unread\":true},{\"distinct_icons\":7,\"sample\":\"launcher\",\"unread\":true},{\"distinct_icons\":7,\"sample\":\"launcher-en-pixel-large-unread\",\"unread\":true},{\"distinct_icons\":7,\"sample\":\"launcher-en-readable-large\",\"unread\":true},{\"distinct_icons\":7,\"sample\":\"launcher-ja-readable-large\",\"unread\":true},{\"distinct_icons\":7,\"sample\":\"launcher-ja-readable-large-contrast\",\"unread\":true}],\"ok\":true,\"renderer\":\"X11\",\"samples\":38,\"shop_pixels\":[{\"card_pixels\":10084,\"inspector_pixels\":3584,\"page\":1,\"sample\":\"shop\",\"selected\":\"wine\",\"visible_items\":8},{\"card_pixels\":14441,\"inspector_pixels\":5116,\"page\":1,\"sample\":\"shop\",\"selected\":\"wine\",\"visible_items\":8},{\"card_pixels\":12244,\"inspector_pixels\":6336,\"page\":2,\"sample\":\"shop-page-two\",\"selected\":\"protein_box\",\"visible_items\":9},{\"card_pixels\":17610,\"inspector_pixels\":9030,\"page\":2,\"sample\":\"shop-page-two\",\"selected\":\"protein_box\",\"visible_items\":9},{\"card_pixels\":17610,\"inspector_pixels\":5079,\"page\":2,\"sample\":\"shop-page-two-sold-out\",\"selected\":\"lucky_charm\",\"visible_items\":9},{\"card_pixels\":868,\"inspector_pixels\":9666,\"page\":2,\"sample\":\"shop-page-two-readable-large-contrast\",\"selected\":\"healthy_meal\",\"visible_items\":9},{\"card_pixels\":9665,\"inspector_pixels\":2451,\"page\":1,\"sample\":\"shop-bottom\",\"selected\":\"wine\",\"visible_items\":5}]}",
+        "DESKTOP_SCALING_RENDER_VERIFIED {\"captures\":38,\"failures\":[],\"launcher_pixels\":[{\"distinct_icons\":7,\"sample\":\"launcher\",\"unread\":true},{\"distinct_icons\":7,\"sample\":\"launcher\",\"unread\":true},{\"distinct_icons\":7,\"sample\":\"launcher-en-pixel-large-unread\",\"unread\":true},{\"distinct_icons\":7,\"sample\":\"launcher-en-readable-large\",\"unread\":true},{\"distinct_icons\":7,\"sample\":\"launcher-ja-readable-large\",\"unread\":true},{\"distinct_icons\":7,\"sample\":\"launcher-ja-readable-large-contrast\",\"unread\":true}],\"ok\":true,\"renderer\":\"X11\",\"samples\":38,\"shop_pixels\":[{\"card_pixels\":10084,\"inspector_pixels\":3584,\"page\":1,\"sample\":\"shop\",\"selected\":\"wine\",\"visible_items\":8},{\"card_pixels\":14441,\"inspector_pixels\":5116,\"page\":1,\"sample\":\"shop\",\"selected\":\"wine\",\"visible_items\":8},{\"card_pixels\":12244,\"inspector_pixels\":6336,\"page\":2,\"sample\":\"shop-page-two\",\"selected\":\"protein_box\",\"visible_items\":9},{\"card_pixels\":17610,\"inspector_pixels\":9030,\"page\":2,\"sample\":\"shop-page-two\",\"selected\":\"protein_box\",\"visible_items\":9},{\"card_pixels\":17610,\"inspector_pixels\":5079,\"page\":2,\"sample\":\"shop-page-two-sold-out\",\"selected\":\"lucky_charm\",\"visible_items\":9},{\"card_pixels\":868,\"inspector_pixels\":9666,\"page\":2,\"sample\":\"shop-page-two-readable-large-contrast\",\"selected\":\"healthy_meal\",\"visible_items\":9},{\"card_pixels\":9665,\"inspector_pixels\":2451,\"page\":1,\"sample\":\"shop-bottom\",\"selected\":\"wine\",\"visible_items\":5}]}",
+        "DELIVERY_DIALOGUE_RENDER_VERIFIED {\"captures\":25,\"evidence\":[{\"desktop_width\":800,\"file\":\"delivering-800-100.png\",\"kind\":\"delivery\",\"notice_rect\":\"[P: (704.0, 316.0), S: (352.0, 88.0)]\",\"text\":\"delivering...\",\"text_percent\":100},{\"desktop_width\":800,\"file\":\"delivered-800-100.png\",\"kind\":\"delivery\",\"notice_rect\":\"[P: (704.0, 316.0), S: (352.0, 88.0)]\",\"text\":\"delivered :)\",\"text_percent\":100},{\"desktop_width\":960,\"file\":\"delivering-960-100.png\",\"kind\":\"delivery\",\"notice_rect\":\"[P: (588.8, 307.2), S: (422.4001, 105.6)]\",\"text\":\"delivering...\",\"text_percent\":100},{\"desktop_width\":960,\"file\":\"delivered-960-100.png\",\"kind\":\"delivery\",\"notice_rect\":\"[P: (588.8, 307.2), S: (422.4001, 105.6)]\",\"text\":\"delivered :)\",\"text_percent\":100},{\"desktop_width\":960,\"file\":\"delivering-960-150.png\",\"kind\":\"delivery\",\"notice_rect\":\"[P: (588.8, 307.2), S: (422.4001, 105.6)]\",\"text\":\"delivering...\",\"text_percent\":150},{\"desktop_width\":960,\"file\":\"delivered-960-150.png\",\"kind\":\"delivery\",\"notice_rect\":\"[P: (588.8, 307.2), S: (422.4001, 105.6)]\",\"text\":\"delivered :)\",\"text_percent\":150},{\"caption_window\":[\"3. I remembered what you said.\",\"4. There was no need to hurry.\",\"5. We stayed a little longer.\"],\"dating_overlay\":false,\"file\":\"dialogue-live-en100.png\",\"kind\":\"caption\",\"locale\":\"en\",\"review_offset\":0,\"text_percent\":100,\"visible_leaf_rects\":\"[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]\"},{\"caption_window\":[\"2. The afternoon light filled the room.\",\"3. I remembered what you said.\",\"4. There was no need to hurry.\"],\"dating_overlay\":false,\"file\":\"dialogue-older-en100.png\",\"kind\":\"caption\",\"locale\":\"en\",\"review_offset\":1,\"text_percent\":100,\"visible_leaf_rects\":\"[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]\"},{\"caption_window\":[\"1. We found a quiet place.\",\"2. The afternoon light filled the room.\",\"3. I remembered what you said.\"],\"dating_overlay\":false,\"file\":\"dialogue-oldest-en100.png\",\"kind\":\"caption\",\"locale\":\"en\",\"review_offset\":2,\"text_percent\":100,\"visible_leaf_rects\":\"[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]\"},{\"caption_window\":[\"2. The afternoon light filled the room.\",\"3. I remembered what you said.\",\"4. There was no need to hurry.\"],\"dating_overlay\":false,\"file\":\"dialogue-newer-en100.png\",\"kind\":\"caption\",\"locale\":\"en\",\"review_offset\":1,\"text_percent\":100,\"visible_leaf_rects\":\"[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]\"},{\"caption_window\":[\"3. I remembered what you said.\",\"4. There was no need to hurry.\",\"5. We stayed a little longer.\"],\"dating_overlay\":false,\"file\":\"dialogue-return-live-en100.png\",\"kind\":\"caption\",\"locale\":\"en\",\"review_offset\":0,\"text_percent\":100,\"visible_leaf_rects\":\"[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]\"},{\"caption_window\":[\"2. \u5348\u540e\u7684\u9633\u5149\u7167\u8fdb\u623f\u95f4\u3002\",\"3. \u6211\u8bb0\u5f97\u4f60\u8bf4\u8fc7\u7684\u8bdd\u3002\",\"4. \u6211\u4eec\u4e0d\u5fc5\u7740\u6025\u3002\"],\"dating_overlay\":false,\"file\":\"dialogue-older-zh-CN150.png\",\"kind\":\"caption\",\"locale\":\"zh-CN\",\"review_offset\":1,\"text_percent\":150,\"visible_leaf_rects\":\"[[P: (16.0, 416.0), S: (1248.0, 80.0)], [P: (16.0, 496.0), S: (1248.0, 80.0)], [P: (16.0, 576.0), S: (1248.0, 80.0)]]\"},{\"caption_window\":[\"2. \u5348\u5f8c\u7684\u967d\u5149\u7167\u9032\u623f\u9593\u3002\",\"3. \u6211\u8a18\u5f97\u4f60\u8aaa\u904e\u7684\u8a71\u3002\",\"4. \u6211\u5011\u4e0d\u5fc5\u7740\u6025\u3002\"],\"dating_overlay\":false,\"file\":\"dialogue-older-zh-HK150.png\",\"kind\":\"caption\",\"locale\":\"zh-HK\",\"review_offset\":1,\"text_percent\":150,\"visible_leaf_rects\":\"[[P: (16.0, 416.0), S: (1248.0, 80.0)], [P: (16.0, 496.0), S: (1248.0, 80.0)], [P: (16.0, 576.0), S: (1248.0, 80.0)]]\"},{\"caption_window\":[\"3. I remembered what you said.\",\"4. There was no need to hurry.\",\"5. We stayed a little longer.\"],\"dating_overlay\":true,\"file\":\"dating-overlay-live-en100.png\",\"kind\":\"caption\",\"locale\":\"en\",\"review_offset\":0,\"text_percent\":100,\"visible_leaf_rects\":\"[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]\"},{\"caption_window\":[\"2. The afternoon light filled the room.\",\"3. I remembered what you said.\",\"4. There was no need to hurry.\"],\"dating_overlay\":true,\"file\":\"dating-overlay-review-en100.png\",\"kind\":\"caption\",\"locale\":\"en\",\"review_offset\":1,\"text_percent\":100,\"visible_leaf_rects\":\"[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]\"},{\"caption_window\":[\"3. \u6211\u8bb0\u5f97\u4f60\u8bf4\u8fc7\u7684\u8bdd\u3002\",\"4. \u6211\u4eec\u4e0d\u5fc5\u7740\u6025\u3002\",\"5. \u6211\u4eec\u53c8\u591a\u5f85\u4e86\u4e00\u4f1a\u513f\u3002\"],\"dating_overlay\":true,\"file\":\"dating-overlay-live-zh-CN150.png\",\"kind\":\"caption\",\"locale\":\"zh-CN\",\"review_offset\":0,\"text_percent\":150,\"visible_leaf_rects\":\"[[P: (16.0, 416.0), S: (1248.0, 80.0)], [P: (16.0, 496.0), S: (1248.0, 80.0)], [P: (16.0, 576.0), S: (1248.0, 80.0)]]\"},{\"caption_window\":[\"2. \u5348\u540e\u7684\u9633\u5149\u7167\u8fdb\u623f\u95f4\u3002\",\"3. \u6211\u8bb0\u5f97\u4f60\u8bf4\u8fc7\u7684\u8bdd\u3002\",\"4. \u6211\u4eec\u4e0d\u5fc5\u7740\u6025\u3002\"],\"dating_overlay\":true,\"file\":\"dating-overlay-review-zh-CN150.png\",\"kind\":\"caption\",\"locale\":\"zh-CN\",\"review_offset\":1,\"text_percent\":150,\"visible_leaf_rects\":\"[[P: (16.0, 416.0), S: (1248.0, 80.0)], [P: (16.0, 496.0), S: (1248.0, 80.0)], [P: (16.0, 576.0), S: (1248.0, 80.0)]]\"},{\"caption_window\":[\"3. \u6211\u8a18\u5f97\u4f60\u8aaa\u904e\u7684\u8a71\u3002\",\"4. \u6211\u5011\u4e0d\u5fc5\u7740\u6025\u3002\",\"5. \u6211\u5011\u53c8\u591a\u5f85\u4e86\u4e00\u6703\u5152\u3002\"],\"dating_overlay\":true,\"file\":\"dating-overlay-live-zh-HK150.png\",\"kind\":\"caption\",\"locale\":\"zh-HK\",\"review_offset\":0,\"text_percent\":150,\"visible_leaf_rects\":\"[[P: (16.0, 416.0), S: (1248.0, 80.0)], [P: (16.0, 496.0), S: (1248.0, 80.0)], [P: (16.0, 576.0), S: (1248.0, 80.0)]]\"},{\"caption_window\":[\"2. \u5348\u5f8c\u7684\u967d\u5149\u7167\u9032\u623f\u9593\u3002\",\"3. \u6211\u8a18\u5f97\u4f60\u8aaa\u904e\u7684\u8a71\u3002\",\"4. \u6211\u5011\u4e0d\u5fc5\u7740\u6025\u3002\"],\"dating_overlay\":true,\"file\":\"dating-overlay-review-zh-HK150.png\",\"kind\":\"caption\",\"locale\":\"zh-HK\",\"review_offset\":1,\"text_percent\":150,\"visible_leaf_rects\":\"[[P: (16.0, 416.0), S: (1248.0, 80.0)], [P: (16.0, 496.0), S: (1248.0, 80.0)], [P: (16.0, 576.0), S: (1248.0, 80.0)]]\"},{\"caption_window\":[\"3. I remembered what you said.\",\"4. There was no need to hurry.\",\"5. We stayed a little longer.\"],\"dating_overlay\":true,\"file\":\"dating-pair-480.png\",\"kind\":\"caption\",\"locale\":\"en\",\"review_offset\":0,\"text_percent\":100,\"visible_leaf_rects\":\"[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]\"},{\"caption_window\":[\"3. I remembered what you said.\",\"4. There was no need to hurry.\",\"5. We stayed a little longer.\"],\"dating_overlay\":true,\"file\":\"dating-pair-640.png\",\"kind\":\"caption\",\"locale\":\"en\",\"review_offset\":0,\"text_percent\":100,\"visible_leaf_rects\":\"[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]\"},{\"file\":\"challenge-solo-en100-480.png\",\"kind\":\"dating_challenge\",\"locale\":\"en\",\"portrait_width\":480.0,\"right_rect\":\"[P: (480.0, 0.0), S: (800.0, 720.0)]\",\"rules\":false,\"text_percent\":100,\"worksheet_rect\":\"[P: (492.0, 58.0), S: (776.0, 482.0)]\"},{\"file\":\"challenge-group-en100-640.png\",\"kind\":\"dating_challenge\",\"locale\":\"en\",\"portrait_width\":640.0,\"right_rect\":\"[P: (640.0, 0.0), S: (640.0, 720.0)]\",\"rules\":false,\"text_percent\":100,\"worksheet_rect\":\"[P: (652.0, 58.0), S: (616.0, 482.0)]\"},{\"file\":\"challenge-group-ja150-640-rules.png\",\"kind\":\"dating_challenge\",\"locale\":\"ja\",\"portrait_width\":640.0,\"right_rect\":\"[P: (640.0, 0.0), S: (640.0, 720.0)]\",\"rules\":true,\"text_percent\":150,\"worksheet_rect\":\"[P: (652.0, 70.0), S: (616.0, 380.0)]\"},{\"file\":\"challenge-group-ko150-640-rules.png\",\"kind\":\"dating_challenge\",\"locale\":\"ko\",\"portrait_width\":640.0,\"right_rect\":\"[P: (640.0, 0.0), S: (640.0, 720.0)]\",\"rules\":true,\"text_percent\":150,\"worksheet_rect\":\"[P: (652.0, 70.0), S: (608.0, 422.0)]\"}],\"failures\":[],\"ok\":true,\"renderer\":\"X11\",\"samples\":25,\"scope\":\"synthetic public board and dialogue fixtures; production Desktop, split dating artwork and challenge host, installed Dialogic\"}",
+        "DELIVERY_DIALOGUE_RENDER_VERIFIED {\"captures\":25,\"evidence\":[{\"desktop_width\":800,\"file\":\"delivering-800-100.png\",\"kind\":\"delivery\",\"notice_rect\":\"[P: (704.0, 316.0), S: (352.0, 88.0)]\",\"text\":\"delivering...\",\"text_percent\":100},{\"desktop_width\":800,\"file\":\"delivered-800-100.png\",\"kind\":\"delivery\",\"notice_rect\":\"[P: (704.0, 316.0), S: (352.0, 88.0)]\",\"text\":\"delivered :)\",\"text_percent\":100},{\"desktop_width\":960,\"file\":\"delivering-960-100.png\",\"kind\":\"delivery\",\"notice_rect\":\"[P: (588.8, 307.2), S: (422.4001, 105.6)]\",\"text\":\"delivering...\",\"text_percent\":100},{\"desktop_width\":960,\"file\":\"delivered-960-100.png\",\"kind\":\"delivery\",\"notice_rect\":\"[P: (588.8, 307.2), S: (422.4001, 105.6)]\",\"text\":\"delivered :)\",\"text_percent\":100},{\"desktop_width\":960,\"file\":\"delivering-960-150.png\",\"kind\":\"delivery\",\"notice_rect\":\"[P: (588.8, 307.2), S: (422.4001, 105.6)]\",\"text\":\"delivering...\",\"text_percent\":150},{\"desktop_width\":960,\"file\":\"delivered-960-150.png\",\"kind\":\"delivery\",\"notice_rect\":\"[P: (588.8, 307.2), S: (422.4001, 105.6)]\",\"text\":\"delivered :)\",\"text_percent\":150},{\"caption_window\":[\"3. I remembered what you said.\",\"4. There was no need to hurry.\",\"5. We stayed a little longer.\"],\"dating_overlay\":false,\"file\":\"dialogue-live-en100.png\",\"kind\":\"caption\",\"locale\":\"en\",\"review_offset\":0,\"text_percent\":100,\"visible_leaf_rects\":\"[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]\"},{\"caption_window\":[\"2. The afternoon light filled the room.\",\"3. I remembered what you said.\",\"4. There was no need to hurry.\"],\"dating_overlay\":false,\"file\":\"dialogue-older-en100.png\",\"kind\":\"caption\",\"locale\":\"en\",\"review_offset\":1,\"text_percent\":100,\"visible_leaf_rects\":\"[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]\"},{\"caption_window\":[\"1. We found a quiet place.\",\"2. The afternoon light filled the room.\",\"3. I remembered what you said.\"],\"dating_overlay\":false,\"file\":\"dialogue-oldest-en100.png\",\"kind\":\"caption\",\"locale\":\"en\",\"review_offset\":2,\"text_percent\":100,\"visible_leaf_rects\":\"[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]\"},{\"caption_window\":[\"2. The afternoon light filled the room.\",\"3. I remembered what you said.\",\"4. There was no need to hurry.\"],\"dating_overlay\":false,\"file\":\"dialogue-newer-en100.png\",\"kind\":\"caption\",\"locale\":\"en\",\"review_offset\":1,\"text_percent\":100,\"visible_leaf_rects\":\"[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]\"},{\"caption_window\":[\"3. I remembered what you said.\",\"4. There was no need to hurry.\",\"5. We stayed a little longer.\"],\"dating_overlay\":false,\"file\":\"dialogue-return-live-en100.png\",\"kind\":\"caption\",\"locale\":\"en\",\"review_offset\":0,\"text_percent\":100,\"visible_leaf_rects\":\"[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]\"},{\"caption_window\":[\"2. \u5348\u540e\u7684\u9633\u5149\u7167\u8fdb\u623f\u95f4\u3002\",\"3. \u6211\u8bb0\u5f97\u4f60\u8bf4\u8fc7\u7684\u8bdd\u3002\",\"4. \u6211\u4eec\u4e0d\u5fc5\u7740\u6025\u3002\"],\"dating_overlay\":false,\"file\":\"dialogue-older-zh-CN150.png\",\"kind\":\"caption\",\"locale\":\"zh-CN\",\"review_offset\":1,\"text_percent\":150,\"visible_leaf_rects\":\"[[P: (16.0, 416.0), S: (1248.0, 80.0)], [P: (16.0, 496.0), S: (1248.0, 80.0)], [P: (16.0, 576.0), S: (1248.0, 80.0)]]\"},{\"caption_window\":[\"2. \u5348\u5f8c\u7684\u967d\u5149\u7167\u9032\u623f\u9593\u3002\",\"3. \u6211\u8a18\u5f97\u4f60\u8aaa\u904e\u7684\u8a71\u3002\",\"4. \u6211\u5011\u4e0d\u5fc5\u7740\u6025\u3002\"],\"dating_overlay\":false,\"file\":\"dialogue-older-zh-HK150.png\",\"kind\":\"caption\",\"locale\":\"zh-HK\",\"review_offset\":1,\"text_percent\":150,\"visible_leaf_rects\":\"[[P: (16.0, 416.0), S: (1248.0, 80.0)], [P: (16.0, 496.0), S: (1248.0, 80.0)], [P: (16.0, 576.0), S: (1248.0, 80.0)]]\"},{\"caption_window\":[\"3. I remembered what you said.\",\"4. There was no need to hurry.\",\"5. We stayed a little longer.\"],\"dating_overlay\":true,\"file\":\"dating-overlay-live-en100.png\",\"kind\":\"caption\",\"locale\":\"en\",\"review_offset\":0,\"text_percent\":100,\"visible_leaf_rects\":\"[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]\"},{\"caption_window\":[\"2. The afternoon light filled the room.\",\"3. I remembered what you said.\",\"4. There was no need to hurry.\"],\"dating_overlay\":true,\"file\":\"dating-overlay-review-en100.png\",\"kind\":\"caption\",\"locale\":\"en\",\"review_offset\":1,\"text_percent\":100,\"visible_leaf_rects\":\"[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]\"},{\"caption_window\":[\"3. \u6211\u8bb0\u5f97\u4f60\u8bf4\u8fc7\u7684\u8bdd\u3002\",\"4. \u6211\u4eec\u4e0d\u5fc5\u7740\u6025\u3002\",\"5. \u6211\u4eec\u53c8\u591a\u5f85\u4e86\u4e00\u4f1a\u513f\u3002\"],\"dating_overlay\":true,\"file\":\"dating-overlay-live-zh-CN150.png\",\"kind\":\"caption\",\"locale\":\"zh-CN\",\"review_offset\":0,\"text_percent\":150,\"visible_leaf_rects\":\"[[P: (16.0, 416.0), S: (1248.0, 80.0)], [P: (16.0, 496.0), S: (1248.0, 80.0)], [P: (16.0, 576.0), S: (1248.0, 80.0)]]\"},{\"caption_window\":[\"2. \u5348\u540e\u7684\u9633\u5149\u7167\u8fdb\u623f\u95f4\u3002\",\"3. \u6211\u8bb0\u5f97\u4f60\u8bf4\u8fc7\u7684\u8bdd\u3002\",\"4. \u6211\u4eec\u4e0d\u5fc5\u7740\u6025\u3002\"],\"dating_overlay\":true,\"file\":\"dating-overlay-review-zh-CN150.png\",\"kind\":\"caption\",\"locale\":\"zh-CN\",\"review_offset\":1,\"text_percent\":150,\"visible_leaf_rects\":\"[[P: (16.0, 416.0), S: (1248.0, 80.0)], [P: (16.0, 496.0), S: (1248.0, 80.0)], [P: (16.0, 576.0), S: (1248.0, 80.0)]]\"},{\"caption_window\":[\"3. \u6211\u8a18\u5f97\u4f60\u8aaa\u904e\u7684\u8a71\u3002\",\"4. \u6211\u5011\u4e0d\u5fc5\u7740\u6025\u3002\",\"5. \u6211\u5011\u53c8\u591a\u5f85\u4e86\u4e00\u6703\u5152\u3002\"],\"dating_overlay\":true,\"file\":\"dating-overlay-live-zh-HK150.png\",\"kind\":\"caption\",\"locale\":\"zh-HK\",\"review_offset\":0,\"text_percent\":150,\"visible_leaf_rects\":\"[[P: (16.0, 416.0), S: (1248.0, 80.0)], [P: (16.0, 496.0), S: (1248.0, 80.0)], [P: (16.0, 576.0), S: (1248.0, 80.0)]]\"},{\"caption_window\":[\"2. \u5348\u5f8c\u7684\u967d\u5149\u7167\u9032\u623f\u9593\u3002\",\"3. \u6211\u8a18\u5f97\u4f60\u8aaa\u904e\u7684\u8a71\u3002\",\"4. \u6211\u5011\u4e0d\u5fc5\u7740\u6025\u3002\"],\"dating_overlay\":true,\"file\":\"dating-overlay-review-zh-HK150.png\",\"kind\":\"caption\",\"locale\":\"zh-HK\",\"review_offset\":1,\"text_percent\":150,\"visible_leaf_rects\":\"[[P: (16.0, 416.0), S: (1248.0, 80.0)], [P: (16.0, 496.0), S: (1248.0, 80.0)], [P: (16.0, 576.0), S: (1248.0, 80.0)]]\"},{\"caption_window\":[\"3. I remembered what you said.\",\"4. There was no need to hurry.\",\"5. We stayed a little longer.\"],\"dating_overlay\":true,\"file\":\"dating-pair-480.png\",\"kind\":\"caption\",\"locale\":\"en\",\"review_offset\":0,\"text_percent\":100,\"visible_leaf_rects\":\"[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]\"},{\"caption_window\":[\"3. I remembered what you said.\",\"4. There was no need to hurry.\",\"5. We stayed a little longer.\"],\"dating_overlay\":true,\"file\":\"dating-pair-640.png\",\"kind\":\"caption\",\"locale\":\"en\",\"review_offset\":0,\"text_percent\":100,\"visible_leaf_rects\":\"[[P: (16.0, 452.0), S: (1248.0, 68.0)], [P: (16.0, 520.0), S: (1248.0, 68.0)], [P: (16.0, 588.0), S: (1248.0, 68.0)]]\"},{\"file\":\"challenge-solo-en100-480.png\",\"kind\":\"dating_challenge\",\"locale\":\"en\",\"portrait_width\":480.0,\"right_rect\":\"[P: (480.0, 0.0), S: (800.0, 720.0)]\",\"rules\":false,\"text_percent\":100,\"worksheet_rect\":\"[P: (492.0, 58.0), S: (776.0, 482.0)]\"},{\"file\":\"challenge-group-en100-640.png\",\"kind\":\"dating_challenge\",\"locale\":\"en\",\"portrait_width\":640.0,\"right_rect\":\"[P: (640.0, 0.0), S: (640.0, 720.0)]\",\"rules\":false,\"text_percent\":100,\"worksheet_rect\":\"[P: (652.0, 58.0), S: (616.0, 482.0)]\"},{\"file\":\"challenge-group-ja150-640-rules.png\",\"kind\":\"dating_challenge\",\"locale\":\"ja\",\"portrait_width\":640.0,\"right_rect\":\"[P: (640.0, 0.0), S: (640.0, 720.0)]\",\"rules\":true,\"text_percent\":150,\"worksheet_rect\":\"[P: (652.0, 70.0), S: (616.0, 380.0)]\"},{\"file\":\"challenge-group-ko150-640-rules.png\",\"kind\":\"dating_challenge\",\"locale\":\"ko\",\"portrait_width\":640.0,\"right_rect\":\"[P: (640.0, 0.0), S: (640.0, 720.0)]\",\"rules\":true,\"text_percent\":150,\"worksheet_rect\":\"[P: (652.0, 70.0), S: (608.0, 422.0)]\"}],\"failures\":[],\"ok\":true,\"renderer\":\"X11\",\"samples\":25,\"scope\":\"synthetic public board and dialogue fixtures; production Desktop, split dating artwork and challenge host, installed Dialogic\"}",
+        "ANGELA_OVERLAY_RENDER_VERIFIED {\"captures\":10,\"crop_checks\":[{\"identical\":true,\"maximum_channel_difference\":0,\"sample_height\":720,\"sample_width\":256,\"source_width\":480,\"source_x\":80,\"target_width\":320},{\"identical\":true,\"maximum_channel_difference\":0,\"sample_height\":720,\"sample_width\":414,\"source_width\":480,\"source_x\":1,\"target_width\":478}],\"evidence\":[{\"art_rect\":\"[P: (0.0, 0.0), S: (480.0, 720.0)]\",\"hud_rect\":\"[P: (16.0, 16.0), S: (448.0, 292.0)]\",\"locale\":\"en\",\"name\":\"wide-en100\",\"percent\":100,\"scroll\":0,\"scroll_extent\":0.0,\"width\":480},{\"art_rect\":\"[P: (0.0, 0.0), S: (320.0, 720.0)]\",\"hud_rect\":\"[P: (16.0, 16.0), S: (288.0, 292.0)]\",\"locale\":\"en\",\"name\":\"narrow-en100\",\"percent\":100,\"scroll\":0,\"scroll_extent\":0.0,\"width\":320},{\"art_rect\":\"[P: (0.0, 0.0), S: (480.0, 720.0)]\",\"conditions\":true,\"hud_rect\":\"[P: (16.0, 16.0), S: (448.0, 300.0)]\",\"locale\":\"en\",\"name\":\"wide-en150-conditions\",\"percent\":150,\"scroll\":0,\"scroll_extent\":274.0,\"width\":480},{\"art_rect\":\"[P: (0.0, 0.0), S: (320.0, 720.0)]\",\"conditions\":true,\"hud_rect\":\"[P: (16.0, 16.0), S: (288.0, 300.0)]\",\"locale\":\"en\",\"name\":\"narrow-en150-conditions\",\"percent\":150,\"scroll\":0,\"scroll_extent\":529.0,\"width\":320},{\"art_rect\":\"[P: (0.0, 0.0), S: (320.0, 720.0)]\",\"bottom\":true,\"conditions\":true,\"hud_rect\":\"[P: (16.0, 16.0), S: (288.0, 300.0)]\",\"locale\":\"en\",\"name\":\"narrow-en150-last-row\",\"percent\":150,\"scroll\":529,\"scroll_extent\":529.0,\"width\":320},{\"art_rect\":\"[P: (0.0, 0.0), S: (320.0, 720.0)]\",\"conditions\":true,\"hud_rect\":\"[P: (16.0, 16.0), S: (288.0, 300.0)]\",\"locale\":\"zh-CN\",\"name\":\"narrow-zh-CN150-conditions\",\"percent\":150,\"scroll\":0,\"scroll_extent\":274.0,\"width\":320},{\"art_rect\":\"[P: (0.0, 0.0), S: (480.0, 720.0)]\",\"conditions\":true,\"hud_rect\":\"[P: (16.0, 16.0), S: (448.0, 300.0)]\",\"locale\":\"zh-HK\",\"name\":\"wide-zh-HK150-conditions\",\"percent\":150,\"scroll\":0,\"scroll_extent\":223.0,\"width\":480},{\"art_rect\":\"[P: (0.0, 0.0), S: (320.0, 720.0)]\",\"bottom\":true,\"conditions\":true,\"contrast\":true,\"hud_rect\":\"[P: (16.0, 16.0), S: (288.0, 300.0)]\",\"locale\":\"en\",\"name\":\"narrow-en150-high-contrast\",\"percent\":150,\"scroll\":529,\"scroll_extent\":529.0,\"width\":320},{\"art_rect\":\"[P: (0.0, 0.0), S: (320.0, 720.0)]\",\"conditions\":true,\"contrast\":true,\"hud_rect\":\"[P: (16.0, 16.0), S: (288.0, 300.0)]\",\"locale\":\"zh-HK\",\"name\":\"narrow-zh-HK150-high-contrast\",\"percent\":150,\"scroll\":0,\"scroll_extent\":274.0,\"width\":320},{\"art_rect\":\"[P: (0.0, 0.0), S: (480.0, 720.0)]\",\"conditions\":true,\"day\":7,\"hud_rect\":\"[P: (16.0, 16.0), S: (448.0, 300.0)]\",\"locale\":\"en\",\"name\":\"wide-en100-day7-conditions\",\"percent\":100,\"scroll\":0,\"scroll_extent\":111.0,\"width\":480}],\"failures\":[],\"ok\":true,\"renderer\":\"X11\",\"samples\":10,\"scope\":\"production Main/StatHud and authored artwork; synthetic public stat values\"}",
+        "ANGELA_OVERLAY_RENDER_VERIFIED {\"captures\":10,\"crop_checks\":[{\"identical\":true,\"maximum_channel_difference\":0,\"sample_height\":720,\"sample_width\":256,\"source_width\":480,\"source_x\":80,\"target_width\":320},{\"identical\":true,\"maximum_channel_difference\":0,\"sample_height\":720,\"sample_width\":414,\"source_width\":480,\"source_x\":1,\"target_width\":478}],\"evidence\":[{\"art_rect\":\"[P: (0.0, 0.0), S: (480.0, 720.0)]\",\"hud_rect\":\"[P: (16.0, 16.0), S: (448.0, 292.0)]\",\"locale\":\"en\",\"name\":\"wide-en100\",\"percent\":100,\"scroll\":0,\"scroll_extent\":0.0,\"width\":480},{\"art_rect\":\"[P: (0.0, 0.0), S: (320.0, 720.0)]\",\"hud_rect\":\"[P: (16.0, 16.0), S: (288.0, 292.0)]\",\"locale\":\"en\",\"name\":\"narrow-en100\",\"percent\":100,\"scroll\":0,\"scroll_extent\":0.0,\"width\":320},{\"art_rect\":\"[P: (0.0, 0.0), S: (480.0, 720.0)]\",\"conditions\":true,\"hud_rect\":\"[P: (16.0, 16.0), S: (448.0, 300.0)]\",\"locale\":\"en\",\"name\":\"wide-en150-conditions\",\"percent\":150,\"scroll\":0,\"scroll_extent\":274.0,\"width\":480},{\"art_rect\":\"[P: (0.0, 0.0), S: (320.0, 720.0)]\",\"conditions\":true,\"hud_rect\":\"[P: (16.0, 16.0), S: (288.0, 300.0)]\",\"locale\":\"en\",\"name\":\"narrow-en150-conditions\",\"percent\":150,\"scroll\":0,\"scroll_extent\":529.0,\"width\":320},{\"art_rect\":\"[P: (0.0, 0.0), S: (320.0, 720.0)]\",\"bottom\":true,\"conditions\":true,\"hud_rect\":\"[P: (16.0, 16.0), S: (288.0, 300.0)]\",\"locale\":\"en\",\"name\":\"narrow-en150-last-row\",\"percent\":150,\"scroll\":529,\"scroll_extent\":529.0,\"width\":320},{\"art_rect\":\"[P: (0.0, 0.0), S: (320.0, 720.0)]\",\"conditions\":true,\"hud_rect\":\"[P: (16.0, 16.0), S: (288.0, 300.0)]\",\"locale\":\"zh-CN\",\"name\":\"narrow-zh-CN150-conditions\",\"percent\":150,\"scroll\":0,\"scroll_extent\":274.0,\"width\":320},{\"art_rect\":\"[P: (0.0, 0.0), S: (480.0, 720.0)]\",\"conditions\":true,\"hud_rect\":\"[P: (16.0, 16.0), S: (448.0, 300.0)]\",\"locale\":\"zh-HK\",\"name\":\"wide-zh-HK150-conditions\",\"percent\":150,\"scroll\":0,\"scroll_extent\":223.0,\"width\":480},{\"art_rect\":\"[P: (0.0, 0.0), S: (320.0, 720.0)]\",\"bottom\":true,\"conditions\":true,\"contrast\":true,\"hud_rect\":\"[P: (16.0, 16.0), S: (288.0, 300.0)]\",\"locale\":\"en\",\"name\":\"narrow-en150-high-contrast\",\"percent\":150,\"scroll\":529,\"scroll_extent\":529.0,\"width\":320},{\"art_rect\":\"[P: (0.0, 0.0), S: (320.0, 720.0)]\",\"conditions\":true,\"contrast\":true,\"hud_rect\":\"[P: (16.0, 16.0), S: (288.0, 300.0)]\",\"locale\":\"zh-HK\",\"name\":\"narrow-zh-HK150-high-contrast\",\"percent\":150,\"scroll\":0,\"scroll_extent\":274.0,\"width\":320},{\"art_rect\":\"[P: (0.0, 0.0), S: (480.0, 720.0)]\",\"conditions\":true,\"day\":7,\"hud_rect\":\"[P: (16.0, 16.0), S: (448.0, 300.0)]\",\"locale\":\"en\",\"name\":\"wide-en100-day7-conditions\",\"percent\":100,\"scroll\":0,\"scroll_extent\":111.0,\"width\":480}],\"failures\":[],\"ok\":true,\"renderer\":\"X11\",\"samples\":10,\"scope\":\"production Main/StatHud and authored artwork; synthetic public stat values\"}",
+        "JAPANESE_KOREAN_UI_RENDER_VERIFIED {\"captures\":30,\"failures\":[],\"fixture\":\"Real production UI, active locale/profile providers and Fusion fonts; synthetic shop/contact/board records, empty Gallery, English dialogue fixture. No player commands.\",\"ok\":true,\"renderer\":\"X11\",\"samples\":30,\"states\":[{\"file\":\"ja-title-100.png\",\"locale\":\"ja\",\"percent\":100,\"surface\":\"title\",\"visible_text_nodes\":8},{\"file\":\"ja-gallery-100.png\",\"locale\":\"ja\",\"percent\":100,\"surface\":\"gallery\",\"visible_text_nodes\":3},{\"file\":\"ja-gallery-150.png\",\"locale\":\"ja\",\"percent\":150,\"surface\":\"gallery\",\"visible_text_nodes\":3},{\"file\":\"ja-launcher-100.png\",\"locale\":\"ja\",\"percent\":100,\"surface\":\"launcher\",\"visible_text_nodes\":15},{\"file\":\"ja-contacts-100.png\",\"locale\":\"ja\",\"percent\":100,\"surface\":\"contacts\",\"visible_text_nodes\":11},{\"file\":\"ja-backup-100.png\",\"locale\":\"ja\",\"percent\":100,\"surface\":\"backup\",\"visible_text_nodes\":30},{\"file\":\"ja-backup-150.png\",\"locale\":\"ja\",\"percent\":150,\"surface\":\"backup\",\"visible_text_nodes\":30},{\"file\":\"ja-settings-100.png\",\"locale\":\"ja\",\"percent\":100,\"surface\":\"settings\",\"visible_text_nodes\":19},{\"file\":\"ja-settings-150.png\",\"locale\":\"ja\",\"percent\":150,\"surface\":\"settings\",\"visible_text_nodes\":19},{\"file\":\"ja-shop-100.png\",\"locale\":\"ja\",\"percent\":100,\"surface\":\"shop\",\"visible_text_nodes\":45},{\"file\":\"ja-schedule-100.png\",\"locale\":\"ja\",\"percent\":100,\"surface\":\"schedule\",\"visible_text_nodes\":23},{\"file\":\"ja-minesweeper-100.png\",\"locale\":\"ja\",\"percent\":100,\"surface\":\"minesweeper\",\"visible_text_nodes\":9},{\"file\":\"ja-minesweeper-150.png\",\"locale\":\"ja\",\"percent\":150,\"surface\":\"minesweeper\",\"visible_text_nodes\":9},{\"file\":\"ko-title-100.png\",\"locale\":\"ko\",\"percent\":100,\"surface\":\"title\",\"visible_text_nodes\":8},{\"file\":\"ko-gallery-100.png\",\"locale\":\"ko\",\"percent\":100,\"surface\":\"gallery\",\"visible_text_nodes\":3},{\"file\":\"ko-gallery-150.png\",\"locale\":\"ko\",\"percent\":150,\"surface\":\"gallery\",\"visible_text_nodes\":3},{\"file\":\"ko-launcher-100.png\",\"locale\":\"ko\",\"percent\":100,\"surface\":\"launcher\",\"visible_text_nodes\":15},{\"file\":\"ko-contacts-100.png\",\"locale\":\"ko\",\"percent\":100,\"surface\":\"contacts\",\"visible_text_nodes\":11},{\"file\":\"ko-backup-100.png\",\"locale\":\"ko\",\"percent\":100,\"surface\":\"backup\",\"visible_text_nodes\":30},{\"file\":\"ko-backup-150.png\",\"locale\":\"ko\",\"percent\":150,\"surface\":\"backup\",\"visible_text_nodes\":30},{\"file\":\"ko-settings-100.png\",\"locale\":\"ko\",\"percent\":100,\"surface\":\"settings\",\"visible_text_nodes\":19},{\"file\":\"ko-settings-150.png\",\"locale\":\"ko\",\"percent\":150,\"surface\":\"settings\",\"visible_text_nodes\":19},{\"file\":\"ko-shop-100.png\",\"locale\":\"ko\",\"percent\":100,\"surface\":\"shop\",\"visible_text_nodes\":45},{\"file\":\"ko-schedule-100.png\",\"locale\":\"ko\",\"percent\":100,\"surface\":\"schedule\",\"visible_text_nodes\":23},{\"file\":\"ko-minesweeper-100.png\",\"locale\":\"ko\",\"percent\":100,\"surface\":\"minesweeper\",\"visible_text_nodes\":9},{\"file\":\"ko-minesweeper-150.png\",\"locale\":\"ko\",\"percent\":150,\"surface\":\"minesweeper\",\"visible_text_nodes\":9},{\"file\":\"ja-witnessed-100.png\",\"locale\":\"ja\",\"percent\":100,\"surface\":\"witnessed\",\"visible_text_nodes\":9},{\"file\":\"ja-witnessed-150.png\",\"locale\":\"ja\",\"percent\":150,\"surface\":\"witnessed\",\"visible_text_nodes\":9},{\"file\":\"ko-witnessed-100.png\",\"locale\":\"ko\",\"percent\":100,\"surface\":\"witnessed\",\"visible_text_nodes\":9},{\"file\":\"ko-witnessed-150.png\",\"locale\":\"ko\",\"percent\":150,\"surface\":\"witnessed\",\"visible_text_nodes\":9}]}",
+        "JAPANESE_KOREAN_UI_RENDER_VERIFIED {\"captures\":30,\"failures\":[],\"fixture\":\"Real production UI, active locale/profile providers and Fusion fonts; synthetic shop/contact/board records, empty Gallery, English dialogue fixture. No player commands.\",\"ok\":true,\"renderer\":\"X11\",\"samples\":30,\"states\":[{\"file\":\"ja-title-100.png\",\"locale\":\"ja\",\"percent\":100,\"surface\":\"title\",\"visible_text_nodes\":8},{\"file\":\"ja-gallery-100.png\",\"locale\":\"ja\",\"percent\":100,\"surface\":\"gallery\",\"visible_text_nodes\":3},{\"file\":\"ja-gallery-150.png\",\"locale\":\"ja\",\"percent\":150,\"surface\":\"gallery\",\"visible_text_nodes\":3},{\"file\":\"ja-launcher-100.png\",\"locale\":\"ja\",\"percent\":100,\"surface\":\"launcher\",\"visible_text_nodes\":15},{\"file\":\"ja-contacts-100.png\",\"locale\":\"ja\",\"percent\":100,\"surface\":\"contacts\",\"visible_text_nodes\":11},{\"file\":\"ja-backup-100.png\",\"locale\":\"ja\",\"percent\":100,\"surface\":\"backup\",\"visible_text_nodes\":30},{\"file\":\"ja-backup-150.png\",\"locale\":\"ja\",\"percent\":150,\"surface\":\"backup\",\"visible_text_nodes\":30},{\"file\":\"ja-settings-100.png\",\"locale\":\"ja\",\"percent\":100,\"surface\":\"settings\",\"visible_text_nodes\":19},{\"file\":\"ja-settings-150.png\",\"locale\":\"ja\",\"percent\":150,\"surface\":\"settings\",\"visible_text_nodes\":19},{\"file\":\"ja-shop-100.png\",\"locale\":\"ja\",\"percent\":100,\"surface\":\"shop\",\"visible_text_nodes\":45},{\"file\":\"ja-schedule-100.png\",\"locale\":\"ja\",\"percent\":100,\"surface\":\"schedule\",\"visible_text_nodes\":23},{\"file\":\"ja-minesweeper-100.png\",\"locale\":\"ja\",\"percent\":100,\"surface\":\"minesweeper\",\"visible_text_nodes\":9},{\"file\":\"ja-minesweeper-150.png\",\"locale\":\"ja\",\"percent\":150,\"surface\":\"minesweeper\",\"visible_text_nodes\":9},{\"file\":\"ko-title-100.png\",\"locale\":\"ko\",\"percent\":100,\"surface\":\"title\",\"visible_text_nodes\":8},{\"file\":\"ko-gallery-100.png\",\"locale\":\"ko\",\"percent\":100,\"surface\":\"gallery\",\"visible_text_nodes\":3},{\"file\":\"ko-gallery-150.png\",\"locale\":\"ko\",\"percent\":150,\"surface\":\"gallery\",\"visible_text_nodes\":3},{\"file\":\"ko-launcher-100.png\",\"locale\":\"ko\",\"percent\":100,\"surface\":\"launcher\",\"visible_text_nodes\":15},{\"file\":\"ko-contacts-100.png\",\"locale\":\"ko\",\"percent\":100,\"surface\":\"contacts\",\"visible_text_nodes\":11},{\"file\":\"ko-backup-100.png\",\"locale\":\"ko\",\"percent\":100,\"surface\":\"backup\",\"visible_text_nodes\":30},{\"file\":\"ko-backup-150.png\",\"locale\":\"ko\",\"percent\":150,\"surface\":\"backup\",\"visible_text_nodes\":30},{\"file\":\"ko-settings-100.png\",\"locale\":\"ko\",\"percent\":100,\"surface\":\"settings\",\"visible_text_nodes\":19},{\"file\":\"ko-settings-150.png\",\"locale\":\"ko\",\"percent\":150,\"surface\":\"settings\",\"visible_text_nodes\":19},{\"file\":\"ko-shop-100.png\",\"locale\":\"ko\",\"percent\":100,\"surface\":\"shop\",\"visible_text_nodes\":45},{\"file\":\"ko-schedule-100.png\",\"locale\":\"ko\",\"percent\":100,\"surface\":\"schedule\",\"visible_text_nodes\":23},{\"file\":\"ko-minesweeper-100.png\",\"locale\":\"ko\",\"percent\":100,\"surface\":\"minesweeper\",\"visible_text_nodes\":9},{\"file\":\"ko-minesweeper-150.png\",\"locale\":\"ko\",\"percent\":150,\"surface\":\"minesweeper\",\"visible_text_nodes\":9},{\"file\":\"ja-witnessed-100.png\",\"locale\":\"ja\",\"percent\":100,\"surface\":\"witnessed\",\"visible_text_nodes\":9},{\"file\":\"ja-witnessed-150.png\",\"locale\":\"ja\",\"percent\":150,\"surface\":\"witnessed\",\"visible_text_nodes\":9},{\"file\":\"ko-witnessed-100.png\",\"locale\":\"ko\",\"percent\":100,\"surface\":\"witnessed\",\"visible_text_nodes\":9},{\"file\":\"ko-witnessed-150.png\",\"locale\":\"ko\",\"percent\":150,\"surface\":\"witnessed\",\"visible_text_nodes\":9}]}",
+        "FONT_CHOICES_RENDER_VERIFIED {\"captures\":30,\"failures\":[],\"fixture\":\"Real Settings selector, Profile/Localization and production desktop, Gallery and witnessed captions. Synthetic public board and English dialogue; no player commands.\",\"ok\":true,\"renderer\":\"X11\",\"samples\":30,\"states\":[{\"file\":\"pixel-en-settings-accessibility-150.png\",\"font_resource\":\"res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-latin.otf.woff2\",\"font_style\":\"pixel\",\"large_targets\":true,\"locale\":\"en\",\"percent\":150,\"surface\":\"settings-accessibility\",\"visible_text_nodes\":30},{\"file\":\"pixel-en-minesweeper-150.png\",\"font_resource\":\"res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-latin.otf.woff2\",\"font_style\":\"pixel\",\"large_targets\":true,\"locale\":\"en\",\"percent\":150,\"surface\":\"minesweeper\",\"visible_text_nodes\":17},{\"file\":\"readable-en-settings-accessibility-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"en\",\"percent\":150,\"surface\":\"settings-accessibility\",\"visible_text_nodes\":30},{\"file\":\"readable-en-minesweeper-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"en\",\"percent\":150,\"surface\":\"minesweeper\",\"visible_text_nodes\":20},{\"file\":\"readable-en-gallery-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"en\",\"percent\":150,\"surface\":\"gallery\",\"visible_text_nodes\":3},{\"file\":\"readable-en-witnessed-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"en\",\"percent\":150,\"surface\":\"witnessed\",\"visible_text_nodes\":9},{\"file\":\"pixel-zh-CN-settings-accessibility-150.png\",\"font_resource\":\"res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2\",\"font_style\":\"pixel\",\"large_targets\":true,\"locale\":\"zh_CN\",\"percent\":150,\"surface\":\"settings-accessibility\",\"visible_text_nodes\":30},{\"file\":\"pixel-zh-CN-minesweeper-150.png\",\"font_resource\":\"res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2\",\"font_style\":\"pixel\",\"large_targets\":true,\"locale\":\"zh_CN\",\"percent\":150,\"surface\":\"minesweeper\",\"visible_text_nodes\":20},{\"file\":\"readable-zh-CN-settings-accessibility-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"zh_CN\",\"percent\":150,\"surface\":\"settings-accessibility\",\"visible_text_nodes\":30},{\"file\":\"readable-zh-CN-minesweeper-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"zh_CN\",\"percent\":150,\"surface\":\"minesweeper\",\"visible_text_nodes\":20},{\"file\":\"readable-zh-CN-gallery-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"zh_CN\",\"percent\":150,\"surface\":\"gallery\",\"visible_text_nodes\":3},{\"file\":\"readable-zh-CN-witnessed-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"zh_CN\",\"percent\":150,\"surface\":\"witnessed\",\"visible_text_nodes\":9},{\"file\":\"pixel-zh-HK-settings-accessibility-150.png\",\"font_resource\":\"res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2\",\"font_style\":\"pixel\",\"large_targets\":true,\"locale\":\"zh_HK\",\"percent\":150,\"surface\":\"settings-accessibility\",\"visible_text_nodes\":30},{\"file\":\"pixel-zh-HK-minesweeper-150.png\",\"font_resource\":\"res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2\",\"font_style\":\"pixel\",\"large_targets\":true,\"locale\":\"zh_HK\",\"percent\":150,\"surface\":\"minesweeper\",\"visible_text_nodes\":20},{\"file\":\"readable-zh-HK-settings-accessibility-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"zh_HK\",\"percent\":150,\"surface\":\"settings-accessibility\",\"visible_text_nodes\":30},{\"file\":\"readable-zh-HK-minesweeper-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"zh_HK\",\"percent\":150,\"surface\":\"minesweeper\",\"visible_text_nodes\":20},{\"file\":\"readable-zh-HK-gallery-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"zh_HK\",\"percent\":150,\"surface\":\"gallery\",\"visible_text_nodes\":3},{\"file\":\"readable-zh-HK-witnessed-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"zh_HK\",\"percent\":150,\"surface\":\"witnessed\",\"visible_text_nodes\":9},{\"file\":\"pixel-ja-settings-accessibility-150.png\",\"font_resource\":\"res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-ja.otf.woff2\",\"font_style\":\"pixel\",\"large_targets\":true,\"locale\":\"ja\",\"percent\":150,\"surface\":\"settings-accessibility\",\"visible_text_nodes\":30},{\"file\":\"pixel-ja-minesweeper-150.png\",\"font_resource\":\"res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-ja.otf.woff2\",\"font_style\":\"pixel\",\"large_targets\":true,\"locale\":\"ja\",\"percent\":150,\"surface\":\"minesweeper\",\"visible_text_nodes\":20},{\"file\":\"readable-ja-settings-accessibility-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-jp-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"ja\",\"percent\":150,\"surface\":\"settings-accessibility\",\"visible_text_nodes\":30},{\"file\":\"readable-ja-minesweeper-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-jp-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"ja\",\"percent\":150,\"surface\":\"minesweeper\",\"visible_text_nodes\":20},{\"file\":\"readable-ja-gallery-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-jp-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"ja\",\"percent\":150,\"surface\":\"gallery\",\"visible_text_nodes\":3},{\"file\":\"readable-ja-witnessed-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-jp-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"ja\",\"percent\":150,\"surface\":\"witnessed\",\"visible_text_nodes\":9},{\"file\":\"pixel-ko-settings-accessibility-150.png\",\"font_resource\":\"res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-ko.otf.woff2\",\"font_style\":\"pixel\",\"large_targets\":true,\"locale\":\"ko\",\"percent\":150,\"surface\":\"settings-accessibility\",\"visible_text_nodes\":30},{\"file\":\"pixel-ko-minesweeper-150.png\",\"font_resource\":\"res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-ko.otf.woff2\",\"font_style\":\"pixel\",\"large_targets\":true,\"locale\":\"ko\",\"percent\":150,\"surface\":\"minesweeper\",\"visible_text_nodes\":17},{\"file\":\"readable-ko-settings-accessibility-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-kr-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"ko\",\"percent\":150,\"surface\":\"settings-accessibility\",\"visible_text_nodes\":30},{\"file\":\"readable-ko-minesweeper-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-kr-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"ko\",\"percent\":150,\"surface\":\"minesweeper\",\"visible_text_nodes\":17},{\"file\":\"readable-ko-gallery-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-kr-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"ko\",\"percent\":150,\"surface\":\"gallery\",\"visible_text_nodes\":3},{\"file\":\"readable-ko-witnessed-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-kr-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"ko\",\"percent\":150,\"surface\":\"witnessed\",\"visible_text_nodes\":9}]}",
+        "FONT_CHOICES_RENDER_VERIFIED {\"captures\":30,\"failures\":[],\"fixture\":\"Real Settings selector, Profile/Localization and production desktop, Gallery and witnessed captions. Synthetic public board and English dialogue; no player commands.\",\"ok\":true,\"renderer\":\"X11\",\"samples\":30,\"states\":[{\"file\":\"pixel-en-settings-accessibility-150.png\",\"font_resource\":\"res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-latin.otf.woff2\",\"font_style\":\"pixel\",\"large_targets\":true,\"locale\":\"en\",\"percent\":150,\"surface\":\"settings-accessibility\",\"visible_text_nodes\":30},{\"file\":\"pixel-en-minesweeper-150.png\",\"font_resource\":\"res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-latin.otf.woff2\",\"font_style\":\"pixel\",\"large_targets\":true,\"locale\":\"en\",\"percent\":150,\"surface\":\"minesweeper\",\"visible_text_nodes\":17},{\"file\":\"readable-en-settings-accessibility-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"en\",\"percent\":150,\"surface\":\"settings-accessibility\",\"visible_text_nodes\":30},{\"file\":\"readable-en-minesweeper-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"en\",\"percent\":150,\"surface\":\"minesweeper\",\"visible_text_nodes\":20},{\"file\":\"readable-en-gallery-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"en\",\"percent\":150,\"surface\":\"gallery\",\"visible_text_nodes\":3},{\"file\":\"readable-en-witnessed-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"en\",\"percent\":150,\"surface\":\"witnessed\",\"visible_text_nodes\":9},{\"file\":\"pixel-zh-CN-settings-accessibility-150.png\",\"font_resource\":\"res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2\",\"font_style\":\"pixel\",\"large_targets\":true,\"locale\":\"zh_CN\",\"percent\":150,\"surface\":\"settings-accessibility\",\"visible_text_nodes\":30},{\"file\":\"pixel-zh-CN-minesweeper-150.png\",\"font_resource\":\"res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2\",\"font_style\":\"pixel\",\"large_targets\":true,\"locale\":\"zh_CN\",\"percent\":150,\"surface\":\"minesweeper\",\"visible_text_nodes\":20},{\"file\":\"readable-zh-CN-settings-accessibility-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"zh_CN\",\"percent\":150,\"surface\":\"settings-accessibility\",\"visible_text_nodes\":30},{\"file\":\"readable-zh-CN-minesweeper-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"zh_CN\",\"percent\":150,\"surface\":\"minesweeper\",\"visible_text_nodes\":20},{\"file\":\"readable-zh-CN-gallery-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"zh_CN\",\"percent\":150,\"surface\":\"gallery\",\"visible_text_nodes\":3},{\"file\":\"readable-zh-CN-witnessed-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"zh_CN\",\"percent\":150,\"surface\":\"witnessed\",\"visible_text_nodes\":9},{\"file\":\"pixel-zh-HK-settings-accessibility-150.png\",\"font_resource\":\"res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2\",\"font_style\":\"pixel\",\"large_targets\":true,\"locale\":\"zh_HK\",\"percent\":150,\"surface\":\"settings-accessibility\",\"visible_text_nodes\":30},{\"file\":\"pixel-zh-HK-minesweeper-150.png\",\"font_resource\":\"res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2\",\"font_style\":\"pixel\",\"large_targets\":true,\"locale\":\"zh_HK\",\"percent\":150,\"surface\":\"minesweeper\",\"visible_text_nodes\":20},{\"file\":\"readable-zh-HK-settings-accessibility-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"zh_HK\",\"percent\":150,\"surface\":\"settings-accessibility\",\"visible_text_nodes\":30},{\"file\":\"readable-zh-HK-minesweeper-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"zh_HK\",\"percent\":150,\"surface\":\"minesweeper\",\"visible_text_nodes\":20},{\"file\":\"readable-zh-HK-gallery-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"zh_HK\",\"percent\":150,\"surface\":\"gallery\",\"visible_text_nodes\":3},{\"file\":\"readable-zh-HK-witnessed-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"zh_HK\",\"percent\":150,\"surface\":\"witnessed\",\"visible_text_nodes\":9},{\"file\":\"pixel-ja-settings-accessibility-150.png\",\"font_resource\":\"res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-ja.otf.woff2\",\"font_style\":\"pixel\",\"large_targets\":true,\"locale\":\"ja\",\"percent\":150,\"surface\":\"settings-accessibility\",\"visible_text_nodes\":30},{\"file\":\"pixel-ja-minesweeper-150.png\",\"font_resource\":\"res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-ja.otf.woff2\",\"font_style\":\"pixel\",\"large_targets\":true,\"locale\":\"ja\",\"percent\":150,\"surface\":\"minesweeper\",\"visible_text_nodes\":20},{\"file\":\"readable-ja-settings-accessibility-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-jp-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"ja\",\"percent\":150,\"surface\":\"settings-accessibility\",\"visible_text_nodes\":30},{\"file\":\"readable-ja-minesweeper-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-jp-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"ja\",\"percent\":150,\"surface\":\"minesweeper\",\"visible_text_nodes\":20},{\"file\":\"readable-ja-gallery-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-jp-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"ja\",\"percent\":150,\"surface\":\"gallery\",\"visible_text_nodes\":3},{\"file\":\"readable-ja-witnessed-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-jp-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"ja\",\"percent\":150,\"surface\":\"witnessed\",\"visible_text_nodes\":9},{\"file\":\"pixel-ko-settings-accessibility-150.png\",\"font_resource\":\"res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-ko.otf.woff2\",\"font_style\":\"pixel\",\"large_targets\":true,\"locale\":\"ko\",\"percent\":150,\"surface\":\"settings-accessibility\",\"visible_text_nodes\":30},{\"file\":\"pixel-ko-minesweeper-150.png\",\"font_resource\":\"res://assets/ui/gallery/fonts/fusion-pixel-12px-proportional-ko.otf.woff2\",\"font_style\":\"pixel\",\"large_targets\":true,\"locale\":\"ko\",\"percent\":150,\"surface\":\"minesweeper\",\"visible_text_nodes\":17},{\"file\":\"readable-ko-settings-accessibility-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-kr-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"ko\",\"percent\":150,\"surface\":\"settings-accessibility\",\"visible_text_nodes\":30},{\"file\":\"readable-ko-minesweeper-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-kr-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"ko\",\"percent\":150,\"surface\":\"minesweeper\",\"visible_text_nodes\":17},{\"file\":\"readable-ko-gallery-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-kr-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"ko\",\"percent\":150,\"surface\":\"gallery\",\"visible_text_nodes\":3},{\"file\":\"readable-ko-witnessed-150.png\",\"font_resource\":\"res://assets/ui/contacts/fonts/source-han-sans-kr-regular.otf\",\"font_style\":\"readable\",\"large_targets\":true,\"locale\":\"ko\",\"percent\":150,\"surface\":\"witnessed\",\"visible_text_nodes\":9}]}",
+        "PLAYABLE_STARTUP_PASS: actual startup -> New Account -> visible desktop -> Minesweeper -> first Reveal",
+        "PLAYABLE_DAY_PASS: completed round -> Home -> Schedule -> acknowledged warning -> Day 2",
+        "PLAYABLE_LOGOUT_PASS: actual Logout confirmation -> saved title -> Login -> restored Day 2 desktop",
+        "PLAYABLE_STARTUP_PASS: actual startup -> New Account -> visible desktop -> Minesweeper -> first Reveal",
+        "PLAYABLE_DAY_PASS: completed round -> Home -> Schedule -> acknowledged warning -> Day 2",
+        "PLAYABLE_LOGOUT_PASS: actual Logout confirmation -> saved title -> Login -> restored Day 2 desktop",
+        "PLAYABLE_STARTUP_RENDER_VERIFIED: 4 captures"
+      ]
+    },
+    {
+      "id": 108607404962,
+      "name": "Windows / paired checkpoint performance",
+      "checkout_verified": true,
+      "markers": [
+        "CHECKPOINT_PERFORMANCE_VERIFIED: four localized journeys and four matched-payload probes."
+      ]
+    },
+    {
+      "id": 108607405043,
+      "name": "Windows / settings",
+      "checkout_verified": true,
+      "markers": [
+        "CLOUD_GUT_RESULT {\"suite\":\"settings\",\"test_cases\":288,\"passed\":288,\"skipped\":0,\"requested_scripts\":25,\"reported_scripts\":25,\"scripts\":[{\"script\":\"tests/unit/test_save_manager_parse_cache.gd\",\"test_cases\":14,\"passed\":14,\"skipped\":0},{\"script\":\"tests/unit/test_settings_panel_resize.gd\",\"test_cases\":3,\"passed\":3,\"skipped\":0},{\"script\":\"tests/unit/test_settings_preference_registry.gd\",\"test_cases\":5,\"passed\":5,\"skipped\":0},{\"script\":\"tests/unit/test_shared_week_tint.gd\",\"test_cases\":2,\"passed\":2,\"skipped\":0},{\"script\":\"tests/unit/test_settings_window_transactions.gd\",\"test_cases\":13,\"passed\":13,\"skipped\":0},{\"script\":\"tests/unit/test_window_mode_manager.gd\",\"test_cases\":13,\"passed\":13,\"skipped\":0},{\"script\":\"tests/unit/test_window_mode_port.gd\",\"test_cases\":12,\"passed\":12,\"skipped\":0},{\"script\":\"tests/unit/test_bootstrap_window_output.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0},{\"script\":\"tests/scene/test_settings_window_mode_live.gd\",\"test_cases\":6,\"passed\":6,\"skipped\":0},{\"script\":\"tests/scene/test_settings_audio_live.gd\",\"test_cases\":5,\"passed\":5,\"skipped\":0},{\"script\":\"tests/scene/test_settings_reset_confirmation.gd\",\"test_cases\":8,\"passed\":8,\"skipped\":0},{\"script\":\"tests/scene/test_settings_folio.gd\",\"test_cases\":8,\"passed\":8,\"skipped\":0},{\"script\":\"tests/scene/test_settings_host_geometry.gd\",\"test_cases\":5,\"passed\":5,\"skipped\":0},{\"script\":\"tests/scene/test_settings_localization_scene.gd\",\"test_cases\":34,\"passed\":34,\"skipped\":0},{\"script\":\"tests/integration/test_settings_shared_hosts.gd\",\"test_cases\":8,\"passed\":8,\"skipped\":0},{\"script\":\"tests/unit/test_profile_manager.gd\",\"test_cases\":23,\"passed\":23,\"skipped\":0},{\"script\":\"tests/unit/test_restore_participants.gd\",\"test_cases\":7,\"passed\":7,\"skipped\":0},{\"script\":\"tests/integration/test_restore_preserves_current_profile.gd\",\"test_cases\":4,\"passed\":4,\"skipped\":0},{\"script\":\"tests/integration/test_restore_production_adapters.gd\",\"test_cases\":13,\"passed\":13,\"skipped\":0},{\"script\":\"tests/integration/test_desktop_board_persistence.gd\",\"test_cases\":5,\"passed\":5,\"skipped\":0},{\"script\":\"tests/integration/test_minesweeper_first_reveal_transaction.gd\",\"test_cases\":7,\"passed\":7,\"skipped\":0},{\"script\":\"tests/unit/test_save_manager_checkpoint_port.gd\",\"test_cases\":42,\"passed\":42,\"skipped\":0},{\"script\":\"tests/unit/test_checkpoint_validation_reuse.gd\",\"test_cases\":21,\"passed\":21,\"skipped\":0},{\"script\":\"tests/unit/test_checkpoint_phase_diagnostics.gd\",\"test_cases\":4,\"passed\":4,\"skipped\":0},{\"script\":\"tests/unit/test_checkpoint_journal.gd\",\"test_cases\":20,\"passed\":20,\"skipped\":0}]}",
+        "STORAGE_REFUSAL_VERIFIED: empty and whitespace roots refused without repository mutations."
+      ]
+    },
+    {
+      "id": 108607934999,
+      "name": "Windows / seven-day retained history",
+      "checkout_verified": true,
+      "markers": [
+        "CHECKPOINT_PHASE_DIAGNOSTICS_VERIFIED: {\"diagnostics_version\":2,\"prepare_records\":35,\"commit_records\":35}",
+        "SEVEN_DAY_HISTORY_PERFORMANCE_VERIFIED: seven real days, saturated checkpoint budgets, exact cold Login.",
+        "OUTGOING_NORMALIZATION_PERFORMANCE_VERIFIED: six exact-payload probes with unchanged validation and retention."
+      ]
+    }
+  ],
+  "settings": {
+    "passed": 288,
+    "storage_refusals_verified": true,
+    "diagnostic_fixture_red_run": 62,
+    "known_fix": "Explicit String key insertion; strict runtime validation retained.",
+    "historical_stall_mechanism": "Not established by unavailable earlier logs; current full suite completes successfully."
+  },
+  "public_inventory_gate": {
+    "read_only": true,
+    "regenerated": false,
+    "game_state_sha256": "8c5e0a110fe05bc418894ba273ce7e3a72cfe60963535f227e17bd416ee0e08c",
+    "save_manager_sha256": "7ec7f20767cf48098c49625b21fc806ff9d10766892600538f488f26502e23a3"
+  },
+  "performance": {
+    "day7": {
+      "day": 7,
+      "retained": {
+        "line": 32,
+        "manual_save": 32,
+        "semantic": 2
+      },
+      "files": {
+        "desktop-issuer-root.json": 64810,
+        "desktop-publications.json": 133933,
+        "profile.json": 3002,
+        "saves/autosave.json": 1910843,
+        "saves/desktop-continuation-operations.json": 21775,
+        "saves/slot_1.json": 1872441,
+        "schedule-foundation-publications.json": 36123
+      },
+      "first_reveal_sync_us": 1082592,
+      "terminal_reveal_sync_us": 8507,
+      "terminal_settlement_us": 703029,
+      "manual_slot_save_us": 3092748,
+      "manual_slot_prepare_us": 1212558,
+      "manual_slot_commit_us": 1880131,
+      "autosave_sha256": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca"
+    },
+    "retained_history_proof": {
+      "checkout_ref": "682355a8031d13069290cbe85b0269aea0c758ee",
+      "payload_bytes": 1910843,
+      "payload_sha256": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+      "write": {
+        "autosave_sha256": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+        "days": 7,
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "synthetic_checkpoints": 98
+      },
+      "cold_read": {
+        "autosave_sha256": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+        "day": 7,
+        "login_us": 7297254,
+        "parse_cache_enabled": true,
+        "restored_board_sha256": "7c5bdcbfea6b40a0c1e7df5e699a4be167b1bce0ff5e5903e0dfc011950a63fb",
+        "restored_gameplay_sha256": "2c205788a53216ddefe59fd33ff1d7e0a864a41cd6c47b89e9f77f40f9171959",
+        "restored_recovery_journal_sha256": "9c1db5d837f015bc8ba28f265e4bccfa02a819cf1c3892df0f5a8af603242c97",
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "retained_checkpoint_count": 66,
+        "save_manager_sha256": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a"
+      },
+      "fixture": "7 synthetic line and 7 synthetic manual checkpoint records/day, plus one real Slot 1 save and App loss/day. Public Schedule Done advances to Day 7. This is not an authored-dialogue playthrough.",
+      "timing_policy": "Observations on one shared Windows runner; no speed threshold or physical input-to-paint guarantee.",
+      "timing_boundaries": {
+        "manual_slot_save_us": "Production prepare_backup_action(save, slot:1) plus commit_backup_action, including synchronous signal handlers.",
+        "login_us": "Automated Title Login, Backup picker opening and Autosave selection, load consent, restore and awaited process frames.",
+        "phase_scopes": "Each scope is inclusive. Parent and child scopes overlap and must not be summed; repeated phases inside one scope accumulate.",
+        "phase_collection": "Save/load profiles include only labeled manual-save and Title Login measurement windows; startup and opening each daily Backup app before its save timer are excluded.",
+        "checkpoint_subphases": "Version 2 document/schema/proof timers are nested inclusive measurements. History proof timers accumulate across entries; document proof lookup stops at its first miss. Profile instrumentation adds overhead and is not a speedup comparison."
+      },
+      "parse_cache_comparison": {
+        "control": "Same checkout and retained user-data source, cloned into a new isolated process per variant. Only DWM_SAVE_PARSE_CACHE_DISABLED differs.",
+        "sampling": "One cold Login per variant, fixed disabled-then-enabled order on one shared Windows runner; observational, not a repeated-sample or frame-time guarantee.",
+        "source_json_sha256": {
+          "desktop-issuer-root.json": "b0f59dd837b68149ba7b1d81ef342ba83f5f4b29fa41a5c5415b3c1673ebe37c",
+          "desktop-publications.json": "bc342382abfad48e291d80f3ae7ab58ce046ad64a7669057b0f6b2c92be83a5b",
+          "profile.json": "44993d4d0913a7f16eb180039ae61371cc3b031500b7639d451beea5dfb1f574",
+          "saves/autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+          "saves/desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+          "saves/slot_1.json": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad",
+          "schedule-foundation-publications.json": "10c44d51ce61eb33ad712aab53f74b87d3b196c7ae4cb609ec6f148c846dda25",
+          "seven-day-history-proof.json": "8cc7b8b83890e48f039e542be03c7571eb766114a0ded6b73c21328c9eca0aeb"
+        },
+        "disabled": {
+          "autosave_sha256": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+          "day": 7,
+          "login_us": 10217766,
+          "parse_cache_enabled": false,
+          "restored_board_sha256": "7c5bdcbfea6b40a0c1e7df5e699a4be167b1bce0ff5e5903e0dfc011950a63fb",
+          "restored_gameplay_sha256": "2c205788a53216ddefe59fd33ff1d7e0a864a41cd6c47b89e9f77f40f9171959",
+          "restored_recovery_journal_sha256": "9c1db5d837f015bc8ba28f265e4bccfa02a819cf1c3892df0f5a8af603242c97",
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a"
+        },
+        "enabled": {
+          "autosave_sha256": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+          "day": 7,
+          "login_us": 7297254,
+          "parse_cache_enabled": true,
+          "restored_board_sha256": "7c5bdcbfea6b40a0c1e7df5e699a4be167b1bce0ff5e5903e0dfc011950a63fb",
+          "restored_gameplay_sha256": "2c205788a53216ddefe59fd33ff1d7e0a864a41cd6c47b89e9f77f40f9171959",
+          "restored_recovery_journal_sha256": "9c1db5d837f015bc8ba28f265e4bccfa02a819cf1c3892df0f5a8af603242c97",
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a"
+        }
+      }
+    },
+    "checkpoint_diagnostics": {
+      "diagnostics_version": 2,
+      "prepare_records": 35,
+      "commit_records": 35
+    },
+    "manual_prepare_pairs": [
+      {
+        "pair": 1,
+        "order": [
+          "baseline",
+          "candidate"
+        ],
+        "baseline": {
+          "candidate_sha256": "c87dded7ca902685dd307f90a9799d76da079e15efdf0d51f0ae107f0cac045f",
+          "commit_us": 1936383,
+          "journal_sha256": "3c8a4ed878e108dc6f785df407e0b7292429cde46c9869c7cee84160d7d6e38d",
+          "output_bytes": 1922582,
+          "output_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3"
+          },
+          "output_sha256": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3",
+          "parse_cache_before": [
+            {
+              "bytes": 1872441,
+              "sha256": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+            }
+          ],
+          "parse_cache_enabled": true,
+          "prepare_us": 1812638,
+          "prior_journal_sha256": "a4021beec53951377b782743ea54528d85a3756fdb8d1be2cee4d919403a0353",
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "045828f242d4292a513cdac101f66b43349f6b8891e05e30bee886aae0092c2c",
+          "source_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+          },
+          "source_revision": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad",
+          "strict_validation_calls": 1
+        },
+        "candidate": {
+          "candidate_sha256": "c87dded7ca902685dd307f90a9799d76da079e15efdf0d51f0ae107f0cac045f",
+          "commit_us": 1938274,
+          "journal_sha256": "3c8a4ed878e108dc6f785df407e0b7292429cde46c9869c7cee84160d7d6e38d",
+          "output_bytes": 1922582,
+          "output_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3"
+          },
+          "output_sha256": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3",
+          "parse_cache_before": [
+            {
+              "bytes": 1872441,
+              "sha256": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+            }
+          ],
+          "parse_cache_enabled": true,
+          "prepare_us": 1780351,
+          "prior_journal_sha256": "a4021beec53951377b782743ea54528d85a3756fdb8d1be2cee4d919403a0353",
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a",
+          "source_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+          },
+          "source_revision": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad",
+          "strict_validation_calls": 1
+        },
+        "candidate_minus_baseline_us": -32287
+      },
+      {
+        "pair": 2,
+        "order": [
+          "candidate",
+          "baseline"
+        ],
+        "baseline": {
+          "candidate_sha256": "c87dded7ca902685dd307f90a9799d76da079e15efdf0d51f0ae107f0cac045f",
+          "commit_us": 1952845,
+          "journal_sha256": "3c8a4ed878e108dc6f785df407e0b7292429cde46c9869c7cee84160d7d6e38d",
+          "output_bytes": 1922582,
+          "output_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3"
+          },
+          "output_sha256": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3",
+          "parse_cache_before": [
+            {
+              "bytes": 1872441,
+              "sha256": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+            }
+          ],
+          "parse_cache_enabled": true,
+          "prepare_us": 1811854,
+          "prior_journal_sha256": "a4021beec53951377b782743ea54528d85a3756fdb8d1be2cee4d919403a0353",
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "045828f242d4292a513cdac101f66b43349f6b8891e05e30bee886aae0092c2c",
+          "source_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+          },
+          "source_revision": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad",
+          "strict_validation_calls": 1
+        },
+        "candidate": {
+          "candidate_sha256": "c87dded7ca902685dd307f90a9799d76da079e15efdf0d51f0ae107f0cac045f",
+          "commit_us": 1929519,
+          "journal_sha256": "3c8a4ed878e108dc6f785df407e0b7292429cde46c9869c7cee84160d7d6e38d",
+          "output_bytes": 1922582,
+          "output_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3"
+          },
+          "output_sha256": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3",
+          "parse_cache_before": [
+            {
+              "bytes": 1872441,
+              "sha256": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+            }
+          ],
+          "parse_cache_enabled": true,
+          "prepare_us": 1775133,
+          "prior_journal_sha256": "a4021beec53951377b782743ea54528d85a3756fdb8d1be2cee4d919403a0353",
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a",
+          "source_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+          },
+          "source_revision": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad",
+          "strict_validation_calls": 1
+        },
+        "candidate_minus_baseline_us": -36721
+      },
+      {
+        "pair": 3,
+        "order": [
+          "baseline",
+          "candidate"
+        ],
+        "baseline": {
+          "candidate_sha256": "c87dded7ca902685dd307f90a9799d76da079e15efdf0d51f0ae107f0cac045f",
+          "commit_us": 1929402,
+          "journal_sha256": "3c8a4ed878e108dc6f785df407e0b7292429cde46c9869c7cee84160d7d6e38d",
+          "output_bytes": 1922582,
+          "output_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3"
+          },
+          "output_sha256": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3",
+          "parse_cache_before": [
+            {
+              "bytes": 1872441,
+              "sha256": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+            }
+          ],
+          "parse_cache_enabled": true,
+          "prepare_us": 1799931,
+          "prior_journal_sha256": "a4021beec53951377b782743ea54528d85a3756fdb8d1be2cee4d919403a0353",
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "045828f242d4292a513cdac101f66b43349f6b8891e05e30bee886aae0092c2c",
+          "source_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+          },
+          "source_revision": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad",
+          "strict_validation_calls": 1
+        },
+        "candidate": {
+          "candidate_sha256": "c87dded7ca902685dd307f90a9799d76da079e15efdf0d51f0ae107f0cac045f",
+          "commit_us": 1926092,
+          "journal_sha256": "3c8a4ed878e108dc6f785df407e0b7292429cde46c9869c7cee84160d7d6e38d",
+          "output_bytes": 1922582,
+          "output_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3"
+          },
+          "output_sha256": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3",
+          "parse_cache_before": [
+            {
+              "bytes": 1872441,
+              "sha256": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+            }
+          ],
+          "parse_cache_enabled": true,
+          "prepare_us": 1773823,
+          "prior_journal_sha256": "a4021beec53951377b782743ea54528d85a3756fdb8d1be2cee4d919403a0353",
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a",
+          "source_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+          },
+          "source_revision": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad",
+          "strict_validation_calls": 1
+        },
+        "candidate_minus_baseline_us": -26108
+      },
+      {
+        "pair": 4,
+        "order": [
+          "candidate",
+          "baseline"
+        ],
+        "baseline": {
+          "candidate_sha256": "c87dded7ca902685dd307f90a9799d76da079e15efdf0d51f0ae107f0cac045f",
+          "commit_us": 1962500,
+          "journal_sha256": "3c8a4ed878e108dc6f785df407e0b7292429cde46c9869c7cee84160d7d6e38d",
+          "output_bytes": 1922582,
+          "output_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3"
+          },
+          "output_sha256": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3",
+          "parse_cache_before": [
+            {
+              "bytes": 1872441,
+              "sha256": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+            }
+          ],
+          "parse_cache_enabled": true,
+          "prepare_us": 1806878,
+          "prior_journal_sha256": "a4021beec53951377b782743ea54528d85a3756fdb8d1be2cee4d919403a0353",
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "045828f242d4292a513cdac101f66b43349f6b8891e05e30bee886aae0092c2c",
+          "source_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+          },
+          "source_revision": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad",
+          "strict_validation_calls": 1
+        },
+        "candidate": {
+          "candidate_sha256": "c87dded7ca902685dd307f90a9799d76da079e15efdf0d51f0ae107f0cac045f",
+          "commit_us": 1942507,
+          "journal_sha256": "3c8a4ed878e108dc6f785df407e0b7292429cde46c9869c7cee84160d7d6e38d",
+          "output_bytes": 1922582,
+          "output_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3"
+          },
+          "output_sha256": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3",
+          "parse_cache_before": [
+            {
+              "bytes": 1872441,
+              "sha256": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+            }
+          ],
+          "parse_cache_enabled": true,
+          "prepare_us": 1777040,
+          "prior_journal_sha256": "a4021beec53951377b782743ea54528d85a3756fdb8d1be2cee4d919403a0353",
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a",
+          "source_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+          },
+          "source_revision": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad",
+          "strict_validation_calls": 1
+        },
+        "candidate_minus_baseline_us": -29838
+      },
+      {
+        "pair": 5,
+        "order": [
+          "baseline",
+          "candidate"
+        ],
+        "baseline": {
+          "candidate_sha256": "c87dded7ca902685dd307f90a9799d76da079e15efdf0d51f0ae107f0cac045f",
+          "commit_us": 1922485,
+          "journal_sha256": "3c8a4ed878e108dc6f785df407e0b7292429cde46c9869c7cee84160d7d6e38d",
+          "output_bytes": 1922582,
+          "output_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3"
+          },
+          "output_sha256": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3",
+          "parse_cache_before": [
+            {
+              "bytes": 1872441,
+              "sha256": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+            }
+          ],
+          "parse_cache_enabled": true,
+          "prepare_us": 1803088,
+          "prior_journal_sha256": "a4021beec53951377b782743ea54528d85a3756fdb8d1be2cee4d919403a0353",
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "045828f242d4292a513cdac101f66b43349f6b8891e05e30bee886aae0092c2c",
+          "source_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+          },
+          "source_revision": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad",
+          "strict_validation_calls": 1
+        },
+        "candidate": {
+          "candidate_sha256": "c87dded7ca902685dd307f90a9799d76da079e15efdf0d51f0ae107f0cac045f",
+          "commit_us": 1946873,
+          "journal_sha256": "3c8a4ed878e108dc6f785df407e0b7292429cde46c9869c7cee84160d7d6e38d",
+          "output_bytes": 1922582,
+          "output_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3"
+          },
+          "output_sha256": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3",
+          "parse_cache_before": [
+            {
+              "bytes": 1872441,
+              "sha256": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+            }
+          ],
+          "parse_cache_enabled": true,
+          "prepare_us": 1792058,
+          "prior_journal_sha256": "a4021beec53951377b782743ea54528d85a3756fdb8d1be2cee4d919403a0353",
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a",
+          "source_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+          },
+          "source_revision": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad",
+          "strict_validation_calls": 1
+        },
+        "candidate_minus_baseline_us": -11030
+      },
+      {
+        "pair": 6,
+        "order": [
+          "candidate",
+          "baseline"
+        ],
+        "baseline": {
+          "candidate_sha256": "c87dded7ca902685dd307f90a9799d76da079e15efdf0d51f0ae107f0cac045f",
+          "commit_us": 1938632,
+          "journal_sha256": "3c8a4ed878e108dc6f785df407e0b7292429cde46c9869c7cee84160d7d6e38d",
+          "output_bytes": 1922582,
+          "output_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3"
+          },
+          "output_sha256": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3",
+          "parse_cache_before": [
+            {
+              "bytes": 1872441,
+              "sha256": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+            }
+          ],
+          "parse_cache_enabled": true,
+          "prepare_us": 1809138,
+          "prior_journal_sha256": "a4021beec53951377b782743ea54528d85a3756fdb8d1be2cee4d919403a0353",
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "045828f242d4292a513cdac101f66b43349f6b8891e05e30bee886aae0092c2c",
+          "source_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+          },
+          "source_revision": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad",
+          "strict_validation_calls": 1
+        },
+        "candidate": {
+          "candidate_sha256": "c87dded7ca902685dd307f90a9799d76da079e15efdf0d51f0ae107f0cac045f",
+          "commit_us": 1932127,
+          "journal_sha256": "3c8a4ed878e108dc6f785df407e0b7292429cde46c9869c7cee84160d7d6e38d",
+          "output_bytes": 1922582,
+          "output_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3"
+          },
+          "output_sha256": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3",
+          "parse_cache_before": [
+            {
+              "bytes": 1872441,
+              "sha256": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+            }
+          ],
+          "parse_cache_enabled": true,
+          "prepare_us": 1780356,
+          "prior_journal_sha256": "a4021beec53951377b782743ea54528d85a3756fdb8d1be2cee4d919403a0353",
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a",
+          "source_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+          },
+          "source_revision": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad",
+          "strict_validation_calls": 1
+        },
+        "candidate_minus_baseline_us": -28782
+      },
+      {
+        "pair": 7,
+        "order": [
+          "baseline",
+          "candidate"
+        ],
+        "baseline": {
+          "candidate_sha256": "c87dded7ca902685dd307f90a9799d76da079e15efdf0d51f0ae107f0cac045f",
+          "commit_us": 1937518,
+          "journal_sha256": "3c8a4ed878e108dc6f785df407e0b7292429cde46c9869c7cee84160d7d6e38d",
+          "output_bytes": 1922582,
+          "output_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3"
+          },
+          "output_sha256": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3",
+          "parse_cache_before": [
+            {
+              "bytes": 1872441,
+              "sha256": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+            }
+          ],
+          "parse_cache_enabled": true,
+          "prepare_us": 1799260,
+          "prior_journal_sha256": "a4021beec53951377b782743ea54528d85a3756fdb8d1be2cee4d919403a0353",
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "045828f242d4292a513cdac101f66b43349f6b8891e05e30bee886aae0092c2c",
+          "source_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+          },
+          "source_revision": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad",
+          "strict_validation_calls": 1
+        },
+        "candidate": {
+          "candidate_sha256": "c87dded7ca902685dd307f90a9799d76da079e15efdf0d51f0ae107f0cac045f",
+          "commit_us": 1937588,
+          "journal_sha256": "3c8a4ed878e108dc6f785df407e0b7292429cde46c9869c7cee84160d7d6e38d",
+          "output_bytes": 1922582,
+          "output_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3"
+          },
+          "output_sha256": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3",
+          "parse_cache_before": [
+            {
+              "bytes": 1872441,
+              "sha256": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+            }
+          ],
+          "parse_cache_enabled": true,
+          "prepare_us": 1768364,
+          "prior_journal_sha256": "a4021beec53951377b782743ea54528d85a3756fdb8d1be2cee4d919403a0353",
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a",
+          "source_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+          },
+          "source_revision": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad",
+          "strict_validation_calls": 1
+        },
+        "candidate_minus_baseline_us": -30896
+      },
+      {
+        "pair": 8,
+        "order": [
+          "candidate",
+          "baseline"
+        ],
+        "baseline": {
+          "candidate_sha256": "c87dded7ca902685dd307f90a9799d76da079e15efdf0d51f0ae107f0cac045f",
+          "commit_us": 1926299,
+          "journal_sha256": "3c8a4ed878e108dc6f785df407e0b7292429cde46c9869c7cee84160d7d6e38d",
+          "output_bytes": 1922582,
+          "output_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3"
+          },
+          "output_sha256": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3",
+          "parse_cache_before": [
+            {
+              "bytes": 1872441,
+              "sha256": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+            }
+          ],
+          "parse_cache_enabled": true,
+          "prepare_us": 1818082,
+          "prior_journal_sha256": "a4021beec53951377b782743ea54528d85a3756fdb8d1be2cee4d919403a0353",
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "045828f242d4292a513cdac101f66b43349f6b8891e05e30bee886aae0092c2c",
+          "source_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+          },
+          "source_revision": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad",
+          "strict_validation_calls": 1
+        },
+        "candidate": {
+          "candidate_sha256": "c87dded7ca902685dd307f90a9799d76da079e15efdf0d51f0ae107f0cac045f",
+          "commit_us": 1951208,
+          "journal_sha256": "3c8a4ed878e108dc6f785df407e0b7292429cde46c9869c7cee84160d7d6e38d",
+          "output_bytes": 1922582,
+          "output_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3"
+          },
+          "output_sha256": "3d17126820c25e026074cb8c5875b0744dddadc326212a6166cabf26d24061c3",
+          "parse_cache_before": [
+            {
+              "bytes": 1872441,
+              "sha256": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+            }
+          ],
+          "parse_cache_enabled": true,
+          "prepare_us": 1783886,
+          "prior_journal_sha256": "a4021beec53951377b782743ea54528d85a3756fdb8d1be2cee4d919403a0353",
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a",
+          "source_files_sha256": {
+            "autosave.json": "3c9152270297427f95f1459f5164bb53b16f8a1899e154390b6a1916a95653ca",
+            "autosave.json.bak": "193e9d775708a76fc47b699e0bd60fd799e450a7f23003a0f248e09e15024083",
+            "desktop-continuation-operations.json": "e01b2e7bd35c70d19da124acc0209db51935e131ee83d9189d2e1cdee41106de",
+            "desktop-continuation-operations.json.bak": "6163b4a36b49e2e9e1f5d64587062cc46a353109475e0f4c4ac136c61160999a",
+            "slot_1.json": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad"
+          },
+          "source_revision": "9f377aa5e3ee59ff531cbf427507890fa9fffad27073bcc0ba3df2deda85ddad",
+          "strict_validation_calls": 1
+        },
+        "candidate_minus_baseline_us": -34196
+      }
+    ],
+    "manual_prepare_comparison": {
+      "control": "Public prepare_backup_action and commit_backup_action with real storage, the same seeded Day7 journal, immutable capture fixture and a test-subclass fixed clock. Only the discarded eager journal copy in configured capture differs; parse cache and write validation memo are enabled in both.",
+      "sampling": "Eight alternating pairs / sixteen fresh isolated processes; identical prepared candidate, physical source files, target revision and pre-commit parser cache. Preparation timing covers only the public prepare_backup_action call, including immutable fixture copying, and excludes source cloning, journal seeding, proof generation, commit, live UI callbacks, issuer-flush callbacks and rendering. OS filesystem caches are not flushed.",
+      "metric": "prepare_us",
+      "source_code_sha256": {
+        "candidate": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a",
+        "baseline": "045828f242d4292a513cdac101f66b43349f6b8891e05e30bee886aae0092c2c",
+        "storage": "ad2691249d9c7a247147fdc76885044b6cd9f6ebaac1f7267b4c144586d2adab",
+        "harness": "53bde54f81cc3a997903670da96514d045823b5c911b3aac31dd71637bdd0b75"
+      },
+      "summary": {
+        "pair_count": 8,
+        "median_paired_candidate_minus_baseline_us": -30367,
+        "baseline_median_prepare_us": 1808008,
+        "candidate_median_prepare_us": 1778695.5
+      }
+    },
+    "manual_prepare_invariants": [
+      "candidate_sha256",
+      "source_revision",
+      "source_files_sha256",
+      "output_files_sha256",
+      "prior_journal_sha256",
+      "journal_sha256",
+      "output_sha256",
+      "output_bytes",
+      "retained_checkpoint_count",
+      "parse_cache_before"
+    ],
+    "ordered_trace": {
+      "path": "evidence/beads_cloud_review/performance/run63-checkpoint-trace.json",
+      "sha256": "112dac6979407bf244fcda52ce41f7ab715a10fcd837fed17ed0679244db0f5d"
+    }
+  },
+  "limits": [
+    "This source has no lazy-normalization optimization; do not attribute its timings to a later candidate.",
+    "Internal caption ledger remains opt-in, without durable History/Witnessed Save/Next acceptance.",
+    "No task closure, broad lag acceptance or native Windows graphics/accessibility certification."
+  ]
+}

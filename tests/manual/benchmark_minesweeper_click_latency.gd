@@ -390,12 +390,10 @@ func _dating_benchmark(game: Node, desktop: Node) -> bool:
 	await _frames()
 	if not _check(current_scene.has_method("get_presentation_projection") and current_scene.get("worksheet") != null, "Dating scene mounted"): return false
 	var dating: Node = current_scene
-	dating.get("_continue_button").pressed.emit()
 	for frame: int in 600:
 		if dating.get("_physical_view").phase == "challenge": break
-		if dating.get("_physical_view").phase == "preparing": dating.get("_continue_button").pressed.emit()
 		await process_frame
-	if not _check(dating.get("_physical_view").phase == "challenge", "Continue starts the challenge: " + str(dating.get("_physical_view").phase)): return false
+	if not _check(dating.get("_physical_view").phase == "challenge", "Empty pre DTL starts the challenge automatically: " + str(dating.get("_physical_view").phase)): return false
 	var worksheet: Control = dating.worksheet
 	var first := await _timed("dating", "first_reveal", func() -> void:
 		worksheet.cell_action_requested.emit(&"reveal", 0, int(dating.get("_physical_view").board.revision)))
@@ -433,23 +431,20 @@ func _dating_benchmark(game: Node, desktop: Node) -> bool:
 	var expected_terminal_label := "winning_reveal" if ending == "win" else "losing_reveal"
 	if not _check(terminal_action.get("label", "") == expected_terminal_label,
 			"dating requested %s and observed %s" % [expected_terminal_label, terminal_action.get("label", "none")]): return false
-	var post_action: Dictionary = terminal_action
-	if ending == "win":
-		# A solved board waits for the player's terminal choice unless it was Perfect, which
-		# settles by itself. Either way the choice click is its own boundary.
-		var chosen_us := await _until(func() -> bool:
-			return str(dating.get("_physical_view").phase) in ["cleared_awaiting_terminal_choice", "post_challenge"], 600)
-		print("CLICK_LATENCY_SETTLED: " + JSON.stringify({"surface": "dating", "ending": "win", "settled_after_us": chosen_us,
-			"end_to_end_us": Time.get_ticks_usec() - int(terminal_action.started_us), "phase": str(dating.get("_physical_view").phase)}))
-		if str(dating.get("_physical_view").phase) == "cleared_awaiting_terminal_choice":
-			await _until(func() -> bool: return bool(dating.get("_choice_released")), 60)
-			if not _check(bool(dating.get("_choice_released")), "terminal choice released"): return false
-			post_action = await _timed("dating", "terminal_choice", func() -> void:
-				dating.get("_continue_button").pressed.emit())
-	var reached_us := await _until(func() -> bool: return bool(dating.get("_post_challenge_reached")), 600)
-	print("CLICK_LATENCY_SETTLED: " + JSON.stringify({"surface": "dating", "ending": ending, "settled_after_us": reached_us,
-		"end_to_end_us": Time.get_ticks_usec() - int(post_action.started_us), "phase": str(dating.get("_physical_view").phase)}))
-	return _check(str(dating.get("_physical_view").phase) == "post_challenge", "dating outcome visible")
+	# Observe durable settlement independently of the scene lifetime: empty post DTL can
+	# now finish and route away automatically. No terminal-choice click or title-draw receipt.
+	var settled_us := await _until(func() -> bool:
+		var saved: Dictionary = game.capture_dating_challenge_state().value
+		return saved.get("outcome") != null and saved.get("phase") in ["post_challenge", "completed"], 600)
+	var settled: Dictionary = game.capture_dating_challenge_state().value
+	print("CLICK_LATENCY_SETTLED: " + JSON.stringify({"surface": "dating", "ending": ending,
+		"settled_after_us": settled_us, "end_to_end_us": Time.get_ticks_usec() - int(terminal_action.started_us),
+		"phase": str(settled.get("phase", "")), "boundary": "durable_result_before_or_after_empty_dtl"}))
+	if not _check(settled.get("phase") in ["post_challenge", "completed"], "dating result saved automatically"): return false
+	await _until(func() -> bool:
+		return game.capture_dating_challenge_state().value.get("phase") == "completed", 600)
+	return _check(game.capture_dating_challenge_state().value.get("phase") == "completed",
+		"empty post DTL completes the date without confirmation")
 
 
 # ---------------------------------------------------------------------------------------------

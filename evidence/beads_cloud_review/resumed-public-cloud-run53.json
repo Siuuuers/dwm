@@ -1,0 +1,2610 @@
+{
+  "schema": "dwm_cloud_run_evidence.v1",
+  "repository": "Siuuuers/dwm",
+  "pull_request": 1,
+  "head_sha": "8adbc832cc5098f0ba3f8a0ae470d4cffca27a37",
+  "merge_checkout_sha": "caa6396f172f9f90362c22f7b6b82518542fc6dd",
+  "base_sha": "9e43b52c9884ccd59e82245d2168c3113ee4d037",
+  "workflow_run_id": 35709584806,
+  "workflow_run_number": 53,
+  "workflow_run_attempt": 1,
+  "url": "https://github.com/Siuuuers/dwm/actions/runs/35709584806",
+  "event": "pull_request",
+  "status": "completed",
+  "conclusion": "cancelled",
+  "evidence_state": "Final run status: cancelled after newer PR head publication superseded the remaining retained-history job. All core focused/rendered/export/paired-performance jobs completed; the Dating journey assertion failed. This is not a whole-run success.",
+  "counts": {
+    "jobs": 17,
+    "success": 15,
+    "failure": 1,
+    "cancelled": 1,
+    "skipped": 0,
+    "in_progress": 0,
+    "focused_test_cases": 1979,
+    "focused_passed": 1979,
+    "focused_skipped": 0,
+    "focused_scripts": 166,
+    "public_surface_test_cases": 11,
+    "public_surface_passed": 11,
+    "public_surface_skipped": 0,
+    "all_gut_test_cases": 1990,
+    "all_gut_passed": 1990,
+    "all_gut_skipped": 0,
+    "all_gut_scripts": 167
+  },
+  "focused_scope_counts": [
+    {
+      "job_id": 106686654607,
+      "suite": "public_surfaces",
+      "test_cases": 11,
+      "passed": 11,
+      "skipped": 0,
+      "requested_scripts": 1,
+      "reported_scripts": 1,
+      "scripts": [
+        {
+          "script": "tests/unit/tooling/test_public_surface_inventory.gd",
+          "test_cases": 11,
+          "passed": 11,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "job_id": 106687946423,
+      "suite": "audio",
+      "test_cases": 44,
+      "passed": 44,
+      "skipped": 0,
+      "requested_scripts": 2,
+      "reported_scripts": 2,
+      "scripts": [
+        {
+          "script": "tests/unit/test_audio_manager.gd",
+          "test_cases": 23,
+          "passed": 23,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_audio_settings_transactions.gd",
+          "test_cases": 21,
+          "passed": 21,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "job_id": 106687946426,
+      "suite": "shop",
+      "test_cases": 144,
+      "passed": 144,
+      "skipped": 0,
+      "requested_scripts": 8,
+      "reported_scripts": 8,
+      "scripts": [
+        {
+          "script": "tests/unit/test_shop_app_purchase_bridge.gd",
+          "test_cases": 13,
+          "passed": 13,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_shop_catalog_projection.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_shop_presentation_port.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_shop_card.gd",
+          "test_cases": 16,
+          "passed": 16,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_shop_plate.gd",
+          "test_cases": 37,
+          "passed": 37,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_shop_desktop_host.gd",
+          "test_cases": 15,
+          "passed": 15,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_minesweeper_shop_transaction.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_shop_purchase_participant.gd",
+          "test_cases": 41,
+          "passed": 41,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "job_id": 106687946434,
+      "suite": "settings",
+      "test_cases": 277,
+      "passed": 277,
+      "skipped": 0,
+      "requested_scripts": 24,
+      "reported_scripts": 24,
+      "scripts": [
+        {
+          "script": "tests/unit/test_save_manager_parse_cache.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_settings_panel_resize.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_settings_preference_registry.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_shared_week_tint.gd",
+          "test_cases": 2,
+          "passed": 2,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_settings_window_transactions.gd",
+          "test_cases": 13,
+          "passed": 13,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_window_mode_manager.gd",
+          "test_cases": 13,
+          "passed": 13,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_window_mode_port.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_bootstrap_window_output.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_window_mode_live.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_audio_live.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_reset_confirmation.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_folio.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_host_geometry.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_settings_localization_scene.gd",
+          "test_cases": 34,
+          "passed": 34,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_settings_shared_hosts.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_manager.gd",
+          "test_cases": 23,
+          "passed": 23,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_restore_participants.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_restore_preserves_current_profile.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_restore_production_adapters.gd",
+          "test_cases": 13,
+          "passed": 13,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_desktop_board_persistence.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_minesweeper_first_reveal_transaction.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_save_manager_checkpoint_port.gd",
+          "test_cases": 42,
+          "passed": 42,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_checkpoint_validation_reuse.gd",
+          "test_cases": 21,
+          "passed": 21,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_checkpoint_journal.gd",
+          "test_cases": 20,
+          "passed": 20,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "job_id": 106687946441,
+      "suite": "localization",
+      "test_cases": 152,
+      "passed": 152,
+      "skipped": 0,
+      "requested_scripts": 18,
+      "reported_scripts": 18,
+      "scripts": [
+        {
+          "script": "tests/unit/test_japanese_korean_ui.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_localization.gd",
+          "test_cases": 20,
+          "passed": 20,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_localization_extraction.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_locale_font_preparation.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_gallery_typography.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_font_styles.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_ordinary_reply_echo_state.gd",
+          "test_cases": 11,
+          "passed": 11,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_provisional_correspondence_catalog.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_system_tts_coordinator.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_witnessed_transport_rail.gd",
+          "test_cases": 11,
+          "passed": 11,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_witnessed_speech_status.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_gallery_registrar.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_controls_binding_rules.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_backup_panel_resize.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_backup_presentation.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_desktop_crash_recovery.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_ending_recovery_localization.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/tooling/test_ui_literal_audit.gd",
+          "test_cases": 20,
+          "passed": 20,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "job_id": 106687946450,
+      "suite": "minesweeper",
+      "test_cases": 210,
+      "passed": 210,
+      "skipped": 0,
+      "requested_scripts": 22,
+      "reported_scripts": 22,
+      "scripts": [
+        {
+          "script": "tests/unit/test_minesweeper_theme.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_palette_components.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_app.gd",
+          "test_cases": 22,
+          "passed": 22,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_cell.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_gallery_rehearsal_host.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_dock.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_register.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_panel.gd",
+          "test_cases": 23,
+          "passed": 23,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_worksheet.gd",
+          "test_cases": 19,
+          "passed": 19,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_worksheet_layout.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_worksheet_view_layout.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_view_controls.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_view_preferences.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_zoom_input.gd",
+          "test_cases": 17,
+          "passed": 17,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_scroll_rail.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_sheet_controls.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_information_sheet.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_minesweeper_toggle_bindings.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_minesweeper_new_board_bindings.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_minesweeper_view_gestures.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_minesweeper_challenge_controls.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_minesweeper_desktop_host.gd",
+          "test_cases": 11,
+          "passed": 11,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "job_id": 106687946458,
+      "suite": "persistence",
+      "test_cases": 175,
+      "passed": 175,
+      "skipped": 0,
+      "requested_scripts": 17,
+      "reported_scripts": 17,
+      "scripts": [
+        {
+          "script": "tests/unit/test_frozen_run_context.gd",
+          "test_cases": 18,
+          "passed": 18,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_presentation_chronology.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_dating_attempts.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_dating_branches.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_pair_form_witness.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_contact_invitation_state.gd",
+          "test_cases": 42,
+          "passed": 42,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_seven_day_calendar.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_pair_deck_draw.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_pair_deck_draw_port.gd",
+          "test_cases": 11,
+          "passed": 11,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_v4_upgrade.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_new_run_consumption.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_save_migrations.gd",
+          "test_cases": 11,
+          "passed": 11,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_save_manager_journal.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_restore_transaction.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_unified_restore_contract.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_save_manager_public_boundaries.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_save_capability.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "job_id": 106687946464,
+      "suite": "new_account",
+      "test_cases": 179,
+      "passed": 179,
+      "skipped": 0,
+      "requested_scripts": 15,
+      "reported_scripts": 15,
+      "scripts": [
+        {
+          "script": "tests/unit/test_canonical_writer_compatibility.gd",
+          "test_cases": 17,
+          "passed": 17,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_continuation_serialization_cache.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_new_acc_title_lifetime.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_run_dark_configuration.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_prepared_new_run.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_new_run_transaction.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_new_run_pair_durability.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_new_run_startup_publication.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_new_run_durability_journal.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_json_file_storage.gd",
+          "test_cases": 14,
+          "passed": 14,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_temporary_storage.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_save_document_schema.gd",
+          "test_cases": 21,
+          "passed": 21,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_run_snapshot_schema.gd",
+          "test_cases": 27,
+          "passed": 27,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/tooling/test_phase2r_closeout_sentinel.gd",
+          "test_cases": 1,
+          "passed": 1,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/tooling/test_phase2r_schedule_gate.gd",
+          "test_cases": 34,
+          "passed": 34,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "job_id": 106687946472,
+      "suite": "endings",
+      "test_cases": 106,
+      "passed": 106,
+      "skipped": 0,
+      "requested_scripts": 12,
+      "reported_scripts": 12,
+      "scripts": [
+        {
+          "script": "tests/unit/test_ending_frozen_context.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_day7_condition_ending.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_ending_completion_durability.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_ending_presentation_signature.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dialogic_ending_playback_port.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_run_lifecycle.gd",
+          "test_cases": 14,
+          "passed": 14,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_ending_rules.gd",
+          "test_cases": 18,
+          "passed": 18,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_ending_rules_migration.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_ordered_ending_playback.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_ending_dialogic_wiring.gd",
+          "test_cases": 11,
+          "passed": 11,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scenario/test_day7_endings.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scenario/test_day7_schedule_provenance.gd",
+          "test_cases": 15,
+          "passed": 15,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "job_id": 106687946503,
+      "suite": "reading_delivery",
+      "test_cases": 211,
+      "passed": 211,
+      "skipped": 0,
+      "requested_scripts": 16,
+      "reported_scripts": 16,
+      "scripts": [
+        {
+          "script": "tests/unit/test_hospital_frozen_context.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_frozen_replay_context.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_minesweeper_delivery_notice.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_witnessed_caption_runtime.gd",
+          "test_cases": 48,
+          "passed": 48,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_witnessed_pause_view.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_witnessed_auto_controller.gd",
+          "test_cases": 13,
+          "passed": 13,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_witnessed_skip_controller.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_witnessed_transport_recovery.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_witnessed_speech_projection.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_dating_caption_style.gd",
+          "test_cases": 19,
+          "passed": 19,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_scene_art_bindings.gd",
+          "test_cases": 13,
+          "passed": 13,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_scene_art_hold.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_production_pause_controller.gd",
+          "test_cases": 33,
+          "passed": 33,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_hospital_scene.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_day7_font_preferences.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_gallery_replay_owner.gd",
+          "test_cases": 15,
+          "passed": 15,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "job_id": 106687946508,
+      "suite": "dating",
+      "test_cases": 162,
+      "passed": 162,
+      "skipped": 0,
+      "requested_scripts": 12,
+      "reported_scripts": 12,
+      "scripts": [
+        {
+          "script": "tests/unit/test_active_dating_backup_capture.gd",
+          "test_cases": 15,
+          "passed": 15,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_dating_quick_commands.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_frozen_presentation_context.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_narrative_playback.gd",
+          "test_cases": 18,
+          "passed": 18,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_canonical_dating_mastery.gd",
+          "test_cases": 9,
+          "passed": 9,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_attempt_runtime.gd",
+          "test_cases": 45,
+          "passed": 45,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_profile_evidence_v8.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_physical_owner.gd",
+          "test_cases": 15,
+          "passed": 15,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_capability_envelope.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_rehearsal_owner.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_dating_presentation_port.gd",
+          "test_cases": 21,
+          "passed": 21,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "job_id": 106687946520,
+      "suite": "desktop",
+      "test_cases": 319,
+      "passed": 319,
+      "skipped": 0,
+      "requested_scripts": 20,
+      "reported_scripts": 20,
+      "scripts": [
+        {
+          "script": "tests/unit/test_application_runtime_lifetime.gd",
+          "test_cases": 3,
+          "passed": 3,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_contacts_frozen_context.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_desktop_panel_split.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/desktop_shell/test_desktop_split_touch.gd",
+          "test_cases": 13,
+          "passed": 13,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_desktop_touch_navigation.gd",
+          "test_cases": 10,
+          "passed": 10,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_desktop_app_host_state.gd",
+          "test_cases": 12,
+          "passed": 12,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_desktop_accessibility_contract.gd",
+          "test_cases": 6,
+          "passed": 6,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_desktop_quick_commands.gd",
+          "test_cases": 17,
+          "passed": 17,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_desktop_bootstrap_wiring.gd",
+          "test_cases": 27,
+          "passed": 27,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_desktop_cold_recovery_preparation.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_schedule_desktop_host.gd",
+          "test_cases": 15,
+          "passed": 15,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_phase2r_schedule_desktop_handoff.gd",
+          "test_cases": 111,
+          "passed": 111,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_schedule_app.gd",
+          "test_cases": 40,
+          "passed": 40,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_contacts_run_presentation.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/scene/test_controls_input_contact_release.gd",
+          "test_cases": 1,
+          "passed": 1,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_angela_stat_overlay.gd",
+          "test_cases": 7,
+          "passed": 7,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_stat_hud_week_tint.gd",
+          "test_cases": 8,
+          "passed": 8,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_ui_art_placements.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        },
+        {
+          "script": "tests/integration/test_desktop_logout_consent.gd",
+          "test_cases": 4,
+          "passed": 4,
+          "skipped": 0
+        },
+        {
+          "script": "tests/unit/test_session_exit_coordinator.gd",
+          "test_cases": 5,
+          "passed": 5,
+          "skipped": 0
+        }
+      ]
+    }
+  ],
+  "standalone_capture": {
+    "job_id": 106687946458,
+    "checks": 136,
+    "failures": 0,
+    "marker": "SAVE_LOAD_CAPTURE_PASS 136 checks; failures=0"
+  },
+  "journeys": {
+    "job_id": 106687946300,
+    "passes": [
+      "seven-days-ending-gallery",
+      "seven-days-condition-ending",
+      "practice-empty-dtl",
+      "practice-legacy-compatibility"
+    ],
+    "failures": [
+      "PLAYABLE_JOURNEY_FAIL: dating-reload",
+      "  journey.stdout.txt: PLAYABLE_STARTUP_FAIL: Quick file has current versions, Dating route and an idle narrative frontier: {\"app\":\"schedule\",\"document_version\":7,\"narrative_keys\":[],\"route\":\"dating\",\"snapshot_version\":7}",
+      "  journey.log: PLAYABLE_STARTUP_FAIL: Quick file has current versions, Dating route and an idle narrative frontier: {\"app\":\"schedule\",\"document_version\":7,\"narrative_keys\":[],\"route\":\"dating\",\"snapshot_version\":7}",
+      "  REQUIRED_MARKER_COUNT: PLAYABLE_DATING_QUICK_PASS = 0",
+      "  REQUIRED_MARKER_COUNT: PLAYABLE_DATING_PASS = 0",
+      "  CAPTURE_MISSING: 06-dating-quick-consent.png",
+      "  CAPTURE_MISSING: 07-dating-quick-restored.png"
+    ],
+    "log_characters": 480063
+  },
+  "public_surfaces": {
+    "job_id": 106686654607,
+    "mode": "regenerate_then_check",
+    "regression": "11 tests passed with zero skips, including full committed-byte reproduction and no-write/drift checks against inventories generated in this job; final committed read-only CI transition remains pending.",
+    "markers": [
+      "PUBLIC_SURFACE_RETIRED_APIS_VERIFIED: 6 symbols; 905 source files; zero remaining references.",
+      "PUBLIC_SURFACE_VALIDATION_VERIFIED: both complete-tree inventories reproduce canonical bytes."
+    ]
+  },
+  "performance": {
+    "paired_job_id": 106687946319,
+    "paired_conclusion": "success",
+    "paired_marker": [
+      "CHECKPOINT_PERFORMANCE_VERIFIED: four localized journeys and four matched-payload probes."
+    ],
+    "retained_history_job_id": 106689204509,
+    "retained_history_status": "completed",
+    "retained_history_conclusion": "cancelled",
+    "scope": "This run tests the repair batch; the later write-validation memo source is not included."
+  },
+  "jobs": [
+    {
+      "id": 106686654607,
+      "name": "Windows / public API surface contracts",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35709584806/job/106686654607",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Record fixture and schema version census",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Verify isolated runner contracts and timeout diagnostics",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Regenerate and verify complete public inventories",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Verify public inventory drift and read-only contracts",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10
+        },
+        {
+          "name": "Upload canonical inventories and retirement evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 22
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 23
+        }
+      ]
+    },
+    {
+      "id": 106687946224,
+      "name": "Windows / exported release startup",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35709584806/job/106687946224",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Cache pinned export templates",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Download verified Godot export templates",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Retain verified export templates for subsequent runs",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 9
+        },
+        {
+          "name": "Export and launch isolated Windows executable",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10
+        },
+        {
+          "name": "Upload Windows validation build and evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 22
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 23
+        }
+      ]
+    },
+    {
+      "id": 106687946300,
+      "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35709584806/job/106687946300",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Install Godot and software display",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Start and verify native Linux speech service",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Upload native speech environment evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Exercise complete rendered journeys in fresh isolated profiles",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 8
+        },
+        {
+          "name": "Upload journey reports, logs and screenshots",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19
+        }
+      ]
+    },
+    {
+      "id": 106687946319,
+      "name": "Windows / paired checkpoint performance",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35709584806/job/106687946319",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Measure localized journeys and matched payloads",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Share current localized payloads",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Upload paired performance evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19
+        }
+      ]
+    },
+    {
+      "id": 106687946366,
+      "name": "Rendered desktop and dialogue / Linux software OpenGL",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35709584806/job/106687946366",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Install Godot and software display",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Start and verify native Linux speech service",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Upload native speech environment evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Render and verify desktop scaling",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Upload rendered evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Render and verify delivery and dialogue",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10
+        },
+        {
+          "name": "Upload delivery and dialogue evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11
+        },
+        {
+          "name": "Render and verify Angela stat overlay",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12
+        },
+        {
+          "name": "Upload Angela stat overlay evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13
+        },
+        {
+          "name": "Validate Japanese and Korean catalogs",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14
+        },
+        {
+          "name": "Render and verify Japanese and Korean UI",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15
+        },
+        {
+          "name": "Upload Japanese and Korean UI evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16
+        },
+        {
+          "name": "Render and verify font choices",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        },
+        {
+          "name": "Upload font-choice evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18
+        },
+        {
+          "name": "Verify rendered startup and Logout consent",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19
+        },
+        {
+          "name": "Upload rendered startup and Logout evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 20
+        },
+        {
+          "name": "Audit all UI literal ownership",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21
+        },
+        {
+          "name": "Upload UI literal audit evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 22
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 44
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 45
+        }
+      ]
+    },
+    {
+      "id": 106687946423,
+      "name": "Windows / audio",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35709584806/job/106687946423",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        }
+      ]
+    },
+    {
+      "id": 106687946426,
+      "name": "Windows / shop",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35709584806/job/106687946426",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        }
+      ]
+    },
+    {
+      "id": 106687946434,
+      "name": "Windows / settings",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35709584806/job/106687946434",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        }
+      ]
+    },
+    {
+      "id": 106687946441,
+      "name": "Windows / localization",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35709584806/job/106687946441",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        }
+      ]
+    },
+    {
+      "id": 106687946450,
+      "name": "Windows / minesweeper",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35709584806/job/106687946450",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        }
+      ]
+    },
+    {
+      "id": 106687946458,
+      "name": "Windows / persistence",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35709584806/job/106687946458",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        }
+      ]
+    },
+    {
+      "id": 106687946464,
+      "name": "Windows / new_account",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35709584806/job/106687946464",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        }
+      ]
+    },
+    {
+      "id": 106687946472,
+      "name": "Windows / endings",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35709584806/job/106687946472",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        }
+      ]
+    },
+    {
+      "id": 106687946503,
+      "name": "Windows / reading_delivery",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35709584806/job/106687946503",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        }
+      ]
+    },
+    {
+      "id": 106687946508,
+      "name": "Windows / dating",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35709584806/job/106687946508",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        }
+      ]
+    },
+    {
+      "id": 106687946520,
+      "name": "Windows / desktop",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35709584806/job/106687946520",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        }
+      ]
+    },
+    {
+      "id": 106689204509,
+      "name": "Windows / seven-day retained history",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35709584806/job/106689204509",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Download current localized payloads",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Measure seven days and saturated retained history",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "number": 8
+        },
+        {
+          "name": "Compare outgoing normalization on identical retained payloads",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 9
+        },
+        {
+          "name": "Upload seven-day history evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 20
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Run metadata confirms the PR head and base; checkout log confirms the exact tested merge separately.",
+    "CLOUD_GUT_RESULT values come from each completed job's parsed JUnit output, including per-script skip counts.",
+    "Journey failure stops Dating before its new consent/restore captures; four other journeys completed successfully.",
+    "Public inventory job still regenerates canonical output before checking it; the final read-only gate is not yet validated.",
+    "Retained-history job was cancelled after newer PR head 217cc23cfe2018518e0d6037b9ea32ffc5b94957 superseded this run. It contributes no completion or timing claim.",
+    "No raw authentication, account, permission or runner credential metadata is included."
+  ],
+  "observed_at_utc": "2026-09-22T09:31:11.067Z",
+  "windows_export": {
+    "job_id": 106687946224,
+    "receipt": {
+      "ok": true,
+      "commit": "caa6396f172f9f90362c22f7b6b82518542fc6dd",
+      "engine": "4.6.3.stable",
+      "runtime_data_files_verified": 111,
+      "templates_sha256": "3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8",
+      "executable_sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+      "pck_sha256": "1972e6efcd7f87ab1d93e04d61036f4bb294dd1e86da05e5e18de0606e459b75",
+      "archive": {
+        "file": "DWM-windows-x86_64-validation.zip",
+        "bytes": 98762175,
+        "sha256": "d625198bfe7bb02d659e2f1c5e0bd24affa9e7d9af8d1bc77bf0b32b9587f80d"
+      }
+    },
+    "scope": "Actual isolated native Windows headless executable startup and package validation; this does not claim graphical Windows or screen-reader acceptance."
+  },
+  "rendered_ui": {
+    "job_id": 106687946366,
+    "conclusion": "success",
+    "summaries": [
+      {
+        "marker": "DESKTOP_SCALING_RENDER_VERIFIED",
+        "ok": true,
+        "captures": 38,
+        "failures": []
+      },
+      {
+        "marker": "DELIVERY_DIALOGUE_RENDER_VERIFIED",
+        "ok": true,
+        "captures": 25,
+        "failures": []
+      },
+      {
+        "marker": "ANGELA_OVERLAY_RENDER_VERIFIED",
+        "ok": true,
+        "captures": 10,
+        "failures": []
+      },
+      {
+        "marker": "JAPANESE_KOREAN_UI_RENDER_VERIFIED",
+        "ok": true,
+        "captures": 30,
+        "failures": []
+      },
+      {
+        "marker": "FONT_CHOICES_RENDER_VERIFIED",
+        "ok": true,
+        "captures": 30,
+        "failures": []
+      }
+    ],
+    "startup_markers": [
+      "\u001b[36;1mprint('PLAYABLE_STARTUP_RENDER_VERIFIED: 4 captures')\u001b[0m",
+      "PLAYABLE_STARTUP_PASS: actual startup -> New Account -> visible desktop -> Minesweeper -> first Reveal",
+      "PLAYABLE_DAY_PASS: completed round -> Home -> Schedule -> acknowledged warning -> Day 2",
+      "PLAYABLE_LOGOUT_PASS: actual Logout confirmation -> saved title -> Login -> restored Day 2 desktop",
+      "PLAYABLE_STARTUP_RENDER_VERIFIED: 4 captures"
+    ]
+  },
+  "superseded_by": {
+    "head_sha": "217cc23cfe2018518e0d6037b9ea32ffc5b94957",
+    "run_id": 35710770852,
+    "run_number": 54
+  }
+}

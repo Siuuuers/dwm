@@ -1,0 +1,85 @@
+{
+  "schema": "dwm.cloud.acceptance.v1",
+  "repository": "Siuuuers/dwm",
+  "pull_request": 1,
+  "workflow_run_id": 36333194985,
+  "workflow_run_number": 64,
+  "url": "https://github.com/Siuuuers/dwm/actions/runs/36333194985",
+  "overall_accepted": false,
+  "source_binding": {
+    "source_commit": "963dedefffd19031004f9a1ebc061becca3975b5",
+    "tested_merge_commit": "ff5f390f8e99db4c265197fe5b1f32213d89a416",
+    "tested_merge_tree": "2b537ca38e74723bc9e0bbc67a3c369415f6dcaa",
+    "tested_merge_parents": [
+      "1c55cd103014a932dc5936ab3e16c08acbda62d2",
+      "963dedefffd19031004f9a1ebc061becca3975b5"
+    ]
+  },
+  "jobs": [
+    {
+      "id": 108658963788,
+      "name": "Windows / public API surface contracts",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 108659174727,
+      "name": "Windows / ${{ matrix.suite }}",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "id": 108659174766,
+      "name": "Windows / paired checkpoint performance",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "id": 108659174818,
+      "name": "Windows / exported release startup",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "id": 108659174991,
+      "name": "Rendered desktop and dialogue / Linux software OpenGL",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "id": 108659175047,
+      "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "id": 108659175200,
+      "name": "Windows / seven-day retained history",
+      "status": "completed",
+      "conclusion": "skipped"
+    }
+  ],
+  "counts": {
+    "accepted_gut_executions": 0
+  },
+  "failure": {
+    "job_id": 108658963788,
+    "stage": "Project import",
+    "diagnosis": "Array return in SaveManagerCheckpointPort._normalize_json_string_types was indented inside its loop. Godot 4.6.3 rejected the function because the empty-array path returned no value.",
+    "log_excerpt": [
+      "if (Select-String -Path \"$output/import.log\" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {",
+      "SCRIPT ERROR: Parse Error: Not all code paths return a value.",
+      "   at: GDScript::reload (res://scripts/application/run/SaveManagerCheckpointPort.gd:802)",
+      "SCRIPT ERROR: Compile Error: Failed to compile depended scripts.",
+      "   at: GDScript::reload (res://autoload/ApplicationBootstrap.gd:0)",
+      "ERROR: Failed to load script \"res://autoload/ApplicationBootstrap.gd\" with error \"Parse error\".",
+      "   at: load (modules/gdscript/gdscript.cpp:2907)"
+    ],
+    "correction": "Dedent the return to follow the loop. Existing six identity regressions already cover empty arrays and first/middle/last conversion positions; no predicates removed."
+  },
+  "limits": [
+    "Public inventory validation, gameplay suites and benchmarks were skipped after import failure.",
+    "Run63 remains the latest fully accepted source baseline.",
+    "The correction requires a new complete cloud run."
+  ]
+}

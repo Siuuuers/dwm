@@ -1,0 +1,2347 @@
+{
+  "schema_version": 1,
+  "scope": "bounded_settings_visible_keyboard_navigation",
+  "status": "accepted_bounded",
+  "source_commit": "5959cb7abf30c1cf546e1b0dfa0de372aa7d0b36",
+  "fixture_source_commit": "62e1a18f2eb51bdfa7fb3de3b24d6b73c3a9a973",
+  "tested_merge": "80a7249203beee5106cdc38bf8bc35a2f2d122cd",
+  "tested_parents": [
+    "dded76aee2e85aeea94f65218de043b1f4fdce7b",
+    "5959cb7abf30c1cf546e1b0dfa0de372aa7d0b36"
+  ],
+  "workflow": {
+    "run_id": 37220956097,
+    "run_number": 161,
+    "attempt": 1,
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/37220956097",
+    "status": "completed",
+    "conclusion": "success",
+    "reported_updated_at": "2026-10-04T18:13:10Z",
+    "jobs_passed": 26,
+    "jobs": [
+      {
+        "id": 111491017921,
+        "name": "Windows / public API surface contracts",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37220956097,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Record fixture and schema version census",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Verify native caption discovery and Normal Accept",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Verify isolated runner contracts and timeout diagnostics",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Verify committed public inventories without regeneration",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Verify public inventory drift and read-only contracts",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Upload canonical inventories and retirement evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 24
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 25
+          }
+        ]
+      },
+      {
+        "id": 111491882865,
+        "name": "Windows / seven-day retained history producer",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37220956097,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Measure seven days and saturated retained history",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Record Day7 consumer input provenance",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Share verified Day7 consumer inputs",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Upload seven-day history evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 20
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 21
+          }
+        ]
+      },
+      {
+        "id": 111491882882,
+        "name": "Windows / exported release startup",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37220956097,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Cache pinned export templates",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Download verified Godot export templates",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Retain verified export templates for subsequent runs",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 9
+          },
+          {
+            "name": "Export and launch isolated Windows executable",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Upload Windows validation build and evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23
+          }
+        ]
+      },
+      {
+        "id": 111491882901,
+        "name": "Rendered desktop and dialogue / Linux software OpenGL",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37220956097,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot and software display",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Start and verify native Linux speech service",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Upload native speech environment evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Render and verify desktop scaling",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Upload rendered evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Render and verify delivery and dialogue",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Upload delivery and dialogue evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Render and verify Angela stat overlay",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Upload Angela stat overlay evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          },
+          {
+            "name": "Validate Japanese and Korean catalogs",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "Render and verify Japanese and Korean UI",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          },
+          {
+            "name": "Upload Japanese and Korean UI evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Render and verify font choices",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          },
+          {
+            "name": "Upload font-choice evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Verify rendered startup and Logout consent",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          },
+          {
+            "name": "Upload rendered startup and Logout evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 20
+          },
+          {
+            "name": "Audit all UI literal ownership",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 21
+          },
+          {
+            "name": "Upload UI literal audit evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 44
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 45
+          }
+        ]
+      },
+      {
+        "id": 111491882921,
+        "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37220956097,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot and software display",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Start and verify native Linux speech service",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Upload native speech environment evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Exercise complete rendered journeys in fresh isolated profiles",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Upload journey reports, logs and screenshots",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Exercise real Solo reading Save and fresh-process Load",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Upload Solo reading reports, exact save bytes and screenshots",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Exercise authored Solo selectors through physical Save and fresh-process Load",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Upload authored Solo selector reports, exact save bytes and screenshots",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 26
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 27
+          }
+        ]
+      },
+      {
+        "id": 111491882924,
+        "name": "Windows / paired checkpoint performance",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37220956097,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Measure localized journeys and matched payloads",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Share current localized payloads",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Upload paired performance evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          }
+        ]
+      },
+      {
+        "id": 111491882930,
+        "name": "Rendered ordered ending / physical boundary and exact fresh Load",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37220956097,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot and software display",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Start and verify native Linux speech service",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Upload native speech environment evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Exercise two-step ending History, Save and fresh Load",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Verify Auto continuity across the manual nonfinal ending seam",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Upload ending reading reports, exact save bytes and screenshots",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 20
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 21
+          }
+        ]
+      },
+      {
+        "id": 111491882954,
+        "name": "Rendered Hospital / manual command refusal and saved-fixture restore",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37220956097,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot and software display",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Start and verify native Linux speech service",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Upload native speech environment evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Exercise Hospital manual refusal and test-only saved-fixture restore",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Upload Hospital reading reports, exact save bytes and screenshots",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          }
+        ]
+      },
+      {
+        "id": 111491882960,
+        "name": "Rendered captionless timed hold / Pause and fresh-input continuation",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37220956097,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot and software display",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Start and verify native Linux speech service",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Upload native speech environment evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Exercise captionless native hold Pause and fresh-input continuation",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Upload timed hold raw traces, process logs, reports and captures",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          }
+        ]
+      },
+      {
+        "id": 111491883118,
+        "name": "Windows / settings",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37220956097,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run focused regression suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Render Settings uncertain-write journey",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Upload logs and test results",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          }
+        ]
+      },
+      {
+        "id": 111491883139,
+        "name": "Windows / new_account",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37220956097,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run focused regression suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Render Settings uncertain-write journey",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 8
+          },
+          {
+            "name": "Upload logs and test results",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          }
+        ]
+      },
+      {
+        "id": 111491883146,
+        "name": "Windows / shop",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37220956097,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run focused regression suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Render Settings uncertain-write journey",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 8
+          },
+          {
+            "name": "Upload logs and test results",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          }
+        ]
+      },
+      {
+        "id": 111491883159,
+        "name": "Windows / desktop",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37220956097,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run focused regression suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Render Settings uncertain-write journey",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 8
+          },
+          {
+            "name": "Upload logs and test results",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          }
+        ]
+      },
+      {
+        "id": 111491883169,
+        "name": "Windows / dating",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37220956097,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run focused regression suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Render Settings uncertain-write journey",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 8
+          },
+          {
+            "name": "Upload logs and test results",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          }
+        ]
+      },
+      {
+        "id": 111491883171,
+        "name": "Windows / checkpoint_diagnostics",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37220956097,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run focused regression suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Render Settings uncertain-write journey",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 8
+          },
+          {
+            "name": "Upload logs and test results",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          }
+        ]
+      },
+      {
+        "id": 111491883182,
+        "name": "Windows / localization",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37220956097,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run focused regression suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Render Settings uncertain-write journey",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 8
+          },
+          {
+            "name": "Upload logs and test results",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          }
+        ]
+      },
+      {
+        "id": 111491883206,
+        "name": "Windows / endings",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37220956097,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run focused regression suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Render Settings uncertain-write journey",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 8
+          },
+          {
+            "name": "Upload logs and test results",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          }
+        ]
+      },
+      {
+        "id": 111491883215,
+        "name": "Windows / audio",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37220956097,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run focused regression suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Render Settings uncertain-write journey",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 8
+          },
+          {
+            "name": "Upload logs and test results",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          }
+        ]
+      },
+      {
+        "id": 111491883334,
+        "name": "Windows / reading_delivery",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37220956097,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run focused regression suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Render Settings uncertain-write journey",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 8
+          },
+          {
+            "name": "Upload logs and test results",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          }
+        ]
+      },
+      {
+        "id": 111491883410,
+        "name": "Windows / minesweeper",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37220956097,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run focused regression suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Render Settings uncertain-write journey",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 8
+          },
+          {
+            "name": "Upload logs and test results",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          }
+        ]
+      },
+      {
+        "id": 111491883459,
+        "name": "Windows / persistence",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37220956097,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run focused regression suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Render Settings uncertain-write journey",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 8
+          },
+          {
+            "name": "Upload logs and test results",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          }
+        ]
+      },
+      {
+        "id": 111494885974,
+        "name": "Windows / outgoing-normalization comparison",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37220956097,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Download exact Day7 producer inputs",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Verify Day7 checkout, run, attempt, hashes and recovered identity",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Download current localized payloads for outgoing comparison",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Run isolated retained-history comparison",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Upload comparison raw evidence and input provenance",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23
+          }
+        ]
+      },
+      {
+        "id": 111494885979,
+        "name": "Windows / warm-outgoing-proof comparison",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37220956097,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Download exact Day7 producer inputs",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Verify Day7 checkout, run, attempt, hashes and recovered identity",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Download current localized payloads for outgoing comparison",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 9
+          },
+          {
+            "name": "Run isolated retained-history comparison",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Upload comparison raw evidence and input provenance",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23
+          }
+        ]
+      },
+      {
+        "id": 111494885981,
+        "name": "Windows / history-region-search comparison",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37220956097,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Download exact Day7 producer inputs",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Verify Day7 checkout, run, attempt, hashes and recovered identity",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Download current localized payloads for outgoing comparison",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 9
+          },
+          {
+            "name": "Run isolated retained-history comparison",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Upload comparison raw evidence and input provenance",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23
+          }
+        ]
+      },
+      {
+        "id": 111494885982,
+        "name": "Windows / lazy-normalization comparison",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37220956097,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Download exact Day7 producer inputs",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Verify Day7 checkout, run, attempt, hashes and recovered identity",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Download current localized payloads for outgoing comparison",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 9
+          },
+          {
+            "name": "Run isolated retained-history comparison",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Upload comparison raw evidence and input provenance",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23
+          }
+        ]
+      },
+      {
+        "id": 111498512107,
+        "name": "Windows / seven-day retained history",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 37220956097,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Require the Day7 producer and all four comparison jobs",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          }
+        ]
+      }
+    ],
+    "execution": "Godot 4.6.3 standard GDScript/PowerShell in GitHub Actions; existing Linux rendered jobs unchanged"
+  },
+  "primary_settings_tests": {
+    "cases": 361,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "source": "settings.xml",
+    "all_suite_execution_total_not_recounted": true
+  },
+  "navigation": {
+    "transport": "Godot Viewport key events",
+    "route": "Pause Right; five Down category inputs; Right; three Tabs",
+    "target": "preferences.accessibility.high_contrast",
+    "four_sheet_targets_and_focus_perimeters_enclosed": true,
+    "profile_snapshot_unchanged": true,
+    "profile_revision": 3,
+    "persisted_bytes_unchanged": true,
+    "file_operations_unchanged": 45,
+    "scroll_vertical": 206,
+    "target_rect": [
+      736,
+      405,
+      500,
+      52
+    ],
+    "logical_viewport": [
+      1280,
+      720
+    ],
+    "native_capture": [
+      640,
+      360
+    ]
+  },
+  "failure_continuation": {
+    "file_operations_after_uncertainty": 64,
+    "file_operations_after_repeated_input": 64,
+    "uncertainty_and_repeated_refusal_pngs_identical": true,
+    "input_and_departure_blocked": true,
+    "retry_visible": false,
+    "cancel_visible": false,
+    "prior_failure_acceptance": "evidence/phase_2r/settings_write_failure_2026_10_04/receipt.json"
+  },
+  "net_implementation_changes": [
+    "tests/ui/render_settings_shared.gd",
+    "evidence/phase_2r/runtime/save_manager_surface.json"
+  ],
+  "runtime_changed": false,
+  "workflow_identical_to": "d745744bc2c467b92ce379ff70ea2ac47efdaeb3",
+  "inventory_change": "Three lexical initialize call coordinates in the rendered fixture: 160/161/164 -> 188/189/192; no other semantic change.",
+  "artifacts": [
+    {
+      "id": 11309713341,
+      "name": "public-surfaces-37220956097-1",
+      "size_in_bytes": 190085,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11309713341",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11309713341/zip",
+      "expired": false,
+      "created_at": "2026-10-04T17:37:57Z",
+      "expires_at": "2026-10-11T17:37:56Z",
+      "updated_at": "2026-10-04T17:37:57Z",
+      "digest": "sha256:c64cea1c3c5c841214fab6a5663cbf2cb3b1952663ffc47f4fd6eae5d5eded97",
+      "workflow_run": {
+        "id": 37220956097,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/windows-cloud-ux",
+        "head_sha": "5959cb7abf30c1cf546e1b0dfa0de372aa7d0b36"
+      }
+    },
+    {
+      "id": 11309344302,
+      "name": "windows-settings-37220956097-1",
+      "size_in_bytes": 3094302,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11309344302",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11309344302/zip",
+      "expired": false,
+      "created_at": "2026-10-04T17:43:05Z",
+      "expires_at": "2026-10-11T17:43:04Z",
+      "updated_at": "2026-10-04T17:43:05Z",
+      "digest": "sha256:99f78af4cbf31d8de6f87aeaeee932745af6c7304d8145b87bce280de64f6e0c",
+      "workflow_run": {
+        "id": 37220956097,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/windows-cloud-ux",
+        "head_sha": "5959cb7abf30c1cf546e1b0dfa0de372aa7d0b36"
+      }
+    }
+  ],
+  "artifact_zip_hashes_verified": true,
+  "diagnostics": [
+    {
+      "run_number": 158,
+      "run_id": 37219671876,
+      "result": "Stopped before Settings: stale SaveManager inventory caller coordinates."
+    },
+    {
+      "run_number": 159,
+      "run_id": 37220022198,
+      "result": "Temporary workflow indentation error before tests; corrected in next commit."
+    },
+    {
+      "run_number": 160,
+      "run_id": 37220066710,
+      "result": "Focused Settings/public diagnostic passed; cloud inventories regenerated and independently reviewed."
+    }
+  ],
+  "audits": {
+    "independent_source_and_caller_review": true,
+    "independent_inventory_diff_review": true,
+    "root_and_independent_xml_and_capture_review": true,
+    "final_pngs_identical_to_visually_reviewed_diagnostic": true,
+    "record_review": "passed independently: source/scope,26jobs,raw XML/PNG/archive identities,retained hashes and all Beads preservation checks"
+  },
+  "limits": [
+    "English 100% AfterHours Standard ordinary targets only.",
+    "Viewport key events, not OS-native keyboard/UIA or screen-reader speech.",
+    "Real Profile/Localization/Input with in-memory FileOps; no production audio or physical outage claim.",
+    "No runtime navigation defect inferred from the earlier fixture layout ordering.",
+    "Broader jobs assessed by workflow job/step results; no new review of all captures or all XML.",
+    "Whole Settings Bead remains open; production authored samples/native speech/display and broader previews remain separate."
+  ],
+  "beads": {
+    "lead": "dwm-eei.2",
+    "status": "open",
+    "records": 191,
+    "unfinished": 23,
+    "live_dolt_synchronized": false
+  },
+  "publication": {
+    "records_only": true,
+    "independently_engine_tested": false,
+    "pr_draft": true,
+    "pr_merged": false
+  },
+  "accepted_at_utc": "2026-10-04T18:15:01+00:00",
+  "evidence_files": [
+    {
+      "path": "en-100-AfterHours-standard-failure-before.png",
+      "bytes": 10895,
+      "sha256": "53fee7a4e93db422514f4ed8da8dfd3dec32d408ea03b360c7b5f80db4bdf6f1"
+    },
+    {
+      "path": "failure-refused.png",
+      "bytes": 9899,
+      "sha256": "2f62eeeadfa6d6bda374dd257e3b205128131b52f245e0eba33135e13cd76ec0"
+    },
+    {
+      "path": "failure-uncertain.png",
+      "bytes": 9899,
+      "sha256": "2f62eeeadfa6d6bda374dd257e3b205128131b52f245e0eba33135e13cd76ec0"
+    },
+    {
+      "path": "negative-control-accounting.json",
+      "bytes": 182,
+      "sha256": "9d2734d608cbc0a14487a82286fd1fd76c811eef8ecd54da3085d8377e8ff4ab"
+    },
+    {
+      "path": "negative-controls.zip",
+      "bytes": 6090,
+      "sha256": "09007fdf04c32bfd21d1a296e556143e56bbef54faa2857449ad0bf82826e7ee"
+    },
+    {
+      "path": "render.log",
+      "bytes": 643,
+      "sha256": "64d30ba25c32a6d6f0ca8346771352f140c46a2f424bddd97ee3eb040cfbed04"
+    },
+    {
+      "path": "review.md",
+      "bytes": 4692,
+      "sha256": "9c529b52362ed88c65b9db3dc678fabf50c9d07a3091627e93e65c91129d092b"
+    },
+    {
+      "path": "settings-shared-measurements.json",
+      "bytes": 11121,
+      "sha256": "caff06ef5ed8674f58990b9dcefaca13915eaa9646a7f5ca98cb33a46408902b"
+    },
+    {
+      "path": "settings.xml",
+      "bytes": 82017,
+      "sha256": "c8348d30684fba96d71cab323862d8bef63c59a7163c607297139be04528edcc"
+    },
+    {
+      "path": "source-hashes.json",
+      "bytes": 682,
+      "sha256": "40658082a8d070e2a720f537716e57dbc854aec7f3c1396790a35d9794ad2b41"
+    }
+  ],
+  "negative_controls": {
+    "empty": {
+      "cases": 83,
+      "failures": 80,
+      "errors": 0,
+      "skips": 0
+    },
+    "whitespace": {
+      "cases": 83,
+      "failures": 80,
+      "errors": 0,
+      "skips": 0
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "parent": "0a22f556120178dddc7b28df1a8abfc8b011bc12",
+  "tree": "27cc9cd5821934803e844f09ce5831a65c1f47da",
+  "commit": "35da7aad3d95253fa0530cdb664f1ef8773d78e9",
+  "blob": "2850559b1b2e2fa4cb06156a18ecc5f8d8a6c9e7",
+  "branch": "codex/hospital-export-evidence-20261003",
+  "sourceArtifact": 11244640103,
+  "previousInvalidRun": 37046971060,
+  "correction": "Resolve RUNNER_TEMP at shell-step execution; no job-level runner context."
+}

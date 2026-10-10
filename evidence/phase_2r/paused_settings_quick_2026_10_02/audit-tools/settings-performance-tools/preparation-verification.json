@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "status": "prepared_and_statically_reviewed_no_run_execution",
+  "unchanged_inner_helpers": 13,
+  "manifest": {
+    "bytes": 10998,
+    "sha256": "e0af9b0fb8cb7f18b00b47829db97d9959a405953ff6ebd94d5258d016fed80e"
+  },
+  "launchers": {
+    "run_audits.py": {
+      "bytes": 12732,
+      "sha256": "25f3c11f9cda646862d5bee7e690fb273a8852c7115fe84aba54cec4dfb5fbeb"
+    },
+    "run_join.py": {
+      "bytes": 3604,
+      "sha256": "6e726ca080a51611c61a82650299050ab5be0e212d26eddfd23abc934c38f30a"
+    }
+  },
+  "checks": [
+    "All 12 Python files parse",
+    "Both CLI help commands succeed without reading run data",
+    "All 13 helper paths and hashes equal retained Run127 originals",
+    "Historical provenance preserved",
+    "Independent static review found no blocking assertion or field mismatch"
+  ],
+  "actual_cloud_audits_executed": false,
+  "historical_run127_evidence_mutated": false
+}

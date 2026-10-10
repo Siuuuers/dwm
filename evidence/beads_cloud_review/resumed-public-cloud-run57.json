@@ -1,0 +1,1129 @@
+{
+  "schema": "dwm_cloud_run_evidence.v1",
+  "repository": "Siuuuers/dwm",
+  "pull_request": 1,
+  "head_sha": "cc42b9e4c4f0c5c736fef625c0be6b1fa0855f00",
+  "merge_checkout_sha": "efcc6d210896389641a270c0c2ee9e0e5074404c",
+  "base_sha": "9e43b52c9884ccd59e82245d2168c3113ee4d037",
+  "workflow_run_id": 35814988598,
+  "workflow_run_number": 57,
+  "workflow_run_attempt": 1,
+  "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598",
+  "event": "pull_request",
+  "status": "completed",
+  "conclusion": "success",
+  "observed_at_utc": "2026-09-23T04:06:00.294382Z",
+  "run_completed_at_utc": "2026-09-23T04:00:26Z",
+  "evidence_state": "All 17 source-validation jobs succeeded, including the restored committed-inventory read-only gate. The bounded SaveManager preparation change passes three added regressions and eight matched exact-output ablation pairs. Ordered checkpoint timing evidence is retained; broader latency acceptance remains open.",
+  "source_binding": {
+    "merge_parents": [
+      "9e43b52c9884ccd59e82245d2168c3113ee4d037",
+      "cc42b9e4c4f0c5c736fef625c0be6b1fa0855f00"
+    ],
+    "merge_tree_sha": "c1dcde4a038de466e712bd138fb1008464200477",
+    "source_tree_sha": "c1dcde4a038de466e712bd138fb1008464200477",
+    "merge_and_source_trees_identical": true,
+    "checkout_census_and_export_match": true,
+    "all_job_checkouts_bound": true
+  },
+  "counts": {
+    "jobs": 17,
+    "success": 17,
+    "failure": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "in_progress": 0,
+    "focused_test_cases": 1986,
+    "focused_passed": 1986,
+    "focused_skipped": 0,
+    "focused_scripts": 166,
+    "public_surface_test_cases": 11,
+    "public_surface_passed": 11,
+    "public_surface_skipped": 0,
+    "all_gut_test_cases": 1997,
+    "all_gut_passed": 1997,
+    "all_gut_skipped": 0,
+    "all_gut_scripts": 167
+  },
+  "focused_scope_counts": [
+    {
+      "job_id": 107034492509,
+      "suite": "public_surfaces",
+      "test_cases": 11,
+      "passed": 11,
+      "skipped": 0,
+      "requested_scripts": 1,
+      "reported_scripts": 1
+    },
+    {
+      "job_id": 107035187498,
+      "suite": "settings",
+      "test_cases": 284,
+      "passed": 284,
+      "skipped": 0,
+      "requested_scripts": 24,
+      "reported_scripts": 24
+    },
+    {
+      "job_id": 107035187504,
+      "suite": "new_account",
+      "test_cases": 179,
+      "passed": 179,
+      "skipped": 0,
+      "requested_scripts": 15,
+      "reported_scripts": 15
+    },
+    {
+      "job_id": 107035187513,
+      "suite": "minesweeper",
+      "test_cases": 210,
+      "passed": 210,
+      "skipped": 0,
+      "requested_scripts": 22,
+      "reported_scripts": 22
+    },
+    {
+      "job_id": 107035187514,
+      "suite": "persistence",
+      "test_cases": 175,
+      "passed": 175,
+      "skipped": 0,
+      "requested_scripts": 17,
+      "reported_scripts": 17
+    },
+    {
+      "job_id": 107035187526,
+      "suite": "localization",
+      "test_cases": 152,
+      "passed": 152,
+      "skipped": 0,
+      "requested_scripts": 18,
+      "reported_scripts": 18
+    },
+    {
+      "job_id": 107035187527,
+      "suite": "desktop",
+      "test_cases": 319,
+      "passed": 319,
+      "skipped": 0,
+      "requested_scripts": 20,
+      "reported_scripts": 20
+    },
+    {
+      "job_id": 107035187532,
+      "suite": "audio",
+      "test_cases": 44,
+      "passed": 44,
+      "skipped": 0,
+      "requested_scripts": 2,
+      "reported_scripts": 2
+    },
+    {
+      "job_id": 107035187540,
+      "suite": "reading_delivery",
+      "test_cases": 211,
+      "passed": 211,
+      "skipped": 0,
+      "requested_scripts": 16,
+      "reported_scripts": 16
+    },
+    {
+      "job_id": 107035187557,
+      "suite": "shop",
+      "test_cases": 144,
+      "passed": 144,
+      "skipped": 0,
+      "requested_scripts": 8,
+      "reported_scripts": 8
+    },
+    {
+      "job_id": 107035187565,
+      "suite": "dating",
+      "test_cases": 162,
+      "passed": 162,
+      "skipped": 0,
+      "requested_scripts": 12,
+      "reported_scripts": 12
+    },
+    {
+      "job_id": 107035187584,
+      "suite": "endings",
+      "test_cases": 106,
+      "passed": 106,
+      "skipped": 0,
+      "requested_scripts": 12,
+      "reported_scripts": 12
+    }
+  ],
+  "acceptance_script_counts": [
+    {
+      "job_id": 107035187498,
+      "suite": "settings",
+      "script": "tests/unit/test_save_manager_parse_cache.gd",
+      "test_cases": 14,
+      "passed": 14,
+      "skipped": 0
+    },
+    {
+      "job_id": 107035187504,
+      "suite": "new_account",
+      "script": "tests/unit/test_canonical_writer_compatibility.gd",
+      "test_cases": 17,
+      "passed": 17,
+      "skipped": 0
+    },
+    {
+      "job_id": 107035187504,
+      "suite": "new_account",
+      "script": "tests/unit/test_save_document_schema.gd",
+      "test_cases": 21,
+      "passed": 21,
+      "skipped": 0
+    },
+    {
+      "job_id": 107035187504,
+      "suite": "new_account",
+      "script": "tests/unit/test_run_snapshot_schema.gd",
+      "test_cases": 27,
+      "passed": 27,
+      "skipped": 0
+    },
+    {
+      "job_id": 107035187514,
+      "suite": "persistence",
+      "script": "tests/unit/test_frozen_run_context.gd",
+      "test_cases": 18,
+      "passed": 18,
+      "skipped": 0
+    },
+    {
+      "job_id": 107035187514,
+      "suite": "persistence",
+      "script": "tests/integration/test_save_manager_public_boundaries.gd",
+      "test_cases": 6,
+      "passed": 6,
+      "skipped": 0
+    },
+    {
+      "job_id": 107035187527,
+      "suite": "desktop",
+      "script": "tests/unit/test_contacts_frozen_context.gd",
+      "test_cases": 8,
+      "passed": 8,
+      "skipped": 0
+    },
+    {
+      "job_id": 107035187540,
+      "suite": "reading_delivery",
+      "script": "tests/unit/test_hospital_frozen_context.gd",
+      "test_cases": 7,
+      "passed": 7,
+      "skipped": 0
+    },
+    {
+      "job_id": 107035187540,
+      "suite": "reading_delivery",
+      "script": "tests/unit/test_frozen_replay_context.gd",
+      "test_cases": 3,
+      "passed": 3,
+      "skipped": 0
+    },
+    {
+      "job_id": 107035187565,
+      "suite": "dating",
+      "script": "tests/unit/test_active_dating_backup_capture.gd",
+      "test_cases": 15,
+      "passed": 15,
+      "skipped": 0
+    },
+    {
+      "job_id": 107035187565,
+      "suite": "dating",
+      "script": "tests/unit/test_frozen_presentation_context.gd",
+      "test_cases": 6,
+      "passed": 6,
+      "skipped": 0
+    },
+    {
+      "job_id": 107035187565,
+      "suite": "dating",
+      "script": "tests/unit/test_canonical_dating_mastery.gd",
+      "test_cases": 9,
+      "passed": 9,
+      "skipped": 0
+    },
+    {
+      "job_id": 107035187584,
+      "suite": "endings",
+      "script": "tests/unit/test_ending_frozen_context.gd",
+      "test_cases": 6,
+      "passed": 6,
+      "skipped": 0
+    }
+  ],
+  "standalone_capture": {
+    "job_id": 107035187514,
+    "checks": 136,
+    "failures": 0,
+    "marker": "SAVE_LOAD_CAPTURE_PASS 136 checks; failures=0"
+  },
+  "journeys": {
+    "job_id": 107035187422,
+    "conclusion": "success",
+    "passes": [
+      "seven-days-ending-gallery",
+      "seven-days-condition-ending",
+      "dating-reload",
+      "practice-empty-dtl",
+      "practice-legacy-compatibility"
+    ],
+    "failures": [],
+    "scope": "Five isolated rendered journeys. Success is automated behavioral evidence, not final dialogue or native Windows visual approval."
+  },
+  "public_surfaces": {
+    "job_id": 107034492509,
+    "mode": "read_only_committed_inventory_check",
+    "command": "./tools/testing/Invoke-PublicSurfaceValidation.ps1 -EmitPayloads",
+    "workflow_path": ".github/workflows/windows-tests.yml",
+    "regression": "11 tests passed with zero skips. Both committed complete-tree inventories reproduce canonical bytes without regeneration.",
+    "markers": [
+      "PUBLIC_SURFACE_RETIRED_APIS_VERIFIED: 6 symbols; 906 source files; zero remaining references.",
+      "PUBLIC_SURFACE_VALIDATION_VERIFIED: both complete-tree inventories reproduce canonical bytes."
+    ],
+    "isolation_helper": "PASS",
+    "payloads": [
+      {
+        "path": "evidence/phase_2r/runtime/game_state_surface.json",
+        "encoding": "gzip+base64",
+        "sha256": "ad2fbd069aec0685ccecd17e6c97f01cbe1caa48f5913b646323affb0a91ef31",
+        "bytes": 547953,
+        "compressed_bytes": 61123,
+        "parts": 40
+      },
+      {
+        "path": "evidence/phase_2r/runtime/save_manager_surface.json",
+        "encoding": "gzip+base64",
+        "sha256": "a3b99f9addd41da33b9f33303c7a43812875b95e19e7a3c2622b0dffe1530f7f",
+        "bytes": 141087,
+        "compressed_bytes": 16579,
+        "parts": 11
+      }
+    ],
+    "transport_verified": {
+      "begin_end_metadata_identical": true,
+      "unique_contiguous_parts": true,
+      "strict_base64": true,
+      "gzip_size_and_sha256": true,
+      "inventory_ok_and_no_errors": true
+    },
+    "committed_file_hashes_locally_verified": true,
+    "committed_bytes_verified_at_sha": "cc42b9e4c4f0c5c736fef625c0be6b1fa0855f00"
+  },
+  "performance": {
+    "paired_checkpoint_job_id": 107035187352,
+    "paired_checkpoint_result": "four localized journeys and four matched-payload probes.",
+    "new_account": {
+      "ok": true,
+      "samples": [
+        {
+          "button_to_desktop_us": 729338,
+          "case": "fresh",
+          "max_frame_gap_us": 205856
+        },
+        {
+          "button_to_desktop_us": 697560,
+          "case": "replacement",
+          "max_frame_gap_us": 108609
+        }
+      ]
+    },
+    "retained_history_job_id": 107035880080,
+    "retained_history_proof": {
+      "checkout_ref": "efcc6d210896389641a270c0c2ee9e0e5074404c",
+      "payload_bytes": 1910543,
+      "payload_sha256": "a9d7173cf43534e255fd930127304160c3ad351411f40eecc7d953b68477ff3b",
+      "write": {
+        "autosave_sha256": "a9d7173cf43534e255fd930127304160c3ad351411f40eecc7d953b68477ff3b",
+        "days": 7,
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "synthetic_checkpoints": 98
+      },
+      "cold_read": {
+        "autosave_sha256": "a9d7173cf43534e255fd930127304160c3ad351411f40eecc7d953b68477ff3b",
+        "day": 7,
+        "login_us": 9018146,
+        "parse_cache_enabled": true,
+        "restored_board_sha256": "d3bc44b74c40216bb2b2424f7da97c4d767aa0c3152bedef52d17a431d15bb30",
+        "restored_gameplay_sha256": "109918ae9898f3d8e05e9fd93148a428a7d72cd577108826226ffcbce90bd9fa",
+        "restored_recovery_journal_sha256": "44429429e9526a01210686b305baa0ad6244567a9d962b827a4ebad934dc3482",
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "retained_checkpoint_count": 66,
+        "save_manager_sha256": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a"
+      },
+      "fixture": "7 synthetic line and 7 synthetic manual checkpoint records/day, plus one real Slot 1 save and App loss/day. Public Schedule Done advances to Day 7. This is not an authored-dialogue playthrough.",
+      "timing_policy": "Observations on one shared Windows runner; no speed threshold or physical input-to-paint guarantee.",
+      "timing_boundaries": {
+        "manual_slot_save_us": "Production prepare_backup_action(save, slot:1) plus commit_backup_action, including synchronous signal handlers.",
+        "login_us": "Automated Title Login, Backup picker opening and Autosave selection, load consent, restore and awaited process frames.",
+        "phase_scopes": "Each scope is inclusive. Parent and child scopes overlap and must not be summed; repeated phases inside one scope accumulate.",
+        "phase_collection": "Save/load profiles include only labeled manual-save and Title Login measurement windows; startup and opening each daily Backup app before its save timer are excluded."
+      },
+      "parse_cache_comparison": {
+        "control": "Same checkout and retained user-data source, cloned into a new isolated process per variant. Only DWM_SAVE_PARSE_CACHE_DISABLED differs.",
+        "sampling": "One cold Login per variant, fixed disabled-then-enabled order on one shared Windows runner; observational, not a repeated-sample or frame-time guarantee.",
+        "source_json_sha256": {
+          "desktop-issuer-root.json": "a793754f834531965eec77ef8493010329d4fdbb601279cadde4e648a7016be4",
+          "desktop-publications.json": "b579545382ea08ad061b06287c6672d10495de4d5d2c03b077c9eddbcd7d2937",
+          "profile.json": "c68a205c556d840d7e4670da4b0b6f1d51051ba2b860bab3f26057f4f1e75ddc",
+          "saves/autosave.json": "a9d7173cf43534e255fd930127304160c3ad351411f40eecc7d953b68477ff3b",
+          "saves/desktop-continuation-operations.json": "faa788a61f48391f6bf48aff22b233db8acc8ecbf1746ff3a30dd31d57296628",
+          "saves/slot_1.json": "2ee5704f7a31e93ca32f23617f7f862b3294a6ca8b70fb48dac8721491dbe6a8",
+          "schedule-foundation-publications.json": "bdc348e8fdc48f79bf972fda034007635a5d25e058aaf7a18a5b63e6dfa4cdc7",
+          "seven-day-history-proof.json": "db7efdbd11b9f83a550ce08ff52f8d87371d7f58ffa95da13437e4fdb4dd9b28"
+        },
+        "disabled": {
+          "autosave_sha256": "a9d7173cf43534e255fd930127304160c3ad351411f40eecc7d953b68477ff3b",
+          "day": 7,
+          "login_us": 12788106,
+          "parse_cache_enabled": false,
+          "restored_board_sha256": "d3bc44b74c40216bb2b2424f7da97c4d767aa0c3152bedef52d17a431d15bb30",
+          "restored_gameplay_sha256": "109918ae9898f3d8e05e9fd93148a428a7d72cd577108826226ffcbce90bd9fa",
+          "restored_recovery_journal_sha256": "44429429e9526a01210686b305baa0ad6244567a9d962b827a4ebad934dc3482",
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a"
+        },
+        "enabled": {
+          "autosave_sha256": "a9d7173cf43534e255fd930127304160c3ad351411f40eecc7d953b68477ff3b",
+          "day": 7,
+          "login_us": 9018146,
+          "parse_cache_enabled": true,
+          "restored_board_sha256": "d3bc44b74c40216bb2b2424f7da97c4d767aa0c3152bedef52d17a431d15bb30",
+          "restored_gameplay_sha256": "109918ae9898f3d8e05e9fd93148a428a7d72cd577108826226ffcbce90bd9fa",
+          "restored_recovery_journal_sha256": "44429429e9526a01210686b305baa0ad6244567a9d962b827a4ebad934dc3482",
+          "retained": {
+            "line": 32,
+            "manual_save": 32,
+            "semantic": 2
+          },
+          "retained_checkpoint_count": 66,
+          "save_manager_sha256": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a"
+        }
+      }
+    },
+    "retained_history_day7": {
+      "day": 7,
+      "retained": {
+        "line": 32,
+        "manual_save": 32,
+        "semantic": 2
+      },
+      "files": {
+        "desktop-issuer-root.json": 64810,
+        "desktop-publications.json": 133950,
+        "profile.json": 3002,
+        "saves/autosave.json": 1910543,
+        "saves/desktop-continuation-operations.json": 21775,
+        "saves/slot_1.json": 1872441,
+        "schedule-foundation-publications.json": 36123
+      },
+      "first_reveal_sync_us": 1368389,
+      "terminal_reveal_sync_us": 10674,
+      "terminal_settlement_us": 842601,
+      "manual_slot_save_us": 3802030,
+      "manual_slot_prepare_us": 1475782,
+      "manual_slot_commit_us": 2326183,
+      "autosave_sha256": "a9d7173cf43534e255fd930127304160c3ad351411f40eecc7d953b68477ff3b"
+    },
+    "manual_prepare_ablation": {
+      "control": "Public prepare_backup_action and commit_backup_action with real storage, the same seeded Day7 journal, immutable capture fixture and a test-subclass fixed clock. Only the discarded eager journal copy in configured capture differs; parse cache and write validation memo are enabled in both.",
+      "sampling": "Eight alternating pairs / sixteen fresh isolated processes; identical prepared candidate, physical source files, target revision and pre-commit parser cache. Preparation timing covers only the public prepare_backup_action call, including immutable fixture copying, and excludes source cloning, journal seeding, proof generation, commit, live UI callbacks, issuer-flush callbacks and rendering. OS filesystem caches are not flushed.",
+      "metric": "prepare_us",
+      "source_code_sha256": {
+        "candidate": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a",
+        "baseline": "045828f242d4292a513cdac101f66b43349f6b8891e05e30bee886aae0092c2c",
+        "storage": "ad2691249d9c7a247147fdc76885044b6cd9f6ebaac1f7267b4c144586d2adab",
+        "harness": "53bde54f81cc3a997903670da96514d045823b5c911b3aac31dd71637bdd0b75"
+      },
+      "summary": {
+        "pair_count": 8,
+        "median_paired_candidate_minus_baseline_us": -13122.0,
+        "baseline_median_prepare_us": 2234064.0,
+        "candidate_median_prepare_us": 2219007.0
+      },
+      "invariant_verification": {
+        "verified": true,
+        "pair_count": 8,
+        "sample_count": 16,
+        "strict_validation_calls_per_sample": 1,
+        "alternating_order_verified": true,
+        "stable_fields": [
+          "candidate_sha256",
+          "source_revision",
+          "source_files_sha256",
+          "output_files_sha256",
+          "prior_journal_sha256",
+          "journal_sha256",
+          "output_sha256",
+          "output_bytes",
+          "retained_checkpoint_count",
+          "parse_cache_before"
+        ],
+        "reference_values": {
+          "candidate_sha256": "77856d153314239086834c7b996d53eb2579b3cc81f7d67af7aff9c4e6ab4f2d",
+          "source_revision": "2ee5704f7a31e93ca32f23617f7f862b3294a6ca8b70fb48dac8721491dbe6a8",
+          "source_files_sha256": {
+            "autosave.json": "a9d7173cf43534e255fd930127304160c3ad351411f40eecc7d953b68477ff3b",
+            "autosave.json.bak": "968c4e39a2dd77219d76f6746a754ec86db42b9c8ef1d96f40d5a1722a4dd365",
+            "desktop-continuation-operations.json": "faa788a61f48391f6bf48aff22b233db8acc8ecbf1746ff3a30dd31d57296628",
+            "desktop-continuation-operations.json.bak": "0c77c23f9786e9342293a971478c046b39e3727e4a09538192691daf7d704b57",
+            "slot_1.json": "2ee5704f7a31e93ca32f23617f7f862b3294a6ca8b70fb48dac8721491dbe6a8"
+          },
+          "output_files_sha256": {
+            "autosave.json": "a9d7173cf43534e255fd930127304160c3ad351411f40eecc7d953b68477ff3b",
+            "autosave.json.bak": "968c4e39a2dd77219d76f6746a754ec86db42b9c8ef1d96f40d5a1722a4dd365",
+            "desktop-continuation-operations.json": "faa788a61f48391f6bf48aff22b233db8acc8ecbf1746ff3a30dd31d57296628",
+            "desktop-continuation-operations.json.bak": "0c77c23f9786e9342293a971478c046b39e3727e4a09538192691daf7d704b57",
+            "slot_1.json": "63db83c9565b8079d7881b351a09d725beea122d66e825bb80e62c7282c8fbd6"
+          },
+          "prior_journal_sha256": "4c6d0c18fa0cefba65092067024d2d0c0c8e76b63025c94d2d23dfe011ea7e34",
+          "journal_sha256": "00a9083d2fdf2edbe209593fdcc7b4ca71879c075c4fadfd147378ba864312b8",
+          "output_sha256": "63db83c9565b8079d7881b351a09d725beea122d66e825bb80e62c7282c8fbd6",
+          "output_bytes": 1922282,
+          "retained_checkpoint_count": 66,
+          "parse_cache_before": [
+            {
+              "bytes": 1872441,
+              "sha256": "2ee5704f7a31e93ca32f23617f7f862b3294a6ca8b70fb48dac8721491dbe6a8"
+            }
+          ]
+        },
+        "summary_recomputed": true
+      },
+      "pairs": [
+        {
+          "pair": 1,
+          "order": [
+            "baseline",
+            "candidate"
+          ],
+          "baseline_prepare_us": 2232027,
+          "candidate_prepare_us": 2207947,
+          "baseline_commit_us": 2362131,
+          "candidate_commit_us": 2377982,
+          "candidate_minus_baseline_us": -24080,
+          "baseline_strict_validation_calls": 1,
+          "candidate_strict_validation_calls": 1
+        },
+        {
+          "pair": 2,
+          "order": [
+            "candidate",
+            "baseline"
+          ],
+          "baseline_prepare_us": 2229143,
+          "candidate_prepare_us": 2216885,
+          "baseline_commit_us": 2348283,
+          "candidate_commit_us": 2361615,
+          "candidate_minus_baseline_us": -12258,
+          "baseline_strict_validation_calls": 1,
+          "candidate_strict_validation_calls": 1
+        },
+        {
+          "pair": 3,
+          "order": [
+            "baseline",
+            "candidate"
+          ],
+          "baseline_prepare_us": 2236101,
+          "candidate_prepare_us": 2199277,
+          "baseline_commit_us": 2360112,
+          "candidate_commit_us": 2342076,
+          "candidate_minus_baseline_us": -36824,
+          "baseline_strict_validation_calls": 1,
+          "candidate_strict_validation_calls": 1
+        },
+        {
+          "pair": 4,
+          "order": [
+            "candidate",
+            "baseline"
+          ],
+          "baseline_prepare_us": 2230104,
+          "candidate_prepare_us": 2223966,
+          "baseline_commit_us": 2387632,
+          "candidate_commit_us": 2363798,
+          "candidate_minus_baseline_us": -6138,
+          "baseline_strict_validation_calls": 1,
+          "candidate_strict_validation_calls": 1
+        },
+        {
+          "pair": 5,
+          "order": [
+            "baseline",
+            "candidate"
+          ],
+          "baseline_prepare_us": 2245465,
+          "candidate_prepare_us": 2231479,
+          "baseline_commit_us": 2358886,
+          "candidate_commit_us": 2362501,
+          "candidate_minus_baseline_us": -13986,
+          "baseline_strict_validation_calls": 1,
+          "candidate_strict_validation_calls": 1
+        },
+        {
+          "pair": 6,
+          "order": [
+            "candidate",
+            "baseline"
+          ],
+          "baseline_prepare_us": 2239360,
+          "candidate_prepare_us": 2230624,
+          "baseline_commit_us": 2474264,
+          "candidate_commit_us": 2392766,
+          "candidate_minus_baseline_us": -8736,
+          "baseline_strict_validation_calls": 1,
+          "candidate_strict_validation_calls": 1
+        },
+        {
+          "pair": 7,
+          "order": [
+            "baseline",
+            "candidate"
+          ],
+          "baseline_prepare_us": 2246567,
+          "candidate_prepare_us": 2210806,
+          "baseline_commit_us": 2355962,
+          "candidate_commit_us": 2388634,
+          "candidate_minus_baseline_us": -35761,
+          "baseline_strict_validation_calls": 1,
+          "candidate_strict_validation_calls": 1
+        },
+        {
+          "pair": 8,
+          "order": [
+            "candidate",
+            "baseline"
+          ],
+          "baseline_prepare_us": 2216672,
+          "candidate_prepare_us": 2221129,
+          "baseline_commit_us": 2359316,
+          "candidate_commit_us": 2390050,
+          "candidate_minus_baseline_us": 4457,
+          "baseline_strict_validation_calls": 1,
+          "candidate_strict_validation_calls": 1
+        }
+      ],
+      "interpretation": "Seven of eight candidate preparations were faster. Median paired reduction is 13.122 ms; one candidate sample was 4.457 ms slower. This modest local improvement does not eliminate multi-second save/load latency and does not establish a frame-time guarantee."
+    },
+    "ordered_checkpoint_trace": {
+      "path": "evidence/beads_cloud_review/performance/run57-checkpoint-trace.json",
+      "sha256": "ae3de68bae8c2876f712a08cce537020c26ffe460562c189a68ab874e9e51309",
+      "record_count": 204,
+      "family_counts": {
+        "checkpoint": 190,
+        "consequence": 7,
+        "day": 7
+      },
+      "checkpoint_scope_counts": {
+        "save_checkpoint_prepare": 95,
+        "save_checkpoint": 95
+      },
+      "log_line_unique_and_strictly_increasing": true,
+      "interpretation_limit": "Inclusive nested scopes overlap. Do not sum parent and child scopes or infer causation solely from adjacency; audit synchronous source calls before attributing a checkpoint to a first reveal."
+    },
+    "latency_acceptance": "Not established. Day7 first reveal synchronous work 1.368389 s, manual save 3.802030 s, and cold Login 9.018146 s remain measured performance risks. These observations are not matched comparisons against other runs.",
+    "day7_first_reveal_attribution": {
+      "trace_log_lines": {
+        "day6_boundary": 1795,
+        "checkpoint_prepare": 2050,
+        "checkpoint_commit": 2051,
+        "first_reveal_durable": 2052,
+        "day7_boundary": 2105
+      },
+      "method": "Unique first-reveal event inside the Day6/Day7 boundary interval, matched to its nested pre_board prepare and checkpoint commit through verified synchronous coordinator/desktop-port/checkpoint-port calls. All seven daily triples were checked.",
+      "benchmark_signal_call_us": 1368389,
+      "coordinator_elapsed_us": 1335736,
+      "coordinator_checkpoint_prepare_us": 333060,
+      "coordinator_checkpoint_commit_us": 980392,
+      "remaining_coordinator_us": 22284,
+      "outside_coordinator_within_benchmark_us": 32653,
+      "checkpoint_share_of_coordinator_percent": 98.3317,
+      "nested_port_prepare": {
+        "elapsed_us": 332581,
+        "phases_us": {
+          "backup_us": 21550,
+          "document_build_us": 287697,
+          "journal_prepare_us": 15474,
+          "run_snapshot_build_us": 7439,
+          "view_capture_us": 406
+        },
+        "unassigned_remainder_us": 15
+      },
+      "nested_port_commit": {
+        "elapsed_us": 967500,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:199",
+        "document_bytes": 1887618,
+        "history_bundles": 66,
+        "journal_spliced": false,
+        "phases_us": {
+          "journal_proof_us": 262795,
+          "journal_us": 28227,
+          "outgoing_schema_us": 303212,
+          "reread_us": 12832,
+          "reread_validate_us": 2713,
+          "splice_us": 255100,
+          "stringify_us": 5576,
+          "write_atomic_us": 63859
+        },
+        "unassigned_remainder_us": 33186
+      },
+      "source_paths": [
+        "scripts/application/minesweeper/MinesweeperRoundCoordinator.gd",
+        "scripts/application/minesweeper/SaveManagerDesktopBoardPort.gd",
+        "scripts/application/run/SaveManagerCheckpointPort.gd",
+        "tests/manual/benchmark_seven_day_history.gd",
+        "tools/testing/Invoke-SevenDayHistoryPerformance.ps1"
+      ],
+      "interpretation": [
+        "Nonoverlapping reconciliation: benchmark = outside coordinator + remaining coordinator + coordinator checkpoint prepare + coordinator checkpoint commit. Nested port timings must not be added again.",
+        "On this non-spliced event, splice_us measures fallback whole-document serialization, not a successful splice. Initial stringify_us includes the splice attempt.",
+        "journal_proof_us combines current-bundle proof comparison/remembering and retained-history proof learning; it is not exclusively history proof learning.",
+        "Port residuals are unassigned and include unseparated operations; do not label them pure disk, parser or copying time.",
+        "One synthetic retained-history observation identifies measured costs; it does not establish a first-reveal speedup or hardware/frame-time acceptance."
+      ],
+      "next_bounded_measurement": "Subdivide document build, outgoing normalization/schema and journal proof phases, including proof hit/miss and successful proof-learning counts. Preserve validation, equality, durability and every retention obligation."
+    }
+  },
+  "windows_export": {
+    "job_id": 107035187404,
+    "ok": true,
+    "commit": "efcc6d210896389641a270c0c2ee9e0e5074404c",
+    "engine": "4.6.3.stable",
+    "runtime_data_files_verified": 111,
+    "templates_sha256": "3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8",
+    "executable_sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+    "pck_sha256": "93d128880eb21cc12a95581ea5f9527068f016fb6ff7e728eafb4a30fd9b6b66",
+    "archive": {
+      "bytes": 98764927,
+      "file": "DWM-windows-x86_64-validation.zip",
+      "sha256": "fb9697f5d720b985a6e3127bec60e59619736821ea94f00b7543fac382af59fc"
+    }
+  },
+  "rendered_ui": {
+    "job_id": 107035187410,
+    "platform": "Linux software OpenGL / X11",
+    "scopes": [
+      {
+        "marker": "DESKTOP_SCALING_RENDER_VERIFIED",
+        "ok": true,
+        "captures": 38,
+        "scope": "Production desktop scaling and synthetic UI records"
+      },
+      {
+        "marker": "DELIVERY_DIALOGUE_RENDER_VERIFIED",
+        "ok": true,
+        "captures": 25,
+        "scope": "synthetic public board and dialogue fixtures; production Desktop, split dating artwork and challenge host, installed Dialogic"
+      },
+      {
+        "marker": "ANGELA_OVERLAY_RENDER_VERIFIED",
+        "ok": true,
+        "captures": 10,
+        "scope": "production Main/StatHud and authored artwork; synthetic public stat values"
+      },
+      {
+        "marker": "JAPANESE_KOREAN_UI_RENDER_VERIFIED",
+        "ok": true,
+        "captures": 30,
+        "scope": "Real production UI, active locale/profile providers and Fusion fonts; synthetic shop/contact/board records, empty Gallery, English dialogue fixture. No player commands."
+      },
+      {
+        "marker": "FONT_CHOICES_RENDER_VERIFIED",
+        "ok": true,
+        "captures": 30,
+        "scope": "Real Settings selector, Profile/Localization and production desktop, Gallery and witnessed captions. Synthetic public board and English dialogue; no player commands."
+      }
+    ],
+    "startup_logout": "Four capture startup/day/logout journey passed."
+  },
+  "jobs": [
+    {
+      "id": 107034492509,
+      "name": "Windows / public API surface contracts",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/job/107034492509"
+    },
+    {
+      "id": 107035187352,
+      "name": "Windows / paired checkpoint performance",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/job/107035187352"
+    },
+    {
+      "id": 107035187404,
+      "name": "Windows / exported release startup",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/job/107035187404"
+    },
+    {
+      "id": 107035187410,
+      "name": "Rendered desktop and dialogue / Linux software OpenGL",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/job/107035187410"
+    },
+    {
+      "id": 107035187422,
+      "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/job/107035187422"
+    },
+    {
+      "id": 107035187498,
+      "name": "Windows / settings",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/job/107035187498"
+    },
+    {
+      "id": 107035187504,
+      "name": "Windows / new_account",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/job/107035187504"
+    },
+    {
+      "id": 107035187513,
+      "name": "Windows / minesweeper",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/job/107035187513"
+    },
+    {
+      "id": 107035187514,
+      "name": "Windows / persistence",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/job/107035187514"
+    },
+    {
+      "id": 107035187526,
+      "name": "Windows / localization",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/job/107035187526"
+    },
+    {
+      "id": 107035187527,
+      "name": "Windows / desktop",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/job/107035187527"
+    },
+    {
+      "id": 107035187532,
+      "name": "Windows / audio",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/job/107035187532"
+    },
+    {
+      "id": 107035187540,
+      "name": "Windows / reading_delivery",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/job/107035187540"
+    },
+    {
+      "id": 107035187557,
+      "name": "Windows / shop",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/job/107035187557"
+    },
+    {
+      "id": 107035187565,
+      "name": "Windows / dating",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/job/107035187565"
+    },
+    {
+      "id": 107035187584,
+      "name": "Windows / endings",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/job/107035187584"
+    },
+    {
+      "id": 107035880080,
+      "name": "Windows / seven-day retained history",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/job/107035880080"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 10731945610,
+      "name": "ui-literal-audit-35814988598-1",
+      "expired": false,
+      "expires_at": "2026-09-30T03:43:52Z",
+      "sha256": "sha256:e56c2efa9f44266e890d3e2b8ff127c601de98895684d2649a11268f56708d7f",
+      "size_in_bytes": 28739,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/artifacts/10731945610"
+    },
+    {
+      "id": 10731935497,
+      "name": "playable-journeys-35814988598-1",
+      "expired": false,
+      "expires_at": "2026-09-30T03:42:22Z",
+      "sha256": "sha256:269ee2675c43d39ca993feccd2407de5874b6a631924237c4453e2b476976483",
+      "size_in_bytes": 7842773,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/artifacts/10731935497"
+    },
+    {
+      "id": 10731925595,
+      "name": "font-choices-render-35814988598-1",
+      "expired": false,
+      "expires_at": "2026-09-30T03:43:30Z",
+      "sha256": "sha256:9e694768410099fdfc2235d501ce3efff266572ca1c30ef063904af3aedbdcd9",
+      "size_in_bytes": 6313444,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/artifacts/10731925595"
+    },
+    {
+      "id": 10731825643,
+      "name": "windows-shop-35814988598-1",
+      "expired": false,
+      "expires_at": "2026-09-30T03:41:08Z",
+      "sha256": "sha256:dd68d90f5d170a76b17abbd61556dcebcd59406178e1f1fa8cfec3cf3ee979a7",
+      "size_in_bytes": 65101,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/artifacts/10731825643"
+    },
+    {
+      "id": 10731800967,
+      "name": "checkpoint-payloads-35814988598",
+      "expired": false,
+      "expires_at": "2026-09-30T03:43:11Z",
+      "sha256": "sha256:f79ef5bcb8343c3279bfa5b47ca6267fd29f10b10df7a477924257277f3e5215",
+      "size_in_bytes": 53953,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/artifacts/10731800967"
+    },
+    {
+      "id": 10731740148,
+      "name": "cloud-speech-rendered-journeys-35814988598-1",
+      "expired": false,
+      "expires_at": "2026-09-30T03:40:21Z",
+      "sha256": "sha256:9a09faa4d0e25d1811fd22d99396b9499b579edac88e2fce83808bcbe3605cc5",
+      "size_in_bytes": 385976,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/artifacts/10731740148"
+    },
+    {
+      "id": 10731695698,
+      "name": "public-surfaces-35814988598-1",
+      "expired": false,
+      "expires_at": "2026-09-30T03:39:44Z",
+      "sha256": "sha256:ad80e75e1651414e65754e32622f7f6a9761f7f7b571287dc79ecf951600590d",
+      "size_in_bytes": 134322,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/artifacts/10731695698"
+    },
+    {
+      "id": 10731675970,
+      "name": "windows-endings-35814988598-1",
+      "expired": false,
+      "expires_at": "2026-09-30T03:41:02Z",
+      "sha256": "sha256:772a112a966d583cdb3c6d66e4fbb8304dc00279bbae3e45dd2ebd0b881d27f2",
+      "size_in_bytes": 74675,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/artifacts/10731675970"
+    },
+    {
+      "id": 10731665877,
+      "name": "windows-audio-35814988598-1",
+      "expired": false,
+      "expires_at": "2026-09-30T03:41:01Z",
+      "sha256": "sha256:c2ca2e7929100d716bd5a336bbd89bfc47144fece5f33a2428a46983408309c1",
+      "size_in_bytes": 21870,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/artifacts/10731665877"
+    },
+    {
+      "id": 10731586187,
+      "name": "japanese-korean-ui-render-35814988598-1",
+      "expired": false,
+      "expires_at": "2026-09-30T03:42:52Z",
+      "sha256": "sha256:5d17637be40af48408457212b25bee3586d743cf6c3d8566329995fd94ecc8d9",
+      "size_in_bytes": 7058507,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/artifacts/10731586187"
+    },
+    {
+      "id": 10731571095,
+      "name": "delivery-dialogue-render-35814988598-1",
+      "expired": false,
+      "expires_at": "2026-09-30T03:42:09Z",
+      "sha256": "sha256:2ee16a371b311e9d8cf213db64346b88214ee8e5b47aac44e7e2646980296f3f",
+      "size_in_bytes": 15180746,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/artifacts/10731571095"
+    },
+    {
+      "id": 10731561313,
+      "name": "checkpoint-performance-35814988598-1",
+      "expired": false,
+      "expires_at": "2026-09-30T03:43:12Z",
+      "sha256": "sha256:18bceaddffec774072aa60bebc512f32d6ecce08ece6b23019360f11ac6baedb",
+      "size_in_bytes": 136062,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/artifacts/10731561313"
+    },
+    {
+      "id": 10731556159,
+      "name": "windows-reading_delivery-35814988598-1",
+      "expired": false,
+      "expires_at": "2026-09-30T03:42:23Z",
+      "sha256": "sha256:aae0757ab3e4d76d0db8ec1f87b405fdeca76d9d505f44efcd6e4f4347af4660",
+      "size_in_bytes": 92254,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/artifacts/10731556159"
+    },
+    {
+      "id": 10731516431,
+      "name": "windows-settings-35814988598-1",
+      "expired": false,
+      "expires_at": "2026-09-30T03:44:18Z",
+      "sha256": "sha256:0049884520223705a32e131ae1f0e84602f333cdfc982b24b17120299f5d271a",
+      "size_in_bytes": 2412413,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/artifacts/10731516431"
+    },
+    {
+      "id": 10731501090,
+      "name": "windows-export-35814988598-1",
+      "expired": false,
+      "expires_at": "2026-09-30T03:41:21Z",
+      "sha256": "sha256:ebcb2c09070a6cad6992dc91efcd91e42fcb9a8816673990bb139c4153511585",
+      "size_in_bytes": 98715979,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/artifacts/10731501090"
+    },
+    {
+      "id": 10731406476,
+      "name": "windows-desktop-35814988598-1",
+      "expired": false,
+      "expires_at": "2026-09-30T03:42:48Z",
+      "sha256": "sha256:73bc9b45160ce8ea0ff06b870284444a7f239ca8e661b023b6609887e79cdf27",
+      "size_in_bytes": 285645,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/artifacts/10731406476"
+    },
+    {
+      "id": 10731406427,
+      "name": "angela-overlay-render-35814988598-1",
+      "expired": false,
+      "expires_at": "2026-09-30T03:42:22Z",
+      "sha256": "sha256:7c2c48a9f473263c8f0f9a284a6af73dc419e7a2c8f3b3061fea0cc73efa9aea",
+      "size_in_bytes": 2836885,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/artifacts/10731406427"
+    },
+    {
+      "id": 10731376429,
+      "name": "windows-minesweeper-35814988598-1",
+      "expired": false,
+      "expires_at": "2026-09-30T03:42:12Z",
+      "sha256": "sha256:bae8dca27d77f34ce3ef4f3458fba005f394d0903ae528eb00ee112411f6f8d2",
+      "size_in_bytes": 166101,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/artifacts/10731376429"
+    },
+    {
+      "id": 10731286709,
+      "name": "playable-startup-render-35814988598-1",
+      "expired": false,
+      "expires_at": "2026-09-30T03:43:42Z",
+      "sha256": "sha256:0456317c7efc4bda78aef2649e0a614611ce6d19409e107fd05a4f213032948c",
+      "size_in_bytes": 1049957,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/artifacts/10731286709"
+    },
+    {
+      "id": 10731282241,
+      "name": "seven-day-history-35814988598-1",
+      "expired": false,
+      "expires_at": "2026-09-30T04:00:21Z",
+      "sha256": "sha256:1e47d8fa2a262bb942859ae3348a2f58fe1b7055e6ff727e0ce074d9d5609af2",
+      "size_in_bytes": 299113,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/artifacts/10731282241"
+    },
+    {
+      "id": 10731256478,
+      "name": "windows-persistence-35814988598-1",
+      "expired": false,
+      "expires_at": "2026-09-30T03:41:31Z",
+      "sha256": "sha256:865555ec04f0b8b31977c231e6705505badac7b515546158cfdf0f0ad5b20715",
+      "size_in_bytes": 116533,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/artifacts/10731256478"
+    },
+    {
+      "id": 10731176155,
+      "name": "windows-localization-35814988598-1",
+      "expired": false,
+      "expires_at": "2026-09-30T03:42:03Z",
+      "sha256": "sha256:d64149582824a77f4d01b0c2a2c21c17a2ffbf0cf8df8993b714221cc0c2f29d",
+      "size_in_bytes": 338098,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/artifacts/10731176155"
+    },
+    {
+      "id": 10730908770,
+      "name": "windows-dating-35814988598-1",
+      "expired": false,
+      "expires_at": "2026-09-30T03:42:17Z",
+      "sha256": "sha256:d363aa7619f258f617b2b48063bec2a4e7b7c3ea30aa263cd8118a03e57e7adf",
+      "size_in_bytes": 566415,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/artifacts/10730908770"
+    },
+    {
+      "id": 10730684146,
+      "name": "desktop-scaling-render-35814988598-1",
+      "expired": false,
+      "expires_at": "2026-09-30T03:41:28Z",
+      "sha256": "sha256:c0426f91e776005e6b8954d29c534d1fd81f0a39328a583fa8ee5088bf668174",
+      "size_in_bytes": 11244807,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/artifacts/10730684146"
+    },
+    {
+      "id": 10730354323,
+      "name": "cloud-speech-rendered-desktop-35814988598-1",
+      "expired": false,
+      "expires_at": "2026-09-30T03:40:18Z",
+      "sha256": "sha256:cca5ddcc06945cbc7ee79000cff0132183f29d24b7f5b82afa7ee8253688be99",
+      "size_in_bytes": 387596,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/artifacts/10730354323"
+    },
+    {
+      "id": 10730299720,
+      "name": "windows-new_account-35814988598-1",
+      "expired": false,
+      "expires_at": "2026-09-30T03:41:48Z",
+      "sha256": "sha256:1a793aeabc79b644ea68c054e722c75642178fea8ccf2411209c79736696f932",
+      "size_in_bytes": 237764,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/artifacts/10730299720"
+    }
+  ],
+  "limits": [
+    "Live run metadata pins the source head and base; checkout logs, fixture census and export receipts separately identify the tested merge checkout. Git commit metadata confirms both merge parents and the identical source/merge tree.",
+    "CLOUD_GUT_RESULT records are parsed JUnit summaries; totals are test/script executions across suites, not a deduplicated repository-wide census.",
+    "The public-surface job checks committed inventories without regeneration. Emitted transport payloads were independently decoded, checked for valid JSON and errors, and matched byte-for-byte against git show at the tested source head.",
+    "Preparation ablation was independently checked for exactly eight alternating pairs, sixteen samples with one strict validation each, expected baseline/candidate source hashes, ten identical invariant fields across every sample, and recomputed medians. Seven candidate samples were faster and one was slower; the median paired reduction was 13.122 ms.",
+    "The ordered checkpoint trace contains 204 selected records with original log-line order. Inclusive parent and child phase scopes overlap; source-call verification is required before assigning checkpoint phases to an individual first reveal.",
+    "Rendered UI and full journeys run on Linux software OpenGL. Export startup runs on Windows; this is not full native Windows rendered or accessibility validation.",
+    "No overall latency acceptance or broad Beads closure is claimed.",
+    "No authentication, account permissions, signed download URLs or runner credential metadata is retained."
+  ]
+}

@@ -66,7 +66,7 @@ Restore MUST prepare every participant, apply silently, roll back all applied pa
 
 ## Rule req.save.migration
 
-Legacy saves MUST migrate through explicit schema versions, reject active Day 8, obey the explicit Schedule migration boundary, and restore the nearest earlier compatible checkpoint only for failure classes that lawfully permit checkpoint fallback.
+Under the owner-confirmed [2026-09-29 unshipped development-save policy](../../docs/design/2026-09-29-unshipped-development-save-policy.md), support and migration for obsolete development Run/Profile formats are optional. An incompatible successor MUST use an explicit schema/contract boundary and reject unsupported formats without silently reinterpreting their contents. Any migration retained for supported formats MUST use explicit schema versions and obey the explicit Schedule migration boundary. Supported loads MUST reject active Day 8 and restore the nearest earlier compatible checkpoint only for failure classes that lawfully permit checkpoint fallback. Earlier checkpoints within a supported format retain all current save, Profile-history and recovery guarantees.
 
 ## Rule req.save.board_ledger
 

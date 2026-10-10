@@ -1,0 +1,508 @@
+{
+	"checks": 390,
+	"collapsed_counts": [
+		0,
+		1
+	],
+	"failures": [],
+	"fixture_only_cues": true,
+	"logical_size": [
+		1280,
+		720
+	],
+	"ok": true,
+	"physical_size": [
+		640,
+		360
+	],
+	"requested_tuples": 18,
+	"samples": [
+		{
+			"cue_line_counts": [
+				1,
+				1
+			],
+			"file": "en-100-AfterHours.png",
+			"file_operations": 113,
+			"focus_perimeter_enclosed": true,
+			"inspection_writes": 0,
+			"locale": "en",
+			"long_fixture_copy": false,
+			"palette": "AfterHours",
+			"paper_content_extent": 304.0,
+			"paper_scroll_offset": 0.0,
+			"percent": 100,
+			"plane_and_focus_pixels": true,
+			"profile_revision": 7,
+			"replay_starts": 0,
+			"row_rect": [
+				400.0,
+				248.0,
+				504.0,
+				80.0
+			],
+			"selected_cue": "TEST paper specimen A",
+			"selected_signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e"
+		},
+		{
+			"cue_line_counts": [
+				1,
+				1
+			],
+			"file": "en-100-Midnight.png",
+			"file_operations": 147,
+			"focus_perimeter_enclosed": true,
+			"inspection_writes": 0,
+			"locale": "en",
+			"long_fixture_copy": false,
+			"palette": "Midnight",
+			"paper_content_extent": 304.0,
+			"paper_scroll_offset": 0.0,
+			"percent": 100,
+			"plane_and_focus_pixels": true,
+			"profile_revision": 9,
+			"replay_starts": 0,
+			"row_rect": [
+				400.0,
+				248.0,
+				504.0,
+				80.0
+			],
+			"selected_cue": "TEST paper specimen A",
+			"selected_signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e"
+		},
+		{
+			"cue_line_counts": [
+				4,
+				4
+			],
+			"file": "en-125-AfterHours.png",
+			"file_operations": 181,
+			"focus_perimeter_enclosed": true,
+			"inspection_writes": 0,
+			"locale": "en",
+			"long_fixture_copy": false,
+			"palette": "AfterHours",
+			"paper_content_extent": 412.0,
+			"paper_scroll_offset": 0.0,
+			"percent": 125,
+			"plane_and_focus_pixels": true,
+			"profile_revision": 11,
+			"replay_starts": 0,
+			"row_rect": [
+				400.0,
+				308.0,
+				504.0,
+				128.0
+			],
+			"selected_cue": "TEST paper specimen TEST paper specimen TEST paper specimen TEST paper specimen TEST paper specimen TEST paper specimen TEST paper specimen A",
+			"selected_signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e"
+		},
+		{
+			"cue_line_counts": [
+				4,
+				4
+			],
+			"file": "en-125-Midnight.png",
+			"file_operations": 215,
+			"focus_perimeter_enclosed": true,
+			"inspection_writes": 0,
+			"locale": "en",
+			"long_fixture_copy": false,
+			"palette": "Midnight",
+			"paper_content_extent": 412.0,
+			"paper_scroll_offset": 0.0,
+			"percent": 125,
+			"plane_and_focus_pixels": true,
+			"profile_revision": 13,
+			"replay_starts": 0,
+			"row_rect": [
+				400.0,
+				308.0,
+				504.0,
+				128.0
+			],
+			"selected_cue": "TEST paper specimen TEST paper specimen TEST paper specimen TEST paper specimen TEST paper specimen TEST paper specimen TEST paper specimen A",
+			"selected_signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e"
+		},
+		{
+			"cue_line_counts": [
+				1,
+				1
+			],
+			"file": "en-150-AfterHours.png",
+			"file_operations": 249,
+			"focus_perimeter_enclosed": true,
+			"inspection_writes": 0,
+			"locale": "en",
+			"long_fixture_copy": true,
+			"palette": "AfterHours",
+			"paper_content_extent": 584.0,
+			"paper_scroll_offset": 72.0,
+			"percent": 150,
+			"plane_and_focus_pixels": true,
+			"profile_revision": 15,
+			"replay_starts": 0,
+			"row_rect": [
+				400.0,
+				456.0,
+				504.0,
+				80.0
+			],
+			"selected_cue": "TEST paper specimen A",
+			"selected_signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e"
+		},
+		{
+			"cue_line_counts": [
+				1,
+				1
+			],
+			"file": "en-150-Midnight.png",
+			"file_operations": 283,
+			"focus_perimeter_enclosed": true,
+			"inspection_writes": 0,
+			"locale": "en",
+			"long_fixture_copy": true,
+			"palette": "Midnight",
+			"paper_content_extent": 584.0,
+			"paper_scroll_offset": 72.0,
+			"percent": 150,
+			"plane_and_focus_pixels": true,
+			"profile_revision": 17,
+			"replay_starts": 0,
+			"row_rect": [
+				400.0,
+				456.0,
+				504.0,
+				80.0
+			],
+			"selected_cue": "TEST paper specimen A",
+			"selected_signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e"
+		},
+		{
+			"cue_line_counts": [
+				1,
+				1
+			],
+			"file": "zh-CN-100-AfterHours.png",
+			"file_operations": 317,
+			"focus_perimeter_enclosed": true,
+			"inspection_writes": 0,
+			"locale": "zh_CN",
+			"long_fixture_copy": false,
+			"palette": "AfterHours",
+			"paper_content_extent": 304.0,
+			"paper_scroll_offset": 0.0,
+			"percent": 100,
+			"plane_and_focus_pixels": true,
+			"profile_revision": 19,
+			"replay_starts": 0,
+			"row_rect": [
+				400.0,
+				248.0,
+				504.0,
+				80.0
+			],
+			"selected_cue": "TEST 纸面样本 A",
+			"selected_signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e"
+		},
+		{
+			"cue_line_counts": [
+				1,
+				1
+			],
+			"file": "zh-CN-100-Midnight.png",
+			"file_operations": 351,
+			"focus_perimeter_enclosed": true,
+			"inspection_writes": 0,
+			"locale": "zh_CN",
+			"long_fixture_copy": false,
+			"palette": "Midnight",
+			"paper_content_extent": 304.0,
+			"paper_scroll_offset": 0.0,
+			"percent": 100,
+			"plane_and_focus_pixels": true,
+			"profile_revision": 21,
+			"replay_starts": 0,
+			"row_rect": [
+				400.0,
+				248.0,
+				504.0,
+				80.0
+			],
+			"selected_cue": "TEST 纸面样本 A",
+			"selected_signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e"
+		},
+		{
+			"cue_line_counts": [
+				3,
+				3
+			],
+			"file": "zh-CN-125-AfterHours.png",
+			"file_operations": 385,
+			"focus_perimeter_enclosed": true,
+			"inspection_writes": 0,
+			"locale": "zh_CN",
+			"long_fixture_copy": false,
+			"palette": "AfterHours",
+			"paper_content_extent": 356.0,
+			"paper_scroll_offset": 0.0,
+			"percent": 125,
+			"plane_and_focus_pixels": true,
+			"profile_revision": 23,
+			"replay_starts": 0,
+			"row_rect": [
+				400.0,
+				280.0,
+				504.0,
+				100.0
+			],
+			"selected_cue": "TEST 纸面样本 TEST 纸面样本 TEST 纸面样本 TEST 纸面样本 TEST 纸面样本 TEST 纸面样本 TEST 纸面样本 A",
+			"selected_signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e"
+		},
+		{
+			"cue_line_counts": [
+				3,
+				3
+			],
+			"file": "zh-CN-125-Midnight.png",
+			"file_operations": 419,
+			"focus_perimeter_enclosed": true,
+			"inspection_writes": 0,
+			"locale": "zh_CN",
+			"long_fixture_copy": false,
+			"palette": "Midnight",
+			"paper_content_extent": 356.0,
+			"paper_scroll_offset": 0.0,
+			"percent": 125,
+			"plane_and_focus_pixels": true,
+			"profile_revision": 25,
+			"replay_starts": 0,
+			"row_rect": [
+				400.0,
+				280.0,
+				504.0,
+				100.0
+			],
+			"selected_cue": "TEST 纸面样本 TEST 纸面样本 TEST 纸面样本 TEST 纸面样本 TEST 纸面样本 TEST 纸面样本 TEST 纸面样本 A",
+			"selected_signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e"
+		},
+		{
+			"cue_line_counts": [
+				1,
+				1
+			],
+			"file": "zh-CN-150-AfterHours.png",
+			"file_operations": 453,
+			"focus_perimeter_enclosed": true,
+			"inspection_writes": 0,
+			"locale": "zh_CN",
+			"long_fixture_copy": true,
+			"palette": "AfterHours",
+			"paper_content_extent": 520.0,
+			"paper_scroll_offset": 8.0,
+			"percent": 150,
+			"plane_and_focus_pixels": true,
+			"profile_revision": 27,
+			"replay_starts": 0,
+			"row_rect": [
+				400.0,
+				456.0,
+				504.0,
+				80.0
+			],
+			"selected_cue": "TEST 纸面样本 A",
+			"selected_signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e"
+		},
+		{
+			"cue_line_counts": [
+				1,
+				1
+			],
+			"file": "zh-CN-150-Midnight.png",
+			"file_operations": 487,
+			"focus_perimeter_enclosed": true,
+			"inspection_writes": 0,
+			"locale": "zh_CN",
+			"long_fixture_copy": true,
+			"palette": "Midnight",
+			"paper_content_extent": 520.0,
+			"paper_scroll_offset": 8.0,
+			"percent": 150,
+			"plane_and_focus_pixels": true,
+			"profile_revision": 29,
+			"replay_starts": 0,
+			"row_rect": [
+				400.0,
+				456.0,
+				504.0,
+				80.0
+			],
+			"selected_cue": "TEST 纸面样本 A",
+			"selected_signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e"
+		},
+		{
+			"cue_line_counts": [
+				1,
+				1
+			],
+			"file": "zh-HK-100-AfterHours.png",
+			"file_operations": 521,
+			"focus_perimeter_enclosed": true,
+			"inspection_writes": 0,
+			"locale": "zh_HK",
+			"long_fixture_copy": false,
+			"palette": "AfterHours",
+			"paper_content_extent": 304.0,
+			"paper_scroll_offset": 0.0,
+			"percent": 100,
+			"plane_and_focus_pixels": true,
+			"profile_revision": 31,
+			"replay_starts": 0,
+			"row_rect": [
+				400.0,
+				248.0,
+				504.0,
+				80.0
+			],
+			"selected_cue": "TEST 紙面樣本 A",
+			"selected_signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e"
+		},
+		{
+			"cue_line_counts": [
+				1,
+				1
+			],
+			"file": "zh-HK-100-Midnight.png",
+			"file_operations": 555,
+			"focus_perimeter_enclosed": true,
+			"inspection_writes": 0,
+			"locale": "zh_HK",
+			"long_fixture_copy": false,
+			"palette": "Midnight",
+			"paper_content_extent": 304.0,
+			"paper_scroll_offset": 0.0,
+			"percent": 100,
+			"plane_and_focus_pixels": true,
+			"profile_revision": 33,
+			"replay_starts": 0,
+			"row_rect": [
+				400.0,
+				248.0,
+				504.0,
+				80.0
+			],
+			"selected_cue": "TEST 紙面樣本 A",
+			"selected_signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e"
+		},
+		{
+			"cue_line_counts": [
+				3,
+				3
+			],
+			"file": "zh-HK-125-AfterHours.png",
+			"file_operations": 589,
+			"focus_perimeter_enclosed": true,
+			"inspection_writes": 0,
+			"locale": "zh_HK",
+			"long_fixture_copy": false,
+			"palette": "AfterHours",
+			"paper_content_extent": 356.0,
+			"paper_scroll_offset": 0.0,
+			"percent": 125,
+			"plane_and_focus_pixels": true,
+			"profile_revision": 35,
+			"replay_starts": 0,
+			"row_rect": [
+				400.0,
+				280.0,
+				504.0,
+				100.0
+			],
+			"selected_cue": "TEST 紙面樣本 TEST 紙面樣本 TEST 紙面樣本 TEST 紙面樣本 TEST 紙面樣本 TEST 紙面樣本 TEST 紙面樣本 A",
+			"selected_signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e"
+		},
+		{
+			"cue_line_counts": [
+				3,
+				3
+			],
+			"file": "zh-HK-125-Midnight.png",
+			"file_operations": 623,
+			"focus_perimeter_enclosed": true,
+			"inspection_writes": 0,
+			"locale": "zh_HK",
+			"long_fixture_copy": false,
+			"palette": "Midnight",
+			"paper_content_extent": 356.0,
+			"paper_scroll_offset": 0.0,
+			"percent": 125,
+			"plane_and_focus_pixels": true,
+			"profile_revision": 37,
+			"replay_starts": 0,
+			"row_rect": [
+				400.0,
+				280.0,
+				504.0,
+				100.0
+			],
+			"selected_cue": "TEST 紙面樣本 TEST 紙面樣本 TEST 紙面樣本 TEST 紙面樣本 TEST 紙面樣本 TEST 紙面樣本 TEST 紙面樣本 A",
+			"selected_signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e"
+		},
+		{
+			"cue_line_counts": [
+				1,
+				1
+			],
+			"file": "zh-HK-150-AfterHours.png",
+			"file_operations": 657,
+			"focus_perimeter_enclosed": true,
+			"inspection_writes": 0,
+			"locale": "zh_HK",
+			"long_fixture_copy": true,
+			"palette": "AfterHours",
+			"paper_content_extent": 520.0,
+			"paper_scroll_offset": 8.0,
+			"percent": 150,
+			"plane_and_focus_pixels": true,
+			"profile_revision": 39,
+			"replay_starts": 0,
+			"row_rect": [
+				400.0,
+				456.0,
+				504.0,
+				80.0
+			],
+			"selected_cue": "TEST 紙面樣本 A",
+			"selected_signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e"
+		},
+		{
+			"cue_line_counts": [
+				1,
+				1
+			],
+			"file": "zh-HK-150-Midnight.png",
+			"file_operations": 691,
+			"focus_perimeter_enclosed": true,
+			"inspection_writes": 0,
+			"locale": "zh_HK",
+			"long_fixture_copy": true,
+			"palette": "Midnight",
+			"paper_content_extent": 520.0,
+			"paper_scroll_offset": 8.0,
+			"percent": 150,
+			"plane_and_focus_pixels": true,
+			"profile_revision": 41,
+			"replay_starts": 0,
+			"row_rect": [
+				400.0,
+				456.0,
+				504.0,
+				80.0
+			],
+			"selected_cue": "TEST 紙面樣本 A",
+			"selected_signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e"
+		}
+	],
+	"scope": "Mounted Gallery with real owners and noncanonical TEST cues. Viewport keyboard injection and renderer pixels; no OS keyboard, UIA, authored production cue completeness, or production cutover claim."
+}

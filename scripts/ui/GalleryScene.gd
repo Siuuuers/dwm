@@ -7,6 +7,7 @@ const PROFILE_SCHEMA := preload("res://scripts/profile/ProfileSchema.gd")
 const PRESENTATION := preload("res://scripts/ui/gallery/GalleryTheme.gd")
 const RECORD := preload("res://scripts/ui/gallery/GalleryRecordButton.gd")
 const RECORD_PAPER := preload("res://scripts/ui/gallery/GalleryRecordPaper.gd")
+const VERSION_REGISTER := preload("res://scripts/ui/gallery/GalleryVersionRegister.gd")
 const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
 const REPLAY_OWNER := preload("res://scripts/application/ending/GalleryReplayOwner.gd")
 const PRACTICE_HOST := preload("res://scripts/ui/gallery/GalleryRehearsalHost.gd")
@@ -23,7 +24,7 @@ const STATUS_FALLBACK := {
 	"gallery.record.unavailable": "Unavailable record",
 	"gallery.archive.unavailable": "Gallery is unavailable.",
 	"gallery.empty": "No records are filed here yet.",
-	"gallery.title": "Gallery", "gallery.replay": "Replay", "button.return": "Return",
+	"gallery.title": "Gallery", "gallery.replay": "Replay", "button.return": "Return", "gallery.versions.heading": "Other witnessed versions",
 }
 
 @onready var _ending_tile_grid: GridContainer = %EndingTileGrid
@@ -46,6 +47,7 @@ var _host_return: Button
 var _replay_owner: RefCounted
 var _versions: Array[Dictionary] = []
 var _version_selector: OptionButton
+var _version_register: Control
 var _selected_version := 0
 var _replay_bridge: Object
 var _practice_game: Object
@@ -112,7 +114,7 @@ func _sync_practice_button() -> void:
 	var locale := str(_localization.get_locale()) if _localization != null else "en"
 	_practice_button.language = locale.replace("_", "-")
 	_practice_button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	_practice_button.text = "\u7df4\u7fd2" if locale.replace("_", "-") == "zh-HK" else ("\u7ec3\u4e60" if locale.begins_with("zh") else "Practice")
+	_practice_button.text = "\u7df4\u7fd2" if locale.replace("_", "-") == "zh-HK" else ("\u7ec3\u4e60" if locale.begins_with("zh") else {"ja": "練習", "ko": "연습"}.get(locale, "Practice"))
 	_practice_button.visible = _practice_game != null and _replay_bridge != null and _profile != null \
 		and _status_key != "gallery.record.unavailable" \
 		and _profile.has_method("has_completed_ending") and _profile.has_completed_ending()
@@ -122,7 +124,7 @@ func _sync_practice_button() -> void:
 	_practice_button.disabled = _replay_owner != null and _replay_owner.is_playing()
 	_practice_button.focus_mode = Control.FOCUS_ALL if _practice_button.visible and not _practice_button.disabled else Control.FOCUS_NONE
 	_ensure_record_paper()
-	_record_paper.set_actions(_version_selector, _practice_button)
+	_record_paper.set_actions(_version_selector, _practice_button, _version_register)
 	_record_paper.set_interactive(not _practice_button.disabled and _status_key != "gallery.record.unavailable")
 	refresh_return_navigation()
 
@@ -162,6 +164,12 @@ func _ensure_version_selector() -> void:
 	_version_selector.focus_entered.connect(_reveal_paper_action.bind(_version_selector))
 	_canvas.add_child(_version_selector)
 	_version_selector.hide()
+	_version_register = VERSION_REGISTER.new()
+	_version_register.name = "WitnessedVersions"
+	_version_register.item_selected.connect(_on_version_selected)
+	_version_register.row_focused.connect(_reveal_paper_action)
+	_version_register.focused_row_removed.connect(_on_paper_focus_removed)
+	_canvas.add_child(_version_register)
 
 func _ensure_record_paper() -> void:
 	if _record_paper != null: return
@@ -229,7 +237,8 @@ func close_for_title_host() -> bool:
 	return true
 
 func _ready() -> void:
-	if _localization == null: _localization = get_node_or_null("/root/LocalizationManager")
+	if _localization == null and _host_return == null:
+		_localization = get_node_or_null("/root/LocalizationManager")
 	if _localization != null and _localization.has_signal(&"locale_changed"):
 		_localization.locale_changed.connect(_on_locale_changed)
 	if _host_return == null:
@@ -258,6 +267,7 @@ func _refresh_tiles() -> void:
 	var previous_offset := _index_offset
 	var previous_paper_offset: float = _record_paper.scroll_offset if _record_paper != null else 0.0
 	var previous_focus := get_viewport().gui_get_focus_owner()
+	var previous_version_focus: String = _version_register.focused_signature_id() if _version_register != null else ""
 	var hide_focus := previous_focus != null and not previous_focus.has_focus(true)
 	var restore_focus := previous_focus != null and previous_focus.get_parent() == _ending_tile_grid
 	var retained_row: Button = null
@@ -320,8 +330,14 @@ func _refresh_tiles() -> void:
 		_clear_replay_versions()
 		_update_scroll()
 		_focus_return()
-	if retained_row == null and previous_focus in [_record_paper, _version_selector, _replay_button]:
+	if retained_row == null and (not previous_version_focus.is_empty() or previous_focus in [_record_paper, _version_selector, _replay_button]):
 		_on_paper_focus_removed(hide_focus)
+	elif not previous_version_focus.is_empty():
+		var version_row: Control = _version_register.row_for_signature(previous_version_focus)
+		if is_instance_valid(version_row) and version_row.focus_mode != Control.FOCUS_NONE:
+			version_row.grab_focus(hide_focus)
+			_record_paper.reveal_control(version_row)
+		else: _on_paper_focus_removed(hide_focus)
 	elif previous_focus == _record_paper and _record_paper.focus_mode != Control.FOCUS_NONE:
 		_record_paper.grab_focus(hide_focus)
 	elif previous_focus == _practice_button and _practice_button.visible and not _practice_button.disabled:
@@ -378,6 +394,8 @@ func _trusted_record_title(ending_id: String) -> String:
 				var phase := "After" if post else "Before"
 				if locale.replace("_", "-") == "zh-CN": phase = "\u7ed3\u675f\u540e" if post else "\u5f00\u59cb\u524d"
 				elif locale.replace("_", "-") == "zh-HK": phase = "\u7d50\u675f\u5f8c" if post else "\u958b\u59cb\u524d"
+				elif locale == "ja": phase = "終了後" if post else "開始前"
+				elif locale == "ko": phase = "종료 후" if post else "시작 전"
 				return str(caption.value.title) + " / " + phase
 	return ""
 
@@ -400,11 +418,11 @@ func _refresh_replay_selection() -> void:
 			for record: Dictionary in available.value.records: _versions.append(record.duplicate(true))
 	for index: int in range(_versions.size()):
 		var locale := str(_localization.get_locale()) if _localization != null else "en"
-		_version_selector.add_item(("版本 %d" if locale.begins_with("zh") else "Version %d") % (index + 1))
+		_version_selector.add_item(("版本 %d" if locale.begins_with("zh") else {"ja": "バージョン %d", "ko": "버전 %d"}.get(locale, "Version %d")) % (index + 1))
 		_version_selector.get_popup().set_item_language(index, locale.replace("_", "-"))
 		if str(_versions[index].signature_id) == previous: _selected_version = index
 	if not _versions.is_empty(): _version_selector.select(_selected_version)
-	_version_selector.visible = _versions.size() > 1
+	_refresh_version_register()
 	_sync_replay_controls()
 	if unavailable:
 		_retry_signature_id = ""
@@ -424,6 +442,8 @@ func _clear_replay_versions() -> void:
 	_ensure_version_selector()
 	_version_selector.clear()
 	_version_selector.hide()
+	var no_versions: Array[Dictionary] = []
+	_version_register.set_versions(no_versions, "", "en", "")
 	_refresh_record_copy()
 	_sync_replay_controls()
 
@@ -433,6 +453,7 @@ func _sync_replay_controls() -> void:
 	_replay_button.focus_mode = Control.FOCUS_NONE if _replay_button.disabled else Control.FOCUS_ALL
 	_version_selector.disabled = playing
 	_version_selector.focus_mode = Control.FOCUS_ALL if _version_selector.visible and not playing else Control.FOCUS_NONE
+	if _version_register != null: _version_register.set_interactive(not playing)
 	for row: Button in _ending_tile_grid.get_children(): row.disabled = playing
 	_sync_practice_button()
 
@@ -442,7 +463,25 @@ func _on_version_selected(index: int) -> void:
 		return
 	_retry_signature_id = ""
 	_selected_version = index
+	_version_selector.select(index)
+	_version_register.set_selected(_selected_signature_id())
 	_set_replay_status("")
+	refresh_return_navigation()
+
+func _refresh_version_register() -> void:
+	var locale := str(_localization.get_locale()) if _localization != null else "en"
+	var entries: Array[Dictionary] = []
+	# Authored-cue engineering path. Preserve current production access until the
+	# complete exact-version cue set is authored; absence never disables Replay.
+	if _versions.size() > 1:
+		for version: Dictionary in _versions:
+			var cue: String = _record_catalog.version_cue(_selected_id, str(version.signature_id), locale)
+			if cue.is_empty():
+				entries.clear()
+				break
+			entries.append({"signature_id": str(version.signature_id), "cue": cue})
+	_version_register.set_versions(entries, _selected_signature_id(), locale, _localized("gallery.versions.heading"))
+	_version_selector.visible = _versions.size() > 1 and entries.is_empty()
 
 func _selected_signature_id() -> String:
 	return str(_versions[_selected_version].signature_id) if _selected_version >= 0 and _selected_version < _versions.size() else ""
@@ -562,7 +601,7 @@ func _on_locale_changed(_locale: String) -> void:
 
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
 	if not is_visible_in_tree(): return
-	if path in [&"preferences.accessibility.text_size", &"preferences.dark_mode.available", &"preferences.dark_mode.next_run_enabled"]:
+	if path in [&"preferences.accessibility.font_style", &"preferences.accessibility.text_size", &"preferences.dark_mode.available", &"preferences.dark_mode.next_run_enabled"]:
 		_refresh_presentation()
 		_relayout_rows()
 		_set_replay_status(_status_key)
@@ -573,7 +612,7 @@ func _preference(path: StringName, fallback: Variant) -> Variant:
 func _refresh_presentation() -> void:
 	var locale := str(_localization.get_locale()) if _localization != null else "en"
 	var midnight: bool = _preference(&"preferences.dark_mode.available", false) and _preference(&"preferences.dark_mode.next_run_enabled", false)
-	theme = PRESENTATION.build(locale, int(_preference(&"preferences.accessibility.text_size", 100)), &"midnight" if midnight else &"after_hours")
+	theme = PRESENTATION.build(locale, int(_preference(&"preferences.accessibility.text_size", 100)), &"midnight" if midnight else &"after_hours", str(_preference(&"preferences.accessibility.font_style", "pixel")))
 	var text_controls: Array[Control] = [_replay_status, _replay_button]
 	if is_instance_valid(_version_selector):
 		text_controls.append(_version_selector)
@@ -631,10 +670,23 @@ func refresh_return_navigation() -> void:
 		if str(row.get_meta(&"gallery_record_id")) == _selected_id: selected_row = row
 		if not row.disabled: sequence.append(row)
 	var deeper: Array[Control] = []
-	for control: Control in [_record_paper, _version_selector, _replay_button]:
-		if is_instance_valid(control) and control.is_visible_in_tree() and control.focus_mode != Control.FOCUS_NONE:
+	# Sequential traversal visits every row. Spatial Right visits only the
+	# selected version between optional Record details and Replay.
+	for control: Control in [_record_paper, _version_selector]:
+		if _focusable(control):
 			deeper.append(control)
-	sequence.append_array(deeper)
+			sequence.append(control)
+	if is_instance_valid(_version_register) and _version_register.visible:
+		for row: Control in _version_register.get_rows():
+			if not _focusable(row): continue
+			sequence.append(row)
+			row.focus_neighbor_left = selected_row.get_path() if selected_row != null else row.get_path()
+			row.focus_neighbor_right = _replay_button.get_path() if _focusable(_replay_button) else row.get_path()
+		var selected_version_row: Control = _version_register.row_for_signature(_selected_signature_id())
+		if _focusable(selected_version_row): deeper.append(selected_version_row)
+	if _focusable(_replay_button):
+		deeper.append(_replay_button)
+		sequence.append(_replay_button)
 	if is_instance_valid(_practice_button) and _practice_button.visible and not _practice_button.disabled:
 		sequence.append(_practice_button)
 	sequence.append(_return_button)
@@ -646,6 +698,9 @@ func refresh_return_navigation() -> void:
 	for index: int in range(deeper.size()):
 		deeper[index].focus_neighbor_left = selected_row.get_path() if selected_row != null else deeper[index].get_path()
 		deeper[index].focus_neighbor_right = deeper[mini(index + 1, deeper.size() - 1)].get_path()
+
+func _focusable(control: Control) -> bool:
+	return is_instance_valid(control) and control.is_visible_in_tree() and control.focus_mode != Control.FOCUS_NONE
 
 func _reveal_focused_row() -> void:
 	var focus := get_viewport().gui_get_focus_owner()

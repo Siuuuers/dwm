@@ -1,0 +1,324 @@
+{
+  "schema_version": 1,
+  "lead_bead": "dwm-vky.14",
+  "bounded_outcome": "Ordinary Pause Backup Save from a partially revealing admitted Solo line",
+  "baseline": "b1303fd7f2b68a1050f412059e9f1fb5fb7e2838",
+  "accepted_source": "36d2fdca56c53c0d6b8571ded45e92fc6d3a9e91",
+  "tested_merge": "5792c629b9e0bfe27ce4d5b2b07837dc6a070fbf",
+  "master": "2e8602d5f098eebbab18241f370b5f4d14adf99b",
+  "runtime_implementation": "b942e942f5f52df4c96b9100890e60f62b5bf4e4",
+  "fixture_correction": "38e313ed8ad0914be230848706d11af739640fe2",
+  "final_source_delta": "Only the two cloud-generated public inventories differ from corrected fixture source.",
+  "source_provenance": {
+    "source": "36d2fdca56c53c0d6b8571ded45e92fc6d3a9e91",
+    "tested_merge": "5792c629b9e0bfe27ce4d5b2b07837dc6a070fbf",
+    "master": "2e8602d5f098eebbab18241f370b5f4d14adf99b",
+    "merge_parents": [
+      "2e8602d5f098eebbab18241f370b5f4d14adf99b",
+      "36d2fdca56c53c0d6b8571ded45e92fc6d3a9e91"
+    ],
+    "source_merge_differences": [
+      "docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md",
+      "docs/story-auditions/2026-09-26-priscilla-lavinia-day-2-portrait-dark-love-read-through.md",
+      "docs/story-auditions/2026-09-26-priscilla-lavinia-portrait-and-intimacy-working-record.md",
+      "docs/story-auditions/2026-09-27-priscilla-lavinia-session-conversation-archive.md",
+      "docs/story-auditions/Our_PL.md",
+      "docs/story-auditions/README.md",
+      "story/01-core-story-bible.md"
+    ],
+    "runtime_test_workflow_bytes_identical": true,
+    "read_only_public_inventories": [
+      {
+        "file": "game_state_surface.json",
+        "sha256": "9ec90b06d45a6f6589b07ea8f210155229ebbf7cfb3edbf577252c5849d67807",
+        "rows": 236,
+        "read_only_reproduced": true
+      },
+      {
+        "file": "save_manager_surface.json",
+        "sha256": "0704bd15cdd45e48ce7350a31ffe595efbf535a4ea5f9f030d9ae38a71900755",
+        "rows": 74,
+        "read_only_reproduced": true
+      }
+    ]
+  },
+  "final_run": {
+    "id": 36877062304,
+    "number": 98,
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/36877062304",
+    "attempt": 1,
+    "jobs": 23,
+    "accepted": true,
+    "gut": {
+      "suite_xml_count": 13,
+      "case_executions": 2154,
+      "unique_cases": 2150,
+      "script_executions": 185,
+      "unique_scripts": 184,
+      "unique_identity": "testsuite.name + testcase.name",
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "negative_storage_refusal_fixtures_excluded": true,
+      "suites": [
+        {
+          "path": "artifacts/public-surfaces-36877062304-1/ci/public_surfaces.xml",
+          "run_attempt": 1,
+          "cases": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "scripts": 1
+        },
+        {
+          "path": "artifacts/windows-audio-36877062304-1/ci/audio.xml",
+          "run_attempt": 1,
+          "cases": 44,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "scripts": 2
+        },
+        {
+          "path": "artifacts/windows-checkpoint_diagnostics-36877062304-1/ci/checkpoint_diagnostics.xml",
+          "run_attempt": 1,
+          "cases": 22,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "scripts": 4
+        },
+        {
+          "path": "artifacts/windows-dating-36877062304-1/ci/dating.xml",
+          "run_attempt": 1,
+          "cases": 167,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "scripts": 12
+        },
+        {
+          "path": "artifacts/windows-desktop-36877062304-1/ci/desktop.xml",
+          "run_attempt": 1,
+          "cases": 319,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "scripts": 20
+        },
+        {
+          "path": "artifacts/windows-endings-36877062304-1/ci/endings.xml",
+          "run_attempt": 1,
+          "cases": 106,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "scripts": 12
+        },
+        {
+          "path": "artifacts/windows-localization-36877062304-1/ci/localization.xml",
+          "run_attempt": 1,
+          "cases": 152,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "scripts": 18
+        },
+        {
+          "path": "artifacts/windows-minesweeper-36877062304-1/ci/minesweeper.xml",
+          "run_attempt": 1,
+          "cases": 210,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "scripts": 22
+        },
+        {
+          "path": "artifacts/windows-new_account-36877062304-1/ci/new_account.xml",
+          "run_attempt": 1,
+          "cases": 179,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "scripts": 15
+        },
+        {
+          "path": "artifacts/windows-persistence-36877062304-1/ci/persistence.xml",
+          "run_attempt": 1,
+          "cases": 193,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "scripts": 20
+        },
+        {
+          "path": "artifacts/windows-reading_delivery-36877062304-1/ci/reading_delivery.xml",
+          "run_attempt": 1,
+          "cases": 295,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "scripts": 25
+        },
+        {
+          "path": "artifacts/windows-settings-36877062304-1/ci/settings.xml",
+          "run_attempt": 1,
+          "cases": 312,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "scripts": 26
+        },
+        {
+          "path": "artifacts/windows-shop-36877062304-1/ci/shop.xml",
+          "run_attempt": 1,
+          "cases": 144,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "scripts": 8
+        }
+      ]
+    }
+  },
+  "focused_runs": [
+    {
+      "number": 96,
+      "id": 36874751767,
+      "source": "b942e942f5f52df4c96b9100890e60f62b5bf4e4",
+      "helper_workflow": "0b51ad0f8246b202d211e00b6a2a50668c3a5f42",
+      "jobs_passed": 5,
+      "jobs_total": 7,
+      "gut_passed": 999,
+      "gut_executions": 1000,
+      "whole_run_accepted": false,
+      "failures": [
+        "Stale newly registered Hospital fixture did not select Dialogic playback.",
+        "Journey used a foreground-only line helper while paused, before Backup; READ did not run."
+      ]
+    },
+    {
+      "number": 97,
+      "id": 36875788835,
+      "source": "38e313ed8ad0914be230848706d11af739640fe2",
+      "helper_workflow": "60cd00e37d5430a17e13ddc3178dbaa730de1f7d",
+      "jobs_passed": 3,
+      "jobs_total": 3,
+      "reading_cases": 295,
+      "public_cases": 11,
+      "runtime_unchanged_from_run96": true
+    }
+  ],
+  "reading_journey": {
+    "write_pid": 4460,
+    "read_pid": 4599,
+    "restored_line": "fixture.solo.post.a",
+    "speech_admissions": [
+      4,
+      0
+    ],
+    "restored_caption_count": 3,
+    "restored_entry_frame_count": 2,
+    "captures": 9,
+    "pause_stages": 8,
+    "manual_slot_fresh_loaded": false,
+    "manual_slot": {
+      "bytes": 116821,
+      "sha256": "30783a8ee3a5f7953176b29f21d40c1c7dd9040fc91cc35476eeccf62a868a94"
+    },
+    "quick": {
+      "bytes": 174851,
+      "sha256": "ae71459c69e8076bf53b514336660d1ba23c1aa1927600bbce438120ed96744b"
+    }
+  },
+  "save_schema_changed": false,
+  "parallel_history_or_save_owner_added": false,
+  "public_contract_records": {
+    "GameState": 236,
+    "SaveManager": 74,
+    "classifications_unchanged": true,
+    "final_read_only_reproduction": true
+  },
+  "settled_policy": {
+    "plain_pause_return_cancel_focus_preview": "Preserve literal partial reveal without mutation.",
+    "actual_ordinary_backup_entry": "Complete only the current admitted line, without advancing, before entering Backup.",
+    "explicit_paused_f5": "Complete the same admitted line before commit.",
+    "capture_and_capability_queries": "Pure; never finish reveal.",
+    "direct_rail_load_f9_cancel": "Retain existing literal cancellation behavior."
+  },
+  "archives": {
+    "focused": "focused-bundle-receipt.json",
+    "final": "run98-bundle-receipt.json"
+  },
+  "limits": [
+    "Fixed noncanonical English Solo fixture; production authored registration remains disabled.",
+    "Manual pre-line slot is physically committed/admitted/retained, but not separately fresh-loaded; fresh READ loads the post-line Quick.",
+    "Retained slot JSON files are evidence, not complete recoverable user/Profile directories.",
+    "Exact-variant witnessing/Next, Hospital/ordered-ending continuity and full native all-input acceptance remain unfinished.",
+    "Paused Settings F5 and arbitrary production partial-reveal abort lifetime safety are outside this bounded proof.",
+    "Simulated FileOps faults/restarts are not physical OS-crash injections; timing samples are observational.",
+    "Windows export is proven by authenticated cloud receipt/log and artifact hashes; its archive was not independently downloaded or inspected.",
+    "All declared capture hashes are checked; only Run97 pre-History and restored-line captures received this session's visual appearance review.",
+    "The later documentation/evidence/Beads records descendant is not separately engine-tested; no statuses/dependencies/parent closures or Dolt synchronization change."
+  ],
+  "raw_path_mapping": "Original local/cloud paths in raw receipts are provenance; the outer manifests map retained bytes to archive member paths.",
+  "beads": {
+    "unfinished": 23,
+    "updated_record": "dwm-vky.14",
+    "other_records_unchanged": 190,
+    "statuses_dependencies_unchanged": true,
+    "dolt_sync_claimed": false
+  },
+  "retained_files": [
+    {
+      "path": ".gitattributes",
+      "bytes": 30,
+      "sha256": "1ddc14e70b2799e31e3df8b6d4bfb485caab0e4179a05a4a4c032dedd7bab204"
+    },
+    {
+      "path": "README.md",
+      "bytes": 8741,
+      "sha256": "55cb78a508be0c81aef3aacc35f876c6307527380b47ca9a6090448e8876773e"
+    },
+    {
+      "path": "dwm-run96-run97-focused-evidence.tar.gz",
+      "bytes": 9163722,
+      "sha256": "d3cb382326610118506368bc1df8605fcb25f67b4fee9a4741ed797b6445137f"
+    },
+    {
+      "path": "dwm-run98-cloud-evidence.tar.gz",
+      "bytes": 11948860,
+      "sha256": "1eeb7639fd8e25d6643c82c538e7521c1f4fc1006885032d2363721606b0f029"
+    },
+    {
+      "path": "focused-bundle-receipt.json",
+      "bytes": 529,
+      "sha256": "6d49e2bc5409cdd8ccae1a039be710defea9bf6137b4e038ba2d9528e02ae145"
+    },
+    {
+      "path": "focused-manifest.json",
+      "bytes": 82237,
+      "sha256": "f7bac31a01771b8212b345dc04d69085abf49a9c83fe4f4242ac6a645457d31f"
+    },
+    {
+      "path": "run98-acceptance-summary.json",
+      "bytes": 126287,
+      "sha256": "8051e9465f4674ff5485eee5b80f9256ef8a0d2ba5162fb252d37db9fa4943ac"
+    },
+    {
+      "path": "run98-bundle-receipt.json",
+      "bytes": 594,
+      "sha256": "806b6e8804795b56d0b265e1a58b2fd227879b718f67f44c1204c4450474040f"
+    },
+    {
+      "path": "run98-independent-audit.json",
+      "bytes": 85636,
+      "sha256": "31f2bc11eebd83eae070bcb32f8b4f8784a8f19d10add84e3f05b7456f9fee0e"
+    },
+    {
+      "path": "run98-manifest.json",
+      "bytes": 371589,
+      "sha256": "1ddcb55ee63434ef1576a093c1fe2282af96c8f89895c00f46e9a667ddfe8d97"
+    }
+  ]
+}

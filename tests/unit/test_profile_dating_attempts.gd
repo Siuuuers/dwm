@@ -147,11 +147,13 @@ func test_v5_upgrade_adds_empty_ledger_and_preserves_other_profile_facts() -> vo
 	old.erase("observer_evidence")
 	old.erase("pair_deck_draws")
 	old.erase("reached_presentations")
+	old.erase("reached_presentation_chronology")
+	old.erase("witnessed_caption_variants")
 	old.pair_form_witness_receipts = {"pair-presented": "love_dark"}
 	var upgraded: Dictionary = MIGRATION.prepare_document(old)
 	assert_true(upgraded.ok, str(upgraded))
 	if not upgraded.ok: return
-	assert_eq(upgraded.value.schema_version, 8)
+	assert_eq(upgraded.value.schema_version, PROFILE.SCHEMA_VERSION)
 	assert_eq(upgraded.value.dating_attempts, {})
 	assert_eq(upgraded.value.pair_form_witness_receipts, old.pair_form_witness_receipts)
 	assert_false(old.has("dating_attempts"))

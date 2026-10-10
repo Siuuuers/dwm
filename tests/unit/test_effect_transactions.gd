@@ -30,11 +30,6 @@ func test_effect_transaction_api_is_required() -> void:
 	assert_true(_has("commit_effect_transaction"), "GameState.commit_effect_transaction is required")
 
 
-func test_detached_run_candidate_seam_is_required() -> void:
-	for method in ["prepare_run_candidate", "capture_live_run_state", "commit_run_candidate", "restore_live_run_state"]:
-		assert_true(_has(method), "GameState.%s is required" % method)
-
-
 func test_resolver_exposes_pure_resolution() -> void:
 	assert_true(EffectResolver.has_method("resolve_effects"), "EffectResolver.resolve_effects is required")
 	if not EffectResolver.has_method("resolve_effects"):
