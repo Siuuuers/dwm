@@ -1,0 +1,47 @@
+name: Export pinned A controller source
+on:
+  push:
+    branches: ['codex/a-source-inspect-20261010']
+    paths: ['.github/workflows/a-source-inspect.yml']
+permissions:
+  contents: read
+jobs:
+  export:
+    runs-on: windows-2022
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ed31b87b036dc3a211299be4e9681970b14533db
+          persist-credentials: false
+      - name: Export verified current payload only
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          @'
+          import base64, gzip, hashlib, json, pathlib, subprocess
+          controller = 'ed31b87b036dc3a211299be4e9681970b14533db'
+          assert subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip() == controller
+          source = pathlib.Path('tools/cloud/scene-playable-candidate.json')
+          payload = json.loads(source.read_text(encoding='utf-8-sig'))
+          patch = gzip.decompress(base64.b64decode(payload['patch_gzip_base64'], validate=True))
+          assert hashlib.sha256(patch).hexdigest() == payload['patch_sha256']
+          out = pathlib.Path('source-export'); out.mkdir()
+          (out/'scene-playable-candidate.json').write_bytes(source.read_bytes())
+          (out/'candidate.patch').write_bytes(patch)
+          (out/'windows-tests.yml').write_bytes(pathlib.Path('.github/workflows/windows-tests.yml').read_bytes())
+          (out/'origin.json').write_text(json.dumps({'controller':controller,'base':payload['base'],'patch_sha256':payload['patch_sha256']},indent=2),encoding='utf-8')
+          print((out/'origin.json').read_text())
+          text = patch.decode('utf-8')
+          for block in text.split('diff --git ')[1:]:
+              if any(name in block.splitlines()[0] for name in ['ScenePlayableProducerFixture.gd', 'ScenePlayableFixture.gd', 'SceneNewRunFixture.gd']):
+                  print('diff --git ' + block)
+          print('Export bytes:', sum(p.stat().st_size for p in out.iterdir()))
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: exact-controller-source-ed31b87
+          path: source-export/
+          if-no-files-found: error
+          retention-days: 3
