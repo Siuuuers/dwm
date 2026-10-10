@@ -1,6 +1,24 @@
 # Priscilla–Lavinia: working home and restart point
 
-## Current pivot restart, 2026-10-09
+## Current Day 2 development, 2026-10-10
+
+Read [the current Day 2 packet](auditions/day-2-return-bar-working-draft.md)
+with [the shared plot checkpoint](../../auditions/priscilla-seven-day-working-plot.md).
+The leading emotional effect is Priscilla mistaking Lavinia's tenderness for a
+decision to stay. Its popularity does not select every act around it.
+
+The packet separates the latest substantial aftermath from later early-evening,
+personal-answer and coda proposals. Lavinia's departure, Priscilla's departure,
+the paid room extension, and an observer-involuntary strike are not one event.
+The same-book handover, escalation, exact control/touch and five-state Challenge
+mapping remain open. These are AUDITIONING records, not fixed history or DTL.
+
+Capture and source coverage are centralized in the shared checkpoint.
+[PR #33](https://github.com/Siuuuers/dwm/pull/33) is the publication record;
+consult its actual metadata for merge state. Publication does not select the
+candidates. Existing residence/bar/residue holds and retained source history survive.
+
+## Retained pivot restart, 2026-10-09
 
 Begin with the [approved foundation amendment](../../09-priscilla-foundation-amendment.md)
 and [intended flow](../../../docs/design/2026-10-09-priscilla-flow-behavior-amendment.md).
