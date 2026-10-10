@@ -1,19 +1,23 @@
-name: Scene Challenge first Reveal transaction
+name: Scene Challenge first Reveal diagnostic
+
 on:
   pull_request:
     paths:
       - '.github/workflows/windows-tests.yml'
+
 permissions:
-  contents: write
+  contents: read
   actions: read
+
 concurrency:
   group: scene-runtime-integration-controller-${{ github.event.pull_request.number }}
   cancel-in-progress: true
+
 jobs:
-  first-reveal:
+  first-reveal-diagnostic:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
     runs-on: windows-2022
-    timeout-minutes: 35
+    timeout-minutes: 38
     env:
       BASE_SHA: 8ead20846f830d7e4227b6650c5bd24b9038d5d7
       CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
@@ -25,16 +29,19 @@ jobs:
       - name: Preserve source bytes
         working-directory: .
         run: git config --global core.autocrlf false
+
       - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           path: controller
+
       - uses: actions/checkout@v7
         with:
           ref: 8ead20846f830d7e4227b6650c5bd24b9038d5d7
           path: source
           fetch-depth: 0
-      - name: Recover the frozen candidate packet
+
+      - name: Recover frozen candidate packet
         uses: actions/download-artifact@v4
         with:
           name: scene-first-reveal-38092016425-1
@@ -42,14 +49,25 @@ jobs:
           github-token: ${{ github.token }}
           repository: Siuuuers/dwm
           run-id: 38092016425
-      - name: Reconstruct the bounded candidate
+
+      - name: Reconstruct and correct bounded candidate
         run: |
           $ErrorActionPreference = 'Stop'
           @'
-          import hashlib, json, os, pathlib, subprocess
+          import hashlib
+          import json
+          import os
+          import pathlib
+          import subprocess
 
-          def git(*args):
+          def git(*args: str) -> str:
               return subprocess.check_output(['git', *args], text=True).strip()
+
+          def replace_exact(path: pathlib.Path, old: str, new: str, label: str) -> None:
+              text = path.read_text(encoding='utf-8')
+              count = text.count(old)
+              assert count == 1, (label, count)
+              path.write_text(text.replace(old, new, 1), encoding='utf-8', newline='')
 
           base = os.environ['BASE_SHA']
           assert git('rev-parse', 'HEAD') == base
@@ -86,10 +104,42 @@ jobs:
 
           output = pathlib.Path('.godot/ci')
           output.mkdir(parents=True, exist_ok=True)
-          corrected = ''.join(corrected_lines).encode('utf-8')
-          corrected_path = output / 'candidate-corrected.patch'
-          corrected_path.write_bytes(corrected)
-          subprocess.run(['git', 'apply', '--index', '--binary', str(corrected_path)], check=True)
+          decoded = ''.join(corrected_lines).encode('utf-8')
+          decoded_path = output / 'candidate-decoded.patch'
+          decoded_path.write_bytes(decoded)
+          subprocess.run(['git', 'apply', '--index', '--binary', str(decoded_path)], check=True)
+
+          test_path = pathlib.Path('tests/unit/test_scene_first_reveal.gd')
+          replace_exact(
+              test_path,
+              '\tvar record := f.record().duplicate(true)\n\tvar attempt := f.attempt().value.duplicate(true)\n\tvar checkpoints := f.authority.checkpoints.size()\n',
+              '\tvar record: Dictionary = f.record().duplicate(true)\n\tvar attempt: Dictionary = f.attempt().value.duplicate(true)\n\tvar checkpoints: int = f.authority.checkpoints.size()\n',
+              'explicit duplicate types',
+          )
+          replace_exact(
+              test_path,
+              '\tassert_eq(view.value.phase, "never_started")\n',
+              '\tassert_eq(view.value.phase, "never_started")\n\tassert_eq(view.value.host, "canonical_solo")\n',
+              'idle host assertion',
+          )
+
+          envelope_path = pathlib.Path('scripts/application/run/DatingChallengeEnvelope.gd')
+          replace_exact(
+              envelope_path,
+              '\tvar forced_cell := int(envelope.forced_cell)\n\tif envelope.preparation is Dictionary:\n\t\tforced_cell = int(envelope.preparation.get("forced_cell", -1))\n\tif forced_cell < 0: return false\n\tvar begun: Dictionary = GENERATOR.begin_debug_at_cell(spec, forced_cell)\n\tif not begun.ok: return false\n',
+              '\tvar forced_cell: int = int(envelope.forced_cell)\n\tif envelope.preparation is Dictionary:\n\t\tforced_cell = int(envelope.preparation.get("forced_cell", -1))\n\tif forced_cell < 0: return false\n\t# Preserve byte-identical replay for historical random-forced entries. Only a\n\t# genuinely different player-selected cell uses the explicit-cell constructor.\n\tvar begun: Dictionary = GENERATOR.begin_debug(spec)\n\tif not begun.ok: return false\n\tif int(begun.value.preparation.forced_cell) != forced_cell:\n\t\tbegun = GENERATOR.begin_debug_at_cell(spec, forced_cell)\n\t\tif not begun.ok: return false\n',
+              'historical preparation replay',
+          )
+
+          owner_path = pathlib.Path('scripts/application/run/DatingPhysicalOwner.gd')
+          replace_exact(
+              owner_path,
+              '\tvar view: Dictionary = _pull_scene(physical_token)\n\tif not view.get("ok", false): return view\n\tif view.value.get("phase") != "never_started": return view\n\tvar preview: Dictionary = _scene_unstarted_board()\n\tif not preview.get("ok", false): return preview\n\tvar value: Dictionary = view.value.duplicate(true)\n\tvalue.actions = ["reveal"]\n',
+              '\tvar view: Dictionary = _pull_scene(physical_token)\n\tif not view.get("ok", false): return view\n\tvar profile: Dictionary = _scene_board_profile()\n\tif not profile.get("ok", false): return profile\n\tvar value: Dictionary = view.value.duplicate(true)\n\tvalue.host = str(profile.value.difficulty_id)\n\tif value.get("phase") != "never_started": return _ok(value)\n\tvar preview: Dictionary = _scene_unstarted_board()\n\tif not preview.get("ok", false): return preview\n\tvalue.actions = ["reveal"]\n',
+              'registered worksheet host',
+          )
+
+          subprocess.run(['git', 'add', '--all'], check=True)
           subprocess.run(['git', 'diff', '--cached', '--check'], check=True)
           paths = git('diff', '--cached', '--name-only').splitlines()
           allowed = {
@@ -101,21 +151,30 @@ jobs:
               'tests/unit/test_scene_first_reveal.gd',
           }
           assert set(paths) == allowed, paths
+          final_patch = subprocess.check_output(['git', 'diff', '--cached', '--binary'])
+          (output / 'candidate-corrected.patch').write_bytes(final_patch)
           receipt = {
               'base': base,
               'controller': os.environ['CONTROLLER_SHA'],
               'inherited_run': 38092016425,
               'inherited_raw_patch_sha256': hashlib.sha256(raw).hexdigest(),
-              'corrected_patch_sha256': hashlib.sha256(corrected).hexdigest(),
+              'decoded_patch_sha256': hashlib.sha256(decoded).hexdigest(),
+              'corrected_patch_sha256': hashlib.sha256(final_patch).hexdigest(),
               'decoded_tab_escapes': tab_escapes,
               'collapsed_line_continuations': continuations,
+              'corrections': [
+                  'explicit GDScript duplicate types',
+                  'historical random-forced preparation replay before explicit-cell replay',
+                  'registered canonical worksheet host in panel projection',
+              ],
               'paths': paths,
-              'observable_outcome': 'fixed covered Challenge panel; first accepted Reveal is one Profile/Run transaction',
+              'publication': 'disabled diagnostic',
           }
           (output / 'candidate-origin.json').write_text(json.dumps(receipt, indent=2), encoding='utf-8')
           print(json.dumps(receipt))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
       - name: Install exact Godot standard engine
         run: |
           $ErrorActionPreference = 'Stop'
@@ -130,6 +189,7 @@ jobs:
           if ($LASTEXITCODE -ne 0 -or $version -cne '4.6.3.stable.official.7d41c59c4') { throw "Unexpected engine: $version" }
           "GODOT_CONSOLE_PATH=$console" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
           @{ version=$version; archive_sha256=$expected; console_sha256=(Get-FileHash $console -Algorithm SHA256).Hash.ToLowerInvariant() } | ConvertTo-Json | Set-Content .godot/ci/engine.json -Encoding utf8
+
       - name: Import and freeze exact candidate
         timeout-minutes: 8
         run: |
@@ -147,15 +207,16 @@ jobs:
           git diff --cached --check
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'Make first Challenge Reveal the atomic start boundary'
+          git commit -m 'Diagnose atomic first Challenge Reveal'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @{
             source=(git rev-parse HEAD)
             tree=(git rev-parse 'HEAD^{tree}')
             parent=(git rev-parse HEAD^)
           } | ConvertTo-Json | Set-Content .godot/ci/candidate-commit.json -Encoding utf8
+
       - name: Focused owner and physical-save regression tests
-        timeout-minutes: 17
+        timeout-minutes: 20
         run: |
           $ErrorActionPreference = 'Stop'
           $runner = './tools/testing/Invoke-IsolatedGodot.ps1'
@@ -181,11 +242,18 @@ jobs:
             if ($LASTEXITCODE -ne 0) { $failed = $true }
           }
           if ($failed) { throw 'One or more focused engine children failed' }
+
       - name: Verify executed census and source identity
         run: |
           $ErrorActionPreference = 'Stop'
           @'
-          import collections, json, pathlib, re, subprocess, xml.etree.ElementTree as ET
+          import collections
+          import json
+          import pathlib
+          import re
+          import subprocess
+          import xml.etree.ElementTree as ET
+
           out = pathlib.Path('.godot/ci')
           suites = {
               'first-reveal':'tests/unit/test_scene_first_reveal.gd',
@@ -216,30 +284,22 @@ jobs:
               'lanes':counts,
               'total_cases':sum(v['cases'] for v in counts.values()),
               'total_xml_assertions':sum(v['assertions'] for v in counts.values()),
-              'scope':'headless owner first-Reveal transaction plus prior real-file playable save/Load regressions; fixed Desktop/rendered proof remains separate',
+              'scope':'diagnostic owner first-Reveal transaction plus prior real-file playable save/Load regressions; no publication and no rendered fixed-panel acceptance',
           }
           (out/'gate.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
           print(json.dumps(result))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Publish only the passing unchanged-A fast-forward
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $branch = 'refs/heads/codex/scene-runtime-integration-20261009'
-          $live = (git ls-remote origin $branch).Split()[0]
-          if ($LASTEXITCODE -ne 0 -or $live -cne $env:BASE_SHA) { throw 'A advanced; candidate retained without overwrite' }
-          $controller = (git ls-remote origin 'refs/heads/codex/scene-runtime-integration-controller-20261009').Split()[0]
-          if ($LASTEXITCODE -ne 0 -or $controller -cne $env:CONTROLLER_SHA) { throw 'Controller advanced; candidate superseded' }
-          $source = git rev-parse HEAD
-          git push origin "${source}:$branch"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          @{ source=$source; base=$env:BASE_SHA; branch=$branch; force=$false } | ConvertTo-Json | Set-Content .godot/ci/publication.json -Encoding utf8
+
       - name: Retain evidence on every outcome
         if: always()
         run: |
           $ErrorActionPreference = 'Stop'
           @'
-          import hashlib, json, pathlib, subprocess
+          import hashlib
+          import json
+          import pathlib
+          import subprocess
           out = pathlib.Path('.godot/ci')
           out.mkdir(parents=True, exist_ok=True)
           (out/'final-status.txt').write_text(subprocess.run(['git','status','--porcelain'],capture_output=True,text=True).stdout, encoding='utf-8')
@@ -251,10 +311,11 @@ jobs:
                           files[p.as_posix()] = {'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}
           (out/'retained-hashes.json').write_text(json.dumps(files, indent=2), encoding='utf-8')
           '@ | python -
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: scene-first-reveal-${{ github.run_id }}-${{ github.run_attempt }}
+          name: scene-first-reveal-diagnostic-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             source/.godot/ci
             source/.godot/phase2r_logs
