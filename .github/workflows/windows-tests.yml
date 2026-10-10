@@ -1,20 +1,20 @@
-name: Scene playable original diagnostics (no engine)
+name: Scene playable route-context diagnostic (no publication)
 on:
   pull_request:
     paths:
       - 'tools/cloud/scene-playable-candidate.json'
+      - 'tools/cloud/scene-playable-diagnostics.patch'
       - '.github/workflows/windows-tests.yml'
 permissions:
-  contents: write
+  contents: read
 concurrency:
   group: scene-runtime-integration-controller-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 jobs:
-  playable:
-    # Retrieval-only pass: preserve this exact candidate and all gates without running them.
-    if: false && github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
+  diagnose:
+    if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
     runs-on: windows-2022
-    timeout-minutes: 25
+    timeout-minutes: 20
     env:
       BASE_SHA: 69a5cdd70261692b7f1b1e2d4550155141ca6375
       CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
@@ -31,44 +31,48 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           path: controller
-          persist-credentials: true
       - uses: actions/checkout@v7
         with:
           ref: 69a5cdd70261692b7f1b1e2d4550155141ca6375
           path: source
           fetch-depth: 0
-          persist-credentials: true
-      - name: Apply exact candidate to unchanged A base
+      - name: Apply pinned original and bounded diagnostic correction
         run: |
           $ErrorActionPreference = 'Stop'
           @'
-          import base64, gzip, hashlib, json, os, pathlib, subprocess
-          def git(*args):
-              return subprocess.check_output(['git', *args], text=True).strip()
-          base = os.environ['BASE_SHA']
-          assert git('rev-parse', 'HEAD') == base
-          branch = 'refs/heads/codex/scene-runtime-integration-20261009'
-          assert git('ls-remote', 'origin', branch).split()[0] == base, 'A moved; reconcile instead of overwriting'
-          payload = json.loads(pathlib.Path('../controller/tools/cloud/scene-playable-candidate.json').read_text())
-          assert payload['base'] == base
-          patch = gzip.decompress(base64.b64decode(payload['patch_gzip_base64'], validate=True))
-          assert hashlib.sha256(patch).hexdigest() == payload['patch_sha256']
-          out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
-          target = out / 'candidate.patch'; target.write_bytes(patch)
-          subprocess.run(['git', 'apply', '--check', str(target)], check=True)
-          subprocess.run(['git', 'apply', '--index', str(target)], check=True)
-          subprocess.run(['git', 'diff', '--cached', '--check'], check=True)
-          allowed = {'autoload/DialogicBridge.gd', 'autoload/GameState.gd',
-              'scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd',
-              'tests/support/SceneNewRunFixture.gd', 'tests/support/ScenePlayableFixture.gd',
-              'tests/unit/test_scene_playable_preparation.gd', 'tests/integration/scene_playable_child.gd',
-              *('tests/integration/test_scene_playable_' + name + '.gd' for name in ['create','load','dropped_ack','native_refusal'])}
-          paths = git('diff', '--cached', '--name-only').splitlines()
-          assert set(paths) == allowed, paths
-          (out/'candidate-paths.json').write_text(json.dumps(paths, indent=2))
-          (out/'candidate-origin.json').write_text(json.dumps({'base':base, 'controller':os.environ['CONTROLLER_SHA'],
-              'event':os.environ['EVENT_SHA'], 'patch_sha256':payload['patch_sha256'], 'paths':paths}, indent=2))
-          print('Candidate patch:', payload['patch_sha256'])
+          import base64,gzip,hashlib,json,os,pathlib,subprocess
+          def git(*args): return subprocess.check_output(['git',*args],text=True).strip()
+          base=os.environ['BASE_SHA']
+          assert git('rev-parse','HEAD')==base
+          assert git('ls-remote','origin','refs/heads/codex/scene-runtime-integration-20261009').split()[0]==base, 'A advanced; reconcile'
+          out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
+          payload=json.loads(pathlib.Path('../controller/tools/cloud/scene-playable-candidate.json').read_text())
+          patch=gzip.decompress(base64.b64decode(payload['patch_gzip_base64'],validate=True))
+          assert payload['base']==base
+          assert hashlib.sha256(patch).hexdigest()==payload['patch_sha256']=='1d6cb95788894ef8a95f8525c500b95f97c004f0305c95e1f86f9b428ca63335'
+          original=out/'original-candidate.patch';original.write_bytes(patch)
+          repair=pathlib.Path('../controller/tools/cloud/scene-playable-diagnostics.patch')
+          assert hashlib.sha256(repair.read_bytes()).hexdigest()=='ffa72c4127cedc81bc1f1bb110ee0a45e3e7e6fd8a9674f1834606973ede2222'
+          for p in (original,repair):
+              subprocess.run(['git','apply','--check',str(p)],check=True)
+              subprocess.run(['git','apply','--index',str(p)],check=True)
+          subprocess.run(['git','diff','--cached','--check'],check=True)
+          expected={'tests/integration/scene_playable_child.gd':'54d36ec7baedb0b7748de1fb5fcf34620e49baee',
+                    'tests/support/ScenePlayableFixture.gd':'0a9e68ccb3a88f83ee8ef612e76b38cdc4de93ab'}
+          for path,blob in expected.items(): assert git('hash-object',path)==blob,(path,'postimage mismatch')
+          paths=git('diff','--cached','--name-only').splitlines()
+          allowed={'autoload/DialogicBridge.gd','autoload/GameState.gd','scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd',
+              'tests/support/SceneNewRunFixture.gd','tests/support/ScenePlayableFixture.gd','tests/unit/test_scene_playable_preparation.gd',
+              'tests/integration/scene_playable_child.gd',*('tests/integration/test_scene_playable_'+n+'.gd' for n in ['create','load','dropped_ack','native_refusal'])}
+          assert set(paths)==allowed,paths
+          composed=subprocess.check_output(['git','diff','--cached','--binary','--full-index'])
+          (out/'candidate.patch').write_bytes(composed)
+          (out/'diagnostic-correction.patch').write_bytes(repair.read_bytes())
+          receipt={'base':base,'controller':os.environ['CONTROLLER_SHA'],'event':os.environ['EVENT_SHA'],
+              'original_patch_sha256':payload['patch_sha256'],'patch_sha256':hashlib.sha256(composed).hexdigest(),
+              'repair_sha256':hashlib.sha256(repair.read_bytes()).hexdigest(),'paths':paths,'publication_enabled':False,
+              'scope':'one changed normal-create diagnostic; not full physical Save/Load acceptance'}
+          (out/'candidate-origin.json').write_text(json.dumps(receipt,indent=2));print(json.dumps(receipt))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Install exact Godot standard engine
@@ -99,116 +103,47 @@ jobs:
           if (Select-String "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Candidate import script error' }
           git restore --worktree -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Freeze exact candidate including normal imported UID companions
+      - name: Freeze and retain exact selected diagnostic source
         run: |
           $ErrorActionPreference = 'Stop'
           @'
-          import json, pathlib, subprocess
-          out=pathlib.Path('.godot/ci')
-          paths=json.loads((out/'candidate-paths.json').read_text())
+          import json,pathlib,subprocess
+          def git(*args): return subprocess.check_output(['git',*args],text=True).strip()
+          out=pathlib.Path('.godot/ci');origin=json.loads((out/'candidate-origin.json').read_text());paths=origin['paths']
           for name in paths:
               uid=pathlib.Path(name+'.uid')
               if uid.exists(): subprocess.run(['git','add','--',str(uid)],check=True)
           subprocess.run(['git','diff','--cached','--check'],check=True)
           subprocess.run(['git','config','user.name','github-actions[bot]'],check=True)
           subprocess.run(['git','config','user.email','41898282+github-actions[bot]@users.noreply.github.com'],check=True)
-          subprocess.run(['git','commit','-m','Connect durable scene playable source, receipt and native handoff'],check=True)
-          def git(*args): return subprocess.check_output(['git',*args],text=True).strip()
-          assert git('rev-parse','HEAD^') == json.loads((out/'candidate-origin.json').read_text())['base']
-          assert not git('diff','--name-only'), 'Unexpected imported tracked changes'
+          subprocess.run(['git','commit','-m','Diagnose playable route context with corrected stored-receipt tests'],check=True)
+          assert git('rev-parse','HEAD^')==origin['base'] and not git('diff','--name-only')
           names=git('diff-tree','--no-commit-id','--name-only','-r','HEAD').splitlines()
           assert all(n in paths or (n.endswith('.gd.uid') and n[:-4] in paths) for n in names)
-          receipt={'source':git('rev-parse','HEAD'),'tree':git('rev-parse','HEAD^{tree}'),
-              'parent':git('rev-parse','HEAD^'),'blobs':{n:git('rev-parse','HEAD:'+n) for n in names}}
+          selected=set(names)|{'scripts/application/run/SaveManagerCheckpointPort.gd','scripts/domain/run/RunSnapshotSchema.gd',
+              'scripts/domain/narrative/SceneEventContract.gd','scripts/narrative/FrozenRunContext.gd',
+              'tests/support/SceneRestartFixture.gd','tools/testing/Invoke-IsolatedGodot.ps1'}
+          receipt={'source':git('rev-parse','HEAD'),'tree':git('rev-parse','HEAD^{tree}'),'parent':git('rev-parse','HEAD^'),
+              'blobs':{n:git('rev-parse','HEAD:'+n) for n in names},'selected_source_blobs':{n:git('rev-parse','HEAD:'+n) for n in sorted(selected)}}
           (out/'candidate-commit.json').write_text(json.dumps(receipt,indent=2))
-          subprocess.run(['git','archive','--format=zip','--output=.godot/ci/source-inspection.zip','HEAD'],check=True)
+          subprocess.run(['git','archive','--format=zip','--output=.godot/ci/source-inspection.zip','HEAD','--',*sorted(selected)],check=True)
           print(json.dumps(receipt))
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Focused unit and physical same-files process journeys
-        timeout-minutes: 14
+      - name: Run one changed physical creator diagnostic
+        timeout-minutes: 4
         run: |
           $ErrorActionPreference = 'Stop'
-          $runner = './tools/testing/Invoke-IsolatedGodot.ps1'
-          $failed = $false
-          foreach ($entry in @(@('preparation','tests/unit/test_scene_playable_preparation.gd'), @('checkpoint','tests/unit/test_scene_checkpoint_ack.gd'))) {
-            $name = $entry[0]
-            $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$($entry[1])",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$name.xml")
-            & $runner -SuiteId "playable-$name" -LogName "$name.log" -GodotArgs $args -EvidenceLogPath ".godot/ci/$name.jsonl" -TimeoutSeconds 180
-            if ($LASTEXITCODE -ne 0) { $failed = $true }
+          $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_playable_create.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/normal-create.xml')
+          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'playable-normal-diagnostic' -LogName 'normal-create.log' -GodotArgs $args -EvidenceLogPath '.godot/ci/normal.jsonl' -TimeoutSeconds 180 -KeepRoot
+          $childExit = $LASTEXITCODE
+          if (Test-Path '.godot/phase2r_logs/normal-create.log') {
+            Select-String '.godot/phase2r_logs/normal-create.log' -Pattern 'SCENE_PLAYABLE_|SCRIPT ERROR:|invalid_gameplay|\[Failed\]' | ForEach-Object { $_.Line }
           }
-          foreach ($mode in @('normal','dropped_ack','native_refusal')) {
-            $child = if ($mode -eq 'normal') { 'create' } else { $mode }
-            $create = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://tests/integration/test_scene_playable_$child.gd",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$mode-create.xml")
-            $load = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_playable_load.gd','-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$mode-load.xml")
-            & $runner -SuiteId "playable-$mode" -LogName "$mode-create.log" -GodotArgs $create -NextLogName "$mode-load.log" -NextGodotArgs $load -EvidenceLogPath ".godot/ci/$mode.jsonl" -TimeoutSeconds 180 -KeepRoot
-            if ($LASTEXITCODE -ne 0) { $failed = $true }
-            $records = @()
-            if (Test-Path ".godot/ci/$mode.jsonl") { $records = @(Get-Content ".godot/ci/$mode.jsonl" | ForEach-Object { ConvertFrom-Json $_ }) }
-            if ($records.Count -gt 0) {
-              $root = Join-Path $records[0].test_root 'dwm_test_root/scene_restart_shared'
-              if (Test-Path $root) {
-                New-Item -ItemType Directory -Force '.godot/ci/physical' | Out-Null
-                Copy-Item $root ".godot/ci/physical/$mode" -Recurse
-              }
-            }
-          }
-          if ($failed) { throw 'One or more focused engine children failed; retain original results' }
-      - name: Verify executed census, custody receipts and unchanged source
-        run: |
-          $ErrorActionPreference = 'Stop'
-          @'
-          import collections, hashlib, json, pathlib, re, subprocess, xml.etree.ElementTree as ET
-          out=pathlib.Path('.godot/ci'); counts={}
-          suites={'preparation':'tests/unit/test_scene_playable_preparation.gd','checkpoint':'tests/unit/test_scene_checkpoint_ack.gd'}
-          for mode in ['normal','dropped_ack','native_refusal']:
-              suites[mode+'-create']='tests/integration/test_scene_playable_'+('create' if mode=='normal' else mode)+'.gd'
-              suites[mode+'-load']='tests/integration/test_scene_playable_load.gd'
-          for lane,script in suites.items():
-              expected=re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(),re.M)
-              root=ET.parse(out/(lane+'.xml')).getroot()
-              rows=list(root.iter('testcase'))
-              assert collections.Counter(r.attrib['name'] for r in rows)==collections.Counter(expected),(lane,'census mismatch')
-              assert rows and all(r.attrib.get('classname')==script and r.attrib.get('status')=='pass' and int(r.attrib.get('assertions','0'))>0 for r in rows),lane
-              assert not any(list(root.iter(t)) for t in ['failure','error','skipped']),lane
-              assert all(int(e.attrib.get(k,'0'))==0 for e in root.iter() for k in ['failures','errors','skipped']),lane
-              log=pathlib.Path('.godot/phase2r_logs')/(lane+'.log')
-              text=log.read_text(encoding='utf-8-sig')
-              assert not re.search(r'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character',text),lane
-              counts[lane]={'cases':len(rows),'xml_assertions':sum(int(r.attrib['assertions']) for r in rows)}
-          for mode in ['normal','dropped_ack','native_refusal']:
-              records=[json.loads(s) for s in (out/(mode+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
-              assert len(records)==2 and all(r['exit_code']==0 for r in records)
-              assert records[0]['test_root']==records[1]['test_root'] and records[0]['user_dir']==records[1]['user_dir']
-              assert records[1]['started_at_utc']>=records[0]['ended_at_utc']
-              a=json.loads((out/('playable-'+mode+'-create.json')).read_text())
-              b=json.loads((out/('playable-'+mode+'-load.json')).read_text())
-              assert a['process_id']!=b['process_id'] and b['creator_process_id']==a['process_id']
-              for key in ['storage_root','autosave_sha256','run_id','checkpoint_id','receipt','checkpoint','profile_files']:
-                  assert a[key]==b[key],(mode,key)
-              assert a['refused_writes']==(2 if mode=='normal' else 0)
-              assert hashlib.sha256((out/'physical'/mode/'autosave.json').read_bytes()).hexdigest()==a['autosave_sha256']
-              assert a['checkpoint']['reading_session']['boundary']=='control'
-              assert a['receipt']['result']['kind']=='challenge_playable'
-          assert not subprocess.check_output(['git','diff','--name-only'],text=True).strip()
-          assert not subprocess.check_output(['git','diff','--cached','--name-only'],text=True).strip()
-          result={'status':'passed','lanes':counts,'total_cases':sum(v['cases'] for v in counts.values()),
-              'total_xml_assertions':sum(v['xml_assertions'] for v in counts.values()),
-              'scope':'headless real-save/native test-host integration; not production startup, rendered E2E or full-suite acceptance'}
-          (out/'gate.json').write_text(json.dumps(result,indent=2)); print(json.dumps(result))
-          '@ | python -
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Publish passing candidate only as unchanged-A fast-forward
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $branch = 'refs/heads/codex/scene-runtime-integration-20261009'
-          $live = (git ls-remote origin $branch).Split()[0]
-          if ($LASTEXITCODE -ne 0 -or $live -cne $env:BASE_SHA) { throw 'A advanced; candidate retained without overwrite' }
-          $source = git rev-parse HEAD
-          git push origin "${source}:$branch"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          @{ source=$source; base=$env:BASE_SHA; branch=$branch; force=$false } | ConvertTo-Json | Set-Content .godot/ci/publication.json -Encoding utf8
-      - name: Retain original run bytes and hashes even on failure
+          if ($childExit -ne 0) { exit $childExit }
+          if (Select-String '.godot/phase2r_logs/normal-create.log' -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Strict diagnostic script-error gate' }
+          if ((git diff --name-only) -or (git diff --cached --name-only)) { throw 'Diagnostic changed tracked source' }
+      - name: Retain complete small diagnostics on every outcome
         if: always()
         run: |
           $ErrorActionPreference = 'Stop'
@@ -228,7 +163,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: scene-playable-original-${{ github.run_id }}-${{ github.run_attempt }}
+          name: scene-playable-context-diagnostic-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             source/.godot/ci
             source/.godot/phase2r_logs
@@ -244,209 +179,3 @@ jobs:
             git -C $repo update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
-
-  retrieve_original_diagnostics:
-    name: Retrieve original failed-run diagnostics (no engine)
-    if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 12
-    permissions:
-      actions: read
-      contents: read
-    steps:
-      - name: Verify original archive and extract byte-preserving diagnostics
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: python
-        run: |
-          """Retrieve one original failed artifact; do not run or publish a game candidate."""
-          import hashlib
-          import itertools
-          import json
-          import mmap
-          import os
-          from pathlib import Path, PurePosixPath
-          import re
-          import shutil
-          import tempfile
-          import urllib.error
-          import urllib.parse
-          import urllib.request
-          import zipfile
-
-          RUN = 38050263178
-          ARTIFACT = 11672685856
-          SIZE = 660909860
-          DIGEST = '063aa6d0b32f837a249e6aacaded8149e5b1a26fe523b27e94a8cb760b7f45a5'
-          SOURCE = '66667c3b980f49c1dd61329a70dd93a2d870753e'
-          BASE = '69a5cdd70261692b7f1b1e2d4550155141ca6375'
-          CONTROLLER = 'ed31b87b036dc3a211299be4e9681970b14533db'
-          PATCH = '1d6cb95788894ef8a95f8525c500b95f97c004f0305c95e1f86f9b428ca63335'
-          API = 'https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/' + str(ARTIFACT)
-          out = Path('retrieved-diagnostics')
-          out.mkdir()
-          work = Path(tempfile.mkdtemp(prefix='original-diagnostics-', dir=os.environ['RUNNER_TEMP']))
-          headers = {'Authorization': 'Bearer ' + os.environ['GH_TOKEN'], 'Accept': 'application/vnd.github+json'}
-
-          class NoRedirect(urllib.request.HTTPRedirectHandler):
-              def redirect_request(self, req, fp, code, msg, response_headers, newurl):
-                  return None
-
-          api = urllib.request.build_opener(NoRedirect())
-          with api.open(urllib.request.Request(API, headers=headers), timeout=60) as response:
-              metadata_bytes = response.read()
-          metadata = json.loads(metadata_bytes)
-          assert metadata['id'] == ARTIFACT and metadata['workflow_run']['id'] == RUN
-          assert metadata['name'] == 'scene-playable-original-38050263178-2'
-          assert metadata['size_in_bytes'] == SIZE and metadata['digest'] == 'sha256:' + DIGEST
-          assert metadata['workflow_run']['head_sha'] == CONTROLLER and not metadata['expired']
-          # Authenticate only to GitHub. Never forward the bearer token to the signed storage URL.
-          try:
-              response = api.open(urllib.request.Request(API + '/zip', headers=headers), timeout=60)
-          except urllib.error.HTTPError as error:
-              if error.code != 302:
-                  raise
-              location = error.headers['Location']
-              error.close()
-              parsed = urllib.parse.urlsplit(location)
-              assert parsed.scheme == 'https' and parsed.hostname and not parsed.username
-              response = urllib.request.urlopen(location, timeout=120)
-          archive = work / 'original.zip'
-          hash_value = hashlib.sha256()
-          with response, archive.open('xb') as destination:
-              while block := response.read(1024 * 1024):
-                  destination.write(block)
-                  hash_value.update(block)
-          assert archive.stat().st_size == SIZE and hash_value.hexdigest() == DIGEST
-          print('Verified original archive:', ARTIFACT, SIZE, DIGEST)
-          report = {'purpose': 'Original failed-run evidence extraction only; NOT game acceptance',
-                    'original_run': RUN, 'original_attempt': 2, 'original_job': 114232214275,
-                    'original_artifact': ARTIFACT, 'archive_bytes': SIZE, 'archive_sha256_verified': DIGEST,
-                    'retrieval_run': os.environ['GITHUB_RUN_ID'], 'retrieval_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
-                    'members': [], 'missing_original_members': [], 'identity_mismatches': [],
-                    'engine_executed': False, 'candidate_published': False}
-          selected = {}
-
-          def member(z, suffix):
-              matches = [i for i in z.infolist() if not i.is_dir() and
-                         (i.filename == suffix or i.filename.endswith('/' + suffix))]
-              if len(matches) > 1:
-                  raise ValueError('Ambiguous original member: ' + suffix)
-              if not matches:
-                  report['missing_original_members'].append(suffix)
-                  return None
-              return matches[0]
-
-          def retain(z, info, bundle, output_name, container=None):
-              assert not PurePosixPath(output_name).is_absolute() and '..' not in PurePosixPath(output_name).parts
-              record = {'original_member': info.filename, 'bytes': info.file_size}
-              if container:
-                  record['original_container_member'] = container
-              if info.file_size <= 8 * 1024 * 1024:
-                  data = z.read(info)
-                  record.update(sha256=hashlib.sha256(data).hexdigest(), complete=True, bundle_member=output_name)
-                  bundle.writestr(output_name, data)
-              else:
-                  # Large diagnostic logs: hash all bytes, retain labelled raw byte ranges, not a full-log audit.
-                  assert info.filename.endswith(('.log', '.txt', '.jsonl')), 'Oversized non-log diagnostic'
-                  temporary = work / 'large-member'
-                  h = hashlib.sha256()
-                  with z.open(info) as src, temporary.open('wb') as dst:
-                      while block := src.read(1024 * 1024):
-                          dst.write(block)
-                          h.update(block)
-                  ranges = [(0, 1024 * 1024), (info.file_size - 1024 * 1024, info.file_size)]
-                  with temporary.open('rb') as f, mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as data_map:
-                      pattern = rb'SCRIPT ERROR:|Parse Error:|Assertion|\[Failed\]|ERROR:'
-                      for match in itertools.islice(re.finditer(pattern, data_map), 32):
-                          ranges.append((max(0, match.start() - 2048), min(info.file_size, match.end() + 4096)))
-                      ranges.sort()
-                      merged = []
-                      for first, last in ranges:
-                          if merged and first <= merged[-1][1]:
-                              merged[-1][1] = max(last, merged[-1][1])
-                          else:
-                              merged.append([first, last])
-                      record.update(sha256=h.hexdigest(), complete=False, representation='indexed byte-preserving excerpts', ranges=[])
-                      for first, last in merged:
-                          piece = data_map[first:last]
-                          name = output_name + '.bytes-' + str(first) + '-' + str(last)
-                          bundle.writestr(name, piece)
-                          record['ranges'].append({'start': first, 'end_exclusive': last, 'bundle_member': name,
-                                                   'sha256': hashlib.sha256(piece).hexdigest()})
-                  data = None
-              report['members'].append(record)
-              return data
-
-          bundle_path = out / 'coordinator-a-original-diagnostics.zip'
-          with zipfile.ZipFile(archive) as original, zipfile.ZipFile(bundle_path, 'w', zipfile.ZIP_DEFLATED) as bundle:
-              bundle.writestr('github-artifact-metadata.json', metadata_bytes)
-              bundle.writestr('original-member-index.json', json.dumps([
-                  {'path': i.filename, 'bytes': i.file_size, 'compressed_bytes': i.compress_size, 'crc32': i.CRC}
-                  for i in original.infolist()], indent=2))
-              wanted = []
-              for mode in ('normal', 'dropped_ack', 'native_refusal'):
-                  wanted += [f'phase2r_logs/{mode}-create.log', f'ci/{mode}-create.xml', f'ci/{mode}.jsonl',
-                             f'ci/playable-{mode}-create.json', f'ci/playable-{mode}-load.json',
-                             f'phase2r_logs/{mode}-load.log', f'ci/{mode}-load.xml']
-              wanted += ['ci/' + name for name in ('candidate-origin.json', 'candidate-commit.json', 'candidate.patch',
-                         'candidate-paths.json', 'retained-hashes.json', 'final-status.txt', 'engine.json', 'gate.json',
-                         'publication.json', 'import.log')]
-              for lane in ('preparation', 'checkpoint'):
-                  wanted += [f'ci/{lane}.xml', f'ci/{lane}.jsonl', f'phase2r_logs/{lane}.log']
-              for suffix in wanted:
-                  info = member(original, suffix)
-                  if info:
-                      selected[suffix] = retain(original, info, bundle, 'original/' + info.filename)
-              origin = json.loads(selected['ci/candidate-origin.json'].decode('utf-8-sig'))
-              receipt = json.loads(selected['ci/candidate-commit.json'].decode('utf-8-sig'))
-              report['frozen_candidate'] = receipt
-              for key, expected in [('base', BASE), ('controller', CONTROLLER), ('patch_sha256', PATCH)]:
-                  if origin.get(key) != expected:
-                      report['identity_mismatches'].append('candidate-origin: ' + key)
-              if receipt.get('source') != SOURCE or receipt.get('parent') != BASE:
-                  report['identity_mismatches'].append('candidate commit/parent')
-              if hashlib.sha256(selected['ci/candidate.patch']).hexdigest() != PATCH:
-                  report['identity_mismatches'].append('patch SHA-256')
-              source_info = member(original, 'ci/source-inspection.zip')
-              if source_info:
-                  nested_path = work / 'source-inspection.zip'
-                  h = hashlib.sha256()
-                  with original.open(source_info) as src, nested_path.open('xb') as dst:
-                      while block := src.read(1024 * 1024):
-                          dst.write(block)
-                          h.update(block)
-                  report['source_archive'] = {'original_member': source_info.filename, 'bytes': nested_path.stat().st_size,
-                                              'sha256': h.hexdigest()}
-                  with zipfile.ZipFile(nested_path) as source:
-                      report['source_archive']['git_archive_comment'] = source.comment.decode('ascii', errors='replace')
-                      if source.comment != SOURCE.encode('ascii'):
-                          report['identity_mismatches'].append('source archive commit comment')
-                      source_paths = set(receipt['blobs']) | {'tests/unit/test_scene_checkpoint_ack.gd',
-                                    'tools/testing/Invoke-IsolatedGodot.ps1'}
-                      for path in sorted(source_paths):
-                          info = member(source, path)
-                          if not info:
-                              continue
-                          data = retain(source, info, bundle, 'frozen_source/' + path, source_info.filename)
-                          blob = hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest()
-                          report['members'][-1]['git_blob'] = blob
-                          if path in receipt['blobs'] and receipt['blobs'][path] != blob:
-                              report['identity_mismatches'].append('source blob: ' + path)
-              report['extraction_status'] = 'identity_mismatch' if report['identity_mismatches'] else 'originals_extracted'
-              bundle.writestr('extraction-manifest.json', json.dumps(report, indent=2) + '\n')
-          assert bundle_path.stat().st_size < 48 * 1024 * 1024, 'Diagnostic bundle is not small enough'
-          summary = {'bundle_bytes': bundle_path.stat().st_size, 'bundle_sha256': hashlib.sha256(bundle_path.read_bytes()).hexdigest(),
-                     'status': report['extraction_status'], 'missing_original_members': report['missing_original_members'],
-                     'identity_mismatches': report['identity_mismatches'], 'game_acceptance': 'NOT CLAIMED'}
-          (out / 'retrieval-summary.json').write_text(json.dumps(summary, indent=2) + '\n')
-          print(json.dumps(summary, indent=2))
-          if report['identity_mismatches']:
-              raise SystemExit(1)
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: scene-playable-original-diagnostics-38050263178-2-${{ github.run_id }}-${{ github.run_attempt }}
-          path: retrieved-diagnostics
-          if-no-files-found: error
-          retention-days: 7
