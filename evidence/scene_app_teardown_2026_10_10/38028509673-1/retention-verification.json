@@ -1,0 +1,14 @@
+{
+  "run_id": 38028509673,
+  "run_attempt": 1,
+  "original_run_conclusion": "failure",
+  "artifact_id": 11660909076,
+  "zip_sha256": "16eea0d4d1c06fe887fe3669db51349246ed238c19d450e76989fa36ed1e4c99",
+  "zip_bytes": 176,
+  "manifest_members_verified": 0,
+  "verification_controller": "bd6fb27573fade970279e96b320a79d4a0aff731",
+  "verification_run": "38029609565",
+  "new_engine_executions": 0,
+  "scope": "Fixture-owned Node teardown only. No production memory, storage, rendered desktop, playable-producer or release acceptance.",
+  "disposition": "Pre-engine checkout failure retained, not passing coverage."
+}

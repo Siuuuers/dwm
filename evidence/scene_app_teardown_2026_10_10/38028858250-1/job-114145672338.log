@@ -1,0 +1,492 @@
+﻿2026-10-10T05:52:02.7008495Z Current runner version: '2.337.0'
+2026-10-10T05:52:02.7034146Z ##[group]Runner Image Provisioner
+2026-10-10T05:52:02.7035104Z Hosted Compute Agent
+2026-10-10T05:52:02.7036160Z Version: 20261002.596
+2026-10-10T05:52:02.7036955Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+2026-10-10T05:52:02.7037686Z Build Date: 2026-10-02T22:28:27Z
+2026-10-10T05:52:02.7038396Z Worker ID: {fbb99f4c-7bda-435f-85b0-3e7ef32a0fd9}
+2026-10-10T05:52:02.7039068Z Region: eastus
+2026-10-10T05:52:02.7039578Z Cloud: Azure
+2026-10-10T05:52:02.7040045Z ##[endgroup]
+2026-10-10T05:52:02.7041495Z ##[group]Operating System
+2026-10-10T05:52:02.7042212Z Microsoft Windows Server 2022
+2026-10-10T05:52:02.7042800Z 10.0.20348
+2026-10-10T05:52:02.7043305Z Datacenter
+2026-10-10T05:52:02.7043807Z ##[endgroup]
+2026-10-10T05:52:02.7044297Z ##[group]Runner Image
+2026-10-10T05:52:02.7044846Z Image: windows-2022
+2026-10-10T05:52:02.7045342Z Version: 20261004.326.1
+2026-10-10T05:52:02.7046680Z Included Software: https://github.com/actions/runner-images/blob/win22/20261004.326/images/windows/Windows2022-Readme.md
+2026-10-10T05:52:02.7048155Z Image Release: https://github.com/actions/runner-images/releases/tag/win22%2F20261004.326
+2026-10-10T05:52:02.7049058Z ##[endgroup]
+2026-10-10T05:52:02.7050132Z ##[group]GITHUB_TOKEN Permissions
+2026-10-10T05:52:02.7052113Z Actions: read
+2026-10-10T05:52:02.7052697Z Contents: write
+2026-10-10T05:52:02.7053215Z Metadata: read
+2026-10-10T05:52:02.7053722Z ##[endgroup]
+2026-10-10T05:52:02.7055820Z Secret source: Actions
+2026-10-10T05:52:02.7056733Z Cache mode: write
+2026-10-10T05:52:02.7057414Z Prepare workflow directory
+2026-10-10T05:52:02.7873409Z Prepare all required actions
+2026-10-10T05:52:02.7948406Z Getting action download info
+2026-10-10T05:52:02.9453537Z Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-10-10T05:52:03.0542191Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-10T05:52:03.3646991Z Complete job name: retain
+2026-10-10T05:52:03.5041021Z ##[group]Run git config --global core.autocrlf false
+2026-10-10T05:52:03.5041924Z [36;1mgit config --global core.autocrlf false[0m
+2026-10-10T05:52:03.5196593Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-10T05:52:03.5197728Z env:
+2026-10-10T05:52:03.5198395Z   CONTROLLER_SHA: 9e4412c76f3ad57727c8eb4d3e84da8ccd783880
+2026-10-10T05:52:03.5199093Z ##[endgroup]
+2026-10-10T05:52:04.4159858Z ##[group]Run actions/checkout@v7
+2026-10-10T05:52:04.4161104Z with:
+2026-10-10T05:52:04.4162051Z   ref: 9e4412c76f3ad57727c8eb4d3e84da8ccd783880
+2026-10-10T05:52:04.4163293Z   path: controller
+2026-10-10T05:52:04.4164224Z   persist-credentials: true
+2026-10-10T05:52:04.4165281Z   repository: Siuuuers/dwm
+2026-10-10T05:52:04.4174546Z   token: ***
+2026-10-10T05:52:04.4175400Z   ssh-strict: true
+2026-10-10T05:52:04.4176270Z   ssh-user: git
+2026-10-10T05:52:04.4177112Z   clean: true
+2026-10-10T05:52:04.4178053Z   sparse-checkout-cone-mode: true
+2026-10-10T05:52:04.4179119Z   fetch-depth: 1
+2026-10-10T05:52:04.4179986Z   fetch-tags: false
+2026-10-10T05:52:04.4180873Z   show-progress: true
+2026-10-10T05:52:04.4181775Z   lfs: false
+2026-10-10T05:52:04.4182612Z   submodules: false
+2026-10-10T05:52:04.4183511Z   set-safe-directory: true
+2026-10-10T05:52:04.4184546Z   allow-unsafe-pr-checkout: false
+2026-10-10T05:52:04.4185599Z env:
+2026-10-10T05:52:04.4186637Z   CONTROLLER_SHA: 9e4412c76f3ad57727c8eb4d3e84da8ccd783880
+2026-10-10T05:52:04.4187953Z ##[endgroup]
+2026-10-10T05:52:04.5641200Z Syncing repository: Siuuuers/dwm
+2026-10-10T05:52:04.5644087Z ##[group]Getting Git version info
+2026-10-10T05:52:04.5645374Z Working directory is 'D:\a\dwm\dwm\controller'
+2026-10-10T05:52:04.6537316Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-10T05:52:04.6820577Z git version 2.56.0.windows.1
+2026-10-10T05:52:04.6863369Z ##[endgroup]
+2026-10-10T05:52:04.6872602Z Copying 'C:\Users\runneradmin\.gitconfig' to 'D:\a\_temp\348db368-01fd-4147-9167-d0258122ac0e\.gitconfig'
+2026-10-10T05:52:04.6894532Z Temporarily overriding HOME='D:\a\_temp\348db368-01fd-4147-9167-d0258122ac0e' before making global git config changes
+2026-10-10T05:52:04.6897304Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-10T05:52:04.6904654Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\dwm\dwm\controller
+2026-10-10T05:52:04.7212845Z ##[group]Determining repository object format
+2026-10-10T05:52:04.7215158Z ##[endgroup]
+2026-10-10T05:52:04.7216665Z ##[group]Initializing the repository
+2026-10-10T05:52:04.7223574Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\dwm\dwm\controller
+2026-10-10T05:52:04.8085051Z Initialized empty Git repository in D:/a/dwm/dwm/controller/.git/
+2026-10-10T05:52:04.8131956Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/Siuuuers/dwm
+2026-10-10T05:52:04.8777873Z ##[endgroup]
+2026-10-10T05:52:04.8780139Z ##[group]Disabling automatic garbage collection
+2026-10-10T05:52:04.8782366Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+2026-10-10T05:52:04.9016505Z ##[endgroup]
+2026-10-10T05:52:04.9017964Z ##[group]Setting up auth
+2026-10-10T05:52:04.9019055Z Removing SSH command configuration
+2026-10-10T05:52:04.9033024Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-10T05:52:04.9352191Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-10T05:52:06.3342699Z Removing HTTP extra header
+2026-10-10T05:52:06.3351519Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-10T05:52:06.3652799Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-10T05:52:06.8448360Z Removing includeIf entries pointing to credentials config files
+2026-10-10T05:52:06.8461677Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-10T05:52:06.8777683Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-10T05:52:07.3809330Z [command]"C:\Program Files\Git\bin\git.exe" config --file D:\a\_temp\git-credentials-bb5d610c-60c3-475e-8de1-785b19cf28af.config http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-10-10T05:52:07.4137188Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/dwm/dwm/controller/.git.path D:\a\_temp\git-credentials-bb5d610c-60c3-475e-8de1-785b19cf28af.config
+2026-10-10T05:52:07.4455582Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/dwm/dwm/controller/.git/worktrees/*.path D:\a\_temp\git-credentials-bb5d610c-60c3-475e-8de1-785b19cf28af.config
+2026-10-10T05:52:07.4813931Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/controller/.git.path /github/runner_temp/git-credentials-bb5d610c-60c3-475e-8de1-785b19cf28af.config
+2026-10-10T05:52:07.5132459Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/controller/.git/worktrees/*.path /github/runner_temp/git-credentials-bb5d610c-60c3-475e-8de1-785b19cf28af.config
+2026-10-10T05:52:07.5451514Z ##[endgroup]
+2026-10-10T05:52:07.5452237Z ##[group]Fetching the repository
+2026-10-10T05:52:07.5463516Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 9e4412c76f3ad57727c8eb4d3e84da8ccd783880
+2026-10-10T05:52:16.6344838Z From https://github.com/Siuuuers/dwm
+2026-10-10T05:52:16.6347079Z  * branch            9e4412c76f3ad57727c8eb4d3e84da8ccd783880 -> FETCH_HEAD
+2026-10-10T05:52:16.6403298Z [command]"C:\Program Files\Git\bin\git.exe" rev-parse --verify --quiet 9e4412c76f3ad57727c8eb4d3e84da8ccd783880^{object}
+2026-10-10T05:52:16.6770591Z 9e4412c76f3ad57727c8eb4d3e84da8ccd783880
+2026-10-10T05:52:16.6804091Z ##[endgroup]
+2026-10-10T05:52:16.6804748Z ##[group]Determining the checkout info
+2026-10-10T05:52:16.6805469Z ##[endgroup]
+2026-10-10T05:52:16.6814739Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+2026-10-10T05:52:16.7265786Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-10-10T05:52:16.7579300Z ##[group]Checking out the ref
+2026-10-10T05:52:16.7588673Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force 9e4412c76f3ad57727c8eb4d3e84da8ccd783880
+2026-10-10T05:52:17.9233066Z Updating files:  36% (4436/12242)
+2026-10-10T05:52:17.9428969Z Updating files:  37% (4530/12242)
+2026-10-10T05:52:17.9807834Z Updating files:  38% (4652/12242)
+2026-10-10T05:52:18.0239897Z Updating files:  39% (4775/12242)
+2026-10-10T05:52:18.0974870Z Updating files:  40% (4897/12242)
+2026-10-10T05:52:18.1352858Z Updating files:  41% (5020/12242)
+2026-10-10T05:52:18.1685715Z Updating files:  42% (5142/12242)
+2026-10-10T05:52:18.1988489Z Updating files:  43% (5265/12242)
+2026-10-10T05:52:18.2292972Z Updating files:  44% (5387/12242)
+2026-10-10T05:52:18.2550050Z Updating files:  45% (5509/12242)
+2026-10-10T05:52:18.2782385Z Updating files:  46% (5632/12242)
+2026-10-10T05:52:18.3016280Z Updating files:  47% (5754/12242)
+2026-10-10T05:52:18.3245382Z Updating files:  48% (5877/12242)
+2026-10-10T05:52:18.3551310Z Updating files:  49% (5999/12242)
+2026-10-10T05:52:18.3880973Z Updating files:  50% (6121/12242)
+2026-10-10T05:52:18.4241387Z Updating files:  51% (6244/12242)
+2026-10-10T05:52:18.4611310Z Updating files:  52% (6366/12242)
+2026-10-10T05:52:18.4947235Z Updating files:  53% (6489/12242)
+2026-10-10T05:52:18.5279833Z Updating files:  54% (6611/12242)
+2026-10-10T05:52:18.5654677Z Updating files:  55% (6734/12242)
+2026-10-10T05:52:18.6034196Z Updating files:  56% (6856/12242)
+2026-10-10T05:52:18.6900506Z Updating files:  57% (6978/12242)
+2026-10-10T05:52:18.7908998Z Updating files:  58% (7101/12242)
+2026-10-10T05:52:18.8054603Z Updating files:  59% (7223/12242)
+2026-10-10T05:52:18.8273697Z Updating files:  59% (7264/12242)
+2026-10-10T05:52:18.8611292Z Updating files:  60% (7346/12242)
+2026-10-10T05:52:19.0014858Z Updating files:  61% (7468/12242)
+2026-10-10T05:52:19.0453813Z Updating files:  62% (7591/12242)
+2026-10-10T05:52:19.3315479Z Updating files:  63% (7713/12242)
+2026-10-10T05:52:19.5855009Z Updating files:  64% (7835/12242)
+2026-10-10T05:52:19.7529976Z Updating files:  65% (7958/12242)
+2026-10-10T05:52:19.8271198Z Updating files:  66% (8080/12242)
+2026-10-10T05:52:19.8672624Z Updating files:  66% (8116/12242)
+2026-10-10T05:52:19.9054051Z Updating files:  67% (8203/12242)
+2026-10-10T05:52:19.9478062Z Updating files:  68% (8325/12242)
+2026-10-10T05:52:20.1857481Z Updating files:  69% (8447/12242)
+2026-10-10T05:52:20.2200173Z Updating files:  70% (8570/12242)
+2026-10-10T05:52:20.2543246Z Updating files:  71% (8692/12242)
+2026-10-10T05:52:20.2834415Z Updating files:  72% (8815/12242)
+2026-10-10T05:52:20.3167504Z Updating files:  73% (8937/12242)
+2026-10-10T05:52:20.3480468Z Updating files:  74% (9060/12242)
+2026-10-10T05:52:20.3824720Z Updating files:  75% (9182/12242)
+2026-10-10T05:52:20.4169426Z Updating files:  76% (9304/12242)
+2026-10-10T05:52:20.4504323Z Updating files:  77% (9427/12242)
+2026-10-10T05:52:20.4870212Z Updating files:  78% (9549/12242)
+2026-10-10T05:52:20.5202741Z Updating files:  79% (9672/12242)
+2026-10-10T05:52:20.5645225Z Updating files:  80% (9794/12242)
+2026-10-10T05:52:20.6400277Z Updating files:  81% (9917/12242)
+2026-10-10T05:52:20.6647079Z Updating files:  82% (10039/12242)
+2026-10-10T05:52:20.6907810Z Updating files:  83% (10161/12242)
+2026-10-10T05:52:20.7168288Z Updating files:  84% (10284/12242)
+2026-10-10T05:52:20.7389587Z Updating files:  85% (10406/12242)
+2026-10-10T05:52:20.7605281Z Updating files:  86% (10529/12242)
+2026-10-10T05:52:20.7888719Z Updating files:  87% (10651/12242)
+2026-10-10T05:52:20.8054896Z Updating files:  88% (10773/12242)
+2026-10-10T05:52:20.8151760Z Updating files:  88% (10854/12242)
+2026-10-10T05:52:20.8407330Z Updating files:  89% (10896/12242)
+2026-10-10T05:52:20.8635075Z Updating files:  90% (11018/12242)
+2026-10-10T05:52:20.8860756Z Updating files:  91% (11141/12242)
+2026-10-10T05:52:20.9089030Z Updating files:  92% (11263/12242)
+2026-10-10T05:52:20.9319877Z Updating files:  93% (11386/12242)
+2026-10-10T05:52:20.9575810Z Updating files:  94% (11508/12242)
+2026-10-10T05:52:20.9799818Z Updating files:  95% (11630/12242)
+2026-10-10T05:52:21.0054096Z Updating files:  96% (11753/12242)
+2026-10-10T05:52:21.0273854Z Updating files:  97% (11875/12242)
+2026-10-10T05:52:21.0519662Z Updating files:  98% (11998/12242)
+2026-10-10T05:52:21.0827301Z Updating files:  99% (12120/12242)
+2026-10-10T05:52:21.0827769Z Updating files: 100% (12242/12242)
+2026-10-10T05:52:21.0828040Z Updating files: 100% (12242/12242), done.
+2026-10-10T05:52:21.1075373Z Note: switching to '9e4412c76f3ad57727c8eb4d3e84da8ccd783880'.
+2026-10-10T05:52:21.1075920Z 
+2026-10-10T05:52:21.1076357Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-10T05:52:21.1077233Z changes and commit them, and you can discard any commits you make in this
+2026-10-10T05:52:21.1078153Z state without impacting any branches by switching back to a branch.
+2026-10-10T05:52:21.1078659Z 
+2026-10-10T05:52:21.1079026Z If you want to create a new branch to retain commits you create, you may
+2026-10-10T05:52:21.1079822Z do so (now or later) by using -c with the switch command. Example:
+2026-10-10T05:52:21.1080282Z 
+2026-10-10T05:52:21.1080735Z   git switch -c <new-branch-name>
+2026-10-10T05:52:21.1081083Z 
+2026-10-10T05:52:21.1081243Z Or undo this operation with:
+2026-10-10T05:52:21.1081527Z 
+2026-10-10T05:52:21.1081652Z   git switch -
+2026-10-10T05:52:21.1081857Z 
+2026-10-10T05:52:21.1082224Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-10T05:52:21.1082793Z 
+2026-10-10T05:52:21.1083301Z HEAD is now at 9e4412c test(cloud): defer checkout credential cleanup until gitlink-safe teardown
+2026-10-10T05:52:21.1679590Z ##[endgroup]
+2026-10-10T05:52:21.2022269Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-10-10T05:52:21.2310889Z 9e4412c76f3ad57727c8eb4d3e84da8ccd783880
+2026-10-10T05:52:21.2690580Z ##[group]Run actions/checkout@v7
+2026-10-10T05:52:21.2690898Z with:
+2026-10-10T05:52:21.2691123Z   ref: codex/scene-runtime-evidence-20261009
+2026-10-10T05:52:21.2691420Z   path: evidence
+2026-10-10T05:52:21.2691624Z   persist-credentials: true
+2026-10-10T05:52:21.2691859Z   repository: Siuuuers/dwm
+2026-10-10T05:52:21.2694480Z   token: ***
+2026-10-10T05:52:21.2694673Z   ssh-strict: true
+2026-10-10T05:52:21.2694861Z   ssh-user: git
+2026-10-10T05:52:21.2695035Z   clean: true
+2026-10-10T05:52:21.2695226Z   sparse-checkout-cone-mode: true
+2026-10-10T05:52:21.2695463Z   fetch-depth: 1
+2026-10-10T05:52:21.2695646Z   fetch-tags: false
+2026-10-10T05:52:21.2695832Z   show-progress: true
+2026-10-10T05:52:21.2696027Z   lfs: false
+2026-10-10T05:52:21.2696195Z   submodules: false
+2026-10-10T05:52:21.2696471Z   set-safe-directory: true
+2026-10-10T05:52:21.2696727Z   allow-unsafe-pr-checkout: false
+2026-10-10T05:52:21.2696971Z env:
+2026-10-10T05:52:21.2697257Z   CONTROLLER_SHA: 9e4412c76f3ad57727c8eb4d3e84da8ccd783880
+2026-10-10T05:52:21.2697561Z ##[endgroup]
+2026-10-10T05:52:21.3820199Z Syncing repository: Siuuuers/dwm
+2026-10-10T05:52:21.3828016Z ##[group]Getting Git version info
+2026-10-10T05:52:21.3828350Z Working directory is 'D:\a\dwm\dwm\evidence'
+2026-10-10T05:52:21.4672947Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-10T05:52:21.4959265Z git version 2.56.0.windows.1
+2026-10-10T05:52:21.5006030Z ##[endgroup]
+2026-10-10T05:52:21.5014697Z Copying 'C:\Users\runneradmin\.gitconfig' to 'D:\a\_temp\4600cc78-c2c1-4446-a7f7-f6b638930945\.gitconfig'
+2026-10-10T05:52:21.5036111Z Temporarily overriding HOME='D:\a\_temp\4600cc78-c2c1-4446-a7f7-f6b638930945' before making global git config changes
+2026-10-10T05:52:21.5036912Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-10T05:52:21.5046644Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\dwm\dwm\evidence
+2026-10-10T05:52:21.5355301Z ##[group]Determining repository object format
+2026-10-10T05:52:21.7619264Z ##[endgroup]
+2026-10-10T05:52:21.7620285Z ##[group]Initializing the repository
+2026-10-10T05:52:21.7640027Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\dwm\dwm\evidence
+2026-10-10T05:52:21.8073063Z Initialized empty Git repository in D:/a/dwm/dwm/evidence/.git/
+2026-10-10T05:52:21.8135980Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/Siuuuers/dwm
+2026-10-10T05:52:21.8512526Z ##[endgroup]
+2026-10-10T05:52:21.8513167Z ##[group]Disabling automatic garbage collection
+2026-10-10T05:52:21.8522985Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+2026-10-10T05:52:21.8855728Z ##[endgroup]
+2026-10-10T05:52:21.8856344Z ##[group]Setting up auth
+2026-10-10T05:52:21.8856789Z Removing SSH command configuration
+2026-10-10T05:52:21.8868879Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-10T05:52:21.9224506Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-10T05:52:22.5082159Z Removing HTTP extra header
+2026-10-10T05:52:22.5092047Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-10T05:52:22.5410932Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-10T05:52:23.0703233Z Removing includeIf entries pointing to credentials config files
+2026-10-10T05:52:23.0713782Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-10T05:52:23.1037306Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-10T05:52:23.6174148Z [command]"C:\Program Files\Git\bin\git.exe" config --file D:\a\_temp\git-credentials-14cdd84c-4e9c-40c7-b785-c58aae197e43.config http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-10-10T05:52:23.6496189Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/dwm/dwm/evidence/.git.path D:\a\_temp\git-credentials-14cdd84c-4e9c-40c7-b785-c58aae197e43.config
+2026-10-10T05:52:23.6805808Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/dwm/dwm/evidence/.git/worktrees/*.path D:\a\_temp\git-credentials-14cdd84c-4e9c-40c7-b785-c58aae197e43.config
+2026-10-10T05:52:23.7120292Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/evidence/.git.path /github/runner_temp/git-credentials-14cdd84c-4e9c-40c7-b785-c58aae197e43.config
+2026-10-10T05:52:23.7434942Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/evidence/.git/worktrees/*.path /github/runner_temp/git-credentials-14cdd84c-4e9c-40c7-b785-c58aae197e43.config
+2026-10-10T05:52:23.7748653Z ##[endgroup]
+2026-10-10T05:52:23.7749096Z ##[group]Fetching the repository
+2026-10-10T05:52:23.7760912Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +refs/heads/codex/scene-runtime-evidence-20261009*:refs/remotes/origin/codex/scene-runtime-evidence-20261009* +refs/tags/codex/scene-runtime-evidence-20261009*:refs/tags/codex/scene-runtime-evidence-20261009*
+2026-10-10T05:52:32.3206581Z From https://github.com/Siuuuers/dwm
+2026-10-10T05:52:32.3207424Z  * [new branch]      codex/scene-runtime-evidence-20261009 -> origin/codex/scene-runtime-evidence-20261009
+2026-10-10T05:52:32.3244631Z ##[endgroup]
+2026-10-10T05:52:32.3245069Z ##[group]Determining the checkout info
+2026-10-10T05:52:32.3255502Z [command]"C:\Program Files\Git\bin\git.exe" branch --list --remote origin/codex/scene-runtime-evidence-20261009
+2026-10-10T05:52:32.3567811Z   origin/codex/scene-runtime-evidence-20261009
+2026-10-10T05:52:32.3597496Z ##[endgroup]
+2026-10-10T05:52:32.3606971Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+2026-10-10T05:52:32.3974306Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-10-10T05:52:32.4292686Z ##[group]Checking out the ref
+2026-10-10T05:52:32.4301687Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force -B codex/scene-runtime-evidence-20261009 refs/remotes/origin/codex/scene-runtime-evidence-20261009
+2026-10-10T05:52:33.6599790Z Updating files:  36% (4432/12267)
+2026-10-10T05:52:33.6788604Z Updating files:  37% (4539/12267)
+2026-10-10T05:52:33.7170996Z Updating files:  38% (4662/12267)
+2026-10-10T05:52:33.7638630Z Updating files:  39% (4785/12267)
+2026-10-10T05:52:33.8339394Z Updating files:  40% (4907/12267)
+2026-10-10T05:52:33.8699544Z Updating files:  41% (5030/12267)
+2026-10-10T05:52:33.9052844Z Updating files:  42% (5153/12267)
+2026-10-10T05:52:33.9351742Z Updating files:  43% (5275/12267)
+2026-10-10T05:52:33.9672759Z Updating files:  44% (5398/12267)
+2026-10-10T05:52:33.9910675Z Updating files:  45% (5521/12267)
+2026-10-10T05:52:34.0142206Z Updating files:  46% (5643/12267)
+2026-10-10T05:52:34.0387891Z Updating files:  47% (5766/12267)
+2026-10-10T05:52:34.0641647Z Updating files:  48% (5889/12267)
+2026-10-10T05:52:34.0941213Z Updating files:  49% (6011/12267)
+2026-10-10T05:52:34.1307852Z Updating files:  50% (6134/12267)
+2026-10-10T05:52:34.1652542Z Updating files:  51% (6257/12267)
+2026-10-10T05:52:34.2050673Z Updating files:  52% (6379/12267)
+2026-10-10T05:52:34.2397127Z Updating files:  53% (6502/12267)
+2026-10-10T05:52:34.2733576Z Updating files:  54% (6625/12267)
+2026-10-10T05:52:34.4640190Z Updating files:  55% (6747/12267)
+2026-10-10T05:52:34.4831251Z Updating files:  56% (6870/12267)
+2026-10-10T05:52:34.4992100Z Updating files:  56% (6932/12267)
+2026-10-10T05:52:34.5924647Z Updating files:  57% (6993/12267)
+2026-10-10T05:52:34.6950336Z Updating files:  58% (7115/12267)
+2026-10-10T05:52:34.7293811Z Updating files:  59% (7238/12267)
+2026-10-10T05:52:34.7674156Z Updating files:  60% (7361/12267)
+2026-10-10T05:52:34.9107782Z Updating files:  61% (7483/12267)
+2026-10-10T05:52:34.9518119Z Updating files:  62% (7606/12267)
+2026-10-10T05:52:35.1942489Z Updating files:  63% (7729/12267)
+2026-10-10T05:52:35.4604416Z Updating files:  64% (7851/12267)
+2026-10-10T05:52:35.4841386Z Updating files:  65% (7974/12267)
+2026-10-10T05:52:35.6007592Z Updating files:  65% (7989/12267)
+2026-10-10T05:52:35.7137742Z Updating files:  66% (8097/12267)
+2026-10-10T05:52:35.9104452Z Updating files:  67% (8219/12267)
+2026-10-10T05:52:35.9540713Z Updating files:  68% (8342/12267)
+2026-10-10T05:52:36.1828179Z Updating files:  69% (8465/12267)
+2026-10-10T05:52:36.2135463Z Updating files:  70% (8587/12267)
+2026-10-10T05:52:36.2924985Z Updating files:  71% (8710/12267)
+2026-10-10T05:52:36.3212698Z Updating files:  72% (8833/12267)
+2026-10-10T05:52:36.3513991Z Updating files:  73% (8955/12267)
+2026-10-10T05:52:36.3869009Z Updating files:  74% (9078/12267)
+2026-10-10T05:52:36.4191354Z Updating files:  75% (9201/12267)
+2026-10-10T05:52:36.4557576Z Updating files:  76% (9323/12267)
+2026-10-10T05:52:36.4839344Z Updating files:  77% (9446/12267)
+2026-10-10T05:52:36.4878818Z Updating files:  77% (9554/12267)
+2026-10-10T05:52:36.5237022Z Updating files:  78% (9569/12267)
+2026-10-10T05:52:36.5610703Z Updating files:  79% (9691/12267)
+2026-10-10T05:52:36.6009845Z Updating files:  80% (9814/12267)
+2026-10-10T05:52:36.6367812Z Updating files:  81% (9937/12267)
+2026-10-10T05:52:36.6616834Z Updating files:  82% (10059/12267)
+2026-10-10T05:52:36.6862076Z Updating files:  83% (10182/12267)
+2026-10-10T05:52:36.7125944Z Updating files:  84% (10305/12267)
+2026-10-10T05:52:36.7350166Z Updating files:  85% (10427/12267)
+2026-10-10T05:52:36.7580499Z Updating files:  86% (10550/12267)
+2026-10-10T05:52:36.7824782Z Updating files:  87% (10673/12267)
+2026-10-10T05:52:36.8072360Z Updating files:  88% (10795/12267)
+2026-10-10T05:52:36.8335445Z Updating files:  89% (10918/12267)
+2026-10-10T05:52:36.8557280Z Updating files:  90% (11041/12267)
+2026-10-10T05:52:36.8778015Z Updating files:  91% (11163/12267)
+2026-10-10T05:52:36.9001394Z Updating files:  92% (11286/12267)
+2026-10-10T05:52:36.9237208Z Updating files:  93% (11409/12267)
+2026-10-10T05:52:36.9502347Z Updating files:  94% (11531/12267)
+2026-10-10T05:52:36.9729504Z Updating files:  95% (11654/12267)
+2026-10-10T05:52:36.9960532Z Updating files:  96% (11777/12267)
+2026-10-10T05:52:37.0179219Z Updating files:  97% (11899/12267)
+2026-10-10T05:52:37.0413911Z Updating files:  98% (12022/12267)
+2026-10-10T05:52:37.0719317Z Updating files:  99% (12145/12267)
+2026-10-10T05:52:37.0719650Z Updating files: 100% (12267/12267)
+2026-10-10T05:52:37.0719942Z Updating files: 100% (12267/12267), done.
+2026-10-10T05:52:37.1162328Z Switched to a new branch 'codex/scene-runtime-evidence-20261009'
+2026-10-10T05:52:37.1196689Z branch 'codex/scene-runtime-evidence-20261009' set up to track 'origin/codex/scene-runtime-evidence-20261009'.
+2026-10-10T05:52:37.1843264Z ##[endgroup]
+2026-10-10T05:52:37.2181460Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-10-10T05:52:37.2473143Z ad3d1bffdd56b7048fe4c287c55f1af4b170743a
+2026-10-10T05:52:37.2767635Z ##[group]Run python ../controller/tools/cloud/scene_app_teardown.py retain
+2026-10-10T05:52:37.2768288Z [36;1mpython ../controller/tools/cloud/scene_app_teardown.py retain[0m
+2026-10-10T05:52:37.2768712Z [36;1mif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }[0m
+2026-10-10T05:52:37.2808251Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-10T05:52:37.2808596Z env:
+2026-10-10T05:52:37.2808845Z   CONTROLLER_SHA: 9e4412c76f3ad57727c8eb4d3e84da8ccd783880
+2026-10-10T05:52:37.2811568Z   GH_TOKEN: ***
+2026-10-10T05:52:37.2811758Z ##[endgroup]
+2026-10-10T05:52:39.7490273Z Traceback (most recent call last):
+2026-10-10T05:52:39.7490902Z   File "D:\a\dwm\dwm\controller\tools\cloud\scene_app_teardown.py", line 206, in <module>
+2026-10-10T05:52:39.7493086Z     modes[sys.argv[1]]()
+2026-10-10T05:52:39.7534187Z   File "D:\a\dwm\dwm\controller\tools\cloud\scene_app_teardown.py", line 157, in retain
+2026-10-10T05:52:39.7535800Z     retain_failed_checkout()
+2026-10-10T05:52:39.7536464Z   File "D:\a\dwm\dwm\controller\tools\cloud\scene_app_teardown.py", line 121, in retain_failed_checkout
+2026-10-10T05:52:39.7537797Z     data = api('actions/artifacts/11660909076/zip')
+2026-10-10T05:52:39.7570629Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-10T05:52:39.7571268Z   File "D:\a\dwm\dwm\controller\tools\cloud\scene_app_teardown.py", line 109, in api
+2026-10-10T05:52:39.7572287Z     with urllib.request.urlopen(req, timeout=120) as response:
+2026-10-10T05:52:39.7573116Z          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-10T05:52:39.7573900Z   File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\urllib\request.py", line 215, in urlopen
+2026-10-10T05:52:39.7618621Z     return opener.open(url, data, timeout)
+2026-10-10T05:52:39.7619036Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-10T05:52:39.7619506Z   File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\urllib\request.py", line 521, in open
+2026-10-10T05:52:39.7626484Z     response = meth(req, response)
+2026-10-10T05:52:39.7626878Z                ^^^^^^^^^^^^^^^^^^^
+2026-10-10T05:52:39.7627366Z   File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\urllib\request.py", line 630, in http_response
+2026-10-10T05:52:39.7629921Z     response = self.parent.error(
+2026-10-10T05:52:39.7630298Z                ^^^^^^^^^^^^^^^^^^
+2026-10-10T05:52:39.7630740Z   File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\urllib\request.py", line 553, in error
+2026-10-10T05:52:39.7632949Z     result = self._call_chain(*args)
+2026-10-10T05:52:39.7633332Z              ^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-10T05:52:39.7633797Z   File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\urllib\request.py", line 492, in _call_chain
+2026-10-10T05:52:39.7636309Z     result = func(*args)
+2026-10-10T05:52:39.7636638Z              ^^^^^^^^^^^
+2026-10-10T05:52:39.7637116Z   File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\urllib\request.py", line 745, in http_error_302
+2026-10-10T05:52:39.7645277Z     return self.parent.open(new, timeout=req.timeout)
+2026-10-10T05:52:39.7646443Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-10T05:52:39.7647270Z   File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\urllib\request.py", line 521, in open
+2026-10-10T05:52:39.7649709Z     response = meth(req, response)
+2026-10-10T05:52:39.7650076Z                ^^^^^^^^^^^^^^^^^^^
+2026-10-10T05:52:39.7650730Z   File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\urllib\request.py", line 630, in http_response
+2026-10-10T05:52:39.7653536Z     response = self.parent.error(
+2026-10-10T05:52:39.7653988Z                ^^^^^^^^^^^^^^^^^^
+2026-10-10T05:52:39.7654644Z   File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\urllib\request.py", line 559, in error
+2026-10-10T05:52:39.7656789Z     return self._call_chain(*args)
+2026-10-10T05:52:39.7657169Z            ^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-10T05:52:39.7660061Z   File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\urllib\request.py", line 492, in _call_chain
+2026-10-10T05:52:39.7660813Z     result = func(*args)
+2026-10-10T05:52:39.7661021Z              ^^^^^^^^^^^
+2026-10-10T05:52:39.7661449Z   File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\urllib\request.py", line 639, in http_error_default
+2026-10-10T05:52:39.7663565Z     raise HTTPError(req.full_url, code, msg, hdrs, fp)
+2026-10-10T05:52:39.7665057Z urllib.error.HTTPError: HTTP Error 401: Server failed to authenticate the request. Please refer to the information in the www-authenticate header.
+2026-10-10T05:52:39.8434613Z ##[error]Process completed with exit code 1.
+2026-10-10T05:52:39.8627661Z ##[group]Run actions/upload-artifact@v4
+2026-10-10T05:52:39.8627988Z with:
+2026-10-10T05:52:39.8628224Z   name: scene-app-teardown-retention-38028858250-1
+2026-10-10T05:52:39.8628674Z   path: evidence/evidence/scene_app_teardown_2026_10_10/*/retention-verification.json
+2026-10-10T05:52:39.8629112Z   if-no-files-found: warn
+2026-10-10T05:52:39.8629326Z   retention-days: 7
+2026-10-10T05:52:39.8629525Z   compression-level: 6
+2026-10-10T05:52:39.8629732Z   overwrite: false
+2026-10-10T05:52:39.8629925Z   include-hidden-files: false
+2026-10-10T05:52:39.8630138Z env:
+2026-10-10T05:52:39.8630366Z   CONTROLLER_SHA: 9e4412c76f3ad57727c8eb4d3e84da8ccd783880
+2026-10-10T05:52:39.8630663Z ##[endgroup]
+2026-10-10T05:52:40.0610284Z (node:784) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-10T05:52:40.0611553Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-10T05:52:40.0671568Z ##[warning]No files were found with the provided path: evidence/evidence/scene_app_teardown_2026_10_10/*/retention-verification.json. No artifacts will be uploaded.
+2026-10-10T05:52:40.0887182Z ##[group]Run foreach ($repo in @('.', '../controller')) {
+2026-10-10T05:52:40.0887657Z [36;1mforeach ($repo in @('.', '../controller')) {[0m
+2026-10-10T05:52:40.0888249Z [36;1m  if (-not (Test-Path -LiteralPath "$repo/.git")) { continue }[0m
+2026-10-10T05:52:40.0888917Z [36;1m  git -C $repo update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1[0m
+2026-10-10T05:52:40.0889530Z [36;1m  if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }[0m
+2026-10-10T05:52:40.0889913Z [36;1m  git -C $repo submodule foreach --recursive 'true'[0m
+2026-10-10T05:52:40.0890270Z [36;1m  if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }[0m
+2026-10-10T05:52:40.0890567Z [36;1m}[0m
+2026-10-10T05:52:40.0929273Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-10T05:52:40.0929619Z env:
+2026-10-10T05:52:40.0929863Z   CONTROLLER_SHA: 9e4412c76f3ad57727c8eb4d3e84da8ccd783880
+2026-10-10T05:52:40.0930168Z ##[endgroup]
+2026-10-10T05:52:41.6869476Z Post job cleanup.
+2026-10-10T05:52:41.8995579Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-10T05:52:41.9279889Z git version 2.56.0.windows.1
+2026-10-10T05:52:41.9336160Z Copying 'C:\Users\runneradmin\.gitconfig' to 'D:\a\_temp\e90f59a6-eafd-4bd7-8d19-bc575d22a4c1\.gitconfig'
+2026-10-10T05:52:41.9358566Z Temporarily overriding HOME='D:\a\_temp\e90f59a6-eafd-4bd7-8d19-bc575d22a4c1' before making global git config changes
+2026-10-10T05:52:41.9359994Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-10T05:52:41.9373329Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\dwm\dwm\evidence
+2026-10-10T05:52:41.9715740Z Removing SSH command configuration
+2026-10-10T05:52:41.9727022Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-10T05:52:42.0056949Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-10T05:52:42.5068599Z Removing HTTP extra header
+2026-10-10T05:52:42.5078188Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-10T05:52:42.5396115Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-10T05:52:43.0690415Z Removing includeIf entries pointing to credentials config files
+2026-10-10T05:52:43.0707369Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-10T05:52:43.0984925Z includeif.gitdir:D:/a/dwm/dwm/evidence/.git.path
+2026-10-10T05:52:43.0985833Z includeif.gitdir:D:/a/dwm/dwm/evidence/.git/worktrees/*.path
+2026-10-10T05:52:43.0986720Z includeif.gitdir:/github/workspace/evidence/.git.path
+2026-10-10T05:52:43.0987539Z includeif.gitdir:/github/workspace/evidence/.git/worktrees/*.path
+2026-10-10T05:52:43.1025237Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/dwm/dwm/evidence/.git.path
+2026-10-10T05:52:43.1298702Z D:\a\_temp\git-credentials-14cdd84c-4e9c-40c7-b785-c58aae197e43.config
+2026-10-10T05:52:43.1346950Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/dwm/dwm/evidence/.git.path D\:\\a\\_temp\\git\-credentials\-14cdd84c\-4e9c\-40c7\-b785\-c58aae197e43\.config
+2026-10-10T05:52:43.1710523Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/dwm/dwm/evidence/.git/worktrees/*.path
+2026-10-10T05:52:43.1984479Z D:\a\_temp\git-credentials-14cdd84c-4e9c-40c7-b785-c58aae197e43.config
+2026-10-10T05:52:43.2024625Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/dwm/dwm/evidence/.git/worktrees/*.path D\:\\a\\_temp\\git\-credentials\-14cdd84c\-4e9c\-40c7\-b785\-c58aae197e43\.config
+2026-10-10T05:52:43.2339772Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/evidence/.git.path
+2026-10-10T05:52:43.2614476Z /github/runner_temp/git-credentials-14cdd84c-4e9c-40c7-b785-c58aae197e43.config
+2026-10-10T05:52:43.2654061Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/evidence/.git.path \/github\/runner_temp\/git\-credentials\-14cdd84c\-4e9c\-40c7\-b785\-c58aae197e43\.config
+2026-10-10T05:52:43.2974599Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/evidence/.git/worktrees/*.path
+2026-10-10T05:52:43.3247245Z /github/runner_temp/git-credentials-14cdd84c-4e9c-40c7-b785-c58aae197e43.config
+2026-10-10T05:52:43.3288243Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/evidence/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-14cdd84c\-4e9c\-40c7\-b785\-c58aae197e43\.config
+2026-10-10T05:52:43.3600918Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-10T05:52:43.8642911Z Removing credentials config 'D:\a\_temp\git-credentials-14cdd84c-4e9c-40c7-b785-c58aae197e43.config'
+2026-10-10T05:52:43.9000459Z Post job cleanup.
+2026-10-10T05:52:44.0920447Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-10T05:52:44.1194410Z git version 2.56.0.windows.1
+2026-10-10T05:52:44.1256596Z Copying 'C:\Users\runneradmin\.gitconfig' to 'D:\a\_temp\3a9f76d1-9c74-4bda-a619-32717ed145f9\.gitconfig'
+2026-10-10T05:52:44.1279600Z Temporarily overriding HOME='D:\a\_temp\3a9f76d1-9c74-4bda-a619-32717ed145f9' before making global git config changes
+2026-10-10T05:52:44.1281018Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-10T05:52:44.1295294Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\dwm\dwm\controller
+2026-10-10T05:52:44.1663540Z Removing SSH command configuration
+2026-10-10T05:52:44.1679124Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-10T05:52:44.2013183Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-10T05:52:44.7102848Z Removing HTTP extra header
+2026-10-10T05:52:44.7112672Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-10T05:52:44.7436742Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-10T05:52:45.2882995Z Removing includeIf entries pointing to credentials config files
+2026-10-10T05:52:45.2898780Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-10T05:52:45.3190918Z includeif.gitdir:D:/a/dwm/dwm/controller/.git.path
+2026-10-10T05:52:45.3191748Z includeif.gitdir:D:/a/dwm/dwm/controller/.git/worktrees/*.path
+2026-10-10T05:52:45.3192304Z includeif.gitdir:/github/workspace/controller/.git.path
+2026-10-10T05:52:45.3192831Z includeif.gitdir:/github/workspace/controller/.git/worktrees/*.path
+2026-10-10T05:52:45.3231416Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/dwm/dwm/controller/.git.path
+2026-10-10T05:52:45.3504087Z D:\a\_temp\git-credentials-bb5d610c-60c3-475e-8de1-785b19cf28af.config
+2026-10-10T05:52:45.3545800Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/dwm/dwm/controller/.git.path D\:\\a\\_temp\\git\-credentials\-bb5d610c\-60c3\-475e\-8de1\-785b19cf28af\.config
+2026-10-10T05:52:45.3860951Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/dwm/dwm/controller/.git/worktrees/*.path
+2026-10-10T05:52:45.4135586Z D:\a\_temp\git-credentials-bb5d610c-60c3-475e-8de1-785b19cf28af.config
+2026-10-10T05:52:45.4177668Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/dwm/dwm/controller/.git/worktrees/*.path D\:\\a\\_temp\\git\-credentials\-bb5d610c\-60c3\-475e\-8de1\-785b19cf28af\.config
+2026-10-10T05:52:45.4491085Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/controller/.git.path
+2026-10-10T05:52:45.4760006Z /github/runner_temp/git-credentials-bb5d610c-60c3-475e-8de1-785b19cf28af.config
+2026-10-10T05:52:45.4800230Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/controller/.git.path \/github\/runner_temp\/git\-credentials\-bb5d610c\-60c3\-475e\-8de1\-785b19cf28af\.config
+2026-10-10T05:52:45.5107646Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/controller/.git/worktrees/*.path
+2026-10-10T05:52:45.5370143Z /github/runner_temp/git-credentials-bb5d610c-60c3-475e-8de1-785b19cf28af.config
+2026-10-10T05:52:45.5452721Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/controller/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-bb5d610c\-60c3\-475e\-8de1\-785b19cf28af\.config
+2026-10-10T05:52:45.5756958Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-10T05:52:46.0683419Z Removing credentials config 'D:\a\_temp\git-credentials-bb5d610c-60c3-475e-8de1-785b19cf28af.config'
+2026-10-10T05:52:46.0880486Z Cleaning up orphan processes
+2026-10-10T05:52:46.1365394Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

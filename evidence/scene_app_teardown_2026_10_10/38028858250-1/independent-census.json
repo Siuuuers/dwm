@@ -1,0 +1,1063 @@
+{
+  "cases": 11,
+  "xml_testcase_assertions": 281,
+  "gut_assertions": 281,
+  "test_names": [
+    "test_teardown_probe_distinguishes_queued_children_from_unqueued_survivor",
+    "test_contacts_scene_refresh_reopen_and_preference_reflow",
+    "test_mines_scene_refresh_resize_information_and_reopen",
+    "test_shop_scene_catalog_refresh_reflow_preserves_port_and_cards",
+    "test_settings_scene_presentation_uses_real_content_and_preferences",
+    "test_backup_scene_records_keep_explicit_families_and_fallback_times",
+    "test_backup_scene_invalid_setup_is_nonmutating_and_valid_rebind_detaches_old_sources",
+    "test_backup_scene_prepared_fallback_confirmation_preserves_pending_custody",
+    "test_backup_scene_title_fallback_uses_real_neutral_confirmation",
+    "test_backup_scene_action_refusal_retry_and_malformed_preparation_never_bypass_port",
+    "test_backup_scene_preferences_reopen_and_legacy_guards_keep_dayless_theme"
+  ],
+  "settled_teardown_observations": [
+    {
+      "after_two_frames": {},
+      "before_root_release": {}
+    },
+    {
+      "after_two_frames": {},
+      "before_root_release": {}
+    },
+    {
+      "after_two_frames": {},
+      "before_root_release": {
+        "277998471772": {
+          "class": "Button",
+          "name": "@Button@63",
+          "queued_ancestor": 277998471772
+        },
+        "278149466818": {
+          "class": "Button",
+          "name": "@Button@64",
+          "queued_ancestor": 278149466818
+        },
+        "278300461753": {
+          "class": "Button",
+          "name": "@Button@65",
+          "queued_ancestor": 278300461753
+        },
+        "278451456715": {
+          "class": "Button",
+          "name": "@Button@66",
+          "queued_ancestor": 278451456715
+        },
+        "278602451632": {
+          "class": "Button",
+          "name": "@Button@67",
+          "queued_ancestor": 278602451632
+        },
+        "281991449215": {
+          "class": "Button",
+          "name": "@Button@93",
+          "queued_ancestor": 281991449215
+        },
+        "282142444297": {
+          "class": "Button",
+          "name": "@Button@94",
+          "queued_ancestor": 282142444297
+        },
+        "282293439212": {
+          "class": "Button",
+          "name": "@Button@95",
+          "queued_ancestor": 282293439212
+        },
+        "319622744591": {
+          "class": "Button",
+          "name": "@Button@607",
+          "queued_ancestor": 319622744591
+        },
+        "319773741280": {
+          "class": "Button",
+          "name": "@Button@608",
+          "queued_ancestor": 319773741280
+        },
+        "319924736198": {
+          "class": "Button",
+          "name": "@Button@609",
+          "queued_ancestor": 319924736198
+        },
+        "320310610686": {
+          "class": "Button",
+          "name": "@Button@610",
+          "queued_ancestor": 320310610686
+        },
+        "320461607093": {
+          "class": "Button",
+          "name": "@Button@611",
+          "queued_ancestor": 320461607093
+        },
+        "320612602081": {
+          "class": "Button",
+          "name": "@Button@612",
+          "queued_ancestor": 320612602081
+        },
+        "320763596940": {
+          "class": "Button",
+          "name": "@Button@613",
+          "queued_ancestor": 320763596940
+        },
+        "320914591893": {
+          "class": "Button",
+          "name": "@Button@614",
+          "queued_ancestor": 320914591893
+        },
+        "333581389920": {
+          "class": "Button",
+          "name": "@Button@640",
+          "queued_ancestor": 333581389920
+        },
+        "333732385068": {
+          "class": "Button",
+          "name": "@Button@641",
+          "queued_ancestor": 333732385068
+        },
+        "333883379985": {
+          "class": "Button",
+          "name": "@Button@642",
+          "queued_ancestor": 333883379985
+        },
+        "334269255889": {
+          "class": "Button",
+          "name": "@Button@643",
+          "queued_ancestor": 334269255889
+        },
+        "334420250880": {
+          "class": "Button",
+          "name": "@Button@644",
+          "queued_ancestor": 334420250880
+        },
+        "334571245869": {
+          "class": "Button",
+          "name": "@Button@645",
+          "queued_ancestor": 334571245869
+        },
+        "334722240635": {
+          "class": "Button",
+          "name": "@Button@646",
+          "queued_ancestor": 334722240635
+        },
+        "334873235586": {
+          "class": "Button",
+          "name": "@Button@647",
+          "queued_ancestor": 334873235586
+        },
+        "335108116716": {
+          "class": "Control",
+          "name": "@Control@648",
+          "queued_ancestor": 335108116716
+        },
+        "335510769905": {
+          "class": "Button",
+          "name": "@Button@657",
+          "queued_ancestor": 335863091363
+        },
+        "335661764767": {
+          "class": "Control",
+          "name": "@Control@653",
+          "queued_ancestor": 335863091363
+        },
+        "335712096510": {
+          "class": "Control",
+          "name": "@Control@654",
+          "queued_ancestor": 335863091363
+        },
+        "335762428157": {
+          "class": "Control",
+          "name": "@Control@655",
+          "queued_ancestor": 335863091363
+        },
+        "335812759802": {
+          "class": "Control",
+          "name": "@Control@656",
+          "queued_ancestor": 335863091363
+        },
+        "335863091363": {
+          "class": "Control",
+          "name": "@Control@649",
+          "queued_ancestor": 335863091363
+        },
+        "335896645802": {
+          "class": "Label",
+          "name": "@Label@650",
+          "queued_ancestor": 335863091363
+        },
+        "335930200229": {
+          "class": "Control",
+          "name": "@Control@651",
+          "queued_ancestor": 335863091363
+        },
+        "335963754670": {
+          "class": "Control",
+          "name": "@Control@652",
+          "queued_ancestor": 335863091363
+        },
+        "339184980060": {
+          "class": "Button",
+          "name": "@Button@691",
+          "queued_ancestor": 335108116716
+        },
+        "339335975301": {
+          "class": "Control",
+          "name": "@Control@687",
+          "queued_ancestor": 335108116716
+        },
+        "339386306946": {
+          "class": "Control",
+          "name": "@Control@688",
+          "queued_ancestor": 335108116716
+        },
+        "339436638591": {
+          "class": "Control",
+          "name": "@Control@689",
+          "queued_ancestor": 335108116716
+        },
+        "339486970236": {
+          "class": "Control",
+          "name": "@Control@690",
+          "queued_ancestor": 335108116716
+        },
+        "339537301896": {
+          "class": "Control",
+          "name": "@Control@683",
+          "queued_ancestor": 335108116716
+        },
+        "339570856318": {
+          "class": "Label",
+          "name": "@Label@684",
+          "queued_ancestor": 335108116716
+        },
+        "339604410764": {
+          "class": "Control",
+          "name": "@Control@685",
+          "queued_ancestor": 335108116716
+        },
+        "339637965198": {
+          "class": "Control",
+          "name": "@Control@686",
+          "queued_ancestor": 335108116716
+        }
+      }
+    },
+    {
+      "after_two_frames": {},
+      "before_root_release": {
+        "360173275917": {
+          "class": "Button",
+          "name": "ShopItemBox",
+          "queued_ancestor": 360173275917
+        },
+        "360307493516": {
+          "class": "Label",
+          "name": "NameLabel",
+          "queued_ancestor": 360173275917
+        },
+        "360341047949": {
+          "class": "Label",
+          "name": "PriceLabel",
+          "queued_ancestor": 360173275917
+        },
+        "360374602379": {
+          "class": "Label",
+          "name": "AvailabilityLabel",
+          "queued_ancestor": 360173275917
+        },
+        "360408156823": {
+          "class": "Control",
+          "name": "PointerSurface",
+          "queued_ancestor": 360173275917
+        },
+        "360458488469": {
+          "class": "Button",
+          "name": "@Button@763",
+          "queued_ancestor": 360458488469
+        },
+        "360592706208": {
+          "class": "Label",
+          "name": "NameLabel",
+          "queued_ancestor": 360458488469
+        },
+        "360626260636": {
+          "class": "Label",
+          "name": "PriceLabel",
+          "queued_ancestor": 360458488469
+        },
+        "360659815081": {
+          "class": "Label",
+          "name": "AvailabilityLabel",
+          "queued_ancestor": 360458488469
+        },
+        "360693369503": {
+          "class": "Control",
+          "name": "PointerSurface",
+          "queued_ancestor": 360458488469
+        },
+        "360726923934": {
+          "class": "Button",
+          "name": "@Button@764",
+          "queued_ancestor": 360726923934
+        },
+        "360861141784": {
+          "class": "Label",
+          "name": "NameLabel",
+          "queued_ancestor": 360726923934
+        },
+        "360894696217": {
+          "class": "Label",
+          "name": "PriceLabel",
+          "queued_ancestor": 360726923934
+        },
+        "360928250644": {
+          "class": "Label",
+          "name": "AvailabilityLabel",
+          "queued_ancestor": 360726923934
+        },
+        "360961805086": {
+          "class": "Control",
+          "name": "PointerSurface",
+          "queued_ancestor": 360726923934
+        },
+        "360995359519": {
+          "class": "Button",
+          "name": "@Button@765",
+          "queued_ancestor": 360995359519
+        },
+        "361129577248": {
+          "class": "Label",
+          "name": "NameLabel",
+          "queued_ancestor": 360995359519
+        },
+        "361163131690": {
+          "class": "Label",
+          "name": "PriceLabel",
+          "queued_ancestor": 360995359519
+        },
+        "361196686123": {
+          "class": "Label",
+          "name": "AvailabilityLabel",
+          "queued_ancestor": 360995359519
+        },
+        "361230240550": {
+          "class": "Control",
+          "name": "PointerSurface",
+          "queued_ancestor": 360995359519
+        },
+        "361263794992": {
+          "class": "Button",
+          "name": "@Button@766",
+          "queued_ancestor": 361263794992
+        },
+        "361398012727": {
+          "class": "Label",
+          "name": "NameLabel",
+          "queued_ancestor": 361263794992
+        },
+        "361431567154": {
+          "class": "Label",
+          "name": "PriceLabel",
+          "queued_ancestor": 361263794992
+        },
+        "361465121596": {
+          "class": "Label",
+          "name": "AvailabilityLabel",
+          "queued_ancestor": 361263794992
+        },
+        "361498676029": {
+          "class": "Control",
+          "name": "PointerSurface",
+          "queued_ancestor": 361263794992
+        },
+        "361532230456": {
+          "class": "Button",
+          "name": "@Button@767",
+          "queued_ancestor": 361532230456
+        },
+        "361666448200": {
+          "class": "Label",
+          "name": "NameLabel",
+          "queued_ancestor": 361532230456
+        },
+        "361700002633": {
+          "class": "Label",
+          "name": "PriceLabel",
+          "queued_ancestor": 361532230456
+        },
+        "361733557060": {
+          "class": "Label",
+          "name": "AvailabilityLabel",
+          "queued_ancestor": 361532230456
+        },
+        "361767111502": {
+          "class": "Control",
+          "name": "PointerSurface",
+          "queued_ancestor": 361532230456
+        },
+        "361800665935": {
+          "class": "Button",
+          "name": "@Button@768",
+          "queued_ancestor": 361800665935
+        },
+        "361934883664": {
+          "class": "Label",
+          "name": "NameLabel",
+          "queued_ancestor": 361800665935
+        },
+        "361968438106": {
+          "class": "Label",
+          "name": "PriceLabel",
+          "queued_ancestor": 361800665935
+        },
+        "362001992539": {
+          "class": "Label",
+          "name": "AvailabilityLabel",
+          "queued_ancestor": 361800665935
+        },
+        "362035546966": {
+          "class": "Control",
+          "name": "PointerSurface",
+          "queued_ancestor": 361800665935
+        },
+        "362069101408": {
+          "class": "Button",
+          "name": "@Button@769",
+          "queued_ancestor": 362069101408
+        },
+        "362203319143": {
+          "class": "Label",
+          "name": "NameLabel",
+          "queued_ancestor": 362069101408
+        },
+        "362236873570": {
+          "class": "Label",
+          "name": "PriceLabel",
+          "queued_ancestor": 362069101408
+        },
+        "362270428012": {
+          "class": "Label",
+          "name": "AvailabilityLabel",
+          "queued_ancestor": 362069101408
+        },
+        "362303982445": {
+          "class": "Control",
+          "name": "PointerSurface",
+          "queued_ancestor": 362069101408
+        },
+        "362337536872": {
+          "class": "Button",
+          "name": "@Button@770",
+          "queued_ancestor": 362337536872
+        },
+        "362471754616": {
+          "class": "Label",
+          "name": "NameLabel",
+          "queued_ancestor": 362337536872
+        },
+        "362505309049": {
+          "class": "Label",
+          "name": "PriceLabel",
+          "queued_ancestor": 362337536872
+        },
+        "362538863476": {
+          "class": "Label",
+          "name": "AvailabilityLabel",
+          "queued_ancestor": 362337536872
+        },
+        "362572417918": {
+          "class": "Control",
+          "name": "PointerSurface",
+          "queued_ancestor": 362337536872
+        },
+        "362605972351": {
+          "class": "Button",
+          "name": "@Button@771",
+          "queued_ancestor": 362605972351
+        },
+        "362740190080": {
+          "class": "Label",
+          "name": "NameLabel",
+          "queued_ancestor": 362605972351
+        },
+        "362773744522": {
+          "class": "Label",
+          "name": "PriceLabel",
+          "queued_ancestor": 362605972351
+        },
+        "362807298955": {
+          "class": "Label",
+          "name": "AvailabilityLabel",
+          "queued_ancestor": 362605972351
+        },
+        "362840853382": {
+          "class": "Control",
+          "name": "PointerSurface",
+          "queued_ancestor": 362605972351
+        },
+        "362874407824": {
+          "class": "Button",
+          "name": "@Button@772",
+          "queued_ancestor": 362874407824
+        },
+        "363008625559": {
+          "class": "Label",
+          "name": "NameLabel",
+          "queued_ancestor": 362874407824
+        },
+        "363042179986": {
+          "class": "Label",
+          "name": "PriceLabel",
+          "queued_ancestor": 362874407824
+        },
+        "363075734428": {
+          "class": "Label",
+          "name": "AvailabilityLabel",
+          "queued_ancestor": 362874407824
+        },
+        "363109288861": {
+          "class": "Control",
+          "name": "PointerSurface",
+          "queued_ancestor": 362874407824
+        },
+        "363142843288": {
+          "class": "Button",
+          "name": "@Button@773",
+          "queued_ancestor": 363142843288
+        },
+        "363277061032": {
+          "class": "Label",
+          "name": "NameLabel",
+          "queued_ancestor": 363142843288
+        },
+        "363310615465": {
+          "class": "Label",
+          "name": "PriceLabel",
+          "queued_ancestor": 363142843288
+        },
+        "363344169892": {
+          "class": "Label",
+          "name": "AvailabilityLabel",
+          "queued_ancestor": 363142843288
+        },
+        "363377724334": {
+          "class": "Control",
+          "name": "PointerSurface",
+          "queued_ancestor": 363142843288
+        },
+        "364317248137": {
+          "class": "Button",
+          "name": "ShopItemBox",
+          "queued_ancestor": 364317248137
+        },
+        "364451466176": {
+          "class": "Label",
+          "name": "NameLabel",
+          "queued_ancestor": 364317248137
+        },
+        "364485020609": {
+          "class": "Label",
+          "name": "PriceLabel",
+          "queued_ancestor": 364317248137
+        },
+        "364518575036": {
+          "class": "Label",
+          "name": "AvailabilityLabel",
+          "queued_ancestor": 364317248137
+        },
+        "364552129478": {
+          "class": "Control",
+          "name": "PointerSurface",
+          "queued_ancestor": 364317248137
+        },
+        "364602461129": {
+          "class": "Button",
+          "name": "@Button@774",
+          "queued_ancestor": 364602461129
+        },
+        "364736678864": {
+          "class": "Label",
+          "name": "NameLabel",
+          "queued_ancestor": 364602461129
+        },
+        "364770233291": {
+          "class": "Label",
+          "name": "PriceLabel",
+          "queued_ancestor": 364602461129
+        },
+        "364803787733": {
+          "class": "Label",
+          "name": "AvailabilityLabel",
+          "queued_ancestor": 364602461129
+        },
+        "364837342166": {
+          "class": "Control",
+          "name": "PointerSurface",
+          "queued_ancestor": 364602461129
+        },
+        "364870896593": {
+          "class": "Button",
+          "name": "@Button@775",
+          "queued_ancestor": 364870896593
+        },
+        "365005114337": {
+          "class": "Label",
+          "name": "NameLabel",
+          "queued_ancestor": 364870896593
+        },
+        "365038668770": {
+          "class": "Label",
+          "name": "PriceLabel",
+          "queued_ancestor": 364870896593
+        },
+        "365072223197": {
+          "class": "Label",
+          "name": "AvailabilityLabel",
+          "queued_ancestor": 364870896593
+        },
+        "365105777639": {
+          "class": "Control",
+          "name": "PointerSurface",
+          "queued_ancestor": 364870896593
+        },
+        "365139332072": {
+          "class": "Button",
+          "name": "@Button@776",
+          "queued_ancestor": 365139332072
+        },
+        "365273549801": {
+          "class": "Label",
+          "name": "NameLabel",
+          "queued_ancestor": 365139332072
+        },
+        "365307104243": {
+          "class": "Label",
+          "name": "PriceLabel",
+          "queued_ancestor": 365139332072
+        },
+        "365340658676": {
+          "class": "Label",
+          "name": "AvailabilityLabel",
+          "queued_ancestor": 365139332072
+        },
+        "365374213103": {
+          "class": "Control",
+          "name": "PointerSurface",
+          "queued_ancestor": 365139332072
+        },
+        "365407767545": {
+          "class": "Button",
+          "name": "@Button@777",
+          "queued_ancestor": 365407767545
+        },
+        "365541985280": {
+          "class": "Label",
+          "name": "NameLabel",
+          "queued_ancestor": 365407767545
+        },
+        "365575539707": {
+          "class": "Label",
+          "name": "PriceLabel",
+          "queued_ancestor": 365407767545
+        },
+        "365609094149": {
+          "class": "Label",
+          "name": "AvailabilityLabel",
+          "queued_ancestor": 365407767545
+        },
+        "365642648582": {
+          "class": "Control",
+          "name": "PointerSurface",
+          "queued_ancestor": 365407767545
+        },
+        "365676203009": {
+          "class": "Button",
+          "name": "@Button@778",
+          "queued_ancestor": 365676203009
+        },
+        "365810420753": {
+          "class": "Label",
+          "name": "NameLabel",
+          "queued_ancestor": 365676203009
+        },
+        "365843975186": {
+          "class": "Label",
+          "name": "PriceLabel",
+          "queued_ancestor": 365676203009
+        },
+        "365877529613": {
+          "class": "Label",
+          "name": "AvailabilityLabel",
+          "queued_ancestor": 365676203009
+        },
+        "365911084055": {
+          "class": "Control",
+          "name": "PointerSurface",
+          "queued_ancestor": 365676203009
+        },
+        "365944638488": {
+          "class": "Button",
+          "name": "@Button@779",
+          "queued_ancestor": 365944638488
+        },
+        "366078856217": {
+          "class": "Label",
+          "name": "NameLabel",
+          "queued_ancestor": 365944638488
+        },
+        "366112410659": {
+          "class": "Label",
+          "name": "PriceLabel",
+          "queued_ancestor": 365944638488
+        },
+        "366145965092": {
+          "class": "Label",
+          "name": "AvailabilityLabel",
+          "queued_ancestor": 365944638488
+        },
+        "366179519519": {
+          "class": "Control",
+          "name": "PointerSurface",
+          "queued_ancestor": 365944638488
+        },
+        "366213073961": {
+          "class": "Button",
+          "name": "@Button@780",
+          "queued_ancestor": 366213073961
+        },
+        "366347291696": {
+          "class": "Label",
+          "name": "NameLabel",
+          "queued_ancestor": 366213073961
+        },
+        "366380846123": {
+          "class": "Label",
+          "name": "PriceLabel",
+          "queued_ancestor": 366213073961
+        },
+        "366414400565": {
+          "class": "Label",
+          "name": "AvailabilityLabel",
+          "queued_ancestor": 366213073961
+        },
+        "366447954998": {
+          "class": "Control",
+          "name": "PointerSurface",
+          "queued_ancestor": 366213073961
+        },
+        "366481509425": {
+          "class": "Button",
+          "name": "@Button@781",
+          "queued_ancestor": 366481509425
+        },
+        "366615727169": {
+          "class": "Label",
+          "name": "NameLabel",
+          "queued_ancestor": 366481509425
+        },
+        "366649281602": {
+          "class": "Label",
+          "name": "PriceLabel",
+          "queued_ancestor": 366481509425
+        },
+        "366682836029": {
+          "class": "Label",
+          "name": "AvailabilityLabel",
+          "queued_ancestor": 366481509425
+        },
+        "366716390471": {
+          "class": "Control",
+          "name": "PointerSurface",
+          "queued_ancestor": 366481509425
+        },
+        "366749944904": {
+          "class": "Button",
+          "name": "@Button@782",
+          "queued_ancestor": 366749944904
+        },
+        "366884162633": {
+          "class": "Label",
+          "name": "NameLabel",
+          "queued_ancestor": 366749944904
+        },
+        "366917717075": {
+          "class": "Label",
+          "name": "PriceLabel",
+          "queued_ancestor": 366749944904
+        },
+        "366951271508": {
+          "class": "Label",
+          "name": "AvailabilityLabel",
+          "queued_ancestor": 366749944904
+        },
+        "366984825935": {
+          "class": "Control",
+          "name": "PointerSurface",
+          "queued_ancestor": 366749944904
+        },
+        "367018380377": {
+          "class": "Button",
+          "name": "@Button@783",
+          "queued_ancestor": 367018380377
+        },
+        "367152598112": {
+          "class": "Label",
+          "name": "NameLabel",
+          "queued_ancestor": 367018380377
+        },
+        "367186152539": {
+          "class": "Label",
+          "name": "PriceLabel",
+          "queued_ancestor": 367018380377
+        },
+        "367219706981": {
+          "class": "Label",
+          "name": "AvailabilityLabel",
+          "queued_ancestor": 367018380377
+        },
+        "367253261414": {
+          "class": "Control",
+          "name": "PointerSurface",
+          "queued_ancestor": 367018380377
+        },
+        "367286815841": {
+          "class": "Button",
+          "name": "@Button@784",
+          "queued_ancestor": 367286815841
+        },
+        "367421033585": {
+          "class": "Label",
+          "name": "NameLabel",
+          "queued_ancestor": 367286815841
+        },
+        "367454588018": {
+          "class": "Label",
+          "name": "PriceLabel",
+          "queued_ancestor": 367286815841
+        },
+        "367488142445": {
+          "class": "Label",
+          "name": "AvailabilityLabel",
+          "queued_ancestor": 367286815841
+        },
+        "367521696887": {
+          "class": "Control",
+          "name": "PointerSurface",
+          "queued_ancestor": 367286815841
+        }
+      }
+    },
+    {
+      "after_two_frames": {},
+      "before_root_release": {}
+    },
+    {
+      "after_two_frames": {},
+      "before_root_release": {
+        "699408583138": {
+          "class": "Button",
+          "name": "SaveAction",
+          "queued_ancestor": 699408583138
+        },
+        "699542800874": {
+          "class": "Label",
+          "name": "Caption",
+          "queued_ancestor": 699408583138
+        },
+        "700180335216": {
+          "class": "Button",
+          "name": "SaveAction",
+          "queued_ancestor": 700180335216
+        },
+        "700314553502": {
+          "class": "Label",
+          "name": "Caption",
+          "queued_ancestor": 700180335216
+        },
+        "700348107933": {
+          "class": "Button",
+          "name": "LoadAction",
+          "queued_ancestor": 700348107933
+        },
+        "700482325678": {
+          "class": "Label",
+          "name": "Caption",
+          "queued_ancestor": 700348107933
+        },
+        "700515880105": {
+          "class": "Button",
+          "name": "DeleteAction",
+          "queued_ancestor": 700515880105
+        },
+        "700650097852": {
+          "class": "Label",
+          "name": "Caption",
+          "queued_ancestor": 700515880105
+        },
+        "700683652280": {
+          "class": "Button",
+          "name": "LoadAction",
+          "queued_ancestor": 700683652280
+        },
+        "700817870014": {
+          "class": "Label",
+          "name": "Caption",
+          "queued_ancestor": 700683652280
+        },
+        "700851425268": {
+          "class": "Button",
+          "name": "DeleteAction",
+          "queued_ancestor": 700851425268
+        },
+        "700985642184": {
+          "class": "Label",
+          "name": "Caption",
+          "queued_ancestor": 700851425268
+        },
+        "701052751044": {
+          "class": "Button",
+          "name": "LoadAction",
+          "queued_ancestor": 701052751044
+        },
+        "701186968788": {
+          "class": "Label",
+          "name": "Caption",
+          "queued_ancestor": 701052751044
+        },
+        "701220523221": {
+          "class": "Button",
+          "name": "DeleteAction",
+          "queued_ancestor": 701220523221
+        },
+        "701354740960": {
+          "class": "Label",
+          "name": "Caption",
+          "queued_ancestor": 701220523221
+        },
+        "701438627030": {
+          "class": "Button",
+          "name": "LoadAction",
+          "queued_ancestor": 701438627030
+        },
+        "701572844779": {
+          "class": "Label",
+          "name": "Caption",
+          "queued_ancestor": 701438627030
+        },
+        "701606399213": {
+          "class": "Button",
+          "name": "DeleteAction",
+          "queued_ancestor": 701606399213
+        },
+        "701740616949": {
+          "class": "Label",
+          "name": "Caption",
+          "queued_ancestor": 701606399213
+        },
+        "701790948600": {
+          "class": "Button",
+          "name": "LoadAction",
+          "queued_ancestor": 701790948600
+        },
+        "701925166330": {
+          "class": "Label",
+          "name": "Caption",
+          "queued_ancestor": 701790948600
+        },
+        "701958720764": {
+          "class": "Button",
+          "name": "DeleteAction",
+          "queued_ancestor": 701958720764
+        },
+        "702092938506": {
+          "class": "Label",
+          "name": "Caption",
+          "queued_ancestor": 701958720764
+        }
+      }
+    },
+    {
+      "after_two_frames": {},
+      "before_root_release": {
+        "710062116878": {
+          "class": "Button",
+          "name": "SaveAction",
+          "queued_ancestor": 710062116878
+        },
+        "710196333855": {
+          "class": "Label",
+          "name": "Caption",
+          "queued_ancestor": 710062116878
+        }
+      }
+    },
+    {
+      "after_two_frames": {},
+      "before_root_release": {}
+    },
+    {
+      "after_two_frames": {},
+      "before_root_release": {}
+    },
+    {
+      "after_two_frames": {},
+      "before_root_release": {}
+    },
+    {
+      "after_two_frames": {},
+      "before_root_release": {
+        "846997752938": {
+          "class": "Button",
+          "name": "LoadAction",
+          "queued_ancestor": 846997752938
+        },
+        "847131970724": {
+          "class": "Label",
+          "name": "Caption",
+          "queued_ancestor": 846997752938
+        },
+        "847165524114": {
+          "class": "Button",
+          "name": "DeleteAction",
+          "queued_ancestor": 847165524114
+        },
+        "847299741829": {
+          "class": "Label",
+          "name": "Caption",
+          "queued_ancestor": 847165524114
+        },
+        "847870168314": {
+          "class": "Button",
+          "name": "LoadAction",
+          "queued_ancestor": 847870168314
+        },
+        "848004385901": {
+          "class": "Label",
+          "name": "Caption",
+          "queued_ancestor": 847870168314
+        },
+        "848037939824": {
+          "class": "Button",
+          "name": "DeleteAction",
+          "queued_ancestor": 848037939824
+        },
+        "848172157053": {
+          "class": "Label",
+          "name": "Caption",
+          "queued_ancestor": 848037939824
+        }
+      }
+    }
+  ],
+  "diagnostic_warning_lines": [],
+  "source_sha": "69a5cdd70261692b7f1b1e2d4550155141ca6375",
+  "engine": {
+    "archive_sha256": "e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90",
+    "console_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+    "version": "4.6.3.stable.official.7d41c59c4"
+  },
+  "scope": "Fixture-owned Node teardown only. No production memory, storage, rendered desktop, playable-producer or release acceptance.",
+  "new_engine_executions": 0
+}

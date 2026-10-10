@@ -1,0 +1,269 @@
+{
+  "total_count": 2,
+  "jobs": [
+    {
+      "id": 114144350803,
+      "run_id": 38028509673,
+      "workflow_name": "Scene app settled teardown proof",
+      "head_branch": "codex/scene-runtime-integration-controller-20261009",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/38028509673",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAak4iSUw",
+      "head_sha": "18d37922553c6fef38a736c591fa1e20cac7b03d",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/114144350803",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/38028509673/job/114144350803",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-10T05:44:08Z",
+      "started_at": "2026-10-10T05:44:10Z",
+      "completed_at": "2026-10-10T05:44:58Z",
+      "name": "apps",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-10T05:44:11Z",
+          "completed_at": "2026-10-10T05:44:12Z"
+        },
+        {
+          "name": "Preserve immutable checkout bytes",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-10T05:44:12Z",
+          "completed_at": "2026-10-10T05:44:13Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-10T05:44:13Z",
+          "completed_at": "2026-10-10T05:44:30Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 4,
+          "started_at": "2026-10-10T05:44:30Z",
+          "completed_at": "2026-10-10T05:44:47Z"
+        },
+        {
+          "name": "Verify one-file composition and unchanged original test bodies",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 5,
+          "started_at": "2026-10-10T05:44:47Z",
+          "completed_at": "2026-10-10T05:44:47Z"
+        },
+        {
+          "name": "Install verified Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 6,
+          "started_at": "2026-10-10T05:44:47Z",
+          "completed_at": "2026-10-10T05:44:47Z"
+        },
+        {
+          "name": "Import exact candidate in isolated directories",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 7,
+          "started_at": "2026-10-10T05:44:47Z",
+          "completed_at": "2026-10-10T05:44:47Z"
+        },
+        {
+          "name": "Restore committed project settings",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-10T05:44:47Z",
+          "completed_at": "2026-10-10T05:44:47Z"
+        },
+        {
+          "name": "Run only the changed eleven-case app lane",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 9,
+          "started_at": "2026-10-10T05:44:47Z",
+          "completed_at": "2026-10-10T05:44:47Z"
+        },
+        {
+          "name": "Verify exact census and eleven settled teardown snapshots",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 10,
+          "started_at": "2026-10-10T05:44:47Z",
+          "completed_at": "2026-10-10T05:44:47Z"
+        },
+        {
+          "name": "Hash original evidence even on failure",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-10-10T05:44:47Z",
+          "completed_at": "2026-10-10T05:44:49Z"
+        },
+        {
+          "name": "Upload original logs, JUnit and exact source",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-10-10T05:44:49Z",
+          "completed_at": "2026-10-10T05:44:50Z"
+        },
+        {
+          "name": "Prepare disposable indexes for checkout cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-10T05:44:50Z",
+          "completed_at": "2026-10-10T05:44:53Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 25,
+          "started_at": "2026-10-10T05:44:53Z",
+          "completed_at": "2026-10-10T05:44:55Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 26,
+          "started_at": "2026-10-10T05:44:55Z",
+          "completed_at": "2026-10-10T05:44:57Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 27,
+          "started_at": "2026-10-10T05:44:57Z",
+          "completed_at": "2026-10-10T05:44:57Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/114144350803",
+      "labels": [
+        "windows-2022"
+      ],
+      "runner_id": 1000002948,
+      "runner_name": "GitHub Actions 1000002948",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 114144490256,
+      "run_id": 38028509673,
+      "workflow_name": "Scene app settled teardown proof",
+      "head_branch": "codex/scene-runtime-integration-controller-20261009",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/38028509673",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAak4qzEA",
+      "head_sha": "18d37922553c6fef38a736c591fa1e20cac7b03d",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/114144490256",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/38028509673/job/114144490256",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-10T05:44:59Z",
+      "started_at": "2026-10-10T05:45:01Z",
+      "completed_at": "2026-10-10T05:45:45Z",
+      "name": "retain",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-10T05:45:01Z",
+          "completed_at": "2026-10-10T05:45:02Z"
+        },
+        {
+          "name": "Preserve exact bytes",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-10T05:45:02Z",
+          "completed_at": "2026-10-10T05:45:03Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-10T05:45:03Z",
+          "completed_at": "2026-10-10T05:45:20Z"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-10T05:45:20Z",
+          "completed_at": "2026-10-10T05:45:35Z"
+        },
+        {
+          "name": "Retain original ZIP and rehash every manifest member without engine execution",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 5,
+          "started_at": "2026-10-10T05:45:35Z",
+          "completed_at": "2026-10-10T05:45:38Z"
+        },
+        {
+          "name": "Upload retention receipt",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-10T05:45:38Z",
+          "completed_at": "2026-10-10T05:45:38Z"
+        },
+        {
+          "name": "Prepare disposable indexes for checkout cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-10T05:45:38Z",
+          "completed_at": "2026-10-10T05:45:40Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-10T05:45:40Z",
+          "completed_at": "2026-10-10T05:45:42Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-10-10T05:45:42Z",
+          "completed_at": "2026-10-10T05:45:44Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-10-10T05:45:44Z",
+          "completed_at": "2026-10-10T05:45:44Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/114144490256",
+      "labels": [
+        "windows-2022"
+      ],
+      "runner_id": 1000002949,
+      "runner_name": "GitHub Actions 1000002949",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    }
+  ]
+}
