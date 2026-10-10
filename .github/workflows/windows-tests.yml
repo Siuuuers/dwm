@@ -1,4 +1,4 @@
-name: Composed scene app and desktop proof
+name: Scene app settled teardown proof
 on:
   pull_request:
 permissions:
@@ -29,14 +29,14 @@ jobs:
           persist-credentials: true
       - uses: actions/checkout@v7
         with:
-          ref: 665971ffc25bf6acd5e393ac37c6cf627a33c545
+          ref: 69a5cdd70261692b7f1b1e2d4550155141ca6375
           path: source
           fetch-depth: 0
-          persist-credentials: true
-      - name: Compose exact reviewed C26 delta on current A without moving product
+          persist-credentials: false
+      - name: Verify one-file composition and unchanged original test bodies
         run: |
           $ErrorActionPreference = 'Stop'
-          python ../controller/tools/cloud/scene_app_composition.py compose
+          python ../controller/tools/cloud/scene_app_teardown.py prepare
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Install verified Godot 4.6.3 standard
         run: |
@@ -55,7 +55,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           if ($version -cne '4.6.3.stable.official.7d41c59c4') { throw 'Wrong engine version.' }
           [ordered]@{archive_sha256=$archiveHash; console_sha256=$exeHash; version=$version} | ConvertTo-Json | Set-Content '.godot/ci/engine-receipt.json' -Encoding utf8
-      - name: Import exact composed source
+      - name: Import exact candidate in isolated directories
         timeout-minutes: 8
         run: |
           $ErrorActionPreference = 'Stop'
@@ -74,37 +74,32 @@ jobs:
         run: |
           git restore --source=HEAD --worktree -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Retain only the four normal engine-imported test UID companions
-        run: |
-          python ../controller/tools/cloud/scene_app_composition.py uids
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Run the exact ten app and eight desktop cases together
+      - name: Run only the changed eleven-case app lane
         timeout-minutes: 12
         run: |
           $ErrorActionPreference = 'Stop'
           Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
-          $tests = 'res://tests/integration/test_scene_app_preparation.gd,res://tests/integration/test_scene_desktop_consumer.gd'
-          $args = @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', "-gtest=$tests", '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/apps.xml')
-          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'scene-app-composed' -LogName 'scene-app-composed.log' -EvidenceLogPath '.godot/ci/apps.jsonl' -TimeoutSeconds 600 -GodotArgs $args
+          $args = @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_scene_app_preparation.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/apps.xml')
+          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'scene-app-teardown' -LogName 'scene-app-teardown.log' -EvidenceLogPath '.godot/ci/apps.jsonl' -TimeoutSeconds 600 -GodotArgs $args
           $result = $LASTEXITCODE
-          $log = '.godot/phase2r_logs/scene-app-composed.log'
+          $log = '.godot/phase2r_logs/scene-app-teardown.log'
           if (Test-Path -LiteralPath $log) { Get-Content -LiteralPath $log }
           if ($result -ne 0) { exit $result }
           if (Select-String -LiteralPath $log -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Test script error.' }
-      - name: Check exact XML census and source, publish isolated candidate only
+      - name: Verify exact census and eleven settled teardown snapshots
         run: |
-          python ../controller/tools/cloud/scene_app_composition.py census
+          python ../controller/tools/cloud/scene_app_teardown.py census
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Hash original evidence
+      - name: Hash original evidence even on failure
         if: always()
         run: |
-          python ../controller/tools/cloud/scene_app_composition.py manifest
+          python ../controller/tools/cloud/scene_app_teardown.py manifest
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Upload original logs, JUnit and composed source
+      - name: Upload original logs, JUnit and exact source
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: scene-app-composed-${{ github.run_id }}-${{ github.run_attempt }}
+          name: scene-app-teardown-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             source/.godot/ci/*.log
             source/.godot/ci/*.json
@@ -128,7 +123,7 @@ jobs:
           }
   retain:
     needs: apps
-    if: needs.apps.result == 'success'
+    if: always() && needs.apps.result != 'skipped'
     runs-on: windows-2022
     timeout-minutes: 10
     env:
@@ -148,21 +143,21 @@ jobs:
           persist-credentials: true
       - uses: actions/checkout@v7
         with:
-          ref: c8fa301d5888d83c021a9963bc78b2f8e03cdbe4
+          ref: codex/scene-runtime-evidence-20261009
           path: evidence
           persist-credentials: true
-      - name: Retain original ZIP and verify every manifest member without rerunning engine
+      - name: Retain original ZIP and rehash every manifest member without engine execution
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          python ../controller/tools/cloud/scene_app_composition.py retain
+          python ../controller/tools/cloud/scene_app_teardown.py retain
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Upload independent retention receipt
+      - name: Upload retention receipt
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: scene-app-retention-${{ github.run_id }}-${{ github.run_attempt }}
-          path: evidence/evidence/scene_app_composed_2026_10_10/retention-verification.json
+          name: scene-app-teardown-retention-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/evidence/scene_app_teardown_2026_10_10/*/retention-verification.json
           if-no-files-found: warn
           retention-days: 7
       - name: Prepare disposable indexes for checkout cleanup
