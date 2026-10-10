@@ -1,1383 +1,244 @@
-name: Windows automated tests
-
+name: Scene playable durable producer
 on:
   pull_request:
-  push:
-    branches: [master]
-  workflow_dispatch:
-
+    paths:
+      - 'tools/cloud/scene-playable-candidate.json'
 permissions:
-  contents: read
-
+  contents: write
 concurrency:
-  group: windows-tests-${{ github.event.pull_request.number || github.ref }}
+  group: scene-runtime-integration-controller-${{ github.event.pull_request.number }}
   cancel-in-progress: true
-
 jobs:
-  focused-tests:
-    needs: public-surfaces
-    name: Windows / ${{ matrix.suite }}
+  playable:
+    if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
     runs-on: windows-2022
-    timeout-minutes: 20
-    strategy:
-      fail-fast: false
-      matrix:
-        suite: [minesweeper, shop, desktop, settings, checkpoint_diagnostics, new_account, reading_delivery, localization, dating, persistence, endings, audio]
+    timeout-minutes: 25
+    env:
+      BASE_SHA: 69a5cdd70261692b7f1b1e2d4550155141ca6375
+      CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
+      EVENT_SHA: ${{ github.sha }}
     defaults:
       run:
         shell: pwsh
+        working-directory: source
     steps:
+      - name: Preserve source bytes
+        working-directory: .
+        run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
-          # The schedule-gate contract inspects its immutable historical seals.
-          fetch-depth: ${{ (matrix.suite == 'new_account' || matrix.suite == 'desktop') && '0' || '1' }}
-          # Defer credential removal until the post-job cleanup, after the
-          # malformed gitlinks are removed from this disposable runner's index.
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: controller
           persist-credentials: true
-      - name: Prepare disposable checkout for credential cleanup
-        run: |
-          $ErrorActionPreference = 'Stop'
-          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
-          # submodule foreach reads the index even with sparse checkout.
-          # The source commit and working files remain unchanged.
-          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git submodule foreach --recursive 'true'
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Install Godot 4.6.3 standard
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
-          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
-          # SHA256 published with the official 4.6.3-stable release asset.
-          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
-          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
-            throw 'Godot archive checksum mismatch.'
-          }
-          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
-          Expand-Archive -LiteralPath $archive -DestinationPath $editor
-          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
-          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
-          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          & $console --version
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Import project
-        timeout-minutes: 8
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
-          $env:APPDATA = Join-Path $output 'import-user/appdata'
-          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
-          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
-          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
-          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
-            throw 'Project import reported script errors; inspect import.log.'
-          }
-      - name: Restore committed project settings after editor import
-        run: |
-          # Dialogic's editor scan rewrites its timeline lookup during import.
-          # Execute the committed configuration with the freshly imported assets.
-          git restore -- project.godot
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Run focused regression suite
-        timeout-minutes: 10
-        env:
-          DWM_CI_SUITE: ${{ matrix.suite }}
-        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite $env:DWM_CI_SUITE
-      - name: Render Settings uncertain-write journey
-        if: matrix.suite == 'settings'
-        timeout-minutes: 3
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/settings-failure-render'
-          $env:APPDATA = Join-Path $output 'appdata'
-          $env:LOCALAPPDATA = Join-Path $output 'localappdata'
-          $env:DWM_TEST_ROOT = Join-Path $output 'test-root'
-          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
-          & $env:GODOT_CONSOLE_PATH --path $env:GITHUB_WORKSPACE --rendering-method gl_compatibility --audio-driver Dummy --log-file "$output/render.log" --script res://tests/ui/render_settings_shared.gd -- --settings-write-failure
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String -Path "$output/render.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Settings journey reported script errors.' }
-          if (-not (Select-String -Path "$output/render.log" -Pattern 'SETTINGS_SHARED_RENDER_VERIFIED captures=3' -Quiet)) { throw 'Settings failure journey did not complete.' }
-      - name: Upload logs and test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-${{ matrix.suite }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            .godot/ci/*.log
-            .godot/ci/*.jsonl
-            .godot/ci/*.json
-            .godot/ci/*.xml
-            .godot/ci/storage-refusal/
-            .godot/ci/settings-failure-render/
-            .godot/phase2r_logs/cloud-*.log
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
-
-  windows-export:
-    needs: public-surfaces
-    name: Windows / exported release startup
-    runs-on: windows-2022
-    timeout-minutes: 35
-    defaults:
-      run:
-        shell: pwsh
-    steps:
       - uses: actions/checkout@v7
         with:
-          # Defer credential removal until the post-job cleanup, after the
-          # malformed gitlinks are removed from this disposable runner's index.
+          ref: 69a5cdd70261692b7f1b1e2d4550155141ca6375
+          path: source
+          fetch-depth: 0
           persist-credentials: true
-      - name: Prepare disposable checkout for credential cleanup
+      - name: Apply exact candidate to unchanged A base
         run: |
           $ErrorActionPreference = 'Stop'
-          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
-          # submodule foreach reads the index even with sparse checkout.
-          # The source commit and working files remain unchanged.
-          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git submodule foreach --recursive 'true'
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Install Godot 4.6.3 standard
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
-          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
-          # SHA256 published with the official 4.6.3-stable release asset.
-          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
-          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
-            throw 'Godot archive checksum mismatch.'
-          }
-          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
-          Expand-Archive -LiteralPath $archive -DestinationPath $editor
-          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
-          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
-          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          & $console --version
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Import project
-        timeout-minutes: 8
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
-          $env:APPDATA = Join-Path $output 'import-user/appdata'
-          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
-          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
-          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
-          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
-            throw 'Project import reported script errors; inspect import.log.'
-          }
-      - name: Restore committed project settings after editor import
-        run: |
-          # Dialogic's editor scan rewrites its timeline lookup during import.
-          # Execute the committed configuration with the freshly imported assets.
-          git restore -- project.godot
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Cache pinned export templates
-        id: export-templates-cache
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-        with:
-          path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
-          key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
-      - name: Download verified Godot export templates
-        timeout-minutes: 10
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $folder = Join-Path $env:RUNNER_TEMP 'dwm-godot-templates'
-          New-Item -ItemType Directory -Force -Path $folder | Out-Null
-          $archive = Join-Path $folder 'Godot_v4.6.3-stable_export_templates.tpz'
-          if (-not (Test-Path -LiteralPath $archive)) {
-            Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_export_templates.tpz' -OutFile $archive
-          }
-          $expected = '3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8'
-          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
-            throw 'Godot export templates checksum mismatch.'
-          }
-          "GODOT_EXPORT_TEMPLATES_ARCHIVE=$archive" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-      - name: Retain verified export templates for subsequent runs
-        if: steps.export-templates-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-        with:
-          path: ${{ runner.temp }}/dwm-godot-templates/Godot_v4.6.3-stable_export_templates.tpz
-          key: godot-4.6.3-export-templates-3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8
-      - name: Export and launch isolated Windows executable
-        timeout-minutes: 12
-        run: ./tools/testing/Invoke-WindowsExportValidation.ps1
-      - name: Upload Windows validation build and evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-export-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            .godot/ci/import.log
-            .godot/ci/windows-export/
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
-
-  public-surfaces:
-    name: Windows / public API surface contracts
-    runs-on: windows-2022
-    timeout-minutes: 20
-    defaults:
-      run:
-        shell: pwsh
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          # Defer credential removal until the post-job cleanup, after the
-          # malformed gitlinks are removed from this disposable runner's index.
-          persist-credentials: true
-      - name: Prepare disposable checkout for credential cleanup
-        run: |
-          $ErrorActionPreference = 'Stop'
-          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
-          # submodule foreach reads the index even with sparse checkout.
-          # The source commit and working files remain unchanged.
-          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git submodule foreach --recursive 'true'
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Record fixture and schema version census
-        run: |
           @'
-          import json, pathlib, re, subprocess
-          root = pathlib.Path.cwd()
-          paths = subprocess.check_output([
-              "git", "ls-files", "-z", "--", "autoload/", "scripts/", "tests/",
-              "tools/testing/", ".github/workflows/"
-          ]).decode("utf-8").split("\0")
-          patterns = {
-              "legacy_prepared_fixture": r"\bv[1-6]_desktop_prepared\.json\b",
-              "historical_day3_seed": r"valid_day3\.json",
-              "backup_fixture_helper": r"BackupSnapshotFixture",
-              "run_document_version": r"\b(?:schema_version|SCHEMA_VERSION|DOCUMENT_VERSION)\b",
-              "empty_contacts_literal": r"\bcontacts\b[\"']?\s*[:=]\s*\{\s*\}",
-          }
-          compiled = {key: re.compile(value) for key, value in patterns.items()}
-          records = []
-          scanned = 0
-          for name in sorted(paths):
-              path = root / name
-              if path.suffix not in {".gd", ".ps1", ".py", ".yml", ".yaml"} or not path.is_file():
-                  continue
-              scanned += 1
-              for number, line in enumerate(path.read_text(encoding="utf-8-sig").splitlines(), 1):
-                  families = [key for key, pattern in compiled.items() if pattern.search(line)]
-                  if families:
-                      records.append({"path": name, "line": number, "families": families, "text": line})
-          report = {
-              "checkout_ref": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
-              "policy": "Observational census only; historical, refusal and Profile references require review, not automatic failure.",
-              "scanned_files": scanned, "patterns": patterns, "matches": records,
-          }
-          output = root / ".godot/ci/public-surfaces/fixture-version-census.json"
-          output.parent.mkdir(parents=True, exist_ok=True)
-          output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-          for record in records:
-              print("FIXTURE_VERSION_CENSUS_MATCH: " + json.dumps(record))
-          print("FIXTURE_VERSION_CENSUS_SUMMARY: " + json.dumps({
-              "checkout_ref": report["checkout_ref"], "scanned_files": scanned,
-              "matching_lines": len(records), "logged_lines": len(records),
-              "complete_artifact": ".godot/ci/public-surfaces/fixture-version-census.json",
-              "policy": report["policy"],
-          }))
+          import base64, gzip, hashlib, json, os, pathlib, subprocess
+          def git(*args):
+              return subprocess.check_output(['git', *args], text=True).strip()
+          base = os.environ['BASE_SHA']
+          assert git('rev-parse', 'HEAD') == base
+          branch = 'refs/heads/codex/scene-runtime-integration-20261009'
+          assert git('ls-remote', 'origin', branch).split()[0] == base, 'A moved; reconcile instead of overwriting'
+          payload = json.loads(pathlib.Path('../controller/tools/cloud/scene-playable-candidate.json').read_text())
+          assert payload['base'] == base
+          patch = gzip.decompress(base64.b64decode(payload['patch_gzip_base64'], validate=True))
+          assert hashlib.sha256(patch).hexdigest() == payload['patch_sha256']
+          out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
+          target = out / 'candidate.patch'; target.write_bytes(patch)
+          subprocess.run(['git', 'apply', '--check', str(target)], check=True)
+          subprocess.run(['git', 'apply', '--index', str(target)], check=True)
+          subprocess.run(['git', 'diff', '--cached', '--check'], check=True)
+          allowed = {'autoload/DialogicBridge.gd', 'autoload/GameState.gd',
+              'scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd',
+              'tests/support/SceneNewRunFixture.gd', 'tests/support/ScenePlayableFixture.gd',
+              'tests/unit/test_scene_playable_preparation.gd', 'tests/integration/scene_playable_child.gd',
+              *('tests/integration/test_scene_playable_' + name + '.gd' for name in ['create','load','dropped_ack','native_refusal'])}
+          paths = git('diff', '--cached', '--name-only').splitlines()
+          assert set(paths) == allowed, paths
+          (out/'candidate-paths.json').write_text(json.dumps(paths, indent=2))
+          (out/'candidate-origin.json').write_text(json.dumps({'base':base, 'controller':os.environ['CONTROLLER_SHA'],
+              'event':os.environ['EVENT_SHA'], 'patch_sha256':payload['patch_sha256'], 'paths':paths}, indent=2))
+          print('Candidate patch:', payload['patch_sha256'])
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Install Godot 4.6.3 standard
+      - name: Install exact Godot standard engine
         run: |
           $ErrorActionPreference = 'Stop'
           $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
           Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
-          # SHA256 published with the official 4.6.3-stable release asset.
           $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
-          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
-            throw 'Godot archive checksum mismatch.'
-          }
+          if ((Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) { throw 'Engine archive hash mismatch' }
           $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
-          Expand-Archive -LiteralPath $archive -DestinationPath $editor
+          Expand-Archive $archive $editor
           $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
-          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
-          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          & $console --version
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Import project
+          $version = (& $console --version | Out-String).Trim()
+          if ($LASTEXITCODE -ne 0 -or $version -cne '4.6.3.stable.official.7d41c59c4') { throw "Unexpected engine: $version" }
+          "GODOT_CONSOLE_PATH=$console" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          @{ version=$version; archive_sha256=$expected; console_sha256=(Get-FileHash $console -Algorithm SHA256).Hash.ToLowerInvariant() } | ConvertTo-Json | Set-Content .godot/ci/engine.json -Encoding utf8
+      - name: Import candidate in isolated user directories
         timeout-minutes: 8
         run: |
           $ErrorActionPreference = 'Stop'
-          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
+          $output = Join-Path (Get-Location) '.godot/ci'
           $env:APPDATA = Join-Path $output 'import-user/appdata'
           $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
           $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
-          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
-          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
+          New-Item -ItemType Directory -Force -Path $env:APPDATA,$env:LOCALAPPDATA,$env:DWM_TEST_ROOT | Out-Null
+          & $env:GODOT_CONSOLE_PATH --headless --path (Get-Location) --import --log-file "$output/import.log"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
-            throw 'Project import reported script errors; inspect import.log.'
-          }
-      - name: Restore committed project settings after editor import
-        run: |
-          # Dialogic's editor scan rewrites its timeline lookup during import.
-          # Execute the committed configuration with the freshly imported assets.
-          git restore -- project.godot
+          if (Select-String "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Candidate import script error' }
+          git restore --worktree -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Verify native caption discovery and Normal Accept
-        timeout-minutes: 3
-        run: |
-          powershell.exe -NoProfile -ExecutionPolicy Bypass -File ./tools/testing/Invoke-CaptionNativeAccept.ps1
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Verify isolated runner contracts and timeout diagnostics
-        timeout-minutes: 4
+      - name: Freeze exact candidate including normal imported UID companions
         run: |
           $ErrorActionPreference = 'Stop'
-          ./tests/tooling/Test-InvokeIsolatedGodot.ps1
-      - name: Verify committed public inventories without regeneration
-        timeout-minutes: 10
-        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -EmitPayloads
-      - name: Verify public inventory drift and read-only contracts
-        timeout-minutes: 10
-        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite public_surfaces
-      - name: Upload canonical inventories and retirement evidence
+          @'
+          import json, pathlib, subprocess
+          out=pathlib.Path('.godot/ci')
+          paths=json.loads((out/'candidate-paths.json').read_text())
+          for name in paths:
+              uid=pathlib.Path(name+'.uid')
+              if uid.exists(): subprocess.run(['git','add','--',str(uid)],check=True)
+          subprocess.run(['git','diff','--cached','--check'],check=True)
+          subprocess.run(['git','config','user.name','github-actions[bot]'],check=True)
+          subprocess.run(['git','config','user.email','41898282+github-actions[bot]@users.noreply.github.com'],check=True)
+          subprocess.run(['git','commit','-m','Connect durable scene playable source, receipt and native handoff'],check=True)
+          def git(*args): return subprocess.check_output(['git',*args],text=True).strip()
+          assert git('rev-parse','HEAD^') == json.loads((out/'candidate-origin.json').read_text())['base']
+          assert not git('diff','--name-only'), 'Unexpected imported tracked changes'
+          names=git('diff-tree','--no-commit-id','--name-only','-r','HEAD').splitlines()
+          assert all(n in paths or (n.endswith('.gd.uid') and n[:-4] in paths) for n in names)
+          receipt={'source':git('rev-parse','HEAD'),'tree':git('rev-parse','HEAD^{tree}'),
+              'parent':git('rev-parse','HEAD^'),'blobs':{n:git('rev-parse','HEAD:'+n) for n in names}}
+          (out/'candidate-commit.json').write_text(json.dumps(receipt,indent=2))
+          subprocess.run(['git','archive','--format=zip','--output=.godot/ci/source-inspection.zip','HEAD'],check=True)
+          print(json.dumps(receipt))
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Focused unit and physical same-files process journeys
+        timeout-minutes: 14
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $runner = './tools/testing/Invoke-IsolatedGodot.ps1'
+          $failed = $false
+          foreach ($entry in @(@('preparation','tests/unit/test_scene_playable_preparation.gd'), @('checkpoint','tests/unit/test_scene_checkpoint_ack.gd'))) {
+            $name = $entry[0]
+            $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$($entry[1])",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$name.xml")
+            & $runner -SuiteId "playable-$name" -LogName "$name.log" -GodotArgs $args -EvidenceLogPath ".godot/ci/$name.jsonl" -TimeoutSeconds 180
+            if ($LASTEXITCODE -ne 0) { $failed = $true }
+          }
+          foreach ($mode in @('normal','dropped_ack','native_refusal')) {
+            $child = if ($mode -eq 'normal') { 'create' } else { $mode }
+            $create = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://tests/integration/test_scene_playable_$child.gd",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$mode-create.xml")
+            $load = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_playable_load.gd','-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$mode-load.xml")
+            & $runner -SuiteId "playable-$mode" -LogName "$mode-create.log" -GodotArgs $create -NextLogName "$mode-load.log" -NextGodotArgs $load -EvidenceLogPath ".godot/ci/$mode.jsonl" -TimeoutSeconds 180 -KeepRoot
+            if ($LASTEXITCODE -ne 0) { $failed = $true }
+            $records = @()
+            if (Test-Path ".godot/ci/$mode.jsonl") { $records = @(Get-Content ".godot/ci/$mode.jsonl" | ForEach-Object { ConvertFrom-Json $_ }) }
+            if ($records.Count -gt 0) {
+              $root = Join-Path $records[0].test_root 'dwm_test_root/scene_restart_shared'
+              if (Test-Path $root) {
+                New-Item -ItemType Directory -Force '.godot/ci/physical' | Out-Null
+                Copy-Item $root ".godot/ci/physical/$mode" -Recurse
+              }
+            }
+          }
+          if ($failed) { throw 'One or more focused engine children failed; retain original results' }
+      - name: Verify executed census, custody receipts and unchanged source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          @'
+          import collections, hashlib, json, pathlib, re, subprocess, xml.etree.ElementTree as ET
+          out=pathlib.Path('.godot/ci'); counts={}
+          suites={'preparation':'tests/unit/test_scene_playable_preparation.gd','checkpoint':'tests/unit/test_scene_checkpoint_ack.gd'}
+          for mode in ['normal','dropped_ack','native_refusal']:
+              suites[mode+'-create']='tests/integration/test_scene_playable_'+('create' if mode=='normal' else mode)+'.gd'
+              suites[mode+'-load']='tests/integration/test_scene_playable_load.gd'
+          for lane,script in suites.items():
+              expected=re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(),re.M)
+              root=ET.parse(out/(lane+'.xml')).getroot()
+              rows=list(root.iter('testcase'))
+              assert collections.Counter(r.attrib['name'] for r in rows)==collections.Counter(expected),(lane,'census mismatch')
+              assert rows and all(r.attrib.get('classname')==script and r.attrib.get('status')=='pass' and int(r.attrib.get('assertions','0'))>0 for r in rows),lane
+              assert not any(list(root.iter(t)) for t in ['failure','error','skipped']),lane
+              assert all(int(e.attrib.get(k,'0'))==0 for e in root.iter() for k in ['failures','errors','skipped']),lane
+              log=pathlib.Path('.godot/phase2r_logs')/(lane+'.log')
+              text=log.read_text(encoding='utf-8-sig')
+              assert not re.search(r'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character',text),lane
+              counts[lane]={'cases':len(rows),'xml_assertions':sum(int(r.attrib['assertions']) for r in rows)}
+          for mode in ['normal','dropped_ack','native_refusal']:
+              records=[json.loads(s) for s in (out/(mode+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
+              assert len(records)==2 and all(r['exit_code']==0 for r in records)
+              assert records[0]['test_root']==records[1]['test_root'] and records[0]['user_dir']==records[1]['user_dir']
+              assert records[1]['started_at_utc']>=records[0]['ended_at_utc']
+              a=json.loads((out/('playable-'+mode+'-create.json')).read_text())
+              b=json.loads((out/('playable-'+mode+'-load.json')).read_text())
+              assert a['process_id']!=b['process_id'] and b['creator_process_id']==a['process_id']
+              for key in ['storage_root','autosave_sha256','run_id','checkpoint_id','receipt','checkpoint','profile_files']:
+                  assert a[key]==b[key],(mode,key)
+              assert a['refused_writes']==(2 if mode=='normal' else 0)
+              assert hashlib.sha256((out/'physical'/mode/'autosave.json').read_bytes()).hexdigest()==a['autosave_sha256']
+              assert a['checkpoint']['reading_session']['boundary']=='control'
+              assert a['receipt']['result']['kind']=='challenge_playable'
+          assert not subprocess.check_output(['git','diff','--name-only'],text=True).strip()
+          assert not subprocess.check_output(['git','diff','--cached','--name-only'],text=True).strip()
+          result={'status':'passed','lanes':counts,'total_cases':sum(v['cases'] for v in counts.values()),
+              'total_xml_assertions':sum(v['xml_assertions'] for v in counts.values()),
+              'scope':'headless real-save/native test-host integration; not production startup, rendered E2E or full-suite acceptance'}
+          (out/'gate.json').write_text(json.dumps(result,indent=2)); print(json.dumps(result))
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Publish passing candidate only as unchanged-A fast-forward
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $branch = 'refs/heads/codex/scene-runtime-integration-20261009'
+          $live = (git ls-remote origin $branch).Split()[0]
+          if ($LASTEXITCODE -ne 0 -or $live -cne $env:BASE_SHA) { throw 'A advanced; candidate retained without overwrite' }
+          $source = git rev-parse HEAD
+          git push origin "${source}:$branch"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          @{ source=$source; base=$env:BASE_SHA; branch=$branch; force=$false } | ConvertTo-Json | Set-Content .godot/ci/publication.json -Encoding utf8
+      - name: Retain original run bytes and hashes even on failure
         if: always()
-        uses: actions/upload-artifact@v4
+        run: |
+          $ErrorActionPreference = 'Stop'
+          @'
+          import hashlib,json,pathlib,subprocess
+          out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
+          (out/'final-status.txt').write_text(subprocess.run(['git','status','--porcelain'],capture_output=True,text=True).stdout)
+          files={}
+          for root in [out,pathlib.Path('.godot/phase2r_logs')]:
+              if root.exists():
+                  for p in root.rglob('*'):
+                      if p.is_file() and p.name!='retained-hashes.json' and 'import-user' not in p.parts:
+                          files[p.as_posix()]={'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}
+          (out/'retained-hashes.json').write_text(json.dumps(files,indent=2))
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: public-surfaces-${{ github.run_id }}-${{ github.run_attempt }}
+          name: scene-playable-original-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
-            .godot/ci/import.log
-            .godot/ci/public-surfaces/
-            .godot/ci/caption-native/
-            .godot/ci/public_surfaces.xml
-            .godot/ci/public_surfaces.jsonl
-            .godot/ci/isolation-timeout.jsonl
-            .godot/phase2r_logs/cloud-isolation-timeout.log*
-            .godot/phase2r_logs/cloud-public-surface-*.log
-            .godot/phase2r_logs/cloud-public_surfaces.log*
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
-
-  checkpoint-performance:
-    needs: public-surfaces
-    name: Windows / paired checkpoint performance
-    runs-on: windows-2022
-    timeout-minutes: 20
-    defaults:
-      run:
-        shell: pwsh
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          # Defer credential removal until the post-job cleanup, after the
-          # malformed gitlinks are removed from this disposable runner's index.
-          persist-credentials: true
-      - name: Prepare disposable checkout for credential cleanup
-        run: |
-          $ErrorActionPreference = 'Stop'
-          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
-          # submodule foreach reads the index even with sparse checkout.
-          # The source commit and working files remain unchanged.
-          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git submodule foreach --recursive 'true'
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Install Godot 4.6.3 standard
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
-          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
-          # SHA256 published with the official 4.6.3-stable release asset.
-          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
-          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
-            throw 'Godot archive checksum mismatch.'
-          }
-          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
-          Expand-Archive -LiteralPath $archive -DestinationPath $editor
-          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
-          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
-          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          & $console --version
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Import project
-        timeout-minutes: 8
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
-          $env:APPDATA = Join-Path $output 'import-user/appdata'
-          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
-          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
-          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
-          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
-            throw 'Project import reported script errors; inspect import.log.'
-          }
-      - name: Restore committed project settings after editor import
-        run: |
-          # Dialogic's editor scan rewrites its timeline lookup during import.
-          # Execute the committed configuration with the freshly imported assets.
-          git restore -- project.godot
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Measure localized journeys and matched payloads
-        timeout-minutes: 12
-        run: ./tools/testing/Invoke-CheckpointPerformance.ps1
-      - name: Share current localized payloads
-        uses: actions/upload-artifact@v4
-        with:
-          # A failed-job retry reuses this run's successful producer artifact; a rerun
-          # of the producer replaces it. The consumer verifies checkout and file hashes.
-          name: checkpoint-payloads-${{ github.run_id }}
-          path: |
-            .godot/ci/performance/fixed-zh-CN-autosave.json
-            .godot/ci/performance/fixed-zh-HK-autosave.json
-            .godot/ci/performance/payload-manifest.json
-          overwrite: true
+            source/.godot/ci
+            source/.godot/phase2r_logs
+            !source/.godot/ci/import-user
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7
-      - name: Upload paired performance evidence
+      - name: Prepare disposable indexes for checkout cleanup
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: checkpoint-performance-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            .godot/ci/import.log
-            .godot/ci/performance/
-            .godot/phase2r_logs/cloud-performance-*.log
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
-
-  seven-day-history-producer:
-    needs: public-surfaces
-    name: Windows / seven-day retained history producer
-    runs-on: windows-2022
-    timeout-minutes: 55
-    defaults:
-      run:
-        shell: pwsh
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          # Verify the frozen region-search control against its historical source blob.
-          fetch-depth: 0
-          # Defer credential removal until the post-job cleanup, after the
-          # malformed gitlinks are removed from this disposable runner's index.
-          persist-credentials: true
-      - name: Prepare disposable checkout for credential cleanup
         run: |
-          $ErrorActionPreference = 'Stop'
-          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
-          # submodule foreach reads the index even with sparse checkout.
-          # The source commit and working files remain unchanged.
-          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git submodule foreach --recursive 'true'
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Install Godot 4.6.3 standard
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
-          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
-          # SHA256 published with the official 4.6.3-stable release asset.
-          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
-          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
-            throw 'Godot archive checksum mismatch.'
+          foreach ($repo in @('.', '../controller')) {
+            if (-not (Test-Path "$repo/.git")) { continue }
+            git -C $repo update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
-          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
-          Expand-Archive -LiteralPath $archive -DestinationPath $editor
-          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
-          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
-          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          & $console --version
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Import project
-        timeout-minutes: 8
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
-          $env:APPDATA = Join-Path $output 'import-user/appdata'
-          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
-          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
-          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
-          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
-            throw 'Project import reported script errors; inspect import.log.'
-          }
-      - name: Restore committed project settings after editor import
-        run: |
-          # Dialogic's editor scan rewrites its timeline lookup during import.
-          # Execute the committed configuration with the freshly imported assets.
-          git restore -- project.godot
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Measure seven days and saturated retained history
-        timeout-minutes: 30
-        run: ./tools/testing/Invoke-SevenDayHistoryPerformance.ps1 -ComparePreparation
-      - name: Record Day7 consumer input provenance
-        run: |
-          Set-StrictMode -Version Latest
-          $ErrorActionPreference = 'Stop'
-          $checkoutRef = (& git rev-parse HEAD)
-          if ($LASTEXITCODE -ne 0 -or $checkoutRef -cne $env:GITHUB_SHA) { throw 'Unexpected Day7 producer checkout.' }
-          $root = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/seven-day-history'
-          $files = [ordered]@{}
-          foreach ($name in @('results.json', 'day7-autosave.json')) {
-            $files[$name] = (Get-FileHash -LiteralPath (Join-Path $root $name) -Algorithm SHA256).Hash.ToLowerInvariant()
-          }
-          [ordered]@{
-            schema_version = 1
-            checkout_ref = $checkoutRef
-            producer_run_id = [string]$env:GITHUB_RUN_ID
-            producer_run_attempt = [int]$env:GITHUB_RUN_ATTEMPT
-            files = $files
-          } | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $root 'consumer-input-manifest.json') -Encoding utf8
-      - name: Share verified Day7 consumer inputs
-        uses: actions/upload-artifact@v4
-        with:
-          # Reuse a successful producer on failed-job retries in this same run.
-          # Consumers check source, attempt and both file hashes before measuring.
-          name: seven-day-inputs-${{ github.run_id }}
-          path: |
-            .godot/ci/seven-day-history/results.json
-            .godot/ci/seven-day-history/day7-autosave.json
-            .godot/ci/seven-day-history/consumer-input-manifest.json
-          overwrite: true
-          include-hidden-files: true
-          if-no-files-found: error
-          retention-days: 7
-      - name: Upload seven-day history evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: seven-day-history-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            .godot/ci/import.log
-            .godot/ci/seven-day-history/
-            .godot/phase2r_logs/cloud-seven-day-history-*.log
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
-
-  history-comparisons:
-    needs: [seven-day-history-producer, checkpoint-performance]
-    name: Windows / ${{ matrix.comparison }} comparison
-    runs-on: windows-2022
-    timeout-minutes: 35
-    strategy:
-      fail-fast: false
-      # Each matrix entry gets its own VM/checkout: never overlap timing probes
-      # or the producer's temporary SaveManager substitutions on one runner.
-      matrix:
-        include:
-          - comparison: outgoing-normalization
-            driver: Invoke-OutgoingNormalizationPerformance.ps1
-            timeout: 12
-          - comparison: lazy-normalization
-            driver: Invoke-LazyNormalizationPerformance.ps1
-            timeout: 8
-          - comparison: history-region-search
-            driver: Invoke-HistoryRegionSearchPerformance.ps1
-            timeout: 20
-          - comparison: warm-outgoing-proof
-            driver: Invoke-WarmOutgoingProofPerformance.ps1
-            timeout: 20
-    defaults:
-      run:
-        shell: pwsh
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          # Verify the frozen region-search control against its historical source blob.
-          fetch-depth: 0
-          # Defer credential removal until the post-job cleanup, after the
-          # malformed gitlinks are removed from this disposable runner's index.
-          persist-credentials: true
-      - name: Prepare disposable checkout for credential cleanup
-        run: |
-          $ErrorActionPreference = 'Stop'
-          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
-          # submodule foreach reads the index even with sparse checkout.
-          # The source commit and working files remain unchanged.
-          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git submodule foreach --recursive 'true'
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Install Godot 4.6.3 standard
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
-          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
-          # SHA256 published with the official 4.6.3-stable release asset.
-          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
-          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
-            throw 'Godot archive checksum mismatch.'
-          }
-          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
-          Expand-Archive -LiteralPath $archive -DestinationPath $editor
-          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
-          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
-          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          & $console --version
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Import project
-        timeout-minutes: 8
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
-          $env:APPDATA = Join-Path $output 'import-user/appdata'
-          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
-          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
-          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
-          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
-            throw 'Project import reported script errors; inspect import.log.'
-          }
-      - name: Restore committed project settings after editor import
-        run: |
-          # Dialogic's editor scan rewrites its timeline lookup during import.
-          # Execute the committed configuration with the freshly imported assets.
-          git restore -- project.godot
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Download exact Day7 producer inputs
-        uses: actions/download-artifact@v4
-        with:
-          name: seven-day-inputs-${{ github.run_id }}
-          path: .godot/ci/seven-day-history
-      - name: Verify Day7 checkout, run, attempt, hashes and recovered identity
-        run: |
-          Set-StrictMode -Version Latest
-          $ErrorActionPreference = 'Stop'
-          $checkoutRef = (& git rev-parse HEAD)
-          if ($LASTEXITCODE -ne 0 -or $checkoutRef -cne $env:GITHUB_SHA) { throw 'Unexpected Day7 consumer checkout.' }
-          $root = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/seven-day-history'
-          $manifest = Get-Content -LiteralPath (Join-Path $root 'consumer-input-manifest.json') -Raw | ConvertFrom-Json
-          if ($manifest.schema_version -ne 1 -or $manifest.checkout_ref -cne $checkoutRef -or
-              $manifest.producer_run_id -cne [string]$env:GITHUB_RUN_ID -or
-              $manifest.producer_run_attempt -lt 1 -or $manifest.producer_run_attempt -gt [int]$env:GITHUB_RUN_ATTEMPT -or
-              @($manifest.files.PSObject.Properties).Count -ne 2) {
-            throw 'Day7 inputs must come from this checkout and workflow run at an admitted producer attempt.'
-          }
-          foreach ($name in @('results.json', 'day7-autosave.json')) {
-            $expected = $manifest.files.PSObject.Properties[$name].Value
-            $actual = (Get-FileHash -LiteralPath (Join-Path $root $name) -Algorithm SHA256).Hash.ToLowerInvariant()
-            if ($expected -cnotmatch '^[0-9a-f]{64}$' -or $expected -cne $actual) { throw "Day7 input hash mismatch: $name" }
-          }
-          $history = Get-Content -LiteralPath (Join-Path $root 'results.json') -Raw | ConvertFrom-Json
-          $payloadHash = $manifest.files.PSObject.Properties['day7-autosave.json'].Value
-          $saveManagerHash = (Get-FileHash -LiteralPath (Join-Path $env:GITHUB_WORKSPACE 'autoload/SaveManager.gd') -Algorithm SHA256).Hash.ToLowerInvariant()
-          if ($history.checkout_ref -cne $checkoutRef -or $history.payload_sha256 -cne $payloadHash -or
-              $history.write.autosave_sha256 -cne $payloadHash -or $history.cold_read.autosave_sha256 -cne $payloadHash -or
-              $history.cold_read.save_manager_sha256 -cne $saveManagerHash -or $history.cold_read.day -ne 7 -or
-              $history.cold_read.retained_checkpoint_count -ne 66 -or $history.write.retained.line -ne 32 -or
-              $history.write.retained.manual_save -ne 32 -or $history.write.retained.semantic -ne 2) {
-            throw 'Day7 inputs must retain the exact verified source, payload and 66-checkpoint recovery identity.'
-          }
-          Write-Host ('DAY7_CONSUMER_INPUTS_VERIFIED: ' + ($manifest | ConvertTo-Json -Depth 4 -Compress))
-      - name: Download current localized payloads for outgoing comparison
-        if: matrix.comparison == 'outgoing-normalization'
-        uses: actions/download-artifact@v4
-        with:
-          name: checkpoint-payloads-${{ github.run_id }}
-          path: .godot/ci/performance
-      - name: Run isolated retained-history comparison
-        timeout-minutes: ${{ matrix.timeout }}
-        env:
-          DWM_COMPARISON_DRIVER: ${{ matrix.driver }}
-        run: |
-          & (Join-Path $env:GITHUB_WORKSPACE "tools/testing/$env:DWM_COMPARISON_DRIVER")
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Upload comparison raw evidence and input provenance
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.comparison }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            .godot/ci/import.log
-            .godot/ci/seven-day-history/consumer-input-manifest.json
-            .godot/ci/performance/payload-manifest.json
-            .godot/ci/${{ matrix.comparison }}/
-            .godot/phase2r_logs/cloud-${{ matrix.comparison }}-*.log
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
-
-  seven-day-history:
-    # Keep the original required-check name green only after every comparison.
-    needs: [seven-day-history-producer, history-comparisons]
-    if: always()
-    name: Windows / seven-day retained history
-    runs-on: windows-2022
-    timeout-minutes: 5
-    steps:
-      - name: Require the Day7 producer and all four comparison jobs
-        shell: pwsh
-        env:
-          DWM_PRODUCER_RESULT: ${{ needs.seven-day-history-producer.result }}
-          DWM_COMPARISONS_RESULT: ${{ needs.history-comparisons.result }}
-        run: |
-          if ($env:DWM_PRODUCER_RESULT -cne 'success' -or $env:DWM_COMPARISONS_RESULT -cne 'success') {
-            throw 'The seven-day history gate requires its producer and all four isolated comparisons to pass.'
-          }
-
-  rendered-journeys:
-    needs: public-surfaces
-    name: Rendered seven-day, ending, Gallery and Dating journeys
-    runs-on: ubuntu-24.04
-    timeout-minutes: 110
-    env:
-      LIBGL_ALWAYS_SOFTWARE: '1'
-      XDG_DATA_HOME: ${{ github.workspace }}/.godot/phase2r_tests/cloud-journey-import/data
-      DWM_TEST_ROOT: ${{ github.workspace }}/.godot/phase2r_tests/cloud-journey-import/test-root
-      DWM_RENDER_OUTPUT: ${{ github.workspace }}/.godot/ci/playable-journeys
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          # Same disposable-index workaround as the Windows jobs above.
-          persist-credentials: true
-      - name: Prepare disposable checkout for credential cleanup
-        run: |
-          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-          git submodule foreach --recursive 'true'
-      - name: Install Godot and software display
-        timeout-minutes: 12
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri pulseaudio pulseaudio-utils libspeechd2 speech-dispatcher speech-dispatcher-audio-plugins speech-dispatcher-espeak-ng
-          archive="$RUNNER_TEMP/godot-4.6.3-linux.zip"
-          curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip' --output "$archive"
-          printf '%s  %s\n' 'd0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3' "$archive" | sha256sum --check
-          unzip -q "$archive" -d "$RUNNER_TEMP/godot-4.6.3-linux"
-          editor="$RUNNER_TEMP/godot-4.6.3-linux/Godot_v4.6.3-stable_linux.x86_64"
-          chmod +x "$editor"
-          echo "GODOT_CONSOLE_PATH=$editor" >> "$GITHUB_ENV"
-          "$editor" --version
-      - name: Start and verify native Linux speech service
-        timeout-minutes: 2
-        run: bash tools/testing/start_cloud_speech.sh
-      - name: Upload native speech environment evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: cloud-speech-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .godot/ci/cloud-speech/
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
-      - name: Import project
-        timeout-minutes: 8
-        run: |
-          mkdir -p "$DWM_RENDER_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
-          "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --import --log-file "$DWM_RENDER_OUTPUT/import.log"
-          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_RENDER_OUTPUT/import.log"; then
-            exit 1
-          fi
-          # Dialogic's editor scan rewrites its timeline lookup during import.
-          git restore -- project.godot
-      - name: Render witnessed-version register fixtures
-        timeout-minutes: 5
-        env:
-          DWM_GALLERY_REGISTER_OUTPUT: ${{ github.workspace }}/.godot/ci/gallery-version-register
-          XDG_DATA_HOME: ${{ github.workspace }}/.godot/phase2r_tests/gallery-version-register/data
-          DWM_TEST_ROOT: ${{ github.workspace }}/.godot/phase2r_tests/gallery-version-register/test-root
-        run: |
-          mkdir -p "$DWM_GALLERY_REGISTER_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
-          timeout 240s xvfb-run -a "$GODOT_CONSOLE_PATH" --path "$GITHUB_WORKSPACE" --rendering-method gl_compatibility --audio-driver Dummy --log-file "$DWM_GALLERY_REGISTER_OUTPUT/render.log" --script res://tests/ui/render_gallery_version_register.gd
-          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_GALLERY_REGISTER_OUTPUT/render.log"; then
-            exit 1
-          fi
-          grep -E '^GALLERY_VERSION_REGISTER_RENDER_VERIFIED tuples=18 evidence=' "$DWM_GALLERY_REGISTER_OUTPUT/render.log"
-      - name: Upload witnessed-version register evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: gallery-version-register-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .godot/ci/gallery-version-register/
-          include-hidden-files: true
-          if-no-files-found: error
-          retention-days: 7
-      - name: Render admitted Gallery caption collection
-        timeout-minutes: 5
-        env:
-          DWM_GALLERY_COLLECTION_OUTPUT: ${{ github.workspace }}/.godot/ci/gallery-caption-collection
-          XDG_DATA_HOME: ${{ github.workspace }}/.godot/phase2r_tests/gallery-caption-collection/data
-          DWM_TEST_ROOT: ${{ github.workspace }}/.godot/phase2r_tests/gallery-caption-collection/test-root
-        run: |
-          mkdir -p "$DWM_GALLERY_COLLECTION_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
-          timeout 240s xvfb-run -a "$GODOT_CONSOLE_PATH" --path "$GITHUB_WORKSPACE" --rendering-method gl_compatibility --audio-driver Dummy --log-file "$DWM_GALLERY_COLLECTION_OUTPUT/render.log" --script res://tests/ui/render_gallery_caption_collection.gd -- --phase2r-bootstrap-mode=final
-          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_GALLERY_COLLECTION_OUTPUT/render.log"; then
-            exit 1
-          fi
-          grep -E '^GALLERY_CAPTION_COLLECTION_RENDER_VERIFIED' "$DWM_GALLERY_COLLECTION_OUTPUT/render.log"
-      - name: Upload Gallery caption collection evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: gallery-caption-collection-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .godot/ci/gallery-caption-collection/
-          include-hidden-files: true
-          if-no-files-found: error
-          retention-days: 7
-      - name: Exercise complete rendered journeys in fresh isolated profiles
-        timeout-minutes: 55
-        run: python3 tools/testing/run_cloud_journeys.py
-      - name: Upload journey reports, logs and screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playable-journeys-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .godot/ci/playable-journeys/
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
-
-      - name: Exercise real Solo reading Save and fresh-process Load
-        timeout-minutes: 25
-        run: python3 tools/testing/run_reading_rail_journey.py
-      - name: Upload Solo reading reports, exact save bytes and screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: reading-rail-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .godot/ci/reading-rail/
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
-
-      - name: Exercise authored Solo selectors through physical Save and fresh-process Load
-        timeout-minutes: 10
-        run: python3 tools/testing/run_solo_authored_selector_journey.py
-      - name: Upload authored Solo selector reports, exact save bytes and screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: solo-authored-selector-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .godot/ci/solo-authored-selector/
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
-
-  rendered-hospital-reading:
-    needs: public-surfaces
-    name: Rendered Hospital / manual command refusal and saved-fixture restore
-    runs-on: ubuntu-24.04
-    timeout-minutes: 45
-    env:
-      LIBGL_ALWAYS_SOFTWARE: '1'
-      XDG_DATA_HOME: ${{ github.workspace }}/.godot/phase2r_tests/cloud-hospital-reading-import/data
-      DWM_TEST_ROOT: ${{ github.workspace }}/.godot/phase2r_tests/cloud-hospital-reading-import/test-root
-      DWM_RENDER_OUTPUT: ${{ github.workspace }}/.godot/ci/hospital-reading
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          # Same disposable-index workaround as the Windows jobs above.
-          persist-credentials: true
-      - name: Prepare disposable checkout for credential cleanup
-        run: |
-          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-          git submodule foreach --recursive 'true'
-      - name: Install Godot and software display
-        timeout-minutes: 12
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri pulseaudio pulseaudio-utils libspeechd2 speech-dispatcher speech-dispatcher-audio-plugins speech-dispatcher-espeak-ng
-          archive="$RUNNER_TEMP/godot-4.6.3-linux.zip"
-          curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip' --output "$archive"
-          printf '%s  %s\n' 'd0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3' "$archive" | sha256sum --check
-          unzip -q "$archive" -d "$RUNNER_TEMP/godot-4.6.3-linux"
-          editor="$RUNNER_TEMP/godot-4.6.3-linux/Godot_v4.6.3-stable_linux.x86_64"
-          chmod +x "$editor"
-          echo "GODOT_CONSOLE_PATH=$editor" >> "$GITHUB_ENV"
-          "$editor" --version
-      - name: Start and verify native Linux speech service
-        timeout-minutes: 2
-        run: bash tools/testing/start_cloud_speech.sh
-      - name: Upload native speech environment evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: cloud-speech-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .godot/ci/cloud-speech/
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
-      - name: Import project
-        timeout-minutes: 8
-        run: |
-          mkdir -p "$DWM_RENDER_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
-          "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --import --log-file "$DWM_RENDER_OUTPUT/import.log"
-          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_RENDER_OUTPUT/import.log"; then
-            exit 1
-          fi
-          # Dialogic's editor scan rewrites its timeline lookup during import.
-          git restore -- project.godot
-      - name: Exercise Hospital manual refusal and test-only saved-fixture restore
-        timeout-minutes: 25
-        run: python3 tools/testing/run_hospital_reading_journey.py
-      - name: Upload Hospital reading reports, exact save bytes and screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: hospital-reading-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .godot/ci/hospital-reading/
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
-
-  rendered-ending-reading:
-    needs: public-surfaces
-    name: Rendered ordered ending / physical boundary and exact fresh Load
-    runs-on: ubuntu-24.04
-    timeout-minutes: 45
-    env:
-      LIBGL_ALWAYS_SOFTWARE: '1'
-      XDG_DATA_HOME: ${{ github.workspace }}/.godot/phase2r_tests/cloud-ending-reading-import/data
-      DWM_TEST_ROOT: ${{ github.workspace }}/.godot/phase2r_tests/cloud-ending-reading-import/test-root
-      DWM_RENDER_OUTPUT: ${{ github.workspace }}/.godot/ci/ending-reading
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          # Same disposable-index workaround as the Windows jobs above.
-          persist-credentials: true
-      - name: Prepare disposable checkout for credential cleanup
-        run: |
-          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-          git submodule foreach --recursive 'true'
-      - name: Install Godot and software display
-        timeout-minutes: 12
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri pulseaudio pulseaudio-utils libspeechd2 speech-dispatcher speech-dispatcher-audio-plugins speech-dispatcher-espeak-ng
-          archive="$RUNNER_TEMP/godot-4.6.3-linux.zip"
-          curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip' --output "$archive"
-          printf '%s  %s\n' 'd0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3' "$archive" | sha256sum --check
-          unzip -q "$archive" -d "$RUNNER_TEMP/godot-4.6.3-linux"
-          editor="$RUNNER_TEMP/godot-4.6.3-linux/Godot_v4.6.3-stable_linux.x86_64"
-          chmod +x "$editor"
-          echo "GODOT_CONSOLE_PATH=$editor" >> "$GITHUB_ENV"
-          "$editor" --version
-      - name: Start and verify native Linux speech service
-        timeout-minutes: 2
-        run: bash tools/testing/start_cloud_speech.sh
-      - name: Upload native speech environment evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: cloud-speech-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .godot/ci/cloud-speech/
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
-      - name: Import project
-        timeout-minutes: 8
-        run: |
-          mkdir -p "$DWM_RENDER_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
-          "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --import --log-file "$DWM_RENDER_OUTPUT/import.log"
-          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_RENDER_OUTPUT/import.log"; then
-            exit 1
-          fi
-          # Dialogic's editor scan rewrites its timeline lookup during import.
-          git restore -- project.godot
-      - name: Exercise two-step ending History, Save and fresh Load
-        timeout-minutes: 25
-        run: python3 tools/testing/run_ending_reading_journey.py
-      - name: Verify Auto continuity across the manual nonfinal ending seam
-        timeout-minutes: 10
-        run: python3 tools/testing/run_ending_auto_journey.py
-      - name: Upload ending reading reports, exact save bytes and screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ending-reading-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .godot/ci/ending-reading/
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
-
-  rendered-timed-hold:
-    needs: public-surfaces
-    name: Rendered captionless timed hold / Pause and fresh-input continuation
-    runs-on: ubuntu-24.04
-    timeout-minutes: 45
-    env:
-      LIBGL_ALWAYS_SOFTWARE: '1'
-      XDG_DATA_HOME: ${{ github.workspace }}/.godot/phase2r_tests/cloud-timed-hold-import/data
-      DWM_TEST_ROOT: ${{ github.workspace }}/.godot/phase2r_tests/cloud-timed-hold-import/test-root
-      DWM_RENDER_OUTPUT: ${{ github.workspace }}/.godot/ci/timed-hold
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          # Same disposable-index workaround as the Windows jobs above.
-          persist-credentials: true
-      - name: Prepare disposable checkout for credential cleanup
-        run: |
-          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-          git submodule foreach --recursive 'true'
-      - name: Install Godot and software display
-        timeout-minutes: 12
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri pulseaudio pulseaudio-utils libspeechd2 speech-dispatcher speech-dispatcher-audio-plugins speech-dispatcher-espeak-ng
-          archive="$RUNNER_TEMP/godot-4.6.3-linux.zip"
-          curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip' --output "$archive"
-          printf '%s  %s\n' 'd0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3' "$archive" | sha256sum --check
-          unzip -q "$archive" -d "$RUNNER_TEMP/godot-4.6.3-linux"
-          editor="$RUNNER_TEMP/godot-4.6.3-linux/Godot_v4.6.3-stable_linux.x86_64"
-          chmod +x "$editor"
-          echo "GODOT_CONSOLE_PATH=$editor" >> "$GITHUB_ENV"
-          "$editor" --version
-      - name: Start and verify native Linux speech service
-        timeout-minutes: 2
-        run: bash tools/testing/start_cloud_speech.sh
-      - name: Upload native speech environment evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: cloud-speech-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .godot/ci/cloud-speech/
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
-      - name: Import project
-        timeout-minutes: 8
-        run: |
-          mkdir -p "$DWM_RENDER_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
-          "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --import --log-file "$DWM_RENDER_OUTPUT/import.log"
-          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_RENDER_OUTPUT/import.log"; then
-            exit 1
-          fi
-          # Dialogic's editor scan rewrites its timeline lookup during import.
-          git restore -- project.godot
-      - name: Exercise captionless native hold Pause and fresh-input continuation
-        timeout-minutes: 25
-        run: python3 tools/testing/run_timed_hold_journey.py
-      - name: Upload timed hold raw traces, process logs, reports and captures
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: timed-hold-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .godot/ci/timed-hold/
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
-
-  rendered-desktop:
-    needs: public-surfaces
-    name: Rendered desktop and dialogue / Linux software OpenGL
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    env:
-      LIBGL_ALWAYS_SOFTWARE: '1'
-      XDG_DATA_HOME: ${{ github.workspace }}/.godot/ci/render-user/data
-      DWM_TEST_ROOT: ${{ github.workspace }}/.godot/ci/render-user/test-root
-      DWM_RENDER_OUTPUT: ${{ github.workspace }}/.godot/ci/desktop-scaling
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          # Same disposable-index workaround as the Windows jobs above.
-          persist-credentials: true
-      - name: Prepare disposable checkout for credential cleanup
-        run: |
-          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-          git submodule foreach --recursive 'true'
-      - name: Install Godot and software display
-        timeout-minutes: 12
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri pulseaudio pulseaudio-utils libspeechd2 speech-dispatcher speech-dispatcher-audio-plugins speech-dispatcher-espeak-ng
-          archive="$RUNNER_TEMP/godot-4.6.3-linux.zip"
-          curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip' --output "$archive"
-          printf '%s  %s\n' 'd0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3' "$archive" | sha256sum --check
-          unzip -q "$archive" -d "$RUNNER_TEMP/godot-4.6.3-linux"
-          editor="$RUNNER_TEMP/godot-4.6.3-linux/Godot_v4.6.3-stable_linux.x86_64"
-          chmod +x "$editor"
-          echo "GODOT_CONSOLE_PATH=$editor" >> "$GITHUB_ENV"
-          "$editor" --version
-      - name: Start and verify native Linux speech service
-        timeout-minutes: 2
-        run: bash tools/testing/start_cloud_speech.sh
-      - name: Upload native speech environment evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: cloud-speech-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .godot/ci/cloud-speech/
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
-      - name: Import project
-        timeout-minutes: 8
-        run: |
-          mkdir -p "$DWM_RENDER_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
-          "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --import --log-file "$DWM_RENDER_OUTPUT/import.log"
-          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_RENDER_OUTPUT/import.log"; then
-            exit 1
-          fi
-          # Dialogic's editor scan rewrites its timeline lookup during import.
-          git restore -- project.godot
-      - name: Render and verify desktop scaling
-        timeout-minutes: 5
-        run: |
-          xvfb-run -a -s '-screen 0 1920x1080x24' "$GODOT_CONSOLE_PATH" \
-            --path "$GITHUB_WORKSPACE" --rendering-method gl_compatibility \
-            --rendering-driver opengl3 --audio-driver Dummy \
-            --log-file "$DWM_RENDER_OUTPUT/render.log" \
-            --script res://tests/ui/render_desktop_scaling.gd
-          grep 'DESKTOP_SCALING_RENDER_VERIFIED' "$DWM_RENDER_OUTPUT/render.log"
-          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_RENDER_OUTPUT/render.log"; then
-            exit 1
-          fi
-          python3 - <<'PY'
-          import json, os
-          from pathlib import Path
-          output = Path(os.environ['DWM_RENDER_OUTPUT'])
-          report = json.loads((output / 'results.json').read_text())
-          assert report['ok'] is True and not report['failures'], report
-          assert report['renderer'] != 'headless', report
-          assert report['samples'] == report['captures'] == 38, report
-          captures = list(output.glob('*.png'))
-          assert len(captures) == 38 and all(path.stat().st_size > 0 for path in captures)
-          PY
-      - name: Upload rendered evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: desktop-scaling-render-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .godot/ci/desktop-scaling/
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
-      - name: Render and verify delivery and dialogue
-        timeout-minutes: 5
-        env:
-          XDG_DATA_HOME: ${{ github.workspace }}/.godot/ci/delivery-dialogue-user/data
-          DWM_TEST_ROOT: ${{ github.workspace }}/.godot/ci/delivery-dialogue-user/test-root
-          DWM_RENDER_OUTPUT: ${{ github.workspace }}/.godot/ci/delivery-dialogue
-        run: |
-          mkdir -p "$DWM_RENDER_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
-          xvfb-run -a -s '-screen 0 1920x1080x24' "$GODOT_CONSOLE_PATH" \
-            --path "$GITHUB_WORKSPACE" --rendering-method gl_compatibility \
-            --rendering-driver opengl3 --audio-driver Dummy \
-            --log-file "$DWM_RENDER_OUTPUT/render.log" \
-            --script res://tests/ui/render_delivery_dialogue.gd
-          grep 'DELIVERY_DIALOGUE_RENDER_VERIFIED' "$DWM_RENDER_OUTPUT/render.log"
-          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_RENDER_OUTPUT/render.log"; then
-            exit 1
-          fi
-          python3 - <<'PY'
-          import json, os
-          from pathlib import Path
-          output = Path(os.environ['DWM_RENDER_OUTPUT'])
-          report = json.loads((output / 'results.json').read_text())
-          assert report['ok'] is True and not report['failures'], report
-          assert report['renderer'] != 'headless', report
-          assert report['samples'] == report['captures'] == 25, report
-          captures = list(output.glob('*.png'))
-          assert len(captures) == 25 and all(path.stat().st_size > 0 for path in captures)
-          PY
-      - name: Upload delivery and dialogue evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: delivery-dialogue-render-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .godot/ci/delivery-dialogue/
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
-      - name: Render and verify HUD retirement and retained shell
-        timeout-minutes: 5
-        env:
-          XDG_DATA_HOME: ${{ github.workspace }}/.godot/ci/angela-overlay-user/data
-          DWM_TEST_ROOT: ${{ github.workspace }}/.godot/ci/angela-overlay-user/test-root
-          DWM_RENDER_OUTPUT: ${{ github.workspace }}/.godot/ci/angela-overlay
-        run: |
-          mkdir -p "$DWM_RENDER_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
-          xvfb-run -a -s '-screen 0 1920x1080x24' "$GODOT_CONSOLE_PATH" \
-            --path "$GITHUB_WORKSPACE" --rendering-method gl_compatibility \
-            --rendering-driver opengl3 --audio-driver Dummy \
-            --log-file "$DWM_RENDER_OUTPUT/render.log" \
-            --script res://tests/ui/render_angela_overlay.gd
-          grep 'HUD_RETIREMENT_RENDER_VERIFIED' "$DWM_RENDER_OUTPUT/render.log"
-          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_RENDER_OUTPUT/render.log"; then
-            exit 1
-          fi
-          python3 - <<'PY'
-          import json, os
-          from pathlib import Path
-          output = Path(os.environ['DWM_RENDER_OUTPUT'])
-          report = json.loads((output / 'results.json').read_text())
-          assert report['ok'] is True and not report['failures'], report
-          assert report['renderer'] != 'headless', report
-          assert report['samples'] == report['captures'] == 10, report
-          expected = {'wide-en100', 'narrow-en100', 'narrow-en150', 'narrow-en150-high-contrast', 'narrow-zh-CN150-high-contrast', 'narrow-zh-HK150', 'wide-zh-HK150', 'wide-en100-day1', 'wide-en100-day7', 'wide-en100-day7-high-contrast'}
-          assert {sample['name'] for sample in report['evidence']} == expected, report
-          assert all(sample['hud_absent'] is True for sample in report['evidence']), report
-          captures = list(output.glob('*.png'))
-          assert len(captures) == 10 and all(path.stat().st_size > 0 for path in captures)
-          PY
-      - name: Upload HUD retirement and retained shell evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: angela-overlay-render-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .godot/ci/angela-overlay/
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
-      - name: Validate Japanese and Korean catalogs
-        run: python3 tools/localization/validate_japanese_korean_catalogs.py
-      - name: Render and verify Japanese and Korean UI
-        timeout-minutes: 5
-        env:
-          XDG_DATA_HOME: ${{ github.workspace }}/.godot/ci/japanese-korean-ui-user/data
-          DWM_TEST_ROOT: ${{ github.workspace }}/.godot/ci/japanese-korean-ui-user/test-root
-          DWM_RENDER_OUTPUT: ${{ github.workspace }}/.godot/ci/japanese-korean-ui
-        run: |
-          mkdir -p "$DWM_RENDER_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
-          xvfb-run -a -s '-screen 0 1920x1080x24' "$GODOT_CONSOLE_PATH" \
-            --path "$GITHUB_WORKSPACE" --rendering-method gl_compatibility \
-            --rendering-driver opengl3 --audio-driver Dummy \
-            --log-file "$DWM_RENDER_OUTPUT/render.log" \
-            --script res://tests/ui/render_japanese_korean_ui.gd
-          grep 'JAPANESE_KOREAN_UI_RENDER_VERIFIED' "$DWM_RENDER_OUTPUT/render.log"
-          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_RENDER_OUTPUT/render.log"; then
-            exit 1
-          fi
-          python3 - <<'PY'
-          import json, os
-          from pathlib import Path
-          output = Path(os.environ['DWM_RENDER_OUTPUT'])
-          report = json.loads((output / 'results.json').read_text())
-          assert report['ok'] is True and not report['failures'], report
-          assert report['renderer'] != 'headless', report
-          assert report['samples'] == report['captures'] == 30, report
-          captures = list(output.glob('*.png'))
-          assert len(captures) == 30 and all(path.stat().st_size > 0 for path in captures)
-          PY
-      - name: Upload Japanese and Korean UI evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: japanese-korean-ui-render-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .godot/ci/japanese-korean-ui/
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
-      - name: Render and verify font choices
-        timeout-minutes: 5
-        env:
-          XDG_DATA_HOME: ${{ github.workspace }}/.godot/ci/font-choices-user/data
-          DWM_TEST_ROOT: ${{ github.workspace }}/.godot/ci/font-choices-user/test-root
-          DWM_RENDER_OUTPUT: ${{ github.workspace }}/.godot/ci/font-choices
-        run: |
-          mkdir -p "$DWM_RENDER_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
-          xvfb-run -a -s '-screen 0 1920x1080x24' "$GODOT_CONSOLE_PATH" \
-            --path "$GITHUB_WORKSPACE" --rendering-method gl_compatibility \
-            --rendering-driver opengl3 --audio-driver Dummy \
-            --log-file "$DWM_RENDER_OUTPUT/render.log" \
-            --script res://tests/ui/render_font_choices.gd
-          grep 'FONT_CHOICES_RENDER_VERIFIED' "$DWM_RENDER_OUTPUT/render.log"
-          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_RENDER_OUTPUT/render.log"; then
-            exit 1
-          fi
-          python3 - <<'PY'
-          import json, os
-          from pathlib import Path
-          output = Path(os.environ['DWM_RENDER_OUTPUT'])
-          report = json.loads((output / 'results.json').read_text())
-          assert report['ok'] is True and not report['failures'], report
-          assert report['renderer'] != 'headless', report
-          assert report['samples'] == report['captures'] == 30, report
-          captures = list(output.glob('*.png'))
-          assert len(captures) == 30 and all(path.stat().st_size > 0 for path in captures)
-          PY
-      - name: Upload font-choice evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: font-choices-render-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .godot/ci/font-choices/
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
-      - name: Verify rendered startup and Logout consent
-        timeout-minutes: 5
-        env:
-          XDG_DATA_HOME: ${{ github.workspace }}/.godot/ci/playable-startup-user/data
-          DWM_TEST_ROOT: ${{ github.workspace }}/.godot/ci/playable-startup-user/test-root
-          DWM_RENDER_OUTPUT: ${{ github.workspace }}/.godot/ci/playable-startup
-        run: |
-          mkdir -p "$DWM_RENDER_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
-          xvfb-run -a -s '-screen 0 1920x1080x24' "$GODOT_CONSOLE_PATH" \
-            --path "$GITHUB_WORKSPACE" --rendering-method gl_compatibility \
-            --rendering-driver opengl3 --audio-driver Dummy \
-            --log-file "$DWM_RENDER_OUTPUT/render.log" \
-            --script res://tests/integration/verify_playable_startup.gd \
-            -- --phase2r-bootstrap-mode=final --probe-logout --render-evidence
-          for marker in PLAYABLE_STARTUP_PASS PLAYABLE_DAY_PASS PLAYABLE_LOGOUT_PASS; do
-            grep "$marker" "$DWM_RENDER_OUTPUT/render.log"
-          done
-          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_RENDER_OUTPUT/render.log"; then
-            exit 1
-          fi
-          python3 - <<'PYCODE'
-          import json, os, shutil, struct
-          from pathlib import Path
-          output = Path(os.environ['DWM_RENDER_OUTPUT'])
-          captures = sorted(Path(os.environ['XDG_DATA_HOME']).rglob('evidence/playable/*.png'))
-          expected = ['01-title.png', '02-desktop.png', '03-minesweeper.png', 'logout-01-consent.png']
-          assert sorted(path.name for path in captures) == expected, captures
-          for path in captures:
-              header = path.read_bytes()[:24]
-              assert header[:8] == b'\x89PNG\r\n\x1a\n' and all(struct.unpack('>II', header[16:24])), path
-              shutil.copyfile(path, output / path.name)
-          (output / 'results.json').write_text(json.dumps({'ok': True, 'captures': 4, 'files': expected}) + '\n')
-          print('PLAYABLE_STARTUP_RENDER_VERIFIED: 4 captures')
-          PYCODE
-      - name: Upload rendered startup and Logout evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playable-startup-render-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .godot/ci/playable-startup/
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
-      - name: Audit all UI literal ownership
-        if: ${{ !cancelled() }}
-        timeout-minutes: 3
-        run: |
-          output="$GITHUB_WORKSPACE/.godot/ci/ui-literal-audit"
-          mkdir -p "$output"
-          status=0
-          "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" \
-            --log-file "$output/audit.log" --script res://tools/localization/UiLiteralAudit.gd || status=$?
-          cp evidence/phase_2r/localization/{ui_literal_disposition,script_ui_disposition}.json "$output/"
-          if [ "$status" -ne 0 ]; then exit "$status"; fi
-          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$output/audit.log"; then
-            exit 1
-          fi
-          python3 - <<'PY'
-          import json, os
-          from pathlib import Path
-          output = Path(os.environ['GITHUB_WORKSPACE']) / '.godot/ci/ui-literal-audit'
-          for name in ('ui_literal_disposition.json', 'script_ui_disposition.json'):
-              report = json.loads((output / name).read_text())
-              assert not report['failures'], report['failures']
-              assert report['records'], name
-          print('UI_LITERAL_AUDIT_VERIFIED')
-          PY
-      - name: Upload UI literal audit evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ui-literal-audit-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .godot/ci/ui-literal-audit/
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 7
