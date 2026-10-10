@@ -1,0 +1,188 @@
+diff --git a/autoload/SceneRouter.gd b/autoload/SceneRouter.gd
+--- a/autoload/SceneRouter.gd
++++ b/autoload/SceneRouter.gd
+@@ -817,7 +817,10 @@ func apply_route_restore_silent(plan: Dictionary) -> Dictionary:
+ 	_route_generation = int(token["generation"])
+ 	_pending_restore_scene_id = route_id
+ 	var gs := _gs()
+-	if gs != null and typeof(plan.get("route_context")) == TYPE_DICTIONARY:
++	# Scene Run restore already installed its complete gameplay context. The scene
++	# host plan carries contacts/lifecycle/desktop references for mounting, not
++	# additional gameplay fields. Legacy route metadata retains its existing merge.
++	if route_id != "scene" and gs != null and typeof(plan.get("route_context")) == TYPE_DICTIONARY:
+ 		# The run participant already restored gameplay-owned challenge/ending context.
+ 		# This participant adds safe routing metadata; replacing the map discards that state.
+ 		var combined: Dictionary = gs.route_context.duplicate(true)
+diff --git a/tests/integration/scene_playable_child.gd b/tests/integration/scene_playable_child.gd
+index f52b7f191f1410fbaa7fb425ffcbe6fccb2d9457..3386adde9c303a87c4df1a2216e3099e365221e1 100644
+--- a/tests/integration/scene_playable_child.gd
++++ b/tests/integration/scene_playable_child.gd
+@@ -41,6 +41,10 @@ func create_playable(mode: String) -> void:
+ 		assert_false(refused.get("ok", false), str(refused))
+ 		assert_false(refused.get("committed", false), "definite source-write failure permits retry")
+ 		assert_eq(fixture.files.refused, 1, "fault actually reached physical autosave.next write")
++		assert_eq(fixture.lower.last_prepare_phase, "source", "source fault belongs to the source checkpoint")
++		assert_eq(fixture.files.autosave_writes, 1)
++		if refused.get("ok", false) or refused.get("committed", false) or fixture.files.refused != 1 \
++				or fixture.files.autosave_writes != 1 or fixture.lower.last_prepare_phase != "source": return
+ 		assert_eq(fixture.storage.read_text("autosave.json").value, original.value)
+ 		assert_eq(fixture.game.capture_run_snapshot_input(), fixture.before_input)
+ 		assert_eq(fixture.bridge.capture_reading_checkpoint(false).value, fixture.before_reading)
+@@ -50,13 +54,17 @@ func create_playable(mode: String) -> void:
+ 		assert_false(refused.get("ok", false), str(refused))
+ 		assert_false(refused.get("committed", false), "definite destination rollback permits same-command retry")
+ 		assert_eq(fixture.files.refused, 2)
++		assert_eq(fixture.lower.last_prepare_phase, "destination", "destination fault follows the saved source")
++		assert_eq(fixture.files.autosave_writes, 3)
++		if refused.get("ok", false) or refused.get("committed", false) or fixture.files.refused != 2 \
++				or fixture.files.autosave_writes != 3 or fixture.lower.last_prepare_phase != "destination": return
+ 		var source: Dictionary = fixture.read_autosave()
+ 		assert_true(source.ok, str(source))
+ 		if not source.ok: return
+ 		var saved_source: Dictionary = source.value.current_snapshot.snapshot
+ 		assert_true(SAVE_SCHEMA.validate(source.value).ok)
+ 		assert_eq(saved_source.narrative_checkpoint.reading_session.boundary, "line")
+-		assert_eq(saved_source.narrative_checkpoint.reading_session.next_operation.phase, "source")
++		if not assert_operation_phase(saved_source.narrative_checkpoint, "source"): return
+ 		assert_false(saved_source.command_receipts.has(fixture.issued_event.command_id))
+ 		assert_eq(fixture.game.capture_run_snapshot_input(), fixture.before_input)
+ 		assert_eq(fixture.bridge.capture_reading_checkpoint(false).value, fixture.before_reading)
+@@ -84,17 +92,19 @@ func create_playable(mode: String) -> void:
+ 		assert_true(result.get("committed", false), "postcommit failure never rolls destination back")
+ 		assert_eq(fixture.game.capture_run_snapshot_input(), fixture.before_input, "unacknowledged receipt is not adopted live")
+ 		assert_true(fixture.bridge._scene_stage_fatal, "failed adoption retains fatal custody")
++		if result.get("ok", false) or not result.get("committed", false) or not fixture.bridge._scene_stage_fatal: return
+ 	assert_eq(fixture.checkpoint_port.consumed, 1, "the actual durable acknowledgement was consumed exactly once")
++	if fixture.checkpoint_port.consumed != 1: return
+ 	var document: Dictionary = fixture.read_autosave()
+ 	assert_true(document.ok, str(document))
+ 	if not document.ok: return
+ 	assert_true(SAVE_SCHEMA.validate(document.value).ok, "entire committed Run/Save validates")
+ 	var snapshot: Dictionary = document.value.current_snapshot.snapshot
+ 	assert_eq(snapshot.narrative_checkpoint.reading_session.boundary, "control")
+-	assert_eq(snapshot.narrative_checkpoint.reading_session.next_operation.phase, "destination")
++	if not assert_operation_phase(snapshot.narrative_checkpoint, "destination"): return
+ 	assert_true(snapshot.command_receipts.has(fixture.issued_event.command_id))
+ 	if not snapshot.command_receipts.has(fixture.issued_event.command_id): return
+-	assert_eq(snapshot.command_receipts[fixture.issued_event.command_id].result.kind, "challenge_playable")
++	assert_eq(snapshot.command_receipts[fixture.issued_event.command_id].scene_event.result.kind, "challenge_playable")
+ 	assert_eq(snapshot.command_receipts.size(), fixture.before_input.command_receipts.size() + 1)
+ 	assert_eq(snapshot.scene, fixture.before_input.scene, "availability does not create physical Challenge progress")
+ 	assert_eq(snapshot.gameplay, fixture.before_input.gameplay, "availability does not construct a board")
+@@ -167,6 +177,7 @@ func load_playable() -> void:
+ 	var current: Dictionary = fixture.game.capture_run_snapshot_input()
+ 	assert_ne(current.lifecycle.branch_id, snapshot.lifecycle.branch_id)
+ 	assert_eq(current.scene, snapshot.scene)
++	assert_eq(current.gameplay, snapshot.gameplay, "route activation preserves the restored gameplay context")
+ 	assert_eq(current.command_receipts, snapshot.command_receipts)
+ 	assert_eq(fixture.bridge._reading_session.boundary, "control")
+ 	var control: Dictionary = fixture.adapter.capture_scene_control_position(fixture.bridge._reading_session)
+@@ -192,7 +203,7 @@ func load_playable() -> void:
+ 	var duplicate: Dictionary = fixture.dispatch(refreshed)
+ 	assert_true(duplicate.get("ok", false), str(duplicate))
+ 	assert_true(duplicate.get("duplicate", false))
+-	assert_eq(duplicate.get("value"), witness.receipt.result)
++	assert_eq(duplicate.get("value"), witness.receipt.scene_event.result)
+ 	assert_eq(fixture.game.capture_run_snapshot_input(), current)
+ 	assert_eq(fixture.storage.read_text("autosave.json").value, bytes.value)
+ 	assert_eq(fixture.files.autosave_writes, 0, "Load and duplicate issue no replacement autosave")
+@@ -204,6 +215,13 @@ func load_playable() -> void:
+ 	proof.process_id = OS.get_process_id()
+ 	write_proof(proof, false)
+ 
++func assert_operation_phase(checkpoint: Dictionary, expected: String) -> bool:
++	var operation: Variant = checkpoint.get("reading_session", {}).get("next_operation")
++	assert_true(operation is Dictionary, "saved " + expected + " checkpoint retains its traversal operation")
++	if not operation is Dictionary: return false
++	assert_eq(operation.get("phase"), expected)
++	return operation.get("phase") == expected
++
+ func write_proof(proof: Dictionary, witness: bool) -> void:
+ 	var encoded: Dictionary = WRITER.stringify(proof)
+ 	assert_true(encoded.ok, str(encoded))
+diff --git a/tests/support/ScenePlayableFixture.gd b/tests/support/ScenePlayableFixture.gd
+index c2c69fd9aa6e6d8e553eb09a0c492f5214a3a00d..2f8882edec73931098c356c554d1e0b58e4d27a2 100644
+--- a/tests/support/ScenePlayableFixture.gd
++++ b/tests/support/ScenePlayableFixture.gd
+@@ -21,6 +21,16 @@ class WriteRefusal extends "res://scripts/infrastructure/storage/FileOps.gd":
+ 				return {"ok": false, "code": &"TEST.filesystem_write_refused", "message": path}
+ 		return super.write_bytes(path, bytes)
+ 
++# Observe the real lower port's attempted phase; never manufacture a successful prepare.
++class ObservedCheckpoint extends "res://scripts/application/run/SaveManagerCheckpointPort.gd":
++	var last_prepare_phase := ""
++	func _init(owner: Object) -> void:
++		super(owner)
++	func prepare(inputs: Dictionary, kind: StringName, disk_write: Dictionary) -> Dictionary:
++		var operation: Variant = inputs.get("dialogic_checkpoint", {}).get("reading_session", {}).get("next_operation")
++		last_prepare_phase = str(operation.get("phase", "")) if operation is Dictionary else ""
++		return super.prepare(inputs, kind, disk_write)
++
+ class AckFault extends "res://scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd":
+ 	var drop_ack := false
+ 	var after_ack: Callable
+@@ -84,7 +94,7 @@ func setup_playable(scene_tree: SceneTree) -> Dictionary:
+ 	if not checked.ok: return checked
+ 	files = WriteRefusal.new()
+ 	storage._file_ops = files
+-	lower = preload("res://scripts/application/run/SaveManagerCheckpointPort.gd").new(manager)
++	lower = ObservedCheckpoint.new(manager)
+ 	checked = lower.configure_fatal_latch(gate)
+ 	if not checked.ok: return checked
+ 	checkpoint_port = AckFault.new()
+diff --git a/tests/unit/test_scene_route_restore_context.gd b/tests/unit/test_scene_route_restore_context.gd
+new file mode 100644
+index 0000000000000000000000000000000000000000..a551defb5a135c8e979ce68ae12dff95e7956220
+--- /dev/null
++++ b/tests/unit/test_scene_route_restore_context.gd
+@@ -0,0 +1,50 @@
++extends "res://addons/gut/test.gd"
++## Real SceneRouter prepare/apply, with a detached state node. No publication,
++## native activation, save validation or physical storage is claimed by this unit.
++class ContextState extends Node:
++	var route_context := {}
++
++class Router extends "res://autoload/SceneRouter.gd":
++	var state: Node
++	func _gs() -> Node:
++		return state
++
++var state: ContextState
++var router: Router
++
++func before_each() -> void:
++	state = ContextState.new()
++	router = Router.new()
++	router.state = state
++
++func after_each() -> void:
++	router.free()
++	state.free()
++
++func test_scene_restore_keeps_gameplay_context_owned_by_run() -> void:
++	var gameplay := {"active_dating_challenge": {"TEST": ["retained"]}}
++	state.route_context = gameplay.duplicate(true)
++	var configured: Dictionary = router.configure_scene_host("res://tests/fixtures/scene_activation_host.tscn")
++	assert_true(configured.ok, str(configured))
++	if not configured.ok: return
++	var host := {"active_app_id": null, "lifecycle_state": "PLAYING", "run_id": "TEST.run",
++		"contacts": {"TEST": []}, "scene": {"active_occurrence_id": "TEST.occurrence"}}
++	var prepared: Dictionary = router.prepare_route_restore("scene", host)
++	assert_true(prepared.ok, str(prepared))
++	if not prepared.ok: return
++	var applied: Dictionary = router.apply_route_restore_silent(prepared.value)
++	assert_true(applied.ok, str(applied))
++	assert_eq(state.route_context, gameplay, "host metadata is not persisted gameplay")
++	assert_eq(prepared.value.route_context, host, "the host plan remains complete and detached")
++	if applied.ok: assert_eq(applied.value.route_ready_token, prepared.value.route_ready_token)
++
++func test_legacy_restore_still_merges_safe_context_without_losing_gameplay() -> void:
++	state.route_context = {"active_dating_challenge": {"TEST": ["retained"]}, "ending_id": "old"}
++	var host := {"ending_id": "new", "day": 3}
++	var prepared: Dictionary = router.prepare_route_restore("main", host)
++	assert_true(prepared.ok, str(prepared))
++	if not prepared.ok: return
++	var applied: Dictionary = router.apply_route_restore_silent(prepared.value)
++	assert_true(applied.ok, str(applied))
++	assert_eq(state.route_context, {"active_dating_challenge": {"TEST": ["retained"]}, "ending_id": "new", "day": 3})
++	assert_eq(host, {"ending_id": "new", "day": 3})
