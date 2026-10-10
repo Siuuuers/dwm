@@ -1,25 +1,28 @@
-name: Verify original scene app teardown evidence
+name: Scene playable durable producer
 on:
   pull_request:
+    paths:
+      - 'tools/cloud/scene-playable-candidate.json'
 permissions:
   contents: write
-  actions: read
 concurrency:
   group: scene-runtime-integration-controller-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 jobs:
-  verify-and-retain:
+  playable:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
     runs-on: windows-2022
-    timeout-minutes: 15
+    timeout-minutes: 25
     env:
+      BASE_SHA: 69a5cdd70261692b7f1b1e2d4550155141ca6375
       CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
+      EVENT_SHA: ${{ github.sha }}
     defaults:
       run:
         shell: pwsh
-        working-directory: evidence
+        working-directory: source
     steps:
-      - name: Preserve original bytes
+      - name: Preserve source bytes
         working-directory: .
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
@@ -33,36 +36,209 @@ jobs:
           path: source
           fetch-depth: 0
           persist-credentials: true
-      - uses: actions/checkout@v7
-        with:
-          ref: codex/scene-runtime-evidence-20261009
-          path: evidence
-          persist-credentials: true
-      - name: Verify original artifacts, exact source, census and settled snapshots without engine execution
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Apply exact candidate to unchanged A base
         run: |
           $ErrorActionPreference = 'Stop'
-          python ../controller/tools/cloud/scene_app_teardown_retain.py
+          @'
+          import base64, gzip, hashlib, json, os, pathlib, subprocess
+          def git(*args):
+              return subprocess.check_output(['git', *args], text=True).strip()
+          base = os.environ['BASE_SHA']
+          assert git('rev-parse', 'HEAD') == base
+          branch = 'refs/heads/codex/scene-runtime-integration-20261009'
+          assert git('ls-remote', 'origin', branch).split()[0] == base, 'A moved; reconcile instead of overwriting'
+          payload = json.loads(pathlib.Path('../controller/tools/cloud/scene-playable-candidate.json').read_text())
+          assert payload['base'] == base
+          patch = gzip.decompress(base64.b64decode(payload['patch_gzip_base64'], validate=True))
+          assert hashlib.sha256(patch).hexdigest() == payload['patch_sha256']
+          out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
+          target = out / 'candidate.patch'; target.write_bytes(patch)
+          subprocess.run(['git', 'apply', '--check', str(target)], check=True)
+          subprocess.run(['git', 'apply', '--index', str(target)], check=True)
+          subprocess.run(['git', 'diff', '--cached', '--check'], check=True)
+          allowed = {'autoload/DialogicBridge.gd', 'autoload/GameState.gd',
+              'scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd',
+              'tests/support/SceneNewRunFixture.gd', 'tests/support/ScenePlayableFixture.gd',
+              'tests/unit/test_scene_playable_preparation.gd', 'tests/integration/scene_playable_child.gd',
+              *('tests/integration/test_scene_playable_' + name + '.gd' for name in ['create','load','dropped_ack','native_refusal'])}
+          paths = git('diff', '--cached', '--name-only').splitlines()
+          assert set(paths) == allowed, paths
+          (out/'candidate-paths.json').write_text(json.dumps(paths, indent=2))
+          (out/'candidate-origin.json').write_text(json.dumps({'base':base, 'controller':os.environ['CONTROLLER_SHA'],
+              'event':os.environ['EVENT_SHA'], 'patch_sha256':payload['patch_sha256'], 'paths':paths}, indent=2))
+          print('Candidate patch:', payload['patch_sha256'])
+          '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Upload independent verification receipts
+      - name: Install exact Godot standard engine
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
+          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
+          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
+          if ((Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) { throw 'Engine archive hash mismatch' }
+          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
+          Expand-Archive $archive $editor
+          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+          $version = (& $console --version | Out-String).Trim()
+          if ($LASTEXITCODE -ne 0 -or $version -cne '4.6.3.stable.official.7d41c59c4') { throw "Unexpected engine: $version" }
+          "GODOT_CONSOLE_PATH=$console" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          @{ version=$version; archive_sha256=$expected; console_sha256=(Get-FileHash $console -Algorithm SHA256).Hash.ToLowerInvariant() } | ConvertTo-Json | Set-Content .godot/ci/engine.json -Encoding utf8
+      - name: Import candidate in isolated user directories
+        timeout-minutes: 8
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $output = Join-Path (Get-Location) '.godot/ci'
+          $env:APPDATA = Join-Path $output 'import-user/appdata'
+          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
+          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
+          New-Item -ItemType Directory -Force -Path $env:APPDATA,$env:LOCALAPPDATA,$env:DWM_TEST_ROOT | Out-Null
+          & $env:GODOT_CONSOLE_PATH --headless --path (Get-Location) --import --log-file "$output/import.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (Select-String "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Candidate import script error' }
+          git restore --worktree -- project.godot
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Freeze exact candidate including normal imported UID companions
+        run: |
+          $ErrorActionPreference = 'Stop'
+          @'
+          import json, pathlib, subprocess
+          out=pathlib.Path('.godot/ci')
+          paths=json.loads((out/'candidate-paths.json').read_text())
+          for name in paths:
+              uid=pathlib.Path(name+'.uid')
+              if uid.exists(): subprocess.run(['git','add','--',str(uid)],check=True)
+          subprocess.run(['git','diff','--cached','--check'],check=True)
+          subprocess.run(['git','config','user.name','github-actions[bot]'],check=True)
+          subprocess.run(['git','config','user.email','41898282+github-actions[bot]@users.noreply.github.com'],check=True)
+          subprocess.run(['git','commit','-m','Connect durable scene playable source, receipt and native handoff'],check=True)
+          def git(*args): return subprocess.check_output(['git',*args],text=True).strip()
+          assert git('rev-parse','HEAD^') == json.loads((out/'candidate-origin.json').read_text())['base']
+          assert not git('diff','--name-only'), 'Unexpected imported tracked changes'
+          names=git('diff-tree','--no-commit-id','--name-only','-r','HEAD').splitlines()
+          assert all(n in paths or (n.endswith('.gd.uid') and n[:-4] in paths) for n in names)
+          receipt={'source':git('rev-parse','HEAD'),'tree':git('rev-parse','HEAD^{tree}'),
+              'parent':git('rev-parse','HEAD^'),'blobs':{n:git('rev-parse','HEAD:'+n) for n in names}}
+          (out/'candidate-commit.json').write_text(json.dumps(receipt,indent=2))
+          subprocess.run(['git','archive','--format=zip','--output=.godot/ci/source-inspection.zip','HEAD'],check=True)
+          print(json.dumps(receipt))
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Focused unit and physical same-files process journeys
+        timeout-minutes: 14
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $runner = './tools/testing/Invoke-IsolatedGodot.ps1'
+          $failed = $false
+          foreach ($entry in @(@('preparation','tests/unit/test_scene_playable_preparation.gd'), @('checkpoint','tests/unit/test_scene_checkpoint_ack.gd'))) {
+            $name = $entry[0]
+            $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$($entry[1])",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$name.xml")
+            & $runner -SuiteId "playable-$name" -LogName "$name.log" -GodotArgs $args -EvidenceLogPath ".godot/ci/$name.jsonl" -TimeoutSeconds 180
+            if ($LASTEXITCODE -ne 0) { $failed = $true }
+          }
+          foreach ($mode in @('normal','dropped_ack','native_refusal')) {
+            $child = if ($mode -eq 'normal') { 'create' } else { $mode }
+            $create = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://tests/integration/test_scene_playable_$child.gd",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$mode-create.xml")
+            $load = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_playable_load.gd','-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$mode-load.xml")
+            & $runner -SuiteId "playable-$mode" -LogName "$mode-create.log" -GodotArgs $create -NextLogName "$mode-load.log" -NextGodotArgs $load -EvidenceLogPath ".godot/ci/$mode.jsonl" -TimeoutSeconds 180 -KeepRoot
+            if ($LASTEXITCODE -ne 0) { $failed = $true }
+            $records = @()
+            if (Test-Path ".godot/ci/$mode.jsonl") { $records = @(Get-Content ".godot/ci/$mode.jsonl" | ForEach-Object { ConvertFrom-Json $_ }) }
+            if ($records.Count -gt 0) {
+              $root = Join-Path $records[0].test_root 'dwm_test_root/scene_restart_shared'
+              if (Test-Path $root) {
+                New-Item -ItemType Directory -Force '.godot/ci/physical' | Out-Null
+                Copy-Item $root ".godot/ci/physical/$mode" -Recurse
+              }
+            }
+          }
+          if ($failed) { throw 'One or more focused engine children failed; retain original results' }
+      - name: Verify executed census, custody receipts and unchanged source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          @'
+          import collections, hashlib, json, pathlib, re, subprocess, xml.etree.ElementTree as ET
+          out=pathlib.Path('.godot/ci'); counts={}
+          suites={'preparation':'tests/unit/test_scene_playable_preparation.gd','checkpoint':'tests/unit/test_scene_checkpoint_ack.gd'}
+          for mode in ['normal','dropped_ack','native_refusal']:
+              suites[mode+'-create']='tests/integration/test_scene_playable_'+('create' if mode=='normal' else mode)+'.gd'
+              suites[mode+'-load']='tests/integration/test_scene_playable_load.gd'
+          for lane,script in suites.items():
+              expected=re.findall(r'^func (test_\w+)\(',pathlib.Path(script).read_text(),re.M)
+              root=ET.parse(out/(lane+'.xml')).getroot()
+              rows=list(root.iter('testcase'))
+              assert collections.Counter(r.attrib['name'] for r in rows)==collections.Counter(expected),(lane,'census mismatch')
+              assert rows and all(r.attrib.get('classname')==script and r.attrib.get('status')=='pass' and int(r.attrib.get('assertions','0'))>0 for r in rows),lane
+              assert not any(list(root.iter(t)) for t in ['failure','error','skipped']),lane
+              assert all(int(e.attrib.get(k,'0'))==0 for e in root.iter() for k in ['failures','errors','skipped']),lane
+              log=pathlib.Path('.godot/phase2r_logs')/(lane+'.log')
+              text=log.read_text(encoding='utf-8-sig')
+              assert not re.search(r'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character',text),lane
+              counts[lane]={'cases':len(rows),'xml_assertions':sum(int(r.attrib['assertions']) for r in rows)}
+          for mode in ['normal','dropped_ack','native_refusal']:
+              records=[json.loads(s) for s in (out/(mode+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
+              assert len(records)==2 and all(r['exit_code']==0 for r in records)
+              assert records[0]['test_root']==records[1]['test_root'] and records[0]['user_dir']==records[1]['user_dir']
+              assert records[1]['started_at_utc']>=records[0]['ended_at_utc']
+              a=json.loads((out/('playable-'+mode+'-create.json')).read_text())
+              b=json.loads((out/('playable-'+mode+'-load.json')).read_text())
+              assert a['process_id']!=b['process_id'] and b['creator_process_id']==a['process_id']
+              for key in ['storage_root','autosave_sha256','run_id','checkpoint_id','receipt','checkpoint','profile_files']:
+                  assert a[key]==b[key],(mode,key)
+              assert a['refused_writes']==(2 if mode=='normal' else 0)
+              assert hashlib.sha256((out/'physical'/mode/'autosave.json').read_bytes()).hexdigest()==a['autosave_sha256']
+              assert a['checkpoint']['reading_session']['boundary']=='control'
+              assert a['receipt']['result']['kind']=='challenge_playable'
+          assert not subprocess.check_output(['git','diff','--name-only'],text=True).strip()
+          assert not subprocess.check_output(['git','diff','--cached','--name-only'],text=True).strip()
+          result={'status':'passed','lanes':counts,'total_cases':sum(v['cases'] for v in counts.values()),
+              'total_xml_assertions':sum(v['xml_assertions'] for v in counts.values()),
+              'scope':'headless real-save/native test-host integration; not production startup, rendered E2E or full-suite acceptance'}
+          (out/'gate.json').write_text(json.dumps(result,indent=2)); print(json.dumps(result))
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Publish passing candidate only as unchanged-A fast-forward
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $branch = 'refs/heads/codex/scene-runtime-integration-20261009'
+          $live = (git ls-remote origin $branch).Split()[0]
+          if ($LASTEXITCODE -ne 0 -or $live -cne $env:BASE_SHA) { throw 'A advanced; candidate retained without overwrite' }
+          $source = git rev-parse HEAD
+          git push origin "${source}:$branch"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          @{ source=$source; base=$env:BASE_SHA; branch=$branch; force=$false } | ConvertTo-Json | Set-Content .godot/ci/publication.json -Encoding utf8
+      - name: Retain original run bytes and hashes even on failure
         if: always()
-        uses: actions/upload-artifact@v4
+        run: |
+          $ErrorActionPreference = 'Stop'
+          @'
+          import hashlib,json,pathlib,subprocess
+          out=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)
+          (out/'final-status.txt').write_text(subprocess.run(['git','status','--porcelain'],capture_output=True,text=True).stdout)
+          files={}
+          for root in [out,pathlib.Path('.godot/phase2r_logs')]:
+              if root.exists():
+                  for p in root.rglob('*'):
+                      if p.is_file() and p.name!='retained-hashes.json' and 'import-user' not in p.parts:
+                          files[p.as_posix()]={'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}
+          (out/'retained-hashes.json').write_text(json.dumps(files,indent=2))
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: scene-app-teardown-independent-${{ github.run_id }}-${{ github.run_attempt }}
+          name: scene-playable-original-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
-            evidence/evidence/scene_app_teardown_2026_10_10/*/retention-verification.json
-            evidence/evidence/scene_app_teardown_2026_10_10/*/independent-census.json
-            evidence/evidence/scene_app_teardown_2026_10_10/*/retained-file-hashes.json
-          if-no-files-found: warn
+            source/.godot/ci
+            source/.godot/phase2r_logs
+            !source/.godot/ci/import-user
+          include-hidden-files: true
+          if-no-files-found: error
           retention-days: 7
       - name: Prepare disposable indexes for checkout cleanup
         if: always()
         run: |
-          foreach ($repo in @('.', '../source', '../controller')) {
-            if (-not (Test-Path -LiteralPath "$repo/.git")) { continue }
+          foreach ($repo in @('.', '../controller')) {
+            if (-not (Test-Path "$repo/.git")) { continue }
             git -C $repo update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-            git -C $repo submodule foreach --recursive 'true'
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
