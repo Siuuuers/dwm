@@ -31,10 +31,7 @@ jobs:
           count = text.count(old)
           if count != 6:
               raise SystemExit(f'expected 6 embedded raw blocks, found {count}')
-          corrected = text.replace(old, new)
-          if corrected.count(new) != 6 or corrected.count(old) != 0:
-              raise SystemExit('controller transformation census mismatch')
-          workflow.write_text(corrected, encoding='utf-8', newline='\n')
+          workflow.write_text(text.replace(old, new), encoding='utf-8', newline='\n')
           PY
           git diff --check -- .github/workflows/windows-tests.yml
           mkdir -p corrected-controller/.github/workflows
