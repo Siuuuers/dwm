@@ -1,6 +1,35 @@
 # Story workspace
 
-## Current restart point: Priscilla foundation, 2026-10-09
+## Current chapter development checkpoint, 2026-10-10
+
+The [working plot register](auditions/priscilla-seven-day-working-plot.md)
+captures recoverable post-foundation discussion and distinguishes author
+directions from assistant proposals. Read its source coverage, not a remembered
+summary, to determine what was actually preserved.
+
+- [Day 1](auditions/day-1-photo-book-working-draft.md): photo, book performance,
+  consequential messages and an unselected voice-message Challenge family.
+- [Day 2](relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md):
+  return/bar structure, distinct aftermath alternatives and the valued
+  tenderness-versus-departure reversal.
+
+**Status:** AUDITIONING, not canon or complete DTL. These packets identify the
+latest assembled fragments and later unintegrated proposals separately. The
+same-book loan, Day 2 escalation, exact Challenge mapping and full week remain
+open; the older chronological bar/residue audit is not closed.
+
+**Capture/publication:** the recoverable discussion through the Day 2 structure
+and recording request is documented in [PR #33](https://github.com/Siuuuers/dwm/pull/33),
+with the owner's publication/merge authorization recorded as C15. Consult the
+actual PR and commit metadata for merge state. A merged checkpoint does not
+approve its scene candidates. PR #1, runtime and protected source history are
+outside this documentation packet.
+
+**Next writing unit:** assemble the leading Day 2 candidate at scene scope,
+compare its reachable continuations, and preserve its cross-day consequences.
+The whole-week plot gate still precedes complete DTL production.
+
+## Retained foundation checkpoint, 2026-10-09
 
 Read the [approved foundation amendment](09-priscilla-foundation-amendment.md)
 before applying conflicting passages in the older owners below. Its scope map

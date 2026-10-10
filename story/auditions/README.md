@@ -1,5 +1,22 @@
 # Auditions — shared and whole-week work
 
+## Current Priscilla chapter auditions
+
+Apply [the foundation amendment](../09-priscilla-foundation-amendment.md) and
+[current behavior](../../docs/design/2026-10-09-priscilla-flow-behavior-amendment.md)
+first. Older cast, Group and calendar references below keep historical scope.
+
+| Current working unit | Record | Status |
+|---|---|---|
+| Week direction, source scope and dependencies | [Working plot](priscilla-seven-day-working-plot.md) | AUDITIONING; not a second Matrix. |
+| Day 1 | [Photo and book](day-1-photo-book-working-draft.md) | Fragments and unselected local outcomes. |
+| Day 2 | [Return and bar](../relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md) | Candidate structure; escalation and response family open. |
+
+Exact approval remains with the owning sources and selection lifecycle.
+Publication is established by commit/PR metadata, not these links.
+
+## Retained auditions
+
 **Status:** noncanonical working material with each record's existing qualifications.
 The workspace moved; its designs did not become canon by changing paths.
 
