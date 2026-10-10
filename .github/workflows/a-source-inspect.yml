@@ -10,33 +10,29 @@ jobs:
     runs-on: windows-2022
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: ed31b87b036dc3a211299be4e9681970b14533db
-          persist-credentials: false
-          sparse-checkout: |
-            tools/cloud
-            .github/workflows
       - name: Export verified current payload only
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
           @'
-          import base64, gzip, hashlib, json, pathlib, subprocess
+          import base64, gzip, hashlib, json, pathlib, urllib.request
           controller = 'ed31b87b036dc3a211299be4e9681970b14533db'
-          assert subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip() == controller
-          source = pathlib.Path('tools/cloud/scene-playable-candidate.json')
-          payload = json.loads(source.read_text(encoding='utf-8-sig'))
+          root = 'https://raw.githubusercontent.com/Siuuuers/dwm/' + controller + '/'
+          def read(path):
+              with urllib.request.urlopen(root + path, timeout=60) as response:
+                  return response.read()
+          source = read('tools/cloud/scene-playable-candidate.json')
+          payload = json.loads(source.decode('utf-8-sig'))
           patch = gzip.decompress(base64.b64decode(payload['patch_gzip_base64'], validate=True))
-          assert hashlib.sha256(patch).hexdigest() == payload['patch_sha256']
+          digest = hashlib.sha256(patch).hexdigest()
+          assert digest == payload['patch_sha256'] == '1d6cb95788894ef8a95f8525c500b95f97c004f0305c95e1f86f9b428ca63335'
           out = pathlib.Path('source-export'); out.mkdir()
-          (out/'scene-playable-candidate.json').write_bytes(source.read_bytes())
+          (out/'scene-playable-candidate.json').write_bytes(source)
           (out/'candidate.patch').write_bytes(patch)
-          (out/'windows-tests.yml').write_bytes(pathlib.Path('.github/workflows/windows-tests.yml').read_bytes())
-          (out/'origin.json').write_text(json.dumps({'controller':controller,'base':payload['base'],'patch_sha256':payload['patch_sha256']},indent=2),encoding='utf-8')
+          (out/'windows-tests.yml').write_bytes(read('.github/workflows/windows-tests.yml'))
+          (out/'origin.json').write_text(json.dumps({'controller':controller,'base':payload['base'],'patch_sha256':digest},indent=2),encoding='utf-8')
           print((out/'origin.json').read_text())
-          text = patch.decode('utf-8')
-          for block in text.split('diff --git ')[1:]:
+          for block in patch.decode('utf-8').split('diff --git ')[1:]:
               if any(name in block.splitlines()[0] for name in ['ScenePlayableProducerFixture.gd', 'ScenePlayableFixture.gd', 'SceneNewRunFixture.gd']):
                   print('diff --git ' + block)
           print('Export bytes:', sum(p.stat().st_size for p in out.iterdir()))
