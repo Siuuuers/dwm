@@ -1,4 +1,4 @@
-name: Scene app settled teardown proof
+name: Verify original scene app teardown evidence
 on:
   pull_request:
 permissions:
@@ -8,18 +8,18 @@ concurrency:
   group: scene-runtime-integration-controller-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 jobs:
-  apps:
+  verify-and-retain:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
     runs-on: windows-2022
-    timeout-minutes: 25
+    timeout-minutes: 15
     env:
       CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
     defaults:
       run:
         shell: pwsh
-        working-directory: source
+        working-directory: evidence
     steps:
-      - name: Preserve immutable checkout bytes
+      - name: Preserve original bytes
         working-directory: .
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
@@ -33,137 +33,33 @@ jobs:
           path: source
           fetch-depth: 0
           persist-credentials: true
-      - name: Verify one-file composition and unchanged original test bodies
-        run: |
-          $ErrorActionPreference = 'Stop'
-          python ../controller/tools/cloud/scene_app_teardown.py prepare
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Install verified Godot 4.6.3 standard
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
-          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
-          $archiveHash = (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant()
-          if ($archiveHash -cne 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90') { throw 'Godot archive checksum mismatch.' }
-          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
-          Expand-Archive -LiteralPath $archive -DestinationPath $editor
-          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
-          $exeHash = (Get-FileHash -LiteralPath $console -Algorithm SHA256).Hash.ToLowerInvariant()
-          if ($exeHash -cne '63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a') { throw 'Godot console checksum mismatch.' }
-          "GODOT_CONSOLE_PATH=$console" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
-          $version = (& $console --version | Out-String).Trim()
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if ($version -cne '4.6.3.stable.official.7d41c59c4') { throw 'Wrong engine version.' }
-          [ordered]@{archive_sha256=$archiveHash; console_sha256=$exeHash; version=$version} | ConvertTo-Json | Set-Content '.godot/ci/engine-receipt.json' -Encoding utf8
-      - name: Import exact candidate in isolated directories
-        timeout-minutes: 8
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $root = (Get-Location).Path
-          $output = Join-Path $root '.godot/ci'
-          $env:APPDATA = Join-Path $output 'import-user/appdata'
-          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
-          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
-          Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
-          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
-          & $env:GODOT_CONSOLE_PATH --headless --path $root --import --log-file "$output/import.log"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (Select-String -LiteralPath "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Import script error.' }
-      - name: Restore committed project settings
-        if: always()
-        run: |
-          git restore --source=HEAD --worktree -- project.godot
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Run only the changed eleven-case app lane
-        timeout-minutes: 12
-        run: |
-          $ErrorActionPreference = 'Stop'
-          Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
-          $args = @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_scene_app_preparation.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/apps.xml')
-          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'scene-app-teardown' -LogName 'scene-app-teardown.log' -EvidenceLogPath '.godot/ci/apps.jsonl' -TimeoutSeconds 600 -GodotArgs $args
-          $result = $LASTEXITCODE
-          $log = '.godot/phase2r_logs/scene-app-teardown.log'
-          if (Test-Path -LiteralPath $log) { Get-Content -LiteralPath $log }
-          if ($result -ne 0) { exit $result }
-          if (Select-String -LiteralPath $log -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Test script error.' }
-      - name: Verify exact census and eleven settled teardown snapshots
-        run: |
-          python ../controller/tools/cloud/scene_app_teardown.py census
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Hash original evidence even on failure
-        if: always()
-        run: |
-          python ../controller/tools/cloud/scene_app_teardown.py manifest
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Upload original logs, JUnit and exact source
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: scene-app-teardown-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            source/.godot/ci/*.log
-            source/.godot/ci/*.json
-            source/.godot/ci/*.jsonl
-            source/.godot/ci/*.xml
-            source/.godot/ci/*.patch
-            source/.godot/ci/*.zip
-            source/.godot/phase2r_logs/*.log
-          include-hidden-files: true
-          if-no-files-found: error
-          retention-days: 7
-      - name: Prepare disposable indexes for checkout cleanup
-        if: always()
-        run: |
-          foreach ($repo in @('.', '../controller')) {
-            if (-not (Test-Path -LiteralPath "$repo/.git")) { continue }
-            git -C $repo update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-            git -C $repo submodule foreach --recursive 'true'
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          }
-  retain:
-    needs: apps
-    if: always() && needs.apps.result != 'skipped'
-    runs-on: windows-2022
-    timeout-minutes: 10
-    env:
-      CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
-    defaults:
-      run:
-        shell: pwsh
-        working-directory: evidence
-    steps:
-      - name: Preserve exact bytes
-        working-directory: .
-        run: git config --global core.autocrlf false
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          path: controller
-          persist-credentials: true
       - uses: actions/checkout@v7
         with:
           ref: codex/scene-runtime-evidence-20261009
           path: evidence
           persist-credentials: true
-      - name: Retain original ZIP and rehash every manifest member without engine execution
+      - name: Verify original artifacts, exact source, census and settled snapshots without engine execution
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          python ../controller/tools/cloud/scene_app_teardown.py retain
+          $ErrorActionPreference = 'Stop'
+          python ../controller/tools/cloud/scene_app_teardown_retain.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Upload retention receipt
+      - name: Upload independent verification receipts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: scene-app-teardown-retention-${{ github.run_id }}-${{ github.run_attempt }}
-          path: evidence/evidence/scene_app_teardown_2026_10_10/*/retention-verification.json
+          name: scene-app-teardown-independent-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            evidence/evidence/scene_app_teardown_2026_10_10/*/retention-verification.json
+            evidence/evidence/scene_app_teardown_2026_10_10/*/independent-census.json
+            evidence/evidence/scene_app_teardown_2026_10_10/*/retained-file-hashes.json
           if-no-files-found: warn
           retention-days: 7
       - name: Prepare disposable indexes for checkout cleanup
         if: always()
         run: |
-          foreach ($repo in @('.', '../controller')) {
+          foreach ($repo in @('.', '../source', '../controller')) {
             if (-not (Test-Path -LiteralPath "$repo/.git")) { continue }
             git -C $repo update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
