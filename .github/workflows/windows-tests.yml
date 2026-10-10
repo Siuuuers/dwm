@@ -3,7 +3,7 @@ on:
   pull_request:
     paths:
       - 'tools/cloud/scene-playable-candidate.json'
-      - 'tools/cloud/scene-playable-repair.patch'
+      - 'tools/cloud/scene-playable-custody.patch'
       - '.github/workflows/windows-tests.yml'
 permissions:
   contents: write
@@ -51,14 +51,14 @@ jobs:
           assert payload['base']==base
           assert hashlib.sha256(patch).hexdigest()==payload['patch_sha256']=='1d6cb95788894ef8a95f8525c500b95f97c004f0305c95e1f86f9b428ca63335'
           original=out/'original-candidate.patch';original.write_bytes(patch)
-          repair=pathlib.Path('../controller/tools/cloud/scene-playable-repair.patch')
-          assert hashlib.sha256(repair.read_bytes()).hexdigest()=='6dfc46355369befc148e5276126af1631613a31172abac56b4028fce6d3ad0f1'
+          repair=pathlib.Path('../controller/tools/cloud/scene-playable-custody.patch')
+          assert hashlib.sha256(repair.read_bytes()).hexdigest()=='b5610fa0782f317e293a99ec41a3f839c12f574aec44555e662c8567d26bf0f1'
           assert git('hash-object','autoload/SceneRouter.gd')=='81f2b6ecaa9c1fe142560deaec703abd2ed11978'
           for p in (original,repair):
               subprocess.run(['git','apply','--check',str(p)],check=True)
               subprocess.run(['git','apply','--index',str(p)],check=True)
           subprocess.run(['git','diff','--cached','--check'],check=True)
-          expected={'tests/integration/scene_playable_child.gd':'3386adde9c303a87c4df1a2216e3099e365221e1',
+          expected={'tests/integration/scene_playable_child.gd':'e4923e5ae2a126a1f6a5da09e5f517d6e0b92d6a',
                     'tests/support/ScenePlayableFixture.gd':'2f8882edec73931098c356c554d1e0b58e4d27a2',
                     'tests/unit/test_scene_route_restore_context.gd':'a551defb5a135c8e979ce68ae12dff95e7956220'}
           for path,blob in expected.items(): assert git('hash-object',path)==blob,(path,'postimage mismatch')
