@@ -1,46 +1,70 @@
-name: Export pinned A controller source
+name: Inspect current playable failure source
 on:
   push:
     branches: ['codex/a-source-inspect-20261010']
     paths: ['.github/workflows/a-source-inspect.yml']
 permissions:
   contents: read
+  actions: read
 jobs:
   export:
     runs-on: windows-2022
-    timeout-minutes: 5
+    timeout-minutes: 12
     steps:
-      - name: Export verified current payload only
+      - name: Extract original current-run fixture evidence
         shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference = 'Stop'
           @'
-          import base64, gzip, hashlib, json, pathlib, urllib.request
-          controller = 'ed31b87b036dc3a211299be4e9681970b14533db'
-          root = 'https://raw.githubusercontent.com/Siuuuers/dwm/' + controller + '/'
-          def read(path):
-              with urllib.request.urlopen(root + path, timeout=60) as response:
-                  return response.read()
-          source = read('tools/cloud/scene-playable-candidate.json')
-          payload = json.loads(source.decode('utf-8-sig'))
-          patch = gzip.decompress(base64.b64decode(payload['patch_gzip_base64'], validate=True))
-          digest = hashlib.sha256(patch).hexdigest()
-          assert digest == payload['patch_sha256'] == '1d6cb95788894ef8a95f8525c500b95f97c004f0305c95e1f86f9b428ca63335'
+          import hashlib, json, os, pathlib, shutil, urllib.request, zipfile
+          artifact_id = 11672685856
+          expected = '063aa6d0b32f837a249e6aacaded8149e5b1a26fe523b27e94a8cb760b7f45a5'
+          url = f'https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/{artifact_id}/zip'
+          request = urllib.request.Request(url, headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'], 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28'})
+          archive = pathlib.Path(os.environ['RUNNER_TEMP'])/'current-original.zip'
+          with urllib.request.urlopen(request, timeout=180) as response, archive.open('wb') as target:
+              shutil.copyfileobj(response, target)
+          digest = hashlib.sha256()
+          with archive.open('rb') as source:
+              for block in iter(lambda: source.read(1024*1024), b''): digest.update(block)
+          assert digest.hexdigest() == expected, 'Original artifact digest mismatch'
           out = pathlib.Path('source-export'); out.mkdir()
-          (out/'scene-playable-candidate.json').write_bytes(source)
-          (out/'candidate.patch').write_bytes(patch)
-          (out/'windows-tests.yml').write_bytes(read('.github/workflows/windows-tests.yml'))
-          (out/'origin.json').write_text(json.dumps({'controller':controller,'base':payload['base'],'patch_sha256':digest},indent=2),encoding='utf-8')
-          print((out/'origin.json').read_text())
-          for block in patch.decode('utf-8').split('diff --git ')[1:]:
-              if any(name in block.splitlines()[0] for name in ['ScenePlayableProducerFixture.gd', 'ScenePlayableFixture.gd', 'SceneNewRunFixture.gd']):
-                  print('diff --git ' + block)
-          print('Export bytes:', sum(p.stat().st_size for p in out.iterdir()))
+          selected = []
+          def inspect(path, label, depth=0):
+              with zipfile.ZipFile(path) as source:
+                  names = source.namelist()
+                  print('ARCHIVE', label, 'members', len(names), 'first', names[:40])
+                  for entry in source.infolist():
+                      name = entry.filename
+                      leaf = pathlib.PurePosixPath(name).name
+                      wanted = leaf in {'ScenePlayableFixture.gd', 'ScenePlayableProducerFixture.gd', 'SceneNewRunFixture.gd', 'SceneRestartFixture.gd', 'candidate-origin.json', 'candidate-source.json', 'origin.json', 'scene-playable-candidate.json'}
+                      small_log = entry.file_size < 200000 and (leaf.endswith('.log') or leaf.endswith('manifest.json'))
+                      if (wanted or small_log) and not entry.is_dir():
+                          data = source.read(entry)
+                          target = out/(str(len(selected)) + '-' + leaf)
+                          target.write_bytes(data)
+                          selected.append({'archive': label, 'member': name, 'export': target.name, 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})
+                          if leaf.endswith('.gd'):
+                              print('SOURCE', label, name)
+                              for index, line in enumerate(data.decode('utf-8-sig').splitlines(), 1):
+                                  print(f'{index}: {line}')
+                      elif leaf.endswith('.zip') and depth < 2:
+                          nested = pathlib.Path(os.environ['RUNNER_TEMP'])/f'nested-{depth}-{len(selected)}.zip'
+                          with source.open(entry) as stream, nested.open('wb') as target: shutil.copyfileobj(stream,target)
+                          inspect(nested, label+'/'+name, depth+1)
+                          nested.unlink()
+          inspect(archive, str(artifact_id))
+          assert any(row['member'].endswith(('ScenePlayableFixture.gd','ScenePlayableProducerFixture.gd')) for row in selected), 'Failed-run fixture not retained'
+          (out/'inspection.json').write_text(json.dumps({'artifact_id':artifact_id,'artifact_sha256':expected,'selected':selected},indent=2),encoding='utf-8')
+          print('Selected', len(selected), 'small original evidence members')
           '@ | python -
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: exact-controller-source-ed31b87
+          name: current-run-38050263178-2-fixtures
           path: source-export/
           if-no-files-found: error
           retention-days: 3
