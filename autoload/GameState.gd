@@ -4335,7 +4335,132 @@ func _scene_runtime_event_context() -> Dictionary:
 		"notification": group.get("notification", {}).duplicate(true), "anchor": boundary.value.anchor,
 		"checkpoint": boundary.value.checkpoint}}
 
+## Prepare only the Run owner's part of the held playable handoff. No issuer root,
+## save, native position, live receipt, physical attempt or Profile is changed.
+## The eventual control coordinator must pair snapshot_input with its validated
+## destination checkpoint, never commit it beside the source caption cursor.
+func _prepare_scene_playable_event(event: Dictionary, digest: String, lease: String) -> Dictionary:
+	if not is_instance_valid(_mutation_gate) or not _mutation_gate.is_lease_active(&"causal_transaction", lease):
+		return _transaction_failure(&"event_lease_lost", "")
+	if _identity_issuer == null or not is_instance_valid(_scene_event_bridge):
+		return _transaction_failure(&"event_dependency_invalid", "")
+	if typeof(event.get("schema_version")) != TYPE_INT or event.schema_version != 2 \
+			or event.get("kind") != "challenge.playable":
+		return _transaction_failure(&"scene_playable_event_required", "")
+	var shaped := _SCENE_EVENT._inspect_scene_shape(event)
+	if not shaped.ok: return shaped
+	# Callback arguments and returned material must not alias the caller or owners.
+	event = event.duplicate(true)
+	var prior := _command_receipts.duplicate(true)
+	var source_input := capture_run_snapshot_input().duplicate(true)
+	if not _SCENE_EVENT._equal(source_input.get("command_receipts"), prior):
+		return _transaction_failure(&"event_adoption_source_changed", "")
+	var captured := _scene_runtime_event_context()
+	if not captured.ok: return captured
+	var current: Dictionary = captured.value.duplicate(true)
+	if current.get("family") != "scene" or current.get("mode") != "canonical" \
+			or current.get("suspended") != false or current.get("computer_held") != false:
+		return _transaction_failure(&"event_presentation_held", "")
+	if not _SCENE_EVENT._equal(current.get("source"), event.source):
+		return _transaction_failure(&"event_source_mismatch", "")
+	if current.get("playback_token") != event.playback_token:
+		return _transaction_failure(&"event_stale_token", "")
+	var proven: Dictionary = _identity_issuer.verify_issued(event.issuer_receipt.duplicate(true), &"transaction_id")
+	if not proven.ok: return proven
+	var registered := scene_event_registration(event.duplicate(true))
+	if not registered.ok: return registered
+	var bundle: Dictionary = registered.value.duplicate(true)
+	var inspected := _SCENE_EVENT.inspect_scene(event, bundle)
+	if not inspected.ok: return inspected
+	if inspected.value.digest != digest: return _transaction_failure(&"event_digest_mismatch", "")
+	# A current token and issued semantic command are required even for duplicates.
+	var retained := lookup_scene_event(event.command_id, digest)
+	if not retained.ok: return retained
+	var material := {}
+	if retained.found:
+		material = {"result": retained.value.duplicate(true)}
+	else:
+		if not _SCENE_EVENT._equal(current.get("next_ordinal"), event.ordinal) \
+				or current.get("predecessor") != event.predecessor:
+			return _transaction_failure(&"event_frontier_mismatch", "")
+		var checkpoint: Dictionary = current.checkpoint
+		var reading: Dictionary = checkpoint.get("reading_session", {})
+		if typeof(reading.get("schema_version")) != TYPE_INT or reading.schema_version != 5 \
+				or reading.get("boundary") != "line" or checkpoint.get("stage") != "scene":
+			return _transaction_failure(&"scene_playable_source_required", "")
+		if source_input.get("scene", {}).get("registration_sha256") != inspected.value.registration_fingerprint \
+				or current.anchor.catalogue_fingerprint != inspected.value.registration_fingerprint:
+			return _transaction_failure(&"event_registration_mismatch", "")
+		var anchored: Dictionary = _scene_event_bridge.validate_scene_event_anchor(
+			current.anchor.duplicate(true), checkpoint.duplicate(true))
+		if not anchored.get("ok", false): return anchored
+		var result := {"kind": "challenge_playable", "challenge_occurrence":
+			_SCENE_EVENT._sha([event.source.scene_occurrence, event.payload.challenge_id])}
+		var made := _SCENE_EVENT.make_scene_receipt(event, current.anchor, result, bundle)
+		if not made.ok: return made
+		var candidate := source_input.duplicate(true)
+		candidate.command_receipts[event.command_id] = made.value.duplicate(true)
+		var checked := _SCENE_EVENT.validate_scene_receipts(candidate.command_receipts, bundle,
+			_identity_issuer, get_node_or_null("/root/SaveManager"))
+		if not checked.ok: return checked
+		material = {"source_context": current.duplicate(true), "source_input": source_input,
+			"snapshot_input": candidate, "receipt": made.value.duplicate(true), "result": result.duplicate(true)}
+	# Preparation is not a lock or saved authority. Reject changes made by any
+	# synchronous owner callback; the eventual commit must revalidate again.
+	var after := _scene_runtime_event_context()
+	if not after.get("ok", false) or not _SCENE_EVENT._equal(after.get("value"), current) \
+			or not _SCENE_EVENT._equal(_command_receipts, prior) \
+			or not _SCENE_EVENT._equal(capture_run_snapshot_input(), source_input):
+		return _transaction_failure(&"event_adoption_source_changed", "")
+	if not _mutation_gate.is_lease_active(&"causal_transaction", lease):
+		return _transaction_failure(&"event_lease_lost", "")
+	return {"ok": true, "duplicate": retained.found, "value": material}
+
+
+# Only populated while the command port owns its actual causal lease.
+var _scene_playable_operation: Dictionary = {}
+
+func _validate_scene_playable_source() -> Dictionary:
+	if _scene_playable_operation.is_empty() or not is_instance_valid(_mutation_gate) \
+			or not _mutation_gate.is_lease_active(&"causal_transaction", _scene_playable_operation.lease):
+		return _transaction_failure(&"event_lease_lost", "")
+	var material: Dictionary = _scene_playable_operation.material
+	var current := _scene_runtime_event_context()
+	if not current.ok or not _SCENE_EVENT._equal(current.value, material.source_context) \
+			or not _SCENE_EVENT._equal(capture_run_snapshot_input(), material.source_input):
+		return _transaction_failure(&"event_adoption_source_changed", "")
+	return {"ok": true}
+
+func _accept_scene_playable_event(event: Dictionary, digest: String, lease: String) -> Dictionary:
+	if not _scene_playable_operation.is_empty(): return _transaction_failure(&"event_in_progress", "")
+	var prepared := _prepare_scene_playable_event(event, digest, lease)
+	if not prepared.ok: return prepared
+	if prepared.duplicate: return {"ok": true, "duplicate": true, "value": prepared.value.result}
+	if not _scene_event_bridge.has_method("commit_scene_playable"):
+		return _transaction_failure(&"event_dependency_invalid", "playable Bridge required")
+	var material: Dictionary = prepared.value
+	_scene_playable_operation = {"material": material.duplicate(true), "lease": lease}
+	var committed: Dictionary = _scene_event_bridge.commit_scene_playable(event.duplicate(true), material.duplicate(true), lease)
+	_scene_playable_operation = {}
+	if not committed.get("ok", false):
+		return _scene_event_fatal(committed.get("code", &"event_commit_ack_invalid")) if committed.get("committed", false) else committed
+	# Native adoption has happened, but the receipt still belongs to GameState.
+	# No publication is emitted between the two adoptions.
+	if _scene_event_before_adoption.is_valid() and _scene_event_before_adoption.call() != true:
+		return _scene_event_fatal(&"event_adoption_interrupted")
+	var boundary: Dictionary = _scene_event_bridge.capture_scene_event_boundary()
+	if not _mutation_gate.is_lease_active(&"causal_transaction", lease) \
+			or not _SCENE_EVENT._equal(capture_run_snapshot_input(), material.source_input) \
+			or not boundary.get("ok", false) \
+			or not _SCENE_EVENT._equal(boundary.value.checkpoint, committed.value.checkpoint) \
+			or not _SCENE_EVENT._equal(boundary.value.anchor, material.source_context.anchor):
+		return _scene_event_fatal(&"event_adoption_source_changed")
+	_command_receipts = material.snapshot_input.command_receipts.duplicate(true)
+	return {"ok": true, "duplicate": false, "value": material.result.duplicate(true)}
+
+
 func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: String) -> Dictionary:
+	if event.get("kind") == "challenge.playable": return _accept_scene_playable_event(event, digest, lease)
 	if not is_instance_valid(_mutation_gate) or not _mutation_gate.is_lease_active(&"causal_transaction", lease):
 		return _transaction_failure(&"event_lease_lost", "")
 	if _narrative_checkpoint_port == null: return _transaction_failure(&"event_dependency_invalid", "")

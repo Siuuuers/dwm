@@ -66,7 +66,7 @@ func configure(checkpoint_port: Object, providers: Dictionary) -> Dictionary:
 func commit_current_boundary(request: Dictionary) -> Dictionary:
 	if not _configured:
 		return _fail(&"not_configured", "configure first")
-	if _next_commit_in_progress or _scene_callback_busy:
+	if _next_commit_in_progress or _scene_callback_busy or not _scene_control.is_empty():
 		return _fail(&"transaction_in_progress", "reading Next owns checkpoint publication")
 	if typeof(request) != TYPE_DICTIONARY or not _exact_keys(request, ["boundary_id", "checkpoint_kind", "narrative_checkpoint"]):
 		return _fail(&"invalid_request", "request keys must be exactly boundary_id, checkpoint_kind, narrative_checkpoint")
@@ -132,7 +132,7 @@ func commit_current_boundary(request: Dictionary) -> Dictionary:
 ## A cold source restores the pre-command state, never a queued traversal.
 func commit_reading_next(checkpoint: Dictionary, operation_id: String, phase: String) -> Dictionary:
 	if not _configured: return _fail(&"not_configured", "configure first")
-	if _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy:
+	if _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy or not _scene_control.is_empty():
 		return _fail(&"transaction_in_progress", "another checkpoint command owns publication")
 	if not checkpoint.get("reading_session") is Dictionary or not checkpoint.get("entry_id") is String:
 		return _fail(&"reading_next_operation_invalid", "an exact semantic reading checkpoint is required")
@@ -203,7 +203,7 @@ func _commit_reading_next_autosave(checkpoint: Dictionary, operation_id: String,
 ## complete snapshot through the existing journal/autosave transaction, without a cache.
 func commit_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary) -> Dictionary:
 	if not _configured: return _fail(&"not_configured", "configure first")
-	if _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy:
+	if _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy or not _scene_control.is_empty():
 		return _fail(&"transaction_in_progress", "another checkpoint command owns publication")
 	# Public dictionaries must be detached before marker/authority/provider callbacks.
 	snapshot_input = snapshot_input.duplicate(true)
@@ -241,6 +241,8 @@ func commit_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary) -> D
 
 
 func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictionary) -> Dictionary:
+	if not _scene_control.is_empty() and not _scene_control_validate("commit"):
+		return _fail(&"scene_control_custody_invalid", "source changed before preparation")
 	var route := _call_provider("route_id", [])
 	if not route.ok: return route
 	if route.value not in ["dating", "scene"]: return _fail(&"scene_event_route_mismatch", "unsupported narrative host")
@@ -260,6 +262,8 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 	var inputs := _checkpoint_inputs(active.value, audio.value, content.value, checkpoint, route.value, snapshot_input)
 	var captured: Dictionary = _real_port.capture()
 	if not captured.get("ok", false): return captured
+	if not _scene_control_source_matches(captured):
+		return _fail(&"scene_control_source_changed", "the saved source was replaced")
 	if not _scene_entry.is_empty():
 		var source: Dictionary = _scene_bundle_snapshot(captured.get("value", {}).get("backup", {}).get("current"))
 		if _fingerprint(_scene_snapshot_reference(source)) != _fingerprint(_scene_entry.binding.source_checkpoint):
@@ -293,6 +297,15 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 			return _fail(&"scene_entry_candidate_invalid", "prepared candidate changed before commit")
 	if scene_route and (_fingerprint(candidate) != candidate_hash or not _scene_route_candidate_valid(candidate, snapshot_input, checkpoint)):
 		return _fail(&"scene_entry_candidate_invalid", "scene candidate changed before commit")
+	if not _scene_control.is_empty():
+		if not _scene_control_validate("commit"):
+			return _fail(&"scene_control_custody_invalid", "source changed during preparation")
+		var control_source: Dictionary = _real_port.capture()
+		if not _scene_control_source_matches(control_source):
+			return _fail(&"scene_control_source_changed", "source changed during preparation")
+		if not _scene_control_validate("commit") or _fingerprint(candidate) != candidate_hash \
+				or not _scene_route_candidate_valid(candidate, snapshot_input, checkpoint):
+			return _fail(&"scene_control_custody_invalid", "candidate changed before commit")
 	var committed: Dictionary = _real_port.commit(candidate)
 	if guarded_candidate and _fingerprint(candidate) != candidate_hash:
 		return {"ok": false, "code": &"scene_entry_commit_uncertain", "committed": true}
@@ -307,7 +320,7 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 		var rolled: Dictionary = _real_port.rollback({"journal_backup": captured.value.backup,
 			"storage_backup": candidate.storage_backup})
 		if not rolled.get("ok", false):
-			if _scene_entry.is_empty(): return rolled
+			if _scene_entry.is_empty() and _scene_control.is_empty(): return rolled
 			var uncertain := rolled.duplicate(true)
 			uncertain["committed"] = true
 			return uncertain
@@ -418,7 +431,7 @@ func retain_scene_entry(authority: Object, capability_id: String, binding: Dicti
 	return {"ok": true}
 
 func consume_scene_entry_ack(capability_id: String) -> Dictionary:
-	if _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy:
+	if _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy or not _scene_control.is_empty():
 		return _fail(&"scene_entry_busy", "")
 	if _scene_entry.is_empty() or _scene_entry.capability_id != capability_id or _scene_used.has(capability_id):
 		return _fail(&"scene_entry_ack_unavailable", "")
@@ -444,6 +457,131 @@ func _scene_validate(entry: Dictionary, phase: String) -> bool:
 	var result: Variant = _scene_validator.call(entry.capability_id, entry.binding.duplicate(true), entry.checkpoint.duplicate(true), phase)
 	_scene_callback_busy = false
 	return result is Dictionary and result.get("ok", false) == true
+
+# One retained, process-local playable handoff. Source and destination still use
+# the existing complete Run/Save transaction; neither token nor ack is persisted.
+var _scene_control_validator: Callable
+var _scene_control: Dictionary = {}
+
+func configure_scene_control_authority(authority: Object, validator: Callable) -> Dictionary:
+	if authority != _scene_authority or not is_instance_valid(authority) \
+			or not validator.is_valid() or validator.get_object() != authority \
+			or validator.get_argument_count() != 3 or _next_commit_in_progress \
+			or _scene_callback_busy or not _scene_control.is_empty():
+		return _fail(&"scene_control_authority_invalid", "")
+	if _scene_control_validator.is_valid() and _scene_control_validator != validator:
+		return _fail(&"scene_control_authority_invalid", "authority replacement refused")
+	_scene_control_validator = validator
+	return {"ok": true}
+
+func retain_scene_control(authority: Object, token: RefCounted, material: Dictionary) -> Dictionary:
+	if authority != _scene_authority or token == null or not _scene_control_validator.is_valid() \
+			or _next_commit_in_progress or _scene_callback_busy or _active_owner != &"" \
+			or not _scene_entry.is_empty() or not _scene_control.is_empty():
+		return _fail(&"scene_control_custody_invalid", "")
+	material = material.duplicate(true)
+	if not _exact_keys(material, ["source_input", "source_checkpoint", "snapshot_input", "checkpoint", "event", "plan"]):
+		return _fail(&"scene_control_material_invalid", "")
+	for key: String in material:
+		if not material[key] is Dictionary: return _fail(&"scene_control_material_invalid", key)
+	var source: Dictionary = material.source_checkpoint
+	var target: Dictionary = material.checkpoint
+	var plan: Dictionary = material.plan
+	if source.get("stage") != "scene" or not source.get("reading_session") is Dictionary \
+			or not target.get("reading_session") is Dictionary \
+			or source.reading_session.get("boundary") != "line" or target.reading_session.get("boundary") != "control":
+		return _fail(&"scene_control_material_invalid", "exact scene endpoints required")
+	var source_header := source.duplicate(true)
+	var target_header := target.duplicate(true)
+	source_header.erase("reading_session")
+	target_header.erase("reading_session")
+	if not READING_NEXT._same(source_header, target_header): return _fail(&"scene_control_material_invalid", "header changed")
+	for phase: String in ["source", "destination"]:
+		var projected := READING_NEXT.project(plan, phase)
+		var endpoint: Dictionary = source if phase == "source" else target
+		if not projected.ok or not READING_NEXT._same(projected.value, endpoint.reading_session):
+			return _fail(&"scene_control_material_invalid", "projection changed")
+	if plan.path.size() != 1 or not plan.traversed_captions.is_empty() \
+			or plan.destination.kind != "control" or plan.destination.caption != null:
+		return _fail(&"scene_control_material_invalid", "immediate control required")
+	_scene_control = {"token": token, "material": material, "state": "prepared"}
+	if not _scene_control_validate("retain"):
+		_scene_control = {}
+		return _fail(&"scene_control_custody_invalid", "Bridge refused retention")
+	return {"ok": true}
+
+## The source acknowledgement is generated here, not supplied by the caller.
+## A definite destination refusal retains this same source for an exact retry.
+func commit_scene_control(token: RefCounted) -> Dictionary:
+	if _next_commit_in_progress or _scene_callback_busy or _active_owner != &"" \
+			or _scene_control.is_empty() or token != _scene_control.token \
+			or _scene_control.state not in ["prepared", "source_committed"]:
+		return _fail(&"scene_control_custody_invalid", "")
+	_next_commit_in_progress = true
+	var result := _commit_scene_control_owned()
+	_next_commit_in_progress = false
+	if not result.get("ok", false) and (result.get("committed", false) or str(result.get("code", "")) == "APPLICATION_FATAL"):
+		_scene_control.state = "uncertain"
+		result["committed"] = true
+	return result
+
+func _commit_scene_control_owned() -> Dictionary:
+	var material: Dictionary = _scene_control.material
+	if _scene_control.state == "prepared":
+		var source := _commit_scene_event_autosave(material.source_input, material.source_checkpoint)
+		if not source.get("ok", false): return source
+		var source_reference: Variant = source.get("value", {}).get("checkpoint_reference")
+		if not _scene_reference_valid(source_reference):
+			return {"ok": false, "code": &"scene_control_source_ack_invalid", "committed": true}
+		_scene_control["source_reference"] = source_reference.duplicate(true)
+		_scene_control.state = "source_committed"
+	var destination := _commit_scene_event_autosave(material.snapshot_input, material.checkpoint)
+	if not destination.get("ok", false): return destination
+	var reference: Variant = destination.get("value", {}).get("checkpoint_reference")
+	if not _scene_reference_valid(reference):
+		return {"ok": false, "code": &"scene_control_ack_invalid", "committed": true}
+	_scene_control.state = "committed"
+	_scene_control["ack"] = {"source_checkpoint": _scene_control.source_reference.duplicate(true),
+		"target_checkpoint": reference.duplicate(true), "material_sha256": _fingerprint(material)}
+	return destination
+
+func consume_scene_control_ack(token: RefCounted) -> Dictionary:
+	if _next_commit_in_progress or _scene_callback_busy or _scene_control.is_empty() \
+			or token == null or token != _scene_control.token:
+		return _fail(&"scene_control_ack_unavailable", "")
+	if _scene_control.state != "committed":
+		return {"ok": false, "code": &"scene_control_ack_unavailable", "committed": _scene_control.state == "uncertain"}
+	if not _scene_control_validate("consume"):
+		return {"ok": false, "code": &"scene_control_custody_invalid", "committed": true}
+	_scene_callback_busy = true
+	var captured: Dictionary = _real_port.capture()
+	_scene_callback_busy = false
+	var current := _scene_bundle_snapshot(captured.get("value", {}).get("backup", {}).get("current"))
+	if not captured.get("ok", false) \
+			or not READING_NEXT._same(_scene_snapshot_reference(current), _scene_control.ack.target_checkpoint) \
+			or not _scene_control_validate("consume"):
+		_scene_control.state = "uncertain"
+		return {"ok": false, "code": &"scene_control_ack_invalid", "committed": true}
+	var ack: Dictionary = _scene_control.ack.duplicate(true)
+	_scene_control = {}
+	return {"ok": true, "value": ack}
+
+func _scene_control_validate(phase: String) -> bool:
+	if _scene_control.is_empty() or _scene_callback_busy or not _scene_control_validator.is_valid(): return false
+	_scene_callback_busy = true
+	var checked: Variant = _scene_control_validator.call(_scene_control.token,
+		_scene_control.material.duplicate(true), phase)
+	_scene_callback_busy = false
+	return checked is Dictionary and checked.get("ok", false) == true
+
+func _scene_control_source_matches(captured: Dictionary) -> bool:
+	if not captured.get("ok", false): return false
+	if _scene_control.is_empty() or _scene_control.state == "prepared": return true
+	var current := _scene_bundle_snapshot(captured.get("value", {}).get("backup", {}).get("current"))
+	return captured.get("ok", false) \
+		and READING_NEXT._same(_scene_snapshot_reference(current), _scene_control.source_reference) \
+		and READING_NEXT._same(current.get("narrative_checkpoint"), _scene_control.material.source_checkpoint)
+
 
 func _scene_hash(value: Variant) -> bool:
 	if not value is String or value.length() != 64: return false
@@ -508,7 +646,7 @@ func capture() -> Dictionary:
 func prepare_candidate(owner_id: StringName, snapshot_input: Dictionary, transaction_id: String, source_id: String, checkpoint_kind: StringName, expected_checkpoint_id: String) -> Dictionary:
 	if not _configured:
 		return _fail(&"not_configured", "")
-	if _next_commit_in_progress or _scene_callback_busy:
+	if _next_commit_in_progress or _scene_callback_busy or not _scene_control.is_empty():
 		return _fail(&"transaction_in_progress", "reading Next owns checkpoint publication")
 	if owner_id != LOW_LEVEL_OWNER:
 		return _fail(&"invalid_owner", str(owner_id))
