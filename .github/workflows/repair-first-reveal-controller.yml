@@ -1,4 +1,4 @@
-name: Repair first-Reveal controller encoding
+name: Materialize corrected first-Reveal controller
 on:
   push:
     branches:
@@ -6,19 +6,18 @@ on:
     paths:
       - '.github/workflows/repair-first-reveal-controller.yml'
 permissions:
-  contents: write
+  contents: read
 concurrency:
   group: repair-first-reveal-controller
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
-  repair:
+  materialize:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
         with:
           ref: codex/scene-runtime-integration-controller-20261009
-          fetch-depth: 0
-      - name: Decode embedded GDScript and retire this helper
+      - name: Decode embedded GDScript
         shell: bash
         run: |
           set -euo pipefail
@@ -33,11 +32,17 @@ jobs:
           if count != 6:
               raise SystemExit(f'expected 6 embedded raw blocks, found {count}')
           workflow.write_text(text.replace(old, new), encoding='utf-8', newline='\n')
+          if "\\tvar" in workflow.read_text(encoding='utf-8'):
+              raise SystemExit('literal tab escape remains in controller')
           PY
-          git rm .github/workflows/repair-first-reveal-controller.yml
-          git diff --check
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add .github/workflows/windows-tests.yml
-          git commit -m 'Decode generated first-Reveal GDScript'
-          git push origin HEAD:codex/scene-runtime-integration-controller-20261009
+          git diff --check -- .github/workflows/windows-tests.yml
+          mkdir -p corrected-controller/.github/workflows
+          cp .github/workflows/windows-tests.yml corrected-controller/.github/workflows/windows-tests.yml
+          sha256sum corrected-controller/.github/workflows/windows-tests.yml | tee corrected-controller/sha256.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: corrected-first-reveal-controller-${{ github.run_id }}
+          path: corrected-controller
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
