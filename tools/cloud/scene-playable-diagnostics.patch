@@ -1,0 +1,146 @@
+diff --git a/tests/integration/scene_playable_child.gd b/tests/integration/scene_playable_child.gd
+index f52b7f191f1410fbaa7fb425ffcbe6fccb2d9457..54d36ec7baedb0b7748de1fb5fcf34620e49baee 100644
+--- a/tests/integration/scene_playable_child.gd
++++ b/tests/integration/scene_playable_child.gd
+@@ -41,6 +41,10 @@ func create_playable(mode: String) -> void:
+ 		assert_false(refused.get("ok", false), str(refused))
+ 		assert_false(refused.get("committed", false), "definite source-write failure permits retry")
+ 		assert_eq(fixture.files.refused, 1, "fault actually reached physical autosave.next write")
++		assert_eq(fixture.lower.last_prepare_phase, "source", "source fault belongs to the source checkpoint")
++		assert_eq(fixture.files.autosave_writes, 1)
++		if refused.get("ok", false) or refused.get("committed", false) or fixture.files.refused != 1 \
++				or fixture.files.autosave_writes != 1 or fixture.lower.last_prepare_phase != "source": return
+ 		assert_eq(fixture.storage.read_text("autosave.json").value, original.value)
+ 		assert_eq(fixture.game.capture_run_snapshot_input(), fixture.before_input)
+ 		assert_eq(fixture.bridge.capture_reading_checkpoint(false).value, fixture.before_reading)
+@@ -50,13 +54,17 @@ func create_playable(mode: String) -> void:
+ 		assert_false(refused.get("ok", false), str(refused))
+ 		assert_false(refused.get("committed", false), "definite destination rollback permits same-command retry")
+ 		assert_eq(fixture.files.refused, 2)
++		assert_eq(fixture.lower.last_prepare_phase, "destination", "destination fault follows the saved source")
++		assert_eq(fixture.files.autosave_writes, 3)
++		if refused.get("ok", false) or refused.get("committed", false) or fixture.files.refused != 2 \
++				or fixture.files.autosave_writes != 3 or fixture.lower.last_prepare_phase != "destination": return
+ 		var source: Dictionary = fixture.read_autosave()
+ 		assert_true(source.ok, str(source))
+ 		if not source.ok: return
+ 		var saved_source: Dictionary = source.value.current_snapshot.snapshot
+ 		assert_true(SAVE_SCHEMA.validate(source.value).ok)
+ 		assert_eq(saved_source.narrative_checkpoint.reading_session.boundary, "line")
+-		assert_eq(saved_source.narrative_checkpoint.reading_session.next_operation.phase, "source")
++		if not assert_operation_phase(saved_source.narrative_checkpoint, "source"): return
+ 		assert_false(saved_source.command_receipts.has(fixture.issued_event.command_id))
+ 		assert_eq(fixture.game.capture_run_snapshot_input(), fixture.before_input)
+ 		assert_eq(fixture.bridge.capture_reading_checkpoint(false).value, fixture.before_reading)
+@@ -84,17 +92,19 @@ func create_playable(mode: String) -> void:
+ 		assert_true(result.get("committed", false), "postcommit failure never rolls destination back")
+ 		assert_eq(fixture.game.capture_run_snapshot_input(), fixture.before_input, "unacknowledged receipt is not adopted live")
+ 		assert_true(fixture.bridge._scene_stage_fatal, "failed adoption retains fatal custody")
++		if result.get("ok", false) or not result.get("committed", false) or not fixture.bridge._scene_stage_fatal: return
+ 	assert_eq(fixture.checkpoint_port.consumed, 1, "the actual durable acknowledgement was consumed exactly once")
++	if fixture.checkpoint_port.consumed != 1: return
+ 	var document: Dictionary = fixture.read_autosave()
+ 	assert_true(document.ok, str(document))
+ 	if not document.ok: return
+ 	assert_true(SAVE_SCHEMA.validate(document.value).ok, "entire committed Run/Save validates")
+ 	var snapshot: Dictionary = document.value.current_snapshot.snapshot
+ 	assert_eq(snapshot.narrative_checkpoint.reading_session.boundary, "control")
+-	assert_eq(snapshot.narrative_checkpoint.reading_session.next_operation.phase, "destination")
++	if not assert_operation_phase(snapshot.narrative_checkpoint, "destination"): return
+ 	assert_true(snapshot.command_receipts.has(fixture.issued_event.command_id))
+ 	if not snapshot.command_receipts.has(fixture.issued_event.command_id): return
+-	assert_eq(snapshot.command_receipts[fixture.issued_event.command_id].result.kind, "challenge_playable")
++	assert_eq(snapshot.command_receipts[fixture.issued_event.command_id].scene_event.result.kind, "challenge_playable")
+ 	assert_eq(snapshot.command_receipts.size(), fixture.before_input.command_receipts.size() + 1)
+ 	assert_eq(snapshot.scene, fixture.before_input.scene, "availability does not create physical Challenge progress")
+ 	assert_eq(snapshot.gameplay, fixture.before_input.gameplay, "availability does not construct a board")
+@@ -192,7 +202,7 @@ func load_playable() -> void:
+ 	var duplicate: Dictionary = fixture.dispatch(refreshed)
+ 	assert_true(duplicate.get("ok", false), str(duplicate))
+ 	assert_true(duplicate.get("duplicate", false))
+-	assert_eq(duplicate.get("value"), witness.receipt.result)
++	assert_eq(duplicate.get("value"), witness.receipt.scene_event.result)
+ 	assert_eq(fixture.game.capture_run_snapshot_input(), current)
+ 	assert_eq(fixture.storage.read_text("autosave.json").value, bytes.value)
+ 	assert_eq(fixture.files.autosave_writes, 0, "Load and duplicate issue no replacement autosave")
+@@ -204,6 +214,13 @@ func load_playable() -> void:
+ 	proof.process_id = OS.get_process_id()
+ 	write_proof(proof, false)
+ 
++func assert_operation_phase(checkpoint: Dictionary, expected: String) -> bool:
++	var operation: Variant = checkpoint.get("reading_session", {}).get("next_operation")
++	assert_true(operation is Dictionary, "saved " + expected + " checkpoint retains its traversal operation")
++	if not operation is Dictionary: return false
++	assert_eq(operation.get("phase"), expected)
++	return operation.get("phase") == expected
++
+ func write_proof(proof: Dictionary, witness: bool) -> void:
+ 	var encoded: Dictionary = WRITER.stringify(proof)
+ 	assert_true(encoded.ok, str(encoded))
+diff --git a/tests/support/ScenePlayableFixture.gd b/tests/support/ScenePlayableFixture.gd
+index c2c69fd9aa6e6d8e553eb09a0c492f5214a3a00d..2c043547b11032965050bf477c91df60f2baf5ee 100644
+--- a/tests/support/ScenePlayableFixture.gd
++++ b/tests/support/ScenePlayableFixture.gd
+@@ -21,6 +21,23 @@ class WriteRefusal extends "res://scripts/infrastructure/storage/FileOps.gd":
+ 				return {"ok": false, "code": &"TEST.filesystem_write_refused", "message": path}
+ 		return super.write_bytes(path, bytes)
+ 
++class TraceCheckpoint extends "res://scripts/application/run/SaveManagerCheckpointPort.gd":
++	var last_prepare_phase := ""
++	func _init(owner: Object) -> void:
++		super(owner)
++	func prepare(inputs: Dictionary, kind: StringName, disk_write: Dictionary) -> Dictionary:
++		var operation: Variant = inputs.get("dialogic_checkpoint", {}).get("reading_session", {}).get("next_operation")
++		last_prepare_phase = str(operation.get("phase", "")) if operation is Dictionary else ""
++		print("SCENE_PLAYABLE_LOWER_INPUT=" + JSON.stringify({"phase": last_prepare_phase,
++			"route_id": inputs.get("route_id"), "checkpoint_kind": str(kind),
++			"route_context": inputs.get("snapshot_input", {}).get("gameplay", {}).get("route_context"),
++			"restore_participants": _save_manager._restore_participants.keys()}))
++		var result: Dictionary = super.prepare(inputs, kind, disk_write)
++		print("SCENE_PLAYABLE_LOWER_RESULT=" + JSON.stringify({"phase": last_prepare_phase,
++			"ok": result.get("ok", false), "code": str(result.get("code", "")),
++			"message": result.get("message", "")}))
++		return result
++
+ class AckFault extends "res://scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd":
+ 	var drop_ack := false
+ 	var after_ack: Callable
+@@ -84,7 +101,7 @@ func setup_playable(scene_tree: SceneTree) -> Dictionary:
+ 	if not checked.ok: return checked
+ 	files = WriteRefusal.new()
+ 	storage._file_ops = files
+-	lower = preload("res://scripts/application/run/SaveManagerCheckpointPort.gd").new(manager)
++	lower = TraceCheckpoint.new(manager)
+ 	checked = lower.configure_fatal_latch(gate)
+ 	if not checked.ok: return checked
+ 	checkpoint_port = AckFault.new()
+@@ -112,13 +129,21 @@ func content_version() -> int: return 1
+ func narrative_checkpoint(_transaction: String, _source: String, _kind: StringName) -> Dictionary:
+ 	return bridge.capture_reading_checkpoint(false)
+ 
++func trace_route_context(phase: String) -> void:
++	print("SCENE_PLAYABLE_LIVE_CONTEXT=" + JSON.stringify({"phase": phase,
++		"route_context": game.route_context}))
++
+ func begin_playable_source() -> Dictionary:
++	trace_route_context("before_start")
+ 	var started: Dictionary = start()
++	trace_route_context("after_start")
+ 	if started.get("code") != &"scene_activation_pending": return started
+ 	var activated: Dictionary = await await_activation()
+ 	if not activated.ok: return activated
++	trace_route_context("after_activation")
+ 	var completed: Dictionary = adapter.reveal_current_line(true)
+ 	if not completed.ok: return completed
++	trace_route_context("after_reveal")
+ 	for frame: int in 4: await tree.process_frame
+ 	var context: Dictionary = game.scene_event_context()
+ 	if not context.ok: return context
+@@ -133,6 +158,7 @@ func begin_playable_source() -> Dictionary:
+ 	before_input = game.capture_run_snapshot_input().duplicate(true)
+ 	before_reading = context.value.checkpoint.duplicate(true)
+ 	before_publications = native_publications.size()
++	trace_route_context("before_dispatch")
+ 	files.autosave_writes = 0
+ 	return {"ok": true}
+ 
