@@ -14,6 +14,9 @@ jobs:
         with:
           ref: ed31b87b036dc3a211299be4e9681970b14533db
           persist-credentials: false
+          sparse-checkout: |
+            tools/cloud
+            .github/workflows
       - name: Export verified current payload only
         shell: pwsh
         run: |
