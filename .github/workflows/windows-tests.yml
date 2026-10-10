@@ -1,4 +1,4 @@
-name: Scene playable native control candidate
+name: Composed scene app and desktop proof
 on:
   pull_request:
 permissions:
@@ -8,10 +8,12 @@ concurrency:
   group: scene-runtime-integration-controller-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 jobs:
-  native:
+  apps:
     if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
     runs-on: windows-2022
-    timeout-minutes: 20
+    timeout-minutes: 25
+    env:
+      CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
     defaults:
       run:
         shell: pwsh
@@ -27,54 +29,15 @@ jobs:
           persist-credentials: true
       - uses: actions/checkout@v7
         with:
-          ref: 8a70985a140c32a0823141bace60f946454a232c
+          ref: 665971ffc25bf6acd5e393ac37c6cf627a33c545
           path: source
           fetch-depth: 0
           persist-credentials: true
-      - name: Build exact two-file refinement without moving the product branch
+      - name: Compose exact reviewed C26 delta on current A without moving product
         run: |
           $ErrorActionPreference = 'Stop'
-          $base = '8a70985a140c32a0823141bace60f946454a232c'
-          if ((git rev-parse HEAD).Trim() -cne $base) { throw 'Wrong base.' }
-          if ((git rev-parse 'HEAD^{tree}').Trim() -cne '90ce20cee3fd3a4da6f48d0068319c519a73d20d') { throw 'Wrong base tree.' }
-          if ((git -C ../controller rev-parse 'HEAD:tools/cloud/refine_scene_playable_native.py').Trim() -cne '382d14f5d32cb17d6ee67184cda84755afc51987') { throw 'Wrong refinement helper.' }
-          python ../controller/tools/cloud/refine_scene_playable_native.py .
+          python ../controller/tools/cloud/scene_app_composition.py compose
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $expected = @('scripts/narrative/DialogicRuntimeAdapter.gd', 'tests/integration/test_scene_playable_native_control.gd')
-          git add -- $expected
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $delta = @(git diff --cached --name-only)
-          if ((@($delta | Sort-Object -CaseSensitive) -join "`n") -cne (@($expected | Sort-Object -CaseSensitive) -join "`n")) { throw 'Unexpected refinement path change.' }
-          git diff --cached --check
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          $date = (git -C ../controller show -s --format=%cI HEAD).Trim()
-          $env:GIT_AUTHOR_DATE = $date
-          $env:GIT_COMMITTER_DATE = $date
-          git commit -m 'fix(scene): reject reentrant native control installation'
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $source = (git rev-parse HEAD).Trim()
-          $tree = (git rev-parse 'HEAD^{tree}').Trim()
-          if ((git rev-parse HEAD^).Trim() -cne $base) { throw 'Unexpected parent.' }
-          New-Item -ItemType Directory -Force -Path '.godot/ci' | Out-Null
-          $blobs = [ordered]@{}
-          foreach ($path in $expected) { $blobs[$path] = (git rev-parse "HEAD:$path").Trim() }
-          [ordered]@{source_sha=$source; source_tree=$tree; parent=$base; controller_sha='${{ github.event.pull_request.head.sha }}'; controller_event_sha=$env:GITHUB_SHA; run_id=$env:GITHUB_RUN_ID; run_attempt=$env:GITHUB_RUN_ATTEMPT; scope='Nonwired native adapter prerequisite only; no durable producer, Save/Load, Bridge acknowledgement, physical Start/End, rendered or release acceptance'; changed_paths=$expected; blobs=$blobs} | ConvertTo-Json -Depth 5 | Set-Content '.godot/ci/source-receipt.json' -Encoding utf8
-          git diff --binary $base HEAD --output=.godot/ci/source.patch
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git archive -o .godot/ci/source-inspection.zip HEAD scripts autoload tests tools docs project.godot .github
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Prepare disposable indexes for checkout cleanup
-        if: always()
-        run: |
-          foreach ($repo in @('.', '../controller')) {
-            if (-not (Test-Path -LiteralPath "$repo/.git")) { continue }
-            git -C $repo update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-            git -C $repo submodule foreach --recursive 'true'
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          }
       - name: Install verified Godot 4.6.3 standard
         run: |
           $ErrorActionPreference = 'Stop'
@@ -90,8 +53,9 @@ jobs:
           "GODOT_CONSOLE_PATH=$console" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
           $version = (& $console --version | Out-String).Trim()
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if ($version -cne '4.6.3.stable.official.7d41c59c4') { throw 'Wrong engine version.' }
           [ordered]@{archive_sha256=$archiveHash; console_sha256=$exeHash; version=$version} | ConvertTo-Json | Set-Content '.godot/ci/engine-receipt.json' -Encoding utf8
-      - name: Import pinned candidate
+      - name: Import exact composed source
         timeout-minutes: 8
         run: |
           $ErrorActionPreference = 'Stop'
@@ -110,57 +74,37 @@ jobs:
         run: |
           git restore --source=HEAD --worktree -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Run exact native playable control suite
-        timeout-minutes: 10
+      - name: Retain only the four normal engine-imported test UID companions
+        run: |
+          python ../controller/tools/cloud/scene_app_composition.py uids
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Run the exact ten app and eight desktop cases together
+        timeout-minutes: 12
         run: |
           $ErrorActionPreference = 'Stop'
           Remove-Item Env:DWM_SCENE_READING_FIXTURE -ErrorAction SilentlyContinue
-          $script = 'tests/integration/test_scene_playable_native_control.gd'
-          $args = @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', "-gtest=res://$script", '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/playable-native.xml')
-          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'scene-playable-native-control' -LogName 'playable-native.log' -EvidenceLogPath '.godot/ci/playable-native.jsonl' -TimeoutSeconds 480 -GodotArgs $args
+          $tests = 'res://tests/integration/test_scene_app_preparation.gd,res://tests/integration/test_scene_desktop_consumer.gd'
+          $args = @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', "-gtest=$tests", '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/apps.xml')
+          & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'scene-app-composed' -LogName 'scene-app-composed.log' -EvidenceLogPath '.godot/ci/apps.jsonl' -TimeoutSeconds 600 -GodotArgs $args
           $result = $LASTEXITCODE
-          $log = '.godot/phase2r_logs/playable-native.log'
+          $log = '.godot/phase2r_logs/scene-app-composed.log'
           if (Test-Path -LiteralPath $log) { Get-Content -LiteralPath $log }
           if ($result -ne 0) { exit $result }
           if (Select-String -LiteralPath $log -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Test script error.' }
-          [xml]$xml = Get-Content '.godot/ci/playable-native.xml' -Raw
-          if ($xml.SelectNodes('//failure | //error | //skipped').Count -ne 0) { throw 'Test failure, error or skip.' }
-          $cases = @($xml.SelectNodes('//testcase'))
-          $declared = @((Select-String -LiteralPath $script -Pattern '^func (test_[A-Za-z0-9_]+)\(').Matches | ForEach-Object { $_.Groups[1].Value })
-          if ($declared.Count -ne 9 -or $cases.Count -ne $declared.Count) { throw 'Declared/executed test count mismatch.' }
-          foreach ($name in $declared) {
-            if (@($cases | Where-Object { $_.GetAttribute('name') -ceq $name }).Count -ne 1) { throw "Missing or repeated test: $name" }
-          }
-          $suites = @($xml.SelectNodes('//testsuite') | Where-Object { $_.SelectNodes('./testcase').Count -gt 0 })
-          if ($suites.Count -ne 1 -or $suites[0].GetAttribute('name').Replace('res://', '') -cne $script) { throw 'Wrong test script.' }
-          $assertions = ($cases | ForEach-Object { [int]$_.GetAttribute('assertions') } | Measure-Object -Sum).Sum
-          [ordered]@{cases=$cases.Count; xml_assertions=$assertions; requested_script=$script; declared_tests=$declared; failures=0; errors=0; skips=0; scope='Actual native callbacks under TEST admission; no complete Run/Save or rendered proof'} | ConvertTo-Json -Depth 4 | Set-Content '.godot/ci/native-summary.json' -Encoding utf8
-      - name: Verify tracked source and publish isolated candidate only
+      - name: Check exact XML census and source, publish isolated candidate only
         run: |
-          $ErrorActionPreference = 'Stop'
-          git diff --exit-code HEAD -- . ':(exclude).claude/skills/godot-prompter/1.10.0' ':(exclude).claude/skills/superpowers/6.1.1'
-          if ($LASTEXITCODE -ne 0) { throw 'Tracked source drift.' }
-          $source = (git rev-parse HEAD).Trim()
-          $candidate = 'refs/heads/codex/scene-playable-native-candidate-20261010'
-          $existing = @(git ls-remote --heads origin $candidate)
+          python ../controller/tools/cloud/scene_app_composition.py census
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if ($existing.Count -ne 1 -or $existing[0].Split("`t")[0] -cnotin @('8a70985a140c32a0823141bace60f946454a232c', $source)) { throw 'Candidate branch changed; refusing overwrite.' }
-          git push origin "HEAD:$candidate"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          [ordered]@{branch=$candidate; source_sha=$source; product_branch_moved=$false} | ConvertTo-Json | Set-Content '.godot/ci/candidate-publication.json' -Encoding utf8
       - name: Hash original evidence
         if: always()
         run: |
-          $ErrorActionPreference = 'Stop'
-          New-Item -ItemType Directory -Force -Path '.godot/ci' | Out-Null
-          $files = @(@('.godot/ci', '.godot/phase2r_logs') | Where-Object { Test-Path -LiteralPath $_ } | ForEach-Object { Get-ChildItem -LiteralPath $_ -File -Force } | Where-Object { $_.Name -cne 'original-file-hashes.json' } | Sort-Object FullName)
-          $manifest = @($files | ForEach-Object { [ordered]@{path=[IO.Path]::GetRelativePath((Get-Location).Path, $_.FullName).Replace('\', '/'); bytes=$_.Length; sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()} })
-          $manifest | ConvertTo-Json -Depth 4 | Set-Content '.godot/ci/original-file-hashes.json' -Encoding utf8
-      - name: Upload original logs, JUnit and candidate source
+          python ../controller/tools/cloud/scene_app_composition.py manifest
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Upload original logs, JUnit and composed source
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: scene-playable-native-${{ github.run_id }}-${{ github.run_attempt }}
+          name: scene-app-composed-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             source/.godot/ci/*.log
             source/.godot/ci/*.json
@@ -172,16 +116,30 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7
+      - name: Prepare disposable indexes for checkout cleanup
+        if: always()
+        run: |
+          foreach ($repo in @('.', '../controller')) {
+            if (-not (Test-Path -LiteralPath "$repo/.git")) { continue }
+            git -C $repo update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            git -C $repo submodule foreach --recursive 'true'
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
   retain:
-    needs: native
-    if: needs.native.result == 'success'
+    needs: apps
+    if: needs.apps.result == 'success'
     runs-on: windows-2022
     timeout-minutes: 10
+    env:
+      CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
     defaults:
       run:
         shell: pwsh
+        working-directory: evidence
     steps:
       - name: Preserve exact bytes
+        working-directory: .
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v7
         with:
@@ -190,49 +148,30 @@ jobs:
           persist-credentials: true
       - uses: actions/checkout@v7
         with:
-          ref: 9c3c66dfbad0caa77aeaf616d78d0aec56a0f29d
+          ref: c8fa301d5888d83c021a9963bc78b2f8e03cdbe4
           path: evidence
           persist-credentials: true
-      - name: Retain exact original artifacts without engine execution
+      - name: Retain original ZIP and verify every manifest member without rerunning engine
         env:
           GH_TOKEN: ${{ github.token }}
-          CONTROLLER_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          $ErrorActionPreference = 'Stop'
-          python controller/tools/cloud/retain_scene_native_evidence.py evidence
+          python ../controller/tools/cloud/scene_app_composition.py retain
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $folder = 'evidence/scene_playable_native_2026_10_10'
-          $paths = @("$folder/README.md", "$folder/retention-verification.json", "$folder/original-scene-playable-native-37990185115-1.zip", "$folder/original-scene-playable-native-${{ github.run_id }}-${{ github.run_attempt }}.zip")
-          $changed = @(git -C evidence ls-files --others --exclude-standard)
-          if ((@($changed | Sort-Object -CaseSensitive) -join "`n") -cne (@($paths | Sort-Object -CaseSensitive) -join "`n")) { throw 'Unexpected evidence path set.' }
-          git -C evidence diff --exit-code
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git -C evidence config user.name 'github-actions[bot]'
-          git -C evidence config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git -C evidence add -- $paths
-          git -C evidence commit -m 'docs(evidence): retain original native playable handoff runs and limits'
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $ref = 'refs/heads/codex/scene-runtime-evidence-20261009'
-          $live = @(git -C evidence ls-remote --heads origin $ref)
-          if ($LASTEXITCODE -ne 0 -or $live.Count -ne 1 -or $live[0].Split("`t")[0] -cne '9c3c66dfbad0caa77aeaf616d78d0aec56a0f29d') { throw 'Evidence ref advanced; reconcile instead of overwriting.' }
-          git -C evidence push origin "HEAD:$ref"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          Write-Output ('EVIDENCE_COMMIT=' + (git -C evidence rev-parse HEAD).Trim())
+      - name: Upload independent retention receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scene-app-retention-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/evidence/scene_app_composed_2026_10_10/retention-verification.json
+          if-no-files-found: warn
+          retention-days: 7
       - name: Prepare disposable indexes for checkout cleanup
         if: always()
         run: |
-          foreach ($repo in @('controller', 'evidence')) {
+          foreach ($repo in @('.', '../controller')) {
             if (-not (Test-Path -LiteralPath "$repo/.git")) { continue }
             git -C $repo update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
             git -C $repo submodule foreach --recursive 'true'
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
-      - name: Upload retention verification
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: native-evidence-retention-${{ github.run_id }}-${{ github.run_attempt }}
-          path: evidence/evidence/scene_playable_native_2026_10_10/retention-verification.json
-          if-no-files-found: warn
-          retention-days: 7
