@@ -76,6 +76,9 @@ jobs:
           replace_exact(test,
               'const FIXTURE := preload("res://tests/support/SceneChallengeFixture.gd")\n',
               'const FIXTURE := preload("res://tests/support/SceneChallengeFixture.gd")\nconst LEDGER := preload("res://scripts/profile/DatingAttemptLedger.gd")\nconst REDUCER := preload("res://scripts/domain/minesweeper/MinesweeperBoardReducer.gd")\n')
+          replace_exact(test,
+              'func before_each() -> void:\n\tf = FIXTURE.new()\n\tassert_true(f.setup("TEST.scene.first_reveal").ok)\n\tassert_true(f.begin().ok)\n',
+              'func _arm_unfinished_layout() -> void:\n\tvar mines: Array = []\n\tfor index in 33: mines.append(index)\n\tmines.append_array([288, 289, 307])\n\tf.generation.arm_materialize({"schema_version": 1, "width": 18, "height": 18,\n\t\t"mine_indices": mines, "mine_count": 36})\n\nfunc before_each() -> void:\n\tf = FIXTURE.new()\n\tassert_true(f.setup("TEST.scene.first_reveal").ok)\n\t_arm_unfinished_layout()\n\tassert_true(f.begin().ok)\n')
           with test.open('a', encoding='utf-8', newline='') as handle:
               handle.write('''\nfunc test_fresh_profile_entry_refuses_a_prebuilt_second_action() -> void:\n\tassert_true(_reveal(323).ok)\n\tvar attempt: Dictionary = f.attempt().value.duplicate(true)\n\tvar record: Dictionary = attempt.record.duplicate(true)\n\tvar covered := -1\n\tfor index in int(record.board.width) * int(record.board.height):\n\t\tif not record.board.revealed_indices.has(index) and not record.board.flagged_indices.has(index):\n\t\t\tcovered = index\n\t\t\tbreak\n\tassert_gte(covered, 0)\n\tif covered < 0: return\n\tvar marked: Dictionary = REDUCER.set_flag(record.board, covered, true, "extra.after-first-reveal")\n\tassert_true(marked.ok, str(marked))\n\tif not marked.ok: return\n\trecord.board = marked.value.board\n\tassert_true(LEDGER.validate_record(record))\n\tvar rejected: Dictionary = LEDGER.prepare_update({}, str(attempt.run_id), str(attempt.slot_id),\n\t\tstr(attempt.branch_id), record, 0, int(attempt.materialization_receipt.first_cell_index), {}, {"mode": "fresh"})\n\tassert_false(rejected.ok, str(rejected))\n\tassert_eq(rejected.get("code"), &"dating_fresh_entry_required")\n''')
           subprocess.run(['git','add','--all'], check=True)
@@ -105,7 +108,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           if (Select-String "$out/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'import error' }
           $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/unit/test_scene_first_reveal.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/first-reveal.xml')
-          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'first-reveal-smoke' -LogName 'first-reveal.log' -GodotArgs $args -EvidenceLogPath '.godot/ci/first-reveal.jsonl' -TimeoutSeconds 180
+          & './tools/testing/Invoke-IsolatedGodot.ps1' -SuiteId 'first-reveal-smoke' -LogName 'first-reveal.log' -GodotArgs $args -EvidenceLogPath '.godot/ci/first-reveal.jsonl' -TimeoutSeconds 240
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Verify exact smoke census
