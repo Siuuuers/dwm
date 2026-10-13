@@ -118,9 +118,11 @@ jobs:
           foreach ($entry in $tests) {
             $name = $entry[0]
             $script = $entry[1]
+            Write-Host "DWM_LANE_BEGIN $name $([DateTime]::UtcNow.ToString('o'))"
             $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://$script",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/$name.xml")
             & $runner -SuiteId "scene-$name" -LogName "$name.log" -GodotArgs $args -EvidenceLogPath ".godot/ci/$name.jsonl" -TimeoutSeconds 1200
             if ($LASTEXITCODE -ne 0) { $failed = $true }
+            Write-Host "DWM_LANE_END $name exit=$LASTEXITCODE $([DateTime]::UtcNow.ToString('o'))"
           }
           foreach ($mode in @('normal','dropped_ack','native_refusal')) {
             $child = if ($mode -eq 'normal') { 'create' } else { $mode }
@@ -208,6 +210,26 @@ jobs:
                       if p.is_file() and p.name != 'retained-hashes.json' and 'import-user' not in p.parts:
                           files[p.as_posix()] = {'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}
           (out/'retained-hashes.json').write_text(json.dumps(files, indent=2), encoding='utf-8')
+          # Preserve bounded test evidence even when GitHub artifact quota is full.
+          # Only these generated test files are included; never runner environment.
+          import base64
+          import io
+          import zipfile
+          payload = io.BytesIO()
+          with zipfile.ZipFile(payload, 'w', zipfile.ZIP_DEFLATED) as archive:
+              for root in [out, pathlib.Path('.godot/phase2r_logs')]:
+                  if root.exists():
+                      for p in sorted(root.rglob('*')):
+                          if p.is_file() and 'import-user' not in p.parts:
+                              archive.write(p, p.relative_to('.godot').as_posix())
+          data = payload.getvalue()
+          if len(data) > 8 * 1024 * 1024:
+              raise RuntimeError('Evidence exceeds bounded log fallback; artifact retention required')
+          print('DWM_EVIDENCE_BEGIN ' + json.dumps({'bytes':len(data), 'sha256':hashlib.sha256(data).hexdigest()}))
+          encoded = base64.b64encode(data).decode('ascii')
+          for offset in range(0, len(encoded), 3000):
+              print('DWM_EVIDENCE_CHUNK ' + encoded[offset:offset+3000])
+          print('DWM_EVIDENCE_END')
           '@ | python -
 
       - uses: actions/upload-artifact@v4
