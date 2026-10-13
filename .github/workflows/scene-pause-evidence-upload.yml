@@ -1,0 +1,34 @@
+name: Preserve accepted Pause Load evidence
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/scene-pause-evidence-upload.yml'
+      - 'evidence/scene_pause_load_2026_10_14/**'
+permissions:
+  contents: read
+jobs:
+  retain:
+    if: github.event.pull_request.number == 30 && github.event.pull_request.head.repo.full_name == 'Siuuuers/dwm' && github.event.pull_request.head.ref == 'codex/scene-runtime-integration-controller-20261009'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          sparse-checkout: evidence/scene_pause_load_2026_10_14
+      - name: Verify original archive bytes
+        run: |
+          python3 - <<'PY'
+          import hashlib, pathlib
+          root = pathlib.Path('evidence/scene_pause_load_2026_10_14')
+          expected = {'native.zip':'02b203f1fba3d4298ac10d0aaebc3dcb2994a8d7dca86a10b81f2446ad177dbd','regressions.zip':'df7aca34ad58596d03d91909ca1ddd7571fde6443f347fed83e8a08944cd9c41'}
+          for name, digest in expected.items():
+              assert hashlib.sha256((root/name).read_bytes()).hexdigest() == digest, name
+          print('Both accepted evidence archives retain their original SHA-256.')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: accepted-scene-pause-load-evidence
+          path: evidence/scene_pause_load_2026_10_14/
+          if-no-files-found: error
+          retention-days: 30
