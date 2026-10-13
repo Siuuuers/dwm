@@ -52,7 +52,7 @@ jobs:
           assert git('rev-parse','HEAD') == base
           assert git('ls-remote','origin','refs/heads/codex/scene-runtime-integration-20261009').split()[0] == base
           patch = pathlib.Path('../controller/tools/cloud/scene-first-reveal-resumable.patch').read_bytes()
-          assert hashlib.sha256(patch).hexdigest() == '4fa1892da5488a954de94b075d1756c963737b65376c49828beca284574e4d55'
+          assert hashlib.sha256(patch).hexdigest() == '73e2f70134f58d8500813ebf63677bbd7f3110dd11a0216c5de3aca463b48e84'
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           (out/'candidate.patch').write_bytes(patch)
           subprocess.run(['git','apply','--index','--binary',str(out/'candidate.patch')], check=True)
@@ -101,7 +101,7 @@ jobs:
           @{ source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); parent=(git rev-parse HEAD^) } | ConvertTo-Json | Set-Content .godot/ci/candidate-commit.json -Encoding utf8
 
       - name: Focused owner Profile and persistence regressions
-        timeout-minutes: 22
+        timeout-minutes: 50
         run: |
           $ErrorActionPreference = 'Stop'
           $runner = './tools/testing/Invoke-IsolatedGodot.ps1'

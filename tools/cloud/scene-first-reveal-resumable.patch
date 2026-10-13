@@ -415,10 +415,10 @@ index b4248f8..5322cbd 100644
 \ No newline at end of file
 diff --git a/tests/unit/test_scene_first_reveal.gd b/tests/unit/test_scene_first_reveal.gd
 new file mode 100644
-index 0000000..375e853
+index 0000000..164a431
 --- /dev/null
 +++ b/tests/unit/test_scene_first_reveal.gd
-@@ -0,0 +1,225 @@
+@@ -0,0 +1,227 @@
 +extends "res://addons/gut/test.gd"
 +## Presentation-facing first-Reveal contract over the real physical owner, Profile
 +## ledger, reducer and generator. Checkpoint authority remains an injected seam.
@@ -620,11 +620,13 @@ index 0000000..375e853
 +	var slices := 0
 +	while f.record().phase == "preparing" and slices < 4096:
 +		# Every slice is Profile-durable before the intentionally refused Run write.
++		var saved_run: Dictionary = f.state.route_context.duplicate(true)
 +		f.authority.reject_checkpoint = true
 +		var prepared: Dictionary = f.action("prepare")
 +		assert_false(prepared.ok)
 +		var retained: Dictionary = f.attempt().value.duplicate(true)
 +		assert_eq(retained.record.envelope.forced_cell, 323)
++		f.state.route_context = saved_run.duplicate(true)
 +		assert_true(f.recreate_owner().ok)
 +		assert_true(f.begin().ok)
 +		assert_eq(_pull().value.phase, "checkpoint_retry")
