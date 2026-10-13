@@ -1,8 +1,50 @@
 diff --git a/autoload/DialogicBridge.gd b/autoload/DialogicBridge.gd
-index 3157477..0b5be5e 100644
+index 3157477..31aeebe 100644
 --- a/autoload/DialogicBridge.gd
 +++ b/autoload/DialogicBridge.gd
-@@ -2860,6 +2860,8 @@ func stage_scene_reading_restore(checkpoint: Dictionary, operation_id: String) -
+@@ -788,14 +788,38 @@ func _prepare_scene_art() -> void:
+ 	var dating := str(source.entry_id).begins_with("dating.")
+ 	if not hospital and not dating and (str(source.entry_id).is_empty() or (str(art.get("background", "")).is_empty() \
+ 		and art.get("portraits", []).is_empty() and str(art.get("cg", "")).is_empty())): return
++	_prepare_witnessed_style()
++
++
++## Native scene reconstruction needs the same caption owner as ordinary starts,
++## even when its entry has no artwork. Style selection grants no frontier proof.
++func _prepare_witnessed_style() -> Dictionary:
+ 	var runtime := get_node_or_null("/root/Dialogic") if is_inside_tree() else null
+ 	# Isolated adapters never borrow the autoload's physical layout.
+ 	if runtime == null or _runtime_adapter == null \
+ 			or not _runtime_adapter.has_method("is_bound_to_runtime") \
+-			or not _runtime_adapter.is_bound_to_runtime(runtime): return
++			or not _runtime_adapter.is_bound_to_runtime(runtime): return {"ok": true, "value": {"isolated": true}}
++	var adapter := _runtime_adapter
++	if not runtime.has_method("get_subsystem"):
++		return _command_failure(&"scene_caption_style_unavailable")
+ 	var styles: Object = runtime.get_subsystem("Styles")
+-	if styles != null and styles.has_method("load_style"):
+-		styles.load_style("res://dialogic/styles/witnessed_caption_style.tres", null, true, false)
++	if not is_instance_valid(styles) or not styles.has_method("load_style") or not styles.has_method("get_layout_node"):
++		return _command_failure(&"scene_caption_style_unavailable")
++	const STYLE := preload("res://dialogic/styles/witnessed_caption_style.tres")
++	styles.load_style(STYLE.resource_path, get_tree().root, true, false)
++	# style_changed is synchronous and may replace or retire owners/layouts.
++	if not is_instance_valid(runtime) or not is_instance_valid(styles) or _runtime_adapter != adapter \
++			or get_node_or_null("/root/Dialogic") != runtime or not adapter.is_bound_to_runtime(runtime):
++		return _command_failure(&"scene_caption_style_changed")
++	var layout: Variant = styles.get_layout_node()
++	if not layout is Node or not is_instance_valid(layout) or layout.is_queued_for_deletion() \
++			or layout.get_meta("style", null) != STYLE:
++		return _command_failure(&"scene_caption_style_unavailable")
++	var ancestor: Node = layout.get_parent()
++	while ancestor != null:
++		if ancestor.is_queued_for_deletion(): return _command_failure(&"scene_caption_style_changed")
++		ancestor = ancestor.get_parent()
++	return {"ok": true}
+ 
+ 
+ func _start_at_path(timeline_id: String, path: String, context: Dictionary, label: String = "") -> Dictionary:
+@@ -2860,6 +2884,8 @@ func stage_scene_reading_restore(checkpoint: Dictionary, operation_id: String) -
  		"digest": _scene_digest(checkpoint), "candidate": checked.value.candidate,
  		"path": checked.value.path, "runtime": _runtime_adapter, "started": false,
  		"in_call": false, "native_started": false, "proof": false, "confirmed": false}
@@ -11,7 +53,24 @@ index 3157477..0b5be5e 100644
  	_reading_restore_pending = checkpoint.duplicate(true)
  	return {"ok": true}
  
-@@ -3336,6 +3338,20 @@ func is_pause_restore_pending() -> bool:
+@@ -2892,6 +2918,16 @@ func _start_scene_restore_native(operation_id: String) -> void:
+ 	if _scene_restore.is_empty() or _scene_restore.operation_id != operation_id or not _scene_restore_current():
+ 		_fail_scene_activation(_command_failure(&"scene_activation_changed"))
+ 		return
++	var styled := _prepare_witnessed_style()
++	if not styled.get("ok", false):
++		if not _scene_restore.is_empty() and _scene_restore.operation_id == operation_id:
++			_fail_scene_activation(styled)
++		return
++	if _scene_restore.is_empty() or _scene_restore.operation_id != operation_id or not _scene_restore_current() \
++			or _scene_restore.has("failure"):
++		if not _scene_restore.is_empty() and _scene_restore.operation_id == operation_id:
++			_fail_scene_activation(_command_failure(&"scene_activation_changed"))
++		return
+ 	_scene_restore.native_started = true
+ 	_scene_restore.in_call = true
+ 	var installed: Dictionary = _runtime_adapter.restore_scene_frontier(_scene_restore.candidate,
+@@ -3336,6 +3372,20 @@ func is_pause_restore_pending() -> bool:
  	return not _pause_restore.is_empty() and not _pause_restore.get("applied", false)
  
  
@@ -32,7 +91,7 @@ index 3157477..0b5be5e 100644
  func stage_pause_restore(plan: Dictionary, semantic: bool) -> Dictionary:
  	if not is_pause_restore_pending() or _pause_restore.cancelled \
  			or _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore"):
-@@ -3371,6 +3387,16 @@ func cancel_pause_restore(handle: Dictionary) -> Dictionary:
+@@ -3371,6 +3421,16 @@ func cancel_pause_restore(handle: Dictionary) -> Dictionary:
  
  
  func complete_pause_restore(handle: Dictionary) -> Dictionary:
@@ -49,7 +108,7 @@ index 3157477..0b5be5e 100644
  	if _pause_restore.get("handle") != handle or not _pause_restore.get("finalized", false) \
  			or _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore"):
  		return _pause_failure(&"pause_restore_unavailable")
-@@ -4095,6 +4121,23 @@ func dispatch_scene_event(live_session: Dictionary, envelope: Dictionary) -> Dic
+@@ -4095,6 +4155,23 @@ func dispatch_scene_event(live_session: Dictionary, envelope: Dictionary) -> Dic
  			"code": result.get("code", &"event_ack_interrupted"), "details": {"committed": true}})
  	return result
  
@@ -1515,6 +1574,15 @@ index 5f61aa1..8b9db30 100644
  
  func test_direct_load_entry_refuses_missing_busy_and_retired_pause_custody() -> void:
  	assert_true(_surface.has_method("open_backup_load"))
+diff --git a/tests/integration/test_scene_caption_style_refusal.gd b/tests/integration/test_scene_caption_style_refusal.gd
+new file mode 100644
+index 0000000..34d4dce
+--- /dev/null
++++ b/tests/integration/test_scene_caption_style_refusal.gd
+@@ -0,0 +1,3 @@
++extends "res://tests/support/ScenePauseLoadTestBase.gd"
++func test_retired_native_style_refuses_activation_without_acknowledging_creation() -> void:
++	await refused_style()
 diff --git a/tests/integration/test_scene_first_reveal_connected_ahead.gd b/tests/integration/test_scene_first_reveal_connected_ahead.gd
 new file mode 100644
 index 0000000..a3ae18d
@@ -1666,10 +1734,10 @@ index 0000000..9c8fb2f
 +	physical = null
 diff --git a/tests/support/ScenePauseLoadFixture.gd b/tests/support/ScenePauseLoadFixture.gd
 new file mode 100644
-index 0000000..b18de8c
+index 0000000..ee1fbb7
 --- /dev/null
 +++ b/tests/support/ScenePauseLoadFixture.gd
-@@ -0,0 +1,197 @@
+@@ -0,0 +1,204 @@
 +extends "res://tests/support/SceneFirstRevealConnectedFixture.gd"
 +## Real Pause/Backup, input/audio, native Text, Run/Profile/Save and router owners.
 +## TEST-authored scene content and empty configured host remain explicit; this is
@@ -1699,6 +1767,20 @@ index 0000000..b18de8c
 +var input_backup: Dictionary = {}
 +var pending_observation: Dictionary = {}
 +var diagnostic_phase := "unstarted"
++var default_style_before: Dictionary = {}
++var style_refusal_count := 0
++
++func refuse_selected_style(_info: Dictionary) -> void:
++	# Negative injection only: retire the real newly selected layout inside the
++	# synchronous native style callback, before Bridge may claim native readiness.
++	var layout: Node = runtime.Styles.get_layout_node()
++	if is_instance_valid(layout):
++		style_refusal_count += 1
++		layout.queue_free()
++
++func default_style_projection() -> Dictionary:
++	var key := "dialogic/layout/default_style"
++	return {"exists": ProjectSettings.has_setting(key), "value": ProjectSettings.get_setting(key)}
 +
 +static func _scalar_fields(value: Dictionary) -> Dictionary:
 +	var result := {}
@@ -1740,15 +1822,10 @@ index 0000000..b18de8c
 +	return result
 +
 +func setup_pause(scene_tree: SceneTree) -> Dictionary:
++	default_style_before = default_style_projection()
 +	diagnostic_phase = "parent_setup"
 +	var checked: Dictionary = await setup_connected(scene_tree)
 +	if not checked.get("ok", false): return checked
-+	var default_style := "dialogic/layout/default_style"
-+	settings[default_style] = {"exists": ProjectSettings.has_setting(default_style),
-+		"value": ProjectSettings.get_setting(default_style)}
-+	ProjectSettings.set_setting(default_style, STYLE)
-+	if DialogicStylesUtil.get_style_path("") != STYLE:
-+		return {"ok": false, "code": &"TEST.pause_default_style_not_selected"}
 +	for action: StringName in InputMap.get_actions():
 +		input_backup[action] = {"deadzone": InputMap.action_get_deadzone(action),
 +			"events": InputMap.action_get_events(action).duplicate(true)}
@@ -1769,10 +1846,8 @@ index 0000000..b18de8c
 +	if not checked.get("ok", false): return checked
 +	checked = router.configure_mutation_gate(gate)
 +	if not checked.get("ok", false): return checked
-+	# Production Pause intentionally rejects captions in foreign viewports.
-+	# Mount the actual native style in the same viewport before any playback starts.
-+	# Dialogic load_style returns the existing node for the same style, ignoring
-+	# a new parent. Retire the unused inherited layout before creating this one.
++	# Remove the inherited manual style. Initial admission and selected Load must
++	# obtain their actual witnessed layout from the production Bridge owner.
 +	var inherited_layout: Node = runtime.Styles.get_layout_node()
 +	if is_instance_valid(inherited_layout):
 +		diagnostic_phase = "retire_inherited_layout"
@@ -1784,12 +1859,8 @@ index 0000000..b18de8c
 +			if not is_instance_valid(inherited_layout): break
 +		if is_instance_valid(inherited_layout):
 +			return {"ok": false, "code": &"TEST.pause_inherited_style_not_retired"}
-+	var layout: Node = runtime.Styles.load_style(STYLE, tree.root, true, false)
-+	if layout == null: return {"ok": false, "code": &"TEST.pause_style_missing"}
-+	diagnostic_phase = "await_main_layout_ready"
-+	if not layout.is_node_ready(): await layout.ready
-+	if layout.get_viewport() != tree.root:
-+		return {"ok": false, "code": &"TEST.pause_style_foreign_viewport"}
++	if runtime.Styles.has_active_layout_node():
++		return {"ok": false, "code": &"TEST.pause_inherited_style_still_active"}
 +	checked = router.configure_pause_services({"game_state": game, "saves": manager,
 +		"bridge": bridge, "input": input_owner, "audio": audio_owner, "gate": gate,
 +		"profile": profile, "localization": localization_owner,
@@ -1797,6 +1868,10 @@ index 0000000..b18de8c
 +			"profile_reset_admission": func() -> bool: return false}})
 +	if not checked.get("ok", false): return checked
 +	pause = router._production_pause
++	if pause._find_caption(tree.root) != null:
++		return {"ok": false, "code": &"TEST.pause_caption_survived_setup"}
++	if default_style_projection() != default_style_before:
++		return {"ok": false, "code": &"TEST.pause_default_style_changed"}
 +	pause.coordinator.pause_closed.connect(func() -> void: pause_closed_count += 1)
 +	write_fault = RefuseNextWrite.new()
 +	files = write_fault
@@ -1869,10 +1944,10 @@ index 0000000..b18de8c
 +			for event: InputEvent in input_backup[action].events: InputMap.action_add_event(action, event)
 diff --git a/tests/support/ScenePauseLoadTestBase.gd b/tests/support/ScenePauseLoadTestBase.gd
 new file mode 100644
-index 0000000..ff1b591
+index 0000000..3b7b51e
 --- /dev/null
 +++ b/tests/support/ScenePauseLoadTestBase.gd
-@@ -0,0 +1,204 @@
+@@ -0,0 +1,253 @@
 +extends "res://addons/gut/test.gd"
 +## One case per fresh Godot process: registration and issuer authority are immutable.
 +## Connected Text Pause -> selected schema-5 Load. No fake positive native,
@@ -1918,9 +1993,14 @@ index 0000000..ff1b591
 +	var checked: Dictionary = await fixture.setup_pause(get_tree())
 +	fixture_ready = checked.get("ok", false)
 +	assert_true(fixture_ready, str(checked))
++	if fixture_ready:
++		assert_false(fixture.runtime.Styles.has_active_layout_node(), "initial activation starts without a preinstalled layout")
++		assert_eq(fixture.default_style_projection(), fixture.default_style_before)
 +
 +func after_each() -> void:
 +	_test_stage = "cleanup"
++	if fixture_ready: assert_eq(fixture.default_style_projection(), fixture.default_style_before,
++		"scene activation must not change the global default style")
 +	if fixture != null: await fixture.close_restart()
 +	fixture = null
 +	fixture_ready = false
@@ -1934,9 +2014,19 @@ index 0000000..ff1b591
 +	assert_true(result.get("ok", false), str(result))
 +	return result.get("ok", false)
 +
++func _witnessed_caption(phase: String) -> bool:
++	var caption: Node = fixture.pause._find_caption(get_tree().root)
++	assert_true(is_instance_valid(caption), phase + " publishes the genuine witnessed caption")
++	if not is_instance_valid(caption): return false
++	assert_eq(caption.get_script(), WITNESSED_CAPTION)
++	assert_eq(caption.get_viewport(), get_tree().root)
++	assert_eq(fixture.default_style_projection(), fixture.default_style_before)
++	return caption.get_script() == WITNESSED_CAPTION and caption.get_viewport() == get_tree().root
++
 +func happy_load(quick: bool) -> void:
 +	_test_stage = "start_text"
 +	if not fixture_ready or not _ok(await fixture.start_text()): return
++	if not _witnessed_caption("source"): return
 +	if quick and not _ok(fixture.manager.quick_save_latest()): return
 +	var source: Dictionary = fixture.game.capture_run_snapshot_input().duplicate(true)
 +	var profile_before: Dictionary = fixture.profile_bytes()
@@ -1965,11 +2055,7 @@ index 0000000..ff1b591
 +	if not _ok(committed): return
 +	_test_stage = "settle_load"
 +	if not _ok(await fixture.settle_load()): return
-+	var destination_caption: Node = fixture.pause._find_caption(get_tree().root)
-+	assert_true(is_instance_valid(destination_caption), "destination publishes the genuine witnessed caption")
-+	if not is_instance_valid(destination_caption): return
-+	assert_eq(destination_caption.get_script(), WITNESSED_CAPTION)
-+	assert_eq(destination_caption.get_viewport(), get_tree().root)
++	if not _witnessed_caption("destination"): return
 +	assert_eq(fixture.ready_count, 1, "one real destination readiness publication")
 +	assert_eq(fixture.route_confirmations.size(), routes + 1)
 +	assert_eq(fixture.narrative_confirmations.size(), narratives + 1)
@@ -2037,6 +2123,7 @@ index 0000000..ff1b591
 +func refused_load() -> void:
 +	_test_stage = "start_text"
 +	if not fixture_ready or not _ok(await fixture.start_text()): return
++	if not _witnessed_caption("source"): return
 +	_test_stage = "pause_source"
 +	if not _ok(await fixture.pause.request_pause()): return
 +	var source: Dictionary = fixture.game.capture_run_snapshot_input().duplicate(true)
@@ -2077,6 +2164,43 @@ index 0000000..ff1b591
 +	assert_eq(fixture.game.capture_run_snapshot_input(), source)
 +	assert_eq(fixture.profile_bytes(), profile_before)
 +	assert_eq(fixture.native_markers, [])
++
++func refused_style() -> void:
++	if not fixture_ready: return
++	fixture.runtime.Styles.style_changed.connect(fixture.refuse_selected_style, CONNECT_ONE_SHOT)
++	_test_stage = "start_with_style_refusal"
++	var started: Dictionary = fixture.start()
++	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
++	if started.get("code") != &"scene_activation_pending": return
++	var operation_id: String = str(started.get("transaction_id", ""))
++	assert_false(operation_id.is_empty())
++	_test_stage = "await_style_refusal"
++	var refused: Dictionary = await fixture.await_activation()
++	assert_false(refused.get("ok", false))
++	assert_eq(refused.get("code"), &"scene_caption_style_unavailable")
++	assert_eq(fixture.style_refusal_count, 1)
++	assert_eq(fixture.ready_count, 0)
++	assert_eq(fixture.narrative_confirmations.size(), 0)
++	assert_eq(fixture.native_publications, [])
++	assert_eq(fixture.native_markers, [])
++	assert_false(fixture.bridge._scene_restore.native_started)
++	assert_false(fixture.bridge._scene_restore.proof)
++	assert_false(fixture.bridge._scene_restore.confirmed)
++	assert_eq(fixture.manager._scene_restore_activation.operation_id, operation_id)
++	assert_eq(fixture.manager._scene_restore_activation.failure, refused)
++	var reopened: Dictionary = fixture.reopen_journal()
++	if not _ok(reopened): return
++	var durable: Dictionary = reopened.value.get_creation_operation(operation_id)
++	if not _ok(durable): return
++	assert_eq(durable.value.transaction_id, operation_id)
++	assert_eq(durable.value.activation_state, "pending", "refused native style cannot acknowledge durable creation")
++	var retried: Dictionary = fixture.manager.retry_scene_activation(operation_id)
++	assert_eq(retried, refused, "same pending operation retains its actual failure")
++	for frame: int in 4: await get_tree().process_frame
++	assert_eq(fixture.ready_count, 0)
++	assert_eq(fixture.native_publications, [])
++	assert_eq(fixture.manager._scene_restore_activation.operation_id, operation_id)
++	assert_eq(fixture.default_style_projection(), fixture.default_style_before)
 diff --git a/tests/unit/test_scene_absence.gd b/tests/unit/test_scene_absence.gd
 index b4248f8..e72f296 100644
 --- a/tests/unit/test_scene_absence.gd
