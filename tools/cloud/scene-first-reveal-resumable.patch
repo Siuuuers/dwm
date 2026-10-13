@@ -1732,6 +1732,23 @@ index 0000000..9c8fb2f
 +func close_restart() -> void:
 +	await super.close_restart()
 +	physical = null
+diff --git a/tests/support/SceneNewRunFixture.gd b/tests/support/SceneNewRunFixture.gd
+index ab02683..5a8e15e 100644
+--- a/tests/support/SceneNewRunFixture.gd
++++ b/tests/support/SceneNewRunFixture.gd
+@@ -169,7 +169,11 @@ func _replace_owner(name: String, owner: Node) -> void:
+ 
+ func close() -> void:
+ 	for owner: Node in [game, bridge, manager, profile]:
+-		if is_instance_valid(owner): owner.free()
++		if is_instance_valid(owner):
++			var owner_name: String = owner.name
++			print("DWM_PARENT_TEARDOWN before_owner_free ", owner_name)
++			owner.free()
++			print("DWM_PARENT_TEARDOWN after_owner_free ", owner_name)
+ 	for name: String in ["ProfileManager", "SaveManager"]:
+ 		if not original_owners.has(name): continue
+ 		var original: Node = original_owners[name].node
 diff --git a/tests/support/ScenePauseLoadFixture.gd b/tests/support/ScenePauseLoadFixture.gd
 new file mode 100644
 index 0000000..c166c76
@@ -2205,6 +2222,38 @@ index 0000000..3b7b51e
 +	assert_eq(fixture.native_publications, [])
 +	assert_eq(fixture.manager._scene_restore_activation.operation_id, operation_id)
 +	assert_eq(fixture.default_style_projection(), fixture.default_style_before)
+diff --git a/tests/support/SceneRestartFixture.gd b/tests/support/SceneRestartFixture.gd
+index f2b8688..26a036a 100644
+--- a/tests/support/SceneRestartFixture.gd
++++ b/tests/support/SceneRestartFixture.gd
+@@ -84,17 +84,27 @@ func close_restart() -> void:
+ 		text_node.set_process(false)
+ 	if is_instance_valid(runtime):
+ 		runtime.paused = false
++		print("DWM_PARENT_TEARDOWN before_runtime_clear")
+ 		await runtime.clear()
++		print("DWM_PARENT_TEARDOWN after_runtime_clear")
+ 		var remaining: Node = runtime.Styles.get_layout_node()
+ 		if is_instance_valid(remaining) and (not is_instance_valid(viewport) or not viewport.is_ancestor_of(remaining)):
+ 			remaining.queue_free()
+ 	if is_instance_valid(viewport): viewport.queue_free()
++	print("DWM_PARENT_TEARDOWN before_cleanup_frame")
+ 	await tree.process_frame
++	print("DWM_PARENT_TEARDOWN after_cleanup_frame")
+ 	var mounted := tree.current_scene
+ 	tree.current_scene = previous_scene if is_instance_valid(previous_scene) else null
++	print("DWM_PARENT_TEARDOWN before_mounted_free")
+ 	if is_instance_valid(mounted) and mounted != previous_scene: mounted.free()
++	print("DWM_PARENT_TEARDOWN after_mounted_free")
++	print("DWM_PARENT_TEARDOWN before_router_free")
+ 	if is_instance_valid(router): router.free()
++	print("DWM_PARENT_TEARDOWN after_router_free")
++	print("DWM_PARENT_TEARDOWN before_new_run_close")
+ 	super.close()
++	print("DWM_PARENT_TEARDOWN after_new_run_close")
+ 	for name: String in ["GameState", "DialogicBridge", "SceneRouter"]:
+ 		if not original_owners.has(name): continue
+ 		var original: Node = original_owners[name].node
 diff --git a/tests/unit/test_scene_absence.gd b/tests/unit/test_scene_absence.gd
 index b4248f8..e72f296 100644
 --- a/tests/unit/test_scene_absence.gd
