@@ -1734,10 +1734,10 @@ index 0000000..9c8fb2f
 +	physical = null
 diff --git a/tests/support/ScenePauseLoadFixture.gd b/tests/support/ScenePauseLoadFixture.gd
 new file mode 100644
-index 0000000..ee1fbb7
+index 0000000..c166c76
 --- /dev/null
 +++ b/tests/support/ScenePauseLoadFixture.gd
-@@ -0,0 +1,204 @@
+@@ -0,0 +1,208 @@
 +extends "res://tests/support/SceneFirstRevealConnectedFixture.gd"
 +## Real Pause/Backup, input/audio, native Text, Run/Profile/Save and router owners.
 +## TEST-authored scene content and empty configured host remain explicit; this is
@@ -1919,14 +1919,18 @@ index 0000000..ee1fbb7
 +
 +func close_restart() -> void:
 +	if tree == null: return
++	if style_refusal_count > 0: print("DWM_STYLE_REFUSAL_TEARDOWN before_pause_free")
 +	tree.paused = false
 +	if is_instance_valid(pause): pause.free()
 +	pause = null
++	if style_refusal_count > 0: print("DWM_STYLE_REFUSAL_TEARDOWN before_parent_close")
 +	await super.close_restart()
++	if style_refusal_count > 0: print("DWM_STYLE_REFUSAL_TEARDOWN after_parent_close")
 +	var audio_runtime: Node = audio_owner._playback_port._root if is_instance_valid(audio_owner) \
 +		and audio_owner._playback_port != null else null
 +	for owner: Node in [input_owner, audio_owner, localization_owner]:
 +		if is_instance_valid(owner): owner.free()
++	if style_refusal_count > 0: print("DWM_STYLE_REFUSAL_TEARDOWN after_services_free")
 +	if is_instance_valid(audio_runtime): audio_runtime.free()
 +	for name: String in ["InputManager", "AudioManager", "LocalizationManager"]:
 +		if not original_owners.has(name): continue
