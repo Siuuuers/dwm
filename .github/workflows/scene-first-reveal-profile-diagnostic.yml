@@ -52,13 +52,13 @@ jobs:
           assert git('rev-parse','HEAD') == base
           assert git('ls-remote','origin','refs/heads/codex/scene-runtime-integration-20261009').split()[0] == base
           patch = pathlib.Path('../controller/tools/cloud/scene-first-reveal-resumable.patch').read_bytes()
-          assert hashlib.sha256(patch).hexdigest() == 'd6fe2cc619a1ed44c6ea03f88f2f839a441c2e6ca2eccb881ab6215a6a521b29'
+          assert hashlib.sha256(patch).hexdigest() == '60de188361f51f8954e22ebe2e4f74b727a9fe25f32ac9d0681f841caa18f315'
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           (out/'candidate.patch').write_bytes(patch)
           subprocess.run(['git','apply','--index','--binary',str(out/'candidate.patch')], check=True)
           subprocess.run(['git','diff','--cached','--check'], check=True)
           paths = git('diff','--cached','--name-only').splitlines()
-          assert paths == ['autoload/DialogicBridge.gd', 'autoload/GameState.gd', 'autoload/SceneRouter.gd', 'scripts/application/backup/BackupPresentationPort.gd', 'scripts/application/lifecycle/ProductionPauseController.gd', 'scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd', 'scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd', 'scripts/application/restore/RouteRestoreParticipant.gd', 'scripts/application/run/DatingChallengeEnvelope.gd', 'scripts/application/run/DatingPhysicalOwner.gd', 'scripts/domain/minesweeper/MinesweeperBoardGenerator.gd', 'scripts/profile/DatingAttemptLedger.gd', 'tests/integration/scene_first_reveal_connected_child.gd', 'tests/integration/test_scene_first_reveal_connected_ahead.gd', 'tests/integration/test_scene_first_reveal_connected_create.gd', 'tests/integration/test_scene_first_reveal_connected_load.gd', 'tests/integration/test_scene_first_reveal_selected_create.gd', 'tests/integration/test_scene_pause_load.gd', 'tests/support/SceneChallengeFixture.gd', 'tests/support/SceneFirstRevealConnectedFixture.gd', 'tests/support/ScenePauseLoadFixture.gd', 'tests/unit/test_scene_absence.gd', 'tests/unit/test_scene_first_reveal.gd']
+          assert paths == ['autoload/DialogicBridge.gd', 'autoload/GameState.gd', 'autoload/SceneRouter.gd', 'scripts/application/backup/BackupPresentationPort.gd', 'scripts/application/lifecycle/ProductionPauseController.gd', 'scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd', 'scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd', 'scripts/application/restore/RouteRestoreParticipant.gd', 'scripts/application/run/DatingChallengeEnvelope.gd', 'scripts/application/run/DatingPhysicalOwner.gd', 'scripts/domain/minesweeper/MinesweeperBoardGenerator.gd', 'scripts/profile/DatingAttemptLedger.gd', 'tests/integration/scene_first_reveal_connected_child.gd', 'tests/integration/test_pause_backup_host.gd', 'tests/integration/test_scene_first_reveal_connected_ahead.gd', 'tests/integration/test_scene_first_reveal_connected_create.gd', 'tests/integration/test_scene_first_reveal_connected_load.gd', 'tests/integration/test_scene_first_reveal_selected_create.gd', 'tests/integration/test_scene_pause_load.gd', 'tests/support/SceneChallengeFixture.gd', 'tests/support/SceneFirstRevealConnectedFixture.gd', 'tests/support/ScenePauseLoadFixture.gd', 'tests/unit/test_scene_absence.gd', 'tests/unit/test_scene_first_reveal.gd']
           receipt = {'base':base,'controller':os.environ['CONTROLLER_SHA'],'patch_sha256':hashlib.sha256(patch).hexdigest(),'paths':paths,'publication':'disabled diagnostic'}
           (out/'candidate-origin.json').write_text(json.dumps(receipt,indent=2),encoding='utf-8')
           '@ | python -
@@ -99,6 +99,26 @@ jobs:
           git commit -m 'Diagnose atomic first Reveal Profile entry'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @{ source=(git rev-parse HEAD); tree=(git rev-parse 'HEAD^{tree}'); parent=(git rev-parse HEAD^) } | ConvertTo-Json | Set-Content .godot/ci/candidate-commit.json -Encoding utf8
+
+      - name: Diagnose unchanged baseline Backup host counter
+        timeout-minutes: 8
+        run: |
+          $ErrorActionPreference = 'Stop'
+          git worktree add --detach ../baseline $env:BASE_SHA
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Push-Location ../baseline
+          try {
+            New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
+            & $env:GODOT_CONSOLE_PATH --headless --path (Get-Location) --import --log-file '.godot/ci/baseline-import.log'
+            if ($LASTEXITCODE -ne 0) { throw 'Baseline import failed' }
+            $args = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_pause_backup_host.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/baseline-pause-host.xml')
+            & ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'baseline-pause-host' -LogName 'baseline-pause-host.log' -GodotArgs $args -EvidenceLogPath '.godot/ci/baseline-pause-host.jsonl' -TimeoutSeconds 180
+            @{ source=$env:BASE_SHA; exit=$LASTEXITCODE } | ConvertTo-Json | Set-Content '.godot/ci/baseline-result.json' -Encoding utf8
+            New-Item -ItemType Directory -Force '../source/.godot/phase2r_logs' | Out-Null
+            Copy-Item '.godot/ci/*' '../source/.godot/ci/'
+            Copy-Item '.godot/phase2r_logs/baseline-pause-host.log' '../source/.godot/phase2r_logs/'
+          } finally { Pop-Location }
+          exit 0
 
       - name: Connected Pause Load and owner regressions
         timeout-minutes: 50

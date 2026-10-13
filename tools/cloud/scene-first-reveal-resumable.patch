@@ -1463,6 +1463,58 @@ index 0000000..0ec476d
 +		file.store_string(str(encoded.value) + "\n")
 +		file.flush()
 +		file.close()
+diff --git a/tests/integration/test_pause_backup_host.gd b/tests/integration/test_pause_backup_host.gd
+index 5f61aa1..8b9db30 100644
+--- a/tests/integration/test_pause_backup_host.gd
++++ b/tests/integration/test_pause_backup_host.gd
+@@ -11,6 +11,14 @@ const FILES := preload("res://tests/support/FakeFileOps.gd")
+ const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
+ const SNAPSHOT_FIXTURE := preload("res://tests/support/BackupSnapshotFixture.gd")
+ 
++## Observe the real projection boundary; layout measurements can run more than
++## once per refresh and do not prove how often records were requested.
++class ObservedPort extends "res://scripts/application/backup/BackupPresentationPort.gd":
++	var projection_calls := 0
++	func get_projection() -> Dictionary:
++		projection_calls += 1
++		return super.get_projection()
++
+ var _viewport: SubViewport
+ var _surface: Control
+ var _backup: Control
+@@ -41,7 +49,7 @@ func before_each() -> void:
+ 	assert_true(prepared.ok,str(prepared))
+ 	if not prepared.get("ok",false): return
+ 	assert_true(_manager._journal.commit_prepared(prepared.value.candidate).ok)
+-	_port = PORT.new()
++	_port = ObservedPort.new()
+ 	assert_true(_port.configure(_manager,"in_run",_source_admission).ok)
+ 	for locator: String in ["slot:1","quick"]:
+ 		var seed: Dictionary = _port.prepare_action("save",locator)
+@@ -109,7 +117,7 @@ func test_direct_load_entry_uses_the_existing_backup_host_once_without_writing()
+ 	assert_true(_surface.has_method("open_backup_load"),
+ 		"Pause exposes one semantic rail-to-Backup Load entry")
+ 	if not _surface.has_method("open_backup_load"): return
+-	var before_measure: int = _backup._measure_revision
++	var before_projection: int = _port.projection_calls
+ 	assert_true(bool(_surface.call("open_backup_load")))
+ 	assert_eq(_surface.selected_action, &"backup")
+ 	assert_eq(_surface.entered_action, &"backup")
+@@ -117,12 +125,12 @@ func test_direct_load_entry_uses_the_existing_backup_host_once_without_writing()
+ 	assert_eq(_backup.active_mode, "load")
+ 	assert_true(_backup.drawer_buttons["slot:1"].has_focus(),
+ 		"direct Load entry retains the Backup owner's ordinary selected-drawer focus")
+-	assert_eq(_backup._measure_revision, before_measure + 1,
++	assert_eq(_port.projection_calls, before_projection + 1,
+ 		"entry refreshes the real record projection exactly once")
+ 	assert_eq(_files.snapshot_persisted(), _before)
+ 	assert_false(bool(_surface.call("open_backup_load")),
+ 		"an already entered host cannot be entered again")
+-	assert_eq(_backup._measure_revision, before_measure + 1)
++	assert_eq(_port.projection_calls, before_projection + 1)
+ 
+ func test_direct_load_entry_refuses_missing_busy_and_retired_pause_custody() -> void:
+ 	assert_true(_surface.has_method("open_backup_load"))
 diff --git a/tests/integration/test_scene_first_reveal_connected_ahead.gd b/tests/integration/test_scene_first_reveal_connected_ahead.gd
 new file mode 100644
 index 0000000..a3ae18d
@@ -1757,10 +1809,10 @@ index 0000000..9c8fb2f
 +	physical = null
 diff --git a/tests/support/ScenePauseLoadFixture.gd b/tests/support/ScenePauseLoadFixture.gd
 new file mode 100644
-index 0000000..0e01900
+index 0000000..e7c800a
 --- /dev/null
 +++ b/tests/support/ScenePauseLoadFixture.gd
-@@ -0,0 +1,132 @@
+@@ -0,0 +1,151 @@
 +extends "res://tests/support/SceneFirstRevealConnectedFixture.gd"
 +## Real Pause/Backup, input/audio, native Text, Run/Profile/Save and router owners.
 +## TEST-authored scene content and empty configured host remain explicit; this is
@@ -1769,6 +1821,19 @@ index 0000000..0e01900
 +const AUDIO_OWNER := preload("res://autoload/AudioManager.gd")
 +const LOCALIZATION_OWNER := preload("res://autoload/LocalizationManager.gd")
 +const AUDIO_PARTICIPANT := preload("res://scripts/application/restore/AudioRestoreParticipant.gd")
++static var _pause_registration_sha256 := ""
++
++func _install_registration() -> Dictionary:
++	# The manifest is deliberately immutable for the lifetime of this process.
++	# Fresh per-case owners reuse this fixture's already-selected exact bundle.
++	if not _pause_registration_sha256.is_empty():
++		if BASE_READING.MANIFEST.scene_registration_fingerprint() != _pause_registration_sha256:
++			return {"ok": false, "code": &"TEST.pause_registration_changed"}
++		return {"ok": true}
++	var selected: Dictionary = super._install_registration()
++	if selected.get("ok", false):
++		_pause_registration_sha256 = BASE_READING.MANIFEST.scene_registration_fingerprint()
++	return selected
 +
 +class RefuseNextWrite extends ProfileWriteRefusal:
 +	var armed := false
@@ -1816,9 +1881,15 @@ index 0000000..0e01900
 +	if not checked.get("ok", false): return checked
 +	# Production Pause intentionally rejects captions in foreign viewports.
 +	# Mount the actual native style in the same viewport before any playback starts.
-+	var layout: Node = runtime.Styles.load_style(STYLE, null, true, false)
++	# Dialogic load_style returns the existing node for the same style, ignoring
++	# a new parent. Retire the unused inherited layout before creating this one.
++	var inherited_layout: Node = runtime.Styles.get_layout_node()
++	if is_instance_valid(inherited_layout): inherited_layout.free()
++	var layout: Node = runtime.Styles.load_style(STYLE, tree.root, true, false)
 +	if layout == null: return {"ok": false, "code": &"TEST.pause_style_missing"}
 +	if not layout.is_node_ready(): await layout.ready
++	if layout.get_viewport() != tree.root:
++		return {"ok": false, "code": &"TEST.pause_style_foreign_viewport"}
 +	checked = router.configure_pause_services({"game_state": game, "saves": manager,
 +		"bridge": bridge, "input": input_owner, "audio": audio_owner, "gate": gate,
 +		"profile": profile, "localization": localization_owner,
