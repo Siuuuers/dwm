@@ -1751,10 +1751,10 @@ index ab02683..5a8e15e 100644
  		var original: Node = original_owners[name].node
 diff --git a/tests/support/ScenePauseLoadFixture.gd b/tests/support/ScenePauseLoadFixture.gd
 new file mode 100644
-index 0000000..c166c76
+index 0000000..3ae150b
 --- /dev/null
 +++ b/tests/support/ScenePauseLoadFixture.gd
-@@ -0,0 +1,208 @@
+@@ -0,0 +1,220 @@
 +extends "res://tests/support/SceneFirstRevealConnectedFixture.gd"
 +## Real Pause/Backup, input/audio, native Text, Run/Profile/Save and router owners.
 +## TEST-authored scene content and empty configured host remain explicit; this is
@@ -1878,6 +1878,18 @@ index 0000000..c166c76
 +			return {"ok": false, "code": &"TEST.pause_inherited_style_not_retired"}
 +	if runtime.Styles.has_active_layout_node():
 +		return {"ok": false, "code": &"TEST.pause_inherited_style_still_active"}
++	# The inherited persistence fixture supplied a viewport for its manual style.
++	# This fixture uses production-created root layouts, so retire that unused
++	# host before starting a run, separately from native runtime teardown.
++	if is_instance_valid(viewport):
++		diagnostic_phase = "retire_unused_viewport"
++		print("DWM_STYLE_REFUSAL_TEARDOWN before_unused_viewport_setup_retirement")
++		viewport.queue_free()
++		await tree.process_frame
++		if is_instance_valid(viewport):
++			return {"ok": false, "code": &"TEST.pause_unused_viewport_not_retired"}
++		viewport = null
++		print("DWM_STYLE_REFUSAL_TEARDOWN after_unused_viewport_setup_retirement")
 +	checked = router.configure_pause_services({"game_state": game, "saves": manager,
 +		"bridge": bridge, "input": input_owner, "audio": audio_owner, "gate": gate,
 +		"profile": profile, "localization": localization_owner,
