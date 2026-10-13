@@ -1,3 +1,185 @@
+diff --git a/autoload/DialogicBridge.gd b/autoload/DialogicBridge.gd
+index 3157477..594ebd4 100644
+--- a/autoload/DialogicBridge.gd
++++ b/autoload/DialogicBridge.gd
+@@ -4095,6 +4095,23 @@ func dispatch_scene_event(live_session: Dictionary, envelope: Dictionary) -> Dic
+ 			"code": result.get("code", &"event_ack_interrupted"), "details": {"committed": true}})
+ 	return result
+ 
++## Expose only a currently authenticated held marker, never a guessed UI command.
++func capture_scene_challenge_control() -> Dictionary:
++	var boundary := capture_scene_event_boundary()
++	if not boundary.get("ok", false): return boundary
++	var reading: Dictionary = boundary.value.checkpoint.get("reading_session", {})
++	if reading.get("schema_version") != 5 or reading.get("boundary") != "control":
++		return _command_failure(&"scene_challenge_control_required")
++	var native: Dictionary = _runtime_adapter.capture_scene_control_position(_reading_session)
++	if not native.get("ok", false) or not _READING_TRAVERSAL._same(native.value, reading):
++		return _command_failure(&"scene_challenge_control_required")
++	var nodes: Array = _reading_session._scene_nodes.get(reading.entry_id, [])
++	var index: int = int(reading.get("program_index", -1))
++	if index < 0 or index >= nodes.size() or not nodes[index].get("marker_id") is String:
++		return _command_failure(&"scene_challenge_control_required")
++	return {"ok": true, "value": {"marker_id": nodes[index].marker_id,
++		"checkpoint": boundary.value.checkpoint.duplicate(true)}}
++
+ func capture_scene_event_boundary() -> Dictionary:
+ 	if not _marker_context.is_empty():
+ 		if not _marker_source_valid(): return _command_failure(&"reading_marker_source_changed")
+diff --git a/autoload/GameState.gd b/autoload/GameState.gd
+index 4346e8f..2292116 100644
+--- a/autoload/GameState.gd
++++ b/autoload/GameState.gd
+@@ -4509,6 +4509,149 @@ func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: Strin
+ var _scene_save_owner: Object
+ var _scene_entry_operation: Dictionary = {}
+ 
++var _scene_challenge_operation: Dictionary = {}
++var _scene_challenge_validating := false
++
++func configure_scene_challenge_runtime() -> Dictionary:
++	if not is_instance_valid(_narrative_checkpoint_port) \
++			or not _narrative_checkpoint_port.has_method("configure_scene_challenge_authority"):
++		return _transaction_failure(&"scene_checkpoint_owner_required", "")
++	return _narrative_checkpoint_port.configure_scene_challenge_authority(self,
++		Callable(self, "_validate_scene_challenge_checkpoint"))
++
++## Derive the physical command from the current native control and admitted ledger.
++## Merely asking for this projection never creates a physical attempt or a save.
++func capture_scene_challenge_command() -> Dictionary:
++	if not is_instance_valid(_scene_event_bridge) or not _scene_event_bridge.has_method("capture_scene_challenge_control"):
++		return _transaction_failure(&"scene_challenge_unavailable", "")
++	var current := _scene_runtime_event_context()
++	if not current.ok: return current
++	var held: Dictionary = _scene_event_bridge.capture_scene_challenge_control()
++	if not held.get("ok", false): return held
++	if not _SCENE_EVENT._equal(held.value.checkpoint, current.value.checkpoint):
++		return _transaction_failure(&"scene_challenge_source_changed", "")
++	var registered := _SCENE_MANIFEST.scene_registration()
++	if not registered.ok: return registered
++	var ledger := _SCENE_EVENT.validate_scene_receipts(_command_receipts, registered.value,
++		_identity_issuer, _scene_save_owner)
++	if not ledger.ok: return ledger
++	var found := {}
++	for receipt: Dictionary in ledger.value.commands.values():
++		if receipt.get("kind") != "scene_event": continue
++		var event: Dictionary = receipt.scene_event.semantic
++		if event.kind != "challenge.playable" or event.event_id != held.value.marker_id \
++				or not _SCENE_EVENT._equal(event.source, current.value.source): continue
++		if not found.is_empty(): return _transaction_failure(&"scene_challenge_ambiguous", "")
++		found = {"completion_transaction_id": event.command_id,
++			"command_sha256": receipt.request_fingerprint, "context": {
++				"kind": "scene_challenge", "scene_occurrence": event.source.scene_occurrence,
++				"challenge_id": event.payload.challenge_id, "playable_command_id": event.command_id,
++				"registration_sha256": receipt.scene_event.registration_fingerprint}}
++	if found.is_empty(): return _transaction_failure(&"scene_challenge_unadmitted", "")
++	return {"ok": true, "value": {"command": found, "bundle": registered.value.duplicate(true),
++		"checkpoint": held.value.checkpoint.duplicate(true)}}
++
++func validate_scene_challenge_command(command: Dictionary, bundle: Dictionary) -> Dictionary:
++	var current := capture_scene_challenge_command()
++	if not current.ok: return current
++	var detached := command.duplicate(true)
++	detached.erase("physical_token")
++	if not _SCENE_EVENT._equal(detached, current.value.command) or not _SCENE_EVENT._equal(bundle, current.value.bundle):
++		return _transaction_failure(&"scene_challenge_command_refused", "")
++	return {"ok": true}
++
++func capture_scene_challenge_closure(context: Dictionary) -> Dictionary:
++	var current := capture_scene_challenge_command()
++	if not current.ok: return current
++	if not _SCENE_EVENT._equal(context, current.value.command.context):
++		return _transaction_failure(&"scene_challenge_command_refused", "")
++	for receipt: Dictionary in _command_receipts.values():
++		var result: Dictionary = receipt.get("scene_event", {}).get("result", {})
++		if result.get("kind") == "challenge_closed" \
++				and result.get("playable_command_id") == context.playable_command_id:
++			return {"ok": true, "value": result.duplicate(true)}
++	return {"ok": true, "value": {}}
++
++func validate_scene_challenge_end(_command: Dictionary) -> Dictionary:
++	return _transaction_failure(&"scene_challenge_end_unavailable", "held End integration required")
++
++func commit_scene_challenge_closure(_command: Dictionary, _result: Dictionary) -> Dictionary:
++	return _transaction_failure(&"scene_challenge_end_unavailable", "held End integration required")
++
++func _scene_challenge_profile_matches(record: Dictionary, reference: Dictionary) -> bool:
++	const ATTEMPTS = preload("res://scripts/profile/DatingAttemptLedger.gd")
++	var profile := get_node_or_null("/root/ProfileManager")
++	if profile == null or not ATTEMPTS.validate_record(record) \
++			or not _SCENE_EVENT._keys(reference, ["attempt_id", "branch_id", "generation"]): return false
++	var live := capture_run_snapshot_input()
++	if reference.branch_id != live.lifecycle.branch_id: return false
++	var retained: Dictionary = profile.get_dating_attempt(str(live.lifecycle.run_id),
++		ATTEMPTS.semantic_slot(record.context), str(reference.attempt_id), str(reference.branch_id))
++	return retained.get("ok", false) and retained.value.generation == reference.generation \
++		and _SCENE_EVENT._equal(retained.value.record, record)
++
++func commit_scene_challenge_checkpoint(record: Dictionary, reference: Dictionary, lease: String) -> Dictionary:
++	if not _scene_challenge_operation.is_empty() or not is_instance_valid(_mutation_gate) \
++			or not _mutation_gate.is_lease_active(&"causal_transaction", lease):
++		return _transaction_failure(&"scene_challenge_lease_required", "")
++	var admitted := capture_scene_challenge_command()
++	if not admitted.ok: return admitted
++	if record.get("context") != admitted.value.command.context \
++			or record.get("completion_transaction_id") != admitted.value.command.completion_transaction_id \
++			or record.get("command_sha256") != admitted.value.command.command_sha256 \
++			or not _scene_challenge_profile_matches(record, reference):
++		return _transaction_failure(&"scene_challenge_profile_mismatch", "")
++	var live := capture_live_session()
++	if not live.ok: return live
++	var candidate := capture_run_snapshot_input().duplicate(true)
++	if candidate.gameplay.route_context.get("active_dating_challenge") != record \
++			or candidate.gameplay.route_context.get("dating_active_attempt_ref") != reference:
++		return _transaction_failure(&"scene_challenge_candidate_mismatch", "")
++	var stable: Dictionary = _scene_save_owner.get_latest_stable_checkpoint()
++	if not stable.get("ok", false): return stable
++	var source: Dictionary = stable.value.bundle.snapshot
++	if source.run_id != candidate.lifecycle.run_id \
++			or not _SCENE_EVENT._equal(source.narrative_checkpoint, admitted.value.checkpoint):
++		return _transaction_failure(&"scene_challenge_source_changed", "")
++	_scene_challenge_operation = {"lease": lease, "session": live.value.duplicate(true),
++		"snapshot": candidate, "checkpoint": admitted.value.checkpoint.duplicate(true),
++		"record": record.duplicate(true), "reference": reference.duplicate(true),
++		"source_sha256": _SCENE_EVENT._sha(source)}
++	var saved: Dictionary = _narrative_checkpoint_port.commit_scene_challenge(candidate.duplicate(true),
++		admitted.value.checkpoint.duplicate(true))
++	_scene_challenge_operation = {}
++	if not saved.get("ok", false) and saved.get("committed", false):
++		return _scene_event_fatal(saved.get("code", &"scene_challenge_commit_uncertain"))
++	return saved
++
++func _validate_scene_challenge_checkpoint(snapshot: Dictionary, checkpoint: Dictionary, phase: String) -> bool:
++	if _scene_challenge_validating or _scene_challenge_operation.is_empty() \
++			or phase not in ["before_prepare", "before_commit", "after_commit"]: return false
++	var operation := _scene_challenge_operation.duplicate(true)
++	if not _mutation_gate.is_lease_active(&"causal_transaction", operation.lease) \
++			or not _SCENE_EVENT._equal(snapshot, operation.snapshot) \
++			or not _SCENE_EVENT._equal(checkpoint, operation.checkpoint): return false
++	_scene_challenge_validating = true
++	var live := capture_live_session()
++	var admitted := capture_scene_challenge_command()
++	var stable: Dictionary = _scene_save_owner.get_latest_stable_checkpoint()
++	var valid: bool = live.get("ok", false) and admitted.get("ok", false) and stable.get("ok", false)
++	if valid:
++		valid = _SCENE_EVENT._equal(live.value, operation.session) \
++			and _SCENE_EVENT._equal(admitted.value.checkpoint, checkpoint) \
++			and _SCENE_EVENT._equal(capture_run_snapshot_input(), snapshot) \
++			and _scene_challenge_profile_matches(operation.record, operation.reference)
++	if valid and phase != "after_commit":
++		valid = _SCENE_EVENT._sha(stable.value.bundle.snapshot) == operation.source_sha256
++	elif valid:
++		var saved: Dictionary = stable.value.bundle.snapshot
++		valid = _SCENE_EVENT._equal(saved.get("narrative_checkpoint"), checkpoint)
++		for key: String in snapshot:
++			if not _SCENE_EVENT._equal(saved.get(key), snapshot[key]): valid = false
++	_scene_challenge_validating = false
++	return valid and _SCENE_EVENT._equal(operation, _scene_challenge_operation) \
++		and _mutation_gate.is_lease_active(&"causal_transaction", operation.lease)
++
+ func configure_scene_checkpoint_source(save_owner: Object) -> Dictionary:
+ 	if not is_instance_valid(save_owner) or not save_owner.has_method("get_latest_stable_checkpoint"):
+ 		return _transaction_failure(&"scene_checkpoint_owner_required", "")
 diff --git a/scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd b/scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd
 index 7b8c42c..8339551 100644
 --- a/scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd
@@ -17,6 +199,155 @@ index 7b8c42c..8339551 100644
  func run_search_slice(frontier: Dictionary) -> Dictionary:
  	var advanced: Dictionary = _GENERATOR.run_debug_slice(frontier)
  	if not advanced.get("ok", false):
+diff --git a/scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd b/scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd
+index e78623c..1338951 100644
+--- a/scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd
++++ b/scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd
+@@ -34,6 +34,7 @@ var _next_source: Dictionary = {}
+ 
+ 
+ func configure(checkpoint_port: Object, providers: Dictionary) -> Dictionary:
++	if not _scene_challenge.is_empty(): return _fail(&"transaction_in_progress", "Challenge owns checkpoint publication")
+ 	if checkpoint_port == null:
+ 		return _fail(&"invalid_checkpoint_port", "checkpoint port is null")
+ 	for method in REAL_PORT_METHODS:
+@@ -240,6 +241,75 @@ func commit_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary) -> D
+ 	return result
+ 
+ 
++# Same held-control persistence has a separate live GameState authority. It never
++# authorizes a line-to-control transition or changes the native reading position.
++var _scene_challenge_authority: Object
++var _scene_challenge_validator: Callable
++var _scene_challenge: Dictionary = {}
++
++func configure_scene_challenge_authority(authority: Object, validator: Callable) -> Dictionary:
++	if not _configured or _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy \
++			or not _scene_entry.is_empty() or not _scene_control.is_empty() \
++			or not is_instance_valid(authority) or not validator.is_valid() \
++			or validator.get_object() != authority or validator.get_argument_count() != 3:
++		return _fail(&"scene_challenge_authority_invalid", "configure the Run owner while idle")
++	if _scene_challenge_authority != null:
++		if _scene_challenge_authority == authority and _scene_challenge_validator == validator: return {"ok": true}
++		return _fail(&"scene_challenge_authority_invalid", "authority replacement refused")
++	_scene_challenge_authority = authority
++	_scene_challenge_validator = validator
++	return {"ok": true}
++
++func commit_scene_challenge(snapshot_input: Dictionary, checkpoint: Dictionary) -> Dictionary:
++	if not _configured or _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy \
++			or not _scene_entry.is_empty() or not _scene_control.is_empty() or not _scene_challenge.is_empty():
++		return {"ok": false, "code": &"scene_challenge_checkpoint_busy", "committed": false}
++	snapshot_input = snapshot_input.duplicate(true)
++	checkpoint = checkpoint.duplicate(true)
++	if checkpoint.get("stage") != "scene" or not checkpoint.get("reading_session") is Dictionary \
++			or typeof(checkpoint.reading_session.get("schema_version")) != TYPE_INT \
++			or checkpoint.reading_session.schema_version != 5 or checkpoint.reading_session.get("boundary") != "control":
++		return {"ok": false, "code": &"scene_challenge_checkpoint_invalid", "committed": false}
++	_next_commit_in_progress = true
++	_scene_challenge = {"input": snapshot_input, "checkpoint": checkpoint,
++		"input_hash": _fingerprint(snapshot_input), "checkpoint_hash": _fingerprint(checkpoint)}
++	var result: Dictionary
++	var captured: Dictionary = _real_port.capture()
++	if not captured.get("ok", false) or not captured.get("value", {}).get("backup") is Dictionary:
++		result = _fail(&"scene_challenge_source_unavailable", "real journal capture required")
++	elif not _scene_reference_valid(_scene_snapshot_reference(_scene_bundle_snapshot(captured.value.backup.get("current")))):
++		result = _fail(&"scene_challenge_source_unavailable", "stable journal source required")
++	else:
++		_scene_challenge["source_hash"] = _fingerprint(captured.value.backup)
++		if _scene_challenge.source_hash.is_empty() or not _scene_challenge_validate("before_prepare"):
++			result = _fail(&"scene_challenge_custody_invalid", "Run owner refused preparation")
++		else:
++			result = _commit_scene_event_autosave(snapshot_input, checkpoint)
++			if result.get("ok", false) and not _scene_challenge_validate("after_commit"):
++				result = {"ok": false, "code": &"scene_challenge_commit_uncertain", "committed": true}
++	_scene_challenge = {}
++	_next_commit_in_progress = false
++	if not result.get("ok", false) and not result.has("committed") and not result.get("rolled_back", false):
++		result["committed"] = false
++	return result
++
++func _scene_challenge_validate(phase: String) -> bool:
++	if _scene_callback_busy or _scene_challenge.is_empty() or not _next_commit_in_progress \
++			or not is_instance_valid(_scene_challenge_authority) or not _scene_challenge_validator.is_valid(): return false
++	_scene_callback_busy = true
++	var checked: Variant = _scene_challenge_validator.call(_scene_challenge.input.duplicate(true),
++		_scene_challenge.checkpoint.duplicate(true), phase)
++	_scene_callback_busy = false
++	return typeof(checked) == TYPE_BOOL and checked == true \
++		and not _scene_challenge.input_hash.is_empty() and not _scene_challenge.checkpoint_hash.is_empty() \
++		and _fingerprint(_scene_challenge.input) == _scene_challenge.input_hash \
++		and _fingerprint(_scene_challenge.checkpoint) == _scene_challenge.checkpoint_hash
++
++func _scene_challenge_source_matches(captured: Dictionary) -> bool:
++	return captured.get("ok", false) and captured.get("value", {}).get("backup") is Dictionary \
++		and _fingerprint(captured.value.backup) == _scene_challenge.get("source_hash", "")
++
++
+ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictionary) -> Dictionary:
+ 	if not _scene_control.is_empty() and not _scene_control_validate("commit"):
+ 		return _fail(&"scene_control_custody_invalid", "source changed before preparation")
+@@ -262,6 +332,8 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
+ 	var inputs := _checkpoint_inputs(active.value, audio.value, content.value, checkpoint, route.value, snapshot_input)
+ 	var captured: Dictionary = _real_port.capture()
+ 	if not captured.get("ok", false): return captured
++	if not _scene_challenge.is_empty() and not _scene_challenge_source_matches(captured):
++		return _fail(&"scene_challenge_source_changed", "journal changed before preparation")
+ 	if not _scene_control_source_matches(captured):
+ 		return _fail(&"scene_control_source_changed", "the saved source was replaced")
+ 	if not _scene_entry.is_empty():
+@@ -306,6 +378,18 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
+ 		if not _scene_control_validate("commit") or _fingerprint(candidate) != candidate_hash \
+ 				or not _scene_route_candidate_valid(candidate, snapshot_input, checkpoint):
+ 			return _fail(&"scene_control_custody_invalid", "candidate changed before commit")
++	if not _scene_challenge.is_empty():
++		if not _scene_challenge_validate("before_commit"):
++			return _fail(&"scene_challenge_custody_invalid", "Run owner refused commit")
++		var challenge_source: Dictionary = _real_port.capture()
++		if not _scene_challenge_source_matches(challenge_source):
++			return _fail(&"scene_challenge_source_changed", "journal changed before commit")
++		# Final callbacks may not change either the admitted bytes or lower candidate.
++		if _fingerprint(snapshot_input) != _scene_challenge.input_hash \
++				or _fingerprint(checkpoint) != _scene_challenge.checkpoint_hash \
++				or _fingerprint(candidate) != candidate_hash \
++				or not _scene_route_candidate_valid(candidate, snapshot_input, checkpoint):
++			return _fail(&"scene_challenge_candidate_changed", "candidate changed before commit")
+ 	var committed: Dictionary = _real_port.commit(candidate)
+ 	if guarded_candidate and _fingerprint(candidate) != candidate_hash:
+ 		return {"ok": false, "code": &"scene_entry_commit_uncertain", "committed": true}
+@@ -320,7 +404,7 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
+ 		var rolled: Dictionary = _real_port.rollback({"journal_backup": captured.value.backup,
+ 			"storage_backup": candidate.storage_backup})
+ 		if not rolled.get("ok", false):
+-			if _scene_entry.is_empty() and _scene_control.is_empty(): return rolled
++			if _scene_entry.is_empty() and _scene_control.is_empty() and _scene_challenge.is_empty(): return rolled
+ 			var uncertain := rolled.duplicate(true)
+ 			uncertain["committed"] = true
+ 			return uncertain
+@@ -684,6 +768,7 @@ func prepare_candidate(owner_id: StringName, snapshot_input: Dictionary, transac
+ 
+ 
+ func commit(owner_id: StringName, candidate: Dictionary) -> Dictionary:
++	if not _scene_challenge.is_empty(): return _fail(&"transaction_in_progress", "Challenge owns checkpoint publication")
+ 	if _active_owner == &"" or owner_id != _active_owner:
+ 		return _fail(&"invalid_owner", str(owner_id))
+ 	if _fingerprint(candidate) != str(_active_candidate.get("hash", "")):
+@@ -697,6 +782,7 @@ func commit(owner_id: StringName, candidate: Dictionary) -> Dictionary:
+ 
+ 
+ func rollback(owner_id: StringName, backup: Dictionary) -> Dictionary:
++	if not _scene_challenge.is_empty(): return _fail(&"transaction_in_progress", "Challenge owns checkpoint publication")
+ 	if _active_owner == &"" or owner_id != _active_owner:
+ 		return _fail(&"invalid_owner", str(owner_id))
+ 	var rolled: Dictionary = _real_port.rollback(backup)
+@@ -808,6 +894,7 @@ var _marker_authority: Object
+ var _marker_validator: Callable
+ 
+ func configure_marker_handoff(authority: Object, validator: Callable) -> Dictionary:
++	if not _scene_challenge.is_empty(): return _fail(&"transaction_in_progress", "Challenge owns checkpoint publication")
+ 	if authority == null or not validator.is_valid() or validator.get_object() != authority \
+ 			or (_marker_authority != null and (_marker_authority != authority or _marker_validator != validator)):
+ 		return _fail(&"event_handoff_authority_invalid", "")
 diff --git a/scripts/application/run/DatingChallengeEnvelope.gd b/scripts/application/run/DatingChallengeEnvelope.gd
 index 0a1b576..d04fbe3 100644
 --- a/scripts/application/run/DatingChallengeEnvelope.gd
@@ -61,7 +392,7 @@ index 0a1b576..d04fbe3 100644
  		and (old.forced_cell < 0 or old.forced_cell == current.forced_cell) \
  		and (old.special_cell < 0 or old.special_cell == current.special_cell)
 diff --git a/scripts/application/run/DatingPhysicalOwner.gd b/scripts/application/run/DatingPhysicalOwner.gd
-index 411e0b1..744ad16 100644
+index 411e0b1..d5a92d1 100644
 --- a/scripts/application/run/DatingPhysicalOwner.gd
 +++ b/scripts/application/run/DatingPhysicalOwner.gd
 @@ -181,6 +181,42 @@ func pull_physical(physical_token: String) -> Dictionary:
@@ -246,6 +577,33 @@ index 411e0b1..744ad16 100644
  	else: return _fail(&"scene_preparation_result_invalid")
  	return _ok({})
  
+@@ -1718,7 +1816,7 @@ func _scene_checkpoint() -> Dictionary:
+ 	var applied := _apply_record_effect(true)
+ 	if not applied.ok: return applied
+ 	_scene_checkpoint_in_flight = true
+-	var saved: Dictionary = _scene_authority.commit_scene_challenge_checkpoint(_record.duplicate(true), _history_reference.duplicate(true))
++	var saved: Dictionary = _scene_authority.commit_scene_challenge_checkpoint(_record.duplicate(true), _history_reference.duplicate(true), _scene_lease)
+ 	_scene_checkpoint_in_flight = false
+ 	if not saved.get("ok", false):
+ 		_retain_scene_failure_custody(saved)
+@@ -1831,14 +1929,17 @@ func _flush_scene_pending() -> Dictionary:
+ 	if not closed.value.is_empty(): return _ok({"committed": false})
+ 	if _record.is_empty() or (_history_committed and not _routine_pending and _pending_checkpoint.is_empty()): return _ok({"committed": false})
+ 	var lease := {}
++	var prior_lease := _scene_lease
+ 	if not _attempt_gate.is_internal_owner_active(&"causal_transaction"):
+ 		lease = _attempt_gate.acquire(&"causal_transaction")
+ 		if not lease.ok: return lease
++		_scene_lease = str(lease.value.token)
+ 	var result := _ok({})
+ 	if _pending_checkpoint.is_empty():
+ 		result = _commit_attempt()
+ 		if result.ok: _pending_checkpoint = _record.duplicate(true)
+ 	if result.ok: result = _scene_checkpoint()
++	_scene_lease = prior_lease
+ 	if not lease.is_empty():
+ 		var released: Dictionary = _attempt_gate.release(&"causal_transaction", str(lease.value.token))
+ 		if not released.ok: return released
 diff --git a/scripts/domain/minesweeper/MinesweeperBoardGenerator.gd b/scripts/domain/minesweeper/MinesweeperBoardGenerator.gd
 index 9caf5c2..ec8d917 100644
 --- a/scripts/domain/minesweeper/MinesweeperBoardGenerator.gd
@@ -373,10 +731,215 @@ index dce0bc4..eb4af43 100644
  	if not prepared.ok: return prepared
  	var attempt: Dictionary = prepared.value.attempt
  	attempt["generation"] = original.generation
+diff --git a/tests/integration/scene_first_reveal_connected_child.gd b/tests/integration/scene_first_reveal_connected_child.gd
+new file mode 100644
+index 0000000..6a116d3
+--- /dev/null
++++ b/tests/integration/scene_first_reveal_connected_child.gd
+@@ -0,0 +1,163 @@
++extends "res://addons/gut/test.gd"
++## Cloud child shared body. A selected Load creates a branch; never claim same-branch restart.
++const FIXTURE := preload("res://tests/support/SceneFirstRevealConnectedFixture.gd")
++const PARSER := preload("res://scripts/validation/StrictJson.gd")
++const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
++const SAVE_SCHEMA := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
++var fixture: RefCounted
++var fixture_ready := false
++
++func before_all() -> void:
++	fixture = FIXTURE.new()
++	var checked: Dictionary = await fixture.setup_connected(get_tree())
++	assert_true(checked.get("ok", false), str(checked))
++	fixture_ready = checked.get("ok", false)
++
++func after_all() -> void:
++	if fixture != null: await fixture.close_restart()
++
++func create_connected(mode: String) -> void:
++	if not fixture_ready: return
++	assert_false(fixture.storage.exists("autosave.json"))
++	var started: Dictionary = await fixture.begin_playable_source()
++	if not _ok(started): return
++	if not _ok(fixture.dispatch()): return
++	var original: Dictionary = fixture.storage.read_text("autosave.json")
++	if not _ok(original): return
++	if not _ok(fixture.admit_challenge()): return
++	assert_eq(fixture.panel().value.phase, "never_started")
++	assert_eq(fixture.challenge_record(), {})
++	var writes: int = fixture.files.autosave_writes
++	var forged: Dictionary = fixture.challenge_command.duplicate(true)
++	forged.command_sha256 = "0".repeat(64)
++	var bundle: Dictionary = fixture.game.capture_scene_challenge_command().value.bundle
++	assert_false(fixture.game.validate_scene_challenge_command(forged, bundle).ok)
++	assert_false(fixture.game.commit_scene_challenge_checkpoint({}, {}, "").ok)
++	var checkpoint: Dictionary = fixture.bridge.capture_reading_checkpoint(false)
++	if not _ok(checkpoint): return
++	var unauthorized: Dictionary = fixture.checkpoint_port.commit_scene_challenge(
++		fixture.game.capture_run_snapshot_input(), checkpoint.value)
++	assert_false(unauthorized.ok, "a held control dictionary alone is not save authority")
++	assert_eq(fixture.files.autosave_writes, writes)
++	assert_eq(fixture.challenge_record(), {})
++	fixture.files.refuse_on = writes + 1
++	var refused: Dictionary = fixture.reveal()
++	assert_false(refused.get("ok", false), str(refused))
++	assert_true(refused.get("rolled_back", false), str(refused))
++	assert_false(refused.get("committed", false), str(refused))
++	assert_eq(fixture.files.refused, 1)
++	if refused.get("ok", false) or not refused.get("rolled_back", false) or fixture.files.refused != 1: return
++	assert_eq(fixture.storage.read_text("autosave.json").value, original.value)
++	var attempt_result: Dictionary = fixture.challenge_attempt()
++	if not _ok(attempt_result): return
++	var attempt: Dictionary = attempt_result.value.duplicate(true)
++	assert_false(attempt.is_empty())
++	if attempt.is_empty(): return
++	assert_eq(attempt.revision, 1)
++	assert_true(attempt.get("materialization_receipt") is Dictionary, "first Reveal retained a real materialization receipt")
++	if not attempt.get("materialization_receipt") is Dictionary: return
++	assert_eq(attempt.materialization_receipt.first_cell_index, 323)
++	assert_eq(attempt.record.phase, "active", "real generated first Reveal must leave this deterministic fixture unfinished")
++	if attempt.record.phase != "active": return
++	assert_true(attempt.record.board.revealed_indices.has(323))
++	assert_eq(fixture.panel().value.phase, "checkpoint_retry")
++	if mode == "normal":
++		var retried: Dictionary = fixture.physical.dispatch_scene_panel_action(fixture.challenge_token,
++			"retry", -1, int(fixture.panel().value.revision))
++		if not _ok(retried): return
++		assert_eq(fixture.challenge_attempt().value, attempt)
++		assert_eq(fixture.challenge_record(), attempt.record)
++		var durable_before: String = fixture.storage.read_text("autosave.json").value
++		var profile_before: Dictionary = fixture.profile_bytes()
++		writes = fixture.files.autosave_writes
++		if not _ok(fixture.reveal()): return
++		assert_eq(fixture.files.autosave_writes, writes, "duplicate first Reveal is write-free")
++		assert_eq(fixture.profile_bytes(), profile_before)
++		assert_eq(fixture.storage.read_text("autosave.json").value, durable_before)
++		assert_eq(fixture.challenge_attempt().value, attempt)
++	elif mode != "profile_ahead":
++		fail_test("unknown connected mode")
++		return
++	var document: Dictionary = fixture.read_autosave()
++	if not _ok(document): return
++	if not _ok(SAVE_SCHEMA.validate(document.value)): return
++	var snapshot: Dictionary = document.value.current_snapshot.snapshot
++	var saved_record: Dictionary = snapshot.gameplay.route_context.get("active_dating_challenge", {})
++	assert_eq(saved_record, attempt.record if mode == "normal" else {})
++	var proof := {"phase": "create", "mode": mode, "process_id": OS.get_process_id(),
++		"storage_root": fixture.storage.describe_root(), "autosave_sha256": str(fixture.storage.read_text("autosave.json").value).sha256_text(),
++		"attempt": attempt, "saved_record": saved_record, "checkpoint": snapshot.narrative_checkpoint,
++		"profile_files": fixture.profile_bytes(), "source_branch": snapshot.lifecycle.branch_id,
++		"scope": "real_Profile_Run_native_owners_selected_Load_in_TEST_host_no_rendered_panel"}
++	write_proof(proof, true)
++
++func load_connected() -> void:
++	if not fixture_ready: return
++	var path: String = fixture.storage.describe_root().path_join("first-reveal-connected-witness.json")
++	assert_true(FileAccess.file_exists(path))
++	if not FileAccess.file_exists(path): return
++	var read: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string(path))
++	if not _ok(read): return
++	var witness: Dictionary = read.value
++	assert_ne(OS.get_process_id(), int(witness.process_id), "fresh OS process")
++	assert_eq(fixture.storage.describe_root(), witness.storage_root)
++	if not _ok(fixture.storage.reconcile("autosave.json", Callable(fixture.manager, "_document_text_validator"))): return
++	var bytes: Dictionary = fixture.storage.read_text("autosave.json")
++	if not _ok(bytes): return
++	assert_eq(str(bytes.value).sha256_text(), witness.autosave_sha256)
++	assert_eq(fixture.profile_bytes(), witness.profile_files)
++	var prepared: Dictionary = fixture.manager.prepare_restore_autosave()
++	if not _ok(prepared): return
++	var started: Dictionary = fixture.manager.commit_prepared_restore(prepared.value.prepared)
++	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
++	if started.get("code") != &"scene_activation_pending": return
++	var activated: Dictionary = await fixture.await_activation()
++	if not _ok(activated): return
++	assert_eq(fixture.ready_count, 1)
++	var current: Dictionary = fixture.game.capture_run_snapshot_input()
++	assert_ne(current.lifecycle.branch_id, witness.source_branch, "selected Load allocates a branch")
++	assert_eq(fixture.bridge._reading_session.boundary, "control")
++	var native: Dictionary = fixture.adapter.capture_scene_control_position(fixture.bridge._reading_session)
++	if not _ok(native): return
++	assert_eq(native.value, witness.checkpoint.reading_session)
++	var admitted: Dictionary = fixture.admit_challenge()
++	if witness.mode == "profile_ahead":
++		# Selected Load is a new branch, not same-operation crash recovery. Until
++		# real selected-absence authority exists it must refuse instead of importing
++		# the source branch's later Profile record.
++		assert_false(admitted.get("ok", false), str(admitted))
++		assert_eq(admitted.get("code"), &"scene_attempt_recovery_required")
++		if admitted.get("ok", false): return
++	elif not _ok(admitted): return
++	assert_eq(fixture.challenge_record(), witness.saved_record, "selected snapshot imports no future progress")
++	var source_attempt: Dictionary = fixture.challenge_attempt(witness.source_branch)
++	if not _ok(source_attempt): return
++	assert_eq(source_attempt.value, witness.attempt, "source Profile attempt remains exact")
++	if witness.mode == "normal": assert_eq(fixture.panel().value.phase, "active")
++	assert_eq(fixture.profile_bytes(), witness.profile_files, "readmission is read-only")
++	assert_eq(fixture.files.autosave_writes, 0)
++	assert_eq(fixture.storage.read_text("autosave.json").value, bytes.value)
++	assert_eq(fixture.native_markers, [])
++	var proof: Dictionary = witness.duplicate(true)
++	proof.phase = "load"
++	proof["creator_process_id"] = witness.process_id
++	proof.process_id = OS.get_process_id()
++	write_proof(proof, false)
++
++func _ok(result: Dictionary) -> bool:
++	assert_true(result.get("ok", false), str(result))
++	return result.get("ok", false)
++
++func write_proof(proof: Dictionary, witness: bool) -> void:
++	var encoded: Dictionary = WRITER.stringify(proof)
++	if not _ok(encoded): return
++	assert_eq(DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://.godot/ci")), OK)
++	var paths: Array[String] = ["res://.godot/ci/first-reveal-connected-" + str(proof.mode) + "-" + str(proof.phase) + ".json"]
++	if witness: paths.append(fixture.storage.describe_root().path_join("first-reveal-connected-witness.json"))
++	for path: String in paths:
++		var file := FileAccess.open(path, FileAccess.WRITE)
++		assert_not_null(file)
++		if file == null: return
++		file.store_string(str(encoded.value) + "\n")
++		file.flush()
++		file.close()
+diff --git a/tests/integration/test_scene_first_reveal_connected_ahead.gd b/tests/integration/test_scene_first_reveal_connected_ahead.gd
+new file mode 100644
+index 0000000..a3ae18d
+--- /dev/null
++++ b/tests/integration/test_scene_first_reveal_connected_ahead.gd
+@@ -0,0 +1,3 @@
++extends "res://tests/integration/scene_first_reveal_connected_child.gd"
++func test_first_reveal_profile_ahead_of_refused_run_write() -> void:
++	await create_connected("profile_ahead")
+diff --git a/tests/integration/test_scene_first_reveal_connected_create.gd b/tests/integration/test_scene_first_reveal_connected_create.gd
+new file mode 100644
+index 0000000..dc5df28
+--- /dev/null
++++ b/tests/integration/test_scene_first_reveal_connected_create.gd
+@@ -0,0 +1,3 @@
++extends "res://tests/integration/scene_first_reveal_connected_child.gd"
++func test_first_reveal_real_two_store_retry_and_save() -> void:
++	await create_connected("normal")
+diff --git a/tests/integration/test_scene_first_reveal_connected_load.gd b/tests/integration/test_scene_first_reveal_connected_load.gd
+new file mode 100644
+index 0000000..d5a16b3
+--- /dev/null
++++ b/tests/integration/test_scene_first_reveal_connected_load.gd
+@@ -0,0 +1,3 @@
++extends "res://tests/integration/scene_first_reveal_connected_child.gd"
++func test_first_reveal_selected_load_preserves_exact_saved_prefix() -> void:
++	await load_connected()
 diff --git a/tests/support/SceneChallengeFixture.gd b/tests/support/SceneChallengeFixture.gd
-index 8ebf2a7..a3c6ab8 100644
+index 8ebf2a7..2fcdf22 100644
 --- a/tests/support/SceneChallengeFixture.gd
 +++ b/tests/support/SceneChallengeFixture.gd
+@@ -63,7 +63,7 @@ class Authority extends RefCounted:
+ 		return {"ok": held_end, "code": &"TEST.end_not_held", "value": {}}
+ 	func capture_scene_challenge_closure(_context: Dictionary) -> Dictionary:
+ 		return {"ok": true, "value": closures.get(state.lifecycle.branch_id, {}).duplicate(true)}
+-	func commit_scene_challenge_checkpoint(record: Dictionary, reference: Dictionary) -> Dictionary:
++	func commit_scene_challenge_checkpoint(record: Dictionary, reference: Dictionary, _lease: String = "") -> Dictionary:
+ 		var retained: Dictionary = profile.get_dating_attempt(state.lifecycle.run_id, LEDGER.semantic_slot(record.context), reference.attempt_id, reference.branch_id)
+ 		if not retained.ok or retained.value.record != record: return {"ok": false, "code": &"TEST.profile_not_before_run"}
+ 		if not checkpoint_failure.is_empty(): return checkpoint_failure.duplicate(true)
 @@ -87,6 +87,8 @@ class Authority extends RefCounted:
  class Generation extends "res://tests/support/FakeMinesweeperGenerationPort.gd":
  	func begin_search(spec: Dictionary) -> Dictionary:
@@ -386,6 +949,59 @@ index 8ebf2a7..a3c6ab8 100644
  
  var state := State.new()
  var profile: Node
+diff --git a/tests/support/SceneFirstRevealConnectedFixture.gd b/tests/support/SceneFirstRevealConnectedFixture.gd
+new file mode 100644
+index 0000000..f38e44b
+--- /dev/null
++++ b/tests/support/SceneFirstRevealConnectedFixture.gd
+@@ -0,0 +1,47 @@
++extends "res://tests/support/ScenePlayableFixture.gd"
++## Real Profile, generation, physical owner, GameState, native Bridge and Save owners.
++## Parent supplies TEST-authored content and diagnostic ancillary restore participants.
++const PHYSICAL := preload("res://scripts/application/run/DatingPhysicalOwner.gd")
++const GENERATION := preload("res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd")
++const ATTEMPTS := preload("res://scripts/profile/DatingAttemptLedger.gd")
++var physical: RefCounted
++var challenge_command: Dictionary = {}
++var challenge_token := ""
++
++func setup_connected(scene_tree: SceneTree) -> Dictionary:
++	var checked: Dictionary = await setup_playable(scene_tree)
++	if not checked.ok: return checked
++	checked = game.configure_scene_challenge_runtime()
++	if not checked.ok: return checked
++	physical = PHYSICAL.new()
++	checked = physical.configure(issuer, game, profile, GENERATION.new())
++	if checked.ok: checked = physical.configure_attempt_history(gate)
++	if checked.ok: checked = game.configure_dating_restore_reconciler(Callable(physical, "reconcile_restore_silent"))
++	return checked
++
++func admit_challenge() -> Dictionary:
++	var captured: Dictionary = game.capture_scene_challenge_command()
++	if not captured.get("ok", false): return captured
++	var bound: Dictionary = physical.configure_scene_challenges(captured.value.bundle, game)
++	if not bound.get("ok", false): return bound
++	challenge_command = captured.value.command.duplicate(true)
++	var begun: Dictionary = physical.begin_physical(challenge_command)
++	if begun.get("ok", false): challenge_token = begun.value.physical_token
++	return begun
++
++func reveal() -> Dictionary:
++	return physical.dispatch_scene_panel_action(challenge_token, "reveal", 323, 0)
++
++func panel() -> Dictionary:
++	return physical.pull_scene_panel(challenge_token)
++
++func challenge_record() -> Dictionary:
++	return game.capture_dating_challenge_state().value
++
++func challenge_attempt(branch: String = "") -> Dictionary:
++	var identity: Dictionary = game.capture_run_snapshot_input().lifecycle
++	return profile.get_dating_attempt(identity.run_id, ATTEMPTS.semantic_slot(challenge_command.context), "", branch)
++
++func close_restart() -> void:
++	await super.close_restart()
++	physical = null
 diff --git a/tests/unit/test_scene_absence.gd b/tests/unit/test_scene_absence.gd
 index b4248f8..5322cbd 100644
 --- a/tests/unit/test_scene_absence.gd

@@ -1,4 +1,4 @@
-name: Scene first Reveal resumable candidate
+name: Scene first Reveal connected save candidate
 
 on:
   pull_request:
@@ -52,13 +52,13 @@ jobs:
           assert git('rev-parse','HEAD') == base
           assert git('ls-remote','origin','refs/heads/codex/scene-runtime-integration-20261009').split()[0] == base
           patch = pathlib.Path('../controller/tools/cloud/scene-first-reveal-resumable.patch').read_bytes()
-          assert hashlib.sha256(patch).hexdigest() == '73e2f70134f58d8500813ebf63677bbd7f3110dd11a0216c5de3aca463b48e84'
+          assert hashlib.sha256(patch).hexdigest() == 'c2f89c7d48b7c4df14754b2d0a9f93b8081d9c02f5460a18e7afff194822a54d'
           out = pathlib.Path('.godot/ci'); out.mkdir(parents=True, exist_ok=True)
           (out/'candidate.patch').write_bytes(patch)
           subprocess.run(['git','apply','--index','--binary',str(out/'candidate.patch')], check=True)
           subprocess.run(['git','diff','--cached','--check'], check=True)
           paths = git('diff','--cached','--name-only').splitlines()
-          assert paths == ['scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd', 'scripts/application/run/DatingChallengeEnvelope.gd', 'scripts/application/run/DatingPhysicalOwner.gd', 'scripts/domain/minesweeper/MinesweeperBoardGenerator.gd', 'scripts/profile/DatingAttemptLedger.gd', 'tests/support/SceneChallengeFixture.gd', 'tests/unit/test_scene_absence.gd', 'tests/unit/test_scene_first_reveal.gd']
+          assert paths == ['autoload/DialogicBridge.gd', 'autoload/GameState.gd', 'scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd', 'scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd', 'scripts/application/run/DatingChallengeEnvelope.gd', 'scripts/application/run/DatingPhysicalOwner.gd', 'scripts/domain/minesweeper/MinesweeperBoardGenerator.gd', 'scripts/profile/DatingAttemptLedger.gd', 'tests/integration/scene_first_reveal_connected_child.gd', 'tests/integration/test_scene_first_reveal_connected_ahead.gd', 'tests/integration/test_scene_first_reveal_connected_create.gd', 'tests/integration/test_scene_first_reveal_connected_load.gd', 'tests/support/SceneChallengeFixture.gd', 'tests/support/SceneFirstRevealConnectedFixture.gd', 'tests/unit/test_scene_absence.gd', 'tests/unit/test_scene_first_reveal.gd']
           receipt = {'base':base,'controller':os.environ['CONTROLLER_SHA'],'patch_sha256':hashlib.sha256(patch).hexdigest(),'paths':paths,'publication':'disabled diagnostic'}
           (out/'candidate-origin.json').write_text(json.dumps(receipt,indent=2),encoding='utf-8')
           '@ | python -
@@ -107,13 +107,10 @@ jobs:
           $runner = './tools/testing/Invoke-IsolatedGodot.ps1'
           $failed = $false
           $tests = @(
-            @('first-reveal','tests/unit/test_scene_first_reveal.gd'),
-            @('absence','tests/unit/test_scene_absence.gd'),
             @('challenge','tests/unit/test_scene_challenge.gd'),
             @('playable-preparation','tests/unit/test_scene_playable_preparation.gd'),
             @('checkpoint','tests/unit/test_scene_checkpoint_ack.gd'),
-            @('profile-attempts','tests/unit/test_profile_dating_attempts.gd'),
-            @('profile-branches','tests/unit/test_profile_dating_branches.gd')
+            @('legacy-checkpoint','tests/unit/test_save_manager_narrative_checkpoint_port.gd')
           )
           foreach ($entry in $tests) {
             $name = $entry[0]
@@ -131,6 +128,13 @@ jobs:
             & $runner -SuiteId "playable-$mode" -LogName "$mode-create.log" -GodotArgs $create -NextLogName "$mode-load.log" -NextGodotArgs $load -EvidenceLogPath ".godot/ci/$mode.jsonl" -TimeoutSeconds 240 -KeepRoot
             if ($LASTEXITCODE -ne 0) { $failed = $true }
           }
+          foreach ($mode in @('normal','profile_ahead')) {
+            $child = if ($mode -eq 'normal') { 'create' } else { 'ahead' }
+            $create = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=',"-gtest=res://tests/integration/test_scene_first_reveal_connected_$child.gd",'-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/connected-$mode-create.xml")
+            $load = @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_scene_first_reveal_connected_load.gd','-gexit','-glog=2',"-gjunit_xml_file=res://.godot/ci/connected-$mode-load.xml")
+            & $runner -SuiteId "connected-$mode" -LogName "connected-$mode-create.log" -GodotArgs $create -NextLogName "connected-$mode-load.log" -NextGodotArgs $load -EvidenceLogPath ".godot/ci/connected-$mode.jsonl" -TimeoutSeconds 600 -KeepRoot
+            if ($LASTEXITCODE -ne 0) { $failed = $true }
+          }
           if ($failed) { throw 'One or more focused engine children failed' }
 
       - name: Verify executed census and source identity
@@ -146,17 +150,17 @@ jobs:
 
           out = pathlib.Path('.godot/ci')
           suites = {
-              'first-reveal':'tests/unit/test_scene_first_reveal.gd',
-              'absence':'tests/unit/test_scene_absence.gd',
               'challenge':'tests/unit/test_scene_challenge.gd',
               'playable-preparation':'tests/unit/test_scene_playable_preparation.gd',
               'checkpoint':'tests/unit/test_scene_checkpoint_ack.gd',
-              'profile-attempts':'tests/unit/test_profile_dating_attempts.gd',
-              'profile-branches':'tests/unit/test_profile_dating_branches.gd',
+              'legacy-checkpoint':'tests/unit/test_save_manager_narrative_checkpoint_port.gd',
           }
           for mode in ['normal','dropped_ack','native_refusal']:
               suites[mode+'-create'] = 'tests/integration/test_scene_playable_'+('create' if mode=='normal' else mode)+'.gd'
               suites[mode+'-load'] = 'tests/integration/test_scene_playable_load.gd'
+          for mode in ['normal','profile_ahead']:
+              suites['connected-'+mode+'-create'] = 'tests/integration/test_scene_first_reveal_connected_'+('create' if mode=='normal' else 'ahead')+'.gd'
+              suites['connected-'+mode+'-load'] = 'tests/integration/test_scene_first_reveal_connected_load.gd'
           counts = {}
           for lane, script in suites.items():
               expected = re.findall(r'^func (test_\w+)\(', pathlib.Path(script).read_text(encoding='utf-8'), re.M)
@@ -177,7 +181,7 @@ jobs:
               'lanes':counts,
               'total_cases':sum(v['cases'] for v in counts.values()),
               'total_xml_assertions':sum(v['assertions'] for v in counts.values()),
-              'scope':'diagnostic atomic first-Reveal Profile admission plus prior real-file playable save/Load regressions; no publication and no rendered fixed-panel acceptance',
+              'scope':'connected real Profile/Run first-Reveal refusal/retry and selected unfinished Load; selected pre-Reveal negative no-future-import only; no rendered panel or full recovery acceptance',
           }
           (out/'gate.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
           print(json.dumps(result))
