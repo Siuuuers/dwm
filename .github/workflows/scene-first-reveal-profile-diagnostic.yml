@@ -107,7 +107,7 @@ jobs:
           $runner = './tools/testing/Invoke-IsolatedGodot.ps1'
           $failed = $false
           $tests = @(
-            @('style-refusal','tests/integration/test_scene_caption_style_refusal.gd')
+            ,@('style-refusal','tests/integration/test_scene_caption_style_refusal.gd')
           )
           foreach ($entry in $tests) {
             $name = $entry[0]
